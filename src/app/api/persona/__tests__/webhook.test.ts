@@ -231,4 +231,84 @@ describe("POST /api/persona/webhook", () => {
     // invoked — the early-return on P2002 prevents reaching step 5.
     expect(mockUpdateMany).not.toHaveBeenCalled();
   });
+
+  // ---------------------------------------------------------------------------
+  // Lot 2 — referenceId robustness
+  // ---------------------------------------------------------------------------
+
+  it("returns 200 { status: 'missing_reference_id' } without persisting or approving when reference-id is absent (terminal status)", async () => {
+    const payloadNoRef = JSON.stringify({
+      data: {
+        id: "inq_noref",
+        type: "inquiry",
+        attributes: {
+          status: "completed", // terminal — the dangerous case
+          // no "reference-id" key at all
+        },
+      },
+    });
+
+    const { POST } = await import("../webhook/route");
+    const { NextRequest } = await import("next/server");
+
+    const ts = String(Math.floor(Date.now() / 1000));
+    const sig = buildSignature(SECRET, ts, payloadNoRef);
+
+    const req = new NextRequest("http://localhost/api/persona/webhook", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "persona-signature": sig,
+      },
+      body: payloadNoRef,
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+
+    const json = (await res.json()) as { status: string; inquiryId: string };
+    expect(json.status).toBe("missing_reference_id");
+    expect(json.inquiryId).toBe("inq_noref");
+
+    // No fabricated "unknown" KycEvent is written…
+    expect(mockCreate).not.toHaveBeenCalled();
+    // …and no silent investor approval happens.
+    expect(mockUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it("treats null / whitespace reference-id the same as absent (no 'unknown' userId)", async () => {
+    const payloadBlankRef = JSON.stringify({
+      data: {
+        id: "inq_blankref",
+        type: "inquiry",
+        attributes: {
+          status: "approved",
+          "reference-id": "   ", // whitespace-only → not resolvable
+        },
+      },
+    });
+
+    const { POST } = await import("../webhook/route");
+    const { NextRequest } = await import("next/server");
+
+    const ts = String(Math.floor(Date.now() / 1000));
+    const sig = buildSignature(SECRET, ts, payloadBlankRef);
+
+    const req = new NextRequest("http://localhost/api/persona/webhook", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "persona-signature": sig,
+      },
+      body: payloadBlankRef,
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+
+    const json = (await res.json()) as { status: string };
+    expect(json.status).toBe("missing_reference_id");
+    expect(mockCreate).not.toHaveBeenCalled();
+    expect(mockUpdateMany).not.toHaveBeenCalled();
+  });
 });

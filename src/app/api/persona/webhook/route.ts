@@ -113,13 +113,46 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const inquiryId = parsed.data.id;
   const status = parsed.data.attributes.status;
-  const referenceId = parsed.data.attributes["reference-id"] ?? null;
+  const rawReferenceId = parsed.data.attributes["reference-id"];
+  // Normalise: treat null / "" / whitespace-only as "no resolvable user".
+  const referenceId =
+    typeof rawReferenceId === "string" && rawReferenceId.trim() !== ""
+      ? rawReferenceId.trim()
+      : null;
+
+  // 3b. No resolvable referenceId → we cannot tie this inquiry to a User.
+  //
+  // We refuse to fabricate a `userId="unknown"` KycEvent: it carries no business
+  // value, pollutes the [userId, receivedAt] index, and — because `inquiryId` is
+  // a UNIQUE column — a bogus "unknown" row would block the real, referenceId-
+  // bearing event for the same inquiry from ever being inserted (P2002).
+  //
+  // Critically, a terminal status here would otherwise reach markKycComplete and
+  // silently no-op (userId === "unknown"), so the investor is NEVER approved
+  // while Persona believes the handoff succeeded. That silent gap is the bug.
+  //
+  // Response: 200 (NOT 4xx). The payload is well-formed and HMAC-valid; the
+  // fault is a Persona template misconfiguration (reference-id not wired). A 4xx
+  // would make Persona retry forever without ever fixing the missing field, so
+  // we ACK with an explicit machine-readable status and log loudly for ops to
+  // investigate — mirroring how duplicate / persist-failure paths also 200+log.
+  if (referenceId === null) {
+    console.error(
+      `[persona/webhook] Missing reference-id — cannot resolve investor. ` +
+        `inquiryId=${inquiryId} status=${status}. No KycEvent written, no ` +
+        `approval applied. Check the Persona inquiry template wiring.`,
+    );
+    return NextResponse.json(
+      { status: "missing_reference_id", inquiryId },
+      { status: 200 },
+    );
+  }
 
   // 4. Persist event in KycEvent
   try {
     await prisma.kycEvent.create({
       data: {
-        userId: referenceId ?? "unknown",
+        userId: referenceId,
         inquiryId,
         status,
         // Prisma Json accepts `object` directly; we parse then cast via
