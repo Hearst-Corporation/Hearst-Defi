@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createPublicClient, http } from "viem";
+import { createPublicClient, getAddress, http, type Address } from "viem";
 import { baseSepolia } from "viem/chains";
 
 const DEFAULT_RPC_URL = "https://sepolia.base.org";
@@ -36,12 +36,40 @@ export function getPublicClient(): ChainClient {
   return cachedClient;
 }
 
-function parseAddress(raw: string | undefined): `0x${string}` | null {
+/**
+ * Parse and checksum-validate an EVM address from env.
+ *
+ * Returns the EIP-55 checksummed address, or `null` when unset/blank. A value
+ * that is present but malformed is treated as a configuration error and throws
+ * — we never accept a typo'd address silently and let it fail opaquely inside a
+ * later `readContract` call.
+ *
+ * `viem.getAddress` does the heavy lifting:
+ *   - all-lowercase / all-uppercase input (the common `.env` case) → normalised
+ *     to the canonical EIP-55 checksum, accepted.
+ *   - mixed-case input with an INVALID checksum (a likely fat-finger typo) →
+ *     throws, surfaced here as a clear config error.
+ */
+function parseAddress(raw: string | undefined): Address | null {
   if (!raw) return null;
   const trimmed = raw.trim();
-  if (!trimmed.startsWith("0x") || trimmed.length !== 42) return null;
-  if (!/^0x[0-9a-fA-F]{40}$/.test(trimmed)) return null;
-  return trimmed as `0x${string}`;
+  if (trimmed.length === 0) return null;
+  if (!/^0x[0-9a-fA-F]{40}$/.test(trimmed)) {
+    throw new Error(
+      `Invalid EVM address in environment: "${trimmed}". ` +
+        "Expected a 0x-prefixed 40-hex address.",
+    );
+  }
+  try {
+    // getAddress validates the EIP-55 checksum and returns the canonical form.
+    return getAddress(trimmed);
+  } catch {
+    throw new Error(
+      `EVM address failed checksum validation: "${trimmed}". ` +
+        "If this is a real address, supply it all-lowercase or with a correct " +
+        "EIP-55 checksum — a mixed-case mismatch usually means a typo.",
+    );
+  }
 }
 
 export function getEventLoggerAddress(): `0x${string}` | null {
@@ -60,5 +88,52 @@ export function isChainConfigured(): boolean {
   return getEventLoggerAddress() !== null && getPoRRegistryAddress() !== null;
 }
 
-export const EXPLORER_TX_BASE = "https://sepolia.basescan.org/tx/";
-export const EXPLORER_ADDRESS_BASE = "https://sepolia.basescan.org/address/";
+// ---------------------------------------------------------------------------
+// Block explorer — single source of truth, chain-aware
+// ---------------------------------------------------------------------------
+//
+// The explorer domain is derived from the SAME chain we transact on
+// (`baseSepolia`, imported above and used by `build()`), so the explorer can
+// never drift away from the on-chain network. Today that is Base Sepolia
+// (testnet) → sepolia.basescan.org. If/when the app is repointed at Base
+// mainnet (chain id 8453), this map yields basescan.org automatically.
+//
+// IMPORTANT: components must NOT hardcode basescan URLs — import `explorerTxUrl`
+// / `explorerAddressUrl` (or the `EXPLORER_*` constants below) instead.
+
+const BASE_SEPOLIA_CHAIN_ID = 84532;
+const BASE_MAINNET_CHAIN_ID = 8453;
+
+/** Explorer base origin (no trailing slash) for a given chain id. */
+function explorerOrigin(chainId: number): string {
+  switch (chainId) {
+    case BASE_MAINNET_CHAIN_ID:
+      return "https://basescan.org";
+    case BASE_SEPOLIA_CHAIN_ID:
+    default:
+      // Default to the Sepolia explorer — the chain we actually transact on.
+      // Defaulting here (rather than throwing) keeps link rendering total even
+      // if the chain config is ever widened; the on-chain calls themselves are
+      // already pinned to `baseSepolia` in `build()`.
+      return "https://sepolia.basescan.org";
+  }
+}
+
+/** The chain id the app transacts on — kept in lockstep with `build()`'s chain. */
+export const ACTIVE_CHAIN_ID: number = baseSepolia.id;
+
+/** Block-explorer URL for a transaction hash on the active chain. */
+export function explorerTxUrl(txHash: string): string {
+  return `${explorerOrigin(ACTIVE_CHAIN_ID)}/tx/${txHash}`;
+}
+
+/** Block-explorer URL for an address on the active chain. */
+export function explorerAddressUrl(address: string): string {
+  return `${explorerOrigin(ACTIVE_CHAIN_ID)}/address/${address}`;
+}
+
+// Backwards-compatible constants — now DERIVED from the chain-aware origin so
+// the existing Proof Center consumers stay correct without edits. Prefer the
+// `explorerTxUrl` / `explorerAddressUrl` helpers in new code.
+export const EXPLORER_TX_BASE = `${explorerOrigin(ACTIVE_CHAIN_ID)}/tx/`;
+export const EXPLORER_ADDRESS_BASE = `${explorerOrigin(ACTIVE_CHAIN_ID)}/address/`;

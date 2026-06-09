@@ -4,6 +4,7 @@
 
 import type { PositionDetailTransaction } from "@/lib/data/portfolio";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { explorerTxUrl } from "@/lib/chain/client";
 
 const usdSigned = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -144,7 +145,7 @@ export function PositionTransactions({
                     <td className="py-2 text-right whitespace-nowrap">
                       {tx.txHash ? (
                         <a
-                          href={`https://basescan.org/tx/${tx.txHash}`}
+                          href={explorerTxUrl(tx.txHash)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="tabular body-xs mono text-[var(--ct-accent-strong)] no-underline transition-opacity duration-[var(--ct-dur-fast)] hover:opacity-80"

@@ -14,6 +14,17 @@ import { z } from "zod";
  * out of them.
  */
 
+/**
+ * EVM address validator: 0x-prefixed, exactly 40 hex chars. Rejects typos and
+ * truncated addresses at boot instead of letting a malformed value flow into a
+ * `writeContract`/`readContract` call where it would fail opaquely at runtime.
+ * Format-only (no EIP-55 checksum here — case-insensitive); the checksum
+ * tightening lives in `src/lib/chain/client.ts` where viem's helpers are wired.
+ */
+const evmAddress = z
+  .string()
+  .regex(/^0x[0-9a-fA-F]{40}$/, "must be a 0x-prefixed 40-hex EVM address");
+
 const serverEnvSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   // Privy — reserved for the USDC subscription/payment flow (wallet connect at
@@ -27,7 +38,16 @@ const serverEnvSchema = z.object({
   // ERC-4626 Hearst Yield Vault address on Base Sepolia. Public — safe in the
   // client bundle. When unset, the invest flow surfaces a "Configuration en
   // attente" state and blocks transactions rather than silently failing.
-  NEXT_PUBLIC_HEARST_VAULT_ADDRESS: z.string().optional(),
+  //
+  // Two names are accepted, in this precedence order (mirrors
+  // src/lib/onchain/vault.ts `resolveVaultAddress`):
+  //   1. NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS  ← canonical, validated below
+  //   2. NEXT_PUBLIC_HEARST_VAULT_ADDRESS        ← legacy alias, kept for compat
+  // Both are validated as 0x-prefixed 40-hex addresses when present. We never
+  // accept a malformed value silently — a typo'd address fails the parse and
+  // the module throws at boot (outside test mode).
+  NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS: evmAddress.optional(),
+  NEXT_PUBLIC_HEARST_VAULT_ADDRESS: evmAddress.optional(),
   // Optional deploy-block hints so `eth_getLogs` can use a finite range instead
   // of scanning from genesis (Alchemy free tier caps the window at ~10 blocks).
   // See P1-4 audit. When unset, the loaders fall back to a 10-block tail of
@@ -166,6 +186,22 @@ if (IS_RUNTIME_PRODUCTION && parsed.success) {
       "UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required in production. " +
         "Without Redis, rate limiting is per-instance only and ineffective against " +
         "distributed attacks. Set both variables to enable distributed rate limiting.",
+    );
+  }
+  // On-chain vault address: at least one of the two accepted names must be set
+  // in production, otherwise the deposit/redeem flow is dead on arrival (the
+  // invest form shows "Configuration en attente" and blocks every transaction).
+  // Both are format-validated above; here we only assert presence so a missing
+  // address is a loud boot failure, not a silent degraded UI.
+  if (
+    !d.NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS &&
+    !d.NEXT_PUBLIC_HEARST_VAULT_ADDRESS
+  ) {
+    throw new Error(
+      "NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS is required in production. " +
+        "Without it, the on-chain deposit/redeem flow is disabled and every " +
+        "transaction is blocked. Set NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS " +
+        "(or the legacy NEXT_PUBLIC_HEARST_VAULT_ADDRESS) to the deployed vault.",
     );
   }
 }

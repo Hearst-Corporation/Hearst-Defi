@@ -10,6 +10,7 @@
 
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
+import { explorerTxUrl } from "@/lib/chain/client";
 
 // ── Public types ──────────────────────────────────────────────────────────────
 
@@ -33,8 +34,6 @@ export interface DistribCalendarProps {
 }
 
 // ── Formatting helpers (exported for tests) ───────────────────────────────────
-
-const BASESCAN_TX = "https://basescan.org/tx/";
 
 /** Format period "2026-04" → "Apr'26" (first month of the series) or "Apr" (same year). */
 export function formatPeriod(period: string, refYear: number): string {
@@ -180,7 +179,7 @@ function BarChart({ entries, refYear, currentPeriod }: BarChartProps) {
           // Paid with tx hash — wrap in anchor
           <a
             key={i}
-            href={`${BASESCAN_TX}${entry.txHash}`}
+            href={explorerTxUrl(entry.txHash)}
             target="_blank"
             rel="noopener noreferrer"
             tabIndex={0}

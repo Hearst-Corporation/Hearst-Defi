@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
+import { explorerTxUrl } from "@/lib/chain/client";
 import type {
   InngestJob,
   InngestJobStatus,
@@ -187,7 +188,7 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
   if (event.txHash) {
     return (
       <Link
-        href={`https://basescan.org/tx/${event.txHash}`}
+        href={explorerTxUrl(event.txHash)}
         target="_blank"
         rel="noopener noreferrer"
         className="hover:opacity-80 transition-opacity"
