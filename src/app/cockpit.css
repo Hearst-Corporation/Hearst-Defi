@@ -639,16 +639,29 @@
   display: none !important;
 }
 
-/* ── SECTION CENTRALE — halo lumineux centré, bords noirs ──
-   .ct-page-area est la zone de contenu (transparente par défaut).
-   Dégradé radial : teinté --ct-accent-soft au centre → deep
-   #050A05 noir vers tous les bords (haut, bas, gauche, droite). */
+/* ── SECTION CENTRALE — fond spatial global (image) ──
+   .ct-page-area est la zone de contenu du shell (centre, sibling des rails).
+   On y pose l'image d'ambiance premium (Vision-OS) comme fond global de toute
+   l'app, avec un VOILE sombre par-dessus pour que cartes / texte / KPI restent
+   toujours plus lisibles que le fond.
+
+   cover + center + no-repeat → aucun tiling, aucune déformation, aucun crop
+   répété. PAS de background-attachment: fixed (ça ancre au viewport et bave à
+   travers les rails translucides — cf. historique portfolio.css) : l'attachment
+   par défaut garde l'image dans la boîte de CET élément, donc le rail gauche et
+   le panneau assistant (siblings, avec leur propre fond) restent nets. */
 .ct-page-area {
-  background: radial-gradient(
-    ellipse 80% 70% at 50% 45%,
-    color-mix(in srgb, var(--ct-accent-soft) 45%, var(--ct-bg-deep)) 0%,
-    var(--ct-bg-deep) 72%
-  );
+  background-image:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-bg-deep) 34%, transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 56%, transparent) 100%
+    ),
+    url("/backgrounds/hearst-ambient.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: var(--ct-bg-deep);
 }
 
 /* ── RAIL INTRA-APP — nav verticale dans la zone .ct-rail-left ──

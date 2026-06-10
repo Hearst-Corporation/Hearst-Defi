@@ -1,33 +1,10 @@
 @import "../product-bento.css";
 
-/* ── AMBIENT BACKGROUND (portfolio user only) ──
- * Replaces the shell's default page-area glow with a deep blue/black, calm,
- * atmospheric field — very subtle cool light "nappes" at the edges, dark and
- * quiet in the centre where the content reads. Scoped via :has() to the
- * portfolio page wrapper, so the admin and every other surface are untouched
- * (the codebase already relies on .ct-page-area:has(...) below).
- *
- * Readability: the nappes are 9–13% opacity at the corners only; the reading
- * column stays dark, and the cards sit on their own opaque surface above this
- * layer — they never dissolve into the background.
- *
- * CHROME ISOLATION (do NOT reintroduce background-attachment: fixed): the
- * ambient is anchored to THIS element's own box, not the viewport. A fixed
- * attachment positioned the nappes in viewport coordinates (16% / 88% of the
- * screen), so the cool field landed at the screen edges and bled through the
- * translucent left rail and right assistant panel (both carry backdrop-filter).
- * Anchoring to the box keeps the field strictly inside the centre content
- * column; isolation:isolate gives it its own stacking context so the translucent
- * chrome can never sample it. The portfolio is a fixed-height, no-scroll surface,
- * so dropping `fixed` has zero visual effect on scrolling. */
-.ct-page-area:has([data-testid="portfolio-page"]) {
-  background:
-    radial-gradient(48% 38% at 16% 8%,  color-mix(in srgb, #4a63c9 13%, transparent), transparent 60%),
-    radial-gradient(42% 34% at 88% 16%, color-mix(in srgb, #28407f 11%, transparent), transparent 62%),
-    radial-gradient(72% 56% at 50% 112%, color-mix(in srgb, #2d4a93 9%, transparent), transparent 72%),
-    linear-gradient(180deg, #080b14 0%, #05070d 100%);
-  isolation: isolate;
-}
+/* ── AMBIENT BACKGROUND ──
+ * Removed: the portfolio-specific blue ambient is superseded by the GLOBAL
+ * spatial background image now set on `.ct-page-area` in cockpit.css (applies to
+ * the whole shell, portfolio included). One background system only — no
+ * competing portfolio override. The premium hierarchy rule below stays. */
 
 /* ── PREMIUM HIERARCHY (portfolio user only) ──
  * Decouple the portfolio from the shared .dash-cell-premium dot pattern. The
