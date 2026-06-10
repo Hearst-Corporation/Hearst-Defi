@@ -70,7 +70,7 @@
 }
 
 /* Welcome — white + accent like .welcome-title on site */
-.module-debug-container .pf-greeting-title {
+.module-debug-container .pf-greeting .h1 {
   color: var(--ct-text-strong);
   text-shadow: 0 0 32px color-mix(in srgb, var(--ct-accent) 10%, transparent);
 }

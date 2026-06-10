@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { Card } from "@/components/ui/card";
 import { PATH_META, ONBOARDING_PATHS } from "@/lib/onboarding-types";
 import type { OnboardingPath } from "@/lib/onboarding-types";
@@ -84,17 +85,18 @@ const PATH_ICONS: Record<OnboardingPath, React.ReactNode> = {
 
 export default function OnboardingIndexPage() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-20">
-      {/* Header */}
-      <div className="mb-12 text-center">
-        <h1 className="h1">
-          LP Onboarding
-        </h1>
-        <p className="mt-3 text-sm text-[var(--ct-text-muted)]">
-          Select your investor type to begin. All information is encrypted and
-          treated as confidential under the Hearst Connect investor agreement.
-        </p>
-      </div>
+    <main className="mx-auto max-w-4xl px-[var(--ct-space-6)] py-[var(--ct-space-16)]">
+      <ProductPageHeader
+        align="center"
+        className="mb-12"
+        title="LP Onboarding"
+        description={
+          <>
+            Select your investor type to begin. All information is encrypted and
+            treated as confidential under the Hearst Connect investor agreement.
+          </>
+        }
+      />
 
       {/* Path selection grid */}
       <div

@@ -10,6 +10,7 @@
 
 import Link from "next/link";
 
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { Button } from "@/components/ui/button";
 import { PrivyWalletConnect } from "@/components/onboarding/privy-wallet-connect";
 
@@ -23,17 +24,17 @@ export default function WalletPage() {
 
   return (
     <div className="ct-card w-full max-w-lg flex flex-col gap-[var(--ct-space-6)]">
-      {/* Header */}
-      <header className="flex flex-col gap-[var(--ct-space-2)]">
-        <span className="eyebrow text-[var(--ct-accent)] opacity-80">
-          Step 4 of 7
-        </span>
-        <h1 className="h1">Connect Your Wallet</h1>
-        <p className="body-sm ct-text-muted">
-          Link the wallet address that will receive your USDC distributions.
-          This wallet will also be the signing key for on-chain position management.
-        </p>
-      </header>
+      <ProductPageHeader
+        className="gap-2"
+        eyebrow="Step 4 of 7"
+        title="Connect Your Wallet"
+        description={
+          <>
+            Link the wallet address that will receive your USDC distributions.
+            This wallet will also be the signing key for on-chain position management.
+          </>
+        }
+      />
 
       {/* Privy wallet connect — real embed when appId present, config-pending fallback otherwise */}
       <PrivyWalletConnect appId={appId} />

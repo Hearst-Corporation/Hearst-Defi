@@ -15,7 +15,7 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 - **Methodology**: `/docs/methodology/v1.0.md` — immutable once published, bump version if change needed
 - **Roadmap**: `/docs/roadmap.json` + `/admin/roadmap` UI — every PR must reference a roadmap item
 - **Decisions**: `/docs/decisions/ADR-*.md` — Architecture Decision Records, append-only
-- **Design system**: `/docs/DESIGN_SYSTEM.md` (visuel) + `/docs/design-lock.md` (🔒 **verrou** : liste exhaustive des tokens/primitives/classes autorisés, process pour demander un ajout). **Aucun nouveau token/primitive/classe sans validation explicite.**
+- **Design system** (source unique) : cascade `@hearst/cockpit-shell/tokens.css` → `src/app/cockpit.css` → `src/app/globals.css`. Doc : `/docs/DESIGN_SYSTEM.md` + verrou dans `README.md` § Design system. **Aucun nouveau token/primitive/classe sans validation explicite.** Le package `packages/ds` (`@ds/core`) a été retiré — ne pas réintroduire un second namespace `--ds-*`.
 - **Plan source**: `/Users/adrienbeyondcrypto/.claude/plans/tu-es-claude-opus-functional-eich.md`
 
 ## Non-negotiables (CI enforces most)

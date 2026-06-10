@@ -17,6 +17,7 @@
  */
 
 import React, { useState } from "react";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { SimulationPanel } from "@/components/simulation/simulation-panel";
 import { simulateProposal } from "@/lib/simulation/tenderly-stub";
 import type { SimulationResult } from "@/lib/simulation/types";
@@ -75,11 +76,8 @@ export default function SimulateDemoPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-      {/* Page header */}
-      <header className="flex min-h-9 items-center justify-between gap-4">
-        <h1 className="h1">Simulation Panel — Demo</h1>
-      </header>
+    <div className="mx-auto max-w-2xl space-y-8">
+      <AdminPageHeader title="Simulation Panel — Demo" />
       <p className="body-sm ct-text-muted">
         Pre-execution fork simulation (Tally pattern). Stub only — no real Tenderly calls.
       </p>

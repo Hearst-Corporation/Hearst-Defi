@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { OnboardingStepper } from "@/components/onboarding/onboarding-stepper";
 import { StepContent } from "@/components/onboarding/step-content";
 import {
@@ -66,19 +67,13 @@ export default async function OnboardingPathPage({
       />
 
       {/* Page body */}
-      <main className="mx-auto max-w-3xl px-6 py-10">
-        {/* Step header */}
-        <div className="mb-8">
-          <span className="eyebrow">
-            Step {currentStep + 1} of {steps.length}
-          </span>
-          <h1 className="h1 mt-1">
-            {activeStep.label}
-          </h1>
-          <p className="mt-1 text-sm text-[var(--ct-text-muted)]">
-            {activeStep.description}
-          </p>
-        </div>
+      <main className="mx-auto max-w-3xl px-[var(--ct-space-6)] py-[var(--ct-space-10)]">
+        <ProductPageHeader
+          className="mb-8"
+          eyebrow={`Step ${currentStep + 1} of ${steps.length}`}
+          title={activeStep.label}
+          description={activeStep.description}
+        />
 
         {/* Step content (stubs / placeholders) */}
         <StepContent path={path} stepId={activeStep.id} />

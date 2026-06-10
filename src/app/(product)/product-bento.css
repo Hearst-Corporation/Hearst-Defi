@@ -23,7 +23,7 @@
     var(--ct-surface-2);
   backdrop-filter: blur(24px);
   border: 1px solid var(--ct-border-strong);
-  border-radius: var(--ct-radius-2xl);
+  border-radius: var(--ct-radius-xl);
   box-shadow: 0 10px 40px color-mix(in srgb, var(--ct-bg-deep) 80%, black);
   padding: var(--ct-space-6);
   display: flex;

@@ -72,7 +72,7 @@ export default async function ProposePage() {
         <form action={handlePropose} className="space-y-6">
           {/* Vault */}
           <div className="space-y-1.5">
-            <label htmlFor="vaultId" className="block text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)]">
+            <label htmlFor="vaultId" className="stat-label block">
               Vault *
             </label>
             {vaults.length === 0 ? (
@@ -101,7 +101,7 @@ export default async function ProposePage() {
 
           {/* Action type */}
           <div className="space-y-1.5">
-            <label htmlFor="actionType" className="block text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)]">
+            <label htmlFor="actionType" className="stat-label block">
               Action type *
             </label>
             <select
@@ -121,7 +121,7 @@ export default async function ProposePage() {
 
           {/* Calldata */}
           <div className="space-y-1.5">
-            <label htmlFor="calldata" className="block text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)]">
+            <label htmlFor="calldata" className="stat-label block">
               Calldata (raw JSON — optional)
             </label>
             <textarea
@@ -135,7 +135,7 @@ export default async function ProposePage() {
 
           {/* Justification */}
           <div className="space-y-1.5">
-            <label htmlFor="justification" className="block text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)]">
+            <label htmlFor="justification" className="stat-label block">
               Justification * <span className="ct-text-muted normal-case tracking-normal">(min 80 characters)</span>
             </label>
             <textarea

@@ -137,7 +137,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
   return (
     <div className="ct-card space-y-6">
       <div className="space-y-1">
-        <h2 className="h3">Compute next distribution</h2>
+        <h3 className="h3">Compute next distribution</h3>
         <p className="body-sm ct-text-muted">
           Dry-run computes pro-rata payouts from active positions. No DB writes
           until multisig confirmation.

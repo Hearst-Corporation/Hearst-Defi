@@ -61,9 +61,9 @@ export function PositionHeader({ position }: PositionHeaderProps) {
       {/* Title row */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div className="flex flex-col gap-1 min-w-0">
-          <h2 className="h2 ct-text-strong m-0 break-words">
+          <h1 className="h1 m-0 break-words">
             {position.vaultName}
-          </h2>
+          </h1>
           <span className="eyebrow tabular ct-text-muted mono">
             {position.vaultTicker} ·{" "}
             <span title={position.id}>{position.id.slice(0, 8)}&hellip;</span>
@@ -79,7 +79,7 @@ export function PositionHeader({ position }: PositionHeaderProps) {
       <div
         role="region"
         aria-label="Total position value"
-        className="flex items-center justify-between flex-wrap gap-4 rounded-[var(--ct-radius-2xl)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-6 py-5"
+        className="flex items-center justify-between flex-wrap gap-4 rounded-[var(--ct-radius-xl)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-6 py-5"
       >
         <div className="flex flex-col gap-1 min-w-0">
           <span className="eyebrow ct-text-muted">

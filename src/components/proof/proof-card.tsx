@@ -93,7 +93,7 @@ function PaperProofCard({
             {proof.period ?? "evergreen"}
           </Badge>
         </div>
-        <h3 className="h4 text-balance">{proof.title}</h3>
+        <h4 className="h4 text-balance">{proof.title}</h4>
       </header>
 
       <dl className="space-y-1.5">
@@ -177,9 +177,9 @@ function OnChainEventCard({
             On-chain
           </Badge>
         </div>
-        <h3 className="h4 text-balance">
+        <h4 className="h4 text-balance">
           Hearst event #{proof.eventId.toString()} — {proof.kind}
-        </h3>
+        </h4>
       </header>
 
       <dl className="space-y-1.5">
@@ -272,9 +272,9 @@ function OnChainAttestationCard({
             {formatPeriod(proof.period)}
           </Badge>
         </div>
-        <h3 className="h4 text-balance">
+        <h4 className="h4 text-balance">
           PoR #{proof.attestationId.toString()} — {formatPeriod(proof.period)}
-        </h3>
+        </h4>
       </header>
 
       <dl className="space-y-1.5">

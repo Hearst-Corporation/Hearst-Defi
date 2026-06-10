@@ -68,6 +68,14 @@ ici doit être un **mirror** d'un token CSS existant (jamais une valeur nouvelle
 
 Doc DS complète + tableau des tokens autorisés : [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).
 
+**Un seul design system en runtime** : Cockpit (`--ct-*` via `@hearst/cockpit-shell`).
+Le package orphelin `packages/ds` (`@ds/core`, namespace `--ds-*`) a été retiré du repo.
+Primitives de page : `AdminPageHeader` (admin), `ProductPageHeader` (investor,
+`align="center"` pour onboarding / confirmation), `AuthFormShell` (auth
+secondaire avec `title`/`description`), `LegalPageHeader` (docs légales).
+Routes auth secondaires (`/forgot-password`, `/reset-password`,
+`/totp-challenge`) : shell bare via `app-chrome.tsx` (pas de `ConnectShell`).
+
 ### Process pour ajouter un token (rare, validé Adrien uniquement)
 
 1. **Stop** l'implémentation. Ne rien committer.

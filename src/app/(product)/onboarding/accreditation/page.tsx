@@ -11,6 +11,7 @@
 
 import { useRouter } from "next/navigation";
 
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { AccreditationCheckboxes } from "@/components/onboarding/AccreditationCheckboxes";
 
 export default function AccreditationPage() {
@@ -23,18 +24,18 @@ export default function AccreditationPage() {
 
   return (
     <div className="ct-card w-full max-w-lg flex flex-col gap-[var(--ct-space-6)]">
-      {/* Header */}
-      <header className="flex flex-col gap-[var(--ct-space-2)]">
-        <span className="eyebrow text-[var(--ct-accent)] opacity-80">
-          Step 2 of 7
-        </span>
-        <h1 className="h1">Investor Accreditation</h1>
-        <p className="body-sm ct-text-muted">
-          Hearst Yield Vault is offered exclusively to accredited investors under
-          SEC Rule 506(c) and eligible participants under Cayman Islands law.
-          Please confirm each statement below.
-        </p>
-      </header>
+      <ProductPageHeader
+        className="gap-2"
+        eyebrow="Step 2 of 7"
+        title="Investor Accreditation"
+        description={
+          <>
+            Hearst Yield Vault is offered exclusively to accredited investors under
+            SEC Rule 506(c) and eligible participants under Cayman Islands law.
+            Please confirm each statement below.
+          </>
+        }
+      />
 
       {/* Attestation checkboxes */}
       <AccreditationCheckboxes onContinue={handleContinue} />

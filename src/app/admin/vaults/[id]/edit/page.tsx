@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 
 import { VaultForm, type FormState } from "@/app/admin/vaults/_vault-form";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 
@@ -61,16 +62,18 @@ export default async function EditVaultPage({ params }: PageProps) {
 
   return (
     <div className="space-y-8">
-      <header className="space-y-1">
-        <p className="eyebrow">Admin / Vaults / {vault.ticker}</p>
-        <h1 className="h1">Edit Vault Draft</h1>
-        <p className="body-md ct-text-muted max-w-xl">
-          Update the draft for{" "}
-          <span className="ct-text-primary">{vault.name}</span>. Changes are saved when
-          you click <span className="ct-text-primary">Save Changes</span> on the last
-          step.
-        </p>
-      </header>
+      <AdminPageHeader
+        eyebrow={`Admin / Vaults / ${vault.ticker}`}
+        title="Edit Vault Draft"
+        description={
+          <p>
+            Update the draft for{" "}
+            <span className="ct-text-primary">{vault.name}</span>. Changes are saved when
+            you click <span className="ct-text-primary">Save Changes</span> on the last
+            step.
+          </p>
+        }
+      />
 
       <VaultForm mode="edit" vaultId={id} initial={initial} />
     </div>

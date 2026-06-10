@@ -244,7 +244,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 value={
                   <span className="tabular">
                     {vault.riskScore}
-                    <span className="text-[0.6em] font-medium opacity-80 ml-1 text-[var(--ct-text-faint)]">
+                    <span className="ml-1 text-micro font-medium opacity-80 text-[var(--ct-text-faint)]">
                       /100
                     </span>
                   </span>

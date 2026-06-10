@@ -157,7 +157,7 @@ export function DynamicAllocationCards() {
                 >
                   {card.icon}
                 </span>
-                <h3 className="h4">{card.label} Regime</h3>
+                <h4 className="h4">{card.label} Regime</h4>
               </div>
               <ProvenanceBadge kind="estimated" />
             </div>

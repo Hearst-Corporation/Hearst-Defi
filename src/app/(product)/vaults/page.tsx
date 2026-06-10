@@ -2,6 +2,7 @@
 // Server Component. Single ProductSelectCard at MVP (forward-compatible grid).
 // Non-negotiable #9: single vault MVP, no multi-vault abstractions today.
 
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { listVaults } from "@/lib/data/vaults";
 import { ProductSelectCard } from "@/components/vaults/product-select-card";
 import { StepProgress } from "@/components/vaults/step-progress";
@@ -18,20 +19,20 @@ export default async function VaultsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Page header */}
-      <header className="flex flex-col gap-5">
-        <span className="eyebrow">Invest</span>
-        <h1 className="h1">Select a product</h1>
-        <p className="body-lg ct-text-muted max-w-xl">
-          Professional-grade structured yield for qualified investors.
-          Review the term sheet and confirm before depositing.
-        </p>
-
-        {/* Step wizard */}
+      <ProductPageHeader
+        eyebrow="Invest"
+        title="Select a product"
+        description={
+          <p className="body-lg max-w-xl">
+            Professional-grade structured yield for qualified investors.
+            Review the term sheet and confirm before depositing.
+          </p>
+        }
+      >
         <div className="pt-6">
           <StepProgress active="select" />
         </div>
-      </header>
+      </ProductPageHeader>
 
       {/* Product grid — auto-fit, single card at MVP */}
       <section aria-labelledby="vaults-heading">

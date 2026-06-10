@@ -39,7 +39,7 @@ export function SingleMode({ vaultId }: SingleModeProps) {
         {/* Left: Inputs panel */}
         <div className="flex flex-col gap-0 glass-panel p-0 overflow-hidden">
           <div className="border-b border-[var(--ct-border-soft)] px-6 py-4">
-            <h3 className="h4">Inputs</h3>
+            <h4 className="h4">Inputs</h4>
             <p className="mt-0.5 text-xs text-[var(--ct-text-muted)]">
               Adjust sliders or select a preset above
             </p>

@@ -1,8 +1,0 @@
-/**
- * @ds/core · skeleton shimmer keyframes
- * Reduced-motion respected via duration tokens (collapse to 1ms).
- */
-@keyframes ds-skeleton-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}

@@ -4,6 +4,7 @@
 
 export const dynamic = "force-dynamic";
 
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ProofFilter } from "@/components/proof/proof-filter";
@@ -90,23 +91,24 @@ export default async function ProductProofCenterPage({
         </div>
       )}
 
-      {/* ── Header ─────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <span className="eyebrow mb-1">Hearst Yield Vault</span>
-          <h1 className="h1">Proof Center</h1>
-          <p className="body-sm mt-2 max-w-2xl ct-text-muted">
+      <ProductPageHeader
+        eyebrow="Hearst Yield Vault"
+        title="Proof Center"
+        description={
+          <>
             Every data point that backs the vault — mining attestations, custody
             snapshots, audits, and the methodology itself — hashed and posted
             with its source URI.
-          </p>
-        </div>
-        <ChainStatusBadge
-          configured={chainConfigured}
-          eventCount={onChainEvents.length}
-          attestationCount={onChainAttestations.length}
-        />
-      </div>
+          </>
+        }
+        actions={
+          <ChainStatusBadge
+            configured={chainConfigured}
+            eventCount={onChainEvents.length}
+            attestationCount={onChainAttestations.length}
+          />
+        }
+      />
 
       {/* ── Proof of Reserves summary ───────────────────────── */}
       <section aria-labelledby="por-heading">

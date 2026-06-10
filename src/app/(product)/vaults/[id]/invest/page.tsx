@@ -6,6 +6,7 @@
 // Non-negotiable #10: disclaimer present in InvestForm and DepositSummary.
 
 import { notFound } from "next/navigation";
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { getVault } from "@/lib/data/vaults";
 import { StepProgress } from "@/components/vaults/step-progress";
 import { InvestForm } from "@/components/vaults/invest-form";
@@ -30,12 +31,9 @@ export default async function InvestPage({ params }: PageProps) {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto w-full">
-      {/* Eyebrow + step indicator */}
-      <header className="flex flex-col gap-3">
-        <span className="eyebrow">Deposit</span>
-        <h1 className="h1">{vault.name}</h1>
+      <ProductPageHeader eyebrow="Deposit" title={vault.name} className="gap-3">
         <StepProgress active="deposit" />
-      </header>
+      </ProductPageHeader>
 
       {/* Deposit form (Client Component) */}
       <InvestForm vault={vault} />

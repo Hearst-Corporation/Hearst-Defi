@@ -59,7 +59,7 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
       style={{
         background: "color-mix(in srgb, var(--ct-surface-1) 20%, transparent)",
         backdropFilter: "blur(24px)",
-        borderRadius: "var(--ct-radius-2xl)",
+        borderRadius: "var(--ct-radius-xl)",
         border: "1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent)",
         backgroundImage: "radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 6%, transparent) 1px, transparent 1px)",
         backgroundSize: "32px 32px",

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { RejectDeploymentButton } from "@/components/admin/reject-deployment-button";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { VaultStatusPill } from "@/components/admin/vault-status-pill";
@@ -97,28 +98,26 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/admin/vaults">← Vaults</Link>
-            </Button>
-          </div>
-          <div className="flex items-center gap-4 mt-1">
-            <span className="mono tabular text-lg font-semibold ct-text-strong">
-              {vault.ticker}
-            </span>
-            <VaultStatusPill status={vault.status} />
-          </div>
-          <h1 className="h1">{vault.name}</h1>
-          {vault.description && (
-            <p className="body-md ct-text-muted max-w-xl">{vault.description}</p>
-          )}
-        </div>
-
-        {/* Status actions */}
-        <div className="flex items-center gap-3 flex-wrap">
+      <AdminPageHeader
+        title={vault.name}
+        description={vault.description ? <p>{vault.description}</p> : undefined}
+        lead={
+          <>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/admin/vaults">← Vaults</Link>
+              </Button>
+            </div>
+            <div className="mt-1 flex items-center gap-4">
+              <span className="mono tabular text-lg font-semibold ct-text-strong">
+                {vault.ticker}
+              </span>
+              <VaultStatusPill status={vault.status} />
+            </div>
+          </>
+        }
+        actions={
+        <div className="flex flex-wrap items-center gap-3">
           {vault.status === "draft" && (
             <>
               <Button variant="secondary" size="md" asChild>
@@ -242,7 +241,8 @@ export default async function VaultDetailPage({ params }: PageProps) {
             </>
           )}
         </div>
-      </header>
+        }
+      />
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

@@ -98,8 +98,8 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
               Can&apos;t scan? Enter the key manually
             </summary>
             <p
-              className="mt-2 font-mono break-all rounded px-2 py-1"
-              style={{ background: "var(--ct-surface)", userSelect: "all" }}
+              className="mt-2 rounded bg-[var(--ct-surface-1)] px-2 py-1 font-mono break-all"
+              style={{ userSelect: "all" }}
             >
               {state.payload.secretBase32}
             </p>

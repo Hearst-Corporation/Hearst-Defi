@@ -39,7 +39,7 @@ export function PortfolioGreeting({ name, data }: PortfolioGreetingProps) {
 
   return (
     <div className="pf-greeting">
-      <h1 className="h1 pf-greeting-title">
+      <h1 className="h1">
         Welcome back, <span className="pf-greeting-name">{name}</span>
       </h1>
       <p className="pf-greeting-recap">{recap}</p>

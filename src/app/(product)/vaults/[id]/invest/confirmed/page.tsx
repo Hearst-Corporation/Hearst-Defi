@@ -19,8 +19,10 @@ import { abbreviateAddress } from "@/lib/onchain";
 
 import Link from "next/link";
 
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { Button } from "@/components/ui/button";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { DepositSuccessIcon } from "@/components/vaults/deposit-success-icon";
 import { StepProgress } from "@/components/vaults/step-progress";
 import { OpsContactCard } from "@/components/onboarding/OpsContactCard";
 
@@ -122,39 +124,19 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
   const icsUri = buildIcsDataUri("Hearst Yield Vault — Distribution", nextDistrib);
 
   return (
-    <div className="flex flex-col items-center gap-[var(--ct-space-8)] px-6 py-10 max-w-2xl mx-auto w-full">
+    <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-[var(--ct-space-8)]">
       {/* Step wizard */}
       <StepProgress active="confirmed" />
 
       {/* Main confirmation card */}
       <div className="ct-card w-full max-w-lg flex flex-col gap-[var(--ct-space-6)]">
 
-        {/* ── Success header ── */}
-        <div className="flex flex-col items-center gap-[var(--ct-space-4)] text-center">
-          <span
-            aria-hidden="true"
-            className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[var(--ct-status-success-soft)] border border-[var(--ct-status-success-border)] shadow-[var(--ct-glow-soft)]"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M5 12l5 5L19 7"
-                stroke="var(--ct-status-success)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-
-          <div className="flex flex-col gap-[var(--ct-space-2)]">
-            <h1 className="h1">
-              {amount !== "—" ? `${amount} USDC deposited` : "Deposit confirmed"}
-            </h1>
-            <p className="body-sm ct-text-muted">
-              Your position in Hearst Yield Vault has been recorded on-chain.
-            </p>
-          </div>
-        </div>
+        <ProductPageHeader
+          align="center"
+          lead={<DepositSuccessIcon />}
+          title={amount !== "—" ? `${amount} USDC deposited` : "Deposit confirmed"}
+          description="Your position in Hearst Yield Vault has been recorded on-chain."
+        />
 
         {/* ── Detail rows ── */}
         <div className="w-full flex flex-col gap-[var(--ct-space-2)] rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-1)] border border-[var(--ct-border-soft)] p-[var(--ct-space-4)]">

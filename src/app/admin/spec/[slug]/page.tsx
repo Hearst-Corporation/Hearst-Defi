@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Markdown } from "@/components/admin/markdown";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { cn } from "@/lib/cn";
@@ -54,8 +55,11 @@ export default async function SpecPage({
       </aside>
 
       <article className="min-w-0">
-        <p className="eyebrow mb-3">/docs/spec/{slug}.mdx</p>
-        <h1 className="h1 mb-6">{doc.title}</h1>
+        <AdminPageHeader
+          eyebrow={`/docs/spec/${slug}.mdx`}
+          title={doc.title}
+          className="mb-6"
+        />
         <Markdown content={doc.content} />
       </article>
     </div>

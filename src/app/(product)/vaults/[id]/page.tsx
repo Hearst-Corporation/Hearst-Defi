@@ -9,6 +9,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { getVault } from "@/lib/data/vaults";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -59,51 +60,40 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-8">
-      {/* Page header */}
-      <header className="flex flex-col gap-4">
-        <div className="flex items-center gap-3">
+      <ProductPageHeader
+        lead={
           <Link
             href="/vaults"
-            className="body-sm ct-text-muted hover:opacity-80 transition-opacity"
+            className="body-sm ct-text-muted transition-opacity hover:opacity-80"
             aria-label="Back to product list"
           >
             ← Products
           </Link>
-        </div>
-
-        <span className="eyebrow">Invest</span>
-        <div className="flex flex-wrap items-start gap-3">
-          <h1 className="h1 flex-1">{vault.name}</h1>
-          <div className="flex items-center gap-2 pt-1">
-            <span className="ct-pill accent mono eyebrow">
-              {vault.ticker}
-            </span>
+        }
+        eyebrow="Invest"
+        title={vault.name}
+        actions={
+          <>
+            <span className="ct-pill accent mono eyebrow">{vault.ticker}</span>
             <Badge variant={STATUS_VARIANT[vault.status] ?? "default"}>
               {STATUS_LABEL[vault.status] ?? vault.status}
             </Badge>
-          </div>
-        </div>
-
-        {/* APY hero row — mandatory range primitive (#1) + provenance (#2) */}
-        <div className="flex items-center gap-3 flex-wrap">
+          </>
+        }
+      >
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="stat-label">Target APY range</span>
             <ProvenanceBadge kind="estimated" />
           </div>
           <span className="stat-value">
-            <ApyRange
-              low={vault.apyLow}
-              high={vault.apyHigh}
-              precision={1}
-            />
+            <ApyRange low={vault.apyLow} high={vault.apyHigh} precision={1} />
           </span>
         </div>
-
-        {/* Step wizard */}
         <div className="pt-1">
           <StepProgress active="product" />
         </div>
-      </header>
+      </ProductPageHeader>
 
       {/* Term sheet sections */}
       <TermSheetPreview vault={vault} />

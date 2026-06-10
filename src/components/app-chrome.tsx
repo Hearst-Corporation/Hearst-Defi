@@ -10,7 +10,13 @@ import { AdminChatControls } from "@/components/admin/admin-chat-controls";
 // nav, Kimi chat). The sign-in screen must stand alone — no navigation into
 // product surfaces is offered until the user is authenticated. Legal pages
 // (/legal/*) use their own LegalLayout and must not get a double chrome.
-const BARE_EXACT = new Set<string>(["/", "/login"]);
+const BARE_EXACT = new Set<string>([
+  "/",
+  "/login",
+  "/forgot-password",
+  "/reset-password",
+  "/totp-challenge",
+]);
 const BARE_PREFIXES = ["/legal"] as const;
 
 function isBareRoute(pathname: string): boolean {

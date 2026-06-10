@@ -140,10 +140,7 @@ export default async function AllowlistPage() {
 
       {/* ── Add new entry form ─────────────────────────────────────────────── */}
       <section aria-labelledby="allowlist-add-heading">
-        <h2
-          id="allowlist-add-heading"
-          className="text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)] mb-3"
-        >
+        <h2 id="allowlist-add-heading" className="h2 mb-3">
           Add entry
         </h2>
         <Card>
@@ -153,7 +150,7 @@ export default async function AllowlistPage() {
               <div className="space-y-1.5 sm:col-span-2">
                 <label
                   htmlFor="add-address"
-                  className="block text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)]"
+                  className="stat-label block"
                 >
                   Address (0x…) *
                 </label>
@@ -172,7 +169,7 @@ export default async function AllowlistPage() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="add-label"
-                  className="block text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)]"
+                  className="stat-label block"
                 >
                   Label *
                 </label>
@@ -191,7 +188,7 @@ export default async function AllowlistPage() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="add-category"
-                  className="block text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)]"
+                  className="stat-label block"
                 >
                   Category *
                 </label>
@@ -213,7 +210,7 @@ export default async function AllowlistPage() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="add-riskScore"
-                  className="block text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)]"
+                  className="stat-label block"
                 >
                   Risk score (0–100)
                 </label>
@@ -232,7 +229,7 @@ export default async function AllowlistPage() {
               <div className="space-y-1.5 sm:col-span-2">
                 <label
                   htmlFor="add-notes"
-                  className="block text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)]"
+                  className="stat-label block"
                 >
                   Notes (optional)
                 </label>
@@ -258,10 +255,7 @@ export default async function AllowlistPage() {
 
       {/* ── Allowlist table ────────────────────────────────────────────────── */}
       <section aria-labelledby="allowlist-table-heading">
-        <h2
-          id="allowlist-table-heading"
-          className="text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)] mb-3"
-        >
+        <h2 id="allowlist-table-heading" className="h2 mb-3">
           {entries.length} {entries.length === 1 ? "entry" : "entries"}
         </h2>
 
@@ -278,31 +272,31 @@ export default async function AllowlistPage() {
                 <tr className="border-b border-[var(--ct-border)] bg-[var(--ct-surface-1)]">
                   <th
                     scope="col"
-                    className="px-4 py-3 text-left text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)] font-medium"
+                    className="stat-label px-4 py-3 text-left font-medium"
                   >
                     Label / Address
                   </th>
                   <th
                     scope="col"
-                    className="px-4 py-3 text-left text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)] font-medium"
+                    className="stat-label px-4 py-3 text-left font-medium"
                   >
                     Category
                   </th>
                   <th
                     scope="col"
-                    className="px-4 py-3 text-left text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)] font-medium"
+                    className="stat-label px-4 py-3 text-left font-medium"
                   >
                     Risk score
                   </th>
                   <th
                     scope="col"
-                    className="px-4 py-3 text-left text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)] font-medium"
+                    className="stat-label px-4 py-3 text-left font-medium"
                   >
                     Status
                   </th>
                   <th
                     scope="col"
-                    className="px-4 py-3 text-left text-xs ct-text-muted uppercase tracking-[var(--ct-tracking-wide)] font-medium"
+                    className="stat-label px-4 py-3 text-left font-medium"
                   >
                     Edit
                   </th>
@@ -384,7 +378,7 @@ export default async function AllowlistPage() {
                           <div className="space-y-1">
                             <label
                               htmlFor={`edit-label-${entry.id}`}
-                              className="block text-xs ct-text-muted"
+                              className="stat-label block"
                             >
                               Label
                             </label>
@@ -401,7 +395,7 @@ export default async function AllowlistPage() {
                           <div className="space-y-1">
                             <label
                               htmlFor={`edit-risk-${entry.id}`}
-                              className="block text-xs ct-text-muted"
+                              className="stat-label block"
                             >
                               Risk score
                             </label>
@@ -419,7 +413,7 @@ export default async function AllowlistPage() {
                           <div className="space-y-1">
                             <label
                               htmlFor={`edit-notes-${entry.id}`}
-                              className="block text-xs ct-text-muted"
+                              className="stat-label block"
                             >
                               Notes
                             </label>

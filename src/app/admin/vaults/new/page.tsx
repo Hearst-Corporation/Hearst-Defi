@@ -1,3 +1,4 @@
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { resolveVault } from "@/lib/vaults/resolver";
 import { cloneFormValues } from "@/lib/vaults/clone";
@@ -97,14 +98,16 @@ export default async function NewVaultPage({ searchParams }: NewVaultPageProps) 
 
   return (
     <div className="space-y-8">
-      <header className="space-y-1">
-        <p className="eyebrow">Admin / Vaults</p>
-        <h1 className="h1">New Vault Deployment</h1>
-        <p className="body-md ct-text-muted max-w-xl">
-          7-step wizard. Nothing is persisted until you click{" "}
-          <span className="ct-text-primary">Submit for Review</span> on the last step.
-        </p>
-      </header>
+      <AdminPageHeader
+        eyebrow="Admin / Vaults"
+        title="New Vault Deployment"
+        description={
+          <p>
+            7-step wizard. Nothing is persisted until you click{" "}
+            <span className="ct-text-primary">Submit for Review</span> on the last step.
+          </p>
+        }
+      />
 
       {showGate && resumeForm && draftUpdatedAt && stepLabel && stepNumber ? (
         <ResumeDraftBanner

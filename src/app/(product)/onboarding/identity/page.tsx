@@ -10,6 +10,7 @@
 
 import Link from "next/link";
 
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { Button } from "@/components/ui/button";
 import { PersonaPlaceholder } from "@/components/onboarding/PersonaPlaceholder";
 import { IdentityStep } from "@/components/onboarding/identity-step";
@@ -27,17 +28,17 @@ export default async function IdentityPage() {
 
   return (
     <div className="ct-card w-full max-w-lg flex flex-col gap-[var(--ct-space-6)]">
-      {/* Header */}
-      <header className="flex flex-col gap-[var(--ct-space-2)]">
-        <span className="eyebrow text-[var(--ct-accent)] opacity-80">
-          Step 3 of 7
-        </span>
-        <h1 className="h1">Identity Verification</h1>
-        <p className="body-sm ct-text-muted">
-          AML / KYC verification is required prior to onboarding. The process
-          takes approximately 3–5 minutes and requires a valid government-issued ID.
-        </p>
-      </header>
+      <ProductPageHeader
+        className="gap-2"
+        eyebrow="Step 3 of 7"
+        title="Identity Verification"
+        description={
+          <>
+            AML / KYC verification is required prior to onboarding. The process
+            takes approximately 3–5 minutes and requires a valid government-issued ID.
+          </>
+        }
+      />
 
       {/* Persona embed (real SDK) when configured, placeholder otherwise */}
       {personaReady ? (

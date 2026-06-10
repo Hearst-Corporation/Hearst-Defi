@@ -12,10 +12,6 @@ out
 electron
 build/icon.icns
 
-# Standalone DS library — examples/ has unresolved @ds/core imports that
-# crash the Vercel build. The Next app does not consume it yet.
-packages
-
 # Local & dev
 .env*.local
 prisma/dev.db

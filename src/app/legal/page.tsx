@@ -2,6 +2,8 @@ import "./legal.css";
 
 import Link from "next/link";
 
+import { LegalPageHeader } from "@/components/legal/legal-page-header";
+
 export const dynamic = "force-static";
 
 export const metadata = {
@@ -12,7 +14,7 @@ export const metadata = {
 export default function LegalIndexPage() {
   return (
     <>
-      <h1 className="h1">Legal</h1>
+      <LegalPageHeader title="Legal" />
       <p className="legal-meta">Effective date — to be finalized.</p>
       <p>
         Hearst Connect is operated as a Cayman Islands SPV (Hearst Yield Vault).

@@ -76,15 +76,6 @@
   gap: var(--ct-space-1);
 }
 
-.pf-greeting-title {
-  font-size: var(--ct-text-xl);
-  font-weight: var(--ct-font-light);
-  color: var(--ct-text-primary);
-  letter-spacing: -0.01em;
-  line-height: var(--ct-leading-tight);
-  margin: 0;
-}
-
 .pf-greeting-name {
   font-weight: var(--ct-font-semibold);
   color: var(--ct-text-strong);

@@ -1,5 +1,7 @@
 import "../legal.css";
 
+import { LegalPageHeader } from "@/components/legal/legal-page-header";
+
 export const dynamic = "force-static";
 
 export const metadata = {
@@ -10,7 +12,7 @@ export const metadata = {
 export default function TermsPage() {
   return (
     <>
-      <h1 className="h1">Terms of Service</h1>
+      <LegalPageHeader title="Terms of Service" />
       <p className="legal-meta">Draft — pending formal legal review.</p>
 
       <div className="legal-stub">

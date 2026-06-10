@@ -70,7 +70,7 @@ export default async function ProfilePage() {
         </div>
 
         <div className="prof-identity-body">
-          <h1 className="h2 prof-name">{session.email}</h1>
+          <h1 className="h1 prof-name">{session.email}</h1>
           <span className="eyebrow prof-role">{session.role}</span>
         </div>
 

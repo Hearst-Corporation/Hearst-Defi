@@ -36,7 +36,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
         style={{
           background: "color-mix(in srgb, var(--ct-surface-1) 20%, transparent)",
           backdropFilter: "blur(24px)",
-          borderRadius: "var(--ct-radius-2xl)",
+          borderRadius: "var(--ct-radius-xl)",
           border: "1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent)",
           backgroundImage: "radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 8%, transparent) 1px, transparent 1px)",
           backgroundSize: "24px 24px",
@@ -65,7 +65,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
         style={{
           background: "color-mix(in srgb, var(--ct-surface-1) 20%, transparent)",
           backdropFilter: "blur(24px)",
-          borderRadius: "var(--ct-radius-2xl)",
+          borderRadius: "var(--ct-radius-xl)",
           border: "1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent)",
           backgroundImage: "radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 8%, transparent) 1px, transparent 1px)",
           backgroundSize: "24px 24px",
@@ -104,7 +104,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
         style={{
           background: "color-mix(in srgb, var(--ct-surface-1) 20%, transparent)",
           backdropFilter: "blur(24px)",
-          borderRadius: "var(--ct-radius-2xl)",
+          borderRadius: "var(--ct-radius-xl)",
           border: "1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent)",
           backgroundImage: "radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 8%, transparent) 1px, transparent 1px)",
           backgroundSize: "24px 24px",
@@ -133,7 +133,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
         style={{
           background: "color-mix(in srgb, var(--ct-surface-1) 20%, transparent)",
           backdropFilter: "blur(24px)",
-          borderRadius: "var(--ct-radius-2xl)",
+          borderRadius: "var(--ct-radius-xl)",
           border: "1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent)",
           backgroundImage: "radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 8%, transparent) 1px, transparent 1px)",
           backgroundSize: "24px 24px",
