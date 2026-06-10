@@ -305,6 +305,104 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         createdAt: overdueProof.postedAt.toISOString(),
       });
     }
+
+    // ── P0: Multisig proposals in SIGNING state (awaiting required signatures) ──
+    const signingProposals = await prisma.governanceProposal.findMany({
+      where: { state: "SIGNING" },
+      include: {
+        signatures: {
+          where: { decision: "approve" },
+          select: { signerAddress: true },
+        },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+    for (const proposal of signingProposals) {
+      const approvedCount = proposal.signatures.length;
+      items.push({
+        id: `multisig-sign-${proposal.id}`,
+        type: "multisig.sign",
+        severity: "P0",
+        title: `Governance proposal requires signatures`,
+        context: `${approvedCount} of ${proposal.requiredSigners} signatures — ${proposal.actionType}`,
+        href: `/admin/governance/proposal/${proposal.id}`,
+        createdAt: proposal.createdAt.toISOString(),
+      });
+    }
+
+    // ── P0: Vault deployments with status "paused" ───────────────────────────
+    const pausedVaults = await prisma.vaultDeployment.findMany({
+      where: { status: "paused" },
+      orderBy: { pausedAt: "asc" },
+      select: { id: true, name: true, ticker: true, pausedAt: true, createdAt: true },
+    });
+    for (const vault of pausedVaults) {
+      items.push({
+        id: `vault-paused-${vault.id}`,
+        type: "vault.paused",
+        severity: "P0",
+        title: `Vault paused: ${vault.name}`,
+        context: vault.ticker,
+        href: `/admin/vaults/${vault.id}`,
+        createdAt: (vault.pausedAt ?? vault.createdAt).toISOString(),
+      });
+    }
+
+    // ── P1: Distribution periods with approvals started but below threshold ──
+    // Mirror of distributions/actions.ts: REQUIRED_SIGNERS = 2.
+    // A period is actionable when at least one approval exists but count < threshold.
+    const DISTRIBUTION_REQUIRED_SIGNERS = 2;
+    const pendingApprovalGroups = await prisma.distributionApproval.groupBy({
+      by: ["period"],
+      _count: { signerWallet: true },
+    });
+    for (const group of pendingApprovalGroups) {
+      const count = group._count.signerWallet;
+      if (count < DISTRIBUTION_REQUIRED_SIGNERS) {
+        items.push({
+          id: `distribution-approve-${group.period}`,
+          type: "distribution.approve",
+          severity: "P1",
+          title: `Distribution approval pending: ${group.period}`,
+          context: `${count} of ${DISTRIBUTION_REQUIRED_SIGNERS} signers confirmed`,
+          href: "/admin/distributions",
+          createdAt: now.toISOString(),
+        });
+      }
+    }
+
+    // ── P1: KYC inquiries that need admin review ─────────────────────────────
+    // KycInquiry rows represent server-claimed inquiry links (created before the
+    // webhook arrives). Rows with no matching approved KycEvent are flagged for
+    // review. We proxy this by looking for KycInquiry rows whose userId does not
+    // map to an Investor with kycStatus "approved".
+    const pendingKyc = await prisma.kycInquiry.findMany({
+      where: {
+        userId: {
+          // Exclude investors already fully approved
+          notIn: await prisma.investor.findMany({
+            where: { kycStatus: "approved" },
+            select: { userId: true },
+          }).then((rows) => rows.map((r) => r.userId)),
+        },
+      },
+      orderBy: { createdAt: "asc" },
+      take: 20,
+    });
+    for (const inquiry of pendingKyc) {
+      items.push({
+        id: `kyc-review-${inquiry.inquiryId}`,
+        type: "kyc.review",
+        severity: "P1",
+        title: "KYC inquiry needs review",
+        context: `Inquiry ${inquiry.inquiryId}`,
+        href: `/admin/customers`,
+        createdAt: inquiry.createdAt.toISOString(),
+      });
+    }
+
+    // ── TODO: lp.redemption — no Redemption model exists yet (out of scope) ──
+    // ── TODO: memo.publish  — no clear "ready to publish" data source yet    ──
   } catch {
     // DB unavailable — return empty queue (no false P0s)
   }
