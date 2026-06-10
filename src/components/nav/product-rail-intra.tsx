@@ -213,7 +213,11 @@ export function InvestorRailIntra({ isAdmin = false }: { isAdmin?: boolean }) {
   const adminEntry: NavItem | undefined = adminSection
     ? {
         id: adminSection.id,
-        label: adminSection.label,
+        // Label is "Admin" (not the section's own "Dashboard") so an admin
+        // reviewing the investor surfaces sees an unambiguous jump-to-admin
+        // entry, distinct from any in-zone "Dashboard" concept. Route, id and
+        // icon stay derived from the section — only the rail label is overridden.
+        label: "Admin",
         href: adminSection.href,
         icon: adminSection.icon,
       }

@@ -33,7 +33,7 @@ export const PRODUCT_NAV: NavItem[] = [
   },
   {
     id: "vaults",
-    label: "Vaults",
+    label: "Invest",
     href: "/vaults",
     icon: "Vault",
   },
@@ -45,7 +45,7 @@ export const PRODUCT_NAV: NavItem[] = [
   },
   {
     id: "proof-center",
-    label: "Proof Center",
+    label: "Proofs & Documents",
     href: "/proof-center",
     icon: "ShieldCheck",
   },
