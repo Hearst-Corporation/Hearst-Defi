@@ -593,19 +593,26 @@
   border-color: var(--ct-border-accent) !important;
 }
 
-/* ── SHELL — rails en deep plat (gauche + chat droit) ──
-   Le package met les rails sur --ct-surface-2 (plus clair). On les
-   aligne sur le fond deep #050A05, bordures fines pour délimiter. */
+/* ── SHELL — rails verre translucide (gauche + chat droit) ──
+   Le package met les rails sur --ct-surface-2 (plus clair) + un backdrop-filter
+   lourd. On les réaligne sur le fond deep en VERRE translucide : le fond spatial
+   (posé sur .ct-panels-row, parent commun) reste perceptible derrière — surtout
+   le chat. Bordures fines pour délimiter. Jamais de noir plat opaque. */
 .ct-rail-left {
+  /* Chrome nav — verre DENSE (plus solide que le chat) mais translucide : le
+     fond spatial transparaît légèrement → cohérent avec le reste, pas un bloc
+     noir mort. L'effet verre repose sur ce background translucide (le blur
+     ci-dessous est best-effort : le package neutralise backdrop-filter sur ses
+     propres éléments via @layer en dev ; il s'appliquera là où la cascade le
+     permet). */
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-text-strong) 3%, transparent) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 34%, var(--ct-surface-1)) 28%,
-      color-mix(in srgb, var(--ct-bg-deep) 64%, var(--ct-surface-0)) 100%
+      color-mix(in srgb, var(--ct-bg-deep) 64%, transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 76%, transparent) 100%
     ) !important;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(20px) saturate(115%);
+  -webkit-backdrop-filter: blur(20px) saturate(115%);
   border-right: 1px solid color-mix(in srgb, var(--ct-text-strong) 7%, var(--ct-border-soft));
   /* Rail verrouillé en position fermée — largeur fixe, jamais déployé. */
   width: 88px !important;
@@ -614,15 +621,18 @@
 }
 
 .ct-rail-right {
+  /* Chat — verre TRANSLUCIDE : le fond spatial (sur .ct-panels-row) transparaît
+     nettement derrière. Voile léger = glass, pas un bloc noir. Plus translucide
+     que le rail gauche. L'effet repose sur ce background translucide (le blur
+     est best-effort, cf. note rail gauche). */
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-text-strong) 3%, transparent) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 34%, var(--ct-surface-1)) 28%,
-      color-mix(in srgb, var(--ct-bg-deep) 64%, var(--ct-surface-0)) 100%
+      color-mix(in srgb, var(--ct-bg-deep) 30%, transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 42%, transparent) 100%
     ) !important;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(28px) saturate(120%);
+  -webkit-backdrop-filter: blur(28px) saturate(120%);
   border-left: 1px solid color-mix(in srgb, var(--ct-text-strong) 7%, var(--ct-border-soft));
 }
 
@@ -639,18 +649,19 @@
   display: none !important;
 }
 
-/* ── SECTION CENTRALE — fond spatial global (image) ──
-   .ct-page-area est la zone de contenu du shell (centre, sibling des rails).
-   On y pose l'image d'ambiance premium (Vision-OS) comme fond global de toute
-   l'app, avec un VOILE sombre par-dessus pour que cartes / texte / KPI restent
-   toujours plus lisibles que le fond.
+/* ── FOND SPATIAL GLOBAL — sur le parent commun des panneaux ──
+   Le fond d'ambiance (Vision-OS) vit sur .ct-panels-row : le parent commun
+   DIRECT des trois panneaux (rail gauche · centre · chat). Posé ici, il est
+   peint DERRIÈRE les trois → le backdrop-filter du chat translucide peut
+   l'échantillonner et le fond reste perceptible sous le chat ET le centre.
+   (Avant il était sur .ct-page-area, enfant du SEUL centre → le chat sibling ne
+   le voyait jamais : c'est la cause racine corrigée ici.)
 
-   cover + center + no-repeat → aucun tiling, aucune déformation, aucun crop
-   répété. PAS de background-attachment: fixed (ça ancre au viewport et bave à
-   travers les rails translucides — cf. historique portfolio.css) : l'attachment
-   par défaut garde l'image dans la boîte de CET élément, donc le rail gauche et
-   le panneau assistant (siblings, avec leur propre fond) restent nets. */
-.ct-page-area {
+   cover + center + no-repeat → aucun tiling/crop répété. PAS de
+   background-attachment: fixed (ancre au viewport, bave à travers les surfaces
+   translucides — cf. historique portfolio.css). Voile sombre intégré au
+   gradient pour garder cartes / texte / KPI au-dessus du fond. */
+.ct-panels-row {
   background-image:
     linear-gradient(
       180deg,
@@ -663,6 +674,12 @@
   background-repeat: no-repeat;
   background-color: var(--ct-bg-deep);
 }
+
+/* Centre transparent → laisse voir le fond spatial du parent. La zone de contenu
+   ne reporte plus d'image ni de fond opaque ; le voile de lisibilité est déjà
+   fourni par le gradient de .ct-panels-row ci-dessus. */
+.ct-center-panel { background: transparent !important; }
+.ct-page-area    { background: transparent; }
 
 /* ── RAIL INTRA-APP — nav verticale dans la zone .ct-rail-left ──
    Position fixed, superposée au rail du shell @hearst/cockpit-shell
