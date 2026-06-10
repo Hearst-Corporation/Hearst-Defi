@@ -1074,3 +1074,29 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-chat-history-list                      { padding: 0; }
 .ct-chat-history-item-main                 { padding: 10px 12px; }
 .ct-chat-history-delete                    { padding: 0 10px; }
+
+/* ════════════════════════════════════════════════════════════════════════
+   MOBILE — repli responsive du shell desktop (≤767px)            [QA P1 fix]
+   ──────────────────────────────────────────────────────────────────────────
+   Le package @hearst/cockpit-shell v0.2.0 est un layout desktop à 3 panneaux :
+   rail gauche 88px + panneau central (min-width:520px imposé par le package) +
+   chat droit 420px ≈ 1028px de largeur minimale. Il n'embarque AUCUN breakpoint
+   mobile : sous ~1028px la rangée flex déborde et, sur téléphone (375–430px),
+   tronque tout le contenu (input, stepper, PTAI, CTA, summary).
+
+   On replie la mise en page sous 768px UNIQUEMENT — desktop ≥768px reste
+   strictement inchangé (la requête ne s'active jamais au-dessus) :
+     • le panneau central peut rétrécir (min-width:0) au lieu de forcer 520px ;
+     • le chat droit (420px, impossible à loger sur un téléphone) est masqué ;
+     • la colonne launcher 88px (.ct-rail-left) reste en place comme espaceur :
+       le rail de nav intra fixe (.ct-rail-intra, position:fixed, 88px) la
+       recouvre exactement comme en desktop, donc le contenu démarre après les
+       88px et ne passe jamais SOUS la nav ;
+     • gouttières horizontales resserrées (40px → 16px).
+   Aucun nouveau token/classe : surcharge responsive de classes shell existantes,
+   même pattern que le reste de ce fichier. */
+@media (max-width: 767px) {
+  .ct-center-panel { min-width: 0 !important; }
+  .ct-rail-right   { display: none !important; }
+  .ct-page-area    { padding-left: 16px; padding-right: 16px; }
+}

@@ -41,13 +41,18 @@ export default function RootLayout({
   return (
     <html lang="en" data-rail-mode="collapsed" suppressHydrationWarning>
       <body suppressHydrationWarning>
+        {/* Skip-link — MUST be the first focusable element in the DOM so the
+            very first Tab reaches it (a11y / QA P2). Hoisted OUT of <AppChrome>:
+            inside it, the Cockpit shell renders its left rail + buttons before
+            the children slot, pushing this link to ~3rd in focus order. It
+            targets #main-content, which can live anywhere in the document. */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[var(--ct-z-overlay)] focus:rounded-[var(--ct-radius-lg)] focus:bg-[var(--ct-accent)] focus:px-4 focus:py-2 focus:text-[var(--ct-bg-deep)]"
+        >
+          Skip to main content
+        </a>
         <AppChrome>
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[var(--ct-z-overlay)] focus:rounded-[var(--ct-radius-lg)] focus:bg-[var(--ct-accent)] focus:px-4 focus:py-2 focus:text-[var(--ct-bg-deep)]"
-          >
-            Skip to main content
-          </a>
           <PrivyProvider appId={PRIVY_APP_ID}>
             <main id="main-content">{children}</main>
             <ClientToaster />
