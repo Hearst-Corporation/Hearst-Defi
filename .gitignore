@@ -86,3 +86,8 @@ electron/__tests__/results/
 releases/
 uiux-audit-*.html
 tri-audit-*.html
+
+# Dev artifacts (root)
+/dev.db
+/audit_profile.py
+/portfolio_body.html
