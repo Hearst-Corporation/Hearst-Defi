@@ -22,6 +22,7 @@ import { TimelockCountdown } from "@/components/governance/timelock-countdown";
 import { isChainConfigured } from "@/lib/chain/client";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
+import { isAttestorAllowlisted } from "@/lib/attestation/stored";
 import { loadCustody } from "@/lib/data/custody";
 import { getProofs } from "@/lib/data/proofs";
 import { prisma } from "@/lib/db";
@@ -52,6 +53,12 @@ export default async function ProductProofCenterPage({
     ]);
 
   const latestAttestation = onChainAttestations[0] ?? null;
+  // A4 — "Attested" badge requires a fresh attestation AND an allowlisted signer.
+  // Mirrors the same computation used by the admin proof-center. Fail-closed when
+  // there is no attestation or no allowlist configured.
+  const latestAttestationVerified =
+    latestAttestation !== null &&
+    isAttestorAllowlisted(latestAttestation.attestor);
 
   // P1 — live distribution coverage for the Yield vault, current calendar month.
   const coveragePeriod = new Date().toISOString().slice(0, 7); // YYYY-MM
@@ -121,7 +128,11 @@ export default async function ProductProofCenterPage({
         <h2 id="por-heading" className="sr-only">
           Proof of Reserves
         </h2>
-        <PorSummary attestation={latestAttestation} custody={custody} />
+        <PorSummary
+          attestation={latestAttestation}
+          custody={custody}
+          verified={latestAttestationVerified}
+        />
       </section>
 
       {/* ── Mining cash-flow evidence (yield source) ───────────── */}

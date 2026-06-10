@@ -9,7 +9,7 @@
  *  - verifyTotpCode: correct code → true; wrong code → false.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as OTPAuth from "otpauth";
 
 // ── Prisma mock ──────────────────────────────────────────────────────────────
@@ -42,6 +42,49 @@ beforeEach(() => {
   vi.clearAllMocks();
   // Inject a valid 64-hex test key so crypto-util doesn't throw.
   process.env.AUTH_TOTP_KEY = TOTP_KEY_HEX;
+});
+
+// ── crypto-util: getKey guard ─────────────────────────────────────────────────
+
+describe("crypto-util: getKey guard", () => {
+  afterEach(() => {
+    // Restore the valid key after each isolation test.
+    process.env.AUTH_TOTP_KEY = TOTP_KEY_HEX;
+  });
+
+  it("throws a clear error when AUTH_TOTP_KEY is missing", () => {
+    delete process.env.AUTH_TOTP_KEY;
+    expect(() => encrypt("anything")).toThrow(
+      "AUTH_TOTP_KEY is missing or not 64 hex chars",
+    );
+  });
+
+  it("throws a clear error when AUTH_TOTP_KEY is too short", () => {
+    process.env.AUTH_TOTP_KEY = "abc123";
+    expect(() => encrypt("anything")).toThrow(
+      "AUTH_TOTP_KEY is missing or not 64 hex chars",
+    );
+  });
+
+  it("throws a clear error when AUTH_TOTP_KEY contains non-hex characters", () => {
+    // 64 chars but includes non-hex 'z'
+    process.env.AUTH_TOTP_KEY = "z".repeat(64);
+    expect(() => encrypt("anything")).toThrow(
+      "AUTH_TOTP_KEY is missing or not 64 hex chars",
+    );
+  });
+
+  it("throws a clear error when AUTH_TOTP_KEY is exactly 63 hex chars (one short)", () => {
+    process.env.AUTH_TOTP_KEY = "a".repeat(63);
+    expect(() => encrypt("anything")).toThrow(
+      "AUTH_TOTP_KEY is missing or not 64 hex chars",
+    );
+  });
+
+  it("does NOT throw with a valid 64-hex-char key", () => {
+    process.env.AUTH_TOTP_KEY = TOTP_KEY_HEX;
+    expect(() => encrypt("anything")).not.toThrow();
+  });
 });
 
 // ── AES-256-GCM encryption util ───────────────────────────────────────────────

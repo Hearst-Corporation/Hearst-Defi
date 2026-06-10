@@ -37,8 +37,11 @@ export default async function VaultDetailPage({ params }: PageProps) {
   const admin = await requireAdmin();
   const { id } = await params;
 
-  const vault = await prisma.vaultDeployment.findUnique({
-    where: { id },
+  // Resolve by cuid (existing links) OR by ticker slug (e.g. "hyv-a" from
+  // distribution back-links). ticker is stored uppercase, so normalise the
+  // param before comparing.
+  const vault = await prisma.vaultDeployment.findFirst({
+    where: { OR: [{ id }, { ticker: id.toUpperCase() }] },
     include: {
       approvals: { orderBy: { signedAt: "asc" } },
       positions: { where: { status: "active" }, select: { principalUsdc: true } },

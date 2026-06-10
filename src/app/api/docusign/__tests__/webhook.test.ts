@@ -9,7 +9,7 @@
  *   3. validateDocusignHmac: empty signature returns false.
  *   4. POST with valid HMAC + envelope-completed → updates DB, returns 200.
  *   5. POST with invalid HMAC → 401.
- *   6. POST with missing webhook secret env var → 500.
+ *   6. POST with missing webhook secret env var → 503.
  *   7. POST with envelope-declined → updates DB to "declined".
  *   8. POST with unknown event → 200 (acknowledge only, no DB write).
  *   9. POST with missing envelopeId → 200 (acknowledge only).
@@ -162,7 +162,7 @@ describe("POST /api/docusign/webhook", () => {
     expect(mockUpdateMany).not.toHaveBeenCalled();
   });
 
-  it("returns 500 when DOCUSIGN_WEBHOOK_SECRET is missing", async () => {
+  it("returns 503 when DOCUSIGN_WEBHOOK_SECRET is missing", async () => {
     delete process.env.DOCUSIGN_WEBHOOK_SECRET;
 
     const body = envelopeCompletedPayload();
@@ -171,7 +171,7 @@ describe("POST /api/docusign/webhook", () => {
     const res = await POST(req);
     const json = await res.json() as { error: string };
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(503);
     expect(json.error).toBe("Webhook not configured");
   });
 

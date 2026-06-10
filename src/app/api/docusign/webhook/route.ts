@@ -120,7 +120,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     console.error("[docusign/webhook] DOCUSIGN_WEBHOOK_SECRET not set");
     return NextResponse.json(
       { error: "Webhook not configured" },
-      { status: 500 },
+      { status: 503 },
     );
   }
 

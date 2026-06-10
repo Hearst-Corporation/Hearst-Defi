@@ -21,12 +21,14 @@ const ALGORITHM = "aes-256-gcm" as const;
 const IV_BYTES = 12; // 96-bit IV recommended for GCM
 const TAG_BYTES = 16;
 
+const HEX_64_RE = /^[0-9a-fA-F]{64}$/;
+
 function getKey(): Buffer {
   const hex = process.env.AUTH_TOTP_KEY;
-  if (!hex || hex.length !== 64) {
+  if (!hex || !HEX_64_RE.test(hex)) {
     throw new Error(
-      "AUTH_TOTP_KEY must be set to a 64-char hex string (32 bytes). " +
-        "Generate with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
+      "AUTH_TOTP_KEY is missing or not 64 hex chars — TOTP cannot encrypt/decrypt. " +
+        "Set it in env. Generate with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
     );
   }
   return Buffer.from(hex, "hex");

@@ -115,14 +115,15 @@ export async function getAllAllowlistEntries(): Promise<AllowlistEntry[]> {
 }
 
 /**
- * Looks up a single entry by address (case-insensitive via lowercased storage
- * is not enforced here — callers must normalise addresses before lookup).
+ * Looks up a single entry by address. Both the lookup key and stored values
+ * are normalised to lowercase, so checksummed / mixed-case EVM addresses
+ * match regardless of how the caller formats them.
  */
 export async function findAllowlistEntryByAddress(
   address: string,
 ): Promise<AllowlistEntry | null> {
   const row = await prisma.addressAllowlist.findFirst({
-    where: { address, active: true },
+    where: { address: address.toLowerCase(), active: true },
   });
   return row ? mapRow(row) : null;
 }
@@ -151,7 +152,7 @@ export async function addAllowlistEntry(input: {
 
   const row = await prisma.addressAllowlist.create({
     data: {
-      address: parsed.address,
+      address: parsed.address.toLowerCase(),
       label: parsed.label,
       category: parsed.category,
       addedBy: admin.userId,

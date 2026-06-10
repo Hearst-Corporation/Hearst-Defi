@@ -108,6 +108,18 @@ const serverEnvSchema = z.object({
   SENTRY_AUTH_TOKEN: z.string().optional(),
   SENTRY_ORG: z.string().optional(),
   SENTRY_PROJECT: z.string().optional(),
+  // TOTP at-rest encryption key — AES-256-GCM, 64 hex chars (32 bytes).
+  // Optional: the app boots without TOTP. When present, must be exactly
+  // 64 lowercase/uppercase hex characters. Missing or malformed → admins
+  // with TOTP get locked out at login (crypto-util throws loudly).
+  // Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+  AUTH_TOTP_KEY: z
+    .string()
+    .regex(
+      /^[0-9a-fA-F]{64}$/,
+      "AUTH_TOTP_KEY must be exactly 64 hex characters (32 bytes)",
+    )
+    .optional(),
   // Persona KYC — HMAC secret for webhook signature verification.
   // Required at runtime when the persona webhook endpoint is active.
   PERSONA_WEBHOOK_SECRET: z.string().optional(),

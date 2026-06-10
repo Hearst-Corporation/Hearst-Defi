@@ -291,4 +291,49 @@ describe("findAllowlistEntryByAddress", () => {
     };
     expect(findCall.where.active).toBe(true);
   });
+
+  it("normalises the lookup address to lowercase (checksummed vs lowercase match)", async () => {
+    // Stored as lowercase (enforced by addAllowlistEntry); lookup with checksummed
+    // mixed-case address must still find it.
+    const storedLower = {
+      ...RAW_ENTRY,
+      address: "0xc0ffeebabec0ffeebabec0ffeebabec0ffeebabe",
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (allowlistMock().findFirst as any).mockResolvedValue(storedLower);
+
+    // Pass checksummed / mixed-case variant
+    const entry = await findAllowlistEntryByAddress(
+      "0xC0ffeeBabeC0ffeeBabeC0ffeeBabeC0ffeeBabe",
+    );
+
+    expect(entry).not.toBeNull();
+
+    // Verify the query was issued with a lowercase address
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const findCall = (allowlistMock().findFirst as any).mock.calls[0]?.[0] as {
+      where: Record<string, unknown>;
+    };
+    expect(findCall.where.address).toBe("0xc0ffeebabec0ffeebabec0ffeebabec0ffeebabe");
+  });
+
+  it("stores address as lowercase when adding (checksummed input normalised)", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (allowlistMock().create as any).mockResolvedValue({
+      ...RAW_ENTRY,
+      address: "0xc0ffeebabec0ffeebabec0ffeebabec0ffeebabe",
+    });
+
+    await addAllowlistEntry({
+      address: "0xC0ffeeBabeC0ffeeBabeC0ffeeBabeC0ffeeBabe",
+      label: "Custody Wallet",
+      category: "custody",
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const createCall = (allowlistMock().create as any).mock.calls[0]?.[0] as {
+      data: Record<string, unknown>;
+    };
+    expect(createCall.data.address).toBe("0xc0ffeebabec0ffeebabec0ffeebabec0ffeebabe");
+  });
 });
