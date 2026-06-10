@@ -1,5 +1,7 @@
 /**
- * DistribCalendar — Distributions Calendar widget for LP dashboard.
+ * DistribCalendar — Payout Calendar widget for the investor dashboard.
+ * ("Payout" is the investor-facing word for a vault distribution; the internal
+ * component/prop names keep "distrib" to avoid touching data wiring.)
  *
  * 12 paid entries + 1 forecast bar = 13-bar horizontal histogram.
  * Pure Server Component — no client JS. CSS :focus-within for accessible
@@ -114,7 +116,7 @@ function BarChart({ entries, refYear, currentPeriod }: BarChartProps) {
       role="img"
       aria-labelledby={titleId}
     >
-      <title id={titleId}>Distributions calendar — {n} periods</title>
+      <title id={titleId}>Payout calendar — {n} periods</title>
 
       <defs>
         {/* Diagonal hatch pattern for forecast bar */}
@@ -279,7 +281,7 @@ export function DistribCalendar({
 
   return (
     <article
-      aria-label="Distributions calendar"
+      aria-label="Payout calendar"
       className={cn(
         "dash-cell dash-cell-premium flex flex-col gap-3 h-full",
       )}
@@ -288,7 +290,7 @@ export function DistribCalendar({
       <div className="flex items-start justify-between gap-3 relative z-10">
         <div className="flex flex-col gap-0.5">
           <h3 className="dash-label mb-0 font-semibold text-[var(--ct-text-strong)]">
-            DISTRIBUTIONS CALENDAR
+            PAYOUT CALENDAR
           </h3>
           <p className="text-micro font-medium uppercase tracking-wide text-[var(--ct-text-muted)] mono">
             12-month history · USDC

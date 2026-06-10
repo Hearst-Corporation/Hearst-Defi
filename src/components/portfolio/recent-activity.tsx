@@ -8,11 +8,14 @@ const usdFmt = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
+// Investor-facing labels for transaction types. Keys match the DB `tx.type`
+// values and MUST NOT change; only the displayed label is investor-friendly.
+// A vault "distribution" is shown to investors as a "Payout".
 const TYPE_LABELS: Record<string, string> = {
   deposit: "Deposit",
   claim: "Claim",
   withdraw: "Withdrawal",
-  distribution: "Distribution",
+  distribution: "Payout",
 };
 
 /** Returns a relative time string like "3 days ago", "1 month ago". */
