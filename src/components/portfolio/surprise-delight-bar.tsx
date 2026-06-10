@@ -16,12 +16,12 @@ export function SurpriseDelightBar({ investorId, taxPreview }: SurpriseDelightBa
   return (
     <div
       data-testid="surprise-delight-bar"
-      className="flex flex-wrap items-center gap-3 rounded-(--ct-radius-xl) border border-white/10 bg-white/5 backdrop-blur-xl px-5 py-3 relative overflow-hidden group"
+      className="flex flex-wrap items-center gap-3 rounded-[var(--ct-radius-xl)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] backdrop-blur-xl px-5 py-3 relative overflow-hidden group"
     >
       {/* Ambient subtle glow */}
-      <div className="absolute inset-0 bg-gradient-to-r from-(--ct-accent)/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[color-mix(in_srgb,var(--ct-accent)_5%,transparent)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-      <span className="body-xs font-semibold uppercase tracking-(--ct-tracking-wide) text-(--ct-text-muted) mr-auto relative z-10">
+      <span className="body-xs font-semibold uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-muted)] mr-auto relative z-10">
         Quick Actions
       </span>
 
@@ -31,16 +31,16 @@ export function SurpriseDelightBar({ investorId, taxPreview }: SurpriseDelightBa
           <a
             href={pdfHref}
             download
-            className="body-xs flex items-center gap-1.5 rounded-(--ct-radius-md) border border-white/10 bg-white/5 px-3 py-1.5 text-(--ct-text-body) transition-all hover:bg-white/10 hover:border-(--ct-accent)/50 hover:text-(--ct-text-strong)"
+            className="body-xs flex items-center gap-1.5 rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-3 py-1.5 text-[var(--ct-text-body)] transition-all hover:bg-[var(--ct-surface-2)] hover:border-[var(--ct-border-accent)] hover:text-[var(--ct-text-strong)]"
             aria-label="Export PDF statement"
           >
-            <span aria-hidden className="text-(--ct-accent)">↓</span> Export PDF statement
+            <span aria-hidden className="text-[var(--ct-accent)]">↓</span> Export PDF statement
           </a>
         ) : (
           <button
             type="button"
             disabled
-            className="body-xs flex cursor-not-allowed items-center gap-1.5 rounded-(--ct-radius-md) border border-white/5 bg-white/5 px-3 py-1.5 text-(--ct-text-faint) opacity-50"
+            className="body-xs flex cursor-not-allowed items-center gap-1.5 rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-3 py-1.5 text-[var(--ct-text-faint)] opacity-50"
           >
             <span aria-hidden>↓</span> Export PDF statement
           </button>
@@ -51,13 +51,13 @@ export function SurpriseDelightBar({ investorId, taxPreview }: SurpriseDelightBa
           <TaxDocsDrawerButton
             userId={investorId}
             preview={taxPreview}
-            className="body-xs rounded-(--ct-radius-md) border border-white/10 bg-white/5 px-3 py-1.5 text-(--ct-text-body) transition-all hover:bg-white/10 hover:border-(--ct-accent)/50 hover:text-(--ct-text-strong)"
+            className="body-xs rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-3 py-1.5 text-[var(--ct-text-body)] transition-all hover:bg-[var(--ct-surface-2)] hover:border-[var(--ct-border-accent)] hover:text-[var(--ct-text-strong)]"
           />
         ) : (
           <button
             type="button"
             disabled
-            className="body-xs flex cursor-not-allowed items-center gap-1.5 rounded-(--ct-radius-md) border border-white/5 bg-white/5 px-3 py-1.5 text-(--ct-text-faint) opacity-50"
+            className="body-xs flex cursor-not-allowed items-center gap-1.5 rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-3 py-1.5 text-[var(--ct-text-faint)] opacity-50"
           >
             <span aria-hidden>📄</span> Preview 1099 / CRS
           </button>
@@ -65,11 +65,11 @@ export function SurpriseDelightBar({ investorId, taxPreview }: SurpriseDelightBa
 
         {/* LP → LP secondary (V2 badge) */}
         <span
-          className="body-xs flex items-center gap-1.5 rounded-(--ct-radius-md) border border-dashed border-white/10 px-3 py-1.5 text-(--ct-text-faint) opacity-60"
+          className="body-xs flex items-center gap-1.5 rounded-[var(--ct-radius-md)] border border-dashed border-[var(--ct-border-soft)] px-3 py-1.5 text-[var(--ct-text-faint)] opacity-60"
           title="Available in V2"
         >
           LP→LP secondary{" "}
-          <span className="inline-block rounded-(--ct-radius-sm) bg-(--ct-accent)/10 px-1 py-0.5 font-bold uppercase tracking-wide text-(--ct-accent) text-micro">
+          <span className="inline-block rounded-[var(--ct-radius-sm)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-1 py-0.5 font-bold uppercase tracking-wide text-[var(--ct-accent)] text-micro">
             V2
           </span>
         </span>

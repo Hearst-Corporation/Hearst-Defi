@@ -11,6 +11,7 @@ import {
   loadTimeToCashProps,
   loadTaxPreview,
 } from "@/lib/data/portfolio";
+import { PortfolioEmptyState } from "@/components/portfolio/portfolio-empty-state";
 import { SurpriseDelightBar } from "@/components/portfolio/surprise-delight-bar";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
 import { NextActionCard } from "@/components/portfolio/next-action-card";
@@ -66,42 +67,6 @@ function Section({ "data-section": dataSectionAttr, children, label }: SectionPr
     >
       {children}
     </section>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// NAV / share KPI card — extra KPI for Section 1 Hero Pulse
-// ---------------------------------------------------------------------------
-
-interface NavShareKpiProps {
-  positions: Array<{ principalUsdc: number }>;
-  totalValueUsdc: number;
-  source: "live" | "fallback";
-}
-
-function NavShareKpi({ positions, totalValueUsdc, source }: NavShareKpiProps) {
-  // NAV/share: totalValueUsdc / number of "shares" proxied by principal units.
-  // We use $1 par share = each $1 of principal is 1 share. No principal → no
-  // shares → no NAV/share. Show "—" rather than a fabricated 1.0000.
-  const totalPrincipal = positions.reduce((s, p) => s + p.principalUsdc, 0);
-  const hasPositions = totalPrincipal > 0;
-  const navPerShare = hasPositions ? totalValueUsdc / totalPrincipal : null;
-  const provenance = !hasPositions ? "stale" : source === "fallback" ? "stale" : "live";
-
-  return (
-    <article className="dash-cell dash-cell-premium" aria-label="NAV per share" data-testid="nav-share-kpi">
-      <div className="dash-label">
-        <span>NAV / share</span>
-        <ProvenanceBadge kind={provenance} />
-      </div>
-      <div className="dash-value-group relative z-10">
-        <span className="dash-value">
-          {navPerShare !== null ? navPerShare.toFixed(4) : "—"}
-        </span>
-        <span className="dash-unit shrink-0">USDC</span>
-      </div>
-      <p className="body-xs ct-text-muted mt-2 relative z-10">Par $1.00 · class A</p>
-    </article>
   );
 }
 
@@ -275,6 +240,21 @@ export default async function PortfolioPage() {
         }
       : yieldStackPropsRaw;
 
+  const hasPositions = data.positions.length > 0;
+
+  // No active positions → calm guided empty state; skip the full dashboard.
+  if (!hasPositions) {
+    return (
+      <PortfolioEmptyState
+        name={name}
+        data={data}
+        kycStatus={investor?.kycStatus ?? "pending"}
+        accreditationAttested={investor?.accreditationAttestedAt != null}
+        hasWallet={investor?.walletAddress != null}
+      />
+    );
+  }
+
   return (
     <div className="space-y-12" data-testid="portfolio-page">
 
@@ -289,7 +269,7 @@ export default async function PortfolioPage() {
         >
           <span aria-hidden className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ct-text-muted)]" />
           <p className="body-xs ct-text-muted">
-            Preview data — connect and fund your wallet to see your live portfolio.
+            Preview data — your portfolio appears here after activation.
           </p>
         </div>
       ) : null}
@@ -308,7 +288,7 @@ export default async function PortfolioPage() {
           positionCount={data.positions.length}
         />
 
-        {/* Quick access to reporting documents */}
+        {/* Quick access to reporting documents — only when positions exist */}
         <SurpriseDelightBar
           investorId={investor?.id ?? null}
           taxPreview={taxPreview}
@@ -317,9 +297,9 @@ export default async function PortfolioPage() {
 
       {/* ── Section 1 — Performance & Liquidity (Hero) ────────────────────── */}
       <Section data-section="hero-pulse" label="Hero Pulse — key performance and liquidity">
-        {/* Ligne 1 : 4 Pure KPIs */}
+        {/* Ligne 1 : 3 KPIs (NAV/share hidden — no meaningful value at 0 positions) */}
         <div
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-3"
           data-testid="hero-top-metrics"
         >
           <PositionValueKpi
@@ -328,12 +308,7 @@ export default async function PortfolioPage() {
           />
           <YieldYtdKpi
             totalYieldYtdUsdc={data.totalYieldYtdUsdc}
-            hasPositions={data.positions.length > 0}
-            source={data.source}
-          />
-          <NavShareKpi
-            positions={data.positions}
-            totalValueUsdc={data.totalValueUsdc}
+            hasPositions={hasPositions}
             source={data.source}
           />
           <NextDistributionKpi

@@ -178,7 +178,7 @@ export function PersonaEmbed({
         className={cn(
           "inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5",
           "text-sm font-medium transition-opacity",
-          "bg-[--ct-accent] text-[--ct-bg-deep]",
+          "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]",
           "disabled:opacity-40 disabled:cursor-not-allowed",
           "hover:opacity-90 active:opacity-75",
         )}

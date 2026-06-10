@@ -171,7 +171,7 @@ function BarChart({ entries, refYear, currentPeriod }: BarChartProps) {
               textAnchor="middle"
               fontSize="6"
               fill="var(--ct-status-warning)"
-              fontFamily="monospace"
+              fontFamily="var(--font-mono)"
               aria-hidden="true"
             >
               [Estimate]
@@ -237,7 +237,7 @@ function BarChart({ entries, refYear, currentPeriod }: BarChartProps) {
               textAnchor="middle"
               fontSize="7"
               fill={isCurrent ? "var(--ct-accent)" : "var(--ct-text-muted)"}
-              fontFamily="monospace"
+              fontFamily="var(--font-mono)"
               aria-hidden="true"
             >
               {periodLabel}
@@ -250,7 +250,7 @@ function BarChart({ entries, refYear, currentPeriod }: BarChartProps) {
               textAnchor="middle"
               fontSize="6.5"
               fill="var(--ct-text-primary)"
-              fontFamily="monospace"
+              fontFamily="var(--font-mono)"
               aria-hidden="true"
             >
               {amountLabel}
