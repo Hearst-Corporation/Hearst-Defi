@@ -19,9 +19,6 @@ const VALID_STEPS = new Set<OnboardingStepId>([
   "accreditation",
   "identity",
   "wallet",
-  "review",
-  "deposit",
-  "confirmed",
 ]);
 
 function isValidStep(s: string | null): s is OnboardingStepId {

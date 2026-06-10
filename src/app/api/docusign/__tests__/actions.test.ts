@@ -36,7 +36,7 @@ import {
   createSubscriptionEnvelope,
   docusignCreateEnvelope,
   docusignCreateRecipientView,
-} from "@/app/onboarding/actions";
+} from "@/lib/onboarding/actions";
 
 // ---------------------------------------------------------------------------
 // Helpers

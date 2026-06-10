@@ -26,7 +26,7 @@ import { useEffect, useState } from "react";
 
 import { DocusignEmbedded, type DocusignEvent } from "@/components/onboarding/docusign-embedded";
 import { DocsignPlaceholder } from "@/components/onboarding/docsign-placeholder";
-import { createSubscriptionEnvelope } from "@/app/onboarding/actions";
+import { createSubscriptionEnvelope } from "@/lib/onboarding/actions";
 import { cn } from "@/lib/cn";
 
 export interface DocusignStepProps {

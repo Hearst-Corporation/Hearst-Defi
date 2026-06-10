@@ -26,7 +26,7 @@ export default function WalletPage() {
     <div className="ct-card w-full max-w-lg flex flex-col gap-6">
       <ProductPageHeader
         className="gap-2"
-        eyebrow="Step 4 of 7"
+        eyebrow="Step 4 of 4"
         title="Connect Your Wallet"
         description={
           <>

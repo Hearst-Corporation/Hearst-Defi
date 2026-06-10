@@ -26,7 +26,7 @@ export default function AccreditationPage() {
     <div className="ct-card w-full max-w-lg flex flex-col gap-6">
       <ProductPageHeader
         className="gap-2"
-        eyebrow="Step 2 of 7"
+        eyebrow="Step 2 of 4"
         title="Investor Accreditation"
         description={
           <>

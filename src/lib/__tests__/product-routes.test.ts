@@ -48,8 +48,6 @@ const EXPECTED_ROUTES = [
   "/legal/privacy",
   "/legal/terms",
   "/login",
-  "/onboarding",
-  "/onboarding/[path]",
   "/onboarding/accreditation",
   "/onboarding/identity",
   "/onboarding/wallet",

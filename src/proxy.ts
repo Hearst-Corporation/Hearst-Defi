@@ -36,6 +36,8 @@ const SESSION_COOKIE = "hc_session";
 // Route prefixes that require an authenticated session.
 const PROTECTED_PREFIXES = [
   "/admin",
+  "/debug",
+  "/onboarding",
   "/portfolio",
   "/profile",
   "/proof-center",
@@ -118,6 +120,10 @@ export const config = {
   matcher: [
     "/admin",
     "/admin/:path*",
+    "/debug",
+    "/debug/:path*",
+    "/onboarding",
+    "/onboarding/:path*",
     "/portfolio",
     "/portfolio/:path*",
     "/profile",

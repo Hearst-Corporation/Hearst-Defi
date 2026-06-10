@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
-import { claimKycInquiry } from "@/app/onboarding/actions";
+import { claimKycInquiry } from "@/lib/onboarding/actions";
 
 // ---------------------------------------------------------------------------
 // Types — mirror the Persona JS SDK surface we actually use.

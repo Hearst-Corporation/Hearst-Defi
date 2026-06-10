@@ -5,7 +5,7 @@
  *
  * Renders a full-bleed iframe pointed at the DocuSign embedded signing URL.
  * The component is intentionally thin: all envelope creation happens server-side
- * in `src/app/onboarding/actions.ts`. This component receives an already-created
+ * in `src/lib/onboarding/actions.ts`. This component receives an already-created
  * `envelopeId` and the one-time `signingUrl` (a DocuSign-issued JWT URL).
  *
  * Lifecycle:

@@ -1,5 +1,5 @@
 /**
- * StepProgressBar — 7-step onboarding progress indicator.
+ * StepProgressBar — 4-step onboarding progress indicator.
  *
  * A11y: role="progressbar" + aria-valuenow / aria-valuemin / aria-valuemax.
  * Labels for each step are rendered; the active step has aria-current="step".
@@ -12,19 +12,13 @@ export type OnboardingStepId =
   | "landing"
   | "accreditation"
   | "identity"
-  | "wallet"
-  | "review"
-  | "deposit"
-  | "confirmed";
+  | "wallet";
 
 const STEPS: { id: OnboardingStepId; label: string; index: number }[] = [
   { id: "landing",       label: "Start",        index: 1 },
   { id: "accreditation", label: "Accreditation", index: 2 },
   { id: "identity",      label: "Identity",      index: 3 },
   { id: "wallet",        label: "Wallet",        index: 4 },
-  { id: "review",        label: "Review",        index: 5 },
-  { id: "deposit",       label: "Deposit",       index: 6 },
-  { id: "confirmed",     label: "Confirmed",     index: 7 },
 ];
 
 interface StepProgressBarProps {

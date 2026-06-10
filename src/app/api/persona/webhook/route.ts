@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { markKycComplete } from "@/app/onboarding/actions";
+import { markKycComplete } from "@/lib/onboarding/actions";
 
 // ---------------------------------------------------------------------------
 // Persona webhook payload schema — only the fields we care about.
