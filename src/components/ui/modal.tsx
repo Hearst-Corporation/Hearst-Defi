@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useId, useRef, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
+import { Button } from "@/components/ui/button";
 
 export interface ModalProps {
   isOpen: boolean;
@@ -122,20 +123,20 @@ function ModalBody({
         <div className="flex items-center justify-between gap-2 border-b border-[var(--ct-border-soft)] px-5 py-3">
           <h2
             id={titleId}
-            className="text-sm font-semibold ct-text-strong"
+            className="h2 ct-text-strong"
           >
             {title}
           </h2>
           <div className="flex items-center gap-2">
             {headerActions}
-            <button
-              type="button"
+            <Button
+              size="sm"
+              variant="ghost"
               onClick={close}
               aria-label="Fermer"
-              className="rounded-sm px-2 py-1 text-xs font-medium ct-text-muted hover:ct-text-strong focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]"
             >
               Fermer
-            </button>
+            </Button>
           </div>
         </div>
         <div className="overflow-y-auto px-5 py-4">{children}</div>
