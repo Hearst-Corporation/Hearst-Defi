@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { claimKycInquiry } from "@/app/onboarding/actions";
 
 // ---------------------------------------------------------------------------
 // Types — mirror the Persona JS SDK surface we actually use.
@@ -13,6 +14,10 @@ interface PersonaSdkOptions {
   templateId: string;
   environment: "sandbox" | "production";
   referenceId?: string;
+  // Fired once the inquiry exists (before the user finishes). This is the
+  // earliest point the inquiryId is known — we use it to claim the inquiry
+  // server-side as soon as possible, ahead of any terminal webhook (P0-4).
+  onReady?: (inquiryId: string) => void;
   onComplete?: (data: { inquiryId: string; status: string }) => void;
   onCancel?: () => void;
   onError?: (error: { code: string; message: string }) => void;
@@ -71,6 +76,28 @@ export function PersonaEmbed({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scriptLoadedRef = useRef(false);
+  // Track which inquiryIds we've already claimed so we never double-call the
+  // server action — guards React Strict Mode double-invoke and the onReady +
+  // onComplete double-fire (both legitimately carry the same inquiryId).
+  const claimedInquiriesRef = useRef<Set<string>>(new Set());
+
+  // Claim the inquiry → user binding on the server, exactly once per inquiryId.
+  // Security (P0-4): the server resolves the approved account from THIS claim,
+  // never from the Persona payload reference-id. Failures must not block the
+  // KYC UI — the webhook's late-claim replay path still recovers the binding —
+  // so we swallow errors and only log them.
+  async function claimInquiryOnce(inquiryId: string): Promise<void> {
+    if (!inquiryId || claimedInquiriesRef.current.has(inquiryId)) return;
+    claimedInquiriesRef.current.add(inquiryId);
+    try {
+      await claimKycInquiry(inquiryId);
+    } catch (err) {
+      // Non-fatal: allow the inquiry to continue. Re-allow a retry on the next
+      // signal by clearing the marker so a later onComplete can re-attempt.
+      claimedInquiriesRef.current.delete(inquiryId);
+      console.error("[persona-embed] claimKycInquiry failed:", err);
+    }
+  }
 
   // Inject the Persona SDK script once per page lifecycle.
   useEffect(() => {
@@ -117,8 +144,16 @@ export function PersonaEmbed({
       templateId,
       environment,
       referenceId,
+      // Claim as early as the inquiryId exists — ahead of any terminal webhook.
+      onReady: (inquiryId) => {
+        void claimInquiryOnce(inquiryId);
+      },
       onComplete: (data) => {
         setLoading(false);
+        // Safety net: claim again on completion in case onReady never fired.
+        // claimInquiryOnce is idempotent per inquiryId, so this is a no-op when
+        // onReady already claimed it.
+        void claimInquiryOnce(data.inquiryId);
         onComplete?.(data);
       },
       onCancel: () => {
