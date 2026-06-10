@@ -1,6 +1,6 @@
 {
-  "version": "2026-05-26-lp-landing-cancelled",
-  "lastUpdated": "2026-05-26",
+  "version": "2026-06-11-roadmap-requalified-vs-qa",
+  "lastUpdated": "2026-06-11",
   "snapshot_doc": "/docs/roadmap-status-2026-05-26.md",
   "flow_redesign_ref": "/docs/audit/flow-redesign-2026-05-26.html",
   "phases": [
@@ -70,10 +70,11 @@
             },
             {
               "id": "auth-privy",
-              "label": "Auth Privy (magic link + wallet)",
+              "label": "Auth email/password (argon2id) + DB sessions + TOTP MFA",
               "owner": "eng",
               "spec_ref": "/docs/spec/00-vision.mdx",
-              "status": "validated"
+              "status": "validated",
+              "note": "Shipped auth is email/password + opaque DB sessions + TOTP MFA; Privy is reserved for the USDC payment flow, not authentication."
             },
             {
               "id": "ingest-btc-price",
@@ -279,7 +280,8 @@
               "label": "Backtest engine (3 periods) with rules/no-rules comparison",
               "owner": "eng",
               "spec_ref": "/docs/spec/02-scenario-lab.mdx",
-              "status": "validated"
+              "status": "in_progress",
+              "note": "Engine pure and runs live, but hearstRulesMode is hardcoded true in all 3 specs; the no-rules comparison is never produced (compareRules accepted-but-ignored)."
             },
             {
               "id": "mock-attestation",
@@ -429,7 +431,9 @@
               "label": "Distributions UI : afficher vaultId + lien retour vers vault parent",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "validated",
+              "note": "Back-link fixed: admin vault detail resolves by id OR ticker. vaultRef remains a denormalized slug, not a relational FK.",
+              "evidence": "code: src/app/admin/vaults/[id]/page.tsx (findFirst id OR ticker)"
             },
             {
               "id": "proof-center-dedup",
@@ -463,14 +467,16 @@
               "label": "Action queue centralisée (10 types : multisig.sign, oracle.stale, kyc.review, …)",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "in_progress",
+              "note": "Only 4 of 10 declared types are produced; the other 6 (incl. multisig.sign) are dead labels with no producer."
             },
             {
               "id": "pending-approvals-inbox",
               "label": "Inbox signers cross-vaults « pending your signature »",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "in_progress",
+              "note": "No inbox/card in the cockpit; no multisig.sign producer. Governance console is now nav-linked but the cross-vault inbox is not built."
             },
             {
               "id": "lp-dashboard-3-sections",
@@ -548,7 +554,8 @@
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
               "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "evidence": "code: src/components/dashboard/timeseries-section.tsx (NavChart + drawdown shading), rendered in src/app/admin/dashboard/page.tsx",
+              "note": "Rendered via TimeseriesSection on /admin/dashboard; NavChart includes drawdown shading + distribution markers."
             },
             {
               "id": "chart-risk-waterfall",
@@ -569,7 +576,8 @@
               "label": "Allocation donut hierarchical 2-ring (bucket → position)",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "in_progress",
+              "note": "Only the flat legacy 1-ring path is rendered; the hierarchical 2-ring never receives positions."
             },
             {
               "id": "chart-provenance-corner",
@@ -596,24 +604,21 @@
               "label": "Wizard : mode « Clone from existing vault » (?cloneFrom=&lt;id&gt;)",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "validated"
             },
             {
               "id": "wizard-monte-carlo-review",
               "label": "Step 6 Review & Simulate (Monte Carlo 1k paths inline)",
               "owner": "engine-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "validated"
             },
             {
               "id": "wizard-live-projection-footer",
               "label": "Sticky footer projection live (APY range + risk + NAV@12m) sur tous steps",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "validated"
             },
             {
               "id": "wizard-step7-sign-deploy",
@@ -627,8 +632,7 @@
               "label": "Forbidden words linter inline (red underline pendant la frappe)",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "validated"
             },
             {
               "id": "multisig-proposal-state-machine",
@@ -642,8 +646,8 @@
               "label": "Off-chain Safe EIP-712 signature collection + TimelockController schedule()",
               "owner": "sc-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "in_progress",
+              "note": "safeTxTypedData/hashSafeTx/SafeTxSchema have zero callers; signProposal records a decision row without typed-data signature bytes."
             },
             {
               "id": "multisig-cancel-quorum",
@@ -657,23 +661,24 @@
               "label": "Pre-execution Tenderly fork simulation panel (diff state + gas + reverts)",
               "owner": "eng",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "in_progress",
+              "note": "SimulationPanel/simulateProposal only on /admin/governance/simulate-demo with mock data; real proposal execution is not gated on a sim."
             },
             {
               "id": "multisig-timelock-countdown-public",
               "label": "Public Proof Center : timelock countdown 48h + verify on-chain link",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "in_progress",
+              "note": "48h countdown wired; the 'verify on-chain link' half is missing; renders only with GovernanceProposal rows."
             },
             {
               "id": "notification-matrix-governance",
               "label": "Notification matrix (signers Telegram, LPs email « executable in 24h »)",
               "owner": "eng",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "in_progress",
+              "note": "Matrix/resolveChannels/renderTemplate built; zero consumers; no Notification.create. Deferred (Adrien)."
             },
             {
               "id": "lp-landing-s0",
@@ -689,38 +694,38 @@
               "label": "LP onboarding 4 → 9 stages (capability-driven funnel Stripe Connect-style)",
               "owner": "ui-dev+product",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "in_progress",
+              "note": "Funnel reduced to 4 implemented steps (phantom review/deposit/confirmed 404 steps removed); deposit/confirm happen in the vault invest flow. /signup (S1) and the full 9-stage funnel are not built."
             },
             {
               "id": "lp-onboarding-3-paths",
               "label": "3 paths divergents (Individual Privy / Corporate Fireblocks / Fund-of-funds white-glove)",
               "owner": "ui-dev+product",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "todo",
+              "note": "The 3-path tree (/onboarding/[path]) was orphaned and has been removed; only a single onboarding funnel exists."
             },
             {
               "id": "lp-s9-institutional-confirmation",
               "label": "S9 Confirmation : NAV0 + lockup countdown + next distrib + PDF receipt + .ics + ops contact",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "in_progress",
+              "note": "Component spec-complete but lives under /vaults/[id]/invest/confirmed, unreachable until a live (non-placeholder) vault exists."
             },
             {
               "id": "lp-kyc-persona-inline",
               "label": "S3 KYC Persona embedded inline (Light 10min / Deep 48h SoF / KYB 3-5d)",
               "owner": "eng",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "validated"
             },
             {
               "id": "lp-docusign-embedded",
               "label": "S7 Docs Sign DocuSign embedded (Subscription Agt + optional Side Letter)",
               "owner": "eng+legal",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "validated"
             }
           ]
         },
@@ -733,49 +738,57 @@
               "label": "Command palette ⌘K (30 commandes : Navigate / Action / Search / View)",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "todo",
+              "note": "Only src/lib/power/commands.ts registry + a test; no Cmd+K palette UI component exists."
             },
             {
               "id": "global-search-cmd-slash",
               "label": "Global search ⌘/ (10 entities indexées : Vault/Investor/Position/...)",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "in_progress",
+              "note": "GlobalSearch built + /api/search live, but the component is unmounted. Intentional-unwired (Adrien 2026-06-10), wire later."
             },
             {
               "id": "notifications-bell-feed",
               "label": "Notifications feed (bell top-right) : Action required / FYI / System",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "in_progress",
+              "note": "NotificationsBell unmounted; backend has zero consumers. Intentional-unwired (Adrien 2026-06-10)."
             },
             {
               "id": "batch-actions-multi-select",
               "label": "Batch actions multi-select tables (x select, undo toast 10s)",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "in_progress",
+              "note": "Selection-bar shell only (count + buttons); no undo/toast/10s timer/x-select; not mounted in any table."
             },
             {
               "id": "saved-views-8-templates",
               "label": "8 saved views Linear-style (My signatures / Stuck KYC / Anomalies 24h / …)",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "in_progress",
+              "note": "templates.ts + server actions built; SavedViewsPicker mounted nowhere. Intentional-unwired (Adrien 2026-06-10)."
             },
             {
               "id": "keyboard-shortcuts-cheatsheet",
               "label": "Keyboard shortcuts (g+key navigate, j/k, x select) + shift+? overlay",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "in_progress",
+              "note": "registry.ts is a static table; ShortcutsOverlay is unmounted; no global key dispatcher executes the combos."
             },
             {
               "id": "sota-carta-event-atomic",
               "label": "Big idea Carta : event-based atomic exec (1 click = tx + ledger + PCAP + emails)",
               "owner": "eng",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "validated",
+              "note": "Wired: confirmDistribution now finishes via executeDistributionAtomically (ledger + PCAP + status=executed + event) and a distribution.executed Inngest email consumer.",
+              "evidence": "code: src/app/admin/distributions/actions.ts (confirmDistribution -> executeDistributionAtomically) + src/lib/inngest/functions/distribution-executed.ts"
             },
             {
               "id": "sota-maple-time-to-cash",
@@ -789,23 +802,23 @@
               "label": "Big idea Anchorage : allowlist quorum routing (routine = 2/3 ; hors-liste = 4/5 + timelock)",
               "owner": "sc-dev+eng",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated"
+              "status": "validated",
+              "note": "routeForTransaction wired into proposeAction (3-bucket model: allowlisted 2/3+0h, emergency 5/5+0h, default 4/5+24h). Allowlist fast-path needs a targetAddress input (deferred).",
+              "evidence": "code: src/lib/governance/actions.ts (proposeAction -> routeForTransaction)"
             },
             {
               "id": "lp-export-pdf-statement",
               "label": "Surprise & delight : Export PDF statement on-demand (1 click, server-rendered)",
               "owner": "ui-dev",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "validated"
             },
             {
               "id": "lp-tax-docs-preview",
               "label": "Surprise & delight : Tax docs preview (1099/CRS-friendly YTD distributions)",
               "owner": "eng+legal",
               "spec_ref": "/docs/audit/flow-redesign-2026-05-26.html",
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "validated"
             }
           ]
         }
@@ -838,16 +851,15 @@
               "label": "Share class A ($250k/60d/1+10)",
               "owner": "eng+legal",
               "spec_ref": null,
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "validated"
             },
             {
               "id": "share-class-b",
               "label": "Share class B ($1M/90d/0.75+8)",
               "owner": "eng+legal",
               "spec_ref": null,
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "in_progress",
+              "note": "Modelled/seeded but unreachable: invest-form hardcodes class 'A'; no selector."
             },
             {
               "id": "custody-fireblocks",
@@ -875,8 +887,8 @@
               "label": "Sharpe / Sortino / VaR in Advanced mode",
               "owner": "eng",
               "spec_ref": null,
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "in_progress",
+              "note": "Sharpe/Sortino/VaR render only on the admin dashboard; no LP-facing RiskMetricsPanel exists."
             }
           ]
         }
@@ -895,16 +907,14 @@
               "label": "Hearst Defensive Vault (5-8% APY, mining 15-25%)",
               "owner": "eng+product",
               "spec_ref": null,
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "validated"
             },
             {
               "id": "vault-btc-plus",
               "label": "Hearst BTC Plus Vault (10-20% APY, more BTC tactical)",
               "owner": "eng+product",
               "spec_ref": null,
-              "status": "validated",
-              "evidence": "PR #<placeholder>"
+              "status": "validated"
             },
             {
               "id": "monte-carlo",
@@ -938,5 +948,6 @@
         }
       ]
     }
-  ]
+  ],
+  "requalification_note": "Statuses reconciled against the 2026-06 QA audit + the P1/P2 fixes shipped. 'validated' now means reachable-in-product; items where code exists but is disconnected are 'in_progress'; never-built items are 'todo'. See per-item note."
 }
