@@ -14,9 +14,15 @@
 }
 
 .dash-cell {
-  background: color-mix(in srgb, var(--ct-surface-1) 20%, transparent);
+  /* Readability pass: lift the card clearly off the pure-black background.
+     Was surface-1 @20% (~0.8% white) — indistinguishable from #000. Now a
+     full surface-2 plus a faint white wash so the card reads as a surface,
+     and a stronger border to define its edge. */
+  background:
+    linear-gradient(color-mix(in srgb, #ffffff 3%, transparent), color-mix(in srgb, #ffffff 3%, transparent)),
+    var(--ct-surface-2);
   backdrop-filter: blur(24px);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent);
+  border: 1px solid var(--ct-border-strong);
   border-radius: var(--ct-radius-2xl);
   box-shadow: 0 10px 40px color-mix(in srgb, var(--ct-bg-deep) 80%, black);
   padding: var(--ct-space-6);
@@ -28,10 +34,11 @@
   height: 100%;
 }
 
-/* Premium pattern utility */
+/* Premium pattern utility — kept very subtle so it never competes with the
+   numbers. Dot opacity dropped from 8% to 3% and the grid widened. */
 .dash-cell-premium {
-  background-image: radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 8%, transparent) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 3%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
 .dash-cell.col-3 { grid-column: span 3; }
@@ -80,7 +87,9 @@
 .dash-label {
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-medium);
-  color: var(--ct-text-muted);
+  /* Was text-muted (~0.48 on black) — too faint to read at a glance. Bumped to
+     text-body so labels stay secondary but legible without squinting. */
+  color: var(--ct-text-body);
   letter-spacing: var(--ct-tracking-wider);
   margin-bottom: var(--ct-space-4);
   display: flex;
@@ -99,7 +108,9 @@
 .dash-value {
   font-family: var(--font-sans);
   font-size: var(--ct-text-5xl);
-  font-weight: var(--ct-font-light);
+  /* Key values were font-light (300) — too thin to dominate. Normal weight
+     gives the primary numbers the presence they need to read instantly. */
+  font-weight: var(--ct-font-normal);
   color: var(--ct-text-strong);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-none);

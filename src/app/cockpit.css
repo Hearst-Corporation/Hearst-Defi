@@ -22,7 +22,12 @@
   --ct-accent-soft: color-mix(in srgb, var(--ct-accent) 18%, transparent);
   --ct-border-accent: color-mix(in srgb, var(--ct-accent) 55%, transparent);
 
-  --ct-text-faint: rgba(245, 245, 245, 0.40);
+  /* Readability pass — secondary text tokens were too dim on the pure-black
+     background (muted 0.48 / faint 0.40 from the package). Lifted so labels and
+     captions read without squinting, while staying clearly secondary to body
+     (0.72) and primary (0.92). Global override → benefits every surface. */
+  --ct-text-muted: rgba(245, 245, 245, 0.62);
+  --ct-text-faint: rgba(245, 245, 245, 0.52);
 
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
      Success = canonical accent green (#A7FB90) — single green across UI. */

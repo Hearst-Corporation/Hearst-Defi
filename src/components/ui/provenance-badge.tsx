@@ -33,11 +33,16 @@ const variants: Record<
 };
 
 export function ProvenanceBadge({ kind }: { kind: Provenance }) {
+  // "stale" repeats on many cards (e.g. an investor with no positions yet) and
+  // reads as alarming when stacked. Keep the information, but render it quietly
+  // (reduced opacity) so it stops competing with the numbers. All other kinds
+  // are unchanged.
+  const muted = kind === "stale";
   return (
     <Badge
       variant={variants[kind]}
       title={`Data provenance: ${labels[kind]}`}
-      className="shrink-0 whitespace-nowrap"
+      className={muted ? "shrink-0 whitespace-nowrap opacity-60" : "shrink-0 whitespace-nowrap"}
     >
       <span
         aria-hidden
