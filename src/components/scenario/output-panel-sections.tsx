@@ -40,8 +40,8 @@ export function ApyHero({
       low={output.apy_range.low}
       high={output.apy_range.high}
       className={cn(
-        "mono text-4xl font-extrabold tabular-nums",
-        "ct-text-strong leading-none",
+        "mono text-3xl sm:text-4xl font-extrabold tabular-nums",
+        "ct-text-strong leading-tight",
       )}
     />
   );
@@ -73,12 +73,12 @@ export function ApyHero({
           <ProvenanceBadge kind="estimated" />
         </CardHeader>
 
-        <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-4 pt-1">
           {apy}
           {confidence}
         </div>
 
-        <div className="mt-4 border-t border-[var(--ct-border-soft)] pt-4">
+        <div className="mt-4 border-t border-(--ct-border-soft) pt-4">
           <div className="mb-3 flex items-center justify-between gap-2">
             <span className="stat-label">Stressed APY</span>
             <ProvenanceBadge kind="estimated" />
@@ -101,7 +101,7 @@ export function ApyHero({
         <ProvenanceBadge kind="estimated" />
       </div>
 
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-3 pt-1">
         {apy}
         {confidence}
       </div>
@@ -297,7 +297,7 @@ export function AllocationSection({
     <div className={variant === "full" ? "mt-4" : undefined}>
       <div
         className={cn(
-          "grid grid-cols-[1fr_auto_auto] text-micro font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted",
+          "grid grid-cols-[1fr_auto_auto] text-micro font-semibold uppercase tracking-(--ct-tracking-wide) ct-text-muted",
           variant === "full" ? "mb-2 gap-x-4" : "mb-1.5 gap-x-3",
         )}
       >
@@ -305,7 +305,7 @@ export function AllocationSection({
         <span className="text-right">Pct</span>
         <span className="text-right">{yieldHeader}</span>
       </div>
-      <ul className="divide-y divide-[var(--ct-border-soft)]">
+      <ul className="divide-y divide-(--ct-border-soft)">
         {output.allocations.map((a) => (
           <li
             key={a.bucket}
@@ -318,7 +318,7 @@ export function AllocationSection({
           >
             <span className="flex min-w-0 items-center gap-2 ct-text-body">
               <span
-                className="inline-block h-2 w-2 shrink-0 rounded-full shadow-[var(--ct-glow-dot)] bg-current"
+                className="inline-block h-2 w-2 shrink-0 rounded-full shadow-(--ct-glow-dot) bg-current"
                 style={{ color: BUCKET_COLOR[a.bucket] }}
                 aria-hidden
               />

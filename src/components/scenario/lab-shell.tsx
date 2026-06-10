@@ -39,9 +39,11 @@ export function LabShell({ vaultId, initialInputs }: LabShellProps) {
   const [scenarioMode, setScenarioMode] = useState<ScenarioMode>("single");
 
   return (
-    <div className="space-y-6">
+    <div className="scenario-lab-shell">
       {/* Tab toggle */}
-      <ScenarioTabBar active={activeTab} onChange={setActiveTab} />
+      <div className="scenario-lab-toolbar">
+        <ScenarioTabBar active={activeTab} onChange={setActiveTab} />
+      </div>
 
       {/* ── Scenario tab ──────────────────────────────────────────────── */}
       <div
@@ -50,10 +52,10 @@ export function LabShell({ vaultId, initialInputs }: LabShellProps) {
         aria-labelledby="tab-scenario"
         hidden={activeTab !== "scenario"}
       >
-        <div className="space-y-6">
+        <div className="flex flex-col gap-4">
           {/* Mode toggle: Single | Compare */}
-          <div className="flex items-center justify-between gap-4">
-            <p className="eyebrow">
+          <div className="scenario-lab-modebar">
+            <p className="eyebrow min-w-0">
               {scenarioMode === "single"
                 ? "Run one scenario"
                 : "Compare two scenarios side-by-side"}

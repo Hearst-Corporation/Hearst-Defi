@@ -25,6 +25,14 @@ interface PresetPickerProps<T extends string> {
   disabled?: boolean;
   onChange: (value: T) => void;
 }
+const PRESET_PICKER_STRINGS = {
+  scenarioLabel: "Scenario",
+  selectScenarioLower: "select a scenario",
+  selectScenarioTitle: "Select a scenario",
+  pickScenarioLabel: "Pick a scenario",
+  alreadySelectedOtherSide: "Already on the other side",
+  chevronDown: "▼",
+} as const;
 
 export function PresetPicker<T extends string>({
   side,
@@ -109,35 +117,35 @@ export function PresetPicker<T extends string>({
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label={`Scenario ${side}: ${value ? labelFor(value) : "select a scenario"}`}
+        aria-label={`${PRESET_PICKER_STRINGS.scenarioLabel} ${side}: ${value ? labelFor(value) : PRESET_PICKER_STRINGS.selectScenarioLower}`}
         className={cn(
           "flex w-full items-center justify-between gap-3 glass-panel",
           "border-l-4",
           sideAccent,
           "px-4 py-3 text-left",
           "disabled:cursor-not-allowed disabled:opacity-40",
-          "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
+          "focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
         )}
       >
         <span className="flex min-w-0 flex-col gap-0.5">
-          <span className="eyebrow">Scenario {side}</span>
+          <span className="eyebrow">{PRESET_PICKER_STRINGS.scenarioLabel} {side}</span>
           <span
             className={cn(
               "h4 truncate",
               !value && "ct-text-muted font-medium",
             )}
           >
-            {value ? labelFor(value) : "Select a scenario"}
+            {value ? labelFor(value) : PRESET_PICKER_STRINGS.selectScenarioTitle}
           </span>
         </span>
         <span
           className={cn(
-            "shrink-0 ct-text-body transition-transform duration-[var(--ct-dur-fast)]",
+            "shrink-0 ct-text-body transition-transform duration-(--ct-dur-fast)",
             open && "rotate-180",
           )}
           aria-hidden
         >
-          ▼
+          {PRESET_PICKER_STRINGS.chevronDown}
         </span>
       </button>
 
@@ -145,12 +153,12 @@ export function PresetPicker<T extends string>({
         <ul
           ref={listboxRef}
           role="listbox"
-          aria-label={`Pick a scenario for ${side}`}
+          aria-label={`${PRESET_PICKER_STRINGS.pickScenarioLabel} for ${side}`}
           onKeyDown={onListKeyDown}
           className={cn(
-            "absolute z-[var(--ct-z-dropdown)] mt-2 w-full overflow-hidden",
+            "absolute z-(--ct-z-dropdown) mt-2 w-full overflow-hidden",
             "glass-panel p-0",
-            "shadow-[var(--ct-shadow-elevated)]",
+            "shadow-(--ct-shadow-elevated)",
           )}
         >
           {options.map((o) => {
@@ -171,8 +179,8 @@ export function PresetPicker<T extends string>({
                   title={o.description}
                   className={cn(
                     "flex w-full flex-col items-start gap-0.5 px-4 py-3 text-left",
-                    "transition-colors duration-[var(--ct-dur-fast)]",
-                    "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
+                    "transition-colors duration-(--ct-dur-fast)",
+                    "focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
                     isSelected
                       ? "ct-surface-1 ct-text-accent"
                       : "ct-text-body hover:ct-surface-3 hover:ct-text-primary",
@@ -182,7 +190,7 @@ export function PresetPicker<T extends string>({
                 >
                   <span className="text-sm font-semibold">{o.label}</span>
                   <span className="text-micro ct-text-muted">
-                    {isExcluded ? "Already on the other side" : o.description}
+                    {isExcluded ? PRESET_PICKER_STRINGS.alreadySelectedOtherSide : o.description}
                   </span>
                 </button>
               </li>

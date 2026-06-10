@@ -27,7 +27,7 @@ export function PositionsList({ positions, source }: PositionsListProps) {
 
   return (
     <article 
-      className="ct-kpi-glass flex flex-col relative flex-1 h-full min-h-[200px] p-6 overflow-hidden" 
+      className="ct-kpi-glass flex flex-col relative flex-1 h-full min-h-48 p-6 overflow-hidden" 
       aria-label="Open positions"
     >
       <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 shrink-0 relative z-10">
@@ -44,7 +44,7 @@ export function PositionsList({ positions, source }: PositionsListProps) {
         {positions.length === 0 ? (
           <p className="text-sm text-(--ct-text-muted) mt-2 italic">No open positions.</p>
         ) : (
-          <div className="flex flex-col min-w-[600px] gap-2">
+          <div className="flex flex-col min-w-150 gap-2">
             <div className="grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 pb-2 border-b border-(--ct-border-soft) text-micro text-(--ct-text-muted) uppercase tracking-widest font-medium">
               <span>Vault</span>
               <span className="text-right">Principal</span>

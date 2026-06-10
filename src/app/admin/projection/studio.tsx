@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useCallback } from "react";
+import { useEffect, useRef, useState, useTransition, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
@@ -97,7 +97,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full accent-[var(--ct-accent)] h-1.5 rounded-full cursor-pointer"
+        className="w-full accent-(--ct-accent) h-1.5 rounded-full cursor-pointer"
         aria-label={label}
       />
       <div className="flex justify-between eyebrow ct-text-faint">
@@ -227,12 +227,12 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
               aria-selected={isSelected}
               aria-label={`APY ${cell.apyLow.toFixed(1)}–${cell.apyHigh.toFixed(1)}%, risk ${cell.riskScore}. Cell ${idx + 1} of ${cells.length}.`}
               className={cn(
-                "relative p-2.5 rounded-md border text-left transition-[background-color,border-color] duration-[var(--ct-dur-base)]",
+                "relative p-2.5 rounded-md border text-left transition-[background-color,border-color] duration-(--ct-dur-base)",
                 riskBgClass(cell.riskScore),
-                "border-[var(--ct-border-soft)]",
-                isSelected && "ring-2 ring-offset-1 ring-offset-[var(--ct-bg-deep)]",
-                isSelected && "ring-[var(--ct-accent)]",
-                "hover:border-[var(--ct-border)] hover:shadow-[var(--ct-shadow-elevated)] focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
+                "border-(--ct-border-soft)",
+                isSelected && "ring-2 ring-offset-1 ring-offset-(--ct-bg-deep)",
+                isSelected && "ring-(--ct-accent)",
+                "hover:border-(--ct-border) hover:shadow-(--ct-shadow-elevated) focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
               )}
             >
               <div className="flex flex-col gap-0.5">
@@ -257,6 +257,8 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
 
 export function ProjectionStudio() {
   const router = useRouter();
+  const outputRef = useRef<HTMLDivElement | null>(null);
+  const hasRunRef = useRef(false);
   const [isPending, startTransition] = useTransition();
   const [isPromoting, startPromote] = useTransition();
 
@@ -301,6 +303,7 @@ export function ProjectionStudio() {
 
   const handleRun = useCallback(() => {
     setError(null);
+    hasRunRef.current = true;
     startTransition(async () => {
       try {
         const currentInputs = {
@@ -363,30 +366,38 @@ export function ProjectionStudio() {
   const xVals = batchMode === "2d" ? DEFAULT_2D_X_VALUES : batchMode === "1d" ? DEFAULT_1D_VALUES : undefined;
   const yVals = batchMode === "2d" ? DEFAULT_2D_Y_VALUES : undefined;
 
+  useEffect(() => {
+    if (!result || !hasRunRef.current) return;
+    outputRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [result]);
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[var(--ct-sidebar-w)_1fr] gap-6 items-start">
-      {/* ── LEFT: INPUTS ── */}
-      <Card className="space-y-6">
-        {/* Preset selector */}
-        <div className="space-y-3">
+    <div className="projection-studio-shell">
+      <Card className="projection-studio-preset-rail">
+        <div className="projection-studio-preset-rail__head">
           <p className="eyebrow ct-text-muted">Preset</p>
-          <div className="flex flex-wrap gap-2">
-            {PRESETS.map((p) => (
-              <Button
-                key={p.id}
-                variant="secondary"
-                size="sm"
-                onClick={() => loadPreset(p.id)}
-                disabled={isPending}
-              >
-                {p.label}
-              </Button>
-            ))}
-          </div>
+          <span className="body-xs ct-text-faint">
+            Load assumptions, then tune the inputs below.
+          </span>
         </div>
+        <div className="projection-studio-preset-rail__items">
+          {PRESETS.map((p) => (
+            <Button
+              key={p.id}
+              variant="secondary"
+              size="sm"
+              onClick={() => loadPreset(p.id)}
+              disabled={isPending}
+            >
+              {p.label}
+            </Button>
+          ))}
+        </div>
+      </Card>
 
-        <div className="ct-divide-soft h-px" />
-
+      <div className="projection-studio-workspace">
+      {/* ── LEFT: INPUTS ── */}
+      <Card className="projection-studio-input-card">
         {/* Base inputs */}
         <div className="space-y-5">
           <p className="eyebrow ct-text-muted">Market Inputs</p>
@@ -526,10 +537,10 @@ export function ProjectionStudio() {
       </Card>
 
       {/* ── RIGHT: OUTPUTS ── */}
-      <div className="space-y-6">
+      <div ref={outputRef} className="projection-studio-output">
         {!result && (
-          <Card className="flex items-center justify-center min-h-48">
-            <p className="body-md ct-text-muted">
+          <Card className="projection-studio-empty">
+            <p className="body-md ct-text-muted text-center">
               Configure inputs and run a scenario or batch to see projections.
             </p>
           </Card>
@@ -623,7 +634,7 @@ export function ProjectionStudio() {
             )}
 
             {/* "Not guaranteed" disclaimer — non-negotiable #10 */}
-            <p className="body-xs ct-text-faint border border-[var(--ct-border-soft)] rounded-md px-3 py-2">
+            <p className="body-xs ct-text-faint border border-(--ct-border-soft) rounded-md px-3 py-2">
               <strong className="ct-text-muted">Disclaimer:</strong>{" "}
               Projections are conditional on stated assumptions and are not guaranteed.
               Rule-based engine — no Monte Carlo. Past performance does not predict future
@@ -647,6 +658,7 @@ export function ProjectionStudio() {
             </div>
           </>
         )}
+      </div>
       </div>
     </div>
   );

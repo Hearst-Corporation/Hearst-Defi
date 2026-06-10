@@ -55,7 +55,7 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
 
   return (
     <article 
-      className="ct-kpi-glass flex flex-col relative flex-1 h-full min-h-[200px] p-6 overflow-hidden" 
+      className="ct-kpi-glass flex flex-col relative flex-1 h-full min-h-48 p-6 overflow-hidden" 
       aria-label="Portfolio value — 12-month trend"
     >
       <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 relative z-10">
@@ -69,10 +69,10 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
       </div>
 
       <div
-        className="mt-3 w-full h-[140px] rounded-xl ct-kpi-glass overflow-hidden flex items-end relative z-10"
+        className="mt-3 w-full h-36 rounded-xl ct-kpi-glass overflow-hidden flex items-end relative z-10"
         aria-hidden="true"
       >
-        <svg className="w-full h-[90%] text-(--ct-accent)" viewBox="0 0 100 40" preserveAspectRatio="none">
+        <svg className="w-full h-full text-(--ct-accent)" viewBox="0 0 100 40" preserveAspectRatio="none">
           <defs>
             <linearGradient id="spark-gradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="currentColor" stopOpacity="0.2" />

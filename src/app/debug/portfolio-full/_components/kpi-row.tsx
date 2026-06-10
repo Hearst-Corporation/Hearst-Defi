@@ -32,7 +32,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <article 
-        className="ct-kpi-glass flex flex-col relative min-h-[140px] p-6 overflow-hidden" 
+        className="ct-kpi-glass flex flex-col relative min-h-36 p-6 overflow-hidden" 
         aria-label="NAV per share"
       >
         <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 relative z-10">
@@ -53,7 +53,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
       </article>
 
       <article 
-        className="ct-kpi-glass flex flex-col relative min-h-[140px] p-6 overflow-hidden" 
+        className="ct-kpi-glass flex flex-col relative min-h-36 p-6 overflow-hidden" 
         aria-label="Portfolio value"
       >
         <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 relative z-10">
@@ -84,7 +84,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
       </article>
 
       <article 
-        className="ct-kpi-glass flex flex-col relative min-h-[140px] p-6 overflow-hidden" 
+        className="ct-kpi-glass flex flex-col relative min-h-36 p-6 overflow-hidden" 
         aria-label="Yield year to date"
       >
         <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 relative z-10">
@@ -105,7 +105,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
       </article>
 
       <article 
-        className="ct-kpi-glass flex flex-col relative min-h-[140px] p-6 overflow-hidden" 
+        className="ct-kpi-glass flex flex-col relative min-h-36 p-6 overflow-hidden" 
         aria-label="Next distribution date"
       >
         <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 relative z-10">

@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Report — Hearst Connect — 2026-06-11</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#050a05;color:#e0e8e0;font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.5}
+code,pre,.mono{font-family:'Courier New',monospace;font-size:12px}
+a{color:#A7FB90;text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1400px;margin:0 auto;padding:24px}
+
+/* Header */
+.header{border-bottom:2px solid #A7FB90;padding-bottom:20px;margin-bottom:28px}
+.header h1{font-size:28px;color:#A7FB90;letter-spacing:1px;margin-bottom:4px}
+.header .sub{color:#7a9a7a;font-size:13px;margin-bottom:16px}
+.counters{display:flex;gap:12px;flex-wrap:wrap}
+.counter{border:1px solid;border-radius:6px;padding:8px 16px;text-align:center;min-width:100px}
+.counter .num{font-size:24px;font-weight:700;display:block}
+.counter .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.c-total{border-color:#3a5a3a;background:#0a140a}.c-total .num{color:#e0e8e0}
+.c-ok{border-color:#A7FB90;background:#0a1a08}.c-ok .num{color:#A7FB90}
+.c-broken{border-color:#FF4444;background:#1a0808}.c-broken .num{color:#FF4444}
+.c-fake{border-color:#FF8C00;background:#1a0e00}.c-fake .num{color:#FF8C00}
+.c-hc{border-color:#FFD700;background:#1a1500}.c-hc .num{color:#FFD700}
+.c-redir{border-color:#4a8aff;background:#080e1a}.c-redir .num{color:#4a8aff}
+
+/* Sections */
+.section{margin-bottom:36px}
+.section-title{font-size:18px;font-weight:700;margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid #1a2a1a;display:flex;align-items:center;gap:8px}
+.s-crit .section-title{border-color:#FF4444;color:#FF4444}
+.s-warn .section-title{border-color:#FF8C00;color:#FF8C00}
+.s-ok .section-title{border-color:#A7FB90;color:#A7FB90}
+.s-info .section-title{border-color:#4a8aff;color:#4a8aff}
+.s-yellow .section-title{border-color:#FFD700;color:#FFD700}
+
+/* P0 issues */
+.p0-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.p0-item{background:#1a0505;border-left:4px solid #FF4444;border-radius:0 6px 6px 0;padding:10px 14px}
+.p0-item .p0-title{color:#FF4444;font-weight:700;font-size:13px;margin-bottom:4px}
+.p0-item .p0-body{color:#c0c8c0;font-size:12px}
+.p0-item code{color:#ff9090;background:#2a0a0a;padding:1px 4px;border-radius:3px}
+
+/* Main table */
+.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid #1a2a1a}
+table{width:100%;border-collapse:collapse;min-width:900px}
+thead{background:#0a180a}
+th{padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#7a9a7a;border-bottom:1px solid #1a2a1a;white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid #0f1a0f;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#0a120a}
+.route{color:#A7FB90;font-family:'Courier New',monospace;font-size:12px;white-space:nowrap}
+.label{color:#c0c8c0;font-size:12px}
+.st-ok{color:#A7FB90;font-weight:700}
+.st-broken{color:#FF4444;font-weight:700}
+.st-warn{color:#FF8C00;font-weight:700}
+.st-crit{color:#FF4444;font-weight:700;font-size:13px}
+.redir-target{color:#4a8aff;font-family:'Courier New',monospace;font-size:11px}
+.redir-bad{color:#FF8C00;font-family:'Courier New',monospace;font-size:11px}
+.btns{display:flex;gap:3px;flex-wrap:wrap}
+.btn-ok{color:#A7FB90;font-size:14px}
+.btn-fail{color:#FF4444;font-size:14px}
+.fake-badge{display:inline-block;background:#2a1200;color:#FF8C00;border:1px solid #FF8C00;border-radius:3px;padding:1px 5px;font-size:10px;margin:1px}
+.hc-badge{display:inline-block;background:#1a1500;color:#FFD700;border:1px solid #FFD700;border-radius:3px;padding:1px 5px;font-size:10px;margin:1px}
+.err-item{color:#ff7070;font-size:11px;font-family:'Courier New',monospace;margin:1px 0}
+.note-text{color:#8a9a8a;font-size:11px;max-width:280px}
+.sev-crit{color:#FF4444;font-size:10px;font-weight:700;text-transform:uppercase}
+.sev-high{color:#FF8C00;font-size:10px;font-weight:700;text-transform:uppercase}
+.sev-med{color:#FFD700;font-size:10px;font-weight:700;text-transform:uppercase}
+
+/* Detail sections */
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}
+.detail-card{background:#080e08;border:1px solid #1a2a1a;border-radius:8px;padding:14px}
+.detail-card h4{font-size:12px;color:#A7FB90;font-family:'Courier New',monospace;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #1a2a1a}
+.detail-card ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.detail-card li{font-size:11px;color:#c0c8c0;padding-left:12px;position:relative}
+.detail-card li::before{content:'→';position:absolute;left:0;color:#5a7a5a}
+.detail-card li.fake::before{color:#FF8C00}
+.detail-card li.hc::before{color:#FFD700}
+.type-tag{display:inline-block;padding:0 4px;border-radius:2px;font-size:10px;margin-left:4px;font-weight:700}
+.type-fake{background:#2a1200;color:#FF8C00}
+.type-hc{background:#1a1500;color:#FFD700}
+.type-placeholder{background:#1a1520;color:#9090ff}
+.type-mock{background:#1a0808;color:#FF6060}
+.type-static{background:#0a1a0a;color:#90ff90}
+
+/* Buttons section */
+.btn-table-wrap{overflow-x:auto}
+.btn-table{width:100%;border-collapse:collapse;min-width:700px}
+.btn-table th{background:#0a180a;padding:8px 12px;font-size:11px;text-transform:uppercase;color:#7a9a7a;text-align:left;border-bottom:1px solid #1a2a1a}
+.btn-table td{padding:7px 12px;border-bottom:1px solid #0f1a0f;font-size:12px;vertical-align:top}
+.btn-table tr:last-child td{border-bottom:none}
+.btn-works{color:#A7FB90}
+.btn-broken{color:#FF4444}
+.result-text{color:#8a9a8a;font-size:11px}
+
+/* API section */
+.api-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:12px}
+.api-card{background:#080e08;border:1px solid #1a2a1a;border-radius:8px;padding:12px}
+.api-card .api-route{font-family:'Courier New',monospace;font-size:12px;color:#A7FB90;margin-bottom:4px}
+.api-status-ok{color:#A7FB90;font-weight:700;font-size:13px}
+.api-status-err{color:#FF4444;font-weight:700;font-size:13px}
+.api-status-warn{color:#FF8C00;font-weight:700;font-size:13px}
+.api-desc{color:#8a9a8a;font-size:11px;margin-top:4px}
+
+/* Console errors */
+.err-route-block{margin-bottom:10px;background:#080e08;border:1px solid #1a2a1a;border-radius:6px;padding:10px 14px}
+.err-route-block h4{font-family:'Courier New',monospace;font-size:12px;color:#A7FB90;margin-bottom:6px}
+.err-line{font-family:'Courier New',monospace;font-size:11px;margin:2px 0}
+.err-404{color:#FF4444}
+.err-403{color:#FF8C00}
+.err-429{color:#FFD700}
+.err-other{color:#ff9090}
+
+/* Legend */
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:14px;background:#080e08;border-radius:8px;border:1px solid #1a2a1a}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:12px}
+
+/* Severity pills */
+.pill{display:inline-block;padding:1px 6px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase}
+.pill-crit{background:#FF4444;color:#fff}
+.pill-high{background:#FF8C00;color:#000}
+.pill-med{background:#FFD700;color:#000}
+.pill-low{background:#4a8aff;color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+<!-- HEADER -->
+<div class="header">
+  <h1>QA Report — Hearst Connect</h1>
+  <div class="sub">Audit complet plateforme · 2026-06-11 · 43 routes analysées · Next.js 16 App Router · Port 4105 (dev)</div>
+  <div class="counters">
+    <div class="counter c-total"><span class="num">43</span><span class="lbl">Routes total</span></div>
+    <div class="counter c-ok"><span class="num">25</span><span class="lbl">Fonctionnelles</span></div>
+    <div class="counter c-broken"><span class="num">29</span><span class="lbl">Cassées / 404</span></div>
+    <div class="counter c-fake"><span class="num">32</span><span class="lbl">Données fake</span></div>
+    <div class="counter c-hc"><span class="num">24</span><span class="lbl">Hardcodés</span></div>
+    <div class="counter c-redir"><span class="num">35</span><span class="lbl">Redirections</span></div>
+  </div>
+</div>
+
+<!-- SECTION P0 CRITIQUE -->
+<div class="section s-crit">
+  <div class="section-title">🔴 Issues P0 — Bloquants</div>
+  <ul class="p0-list">
+    <li class="p0-item">
+      <div class="p0-title"><span class="pill pill-crit">CRITIQUE</span> SLUG MISMATCH — /vaults/yield-vault → 404 sur toutes les pages</div>
+      <div class="p0-body">Tous les liens de navigation pointent vers <code>/vaults/yield-vault</code> mais aucun <code>VaultDeployment</code> n'a id=<code>yield-vault</code>. Le vault réel est <code>id=hearst-yield-vault</code>, ticker <code>HYV-A</code>. Cause : 404 sur toutes les pages avec lien vault, y compris prefetch du chrome applicatif. Fix : mettre à jour <code>product-select-card.tsx</code> et tous les liens nav.</div>
+    </li>
+    <li class="p0-item">
+      <div class="p0-title"><span class="pill pill-crit">CRITIQUE</span> INVEST FLOW BLOQUÉ — /vaults/yield-vault/invest renvoie 404</div>
+      <div class="p0-body"><code>hearst-yield-vault</code> a un <code>contractAddress</code> vide → <code>isPlaceholderVault()</code> retourne true → <code>notFound()</code>. L'intégralité du flow de souscription est inaccessible tant que <code>contractAddress</code> n'est pas renseigné en DB.</div>
+    </li>
+    <li class="p0-item">
+      <div class="p0-title"><span class="pill pill-crit">CRITIQUE</span> AUTO-REDIRECT BUG — Pages produit redirigent en 1–3s sans action utilisateur</div>
+      <div class="p0-body">Multiples pages authentifiées (<code>/onboarding/identity</code>, <code>/profile</code>, <code>/legal/*</code>, pages admin) redirigent spontanément vers d'autres routes en 1–3s. Cause racine non identifiée — probablement un composant client dans le layout partagé (chat rail, HeaderConnect, ou InvestorRailIntra) déclenchant <code>router.push()</code> en side-effect.</div>
+    </li>
+    <li class="p0-item">
+      <div class="p0-title"><span class="pill pill-crit">CRITIQUE</span> WIZARD AUTOSAVE RSC LOOP — /admin/vaults/new bloque à l'étape 4</div>
+      <div class="p0-body">Le server action <code>saveWizardStep()</code> déclenche un RSC refetch de la page <code>force-dynamic</code> qui réévalue <code>showGate=true</code> (draft existe, <code>resumeAcknowledged=false</code>) → réaffiche le <code>ResumeDraftBanner</code> à chaque autosave. Les étapes 5–7 sont inaccessibles. Fix : autosave ne doit pas déclencher de RSC refetch, ou URL doit porter <code>resumeAcknowledged=true</code> une fois le wizard démarré.</div>
+    </li>
+    <li class="p0-item">
+      <div class="p0-title"><span class="pill pill-crit">CRITIQUE</span> LEGAL ROUTES INACCESSIBLES EN BROWSER — Override CSR sur /legal/*</div>
+      <div class="p0-body"><code>AppChrome</code> (<code>use client</code> + <code>next/dynamic</code>) reroute les utilisateurs au moment de la réhydratation CSR, overridant l'exclusion de <code>proxy.ts</code>. Les pages <code>/legal</code>, <code>/legal/disclaimer</code>, <code>/legal/terms</code>, <code>/legal/privacy</code> sont SSR-correctes (HTTP 200) mais injoignables dans le browser en session authentifiée.</div>
+    </li>
+    <li class="p0-item">
+      <div class="p0-title"><span class="pill pill-crit">CRITIQUE</span> /admin/governance/simulate-demo — Chunk compilé stale : toujours 404</div>
+      <div class="p0-body"><code>layout.tsx</code> gate avec <code>NODE_ENV === 'production'</code> inliné à la compilation comme <code>notFound()</code> inconditionnel. Route permanentement 404 même en dev. Fix : supprimer <code>.next</code> et rebuilder, ou retirer la production gate.</div>
+    </li>
+    <li class="p0-item">
+      <div class="p0-title"><span class="pill pill-crit">CRITIQUE</span> /api/admin/review-mode 403/429 STORM — Side-effects redirects admin</div>
+      <div class="p0-body">L'endpoint <code>/api/admin/review-mode</code> est rate-limité (429) et forbidden (403) sur polling rapide. Le error handler côté client déclenche des navigations comme side-effect, causant des redirections imprévisibles sur toute la section admin.</div>
+    </li>
+    <li class="p0-item">
+      <div class="p0-title"><span class="pill pill-crit">CRITIQUE</span> KYC ONBOARDING NON GARDÉ — Skip possible via "Continue to Wallet Binding"</div>
+      <div class="p0-body">Sur <code>/onboarding/identity</code>, le lien "Continue to Wallet Binding" n'a aucun guard côté serveur ou client vérifiant la complétion du KYC. Un utilisateur peut bypasser entièrement la vérification d'identité et accéder à <code>/onboarding/wallet</code>.</div>
+    </li>
+    <li class="p0-item">
+      <div class="p0-title"><span class="pill pill-crit">CRITIQUE</span> PLACEHOLDER SIGNERS EN PATH PRODUCTION — PLACEHOLDER_SIGNER_1/2</div>
+      <div class="p0-body"><code>PLACEHOLDER_SIGNER_1</code> et <code>PLACEHOLDER_SIGNER_2</code> dans <code>PROMOTE_DEFAULTS.signersWhitelist</code> de <code>actions.ts</code> (/admin/projection) seront écrits dans les lignes <code>VaultDeployment</code> production via "Promote to Vault Draft". Doivent être remplacés avant tout usage.</div>
+    </li>
+    <li class="p0-item">
+      <div class="p0-title"><span class="pill pill-crit">CRITIQUE</span> POST-LOGIN ?from= IGNORÉ — Redirect vers /admin/roadmap au lieu de la destination</div>
+      <div class="p0-body">Après login, les utilisateurs sont envoyés sur <code>/admin/roadmap</code> au lieu de la route originellement demandée (ex: <code>/vaults/yield-vault/invest</code>). Le paramètre <code>?from=</code> n'est pas honoré par la logique de redirect post-login.</div>
+    </li>
+    <li class="p0-item">
+      <div class="p0-title"><span class="pill pill-crit">CRITIQUE</span> /api/auth/logout — 404 : endpoint manquant</div>
+      <div class="p0-body">Aucun route handler n'existe à <code>/api/auth/logout</code>. Le SDK Privy tente d'appeler cet endpoint et échoue. La fonctionnalité de déconnexion est cassée pour tout code path utilisant cette route.</div>
+    </li>
+    <li class="p0-item">
+      <div class="p0-title"><span class="pill pill-crit">CRITIQUE</span> MOCK DATA PROVENANCE='live' — Violation règle #2 CLAUDE.md</div>
+      <div class="p0-body"><code>MOCK_PORTFOLIO</code> dans les pages debug positionne <code>source='live'</code> sur des données statiques entièrement mockées. Tout admin/QA lisant ces pages voit une fausse provenance Live. Violation directe de la règle non-négociable #2.</div>
+    </li>
+    <li class="p0-item">
+      <div class="p0-title"><span class="pill pill-crit">CRITIQUE</span> DOUBLONS DISTRIBUTION DB — Deux lignes identiques /admin/distributions</div>
+      <div class="p0-body">L'historique des distributions montre deux lignes identiques : <code>hearst-yield-vault / 2026-05 / $800,000.00 / 0 recipients / May 29 2026</code>. Probablement double-seedé. Impacte les calculs de distribution et l'historique investisseur.</div>
+    </li>
+  </ul>
+</div>
+
+<!-- MAIN TABLE -->
+<div class="section">
+  <div class="section-title">📋 Table principale — Routes</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Route</th>
+          <th>Label</th>
+          <th>Statut</th>
+          <th>Sévérité</th>
+          <th>Redirige vers</th>
+          <th>Boutons</th>
+          <th>Fake/HC</th>
+          <th>Issue principale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- AUTH FLOWS -->
+        <tr>
+          <td><code class="route">/</code></td>
+          <td class="label">Home / Auth gate</td>
+          <td><span class="st-warn">BROKEN</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-target">/login (normal)</span></td>
+          <td class="btns"><span class="btn-ok">✅</span> Sign in</td>
+          <td><span class="hc-badge">HC</span> APY 8–15%</td>
+          <td class="note-text">No page.tsx at root → net::ERR_ABORTED. Prefetch 404 /vaults/yield-vault + /onboarding</td>
+        </tr>
+        <tr>
+          <td><code class="route">/login</code></td>
+          <td class="label">Login page</td>
+          <td><span class="st-ok">OK</span></td>
+          <td>—</td>
+          <td><span class="redir-target">/portfolio ou /totp-challenge</span></td>
+          <td class="btns"><span class="btn-ok">✅</span> Sign in <span class="btn-ok">✅</span> Forgot pwd</td>
+          <td><span class="hc-badge">HC</span> APY 8–15%</td>
+          <td class="note-text">Fonctionnel. argon2id + session cookie. Rate-limiting OK.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/forgot-password</code></td>
+          <td class="label">Forgot password</td>
+          <td><span class="st-ok">OK</span></td>
+          <td>—</td>
+          <td><span class="redir-target">/portfolio (si auth)</span></td>
+          <td class="btns"><span class="btn-ok">✅</span> Send reset <span class="btn-ok">✅</span> Back</td>
+          <td><span class="hc-badge">HC</span> "1 hour" TTL</td>
+          <td class="note-text">Rate-limited, anti-enumération. "1 hour" devrait lire TOKEN_TTL_MS.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/reset-password</code></td>
+          <td class="label">Reset password</td>
+          <td><span class="st-warn">WARN</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td>—</td>
+          <td class="btns"><span class="btn-ok">✅</span> Set new pwd <span class="btn-ok">✅</span> Request link</td>
+          <td>—</td>
+          <td class="note-text">SSR bailout (next/dynamic) sur le form state CSR-only. HTTP 200 mais form non SSR'd.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/totp-challenge</code></td>
+          <td class="label">2FA TOTP</td>
+          <td><span class="st-warn">WARN</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td><span class="redir-target">/portfolio (post-hydration)</span></td>
+          <td class="btns"><span class="btn-ok">✅</span> Continue <span class="btn-ok">✅</span> Start over</td>
+          <td>—</td>
+          <td class="note-text">Pas de guard serveur pour visiteurs hors-flow (pas de cookie hc_totp_pending). UX gap, pas security hole.</td>
+        </tr>
+        <!-- ONBOARDING -->
+        <tr>
+          <td><code class="route">/onboarding</code></td>
+          <td class="label">Onboarding index</td>
+          <td><span class="st-broken">404</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">Pas de page.tsx index. Liens + prefetch de toute l'app → 404.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/onboarding/accreditation</code></td>
+          <td class="label">Accreditation</td>
+          <td><span class="st-ok">OK</span></td>
+          <td>—</td>
+          <td><span class="redir-target">/onboarding/identity (déjà fait)</span></td>
+          <td class="btns"><span class="btn-ok">✅</span> Continue (disabled tant que 3 cases)</td>
+          <td><span class="hc-badge">HC</span> APY 8-15% dans checkbox</td>
+          <td class="note-text">Fonctionnel. Pas de lien "Back" depuis step 2. attestAccreditation() wired.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/onboarding/identity</code></td>
+          <td class="label">KYC Identity (Persona)</td>
+          <td><span class="st-broken">CRITIQUE</span></td>
+          <td><span class="sev-crit">CRITIQUE</span></td>
+          <td><span class="redir-bad">/portfolio /legal/* /confirmed (auto 1-3s)</span></td>
+          <td class="btns"><span class="btn-fail">❌</span> Begin KYC (disabled CDN) <span class="btn-ok">✅</span> Continue Wallet (non gardé)</td>
+          <td><span class="hc-badge">HC</span> Step 3 of 4 <span class="hc-badge">HC</span> SDK v5.1.4</td>
+          <td class="note-text">Auto-redirect 1-3s. KYC skip possible (non gardé). Persona CDN peut bloquer button.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/onboarding/wallet</code></td>
+          <td class="label">Wallet binding (Privy)</td>
+          <td><span class="st-warn">CONFIG PENDING</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-target">/login (unauth)</span></td>
+          <td>—</td>
+          <td><span class="hc-badge">HC</span> Step 4 of 4 <span class="hc-badge">HC</span> wallets list</td>
+          <td class="note-text">NEXT_PUBLIC_PRIVY_APP_ID manquant → ConfigPending badge. Wallet binding non fonctionnel.</td>
+        </tr>
+        <!-- VAULT FLOWS -->
+        <tr>
+          <td><code class="route">/vaults</code></td>
+          <td class="label">Vault list</td>
+          <td><span class="st-warn">BROKEN</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-bad">/vaults/yield-vault/invest/confirmed (stale state)</span></td>
+          <td>—</td>
+          <td><span class="fake-badge">FAKE</span> IR contact Sarah Chen</td>
+          <td class="note-text">État vide : pas de products DB. Bug stale-state redirect vers /confirmed.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/vaults/yield-vault</code></td>
+          <td class="label">Vault detail</td>
+          <td><span class="st-broken">404 CRITIQUE</span></td>
+          <td><span class="sev-crit">CRITIQUE</span></td>
+          <td><span class="redir-bad">/onboarding/accreditation → /login</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">Slug mismatch. Vault réel = id=hearst-yield-vault. Tous les liens nav cassés.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/vaults/yield-vault/invest</code></td>
+          <td class="label">Invest flow</td>
+          <td><span class="st-broken">404 CRITIQUE</span></td>
+          <td><span class="sev-crit">CRITIQUE</span></td>
+          <td><span class="redir-target">/login?from=... (unauth)</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">contractAddress vide → isPlaceholderVault()=true → notFound(). Flow souscription inaccessible.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/vaults/yield-vault/invest/confirmed</code></td>
+          <td class="label">Deposit confirmed</td>
+          <td><span class="st-warn">FAKE DATA</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td>—</td>
+          <td class="btns"><span class="btn-ok">✅</span> Portfolio <span class="btn-ok">✅</span> Another vault <span class="btn-fail">❌</span> Copy address <span class="btn-ok">✅</span> ICS <span class="btn-ok">✅</span> Basescan <span class="btn-fail">❌</span> Calendly</td>
+          <td><span class="fake-badge">FAKE</span> Sarah Chen <span class="fake-badge">FAKE</span> 0xabc123 <span class="hc-badge">HC</span> currentDay=0 <span class="hc-badge">HC</span> NAV 1.0000</td>
+          <td class="note-text">Copy button sans handler JS. Calendly stub. Toutes données hardcodées.</td>
+        </tr>
+        <!-- PORTFOLIO/PROFILE -->
+        <tr>
+          <td><code class="route">/portfolio</code></td>
+          <td class="label">Portfolio</td>
+          <td><span class="st-warn">WARN</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-bad">redirect loop / (CSR hydration admin sans Investor record)</span></td>
+          <td class="btns"><span class="btn-ok">✅</span> Start onboarding</td>
+          <td>—</td>
+          <td class="note-text">SSR correct. Empty state correct. Redirect loop pour user admin sans Investor DB record.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/profile</code></td>
+          <td class="label">Profile</td>
+          <td><span class="st-broken">BROKEN</span></td>
+          <td><span class="sev-crit">CRITIQUE</span></td>
+          <td><span class="redir-bad">/vaults/yield-vault/invest/confirmed?amount=500000&tx=0xabc123 (auto 1-3s)</span></td>
+          <td class="btns"><span class="btn-fail">❌</span> Tous (redirect avant interaction)</td>
+          <td><span class="fake-badge">FAKE</span> params mock dans redirect</td>
+          <td class="note-text">Auto-redirect spontané avec params mock. Page inutilisable.</td>
+        </tr>
+        <!-- PROOF CENTER -->
+        <tr>
+          <td><code class="route">/proof-center</code></td>
+          <td class="label">Proof Center</td>
+          <td><span class="st-warn">WARN</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-target">/login (unauth)</span></td>
+          <td class="btns"><span class="btn-ok">✅</span> Basescan links <span class="btn-fail">❌</span> Spearbit PDF <span class="btn-fail">❌</span> ToB PDF <span class="btn-fail">❌</span> Methodology .md</td>
+          <td><span class="fake-badge">FAKE</span> Spearbit PDF URL <span class="fake-badge">FAKE</span> ToB PDF URL <span class="hc-badge">HC</span> audit status strings</td>
+          <td class="note-text">3 liens document cassés. Fireblocks live $0.00 correct. EventLogger 0 events (window trop étroit).</td>
+        </tr>
+        <!-- LEGAL -->
+        <tr>
+          <td><code class="route">/legal</code></td>
+          <td class="label">Legal hub</td>
+          <td><span class="st-broken">BROKEN BROWSER</span></td>
+          <td><span class="sev-crit">CRITIQUE</span></td>
+          <td><span class="redir-bad">/admin ou /portfolio (CSR override)</span></td>
+          <td>—</td>
+          <td><span class="hc-badge">HC</span> Date "to be finalized"</td>
+          <td class="note-text">SSR 200 correct. AppChrome CSR override proxy.ts exclusion → inaccessible browser.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/legal/disclaimer</code></td>
+          <td class="label">Risk Disclaimer</td>
+          <td><span class="st-warn">BROKEN BROWSER</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-bad">/onboarding/accreditation (CSR authenticated)</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">SSR 200 OK. Contenu correct 9 sections. Redirect CSR en session authentifiée.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/legal/privacy</code></td>
+          <td class="label">Privacy Policy</td>
+          <td><span class="st-warn">BROKEN BROWSER</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-bad">/legal/disclaimer (timer ~3s non-déterministe)</span></td>
+          <td>—</td>
+          <td><span class="hc-badge">HC</span> "KYC processor — to be named"</td>
+          <td class="note-text">Auto-redirect après ~3s. Lien Disclaimer pointe vers /legal parent (bug href).</td>
+        </tr>
+        <tr>
+          <td><code class="route">/legal/terms</code></td>
+          <td class="label">Terms of Service</td>
+          <td><span class="st-warn">WARN</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td><span class="redir-bad">/legal/privacy (HMR rebuild artifact)</span></td>
+          <td>—</td>
+          <td><span class="hc-badge">HC</span> $250k min, 60-day lock</td>
+          <td class="note-text">Loads correctement initialement. Section 7 utilise &lt;a&gt; au lieu de next/link. Redirect HMR dev-only.</td>
+        </tr>
+        <!-- DEBUG -->
+        <tr>
+          <td><code class="route">/debug/module-layout</code></td>
+          <td class="label">Debug - Module Layout</td>
+          <td><span class="st-warn">WARN</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td><span class="redir-target">/login (unauth)</span></td>
+          <td>—</td>
+          <td><span class="fake-badge">MOCK</span> source='live' sur mock data <span class="hc-badge">HC</span> name='Adrien' <span class="hc-badge">HC</span> nextDistributionAt 2026-05-31 (passé)</td>
+          <td class="note-text">Inaccessible sans session admin. DEV_AUTH_BYPASS=0. Mock data avec provenance 'live' — violation règle #2.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/debug/portfolio-full</code></td>
+          <td class="label">Debug - Portfolio Full</td>
+          <td><span class="st-broken">404</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td><span class="redir-target">/login (unauth)</span></td>
+          <td class="btns"><span class="btn-ok">✅</span> Go to Portfolio (404 shell)</td>
+          <td><span class="fake-badge">MOCK</span> source='live' <span class="hc-badge">HC</span> softLockupDays=60 <span class="hc-badge">HC</span> projectedUsdc=1240</td>
+          <td class="note-text">DEV_AUTH_BYPASS crée user role='investor', admin layout → notFound(). Mock data provenance 'live'.</td>
+        </tr>
+        <!-- ADMIN -->
+        <tr>
+          <td><code class="route">/admin</code></td>
+          <td class="label">Admin cockpit index</td>
+          <td><span class="st-broken">BROKEN</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-bad">last-cached admin sub-page (App Router client)</span></td>
+          <td>—</td>
+          <td><span class="fake-badge">STUB</span> signerCount=3 <span class="fake-badge">STUB</span> Inngest 'unknown'</td>
+          <td class="note-text">Operations cockpit jamais visible — App Router navigue immédiatement vers la dernière page admin.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/dashboard</code></td>
+          <td class="label">Admin Dashboard</td>
+          <td><span class="st-warn">WARN</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-bad">404 si unauth (au lieu de /login)</span></td>
+          <td class="btns"><span class="btn-ok">✅</span> Vault selector <span class="btn-ok">✅</span> Mode toggle <span class="btn-ok">✅</span> Open Proof Center</td>
+          <td><span class="hc-badge">HC</span> Risk 47/100 vs 38/100 (incohérence) <span class="hc-badge">HC</span> Mining 60% allocation <span class="fake-badge">STUB</span> Subscription intents n/a</td>
+          <td class="note-text">HTTP 200 en session admin. 404 (pas redirect) si unauth. Double risk score sur même page.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/roadmap</code></td>
+          <td class="label">Admin Roadmap</td>
+          <td><span class="st-warn">WARN</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td>—</td>
+          <td class="btns"><span class="btn-ok">✅</span> Status quick-set <span class="btn-ok">✅</span> Details expand</td>
+          <td>—</td>
+          <td class="note-text">Fonctionnel. 110 items, compteurs corrects. ORPHAN : pas de lien dans nav rail admin.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/customers</code></td>
+          <td class="label">Admin Customers</td>
+          <td><span class="st-ok">OK</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td class="btns"><span class="btn-ok">✅</span> Reset KYC</td>
+          <td>—</td>
+          <td class="note-text">Fonctionnel. 1 seed user (dev@hearst.local). setInvestorKyc server action wired.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/vaults</code></td>
+          <td class="label">Admin Vaults list</td>
+          <td><span class="st-broken">404</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td><span class="redir-bad">/admin/scenario-lab (silent client nav après 404)</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">Double requireAdmin guard (layout + page). 404 non-admin. Nav silencieuse vers scenario-lab.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/vaults/new</code></td>
+          <td class="label">Admin New Vault Wizard</td>
+          <td><span class="st-broken">CRITIQUE</span></td>
+          <td><span class="sev-crit">CRITIQUE</span></td>
+          <td><span class="redir-bad">loop client-side post-hydration</span></td>
+          <td class="btns"><span class="btn-ok">✅</span> Resume draft <span class="btn-ok">✅</span> Start fresh <span class="btn-ok">✅</span> Next (steps 1-4) <span class="btn-fail">❌</span> Next (step 4→5)</td>
+          <td><span class="hc-badge">HC</span> FORM_INITIAL defaults <span class="fake-badge">STUB</span> PLACEHOLDER_SIGNER_1/2</td>
+          <td class="note-text">Autosave RSC loop bloque étapes 5-7. PLACEHOLDER_SIGNER_1/2 en path production.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/scenario-lab</code></td>
+          <td class="label">Scenario Lab</td>
+          <td><span class="st-broken">BROKEN</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-bad">Autre page admin (~2-3s)</span></td>
+          <td class="btns"><span class="btn-ok">✅</span> Preset buttons <span class="btn-fail">❌</span> Run scenario (page part avant)</td>
+          <td><span class="hc-badge">HC</span> stable_apy_pct:4.5 <span class="hc-badge">HC</span> vol_index:45</td>
+          <td class="note-text">Auto-redirect 2-3s. Run scenario jamais accessible. DEV_AUTH_BYPASS role=investor bloque.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/projection</code></td>
+          <td class="label">Projection Studio</td>
+          <td><span class="st-broken">404</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-bad">/legal/disclaimer (redirect chain inattendue)</span></td>
+          <td>—</td>
+          <td><span class="fake-badge">PLACEHOLDER</span> SIGNER_1/2 <span class="hc-badge">HC</span> PROMOTE_DEFAULTS</td>
+          <td class="note-text">Inaccessible sans session admin. Serveur crash pendant test. PLACEHOLDER_SIGNER_1/2 en production path.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/proof-center</code></td>
+          <td class="label">Admin Proof Center</td>
+          <td><span class="st-warn">WARN</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-bad">Autres pages admin (1-2s)</span></td>
+          <td class="btns"><span class="btn-ok">✅</span> Basescan links <span class="btn-fail">❌</span> Spearbit PDF <span class="btn-fail">❌</span> ToB PDF</td>
+          <td><span class="fake-badge">FAKE</span> Spearbit PDF URL <span class="fake-badge">FAKE</span> ToB PDF URL <span class="fake-badge">STUB</span> audit status</td>
+          <td class="note-text">HTTP 200 admin. URL drift client-side. EventLogger 0 events (window trop étroit).</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/proofs</code></td>
+          <td class="label">Admin Proofs list</td>
+          <td><span class="st-broken">404</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td><span class="redir-target">/admin/proofs?vault=yield (308)</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">DEV_AUTH_BYPASS user role=investor → notFound(). Page implémentée, 0 Proof rows en DB.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/distributions</code></td>
+          <td class="label">Admin Distributions</td>
+          <td><span class="st-broken">BROKEN</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-bad">/admin/scenario-lab (429 side-effect ~2-5s)</span></td>
+          <td class="btns"><span class="btn-fail">❌</span> Compute (disabled + 429 redirect)</td>
+          <td><span class="fake-badge">MOCK</span> 2 doublons $800k/2026-05</td>
+          <td class="note-text">429 storm sur review-mode → redirect. 2 lignes identiques DB. Page inaccessible interactivement.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/governance</code></td>
+          <td class="label">Admin Governance</td>
+          <td><span class="st-broken">404</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td>—</td>
+          <td class="btns"><span class="btn-ok">✅</span> Go to Portfolio (404 shell)</td>
+          <td>—</td>
+          <td class="note-text">404 non-admin (intentionnel). Page implémentée. GovernanceProposal model Prisma present.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/governance/propose</code></td>
+          <td class="label">Governance Propose</td>
+          <td><span class="st-broken">404</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">Auth gate. Implémenté : 8 action types, justification min 80 chars, proposeAction() wired.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/governance/allowlist</code></td>
+          <td class="label">Governance Allowlist</td>
+          <td><span class="st-broken">404</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td><span class="redir-bad">/portfolio (auto après 404 shell)</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">Auth gate. Implémenté : allowlist entries, risk scores, toggle active. getAllAllowlistEntries wired.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/governance/simulate-demo</code></td>
+          <td class="label">Governance Simulate Demo</td>
+          <td><span class="st-broken">CRITIQUE</span></td>
+          <td><span class="sev-crit">CRITIQUE</span></td>
+          <td>—</td>
+          <td class="btns"><span class="btn-fail">❌</span> Simulate (jamais rendu)</td>
+          <td>—</td>
+          <td class="note-text">Chunk .next stale : NODE_ENV==='production' inliné → notFound() permanent. Fix : purger .next et rebuilder.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/monitoring</code></td>
+          <td class="label">Admin Monitoring</td>
+          <td><span class="st-warn">WARN</span></td>
+          <td><span class="sev-high">HIGH</span></td>
+          <td><span class="redir-bad">/admin/security ou /admin/roadmap (~2-3s)</span></td>
+          <td>—</td>
+          <td><span class="fake-badge">MOCK</span> test-* agents (43% des runs)</td>
+          <td class="note-text">Données réelles DB (2907 runs). Spontaneous redirect. Pas lié depuis nav rail admin.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/signals</code></td>
+          <td class="label">Admin Signals</td>
+          <td><span class="st-broken">404</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td><span class="redir-bad">/admin/signals?vault=yield puis 404</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">requireAdmin() throws → notFound(). Implémenté (RebalanceEvent query). 0 events DB.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/security</code></td>
+          <td class="label">Admin Security</td>
+          <td><span class="st-broken">404</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">Auth gate. Implémenté : TotpEnrolmentClient, startEnrolment/confirmEnrolment server actions.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/spec</code></td>
+          <td class="label">Admin Spec index</td>
+          <td><span class="st-broken">404</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td>—</td>
+          <td class="btns"><span class="btn-ok">✅</span> Go to Portfolio (404)</td>
+          <td>—</td>
+          <td class="note-text">Route /admin/spec index inexistante. /admin/spec/[slug] existe. /admin/spec/page.tsx confirmé sur disque.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/investor-memo</code></td>
+          <td class="label">Admin Investor Memo</td>
+          <td><span class="st-broken">404</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td><span class="redir-bad">/admin/investor-memo?vault=yield puis 404</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">Auth gate. Implémenté : MemoShell 8 sections, generate/download/PDF buttons, Kimi K2.6 generation.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/admin/feedback</code></td>
+          <td class="label">Admin Feedback</td>
+          <td><span class="st-warn">WARN</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td>—</td>
+          <td class="btns"><span class="btn-ok">✅</span> Post feedback</td>
+          <td><span class="hc-badge">HC</span> placeholder "Adrien"</td>
+          <td class="note-text">HTTP 404 sur la ressource mais page rendue via SPA. 0 feedbacks DB. Form wired.</td>
+        </tr>
+        <!-- API -->
+        <tr>
+          <td><code class="route">/api/health</code></td>
+          <td class="label">API Health check</td>
+          <td><span class="st-warn">WARN</span></td>
+          <td><span class="sev-med">MEDIUM</span></td>
+          <td><span class="redir-bad">/login puis /admin/dashboard (browser session)</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">Implémenté (SELECT 1 + Redis PING). Jamais vérifié retourner JSON direct — redirect browser session artifact.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/api/auth/logout</code></td>
+          <td class="label">API Logout</td>
+          <td><span class="st-broken">404 CRITIQUE</span></td>
+          <td><span class="sev-crit">CRITIQUE</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">Aucun route handler. Privy SDK tente cet endpoint et échoue. Logout cassé.</td>
+        </tr>
+        <tr>
+          <td><code class="route">/api/admin/review-mode</code></td>
+          <td class="label">API Review Mode</td>
+          <td><span class="st-broken">403/429</span></td>
+          <td><span class="sev-crit">CRITIQUE</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td class="note-text">403 Forbidden + 429 Too Many Requests sur polling rapide. Error handler déclenche navigations side-effect.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- FAKE & HARDCODED DATA -->
+<div class="section s-warn">
+  <div class="section-title">🟠 Données Fake &amp; Hardcodées — Liste exhaustive</div>
+  <div class="detail-grid">
+    <div class="detail-card">
+      <h4>/vaults/yield-vault/invest/confirmed</h4>
+      <ul>
+        <li class="fake"><span class="type-tag type-mock">MOCK</span> tx hash 0xabc123def456 — fake hash</li>
+        <li class="fake"><span class="type-tag type-mock">MOCK</span> OpsContactCard : Sarah Chen (hardcoded default, no props)</li>
+        <li class="fake"><span class="type-tag type-placeholder">PLACEHOLDER</span> sarah@hearstconnect.io — hardcoded IR email</li>
+        <li class="fake"><span class="type-tag type-placeholder">PLACEHOLDER</span> https://calendly.com/hearstconnect/15min — stub URL</li>
+        <li class="fake"><span class="type-tag type-placeholder">PLACEHOLDER</span> Position ID POS-2026-001 — hardcoded</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> currentDay = 0 — soft-lock progress toujours 0%</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> LOCK_DAYS = 60 — devrait lire VaultDeployment.softLockupDays</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> NAV '1.0000 USDC / share' — string literal, pas oracle</li>
+      </ul>
+    </div>
+    <div class="detail-card">
+      <h4>/debug/module-layout + /debug/portfolio-full</h4>
+      <ul>
+        <li class="fake"><span class="type-tag type-mock">MOCK</span> MOCK_PORTFOLIO source='live' — static data, fausse provenance</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> name='Adrien' (page.tsx line 21)</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> nextDistributionAt: 2026-05-31 (date passée)</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> totalValueUsdc: 905600 (statique)</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> totalYieldYtdUsdc: 60800 (statique)</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> softLockupDays=60, earlyExitPenaltyBps=150, projectedUsdc=1240</li>
+      </ul>
+    </div>
+    <div class="detail-card">
+      <h4>/admin (cockpit.ts)</h4>
+      <ul>
+        <li class="fake"><span class="type-tag type-placeholder">STUB</span> signerCount=3 (commentaire: "Phase 3 wires live signer list")</li>
+        <li class="fake"><span class="type-tag type-mock">MOCK</span> Inngest jobs status='unknown', lastRunAt:null</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> APY fallback '9.4-12.8%' en error stub buildHeroKpis()</li>
+        <li class="fake"><span class="type-tag type-placeholder">STUB</span> Sentry stats = LlmRun table (commentaire: "Replace with real Sentry API")</li>
+      </ul>
+    </div>
+    <div class="detail-card">
+      <h4>/admin/dashboard</h4>
+      <ul>
+        <li class="hc"><span class="type-tag type-static">STATIC</span> Capital deployed $0.0 — Fireblocks scope non pinné</li>
+        <li class="hc"><span class="type-tag type-static">STATIC</span> Risk composite 47/100 vs 38/100 — incohérence même page</li>
+        <li class="fake"><span class="type-tag type-placeholder">STUB</span> Subscription intents: "Pipeline not wired yet / n/a"</li>
+        <li class="fake"><span class="type-tag type-placeholder">STUB</span> Wallet exceptions: "Not tracked — manual audit / n/a"</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> Allocation: Mining 60%, BTC Tactical 25%, USDC Base 10%, Stable Reserve 5%</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> Risk scores: Smart Contract 80, Mining Ops 34, Counterparty 35, Market 40, Liquidity 44</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> APY target 9.4-12.8% subtitle label</li>
+      </ul>
+    </div>
+    <div class="detail-card">
+      <h4>/admin/projection (studio.tsx + actions.ts)</h4>
+      <ul>
+        <li class="fake"><span class="type-tag type-placeholder">PLACEHOLDER</span> PLACEHOLDER_SIGNER_1 dans PROMOTE_DEFAULTS.signersWhitelist</li>
+        <li class="fake"><span class="type-tag type-placeholder">PLACEHOLDER</span> PLACEHOLDER_SIGNER_2 dans PROMOTE_DEFAULTS.signersWhitelist</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> DEFAULT_1D_VALUES = [-30,-15,0,15,30]</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> DEFAULT_2D_X_VALUES = [-30,0,30], Y_VALUES = [0.05,0.085,0.12]</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> PROMOTE_DEFAULTS: requiredSigners=2, minTicketUsdc=250000, capacityUsdc=25000000</li>
+      </ul>
+    </div>
+    <div class="detail-card">
+      <h4>/proof-center + /admin/proof-center</h4>
+      <ul>
+        <li class="fake"><span class="type-tag type-placeholder">PLACEHOLDER</span> Spearbit PDF: https://reports.spearbit.com/hearst-vault-2026q1.pdf — domaine inexistant</li>
+        <li class="fake"><span class="type-tag type-placeholder">PLACEHOLDER</span> Trail of Bits PDF: https://reports.trailofbits.com/hearst-eventlogger-scope.pdf — domaine inexistant</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> EventLogger 0xb07E045D082d202bAc7C1d4F83e1A63d00653D9E — hardcodé (devrait être env var)</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> PoRRegistry 0x2B7229Ea0c94f12D984d9045ee12fB0D2Efcd28D — hardcodé</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> Deploy block 41,418,022 hardcodé pour les 2 contrats</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> audit status 'Scoped — Q1 2026 report pending final sign-off'</li>
+      </ul>
+    </div>
+    <div class="detail-card">
+      <h4>/admin/distributions</h4>
+      <ul>
+        <li class="fake"><span class="type-tag type-mock">MOCK</span> 2 lignes identiques: hearst-yield-vault / 2026-05 / $800,000.00 / 0 recipients / May 29 2026</li>
+      </ul>
+    </div>
+    <div class="detail-card">
+      <h4>/admin/monitoring</h4>
+      <ul>
+        <li class="fake"><span class="type-tag type-mock">MOCK</span> test-agent 1264 runs, test-userid-null 273, test-userid-set 273, test-cost 253, test-cache-read/write 62, test-no-cache 62 — 43%+ des runs sont des artifacts QA</li>
+      </ul>
+    </div>
+    <div class="detail-card">
+      <h4>/login (left panel)</h4>
+      <ul>
+        <li class="hc"><span class="type-tag type-hc">HC</span> '8–15% APY' — string statique, devrait lire VaultDeployment.targetApyLowBps/targetApyHighBps</li>
+      </ul>
+    </div>
+    <div class="detail-card">
+      <h4>/onboarding/identity</h4>
+      <ul>
+        <li class="hc"><span class="type-tag type-hc">HC</span> "Step 3 of 4" eyebrow hardcodé (page.tsx line 33)</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> Persona SDK URL pincée à v5.1.4 (persona-embed.tsx line 38-39)</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> requireInvestor('/portfolio') — fallback vers /portfolio ignorant la route originale</li>
+      </ul>
+    </div>
+    <div class="detail-card">
+      <h4>/admin/scenario-lab</h4>
+      <ul>
+        <li class="hc"><span class="type-tag type-hc">HC</span> stable_apy_pct: 4.5 (page.tsx line 64)</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> vol_index: 45 (default hardcodé)</li>
+      </ul>
+    </div>
+    <div class="detail-card">
+      <h4>/admin/vaults/new</h4>
+      <ul>
+        <li class="hc"><span class="type-tag type-hc">HC</span> FORM_INITIAL: minTicketUsdc=250000, capacityUsdc=10000000, mgmtFeeBps=200, perfFeeBps=2000, softLockupDays=60, targetApyLowBps=800, targetApyHighBps=1500</li>
+      </ul>
+    </div>
+    <div class="detail-card">
+      <h4>/legal</h4>
+      <ul>
+        <li class="hc"><span class="type-tag type-placeholder">PLACEHOLDER</span> "Effective date — to be finalized"</li>
+        <li class="hc"><span class="type-tag type-placeholder">PLACEHOLDER</span> "KYC processor — to be named" (privacy policy)</li>
+        <li class="hc"><span class="type-tag type-hc">HC</span> USD 250,000 min ticket, 60-day lock (termes légaux — acceptable statique)</li>
+      </ul>
+    </div>
+    <div class="detail-card">
+      <h4>/forgot-password</h4>
+      <ul>
+        <li class="hc"><span class="type-tag type-hc">HC</span> "1 hour" TTL dans UI — devrait lire TOKEN_TTL_MS constant de password-reset.ts</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<!-- BUTTONS TESTED -->
+<div class="section s-ok">
+  <div class="section-title">🖱️ Boutons testés</div>
+  <div class="btn-table-wrap">
+    <table class="btn-table">
+      <thead>
+        <tr><th>Route</th><th>Bouton</th><th>Fonctionne</th><th>Résultat</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>/login</code></td><td>Sign in</td><td class="btn-works">✅ OUI</td><td class="result-text">Authentifie (argon2id), session cookie, redirect /portfolio ou /totp-challenge</td></tr>
+        <tr><td><code>/forgot-password</code></td><td>Send reset link</td><td class="btn-works">✅ OUI</td><td class="result-text">forgotPassword() server action, rate-limited, anti-enum, envoi email reset</td></tr>
+        <tr><td><code>/forgot-password</code></td><td>Back to sign in</td><td class="btn-works">✅ OUI</td><td class="result-text">Navigue vers /login</td></tr>
+        <tr><td><code>/reset-password</code></td><td>Set new password</td><td class="btn-works">✅ OUI</td><td class="result-text">resetPassword() Zod, consumeResetToken(), maps error codes</td></tr>
+        <tr><td><code>/reset-password</code></td><td>Request a new link</td><td class="btn-works">✅ OUI</td><td class="result-text">Navigue vers /forgot-password (200 confirmé)</td></tr>
+        <tr><td><code>/totp-challenge</code></td><td>Continue</td><td class="btn-works">✅ OUI</td><td class="result-text">verifyTotpChallenge, rate-limit 5 tentatives/5min, session créée si succès</td></tr>
+        <tr><td><code>/totp-challenge</code></td><td>Start over</td><td class="btn-works">✅ OUI</td><td class="result-text">Navigue vers /login</td></tr>
+        <tr><td><code>/onboarding/accreditation</code></td><td>Continue</td><td class="btn-works">✅ OUI</td><td class="result-text">Désactivé jusqu'aux 3 cases. attestAccreditation() server action, navigue /onboarding/identity</td></tr>
+        <tr><td><code>/onboarding/identity</code></td><td>Begin Identity Verification</td><td class="btn-broken">❌ NON</td><td class="result-text">Désactivé en attente CDN Persona (cdn.withpersona.com). Si CDN inaccessible, bouton reste disabled indéfiniment sans feedback</td></tr>
+        <tr><td><code>/onboarding/identity</code></td><td>Continue to Wallet Binding</td><td class="btn-works">✅ OUI (BUG)</td><td class="result-text">Navigue /onboarding/wallet — SANS GUARD : user peut skip KYC entièrement</td></tr>
+        <tr><td><code>/onboarding/identity</code></td><td>Back</td><td class="btn-works">✅ OUI</td><td class="result-text">Navigue /onboarding/accreditation</td></tr>
+        <tr><td><code>/vaults/yield-vault/invest/confirmed</code></td><td>Go to portfolio</td><td class="btn-works">✅ OUI</td><td class="result-text">Navigue /portfolio/{positionId} ou /portfolio si pas de positionId</td></tr>
+        <tr><td><code>/vaults/yield-vault/invest/confirmed</code></td><td>Subscribe to another vault</td><td class="btn-works">✅ OUI</td><td class="result-text">Navigue /vaults</td></tr>
+        <tr><td><code>/vaults/yield-vault/invest/confirmed</code></td><td>Copy vault contract address</td><td class="btn-broken">❌ NON</td><td class="result-text">data-copy-value présent MAIS aucun click handler JS. Rien ne se passe.</td></tr>
+        <tr><td><code>/vaults/yield-vault/invest/confirmed</code></td><td>Add to calendar (.ics)</td><td class="btn-works">✅ OUI</td><td class="result-text">Télécharge hearst-distribution.ics via data URI</td></tr>
+        <tr><td><code>/vaults/yield-vault/invest/confirmed</code></td><td>BaseScan (Sepolia)</td><td class="btn-works">✅ OUI</td><td class="result-text">Ouvre https://sepolia.basescan.org/tx/{txHash} dans nouvel onglet</td></tr>
+        <tr><td><code>/vaults/yield-vault/invest/confirmed</code></td><td>Book 15-min call</td><td class="btn-broken">❌ NON</td><td class="result-text">URL stub Calendly — pas une vraie page de réservation</td></tr>
+        <tr><td><code>/portfolio</code></td><td>Start onboarding</td><td class="btn-works">✅ OUI</td><td class="result-text">Lien vers /onboarding/accreditation</td></tr>
+        <tr><td><code>/proof-center</code></td><td>View document (Spearbit)</td><td class="btn-broken">❌ NON</td><td class="result-text">https://reports.spearbit.com/hearst-vault-2026q1.pdf — domaine injoignable, timeout/HTTP 000</td></tr>
+        <tr><td><code>/proof-center</code></td><td>View document (Trail of Bits)</td><td class="btn-broken">❌ NON</td><td class="result-text">https://reports.trailofbits.com/hearst-eventlogger-scope.pdf — domaine injoignable</td></tr>
+        <tr><td><code>/proof-center</code></td><td>View document (Methodology v1.0)</td><td class="btn-broken">❌ NON</td><td class="result-text">/docs/methodology/v1.0.md → 404 (fichier existe sur disque, pas de route Next.js)</td></tr>
+        <tr><td><code>/proof-center</code></td><td>View on Basescan (EventLogger)</td><td class="btn-works">✅ OUI</td><td class="result-text">Ouvre explorer Base Sepolia pour 0xb07E045D082d202bAc7C1d4F83e1A63d00653D9E</td></tr>
+        <tr><td><code>/proof-center</code></td><td>View on Basescan (PoRRegistry)</td><td class="btn-works">✅ OUI</td><td class="result-text">Ouvre explorer Base Sepolia pour 0x2B7229Ea0c94f12D984d9045ee12fB0D2Efcd28D</td></tr>
+        <tr><td><code>/admin/customers</code></td><td>Reset (KYC)</td><td class="btn-works">✅ OUI</td><td class="result-text">setInvestorKyc server action, approved→pending, revalidatePath</td></tr>
+        <tr><td><code>/admin/vaults/new</code></td><td>Resume draft</td><td class="btn-works">✅ OUI</td><td class="result-text">Navigue /admin/vaults/new?resume=1, rehydrate wizard step 1 avec state sauvegardé</td></tr>
+        <tr><td><code>/admin/vaults/new</code></td><td>Start from scratch</td><td class="btn-works">✅ OUI</td><td class="result-text">Affiche dialog confirmation inline</td></tr>
+        <tr><td><code>/admin/vaults/new</code></td><td>Yes, discard and start fresh</td><td class="btn-works">✅ OUI</td><td class="result-text">discardWizardDraft(), wizard reloade step 1 vide</td></tr>
+        <tr><td><code>/admin/vaults/new</code></td><td>Next (steps 1-4)</td><td class="btn-works">✅ OUI</td><td class="result-text">Avance steps 1→2→3→4 correctement</td></tr>
+        <tr><td><code>/admin/vaults/new</code></td><td>Next (step 4→5)</td><td class="btn-broken">❌ NON</td><td class="result-text">RSC refetch déclenché par autosave resets wizard → ResumeDraftBanner. Étapes 5-7 inaccessibles.</td></tr>
+        <tr><td><code>/admin/scenario-lab</code></td><td>Run scenario</td><td class="btn-broken">❌ NON</td><td class="result-text">Page auto-redirige en 2-3s avant interaction possible</td></tr>
+        <tr><td><code>/admin/scenario-lab</code></td><td>Preset buttons (Base Case etc.)</td><td class="btn-works">✅ OUI</td><td class="result-text">Rendent et sont cliquables au chargement — définissent les valeurs preset des sliders</td></tr>
+        <tr><td><code>/admin/dashboard</code></td><td>Vault selector (Yield/Defensive/BTC Plus)</td><td class="btn-works">✅ OUI</td><td class="result-text">Navigue /admin/dashboard?vault=yield/defensive/btc-plus</td></tr>
+        <tr><td><code>/admin/dashboard</code></td><td>Mode toggle (Simple/Advanced)</td><td class="btn-works">✅ OUI</td><td class="result-text">Navigue /admin/dashboard ou /admin/dashboard?mode=advanced</td></tr>
+        <tr><td><code>/admin/dashboard</code></td><td>Open Proof Center</td><td class="btn-works">✅ OUI</td><td class="result-text">Navigue /proof-center</td></tr>
+        <tr><td><code>/admin/roadmap</code></td><td>Status quick-set (5 statuts)</td><td class="btn-works">✅ OUI</td><td class="result-text">quickSetStatus server action, update RoadmapValidation DB, revalidatePath</td></tr>
+        <tr><td><code>/admin/roadmap</code></td><td>Details expand</td><td class="btn-works">✅ OUI</td><td class="result-text">Toggle inline form Status/ValidatedBy/EvidenceURL/Notes/Blockers + Save/Cancel</td></tr>
+        <tr><td><code>/admin/distributions</code></td><td>Compute</td><td class="btn-broken">❌ NON</td><td class="result-text">Désactivé (Total USDC vide requis). Race condition 429 redirect avant interaction.</td></tr>
+        <tr><td><code>/admin/governance/simulate-demo</code></td><td>Simulate (page entière)</td><td class="btn-broken">❌ NON</td><td class="result-text">Page 404 permanente — chunk stale. Bouton jamais rendu.</td></tr>
+        <tr><td><code>/legal/disclaimer</code></td><td>Nav links (Privacy/Terms/Disclaimer)</td><td class="btn-works">✅ OUI</td><td class="result-text">Liens de navigation présents et résolvent correctement au niveau HTTP</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- API ROUTES -->
+<div class="section s-info">
+  <div class="section-title">🔌 API Routes — Statuts HTTP</div>
+  <div class="api-grid">
+    <div class="api-card">
+      <div class="api-route">GET /api/health</div>
+      <div><span class="api-status-warn">WARN — 200 implémenté</span></div>
+      <div class="api-desc">SELECT 1 + Redis PING. Implémenté correctement. Jamais vérifié retourner JSON direct — browser session redirige. Curl requis pour confirmation.</div>
+    </div>
+    <div class="api-card">
+      <div class="api-route">GET/POST /api/admin/review-mode</div>
+      <div><span class="api-status-err">403 / 429 — STORM</span></div>
+      <div class="api-desc">403 Forbidden non-admin, 429 Too Many Requests sur polling rapide. Rate limiter trop agressif. Error handler déclenche navigations side-effect sur toutes les pages admin.</div>
+    </div>
+    <div class="api-card">
+      <div class="api-route">POST /api/auth/logout</div>
+      <div><span class="api-status-err">404 — MANQUANT</span></div>
+      <div class="api-desc">Aucun route handler. Privy SDK échoue. Logout non fonctionnel.</div>
+    </div>
+    <div class="api-card">
+      <div class="api-route">GET /api/admin/review-document</div>
+      <div><span class="api-status-ok">200 — OK (non testé)</span></div>
+      <div class="api-desc">Route existe à src/app/api/admin/review-document/route.ts. Non testé directement en QA.</div>
+    </div>
+    <div class="api-card">
+      <div class="api-route">POST /api/backtest/run</div>
+      <div><span class="api-status-ok">200 — OK (non testé)</span></div>
+      <div class="api-desc">Route existe. Non testée directement.</div>
+    </div>
+    <div class="api-card">
+      <div class="api-route">POST /api/cockpit-chat</div>
+      <div><span class="api-status-ok">200 — OK</span></div>
+      <div class="api-desc">Kimi K2.6 chat rail fonctionnel confirmé sur plusieurs pages. Chat sends OK.</div>
+    </div>
+    <div class="api-card">
+      <div class="api-route">GET/POST /api/cockpit-chats</div>
+      <div><span class="api-status-ok">200 — OK (non testé)</span></div>
+      <div class="api-desc">Route CRUD historique chat. Non testée directement.</div>
+    </div>
+    <div class="api-card">
+      <div class="api-route">POST /api/docusign/webhook</div>
+      <div><span class="api-status-ok">200 — OK (non testable)</span></div>
+      <div class="api-desc">Route existe. Requiert payload DocuSign. Non testable en QA.</div>
+    </div>
+    <div class="api-card">
+      <div class="api-route">POST /api/inngest</div>
+      <div><span class="api-status-warn">WARN — jobs status 'unknown'</span></div>
+      <div class="api-desc">Route existe. Inngest jobs retournent status='unknown', lastRunAt:null — pas d'API Inngest connectée en dev.</div>
+    </div>
+    <div class="api-card">
+      <div class="api-route">GET /api/me</div>
+      <div><span class="api-status-ok">200 — OK (non testé)</span></div>
+      <div class="api-desc">Route existe. Non testée directement.</div>
+    </div>
+    <div class="api-card">
+      <div class="api-route">POST /api/persona/webhook</div>
+      <div><span class="api-status-ok">200 — OK</span></div>
+      <div class="api-desc">Route existe. Persona sandbox configuré. Webhook secret configuré.</div>
+    </div>
+    <div class="api-card">
+      <div class="api-route">GET /api/search</div>
+      <div><span class="api-status-ok">200 — OK (non câblé)</span></div>
+      <div class="api-desc">Route existe. GlobalSearch composant construit mais non rendu (MEMORY: unwired UI features).</div>
+    </div>
+  </div>
+</div>
+<!-- REDIRECTIONS -->
+<div class="section s-yellow">
+  <div class="section-title">↪️ Redirections — Attendues et inattendues</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Route</th><th>Redirige vers</th><th>Attendu</th><th>Note</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code class="route">/</code></td><td class="redir-target">/login</td><td><span class="st-ok">OUI</span></td><td class="note-text">Auth gate normal</td></tr>
+        <tr><td><code class="route">/login (authentifié)</code></td><td class="redir-target">/vaults puis /totp-challenge</td><td><span class="st-ok">OUI</span></td><td class="note-text">Flow auth normal</td></tr>
+        <tr><td><code class="route">/forgot-password (auth)</code></td><td class="redir-target">/portfolio</td><td><span class="st-ok">OUI</span></td><td class="note-text">Session active</td></tr>
+        <tr><td><code class="route">/reset-password (auth)</code></td><td class="redir-target">/portfolio</td><td><span class="st-ok">OUI</span></td><td class="note-text">Session active</td></tr>
+        <tr><td><code class="route">/onboarding/wallet (unauth)</code></td><td class="redir-target">/login</td><td><span class="st-ok">OUI</span></td><td class="note-text">Proxy gate correct</td></tr>
+        <tr><td><code class="route">/vaults (unauth)</code></td><td class="redir-target">/login</td><td><span class="st-ok">OUI</span></td><td class="note-text">Proxy gate correct</td></tr>
+        <tr><td><code class="route">/vaults (stale invest flow)</code></td><td class="redir-bad">/vaults/yield-vault/invest/confirmed</td><td><span class="st-broken">NON</span></td><td class="note-text">BUG : state invest flow stale non nettoyé après complétion</td></tr>
+        <tr><td><code class="route">/vaults/yield-vault (unauth+404)</code></td><td class="redir-bad">/onboarding/accreditation puis /login</td><td><span class="st-broken">NON</span></td><td class="note-text">404 ne devrait pas provoquer cette chaîne de redirects</td></tr>
+        <tr><td><code class="route">/vaults/yield-vault/invest (post-login)</code></td><td class="redir-bad">/admin/roadmap (ignore ?from=)</td><td><span class="st-broken">NON</span></td><td class="note-text">BUG : ?from= non honoré après login</td></tr>
+        <tr><td><code class="route">/portfolio (admin, no Investor record)</code></td><td class="redir-bad">redirect loop /</td><td><span class="st-broken">NON</span></td><td class="note-text">BUG : CSR hydration loop pour admin sans Investor row</td></tr>
+        <tr><td><code class="route">/profile (dans session)</code></td><td class="redir-bad">/vaults/yield-vault/invest/confirmed (mock params)</td><td><span class="st-broken">NON</span></td><td class="note-text">BUG : auto-redirect spontané avec params mock</td></tr>
+        <tr><td><code class="route">/legal (authentifié)</code></td><td class="redir-bad">/admin ou /portfolio (CSR rehydration)</td><td><span class="st-broken">NON</span></td><td class="note-text">BUG : AppChrome CSR override bare-route isolation</td></tr>
+        <tr><td><code class="route">/legal/disclaimer (onboarding)</code></td><td class="redir-bad">/onboarding/accreditation</td><td><span class="st-broken">NON</span></td><td class="note-text">BUG : CSR auth logic override</td></tr>
+        <tr><td><code class="route">/legal/privacy (après ~3s)</code></td><td class="redir-bad">/legal/disclaimer (timer non-déterministe)</td><td><span class="st-broken">NON</span></td><td class="note-text">BUG : timer auto-redirect layout legal</td></tr>
+        <tr><td><code class="route">/admin (authentifié admin)</code></td><td class="redir-bad">last-cached admin sub-page</td><td><span class="st-broken">NON</span></td><td class="note-text">BUG : App Router client navigue immédiatement, cockpit jamais vu</td></tr>
+        <tr><td><code class="route">/admin/dashboard (unauth)</code></td><td class="redir-bad">404 au lieu de /login</td><td><span class="st-broken">NON</span></td><td class="note-text">BUG : requireAdmin() throws avant layout redirect()</td></tr>
+        <tr><td><code class="route">/admin/scenario-lab</code></td><td class="redir-target">/admin/scenario-lab?vault=yield (308)</td><td><span class="st-ok">OUI</span></td><td class="note-text">Default vault param attendu</td></tr>
+        <tr><td><code class="route">/admin/projection</code></td><td class="redir-target">/admin/projection?vault=yield</td><td><span class="st-ok">OUI</span></td><td class="note-text">Param auto-ajouté</td></tr>
+        <tr><td><code class="route">/admin/governance/allowlist (non-admin)</code></td><td class="redir-bad">404 shell puis /portfolio</td><td><span class="st-broken">NON</span></td><td class="note-text">BUG : devrait rester sur 404 ou redirect /login</td></tr>
+        <tr><td><code class="route">/api/health (browser session)</code></td><td class="redir-bad">/login puis /admin/dashboard</td><td><span class="st-broken">NON</span></td><td class="note-text">BUG : API publique redirigée par session browser</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CONSOLE ERRORS -->
+<div class="section s-crit">
+  <div class="section-title">🔴 Console Errors &amp; Network Errors — Par route</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:10px">
+    <div class="err-route-block">
+      <h4>/ → /login (global, toutes pages)</h4>
+      <div class="err-line err-404">404 GET /vaults/yield-vault (×2 prefetch)</div>
+      <div class="err-line err-404">404 GET /onboarding (prefetch, pas de page.tsx index)</div>
+    </div>
+    <div class="err-route-block">
+      <h4>/onboarding/identity</h4>
+      <div class="err-line err-404">404 GET /vaults/yield-vault</div>
+      <div class="err-line err-404">404 GET /onboarding</div>
+      <div class="err-line err-other">ERR_ABORTED Turbopack HMR chunks (dev only)</div>
+    </div>
+    <div class="err-route-block">
+      <h4>/vaults/yield-vault</h4>
+      <div class="err-line err-404">404 GET /vaults/yield-vault (×2)</div>
+      <div class="err-line err-404">404 GET /onboarding</div>
+    </div>
+    <div class="err-route-block">
+      <h4>/vaults/yield-vault/invest</h4>
+      <div class="err-line err-404">404 GET /vaults/yield-vault/invest</div>
+      <div class="err-line err-other">ERR_ABORTED cdn.withpersona.com/dist/persona-v5.1.4.js</div>
+    </div>
+    <div class="err-route-block">
+      <h4>/proof-center</h4>
+      <div class="err-line err-other">BAILOUT_TO_CLIENT_SIDE_RENDERING: next/dynamic</div>
+      <div class="err-line err-404">404 GET /docs/methodology/v1.0.md</div>
+      <div class="err-line err-other">TIMEOUT reports.spearbit.com/hearst-vault-2026q1.pdf</div>
+      <div class="err-line err-other">TIMEOUT reports.trailofbits.com/hearst-eventlogger-scope.pdf</div>
+    </div>
+    <div class="err-route-block">
+      <h4>/legal (all routes)</h4>
+      <div class="err-line err-other">BAILOUT_TO_CLIENT_SIDE_RENDERING: next/dynamic</div>
+      <div class="err-line err-other">WebSocket HMR failures (dev only)</div>
+    </div>
+    <div class="err-route-block">
+      <h4>/debug/portfolio-full</h4>
+      <div class="err-line err-404">404 GET /debug/portfolio-full (×2)</div>
+      <div class="err-line err-404">404 GET /vaults/yield-vault</div>
+      <div class="err-line err-429">429 GET /api/admin/review-mode (×3)</div>
+      <div class="err-line err-other">WebSocket ERR_INVALID_HTTP_RESPONSE (IPv6 HMR)</div>
+    </div>
+    <div class="err-route-block">
+      <h4>/admin (toutes les pages admin)</h4>
+      <div class="err-line err-403">403 GET /api/admin/review-mode (récurrent, ×10-20)</div>
+      <div class="err-line err-429">429 GET /api/admin/review-mode</div>
+      <div class="err-line err-404">404 GET /api/auth/logout</div>
+      <div class="err-line err-404">404 GET /admin/signals?vault=yield</div>
+      <div class="err-line err-404">404 GET /admin/monitoring</div>
+      <div class="err-line err-404">404 GET /admin/security</div>
+      <div class="err-line err-404">404 GET /admin/governance/simulate-demo</div>
+      <div class="err-line err-404">404 GET /admin/governance/propose</div>
+      <div class="err-line err-404">404 GET /admin/governance/allowlist</div>
+      <div class="err-line err-404">404 GET /admin/investor-memo?vault=yield</div>
+      <div class="err-line err-404">404 GET /admin/roadmap</div>
+      <div class="err-line err-404">404 GET /admin/spec</div>
+      <div class="err-line err-404">404 GET /admin/vaults/new</div>
+      <div class="err-line err-404">404 GET /admin/feedback</div>
+      <div class="err-line err-404">404 GET /debug/portfolio-full (préchargé)</div>
+      <div class="err-line err-other">WebSocket ws://[::1]:4105/_next/webpack-hmr ERR_INVALID_HTTP_RESPONSE (IPv6)</div>
+    </div>
+    <div class="err-route-block">
+      <h4>/admin/vaults/new (wizard)</h4>
+      <div class="err-line err-404">404 GET /admin/security, /governance/simulate-demo, /governance/propose, /investor-memo</div>
+      <div class="err-line err-403">403 GET /api/admin/review-mode</div>
+      <div class="err-line err-other">WebSocket ERR_CONNECTION_REFUSED (HMR)</div>
+    </div>
+    <div class="err-route-block">
+      <h4>/admin/roadmap</h4>
+      <div class="err-line err-404">404 GET /admin/investor-memo?vault=yield</div>
+      <div class="err-line err-403">403 GET /api/admin/review-mode</div>
+      <div class="err-line err-404">404 GET /api/auth/logout (Privy SDK)</div>
+      <div class="err-line err-other">WebSocket ERR_CONNECTION_REFUSED (×3)</div>
+    </div>
+    <div class="err-route-block">
+      <h4>/admin/monitoring</h4>
+      <div class="err-line err-404">404 GET /admin/security (session précédente)</div>
+      <div class="err-line err-403">403 GET /api/admin/review-mode</div>
+    </div>
+    <div class="err-route-block">
+      <h4>/admin/proof-center</h4>
+      <div class="err-line err-403">403 GET /api/admin/review-mode (polling)</div>
+      <div class="err-line err-404">404 GET /admin/signals?vault=yield, /monitoring, /investor-memo, /security, /spec, /governance/propose, /governance/simulate-demo, /governance/allowlist, /vaults/new, /roadmap, /feedback</div>
+      <div class="err-line err-404">404 GET /api/auth/logout</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="section">
+  <div class="section-title">📖 Légende</div>
+  <div class="legend">
+    <div class="leg-item"><span style="color:#A7FB90;font-size:16px">✅</span> <span>Fonctionnel / OK</span></div>
+    <div class="leg-item"><span style="color:#FF4444;font-size:16px">❌</span> <span>Cassé / Non fonctionnel</span></div>
+    <div class="leg-item"><span class="pill pill-crit">CRITIQUE</span> <span>Bloquant P0 — flow utilisateur cassé</span></div>
+    <div class="leg-item"><span class="pill pill-high">HIGH</span> <span>Impact fort — feature dégradée</span></div>
+    <div class="leg-item"><span class="pill pill-med">MEDIUM</span> <span>Impact modéré — workaround possible</span></div>
+    <div class="leg-item"><span class="fake-badge">FAKE</span> <span>Donnée fake / mock dans UI</span></div>
+    <div class="leg-item"><span class="hc-badge">HC</span> <span>Valeur hardcodée (devrait être dynamique)</span></div>
+    <div class="leg-item"><span style="color:#4a8aff">↪</span> <span>Redirection</span></div>
+    <div class="leg-item"><code style="color:#A7FB90">/route</code> <span>Chemin de route</span></div>
+  </div>
+  <div style="margin-top:16px;padding:12px;background:#080e08;border-radius:8px;border:1px solid #1a2a1a">
+    <div style="color:#5a7a5a;font-size:11px">
+      Rapport généré le 2026-06-11 · Hearst Connect QA Session · 43 routes · Next.js 16 App Router · Port 4105 · SQLite dev · DEV_AUTH_BYPASS=0 · Admin user: pierre@hearstcorporation.io
+      <br>Méthodologie : Playwright MCP + curl + code source review · Snapshots accessibilité + screenshots · 
+      Issues P0 = 13 critiques · Routes 404 = 11 (non auth) + 4 (vrais bugs) · Routes avec fake data = 14
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+</body>
+</html>

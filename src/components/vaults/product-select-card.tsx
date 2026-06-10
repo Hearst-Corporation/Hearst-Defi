@@ -60,7 +60,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
         otherwise `flex md:flex-row` would apply to [hover-overlay, wrapper]
         instead of the two columns, and the layout silently collapses.
       */}
-      <div className="flex flex-row items-stretch gap-8">
+      <div className="flex flex-col items-stretch gap-6 md:flex-row md:gap-8">
       {/* Left column — identity, APY, description */}
       <div className="flex min-w-0 flex-1 flex-col gap-6">
         {/* Header */}
@@ -114,10 +114,8 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
         `hidden` / `block` toggle `display`, which the Card primitive never sets,
         so the responsive switch is safe.
       */}
-      <div
-        aria-hidden
-        className="ct-card-divider-v"
-      />
+      <div aria-hidden className="md:hidden border-t border-(--ct-border-soft)" />
+      <div aria-hidden className="hidden md:block ct-card-divider-v" />
 
       {/*
         Right column — metrics grid + CTA.
@@ -129,7 +127,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
           so nothing unlayered overrides it. `shrink-0` keeps it from
           collapsing under the flexible left column.
       */}
-      <div className="flex w-56 shrink-0 flex-col justify-between gap-6">
+      <div className="flex w-full md:w-56 shrink-0 flex-col justify-between gap-6">
         <div className="grid grid-cols-2 items-start gap-x-8 gap-y-6">
           <div className="flex flex-col gap-1">
             <span className="stat-label">Min. ticket</span>

@@ -12,6 +12,7 @@ const ALL_OPTIONS: ReadonlyArray<TimeRange> = [
   "YTD",
   "All",
 ];
+const CHART_TIME_RANGE_ARIA_LABEL = "Chart time range";
 
 export interface ChartTimeSelectorProps {
   value: TimeRange;
@@ -37,10 +38,10 @@ export function ChartTimeSelector({
   return (
     <div
       role="radiogroup"
-      aria-label="Chart time range"
+      aria-label={CHART_TIME_RANGE_ARIA_LABEL}
       className={cn(
         "flex h-6 items-center gap-0.5",
-        "mono text-micro leading-none tracking-[0.08em] uppercase",
+        "mono text-micro leading-none tracking-wide uppercase",
         className,
       )}
     >
@@ -58,7 +59,7 @@ export function ChartTimeSelector({
               isActive
                 ? [
                     "ct-text-primary",
-                    "border-b border-b-[var(--ct-accent)]",
+                    "border-b border-b-(--ct-accent)",
                   ]
                 : [
                     "ct-text-muted",

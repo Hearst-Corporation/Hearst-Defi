@@ -43,7 +43,7 @@ export function PortfolioCockpitDebug({
         <div className="shrink-0">{kpis}</div>
 
         {/* Ligne 2 : ValueChart (2/3) + Liquidity Column (1/3) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 shrink-0 min-h-[400px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 shrink-0 min-h-96">
           <div className="lg:col-span-8 flex flex-col h-full">
             {chart}
           </div>
@@ -57,7 +57,7 @@ export function PortfolioCockpitDebug({
       {/* ── Section 2 — Under the Hood (Yield & Trust) ────────────────────── */}
       <section className="flex flex-col gap-6 relative z-10 border-t border-(--ct-border-soft) pt-12">
         {/* Ligne 1 : Yield Analytics */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 shrink-0 min-h-[300px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 shrink-0 min-h-72">
           <div className="lg:col-span-4 flex flex-col h-full">{donut}</div>
           <div className="lg:col-span-8 flex flex-col h-full">
             {/* Yield Stack placeholder in debug */}
@@ -74,7 +74,7 @@ export function PortfolioCockpitDebug({
         </div>
 
         {/* Ligne 2 : Security & Trust */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[250px]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-64">
            <div className="h-full">
              <article className="dash-cell dash-cell-premium flex flex-col p-6 h-full">
                <div className="dash-label"><span>Risk Pulse</span></div>
@@ -93,9 +93,9 @@ export function PortfolioCockpitDebug({
       {/* ── Section 3 — Details & History ─────────────────────────────────── */}
       <section className="flex flex-col gap-6 relative z-10 border-t border-(--ct-border-soft) pt-12">
         {/* Positions List — Full width */}
-        <div className="flex flex-col min-h-[300px]">{positions}</div>
+        <div className="flex flex-col min-h-72">{positions}</div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 shrink-0 min-h-[300px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 shrink-0 min-h-72">
           <div className="lg:col-span-8 flex flex-col h-full">
             {/* Distrib Calendar placeholder */}
             <article className="dash-cell dash-cell-premium flex flex-col p-6 h-full">

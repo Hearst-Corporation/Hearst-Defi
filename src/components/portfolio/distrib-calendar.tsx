@@ -114,7 +114,7 @@ function BarChart({ entries, refYear, currentPeriod }: BarChartProps) {
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
       preserveAspectRatio="xMidYMid meet"
-      className="w-full max-h-[180px]"
+      className="w-full max-h-44"
       role="img"
       aria-labelledby={titleId}
     >

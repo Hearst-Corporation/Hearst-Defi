@@ -13,21 +13,31 @@ interface ScenarioTabBarProps {
   onChange: (tab: LabTab) => void;
 }
 
+const TABLIST_CLASS = "scenario-lab-tablist";
+const TAB_BASE_CLASS =
+  "scenario-lab-tab px-4 capitalize shadow-none active:scale-100";
+const TAB_ACTIVE_CLASS = "hover:ct-bg-accent hover:ct-text-deep";
+const TAB_INACTIVE_CLASS = "ct-text-body hover:ct-text-primary";
+
 export function ScenarioTabBar({ active, onChange }: ScenarioTabBarProps) {
   function handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
     const tabs: LabTab[] = ["scenario", "backtest"];
     const idx = tabs.indexOf(active);
     if (e.key === "ArrowRight") {
+      e.preventDefault();
       onChange(tabs[(idx + 1) % tabs.length]!);
     } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
       onChange(tabs[(idx - 1 + tabs.length) % tabs.length]!);
     }
   }
 
   return (
     <nav
+      role="tablist"
       aria-label="Scenario Lab tabs"
-      className="flex gap-1 glass-panel-subtle p-1 w-fit"
+      aria-orientation="horizontal"
+      className={TABLIST_CLASS}
       onKeyDown={handleKeyDown}
     >
       {(["scenario", "backtest"] as LabTab[]).map((tab) => {
@@ -42,13 +52,12 @@ export function ScenarioTabBar({ active, onChange }: ScenarioTabBarProps) {
             aria-selected={isActive}
             tabIndex={isActive ? 0 : -1}
             variant="ghost"
-            size="sm"
+            size="lg"
             onClick={() => onChange(tab)}
+            data-active={isActive}
             className={cn(
-              "rounded-sm px-5 py-2 text-sm font-semibold capitalize shadow-none active:scale-100",
-              isActive
-                ? "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)] hover:bg-[var(--ct-accent)] hover:text-[var(--ct-bg-deep)]"
-                : "ct-text-body hover:ct-text-primary",
+              TAB_BASE_CLASS,
+              isActive ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS,
             )}
           >
             {tab === "scenario" ? "Scenario" : "Backtest"}

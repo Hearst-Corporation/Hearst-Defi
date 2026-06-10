@@ -23,6 +23,7 @@ export interface ModalProps {
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+const MODAL_CLOSE_LABEL = "Fermer";
 
 export function Modal(props: ModalProps) {
   if (!props.isOpen) return null;
@@ -95,7 +96,7 @@ function ModalBody({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center p-4 z-[var(--ct-z-modal)]"
+      className="fixed inset-0 flex items-center justify-center p-4 z-(--ct-z-modal)"
       role="presentation"
     >
       {/* Backdrop */}
@@ -104,7 +105,7 @@ function ModalBody({
         aria-hidden="true"
         tabIndex={-1}
         onClick={close}
-        className="absolute inset-0 cursor-default bg-[var(--ct-bg-deep)]/70 backdrop-blur-sm"
+        className="absolute inset-0 cursor-default bg-(--ct-bg-deep)/70 backdrop-blur-sm"
       />
 
       {/* Panel */}
@@ -115,12 +116,12 @@ function ModalBody({
         aria-labelledby={titleId}
         className={cn(
           "relative flex max-h-[85vh] w-full flex-col overflow-hidden",
-          "rounded-xl border border-[var(--ct-border-strong)]",
-          "ct-surface-2 shadow-[var(--ct-shadow-elevated)] z-[var(--ct-z-base)]",
+          "rounded-xl border border-(--ct-border-strong)",
+          "ct-surface-2 shadow-(--ct-shadow-elevated) z-(--ct-z-base)",
           className ?? "max-w-3xl",
         )}
       >
-        <div className="flex items-center justify-between gap-2 border-b border-[var(--ct-border-soft)] px-5 py-3">
+        <div className="flex items-center justify-between gap-2 border-b border-(--ct-border-soft) px-5 py-3">
           <h2
             id={titleId}
             className="h2 ct-text-strong"
@@ -133,9 +134,9 @@ function ModalBody({
               size="sm"
               variant="ghost"
               onClick={close}
-              aria-label="Fermer"
+              aria-label={MODAL_CLOSE_LABEL}
             >
-              Fermer
+              {MODAL_CLOSE_LABEL}
             </Button>
           </div>
         </div>

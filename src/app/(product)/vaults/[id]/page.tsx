@@ -118,10 +118,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
           (was a translucent glass <Card> that overlapped — fixed). */}
       <nav
         aria-label="Invest flow actions"
-        className="sticky bottom-6 z-[var(--ct-z-bottom-bar)] flex items-center justify-between gap-4 rounded-lg border border-[var(--ct-border-strong)] bg-[var(--ct-bg-deep)] px-5 py-3 shadow-[var(--ct-shadow-elevated)]"
+        className="sticky bottom-6 z-(--ct-z-bottom-bar) flex flex-col items-stretch gap-3 rounded-lg border border-(--ct-border-strong) bg-(--ct-bg-deep) px-4 py-3 shadow-(--ct-shadow-elevated) sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5"
       >
         <div className="flex min-w-0 items-center gap-2 flex-wrap">
-          <span className="body-sm font-semibold ct-text-primary truncate">
+          <span className="body-sm font-semibold ct-text-primary wrap-break-word">
             {vault.name}
           </span>
           <span className="body-xs ct-text-faint">·</span>
@@ -132,14 +132,14 @@ export default async function VaultDetailPage({ params }: PageProps) {
             className="body-sm mono"
           />
           <span className="body-xs ct-text-faint">·</span>
-          <span className="body-xs ct-text-muted whitespace-nowrap">
+          <span className="body-xs ct-text-muted">
             Min. ${(vault.minTicketUsdc / 1000).toFixed(0)}k ·{" "}
             {vault.softLockupDays}d lock-up
           </span>
         </div>
 
         {isLive ? (
-          <Button variant="primary" size="md" asChild className="font-bold shrink-0">
+          <Button variant="primary" size="md" asChild className="font-bold w-full sm:w-auto sm:shrink-0">
             <Link href={investHref}>Continue → Deposit</Link>
           </Button>
         ) : (
@@ -148,7 +148,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
             size="md"
             disabled
             aria-disabled
-            className="shrink-0"
+            className="w-full sm:w-auto sm:shrink-0"
           >
             Coming soon
           </Button>

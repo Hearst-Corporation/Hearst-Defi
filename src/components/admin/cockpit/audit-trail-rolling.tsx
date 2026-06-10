@@ -32,10 +32,10 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto -mx-[var(--ct-card-p,1.5rem)]">
-          <table className="w-full text-sm min-w-[640px]" aria-label="Admin audit log">
+        <div className="overflow-x-auto -mx-(--ct-card-p,1.5rem)">
+          <table className="w-full text-sm min-w-160" aria-label="Admin audit log">
             <thead>
-              <tr className="border-b border-[var(--ct-border)]">
+              <tr className="border-b border-(--ct-border)">
                 <th className="text-left ct-table-header font-medium ct-text-faint w-36">
                   Time
                 </th>
@@ -72,7 +72,7 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
     : entry.entityId;
 
   return (
-    <tr className="border-b border-[var(--ct-border-soft)] hover:ct-surface-0 transition-colors">
+    <tr className="border-b border-(--ct-border-soft) hover:ct-surface-0 transition-colors">
       <td className="ct-table-cell tabular ct-text-faint whitespace-nowrap">
         {dateFmt.format(new Date(entry.occurredAt))}
       </td>

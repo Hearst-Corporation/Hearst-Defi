@@ -28,6 +28,11 @@ export interface ConfirmDialogProps {
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+const CONFIRM_DIALOG_STRINGS = {
+  typeToConfirmPrefix: "Tapez",
+  typeToConfirmSuffix: "pour confirmer",
+  cancel: "Annuler",
+} as const;
 
 export function ConfirmDialog(props: ConfirmDialogProps) {
   // Mount the dialog body only while open so transient state (typed phrase,
@@ -132,7 +137,7 @@ function ConfirmDialogBody({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center p-4 z-[var(--ct-z-modal)]"
+      className="fixed inset-0 flex items-center justify-center p-4 z-(--ct-z-modal)"
       role="presentation"
     >
       {/* Backdrop */}
@@ -142,7 +147,7 @@ function ConfirmDialogBody({
         tabIndex={-1}
         onClick={close}
         disabled={isPending}
-        className="absolute inset-0 cursor-default bg-[var(--ct-bg-deep)]/70 backdrop-blur-sm disabled:cursor-not-allowed"
+        className="absolute inset-0 cursor-default bg-(--ct-bg-deep)/70 backdrop-blur-sm disabled:cursor-not-allowed"
       />
 
       {/* Panel */}
@@ -153,8 +158,8 @@ function ConfirmDialogBody({
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
         className={cn(
-          "relative w-full max-w-md rounded-xl border border-[var(--ct-border-strong)]",
-          "ct-surface-2 p-6 shadow-[var(--ct-shadow-elevated)] z-[var(--ct-z-base)]",
+          "relative w-full max-w-md rounded-xl border border-(--ct-border-strong)",
+          "ct-surface-2 p-6 shadow-(--ct-shadow-elevated) z-(--ct-z-base)",
         )}
       >
         <h2
@@ -176,11 +181,11 @@ function ConfirmDialogBody({
               htmlFor={`${titleId}-phrase`}
               className="stat-label block"
             >
-              Tapez{" "}
+              {CONFIRM_DIALOG_STRINGS.typeToConfirmPrefix}{" "}
               <span className="mono tabular ct-text-strong">
                 {confirmPhrase}
               </span>{" "}
-              pour confirmer
+              {CONFIRM_DIALOG_STRINGS.typeToConfirmSuffix}
             </label>
             <input
               ref={inputRef}
@@ -213,7 +218,7 @@ function ConfirmDialogBody({
             onClick={close}
             disabled={isPending}
           >
-            Annuler
+            {CONFIRM_DIALOG_STRINGS.cancel}
           </Button>
           <Button
             variant={confirmVariant}

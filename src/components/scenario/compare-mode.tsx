@@ -33,25 +33,24 @@ function Placeholder({ side, pending }: PlaceholderProps) {
   return (
     <div
       className={cn(
-        "flex min-h-80 flex-col items-center justify-center gap-3",
-        "glass-panel-subtle border-dashed",
+        "scenario-compare-empty",
         "border-l-4",
         side === "A"
-          ? "border-l-[var(--ct-border-strong)]"
-          : "border-l-[var(--ct-text-strong)]",
-        "px-5 py-5",
-        "transition-opacity duration-[var(--ct-dur-fast)]",
+          ? "border-l-(--ct-border-strong)"
+          : "border-l-(--ct-text-strong)",
+        "transition-opacity duration-(--ct-dur-fast)",
         pending && "opacity-50",
       )}
       aria-live="polite"
     >
       {pending ? (
         <>
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--ct-text-strong)] border-t-transparent" />
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-(--ct-text-strong) border-t-transparent" />
           <p className="stat-label ct-text-body">Computing…</p>
         </>
       ) : (
-        <div className="ct-empty-state">
+        <div>
+          <div className="scenario-compare-empty__icon mx-auto mb-3" />
           <span className="font-semibold ct-text-body">
             Scenario {side}
           </span>
@@ -144,7 +143,7 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
   const showOutputs = outputs.a !== null && outputs.b !== null;
 
   return (
-    <div className="space-y-6">
+    <div className="scenario-lab-shell">
       {/* Selectors row */}
       <div className="grid gap-4 md:grid-cols-2">
         <PresetPicker
@@ -168,14 +167,14 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
       {error && (
         <p
           role="alert"
-          className="rounded-full border border-[var(--ct-status-danger)] ct-status-danger-bg px-4 py-2.5 text-sm ct-status-danger"
+          className="rounded-full border border-(--ct-status-danger) ct-status-danger-bg px-4 py-2.5 text-sm ct-status-danger"
         >
           {error}
         </p>
       )}
 
       {/* Panels row */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid min-w-0 gap-5 md:grid-cols-2">
         {showOutputs && presetA && outputs.a ? (
           <OutputPanel
             variant="compact"
@@ -208,7 +207,7 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
       )}
 
       {/* Shared disclaimer */}
-      <p className="border-t border-[var(--ct-border-soft)] pt-4 text-xs italic ct-text-muted">
+      <p className="border-t border-(--ct-border-soft) pt-4 text-xs italic ct-text-muted">
         <span className="font-semibold not-italic ct-text-body">
           Not guaranteed.
         </span>{" "}

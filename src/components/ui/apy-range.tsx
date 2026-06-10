@@ -28,7 +28,7 @@ export function ApyRange({
       {fmt(a)}
       <span
         aria-hidden
-        className="mx-1 ct-text-muted font-normal text-[0.85em] leading-none translate-y-[-0.06em]"
+        className="mx-1 ct-text-muted font-normal text-[0.85em] leading-tight"
       >
         —
       </span>

@@ -50,7 +50,7 @@ export function AllocationDonut({
 
   return (
     <article 
-      className="ct-kpi-glass flex flex-col relative flex-1 h-full min-h-[200px] p-6 overflow-hidden" 
+      className="ct-kpi-glass flex flex-col relative flex-1 h-full min-h-48 p-6 overflow-hidden" 
       aria-label="Portfolio allocation"
     >
       <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 relative z-10">

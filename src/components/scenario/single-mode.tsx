@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { useScenario } from "@/hooks/use-scenario";
 import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
+import { useEffect, useRef } from "react";
 
 export interface SingleModeProps {
   vaultId: VaultId;
@@ -19,11 +20,18 @@ export interface SingleModeProps {
 }
 
 export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
+  const outputRef = useRef<HTMLDivElement | null>(null);
+  const hasRunRef = useRef(false);
   const { state, pending, error, submit, selectPreset, setInputs } =
     useScenario({ vaultId, initialInputs });
 
+  useEffect(() => {
+    if (!state.output || !hasRunRef.current) return;
+    outputRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [state.output]);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <PresetBar
         selected={state.selectedPreset}
         onSelect={selectPreset}
@@ -31,15 +39,15 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
       />
 
       {error && (
-        <p className="rounded-full border border-[var(--ct-status-danger)] ct-status-danger-bg px-4 py-2.5 text-sm ct-status-danger">
+        <p className="rounded-full border border-(--ct-status-danger) ct-status-danger-bg px-4 py-2.5 text-sm ct-status-danger">
           {error}
         </p>
       )}
 
-      <div className="grid items-start gap-8 lg:grid-cols-[minmax(var(--ct-input-panel-min,360px),var(--ct-input-panel-max,420px))_1fr]">
+      <div className="scenario-lab-workspace">
         {/* Left: Inputs panel */}
-        <div className="flex flex-col gap-0 glass-panel p-0 overflow-hidden">
-          <div className="border-b border-[var(--ct-border-soft)] px-6 py-4">
+        <div className="scenario-lab-input-card glass-panel p-0">
+          <div className="border-b border-(--ct-border-soft) px-5 py-4">
             <h4 className="h4">Inputs</h4>
             <p className="mt-0.5 text-xs ct-text-muted">
               Adjust sliders or select a preset above
@@ -49,6 +57,7 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
           <div
             className={cn(
               "flex-1 px-6 py-5",
+              "px-5 py-4",
               pending && "pointer-events-none opacity-50",
             )}
           >
@@ -59,12 +68,15 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
             />
           </div>
 
-          <div className="border-t border-[var(--ct-border-soft)] px-6 py-5">
+          <div className="border-t border-(--ct-border-soft) px-5 py-4">
             <Button
               variant="primary"
               size="lg"
               className="w-full font-semibold"
-              onClick={() => submit(state.inputs)}
+              onClick={() => {
+                hasRunRef.current = true;
+                submit(state.inputs);
+              }}
               disabled={pending}
             >
               {pending ? (
@@ -83,7 +95,7 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
         </div>
 
         {/* Right: Output panel */}
-        <div className="min-w-0">
+        <div ref={outputRef} className="scenario-lab-output-card">
           {state.output ? (
             <OutputPanel
               output={state.output}
@@ -93,9 +105,8 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
           ) : (
             <div
               className={cn(
-                "flex min-h-80 flex-col items-center justify-center gap-3",
-                "glass-panel-subtle border-dashed",
-                "transition-opacity duration-[var(--ct-dur-fast)]",
+                "scenario-lab-output-empty",
+                "transition-opacity duration-(--ct-dur-fast)",
                 pending && "opacity-50",
               )}
             >
@@ -106,11 +117,9 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
                 </>
               ) : (
                 <>
-                  <div className="h-10 w-10 ct-empty-state" />
+                  <div className="scenario-lab-output-empty__icon" />
                   <p className="max-w-xs text-center text-sm ct-text-muted">
-                    Select a preset above or adjust the sliders,{" "}
-                    <br />
-                    then press{" "}
+                    Select a preset or adjust sliders, then press{" "}
                     <span className="font-semibold ct-text-body">
                       Run scenario
                     </span>{" "}
