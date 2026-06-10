@@ -9,10 +9,8 @@ import {
   loadProofPulseProps,
   loadYieldStackProps,
   loadTimeToCashProps,
-  loadTaxPreview,
 } from "@/lib/data/portfolio";
 import { PortfolioEmptyState } from "@/components/portfolio/portfolio-empty-state";
-import { SurpriseDelightBar } from "@/components/portfolio/surprise-delight-bar";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
 import { NextActionCard } from "@/components/portfolio/next-action-card";
 import { AllocationDonut } from "@/components/portfolio/allocation-donut";
@@ -279,12 +277,6 @@ export default async function PortfolioPage() {
     loadProofPulseProps(),
     loadYieldStackProps(),
   ]);
-  // Tax preview is loaded after the investor is known so its loader can reuse
-  // the same session lookup; running it inside the Promise.all is safe since
-  // `loadTaxPreview` resolves the investor internally. Keeping it serial is
-  // simpler here than threading the investor object into the loader.
-  const taxPreview = await loadTaxPreview();
-
   const name = displayName(investor);
 
   // Strip the `source` field before forwarding to widget components
@@ -371,11 +363,8 @@ export default async function PortfolioPage() {
           positionCount={data.positions.length}
         />
 
-        {/* Quick access to reporting documents — only when positions exist */}
-        <SurpriseDelightBar
-          investorId={investor?.id ?? null}
-          taxPreview={taxPreview}
-        />
+        {/* Quick access to reporting documents — hidden at launch (P0.9).
+            Re-enable SurpriseDelightBar here once first distributions are live. */}
       </div>
 
       <PortfolioBrief

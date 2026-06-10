@@ -144,7 +144,7 @@ export function YieldStack({
                 </span>
                 <span
                   className={cn(
-                    "tabular text-(length:--ct-text-xs) font-medium",
+                    "tabular body-xs font-medium",
                     isNegative
                       ? "ct-status-danger"
                       : s.isVolatile

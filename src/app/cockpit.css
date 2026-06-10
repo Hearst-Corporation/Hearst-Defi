@@ -945,7 +945,7 @@
       color-mix(in srgb, var(--ct-bg-deep) 34%, transparent) 0%,
       color-mix(in srgb, var(--ct-bg-deep) 56%, transparent) 100%
     ),
-    url("/backgrounds/hearst-luxury-bg.png");
+    url("/backgrounds/hearst-tech-bg-v2.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
