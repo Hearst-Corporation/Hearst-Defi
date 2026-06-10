@@ -31,8 +31,19 @@ vi.mock("@/lib/db", () => ({
       findUnique: vi.fn(),
     },
     position: {
+      findUnique: vi.fn(),
       create: vi.fn(),
+      aggregate: vi.fn(),
     },
+    // P0-2: subscribe now wraps the capacity re-check + position write in a
+    // transaction. The mock runs the callback against the same mocked prisma,
+    // so position.aggregate / position.create are exercised inside it.
+    $transaction: vi.fn(
+      async (fn: (tx: unknown) => Promise<unknown>) => {
+        const { prisma: p } = await import("@/lib/db");
+        return fn(p);
+      },
+    ),
   },
 }));
 
@@ -46,6 +57,12 @@ import { getInvestor } from "@/lib/auth/session";
 import { getVault } from "@/lib/data/vaults";
 import { prisma } from "@/lib/db";
 import { subscribe } from "@/app/actions/subscribe";
+import { Prisma } from "@prisma/client";
+
+/** Build a Decimal-ish stub exposing the only method subscribe() calls. */
+function decimal(n: number) {
+  return { toNumber: () => n } as unknown as Prisma.Decimal;
+}
 
 // ── Fixtures ──────────────────────────────────────────────────────────────
 
@@ -93,6 +110,12 @@ describe("subscribe — Class B wiring (E2)", () => {
     vi.clearAllMocks();
     // Default: no matching DB deployment row → vaultKey fallback
     vi.mocked(prisma.vaultDeployment.findUnique).mockResolvedValue(null);
+    // Default: no prior position for this txHash (idempotency miss).
+    vi.mocked(prisma.position.findUnique).mockResolvedValue(null);
+    // Default: no capacity consumed yet → full vault capacity available.
+    vi.mocked(prisma.position.aggregate).mockResolvedValue({
+      _sum: { principalUsdc: null },
+    } as unknown as Awaited<ReturnType<typeof prisma.position.aggregate>>);
   });
 
   // ── Case 1: happy path — $2M Class B on a live vault ───────────────────
@@ -206,6 +229,10 @@ describe("subscribe — C-01 KYC gate", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(prisma.vaultDeployment.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.position.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.position.aggregate).mockResolvedValue({
+      _sum: { principalUsdc: null },
+    } as unknown as Awaited<ReturnType<typeof prisma.position.aggregate>>);
   });
 
   it("kycStatus=pending → { ok:false, error: KYC approval required... }", async () => {
@@ -267,5 +294,110 @@ describe("subscribe — C-01 KYC gate", () => {
     if (result.ok) {
       expect(result.positionId).toBe("pos_kyc_ok_001");
     }
+  });
+});
+
+// ── P0-1: idempotent subscription (on-chain deposit dedup) ──────────────────
+
+describe("subscribe — P0-1 idempotency on txHash", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(prisma.vaultDeployment.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.position.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.position.aggregate).mockResolvedValue({
+      _sum: { principalUsdc: null },
+    } as unknown as Awaited<ReturnType<typeof prisma.position.aggregate>>);
+    vi.mocked(getInvestor).mockResolvedValue(MOCK_INVESTOR);
+    vi.mocked(getVault).mockResolvedValue(LIVE_VAULT);
+  });
+
+  it("replaying the same txHash returns the existing position WITHOUT creating a new one", async () => {
+    // Pre-existing position for this on-chain deposit.
+    vi.mocked(prisma.position.findUnique).mockResolvedValue({
+      id: "pos_existing_001",
+    } as unknown as Awaited<ReturnType<typeof prisma.position.findUnique>>);
+
+    const result = await subscribe("hearst-yield-vault", 250_000, "A", "0xDEADBEEF");
+
+    expect(result).toEqual({ ok: true, positionId: "pos_existing_001" });
+    // No write, no transaction — pure dedup short-circuit.
+    expect(prisma.position.create).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("losing the race (P2002 on txHashOpen) resolves to the now-existing position", async () => {
+    // First lookup: miss. Post-violation lookup: the winner's row.
+    vi.mocked(prisma.position.findUnique)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({
+        id: "pos_winner_001",
+      } as unknown as Awaited<ReturnType<typeof prisma.position.findUnique>>);
+
+    const p2002 = new Prisma.PrismaClientKnownRequestError(
+      "Unique constraint failed on the fields: (`txHashOpen`)",
+      { code: "P2002", clientVersion: "7.x" },
+    );
+    vi.mocked(prisma.position.aggregate).mockResolvedValue({
+      _sum: { principalUsdc: null },
+    } as unknown as Awaited<ReturnType<typeof prisma.position.aggregate>>);
+    vi.mocked(prisma.position.create).mockRejectedValue(p2002);
+
+    const result = await subscribe("hearst-yield-vault", 250_000, "A", "0xRACE");
+
+    expect(result).toEqual({ ok: true, positionId: "pos_winner_001" });
+  });
+
+  it("a subscription without a txHash skips the dedup lookup and still writes", async () => {
+    vi.mocked(prisma.position.create).mockResolvedValue({
+      id: "pos_no_hash_001",
+    } as unknown as Awaited<ReturnType<typeof prisma.position.create>>);
+
+    const result = await subscribe("hearst-yield-vault", 250_000, "A");
+
+    expect(result).toEqual({ ok: true, positionId: "pos_no_hash_001" });
+    expect(prisma.position.findUnique).not.toHaveBeenCalled();
+  });
+});
+
+// ── P0-2: capacity re-checked transactionally against live principal ────────
+
+describe("subscribe — P0-2 transactional capacity guard", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(prisma.vaultDeployment.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.position.findUnique).mockResolvedValue(null);
+    vi.mocked(getInvestor).mockResolvedValue(MOCK_INVESTOR);
+    vi.mocked(getVault).mockResolvedValue(LIVE_VAULT); // capacity 100M
+  });
+
+  it("rejects when live consumed principal leaves too little room (over-subscription)", async () => {
+    // 99.9M already consumed by active positions → only 100k remaining.
+    vi.mocked(prisma.position.aggregate).mockResolvedValue({
+      _sum: { principalUsdc: decimal(99_900_000) },
+    } as unknown as Awaited<ReturnType<typeof prisma.position.aggregate>>);
+
+    const result = await subscribe("hearst-yield-vault", 1_000_000, "A");
+
+    expect(result).toEqual({
+      ok: false,
+      error: "Amount exceeds remaining capacity.",
+    });
+    expect(prisma.position.create).not.toHaveBeenCalled();
+  });
+
+  it("uses the LIVE sum, not the cached snapshot — passes when live room is sufficient", async () => {
+    // Cached currentAumUsdc on the fixture is 10M, but the authoritative live
+    // sum is only 5M consumed → 95M remaining, so a 1M ticket clears.
+    vi.mocked(prisma.position.aggregate).mockResolvedValue({
+      _sum: { principalUsdc: decimal(5_000_000) },
+    } as unknown as Awaited<ReturnType<typeof prisma.position.aggregate>>);
+    vi.mocked(prisma.position.create).mockResolvedValue({
+      id: "pos_cap_ok_001",
+    } as unknown as Awaited<ReturnType<typeof prisma.position.create>>);
+
+    const result = await subscribe("hearst-yield-vault", 1_000_000, "A");
+
+    expect(result).toEqual({ ok: true, positionId: "pos_cap_ok_001" });
+    expect(prisma.position.aggregate).toHaveBeenCalledOnce();
   });
 });

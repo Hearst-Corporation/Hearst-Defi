@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -163,9 +164,13 @@ export async function confirmDistribution(
     throw new Error(`Invalid input: ${parsed.error.message}`);
   }
 
-  // Check if a Distribution already exists for this period
+  // Fast/legacy guard: a Distribution may already exist for this (period,
+  // vaultRef). This is a best-effort short-circuit — the authoritative defense
+  // against the TOCTOU race is the @@unique([period, vaultRef]) constraint
+  // enforced inside the transaction below (P0-3). The period-only check also
+  // backstops legacy rows where vaultRef is null.
   const existing = await prisma.distribution.findFirst({
-    where: { period },
+    where: { period, OR: [{ vaultRef }, { vaultRef: null }] },
   });
   if (existing) {
     throw new Error(
@@ -298,6 +303,21 @@ export async function confirmDistribution(
 
     return { confirmed: true, signersCount, required: REQUIRED_SIGNERS };
   } catch (err) {
+    // P0-3: lost the TOCTOU race — a concurrent confirmation already created the
+    // Distribution for this (period, vaultRef) and the unique constraint fired.
+    // Surface it as already-confirmed rather than a 500, and never double-pay.
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2002"
+    ) {
+      logger.warn("[distributions] duplicate confirm blocked by unique constraint", {
+        period,
+        vaultRef,
+      });
+      throw new Error(
+        `Distribution for period "${period}" has already been confirmed.`,
+      );
+    }
     logger.error("confirmDistribution failed", { period }, err);
     throw err;
   }

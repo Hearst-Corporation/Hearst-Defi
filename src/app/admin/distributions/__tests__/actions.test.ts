@@ -68,6 +68,7 @@ vi.mock("@/lib/rate-limit", () => ({
 
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { computeDistribution, confirmDistribution } from "../actions";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -254,5 +255,44 @@ describe("confirmDistribution", () => {
     await expect(
       confirmDistribution(PERIOD, "not-an-address", TOTAL_USDC, VAULT_REF),
     ).rejects.toThrow(/Invalid input/);
+  });
+
+  // ── P0-3: TOCTOU race — the application findFirst passes but a concurrent
+  // confirmation already created the row; the @@unique([period, vaultRef])
+  // constraint fires inside the transaction (P2002). We must surface
+  // "already confirmed" and never double-create/double-pay. ──────────────────
+  it("P0-3 — concurrent confirm losing the race (P2002 in tx) → throws already confirmed, no double-pay", async () => {
+    const SIGNER_B = "0xBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
+    const firstApproval = {
+      id: "approval_1",
+      period: PERIOD,
+      signerWallet: SIGNER,
+      totalUsdc: { toNumber: () => TOTAL_USDC },
+    };
+
+    // Application-level guard misses (the other tx hadn't committed when we read).
+    vi.mocked(prisma.distribution.findFirst).mockResolvedValue(null);
+    vi.mocked(prisma.distributionApproval.findMany).mockResolvedValue([
+      firstApproval,
+    ] as never);
+    vi.mocked(prisma.distributionApproval.create).mockResolvedValue({} as never);
+    vi.mocked(prisma.distributionApproval.count).mockResolvedValue(2);
+    vi.mocked(prisma.position.findMany).mockResolvedValue([
+      buildPosition("pos1", "inv1", TOTAL_USDC),
+    ] as never);
+
+    // The DB unique constraint rejects the second distribution.create.
+    const p2002 = new Prisma.PrismaClientKnownRequestError(
+      "Unique constraint failed on the fields: (`period`,`vaultRef`)",
+      { code: "P2002", clientVersion: "7.x" },
+    );
+    vi.mocked(prisma.distribution.create).mockRejectedValue(p2002);
+
+    await expect(
+      confirmDistribution(PERIOD, SIGNER_B, TOTAL_USDC, VAULT_REF),
+    ).rejects.toThrow(/already been confirmed/);
+
+    // No recipient transactions were written for the losing confirmation.
+    expect(prisma.investorTransaction.createMany).not.toHaveBeenCalled();
   });
 });

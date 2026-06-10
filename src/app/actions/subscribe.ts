@@ -1,11 +1,22 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
 import { getInvestor } from "@/lib/auth/session";
 import { getVault } from "@/lib/data/vaults";
 import { SHARE_CLASS_A, SHARE_CLASS_B, type ShareClassTerms } from "@/lib/engine/share-class";
+
+/** Sentinel thrown inside the subscribe transaction when capacity is exceeded. */
+class CapacityError extends Error {}
+
+/** True when err is a Prisma P2002 unique violation (txHash/txHashOpen collision). */
+function isUniqueViolation(err: unknown): boolean {
+  return (
+    err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002"
+  );
+}
 
 /**
  * Subscribe to a vault — creates a real DB position for the current investor.
@@ -79,9 +90,16 @@ export async function subscribe(
     };
   }
 
-  const remaining = vault.capacityUsdc - vault.currentAumUsdc;
-  if (amountUsdc > remaining) {
-    return { ok: false, error: "Amount exceeds remaining capacity." };
+  // P0-1: idempotency — if this on-chain deposit was already recorded, return
+  // the existing position instead of creating a duplicate (retry/double-submit).
+  if (txHash) {
+    const existing = await prisma.position.findUnique({
+      where: { txHashOpen: txHash },
+      select: { id: true },
+    });
+    if (existing) {
+      return { ok: true, positionId: existing.id };
+    }
   }
 
   // Link to a real VaultDeployment row only if the id resolves to one;
@@ -91,32 +109,70 @@ export async function subscribe(
     select: { id: true },
   });
 
-  // Atomic: position + transaction are created in a single implicit transaction
-  // via Prisma nested write. If either fails, neither is persisted.
-  const position = await prisma.position.create({
-    data: {
-      investorId: investor.id,
-      vaultDeploymentId: deployment?.id ?? null,
-      // Store the share class code in the vaultKey field as a suffix so that
-      // downstream loaders can distinguish A vs B positions without a schema
-      // migration (additive, non-breaking to E1 Class A positions).
-      vaultKey: `${vaultId}:class-${classCode}`,
-      principalUsdc: amountUsdc,
-      status: "active",
-      // On-chain deposit tx hash (Base Sepolia). Null for in-cockpit/manual
-      // subscriptions that did not originate from a signed vault deposit.
-      txHashOpen: txHash ?? null,
-      transactions: {
-        create: {
-          investorId: investor.id,
-          type: "deposit",
-          amountUsdc,
-          txHash: txHash ?? null,
+  // P0-2: capacity check + write happen in one transaction. Consumed capacity is
+  // re-derived from the live sum of active principal (not the cached snapshot)
+  // and re-checked inside the transaction, so concurrent subscriptions cannot
+  // both pass a stale `remaining` and over-subscribe the vault cap.
+  try {
+    const position = await prisma.$transaction(async (tx) => {
+      const agg = await tx.position.aggregate({
+        where: {
+          status: "active",
+          ...(deployment
+            ? { vaultDeploymentId: deployment.id }
+            : { vaultKey: { startsWith: `${vaultId}:` } }),
         },
-      },
-    },
-  });
+        _sum: { principalUsdc: true },
+      });
+      const consumed = agg._sum.principalUsdc?.toNumber() ?? 0;
+      const remaining = vault.capacityUsdc - consumed;
+      if (amountUsdc > remaining) {
+        throw new CapacityError();
+      }
 
-  revalidatePath("/portfolio");
-  return { ok: true, positionId: position.id };
+      // Atomic: position + deposit transaction via Prisma nested write.
+      return tx.position.create({
+        data: {
+          investorId: investor.id,
+          vaultDeploymentId: deployment?.id ?? null,
+          // Store the share class code in the vaultKey field as a suffix so that
+          // downstream loaders can distinguish A vs B positions without a schema
+          // migration (additive, non-breaking to E1 Class A positions).
+          vaultKey: `${vaultId}:class-${classCode}`,
+          principalUsdc: amountUsdc,
+          status: "active",
+          // On-chain deposit tx hash (Base Sepolia). Null for in-cockpit/manual
+          // subscriptions that did not originate from a signed vault deposit.
+          txHashOpen: txHash ?? null,
+          transactions: {
+            create: {
+              investorId: investor.id,
+              type: "deposit",
+              amountUsdc,
+              txHash: txHash ?? null,
+            },
+          },
+        },
+      });
+    });
+
+    revalidatePath("/portfolio");
+    return { ok: true, positionId: position.id };
+  } catch (err) {
+    if (err instanceof CapacityError) {
+      return { ok: false, error: "Amount exceeds remaining capacity." };
+    }
+    // P0-1: lost the race against a concurrent retry of the same deposit —
+    // the unique txHashOpen constraint fired. Resolve to the existing position.
+    if (isUniqueViolation(err) && txHash) {
+      const existing = await prisma.position.findUnique({
+        where: { txHashOpen: txHash },
+        select: { id: true },
+      });
+      if (existing) {
+        return { ok: true, positionId: existing.id };
+      }
+    }
+    throw err;
+  }
 }

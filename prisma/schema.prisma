@@ -169,6 +169,12 @@ model Distribution {
   executedAt      DateTime?
   ledgerEntries   DistributionLedgerEntry[]
 
+  // P0-3: a (period, vaultRef) pair may only ever produce one Distribution.
+  // The DB enforces this so two concurrent multisig confirmations that both
+  // reach the signer threshold cannot both create a payout (double-distribution).
+  // NB: legacy rows have vaultRef = null; SQL treats (period, NULL) pairs as
+  // distinct, so a period-only application guard still backstops historical data.
+  @@unique([period, vaultRef])
   @@index([distributedAt])
   @@index([vaultRef])
 }
@@ -385,7 +391,12 @@ model Position {
   subscribedAt      DateTime         @default(now())
   maturedAt         DateTime?
   exitedAt          DateTime?
-  txHashOpen        String?
+  // P0-1: the on-chain deposit tx hash is unique — one signed deposit maps to
+  // exactly one Position. Replaying subscribe() with the same txHash (retry /
+  // double-submit) hits this constraint instead of creating a duplicate
+  // position. Null (in-cockpit / manual subscriptions) is exempt: SQL treats
+  // multiple NULLs as distinct, so unhashed subscriptions are unaffected.
+  txHashOpen        String?          @unique
 
   transactions InvestorTransaction[]
 
@@ -401,7 +412,10 @@ model InvestorTransaction {
   position   Position? @relation(fields: [positionId], references: [id])
   type       String // deposit|claim|withdraw|distribution
   amountUsdc Decimal
-  txHash     String?
+  // P0-1: an on-chain tx hash records exactly one ledger movement. Replaying the
+  // same deposit cannot insert a second transaction row. Null (off-chain /
+  // distribution rows) is exempt — multiple NULLs are distinct in SQL.
+  txHash     String?   @unique
   occurredAt DateTime  @default(now())
 
   @@index([investorId, occurredAt])
