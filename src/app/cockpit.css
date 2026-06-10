@@ -934,22 +934,55 @@
    (Avant il était sur .ct-page-area, enfant du SEUL centre → le chat sibling ne
    le voyait jamais : c'est la cause racine corrigée ici.)
 
-   cover + center + no-repeat → aucun tiling/crop répété. PAS de
+   Fond visionOS 100% CSS (zéro image) : noir profond dimensionnel + 2 blooms
+   verts ultra-diffus + grain anti-banding. Le verre dépoli reste le héros ;
+   le fond est silencieux et ne concurrence jamais texte / KPI. PAS de
    background-attachment: fixed (ancre au viewport, bave à travers les surfaces
-   translucides — cf. historique portfolio.css). Voile sombre intégré au
-   gradient pour garder cartes / texte / KPI au-dessus du fond. */
+   translucides — cf. historique portfolio.css). Voile de lisibilité léger
+   intégré pour garder cartes / texte / KPI au-dessus du fond. */
 .ct-panels-row {
+  background-color: var(--ct-bg-deep);
   background-image:
+    /* 1. grain ultra-fin — tue le banding */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E"),
+    /* 2. vignette de RÉCESSION — assombrit les bords, pousse le centre AU FOND (profondeur) */
+    radial-gradient(
+      135% 125% at 50% 44%,
+      transparent 26%,
+      color-mix(in srgb, #000000 38%, transparent) 64%,
+      color-mix(in srgb, #000000 70%, transparent) 100%
+    ),
+    /* 3. plan vert PROFOND haut-gauche — lointain, faible (couche de profondeur) */
+    radial-gradient(
+      62% 52% at 20% 16%,
+      color-mix(in srgb, var(--ct-accent) 11%, transparent) 0%,
+      transparent 58%
+    ),
+    /* 4. halo vert FOCAL — "présence au fond", glassy multi-stop, vert marqué translucide */
+    radial-gradient(
+      78% 62% at 50% 40%,
+      color-mix(in srgb, var(--ct-accent) 24%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 11%, transparent) 28%,
+      color-mix(in srgb, var(--ct-accent) 3%, transparent) 50%,
+      transparent 66%
+    ),
+    /* 5. lueur d'HORIZON verte — monte du bas, ancre la profondeur "au fond là" */
+    radial-gradient(
+      150% 80% at 50% 112%,
+      color-mix(in srgb, var(--ct-accent) 20%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 7%, transparent) 32%,
+      transparent 60%
+    ),
+    /* 6. base verticale dimensionnelle (haut sombre → bas profond) */
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 34%, transparent) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 56%, transparent) 100%
-    ),
-    url("/backgrounds/hearst-tech-bg-v2.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: var(--ct-bg-deep);
+      color-mix(in srgb, #000000 24%, transparent) 0%,
+      transparent 42%,
+      color-mix(in srgb, var(--ct-bg-deep) 30%, transparent) 100%
+    );
+  background-size: 140px 140px, cover, cover, cover, cover, cover;
+  background-position: 0 0, center, center, center, center, center;
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
 }
 
 /* Centre transparent → laisse voir le fond spatial du parent. La zone de contenu

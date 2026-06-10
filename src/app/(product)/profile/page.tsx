@@ -5,6 +5,7 @@ import Link from "next/link";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { getInvestor } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
+import { abbreviateAddress } from "@/lib/onchain";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Metric } from "@/components/ui/metric";
@@ -41,9 +42,6 @@ function formatDate(date: Date): string {
   }).format(date);
 }
 
-function shortAddress(address: string): string {
-  return `${address.slice(0, 6)}…${address.slice(-4)}`;
-}
 
 export default async function ProfilePage() {
   const [session, investor] = await Promise.all([requireInvestor("/profile"), getInvestor()]);
@@ -78,11 +76,6 @@ export default async function ProfilePage() {
         </div>
 
         <div className="prof-identity-badges">
-          {investor && (
-            <Badge variant={kycBadgeVariant(investor.kycStatus)}>
-              {kycLabel(investor.kycStatus)}
-            </Badge>
-          )}
           <Badge variant="accent">Investor</Badge>
         </div>
       </div>
@@ -108,7 +101,7 @@ export default async function ProfilePage() {
             <dt>Wallet</dt>
             <dd className="mono">
               {session.walletAddress
-                ? shortAddress(session.walletAddress)
+                ? abbreviateAddress(session.walletAddress)
                 : <span className="prof-empty">Not connected</span>}
             </dd>
           </div>
@@ -130,8 +123,8 @@ export default async function ProfilePage() {
       <div className="dash-cell prof-card-summary">
         <div className="flex items-center justify-between gap-2">
           <h2 className="h2 m-0">Investment summary</h2>
-          {/* A3 — no "Live" badge when there are no positions to back it. */}
-          <ProvenanceBadge kind={positions.length === 0 ? "stale" : "live"} />
+          {/* A3 — no "Live" badge when there are no positions to back it; no data at all ≠ stale data. */}
+          <ProvenanceBadge kind={positions.length === 0 ? "manual" : "live"} />
         </div>
 
         {hasPositions ? (
@@ -197,14 +190,14 @@ export default async function ProfilePage() {
               <span className="prof-security-name">Wallet connection</span>
               <span className="prof-security-desc">
                 {session.walletAddress
-                  ? shortAddress(session.walletAddress)
+                  ? abbreviateAddress(session.walletAddress)
                   : "Required for deposits — connect at subscription time"}
               </span>
             </div>
             {session.walletAddress ? (
               <Badge variant="success">Connected</Badge>
             ) : (
-              <Button variant="primary" size="md" asChild>
+              <Button variant="secondary" size="md" asChild>
                 <Link href="/onboarding/wallet">Connect</Link>
               </Button>
             )}
@@ -226,7 +219,7 @@ export default async function ProfilePage() {
             {investor?.kycStatus === "approved" ? (
               <Badge variant="success">Approved</Badge>
             ) : (
-              <Button variant="primary" size="md" asChild>
+              <Button variant="secondary" size="md" asChild>
                 <Link href="/onboarding/identity">Continue</Link>
               </Button>
             )}

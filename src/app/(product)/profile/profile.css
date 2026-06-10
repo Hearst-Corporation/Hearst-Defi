@@ -16,6 +16,7 @@
 /* ── Page shell ── */
 .prof-page {
   height: 100%;
+  /* hors échelle --ct-space : hauteur mini de layout (entre space-96=24rem et aucun token ≥30rem) */
   min-height: 30rem;
   display: grid;
   /* Mobile: single column — cards stack */
@@ -24,6 +25,7 @@
 }
 
 /* Desktop: 2-col bento */
+/* hors échelle --ct-space : point de rupture responsive brut (pas de token breakpoint dans le DS) */
 @media (min-width: 768px) {
   .prof-page {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -41,6 +43,7 @@
   padding: var(--ct-space-5) var(--ct-space-6);
 }
 
+/* hors échelle --ct-space : point de rupture responsive brut (pas de token breakpoint dans le DS) */
 @media (min-width: 480px) {
   .prof-card-identity {
     flex-direction: row;
@@ -50,6 +53,7 @@
 }
 
 /* Desktop: explicit placement in 2-col grid */
+/* hors échelle --ct-space : point de rupture responsive brut (pas de token breakpoint dans le DS) */
 @media (min-width: 768px) {
   .prof-card-details {
     grid-column: 1;
@@ -69,7 +73,9 @@
 
 /* ── Avatar ── */
 .prof-avatar {
+  /* hors échelle --ct-space : taille avatar bespoke entre space-12(3rem) et space-16(4rem) */
   width: 3.5rem;
+  /* hors échelle --ct-space : taille avatar bespoke entre space-12(3rem) et space-16(4rem) */
   height: 3.5rem;
   border-radius: var(--ct-radius-full);
   background: var(--ct-surface-3);
@@ -187,8 +193,8 @@
 }
 
 .prof-security-dot {
-  width: 0.5rem;
-  height: 0.5rem;
+  width: var(--ct-space-2);
+  height: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
   flex-shrink: 0;
   box-shadow: var(--ct-glow-dot);

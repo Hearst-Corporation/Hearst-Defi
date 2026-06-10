@@ -15,18 +15,15 @@
 }
 
 .dash-cell {
-  /* Readability pass: lift the card clearly off the pure-black background.
-     "Plus blanc" (demande Adrien 2026-06-10): white wash bumped 3% → 8% over
-     surface-2 (now 10%) so the card fill reads as a clearly lighter surface,
-     consistent with the .ct-glass-panel reference. Stronger border defines edge.
-     Opaque base (--ct-bg-deep) sits UNDER the translucent wash + surface so the
-     global spatial halo (.ct-panels-row bg image) can no longer bleed through the
-     card on airy layouts (profile bento) — cards read identically wherever they
-     sit over the halo. The white wash + surface-2 keep the exact same tint. */
+  /* Frosted glass (visionOS — 2026-06-10): base translucide 58% bg-deep laisse
+     transparaître l'ambient sombre + la lueur verte du .ct-panels-row. La
+     lisibilité du texte est assurée par le backdrop-blur + le fond sombre —
+     pas par une opacité élevée. White wash 8% + surface-2 ajoutent la
+     profondeur de surface sans masquer l'ambiance. */
   background:
     linear-gradient(color-mix(in srgb, #ffffff 8%, transparent), color-mix(in srgb, #ffffff 8%, transparent)),
     linear-gradient(var(--ct-surface-2), var(--ct-surface-2)),
-    var(--ct-bg-deep);
+    color-mix(in srgb, var(--ct-bg-deep) 58%, transparent);
   backdrop-filter: var(--ct-glass-blur);
   border: 1px solid var(--ct-border-strong);
   border-radius: var(--ct-radius-xl);
