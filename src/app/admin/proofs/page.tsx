@@ -12,11 +12,10 @@ export default async function ProofsPage() {
 
   return (
     <div className="space-y-8">
-      <AdminPageHeader title="Proofs registry" />
-      <p className="body-sm max-w-2xl">
-        On-chain attestations published to the proof center. Hard-delete is
-        irreversible — the attestation will be removed from the registry.
-      </p>
+      <AdminPageHeader
+        title="Proofs"
+        description="On-chain attestations published to the proof center. Hard-delete is irreversible — the attestation will be removed from the registry."
+      />
 
       <section className="space-y-3">
         <h3 className="stat-label">Attestations ({items.length})</h3>

@@ -9,7 +9,7 @@ export default function MonitoringError(props: {
   return (
     <SegmentError
       {...props}
-      scope="Admin · Monitoring · Error"
+      scope="Monitoring · Error"
       homeHref="/admin"
       homeLabel="Back to admin"
     />

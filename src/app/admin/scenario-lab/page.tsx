@@ -46,6 +46,13 @@ export default async function ScenarioLabPage({
     <div className="space-y-8">
       <AdminPageHeader
         title="Scenario Lab"
+        description={
+          <>
+            Cash-flow explorer for{" "}
+            <span className="ct-text-strong">{vault.label}</span>. Outputs are
+            deterministic, conditional on stated assumptions — not guaranteed.
+          </>
+        }
         actions={
           <VaultSelector
             active={vaultId}
@@ -55,15 +62,6 @@ export default async function ScenarioLabPage({
           />
         }
       />
-      <p className="body-sm max-w-2xl">
-        Cash-flow &amp; distribution-coverage explorer for{" "}
-        <span className="ct-text-strong">{vault.label}</span>. Models how mining
-        margin, hashprice, energy and uptime drive net cash generation,
-        distribution coverage and reserve runway. The BTC market presets below
-        are <span className="ct-text-strong">legacy market overlays</span> — a
-        secondary lens, not the primary view. Outputs are deterministic,
-        conditional on stated assumptions. Not guaranteed.
-      </p>
 
       <LabShell vaultId={vaultId} />
 

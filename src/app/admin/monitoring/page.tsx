@@ -11,10 +11,10 @@ export default async function MonitoringPage() {
 
   return (
     <div className="space-y-8">
-      <AdminPageHeader title="Monitoring" />
-      <p className="body-sm max-w-2xl">
-        Observability dashboard for LLM runs, costs, and system health.
-      </p>
+      <AdminPageHeader
+        title="Monitoring"
+        description="Observability dashboard for LLM runs, costs, and system health."
+      />
 
       {/* KPI Cards */}
       <div className="grid gap-4 md:grid-cols-4">

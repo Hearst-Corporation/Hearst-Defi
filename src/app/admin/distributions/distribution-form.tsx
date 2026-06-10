@@ -260,7 +260,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
 
               {awaitingConfirm ? (
                 <Card className="space-y-4">
-                  <p className="eyebrow">Confirm distribution</p>
+                  <h3 className="h3">Confirm distribution</h3>
                   <div className="space-y-1">
                     <div className="flex justify-between body-sm">
                       <span className="ct-text-muted">Vault</span>

@@ -3,8 +3,9 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 /**
- * Uniform admin page title. Optional `lead` (back links), `eyebrow` (breadcrumb),
- * `description`, and `actions` on the same row as the H1.
+ * Uniform admin page title. Optional `lead` (back links on deep routes only),
+ * `eyebrow` (rare context label — not a breadcrumb trail), `description`,
+ * and `actions` on the same row as the H1.
  */
 export function AdminPageHeader({
   title,

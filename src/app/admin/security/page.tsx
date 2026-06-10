@@ -4,7 +4,7 @@ import { isTotpEnabled } from "@/lib/auth/totp";
 import { TotpEnrolmentClient } from "./TotpEnrolmentClient";
 
 export const metadata = {
-  title: "Security — Hearst Connect Admin",
+  title: "Account security — Hearst Connect",
 };
 
 export const dynamic = "force-dynamic";
@@ -21,10 +21,10 @@ export default async function AdminSecurityPage() {
 
   return (
     <div className="space-y-8">
-      <AdminPageHeader title="Account security" />
-      <p className="body-xs ct-text-muted">
-        Manage two-factor authentication and session security.
-      </p>
+      <AdminPageHeader
+        title="Account security"
+        description="Manage two-factor authentication and session security."
+      />
 
       {/* MFA card */}
       <section className="ct-card p-6 space-y-4 max-w-lg">

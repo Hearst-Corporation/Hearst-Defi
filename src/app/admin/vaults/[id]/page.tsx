@@ -100,21 +100,16 @@ export default async function VaultDetailPage({ params }: PageProps) {
     <div className="space-y-8">
       <AdminPageHeader
         title={vault.name}
-        description={vault.description ? <p>{vault.description}</p> : undefined}
-        lead={
-          <>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/admin/vaults">← Vaults</Link>
-              </Button>
-            </div>
-            <div className="mt-1 flex items-center gap-4">
+        description={
+          <div className="space-y-2">
+            <div className="flex items-center gap-4">
               <span className="mono tabular text-lg font-semibold ct-text-strong">
                 {vault.ticker}
               </span>
               <VaultStatusPill status={vault.status} />
             </div>
-          </>
+            {vault.description ? <p>{vault.description}</p> : null}
+          </div>
         }
         actions={
         <div className="flex flex-wrap items-center gap-3">

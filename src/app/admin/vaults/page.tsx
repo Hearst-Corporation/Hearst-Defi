@@ -54,7 +54,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-8">
       <AdminPageHeader
-        title="Vault Deployments"
+        title="Vaults"
         actions={
           <Button variant="primary" asChild size="md">
             <Link href="/admin/vaults/new">+ New deployment</Link>

@@ -22,7 +22,7 @@ const usdCompact = new Intl.NumberFormat("en-US", {
 export function LiveMetrics({ vaults }: LiveMetricsProps) {
   return (
     <Card aria-label="Live metrics">
-      <p className="eyebrow mb-4">Live Metrics</p>
+      <h2 className="h2 mb-4">Live Metrics</h2>
 
       {vaults.length === 0 ? (
         <div className="py-8 ct-empty-state">

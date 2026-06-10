@@ -27,7 +27,7 @@ interface LiveOpsProps {
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
     <Card aria-label="Live ops">
-      <p className="eyebrow mb-4">Live Ops</p>
+      <h2 className="h2 mb-4">Live Ops</h2>
 
       {/* Inngest */}
       <div className="mb-5">

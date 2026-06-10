@@ -31,7 +31,7 @@ const ACTION_LABELS: Record<string, string> = {
 export function ActionQueue({ items }: ActionQueueProps) {
   return (
     <Card aria-label="Action queue">
-      <p className="eyebrow mb-4">Action Queue</p>
+      <h2 className="h2 mb-4">Action Queue</h2>
 
       {items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-8 ct-empty-state">

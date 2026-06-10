@@ -2,11 +2,9 @@ import "@/app/(product)/charts-shared.css";
 
 import { Suspense } from "react";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { ActivityFeed } from "@/components/admin/activity-feed";
-import { AdvancedModeToggle } from "@/components/admin/advanced-mode-toggle";
 import { BtcTacticalCard } from "@/components/admin/btc-tactical-card";
-import { VaultSelector } from "@/components/admin/vault-selector";
+import { DashboardToolbar } from "@/components/admin/dashboard-toolbar";
 import { AllocationDonut } from "@/components/dashboard/dashboard-charts";
 import { MiningHealthSection } from "@/components/dashboard/mining-health";
 import { RiskFrameworkSection } from "@/components/dashboard/risk-framework";
@@ -131,29 +129,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         }} />
       </div>
 
-      <div className="flex flex-col gap-6 relative z-10">
-        <AdminPageHeader
-          title="Dashboard"
-          actions={
-            <div className="flex flex-wrap items-center gap-3 relative z-10">
-              <VaultSelector
-                active={vaultMeta.id}
-                options={vaultOptions}
-                preserveParams={
-                  mode === "advanced" ? { mode: "advanced" } : undefined
-                }
-              />
-              <AdvancedModeToggle active={mode} />
-            </div>
-          }
+      <div className="relative z-10">
+        <DashboardToolbar
+          vaultName={vaultMeta.name}
+          vaultId={vaultMeta.id}
+          vaultIsPreset={vaultMeta.livePreview}
+          mode={mode}
+          vaultOptions={vaultOptions}
         />
-
-        <div className="flex flex-wrap items-baseline justify-between gap-3 relative z-10">
-          <h2 className="h2">
-            <span className="font-semibold text-[var(--ct-text-strong)]">{vaultMeta.name}</span>
-            <span className="ml-2 text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)] opacity-50">Vault Overview</span>
-          </h2>
-        </div>
       </div>
 
       {/* Section 1 — Hero (Overview & History) */}

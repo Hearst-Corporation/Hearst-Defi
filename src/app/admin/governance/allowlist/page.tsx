@@ -118,9 +118,9 @@ export default async function AllowlistPage() {
     <div className="space-y-8">
       <AdminPageHeader
         title="Address Allowlist"
-        actions={
-          <Button variant="secondary" asChild size="md">
-            <Link href="/admin/governance">← Back to governance</Link>
+        lead={
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/admin/governance">← Governance</Link>
           </Button>
         }
       />
@@ -272,31 +272,31 @@ export default async function AllowlistPage() {
                 <tr className="border-b border-[var(--ct-border)] bg-[var(--ct-surface-1)]">
                   <th
                     scope="col"
-                    className="stat-label px-4 py-3 text-left font-medium"
+                    className="stat-label px-4 py-3 text-left"
                   >
                     Label / Address
                   </th>
                   <th
                     scope="col"
-                    className="stat-label px-4 py-3 text-left font-medium"
+                    className="stat-label px-4 py-3 text-left"
                   >
                     Category
                   </th>
                   <th
                     scope="col"
-                    className="stat-label px-4 py-3 text-left font-medium"
+                    className="stat-label px-4 py-3 text-left"
                   >
                     Risk score
                   </th>
                   <th
                     scope="col"
-                    className="stat-label px-4 py-3 text-left font-medium"
+                    className="stat-label px-4 py-3 text-left"
                   >
                     Status
                   </th>
                   <th
                     scope="col"
-                    className="stat-label px-4 py-3 text-left font-medium"
+                    className="stat-label px-4 py-3 text-left"
                   >
                     Edit
                   </th>

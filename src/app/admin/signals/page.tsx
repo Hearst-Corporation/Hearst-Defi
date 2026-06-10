@@ -76,18 +76,22 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
 
   return (
     <div className="space-y-8">
-      <AdminPageHeader title="Rebalance signals" />
-      <p className="body-sm max-w-2xl ct-text-muted">
-        Review engine-triggered rebalance signals. Each signal requires{" "}
-        <strong className="ct-text-body">2 distinct signer approvals</strong>{" "}
-        before execution. Actions are off-chain at MVP.
-      </p>
+      <AdminPageHeader
+        title="Rebalancing"
+        description={
+          <>
+            Review engine-triggered rebalance signals. Each signal requires{" "}
+            <strong className="ct-text-body">2 distinct signer approvals</strong>{" "}
+            before execution. Actions are off-chain at MVP.
+          </>
+        }
+      />
 
-      {/* Filter tabs */}
-      <nav
-        className="flex gap-1 ct-seg-track"
-        aria-label="Signal status filter"
-      >
+      <div className="ct-seg-scroll">
+        <nav
+          className="inline-flex gap-1 ct-seg-track"
+          aria-label="Signal status filter"
+        >
         {TABS.map((tab) => {
           const count = tab.value === "all"
             ? Object.values(countMap).reduce((a, b) => a + b, 0)
@@ -109,7 +113,8 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
             </Link>
           );
         })}
-      </nav>
+        </nav>
+      </div>
 
       {/* Event list */}
       {events.length === 0 ? (

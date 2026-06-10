@@ -97,6 +97,20 @@ export default async function AdminProofCenterPage({
       {/* ── Header ─────────────────────────────────────────── */}
       <AdminPageHeader
         title="Proof Center"
+        description={
+          isAllVaults ? (
+            <>
+              All vaults · {totalProofCount} proof{totalProofCount !== 1 ? "s" : ""}.
+              Cross-vault aggregation across live and paused vaults — use the
+              vault selector to drill down.
+            </>
+          ) : (
+            <>
+              Scoped to <strong>{scopeLabel}</strong>. On-chain entries are read
+              live from Base Sepolia.
+            </>
+          )
+        }
         actions={
           <div className="flex flex-wrap items-center gap-3">
             <VaultSelector
@@ -112,33 +126,6 @@ export default async function AdminProofCenterPage({
           </div>
         }
       />
-
-      {/* ── Scope indicator ────────────────────────────────── */}
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 className="h2">
-          {isAllVaults ? (
-            <>
-              All vaults
-              <span className="ml-2 body-sm font-normal ct-text-muted">
-                {totalProofCount} proof{totalProofCount !== 1 ? "s" : ""}
-              </span>
-            </>
-          ) : (
-            scopeLabel
-          )}
-        </h2>
-        {isAllVaults ? (
-          <p className="body-sm ct-text-muted max-w-2xl">
-            Cross-vault aggregation — proof activity across all live and paused
-            vaults. Use the vault selector to drill down on a single vault.
-          </p>
-        ) : (
-          <p className="body-sm ct-text-muted max-w-2xl">
-            Proof activity scoped to <strong>{scopeLabel}</strong>. On-chain
-            entries are read live from Base Sepolia.
-          </p>
-        )}
-      </div>
 
       {/* ── Proof of Reserves summary ───────────────────────── */}
       <section aria-labelledby="por-heading">

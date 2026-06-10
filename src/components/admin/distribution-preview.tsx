@@ -40,7 +40,7 @@ export function DistributionPreview({
       {/* Summary */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="eyebrow">Distribution preview</p>
+          <p className="stat-label">Distribution preview</p>
           <p className="stat-value tabular">${totalUsdc.toLocaleString("en-US", { minimumFractionDigits: 2 })} USDC</p>
         </div>
         <div className="text-right">

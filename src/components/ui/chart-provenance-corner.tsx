@@ -34,10 +34,8 @@ export interface ChartProvenanceCornerProps {
 }
 
 /**
- * Absolute-positioned glass panel that overlays a chart corner with a
- * ProvenanceBadge and an optional "Last update HH:MM, source: …" tooltip.
- *
- * Minimum 24 × 24 px touch target.
+ * Absolute-positioned provenance badge for chart corners.
+ * Uses a single ProvenanceBadge — no nested glass/chrome wrapper.
  */
 export function ChartProvenanceCorner({
   kind,
@@ -53,18 +51,9 @@ export function ChartProvenanceCorner({
 
   return (
     <div
-      role="img"
-      aria-label={`Data provenance: ${kind}${lastUpdateAt ? ` — last updated ${formatTime(lastUpdateAt)}` : ""}`}
+      className={cn("absolute z-10", positionClasses[position], className)}
       title={tooltipText}
-      className={cn(
-        "absolute z-10 flex min-h-6 min-w-6 items-center px-1.5 py-0.5",
-        "rounded-md border border-[var(--ct-border-soft)]",
-        "bg-[var(--ct-glass-bg,var(--ct-surface-1))]",
-        "text-[var(--ct-text-muted)]",
-        "backdrop-blur-sm",
-        positionClasses[position],
-        className,
-      )}
+      aria-label={`Data provenance: ${kind}${lastUpdateAt ? ` — last updated ${formatTime(lastUpdateAt)}` : ""}`}
     >
       <ProvenanceBadge kind={kind} />
     </div>

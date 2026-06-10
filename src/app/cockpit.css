@@ -584,6 +584,20 @@
   box-shadow: var(--ct-shadow-soft);
 }
 
+/* Horizontal scroll wrapper for segmented controls (vault rail, status filters). */
+.ct-seg-scroll {
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ct-seg-scroll .ct-seg-track {
+  display: inline-flex;
+  width: max-content;
+  max-width: none;
+}
+
 /* ── SONNER TOAST — Cockpit dark theme ── */
 [data-sonner-toaster] [data-sonner-toast] {
   background: var(--ct-surface-2) !important;

@@ -6,7 +6,7 @@ export default function AdminNotFound() {
   return (
     <ErrorShellLayout
       tone="warning"
-      scope="Admin · 404"
+      scope="404"
       title="Page admin introuvable"
       message="La page admin que vous cherchez n'existe pas ou a été déplacée. Vérifiez l'URL ou revenez au tableau de bord administrateur."
       actions={

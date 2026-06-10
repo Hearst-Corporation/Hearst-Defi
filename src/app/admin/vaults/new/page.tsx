@@ -99,7 +99,6 @@ export default async function NewVaultPage({ searchParams }: NewVaultPageProps) 
   return (
     <div className="space-y-8">
       <AdminPageHeader
-        eyebrow="Admin / Vaults"
         title="New Vault Deployment"
         description={
           <p>

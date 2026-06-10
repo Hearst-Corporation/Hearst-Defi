@@ -22,15 +22,14 @@ export default async function RoadmapPage() {
       <AdminPageHeader
         title="Roadmap"
         actions={<Badge variant="default">v {version}</Badge>}
+        description={
+          <>
+            Source of truth lives in{" "}
+            <span className="mono ct-text-primary">/docs/roadmap.json</span>{" "}
+            (git-versioned). Status is persisted in Postgres / SQLite.
+          </>
+        }
       />
-      <p className="body-md max-w-3xl">
-        Source of truth lives in{" "}
-        <span className="mono ct-text-primary">
-          /docs/roadmap.json
-        </span>{" "}
-        (git-versioned). Status is persisted in Postgres / SQLite. Modifying
-        the roadmap = PR on the JSON file. Marking progress = click here.
-      </p>
       {mvpPhase ? (
         <Card className="max-w-xl">
           <div className="flex items-center justify-between gap-3">

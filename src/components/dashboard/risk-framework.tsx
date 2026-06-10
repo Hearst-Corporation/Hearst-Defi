@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type {
   RiskBand,
@@ -103,11 +103,11 @@ export function RiskFrameworkSection({
   if (data.source === "fallback") {
     return (
       <article className="dash-cell dash-cell-premium h-full flex flex-col relative">
-        <ChartProvenanceCorner kind={provenanceFromSource(data.source)} />
         <div className="dash-label relative z-10">
           <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">
             Risk Framework
           </span>
+          <ProvenanceBadge kind={provenanceFromSource(data.source)} />
         </div>
         <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center py-12 relative z-10">
           <p className="body-sm text-[var(--ct-text-muted)]">
@@ -124,9 +124,11 @@ export function RiskFrameworkSection({
 
   return (
     <article className="dash-cell dash-cell-premium h-full flex flex-col relative">
-      <ChartProvenanceCorner kind={provenanceFromSource(data.source)} />
       <div className="dash-label relative z-10">
-        <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">Risk Framework</span>
+        <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">
+          Risk Framework
+        </span>
+        <ProvenanceBadge kind={provenanceFromSource(data.source)} />
       </div>
 
       <div className="flex-1 flex flex-col mt-6 relative z-10">

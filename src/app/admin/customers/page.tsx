@@ -11,7 +11,7 @@ import { loadCustomers, type KycStatus } from "@/lib/data/customers";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Customers — Admin · Hearst Connect",
+  title: "Customers — Hearst Connect",
 };
 
 const usdFull = new Intl.NumberFormat("en-US", {
@@ -60,14 +60,13 @@ export default async function CustomersPage({
 
   return (
     <div className="space-y-8">
-      <AdminPageHeader title="Customers" />
-      <p className="body-sm max-w-2xl ct-text-muted">
-        Every investor provisioned on the platform: KYC status, active
-        positions and principal under management. Read-only supervision view.
-      </p>
+      <AdminPageHeader
+        title="Customers"
+        description="Every investor provisioned on the platform: KYC status, active positions and principal under management. Read-only supervision view."
+      />
 
-      <section className="space-y-3" aria-label="Investors">
-        <h3 className="stat-label">Investors ({total})</h3>
+      <section className="space-y-3" aria-label="Customers">
+        <h3 className="stat-label">Directory ({total})</h3>
 
         {customers.length === 0 ? (
           <Card className="p-8">

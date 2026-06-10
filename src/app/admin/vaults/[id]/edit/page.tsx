@@ -1,13 +1,15 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { VaultForm, type FormState } from "@/app/admin/vaults/_vault-form";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Edit Vault Draft — Admin" };
+export const metadata = { title: "Edit Vault Draft — Hearst Connect" };
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -63,7 +65,11 @@ export default async function EditVaultPage({ params }: PageProps) {
   return (
     <div className="space-y-8">
       <AdminPageHeader
-        eyebrow={`Admin / Vaults / ${vault.ticker}`}
+        lead={
+          <Button variant="ghost" size="sm" asChild>
+            <Link href={`/admin/vaults/${id}`}>← {vault.ticker}</Link>
+          </Button>
+        }
         title="Edit Vault Draft"
         description={
           <p>

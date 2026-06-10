@@ -29,8 +29,7 @@ export default async function SpecPage({
   return (
     <div className="grid gap-8 md:grid-cols-[var(--ct-spec-nav-w)_1fr]">
       <aside className="md:sticky md:top-24 md:self-start">
-        <p className="eyebrow mb-3">Spec — v1.0</p>
-        <nav className="space-y-1">
+        <nav className="space-y-1" aria-label="Spec documents">
           {index.map((entry) => {
             const active = entry.slug === slug;
             return (
@@ -56,11 +55,15 @@ export default async function SpecPage({
 
       <article className="min-w-0">
         <AdminPageHeader
-          eyebrow={`/docs/spec/${slug}.mdx`}
           title={doc.title}
+          description={
+            <span className="mono body-xs ct-text-faint">
+              /docs/spec/{slug}.mdx
+            </span>
+          }
           className="mb-6"
         />
-        <Markdown content={doc.content} />
+        <Markdown content={doc.content} demoteH1 />
       </article>
     </div>
   );

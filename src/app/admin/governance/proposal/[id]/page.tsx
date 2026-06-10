@@ -137,10 +137,10 @@ export default async function ProposalDetailPage({ params }: PageProps) {
   return (
     <div className="space-y-8">
       <AdminPageHeader
-        title={`Proposal — ${proposal.actionType}`}
-        actions={
-          <Button variant="secondary" asChild size="md">
-            <Link href="/admin/governance">← Back to queue</Link>
+        title={proposal.actionType}
+        lead={
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/admin/governance">← Governance</Link>
           </Button>
         }
       />
@@ -157,30 +157,30 @@ export default async function ProposalDetailPage({ params }: PageProps) {
 
         <dl className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
           <div>
-            <dt className="ct-text-muted text-xs uppercase tracking-[var(--ct-tracking-wide)]">Proposed by</dt>
+            <dt className="stat-label">Proposed by</dt>
             <dd className="mono ct-text-primary mt-0.5">{proposal.proposedBy}</dd>
           </div>
           <div>
-            <dt className="ct-text-muted text-xs uppercase tracking-[var(--ct-tracking-wide)]">Required signers</dt>
+            <dt className="stat-label">Required signers</dt>
             <dd className="ct-text-primary mt-0.5">{proposal.requiredSigners}</dd>
           </div>
           <div>
-            <dt className="ct-text-muted text-xs uppercase tracking-[var(--ct-tracking-wide)]">Created</dt>
+            <dt className="stat-label">Created</dt>
             <dd className="ct-text-primary mt-0.5 tabular-nums">{formatDate(proposal.createdAt)}</dd>
           </div>
           <div>
-            <dt className="ct-text-muted text-xs uppercase tracking-[var(--ct-tracking-wide)]">ETA (timelock)</dt>
+            <dt className="stat-label">ETA (timelock)</dt>
             <dd className="ct-text-primary mt-0.5 tabular-nums">{formatDate(proposal.etaAt)}</dd>
           </div>
           {proposal.executedAt && (
             <div>
-              <dt className="ct-text-muted text-xs uppercase tracking-[var(--ct-tracking-wide)]">Executed at</dt>
+              <dt className="stat-label">Executed at</dt>
               <dd className="ct-text-primary mt-0.5 tabular-nums">{formatDate(proposal.executedAt)}</dd>
             </div>
           )}
           {proposal.cancelledAt && (
             <div>
-              <dt className="ct-text-muted text-xs uppercase tracking-[var(--ct-tracking-wide)]">Cancelled at</dt>
+              <dt className="stat-label">Cancelled at</dt>
               <dd className="ct-text-primary mt-0.5 tabular-nums">{formatDate(proposal.cancelledAt)}</dd>
             </div>
           )}
@@ -189,9 +189,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         {/* Timelock countdown */}
         {proposal.state === "TIMELOCK" && proposal.etaAt && (
           <div className="mt-6 pt-4 border-t border-[var(--ct-border-soft)] rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-1)] px-4 py-3">
-            <p className="text-xs ct-text-muted mb-1 uppercase tracking-[var(--ct-tracking-wide)]">
-              Timelock countdown
-            </p>
+            <p className="stat-label mb-1">Timelock countdown</p>
             <p className="ct-text-strong mono text-sm">
               {timelockCountdown(proposal.etaAt)}
             </p>
@@ -205,7 +203,6 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         <Card>
           <CardHeader>
             <h2 className="h2">Projection · Trigger · Action · Impact</h2>
-            <span className="eyebrow">Rebalance proposal · canonical PTAI</span>
           </CardHeader>
           <Ptai
             projection={ptai.projection}

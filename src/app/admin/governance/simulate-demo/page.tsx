@@ -77,14 +77,14 @@ export default function SimulateDemoPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
-      <AdminPageHeader title="Simulation Panel — Demo" />
-      <p className="body-sm ct-text-muted">
-        Pre-execution fork simulation (Tally pattern). Stub only — no real Tenderly calls.
-      </p>
+      <AdminPageHeader
+        title="Simulation Panel — Demo"
+        description="Pre-execution fork simulation (Tally pattern). Stub only — no real Tenderly calls."
+      />
 
       {/* Proposal selector */}
       <div className="ct-card p-5 space-y-4">
-        <p className="eyebrow ct-text-muted">Mock Proposal</p>
+        <h3 className="h3">Mock proposal</h3>
 
         <div className="flex flex-col gap-2">
           {MOCK_PROPOSALS.map((p, i) => (

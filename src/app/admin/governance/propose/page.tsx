@@ -61,9 +61,9 @@ export default async function ProposePage() {
     <div className="space-y-8">
       <AdminPageHeader
         title="New proposal"
-        actions={
-          <Button variant="secondary" asChild size="md">
-            <Link href="/admin/governance">← Back to queue</Link>
+        lead={
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/admin/governance">← Governance</Link>
           </Button>
         }
       />

@@ -3,18 +3,26 @@ import remarkGfm from "remark-gfm";
 
 import { safeUrl } from "@/lib/safe-url";
 
-export function Markdown({ content }: { content: string }) {
+export function Markdown({
+  content,
+  demoteH1 = false,
+}: {
+  content: string;
+  /** When the page already renders an H1 (e.g. spec viewer), demote MD `#` to h2. */
+  demoteH1?: boolean;
+}) {
   return (
     <div className="prose-spec">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         urlTransform={safeUrl}
         components={{
-          h1: ({ children }) => (
-            <h1 className="mt-8 mb-4 h1 first:mt-0">
-              {children}
-            </h1>
-          ),
+          h1: ({ children }) =>
+            demoteH1 ? (
+              <h2 className="mt-6 mb-3 h2 first:mt-0">{children}</h2>
+            ) : (
+              <h1 className="mt-8 mb-4 h1 first:mt-0">{children}</h1>
+            ),
           h2: ({ children }) => (
             <h2 className="mt-6 mb-3 h2">
               {children}

@@ -23,7 +23,7 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
 export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   return (
     <Card aria-label="Audit trail">
-      <p className="eyebrow mb-4">Audit Trail</p>
+      <h2 className="h2 mb-4">Audit Trail</h2>
 
       {entries.length === 0 ? (
         <div className="py-6 ct-empty-state">

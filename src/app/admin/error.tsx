@@ -24,7 +24,7 @@ export default function AdminError({ error, reset }: AdminErrorProps) {
   return (
     <ErrorShellLayout
       tone="danger"
-      scope="Admin · Error"
+      scope="Error"
       title="Something went wrong"
       digest={error.digest}
       errorMessage={message}

@@ -10,7 +10,7 @@ export default function ProofCenterError(props: {
     <SegmentError
       {...props}
       scope="Proof Center · Error"
-      homeHref="/proof-center"
+      homeHref="/admin/proof-center"
       homeLabel="Reload Proof Center"
     />
   );
