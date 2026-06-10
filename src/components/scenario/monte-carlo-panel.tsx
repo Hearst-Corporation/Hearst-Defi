@@ -197,8 +197,8 @@ function PctRow({
         className={cn(
           "mono tabular-nums",
           strong
-            ? "text-lg font-bold text-[var(--ct-text-strong)]"
-            : "text-sm text-[var(--ct-text-body)]",
+            ? "text-lg font-bold ct-text-strong"
+            : "text-sm ct-text-body",
         )}
       >
         {pct}%
@@ -226,7 +226,7 @@ function SimParams({
 }: SimParamsProps) {
   return (
     <div className="flex flex-wrap gap-4 text-sm">
-      <label className="flex items-center gap-2 text-[var(--ct-text-muted)]">
+      <label className="flex items-center gap-2 ct-text-muted">
         <span className="stat-label">Seed</span>
         <input
           type="number"
@@ -239,15 +239,15 @@ function SimParams({
             if (!isNaN(v) && v >= 0) onSeedChange(v);
           }}
           className={cn(
-            "w-24 rounded-[var(--ct-radius-base)] border border-[var(--ct-border-soft)]",
-            "bg-[var(--ct-surface-1)] px-2 py-1 text-xs mono text-[var(--ct-text-strong)]",
+            "w-24 rounded-base border border-[var(--ct-border-soft)]",
+            "ct-surface-1 px-2 py-1 text-xs mono ct-text-strong",
             "focus:border-[var(--ct-accent)] focus:outline-none",
             "disabled:opacity-40",
           )}
           aria-label="PRNG seed for Monte Carlo simulation"
         />
       </label>
-      <label className="flex items-center gap-2 text-[var(--ct-text-muted)]">
+      <label className="flex items-center gap-2 ct-text-muted">
         <span className="stat-label">Paths</span>
         <input
           type="number"
@@ -261,8 +261,8 @@ function SimParams({
             if (!isNaN(v) && v >= 100) onRunsChange(v);
           }}
           className={cn(
-            "w-28 rounded-[var(--ct-radius-base)] border border-[var(--ct-border-soft)]",
-            "bg-[var(--ct-surface-1)] px-2 py-1 text-xs mono text-[var(--ct-text-strong)]",
+            "w-28 rounded-base border border-[var(--ct-border-soft)]",
+            "ct-surface-1 px-2 py-1 text-xs mono ct-text-strong",
             "focus:border-[var(--ct-accent)] focus:outline-none",
             "disabled:opacity-40",
           )}
@@ -332,25 +332,25 @@ export function MonteCarloPanel() {
         <div className="space-y-5">
           {/* Headline APY range */}
           <div
-            className="rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-5 py-4"
+            className="rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-5 py-4"
             aria-label={`Headline APY range: ${headlineLow}% to ${headlineHigh}%`}
           >
             <p className="stat-label mb-1">Headline range (p25–p75)</p>
-            <p className="mono text-2xl font-bold tabular-nums text-[var(--ct-text-strong)]">
+            <p className="mono text-2xl font-bold tabular-nums ct-text-strong">
               {headlineLow}–{headlineHigh}%
             </p>
-            <p className="mt-1 text-micro text-[var(--ct-text-muted)]">
+            <p className="mt-1 text-micro ct-text-muted">
               Annual yield range · {runs.toLocaleString()} paths · seed {seed}
             </p>
           </div>
 
           {/* Fan chart */}
-          <div className="relative h-24 w-full overflow-hidden rounded-[var(--ct-radius-base)]">
+          <div className="relative h-24 w-full overflow-hidden rounded-base">
             <FanChart series={fanSeries} />
           </div>
 
           {/* Legend */}
-          <div className="flex flex-wrap items-center gap-4 text-micro text-[var(--ct-text-muted)]">
+          <div className="flex flex-wrap items-center gap-4 text-micro ct-text-muted">
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-0.5 w-4 rounded-full bg-[var(--ct-accent)]" />
               Median (p50)
@@ -371,22 +371,22 @@ export function MonteCarloPanel() {
           </div>
 
           {/* Prob below floor */}
-          <div className="rounded-[var(--ct-radius-base)] border border-[var(--ct-border-soft)] px-4 py-3 text-sm">
+          <div className="rounded-base border border-[var(--ct-border-soft)] px-4 py-3 text-sm">
             <span className="stat-label">P(APY &lt; 8% floor): </span>
-            <span className="mono font-semibold text-[var(--ct-text-body)]">
+            <span className="mono font-semibold ct-text-body">
               {(output.probBelowFloor * 100).toFixed(1)}%
             </span>
           </div>
         </div>
       ) : (
-        <div className="flex h-24 items-center justify-center text-sm text-[var(--ct-text-muted)]">
+        <div className="flex h-24 items-center justify-center text-sm ct-text-muted">
           Run the simulation to see results.
         </div>
       )}
 
       {/* Disclaimer */}
-      <p className="mt-6 border-t border-[var(--ct-border-soft)] pt-4 text-xs italic text-[var(--ct-text-muted)]">
-        <span className="font-semibold not-italic text-[var(--ct-text-body)]">
+      <p className="mt-6 border-t border-[var(--ct-border-soft)] pt-4 text-xs italic ct-text-muted">
+        <span className="font-semibold not-italic ct-text-body">
           Monte Carlo — methodology v2.0. Not guaranteed.
         </span>{" "}
         Simulation assumes GBM for BTC price and bounded mean-reverting

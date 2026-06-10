@@ -45,7 +45,7 @@ export function CardTitle({
   return (
     <h3
       className={cn(
-        "h3 text-[var(--ct-text-strong)] drop-shadow-[var(--ct-glow-subtle)]",
+        "h3 ct-text-strong drop-shadow-[var(--ct-glow-subtle)]",
         className,
       )}
       {...props}

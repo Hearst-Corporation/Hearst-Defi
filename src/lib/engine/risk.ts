@@ -1,3 +1,4 @@
+import { METHODOLOGY_BASELINES } from "./methodology";
 import type { ScenarioInputs } from "./types";
 import { calcSharpe, calcSortino, calcVaR } from "./ratios";
 
@@ -9,10 +10,6 @@ const W_COUNTERPARTY = 0.1;
 
 const VOL_INDEX_LOW = 0;
 const VOL_INDEX_HIGH = 100;
-
-const SMART_CONTRACT_BASELINE_PRE_AUDIT = 80;
-
-const COUNTERPARTY_BASELINE = 35;
 
 export interface RiskBreakdown {
   market: number;
@@ -27,8 +24,8 @@ export function computeRiskBreakdown(inputs: ScenarioInputs): RiskBreakdown {
   const market = scoreMarket(inputs);
   const mining = scoreMining(inputs);
   const liquidity = scoreLiquidity(inputs);
-  const smart_contract = SMART_CONTRACT_BASELINE_PRE_AUDIT;
-  const counterparty = COUNTERPARTY_BASELINE;
+  const smart_contract = METHODOLOGY_BASELINES.SMART_CONTRACT_PRE_AUDIT;
+  const counterparty = METHODOLOGY_BASELINES.COUNTERPARTY;
 
   const composite =
     W_MARKET * market +

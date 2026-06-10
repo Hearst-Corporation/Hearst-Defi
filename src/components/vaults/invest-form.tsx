@@ -366,7 +366,7 @@ export function InvestForm({ vault }: InvestFormProps) {
 
         {/* Deposit error */}
         {depositError && (
-          <p className="body-xs ct-status-danger px-3 py-2 rounded-[var(--ct-radius-lg)] border border-[var(--ct-status-danger-border)] ct-surface-1">
+          <p className="body-xs ct-status-danger px-3 py-2 rounded-lg border border-[var(--ct-status-danger-border)] ct-surface-1">
             {depositError}
           </p>
         )}

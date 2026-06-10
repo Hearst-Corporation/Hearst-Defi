@@ -87,7 +87,7 @@ export default async function ProposePage() {
                 id="vaultId"
                 name="vaultId"
                 required
-                className="w-full rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-3 py-2 text-sm ct-text-primary focus:outline-none focus:border-[var(--ct-border-strong)]"
+                className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-3 py-2 text-sm ct-text-primary focus:outline-none focus:border-[var(--ct-border-strong)]"
               >
                 <option value="">Select a vault…</option>
                 {vaults.map((v) => (
@@ -108,7 +108,7 @@ export default async function ProposePage() {
               id="actionType"
               name="actionType"
               required
-              className="w-full rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-3 py-2 text-sm ct-text-primary focus:outline-none focus:border-[var(--ct-border-strong)]"
+              className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-3 py-2 text-sm ct-text-primary focus:outline-none focus:border-[var(--ct-border-strong)]"
             >
               <option value="">Select an action…</option>
               {ACTION_TYPES.map((t) => (
@@ -129,7 +129,7 @@ export default async function ProposePage() {
               name="calldata"
               rows={4}
               placeholder='{"newFeeBps": 250}'
-              className="w-full rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-3 py-2 text-sm ct-text-primary mono focus:outline-none focus:border-[var(--ct-border-strong)] resize-y"
+              className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-3 py-2 text-sm ct-text-primary mono focus:outline-none focus:border-[var(--ct-border-strong)] resize-y"
             />
           </div>
 
@@ -145,7 +145,7 @@ export default async function ProposePage() {
               required
               minLength={80}
               placeholder="Explain why this action is necessary, what the expected impact is, and any risk mitigations applied…"
-              className="w-full rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-3 py-2 text-sm ct-text-primary focus:outline-none focus:border-[var(--ct-border-strong)] resize-y"
+              className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-3 py-2 text-sm ct-text-primary focus:outline-none focus:border-[var(--ct-border-strong)] resize-y"
             />
           </div>
 

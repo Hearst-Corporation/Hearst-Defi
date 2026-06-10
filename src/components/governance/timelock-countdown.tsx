@@ -93,7 +93,7 @@ export function TimelockCountdown({
   return (
     <div
       className={cn(
-        "rounded-[var(--ct-radius-lg)] ct-border-soft ct-surface-1 p-4 space-y-3",
+        "rounded-lg ct-border-soft ct-surface-1 p-4 space-y-3",
       )}
       data-proposal-id={proposalId}
       aria-label={`Governance proposal #${proposalId} timelock countdown`}
@@ -110,7 +110,7 @@ export function TimelockCountdown({
           {isExecutable ? (
             <Badge
               variant="success"
-              className="text-[var(--ct-accent)]"
+              className="ct-text-accent"
               aria-label="Proposal is executable"
             >
               <span

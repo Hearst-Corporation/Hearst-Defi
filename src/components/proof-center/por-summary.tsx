@@ -90,7 +90,7 @@ function CustodyBlock({ custody }: { custody: CustodySnapshot }) {
         />
       </div>
       {provenance === "stale" ? (
-        <p className="mt-3 body-xs text-[var(--ct-status-warning)]">
+        <p className="mt-3 body-xs ct-status-warning">
           {custody.provenance === "live" && !custody.configured
             ? "Reserve scope not pinned (FIREBLOCKS_VAULT_ACCOUNT_IDS unset) — badge shows Stale."
             : "Custody snapshot is unverified or older than 24h — badge shows Stale."}
@@ -172,7 +172,7 @@ export function PorSummary({
               href={`${EXPLORER_ADDRESS_BASE}${attestation.attestor}`}
               target="_blank"
               rel="noreferrer noopener"
-              className="mono tabular text-xs text-[var(--ct-text-primary)] hover:text-[var(--ct-text-strong)] transition-colors duration-[var(--ct-dur-fast)]"
+              className="mono tabular text-xs ct-text-primary hover:ct-text-strong transition-colors duration-[var(--ct-dur-fast)]"
               title={attestation.attestor}
             >
               {abbreviateAddress(attestation.attestor)}
@@ -182,7 +182,7 @@ export function PorSummary({
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <dt className="body-xs">Evidence hash</dt>
           <dd
-            className="mono tabular text-xs text-[var(--ct-text-body)]"
+            className="mono tabular text-xs ct-text-body"
             title={attestation.evidenceHash}
           >
             {abbreviateAddress(attestation.evidenceHash)}
@@ -190,7 +190,7 @@ export function PorSummary({
         </div>
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <dt className="body-xs">Block</dt>
-          <dd className="mono tabular text-xs text-[var(--ct-text-body)]">
+          <dd className="mono tabular text-xs ct-text-body">
             {attestation.blockNumber.toString()}
           </dd>
         </div>
@@ -202,9 +202,9 @@ export function PorSummary({
           target="_blank"
           rel="noreferrer noopener"
           className={cn(
-            "rounded-[var(--ct-radius-full)] border border-[var(--ct-text-strong)] bg-[var(--ct-surface-1)]",
-            "px-3 py-1.5 text-xs text-[var(--ct-text-strong)]",
-            "transition-colors duration-[var(--ct-dur-fast)] hover:bg-[var(--ct-surface-2)]",
+            "rounded-full border border-[var(--ct-text-strong)] ct-surface-1",
+            "px-3 py-1.5 text-xs ct-text-strong",
+            "transition-colors duration-[var(--ct-dur-fast)] hover:ct-surface-2",
             "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
           )}
         >
@@ -222,9 +222,9 @@ export function PorSummary({
             target="_blank"
             rel="noreferrer noopener"
             className={cn(
-              "rounded-[var(--ct-radius-full)] border border-[var(--ct-border-strong)] bg-[var(--ct-surface-1)]",
-              "px-3 py-1.5 text-xs text-[var(--ct-text-primary)]",
-              "transition-colors duration-[var(--ct-dur-fast)] hover:bg-[var(--ct-surface-3)]",
+              "rounded-full border border-[var(--ct-border-strong)] ct-surface-1",
+              "px-3 py-1.5 text-xs ct-text-primary",
+              "transition-colors duration-[var(--ct-dur-fast)] hover:ct-surface-3",
               "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
             )}
           >
@@ -234,12 +234,12 @@ export function PorSummary({
       </div>
 
       {stale ? (
-        <p className="mt-3 body-xs text-[var(--ct-status-warning)]">
+        <p className="mt-3 body-xs ct-status-warning">
           Last attestation is older than 24h — badge shows Stale. A fresh
           attestation is expected each period close.
         </p>
       ) : verified !== true ? (
-        <p className="mt-3 body-xs text-[var(--ct-status-warning)]">
+        <p className="mt-3 body-xs ct-status-warning">
           Attestation signer is not yet verified against the allowlist — badge
           shows Stale until the signature is confirmed.
         </p>

@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import {
   ProvenanceBadge,
   type Provenance,
@@ -17,9 +18,11 @@ interface MetricProps {
    * hover glow overlay, accent value glow) — so every current usage is
    * unchanged. "plain" opts OUT of the decorative premium chrome for a calm,
    * flat metric (no dots, no overlay, no value glow) — use it where many metrics
-   * sit together and the texture would become noise.
+   * sit together and the texture would become noise. "dashboard" is the denser
+   * admin-dashboard hero KPI treatment: larger numerals, clearer labels, calmer
+   * provenance chrome.
    */
-  variant?: "premium" | "plain";
+  variant?: "premium" | "plain" | "dashboard";
 }
 
 export function Metric({
@@ -32,7 +35,91 @@ export function Metric({
   className,
   variant = "premium",
 }: MetricProps) {
-  const premium = variant !== "plain";
+  const premium = variant === "premium";
+  const dashboard = variant === "dashboard";
+  const body = (
+    <>
+      {premium ? (
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--ct-accent)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--ct-dur-slow)] pointer-events-none" />
+      ) : null}
+
+      <div
+        className={cn(
+          "flex items-center justify-between gap-2 relative z-10",
+          dashboard && "metric-dashboard-head",
+        )}
+      >
+        <span
+          className={cn(
+            "stat-label ct-text-muted group-hover:ct-text-body transition-colors",
+            dashboard && "metric-dashboard-label",
+          )}
+          title={tooltip}
+        >
+          {label}
+        </span>
+        {provenance ? (
+          <span className={cn(dashboard && "metric-dashboard-provenance")}>
+            <ProvenanceBadge kind={provenance} />
+          </span>
+        ) : null}
+      </div>
+
+      <div className="flex items-baseline gap-1 relative z-10">
+        <span
+          className={cn(
+            "stat-value ct-text-strong",
+            premium && "drop-shadow-[var(--ct-glow-subtle)]",
+            dashboard && "metric-dashboard-value",
+          )}
+        >
+          {value}
+        </span>
+      </div>
+
+      {(sublabel || trend) && (
+        <div
+          className={cn(
+            "flex min-w-0 items-center gap-2 text-xs ct-text-muted relative z-10 pt-1 border-t border-[var(--ct-border-soft)]/50",
+            dashboard && "metric-dashboard-footer",
+          )}
+        >
+          {trend ? (
+            <span
+              className={cn(
+                "font-medium shrink-0 px-1.5 py-0.5 rounded-sm backdrop-blur-md border",
+                trend.direction === "up" && "ct-status-success-bg ct-status-success border-[var(--ct-status-success-border)]",
+                trend.direction === "down" && "ct-status-danger-bg ct-status-danger border-[var(--ct-status-danger-border)]",
+                trend.direction === "flat" && "ct-surface-1 ct-text-muted border-[var(--ct-border)]"
+              )}
+            >
+              {trend.direction === "up" ? "↑ " : trend.direction === "down" ? "↓ " : "→ "}
+              {trend.text}
+            </span>
+          ) : null}
+          {sublabel ? (
+            <span
+              className={cn(
+                "truncate opacity-70 mono uppercase tracking-wider text-micro",
+                dashboard && "metric-dashboard-sublabel",
+              )}
+            >
+              {sublabel}
+            </span>
+          ) : null}
+        </div>
+      )}
+    </>
+  );
+
+  if (dashboard) {
+    return (
+      <Card className={cn("metric-dashboard-card flex flex-col gap-3 h-full", className)}>
+        {body}
+      </Card>
+    );
+  }
+
   return (
     <div
       className={cn(
@@ -41,46 +128,7 @@ export function Metric({
         className,
       )}
     >
-      {premium ? (
-        <div className="absolute inset-0 bg-gradient-to-br from-[var(--ct-accent)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--ct-dur-slow)] pointer-events-none" />
-      ) : null}
-
-      <div className="flex items-center justify-between gap-2 relative z-10">
-        <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)] group-hover:text-[var(--ct-text-body)] transition-colors" title={tooltip}>
-          {label}
-        </span>
-        {provenance ? <ProvenanceBadge kind={provenance} /> : null}
-      </div>
-
-      <div className="flex items-baseline gap-1 relative z-10">
-        <span
-          className={cn(
-            "text-2xl font-semibold tracking-tight text-[var(--ct-text-strong)] tabular-nums",
-            premium && "drop-shadow-[var(--ct-glow-subtle)]",
-          )}
-        >
-          {value}
-        </span>
-      </div>
-
-      {(sublabel || trend) && (
-        <div className="flex min-w-0 items-center gap-2 text-xs text-[var(--ct-text-muted)] relative z-10 pt-1 border-t border-[var(--ct-border-soft)]/50">
-          {trend ? (
-            <span
-              className={cn(
-                "font-medium shrink-0 px-1.5 py-0.5 rounded-[var(--ct-radius-sm)] backdrop-blur-md border",
-                trend.direction === "up" && "bg-[var(--ct-status-success-soft)] text-[var(--ct-status-success)] border-[var(--ct-status-success-border)]",
-                trend.direction === "down" && "bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)] border-[var(--ct-status-danger-border)]",
-                trend.direction === "flat" && "bg-[var(--ct-surface-1)] text-[var(--ct-text-muted)] border-[var(--ct-border)]"
-              )}
-            >
-              {trend.direction === "up" ? "↑ " : trend.direction === "down" ? "↓ " : "→ "}
-              {trend.text}
-            </span>
-          ) : null}
-          {sublabel ? <span className="truncate opacity-70 mono uppercase tracking-wider text-micro">{sublabel}</span> : null}
-        </div>
-      )}
+      {body}
     </div>
   );
 }

@@ -55,15 +55,7 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
 
   return (
     <article 
-      className="flex flex-col relative flex-1 h-full min-h-[200px] p-6 overflow-hidden" 
-      style={{
-        background: "color-mix(in srgb, var(--ct-surface-1) 20%, transparent)",
-        backdropFilter: "blur(24px)",
-        borderRadius: "var(--ct-radius-xl)",
-        border: "1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent)",
-        backgroundImage: "radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 6%, transparent) 1px, transparent 1px)",
-        backgroundSize: "32px 32px",
-      }}
+      className="ct-kpi-glass flex flex-col relative flex-1 h-full min-h-[200px] p-6 overflow-hidden" 
       aria-label="Portfolio value — 12-month trend"
     >
       <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 relative z-10">
@@ -77,8 +69,7 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
       </div>
 
       <div
-        className="mt-3 w-full rounded-xl bg-black/20 border border-(--ct-border-soft) overflow-hidden flex items-end relative z-10"
-        style={{ height: "140px" }}
+        className="mt-3 w-full h-[140px] rounded-xl ct-kpi-glass overflow-hidden flex items-end relative z-10"
         aria-hidden="true"
       >
         <svg className="w-full h-[90%] text-(--ct-accent)" viewBox="0 0 100 40" preserveAspectRatio="none">

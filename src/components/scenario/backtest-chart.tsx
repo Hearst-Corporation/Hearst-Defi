@@ -89,9 +89,9 @@ export function BacktestChart({ series }: BacktestChartProps) {
       <div
         role="status"
         aria-label="Backtest chart — insufficient data"
-        className="flex min-h-[var(--ct-chart-empty-h,8rem)] items-center justify-center rounded-[var(--ct-radius-lg)] border border-dashed border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-6 py-8 text-center"
+        className="flex min-h-[var(--ct-chart-empty-h,8rem)] items-center justify-center rounded-lg border border-dashed border-[var(--ct-border-soft)] ct-surface-1 px-6 py-8 text-center"
       >
-        <p className="text-xs text-[var(--ct-text-faint,var(--ct-text-muted))]">
+        <p className="text-xs ct-text-faint,var(--ct-text-muted)">
           Insufficient data — preview only
         </p>
       </div>
@@ -178,14 +178,14 @@ export function BacktestChart({ series }: BacktestChartProps) {
       {/* Header row */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-0.5">
-          <span className="text-xs font-medium uppercase tracking-wide text-[var(--ct-text-muted)]">
+          <span className="text-xs font-medium uppercase tracking-wide ct-text-muted">
             NAV · Backtest series
           </span>
-          <span className="tabular-nums text-xl font-semibold leading-tight text-[var(--ct-text-primary)]">
+          <span className="tabular-nums text-xl font-semibold leading-tight ct-text-primary">
             {usdFmt.format(lastNav)}
           </span>
           <span
-            className={`tabular-nums text-xs font-medium ${deltaPct >= 0 ? "text-[var(--ct-accent)]" : "text-[var(--ct-danger)]"}`}
+            className={`tabular-nums text-xs font-medium ${deltaPct >= 0 ? "ct-text-accent" : "text-[var(--ct-danger)]"}`}
           >
             {deltaPct >= 0 ? "+" : ""}
             {deltaPct.toFixed(1)}% total · max dd {maxDd.toFixed(1)}%
@@ -199,8 +199,8 @@ export function BacktestChart({ series }: BacktestChartProps) {
         <svg
           viewBox={`0 0 ${VB_W} ${VB_H}`}
           preserveAspectRatio="xMidYMid meet"
-          className="w-full"
-          style={{ aspectRatio: `${VB_W} / ${VB_H}` }}
+        className="w-full"
+        style={{ aspectRatio: `${VB_W} / ${VB_H}` }}
           role="img"
           aria-labelledby="bt-chart-title bt-chart-desc"
         >
@@ -310,7 +310,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
       </div>
 
       {/* Footer disclaimer */}
-      <p className="text-micro leading-tight text-[var(--ct-text-faint,var(--ct-text-muted))]">
+      <p className="text-micro leading-tight ct-text-faint,var(--ct-text-muted)">
         Projections only. Not guaranteed. Past results do not predict future
         returns. See Methodology v1.0.
       </p>

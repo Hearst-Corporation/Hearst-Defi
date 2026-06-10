@@ -62,7 +62,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
         title="Reject this deployment?"
         className="max-w-md"
       >
-        <p className="body-sm text-[var(--ct-text-muted)] mb-4">
+        <p className="body-sm ct-text-muted mb-4">
           Pushes the vault back to draft. Requires a written reason for the
           audit log.
         </p>
@@ -74,7 +74,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
             className="stat-label block"
           >
             Reason{" "}
-            <span className="text-[var(--ct-text-faint)]">
+            <span className="ct-text-faint">
               ({trimmed.length}/{MAX_REASON_CHARS})
             </span>
           </label>
@@ -94,7 +94,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
         {error && (
           <div
             role="alert"
-            className="ct-status-danger-bg body-xs mt-3 rounded-[var(--ct-radius-sm)] px-3 py-2"
+            className="ct-status-danger-bg body-xs mt-3 rounded-sm px-3 py-2"
           >
             {error}
           </div>

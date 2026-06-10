@@ -47,12 +47,12 @@ export default function PortfolioFullDebugPage() {
     <PortfolioCockpitDebug
       greeting={<PortfolioGreeting name="Adrien" data={data} />}
       quickActions={
-        <div className="flex flex-wrap items-center gap-3 rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-5 py-3 opacity-50">
-          <span className="body-xs mr-auto font-semibold uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-muted)]">
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-5 py-3 opacity-50">
+          <span className="body-xs mr-auto font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted">
             Tools (Debug Placeholder)
           </span>
-          <div className="h-8 w-32 rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-2)]" />
-          <div className="h-8 w-32 rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-2)]" />
+          <div className="h-8 w-32 rounded-md ct-surface-2" />
+          <div className="h-8 w-32 rounded-md ct-surface-2" />
         </div>
       }
       kpis={<PortfolioKpiRow data={data} />}

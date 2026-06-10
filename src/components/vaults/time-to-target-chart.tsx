@@ -76,12 +76,11 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
     return (
       <div className="space-y-2">
         <div
-          className="w-full rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-1)] border border-dashed border-[var(--ct-border-soft)] flex items-center justify-center"
-          style={{ height: "160px" }}
+          className="ct-chart-empty-box"
           role="img"
           aria-label="No projection data available"
         >
-          <p className="text-xs text-[var(--ct-text-muted)]">No projection data.</p>
+          <p className="text-xs ct-text-muted">No projection data.</p>
         </div>
         <p className="body-xs ct-text-faint text-center">
           Conditional projection — not a projection of future returns. Methodology v1.0.
@@ -140,8 +139,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
   return (
     <div className="space-y-2">
       <div
-        className="relative w-full rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-1)] border border-[var(--ct-border-soft)] overflow-hidden"
-        style={{ height: "160px" }}
+        className="ct-chart-box-160"
       >
         <ChartProvenanceCorner kind="estimated" />
         <ChartDisclaimerUnderlay />

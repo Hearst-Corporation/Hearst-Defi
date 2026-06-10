@@ -147,7 +147,7 @@ export function MonteCarloReview({
   return (
     <div
       className={cn(
-        "rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)]",
+        "rounded-lg border border-[var(--ct-border-soft)]",
         "ct-surface-2 p-4 space-y-4",
         className,
       )}
@@ -197,10 +197,7 @@ export function MonteCarloReview({
           {(result.probBelowFloor * 100).toFixed(1)}%
         </span>
         &ensp;·&ensp;range:{" "}
-        <span
-          className="tabular font-semibold"
-          style={{ color: "var(--ct-accent)" }}
-        >
+        <span className="tabular font-semibold ct-text-accent">
           {fmtPct(p5)}%&ndash;{fmtPct(p95)}%
         </span>
       </p>
@@ -230,20 +227,15 @@ interface MetricCellProps {
 function MetricCell({ label, value, tone }: MetricCellProps) {
   const valueClass =
     tone === "accent"
-      ? "tabular font-semibold text-sm"
+      ? "tabular font-semibold text-sm ct-text-accent"
       : tone === "primary"
         ? "tabular font-semibold text-sm ct-text-strong"
         : "tabular font-semibold text-sm ct-text-muted";
 
-  const accentStyle =
-    tone === "accent"
-      ? ({ color: "var(--ct-accent)" } as React.CSSProperties)
-      : undefined;
-
   return (
     <div className="flex items-baseline gap-1.5">
       <span className="stat-label ct-text-faint">{label}</span>
-      <span className={valueClass} style={accentStyle}>
+      <span className={valueClass}>
         {value}%
       </span>
     </div>

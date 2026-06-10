@@ -179,17 +179,6 @@
   flex-shrink: 0;
 }
 
-.prof-stat-value {
-  font-size: var(--ct-text-2xl);
-  font-weight: var(--ct-font-light);
-  color: var(--ct-text-strong);
-  letter-spacing: -0.02em;
-  line-height: var(--ct-leading-none, 1);
-  font-variant-numeric: tabular-nums;
-}
-
-/* .prof-stat-label removed — replaced by DS class .stat-label (see page.tsx) */
-
 /* ── Security list ── */
 .prof-security-list {
   list-style: none;

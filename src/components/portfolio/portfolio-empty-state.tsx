@@ -65,7 +65,7 @@ export function PortfolioEmptyState({
       {data.source === "fallback" ? (
         <div
           role="status"
-          className="flex items-center gap-2 rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-4 py-2.5"
+          className="flex items-center gap-2 rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-2.5"
         >
           <span
             aria-hidden
@@ -115,7 +115,7 @@ export function PortfolioEmptyState({
           {FUTURE_MODULES.map((m) => (
             <li
               key={m.label}
-              className="flex min-w-0 flex-col gap-1 rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-4 py-3"
+              className="flex min-w-0 flex-col gap-1 rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-3"
             >
               <span className="body-sm ct-text-strong">{m.label}</span>
               <span className="body-xs ct-text-muted">{m.detail}</span>

@@ -139,7 +139,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
         />
 
         {/* ── Detail rows ── */}
-        <div className="w-full flex flex-col gap-[var(--ct-space-2)] rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-1)] border border-[var(--ct-border-soft)] p-[var(--ct-space-4)]">
+        <div className="w-full flex flex-col gap-[var(--ct-space-2)] rounded-md ct-surface-1 border border-[var(--ct-border-soft)] p-[var(--ct-space-4)]">
 
           {/* Transaction hash */}
           <div className="flex items-center justify-between gap-3 py-2 border-b border-[var(--ct-border-soft)]">
@@ -181,7 +181,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
               <button
                 type="button"
                 data-copy-value={VAULT_CONTRACT}
-                className="body-xs ct-text-muted border border-[var(--ct-border-soft)] rounded-[var(--ct-radius-sm)] px-2 py-1 hover:ct-text-primary hover:border-[var(--ct-border-strong)] transition-colors shrink-0"
+                className="body-xs ct-text-muted border border-[var(--ct-border-soft)] rounded-sm px-2 py-1 hover:ct-text-primary hover:border-[var(--ct-border-strong)] transition-colors shrink-0"
                 aria-label="Copy vault contract address"
               >
                 copy
@@ -226,19 +226,12 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
               aria-valuemin={0}
               aria-valuemax={LOCK_DAYS}
               aria-label={`Soft-lock: day ${currentDay} of ${LOCK_DAYS}`}
-              className="w-full rounded-full overflow-hidden"
-              style={{
-                height: "6px",
-                background: "var(--ct-surface-2)",
-              }}
+              className="ct-lock-track"
             >
               <div
+                className="h-full rounded-full bg-[var(--ct-accent)] transition-[width] duration-[400ms] ease-in-out"
                 style={{
                   width: `${Math.round((currentDay / LOCK_DAYS) * 100)}%`,
-                  height: "100%",
-                  borderRadius: "9999px",
-                  background: "var(--ct-accent)",
-                  transition: "width 0.4s ease",
                   minWidth: currentDay > 0 ? "4px" : "0",
                 }}
               />

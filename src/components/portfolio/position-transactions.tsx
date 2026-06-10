@@ -65,7 +65,7 @@ export function PositionTransactions({
   return (
     <section
       aria-label="Transaction history"
-      className="flex flex-col gap-4 rounded-[var(--ct-radius-xl)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-6 py-5"
+      className="flex flex-col gap-4 rounded-xl border border-[var(--ct-border-soft)] ct-surface-1 px-6 py-5"
     >
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -91,7 +91,7 @@ export function PositionTransactions({
       </div>
 
       {transactions.length === 0 ? (
-        <p className="body-sm text-[var(--ct-text-muted)] mt-2">
+        <p className="body-sm ct-text-muted mt-2">
           No transactions recorded yet.
         </p>
       ) : (
@@ -154,7 +154,7 @@ export function PositionTransactions({
                           {tx.txHash.slice(0, 6)}&hellip;{tx.txHash.slice(-4)} ↗
                         </a>
                       ) : (
-                        <span className="body-xs text-[var(--ct-text-faint)]">
+                        <span className="body-xs ct-text-faint">
                           —
                         </span>
                       )}

@@ -58,20 +58,33 @@ export function AllocationDonut({
     cumulative += pct;
   }
 
+  const hasAllocation = totalValueUsdc > 0 && segments.length > 0;
+
   return (
     <article className="dash-cell dash-cell-premium" aria-label="Portfolio allocation">
       <div className="dash-label relative z-10">
-        <span>Allocation by status</span>
+        <span>Allocation by position status</span>
         <ProvenanceBadge kind={provenance} />
       </div>
 
       <div className="flex flex-col items-center gap-4 mt-2 relative z-10">
-        <div className="dash-chart-container mt-0 w-(--ct-donut-size) h-(--ct-donut-size)">
+        <div className="dash-chart-container relative mt-0 w-(--ct-donut-size) h-(--ct-donut-size)">
+          {!hasAllocation && (
+            <div
+              className="absolute inset-0 flex items-center justify-center rounded-full border border-dashed border-(--ct-border-soft) ct-surface-1 p-4 text-center"
+              aria-label="No allocation data yet"
+            >
+              <span className="body-xs ct-text-muted">
+                Allocation starts after the first active position.
+              </span>
+            </div>
+          )}
           <svg
             className="dash-chart-svg w-full h-full"
             viewBox="0 0 42 42"
             role="img"
             aria-label="Allocation by status"
+            aria-hidden={!hasAllocation}
           >
             <circle
               className="dash-chart-circle"
@@ -93,31 +106,35 @@ export function AllocationDonut({
               />
             ))}
           </svg>
-          <div className="donut-center">
-            <span className="donut-val">
-              {totalValueUsdc > 0 ? formatUsdCompact(totalValueUsdc) : "—"}
-            </span>
-            <span className="donut-lbl">Portfolio</span>
-          </div>
+          {hasAllocation && (
+            <div className="donut-center">
+              <span className="donut-val">
+                {formatUsdCompact(totalValueUsdc)}
+              </span>
+              <span className="donut-lbl">Portfolio</span>
+            </div>
+          )}
         </div>
 
         <div className="dash-legend w-full mt-0">
-          {segments.map((s) => (
-            <div key={s.status} className="dash-legend-row">
-              <span className="dash-legend-left">
-                <span
-                  className={`dash-legend-dot dot-${STATUS_LEGEND_TONE[s.status] ?? "muted"}`}
-                />
-                {STATUS_LABELS[s.status] ?? s.status}
-              </span>
-              <span className="dash-legend-val">
-                {s.pct.toFixed(0)}% · {formatUsdCompact(s.valueUsdc)}
-              </span>
-            </div>
-          ))}
-          {segments.length === 0 && (
+          {hasAllocation
+            ? segments.map((s) => (
+                <div key={s.status} className="dash-legend-row">
+                  <span className="dash-legend-left">
+                    <span
+                      className={`dash-legend-dot dot-${STATUS_LEGEND_TONE[s.status] ?? "muted"}`}
+                    />
+                    {STATUS_LABELS[s.status] ?? s.status}
+                  </span>
+                  <span className="dash-legend-val">
+                    {s.pct.toFixed(0)}% · {formatUsdCompact(s.valueUsdc)}
+                  </span>
+                </div>
+              ))
+            : null}
+          {!hasAllocation && (
             <span className="dash-legend-left text-(--ct-text-muted)">
-              No positions
+              No position allocation yet
             </span>
           )}
         </div>

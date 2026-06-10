@@ -7,6 +7,7 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { recordAdminAudit } from "@/lib/admin/audit";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
+import { routeForTransaction } from "@/lib/governance/routing";
 import {
   canTransition,
   computeEta,
@@ -115,6 +116,12 @@ function toDecision(raw: string): "approve" | "reject" | "cancel" {
 }
 
 // ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const ZERO_ADDRESS = "0x" + "0".repeat(40);
+
+// ---------------------------------------------------------------------------
 // proposeAction
 // ---------------------------------------------------------------------------
 
@@ -140,6 +147,11 @@ export async function proposeAction(
 
   const now = new Date();
 
+  const decision = await routeForTransaction({
+    targetAddress: ZERO_ADDRESS,
+    actionType: parsed.actionType,
+  });
+
   const proposal = await prisma.governanceProposal.create({
     data: {
       vaultDeploymentId: vault.id,
@@ -148,9 +160,9 @@ export async function proposeAction(
       justification: parsed.justification,
       state: "SIGNING",
       proposedBy: admin.userId,
-      requiredSigners: vault.requiredSigners,
-      cancelQuorum: 2,
-      timelockHours: 48,
+      requiredSigners: decision.policy.approveQuorum,
+      cancelQuorum: decision.policy.cancelQuorum,
+      timelockHours: decision.policy.timelockHours,
       graceWindowDays: 7,
       submittedAt: now,
     },
@@ -162,7 +174,11 @@ export async function proposeAction(
     entityType: "GovernanceProposal",
     entityId: proposal.id,
     before: null,
-    after: { state: proposal.state, actionType: proposal.actionType },
+    after: {
+      state: proposal.state,
+      actionType: proposal.actionType,
+      routing: { isAllowlisted: decision.isAllowlisted, reason: decision.reason },
+    },
   });
 
   logger.info("Governance proposal created", { proposalId: proposal.id, actionType });

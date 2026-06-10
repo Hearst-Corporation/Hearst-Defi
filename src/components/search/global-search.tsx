@@ -99,7 +99,7 @@ function EntityBadge({ entity }: { entity: Entity }) {
   const meta = ENTITY_META[entity];
   return (
     <span
-      className="inline-flex items-center rounded-[var(--ct-radius-full)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-2 py-0.5 text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
+      className="inline-flex items-center rounded-full border border-[var(--ct-border)] ct-surface-1 px-2 py-0.5 text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
       style={{ color: meta.color }}
       aria-label={meta.label}
     >
@@ -134,10 +134,10 @@ function ResultItem({
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       className={cn(
-        "flex w-full items-center gap-3 rounded-[var(--ct-radius-md)] px-3 py-2 text-left transition-colors",
+        "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors",
         isSelected
-          ? "bg-[var(--ct-surface-3)] text-[var(--ct-text-strong)]"
-          : "text-[var(--ct-text-body)] hover:bg-[var(--ct-surface-2)]",
+          ? "ct-surface-3 ct-text-strong"
+          : "ct-text-body hover:ct-surface-2",
       )}
     >
       <EntityBadge entity={result.entity} />
@@ -146,13 +146,13 @@ function ResultItem({
           {result.title}
         </span>
         {result.subtitle && (
-          <span className="block truncate text-xs text-[var(--ct-text-muted)]">
+          <span className="block truncate text-xs ct-text-muted">
             {result.subtitle}
           </span>
         )}
       </span>
       {result.badge && (
-        <span className="shrink-0 rounded-[var(--ct-radius-sm)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-1.5 py-0.5 text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)]">
+        <span className="shrink-0 rounded-sm border border-[var(--ct-border-soft)] ct-surface-1 px-1.5 py-0.5 text-[length:var(--ct-text-micro)] ct-text-muted">
           {result.badge}
         </span>
       )}
@@ -324,14 +324,14 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Global search"
-        className="relative w-full max-w-xl overflow-hidden rounded-[var(--ct-radius-xl)] border border-[var(--ct-border-strong)] bg-[var(--ct-surface-2)] shadow-[var(--ct-shadow-elevated)]"
+        className="relative w-full max-w-xl overflow-hidden rounded-xl border border-[var(--ct-border-strong)] ct-surface-2 shadow-[var(--ct-shadow-elevated)]"
       >
         {/* Search input row */}
         <div className="flex items-center gap-2 border-b border-[var(--ct-border-soft)] px-4 py-3">
           {/* Search icon */}
           <svg
             aria-hidden="true"
-            className="h-4 w-4 shrink-0 text-[var(--ct-text-muted)]"
+            className="h-4 w-4 shrink-0 ct-text-muted"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -359,7 +359,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onInputKeyDown}
-            className="min-w-0 flex-1 bg-transparent text-sm text-[var(--ct-text-strong)] placeholder:text-[var(--ct-text-muted)] focus:outline-none"
+            className="min-w-0 flex-1 bg-transparent text-sm ct-text-strong placeholder:ct-text-muted focus:outline-none"
             autoComplete="off"
             spellCheck={false}
           />
@@ -368,7 +368,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
           {loading && (
             <svg
               aria-label="Loading"
-              className="h-4 w-4 shrink-0 animate-spin text-[var(--ct-text-muted)]"
+              className="h-4 w-4 shrink-0 animate-spin ct-text-muted"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -389,7 +389,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
           )}
 
           {/* Kbd hint */}
-          <kbd className="hidden shrink-0 rounded-[var(--ct-radius-sm)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-1.5 py-0.5 text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)] sm:inline-block">
+          <kbd className="hidden shrink-0 rounded-sm border border-[var(--ct-border)] ct-surface-1 px-1.5 py-0.5 text-[length:var(--ct-text-micro)] ct-text-muted sm:inline-block">
             esc
           </kbd>
         </div>
@@ -401,7 +401,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
             <div className="p-4 space-y-4">
               {recent.length > 0 && (
                 <section aria-label="Recent searches">
-                  <p className="mb-2 text-[length:var(--ct-text-xs)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-muted)]">
+                  <p className="mb-2 text-[length:var(--ct-text-xs)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted">
                     Recent
                   </p>
                   <ul className="space-y-1">
@@ -417,11 +417,11 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
                               setQuery(entry.query);
                             }
                           }}
-                          className="flex w-full items-center gap-2 rounded-[var(--ct-radius-md)] px-3 py-1.5 text-sm text-[var(--ct-text-body)] hover:bg-[var(--ct-surface-3)] transition-colors"
+                          className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm ct-text-body hover:ct-surface-3 transition-colors"
                         >
                           <svg
                             aria-hidden="true"
-                            className="h-3 w-3 shrink-0 text-[var(--ct-text-muted)]"
+                            className="h-3 w-3 shrink-0 ct-text-muted"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -438,7 +438,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
               )}
 
               <section aria-label="Suggestions">
-                <p className="mb-2 text-[length:var(--ct-text-xs)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-muted)]">
+                <p className="mb-2 text-[length:var(--ct-text-xs)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted">
                   Suggestions
                 </p>
                 <ul className="flex flex-wrap gap-2">
@@ -448,7 +448,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
                         type="button"
                         title={s.hint}
                         onClick={() => setQuery(s.label)}
-                        className="rounded-[var(--ct-radius-full)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-3 py-1 text-xs text-[var(--ct-text-muted)] hover:border-[var(--ct-border-strong)] hover:text-[var(--ct-text-strong)] transition-colors"
+                        className="rounded-full border border-[var(--ct-border)] ct-surface-1 px-3 py-1 text-xs ct-text-muted hover:border-[var(--ct-border-strong)] hover:ct-text-strong transition-colors"
                       >
                         {s.label}
                       </button>
@@ -461,9 +461,9 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
 
           {/* No results */}
           {showNoResults && (
-            <p className="px-4 py-8 text-center text-sm text-[var(--ct-text-muted)]">
+            <p className="px-4 py-8 text-center text-sm ct-text-muted">
               No results for{" "}
-              <span className="font-medium text-[var(--ct-text-strong)]">
+              <span className="font-medium ct-text-strong">
                 &ldquo;{query}&rdquo;
               </span>
             </p>
@@ -480,7 +480,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
               {Array.from(grouped.entries()).map(([entity, items]) => {
                 return (
                   <section key={entity} aria-label={ENTITY_META[entity].label}>
-                    <p className="mb-1 px-3 text-[length:var(--ct-text-xs)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-muted)]">
+                    <p className="mb-1 px-3 text-[length:var(--ct-text-xs)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted">
                       {ENTITY_META[entity].label}
                     </p>
                     <ul>
@@ -508,20 +508,20 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
 
         {/* Footer hint */}
         <div className="flex items-center gap-3 border-t border-[var(--ct-border-soft)] px-4 py-2">
-          <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
-            <kbd className="rounded-[var(--ct-radius-sm)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-1 py-0.5">
+          <span className="text-[length:var(--ct-text-xs)] ct-text-muted">
+            <kbd className="rounded-sm border border-[var(--ct-border)] ct-surface-1 px-1 py-0.5">
               ↑↓
             </kbd>{" "}
             navigate
           </span>
-          <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
-            <kbd className="rounded-[var(--ct-radius-sm)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-1 py-0.5">
+          <span className="text-[length:var(--ct-text-xs)] ct-text-muted">
+            <kbd className="rounded-sm border border-[var(--ct-border)] ct-surface-1 px-1 py-0.5">
               ↵
             </kbd>{" "}
             open
           </span>
-          <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
-            <kbd className="rounded-[var(--ct-radius-sm)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-1 py-0.5">
+          <span className="text-[length:var(--ct-text-xs)] ct-text-muted">
+            <kbd className="rounded-sm border border-[var(--ct-border)] ct-surface-1 px-1 py-0.5">
               esc
             </kbd>{" "}
             close

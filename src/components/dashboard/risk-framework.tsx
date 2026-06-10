@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
@@ -102,30 +103,30 @@ export function RiskFrameworkSection({
   // mislead the operator. Render an empty state instead.
   if (data.source === "fallback") {
     return (
-      <article className="dash-cell dash-cell-premium h-full flex flex-col relative">
+      <Card className="h-full flex flex-col">
         <div className="dash-label relative z-10">
-          <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">
+          <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">
             Risk Framework
           </span>
           <ProvenanceBadge kind={provenanceFromSource(data.source)} />
         </div>
         <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center py-12 relative z-10">
-          <p className="body-sm text-[var(--ct-text-muted)]">
+          <p className="body-sm ct-text-muted">
             No risk inputs yet
           </p>
-          <p className="body-xs text-[var(--ct-text-faint)] max-w-xs">
+          <p className="body-xs ct-text-faint max-w-xs">
             The framework will populate after the first vault snapshot and
             mining metric are recorded.
           </p>
         </div>
-      </article>
+      </Card>
     );
   }
 
   return (
-    <article className="dash-cell dash-cell-premium h-full flex flex-col relative">
+    <Card className="h-full flex flex-col">
       <div className="dash-label relative z-10">
-        <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">
+        <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">
           Risk Framework
         </span>
         <ProvenanceBadge kind={provenanceFromSource(data.source)} />
@@ -151,7 +152,7 @@ export function RiskFrameworkSection({
         )}
 
         <p
-          className="mt-auto pt-6 body-xs text-[var(--ct-text-faint)] italic leading-[var(--ct-leading-relaxed)] opacity-70"
+          className="mt-auto pt-6 body-xs ct-text-faint italic leading-[var(--ct-leading-relaxed)] opacity-70"
           title="Uses pre-audit baseline assumptions"
         >
           Composite score is the weighted sum of the five dimensions defined in
@@ -160,7 +161,7 @@ export function RiskFrameworkSection({
           proxy. Conditional projection — not guaranteed.
         </p>
       </div>
-    </article>
+    </Card>
   );
 }
 
@@ -177,17 +178,17 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
     <div className="flex flex-col gap-4 rounded-xl bg-[var(--ct-bg-deep)]/50 border border-[var(--ct-border-soft)]/50 px-5 py-5 sm:flex-row sm:items-center sm:justify-between relative overflow-hidden group">
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--ct-accent)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       <div className="flex items-baseline gap-3 relative z-10">
-        <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">Composite</span>
+        <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">Composite</span>
         <span className={cn("text-2xl font-semibold tracking-tight tabular-nums", BAND_TEXT[band])}>
           {composite}
-          <span className="text-sm font-medium opacity-50 ml-1 text-[var(--ct-text-faint)]">/ 100</span>
+          <span className="text-sm font-medium opacity-50 ml-1 ct-text-faint">/ 100</span>
         </span>
       </div>
       <div className="flex items-center gap-4 sm:min-w-60 relative z-10">
         <div className="flex-1 h-1.5 bg-[var(--ct-bg-deep)] rounded-full overflow-hidden border border-[var(--ct-border-soft)]">
           <div 
-            className={cn("h-full transition-all duration-1000 ease-out", BAND_BAR[band])}
-            style={{ width: `${composite}%`, boxShadow: "0 0 12px var(--ct-accent-glow)" }}
+            className={cn("h-full transition-all duration-1000 ease-out ct-score-bar-glow", BAND_BAR[band])}
+            style={{ width: `${composite}%` }}
           />
         </div>
         <Badge variant={BAND_VARIANT[band]} className="font-bold tracking-wider">{bandLabel}</Badge>
@@ -338,8 +339,7 @@ function WaterfallChart({ data }: WaterfallChartProps) {
     <div className="mt-6 overflow-x-auto">
       <svg
         viewBox={`0 0 ${VB_W} ${VB_H}`}
-        className="w-full"
-        style={{ minWidth: "240px", height: "auto" }}
+        className="w-full ct-waterfall-svg"
         role="img"
         aria-label={`Risk attribution waterfall chart. Composite score: ${data.composite} — ${data.bandLabel}`}
       >
@@ -383,12 +383,12 @@ function WaterfallChart({ data }: WaterfallChartProps) {
           const connectorY = step.isFinal ? undefined : step.y2;
 
           return (
-            <g
-              key={step.key}
-              role="img"
-              aria-label={`${step.label}: score ${step.score}, ${step.detail}`}
-              style={{ cursor: "pointer" }}
-            >
+          <g
+            key={step.key}
+            role="img"
+            aria-label={`${step.label}: score ${step.score}, ${step.detail}`}
+            className="ct-chart-bar-group"
+          >
               {/* Bar rect */}
               <rect
                 x={bx}

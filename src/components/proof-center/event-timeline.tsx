@@ -57,7 +57,7 @@ export function EventTimeline({ events }: EventTimelineProps) {
 
       {events.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <div className="h-10 w-10 rounded-[var(--ct-radius-lg)] bg-[var(--ct-surface-2)]" aria-hidden />
+          <div className="h-10 w-10 rounded-lg ct-surface-2" aria-hidden />
           <p className="body-sm">
             No on-chain events yet. Contracts are live on Base Sepolia — events
             appear here as the vault operates.
@@ -103,42 +103,42 @@ export function EventTimeline({ events }: EventTimelineProps) {
                 </div>
 
                 <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
-                  <dt className="text-[var(--ct-text-muted)]">Timestamp</dt>
-                  <dd className="text-[var(--ct-text-body)]">
+                  <dt className="ct-text-muted">Timestamp</dt>
+                  <dd className="ct-text-body">
                     {dateFmt.format(event.timestamp)} UTC
                   </dd>
 
-                  <dt className="text-[var(--ct-text-muted)]">Block</dt>
-                  <dd className="mono tabular text-[var(--ct-text-body)]">
+                  <dt className="ct-text-muted">Block</dt>
+                  <dd className="mono tabular ct-text-body">
                     {event.blockNumber.toString()}
                   </dd>
 
-                  <dt className="text-[var(--ct-text-muted)]">Publisher</dt>
+                  <dt className="ct-text-muted">Publisher</dt>
                   <dd
-                    className="mono tabular text-[var(--ct-text-body)]"
+                    className="mono tabular ct-text-body"
                     title={event.publisher}
                   >
                     {abbreviateAddress(event.publisher)}
                   </dd>
 
-                  <dt className="text-[var(--ct-text-muted)]">Tx hash</dt>
+                  <dt className="ct-text-muted">Tx hash</dt>
                   <dd
-                    className="mono tabular text-[var(--ct-text-primary)]"
+                    className="mono tabular ct-text-primary"
                     title={event.txHash}
                   >
                     <a
                       href={`${EXPLORER_TX_BASE}${event.txHash}`}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="hover:text-[var(--ct-text-strong)] transition-colors duration-[var(--ct-dur-fast)]"
+                      className="hover:ct-text-strong transition-colors duration-[var(--ct-dur-fast)]"
                     >
                       {abbreviateAddress(event.txHash)}
                     </a>
                   </dd>
 
-                  <dt className="text-[var(--ct-text-muted)]">Context hash</dt>
+                  <dt className="ct-text-muted">Context hash</dt>
                   <dd
-                    className="mono tabular text-[var(--ct-text-muted)]"
+                    className="mono tabular ct-text-muted"
                     title={event.contextHash}
                   >
                     {abbreviateAddress(event.contextHash)}
@@ -152,9 +152,9 @@ export function EventTimeline({ events }: EventTimelineProps) {
                       target="_blank"
                       rel="noreferrer noopener"
                       className={cn(
-                        "rounded-[var(--ct-radius-full)] border border-[var(--ct-border-strong)] bg-[var(--ct-surface-1)]",
-                        "px-3 py-1 text-xs text-[var(--ct-text-primary)]",
-                        "transition-colors duration-[var(--ct-dur-fast)] hover:bg-[var(--ct-surface-3)]",
+                        "rounded-full border border-[var(--ct-border-strong)] ct-surface-1",
+                        "px-3 py-1 text-xs ct-text-primary",
+                        "transition-colors duration-[var(--ct-dur-fast)] hover:ct-surface-3",
                         "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                       )}
                     >

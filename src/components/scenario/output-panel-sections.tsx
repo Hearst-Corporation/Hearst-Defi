@@ -41,7 +41,7 @@ export function ApyHero({
       high={output.apy_range.high}
       className={cn(
         "mono text-4xl font-extrabold tabular-nums",
-        "text-[var(--ct-text-strong)] leading-none",
+        "ct-text-strong leading-none",
       )}
     />
   );
@@ -83,10 +83,10 @@ export function ApyHero({
             <span className="stat-label">Stressed APY</span>
             <ProvenanceBadge kind="estimated" />
           </div>
-          <span className="mono text-2xl font-extrabold tabular-nums text-[var(--ct-text-primary)]">
+          <span className="mono text-2xl font-extrabold tabular-nums ct-text-primary">
             {output.stressed_apy.toFixed(1)}%
           </span>
-          <span className="ml-2 text-xs text-[var(--ct-text-muted)]">
+          <span className="ml-2 text-xs ct-text-muted">
             bear scenario floor
           </span>
         </div>
@@ -97,7 +97,7 @@ export function ApyHero({
   return (
     <div className="glass-panel-subtle p-5">
       <div className="mb-3 flex items-start justify-between gap-4">
-        <h4 className="h4 text-[var(--ct-text-strong)]">Projected APY</h4>
+        <h4 className="h4 ct-text-strong">Projected APY</h4>
         <ProvenanceBadge kind="estimated" />
       </div>
 
@@ -131,12 +131,12 @@ function ScoreCard({
   const labelCls = cn("stat-label", variant === "compact" && "text-micro");
   const numberCls =
     variant === "full"
-      ? "mono text-2xl font-extrabold tabular-nums text-[var(--ct-text-primary)]"
-      : "mono text-xl font-extrabold tabular-nums text-[var(--ct-text-primary)]";
+      ? "mono text-2xl font-extrabold tabular-nums ct-text-primary"
+      : "mono text-xl font-extrabold tabular-nums ct-text-primary";
   const slashCls =
     variant === "full"
-      ? "text-sm text-[var(--ct-text-muted)]"
-      : "text-xs text-[var(--ct-text-muted)]";
+      ? "text-sm ct-text-muted"
+      : "text-xs ct-text-muted";
 
   const body = (
     <>
@@ -163,8 +163,8 @@ function ScoreCard({
         <p
           className={cn(
             variant === "full"
-              ? "mt-2 text-xs text-[var(--ct-text-muted)]"
-              : "mt-2 text-micro text-[var(--ct-text-muted)]",
+              ? "mt-2 text-xs ct-text-muted"
+              : "mt-2 text-micro ct-text-muted",
           )}
         >
           {caption}
@@ -241,7 +241,7 @@ export function VaultMode({
         </p>
         <p
           className={cn(
-            "text-[var(--ct-text-muted)]",
+            "ct-text-muted",
             variant === "full" ? "text-xs" : "mt-0.5 text-micro",
           )}
         >
@@ -275,7 +275,7 @@ function AllocationBar({
       {allocations.map((a) => (
         <div
           key={a.bucket}
-          className="h-full bg-current"
+          className="ct-alloc-bar-segment"
           style={{ width: `${a.pct}%`, color: BUCKET_COLOR[a.bucket] }}
           title={`${BUCKET_LABEL[a.bucket]}: ${a.pct.toFixed(0)}%`}
         />
@@ -297,7 +297,7 @@ export function AllocationSection({
     <div className={variant === "full" ? "mt-4" : undefined}>
       <div
         className={cn(
-          "grid grid-cols-[1fr_auto_auto] text-micro font-semibold uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-muted)]",
+          "grid grid-cols-[1fr_auto_auto] text-micro font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted",
           variant === "full" ? "mb-2 gap-x-4" : "mb-1.5 gap-x-3",
         )}
       >
@@ -316,7 +316,7 @@ export function AllocationSection({
                 : "gap-x-3 py-1.5 first:pt-0.5 last:pb-0.5",
             )}
           >
-            <span className="flex min-w-0 items-center gap-2 text-[var(--ct-text-body)]">
+            <span className="flex min-w-0 items-center gap-2 ct-text-body">
               <span
                 className="inline-block h-2 w-2 shrink-0 rounded-full shadow-[var(--ct-glow-dot)] bg-current"
                 style={{ color: BUCKET_COLOR[a.bucket] }}
@@ -328,12 +328,12 @@ export function AllocationSection({
                 <span className="truncate">{BUCKET_LABEL[a.bucket]}</span>
               )}
             </span>
-            <span className="text-right mono tabular-nums text-[var(--ct-text-primary)]">
+            <span className="text-right mono tabular-nums ct-text-primary">
               {a.pct.toFixed(0)}%
             </span>
             <span
               className={cn(
-                "text-right mono tabular-nums text-[var(--ct-text-muted)]",
+                "text-right mono tabular-nums ct-text-muted",
                 variant === "compact" && "text-xs",
               )}
             >
@@ -367,7 +367,7 @@ export function AllocationSection({
   return (
     <div className="glass-panel-subtle p-4">
       <div className="mb-3 flex items-start justify-between gap-4">
-        <h4 className="h4 text-[var(--ct-text-strong)]">Allocation</h4>
+        <h4 className="h4 ct-text-strong">Allocation</h4>
         <ProvenanceBadge kind="estimated" />
       </div>
       {table}

@@ -52,7 +52,7 @@ describe("compositeLabelColor", () => {
   it("Low–Moderate with score 36 → accent token", () => {
     const label: CompositeLabel = "Low–Moderate";
     const color = compositeLabelColor(label);
-    expect(color).toContain("ct-accent");
+    expect(color).toBe("ct-text-accent");
   });
 
   it("Moderate → warning token", () => {

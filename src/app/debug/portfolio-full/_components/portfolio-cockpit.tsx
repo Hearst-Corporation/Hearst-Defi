@@ -27,20 +27,8 @@ export function PortfolioCockpitDebug({
     <div className="flex flex-col h-full min-h-120 gap-12 relative">
       {/* Ambient glow for the dashboard */}
       <div aria-hidden="true" className="absolute -inset-20 z-0 pointer-events-none overflow-hidden">
-        <div style={{
-          position: "absolute", borderRadius: "50%",
-          width: "60vw", height: "60vw",
-          top: "20%", left: "30%",
-          transform: "translate(-50%, -50%)",
-          background: "var(--ct-accent)", filter: "blur(150px)", opacity: 0.04,
-        }} />
-        <div style={{
-          position: "absolute", borderRadius: "50%",
-          width: "50vw", height: "50vw",
-          bottom: "10%", right: "10%",
-          transform: "translate(50%, 50%)",
-          background: "var(--ct-accent)", filter: "blur(130px)", opacity: 0.03,
-        }} />
+        <div className="dash-ambient-orb dash-ambient-orb--primary" />
+        <div className="dash-ambient-orb dash-ambient-orb--secondary" />
       </div>
 
       {/* ── Header & Quick Actions ────────────────────────────────────────── */}

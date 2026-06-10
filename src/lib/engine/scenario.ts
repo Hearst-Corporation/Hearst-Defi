@@ -1,3 +1,7 @@
+import {
+  METHODOLOGY_FACTORS,
+  METHODOLOGY_VERSION,
+} from "./methodology";
 import { assessBtcTactical } from "./btc-tactical";
 import { computeMiningRevenue } from "./mining";
 import { calcMaxDrawdown, calcSharpe, calcSortino, calcVaR } from "./ratios";
@@ -16,8 +20,6 @@ import type {
 } from "./types";
 import { VAULT_YIELD, type VaultDefinition } from "./vaults";
 
-export const METHODOLOGY_VERSION = "v1.0";
-
 // keep in sync with src/lib/agents/validators.ts FORBIDDEN_WORDS
 // TECH DEBT: this list + assertNoForbiddenWords are duplicated in
 // btc-tactical.ts and backtest.ts (and the canonical impl lives in
@@ -35,7 +37,6 @@ const FORBIDDEN_WORDS = [
 ] as const;
 
 const MIN_APY_SPREAD_BPS = 50;
-const BEAR_STRESS_FACTOR = 0.65;
 
 const ASSUMPTION_RISK_FACTOR = 0.2;
 const ASSUMPTION_UPSIDE_FACTOR = 0.18;
@@ -125,7 +126,7 @@ function runScenarioV1(
 
   const projected_apy_pct = projectedApyPct(allocations);
   const apy_range = buildApyRange(projected_apy_pct);
-  const stressed_apy = round(apy_range.low * BEAR_STRESS_FACTOR, 2);
+  const stressed_apy = round(apy_range.low * METHODOLOGY_FACTORS.BEAR_STRESS_FACTOR, 2);
   const confidence = deriveConfidence(inputs, apy_range);
 
   const assumptions = buildAssumptions(inputs, mode, now, opts.preset, vault);

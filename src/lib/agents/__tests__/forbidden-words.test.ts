@@ -5,6 +5,10 @@ import {
   findForbiddenMatches,
   FORBIDDEN_WORDS,
 } from "@/lib/agents/forbidden-words";
+import {
+  DISCLAIMER_NOT_GUARANTEED,
+  DISCLAIMER_PROJECTION,
+} from "@/lib/agents/system-prompts/disclaimers";
 
 // ---------------------------------------------------------------------------
 // Canonical list
@@ -208,6 +212,36 @@ describe("containsForbidden — negation exemption", () => {
         "This is not an offer; returns are not guaranteed and no promise of capital protection is made.",
       ),
     ).toBeNull();
+  });
+
+  it('"No outcome is guaranteed" is allowed (off-by-one fix: "No" at boundary)', () => {
+    expect(
+      containsForbidden(
+        "No outcome is guaranteed and nothing here is investment advice.",
+      ),
+    ).toBeNull();
+  });
+
+  it('"outcomes are not guaranteed" is allowed (off-by-one fix: negation before boundary)', () => {
+    expect(
+      containsForbidden(
+        "Past performance does not indicate future results and outcomes are not guaranteed.",
+      ),
+    ).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Disclaimer templates — must pass containsForbidden
+// ---------------------------------------------------------------------------
+
+describe("disclaimer templates — forbidden-words clean", () => {
+  it("DISCLAIMER_PROJECTION passes containsForbidden", () => {
+    expect(containsForbidden(DISCLAIMER_PROJECTION)).toBeNull();
+  });
+
+  it("DISCLAIMER_NOT_GUARANTEED passes containsForbidden", () => {
+    expect(containsForbidden(DISCLAIMER_NOT_GUARANTEED)).toBeNull();
   });
 });
 

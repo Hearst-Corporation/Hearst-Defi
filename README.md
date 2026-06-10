@@ -75,6 +75,10 @@ Primitives de page : `AdminPageHeader` (admin), `ProductPageHeader` (investor,
 secondaire avec `title`/`description`), `LegalPageHeader` (docs légales).
 Routes auth secondaires (`/forgot-password`, `/reset-password`,
 `/totp-challenge`) : shell bare via `app-chrome.tsx` (pas de `ConnectShell`).
+Login marketing (`/`, `/login`) : classes `.login-split__*` + `.ct-input-bare`
+dans `cockpit.css` (zéro `style={{}}` statique). Utilitaires composés récents :
+`.ct-text-accent`, `.ct-link-accent`, `.ct-panel-inset`, `.ct-overlay-backdrop`,
+`.ct-projection-footer`, `.ct-kpi-auto-grid`, `.ct-kpi-glass`.
 
 ### Process pour ajouter un token (rare, validé Adrien uniquement)
 

@@ -40,7 +40,7 @@ export interface YieldStackProps {
  *  Vert canonique = accent uniquement. Tout autre bucket utilise un token
  *  non-vert pour rester distinct visuellement (cohérence allocation-colors.ts). */
 export const BUCKET_COLOR: Record<YieldSource["bucket"], string> = {
-  mining:          "var(--ct-accent)",         // vert canonique #A7FB90
+  mining:          "var(--ct-accent)",         // vert canonique var(--ct-accent)
   usdc_base:       "var(--ct-status-info)",    // bleu — base stable
   btc_tactical:    "var(--ct-status-warning)", // orange — volatile
   stable_reserve:  "var(--ct-text-faint)",     // gris
@@ -107,7 +107,7 @@ export function YieldStack({
     >
       {/* Header */}
       <div className="dash-label relative z-10">
-        <span className="body-xs uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-muted)]">
+        <span className="body-xs uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted">
           Yield Source Stack (12m fwd)
         </span>
         <ProvenanceBadge kind={source} />
@@ -136,8 +136,8 @@ export function YieldStack({
                   className={cn(
                     "body-xs min-w-0 truncate",
                     s.isVolatile
-                      ? "text-[var(--ct-status-warning)]"
-                      : "text-[var(--ct-text-body)]",
+                      ? "ct-status-warning"
+                      : "ct-text-body",
                   )}
                 >
                   {s.label}
@@ -146,10 +146,10 @@ export function YieldStack({
                   className={cn(
                     "tabular text-[length:var(--ct-text-xs)] font-medium",
                     isNegative
-                      ? "text-[var(--ct-status-danger)]"
+                      ? "ct-status-danger"
                       : s.isVolatile
-                        ? "text-[var(--ct-status-warning)]"
-                        : "text-[var(--ct-text-strong)]",
+                        ? "ct-status-warning"
+                        : "ct-text-strong",
                   )}
                 >
                   {contribution}
@@ -158,11 +158,10 @@ export function YieldStack({
 
               {/* Bar track */}
               <div
-                className="relative h-1.5 rounded-[var(--ct-radius-full)] overflow-hidden"
-                style={{ background: "var(--ct-surface-2)" }}
+                className="relative h-1.5 rounded-full overflow-hidden ct-surface-2"
               >
                 <div
-                  className="absolute inset-y-0 left-0 rounded-[var(--ct-radius-full)] transition-[width] duration-300"
+                  className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-300"
                   style={{
                     width: `${widthPct.toFixed(1)}%`,
                     background: color,
@@ -177,7 +176,7 @@ export function YieldStack({
 
       {/* Empty state — no allocation snapshot in DB yet. */}
       {!hasData && (
-        <p className="body-sm text-[var(--ct-text-muted)] mt-3 relative z-10" role="note">
+        <p className="body-sm ct-text-muted mt-3 relative z-10" role="note">
           No yield source data yet — awaiting first vault snapshot.
         </p>
       )}
@@ -195,11 +194,11 @@ export function YieldStack({
         <dl className="flex flex-col gap-2 relative z-10">
           {/* Blended forward range */}
           <div className="flex items-baseline justify-between">
-            <dt className="body-xs min-w-0 truncate text-[var(--ct-text-muted)]">
+            <dt className="body-xs min-w-0 truncate ct-text-muted">
               Blended fwd range
             </dt>
             <dd
-              className="tabular font-semibold text-[var(--ct-text-primary)]"
+              className="tabular font-semibold ct-text-primary"
               aria-label={`Blended forward range ${rangeLow.toFixed(1)} to ${rangeHigh.toFixed(1)} percent`}
             >
               {rangeLow.toFixed(1)}–{rangeHigh.toFixed(1)}%
@@ -208,11 +207,11 @@ export function YieldStack({
 
           {/* Stressed bear scenario — range per CLAUDE.md #1, never single point. */}
           <div className="flex items-baseline justify-between">
-            <dt className="body-xs min-w-0 truncate text-[var(--ct-text-muted)]">
+            <dt className="body-xs min-w-0 truncate ct-text-muted">
               Stressed (bear)
             </dt>
             <dd
-              className="tabular font-medium text-[var(--ct-status-warning)]"
+              className="tabular font-medium ct-status-warning"
               aria-label={`Stressed bear scenario ${stressedLow.toFixed(1)} to ${stressedHigh.toFixed(1)} percent`}
             >
               {stressedLow.toFixed(1)}–{stressedHigh.toFixed(1)}%
@@ -223,7 +222,7 @@ export function YieldStack({
 
       {/* Disclaimer — visible, not tooltip-only (CLAUDE.md non-negotiable #10) */}
       <p
-        className="mt-auto pt-4 body-xs italic text-[var(--ct-text-faint)] relative z-10"
+        className="mt-auto pt-4 body-xs italic ct-text-faint relative z-10"
         role="note"
       >
         not guaranteed · methodology v{methodologyVersion} · projections show

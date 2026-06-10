@@ -28,7 +28,7 @@ function useHydrated(): boolean {
 }
 
 const PILL_BASE_CLASS = cn(
-  "h-8 rounded-[var(--ct-radius-full)] px-3 text-xs font-medium",
+  "h-8 rounded-full px-3 text-xs font-medium",
   "transition-[background-color,color] duration-[var(--ct-dur-base)]",
   "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
   "disabled:cursor-not-allowed disabled:opacity-60",
@@ -39,7 +39,7 @@ function pillClass(active: boolean): string {
     PILL_BASE_CLASS,
     active
       ? "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]"
-      : "text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)]",
+      : "ct-text-muted hover:ct-text-strong",
   );
 }
 
@@ -343,9 +343,9 @@ export function AdminChatControls() {
         <div
           className={cn(
             "fixed right-4 top-28 z-[var(--ct-z-toast)]",
-            "rounded-[var(--ct-radius-md)] border px-3 py-1.5 text-xs",
-            "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)]",
-            "text-[var(--ct-status-danger)]",
+            "rounded-md border px-3 py-1.5 text-xs",
+            "border-[var(--ct-status-danger-border)] ct-status-danger-bg",
+            "ct-status-danger",
           )}
           role="alert"
         >

@@ -53,11 +53,7 @@ export function LoginForm() {
           required
           disabled={isPending}
           placeholder="you@institution.com"
-          className="ct-input"
-          style={{ 
-            background: "color-mix(in srgb, var(--ct-bg-deep) 40%, transparent)",
-            borderColor: "var(--ct-border-soft)"
-          }}
+          className="ct-input ct-input-bare"
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? "login-error" : undefined}
         />
@@ -75,11 +71,7 @@ export function LoginForm() {
           required
           disabled={isPending}
           placeholder="••••••••"
-          className="ct-input"
-          style={{ 
-            background: "color-mix(in srgb, var(--ct-bg-deep) 40%, transparent)",
-            borderColor: "var(--ct-border-soft)"
-          }}
+          className="ct-input ct-input-bare"
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? "login-error" : undefined}
         />
@@ -107,8 +99,7 @@ export function LoginForm() {
       <p className="text-center body-xs ct-text-muted">
         <Link
           href="/forgot-password"
-          className="hover:underline"
-          style={{ color: "var(--ct-accent)" }}
+          className="ct-link-accent hover:underline"
         >
           Forgot password?
         </Link>

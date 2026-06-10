@@ -9,6 +9,7 @@ import { AllocationDonut } from "@/components/dashboard/dashboard-charts";
 import { MiningHealthSection } from "@/components/dashboard/mining-health";
 import { RiskFrameworkSection } from "@/components/dashboard/risk-framework";
 import { ApyRange } from "@/components/ui/apy-range";
+import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { SkeletonCard } from "@/components/ui/skeleton";
@@ -82,15 +83,21 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   // by `loadRiskFramework()` keeps the hero and the framework section aligned.
   const riskBandLabel = risk.bandLabel;
 
-  // Next distribution: derive from latestDistribution.paid_at when available;
-  // otherwise fall back to a "—" placeholder. We never fabricate a date.
+  // Next distribution: derive from latestDistribution.paid_at when available.
+  // If the date is passed, we show "TBD" (methodology v1.0) instead of
+  // displaying a stale date from the past.
   const nextDist = data.latestDistribution;
+  const isDistPassed = nextDist.paid_at !== null && nextDist.paid_at < new Date();
   const nextDistLabel =
-    nextDist.paid_at !== null ? dateFmt.format(nextDist.paid_at) : "—";
+    nextDist.paid_at !== null && !isDistPassed
+      ? dateFmt.format(nextDist.paid_at)
+      : "TBD";
   const nextDistAmount =
-    nextDist.amount_usdc > 0
-      ? `~${usdCompact.format(nextDist.amount_usdc)}`
-      : nextDist.status;
+    isDistPassed
+      ? "Next cycle pending"
+      : nextDist.amount_usdc > 0
+        ? `~${usdCompact.format(nextDist.amount_usdc)}`
+        : nextDist.status;
 
   // 30d AUM delta sublabel for the AUM card.
   const aumSublabel =
@@ -113,20 +120,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     <div className="flex flex-col h-full min-h-120 gap-12 relative">
       {/* Ambient glow for the dashboard */}
       <div aria-hidden="true" className="absolute -inset-20 z-0 pointer-events-none overflow-hidden">
-        <div style={{
-          position: "absolute", borderRadius: "50%",
-          width: "60vw", height: "60vw",
-          top: "20%", left: "30%",
-          transform: "translate(-50%, -50%)",
-          background: "var(--ct-accent)", filter: "blur(150px)", opacity: 0.04,
-        }} />
-        <div style={{
-          position: "absolute", borderRadius: "50%",
-          width: "50vw", height: "50vw",
-          bottom: "10%", right: "10%",
-          transform: "translate(50%, 50%)",
-          background: "var(--ct-accent)", filter: "blur(130px)", opacity: 0.03,
-        }} />
+        <div className="dash-ambient-orb dash-ambient-orb--primary" />
+        <div className="dash-ambient-orb dash-ambient-orb--secondary" />
       </div>
 
       <div className="relative z-10">
@@ -143,14 +138,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <section aria-label="Vault overview" className="flex flex-col gap-6 relative z-10">
         <div className="shrink-0">
           {vaultMeta.livePreview ? (
-            <div className="dash-cell dash-cell-premium border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)]/20 p-8">
+            <Card className="border-[var(--ct-status-warning-border)] ct-status-warning-bg/20">
               <div className="flex items-center gap-3 mb-4">
-                <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-status-warning)]">
+                <span className="text-micro font-bold uppercase tracking-widest ct-status-warning">
                   Per-vault live snapshot pending
                 </span>
                 <ProvenanceBadge kind="estimated" />
               </div>
-              <p className="body-sm text-[var(--ct-text-muted)] max-w-3xl">
+              <p className="body-sm ct-text-muted max-w-3xl">
                 {vaultMeta.name} live KPIs (AUM, risk score, mining margin,
                 stressed APY) land with Phase 3 multi-vault DB schema. The numbers
                 below are the {vaultMeta.name} methodology preset only — not the
@@ -158,6 +153,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               </p>
               <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 items-start">
                 <Metric
+                  variant="dashboard"
                   label="APY range"
                   provenance="estimated"
                   value={
@@ -170,21 +166,23 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                   sublabel={`${vaultMeta.name} · methodology preset`}
                 />
                 <Metric
+                  variant="dashboard"
                   label="Next distribution"
                   provenance="estimated"
                   value={<span className="text-2xl tracking-tight">{nextDistLabel}</span>}
                   sublabel={nextDistAmount}
                 />
               </div>
-            </div>
+            </Card>
           ) : (
             // Container-responsive: cards wrap to fewer columns when the centre
             // panel narrows (e.g. chat rail open) instead of clipping badges and
             // KPI units. auto-fit collapses empty tracks so 5 cards always fill
             // the row. min 200px keeps the longest header ("Next distribution" +
             // provenance badge) inside its card.
-            <div className="grid gap-4 items-start" style={{gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))"}}>
+            <div className="dashboard-kpi-grid">
               <Metric
+                variant="dashboard"
                 label="AUM"
                 provenance={custody.provenance}
                 value={usdCompact.format(
@@ -196,6 +194,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 tooltip="Assets Under Management. Total USDC equivalent of all vault holdings, marked to market."
               />
               <Metric
+                variant="dashboard"
                 label="APY range"
                 provenance="estimated"
                 value={
@@ -209,6 +208,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 tooltip={`Forward 12m projected APY range for ${vaultMeta.name}, sourced from its methodology preset (allocation targets × asset-class yield assumptions). Not guaranteed. Methodology v1.0.`}
               />
               <Metric
+                variant="dashboard"
                 label="Stressed APY"
                 provenance="estimated"
                 value={
@@ -222,12 +222,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 tooltip="Projected APY under combined Bear scenario (BTC −40%, hashprice −30%). Conditional projection. Range = ±15% of the projection bear (méthodologie v1.0)."
               />
               <Metric
+                variant="dashboard"
                 label="Risk score"
                 provenance="estimated"
                 value={
                   <span className="tabular">
                     {vault.riskScore}
-                    <span className="ml-1 text-micro font-medium opacity-80 text-[var(--ct-text-faint)]">
+                    <span className="ml-1 text-micro font-medium opacity-80 ct-text-faint">
                       /100
                     </span>
                   </span>
@@ -236,6 +237,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 tooltip="Composite score (Market, Mining, Liquidity, Smart Contract, Counterparty). Lower = lower risk."
               />
               <Metric
+                variant="dashboard"
                 label="Next distribution"
                 provenance="estimated"
                 value={<span className="text-2xl tracking-tight">{nextDistLabel}</span>}
@@ -251,16 +253,16 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       {/* Section 2 — Engine & Allocation */}
       <section className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12">
         <div className="grid items-start grid-cols-1 lg:grid-cols-12 gap-6 shrink-0">
-          <div className={cn("lg:col-span-4 flex flex-col", allocSegments.length > 0 && "h-full")}>
-            <article className={cn("dash-cell dash-cell-premium flex flex-col p-6", allocSegments.length > 0 && "h-full")} aria-label="Allocation breakdown">
+          <div className={cn("lg:col-span-5 flex flex-col", allocSegments.length > 0 && "h-full")}>
+            <Card className={cn("flex flex-col", allocSegments.length > 0 && "h-full")} aria-label="Allocation breakdown">
               <div className="dash-label relative z-10">
-                <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">Allocation breakdown</span>
+                <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">Allocation breakdown</span>
                 {/* A3 — never claim "Live" over an empty/fallback allocation. */}
                 <ProvenanceBadge kind={allocSegments.length === 0 ? "stale" : "live"} />
               </div>
 
               {allocSegments.length === 0 ? (
-                <p className="mt-4 body-sm text-[var(--ct-text-muted)] italic">No allocation data yet.</p>
+                <p className="mt-4 body-sm ct-text-muted italic">No allocation data yet.</p>
               ) : (
                 <div className="flex flex-col gap-8 mt-6 flex-1 relative z-10">
                   <div className="h-48 w-48 mx-auto shrink-0">
@@ -281,9 +283,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                             className="inline-block h-2 w-2 shrink-0 rounded-full"
                             style={{ background: allocationStrokeFor(s.bucket) }}
                           />
-                          <span className="text-[var(--ct-text-body)]">{allocationLabelFor(s.bucket)}</span>
+                          <span className="ct-text-body">{allocationLabelFor(s.bucket)}</span>
                         </span>
-                        <span className="tabular text-[var(--ct-text-muted)] font-medium">
+                        <span className="tabular ct-text-muted font-medium">
                           {s.pct.toFixed(0)}% · {usdCompact.format(s.valueUsdc)}
                         </span>
                       </li>
@@ -291,10 +293,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                   </ul>
                 </div>
               )}
-            </article>
+            </Card>
           </div>
 
-          <div className="lg:col-span-8 flex flex-col h-full">
+          <div className="lg:col-span-7 flex flex-col h-full">
             <Suspense fallback={<SkeletonCard />}>
               <MiningHealthSection
                 miningHealth={{
@@ -370,7 +372,7 @@ async function AdvancedMetricsSection() {
   return (
     <section aria-label="Advanced metrics" className="space-y-6 relative z-10">
       <div className="flex items-center gap-3">
-        <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">Advanced metrics</span>
+        <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">Advanced metrics</span>
         <div className="h-px flex-1 bg-[var(--ct-border-soft)]/50" />
       </div>
 
@@ -405,9 +407,9 @@ async function AdvancedMetricsSection() {
         />
       </div>
 
-      <article className="dash-cell dash-cell-premium">
+      <Card>
         <div className="dash-label relative z-10">
-          <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">DeFi positions &amp; fee accrual</span>
+          <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">DeFi positions &amp; fee accrual</span>
         </div>
         <ul className="flex flex-col mt-6 relative z-10 divide-y divide-[var(--ct-border-soft)]/50">
           <DefiRow
@@ -429,10 +431,10 @@ async function AdvancedMetricsSection() {
             <PendingValue />
           </DefiRow>
         </ul>
-        <p className="mt-auto pt-6 body-xs text-[var(--ct-text-faint)] italic leading-[var(--ct-leading-relaxed)] opacity-70 relative z-10">
+        <p className="mt-auto pt-6 body-xs ct-text-faint italic leading-[var(--ct-leading-relaxed)] opacity-70 relative z-10">
           Estimated from methodology v1.0 anchors. Conditional projection — not guaranteed.
         </p>
-      </article>
+      </Card>
     </section>
   );
 }

@@ -3,6 +3,7 @@ import "server-only";
 import { prisma } from "@/lib/db";
 import { fetchBtcPrice } from "@/lib/data/btc-price";
 import { getEnergyCostUsdPerKwh } from "@/lib/data/energy-cost";
+import { METHODOLOGY_ANCHORS } from "@/lib/engine/methodology";
 import { computeRiskBreakdown } from "@/lib/engine/risk";
 import type { ScenarioInputs } from "@/lib/engine/types";
 
@@ -258,7 +259,7 @@ export async function loadRiskFramework(): Promise<RiskFrameworkData> {
     ? latestSnapshot.riskScore
     : Math.round(breakdown.composite);
 
-  const miningMarginScore = latestSnapshot?.miningMarginScore ?? 64;
+  const miningMarginScore = latestSnapshot?.miningMarginScore ?? METHODOLOGY_ANCHORS.MINING_MARGIN_SCORE;
 
   // ---- Compose the 5 dimensions ------------------------------------------
   const dimensions: RiskDimension[] = [

@@ -59,7 +59,7 @@ export function ProofFilter() {
             aria-pressed={isActive}
             className={cn(
               "px-3.5",
-              !isActive && "border-[var(--ct-border-strong)] bg-transparent text-[var(--ct-text-body)] hover:text-[var(--ct-text-primary)]",
+              !isActive && "border-[var(--ct-border-strong)] bg-transparent ct-text-body hover:ct-text-primary",
             )}
           >
             {opt.label}

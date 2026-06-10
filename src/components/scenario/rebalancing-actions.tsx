@@ -165,12 +165,12 @@ export function RebalancingActions({ output }: RebalancingActionsProps) {
           <CardTitle>Rebalancing Actions</CardTitle>
           <span className="eyebrow">Max 4 · Rule-based</span>
         </CardHeader>
-        <div className="flex items-center gap-3 rounded-[var(--ct-radius-sm)] glass-panel-subtle px-4 py-3">
+        <div className="flex items-center gap-3 rounded-sm glass-panel-subtle px-4 py-3">
           <span
             className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ct-status-success)]"
             aria-hidden
           />
-          <p className="text-xs text-[var(--ct-text-muted)]">
+          <p className="text-xs ct-text-muted">
             No rebalancing actions triggered — vault allocation is within target bands.
           </p>
         </div>
@@ -194,13 +194,13 @@ export function RebalancingActions({ output }: RebalancingActionsProps) {
                   "mt-0 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-micro font-bold tabular-nums " +
                   (action.armed
                     ? "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]"
-                    : "bg-[var(--ct-surface-3)] text-[var(--ct-text-muted)]")
+                    : "ct-surface-3 ct-text-muted")
                 }
                 aria-hidden
               >
                 {idx + 1}
               </span>
-              <span className="text-sm font-semibold text-[var(--ct-text-primary)]">
+              <span className="text-sm font-semibold ct-text-primary">
                 {action.label}
               </span>
               <Badge variant={action.variant} className="text-micro">
@@ -218,7 +218,7 @@ export function RebalancingActions({ output }: RebalancingActionsProps) {
         ))}
       </ol>
 
-      <p className="mt-4 text-xs italic text-[var(--ct-text-faint)] leading-[var(--ct-leading-relaxed)]">
+      <p className="mt-4 text-xs italic ct-text-faint leading-[var(--ct-leading-relaxed)]">
         Conditional projection — not guaranteed. Methodology v1.0.
       </p>
     </Card>

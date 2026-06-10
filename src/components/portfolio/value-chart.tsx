@@ -180,10 +180,10 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
     <article className="dash-cell dash-cell-premium relative h-full" aria-label="Portfolio value — 12-month trend">
       <ChartProvenanceCorner kind={provenance} />
       <div className="dash-label relative z-10">
-        <span>Portfolio value · 12-month trend</span>
+        <span>Portfolio value · indicative 12-month path</span>
         <span className="dash-label-meta">
           <span className="dash-trend flat">
-            {totalValueUsdc > 0 ? formatUsdCompact(totalValueUsdc) : "—"}
+            {totalValueUsdc > 0 ? formatUsdCompact(totalValueUsdc) : "Awaiting position"}
           </span>
         </span>
       </div>
@@ -191,19 +191,17 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
       {isEmpty ? (
         /* Empty state preserved */
         <div
-          className="mt-3 flex w-full flex-1 items-center justify-center rounded-[var(--ct-radius-md)] border border-dashed border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] relative z-10"
-          style={{ minHeight: "5rem" }}
+          className="mt-3 flex w-full flex-1 items-center justify-center rounded-md border border-dashed border-[var(--ct-border-soft)] ct-surface-1 relative z-10 min-h-20"
           aria-label="No portfolio data yet"
         >
-          <p className="text-xs text-[var(--ct-text-muted)]">
-            No position data yet.
+          <p className="text-xs ct-text-muted">
+            Your value trend starts after the first active position.
           </p>
         </div>
       ) : (
         /* Real area chart */
         <div
-          className="relative mt-3 block w-full flex-1 overflow-hidden rounded-[var(--ct-radius-md)] z-10"
-          style={{ minHeight: "5rem" }}
+          className="relative mt-3 block w-full flex-1 overflow-hidden rounded-md z-10 min-h-20"
         >
           <ChartDisclaimerUnderlay />
           <AreaChart
@@ -223,7 +221,7 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
       </div>
 
       <p className="body-xs ct-text-muted mt-4 italic relative z-10">
-        Indicative trend based on position history. Past performance does not predict future results.
+        Indicative path derived from subscribed principal and current value. Past performance does not predict future results.
       </p>
     </article>
   );

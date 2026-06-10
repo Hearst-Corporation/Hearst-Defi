@@ -48,11 +48,11 @@ function Placeholder({ side, pending }: PlaceholderProps) {
       {pending ? (
         <>
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--ct-text-strong)] border-t-transparent" />
-          <p className="stat-label text-[var(--ct-text-body)]">Computing…</p>
+          <p className="stat-label ct-text-body">Computing…</p>
         </>
       ) : (
         <div className="ct-empty-state">
-          <span className="font-semibold text-[var(--ct-text-body)]">
+          <span className="font-semibold ct-text-body">
             Scenario {side}
           </span>
           <br />
@@ -168,7 +168,7 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
       {error && (
         <p
           role="alert"
-          className="rounded-[var(--ct-radius-full)] border border-[var(--ct-status-danger)] bg-[var(--ct-status-danger-soft)] px-4 py-2.5 text-sm text-[var(--ct-status-danger)]"
+          className="rounded-full border border-[var(--ct-status-danger)] ct-status-danger-bg px-4 py-2.5 text-sm ct-status-danger"
         >
           {error}
         </p>
@@ -208,8 +208,8 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
       )}
 
       {/* Shared disclaimer */}
-      <p className="border-t border-[var(--ct-border-soft)] pt-4 text-xs italic text-[var(--ct-text-muted)]">
-        <span className="font-semibold not-italic text-[var(--ct-text-body)]">
+      <p className="border-t border-[var(--ct-border-soft)] pt-4 text-xs italic ct-text-muted">
+        <span className="font-semibold not-italic ct-text-body">
           Not guaranteed.
         </span>{" "}
         Projections are conditional on stated assumptions. Methodology v1.0. Past

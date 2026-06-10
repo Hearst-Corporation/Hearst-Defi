@@ -110,7 +110,7 @@ export default function SimulateDemoPage() {
           ))}
         </div>
 
-        <div className="rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-1)] border border-[var(--ct-border-soft)] px-3 py-2.5 space-y-1">
+        <div className="rounded-md ct-surface-1 border border-[var(--ct-border-soft)] px-3 py-2.5 space-y-1">
           <p className="mono body-xs ct-text-muted">
             vault: {selectedProposal.vaultAddress}
           </p>
@@ -127,7 +127,7 @@ export default function SimulateDemoPage() {
             type="button"
             onClick={handleSimulate}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-[var(--ct-radius-md)] border border-[var(--ct-border-strong)] bg-[var(--ct-surface-1)] px-4 py-2 body-sm font-medium ct-text-strong transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 rounded-md border border-[var(--ct-border-strong)] ct-surface-1 px-4 py-2 body-sm font-medium ct-text-strong transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {loading ? "Simulating…" : "▶ Simulate"}
           </button>
@@ -135,7 +135,7 @@ export default function SimulateDemoPage() {
             <button
               type="button"
               onClick={handleReset}
-              className="inline-flex items-center rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] px-3 py-2 body-xs ct-text-muted transition-opacity hover:opacity-80"
+              className="inline-flex items-center rounded-md border border-[var(--ct-border-soft)] px-3 py-2 body-xs ct-text-muted transition-opacity hover:opacity-80"
             >
               Reset
             </button>

@@ -176,7 +176,7 @@ export default async function GovernancePage({ searchParams }: PageProps) {
                     </span>{" "}
                     approved
                     {proposal.rejectionCount > 0 && (
-                      <span className="ml-2 text-[var(--ct-status-danger)]">
+                      <span className="ml-2 ct-status-danger">
                         {proposal.rejectionCount} rejected
                       </span>
                     )}

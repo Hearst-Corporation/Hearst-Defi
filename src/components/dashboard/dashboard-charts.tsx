@@ -176,7 +176,7 @@ export function AllocationDonut({ segments, ariaLabel }: AllocationDonutProps) {
           {legacySegs.map((s) => (
             <circle
               key={s.bucket}
-              className="dash-chart-circle transition-all duration-500"
+              className="dash-chart-circle transition-all duration-500 ct-donut-slice-glow"
               cx={CX}
               cy={CY}
               r={INNER_R}
@@ -185,14 +185,13 @@ export function AllocationDonut({ segments, ariaLabel }: AllocationDonutProps) {
               strokeDashoffset={s.dashOffset}
               strokeWidth="3"
               fill="none"
-              style={{ filter: "drop-shadow(0 0 2px color-mix(in srgb, var(--ct-bg-deep) 50%, transparent))" }}
             />
           ))}
         </svg>
         {/* Center label */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-faint)]">Total</span>
-          <span className="text-lg font-bold text-[var(--ct-text-strong)]">100%</span>
+          <span className="text-micro font-bold uppercase tracking-widest ct-text-faint">Total</span>
+          <span className="text-lg font-bold ct-text-strong">100%</span>
         </div>
       </div>
     );
@@ -334,7 +333,7 @@ export function AllocationDonut({ segments, ariaLabel }: AllocationDonutProps) {
           {innerSlices.map((s) => (
             <circle
               key={s.bucket}
-              className="dash-chart-circle alloc-inner-slice transition-all duration-500"
+              className="dash-chart-circle alloc-inner-slice transition-all duration-500 ct-donut-inner-glow"
               data-bucket={s.bucket}
               cx={CX}
               cy={CY}
@@ -344,7 +343,6 @@ export function AllocationDonut({ segments, ariaLabel }: AllocationDonutProps) {
               stroke={allocationStrokeFor(s.bucket)}
               strokeDasharray={s.dashArray}
               strokeDashoffset={s.dashOffset}
-              style={{ filter: "drop-shadow(0 0 1px color-mix(in srgb, var(--ct-bg-deep) 30%, transparent))" }}
             />
           ))}
         </g>

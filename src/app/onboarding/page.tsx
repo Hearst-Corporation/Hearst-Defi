@@ -110,25 +110,25 @@ export default function OnboardingIndexPage() {
             <Link
               key={path}
               href={`/onboarding/${path}`}
-              className="group block outline-none focus-visible:ring-2 focus-visible:ring-[var(--ct-accent)] rounded-[var(--ct-radius-lg)]"
+              className="group block outline-none focus-visible:ring-2 focus-visible:ring-[var(--ct-accent)] rounded-lg"
               role="listitem"
             >
               <Card className="h-full cursor-pointer border-[var(--ct-border)] transition-all duration-[var(--ct-dur-base)] hover:border-[var(--ct-accent)] hover:shadow-[0_0_0_1px_var(--ct-accent)] p-6">
                 {/* Icon */}
-                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] text-[var(--ct-accent)]">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-md border border-[var(--ct-border)] ct-surface-1 ct-text-accent">
                   {PATH_ICONS[path]}
                 </div>
 
                 {/* Text */}
-                <h2 className="h2 group-hover:text-[var(--ct-accent)] transition-colors duration-[var(--ct-dur-base)]">
+                <h2 className="h2 group-hover:ct-text-accent transition-colors duration-[var(--ct-dur-base)]">
                   {meta.title}
                 </h2>
-                <p className="mt-1 text-xs text-[var(--ct-text-muted)]">
+                <p className="mt-1 text-xs ct-text-muted">
                   {meta.subtitle}
                 </p>
 
                 {/* Arrow */}
-                <div className="mt-6 flex items-center gap-1.5 text-xs font-medium text-[var(--ct-text-dim)] group-hover:text-[var(--ct-accent)] transition-colors duration-[var(--ct-dur-base)]">
+                <div className="mt-6 flex items-center gap-1.5 text-xs font-medium ct-text-dim group-hover:ct-text-accent transition-colors duration-[var(--ct-dur-base)]">
                   <span>Begin onboarding</span>
                   <svg
                     width="14"
@@ -154,7 +154,7 @@ export default function OnboardingIndexPage() {
       </div>
 
       {/* Disclaimer */}
-      <p className="mt-10 text-center text-xs text-[var(--ct-text-dim)]">
+      <p className="mt-10 text-center text-xs ct-text-dim">
         Minimum investment: $250,000 USDC. 60-day soft lock-up applies.
         Participation does not constitute a solicitation in any jurisdiction
         where such offers are prohibited. Not financial advice.

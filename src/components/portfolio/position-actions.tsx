@@ -299,7 +299,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
           </div>
         </Card>
         {error !== null && (
-          <p role="alert" className="body-xs text-[var(--ct-status-danger)]">
+          <p role="alert" className="body-xs ct-status-danger">
             {error}
           </p>
         )}
@@ -326,7 +326,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
         {connected ? "Withdraw" : "Connect wallet to withdraw"}
       </Button>
       {error !== null && (
-        <p role="alert" className="body-xs text-[var(--ct-status-danger)]">
+        <p role="alert" className="body-xs ct-status-danger">
           {error}
         </p>
       )}

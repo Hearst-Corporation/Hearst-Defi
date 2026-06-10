@@ -94,7 +94,7 @@ export function BatchSelectionBar({
         "fixed bottom-6 left-1/2 z-[9000] -translate-x-1/2",
         // Surface — glass with accent border.
         "flex items-center gap-2",
-        "rounded-[var(--ct-radius-xl)]",
+        "rounded-xl",
         "bg-[color-mix(in_srgb,var(--ct-bg-deep)_70%,transparent)]",
         "backdrop-blur-[40px]",
         "border border-[var(--ct-accent)]",
@@ -106,7 +106,7 @@ export function BatchSelectionBar({
       )}
     >
       {/* Count label */}
-      <span className="text-sm font-semibold text-[var(--ct-accent)] tabular-nums">
+      <span className="text-sm font-semibold ct-text-accent tabular-nums">
         {count} selected
       </span>
 
@@ -156,8 +156,8 @@ export function BatchSelectionBar({
               role="menu"
               className={cn(
                 "absolute bottom-full right-0 mb-2 min-w-[140px]",
-                "rounded-[var(--ct-radius-lg)]",
-                "bg-[var(--ct-surface-2)]",
+                "rounded-lg",
+                "ct-surface-2",
                 "border border-[var(--ct-border-soft)]",
                 "py-1 shadow-[var(--ct-shadow-elevated)]",
                 "animate-in slide-in-from-bottom-1 fade-in duration-150",
@@ -175,10 +175,10 @@ export function BatchSelectionBar({
                   className={cn(
                     "w-full px-3 py-1.5 text-left text-xs",
                     "transition-colors duration-[var(--ct-dur-base)]",
-                    "focus-visible:outline-none focus-visible:bg-[var(--ct-surface-3)]",
+                    "focus-visible:outline-none focus-visible:ct-surface-3",
                     action.danger
-                      ? "text-[var(--ct-status-danger)] hover:bg-[var(--ct-status-danger-soft)]"
-                      : "text-[var(--ct-text-primary)] hover:bg-[var(--ct-surface-3)]",
+                      ? "ct-status-danger hover:ct-status-danger-bg"
+                      : "ct-text-primary hover:ct-surface-3",
                   )}
                 >
                   {action.label}

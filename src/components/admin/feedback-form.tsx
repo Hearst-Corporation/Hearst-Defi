@@ -53,7 +53,7 @@ export function FeedbackForm() {
       </div>
 
       <label className="block text-xs" htmlFor="feedback-pathname">
-        <span className="mb-1 block text-[var(--ct-text-muted)] uppercase tracking-wide">
+        <span className="mb-1 block ct-text-muted uppercase tracking-wide">
           Pathname or context (optional)
         </span>
         <input
@@ -66,7 +66,7 @@ export function FeedbackForm() {
       </label>
 
       <label className="block text-xs" htmlFor="feedback-message">
-        <span className="mb-1 block text-[var(--ct-text-muted)] uppercase tracking-wide">
+        <span className="mb-1 block ct-text-muted uppercase tracking-wide">
           Feedback
         </span>
         <textarea
@@ -79,7 +79,7 @@ export function FeedbackForm() {
           className="ct-textarea"
           aria-describedby="feedback-hint"
         />
-        <span id="feedback-hint" className="mt-1 block text-[var(--ct-text-muted)]">
+        <span id="feedback-hint" className="mt-1 block ct-text-muted">
           Your feedback helps us improve the platform.
         </span>
       </label>

@@ -1,4 +1,5 @@
-import { runScenario, METHODOLOGY_VERSION } from "./scenario";
+import { METHODOLOGY_VERSION } from "./methodology";
+import { runScenario } from "./scenario";
 import type {
   BacktestKey,
   BacktestOutput,

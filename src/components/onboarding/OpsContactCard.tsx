@@ -22,7 +22,7 @@ export function OpsContactCard({
 }: OpsContactCardProps) {
   return (
     <div
-      className="w-full rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] p-[var(--ct-space-5)] flex flex-col gap-[var(--ct-space-3)]"
+      className="w-full rounded-md border border-[var(--ct-border-soft)] ct-surface-1 p-[var(--ct-space-5)] flex flex-col gap-[var(--ct-space-3)]"
       role="complementary"
       aria-label="Investor Relations contact"
     >
@@ -32,16 +32,13 @@ export function OpsContactCard({
         {/* Avatar placeholder */}
         <span
           aria-hidden="true"
-          className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[var(--ct-accent-soft)] border border-[var(--ct-border-accent)] shrink-0 text-[var(--ct-accent)] font-semibold text-sm"
+          className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[var(--ct-accent-soft)] border border-[var(--ct-border-accent)] shrink-0 ct-text-accent font-semibold text-sm"
         >
           {name.charAt(0)}
         </span>
 
         <div className="flex flex-col gap-0.5 min-w-0">
-          <span
-            className="text-sm font-semibold ct-text-strong truncate"
-            style={{ letterSpacing: "-0.01em" }}
-          >
+          <span className="text-sm font-semibold ct-text-strong truncate tracking-tight">
             {name}
           </span>
           <span className="body-xs ct-text-muted truncate">{title}</span>

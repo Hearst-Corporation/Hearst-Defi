@@ -32,7 +32,7 @@ import type {
 // ── Token refs ────────────────────────────────────────────────────────────────
 // Colours used in this component (all from Cockpit token set):
 //   --ct-text-faint    : "before" value (dim / unchanged feel)
-//   --ct-accent        : "after" value (vert #A7FB90 — changed)
+//   --ct-accent        : "after" value (vert var(--ct-accent) — changed)
 //   --ct-status-danger : revert reason text
 //   --ct-text-strong   : primary labels
 //   --ct-text-muted    : secondary labels
@@ -56,7 +56,7 @@ export function SimulationPanel({
   return (
     <section
       className={cn(
-        "rounded-[var(--ct-radius-xl)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-0)] p-6 space-y-5",
+        "rounded-xl border border-[var(--ct-border-soft)] ct-surface-0 p-6 space-y-5",
         className,
       )}
       aria-busy={loading ? "true" : "false"}
@@ -64,16 +64,16 @@ export function SimulationPanel({
     >
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-[length:var(--ct-text-sm)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-strong)]">
+        <h3 className="h3">
           Simulation Preview
         </h3>
         {result && (
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-[var(--ct-radius-full)] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium border",
+              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium border",
               result.ok
-                ? "border-[var(--ct-status-success-border)] bg-[var(--ct-status-success-soft)] text-[var(--ct-status-success)]"
-                : "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)]",
+                ? "border-[var(--ct-status-success-border)] ct-status-success-bg ct-status-success"
+                : "border-[var(--ct-status-danger-border)] ct-status-danger-bg ct-status-danger",
             )}
           >
             {result.ok ? "Success" : "Reverts"}
@@ -140,7 +140,7 @@ function LoadingState() {
         className="block h-8 w-8 rounded-full border-2 border-[var(--ct-border-soft)] border-t-[var(--ct-accent)] animate-spin"
         aria-hidden="true"
       />
-      <p className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">
+      <p className="text-[length:var(--ct-text-sm)] ct-text-muted">
         Simulating on fork…
       </p>
     </div>
@@ -151,12 +151,12 @@ function ErrorState({ message }: { message: string }) {
   return (
     <div
       role="alert"
-      className="rounded-[var(--ct-radius-lg)] border border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] px-4 py-3"
+      className="rounded-lg border border-[var(--ct-status-danger-border)] ct-status-danger-bg px-4 py-3"
     >
-      <p className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-status-danger)]">
+      <p className="text-[length:var(--ct-text-sm)] font-medium ct-status-danger">
         Simulation failed
       </p>
-      <p className="mt-1 text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
+      <p className="mt-1 text-[length:var(--ct-text-xs)] ct-text-muted">
         {message}
       </p>
     </div>
@@ -165,8 +165,8 @@ function ErrorState({ message }: { message: string }) {
 
 function EmptyState() {
   return (
-    <p className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-faint)] text-center py-6">
-      No simulation run yet. Click <strong className="text-[var(--ct-text-muted)]">Simulate</strong> to preview execution.
+    <p className="text-[length:var(--ct-text-sm)] ct-text-faint text-center py-6">
+      No simulation run yet. Click <strong className="ct-text-muted">Simulate</strong> to preview execution.
     </p>
   );
 }
@@ -174,12 +174,12 @@ function EmptyState() {
 function GasRow({ gas, usd }: { gas: number; usd: number }) {
   return (
     <div className="flex items-baseline justify-between gap-4">
-      <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] uppercase tracking-[var(--ct-tracking-wide)]">
+      <span className="text-[length:var(--ct-text-xs)] ct-text-muted uppercase tracking-[var(--ct-tracking-wide)]">
         Gas estimate
       </span>
-      <span className="mono tabular-nums text-[length:var(--ct-text-sm)] text-[var(--ct-text-strong)]">
+      <span className="mono tabular-nums text-[length:var(--ct-text-sm)] ct-text-strong">
         {gas.toLocaleString("en-US")}{" "}
-        <span className="text-[var(--ct-text-muted)]">
+        <span className="ct-text-muted">
           (${usd.toFixed(2)})
         </span>
       </span>
@@ -192,7 +192,7 @@ function StateDiffSection({ entries }: { entries: StateDiffEntry[] }) {
     <div className="space-y-2">
       <SectionLabel>State diff</SectionLabel>
       {entries.length === 0 ? (
-        <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">
+        <p className="text-[length:var(--ct-text-xs)] ct-text-faint">
           No storage changes detected.
         </p>
       ) : (
@@ -200,29 +200,29 @@ function StateDiffSection({ entries }: { entries: StateDiffEntry[] }) {
           {entries.map((entry, i) => (
             <li
               key={i}
-              className="rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-3 py-2.5 space-y-1"
+              className="rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-3 py-2.5 space-y-1"
             >
-              <p className="mono text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)] truncate">
+              <p className="mono text-[length:var(--ct-text-micro)] ct-text-muted truncate">
                 {entry.contract}
               </p>
-              <p className="mono text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)] truncate">
+              <p className="mono text-[length:var(--ct-text-micro)] ct-text-faint truncate">
                 slot {entry.slot.slice(0, 18)}…
               </p>
               <div className="flex items-center gap-2 flex-wrap">
                 <span
-                  className="mono text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)]"
+                  className="mono text-[length:var(--ct-text-micro)] ct-text-faint"
                   title={entry.before}
                 >
                   {truncateHex(entry.before)}
                 </span>
                 <span
-                  className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)]"
+                  className="text-[length:var(--ct-text-micro)] ct-text-faint"
                   aria-hidden="true"
                 >
                   →
                 </span>
                 <span
-                  className="mono text-[length:var(--ct-text-micro)] text-[var(--ct-accent)]"
+                  className="mono text-[length:var(--ct-text-micro)] ct-text-accent"
                   title={entry.after}
                 >
                   {truncateHex(entry.after)}
@@ -241,7 +241,7 @@ function BalanceDeltaSection({ entries }: { entries: BalanceDeltaEntry[] }) {
     <div className="space-y-2">
       <SectionLabel>Balance delta</SectionLabel>
       {entries.length === 0 ? (
-        <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">
+        <p className="text-[length:var(--ct-text-xs)] ct-text-faint">
           No balance changes.
         </p>
       ) : (
@@ -252,17 +252,17 @@ function BalanceDeltaSection({ entries }: { entries: BalanceDeltaEntry[] }) {
             return (
               <li
                 key={i}
-                className="flex items-center justify-between gap-4 rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-3 py-2"
+                className="flex items-center justify-between gap-4 rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-3 py-2"
               >
-                <span className="mono text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)] truncate">
+                <span className="mono text-[length:var(--ct-text-micro)] ct-text-muted truncate">
                   {entry.address.slice(0, 10)}…
                 </span>
                 <span
                   className={cn(
                     "mono tabular-nums text-[length:var(--ct-text-xs)]",
                     isPositive
-                      ? "text-[var(--ct-accent)]"
-                      : "text-[var(--ct-status-danger)]",
+                      ? "ct-text-accent"
+                      : "ct-status-danger",
                   )}
                 >
                   {isPositive ? "+" : ""}
@@ -284,19 +284,19 @@ function RevertsSection({ entries }: { entries: RevertEntry[] }) {
       className="space-y-2"
       aria-label="Simulation reverts detected"
     >
-      <SectionLabel className="text-[var(--ct-status-danger)]">
+      <SectionLabel className="ct-status-danger">
         Reverts ({entries.length})
       </SectionLabel>
       <ul className="space-y-2">
         {entries.map((entry, i) => (
           <li
             key={i}
-            className="rounded-[var(--ct-radius-md)] border border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] px-3 py-2.5"
+            className="rounded-md border border-[var(--ct-status-danger-border)] ct-status-danger-bg px-3 py-2.5"
           >
-            <p className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-status-danger)]">
+            <p className="text-[length:var(--ct-text-xs)] font-medium ct-status-danger">
               {entry.reason}
             </p>
-            <p className="mt-0.5 mono text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)]">
+            <p className="mt-0.5 mono text-[length:var(--ct-text-micro)] ct-text-faint">
               PC: {entry.pc}
             </p>
           </li>
@@ -311,7 +311,7 @@ function EventsSection({ entries }: { entries: EventEntry[] }) {
     <div className="space-y-2">
       <SectionLabel>Events</SectionLabel>
       {entries.length === 0 ? (
-        <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">
+        <p className="text-[length:var(--ct-text-xs)] ct-text-faint">
           No events emitted.
         </p>
       ) : (
@@ -319,19 +319,19 @@ function EventsSection({ entries }: { entries: EventEntry[] }) {
           {entries.map((entry, i) => (
             <li
               key={i}
-              className="rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-3 py-2.5 space-y-1.5"
+              className="rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-3 py-2.5 space-y-1.5"
             >
-              <p className="text-[length:var(--ct-text-xs)] font-semibold text-[var(--ct-text-strong)]">
+              <p className="text-[length:var(--ct-text-xs)] font-semibold ct-text-strong">
                 {entry.name}
               </p>
               <ul className="space-y-0.5">
                 {Object.entries(entry.args).map(([key, val]) => (
                   <li key={key} className="flex gap-2 items-start">
-                    <span className="shrink-0 mono text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)] min-w-20">
+                    <span className="shrink-0 mono text-[length:var(--ct-text-micro)] ct-text-muted min-w-20">
                       {key}
                     </span>
                     <span
-                      className="mono text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)] truncate"
+                      className="mono text-[length:var(--ct-text-micro)] ct-text-faint truncate"
                       title={String(val)}
                     >
                       {String(val)}
@@ -353,12 +353,12 @@ function TraceLink() {
       <button
         type="button"
         disabled
-        className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] underline underline-offset-2 opacity-50 cursor-not-allowed"
+        className="text-[length:var(--ct-text-xs)] ct-text-muted underline underline-offset-2 opacity-50 cursor-not-allowed"
         title="Full Tenderly trace — available in Phase 2 (requires Tenderly account)"
       >
         ▶ View full trace
       </button>
-      <span className="ml-2 text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)]">
+      <span className="ml-2 text-[length:var(--ct-text-micro)] ct-text-faint">
         (P2 — stub only)
       </span>
     </div>
@@ -375,7 +375,7 @@ function SectionLabel({
   return (
     <p
       className={cn(
-        "text-[length:var(--ct-text-micro)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-muted)]",
+        "text-[length:var(--ct-text-micro)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted",
         className,
       )}
     >

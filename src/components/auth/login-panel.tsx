@@ -15,22 +15,14 @@ import { LoginForm } from "@/components/auth/login-form";
  */
 export function LoginPanel() {
   return (
-    <div
-      className="flex flex-col items-center text-center w-full"
-      style={{ gap: "var(--ct-space-8)", maxWidth: "24rem" }}
-    >
-      {/* Header block — simplified */}
-      <header
-        className="flex flex-col items-center"
-        style={{ gap: "var(--ct-space-3)" }}
-      >
-        <p className="body-sm" style={{ color: "var(--ct-accent)", fontWeight: 500 }}>
+    <div className="flex flex-col items-center text-center w-full max-w-sm gap-[var(--ct-space-8)]">
+      <header className="flex flex-col items-center gap-[var(--ct-space-3)]">
+        <p className="body-sm ct-text-accent font-medium">
           Access your vaults and portfolio
         </p>
       </header>
 
-      {/* Form */}
-      <div className="w-full" style={{ maxWidth: "24rem" }}>
+      <div className="w-full max-w-sm">
         <LoginForm />
       </div>
     </div>

@@ -45,10 +45,20 @@ vi.mock("@/lib/logger", () => ({
   logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
 
+vi.mock("@/lib/governance/routing", () => ({
+  routeForTransaction: vi.fn().mockResolvedValue({
+    policy: { approveQuorum: 4, cancelQuorum: 2, timelockHours: 24, notifyBoard: true },
+    isAllowlisted: false,
+    allowlistEntry: null,
+    reason: "test",
+  }),
+}));
+
 // ── Imports (after mocks) ────────────────────────────────────────────────
 
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
+import { routeForTransaction } from "@/lib/governance/routing";
 import {
   proposeAction,
   signProposal,
@@ -131,6 +141,31 @@ describe("proposeAction", () => {
     const createCall = (govMock().create as any).mock.calls[0]?.[0] as { data: Record<string, unknown> };
     expect(createCall.data.state).toBe("SIGNING");
     expect(result.state).toBe("SIGNING");
+  });
+
+  it("uses routing decision for requiredSigners and timelockHours", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (vaultMock().findUnique as any).mockResolvedValue({
+      id: VAULT_ID,
+      requiredSigners: 3,
+      ticker: "HYV-A",
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (govMock().create as any).mockResolvedValue(baseProposal());
+
+    await proposeAction(VAULT_ID, "updateFees", undefined, JUSTIFICATION);
+
+    // routeForTransaction must have been called with the correct actionType
+    expect(vi.mocked(routeForTransaction)).toHaveBeenCalledOnce();
+    expect(vi.mocked(routeForTransaction)).toHaveBeenCalledWith(
+      expect.objectContaining({ actionType: "updateFees" }),
+    );
+
+    // Proposal must be created using routing policy values (4 / 24) not vault defaults
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const createCall = (govMock().create as any).mock.calls[0]?.[0] as { data: Record<string, unknown> };
+    expect(createCall.data.requiredSigners).toBe(4);
+    expect(createCall.data.timelockHours).toBe(24);
   });
 
   it("throws if justification is < 80 chars", async () => {

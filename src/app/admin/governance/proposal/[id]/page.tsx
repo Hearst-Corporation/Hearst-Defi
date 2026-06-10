@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { cn } from "@/lib/cn";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -188,7 +189,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
 
         {/* Timelock countdown */}
         {proposal.state === "TIMELOCK" && proposal.etaAt && (
-          <div className="mt-6 pt-4 border-t border-[var(--ct-border-soft)] rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-1)] px-4 py-3">
+          <div className="mt-6 pt-4 border-t border-[var(--ct-border-soft)] rounded-md ct-surface-1 px-4 py-3">
             <p className="stat-label mb-1">Timelock countdown</p>
             <p className="ct-text-strong mono text-sm">
               {timelockCountdown(proposal.etaAt)}
@@ -226,7 +227,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
       {proposal.calldata && (
         <Card>
           <h2 className="h2 mb-3">Calldata</h2>
-          <pre className="ct-text-muted text-xs mono bg-[var(--ct-surface-1)] p-4 rounded-[var(--ct-radius-md)] overflow-x-auto whitespace-pre-wrap">
+          <pre className="ct-text-muted text-xs mono ct-surface-1 p-4 rounded-md overflow-x-auto whitespace-pre-wrap">
             {(() => {
               try {
                 return JSON.stringify(JSON.parse(proposal.calldata), null, 2);
@@ -256,21 +257,14 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                 className="flex items-center gap-3 py-2 border-b border-[var(--ct-border-soft)] last:border-0"
               >
                 <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                  style={{
-                    background:
-                      sig.decision === "approve"
-                        ? "var(--ct-status-success-soft)"
-                        : sig.decision === "reject"
-                          ? "var(--ct-status-danger-soft)"
-                          : "var(--ct-surface-2)",
-                    color:
-                      sig.decision === "approve"
-                        ? "var(--ct-status-success)"
-                        : sig.decision === "reject"
-                          ? "var(--ct-status-danger)"
-                          : "var(--ct-text-muted)",
-                  }}
+                  className={cn(
+                    "ct-sig-avatar",
+                    sig.decision === "approve"
+                      ? "ct-sig-avatar--approve"
+                      : sig.decision === "reject"
+                        ? "ct-sig-avatar--reject"
+                        : "ct-sig-avatar--neutral",
+                  )}
                 >
                   {sig.decision === "approve" ? "✓" : sig.decision === "reject" ? "✗" : "⊘"}
                 </div>

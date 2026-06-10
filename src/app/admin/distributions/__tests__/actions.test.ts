@@ -64,11 +64,16 @@ vi.mock("@/lib/rate-limit", () => ({
   assertRateLimit: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("@/lib/distribution/atomic-exec", () => ({
+  executeDistributionAtomically: vi.fn().mockResolvedValue({}),
+}));
+
 // ── Imports (after mocks) ─────────────────────────────────────────────────────
 
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { Prisma } from "@prisma/client";
+import { executeDistributionAtomically } from "@/lib/distribution/atomic-exec";
 import { computeDistribution, confirmDistribution } from "../actions";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -238,6 +243,11 @@ describe("confirmDistribution", () => {
       expect.objectContaining({
         data: expect.objectContaining({ vaultRef: VAULT_REF }),
       }),
+    );
+
+    // Verify the atomic finisher was called with the created distribution id
+    expect(executeDistributionAtomically).toHaveBeenCalledWith(
+      createdDistribution.id,
     );
   });
 

@@ -156,7 +156,7 @@ export default async function AdminProofCenterPage({
           <ProofFilter />
         </div>
         {proofs.length === 0 ? (
-          <div className="flex flex-col items-center gap-4 rounded-[var(--ct-radius-lg)] ct-border-soft ct-surface-1 py-16 text-center">
+          <div className="flex flex-col items-center gap-4 rounded-lg ct-border-soft ct-surface-1 py-16 text-center">
             <ProvenanceBadge kind="stale" />
             <div className="space-y-1">
               <p className="body-sm font-medium ct-text-strong">

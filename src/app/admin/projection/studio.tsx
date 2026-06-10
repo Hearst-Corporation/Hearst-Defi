@@ -227,7 +227,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
               aria-selected={isSelected}
               aria-label={`APY ${cell.apyLow.toFixed(1)}–${cell.apyHigh.toFixed(1)}%, risk ${cell.riskScore}. Cell ${idx + 1} of ${cells.length}.`}
               className={cn(
-                "relative p-2.5 rounded-[var(--ct-radius-md)] border text-left transition-[background-color,border-color] duration-[var(--ct-dur-base)]",
+                "relative p-2.5 rounded-md border text-left transition-[background-color,border-color] duration-[var(--ct-dur-base)]",
                 riskBgClass(cell.riskScore),
                 "border-[var(--ct-border-soft)]",
                 isSelected && "ring-2 ring-offset-1 ring-offset-[var(--ct-bg-deep)]",
@@ -519,7 +519,7 @@ export function ProjectionStudio() {
         </Button>
 
         {error && (
-          <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-[var(--ct-radius-md)]">
+          <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-md">
             {error}
           </p>
         )}
@@ -623,7 +623,7 @@ export function ProjectionStudio() {
             )}
 
             {/* "Not guaranteed" disclaimer — non-negotiable #10 */}
-            <p className="body-xs ct-text-faint border border-[var(--ct-border-soft)] rounded-[var(--ct-radius-md)] px-3 py-2">
+            <p className="body-xs ct-text-faint border border-[var(--ct-border-soft)] rounded-md px-3 py-2">
               <strong className="ct-text-muted">Disclaimer:</strong>{" "}
               Projections are conditional on stated assumptions and are not guaranteed.
               Rule-based engine — no Monte Carlo. Past performance does not predict future

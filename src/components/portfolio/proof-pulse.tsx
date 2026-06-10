@@ -136,10 +136,10 @@ export function ProofPulse({
   const level = hasData ? deltaLevel(deltaPct) : null;
 
   const deltaColorClass = cn({
-    "text-[var(--ct-status-success)]": level === "green",
-    "text-[var(--ct-status-warning)]": level === "orange",
-    "text-[var(--ct-status-danger)]": level === "red",
-    "text-[var(--ct-text-faint)]": level === null,
+    "ct-status-success": level === "green",
+    "ct-status-warning": level === "orange",
+    "ct-status-danger": level === "red",
+    "ct-text-faint": level === null,
   });
 
   // Indicator after On-chain figure: ✓ only when both figures > 0 and match.
@@ -150,19 +150,19 @@ export function ProofPulse({
       ? {
           glyph: "✓",
           label: "On-chain TVL matches stated TVL",
-          colorClass: "text-[var(--ct-status-success)]",
+          colorClass: "ct-status-success",
         }
       : state === "mismatch"
         ? {
             glyph: "✗",
             label: "On-chain TVL mismatch detected",
-            colorClass: "text-[var(--ct-status-danger)]",
+            colorClass: "ct-status-danger",
           }
         : state === "pending"
           ? {
               glyph: "…",
               label: "On-chain confirmation pending",
-              colorClass: "text-[var(--ct-status-warning)]",
+              colorClass: "ct-status-warning",
             }
           : null; // "none" — no glyph at all
 
@@ -175,7 +175,7 @@ export function ProofPulse({
   return (
     <article className="dash-cell dash-cell-premium h-full flex flex-col">
       <div className="dash-label relative z-10">
-        <span className="font-semibold text-[var(--ct-text-strong)]">Proof &amp; Methodology Pulse</span>
+        <span className="font-semibold ct-text-strong">Proof &amp; Methodology Pulse</span>
         <div className="flex items-center gap-2">
           {/* A2 — single provenance badge driven by the actual PoR match state.
               The previously hardcoded "Oracle" badge was not backed by any
@@ -184,24 +184,48 @@ export function ProofPulse({
         </div>
       </div>
 
+      {state !== "matched" && (
+        <div
+          role="status"
+          className="mt-4 rounded-lg border border-(--ct-border-soft) ct-surface-1 px-(--ct-space-4) py-(--ct-space-3) relative z-10"
+        >
+          <p className="body-sm ct-text-primary font-semibold">
+            {state === "pending"
+              ? "On-chain proof is being reconciled."
+              : state === "mismatch"
+                ? "Proof figures need review."
+                : "No attestation has been published yet."}
+          </p>
+          <p className="body-xs ct-text-muted mt-1">
+            {state === "pending"
+              ? "Vault TVL is available, but the on-chain confirmation has not landed."
+              : state === "mismatch"
+                ? "Open the Proof Center to compare the stated TVL with on-chain records."
+                : "The first proof will appear here once vault activity is attested."}
+          </p>
+        </div>
+      )}
+
       {/* ── Last PoR block ─────────────────────────────────────────────────── */}
       <section aria-label="Last Proof of Reserves" className="relative z-10">
-        <h4 className="body-xs font-semibold uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-muted)] mb-3">
+        <h4 className="stat-label mb-3">
           Last PoR
           <time
             dateTime={formatIso(timestamp)}
-            className="ml-2 font-normal normal-case tracking-normal text-[var(--ct-text-faint)]"
+            className="ml-2 font-normal normal-case tracking-normal ct-text-faint"
           >
             {formatDateHuman(timestamp)} · {formatTimeUtc(timestamp)}
           </time>
         </h4>
 
-        <div className="rounded-[var(--ct-radius-lg)] bg-black/20 border border-[var(--ct-border-soft)] px-4 py-1">
-          <DataRow label="Vault TVL">{formatUsdc(statedTvlUsdc)}</DataRow>
+        <div className="ct-panel-inset rounded-lg px-[var(--ct-space-4)] py-[var(--ct-space-1)]">
+          <DataRow label="Vault TVL">
+            {statedTvlUsdc > 0 ? formatUsdc(statedTvlUsdc) : "Awaiting proof"}
+          </DataRow>
 
           <DataRow label="On-chain">
             <span className="flex items-center justify-end gap-2">
-              {formatUsdc(onChainTvlUsdc)}
+              {onChainTvlUsdc > 0 ? formatUsdc(onChainTvlUsdc) : "Awaiting record"}
               {indicator !== null && (
                 <span
                   role="status"
@@ -223,7 +247,7 @@ export function ProofPulse({
                 {deltaPct === 0 ? "0.00" : deltaPct.toFixed(2)}%
               </span>
             ) : (
-              <span className="text-[var(--ct-text-faint)] italic">
+              <span className="ct-text-faint italic">
                 {state === "pending"
                   ? "on-chain pending"
                   : "no attestation yet"}
@@ -235,14 +259,14 @@ export function ProofPulse({
 
       {/* ── Methodology block ──────────────────────────────────────────────── */}
       <section aria-label="Methodology" className="mt-6 relative z-10">
-        <h4 className="body-xs font-semibold uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-muted)] mb-3">
+        <h4 className="stat-label mb-3">
           Methodology
         </h4>
 
-        <div className="rounded-[var(--ct-radius-lg)] bg-black/20 border border-[var(--ct-border-soft)] px-4 py-1">
+        <div className="ct-panel-inset rounded-lg px-[var(--ct-space-4)] py-[var(--ct-space-1)]">
           <DataRow label="Version">
             <span className="flex items-center justify-end gap-2">
-              <span className="text-[var(--ct-text-faint)]">{methodologyVersion}</span>
+              <span className="ct-text-faint">{methodologyVersion}</span>
               {methodologyLocked && (
                 <Badge variant="default" aria-label="Methodology is locked">
                   locked
@@ -258,7 +282,7 @@ export function ProofPulse({
                 {formatTimeUtc(nextAttestation)}
               </time>
             ) : (
-              <span className="text-[var(--ct-text-faint)] italic">no scheduled</span>
+              <span className="ct-text-faint italic">Not scheduled yet</span>
             )}
           </DataRow>
 
@@ -270,7 +294,7 @@ export function ProofPulse({
       <div className="mt-auto pt-6 flex justify-end relative z-10">
         <Link
           href={proofCenterHref}
-          className="body-xs text-[var(--ct-text-muted)] hover:text-[var(--ct-text-primary)] transition-colors underline underline-offset-2 decoration-[var(--ct-border)]"
+          className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-[var(--ct-border)]"
           aria-label="Open proof center"
         >
           open proof center →

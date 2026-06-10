@@ -58,7 +58,7 @@ export function BacktestTab() {
               onClick={() => select(p.key)}
               aria-pressed={isActive}
               className={cn(
-                "flex flex-col items-start gap-0.5 rounded-[var(--ct-radius-full)] border px-4 py-3 text-left",
+                "flex flex-col items-start gap-0.5 rounded-full border px-4 py-3 text-left",
                 "transition-[background-color,color,border-color,box-shadow] duration-[var(--ct-dur-fast)]",
                 "disabled:cursor-not-allowed disabled:opacity-40",
                 "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
@@ -68,9 +68,9 @@ export function BacktestTab() {
                       "shadow-[var(--ct-shadow-focus-ring)]",
                     ]
                   : [
-                      "border-[var(--ct-border-strong)] bg-[var(--ct-surface-1)]",
-                      "text-[var(--ct-text-body)]",
-                      "hover:border-[var(--ct-border-strong)] hover:bg-[var(--ct-surface-3)] hover:text-[var(--ct-text-primary)]",
+                      "border-[var(--ct-border-strong)] ct-surface-1",
+                      "ct-text-body",
+                      "hover:border-[var(--ct-border-strong)] hover:ct-surface-3 hover:ct-text-primary",
                     ],
               )}
             >
@@ -82,7 +82,7 @@ export function BacktestTab() {
                   "text-xs leading-[var(--ct-leading-tight)]",
                   isActive
                     ? "text-[var(--ct-bg-deep)] opacity-70"
-                    : "text-[var(--ct-text-muted)]",
+                    : "ct-text-muted",
                 )}
               >
                 {p.subtitle}
@@ -97,13 +97,13 @@ export function BacktestTab() {
         <div className="space-y-3">
           {BACKTEST_PERIODS.map((p) => (
             <div key={p.key} className="glass-panel-subtle px-5 py-4">
-              <p className="text-sm font-semibold text-[var(--ct-text-body)]">
+              <p className="text-sm font-semibold ct-text-body">
                 {p.label}
               </p>
-              <p className="mt-1 text-xs text-[var(--ct-text-muted)]">
+              <p className="mt-1 text-xs ct-text-muted">
                 {p.subtitle}
               </p>
-              <p className="mt-2 text-sm text-[var(--ct-text-body)]">
+              <p className="mt-2 text-sm ct-text-body">
                 {p.description}
               </p>
             </div>
@@ -113,7 +113,7 @@ export function BacktestTab() {
 
       {/* Error banner */}
       {error && (
-        <p className="rounded-[var(--ct-radius-full)] border border-[var(--ct-status-danger)] bg-[var(--ct-status-danger-soft)] px-4 py-2.5 text-sm text-[var(--ct-status-danger)]">
+        <p className="rounded-full border border-[var(--ct-status-danger)] ct-status-danger-bg px-4 py-2.5 text-sm ct-status-danger">
           {error}
         </p>
       )}
@@ -127,7 +127,7 @@ export function BacktestTab() {
           )}
         >
           <Spinner />
-          <p className="stat-label text-[var(--ct-text-body)]">
+          <p className="stat-label ct-text-body">
             Computing backtest…
           </p>
         </div>

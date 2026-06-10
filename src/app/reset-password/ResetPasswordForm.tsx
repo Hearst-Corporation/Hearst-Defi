@@ -35,13 +35,12 @@ export function ResetPasswordForm({ token }: Props) {
   if (success) {
     return (
       <div className="space-y-4 text-center">
-        <p style={{ color: "var(--ct-accent)" }} className="body-xs">
+        <p className="body-xs ct-text-accent">
           Your password has been updated. You can now sign in with your new password.
         </p>
         <Link
           href="/login"
-          className="inline-block body-xs hover:underline"
-          style={{ color: "var(--ct-accent)" }}
+          className="ct-link-accent inline-block body-xs hover:underline"
         >
           Go to sign in →
         </Link>
@@ -65,11 +64,7 @@ export function ResetPasswordForm({ token }: Props) {
           minLength={8}
           disabled={isPending}
           placeholder="Min. 8 characters"
-          className="ct-input"
-          style={{
-            background: "color-mix(in srgb, var(--ct-bg-deep) 40%, transparent)",
-            borderColor: "var(--ct-border-soft)",
-          }}
+          className="ct-input ct-input-bare"
         />
       </label>
 
@@ -91,7 +86,7 @@ export function ResetPasswordForm({ token }: Props) {
       </Button>
 
       <p className="text-center body-xs ct-text-muted">
-        <Link href="/login" className="hover:underline" style={{ color: "var(--ct-accent)" }}>
+        <Link href="/login" className="ct-link-accent hover:underline">
           Back to sign in
         </Link>
       </p>

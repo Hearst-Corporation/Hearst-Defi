@@ -72,7 +72,7 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
     : entry.entityId;
 
   return (
-    <tr className="border-b border-[var(--ct-border-soft)] hover:bg-[var(--ct-surface-0)] transition-colors">
+    <tr className="border-b border-[var(--ct-border-soft)] hover:ct-surface-0 transition-colors">
       <td className="ct-table-cell tabular ct-text-faint whitespace-nowrap">
         {dateFmt.format(new Date(entry.occurredAt))}
       </td>

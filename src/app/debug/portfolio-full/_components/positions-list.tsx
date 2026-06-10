@@ -27,13 +27,7 @@ export function PositionsList({ positions, source }: PositionsListProps) {
 
   return (
     <article 
-      className="flex flex-col relative flex-1 h-full min-h-[200px] p-6 overflow-hidden" 
-      style={{
-        background: "color-mix(in srgb, var(--ct-surface-1) 20%, transparent)",
-        backdropFilter: "blur(24px)",
-        borderRadius: "var(--ct-radius-xl)",
-        border: "1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent)",
-      }}
+      className="ct-kpi-glass flex flex-col relative flex-1 h-full min-h-[200px] p-6 overflow-hidden" 
       aria-label="Open positions"
     >
       <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 shrink-0 relative z-10">

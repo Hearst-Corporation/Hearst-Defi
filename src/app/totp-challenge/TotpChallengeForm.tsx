@@ -43,13 +43,7 @@ export function TotpChallengeForm() {
           required
           disabled={isPending}
           placeholder="123456"
-          className="ct-input"
-          style={{
-            background: "color-mix(in srgb, var(--ct-bg-deep) 40%, transparent)",
-            borderColor: "var(--ct-border-soft)",
-            letterSpacing: "0.25em",
-            textAlign: "center",
-          }}
+          className="ct-input ct-input-bare ct-input-otp"
         />
       </label>
 
@@ -71,7 +65,7 @@ export function TotpChallengeForm() {
       </Button>
 
       <p className="text-center body-xs ct-text-muted">
-        <Link href="/login" className="hover:underline" style={{ color: "var(--ct-accent)" }}>
+        <Link href="/login" className="ct-link-accent hover:underline">
           Start over
         </Link>
       </p>

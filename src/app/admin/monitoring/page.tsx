@@ -36,7 +36,7 @@ export default async function MonitoringPage() {
       {/* Agent Breakdown */}
       <section className="space-y-4">
         <h2 className="h2">Runs by Agent</h2>
-        <Card className="ct-border-soft rounded-[var(--ct-radius-lg)] overflow-hidden p-0">
+        <Card className="ct-border-soft rounded-lg overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -70,7 +70,7 @@ export default async function MonitoringPage() {
       {/* Recent Runs */}
       <section className="space-y-4">
         <h2 className="h2">Recent Runs</h2>
-        <Card className="ct-border-soft rounded-[var(--ct-radius-lg)] overflow-hidden p-0">
+        <Card className="ct-border-soft rounded-lg overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -139,7 +139,7 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-[var(--ct-radius-full)] text-xs font-medium ${colors[status] ?? "ct-surface-2 ct-text-muted"}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${colors[status] ?? "ct-surface-2 ct-text-muted"}`}
     >
       {status}
     </span>

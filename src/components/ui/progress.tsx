@@ -28,7 +28,7 @@ export function Progress({
   return (
     <div
       className={cn(
-        "h-1.5 w-full overflow-hidden rounded-[var(--ct-radius-full)] bg-[var(--ct-surface-2)] shadow-inner backdrop-blur-sm",
+        "h-1.5 w-full overflow-hidden rounded-full ct-surface-2 shadow-inner backdrop-blur-sm",
         className,
       )}
       role="progressbar"

@@ -102,9 +102,9 @@ function InngestRow({ job }: { job: InngestJob }) {
           className={cn(
             "body-xs font-medium",
             job.status === "ok"
-              ? "text-[var(--ct-status-success)]"
+              ? "ct-status-success"
               : job.status === "err"
-                ? "text-[var(--ct-status-danger)]"
+                ? "ct-status-danger"
                 : "ct-text-faint",
           )}
         >
@@ -144,7 +144,7 @@ function SentryCounter({
         className={cn(
           "text-lg font-bold tabular leading-none",
           alert && count > 0
-            ? "text-[var(--ct-status-danger)]"
+            ? "ct-status-danger"
             : "ct-text-strong",
         )}
       >

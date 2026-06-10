@@ -99,10 +99,7 @@ export function AccreditationCheckboxes({
                   className="mt-0.5 w-4 h-4 shrink-0 rounded accent-[var(--ct-accent)] cursor-pointer"
                   aria-checked={isChecked}
                 />
-                <span
-                  className="body-sm ct-text-body leading-relaxed group-hover:ct-text-primary transition-colors"
-                  style={{ lineHeight: 1.6 }}
-                >
+                <span className="body-sm ct-text-body leading-relaxed group-hover:ct-text-primary transition-colors">
                   {label}
                 </span>
               </label>
@@ -125,7 +122,7 @@ export function AccreditationCheckboxes({
       {/* Server action error — shown only on failure */}
       {attestError && (
         <p
-          className="body-xs text-[var(--ct-status-danger)]"
+          className="body-xs ct-status-danger"
           aria-live="assertive"
           role="alert"
         >

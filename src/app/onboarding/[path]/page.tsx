@@ -86,7 +86,7 @@ export default async function OnboardingPathPage({
           {currentStep > 0 ? (
             <Link
               href={`/onboarding/${path}?step=${currentStep - 1}`}
-              className="inline-flex items-center gap-1.5 text-sm text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)] transition-colors duration-[var(--ct-dur-base)]"
+              className="inline-flex items-center gap-1.5 text-sm ct-text-muted hover:ct-text-strong transition-colors duration-[var(--ct-dur-base)]"
             >
               <svg
                 width="14"
@@ -108,7 +108,7 @@ export default async function OnboardingPathPage({
           ) : (
             <Link
               href="/onboarding"
-              className="inline-flex items-center gap-1.5 text-sm text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)] transition-colors duration-[var(--ct-dur-base)]"
+              className="inline-flex items-center gap-1.5 text-sm ct-text-muted hover:ct-text-strong transition-colors duration-[var(--ct-dur-base)]"
             >
               <svg
                 width="14"
@@ -132,9 +132,9 @@ export default async function OnboardingPathPage({
           {currentStep < steps.length - 1 ? (
             <Link
               href={`/onboarding/${path}?step=${currentStep + 1}`}
-              className="inline-flex items-center gap-2 rounded-[var(--ct-radius-full)] bg-[var(--ct-accent)] px-5 py-2 text-sm font-semibold text-[var(--ct-bg-deep)] shadow-[var(--ct-glow-subtle)] hover:bg-[var(--ct-accent-strong)] transition-colors duration-[var(--ct-dur-base)]"
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--ct-accent)] px-5 py-2 text-sm font-semibold text-[var(--ct-bg-deep)] shadow-[var(--ct-glow-subtle)] hover:bg-[var(--ct-accent-strong)] transition-colors duration-[var(--ct-dur-base)]"
             >
-              Continue
+              Continue this path
               <svg
                 width="14"
                 height="14"
@@ -154,9 +154,9 @@ export default async function OnboardingPathPage({
           ) : (
             <Link
               href="/onboarding"
-              className="inline-flex items-center gap-2 rounded-[var(--ct-radius-full)] bg-[var(--ct-accent)] px-5 py-2 text-sm font-semibold text-[var(--ct-bg-deep)] shadow-[var(--ct-glow-subtle)] hover:bg-[var(--ct-accent-strong)] transition-colors duration-[var(--ct-dur-base)]"
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--ct-accent)] px-5 py-2 text-sm font-semibold text-[var(--ct-bg-deep)] shadow-[var(--ct-glow-subtle)] hover:bg-[var(--ct-accent-strong)] transition-colors duration-[var(--ct-dur-base)]"
             >
-              Submit &amp; Complete
+              Return to path selection
             </Link>
           )}
         </nav>

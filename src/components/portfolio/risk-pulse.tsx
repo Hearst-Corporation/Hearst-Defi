@@ -54,14 +54,14 @@ const DIMENSION_LABEL: Record<RiskScore["dimension"], string> = {
 export function compositeLabelColor(label: CompositeLabel): string {
   switch (label) {
     case "Low":
-      return "text-[var(--ct-status-success)]";
+      return "ct-status-success";
     case "Low–Moderate":
-      return "text-[var(--ct-accent)]";
+      return "ct-text-accent";
     case "Moderate":
-      return "text-[var(--ct-status-warning)]";
+      return "ct-status-warning";
     case "Elevated":
     case "High":
-      return "text-[var(--ct-status-danger)]";
+      return "ct-status-danger";
   }
 }
 
@@ -79,20 +79,20 @@ export function trendMeta(delta: number): {
   if (delta > 0) {
     return {
       icon: "▲",
-      colorClass: "text-[var(--ct-status-danger)]",
+      colorClass: "ct-status-danger",
       ariaLabel: `rising +${delta}`,
     };
   }
   if (delta < 0) {
     return {
       icon: "▼",
-      colorClass: "text-[var(--ct-status-success)]",
+      colorClass: "ct-status-success",
       ariaLabel: `falling ${delta}`,
     };
   }
   return {
     icon: "━━",
-    colorClass: "text-[var(--ct-text-faint)]",
+    colorClass: "ct-text-faint",
     ariaLabel: "stable",
   };
 }
@@ -183,21 +183,21 @@ function ScoreRow({ item }: ScoreRowProps) {
       {/* Dimension label */}
       <span
         id={rowId}
-        className="body-sm min-w-0 flex-1 truncate text-[var(--ct-text-muted)]"
+        className="body-sm min-w-0 flex-1 truncate ct-text-muted"
       >
         {label}
       </span>
 
-      {/* Score — em-dash when no real sub-score is stored (0 = not available) */}
+      {/* Score — 0 means not available in current snapshots, not "low risk". */}
       <span
-        className="tabular font-semibold text-sm text-[var(--ct-text-primary)] w-7 text-right shrink-0"
+        className="tabular font-semibold text-sm ct-text-primary w-9 text-right shrink-0"
         aria-label={
           item.score > 0
             ? `${label} score ${String(item.score)} out of 100`
             : `${label} score not available`
         }
       >
-        {item.score > 0 ? item.score : "—"}
+        {item.score > 0 ? item.score : "N/A"}
       </span>
 
       {/* Optional sparkline */}
@@ -231,7 +231,7 @@ function CompositeSection({
   noData,
 }: CompositeSectionProps) {
   const trendIcon = noData
-    ? "—"
+    ? "pending"
     : trend === "rising"
       ? "▲ rising"
       : trend === "falling"
@@ -243,21 +243,21 @@ function CompositeSection({
     : `Composite risk score ${String(composite)} out of 100, ${compositeLabel ?? "unknown"}, 30-day trend ${trend}`;
 
   const valueColor = noData
-    ? "text-[var(--ct-text-faint)]"
+    ? "ct-text-faint"
     : compositeLabelColor(compositeLabel as CompositeLabel);
 
   const labelColor = noData
-    ? "text-[var(--ct-text-faint)]"
+    ? "ct-text-faint"
     : compositeLabelColor(compositeLabel as CompositeLabel);
 
   return (
     <div
       role="status"
       aria-label={ariaLabel}
-      className="mt-5 flex items-center justify-between rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-4 py-4"
+      className="mt-5 flex items-center justify-between rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-4"
     >
       <div className="flex items-baseline gap-2 min-w-0">
-        <span aria-hidden className="text-[var(--ct-accent)] text-lg leading-none">
+        <span aria-hidden className="ct-text-accent text-lg leading-none">
           ◆
         </span>
         <span className="stat-label">Composite</span>
@@ -267,9 +267,9 @@ function CompositeSection({
             valueColor,
           )}
         >
-          {noData ? "—" : composite}
-          <span className="text-sm font-medium text-[var(--ct-text-faint)]">
-            {" "}/ 100
+          {noData ? "Awaiting" : composite}
+          <span className="text-sm font-medium ct-text-faint">
+            {noData ? "" : " / 100"}
           </span>
         </span>
       </div>
@@ -281,9 +281,9 @@ function CompositeSection({
             labelColor,
           )}
         >
-          {noData ? "—" : compositeLabel}
+          {noData ? "Awaiting snapshot" : compositeLabel}
         </span>
-        <span className="text-xs text-[var(--ct-text-faint)]">
+        <span className="text-xs ct-text-faint">
           30d trend{" "}
           <span aria-hidden>{trendIcon}</span>
         </span>
@@ -319,7 +319,7 @@ export function RiskPulse({
   return (
     <article className="dash-cell dash-cell-premium h-full flex flex-col">
       <div className="dash-label relative z-10">
-        <span className="font-semibold text-[var(--ct-text-strong)]">Risk Pulse</span>
+        <span className="font-semibold ct-text-strong">Risk Pulse</span>
         <ProvenanceBadge kind={badgeKind} />
       </div>
 

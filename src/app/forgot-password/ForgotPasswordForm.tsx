@@ -43,11 +43,7 @@ export function ForgotPasswordForm() {
           required
           disabled={isPending || message !== null}
           placeholder="you@institution.com"
-          className="ct-input"
-          style={{
-            background: "color-mix(in srgb, var(--ct-bg-deep) 40%, transparent)",
-            borderColor: "var(--ct-border-soft)",
-          }}
+          className="ct-input ct-input-bare"
         />
       </label>
 
@@ -58,11 +54,7 @@ export function ForgotPasswordForm() {
       ) : null}
 
       {message ? (
-        <p
-          className="body-xs"
-          style={{ color: "var(--ct-accent)" }}
-          role="status"
-        >
+        <p className="body-xs ct-text-accent" role="status">
           {message}
         </p>
       ) : null}
@@ -79,7 +71,7 @@ export function ForgotPasswordForm() {
       </Button>
 
       <p className="text-center body-xs ct-text-muted">
-        <Link href="/login" className="hover:underline" style={{ color: "var(--ct-accent)" }}>
+        <Link href="/login" className="ct-link-accent hover:underline">
           Back to sign in
         </Link>
       </p>

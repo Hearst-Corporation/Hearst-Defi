@@ -52,14 +52,14 @@ function ChartEmpty({ title, subtitle, provenance }: ChartEmptyProps) {
       <CardHeader>
         <div className="flex flex-col gap-2">
           <CardTitle>{title}</CardTitle>
-          <p className="text-xs font-medium uppercase tracking-wide text-[var(--ct-text-muted)]">
+          <p className="text-xs font-medium uppercase tracking-wide ct-text-muted">
             {subtitle}
           </p>
         </div>
         <ProvenanceBadge kind={provenance === "live" ? "stale" : provenance} />
       </CardHeader>
-      <div className="flex-1 min-h-[var(--ct-chart-empty-h)] flex items-center justify-center text-center -mx-4 -mb-4 mt-4 rounded-b-[var(--ct-radius-lg)] border border-dashed border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)]">
-        <p className="text-xs text-[var(--ct-text-muted)] px-6 py-8">
+      <div className="flex-1 min-h-[var(--ct-chart-empty-h)] flex items-center justify-center text-center -mx-4 -mb-4 mt-4 rounded-b-[var(--ct-radius-lg)] border border-dashed border-[var(--ct-border-soft)] ct-surface-1">
+        <p className="text-xs ct-text-muted px-6 py-8">
           No historical data yet — first snapshot needed.
         </p>
       </div>
@@ -244,25 +244,25 @@ function NavChart({ points, provenance }: NavChartProps) {
   });
 
   return (
-    <article className="dash-cell dash-cell-premium relative flex flex-col h-full">
+    <Card className="relative flex flex-col h-full">
       <ChartProvenanceCorner kind={provenance} />
       <div className="dash-label relative z-10">
         <div className="flex flex-col gap-0.5">
-          <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">Net Asset Value</span>
-          <p className="text-micro font-medium uppercase tracking-wide text-[var(--ct-text-faint)] mono">
+          <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">Net Asset Value</span>
+          <p className="text-micro font-medium uppercase tracking-wide ct-text-faint mono">
             Trailing 30 days · USDC
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <span className="text-2xl font-semibold tabular-nums leading-tight text-[var(--ct-text-strong)] drop-shadow-[var(--ct-glow-subtle)]">
+          <span className="text-2xl font-semibold tabular-nums leading-tight ct-text-strong drop-shadow-[var(--ct-glow-subtle)]">
             {usdCompact.format(last)}
           </span>
           <span
             className={cn(
               "mono tabular-nums text-micro font-bold px-1.5 py-0.5 rounded-full backdrop-blur-md border",
-              trendDir === "up" && "bg-[var(--ct-status-success-soft)] text-[var(--ct-status-success)] border-[var(--ct-status-success-border)]",
-              trendDir === "down" && "bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)] border-[var(--ct-status-danger-border)]",
-              trendDir === "flat" && "bg-[var(--ct-surface-1)] text-[var(--ct-text-muted)] border-[var(--ct-border)]"
+              trendDir === "up" && "ct-status-success-bg ct-status-success border-[var(--ct-status-success-border)]",
+              trendDir === "down" && "ct-status-danger-bg ct-status-danger border-[var(--ct-status-danger-border)]",
+              trendDir === "flat" && "ct-surface-1 ct-text-muted border-[var(--ct-border)]"
             )}
           >
             {deltaPct >= 0 ? "+" : ""}
@@ -278,7 +278,7 @@ function NavChart({ points, provenance }: NavChartProps) {
           drawdownRects={drawdownRects}
         />
       </div>
-    </article>
+    </Card>
   );
 }
 
@@ -309,19 +309,19 @@ function ApyChart({ points, provenance }: ApyChartProps) {
   const highs = points.map((p) => p.apy_high);
 
   return (
-    <article className="dash-cell dash-cell-premium relative flex flex-col h-full">
+    <Card className="relative flex flex-col h-full">
       <ChartProvenanceCorner kind={provenance} />
       <div className="dash-label relative z-10">
         <div className="flex flex-col gap-0.5">
-          <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">APY Range</span>
-          <p className="text-micro font-medium uppercase tracking-wide text-[var(--ct-text-faint)] mono">
+          <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">APY Range</span>
+          <p className="text-micro font-medium uppercase tracking-wide ct-text-faint mono">
             Trailing 30d · Target {METHODOLOGY_TARGET_APY_LOW.toFixed(1)}–{METHODOLOGY_TARGET_APY_HIGH.toFixed(1)}%
           </p>
         </div>
         <div className="flex flex-col items-end">
           {lastPoint ? (
             <ApyRange
-              className="text-2xl font-semibold leading-tight text-[var(--ct-text-strong)]"
+              className="text-2xl font-semibold leading-tight ct-text-strong"
               low={lastPoint.apy_low}
               high={lastPoint.apy_high}
             />
@@ -336,7 +336,7 @@ function ApyChart({ points, provenance }: ApyChartProps) {
           ariaLabel={`APY range band over 30 days, latest ${lastPoint ? `${lastPoint.apy_low.toFixed(1)} to ${lastPoint.apy_high.toFixed(1)} percent` : "n/a"}`}
         />
       </div>
-    </article>
+    </Card>
   );
 }
 

@@ -117,7 +117,7 @@ function AllocationDiffTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm tabular ct-divide-soft border border-[var(--ct-border-soft)] rounded-[var(--ct-radius-lg)] overflow-hidden">
+      <table className="w-full text-sm tabular ct-divide-soft border border-[var(--ct-border-soft)] rounded-lg overflow-hidden">
         <thead>
           <tr className="ct-surface-1">
             <th className="text-left ct-table-header ct-text-muted body-xs">
@@ -321,7 +321,7 @@ export function RebalanceCard({
 
       {/* Error display */}
       {error && (
-        <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-[var(--ct-radius-lg)]">
+        <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-lg">
           {error}
         </p>
       )}

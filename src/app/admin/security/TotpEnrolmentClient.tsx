@@ -61,7 +61,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
   if (state.phase === "success") {
     return (
       <div className="space-y-2">
-        <p style={{ color: "var(--ct-accent)" }} className="body-xs">
+        <p className="body-xs ct-text-accent">
           Two-factor authentication is now enabled. Your next login will require a TOTP code.
         </p>
       </div>
@@ -88,18 +88,17 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
               width={200}
               height={200}
               unoptimized
-              className="rounded-[var(--ct-radius-sm)] bg-white p-2"
+              className="rounded-sm ct-surface-1 p-2"
             />
           </div>
 
           {/* Manual entry fallback */}
           <details className="text-xs ct-text-muted">
-            <summary className="cursor-pointer select-none hover:underline" style={{ color: "var(--ct-accent)" }}>
+            <summary className="cursor-pointer select-none hover:underline ct-text-accent">
               Can&apos;t scan? Enter the key manually
             </summary>
             <p
-              className="mt-2 rounded bg-[var(--ct-surface-1)] px-2 py-1 font-mono break-all"
-              style={{ userSelect: "all" }}
+              className="mt-2 rounded ct-surface-1 px-2 py-1 font-mono break-all select-all"
             >
               {state.payload.secretBase32}
             </p>
@@ -123,13 +122,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
               required
               disabled={isPending}
               placeholder="123456"
-              className="ct-input"
-              style={{
-                background: "color-mix(in srgb, var(--ct-bg-deep) 40%, transparent)",
-                borderColor: "var(--ct-border-soft)",
-                letterSpacing: "0.25em",
-                textAlign: "center",
-              }}
+              className="ct-input ct-input-bare ct-input-otp"
             />
           </label>
 
@@ -170,21 +163,15 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
     <div className="space-y-4">
       {totpEnabled ? (
         <div className="flex items-center gap-2">
-          <span
-            className="inline-block h-2 w-2 rounded-full"
-            style={{ background: "var(--ct-accent)" }}
-          />
-          <span className="body-xs" style={{ color: "var(--ct-accent)" }}>
+          <span className="inline-block h-2 w-2 rounded-full bg-[var(--ct-accent)]" />
+          <span className="body-xs ct-text-accent">
             MFA is enabled for this account.
           </span>
         </div>
       ) : (
         <>
           <div className="flex items-center gap-2">
-            <span
-              className="inline-block h-2 w-2 rounded-full"
-              style={{ background: "var(--ct-status-warning)" }}
-            />
+            <span className="inline-block h-2 w-2 rounded-full bg-[var(--ct-status-warning)]" />
             <span className="body-xs ct-text-muted">
               MFA is not yet enabled. We recommend enabling it for admin accounts.
             </span>

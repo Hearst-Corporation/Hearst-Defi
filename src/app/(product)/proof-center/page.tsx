@@ -80,9 +80,9 @@ export default async function ProductProofCenterPage({
         <div
           role="note"
           aria-label="Testnet data notice"
-          className="rounded-[var(--ct-radius-md)] border border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] px-4 py-3"
+          className="rounded-md border border-[var(--ct-status-warning-border)] ct-status-warning-bg px-4 py-3"
         >
-          <p className="body-sm text-[var(--ct-text-strong)]">
+          <p className="body-sm ct-text-strong">
             ⚠️ On-chain proofs are read from{" "}
             <strong>Base Sepolia (testnet)</strong> — not production mainnet.
             Addresses, balances, and attestations shown here are testnet
@@ -143,7 +143,7 @@ export default async function ProductProofCenterPage({
           <ProofFilter />
         </div>
         {proofs.length === 0 ? (
-          <div className="flex flex-col items-center gap-4 rounded-[var(--ct-radius-lg)] ct-border-soft ct-surface-1 py-16 text-center">
+          <div className="flex flex-col items-center gap-4 rounded-lg ct-border-soft ct-surface-1 py-16 text-center">
             <ProvenanceBadge kind="stale" />
             <div className="space-y-1">
               <p className="body-sm font-medium ct-text-strong">

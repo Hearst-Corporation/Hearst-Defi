@@ -449,7 +449,7 @@ export function VaultForm(props: VaultFormProps) {
               </label>
             </div>
 
-            <div className="p-4 rounded-[var(--ct-radius-lg)] ct-surface-2 border border-[var(--ct-border-soft)]">
+            <div className="p-4 rounded-lg ct-surface-2 border border-[var(--ct-border-soft)]">
               <span className="stat-label block mb-1">APY Range Preview</span>
               <ApyRange
                 low={form.targetApyLowBps / 100}
@@ -763,7 +763,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="space-y-6">
             <CardTitle>Sign &amp; Deploy</CardTitle>
 
-            <div className="p-4 rounded-[var(--ct-radius-lg)] ct-surface-2 border border-[var(--ct-border-soft)] space-y-3">
+            <div className="p-4 rounded-lg ct-surface-2 border border-[var(--ct-border-soft)] space-y-3">
               <p className="body-sm ct-text-muted">
                 This vault draft will be submitted to the multisig review queue. Once submitted,
                 it requires the configured quorum of signers to approve before deployment.
@@ -790,7 +790,7 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Navigation */}
         {error && (
-          <div className="mt-4 p-3 rounded-[var(--ct-radius-lg)] ct-status-danger-bg">
+          <div className="mt-4 p-3 rounded-lg ct-status-danger-bg">
             <p className="body-sm ct-status-danger">{error}</p>
           </div>
         )}

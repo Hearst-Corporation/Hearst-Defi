@@ -60,6 +60,7 @@ export default async function ProfilePage() {
   );
 
   const firstSubAt = positions[0]?.subscribedAt ?? null;
+  const hasPositions = positions.length > 0;
 
   return (
     <div className="prof-page">
@@ -131,39 +132,51 @@ export default async function ProfilePage() {
           <ProvenanceBadge kind={positions.length === 0 ? "stale" : "live"} />
         </p>
 
-        <div className="prof-stats">
-          <div className="prof-stat">
-            <span className="prof-stat-value">
-              {positions.length}
-            </span>
-            <span className="stat-label">Active positions</span>
+        {hasPositions ? (
+          <div className="prof-stats">
+            <div className="prof-stat">
+              <span className="stat-value ct-text-strong">
+                {positions.length}
+              </span>
+              <span className="stat-label">Active positions</span>
+            </div>
+
+            <div className="prof-stat-sep" />
+
+            <div className="prof-stat">
+              <span className="stat-value ct-text-strong">
+                {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                  notation: "compact",
+                  maximumFractionDigits: 1,
+                }).format(totalDeployed)}
+              </span>
+              <span className="stat-label">Total deployed</span>
+            </div>
+
+            <div className="prof-stat-sep" />
+
+            <div className="prof-stat">
+              <span className="stat-value ct-text-strong">
+                {firstSubAt ? formatDate(firstSubAt) : "Awaiting subscription"}
+              </span>
+              <span className="stat-label">First subscription</span>
+            </div>
           </div>
-
-          <div className="prof-stat-sep" />
-
-          <div className="prof-stat">
-            <span className="prof-stat-value">
-              {totalDeployed > 0
-                ? new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                    notation: "compact",
-                    maximumFractionDigits: 1,
-                  }).format(totalDeployed)
-                : "—"}
-            </span>
-            <span className="stat-label">Total deployed</span>
+        ) : (
+          <div className="mt-3 flex flex-col items-start gap-3 rounded-lg border border-dashed border-(--ct-border-soft) ct-surface-1 p-4">
+            <p className="body-sm ct-text-primary font-semibold">
+              Your investment summary starts after your first active position.
+            </p>
+            <p className="body-xs ct-text-muted">
+              Once a deposit is confirmed, deployed capital and subscription history appear here.
+            </p>
+            <Button variant="primary" size="md" asChild>
+              <Link href="/vaults">Explore the vault</Link>
+            </Button>
           </div>
-
-          <div className="prof-stat-sep" />
-
-          <div className="prof-stat">
-            <span className="prof-stat-value">
-              {firstSubAt ? formatDate(firstSubAt) : "—"}
-            </span>
-            <span className="stat-label">First subscription</span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* ── Security ── */}

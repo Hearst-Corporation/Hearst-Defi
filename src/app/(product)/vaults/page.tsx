@@ -36,7 +36,7 @@ export default async function VaultsPage() {
 
       {/* Product grid — auto-fit, single card at MVP */}
       <section aria-labelledby="vaults-heading">
-        <h2 id="vaults-heading" className="ct-section-title mb-6">
+        <h2 id="vaults-heading" className="h2 mb-6">
           Available products
         </h2>
 

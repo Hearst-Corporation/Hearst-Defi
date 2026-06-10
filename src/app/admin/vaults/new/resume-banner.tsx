@@ -60,7 +60,7 @@ export function ResumeDraftBanner({
   const relTime = formatRelativeTime(new Date(updatedAt));
 
   return (
-    <div className="p-6 rounded-[var(--ct-radius-lg)] ct-surface-2 border border-[var(--ct-border-soft)] space-y-5 max-w-2xl">
+    <div className="p-6 rounded-lg ct-surface-2 border border-[var(--ct-border-soft)] space-y-5 max-w-2xl">
       <div className="space-y-1">
         <p className="body-sm ct-text-strong">
           An autosaved {draftLabel} was found on this account.
@@ -71,7 +71,7 @@ export function ResumeDraftBanner({
       </div>
 
       {confirmDiscard ? (
-        <div className="space-y-3 p-3 rounded-[var(--ct-radius-md)] border border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)]">
+        <div className="space-y-3 p-3 rounded-md border border-[var(--ct-status-danger-border)] ct-status-danger-bg">
           <p className="body-xs ct-text-strong">
             You are about to lose this draft. Continue?
           </p>

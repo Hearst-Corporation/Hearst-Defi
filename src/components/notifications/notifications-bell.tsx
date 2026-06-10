@@ -26,9 +26,9 @@ export function NotificationsBell({
           : "Notifications"
       }
       className={cn(
-        "relative flex h-8 w-8 items-center justify-center rounded-[var(--ct-radius-full)]",
-        "text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)]",
-        "hover:bg-[var(--ct-surface-1)] transition-colors duration-[var(--ct-dur-base)]",
+        "relative flex h-8 w-8 items-center justify-center rounded-full",
+        "ct-text-muted hover:ct-text-strong",
+        "hover:ct-surface-1 transition-colors duration-[var(--ct-dur-base)]",
         "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
       )}
     >
@@ -59,7 +59,7 @@ export function NotificationsBell({
         <span
           className={cn(
             "absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center",
-            "rounded-[var(--ct-radius-full)] px-1",
+            "rounded-full px-1",
             "text-micro font-bold leading-none text-[var(--ct-bg-deep)]",
             badgeColor,
           )}

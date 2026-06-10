@@ -57,12 +57,12 @@ export function ChartTimeSelector({
               "h-6 rounded-sm px-1.5 transition-colors",
               isActive
                 ? [
-                    "text-[var(--ct-text-primary)]",
+                    "ct-text-primary",
                     "border-b border-b-[var(--ct-accent)]",
                   ]
                 : [
-                    "text-[var(--ct-text-muted)]",
-                    "hover:text-[var(--ct-text-body)]",
+                    "ct-text-muted",
+                    "hover:ct-text-body",
                     "border-b border-b-transparent",
                   ],
             )}

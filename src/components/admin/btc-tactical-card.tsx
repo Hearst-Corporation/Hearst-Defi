@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import type { DashboardData } from "@/lib/data/dashboard";
 
@@ -90,40 +91,40 @@ export function BtcTacticalCard({ data }: BtcTacticalCardProps) {
   const priceProvenance = data.btcPrice.stale ? "stale" : "live";
 
   return (
-    <article className="dash-cell dash-cell-premium h-full flex flex-col relative">
+    <Card className="h-full flex flex-col">
       <div className="dash-label relative z-10">
-        <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">BTC Tactical</span>
+        <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">BTC Tactical</span>
         <ProvenanceBadge kind="estimated" />
       </div>
 
       <div className="flex-1 flex flex-col mt-6 relative z-10">
         {noPosition ? (
           <div className="flex-1 flex items-center justify-center">
-            <p className="body-sm text-[var(--ct-text-muted)] italic">No BTC position yet.</p>
+            <p className="body-sm ct-text-muted italic">No BTC position yet.</p>
           </div>
         ) : (
           <div className="flex flex-col divide-y divide-[var(--ct-border-soft)]/50">
             <Row label="Position size">
               <span>
                 {positionPct.toFixed(0)}%
-                <span className="text-[var(--ct-text-faint)]"> · </span>
+                <span className="ct-text-faint"> · </span>
                 {usd.format(positionUsdc)}
               </span>
             </Row>
             <Row label="BTC held">
               {priceUnavailable ? (
-                <span className="text-[var(--ct-text-muted)]">—</span>
+                <span className="ct-text-muted">—</span>
               ) : (
                 <>
                   {btcHeld.toFixed(2)}
-                  <span className="text-[var(--ct-text-faint)]"> BTC</span>
+                  <span className="ct-text-faint"> BTC</span>
                 </>
               )}
             </Row>
             <Row label="Current price">
               {priceUnavailable ? (
                 <span className="inline-flex items-baseline gap-2">
-                  <span className="text-[var(--ct-text-muted)]">BTC price feed unavailable.</span>
+                  <span className="ct-text-muted">BTC price feed unavailable.</span>
                   <ProvenanceBadge kind="stale" />
                 </span>
               ) : (
@@ -135,10 +136,10 @@ export function BtcTacticalCard({ data }: BtcTacticalCardProps) {
             </Row>
             <Row label="Next accumulate">
               {priceUnavailable ? (
-                <span className="text-[var(--ct-text-muted)]">—</span>
+                <span className="ct-text-muted">—</span>
               ) : (
                 <span className="inline-flex items-baseline gap-2">
-                  <span className="text-[var(--ct-text-body)]">
+                  <span className="ct-text-body">
                     if BTC &lt; {usdPrice.format(accumulateAt)}
                   </span>
                   <ProvenanceBadge kind="estimated" />
@@ -147,14 +148,14 @@ export function BtcTacticalCard({ data }: BtcTacticalCardProps) {
             </Row>
             <Row label="Volatility guardrail">
               {priceUnavailable ? (
-                <span className="text-[var(--ct-text-muted)]">—</span>
+                <span className="ct-text-muted">—</span>
               ) : (
                 severityBadge(volGuardrail.label, volGuardrail.variant)
               )}
             </Row>
             <Row label="Mining margin guardrail">
               {priceUnavailable ? (
-                <span className="text-[var(--ct-text-muted)]">—</span>
+                <span className="ct-text-muted">—</span>
               ) : (
                 severityBadge(marginGuardrail.label, marginGuardrail.variant)
               )}
@@ -162,10 +163,10 @@ export function BtcTacticalCard({ data }: BtcTacticalCardProps) {
           </div>
         )}
 
-        <p className="mt-auto pt-6 body-xs text-[var(--ct-text-faint)] italic leading-[var(--ct-leading-relaxed)] opacity-70">
+        <p className="mt-auto pt-6 body-xs ct-text-faint italic leading-[var(--ct-leading-relaxed)] opacity-70">
           Triggers are estimated from methodology v1.0 anchors. Avg entry, unrealized P&amp;L and profit-take pending Phase 3 vault deployment (cost basis stored on-chain). Conditional projection — not guaranteed.
         </p>
       </div>
-    </article>
+    </Card>
   );
 }

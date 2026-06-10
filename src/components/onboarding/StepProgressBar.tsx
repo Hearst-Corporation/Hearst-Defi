@@ -88,7 +88,7 @@ export function StepProgressBar({ active }: StepProgressBarProps) {
               className={cn(
                 "relative z-[var(--ct-z-base)] inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-semibold border transition-colors",
                 isDone && "border-[var(--ct-border-accent)] bg-[var(--ct-accent)] ct-text-strong",
-                isActive && "border-[var(--ct-border-accent)] bg-[var(--ct-accent-soft)] text-[var(--ct-accent)] shadow-[var(--ct-glow-subtle)]",
+                isActive && "border-[var(--ct-border-accent)] bg-[var(--ct-accent-soft)] ct-text-accent shadow-[var(--ct-glow-subtle)]",
                 !isDone && !isActive && "border-[var(--ct-border-soft)] ct-surface-1 ct-text-muted",
               )}
             >
@@ -118,7 +118,7 @@ export function StepProgressBar({ active }: StepProgressBarProps) {
             <span
               className={cn(
                 "eyebrow font-medium whitespace-nowrap hidden sm:block",
-                isActive ? "text-[var(--ct-accent)]" : isDone ? "ct-text-primary" : "ct-text-muted",
+                isActive ? "ct-text-accent" : isDone ? "ct-text-primary" : "ct-text-muted",
               )}
             >
               {step.label}

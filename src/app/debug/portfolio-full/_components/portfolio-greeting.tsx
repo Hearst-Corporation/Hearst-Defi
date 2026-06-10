@@ -29,10 +29,10 @@ export function PortfolioGreeting({ name, data }: PortfolioGreetingProps) {
 
   return (
     <div className="flex flex-col gap-1.5 mb-2 mt-4">
-      <h1 className="text-2xl font-light text-[var(--ct-text-primary)] tracking-tight leading-tight m-0">
-        Welcome back, <span className="font-medium text-[var(--ct-text-strong)]">{name}</span>
+      <h1 className="h1 m-0">
+        Welcome back, <span className="font-medium ct-text-strong">{name}</span>
       </h1>
-      <p className="text-xs text-[var(--ct-text-muted)] mono m-0 opacity-80 uppercase tracking-widest">{recap}</p>
+      <p className="text-xs ct-text-muted mono m-0 opacity-80 uppercase tracking-widest">{recap}</p>
     </div>
   );
 }

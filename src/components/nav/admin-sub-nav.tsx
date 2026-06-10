@@ -48,8 +48,8 @@ export function AdminSubNav() {
             className={cn(
               "relative -mb-px border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
               isActive
-                ? "border-[var(--ct-accent)] text-[var(--ct-accent)]"
-                : "border-transparent text-[var(--ct-text-muted)] hover:text-[var(--ct-text-primary)]",
+                ? "border-[var(--ct-accent)] ct-text-accent"
+                : "border-transparent ct-text-muted hover:ct-text-primary",
             )}
           >
             {tab.label}

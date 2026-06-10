@@ -161,7 +161,7 @@ export default async function AllowlistPage() {
                   required
                   pattern="0x[0-9a-fA-F]{40}"
                   placeholder="0xABCDEF…"
-                  className="w-full rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-3 py-2 text-sm ct-text-strong mono placeholder:ct-text-muted focus:outline-none focus:border-[var(--ct-border-strong)] focus:ring-1 focus:ring-[var(--ct-accent)]"
+                  className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-3 py-2 text-sm ct-text-strong mono placeholder:ct-text-muted focus:outline-none focus:border-[var(--ct-border-strong)] focus:ring-1 focus:ring-[var(--ct-accent)]"
                 />
               </div>
 
@@ -180,7 +180,7 @@ export default async function AllowlistPage() {
                   required
                   maxLength={200}
                   placeholder="Coinbase Custody Vault"
-                  className="w-full rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-3 py-2 text-sm ct-text-strong placeholder:ct-text-muted focus:outline-none focus:border-[var(--ct-border-strong)] focus:ring-1 focus:ring-[var(--ct-accent)]"
+                  className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-3 py-2 text-sm ct-text-strong placeholder:ct-text-muted focus:outline-none focus:border-[var(--ct-border-strong)] focus:ring-1 focus:ring-[var(--ct-accent)]"
                 />
               </div>
 
@@ -196,7 +196,7 @@ export default async function AllowlistPage() {
                   id="add-category"
                   name="category"
                   required
-                  className="w-full rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-3 py-2 text-sm ct-text-strong focus:outline-none focus:border-[var(--ct-border-strong)] focus:ring-1 focus:ring-[var(--ct-accent)]"
+                  className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-3 py-2 text-sm ct-text-strong focus:outline-none focus:border-[var(--ct-border-strong)] focus:ring-1 focus:ring-[var(--ct-accent)]"
                 >
                   {ALL_CATEGORIES.map((c) => (
                     <option key={c} value={c}>
@@ -221,7 +221,7 @@ export default async function AllowlistPage() {
                   min={0}
                   max={100}
                   defaultValue={0}
-                  className="w-full rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-3 py-2 text-sm ct-text-strong placeholder:ct-text-muted focus:outline-none focus:border-[var(--ct-border-strong)] focus:ring-1 focus:ring-[var(--ct-accent)]"
+                  className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-3 py-2 text-sm ct-text-strong placeholder:ct-text-muted focus:outline-none focus:border-[var(--ct-border-strong)] focus:ring-1 focus:ring-[var(--ct-accent)]"
                 />
               </div>
 
@@ -239,7 +239,7 @@ export default async function AllowlistPage() {
                   rows={2}
                   maxLength={500}
                   placeholder="Context for this entry…"
-                  className="w-full rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-3 py-2 text-sm ct-text-strong placeholder:ct-text-muted focus:outline-none focus:border-[var(--ct-border-strong)] focus:ring-1 focus:ring-[var(--ct-accent)] resize-none"
+                  className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-3 py-2 text-sm ct-text-strong placeholder:ct-text-muted focus:outline-none focus:border-[var(--ct-border-strong)] focus:ring-1 focus:ring-[var(--ct-accent)] resize-none"
                 />
               </div>
             </div>
@@ -266,10 +266,10 @@ export default async function AllowlistPage() {
             </p>
           </Card>
         ) : (
-          <div className="overflow-x-auto rounded-[var(--ct-radius-lg)] border border-[var(--ct-border)]">
+          <div className="overflow-x-auto rounded-lg border border-[var(--ct-border)]">
             <table className="w-full text-sm" aria-label="Address allowlist">
               <thead>
-                <tr className="border-b border-[var(--ct-border)] bg-[var(--ct-surface-1)]">
+                <tr className="border-b border-[var(--ct-border)] ct-surface-1">
                   <th
                     scope="col"
                     className="stat-label px-4 py-3 text-left"
@@ -308,8 +308,8 @@ export default async function AllowlistPage() {
                     key={entry.id}
                     className={
                       entry.active
-                        ? "bg-[var(--ct-bg-deep)] hover:bg-[var(--ct-surface-1)] transition-colors"
-                        : "bg-[var(--ct-surface-1)] opacity-50 hover:opacity-70 transition-opacity"
+                        ? "bg-[var(--ct-bg-deep)] hover:ct-surface-1 transition-colors"
+                        : "ct-surface-1 opacity-50 hover:opacity-70 transition-opacity"
                     }
                   >
                     {/* Label + address */}
@@ -356,8 +356,8 @@ export default async function AllowlistPage() {
                           }
                           className={
                             entry.active
-                              ? "ct-pill text-xs font-semibold cursor-pointer hover:border-[var(--ct-status-danger-border)] hover:text-[var(--ct-status-danger)] transition-colors"
-                              : "ct-pill text-xs font-semibold cursor-pointer hover:border-[var(--ct-status-success-border)] hover:text-[var(--ct-status-success)] transition-colors"
+                              ? "ct-pill text-xs font-semibold cursor-pointer hover:border-[var(--ct-status-danger-border)] hover:ct-status-danger transition-colors"
+                              : "ct-pill text-xs font-semibold cursor-pointer hover:border-[var(--ct-status-success-border)] hover:ct-status-success transition-colors"
                           }
                         >
                           {entry.active ? "Active" : "Inactive"}
@@ -388,7 +388,7 @@ export default async function AllowlistPage() {
                               type="text"
                               defaultValue={entry.label}
                               maxLength={200}
-                              className="w-full rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-2 py-1 text-xs ct-text-strong focus:outline-none focus:border-[var(--ct-border-strong)]"
+                              className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-2 py-1 text-xs ct-text-strong focus:outline-none focus:border-[var(--ct-border-strong)]"
                             />
                           </div>
 
@@ -406,7 +406,7 @@ export default async function AllowlistPage() {
                               min={0}
                               max={100}
                               defaultValue={entry.riskScore}
-                              className="w-full rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-2 py-1 text-xs ct-text-strong focus:outline-none focus:border-[var(--ct-border-strong)]"
+                              className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-2 py-1 text-xs ct-text-strong focus:outline-none focus:border-[var(--ct-border-strong)]"
                             />
                           </div>
 
@@ -423,7 +423,7 @@ export default async function AllowlistPage() {
                               rows={2}
                               maxLength={500}
                               defaultValue={entry.notes ?? ""}
-                              className="w-full rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-2 py-1 text-xs ct-text-strong focus:outline-none focus:border-[var(--ct-border-strong)] resize-none"
+                              className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-2 py-1 text-xs ct-text-strong focus:outline-none focus:border-[var(--ct-border-strong)] resize-none"
                             />
                           </div>
 

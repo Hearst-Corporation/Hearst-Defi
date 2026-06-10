@@ -40,7 +40,7 @@ function PrivyConnectInner() {
   if (!ready) {
     return (
       <div
-        className="w-full rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-[var(--ct-space-6)] py-[var(--ct-space-8)] flex items-center justify-center"
+        className="w-full rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-[var(--ct-space-6)] py-[var(--ct-space-8)] flex items-center justify-center"
         aria-busy="true"
         aria-label="Loading wallet connection"
       >
@@ -55,13 +55,13 @@ function PrivyConnectInner() {
   if (authenticated && displayAddress) {
     return (
       <div
-        className="w-full rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-[var(--ct-space-6)] py-[var(--ct-space-8)] flex flex-col items-center gap-[var(--ct-space-4)] text-center"
+        className="w-full rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-[var(--ct-space-6)] py-[var(--ct-space-8)] flex flex-col items-center gap-[var(--ct-space-4)] text-center"
         role="region"
         aria-label="Wallet connected"
       >
         {/* Status dot */}
         <span
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-[var(--ct-radius-full)] border border-[var(--ct-status-success-border)] bg-[var(--ct-status-success-soft)] text-[var(--ct-status-success)] text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--ct-status-success-border)] ct-status-success-bg ct-status-success text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
         >
           <span
             aria-hidden="true"
@@ -72,8 +72,8 @@ function PrivyConnectInner() {
 
         <p
           className={cn(
-            "font-mono text-sm text-[var(--ct-text-strong)]",
-            "rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-2)]",
+            "font-mono text-sm ct-text-strong",
+            "rounded-md ct-surface-2",
             "px-4 py-2 tabular-nums tracking-widest",
           )}
         >
@@ -91,18 +91,15 @@ function PrivyConnectInner() {
   // Prompt to connect
   return (
     <div
-      className="w-full rounded-[var(--ct-radius-lg)] border border-dashed border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-[var(--ct-space-8)] py-[var(--ct-space-8)] flex flex-col items-center gap-[var(--ct-space-4)] text-center"
+      className="w-full rounded-lg border border-dashed border-[var(--ct-border-soft)] ct-surface-1 px-[var(--ct-space-8)] py-[var(--ct-space-8)] flex flex-col items-center gap-[var(--ct-space-4)] text-center"
       role="region"
       aria-label="Connect wallet"
     >
       <div className="flex flex-col gap-[var(--ct-space-2)]">
-        <h3
-          className="h3"
-          style={{ fontSize: "1rem", fontWeight: 600, color: "var(--ct-text-primary)" }}
-        >
+        <h3 className="h3">
           Connect Your Wallet
         </h3>
-        <p className="body-sm ct-text-muted" style={{ maxWidth: "34ch", margin: "0 auto" }}>
+        <p className="body-sm ct-text-muted ct-prose-narrow">
           Link the wallet address that will receive your USDC distributions.
           Supported: MetaMask, Ledger, WalletConnect, Coinbase Wallet.
         </p>
@@ -112,7 +109,7 @@ function PrivyConnectInner() {
         type="button"
         onClick={() => void connectWallet()}
         className={cn(
-          "inline-flex items-center justify-center gap-2 rounded-[var(--ct-radius-md)] px-6 py-2.5",
+          "inline-flex items-center justify-center gap-2 rounded-md px-6 py-2.5",
           "text-sm font-semibold transition-opacity duration-[var(--ct-dur-fast)]",
           "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]",
           "hover:opacity-90 active:opacity-75",
@@ -137,25 +134,22 @@ function PrivyConnectInner() {
 function ConfigPending() {
   return (
     <div
-      className="w-full rounded-[var(--ct-radius-lg)] border border-dashed border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] p-[var(--ct-space-8)] flex flex-col items-center gap-[var(--ct-space-4)] text-center"
+      className="w-full rounded-lg border border-dashed border-[var(--ct-border-soft)] ct-surface-1 p-[var(--ct-space-8)] flex flex-col items-center gap-[var(--ct-space-4)] text-center"
       role="region"
       aria-label="Wallet connection — configuration pending"
     >
       <div className="flex flex-col gap-[var(--ct-space-2)]">
-        <h3
-          className="h3"
-          style={{ fontSize: "1rem", fontWeight: 600, color: "var(--ct-text-primary)" }}
-        >
+        <h3 className="h3">
           Connect Your Wallet
         </h3>
-        <p className="body-sm ct-text-muted" style={{ maxWidth: "34ch", margin: "0 auto" }}>
+        <p className="body-sm ct-text-muted ct-prose-narrow">
           Link your institutional wallet to receive USDC distributions and manage
           your vault position.
         </p>
       </div>
 
       <span
-        className="inline-flex items-center gap-2 px-3 py-1 rounded-[var(--ct-radius-full)] border border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)] text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
+        className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--ct-status-warning-border)] ct-status-warning-bg ct-status-warning text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
       >
         <span
           aria-hidden="true"
@@ -166,7 +160,7 @@ function ConfigPending() {
 
       <p className="body-xs ct-text-faint text-center text-pretty">
         Set{" "}
-        <code className="font-mono text-[var(--ct-text-muted)]">
+        <code className="font-mono ct-text-muted">
           NEXT_PUBLIC_PRIVY_APP_ID
         </code>{" "}
         to activate wallet binding.

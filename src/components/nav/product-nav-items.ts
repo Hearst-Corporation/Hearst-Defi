@@ -122,4 +122,15 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       { id: "roadmap", label: "Roadmap", href: "/admin/roadmap", icon: "FileCheck" },
     ],
   },
+  {
+    id: "governance",
+    label: "Governance",
+    icon: "ShieldCheck",
+    href: "/admin/governance",
+    tabs: [
+      { id: "governance-proposals", label: "Proposals", href: "/admin/governance", icon: "ShieldCheck" },
+      { id: "governance-allowlist", label: "Allowlist", href: "/admin/governance/allowlist", icon: "FileCheck" },
+      { id: "governance-propose", label: "Propose", href: "/admin/governance/propose", icon: "FileText" },
+    ],
+  },
 ];

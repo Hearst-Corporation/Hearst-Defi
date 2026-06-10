@@ -118,21 +118,21 @@ function AssumptionsList({ assumptions }: { assumptions: string[] }) {
           return (
             <li key={i} className="flex items-start gap-2 text-sm">
               <span
-                className="mt-0.5 shrink-0 text-micro text-[var(--ct-text-strong)]"
+                className="mt-0.5 shrink-0 text-micro ct-text-strong"
                 aria-hidden
               >
                 ▸
               </span>
               {key !== null ? (
                 <span>
-                  <span className="font-semibold text-[var(--ct-text-body)] capitalize">
+                  <span className="font-semibold ct-text-body capitalize">
                     {key}
                   </span>
-                  <span className="text-[var(--ct-text-muted)]">: </span>
-                  <span className="mono text-[var(--ct-text-body)]">{value}</span>
+                  <span className="ct-text-muted">: </span>
+                  <span className="mono ct-text-body">{value}</span>
                 </span>
               ) : (
-                <span className="text-[var(--ct-text-body)]">{value}</span>
+                <span className="ct-text-body">{value}</span>
               )}
             </li>
           );
@@ -144,7 +144,7 @@ function AssumptionsList({ assumptions }: { assumptions: string[] }) {
           variant="ghost"
           size="sm"
           onClick={() => setExpanded((x) => !x)}
-          className="mt-3 text-[var(--ct-text-strong)] hover:text-[var(--ct-text-strong)]"
+          className="mt-3 ct-text-strong hover:ct-text-strong"
         >
           {expanded ? "Show less" : `Show ${assumptions.length - THRESHOLD} more`}
         </Button>
@@ -166,7 +166,7 @@ function NarrativeCard({
             className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ct-status-warning)]"
             aria-hidden
           />
-          <p className="text-xs text-[var(--ct-text-muted)]">
+          <p className="text-xs ct-text-muted">
             AI narrative unavailable — engine output shown above.
           </p>
         </div>
@@ -182,11 +182,11 @@ function NarrativeCard({
       </CardHeader>
       <Markdown content={narrative.narrative_md} />
       {narrative.risk_warning ? (
-        <div className="mt-4 rounded-[var(--ct-radius-full)] border border-[var(--ct-status-warning)] bg-[var(--ct-status-warning-soft)] px-4 py-3">
-          <p className="stat-label mb-1 text-[var(--ct-status-warning)]">
+        <div className="mt-4 rounded-full border border-[var(--ct-status-warning)] ct-status-warning-bg px-4 py-3">
+          <p className="stat-label mb-1 ct-status-warning">
             Risk warning
           </p>
-          <p className="text-sm text-[var(--ct-text-body)]">
+          <p className="text-sm ct-text-body">
             {narrative.risk_warning}
           </p>
         </div>
@@ -221,19 +221,19 @@ function BtcTacticalCard({ output }: { output: ScenarioOutput }) {
 
       {armedTriggers.length > 0 && (
         <div className="mt-4 border-t border-[var(--ct-border-soft)] pt-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-muted)]">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted">
             Armed triggers
           </p>
           <ul className="space-y-1.5">
             {armedTriggers.map((t) => (
               <li key={t.id} className="flex items-start gap-2 text-sm">
                 <span
-                  className="mt-0.5 shrink-0 text-micro text-[var(--ct-status-warning)]"
+                  className="mt-0.5 shrink-0 text-micro ct-status-warning"
                   aria-hidden
                 >
                   ▸
                 </span>
-                <span className="text-[var(--ct-text-body)]">{t.condition}</span>
+                <span className="ct-text-body">{t.condition}</span>
               </li>
             ))}
           </ul>
@@ -261,19 +261,19 @@ function CompactPanel({
   const apyDeltaToneClass =
     apyDeltaValue !== null
       ? apyDeltaValue > 0.05
-        ? "text-[var(--ct-status-success)]"
+        ? "ct-status-success"
         : apyDeltaValue < -0.05
-          ? "text-[var(--ct-status-danger)]"
-          : "text-[var(--ct-text-muted)]"
+          ? "ct-status-danger"
+          : "ct-text-muted"
       : "";
 
   const riskDeltaToneClass =
     riskDeltaValue !== null
       ? riskDeltaValue > 0.5
-        ? "text-[var(--ct-status-danger)]"
+        ? "ct-status-danger"
         : riskDeltaValue < -0.5
-          ? "text-[var(--ct-status-success)]"
-          : "text-[var(--ct-text-muted)]"
+          ? "ct-status-success"
+          : "ct-text-muted"
       : "";
 
   const apyDelta =
@@ -286,7 +286,7 @@ function CompactPanel({
         aria-label={`APY midpoint delta vs Scenario A: ${apyDeltaValue.toFixed(2)} percentage points`}
       >
         Δ {formatSignedFixed(apyDeltaValue, 2)} pts{" "}
-        <span className="font-normal text-[var(--ct-text-muted)]">
+        <span className="font-normal ct-text-muted">
           midpoint vs Scenario A
         </span>
       </p>
@@ -302,7 +302,7 @@ function CompactPanel({
         aria-label={`Risk score delta vs Scenario A: ${Math.round(riskDeltaValue)}`}
       >
         Δ {formatSignedInt(riskDeltaValue)}{" "}
-        <span className="font-normal text-[var(--ct-text-muted)]">
+        <span className="font-normal ct-text-muted">
           vs A
         </span>
       </p>
@@ -364,8 +364,8 @@ export function OutputPanel(props: OutputPanelProps) {
       aria-busy={isPending}
     >
       {isPending && (
-        <div className="pointer-events-none absolute inset-0 z-[var(--ct-z-overlay)] flex items-center justify-center rounded-[var(--ct-radius-lg)] bg-[var(--ct-surface-2)]/60 backdrop-blur-sm">
-          <span className="text-sm text-[var(--ct-text-body)]">Computing…</span>
+        <div className="pointer-events-none absolute inset-0 z-[var(--ct-z-overlay)] flex items-center justify-center rounded-lg ct-surface-2/60 backdrop-blur-sm">
+          <span className="text-sm ct-text-body">Computing…</span>
         </div>
       )}
 
@@ -407,8 +407,8 @@ export function OutputPanel(props: OutputPanelProps) {
       </Card>
 
       {/* Disclaimer */}
-      <p className="border-t border-[var(--ct-border-soft)] pt-4 text-xs italic text-[var(--ct-text-muted)]">
-        <span className="font-semibold not-italic text-[var(--ct-text-body)]">
+      <p className="border-t border-[var(--ct-border-soft)] pt-4 text-xs italic ct-text-muted">
+        <span className="font-semibold not-italic ct-text-body">
           Not guaranteed.
         </span>{" "}
         Projections are conditional on stated assumptions. Methodology v1.0.

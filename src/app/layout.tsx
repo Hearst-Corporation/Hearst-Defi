@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import "./tokens-layer.css";
 import "./globals.css";
 import "./cockpit.css";
-// Shared card/KPI primitives (.dash-cell, .dash-label, bento grid). Used by BOTH
-// product AND admin — loaded globally here so admin cards actually get their fill
-// (previously only imported via (product) CSS → admin .dash-cell was unstyled).
+// Bento KPI primitives (.dash-cell, .dash-label) for investor surfaces.
+// Admin dashboard uses Card/glass-panel instead.
 import "./(product)/product-bento.css";
 
 import { AppChrome } from "@/components/app-chrome";
@@ -52,7 +51,7 @@ export default function RootLayout({
             targets #main-content, which can live anywhere in the document. */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[var(--ct-z-overlay)] focus:rounded-[var(--ct-radius-lg)] focus:bg-[var(--ct-accent)] focus:px-4 focus:py-2 focus:text-[var(--ct-bg-deep)]"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[var(--ct-z-overlay)] focus:rounded-lg focus:bg-[var(--ct-accent)] focus:px-4 focus:py-2 focus:text-[var(--ct-bg-deep)]"
         >
           Skip to main content
         </a>

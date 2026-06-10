@@ -124,7 +124,7 @@ export function PresetPicker<T extends string>({
           <span
             className={cn(
               "h4 truncate",
-              !value && "text-[var(--ct-text-muted)] font-medium",
+              !value && "ct-text-muted font-medium",
             )}
           >
             {value ? labelFor(value) : "Select a scenario"}
@@ -132,7 +132,7 @@ export function PresetPicker<T extends string>({
         </span>
         <span
           className={cn(
-            "shrink-0 text-[var(--ct-text-body)] transition-transform duration-[var(--ct-dur-fast)]",
+            "shrink-0 ct-text-body transition-transform duration-[var(--ct-dur-fast)]",
             open && "rotate-180",
           )}
           aria-hidden
@@ -174,14 +174,14 @@ export function PresetPicker<T extends string>({
                     "transition-colors duration-[var(--ct-dur-fast)]",
                     "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                     isSelected
-                      ? "bg-[var(--ct-surface-1)] text-[var(--ct-accent)]"
-                      : "text-[var(--ct-text-body)] hover:bg-[var(--ct-surface-3)] hover:text-[var(--ct-text-primary)]",
+                      ? "ct-surface-1 ct-text-accent"
+                      : "ct-text-body hover:ct-surface-3 hover:ct-text-primary",
                     isExcluded &&
                       "cursor-not-allowed opacity-40 hover:bg-transparent",
                   )}
                 >
                   <span className="text-sm font-semibold">{o.label}</span>
-                  <span className="text-micro text-[var(--ct-text-muted)]">
+                  <span className="text-micro ct-text-muted">
                     {isExcluded ? "Already on the other side" : o.description}
                   </span>
                 </button>

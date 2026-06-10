@@ -12,8 +12,7 @@ export interface ChartDisclaimerUnderlayProps {
  * Decorative disclaimer watermark rendered behind chart content.
  *
  * Absolutely fills its positioned ancestor, pointer-events disabled.
- * Text is rotated −12 °, font-size 0.625 rem, letter-spacing 0.15 em,
- * color var(--ct-text-faint) at 0.08 opacity.
+ * Typography via `.ct-chart-disclaimer-text` in cockpit.css.
  *
  * aria-hidden="true" — content is announced through the chart's own
  * provenance badge and methodology disclosure elsewhere in the page.
@@ -26,25 +25,11 @@ export function ChartDisclaimerUnderlay({
     <div
       aria-hidden="true"
       className={cn(
-        "absolute inset-0 flex items-center justify-center pointer-events-none select-none",
+        "absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden",
         className,
       )}
-      style={{ overflow: "hidden" }}
     >
-      <span
-        style={{
-          transform: "rotate(-12deg)",
-          color: "var(--ct-text-faint, var(--ct-text-muted))",
-          opacity: 0.08,
-          fontSize: "0.625rem",
-          letterSpacing: "0.15em",
-          whiteSpace: "nowrap",
-          fontWeight: 500,
-          textTransform: "uppercase",
-        }}
-      >
-        {text}
-      </span>
+      <span className="ct-chart-disclaimer-text">{text}</span>
     </div>
   );
 }

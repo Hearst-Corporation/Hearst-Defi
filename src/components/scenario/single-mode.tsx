@@ -30,7 +30,7 @@ export function SingleMode({ vaultId }: SingleModeProps) {
       />
 
       {error && (
-        <p className="rounded-[var(--ct-radius-full)] border border-[var(--ct-status-danger)] bg-[var(--ct-status-danger-soft)] px-4 py-2.5 text-sm text-[var(--ct-status-danger)]">
+        <p className="rounded-full border border-[var(--ct-status-danger)] ct-status-danger-bg px-4 py-2.5 text-sm ct-status-danger">
           {error}
         </p>
       )}
@@ -40,7 +40,7 @@ export function SingleMode({ vaultId }: SingleModeProps) {
         <div className="flex flex-col gap-0 glass-panel p-0 overflow-hidden">
           <div className="border-b border-[var(--ct-border-soft)] px-6 py-4">
             <h4 className="h4">Inputs</h4>
-            <p className="mt-0.5 text-xs text-[var(--ct-text-muted)]">
+            <p className="mt-0.5 text-xs ct-text-muted">
               Adjust sliders or select a preset above
             </p>
           </div>
@@ -100,17 +100,17 @@ export function SingleMode({ vaultId }: SingleModeProps) {
             >
               {pending ? (
                 <>
-                  <Spinner className="text-[var(--ct-text-strong)]" />
+                  <Spinner className="ct-text-strong" />
                   <p className="stat-label">Computing…</p>
                 </>
               ) : (
                 <>
                   <div className="h-10 w-10 ct-empty-state" />
-                  <p className="max-w-xs text-center text-sm text-[var(--ct-text-muted)]">
+                  <p className="max-w-xs text-center text-sm ct-text-muted">
                     Select a preset above or adjust the sliders,{" "}
                     <br />
                     then press{" "}
-                    <span className="font-semibold text-[var(--ct-text-body)]">
+                    <span className="font-semibold ct-text-body">
                       Run scenario
                     </span>{" "}
                     to see projections.

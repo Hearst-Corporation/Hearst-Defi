@@ -63,13 +63,13 @@ function Tab1099Int({ data }: { data: Form1099Int }) {
   return (
     <section aria-label="1099-INT preview" className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-[var(--ct-text-muted)]">
+        <p className="text-sm ct-text-muted">
           Tax year {data.taxYear} · YTD as of {data.ytdCutDate}
         </p>
         <ProvenanceBadge kind="estimated" />
       </div>
 
-      <div className="rounded-[var(--ct-radius-lg)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] divide-y divide-[var(--ct-border)]">
+      <div className="rounded-lg border border-[var(--ct-border)] ct-surface-1 divide-y divide-[var(--ct-border)]">
         <TaxRow
           label="Box 1 — Interest income YTD"
           value={formatUsd(data.interestIncomeUsd)}
@@ -105,13 +105,13 @@ function Tab1099B({ data }: { data: Form1099B }) {
   return (
     <section aria-label="1099-B preview" className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-[var(--ct-text-muted)]">
+        <p className="text-sm ct-text-muted">
           Tax year {data.taxYear} · Unrealised (no disposition)
         </p>
         <ProvenanceBadge kind="estimated" />
       </div>
 
-      <div className="rounded-[var(--ct-radius-lg)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] divide-y divide-[var(--ct-border)]">
+      <div className="rounded-lg border border-[var(--ct-border)] ct-surface-1 divide-y divide-[var(--ct-border)]">
         <TaxRow
           label="Box 1d — Proceeds"
           value={formatUsd(data.proceedsUsd)}
@@ -151,13 +151,13 @@ function TabCrs({ data }: { data: CrsPreview }) {
   return (
     <section aria-label="CRS preview" className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-[var(--ct-text-muted)]">
+        <p className="text-sm ct-text-muted">
           Reporting year {data.reportingYear} · OECD CRS Annex I §VIII(D)
         </p>
         <ProvenanceBadge kind="manual" />
       </div>
 
-      <div className="rounded-[var(--ct-radius-lg)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] divide-y divide-[var(--ct-border)]">
+      <div className="rounded-lg border border-[var(--ct-border)] ct-surface-1 divide-y divide-[var(--ct-border)]">
         <TaxRow
           label="Residence country"
           value={data.residenceCountry}
@@ -211,16 +211,16 @@ function TaxRow({
     <div
       className={cn(
         "flex items-center justify-between gap-4 px-4 py-3 text-sm",
-        highlight && "bg-[var(--ct-surface-2)]",
+        highlight && "ct-surface-2",
       )}
     >
-      <span className="text-[var(--ct-text-muted)]">{label}</span>
+      <span className="ct-text-muted">{label}</span>
       <span
         className={cn(
           "tabular-nums font-medium",
-          highlight && "text-[var(--ct-text-strong)]",
-          signed && !isNegative && "text-[var(--ct-status-success)]",
-          isNegative && "text-[var(--ct-status-danger)]",
+          highlight && "ct-text-strong",
+          signed && !isNegative && "ct-status-success",
+          isNegative && "ct-status-danger",
         )}
       >
         {value}
@@ -248,9 +248,9 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
         aria-disabled="true"
         title="Available 2027 Q1"
         className={cn(
-          "inline-flex items-center gap-2 rounded-[var(--ct-radius-full)]",
-          "border border-[var(--ct-border-soft)] bg-[var(--ct-surface-0)]",
-          "px-4 py-2 text-sm text-[var(--ct-text-muted)]",
+          "inline-flex items-center gap-2 rounded-full",
+          "border border-[var(--ct-border-soft)] ct-surface-0",
+          "px-4 py-2 text-sm ct-text-muted",
           "opacity-50 cursor-not-allowed",
           "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
         )}
@@ -264,7 +264,7 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-[var(--ct-z-overlay)] bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-[var(--ct-z-overlay)] ct-overlay-backdrop backdrop-blur-sm"
           aria-hidden
           onClick={() => setIsOpen(false)}
         />
@@ -289,10 +289,10 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
         {/* Header */}
         <div className="flex items-start justify-between gap-4 border-b border-[var(--ct-border)] px-6 py-5">
           <div>
-            <h2 className="text-lg font-semibold text-[var(--ct-text-strong)]">
+            <h2 className="h2">
               Tax Documents
             </h2>
-            <p className="mt-0.5 text-xs text-[var(--ct-text-muted)]">
+            <p className="mt-0.5 text-xs ct-text-muted">
               Tax year {preview.form1099Int.taxYear} · Preview
             </p>
           </div>
@@ -301,9 +301,9 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
             onClick={() => setIsOpen(false)}
             aria-label="Close tax documents drawer"
             className={cn(
-              "rounded-[var(--ct-radius-md)] p-2",
-              "text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)]",
-              "hover:bg-[var(--ct-surface-1)]",
+              "rounded-md p-2",
+              "ct-text-muted hover:ct-text-strong",
+              "hover:ct-surface-1",
               "transition-colors duration-[var(--ct-dur-base)]",
               "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
             )}
@@ -313,9 +313,9 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
         </div>
 
         {/* Disclaimer — mandatory per CLAUDE.md */}
-        <div className="border-b border-[var(--ct-border)] bg-[var(--ct-status-warning-soft)] px-6 py-3">
+        <div className="border-b border-[var(--ct-border)] ct-status-warning-bg px-6 py-3">
           <p
-            className="text-xs text-[var(--ct-status-warning)] leading-relaxed"
+            className="text-xs ct-status-warning leading-relaxed"
             data-testid="tax-disclaimer"
           >
             Preview only — final tax docs issued annually. Not tax advice. Not guaranteed.
@@ -342,8 +342,8 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
                 "transition-colors duration-[var(--ct-dur-base)]",
                 "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                 activeTab === tab
-                  ? "border-b-2 border-[var(--ct-accent)] text-[var(--ct-accent)]"
-                  : "text-[var(--ct-text-muted)] hover:text-[var(--ct-text-primary)] hover:bg-[var(--ct-surface-1)]",
+                  ? "border-b-2 border-[var(--ct-accent)] ct-text-accent"
+                  : "ct-text-muted hover:ct-text-primary hover:ct-surface-1",
               )}
             >
               {tab}
@@ -371,7 +371,7 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
 
         {/* Footer — download buttons disabled (V1 preview) */}
         <div className="flex items-center justify-between gap-3 border-t border-[var(--ct-border)] px-6 py-4">
-          <p className="text-xs text-[var(--ct-text-muted)]">
+          <p className="text-xs ct-text-muted">
             Final docs available 2027 Q1
           </p>
           <Button

@@ -77,9 +77,9 @@ interface SectionProps {
 function Section({ id, title, children }: SectionProps) {
   return (
     <section aria-labelledby={id} className="flex flex-col gap-4">
-      <h3 id={id} className="ct-section-title">
+      <h2 id={id} className="h2">
         {title}
-      </h3>
+      </h2>
       {children}
     </section>
   );
@@ -205,7 +205,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
             <Card className="flex flex-col gap-3">
               <p className="body-md ct-text-body">{vault.description}</p>
               {/* Model B one-liner — mandatory per ADR-006 (RR-SC-07) */}
-              <p className="body-sm text-[var(--ct-text-muted)]">
+              <p className="body-sm ct-text-muted">
                 Principal held in a USDC cash reserve — not deployed on-chain; yield is a monthly mining-revenue-share distribution
               </p>
               <div className="flex flex-wrap gap-2 pt-2 border-t border-[var(--ct-border-soft)]">

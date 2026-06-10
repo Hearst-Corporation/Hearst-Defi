@@ -124,13 +124,13 @@ function DocusignStepInner({
     return (
       <div
         className={cn(
-          "rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)]",
-          "bg-[var(--ct-surface-1)] px-6 py-10 text-center",
+          "rounded-lg border border-[var(--ct-border-soft)]",
+          "ct-surface-1 px-6 py-10 text-center",
         )}
         aria-live="polite"
         aria-busy="true"
       >
-        <p className="text-sm font-medium text-[var(--ct-text-muted)] animate-pulse">
+        <p className="text-sm font-medium ct-text-muted animate-pulse">
           Preparing signing session…
         </p>
       </div>
@@ -142,21 +142,21 @@ function DocusignStepInner({
     return (
       <div
         className={cn(
-          "rounded-[var(--ct-radius-lg)] border border-dashed border-[var(--ct-border)]",
-          "bg-[var(--ct-surface-1)] px-6 py-10 text-center",
+          "rounded-lg border border-dashed border-[var(--ct-border)]",
+          "ct-surface-1 px-6 py-10 text-center",
         )}
         role="region"
         aria-label={`${label} — configuration pending`}
       >
-        <p className="text-sm font-medium text-[var(--ct-text-muted)]">{label}</p>
-        <p className="mt-1 text-xs text-[var(--ct-text-dim)]">
+        <p className="text-sm font-medium ct-text-muted">{label}</p>
+        <p className="mt-1 text-xs ct-text-dim">
           Document signing is not yet available.
         </p>
         <span
           className={cn(
             "mt-3 inline-flex items-center gap-2 px-3 py-1",
-            "rounded-[var(--ct-radius-full)] border border-[var(--ct-status-warning-border)]",
-            "bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
+            "rounded-full border border-[var(--ct-status-warning-border)]",
+            "ct-status-warning-bg ct-status-warning",
             "text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]",
           )}
         >
@@ -174,16 +174,16 @@ function DocusignStepInner({
     return (
       <div
         className={cn(
-          "rounded-[var(--ct-radius-lg)] border border-[var(--ct-status-success-border)]",
-          "bg-[var(--ct-status-success-soft)] px-6 py-10 text-center",
+          "rounded-lg border border-[var(--ct-status-success-border)]",
+          "ct-status-success-bg px-6 py-10 text-center",
         )}
         role="status"
         aria-live="assertive"
       >
-        <p className="text-sm font-semibold text-[var(--ct-status-success)]">
+        <p className="text-sm font-semibold ct-status-success">
           Signing complete
         </p>
-        <p className="mt-1 text-xs text-[var(--ct-text-muted)]">
+        <p className="mt-1 text-xs ct-text-muted">
           {label} — document signed successfully.
         </p>
       </div>

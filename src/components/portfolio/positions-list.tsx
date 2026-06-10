@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ApyRange } from "@/components/ui/apy-range";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
@@ -67,13 +69,17 @@ export function PositionsList({ positions, source }: PositionsListProps) {
                     background: STATUS_DOT[p.status] ?? "var(--ct-text-muted)",
                   }}
                 />
-                <span className="body-md ct-text-primary min-w-0 truncate">
+                <Link
+                  href={`/portfolio/${p.id}`}
+                  className="body-md ct-text-primary min-w-0 truncate underline-offset-4 hover:underline"
+                  aria-label={`Open details for ${p.vaultName}`}
+                >
                   {p.vaultName}
-                </span>
+                </Link>
               </div>
 
               {/* Principal */}
-              <span className="tabular body-md text-right text-[var(--ct-text-body)]">
+              <span className="tabular body-md text-right ct-text-body">
                 {formatUsdCompact(p.principalUsdc)}
               </span>
 

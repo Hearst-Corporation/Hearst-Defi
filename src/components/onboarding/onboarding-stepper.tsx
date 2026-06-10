@@ -20,7 +20,7 @@ export function OnboardingStepper({
     <div className="sticky top-0 z-[var(--ct-z-sticky)] border-b border-[var(--ct-border)] bg-[var(--ct-bg-deep)] backdrop-blur-xl">
       <div className="mx-auto max-w-5xl px-6 py-4">
         {/* Path label */}
-        <p className="mb-3 text-xs font-medium uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-muted)]">
+        <p className="mb-3 text-xs font-medium uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted">
           {pathLabel}
         </p>
 
@@ -42,10 +42,10 @@ export function OnboardingStepper({
                       isDone &&
                         "border-[var(--ct-accent)] bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]",
                       isActive &&
-                        "border-[var(--ct-accent)] bg-transparent text-[var(--ct-accent)] shadow-[0_0_0_3px_color-mix(in_srgb,var(--ct-accent)_20%,transparent)]",
+                        "border-[var(--ct-accent)] bg-transparent ct-text-accent shadow-[0_0_0_3px_color-mix(in_srgb,var(--ct-accent)_20%,transparent)]",
                       !isDone &&
                         !isActive &&
-                        "border-[var(--ct-border)] bg-[var(--ct-surface-1)] text-[var(--ct-text-dim)]",
+                        "border-[var(--ct-border)] ct-surface-1 ct-text-dim",
                     )}
                     aria-current={isActive ? "step" : undefined}
                   >
@@ -75,8 +75,8 @@ export function OnboardingStepper({
                     className={cn(
                       "mt-1.5 max-w-28 text-center text-xs leading-tight",
                       isActive
-                        ? "font-medium text-[var(--ct-text-strong)]"
-                        : "text-[var(--ct-text-dim)]",
+                        ? "font-medium ct-text-strong"
+                        : "ct-text-dim",
                     )}
                   >
                     {step.label}

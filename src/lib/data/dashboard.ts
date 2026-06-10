@@ -21,6 +21,10 @@ import {
   type AllocationTargets,
   type VaultDefinition,
 } from "@/lib/engine/vaults";
+import {
+  METHODOLOGY_ANCHORS,
+  METHODOLOGY_FACTORS,
+} from "@/lib/engine/methodology";
 import type { VaultRef } from "@/lib/vaults/resolver";
 import { toVaultProfile } from "@/lib/vaults/profile";
 
@@ -165,15 +169,6 @@ export interface DashboardData {
 // reads only these so a stress-preset never leaks into the live KPIs.
 const TIMELINE_SOURCES: string[] = ["daily-seed", "live", "oracle", "attested"];
 
-/**
- * Stressed APY band width — ±15% around the centre bear-scenario projection.
- * Methodology v1.0 MVP proxy: until the scenario engine exposes per-scenario
- * p5/p95 quantiles, the dashboard widens the single-point stress into a range
- * so CLAUDE.md rule #1 (APY always as a range, never a single point) holds for
- * the stressed surface too.
- */
-const STRESSED_APY_BAND = 0.15;
-
 // Mode vérité live: with no DB row, report honest zeros — never the old
 // fabricated "paper phase" numbers (−3.4% trend / 81 confidence). A zero
 // reads as "no data yet", not as a real measurement.
@@ -195,7 +190,7 @@ const TIMESERIES_MIN_ROWS = 7;
  * negative (band widens symmetrically around the magnitude).
  */
 function stressedRangeFor(centre: number): { low: number; high: number } {
-  const magnitude = Math.abs(centre) * STRESSED_APY_BAND;
+  const magnitude = Math.abs(centre) * METHODOLOGY_FACTORS.STRESSED_APY_BAND;
   const low = centre - magnitude;
   const high = centre + magnitude;
   return low <= high ? { low, high } : { low: high, high: low };
@@ -337,11 +332,11 @@ async function buildDashboardFromSnapshot(
   const mappedAllocations = (latestSnapshot?.allocations ?? []).map(toAllocationRow);
   const mappedTrailing = trailingSnapshots.map(toTrailingSnapshotRow);
 
-  const vault = await buildVault(mappedSnapshot, () => {
+  const vault = await buildVault(mappedSnapshot, vaultMeta, () => {
     usedFallback = true;
   });
 
-  const allocations = buildAllocations(mappedAllocations, () => {
+  const allocations = buildAllocations(mappedAllocations, vaultMeta, () => {
     usedFallback = true;
   });
 
@@ -365,11 +360,9 @@ async function buildDashboardFromSnapshot(
   });
 
   const source: DashboardData["source"] =
-    latestSnapshot === null && recentEvents.length === 0
-      ? "fallback"
-      : usedFallback
-        ? "partial"
-        : "db";
+    latestSnapshot === null || usedFallback
+      ? "partial"
+      : "db";
 
   return {
     vault,
@@ -434,18 +427,20 @@ function toVaultSnapshotWithAllocations(row: {
 
 async function buildVault(
   snapshot: VaultSnapshotWithAllocations | null,
+  vaultMeta: DashboardVaultMeta,
   markFallback: () => void,
 ): Promise<DashboardVault> {
   if (snapshot === null) {
     markFallback();
+    const stressedApy = vaultMeta.apyTarget.low * METHODOLOGY_FACTORS.BEAR_STRESS_FACTOR;
     return {
       aumUsdc: 0,
       delta30dUsdc: 0,
-      apyRange: { low: 0, high: 0 },
-      stressedApy: 0,
-      stressedApyRange: { low: 0, high: 0 },
-      riskScore: 0,
-      miningMarginScore: 0,
+      apyRange: { ...vaultMeta.apyTarget },
+      stressedApy,
+      stressedApyRange: stressedRangeFor(stressedApy),
+      riskScore: METHODOLOGY_ANCHORS.RISK_SCORE,
+      miningMarginScore: METHODOLOGY_ANCHORS.MINING_MARGIN_SCORE,
       mode: "balanced",
       asOf: new Date(),
     };
@@ -516,11 +511,19 @@ function toAllocationRow(row: {
 
 function buildAllocations(
   rows: AllocationRow[],
+  vaultMeta: DashboardVaultMeta,
   markFallback: () => void,
 ): DashboardAllocation[] {
   if (rows.length === 0) {
     markFallback();
-    return [];
+    // Use methodology targets from vaultMeta when DB is empty.
+    // valueUsdc and yieldContributionBps stay 0 as they require live AUM/metrics.
+    return Object.entries(vaultMeta.allocationTargets).map(([bucket, pct]) => ({
+      bucket: normaliseBucket(bucket),
+      pct,
+      valueUsdc: 0,
+      yieldContributionBps: 0,
+    }));
   }
   return rows.map((r) => ({
     bucket: normaliseBucket(r.bucket),

@@ -60,8 +60,8 @@ interface RecentActivityProps {
  */
 export function RecentActivity({ transactions, source }: RecentActivityProps) {
   const provenance = source === "fallback" ? "stale" : "live";
-  // Anchor relative time to a fixed server timestamp — stable across renders.
-  const asOf = new Date("2026-05-20T09:00:00Z");
+  // Server-rendered timestamp keeps relative labels current without client JS.
+  const asOf = new Date();
   const displayed = transactions.slice(0, 5);
 
   return (

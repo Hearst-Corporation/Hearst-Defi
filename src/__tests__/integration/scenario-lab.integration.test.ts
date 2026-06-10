@@ -185,6 +185,36 @@ describe("runScenarioAction Server Action", () => {
     expect(runScenarioNarrativeMock).not.toHaveBeenCalled();
   });
 
+  it("E. high vol_index (85, 0-100 scale) → reduce_size trigger armed, vol guardrail breached, confidence low", async () => {
+    requireAuthMock.mockResolvedValue({ userId: "user_e" });
+    runScenarioNarrativeMock.mockResolvedValue(NARRATIVE_FIXTURE);
+
+    const { runScenarioAction } = await import(
+      "@/app/admin/scenario-lab/actions"
+    );
+    const result = await runScenarioAction(
+      { ...VALID_INPUTS, vol_index: 85 },
+      "custom",
+    );
+
+    // Confidence must be "low" when vol_index >= 75
+    expect(result.confidence).toBe("low");
+
+    // reduce_size trigger must be armed (vol_index > 80)
+    const reduceSize = result.btc_tactical.triggers.find(
+      (t) => t.kind === "reduce_size",
+    );
+    expect(reduceSize).toBeDefined();
+    expect(reduceSize!.armed).toBe(true);
+
+    // Volatility guardrail must be "breached" (vol_index > 80)
+    const volGuardrail = result.btc_tactical.guardrails.find(
+      (g) => g.kind === "volatility",
+    );
+    expect(volGuardrail).toBeDefined();
+    expect(volGuardrail!.status).toBe("breached");
+  });
+
   it("D. narrative agent failure → ok with narrative=null (graceful degradation)", async () => {
     requireAuthMock.mockResolvedValue({ userId: "user_d" });
     runScenarioNarrativeMock.mockRejectedValue(

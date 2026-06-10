@@ -23,7 +23,7 @@ export const BASE_INPUTS: ScenarioInputs = {
   hashprice_usd_th_day: 0.085,
   energy_cost_kwh: 0.045,
   stable_apy_pct: 4.5,
-  vol_index: 2,
+  vol_index: 45,
 };
 
 export interface ScenarioState {

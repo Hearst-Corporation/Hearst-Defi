@@ -74,7 +74,7 @@ function isNegated(
   const before = text.slice(Math.max(0, index - 100), index);
   const after = text.slice(index + matchLength, index + matchLength + 100);
 
-  const beforeWords = before.split(/[\s-]+/).slice(-WINDOW);
+  const beforeWords = before.split(/[\s-]+/).filter(Boolean).slice(-WINDOW);
   const afterWords = after.split(/[\s-]+/).slice(0, WINDOW);
 
   return [...beforeWords, ...afterWords].some((w) =>

@@ -118,7 +118,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           (was a translucent glass <Card> that overlapped — fixed). */}
       <nav
         aria-label="Invest flow actions"
-        className="sticky bottom-6 z-[var(--ct-z-bottom-bar)] flex items-center justify-between gap-4 rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-strong)] bg-[var(--ct-bg-deep)] px-5 py-3 shadow-[var(--ct-shadow-elevated)]"
+        className="sticky bottom-6 z-[var(--ct-z-bottom-bar)] flex items-center justify-between gap-4 rounded-lg border border-[var(--ct-border-strong)] bg-[var(--ct-bg-deep)] px-5 py-3 shadow-[var(--ct-shadow-elevated)]"
       >
         <div className="flex min-w-0 items-center gap-2 flex-wrap">
           <span className="body-sm font-semibold ct-text-primary truncate">

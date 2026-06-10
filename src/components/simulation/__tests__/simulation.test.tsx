@@ -184,16 +184,16 @@ describe("SimulationPanel — state diff color coding", () => {
     const html = render(
       <SimulationPanel result={SUCCESS_RESULT} loading={false} />,
     );
-    // The before span uses text-[var(--ct-text-faint)]
-    expect(html).toContain("--ct-text-faint");
+    // The before span uses ct-text-faint
+    expect(html).toContain("ct-text-faint");
   });
 
   it("applies --ct-accent to the after value", () => {
     const html = render(
       <SimulationPanel result={SUCCESS_RESULT} loading={false} />,
     );
-    // The after span uses text-[var(--ct-accent)]
-    expect(html).toContain("--ct-accent");
+    // The after span uses ct-text-accent
+    expect(html).toContain("ct-text-accent");
   });
 });
 

@@ -32,15 +32,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <article 
-        className="flex flex-col relative min-h-[140px] p-6 overflow-hidden" 
-        style={{
-          background: "color-mix(in srgb, var(--ct-surface-1) 20%, transparent)",
-          backdropFilter: "blur(24px)",
-          borderRadius: "var(--ct-radius-xl)",
-          border: "1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent)",
-          backgroundImage: "radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 8%, transparent) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
+        className="ct-kpi-glass flex flex-col relative min-h-[140px] p-6 overflow-hidden" 
         aria-label="NAV per share"
       >
         <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 relative z-10">
@@ -61,15 +53,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
       </article>
 
       <article 
-        className="flex flex-col relative min-h-[140px] p-6 overflow-hidden" 
-        style={{
-          background: "color-mix(in srgb, var(--ct-surface-1) 20%, transparent)",
-          backdropFilter: "blur(24px)",
-          borderRadius: "var(--ct-radius-xl)",
-          border: "1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent)",
-          backgroundImage: "radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 8%, transparent) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
+        className="ct-kpi-glass flex flex-col relative min-h-[140px] p-6 overflow-hidden" 
         aria-label="Portfolio value"
       >
         <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 relative z-10">
@@ -100,15 +84,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
       </article>
 
       <article 
-        className="flex flex-col relative min-h-[140px] p-6 overflow-hidden" 
-        style={{
-          background: "color-mix(in srgb, var(--ct-surface-1) 20%, transparent)",
-          backdropFilter: "blur(24px)",
-          borderRadius: "var(--ct-radius-xl)",
-          border: "1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent)",
-          backgroundImage: "radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 8%, transparent) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
+        className="ct-kpi-glass flex flex-col relative min-h-[140px] p-6 overflow-hidden" 
         aria-label="Yield year to date"
       >
         <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 relative z-10">
@@ -129,15 +105,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
       </article>
 
       <article 
-        className="flex flex-col relative min-h-[140px] p-6 overflow-hidden" 
-        style={{
-          background: "color-mix(in srgb, var(--ct-surface-1) 20%, transparent)",
-          backdropFilter: "blur(24px)",
-          borderRadius: "var(--ct-radius-xl)",
-          border: "1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent)",
-          backgroundImage: "radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 8%, transparent) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
+        className="ct-kpi-glass flex flex-col relative min-h-[140px] p-6 overflow-hidden" 
         aria-label="Next distribution date"
       >
         <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 relative z-10">

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/db";
+import { METHODOLOGY_ANCHORS } from "@/lib/engine/methodology";
 import type { MiningHealthInput } from "@/lib/agents/mining-health";
 import { fetchHashprice, type HashpriceData } from "@/lib/data/hashprice";
 import { computeMiningRevenue } from "@/lib/engine/mining";
@@ -40,13 +41,14 @@ const OPS_WINDOW_DAYS = 30;
 
 /**
  * Mode vérité live: when the DB has no MiningMetric / Proof rows, we report
- * zeros (an honest "no operational data") flagged `is_fallback` — never
- * fabricated-but-plausible figures like 182 PH/s or 98.4% uptime.
+ * zeros for measured metrics (hashrate, uptime) but use the methodology v1.0
+ * anchor for the margin score so the dashboard isn't "dead". Flagged
+ * `is_fallback` so consumers badge them as `estimated` (B3).
  */
 const OPS_FALLBACK: MiningOpsSnapshot = {
   hashrate_ph_s: 0,
   uptime_pct: 0,
-  margin_score: 0,
+  margin_score: METHODOLOGY_ANCHORS.MINING_MARGIN_SCORE, // Methodology v1.0 anchor
   attestations_count: 0,
 };
 

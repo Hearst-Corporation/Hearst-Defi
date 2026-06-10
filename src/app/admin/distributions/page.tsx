@@ -77,7 +77,7 @@ export default async function DistributionsPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm tabular ct-border-soft rounded-[var(--ct-radius-lg)] overflow-hidden">
+            <table className="w-full text-sm tabular ct-border-soft rounded-lg overflow-hidden">
               <thead>
                 <tr className="ct-surface-1">
                   <th className="text-left ct-table-header body-xs ct-text-muted font-medium">

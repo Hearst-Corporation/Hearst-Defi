@@ -14,6 +14,21 @@ interface SliderFieldMeta {
   formatUnit: (v: number) => string;
 }
 
+// Volatility band thresholds — mirror the engine's VOL_WARNING (65) / VOL_BREACHED (80).
+const VOL_BAND_LOW = 35;
+const VOL_BAND_NORMAL = 65;
+const VOL_BAND_HIGH = 80;
+
+function volBandLabel(v: number): string {
+  return v < VOL_BAND_LOW
+    ? "Low"
+    : v < VOL_BAND_NORMAL
+      ? "Normal"
+      : v < VOL_BAND_HIGH
+        ? "High"
+        : "Extreme";
+}
+
 const FIELDS: SliderFieldMeta[] = [
   {
     key: "btc_price_change_pct",
@@ -58,14 +73,12 @@ const FIELDS: SliderFieldMeta[] = [
   {
     key: "vol_index",
     label: "BTC Volatility (30d)",
-    unit: "index 1–4",
-    min: 1,
-    max: 4,
-    step: 0.05,
-    format: (v) =>
-      v < 1.75 ? "Low" : v < 2.5 ? "Normal" : v < 3.25 ? "High" : "Extreme",
-    formatUnit: (v) =>
-      v < 1.75 ? "Low" : v < 2.5 ? "Normal" : v < 3.25 ? "High" : "Extreme",
+    unit: "index 0–100",
+    min: 0,
+    max: 100,
+    step: 1,
+    format: volBandLabel,
+    formatUnit: volBandLabel,
   },
 ];
 
@@ -108,14 +121,14 @@ export function InputsPanel({ inputs, onChange, disabled }: InputsPanelProps) {
               <div className="flex items-baseline gap-1.5">
                 <span
                   className={cn(
-                    "mono text-xl font-bold tabular-nums text-[var(--ct-text-primary)]",
+                    "mono text-xl font-bold tabular-nums ct-text-primary",
                     disabled && "opacity-50",
                   )}
                 >
                   {field.format(value)}
                 </span>
                 {!isVolIndex && (
-                  <span className="text-xs text-[var(--ct-text-muted)]">
+                  <span className="text-xs ct-text-muted">
                     {field.unit}
                   </span>
                 )}
@@ -144,14 +157,14 @@ export function InputsPanel({ inputs, onChange, disabled }: InputsPanelProps) {
 
             {/* Min / max labels */}
             <div className="mt-1.5 flex justify-between">
-              <span className="text-micro text-[var(--ct-text-muted)]">
+              <span className="text-micro ct-text-muted">
                 {field.key === "btc_price_change_pct"
                   ? "−60%"
                   : field.key === "vol_index"
                     ? "Low"
                     : `${field.min} ${field.unit}`}
               </span>
-              <span className="text-micro text-[var(--ct-text-muted)]">
+              <span className="text-micro ct-text-muted">
                 {field.key === "btc_price_change_pct"
                   ? "+120%"
                   : field.key === "vol_index"

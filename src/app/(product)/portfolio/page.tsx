@@ -105,6 +105,84 @@ function PositionValueKpi({ totalValueUsdc, source }: PositionValueKpiProps) {
 }
 
 // ---------------------------------------------------------------------------
+// Portfolio Brief — compact investor summary before deeper widgets
+// ---------------------------------------------------------------------------
+
+interface PortfolioBriefProps {
+  totalValueUsdc: number;
+  recentChangeUsdc: number | null;
+  nextDistributionAt: Date;
+  projectedPayoutUsdc: number;
+  riskLabel: string | undefined;
+  proofState: "attested" | "stale";
+  source: "live" | "fallback";
+}
+
+function formatDateShort(date: Date): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(date);
+}
+
+function PortfolioBrief({
+  totalValueUsdc,
+  recentChangeUsdc,
+  nextDistributionAt,
+  projectedPayoutUsdc,
+  riskLabel,
+  proofState,
+  source,
+}: PortfolioBriefProps) {
+  const provenance = source === "fallback" ? "stale" : "live";
+  const recentChange =
+    recentChangeUsdc === null
+      ? "Not available yet"
+      : `${recentChangeUsdc >= 0 ? "+" : ""}${formatUsdCompact(recentChangeUsdc)}`;
+  const nextPayout =
+    projectedPayoutUsdc > 0
+      ? `${formatUsdCompact(projectedPayoutUsdc)} around ${formatDateShort(nextDistributionAt)}`
+      : `Next cycle around ${formatDateShort(nextDistributionAt)}`;
+  const proofLabel =
+    proofState === "attested" ? "Latest proof attested" : "Proof awaiting attestation";
+
+  return (
+    <section
+      aria-label="Portfolio brief"
+      className="dash-cell dash-cell-premium grid gap-4 sm:grid-cols-2 xl:grid-cols-5"
+    >
+      <div className="space-y-1">
+        <div className="dash-label mb-0">
+          <span>Portfolio brief</span>
+          <ProvenanceBadge kind={provenance} />
+        </div>
+        <p className="body-xs ct-text-muted">
+          One-line view before the detailed widgets below.
+        </p>
+      </div>
+      <div>
+        <p className="stat-label">Current value</p>
+        <p className="body-lg mono tabular ct-text-strong">{formatUsdCompact(totalValueUsdc)}</p>
+      </div>
+      <div>
+        <p className="stat-label">Recent change</p>
+        <p className="body-lg mono tabular ct-text-primary">{recentChange}</p>
+      </div>
+      <div>
+        <p className="stat-label">Next payout/event</p>
+        <p className="body-sm ct-text-primary">{nextPayout}</p>
+      </div>
+      <div>
+        <p className="stat-label">Risk & proof</p>
+        <p className="body-sm ct-text-primary">{riskLabel ?? "Risk snapshot awaiting data"}</p>
+        <p className="body-xs ct-text-muted">{proofLabel}</p>
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Yield YTD KPI
 // ---------------------------------------------------------------------------
 
@@ -241,6 +319,14 @@ export default async function PortfolioPage() {
       : yieldStackPropsRaw;
 
   const hasPositions = data.positions.length > 0;
+  const proofState =
+    proofPulseProps.lastPor.statedTvlUsdc > 0 &&
+    proofPulseProps.lastPor.onChainTvlUsdc > 0 &&
+    Math.abs(proofPulseProps.lastPor.statedTvlUsdc - proofPulseProps.lastPor.onChainTvlUsdc) /
+      proofPulseProps.lastPor.statedTvlUsdc <
+      0.005
+      ? "attested"
+      : "stale";
 
   // No active positions → calm guided empty state; skip the full dashboard.
   if (!hasPositions) {
@@ -265,7 +351,7 @@ export default async function PortfolioPage() {
       {data.source === "fallback" ? (
         <div
           role="status"
-          className="flex items-center gap-2 rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-4 py-2.5"
+          className="flex items-center gap-2 rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-2.5"
         >
           <span aria-hidden className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ct-text-muted)]" />
           <p className="body-xs ct-text-muted">
@@ -294,6 +380,16 @@ export default async function PortfolioPage() {
           taxPreview={taxPreview}
         />
       </div>
+
+      <PortfolioBrief
+        totalValueUsdc={data.totalValueUsdc}
+        recentChangeUsdc={data.pnl?.totalReturnUsdc ?? null}
+        nextDistributionAt={data.nextDistributionAt}
+        projectedPayoutUsdc={timeToCashProps.projectedUsdc}
+        riskLabel={riskPulseProps.compositeLabel}
+        proofState={proofState}
+        source={data.source}
+      />
 
       {/* ── Section 1 — Performance & Liquidity (Hero) ────────────────────── */}
       <Section data-section="hero-pulse" label="Hero Pulse — key performance and liquidity">

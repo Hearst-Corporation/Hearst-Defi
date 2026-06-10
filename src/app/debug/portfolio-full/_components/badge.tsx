@@ -8,17 +8,17 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-[var(--ct-border)] bg-[var(--ct-surface-1)] text-[var(--ct-text-muted)]",
+          "border-[var(--ct-border)] ct-surface-1 ct-text-muted",
         success:
-          "border-[color-mix(in_srgb,var(--ct-accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)] text-[var(--ct-accent)]",
+          "border-[color-mix(in_srgb,var(--ct-accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)] ct-text-accent",
         warning:
-          "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
+          "border-[var(--ct-status-warning-border)] ct-status-warning-bg ct-status-warning",
         danger:
-          "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)]",
+          "border-[var(--ct-status-danger-border)] ct-status-danger-bg ct-status-danger",
         accent:
-          "border-[var(--ct-border-strong)] bg-[var(--ct-surface-2)] text-[var(--ct-text-strong)]",
+          "border-[var(--ct-border-strong)] ct-surface-2 ct-text-strong",
         brand:
-          "border-[var(--ct-border-strong)] bg-[var(--ct-surface-2)] text-[var(--ct-text-strong)]",
+          "border-[var(--ct-border-strong)] ct-surface-2 ct-text-strong",
       },
     },
     defaultVariants: {

@@ -111,8 +111,7 @@ function BarChart({ entries, refYear, currentPeriod }: BarChartProps) {
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
       preserveAspectRatio="xMidYMid meet"
-      className="w-full"
-      style={{ maxHeight: `${VB_H}px` }}
+      className="w-full max-h-[180px]"
       role="img"
       aria-labelledby={titleId}
     >
@@ -223,7 +222,7 @@ function BarChart({ entries, refYear, currentPeriod }: BarChartProps) {
                 y={by + bh / 2 + 2}
                 fontSize="7"
                 fill="var(--ct-accent)"
-                style={{ filter: "drop-shadow(0 0 3px var(--ct-accent))" }}
+                className="ct-donut-slice-glow"
                 aria-hidden="true"
               >
                 ◀
@@ -289,10 +288,10 @@ export function DistribCalendar({
       {/* Header */}
       <div className="flex items-start justify-between gap-3 relative z-10">
         <div className="flex flex-col gap-0.5">
-          <h3 className="dash-label mb-0 font-semibold text-[var(--ct-text-strong)]">
+          <h3 className="dash-label mb-0 font-semibold ct-text-strong">
             PAYOUT CALENDAR
           </h3>
-          <p className="text-micro font-medium uppercase tracking-wide text-[var(--ct-text-muted)] mono">
+          <p className="text-micro font-medium uppercase tracking-wide ct-text-muted mono">
             12-month history · USDC
           </p>
         </div>
@@ -316,7 +315,7 @@ export function DistribCalendar({
 
       {/* Chart */}
       {hasEntries ? (
-        <div className="w-full overflow-hidden rounded-[var(--ct-radius-md)] relative z-10">
+        <div className="w-full overflow-hidden rounded-md relative z-10">
           <BarChart
             entries={entries}
             refYear={refYear}
@@ -325,11 +324,10 @@ export function DistribCalendar({
         </div>
       ) : (
         <div
-          className="flex items-center justify-center rounded-[var(--ct-radius-md)] border border-dashed border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] relative z-10"
-          style={{ minHeight: "8rem" }}
+          className="flex items-center justify-center rounded-md border border-dashed border-[var(--ct-border-soft)] ct-surface-1 relative z-10 min-h-32"
           aria-label="No distribution data yet"
         >
-          <p className="text-xs text-[var(--ct-text-muted)]">
+          <p className="text-xs ct-text-muted">
             No distribution history yet.
           </p>
         </div>
@@ -338,18 +336,18 @@ export function DistribCalendar({
       {/* Footer — share class + cadence */}
       <dl className="flex flex-wrap gap-x-6 gap-y-2 border-t border-[var(--ct-border-soft)] pt-4 mt-auto relative z-10">
         <div className="flex flex-col gap-0.5 min-w-0">
-          <dt className="text-micro uppercase tracking-wide text-[var(--ct-text-muted)] mono">
+          <dt className="text-micro uppercase tracking-wide ct-text-muted mono">
             Share class
           </dt>
-          <dd className="text-xs font-medium text-[var(--ct-text-body)] mono">
+          <dd className="text-xs font-medium ct-text-body mono">
             Series {shareClass}
           </dd>
         </div>
         <div className="flex flex-col gap-0.5 min-w-0">
-          <dt className="text-micro uppercase tracking-wide text-[var(--ct-text-muted)] mono">
+          <dt className="text-micro uppercase tracking-wide ct-text-muted mono">
             Cadence
           </dt>
-          <dd className="text-xs font-medium text-[var(--ct-text-body)] mono">
+          <dd className="text-xs font-medium ct-text-body mono">
             {cadence}
           </dd>
         </div>

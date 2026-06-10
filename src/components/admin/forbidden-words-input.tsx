@@ -43,25 +43,12 @@ function ForbiddenWordList({ matches }: { matches: ForbiddenMatch[] }) {
       {matches.map((m) => (
         <li
           key={`${m.word}-${m.index}`}
-          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium leading-none"
-          style={{
-            color: "var(--ct-status-danger)",
-            background: "color-mix(in srgb, var(--ct-status-danger) 12%, transparent)",
-            border: "1px solid color-mix(in srgb, var(--ct-status-danger) 30%, transparent)",
-          }}
+          className="ct-forbidden-chip"
         >
           {/* squiggle decoration */}
           <span
             aria-hidden="true"
-            style={{
-              display: "inline-block",
-              width: "0.65em",
-              height: "0.5em",
-              backgroundImage:
-                "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 3'%3E%3Cpath d='M0 3 Q1.5 0 3 3 Q4.5 6 6 3' stroke='%23f87171' stroke-width='1' fill='none'/%3E%3C/svg%3E\")",
-              backgroundRepeat: "repeat-x",
-              backgroundSize: "6px 3px",
-            }}
+            className="ct-squiggle"
           />
           <span>{m.word}</span>
         </li>

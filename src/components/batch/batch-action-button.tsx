@@ -35,7 +35,7 @@ export function BatchActionButton({
       aria-disabled={disabled}
       className={cn(
         // Base
-        "inline-flex items-center gap-1.5 rounded-[var(--ct-radius-full)]",
+        "inline-flex items-center gap-1.5 rounded-full",
         "px-3 py-1 text-xs font-medium",
         "transition-[background-color,border-color,color,opacity]",
         "duration-[var(--ct-dur-base)]",
@@ -44,9 +44,9 @@ export function BatchActionButton({
         "active:scale-[0.97]",
         // Variants
         variant === "default" &&
-          "border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] text-[var(--ct-text-primary)] hover:bg-[var(--ct-surface-2)] hover:border-[var(--ct-border-strong)] hover:text-[var(--ct-text-strong)]",
+          "border border-[var(--ct-border-soft)] ct-surface-1 ct-text-primary hover:ct-surface-2 hover:border-[var(--ct-border-strong)] hover:ct-text-strong",
         variant === "danger" &&
-          "border border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)] hover:bg-[var(--ct-status-danger-soft)]",
+          "border border-[var(--ct-status-danger-border)] ct-status-danger-bg ct-status-danger hover:ct-status-danger-bg",
         className,
       )}
       {...rest}

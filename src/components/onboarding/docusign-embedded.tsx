@@ -141,8 +141,8 @@ export function DocusignEmbedded({
   return (
     <div
       className={cn(
-        "relative flex flex-col rounded-[var(--ct-radius-lg)] overflow-hidden",
-        "bg-[var(--ct-surface-0)] border border-[var(--ct-border-soft)]",
+        "relative flex flex-col rounded-lg overflow-hidden",
+        "ct-surface-0 border border-[var(--ct-border-soft)]",
         "shadow-[var(--ct-shadow-soft)]",
         className,
       )}
@@ -184,8 +184,7 @@ export function DocusignEmbedded({
         title="DocuSign Subscription Agreement"
         onLoad={handleIframeLoad}
         allow="camera; microphone"
-        className="w-full border-none"
-        style={{ minHeight: "640px", height: "80vh" }}
+        className="w-full border-none ct-iframe-signing"
         sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
       />
     </div>

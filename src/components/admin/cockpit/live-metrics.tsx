@@ -50,17 +50,17 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
 
   const marginColor =
     vault.miningMarginScore < 15
-      ? "text-[var(--ct-status-danger)]"
+      ? "ct-status-danger"
       : vault.miningMarginScore < 40
-        ? "text-[var(--ct-status-warning)]"
-        : "text-[var(--ct-status-success)]";
+        ? "ct-status-warning"
+        : "ct-status-success";
 
   const riskColor =
     vault.riskScore > 70
-      ? "text-[var(--ct-status-danger)]"
+      ? "ct-status-danger"
       : vault.riskScore > 45
-        ? "text-[var(--ct-status-warning)]"
-        : "text-[var(--ct-status-success)]";
+        ? "ct-status-warning"
+        : "ct-status-success";
 
   return (
     <div
@@ -94,7 +94,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
         <MetricCell
           label="Oracle"
           value={oracleLabel}
-          valueClassName={oracleStale ? "text-[var(--ct-status-danger)]" : undefined}
+          valueClassName={oracleStale ? "ct-status-danger" : undefined}
         />
         <MetricCell
           label="BTC"
@@ -128,17 +128,17 @@ function MetricCell({
 
 function VaultStatusPill({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    live: "bg-[var(--ct-status-success-soft)] text-[var(--ct-status-success)] border-[var(--ct-status-success-border)]",
-    paused: "bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)] border-[var(--ct-status-warning-border)]",
-    review: "bg-[var(--ct-surface-1)] ct-text-muted border-[var(--ct-border)]",
-    draft: "bg-[var(--ct-surface-1)] ct-text-faint border-[var(--ct-border-soft)]",
-    closed: "bg-[var(--ct-surface-0)] ct-text-faint border-[var(--ct-border-soft)]",
+    live: "ct-status-success-bg ct-status-success border-[var(--ct-status-success-border)]",
+    paused: "ct-status-warning-bg ct-status-warning border-[var(--ct-status-warning-border)]",
+    review: "ct-surface-1 ct-text-muted border-[var(--ct-border)]",
+    draft: "ct-surface-1 ct-text-faint border-[var(--ct-border-soft)]",
+    closed: "ct-surface-0 ct-text-faint border-[var(--ct-border-soft)]",
   };
 
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center rounded-[var(--ct-radius-sm)] border px-1.5 py-0.5 text-micro font-semibold uppercase tracking-wide",
+        "inline-flex shrink-0 items-center rounded-sm border px-1.5 py-0.5 text-micro font-semibold uppercase tracking-wide",
         styles[status] ?? styles["draft"],
       )}
     >

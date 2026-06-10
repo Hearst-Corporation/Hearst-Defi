@@ -220,23 +220,23 @@ export function NavSparkline({ output }: NavSparklineProps) {
       <div className="mb-3 flex flex-wrap items-end gap-6 text-sm">
         <div className="flex flex-col gap-[var(--ct-space-0_5)]">
           <span className="stat-label text-micro">Low band</span>
-          <span className="mono font-bold text-[var(--ct-text-body)]">
+          <span className="mono font-bold ct-text-body">
             {last ? formatUsd(last.p5) : "—"}
           </span>
         </div>
         <div className="flex flex-col gap-[var(--ct-space-0_5)]">
           <span className="stat-label text-micro">Midpoint</span>
-          <span className="mono font-bold text-[var(--ct-text-strong)]">
+          <span className="mono font-bold ct-text-strong">
             {last ? formatUsd(last.p50) : "—"}
           </span>
         </div>
         <div className="flex flex-col gap-[var(--ct-space-0_5)]">
           <span className="stat-label text-micro">High band</span>
-          <span className="mono font-bold text-[var(--ct-text-body)]">
+          <span className="mono font-bold ct-text-body">
             {last ? formatUsd(last.p95) : "—"}
           </span>
         </div>
-        <div className="ml-auto text-micro text-[var(--ct-text-muted)]">
+        <div className="ml-auto text-micro ct-text-muted">
           Notional $1M · 12 months
         </div>
       </div>
@@ -250,13 +250,13 @@ export function NavSparkline({ output }: NavSparklineProps) {
             ariaLabel={`NAV fan chart, 12 months, midpoint ${last ? formatUsd(last.p50) : "n/a"}`}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-micro text-[var(--ct-text-muted)]">
+          <div className="flex h-full w-full items-center justify-center text-micro ct-text-muted">
             No projection data
           </div>
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-4 text-micro text-[var(--ct-text-muted)]">
+      <div className="mt-3 flex flex-wrap items-center gap-4 text-micro ct-text-muted">
         <span className="flex items-center gap-1.5">
           <span
             className="inline-block h-0.5 w-4 rounded-full bg-[var(--ct-accent)]"

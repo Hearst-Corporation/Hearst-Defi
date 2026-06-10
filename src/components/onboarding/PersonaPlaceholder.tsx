@@ -11,27 +11,23 @@
 export function PersonaPlaceholder() {
   return (
     <div
-      className="w-full rounded-[var(--ct-radius-lg)] border border-dashed border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] p-[var(--ct-space-8)] flex flex-col items-center gap-[var(--ct-space-4)] text-center"
+      className="w-full rounded-lg border border-dashed border-[var(--ct-border-soft)] ct-surface-1 p-[var(--ct-space-8)] flex flex-col items-center gap-[var(--ct-space-4)] text-center"
       role="region"
       aria-label="Identity verification — integration pending"
     >
       {/* Icon placeholder */}
       <span
         aria-hidden="true"
-        className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--ct-surface-2)] border border-[var(--ct-border-soft)]"
-        style={{ fontSize: "1.5rem" }}
+        className="inline-flex items-center justify-center w-12 h-12 rounded-full ct-surface-2 border border-[var(--ct-border-soft)] text-2xl"
       >
         🪪
       </span>
 
       <div className="flex flex-col gap-[var(--ct-space-2)]">
-        <h3
-          className="h3"
-          style={{ fontSize: "1rem", fontWeight: 600, color: "var(--ct-text-primary)" }}
-        >
+        <h3 className="h3">
           Identity Verification
         </h3>
-        <p className="body-sm ct-text-muted" style={{ maxWidth: "34ch", margin: "0 auto" }}>
+        <p className="body-sm ct-text-muted ct-prose-narrow">
           Secure KYC / AML verification via Persona. You will be guided through
           government-issued ID upload and liveness check.
         </p>
@@ -39,7 +35,7 @@ export function PersonaPlaceholder() {
 
       {/* Integration status badge */}
       <span
-        className="inline-flex items-center gap-2 px-3 py-1 rounded-[var(--ct-radius-full)] border border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)] text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
+        className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--ct-status-warning-border)] ct-status-warning-bg ct-status-warning text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
       >
         <span
           aria-hidden="true"
@@ -52,7 +48,7 @@ export function PersonaPlaceholder() {
       <div
         id="persona-inquiry-container"
         data-testid="persona-iframe-placeholder"
-        className="w-full min-h-[200px] rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-0)] flex items-center justify-center"
+        className="w-full min-h-[12.5rem] rounded-md border border-[var(--ct-border-soft)] ct-surface-0 flex items-center justify-center"
       >
         <span className="body-xs ct-text-faint">
           Persona iframe will mount here in P1

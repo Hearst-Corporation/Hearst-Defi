@@ -124,8 +124,8 @@ export function ErrorShellLayout({
 }: ErrorShellLayoutProps) {
   const eyebrowColor =
     tone === "danger"
-      ? "text-[var(--ct-status-danger)]"
-      : "text-[var(--ct-status-warning)]";
+      ? "ct-status-danger"
+      : "ct-status-warning";
 
   return (
     <div
@@ -143,7 +143,7 @@ export function ErrorShellLayout({
       </header>
 
       {message ? (
-        <p className="body-md m-0 text-sm leading-normal text-[var(--ct-text-body)]">
+        <p className="body-md m-0 text-sm leading-normal ct-text-body">
           {message}
         </p>
       ) : null}
@@ -152,10 +152,10 @@ export function ErrorShellLayout({
         <pre
           className={cn(
             "mono",
-            "rounded-[var(--ct-radius-md)]",
+            "rounded-md",
             "border border-[var(--ct-border)]",
-            "bg-[var(--ct-surface-1)]",
-            "text-[var(--ct-text-primary)]",
+            "ct-surface-1",
+            "ct-text-primary",
             "overflow-auto",
             "whitespace-pre-wrap break-words",
             "max-h-64 px-4 py-3.5 text-xs leading-normal",
@@ -166,7 +166,7 @@ export function ErrorShellLayout({
       ) : null}
 
       {digest ? (
-        <p className="body-xs m-0 text-[var(--ct-text-muted)]">
+        <p className="body-xs m-0 ct-text-muted">
           Error ID:&nbsp;<span className="mono">{digest}</span>
         </p>
       ) : null}

@@ -214,7 +214,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
 
       {/* Error */}
       {error && (
-        <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-[var(--ct-radius-lg)]">
+        <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-lg">
           {error}
         </p>
       )}
@@ -250,7 +250,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
               </div>
 
               {confirmResult && !confirmResult.confirmed && (
-                <p className="body-xs ct-status-info-bg px-3 py-2 rounded-[var(--ct-radius-lg)]">
+                <p className="body-xs ct-status-info-bg px-3 py-2 rounded-lg">
                   Signature {confirmResult.signersCount}/{confirmResult.required}{" "}
                   recorded. Awaiting{" "}
                   {confirmResult.required - confirmResult.signersCount} more
@@ -328,7 +328,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
 
       {/* Confirmed */}
       {confirmResult?.confirmed && (
-        <div className="ct-status-success-bg px-4 py-3 rounded-[var(--ct-radius-xl)] space-y-1">
+        <div className="ct-status-success-bg px-4 py-3 rounded-xl space-y-1">
           <p className="body-sm ct-status-success font-semibold">
             Distribution confirmed for period {period}.
           </p>

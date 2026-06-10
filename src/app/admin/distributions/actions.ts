@@ -9,6 +9,7 @@ import { recordAdminAudit } from "@/lib/admin/audit";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { assertRateLimit } from "@/lib/rate-limit";
+import { executeDistributionAtomically } from "@/lib/distribution/atomic-exec";
 
 /** Admin distribution actions rate limit: 10 requests / 60s / admin. */
 const DIST_RATE_MAX = 10;
@@ -230,8 +231,10 @@ export async function confirmDistribution(
   // Threshold reached — execute using the REFERENCE amount (first signer's)
   const computed = await computeDistribution(period, lockedUsdc, vaultRef);
 
+  let distributionId: string;
+
   try {
-    await prisma.$transaction(async (tx) => {
+    distributionId = await prisma.$transaction(async (tx) => {
       const distribution = await tx.distribution.create({
         data: {
           distributedAt: new Date(),
@@ -290,6 +293,8 @@ export async function confirmDistribution(
 
       // Clear the pending approvals for this period
       await tx.distributionApproval.deleteMany({ where: { period } });
+
+      return distribution.id;
     });
 
     logger.info("[distributions] confirmed", {
@@ -300,6 +305,20 @@ export async function confirmDistribution(
 
     revalidatePath("/admin/distributions");
     revalidatePath("/admin/proof-center");
+
+    // Kick off the atomic finisher (ledger entries + PCAP + status→executed +
+    // Inngest email event). Runs OUTSIDE the transaction — atomic-exec opens its
+    // own tx. Non-fatal: if it fails, the distribution stays "pending" and can
+    // be retried via the admin UI.
+    try {
+      await executeDistributionAtomically(distributionId);
+    } catch (err) {
+      logger.error(
+        "[distributions] atomic finisher failed — distribution stays 'pending', retry via admin",
+        { period, distributionId },
+        err instanceof Error ? err : undefined,
+      );
+    }
 
     return { confirmed: true, signersCount, required: REQUIRED_SIGNERS };
   } catch (err) {

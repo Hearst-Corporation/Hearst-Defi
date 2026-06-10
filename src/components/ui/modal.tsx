@@ -114,15 +114,15 @@ function ModalBody({
         aria-labelledby={titleId}
         className={cn(
           "relative flex max-h-[85vh] w-full flex-col overflow-hidden",
-          "rounded-[var(--ct-radius-xl)] border border-[var(--ct-border-strong)]",
-          "bg-[var(--ct-surface-2)] shadow-[var(--ct-shadow-elevated)] z-[var(--ct-z-base)]",
+          "rounded-xl border border-[var(--ct-border-strong)]",
+          "ct-surface-2 shadow-[var(--ct-shadow-elevated)] z-[var(--ct-z-base)]",
           className ?? "max-w-3xl",
         )}
       >
         <div className="flex items-center justify-between gap-2 border-b border-[var(--ct-border-soft)] px-5 py-3">
           <h2
             id={titleId}
-            className="text-sm font-semibold text-[var(--ct-text-strong)]"
+            className="text-sm font-semibold ct-text-strong"
           >
             {title}
           </h2>
@@ -132,7 +132,7 @@ function ModalBody({
               type="button"
               onClick={close}
               aria-label="Fermer"
-              className="rounded-[var(--ct-radius-sm)] px-2 py-1 text-xs font-medium text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)] focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]"
+              className="rounded-sm px-2 py-1 text-xs font-medium ct-text-muted hover:ct-text-strong focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]"
             >
               Fermer
             </button>

@@ -82,7 +82,7 @@ export async function StepContent({ path, stepId }: StepContentProps) {
   if (path === "individual") {
     if (stepId === "kyc") return renderKyc();
     if (stepId === "accreditation") {
-      return renderDocusign("Accreditation — net worth or income certification");
+      return renderDocusign("Eligibility attestation — accredited investor confirmation");
     }
     if (stepId === "bank-wire") return <BankWirePanel renderDocusign={renderDocusign} />;
   }
@@ -90,10 +90,10 @@ export async function StepContent({ path, stepId }: StepContentProps) {
   // ── Corporate path ────────────────────────────────────────────────────────
   if (path === "corporate") {
     if (stepId === "entity-docs") {
-      return renderDocusign("Entity Documents — certificate of incorporation, operating agreement");
+      return renderDocusign("Entity documents — certificate of incorporation and operating agreement");
     }
     if (stepId === "ubo") {
-      return renderDocusign("UBO Declaration — ultimate beneficial owners ≥ 10%");
+      return renderDocusign("Beneficial owners — ultimate beneficial owners at 10% or more");
     }
     if (stepId === "kyc-officer") return renderKyc();
     if (stepId === "bank-wire") return <BankWirePanel renderDocusign={renderDocusign} />;
@@ -102,23 +102,23 @@ export async function StepContent({ path, stepId }: StepContentProps) {
   // ── Fund path ─────────────────────────────────────────────────────────────
   if (path === "fund") {
     if (stepId === "fund-formation") {
-      return renderDocusign("Fund Formation — LPA, PPM, audited financial statements");
+      return renderDocusign("Fund formation docs — LPA, PPM and audited financial statements");
     }
     if (stepId === "aml") {
-      return renderDocusign("AML Compliance — compliance officer designation and policies");
+      return renderDocusign("AML documentation — compliance officer designation and policies");
     }
     if (stepId === "sub-advisor") {
-      return renderDocusign("Sub-Advisor Confirmation — delegated investment authority");
+      return renderDocusign("Sub-advisor authority — delegated investment authority");
     }
     if (stepId === "master-account") {
-      return renderDocusign("Master Account Setup — omnibus account and allocation keys");
+      return renderDocusign("Master account setup — omnibus account and allocation keys");
     }
   }
 
   // Fallback — should never be reached with valid data
   return (
-    <div className="rounded-[var(--ct-radius-lg)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-6 py-10 text-center">
-      <p className="text-sm text-[var(--ct-text-muted)]">
+    <div className="rounded-lg border border-[var(--ct-border)] ct-surface-1 px-6 py-10 text-center">
+      <p className="text-sm ct-text-muted">
         Step content not found.
       </p>
     </div>
@@ -132,16 +132,16 @@ function BankWirePanel({
   renderDocusign: (label: string) => React.ReactNode;
 }) {
   return (
-    <div className="rounded-[var(--ct-radius-lg)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] px-6 py-8">
-      <h3 className="mb-4 text-sm font-semibold text-[var(--ct-text-strong)]">
-        Bank Wire Setup
+    <div className="rounded-lg border border-[var(--ct-border)] ct-surface-1 px-6 py-8">
+      <h3 className="mb-4 h3">
+        Payout Instructions
       </h3>
-      <p className="mb-6 text-xs text-[var(--ct-text-muted)]">
-        USDC distributions are delivered monthly to your designated bank
+      <p className="mb-6 text-xs ct-text-muted">
+        USDC payouts are delivered monthly to your designated bank
         account. Provide your wire instructions below. This is not a
         deposit — wire details are used for outbound distributions only.
       </p>
-      {renderDocusign("Bank Wire Instructions — SWIFT/IBAN details secured via DocuSign")}
+      {renderDocusign("Payout instructions — SWIFT/IBAN details secured via DocuSign")}
     </div>
   );
 }

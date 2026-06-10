@@ -74,15 +74,21 @@ export function TimeToCash({
     computeTimeToCash({ cycleStart, cycleDays, asOf: effectiveAsOf });
 
   const progressRounded = Math.round(progressPct);
+  const displayedProgressPct = isStale ? 0 : progressPct;
+  const displayedProgressLabel = isStale ? "Pending" : `${progressRounded}%`;
 
-  const progressLabel = `Distribution cycle progress: ${progressRounded}% — Day ${daysElapsed} of ${cycleDays}. ${
-    daysRemaining === 0 && hoursRemaining === 0
-      ? "Distribution period reached."
-      : `${daysRemaining}d ${hoursRemaining}h remaining.`
-  }`;
+  const progressLabel = isStale
+    ? "Distribution cycle unavailable until an active position and current yield are available."
+    : `Distribution cycle progress: ${progressRounded}% — Day ${daysElapsed} of ${cycleDays}. ${
+        daysRemaining === 0 && hoursRemaining === 0
+          ? "Distribution period reached."
+          : `${daysRemaining}d ${hoursRemaining}h remaining.`
+      }`;
 
   const countdownText =
-    daysRemaining === 0 && hoursRemaining === 0
+    isStale
+      ? "Payout starts after activation"
+      : daysRemaining === 0 && hoursRemaining === 0
       ? "Distribution reached"
       : `~${usdcFmt.format(Math.round(projectedUsdc))} USDC in ${daysRemaining}d ${hoursRemaining}h`;
 
@@ -104,20 +110,21 @@ export function TimeToCash({
 
       {/* Next distribution row --------------------------------------------- */}
       <div className="flex flex-col gap-0.5 relative z-10 min-w-0">
-        <span className="text-micro font-medium text-[var(--ct-text-muted)] tracking-widest uppercase">
+        <span className="text-micro font-medium ct-text-muted tracking-widest uppercase">
           Next distribution
         </span>
         {/* Countdown — aria-live so JS can update it client-side if hydrated */}
         <p
           className={cn(
-            "mono tabular-nums text-xl font-semibold leading-tight break-words",
-            daysRemaining === 0 && hoursRemaining === 0
-              ? "text-[var(--ct-status-success)]"
-              : "text-[var(--ct-text-primary)]",
+            "mono tabular-nums text-xl font-semibold leading-tight break-words ct-tabular-nums",
+            isStale
+              ? "ct-text-primary"
+              : daysRemaining === 0 && hoursRemaining === 0
+              ? "ct-status-success"
+              : "ct-text-primary",
           )}
           aria-live="polite"
           aria-atomic="true"
-          style={{ fontVariantNumeric: "tabular-nums" }}
         >
           {countdownText}
         </p>
@@ -131,58 +138,43 @@ export function TimeToCash({
           aria-valuemin={0}
           aria-valuemax={100}
           aria-label={progressLabel}
-          className="relative h-2 w-full overflow-hidden rounded-full bg-black/20 border border-[var(--ct-border-soft)]"
+          className="relative h-2 w-full overflow-hidden rounded-full ct-panel-inset border-0"
         >
           <div
-            className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-[var(--ct-dur-base)]"
-            style={{
-              width: `${progressPct}%`,
-              background: "var(--ct-accent)",
-              boxShadow: "0 0 8px var(--ct-accent)",
-            }}
+            className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-[var(--ct-dur-base)] ct-progress-accent-fill"
+            style={{ width: `${displayedProgressPct}%` }}
           />
         </div>
 
         {/* Day counter label */}
         <div className="flex items-center justify-between">
-          <span
-            className="body-xs tabular mono text-[var(--ct-text-muted)]"
-            style={{ fontVariantNumeric: "tabular-nums" }}
-          >
-            Day {daysElapsed} of {cycleDays}
+          <span className="body-xs tabular mono ct-text-muted ct-tabular-nums">
+            {isStale ? "Cycle pending" : `Day ${daysElapsed} of ${cycleDays}`}
           </span>
-          <span
-            className="body-xs tabular mono text-[var(--ct-text-muted)]"
-            style={{ fontVariantNumeric: "tabular-nums" }}
-          >
-            {progressRounded}%
+          <span className="body-xs tabular mono ct-text-muted ct-tabular-nums">
+            {displayedProgressLabel}
           </span>
         </div>
       </div>
 
       {/* Disclosure -------------------------------------------------------- */}
-      <p
-        className="body-xs italic relative z-10"
-        style={{ color: "var(--ct-text-faint)" }}
-      >
-        Projected from current pool yield <ApyRange low={aprLow} high={aprHigh} className="text-inherit font-inherit" suffix="%" /> APR.{" "}
-        <span aria-label="Not guaranteed">Not guaranteed — estimate only.</span>
+      <p className="body-xs italic relative z-10 ct-text-faint">
+        {isStale ? (
+          <>No payout projection until the first active position has current yield data.</>
+        ) : (
+          <>
+            Projected from current pool yield <ApyRange low={aprLow} high={aprHigh} className="text-inherit font-inherit" suffix="%" /> APR.{" "}
+            <span aria-label="Not guaranteed">Not guaranteed — estimate only.</span>
+          </>
+        )}
       </p>
 
       {/* Settings CTA ------------------------------------------------------ */}
       <div className="flex items-center justify-between border-t border-[var(--ct-border-soft)] pt-2 mt-auto relative z-10">
-        <span className="body-xs text-[var(--ct-text-muted)]">
-          {formatUsdc(projectedUsdc)} USDC projected
+        <span className="body-xs ct-text-muted">
+          {isStale ? "Projection pending" : `${formatUsdc(projectedUsdc)} USDC projected`}
         </span>
-        <button
-          type="button"
-          className="body-xs text-[var(--ct-text-muted)] flex items-center gap-1 hover:text-[var(--ct-text-primary)] transition-colors"
-          aria-label="Open distribution notification settings"
-        >
-          Settings{" "}
-          <span aria-hidden>→</span>
-          <span className="sr-only">notify me 24h before</span>
-        </button>
+        <span className="body-xs ct-text-faint">Notifications after first payout</span>
       </div>
     </article>
   );

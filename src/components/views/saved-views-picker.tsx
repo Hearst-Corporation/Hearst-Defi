@@ -63,11 +63,11 @@ export function SavedViewsPicker({
           }}
           aria-label="Saved views"
           className={cn(
-            "h-7 appearance-none rounded-[var(--ct-radius-md)]",
-            "border border-[var(--ct-border-soft)] bg-[var(--ct-surface-0)]",
-            "pl-3 pr-8 text-xs text-[var(--ct-text-primary)]",
+            "h-7 appearance-none rounded-md",
+            "border border-[var(--ct-border-soft)] ct-surface-0",
+            "pl-3 pr-8 text-xs ct-text-primary",
             "backdrop-blur-xl transition-[border-color,background-color]",
-            "hover:border-[var(--ct-border-strong)] hover:bg-[var(--ct-surface-1)]",
+            "hover:border-[var(--ct-border-strong)] hover:ct-surface-1",
             "focus:outline-none focus:shadow-[var(--ct-shadow-focus-ring)]",
             "cursor-pointer",
           )}
@@ -92,7 +92,7 @@ export function SavedViewsPicker({
         {/* Caret icon */}
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute right-2 text-[var(--ct-text-muted)]"
+          className="pointer-events-none absolute right-2 ct-text-muted"
         >
           ▾
         </span>
@@ -103,10 +103,10 @@ export function SavedViewsPicker({
         type="button"
         onClick={onSaveAs}
         className={cn(
-          "h-7 rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)]",
-          "bg-[var(--ct-surface-0)] px-3 text-xs text-[var(--ct-text-muted)]",
+          "h-7 rounded-md border border-[var(--ct-border-soft)]",
+          "ct-surface-0 px-3 text-xs ct-text-muted",
           "backdrop-blur-xl transition-[border-color,color]",
-          "hover:border-[var(--ct-border-strong)] hover:text-[var(--ct-text-strong)]",
+          "hover:border-[var(--ct-border-strong)] hover:ct-text-strong",
           "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
         )}
       >
@@ -119,10 +119,10 @@ export function SavedViewsPicker({
           type="button"
           onClick={onEditColumns}
           className={cn(
-            "h-7 rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)]",
-            "bg-[var(--ct-surface-0)] px-3 text-xs text-[var(--ct-text-muted)]",
+            "h-7 rounded-md border border-[var(--ct-border-soft)]",
+            "ct-surface-0 px-3 text-xs ct-text-muted",
             "backdrop-blur-xl transition-[border-color,color]",
-            "hover:border-[var(--ct-border-strong)] hover:text-[var(--ct-text-strong)]",
+            "hover:border-[var(--ct-border-strong)] hover:ct-text-strong",
             "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
           )}
         >

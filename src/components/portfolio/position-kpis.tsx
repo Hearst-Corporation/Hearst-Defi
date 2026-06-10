@@ -108,8 +108,8 @@ export function PositionKpis({ position }: PositionKpisProps) {
             <span
               className={cn(
                 pnl.netReturnPct >= 0
-                  ? "text-[var(--ct-status-success)]"
-                  : "text-[var(--ct-status-danger)]",
+                  ? "ct-status-success"
+                  : "ct-status-danger",
               )}
             >
               {fmtSignedPct(pnl.netReturnPct)}

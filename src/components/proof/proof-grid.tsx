@@ -35,12 +35,12 @@ export function ProofGrid({ proofs, filter }: ProofGridProps) {
       : "Proofs (audits, custody attestations, on-chain events) will appear here once published.";
     return (
       <div className="flex flex-col items-center gap-4 py-16 text-center">
-        <div className="h-10 w-10 rounded-[var(--ct-radius-lg)] bg-[var(--ct-surface-2)]" aria-hidden />
+        <div className="h-10 w-10 rounded-lg ct-surface-2" aria-hidden />
         <div>
-          <p className="body-sm font-medium text-[var(--ct-text-primary)]">
+          <p className="body-sm font-medium ct-text-primary">
             {emptyTitle}
           </p>
-          <p className="mt-1 text-xs text-[var(--ct-text-muted)]">{emptyHint}</p>
+          <p className="mt-1 text-xs ct-text-muted">{emptyHint}</p>
         </div>
       </div>
     );

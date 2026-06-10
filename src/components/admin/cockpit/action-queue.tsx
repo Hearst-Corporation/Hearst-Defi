@@ -35,7 +35,7 @@ export function ActionQueue({ items }: ActionQueueProps) {
 
       {items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-8 ct-empty-state">
-          <span className="text-[var(--ct-accent)] text-2xl" aria-hidden>
+          <span className="ct-text-accent text-2xl" aria-hidden>
             ✓
           </span>
           <span className="body-sm ct-text-muted">All clear — no pending actions.</span>
@@ -75,11 +75,11 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
         <Link
           href={item.href}
           className={cn(
-            "shrink-0 rounded-[var(--ct-radius-sm)] px-3 py-1 body-xs font-medium",
+            "shrink-0 rounded-sm px-3 py-1 body-xs font-medium",
             "border transition-colors duration-[var(--ct-dur-fast)]",
             item.severity === "P0"
-              ? "border-[var(--ct-status-danger-border)] text-[var(--ct-status-danger)] bg-[var(--ct-status-danger-soft)] hover:bg-[var(--ct-status-danger)] hover:text-[var(--ct-bg-deep)]"
-              : "border-[var(--ct-border)] ct-text-muted hover:border-[var(--ct-accent)] hover:text-[var(--ct-accent)]",
+              ? "border-[var(--ct-status-danger-border)] ct-status-danger ct-status-danger-bg hover:bg-[var(--ct-status-danger)] hover:text-[var(--ct-bg-deep)]"
+              : "border-[var(--ct-border)] ct-text-muted hover:border-[var(--ct-accent)] hover:ct-text-accent",
           )}
           aria-label={`${actionLabel} — ${item.title}`}
         >
@@ -92,15 +92,15 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
 
 function SeverityPill({ severity }: { severity: ActionSeverity }) {
   const styles: Record<ActionSeverity, string> = {
-    P0: "bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)] border-[var(--ct-status-danger-border)]",
-    P1: "bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)] border-[var(--ct-status-warning-border)]",
-    P2: "bg-[var(--ct-surface-1)] ct-text-faint border-[var(--ct-border-soft)]",
+    P0: "ct-status-danger-bg ct-status-danger border-[var(--ct-status-danger-border)]",
+    P1: "ct-status-warning-bg ct-status-warning border-[var(--ct-status-warning-border)]",
+    P2: "ct-surface-1 ct-text-faint border-[var(--ct-border-soft)]",
   };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center justify-center shrink-0 w-8 h-5 rounded-[var(--ct-radius-sm)] border text-micro font-bold tracking-wide",
+        "inline-flex items-center justify-center shrink-0 w-8 h-5 rounded-sm border text-micro font-bold tracking-wide",
         styles[severity],
       )}
       aria-label={`Priority ${severity}`}

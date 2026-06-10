@@ -116,8 +116,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
       */}
       <div
         aria-hidden
-        className="self-stretch shrink-0"
-        style={{ borderLeft: "1px solid var(--ct-border-soft)" }}
+        className="ct-card-divider-v"
       />
 
       {/*

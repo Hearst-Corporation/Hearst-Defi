@@ -22,10 +22,10 @@ function ComboKey({ label }: { label: string }) {
       className={cn(
         "inline-flex items-center justify-center",
         "min-w-[1.625rem] h-[1.375rem] px-1.5",
-        "rounded-[var(--ct-radius-sm)]",
-        "bg-[var(--ct-surface-2)] border border-[var(--ct-border)]",
+        "rounded-sm",
+        "ct-surface-2 border border-[var(--ct-border)]",
         "mono text-xs leading-none tracking-tight",
-        "text-[var(--ct-text-primary)]",
+        "ct-text-primary",
         "shadow-[0_1px_0_var(--ct-border-strong)]",
       )}
     >
@@ -59,7 +59,7 @@ function ShortcutCombo({ combo }: { combo: string }) {
 function ShortcutRow({ shortcut }: { shortcut: Shortcut }) {
   return (
     <div className="flex items-center justify-between gap-4 py-1.5">
-      <span className="body-sm text-[var(--ct-text-body)] min-w-0 truncate">
+      <span className="body-sm ct-text-body min-w-0 truncate">
         {shortcut.description}
       </span>
       <ShortcutCombo combo={shortcut.combo} />
@@ -77,7 +77,7 @@ function SectionBlock({
   if (shortcuts.length === 0) return null;
   return (
     <div>
-      <h3 className="stat-label text-[var(--ct-text-muted)] uppercase tracking-widest mb-2 px-1">
+      <h3 className="stat-label ct-text-muted uppercase tracking-widest mb-2 px-1">
         {title}
       </h3>
       <div className="divide-y divide-[var(--ct-border)]/40">
@@ -185,8 +185,8 @@ function ShortcutsOverlayBody({ onClose }: { onClose: () => void }) {
         aria-labelledby={titleId}
         className={cn(
           "relative w-full max-w-2xl max-h-[85vh]",
-          "rounded-[var(--ct-radius-xl)] border border-[var(--ct-border-strong)]",
-          "bg-[var(--ct-surface-1)]/95 backdrop-blur-xl",
+          "rounded-xl border border-[var(--ct-border-strong)]",
+          "ct-surface-1/95 backdrop-blur-xl",
           "shadow-[var(--ct-shadow-elevated)]",
           "flex flex-col overflow-hidden",
           "z-[var(--ct-z-base)]",
@@ -198,12 +198,12 @@ function ShortcutsOverlayBody({ onClose }: { onClose: () => void }) {
             "flex items-center justify-between",
             "px-6 py-4",
             "border-b border-[var(--ct-border)]",
-            "bg-[var(--ct-surface-2)]/50",
+            "ct-surface-2/50",
           )}
         >
           <h2
             id={titleId}
-            className="text-base font-semibold text-[var(--ct-text-strong)] tracking-tight"
+            className="text-base font-semibold ct-text-strong tracking-tight"
           >
             Keyboard shortcuts
           </h2>
@@ -213,9 +213,9 @@ function ShortcutsOverlayBody({ onClose }: { onClose: () => void }) {
             aria-label="Close shortcuts overlay"
             className={cn(
               "flex items-center justify-center",
-              "w-7 h-7 rounded-[var(--ct-radius-sm)]",
-              "text-[var(--ct-text-muted)] hover:text-[var(--ct-text-primary)]",
-              "hover:bg-[var(--ct-surface-3)]",
+              "w-7 h-7 rounded-sm",
+              "ct-text-muted hover:ct-text-primary",
+              "hover:ct-surface-3",
               "transition-colors duration-[var(--ct-dur-fast)]",
             )}
           >
@@ -255,10 +255,10 @@ function ShortcutsOverlayBody({ onClose }: { onClose: () => void }) {
             "flex items-center justify-center gap-2",
             "px-6 py-3",
             "border-t border-[var(--ct-border)]",
-            "bg-[var(--ct-surface-2)]/50",
+            "ct-surface-2/50",
           )}
         >
-          <span className="stat-label text-[var(--ct-text-muted)]">Close</span>
+          <span className="stat-label ct-text-muted">Close</span>
           <ComboKey label="esc" />
         </div>
       </div>

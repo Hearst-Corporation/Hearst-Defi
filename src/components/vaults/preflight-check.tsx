@@ -181,7 +181,7 @@ export function PreFlightCheck({
         <p className="eyebrow py-3">Pre-flight check</p>
         <div className="py-4 px-1 flex flex-col gap-2">
           <span
-            className="inline-flex items-center gap-2 px-3 py-1 self-start rounded-[var(--ct-radius-full)] border border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)] text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
+            className="inline-flex items-center gap-2 px-3 py-1 self-start rounded-full border border-[var(--ct-status-warning-border)] ct-status-warning-bg ct-status-warning text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
           >
             <span
               aria-hidden="true"
@@ -240,7 +240,7 @@ export function PreFlightCheck({
               type="button"
               onClick={() => void handleApprove()}
               disabled={approving || !networkOk}
-              className="border border-[var(--ct-border-accent)] text-[var(--ct-accent)] hover:bg-[var(--ct-accent-soft)]"
+              className="border border-[var(--ct-border-accent)] ct-text-accent hover:bg-[var(--ct-accent-soft)]"
             >
               {approving ? "Approving…" : "Approve"}
             </Button>

@@ -34,17 +34,17 @@ export function Markdown({
             </h3>
           ),
           p: ({ children }) => (
-            <p className="my-3 text-sm leading-[var(--ct-leading-relaxed)] text-[var(--ct-text-body)]">
+            <p className="my-3 text-sm leading-[var(--ct-leading-relaxed)] ct-text-body">
               {children}
             </p>
           ),
           ul: ({ children }) => (
-            <ul className="my-3 list-disc space-y-1 pl-5 text-sm text-[var(--ct-text-body)]">
+            <ul className="my-3 list-disc space-y-1 pl-5 text-sm ct-text-body">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="my-3 list-decimal space-y-1 pl-5 text-sm text-[var(--ct-text-body)]">
+            <ol className="my-3 list-decimal space-y-1 pl-5 text-sm ct-text-body">
               {children}
             </ol>
           ),
@@ -52,19 +52,19 @@ export function Markdown({
           code: ({ children, className }) => {
             if (className?.startsWith("language-")) {
               return (
-                <code className="mono text-xs text-[var(--ct-text-strong)]">
+                <code className="mono text-xs ct-text-strong">
                   {children}
                 </code>
               );
             }
             return (
-              <code className="rounded-[var(--ct-radius-sm)] bg-[var(--ct-surface-1)] px-1 py-0.5 mono text-xs text-[var(--ct-text-primary)]">
+              <code className="rounded-sm ct-surface-1 px-1 py-0.5 mono text-xs ct-text-primary">
                 {children}
               </code>
             );
           },
           pre: ({ children }) => (
-            <pre className="my-4 overflow-x-auto rounded-[var(--ct-radius-md)] border border-[var(--ct-border)] bg-[var(--ct-surface-1)] p-4 text-xs">
+            <pre className="my-4 overflow-x-auto rounded-md border border-[var(--ct-border)] ct-surface-1 p-4 text-xs">
               {children}
             </pre>
           ),
@@ -76,12 +76,12 @@ export function Markdown({
             </div>
           ),
           th: ({ children }) => (
-            <th className="border-b border-[var(--ct-border)] ct-table-header text-left text-[var(--ct-text-body)] uppercase tracking-[var(--ct-tracking-wide)]">
+            <th className="border-b border-[var(--ct-border)] ct-table-header text-left ct-text-body uppercase tracking-[var(--ct-tracking-wide)]">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border-b border-[var(--ct-border)] ct-table-cell align-top text-[var(--ct-text-body)]">
+            <td className="border-b border-[var(--ct-border)] ct-table-cell align-top ct-text-body">
               {children}
             </td>
           ),
@@ -90,7 +90,7 @@ export function Markdown({
             return (
               <a
                 href={safeHref}
-                className="text-[var(--ct-text-strong)] underline-offset-2 hover:underline"
+                className="ct-text-strong underline-offset-2 hover:underline"
                 target={safeHref.startsWith("http") ? "_blank" : undefined}
                 rel={safeHref.startsWith("http") ? "noreferrer" : undefined}
               >
@@ -99,7 +99,7 @@ export function Markdown({
             );
           },
           blockquote: ({ children }) => (
-            <blockquote className="my-4 border-l-2 border-[var(--ct-text-strong)] pl-4 text-sm italic text-[var(--ct-text-body)]">
+            <blockquote className="my-4 border-l-2 border-[var(--ct-text-strong)] pl-4 text-sm italic ct-text-body">
               {children}
             </blockquote>
           ),
@@ -107,7 +107,7 @@ export function Markdown({
             <hr className="my-6 border-t border-[var(--ct-border)]" />
           ),
           strong: ({ children }) => (
-            <strong className="font-medium text-[var(--ct-text-primary)]">
+            <strong className="font-medium ct-text-primary">
               {children}
             </strong>
           ),

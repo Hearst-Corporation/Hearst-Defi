@@ -75,7 +75,7 @@ export function StepProgress({ active }: StepProgressProps) {
                 isDone && "border-[var(--ct-border-accent)] bg-[var(--ct-accent)]",
                 isDone && "ct-text-strong",
                 isActive &&
-                  "border-[var(--ct-border-accent)] bg-[var(--ct-accent-soft)] text-[var(--ct-accent)] shadow-[var(--ct-glow-subtle)]",
+                  "border-[var(--ct-border-accent)] bg-[var(--ct-accent-soft)] ct-text-accent shadow-[var(--ct-glow-subtle)]",
                 !isDone && !isActive && "border-[var(--ct-border-soft)] ct-surface-1",
                 !isDone && !isActive && "ct-text-muted",
               )}
@@ -93,7 +93,7 @@ export function StepProgress({ active }: StepProgressProps) {
               className={cn(
                 "eyebrow font-medium whitespace-nowrap",
                 isActive
-                  ? "text-[var(--ct-accent)]"
+                  ? "ct-text-accent"
                   : isDone
                     ? "ct-text-primary"
                     : "ct-text-muted",

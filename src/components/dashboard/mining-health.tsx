@@ -1,4 +1,5 @@
 import { Progress } from "@/components/ui/progress";
+import { Card } from "@/components/ui/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type { MiningHealth } from "@/lib/dashboard-types";
@@ -177,9 +178,9 @@ function ScoreRow({ label, hint, value, tone, bar }: ScoreRowProps) {
                 TONE_DOT_CLASS[tone],
               )}
             />
-            <span className="text-sm font-medium text-[var(--ct-text-primary)] group-hover:text-[var(--ct-text-body)] transition-colors">{label}</span>
+            <span className="text-sm font-medium ct-text-primary group-hover:ct-text-body transition-colors">{label}</span>
           </div>
-          <p className="mt-1 text-xs text-[var(--ct-text-muted)]">{hint}</p>
+          <p className="mt-1 text-xs ct-text-muted">{hint}</p>
         </div>
         <span className={cn("text-xl font-semibold leading-tight tabular-nums", TONE_TEXT[tone])}>
           {value}
@@ -208,18 +209,18 @@ function HashpriceRow({ hashprice }: HashpriceRowProps) {
       <div className="flex items-baseline justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-[var(--ct-text-primary)] group-hover:text-[var(--ct-text-body)] transition-colors">
+            <span className="text-sm font-medium ct-text-primary group-hover:ct-text-body transition-colors">
               Hashprice
             </span>
           </div>
-          <p className="mt-1 text-xs text-[var(--ct-text-muted)]">
+          <p className="mt-1 text-xs ct-text-muted">
             BTC subsidy / network difficulty
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-lg font-semibold leading-tight text-[var(--ct-text-primary)] tabular-nums">
+          <span className="text-lg font-semibold leading-tight ct-text-primary tabular-nums">
             ${hashprice.usd_per_th_day.toFixed(3)}{" "}
-            <span className="text-sm text-[var(--ct-text-muted)] font-normal">/TH/day</span>
+            <span className="text-sm ct-text-muted font-normal">/TH/day</span>
           </span>
           <ProvenanceBadge kind={provenance} />
         </div>
@@ -273,19 +274,19 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <span className="text-micro font-bold text-[var(--ct-text-faint)] uppercase tracking-widest">
+        <span className="text-micro font-bold text-(--ct-text-muted) uppercase tracking-widest">
           Mining Margin Heatmap · 90d
         </span>
         <div className="flex items-center gap-2">
-          <span className="text-micro font-bold text-[var(--ct-text-faint)] uppercase tracking-widest">Score:</span>
+          <span className="text-micro font-bold text-(--ct-text-muted) uppercase tracking-widest">Score:</span>
           <span
             className={cn(
               "text-sm font-bold tabular-nums",
               scoreTone(marginScore) === "good"
-                ? "text-[var(--ct-accent)]"
+                ? "ct-text-accent"
                 : scoreTone(marginScore) === "warn"
                   ? "text-[var(--ct-warning)]"
-                  : "text-[var(--ct-status-danger)]",
+                  : "ct-status-danger",
             )}
           >
             {marginScore}/100
@@ -311,7 +312,7 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
               textAnchor="end"
               fontSize={6}
               fontWeight="500"
-              fill="var(--ct-text-faint)"
+              fill="var(--ct-text-muted)"
               fontFamily="var(--font-mono)"
             >
               {label}
@@ -355,7 +356,7 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
                 textAnchor="middle"
                 fontSize={6}
                 fontWeight="500"
-                fill="var(--ct-text-faint)"
+                fill="var(--ct-text-muted)"
                 fontFamily="var(--font-mono)"
               >
                 {label}
@@ -370,7 +371,7 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
             textAnchor="middle"
             fontSize={5}
             fontWeight="bold"
-            fill="var(--ct-text-faint)"
+            fill="var(--ct-text-muted)"
             letterSpacing="0.1em"
             className="uppercase"
           >
@@ -410,13 +411,10 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
           <div key={s.label} className="flex items-center gap-1.5">
             <span
               aria-hidden
-              className="w-2 h-2 rounded-sm shrink-0"
-              style={{
-                background: s.fill,
-                opacity: s.opacity,
-              }}
+              className="ct-legend-dot rounded-sm"
+              style={{ background: s.fill, opacity: s.opacity }}
             />
-            <span className="text-micro font-bold uppercase tracking-wider text-[var(--ct-text-faint)]">{s.label}</span>
+            <span className="text-micro font-bold uppercase tracking-wider text-(--ct-text-muted)">{s.label}</span>
           </div>
         ))}
       </div>
@@ -439,11 +437,11 @@ export function MiningHealthSection({
     50 + Math.max(-50, Math.min(50, miningHealth.hashpriceTrendPct * 5));
 
   return (
-    <article className="dash-cell dash-cell-premium h-full flex flex-col relative">
+    <Card className="h-full flex flex-col">
       {/* A2 — the margin/health score is an engine estimate computed from public
           hashprice/BTC feeds + assumed energy cost, NOT an on-chain oracle. */}
       <div className="dash-label relative z-10">
-        <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">
+        <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">
           Mining Health
         </span>
         <ProvenanceBadge kind="estimated" />
@@ -486,6 +484,6 @@ export function MiningHealthSection({
           </div>
         )}
       </div>
-    </article>
+    </Card>
   );
 }

@@ -69,11 +69,11 @@ function truncateTx(tx: string): string {
 
 const variantStyles: Record<"success" | "warning" | "default", string> = {
   success:
-    "border-[var(--ct-status-success-border)] bg-[var(--ct-status-success-soft)] text-[var(--ct-status-success)]",
+    "border-[var(--ct-status-success-border)] ct-status-success-bg ct-status-success",
   warning:
-    "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
+    "border-[var(--ct-status-warning-border)] ct-status-warning-bg ct-status-warning",
   default:
-    "border-[var(--ct-border-strong)] bg-[var(--ct-surface-1)] text-[var(--ct-text-body)]",
+    "border-[var(--ct-border-strong)] ct-surface-1 ct-text-body",
 };
 
 export function ContractsAuditTrail() {
@@ -93,7 +93,7 @@ export function ContractsAuditTrail() {
           {DEPLOYED_CONTRACTS.map((contract) => (
             <article
               key={contract.address}
-              className="rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] p-5"
+              className="rounded-md border border-[var(--ct-border-soft)] ct-surface-1 p-5"
             >
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <h4 className="h4">{contract.name}</h4>
@@ -110,7 +110,7 @@ export function ContractsAuditTrail() {
                       href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="mono tabular text-xs text-[var(--ct-text-primary)] hover:text-[var(--ct-text-strong)] transition-colors duration-[var(--ct-dur-fast)]"
+                      className="mono tabular text-xs ct-text-primary hover:ct-text-strong transition-colors duration-[var(--ct-dur-fast)]"
                       title={contract.address}
                     >
                       {abbreviateAddress(contract.address)}
@@ -124,7 +124,7 @@ export function ContractsAuditTrail() {
                       href={`${EXPLORER_TX_BASE}${contract.deployTxHash}`}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="mono tabular text-xs text-[var(--ct-text-body)] hover:text-[var(--ct-text-strong)] transition-colors duration-[var(--ct-dur-fast)]"
+                      className="mono tabular text-xs ct-text-body hover:ct-text-strong transition-colors duration-[var(--ct-dur-fast)]"
                       title={contract.deployTxHash}
                     >
                       {truncateTx(contract.deployTxHash)}
@@ -133,13 +133,13 @@ export function ContractsAuditTrail() {
                 </div>
                 <div className="flex flex-wrap items-baseline justify-between gap-3">
                   <dt className="body-xs">Deploy block</dt>
-                  <dd className="mono tabular text-xs text-[var(--ct-text-body)]">
+                  <dd className="mono tabular text-xs ct-text-body">
                     {contract.deployBlock}
                   </dd>
                 </div>
                 <div className="flex flex-wrap items-baseline justify-between gap-3">
                   <dt className="body-xs">Network</dt>
-                  <dd className="body-xs text-[var(--ct-text-body)]">
+                  <dd className="body-xs ct-text-body">
                     Base Sepolia (chain id 84532)
                   </dd>
                 </div>
@@ -151,9 +151,9 @@ export function ContractsAuditTrail() {
                   target="_blank"
                   rel="noreferrer noopener"
                   className={cn(
-                    "rounded-[var(--ct-radius-full)] border border-[var(--ct-text-strong)] bg-[var(--ct-surface-1)]",
-                    "px-3 py-1.5 text-xs text-[var(--ct-text-strong)]",
-                    "transition-colors duration-[var(--ct-dur-fast)] hover:bg-[var(--ct-surface-2)]",
+                    "rounded-full border border-[var(--ct-text-strong)] ct-surface-1",
+                    "px-3 py-1.5 text-xs ct-text-strong",
+                    "transition-colors duration-[var(--ct-dur-fast)] hover:ct-surface-2",
                     "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                   )}
                 >
@@ -164,9 +164,9 @@ export function ContractsAuditTrail() {
                   target="_blank"
                   rel="noreferrer noopener"
                   className={cn(
-                    "rounded-[var(--ct-radius-full)] border border-[var(--ct-border-strong)] bg-[var(--ct-surface-1)]",
-                    "px-3 py-1.5 text-xs text-[var(--ct-text-primary)]",
-                    "transition-colors duration-[var(--ct-dur-fast)] hover:bg-[var(--ct-surface-3)]",
+                    "rounded-full border border-[var(--ct-border-strong)] ct-surface-1",
+                    "px-3 py-1.5 text-xs ct-text-primary",
+                    "transition-colors duration-[var(--ct-dur-fast)] hover:ct-surface-3",
                     "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                   )}
                 >
@@ -191,20 +191,20 @@ export function ContractsAuditTrail() {
           {AUDIT_ENTRIES.map((entry) => (
             <li
               key={entry.label}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-4 py-3"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-3"
             >
               <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium text-[var(--ct-text-primary)]">
+                <span className="text-sm font-medium ct-text-primary">
                   {entry.label}
                 </span>
-                <span className="text-xs text-[var(--ct-text-body)]">
+                <span className="text-xs ct-text-body">
                   {entry.status}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <span
                   className={cn(
-                    "inline-flex items-center rounded-[var(--ct-radius-full)] border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide leading-none",
+                    "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide leading-none",
                     variantStyles[entry.variant],
                   )}
                 >
@@ -220,9 +220,9 @@ export function ContractsAuditTrail() {
                     target="_blank"
                     rel="noreferrer noopener"
                     className={cn(
-                      "rounded-[var(--ct-radius-full)] border border-[var(--ct-border-strong)] bg-[var(--ct-surface-1)]",
-                      "px-3 py-1 text-xs text-[var(--ct-text-primary)]",
-                      "transition-colors duration-[var(--ct-dur-fast)] hover:bg-[var(--ct-surface-3)]",
+                      "rounded-full border border-[var(--ct-border-strong)] ct-surface-1",
+                      "px-3 py-1 text-xs ct-text-primary",
+                      "transition-colors duration-[var(--ct-dur-fast)] hover:ct-surface-3",
                       "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                     )}
                   >
