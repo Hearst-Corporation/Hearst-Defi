@@ -65,11 +65,11 @@ export function PortfolioEmptyState({
       {data.source === "fallback" ? (
         <div
           role="status"
-          className="flex items-center gap-2 rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-2.5"
+          className="flex items-center gap-2 rounded-lg border border-(--ct-border-soft) ct-surface-1 px-4 py-2.5"
         >
           <span
             aria-hidden
-            className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ct-text-muted)]"
+            className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--ct-text-muted)"
           />
           <p className="body-xs ct-text-muted">
             Preview data — your portfolio appears here after activation.
@@ -96,7 +96,7 @@ export function PortfolioEmptyState({
               aria-hidden
               className={cn(
                 "inline-block h-1.5 w-1.5 shrink-0 rounded-full",
-                s.done ? "bg-[var(--ct-accent)]" : "bg-[var(--ct-text-faint)]",
+                s.done ? "bg-(--ct-accent)" : "bg-(--ct-text-faint)",
               )}
             />
             <span className="eyebrow ct-text-muted">{s.label}</span>
@@ -107,7 +107,7 @@ export function PortfolioEmptyState({
 
       {/* 5 — Calm "what you'll see when active" section. No live data. */}
       <section
-        className="flex flex-col gap-5 border-t border-[var(--ct-border-soft)] pt-10"
+        className="flex flex-col gap-5 border-t border-(--ct-border-soft) pt-10"
         aria-label="What your portfolio will show when active"
       >
         <p className="eyebrow ct-text-muted">When active, your portfolio will show</p>
@@ -115,7 +115,7 @@ export function PortfolioEmptyState({
           {FUTURE_MODULES.map((m) => (
             <li
               key={m.label}
-              className="flex min-w-0 flex-col gap-1 rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-3"
+              className="flex min-w-0 flex-col gap-1 rounded-lg border border-(--ct-border-soft) ct-surface-1 px-4 py-3"
             >
               <span className="body-sm ct-text-strong">{m.label}</span>
               <span className="body-xs ct-text-muted">{m.detail}</span>

@@ -291,7 +291,7 @@ export function DistribCalendar({
           <h3 className="dash-label mb-0 font-semibold ct-text-strong">
             PAYOUT CALENDAR
           </h3>
-          <p className="text-micro font-medium uppercase tracking-wide ct-text-muted mono">
+          <p className="text-micro font-medium uppercase tracking-(--ct-tracking-wide) ct-text-muted mono">
             12-month history · USDC
           </p>
         </div>
@@ -324,7 +324,7 @@ export function DistribCalendar({
         </div>
       ) : (
         <div
-          className="flex items-center justify-center rounded-md border border-dashed border-[var(--ct-border-soft)] ct-surface-1 relative z-10 min-h-32"
+          className="flex items-center justify-center rounded-md border border-dashed border-(--ct-border-soft) ct-surface-1 relative z-10 min-h-32"
           aria-label="No distribution data yet"
         >
           <p className="text-xs ct-text-muted">
@@ -334,9 +334,9 @@ export function DistribCalendar({
       )}
 
       {/* Footer — share class + cadence */}
-      <dl className="flex flex-wrap gap-x-6 gap-y-2 border-t border-[var(--ct-border-soft)] pt-4 mt-auto relative z-10">
+      <dl className="flex flex-wrap gap-x-6 gap-y-2 border-t border-(--ct-border-soft) pt-4 mt-auto relative z-10">
         <div className="flex flex-col gap-0.5 min-w-0">
-          <dt className="text-micro uppercase tracking-wide ct-text-muted mono">
+          <dt className="text-micro uppercase tracking-(--ct-tracking-wide) ct-text-muted mono">
             Share class
           </dt>
           <dd className="text-xs font-medium ct-text-body mono">
@@ -344,7 +344,7 @@ export function DistribCalendar({
           </dd>
         </div>
         <div className="flex flex-col gap-0.5 min-w-0">
-          <dt className="text-micro uppercase tracking-wide ct-text-muted mono">
+          <dt className="text-micro uppercase tracking-(--ct-tracking-wide) ct-text-muted mono">
             Cadence
           </dt>
           <dd className="text-xs font-medium ct-text-body mono">

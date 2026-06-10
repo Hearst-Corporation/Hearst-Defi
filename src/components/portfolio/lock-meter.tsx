@@ -144,7 +144,7 @@ export function LockMeter({
         >
           <div
             className={cn(
-              "absolute inset-y-0 left-0 rounded-full transition-[width] duration-[var(--ct-dur-base)]",
+              "absolute inset-y-0 left-0 rounded-full transition-[width] duration-(--ct-dur-base)",
               !isUnlocked && "ct-progress-accent-fill",
             )}
             style={{

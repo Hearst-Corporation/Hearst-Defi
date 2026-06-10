@@ -254,7 +254,7 @@ function CompositeSection({
     <div
       role="status"
       aria-label={ariaLabel}
-      className="mt-5 flex items-center justify-between rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-4"
+      className="mt-5 flex items-center justify-between rounded-lg border border-(--ct-border-soft) ct-surface-1 px-4 py-4"
     >
       <div className="flex items-baseline gap-2 min-w-0">
         <span aria-hidden className="ct-text-accent text-lg leading-none">
@@ -277,7 +277,7 @@ function CompositeSection({
       <div className="flex flex-col items-end gap-1 min-w-0 shrink-0">
         <span
           className={cn(
-            "text-xs font-semibold tracking-wide",
+            "text-xs font-semibold tracking-(--ct-tracking-wide)",
             labelColor,
           )}
         >
@@ -336,7 +336,7 @@ export function RiskPulse({
         noData={noData}
       />
 
-      <p className="mt-auto pt-4 body-xs italic leading-[var(--ct-leading-relaxed)] relative z-10 opacity-70">
+      <p className="mt-auto pt-4 body-xs italic leading-(--ct-leading-relaxed) relative z-10 opacity-70">
         Scores are 0–100 (higher = more risk). Composite is the weighted sum of
         the five dimensions per Methodology v1.0. Conditional projection — not
         guaranteed.

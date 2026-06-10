@@ -65,7 +65,7 @@ export function PositionTransactions({
   return (
     <section
       aria-label="Transaction history"
-      className="flex flex-col gap-4 rounded-xl border border-[var(--ct-border-soft)] ct-surface-1 px-6 py-5"
+      className="flex flex-col gap-4 rounded-xl border border-(--ct-border-soft) ct-surface-1 px-6 py-5"
     >
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -98,13 +98,13 @@ export function PositionTransactions({
         <div
           className="overflow-x-auto overflow-y-hidden"
         >
-          <table className="w-full min-w-max border-collapse text-[length:var(--ct-text-sm)]">
+          <table className="w-full min-w-max border-collapse text-(length:--ct-text-sm)">
             <thead>
-              <tr className="stat-label ct-text-muted border-b border-[var(--ct-border-soft)]">
-                <th className="text-left pb-[var(--ct-space-2)] font-[inherit]">Date</th>
-                <th className="text-left pb-[var(--ct-space-2)] font-[inherit]">Type</th>
-                <th className="text-right pb-[var(--ct-space-2)] font-[inherit]">Amount</th>
-                <th className="text-right pb-[var(--ct-space-2)] font-[inherit]">Tx</th>
+              <tr className="stat-label ct-text-muted border-b border-(--ct-border-soft)">
+                <th className="text-left pb-(--ct-space-2) font-[inherit]">Date</th>
+                <th className="text-left pb-(--ct-space-2) font-[inherit]">Type</th>
+                <th className="text-right pb-(--ct-space-2) font-[inherit]">Amount</th>
+                <th className="text-right pb-(--ct-space-2) font-[inherit]">Tx</th>
               </tr>
             </thead>
             <tbody>
@@ -113,7 +113,7 @@ export function PositionTransactions({
                 return (
                   <tr
                     key={tx.id}
-                    className="border-b border-[var(--ct-border-soft)]"
+                    className="border-b border-(--ct-border-soft)"
                   >
                     {/* Date */}
                     <td className="tabular body-xs ct-text-muted py-2 pr-4 mono whitespace-nowrap">
@@ -148,7 +148,7 @@ export function PositionTransactions({
                           href={explorerTxUrl(tx.txHash)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="tabular body-xs mono text-[var(--ct-accent-strong)] no-underline transition-opacity duration-[var(--ct-dur-fast)] hover:opacity-80"
+                          className="tabular body-xs mono text-(--ct-accent-strong) no-underline transition-opacity duration-(--ct-dur-fast) hover:opacity-80"
                           title={tx.txHash}
                         >
                           {tx.txHash.slice(0, 6)}&hellip;{tx.txHash.slice(-4)} ↗

@@ -245,7 +245,7 @@ function NextDistributionKpi({ nextDistributionAt, source }: NextDistributionKpi
         </span>
       </div>
       <div className="flex items-center gap-2 mt-2 relative z-10">
-        <p className="text-xs text-(--ct-text-muted) mono uppercase tracking-wider leading-4 truncate min-w-0 opacity-70">
+        <p className="text-xs text-(--ct-text-muted) mono uppercase tracking-(--ct-tracking-wider) leading-4 truncate min-w-0 opacity-70">
           Indicative · Monthly, Day 1 (T+5)
         </p>
         {diffDays > 0 && (
@@ -351,9 +351,9 @@ export default async function PortfolioPage() {
       {data.source === "fallback" ? (
         <div
           role="status"
-          className="flex items-center gap-2 rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-2.5"
+          className="flex items-center gap-2 rounded-lg border border-(--ct-border-soft) ct-surface-1 px-4 py-2.5"
         >
-          <span aria-hidden className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ct-text-muted)]" />
+          <span aria-hidden className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--ct-text-muted)" />
           <p className="body-xs ct-text-muted">
             Preview data — your portfolio appears here after activation.
           </p>

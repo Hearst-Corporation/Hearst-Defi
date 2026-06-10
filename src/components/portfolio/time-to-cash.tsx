@@ -141,7 +141,7 @@ export function TimeToCash({
           className="relative h-2 w-full overflow-hidden rounded-full ct-panel-inset border-0"
         >
           <div
-            className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-[var(--ct-dur-base)] ct-progress-accent-fill"
+            className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-(--ct-dur-base) ct-progress-accent-fill"
             style={{ width: `${displayedProgressPct}%` }}
           />
         </div>
@@ -170,7 +170,7 @@ export function TimeToCash({
       </p>
 
       {/* Settings CTA ------------------------------------------------------ */}
-      <div className="flex items-center justify-between border-t border-[var(--ct-border-soft)] pt-2 mt-auto relative z-10">
+      <div className="flex items-center justify-between border-t border-(--ct-border-soft) pt-2 mt-auto relative z-10">
         <span className="body-xs ct-text-muted">
           {isStale ? "Projection pending" : `${formatUsdc(projectedUsdc)} USDC projected`}
         </span>

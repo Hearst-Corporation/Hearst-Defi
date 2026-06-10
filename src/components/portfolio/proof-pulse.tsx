@@ -109,7 +109,7 @@ interface DataRowProps {
 
 function DataRow({ label, children }: DataRowProps) {
   return (
-    <div className="flex items-baseline justify-between gap-4 py-2.5 border-b border-[var(--ct-border-soft)] last:border-0">
+    <div className="flex items-baseline justify-between gap-4 py-2.5 border-b border-(--ct-border-soft) last:border-0">
       <span className="body-xs ct-text-muted shrink-0">{label}</span>
       <span className="body-sm mono tabular-nums ct-text-primary text-right min-w-0 break-words">
         {children}
@@ -218,7 +218,7 @@ export function ProofPulse({
           </time>
         </h4>
 
-        <div className="ct-panel-inset rounded-lg px-[var(--ct-space-4)] py-[var(--ct-space-1)]">
+        <div className="ct-panel-inset rounded-lg px-(--ct-space-4) py-(--ct-space-1)">
           <DataRow label="Vault TVL">
             {statedTvlUsdc > 0 ? formatUsdc(statedTvlUsdc) : "Awaiting proof"}
           </DataRow>
@@ -231,7 +231,7 @@ export function ProofPulse({
                   role="status"
                   aria-label={indicator.label}
                   className={cn(
-                    "text-[length:var(--ct-text-sm)] font-bold leading-none select-none",
+                    "text-(length:--ct-text-sm) font-bold leading-none select-none",
                     indicator.colorClass,
                   )}
                 >
@@ -263,7 +263,7 @@ export function ProofPulse({
           Methodology
         </h4>
 
-        <div className="ct-panel-inset rounded-lg px-[var(--ct-space-4)] py-[var(--ct-space-1)]">
+        <div className="ct-panel-inset rounded-lg px-(--ct-space-4) py-(--ct-space-1)">
           <DataRow label="Version">
             <span className="flex items-center justify-end gap-2">
               <span className="ct-text-faint">{methodologyVersion}</span>
@@ -294,7 +294,7 @@ export function ProofPulse({
       <div className="mt-auto pt-6 flex justify-end relative z-10">
         <Link
           href={proofCenterHref}
-          className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-[var(--ct-border)]"
+          className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-(--ct-border)"
           aria-label="Open proof center"
         >
           open proof center →

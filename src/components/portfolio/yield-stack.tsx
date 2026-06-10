@@ -107,7 +107,7 @@ export function YieldStack({
     >
       {/* Header */}
       <div className="dash-label relative z-10">
-        <span className="body-xs uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted">
+        <span className="body-xs uppercase tracking-(--ct-tracking-wide) ct-text-muted">
           Yield Source Stack (12m fwd)
         </span>
         <ProvenanceBadge kind={source} />
@@ -144,7 +144,7 @@ export function YieldStack({
                 </span>
                 <span
                   className={cn(
-                    "tabular text-[length:var(--ct-text-xs)] font-medium",
+                    "tabular text-(length:--ct-text-xs) font-medium",
                     isNegative
                       ? "ct-status-danger"
                       : s.isVolatile
@@ -161,7 +161,7 @@ export function YieldStack({
                 className="relative h-1.5 rounded-full overflow-hidden ct-surface-2"
               >
                 <div
-                  className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-300"
+                  className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-(--ct-dur-base)"
                   style={{
                     width: `${widthPct.toFixed(1)}%`,
                     background: color,
@@ -184,7 +184,7 @@ export function YieldStack({
       {/* Divider */}
       {hasData && (
         <hr
-          className="my-4 border-0 border-t border-[var(--ct-border-soft)] relative z-10"
+          className="my-4 border-0 border-t border-(--ct-border-soft) relative z-10"
           aria-hidden="true"
         />
       )}

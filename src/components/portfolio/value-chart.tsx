@@ -191,7 +191,7 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
       {isEmpty ? (
         /* Empty state preserved */
         <div
-          className="mt-3 flex w-full flex-1 items-center justify-center rounded-md border border-dashed border-[var(--ct-border-soft)] ct-surface-1 relative z-10 min-h-20"
+          className="mt-3 flex w-full flex-1 items-center justify-center rounded-md border border-dashed border-(--ct-border-soft) ct-surface-1 relative z-10 min-h-20"
           aria-label="No portfolio data yet"
         >
           <p className="text-xs ct-text-muted">

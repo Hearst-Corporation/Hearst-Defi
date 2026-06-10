@@ -34,12 +34,12 @@ function relativeTime(date: Date, asOf: Date): string {
 function TxIcon({ type }: { type: string }) {
   const colorClass =
     type === "deposit"
-      ? "bg-[var(--ct-status-success)]"
+      ? "bg-(--ct-status-success)"
       : type === "distribution"
-        ? "bg-[var(--ct-accent-strong)]"
+        ? "bg-(--ct-accent-strong)"
         : type === "withdraw"
-          ? "bg-[var(--ct-status-danger)]"
-          : "bg-[var(--ct-text-muted)]";
+          ? "bg-(--ct-status-danger)"
+          : "bg-(--ct-text-muted)";
 
   return (
     <span
@@ -80,7 +80,7 @@ export function RecentActivity({ transactions, source }: RecentActivityProps) {
           {displayed.map((tx) => (
             <div
               key={tx.id}
-              className="flex items-center gap-3 py-2 border-b border-[var(--ct-border-soft)]"
+              className="flex items-center gap-3 py-2 border-b border-(--ct-border-soft)"
             >
               <TxIcon type={tx.type} />
 

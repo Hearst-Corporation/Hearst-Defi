@@ -69,7 +69,7 @@ function Tab1099Int({ data }: { data: Form1099Int }) {
         <ProvenanceBadge kind="estimated" />
       </div>
 
-      <div className="rounded-lg border border-[var(--ct-border)] ct-surface-1 divide-y divide-[var(--ct-border)]">
+      <div className="rounded-lg border border-(--ct-border) ct-surface-1 divide-y divide-(--ct-border)">
         <TaxRow
           label="Box 1 — Interest income YTD"
           value={formatUsd(data.interestIncomeUsd)}
@@ -111,7 +111,7 @@ function Tab1099B({ data }: { data: Form1099B }) {
         <ProvenanceBadge kind="estimated" />
       </div>
 
-      <div className="rounded-lg border border-[var(--ct-border)] ct-surface-1 divide-y divide-[var(--ct-border)]">
+      <div className="rounded-lg border border-(--ct-border) ct-surface-1 divide-y divide-(--ct-border)">
         <TaxRow
           label="Box 1d — Proceeds"
           value={formatUsd(data.proceedsUsd)}
@@ -157,7 +157,7 @@ function TabCrs({ data }: { data: CrsPreview }) {
         <ProvenanceBadge kind="manual" />
       </div>
 
-      <div className="rounded-lg border border-[var(--ct-border)] ct-surface-1 divide-y divide-[var(--ct-border)]">
+      <div className="rounded-lg border border-(--ct-border) ct-surface-1 divide-y divide-(--ct-border)">
         <TaxRow
           label="Residence country"
           value={data.residenceCountry}
@@ -249,10 +249,10 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
         title="Available 2027 Q1"
         className={cn(
           "inline-flex items-center gap-2 rounded-full",
-          "border border-[var(--ct-border-soft)] ct-surface-0",
+          "border border-(--ct-border-soft) ct-surface-0",
           "px-4 py-2 text-sm ct-text-muted",
           "opacity-50 cursor-not-allowed",
-          "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
+          "focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
         )}
         aria-label="Tax documents preview — available 2027 Q1"
         data-testid="tax-docs-trigger"
@@ -264,7 +264,7 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-[var(--ct-z-overlay)] ct-overlay-backdrop backdrop-blur-sm"
+          className="fixed inset-0 z-(--ct-z-overlay) ct-overlay-backdrop backdrop-blur-sm"
           aria-hidden
           onClick={() => setIsOpen(false)}
         />
@@ -277,17 +277,17 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
         aria-label="Tax Documents Preview"
         data-testid="tax-docs-drawer"
         className={cn(
-          "fixed inset-y-0 right-0 z-[var(--ct-z-modal)]",
+          "fixed inset-y-0 right-0 z-(--ct-z-modal)",
           "w-full max-w-lg",
           "flex flex-col",
-          "bg-[var(--ct-bg-deep)] border-l border-[var(--ct-border)]",
-          "shadow-[var(--ct-shadow-elevated)]",
-          "transition-transform duration-[var(--ct-dur-slow)]",
+          "bg-(--ct-bg-deep) border-l border-(--ct-border)",
+          "shadow-(--ct-shadow-elevated)",
+          "transition-transform duration-(--ct-dur-slow)",
           isOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 border-b border-[var(--ct-border)] px-6 py-5">
+        <div className="flex items-start justify-between gap-4 border-b border-(--ct-border) px-6 py-5">
           <div>
             <h2 className="h2">
               Tax Documents
@@ -304,8 +304,8 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
               "rounded-md p-2",
               "ct-text-muted hover:ct-text-strong",
               "hover:ct-surface-1",
-              "transition-colors duration-[var(--ct-dur-base)]",
-              "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
+              "transition-colors duration-(--ct-dur-base)",
+              "focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
             )}
           >
             ✕
@@ -313,7 +313,7 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
         </div>
 
         {/* Disclaimer — mandatory per CLAUDE.md */}
-        <div className="border-b border-[var(--ct-border)] ct-status-warning-bg px-6 py-3">
+        <div className="border-b border-(--ct-border) ct-status-warning-bg px-6 py-3">
           <p
             className="text-xs ct-status-warning leading-relaxed"
             data-testid="tax-disclaimer"
@@ -326,7 +326,7 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
         <div
           role="tablist"
           aria-label="Tax form tabs"
-          className="flex gap-1 border-b border-[var(--ct-border)] px-6 pt-4 pb-0"
+          className="flex gap-1 border-b border-(--ct-border) px-6 pt-4 pb-0"
         >
           {TAX_TABS.map((tab) => (
             <button
@@ -338,11 +338,11 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
               type="button"
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "rounded-t-[var(--ct-radius-md)] px-4 py-2.5 text-sm font-medium",
-                "transition-colors duration-[var(--ct-dur-base)]",
-                "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
+                "rounded-t-(--ct-radius-md) px-4 py-2.5 text-sm font-medium",
+                "transition-colors duration-(--ct-dur-base)",
+                "focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
                 activeTab === tab
-                  ? "border-b-2 border-[var(--ct-accent)] ct-text-accent"
+                  ? "border-b-2 border-(--ct-accent) ct-text-accent"
                   : "ct-text-muted hover:ct-text-primary hover:ct-surface-1",
               )}
             >
@@ -370,7 +370,7 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
         </div>
 
         {/* Footer — download buttons disabled (V1 preview) */}
-        <div className="flex items-center justify-between gap-3 border-t border-[var(--ct-border)] px-6 py-4">
+        <div className="flex items-center justify-between gap-3 border-t border-(--ct-border) px-6 py-4">
           <p className="text-xs ct-text-muted">
             Final docs available 2027 Q1
           </p>

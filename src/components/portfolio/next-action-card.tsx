@@ -103,21 +103,23 @@ export function NextActionCard(props: NextActionCardProps) {
   const step = resolveNextStep(props);
 
   return (
-    <Card className="ct-glass-panel flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-col gap-1">
-        <span className="eyebrow">{step.eyebrow}</span>
-        <p className="h3 ct-text-strong">{step.headline}</p>
-        {step.detail ? (
-          <p className="body-sm ct-text-muted max-w-prose">{step.detail}</p>
+    <Card className="ct-glass-panel">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <div className="flex flex-col gap-1">
+          <span className="eyebrow">{step.eyebrow}</span>
+          <p className="h3 ct-text-strong">{step.headline}</p>
+          {step.detail ? (
+            <p className="body-sm ct-text-muted max-w-prose">{step.detail}</p>
+          ) : null}
+        </div>
+        {step.cta ? (
+          <div className="shrink-0">
+            <Button variant="primary" size="md" asChild>
+              <Link href={step.cta.href}>{step.cta.label} →</Link>
+            </Button>
+          </div>
         ) : null}
       </div>
-      {step.cta ? (
-        <div className="shrink-0">
-          <Button variant="primary" size="md" asChild>
-            <Link href={step.cta.href}>{step.cta.label} →</Link>
-          </Button>
-        </div>
-      ) : null}
     </Card>
   );
 }
