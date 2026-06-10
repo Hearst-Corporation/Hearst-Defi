@@ -132,13 +132,15 @@ export default async function ProductProofCenterPage({
         <MiningCashFlowEvidence coverage={coverage} />
       </section>
 
-      {/* ── On-chain event timeline ─────────────────────────── */}
-      <section aria-labelledby="event-timeline-heading">
-        <h2 id="event-timeline-heading" className="sr-only">
-          On-chain event log
-        </h2>
-        <EventTimeline events={onChainEvents} />
-      </section>
+      {/* ── On-chain event timeline (only when chain is configured) ── */}
+      {chainConfigured && (
+        <section aria-labelledby="event-timeline-heading">
+          <h2 id="event-timeline-heading" className="sr-only">
+            On-chain event log
+          </h2>
+          <EventTimeline events={onChainEvents} />
+        </section>
+      )}
 
       {/* ── Full proof grid (filtered) ──────────────────────── */}
       <section aria-labelledby="proof-grid-heading">
@@ -167,13 +169,15 @@ export default async function ProductProofCenterPage({
         )}
       </section>
 
-      {/* ── Deployed contracts + audit trail ───────────────── */}
-      <section aria-labelledby="contracts-heading">
-        <h2 id="contracts-heading" className="h2 mb-6">
-          Contracts &amp; audit trail
-        </h2>
-        <ContractsAuditTrail />
-      </section>
+      {/* ── Deployed contracts + audit trail (only when chain is configured) ── */}
+      {chainConfigured && (
+        <section aria-labelledby="contracts-heading">
+          <h2 id="contracts-heading" className="h2 mb-6">
+            Contracts &amp; audit trail
+          </h2>
+          <ContractsAuditTrail />
+        </section>
+      )}
 
       {/* ── Governance timelocks ───────────────────────────── */}
       {timelockProposals.length > 0 && (
@@ -197,12 +201,21 @@ export default async function ProductProofCenterPage({
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="border-t border-[var(--ct-border-soft)] pt-6">
         <p className="body-xs">
-          On-chain entries are read directly from Base Sepolia via the
-          EventLogger (<span className="mono">0xb07E…3D9E</span>) and
-          PoRRegistry (<span className="mono">0x2B72…28D</span>) contracts.
-          Off-chain entries are pinned to IPFS or signed HTTPS endpoints; Phase
-          2 mirrors each new entry on-chain and surfaces the tx hash here.
-          On-chain data and vault state are fetched fresh on every request.
+          {chainConfigured ? (
+            <>
+              On-chain entries are read directly from Base Sepolia via the
+              EventLogger (<span className="mono">0xb07E…3D9E</span>) and
+              PoRRegistry (<span className="mono">0x2B72…28D</span>) contracts.
+              Off-chain entries are pinned to IPFS or signed HTTPS endpoints.
+              On-chain data and vault state are fetched fresh on every request.
+            </>
+          ) : (
+            <>
+              Off-chain entries are pinned to IPFS or signed HTTPS endpoints.
+              On-chain attestation will be enabled following mainnet deployment.
+              Vault state is fetched fresh on every request.
+            </>
+          )}
         </p>
       </footer>
     </div>

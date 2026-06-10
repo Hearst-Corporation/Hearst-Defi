@@ -54,12 +54,12 @@ export default async function IdentityPage() {
       {/* Navigation */}
       <div className="flex flex-col gap-3">
         <Button variant="primary" size="lg" asChild className="w-full font-bold">
-          <Link href="/onboarding/wallet?step=wallet">
+          <Link href="/onboarding/wallet">
             Continue to Wallet Binding
           </Link>
         </Button>
         <Button variant="ghost" size="md" asChild className="w-full">
-          <Link href="/onboarding/accreditation?step=accreditation">
+          <Link href="/onboarding/accreditation">
             ← Back
           </Link>
         </Button>

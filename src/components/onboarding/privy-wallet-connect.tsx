@@ -15,6 +15,8 @@
 import { usePrivy, useConnectWallet, useWallets } from "@privy-io/react-auth";
 
 import { cn } from "@/lib/cn";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 interface PrivyWalletConnectProps {
   /** Pass `process.env.NEXT_PUBLIC_PRIVY_APP_ID` from the Server Component. */
@@ -39,36 +41,34 @@ function PrivyConnectInner() {
   // Not yet ready — show a brief skeleton to avoid flash
   if (!ready) {
     return (
-      <div
-        className="w-full rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-6 py-8 flex items-center justify-center"
+      <Card
+        className="w-full flex items-center justify-center"
         aria-busy="true"
         aria-label="Loading wallet connection"
       >
         <span className="body-sm ct-text-faint animate-pulse">
           Loading wallet connection…
         </span>
-      </div>
+      </Card>
     );
   }
 
   // Wallet already connected
   if (authenticated && displayAddress) {
     return (
-      <div
-        className="w-full rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-6 py-8 flex flex-col items-center gap-4 text-center"
+      <Card
+        className="w-full flex flex-col items-center gap-4 text-center"
         role="region"
         aria-label="Wallet connected"
       >
         {/* Status dot */}
-        <span
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--ct-status-success-border)] ct-status-success-bg ct-status-success text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
-        >
+        <Badge variant="success">
           <span
             aria-hidden="true"
             className="inline-block w-1.5 h-1.5 rounded-full bg-current"
           />
           Wallet Connected
-        </span>
+        </Badge>
 
         <p
           className={cn(
@@ -84,7 +84,7 @@ function PrivyConnectInner() {
           This wallet will receive your monthly USDC distributions and act as
           the signing key for on-chain position management.
         </p>
-      </div>
+      </Card>
     );
   }
 
@@ -148,15 +148,13 @@ function ConfigPending() {
         </p>
       </div>
 
-      <span
-        className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--ct-status-warning-border)] ct-status-warning-bg ct-status-warning text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
-      >
+      <Badge variant="warning">
         <span
           aria-hidden="true"
           className="inline-block w-1.5 h-1.5 rounded-full bg-current"
         />
         Configuration en attente
-      </span>
+      </Badge>
 
       <p className="body-xs ct-text-faint text-center text-pretty">
         Set{" "}

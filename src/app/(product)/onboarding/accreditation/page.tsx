@@ -19,7 +19,7 @@ export default function AccreditationPage() {
 
   function handleContinue() {
     // Navigate to next step: S3 identity
-    router.push("/onboarding/identity?step=identity");
+    router.push("/onboarding/identity");
   }
 
   return (

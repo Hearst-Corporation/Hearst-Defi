@@ -42,12 +42,12 @@ export default function WalletPage() {
       {/* Navigation */}
       <div className="flex flex-col gap-3">
         <Button variant="primary" size="lg" asChild className="w-full font-bold">
-          <Link href="/onboarding/review?step=review">
-            Continue to Review
+          <Link href="/portfolio">
+            Continue to Portfolio
           </Link>
         </Button>
         <Button variant="ghost" size="md" asChild className="w-full">
-          <Link href="/onboarding/identity?step=identity">
+          <Link href="/onboarding/identity">
             ← Back
           </Link>
         </Button>
