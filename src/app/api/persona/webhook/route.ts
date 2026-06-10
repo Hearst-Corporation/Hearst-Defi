@@ -80,6 +80,20 @@ function verifySignature(
 }
 
 // ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Returns true when err is a Prisma unique-constraint violation (P2002). */
+function isP2002(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "code" in err &&
+    (err as { code: string }).code === "P2002"
+  );
+}
+
+// ---------------------------------------------------------------------------
 // POST /api/persona/webhook
 // ---------------------------------------------------------------------------
 
@@ -113,46 +127,64 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const inquiryId = parsed.data.id;
   const status = parsed.data.attributes.status;
-  const rawReferenceId = parsed.data.attributes["reference-id"];
-  // Normalise: treat null / "" / whitespace-only as "no resolvable user".
-  const referenceId =
-    typeof rawReferenceId === "string" && rawReferenceId.trim() !== ""
-      ? rawReferenceId.trim()
-      : null;
+  // P0-4: the reference-id is CLIENT-SUPPLIED and therefore untrusted for
+  // security decisions. It is kept purely as a hint for logging/ops purposes.
+  // The authoritative userId is resolved from KycInquiry (see below).
+  const hintReferenceId = parsed.data.attributes["reference-id"] ?? null;
 
-  // 3b. No resolvable referenceId → we cannot tie this inquiry to a User.
+  // 3b. Resolve authoritative userId from server-side KycInquiry claim.
   //
-  // We refuse to fabricate a `userId="unknown"` KycEvent: it carries no business
-  // value, pollutes the [userId, receivedAt] index, and — because `inquiryId` is
-  // a UNIQUE column — a bogus "unknown" row would block the real, referenceId-
-  // bearing event for the same inquiry from ever being inserted (P2002).
+  // claimKycInquiry() must be called by the onboarding UI (via an authenticated
+  // server action) BEFORE the Persona SDK starts the inquiry. If no claim exists
+  // the inquiry is unclaimed — either Persona misconfiguration or a spoofed
+  // reference-id attack. We refuse to persist or approve in either case.
   //
-  // Critically, a terminal status here would otherwise reach markKycComplete and
-  // silently no-op (userId === "unknown"), so the investor is NEVER approved
-  // while Persona believes the handoff succeeded. That silent gap is the bug.
-  //
-  // Response: 200 (NOT 4xx). The payload is well-formed and HMAC-valid; the
-  // fault is a Persona template misconfiguration (reference-id not wired). A 4xx
-  // would make Persona retry forever without ever fixing the missing field, so
-  // we ACK with an explicit machine-readable status and log loudly for ops to
-  // investigate — mirroring how duplicate / persist-failure paths also 200+log.
-  if (referenceId === null) {
+  // Response: 200 (NOT 4xx). The payload is well-formed and HMAC-valid. A 4xx
+  // would cause Persona to retry indefinitely without fixing the root cause.
+  // We ACK with a machine-readable status and log loudly for ops.
+  const claim = await prisma.kycInquiry.findUnique({ where: { inquiryId } });
+
+  if (!claim) {
+    // Unclaimed: no server-side link yet (webhook likely raced ahead of
+    // claimKycInquiry). Persist the event for audit + late-claim replay, but
+    // DO NOT approve — userId stays a non-resolvable sentinel so markKycComplete
+    // can never approve from here (P0-4 preserved). claimKycInquiry replays the
+    // approval once the authoritative link is written.
+    try {
+      await prisma.kycEvent.create({
+        data: {
+          userId: "unclaimed", // sentinel — never a real User.id
+          inquiryId,
+          status,
+          payload: JSON.parse(rawBody) as Parameters<typeof prisma.kycEvent.create>[0]["data"]["payload"],
+          receivedAt: new Date(),
+        },
+      });
+    } catch (err) {
+      // P2002 = duplicate delivery of the same unclaimed inquiry — ignore.
+      if (!isP2002(err)) {
+        console.error("[persona/webhook] failed to persist unclaimed KycEvent:", err);
+      }
+    }
     console.error(
-      `[persona/webhook] Missing reference-id — cannot resolve investor. ` +
-        `inquiryId=${inquiryId} status=${status}. No KycEvent written, no ` +
-        `approval applied. Check the Persona inquiry template wiring.`,
+      `[persona/webhook] unclaimed inquiry — no server-side KycInquiry link; ` +
+        `refusing to approve. Possible spoofed reference-id or missing ` +
+        `claimKycInquiry() call. ` +
+        `inquiryId=${inquiryId} status=${status} hintReferenceId=${hintReferenceId ?? "(none)"}`,
     );
     return NextResponse.json(
-      { status: "missing_reference_id", inquiryId },
+      { status: "unclaimed_inquiry", inquiryId },
       { status: 200 },
     );
   }
 
-  // 4. Persist event in KycEvent
+  const userId = claim.userId;
+
+  // 4. Persist event in KycEvent using the AUTHORITATIVE userId from the claim.
   try {
     await prisma.kycEvent.create({
       data: {
-        userId: referenceId,
+        userId,
         inquiryId,
         status,
         // Prisma Json accepts `object` directly; we parse then cast via
@@ -163,13 +195,30 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
   } catch (err) {
     // P2002 = unique constraint violation → duplicate delivery, already processed.
-    // Return 200 immediately so Persona stops retrying; do NOT re-run business logic.
-    if (
-      typeof err === "object" &&
-      err !== null &&
-      "code" in err &&
-      (err as { code: string }).code === "P2002"
-    ) {
+    // Return 200 immediately so Persona stops retrying.
+    //
+    // B1-D TOCTOU rattrapage: on the duplicate path the KycEvent sentinel written
+    // by the "unclaimed" branch may have blocked a later redelivery from approving
+    // the now-claimed investor. If the status is terminal AND a claim now exists,
+    // replay markKycComplete so the investor is not left stuck in "pending".
+    // markKycComplete is idempotent: it only transitions pending→approved and
+    // resolves the userId from KycInquiry (never from the payload — P0-4 preserved).
+    if (isP2002(err)) {
+      if (status === "completed" || status === "approved") {
+        const claimNow = await prisma.kycInquiry.findUnique({
+          where: { inquiryId },
+        });
+        if (claimNow) {
+          try {
+            await markKycComplete(inquiryId);
+          } catch (replayErr) {
+            console.error(
+              `[persona/webhook] B1-D replay markKycComplete failed (inquiryId=${inquiryId}):`,
+              replayErr,
+            );
+          }
+        }
+      }
       console.info(
         `[persona/webhook] Duplicate event ignored (inquiryId=${inquiryId})`,
       );

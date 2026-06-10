@@ -824,6 +824,18 @@ model KycEvent {
   @@index([userId, receivedAt])
 }
 
+/// Server-authoritative link between a Persona inquiry and the authenticated
+/// user who started it. Created by claimKycInquiry() from the session BEFORE
+/// the webhook arrives. The webhook resolves the userId to approve from THIS
+/// table — never from the client-supplied payload reference-id (P0-4).
+model KycInquiry {
+  inquiryId String   @id
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
 // =============================================================================
 // ONBOARDING — DocuSign subscription agreement envelopes
 // =============================================================================
