@@ -77,7 +77,7 @@ describe("cellFill", () => {
 
   it("score 50 (40–60) → warning fill", () => {
     const { fill } = cellFill(50);
-    expect(fill).toContain("ct-warning");
+    expect(fill).toContain("ct-status-warning");
   });
 
   it("score 70 (60–80) → accent fill, opacity 0.5", () => {
@@ -94,7 +94,7 @@ describe("cellFill", () => {
 
   it("boundary: score 40 → warning (≥40, <60)", () => {
     const { fill } = cellFill(40);
-    expect(fill).toContain("ct-warning");
+    expect(fill).toContain("ct-status-warning");
   });
 
   it("boundary: score 60 → accent 0.5 (≥60, <80)", () => {

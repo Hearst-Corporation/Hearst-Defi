@@ -37,10 +37,10 @@ export function ProofGrid({ proofs, filter }: ProofGridProps) {
       <div className="flex flex-col items-center gap-4 py-16 text-center">
         <div className="h-10 w-10 rounded-lg ct-surface-2" aria-hidden />
         <div>
-          <p className="body-sm font-medium ct-text-primary">
+          <p className="body-sm font-medium ct-text-strong">
             {emptyTitle}
           </p>
-          <p className="mt-1 text-xs ct-text-muted">{emptyHint}</p>
+          <p className="body-xs mt-1">{emptyHint}</p>
         </div>
       </div>
     );

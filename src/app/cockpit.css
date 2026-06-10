@@ -244,6 +244,88 @@
   border: 1px solid var(--ct-border-soft);
 }
 
+/* ── Nested surfaces (box-in-box) — calmer than parent Card/dash-cell ────────
+   KPI cells: Metric variant="nested" (.ct-metric-nested).
+   Proof/evidence blocks: NestedPanel (.ct-nested-panel).
+   Label/value rows inside panels: ProofRow (.ct-proof-row).
+   Status callouts inside widgets: .ct-nested-callout */
+
+.ct-metric-nested {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  min-width: 0;
+}
+
+.ct-metric-nested__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ct-metric-nested__sublabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ct-nested-panel {
+  background: var(--ct-surface-0);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-lg);
+  padding: var(--ct-space-1) var(--ct-space-4);
+}
+
+.ct-proof-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ct-space-4);
+  padding: var(--ct-space-2_5) 0;
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.ct-proof-row:last-child {
+  border-bottom: none;
+}
+
+.ct-proof-row__label {
+  flex-shrink: 0;
+}
+
+.ct-proof-row__value {
+  min-width: 0;
+  text-align: right;
+  word-break: break-word;
+}
+
+.ct-nested-callout {
+  background: var(--ct-surface-0);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-lg);
+  padding: var(--ct-space-3) var(--ct-space-4);
+}
+
+/* Responsive KPI grids inside parent cards (2 → 3 → 4 cols). */
+.ct-nested-kpi-grid {
+  display: grid;
+  gap: var(--ct-space-4);
+  align-items: start;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .ct-nested-kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .ct-nested-kpi-grid--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .ct-overlay-backdrop {
   background: color-mix(in srgb, var(--ct-bg-deep) 60%, transparent);
 }
@@ -366,6 +448,41 @@
 .ct-shadow-soft { box-shadow: var(--ct-shadow-soft); }
 .ct-shadow-elevated { box-shadow: var(--ct-shadow-elevated); }
 .ct-shadow-depth { box-shadow: var(--ct-shadow-depth); }
+
+/* ── PRIMITIVE TOKEN UTILITIES — arbitraires [var(--ct-*)] des primitives UI
+   (Button/Badge/Card/Metric) factorisés en classes DS nommées.
+   Visual-neutral : chaque classe résout à la valeur exacte de l'arbitraire remplacé. ── */
+.ct-bg-accent { background-color: var(--ct-accent); }
+.ct-bg-accent-strong-hover:hover { background-color: var(--ct-accent-strong); }
+.ct-text-deep { color: var(--ct-bg-deep); }
+.ct-glow-accent { box-shadow: 0 0 1rem color-mix(in srgb, var(--ct-accent) 25%, transparent); }
+.ct-focus-ring:focus-visible { box-shadow: var(--ct-shadow-focus-ring); }
+.ct-press:active { transform: scale(0.98); }
+.ct-transition-base {
+  transition-property: background-color, border-color, color, transform, opacity;
+  transition-duration: var(--ct-dur-base);
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ct-transition-opacity-slow {
+  transition-property: opacity;
+  transition-duration: var(--ct-dur-slow);
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ct-z-base { z-index: var(--ct-z-base); }
+.ct-drop-glow-subtle { filter: drop-shadow(var(--ct-glow-subtle)); }
+.ct-leading-none { line-height: var(--ct-leading-none); }
+.ct-tracking-wide { letter-spacing: var(--ct-tracking-wide); }
+.ct-text-micro-size { font-size: var(--ct-text-micro); }
+.ct-overlay-surface0 { background-image: linear-gradient(to bottom right, var(--ct-surface-0), transparent); }
+.ct-overlay-accent5 { background-image: linear-gradient(to bottom right, color-mix(in srgb, var(--ct-accent) 5%, transparent), transparent); }
+.ct-bc-base { border-color: var(--ct-border); }
+.ct-bc-soft { border-color: var(--ct-border-soft); }
+.ct-bc-soft-50 { border-color: color-mix(in srgb, var(--ct-border-soft) 50%, transparent); }
+.ct-bc-strong { border-color: var(--ct-border-strong); }
+.ct-bc-strong-hover:hover { border-color: var(--ct-border-strong); }
+.ct-bc-success { border-color: var(--ct-status-success-border); }
+.ct-bc-warning { border-color: var(--ct-status-warning-border); }
+.ct-bc-danger { border-color: var(--ct-status-danger-border); }
 
 /* ── UTILITAIRES RÉCURRENTS (factorise les patterns dupliqués) ── */
 

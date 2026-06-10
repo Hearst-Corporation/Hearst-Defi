@@ -66,7 +66,7 @@ export default async function CustomersPage({
       />
 
       <section className="space-y-3" aria-label="Customers">
-        <h3 className="stat-label">Directory ({total})</h3>
+        <h3 className="h3">Directory ({total})</h3>
 
         {customers.length === 0 ? (
           <Card className="p-8">

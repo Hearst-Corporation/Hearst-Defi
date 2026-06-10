@@ -81,6 +81,8 @@
   font-weight: var(--ct-font-semibold);
   color: var(--ct-text-strong);
   flex-shrink: 0;
+  /* Micro-kerning for the single avatar initial — off the --ct-tracking-* scale
+     on purpose (no token at -0.01em); purely optical, not a forgotten hardcode. */
   letter-spacing: -0.01em;
 }
 
@@ -93,7 +95,7 @@
   flex: 1;
 }
 
-/* .prof-name → DS class .h2 (see page.tsx) */
+/* .prof-name → DS class .h1 (see page.tsx) */
 .prof-name {
   margin: 0;
   white-space: nowrap;
@@ -134,7 +136,7 @@
 .prof-dl-row dt {
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-medium);
-  letter-spacing: 0.06em;
+  letter-spacing: var(--ct-tracking-wider);
   text-transform: uppercase;
   color: var(--ct-text-muted);
   flex-shrink: 0;
@@ -156,27 +158,10 @@
   font-style: italic;
 }
 
-/* ── Investment stats ── */
+/* ── Investment stats (nested KPI grid — Metric variant="nested") ── */
 .prof-stats {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
   margin-top: var(--ct-space-3);
   flex: 1;
-}
-
-.prof-stat {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  flex: 1;
-  padding: var(--ct-space-4);
-}
-
-.prof-stat-sep {
-  width: 1px;
-  background: var(--ct-border-soft);
-  flex-shrink: 0;
 }
 
 /* ── Security list ── */

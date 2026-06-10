@@ -23,7 +23,7 @@ export default function AccreditationPage() {
   }
 
   return (
-    <div className="ct-card w-full max-w-lg flex flex-col gap-[var(--ct-space-6)]">
+    <div className="ct-card w-full max-w-lg flex flex-col gap-6">
       <ProductPageHeader
         className="gap-2"
         eyebrow="Step 2 of 7"

@@ -72,23 +72,23 @@ export function AccreditationCheckboxes({
   }
 
   return (
-    <div className="flex flex-col gap-[var(--ct-space-5)]">
+    <div className="flex flex-col gap-5">
       <fieldset
         className="border-none p-0 m-0"
         aria-label="Accreditation attestations"
       >
-        <legend className="eyebrow ct-text-muted mb-[var(--ct-space-4)]">
+        <legend className="eyebrow ct-text-muted mb-4">
           Please confirm all three attestations to proceed
         </legend>
 
-        <div className="flex flex-col gap-[var(--ct-space-3)]">
+        <div className="flex flex-col gap-3">
           {ATTESTATIONS.map(({ id, label }) => {
             const isChecked = checked.has(id);
             return (
               <label
                 key={id}
                 htmlFor={`attest-${id}`}
-                className="flex items-start gap-[var(--ct-space-3)] cursor-pointer group"
+                className="flex items-start gap-3 cursor-pointer group"
               >
                 <input
                   id={`attest-${id}`}

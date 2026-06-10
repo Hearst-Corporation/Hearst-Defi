@@ -72,7 +72,7 @@ const BAND_BAR: Record<RiskBand, string> = {
 // a hardcoded warning tint that lied for low/high bands.
 const BAND_FILL: Record<RiskBand, string> = {
   low: "var(--ct-status-success)",
-  medium: "var(--ct-warning)",
+  medium: "var(--ct-status-warning)",
   high: "var(--ct-status-danger)",
 };
 

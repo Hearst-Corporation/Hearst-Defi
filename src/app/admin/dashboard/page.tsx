@@ -2,20 +2,28 @@ import "@/app/(product)/charts-shared.css";
 
 import { Suspense } from "react";
 
+import { ActionQueue } from "@/components/admin/action-queue";
 import { ActivityFeed } from "@/components/admin/activity-feed";
+import { AdminBrief, type BriefItem } from "@/components/admin/admin-brief";
 import { BtcTacticalCard } from "@/components/admin/btc-tactical-card";
+import { CommandStrip, type CommandStripCell } from "@/components/admin/command-strip";
 import { DashboardToolbar } from "@/components/admin/dashboard-toolbar";
+import { ProofStatusCard } from "@/components/admin/proof-status-card";
 import { AllocationDonut } from "@/components/dashboard/dashboard-charts";
 import { MiningHealthSection } from "@/components/dashboard/mining-health";
 import { RiskFrameworkSection } from "@/components/dashboard/risk-framework";
+import { TimeseriesSection } from "@/components/dashboard/timeseries-section";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import {
+  ProvenanceBadge,
+  type Provenance,
+} from "@/components/ui/provenance-badge";
 import { SkeletonCard } from "@/components/ui/skeleton";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { allocationLabelFor, allocationStrokeFor } from "@/lib/allocation-colors";
-import { loadCustody } from "@/lib/data/custody";
+import { loadAdminOverview } from "@/lib/data/admin-overview";
 import { loadAdvancedMetrics } from "@/lib/data/advanced-metrics";
 import { loadDashboardData } from "@/lib/data/dashboard";
 import { loadRiskFramework } from "@/lib/data/risk-framework";
@@ -38,8 +46,11 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
-// ---------------------------------------------------------------------------
-// Yield source breakdown — methodology v1.0 target contributions. Estimated
+/** Formats a signed USDC delta, e.g. "+$1.2M" / "-$840.0K". */
+function signedUsd(n: number): string {
+  return `${n >= 0 ? "+" : "-"}${usdCompact.format(Math.abs(n))}`;
+}
+
 interface DashboardPageProps {
   searchParams: Promise<{ mode?: string; vault?: string }>;
 }
@@ -51,17 +62,15 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     params.mode === "advanced" ? "advanced" : "simple";
   const requestedVault = params.vault;
 
-  const [data, custody, risk, allVaultRefs] = await Promise.all([
+  const [data, risk, allVaultRefs, overview] = await Promise.all([
     loadDashboardData(requestedVault),
-    loadCustody(),
     loadRiskFramework(),
     listAllVaults({ status: "live-or-paused" }),
+    loadAdminOverview(),
   ]);
   const { vault, vaultMeta } = data;
+  const preview = vaultMeta.livePreview;
 
-  // Selector catalog = 3 engine fixtures + every live/paused VaultDeployment
-  // wired through the resolver. Surfaces wizard-created vaults in the rail
-  // (resolves the schism between Prisma deployments and engine fixtures).
   const vaultOptions = allVaultRefs.map((ref) => ({
     id: vaultSlug(ref),
     label: vaultLabel(ref),
@@ -79,47 +88,183 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       .reduce((sum, prev) => sum + prev.pct, 0),
   }));
 
-  // Risk score band label — re-using the same compositeBand semantics surfaced
-  // by `loadRiskFramework()` keeps the hero and the framework section aligned.
-  const riskBandLabel = risk.bandLabel;
+  // ── Headline APY (engine preset for preview vaults, live band otherwise) ──
+  const headlineApy = preview ? vaultMeta.apyTarget : vault.apyRange;
+  const apyMid = (headlineApy.low + headlineApy.high) / 2;
+  const targetLow = vaultMeta.apyTarget.low;
+  const targetHigh = vaultMeta.apyTarget.high;
+  const yieldPosture =
+    apyMid < targetLow
+      ? "below target band"
+      : apyMid > targetHigh
+        ? "above target band"
+        : "within target band";
+  const yieldWithin = yieldPosture === "within target band";
 
-  // Next distribution: derive from latestDistribution.paid_at when available.
-  // If the date is passed, we show "TBD" (methodology v1.0) instead of
-  // displaying a stale date from the past.
-  const nextDist = data.latestDistribution;
-  const isDistPassed = nextDist.paid_at !== null && nextDist.paid_at < new Date();
-  const nextDistLabel =
-    nextDist.paid_at !== null && !isDistPassed
-      ? dateFmt.format(nextDist.paid_at)
-      : "TBD";
-  const nextDistAmount =
-    isDistPassed
-      ? "Next cycle pending"
-      : nextDist.amount_usdc > 0
-        ? `~${usdCompact.format(nextDist.amount_usdc)}`
-        : nextDist.status;
+  // ── Capital posture (custody reserves when scope pinned, else snapshot AUM) ──
+  const { custodyConfigured, custodyReservesUsdc, custodyProvenance } =
+    overview.proof;
+  const useCustody = custodyConfigured && custodyReservesUsdc > 0;
+  const aumNumeric = useCustody ? custodyReservesUsdc : vault.aumUsdc;
+  const capitalProvenance: Provenance = preview
+    ? "estimated"
+    : useCustody
+      ? custodyProvenance
+      : data.source === "db"
+        ? "live"
+        : "estimated";
+  const aumSublabel = useCustody
+    ? "USDC reserves · Fireblocks"
+    : vault.delta30dUsdc !== 0
+      ? `${signedUsd(vault.delta30dUsdc)} (30d)`
+      : "Fireblocks scope not pinned";
 
-  // 30d AUM delta sublabel for the AUM card.
-  const aumSublabel =
-    custody.configured
-      ? "USDC reserves · Fireblocks"
-      : vault.delta30dUsdc !== 0
-        ? `${vault.delta30dUsdc >= 0 ? "+" : ""}${usdCompact.format(vault.delta30dUsdc)} (30d)`
-        : "Fireblocks scope not pinned";
+  // ── Platform status ──
+  const platformLive = data.source === "db";
+  const platformValue = platformLive
+    ? "Live"
+    : data.source === "partial"
+      ? "Partial"
+      : "No data";
+  const platformProvenance: Provenance = platformLive ? "live" : "partial";
 
-  // Vault APY range shown in the hero — ALWAYS from the engine preset for the
-  // selected vault. ADR-006 #9: when live snapshots are not yet per-vault, we
-  // surface the vault's OWN apy target instead of reusing the Yield snapshot's
-  // numbers. For Yield itself the snapshot range and the engine range converge
-  // once the seeded data is in sync.
-  const headlineApy = vaultMeta.livePreview
-    ? vaultMeta.apyTarget
-    : vault.apyRange;
+  // ── Proof posture ──
+  const proofFresh =
+    overview.proof.miningFreshness === "live" &&
+    overview.proof.attestationsCount > 0;
+  const proofValue = proofFresh
+    ? "Current"
+    : overview.proof.attestationsCount > 0
+      ? "Stale"
+      : "Pending";
+  const proofSub = overview.proof.lastMiningAttestationAt
+    ? `Last ${dateFmt.format(overview.proof.lastMiningAttestationAt)}`
+    : "No attestation yet";
+
+  // Risk inputs are a methodology composite, never a live feed — always estimated.
+  const riskProvenance: Provenance = "estimated";
+
+  const commandCells: CommandStripCell[] = [
+    {
+      label: "Platform",
+      value: platformValue,
+      sublabel: platformLive ? "All feeds nominal" : "Some feeds on fallback",
+      provenance: platformProvenance,
+      tooltip:
+        "Live when every dashboard feed resolved from real rows; Partial when one or more degraded to a methodology fallback.",
+    },
+    {
+      label: "Capital deployed",
+      value: usdCompact.format(aumNumeric),
+      sublabel: preview ? "Yield timeline · preview" : aumSublabel,
+      provenance: capitalProvenance,
+      tooltip:
+        "Assets under management — USDC reserves under custody when the Fireblocks scope is pinned, otherwise the latest vault snapshot AUM.",
+    },
+    {
+      label: "Yield posture",
+      value: <ApyRange low={headlineApy.low} high={headlineApy.high} precision={1} />,
+      sublabel: preview ? "methodology preset · preview" : yieldPosture,
+      provenance: "estimated",
+      tooltip: `Forward 12m projected APY range vs the ${targetLow.toFixed(1)}–${targetHigh.toFixed(1)}% methodology target band. Not guaranteed.`,
+    },
+    {
+      label: "Risk posture",
+      value: (
+        <span className="tabular">
+          {vault.riskScore}
+          <span className="ml-1 text-micro font-medium opacity-80 ct-text-faint">
+            /100
+          </span>
+        </span>
+      ),
+      sublabel: risk.bandLabel,
+      provenance: riskProvenance,
+      tooltip:
+        "Composite risk score (Market, Mining, Liquidity, Smart Contract, Counterparty). Lower = lower risk.",
+    },
+    {
+      label: "Proof status",
+      value: proofValue,
+      sublabel: proofSub,
+      provenance: proofFresh ? "attested" : "stale",
+      tooltip:
+        "Current when the latest mining attestation is within its 35-day freshness window; Pending when none is on file.",
+    },
+    {
+      label: "Action required",
+      value: <span className="tabular">{overview.totalActionRequired}</span>,
+      sublabel:
+        overview.totalActionRequired > 0 ? "items to review" : "queue clear",
+      provenance: "manual",
+      tooltip:
+        "Open items across KYC, distributions, subscription documents and governance that need an admin decision.",
+    },
+  ];
+
+  // ── Admin brief — honest readout from real signals (priority order, max 5) ──
+  const briefItems: BriefItem[] = [];
+
+  briefItems.push(
+    overview.totalActionRequired > 0
+      ? {
+          tone: "attention",
+          text: `${overview.totalActionRequired} item${overview.totalActionRequired > 1 ? "s" : ""} await admin action across KYC, distributions, documents and governance.`,
+        }
+      : {
+          tone: "positive",
+          text: "No items awaiting admin action — the queue is clear.",
+        },
+  );
+
+  briefItems.push({
+    tone:
+      risk.band === "low"
+        ? "positive"
+        : risk.band === "high"
+          ? "attention"
+          : "neutral",
+    text: `Composite risk holds at ${risk.composite}/100 — ${risk.bandLabel} band.`,
+  });
+
+  briefItems.push({
+    tone: yieldWithin ? "positive" : "attention",
+    text: `Projected APY band ${headlineApy.low.toFixed(1)}–${headlineApy.high.toFixed(1)}% — ${yieldPosture}.`,
+  });
+
+  briefItems.push(
+    vault.delta30dUsdc !== 0
+      ? {
+          tone: vault.delta30dUsdc > 0 ? "positive" : "attention",
+          text: `Capital ${vault.delta30dUsdc > 0 ? "grew" : "contracted"} ${signedUsd(vault.delta30dUsdc)} over the trailing 30 days.`,
+        }
+      : {
+          tone: "neutral",
+          text: "Capital held flat over the trailing window — no net subscription or redemption recorded.",
+        },
+  );
+
+  briefItems.push(
+    proofFresh
+      ? {
+          tone: "positive",
+          text: `Mining evidence is current — ${overview.proof.attestationsCount} attestation${overview.proof.attestationsCount > 1 ? "s" : ""} on file.`,
+        }
+      : {
+          tone: "attention",
+          text: overview.proof.lastMiningAttestationAt
+            ? "Latest mining attestation is past its freshness window — refresh evidence."
+            : "No mining attestation on file yet — evidence pending.",
+        },
+  );
 
   return (
-    <div className="flex flex-col h-full min-h-120 gap-12 relative">
+    <div className="flex flex-col gap-12 relative">
       {/* Ambient glow for the dashboard */}
-      <div aria-hidden="true" className="absolute -inset-20 z-0 pointer-events-none overflow-hidden">
+      <div
+        aria-hidden="true"
+        className="absolute -inset-20 z-0 pointer-events-none overflow-hidden"
+      >
         <div className="dash-ambient-orb dash-ambient-orb--primary" />
         <div className="dash-ambient-orb dash-ambient-orb--secondary" />
       </div>
@@ -128,141 +273,69 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <DashboardToolbar
           vaultName={vaultMeta.name}
           vaultId={vaultMeta.id}
-          vaultIsPreset={vaultMeta.livePreview}
+          vaultIsPreset={preview}
           mode={mode}
           vaultOptions={vaultOptions}
         />
       </div>
 
-      {/* Section 1 — Hero (Overview & History) */}
-      <section aria-label="Vault overview" className="flex flex-col gap-6 relative z-10">
-        <div className="shrink-0">
-          {vaultMeta.livePreview ? (
-            <Card className="border-[var(--ct-status-warning-border)] ct-status-warning-bg/20">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-micro font-bold uppercase tracking-widest ct-status-warning">
-                  Per-vault live snapshot pending
-                </span>
-                <ProvenanceBadge kind="estimated" />
-              </div>
-              <p className="body-sm ct-text-muted max-w-3xl">
-                {vaultMeta.name} live KPIs (AUM, risk score, mining margin,
-                stressed APY) land with Phase 3 multi-vault DB schema. The numbers
-                below are the {vaultMeta.name} methodology preset only — not the
-                Hearst Yield Vault timeline relabelled.
-              </p>
-              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 items-start">
-                <Metric
-                  variant="dashboard"
-                  label="APY range"
-                  provenance="estimated"
-                  value={
-                    <ApyRange
-                      low={headlineApy.low}
-                      high={headlineApy.high}
-                      precision={1}
-                    />
-                  }
-                  sublabel={`${vaultMeta.name} · methodology preset`}
-                />
-                <Metric
-                  variant="dashboard"
-                  label="Next distribution"
-                  provenance="estimated"
-                  value={<span className="text-2xl tracking-tight">{nextDistLabel}</span>}
-                  sublabel={nextDistAmount}
-                />
-              </div>
-            </Card>
-          ) : (
-            // Container-responsive: cards wrap to fewer columns when the centre
-            // panel narrows (e.g. chat rail open) instead of clipping badges and
-            // KPI units. auto-fit collapses empty tracks so 5 cards always fill
-            // the row. min 200px keeps the longest header ("Next distribution" +
-            // provenance badge) inside its card.
-            <div className="dashboard-kpi-grid">
-              <Metric
-                variant="dashboard"
-                label="AUM"
-                provenance={custody.provenance}
-                value={usdCompact.format(
-                  custody.configured && custody.totalUsdcReserves > 0
-                    ? custody.totalUsdcReserves
-                    : vault.aumUsdc,
-                )}
-                sublabel={aumSublabel}
-                tooltip="Assets Under Management. Total USDC equivalent of all vault holdings, marked to market."
-              />
-              <Metric
-                variant="dashboard"
-                label="APY range"
-                provenance="estimated"
-                value={
-                  <ApyRange
-                    low={headlineApy.low}
-                    high={headlineApy.high}
-                    precision={1}
-                  />
-                }
-                sublabel="forward 12m · conditional"
-                tooltip={`Forward 12m projected APY range for ${vaultMeta.name}, sourced from its methodology preset (allocation targets × asset-class yield assumptions). Not guaranteed. Methodology v1.0.`}
-              />
-              <Metric
-                variant="dashboard"
-                label="Stressed APY"
-                provenance="estimated"
-                value={
-                  <ApyRange
-                    low={vault.stressedApyRange.low}
-                    high={vault.stressedApyRange.high}
-                    precision={1}
-                  />
-                }
-                sublabel="Bear + mining compression"
-                tooltip="Projected APY under combined Bear scenario (BTC −40%, hashprice −30%). Conditional projection. Range = ±15% of the projection bear (méthodologie v1.0)."
-              />
-              <Metric
-                variant="dashboard"
-                label="Risk score"
-                provenance="estimated"
-                value={
-                  <span className="tabular">
-                    {vault.riskScore}
-                    <span className="ml-1 text-micro font-medium opacity-80 ct-text-faint">
-                      /100
-                    </span>
-                  </span>
-                }
-                sublabel={riskBandLabel}
-                tooltip="Composite score (Market, Mining, Liquidity, Smart Contract, Counterparty). Lower = lower risk."
-              />
-              <Metric
-                variant="dashboard"
-                label="Next distribution"
-                provenance="estimated"
-                value={<span className="text-2xl tracking-tight">{nextDistLabel}</span>}
-                sublabel={nextDistAmount}
-                tooltip="Next monthly USDC distribution. Estimate from current mining margin + base yield accrual."
-              />
-            </div>
-          )}
-        </div>
+      {preview ? (
+        <Card className="relative z-10 border-[var(--ct-status-warning-border)] ct-status-warning-bg/20">
+          <div className="flex items-center gap-3">
+            <span className="text-micro font-bold uppercase tracking-widest ct-status-warning">
+              Per-vault live snapshot pending
+            </span>
+            <ProvenanceBadge kind="estimated" />
+          </div>
+          <p className="mt-3 body-sm ct-text-muted max-w-3xl">
+            {vaultMeta.name} live KPIs (capital, risk, yield) land with the Phase 3
+            multi-vault schema. Capital and yield below are the {vaultMeta.name}
+            methodology preset — the action queue and proof status remain live and
+            platform-wide.
+          </p>
+        </Card>
+      ) : null}
 
+      {/* Zone 1 — Executive command strip */}
+      <section aria-label="Executive command strip" className="relative z-10">
+        <CommandStrip cells={commandCells} />
       </section>
 
-      {/* Section 2 — Engine & Allocation */}
-      <section className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12">
-        <div className="grid items-start grid-cols-1 lg:grid-cols-12 gap-6 shrink-0">
-          <div className={cn("lg:col-span-5 flex flex-col", allocSegments.length > 0 && "h-full")}>
-            <Card className={cn("flex flex-col", allocSegments.length > 0 && "h-full")} aria-label="Allocation breakdown">
+      {/* Zone 2 — Admin brief */}
+      <section aria-label="Admin brief" className="relative z-10">
+        <AdminBrief items={briefItems} />
+      </section>
+
+      {/* Zone 3 — Capital & Yield */}
+      <section
+        aria-label="Capital and yield"
+        className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12"
+      >
+        <SectionHeader
+          title="Capital & Yield"
+          subtitle="Net asset value and projected APY band, trailing 30 days."
+          provenance={data.timeseries.source === "fallback" ? "estimated" : "live"}
+        />
+        <TimeseriesSection data={data.timeseries} />
+
+        <div className="grid items-start grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-5 flex flex-col">
+            <Card
+              className={cn("flex flex-col", allocSegments.length > 0 && "h-full")}
+              aria-label="Allocation breakdown"
+            >
               <div className="dash-label relative z-10">
-                <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">Allocation breakdown</span>
-                {/* A3 — never claim "Live" over an empty/fallback allocation. */}
+                <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">
+                  Capital allocation
+                </span>
+                {/* Never claim "Live" over an empty/fallback allocation. */}
                 <ProvenanceBadge kind={allocSegments.length === 0 ? "stale" : "live"} />
               </div>
 
               {allocSegments.length === 0 ? (
-                <p className="mt-4 body-sm ct-text-muted italic">No allocation data yet.</p>
+                <p className="mt-4 body-sm ct-text-muted italic">
+                  No allocation data yet.
+                </p>
               ) : (
                 <div className="flex flex-col gap-8 mt-6 flex-1 relative z-10">
                   <div className="h-48 w-48 mx-auto shrink-0">
@@ -283,7 +356,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                             className="inline-block h-2 w-2 shrink-0 rounded-full"
                             style={{ background: allocationStrokeFor(s.bucket) }}
                           />
-                          <span className="ct-text-body">{allocationLabelFor(s.bucket)}</span>
+                          <span className="ct-text-body">
+                            {allocationLabelFor(s.bucket)}
+                          </span>
                         </span>
                         <span className="tabular ct-text-muted font-medium">
                           {s.pct.toFixed(0)}% · {usdCompact.format(s.valueUsdc)}
@@ -297,6 +372,41 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           </div>
 
           <div className="lg:col-span-7 flex flex-col h-full">
+            <BtcTacticalCard data={data} />
+          </div>
+        </div>
+      </section>
+
+      {/* Zone 4 — Risk & Stress */}
+      <section
+        aria-label="Risk and stress"
+        className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12"
+      >
+        <SectionHeader
+          title="Risk & Stress"
+          subtitle="Risk attribution by dimension, with the bear-scenario stressed return."
+          aside={
+            <StressInline
+              low={vault.stressedApyRange.low}
+              high={vault.stressedApyRange.high}
+            />
+          }
+        />
+        <RiskFrameworkSection data={risk} view="bars" />
+      </section>
+
+      {/* Zone 5 — Proof, Mining & Evidence */}
+      <section
+        aria-label="Proof, mining and evidence"
+        className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12"
+      >
+        <SectionHeader
+          title="Proof, Mining & Evidence"
+          subtitle="Operational mining health and audit-ready attestation status."
+          provenance={proofFresh ? "attested" : "stale"}
+        />
+        <div className="grid items-start grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-7">
             <Suspense fallback={<SkeletonCard />}>
               <MiningHealthSection
                 miningHealth={{
@@ -316,41 +426,98 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               />
             </Suspense>
           </div>
-        </div>
-      </section>
-
-      {/* Section 3 — Risk & Tactical */}
-      <section className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12">
-        <div className="grid items-start grid-cols-1 lg:grid-cols-2 gap-6 shrink-0">
-          <div className="h-full">
-            <RiskFrameworkSection data={risk} />
-          </div>
-          <div className="h-full">
-            <BtcTacticalCard data={data} />
+          <div className="lg:col-span-5">
+            <ProofStatusCard proof={overview.proof} />
           </div>
         </div>
       </section>
 
-      {/* Section 4 — Activity & Advanced */}
-      <section className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12">
-        <div className="w-full shrink-0">
-          <ActivityFeed events={data.recentEvents} />
-        </div>
-
-        {mode === "advanced" && !vaultMeta.livePreview ? (
-          <div className="w-full shrink-0">
-            <Suspense
-              fallback={
-                <section aria-label="Advanced metrics">
-                  <SkeletonCard />
-                </section>
-              }
-            >
-              <AdvancedMetricsSection />
-            </Suspense>
+      {/* Zone 6 — Investor operations */}
+      <section
+        aria-label="Investor operations"
+        className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12"
+      >
+        <SectionHeader
+          title="Investor Operations"
+          subtitle="What needs an admin decision next, and the latest engine activity."
+          provenance="live"
+        />
+        <div className="grid items-start grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-5 h-full">
+            <ActionQueue
+              items={overview.actions}
+              totalActionRequired={overview.totalActionRequired}
+            />
           </div>
-        ) : null}
+          <div className="lg:col-span-7 h-full">
+            <ActivityFeed events={data.recentEvents} />
+          </div>
+        </div>
       </section>
+
+      {/* Zone 7 — Advanced metrics (opt-in, live vault only) */}
+      {mode === "advanced" && !preview ? (
+        <section
+          aria-label="Advanced metrics"
+          className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12"
+        >
+          <Suspense fallback={<SkeletonCard />}>
+            <AdvancedMetricsSection />
+          </Suspense>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Section header — strong title + explanatory subtitle + optional provenance.
+// ---------------------------------------------------------------------------
+
+function SectionHeader({
+  title,
+  subtitle,
+  provenance,
+  aside,
+}: {
+  title: string;
+  subtitle: string;
+  provenance?: Provenance;
+  /** Right-aligned content (e.g. a compact stat). Takes precedence over `provenance`. */
+  aside?: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-end justify-between gap-4">
+      <div className="flex min-w-0 flex-col gap-1">
+        <h2 className="h2">{title}</h2>
+        <p className="body-sm ct-text-muted">{subtitle}</p>
+      </div>
+      {aside ?? (provenance ? <ProvenanceBadge kind={provenance} /> : null)}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Stress posture — compact bear-scenario stressed APY range (always a range, #1).
+// Lives in the Risk section header (no standalone empty card).
+// ---------------------------------------------------------------------------
+
+function StressInline({ low, high }: { low: number; high: number }) {
+  return (
+    <div
+      className="flex shrink-0 items-center gap-3"
+      title="Stressed return under the combined Bear scenario (BTC −40% · hashprice −30% · ±15% band). Conditional projection — not guaranteed. Methodology v1.0."
+    >
+      <div className="flex flex-col items-end gap-0.5">
+        <span className="stat-label ct-text-muted">Stressed APY · Bear</span>
+        <ApyRange
+          className="text-lg font-semibold leading-none ct-text-strong"
+          low={low}
+          high={high}
+          precision={1}
+        />
+      </div>
+      <ProvenanceBadge kind="estimated" />
     </div>
   );
 }
@@ -361,7 +528,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
 async function AdvancedMetricsSection() {
   const m = await loadAdvancedMetrics();
-  const provenance = m.provenance === "estimated" ? "estimated" : "partial";
+  const provenance: Provenance = m.provenance === "estimated" ? "estimated" : "partial";
 
   const pct1 = new Intl.NumberFormat("en-US", {
     style: "percent",
@@ -370,14 +537,16 @@ async function AdvancedMetricsSection() {
   });
 
   return (
-    <section aria-label="Advanced metrics" className="space-y-6 relative z-10">
-      <div className="flex items-center gap-3">
-        <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">Advanced metrics</span>
-        <div className="h-px flex-1 bg-[var(--ct-border-soft)]/50" />
-      </div>
+    <>
+      <SectionHeader
+        title="Advanced Metrics"
+        subtitle="Institutional risk-adjusted ratios from the trailing NAV series."
+        provenance={provenance}
+      />
 
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 items-start">
         <Metric
+          variant="dashboard"
           label="Sharpe"
           provenance={provenance}
           value={m.available ? m.sharpe.toFixed(2) : "—"}
@@ -385,6 +554,7 @@ async function AdvancedMetricsSection() {
           tooltip="Sharpe ratio: excess return per unit of total volatility. Methodology v1.0."
         />
         <Metric
+          variant="dashboard"
           label="Sortino"
           provenance={provenance}
           value={m.available ? m.sortino.toFixed(2) : "—"}
@@ -392,6 +562,7 @@ async function AdvancedMetricsSection() {
           tooltip="Sortino ratio: excess return per unit of downside volatility."
         />
         <Metric
+          variant="dashboard"
           label="VaR 95%"
           provenance={provenance}
           value={m.available ? pct1.format(m.varDecimal) : "—"}
@@ -399,6 +570,7 @@ async function AdvancedMetricsSection() {
           tooltip="Value-at-Risk at 95% confidence over a one-month horizon."
         />
         <Metric
+          variant="dashboard"
           label="Max drawdown"
           provenance={provenance}
           value={m.available ? pct1.format(m.maxDrawdownDecimal) : "—"}
@@ -409,7 +581,9 @@ async function AdvancedMetricsSection() {
 
       <Card>
         <div className="dash-label relative z-10">
-          <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">DeFi positions &amp; fee accrual</span>
+          <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">
+            DeFi positions &amp; fee accrual
+          </span>
         </div>
         <ul className="flex flex-col mt-6 relative z-10 divide-y divide-[var(--ct-border-soft)]/50">
           <DefiRow
@@ -435,7 +609,7 @@ async function AdvancedMetricsSection() {
           Estimated from methodology v1.0 anchors. Conditional projection — not guaranteed.
         </p>
       </Card>
-    </section>
+    </>
   );
 }
 
@@ -466,4 +640,3 @@ function PendingValue() {
     </>
   );
 }
-

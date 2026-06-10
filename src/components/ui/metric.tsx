@@ -22,7 +22,12 @@ interface MetricProps {
    * admin-dashboard hero KPI treatment: larger numerals, clearer labels, calmer
    * provenance chrome.
    */
-  variant?: "premium" | "plain" | "dashboard";
+  /**
+   * "nested" — calm label/value inside a parent Card or dash-cell. No kpi-cell
+   * chrome, no per-cell provenance (block badge on the parent). Use with
+   * NestedKpiGrid from nested-panel.tsx.
+   */
+  variant?: "premium" | "plain" | "dashboard" | "nested";
 }
 
 export function Metric({
@@ -37,10 +42,30 @@ export function Metric({
 }: MetricProps) {
   const premium = variant === "premium";
   const dashboard = variant === "dashboard";
+  const nested = variant === "nested";
+
+  if (nested) {
+    return (
+      <div className={cn("ct-metric-nested", className)}>
+        <span className="stat-label ct-text-muted" title={tooltip}>
+          {label}
+        </span>
+        <span className={cn("ct-metric-nested__value stat-value ct-text-strong tabular")}>
+          {value}
+        </span>
+        {sublabel ? (
+          <span className="ct-metric-nested__sublabel body-xs ct-text-muted mono uppercase ct-tracking-wide">
+            {sublabel}
+          </span>
+        ) : null}
+      </div>
+    );
+  }
+
   const body = (
     <>
       {premium ? (
-        <div className="absolute inset-0 bg-gradient-to-br from-[var(--ct-accent)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--ct-dur-slow)] pointer-events-none" />
+        <div className="absolute inset-0 ct-overlay-accent5 opacity-0 group-hover:opacity-100 ct-transition-opacity-slow pointer-events-none" />
       ) : null}
 
       <div
@@ -69,7 +94,7 @@ export function Metric({
         <span
           className={cn(
             "stat-value ct-text-strong",
-            premium && "drop-shadow-[var(--ct-glow-subtle)]",
+            premium && "ct-drop-glow-subtle",
             dashboard && "metric-dashboard-value",
           )}
         >
@@ -80,7 +105,7 @@ export function Metric({
       {(sublabel || trend) && (
         <div
           className={cn(
-            "flex min-w-0 items-center gap-2 text-xs ct-text-muted relative z-10 pt-1 border-t border-[var(--ct-border-soft)]/50",
+            "flex min-w-0 items-center gap-2 text-xs ct-text-muted relative z-10 pt-1 border-t ct-bc-soft-50",
             dashboard && "metric-dashboard-footer",
           )}
         >
@@ -88,9 +113,9 @@ export function Metric({
             <span
               className={cn(
                 "font-medium shrink-0 px-1.5 py-0.5 rounded-sm backdrop-blur-md border",
-                trend.direction === "up" && "ct-status-success-bg ct-status-success border-[var(--ct-status-success-border)]",
-                trend.direction === "down" && "ct-status-danger-bg ct-status-danger border-[var(--ct-status-danger-border)]",
-                trend.direction === "flat" && "ct-surface-1 ct-text-muted border-[var(--ct-border)]"
+                trend.direction === "up" && "ct-status-success-bg ct-status-success ct-bc-success",
+                trend.direction === "down" && "ct-status-danger-bg ct-status-danger ct-bc-danger",
+                trend.direction === "flat" && "ct-surface-1 ct-text-muted ct-bc-base"
               )}
             >
               {trend.direction === "up" ? "↑ " : trend.direction === "down" ? "↓ " : "→ "}
@@ -100,7 +125,7 @@ export function Metric({
           {sublabel ? (
             <span
               className={cn(
-                "truncate opacity-70 mono uppercase tracking-wider text-micro",
+                "truncate opacity-70 mono uppercase ct-tracking-wide text-micro",
                 dashboard && "metric-dashboard-sublabel",
               )}
             >

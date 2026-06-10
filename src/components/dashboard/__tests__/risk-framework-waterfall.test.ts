@@ -130,7 +130,7 @@ describe("buildWaterfallSteps", () => {
     const finalStep = steps.find((s) => s.isFinal === true);
     expect(finalStep).toBeDefined();
     expect(finalStep?.score).toBe(composite);
-    expect(finalStep?.fill).toBe("var(--ct-warning)");
+    expect(finalStep?.fill).toBe("var(--ct-status-warning)");
     expect(finalStep?.key).toBe("composite");
   });
 

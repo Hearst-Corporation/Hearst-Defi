@@ -107,7 +107,7 @@ export function buildHeatmapGrid(): Array<
 export function cellFill(score: number): { fill: string; opacity: number } {
   if (score < 1) return { fill: "var(--ct-text-faint)", opacity: 0.25 };
   if (score < 40) return { fill: "var(--ct-status-danger)", opacity: 0.6 };
-  if (score < 60) return { fill: "var(--ct-warning)", opacity: 0.6 };
+  if (score < 60) return { fill: "var(--ct-status-warning)", opacity: 0.6 };
   if (score < 80) return { fill: "var(--ct-accent)", opacity: 0.5 };
   return { fill: "var(--ct-accent)", opacity: 0.9 };
 }
@@ -150,7 +150,7 @@ export function pairToXY(
 export const LEGEND_SWATCHES = [
   { label: "Unprofitable", fill: "var(--ct-text-faint)", opacity: 0.25 },
   { label: "<40", fill: "var(--ct-status-danger)", opacity: 0.6 },
-  { label: "40–60", fill: "var(--ct-warning)", opacity: 0.6 },
+  { label: "40–60", fill: "var(--ct-status-warning)", opacity: 0.6 },
   { label: "60–80", fill: "var(--ct-accent)", opacity: 0.5 },
   { label: ">80", fill: "var(--ct-accent)", opacity: 0.9 },
 ] as const;
@@ -285,7 +285,7 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
               scoreTone(marginScore) === "good"
                 ? "ct-text-accent"
                 : scoreTone(marginScore) === "warn"
-                  ? "text-[var(--ct-warning)]"
+                  ? "text-[var(--ct-status-warning)]"
                   : "ct-status-danger",
             )}
           >

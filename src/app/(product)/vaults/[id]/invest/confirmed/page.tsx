@@ -25,6 +25,7 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { DepositSuccessIcon } from "@/components/vaults/deposit-success-icon";
 import { StepProgress } from "@/components/vaults/step-progress";
 import { OpsContactCard } from "@/components/onboarding/OpsContactCard";
+import { Card } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
@@ -124,12 +125,12 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
   const icsUri = buildIcsDataUri("Hearst Yield Vault — Distribution", nextDistrib);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-[var(--ct-space-8)]">
+    <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-8">
       {/* Step wizard */}
       <StepProgress active="confirmed" />
 
       {/* Main confirmation card */}
-      <div className="ct-card w-full max-w-lg flex flex-col gap-[var(--ct-space-6)]">
+      <div className="ct-card w-full max-w-lg flex flex-col gap-6">
 
         <ProductPageHeader
           align="center"
@@ -139,7 +140,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
         />
 
         {/* ── Detail rows ── */}
-        <div className="w-full flex flex-col gap-[var(--ct-space-2)] rounded-md ct-surface-1 border border-[var(--ct-border-soft)] p-[var(--ct-space-4)]">
+        <Card className="w-full flex flex-col gap-2">
 
           {/* Transaction hash */}
           <div className="flex items-center justify-between gap-3 py-2 border-b border-[var(--ct-border-soft)]">
@@ -213,7 +214,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
           )}
 
           {/* Soft-lock progress bar */}
-          <div className="flex flex-col gap-[var(--ct-space-2)] py-2 border-b border-[var(--ct-border-soft)]">
+          <div className="flex flex-col gap-2 py-2 border-b border-[var(--ct-border-soft)]">
             <div className="flex items-center justify-between gap-2">
               <span className="eyebrow ct-text-muted">Soft-lock</span>
               <span className="body-xs ct-text-muted">
@@ -255,13 +256,13 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
               📅 Add to calendar (.ics)
             </a>
           </div>
-        </div>
+        </Card>
 
         {/* ── Ops contact ── */}
         <OpsContactCard />
 
         {/* ── Primary CTA ── */}
-        <div className="flex flex-col gap-[var(--ct-space-3)] w-full">
+        <div className="flex flex-col gap-3 w-full">
           <Button variant="primary" size="lg" asChild className="w-full font-bold">
             <Link href={positionId ? `/portfolio/${positionId}` : "/portfolio"}>
               Go to portfolio →

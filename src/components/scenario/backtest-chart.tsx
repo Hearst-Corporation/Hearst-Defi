@@ -185,7 +185,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
             {usdFmt.format(lastNav)}
           </span>
           <span
-            className={`tabular-nums text-xs font-medium ${deltaPct >= 0 ? "ct-text-accent" : "text-[var(--ct-danger)]"}`}
+            className={`tabular-nums text-xs font-medium ${deltaPct >= 0 ? "ct-text-accent" : "text-[var(--ct-status-danger)]"}`}
           >
             {deltaPct >= 0 ? "+" : ""}
             {deltaPct.toFixed(1)}% total · max dd {maxDd.toFixed(1)}%
@@ -250,7 +250,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
         {/* ── Drawdown shading ── */}
         <polygon
           points={ddAreaPts}
-          fill="var(--ct-danger)"
+          fill="var(--ct-status-danger)"
           opacity="0.15"
         />
 

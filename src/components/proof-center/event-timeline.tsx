@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { EXPLORER_TX_BASE } from "@/lib/chain/client";
@@ -147,19 +148,15 @@ export function EventTimeline({ events }: EventTimelineProps) {
 
                 {event.payloadCid.length > 0 ? (
                   <div className="mt-1">
-                    <a
-                      href={ipfsGatewayUrl(event.payloadCid)}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className={cn(
-                        "rounded-full border border-[var(--ct-border-strong)] ct-surface-1",
-                        "px-3 py-1 text-xs ct-text-primary",
-                        "transition-colors duration-[var(--ct-dur-fast)] hover:ct-surface-3",
-                        "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
-                      )}
-                    >
-                      View payload (IPFS)
-                    </a>
+                    <Button asChild variant="secondary" size="md">
+                      <a
+                        href={ipfsGatewayUrl(event.payloadCid)}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                      >
+                        View payload (IPFS)
+                      </a>
+                    </Button>
                   </div>
                 ) : null}
               </div>

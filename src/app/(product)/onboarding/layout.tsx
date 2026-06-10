@@ -17,7 +17,7 @@ export const metadata = {
 
 export default function OnboardingLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-col items-center gap-[var(--ct-space-8)] px-6 py-10 max-w-2xl mx-auto w-full">
+    <div className="flex flex-col items-center gap-8 px-6 py-10 max-w-2xl mx-auto w-full">
       {/* Progress bar — reads `step` searchParam; wrapped in Suspense per Next.js requirements for useSearchParams */}
       <Suspense fallback={<div className="h-10 w-full" />}>
         <OnboardingProgressWrapper />

@@ -1,97 +1,14 @@
 /**
  * error-shell.tsx — Shared error/not-found layout shell.
  *
- * Two variants:
- *   - "layout"     : pages rendered inside the Cockpit shell (CSS vars available).
- *                    Uses Tailwind utility classes; zero inline magic numbers.
- *   - "standalone" : pages that own their own <html><body> (global-error, not-found).
- *                    CSS vars are NOT guaranteed, so colours are supplied as inline
- *                    styles via CT_CHROME / CT_PRODUCT_CONNECT_HEX from cockpit-tokens.
- *                    Magic spacing/typo are factored into named constants here so they
- *                    are never duplicated across the two standalone pages.
- *
- * NOTE: CT_CHROME does not expose a `textDim` value (it is a minimal hex mirror).
- * The standalone pages therefore use CT_CHROME.textPrimary for secondary text as well.
- * When CT_CHROME.textDim is added to cockpit-tokens.ts, update STANDALONE_STYLES.textDim.
+ * `ErrorShellLayout` is the single H1/eyebrow pattern for every error surface:
+ * segment `error.tsx`, `not-found`, and `global-error` (which imports the Cockpit
+ * CSS stack in its own `<html>` because the root layout is replaced).
  */
 
 import type React from "react";
 
-import Link from "next/link";
-
-import {
-  CT_CHROME,
-  CT_PRODUCT_CONNECT_FG_HEX,
-  CT_PRODUCT_CONNECT_HEX,
-} from "@/lib/cockpit-tokens";
 import { cn } from "@/lib/cn";
-
-// ── Standalone style constants (no CSS vars) ──────────────────────────────────
-// All spacing/typo values sourced from the canonical scale:
-//   container  : max-width 42rem, padding 2rem, margin 2.5rem auto
-//   title      : 1.5rem / semibold / leading-tight
-//   body       : 0.875rem / normal / leading-normal
-//   button     : padding 0.5rem 1rem, border-radius 9999px, 0.875rem / medium
-//   pre block  : padding 0.875rem 1rem, max-height 16rem, 0.8125rem
-// These constants are intentionally declared once to avoid duplicating magic
-// numbers across both standalone page files.
-
-const SA = {
-  container: {
-    textAlign: "center" as const,
-    maxWidth: "42rem",
-    padding: "2rem",
-    margin: "2.5rem auto",
-  },
-  title: {
-    fontSize: "1.5rem",
-    fontWeight: 600,
-    lineHeight: 1.25,
-    marginBottom: "0.5rem",
-    color: CT_CHROME.textPrimary,
-  },
-  body: {
-    fontSize: "0.875rem",
-    fontWeight: 400,
-    lineHeight: 1.5,
-    marginBottom: "1rem",
-    // textDim not yet in CT_CHROME — using textPrimary at reduced opacity
-    color: CT_CHROME.textPrimary,
-    opacity: 0.7,
-  },
-  digest: {
-    fontSize: "0.75rem",
-    lineHeight: 1.5,
-    color: CT_CHROME.textPrimary,
-    opacity: 0.5,
-    marginBottom: "1.5rem",
-  },
-  button: {
-    display: "inline-block",
-    padding: "0.5rem 1rem",
-    background: CT_PRODUCT_CONNECT_HEX,
-    color: CT_PRODUCT_CONNECT_FG_HEX,
-    border: "none",
-    borderRadius: "9999px",
-    cursor: "pointer",
-    fontSize: "0.875rem",
-    fontWeight: 500,
-    textDecoration: "none",
-  } as React.CSSProperties,
-  body_html: {
-    margin: 0,
-    background: CT_CHROME.bgDeep,
-    color: CT_CHROME.textPrimary,
-    fontFamily: '"Satoshi Variable", sans-serif',
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "100vh",
-  } as React.CSSProperties,
-} as const;
-
-// ── Re-export constants for standalone pages ──────────────────────────────────
-export { SA as STANDALONE_STYLES };
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -158,7 +75,7 @@ export function ErrorShellLayout({
             "ct-text-primary",
             "overflow-auto",
             "whitespace-pre-wrap break-words",
-            "max-h-64 px-4 py-3.5 text-xs leading-normal",
+            "max-h-64 px-4 py-4 text-xs leading-normal",
           )}
         >
           {errorMessage}
@@ -173,38 +90,6 @@ export function ErrorShellLayout({
 
       <div className="mt-1 flex flex-wrap items-center gap-3">{actions}</div>
     </div>
-  );
-}
-
-// ── Standalone back-link (used by not-found.tsx) ──────────────────────────────
-
-export function StandaloneBackLink({
-  href,
-  label,
-}: {
-  href: string;
-  label: string;
-}) {
-  return (
-    <Link href={href} style={SA.button}>
-      {label}
-    </Link>
-  );
-}
-
-// ── Standalone reset-button (used by global-error.tsx) ────────────────────────
-
-export function StandaloneResetButton({
-  onClick,
-  label,
-}: {
-  onClick: () => void;
-  label: string;
-}) {
-  return (
-    <button onClick={onClick} style={SA.button}>
-      {label}
-    </button>
   );
 }
 

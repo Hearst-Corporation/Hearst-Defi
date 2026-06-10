@@ -1,3 +1,5 @@
+import { Download, FileText } from "lucide-react";
+
 import { TaxDocsDrawerButton } from "@/components/portfolio/tax-docs-drawer";
 import type { TaxPreview } from "@/lib/portfolio/tax";
 
@@ -34,7 +36,7 @@ export function SurpriseDelightBar({ investorId, taxPreview }: SurpriseDelightBa
             className="body-xs flex items-center gap-1.5 rounded-md border border-(--ct-border-soft) ct-surface-1 px-3 py-1.5 ct-text-body transition-all hover:ct-surface-2 hover:border-(--ct-border-accent) hover:ct-text-strong"
             aria-label="Export PDF statement"
           >
-            <span aria-hidden className="ct-text-accent">↓</span> Export PDF statement
+            <Download aria-hidden size={14} strokeWidth={2} className="ct-text-accent" /> Export PDF statement
           </a>
         ) : (
           <button
@@ -42,7 +44,7 @@ export function SurpriseDelightBar({ investorId, taxPreview }: SurpriseDelightBa
             disabled
             className="body-xs flex cursor-not-allowed items-center gap-1.5 rounded-md border border-(--ct-border-soft) ct-surface-1 px-3 py-1.5 ct-text-faint opacity-50"
           >
-            <span aria-hidden>↓</span> Export PDF statement
+            <Download aria-hidden size={14} strokeWidth={2} /> Export PDF statement
           </button>
         )}
 
@@ -59,7 +61,7 @@ export function SurpriseDelightBar({ investorId, taxPreview }: SurpriseDelightBa
             disabled
             className="body-xs flex cursor-not-allowed items-center gap-1.5 rounded-md border border-(--ct-border-soft) ct-surface-1 px-3 py-1.5 ct-text-faint opacity-50"
           >
-            <span aria-hidden>📄</span> Preview 1099 / CRS
+            <FileText aria-hidden size={14} strokeWidth={2} /> Preview 1099 / CRS
           </button>
         )}
 

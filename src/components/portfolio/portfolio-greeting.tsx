@@ -27,7 +27,11 @@ interface PortfolioGreetingProps {
  */
 export function PortfolioGreeting({ name, data }: PortfolioGreetingProps) {
   const count = data.positions.length;
-  const asOf = new Date("2026-05-20T09:00:00Z");
+  // "As of now" — this is a Server Component on a force-dynamic page, so the
+  // reference resolves to request time (NOT a frozen date), keeping the
+  // "last activity N days ago" recap accurate. UI-side only; engine purity
+  // (no Date.now() in src/lib/engine) is unaffected.
+  const asOf = new Date();
   const last = data.recentTransactions[0];
 
   const recap =

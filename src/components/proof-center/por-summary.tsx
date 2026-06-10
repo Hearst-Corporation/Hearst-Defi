@@ -1,5 +1,7 @@
+import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
+import { NestedKpiGrid } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import {
   EXPLORER_ADDRESS_BASE,
@@ -7,7 +9,6 @@ import {
 } from "@/lib/chain/client";
 import type { OnChainAttestation } from "@/lib/chain/por-registry";
 import type { CustodySnapshot } from "@/lib/data/custody";
-import { cn } from "@/lib/cn";
 import { abbreviateAddress } from "@/lib/onchain";
 
 interface PorSummaryProps {
@@ -23,11 +24,27 @@ interface PorSummaryProps {
   verified?: boolean | null;
 }
 
-const dateFmt = new Intl.DateTimeFormat("en-US", {
-  dateStyle: "long",
-  timeStyle: "short",
+/** Compact date for nested KPI cells — long dates break grid cells. */
+const dateCompactFmt = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
   timeZone: "UTC",
 });
+
+const timeUtcFmt = new Intl.DateTimeFormat("en-US", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "UTC",
+  hour12: false,
+});
+
+function formatNestedTimestamp(date: Date): { value: string; sublabel: string } {
+  return {
+    value: dateCompactFmt.format(date),
+    sublabel: `${timeUtcFmt.format(date)} UTC`,
+  };
+}
 
 function formatPeriod(period: bigint): string {
   const raw = period.toString();
@@ -65,30 +82,31 @@ function custodyProvenance(snapshot: CustodySnapshot): "attested" | "stale" {
 function CustodyBlock({ custody }: { custody: CustodySnapshot }) {
   const provenance = custodyProvenance(custody);
   const asOf = new Date(custody.asOf);
+  const snapshotTs = formatNestedTimestamp(asOf);
   return (
     <div className="mt-6 border-t border-[var(--ct-border-soft)] pt-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <span className="eyebrow">Custody (Fireblocks)</span>
         <ProvenanceBadge kind={provenance} />
       </div>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 items-start">
+      <NestedKpiGrid columns={3}>
         <Metric
+          variant="nested"
           label="USDC reserves"
           value={usdFmt(custody.totalUsdcReserves)}
-          provenance={provenance}
         />
         <Metric
+          variant="nested"
           label="Vault accounts"
           value={custody.accountsCount.toString()}
-          provenance={provenance}
         />
         <Metric
+          variant="nested"
           label="Snapshot at"
-          value={dateFmt.format(asOf)}
-          sublabel="UTC"
-          provenance={provenance}
+          value={snapshotTs.value}
+          sublabel={snapshotTs.sublabel}
         />
-      </div>
+      </NestedKpiGrid>
       {provenance === "stale" ? (
         <p className="mt-3 body-xs ct-status-warning">
           {custody.provenance === "live" && !custody.configured
@@ -140,29 +158,17 @@ export function PorSummary({
         <ProvenanceBadge kind={provenance} />
       </CardHeader>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 items-start">
+      <NestedKpiGrid columns={4}>
+        <Metric variant="nested" label="Total AUM" value={usdFmt(attestation.totalAumUsd)} />
+        <Metric variant="nested" label="Mined (period)" value={btcFmt(attestation.minedBtc)} />
         <Metric
-          label="Total AUM"
-          value={usdFmt(attestation.totalAumUsd)}
-          provenance={provenance}
-        />
-        <Metric
-          label="Mined (period)"
-          value={btcFmt(attestation.minedBtc)}
-          provenance={provenance}
-        />
-        <Metric
+          variant="nested"
           label="Attested at"
-          value={dateFmt.format(attestation.timestamp)}
-          sublabel="UTC"
-          provenance={provenance}
+          value={formatNestedTimestamp(attestation.timestamp).value}
+          sublabel={formatNestedTimestamp(attestation.timestamp).sublabel}
         />
-        <Metric
-          label="Period"
-          value={formatPeriod(attestation.period)}
-          provenance={provenance}
-        />
-      </div>
+        <Metric variant="nested" label="Period" value={formatPeriod(attestation.period)} />
+      </NestedKpiGrid>
 
       <dl className="mt-6 space-y-2 border-t border-[var(--ct-border-soft)] pt-6">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -197,39 +203,31 @@ export function PorSummary({
       </dl>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <a
-          href={`${EXPLORER_TX_BASE}${attestation.txHash}`}
-          target="_blank"
-          rel="noreferrer noopener"
-          className={cn(
-            "rounded-full border border-[var(--ct-text-strong)] ct-surface-1",
-            "px-3 py-1.5 text-xs ct-text-strong",
-            "transition-colors duration-[var(--ct-dur-fast)] hover:ct-surface-2",
-            "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
-          )}
-        >
-          View attestation tx on Base Sepolia
-        </a>
-        {attestation.evidenceCid.length > 0 ? (
+        <Button asChild variant="secondary" size="md">
           <a
-            href={
-              attestation.evidenceCid.startsWith("ipfs://")
-                ? `https://ipfs.io/ipfs/${attestation.evidenceCid.slice(7)}`
-                : attestation.evidenceCid.startsWith("https://")
-                  ? attestation.evidenceCid
-                  : `https://ipfs.io/ipfs/${attestation.evidenceCid}`
-            }
+            href={`${EXPLORER_TX_BASE}${attestation.txHash}`}
             target="_blank"
             rel="noreferrer noopener"
-            className={cn(
-              "rounded-full border border-[var(--ct-border-strong)] ct-surface-1",
-              "px-3 py-1.5 text-xs ct-text-primary",
-              "transition-colors duration-[var(--ct-dur-fast)] hover:ct-surface-3",
-              "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
-            )}
           >
-            View evidence (IPFS)
+            View attestation tx on Base Sepolia
           </a>
+        </Button>
+        {attestation.evidenceCid.length > 0 ? (
+          <Button asChild variant="secondary" size="md">
+            <a
+              href={
+                attestation.evidenceCid.startsWith("ipfs://")
+                  ? `https://ipfs.io/ipfs/${attestation.evidenceCid.slice(7)}`
+                  : attestation.evidenceCid.startsWith("https://")
+                    ? attestation.evidenceCid
+                    : `https://ipfs.io/ipfs/${attestation.evidenceCid}`
+              }
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              View evidence (IPFS)
+            </a>
+          </Button>
         ) : null}
       </div>
 

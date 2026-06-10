@@ -4,6 +4,7 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ApyRange } from "@/components/ui/apy-range";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
+import { cn } from "@/lib/cn";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -17,6 +18,15 @@ const STATUS_DOT: Record<string, string> = {
   matured: "var(--ct-surface-3)",
   exited: "var(--ct-accent-strong)",
 };
+
+/**
+ * Structural constraint (not a spacing token): the 5-column table needs a hard
+ * minimum width so columns never collapse into each other; below it the parent
+ * `overflow-x-auto` scrolls. `36rem` is a render floor, not a design-scale value,
+ * so it is an intentional arbitrary value shared by the header and data rows.
+ */
+const ROW_GRID =
+  "grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] gap-4 pb-2 border-b border-(--ct-border-soft) min-w-[36rem]";
 
 interface PositionsListProps {
   positions: PortfolioPosition[];
@@ -48,7 +58,7 @@ export function PositionsList({ positions, source }: PositionsListProps) {
       ) : (
         <div className="flex flex-col gap-2 mt-3 overflow-x-auto min-w-0">
           {/* Header row */}
-          <div className="stat-label grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] gap-4 pb-2 border-b border-(--ct-border-soft) min-w-[36rem]">
+          <div className={cn("stat-label", ROW_GRID)}>
             <span>Vault</span>
             <span className="text-right">Principal</span>
             <span className="text-right">Value</span>
@@ -59,7 +69,7 @@ export function PositionsList({ positions, source }: PositionsListProps) {
           {positions.map((p) => (
             <div
               key={p.id}
-              className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] gap-4 items-center pb-2 border-b border-(--ct-border-soft) min-w-[36rem]"
+              className={cn(ROW_GRID, "items-center")}
             >
               {/* Vault name + status */}
               <div className="flex items-center gap-2 min-w-0">

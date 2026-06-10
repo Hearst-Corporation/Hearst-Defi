@@ -25,6 +25,7 @@ import { RiskPulse } from "@/components/portfolio/risk-pulse";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { ProofPulse } from "@/components/portfolio/proof-pulse";
 import { YieldStack } from "@/components/portfolio/yield-stack";
+import { Metric } from "@/components/ui/metric";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 
@@ -161,23 +162,19 @@ function PortfolioBrief({
           One-line view before the detailed widgets below.
         </p>
       </div>
-      <div>
-        <p className="stat-label">Current value</p>
-        <p className="body-lg mono tabular ct-text-strong">{formatUsdCompact(totalValueUsdc)}</p>
-      </div>
-      <div>
-        <p className="stat-label">Recent change</p>
-        <p className="body-lg mono tabular ct-text-primary">{recentChange}</p>
-      </div>
-      <div>
-        <p className="stat-label">Next payout/event</p>
-        <p className="body-sm ct-text-primary">{nextPayout}</p>
-      </div>
-      <div>
-        <p className="stat-label">Risk & proof</p>
-        <p className="body-sm ct-text-primary">{riskLabel ?? "Risk snapshot awaiting data"}</p>
-        <p className="body-xs ct-text-muted">{proofLabel}</p>
-      </div>
+      <Metric
+        variant="nested"
+        label="Current value"
+        value={formatUsdCompact(totalValueUsdc)}
+      />
+      <Metric variant="nested" label="Recent change" value={recentChange} />
+      <Metric variant="nested" label="Next payout/event" value={nextPayout} />
+      <Metric
+        variant="nested"
+        label="Risk & proof"
+        value={riskLabel ?? "Risk snapshot awaiting data"}
+        sublabel={proofLabel}
+      />
     </section>
   );
 }

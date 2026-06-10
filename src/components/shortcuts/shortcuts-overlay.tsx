@@ -77,9 +77,9 @@ function SectionBlock({
   if (shortcuts.length === 0) return null;
   return (
     <div>
-      <h3 className="stat-label ct-text-muted uppercase tracking-widest mb-2 px-1">
+      <span className="stat-label ct-text-muted block mb-2 px-1">
         {title}
-      </h3>
+      </span>
       <div className="divide-y divide-[var(--ct-border)]/40">
         {shortcuts.map((s) => (
           <ShortcutRow key={s.combo} shortcut={s} />

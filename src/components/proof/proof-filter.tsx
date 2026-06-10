@@ -58,8 +58,8 @@ export function ProofFilter() {
             onClick={() => select(opt.value)}
             aria-pressed={isActive}
             className={cn(
-              "px-3.5",
-              !isActive && "border-[var(--ct-border-strong)] bg-transparent ct-text-body hover:ct-text-primary",
+              "px-4",
+              !isActive && "ct-border-strong bg-transparent ct-text-body hover:ct-text-primary",
             )}
           >
             {opt.label}

@@ -39,7 +39,7 @@
   text-decoration: none;
   padding-bottom: 2px;
   border-bottom: 1px solid transparent;
-  transition: color var(--ct-motion-fast), border-color var(--ct-motion-fast);
+  transition: color var(--ct-dur-fast), border-color var(--ct-dur-fast);
 }
 
 .legal-nav a:hover {
@@ -122,7 +122,7 @@
   background: var(--ct-surface-1);
   text-decoration: none;
   color: var(--ct-text-body);
-  transition: border-color var(--ct-motion-fast), color var(--ct-motion-fast);
+  transition: border-color var(--ct-dur-fast), color var(--ct-dur-fast);
 }
 
 .legal-index a:hover {

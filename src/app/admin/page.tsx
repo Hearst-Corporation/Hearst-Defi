@@ -20,7 +20,7 @@ export default async function AdminCockpit() {
 
   return (
     <div className="space-y-8">
-      <AdminPageHeader title="Dashboard" />
+      <AdminPageHeader title="Operations cockpit" />
 
       {/* Hero Strip — 6 cross-vault KPIs */}
       <section aria-label="Cross-vault KPIs">

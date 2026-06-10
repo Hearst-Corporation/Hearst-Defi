@@ -12,8 +12,8 @@ export function Card({
       )}
       {...props}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--ct-surface-0)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--ct-dur-slow)] pointer-events-none" />
-      <div className="relative z-[var(--ct-z-base)]">{props.children}</div>
+      <div className="absolute inset-0 ct-overlay-surface0 opacity-0 group-hover:opacity-100 ct-transition-opacity-slow pointer-events-none" />
+      <div className="relative ct-z-base">{props.children}</div>
     </div>
   );
 }
@@ -45,7 +45,7 @@ export function CardTitle({
   return (
     <h3
       className={cn(
-        "h3 ct-text-strong drop-shadow-[var(--ct-glow-subtle)]",
+        "h3 ct-text-strong ct-drop-glow-subtle",
         className,
       )}
       {...props}

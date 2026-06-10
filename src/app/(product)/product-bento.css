@@ -18,11 +18,16 @@
   /* Readability pass: lift the card clearly off the pure-black background.
      "Plus blanc" (demande Adrien 2026-06-10): white wash bumped 3% → 8% over
      surface-2 (now 10%) so the card fill reads as a clearly lighter surface,
-     consistent with the .ct-glass-panel reference. Stronger border defines edge. */
+     consistent with the .ct-glass-panel reference. Stronger border defines edge.
+     Opaque base (--ct-bg-deep) sits UNDER the translucent wash + surface so the
+     global spatial halo (.ct-panels-row bg image) can no longer bleed through the
+     card on airy layouts (profile bento) — cards read identically wherever they
+     sit over the halo. The white wash + surface-2 keep the exact same tint. */
   background:
     linear-gradient(color-mix(in srgb, #ffffff 8%, transparent), color-mix(in srgb, #ffffff 8%, transparent)),
-    var(--ct-surface-2);
-  backdrop-filter: blur(24px);
+    linear-gradient(var(--ct-surface-2), var(--ct-surface-2)),
+    var(--ct-bg-deep);
+  backdrop-filter: var(--ct-glass-blur);
   border: 1px solid var(--ct-border-strong);
   border-radius: var(--ct-radius-xl);
   box-shadow: 0 10px 40px color-mix(in srgb, var(--ct-bg-deep) 80%, black);
@@ -39,7 +44,7 @@
   background:
     linear-gradient(color-mix(in srgb, #ffffff 8%, transparent), color-mix(in srgb, #ffffff 8%, transparent)),
     var(--ct-surface-2);
-  backdrop-filter: blur(24px);
+  backdrop-filter: var(--ct-glass-blur);
   border: 1px solid var(--ct-border-strong);
   border-radius: var(--ct-radius-xl);
   box-shadow: 0 4px 16px color-mix(in srgb, var(--ct-bg-deep) 60%, black);
@@ -106,12 +111,10 @@
 
 /* === KPI label / value (kpi-elegant) === */
 .dash-label {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  /* Was text-muted (~0.48 on black) — too faint to read at a glance. Bumped to
-     text-body so labels stay secondary but legible without squinting. */
-  color: var(--ct-text-body);
-  letter-spacing: var(--ct-tracking-wider);
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-bold);
+  color: var(--ct-text-muted);
+  letter-spacing: var(--ct-tracking-wide);
   margin-bottom: var(--ct-space-4);
   display: flex;
   justify-content: space-between;
@@ -144,13 +147,11 @@
 
 .dash-value {
   font-family: var(--font-sans);
-  font-size: var(--ct-text-5xl);
-  /* Key values were font-light (300) — too thin to dominate. Normal weight
-     gives the primary numbers the presence they need to read instantly. */
-  font-weight: var(--ct-font-normal);
-  color: var(--ct-text-strong);
+  font-size: var(--ct-text-2xl);
+  font-weight: var(--ct-font-extrabold);
+  color: var(--ct-text-primary);
   letter-spacing: var(--ct-tracking-tight);
-  line-height: var(--ct-leading-none);
+  line-height: var(--ct-leading-tight);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
   overflow: hidden;
@@ -205,8 +206,8 @@
 
 .dash-section-title {
   font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-bold);
-  letter-spacing: 0.15em;
+  font-weight: var(--ct-font-extrabold);
+  letter-spacing: var(--ct-tracking-wide);
   text-transform: uppercase;
   color: var(--ct-text-muted);
 }

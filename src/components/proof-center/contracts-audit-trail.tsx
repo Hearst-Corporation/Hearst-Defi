@@ -1,7 +1,8 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { EXPLORER_ADDRESS_BASE, EXPLORER_TX_BASE } from "@/lib/chain/client";
-import { cn } from "@/lib/cn";
 import { abbreviateAddress } from "@/lib/onchain";
 
 interface DeployedContract {
@@ -67,15 +68,6 @@ function truncateTx(tx: string): string {
   return `${tx.slice(0, 10)}…${tx.slice(-6)}`;
 }
 
-const variantStyles: Record<"success" | "warning" | "default", string> = {
-  success:
-    "border-[var(--ct-status-success-border)] ct-status-success-bg ct-status-success",
-  warning:
-    "border-[var(--ct-status-warning-border)] ct-status-warning-bg ct-status-warning",
-  default:
-    "border-[var(--ct-border-strong)] ct-surface-1 ct-text-body",
-};
-
 export function ContractsAuditTrail() {
   return (
     <div className="space-y-6">
@@ -93,7 +85,7 @@ export function ContractsAuditTrail() {
           {DEPLOYED_CONTRACTS.map((contract) => (
             <article
               key={contract.address}
-              className="rounded-md border border-[var(--ct-border-soft)] ct-surface-1 p-5"
+              className="rounded-md ct-border-soft ct-surface-1 p-5"
             >
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <h4 className="h4">{contract.name}</h4>
@@ -146,32 +138,24 @@ export function ContractsAuditTrail() {
               </dl>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                <a
-                  href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className={cn(
-                    "rounded-full border border-[var(--ct-text-strong)] ct-surface-1",
-                    "px-3 py-1.5 text-xs ct-text-strong",
-                    "transition-colors duration-[var(--ct-dur-fast)] hover:ct-surface-2",
-                    "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
-                  )}
-                >
-                  View on Basescan
-                </a>
-                <a
-                  href={`${EXPLORER_TX_BASE}${contract.deployTxHash}`}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className={cn(
-                    "rounded-full border border-[var(--ct-border-strong)] ct-surface-1",
-                    "px-3 py-1.5 text-xs ct-text-primary",
-                    "transition-colors duration-[var(--ct-dur-fast)] hover:ct-surface-3",
-                    "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
-                  )}
-                >
-                  Deploy tx
-                </a>
+                <Button asChild variant="secondary" size="md">
+                  <a
+                    href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    View on Basescan
+                  </a>
+                </Button>
+                <Button asChild variant="secondary" size="md">
+                  <a
+                    href={`${EXPLORER_TX_BASE}${contract.deployTxHash}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    Deploy tx
+                  </a>
+                </Button>
               </div>
             </article>
           ))}
@@ -191,43 +175,32 @@ export function ContractsAuditTrail() {
           {AUDIT_ENTRIES.map((entry) => (
             <li
               key={entry.label}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-3"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-md ct-border-soft ct-surface-1 px-4 py-3"
             >
               <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium ct-text-primary">
+                <span className="body-sm font-medium ct-text-primary">
                   {entry.label}
                 </span>
-                <span className="text-xs ct-text-body">
-                  {entry.status}
-                </span>
+                <span className="body-xs">{entry.status}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span
-                  className={cn(
-                    "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide leading-none",
-                    variantStyles[entry.variant],
-                  )}
-                >
+                <Badge variant={entry.variant}>
                   {entry.variant === "success"
                     ? "Published"
                     : entry.variant === "warning"
                       ? "In progress"
                       : "Pending"}
-                </span>
+                </Badge>
                 {entry.href !== null ? (
-                  <a
-                    href={entry.href}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className={cn(
-                      "rounded-full border border-[var(--ct-border-strong)] ct-surface-1",
-                      "px-3 py-1 text-xs ct-text-primary",
-                      "transition-colors duration-[var(--ct-dur-fast)] hover:ct-surface-3",
-                      "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
-                    )}
-                  >
-                    View document
-                  </a>
+                  <Button asChild variant="secondary" size="md">
+                    <a
+                      href={entry.href}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                    >
+                      View document
+                    </a>
+                  </Button>
                 ) : null}
               </div>
             </li>

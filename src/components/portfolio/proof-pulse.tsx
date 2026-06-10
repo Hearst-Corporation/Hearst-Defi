@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
+import { NestedCallout, NestedPanel, ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 
@@ -102,22 +103,6 @@ function formatIso(date: Date): string {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-interface DataRowProps {
-  label: string;
-  children: React.ReactNode;
-}
-
-function DataRow({ label, children }: DataRowProps) {
-  return (
-    <div className="flex items-baseline justify-between gap-4 py-2.5 border-b border-(--ct-border-soft) last:border-0">
-      <span className="body-xs ct-text-muted shrink-0">{label}</span>
-      <span className="body-sm mono tabular-nums ct-text-primary text-right min-w-0 break-words">
-        {children}
-      </span>
-    </div>
-  );
-}
-
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function ProofPulse({
@@ -185,10 +170,7 @@ export function ProofPulse({
       </div>
 
       {state !== "matched" && (
-        <div
-          role="status"
-          className="mt-4 rounded-lg border border-(--ct-border-soft) ct-surface-1 px-(--ct-space-4) py-(--ct-space-3) relative z-10"
-        >
+        <NestedCallout className="mt-4 relative z-10">
           <p className="body-sm ct-text-primary font-semibold">
             {state === "pending"
               ? "On-chain proof is being reconciled."
@@ -203,35 +185,35 @@ export function ProofPulse({
                 ? "Open the Proof Center to compare the stated TVL with on-chain records."
                 : "The first proof will appear here once vault activity is attested."}
           </p>
-        </div>
+        </NestedCallout>
       )}
 
       {/* ── Last PoR block ─────────────────────────────────────────────────── */}
       <section aria-label="Last Proof of Reserves" className="relative z-10">
-        <h4 className="stat-label mb-3">
+        <h3 className="h3 mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
           Last PoR
           <time
             dateTime={formatIso(timestamp)}
-            className="ml-2 font-normal normal-case tracking-normal ct-text-faint"
+            className="body-xs ct-text-faint font-normal"
           >
             {formatDateHuman(timestamp)} · {formatTimeUtc(timestamp)}
           </time>
-        </h4>
+        </h3>
 
-        <div className="ct-panel-inset rounded-lg px-(--ct-space-4) py-(--ct-space-1)">
-          <DataRow label="Vault TVL">
+        <NestedPanel>
+          <ProofRow label="Vault TVL">
             {statedTvlUsdc > 0 ? formatUsdc(statedTvlUsdc) : "Awaiting proof"}
-          </DataRow>
+          </ProofRow>
 
-          <DataRow label="On-chain">
-            <span className="flex items-center justify-end gap-2">
+          <ProofRow label="On-chain">
+            <span className="inline-flex items-center justify-end gap-2">
               {onChainTvlUsdc > 0 ? formatUsdc(onChainTvlUsdc) : "Awaiting record"}
               {indicator !== null && (
                 <span
                   role="status"
                   aria-label={indicator.label}
                   className={cn(
-                    "text-(length:--ct-text-sm) font-bold leading-none select-none",
+                    "body-sm font-bold leading-none select-none",
                     indicator.colorClass,
                   )}
                 >
@@ -239,9 +221,9 @@ export function ProofPulse({
                 </span>
               )}
             </span>
-          </DataRow>
+          </ProofRow>
 
-          <DataRow label="Delta">
+          <ProofRow label="Delta">
             {hasData ? (
               <span className={deltaColorClass}>
                 {deltaPct === 0 ? "0.00" : deltaPct.toFixed(2)}%
@@ -253,19 +235,17 @@ export function ProofPulse({
                   : "no attestation yet"}
               </span>
             )}
-          </DataRow>
-        </div>
+          </ProofRow>
+        </NestedPanel>
       </section>
 
       {/* ── Methodology block ──────────────────────────────────────────────── */}
       <section aria-label="Methodology" className="mt-6 relative z-10">
-        <h4 className="stat-label mb-3">
-          Methodology
-        </h4>
+        <h3 className="h3 mb-3">Methodology</h3>
 
-        <div className="ct-panel-inset rounded-lg px-(--ct-space-4) py-(--ct-space-1)">
-          <DataRow label="Version">
-            <span className="flex items-center justify-end gap-2">
+        <NestedPanel>
+          <ProofRow label="Version">
+            <span className="inline-flex items-center justify-end gap-2">
               <span className="ct-text-faint">{methodologyVersion}</span>
               {methodologyLocked && (
                 <Badge variant="default" aria-label="Methodology is locked">
@@ -273,9 +253,9 @@ export function ProofPulse({
                 </Badge>
               )}
             </span>
-          </DataRow>
+          </ProofRow>
 
-          <DataRow label="Next attest">
+          <ProofRow label="Next attest">
             {nextAttestation !== null ? (
               <time dateTime={formatIso(nextAttestation)}>
                 {formatDateHuman(nextAttestation)} ·{" "}
@@ -284,10 +264,10 @@ export function ProofPulse({
             ) : (
               <span className="ct-text-faint italic">Not scheduled yet</span>
             )}
-          </DataRow>
+          </ProofRow>
 
-          <DataRow label="Auditor">{auditor}</DataRow>
-        </div>
+          <ProofRow label="Auditor">{auditor}</ProofRow>
+        </NestedPanel>
       </section>
 
       {/* ── CTA ────────────────────────────────────────────────────────────── */}

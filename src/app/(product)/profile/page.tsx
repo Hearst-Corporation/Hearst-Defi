@@ -7,6 +7,8 @@ import { getInvestor } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Metric } from "@/components/ui/metric";
+import { NestedKpiGrid } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 
@@ -87,7 +89,7 @@ export default async function ProfilePage() {
 
       {/* ── Account details ── */}
       <div className="dash-cell prof-card-details">
-        <p className="dash-label">Account</p>
+        <h2 className="h2 m-0">Account</h2>
 
         <dl className="prof-dl">
           <div className="prof-dl-row">
@@ -126,44 +128,37 @@ export default async function ProfilePage() {
 
       {/* ── Investment summary ── */}
       <div className="dash-cell prof-card-summary">
-        <p className="dash-label">
-          Investment summary
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="h2 m-0">Investment summary</h2>
           {/* A3 — no "Live" badge when there are no positions to back it. */}
           <ProvenanceBadge kind={positions.length === 0 ? "stale" : "live"} />
-        </p>
+        </div>
 
         {hasPositions ? (
-          <div className="prof-stats">
-            <div className="prof-stat">
-              <span className="stat-value ct-text-strong">
-                {positions.length}
-              </span>
-              <span className="stat-label">Active positions</span>
-            </div>
-
-            <div className="prof-stat-sep" />
-
-            <div className="prof-stat">
-              <span className="stat-value ct-text-strong">
-                {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                  notation: "compact",
-                  maximumFractionDigits: 1,
-                }).format(totalDeployed)}
-              </span>
-              <span className="stat-label">Total deployed</span>
-            </div>
-
-            <div className="prof-stat-sep" />
-
-            <div className="prof-stat">
-              <span className="stat-value ct-text-strong">
-                {firstSubAt ? formatDate(firstSubAt) : "Awaiting subscription"}
-              </span>
-              <span className="stat-label">First subscription</span>
-            </div>
-          </div>
+          <NestedKpiGrid columns={3} className="prof-stats">
+            <Metric
+              variant="nested"
+              label="Active positions"
+              value={positions.length}
+            />
+            <Metric
+              variant="nested"
+              label="Total deployed"
+              value={new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+                notation: "compact",
+                maximumFractionDigits: 1,
+              }).format(totalDeployed)}
+            />
+            <Metric
+              variant="nested"
+              label="First subscription"
+              value={
+                firstSubAt ? formatDate(firstSubAt) : "Awaiting subscription"
+              }
+            />
+          </NestedKpiGrid>
         ) : (
           <div className="mt-3 flex flex-col items-start gap-3 rounded-lg border border-dashed border-(--ct-border-soft) ct-surface-1 p-4">
             <p className="body-sm ct-text-primary font-semibold">
@@ -181,7 +176,7 @@ export default async function ProfilePage() {
 
       {/* ── Security ── */}
       <div className="dash-cell prof-card-security">
-        <p className="dash-label">Security</p>
+        <h2 className="h2 m-0">Security</h2>
 
         <ul className="prof-security-list">
           <li className="prof-security-row">

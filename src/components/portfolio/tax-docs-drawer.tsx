@@ -15,6 +15,7 @@
  */
 
 import { useState } from "react";
+import { FileText, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { Button } from "@/components/ui/button";
@@ -257,7 +258,7 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
         aria-label="Tax documents preview — available 2027 Q1"
         data-testid="tax-docs-trigger"
       >
-        <span aria-hidden>📄</span>
+        <FileText aria-hidden size={14} strokeWidth={2} />
         Tax Docs Preview
       </button>
 
@@ -308,7 +309,7 @@ export function TaxDocsDrawer({ userId: _userId, preview }: TaxDocsDrawerProps) 
               "focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
             )}
           >
-            ✕
+            <X aria-hidden size={16} strokeWidth={2} />
           </button>
         </div>
 

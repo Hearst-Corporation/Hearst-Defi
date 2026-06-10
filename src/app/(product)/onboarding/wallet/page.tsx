@@ -23,7 +23,7 @@ export default function WalletPage() {
   const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? "";
 
   return (
-    <div className="ct-card w-full max-w-lg flex flex-col gap-[var(--ct-space-6)]">
+    <div className="ct-card w-full max-w-lg flex flex-col gap-6">
       <ProductPageHeader
         className="gap-2"
         eyebrow="Step 4 of 7"
@@ -40,7 +40,7 @@ export default function WalletPage() {
       <PrivyWalletConnect appId={appId} />
 
       {/* Navigation */}
-      <div className="flex flex-col gap-[var(--ct-space-3)]">
+      <div className="flex flex-col gap-3">
         <Button variant="primary" size="lg" asChild className="w-full font-bold">
           <Link href="/onboarding/review?step=review">
             Continue to Review

@@ -40,7 +40,7 @@ function PrivyConnectInner() {
   if (!ready) {
     return (
       <div
-        className="w-full rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-[var(--ct-space-6)] py-[var(--ct-space-8)] flex items-center justify-center"
+        className="w-full rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-6 py-8 flex items-center justify-center"
         aria-busy="true"
         aria-label="Loading wallet connection"
       >
@@ -55,7 +55,7 @@ function PrivyConnectInner() {
   if (authenticated && displayAddress) {
     return (
       <div
-        className="w-full rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-[var(--ct-space-6)] py-[var(--ct-space-8)] flex flex-col items-center gap-[var(--ct-space-4)] text-center"
+        className="w-full rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-6 py-8 flex flex-col items-center gap-4 text-center"
         role="region"
         aria-label="Wallet connected"
       >
@@ -91,11 +91,11 @@ function PrivyConnectInner() {
   // Prompt to connect
   return (
     <div
-      className="w-full rounded-lg border border-dashed border-[var(--ct-border-soft)] ct-surface-1 px-[var(--ct-space-8)] py-[var(--ct-space-8)] flex flex-col items-center gap-[var(--ct-space-4)] text-center"
+      className="w-full rounded-lg border border-dashed border-[var(--ct-border-soft)] ct-surface-1 px-8 py-8 flex flex-col items-center gap-4 text-center"
       role="region"
       aria-label="Connect wallet"
     >
-      <div className="flex flex-col gap-[var(--ct-space-2)]">
+      <div className="flex flex-col gap-2">
         <h3 className="h3">
           Connect Your Wallet
         </h3>
@@ -134,11 +134,11 @@ function PrivyConnectInner() {
 function ConfigPending() {
   return (
     <div
-      className="w-full rounded-lg border border-dashed border-[var(--ct-border-soft)] ct-surface-1 p-[var(--ct-space-8)] flex flex-col items-center gap-[var(--ct-space-4)] text-center"
+      className="w-full rounded-lg border border-dashed border-[var(--ct-border-soft)] ct-surface-1 p-8 flex flex-col items-center gap-4 text-center"
       role="region"
       aria-label="Wallet connection — configuration pending"
     >
-      <div className="flex flex-col gap-[var(--ct-space-2)]">
+      <div className="flex flex-col gap-2">
         <h3 className="h3">
           Connect Your Wallet
         </h3>

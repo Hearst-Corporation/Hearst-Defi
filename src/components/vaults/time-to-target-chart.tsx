@@ -222,7 +222,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
                 y1={PAD_T}
                 x2={targetX}
                 y2={PAD_T + INNER_H}
-                stroke="var(--ct-warning)"
+                stroke="var(--ct-status-warning)"
                 strokeWidth="0.8"
                 strokeDasharray="2,2"
                 vectorEffect="non-scaling-stroke"
@@ -233,7 +233,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
                 <text
                   x={Math.min(targetX + 2, VB_W - PAD_R - 40)}
                   y={PAD_T + 5}
-                  fill="var(--ct-warning)"
+                  fill="var(--ct-status-warning)"
                   fontSize="5"
                   fontFamily="inherit"
                   fontWeight="600"

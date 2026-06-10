@@ -6,6 +6,8 @@
  * Cockpit tokens only.
  */
 
+import { Card } from "@/components/ui/card";
+
 interface OpsContactCardProps {
   name?: string;
   title?: string;
@@ -21,14 +23,14 @@ export function OpsContactCard({
   calendlyHref = "https://calendly.com/hearstconnect/15min",
 }: OpsContactCardProps) {
   return (
-    <div
-      className="w-full rounded-md border border-[var(--ct-border-soft)] ct-surface-1 p-[var(--ct-space-5)] flex flex-col gap-[var(--ct-space-3)]"
+    <Card
+      className="w-full flex flex-col gap-3"
       role="complementary"
       aria-label="Investor Relations contact"
     >
       <span className="eyebrow ct-text-muted">Your IR Contact</span>
 
-      <div className="flex items-center gap-[var(--ct-space-3)]">
+      <div className="flex items-center gap-3">
         {/* Avatar placeholder */}
         <span
           aria-hidden="true"
@@ -45,7 +47,7 @@ export function OpsContactCard({
         </div>
       </div>
 
-      <div className="flex flex-col gap-[var(--ct-space-2)]">
+      <div className="flex flex-col gap-2">
         {/* Email link */}
         <a
           href={`mailto:${email}`}
@@ -66,6 +68,6 @@ export function OpsContactCard({
           Book 15-min call ↗
         </a>
       </div>
-    </div>
+    </Card>
   );
 }

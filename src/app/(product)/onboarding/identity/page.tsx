@@ -27,7 +27,7 @@ export default async function IdentityPage() {
   const personaReady = typeof templateId === "string" && templateId.length > 0;
 
   return (
-    <div className="ct-card w-full max-w-lg flex flex-col gap-[var(--ct-space-6)]">
+    <div className="ct-card w-full max-w-lg flex flex-col gap-6">
       <ProductPageHeader
         className="gap-2"
         eyebrow="Step 3 of 7"
@@ -52,7 +52,7 @@ export default async function IdentityPage() {
       )}
 
       {/* Navigation */}
-      <div className="flex flex-col gap-[var(--ct-space-3)]">
+      <div className="flex flex-col gap-3">
         <Button variant="primary" size="lg" asChild className="w-full font-bold">
           <Link href="/onboarding/wallet?step=wallet">
             Continue to Wallet Binding

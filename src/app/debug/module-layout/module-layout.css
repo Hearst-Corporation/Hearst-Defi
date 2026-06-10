@@ -163,3 +163,197 @@
   min-height: 0;
   overflow-y: auto;
 }
+
+/*
+ * Fixed-height portfolio layout repro — debug only (`/debug/module-layout`).
+ * Prod portfolio uses scroll layout (`space-y-12` on `data-testid="portfolio-page"`).
+ * Tokens only (--ct-*).
+ */
+
+.ct-page-area:has(.pf-fixed) {
+  height: 100%;
+}
+
+.ct-page-area:has(.pf-fixed) > main {
+  height: 100%;
+  min-height: 0;
+}
+
+.ct-page-area:has(.pf-fixed) > main > * {
+  height: 100%;
+  min-height: 0;
+}
+
+.pf-fixed {
+  height: 100%;
+  min-height: 30rem;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: var(--ct-space-4);
+}
+
+.pf-fixed-kpis {
+  flex-shrink: 0;
+}
+
+.pf-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ct-space-4);
+}
+
+.pf-fixed-kpis .dash-cell {
+  min-height: 0;
+  padding: var(--ct-space-4);
+}
+
+.pf-fixed-kpis .dash-value {
+  font-size: var(--ct-text-3xl);
+}
+
+.pf-fixed-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: var(--ct-space-4);
+}
+
+.pf-row-charts {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--ct-space-4);
+  min-height: 0;
+}
+
+.pf-row-charts > :first-child {
+  grid-column: span 4;
+}
+
+.pf-row-charts > :last-child {
+  grid-column: span 8;
+}
+
+.pf-row-lower {
+  flex: 1 1 0;
+  margin-top: auto;
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  gap: var(--ct-space-4);
+  min-height: 0;
+}
+
+.pf-row-lower > :first-child {
+  grid-column: span 8;
+}
+
+.pf-row-lower > :last-child {
+  grid-column: span 4;
+}
+
+.pf-fixed-cta {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pf-fixed-body > .dash-cell {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.pf-row-charts > .dash-cell,
+.pf-row-lower > .dash-cell,
+.pf-fixed-positions > .dash-cell {
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pf-fixed-positions {
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.pf-fixed-positions > .dash-cell {
+  min-height: 0;
+}
+
+.pf-fixed-positions > .dash-cell > .flex,
+.pf-row-lower .pf-vault-list {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.pf-row-charts .dash-chart-container {
+  width: 9rem;
+  height: 9rem;
+}
+
+.pf-row-charts .donut-val {
+  font-size: var(--ct-text-lg);
+}
+
+@media (max-width: 48rem) {
+  .ct-page-area:has(.pf-fixed) {
+    height: 100%;
+    overflow-y: auto;
+    padding: var(--ct-space-4) var(--ct-space-4) var(--ct-space-6);
+  }
+
+  .ct-page-area:has(.pf-fixed) > main {
+    height: 100%;
+  }
+
+  .pf-fixed {
+    height: 100%;
+    min-height: 0;
+    grid-template-rows: auto auto 1fr;
+  }
+
+  .pf-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-row-charts {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-row-charts > :first-child,
+  .pf-row-charts > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  .pf-row-lower {
+    grid-template-columns: 1fr;
+    flex: 1 1 0;
+    margin-top: auto;
+    min-height: 0;
+  }
+
+  .pf-row-lower > :first-child,
+  .pf-row-lower > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  .pf-row-charts > .dash-cell,
+  .pf-row-lower > .dash-cell,
+  .pf-fixed-positions > .dash-cell {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .pf-fixed-kpis .dash-value {
+    font-size: var(--ct-text-2xl);
+  }
+
+  .pf-row-charts .dash-chart-container {
+    width: clamp(5rem, 20vw, 7rem);
+    height: clamp(5rem, 20vw, 7rem);
+  }
+}

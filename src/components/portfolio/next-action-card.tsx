@@ -103,7 +103,7 @@ export function NextActionCard(props: NextActionCardProps) {
   const step = resolveNextStep(props);
 
   return (
-    <Card className="ct-glass-panel">
+    <Card>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <div className="flex flex-col gap-1">
           <span className="eyebrow">{step.eyebrow}</span>
@@ -114,7 +114,7 @@ export function NextActionCard(props: NextActionCardProps) {
         </div>
         {step.cta ? (
           <div className="shrink-0">
-            <Button variant="primary" size="md" asChild>
+            <Button variant="primary" size="lg" asChild>
               <Link href={step.cta.href}>{step.cta.label} →</Link>
             </Button>
           </div>

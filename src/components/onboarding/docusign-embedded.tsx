@@ -169,7 +169,7 @@ export function DocusignEmbedded({
           aria-live="assertive"
           role="status"
         >
-          <div className="flex flex-col items-center gap-[var(--ct-space-3)]">
+          <div className="flex flex-col items-center gap-3">
             <span className="h2 ct-text-primary">Done</span>
             <span className="body-sm ct-text-muted">
               Signing session completed.

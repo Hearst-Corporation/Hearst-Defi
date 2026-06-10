@@ -107,6 +107,9 @@ function BarChart({ entries, refYear, currentPeriod }: BarChartProps) {
   const forecastPatternId = "dc-forecast-hatch";
   const titleId = "dc-title";
 
+  // max-h-[180px] below: render constraint, not a spacing token — caps the SVG
+  // canvas height so the chart can't grow taller than its cell. Intentional
+  // arbitrary value (chart dimension, off the --ct-space-* scale).
   return (
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}

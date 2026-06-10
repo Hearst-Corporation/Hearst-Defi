@@ -1,3 +1,4 @@
+import { NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 
@@ -251,44 +252,41 @@ function CompositeSection({
     : compositeLabelColor(compositeLabel as CompositeLabel);
 
   return (
-    <div
+    <NestedPanel
       role="status"
+      className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:py-4"
       aria-label={ariaLabel}
-      className="mt-5 flex items-center justify-between rounded-lg border border-(--ct-border-soft) ct-surface-1 px-4 py-4"
     >
       <div className="flex items-baseline gap-2 min-w-0">
-        <span aria-hidden className="ct-text-accent text-lg leading-none">
-          ◆
-        </span>
-        <span className="stat-label">Composite</span>
+        <span className="stat-label shrink-0">Composite</span>
         <span
           className={cn(
-            "tabular font-extrabold text-xl leading-none",
+            "stat-value tabular leading-none",
             valueColor,
           )}
         >
           {noData ? "Awaiting" : composite}
-          <span className="text-sm font-medium ct-text-faint">
+          <span className="body-sm font-medium ct-text-faint">
             {noData ? "" : " / 100"}
           </span>
         </span>
       </div>
 
-      <div className="flex flex-col items-end gap-1 min-w-0 shrink-0">
+      <div className="flex flex-col items-start gap-1 min-w-0 sm:items-end sm:shrink-0">
         <span
           className={cn(
-            "text-xs font-semibold tracking-(--ct-tracking-wide)",
+            "body-xs font-semibold ct-tracking-wide",
             labelColor,
           )}
         >
           {noData ? "Awaiting snapshot" : compositeLabel}
         </span>
-        <span className="text-xs ct-text-faint">
+        <span className="body-xs ct-text-faint">
           30d trend{" "}
           <span aria-hidden>{trendIcon}</span>
         </span>
       </div>
-    </div>
+    </NestedPanel>
   );
 }
 

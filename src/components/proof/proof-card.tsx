@@ -152,7 +152,7 @@ function PaperProofCard({
             size="sm"
             disabled
             aria-label="On-chain mirror not yet available — Phase 2 will publish this proof via the EventLogger contract."
-            className="border-dashed border-[var(--ct-border-soft)] px-3 ct-text-muted"
+            className="border-dashed px-3 ct-text-muted"
             title="Phase 2 will mirror this proof on-chain via the EventLogger contract."
           >
             Off-chain (Phase 1)

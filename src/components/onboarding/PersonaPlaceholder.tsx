@@ -8,10 +8,12 @@
  * Cockpit tokens only. Server Component (no interactivity needed at stub level).
  */
 
+import { Badge } from "@/components/ui/badge";
+
 export function PersonaPlaceholder() {
   return (
     <div
-      className="w-full rounded-lg border border-dashed border-[var(--ct-border-soft)] ct-surface-1 p-[var(--ct-space-8)] flex flex-col items-center gap-[var(--ct-space-4)] text-center"
+      className="w-full rounded-lg border border-dashed border-[var(--ct-border-soft)] ct-surface-1 p-8 flex flex-col items-center gap-4 text-center"
       role="region"
       aria-label="Identity verification — integration pending"
     >
@@ -23,7 +25,7 @@ export function PersonaPlaceholder() {
         🪪
       </span>
 
-      <div className="flex flex-col gap-[var(--ct-space-2)]">
+      <div className="flex flex-col gap-2">
         <h3 className="h3">
           Identity Verification
         </h3>
@@ -34,15 +36,13 @@ export function PersonaPlaceholder() {
       </div>
 
       {/* Integration status badge */}
-      <span
-        className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--ct-status-warning-border)] ct-status-warning-bg ct-status-warning text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
-      >
+      <Badge variant="warning">
         <span
           aria-hidden="true"
           className="inline-block w-1.5 h-1.5 rounded-full bg-current"
         />
         Persona integration — P1
-      </span>
+      </Badge>
 
       {/* Persona iframe mount point (populated in P1) */}
       <div

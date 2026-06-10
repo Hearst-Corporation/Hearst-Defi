@@ -17,7 +17,7 @@ export function OnboardingStepper({
   pathLabel,
 }: OnboardingStepperProps) {
   return (
-    <div className="sticky top-0 z-[var(--ct-z-sticky)] border-b border-[var(--ct-border)] bg-[var(--ct-bg-deep)] backdrop-blur-xl">
+    <div className="sticky top-0 z-[var(--ct-z-raised)] border-b border-[var(--ct-border)] bg-[var(--ct-bg-deep)] backdrop-blur-xl">
       <div className="mx-auto max-w-5xl px-6 py-4">
         {/* Path label */}
         <p className="mb-3 text-xs font-medium uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted">

@@ -190,7 +190,7 @@ function FanChart({ series, ariaLabel: _ariaLabel }: FanChartProps) {
         y1={targetY.toFixed(2)}
         x2={VB_W.toString()}
         y2={targetY.toFixed(2)}
-        stroke="var(--ct-warning)"
+        stroke="var(--ct-status-warning)"
         strokeWidth="0.5"
         strokeDasharray="2 1.5"
         strokeOpacity="0.55"
@@ -218,19 +218,19 @@ export function NavSparkline({ output }: NavSparklineProps) {
       </CardHeader>
 
       <div className="mb-3 flex flex-wrap items-end gap-6 text-sm">
-        <div className="flex flex-col gap-[var(--ct-space-0_5)]">
+        <div className="flex flex-col gap-0_5">
           <span className="stat-label text-micro">Low band</span>
           <span className="mono font-bold ct-text-body">
             {last ? formatUsd(last.p5) : "—"}
           </span>
         </div>
-        <div className="flex flex-col gap-[var(--ct-space-0_5)]">
+        <div className="flex flex-col gap-0_5">
           <span className="stat-label text-micro">Midpoint</span>
           <span className="mono font-bold ct-text-strong">
             {last ? formatUsd(last.p50) : "—"}
           </span>
         </div>
-        <div className="flex flex-col gap-[var(--ct-space-0_5)]">
+        <div className="flex flex-col gap-0_5">
           <span className="stat-label text-micro">High band</span>
           <span className="mono font-bold ct-text-body">
             {last ? formatUsd(last.p95) : "—"}
@@ -277,7 +277,7 @@ export function NavSparkline({ output }: NavSparklineProps) {
         </span>
         <span className="flex items-center gap-1.5">
           <span
-            className="inline-block h-0.5 w-4 border-t border-dashed border-[var(--ct-warning)]"
+            className="inline-block h-0.5 w-4 border-t border-dashed border-[var(--ct-status-warning)]"
           />
           High target
         </span>

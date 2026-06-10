@@ -1,5 +1,6 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
+import { NestedKpiGrid } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import type { CoverageView } from "@/lib/engine/coverage-view";
 
@@ -53,32 +54,34 @@ export function MiningCashFlowEvidence({
 
       <p className="body-sm mb-4">{COPY[provenance]}</p>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <NestedKpiGrid columns={4}>
         <Metric
+          variant="nested"
           label="Distribution coverage"
           value={ratioLabel}
           sublabel="net mining cash ÷ target"
-          provenance={BADGE[provenance]}
         />
         <Metric
+          variant="nested"
           label="State"
           value={coverageState}
           sublabel={coverage?.recommendation.action ?? "—"}
-          provenance={BADGE[provenance]}
         />
         <Metric
+          variant="nested"
           label="Latest revenue period"
           value={coverage?.period ?? "—"}
-          sublabel={coverage?.lastUpdated ? "as of attestation" : "awaiting first close"}
-          provenance="manual"
+          sublabel={
+            coverage?.lastUpdated ? "as of attestation" : "awaiting first close"
+          }
         />
         <Metric
+          variant="nested"
           label="Attestation status"
           value={provenance === "live" ? "Attested" : "Pending"}
           sublabel="mining partner + pool"
-          provenance="manual"
         />
-      </div>
+      </NestedKpiGrid>
     </Card>
   );
 }

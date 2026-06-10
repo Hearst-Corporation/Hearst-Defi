@@ -4,6 +4,8 @@
 
 export const dynamic = "force-dynamic";
 
+import { TriangleAlert } from "lucide-react";
+
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -80,10 +82,14 @@ export default async function ProductProofCenterPage({
         <div
           role="note"
           aria-label="Testnet data notice"
-          className="rounded-md border border-[var(--ct-status-warning-border)] ct-status-warning-bg px-4 py-3"
+          className="flex items-start gap-3 rounded-md border border-[var(--ct-status-warning-border)] ct-status-warning-bg px-4 py-3"
         >
+          <TriangleAlert
+            className="mt-0.5 h-4 w-4 shrink-0 ct-status-warning"
+            aria-hidden
+          />
           <p className="body-sm ct-text-strong">
-            ⚠️ On-chain proofs are read from{" "}
+            On-chain proofs are read from{" "}
             <strong>Base Sepolia (testnet)</strong> — not production mainnet.
             Addresses, balances, and attestations shown here are testnet
             artefacts.

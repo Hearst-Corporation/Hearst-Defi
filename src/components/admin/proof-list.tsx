@@ -40,13 +40,13 @@ export function ProofList({ items }: { items: ProofItem[] }) {
   return (
     <div className="space-y-3">
       {items.map((item) => (
-        <ProofRow key={item.id} item={item} />
+        <AdminProofRow key={item.id} item={item} />
       ))}
     </div>
   );
 }
 
-function ProofRow({ item }: { item: ProofItem }) {
+function AdminProofRow({ item }: { item: ProofItem }) {
   const [isPending, startTransition] = useTransition();
 
   function onDelete() {

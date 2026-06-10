@@ -1,6 +1,13 @@
 "use client";
 
-import { STANDALONE_STYLES, StandaloneResetButton } from "@/components/error/error-shell";
+import { useEffect } from "react";
+
+import "@/app/tokens-layer.css";
+import "@/app/globals.css";
+import "@/app/cockpit.css";
+
+import { ErrorShellLayout } from "@/components/error/error-shell";
+import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -11,18 +18,25 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    console.error("[Global error] uncaught error", error);
+  }, [error]);
+
   return (
     <html lang="en">
-      <body style={STANDALONE_STYLES.body_html}>
-        <div style={STANDALONE_STYLES.container}>
-          <h1 style={STANDALONE_STYLES.title}>Something went wrong</h1>
-          {error.digest && (
-            <p style={STANDALONE_STYLES.digest}>
-              Error ID: {error.digest}
-            </p>
-          )}
-          <StandaloneResetButton onClick={reset} label="Try again" />
-        </div>
+      <body className="m-0 flex min-h-screen items-center justify-center bg-bg text-text antialiased">
+        <ErrorShellLayout
+          tone="danger"
+          scope="Error"
+          title="Something went wrong"
+          message="An unexpected error interrupted this page. You may try again; if the issue persists, please contact support."
+          digest={error.digest}
+          actions={
+            <Button variant="primary" size="sm" onClick={() => reset()}>
+              Try again
+            </Button>
+          }
+        />
       </body>
     </html>
   );
