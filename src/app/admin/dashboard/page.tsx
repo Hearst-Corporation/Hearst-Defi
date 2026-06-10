@@ -22,6 +22,7 @@ import { loadDashboardData } from "@/lib/data/dashboard";
 import { loadRiskFramework } from "@/lib/data/risk-framework";
 import { listAllVaults } from "@/lib/vaults/resolver";
 import { vaultSlug, vaultLabel } from "@/lib/vaults/slug";
+import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
 
@@ -188,13 +189,18 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 <Metric
                   label="Next distribution"
                   provenance="estimated"
-                  value={nextDistLabel}
+                  value={<span className="text-2xl tracking-tight">{nextDistLabel}</span>}
                   sublabel={nextDistAmount}
                 />
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            // Container-responsive: cards wrap to fewer columns when the centre
+            // panel narrows (e.g. chat rail open) instead of clipping badges and
+            // KPI units. auto-fit collapses empty tracks so 5 cards always fill
+            // the row. min 200px keeps the longest header ("Next distribution" +
+            // provenance badge) inside its card.
+            <div className="grid gap-6 grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))]">
               <Metric
                 label="AUM"
                 provenance={custody.provenance}
@@ -249,7 +255,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <Metric
                 label="Next distribution"
                 provenance="estimated"
-                value={nextDistLabel}
+                value={<span className="text-2xl tracking-tight">{nextDistLabel}</span>}
                 sublabel={nextDistAmount}
                 tooltip="Next monthly USDC distribution. Estimate from current mining margin + base yield accrual."
               />
@@ -261,9 +267,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       {/* Section 2 — Engine & Allocation */}
       <section className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12">
-        <div className="grid items-start grid-cols-1 lg:grid-cols-12 gap-6 shrink-0 min-h-[300px]">
-          <div className="lg:col-span-4 flex flex-col h-full">
-            <article className="dash-cell dash-cell-premium h-full flex flex-col p-6" aria-label="Allocation breakdown">
+        <div className="grid items-start grid-cols-1 lg:grid-cols-12 gap-6 shrink-0">
+          <div className={cn("lg:col-span-4 flex flex-col", allocSegments.length > 0 && "h-full")}>
+            <article className={cn("dash-cell dash-cell-premium flex flex-col p-6", allocSegments.length > 0 && "h-full")} aria-label="Allocation breakdown">
               <div className="dash-label relative z-10">
                 <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">Allocation breakdown</span>
                 {/* A3 — never claim "Live" over an empty/fallback allocation. */}
@@ -271,9 +277,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               </div>
 
               {allocSegments.length === 0 ? (
-                <div className="flex-1 flex items-center justify-center">
-                  <p className="body-sm text-[var(--ct-text-muted)] italic">No allocation data yet.</p>
-                </div>
+                <p className="mt-4 body-sm text-[var(--ct-text-muted)] italic">No allocation data yet.</p>
               ) : (
                 <div className="flex flex-col gap-8 mt-6 flex-1 relative z-10">
                   <div className="h-48 w-48 mx-auto shrink-0">
@@ -332,7 +336,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       {/* Section 3 — Risk & Tactical */}
       <section className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12">
-        <div className="grid items-start grid-cols-1 lg:grid-cols-2 gap-6 shrink-0 min-h-[250px]">
+        <div className="grid items-start grid-cols-1 lg:grid-cols-2 gap-6 shrink-0">
           <div className="h-full">
             <RiskFrameworkSection data={risk} />
           </div>
@@ -344,7 +348,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       {/* Section 4 — Activity & Advanced */}
       <section className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12">
-        <div className="w-full shrink-0 min-h-[300px]">
+        <div className="w-full shrink-0">
           <ActivityFeed events={data.recentEvents} />
         </div>
 
@@ -387,7 +391,7 @@ async function AdvancedMetricsSection() {
         <div className="h-px flex-1 bg-[var(--ct-border-soft)]/50" />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(min(100%,190px),1fr))]">
         <Metric
           label="Sharpe"
           provenance={provenance}

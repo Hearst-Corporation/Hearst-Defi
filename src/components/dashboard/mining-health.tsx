@@ -417,7 +417,7 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
                 opacity: s.opacity,
               }}
             />
-            <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--ct-text-faint)]">{s.label}</span>
+            <span className="text-micro font-bold uppercase tracking-wider text-[var(--ct-text-faint)]">{s.label}</span>
           </div>
         ))}
       </div>

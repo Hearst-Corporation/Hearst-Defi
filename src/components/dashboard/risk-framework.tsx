@@ -163,7 +163,7 @@ interface CompositeHeaderProps {
 
 function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 rounded-(--ct-radius-xl) bg-black/20 border border-[var(--ct-border-soft)]/50 px-5 py-5 sm:flex-row sm:items-center sm:justify-between relative overflow-hidden group">
+    <div className="flex flex-col gap-4 rounded-xl bg-[var(--ct-bg-deep)]/50 border border-[var(--ct-border-soft)]/50 px-5 py-5 sm:flex-row sm:items-center sm:justify-between relative overflow-hidden group">
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--ct-accent)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       <div className="flex items-baseline gap-3 relative z-10">
         <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">Composite</span>
@@ -172,8 +172,8 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
           <span className="text-sm font-medium opacity-50 ml-1 text-[var(--ct-text-faint)]">/ 100</span>
         </span>
       </div>
-      <div className="flex items-center gap-4 lg:min-w-60 relative z-10">
-        <div className="flex-1 h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
+      <div className="flex items-center gap-4 sm:min-w-60 relative z-10">
+        <div className="flex-1 h-1.5 bg-[var(--ct-bg-deep)] rounded-full overflow-hidden border border-[var(--ct-border-soft)]">
           <div 
             className={cn("h-full transition-all duration-1000 ease-out", BAND_BAR[band])}
             style={{ width: `${composite}%`, boxShadow: "0 0 12px var(--ct-accent-glow)" }}
