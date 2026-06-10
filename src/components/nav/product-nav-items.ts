@@ -69,6 +69,9 @@ export type AdminSection = {
   tabs: NavItem[];
 };
 
+/**
+ * Strategy OS nav — full admin surface for RWA vault operations.
+ */
 export const ADMIN_SECTIONS: AdminSection[] = [
   {
     id: "dashboard",
@@ -78,6 +81,16 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     tabs: [],
   },
   {
+    id: "strategy",
+    label: "Strategy",
+    icon: "FlaskConical",
+    href: "/admin/scenario-lab",
+    tabs: [
+      { id: "scenario-lab", label: "Scenario Lab", href: "/admin/scenario-lab", icon: "FlaskConical" },
+      { id: "projection", label: "Projection", href: "/admin/projection", icon: "FileText" },
+    ],
+  },
+  {
     id: "vaults",
     label: "Vaults",
     icon: "Vault",
@@ -85,7 +98,23 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     tabs: [
       { id: "vaults-overview", label: "Overview", href: "/admin/vaults", icon: "Vault" },
       { id: "distributions", label: "Distributions", href: "/admin/distributions", icon: "FileText" },
-      { id: "rebalancing", label: "Rebalancing", href: "/admin/signals", icon: "Zap" },
+    ],
+  },
+  {
+    id: "rebalancing",
+    label: "Rebalancing",
+    icon: "Zap",
+    href: "/admin/signals",
+    tabs: [],
+  },
+  {
+    id: "governance",
+    label: "Governance",
+    icon: "Scale",
+    href: "/admin/governance",
+    tabs: [
+      { id: "proposals", label: "Proposals", href: "/admin/governance", icon: "Scale" },
+      { id: "propose", label: "Propose", href: "/admin/governance/propose", icon: "FileText" },
     ],
   },
   {
@@ -99,17 +128,6 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     ],
   },
   {
-    id: "analytics",
-    label: "Analytics",
-    icon: "FlaskConical",
-    href: "/admin/scenario-lab",
-    tabs: [
-      { id: "scenario-lab", label: "Scenario Lab", href: "/admin/scenario-lab", icon: "FlaskConical" },
-      { id: "projection", label: "Projection", href: "/admin/projection", icon: "FlaskConical" },
-      { id: "investor-memo", label: "Investor Memo", href: "/admin/investor-memo", icon: "FileText" },
-    ],
-  },
-  {
     id: "proof-system",
     label: "Proof & System",
     icon: "ShieldCheck",
@@ -118,19 +136,6 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       { id: "proof-center", label: "Proof Center", href: "/admin/proof-center", icon: "ShieldCheck" },
       { id: "proofs", label: "Proofs", href: "/admin/proofs", icon: "FileCheck" },
       { id: "monitoring", label: "Monitoring", href: "/admin/monitoring", icon: "Settings2" },
-      { id: "spec", label: "Spec", href: "/admin/spec", icon: "BookOpen" },
-      { id: "roadmap", label: "Roadmap", href: "/admin/roadmap", icon: "FileCheck" },
-    ],
-  },
-  {
-    id: "governance",
-    label: "Governance",
-    icon: "ShieldCheck",
-    href: "/admin/governance",
-    tabs: [
-      { id: "governance-proposals", label: "Proposals", href: "/admin/governance", icon: "ShieldCheck" },
-      { id: "governance-allowlist", label: "Allowlist", href: "/admin/governance/allowlist", icon: "FileCheck" },
-      { id: "governance-propose", label: "Propose", href: "/admin/governance/propose", icon: "FileText" },
     ],
   },
 ];

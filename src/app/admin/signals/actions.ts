@@ -6,6 +6,7 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { recordAdminAudit } from "@/lib/admin/audit";
 import { prisma } from "@/lib/db";
+import { writeRebalanceEvent } from "@/lib/chain/event-logger";
 import { logger } from "@/lib/logger";
 import { assertRateLimit } from "@/lib/rate-limit";
 
@@ -246,6 +247,17 @@ export async function executeRebalance(eventId: string): Promise<void> {
       entityId: eventId,
       before,
       after: { status: updated.status, executedAt: now },
+    });
+
+    // Attempt to write the executed rebalance to the EventLogger on-chain.
+    // Silently skips if chain is not configured or signing key is absent.
+    void writeRebalanceEvent({
+      eventId,
+      ruleId: event.ruleId,
+      payloadCid: "",
+    }).catch(() => {
+      // writeRebalanceEvent never throws, but if somehow it does, we don't
+      // want it to fail the Server Action.
     });
 
     logger.info("[signals] execute", { eventId, executedAt: now });

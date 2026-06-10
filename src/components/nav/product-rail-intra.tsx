@@ -17,7 +17,7 @@ import {
   Users,
   MessageSquare,
   Zap,
-  BookOpen,
+  Scale,
   ChevronLeft,
   ChevronRight,
   ArrowLeft,
@@ -85,7 +85,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Users,
   MessageSquare,
   Zap,
-  BookOpen,
+  Scale,
   ArrowLeft,
 };
 

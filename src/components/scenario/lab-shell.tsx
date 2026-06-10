@@ -17,7 +17,7 @@ import {
   type ScenarioMode,
 } from "@/components/scenario/scenario-mode-toggle";
 import { SingleMode } from "@/components/scenario/single-mode";
-import type { VaultId } from "@/lib/engine/types";
+import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
 
 export interface LabShellProps {
   /**
@@ -26,9 +26,15 @@ export interface LabShellProps {
    * ADR-006 #9: a scenario run is always bound to exactly one vault.
    */
   vaultId: VaultId;
+  /**
+   * Live market data seeded from the server at page render time. Passed
+   * straight through to SingleMode → useScenario so sliders open at current
+   * real-world values. Falls back to BASE_INPUTS when undefined.
+   */
+  initialInputs?: ScenarioInputs;
 }
 
-export function LabShell({ vaultId }: LabShellProps) {
+export function LabShell({ vaultId, initialInputs }: LabShellProps) {
   const [activeTab, setActiveTab] = useState<LabTab>("scenario");
   const [scenarioMode, setScenarioMode] = useState<ScenarioMode>("single");
 
@@ -63,7 +69,7 @@ export function LabShell({ vaultId }: LabShellProps) {
             hidden={scenarioMode !== "single"}
             tabIndex={0}
           >
-            {scenarioMode === "single" && <SingleMode vaultId={vaultId} />}
+            {scenarioMode === "single" && <SingleMode vaultId={vaultId} initialInputs={initialInputs} />}
           </div>
           <div
             role="tabpanel"

@@ -28,11 +28,9 @@ export type { AllocationMix, RebalanceSignal, VaultStateForSignal };
  *   - `risk.daily.completed`            (emitted by `risk-daily` cron)
  *   - `rebalance.signal.requested`      (manual admin trigger)
  *
- * NOTE — market-data-hourly currently does NOT emit a `market.data.updated`
- * event (see src/lib/inngest/functions/market-data-hourly.ts). Per the V3.j
- * brief we do not add that emit ourselves; this function therefore only
- * subscribes to the two triggers above. When the market event ships, append
- * it to the `triggers` array — no other change required.
+ * Subscribes to `market.data.updated` (emitted by `market-data-hourly` after
+ * each successful fetch) to enable intra-day signal re-evaluation on
+ * significant BTC/hashprice moves.
  *
  * Pipeline (steps):
  *   1. load-state           → load live vault state (allocations, mining
@@ -373,6 +371,7 @@ export const rebalancingSignal = inngest.createFunction(
     triggers: [
       { event: "risk.daily.completed" },
       { event: "rebalance.signal.requested" },
+      { event: "market.data.updated" },
     ],
   },
   rebalancingSignalHandler,

@@ -34,6 +34,35 @@ export const EVENT_LOGGER_ABI = [
     outputs: [{ type: "address" }],
     stateMutability: "view",
   },
+  {
+    type: "function",
+    name: "logEvent",
+    inputs: [
+      { name: "kind", type: "uint8" },
+      { name: "contextHash", type: "bytes32" },
+      { name: "payloadCid", type: "string" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+] as const;
+
+/**
+ * Write-side ABI subset — just `logEvent`.
+ * Kept separate so viem can const-type the read ABI without mixing readonly tuples.
+ */
+export const EVENT_LOGGER_WRITE_ABI = [
+  {
+    type: "function",
+    name: "logEvent",
+    inputs: [
+      { name: "kind", type: "uint8" },
+      { name: "contextHash", type: "bytes32" },
+      { name: "payloadCid", type: "string" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
 ] as const;
 
 export const POR_REGISTRY_ABI = [

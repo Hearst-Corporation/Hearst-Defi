@@ -14,14 +14,20 @@ const CHAT_CONFIG: ChatConfig = {
   productContext: "Hearst Connect — Institutional RWA yield vault backed by Bitcoin mining cash flows. Principal held in a USDC reserve (Model B); monthly USDC distributions funded by mining revenue-share; BTC is an economic factor, not the primary exposure. Target net range 8–15%.",
 };
 
-export function ConnectShell({ children }: { children: ReactNode }) {
+export function ConnectShell({
+  children,
+  enableChat = false,
+}: {
+  children: ReactNode;
+  enableChat?: boolean;
+}) {
   return (
     <>
       <AmbientLights />
       <CockpitShell
         products={CONNECT_PRODUCTS}
         appId="connect"
-        chatConfig={CHAT_CONFIG}
+        chatConfig={enableChat ? CHAT_CONFIG : undefined}
       >
         {children}
       </CockpitShell>

@@ -26,8 +26,9 @@ import { isDuplicate, markComplete } from "@/lib/idempotency";
 const MARKET_DATA_HOURLY_ID = "market-data-hourly" as const;
 const MARKET_DATA_HOURLY_CRON = "0 * * * *" as const;
 
-export interface MarketDataHourlyStep {
+interface MarketDataHourlyStep {
   run<T>(name: string, fn: () => T | Promise<T>): Promise<T>;
+  sendEvent(id: string, payload: { name: string; data: Record<string, unknown> }): Promise<unknown>;
 }
 
 async function marketDataHourlyHandler({
@@ -133,6 +134,16 @@ async function marketDataHourlyHandler({
   });
 
   await markComplete(MARKET_DATA_HOURLY_ID, now);
+
+  await step.sendEvent("emit-market-data-updated", {
+    name: "market.data.updated",
+    data: {
+      btcUsd: btc.usd,
+      hashprice: hp.usd_per_th_day,
+      miningMarginScore: marginScore,
+    },
+  });
+
   return { btcUsd: btc.usd, hashprice: hp.usd_per_th_day, miningMarginScore: marginScore };
 }
 

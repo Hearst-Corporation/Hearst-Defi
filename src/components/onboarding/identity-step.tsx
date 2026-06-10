@@ -19,7 +19,7 @@ export function IdentityStep({ templateId, environment, referenceId }: IdentityS
   const router = useRouter();
 
   const handleComplete = useCallback(() => {
-    router.push("/onboarding/wallet?step=wallet");
+    router.push("/onboarding/wallet");
   }, [router]);
 
   return (

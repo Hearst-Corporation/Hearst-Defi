@@ -205,7 +205,7 @@ export default async function ProfilePage() {
               <Badge variant="success">Connected</Badge>
             ) : (
               <Button variant="primary" size="md" asChild>
-                <Link href="/onboarding/wallet?step=wallet">Connect</Link>
+                <Link href="/onboarding/wallet">Connect</Link>
               </Button>
             )}
           </li>
@@ -227,7 +227,7 @@ export default async function ProfilePage() {
               <Badge variant="success">Approved</Badge>
             ) : (
               <Button variant="primary" size="md" asChild>
-                <Link href="/onboarding/identity?step=identity">Continue</Link>
+                <Link href="/onboarding/identity">Continue</Link>
               </Button>
             )}
           </li>

@@ -41,13 +41,19 @@ export interface UseScenarioOptions {
    * when omitted so existing callers keep their behaviour.
    */
   vaultId?: VaultId;
+  /**
+   * Live market data seeded from the server (latest MiningMetric + BTC price).
+   * When provided, sliders open at current real-world values instead of the
+   * static BASE_INPUTS defaults. Falls back to BASE_INPUTS if undefined.
+   */
+  initialInputs?: ScenarioInputs;
 }
 
 export function useScenario(opts: UseScenarioOptions = {}) {
-  const { vaultId } = opts;
+  const { vaultId, initialInputs } = opts;
   const [state, setState] = useState<ScenarioState>({
     selectedPreset: null,
-    inputs: BASE_INPUTS,
+    inputs: initialInputs ?? BASE_INPUTS,
     output: null,
     narrative: null,
   });

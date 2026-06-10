@@ -1,10 +1,14 @@
+export const dynamic = "force-dynamic";
+
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { VaultSelector } from "@/components/admin/vault-selector";
 import { LabShell } from "@/components/scenario/lab-shell";
 import { MonteCarloPanel } from "@/components/scenario/monte-carlo-panel";
+import { prisma } from "@/lib/db";
+import { fetchBtcPrice } from "@/lib/data/btc-price";
 import { VAULTS, VAULT_YIELD } from "@/lib/engine/vaults";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
-import type { VaultId } from "@/lib/engine/types";
+import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
 
 // ---------------------------------------------------------------------------
 // Selector options: fixture-only (yield / defensive / btc-plus).
@@ -42,6 +46,29 @@ export default async function ScenarioLabPage({
   const vaultId = resolveVaultId(params.vault);
   const vault = VAULTS[vaultId];
 
+  // Load live market data to seed the scenario sliders with current values.
+  // Falls back to BASE_INPUTS defaults if data is unavailable.
+  let liveInputs: ScenarioInputs | undefined;
+  try {
+    const [latestMining, btc] = await Promise.all([
+      prisma.miningMetric.findFirst({ orderBy: { takenAt: "desc" } }),
+      fetchBtcPrice(),
+    ]);
+    if (latestMining && btc.usd > 0 && !btc.stale) {
+      liveInputs = {
+        btc_price_change_pct: Math.round(btc.usd_24h_change * 10) / 10,
+        hashprice_usd_th_day: latestMining.hashprice.toNumber(),
+        energy_cost_kwh: latestMining.energyCost.toNumber(),
+        // Mirror of BASE_INPUTS in use-scenario.ts — keep in sync.
+        // Cannot import from that "use client" file here (Server Component).
+        stable_apy_pct: 4.5,
+        vol_index: 45,
+      };
+    }
+  } catch {
+    // Silently fall back to defaults if data loading fails
+  }
+
   return (
     <div className="space-y-8">
       <AdminPageHeader
@@ -63,7 +90,7 @@ export default async function ScenarioLabPage({
         }
       />
 
-      <LabShell vaultId={vaultId} />
+      <LabShell vaultId={vaultId} initialInputs={liveInputs} />
 
       {FEATURE_FLAGS.ENABLE_MONTE_CARLO && <MonteCarloPanel />}
     </div>

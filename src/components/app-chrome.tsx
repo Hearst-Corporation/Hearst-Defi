@@ -37,8 +37,11 @@ export function AppChrome({ children }: { children: ReactNode }) {
     return <div className="min-h-dvh bg-[var(--ct-bg-deep)]">{children}</div>;
   }
 
+  // Chat is only enabled in the admin zone — LP surfaces have no chat UI.
+  const isAdmin = pathname.startsWith("/admin");
+
   return (
-    <ConnectShell>
+    <ConnectShell enableChat={isAdmin}>
       {children}
       {/* Chat mode selector (Conversation / Review). Self-gates to admins via
           the requireAdmin-protected /api/admin/review-mode route; renders
