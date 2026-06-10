@@ -378,7 +378,7 @@ export default async function AllowlistPage() {
                           <span className="group-open:hidden">Edit ▾</span>
                           <span className="hidden group-open:inline">Close ▴</span>
                         </summary>
-                        <form action={handleUpdate} className="mt-3 space-y-2 min-w-[16rem]">
+                        <form action={handleUpdate} className="mt-3 space-y-2 min-w-64">
                           <input type="hidden" name="id" value={entry.id} />
 
                           <div className="space-y-1">

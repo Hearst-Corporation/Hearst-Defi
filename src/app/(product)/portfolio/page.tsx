@@ -205,7 +205,7 @@ function NextDistributionKpi({ nextDistributionAt, source }: NextDistributionKpi
           Indicative · Monthly, Day 1 (T+5)
         </p>
         {diffDays > 0 && (
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-(--ct-accent)/10 text-(--ct-accent) border border-(--ct-accent)/20">
+          <span className="text-micro font-bold px-1.5 py-0.5 rounded-full bg-(--ct-accent)/10 text-(--ct-accent) border border-(--ct-accent)/20">
             {diffDays}d left
           </span>
         )}

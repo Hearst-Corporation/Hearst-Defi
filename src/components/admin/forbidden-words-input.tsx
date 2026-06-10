@@ -43,7 +43,7 @@ function ForbiddenWordList({ matches }: { matches: ForbiddenMatch[] }) {
       {matches.map((m) => (
         <li
           key={`${m.word}-${m.index}`}
-          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium leading-none"
+          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium leading-none"
           style={{
             color: "var(--ct-status-danger)",
             background: "color-mix(in srgb, var(--ct-status-danger) 12%, transparent)",

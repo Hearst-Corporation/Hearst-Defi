@@ -158,7 +158,7 @@ export function YieldStack({
 
               {/* Bar track */}
               <div
-                className="relative h-[6px] rounded-[var(--ct-radius-full)] overflow-hidden"
+                className="relative h-1.5 rounded-[var(--ct-radius-full)] overflow-hidden"
                 style={{ background: "var(--ct-surface-2)" }}
               >
                 <div

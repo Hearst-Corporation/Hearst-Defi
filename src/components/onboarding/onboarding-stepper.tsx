@@ -73,7 +73,7 @@ export function OnboardingStepper({
                   {/* Label */}
                   <span
                     className={cn(
-                      "mt-1.5 max-w-[7rem] text-center text-[0.6875rem] leading-tight",
+                      "mt-1.5 max-w-28 text-center text-xs leading-tight",
                       isActive
                         ? "font-medium text-[var(--ct-text-strong)]"
                         : "text-[var(--ct-text-dim)]",

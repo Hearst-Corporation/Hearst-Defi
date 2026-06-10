@@ -327,7 +327,7 @@ function EventsSection({ entries }: { entries: EventEntry[] }) {
               <ul className="space-y-0.5">
                 {Object.entries(entry.args).map(([key, val]) => (
                   <li key={key} className="flex gap-2 items-start">
-                    <span className="shrink-0 mono text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)] min-w-[5rem]">
+                    <span className="shrink-0 mono text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)] min-w-20">
                       {key}
                     </span>
                     <span

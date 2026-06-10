@@ -195,7 +195,7 @@ export function MemoShell({
           ))}
         </div>
       ) : (
-        <div className="flex min-h-[12rem] items-center justify-center rounded-[var(--ct-radius-lg)] border border-dashed border-[var(--ct-border-soft)] text-center">
+        <div className="flex min-h-48 items-center justify-center rounded-[var(--ct-radius-lg)] border border-dashed border-[var(--ct-border-soft)] text-center">
           <p className="body-sm max-w-md">
             Press{" "}
             <span className="text-[var(--ct-text-primary)]">Generate memo</span> to produce

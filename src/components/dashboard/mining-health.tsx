@@ -274,11 +274,11 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[10px] font-bold text-[var(--ct-text-faint)] uppercase tracking-widest">
+        <span className="text-micro font-bold text-[var(--ct-text-faint)] uppercase tracking-widest">
           Mining Margin Heatmap · 90d
         </span>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold text-[var(--ct-text-faint)] uppercase tracking-widest">Score:</span>
+          <span className="text-micro font-bold text-[var(--ct-text-faint)] uppercase tracking-widest">Score:</span>
           <span
             className={cn(
               "text-sm font-bold tabular-nums",

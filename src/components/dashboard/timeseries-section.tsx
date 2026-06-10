@@ -249,7 +249,7 @@ function NavChart({ points, provenance }: NavChartProps) {
       <div className="dash-label relative z-10">
         <div className="flex flex-col gap-0.5">
           <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">Net Asset Value</span>
-          <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--ct-text-faint)] mono">
+          <p className="text-micro font-medium uppercase tracking-wide text-[var(--ct-text-faint)] mono">
             Trailing 30 days · USDC
           </p>
         </div>
@@ -259,7 +259,7 @@ function NavChart({ points, provenance }: NavChartProps) {
           </span>
           <span
             className={cn(
-              "mono tabular-nums text-[10px] font-bold px-1.5 py-0.5 rounded-full backdrop-blur-md border",
+              "mono tabular-nums text-micro font-bold px-1.5 py-0.5 rounded-full backdrop-blur-md border",
               trendDir === "up" && "bg-[var(--ct-status-success-soft)] text-[var(--ct-status-success)] border-[var(--ct-status-success-border)]",
               trendDir === "down" && "bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)] border-[var(--ct-status-danger-border)]",
               trendDir === "flat" && "bg-[var(--ct-surface-1)] text-[var(--ct-text-muted)] border-[var(--ct-border)]"
@@ -314,7 +314,7 @@ function ApyChart({ points, provenance }: ApyChartProps) {
       <div className="dash-label relative z-10">
         <div className="flex flex-col gap-0.5">
           <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">APY Range</span>
-          <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--ct-text-faint)] mono">
+          <p className="text-micro font-medium uppercase tracking-wide text-[var(--ct-text-faint)] mono">
             Trailing 30d · Target {METHODOLOGY_TARGET_APY_LOW.toFixed(1)}–{METHODOLOGY_TARGET_APY_HIGH.toFixed(1)}%
           </p>
         </div>

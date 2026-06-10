@@ -65,7 +65,7 @@ export function Metric({
               {trend.text}
             </span>
           ) : null}
-          {sublabel ? <span className="truncate opacity-70 mono uppercase tracking-wider text-[10px]">{sublabel}</span> : null}
+          {sublabel ? <span className="truncate opacity-70 mono uppercase tracking-wider text-micro">{sublabel}</span> : null}
         </div>
       )}
     </div>

@@ -69,7 +69,7 @@ export function SurpriseDelightBar({ investorId, taxPreview }: SurpriseDelightBa
           title="Available in V2"
         >
           LP→LP secondary{" "}
-          <span className="inline-block rounded-(--ct-radius-sm) bg-(--ct-accent)/10 px-1 py-0.5 font-bold uppercase tracking-wide text-(--ct-accent) text-[10px]">
+          <span className="inline-block rounded-(--ct-radius-sm) bg-(--ct-accent)/10 px-1 py-0.5 font-bold uppercase tracking-wide text-(--ct-accent) text-micro">
             V2
           </span>
         </span>

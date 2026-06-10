@@ -40,7 +40,7 @@ export function ChartTimeSelector({
       aria-label="Chart time range"
       className={cn(
         "flex h-6 items-center gap-0.5",
-        "mono text-[0.625rem] leading-none tracking-[0.08em] uppercase",
+        "mono text-micro leading-none tracking-[0.08em] uppercase",
         className,
       )}
     >

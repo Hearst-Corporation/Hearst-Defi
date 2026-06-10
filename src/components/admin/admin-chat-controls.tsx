@@ -342,7 +342,7 @@ export function AdminChatControls() {
       {error && (
         <div
           className={cn(
-            "fixed right-4 top-[112px] z-[var(--ct-z-toast)]",
+            "fixed right-4 top-28 z-[var(--ct-z-toast)]",
             "rounded-[var(--ct-radius-md)] border px-3 py-1.5 text-xs",
             "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)]",
             "text-[var(--ct-status-danger)]",

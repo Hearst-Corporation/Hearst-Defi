@@ -98,7 +98,7 @@ export function VaultSelector({
               {opt.label}
               {!isLive ? (
                 <span
-                  className="ct-text-faint text-[0.625rem] uppercase tracking-[0.08em] leading-none"
+                  className="ct-text-faint text-micro uppercase tracking-[0.08em] leading-none"
                   aria-label="preset only, not live"
                 >
                   preset
