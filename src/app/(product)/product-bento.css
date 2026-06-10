@@ -15,11 +15,11 @@
 
 .dash-cell {
   /* Readability pass: lift the card clearly off the pure-black background.
-     Was surface-1 @20% (~0.8% white) — indistinguishable from #000. Now a
-     full surface-2 plus a faint white wash so the card reads as a surface,
-     and a stronger border to define its edge. */
+     "Plus blanc" (demande Adrien 2026-06-10): white wash bumped 3% → 8% over
+     surface-2 (now 10%) so the card fill reads as a clearly lighter surface,
+     consistent with the .ct-glass-panel reference. Stronger border defines edge. */
   background:
-    linear-gradient(color-mix(in srgb, #ffffff 3%, transparent), color-mix(in srgb, #ffffff 3%, transparent)),
+    linear-gradient(color-mix(in srgb, #ffffff 8%, transparent), color-mix(in srgb, #ffffff 8%, transparent)),
     var(--ct-surface-2);
   backdrop-filter: blur(24px);
   border: 1px solid var(--ct-border-strong);

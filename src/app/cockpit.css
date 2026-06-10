@@ -29,6 +29,18 @@
   --ct-text-muted: rgba(245, 245, 245, 0.62);
   --ct-text-faint: rgba(245, 245, 245, 0.52);
 
+  /* ── FONDS DE CARDS — lift "plus blanc" (demande Adrien 2026-06-10) ──
+     Le package tokens.css plafonne les surfaces à 2/4/6/9% de blanc, ce qui
+     rend les cards quasi indistinctes du noir pur. Remontées pour que TOUS les
+     fonds de boxe (dash-cell→surface-2, ct-card→surface-1, glass-panel→
+     surface-1/2) lisent clairement comme des surfaces translucides plus claires.
+     cockpit.css est non-layered → bat le layer(cockpit) du package sans !important.
+     Réversible : supprimer ce bloc restaure les valeurs du package. */
+  --ct-surface-0: rgba(255, 255, 255, 0.04);
+  --ct-surface-1: rgba(255, 255, 255, 0.07);
+  --ct-surface-2: rgba(255, 255, 255, 0.10);
+  --ct-surface-3: rgba(255, 255, 255, 0.14);
+
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
      Success = canonical accent green (#A7FB90) — single green across UI. */
   --ct-product-connect: var(--ct-accent);

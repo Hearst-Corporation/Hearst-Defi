@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import "./tokens-layer.css";
 import "./globals.css";
 import "./cockpit.css";
+// Shared card/KPI primitives (.dash-cell, .dash-label, bento grid). Used by BOTH
+// product AND admin — loaded globally here so admin cards actually get their fill
+// (previously only imported via (product) CSS → admin .dash-cell was unstyled).
+import "./(product)/product-bento.css";
 
 import { AppChrome } from "@/components/app-chrome";
 import { Analytics } from "@/components/analytics";
