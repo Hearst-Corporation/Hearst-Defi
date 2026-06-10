@@ -230,10 +230,10 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
               className="ct-lock-track"
             >
               <div
-                className="h-full rounded-full bg-[var(--ct-accent)] transition-[width] duration-[400ms] ease-in-out"
+                className="h-full rounded-full bg-[var(--ct-accent)] transition-[width] duration-[var(--ct-dur-slow)] ease-in-out"
                 style={{
                   width: `${Math.round((currentDay / LOCK_DAYS) * 100)}%`,
-                  minWidth: currentDay > 0 ? "4px" : "0",
+                  minWidth: currentDay > 0 ? "var(--ct-space-1)" : "0",
                 }}
               />
             </div>
