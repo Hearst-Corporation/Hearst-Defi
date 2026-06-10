@@ -83,6 +83,23 @@
   --ct-shadow-focus-ring: 0 0 0 3px color-mix(in srgb, var(--ct-accent) 45%, transparent);
   --ct-scrollbar-size: 6px;
 
+  /* ── GLASS — canonical premium recipe (source of truth) ──
+     One token set drives the `.ct-glass-panel` utility below; that class is the
+     ONLY recipe new premium surfaces should use. The older `.glass-panel` /
+     `.glass-panel-subtle` (lighter everyday tiers, admin-shared) are kept stable
+     and should migrate toward these tokens over time. Inline backdrop recipes in
+     components should also converge here rather than re-declaring the effect. */
+  --ct-glass-radius: 28px;
+  /* Quiet glass: gentle blur, no saturate punch — the glossy look is gone. */
+  --ct-glass-blur: blur(30px) saturate(118%);
+  --ct-glass-border: color-mix(in srgb, #fff 9%, transparent);
+  /* Faint inner top rim + soft drop — depth without a glossy sheen. */
+  --ct-glass-rim: inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
+  --ct-glass-drop: 0 26px 62px -46px color-mix(in srgb, #0d0e10 92%, transparent);
+  /* Intentional definition for the previously-dangling --ct-glass-bg
+     (consumed in chart-provenance-corner.tsx with this exact fallback). */
+  --ct-glass-bg: var(--ct-surface-1);
+
   /* Layout — hauteur du header inter-apps du shell Cockpit (launcher + offset).
      Référencé dans .ct-rail-intra (top:) mais absent de tokens.css du package.
      Si une future v0.3.0 l'expose, retirer ce bloc et conserver le fallback. */
@@ -264,6 +281,43 @@
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-lg);
+}
+
+/* ── CANONICAL PREMIUM GLASS (quiet) ──
+   Composed entirely from the --ct-glass-* tokens above. Apply SPARINGLY — only
+   to a dominant premium surface (e.g. the portfolio Next Action card), never to
+   every card (that turns depth into noise).
+
+   Quiet finish: there is NO diagonal sheen/reflection. Depth comes from a gentle
+   blur, a thin border, a faint top rim and a soft drop shadow only.
+
+   Readability: an OPAQUE surface-2 base (+ a 3% wash) sits under it so the card
+   never dissolves into the dark background — this preserves the prior contrast
+   pass.
+
+   CASCADE NOTE (do not reorder): this rule and its :hover MUST stay AFTER
+   `.glass-panel` / `.glass-panel:hover` (above). An element using the Card
+   primitive carries both `glass-panel` and `ct-glass-panel`; equal specificity
+   means source order decides, and `.glass-panel:hover` (a pseudo-class, 0,2,0)
+   would otherwise reclaim the background on hover. */
+.ct-glass-panel {
+  border-radius: var(--ct-glass-radius);
+  border: 1px solid var(--ct-glass-border);
+  background:
+    linear-gradient(color-mix(in srgb, #fff 3%, transparent), color-mix(in srgb, #fff 3%, transparent)),
+    var(--ct-surface-2);
+  box-shadow: var(--ct-glass-rim), var(--ct-glass-drop);
+  -webkit-backdrop-filter: var(--ct-glass-blur);
+  backdrop-filter: var(--ct-glass-blur);
+}
+
+/* Keep the same calm background on hover (no flicker); brighten the edge only,
+   so there is still a quiet, institutional hover cue. */
+.ct-glass-panel:hover {
+  background:
+    linear-gradient(color-mix(in srgb, #fff 3%, transparent), color-mix(in srgb, #fff 3%, transparent)),
+    var(--ct-surface-2);
+  border-color: var(--ct-border-strong);
 }
 
 /* .h1 → ct-title style */

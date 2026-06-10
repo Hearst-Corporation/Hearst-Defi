@@ -103,7 +103,7 @@ export function NextActionCard(props: NextActionCardProps) {
   const step = resolveNextStep(props);
 
   return (
-    <Card className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <Card className="ct-glass-panel flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-col gap-1">
         <span className="eyebrow">{step.eyebrow}</span>
         <p className="h3 ct-text-strong">{step.headline}</p>
