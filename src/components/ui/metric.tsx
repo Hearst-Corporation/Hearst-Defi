@@ -12,6 +12,14 @@ interface MetricProps {
   provenance?: Provenance;
   tooltip?: string;
   className?: string;
+  /**
+   * Visual tier. Default "premium" keeps the existing look exactly (dot pattern,
+   * hover glow overlay, accent value glow) — so every current usage is
+   * unchanged. "plain" opts OUT of the decorative premium chrome for a calm,
+   * flat metric (no dots, no overlay, no value glow) — use it where many metrics
+   * sit together and the texture would become noise.
+   */
+  variant?: "premium" | "plain";
 }
 
 export function Metric({
@@ -22,16 +30,21 @@ export function Metric({
   provenance,
   tooltip,
   className,
+  variant = "premium",
 }: MetricProps) {
+  const premium = variant !== "plain";
   return (
     <div
       className={cn(
-        "dash-cell dash-cell-premium flex flex-col gap-3 relative overflow-hidden group",
+        "dash-cell flex flex-col gap-3 relative overflow-hidden group",
+        premium && "dash-cell-premium",
         className,
       )}
     >
-      {/* Ambient subtle glow on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--ct-accent)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--ct-dur-slow)] pointer-events-none" />
+      {/* Ambient subtle glow on hover — premium tier only. */}
+      {premium ? (
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--ct-accent)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--ct-dur-slow)] pointer-events-none" />
+      ) : null}
 
       <div className="flex items-center justify-between gap-2 relative z-10">
         <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)] group-hover:text-[var(--ct-text-body)] transition-colors" title={tooltip}>
@@ -41,7 +54,12 @@ export function Metric({
       </div>
 
       <div className="flex items-baseline gap-1 mt-auto relative z-10">
-        <span className="text-3xl font-light tracking-tighter text-[var(--ct-text-strong)] drop-shadow-[var(--ct-glow-subtle)] tabular-nums">
+        <span
+          className={cn(
+            "text-3xl font-light tracking-tighter text-[var(--ct-text-strong)] tabular-nums",
+            premium && "drop-shadow-[var(--ct-glow-subtle)]",
+          )}
+        >
           {value}
         </span>
       </div>

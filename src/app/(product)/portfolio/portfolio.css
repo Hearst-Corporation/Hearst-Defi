@@ -1,5 +1,18 @@
 @import "../product-bento.css";
 
+/* ── PREMIUM HIERARCHY (portfolio user only) ──
+ * Decouple the portfolio from the shared .dash-cell-premium dot pattern. The
+ * texture is reserved for ONE dominant surface — the Next Action card, which
+ * uses the quiet .ct-glass-panel glass — so every other portfolio card reads as
+ * a calm, flat surface and the hierarchy is obvious: one premium surface, the
+ * rest secondary. Scoped to the portfolio page wrapper via the data-testid, so
+ * the ADMIN dashboard keeps its .dash-cell-premium dots completely untouched.
+ * No information is removed — only the decorative pattern is dropped; the opaque
+ * .dash-cell base (from the contrast pass) and all content stay intact. */
+[data-testid="portfolio-page"] .dash-cell-premium {
+  background-image: none;
+}
+
 /*
  * Portfolio (client surface) — fixed-height, no-scroll layout.
  * Everything fits within the page-area viewport. The page-area owns its padding;
