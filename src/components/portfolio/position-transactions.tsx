@@ -65,7 +65,7 @@ export function PositionTransactions({
   return (
     <section
       aria-label="Transaction history"
-      className="ct-card flex flex-col gap-4"
+      className="flex flex-col gap-4 rounded-[var(--ct-radius-2xl)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-6 py-5"
     >
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">

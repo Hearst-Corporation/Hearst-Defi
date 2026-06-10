@@ -254,7 +254,7 @@ function CompositeSection({
     <div
       role="status"
       aria-label={ariaLabel}
-      className="mt-5 flex items-center justify-between rounded-[var(--ct-radius-lg)] glass-panel-subtle px-4 py-4"
+      className="mt-5 flex items-center justify-between rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-4 py-4"
     >
       <div className="flex items-baseline gap-2">
         <span aria-hidden className="text-[var(--ct-accent)] text-lg leading-none">
