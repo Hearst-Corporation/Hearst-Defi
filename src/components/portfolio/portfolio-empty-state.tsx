@@ -1,11 +1,7 @@
-import Link from "next/link";
-
 import type { PortfolioData } from "@/lib/data/portfolio";
 import { cn } from "@/lib/cn";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
-import { resolveNextStep } from "@/components/portfolio/next-action-card";
+import { NextActionCard } from "@/components/portfolio/next-action-card";
 
 /**
  * PortfolioEmptyState — the calm, guided view shown when the investor has NO
@@ -52,13 +48,6 @@ export function PortfolioEmptyState({
   accreditationAttested,
   hasWallet,
 }: PortfolioEmptyStateProps) {
-  const step = resolveNextStep({
-    kycStatus,
-    accreditationAttested,
-    hasWallet,
-    positionCount: 0,
-  });
-
   const statusRow: ReadonlyArray<{ label: string; value: string; done: boolean }> = [
     {
       label: "Eligibility",
@@ -91,23 +80,13 @@ export function PortfolioEmptyState({
       {/* 2 — Greeting: "Welcome back, {name}" + "No active positions yet." */}
       <PortfolioGreeting name={name} data={data} />
 
-      {/* 3 — The single dominant action card. Premium, breathing, not massive. */}
-      <Card className="ct-glass-panel flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 flex-col gap-2">
-          <span className="eyebrow">{step.eyebrow}</span>
-          <p className="h2 ct-text-strong">{step.headline}</p>
-          {step.detail ? (
-            <p className="body-sm ct-text-muted max-w-prose">{step.detail}</p>
-          ) : null}
-        </div>
-        {step.cta ? (
-          <div className="shrink-0">
-            <Button variant="primary" size="lg" asChild>
-              <Link href={step.cta.href}>{step.cta.label} →</Link>
-            </Button>
-          </div>
-        ) : null}
-      </Card>
+      {/* 3 — The single dominant action card. */}
+      <NextActionCard
+        kycStatus={kycStatus}
+        accreditationAttested={accreditationAttested}
+        hasWallet={hasWallet}
+        positionCount={0}
+      />
 
       {/* 4 — Discreet status row. */}
       <ul className="flex flex-wrap gap-x-8 gap-y-3" aria-label="Account status">
