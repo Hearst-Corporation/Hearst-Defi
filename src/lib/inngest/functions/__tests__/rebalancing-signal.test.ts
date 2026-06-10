@@ -186,10 +186,11 @@ describe("rebalancingSignal Inngest function", () => {
     ).opts;
     expect(opts.id).toBe("rebalancing-signal");
     expect(opts.concurrency.limit).toBe(1);
-    expect(opts.triggers).toHaveLength(2);
+    expect(opts.triggers).toHaveLength(3);
     expect(opts.triggers.map((t) => t.event)).toEqual([
       "risk.daily.completed",
       "rebalance.signal.requested",
+      "market.data.updated",
     ]);
   });
 
