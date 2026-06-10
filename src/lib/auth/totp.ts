@@ -35,7 +35,8 @@ import { prisma } from "@/lib/db";
 import { encrypt, decrypt } from "@/lib/auth/crypto-util";
 
 const ISSUER = "Hearst Connect";
-const WINDOW = 1; // accept ±1 step (30 s) for clock skew
+const WINDOW = 1;  // accept ±1 step (30 s) for clock skew
+const PERIOD = 30; // TOTP step duration in seconds (matches buildTotp period: 30)
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -137,7 +138,7 @@ export async function verifyTotpCode(
 ): Promise<boolean> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { email: true, totpSecret: true, totpEnabledAt: true },
+    select: { email: true, totpSecret: true, totpEnabledAt: true, totpLastUsedStep: true },
   });
 
   if (!user || !user.totpSecret || !user.totpEnabledAt) return false;
@@ -153,7 +154,24 @@ export async function verifyTotpCode(
   const secret = OTPAuth.Secret.fromBase32(base32Secret);
   const totp = buildTotp(secret, user.email);
   const delta = totp.validate({ token: code, window: WINDOW });
-  return delta !== null;
+
+  if (delta === null) return false;
+
+  // Compute the absolute TOTP step that produced this code.
+  const usedStep = Math.floor(Date.now() / 1000 / PERIOD) + delta;
+
+  // Replay guard: reject if this step (or an earlier one) was already consumed.
+  if (user.totpLastUsedStep !== null && usedStep <= user.totpLastUsedStep) {
+    return false;
+  }
+
+  // Advance the high-water mark so this step cannot be replayed.
+  await prisma.user.update({
+    where: { id: userId },
+    data: { totpLastUsedStep: usedStep },
+  });
+
+  return true;
 }
 
 /**

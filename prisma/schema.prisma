@@ -328,8 +328,9 @@ model User {
   investor      Investor?
   resetTokens   PasswordResetToken[]
   // TOTP MFA fields (admin only; null until enrolled)
-  totpSecret    String?              // AES-256-GCM encrypted secret, never stored in plaintext
-  totpEnabledAt DateTime?            // null = not enrolled; non-null = TOTP required on login
+  totpSecret        String?   // AES-256-GCM encrypted secret, never stored in plaintext
+  totpEnabledAt     DateTime? // null = not enrolled; non-null = TOTP required on login
+  totpLastUsedStep  Int?      // highest TOTP counter step already consumed — same-step replay guard
 }
 
 // Password reset tokens — single-use, 1-hour expiry, hash stored not the raw token.

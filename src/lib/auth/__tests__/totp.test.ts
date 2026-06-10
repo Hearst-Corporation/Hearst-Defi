@@ -249,8 +249,23 @@ describe("confirmTotpEnrolment", () => {
 
 // ── verifyTotpCode ────────────────────────────────────────────────────────────
 
+// Fixed epoch: 2026-01-01 00:00:00 UTC → step = floor(1735689600 / 30) = 57856320
+const FIXED_EPOCH_MS = 1735689600_000;
+const FIXED_STEP = Math.floor(FIXED_EPOCH_MS / 1000 / 30); // 57856320
+
 describe("verifyTotpCode", () => {
-  it("returns true for a valid code", async () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(FIXED_EPOCH_MS);
+    // @ts-expect-error mocked
+    prisma.user.update.mockResolvedValue({});
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("accepts a valid code, calls update with the computed step, returns true", async () => {
     const secret = new OTPAuth.Secret({ size: 20 });
     const encryptedSecret = encrypt(secret.base32);
     // @ts-expect-error mocked
@@ -258,6 +273,7 @@ describe("verifyTotpCode", () => {
       email: FAKE_EMAIL,
       totpSecret: encryptedSecret,
       totpEnabledAt: new Date(),
+      totpLastUsedStep: null,
     });
 
     const totp = new OTPAuth.TOTP({
@@ -268,13 +284,81 @@ describe("verifyTotpCode", () => {
       period: 30,
       secret,
     });
+    // generate() uses Date.now() internally — fake timers ensure this is FIXED_STEP
     const code = totp.generate();
 
     const result = await verifyTotpCode(FAKE_USER_ID, code);
     expect(result).toBe(true);
+
+    const updateCall = (prisma.user.update as ReturnType<typeof vi.fn>).mock.calls[0]![0]!;
+    // delta for the current step is 0, so usedStep = FIXED_STEP + 0
+    expect(updateCall.data.totpLastUsedStep).toBe(FIXED_STEP);
   });
 
-  it("returns false for a wrong code", async () => {
+  it("rejects the same code (same step) on second attempt — replay guard", async () => {
+    const secret = new OTPAuth.Secret({ size: 20 });
+    const encryptedSecret = encrypt(secret.base32);
+
+    const totp = new OTPAuth.TOTP({
+      issuer: "Hearst Connect",
+      label: FAKE_EMAIL,
+      algorithm: "SHA1",
+      digits: 6,
+      period: 30,
+      secret,
+    });
+    const code = totp.generate(); // valid at FIXED_STEP
+
+    // Second attempt: totpLastUsedStep is already at FIXED_STEP
+    // @ts-expect-error mocked
+    prisma.user.findUnique.mockResolvedValue({
+      email: FAKE_EMAIL,
+      totpSecret: encryptedSecret,
+      totpEnabledAt: new Date(),
+      totpLastUsedStep: FIXED_STEP,
+    });
+
+    const result = await verifyTotpCode(FAKE_USER_ID, code);
+    expect(result).toBe(false);
+    // update must NOT be called — replay is rejected before persisting
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it("accepts a code from a later step (higher step) and advances the marker", async () => {
+    const secret = new OTPAuth.Secret({ size: 20 });
+    const encryptedSecret = encrypt(secret.base32);
+
+    // Advance time by one period so OTPAuth generates the NEXT step's code
+    vi.setSystemTime(FIXED_EPOCH_MS + 30_000);
+    const nextStep = FIXED_STEP + 1;
+
+    const totp = new OTPAuth.TOTP({
+      issuer: "Hearst Connect",
+      label: FAKE_EMAIL,
+      algorithm: "SHA1",
+      digits: 6,
+      period: 30,
+      secret,
+    });
+    const nextCode = totp.generate(); // valid at FIXED_STEP + 1
+
+    // Last used step is the previous step
+    // @ts-expect-error mocked
+    prisma.user.findUnique.mockResolvedValue({
+      email: FAKE_EMAIL,
+      totpSecret: encryptedSecret,
+      totpEnabledAt: new Date(),
+      totpLastUsedStep: FIXED_STEP,
+    });
+
+    const result = await verifyTotpCode(FAKE_USER_ID, nextCode);
+    expect(result).toBe(true);
+
+    const updateCall = (prisma.user.update as ReturnType<typeof vi.fn>).mock.calls[0]![0]!;
+    expect(updateCall.data.totpLastUsedStep).toBe(nextStep);
+  });
+
+  it("returns false for a wrong code without calling update", async () => {
     const secret = new OTPAuth.Secret({ size: 20 });
     const encryptedSecret = encrypt(secret.base32);
     // @ts-expect-error mocked
@@ -282,6 +366,7 @@ describe("verifyTotpCode", () => {
       email: FAKE_EMAIL,
       totpSecret: encryptedSecret,
       totpEnabledAt: new Date(),
+      totpLastUsedStep: null,
     });
 
     const totp = new OTPAuth.TOTP({
@@ -292,13 +377,13 @@ describe("verifyTotpCode", () => {
       period: 30,
       secret,
     });
-    // Definitely wrong unless by coincidence.
     const validCode = totp.generate();
     const wrongCode = (parseInt(validCode, 10) + 1).toString().padStart(6, "0");
 
     if (wrongCode !== validCode) {
       const result = await verifyTotpCode(FAKE_USER_ID, wrongCode);
       expect(result).toBe(false);
+      expect(prisma.user.update).not.toHaveBeenCalled();
     }
   });
 
@@ -308,6 +393,7 @@ describe("verifyTotpCode", () => {
       email: FAKE_EMAIL,
       totpSecret: null,
       totpEnabledAt: null,
+      totpLastUsedStep: null,
     });
     const result = await verifyTotpCode(FAKE_USER_ID, "123456");
     expect(result).toBe(false);
@@ -319,6 +405,7 @@ describe("verifyTotpCode", () => {
       email: FAKE_EMAIL,
       totpSecret: "corrupt:data:here",
       totpEnabledAt: new Date(),
+      totpLastUsedStep: null,
     });
     const result = await verifyTotpCode(FAKE_USER_ID, "123456");
     expect(result).toBe(false);
