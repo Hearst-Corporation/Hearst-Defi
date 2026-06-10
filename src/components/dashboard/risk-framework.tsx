@@ -176,7 +176,7 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--ct-accent)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       <div className="flex items-baseline gap-3 relative z-10">
         <span className="text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)]">Composite</span>
-        <span className={cn("text-3xl font-light tracking-tighter tabular-nums", BAND_TEXT[band])}>
+        <span className={cn("text-2xl font-semibold tracking-tight tabular-nums", BAND_TEXT[band])}>
           {composite}
           <span className="text-sm font-medium opacity-50 ml-1 text-[var(--ct-text-faint)]">/ 100</span>
         </span>
