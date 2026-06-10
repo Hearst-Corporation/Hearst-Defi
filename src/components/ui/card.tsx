@@ -31,14 +31,12 @@ export function CardHeader({
 }
 
 /**
- * Section title inside a card. Renders as h3 with the .h3 typographic role
- */
-/**
- * Section title inside a card. Renders as <h3>. Card titles are visually
- * heavier than the body-section `.h3` role (~28px vs 16px), so this primitive
- * binds directly to Tailwind v4 utilities resolved through the `@theme` block
- * in globals.css (text-2xl → --text-2xl, font-semibold → --weight-semibold,
- * tracking-tight → --tracking-tight). No raw hex / no Tailwind default palette.
+ * Card title. Renders as <h3> and binds to the canonical `.h3` typographic
+ * role (base / 700 / tracking-tight) so a card title never dominates a section
+ * title (`.h2` = xl / 700). Size/weight come from Tailwind v4 utilities
+ * resolved through the `@theme` block (text-base → 1rem, font-bold → 700,
+ * tracking-tight → --tracking-tight); the strong text color + subtle accent
+ * glow preserve the premium card chrome. No raw hex / no Tailwind default palette.
  */
 export function CardTitle({
   className,
@@ -47,7 +45,7 @@ export function CardTitle({
   return (
     <h3
       className={cn(
-        "text-2xl font-semibold tracking-tight text-[var(--ct-text-strong)] drop-shadow-[var(--ct-glow-subtle)]",
+        "text-base font-bold tracking-tight text-[var(--ct-text-strong)] drop-shadow-[var(--ct-glow-subtle)]",
         className,
       )}
       {...props}
