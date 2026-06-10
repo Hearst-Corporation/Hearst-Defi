@@ -9,7 +9,7 @@ import type { ScenarioOutput } from "@/lib/engine/types";
 // LOW → p5, MID → p50, HIGH → p95. Band p25-p75 derived as inner ±25% of span.
 // All math is purely display formatting of the engine's output numbers —
 // compound interest layout for rendering only (no new business logic).
-// NOTE: preview mode — exact MC percentiles await engine v2.
+// NOTE: display proxy only — percentile-like bands are derived from APY range.
 
 const INITIAL_NAV = 1_000_000; // illustrative $1M notional
 const MONTHS = 12;
@@ -131,8 +131,8 @@ function FanChart({ series, ariaLabel: _ariaLabel }: FanChartProps) {
     >
       <title id={titleId}>12-Month NAV Projection Fan Chart</title>
       <desc id={descId}>
-        Fan chart showing projected NAV over 12 months with p5/p50/p95 percentile bands.
-        Preview mode — exact Monte Carlo percentiles await engine v2.
+        Fan chart showing projected NAV over 12 months with p5/p50/p95 proxy bands.
+        Bands are derived from the APY range, not from a Monte Carlo simulation.
       </desc>
 
       {/* Outer band p5-p95 */}
@@ -241,7 +241,7 @@ export function NavSparkline({ output }: NavSparklineProps) {
         </div>
       </div>
 
-      {/* Fan chart — real SVG, preview percentiles (MC v2 pending) */}
+      {/* Fan chart — real SVG, percentile-like proxy bands from APY range */}
       <div className="relative h-20 w-full overflow-hidden">
         <ChartDisclaimerUnderlay />
         {series.length > 0 ? (
@@ -282,7 +282,7 @@ export function NavSparkline({ output }: NavSparklineProps) {
           High target
         </span>
         <span className="ml-auto italic">
-          preview · exact percentiles awaiting MC v2
+          proxy bands derived from APY range
         </span>
       </div>
     </Card>

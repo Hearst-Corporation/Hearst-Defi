@@ -111,7 +111,7 @@ const NAVIGATE_COMMANDS: Omit<Command, "handler">[] = [
     id: "nav-governance",
     label: "Governance",
     section: "Navigate",
-    href: "/admin/proof-center",
+    href: "/admin/governance",
     keywords: ["governance", "policy", "compliance", "legal"],
     shortcut: "g g",
   },

@@ -280,7 +280,7 @@ async function searchSignatures(q: string): Promise<SearchResult[]> {
         title: `Sig ${short}`,
         subtitle: `Proposal ${r.proposalId.slice(0, 8)}…`,
         badge: r.decision,
-        href: `/admin/governance/${r.proposalId}`,
+        href: `/admin/governance/proposal/${r.proposalId}`,
         score: keep(r.signerAddress, r.decision, q),
       };
     })
