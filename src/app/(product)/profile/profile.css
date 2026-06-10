@@ -1,85 +1,38 @@
 @import "../product-bento.css";
 
 /*
- * Profile page — 2×2 bento grid, fixed inside the page-area.
- * No new tokens (design-lock). Tokens: --ct-* only.
+ * Profile — space-y-8 + dash-bento. Cartes : primitive Card (ct-card glass-panel),
+ * même surface que /vaults. Tokens --ct-* only.
  */
 
-/* Give the page-area a resolved height when it hosts the profile page. */
-.ct-page-area:has(.prof-page) {
-  height: 100%;
-}
-.ct-page-area:has(.prof-page) > main {
-  height: 100%;
-}
-
-/* ── Page shell ── */
-.prof-page {
-  height: 100%;
-  /* hors échelle --ct-space : hauteur mini de layout (entre space-96=24rem et aucun token ≥30rem) */
-  min-height: 30rem;
-  display: grid;
-  /* Mobile: single column — cards stack */
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--ct-space-4);
+.prof-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+  margin-bottom: var(--ct-space-4);
 }
 
-/* Desktop: 2-col bento */
-/* hors échelle --ct-space : point de rupture responsive brut (pas de token breakpoint dans le DS) */
-@media (min-width: 768px) {
-  .prof-page {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr);
-  }
+.prof-card-header .h3 {
+  margin: 0;
 }
 
-/* Identity card spans full width at the top */
-.prof-card-identity {
-  grid-column: 1 / -1;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--ct-space-4);
-  min-height: 0;
-  padding: var(--ct-space-5) var(--ct-space-6);
+[data-testid="profile-page"] .ct-card > .relative.ct-z-base > .h3:not(:last-child) {
+  margin-bottom: var(--ct-space-4);
 }
 
-/* hors échelle --ct-space : point de rupture responsive brut (pas de token breakpoint dans le DS) */
-@media (min-width: 480px) {
-  .prof-card-identity {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--ct-space-5);
-  }
+.prof-disclaimer {
+  max-width: 70ch;
+  margin: 0;
+  font-style: italic;
 }
 
-/* Desktop: explicit placement in 2-col grid */
-/* hors échelle --ct-space : point de rupture responsive brut (pas de token breakpoint dans le DS) */
-@media (min-width: 768px) {
-  .prof-card-details {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  .prof-card-summary {
-    grid-column: 2;
-    grid-row: 2;
-  }
-
-  .prof-card-security {
-    grid-column: 1 / -1;
-    grid-row: 3;
-  }
-}
-
-/* ── Avatar ── */
 .prof-avatar {
-  /* hors échelle --ct-space : taille avatar bespoke entre space-12(3rem) et space-16(4rem) */
-  width: 3.5rem;
-  /* hors échelle --ct-space : taille avatar bespoke entre space-12(3rem) et space-16(4rem) */
-  height: 3.5rem;
+  width: var(--ct-space-16);
+  height: var(--ct-space-16);
   border-radius: var(--ct-radius-full);
   background: var(--ct-surface-3);
-  border: 1px solid var(--ct-border-strong);
+  border: var(--ct-space-px) solid var(--ct-border-strong);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -87,76 +40,7 @@
   font-weight: var(--ct-font-semibold);
   color: var(--ct-text-strong);
   flex-shrink: 0;
-  /* Micro-kerning for the single avatar initial — off the --ct-tracking-* scale
-     on purpose (no token at -0.01em); purely optical, not a forgotten hardcode. */
-  letter-spacing: -0.01em;
-}
-
-/* ── Identity text ── */
-.prof-identity-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  min-width: 0;
-  flex: 1;
-}
-
-/* .prof-name → DS class .h1 (see page.tsx) */
-.prof-name {
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* .prof-role → DS class .eyebrow (see page.tsx) */
-
-.prof-identity-badges {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  flex-shrink: 0;
-}
-
-/* ── Definition list ── */
-.prof-dl {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  margin: var(--ct-space-3) 0 0;
-}
-
-.prof-dl-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-4);
-  padding: var(--ct-space-3) 0;
-  border-bottom: 1px solid var(--ct-border-soft);
-}
-
-.prof-dl-row:last-child {
-  border-bottom: none;
-}
-
-.prof-dl-row dt {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  letter-spacing: var(--ct-tracking-wider);
-  text-transform: uppercase;
-  color: var(--ct-text-muted);
-  flex-shrink: 0;
-}
-
-.prof-dl-row dd {
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-primary);
-  text-align: right;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin: 0;
+  letter-spacing: var(--ct-tracking-tight);
 }
 
 .prof-empty {
@@ -164,28 +48,21 @@
   font-style: italic;
 }
 
-/* ── Investment stats (nested KPI grid — Metric variant="nested") ── */
-.prof-stats {
-  margin-top: var(--ct-space-3);
-  flex: 1;
-}
-
-/* ── Security list ── */
+/* Security rows — même rythme que ct-proof-row, avec dot + action */
 .prof-security-list {
   list-style: none;
   padding: 0;
-  margin: var(--ct-space-3) 0 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
 .prof-security-row {
   display: flex;
   align-items: center;
   gap: var(--ct-space-4);
-  padding: var(--ct-space-4) 0;
-  border-bottom: 1px solid var(--ct-border-soft);
+  padding: var(--ct-space-2_5) 0;
+  border-bottom: var(--ct-space-px) solid var(--ct-border-soft);
 }
 
 .prof-security-row:last-child {
@@ -197,22 +74,10 @@
   height: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
   flex-shrink: 0;
-  box-shadow: var(--ct-glow-dot);
 }
 
-.prof-security-dot[data-status="ok"] {
-  background: var(--ct-status-success);
-  color: var(--ct-status-success);
-}
-
-.prof-security-dot[data-status="warn"] {
-  background: var(--ct-status-warning);
-  color: var(--ct-status-warning);
-}
-
-.prof-security-dot[data-status="off"] {
+.prof-security-dot--off {
   background: var(--ct-text-faint);
-  color: var(--ct-text-faint);
   box-shadow: none;
 }
 
@@ -224,13 +89,21 @@
   min-width: 0;
 }
 
-.prof-security-name {
-  font-size: var(--ct-text-sm);
+.prof-security-title {
   font-weight: var(--ct-font-medium);
-  color: var(--ct-text-primary);
 }
 
-.prof-security-desc {
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
+.prof-security-action {
+  flex-shrink: 0;
+}
+
+.prof-signout {
+  margin-top: var(--ct-space-4);
+}
+
+[data-testid="profile-page"] .ct-nested-callout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ct-space-3);
 }

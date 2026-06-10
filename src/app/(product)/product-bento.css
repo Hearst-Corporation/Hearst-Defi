@@ -15,36 +15,66 @@
 }
 
 .dash-cell {
-  /* Frosted glass (visionOS — 2026-06-10): base translucide 58% bg-deep laisse
-     transparaître l'ambient sombre + la lueur verte du .ct-panels-row. La
-     lisibilité du texte est assurée par le backdrop-blur + le fond sombre —
-     pas par une opacité élevée. White wash 8% + surface-2 ajoutent la
-     profondeur de surface sans masquer l'ambiance. */
+  /* Verre sombre translucide (canon investor bento) — bg-deep dominant, laisse
+     passer le fond spatial .ct-panels-row. Ancienne recette #fff 8% + surface-2
+     opaque = gris laiteux ; corrigée à la source pour profile + portfolio. */
   background:
-    linear-gradient(color-mix(in srgb, #ffffff 8%, transparent), color-mix(in srgb, #ffffff 8%, transparent)),
-    linear-gradient(var(--ct-surface-2), var(--ct-surface-2)),
-    color-mix(in srgb, var(--ct-bg-deep) 58%, transparent);
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-text-strong) 3%, var(--ct-bg-deep)) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 36%, var(--ct-surface-1)) 36%,
+      color-mix(in srgb, var(--ct-bg-deep) 64%, var(--ct-surface-0)) 100%
+    );
   backdrop-filter: var(--ct-glass-blur);
-  border: 1px solid var(--ct-border-strong);
+  -webkit-backdrop-filter: var(--ct-glass-blur);
+  border: var(--ct-space-px) solid color-mix(in srgb, var(--ct-text-strong) 8%, var(--ct-border));
+  border-top-color: color-mix(in srgb, var(--ct-text-strong) 14%, transparent);
+  border-left-color: color-mix(in srgb, var(--ct-text-strong) 8%, transparent);
   border-radius: var(--ct-radius-xl);
-  box-shadow: 0 10px 40px color-mix(in srgb, var(--ct-bg-deep) 80%, black);
+  box-shadow:
+    0 20px 48px -28px color-mix(in srgb, var(--ct-bg-deep) 82%, transparent),
+    var(--ct-shadow-depth),
+    inset 0 var(--ct-space-px) 0 color-mix(in srgb, var(--ct-text-strong) 10%, transparent),
+    inset 0 var(--ct-space-4) var(--ct-space-8) -28px
+      color-mix(in srgb, var(--ct-text-strong) 10%, transparent);
   padding: var(--ct-space-6);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  transition:
+    background var(--ct-dur-base) var(--ct-ease),
+    border-color var(--ct-dur-base) var(--ct-ease);
+}
+
+.dash-cell:hover {
+  border-color: color-mix(in srgb, var(--ct-text-strong) 10%, var(--ct-border));
+  border-top-color: color-mix(in srgb, var(--ct-text-strong) 18%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-text-strong) 4%, var(--ct-bg-deep)) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 34%, var(--ct-surface-1)) 38%,
+      color-mix(in srgb, var(--ct-bg-deep) 62%, var(--ct-surface-0)) 100%
+    );
 }
 
 /* === KPI cell — compact metric card for KPI grids (not bento panels) ===
  * Lighter padding, no min-height, height fits content only. */
 .kpi-cell {
   background:
-    linear-gradient(color-mix(in srgb, #ffffff 8%, transparent), color-mix(in srgb, #ffffff 8%, transparent)),
-    var(--ct-surface-2);
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-text-strong) 3%, var(--ct-bg-deep)) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 40%, var(--ct-surface-1)) 100%
+    );
   backdrop-filter: var(--ct-glass-blur);
-  border: 1px solid var(--ct-border-strong);
+  -webkit-backdrop-filter: var(--ct-glass-blur);
+  border: var(--ct-space-px) solid color-mix(in srgb, var(--ct-text-strong) 8%, var(--ct-border));
   border-radius: var(--ct-radius-xl);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--ct-bg-deep) 60%, black);
+  box-shadow:
+    0 12px 32px -20px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
+    var(--ct-shadow-depth);
   padding: var(--ct-space-4) var(--ct-space-5);
   display: flex;
   flex-direction: column;
@@ -70,7 +100,8 @@
 .dash-cell.col-8 { grid-column: span 8; }
 .dash-cell.col-12 { grid-column: span 12; }
 
-/* Grid children that are not .dash-cell (e.g. Card primitives) */
+/* Grid children that are not .dash-cell (e.g. Card / glass-panel primitives) */
+.dash-bento > .bento-col-6 { grid-column: span 6; }
 .dash-bento > .bento-col-8 { grid-column: span 8; }
 .dash-bento > .bento-col-12 { grid-column: span 12; }
 
@@ -87,6 +118,7 @@
   .dash-cell.col-6 { grid-column: span 6; }
   .dash-cell.col-8 { grid-column: span 6; }
   .dash-cell.col-12 { grid-column: span 6; }
+  .dash-bento > .bento-col-6 { grid-column: span 6; }
   .dash-bento > .bento-col-8 { grid-column: span 6; }
   .dash-bento > .bento-col-12 { grid-column: span 6; }
 }
@@ -100,6 +132,7 @@
   .dash-cell.col-6,
   .dash-cell.col-8,
   .dash-cell.col-12,
+  .dash-bento > .bento-col-6,
   .dash-bento > .bento-col-8,
   .dash-bento > .bento-col-12 {
     grid-column: span 1;

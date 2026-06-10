@@ -10,6 +10,7 @@ export function ProductPageHeader({
   title,
   description,
   lead,
+  media,
   actions,
   children,
   className,
@@ -18,7 +19,10 @@ export function ProductPageHeader({
   eyebrow?: string;
   title: string;
   description?: ReactNode;
+  /** Block above eyebrow (back link, centered icon in align=center flows). */
   lead?: ReactNode;
+  /** Optional media slot to the left of the title stack (avatar, icon). */
+  media?: ReactNode;
   actions?: ReactNode;
   children?: ReactNode;
   className?: string;
@@ -42,23 +46,31 @@ export function ProductPageHeader({
       >
         <div
           className={cn(
-            "flex min-w-0 flex-col gap-1",
-            centered && "items-center",
+            "flex min-w-0 flex-1 items-center gap-4",
+            centered && "flex-col items-center",
           )}
         >
-          {lead}
-          {eyebrow ? <span className="eyebrow">{eyebrow}</span> : null}
-          <h1 className="h1 shrink-0">{title}</h1>
-          {description ? (
-            <div
-              className={cn(
-                "body-sm mt-1 max-w-2xl ct-text-muted",
-                centered && "mx-auto",
-              )}
-            >
-              {description}
-            </div>
-          ) : null}
+          {media ? <div className="shrink-0">{media}</div> : null}
+          <div
+            className={cn(
+              "flex min-w-0 flex-col gap-1",
+              centered && "items-center",
+            )}
+          >
+            {lead}
+            {eyebrow ? <span className="eyebrow">{eyebrow}</span> : null}
+            <h1 className="h1 shrink-0">{title}</h1>
+            {description ? (
+              <div
+                className={cn(
+                  "body-sm mt-1 max-w-2xl ct-text-muted",
+                  centered && "mx-auto",
+                )}
+              >
+                {description}
+              </div>
+            ) : null}
+          </div>
         </div>
         {actions ? (
           <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
