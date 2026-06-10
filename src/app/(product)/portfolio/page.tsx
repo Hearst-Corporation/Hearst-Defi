@@ -13,6 +13,7 @@ import {
 } from "@/lib/data/portfolio";
 import { SurpriseDelightBar } from "@/components/portfolio/surprise-delight-bar";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
+import { NextActionCard } from "@/components/portfolio/next-action-card";
 import { AllocationDonut } from "@/components/portfolio/allocation-donut";
 import { ValueChart } from "@/components/portfolio/value-chart";
 import { PositionsList } from "@/components/portfolio/positions-list";
@@ -277,10 +278,20 @@ export default async function PortfolioPage() {
   return (
     <div className="space-y-12" data-testid="portfolio-page">
 
-      {/* ── Header & Quick Actions ────────────────────────────────────────── */}
+      {/* ── Header & Next Action ──────────────────────────────────────────── */}
       <div className="flex flex-col gap-6">
         <PortfolioGreeting name={name} data={data} />
-        
+
+        {/* The single "what to do next" surface — above the fold is for
+            deciding. Pure derivation of status flags already loaded above;
+            no fetch, no financial logic. */}
+        <NextActionCard
+          kycStatus={investor?.kycStatus ?? "pending"}
+          accreditationAttested={investor?.accreditationAttestedAt != null}
+          hasWallet={investor?.walletAddress != null}
+          positionCount={data.positions.length}
+        />
+
         {/* Quick access to reporting documents */}
         <SurpriseDelightBar
           investorId={investor?.id ?? null}
@@ -359,18 +370,18 @@ export default async function PortfolioPage() {
         </div>
       </Section>
 
-      {/* ── Section 3 — Details & History ─────────────────────────────────── */}
-      <Section data-section="details-history" label="Details and History — positions and activity">
+      {/* ── Section 3 — Activity & Payouts ────────────────────────────────── */}
+      <Section data-section="activity-payouts" label="Activity and payouts — your positions, deposits, withdrawals and payouts">
         {/* Positions List — Full width */}
         <PositionsList positions={data.positions} source={data.source} />
 
         <div className="grid items-start grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Distributions Calendar */}
+          {/* Payout calendar */}
           <div data-testid="distrib-calendar-widget">
             <DistribCalendar {...distribCalendarProps} />
           </div>
 
-          {/* Recent Activity */}
+          {/* Recent activity — deposits, withdrawals, payouts */}
           <RecentActivity
             transactions={data.recentTransactions}
             source={data.source}

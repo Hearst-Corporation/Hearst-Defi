@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import type { PortfolioData } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 
@@ -23,6 +21,9 @@ interface PortfolioGreetingProps {
  * Welcome line above the KPI band: greeting + a one-glance activity recap.
  * Server Component. Pure derivation from already-loaded portfolio data — no
  * extra fetch. Tokens/classes only (design-lock respected).
+ *
+ * The primary call-to-action lives in <NextActionCard>, rendered just below —
+ * the greeting stays a calm header so a single action leads each screen.
  */
 export function PortfolioGreeting({ name, data }: PortfolioGreetingProps) {
   const count = data.positions.length;
@@ -31,7 +32,7 @@ export function PortfolioGreeting({ name, data }: PortfolioGreetingProps) {
 
   const recap =
     count === 0
-      ? "No active positions yet — subscribe to a vault to get started."
+      ? "No active positions yet."
       : `${count} active position${count > 1 ? "s" : ""} · ${formatUsdCompact(
           data.totalValueUsdc,
         )} deployed${last ? ` · last activity ${relativeTime(last.occurredAt, asOf)}` : ""}`;
@@ -42,13 +43,6 @@ export function PortfolioGreeting({ name, data }: PortfolioGreetingProps) {
         Welcome back, <span className="pf-greeting-name">{name}</span>
       </h1>
       <p className="pf-greeting-recap">{recap}</p>
-      {count === 0 ? (
-        <div className="mt-4">
-          <Button variant="primary" size="md" asChild>
-            <Link href="/vaults">Subscribe to a vault →</Link>
-          </Button>
-        </div>
-      ) : null}
     </div>
   );
 }
