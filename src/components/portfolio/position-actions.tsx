@@ -1,9 +1,18 @@
 "use client";
 
-// PositionActions — self-served redemption (withdraw) for /portfolio/[positionId].
+// PositionActions — self-served withdrawal for /portfolio/[positionId].
 // Client Component. Testnet ERC-4626 redeem path:
-//   connect wallet → redeem(all shares) on Base Sepolia → record withdrawal → confirmation.
+//   connect wallet → review & confirm → redeem(all shares) on Base Sepolia →
+//   record withdrawal → confirmation.
 // Non-negotiable #5: no forbidden words in copy.
+//
+// Two-step confirmation (mirrors the deposit flow): clicking "Withdraw" only
+// opens an explicit review card — NO wallet/contract call fires until the user
+// clicks "Confirm withdrawal". This is the institutional-trust requirement: a
+// financial action is never one click away from a wallet signature.
+//
+// User-facing copy says "Withdraw" (not "Redeem"); internal contract names
+// (redeemFromVault / redeem) are unchanged.
 //
 // Wallet connect is via Privy (same as the deposit flow). When Privy is not
 // configured, the connect state is shown — never a simulated transaction.
@@ -13,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import {
   redeemFromVault,
@@ -30,10 +40,51 @@ interface PositionActionsProps {
   position: PositionDetail;
 }
 
-type Phase = "idle" | "redeeming" | "recording" | "done" | "error";
+// "idle"      → initial; shows the "Withdraw" button (intent step, no calls).
+// "confirm"   → review card shown; awaiting explicit "Confirm withdrawal".
+// "redeeming" → on-chain redeem submitted, awaiting wallet/receipt.
+// "recording" → on-chain done, persisting the off-chain DB record.
+// "done"      → fully settled; shows tx + closed-position notice.
+// "error"     → surfaced error; never silently swallowed.
+type Phase =
+  | "idle"
+  | "confirm"
+  | "redeeming"
+  | "recording"
+  | "done"
+  | "error";
 
 function shortHash(h: string): string {
   return h.length > 12 ? `${h.slice(0, 6)}…${h.slice(-4)}` : h;
+}
+
+// ---------------------------------------------------------------------------
+// Pure phase-machine contract (exported for unit tests).
+//
+// The project's component tests assert logic contracts rather than render DOM
+// (no jsdom / @testing-library installed). These helpers encode the two-step
+// invariant precisely so it can be tested without a renderer:
+//   - clicking "Withdraw" only ever moves idle/error → confirm (no chain call);
+//   - the on-chain path may run ONLY from the "confirm" phase;
+//   - "Cancel" always returns to idle.
+// ---------------------------------------------------------------------------
+
+/** Resolve the phase after the intent click ("Withdraw"). Never reaches chain. */
+export function phaseAfterReviewClick(current: Phase): Phase {
+  // From a resting state, open the review card. While a transaction is in
+  // flight ("redeeming"/"recording") or finished ("done"), the intent button is
+  // not shown, so the phase is unchanged.
+  return current === "idle" || current === "error" ? "confirm" : current;
+}
+
+/** Phase after "Cancel" on the review card — always back to idle, no side effect. */
+export function phaseAfterCancel(): Phase {
+  return "idle";
+}
+
+/** Whether the on-chain withdrawal may run given the current phase. */
+export function canRunOnChainWithdraw(current: Phase): boolean {
+  return current === "confirm";
 }
 
 /**
@@ -70,7 +121,37 @@ function PositionActionsLive({ position }: PositionActionsProps) {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<RedeemFromVaultResult | null>(null);
 
-  const handleWithdraw = useCallback(async () => {
+  // Step A — intent. Pure UI: opens the review card, fires NO wallet/contract
+  // call. Guards that would block the action are still surfaced up front so the
+  // user is not invited to review something that cannot proceed.
+  const handleReview = useCallback(() => {
+    setError(null);
+    if (!VAULT_ADDRESS) {
+      setError("Vault address not configured.");
+      setPhase("error");
+      return;
+    }
+    if (!ready || !privyWallet || walletAddress === null) {
+      setError("Connect your wallet to withdraw.");
+      setPhase("error");
+      return;
+    }
+    setPhase((p) => phaseAfterReviewClick(p));
+  }, [ready, privyWallet, walletAddress]);
+
+  // Cancel — return to the initial state with no side effect.
+  const handleCancel = useCallback(() => {
+    setError(null);
+    setPhase(phaseAfterCancel());
+  }, []);
+
+  // Step B — confirmation. The ONLY path that touches the chain. Reachable only
+  // from the "confirm" phase (the review card's "Confirm withdrawal" button).
+  const handleConfirmWithdraw = useCallback(async () => {
+    // Defence in depth: never run the on-chain path unless we are explicitly in
+    // the confirm step. Prevents any accidental direct invocation.
+    if (!canRunOnChainWithdraw(phase)) return;
+
     setError(null);
     if (!VAULT_ADDRESS) {
       setError("Vault address not configured.");
@@ -119,11 +200,11 @@ function PositionActionsLive({ position }: PositionActionsProps) {
       if (e instanceof ConfigError || e instanceof ChainError) {
         setError(e.message);
       } else {
-        setError(e instanceof Error ? e.message : "Redemption failed.");
+        setError(e instanceof Error ? e.message : "Withdrawal failed.");
       }
       setPhase("error");
     }
-  }, [ready, privyWallet, walletAddress, position.id, position.principalUsdc, router]);
+  }, [phase, ready, privyWallet, walletAddress, position.id, position.principalUsdc, router]);
 
   if (position.status !== "active") return null;
 
@@ -153,10 +234,84 @@ function PositionActionsLive({ position }: PositionActionsProps) {
   const busy = phase === "redeeming" || phase === "recording";
   const connected = ready && walletAddress !== null;
 
+  // Step B — explicit review card. No chain call has fired yet; the only way to
+  // the chain from here is the "Confirm withdrawal" button.
+  if (phase === "confirm" || busy) {
+    return (
+      <section aria-label="Review withdrawal" className="flex flex-col gap-3">
+        <Card className="space-y-4">
+          <p className="eyebrow">Review your withdrawal before signing</p>
+          <div className="space-y-1">
+            <div className="flex justify-between body-sm">
+              <span className="ct-text-muted">Action</span>
+              <span className="ct-text-body font-semibold">Withdraw</span>
+            </div>
+            <div className="flex justify-between body-sm">
+              <span className="ct-text-muted">Amount</span>
+              <span className="ct-text-strong font-bold tabular">
+                Full position
+              </span>
+            </div>
+            <div className="flex justify-between body-sm">
+              <span className="ct-text-muted">You receive</span>
+              <span className="ct-text-body">USDC</span>
+            </div>
+            <div className="flex justify-between body-sm">
+              <span className="ct-text-muted">Vault</span>
+              <span className="ct-text-body font-semibold">
+                {position.vaultName}
+              </span>
+            </div>
+            <div className="flex justify-between body-sm">
+              <span className="ct-text-muted">Network</span>
+              <span className="ct-text-body">Base Sepolia</span>
+            </div>
+          </div>
+          <p className="body-xs ct-text-muted">
+            You are withdrawing your full position from the vault, subject to the
+            60-day soft lock-up. You&rsquo;ll be asked to confirm this transaction
+            in your wallet. Past performance does not predict future results.
+          </p>
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={handleCancel}
+              disabled={busy}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              size="md"
+              onClick={() => void handleConfirmWithdraw()}
+              disabled={busy}
+              className="font-bold flex-1"
+            >
+              {phase === "redeeming"
+                ? "Confirm in wallet…"
+                : phase === "recording"
+                  ? "Recording…"
+                  : "Confirm withdrawal"}
+            </Button>
+          </div>
+        </Card>
+        {error !== null && (
+          <p role="alert" className="body-xs text-[var(--ct-status-danger)]">
+            {error}
+          </p>
+        )}
+      </section>
+    );
+  }
+
+  // Step A — intent. Clicking "Withdraw" only opens the review card above.
   return (
     <section aria-label="Position actions" className="flex flex-col gap-3">
       <p className="body-xs ct-text-muted">
-        Withdraw redeems all your vault shares for USDC on Base Sepolia (testnet),
+        Withdraw returns your full position as USDC on Base Sepolia (testnet),
         subject to the 60-day soft lock-up. Past performance does not predict
         future results.
       </p>
@@ -164,17 +319,11 @@ function PositionActionsLive({ position }: PositionActionsProps) {
         type="button"
         variant="primary"
         size="lg"
-        disabled={busy || !connected}
-        onClick={handleWithdraw}
+        disabled={!connected}
+        onClick={handleReview}
         className="font-semibold"
       >
-        {phase === "redeeming"
-          ? "Confirm in wallet…"
-          : phase === "recording"
-            ? "Recording…"
-            : connected
-              ? "Withdraw all (redeem)"
-              : "Connect wallet to withdraw"}
+        {connected ? "Withdraw" : "Connect wallet to withdraw"}
       </Button>
       {error !== null && (
         <p role="alert" className="body-xs text-[var(--ct-status-danger)]">
