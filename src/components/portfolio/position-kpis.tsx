@@ -54,6 +54,7 @@ export function PositionKpis({ position }: PositionKpisProps) {
     >
       {/* 1 — Principal */}
       <Metric
+        variant="plain"
         label="Principal"
         value={usdFull.format(position.principalUsdc)}
         provenance={provenance}
@@ -62,6 +63,7 @@ export function PositionKpis({ position }: PositionKpisProps) {
 
       {/* 2 — Accrued yield */}
       <Metric
+        variant="plain"
         label="Accrued yield"
         value={usdFull.format(position.accruedYieldUsdc)}
         provenance={provenance}
@@ -75,6 +77,7 @@ export function PositionKpis({ position }: PositionKpisProps) {
 
       {/* 3 — Distributed to date */}
       <Metric
+        variant="plain"
         label="Distributed to date"
         value={usdFull.format(position.distributedUsdc)}
         provenance={provenance}
@@ -83,6 +86,7 @@ export function PositionKpis({ position }: PositionKpisProps) {
 
       {/* 4 — Realised APY range — non-negotiable #1 */}
       <Metric
+        variant="plain"
         label="Target APY"
         value={
           <ApyRange
@@ -98,6 +102,7 @@ export function PositionKpis({ position }: PositionKpisProps) {
       {/* 5 — Net P&L — only when computed; ProvenanceBadge estimated (non-negotiable #2) */}
       {pnl ? (
         <Metric
+          variant="plain"
           label="Net P&L"
           value={
             <span
