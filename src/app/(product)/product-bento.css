@@ -95,7 +95,23 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--ct-space-2);
+  min-width: 0;
   text-transform: uppercase;
+}
+
+/* Title (first text child) may shrink + truncate so it never collides with the
+   right-side badge/meta. The badge/meta block must never shrink. */
+.dash-label > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-label .dash-label-meta,
+.dash-label > span:first-child ~ * {
+  flex-shrink: 0;
 }
 
 .dash-value-group {

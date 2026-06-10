@@ -98,7 +98,7 @@ export function PositionTransactions({
         <div
           className="overflow-x-auto overflow-y-hidden"
         >
-          <table className="w-full border-collapse text-[length:var(--ct-text-sm)]">
+          <table className="w-full min-w-max border-collapse text-[length:var(--ct-text-sm)]">
             <thead>
               <tr className="stat-label ct-text-muted border-b border-[var(--ct-border-soft)]">
                 <th className="text-left pb-[var(--ct-space-2)] font-[inherit]">Date</th>

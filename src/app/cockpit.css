@@ -681,6 +681,18 @@
 .ct-center-panel { background: transparent !important; }
 .ct-page-area    { background: transparent; }
 
+/* ── HYGIÈNE FLEXBOX — le centre DOIT pouvoir rétrécir (cause racine "cassé partout")
+   .ct-center-panel est un enfant flex de .ct-panels-row. Par défaut un enfant flex a
+   min-width:auto → il refuse de rétrécir sous la largeur min-content de son contenu.
+   Rail 88px + centre (min-content) + chat 420px dépasse alors le viewport dès que le
+   chat est ouvert sur un laptop (< ~1400px) → overflow horizontal sur TOUTES les pages
+   (proof-center, vaults, admin…), pas seulement portfolio. min-width:0 est NEUTRE quand
+   l'espace suffit (flex-grow dimensionne) et n'agit que sous contrainte → desktop large
+   inchangé. Avant : levé uniquement sous 768px (cf. bloc mobile plus bas) → le desktop
+   chat-ouvert restait cassé. Désormais global. Les cartes gèrent ensuite leur propre
+   reflow via min-w-0/truncate/overflow-x interne. */
+.ct-center-panel { min-width: 0 !important; }
+
 /* ── RAIL INTRA-APP — nav verticale dans la zone .ct-rail-left ──
    Position fixed, superposée au rail du shell @hearst/cockpit-shell
    (qui ne supporte pas de slot nav intra-app en v0.1.0).
@@ -1103,17 +1115,17 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 
    On replie la mise en page sous 768px UNIQUEMENT — desktop ≥768px reste
    strictement inchangé (la requête ne s'active jamais au-dessus) :
-     • le panneau central peut rétrécir (min-width:0) au lieu de forcer 520px ;
      • le chat droit (420px, impossible à loger sur un téléphone) est masqué ;
      • la colonne launcher 88px (.ct-rail-left) reste en place comme espaceur :
        le rail de nav intra fixe (.ct-rail-intra, position:fixed, 88px) la
        recouvre exactement comme en desktop, donc le contenu démarre après les
        88px et ne passe jamais SOUS la nav ;
      • gouttières horizontales resserrées (40px → 16px).
+   (Le shrink du panneau central — min-width:0 — est désormais GLOBAL, défini
+   plus haut près de .ct-center-panel ; ce n'est plus une surcharge mobile.)
    Aucun nouveau token/classe : surcharge responsive de classes shell existantes,
    même pattern que le reste de ce fichier. */
 @media (max-width: 767px) {
-  .ct-center-panel { min-width: 0 !important; }
   .ct-rail-right   { display: none !important; }
   .ct-page-area    { padding-left: 16px; padding-right: 16px; }
 }

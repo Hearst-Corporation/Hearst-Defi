@@ -111,7 +111,7 @@ function DataRow({ label, children }: DataRowProps) {
   return (
     <div className="flex items-baseline justify-between gap-4 py-2.5 border-b border-[var(--ct-border-soft)] last:border-0">
       <span className="body-xs ct-text-muted shrink-0">{label}</span>
-      <span className="body-sm mono tabular-nums ct-text-primary text-right">
+      <span className="body-sm mono tabular-nums ct-text-primary text-right min-w-0 break-words">
         {children}
       </span>
     </div>

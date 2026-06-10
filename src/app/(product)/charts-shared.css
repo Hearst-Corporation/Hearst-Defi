@@ -70,6 +70,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--ct-space-2);
   font-size: var(--ct-text-xs);
 }
 
@@ -77,12 +78,17 @@
   display: flex;
   align-items: center;
   gap: var(--ct-space-2);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--ct-text-body);
 }
 
 .dash-legend-dot {
   width: var(--ct-space-2_5);
   height: var(--ct-space-2_5);
+  flex-shrink: 0;
   border-radius: 0.125rem;
 }
 
@@ -96,4 +102,6 @@
   color: var(--ct-text-primary);
   font-variant-numeric: tabular-nums;
   font-weight: var(--ct-font-semibold);
+  white-space: nowrap;
+  flex-shrink: 0;
 }

@@ -98,7 +98,7 @@ export function RecentActivity({ transactions, source }: RecentActivityProps) {
                 </div>
               </div>
 
-              <span className="tabular body-md ct-text-strong mono font-semibold shrink-0">
+              <span className="tabular body-md ct-text-strong mono font-semibold shrink-0 whitespace-nowrap">
                 {usdFmt.format(tx.amountUsdc)}
               </span>
             </div>

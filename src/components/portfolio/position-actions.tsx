@@ -242,28 +242,28 @@ function PositionActionsLive({ position }: PositionActionsProps) {
         <Card className="space-y-4">
           <p className="eyebrow">Review your withdrawal before signing</p>
           <div className="space-y-1">
-            <div className="flex justify-between body-sm">
-              <span className="ct-text-muted">Action</span>
+            <div className="flex justify-between gap-2 body-sm">
+              <span className="ct-text-muted min-w-0">Action</span>
               <span className="ct-text-body font-semibold">Withdraw</span>
             </div>
-            <div className="flex justify-between body-sm">
-              <span className="ct-text-muted">Amount</span>
+            <div className="flex justify-between gap-2 body-sm">
+              <span className="ct-text-muted min-w-0">Amount</span>
               <span className="ct-text-strong font-bold tabular">
                 Full position
               </span>
             </div>
-            <div className="flex justify-between body-sm">
-              <span className="ct-text-muted">You receive</span>
+            <div className="flex justify-between gap-2 body-sm">
+              <span className="ct-text-muted min-w-0">You receive</span>
               <span className="ct-text-body">USDC</span>
             </div>
-            <div className="flex justify-between body-sm">
-              <span className="ct-text-muted">Vault</span>
-              <span className="ct-text-body font-semibold">
+            <div className="flex justify-between gap-2 body-sm">
+              <span className="ct-text-muted min-w-0 shrink-0">Vault</span>
+              <span className="ct-text-body font-semibold min-w-0 truncate text-right">
                 {position.vaultName}
               </span>
             </div>
-            <div className="flex justify-between body-sm">
-              <span className="ct-text-muted">Network</span>
+            <div className="flex justify-between gap-2 body-sm">
+              <span className="ct-text-muted min-w-0">Network</span>
               <span className="ct-text-body">Base Sepolia</span>
             </div>
           </div>

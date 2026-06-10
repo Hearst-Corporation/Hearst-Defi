@@ -183,7 +183,7 @@ function ScoreRow({ item }: ScoreRowProps) {
       {/* Dimension label */}
       <span
         id={rowId}
-        className="body-sm min-w-[7.5rem] text-[var(--ct-text-muted)]"
+        className="body-sm min-w-0 flex-1 truncate text-[var(--ct-text-muted)]"
       >
         {label}
       </span>
@@ -256,7 +256,7 @@ function CompositeSection({
       aria-label={ariaLabel}
       className="mt-5 flex items-center justify-between rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-1)] px-4 py-4"
     >
-      <div className="flex items-baseline gap-2">
+      <div className="flex items-baseline gap-2 min-w-0">
         <span aria-hidden className="text-[var(--ct-accent)] text-lg leading-none">
           ◆
         </span>
@@ -274,7 +274,7 @@ function CompositeSection({
         </span>
       </div>
 
-      <div className="flex flex-col items-end gap-1">
+      <div className="flex flex-col items-end gap-1 min-w-0 shrink-0">
         <span
           className={cn(
             "text-xs font-semibold tracking-wide",

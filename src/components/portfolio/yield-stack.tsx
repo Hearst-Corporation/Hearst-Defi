@@ -131,10 +131,10 @@ export function YieldStack({
           return (
             <div key={s.bucket} className="yield-stack-row">
               {/* Label row */}
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between gap-2 mb-1">
                 <span
                   className={cn(
-                    "body-xs",
+                    "body-xs min-w-0 truncate",
                     s.isVolatile
                       ? "text-[var(--ct-status-warning)]"
                       : "text-[var(--ct-text-body)]",
@@ -195,7 +195,7 @@ export function YieldStack({
         <dl className="flex flex-col gap-2 relative z-10">
           {/* Blended forward range */}
           <div className="flex items-baseline justify-between">
-            <dt className="body-xs text-[var(--ct-text-muted)]">
+            <dt className="body-xs min-w-0 truncate text-[var(--ct-text-muted)]">
               Blended fwd range
             </dt>
             <dd
@@ -208,7 +208,7 @@ export function YieldStack({
 
           {/* Stressed bear scenario — range per CLAUDE.md #1, never single point. */}
           <div className="flex items-baseline justify-between">
-            <dt className="body-xs text-[var(--ct-text-muted)]">
+            <dt className="body-xs min-w-0 truncate text-[var(--ct-text-muted)]">
               Stressed (bear)
             </dt>
             <dd

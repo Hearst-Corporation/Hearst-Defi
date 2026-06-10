@@ -103,14 +103,14 @@ export function TimeToCash({
       </div>
 
       {/* Next distribution row --------------------------------------------- */}
-      <div className="flex flex-col gap-0.5 relative z-10">
+      <div className="flex flex-col gap-0.5 relative z-10 min-w-0">
         <span className="text-micro font-medium text-[var(--ct-text-muted)] tracking-widest uppercase">
           Next distribution
         </span>
         {/* Countdown — aria-live so JS can update it client-side if hydrated */}
         <p
           className={cn(
-            "mono tabular-nums text-xl font-semibold leading-tight",
+            "mono tabular-nums text-xl font-semibold leading-tight break-words",
             daysRemaining === 0 && hoursRemaining === 0
               ? "text-[var(--ct-status-success)]"
               : "text-[var(--ct-text-primary)]",

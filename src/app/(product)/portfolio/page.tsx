@@ -98,7 +98,7 @@ function NavShareKpi({ positions, totalValueUsdc, source }: NavShareKpiProps) {
         <span className="dash-value">
           {navPerShare !== null ? navPerShare.toFixed(4) : "—"}
         </span>
-        <span className="dash-unit">USDC</span>
+        <span className="dash-unit shrink-0">USDC</span>
       </div>
       <p className="body-xs ct-text-muted mt-2 relative z-10">Par $1.00 · class A</p>
     </article>
@@ -132,7 +132,7 @@ function PositionValueKpi({ totalValueUsdc, source }: PositionValueKpiProps) {
         <span className="dash-value">
           {totalValueUsdc > 0 ? fmt.format(totalValueUsdc) : "—"}
         </span>
-        <span className="dash-unit">USDC</span>
+        <span className="dash-unit shrink-0">USDC</span>
       </div>
       <p className="body-xs ct-text-muted mt-2 relative z-10">Principal + accrued yield</p>
     </article>
@@ -161,7 +161,7 @@ function YieldYtdKpi({ totalYieldYtdUsdc, hasPositions, source }: YieldYtdKpiPro
         <span className="dash-value">
           {hasPositions ? formatUsdCompact(totalYieldYtdUsdc) : "—"}
         </span>
-        <span className="dash-unit">USDC</span>
+        <span className="dash-unit shrink-0">USDC</span>
       </div>
       <p className="body-xs ct-text-muted mt-2 italic relative z-10">Accrued + distributed. Not projected forward.</p>
     </article>
@@ -202,7 +202,7 @@ function NextDistributionKpi({ nextDistributionAt, source }: NextDistributionKpi
         </span>
       </div>
       <div className="flex items-center gap-2 mt-2 relative z-10">
-        <p className="text-xs text-(--ct-text-muted) mono uppercase tracking-wider leading-4 truncate opacity-70">
+        <p className="text-xs text-(--ct-text-muted) mono uppercase tracking-wider leading-4 truncate min-w-0 opacity-70">
           Indicative · Monthly, Day 1 (T+5)
         </p>
         {diffDays > 0 && (
@@ -319,7 +319,7 @@ export default async function PortfolioPage() {
       <Section data-section="hero-pulse" label="Hero Pulse — key performance and liquidity">
         {/* Ligne 1 : 4 Pure KPIs */}
         <div
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4"
           data-testid="hero-top-metrics"
         >
           <PositionValueKpi
@@ -364,7 +364,7 @@ export default async function PortfolioPage() {
       {/* ── Section 2 — Under the Hood (Yield & Trust) ────────────────────── */}
       <Section data-section="yield-trust" label="Yield and Trust — analytics and risk">
         {/* Ligne 1 : Yield Analytics */}
-        <div className="grid items-start grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid items-start grid-cols-1 gap-6 xl:grid-cols-2">
           <AllocationDonut
             positions={data.positions}
             totalValueUsdc={data.totalValueUsdc}
@@ -376,7 +376,7 @@ export default async function PortfolioPage() {
         </div>
 
         {/* Ligne 2 : Security & Trust */}
-        <div className="grid items-start grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid items-start grid-cols-1 gap-6 xl:grid-cols-2">
           <div data-testid="risk-pulse-widget">
             <RiskPulse {...riskPulseProps} source={riskPulseSource} />
           </div>
@@ -391,7 +391,7 @@ export default async function PortfolioPage() {
         {/* Positions List — Full width */}
         <PositionsList positions={data.positions} source={data.source} />
 
-        <div className="grid items-start grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid items-start grid-cols-1 gap-6 xl:grid-cols-2">
           {/* Payout calendar */}
           <div data-testid="distrib-calendar-widget">
             <DistribCalendar {...distribCalendarProps} />

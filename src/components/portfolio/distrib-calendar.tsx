@@ -336,8 +336,8 @@ export function DistribCalendar({
       )}
 
       {/* Footer — share class + cadence */}
-      <dl className="flex gap-6 border-t border-[var(--ct-border-soft)] pt-4 mt-auto relative z-10">
-        <div className="flex flex-col gap-0.5">
+      <dl className="flex flex-wrap gap-x-6 gap-y-2 border-t border-[var(--ct-border-soft)] pt-4 mt-auto relative z-10">
+        <div className="flex flex-col gap-0.5 min-w-0">
           <dt className="text-micro uppercase tracking-wide text-[var(--ct-text-muted)] mono">
             Share class
           </dt>
@@ -345,7 +345,7 @@ export function DistribCalendar({
             Series {shareClass}
           </dd>
         </div>
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-0.5 min-w-0">
           <dt className="text-micro uppercase tracking-wide text-[var(--ct-text-muted)] mono">
             Cadence
           </dt>

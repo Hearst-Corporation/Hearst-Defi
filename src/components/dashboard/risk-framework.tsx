@@ -172,7 +172,7 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
           <span className="text-sm font-medium opacity-50 ml-1 text-[var(--ct-text-faint)]">/ 100</span>
         </span>
       </div>
-      <div className="flex items-center gap-4 sm:min-w-60 relative z-10">
+      <div className="flex items-center gap-4 lg:min-w-60 relative z-10">
         <div className="flex-1 h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
           <div 
             className={cn("h-full transition-all duration-1000 ease-out", BAND_BAR[band])}
