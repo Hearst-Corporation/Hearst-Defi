@@ -66,6 +66,15 @@ const BAND_BAR: Record<RiskBand, string> = {
   high: "ct-status-dot-danger",
 };
 
+// SVG fill per band — keeps the waterfall composite bar/score/legend the SAME
+// colour as the headline number + badge (BAND_TEXT / BAND_VARIANT), instead of
+// a hardcoded warning tint that lied for low/high bands.
+const BAND_FILL: Record<RiskBand, string> = {
+  low: "var(--ct-status-success)",
+  medium: "var(--ct-warning)",
+  high: "var(--ct-status-danger)",
+};
+
 // ── Provenance mapping ───────────────────────────────────────────────────────
 
 function provenanceFromSource(
@@ -193,13 +202,13 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
 //   - Chart area: x=32 … 300
 //   - Baseline bar starts at y=100 (score 100 at y=8, score 0 at y=108)
 //   - Each step bar drops by `contribution` units
-//   - Final composite bar uses ct-warning
+//   - Final composite bar follows the band colour (BAND_FILL)
 //
 // Colour convention (all tokens, no hex):
 //   baseline           → var(--ct-surface-3)
 //   negative contrib   → var(--ct-status-danger)
 //   positive contrib   → var(--ct-accent)
-//   final composite    → var(--ct-warning)   (medium band)
+//   final composite    → BAND_FILL[band] (success / warning / danger)
 //   connector dashed   → var(--ct-border-soft)
 
 // SVG geometry constants
@@ -304,7 +313,7 @@ function buildSteps(data: RiskFrameworkData): WaterfallStep[] {
     tick: "=",
     y1: scoreToY(data.composite),
     y2: CHART_BOTTOM,
-    fill: "var(--ct-warning)",
+    fill: BAND_FILL[data.band],
     score: data.composite,
     detail: `${data.bandLabel} risk band`,
     isFinal: true,
@@ -422,7 +431,7 @@ function WaterfallChart({ data }: WaterfallChartProps) {
                   textAnchor="middle"
                   fontSize="4.5"
                   fontWeight="600"
-                  fill="var(--ct-warning)"
+                  fill={BAND_FILL[data.band]}
                   fontFamily="var(--font-mono, monospace)"
                 >
                   {step.score}
@@ -483,7 +492,7 @@ function WaterfallChart({ data }: WaterfallChartProps) {
           label="Positive contribution"
         />
         <LegendDot
-          color="var(--ct-warning)"
+          color={BAND_FILL[data.band]}
           label={`Composite (${data.composite})`}
         />
       </div>
