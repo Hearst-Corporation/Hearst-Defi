@@ -82,3 +82,5 @@ electron/__tests__/results/
 
 # Local release artifacts (CREDENTIALS contains a password — never commit)
 releases/
+uiux-audit-*.html
+tri-audit-*.html

@@ -1,8 +1,42 @@
 packages:
   - "packages/*"
 
-allowBuilds:
-  '@prisma/engines': true
-  prisma: true
-  sharp: true
-  unrs-resolver: true
+# pnpm 11.5 runs a deps-status check before every `pnpm run` that re-triggers
+# `pnpm install` when builds are ignored — with no TTY it aborts and the dev
+# server never boots. Native build scripts are pre-approved below; skip the
+# pre-run verification so `pnpm dev` starts cleanly.
+verifyDepsBeforeRun: false
+
+# Supply-chain policy (pnpm 11.5+): the @hearst/* deps are local tarballs
+# (file:./*.tgz), absent from npmjs → the minimumReleaseAge check 404s on them.
+# Disable the age check so local/private tarballs don't block install.
+minimumReleaseAge: 0
+minimumReleaseAgeExclude:
+  - "@hearst/cockpit-shell"
+  - "@hearst/hub-sdk"
+  - "@hearst/review-mode"
+
+# Migrated from package.json `pnpm` field (pnpm 11.5 no longer reads it there).
+overrides:
+  ws: ">=8.20.1"
+  js-cookie: ">=3.0.7"
+  postcss: ">=8.5.10"
+  uuid: ">=11.1.1"
+  "@hono/node-server": ">=1.19.13"
+
+# pnpm 11.5: `onlyBuiltDependencies` is the canonical allow-list for postinstall
+# build scripts (replaces the legacy `allowBuilds` map). Native deps needed at
+# dev/build time; electron-winstaller/sentry/reown/etc. are not required for `pnpm dev`.
+onlyBuiltDependencies:
+  - "@prisma/client"
+  - "@prisma/engines"
+  - prisma
+  - better-sqlite3
+  - sharp
+  - unrs-resolver
+  - esbuild
+  - keccak
+  - bufferutil
+  - utf-8-validate
+  - core-js
+  - protobufjs
