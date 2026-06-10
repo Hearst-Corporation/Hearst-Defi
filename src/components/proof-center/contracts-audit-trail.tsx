@@ -13,22 +13,36 @@ interface DeployedContract {
   description: string;
 }
 
+// Addresses + deploy blocks come from env when set (NEXT_PUBLIC_* are inlined at
+// build), falling back to the known Base Sepolia Phase-2 deployment values so
+// the Proof Center never renders an empty contract panel. Ops can override per
+// environment without a code change. Tx hashes stay literal — they are the real
+// on-chain deploy receipts and have no env override.
+const EVENT_LOGGER_ADDRESS = (process.env.NEXT_PUBLIC_EVENT_LOGGER_ADDRESS ??
+  "0xb07E045D082d202bAc7C1d4F83e1A63d00653D9E") as `0x${string}`;
+const POR_REGISTRY_ADDRESS = (process.env.NEXT_PUBLIC_POR_REGISTRY_ADDRESS ??
+  "0x2B7229Ea0c94f12D984d9045ee12fB0D2Efcd28D") as `0x${string}`;
+const EVENT_LOGGER_DEPLOY_BLOCK =
+  process.env.NEXT_PUBLIC_EVENT_LOGGER_DEPLOY_BLOCK ?? "41,418,022";
+const POR_REGISTRY_DEPLOY_BLOCK =
+  process.env.NEXT_PUBLIC_POR_REGISTRY_DEPLOY_BLOCK ?? "41,418,022";
+
 const DEPLOYED_CONTRACTS: ReadonlyArray<DeployedContract> = [
   {
     name: "EventLogger",
-    address: "0xb07E045D082d202bAc7C1d4F83e1A63d00653D9E",
+    address: EVENT_LOGGER_ADDRESS,
     deployTxHash:
       "0x587e7723e57bdbd97774d7fe0da057dc47c94fc8633f05c7add0860c1461c2b8",
-    deployBlock: "41,418,022",
+    deployBlock: EVENT_LOGGER_DEPLOY_BLOCK,
     description:
       "Immutable on-chain journal. Logs rebalancing, distribution and state-change events. Publisher is the Hearst manager EOA (testnet) / multisig (Phase 3).",
   },
   {
     name: "PoRRegistry",
-    address: "0x2B7229Ea0c94f12D984d9045ee12fB0D2Efcd28D",
+    address: POR_REGISTRY_ADDRESS,
     deployTxHash:
       "0x5240a7dcbd65b1573e9e778ecf774dcc09e398bf6e67d33880f060c80a54e534",
-    deployBlock: "41,418,022",
+    deployBlock: POR_REGISTRY_DEPLOY_BLOCK,
     description:
       "Proof-of-Reserves attestation registry. One immutable attestation per YYYYMM period. Pins AUM, mined BTC, and a keccak256 hash of the evidence PDF.",
   },
@@ -43,16 +57,21 @@ interface AuditEntry {
 
 const AUDIT_ENTRIES: ReadonlyArray<AuditEntry> = [
   {
+    // No public report URL yet — the review is still pending sign-off. Linking
+    // to a non-existent PDF gives a broken "View document" button, so the link
+    // is omitted until a real report exists (set `href` when published).
     label: "Spearbit smart-contract review",
     status: "Scoped — Q1 2026 report pending final sign-off",
     variant: "warning",
-    href: "https://reports.spearbit.com/hearst-vault-2026q1.pdf",
+    href: null,
   },
   {
+    // Same: no public document URL available — omit the link rather than ship a
+    // dead one. Restore `href` once a hosted memo exists.
     label: "Trail of Bits — EventLogger scoping memo",
     status: "Completed",
     variant: "success",
-    href: "https://reports.trailofbits.com/hearst-eventlogger-scope.pdf",
+    href: null,
   },
   {
     label: "Methodology v1.0",

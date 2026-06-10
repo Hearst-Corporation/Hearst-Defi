@@ -226,6 +226,19 @@ export async function runProjectionStudy(input: {
 
 // ─── Promotion defaults ───────────────────────────────────────────────────────
 
+/**
+ * Default multisig signers applied when promoting a study to a vault draft.
+ * Read from `VAULT_DEFAULT_SIGNERS` (comma-separated 0x addresses); only
+ * well-formed addresses survive the filter. Empty when unset — the draft is then
+ * created with NO signers (honest) instead of persisting `PLACEHOLDER_SIGNER_*`
+ * strings into VaultDeployment rows. The admin fills the real whitelist in the
+ * wizard before submitting the draft for review.
+ */
+const DEFAULT_SIGNERS: string[] = (process.env.VAULT_DEFAULT_SIGNERS ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter((s) => /^0x[a-fA-F0-9]{40}$/.test(s));
+
 /** Default fee/lockup/governance values applied when promoting a study to draft. */
 const PROMOTE_DEFAULTS = {
   mgmtFeeBps: 200,
@@ -238,8 +251,8 @@ const PROMOTE_DEFAULTS = {
   regExemption: "regD_506c",
   minTicketUsdc: 250_000,
   capacityUsdc: 25_000_000,
-  /** Placeholder whitelist — operator must replace with real wallet addresses. */
-  signersWhitelist: ["PLACEHOLDER_SIGNER_1", "PLACEHOLDER_SIGNER_2"],
+  /** Real signers from env (VAULT_DEFAULT_SIGNERS), or empty — never placeholders. */
+  signersWhitelist: DEFAULT_SIGNERS,
   disclaimers:
     "Projections are conditional on stated assumptions and are not warranted. Past performance does not predict future results. Hearst Yield Vault is offered exclusively to professional and qualified investors. Capital is subject to market risk. This is a scenario projection only, not an offer or solicitation.",
   /** Fallback allocation defaults summing to 10000 bps (40/20/25/15). */

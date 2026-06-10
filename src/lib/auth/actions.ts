@@ -203,7 +203,12 @@ export async function verifyTotpChallenge(
     return { ok: false, error: "Session expired. Please sign in again." };
   }
 
-  const [userId, from] = pendingRaw.split("|") as [string, string | undefined];
+  // Split on the FIRST "|" only. `from` is an opaque redirect path that could
+  // in principle contain the delimiter; a plain split() would truncate it.
+  const sepIdx = pendingRaw.indexOf("|");
+  const userId = sepIdx === -1 ? pendingRaw : pendingRaw.slice(0, sepIdx);
+  const from: string | undefined =
+    sepIdx === -1 ? undefined : pendingRaw.slice(sepIdx + 1);
   if (!userId) {
     store.delete(TOTP_PENDING_COOKIE);
     return { ok: false, error: "Invalid pending session. Please sign in again." };

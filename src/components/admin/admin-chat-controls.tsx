@@ -119,7 +119,17 @@ export function AdminChatControls() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mode: next }),
         });
-        if (!res.ok) throw new Error();
+        if (!res.ok) {
+          // A non-ok response only rolls the optimistic toggle back — there is
+          // no navigation side-effect here. 429 = the route's per-admin write
+          // cap; surface a specific, non-alarming message for it.
+          setError(
+            res.status === 429
+              ? "Trop de requêtes — réessayez dans un instant."
+              : "Impossible d'enregistrer le mode.",
+          );
+          setMode(previous);
+        }
       } catch {
         setError("Impossible d'enregistrer le mode.");
         setMode(previous);

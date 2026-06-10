@@ -24,8 +24,8 @@ import { createHash, randomBytes } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth/password";
 
-// Token expires after 1 hour.
-const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
+// Token expiry is governed by RESET_TOKEN_TTL_MS.
+export const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -41,6 +41,9 @@ async function sendResetEmail(to: string, resetUrl: string): Promise<void> {
     throw new Error("RESEND_API_KEY is not set");
   }
 
+  const ttlHours = RESET_TOKEN_TTL_MS / 3_600_000;
+  const ttlLabel = `${ttlHours} hour${ttlHours === 1 ? "" : "s"}`;
+
   const body = JSON.stringify({
     from: "Hearst Connect <noreply@hearst.app>",
     to: [to],
@@ -50,7 +53,7 @@ async function sendResetEmail(to: string, resetUrl: string): Promise<void> {
         <h2 style="color:var(--ct-accent);font-size:20px;margin:0 0 16px;">Password reset request</h2>
         <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#9ca3af;">
           You (or someone using your email) requested a password reset for your Hearst Connect account.
-          This link expires in 1 hour and can only be used once.
+          This link expires in ${ttlLabel} and can only be used once.
         </p>
         <a href="${resetUrl}"
            style="display:inline-block;padding:12px 24px;background:var(--ct-accent);color:#0a0a0a;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;">

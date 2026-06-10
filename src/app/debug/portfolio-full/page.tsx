@@ -45,7 +45,7 @@ export default function PortfolioFullDebugPage() {
 
   return (
     <PortfolioCockpitDebug
-      greeting={<PortfolioGreeting name="Adrien" data={data} />}
+      greeting={<PortfolioGreeting name="Demo Investor" data={data} />}
       quickActions={
         <div className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-5 py-3 opacity-50">
           <span className="body-xs mr-auto font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted">

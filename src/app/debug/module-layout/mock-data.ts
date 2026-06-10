@@ -89,5 +89,6 @@ export const MOCK_PORTFOLIO: PortfolioData = {
   totalYieldYtdUsdc: 60_800,
   nextDistributionAt: new Date("2026-05-31T00:00:00Z"),
   recentTransactions: MOCK_TRANSACTIONS,
-  source: "live",
+  // Static debug fixture — must NOT claim a Live provenance (CLAUDE.md #2).
+  source: "fallback",
 };
