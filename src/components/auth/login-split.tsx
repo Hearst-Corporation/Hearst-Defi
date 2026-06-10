@@ -54,27 +54,15 @@ export function LoginSplit() {
             {/* Tagline */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.25rem" }}>
               <span
-                style={{
-                  fontSize: "0.6875rem",
-                  letterSpacing: "0.24em",
-                  textTransform: "uppercase",
-                  color: "var(--ct-accent)",
-                  opacity: 0.7,
-                  fontWeight: 500,
-                }}
+                className="eyebrow"
+                style={{ color: "var(--ct-accent)", opacity: 0.7 }}
               >
                 Real-World Asset Yield
               </span>
 
               <h1
-                style={{
-                  fontSize: "clamp(1.5rem, 2.2vw, 2rem)",
-                  fontWeight: 600,
-                  lineHeight: 1.2,
-                  letterSpacing: "-0.02em",
-                  color: "var(--ct-text-primary)",
-                  maxWidth: "22ch",
-                }}
+                className="h1"
+                style={{ maxWidth: "22ch" }}
               >
                 Institutional yield, backed by{" "}
                 <span style={{ color: "var(--ct-accent)" }}>Bitcoin mining</span>
@@ -100,20 +88,16 @@ export function LoginSplit() {
                     boxShadow: "0 0 8px var(--ct-accent)",
                   }}
                 />
-                <span style={{
-                  fontSize: "0.75rem",
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  color: "var(--ct-text-muted)",
-                }}>
+                <span
+                  className="eyebrow ct-text-muted"
+                  style={{ textTransform: "uppercase" }}
+                >
                   Target APY
                 </span>
-                <span style={{
-                  fontSize: "0.875rem",
-                  fontWeight: 600,
-                  color: "var(--ct-text-primary)",
-                  fontVariantNumeric: "tabular-nums",
-                }}>
+                <span
+                  className="ct-text-primary tabular"
+                  style={{ fontSize: "0.875rem", fontWeight: 600 }}
+                >
                   8–15%
                 </span>
               </div>

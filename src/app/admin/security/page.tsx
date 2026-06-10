@@ -1,3 +1,4 @@
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { isTotpEnabled } from "@/lib/auth/totp";
 import { TotpEnrolmentClient } from "./TotpEnrolmentClient";
@@ -20,9 +21,7 @@ export default async function AdminSecurityPage() {
 
   return (
     <div className="space-y-8">
-      <header className="flex min-h-9 items-center justify-between gap-4">
-        <h1 className="h1">Account security</h1>
-      </header>
+      <AdminPageHeader title="Account security" />
       <p className="body-xs ct-text-muted">
         Manage two-factor authentication and session security.
       </p>

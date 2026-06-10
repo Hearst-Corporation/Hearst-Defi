@@ -42,7 +42,7 @@ export default async function InvestorMemoPage({
   const vault = VAULTS[vaultId];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <AdminPageHeader
         title="Investor Memo"
         actions={

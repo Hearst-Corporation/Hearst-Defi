@@ -87,7 +87,7 @@ export default function OnboardingIndexPage() {
     <main className="mx-auto max-w-4xl px-6 py-20">
       {/* Header */}
       <div className="mb-12 text-center">
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--ct-text-strong)]">
+        <h1 className="h1">
           LP Onboarding
         </h1>
         <p className="mt-3 text-sm text-[var(--ct-text-muted)]">
@@ -118,7 +118,7 @@ export default function OnboardingIndexPage() {
                 </div>
 
                 {/* Text */}
-                <h2 className="text-base font-semibold text-[var(--ct-text-strong)] group-hover:text-[var(--ct-accent)] transition-colors duration-[var(--ct-dur-base)]">
+                <h2 className="h2 group-hover:text-[var(--ct-accent)] transition-colors duration-[var(--ct-dur-base)]">
                   {meta.title}
                 </h2>
                 <p className="mt-1 text-xs text-[var(--ct-text-muted)]">

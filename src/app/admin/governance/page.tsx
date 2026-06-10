@@ -155,7 +155,7 @@ export default async function GovernancePage({ searchParams }: PageProps) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="ct-pill text-xs mono">{proposal.vaultTicker}</span>
-                      <span className="body-sm ct-text-strong font-semibold truncate">
+                      <span className="body-md font-semibold ct-text-strong truncate">
                         {proposal.actionType}
                       </span>
                     </div>

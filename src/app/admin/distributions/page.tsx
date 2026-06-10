@@ -62,7 +62,7 @@ export default async function DistributionsPage() {
 
       {/* Distribution history */}
       <section className="space-y-3">
-        <h2 className="ct-section-title">History (last 6)</h2>
+        <h2 className="h2">History (last 6)</h2>
 
         {history.length === 0 ? (
           <div className="ct-card text-center py-8 space-y-2">

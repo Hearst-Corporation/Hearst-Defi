@@ -12,7 +12,7 @@ export const metadata = {
 export default function LegalIndexPage() {
   return (
     <>
-      <h1>Legal</h1>
+      <h1 className="h1">Legal</h1>
       <p className="legal-meta">Effective date — to be finalized.</p>
       <p>
         Hearst Connect is operated as a Cayman Islands SPV (Hearst Yield Vault).

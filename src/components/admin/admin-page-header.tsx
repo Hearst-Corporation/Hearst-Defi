@@ -14,9 +14,9 @@ export function AdminPageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="flex min-h-9 items-center justify-between gap-4">
-      <h1 className="h1">{title}</h1>
-      {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+    <header className="flex min-h-9 flex-wrap items-center justify-between gap-x-4 gap-y-2">
+      <h1 className="h1 shrink-0">{title}</h1>
+      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
     </header>
   );
 }

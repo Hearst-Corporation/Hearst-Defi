@@ -29,9 +29,29 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  min-height: var(--ct-cell-min-h, 200px);
   overflow: hidden;
-  height: 100%;
+}
+
+/* === KPI cell — compact metric card for KPI grids (not bento panels) ===
+ * Lighter padding, no min-height, height fits content only. */
+.kpi-cell {
+  background:
+    linear-gradient(color-mix(in srgb, #ffffff 8%, transparent), color-mix(in srgb, #ffffff 8%, transparent)),
+    var(--ct-surface-2);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--ct-border-strong);
+  border-radius: var(--ct-radius-xl);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--ct-bg-deep) 60%, black);
+  padding: var(--ct-space-4) var(--ct-space-5);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-cell-premium {
+  background-image: radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 3%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
 /* Premium pattern utility — kept very subtle so it never competes with the

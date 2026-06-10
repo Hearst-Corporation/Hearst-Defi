@@ -70,8 +70,8 @@ export default async function ProfilePage() {
         </div>
 
         <div className="prof-identity-body">
-          <h1 className="prof-name">{session.email}</h1>
-          <span className="prof-role">{session.role}</span>
+          <h1 className="h2 prof-name">{session.email}</h1>
+          <span className="eyebrow prof-role">{session.role}</span>
         </div>
 
         <div className="prof-identity-badges">
@@ -136,7 +136,7 @@ export default async function ProfilePage() {
             <span className="prof-stat-value">
               {positions.length}
             </span>
-            <span className="prof-stat-label">Active positions</span>
+            <span className="stat-label">Active positions</span>
           </div>
 
           <div className="prof-stat-sep" />
@@ -152,7 +152,7 @@ export default async function ProfilePage() {
                   }).format(totalDeployed)
                 : "—"}
             </span>
-            <span className="prof-stat-label">Total deployed</span>
+            <span className="stat-label">Total deployed</span>
           </div>
 
           <div className="prof-stat-sep" />
@@ -161,7 +161,7 @@ export default async function ProfilePage() {
             <span className="prof-stat-value">
               {firstSubAt ? formatDate(firstSubAt) : "—"}
             </span>
-            <span className="prof-stat-label">First subscription</span>
+            <span className="stat-label">First subscription</span>
           </div>
         </div>
       </div>

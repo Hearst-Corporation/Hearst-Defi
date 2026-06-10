@@ -48,8 +48,7 @@
 }
 
 .legal-body h1 {
-  font-family: var(--ct-font-display);
-  font-size: clamp(var(--ct-text-2xl), 3vw, var(--ct-text-3xl));
+  /* font-family and font-size handled by DS .h1 class */
   color: var(--ct-text-primary);
   margin-bottom: var(--ct-space-2);
 }
@@ -61,8 +60,7 @@
 }
 
 .legal-body h2 {
-  font-family: var(--ct-font-display);
-  font-size: var(--ct-text-xl);
+  /* font-family and font-size handled by DS .h2 class */
   color: var(--ct-text-strong);
   margin: var(--ct-space-8) 0 var(--ct-space-3);
 }

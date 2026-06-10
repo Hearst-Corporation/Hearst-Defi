@@ -71,7 +71,7 @@ function CustodyBlock({ custody }: { custody: CustodySnapshot }) {
         <span className="eyebrow">Custody (Fireblocks)</span>
         <ProvenanceBadge kind={provenance} />
       </div>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 items-start">
         <Metric
           label="USDC reserves"
           value={usdFmt(custody.totalUsdcReserves)}
@@ -140,7 +140,7 @@ export function PorSummary({
         <ProvenanceBadge kind={provenance} />
       </CardHeader>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 items-start">
         <Metric
           label="Total AUM"
           value={usdFmt(attestation.totalAumUsd)}

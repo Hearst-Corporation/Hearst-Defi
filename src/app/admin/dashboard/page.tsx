@@ -149,7 +149,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         />
 
         <div className="flex flex-wrap items-baseline justify-between gap-3 relative z-10">
-          <h2 className="text-xl font-light tracking-tight text-[var(--ct-text-primary)]">
+          <h2 className="h2">
             <span className="font-semibold text-[var(--ct-text-strong)]">{vaultMeta.name}</span>
             <span className="ml-2 text-micro font-bold uppercase tracking-widest text-[var(--ct-text-muted)] opacity-50">Vault Overview</span>
           </h2>
@@ -173,7 +173,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 below are the {vaultMeta.name} methodology preset only — not the
                 Hearst Yield Vault timeline relabelled.
               </p>
-              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 items-start">
                 <Metric
                   label="APY range"
                   provenance="estimated"
@@ -200,7 +200,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             // KPI units. auto-fit collapses empty tracks so 5 cards always fill
             // the row. min 200px keeps the longest header ("Next distribution" +
             // provenance badge) inside its card.
-            <div className="grid gap-6 grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))]">
+            <div className="grid gap-4 items-start" style={{gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))"}}>
               <Metric
                 label="AUM"
                 provenance={custody.provenance}
@@ -391,7 +391,7 @@ async function AdvancedMetricsSection() {
         <div className="h-px flex-1 bg-[var(--ct-border-soft)]/50" />
       </div>
 
-      <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(min(100%,190px),1fr))]">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 items-start">
         <Metric
           label="Sharpe"
           provenance={provenance}

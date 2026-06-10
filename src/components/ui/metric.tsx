@@ -36,12 +36,11 @@ export function Metric({
   return (
     <div
       className={cn(
-        "dash-cell flex flex-col gap-3 relative overflow-hidden group",
-        premium && "dash-cell-premium",
+        "kpi-cell flex flex-col gap-2 relative overflow-hidden group",
+        premium && "kpi-cell-premium",
         className,
       )}
     >
-      {/* Ambient subtle glow on hover — premium tier only. */}
       {premium ? (
         <div className="absolute inset-0 bg-gradient-to-br from-[var(--ct-accent)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--ct-dur-slow)] pointer-events-none" />
       ) : null}
@@ -53,10 +52,10 @@ export function Metric({
         {provenance ? <ProvenanceBadge kind={provenance} /> : null}
       </div>
 
-      <div className="flex items-baseline gap-1 mt-auto relative z-10">
+      <div className="flex items-baseline gap-1 relative z-10">
         <span
           className={cn(
-            "text-3xl font-light tracking-tighter text-[var(--ct-text-strong)] tabular-nums",
+            "text-2xl font-semibold tracking-tight text-[var(--ct-text-strong)] tabular-nums",
             premium && "drop-shadow-[var(--ct-glow-subtle)]",
           )}
         >
@@ -65,7 +64,7 @@ export function Metric({
       </div>
 
       {(sublabel || trend) && (
-        <div className="flex min-w-0 items-center gap-2 text-xs text-[var(--ct-text-muted)] relative z-10 mt-1 pt-1 border-t border-[var(--ct-border-soft)]/50">
+        <div className="flex min-w-0 items-center gap-2 text-xs text-[var(--ct-text-muted)] relative z-10 pt-1 border-t border-[var(--ct-border-soft)]/50">
           {trend ? (
             <span
               className={cn(
@@ -75,11 +74,7 @@ export function Metric({
                 trend.direction === "flat" && "bg-[var(--ct-surface-1)] text-[var(--ct-text-muted)] border-[var(--ct-border)]"
               )}
             >
-              {trend.direction === "up"
-                ? "↑ "
-                : trend.direction === "down"
-                  ? "↓ "
-                  : "→ "}
+              {trend.direction === "up" ? "↑ " : trend.direction === "down" ? "↓ " : "→ "}
               {trend.text}
             </span>
           ) : null}

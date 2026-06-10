@@ -18,7 +18,7 @@ export default async function RoadmapPage() {
     : 0;
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-8">
       <AdminPageHeader
         title="Roadmap"
         actions={<Badge variant="default">v {version}</Badge>}

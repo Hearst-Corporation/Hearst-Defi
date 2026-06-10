@@ -93,24 +93,15 @@
   flex: 1;
 }
 
+/* .prof-name → DS class .h2 (see page.tsx) */
 .prof-name {
-  font-size: var(--ct-text-xl);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-strong);
-  letter-spacing: -0.01em;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.prof-role {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: var(--ct-text-muted);
-}
+/* .prof-role → DS class .eyebrow (see page.tsx) */
 
 .prof-identity-badges {
   display: flex;
@@ -197,13 +188,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-.prof-stat-label {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ct-text-muted);
-}
+/* .prof-stat-label removed — replaced by DS class .stat-label (see page.tsx) */
 
 /* ── Security list ── */
 .prof-security-list {

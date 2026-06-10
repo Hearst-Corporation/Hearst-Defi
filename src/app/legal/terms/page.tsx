@@ -10,7 +10,7 @@ export const metadata = {
 export default function TermsPage() {
   return (
     <>
-      <h1>Terms of Service</h1>
+      <h1 className="h1">Terms of Service</h1>
       <p className="legal-meta">Draft — pending formal legal review.</p>
 
       <div className="legal-stub">
@@ -23,13 +23,13 @@ export default function TermsPage() {
         </p>
       </div>
 
-      <h2>1. Issuer</h2>
+      <h2 className="h2">1. Issuer</h2>
       <p>
         Hearst Yield Vault SPV, an exempted company incorporated under the laws
         of the Cayman Islands.
       </p>
 
-      <h2>2. Eligibility</h2>
+      <h2 className="h2">2. Eligibility</h2>
       <p>
         Subscriptions are restricted to accredited or professional investors,
         as defined by the applicable jurisdiction. You represent and warrant
@@ -37,14 +37,14 @@ export default function TermsPage() {
         onboarding before any subscription is accepted.
       </p>
 
-      <h2>3. Subscription mechanics</h2>
+      <h2 className="h2">3. Subscription mechanics</h2>
       <ul>
         <li>Minimum ticket: USD 250,000 equivalent, settled in USDC.</li>
         <li>Subscriptions accepted at the next valuation point following deposit confirmation.</li>
         <li>Shares are non-transferable except as expressly permitted.</li>
       </ul>
 
-      <h2>4. Yield, distributions, and APY range</h2>
+      <h2 className="h2">4. Yield, distributions, and APY range</h2>
       <p>
         Target net APY range and distribution schedule are described in the
         product documentation. The APY is displayed as a range, never as a
@@ -53,7 +53,7 @@ export default function TermsPage() {
         results.
       </p>
 
-      <h2>5. Lock-up and withdrawals</h2>
+      <h2 className="h2">5. Lock-up and withdrawals</h2>
       <p>
         A 60-day soft lock-up applies to each subscription. Withdrawal requests
         outside the lock-up are processed at the next valuation point, subject
@@ -61,13 +61,13 @@ export default function TermsPage() {
         in exceptional liquidity events.
       </p>
 
-      <h2>6. Fees</h2>
+      <h2 className="h2">6. Fees</h2>
       <p>
         Management and performance fees are disclosed in the per-vault
         documentation and reflected in the published net APY range.
       </p>
 
-      <h2>7. Risks</h2>
+      <h2 className="h2">7. Risks</h2>
       <p>
         Investment involves substantial risk, including loss of principal. See
         the{" "}
@@ -76,7 +76,7 @@ export default function TermsPage() {
         the USDC principal reserve, custody, and smart contracts.
       </p>
 
-      <h2>8. Governing law &amp; jurisdiction</h2>
+      <h2 className="h2">8. Governing law &amp; jurisdiction</h2>
       <p>
         These terms are governed by the laws of the Cayman Islands. Any dispute
         is subject to the exclusive jurisdiction of the courts of the Cayman
@@ -84,7 +84,7 @@ export default function TermsPage() {
         otherwise.
       </p>
 
-      <h2>9. Modifications</h2>
+      <h2 className="h2">9. Modifications</h2>
       <p>
         Material modifications to these terms will be communicated to investors
         and require continued use to be deemed accepted.

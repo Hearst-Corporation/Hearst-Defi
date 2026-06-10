@@ -69,10 +69,10 @@ export default async function OnboardingPathPage({
       <main className="mx-auto max-w-3xl px-6 py-10">
         {/* Step header */}
         <div className="mb-8">
-          <p className="text-xs font-medium uppercase tracking-[var(--ct-tracking-wide)] text-[var(--ct-text-muted)]">
+          <span className="eyebrow">
             Step {currentStep + 1} of {steps.length}
-          </p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[var(--ct-text-strong)]">
+          </span>
+          <h1 className="h1 mt-1">
             {activeStep.label}
           </h1>
           <p className="mt-1 text-sm text-[var(--ct-text-muted)]">

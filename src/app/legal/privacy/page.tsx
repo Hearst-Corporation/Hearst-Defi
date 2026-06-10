@@ -10,7 +10,7 @@ export const metadata = {
 export default function PrivacyPage() {
   return (
     <>
-      <h1>Privacy Policy</h1>
+      <h1 className="h1">Privacy Policy</h1>
       <p className="legal-meta">Draft — pending formal legal review.</p>
 
       <div className="legal-stub">
@@ -23,13 +23,13 @@ export default function PrivacyPage() {
         </p>
       </div>
 
-      <h2>1. Controller</h2>
+      <h2 className="h2">1. Controller</h2>
       <p>
         Hearst Yield Vault SPV (Cayman Islands). Contact for privacy requests:
         privacy@hearst.app.
       </p>
 
-      <h2>2. Data we collect</h2>
+      <h2 className="h2">2. Data we collect</h2>
       <ul>
         <li>
           <strong>Account &amp; authentication</strong> — email address,
@@ -53,14 +53,14 @@ export default function PrivacyPage() {
         </li>
       </ul>
 
-      <h2>3. Legal bases</h2>
+      <h2 className="h2">3. Legal bases</h2>
       <p>
         Contract performance (account, subscription), legal obligation (AML /
         accredited investor records), legitimate interest (security, fraud
         prevention, product analytics).
       </p>
 
-      <h2>4. Storage &amp; retention</h2>
+      <h2 className="h2">4. Storage &amp; retention</h2>
       <p>
         Account and KYC data: retained for the legal minimum required by Cayman
         AML regulation after account closure. Session records: rolling 30 days,
@@ -68,7 +68,7 @@ export default function PrivacyPage() {
         for incident investigation.
       </p>
 
-      <h2>5. Recipients</h2>
+      <h2 className="h2">5. Recipients</h2>
       <ul>
         <li>Cloud infrastructure (Railway — application hosting, PostgreSQL).</li>
         <li>Error reporting (Sentry).</li>
@@ -77,21 +77,21 @@ export default function PrivacyPage() {
         <li>Custody provider (Fireblocks, read-only proof-of-reserves access).</li>
       </ul>
 
-      <h2>6. International transfers</h2>
+      <h2 className="h2">6. International transfers</h2>
       <p>
         Data may be transferred outside your jurisdiction to the providers
         listed above. Standard contractual clauses or equivalent safeguards
         apply where required.
       </p>
 
-      <h2>7. Your rights</h2>
+      <h2 className="h2">7. Your rights</h2>
       <p>
         Subject to applicable law, you may request access, rectification,
         deletion (subject to AML retention obligations), portability, and
         restriction of processing. Contact privacy@hearst.app.
       </p>
 
-      <h2>8. Cookies</h2>
+      <h2 className="h2">8. Cookies</h2>
       <p>
         Strictly necessary cookies only: <code>hc_session</code> (authentication,
         httpOnly, sameSite=strict, secure in production). No third-party
@@ -99,7 +99,7 @@ export default function PrivacyPage() {
         opted out in development environments.
       </p>
 
-      <h2>9. Changes</h2>
+      <h2 className="h2">9. Changes</h2>
       <p>
         Material changes will be communicated by email and reflected in the
         effective date above.

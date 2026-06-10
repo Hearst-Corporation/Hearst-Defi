@@ -110,7 +110,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
       {/* Dynamic allocation cards — Bull / Sideways / Bear from methodology v1.0 */}
       <section aria-labelledby="sec-regimes">
-        <h2 id="sec-regimes" className="ct-section-title mb-4">
+        <h2 id="sec-regimes" className="h2 mb-4">
           Dynamic allocation — market regimes
         </h2>
         <p className="body-sm ct-text-muted mb-6 max-w-2xl">

@@ -36,8 +36,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
       >
         <div className="space-y-1">
           <h1
-            className="text-lg font-semibold"
-            style={{ color: "var(--ct-text-primary)" }}
+            className="h1"
           >
             Set a new password
           </h1>
@@ -55,8 +54,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
             </p>
             <Link
               href="/forgot-password"
-              className="body-xs hover:underline"
-              style={{ color: "var(--ct-accent)" }}
+              className="body-xs ct-accent hover:underline"
             >
               Request a new reset link →
             </Link>

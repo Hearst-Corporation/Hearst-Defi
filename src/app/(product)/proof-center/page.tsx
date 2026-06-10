@@ -93,7 +93,7 @@ export default async function ProductProofCenterPage({
       {/* ── Header ─────────────────────────────────────────── */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="eyebrow mb-1">Hearst Yield Vault</p>
+          <span className="eyebrow mb-1">Hearst Yield Vault</span>
           <h1 className="h1">Proof Center</h1>
           <p className="body-sm mt-2 max-w-2xl ct-text-muted">
             Every data point that backs the vault — mining attestations, custody

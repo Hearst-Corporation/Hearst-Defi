@@ -27,8 +27,7 @@ export default function TotpChallengePage() {
       >
         <div className="space-y-1">
           <h1
-            className="text-lg font-semibold"
-            style={{ color: "var(--ct-text-primary)" }}
+            className="h1"
           >
             Two-factor authentication
           </h1>
