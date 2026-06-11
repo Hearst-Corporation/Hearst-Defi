@@ -1,7 +1,7 @@
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
-import { resolveProvenance } from "@/lib/data/portfolio";
+import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 const STATUS_LABELS: Record<string, string> = {
   active: "Active",

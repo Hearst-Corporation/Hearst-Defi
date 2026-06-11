@@ -13,7 +13,7 @@
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl } from "@/lib/chain/client";
-import { resolveProvenance } from "@/lib/data/portfolio";
+import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 // ── Public types ──────────────────────────────────────────────────────────────
 

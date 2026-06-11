@@ -5,7 +5,7 @@ import { ApyRange } from "@/components/ui/apy-range";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 import { cn } from "@/lib/cn";
-import { resolveProvenance } from "@/lib/data/portfolio";
+import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   month: "short",

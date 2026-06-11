@@ -2,7 +2,7 @@ import { NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
-import { resolveProvenance } from "@/lib/data/portfolio";
+import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 

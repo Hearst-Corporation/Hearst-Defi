@@ -17,7 +17,9 @@ import {
   type ShareClassTerms,
 } from "@/lib/engine/share-class";
 import { getTaxPreview, type TaxPreview } from "@/lib/portfolio/tax";
-import { evaluateFreshness, STALE_THRESHOLDS } from "@/lib/data/freshness";
+import { resolveProvenance } from "@/lib/portfolio/provenance";
+
+export { resolveProvenance };
 import {
   METHODOLOGY_FACTORS,
   METHODOLOGY_VERSION,
@@ -107,52 +109,6 @@ export interface PortfolioData {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-/**
- * Centralised provenance resolver for portfolio widgets.
- *
- * Maps a raw source ("live" | "fallback") and an optional updatedAt timestamp
- * to a canonical `Provenance` kind for the UI.
- *
- * Logic:
- * 1. If source is "fallback" (demo/empty) ⇒ "stale" (quiet warning).
- * 2. If updatedAt is missing ⇒ "stale" (no data ⇒ no claim).
- * 3. If updatedAt exceeds `portfolio_snapshot` threshold (24h) ⇒ "stale".
- * 4. 'Oracle' and 'Attested' are only returned if the source explicitly claims them
- *    AND the data is fresh.
- * 5. Otherwise ⇒ "live" (or the specific kind passed as `preferred`).
- */
-export function resolveProvenance(
-  source: "live" | "fallback" | "stale" | "estimated" | "oracle" | "attested",
-  updatedAt?: Date | null,
-  preferred: Provenance = "live",
-): Provenance {
-  if (source === "fallback" || source === "stale") return "stale";
-  
-  // If we don't have a timestamp, we can't claim it's fresh/live.
-  if (!updatedAt) return "stale";
-
-  const freshness = evaluateFreshness(
-    updatedAt,
-    STALE_THRESHOLDS.portfolio_snapshot,
-  );
-
-  // If data is stale, it's "stale" regardless of what was preferred.
-  if (freshness === "stale") return "stale";
-
-  // If the source itself is specific, use it.
-  if (source === "oracle") return "oracle";
-  if (source === "attested") return "attested";
-  if (source === "estimated") return "estimated";
-
-  // Otherwise, respect the preferred kind if it's a "verified" kind.
-  // Note: we only allow 'oracle' or 'attested' as preferred if the source is 'live'.
-  if (preferred === "oracle" || preferred === "attested") {
-    return source === "live" ? preferred : "stale";
-  }
-
-  return preferred;
-}
 
 /** Next UTC end-of-month boundary from today. */
 function nextEndOfMonth(): Date {

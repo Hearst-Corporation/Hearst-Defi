@@ -3,7 +3,7 @@ import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
-import { resolveProvenance } from "@/lib/data/portfolio";
+import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 /**
  * 12-month portfolio value area chart with monthly distribution markers.

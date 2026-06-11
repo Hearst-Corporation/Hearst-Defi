@@ -7,7 +7,7 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ApyRange } from "@/components/ui/apy-range";
 import { cn } from "@/lib/cn";
 import { computeTimeToCash } from "@/lib/data/time-to-cash";
-import { resolveProvenance } from "@/lib/data/portfolio";
+import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
