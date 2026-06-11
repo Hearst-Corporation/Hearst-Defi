@@ -248,7 +248,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
             </div>
             <div className="flex justify-between gap-2 body-sm">
               <span className="ct-text-muted min-w-0">Amount</span>
-              <span className="ct-text-strong font-bold tabular">
+              <span className="ct-text-strong font-semibold tabular">
                 Full position
               </span>
             </div>
@@ -288,7 +288,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
               size="md"
               onClick={() => void handleConfirmWithdraw()}
               disabled={busy}
-              className="font-bold flex-1"
+              className="flex-1"
             >
               {phase === "redeeming"
                 ? "Confirm in wallet…"

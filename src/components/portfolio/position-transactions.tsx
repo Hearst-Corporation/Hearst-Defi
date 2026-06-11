@@ -98,7 +98,9 @@ export function PositionTransactions({
         <div
           className="overflow-x-auto overflow-y-hidden"
         >
-          <table className="w-full min-w-max border-collapse text-(length:--ct-text-sm)">
+          {/* min-w-max keeps columns at natural width; the overflow-x-auto wrapper
+              scrolls horizontally on narrow viewports instead of crushing cells. */}
+          <table className="body-sm w-full min-w-max border-collapse">
             <thead>
               <tr className="stat-label ct-text-muted border-b border-(--ct-border-soft)">
                 <th className="text-left pb-(--ct-space-2) font-[inherit]">Date</th>

@@ -336,7 +336,7 @@ export function DistribCalendar({
           className="flex items-center justify-center rounded-md border border-dashed border-(--ct-border-soft) ct-surface-1 relative z-10 min-h-32"
           aria-label="No distribution data yet"
         >
-          <p className="text-xs ct-text-muted">
+          <p className="body-xs ct-text-muted">
             No distribution history yet.
           </p>
         </div>
