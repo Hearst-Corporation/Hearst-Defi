@@ -103,7 +103,7 @@
      components should also converge here rather than re-declaring the effect. */
   --ct-glass-radius: 28px;
   /* Quiet glass: gentle blur, no saturate punch — the glossy look is gone. */
-  --ct-glass-blur: blur(30px) saturate(118%);
+  --ct-glass-blur: blur(30px) saturate(100%);
   --ct-glass-border: color-mix(in srgb, #fff 9%, transparent);
   /* Faint inner top rim + soft drop — depth without a glossy sheen. */
   --ct-glass-rim: inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
@@ -434,17 +434,38 @@
 /* Scenario Lab / Projection Studio layout shells.
    Page-scoped, token-only wrappers that keep input/output panels centered and
    prevent wide result panels from escaping the centre column. */
+
+/* Scenario Lab master container — header, controls, presets and workspace all
+   share this single horizontal axis so nothing floats on its own width. */
+.scenario-lab-page {
+  width: 100%;
+  max-width: 75rem;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+}
+
 .scenario-lab-shell,
 .projection-studio-shell {
   width: 100%;
   max-width: 75rem;
   margin-inline: auto;
+  container-type: inline-size;
+}
+
+.projection-studio-shell {
+  container-name: projection-shell;
+}
+
+.scenario-lab-shell {
+  container-name: lab-shell;
 }
 
 .scenario-lab-shell {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  gap: var(--ct-space-4);
 }
 
 .projection-studio-shell {
@@ -453,8 +474,18 @@
   gap: var(--ct-space-5);
 }
 
-.scenario-lab-toolbar,
-.scenario-lab-modebar {
+/* Single menu-button row: vault selector + tabs (left group), Single/Compare
+   (right). Compact, wraps cleanly — no centred card, no page subtitle. */
+.scenario-lab-toolbar {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+}
+
+.scenario-lab-toolbar__group {
   display: flex;
   min-width: 0;
   flex-wrap: wrap;
@@ -462,12 +493,88 @@
   gap: var(--ct-space-3);
 }
 
-.scenario-lab-modebar {
-  justify-content: space-between;
-  padding: var(--ct-space-3) var(--ct-space-4);
+.scenario-preset-bar {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-4);
   border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-lg);
+  border-radius: var(--ct-radius-xl);
   background: var(--ct-surface-0);
+}
+
+.scenario-preset-bar__head {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ct-space-2) var(--ct-space-4);
+}
+
+.scenario-preset-bar__items {
+  display: flex;
+  min-width: 0;
+  gap: var(--ct-space-2);
+  overflow-x: auto;
+  padding-bottom: var(--ct-space-1);
+  scrollbar-width: thin;
+}
+
+/* Tablet+ : wrap presets into a readable auto-fit grid (no horizontal scroll,
+   no harsh truncation). Phone keeps the horizontal scroll strip. */
+@container lab-shell (min-width: 40rem) {
+  .scenario-preset-bar__items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+}
+
+.scenario-preset-bar__button {
+  min-width: 8.5rem;
+  height: auto;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ct-space-1);
+  white-space: normal;
+}
+
+.scenario-preset-bar__label,
+.projection-studio-preset-button__label {
+  line-height: var(--ct-leading-none);
+}
+
+/* Scenario presets: let the description wrap to 2 lines instead of a hard
+   single-line ellipsis, so values like "BTC -40%, hashprice -30%" stay legible. */
+.scenario-preset-bar__description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  color: currentColor;
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-medium);
+  line-height: var(--ct-leading-tight);
+  opacity: 0.68;
+  white-space: normal;
+}
+
+/* Projection Studio keeps its original single-line ellipsis (unchanged). */
+.projection-studio-preset-button__description {
+  display: block;
+  max-width: 18ch;
+  overflow: hidden;
+  color: currentColor;
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-medium);
+  line-height: var(--ct-leading-tight);
+  opacity: 0.68;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .scenario-lab-tablist {
@@ -507,6 +614,26 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
+/* Desktop / laptop (even with the chat rail open): split inputs (~34%) and
+   results (~66%) so the scenario decision sits beside the controls, not far
+   below them. Scenario Lab only — Projection Studio is untouched. */
+@container lab-shell (min-width: 46rem) {
+  .scenario-lab-workspace {
+    grid-template-columns: minmax(15rem, 30fr) minmax(0, 70fr);
+    gap: var(--ct-space-4);
+  }
+
+  /* Inputs follow the (much taller) results column as you scroll — this kills
+     the dead void on the left and keeps Run reachable. Capped at viewport
+     height so the button never drops below the fold; only over-tall content
+     scrolls inside the card. */
+  .scenario-lab-input-card {
+    position: sticky;
+    top: var(--ct-space-4);
+    max-height: calc(100dvh - var(--ct-space-8));
+  }
+}
+
 .scenario-lab-input-card,
 .scenario-lab-output-card,
 .projection-studio-input-card,
@@ -514,10 +641,29 @@
   min-width: 0;
 }
 
+.scenario-lab-output-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.scenario-lab-output-card.glass-panel .scenario-lab-output-empty {
+  flex: 1 1 auto;
+  min-height: 100%;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
 .scenario-lab-input-card {
   display: flex;
   flex-direction: column;
+  align-self: start;
   overflow: hidden;
+}
+
+.scenario-lab-input-scroll {
+  overflow-y: auto;
+  padding: var(--ct-space-4) var(--ct-space-5);
 }
 
 .scenario-lab-output-empty,
@@ -532,9 +678,7 @@
   padding: var(--ct-space-6);
   border: 1px dashed var(--ct-border-soft);
   border-radius: var(--ct-radius-xl);
-  background:
-    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--ct-accent) 8%, transparent), transparent 46%),
-    var(--ct-surface-0);
+  background: var(--ct-surface-0);
   text-align: center;
 }
 
@@ -548,17 +692,48 @@
   box-shadow: var(--ct-glow-dot);
 }
 
+.projection-studio-preset-rail.ct-card,
+.projection-studio-input-card.ct-card,
+.projection-studio-output-stage.ct-card {
+  padding: 0;
+}
+
 .projection-studio-input-card {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  max-height: 44rem;
+}
+
+.projection-studio-input-card > .relative {
+  display: flex;
+  min-height: 0;
+  max-height: inherit;
+  flex: 1 1 auto;
+  flex-direction: column;
 }
 
 .projection-studio-preset-rail {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-5);
+  background: var(--ct-surface-1);
+}
+
+.projection-studio-preset-rail > .relative {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  padding: var(--ct-space-5) var(--ct-space-6);
+}
+
+.scenario-compare-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  width: 100%;
+  min-width: 0;
 }
 
 .projection-studio-preset-rail__head {
@@ -573,7 +748,7 @@
 .projection-studio-preset-rail__items {
   display: flex;
   max-width: 100%;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-3);
   overflow-x: auto;
   padding-bottom: var(--ct-space-1);
   scrollbar-width: thin;
@@ -583,19 +758,185 @@
   flex: none;
 }
 
+.projection-studio-preset-button {
+  min-width: 9rem;
+  height: auto;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ct-space-1);
+  padding-block: var(--ct-space-3);
+  white-space: normal;
+}
+
+.projection-studio-input-card__header,
+.projection-studio-output-head {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.projection-studio-input-card__header {
+  padding: var(--ct-space-5);
+}
+
+.projection-studio-input-scroll {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  overflow-y: auto;
+  padding: var(--ct-space-4) var(--ct-space-5);
+}
+
+.projection-studio-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.projection-studio-input-divider {
+  height: var(--ct-space-px);
+  flex: none;
+  background: var(--ct-border-soft);
+}
+
+.projection-studio-input-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--ct-z-raised);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-4) var(--ct-space-5);
+  border-top: 1px solid var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-bg-deep) 48%, var(--ct-surface-2));
+  backdrop-filter: blur(1rem);
+  -webkit-backdrop-filter: blur(1rem);
+}
+
 .projection-studio-output {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  min-height: 100%;
 }
 
-@media (min-width: 64rem) {
+.projection-studio-output-stage {
+  display: flex;
+  flex-direction: column;
+  min-height: min(44rem, calc(100dvh - var(--ct-space-24)));
+}
+
+.projection-studio-output-stage > .relative {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+}
+
+.projection-studio-output-content {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  padding: 0 var(--ct-space-5) var(--ct-space-5);
+}
+
+.projection-studio-output-head {
+  padding: var(--ct-space-5);
+}
+
+.projection-studio-empty {
+  min-height: 100%;
+  flex: 1 1 auto;
+  margin: var(--ct-space-5);
+  border-style: solid;
+  text-align: left;
+}
+
+.projection-studio-empty > div:last-child {
+  max-width: 28rem;
+}
+
+/* Split workspace from container width (not viewport) so chat-open / narrow
+   center panels stack instead of crushing the output column. */
+@container lab-shell (min-width: 42rem) {
   .scenario-lab-workspace {
-    grid-template-columns: minmax(var(--ct-regime-card-min-w), var(--ct-vault-card-min-w)) minmax(0, 1fr);
+    align-items: start;
+    grid-template-columns: minmax(17rem, 0.68fr) minmax(0, 1.32fr);
   }
 
+  /* Inputs stay in view while the (taller) results column scrolls. */
+  .scenario-lab-input-card {
+    position: sticky;
+    top: var(--ct-space-4);
+    align-self: start;
+  }
+
+  .scenario-lab-output-card.glass-panel {
+    min-height: min(36rem, calc(100dvh - var(--ct-space-24)));
+  }
+}
+
+@container projection-shell (min-width: 42rem) {
   .projection-studio-workspace {
-    grid-template-columns: minmax(var(--ct-regime-card-min-w), var(--ct-vault-card-min-w)) minmax(0, 1fr);
+    align-items: stretch;
+    grid-template-columns: minmax(18rem, 0.74fr) minmax(0, 1.26fr);
+  }
+
+  .projection-studio-output,
+  .projection-studio-output-stage {
+    min-height: 100%;
+  }
+}
+
+@container lab-shell (max-width: 41.999rem) {
+  .scenario-lab-input-scroll {
+    max-height: 28rem;
+    overflow-y: auto;
+  }
+
+  .scenario-lab-output-card,
+  .scenario-lab-output-card.glass-panel,
+  .scenario-lab-output-empty {
+    min-height: min(24rem, 55dvh);
+  }
+}
+
+@container projection-shell (max-width: 41.999rem) {
+  .projection-studio-input-card {
+    max-height: 42rem;
+  }
+
+  .projection-studio-input-scroll {
+    overflow-y: auto;
+  }
+
+  .projection-studio-output-stage {
+    min-height: min(24rem, 55dvh);
+  }
+}
+
+@media (max-width: 47.999rem) {
+  .scenario-preset-bar,
+  .projection-studio-preset-rail {
+    padding: var(--ct-space-4);
+  }
+
+  .scenario-preset-bar__head,
+  .projection-studio-preset-rail__head {
+    justify-content: flex-start;
+  }
+
+  .scenario-preset-bar__button,
+  .projection-studio-preset-button {
+    min-width: 8.75rem;
   }
 }
 
@@ -647,7 +988,6 @@
 .dashboard-assets-title {
   margin-top: var(--ct-space-2);
   font-size: var(--ct-text-display);
-  filter: drop-shadow(var(--ct-glow-subtle));
 }
 
 .dashboard-assets-card__title {
@@ -676,9 +1016,7 @@
   justify-self: center;
   border-radius: var(--ct-radius-full);
   background:
-    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--ct-accent) 12%, transparent), transparent 36%),
     radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--ct-status-info) 8%, transparent), transparent 62%);
-  filter: drop-shadow(var(--ct-glow-subtle));
 }
 
 .dashboard-assets-orbit svg {
@@ -755,11 +1093,9 @@
   flex-direction: column;
   gap: var(--ct-space-4);
   padding: var(--ct-space-4);
-  border: 1px solid color-mix(in srgb, var(--ct-accent) 18%, var(--ct-border-soft));
+  border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-xl);
-  background:
-    radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--ct-accent) 10%, transparent), transparent 42%),
-    var(--ct-surface-0);
+  background: var(--ct-surface-0);
 }
 
 .dashboard-assets-performance__header,
@@ -867,9 +1203,7 @@
   padding: var(--ct-space-4);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-lg);
-  background:
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--ct-accent) 8%, transparent), transparent 46%),
-    var(--ct-surface-0);
+  background: var(--ct-surface-0);
 }
 
 .dashboard-assets-stat > div {
@@ -1153,7 +1487,9 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 .ct-z-base { z-index: var(--ct-z-base); }
-.ct-drop-glow-subtle { filter: drop-shadow(var(--ct-glow-subtle)); }
+/* Lueur verte retirée des titres/metrics des box centrales (rayonnait dans les
+   cartes blanches). Classe neutralisée — no-op, réversible. */
+.ct-drop-glow-subtle { filter: none; }
 .ct-leading-none { line-height: var(--ct-leading-none); }
 .ct-tracking-wide { letter-spacing: var(--ct-tracking-wide); }
 .ct-text-micro-size { font-size: var(--ct-text-micro); }
@@ -1196,8 +1532,8 @@
 /* glass-panel → ct-card visuel */
 .glass-panel {
   background: var(--ct-surface-1);
-  backdrop-filter: blur(40px) saturate(110%);
-  -webkit-backdrop-filter: blur(40px) saturate(110%);
+  backdrop-filter: blur(40px) saturate(100%);
+  -webkit-backdrop-filter: blur(40px) saturate(100%);
   border: 1px solid var(--ct-border);
   box-shadow: var(--ct-shadow-depth);
   border-radius: var(--ct-radius-lg);
@@ -1206,9 +1542,12 @@
     border-color var(--ct-dur-base) var(--ct-ease);
 }
 
+/* Hover discret : on garde la MÊME surface (pas d'éclaircissement marqué du
+   fond — trop fort par-dessus l'image) et on ne renforce que légèrement la
+   bordure (cran calme entre border 0.10 et strong 0.16). Indice de survol
+   institutionnel, pas un flash. */
 .glass-panel:hover {
-  background: var(--ct-surface-2);
-  border-color: var(--ct-border-strong);
+  border-color: rgba(255, 255, 255, 0.13);
 }
 
 .glass-panel-subtle {
@@ -1253,7 +1592,7 @@
   background:
     linear-gradient(color-mix(in srgb, #fff 3%, transparent), color-mix(in srgb, #fff 3%, transparent)),
     var(--ct-surface-2);
-  border-color: var(--ct-border-strong);
+  border-color: rgba(255, 255, 255, 0.13);
 }
 
 /* .h1 → ct-title style */
@@ -1452,8 +1791,8 @@
   border-radius: var(--ct-radius-full);
   background: var(--ct-surface-2);
   border: 1px solid var(--ct-border-strong);
-  backdrop-filter: blur(60px) saturate(110%) brightness(105%);
-  -webkit-backdrop-filter: blur(60px) saturate(110%) brightness(105%);
+  backdrop-filter: blur(60px) saturate(100%) brightness(105%);
+  -webkit-backdrop-filter: blur(60px) saturate(100%) brightness(105%);
   box-shadow: var(--ct-shadow-elevated);
 }
 
@@ -1538,8 +1877,8 @@
   background: var(--ct-surface-2) !important;
   border: 1px solid var(--ct-border) !important;
   color: var(--ct-text-primary) !important;
-  backdrop-filter: blur(40px) saturate(110%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(110%) !important;
+  backdrop-filter: blur(40px) saturate(100%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(100%) !important;
 }
 
 [data-sonner-toaster] [data-sonner-toast] [data-description] {
@@ -1569,11 +1908,11 @@
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 64%, transparent) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 76%, transparent) 100%
+      color-mix(in srgb, var(--ct-bg-deep) 14%, transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 24%, transparent) 100%
     ) !important;
-  backdrop-filter: blur(20px) saturate(115%);
-  -webkit-backdrop-filter: blur(20px) saturate(115%);
+  backdrop-filter: blur(20px) saturate(100%);
+  -webkit-backdrop-filter: blur(20px) saturate(100%);
   border-right: 1px solid color-mix(in srgb, var(--ct-text-strong) 7%, var(--ct-border-soft));
   /* Rail verrouillé en position fermée — largeur fixe, jamais déployé. */
   width: 88px !important;
@@ -1589,11 +1928,11 @@
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 30%, transparent) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 42%, transparent) 100%
+      color-mix(in srgb, var(--ct-bg-deep) 68%, transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 80%, transparent) 100%
     ) !important;
-  backdrop-filter: blur(28px) saturate(120%);
-  -webkit-backdrop-filter: blur(28px) saturate(120%);
+  backdrop-filter: blur(28px) saturate(100%);
+  -webkit-backdrop-filter: blur(28px) saturate(100%);
   border-left: 1px solid color-mix(in srgb, var(--ct-text-strong) 7%, var(--ct-border-soft));
 }
 
@@ -1625,48 +1964,49 @@
    translucides — cf. historique portfolio.css). Voile de lisibilité léger
    intégré pour garder cartes / texte / KPI au-dessus du fond. */
 .ct-panels-row {
+  position: relative;
   background-color: var(--ct-bg-deep);
   background-image:
     /* 1. grain ultra-fin — tue le banding */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E"),
-    /* 2. vignette de RÉCESSION — assombrit les bords, pousse le centre AU FOND (profondeur) */
+    /* 2. vignette noire — assombrit les bords, pousse le centre au fond (profondeur).
+          PLUS AUCUN halo vert injecté : l'image porte seule le visuel. */
     radial-gradient(
       135% 125% at 50% 44%,
       transparent 26%,
       color-mix(in srgb, #000000 38%, transparent) 64%,
       color-mix(in srgb, #000000 70%, transparent) 100%
     ),
-    /* 3. plan vert PROFOND haut-gauche — lointain, faible (couche de profondeur) */
-    radial-gradient(
-      62% 52% at 20% 16%,
-      color-mix(in srgb, var(--ct-accent) 11%, transparent) 0%,
-      transparent 58%
-    ),
-    /* 4. halo vert FOCAL — "présence au fond", glassy multi-stop, vert marqué translucide */
-    radial-gradient(
-      78% 62% at 50% 40%,
-      color-mix(in srgb, var(--ct-accent) 24%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 11%, transparent) 28%,
-      color-mix(in srgb, var(--ct-accent) 3%, transparent) 50%,
-      transparent 66%
-    ),
-    /* 5. lueur d'HORIZON verte — monte du bas, ancre la profondeur "au fond là" */
-    radial-gradient(
-      150% 80% at 50% 112%,
-      color-mix(in srgb, var(--ct-accent) 20%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 7%, transparent) 32%,
-      transparent 60%
-    ),
-    /* 6. base verticale dimensionnelle (haut sombre → bas profond) */
+    /* 3. base verticale noire (haut sombre → bas profond) */
     linear-gradient(
       180deg,
       color-mix(in srgb, #000000 24%, transparent) 0%,
       transparent 42%,
       color-mix(in srgb, var(--ct-bg-deep) 30%, transparent) 100%
     );
-  background-size: 140px 140px, cover, cover, cover, cover, cover;
-  background-position: 0 0, center, center, center, center, center;
-  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  /* bg-deep n'est plus opaque : l'image (::before) doit transparaître. */
+  background-color: transparent;
+  background-size: 140px 140px, cover, cover;
+  background-position: 0 0, center, center;
+  background-repeat: repeat, no-repeat, no-repeat;
+}
+
+/* IMAGE SPATIALE — couche la plus profonde, sur son propre pseudo-élément pour
+   pouvoir baisser SA luminosité (brightness) indépendamment des gradients verts
+   qui restent à pleine intensité au-dessus (.ct-panels-row). */
+.ct-panels-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("/backgrounds/spatial-glassmo.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* image "deep black premium" déjà sombre — légère baisse de luminosité pour
+     la fondre encore plus dans le shell sans l'éteindre. */
+  filter: brightness(0.7);
 }
 
 /* Centre transparent → laisse voir le fond spatial du parent. La zone de contenu

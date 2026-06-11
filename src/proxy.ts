@@ -80,11 +80,15 @@ function loginRedirect(req: NextRequest): NextResponse {
 export default async function proxy(
   request: NextRequest,
 ): Promise<NextResponse> {
-  // --- 1. Request-id propagation (tracing) ----------------------------------
+  // --- 1. Request-id propagation (tracing) + pathname forwarding ------------
   const requestHeaders = new Headers(request.headers);
   if (!requestHeaders.get("x-request-id")) {
     requestHeaders.set("x-request-id", generateRequestId());
   }
+  // Forward the real request pathname so Server Components (e.g. the (product)
+  // layout) can read the destination and pass it to requireInvestor() — enabling
+  // a correct /login?from=<actual-path> redirect instead of a static fallback.
+  requestHeaders.set("x-pathname", request.nextUrl.pathname);
 
   const next = (): NextResponse =>
     NextResponse.next({ request: { headers: requestHeaders } });

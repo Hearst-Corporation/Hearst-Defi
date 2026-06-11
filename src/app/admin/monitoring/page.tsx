@@ -13,7 +13,6 @@ export default async function MonitoringPage() {
     <div className="space-y-8">
       <AdminPageHeader
         title="Monitoring"
-        description="Observability dashboard for LLM runs, costs, and system health."
       />
 
       {/* KPI Cards */}

@@ -51,14 +51,6 @@ export default async function DistributionsPage() {
     <div className="space-y-8">
       <AdminPageHeader
         title="Distributions"
-        description={
-          <>
-            Compute and confirm monthly USDC distributions to active investors.
-            Requires{" "}
-            <strong className="ct-text-body">2 distinct signer approvals</strong>{" "}
-            before finalisation.
-          </>
-        }
       />
 
       {/* Compute + confirm form (client) */}

@@ -1,8 +1,14 @@
 import Image from "next/image";
 
 import { LoginPanel } from "@/components/auth/login-panel";
+import { listVaults } from "@/lib/data/vaults";
 
-export function LoginSplit() {
+export async function LoginSplit() {
+  const vaults = await listVaults();
+  const vault = vaults.find((v) => v.ticker === "HYV-A") ?? vaults[0];
+  const apyRange =
+    vault != null ? `${vault.apyLow}–${vault.apyHigh}%` : null;
+
   return (
     <div className="login-split relative !p-0">
       <div aria-hidden="true" className="login-split__ambient">
@@ -31,13 +37,15 @@ export function LoginSplit() {
                 <span className="login-split__title-accent">Bitcoin mining</span>
               </h1>
 
-              <div className="login-split__apy-chip">
-                <span aria-hidden className="login-split__apy-dot" />
-                <span className="eyebrow ct-text-muted">Target APY</span>
-                <span className="body-sm font-semibold ct-text-primary tabular">
-                  8–15%
-                </span>
-              </div>
+              {apyRange != null && (
+                <div className="login-split__apy-chip">
+                  <span aria-hidden className="login-split__apy-dot" />
+                  <span className="eyebrow ct-text-muted">Target APY</span>
+                  <span className="body-sm font-semibold ct-text-primary tabular">
+                    {apyRange}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </section>

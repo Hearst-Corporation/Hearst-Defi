@@ -78,25 +78,43 @@ function deriveImpact(output: ScenarioOutput): string {
 
 interface PtaiBlockProps {
   output: ScenarioOutput;
+  /**
+   * "card" → standalone Card with title (default).
+   * "embedded" → the bare Ptai primitive, for placement inside a parent
+   * decision panel that already owns the section label.
+   */
+  variant?: "card" | "embedded";
+  className?: string;
 }
 
-export function PtaiBlock({ output }: PtaiBlockProps) {
+export function PtaiBlock({
+  output,
+  variant = "card",
+  className,
+}: PtaiBlockProps) {
   const projection = deriveProjection(output);
   const trigger = deriveTrigger(output);
   const action = deriveAction(output);
   const impact = deriveImpact(output);
+
+  const ptai = (
+    <Ptai
+      projection={projection}
+      trigger={trigger}
+      action={action}
+      impact={impact}
+      className={className}
+    />
+  );
+
+  if (variant === "embedded") return ptai;
 
   return (
     <Card>
       <CardHeader className="mb-4">
         <CardTitle>Projection · Trigger · Action · Impact</CardTitle>
       </CardHeader>
-      <Ptai
-        projection={projection}
-        trigger={trigger}
-        action={action}
-        impact={impact}
-      />
+      {ptai}
     </Card>
   );
 }

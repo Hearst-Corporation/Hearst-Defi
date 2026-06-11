@@ -78,13 +78,6 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
     <div className="space-y-8">
       <AdminPageHeader
         title="Rebalancing"
-        description={
-          <>
-            Review engine-triggered rebalance signals. Each signal requires{" "}
-            <strong className="ct-text-body">2 distinct signer approvals</strong>{" "}
-            before execution. Actions are off-chain at MVP.
-          </>
-        }
       />
 
       <div className="ct-seg-scroll">

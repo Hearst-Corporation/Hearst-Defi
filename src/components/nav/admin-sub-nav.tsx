@@ -26,10 +26,16 @@ export function AdminSubNav() {
     (s) => s.tabs.some((t) => matches(pathname, t.href)) || matches(pathname, s.href),
   );
 
-  if (!section || section.tabs.length <= 1) return null;
+  if (!section) return null;
+
+  // Exclude the root tab (the one whose href matches the section root) — it
+  // duplicates the page's own H1 and is reachable via the left rail.
+  const visibleTabs = section.tabs.filter((t) => t.href !== section.href);
+
+  if (visibleTabs.length <= 1) return null;
 
   // Longest matching href wins (so nested routes pick the most specific tab).
-  const activeHref = section.tabs
+  const activeHref = visibleTabs
     .filter((t) => matches(pathname, t.href))
     .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
@@ -38,7 +44,7 @@ export function AdminSubNav() {
       aria-label={`${section.label} sections`}
       className="mb-6 flex items-center gap-1 border-b border-[var(--ct-border-soft)]"
     >
-      {section.tabs.map((tab) => {
+      {visibleTabs.map((tab) => {
         const isActive = tab.href === activeHref;
         return (
           <Link

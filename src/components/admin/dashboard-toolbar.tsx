@@ -11,38 +11,18 @@ import { cn } from "@/lib/cn";
  * row (not crammed into AdminPageHeader actions).
  */
 export function DashboardToolbar({
-  vaultName,
   vaultId,
-  vaultIsPreset,
   mode,
   vaultOptions,
   className,
 }: {
-  vaultName: string;
   vaultId: string;
-  vaultIsPreset: boolean;
   mode: "simple" | "advanced";
   vaultOptions: VaultSelectorOption[];
   className?: string;
 }) {
   return (
-    <AdminPageHeader
-      className={className}
-      title="Dashboard"
-      description={
-        <span className="inline-flex flex-wrap items-center gap-2">
-          <span className="font-medium ct-text-primary">{vaultName}</span>
-          {vaultIsPreset ? (
-            <span
-              className="ct-pill text-micro uppercase tracking-wide ct-text-faint"
-              title="Preset only · values from engine fixture, not live data"
-            >
-              preset
-            </span>
-          ) : null}
-        </span>
-      }
-    >
+    <AdminPageHeader className={className} title="Dashboard">
       <div
         className={cn(
           "flex flex-col gap-3 border-b border-[var(--ct-border-soft)] pb-4",

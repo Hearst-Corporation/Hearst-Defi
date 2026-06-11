@@ -79,7 +79,6 @@ export default function SimulateDemoPage() {
     <div className="mx-auto max-w-2xl space-y-8">
       <AdminPageHeader
         title="Simulation Panel — Demo"
-        description="Pre-execution fork simulation (Tally pattern). Stub only — no real Tenderly calls."
       />
 
       {/* Proposal selector */}

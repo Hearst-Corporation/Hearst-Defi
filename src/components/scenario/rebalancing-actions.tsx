@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { NestedCallout } from "@/components/ui/nested-panel";
 import { Ptai } from "@/components/ui/ptai";
 import type { BtcTriggerKind, ScenarioOutput } from "@/lib/engine/types";
 
@@ -14,7 +15,7 @@ import type { BtcTriggerKind, ScenarioOutput } from "@/lib/engine/types";
 
 type BadgeVariant = "success" | "warning" | "danger" | "default" | "brand";
 
-interface RebalancingAction {
+export interface RebalancingAction {
   ruleId: string;
   label: string;
   projection: string;
@@ -65,7 +66,7 @@ function impactLine(output: ScenarioOutput): string {
   return `APY range ${low.toFixed(1)}–${high.toFixed(1)}%; stressed floor ${stressed}%. Risk score ${output.risk_score.toFixed(0)}/100 (${riskLabel}).`;
 }
 
-function deriveActions(output: ScenarioOutput): RebalancingAction[] {
+export function deriveActions(output: ScenarioOutput): RebalancingAction[] {
   const actions: RebalancingAction[] = [];
   const projection = projectionLine(output);
   const impact = impactLine(output);
@@ -151,74 +152,96 @@ function deriveActions(output: ScenarioOutput): RebalancingAction[] {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-interface RebalancingActionsProps {
-  output: ScenarioOutput;
-}
-
-export function RebalancingActions({ output }: RebalancingActionsProps) {
-  const actions = deriveActions(output);
-
+/** Inner list (or empty callout) shared by the standalone Card and the
+ * embedded (inside a parent panel) renders. No own chrome. */
+function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
   if (actions.length === 0) {
     return (
-      <Card>
-        <CardHeader className="mb-3">
-          <CardTitle>Rebalancing Actions</CardTitle>
-          <span className="eyebrow">Max 4 · Rule-based</span>
-        </CardHeader>
-        <div className="flex items-center gap-3 rounded-sm glass-panel-subtle px-4 py-3">
-          <span
-            className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ct-status-success)]"
-            aria-hidden
-          />
-          <p className="text-xs ct-text-muted">
-            No rebalancing actions triggered — vault allocation is within target bands.
-          </p>
-        </div>
-      </Card>
+      <NestedCallout className="flex items-center gap-3">
+        <span
+          className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--ct-status-success)"
+          aria-hidden
+        />
+        <p className="body-xs ct-text-muted">
+          No rebalancing actions triggered — vault allocation is within target
+          bands.
+        </p>
+      </NestedCallout>
     );
   }
 
   return (
-    <Card>
+    <ol className="space-y-4">
+      {actions.map((action, idx) => (
+        <li key={action.ruleId} className="space-y-2">
+          <div className="flex items-center gap-3">
+            <span
+              className={
+                "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-micro font-bold tabular-nums " +
+                (action.armed
+                  ? "bg-(--ct-accent) text-(--ct-bg-deep)"
+                  : "ct-surface-3 ct-text-muted")
+              }
+              aria-hidden
+            >
+              {idx + 1}
+            </span>
+            <span className="body-sm font-semibold ct-text-primary">
+              {action.label}
+            </span>
+            <Badge variant={action.variant} className="text-micro">
+              {action.ruleId}
+            </Badge>
+          </div>
+
+          <Ptai
+            projection={action.projection}
+            trigger={action.trigger}
+            action={action.action}
+            impact={action.impact}
+          />
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+interface RebalancingActionsProps {
+  output: ScenarioOutput;
+  /**
+   * "card" → standalone Card with its own header + disclaimer (default).
+   * "embedded" → list only, for placement inside a parent decision panel
+   * that already owns the section header and disclaimer.
+   */
+  variant?: "card" | "embedded";
+  className?: string;
+}
+
+export function RebalancingActions({
+  output,
+  variant = "card",
+  className,
+}: RebalancingActionsProps) {
+  const actions = deriveActions(output);
+
+  if (variant === "embedded") {
+    return (
+      <div className={className}>
+        <ActionsBody actions={actions} />
+      </div>
+    );
+  }
+
+  return (
+    <Card className={className}>
       <CardHeader className="mb-4">
         <CardTitle>Rebalancing Actions</CardTitle>
         <span className="eyebrow">Max 4 · Rule-based · PTAI</span>
       </CardHeader>
 
-      <ol className="space-y-4">
-        {actions.map((action, idx) => (
-          <li key={action.ruleId} className="space-y-2">
-            <div className="flex items-center gap-3">
-              <span
-                className={
-                  "mt-0 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-micro font-bold tabular-nums " +
-                  (action.armed
-                    ? "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]"
-                    : "ct-surface-3 ct-text-muted")
-                }
-                aria-hidden
-              >
-                {idx + 1}
-              </span>
-              <span className="text-sm font-semibold ct-text-primary">
-                {action.label}
-              </span>
-              <Badge variant={action.variant} className="text-micro">
-                {action.ruleId}
-              </Badge>
-            </div>
+      <ActionsBody actions={actions} />
 
-            <Ptai
-              projection={action.projection}
-              trigger={action.trigger}
-              action={action.action}
-              impact={action.impact}
-            />
-          </li>
-        ))}
-      </ol>
-
-      <p className="mt-4 text-xs italic ct-text-faint leading-[var(--ct-leading-relaxed)]">
+      <p className="mt-4 body-xs italic ct-text-faint leading-(--ct-leading-relaxed)">
         Conditional projection — not guaranteed. Methodology v1.0.
       </p>
     </Card>

@@ -62,7 +62,6 @@ export default async function CustomersPage({
     <div className="space-y-8">
       <AdminPageHeader
         title="Customers"
-        description="Every investor provisioned on the platform: KYC status, active positions and principal under management. Read-only supervision view."
       />
 
       <section className="space-y-3" aria-label="Customers">

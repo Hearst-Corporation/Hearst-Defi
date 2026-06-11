@@ -100,12 +100,6 @@ export default async function NewVaultPage({ searchParams }: NewVaultPageProps) 
     <div className="space-y-8">
       <AdminPageHeader
         title="New Vault Deployment"
-        description={
-          <p>
-            7-step wizard. Nothing is persisted until you click{" "}
-            <span className="ct-text-primary">Submit for Review</span> on the last step.
-          </p>
-        }
       />
 
       {showGate && resumeForm && draftUpdatedAt && stepLabel && stepNumber ? (

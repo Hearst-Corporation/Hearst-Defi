@@ -3,8 +3,9 @@
  *
  * Source de vérité pour la navigation intra-app de Hearst Connect.
  * Consommé par :
- *   - (product)/layout.tsx  → nav custom dans le rail gauche (slot .ct-rail-left-intra)
- *   - admin/layout.tsx      → rail admin (ADMIN_NAV + séparateur + ANALYTICS_NAV)
+ *   - product-rail-intra.tsx → InvestorRailIntra (PRODUCT_NAV) + AdminRailIntra
+ *     (une entrée rail par section de ADMIN_SECTIONS + séparateur + retour app).
+ *   - admin-sub-nav.tsx      → AdminSubNav (sous-onglets de la section active).
  *
  * NOTE : Le RailLeft de @hearst/cockpit-shell ne supporte PAS de prop nav
  * intra-app (API v0.1.0). La nav intra est composée dans les layouts au-dessus
@@ -71,6 +72,16 @@ export type AdminSection = {
 
 /**
  * Strategy OS nav — full admin surface for RWA vault operations.
+ *
+ * Consolidated 2026-06-11 from 7 → 5 rail entries:
+ *   - Dashboard absorbs the Investors CRM (Customers · Feedback) as sub-tabs.
+ *   - Rebalancing (single page /admin/signals) folded into Vaults.
+ *   - Governance (Proposals · Propose · Allowlist) folded into Proof & System.
+ *   - New "Operations" section surfaces the previously palette-only tools
+ *     (Roadmap · Spec · Investor Memo), so they are reachable from the rail.
+ *
+ * Sub-nav contract: the section's `href` must equal its FIRST tab's href, so
+ * landing on the section route lights up the leading tab in <AdminSubNav>.
  */
 export const ADMIN_SECTIONS: AdminSection[] = [
   {
@@ -78,7 +89,11 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     label: "Dashboard",
     icon: "LayoutDashboard",
     href: "/admin/dashboard",
-    tabs: [],
+    tabs: [
+      { id: "dashboard-overview", label: "Overview", href: "/admin/dashboard", icon: "LayoutDashboard" },
+      { id: "customers", label: "Investors", href: "/admin/customers", icon: "Users" },
+      { id: "feedback", label: "Feedback", href: "/admin/feedback", icon: "MessageSquare" },
+    ],
   },
   {
     id: "strategy",
@@ -98,33 +113,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     tabs: [
       { id: "vaults-overview", label: "Overview", href: "/admin/vaults", icon: "Vault" },
       { id: "distributions", label: "Distributions", href: "/admin/distributions", icon: "FileText" },
-    ],
-  },
-  {
-    id: "rebalancing",
-    label: "Rebalancing",
-    icon: "Zap",
-    href: "/admin/signals",
-    tabs: [],
-  },
-  {
-    id: "governance",
-    label: "Governance",
-    icon: "Scale",
-    href: "/admin/governance",
-    tabs: [
-      { id: "proposals", label: "Proposals", href: "/admin/governance", icon: "Scale" },
-      { id: "propose", label: "Propose", href: "/admin/governance/propose", icon: "FileText" },
-    ],
-  },
-  {
-    id: "investors",
-    label: "Investors",
-    icon: "Users",
-    href: "/admin/customers",
-    tabs: [
-      { id: "customers", label: "Customers", href: "/admin/customers", icon: "Users" },
-      { id: "feedback", label: "Feedback", href: "/admin/feedback", icon: "MessageSquare" },
+      { id: "rebalancing", label: "Rebalancing", href: "/admin/signals", icon: "Zap" },
     ],
   },
   {
@@ -136,6 +125,20 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       { id: "proof-center", label: "Proof Center", href: "/admin/proof-center", icon: "ShieldCheck" },
       { id: "proofs", label: "Proofs", href: "/admin/proofs", icon: "FileCheck" },
       { id: "monitoring", label: "Monitoring", href: "/admin/monitoring", icon: "Settings2" },
+      { id: "security", label: "Security", href: "/admin/security", icon: "ShieldCheck" },
+      { id: "governance", label: "Governance", href: "/admin/governance", icon: "Scale" },
+      { id: "allowlist", label: "Allowlist", href: "/admin/governance/allowlist", icon: "Users" },
+    ],
+  },
+  {
+    id: "operations",
+    label: "Operations",
+    icon: "FileText",
+    href: "/admin/roadmap",
+    tabs: [
+      { id: "roadmap", label: "Roadmap", href: "/admin/roadmap", icon: "FileText" },
+      { id: "spec", label: "Spec", href: "/admin/spec", icon: "FileCheck" },
+      { id: "investor-memo", label: "Investor Memo", href: "/admin/investor-memo", icon: "FileText" },
     ],
   },
 ];

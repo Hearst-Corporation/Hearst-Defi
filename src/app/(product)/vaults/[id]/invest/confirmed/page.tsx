@@ -26,6 +26,7 @@ import { DepositSuccessIcon } from "@/components/vaults/deposit-success-icon";
 import { StepProgress } from "@/components/vaults/step-progress";
 import { OpsContactCard } from "@/components/onboarding/OpsContactCard";
 import { Card } from "@/components/ui/card";
+import { CopyAddressButton } from "./copy-address-button";
 
 export const dynamic = "force-dynamic";
 
@@ -100,6 +101,10 @@ const VAULT_CONTRACT =
   process.env.NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS ??
   process.env.NEXT_PUBLIC_HEARST_VAULT_ADDRESS ??
   null;
+
+// Calendly booking URL — ops can override without a code change.
+const CALENDLY_URL =
+  process.env.NEXT_PUBLIC_CALENDLY_URL ?? "https://calendly.com/hearstconnect/15min";
 
 export default async function ConfirmedPage({ params, searchParams }: PageProps) {
   const [{ id }, sp] = await Promise.all([params, searchParams]);
@@ -178,15 +183,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
                   {abbreviateAddress(VAULT_CONTRACT)}
                 </span>
               </div>
-              {/* Copy button — client interaction handled by browser natively via data attr */}
-              <button
-                type="button"
-                data-copy-value={VAULT_CONTRACT}
-                className="body-xs ct-text-muted border border-[var(--ct-border-soft)] rounded-sm px-2 py-1 hover:ct-text-primary hover:border-[var(--ct-border-strong)] transition-colors shrink-0"
-                aria-label="Copy vault contract address"
-              >
-                copy
-              </button>
+              <CopyAddressButton address={VAULT_CONTRACT} />
             </div>
           )}
 
@@ -259,7 +256,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
         </Card>
 
         {/* ── Ops contact ── */}
-        <OpsContactCard />
+        <OpsContactCard calendlyHref={CALENDLY_URL} />
 
         {/* ── Primary CTA ── */}
         <div className="flex flex-col gap-3 w-full">

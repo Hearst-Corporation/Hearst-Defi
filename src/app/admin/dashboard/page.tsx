@@ -31,7 +31,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     listAllVaults({ status: "live-or-paused" }),
     loadAdminOverview(),
   ]);
-  const { vault, vaultMeta } = data;
+  const { vaultMeta } = data;
+  const vault = data.vault;
   const preview = vaultMeta.livePreview;
 
   const vaultOptions = allVaultRefs.map((ref) => ({
@@ -50,6 +51,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       : apyMid > targetHigh
         ? "above target band"
         : "within target band";
+  // ── Risk score — single source of truth ──────────────────────────────────────
+  // `loadRiskFramework()` computes the composite from live engine inputs (or
+  // engine fallback inputs when the DB is empty). `loadDashboardData()` falls
+  // back to METHODOLOGY_ANCHORS.RISK_SCORE (a stale constant = 38) when no
+  // VaultSnapshot exists, which diverges from the engine computation (~47).
+  // Reconcile here: replace vault.riskScore with risk.composite so every
+  // downstream component reading data.vault.riskScore gets the same value that
+  // the "Risk score" stat card displays from risk.composite.
+  const reconciledData = {
+    ...data,
+    vault: { ...data.vault, riskScore: risk.composite },
+  };
+
   // ── Capital posture (custody reserves when scope pinned, else snapshot AUM) ──
   const { custodyConfigured, custodyReservesUsdc, custodyProvenance } =
     overview.proof;
@@ -80,16 +94,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       <div className="relative z-10">
         <DashboardToolbar
-          vaultName={vaultMeta.name}
           vaultId={vaultMeta.id}
-          vaultIsPreset={preview}
           mode={mode}
           vaultOptions={vaultOptions}
         />
       </div>
 
       <DashboardAssetsBoard
-        data={data}
+        data={reconciledData}
         risk={risk}
         proof={overview.proof}
         actions={overview.actions}

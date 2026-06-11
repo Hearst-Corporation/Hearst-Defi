@@ -18,7 +18,6 @@ export default async function FeedbackPage() {
     <div className="space-y-8">
       <AdminPageHeader
         title="Feedback"
-        description="Lightweight feedback channel for the team. Reference a roadmap item ID if relevant so blockers stay linked."
       />
 
       <Card>

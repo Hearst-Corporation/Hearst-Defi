@@ -143,7 +143,7 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
   const showOutputs = outputs.a !== null && outputs.b !== null;
 
   return (
-    <div className="scenario-lab-shell">
+    <div className="scenario-compare-shell">
       {/* Selectors row */}
       <div className="grid gap-4 md:grid-cols-2">
         <PresetPicker

@@ -56,11 +56,6 @@ export default async function SpecPage({
       <article className="min-w-0">
         <AdminPageHeader
           title={doc.title}
-          description={
-            <span className="mono body-xs ct-text-faint">
-              /docs/spec/{slug}.mdx
-            </span>
-          }
           className="mb-6"
         />
         <Markdown content={doc.content} demoteH1 />

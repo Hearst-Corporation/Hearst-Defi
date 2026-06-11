@@ -218,19 +218,19 @@ export function NavSparkline({ output }: NavSparklineProps) {
       </CardHeader>
 
       <div className="mb-3 flex flex-wrap items-end gap-6 text-sm">
-        <div className="flex flex-col gap-0_5">
+        <div className="flex flex-col gap-0.5">
           <span className="stat-label text-micro">Low band</span>
           <span className="mono font-bold ct-text-body">
             {last ? formatUsd(last.p5) : "—"}
           </span>
         </div>
-        <div className="flex flex-col gap-0_5">
+        <div className="flex flex-col gap-0.5">
           <span className="stat-label text-micro">Midpoint</span>
           <span className="mono font-bold ct-text-strong">
             {last ? formatUsd(last.p50) : "—"}
           </span>
         </div>
-        <div className="flex flex-col gap-0_5">
+        <div className="flex flex-col gap-0.5">
           <span className="stat-label text-micro">High band</span>
           <span className="mono font-bold ct-text-body">
             {last ? formatUsd(last.p95) : "—"}
@@ -241,8 +241,9 @@ export function NavSparkline({ output }: NavSparklineProps) {
         </div>
       </div>
 
-      {/* Fan chart — real SVG, percentile-like proxy bands from APY range */}
-      <div className="relative h-20 w-full overflow-hidden">
+      {/* Fan chart — real SVG, percentile-like proxy bands from APY range.
+          Sized as the second main result block, not a cramped sparkline. */}
+      <div className="relative h-44 w-full overflow-hidden sm:h-56">
         <ChartDisclaimerUnderlay />
         {series.length > 0 ? (
           <FanChart

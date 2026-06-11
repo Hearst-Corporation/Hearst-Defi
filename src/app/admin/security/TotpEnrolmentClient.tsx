@@ -106,7 +106,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
         </div>
 
         <form action={handleConfirm} className="space-y-4">
-          <label className="block text-xs" htmlFor="totp-code">
+          <label className="block body-xs" htmlFor="totp-code">
             <span className="mb-1 block ct-text-muted uppercase tracking-wide">
               Verification code
             </span>

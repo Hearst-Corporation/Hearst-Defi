@@ -54,8 +54,13 @@ export function PresetBar({ selected, onSelect, disabled }: PresetBarProps) {
   return (
     <nav
       aria-label="Scenario presets"
-      className="flex flex-wrap gap-2"
+      className="scenario-preset-bar"
     >
+      <div className="scenario-preset-bar__head">
+        <p className="eyebrow ct-text-muted">Preset library</p>
+        <span className="body-xs ct-text-faint">Select a starting scenario</span>
+      </div>
+      <div className="scenario-preset-bar__items">
       {PRESETS.map((p) => {
         const isActive = selected === p.id;
         return (
@@ -69,13 +74,16 @@ export function PresetBar({ selected, onSelect, disabled }: PresetBarProps) {
             title={p.description}
             aria-pressed={isActive}
             className={cn(
-              isActive && "shadow-[var(--ct-shadow-focus-ring)]",
+              "scenario-preset-bar__button",
+              isActive && "shadow-(--ct-shadow-focus-ring)",
             )}
           >
-            {p.label}
+            <span className="scenario-preset-bar__label">{p.label}</span>
+            <span className="scenario-preset-bar__description">{p.description}</span>
           </Button>
         );
       })}
+      </div>
     </nav>
   );
 }

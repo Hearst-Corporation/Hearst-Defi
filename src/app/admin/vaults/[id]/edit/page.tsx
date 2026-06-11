@@ -71,14 +71,6 @@ export default async function EditVaultPage({ params }: PageProps) {
           </Button>
         }
         title="Edit Vault Draft"
-        description={
-          <p>
-            Update the draft for{" "}
-            <span className="ct-text-primary">{vault.name}</span>. Changes are saved when
-            you click <span className="ct-text-primary">Save Changes</span> on the last
-            step.
-          </p>
-        }
       />
 
       <VaultForm mode="edit" vaultId={id} initial={initial} />

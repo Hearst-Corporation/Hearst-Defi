@@ -2,7 +2,6 @@ import { CockpitShell } from "@hearst/cockpit-shell";
 import type { ChatConfig } from "@hearst/cockpit-shell";
 import type { ReactNode } from "react";
 
-import { AmbientLights } from "@/components/ambient-lights";
 import { CT_PRODUCT_CONNECT_HEX } from "@/lib/cockpit-tokens";
 
 const CONNECT_PRODUCTS = [
@@ -22,15 +21,12 @@ export function ConnectShell({
   enableChat?: boolean;
 }) {
   return (
-    <>
-      <AmbientLights />
-      <CockpitShell
-        products={CONNECT_PRODUCTS}
-        appId="connect"
-        chatConfig={enableChat ? CHAT_CONFIG : undefined}
-      >
-        {children}
-      </CockpitShell>
-    </>
+    <CockpitShell
+      products={CONNECT_PRODUCTS}
+      appId="connect"
+      chatConfig={enableChat ? CHAT_CONFIG : undefined}
+    >
+      {children}
+    </CockpitShell>
   );
 }

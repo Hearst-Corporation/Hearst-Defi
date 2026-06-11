@@ -75,7 +75,7 @@ export default function PrivacyPage() {
         <li>Cloud infrastructure (Railway — application hosting, PostgreSQL).</li>
         <li>Error reporting (Sentry).</li>
         <li>Product analytics (PostHog, EU instance).</li>
-        <li>KYC processor — to be named.</li>
+        <li>Identity verification &amp; KYC processor: Persona Identities, LLC.</li>
         <li>Custody provider (Fireblocks, read-only proof-of-reserves access).</li>
       </ul>
 

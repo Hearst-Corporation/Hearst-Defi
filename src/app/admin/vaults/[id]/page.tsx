@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { RejectDeploymentButton } from "@/components/admin/reject-deployment-button";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
-import { VaultStatusPill } from "@/components/admin/vault-status-pill";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -103,17 +102,6 @@ export default async function VaultDetailPage({ params }: PageProps) {
     <div className="space-y-8">
       <AdminPageHeader
         title={vault.name}
-        description={
-          <div className="space-y-2">
-            <div className="flex items-center gap-4">
-              <span className="mono tabular text-lg font-semibold ct-text-strong">
-                {vault.ticker}
-              </span>
-              <VaultStatusPill status={vault.status} />
-            </div>
-            {vault.description ? <p>{vault.description}</p> : null}
-          </div>
-        }
         actions={
         <div className="flex flex-wrap items-center gap-3">
           {vault.status === "draft" && (

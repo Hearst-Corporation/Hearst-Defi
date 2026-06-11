@@ -56,8 +56,7 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
 
           <div
             className={cn(
-              "flex-1 px-6 py-5",
-              "px-5 py-4",
+              "scenario-lab-input-scroll flex-1",
               pending && "pointer-events-none opacity-50",
             )}
           >
@@ -85,17 +84,20 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
                   Running…
                 </>
               ) : (
-                <>
-                  <div className="h-4 w-4 ct-empty-state" />
-                  Run scenario
-                </>
+                "Run scenario"
               )}
             </Button>
           </div>
         </div>
 
         {/* Right: Output panel */}
-        <div ref={outputRef} className="scenario-lab-output-card">
+        <div
+          ref={outputRef}
+          className={cn(
+            "scenario-lab-output-card",
+            !state.output && "glass-panel p-0",
+          )}
+        >
           {state.output ? (
             <OutputPanel
               output={state.output}

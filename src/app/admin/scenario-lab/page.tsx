@@ -6,7 +6,7 @@ import { LabShell } from "@/components/scenario/lab-shell";
 import { MonteCarloPanel } from "@/components/scenario/monte-carlo-panel";
 import { prisma } from "@/lib/db";
 import { fetchBtcPrice } from "@/lib/data/btc-price";
-import { VAULTS, VAULT_YIELD } from "@/lib/engine/vaults";
+import { VAULT_YIELD } from "@/lib/engine/vaults";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
 
@@ -44,7 +44,6 @@ export default async function ScenarioLabPage({
 }: ScenarioLabPageProps) {
   const params = await searchParams;
   const vaultId = resolveVaultId(params.vault);
-  const vault = VAULTS[vaultId];
 
   // Load live market data to seed the scenario sliders with current values.
   // Falls back to BASE_INPUTS defaults if data is unavailable.
@@ -70,17 +69,13 @@ export default async function ScenarioLabPage({
   }
 
   return (
-    <div className="space-y-8">
-      <AdminPageHeader
-        title="Scenario Lab"
-        description={
-          <>
-            Cash-flow explorer for{" "}
-            <span className="ct-text-strong">{vault.label}</span>. Outputs are
-            deterministic, conditional on stated assumptions — not guaranteed.
-          </>
-        }
-        actions={
+    <div className="scenario-lab-page">
+      <AdminPageHeader title="Scenario Lab" />
+
+      <LabShell
+        vaultId={vaultId}
+        initialInputs={liveInputs}
+        vaultSelector={
           <VaultSelector
             active={vaultId}
             options={FIXTURE_VAULT_OPTIONS}
@@ -89,8 +84,6 @@ export default async function ScenarioLabPage({
           />
         }
       />
-
-      <LabShell vaultId={vaultId} initialInputs={liveInputs} />
 
       {FEATURE_FLAGS.ENABLE_MONTE_CARLO && <MonteCarloPanel />}
     </div>

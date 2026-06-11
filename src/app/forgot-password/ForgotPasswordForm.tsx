@@ -30,7 +30,7 @@ export function ForgotPasswordForm() {
 
   return (
     <form action={onSubmit} className="space-y-4" aria-label="Forgot password">
-      <label className="block text-xs" htmlFor="fp-email">
+      <label className="block body-xs" htmlFor="fp-email">
         <span className="mb-1 block ct-text-muted uppercase tracking-wide">
           Email address
         </span>

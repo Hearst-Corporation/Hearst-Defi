@@ -89,28 +89,11 @@ export default async function AdminProofCenterPage({
     ...paper.map((p): UnifiedProof => ({ ...p, source: "paper" })),
   ];
 
-  // Cross-vault proof count for the "All vaults" header
-  const totalProofCount = proofs.length;
-
   return (
     <div className="space-y-12">
       {/* ── Header ─────────────────────────────────────────── */}
       <AdminPageHeader
         title="Proof Center"
-        description={
-          isAllVaults ? (
-            <>
-              All vaults · {totalProofCount} proof{totalProofCount !== 1 ? "s" : ""}.
-              Cross-vault aggregation across live and paused vaults — use the
-              vault selector to drill down.
-            </>
-          ) : (
-            <>
-              Scoped to <strong>{scopeLabel}</strong>. On-chain entries are read
-              live from Base Sepolia.
-            </>
-          )
-        }
         actions={
           <div className="flex flex-wrap items-center gap-3">
             <VaultSelector

@@ -27,35 +27,43 @@ function useHydrated(): boolean {
   );
 }
 
-const PILL_BASE_CLASS = cn(
-  "h-8 rounded-full px-3 text-xs font-medium",
-  "transition-[background-color,color] duration-[var(--ct-dur-base)]",
-  "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
-  "disabled:cursor-not-allowed disabled:opacity-60",
-);
+/**
+ * Tracks the live mount node of the cockpit chat SETTINGS panel
+ * (`.ct-chat-settings`, rendered by `@hearst/cockpit-shell` only while the
+ * chat "réglages" view is open). Returns the element when the settings view is
+ * visible, `null` otherwise. A MutationObserver on <body> keeps it in sync as
+ * the user toggles the gear in/out of the settings view.
+ */
+function useChatSettingsAnchor(): Element | null {
+  const [anchor, setAnchor] = useState<Element | null>(null);
 
-function pillClass(active: boolean): string {
-  return cn(
-    PILL_BASE_CLASS,
-    active
-      ? "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]"
-      : "ct-text-muted hover:ct-text-strong",
-  );
+  useEffect(() => {
+    const resolve = () => {
+      const el = document.querySelector(".ct-chat-settings");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAnchor((prev) => (prev === el ? prev : el));
+    };
+    resolve();
+    const observer = new MutationObserver(resolve);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
+  return anchor;
 }
 
 /**
- * Mode selector for the Cockpit chat (Conversation / Review), mounted GLOBALLY
- * in the product shell (AppChrome) so it is available on every product page —
- * not just /admin. Admin-gated: on mount it calls `GET /api/admin/review-mode`,
- * which is `requireAdmin`-protected; a 403 means "not an admin" and the
- * component renders nothing. So only admins ever see the selector.
+ * Review-mode controls for the Cockpit chat, rendered as a native section AT
+ * THE END of the chat SETTINGS panel ("réglages" view of the right rail) —
+ * NOT as a floating sticky toolbar over the conversation. Admin-gated: on mount
+ * it calls `GET /api/admin/review-mode` (requireAdmin-protected); a 403 means
+ * "not an admin" and the component renders nothing. So only admins ever see it.
  *
- * Visually: portaled INSIDE `<div class="ct-rail-right-body">` (the chat body
- * exposed by `@hearst/cockpit-shell`), positioned `sticky top-0`. The toolbar
- * is part of the chat layout — width inherits from the rail, collapse with
- * the rail, no fixed positioning math, no z-index war with the cockpit
- * stacking context. The optional Review-document Modal still overlays the
- * full viewport (its own portal lives inside the Modal primitive).
+ * Visually it adopts the cockpit-shell settings primitives
+ * (`ct-chat-settings-section` / `-label` / `-row` / `-hint`) so it reads as a
+ * first-class réglage row, appended after the existing settings (API key, …).
+ * It only mounts while the settings view is open (anchor present); switching
+ * back to the conversation removes the panel and this section with it.
  *
  * In Review mode it exposes a "Générer le document" action that distills the
  * conversation into a structured change doc.
@@ -69,7 +77,6 @@ export function AdminChatControls() {
   const [error, setError] = useState<string | null>(null);
   const [doc, setDoc] = useState<string | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
-  const [target, setTarget] = useState<Element | null>(null);
 
   // Resolve admin status + current mode in one call. The route is
   // requireAdmin-gated: 200 → admin (use the returned mode); anything else
@@ -95,13 +102,8 @@ export function AdminChatControls() {
     };
   }, []);
 
-  // Anchor the toolbar inside the chat rail body so it scrolls/collapses with
-  // the rail natively instead of floating fixed above it.
-  useEffect(() => {
-    const el = document.querySelector(".ct-rail-right-body");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTarget(el);
-  }, []);
+  // Anchor into the chat settings panel; null while the settings view is closed.
+  const target = useChatSettingsAnchor();
 
   const switchMode = useCallback(
     async (next: Mode) => {
@@ -269,29 +271,39 @@ export function AdminChatControls() {
   }, [doc]);
 
   const hydrated = useHydrated();
-  // Hidden until hydrated, anchor resolved, and admin status confirmed.
-  if (!hydrated || !target || mode === null) return null;
+  // Hidden until hydrated and admin status confirmed. The settings-panel
+  // section only renders when the réglages view is open (target present), but
+  // the error toast + Modal must stay mountable regardless.
+  if (!hydrated || mode === null) return null;
 
-  return (
-    <>
-      {createPortal(
-        <div
-          className={cn(
-            "sticky top-0 z-10 flex items-center gap-2",
-            "bg-transparent",
-            "px-4 py-2",
-          )}
-          role="toolbar"
-          aria-label="Mode du chat"
+  const settingsSection = target
+    ? createPortal(
+        <section
+          className="ct-chat-settings-section"
+          aria-label="Mode de revue"
         >
-          {/* Mode toggle */}
-          <div className="flex items-center gap-1">
+          <div className="ct-chat-settings-label">Mode de revue</div>
+
+          <div
+            className="ct-chat-settings-row"
+            role="radiogroup"
+            aria-label="Mode du chat"
+          >
             <button
               type="button"
               onClick={() => switchMode("normal")}
               disabled={savingMode}
-              aria-pressed={mode === "normal"}
-              className={pillClass(mode === "normal")}
+              role="radio"
+              aria-checked={mode === "normal"}
+              className={cn(
+                "h-8 flex-1 rounded-full px-3 text-xs font-medium",
+                "transition-[background-color,color] duration-[var(--ct-dur-base)]",
+                "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
+                "disabled:cursor-not-allowed disabled:opacity-60",
+                mode === "normal"
+                  ? "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]"
+                  : "ct-surface-1 ct-text-muted hover:ct-text-strong",
+              )}
             >
               Conversation
             </button>
@@ -299,69 +311,93 @@ export function AdminChatControls() {
               type="button"
               onClick={() => switchMode("review")}
               disabled={savingMode}
-              aria-pressed={mode === "review"}
-              className={pillClass(mode === "review")}
+              role="radio"
+              aria-checked={mode === "review"}
+              className={cn(
+                "h-8 flex-1 rounded-full px-3 text-xs font-medium",
+                "transition-[background-color,color] duration-[var(--ct-dur-base)]",
+                "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
+                "disabled:cursor-not-allowed disabled:opacity-60",
+                mode === "review"
+                  ? "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]"
+                  : "ct-surface-1 ct-text-muted hover:ct-text-strong",
+              )}
             >
               Review
             </button>
           </div>
 
-          {mode === "review" && (
+          {mode === "review" ? (
             <>
-              <span
-                className="h-5 w-px bg-[var(--ct-border-soft)]"
-                aria-hidden="true"
-              />
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={generateDocument}
-                disabled={generating}
-              >
-                {generating
-                  ? streamingCharCount > 0
-                    ? `Génération… (${streamingCharCount} chars)`
-                    : "Génération…"
-                  : "Générer le document"}
-              </Button>
-              {generating && (
+              <div className="ct-chat-settings-row mt-2">
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={cancelGeneration}
-                  aria-label="Annuler la génération en cours"
+                  variant="primary"
+                  size="lg"
+                  className="w-full"
+                  onClick={generateDocument}
+                  disabled={generating}
                 >
-                  Annuler
+                  {generating
+                    ? streamingCharCount > 0
+                      ? `Génération… (${streamingCharCount} chars)`
+                      : "Génération…"
+                    : "Générer le document"}
                 </Button>
-              )}
-              {doc && !panelOpen && !generating && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setPanelOpen(true)}
-                >
-                  Voir
-                </Button>
-              )}
+              </div>
+              {generating ? (
+                <div className="ct-chat-settings-row">
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    className="w-full"
+                    onClick={cancelGeneration}
+                    aria-label="Annuler la génération en cours"
+                  >
+                    Annuler
+                  </Button>
+                </div>
+              ) : null}
+              {doc && !panelOpen && !generating ? (
+                <div className="ct-chat-settings-row">
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    className="w-full"
+                    onClick={() => setPanelOpen(true)}
+                  >
+                    Voir le document
+                  </Button>
+                </div>
+              ) : null}
+              <div className="ct-chat-settings-hint">
+                Distille la conversation en plan de modifications structuré.
+              </div>
             </>
+          ) : (
+            <div className="ct-chat-settings-hint">
+              Passe l’assistant en facilitateur de revue produit.
+            </div>
           )}
-        </div>,
-        target,
-      )}
 
-      {error && (
-        <div
-          className={cn(
-            "fixed right-4 top-28 z-[var(--ct-z-toast)]",
-            "rounded-md border px-3 py-1.5 text-xs",
-            "border-[var(--ct-status-danger-border)] ct-status-danger-bg",
-            "ct-status-danger",
-          )}
-          role="alert"
-        >
-          {error}
-        </div>
-      )}
+          {error ? (
+            <div
+              className={cn(
+                "ct-chat-settings-hint",
+                "ct-status-danger",
+              )}
+              role="alert"
+            >
+              {error}
+            </div>
+          ) : null}
+        </section>,
+        target,
+      )
+    : null;
+
+  return (
+    <>
+      {settingsSection}
 
       <Modal
         isOpen={panelOpen && doc !== null}

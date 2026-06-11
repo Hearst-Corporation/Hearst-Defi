@@ -40,12 +40,12 @@ type BatchMode = "none" | "1d" | "2d";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const PRESETS: { id: Preset; label: string }[] = [
-  { id: "base", label: "Base" },
-  { id: "btc_bear", label: "BTC Bear" },
-  { id: "btc_bull", label: "BTC Bull" },
-  { id: "mining_compression", label: "Mining Compression" },
-  { id: "extreme_stress", label: "Extreme Stress" },
+const PRESETS: { id: Preset; label: string; description: string }[] = [
+  { id: "base", label: "Base", description: "Current operating assumptions" },
+  { id: "btc_bear", label: "BTC Bear", description: "Lower BTC and mining margin" },
+  { id: "btc_bull", label: "BTC Bull", description: "Higher BTC momentum" },
+  { id: "mining_compression", label: "Mining Compression", description: "Hashprice and energy stress" },
+  { id: "extreme_stress", label: "Extreme Stress", description: "Severe market shock" },
 ];
 
 // Default BTC chg variation sweep for 1D batch
@@ -276,6 +276,7 @@ export function ProjectionStudio() {
   });
   const [batchMode, setBatchMode] = useState<BatchMode>("none");
   const [methodologyVersion] = useState("v1.0");
+  const [selectedPreset, setSelectedPreset] = useState<Preset | null>(null);
 
   // Output state
   const [result, setResult] = useState<StudyResult | null>(null);
@@ -285,6 +286,7 @@ export function ProjectionStudio() {
   // Preset loader
   const loadPreset = useCallback(
     (preset: Preset) => {
+      setSelectedPreset(preset);
       startTransition(async () => {
         try {
           const inputs = await getPresetInputsForProjection(preset);
@@ -375,21 +377,28 @@ export function ProjectionStudio() {
     <div className="projection-studio-shell">
       <Card className="projection-studio-preset-rail">
         <div className="projection-studio-preset-rail__head">
-          <p className="eyebrow ct-text-muted">Preset</p>
+          <div>
+            <p className="eyebrow ct-text-muted">Preset library</p>
+            <h3 className="h3 mt-1 ct-text-strong">Start from an institutional scenario</h3>
+          </div>
           <span className="body-xs ct-text-faint">
-            Load assumptions, then tune the inputs below.
+            Load assumptions, then tune inputs below.
           </span>
         </div>
         <div className="projection-studio-preset-rail__items">
           {PRESETS.map((p) => (
             <Button
               key={p.id}
-              variant="secondary"
+              variant={selectedPreset === p.id ? "primary" : "secondary"}
               size="sm"
               onClick={() => loadPreset(p.id)}
               disabled={isPending}
+              aria-pressed={selectedPreset === p.id}
+              title={p.description}
+              className="projection-studio-preset-button"
             >
-              {p.label}
+              <span className="projection-studio-preset-button__label">{p.label}</span>
+              <span className="projection-studio-preset-button__description">{p.description}</span>
             </Button>
           ))}
         </div>
@@ -398,8 +407,17 @@ export function ProjectionStudio() {
       <div className="projection-studio-workspace">
       {/* ── LEFT: INPUTS ── */}
       <Card className="projection-studio-input-card">
+        <div className="projection-studio-input-card__header">
+          <div>
+            <p className="eyebrow ct-text-muted">Control panel</p>
+            <h3 className="h3 mt-1 ct-text-strong">Projection inputs</h3>
+          </div>
+          <span className="body-xs ct-text-faint mono">{methodologyVersion}</span>
+        </div>
+
+        <div className="projection-studio-input-scroll">
         {/* Base inputs */}
-        <div className="space-y-5">
+        <div className="projection-studio-input-group">
           <p className="eyebrow ct-text-muted">Market Inputs</p>
           <SliderField
             label="BTC Price Change (%)"
@@ -448,12 +466,12 @@ export function ProjectionStudio() {
           />
         </div>
 
-        <div className="ct-divide-soft h-px" />
+        <div className="projection-studio-input-divider" />
 
         {/* Allocation sliders */}
         <AllocSliders alloc={alloc} onChange={setAlloc} />
 
-        <div className="ct-divide-soft h-px" />
+        <div className="projection-studio-input-divider" />
 
         {/* Batch mode toggle */}
         <div className="space-y-3">
@@ -490,7 +508,7 @@ export function ProjectionStudio() {
           )}
         </div>
 
-        <div className="ct-divide-soft h-px" />
+        <div className="projection-studio-input-divider" />
 
         {/* Methodology version */}
         <div className="space-y-2">
@@ -509,7 +527,9 @@ export function ProjectionStudio() {
             Pinned to v1.0. Bump version via ADR + spec update.
           </p>
         </div>
+        </div>
 
+        <div className="projection-studio-input-footer">
         {/* Run button */}
         <Button
           variant="primary"
@@ -534,36 +554,46 @@ export function ProjectionStudio() {
             {error}
           </p>
         )}
+        </div>
       </Card>
 
       {/* ── RIGHT: OUTPUTS ── */}
       <div ref={outputRef} className="projection-studio-output">
-        {!result && (
-          <Card className="projection-studio-empty">
-            <p className="body-md ct-text-muted text-center">
-              Configure inputs and run a scenario or batch to see projections.
-            </p>
-          </Card>
-        )}
+        <Card className={cn("projection-studio-output-stage", result && "projection-studio-output-stage--filled")}>
+          {!result && (
+            <div className="projection-studio-empty">
+              <div className="scenario-lab-output-empty__icon" />
+              <div>
+                <p className="h3 ct-text-strong">Projection scene ready</p>
+                <p className="body-sm mt-2 ct-text-muted">
+                  Configure inputs and run a scenario or batch to populate APY range,
+                  risk score and PTAI impact.
+                </p>
+              </div>
+            </div>
+          )}
 
-        {result && (
-          <>
+          {result && (
+            <div className="projection-studio-output-content">
             {/* Study metadata */}
-            <div className="flex items-center gap-3 flex-wrap">
-              <Badge variant="default">
-                Study {result.studyId.slice(-8)}
-              </Badge>
-              <Badge variant="brand">
-                {result.runIds.length} run{result.runIds.length > 1 ? "s" : ""}
-              </Badge>
-              <span className="body-xs ct-text-muted mono">
-                methodology v1.0
-              </span>
+            <div className="projection-studio-output-head">
+              <div>
+                <p className="eyebrow ct-text-muted">Result scene</p>
+                <h3 className="h3 mt-1 ct-text-strong">Projection output</h3>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="default">
+                  Study {result.studyId.slice(-8)}
+                </Badge>
+                <Badge variant="brand">
+                  {result.runIds.length} run{result.runIds.length > 1 ? "s" : ""}
+                </Badge>
+              </div>
             </div>
 
             {/* Single run: KPI grid */}
             {result.runIds.length === 1 && selectedCell && (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Metric
                   label="APY Range"
                   provenance="estimated"
@@ -603,7 +633,7 @@ export function ProjectionStudio() {
 
             {/* Selected cell detail (batch) */}
             {result.runIds.length > 1 && selectedCell && (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Metric
                   label="Selected APY Range"
                   provenance="estimated"
@@ -656,8 +686,9 @@ export function ProjectionStudio() {
                 Seeds APY range into a new VaultDeployment (draft)
               </span>
             </div>
-          </>
-        )}
+            </div>
+          )}
+        </Card>
       </div>
       </div>
     </div>

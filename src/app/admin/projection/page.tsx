@@ -14,7 +14,7 @@ export default async function ProjectionPage() {
   return (
     <div className="space-y-8">
       <AdminPageHeader
-        title="Projection Studio"
+        title="Projection"
         description="Run single or matrix projections against the deterministic engine (methodology v1.0). All projections are conditional on stated assumptions and are not guaranteed."
       />
 

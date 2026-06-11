@@ -22,7 +22,7 @@ export default async function AdminSecurityPage() {
   return (
     <div className="space-y-8">
       <AdminPageHeader
-        title="Account security"
+        title="Security"
         description="Manage two-factor authentication and session security."
       />
 

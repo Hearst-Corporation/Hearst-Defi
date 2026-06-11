@@ -5,6 +5,7 @@
 // / the CompareMode internals). Behaviour preserved from the original monolith.
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 
 import { BacktestTab } from "@/components/scenario/backtest-tab";
 import { CompareMode } from "@/components/scenario/compare-mode";
@@ -32,17 +33,29 @@ export interface LabShellProps {
    * real-world values. Falls back to BASE_INPUTS when undefined.
    */
   initialInputs?: ScenarioInputs;
+  /**
+   * Vault selector rendered as part of the single menu-button row (passed from
+   * the page so the Server-Component selector lives inside the client toolbar).
+   */
+  vaultSelector?: ReactNode;
 }
 
-export function LabShell({ vaultId, initialInputs }: LabShellProps) {
+export function LabShell({ vaultId, initialInputs, vaultSelector }: LabShellProps) {
   const [activeTab, setActiveTab] = useState<LabTab>("scenario");
   const [scenarioMode, setScenarioMode] = useState<ScenarioMode>("single");
 
   return (
     <div className="scenario-lab-shell">
-      {/* Tab toggle */}
+      {/* Single menu-button row: vault selector + Scenario/Backtest + (on the
+          scenario tab) Single/Compare. No page subtitle — title only above. */}
       <div className="scenario-lab-toolbar">
-        <ScenarioTabBar active={activeTab} onChange={setActiveTab} />
+        <div className="scenario-lab-toolbar__group">
+          {vaultSelector}
+          <ScenarioTabBar active={activeTab} onChange={setActiveTab} />
+        </div>
+        {activeTab === "scenario" && (
+          <ScenarioModeToggle active={scenarioMode} onChange={setScenarioMode} />
+        )}
       </div>
 
       {/* ── Scenario tab ──────────────────────────────────────────────── */}
@@ -52,39 +65,26 @@ export function LabShell({ vaultId, initialInputs }: LabShellProps) {
         aria-labelledby="tab-scenario"
         hidden={activeTab !== "scenario"}
       >
-        <div className="flex flex-col gap-4">
-          {/* Mode toggle: Single | Compare */}
-          <div className="scenario-lab-modebar">
-            <p className="eyebrow min-w-0">
-              {scenarioMode === "single"
-                ? "Run one scenario"
-                : "Compare two scenarios side-by-side"}
-            </p>
-            <ScenarioModeToggle active={scenarioMode} onChange={setScenarioMode} />
-          </div>
-
-          {/* Single / Compare sub-panels */}
-          <div
-            role="tabpanel"
-            id="tabpanel-mode-single"
-            aria-labelledby="tab-mode-single"
-            hidden={scenarioMode !== "single"}
-            tabIndex={0}
-          >
-            {scenarioMode === "single" && <SingleMode vaultId={vaultId} initialInputs={initialInputs} />}
-          </div>
-          <div
-            role="tabpanel"
-            id="tabpanel-mode-compare"
-            aria-labelledby="tab-mode-compare"
-            hidden={scenarioMode !== "compare"}
-            tabIndex={0}
-          >
-            <CompareMode
-              active={scenarioMode === "compare"}
-              vaultId={vaultId}
-            />
-          </div>
+        {/* Single / Compare sub-panels — mode is driven from the control row. */}
+        <div
+          role="tabpanel"
+          id="tabpanel-mode-single"
+          aria-labelledby="tab-mode-single"
+          hidden={scenarioMode !== "single"}
+          tabIndex={0}
+        >
+          {scenarioMode === "single" && (
+            <SingleMode vaultId={vaultId} initialInputs={initialInputs} />
+          )}
+        </div>
+        <div
+          role="tabpanel"
+          id="tabpanel-mode-compare"
+          aria-labelledby="tab-mode-compare"
+          hidden={scenarioMode !== "compare"}
+          tabIndex={0}
+        >
+          <CompareMode active={scenarioMode === "compare"} vaultId={vaultId} />
         </div>
       </div>
 

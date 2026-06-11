@@ -14,7 +14,6 @@ export default async function ProofsPage() {
     <div className="space-y-8">
       <AdminPageHeader
         title="Proofs"
-        description="On-chain attestations published to the proof center. Hard-delete is irreversible — the attestation will be removed from the registry."
       />
 
       <section className="space-y-3">

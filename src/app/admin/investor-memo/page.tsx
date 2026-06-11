@@ -45,14 +45,6 @@ export default async function InvestorMemoPage({
     <div className="space-y-8">
       <AdminPageHeader
         title="Investor Memo"
-        description={
-          <>
-            Eight sections for{" "}
-            <span className="ct-text-strong">{vault.label}</span>, generated on
-            demand by Kimi K2.6 (Hypercli). Methodology v1.0, structured-output
-            enforced — the memo only leaves this page when you download it.
-          </>
-        }
         actions={
           <VaultSelector
             active={vaultId}

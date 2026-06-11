@@ -117,7 +117,7 @@ export default async function AllowlistPage() {
   return (
     <div className="space-y-8">
       <AdminPageHeader
-        title="Address Allowlist"
+        title="Allowlist"
         lead={
           <Button variant="ghost" size="sm" asChild>
             <Link href="/admin/governance">← Governance</Link>

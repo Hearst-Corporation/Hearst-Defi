@@ -54,7 +54,7 @@ const NAVIGATE_COMMANDS: Omit<Command, "handler">[] = [
   },
   {
     id: "nav-investors",
-    label: "Investors",
+    label: "Customers",
     section: "Navigate",
     href: "/admin/customers",
     keywords: ["customers", "lp", "limited partners", "investors"],
@@ -76,11 +76,11 @@ const NAVIGATE_COMMANDS: Omit<Command, "handler">[] = [
     keywords: ["proof", "por", "attestation", "proof-of-reserves"],
   },
   {
-    id: "nav-signers",
-    label: "Signers Queue",
+    id: "nav-monitoring",
+    label: "Monitoring",
     section: "Navigate",
     href: "/admin/monitoring",
-    keywords: ["signer", "multisig", "queue", "approvals", "signatures"],
+    keywords: ["monitoring", "agent runs", "latency", "cost", "success rate", "observability"],
     shortcut: "g s",
   },
   {
@@ -100,11 +100,11 @@ const NAVIGATE_COMMANDS: Omit<Command, "handler">[] = [
     shortcut: "g m",
   },
   {
-    id: "nav-audit",
-    label: "Audit Trail",
+    id: "nav-roadmap",
+    label: "Roadmap",
     section: "Navigate",
     href: "/admin/roadmap",
-    keywords: ["audit", "trail", "log", "history", "events"],
+    keywords: ["roadmap", "phases", "mvp", "progress", "milestones", "status"],
     shortcut: "g a",
   },
   {
