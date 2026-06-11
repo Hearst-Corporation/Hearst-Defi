@@ -60,7 +60,7 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 - Tailwind CSS v4 (no `tailwind.config.js`, theme in `globals.css` `@theme` block)
 - Prisma + Postgres (Supabase in production, SQLite for local dev — `DATABASE_URL=file:./prisma/dev.db`)
 - Inngest for jobs and crons (V1)
-- LLM provider: **Kimi K2.6 via Hypercli** (OpenAI-compatible endpoint, `openai@6.x` SDK pointed at `HYPERCLI_BASE_URL`). Single model for all 4 agents — ADR-007, decided 2026-05-26. No Anthropic SDK in this codebase.
+- LLM provider: **OpenAI GPT-4.1** (`openai@6.x` SDK, `OPENAI_API_KEY`). Single model for all 4 agents + cockpit chat — **ADR-011** (decided 2026-06-11, supersedes ADR-007 / Kimi-via-Hypercli, retired). No Anthropic SDK in this codebase.
 - Foundry for smart contracts (Phase 2+)
 - Package manager: **pnpm** (workspace declared in `pnpm-workspace.yaml`)
 - Path alias: `@/*` → `./src/*`
@@ -134,7 +134,7 @@ for any new admin surface.
   `prisma`, `fetch`, `Date.now()`, `process.env`, or anything from `src/app/` or `src/components/`.
   See `.claude/agents/engine-dev.md`.
 - **`src/lib/agents/`** — four LLM agents (Scenario Narrative, Mining Health, Risk
-  Explanation, Investor Memo), all on **Kimi K2.6 via Hypercli** (OpenAI-compatible).
+  Explanation, Investor Memo), all on **OpenAI GPT-4.1** (ADR-011).
   Structured outputs only, Zod-validated, forbidden-words linter.
   See `.claude/agents/agent-dev.md` and `/docs/spec/09-agents.mdx`.
 - **`contracts/`** — Foundry project: Phase 2 `EventLogger.sol` + `PoRRegistry.sol` on Base
@@ -162,7 +162,7 @@ The repo ships four specialist agents under `.claude/agents/` (invoke via `Agent
 
 - **`engine-dev`** — owns `src/lib/engine/*`. Refuses UI work and any I/O inside engine code.
 - **`agent-dev`** — owns `src/lib/agents/*`. Enforces structured outputs, single-model pinning
-  (Kimi K2.6 via Hypercli — ADR-007). Prompt caching is no-op (Kimi has no native cache).
+  (OpenAI GPT-4.1 — ADR-011). OpenAI applies automatic prompt caching for prompts >1024 tokens.
 - **`sc-dev`** — owns `contracts/*`. Foundry only, OpenZeppelin primitives, phased rollout.
 - **`ui-dev`** — owns `src/app/*` and `src/components/*`. Refuses business logic outside the
   engine.

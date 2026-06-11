@@ -60,27 +60,22 @@ export function PortfolioEmptyState({
 
   return (
     <div className="pf-empty flex flex-col gap-10">
-      {/* 1 — Calm preview banner. Shown once, only when the whole view is demo /
-          unauthenticated data; replaces the per-card "Stale" repetition. */}
       {data.source === "fallback" ? (
         <div
           role="status"
           className="flex items-center gap-2 rounded-lg border border-(--ct-border-soft) ct-surface-1 px-4 py-2.5"
         >
-          <span
-            aria-hidden
-            className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--ct-text-muted)"
-          />
+          <span aria-hidden className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--ct-text-muted)" />
           <p className="body-xs ct-text-muted">
             Preview data — your portfolio appears here after activation.
           </p>
         </div>
       ) : null}
 
-      {/* 2 — Greeting: "Welcome back, {name}" + "No active positions yet." */}
+      {/* 1 — Greeting: "Welcome back, {name}" + "No active positions yet." */}
       <PortfolioGreeting name={name} data={data} />
 
-      {/* 3 — The single dominant action card. */}
+      {/* 2 — The single dominant action card. */}
       <NextActionCard
         kycStatus={kycStatus}
         accreditationAttested={accreditationAttested}
@@ -88,8 +83,8 @@ export function PortfolioEmptyState({
         positionCount={0}
       />
 
-      {/* 4 — Discreet status row. */}
-      <ul className="flex flex-wrap gap-x-8 gap-y-3" aria-label="Account status">
+      {/* 3 — Discreet status row. */}
+      <ul className="pf-empty-status flex flex-wrap gap-x-8 gap-y-3" aria-label="Account status">
         {statusRow.map((s) => (
           <li key={s.label} className="flex min-w-0 items-center gap-2">
             <span
@@ -105,9 +100,9 @@ export function PortfolioEmptyState({
         ))}
       </ul>
 
-      {/* 5 — Calm "what you'll see when active" section. No live data. */}
+      {/* 4 — Calm "what you'll see when active" section. No live data. */}
       <section
-        className="flex flex-col gap-5 border-t border-(--ct-border-soft) pt-10"
+        className="pf-empty-preview flex flex-col gap-5 px-5 py-5"
         aria-label="What your portfolio will show when active"
       >
         <p className="eyebrow ct-text-muted">When active, your portfolio will show</p>
@@ -115,7 +110,7 @@ export function PortfolioEmptyState({
           {FUTURE_MODULES.map((m) => (
             <li
               key={m.label}
-              className="flex min-w-0 flex-col gap-1 rounded-lg border border-(--ct-border-soft) ct-surface-1 px-4 py-3"
+              className="flex min-w-0 flex-col gap-1 border border-(--ct-border-soft) px-4 py-3"
             >
               <span className="body-sm ct-text-strong">{m.label}</span>
               <span className="body-xs ct-text-muted">{m.detail}</span>

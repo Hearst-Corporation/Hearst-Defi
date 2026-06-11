@@ -8,8 +8,9 @@ Stack : Next.js 16 (App Router, Server Components by default) · TypeScript stri
 · Tailwind CSS v4 (`@theme` in `globals.css`, **no `tailwind.config.js`**) ·
 Prisma + Postgres (SQLite local) · Inngest · Foundry (smart contracts) · pnpm.
 
-LLM provider : **Kimi K2.6 via Hypercli** (OpenAI-compatible SDK) — single model
-for all agents. No Anthropic SDK in this codebase. See `ADR-007`.
+LLM provider : **OpenAI GPT-4.1** (`openai@6.x` SDK, `OPENAI_API_KEY`) — single
+model for all 4 agents + cockpit chat. No Anthropic SDK. See **ADR-011**
+(supersedes ADR-007 / Kimi-via-Hypercli).
 
 ---
 
@@ -190,7 +191,7 @@ Quatre spécialistes sous `.claude/agents/`, à invoquer via `Agent` avec
 `subagent_type` :
 
 - **`engine-dev`** — `src/lib/engine/*`. Refuse l'UI et toute I/O.
-- **`agent-dev`** — `src/lib/agents/*`. Structured outputs only, Kimi K2.6.
+- **`agent-dev`** — `src/lib/agents/*`. Structured outputs only, OpenAI GPT-4.1 (ADR-011).
 - **`sc-dev`** — `contracts/*`. Foundry, OpenZeppelin, phased rollout.
 - **`ui-dev`** — `src/app/*`, `src/components/*`. Refuse la logique métier
   hors engine.

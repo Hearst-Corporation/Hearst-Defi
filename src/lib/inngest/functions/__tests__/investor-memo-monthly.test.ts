@@ -151,7 +151,8 @@ describe("investorMemoMonthly Inngest function", () => {
     }
 
     const { data } = createCall[0] as { data: Record<string, unknown> };
-    expect(data.generatedBy).toBe("kimi-k2.6");
+    // Matches OPENAI_MODEL default — avoid importing investor-memo here (breaks vi.mock hoisting).
+    expect(data.generatedBy).toBe("gpt-4.1");
     expect(data.clientName).toBe("Hearst Connect");
     expect(data.methodologyVersion).toBe("v1.0");
     expect(data.scenariosIncluded).toBe("[]");

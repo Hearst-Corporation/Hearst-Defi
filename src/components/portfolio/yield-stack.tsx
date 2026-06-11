@@ -13,6 +13,8 @@
 
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
+import { resolveProvenance } from "@/lib/data/portfolio";
+import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,6 +34,7 @@ export interface YieldStackProps {
   methodologyVersion?: string;
   /** Provenance for the badge — defaults to "estimated" when omitted. */
   source?: "live" | "estimated" | "stale";
+  updatedAt?: Date;
 }
 
 // ── Pure helpers (also exported for unit tests) ───────────────────────────────
@@ -79,10 +82,11 @@ export function YieldStack({
   blendedLow,
   blendedHigh,
   stressedBearRange,
-  methodologyVersion = "1.0",
+  methodologyVersion = METHODOLOGY_VERSION,
   source = "estimated",
+  updatedAt,
 }: YieldStackProps) {
-  // ... (rest of normalization)
+  // ...
   const [stressedLow, stressedHigh] =
     stressedBearRange.low <= stressedBearRange.high
       ? [stressedBearRange.low, stressedBearRange.high]
@@ -100,6 +104,8 @@ export function YieldStack({
 
   const hasData = sources.length > 0;
 
+  const badgeKind = resolveProvenance(source, updatedAt, "estimated");
+
   return (
     <article
       className="dash-cell dash-cell-premium h-full flex flex-col"
@@ -110,7 +116,7 @@ export function YieldStack({
         <span className="body-xs uppercase tracking-(--ct-tracking-wide) ct-text-muted">
           Yield Source Stack (12m fwd)
         </span>
-        <ProvenanceBadge kind={source} />
+        <ProvenanceBadge kind={badgeKind} />
       </div>
 
       {/* Visual bar stack */}
@@ -208,7 +214,7 @@ export function YieldStack({
           {/* Stressed bear scenario — range per CLAUDE.md #1, never single point. */}
           <div className="flex items-baseline justify-between">
             <dt className="body-xs min-w-0 truncate ct-text-muted">
-              Stressed (bear)
+              Stressed (bear) <span className="text-micro opacity-70">(proxy)</span>
             </dt>
             <dd
               className="tabular font-medium ct-status-warning"
@@ -225,7 +231,7 @@ export function YieldStack({
         className="mt-auto pt-4 body-xs italic ct-text-faint relative z-10"
         role="note"
       >
-        not guaranteed · methodology v{methodologyVersion} · projections show
+        not guaranteed · methodology {methodologyVersion.startsWith("v") ? methodologyVersion : `v${methodologyVersion}`} · projections show
         assumptions only
       </p>
     </article>

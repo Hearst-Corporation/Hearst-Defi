@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { prisma } from "@/lib/db";
 import { callLlm } from "@/lib/llm/client";
+import { LLM_MODEL } from "@/lib/llm/kimi";
 import { withRequestContext } from "@/lib/request-context";
 
 /** A minimal OpenAI-SDK-style error: an Error carrying an HTTP `status`. The
@@ -29,7 +30,7 @@ describe("callLlm", () => {
     const result = await callLlm(
       "test-agent",
       {
-        model: "kimi-k2.6",
+        model: LLM_MODEL,
         max_tokens: 1024,
         messages: [{ role: "user" as const, content: "hello" }],
       },
@@ -61,7 +62,7 @@ describe("callLlm", () => {
     const result = await callLlm(
       "test-agent",
       {
-        model: "kimi-k2.6",
+        model: LLM_MODEL,
         max_tokens: 1024,
         messages: [{ role: "user" as const, content: "hello" }],
       },
@@ -85,7 +86,7 @@ describe("callLlm", () => {
       callLlm(
         "test-agent",
         {
-          model: "kimi-k2.6",
+          model: LLM_MODEL,
           max_tokens: 1024,
           messages: [{ role: "user" as const, content: "hello" }],
         },
@@ -109,7 +110,7 @@ describe("callLlm", () => {
       callLlm(
         "test-agent",
         {
-          model: "kimi-k2.6",
+          model: LLM_MODEL,
           max_tokens: 1024,
           messages: [{ role: "user" as const, content: "hello" }],
         },
@@ -121,11 +122,11 @@ describe("callLlm", () => {
   });
 
   describe("cost + observability", () => {
-    // Kimi K2.6 per-million-token pricing, mirrored from client.ts.
-    const KIMI_INPUT_PER_M = 0.6;
-    const KIMI_OUTPUT_PER_M = 2.5;
+    // GPT-4.1 per-million-token pricing, mirrored from client.ts (ADR-011).
+    const OPENAI_INPUT_PER_M = 2.0;
+    const OPENAI_OUTPUT_PER_M = 8.0;
 
-    it("bills Kimi pricing and records the system-prompt hash", async () => {
+    it("bills OpenAI pricing and records the system-prompt hash", async () => {
       const mockResponse = {
         content: [{ type: "text" as const, text: "{}" }],
         usage: { input_tokens: 1000, output_tokens: 200 },
@@ -137,7 +138,7 @@ describe("callLlm", () => {
       const { runId } = await callLlm(
         "test-cost",
         {
-          model: "kimi-k2.6",
+          model: LLM_MODEL,
           max_tokens: 1024,
           system: "system prompt A",
           messages: [{ role: "user" as const, content: "hello" }],
@@ -148,7 +149,7 @@ describe("callLlm", () => {
       const row = await prisma.llmRun.findUniqueOrThrow({ where: { id: runId } });
       expect(row.systemPromptHash).toMatch(/^[a-f0-9]{64}$/);
       const expectedCost =
-        (1000 * KIMI_INPUT_PER_M + 200 * KIMI_OUTPUT_PER_M) / 1_000_000;
+        (1000 * OPENAI_INPUT_PER_M + 200 * OPENAI_OUTPUT_PER_M) / 1_000_000;
       expect(row.costUsd).toBeCloseTo(expectedCost, 10);
     });
   });
@@ -170,7 +171,7 @@ describe("callLlm", () => {
           callLlm(
             "test-userid-set",
             {
-              model: "kimi-k2.6",
+              model: LLM_MODEL,
               max_tokens: 1024,
               messages: [{ role: "user" as const, content: "hello" }],
             },
@@ -190,7 +191,7 @@ describe("callLlm", () => {
       const { runId } = await callLlm(
         "test-userid-null",
         {
-          model: "kimi-k2.6",
+          model: LLM_MODEL,
           max_tokens: 1024,
           messages: [{ role: "user" as const, content: "hello" }],
         },

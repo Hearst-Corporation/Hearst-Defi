@@ -4,7 +4,6 @@
 
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
-
 // ── Internal helpers (exported for unit tests) ────────────────────────────────
 
 /** Clamp a value between min and max (inclusive). */
@@ -70,6 +69,9 @@ export interface LockMeterProps {
   earlyExitPenaltyBps?: number;
   /** As-of timestamp for the rendering (server time). Defaults to new Date(). */
   asOf?: Date;
+  /** Provenance metadata from the loader. */
+  source?: "live" | "stale";
+  updatedAt?: Date;
 }
 
 const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
@@ -85,13 +87,15 @@ const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
  *   - Progress bar with aria-progressbar semantics
  *   - Unlock date + days remaining
  *   - Early-exit penalty (when applicable)
- *   - ProvenanceBadge "live" top-right (CLAUDE.md non-negotiable #2)
+ *   - ProvenanceBadge derived from loader state (CLAUDE.md non-negotiable #2)
  */
 export function LockMeter({
   lockStart,
   softLockupDays,
   earlyExitPenaltyBps,
   asOf,
+  source = "live",
+  updatedAt,
 }: LockMeterProps) {
   const effectiveAsOf = asOf ?? new Date();
   const { progressPct, unlockDate, daysRemaining, isUnlocked } =
@@ -100,6 +104,8 @@ export function LockMeter({
   // When share-class terms are not wired, render a neutral "no data" state
   // instead of a fabricated progress bar.
   const termsUnknown = softLockupDays <= 0;
+
+  const badgeKind = termsUnknown || source === "stale" ? "stale" : "live";
 
   // Bar fill: green accent when in progress, status-success when fully unlocked.
   const barFill = isUnlocked
@@ -128,7 +134,7 @@ export function LockMeter({
         <span className="dash-label mb-0">
           LOCK · LIQUIDITY
         </span>
-        <ProvenanceBadge kind={termsUnknown ? "stale" : "live"} />
+        <ProvenanceBadge kind={badgeKind} />
       </div>
 
       {/* Progress bar ------------------------------------------------------ */}

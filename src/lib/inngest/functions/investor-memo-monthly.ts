@@ -19,7 +19,7 @@ import { METHODOLOGY_VERSION } from "@/lib/agents/system-prompts/methodology";
  * Pipeline:
  *   1. load-memo-input → single Prisma read pulling vault snapshot, recent
  *                          persisted scenarios, and recent backtests.
- *   2. run-agent       → call Investor Memo Agent (Kimi K2.6 via Hypercli).
+ *   2. run-agent       → call Investor Memo Agent (OpenAI GPT-4.1, ADR-011).
  *   3. persist         → write structured memo to `ReportExport`.
  */
 export const INVESTOR_MEMO_MONTHLY_ID = "investor-memo-monthly" as const;

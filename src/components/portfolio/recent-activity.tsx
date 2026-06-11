@@ -1,5 +1,6 @@
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
+import { resolveProvenance } from "@/lib/data/portfolio";
 
 const usdFmt = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -52,14 +53,15 @@ function TxIcon({ type }: { type: string }) {
 interface RecentActivityProps {
   transactions: PortfolioTransaction[];
   source: "live" | "fallback";
+  updatedAt?: Date;
 }
 
 /**
  * 5 latest transactions with icon, type, amount, and relative time.
  * ProvenanceBadge on the header (CLAUDE.md non-negotiable #2).
  */
-export function RecentActivity({ transactions, source }: RecentActivityProps) {
-  const provenance = source === "fallback" ? "stale" : "live";
+export function RecentActivity({ transactions, source, updatedAt }: RecentActivityProps) {
+  const provenance = resolveProvenance(source, updatedAt);
   // Server-rendered timestamp keeps relative labels current without client JS.
   const asOf = new Date();
   const displayed = transactions.slice(0, 5);

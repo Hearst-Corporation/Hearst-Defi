@@ -7,7 +7,7 @@ import { InvestorRailDebug } from "./_components/investor-rail-debug";
  *
  * Le shell racine (`AppChrome` → `ConnectShell` du package
  * `@hearst/cockpit-shell`) fournit déjà le frame visuel global (rail-left
- * vide, page-area, chat Kimi à droite). `AppChrome` monte aussi globalement
+ * vide, page-area, cockpit chat à droite). `AppChrome` monte aussi globalement
  * `<AdminChatControls />` qui pose la toolbar Conversation / Review DANS le
  * body du rail droit (admin-gated, se cache pour les non-admins).
  *

@@ -14,6 +14,12 @@ import {
   type ShareClassTerms,
 } from "@/lib/engine/share-class";
 import { getTaxPreview, type TaxPreview } from "@/lib/portfolio/tax";
+import { evaluateFreshness, STALE_THRESHOLDS } from "@/lib/data/freshness";
+import {
+  METHODOLOGY_FACTORS,
+  METHODOLOGY_VERSION,
+} from "@/lib/engine/methodology";
+import type { Provenance } from "@/components/ui/provenance-badge";
 import type { LockMeterProps } from "@/components/portfolio/lock-meter";
 import type { RiskPulseProps } from "@/components/portfolio/risk-pulse";
 import type { DistribCalendarProps, DistribEntry } from "@/components/portfolio/distrib-calendar";
@@ -91,11 +97,42 @@ export interface PortfolioData {
   pnl?: LpPnl;
   /** "live" = real DB data, "fallback" = unauthenticated / empty state */
   source: "live" | "fallback";
+  /** Timestamp of the latest underlying snapshot used for this data. */
+  updatedAt?: Date;
 }
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+/**
+ * Centralised provenance resolver for portfolio widgets.
+ *
+ * Maps a raw source ("live" | "fallback") and an optional updatedAt timestamp
+ * to a canonical `Provenance` kind for the UI.
+ *
+ * Logic:
+ * 1. If source is "fallback" (demo/empty) ⇒ "stale" (quiet warning).
+ * 2. If updatedAt is missing ⇒ "stale" (no data ⇒ no claim).
+ * 3. If updatedAt exceeds `portfolio_snapshot` threshold (24h) ⇒ "stale".
+ * 4. Otherwise ⇒ "live" (or the specific kind passed as `preferred`).
+ */
+export function resolveProvenance(
+  source: "live" | "fallback" | "stale" | "estimated" | "oracle",
+  updatedAt?: Date | null,
+  preferred: Provenance = "live",
+): Provenance {
+  if (source === "fallback" || source === "stale") return "stale";
+  if (source === "estimated") return "estimated";
+  if (source === "oracle") return "oracle";
+  if (!updatedAt) return "stale";
+
+  const freshness = evaluateFreshness(
+    updatedAt,
+    STALE_THRESHOLDS.portfolio_snapshot,
+  );
+  return freshness === "stale" ? "stale" : preferred;
+}
 
 /** Next UTC end-of-month boundary from today. */
 function nextEndOfMonth(): Date {
@@ -213,7 +250,7 @@ export async function loadPortfolio(): Promise<PortfolioData> {
 
   // Fetch positions and both transaction queries in parallel — all 3 are independent.
   const ytdStart = new Date(Date.UTC(new Date().getUTCFullYear(), 0, 1));
-  const [rawPositions, ytdTxs, rawTxs] = await Promise.all([
+  const [rawPositions, ytdTxs, rawTxs, latestSnapshot] = await Promise.all([
     prisma.position.findMany({
       where: { investorId: investor.id },
       include: { vaultDeployment: true },
@@ -233,6 +270,10 @@ export async function loadPortfolio(): Promise<PortfolioData> {
       where: { investorId: investor.id },
       orderBy: { occurredAt: "desc" },
       take: 5,
+    }),
+    prisma.vaultSnapshot.findFirst({
+      orderBy: { takenAt: "desc" },
+      select: { takenAt: true },
     }),
   ]);
 
@@ -307,6 +348,10 @@ export async function loadPortfolio(): Promise<PortfolioData> {
     recentTransactions,
     pnl,
     source: "live",
+    // Snapshot freshness when available; otherwise positions were just read live.
+    updatedAt:
+      latestSnapshot?.takenAt ??
+      (positions.length > 0 ? new Date() : undefined),
   };
 }
 
@@ -319,7 +364,7 @@ export async function loadPortfolio(): Promise<PortfolioData> {
  * Returns a neutral STALE state when no investor / no active position —
  * the UI shows a stale provenance badge so users know data is not live.
  */
-export async function loadLockMeterProps(): Promise<LockMeterProps & { source: "live" | "stale" }> {
+export async function loadLockMeterProps(): Promise<LockMeterProps & { source: "live" | "stale"; updatedAt?: Date }> {
   const now = new Date();
   const investor = await getInvestor();
   if (!investor) {
@@ -357,6 +402,7 @@ export async function loadLockMeterProps(): Promise<LockMeterProps & { source: "
     softLockupDays: terms.softLockupDays,
     asOf: now,
     source: "live",
+    // Lock progress is derived live from subscription terms — no snapshot freshness gate.
   };
 }
 
@@ -365,7 +411,7 @@ export async function loadLockMeterProps(): Promise<LockMeterProps & { source: "
  * No snapshot in DB → returns zeroed scores with source "stale" so the UI
  * shows STALE provenance badges instead of inventing numbers.
  */
-export async function loadRiskPulseProps(): Promise<RiskPulseProps & { source: "live" | "stale" }> {
+export async function loadRiskPulseProps(): Promise<RiskPulseProps & { source: "live" | "stale"; updatedAt?: Date }> {
   const snapshot = await prisma.vaultSnapshot.findFirst({ orderBy: { takenAt: "desc" } });
 
   if (!snapshot) {
@@ -413,6 +459,7 @@ export async function loadRiskPulseProps(): Promise<RiskPulseProps & { source: "
     compositeLabel,
     composite30dTrend: "stable",
     source: "live",
+    updatedAt: snapshot.takenAt,
   };
 }
 
@@ -420,7 +467,7 @@ export async function loadRiskPulseProps(): Promise<RiskPulseProps & { source: "
  * Build DistribCalendarProps from Distribution table.
  * No distributions in DB → returns empty entries with source "stale".
  */
-export async function loadDistribCalendarProps(): Promise<DistribCalendarProps & { source: "live" | "stale" }> {
+export async function loadDistribCalendarProps(): Promise<DistribCalendarProps & { source: "live" | "stale"; updatedAt?: Date }> {
   const investor = await getInvestor();
 
   if (!investor) {
@@ -483,6 +530,7 @@ export async function loadDistribCalendarProps(): Promise<DistribCalendarProps &
     shareClass: terms.shareClass,
     cadence: cadenceFromTerms(terms),
     source: "live",
+    updatedAt: rawDistribs[rawDistribs.length - 1]?.occurredAt,
   };
 }
 
@@ -490,7 +538,7 @@ export async function loadDistribCalendarProps(): Promise<DistribCalendarProps &
  * Build ProofPulseProps from the Proof table (latest PoR).
  * No proof in DB → returns zeroed TVLs with source "stale".
  */
-export async function loadProofPulseProps(): Promise<ProofPulseProps & { source: "live" | "stale" }> {
+export async function loadProofPulseProps(): Promise<ProofPulseProps & { source: "live" | "stale"; updatedAt?: Date }> {
   const now = new Date();
   const latestProof = await prisma.proof.findFirst({
     where: { proofType: "custody" },
@@ -515,6 +563,7 @@ export async function loadProofPulseProps(): Promise<ProofPulseProps & { source:
     select: { aumUsdc: true },
   });
   const statedTvlUsdc = snapshot ? toNumber(snapshot.aumUsdc) : 0;
+  const onChainTvlUsdc = 0; // Populated in Phase 2
 
   // methodologyVersion / auditor / nextAttestation should come from the Proof
   // row (or a related table) rather than being baked into the loader. Until the
@@ -524,13 +573,14 @@ export async function loadProofPulseProps(): Promise<ProofPulseProps & { source:
     lastPor: {
       timestamp: latestProof.postedAt,
       statedTvlUsdc,
-      onChainTvlUsdc: 0,
+      onChainTvlUsdc,
     },
     methodologyVersion: "",
     methodologyLocked: false,
     nextAttestation: null,
     auditor: "",
     source: "live",
+    updatedAt: latestProof.postedAt,
   };
 }
 
@@ -538,19 +588,19 @@ export async function loadProofPulseProps(): Promise<ProofPulseProps & { source:
  * Build YieldStackProps from vault allocation data.
  * No snapshot in DB → returns empty sources with source "stale".
  */
-export async function loadYieldStackProps(): Promise<YieldStackProps & { source: "live" | "stale" }> {
+export async function loadYieldStackProps(hasPositions: boolean = true): Promise<YieldStackProps & { source: "live" | "stale"; updatedAt?: Date }> {
   const snapshot = await prisma.vaultSnapshot.findFirst({
     orderBy: { takenAt: "desc" },
     include: { allocations: true },
   });
 
-  if (!snapshot || snapshot.allocations.length === 0) {
+  if (!snapshot || snapshot.allocations.length === 0 || !hasPositions) {
     return {
       sources: [],
       blendedLow: 0,
       blendedHigh: 0,
       stressedBearRange: { low: 0, high: 0 },
-      methodologyVersion: "1.0",
+      methodologyVersion: METHODOLOGY_VERSION,
       source: "stale",
     };
   }
@@ -581,9 +631,10 @@ export async function loadYieldStackProps(): Promise<YieldStackProps & { source:
   // À remplacer par `stressedApyLow/High` natifs après la migration P1-3
   // listée dans docs/audit/coherence-2026-05-26/07-apy-range-rule.md.
   const stressedCenter = toNumber(snapshot.stressedApy);
+  const stressedHalfBand = METHODOLOGY_FACTORS.STRESSED_APY_POINT_HALF_BAND;
   const stressedBearRange = {
-    low: Math.round((stressedCenter - 0.4) * 10) / 10,
-    high: Math.round((stressedCenter + 0.4) * 10) / 10,
+    low: Math.round((stressedCenter - stressedHalfBand) * 10) / 10,
+    high: Math.round((stressedCenter + stressedHalfBand) * 10) / 10,
   };
 
   return {
@@ -591,8 +642,9 @@ export async function loadYieldStackProps(): Promise<YieldStackProps & { source:
     blendedLow,
     blendedHigh,
     stressedBearRange,
-    methodologyVersion: "1.0",
+    methodologyVersion: METHODOLOGY_VERSION,
     source: "live",
+    updatedAt: snapshot.takenAt,
   };
 }
 
@@ -600,7 +652,7 @@ export async function loadYieldStackProps(): Promise<YieldStackProps & { source:
  * Build TimeToCashProps from the first active position and vault yield.
  * Returns neutral state when no investor / no active position.
  */
-export async function loadTimeToCashProps(): Promise<TimeToCashProps & { source: "live" | "stale" }> {
+export async function loadTimeToCashProps(): Promise<TimeToCashProps & { source: "live" | "stale"; updatedAt?: Date }> {
   const now = new Date();
   const investor = await getInvestor();
   
@@ -661,6 +713,7 @@ export async function loadTimeToCashProps(): Promise<TimeToCashProps & { source:
     aprHigh,
     asOf: now,
     source: hasMeaningfulYield ? "live" : "stale",
+    updatedAt: snapshot.takenAt,
   };
 }
 

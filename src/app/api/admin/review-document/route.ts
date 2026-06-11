@@ -1,6 +1,6 @@
 import { createReviewDocumentRoute } from "@hearst/review-mode";
 import { prisma } from "@/lib/db";
-import { kimi, KIMI_MODEL } from "@/lib/llm/kimi";
+import { kimi, LLM_MODEL } from "@/lib/llm/kimi";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { logger } from "@/lib/logger";
 import { assertRateLimit, assertBodySize } from "@/lib/rate-limit";
@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 const handlers = createReviewDocumentRoute({
   prisma,
   kimi,
-  model: KIMI_MODEL,
+  model: LLM_MODEL,
   requireAdmin,
   logger,
   productContext: PRODUCT_CONTEXT,

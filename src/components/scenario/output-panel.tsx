@@ -47,7 +47,7 @@ interface OutputPanelFullProps extends OutputPanelBaseProps {
   variant?: "full";
   isPending: boolean;
   /**
-   * AI-generated narrative from the Scenario Narrative agent (Kimi K2.6 via Hypercli).
+   * AI-generated narrative from the Scenario Narrative agent (OpenAI GPT-4.1, ADR-011).
    * `null` means the agent failed (timeout, forbidden-words filter, schema fail)
    * and we degrade gracefully by surfacing a discreet footer note instead of a
    * whole broken-looking card.

@@ -7,6 +7,7 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ApyRange } from "@/components/ui/apy-range";
 import { cn } from "@/lib/cn";
 import { computeTimeToCash } from "@/lib/data/time-to-cash";
+import { resolveProvenance } from "@/lib/data/portfolio";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -23,8 +24,9 @@ export interface TimeToCashProps {
   aprHigh: number;
   /** As-of timestamp. Defaults to new Date(). */
   asOf?: Date;
-  /** Provenance of the underlying data. "stale" when no investor / no position / no yield. */
+  /** Provenance metadata from the loader. */
   source?: "live" | "stale";
+  updatedAt?: Date;
 }
 
 // ── Formatters ────────────────────────────────────────────────────────────────
@@ -59,6 +61,7 @@ export function TimeToCash({
   aprHigh,
   asOf,
   source,
+  updatedAt,
 }: TimeToCashProps) {
   const effectiveAsOf = asOf ?? new Date();
 
@@ -67,8 +70,9 @@ export function TimeToCash({
   // "Stale" so we don't badge "Live" on top of meaningless zeroes.
   const isStale =
     source === "stale" || projectedUsdc === 0 || aprLow + aprHigh === 0;
-  const cycleBadgeKind = isStale ? "stale" : "live";
-  const apyBadgeKind = isStale ? "stale" : "estimated";
+  
+  const cycleBadgeKind = resolveProvenance(isStale ? "stale" : "live", updatedAt);
+  const apyBadgeKind = resolveProvenance(isStale ? "stale" : "live", updatedAt, "estimated");
 
   const { daysElapsed, daysRemaining, hoursRemaining, progressPct } =
     computeTimeToCash({ cycleStart, cycleDays, asOf: effectiveAsOf });

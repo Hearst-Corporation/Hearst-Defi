@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { VaultSelector } from "@/components/admin/vault-selector";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ProofFilter } from "@/components/proof/proof-filter";
@@ -18,8 +17,8 @@ import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
 import { isAttestorAllowlisted } from "@/lib/attestation/stored";
 import { loadCustody } from "@/lib/data/custody";
 import { getProofs } from "@/lib/data/proofs";
-import { listAllVaults, resolveVault } from "@/lib/vaults/resolver";
-import { vaultSlug, vaultLabel } from "@/lib/vaults/slug";
+import { resolveVault } from "@/lib/vaults/resolver";
+import { vaultLabel } from "@/lib/vaults/slug";
 
 interface AdminProofCenterPageProps {
   searchParams: Promise<{ type?: string | string[]; vault?: string }>;
@@ -35,20 +34,10 @@ export default async function AdminProofCenterPage({
   const filter = parseFilter(raw);
   const requestedVault = params.vault;
 
-  // Build vault selector options (fixtures + live/paused deployments)
-  const allVaultRefs = await listAllVaults({ status: "live-or-paused" });
-  const vaultOptions = allVaultRefs.map((ref) => ({
-    id: vaultSlug(ref),
-    label: vaultLabel(ref),
-  }));
-
   // Resolve which vault is active — default to "yield" if none requested
   const resolvedRef = requestedVault
     ? await resolveVault(requestedVault)
     : null;
-  const activeVaultId = resolvedRef
-    ? vaultSlug(resolvedRef)
-    : "yield";
   const isAllVaults = !requestedVault;
   const scopeLabel = isAllVaults
     ? "All vaults"
@@ -95,18 +84,11 @@ export default async function AdminProofCenterPage({
       <AdminPageHeader
         title="Proof Center"
         actions={
-          <div className="flex flex-wrap items-center gap-3">
-            <VaultSelector
-              active={activeVaultId}
-              options={vaultOptions}
-              basePath="/admin/proof-center"
-            />
-            <ChainStatusBadge
-              configured={chainConfigured}
-              eventCount={onChainEvents.length}
-              attestationCount={onChainAttestations.length}
-            />
-          </div>
+          <ChainStatusBadge
+            configured={chainConfigured}
+            eventCount={onChainEvents.length}
+            attestationCount={onChainAttestations.length}
+          />
         }
       />
 

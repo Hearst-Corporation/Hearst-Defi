@@ -4,7 +4,7 @@ import {
 } from "@hearst/cockpit-shell/handler";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { kimi, KIMI_MODEL } from "@/lib/llm/kimi";
+import { kimi, LLM_MODEL } from "@/lib/llm/kimi";
 import { env } from "@/lib/env";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { assertRateLimit, assertBodySize } from "@/lib/rate-limit";
@@ -29,10 +29,10 @@ export const dynamic = "force-dynamic";
 // Models the chat may run on. The client (cockpit-shell useChat) sends the
 // value of localStorage["cockpit:chat-model"]; anything outside this allowlist
 // falls back to the default so a tampered body can't pick an arbitrary model.
-const ALLOWED_MODELS = new Set<string>([env.HYPERCLI_DEFAULT_MODEL]);
+const ALLOWED_MODELS = new Set<string>([env.OPENAI_MODEL]);
 
 function resolveModel(requested: string | undefined): string {
-  return requested && ALLOWED_MODELS.has(requested) ? requested : KIMI_MODEL;
+  return requested && ALLOWED_MODELS.has(requested) ? requested : LLM_MODEL;
 }
 
 // Per-user rate-limit: 20 chat requests / 60s (mirrors the handler default,
@@ -402,8 +402,8 @@ export async function POST(req: NextRequest): Promise<Response> {
     try {
       await prisma.llmRun.create({
         data: {
-          agentName: "cockpit-chat-kimi",
-          model: KIMI_MODEL,
+          agentName: "cockpit-chat",
+          model: LLM_MODEL,
           status: ok ? "success" : "failed",
           latencyMs,
           userId,
@@ -438,8 +438,8 @@ export async function POST(req: NextRequest): Promise<Response> {
     try {
       await prisma.llmRun.create({
         data: {
-          agentName: "cockpit-chat-kimi",
-          model: KIMI_MODEL,
+          agentName: "cockpit-chat",
+          model: LLM_MODEL,
           status: "failed",
           latencyMs,
           userId,

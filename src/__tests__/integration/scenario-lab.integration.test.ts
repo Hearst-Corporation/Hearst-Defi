@@ -64,7 +64,7 @@ vi.mock("@/lib/rate-limit", () => ({
   assertRateLimit: vi.fn().mockResolvedValue(undefined),
 }));
 
-// runScenarioNarrative is mocked so we don't hit the Hypercli LLM endpoint; we drive
+// runScenarioNarrative is mocked so we don't hit the OpenAI LLM endpoint; we drive
 // success/failure behaviour per-test through the mock implementation.
 const runScenarioNarrativeMock = vi.fn();
 vi.mock("@/lib/agents/scenario-narrative", () => ({

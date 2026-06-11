@@ -12,7 +12,7 @@ import { isDuplicate, markComplete } from "@/lib/idempotency";
  * Pipeline:
  *   1. fetch-risk-data  → load risk framework (composite + 5-dimension scores)
  *                         from the latest VaultSnapshot + MiningMetric + live BTC price.
- *   2. invoke-agent     → call Risk Explanation Agent (Kimi K2.6 via Hypercli).
+ *   2. invoke-agent     → call Risk Explanation Agent (OpenAI GPT-4.1, ADR-011).
  *                         `callLlm` inside the agent creates the `LlmRun` row automatically.
  *   3. emit-completion  → send `risk.daily.completed` Inngest event for downstream
  *                         consumers (dashboard refresh, alerts, etc.).

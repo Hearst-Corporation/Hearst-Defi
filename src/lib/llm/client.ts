@@ -5,13 +5,28 @@ import { createHash } from "node:crypto";
 import { CircuitBreaker } from "@/lib/circuit-breaker";
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/env";
-import { kimi, KIMI_MODEL } from "@/lib/llm/kimi";
-import { estimateKimiCostUsd } from "@hearst/review-mode";
+import { kimi, LLM_MODEL } from "@/lib/llm/kimi";
 import { getRequestContext } from "@/lib/request-context";
 
 /**
- * Thin, auditable wrapper around the single LLM provider: Kimi K2.6 via the
- * OpenAI-compatible Hypercli endpoint.
+ * GPT-4.1 list pricing (USD per 1M tokens). ADR-011. Update here if OpenAI
+ * changes the published rate; `LlmRun.costUsd` is computed from these.
+ */
+const OPENAI_INPUT_PER_MTOK = 2.0;
+const OPENAI_OUTPUT_PER_MTOK = 8.0;
+function estimateOpenAiCostUsd(usage: {
+  prompt_tokens: number;
+  completion_tokens: number;
+}): number {
+  return (
+    (usage.prompt_tokens / 1_000_000) * OPENAI_INPUT_PER_MTOK +
+    (usage.completion_tokens / 1_000_000) * OPENAI_OUTPUT_PER_MTOK
+  );
+}
+
+/**
+ * Thin, auditable wrapper around the single LLM provider: OpenAI GPT-4.1
+ * (via the `openai` SDK). ADR-011.
  *
  * Features:
  * - Configurable timeout (default 30 s)
@@ -22,7 +37,7 @@ import { getRequestContext } from "@/lib/request-context";
  *
  * Agents are provider-agnostic: they build `LlmParams` (a small Anthropic-style
  * shape — system blocks + messages) and call `callLlm`. The wrapper flattens
- * that into an OpenAI chat-completion request for Kimi.
+ * that into an OpenAI chat-completion request.
  *
  * Tests inject a `client` shaped like `{ messages: { create: ... } }` so they
  * never hit the real API.
@@ -31,35 +46,37 @@ import { getRequestContext } from "@/lib/request-context";
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_MAX_RETRIES = 3;
 
-/** Shared circuit breaker for all Kimi (primary model) calls. */
-const kimiBreaker = new CircuitBreaker({
-  name: "kimi",
+/** Shared circuit breaker for primary OpenAI model calls. */
+const primaryBreaker = new CircuitBreaker({
+  name: "openai-primary",
   failureThreshold: 5,
   cooldownMs: 60_000,
 });
 
-/** Shared circuit breaker for fallback-model calls (e.g. glm-5). */
+/** Shared circuit breaker for fallback-model calls (OPENAI_FALLBACK_MODEL). */
 const fallbackBreaker = new CircuitBreaker({
-  name: "hypercli-fallback",
+  name: "openai-fallback",
   failureThreshold: 5,
   cooldownMs: 60_000,
 });
 
 /** Resolved at module load. When `null`, no fallback model is configured and
- *  callLlm behaves exactly like before (single-provider, kimi-only). */
+ *  callLlm runs single-provider (OpenAI primary only). Set OPENAI_FALLBACK_MODEL
+ *  (e.g. "gpt-4o") to retry on a secondary OpenAI model when the primary fails
+ *  all retries OR the circuit breaker opens. */
 const FALLBACK_MODEL: string | null =
-  env.HYPERCLI_FALLBACK_MODEL && env.HYPERCLI_FALLBACK_MODEL.trim().length > 0
-    ? env.HYPERCLI_FALLBACK_MODEL.trim()
+  env.OPENAI_FALLBACK_MODEL && env.OPENAI_FALLBACK_MODEL.trim().length > 0
+    ? env.OPENAI_FALLBACK_MODEL.trim()
     : null;
 
 /* --------------------------------------------------------------------------
  * Minimal LLM types (provider-agnostic, Anthropic-style).
- * Agents already author prompts as system blocks + messages; we keep that
- * shape so the agent layer is unchanged, then adapt to Kimi internally.
+ * Agents author prompts as system blocks + messages; we keep that shape and
+ * adapt to the OpenAI chat-completions API internally.
  * ------------------------------------------------------------------------ */
 
 /** A single text block in a system prompt. `cache_control` is accepted for
- *  forward-compatibility but ignored by the Kimi endpoint (no prompt cache). */
+ *  forward-compatibility; OpenAI applies automatic prompt caching >1024 tokens. */
 export interface SystemTextBlock {
   type: "text";
   text: string;
@@ -79,8 +96,8 @@ export interface LlmMessage {
 }
 
 export interface LlmParams {
-  /** Logical model id recorded on `LlmRun.model`. Actual inference always runs
-   *  on `KIMI_MODEL` regardless of this value. */
+  /** Logical model id recorded on `LlmRun.model`. Inference uses the resolved
+   *  provider model (`LLM_MODEL` primary, or `OPENAI_FALLBACK_MODEL`). */
   model: string;
   max_tokens: number;
   system?: LlmSystem;
@@ -117,7 +134,7 @@ export interface LlmCallResult {
 }
 
 /**
- * Calls the LLM (Kimi) with retry, timeout, circuit breaker and observability.
+ * Calls the LLM (OpenAI GPT-4.1) with retry, timeout, circuit breaker and observability.
  *
  * @param agentName   Logical name for the run (e.g. "investor-memo")
  * @param params      Provider-agnostic message-create parameters
@@ -135,7 +152,7 @@ export async function callLlm(
   // Tests inject a fully-formed `client`; in that mode we bypass the fallback
   // path so test setups stay deterministic (one mock = one path).
   const primaryClient: LlmClientLike =
-    opts?.client ?? hypercliAsClient(KIMI_MODEL);
+    opts?.client ?? openaiAsClient(LLM_MODEL);
   const timeoutMs = opts?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const maxRetries = opts?.maxRetries ?? DEFAULT_MAX_RETRIES;
 
@@ -144,11 +161,8 @@ export async function callLlm(
     .digest("hex")
     .slice(0, 16);
 
-  // Hash of the system prompt — groups LlmRun rows by prompt version so we can
-  // audit per revision. `null` when no system prompt is supplied.
   const systemPromptHash = hashSystemPrompt(params.system);
 
-  // Capture userId from the current async request context (null outside request scope, e.g. cron).
   const userId = getRequestContext()?.userId ?? null;
 
   const run = await prisma.llmRun.create({
@@ -164,25 +178,21 @@ export async function callLlm(
 
   const start = performance.now();
 
-  // ── Attempt 1: primary model (kimi-k2.6) through its breaker. ─────────────
   const primaryOutcome = await tryProvider({
     client: primaryClient,
     params,
     timeoutMs,
     maxRetries,
-    breaker: kimiBreaker,
+    breaker: primaryBreaker,
   });
 
   if (primaryOutcome.kind === "success") {
     return await persistSuccessAndReturn(run.id, start, primaryOutcome.response);
   }
 
-  // ── Attempt 2: fallback model (e.g. glm-5) on the same Hypercli endpoint. ─
-  // Only when (a) a fallback is configured, (b) the caller did not inject its
-  // own client (preserves test determinism).
   if (FALLBACK_MODEL && opts?.client === undefined) {
     const fallbackOutcome = await tryProvider({
-      client: hypercliAsClient(FALLBACK_MODEL),
+      client: openaiAsClient(FALLBACK_MODEL),
       params,
       timeoutMs,
       maxRetries,
@@ -198,8 +208,6 @@ export async function callLlm(
       );
     }
 
-    // Both providers failed — surface the fallback error so audit logs
-    // capture the most recent failure mode.
     return await persistFailureAndThrow(run.id, start, fallbackOutcome.error);
   }
 
@@ -256,13 +264,11 @@ async function persistSuccessAndReturn(
   const latency = Math.round(performance.now() - start);
   const inputTokens = response.usage?.input_tokens ?? 0;
   const outputTokens = response.usage?.output_tokens ?? 0;
-  const costUsd = estimateKimiCostUsd({
+  const costUsd = estimateOpenAiCostUsd({
     prompt_tokens: inputTokens,
     completion_tokens: outputTokens,
   });
 
-  // Record the model that actually answered + whether we hit the fallback path.
-  // This keeps cost audit + reliability metrics accurate per provider.
   await prisma.llmRun.update({
     where: { id: runId },
     data: {
@@ -338,10 +344,6 @@ function errorType(err: unknown): string {
   return status !== null ? String(status) : "unknown";
 }
 
-/**
- * Flattens a system prompt (string or text-block array) into a single plain
- * string for the OpenAI-compatible Kimi endpoint.
- */
 function flattenSystem(system: LlmSystem | undefined): string {
   if (system === undefined) return "";
   if (typeof system === "string") return system;
@@ -350,10 +352,6 @@ function flattenSystem(system: LlmSystem | undefined): string {
     .join("\n\n");
 }
 
-/**
- * Flattens a message content (string or text-block array) into a single plain
- * string. Non-text blocks are dropped — Kimi is text-in/text-out.
- */
 function flattenContent(content: LlmMessage["content"]): string {
   if (typeof content === "string") return content;
   return content
@@ -362,30 +360,18 @@ function flattenContent(content: LlmMessage["content"]): string {
     .join("\n\n");
 }
 
-/**
- * Wraps a Hypercli model as an `LlmClientLike`. Exposes the same
- * `messages.create(params)` surface the agents expect; internally it adapts to
- * the OpenAI-compatible chat endpoint. This keeps `callLlm` (retry, breaker,
- * LlmRun persistence) decoupled from the transport.
- */
-function hypercliAsClient(model: string): LlmClientLike {
+/** Wraps an OpenAI model id as an `LlmClientLike` for `callLlm`. */
+function openaiAsClient(model: string): LlmClientLike {
   return {
     messages: {
       create: (body, options) =>
-        callHypercli(model, body, options?.timeout ?? DEFAULT_TIMEOUT_MS),
+        callOpenAi(model, body, options?.timeout ?? DEFAULT_TIMEOUT_MS),
     },
   };
 }
 
-/**
- * Calls a Hypercli-hosted model via the OpenAI-compatible chat endpoint and
- * adapts the response into the normalised `LlmResponse` shape callers expect.
- *
- * The shared `kimi` OpenAI instance points at `HYPERCLI_BASE_URL` with
- * `HYPERCLI_API_KEY`; the `model` parameter selects which Hypercli-hosted
- * model handles the request (kimi-k2.6 / glm-5 / etc.).
- */
-async function callHypercli(
+/** Calls OpenAI chat-completions and normalises into `LlmResponse`. */
+async function callOpenAi(
   model: string,
   params: LlmParams,
   timeoutMs: number,
@@ -426,11 +412,6 @@ async function callHypercli(
   };
 }
 
-/**
- * Stable hash of the system prompt blocks. Used to group LlmRun rows by prompt
- * version. Returns `null` when no system prompt is supplied so the column stays
- * NULL rather than hashing an empty string.
- */
 function hashSystemPrompt(system: LlmSystem | undefined): string | null {
   if (system === undefined) return null;
   const text =

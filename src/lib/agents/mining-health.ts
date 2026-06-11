@@ -5,6 +5,7 @@ import {
   type MiningHealthOutput,
 } from "@/lib/agents/schemas";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
+import { LLM_MODEL } from "@/lib/llm/kimi";
 import {
   METHODOLOGY_VERSION,
   getMethodologyMd,
@@ -19,9 +20,9 @@ import { assertCitesAssumption, assertNoForbiddenWords } from "@/lib/agents/vali
 /**
  * Default model id for the Mining Health Agent.
  *
- * Runs on Hypercli (Kimi K2.6) — the single provider. Daily cron 08:00 UTC.
+ * Runs on OpenAI GPT-4.1 (ADR-011) — the single provider. Daily cron 08:00 UTC.
  */
-const MINING_HEALTH_MODEL = "kimi-k2.6" as const;
+const MINING_HEALTH_MODEL = LLM_MODEL;
 
 /**
  * Local input type. Re-declared here for the same reason as
@@ -46,6 +47,7 @@ export interface MiningHealthInput {
 
 export interface RunMiningHealthOptions {
   client?: LlmClientLike;
+  /** Override the default model. Default: `OPENAI_MODEL` / `LLM_MODEL`. */
   model?: string;
   /**
    * Methodology version cited by the agent. Defaults to `v1.0` (rule-based

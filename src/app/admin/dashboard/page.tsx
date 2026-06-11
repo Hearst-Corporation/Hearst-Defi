@@ -1,5 +1,5 @@
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DashboardAssetsBoard } from "@/components/admin/dashboard-assets-board";
-import { DashboardToolbar } from "@/components/admin/dashboard-toolbar";
 import { Card } from "@/components/ui/card";
 import {
   ProvenanceBadge,
@@ -9,36 +9,26 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadAdminOverview } from "@/lib/data/admin-overview";
 import { loadDashboardData } from "@/lib/data/dashboard";
 import { loadRiskFramework } from "@/lib/data/risk-framework";
-import { listAllVaults } from "@/lib/vaults/resolver";
-import { vaultSlug, vaultLabel } from "@/lib/vaults/slug";
 
 export const dynamic = "force-dynamic";
 
 interface DashboardPageProps {
-  searchParams: Promise<{ mode?: string; vault?: string }>;
+  searchParams: Promise<{ vault?: string }>;
 }
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   await requireAdmin();
   const params = await searchParams;
-  const mode: "simple" | "advanced" =
-    params.mode === "advanced" ? "advanced" : "simple";
   const requestedVault = params.vault;
 
-  const [data, risk, allVaultRefs, overview] = await Promise.all([
+  const [data, risk, overview] = await Promise.all([
     loadDashboardData(requestedVault),
     loadRiskFramework(),
-    listAllVaults({ status: "live-or-paused" }),
     loadAdminOverview(),
   ]);
   const { vaultMeta } = data;
   const vault = data.vault;
   const preview = vaultMeta.livePreview;
-
-  const vaultOptions = allVaultRefs.map((ref) => ({
-    id: vaultSlug(ref),
-    label: vaultLabel(ref),
-  }));
 
   // ── Headline APY (engine preset for preview vaults, live band otherwise) ──
   const headlineApy = preview ? vaultMeta.apyTarget : vault.apyRange;
@@ -93,11 +83,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       </div>
 
       <div className="relative z-10">
-        <DashboardToolbar
-          vaultId={vaultMeta.id}
-          mode={mode}
-          vaultOptions={vaultOptions}
-        />
+        <AdminPageHeader title="Dashboard" />
       </div>
 
       <DashboardAssetsBoard

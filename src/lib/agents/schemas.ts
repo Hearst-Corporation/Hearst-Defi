@@ -12,7 +12,7 @@ import { z } from "zod";
  */
 
 /* -------------------------------------------------------------------------- */
-/* Scenario Narrative Agent (Kimi K2.6)                                       */
+/* Scenario Narrative Agent (OpenAI GPT-4.1 — ADR-011)                      */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -52,7 +52,7 @@ export const ScenarioNarrativeOutputSchema = z
 export type ScenarioNarrativeOutput = z.infer<typeof ScenarioNarrativeOutputSchema>;
 
 /* -------------------------------------------------------------------------- */
-/* Mining Health Agent (Kimi K2.6)                                            */
+/* Mining Health Agent (OpenAI GPT-4.1 — ADR-011)                           */
 /* -------------------------------------------------------------------------- */
 
 export const MiningHealthOutputSchema = z
@@ -66,7 +66,7 @@ export const MiningHealthOutputSchema = z
 export type MiningHealthOutput = z.infer<typeof MiningHealthOutputSchema>;
 
 /* -------------------------------------------------------------------------- */
-/* Risk Explanation Agent (Kimi K2.6)                                         */
+/* Risk Explanation Agent (OpenAI GPT-4.1 — ADR-011)                        */
 /* -------------------------------------------------------------------------- */
 
 export const RiskExplanationOutputSchema = z
@@ -91,7 +91,7 @@ export const RiskExplanationOutputSchema = z
 export type RiskExplanationOutput = z.infer<typeof RiskExplanationOutputSchema>;
 
 /* -------------------------------------------------------------------------- */
-/* Investor Memo Agent (Kimi K2.6)                                              */
+/* Investor Memo Agent (OpenAI GPT-4.1 — ADR-011)                           */
 /* -------------------------------------------------------------------------- */
 
 export const InvestorMemoOutputSchema = z

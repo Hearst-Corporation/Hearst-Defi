@@ -44,7 +44,8 @@ vi.mock("@/lib/llm/kimi", () => ({
       },
     },
   },
-  KIMI_MODEL: "kimi-k2.6",
+  LLM_MODEL: "gpt-4.1",
+  KIMI_MODEL: "gpt-4.1",
 }));
 
 vi.mock("@/lib/rate-limit", () => ({

@@ -9,6 +9,7 @@ import {
   loadProofPulseProps,
   loadYieldStackProps,
   loadTimeToCashProps,
+  resolveProvenance,
 } from "@/lib/data/portfolio";
 import { PortfolioEmptyState } from "@/components/portfolio/portfolio-empty-state";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
@@ -21,11 +22,12 @@ import { LockMeter } from "@/components/portfolio/lock-meter";
 import { TimeToCash } from "@/components/portfolio/time-to-cash";
 import { RiskPulse } from "@/components/portfolio/risk-pulse";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
-import { ProofPulse } from "@/components/portfolio/proof-pulse";
+import { ProofPulse, attestationState } from "@/components/portfolio/proof-pulse";
 import { YieldStack } from "@/components/portfolio/yield-stack";
 import { Metric } from "@/components/ui/metric";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
+import type { Provenance } from "@/components/ui/provenance-badge";
 
 export const dynamic = "force-dynamic";
 
@@ -75,11 +77,10 @@ function Section({ "data-section": dataSectionAttr, children, label }: SectionPr
 
 interface PositionValueKpiProps {
   totalValueUsdc: number;
-  source: "live" | "fallback";
+  provenance: Provenance;
 }
 
-function PositionValueKpi({ totalValueUsdc, source }: PositionValueKpiProps) {
-  const provenance = source === "fallback" ? "stale" : "live";
+function PositionValueKpi({ totalValueUsdc, provenance }: PositionValueKpiProps) {
   const fmt = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -114,7 +115,7 @@ interface PortfolioBriefProps {
   projectedPayoutUsdc: number;
   riskLabel: string | undefined;
   proofState: "attested" | "stale";
-  source: "live" | "fallback";
+  provenance: Provenance;
 }
 
 function formatDateShort(date: Date): string {
@@ -132,9 +133,8 @@ function PortfolioBrief({
   projectedPayoutUsdc,
   riskLabel,
   proofState,
-  source,
+  provenance,
 }: PortfolioBriefProps) {
-  const provenance = source === "fallback" ? "stale" : "live";
   const recentChange =
     recentChangeUsdc === null
       ? "Not available yet"
@@ -184,11 +184,10 @@ function PortfolioBrief({
 interface YieldYtdKpiProps {
   totalYieldYtdUsdc: number;
   hasPositions: boolean;
-  source: "live" | "fallback";
+  provenance: Provenance;
 }
 
-function YieldYtdKpi({ totalYieldYtdUsdc, hasPositions, source }: YieldYtdKpiProps) {
-  const provenance = source === "fallback" ? "stale" : "estimated";
+function YieldYtdKpi({ totalYieldYtdUsdc, hasPositions, provenance }: YieldYtdKpiProps) {
   return (
     <article className="dash-cell dash-cell-premium" aria-label="Yield year to date" data-testid="yield-ytd-kpi">
       <div className="dash-label">
@@ -212,11 +211,10 @@ function YieldYtdKpi({ totalYieldYtdUsdc, hasPositions, source }: YieldYtdKpiPro
 
 interface NextDistributionKpiProps {
   nextDistributionAt: Date;
-  source: "live" | "fallback";
+  provenance: Provenance;
 }
 
-function NextDistributionKpi({ nextDistributionAt, source }: NextDistributionKpiProps) {
-  const provenance = source === "fallback" ? "stale" : "estimated";
+function NextDistributionKpi({ nextDistributionAt, provenance }: NextDistributionKpiProps) {
   const monthDayFmt = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -258,64 +256,28 @@ function NextDistributionKpi({ nextDistributionAt, source }: NextDistributionKpi
 // ---------------------------------------------------------------------------
 
 export default async function PortfolioPage() {
+  const investor = await getInvestor();
+  const hasPositionsData = await loadPortfolio();
+  const hasPositions = hasPositionsData.positions.length > 0;
+
   const [
     data,
-    investor,
-    lockMeterPropsRaw,
-    timeToCashPropsRaw,
-    riskPulsePropsRaw,
-    distribCalendarPropsRaw,
-    proofPulsePropsRaw,
-    yieldStackPropsRaw,
+    lockMeterProps,
+    timeToCashProps,
+    riskPulseProps,
+    distribCalendarProps,
+    proofPulseProps,
+    yieldStackProps,
   ] = await Promise.all([
-    loadPortfolio(),
-    getInvestor(),
+    Promise.resolve(hasPositionsData),
     loadLockMeterProps(),
     loadTimeToCashProps(),
     loadRiskPulseProps(),
     loadDistribCalendarProps(),
     loadProofPulseProps(),
-    loadYieldStackProps(),
+    loadYieldStackProps(hasPositions),
   ]);
   const name = displayName(investor);
-
-  // Strip the `source` field before forwarding to widget components
-  // (widgets that don't accept source-driven provenance keep their default badge).
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { source: _lmSource, ...lockMeterProps } = lockMeterPropsRaw;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { source: _tcSource, ...timeToCashProps } = timeToCashPropsRaw;
-  // Risk Pulse keeps `source` so the header badge reflects stale/live honestly.
-  const { source: riskPulseSource, ...riskPulseProps } = riskPulsePropsRaw;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { source: _dcSource, ...distribCalendarProps } = distribCalendarPropsRaw;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { source: _ppSource, ...proofPulseProps } = proofPulsePropsRaw;
-  // YieldStack accepts source — forward it so its ProvenanceBadge reflects DB state.
-  // For a user with no positions, suppress the vault-level sources and ranges: the
-  // widget would otherwise display a forward yield projection (Mining +6.2%, USDC
-  // +4.8%, …) that has nothing to do with the user's empty portfolio. Hand it an
-  // empty payload so it falls through to its "No yield source data yet" empty state.
-  const yieldStackProps =
-    data.positions.length === 0
-      ? {
-          ...yieldStackPropsRaw,
-          sources: [],
-          blendedLow: 0,
-          blendedHigh: 0,
-          stressedBearRange: { low: 0, high: 0 },
-        }
-      : yieldStackPropsRaw;
-
-  const hasPositions = data.positions.length > 0;
-  const proofState =
-    proofPulseProps.lastPor.statedTvlUsdc > 0 &&
-    proofPulseProps.lastPor.onChainTvlUsdc > 0 &&
-    Math.abs(proofPulseProps.lastPor.statedTvlUsdc - proofPulseProps.lastPor.onChainTvlUsdc) /
-      proofPulseProps.lastPor.statedTvlUsdc <
-      0.005
-      ? "attested"
-      : "stale";
 
   // No active positions → calm guided empty state; skip the full dashboard.
   if (!hasPositions) {
@@ -329,6 +291,15 @@ export default async function PortfolioPage() {
       />
     );
   }
+
+  const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
+  const briefProofState =
+    attestationState(
+      proofPulseProps.lastPor.statedTvlUsdc,
+      proofPulseProps.lastPor.onChainTvlUsdc,
+    ) === "matched"
+      ? "attested"
+      : "stale";
 
   return (
     <div className="space-y-12" data-testid="portfolio-page">
@@ -373,8 +344,8 @@ export default async function PortfolioPage() {
         nextDistributionAt={data.nextDistributionAt}
         projectedPayoutUsdc={timeToCashProps.projectedUsdc}
         riskLabel={riskPulseProps.compositeLabel}
-        proofState={proofState}
-        source={data.source}
+        proofState={briefProofState}
+        provenance={portfolioProvenance}
       />
 
       {/* ── Section 1 — Performance & Liquidity (Hero) ────────────────────── */}
@@ -386,16 +357,16 @@ export default async function PortfolioPage() {
         >
           <PositionValueKpi
             totalValueUsdc={data.totalValueUsdc}
-            source={data.source}
+            provenance={portfolioProvenance}
           />
           <YieldYtdKpi
             totalYieldYtdUsdc={data.totalYieldYtdUsdc}
             hasPositions={hasPositions}
-            source={data.source}
+            provenance={resolveProvenance(data.source, data.updatedAt, "estimated")}
           />
           <NextDistributionKpi
             nextDistributionAt={data.nextDistributionAt}
-            source={data.source}
+            provenance={resolveProvenance(data.source, data.updatedAt, "estimated")}
           />
         </div>
 
@@ -407,6 +378,7 @@ export default async function PortfolioPage() {
               positions={data.positions}
               totalValueUsdc={data.totalValueUsdc}
               source={data.source}
+              updatedAt={data.updatedAt}
             />
           </div>
 
@@ -426,6 +398,7 @@ export default async function PortfolioPage() {
             positions={data.positions}
             totalValueUsdc={data.totalValueUsdc}
             source={data.source}
+            updatedAt={data.updatedAt}
           />
           <div data-testid="yield-stack-widget">
             <YieldStack {...yieldStackProps} />
@@ -435,7 +408,7 @@ export default async function PortfolioPage() {
         {/* Ligne 2 : Security & Trust */}
         <div className="grid items-start grid-cols-1 gap-6 xl:grid-cols-2">
           <div data-testid="risk-pulse-widget">
-            <RiskPulse {...riskPulseProps} source={riskPulseSource} />
+            <RiskPulse {...riskPulseProps} />
           </div>
           <div data-testid="proof-pulse-widget">
             <ProofPulse {...proofPulseProps} />
@@ -446,7 +419,11 @@ export default async function PortfolioPage() {
       {/* ── Section 3 — Activity & Payouts ────────────────────────────────── */}
       <Section data-section="activity-payouts" label="Activity and payouts — your positions, deposits, withdrawals and payouts">
         {/* Positions List — Full width */}
-        <PositionsList positions={data.positions} source={data.source} />
+        <PositionsList
+          positions={data.positions}
+          source={data.source}
+          updatedAt={data.updatedAt}
+        />
 
         <div className="grid items-start grid-cols-1 gap-6 xl:grid-cols-2">
           {/* Payout calendar */}
@@ -458,6 +435,7 @@ export default async function PortfolioPage() {
           <RecentActivity
             transactions={data.recentTransactions}
             source={data.source}
+            updatedAt={data.updatedAt}
           />
         </div>
       </Section>

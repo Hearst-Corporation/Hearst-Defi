@@ -5,6 +5,7 @@ import {
   type InvestorMemoOutput,
 } from "@/lib/agents/schemas";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
+import { LLM_MODEL } from "@/lib/llm/kimi";
 import {
   METHODOLOGY_VERSION,
   getMethodologyMd,
@@ -27,11 +28,12 @@ import { formatApyRange } from "@/lib/format/apy";
 /**
  * Default model id for the Investor Memo Agent.
  *
- * All agents run on Hypercli (Kimi K2.6) — the single provider. The actual
- * inference model is resolved by `callLlm` from `HYPERCLI_DEFAULT_MODEL`; this
- * constant is the logical id recorded on `LlmRun.model`.
+ * All agents run on OpenAI GPT-4.1 (ADR-011) — the single provider. The actual
+ * inference model is resolved by `callLlm` from `OPENAI_MODEL`; this constant
+ * is the logical id recorded on `LlmRun.model`.
  */
-export const INVESTOR_MEMO_MODEL = "kimi-k2.6" as const;
+/** Logical model id on `LlmRun` — mirrors `OPENAI_MODEL` env (ADR-011). */
+export const INVESTOR_MEMO_MODEL = LLM_MODEL;
 
 export type InvestorMemoInput = {
   vault: {
@@ -59,7 +61,7 @@ export interface RunInvestorMemoOptions {
    * init.
    */
   client?: LlmClientLike;
-  /** Override the logical model id recorded on `LlmRun`. Default: kimi-k2.6. */
+  /** Override the logical model id recorded on `LlmRun`. Default: `OPENAI_MODEL` / `LLM_MODEL`. */
   model?: string;
   /** Timeout in ms for the LLM call. Default: 180_000 (3 min) — the memo is the largest output at 4096 tokens. */
   timeoutMs?: number;

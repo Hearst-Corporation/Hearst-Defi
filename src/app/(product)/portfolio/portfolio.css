@@ -32,9 +32,81 @@
 
 .pf-greeting-recap {
   font-size: var(--ct-text-sm);
-  color: var(--ct-text-muted);
+  color: var(--ct-text-body);
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
   margin: 0;
+}
+
+.pf-next-action {
+  border-radius: var(--ct-radius-xl);
+  border: 1px solid color-mix(in srgb, var(--ct-text-strong) 24%, var(--ct-border-soft));
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-text-strong) 14%, var(--ct-surface-3)) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 6%, var(--ct-surface-2)) 100%
+    );
+  box-shadow:
+    0 20px 52px -38px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
+    inset 0 var(--ct-space-px) 0 color-mix(in srgb, var(--ct-text-strong) 32%, transparent);
+}
+
+.pf-next-action::before {
+  content: none;
+}
+
+.pf-next-action__copy {
+  max-width: 48rem;
+}
+
+.pf-empty {
+  max-width: 68rem;
+  min-height: min(44rem, calc(100vh - var(--ct-space-16)));
+  justify-content: center;
+  gap: var(--ct-space-8);
+}
+
+.pf-empty-status {
+  border-radius: var(--ct-radius-full);
+  border: 1px solid color-mix(in srgb, var(--ct-text-strong) 20%, var(--ct-border-soft));
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-text-strong) 12%, var(--ct-surface-2)) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 10%, var(--ct-surface-1)) 100%
+    );
+  padding: var(--ct-space-3) var(--ct-space-4);
+}
+
+.pf-empty-preview {
+  border-radius: calc(var(--ct-radius-xl) + var(--ct-space-1));
+  border: 1px solid color-mix(in srgb, var(--ct-text-strong) 24%, var(--ct-border-soft));
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-text-strong) 11%, var(--ct-surface-3)) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 8%, var(--ct-surface-2)) 100%
+    );
+}
+
+.pf-empty-preview li {
+  border-radius: var(--ct-radius-xl);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-text-strong) 10%, var(--ct-surface-2)) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 10%, var(--ct-surface-1)) 100%
+    );
+}
+
+.pf-empty-preview .eyebrow,
+.pf-empty-status .eyebrow {
+  color: var(--ct-text-body);
+}
+
+.pf-empty-preview .body-xs,
+.pf-empty-status .body-xs {
+  color: var(--ct-text-muted);
 }

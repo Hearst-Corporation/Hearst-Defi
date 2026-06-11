@@ -1,13 +1,7 @@
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
-
-/**
- * Allocation donut — SVG arcs grouped by position status (active / matured /
- * exited). Canonical convention (r=15.9155 → C=100, dashArray `${pct} ${100-pct}`,
- * cumulative dashOffset). Strokes via `.dash-chart-circle.color-*` (charts-shared.css,
- * tokens only). Mirrors the dashboard donut pattern.
- */
+import { resolveProvenance } from "@/lib/data/portfolio";
 
 const STATUS_LABELS: Record<string, string> = {
   active: "Active",
@@ -25,14 +19,16 @@ interface AllocationDonutProps {
   positions: PortfolioPosition[];
   totalValueUsdc: number;
   source: "live" | "fallback";
+  updatedAt?: Date;
 }
 
 export function AllocationDonut({
   positions,
   totalValueUsdc,
   source,
+  updatedAt,
 }: AllocationDonutProps) {
-  const provenance = source === "fallback" ? "stale" : "live";
+  const provenance = resolveProvenance(source, updatedAt);
 
   // Group by status for the donut arcs.
   type StatusKey = "active" | "matured" | "exited";

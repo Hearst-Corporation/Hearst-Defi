@@ -1,6 +1,11 @@
 # ADR-007 — LLM provider: Kimi K2.6 via Hypercli (single model, no Anthropic SDK)
 
-**Status**: Accepted
+> **⚠️ SUPERSEDED by [ADR-011](./ADR-011-llm-provider-openai-gpt41.md) (2026-06-11).**
+> Hypercli/Kimi was retired (latency + a thinking-model trap that returned empty
+> `content`); the single provider is now **OpenAI GPT-4.1**. The "no Anthropic
+> SDK" stance still holds. The text below is kept for historical record.
+
+**Status**: Superseded by ADR-011
 **Date**: 2026-05-26
 **Deciders**: Founder (Adrien) + Eng
 

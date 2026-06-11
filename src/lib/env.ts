@@ -91,15 +91,24 @@ const serverEnvSchema = z.object({
   INNGEST_SIGNING_KEY: z.string().optional(),
   INNGEST_EVENT_KEY: z.string().optional(),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).optional(),
-  // LLM provider — Kimi K2.6 via the OpenAI-compatible Hypercli endpoint is the
-  // single backend. Agents are provider-agnostic: they call `callLlm`, which
-  // always routes to Kimi.
+  // LLM provider — OpenAI GPT-4.1 (via the `openai` SDK) is the single backend
+  // for all four agents AND the cockpit chat. ADR-011 (supersedes ADR-007).
+  // Agents are provider-agnostic: they call `callLlm`, which routes to OpenAI.
+  OPENAI_API_KEY: z.string().min(1).optional(),
+  OPENAI_MODEL: z.string().min(1).default("gpt-4.1"),
+  /** Optional base-URL override (e.g. Azure OpenAI / a proxy). Default: the
+   *  real OpenAI endpoint baked into the SDK. */
+  OPENAI_BASE_URL: z.string().url().optional(),
+  OPENAI_ORG_ID: z.string().optional(),
+  /** Optional secondary OpenAI model. When set, callLlm retries on it if the
+   *  primary fails all retries OR the circuit breaker opens. e.g. "gpt-4o". */
+  OPENAI_FALLBACK_MODEL: z.string().optional(),
+  // ── Deprecated (Hypercli/Kimi retired by ADR-011) ──────────────────────────
+  // Kept optional so legacy .env files + env.test.ts don't break; no code path
+  // reads these anymore.
   HYPERCLI_API_KEY: z.string().min(1).optional(),
   HYPERCLI_BASE_URL: z.string().url().optional(),
   HYPERCLI_DEFAULT_MODEL: z.string().min(1).default("kimi-k2.6"),
-  /** Optional fallback model on the same Hypercli endpoint. When set, callLlm
-   *  retries on this model if the primary model fails all retries OR the
-   *  circuit breaker opens. Set "" or leave unset to disable. Suggested: "glm-5". */
   HYPERCLI_FALLBACK_MODEL: z.string().optional(),
   HYPERCLI_ORG_ID: z.string().optional(),
   // Sentry observability — all optional, project boots without them (no-op fallback)
@@ -184,10 +193,10 @@ if (IS_RUNTIME_PRODUCTION && parsed.success) {
         "background jobs (mining health, investor memo) and rack up LLM costs.",
     );
   }
-  if (!d.HYPERCLI_API_KEY) {
+  if (!d.OPENAI_API_KEY) {
     console.error(
-      "⚠️  HYPERCLI_API_KEY is not set. LLM features (agents, investor memo) will " +
-        "fail at runtime. Set HYPERCLI_API_KEY to enable them.",
+      "⚠️  OPENAI_API_KEY is not set. LLM features (agents, investor memo, chat) will " +
+        "fail at runtime. Set OPENAI_API_KEY to enable them.",
     );
   }
   // P0: Redis is REQUIRED in production for distributed rate limiting.
@@ -253,6 +262,7 @@ function resolveEnv(): ServerEnv {
       const data: ServerEnv = {
         ...lenient.data,
         DATABASE_URL: lenient.data.DATABASE_URL ?? "",
+        OPENAI_MODEL: lenient.data.OPENAI_MODEL ?? "gpt-4.1",
         HYPERCLI_DEFAULT_MODEL: lenient.data.HYPERCLI_DEFAULT_MODEL ?? "kimi-k2.6",
       };
       return data;

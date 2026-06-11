@@ -35,6 +35,11 @@ export const METHODOLOGY_FACTORS = {
    * CLAUDE.md rule #1 (APY always as a range).
    */
   STRESSED_APY_BAND: 0.15,
+  /**
+   * ± absolute APY points around a single stressed centre when the DB stores
+   * only `stressedApy` (no low/high pair yet — see P1-3 migration).
+   */
+  STRESSED_APY_POINT_HALF_BAND: 0.4,
 } as const;
 
 /**

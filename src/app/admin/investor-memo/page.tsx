@@ -1,29 +1,9 @@
 export const dynamic = "force-dynamic";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { VaultSelector } from "@/components/admin/vault-selector";
 import { MemoShell } from "@/components/memo/memo-shell";
 import { VAULTS, VAULT_YIELD } from "@/lib/engine/vaults";
 import type { VaultId } from "@/lib/engine/types";
-
-// ---------------------------------------------------------------------------
-// Selector options: fixture-only (yield / defensive / btc-plus).
-//
-// MemoShell generates a Kimi K2.6 document anchored to an engine fixture's
-// vault snapshot + methodology preset. Deployment-scoped memos require
-// per-deployment live snapshot resolution, which is gated on Phase 3
-// multi-vault DB schema. Surfacing deployment slugs here would silently
-// render a Yield-anchored memo under a different vault name — dishonest.
-//
-// When per-deployment memo generation lands (V2), replace this constant with
-// a `listAllVaults({ status: "live-or-paused" })` call and pass the full
-// catalog via `options`. MemoShell will need a `VaultRef` input at that point.
-// ---------------------------------------------------------------------------
-const FIXTURE_VAULT_OPTIONS = [
-  { id: "yield", label: "Yield" },
-  { id: "defensive", label: "Defensive" },
-  { id: "btc-plus", label: "BTC Plus" },
-] as const satisfies ReadonlyArray<{ id: string; label: string }>;
 
 interface InvestorMemoPageProps {
   searchParams: Promise<{ vault?: string }>;
@@ -43,17 +23,7 @@ export default async function InvestorMemoPage({
 
   return (
     <div className="space-y-8">
-      <AdminPageHeader
-        title="Investor Memo"
-        actions={
-          <VaultSelector
-            active={vaultId}
-            options={FIXTURE_VAULT_OPTIONS}
-            basePath="/admin/investor-memo"
-            ariaLabel="Investor Memo vault selector"
-          />
-        }
-      />
+      <AdminPageHeader title="Investor Memo" />
 
       <MemoShell vaultId={vaultId} vaultName={vault.label} />
 

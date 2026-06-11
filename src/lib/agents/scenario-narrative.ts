@@ -5,6 +5,7 @@ import {
   type ScenarioNarrativeOutput,
 } from "@/lib/agents/schemas";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
+import { LLM_MODEL } from "@/lib/llm/kimi";
 import {
   METHODOLOGY_VERSION,
   getMethodologyMd,
@@ -27,11 +28,11 @@ import { formatApyRange } from "@/lib/format/apy";
 /**
  * Default model id for the Scenario Narrative Agent.
  *
- * Runs on Hypercli (Kimi K2.6) — the single provider. Override via
+ * Runs on OpenAI GPT-4.1 (ADR-011) — the single provider. Override via
  * `opts.model` only for evaluation / canary work; production callers should
  * leave the default.
  */
-export const SCENARIO_NARRATIVE_MODEL = "kimi-k2.6" as const;
+export const SCENARIO_NARRATIVE_MODEL = LLM_MODEL;
 
 export interface ScenarioNarrativeInput {
   /** Scenario identifier (e.g. "base", "bear", "bull", or custom id). */
@@ -48,7 +49,7 @@ export interface RunScenarioNarrativeOptions {
    * init.
    */
   client?: LlmClientLike;
-  /** Override the default model. Default: kimi-k2.6. */
+  /** Override the default model. Default: `OPENAI_MODEL` / `LLM_MODEL`. */
   model?: string;
   /**
    * Authenticated user identifier. When provided, the per-user persona

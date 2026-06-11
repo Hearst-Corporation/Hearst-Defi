@@ -3,6 +3,7 @@ import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
+import { resolveProvenance } from "@/lib/data/portfolio";
 
 /**
  * 12-month portfolio value area chart with monthly distribution markers.
@@ -167,10 +168,11 @@ interface ValueChartProps {
   positions: PortfolioPosition[];
   totalValueUsdc: number;
   source: "live" | "fallback";
+  updatedAt?: Date;
 }
 
-export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProps) {
-  const provenance: Provenance = source === "fallback" ? "stale" : "estimated";
+export function ValueChart({ positions, totalValueUsdc, source, updatedAt }: ValueChartProps) {
+  const provenance: Provenance = resolveProvenance(source, updatedAt, "estimated");
   const asOf = new Date(); // rendered server-side; consistent within a request
   const series = buildMonthSeries(positions, totalValueUsdc, asOf);
 

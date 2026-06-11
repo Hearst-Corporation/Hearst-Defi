@@ -15,28 +15,33 @@
 }
 
 .dash-cell {
-  /* Verre sombre translucide (canon investor bento) — bg-deep dominant, laisse
-     passer le fond spatial .ct-panels-row. Ancienne recette #fff 8% + surface-2
-     opaque = gris laiteux ; corrigée à la source pour profile + portfolio. */
+  /* Floating material for investor bento: dark glass with a readable inner veil,
+     so the spatial background adds depth without fighting the numbers. */
   background:
+    radial-gradient(
+      120% 84% at 18% 0%,
+      color-mix(in srgb, var(--ct-text-strong) 22%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 16%, transparent) 44%,
+      transparent 62%
+    ),
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-text-strong) 3%, var(--ct-bg-deep)) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 36%, var(--ct-surface-1)) 36%,
-      color-mix(in srgb, var(--ct-bg-deep) 64%, var(--ct-surface-0)) 100%
+      color-mix(in srgb, var(--ct-text-strong) 22%, var(--ct-surface-3)) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 4%, var(--ct-surface-2)) 48%,
+      color-mix(in srgb, var(--ct-bg-deep) 16%, var(--ct-surface-1)) 100%
     );
   backdrop-filter: var(--ct-glass-blur);
   -webkit-backdrop-filter: var(--ct-glass-blur);
-  border: var(--ct-space-px) solid color-mix(in srgb, var(--ct-text-strong) 8%, var(--ct-border));
-  border-top-color: color-mix(in srgb, var(--ct-text-strong) 14%, transparent);
-  border-left-color: color-mix(in srgb, var(--ct-text-strong) 8%, transparent);
-  border-radius: var(--ct-radius-xl);
+  border: var(--ct-space-px) solid color-mix(in srgb, var(--ct-text-strong) 30%, var(--ct-border));
+  border-top-color: color-mix(in srgb, var(--ct-text-strong) 44%, transparent);
+  border-left-color: color-mix(in srgb, var(--ct-text-strong) 34%, transparent);
+  border-radius: calc(var(--ct-radius-xl) + var(--ct-space-1));
   box-shadow:
-    0 20px 48px -28px color-mix(in srgb, var(--ct-bg-deep) 82%, transparent),
+    0 28px 68px -42px color-mix(in srgb, var(--ct-bg-deep) 92%, transparent),
     var(--ct-shadow-depth),
-    inset 0 var(--ct-space-px) 0 color-mix(in srgb, var(--ct-text-strong) 10%, transparent),
-    inset 0 var(--ct-space-4) var(--ct-space-8) -28px
-      color-mix(in srgb, var(--ct-text-strong) 10%, transparent);
+    inset 0 var(--ct-space-px) 0 color-mix(in srgb, var(--ct-text-strong) 34%, transparent),
+    inset 0 var(--ct-space-4) var(--ct-space-8) -26px
+      color-mix(in srgb, var(--ct-text-strong) 30%, transparent);
   padding: var(--ct-space-6);
   display: flex;
   flex-direction: column;
@@ -48,30 +53,64 @@
 }
 
 .dash-cell:hover {
-  border-color: color-mix(in srgb, var(--ct-text-strong) 10%, var(--ct-border));
-  border-top-color: color-mix(in srgb, var(--ct-text-strong) 18%, transparent);
+  border-color: color-mix(in srgb, var(--ct-text-strong) 13%, var(--ct-border));
+  border-top-color: color-mix(in srgb, var(--ct-text-strong) 22%, transparent);
   background:
+    radial-gradient(
+      120% 84% at 18% 0%,
+      color-mix(in srgb, var(--ct-text-strong) 12%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 5%, transparent) 42%,
+      transparent 62%
+    ),
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-text-strong) 4%, var(--ct-bg-deep)) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 34%, var(--ct-surface-1)) 38%,
-      color-mix(in srgb, var(--ct-bg-deep) 62%, var(--ct-surface-0)) 100%
+      color-mix(in srgb, var(--ct-bg-deep) 20%, var(--ct-surface-2)) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 50%, var(--ct-surface-1)) 48%,
+      color-mix(in srgb, var(--ct-bg-deep) 68%, var(--ct-surface-0)) 100%
     );
+}
+
+.dash-cell::after {
+  content: "";
+  position: absolute;
+  inset: var(--ct-space-px);
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--ct-text-strong) 9%, transparent) 0%,
+      transparent 26%,
+      transparent 74%,
+      color-mix(in srgb, var(--ct-accent) 5%, transparent) 100%
+    );
+  opacity: 0.75;
+}
+
+.dash-cell > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* === KPI cell — compact metric card for KPI grids (not bento panels) ===
  * Lighter padding, no min-height, height fits content only. */
 .kpi-cell {
   background:
+    radial-gradient(
+      100% 70% at 18% 0%,
+      color-mix(in srgb, var(--ct-text-strong) 6%, transparent) 0%,
+      transparent 46%
+    ),
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-text-strong) 3%, var(--ct-bg-deep)) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 40%, var(--ct-surface-1)) 100%
+      color-mix(in srgb, var(--ct-bg-deep) 34%, var(--ct-surface-1)) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 70%, var(--ct-surface-0)) 100%
     );
   backdrop-filter: var(--ct-glass-blur);
   -webkit-backdrop-filter: var(--ct-glass-blur);
   border: var(--ct-space-px) solid color-mix(in srgb, var(--ct-text-strong) 8%, var(--ct-border));
-  border-radius: var(--ct-radius-xl);
+  border-radius: calc(var(--ct-radius-xl) + var(--ct-space-1));
   box-shadow:
     0 12px 32px -20px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
     var(--ct-shadow-depth);
@@ -90,7 +129,9 @@
 /* Premium pattern utility — kept very subtle so it never competes with the
    numbers. Dot opacity dropped from 8% to 3% and the grid widened. */
 .dash-cell-premium {
-  background-image: radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 3%, transparent) 1px, transparent 1px);
+  background-image:
+    radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 4%, transparent) 1px, transparent 1px),
+    radial-gradient(105% 78% at 14% 0%, color-mix(in srgb, var(--ct-accent) 8%, transparent), transparent 52%);
   background-size: 32px 32px;
 }
 

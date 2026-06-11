@@ -12,6 +12,11 @@ import { z } from "zod";
 
 const serverEnvSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+  OPENAI_API_KEY: z.string().min(1).optional(),
+  OPENAI_MODEL: z.string().min(1).default("gpt-4.1"),
+  OPENAI_BASE_URL: z.string().url().optional(),
+  OPENAI_ORG_ID: z.string().optional(),
+  OPENAI_FALLBACK_MODEL: z.string().optional(),
   HYPERCLI_API_KEY: z.string().min(1).optional(),
   HYPERCLI_BASE_URL: z.string().url().optional(),
   HYPERCLI_DEFAULT_MODEL: z.string().min(1).default("kimi-k2.6"),
@@ -36,8 +41,8 @@ describe("env validation", () => {
   it("accepts a complete valid config", () => {
     const parsed = serverEnvSchema.safeParse({
       DATABASE_URL: "file:./prisma/dev.db",
-      HYPERCLI_API_KEY: "hyper_api_test",
-      HYPERCLI_BASE_URL: "https://api.hypercli.com/v1",
+      OPENAI_API_KEY: "sk-test",
+      OPENAI_MODEL: "gpt-4.1",
       PRIVY_APP_SECRET: "secret",
       NEXT_PUBLIC_PRIVY_APP_ID: "app-id",
       NEXT_PUBLIC_CHAIN_RPC_URL: "https://sepolia.base.org",
@@ -47,11 +52,31 @@ describe("env validation", () => {
 
   it("fails when DATABASE_URL is missing", () => {
     const parsed = serverEnvSchema.safeParse({
-      HYPERCLI_API_KEY: "hyper_api_test",
     });
     expect(parsed.success).toBe(false);
     if (!parsed.success) {
       expect(parsed.error.flatten().fieldErrors).toHaveProperty("DATABASE_URL");
+    }
+  });
+
+  it("defaults OPENAI_MODEL to gpt-4.1 when absent", () => {
+    const parsed = serverEnvSchema.safeParse({
+      DATABASE_URL: "file:./prisma/dev.db",
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.OPENAI_MODEL).toBe("gpt-4.1");
+    }
+  });
+
+  it("fails when OPENAI_BASE_URL is not a valid URL", () => {
+    const parsed = serverEnvSchema.safeParse({
+      DATABASE_URL: "file:./prisma/dev.db",
+      OPENAI_BASE_URL: "not-a-url",
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.flatten().fieldErrors).toHaveProperty("OPENAI_BASE_URL");
     }
   });
 

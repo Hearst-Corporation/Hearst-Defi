@@ -5,6 +5,7 @@ import { ApyRange } from "@/components/ui/apy-range";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 import { cn } from "@/lib/cn";
+import { resolveProvenance } from "@/lib/data/portfolio";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -31,6 +32,7 @@ const ROW_GRID =
 interface PositionsListProps {
   positions: PortfolioPosition[];
   source: "live" | "fallback";
+  updatedAt?: Date;
 }
 
 /**
@@ -38,8 +40,8 @@ interface PositionsListProps {
  * ApyRange is used on every APY display (CLAUDE.md non-negotiable #1).
  * ProvenanceBadge on the header metric (CLAUDE.md non-negotiable #2).
  */
-export function PositionsList({ positions, source }: PositionsListProps) {
-  const provenance = source === "fallback" ? "stale" : "live";
+export function PositionsList({ positions, source, updatedAt }: PositionsListProps) {
+  const provenance = resolveProvenance(source, updatedAt);
 
   return (
     <article className="dash-cell" aria-label="Open positions">

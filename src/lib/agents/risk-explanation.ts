@@ -5,6 +5,7 @@ import {
   type RiskExplanationOutput,
 } from "@/lib/agents/schemas";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
+import { LLM_MODEL } from "@/lib/llm/kimi";
 import {
   METHODOLOGY_VERSION,
   getMethodologyMd,
@@ -19,10 +20,10 @@ import { assertCitesAssumption, assertNoForbiddenWords } from "@/lib/agents/vali
 /**
  * Default model id for the Risk Explanation Agent.
  *
- * Runs on Hypercli (Kimi K2.6) — the single provider.
+ * Runs on OpenAI GPT-4.1 (ADR-011) — the single provider.
  * Triggers daily and on every rebalancing event.
  */
-export const RISK_EXPLANATION_MODEL = "kimi-k2.6" as const;
+export const RISK_EXPLANATION_MODEL = LLM_MODEL;
 
 /**
  * Input for the Risk Explanation Agent.
@@ -55,7 +56,7 @@ export interface RunRiskExplanationOptions {
    * init.
    */
   client?: LlmClientLike;
-  /** Override the default model. Default: kimi-k2.6. */
+  /** Override the default model. Default: `OPENAI_MODEL` / `LLM_MODEL`. */
   model?: string;
   /**
    * Methodology version cited by the agent. Defaults to `v1.0` (rule-based

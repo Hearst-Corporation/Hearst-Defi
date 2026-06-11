@@ -13,7 +13,7 @@ import { isDuplicate, markComplete } from "@/lib/idempotency";
  * Pipeline:
  *   1. load-metrics  → most recent `MiningMetric` row, projected onto the
  *                       agent's input shape (see loaders/mining.ts).
- *   2. run-agent     → call Mining Health Agent (Kimi K2.6 via Hypercli).
+ *   2. run-agent     → call Mining Health Agent (OpenAI GPT-4.1, ADR-011).
  *   3. persist       → write agent output to a new `MiningMetric` row,
  *                       copying the raw metrics from the latest snapshot.
  */

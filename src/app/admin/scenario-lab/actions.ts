@@ -78,7 +78,7 @@ function assertBounds(inputs: ScenarioInputs): void {
  *   3. assertBounds(inputs) — slider bounds (throws on out-of-range)
  *   4. runScenario(inputs) — pure-function engine
  *   5. Persist ScenarioRun (engine output)
- *   6. runScenarioNarrative({ scenario_id, scenario_output }) — Kimi K2.6
+ *   6. runScenarioNarrative({ scenario_id, scenario_output }) — GPT-4.1
  *      with graceful degradation: if the agent throws (timeout, forbidden-words
  *      filter, schema fail), the run still returns the engine output with
  *      `narrative: null` and the error is logged.
@@ -133,7 +133,7 @@ export async function runScenarioAction(
       logger.warn("runScenarioAction persistence failed", { userId }, persistErr);
     }
 
-    // Narrative agent — graceful degradation on any failure (Kimi down,
+    // Narrative agent — graceful degradation on any failure (LLM down,
     // forbidden-words filter trip, schema validation fail). Engine result is
     // still returned with `narrative: null`.
     let narrative: ScenarioNarrativeOutput | null = null;

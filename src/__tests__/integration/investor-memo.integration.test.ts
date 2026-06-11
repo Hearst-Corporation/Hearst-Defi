@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { runInvestorMemo } from "@/lib/agents/investor-memo";
+import { runInvestorMemo, INVESTOR_MEMO_MODEL } from "@/lib/agents/investor-memo";
 import { prisma } from "@/lib/db";
 import type { InvestorMemoInput } from "@/lib/agents/investor-memo";
 
@@ -68,7 +68,7 @@ describe("Investor Memo integration", () => {
     expect(run).toBeDefined();
     if (run) {
       expect(run.status).toBe("success");
-      expect(run.model).toBe("kimi-k2.6");
+      expect(run.model).toBe(INVESTOR_MEMO_MODEL);
       expect(run.inputTokens).toBe(500);
       expect(run.outputTokens).toBe(300);
       expect(run.costUsd).toBeGreaterThan(0);

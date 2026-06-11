@@ -7,7 +7,7 @@ import { ConnectShell } from "@/components/ConnectShell";
 import { AdminChatControls } from "@/components/admin/admin-chat-controls";
 
 // Routes/prefixes that render WITHOUT the product chrome (left rail, bottom
-// nav, Kimi chat). The sign-in screen must stand alone — no navigation into
+// nav, cockpit chat). The sign-in screen must stand alone — no navigation into
 // product surfaces is offered until the user is authenticated. Legal pages
 // (/legal/*) use their own LegalLayout and must not get a double chrome.
 const BARE_EXACT = new Set<string>([

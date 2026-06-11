@@ -36,6 +36,8 @@ export const STALE_THRESHOLDS = {
   hashprice: 10 * 60 * 1000,
   /** Crypto Fear & Greed Index. Recomputed ~daily. */
   fear_greed: 60 * 60 * 1000,
+  /** Portfolio / Vault snapshots. Recomputed ~daily. */
+  portfolio_snapshot: 24 * 60 * 60 * 1000,
 } as const;
 
 export type FreshnessKind = "live" | "stale";

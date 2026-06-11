@@ -20,6 +20,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { LlmParams } from "@/lib/llm/client";
+import { LLM_MODEL } from "@/lib/llm/kimi";
 
 // ---- module mocks (must be top-level before any imports) -------------------
 
@@ -349,7 +350,7 @@ describe("runInvestorMemo — user-context injection + P1 best-effort", () => {
   });
 
   it("without userId → params.system has exactly 1 block", async () => {
-    await runInvestorMemo(makeInvestorMemoInput(), { model: "kimi-k2.6" });
+    await runInvestorMemo(makeInvestorMemoInput(), { model: LLM_MODEL });
 
     expect(capturedParams).toHaveLength(1);
     const blocks = getSystemBlocks(capturedParams[0]!);
@@ -367,7 +368,7 @@ describe("runInvestorMemo — user-context injection + P1 best-effort", () => {
     );
 
     await runInvestorMemo(makeInvestorMemoInput(), {
-      model: "kimi-k2.6",
+      model: LLM_MODEL,
       userId: "user-abc",
     });
 
@@ -389,7 +390,7 @@ describe("runInvestorMemo — user-context injection + P1 best-effort", () => {
     // Must resolve without throwing
     await expect(
       runInvestorMemo(makeInvestorMemoInput(), {
-        model: "kimi-k2.6",
+        model: LLM_MODEL,
         userId: "user-db-down",
       }),
     ).resolves.not.toThrow();
@@ -421,7 +422,7 @@ describe("runInvestorMemo — user-context injection + P1 best-effort", () => {
 
     await expect(
       runInvestorMemo(makeInvestorMemoInput(), {
-        model: "kimi-k2.6",
+        model: LLM_MODEL,
         userId: "user-bad-instructions",
       }),
     ).resolves.not.toThrow();

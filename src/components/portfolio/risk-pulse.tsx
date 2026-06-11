@@ -1,6 +1,7 @@
 import { NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
+import { resolveProvenance } from "@/lib/data/portfolio";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -39,6 +40,7 @@ export interface RiskPulseProps {
    * scores — the header badge reflects this instead of a fixed "live".
    */
   source?: "live" | "stale";
+  updatedAt?: Date;
 }
 
 // ── Helpers (exported for unit tests) ────────────────────────────────────────
@@ -298,6 +300,7 @@ export function RiskPulse({
   compositeLabel,
   composite30dTrend,
   source = "live",
+  updatedAt,
 }: RiskPulseProps) {
   // No-data: every sub-score is 0, composite is 0, and the loader did not
   // assign a label. Showing "Low" here would be a misleading positive signal
@@ -308,11 +311,15 @@ export function RiskPulse({
     scores.every((s) => s.score === 0);
 
   // Per-dimension sub-scores are not yet persisted; a 0 means "not available",
-  // not "low risk". The badge is only "live" when the snapshot is live AND at
-  // least one real sub-score exists — otherwise "stale".
+  // not "low risk".
   const dimensionsAvailable = scores.some((s) => s.score > 0);
-  const badgeKind: "live" | "stale" =
-    source === "stale" || noData || !dimensionsAvailable ? "stale" : "live";
+
+  // Use centralized provenance resolver
+  const badgeKind = resolveProvenance(
+    source === "stale" || noData || !dimensionsAvailable ? "stale" : source,
+    updatedAt,
+    "estimated", // Risk is always an estimation
+  );
 
   return (
     <article className="dash-cell dash-cell-premium h-full flex flex-col">

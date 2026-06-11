@@ -13,6 +13,7 @@
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl } from "@/lib/chain/client";
+import { resolveProvenance } from "@/lib/data/portfolio";
 
 // ── Public types ──────────────────────────────────────────────────────────────
 
@@ -33,6 +34,9 @@ export interface DistribCalendarProps {
   /** e.g. "monthly, T+5" */
   cadence: string;
   asOf?: Date;
+  /** Provenance metadata from the loader. */
+  source?: "live" | "stale";
+  updatedAt?: Date;
 }
 
 // ── Formatting helpers (exported for tests) ───────────────────────────────────
@@ -271,6 +275,8 @@ export function DistribCalendar({
   shareClass,
   cadence,
   asOf,
+  source = "live",
+  updatedAt,
 }: DistribCalendarProps) {
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
@@ -280,6 +286,11 @@ export function DistribCalendar({
 
   const hasEntries = entries.length > 0;
   const hasForecast = entries.some((e) => e.paidAt === null);
+
+  const badgeKind =
+    hasEntries && source === "live"
+      ? "attested"
+      : resolveProvenance(source, updatedAt, "estimated");
 
   return (
     <article
@@ -301,17 +312,9 @@ export function DistribCalendar({
 
         {/* Provenance badges */}
         <div className="flex items-center gap-1.5 shrink-0">
-          {hasEntries && !hasForecast && (
-            <ProvenanceBadge kind="attested" />
-          )}
+          <ProvenanceBadge kind={badgeKind} />
           {hasForecast && (
-            <>
-              <ProvenanceBadge kind="attested" />
-              <ProvenanceBadge kind="estimated" />
-            </>
-          )}
-          {!hasEntries && (
-            <ProvenanceBadge kind="stale" />
+            <ProvenanceBadge kind="estimated" />
           )}
         </div>
       </div>

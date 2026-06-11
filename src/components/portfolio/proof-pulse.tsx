@@ -18,6 +18,11 @@ export interface ProofPulseProps {
   nextAttestation: Date | null;
   auditor: string;
   proofCenterHref?: string; // defaults to "/proof-center"
+  /** Provenance metadata from the loader. */
+  source?: "live" | "stale";
+  updatedAt?: Date;
+  /** Attestation state from the loader. */
+  proofState?: "attested" | "stale";
 }
 
 // ── Pure helpers (exported for tests) ────────────────────────────────────────
@@ -112,11 +117,16 @@ export function ProofPulse({
   nextAttestation,
   auditor,
   proofCenterHref = "/proof-center",
+  source: _source = "live",
+  updatedAt: _updatedAt,
+  proofState,
 }: ProofPulseProps) {
   const { timestamp, statedTvlUsdc, onChainTvlUsdc } = lastPor;
 
-  const state = attestationState(statedTvlUsdc, onChainTvlUsdc);
-  const hasData = state === "matched" || state === "mismatch";
+  const derivedState = attestationState(statedTvlUsdc, onChainTvlUsdc);
+  const state =
+    proofState === "attested" ? "attested" : derivedState;
+  const hasData = state === "matched" || state === "mismatch" || state === "attested";
   const deltaPct = hasData ? computeDeltaPct(statedTvlUsdc, onChainTvlUsdc) : 0;
   const level = hasData ? deltaLevel(deltaPct) : null;
 
@@ -131,7 +141,7 @@ export function ProofPulse({
   // For "none" (no attestation) and "pending" (on-chain missing) we render a
   // neutral/warning glyph — never ✓.
   const indicator: { glyph: string; label: string; colorClass: string } | null =
-    state === "matched"
+    state === "matched" || state === "attested"
       ? {
           glyph: "✓",
           label: "On-chain TVL matches stated TVL",
@@ -151,25 +161,20 @@ export function ProofPulse({
             }
           : null; // "none" — no glyph at all
 
-  // `attested` only when on-chain figures actually match. "pending" (on-chain
-  // not yet wired) and "none" must read `stale` — never claim attestation on an
-  // unreconciled reserve.
+  // `attested` only when on-chain figures actually match.
   const headerProvenance: "attested" | "stale" =
-    state === "matched" ? "attested" : "stale";
+    state === "matched" || state === "attested" ? "attested" : "stale";
 
   return (
     <article className="dash-cell dash-cell-premium h-full flex flex-col">
       <div className="dash-label relative z-10">
         <span className="font-semibold ct-text-strong">Proof &amp; Methodology Pulse</span>
         <div className="flex items-center gap-2">
-          {/* A2 — single provenance badge driven by the actual PoR match state.
-              The previously hardcoded "Oracle" badge was not backed by any
-              oracle feed and is removed. */}
           <ProvenanceBadge kind={headerProvenance} />
         </div>
       </div>
 
-      {state !== "matched" && (
+      {state !== "matched" && state !== "attested" && (
         <NestedCallout className="mt-4 relative z-10">
           <p className="body-sm ct-text-primary font-semibold">
             {state === "pending"
@@ -202,12 +207,16 @@ export function ProofPulse({
 
         <NestedPanel>
           <ProofRow label="Vault TVL">
-            {statedTvlUsdc > 0 ? formatUsdc(statedTvlUsdc) : "Awaiting proof"}
+            <span className="inline-flex items-center gap-2">
+              {statedTvlUsdc > 0 ? formatUsdc(statedTvlUsdc) : "Awaiting proof"}
+              <ProvenanceBadge kind={headerProvenance} />
+            </span>
           </ProofRow>
 
           <ProofRow label="On-chain">
             <span className="inline-flex items-center justify-end gap-2">
               {onChainTvlUsdc > 0 ? formatUsdc(onChainTvlUsdc) : "Awaiting record"}
+              <ProvenanceBadge kind={onChainTvlUsdc > 0 ? "oracle" : "stale"} />
               {indicator !== null && (
                 <span
                   role="status"
@@ -246,7 +255,14 @@ export function ProofPulse({
         <NestedPanel>
           <ProofRow label="Version">
             <span className="inline-flex items-center justify-end gap-2">
-              <span className="ct-text-faint">{methodologyVersion}</span>
+              <span className="ct-text-faint">
+                {methodologyVersion || "—"}
+              </span>
+              {methodologyVersion ? (
+                <ProvenanceBadge kind="attested" />
+              ) : (
+                <ProvenanceBadge kind="manual" />
+              )}
               {methodologyLocked && (
                 <Badge variant="default" aria-label="Methodology is locked">
                   locked

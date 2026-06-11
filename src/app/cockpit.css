@@ -2000,13 +2000,38 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: url("/backgrounds/spatial-glassmo.png");
+  background-image: url("/backgrounds/hearst-vision-mirror.png");
   background-size: cover;
-  background-position: center;
+  background-position: center left;
   background-repeat: no-repeat;
-  /* image "deep black premium" déjà sombre — légère baisse de luminosité pour
-     la fondre encore plus dans le shell sans l'éteindre. */
-  filter: brightness(0.7);
+  filter: brightness(0.95);
+}
+
+.ct-panels-row::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      62% 44% at 40% 34%,
+      color-mix(in srgb, var(--ct-accent) 26%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 10%, transparent) 48%,
+      transparent 82%
+    ),
+    radial-gradient(
+      68% 50% at 32% 54%,
+      color-mix(in srgb, var(--ct-text-strong) 16%, transparent) 0%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-bg-deep) 8%, transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 22%, transparent) 100%
+    );
+  opacity: 1;
+  mix-blend-mode: normal;
 }
 
 /* Centre transparent → laisse voir le fond spatial du parent. La zone de contenu
@@ -2383,7 +2408,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-kpi-card                               { padding: 20px 24px; }
 .ct-card                                   { padding: 20px 24px; }
 
-/* Chat Kimi */
+/* Cockpit chat rail */
 .ct-chat-actionbar                         { padding-bottom: 8px; }
 .ct-chat-newbtn                            { padding: 4px 10px; }
 .ct-chat-list                              { padding-bottom: 12px; }
