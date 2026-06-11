@@ -2,6 +2,7 @@ import type { PortfolioData } from "@/lib/data/portfolio";
 import { cn } from "@/lib/cn";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
 import { NextActionCard } from "@/components/portfolio/next-action-card";
+import { Metric } from "@/components/ui/metric";
 
 /**
  * PortfolioEmptyState — the calm, guided view shown when the investor has NO
@@ -60,19 +61,6 @@ export function PortfolioEmptyState({
 
   return (
     <div className="pf-empty flex flex-col gap-10">
-      {data.source === "fallback" ? (
-        <div
-          role="status"
-          className="flex items-center gap-2 rounded-lg border border-(--ct-border-soft) ct-surface-1 px-4 py-2.5"
-        >
-          <span aria-hidden className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--ct-text-muted)" />
-          <p className="body-xs ct-text-muted">
-            Preview data — your portfolio appears here after activation.
-          </p>
-        </div>
-      ) : null}
-
-      {/* 1 — Greeting: "Welcome back, {name}" + "No active positions yet." */}
       <PortfolioGreeting name={name} data={data} />
 
       {/* 2 — The single dominant action card. */}
@@ -100,25 +88,25 @@ export function PortfolioEmptyState({
         ))}
       </ul>
 
-      {/* 4 — Calm preview — canonical dash-cell bento (same chrome as active portfolio). */}
+      {/* 4 — Preview modules. */}
       <section
-        className="dash-cell dash-cell-premium col-12 flex flex-col gap-5"
         aria-label="What your portfolio will show when active"
+        className="ct-card glass-panel flex flex-col gap-5 relative overflow-hidden group"
       >
-        <p className="dash-label mb-0">
-          <span>When active, your portfolio will show</span>
-        </p>
-        <ul className="dash-bento">
-          {FUTURE_MODULES.map((m) => (
-            <li
-              key={m.label}
-              className="bento-col-6 flex min-w-0 flex-col gap-1 ct-nested-panel px-4 py-3"
-            >
-              <span className="body-sm ct-text-strong">{m.label}</span>
-              <span className="body-xs ct-text-muted">{m.detail}</span>
-            </li>
-          ))}
-        </ul>
+        <div className="absolute inset-0 ct-overlay-surface0 opacity-0 group-hover:opacity-100 ct-transition-opacity-slow pointer-events-none" />
+        <div className="relative ct-z-base flex flex-col gap-5">
+          <div className="dash-label mb-0">
+            <span>When active, your portfolio will show</span>
+          </div>
+          <div className="dash-bento">
+            {FUTURE_MODULES.map((m) => (
+              <div key={m.label} className="bento-col-6 flex min-w-0 flex-col gap-2">
+                <Metric variant="nested" label={m.label} value="—" />
+                <p className="body-xs ct-text-muted">{m.detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
     </div>
   );

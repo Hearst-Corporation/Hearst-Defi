@@ -3,6 +3,7 @@ import {
   ProvenanceBadge,
   type Provenance,
 } from "@/components/ui/provenance-badge";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 
 interface MetricProps {
@@ -44,12 +45,22 @@ export function Metric({
   const dashboard = variant === "dashboard";
   const nested = variant === "nested";
 
+  const labelContent = tooltip ? (
+    <Tooltip content={tooltip}>
+      <span className="stat-label ct-text-muted cursor-help border-b border-dotted border-(--ct-border-soft)">
+        {label}
+      </span>
+    </Tooltip>
+  ) : (
+    <span className="stat-label ct-text-muted">
+      {label}
+    </span>
+  );
+
   if (nested) {
     return (
       <div className={cn("ct-metric-nested", className)}>
-        <span className="stat-label ct-text-muted" title={tooltip}>
-          {label}
-        </span>
+        {labelContent}
         <span className={cn("ct-metric-nested__value stat-value ct-text-strong tabular")}>
           {value}
         </span>
@@ -74,15 +85,27 @@ export function Metric({
           dashboard && "metric-dashboard-head",
         )}
       >
-        <span
-          className={cn(
-            "stat-label ct-text-muted group-hover:ct-text-body transition-colors",
-            dashboard && "metric-dashboard-label",
-          )}
-          title={tooltip}
-        >
-          {label}
-        </span>
+        {tooltip ? (
+          <Tooltip content={tooltip}>
+            <span
+              className={cn(
+                "stat-label ct-text-muted group-hover:ct-text-body transition-colors cursor-help border-b border-dotted border-(--ct-border-soft)",
+                dashboard && "metric-dashboard-label",
+              )}
+            >
+              {label}
+            </span>
+          </Tooltip>
+        ) : (
+          <span
+            className={cn(
+              "stat-label ct-text-muted group-hover:ct-text-body transition-colors",
+              dashboard && "metric-dashboard-label",
+            )}
+          >
+            {label}
+          </span>
+        )}
         {provenance ? (
           <span className={cn(dashboard && "metric-dashboard-provenance")}>
             <ProvenanceBadge kind={provenance} />

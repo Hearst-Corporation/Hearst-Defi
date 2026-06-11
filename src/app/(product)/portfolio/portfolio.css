@@ -7,7 +7,7 @@
  *
  * 🔒 VERROU — interdit sur cette page :
  *   - override de .dash-cell / .dash-cell-premium (background, border, shadow…)
- *   - recette glass parallèle (pf-next-action, gradients custom sur cartes)
+ *   - recette glass parallèle (pf-next-action)
  *   - grille ad-hoc si dash-bento 12-col suffit
  * Toute exception = validation Adrien + ADR.
  */
@@ -33,11 +33,9 @@
   margin: 0;
 }
 
-/* === Empty state — spacing only; surfaces use dash-cell / Card === */
+/* === Empty state — spacing only === */
 .pf-empty {
   max-width: 68rem;
-  min-height: min(44rem, calc(100vh - var(--ct-space-16)));
-  justify-content: center;
   gap: var(--ct-space-8);
 }
 

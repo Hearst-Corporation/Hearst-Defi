@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Tooltip } from "@/components/ui/tooltip";
 
 export type Provenance =
   | "live"
@@ -17,6 +18,16 @@ const labels: Record<Provenance, string> = {
   partial: "Partial",
   manual: "Manual",
   stale: "Stale",
+};
+
+const descriptions: Record<Provenance, string> = {
+  live: "Real-time data from direct system integration",
+  oracle: "Data verified by decentralized oracles",
+  attested: "Data verified by third-party attestation",
+  estimated: "Projection based on historical performance",
+  partial: "Incomplete data from some sources",
+  manual: "Data manually entered by administrators",
+  stale: "Data awaiting update from source",
 };
 
 const variants: Record<
@@ -39,16 +50,17 @@ export function ProvenanceBadge({ kind }: { kind: Provenance }) {
   // are unchanged.
   const muted = kind === "stale";
   return (
-    <Badge
-      variant={variants[kind]}
-      title={`Data provenance: ${labels[kind]}`}
-      className={muted ? "shrink-0 whitespace-nowrap opacity-60" : "shrink-0 whitespace-nowrap"}
-    >
-      <span
-        aria-hidden
-        className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-current"
-      />
-      {labels[kind]}
-    </Badge>
+    <Tooltip content={descriptions[kind]}>
+      <Badge
+        variant={variants[kind]}
+        className={muted ? "shrink-0 whitespace-nowrap opacity-60" : "shrink-0 whitespace-nowrap"}
+      >
+        <span
+          aria-hidden
+          className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-current"
+        />
+        {labels[kind]}
+      </Badge>
+    </Tooltip>
   );
 }

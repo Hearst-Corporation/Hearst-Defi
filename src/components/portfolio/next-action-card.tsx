@@ -65,10 +65,10 @@ export function resolveNextStep(props: NextActionCardProps): Step {
 
   if (kycStatus !== "approved") {
     return {
-      eyebrow: "Verification in progress",
-      headline: "We're reviewing your verification.",
+      eyebrow: "Institutional Verification",
+      headline: "Verification in progress.",
       detail:
-        "This usually completes within a business day. No action is needed from you right now.",
+        "Our compliance team is reviewing your documentation. This institutional check ensures platform integrity and usually completes within one business day.",
     };
   }
 

@@ -1,5 +1,6 @@
 import { NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 import { resolveProvenance } from "@/lib/data/portfolio";
 
@@ -324,7 +325,9 @@ export function RiskPulse({
   return (
     <article className="dash-cell dash-cell-premium h-full flex flex-col">
       <div className="dash-label relative z-10">
-        <span className="font-semibold ct-text-strong">Risk Pulse</span>
+        <Tooltip content="Composite risk score based on market, mining, liquidity, smart contract, and counterparty risks">
+          <span className="font-semibold ct-text-strong cursor-help border-b border-dotted border-(--ct-border-soft)">Risk Pulse</span>
+        </Tooltip>
         <ProvenanceBadge kind={badgeKind} />
       </div>
 

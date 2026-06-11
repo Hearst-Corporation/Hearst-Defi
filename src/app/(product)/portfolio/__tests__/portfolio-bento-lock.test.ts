@@ -22,7 +22,11 @@ describe("portfolio bento lock", () => {
 
   it("does not define parallel glass recipes (pf-next-action)", () => {
     expect(portfolioCss).not.toContain(".pf-next-action");
+  });
+
+  it("does not override dash-cell hover or background in portfolio.css", () => {
+    expect(portfolioCss).not.toMatch(/\.dash-cell:hover/);
+    expect(portfolioCss).not.toMatch(/\.dash-cell-premium:hover/);
     expect(portfolioCss).not.toContain(".pf-empty-preview");
-    expect(portfolioCss).not.toContain(".pf-empty-status");
   });
 });

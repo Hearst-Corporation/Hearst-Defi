@@ -3,6 +3,7 @@
 // Non-negotiable #2: ProvenanceBadge kind="live" (CLAUDE.md).
 
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 // ── Internal helpers (exported for unit tests) ────────────────────────────────
 
@@ -130,9 +131,11 @@ export function LockMeter({
     >
       {/* Header row -------------------------------------------------------- */}
       <div className="flex items-center justify-between gap-2 relative z-10">
-        <span className="dash-label mb-0">
-          LOCK · LIQUIDITY
-        </span>
+        <Tooltip content="Progress towards your 60-day soft lockup period">
+          <span className="dash-label mb-0 cursor-help border-b border-dotted border-(--ct-border-soft)">
+            LOCK · LIQUIDITY
+          </span>
+        </Tooltip>
         <ProvenanceBadge kind={badgeKind} />
       </div>
 
@@ -205,7 +208,9 @@ export function LockMeter({
         {/* Early-exit penalty (only shown when still locked) */}
         {!isUnlocked && earlyExitPenaltyBps !== undefined && (
           <div className="flex items-center justify-between gap-2">
-            <dt className="body-xs ct-text-muted">Penalty</dt>
+            <Tooltip content="Early-exit penalty applied to withdrawals before the lockup period ends">
+              <dt className="body-xs ct-text-muted cursor-help border-b border-dotted border-(--ct-border-soft)">Penalty</dt>
+            </Tooltip>
             <dd
               className={cn(
                 "body-xs tabular mono m-0",

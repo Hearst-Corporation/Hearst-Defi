@@ -69,6 +69,12 @@ src/app/globals.css                             (@theme Tailwind v4,
 src/app/tokens-layer.css                        (ordre de couches CSS)
 ```
 
+**Interactivité & Animations (Agent 3)** :
+- **Hover states** : Les cartes bento (`.dash-cell`, `.dash-cell-premium`) disposent d'un effet de "lift" (translateY) et d'un décalage de gradient radial pour la profondeur.
+- **Tooltips** : Composant `Tooltip` (via `framer-motion`) intégré aux `ProvenanceBadge` et `Metric`.
+- **Transitions** : Composant `MotionViewport` pour les animations d'entrée de section (fade-in + slide-up).
+- **Portfolio** : Page complète avec bento analytics, gestion KYC/KYB institutionnelle et `SecurityPulse` (audit Spearbit, encryption AES-256).
+
 Mirror TypeScript des valeurs canoniques (pour les surfaces qui ne lisent pas
 les CSS vars runtime — PDF react-pdf, Privy SDK theme, error pages standalone) :
 [`src/lib/cockpit-tokens.ts`](src/lib/cockpit-tokens.ts). Toute valeur ajoutée

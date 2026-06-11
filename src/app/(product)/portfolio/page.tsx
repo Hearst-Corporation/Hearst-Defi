@@ -1,5 +1,6 @@
 import "./portfolio.css";
 
+import { PREVIEW_PORTFOLIO } from "./__preview-mock";
 import { loadPortfolio } from "@/lib/data/portfolio";
 import { getInvestor } from "@/lib/auth/session";
 import {
@@ -22,10 +23,12 @@ import { LockMeter } from "@/components/portfolio/lock-meter";
 import { TimeToCash } from "@/components/portfolio/time-to-cash";
 import { RiskPulse } from "@/components/portfolio/risk-pulse";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
-import { ProofPulse, attestationState } from "@/components/portfolio/proof-pulse";
+import { ProofPulse } from "@/components/portfolio/proof-pulse";
 import { YieldStack } from "@/components/portfolio/yield-stack";
-import { Metric } from "@/components/ui/metric";
+import { SecurityPulse } from "@/components/portfolio/security-pulse";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { Tooltip } from "@/components/ui/tooltip";
+import { MotionViewport } from "@/components/ui/motion-viewport";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 import type { Provenance } from "@/components/ui/provenance-badge";
 
@@ -90,7 +93,9 @@ function PositionValueKpi({ totalValueUsdc, provenance }: PositionValueKpiProps)
   return (
     <article className="dash-cell dash-cell-premium col-4" aria-label="Position value" data-testid="position-value-kpi">
       <div className="dash-label">
-        <span>Position Value</span>
+        <Tooltip content="Total current value of your positions including accrued yield">
+          <span className="cursor-help border-b border-dotted border-(--ct-border-soft)">Position Value</span>
+        </Tooltip>
         <ProvenanceBadge kind={provenance} />
       </div>
       <div className="dash-value-group relative z-10">
@@ -101,79 +106,6 @@ function PositionValueKpi({ totalValueUsdc, provenance }: PositionValueKpiProps)
       </div>
       <p className="body-xs ct-text-muted mt-2 relative z-10">Principal + accrued yield</p>
     </article>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Portfolio Brief — compact investor summary before deeper widgets
-// ---------------------------------------------------------------------------
-
-interface PortfolioBriefProps {
-  totalValueUsdc: number;
-  recentChangeUsdc: number | null;
-  nextDistributionAt: Date;
-  projectedPayoutUsdc: number;
-  riskLabel: string | undefined;
-  proofState: "attested" | "stale";
-  provenance: Provenance;
-}
-
-function formatDateShort(date: Date): string {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  }).format(date);
-}
-
-function PortfolioBrief({
-  totalValueUsdc,
-  recentChangeUsdc,
-  nextDistributionAt,
-  projectedPayoutUsdc,
-  riskLabel,
-  proofState,
-  provenance,
-}: PortfolioBriefProps) {
-  const recentChange =
-    recentChangeUsdc === null
-      ? "Not available yet"
-      : `${recentChangeUsdc >= 0 ? "+" : ""}${formatUsdCompact(recentChangeUsdc)}`;
-  const nextPayout =
-    projectedPayoutUsdc > 0
-      ? `${formatUsdCompact(projectedPayoutUsdc)} around ${formatDateShort(nextDistributionAt)}`
-      : `Next cycle around ${formatDateShort(nextDistributionAt)}`;
-  const proofLabel =
-    proofState === "attested" ? "Latest proof attested" : "Proof awaiting attestation";
-
-  return (
-    <section
-      aria-label="Portfolio brief"
-      className="dash-cell dash-cell-premium col-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-5"
-    >
-      <div className="space-y-1">
-        <div className="dash-label mb-0">
-          <span>Portfolio brief</span>
-          <ProvenanceBadge kind={provenance} />
-        </div>
-        <p className="body-xs ct-text-muted">
-          One-line view before the detailed widgets below.
-        </p>
-      </div>
-      <Metric
-        variant="nested"
-        label="Current value"
-        value={formatUsdCompact(totalValueUsdc)}
-      />
-      <Metric variant="nested" label="Recent change" value={recentChange} />
-      <Metric variant="nested" label="Next payout/event" value={nextPayout} />
-      <Metric
-        variant="nested"
-        label="Risk & proof"
-        value={riskLabel ?? "Risk snapshot awaiting data"}
-        sublabel={proofLabel}
-      />
-    </section>
   );
 }
 
@@ -191,7 +123,9 @@ function YieldYtdKpi({ totalYieldYtdUsdc, hasPositions, provenance }: YieldYtdKp
   return (
     <article className="dash-cell dash-cell-premium col-4" aria-label="Yield year to date" data-testid="yield-ytd-kpi">
       <div className="dash-label">
-        <span>Yield YTD</span>
+        <Tooltip content="Total yield earned since the beginning of the current calendar year">
+          <span className="cursor-help border-b border-dotted border-(--ct-border-soft)">Yield YTD</span>
+        </Tooltip>
         <ProvenanceBadge kind={provenance} />
       </div>
       <div className="dash-value-group relative z-10">
@@ -255,11 +189,21 @@ function NextDistributionKpi({ nextDistributionAt, provenance }: NextDistributio
 // Page
 // ---------------------------------------------------------------------------
 
+// TEMP — layout preview. Flip to false to restore real empty-state behaviour.
+const PREVIEW_LAYOUT = false;
+
 export default async function PortfolioPage() {
-  const investor = await getInvestor();
-  const hasPositionsData = await loadPortfolio();
+  // 1. Parallelize initial data loading
+  const [investor, loadedData] = await Promise.all([
+    getInvestor(),
+    loadPortfolio(),
+  ]);
+
+  const hasPositionsData = PREVIEW_LAYOUT ? PREVIEW_PORTFOLIO : loadedData;
+
   const hasPositions = hasPositionsData.positions.length > 0;
 
+  // 2. Parallelize all widget props loaders
   const [
     data,
     lockMeterProps,
@@ -293,155 +237,132 @@ export default async function PortfolioPage() {
   }
 
   const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
-  const briefProofState =
-    attestationState(
-      proofPulseProps.lastPor.statedTvlUsdc,
-      proofPulseProps.lastPor.onChainTvlUsdc,
-    ) === "matched"
-      ? "attested"
-      : "stale";
 
   return (
-    <div className="pf-container space-y-12" data-testid="portfolio-page">
+    <div className="pf-container flex flex-col gap-8" data-testid="portfolio-page">
+      <PortfolioGreeting name={name} data={data} />
 
-      {/* Single page-level provenance notice when the WHOLE view is demo /
-          unauthenticated data. Stating it once here is calmer than the "Stale"
-          badge repeating on every card — the per-card badges remain for honesty,
-          but this gives the repetition context instead of alarm. */}
-      {data.source === "fallback" ? (
-        <div
-          role="status"
-          className="flex items-center gap-2 rounded-lg border border-(--ct-border-soft) ct-surface-1 px-4 py-2.5"
-        >
-          <span aria-hidden className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--ct-text-muted)" />
-          <p className="body-xs ct-text-muted">
-            Preview data — your portfolio appears here after activation.
-          </p>
-        </div>
-      ) : null}
-
-      {/* ── Header & Next Action ──────────────────────────────────────────── */}
-      <div className="flex flex-col gap-6">
-        <PortfolioGreeting name={name} data={data} />
-
-        {/* The single "what to do next" surface — above the fold is for
-            deciding. Pure derivation of status flags already loaded above;
-            no fetch, no financial logic. */}
-        <NextActionCard
-          kycStatus={investor?.kycStatus ?? "pending"}
-          accreditationAttested={investor?.accreditationAttestedAt != null}
-          hasWallet={investor?.walletAddress != null}
-          positionCount={data.positions.length}
-        />
-
-        {/* Quick access to reporting documents — hidden at launch (P0.9).
-            Re-enable SurpriseDelightBar here once first distributions are live. */}
-      </div>
-
-      <div className="dash-bento">
-        <PortfolioBrief
-          totalValueUsdc={data.totalValueUsdc}
-          recentChangeUsdc={data.pnl?.totalReturnUsdc ?? null}
-          nextDistributionAt={data.nextDistributionAt}
-          projectedPayoutUsdc={timeToCashProps.projectedUsdc}
-          riskLabel={riskPulseProps.compositeLabel}
-          proofState={briefProofState}
-          provenance={portfolioProvenance}
-        />
-      </div>
+      {/* The single "what to do next" surface — above the fold is for
+          deciding. Pure derivation of status flags already loaded above;
+          no fetch, no financial logic. */}
+      <NextActionCard
+        kycStatus={investor?.kycStatus ?? "pending"}
+        accreditationAttested={investor?.accreditationAttestedAt != null}
+        hasWallet={investor?.walletAddress != null}
+        positionCount={data.positions.length}
+      />
 
       {/* ── Section 1 — Performance & Liquidity (Hero) ────────────────────── */}
-      <Section data-section="hero-pulse" label="Hero Pulse — key performance and liquidity">
-        {/* Ligne 1 : 3 KPIs (NAV/share hidden — no meaningful value at 0 positions) */}
-        <div className="dash-bento" data-testid="hero-top-metrics">
-          <PositionValueKpi
-            totalValueUsdc={data.totalValueUsdc}
-            provenance={portfolioProvenance}
-          />
-          <YieldYtdKpi
-            totalYieldYtdUsdc={data.totalYieldYtdUsdc}
-            hasPositions={hasPositions}
-            provenance={resolveProvenance(data.source, data.updatedAt, "estimated")}
-          />
-          <NextDistributionKpi
-            nextDistributionAt={data.nextDistributionAt}
-            provenance={resolveProvenance(data.source, data.updatedAt, "estimated")}
-          />
-        </div>
+      <MotionViewport>
+        <Section data-section="hero-pulse" label="Hero Pulse — key performance and liquidity">
+          {/* Ligne 1 : 3 KPIs (NAV/share hidden — no meaningful value at 0 positions) */}
+          <div className="dash-bento" data-testid="hero-top-metrics">
+            <PositionValueKpi
+              totalValueUsdc={data.totalValueUsdc}
+              provenance={portfolioProvenance}
+            />
+            <YieldYtdKpi
+              totalYieldYtdUsdc={data.totalYieldYtdUsdc}
+              hasPositions={hasPositions}
+              provenance={resolveProvenance(data.source, data.updatedAt, "estimated")}
+            />
+            <NextDistributionKpi
+              nextDistributionAt={data.nextDistributionAt}
+              provenance={resolveProvenance(data.source, data.updatedAt, "estimated")}
+            />
+          </div>
 
-        {/* Ligne 2 : ValueChart (2/3) + Liquidity Column (1/3) */}
-        <div className="dash-bento">
-          <div className="bento-col-8 flex flex-col">
-            <ValueChart
+          {/* Ligne 2 : ValueChart (2/3) + Liquidity Column (1/3) */}
+          <div className="dash-bento">
+            <div className="bento-col-8 flex flex-col">
+              <ValueChart
+                positions={data.positions}
+                totalValueUsdc={data.totalValueUsdc}
+                source={data.source}
+                updatedAt={data.updatedAt}
+              />
+            </div>
+
+            {/* Liquidity Column */}
+            <div className="bento-col-4 flex flex-col gap-6">
+              <TimeToCash {...timeToCashProps} />
+              <LockMeter {...lockMeterProps} />
+            </div>
+          </div>
+        </Section>
+      </MotionViewport>
+
+      {/* ── Section 2 — Under the Hood (Yield & Trust) ────────────────────── */}
+      <MotionViewport>
+        <Section data-section="yield-trust" label="Yield and Trust — analytics and risk">
+          {/* Ligne 1 : Yield Analytics */}
+          <div className="dash-bento">
+            <div className="bento-col-6">
+            <AllocationDonut
               positions={data.positions}
               totalValueUsdc={data.totalValueUsdc}
               source={data.source}
               updatedAt={data.updatedAt}
             />
+            </div>
+            <div className="bento-col-6" data-testid="yield-stack-widget">
+              <YieldStack {...yieldStackProps} />
+            </div>
           </div>
 
-          {/* Liquidity Column */}
-          <div className="bento-col-4 flex flex-col gap-6">
-            <TimeToCash {...timeToCashProps} />
-            <LockMeter {...lockMeterProps} />
+          {/* Ligne 2 : Security & Trust */}
+          <div className="dash-bento">
+            <div className="bento-col-4" data-testid="risk-pulse-widget">
+              <RiskPulse {...riskPulseProps} />
+            </div>
+            <div className="bento-col-4" data-testid="proof-pulse-widget">
+              <ProofPulse {...proofPulseProps} />
+            </div>
+            <div className="bento-col-4" data-testid="security-pulse-widget">
+              <SecurityPulse />
+            </div>
           </div>
-        </div>
-      </Section>
-
-      {/* ── Section 2 — Under the Hood (Yield & Trust) ────────────────────── */}
-      <Section data-section="yield-trust" label="Yield and Trust — analytics and risk">
-        {/* Ligne 1 : Yield Analytics */}
-        <div className="dash-bento">
-          <div className="bento-col-6">
-          <AllocationDonut
-            positions={data.positions}
-            totalValueUsdc={data.totalValueUsdc}
-            source={data.source}
-            updatedAt={data.updatedAt}
-          />
-          </div>
-          <div className="bento-col-6" data-testid="yield-stack-widget">
-            <YieldStack {...yieldStackProps} />
-          </div>
-        </div>
-
-        {/* Ligne 2 : Security & Trust */}
-        <div className="dash-bento">
-          <div className="bento-col-6" data-testid="risk-pulse-widget">
-            <RiskPulse {...riskPulseProps} />
-          </div>
-          <div className="bento-col-6" data-testid="proof-pulse-widget">
-            <ProofPulse {...proofPulseProps} />
-          </div>
-        </div>
-      </Section>
+        </Section>
+      </MotionViewport>
 
       {/* ── Section 3 — Activity & Payouts ────────────────────────────────── */}
-      <Section data-section="activity-payouts" label="Activity and payouts — your positions, deposits, withdrawals and payouts">
-        <div className="dash-bento">
-          <div className="bento-col-12">
-            <PositionsList
-              positions={data.positions}
+      <MotionViewport>
+        <Section data-section="activity-payouts" label="Activity and payouts — your positions, deposits, withdrawals and payouts">
+          <div className="dash-bento">
+            <div className="bento-col-12">
+              <PositionsList
+                positions={data.positions}
+                source={data.source}
+                updatedAt={data.updatedAt}
+              />
+            </div>
+          </div>
+
+          <div className="dash-bento">
+            <div className="bento-col-6" data-testid="distrib-calendar-widget">
+              <DistribCalendar {...distribCalendarProps} />
+            </div>
+
+            <div className="bento-col-6">
+            <RecentActivity
+              transactions={data.recentTransactions}
               source={data.source}
               updatedAt={data.updatedAt}
             />
+            </div>
           </div>
-        </div>
+        </Section>
+      </MotionViewport>
 
-        <div className="dash-bento">
-          <div className="bento-col-6" data-testid="distrib-calendar-widget">
-            <DistribCalendar {...distribCalendarProps} />
-          </div>
-
-          <div className="bento-col-6">
-          <RecentActivity
-            transactions={data.recentTransactions}
-            source={data.source}
-            updatedAt={data.updatedAt}
-          />
-          </div>
-        </div>
-      </Section>
+      {/* ── Disclaimer ─────────────────────────────────────────────────── */}
+      <footer className="border-t border-(--ct-border-soft) pt-12 pb-24">
+        <p className="body-xs ct-text-muted max-w-3xl">
+          Projections and estimated yields are conditional on stated assumptions
+          and are **not guaranteed**. Past performance is not indicative of
+          future results. All data is subject to the methodology v1.0 and
+          latest Proof of Reserves attestation.
+        </p>
+      </footer>
 
     </div>
   );

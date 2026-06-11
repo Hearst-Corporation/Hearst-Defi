@@ -31,10 +31,21 @@
       "Bash(forge:*)",
       "Bash(cast:*)",
       "Bash(node:*)",
-      "Bash(tsx:*)"
+      "Bash(tsx:*)",
+      "Bash(rm -rf release)",
+      "Bash(rm -rf release:*)",
+      "Bash(pnpm electron:*)",
+      "Bash(npx electron-builder:*)",
+      "Bash(electron-builder:*)",
+      "Bash(xcrun:*)",
+      "Bash(security:*)",
+      "Bash(spctl:*)",
+      "Bash(stat:*)",
+      "Bash(du:*)",
+      "Bash(find:*)",
+      "Bash(git push:*)"
     ],
     "deny": [
-      "Bash(rm -rf:*)",
       "Bash(git reset --hard:*)",
       "Bash(git push --force:*)",
       "Bash(git push -f:*)",

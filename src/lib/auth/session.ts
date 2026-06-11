@@ -2,6 +2,7 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { randomBytes } from "crypto";
+import { cache } from "react";
 import type { Investor } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
@@ -205,14 +206,14 @@ export async function destroySession(): Promise<void> {
  * provisioned as an investor). Does NOT create a row from a wallet/JWT — the
  * Investor↔User link is established at provisioning time.
  */
-export async function getInvestor(): Promise<Investor | null> {
+export const getInvestor = cache(async (): Promise<Investor | null> => {
   const session = await getSession();
   if (!session) return null;
 
   return prisma.investor.findUnique({
     where: { userId: session.userId },
   });
-}
+});
 
 /**
  * Strict variant of `getSession`. Throws when no valid session is found.
