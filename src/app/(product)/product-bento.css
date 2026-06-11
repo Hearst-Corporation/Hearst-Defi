@@ -2,6 +2,11 @@
  * Product bento layout + KPI primitives — Portfolio, Profile, and other investor
  * surfaces. Admin dashboard uses Card/glass-panel instead (no bento here).
  * Chart donuts/legends: charts-shared.css.
+ *
+ * 🔒 VERROU — source unique du chrome bento investisseur (.dash-cell,
+ * .dash-cell-premium, .dash-bento, .dash-label, .kpi-cell). Aucune page ne
+ * doit réécrire ces sélecteurs dans un CSS de route (ex. portfolio.css).
+ * Layout-only (spacing, max-width) est autorisé.
  */
 
 @import "./charts-shared.css";
@@ -142,6 +147,7 @@
 .dash-cell.col-12 { grid-column: span 12; }
 
 /* Grid children that are not .dash-cell (e.g. Card / glass-panel primitives) */
+.dash-bento > .bento-col-4 { grid-column: span 4; }
 .dash-bento > .bento-col-6 { grid-column: span 6; }
 .dash-bento > .bento-col-8 { grid-column: span 8; }
 .dash-bento > .bento-col-12 { grid-column: span 12; }
@@ -159,6 +165,7 @@
   .dash-cell.col-6 { grid-column: span 6; }
   .dash-cell.col-8 { grid-column: span 6; }
   .dash-cell.col-12 { grid-column: span 6; }
+  .dash-bento > .bento-col-4 { grid-column: span 6; }
   .dash-bento > .bento-col-6 { grid-column: span 6; }
   .dash-bento > .bento-col-8 { grid-column: span 6; }
   .dash-bento > .bento-col-12 { grid-column: span 6; }
@@ -173,6 +180,7 @@
   .dash-cell.col-6,
   .dash-cell.col-8,
   .dash-cell.col-12,
+  .dash-bento > .bento-col-4,
   .dash-bento > .bento-col-6,
   .dash-bento > .bento-col-8,
   .dash-bento > .bento-col-12 {

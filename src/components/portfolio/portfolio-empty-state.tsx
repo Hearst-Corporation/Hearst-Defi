@@ -84,7 +84,7 @@ export function PortfolioEmptyState({
       />
 
       {/* 3 — Discreet status row. */}
-      <ul className="pf-empty-status flex flex-wrap gap-x-8 gap-y-3" aria-label="Account status">
+      <ul className="flex flex-wrap gap-x-8 gap-y-3" aria-label="Account status">
         {statusRow.map((s) => (
           <li key={s.label} className="flex min-w-0 items-center gap-2">
             <span
@@ -100,17 +100,19 @@ export function PortfolioEmptyState({
         ))}
       </ul>
 
-      {/* 4 — Calm "what you'll see when active" section. No live data. */}
+      {/* 4 — Calm preview — canonical dash-cell bento (same chrome as active portfolio). */}
       <section
-        className="pf-empty-preview flex flex-col gap-5 px-5 py-5"
+        className="dash-cell dash-cell-premium col-12 flex flex-col gap-5"
         aria-label="What your portfolio will show when active"
       >
-        <p className="eyebrow ct-text-muted">When active, your portfolio will show</p>
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <p className="dash-label mb-0">
+          <span>When active, your portfolio will show</span>
+        </p>
+        <ul className="dash-bento">
           {FUTURE_MODULES.map((m) => (
             <li
               key={m.label}
-              className="flex min-w-0 flex-col gap-1 border border-(--ct-border-soft) px-4 py-3"
+              className="bento-col-6 flex min-w-0 flex-col gap-1 ct-nested-panel px-4 py-3"
             >
               <span className="body-sm ct-text-strong">{m.label}</span>
               <span className="body-xs ct-text-muted">{m.detail}</span>

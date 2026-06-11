@@ -103,9 +103,9 @@ export function NextActionCard(props: NextActionCardProps) {
   const step = resolveNextStep(props);
 
   return (
-    <Card className="pf-next-action">
+    <Card>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-        <div className="pf-next-action__copy flex flex-col gap-1">
+        <div className="flex max-w-3xl flex-col gap-1">
           <span className="eyebrow">{step.eyebrow}</span>
           <p className="h3 ct-text-strong">{step.headline}</p>
           {step.detail ? (

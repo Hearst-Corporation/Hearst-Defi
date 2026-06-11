@@ -1,22 +1,16 @@
 @import "../product-bento.css";
 
-/* ── AMBIENT BACKGROUND ──
- * Removed: the portfolio-specific blue ambient is superseded by the GLOBAL
- * spatial background image now set on `.ct-page-area` in cockpit.css (applies to
- * the whole shell, portfolio included). One background system only — no
- * competing portfolio override. The premium hierarchy rule below stays. */
-
-/* ── PREMIUM HIERARCHY (portfolio user only) ──
- * Decouple the portfolio from the shared .dash-cell-premium dot pattern. The
- * texture is reserved for ONE dominant surface — the Next Action card, which
- * uses the quiet .ct-glass-panel glass — so every other portfolio card reads as
- * a calm, flat surface and the hierarchy is obvious: one premium surface, the
- * rest secondary. Scoped to the portfolio page wrapper via the data-testid only.
- * No information is removed — only the decorative pattern is dropped; the opaque
- * .dash-cell base (from the contrast pass) and all content stay intact. */
-[data-testid="portfolio-page"] .dash-cell-premium {
-  background-image: none;
-}
+/*
+ * Portfolio — layout-only overrides. Bento chrome (dash-cell / dash-cell-premium)
+ * MUST come exclusively from product-bento.css — same material as Profile and
+ * all investor surfaces.
+ *
+ * 🔒 VERROU — interdit sur cette page :
+ *   - override de .dash-cell / .dash-cell-premium (background, border, shadow…)
+ *   - recette glass parallèle (pf-next-action, gradients custom sur cartes)
+ *   - grille ad-hoc si dash-bento 12-col suffit
+ * Toute exception = validation Adrien + ADR.
+ */
 
 /* === Welcome line (PortfolioGreeting) === */
 .pf-greeting {
@@ -39,28 +33,7 @@
   margin: 0;
 }
 
-.pf-next-action {
-  border-radius: var(--ct-radius-xl);
-  border: 1px solid color-mix(in srgb, var(--ct-text-strong) 24%, var(--ct-border-soft));
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-text-strong) 14%, var(--ct-surface-3)) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 6%, var(--ct-surface-2)) 100%
-    );
-  box-shadow:
-    0 20px 52px -38px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
-    inset 0 var(--ct-space-px) 0 color-mix(in srgb, var(--ct-text-strong) 32%, transparent);
-}
-
-.pf-next-action::before {
-  content: none;
-}
-
-.pf-next-action__copy {
-  max-width: 48rem;
-}
-
+/* === Empty state — spacing only; surfaces use dash-cell / Card === */
 .pf-empty {
   max-width: 68rem;
   min-height: min(44rem, calc(100vh - var(--ct-space-16)));
@@ -68,45 +41,28 @@
   gap: var(--ct-space-8);
 }
 
-.pf-empty-status {
-  border-radius: var(--ct-radius-full);
-  border: 1px solid color-mix(in srgb, var(--ct-text-strong) 20%, var(--ct-border-soft));
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-text-strong) 12%, var(--ct-surface-2)) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 10%, var(--ct-surface-1)) 100%
+.pf-container {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Subtle ambient glows using accent color #A7FB90 */
+.pf-container::before {
+  content: "";
+  position: absolute;
+  inset: -5% -2%;
+  z-index: -1;
+  background: 
+    radial-gradient(
+      circle at 15% 20%,
+      color-mix(in srgb, var(--ct-accent) 7%, transparent) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 85% 60%,
+      color-mix(in srgb, var(--ct-accent) 5%, transparent) 0%,
+      transparent 45%
     );
-  padding: var(--ct-space-3) var(--ct-space-4);
-}
-
-.pf-empty-preview {
-  border-radius: calc(var(--ct-radius-xl) + var(--ct-space-1));
-  border: 1px solid color-mix(in srgb, var(--ct-text-strong) 24%, var(--ct-border-soft));
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-text-strong) 11%, var(--ct-surface-3)) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 8%, var(--ct-surface-2)) 100%
-    );
-}
-
-.pf-empty-preview li {
-  border-radius: var(--ct-radius-xl);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-text-strong) 10%, var(--ct-surface-2)) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 10%, var(--ct-surface-1)) 100%
-    );
-}
-
-.pf-empty-preview .eyebrow,
-.pf-empty-status .eyebrow {
-  color: var(--ct-text-body);
-}
-
-.pf-empty-preview .body-xs,
-.pf-empty-status .body-xs {
-  color: var(--ct-text-muted);
+  pointer-events: none;
+  filter: blur(80px);
 }

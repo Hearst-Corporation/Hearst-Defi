@@ -46,6 +46,13 @@ model for all 4 agents + cockpit chat. No Anthropic SDK. See **ADR-011**
 demander une exception explicite à Adrien et la documenter dans l'ADR si
 elle est accordée.
 
+**Bento investisseur (`product-bento.css`)** : chrome unique `.dash-cell` /
+`.dash-cell-premium` / `.dash-bento` pour Portfolio, Profile et surfaces LP.
+Grille 12 col : spans sur `.dash-cell.col-*` ou enfants directs `.bento-col-4|6|8|12`
+(Card / wrappers widget — pas `col-*` nu sur un `<div>`). `portfolio.css` =
+layout-only (spacing) — **interdit** d'y réécrire le material bento (test guard :
+`portfolio-bento-lock.test.ts`).
+
 ### Source de vérité du design system
 
 Cascade CSS (du plus amont au plus aval) :

@@ -88,7 +88,7 @@ function PositionValueKpi({ totalValueUsdc, provenance }: PositionValueKpiProps)
   });
 
   return (
-    <article className="dash-cell dash-cell-premium" aria-label="Position value" data-testid="position-value-kpi">
+    <article className="dash-cell dash-cell-premium col-4" aria-label="Position value" data-testid="position-value-kpi">
       <div className="dash-label">
         <span>Position Value</span>
         <ProvenanceBadge kind={provenance} />
@@ -149,7 +149,7 @@ function PortfolioBrief({
   return (
     <section
       aria-label="Portfolio brief"
-      className="dash-cell dash-cell-premium grid gap-4 sm:grid-cols-2 xl:grid-cols-5"
+      className="dash-cell dash-cell-premium col-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-5"
     >
       <div className="space-y-1">
         <div className="dash-label mb-0">
@@ -189,7 +189,7 @@ interface YieldYtdKpiProps {
 
 function YieldYtdKpi({ totalYieldYtdUsdc, hasPositions, provenance }: YieldYtdKpiProps) {
   return (
-    <article className="dash-cell dash-cell-premium" aria-label="Yield year to date" data-testid="yield-ytd-kpi">
+    <article className="dash-cell dash-cell-premium col-4" aria-label="Yield year to date" data-testid="yield-ytd-kpi">
       <div className="dash-label">
         <span>Yield YTD</span>
         <ProvenanceBadge kind={provenance} />
@@ -227,7 +227,7 @@ function NextDistributionKpi({ nextDistributionAt, provenance }: NextDistributio
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   return (
-    <article className="dash-cell dash-cell-premium" aria-label="Next distribution date" data-testid="next-distribution-kpi">
+    <article className="dash-cell dash-cell-premium col-4" aria-label="Next distribution date" data-testid="next-distribution-kpi">
       <div className="dash-label">
         <span>Next Distribution</span>
         <ProvenanceBadge kind={provenance} />
@@ -302,7 +302,7 @@ export default async function PortfolioPage() {
       : "stale";
 
   return (
-    <div className="space-y-12" data-testid="portfolio-page">
+    <div className="pf-container space-y-12" data-testid="portfolio-page">
 
       {/* Single page-level provenance notice when the WHOLE view is demo /
           unauthenticated data. Stating it once here is calmer than the "Stale"
@@ -338,23 +338,22 @@ export default async function PortfolioPage() {
             Re-enable SurpriseDelightBar here once first distributions are live. */}
       </div>
 
-      <PortfolioBrief
-        totalValueUsdc={data.totalValueUsdc}
-        recentChangeUsdc={data.pnl?.totalReturnUsdc ?? null}
-        nextDistributionAt={data.nextDistributionAt}
-        projectedPayoutUsdc={timeToCashProps.projectedUsdc}
-        riskLabel={riskPulseProps.compositeLabel}
-        proofState={briefProofState}
-        provenance={portfolioProvenance}
-      />
+      <div className="dash-bento">
+        <PortfolioBrief
+          totalValueUsdc={data.totalValueUsdc}
+          recentChangeUsdc={data.pnl?.totalReturnUsdc ?? null}
+          nextDistributionAt={data.nextDistributionAt}
+          projectedPayoutUsdc={timeToCashProps.projectedUsdc}
+          riskLabel={riskPulseProps.compositeLabel}
+          proofState={briefProofState}
+          provenance={portfolioProvenance}
+        />
+      </div>
 
       {/* ── Section 1 — Performance & Liquidity (Hero) ────────────────────── */}
       <Section data-section="hero-pulse" label="Hero Pulse — key performance and liquidity">
         {/* Ligne 1 : 3 KPIs (NAV/share hidden — no meaningful value at 0 positions) */}
-        <div
-          className="grid grid-cols-1 gap-4 sm:grid-cols-3"
-          data-testid="hero-top-metrics"
-        >
+        <div className="dash-bento" data-testid="hero-top-metrics">
           <PositionValueKpi
             totalValueUsdc={data.totalValueUsdc}
             provenance={portfolioProvenance}
@@ -371,9 +370,8 @@ export default async function PortfolioPage() {
         </div>
 
         {/* Ligne 2 : ValueChart (2/3) + Liquidity Column (1/3) */}
-        <div className="grid items-start grid-cols-1 gap-6 lg:grid-cols-12">
-          {/* Performance Chart */}
-          <div className="lg:col-span-8 flex flex-col">
+        <div className="dash-bento">
+          <div className="bento-col-8 flex flex-col">
             <ValueChart
               positions={data.positions}
               totalValueUsdc={data.totalValueUsdc}
@@ -383,7 +381,7 @@ export default async function PortfolioPage() {
           </div>
 
           {/* Liquidity Column */}
-          <div className="lg:col-span-4 flex flex-col gap-6">
+          <div className="bento-col-4 flex flex-col gap-6">
             <TimeToCash {...timeToCashProps} />
             <LockMeter {...lockMeterProps} />
           </div>
@@ -393,24 +391,26 @@ export default async function PortfolioPage() {
       {/* ── Section 2 — Under the Hood (Yield & Trust) ────────────────────── */}
       <Section data-section="yield-trust" label="Yield and Trust — analytics and risk">
         {/* Ligne 1 : Yield Analytics */}
-        <div className="grid items-start grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className="dash-bento">
+          <div className="bento-col-6">
           <AllocationDonut
             positions={data.positions}
             totalValueUsdc={data.totalValueUsdc}
             source={data.source}
             updatedAt={data.updatedAt}
           />
-          <div data-testid="yield-stack-widget">
+          </div>
+          <div className="bento-col-6" data-testid="yield-stack-widget">
             <YieldStack {...yieldStackProps} />
           </div>
         </div>
 
         {/* Ligne 2 : Security & Trust */}
-        <div className="grid items-start grid-cols-1 gap-6 xl:grid-cols-2">
-          <div data-testid="risk-pulse-widget">
+        <div className="dash-bento">
+          <div className="bento-col-6" data-testid="risk-pulse-widget">
             <RiskPulse {...riskPulseProps} />
           </div>
-          <div data-testid="proof-pulse-widget">
+          <div className="bento-col-6" data-testid="proof-pulse-widget">
             <ProofPulse {...proofPulseProps} />
           </div>
         </div>
@@ -418,25 +418,28 @@ export default async function PortfolioPage() {
 
       {/* ── Section 3 — Activity & Payouts ────────────────────────────────── */}
       <Section data-section="activity-payouts" label="Activity and payouts — your positions, deposits, withdrawals and payouts">
-        {/* Positions List — Full width */}
-        <PositionsList
-          positions={data.positions}
-          source={data.source}
-          updatedAt={data.updatedAt}
-        />
+        <div className="dash-bento">
+          <div className="bento-col-12">
+            <PositionsList
+              positions={data.positions}
+              source={data.source}
+              updatedAt={data.updatedAt}
+            />
+          </div>
+        </div>
 
-        <div className="grid items-start grid-cols-1 gap-6 xl:grid-cols-2">
-          {/* Payout calendar */}
-          <div data-testid="distrib-calendar-widget">
+        <div className="dash-bento">
+          <div className="bento-col-6" data-testid="distrib-calendar-widget">
             <DistribCalendar {...distribCalendarProps} />
           </div>
 
-          {/* Recent activity — deposits, withdrawals, payouts */}
+          <div className="bento-col-6">
           <RecentActivity
             transactions={data.recentTransactions}
             source={data.source}
             updatedAt={data.updatedAt}
           />
+          </div>
         </div>
       </Section>
 

@@ -95,7 +95,6 @@ export function LockMeter({
   earlyExitPenaltyBps,
   asOf,
   source = "live",
-  updatedAt,
 }: LockMeterProps) {
   const effectiveAsOf = asOf ?? new Date();
   const { progressPct, unlockDate, daysRemaining, isUnlocked } =
