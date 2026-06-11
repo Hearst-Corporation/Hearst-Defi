@@ -71,8 +71,11 @@ export function TimeToCash({
   const isStale =
     source === "stale" || projectedUsdc === 0 || aprLow + aprHigh === 0;
   
-  const cycleBadgeKind = resolveProvenance(isStale ? "stale" : "live", updatedAt);
-  const apyBadgeKind = resolveProvenance(isStale ? "stale" : "live", updatedAt, "estimated");
+  const widgetProvenance = resolveProvenance(
+    isStale ? "stale" : source ?? "live",
+    updatedAt,
+    "estimated",
+  );
 
   const { daysElapsed, daysRemaining, hoursRemaining, progressPct } =
     computeTimeToCash({ cycleStart, cycleDays, asOf: effectiveAsOf });
@@ -102,25 +105,19 @@ export function TimeToCash({
       aria-label="Time to next distribution"
     >
       {/* Header row -------------------------------------------------------- */}
-      <div className="flex items-center justify-between gap-2 relative z-10">
-        <span className="dash-label mb-0">
-          TIME TO CASH
+      <div className="pf-widget-header relative z-10">
+        <span className="dash-label">
+          <span>Time to cash</span>
         </span>
-        <div className="flex items-center gap-1.5">
-          <ProvenanceBadge kind={cycleBadgeKind} />
-          <ProvenanceBadge kind={apyBadgeKind} />
-        </div>
+        <ProvenanceBadge kind={widgetProvenance} />
       </div>
 
       {/* Next distribution row --------------------------------------------- */}
       <div className="flex flex-col gap-0.5 relative z-10 min-w-0">
-        <span className="text-micro font-medium ct-text-muted tracking-widest uppercase">
-          Next distribution
-        </span>
-        {/* Countdown — aria-live so JS can update it client-side if hydrated */}
+        <span className="stat-label">Next distribution</span>
         <p
           className={cn(
-            "mono tabular-nums text-xl font-semibold leading-tight break-words ct-tabular-nums",
+            "stat-value tabular-nums mono break-words",
             isStale
               ? "ct-text-primary"
               : daysRemaining === 0 && hoursRemaining === 0
@@ -142,10 +139,10 @@ export function TimeToCash({
           aria-valuemin={0}
           aria-valuemax={100}
           aria-label={progressLabel}
-          className="relative h-2 w-full overflow-hidden rounded-full ct-panel-inset border-0"
+          className="pf-progress-track"
         >
           <div
-            className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-(--ct-dur-base) ct-progress-accent-fill"
+            className="pf-progress-fill pf-progress-fill--accent"
             style={{ width: `${displayedProgressPct}%` }}
           />
         </div>

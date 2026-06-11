@@ -54,6 +54,18 @@ export function resolveNextStep(props: NextActionCardProps): Step {
     };
   }
 
+  // Active positions imply the investor cleared onboarding — never surface
+  // accreditation/KYC/wallet CTAs on top of a live portfolio.
+  if (positionCount > 0) {
+    return {
+      eyebrow: "All set",
+      headline: "Your portfolio is ready.",
+      detail:
+        "Track deposits, withdrawals and payouts below, and verify the proofs any time.",
+      cta: { label: "Invest more", href: "/vaults" },
+    };
+  }
+
   if (!accreditationAttested) {
     return {
       eyebrow: "Get started",
@@ -82,21 +94,23 @@ export function resolveNextStep(props: NextActionCardProps): Step {
     };
   }
 
-  if (positionCount === 0) {
-    return {
-      eyebrow: "You're ready",
-      headline: "Make your first investment.",
-      detail: "Review the term sheet and confirm before depositing.",
-      cta: { label: "Explore the vault", href: "/vaults" },
-    };
-  }
-
   return {
-    eyebrow: "All set",
-    headline: "Your portfolio is ready.",
-    detail: "Track deposits, withdrawals and payouts below, and verify the proofs any time.",
-    cta: { label: "Invest more", href: "/vaults" },
+    eyebrow: "You're ready",
+    headline: "Make your first investment.",
+    detail: "Review the term sheet and confirm before depositing.",
+    cta: { label: "Explore the vault", href: "/vaults" },
   };
+}
+
+/** Hide the card when the investor is fully operational with live positions. */
+export function shouldShowNextActionCard(props: NextActionCardProps): boolean {
+  const { kycStatus, accreditationAttested, hasWallet, positionCount } = props;
+  if (positionCount === 0) return true;
+  return !(
+    accreditationAttested &&
+    kycStatus === "approved" &&
+    hasWallet
+  );
 }
 
 export function NextActionCard(props: NextActionCardProps) {
@@ -104,7 +118,7 @@ export function NextActionCard(props: NextActionCardProps) {
 
   return (
     <Card>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <div className="flex max-w-3xl flex-col gap-1">
           <span className="eyebrow">{step.eyebrow}</span>
           <p className="h3 ct-text-strong">{step.headline}</p>
@@ -115,7 +129,7 @@ export function NextActionCard(props: NextActionCardProps) {
         {step.cta ? (
           <div className="shrink-0">
             <Button variant="primary" size="lg" asChild>
-              <Link href={step.cta.href}>{step.cta.label} →</Link>
+              <Link href={step.cta.href}>{step.cta.label}</Link>
             </Button>
           </div>
         ) : null}

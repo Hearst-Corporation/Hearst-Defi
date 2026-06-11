@@ -33,7 +33,7 @@ export function ProductPageHeader({
   return (
     <header
       className={cn(
-        "flex flex-col gap-5",
+        "flex flex-col gap-4",
         centered && "items-center text-center",
         className,
       )}
@@ -58,12 +58,12 @@ export function ProductPageHeader({
             )}
           >
             {lead}
-            {eyebrow ? <span className="eyebrow">{eyebrow}</span> : null}
+            {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
             <h1 className="h1 shrink-0">{title}</h1>
             {description ? (
               <div
                 className={cn(
-                  "body-sm mt-1 max-w-2xl ct-text-muted",
+                  "body-md mt-1 max-w-xl ct-text-muted",
                   centered && "mx-auto",
                 )}
               >

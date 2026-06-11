@@ -1,4 +1,5 @@
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { cn } from "@/lib/cn";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/data/portfolio";
 
@@ -33,21 +34,16 @@ function relativeTime(date: Date, asOf: Date): string {
 
 // Placeholder icon for each tx type
 function TxIcon({ type }: { type: string }) {
-  const colorClass =
+  const iconClass =
     type === "deposit"
-      ? "bg-(--ct-status-success)"
+      ? "pf-tx-icon--deposit"
       : type === "distribution"
-        ? "bg-(--ct-accent-strong)"
+        ? "pf-tx-icon--distribution"
         : type === "withdraw"
-          ? "bg-(--ct-status-danger)"
-          : "bg-(--ct-text-muted)";
+          ? "pf-tx-icon--withdraw"
+          : "pf-tx-icon--default";
 
-  return (
-    <span
-      aria-hidden="true"
-      className={`inline-block w-4 h-4 rounded-sm shrink-0 ${colorClass}`}
-    />
-  );
+  return <span aria-hidden className={cn("pf-tx-icon", iconClass)} />;
 }
 
 interface RecentActivityProps {
@@ -67,27 +63,31 @@ export function RecentActivity({ transactions, source, updatedAt }: RecentActivi
   const displayed = transactions.slice(0, 5);
 
   return (
-    <article className="dash-cell" aria-label="Recent account activity">
-      <div className="dash-label">
-        <span>Recent Activity</span>
+    <article className="dash-cell dash-cell-premium flex flex-col" aria-label="Recent account activity">
+      <div className="pf-widget-header">
+        <span className="dash-label">
+          <span>Recent activity</span>
+        </span>
         <ProvenanceBadge kind={provenance} />
       </div>
 
       {displayed.length === 0 ? (
-        <p className="body-sm ct-text-muted mt-4">
-          No transactions yet.
-        </p>
+        <div className="flex-1 flex items-center justify-center">
+          <p className="body-sm ct-text-muted">
+            No transactions yet.
+          </p>
+        </div>
       ) : (
-        <div className="flex flex-col gap-1.5 mt-3">
+        <div className="flex flex-col gap-1 mt-3">
           {displayed.map((tx) => (
             <div
               key={tx.id}
-              className="flex items-center gap-3 py-2 border-b border-(--ct-border-soft)"
+              className="flex items-center gap-3 py-2 border-b border-(--ct-border-soft) last:border-0"
             >
               <TxIcon type={tx.type} />
 
               <div className="flex-1 min-w-0 overflow-hidden">
-                <div className="body-xs ct-text-primary font-semibold truncate">
+                <div className="body-sm ct-text-primary font-semibold truncate">
                   {TYPE_LABELS[tx.type] ?? tx.type}
                   {tx.positionVaultName && (
                     <span className="ct-text-muted font-normal">

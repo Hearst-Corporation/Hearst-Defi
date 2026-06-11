@@ -192,11 +192,11 @@ describe("getPositions — 1 user, 2 vaults", () => {
 
     // Vault A: 2025-11-01 + 60 days = 2025-12-31
     const expectedA = new Date("2025-12-31T00:00:00Z");
-    expect(a.lockReleaseDate.getTime()).toBe(expectedA.getTime());
+    expect(a.lockReleaseDate?.getTime()).toBe(expectedA.getTime());
 
     // Vault B: 2025-12-15 + 90 days = 2026-03-15
     const expectedB = new Date("2026-03-15T00:00:00Z");
-    expect(b.lockReleaseDate.getTime()).toBe(expectedB.getTime());
+    expect(b.lockReleaseDate?.getTime()).toBe(expectedB.getTime());
   });
 
   it("shareClass and vaultTicker are populated from VaultDeployment", async () => {
@@ -233,5 +233,23 @@ describe("getPositions — 1 user, 2 vaults", () => {
     vi.mocked(prisma.investor.findUnique).mockResolvedValue(null);
     const rows = await getPositions("unknown-user", AS_OF);
     expect(rows).toEqual([]);
+  });
+
+  it("does not fabricate deployment fields when VaultDeployment is missing", async () => {
+    vi.mocked(prisma.position.findMany).mockResolvedValue([
+      {
+        ...MOCK_POSITIONS[0],
+        vaultDeployment: null,
+      },
+    ] as unknown as Awaited<ReturnType<typeof prisma.position.findMany>>);
+    vi.mocked(prisma.investorTransaction.findMany).mockResolvedValue([]);
+
+    const rows = await getPositions(USER_ID, AS_OF);
+    const row = rows[0]!;
+
+    expect(row.vaultName).toBeNull();
+    expect(row.vaultTicker).toBeNull();
+    expect(row.shareClass).toBeNull();
+    expect(row.lockReleaseDate).toBeNull();
   });
 });

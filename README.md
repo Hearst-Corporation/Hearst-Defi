@@ -73,7 +73,12 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
 - **Hover states** : Les cartes bento (`.dash-cell`, `.dash-cell-premium`) disposent d'un effet de "lift" (translateY) et d'un décalage de gradient radial pour la profondeur.
 - **Tooltips** : Composant `Tooltip` (via `framer-motion`) intégré aux `ProvenanceBadge` et `Metric`.
 - **Transitions** : Composant `MotionViewport` pour les animations d'entrée de section (fade-in + slide-up).
-- **Portfolio** : Page complète avec bento analytics, gestion KYC/KYB institutionnelle et `SecurityPulse` (audit Spearbit, encryption AES-256).
+- **Portfolio** : Page complète avec bento analytics, gestion KYC/KYB institutionnelle et `SecurityPulse` (audit Spearbit, encryption AES-256). Utilise la primitive `MergedSurface` pour une fusion visuelle premium des widgets.
+- **Portfolio data** : `/portfolio` lit uniquement les loaders DB réels. Pas de
+  `?preview=subscribed`, pas de mock preview en runtime, et pas de fallback
+  silencieux pour `VaultDeployment` (`vaultName`, ticker, APY, share class,
+  lockup). Le dashboard reste affiché même à zéro position ; chaque widget
+  affiche un état neutre/stale si la donnée manque.
 
 Mirror TypeScript des valeurs canoniques (pour les surfaces qui ne lisent pas
 les CSS vars runtime — PDF react-pdf, Privy SDK theme, error pages standalone) :
@@ -98,6 +103,13 @@ dans `cockpit.css` (zéro `style={{}}` statique). Utilitaires composés récents
 provenance sur le bloc parent) · `NestedPanel` + `ProofRow` (preuves / evidence)
 · `.ct-nested-callout` (alertes status dans un widget). Définis dans
 `cockpit.css` ; composants dans `src/components/ui/nested-panel.tsx`.
+
+**Canon typo/layout** (cohérence pages) :
+- H1 page : `.h1` via `ProductPageHeader` / `AdminPageHeader` (gap-4, description `body-md max-w-xl`).
+- H2 section : `.h2` · titre carte : `.h3` / `CardTitle` · label widget bento : `.dash-label` (`--ct-text-micro`).
+- Padding vertical page : `space-y-8` / `gap-8` (`--ct-space-8`).
+- **Exceptions documentées** : Portfolio → `PortfolioGreeting` (même `.h1`, greeting personnalisé) ;
+  dashboard admin hero → `.dashboard-assets-title` (`--ct-text-display`, carte premium volontairement plus grande que le H1 page).
 
 ### Process pour ajouter un token (rare, validé Adrien uniquement)
 

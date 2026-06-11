@@ -79,7 +79,7 @@ export default async function AdminProofCenterPage({
   ];
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
       {/* ── Header ─────────────────────────────────────────── */}
       <AdminPageHeader
         title="Proof Center"

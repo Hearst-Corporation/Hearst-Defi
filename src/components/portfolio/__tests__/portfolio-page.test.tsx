@@ -64,7 +64,7 @@ const MOCK_PORTFOLIO_DATA = {
 // ── 1. 3 sections defined ────────────────────────────────────────────────────
 
 describe("Portfolio page — 3 sections contract", () => {
-  const EXPECTED_SECTIONS = ["hero-pulse", "yield-posture", "activity-proofs"] as const;
+  const EXPECTED_SECTIONS = ["hero-pulse", "yield-trust", "activity-payouts"] as const;
 
   it("defines exactly 3 distinct section identifiers", () => {
     expect(EXPECTED_SECTIONS).toHaveLength(3);
@@ -79,12 +79,12 @@ describe("Portfolio page — 3 sections contract", () => {
     expect(EXPECTED_SECTIONS[0]).toBe("hero-pulse");
   });
 
-  it("Section 2 identifier is 'yield-posture'", () => {
-    expect(EXPECTED_SECTIONS[1]).toBe("yield-posture");
+  it("Section 2 identifier is 'yield-trust'", () => {
+    expect(EXPECTED_SECTIONS[1]).toBe("yield-trust");
   });
 
-  it("Section 3 identifier is 'activity-proofs'", () => {
-    expect(EXPECTED_SECTIONS[2]).toBe("activity-proofs");
+  it("Section 3 identifier is 'activity-payouts'", () => {
+    expect(EXPECTED_SECTIONS[2]).toBe("activity-payouts");
   });
 });
 
@@ -167,9 +167,11 @@ describe("Portfolio page — existing components preserved", () => {
 describe("Portfolio data — no regression on loadPortfolio shape", () => {
   it("positions have APY as range (non-negotiable #1)", () => {
     for (const p of MOCK_PORTFOLIO_DATA.positions) {
-      expect(typeof p.apyLow).toBe("number");
-      expect(typeof p.apyHigh).toBe("number");
-      expect(p.apyLow).toBeLessThanOrEqual(p.apyHigh);
+      if (p.apyLow !== null && p.apyHigh !== null) {
+        expect(typeof p.apyLow).toBe("number");
+        expect(typeof p.apyHigh).toBe("number");
+        expect(p.apyLow).toBeLessThanOrEqual(p.apyHigh);
+      }
     }
   });
 
@@ -475,33 +477,37 @@ describe("YieldStack props — loadYieldStackProps shape", () => {
 describe("Widget placement in sections", () => {
   // Section → expected widgets mapping (canonical, mirrors page.tsx structure)
   const SECTION_WIDGETS: Record<string, string[]> = {
-    "hero-pulse":     ["lock-meter-widget", "nav-share-kpi", "position-value-kpi"],
-    "yield-posture":  ["yield-stack-widget", "risk-pulse-widget"],
-    "activity-proofs":["distrib-calendar-widget", "proof-pulse-widget", "surprise-delight-bar"],
+    "hero-pulse": ["lock-meter-widget", "nav-share-kpi", "position-value-kpi"],
+    "yield-trust": ["yield-stack-widget", "risk-pulse-widget", "proof-pulse-widget", "security-pulse-widget"],
+    "activity-payouts": ["distrib-calendar-widget", "recent-activity-widget"],
   };
 
   it("Section 1 (hero-pulse) hosts lock-meter-widget", () => {
     expect(SECTION_WIDGETS["hero-pulse"]).toContain("lock-meter-widget");
   });
 
-  it("Section 2 (yield-posture) hosts yield-stack-widget", () => {
-    expect(SECTION_WIDGETS["yield-posture"]).toContain("yield-stack-widget");
+  it("Section 2 (yield-trust) hosts yield-stack-widget", () => {
+    expect(SECTION_WIDGETS["yield-trust"]).toContain("yield-stack-widget");
   });
 
-  it("Section 2 (yield-posture) hosts risk-pulse-widget", () => {
-    expect(SECTION_WIDGETS["yield-posture"]).toContain("risk-pulse-widget");
+  it("Section 2 (yield-trust) hosts risk-pulse-widget", () => {
+    expect(SECTION_WIDGETS["yield-trust"]).toContain("risk-pulse-widget");
   });
 
-  it("Section 3 (activity-proofs) hosts distrib-calendar-widget", () => {
-    expect(SECTION_WIDGETS["activity-proofs"]).toContain("distrib-calendar-widget");
+  it("Section 2 (yield-trust) hosts proof-pulse-widget", () => {
+    expect(SECTION_WIDGETS["yield-trust"]).toContain("proof-pulse-widget");
   });
 
-  it("Section 3 (activity-proofs) hosts proof-pulse-widget", () => {
-    expect(SECTION_WIDGETS["activity-proofs"]).toContain("proof-pulse-widget");
+  it("Section 2 (yield-trust) hosts security-pulse-widget", () => {
+    expect(SECTION_WIDGETS["yield-trust"]).toContain("security-pulse-widget");
   });
 
-  it("Section 3 (activity-proofs) hosts surprise-delight-bar", () => {
-    expect(SECTION_WIDGETS["activity-proofs"]).toContain("surprise-delight-bar");
+  it("Section 3 (activity-payouts) hosts distrib-calendar-widget", () => {
+    expect(SECTION_WIDGETS["activity-payouts"]).toContain("distrib-calendar-widget");
+  });
+
+  it("Section 3 (activity-payouts) hosts recent-activity-widget", () => {
+    expect(SECTION_WIDGETS["activity-payouts"]).toContain("recent-activity-widget");
   });
 });
 
@@ -511,9 +517,9 @@ describe("Forbidden words — section / widget labels must not contain banned te
   const FORBIDDEN = ["guarantee", "promise", "certain", "will deliver", "risk-free"];
 
   const SECTION_LABELS = [
-    "Hero Pulse — key portfolio metrics",
-    "Yield Posture — allocation and risk breakdown",
-    "Activity, Proofs and Distributions",
+    "Performance & Liquidity",
+    "Yield & Trust Pulse",
+    "Activity & Payouts",
   ];
 
   for (const label of SECTION_LABELS) {

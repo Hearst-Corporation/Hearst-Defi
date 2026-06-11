@@ -133,7 +133,7 @@ function TrendIndicator({ delta }: TrendIndicatorProps) {
         : String(delta);
 
   return (
-    <span className={cn("tabular font-medium text-xs", colorClass)}>
+    <span className={cn("body-xs tabular font-medium", colorClass)}>
       <span aria-hidden>{icon}</span>{" "}
       <span className="sr-only">{ariaLabel}</span>
       {numericLabel}
@@ -179,22 +179,13 @@ function ScoreRow({ item }: ScoreRowProps) {
   const rowId = `risk-pulse-row-${item.dimension}`;
 
   return (
-    <li
-      role="group"
-      aria-labelledby={rowId}
-      className="flex items-center gap-3 py-2.5 ct-divide-soft"
-    >
-      {/* Dimension label */}
-      <span
-        id={rowId}
-        className="body-sm min-w-0 flex-1 truncate ct-text-muted"
-      >
+    <li role="group" aria-labelledby={rowId} className="pf-risk-row">
+      <span id={rowId} className="body-sm min-w-0 truncate ct-text-muted">
         {label}
       </span>
 
-      {/* Score — 0 means not available in current snapshots, not "low risk". */}
       <span
-        className="tabular font-semibold text-sm ct-text-primary w-9 text-right shrink-0"
+        className="body-sm tabular font-semibold ct-text-primary text-right"
         aria-label={
           item.score > 0
             ? `${label} score ${String(item.score)} out of 100`
@@ -204,18 +195,15 @@ function ScoreRow({ item }: ScoreRowProps) {
         {item.score > 0 ? item.score : "N/A"}
       </span>
 
-      {/* Optional sparkline */}
       {item.series30d !== undefined && item.series30d.length >= 2 ? (
         <Sparkline
           series={item.series30d}
           label={`${label} 30-day trend sparkline`}
         />
       ) : (
-        /* Placeholder gap so columns stay aligned when no sparkline */
-        <span className="w-16 shrink-0" aria-hidden />
+        <span aria-hidden />
       )}
 
-      {/* Delta / trend */}
       <TrendIndicator delta={item.delta30d} />
     </li>
   );
@@ -324,14 +312,16 @@ export function RiskPulse({
 
   return (
     <article className="dash-cell dash-cell-premium h-full flex flex-col">
-      <div className="dash-label relative z-10">
+      <div className="pf-widget-header relative z-10">
         <Tooltip content="Composite risk score based on market, mining, liquidity, smart contract, and counterparty risks">
-          <span className="font-semibold ct-text-strong cursor-help border-b border-dotted border-(--ct-border-soft)">Risk Pulse</span>
+          <span className="dash-label cursor-help border-b border-dotted border-(--ct-border-soft)">
+            <span>Risk pulse</span>
+          </span>
         </Tooltip>
         <ProvenanceBadge kind={badgeKind} />
       </div>
 
-      <ul className="ct-divide-soft relative z-10" aria-label="Risk dimension scores">
+      <ul className="relative z-10" aria-label="Risk dimension scores">
         {scores.map((item) => (
           <ScoreRow key={item.dimension} item={item} />
         ))}

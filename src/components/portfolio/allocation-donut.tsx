@@ -57,13 +57,13 @@ export function AllocationDonut({
   const hasAllocation = totalValueUsdc > 0 && segments.length > 0;
 
   return (
-    <article className="dash-cell dash-cell-premium" aria-label="Portfolio allocation">
+    <article className="dash-cell dash-cell-premium h-full" aria-label="Portfolio allocation">
       <div className="dash-label relative z-10">
         <span>Allocation by position status</span>
         <ProvenanceBadge kind={provenance} />
       </div>
 
-      <div className="flex flex-col items-center gap-4 mt-2 relative z-10">
+      <div className="flex flex-col items-center gap-3 mt-2 relative z-10">
         <div className="dash-chart-container relative mt-0 w-(--ct-donut-size) h-(--ct-donut-size)">
           {!hasAllocation && (
             <div

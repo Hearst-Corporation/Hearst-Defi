@@ -33,6 +33,13 @@ interface PositionKpisProps {
 export function PositionKpis({ position }: PositionKpisProps) {
   const provenance = position.source === "live" ? "live" : "estimated";
   const pnl = position.pnl;
+  const apyRange =
+    position.realizedApyLow !== null && position.realizedApyHigh !== null
+      ? {
+          low: position.realizedApyLow,
+          high: position.realizedApyHigh,
+        }
+      : null;
 
   // P&L sublabel: realized vs unrealized, plus annualised when a holding period exists.
   const pnlSublabel = pnl
@@ -89,14 +96,22 @@ export function PositionKpis({ position }: PositionKpisProps) {
         variant="plain"
         label="Target APY"
         value={
-          <ApyRange
-            low={position.realizedApyLow}
-            high={position.realizedApyHigh}
-            precision={1}
-          />
+          apyRange ? (
+            <ApyRange
+              low={apyRange.low}
+              high={apyRange.high}
+              precision={1}
+            />
+          ) : (
+            "Unavailable"
+          )
         }
-        provenance="estimated"
-        sublabel="Not guaranteed — indicative range"
+        provenance={apyRange ? "estimated" : "stale"}
+        sublabel={
+          apyRange
+            ? "Not guaranteed — indicative range"
+            : "Vault deployment APY not configured"
+        }
       />
 
       {/* 5 — Net P&L — only when computed; ProvenanceBadge estimated (non-negotiable #2) */}

@@ -12,7 +12,7 @@
  *   realizedPnl  = sum of InvestorTransaction(type=distribution) for this position
  *   totalReturn  = unrealizedPnl + realizedPnl
  *   irrAnnualized = XIRR(cashFlows)
- *   lockReleaseDate = subscribedAt + softLockupDays
+ *   lockReleaseDate = subscribedAt + softLockupDays when deployment terms exist
  *
  * TODO(wire): When a `Subscription` model is added (E1/E2), replace the
  * Position.principalUsdc fallback with `sum(Subscription.amount WHERE status='active')`.
@@ -29,12 +29,12 @@ import { irrAnnualized } from "@/lib/portfolio/irr";
 export interface PositionPnl {
   /** Unique position id. */
   id: string;
-  /** Vault display name (from VaultDeployment or fallback). */
-  vaultName: string;
-  /** Vault ticker (e.g. "HYV-A"). */
-  vaultTicker: string;
-  /** Share class identifier (e.g. "A"). */
-  shareClass: string;
+  /** Vault display name from VaultDeployment. Null when deployment is missing. */
+  vaultName: string | null;
+  /** Vault ticker (e.g. "HYV-A"). Null when deployment is missing. */
+  vaultTicker: string | null;
+  /** Share class identifier (e.g. "A"). Null when deployment is missing. */
+  shareClass: string | null;
   /** Cost basis = principal invested, USDC. */
   costBasisUsdc: number;
   /** Current NAV = costBasis × navMultiplier, USDC. Provenance: "Live". */
@@ -50,8 +50,8 @@ export interface PositionPnl {
    * Null when < 1 day held or no inflow data yet.
    */
   irrAnnualized: number | null;
-  /** Date when the soft lock-up expires. */
-  lockReleaseDate: Date;
+  /** Date when the soft lock-up expires. Null when deployment terms are missing. */
+  lockReleaseDate: Date | null;
   /** Position status. */
   status: "active" | "matured" | "exited";
   /** Date of the original subscription. */
@@ -148,14 +148,13 @@ export async function getPositions(
 
     const totalReturn = unrealizedPnl + realizedPnl;
 
-    // Share class from VaultDeployment, fallback "A".
-    const shareClass = pos.vaultDeployment?.shareClass ?? "A";
-    const vaultName = pos.vaultDeployment?.name ?? "Hearst Yield Vault";
-    const vaultTicker = pos.vaultDeployment?.ticker ?? "HYV-A";
+    const shareClass = pos.vaultDeployment?.shareClass ?? null;
+    const vaultName = pos.vaultDeployment?.name ?? null;
+    const vaultTicker = pos.vaultDeployment?.ticker ?? null;
 
-    // Soft lock-up days from VaultDeployment, default 60 (CLAUDE.md).
-    const softLockupDays = pos.vaultDeployment?.softLockupDays ?? 60;
-    const lockReleaseDate = addDays(pos.subscribedAt, softLockupDays);
+    const softLockupDays = pos.vaultDeployment?.softLockupDays ?? null;
+    const lockReleaseDate =
+      softLockupDays === null ? null : addDays(pos.subscribedAt, softLockupDays);
 
     // XIRR — inject `asOf` to keep IRR fn pure.
     const irr = irrAnnualized({

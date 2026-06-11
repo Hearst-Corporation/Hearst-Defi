@@ -9,7 +9,10 @@
 
 import { describe, it, expect } from "vitest";
 
-import { resolveNextStep } from "@/components/portfolio/next-action-card";
+import {
+  resolveNextStep,
+  shouldShowNextActionCard,
+} from "@/components/portfolio/next-action-card";
 
 const base = {
   kycStatus: "approved",
@@ -31,18 +34,38 @@ describe("resolveNextStep — single next action by priority", () => {
       accreditationAttested: false,
       kycStatus: "pending",
       hasWallet: false,
+      positionCount: 0,
     });
     expect(step.cta?.href).toBe("/onboarding/accreditation");
   });
 
+  it("active positions skip onboarding even when accreditation flag is false", () => {
+    const step = resolveNextStep({
+      ...base,
+      accreditationAttested: false,
+      positionCount: 2,
+    });
+    expect(step.eyebrow).not.toBe("Get started");
+    expect(step.cta?.href).not.toBe("/onboarding/accreditation");
+    expect(step.headline.toLowerCase()).toContain("ready");
+  });
+
   it("pending KYC (accreditation done) shows a no-action review state", () => {
-    const step = resolveNextStep({ ...base, kycStatus: "pending" });
+    const step = resolveNextStep({
+      ...base,
+      kycStatus: "pending",
+      positionCount: 0,
+    });
     expect(step.cta).toBeUndefined(); // nothing for the user to do
-    expect(step.headline.toLowerCase()).toContain("reviewing");
+    expect(step.headline.toLowerCase()).toContain("progress");
   });
 
   it("approved but no wallet → connect wallet", () => {
-    const step = resolveNextStep({ ...base, hasWallet: false });
+    const step = resolveNextStep({
+      ...base,
+      hasWallet: false,
+      positionCount: 0,
+    });
     expect(step.cta?.href).toBe("/onboarding/wallet");
   });
 
@@ -56,6 +79,19 @@ describe("resolveNextStep — single next action by priority", () => {
     const step = resolveNextStep(base);
     expect(step.headline.toLowerCase()).toContain("ready");
     expect(step.cta?.href).toBe("/vaults");
+  });
+
+  it("hides the card when investor is fully operational with live positions", () => {
+    expect(shouldShowNextActionCard(base)).toBe(false);
+  });
+
+  it("shows the card when positions exist but onboarding flags are incomplete", () => {
+    expect(
+      shouldShowNextActionCard({
+        ...base,
+        accreditationAttested: false,
+      }),
+    ).toBe(true);
   });
 
   it("never uses forbidden words across any state", () => {

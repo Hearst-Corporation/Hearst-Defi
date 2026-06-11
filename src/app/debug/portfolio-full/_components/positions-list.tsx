@@ -67,7 +67,7 @@ export function PositionsList({ positions, source }: PositionsListProps) {
                       }}
                     />
                     <span className="text-sm text-(--ct-text-primary) font-medium truncate">
-                      {p.vaultName}
+                      {p.vaultName ?? "Unassigned vault"}
                     </span>
                   </div>
 
@@ -80,7 +80,11 @@ export function PositionsList({ positions, source }: PositionsListProps) {
                   </span>
 
                   <div className="text-right text-sm mono">
-                    <ApyRange low={p.apyLow} high={p.apyHigh} precision={1} />
+                    {p.apyLow !== null && p.apyHigh !== null ? (
+                      <ApyRange low={p.apyLow} high={p.apyHigh} precision={1} />
+                    ) : (
+                      <span className="text-xs text-(--ct-text-muted)">Unavailable</span>
+                    )}
                   </div>
 
                   <span className="text-xs tabular-nums text-(--ct-text-muted) text-right mono">

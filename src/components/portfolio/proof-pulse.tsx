@@ -19,7 +19,7 @@ export interface ProofPulseProps {
   auditor: string;
   proofCenterHref?: string; // defaults to "/proof-center"
   /** Provenance metadata from the loader. */
-  source?: "live" | "stale";
+  source?: "live" | "stale" | "attested";
   updatedAt?: Date;
   /** Attestation state from the loader. */
   proofState?: "attested" | "stale";
@@ -167,11 +167,11 @@ export function ProofPulse({
 
   return (
     <article className="dash-cell dash-cell-premium h-full flex flex-col">
-      <div className="dash-label relative z-10">
-        <span className="font-semibold ct-text-strong">Proof &amp; Methodology Pulse</span>
-        <div className="flex items-center gap-2">
-          <ProvenanceBadge kind={headerProvenance} />
-        </div>
+      <div className="pf-widget-header relative z-10">
+        <span className="dash-label">
+          <span>Proof &amp; methodology</span>
+        </span>
+        <ProvenanceBadge kind={headerProvenance} />
       </div>
 
       {state !== "matched" && state !== "attested" && (
@@ -207,28 +207,24 @@ export function ProofPulse({
 
         <NestedPanel>
           <ProofRow label="Vault TVL">
-            <span className="inline-flex items-center gap-2">
-              {statedTvlUsdc > 0 ? formatUsdc(statedTvlUsdc) : "Awaiting proof"}
-              <ProvenanceBadge kind={headerProvenance} />
-            </span>
+            {statedTvlUsdc > 0 ? formatUsdc(statedTvlUsdc) : "Awaiting proof"}
           </ProofRow>
 
           <ProofRow label="On-chain">
             <span className="inline-flex items-center justify-end gap-2">
               {onChainTvlUsdc > 0 ? formatUsdc(onChainTvlUsdc) : "Awaiting record"}
-              <ProvenanceBadge kind={onChainTvlUsdc > 0 ? "oracle" : "stale"} />
-              {indicator !== null && (
+              {indicator !== null ? (
                 <span
                   role="status"
                   aria-label={indicator.label}
                   className={cn(
-                    "body-sm font-bold leading-none select-none",
+                    "body-sm font-semibold leading-none select-none",
                     indicator.colorClass,
                   )}
                 >
                   {indicator.glyph}
                 </span>
-              )}
+              ) : null}
             </span>
           </ProofRow>
 
@@ -293,7 +289,7 @@ export function ProofPulse({
           className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-(--ct-border)"
           aria-label="Open proof center"
         >
-          open proof center →
+          Open proof center
         </Link>
       </div>
     </article>

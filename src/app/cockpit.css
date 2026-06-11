@@ -157,8 +157,8 @@
        375px, plancher à la valeur min.
      Formule : fluid = (max_px − min_px) / (1440 − 375) × (100vw − 375px) + min_px,
      converti en `Xrem + Yvw`. */
-  --ct-text-micro: 0.625rem;  /* 10px — fix */
-  --ct-text-xs: 0.6875rem;    /* 11px — fix (utilisé massivement dans dashboard) */
+  --ct-text-micro: 0.5625rem;  /* 9px — fix */
+  --ct-text-xs: 0.625rem;     /* 10px — fix (utilisé massivement dans dashboard) */
   --ct-text-sm: 0.875rem;     /* 14px — fix */
   --ct-text-base: 1rem;       /* 16px — fix */
   --ct-text-lg:      clamp(1rem,     0.956rem + 0.188vw, 1.125rem);  /* 16 → 18 */
@@ -188,10 +188,10 @@
   --ct-tracking-tight: -0.03em;
   --ct-tracking-normal: 0;
   --ct-tracking-wide: 0.04em;
-  --ct-tracking-wider: 0.05em;
+  --ct-tracking-wider: 0.08em;
 
   /* Layout sizing tokens — composants métier Connect. */
-  --ct-donut-size: 12.5rem;        /* allocation donut chart diameter */
+  --ct-donut-size: 6.5rem;        /* allocation donut chart diameter */
   --ct-sidebar-w: 25rem;           /* slide-over / detail sidebar */
   --ct-spec-nav-w: 13.75rem;       /* spec doc left nav */
   --ct-card-min-w: 11rem;          /* generic KPI card floor */
@@ -1597,14 +1597,14 @@
 
 /* .h1 → ct-title style */
 .h1 {
-  font-size: var(--ct-text-2xl);
+  font-size: var(--ct-text-3xl);
   font-weight: var(--ct-font-extrabold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
   color: var(--ct-text-primary);
 }
 
-/* .h2 → sous-titre Cockpit */
+/* .h2 → titres de sections */
 .h2 {
   font-size: var(--ct-text-xl);
   font-weight: var(--ct-font-bold);
@@ -1613,9 +1613,9 @@
   color: var(--ct-text-primary);
 }
 
-/* .h3 → section heading */
+/* .h3 → titres de widgets */
 .h3 {
-  font-size: var(--ct-text-base);
+  font-size: var(--ct-text-lg);
   font-weight: var(--ct-font-bold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
@@ -1624,7 +1624,7 @@
 
 /* .h4 → card heading */
 .h4 {
-  font-size: var(--ct-text-sm);
+  font-size: var(--ct-text-base);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
   color: var(--ct-text-body);

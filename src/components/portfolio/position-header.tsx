@@ -61,11 +61,11 @@ export function PositionHeader({ position }: PositionHeaderProps) {
       {/* Title row */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div className="flex flex-col gap-1 min-w-0">
-          <h1 className="h1 m-0 break-words">
-            {position.vaultName}
+          <h1 className="h1 m-0 wrap-break-word">
+            {position.vaultName ?? "Unassigned vault"}
           </h1>
           <span className="eyebrow tabular ct-text-muted mono">
-            {position.vaultTicker} ·{" "}
+            {position.vaultTicker ? `${position.vaultTicker} · ` : ""}
             <span title={position.id}>{position.id.slice(0, 8)}&hellip;</span>
           </span>
         </div>

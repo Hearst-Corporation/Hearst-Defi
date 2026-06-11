@@ -30,7 +30,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
   return (
     <div className="pf-kpi-grid">
       {/* Portfolio Value */}
-      <article className="dash-cell" aria-label="Portfolio value">
+      <article className="dash-cell dash-cell-premium" aria-label="Portfolio value">
         <div className="dash-label">
           <span>Portfolio Value</span>
           <ProvenanceBadge kind={valueProvenance} />
@@ -57,7 +57,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
       </article>
 
       {/* Yield YTD */}
-      <article className="dash-cell" aria-label="Yield year to date">
+      <article className="dash-cell dash-cell-premium" aria-label="Yield year to date">
         <div className="dash-label">
           <span>Yield YTD</span>
           <ProvenanceBadge kind={yieldProvenance} />
@@ -74,7 +74,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
       </article>
 
       {/* Next Distribution */}
-      <article className="dash-cell" aria-label="Next distribution date">
+      <article className="dash-cell dash-cell-premium" aria-label="Next distribution date">
         <div className="dash-label">
           <span>Next Distribution</span>
           <ProvenanceBadge kind={distProvenance} />

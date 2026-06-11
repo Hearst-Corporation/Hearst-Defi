@@ -72,7 +72,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     overview.proof.attestationsCount > 0;
 
   return (
-    <div className="flex flex-col gap-12 relative">
+    <div className="flex flex-col gap-8 relative">
       {/* Ambient glow for the dashboard */}
       <div
         aria-hidden="true"

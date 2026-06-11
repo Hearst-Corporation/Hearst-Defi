@@ -259,7 +259,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
             <div className="flex justify-between gap-2 body-sm">
               <span className="ct-text-muted min-w-0 shrink-0">Vault</span>
               <span className="ct-text-body font-semibold min-w-0 truncate text-right">
-                {position.vaultName}
+                {position.vaultName ?? "Unassigned vault"}
               </span>
             </div>
             <div className="flex justify-between gap-2 body-sm">

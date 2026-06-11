@@ -1,7 +1,6 @@
 import { Shield, Lock, Eye, CheckCircle2 } from "lucide-react";
-import { Card } from "@/components/ui/card";
+
 import { Tooltip } from "@/components/ui/tooltip";
-import { cn } from "@/lib/cn";
 
 /**
  * SecurityPulse — Trust-building component summarizing active security measures.
@@ -18,8 +17,8 @@ interface SecurityItemProps {
 function SecurityItem({ icon: Icon, label, value, tooltip }: SecurityItemProps) {
   return (
     <div className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--ct-accent)/10 text-(--ct-accent)">
-        <Icon size={16} />
+      <div className="pf-icon-well">
+        <Icon size={16} aria-hidden />
       </div>
       <div className="flex flex-1 flex-col min-w-0">
         <div className="flex items-center justify-between gap-2">
@@ -38,15 +37,17 @@ function SecurityItem({ icon: Icon, label, value, tooltip }: SecurityItemProps) 
 export function SecurityPulse() {
   return (
     <article className="dash-cell dash-cell-premium h-full flex flex-col">
-      <div className="dash-label relative z-10">
-        <div className="flex items-center gap-2">
-          <Shield size={14} className="text-(--ct-accent)" />
-          <span className="font-semibold ct-text-strong">Security Pulse</span>
+      <div className="pf-widget-header relative z-10">
+        <div className="dash-label">
+          <span className="flex items-center gap-2">
+            <Shield size={14} className="ct-text-accent" aria-hidden />
+            <span>Security Pulse</span>
+          </span>
         </div>
-        <div className="flex items-center gap-1.5 rounded-full bg-(--ct-status-success)/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-(--ct-status-success) border border-(--ct-status-success)/20">
-          <span className="h-1 w-1 rounded-full bg-(--ct-status-success) animate-pulse" />
+        <span className="pf-status-pill">
+          <span className="pf-status-pill__dot" aria-hidden />
           Active
-        </div>
+        </span>
       </div>
 
       <div className="mt-4 flex flex-col divide-y divide-(--ct-border-soft) relative z-10">

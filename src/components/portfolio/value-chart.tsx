@@ -105,7 +105,6 @@ function AreaChart({ series, ariaLabel: _ariaLabel }: AreaChartProps) {
   return (
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
-      preserveAspectRatio="none"
       className="w-full h-full"
       role="img"
       aria-labelledby={`${titleId} ${descId}`}
@@ -196,7 +195,7 @@ export function ValueChart({ positions, totalValueUsdc, source, updatedAt }: Val
           className="mt-3 flex w-full flex-1 items-center justify-center rounded-md border border-dashed border-(--ct-border-soft) ct-surface-1 relative z-10 min-h-20"
           aria-label="No portfolio data yet"
         >
-          <p className="text-xs ct-text-muted">
+          <p className="body-xs ct-text-muted">
             Your value trend starts after the first active position.
           </p>
         </div>
@@ -214,7 +213,7 @@ export function ValueChart({ positions, totalValueUsdc, source, updatedAt }: Val
       )}
 
       {/* Month labels */}
-      <div className="stat-label ct-text-muted flex justify-between mt-4 mono relative z-10">
+      <div className="stat-label ct-text-muted flex justify-between mt-2 mono relative z-10">
         {series
           .filter((_, i) => i % 3 === 0 || i === series.length - 1)
           .map((s, i) => (
@@ -222,7 +221,7 @@ export function ValueChart({ positions, totalValueUsdc, source, updatedAt }: Val
           ))}
       </div>
 
-      <p className="body-xs ct-text-muted mt-4 italic relative z-10">
+      <p className="body-xs ct-text-muted mt-2 italic relative z-10">
         Indicative path derived from subscribed principal and current value. Past performance does not predict future results.
       </p>
     </article>

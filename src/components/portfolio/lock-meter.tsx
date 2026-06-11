@@ -107,11 +107,6 @@ export function LockMeter({
 
   const badgeKind = termsUnknown || source === "stale" ? "stale" : "live";
 
-  // Bar fill: green accent when in progress, status-success when fully unlocked.
-  const barFill = isUnlocked
-    ? "var(--ct-status-success)"
-    : "var(--ct-accent)";
-
   // Penalty text color: faint when more than 50% elapsed (less urgent),
   // warning when less than 50% elapsed (early-exit risk is high).
   const penaltyHalfPassed = progressPct >= 50;
@@ -130,10 +125,10 @@ export function LockMeter({
       aria-label="Lock and liquidity status"
     >
       {/* Header row -------------------------------------------------------- */}
-      <div className="flex items-center justify-between gap-2 relative z-10">
+      <div className="pf-widget-header relative z-10">
         <Tooltip content="Progress towards your 60-day soft lockup period">
-          <span className="dash-label mb-0 cursor-help border-b border-dotted border-(--ct-border-soft)">
-            LOCK · LIQUIDITY
+          <span className="dash-label cursor-help border-b border-dotted border-(--ct-border-soft)">
+            <span>Lock · liquidity</span>
           </span>
         </Tooltip>
         <ProvenanceBadge kind={badgeKind} />
@@ -148,17 +143,14 @@ export function LockMeter({
           aria-valuemin={0}
           aria-valuemax={100}
           aria-label={progressLabel}
-          className="relative h-2 w-full overflow-hidden rounded-full ct-panel-inset border-0"
+          className="pf-progress-track"
         >
           <div
             className={cn(
-              "absolute inset-y-0 left-0 rounded-full transition-[width] duration-(--ct-dur-base)",
-              !isUnlocked && "ct-progress-accent-fill",
+              "pf-progress-fill",
+              isUnlocked ? "pf-progress-fill--success" : "pf-progress-fill--accent",
             )}
-            style={{
-              width: `${progressPct}%`,
-              background: isUnlocked ? barFill : undefined,
-            }}
+            style={{ width: `${progressPct}%` }}
           />
         </div>
 

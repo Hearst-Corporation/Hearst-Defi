@@ -44,14 +44,14 @@ export interface PositionDetailTransaction {
 
 export interface PositionDetail {
   id: string;
-  vaultName: string;
+  vaultName: string | null;
   vaultTicker: string;
   status: "active" | "matured" | "exited";
   principalUsdc: number;
   accruedYieldUsdc: number;
   distributedUsdc: number;
-  realizedApyLow: number;  // pct, e.g. 9.4
-  realizedApyHigh: number; // pct, e.g. 12.8
+  realizedApyLow: number | null;  // pct, e.g. 9.4
+  realizedApyHigh: number | null; // pct, e.g. 12.8
   subscribedAt: Date;
   maturedAt: Date | null;
   txHashOpen: string | null;
@@ -68,7 +68,7 @@ export interface PositionDetail {
 
 export interface PortfolioPosition {
   id: string;
-  vaultName: string;
+  vaultName: string | null;
   principalUsdc: number;
   accruedYieldUsdc: number;
   distributedUsdc: number;
@@ -76,8 +76,8 @@ export interface PortfolioPosition {
   valueUsdc: number;
   status: "active" | "matured" | "exited";
   /** bps converted to pct, e.g. 940 → 9.4 */
-  apyLow: number;
-  apyHigh: number;
+  apyLow: number | null;
+  apyHigh: number | null;
   subscribedAt: Date;
 }
 
@@ -238,6 +238,19 @@ export function shareClassTermsFromVaultKey(vaultKey: string | null | undefined)
 }
 
 /**
+ * Strict variant for investor portfolio surfaces: returns null unless the
+ * position key explicitly carries a `:class-A|B` suffix.
+ */
+function explicitShareClassTermsFromVaultKey(
+  vaultKey: string | null | undefined,
+): ShareClassTerms | null {
+  if (!vaultKey) return null;
+  const match = /:class-([AB])$/i.exec(vaultKey);
+  if (!match?.[1]) return null;
+  return match[1].toUpperCase() === "B" ? SHARE_CLASS_B : SHARE_CLASS_A;
+}
+
+/**
  * Derive the distribution cadence string from a ShareClassTerms preset.
  * Class B has a longer soft lock-up (90 days) but the same monthly distribution
  * schedule — both classes distribute monthly, T+5.
@@ -305,10 +318,9 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
     const accrued = toNumber(p.accruedYieldUsdc);
     const distributed = toNumber(p.distributedUsdc);
 
-    // APY from VaultDeployment if linked, else product-level defaults (9.4–12.8%).
-    const apyLowBps = p.vaultDeployment?.targetApyLowBps ?? 940;
-    const apyHighBps = p.vaultDeployment?.targetApyHighBps ?? 1280;
-    const vaultName = p.vaultDeployment?.name ?? "Hearst Yield Vault";
+    const apyLowBps = p.vaultDeployment?.targetApyLowBps ?? null;
+    const apyHighBps = p.vaultDeployment?.targetApyHighBps ?? null;
+    const vaultName = p.vaultDeployment?.name ?? null;
 
     const status = p.status as "active" | "matured" | "exited";
 
@@ -320,8 +332,8 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
       distributedUsdc: distributed,
       valueUsdc: principal + accrued,
       status,
-      apyLow: bpsToApyPct(apyLowBps),
-      apyHigh: bpsToApyPct(apyHighBps),
+      apyLow: apyLowBps === null ? null : bpsToApyPct(apyLowBps),
+      apyHigh: apyHighBps === null ? null : bpsToApyPct(apyHighBps),
       subscribedAt: p.subscribedAt,
     };
   });
@@ -337,7 +349,7 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
   const positionVaultMap = new Map(
     rawPositions.map((p) => [
       p.id,
-      p.vaultDeployment?.name ?? "Hearst Yield Vault",
+      p.vaultDeployment?.name ?? undefined,
     ]),
   );
 
@@ -412,12 +424,12 @@ export const loadLockMeterProps = cache(async (): Promise<LockMeterProps & { sou
     };
   }
 
-  const terms = shareClassTermsFromVaultKey(position.vaultKey);
+  const terms = explicitShareClassTermsFromVaultKey(position.vaultKey);
   return {
     lockStart: position.subscribedAt,
-    softLockupDays: terms.softLockupDays,
+    softLockupDays: terms?.softLockupDays ?? 0,
     asOf: now,
-    source: "live",
+    source: terms ? "live" : "stale",
   };
 });
 
@@ -488,8 +500,8 @@ export const loadDistribCalendarProps = cache(async (): Promise<DistribCalendarP
   if (!investor) {
     return {
       entries: [],
-      shareClass: SHARE_CLASS_A.shareClass,
-      cadence: cadenceFromTerms(SHARE_CLASS_A),
+      shareClass: null,
+      cadence: null,
       source: "stale",
     };
   }
@@ -500,8 +512,8 @@ export const loadDistribCalendarProps = cache(async (): Promise<DistribCalendarP
     include: { vaultDeployment: true },
   });
   const terms = firstActive
-    ? shareClassTermsFromVaultKey(firstActive.vaultKey) ?? getShareClassForPosition(firstActive)
-    : SHARE_CLASS_A;
+    ? explicitShareClassTermsFromVaultKey(firstActive.vaultKey)
+    : null;
 
   const rawDistribs = await prisma.investorTransaction.findMany({
     where: {
@@ -518,8 +530,8 @@ export const loadDistribCalendarProps = cache(async (): Promise<DistribCalendarP
   if (rawDistribs.length === 0) {
     return {
       entries: [],
-      shareClass: terms.shareClass,
-      cadence: cadenceFromTerms(terms),
+      shareClass: terms?.shareClass ?? null,
+      cadence: terms ? cadenceFromTerms(terms) : null,
       source: "stale",
     };
   }
@@ -537,8 +549,8 @@ export const loadDistribCalendarProps = cache(async (): Promise<DistribCalendarP
 
   return {
     entries,
-    shareClass: terms.shareClass,
-    cadence: cadenceFromTerms(terms),
+    shareClass: terms?.shareClass ?? null,
+    cadence: terms ? cadenceFromTerms(terms) : null,
     source: "live",
     updatedAt: rawDistribs[rawDistribs.length - 1]?.occurredAt,
   };
@@ -564,7 +576,7 @@ const fetchProofData = unstable_cache(
   { revalidate: 3600, tags: ["proof"] }
 );
 
-export const loadProofPulseProps = cache(async (): Promise<ProofPulseProps & { source: "live" | "stale"; updatedAt?: Date }> => {
+export const loadProofPulseProps = cache(async (): Promise<ProofPulseProps & { source: "live" | "stale" | "attested"; updatedAt?: Date }> => {
   const now = new Date();
   const { latestProof, snapshot } = await fetchProofData();
 
@@ -832,9 +844,9 @@ export async function loadPosition(
   const accrued = toNumber(raw.accruedYieldUsdc);
   const distributed = toNumber(raw.distributedUsdc);
 
-  const apyLowBps = raw.vaultDeployment?.targetApyLowBps ?? 940;
-  const apyHighBps = raw.vaultDeployment?.targetApyHighBps ?? 1280;
-  const vaultName = raw.vaultDeployment?.name ?? "Hearst Yield Vault";
+  const apyLowBps = raw.vaultDeployment?.targetApyLowBps ?? null;
+  const apyHighBps = raw.vaultDeployment?.targetApyHighBps ?? null;
+  const vaultName = raw.vaultDeployment?.name ?? null;
   const vaultTicker = "HYV-A";
 
   const transactions: PositionDetailTransaction[] = rawTxs.map((t) => ({
@@ -863,8 +875,8 @@ export async function loadPosition(
     principalUsdc: principal,
     accruedYieldUsdc: accrued,
     distributedUsdc: distributed,
-    realizedApyLow: bpsToApyPct(apyLowBps),
-    realizedApyHigh: bpsToApyPct(apyHighBps),
+    realizedApyLow: apyLowBps === null ? null : bpsToApyPct(apyLowBps),
+    realizedApyHigh: apyHighBps === null ? null : bpsToApyPct(apyHighBps),
     subscribedAt: raw.subscribedAt,
     maturedAt: null, // populated in Phase 2
     txHashOpen: openTx?.txHash ?? null,

@@ -30,9 +30,9 @@ export interface DistribCalendarProps {
   /** Last 12 paid + 1 forecast */
   entries: DistribEntry[];
   /** e.g. "A" */
-  shareClass: string;
+  shareClass: string | null;
   /** e.g. "monthly, T+5" */
-  cadence: string;
+  cadence: string | null;
   asOf?: Date;
   /** Provenance metadata from the loader. */
   source?: "live" | "stale";
@@ -122,7 +122,10 @@ function BarChart({ entries, refYear, currentPeriod }: BarChartProps) {
       role="img"
       aria-labelledby={titleId}
     >
-      <title id={titleId}>Payout calendar — {n} periods</title>
+      {/* Single text child (template literal) — an SVG <title> with mixed
+          string + expression children serialises empty on the server and
+          triggers a hydration mismatch (cf. vc-title which is a single child). */}
+      <title id={titleId}>{`Payout calendar — ${n} periods`}</title>
 
       <defs>
         {/* Diagonal hatch pattern for forecast bar */}
@@ -302,10 +305,10 @@ export function DistribCalendar({
       {/* Header */}
       <div className="flex items-start justify-between gap-3 relative z-10">
         <div className="flex flex-col gap-0.5">
-          <h3 className="dash-label mb-0 font-semibold ct-text-strong">
+          <h3 className="h3 mb-0">
             PAYOUT CALENDAR
           </h3>
-          <p className="text-micro font-medium uppercase tracking-(--ct-tracking-wide) ct-text-muted mono">
+          <p className="body-xs ct-text-muted mono">
             12-month history · USDC
           </p>
         </div>
@@ -342,19 +345,19 @@ export function DistribCalendar({
       {/* Footer — share class + cadence */}
       <dl className="flex flex-wrap gap-x-6 gap-y-2 border-t border-(--ct-border-soft) pt-4 mt-auto relative z-10">
         <div className="flex flex-col gap-0.5 min-w-0">
-          <dt className="text-micro uppercase tracking-(--ct-tracking-wide) ct-text-muted mono">
+          <dt className="stat-label mono">
             Share class
           </dt>
-          <dd className="text-xs font-medium ct-text-body mono">
-            Series {shareClass}
+          <dd className="body-sm ct-text-body mono tabular">
+            {shareClass ? `Series ${shareClass}` : "—"}
           </dd>
         </div>
         <div className="flex flex-col gap-0.5 min-w-0">
-          <dt className="text-micro uppercase tracking-(--ct-tracking-wide) ct-text-muted mono">
+          <dt className="stat-label mono">
             Cadence
           </dt>
-          <dd className="text-xs font-medium ct-text-body mono">
-            {cadence}
+          <dd className="body-sm ct-text-body mono tabular">
+            {cadence ?? "—"}
           </dd>
         </div>
       </dl>

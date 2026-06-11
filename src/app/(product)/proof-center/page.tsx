@@ -83,7 +83,7 @@ export default async function ProductProofCenterPage({
   ];
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
       {/* ── Testnet notice ─────────────────────────────────── */}
       {chainConfigured && (
         <div

@@ -1,8 +1,10 @@
+import "./portfolio.css";
+
 import { SkeletonCard, SkeletonMetric, Skeleton } from "@/components/ui/skeleton";
 
 export default function PortfolioLoading() {
   return (
-    <div className="space-y-12 animate-in fade-in duration-(--ct-dur-slower)">
+    <div className="pf-container flex flex-col gap-3 md:gap-6 animate-in fade-in duration-(--ct-dur-slower)">
       {/* Greeting */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between px-2">
         <div className="space-y-2">
