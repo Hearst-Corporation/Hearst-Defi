@@ -6,7 +6,7 @@
  *   2. Allocation bps always sum to exactly 10000.
  *   3. Default fields are applied when the study is partial (all-zero allocations).
  *   4. APY range invariant (high > low) is upheld even for degenerate outputs.
- *   5. signersWhitelist contains at least 2 non-empty placeholder entries.
+ *   5. signersWhitelist is JSON from VAULT_DEFAULT_SIGNERS (empty when env unset).
  *   6. requiredSigners is seeded (≥ 2).
  *   7. Throws when study not found.
  *   8. Throws when study has no ScenarioRun rows.
@@ -186,13 +186,12 @@ describe("promoteStudyToDraft — field completeness", () => {
       (data.targetStableReserveBps as number);
     expect(sum).toBe(10_000);
 
-    // signersWhitelist — JSON array with ≥ 2 non-empty entries (were [] before fix)
+    // signersWhitelist — JSON array from VAULT_DEFAULT_SIGNERS (empty when unset)
     expect(typeof data.signersWhitelist).toBe("string");
     const parsedSigners = JSON.parse(
       data.signersWhitelist as string,
     ) as unknown[];
     expect(Array.isArray(parsedSigners)).toBe(true);
-    expect(parsedSigners.length).toBeGreaterThanOrEqual(2);
     for (const entry of parsedSigners) {
       expect(typeof entry).toBe("string");
       expect((entry as string).length).toBeGreaterThan(0);
@@ -257,7 +256,7 @@ describe("promoteStudyToDraft — field completeness", () => {
     );
   });
 
-  it("requiredSigners is seeded and is at most whitelist length", async () => {
+  it("requiredSigners is seeded; capped by whitelist when signers are configured", async () => {
     const getCreatedData = setupHappyPath();
     await promoteStudyToDraft(STUDY_ID);
     const data = getCreatedData();
@@ -265,8 +264,12 @@ describe("promoteStudyToDraft — field completeness", () => {
     const whitelist = JSON.parse(
       data.signersWhitelist as string,
     ) as unknown[];
-    expect(data.requiredSigners as number).toBeLessThanOrEqual(whitelist.length);
     expect(data.requiredSigners as number).toBeGreaterThanOrEqual(2);
+    if (whitelist.length > 0) {
+      expect(data.requiredSigners as number).toBeLessThanOrEqual(
+        whitelist.length,
+      );
+    }
   });
 });
 
@@ -355,8 +358,8 @@ describe("promoteStudyToDraft — schema compatibility", () => {
       expect(data[key], `Field "${key}" must be defined`).not.toBeUndefined();
     }
 
-    // signersWhitelist is stored as JSON string in DB; verify it's a non-empty array
+    // signersWhitelist is stored as JSON string in DB
     const signers = JSON.parse(data.signersWhitelist as string) as unknown[];
-    expect(signers.length).toBeGreaterThanOrEqual(2);
+    expect(Array.isArray(signers)).toBe(true);
   });
 });

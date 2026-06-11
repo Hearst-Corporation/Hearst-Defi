@@ -23,19 +23,24 @@ function freshAttestation(): OnChainAttestation {
   };
 }
 
-// The ProvenanceBadge sets title="Data provenance: <Label>" — assert on that
-// precise attribute (the string "Attested" also appears as the "Attested at"
-// metric label, so a bare substring check would be meaningless).
-const ATTESTED_BADGE = "Data provenance: Attested";
-const STALE_BADGE = "Data provenance: Stale";
+// The ProvenanceBadge renders visible label text (Tooltip replaced title=).
+const ATTESTED_BADGE = ">Attested</span>";
+const STALE_BADGE = ">Stale</span>";
+
+/** Badge in the PoR card header sits before the KPI grid. */
+function headerProvenanceBadge(html: string): string {
+  const headerEnd = html.indexOf("ct-nested-kpi-grid");
+  return headerEnd === -1 ? html : html.slice(0, headerEnd);
+}
 
 describe("PorSummary — Attested requires verification (A4)", () => {
   it("shows Stale (not Attested) for a fresh but UNVERIFIED attestation", () => {
     const html = renderToStaticMarkup(
       <PorSummary attestation={freshAttestation()} verified={false} />,
     );
-    expect(html).toContain(STALE_BADGE);
-    expect(html).not.toContain(ATTESTED_BADGE);
+    const header = headerProvenanceBadge(html);
+    expect(header).toContain(STALE_BADGE);
+    expect(header).not.toContain(ATTESTED_BADGE);
     expect(html).toContain("not yet verified against the allowlist");
   });
 
@@ -43,15 +48,17 @@ describe("PorSummary — Attested requires verification (A4)", () => {
     const html = renderToStaticMarkup(
       <PorSummary attestation={freshAttestation()} />,
     );
-    expect(html).toContain(STALE_BADGE);
-    expect(html).not.toContain(ATTESTED_BADGE);
+    const header = headerProvenanceBadge(html);
+    expect(header).toContain(STALE_BADGE);
+    expect(header).not.toContain(ATTESTED_BADGE);
   });
 
   it("shows Attested only when fresh AND verified", () => {
     const html = renderToStaticMarkup(
       <PorSummary attestation={freshAttestation()} verified={true} />,
     );
-    expect(html).toContain(ATTESTED_BADGE);
-    expect(html).not.toContain(STALE_BADGE);
+    const header = headerProvenanceBadge(html);
+    expect(header).toContain(ATTESTED_BADGE);
+    expect(header).not.toContain(STALE_BADGE);
   });
 });

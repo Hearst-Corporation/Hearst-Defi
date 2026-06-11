@@ -61,11 +61,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint-typecheck
 
-    # LLM-touching modules (src/lib/llm/kimi.ts) throw at import time if the
-    # key is missing, which breaks vi.mock hoisting on tests that touch the
-    # investor-memo / kimi chain. We inject the key from secrets so module
-    # load succeeds and mocks can take over.
+    # LLM-touching modules (src/lib/llm/kimi.ts) throw at import time if
+    # OPENAI_API_KEY is missing (ADR-011). Inject from secrets or a CI placeholder
+    # so module load succeeds and mocks can take over.
     env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY != '' && secrets.OPENAI_API_KEY || 'sk-ci-vitest-placeholder' }}
       HYPERCLI_API_KEY: ${{ secrets.HYPERCLI_API_KEY }}
       HYPERCLI_BASE_URL: ${{ secrets.HYPERCLI_BASE_URL }}
 

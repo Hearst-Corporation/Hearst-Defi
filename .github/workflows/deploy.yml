@@ -61,7 +61,8 @@ jobs:
     needs: lint-typecheck
 
     env:
-      # See ci.yml — kimi.ts throws at import time without it.
+      # kimi.ts throws at import time without OPENAI_API_KEY (ADR-011).
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY != '' && secrets.OPENAI_API_KEY || 'sk-ci-vitest-placeholder' }}
       HYPERCLI_API_KEY: ${{ secrets.HYPERCLI_API_KEY }}
       HYPERCLI_BASE_URL: ${{ secrets.HYPERCLI_BASE_URL }}
 
@@ -118,6 +119,7 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
       INNGEST_SIGNING_KEY: ${{ secrets.INNGEST_SIGNING_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       HYPERCLI_API_KEY: ${{ secrets.HYPERCLI_API_KEY }}
       HYPERCLI_BASE_URL: ${{ secrets.HYPERCLI_BASE_URL }}
       HEARST_PUBLISHER: ${{ secrets.HEARST_PUBLISHER }}
