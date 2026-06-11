@@ -85,11 +85,32 @@ describe("resolveNextStep — single next action by priority", () => {
     expect(shouldShowNextActionCard(base)).toBe(false);
   });
 
-  it("shows the card when positions exist but onboarding flags are incomplete", () => {
+  it("hides the card whenever positions exist, even if onboarding flags lag", () => {
+    // Product rule: a funded portfolio means onboarding is done. Never surface a
+    // get-started / "ready" CTA on top of live positions, regardless of stale flags.
     expect(
       shouldShowNextActionCard({
         ...base,
         accreditationAttested: false,
+        kycStatus: "pending",
+        hasWallet: false,
+        positionCount: 2,
+      }),
+    ).toBe(false);
+  });
+
+  it("still surfaces the card for rejected KYC, even mid-portfolio", () => {
+    expect(
+      shouldShowNextActionCard({ ...base, kycStatus: "rejected", positionCount: 3 }),
+    ).toBe(true);
+  });
+
+  it("shows the card pre-position when onboarding flags are incomplete", () => {
+    expect(
+      shouldShowNextActionCard({
+        ...base,
+        accreditationAttested: false,
+        positionCount: 0,
       }),
     ).toBe(true);
   });

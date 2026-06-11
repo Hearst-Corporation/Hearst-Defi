@@ -24,7 +24,6 @@ import {
   METHODOLOGY_FACTORS,
   METHODOLOGY_VERSION,
 } from "@/lib/engine/methodology";
-import type { Provenance } from "@/components/ui/provenance-badge";
 import type { LockMeterProps } from "@/components/portfolio/lock-meter";
 import type { RiskPulseProps } from "@/components/portfolio/risk-pulse";
 import type { DistribCalendarProps, DistribEntry } from "@/components/portfolio/distrib-calendar";

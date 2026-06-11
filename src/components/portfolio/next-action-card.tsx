@@ -102,15 +102,27 @@ export function resolveNextStep(props: NextActionCardProps): Step {
   };
 }
 
-/** Hide the card when the investor is fully operational with live positions. */
+/**
+ * Decide whether the "next action" card is shown at all.
+ *
+ * Product rule: this card is the *onboarding / get-started* surface. The moment
+ * an investor holds at least one position they have, by definition, cleared
+ * onboarding — surfacing "Confirm your eligibility / Start onboarding" (or even
+ * a redundant "ready" CTA) on top of a funded portfolio is contradictory. So we
+ * hide the card whenever there are positions, regardless of the session flags
+ * (which can lag behind the real on-chain/DB state).
+ *
+ * It stays visible only for genuinely pre-position investors who still have a
+ * step to take, or whose KYC was rejected (handled first in resolveNextStep).
+ */
 export function shouldShowNextActionCard(props: NextActionCardProps): boolean {
   const { kycStatus, accreditationAttested, hasWallet, positionCount } = props;
-  if (positionCount === 0) return true;
-  return !(
-    accreditationAttested &&
-    kycStatus === "approved" &&
-    hasWallet
-  );
+  // Rejected KYC always needs attention, even mid-portfolio.
+  if (kycStatus === "rejected") return true;
+  // Any position ⇒ onboarding is done ⇒ no get-started card.
+  if (positionCount > 0) return false;
+  // Pre-position: show until accreditation + KYC + wallet are all in place.
+  return !(accreditationAttested && kycStatus === "approved" && hasWallet);
 }
 
 export function NextActionCard(props: NextActionCardProps) {
