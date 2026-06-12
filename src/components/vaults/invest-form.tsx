@@ -287,7 +287,7 @@ function InvestFormLive({ vault }: InvestFormProps) {
                   className={cn(
                     "ct-input tabular w-full pl-8 pr-4 py-3 mono body-lg",
                     amount > 0 && !amountValid
-                      ? "ct-bc-warning focus:ring-[var(--ct-status-warning)]"
+                      ? "ct-bc-warning ct-ring-warning"
                       : "",
                   )}
                 />

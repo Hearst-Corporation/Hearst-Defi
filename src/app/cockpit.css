@@ -1957,6 +1957,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
    cartes blanches). Classe neutralisée — no-op, réversible. */
 .ct-drop-glow-subtle { filter: none; }
 .ct-leading-none { line-height: var(--ct-leading-none); }
+.ct-leading-relaxed { line-height: var(--ct-leading-relaxed); }
 .ct-tracking-wide { letter-spacing: var(--ct-tracking-wide); }
 .ct-tracking-wider { letter-spacing: var(--ct-tracking-wider); }
 .ct-text-micro-size { font-size: var(--ct-text-micro); }
@@ -1971,6 +1972,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 .ct-bc-success { border-color: var(--ct-status-success-border); }
 .ct-bc-warning { border-color: var(--ct-status-warning-border); }
 .ct-bc-danger { border-color: var(--ct-status-danger-border); }
+.ct-ring-warning:focus-visible { outline: 3px solid var(--ct-status-warning); outline-offset: 2px; }
 
 /* ── UTILITAIRES RÉCURRENTS (factorise les patterns dupliqués) ── */
 

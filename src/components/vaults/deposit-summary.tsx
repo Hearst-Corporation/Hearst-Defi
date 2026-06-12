@@ -69,13 +69,11 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         <DataRow label="Lock-up">{vault.softLockupDays}d soft</DataRow>
 
         <DataRow label="Fees">
-          <span className="text-right">
-            {mgmtFee.toFixed(2)}% mgmt · {perfFee.toFixed(0)}% perf
-            {hurdleFee ? ` · ${hurdleFee.toFixed(1)}% hurdle` : ""}
-          </span>
+          {mgmtFee.toFixed(2)}% mgmt · {perfFee.toFixed(0)}% perf
+          {hurdleFee ? ` · ${hurdleFee.toFixed(1)}% hurdle` : ""}
         </DataRow>
 
-        <p className="body-xs ct-text-faint vault-disclaimer-inset leading-relaxed">
+        <p className="body-xs ct-text-faint vault-disclaimer-inset ct-leading-relaxed">
           Yield figures use the midpoint of the APY range — not a commitment of
           future returns. Methodology v1.0.
         </p>

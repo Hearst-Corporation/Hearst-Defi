@@ -89,7 +89,7 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
           </Card>
 
           {/* Quiet disclaimer — secondary support, not a card */}
-          <p className="body-xs ct-text-faint leading-relaxed">
+          <p className="body-xs ct-text-faint ct-leading-relaxed">
             {vault.disclaimers} APY ranges are target projections — not guaranteed.
           </p>
         </div>
