@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { deleteProof } from "@/app/admin/proofs/actions";
 import { OFF_CHAIN_PROOFS_EMPTY } from "@/components/proof/empty-messages";
+import { PublishOnChainButton } from "@/components/admin/publish-on-chain-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { abbreviateAddress } from "@/lib/onchain";
@@ -113,14 +114,19 @@ function AdminProofRow({ item }: { item: ProofItem }) {
           ) : null}
         </div>
 
-        <Button
-          variant="danger"
-          size="sm"
-          onClick={onDelete}
-          disabled={isPending}
-        >
-          {isPending ? "Deleting…" : "Delete"}
-        </Button>
+        <div className="flex items-center gap-2">
+          {item.proofType === "mining_attestation" && !item.txHash ? (
+            <PublishOnChainButton proofId={item.id} />
+          ) : null}
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={onDelete}
+            disabled={isPending}
+          >
+            {isPending ? "Deleting…" : "Delete"}
+          </Button>
+        </div>
       </div>
     </Card>
   );

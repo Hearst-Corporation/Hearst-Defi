@@ -8,6 +8,9 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { assertRateLimit } from "@/lib/rate-limit";
+import { publishSignedAttestation } from "@/lib/attestation/publish";
+import { parseAttestationPayload } from "@/lib/attestation/stored";
+import { recordAdminAudit } from "@/lib/admin/audit";
 
 /** Admin proof actions rate limit: 20 requests / 60s / admin. */
 const PROOF_RATE_MAX = 20;
@@ -127,6 +130,112 @@ export async function ingestProof(
   } catch (err) {
     logger.error("ingestProof failed", { proofType }, err);
     throw err;
+  }
+}
+
+export type PublishOnChainResult =
+  | { ok: true; armed: boolean; txHash: string | null }
+  | { ok: false; error: string };
+
+/**
+ * Admin-gated Server Action: publish a stored mining-attestation Proof to the
+ * on-chain PoRRegistry.
+ *
+ * The on-chain figures come exclusively from the proof's signed payloadJson —
+ * nothing is fabricated. Gated/disarmed-safe: returns { ok:true, armed:false }
+ * when the publisher key or PoRRegistry address is unset (no DB mutation).
+ */
+export async function publishProofOnChain(
+  proofId: string,
+): Promise<PublishOnChainResult> {
+  const admin = await requireAdmin();
+
+  try {
+    await assertRateLimit(
+      `admin:proofs:${admin.userId}`,
+      PROOF_RATE_MAX,
+      PROOF_RATE_WINDOW_MS,
+    );
+  } catch {
+    return { ok: false, error: "Too many requests" };
+  }
+
+  const proof = await prisma.proof.findUnique({ where: { id: proofId } });
+  if (proof === null) {
+    return { ok: false, error: "Proof not found." };
+  }
+
+  if (
+    proof.proofType !== "mining_attestation" ||
+    !proof.payloadJson ||
+    !proof.signature ||
+    !/^0x[0-9a-fA-F]{64}$/.test(proof.hash)
+  ) {
+    return {
+      ok: false,
+      error: "Only signed mining attestations can be published on-chain.",
+    };
+  }
+
+  if (proof.txHash) {
+    return {
+      ok: false,
+      error: "This attestation is already anchored on-chain.",
+    };
+  }
+
+  const payload = parseAttestationPayload(proof.payloadJson);
+  if (payload === null) {
+    return { ok: false, error: "Attestation payload is malformed." };
+  }
+
+  // Both `proof.hash` and `proof.signature` have been validated above:
+  //   • hash: regex /^0x[0-9a-fA-F]{64}$/ guarantees the template-literal shape.
+  //   • signature: presence checked (non-null) and the column is typed as `String?`
+  //     in Prisma — the DB never stores a non-string there.
+  // Widening via `as` is safe here; `as unknown as` is deliberately avoided.
+  const signed = {
+    payload,
+    digest: proof.hash as `0x${string}`,
+    signature: proof.signature as `0x${string}`,
+    signedAt: proof.postedAt.toISOString(),
+  };
+
+  try {
+    const txHash = await publishSignedAttestation(signed);
+
+    if (txHash === null) {
+      // Publisher disarmed — nothing written, be honest about it.
+      logger.info("publishProofOnChain: publisher disarmed (no-op)", { proofId });
+      return { ok: true, armed: false, txHash: null };
+    }
+
+    await prisma.proof.update({ where: { id: proofId }, data: { txHash } });
+
+    await recordAdminAudit({
+      actorWallet: admin.walletAddress ?? admin.userId,
+      action: "proof.publishOnChain",
+      entityType: "Proof",
+      entityId: proofId,
+      after: { txHash, period: payload.period },
+    });
+
+    revalidatePath("/admin/proofs");
+    revalidatePath("/admin/proof-center");
+
+    logger.info("publishProofOnChain: attestation anchored on-chain", {
+      proofId,
+      txHash,
+      period: payload.period,
+    });
+
+    return { ok: true, armed: true, txHash };
+  } catch (err) {
+    logger.error("publishProofOnChain failed", { proofId }, err);
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Unexpected error during on-chain publish.",
+    };
   }
 }
 
