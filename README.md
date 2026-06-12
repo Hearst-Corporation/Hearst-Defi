@@ -110,6 +110,12 @@ provenance sur le bloc parent) · `NestedPanel` + `ProofRow` (preuves / evidence
 · `.ct-nested-callout` (alertes status dans un widget). Définis dans
 `cockpit.css` ; composants dans `src/components/ui/nested-panel.tsx`.
 
+**Surfaces module (dark graphite)** — `.glass-panel` / `.ct-glass-panel` (Card
+primitive, admin + investor), `.glass-panel-subtle`, `.pf-empty-*`, nested
+panels : recette `--ct-graphite-*` dans `cockpit.css` (bg-deep smoked glass,
+pas de translucidité blanche qui laisse passer le vert cockpit). Chips/badges
+gardent `--ct-surface-1` littéral.
+
 **Canon typo/layout** (cohérence pages) :
 - H1 page : `.h1` via `ProductPageHeader` / `AdminPageHeader` (gap-4, description `body-md max-w-xl`).
 - H2 section : `.h2` · titre carte : `.h3` / `CardTitle` · label widget bento : `.dash-label` (`--ct-text-micro`).

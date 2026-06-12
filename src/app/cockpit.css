@@ -41,6 +41,27 @@
   --ct-surface-2: rgba(255, 255, 255, 0.10);
   --ct-surface-3: rgba(255, 255, 255, 0.14);
 
+  /* Dark graphite module surfaces — active card / nested / empty tiers.
+     Chips & badges keep --ct-surface-* literals; large panels use these. */
+  --ct-graphite-active-bg: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-bg-deep) 62%, transparent) 0%,
+    color-mix(in srgb, var(--ct-bg-deep) 74%, transparent) 100%
+  );
+  --ct-graphite-subtle-bg: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-bg-deep) 50%, transparent) 0%,
+    color-mix(in srgb, var(--ct-bg-deep) 60%, transparent) 100%
+  );
+  --ct-graphite-nested-bg: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-bg-deep) 38%, transparent) 0%,
+    color-mix(in srgb, var(--ct-bg-deep) 48%, transparent) 100%
+  );
+  --ct-graphite-border: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-border-soft));
+  --ct-graphite-border-nested: color-mix(in srgb, var(--ct-text-strong) 4%, var(--ct-border-soft));
+  --ct-graphite-blur: blur(12px) saturate(100%);
+
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
      Success = canonical accent green (#A7FB90) — single green across UI. */
   --ct-product-connect: var(--ct-accent);
@@ -270,10 +291,12 @@
 }
 
 .ct-nested-panel {
-  background: var(--ct-surface-0);
-  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-graphite-nested-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
   padding: var(--ct-space-1) var(--ct-space-4);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
 }
 
 .ct-proof-row {
@@ -300,10 +323,12 @@
 }
 
 .ct-nested-callout {
-  background: var(--ct-surface-0);
-  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-graphite-nested-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
   padding: var(--ct-space-3) var(--ct-space-4);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
 }
 
 /* Responsive KPI grids inside parent cards (2 → 3 → 4 cols). */
@@ -1529,33 +1554,50 @@
    Permet aux ~30 composants métier d'afficher le look Cockpit
    sans modifier leurs className. */
 
-/* glass-panel → ct-card visuel */
+/* glass-panel → active module surface (Card primitive, scenario lab, admin).
+   Dark graphite smoked glass — not milky white translucency (green bg bleed). */
 .glass-panel {
-  background: var(--ct-surface-1);
-  backdrop-filter: blur(40px) saturate(100%);
-  -webkit-backdrop-filter: blur(40px) saturate(100%);
-  border: 1px solid var(--ct-border);
-  box-shadow: var(--ct-shadow-depth);
+  background: var(--ct-graphite-active-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  border: 1px solid var(--ct-graphite-border);
+  box-shadow:
+    0 8px 24px -16px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
+    var(--ct-shadow-depth);
   border-radius: var(--ct-radius-lg);
   transition:
     background var(--ct-dur-base) var(--ct-ease),
     border-color var(--ct-dur-base) var(--ct-ease);
 }
 
-/* Hover discret : on garde la MÊME surface (pas d'éclaircissement marqué du
-   fond — trop fort par-dessus l'image) et on ne renforce que légèrement la
-   bordure (cran calme entre border 0.10 et strong 0.16). Indice de survol
-   institutionnel, pas un flash. */
 .glass-panel:hover {
-  border-color: rgba(255, 255, 255, 0.13);
+  border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-border-soft));
 }
 
 .glass-panel-subtle {
-  background: var(--ct-surface-0);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
+}
+
+/* Card hover wash disabled — keeps graphite calm over cockpit bg */
+.ct-card .ct-overlay-surface0 {
+  display: none;
+}
+
+/* Standalone panel shells using ct-surface-1 + rounded-* (not chips/kbd) */
+div.ct-surface-1.rounded-md,
+div.ct-surface-1.rounded-lg,
+div.ct-surface-1.rounded-xl,
+article.ct-surface-1.rounded-md,
+li.ct-surface-1.rounded-md,
+pre.ct-surface-1.rounded-md {
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  border-color: var(--ct-graphite-border-nested);
 }
 
 /* ── CANONICAL PREMIUM GLASS (quiet) ──
@@ -1577,22 +1619,18 @@
    would otherwise reclaim the background on hover. */
 .ct-glass-panel {
   border-radius: var(--ct-glass-radius);
-  border: 1px solid var(--ct-glass-border);
-  background:
-    linear-gradient(color-mix(in srgb, #fff 3%, transparent), color-mix(in srgb, #fff 3%, transparent)),
-    var(--ct-surface-2);
-  box-shadow: var(--ct-glass-rim), var(--ct-glass-drop);
-  -webkit-backdrop-filter: var(--ct-glass-blur);
-  backdrop-filter: var(--ct-glass-blur);
+  border: 1px solid var(--ct-graphite-border);
+  background: var(--ct-graphite-active-bg);
+  box-shadow:
+    0 8px 24px -16px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
+    var(--ct-glass-rim),
+    var(--ct-glass-drop);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  backdrop-filter: var(--ct-graphite-blur);
 }
 
-/* Keep the same calm background on hover (no flicker); brighten the edge only,
-   so there is still a quiet, institutional hover cue. */
 .ct-glass-panel:hover {
-  background:
-    linear-gradient(color-mix(in srgb, #fff 3%, transparent), color-mix(in srgb, #fff 3%, transparent)),
-    var(--ct-surface-2);
-  border-color: rgba(255, 255, 255, 0.13);
+  border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-border-soft));
 }
 
 /* .h1 → ct-title style */
@@ -2804,12 +2842,16 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 
 /* ── DS §9 — empty / awaiting module surfaces (global) ───────────────────────
    Portfolio keeps section-specific min-heights in portfolio.css. These classes
-   must NOT wrap dash-cell-premium / ct-card shells — they replace them. */
+   must NOT wrap dash-cell-premium / ct-card shells — they replace them.
+   Material: dark graphite smoked glass — lighter than an active card (68–80%
+   bg-deep) but never milky (no white/text-strong tint). */
 .pf-empty-widget {
-  background: color-mix(in srgb, var(--ct-text-strong) 2%, transparent);
-  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
   min-height: 8rem;
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
 }
 
 .pf-empty-chart {
@@ -2819,9 +2861,11 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   justify-content: center;
   text-align: center;
   padding-inline: var(--ct-space-4);
-  background: color-mix(in srgb, var(--ct-text-strong) 1.5%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 60%, transparent);
+  background: var(--ct-graphite-nested-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
+  backdrop-filter: blur(8px) saturate(100%);
+  -webkit-backdrop-filter: blur(8px) saturate(100%);
 }
 
 .pf-empty-chart--round {

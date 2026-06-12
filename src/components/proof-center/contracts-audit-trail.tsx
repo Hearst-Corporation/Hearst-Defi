@@ -104,7 +104,7 @@ export function ContractsAuditTrail() {
           {DEPLOYED_CONTRACTS.map((contract) => (
             <article
               key={contract.address}
-              className="rounded-md ct-border-soft ct-surface-1 p-5"
+              className="ct-nested-panel p-5"
             >
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <h4 className="h4">{contract.name}</h4>
@@ -194,7 +194,7 @@ export function ContractsAuditTrail() {
           {AUDIT_ENTRIES.map((entry) => (
             <li
               key={entry.label}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-md ct-border-soft ct-surface-1 px-4 py-3"
+              className="ct-nested-callout flex flex-wrap items-center justify-between gap-3"
             >
               <div className="flex flex-col gap-0.5">
                 <span className="body-sm font-medium ct-text-primary">

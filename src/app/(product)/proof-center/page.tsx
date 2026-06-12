@@ -8,7 +8,6 @@ import { TriangleAlert } from "lucide-react";
 
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ProofFilter } from "@/components/proof/proof-filter";
 import { parseFilter } from "@/components/proof/proof-filter-types";
 import { ProofGrid } from "@/components/proof/proof-grid";
@@ -162,18 +161,15 @@ export default async function ProductProofCenterPage({
           <ProofFilter />
         </div>
         {proofs.length === 0 ? (
-          <div className="flex flex-col items-center gap-4 rounded-lg ct-border-soft ct-surface-1 py-16 text-center">
-            <ProvenanceBadge kind="stale" />
-            <div className="space-y-1">
-              <p className="body-sm font-medium ct-text-strong">
-                No proofs published yet
-              </p>
-              <p className="body-xs max-w-md">
-                Off-chain attestations, custody snapshots, and audits will
-                appear here once posted. On-chain entries are read live from
-                Base Sepolia.
-              </p>
-            </div>
+          <div
+            role="status"
+            className="pf-empty-widget flex flex-col items-center justify-center gap-1 px-5 py-16 text-center"
+          >
+            <p className="body-sm ct-text-muted">No proofs published yet</p>
+            <p className="body-xs ct-text-faint max-w-md">
+              Off-chain attestations, custody snapshots, and audits will appear
+              here once posted. On-chain entries are read live from Base Sepolia.
+            </p>
           </div>
         ) : (
           <ProofGrid proofs={proofs} filter={filter} />
