@@ -40,6 +40,9 @@ export async function investorMemoMonthlyHandler({
     return { skipped: true, reason: "already_run_today" };
   }
 
+  // `loadMemoInput` now returns per-section provenance (CLAUDE.md #2) on the
+  // result; it satisfies `InvestorMemoInput` (where `provenance` is optional)
+  // and is forwarded whole so the memo qualifies every cited number.
   const input: InvestorMemoInput = await step.run("load-memo-input", () =>
     loadMemoInput(),
   );

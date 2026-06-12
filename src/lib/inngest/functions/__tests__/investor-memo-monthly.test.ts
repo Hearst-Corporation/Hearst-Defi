@@ -13,6 +13,15 @@ const loaderFake: InvestorMemoInput = {
   scenarios: [],
   backtests: [],
   generatedAt: "2026-01-01T00:00:00.000Z",
+  // Loader resolves per-section provenance (CLAUDE.md #2); the handler must
+  // forward it whole to the agent.
+  provenance: {
+    vault: "attested",
+    mining: "attested",
+    coverage: "pending",
+    scenarios: "attested",
+    backtests: "attested",
+  },
 };
 
 const loadMemoInputMock = vi.fn(async () => loaderFake);
@@ -122,6 +131,9 @@ describe("investorMemoMonthly Inngest function", () => {
     expect(loadMemoInputMock).toHaveBeenCalledTimes(1);
     expect(runInvestorMemoMock).toHaveBeenCalledTimes(1);
     expect(runInvestorMemoMock).toHaveBeenCalledWith(loaderFake);
+    // Provenance (CLAUDE.md #2) must survive the handler boundary intact.
+    const forwarded = runInvestorMemoMock.mock.calls[0]?.[0] as InvestorMemoInput;
+    expect(forwarded.provenance).toEqual(loaderFake.provenance);
     if ("skipped" in out) {
       throw new Error("Expected memo output, got skipped");
     }

@@ -2,7 +2,10 @@ import "server-only";
 
 import {
   MiningHealthOutputSchema,
+  PROVENANCE_SYSTEM_RULE,
+  renderProvenanceLine,
   type MiningHealthOutput,
+  type ProvenanceTag,
 } from "@/lib/agents/schemas";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/kimi";
@@ -43,7 +46,37 @@ export interface MiningHealthInput {
   uptime_pct: number;
   /** Period covered by the metrics, in days. */
   period_days: number;
+  /**
+   * Per-metric provenance (CLAUDE.md non-negotiable #2). Optional for
+   * back-compat: when absent the agent defaults every metric to `attested`
+   * (the DB rows are seeded as measured/attested). The loader populates it
+   * from `is_fallback` / `hashprice.stale` so a fallback snapshot is rendered
+   * as `estimated`/`stale` and flagged in-line by the agent, never presented
+   * as attested fact (B3).
+   */
+  provenance?: MiningHealthProvenance;
 }
+
+/** Provenance descriptor for each numeric metric the agent narrates. */
+export interface MiningHealthProvenance {
+  hashprice_usd_per_th: ProvenanceTag;
+  difficulty_change_pct: ProvenanceTag;
+  margin_pct: ProvenanceTag;
+  uptime_pct: ProvenanceTag;
+}
+
+/**
+ * Default provenance when the caller does not thread one. Seeded DB rows are
+ * measured/attested operational metrics, so `attested` is the honest default;
+ * the loader overrides this whenever the snapshot is a fallback or the live
+ * hashprice is stale.
+ */
+const DEFAULT_MINING_PROVENANCE: MiningHealthProvenance = {
+  hashprice_usd_per_th: "attested",
+  difficulty_change_pct: "attested",
+  margin_pct: "attested",
+  uptime_pct: "attested",
+};
 
 export interface RunMiningHealthOptions {
   client?: LlmClientLike;
@@ -71,6 +104,7 @@ Rules:
   - red:   margin_pct < 5 OR uptime_pct < 95 OR difficulty_change_pct > 10
   - amber: margin_pct < 15 OR uptime_pct < 97 OR difficulty_change_pct > 5
   - green: otherwise
+- ${PROVENANCE_SYSTEM_RULE}
 - Tone: operational, factual, concise. No marketing. No emojis.
 - Methodology version: ${version}.
 
@@ -83,11 +117,23 @@ ${getMethodologyMd(version)}`;
 }
 
 function buildUserPrompt(input: MiningHealthInput): string {
+  const prov = input.provenance ?? DEFAULT_MINING_PROVENANCE;
+  // The metrics JSON is rendered WITHOUT the provenance descriptor so the model
+  // reads the qualifiers from the explicit, labelled block below (and so the
+  // legacy `JSON.stringify(input)` shape is unchanged for back-compat readers).
+  const { provenance: _omit, ...metricsOnly } = input;
+  void _omit;
   return [
     "Produce a Mining Health assessment for the following metrics snapshot.",
     "",
     "metrics (JSON):",
-    JSON.stringify(input, null, 2),
+    JSON.stringify(metricsOnly, null, 2),
+    "",
+    "Provenance of each metric (qualify every cited number; flag Estimated/Stale/fallback in-line):",
+    renderProvenanceLine("hashprice_usd_per_th", prov.hashprice_usd_per_th),
+    renderProvenanceLine("difficulty_change_pct", prov.difficulty_change_pct),
+    renderProvenanceLine("margin_pct", prov.margin_pct),
+    renderProvenanceLine("uptime_pct", prov.uptime_pct),
     "",
     "Return ONLY a JSON object with this exact shape (no extra keys, no markdown fences):",
     JSON.stringify(

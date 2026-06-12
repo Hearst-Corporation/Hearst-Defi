@@ -3,6 +3,11 @@ import "server-only";
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
+import type { InvestorMemoProvenance } from "@/lib/agents/investor-memo";
+import type { ProvenanceTag } from "@/lib/agents/schemas";
+import { evaluateFreshness, STALE_THRESHOLDS } from "@/lib/data/freshness";
+import { loadCoverageForVault } from "@/lib/agents/loaders/coverage";
+import type { CoverageViewProvenance } from "@/lib/engine/coverage-view";
 import type {
   Allocation,
   AllocationBucket,
@@ -37,6 +42,30 @@ export interface MemoLoadResult {
   scenarios: ScenarioOutput[];
   backtests: BacktestOutput[];
   generatedAt: string;
+  /**
+   * Per-section provenance (CLAUDE.md non-negotiable #2) threaded to the memo
+   * agent so every cited number is qualified. Resolved from the live signals
+   * the loaders already compute: vault-snapshot freshness, coverage view.
+   */
+  provenance: InvestorMemoProvenance;
+}
+
+/**
+ * Maps the coverage view's provenance vocabulary onto the agent's
+ * `ProvenanceTag`. `invalid` (a value that failed the engine guard) collapses
+ * to `pending` because no trustworthy number exists for the agent to cite.
+ */
+function coverageProvenanceToTag(p: CoverageViewProvenance): ProvenanceTag {
+  switch (p) {
+    case "live":
+      return "live";
+    case "estimated":
+      return "estimated";
+    case "pending":
+      return "pending";
+    case "invalid":
+      return "pending";
+  }
 }
 
 function resolveVaultDefinition(vaultId: string | undefined) {
@@ -69,8 +98,9 @@ export async function loadMemoInput(
   vaultId?: string,
 ): Promise<MemoLoadResult> {
   const def = resolveVaultDefinition(vaultId);
+  const period = currentPeriod();
 
-  const [snapshot, scenarioRows, backtestRows] = await Promise.all([
+  const [snapshot, scenarioRows, backtestRows, coverage] = await Promise.all([
     prisma.vaultSnapshot.findFirst({ orderBy: { takenAt: "desc" } }),
     prisma.scenarioRun.findMany({
       orderBy: { ranAt: "desc" },
@@ -80,6 +110,10 @@ export async function loadMemoInput(
       orderBy: { ranAt: "desc" },
       take: BACKTEST_LIMIT,
     }),
+    // Coverage view carries its own live/estimated/pending/invalid provenance
+    // (never fabricates a number). We read it ONLY to qualify the coverage
+    // section of the memo — non-negotiable #2.
+    loadCoverageForVault(def.id, period),
   ]);
 
   if (!snapshot || backtestRows.length === 0) {
@@ -104,12 +138,40 @@ export async function loadMemoInput(
   const scenarios = scenarioRows.map(parseScenarioOutput);
   const backtests = backtestRows.map((r) => parseBacktestOutput(toBacktestRunRow(r)));
 
+  // Provenance (CLAUDE.md #2):
+  //   - vault / mining numbers come from the latest VaultSnapshot — attested
+  //     while the snapshot is within its freshness SLO, else stale.
+  //   - coverage carries its own resolved provenance (live/estimated/pending).
+  //   - scenarios + backtests are engine artifacts persisted on a prior tick:
+  //     reproducible, deterministic outputs → attested.
+  const snapshotTag: ProvenanceTag =
+    evaluateFreshness(snapshot.takenAt, STALE_THRESHOLDS.portfolio_snapshot) ===
+    "stale"
+      ? "stale"
+      : "attested";
+  const provenance: InvestorMemoProvenance = {
+    vault: snapshotTag,
+    mining: snapshotTag,
+    coverage: coverageProvenanceToTag(coverage.provenance),
+    scenarios: "attested",
+    backtests: "attested",
+  };
+
   return {
     vault,
     scenarios,
     backtests,
     generatedAt: new Date().toISOString(),
+    provenance,
   };
+}
+
+/** Current calendar period "YYYY-MM" used to scope the coverage lookup. */
+function currentPeriod(): string {
+  const now = new Date();
+  const y = now.getUTCFullYear();
+  const m = String(now.getUTCMonth() + 1).padStart(2, "0");
+  return `${y}-${m}`;
 }
 
 // ---------------------------------------------------------------------------

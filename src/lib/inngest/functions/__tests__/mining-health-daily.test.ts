@@ -12,6 +12,14 @@ const loaderFake: MiningHealthInput = {
   margin_pct: 17.5,
   uptime_pct: 98.4,
   period_days: 30,
+  // Loader resolves per-metric provenance (CLAUDE.md #2); the handler must
+  // forward it whole to the agent, not strip it at the boundary.
+  provenance: {
+    hashprice_usd_per_th: "attested",
+    difficulty_change_pct: "attested",
+    margin_pct: "attested",
+    uptime_pct: "attested",
+  },
 };
 
 const loadLatestMiningMetricsMock = vi.fn(async () => loaderFake);
@@ -151,6 +159,9 @@ describe("miningHealthDaily Inngest function", () => {
     expect(loadLatestMiningMetricsMock).toHaveBeenCalledTimes(1);
     expect(runMiningHealthMock).toHaveBeenCalledTimes(1);
     expect(runMiningHealthMock).toHaveBeenCalledWith(loaderFake);
+    // Provenance (CLAUDE.md #2) must survive the handler boundary intact.
+    const forwarded = runMiningHealthMock.mock.calls[0]?.[0] as MiningHealthInput;
+    expect(forwarded.provenance).toEqual(loaderFake.provenance);
     expect("alert_level" in out ? out.alert_level : null).toBe("green");
   });
 

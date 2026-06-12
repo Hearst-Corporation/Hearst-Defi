@@ -2,7 +2,11 @@ import "server-only";
 
 import {
   RiskExplanationOutputSchema,
+  PROVENANCE_SYSTEM_RULE,
+  provenanceLabel,
+  isDegradedProvenance,
   type RiskExplanationOutput,
+  type ProvenanceTag,
 } from "@/lib/agents/schemas";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/kimi";
@@ -46,6 +50,16 @@ export interface RiskExplanationInput {
    * Used by the agent to contextualise guardrail suggestions.
    */
   mode: string;
+  /**
+   * Provenance of the risk scores (CLAUDE.md non-negotiable #2). Optional for
+   * back-compat. `risk-daily.ts` maps the framework loader's
+   * `source: 'db' | 'partial' | 'fallback'` onto this so the agent qualifies
+   * the scores it explains: `attested` when every input came from real rows,
+   * `estimated` when some dimensions fell back to a proxy, `fallback` when the
+   * snapshot itself was missing and canned anchors were used. When absent the
+   * agent defaults to `attested`.
+   */
+  provenance?: ProvenanceTag;
 }
 
 export interface RunRiskExplanationOptions {
@@ -86,6 +100,7 @@ Rules:
 - Each \`explanation\` MUST reference at least one assumption (e.g. "Under the assumption that BTC price stays within the current range...").
 - Each \`suggested_guardrail\` proposes a mitigation (e.g. "Consider reducing mining allocation per Rule RISK-02"). It must cite a rationale or rule reference; it must NOT claim the vault will execute automatically.
 - The \`overall_summary\` must reference at least one assumption and provide an aggregate view of vault risk posture.
+- ${PROVENANCE_SYSTEM_RULE}
 - Tone: institutional, factual, concise. No marketing. No emojis.
 - Methodology version: ${version}.
 
@@ -98,11 +113,16 @@ ${getMethodologyMd(version)}`;
 }
 
 function buildUserPrompt(input: RiskExplanationInput): string {
+  const tag: ProvenanceTag = input.provenance ?? "attested";
+  const provLine = isDegradedProvenance(tag)
+    ? `Risk-score provenance: ${provenanceLabel(tag)} — these scores are NOT fully attested. Flag this in-line in both the explanations and the overall_summary; do not present the scores as settled fact.`
+    : `Risk-score provenance: ${provenanceLabel(tag)} — every score is sourced from measured rows.`;
   return [
     "Produce a Risk Explanation for the following vault risk snapshot.",
     "",
     `Global risk score: ${input.riskScore}`,
     `Current mode: ${input.mode}`,
+    provLine,
     "",
     "Component scores (JSON):",
     JSON.stringify(input.componentScores, null, 2),

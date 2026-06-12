@@ -2,7 +2,11 @@ import "server-only";
 
 import { inngest } from "@/lib/inngest/client";
 import { runRiskExplanation } from "@/lib/agents/risk-explanation";
-import { loadRiskFramework } from "@/lib/data/risk-framework";
+import type { ProvenanceTag } from "@/lib/agents/schemas";
+import {
+  loadRiskFramework,
+  type RiskFrameworkData,
+} from "@/lib/data/risk-framework";
 import { logger } from "@/lib/logger";
 import { isDuplicate, markComplete } from "@/lib/idempotency";
 
@@ -37,6 +41,27 @@ export const RISK_DAILY_CRON = "30 9 * * *" as const;
  * Matches the engine's default base scenario key.
  */
 const DEFAULT_MODE = "base" as const;
+
+/**
+ * Maps the risk framework loader's data-source verdict onto the agent's
+ * provenance vocabulary (CLAUDE.md non-negotiable #2). This signal was
+ * previously DROPPED before `runRiskExplanation`; threading it lets the agent
+ * qualify the scores it explains instead of presenting partial/fallback data
+ * as attested.
+ *   - db       → attested  (every input came from real rows)
+ *   - partial  → estimated (some dimensions fell back to a proxy)
+ *   - fallback → fallback  (snapshot missing; canned anchors used)
+ */
+function provenanceForSource(source: RiskFrameworkData["source"]): ProvenanceTag {
+  switch (source) {
+    case "db":
+      return "attested";
+    case "partial":
+      return "estimated";
+    case "fallback":
+      return "fallback";
+  }
+}
 
 /**
  * Minimal `step` surface the handler needs. Lets unit tests drive the
@@ -92,6 +117,9 @@ export async function riskDailyHandler({
         : Number(riskData.composite),
       componentScores,
       mode: DEFAULT_MODE,
+      // Thread the loader's data-source verdict so the agent qualifies the
+      // scores (attested / estimated / fallback) — non-negotiable #2.
+      provenance: provenanceForSource(riskData.source),
     }),
   );
 

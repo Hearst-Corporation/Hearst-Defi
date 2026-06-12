@@ -41,6 +41,9 @@ export async function miningHealthDailyHandler({
     return { skipped: true, reason: "already_run_today" };
   }
 
+  // `loadLatestMiningMetrics` now carries per-metric provenance (CLAUDE.md #2)
+  // on the returned object; we forward `metrics` whole so the agent qualifies
+  // every cited number (attested vs stale) rather than stripping the signal.
   const metrics = await step.run("load-metrics", () =>
     loadLatestMiningMetrics(),
   );

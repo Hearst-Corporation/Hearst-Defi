@@ -2,7 +2,10 @@ import "server-only";
 
 import {
   InvestorMemoOutputSchema,
+  PROVENANCE_SYSTEM_RULE,
+  renderProvenanceLine,
   type InvestorMemoOutput,
+  type ProvenanceTag,
 } from "@/lib/agents/schemas";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/kimi";
@@ -35,6 +38,27 @@ import { formatApyRange } from "@/lib/format/apy";
 /** Logical model id on `LlmRun` — mirrors `OPENAI_MODEL` env (ADR-011). */
 export const INVESTOR_MEMO_MODEL = LLM_MODEL;
 
+/**
+ * Per-section provenance for the memo (CLAUDE.md non-negotiable #2). Each tag
+ * qualifies the numbers in the corresponding section so the agent flags
+ * Estimated / Stale / Pending data in-line and never presents it as attested.
+ * Populated by `loadMemoInput` from the live signals the loaders already
+ * compute (vault snapshot freshness, coverage view provenance). Optional and
+ * back-compat: when absent the agent defaults every section to `attested`.
+ */
+export interface InvestorMemoProvenance {
+  /** Vault state numbers (AUM, APY range, risk score) — snapshot freshness. */
+  vault: ProvenanceTag;
+  /** Mining / cash-flow numbers (hashrate, margin, uptime). */
+  mining: ProvenanceTag;
+  /** Distribution-coverage ratio (CoverageView.provenance). */
+  coverage: ProvenanceTag;
+  /** Scenario projections (rule-based engine output rehydrated from DB). */
+  scenarios: ProvenanceTag;
+  /** Historical backtest results. */
+  backtests: ProvenanceTag;
+}
+
 export type InvestorMemoInput = {
   vault: {
     /** Vault id this memo run is bound to (ADR-006 #9). Optional for back-compat. */
@@ -51,6 +75,17 @@ export type InvestorMemoInput = {
   scenarios: ScenarioOutput[];
   backtests: BacktestOutput[];
   generatedAt: string;
+  /** Per-section provenance descriptor (non-negotiable #2). Optional for back-compat. */
+  provenance?: InvestorMemoProvenance;
+};
+
+/** Default provenance when the caller does not thread one. */
+const DEFAULT_MEMO_PROVENANCE: InvestorMemoProvenance = {
+  vault: "attested",
+  mining: "attested",
+  coverage: "attested",
+  scenarios: "attested",
+  backtests: "attested",
 };
 
 export interface RunInvestorMemoOptions {
@@ -99,6 +134,7 @@ Rules — apply all without exception:
 - PRODUCT THESIS (state it first, verbatim spirit): Hearst is an institutional RWA yield vault backed by Bitcoin mining cash flows. Principal is held in a USDC reserve; the monthly USDC distribution is funded by a mining-revenue-share. BTC is an economic factor (via hashprice) and a small capped satellite sleeve — NOT the primary exposure or the promise.
 - Model B — vault mechanics: Principal is held in a USDC cash reserve inside the vault, not deployed on-chain; yield is a mining-revenue-share distribution injected monthly.
 - NARRATIVE ORDER (mandatory): the memo must lead, in this order — (1) product thesis (RWA + mining cash-flow), (2) Model B mechanics, (3) mining cash-flow source, (4) distribution coverage = net mining cash flow ÷ target monthly distribution, (5) reserve / capital preservation, (6) risk factors, (7) BTC satellite exposure, (8) scenario outputs. Do NOT open with APY. Do NOT present BTC as the primary engine. Lead with cash-flow and coverage.
+- ${PROVENANCE_SYSTEM_RULE}
 - Methodology version: ${version}.
 
 The 8 sections and their purpose:
@@ -160,6 +196,7 @@ function buildUserPrompt(
 ): string {
   const scenarioBlocks = input.scenarios.map(buildScenarioBlock).join("\n\n");
   const backtestBlocks = input.backtests.map(buildBacktestBlock).join("\n\n");
+  const prov = input.provenance ?? DEFAULT_MEMO_PROVENANCE;
   const vaultName = input.vault.name ?? "Hearst Yield Vault";
   const vaultId = input.vault.id ?? "yield";
   const vaultAssumptions = input.vault.assumptions ?? [];
@@ -186,6 +223,13 @@ function buildUserPrompt(
     "",
     `Backtests (${input.backtests.length}):`,
     backtestBlocks || "  (none provided — state this explicitly in performance_section)",
+    "",
+    "Provenance per data domain (qualify every cited number; flag Estimated/Stale/Pending/Manual in-line, never as attested):",
+    renderProvenanceLine("vault state (AUM, APY range, risk score)", prov.vault),
+    renderProvenanceLine("mining / cash-flow (hashrate, margin, uptime)", prov.mining),
+    renderProvenanceLine("distribution coverage ratio", prov.coverage),
+    renderProvenanceLine("scenario projections", prov.scenarios),
+    renderProvenanceLine("backtest results", prov.backtests),
     "",
     `Generated at: ${input.generatedAt}`,
     "",

@@ -2,7 +2,10 @@ import "server-only";
 
 import {
   ScenarioNarrativeOutputSchema,
+  PROVENANCE_SYSTEM_RULE,
+  renderProvenanceLine,
   type ScenarioNarrativeOutput,
+  type ProvenanceTag,
 } from "@/lib/agents/schemas";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/kimi";
@@ -39,7 +42,33 @@ export interface ScenarioNarrativeInput {
   scenario_id: string;
   /** The pure-function engine output we want to narrate. */
   scenario_output: ScenarioOutput;
+  /**
+   * Provenance of the data behind the scenario (CLAUDE.md non-negotiable #2).
+   * Optional for back-compat. `projection` qualifies the engine output itself
+   * (a deterministic, reproducible artifact → typically `estimated` because a
+   * scenario is a conditional projection, not attested fact); `coverage`
+   * carries the distribution-coverage view's resolved provenance when the
+   * caller has it. When absent, the agent defaults the projection to
+   * `estimated` (a scenario is never attested) so it is always flagged.
+   */
+  provenance?: ScenarioNarrativeProvenance;
 }
+
+/** Provenance descriptor for the scenario narrative inputs. */
+export interface ScenarioNarrativeProvenance {
+  /** Provenance of the scenario projection (engine output). */
+  projection: ProvenanceTag;
+  /** Provenance of the distribution-coverage figure, when threaded. */
+  coverage?: ProvenanceTag;
+}
+
+/**
+ * Default provenance: a scenario is a conditional projection, never attested
+ * fact, so the headline tag is `estimated` and always flagged in-line.
+ */
+const DEFAULT_SCENARIO_PROVENANCE: ScenarioNarrativeProvenance = {
+  projection: "estimated",
+};
 
 export interface RunScenarioNarrativeOptions {
   /**
@@ -80,6 +109,7 @@ Rules:
 - If confidence is "low", the narrative MUST open with an explicit low-confidence note (e.g. "Note: this projection has low confidence because...").
 - APY is always a RANGE, never a single point. When you quote APY, use the provided range verbatim.
 - Tone: institutional, factual, concise. No marketing. No emojis.
+- ${PROVENANCE_SYSTEM_RULE}
 - Methodology version: ${version}. Reference it implicitly via the methodology you were given; do not invent metrics.
 - PTAI format is MANDATORY. You MUST return a \`ptai\` object with four short strings — \`projection\` (expected outcome / APY range / posture), \`trigger\` (the rule or condition that fires; cite the btc_tactical rule id when one is armed), \`action\` (what the vault does as a result), \`impact\` (numerical impact: APY delta, risk score shift, exposure change). Each PTAI string is a single sentence, ≤500 chars, never empty, must avoid the forbidden words above.
 
@@ -93,10 +123,20 @@ ${getMethodologyMd(version)}`;
 
 function buildUserPrompt(input: ScenarioNarrativeInput): string {
   const out = input.scenario_output;
+  const prov = input.provenance ?? DEFAULT_SCENARIO_PROVENANCE;
+  const provLines = [
+    renderProvenanceLine("scenario projection (apy_range / stressed_apy)", prov.projection),
+    ...(prov.coverage !== undefined
+      ? [renderProvenanceLine("distribution coverage ratio", prov.coverage)]
+      : []),
+  ];
   return [
     "Produce a Scenario Narrative for the following scenario run.",
     "",
     `scenario_id: ${input.scenario_id}`,
+    "",
+    "Provenance (qualify every cited number; a scenario is a conditional projection, flag it in-line):",
+    ...provLines,
     "",
     "scenario_output (engine, JSON):",
     JSON.stringify(out, null, 2),

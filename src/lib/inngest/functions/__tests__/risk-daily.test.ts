@@ -155,9 +155,12 @@ describe("riskDaily Inngest function", () => {
     const agentCalls = runRiskExplanationMock.mock.calls;
     expect(agentCalls.length).toBeGreaterThan(0);
     const agentCall = agentCalls[0] as unknown[];
-    const agentInput = agentCall[0] as { riskScore: number; componentScores: Record<string, number>; mode: string };
+    const agentInput = agentCall[0] as { riskScore: number; componentScores: Record<string, number>; mode: string; provenance?: string };
     expect(agentInput.riskScore).toBe(58);
     expect(agentInput.mode).toBe("base");
+    // Provenance (CLAUDE.md #2): the loader reported source="db" → the agent
+    // must receive `attested` so the scores are qualified, not stripped.
+    expect(agentInput.provenance).toBe("attested");
     // Canonical pass-through — historical `mining_ops` key must never appear.
     expect(agentInput.componentScores["mining"]).toBe(45);
     expect("mining_ops" in agentInput.componentScores).toBe(false);
@@ -186,6 +189,42 @@ describe("riskDaily Inngest function", () => {
     if ("status" in result) {
       expect(result.topRiskIds).toEqual(["market"]);
     }
+  });
+
+  // ---- Provenance threading (CLAUDE.md #2) --------------------------------
+
+  it("maps loader source 'partial' → agent provenance 'estimated'", async () => {
+    isDuplicateMock.mockResolvedValue(false);
+    loadRiskFrameworkMock.mockResolvedValueOnce({
+      ...riskFrameworkFake,
+      source: "partial",
+    });
+
+    const { riskDailyHandler } = await import(
+      "@/lib/inngest/functions/risk-daily"
+    );
+    await riskDailyHandler({ step: stepShim });
+
+    const agentCall = runRiskExplanationMock.mock.calls[0] as unknown[];
+    const agentInput = agentCall[0] as { provenance?: string };
+    expect(agentInput.provenance).toBe("estimated");
+  });
+
+  it("maps loader source 'fallback' → agent provenance 'fallback'", async () => {
+    isDuplicateMock.mockResolvedValue(false);
+    loadRiskFrameworkMock.mockResolvedValueOnce({
+      ...riskFrameworkFake,
+      source: "fallback",
+    });
+
+    const { riskDailyHandler } = await import(
+      "@/lib/inngest/functions/risk-daily"
+    );
+    await riskDailyHandler({ step: stepShim });
+
+    const agentCall = runRiskExplanationMock.mock.calls[0] as unknown[];
+    const agentInput = agentCall[0] as { provenance?: string };
+    expect(agentInput.provenance).toBe("fallback");
   });
 
   // ---- Case B: Replay / idempotency hit -----------------------------------

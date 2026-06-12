@@ -2,8 +2,13 @@ import "server-only";
 
 import { prisma } from "@/lib/db";
 import { METHODOLOGY_ANCHORS } from "@/lib/engine/methodology";
-import type { MiningHealthInput } from "@/lib/agents/mining-health";
+import type {
+  MiningHealthInput,
+  MiningHealthProvenance,
+} from "@/lib/agents/mining-health";
+import type { ProvenanceTag } from "@/lib/agents/schemas";
 import { fetchHashprice, type HashpriceData } from "@/lib/data/hashprice";
+import { evaluateFreshness, STALE_THRESHOLDS } from "@/lib/data/freshness";
 import { computeMiningRevenue } from "@/lib/engine/mining";
 
 /**
@@ -114,6 +119,22 @@ export async function loadLatestMiningMetrics(): Promise<MiningHealthInput> {
     throw new Error("MiningMetric.uptimePct is null — invalid seed data.");
   }
 
+  // Provenance (CLAUDE.md #2): the columns are measured/attested operational
+  // rows. They are `attested` while the snapshot is within its freshness SLO;
+  // a row older than the SLO is `stale` (no fabrication — the value is real,
+  // just aged). We resolve ONE freshness verdict for the row and apply it to
+  // every metric since they all come from the same `takenAt` snapshot.
+  const rowTag: ProvenanceTag =
+    evaluateFreshness(row.takenAt, STALE_THRESHOLDS.portfolio_snapshot) === "stale"
+      ? "stale"
+      : "attested";
+  const provenance: MiningHealthProvenance = {
+    hashprice_usd_per_th: rowTag,
+    difficulty_change_pct: rowTag,
+    margin_pct: rowTag,
+    uptime_pct: rowTag,
+  };
+
   // Decimal → number at the loader boundary (engine/agent shapes are `number`).
   return {
     hashprice_usd_per_th: row.hashprice.toNumber(),
@@ -121,6 +142,7 @@ export async function loadLatestMiningMetrics(): Promise<MiningHealthInput> {
     margin_pct: row.miningMarginScore,
     uptime_pct: row.uptimePct.toNumber(),
     period_days: 30,
+    provenance,
   };
 }
 
