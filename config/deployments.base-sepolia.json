@@ -19,30 +19,26 @@
       "sourceMatchesCommitted": false
     },
     "eventLogger": {
-      "address": "0xb07E045D082d202bAc7C1d4F83e1A63d00653D9E",
-      "deployBlock": 41418022,
-      "deployTx": "0x587e7723e57bdbd97774d7fe0da057dc47c94fc8633f05c7add0860c1461c2b8",
-      "commitSha": null,
-      "constructorArgs": [
-        "0x0000000000000000000000000000000000000000"
-      ],
+      "address": "0x6A5483F6D6a5d43A3CAFE36d3001dd23e24EbD38",
+      "deployBlock": 42743173,
+      "deployTx": "0x8a14cb95773c88f647b7befdbe302c4afaf853e9229599acf5c9717740d95dca",
+      "commitSha": "c10b96c",
+      "constructorArgs": ["0x1d1d87443f7B76f7C2248956240dE735Bce81707"],
       "hasGuardian": false,
       "minDepositUsdc": null,
-      "broadcastCommitted": false,
-      "sourceMatchesCommitted": false
+      "broadcastCommitted": true,
+      "sourceMatchesCommitted": true
     },
     "porRegistry": {
-      "address": "0x2B7229Ea0c94f12D984d9045ee12fB0D2Efcd28D",
-      "deployBlock": 41418022,
-      "deployTx": "0x5240a7dcbd65b1573e9e778ecf774dcc09e398bf6e67d33880f060c80a54e534",
-      "commitSha": null,
-      "constructorArgs": [
-        "0x0000000000000000000000000000000000000000"
-      ],
+      "address": "0xbB9e0350830670de45730706bE6710df665aA60D",
+      "deployBlock": 42743173,
+      "deployTx": "0xf87529307ca4fece5d7081132f94e853c5e1242559426c9436e5949b523b50d5",
+      "commitSha": "c10b96c",
+      "constructorArgs": ["0x1d1d87443f7B76f7C2248956240dE735Bce81707"],
       "hasGuardian": false,
       "minDepositUsdc": null,
-      "broadcastCommitted": false,
-      "sourceMatchesCommitted": false
+      "broadcastCommitted": true,
+      "sourceMatchesCommitted": true
     }
   }
 }

@@ -14,14 +14,14 @@ describe("deployments registry", () => {
     expect(vault.meta.reasons).toContain("min-deposit-below-250k");
   });
 
-  it("flags phase-2 addresses as unprovenanced", () => {
+  it("marks the redeployed phase-2 contracts as source-verified", () => {
     const eventLogger = getDeployment("eventLogger");
     const porRegistry = getDeployment("porRegistry");
 
-    expect(eventLogger.broadcastCommitted).toBe(false);
-    expect(eventLogger.meta.provenanceVerified).toBe(false);
-    expect(porRegistry.broadcastCommitted).toBe(false);
-    expect(porRegistry.meta.provenanceVerified).toBe(false);
+    expect(eventLogger.broadcastCommitted).toBe(true);
+    expect(eventLogger.meta.provenanceVerified).toBe(true);
+    expect(porRegistry.broadcastCommitted).toBe(true);
+    expect(porRegistry.meta.provenanceVerified).toBe(true);
   });
 
   it("registry vault entry matches the committed broadcast", () => {
