@@ -11,6 +11,7 @@ import { Analytics } from "@/components/analytics";
 import { PrivyProvider } from "@/components/auth/privy-provider";
 import { ClientToaster } from "@/components/ui/client-toaster";
 import { PRIVY_APP_ID } from "@/lib/auth/privy-config";
+import { FEATURE_FLAGS } from "@/lib/feature-flags";
 
 export const metadata: Metadata = {
   title: { default: "Hearst Connect", template: "%s | Hearst Connect" },
@@ -55,7 +56,7 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <AppChrome>
+        <AppChrome masterAgentEnabled={FEATURE_FLAGS.CHAT_MASTER_AGENT}>
           <PrivyProvider appId={PRIVY_APP_ID}>
             <main id="main-content">{children}</main>
             <ClientToaster />

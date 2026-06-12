@@ -41,7 +41,17 @@ function isNoChatRoute(pathname: string): boolean {
  * bare. The shell (rail + chat + bottom nav) is for authenticated product
  * surfaces; the auth screens opt out so nothing leaks before sign-in.
  */
-export function AppChrome({ children }: { children: ReactNode }) {
+export function AppChrome({
+  children,
+  // Resolved server-side from the CHAT_MASTER_AGENT flag (server-only env). When
+  // OFF, the navigation bridge must NOT mount: publishNav is never called, so
+  // polling /api/chat-nav every few seconds for 100% of authenticated users
+  // would be pure wasted load.
+  masterAgentEnabled = false,
+}: {
+  children: ReactNode;
+  masterAgentEnabled?: boolean;
+}) {
   const pathname = usePathname();
   const bare = isBareRoute(pathname);
 
@@ -64,8 +74,10 @@ export function AppChrome({ children }: { children: ReactNode }) {
           nothing for everyone else. Mounted here so it's available on every
           product page, not just /admin. */}
       <AdminChatControls />
-      {/* Master Agent auto-navigation bridge — only where the chat is enabled. */}
-      {chatEnabled ? <ChatNavBridge /> : null}
+      {/* Master Agent auto-navigation bridge — only when the chat is enabled
+          AND the Master Agent flag is ON. With the flag OFF the server never
+          publishes a nav directive, so mounting the poller would be dead load. */}
+      {chatEnabled && masterAgentEnabled ? <ChatNavBridge /> : null}
     </ConnectShell>
   );
 }
