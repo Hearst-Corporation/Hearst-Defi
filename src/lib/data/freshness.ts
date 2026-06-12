@@ -32,6 +32,13 @@ export const STALE_THRESHOLD_MS = 5 * 60 * 1000;
 export const STALE_THRESHOLDS = {
   /** BTC spot price (Coingecko). Moves second-by-second. */
   btc_price: STALE_THRESHOLD_MS,
+  /**
+   * Chainlink BTC/USD on-chain oracle. The aggregator only publishes a new
+   * round on ≥0.5% price deviation OR a ~1 h heartbeat — so a reading that
+   * is 5–55 min old is perfectly healthy. 75 min = 1 h heartbeat + 15 min
+   * margin before we genuinely consider the feed stale.
+   */
+  btc_price_oracle: 75 * 60 * 1000,
   /** Network hashprice (BTC × difficulty). Difficulty retargets ~weekly. */
   hashprice: 10 * 60 * 1000,
   /** Crypto Fear & Greed Index. Recomputed ~daily. */

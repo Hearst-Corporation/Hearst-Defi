@@ -174,7 +174,9 @@ export async function fetchBtcPrice(): Promise<BtcPriceData> {
     const gecko = await fetchCoinGecko();
     const usd_24h_change = gecko?.usd_24h_change ?? 0;
 
-    const stale = evaluateFreshness(oracle.updatedAt, STALE_THRESHOLD_MS) === "stale";
+    // Use the oracle-specific SLO (75 min): the Chainlink aggregator updates on
+    // ~0.5% deviation or ~1 h heartbeat, so the 5-min spot SLO is too tight here.
+    const stale = evaluateFreshness(oracle.updatedAt, STALE_THRESHOLDS.btc_price_oracle) === "stale";
     return {
       usd: oracle.usd,
       usd_24h_change,
