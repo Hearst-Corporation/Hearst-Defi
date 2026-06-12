@@ -24,7 +24,13 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 2. **Every metric has a provenance badge**: Live / Oracle / Attested / Estimated / Manual / Stale.
 3. **PTAI format mandatory** for simulations and rebalancing actions:
    Projection → Trigger → Action → Impact.
-4. **No AI chat.** Agents produce structured JSON outputs only (see `/docs/spec/09-agents.mdx`).
+4. **No AI chat *with write/execute tools*.** The 4 batch agents produce structured
+   JSON only (see `/docs/spec/09-agents.mdx`). A conversational cockpit chat **is**
+   shipped (admin review-mode + an LP "Master Agent") — it can navigate (read-only,
+   closed route whitelist) but has **no** write/financial/admin tools; every action
+   stays human-in-the-loop (**ADR-012**, scoped exception). Guardrails: server-side
+   system prompt (no client override), output-side compliance guard (forbidden
+   words + APY-range), role-aware register. Gated by `CHAT_MASTER_AGENT`.
 5. **Forbidden words in agent outputs**: "guarantee", "promise", "certain", "will deliver", "risk-free".
 6. **Scenario Engine is pure-function**: no DB, no fetch, no I/O in `src/lib/engine/*`.
 7. **Monte Carlo allowed (V2, see ADR-006)** *alongside* the rule-based engine —
