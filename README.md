@@ -128,7 +128,7 @@ gardent `--ct-surface-1` littéral.
 - Padding vertical page : `space-y-8` / `gap-8` (`--ct-space-8`).
 - **Exceptions documentées** : Portfolio → `PortfolioGreeting` (même `.h1`, greeting personnalisé) ;
   login marketing → titre visuel `.h1` sur `<p>` (H1 sémantique unique = « Sign in ») ;
-  `/admin/dashboard` → command board dense (hero strip bento + orbit CSS conic-gradient + barres NAV CSS ; cockpit 3 col + audit trail ; pills vault `?vault=`) ;
+  `/admin/dashboard` → command board dense (hero strip bento + orbit CSS conic-gradient + barres NAV CSS ; cockpit 3 col + audit trail ; pills vault `?vault=`) ; loaders partagent `timeline-snapshot.ts` (sources `daily-seed|live|oracle|attested` uniquement — pas de synthèse distribution ni KPI fantômes) ;
   `/admin/scenario-lab` → viewport-locked (`.scenario-lab-page--viewport`) : header/toolbar/presets fixes, workspace remplit la hauteur restante — inputs (sliders + Run) et output scrollent chacun dans leur colonne ; pills `FixtureVaultPills` + `?vault=` ;
   flux document `.product-doc` (`product-doc.css`) sur `/vaults/*`, `/onboarding/*`, `/proof-center`, `/profile`, `/portfolio/[positionId]`, `/legal/*` : H1/H2/H3 + `.stat-value` réduits ; KPI term sheet vault en `.h4` ; `/portfolio` (cockpit) et `/admin/*` inchangés.
 

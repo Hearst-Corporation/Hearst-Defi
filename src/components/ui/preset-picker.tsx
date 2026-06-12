@@ -105,8 +105,8 @@ export function PresetPicker<T extends string>({
 
   const sideAccent =
     side === "A"
-      ? "border-l-[var(--ct-border-strong)]"
-      : "border-l-[var(--ct-text-strong)]";
+      ? "border-l-(--ct-border-strong)"
+      : "border-l-(--ct-text-strong)";
 
   return (
     <div ref={rootRef} className="relative">

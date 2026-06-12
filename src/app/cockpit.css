@@ -790,6 +790,36 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   }
 }
 
+/* Backtest tab — three equal period cards (same button primitive as presets). */
+.backtest-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  width: 100%;
+  min-width: 0;
+}
+
+.backtest-period-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+
+@container lab-shell (min-width: 28rem) {
+  .backtest-period-rail .scenario-preset-bar__items {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+
+  .backtest-period-rail .scenario-preset-bar__button {
+    flex: unset;
+    width: 100%;
+    min-width: 0;
+  }
+}
+
 /* Projection Studio keeps its original single-line ellipsis (unchanged). */
 .projection-studio-preset-button__description {
   display: block;
@@ -1142,6 +1172,7 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 
 @media (max-width: 47.999rem) {
   .scenario-preset-bar,
+  .backtest-period-rail,
   .projection-studio-preset-rail {
     padding: var(--ct-space-4);
   }

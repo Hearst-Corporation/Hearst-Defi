@@ -45,71 +45,53 @@ export function BacktestTab() {
   const { state, pending, error, select } = useBacktest();
 
   return (
-    <div className="space-y-6">
-      {/* Period selector */}
-      <div className="flex flex-wrap gap-3">
-        {BACKTEST_PERIODS.map((p) => {
-          const isActive = state.selectedKey === p.key;
-          return (
-            <button
-              key={p.key}
-              type="button"
-              disabled={pending}
-              onClick={() => select(p.key)}
-              aria-pressed={isActive}
-              className={cn(
-                "flex flex-col items-start gap-0.5 rounded-full border px-4 py-3 text-left",
-                "transition-[background-color,color,border-color,box-shadow] duration-(--ct-dur-fast)",
-                "disabled:cursor-not-allowed disabled:opacity-40",
-                "focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
-                isActive
-                  ? [
-                      "border-(--ct-accent) bg-(--ct-accent) text-(--ct-bg-deep)",
-                      "shadow-(--ct-shadow-focus-ring)",
-                    ]
-                  : [
-                      "border-(--ct-border-strong) ct-surface-1",
-                      "ct-text-body",
-                      "hover:border-(--ct-border-strong) hover:ct-surface-3 hover:ct-text-primary",
-                    ],
-              )}
-            >
-              <span className="text-sm font-semibold leading-(--ct-leading-tight)">
-                {p.label}
-              </span>
-              <span
+    <div className="backtest-tab">
+      <nav
+        aria-label="Backtest periods"
+        className="scenario-preset-bar backtest-period-rail"
+      >
+        <div className="scenario-preset-bar__head">
+          <p className="eyebrow ct-text-muted">Historical periods</p>
+          <span className="body-xs ct-text-faint">Select a regime to simulate</span>
+        </div>
+        <div className="scenario-preset-bar__items">
+          {BACKTEST_PERIODS.map((p) => {
+            const isActive = state.selectedKey === p.key;
+            return (
+              <button
+                key={p.key}
+                type="button"
+                disabled={pending}
+                onClick={() => select(p.key)}
+                aria-pressed={isActive}
+                title={p.description}
                 className={cn(
-                  "text-xs leading-(--ct-leading-tight)",
-                  isActive
-                    ? "text-(--ct-bg-deep) opacity-70"
-                    : "ct-text-muted",
+                  "scenario-preset-bar__button",
+                  isActive && "scenario-preset-bar__button--active",
                 )}
               >
-                {p.subtitle}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+                <span className="scenario-preset-bar__label">{p.label}</span>
+                <span className="scenario-preset-bar__description">
+                  {p.subtitle}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
 
-      {/* Period description — shown when no results yet */}
-      {!state.output && !pending && state.selectedKey === null && (
-        <div className="space-y-3">
+      {/* Period descriptions — idle state before first selection */}
+      {!state.output && !pending && state.selectedKey === null ? (
+        <div className="backtest-period-details">
           {BACKTEST_PERIODS.map((p) => (
-            <div key={p.key} className="glass-panel-subtle px-5 py-4">
-              <p className="text-sm font-semibold ct-text-body">
-                {p.label}
-              </p>
-              <p className="mt-1 text-xs ct-text-muted">
-                {p.subtitle}
-              </p>
-              <p className="mt-2 text-sm ct-text-body">
-                {p.description}
-              </p>
+            <div key={p.key} className="glass-panel px-5 py-4">
+              <p className="scenario-preset-bar__label">{p.label}</p>
+              <p className="mt-1 body-xs ct-text-muted">{p.subtitle}</p>
+              <p className="mt-2 body-sm ct-text-body">{p.description}</p>
             </div>
           ))}
         </div>
-      )}
+      ) : null}
 
       {/* Error banner */}
       {error && (
@@ -119,19 +101,15 @@ export function BacktestTab() {
       )}
 
       {/* Loading state */}
-      {pending && (
+      {pending ? (
         <div
-          className={cn(
-            "flex min-h-64 flex-col items-center justify-center gap-3",
-            "glass-panel-subtle border-dashed",
-          )}
+          className="scenario-lab-output-empty glass-panel-subtle border-dashed"
+          aria-live="polite"
         >
-          <Spinner />
-          <p className="stat-label ct-text-body">
-            Computing backtest…
-          </p>
+          <Spinner className="ct-text-strong" />
+          <p className="stat-label">Computing backtest…</p>
         </div>
-      )}
+      ) : null}
 
       {/* Results */}
       {state.output && !pending && (

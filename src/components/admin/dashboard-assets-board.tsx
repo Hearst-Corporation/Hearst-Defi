@@ -73,8 +73,13 @@ export function DashboardAssetsBoard({
   const navLive = data.timeseries.source === "db" && navPoints.length >= 2;
   const navProvenance: Provenance = navLive ? "live" : "estimated";
 
-  const riskProvenance: Provenance =
-    risk.source === "db" ? "live" : risk.source === "partial" ? "partial" : "estimated";
+  const riskProvenance: Provenance = hasLiveKpis
+    ? risk.source === "db"
+      ? "live"
+      : risk.source === "partial"
+        ? "partial"
+        : "manual"
+    : "manual";
   const apyProvenance: Provenance = hasLiveKpis
     ? "live"
     : data.vaultMeta.livePreview

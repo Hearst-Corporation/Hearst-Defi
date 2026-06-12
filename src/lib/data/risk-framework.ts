@@ -195,13 +195,13 @@ export async function loadRiskFramework(): Promise<RiskFrameworkData> {
     fetchBtcPrice(),
   ]);
 
-  if (latestSnapshot === null && latestMining === null) {
+  if (latestSnapshot === null) {
     return {
       composite: 0,
       band: "low",
       bandLabel: "Awaiting data",
       dimensions: [],
-      source: "fallback",
+      source: latestMining === null ? "fallback" : "partial",
     };
   }
 
