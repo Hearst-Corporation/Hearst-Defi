@@ -238,7 +238,6 @@ export function RebalanceCard({
 
   function handleExecute() {
     setError(null);
-    // First click → stage confirmation; second click (confirmingAction === "execute") → execute
     if (confirmingAction !== "execute") {
       setConfirmingAction("execute");
       return;
@@ -406,31 +405,21 @@ export function RebalanceCard({
           </>
         )}
 
+        {/* "approved" status is transient — auto-execute fires immediately on threshold.
+            This branch handles signals that were approved before the oracle path landed. */}
         {event.status === "approved" && (
           <div className="flex gap-2">
             {confirmingAction === "execute" ? (
               <>
-                <Button
-                  variant="primary"
-                  onClick={handleExecute}
-                  disabled={isPending}
-                >
+                <Button variant="primary" onClick={handleExecute} disabled={isPending}>
                   {isPending ? "Executing…" : "Confirm execute"}
                 </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => setConfirmingAction(null)}
-                  disabled={isPending}
-                >
+                <Button variant="ghost" onClick={() => setConfirmingAction(null)} disabled={isPending}>
                   Cancel
                 </Button>
               </>
             ) : (
-              <Button
-                variant="primary"
-                onClick={handleExecute}
-                disabled={isPending}
-              >
+              <Button variant="primary" onClick={handleExecute} disabled={isPending}>
                 Execute (off-chain)
               </Button>
             )}
@@ -439,8 +428,8 @@ export function RebalanceCard({
 
         {event.status === "executed" && (
           <div className="space-y-1">
-            <p className="body-xs ct-text-muted">
-              Executed {formatDate(event.executedAt)}
+            <p className="body-xs ct-status-success">
+              Auto-executed on approval · {formatDate(event.executedAt)}
             </p>
             {event.txHash && (
               <p className="body-xs mono ct-text-muted">

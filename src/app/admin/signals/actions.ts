@@ -94,12 +94,18 @@ export async function approveRebalance(
     const thresholdReached = updatedSigners.length >= REQUIRED_SIGNERS;
 
     const before = { status: event.status, approvedBy: event.approvedBy };
+    const now = new Date();
+
+    // When threshold is reached, collapse approve + execute into one atomic step.
+    // The on-chain log fires immediately — no separate "Execute" click required.
+    const finalStatus = thresholdReached ? "executed" : "pending";
 
     const updated = await prisma.rebalanceEvent.update({
       where: { id: eventId },
       data: {
         approvedBy: JSON.stringify(updatedSigners),
-        status: thresholdReached ? "approved" : "pending",
+        status: finalStatus,
+        ...(thresholdReached ? { executedAt: now } : {}),
       },
     });
 
@@ -107,12 +113,22 @@ export async function approveRebalance(
 
     await recordAdminAudit({
       actorWallet: admin.walletAddress ?? admin.userId,
-      action: thresholdReached ? "rebalance.approved" : "rebalance.approve.partial",
+      action: thresholdReached ? "rebalance.auto_executed" : "rebalance.approve.partial",
       entityType: "RebalanceEvent",
       entityId: eventId,
       before,
       after,
     });
+
+    // On threshold: fire on-chain log immediately (oracle path).
+    // Silently skips when chain is not configured — never throws.
+    if (thresholdReached) {
+      void writeRebalanceEvent({
+        eventId,
+        ruleId: event.ruleId,
+        payloadCid: "",
+      }).catch(() => {});
+    }
 
     logger.info("[signals] approve", {
       eventId,
