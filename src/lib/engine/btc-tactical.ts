@@ -1,4 +1,4 @@
-import { findForbiddenWord } from "./forbidden-words";
+import { containsForbidden } from "@/lib/agents/forbidden-words";
 import { computeMiningRevenue } from "./mining";
 import type {
   BtcGuardrail,
@@ -172,9 +172,9 @@ function assertNoForbiddenWords(
     lines.push(g.label, g.detail);
   }
   for (const line of lines) {
-    const hit = findForbiddenWord(line);
+    const hit = containsForbidden(line);
     if (hit !== null) {
-      throw new Error(`forbidden word "${hit}" in btc tactical text: ${line}`);
+      throw new Error(`forbidden word "${hit.found[0]}" in btc tactical text: ${line}`);
     }
   }
 }

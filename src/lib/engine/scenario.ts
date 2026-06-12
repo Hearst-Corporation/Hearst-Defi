@@ -3,7 +3,7 @@ import {
   METHODOLOGY_VERSION,
 } from "./methodology";
 import { assessBtcTactical } from "./btc-tactical";
-import { findForbiddenWord } from "./forbidden-words";
+import { containsForbidden } from "@/lib/agents/forbidden-words";
 import { computeMiningRevenue } from "./mining";
 import { calcMaxDrawdown, calcSharpe, calcSortino, calcVaR } from "./ratios";
 import { decideMode, deriveAllocations } from "./rebalancing";
@@ -195,9 +195,9 @@ function buildAssumptions(
 
 function assertNoForbiddenWords(assumptions: string[]): void {
   for (const line of assumptions) {
-    const hit = findForbiddenWord(line);
+    const hit = containsForbidden(line);
     if (hit !== null) {
-      throw new Error(`forbidden word "${hit}" in assumption: ${line}`);
+      throw new Error(`forbidden word "${hit.found[0]}" in assumption: ${line}`);
     }
   }
 }

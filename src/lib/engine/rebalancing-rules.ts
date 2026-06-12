@@ -1,5 +1,5 @@
 import { assessBtcTactical } from "./btc-tactical";
-import { findForbiddenWord } from "./forbidden-words";
+import { containsForbidden } from "@/lib/agents/forbidden-words";
 import type { ScenarioInputs, VaultMode } from "./types";
 
 /**
@@ -138,14 +138,15 @@ export const BASE_MIX_BY_MODE: Record<VaultMode, AllocationMix> = {
 };
 
 // ---------------------------------------------------------------------------
-// Forbidden-words guard — delegates to ./forbidden-words (pure engine module).
+// Forbidden-words guard — delegates to the canonical pure matcher in
+// @/lib/agents/forbidden-words (single source of truth, no engine-local copy).
 // ---------------------------------------------------------------------------
 
 function assertNoForbiddenWords(text: string, label: string): void {
-  const hit = findForbiddenWord(text);
+  const hit = containsForbidden(text);
   if (hit !== null) {
     throw new Error(
-      `[rebalancing-rules] forbidden word "${hit}" in ${label}: ${text}`,
+      `[rebalancing-rules] forbidden word "${hit.found[0]}" in ${label}: ${text}`,
     );
   }
 }

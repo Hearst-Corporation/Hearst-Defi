@@ -1,5 +1,5 @@
 import { METHODOLOGY_VERSION } from "./methodology";
-import { findForbiddenWord } from "./forbidden-words";
+import { containsForbidden } from "@/lib/agents/forbidden-words";
 import { runScenario } from "./scenario";
 import type {
   BacktestKey,
@@ -148,9 +148,9 @@ function interpolateInputs(
 
 function assertNoForbiddenWords(assumptions: string[]): void {
   for (const line of assumptions) {
-    const hit = findForbiddenWord(line);
+    const hit = containsForbidden(line);
     if (hit !== null) {
-      throw new Error(`forbidden word "${hit}" in backtest assumption: ${line}`);
+      throw new Error(`forbidden word "${hit.found[0]}" in backtest assumption: ${line}`);
     }
   }
 }
