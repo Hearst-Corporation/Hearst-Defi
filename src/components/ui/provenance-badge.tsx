@@ -43,7 +43,13 @@ const variants: Record<
   stale: "default",
 };
 
-export function ProvenanceBadge({ kind }: { kind: Provenance }) {
+interface ProvenanceBadgeProps {
+  kind: Provenance;
+  /** Dot-only pill for dense admin KPI rows — full label stays in tooltip + aria-label. */
+  compact?: boolean;
+}
+
+export function ProvenanceBadge({ kind, compact = false }: ProvenanceBadgeProps) {
   // "stale" repeats on many cards (e.g. an investor with no positions yet) and
   // reads as alarming when stacked. Keep the information, but render it quietly
   // (reduced opacity) so it stops competing with the numbers. All other kinds
@@ -53,13 +59,22 @@ export function ProvenanceBadge({ kind }: { kind: Provenance }) {
     <Tooltip content={descriptions[kind]}>
       <Badge
         variant={variants[kind]}
-        className={muted ? "shrink-0 whitespace-nowrap opacity-60" : "shrink-0 whitespace-nowrap"}
+        aria-label={labels[kind]}
+        className={
+          compact
+            ? muted
+              ? "dashboard-provenance-badge--compact opacity-60"
+              : "dashboard-provenance-badge--compact"
+            : muted
+              ? "shrink-0 whitespace-nowrap opacity-60"
+              : "shrink-0 whitespace-nowrap"
+        }
       >
         <span
           aria-hidden
           className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-current"
         />
-        {labels[kind]}
+        <span className={compact ? "sr-only" : undefined}>{labels[kind]}</span>
       </Badge>
     </Tooltip>
   );

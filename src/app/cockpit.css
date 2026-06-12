@@ -1224,11 +1224,16 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 /* Admin dashboard command board — dense bento, CSS-only visuals (no SVG). */
 .dashboard-command-board {
   min-width: 0;
+  /* Reflow from board width — admin rails eat ~500px of viewport. */
+  container-type: inline-size;
+  container-name: dash-board;
 }
 
 /* Compact KPI strip — smaller than cockpit HeroStrip, spaced cells. */
 .dashboard-kpi-strip {
+  display: grid;
   gap: var(--ct-space-2);
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .dashboard-kpi-strip__cell {
@@ -1254,7 +1259,27 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   min-width: 0;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ct-space-1_5);
+  gap: var(--ct-space-1);
+}
+
+/* Dot-only provenance in dense admin surfaces — label in tooltip + aria-label. */
+.dashboard-provenance-badge--compact {
+  min-width: 0;
+  flex-shrink: 1;
+  padding: var(--ct-space-0_5) var(--ct-space-1_5);
+}
+
+.dashboard-card-header {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+}
+
+.dashboard-card-header--tight {
+  align-items: center;
 }
 
 .dashboard-kpi-strip__value {
@@ -1312,6 +1337,12 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   min-width: 0;
 }
 
+.dashboard-command-slot--nav {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
 .dashboard-command-slot--allocation {
   display: flex;
   justify-content: center;
@@ -1320,11 +1351,24 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 .dashboard-command-nav-empty,
 .dashboard-orbit-empty {
   width: 100%;
+  min-width: 0;
   min-height: 10rem;
+  box-sizing: border-box;
+}
+
+.dashboard-command-nav-empty {
+  flex: 1;
+  padding-block: var(--ct-space-3);
+}
+
+.dashboard-command-nav-empty span {
+  display: block;
+  max-width: 100%;
+  text-wrap: balance;
 }
 
 .dashboard-orbit-empty {
-  width: 10rem;
+  width: min(100%, 10rem);
   max-width: 100%;
   aspect-ratio: 1;
   justify-self: center;
@@ -1355,8 +1399,49 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   grid-template-columns: minmax(0, 1fr);
 }
 
+.dashboard-command-row-c {
+  display: grid;
+  gap: var(--ct-space-4);
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .dashboard-command-cell {
   min-width: 0;
+}
+
+/* Live metrics — reflow metric grid from card width, not viewport. */
+.dashboard-live-metrics {
+  container-type: inline-size;
+  container-name: live-metrics;
+  min-width: 0;
+}
+
+.dashboard-live-metrics__grid {
+  display: grid;
+  gap: var(--ct-space-1);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  min-width: 0;
+}
+
+.dashboard-live-metrics__grid > * {
+  min-width: 0;
+}
+
+@container live-metrics (max-width: 14rem) {
+  .dashboard-live-metrics__vault-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-live-metrics__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container live-metrics (max-width: 9rem) {
+  .dashboard-live-metrics__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .dashboard-command-queue-link {
@@ -1691,15 +1776,41 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   white-space: nowrap;
 }
 
-@media (min-width: 48rem) {
-  .dashboard-command-row-b {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 0.9fr);
+@container dash-board (min-width: 18rem) {
+  .dashboard-kpi-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 64rem) {
+@container dash-board (min-width: 26rem) {
+  .dashboard-kpi-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container dash-board (min-width: 42rem) {
+  .dashboard-kpi-strip {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@container dash-board (min-width: 36rem) {
+  .dashboard-command-row-b {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 0.9fr);
+  }
+
+  .dashboard-command-row-c {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Orbit | NAV | proof — needs ~40rem board or NAV collapses (~120px at 1024 viewport). */
+@container dash-board (min-width: 40rem) {
   .dashboard-command-row-a {
-    grid-template-columns: minmax(9rem, 0.24fr) minmax(0, 0.46fr) minmax(0, 0.3fr);
+    grid-template-columns:
+      minmax(7rem, 0.22fr)
+      minmax(11rem, 0.48fr)
+      minmax(8rem, 0.3fr);
     align-items: stretch;
   }
 
@@ -1709,6 +1820,16 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 
   .dashboard-orbit {
     justify-self: start;
+  }
+
+  .dashboard-command-nav-empty {
+    min-height: 100%;
+  }
+}
+
+@container dash-board (min-width: 52rem) {
+  .dashboard-command-row-c {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

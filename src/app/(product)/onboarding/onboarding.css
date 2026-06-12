@@ -1,65 +1,126 @@
-/* Onboarding funnel — Institutional Chamber (slice 1). Product-global ambient. */
+/* Onboarding funnel — Institutional Chamber. Product spatial bg, stable layout. */
 
 .onboarding-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   min-height: 100dvh;
   position: relative;
-  background: var(--ct-bg-deep);
-  overflow: auto;
+  isolation: isolate;
+  background: transparent;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-/* Product halo — DS §7 continuum (not login-split blur island) */
+/* Inside ConnectShell — spatial bg comes from .ct-panels-row */
+.ct-panels-row .onboarding-shell {
+  min-height: auto;
+}
+
+.ct-panels-row .onboarding-shell__ambient {
+  display: none;
+}
+
+/* Mirrors .ct-panels-row — bare route has no ConnectShell */
 .onboarding-shell__ambient {
   position: fixed;
   inset: 0;
-  z-index: var(--ct-z-base);
+  z-index: 0;
   pointer-events: none;
-  background: radial-gradient(
-    ellipse 80% 70% at 50% 45%,
-    color-mix(in srgb, var(--ct-accent-soft) 45%, transparent),
-    var(--ct-bg-deep) 72%
-  );
+  background-color: transparent;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E"),
+    radial-gradient(
+      135% 125% at 50% 44%,
+      transparent 26%,
+      color-mix(in srgb, var(--ct-bg-deep) 38%, transparent) 64%,
+      color-mix(in srgb, var(--ct-bg-deep) 70%, transparent) 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-bg-deep) 24%, transparent) 0%,
+      transparent 42%,
+      color-mix(in srgb, var(--ct-bg-deep) 30%, transparent) 100%
+    );
+  background-size: 140px 140px, cover, cover;
+  background-position: 0 0, center, center;
+  background-repeat: repeat, no-repeat, no-repeat;
+}
+
+.onboarding-shell__ambient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/backgrounds/hearst-vision-mirror.png");
+  background-size: cover;
+  background-position: center left;
+  background-repeat: no-repeat;
+  filter: brightness(0.95) blur(var(--ct-space-0_5));
+}
+
+.onboarding-shell__ambient::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      62% 44% at 40% 34%,
+      color-mix(in srgb, var(--ct-accent) 26%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 10%, transparent) 48%,
+      transparent 82%
+    ),
+    radial-gradient(
+      68% 50% at 32% 54%,
+      color-mix(in srgb, var(--ct-text-strong) 16%, transparent) 0%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-bg-deep) 8%, transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 22%, transparent) 100%
+    );
 }
 
 .onboarding-shell__frame {
   position: relative;
-  z-index: var(--ct-z-raised);
+  z-index: var(--ct-z-base);
   display: flex;
+  width: min(100%, 42rem);
   flex-direction: column;
   gap: var(--ct-space-8);
-  margin: 0 auto;
-  width: 100%;
-  max-width: 42rem;
-  padding: var(--ct-space-6) var(--ct-space-6) var(--ct-space-12);
+  margin-inline: auto;
+  padding: var(--ct-space-8)
+    max(var(--ct-space-4), env(safe-area-inset-right, 0px))
+    var(--ct-space-12)
+    max(var(--ct-space-4), env(safe-area-inset-left, 0px));
 }
 
 @media (min-width: 640px) {
   .onboarding-shell__frame {
-    padding: var(--ct-space-8) var(--ct-space-6) var(--ct-space-16);
+    gap: var(--ct-space-10);
+    padding: var(--ct-space-10) var(--ct-space-6) var(--ct-space-16);
   }
 }
 
 .onboarding-shell__header {
   display: flex;
+  align-items: center;
   justify-content: center;
+  width: 100%;
   margin: 0;
 }
 
 .onboarding-shell__logo {
-  width: 9rem;
+  width: min(10rem, 42vw);
   height: auto;
   display: block;
-}
-
-@media (min-width: 640px) {
-  .onboarding-shell__logo {
-    width: 10rem;
-  }
 }
 
 .onboarding-shell__stage {
   display: flex;
   width: 100%;
   flex-direction: column;
+  align-items: stretch;
   min-width: 0;
 }
 
@@ -75,19 +136,21 @@
   flex-direction: column;
   width: 100%;
   overflow: hidden;
-  border-radius: var(--ct-radius-xl);
 }
 
-.onboarding-chamber__halo {
-  position: absolute;
-  inset: -20% -10%;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse 60% 50% at 50% 20%,
-    color-mix(in srgb, var(--ct-accent-soft) 18%, transparent),
-    transparent 70%
-  );
+.onboarding-chamber.ct-glass-panel {
+  border-radius: var(--ct-radius-lg);
+}
+
+@media (min-width: 640px) {
+  .onboarding-chamber.ct-glass-panel {
+    border-radius: var(--ct-radius-xl);
+  }
+}
+
+/* Quiet stepper inside chamber — no glow halos on step dots */
+.onboarding-chamber nav[role="progressbar"] [aria-current="step"] {
+  box-shadow: none;
 }
 
 .onboarding-chamber__crown,
@@ -101,7 +164,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-6);
-  padding: var(--ct-space-8) var(--ct-space-6) var(--ct-space-6);
+  padding: var(--ct-space-6) var(--ct-space-5) var(--ct-space-5);
 }
 
 @media (min-width: 640px) {
@@ -114,7 +177,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-6);
-  padding: var(--ct-space-2) var(--ct-space-6) var(--ct-space-8);
+  padding: var(--ct-space-2) var(--ct-space-5) var(--ct-space-6);
   border-top: 1px solid var(--ct-border-soft);
 }
 
@@ -125,7 +188,7 @@
 }
 
 .onboarding-chamber__sole {
-  padding: var(--ct-space-6) var(--ct-space-6) var(--ct-space-8);
+  padding: var(--ct-space-5) var(--ct-space-5) var(--ct-space-6);
   border-top: 1px solid var(--ct-border-soft);
   background: var(--ct-surface-0);
 }
@@ -134,4 +197,9 @@
   .onboarding-chamber__sole {
     padding: var(--ct-space-6) var(--ct-space-8) var(--ct-space-8);
   }
+}
+
+/* Reserved slot — prevents layout jump when all boxes are checked */
+.onboarding-chamber__status {
+  min-height: var(--ct-space-5);
 }

@@ -28,6 +28,35 @@ export const FORBIDDEN_WORDS = [
 export type ForbiddenWord = (typeof FORBIDDEN_WORDS)[number];
 
 /**
+ * French-aware needle set for the LP-facing cockpit chat, whose output is in
+ * French. This is NOT a divergent re-implementation: it reuses the exact same
+ * negation-aware scanning engine (`scanForbidden`) — only the needle list and
+ * the negation vocabulary differ.
+ *
+ * Curation rationale:
+ * - "garanti" (inflection `\w*` → garanti/e/s/t/r) is the core claim, but the
+ *   REQUIRED disclaimers say "non garanti" / "sans garantie" — so the French
+ *   negation set below MUST exempt those, otherwise the guard would block a
+ *   compliant answer. That is exactly what the negation window handles.
+ * - "sans risque" starts with a negation word ("sans"), so per the engine rule
+ *   it is never exemptable — a "sans risque" claim is always caught.
+ * - The bare English "certain" is DELIBERATELY excluded here: in French
+ *   "certains/certaine" means "some" and would false-positive constantly.
+ */
+export const CHAT_FORBIDDEN_WORDS = [
+  // English claims (guard against code-switching / verbatim quotes)
+  "guarantee",
+  "risk-free",
+  "will deliver",
+  "promise",
+  // French compliance vocabulary
+  "garanti",
+  "sans risque",
+  "rendement sûr",
+  "promesse",
+] as const;
+
+/**
  * Result of a forbidden-words scan.
  *
  * `found` is the de-duplicated list of needles that matched, in declaration
@@ -38,7 +67,23 @@ export interface ForbiddenScanResult {
   found: ForbiddenWord[];
 }
 
-const NEGATION_WORDS = new Set(["not", "no", "never", "without"]);
+/** English negation vocabulary — the default, used by `containsForbidden`. */
+const EN_NEGATIONS = new Set(["not", "no", "never", "without"]);
+
+/** Chat negation vocabulary — English ∪ French, used by `containsForbiddenChat`
+ *  so French disclaimers ("non garanti", "sans garantie", "aucune garantie",
+ *  "pas de promesse") correctly exempt the needle they negate. */
+const CHAT_NEGATIONS = new Set([
+  ...EN_NEGATIONS,
+  "ne",
+  "pas",
+  "non",
+  "sans",
+  "jamais",
+  "aucun",
+  "aucune",
+  "ni",
+]);
 
 /** Escape regex meta-characters in a literal needle. */
 function escapeRegex(s: string): string {
@@ -46,29 +91,39 @@ function escapeRegex(s: string): string {
 }
 
 /** Strip non-alpha chars so hyphenated tokens like "guaranteed-not-applicable"
- *  normalise to "guaranteednotapplicable" — used for negation detection. */
+ *  normalise to "guaranteednotapplicable" — used for negation detection.
+ *  Keeps accented letters so French negations (e.g. accented forms) survive. */
 function stripPunct(word: string): string {
-  return word.toLowerCase().replace(/[^a-z]/g, "");
+  return word.toLowerCase().replace(/[^a-zà-ÿ]/g, "");
+}
+
+/** True when `needle`'s first token is itself a negation word — such needles
+ *  (e.g. "no risk", "sans risque") are never exempted: the negation IS the
+ *  claim. */
+function startsWithNegation(needle: string, negations: Set<string>): boolean {
+  const first = needle.toLowerCase().split(/[\s-]+/)[0] ?? "";
+  return negations.has(stripPunct(first));
 }
 
 /**
  * Returns `true` when a match at `[index, index+matchLength)` is exempted
- * because a negation word ("not" / "no" / "never" / "without") appears within
- * a 3-word window BEFORE or AFTER the match.
+ * because a negation word from `negations` appears within a 3-word window
+ * BEFORE or AFTER the match.
  *
  * The window is clamped to 100 chars on each side; words split on whitespace
  * or hyphens so "money-back guarantee, not applicable" surfaces "not".
  *
- * Needles that themselves START with a negation word (e.g. "no risk") are
- * never exempted by negation, because the negation prefix is the needle.
+ * Needles that themselves START with a negation word (e.g. "no risk",
+ * "sans risque") are never exempted, because the negation prefix is the needle.
  */
 function isNegated(
   text: string,
   needle: string,
   index: number,
   matchLength: number,
+  negations: Set<string>,
 ): boolean {
-  if (/^(not|no|never|without)\b/.test(needle)) return false;
+  if (startsWithNegation(needle, negations)) return false;
 
   const WINDOW = 3;
   const before = text.slice(Math.max(0, index - 100), index);
@@ -78,8 +133,38 @@ function isNegated(
   const afterWords = after.split(/[\s-]+/).slice(0, WINDOW);
 
   return [...beforeWords, ...afterWords].some((w) =>
-    NEGATION_WORDS.has(stripPunct(w)),
+    negations.has(stripPunct(w)),
   );
+}
+
+/**
+ * Shared negation-aware scanning core. Returns the deduped list of matched
+ * needles (declaration order) or `null` when clean. Both public matchers
+ * (`containsForbidden` EN, `containsForbiddenChat` FR∪EN) call this — there is
+ * a single matching engine, no divergent re-implementation.
+ */
+function scanForbidden(
+  text: string,
+  needles: readonly string[],
+  negations: Set<string>,
+): string[] | null {
+  if (!text) return null;
+  const haystack = text.toLowerCase();
+  const found: string[] = [];
+
+  for (const needle of needles) {
+    const pattern = new RegExp(`\\b${escapeRegex(needle)}\\w*`, "gi");
+    let m: RegExpExecArray | null;
+    let hit = false;
+    while ((m = pattern.exec(haystack)) !== null) {
+      if (isNegated(haystack, needle, m.index, m[0].length, negations)) continue;
+      hit = true;
+      break;
+    }
+    if (hit) found.push(needle);
+  }
+
+  return found.length === 0 ? null : found;
 }
 
 /**
@@ -96,23 +181,22 @@ function isNegated(
  * for the exemption — the negation prefix IS the needle.
  */
 export function containsForbidden(text: string): ForbiddenScanResult | null {
-  if (!text) return null;
-  const haystack = text.toLowerCase();
-  const found: ForbiddenWord[] = [];
+  const found = scanForbidden(text, FORBIDDEN_WORDS, EN_NEGATIONS);
+  return found === null ? null : { found: found as ForbiddenWord[] };
+}
 
-  for (const needle of FORBIDDEN_WORDS) {
-    const pattern = new RegExp(`\\b${escapeRegex(needle)}\\w*`, "gi");
-    let m: RegExpExecArray | null;
-    let hit = false;
-    while ((m = pattern.exec(haystack)) !== null) {
-      if (isNegated(haystack, needle, m.index, m[0].length)) continue;
-      hit = true;
-      break;
-    }
-    if (hit) found.push(needle);
-  }
-
-  return found.length === 0 ? null : { found };
+/**
+ * French-aware variant for the cockpit chat output. Scans the curated
+ * `CHAT_FORBIDDEN_WORDS` (FR ∪ EN) with the FR ∪ EN negation vocabulary, so
+ * required disclaimers like "non garanti" / "sans garantie" are NOT flagged
+ * while a bare "garanti" / "sans risque" claim is. Same engine as
+ * `containsForbidden`.
+ */
+export function containsForbiddenChat(
+  text: string,
+): { found: string[] } | null {
+  const found = scanForbidden(text, CHAT_FORBIDDEN_WORDS, CHAT_NEGATIONS);
+  return found === null ? null : { found };
 }
 
 /**

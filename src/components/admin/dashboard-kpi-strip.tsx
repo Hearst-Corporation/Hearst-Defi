@@ -25,7 +25,7 @@ export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
   return (
     <div
       aria-label="Vault KPIs"
-      className="dashboard-kpi-strip grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6"
+      className="dashboard-kpi-strip"
     >
       {kpis.map((kpi) => (
         <DashboardKpiCell key={kpi.label} kpi={kpi} />
@@ -45,7 +45,7 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
     >
       <div className="dashboard-kpi-strip__label-row">
         <span className="stat-label truncate">{kpi.label}</span>
-        <ProvenanceBadge kind={kpi.provenance} />
+        <ProvenanceBadge kind={kpi.provenance} compact />
       </div>
       <span
         className={cn(

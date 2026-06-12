@@ -60,11 +60,9 @@ export function OnboardingChamber({
 }: OnboardingChamberProps) {
   return (
     <article
-      className={cn("onboarding-chamber glass-panel", className)}
+      className={cn("onboarding-chamber ct-glass-panel", className)}
       data-testid={testId}
     >
-      <div className="onboarding-chamber__halo" aria-hidden />
-
       <header className="onboarding-chamber__crown">{crown}</header>
 
       <div className="onboarding-chamber__body">{body}</div>

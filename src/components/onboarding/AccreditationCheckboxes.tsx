@@ -137,15 +137,21 @@ export function AccreditationAttestationFields({
         </div>
       </fieldset>
 
-      {!allChecked ? (
-        <p className="body-xs ct-text-faint" aria-live="polite" role="status">
-          All three attestations are required to continue.
-        </p>
-      ) : null}
+      <div className="onboarding-chamber__status" aria-live="polite">
+        {!allChecked ? (
+          <p className="body-xs ct-text-faint m-0" role="status">
+            All three attestations are required to continue.
+          </p>
+        ) : (
+          <p className="body-xs ct-text-faint m-0 invisible" aria-hidden>
+            Ready to continue.
+          </p>
+        )}
+      </div>
 
       {attestError ? (
         <p
-          className="body-xs ct-status-danger"
+          className="body-xs ct-status-danger m-0"
           aria-live="assertive"
           role="alert"
         >

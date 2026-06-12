@@ -29,11 +29,6 @@ export default async function ProductLayout({
   // Investor gate: no session → /login?from=<destination>. Admins are allowed
   // through (admin ⊇ investor) so they can review the product surfaces A→Z.
   const session = await requireInvestor(destination);
-  const isOnboarding = rawPathname.startsWith("/onboarding");
-
-  if (isOnboarding) {
-    return <>{children}</>;
-  }
 
   return (
     <>

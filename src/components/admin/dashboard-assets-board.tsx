@@ -232,7 +232,7 @@ export function DashboardAssetsBoard({
 
       <section
         aria-label="Cockpit operations"
-        className="dashboard-command-row-c grid gap-4 lg:grid-cols-3"
+        className="dashboard-command-row-c"
       >
         <ActionQueue items={cockpit.actionQueue} />
         <LiveMetrics vaults={cockpit.vaultMetrics} />
@@ -359,14 +359,14 @@ function NavSlot({
   return (
     <Card className="dashboard-command-slot dashboard-command-slot--nav">
       <div className="dashboard-command-performance">
-        <div className="dashboard-command-performance__header">
-          <div>
+        <div className="dashboard-card-header dashboard-command-performance__header">
+          <div className="min-w-0">
             <span className="eyebrow">NAV · 30d</span>
             <strong className="stat-value tabular block mt-1">
               {lastNav !== null && lastNav > 0 ? usdCompact.format(lastNav) : "—"}
             </strong>
           </div>
-          <ProvenanceBadge kind={navProvenance} />
+          <ProvenanceBadge kind={navProvenance} compact />
         </div>
 
         <NavBarChart points={navPoints} />
@@ -391,9 +391,9 @@ function NavSlot({
 
 function CellHeader({ title, provenance }: { title: string; provenance: Provenance }) {
   return (
-    <div className="mb-4 flex items-start justify-between gap-3">
-      <h2 className="h3">{title}</h2>
-      <ProvenanceBadge kind={provenance} />
+    <div className="dashboard-card-header mb-4">
+      <h2 className="h3 min-w-0">{title}</h2>
+      <ProvenanceBadge kind={provenance} compact />
     </div>
   );
 }
@@ -511,9 +511,12 @@ function ProofPulse({
 }) {
   return (
     <div className="dashboard-proof-pulse">
-      <div className="flex items-center justify-between gap-2">
-        <span className="eyebrow">Proof & custody</span>
-        <ProvenanceBadge kind={proofFresh ? "attested" : proof.attestationsCount > 0 ? "stale" : "manual"} />
+      <div className="dashboard-card-header dashboard-card-header--tight">
+        <span className="eyebrow min-w-0">Proof & custody</span>
+        <ProvenanceBadge
+          kind={proofFresh ? "attested" : proof.attestationsCount > 0 ? "stale" : "manual"}
+          compact
+        />
       </div>
       <ul className="mt-2 flex flex-col gap-1.5 body-xs" role="list">
         <li>
@@ -544,7 +547,7 @@ function ProofPulse({
               {" · "}
               {usdCompact.format(custodyUsdc)}
               {" · "}
-              <ProvenanceBadge kind={proof.custodyProvenance} />
+              <ProvenanceBadge kind={proof.custodyProvenance} compact />
             </>
           ) : (
             <span> · Not configured</span>
@@ -564,8 +567,8 @@ function DistributionPanel({
 
   return (
     <>
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
+      <div className="dashboard-card-header mb-4">
+        <div className="min-w-0">
           <h2 className="h3">Distribution</h2>
           <p className="body-xs ct-text-muted mt-1">
             <Link href={adminNavLinks.distributions()} className="ct-text-accent hover:underline">
@@ -573,7 +576,7 @@ function DistributionPanel({
             </Link>
           </p>
         </div>
-        <ProvenanceBadge kind={provenance} />
+        <ProvenanceBadge kind={provenance} compact />
       </div>
       <dl className="flex flex-col gap-2 body-sm">
         <div className="flex justify-between gap-2">

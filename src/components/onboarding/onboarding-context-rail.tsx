@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
-import { Badge } from "@/components/ui/badge";
 import { NestedCallout } from "@/components/ui/nested-panel";
 import type { IrContact } from "@/lib/ir-contact";
 import type { OnboardingChecklistItem, OnboardingStepId } from "@/lib/onboarding/state";
@@ -17,9 +16,9 @@ export function OnboardingRequirementsList({
   return (
     <NestedCallout aria-label="Onboarding requirements">
       <p className="eyebrow ct-text-muted m-0 mb-3">Requirements</p>
-      <ul className="m-0 flex flex-col gap-2.5 p-0 list-none">
+      <ul className="m-0 flex flex-col gap-[var(--ct-space-2_5)] p-0 list-none">
         {items.map((item) => (
-          <li key={item.id} className="flex items-start gap-2.5">
+          <li key={item.id} className="flex items-start gap-[var(--ct-space-2_5)]">
             <span
               aria-hidden
               className={cn(
@@ -50,9 +49,9 @@ export function OnboardingRequirementsList({
             <span className="body-sm ct-text-body">
               {item.label}
               {item.optional ? (
-                <Badge variant="default" className="ml-2 align-middle">
+                <span className="eyebrow ct-text-faint ml-[var(--ct-space-2)] align-middle">
                   Optional
-                </Badge>
+                </span>
               ) : null}
             </span>
           </li>
@@ -119,12 +118,6 @@ export function OnboardingChamberSole({
         </p>
       ) : null}
 
-      <Link
-        href="/portfolio"
-        className="body-xs ct-text-muted no-underline hover:ct-text-primary transition-colors text-center"
-      >
-        Exit to portfolio
-      </Link>
     </div>
   );
 }
@@ -138,7 +131,7 @@ export function OnboardingLegacyStepBridge({
   children: React.ReactNode;
 }) {
   return (
-    <div className="onboarding-shell__legacy flex flex-col gap-8 w-full max-w-xl mx-auto">
+    <div className="onboarding-shell__legacy flex flex-col gap-8 w-full">
       <StepProgressBar active={activeStep} />
       {children}
     </div>

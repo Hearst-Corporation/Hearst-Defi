@@ -23,7 +23,7 @@ const usdCompact = new Intl.NumberFormat("en-US", {
  */
 export function LiveMetrics({ vaults }: LiveMetricsProps) {
   return (
-    <Card aria-label="Live metrics">
+    <Card aria-label="Live metrics" className="dashboard-live-metrics">
       <h2 className="h2 mb-4">Live Metrics</h2>
 
       {vaults.length === 0 ? (
@@ -70,18 +70,17 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
       aria-label={`Vault ${vault.vaultName} metrics`}
     >
       {/* Vault name + status */}
-      <div className="flex items-center justify-between gap-2 mb-2">
+      <div className="dashboard-live-metrics__vault-head mb-2 flex min-w-0 items-center justify-between gap-2">
         <Link
           href={vault.href}
-          className="body-sm ct-text-strong font-medium truncate hover:ct-text-accent hover:underline"
+          className="body-sm ct-text-strong min-w-0 truncate font-medium hover:ct-text-accent hover:underline"
         >
           {vault.vaultName}
         </Link>
         <VaultStatusPill status={vault.status} />
       </div>
 
-      {/* Metric grid — 5 compact cells */}
-      <div className="grid grid-cols-5 gap-1">
+      <div className="dashboard-live-metrics__grid">
         <MetricCell
           label="TVL"
           value={vault.tvlUsdc > 0 ? usdCompact.format(vault.tvlUsdc) : "—"}
