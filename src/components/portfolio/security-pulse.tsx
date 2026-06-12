@@ -1,68 +1,18 @@
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
-import { PreviewWidgetShell } from "@/components/portfolio/preview-widget-shell";
-
-const PREVIEW_ROWS = [
-  { label: "Encryption", value: "—" },
-  { label: "Custody", value: "—" },
-  { label: "Smart contract audit", value: "—" },
-  { label: "Monitoring", value: "—" },
-] as const;
 
 export interface SecurityPulseProps {
-  /** Render structural shell at placeholder values (layout preview). */
+  /** @deprecated Layout preview uses the same awaiting surface — kept for call-site compat. */
   previewZeros?: boolean;
-  /** Inside MergedSurface — parent supplies section label; no nested dash-cell. */
+  /** Inside MergedSurface — parent supplies section label. */
   embedded?: boolean;
 }
 
 /**
  * Security posture summary. Live values require a verified backend feed;
- * layout preview shows the shell at em-dash placeholders with Stale provenance.
+ * until then, render DS §9.3 awaiting surface only (no fake audit rows).
  */
-export function SecurityPulse({
-  previewZeros = false,
-  embedded = false,
-}: SecurityPulseProps) {
-  if (!previewZeros) {
-    return (
-      <AwaitingMetricState message="Security status will appear after account verification." />
-    );
-  }
-
-  const previewBody = (
-    <>
-      <ul className="flex flex-col gap-2 relative z-10 m-0 p-0 list-none">
-        {PREVIEW_ROWS.map((row) => (
-          <li
-            key={row.label}
-            className="flex items-center justify-between gap-3 border-b border-(--ct-border-soft) pb-2 last:border-0"
-          >
-            <span className="body-xs ct-text-muted">{row.label}</span>
-            <span className="body-xs tabular mono ct-text-faint">{row.value}</span>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-auto pt-4 body-xs italic ct-text-faint m-0">
-        Status populates after account verification and audit attestation.
-      </p>
-    </>
-  );
-
-  if (embedded) {
-    return (
-      <div aria-label="Security posture" className="flex flex-col gap-2">
-        {previewBody}
-      </div>
-    );
-  }
-
+export function SecurityPulse(_props: SecurityPulseProps = {}) {
   return (
-    <PreviewWidgetShell
-      title="Security posture"
-      provenance="stale"
-      ariaLabel="Security posture"
-    >
-      {previewBody}
-    </PreviewWidgetShell>
+    <AwaitingMetricState message="Security status will appear after account verification." />
   );
 }

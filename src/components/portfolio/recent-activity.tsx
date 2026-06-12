@@ -1,5 +1,4 @@
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
-import { PreviewWidgetShell } from "@/components/portfolio/preview-widget-shell";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
@@ -84,26 +83,8 @@ export function RecentActivity({
   }
 
   if (displayed.length === 0 && previewZeros) {
-    const emptyMessage = (
-      <p className="body-sm ct-text-faint py-4 text-center m-0">
-        No transactions yet — deposits and payouts will appear here.
-      </p>
-    );
-
-    if (embedded) {
-      return (
-        <div aria-label="Recent account activity">{emptyMessage}</div>
-      );
-    }
-
     return (
-      <PreviewWidgetShell
-        title="Recent activity"
-        provenance={provenance}
-        ariaLabel="Recent account activity"
-      >
-        {emptyMessage}
-      </PreviewWidgetShell>
+      <AwaitingMetricState message="No transactions yet — deposits and payouts will appear here." />
     );
   }
 

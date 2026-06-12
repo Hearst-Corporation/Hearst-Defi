@@ -400,18 +400,24 @@
   background: color-mix(in srgb, var(--ct-bg-deep) 55%, transparent);
 }
 
-/* In the yield-trust grid, empty widgets stretch to fill column height */
-.pf-container:not(.pf-container--zero) [data-section="yield-trust"] .pf-empty-widget {
+/* Yield-trust columns — awaiting surfaces fill column rhythm */
+.pf-container [data-section="yield-trust"] .pf-empty-widget {
   min-height: 16rem;
 }
 
-/* Yield + allocation row — single grouped empty (no fake 8/4 placeholders) */
-.pf-container:not(.pf-container--zero) [data-section="yield-allocation"] .pf-empty-widget {
+/* Yield + allocation — grouped awaiting surface (layout preview) */
+.pf-container [data-section="yield-allocation"] .pf-empty-widget {
   min-height: 12rem;
 }
 
-/* Hero value chart empty slot — parity with populated chart height */
-.pf-container:not(.pf-container--zero) [data-section="hero-pulse"] .pf-empty-chart {
+/* Hero chart + activity calendar — nested empty chart tier */
+.pf-container [data-section="hero-pulse"] .pf-empty-chart,
+.pf-container [data-section="activity-payouts"] .pf-empty-chart {
   min-height: 12rem;
+}
+
+/* Liquidity column — awaiting surfaces inside merged hero */
+.pf-container [data-section="hero-pulse"] .pf-merged-content .pf-empty-widget {
+  min-height: 10rem;
 }
 

@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
-import { PreviewWidgetShell } from "@/components/portfolio/preview-widget-shell";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ApyRange } from "@/components/ui/apy-range";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
@@ -57,27 +56,7 @@ export function PositionsList({
 
   if (positions.length === 0 && previewZeros) {
     return (
-      <PreviewWidgetShell
-        title="Positions"
-        provenance={provenance}
-        ariaLabel="Open positions"
-        meta={
-          <span className="body-xs ct-text-muted tabular">0 positions</span>
-        }
-      >
-        <div className="flex flex-col gap-1 mt-3 overflow-x-auto min-w-0">
-          <div className={cn(ROW_GRID, "body-xs ct-text-muted uppercase tracking-wide")}>
-            <span>Vault</span>
-            <span className="text-right">Principal</span>
-            <span className="text-right">Yield</span>
-            <span className="text-right">APY</span>
-            <span className="text-right">Since</span>
-          </div>
-          <p className="body-sm ct-text-faint py-6 text-center m-0">
-            No open positions — first deposit will appear here.
-          </p>
-        </div>
-      </PreviewWidgetShell>
+      <AwaitingMetricState message="No open positions — first deposit will appear here." />
     );
   }
 

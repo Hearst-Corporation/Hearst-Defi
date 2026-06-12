@@ -202,12 +202,16 @@ export function ValueChart({
       ? buildZeroValueChartSeries(asOf)
       : buildMonthSeries(positions, totalValueUsdc, asOf);
 
-  // No positions → light placeholder only. Do NOT wrap in dash-cell-premium with
-  // header + Stale badge — that reads as a big black "placeholder box".
-  if (isEmpty && !previewZeros) {
+  // No positions → nested empty chart surface (DS §9.3). Layout preview uses the
+  // same tier — no phantom SVG or dash-cell-premium shell.
+  if (isEmpty) {
     return (
       <EmptyChartState
-        message="Value trend will appear after the first active position."
+        message={
+          previewZeros
+            ? "Layout preview at zero — path populates after your first active position."
+            : "Value trend will appear after the first active position."
+        }
         className="h-full min-h-32"
       />
     );

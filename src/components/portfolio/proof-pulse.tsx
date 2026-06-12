@@ -176,11 +176,26 @@ export function ProofPulse({
   const headerProvenance: "attested" | "stale" =
     state === "matched" || state === "attested" ? "attested" : "stale";
 
+  // Layout preview at zero → awaiting surface only (no methodology stub panel).
+  if (previewZeros) {
+    return (
+      <AwaitingMetricState
+        message="No attestation has been published yet."
+        detail="The first proof will appear here once vault activity is attested."
+        link={{
+          label: "Open proof center",
+          href: proofCenterHref,
+          ariaLabel: "Open proof center",
+        }}
+      />
+    );
+  }
+
   // Nothing real to show (no attestation AND no methodology) → render a LIGHT
   // empty surface instead of a full dash-cell-premium with header + Stale badge
   // + nested callout, which reads as a big black placeholder box. The outer
   // section already labels this slot "Proof of reserves".
-  if (!hasData && !hasMethodologyData && !previewZeros) {
+  if (!hasData && !hasMethodologyData) {
     return (
       <AwaitingMetricState
         message="No attestation has been published yet."

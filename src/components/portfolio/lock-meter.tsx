@@ -74,8 +74,10 @@ export interface LockMeterProps {
   /** Provenance metadata from the loader. */
   source?: "live" | "stale";
   updatedAt?: Date;
-  /** Render progress shell at 0% (layout preview). */
+  /** Layout preview at zero — awaiting surface only (DS §9.3). */
   previewZeros?: boolean;
+  /** Inside MergedSurface — parent supplies section label; no nested dash-cell. */
+  embedded?: boolean;
 }
 
 const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
@@ -100,8 +102,18 @@ export function LockMeter({
   asOf,
   source = "live",
   previewZeros = false,
+  embedded = false,
 }: LockMeterProps) {
   const effectiveAsOf = asOf ?? new Date();
+
+  if (previewZeros) {
+    return (
+      <AwaitingMetricState
+        message="Lock and liquidity preview — terms appear after your first active position."
+        detail="Soft lock-up progress and unlock dates populate once share-class terms are confirmed."
+      />
+    );
+  }
 
   // When share-class terms are not wired, render a neutral "no data" state
   // instead of a fabricated progress bar.
@@ -131,20 +143,18 @@ export function LockMeter({
       : `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} remaining of ${softLockupDays}`
   }`;
 
-  return (
-    <article
-      className="dash-cell dash-cell-premium flex flex-col gap-3"
-      aria-label="Lock and liquidity status"
-    >
-      {/* Header row -------------------------------------------------------- */}
-      <div className="pf-widget-header relative z-10">
-        <Tooltip content="Progress towards your 60-day soft lockup period">
-          <h3 className="h3 cursor-help border-b border-dotted border-(--ct-border-soft)">
-            Lock · liquidity
-          </h3>
-        </Tooltip>
-        <ProvenanceBadge kind={badgeKind} />
-      </div>
+  const body = (
+    <>
+      {!embedded ? (
+        <div className="pf-widget-header relative z-10">
+          <Tooltip content="Progress towards your 60-day soft lockup period">
+            <h3 className="h3 cursor-help border-b border-dotted border-(--ct-border-soft)">
+              Lock · liquidity
+            </h3>
+          </Tooltip>
+          <ProvenanceBadge kind={badgeKind} />
+        </div>
+      ) : null}
 
       {/* Progress bar ------------------------------------------------------ */}
       <div className="flex flex-col gap-1.5 relative z-10">
@@ -227,6 +237,23 @@ export function LockMeter({
           </div>
         )}
       </dl>
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <div className="flex flex-col gap-3" aria-label="Lock and liquidity status">
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <article
+      className="dash-cell dash-cell-premium flex flex-col gap-3"
+      aria-label="Lock and liquidity status"
+    >
+      {body}
     </article>
   );
 }

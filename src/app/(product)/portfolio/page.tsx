@@ -11,6 +11,7 @@ import {
   loadTimeToCashProps,
   resolveProvenance,
 } from "@/lib/data/portfolio";
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { MergedSurface } from "@/components/portfolio/merged-surface";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
 import {
@@ -34,12 +35,8 @@ import { SecurityPulse } from "@/components/portfolio/security-pulse";
 import { MotionViewport } from "@/components/ui/motion-viewport";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 import {
-  ZERO_YIELD_STACK,
   isLayoutPreview,
-  isProofPulseEmpty,
-  isRiskPulseEmpty,
   zeroLockMeterProps,
-  zeroProofPulseProps,
   zeroTimeToCashProps,
 } from "@/lib/portfolio/layout-preview";
 import { cn } from "@/lib/cn";
@@ -185,21 +182,6 @@ export default async function PortfolioPage() {
     data.updatedAt,
   );
 
-  const yieldStack =
-    previewZeros && yieldStackProps.sources.length === 0
-      ? ZERO_YIELD_STACK
-      : yieldStackProps;
-
-  const riskPulse =
-    previewZeros && isRiskPulseEmpty(riskPulseProps)
-      ? { ...riskPulseProps, source: "stale" as const }
-      : riskPulseProps;
-
-  const proofPulse =
-    previewZeros && isProofPulseEmpty(proofPulseProps)
-      ? zeroProofPulseProps(previewAsOf)
-      : proofPulseProps;
-
   return (
     <div
       className={cn("pf-container", previewZeros && "pf-container--zero")}
@@ -246,10 +228,12 @@ export default async function PortfolioPage() {
                 <TimeToCash
                   {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
                   previewZeros={previewZeros}
+                  embedded
                 />
                 <LockMeter
                   {...(previewZeros ? zeroLockMeterProps(previewAsOf) : lockMeterProps)}
                   previewZeros={previewZeros}
+                  embedded
                 />
               </div>
             </div>
@@ -259,23 +243,30 @@ export default async function PortfolioPage() {
 
       <MotionViewport>
         <div className="flex flex-col gap-4">
-          <div className="dash-bento" data-section="yield-allocation">
-            <div className="bento-col-8" data-testid="yield-stack-widget">
-              <YieldStack
-                {...yieldStack}
-                previewZeros={previewZeros && yieldStackProps.sources.length === 0}
-              />
+          {previewZeros ? (
+            <div className="dash-bento" data-section="yield-allocation">
+              <div className="bento-col-12" data-testid="yield-allocation-empty">
+                <AwaitingMetricState
+                  message="Yield and allocation appear after your first active position."
+                  detail="The forward yield stack and position breakdown populate once deposited capital is confirmed."
+                />
+              </div>
             </div>
-            <div className="bento-col-4" data-testid="allocation-donut-widget">
-              <AllocationDonut
-                positions={data.positions}
-                totalValueUsdc={data.totalValueUsdc}
-                source={data.source}
-                updatedAt={data.updatedAt}
-                previewZeros={previewZeros}
-              />
+          ) : (
+            <div className="dash-bento" data-section="yield-allocation">
+              <div className="bento-col-8" data-testid="yield-stack-widget">
+                <YieldStack {...yieldStackProps} />
+              </div>
+              <div className="bento-col-4" data-testid="allocation-donut-widget">
+                <AllocationDonut
+                  positions={data.positions}
+                  totalValueUsdc={data.totalValueUsdc}
+                  source={data.source}
+                  updatedAt={data.updatedAt}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <MergedSurface
             title="Yield & Trust Pulse"
@@ -287,16 +278,16 @@ export default async function PortfolioPage() {
               <div data-testid="risk-pulse-widget" className="flex flex-col gap-4">
                 <span className="stat-label ct-text-accent">Risk profile</span>
                 <RiskPulse
-                  {...riskPulse}
-                  previewZeros={previewZeros && isRiskPulseEmpty(riskPulseProps)}
+                  {...riskPulseProps}
+                  previewZeros={previewZeros}
                   embedded
                 />
               </div>
               <div data-testid="proof-pulse-widget" className="flex flex-col gap-4">
                 <span className="stat-label ct-text-accent">Proof of reserves</span>
                 <ProofPulse
-                  {...proofPulse}
-                  previewZeros={previewZeros && isProofPulseEmpty(proofPulseProps)}
+                  {...proofPulseProps}
+                  previewZeros={previewZeros}
                   embedded
                 />
               </div>
@@ -349,6 +340,7 @@ export default async function PortfolioPage() {
                   previewZeros={
                     previewZeros && distribCalendarProps.entries.length === 0
                   }
+                  embedded
                 />
               </div>
             </div>

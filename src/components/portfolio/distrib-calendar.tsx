@@ -14,7 +14,6 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { EmptyChartState } from "@/components/portfolio/empty-chart-state";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl } from "@/lib/chain/client";
-import { buildZeroDistribEntries } from "@/lib/portfolio/layout-preview";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 // ── Public types ──────────────────────────────────────────────────────────────
@@ -39,8 +38,10 @@ export interface DistribCalendarProps {
   /** Provenance metadata from the loader. */
   source?: "live" | "stale";
   updatedAt?: Date;
-  /** Render calendar shell with $0 bars (layout preview). */
+  /** Layout preview at zero — nested empty chart only (DS §9.3). */
   previewZeros?: boolean;
+  /** Inside MergedSurface — parent supplies section label; no nested dash-cell. */
+  embedded?: boolean;
 }
 
 // ── Formatting helpers (exported for tests) ───────────────────────────────────
@@ -285,6 +286,7 @@ export function DistribCalendar({
   source = "live",
   updatedAt,
   previewZeros = false,
+  embedded = false,
 }: DistribCalendarProps) {
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
@@ -292,8 +294,16 @@ export function DistribCalendar({
   // Derive current month period string "YYYY-MM"
   const currentPeriod = `${refYear}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
 
-  const displayEntries =
-    entries.length > 0 ? entries : previewZeros ? buildZeroDistribEntries(refYear) : [];
+  if (previewZeros && entries.length === 0) {
+    return (
+      <EmptyChartState
+        message="Payout calendar preview — history appears after the first distribution."
+        className="min-h-32 h-full"
+      />
+    );
+  }
+
+  const displayEntries = entries;
   const hasEntries = displayEntries.length > 0;
   const hasForecast = displayEntries.some((e) => e.paidAt === null);
 
@@ -314,29 +324,23 @@ export function DistribCalendar({
     );
   }
 
-  return (
-    <article
-      aria-label="Payout calendar"
-      className={cn(
-        "dash-cell dash-cell-premium flex flex-col gap-3 h-full",
-      )}
-    >
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3 relative z-10">
-        <div className="flex flex-col gap-0.5">
-          <h3 className="h3 mb-0">Payout calendar</h3>
-          <p className="body-xs ct-text-muted mono">
-            12-month history · USDC
-            {hasForecast ? " · incl. estimated forecast" : ""}
-          </p>
-        </div>
+  const body = (
+    <>
+      {!embedded ? (
+        <div className="flex items-start justify-between gap-3 relative z-10">
+          <div className="flex flex-col gap-0.5">
+            <h3 className="h3 mb-0">Payout calendar</h3>
+            <p className="body-xs ct-text-muted mono">
+              12-month history · USDC
+              {hasForecast ? " · incl. estimated forecast" : ""}
+            </p>
+          </div>
 
-        {/* Single global provenance badge. The forecast bars carry their own
-            "(Estimated)" labelling on the chart, so we don't double-badge here. */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <ProvenanceBadge kind={badgeKind} />
+          <div className="flex items-center gap-1.5 shrink-0">
+            <ProvenanceBadge kind={badgeKind} />
+          </div>
         </div>
-      </div>
+      ) : null}
 
       <div className="w-full overflow-hidden rounded-md relative z-10">
         <BarChart
@@ -372,6 +376,23 @@ export function DistribCalendar({
           ) : null}
         </dl>
       )}
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <div className="flex h-full flex-col gap-3" aria-label="Payout calendar">
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <article
+      aria-label="Payout calendar"
+      className="dash-cell dash-cell-premium flex flex-col gap-3 h-full"
+    >
+      {body}
     </article>
   );
 }

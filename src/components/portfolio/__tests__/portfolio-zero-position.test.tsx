@@ -25,13 +25,13 @@ const STALE_TIME_TO_CASH_PROPS = {
 };
 
 describe("Portfolio zero-position — default empty widgets", () => {
-  it("TimeToCash stale: awaiting state, no premium surface", () => {
+  it("TimeToCash stale: awaiting surface, no premium shell", () => {
     const html = renderToStaticMarkup(<TimeToCash {...STALE_TIME_TO_CASH_PROPS} />);
     expect(html).toContain("pf-empty-widget");
     expect(html).not.toContain("dash-cell-premium");
   });
 
-  it("LockMeter unknown terms: awaiting state, no premium surface", () => {
+  it("LockMeter unknown terms: awaiting surface, no premium shell", () => {
     const html = renderToStaticMarkup(
       <LockMeter
         lockStart={new Date("2026-01-01T00:00:00Z")}
@@ -54,24 +54,23 @@ describe("Portfolio zero-position — default empty widgets", () => {
   });
 });
 
-describe("Portfolio zero-position — layout preview", () => {
+describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
   it("banner states not guaranteed", () => {
     const html = renderToStaticMarkup(<LayoutPreviewBanner />);
     expect(html).toContain("Layout preview");
     expect(html).toContain("not guaranteed");
   });
 
-  it("TimeToCash previewZeros: premium shell with Stale badge, no countdown", () => {
+  it("TimeToCash previewZeros: awaiting surface (graphite-subtle), no Stale badge", () => {
     const html = renderToStaticMarkup(
       <TimeToCash {...zeroTimeToCashProps(PREVIEW_AS_OF)} previewZeros />,
     );
-    expect(html).toContain("dash-cell-premium");
-    expect(html).toContain("Stale");
-    expect(html).toContain("$0 USDC projected");
-    expect(html).not.toContain("d left");
+    expect(html).toContain("pf-empty-widget");
+    expect(html).not.toContain("dash-cell-premium");
+    expect(html).not.toContain("Stale");
   });
 
-  it("ValueChart previewZeros: renders svg without disclaimer watermark", () => {
+  it("ValueChart previewZeros: nested empty chart (graphite-nested), no phantom svg", () => {
     const html = renderToStaticMarkup(
       <ValueChart
         positions={[]}
@@ -80,20 +79,18 @@ describe("Portfolio zero-position — layout preview", () => {
         previewZeros
       />,
     );
-    expect(html).toContain("dash-cell-premium");
-    expect(html).toContain("<svg");
-    expect(html).toContain("min-h-32");
-    expect(html).not.toContain("methodology v1.0");
+    expect(html).toContain("pf-empty-chart");
+    expect(html).not.toContain("dash-cell-premium");
+    expect(html).not.toContain("<svg");
     expect(html).toContain("Layout preview at zero");
   });
 
-  it("LockMeter previewZeros: premium shell at 0% with Stale badge", () => {
+  it("LockMeter previewZeros: awaiting surface, no premium shell", () => {
     const html = renderToStaticMarkup(
       <LockMeter {...zeroLockMeterProps(PREVIEW_AS_OF)} previewZeros />,
     );
-    expect(html).toContain("dash-cell-premium");
-    expect(html).toContain("Stale");
-    expect(html).toContain("0%");
-    expect(html).not.toContain("pf-empty-widget");
+    expect(html).toContain("pf-empty-widget");
+    expect(html).not.toContain("dash-cell-premium");
+    expect(html).not.toContain("Stale");
   });
 });
