@@ -7,6 +7,7 @@ import {
   type NavProfile,
   type NavDestination,
 } from "@/lib/llm/navigate-tool";
+import { projectAdminReadResultForExternal } from "@/lib/llm/tools/redaction";
 import { getAllowedAdminReadTools, executeAdminReadTool } from "@/lib/llm/tools/registry";
 import { ADMIN_WRITE_TOOL_IDS } from "@/lib/llm/tools/types";
 import { logger } from "@/lib/logger";
@@ -227,13 +228,14 @@ async function executeAdminReadCalls(
         const result = await executeAdminReadTool(readTool, context, parsedInput, {
           userId,
         });
-        const payloadLine = result.payload
-          ? [`JSON_PAYLOAD`, JSON.stringify(result.payload)]
+        const projectedResult = projectAdminReadResultForExternal(result);
+        const payloadLine = projectedResult.payload
+          ? [`JSON_PAYLOAD`, JSON.stringify(projectedResult.payload)]
           : [];
         readRuns.push({
           toolCallId: toolCall.id,
           toolId: readTool.id,
-          content: [result.title, ...result.lines, ...payloadLine].join("\n"),
+          content: [projectedResult.title, ...projectedResult.lines, ...payloadLine].join("\n"),
         });
       } catch (error) {
         logger.warn(
@@ -257,6 +259,7 @@ async function executeAdminReadCalls(
       blockedWriteCalls.push({ toolCallId: toolCall.id, toolId: calledName });
       logger.warn("chat-agent: blocked model write tool auto-exec attempt", {
         toolId: calledName,
+        ...(userId ? { userId } : {}),
       });
     }
   }

@@ -331,6 +331,38 @@ describe("runChatAgent", () => {
     expect(await nav).toBeNull();
   });
 
+  it("keeps navigate working while write tool auto-exec stays blocked", async () => {
+    mockGetAllowedAdminReadTools.mockReturnValue([]);
+    const client = fakeClient([
+      toolChunk(
+        0,
+        {
+          name: "create_governance_proposal_draft",
+          arguments: '{"vaultDeploymentId":"v1","actionType":"pause"}',
+        },
+        "call_write_nav_1",
+      ),
+      toolChunk(
+        1,
+        { name: "navigate", arguments: '{"destination":"admin-governance"}' },
+        "call_nav_1",
+      ),
+      textChunk("Je vous dirige vers la gouvernance avec proposition manuelle."),
+    ]);
+    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS, {
+      chatMode: "admin",
+      navProfile: "admin",
+    });
+    const text = await readAll(stream);
+    expect(text).toContain("gouvernance");
+    expect(mockExecuteAdminReadTool).not.toHaveBeenCalled();
+    expect(mockLoggerWarn).toHaveBeenCalledWith(
+      "chat-agent: blocked model write tool auto-exec attempt",
+      { toolId: "create_governance_proposal_draft" },
+    );
+    expect((await nav)?.route).toBe("/admin/governance");
+  });
+
   it("does NOT navigate when the answer is non-compliant (blocked)", async () => {
     const client = fakeClient([
       textChunk("Le rendement est garanti. "),

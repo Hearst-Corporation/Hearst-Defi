@@ -5,6 +5,8 @@
 // Non-negotiable #5: no forbidden words in copy.
 // Non-negotiable #10: "not guaranteed" disclaimer present.
 
+import "../portfolio.css";
+
 import { notFound } from "next/navigation";
 import { loadPosition } from "@/lib/data/portfolio";
 import { PositionHeader } from "@/components/portfolio/position-header";

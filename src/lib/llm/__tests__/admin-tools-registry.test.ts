@@ -40,7 +40,7 @@ vi.mock("@/lib/db", () => ({
     },
     feedback: { create: vi.fn() },
     governanceProposal: { create: vi.fn() },
-    llmRun: { create: vi.fn() },
+    adminToolRun: { create: vi.fn() },
     miningMetric: { findMany: vi.fn() },
     vaultSnapshot: { findMany: vi.fn() },
   },
@@ -56,11 +56,36 @@ const mockAdminWriteConfirmationDeleteMany = prisma.adminWriteToolConfirmation
   .deleteMany as unknown as MockWithImplementation<{ count: number }>;
 const mockFeedbackCreate = vi.mocked(prisma.feedback.create);
 const mockGovernanceCreate = vi.mocked(prisma.governanceProposal.create);
-const mockAdminToolRunCreate = vi.mocked(prisma.llmRun.create);
+const mockAdminToolRunCreate = vi.mocked(prisma.adminToolRun.create);
 const mockMiningFindMany = vi.mocked(prisma.miningMetric.findMany);
 const mockVaultFindMany = vi.mocked(prisma.vaultSnapshot.findMany);
 
 const tokenStore = new Map<string, ConfirmationRow>();
+const EMPTY_OBJECT_INPUT_HASH =
+  "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a";
+const REVIEW_NOTE_HASH_WITH_AUTHOR =
+  "d465652e0ce623b34bfcb34edfafd737df0d287b903a1e8ef4a0d9190abed36c";
+
+type AdminToolRunTelemetryRow = {
+  toolId: string;
+  toolKind: "read" | "write";
+  mode: "admin" | "review" | "normal";
+  profile: "admin" | "lp";
+  status: "success" | "failed" | "blocked" | "confirmation_required";
+  latencyMs: number;
+  userId: string | null;
+  confirmationTokenUsed: boolean;
+  inputHash: string | null;
+  errorCode: string | null;
+  errorMessage: string | null;
+};
+
+function getTelemetryRows(): AdminToolRunTelemetryRow[] {
+  return mockAdminToolRunCreate.mock.calls.map((args) => {
+    const callArg = args[0] as { data: AdminToolRunTelemetryRow };
+    return callArg.data;
+  });
+}
 
 function setupConfirmationMocks(): void {
   mockAdminWriteConfirmationCreate.mockImplementation(async (args: unknown) => {
@@ -200,16 +225,23 @@ describe("admin read tools registry", () => {
     expect(result.lines.some((line) => line.includes("internet_live_outille: no"))).toBe(
       true,
     );
-    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
+    expect(mockAdminToolRunCreate).toHaveBeenCalledTimes(1);
+    const [telemetry] = getTelemetryRows();
+    expect(telemetry).toEqual(
       expect.objectContaining({
-        data: expect.objectContaining({
-          toolId: "read_runtime_capabilities",
-          toolKind: "read",
-          inputHash: null,
-          status: "success",
-        }),
+        toolId: "read_runtime_capabilities",
+        toolKind: "read",
+        mode: "admin",
+        profile: "admin",
+        status: "success",
+        userId: null,
+        confirmationTokenUsed: false,
+        inputHash: null,
+        errorCode: null,
+        errorMessage: null,
       }),
     );
+    expect(telemetry?.latencyMs).toBeGreaterThanOrEqual(0);
   });
 
   it("persists read telemetry on failure", async () => {
@@ -231,17 +263,23 @@ describe("admin read tools registry", () => {
     await expect(executeAdminReadTool(failingTool, context, {})).rejects.toThrow(
       "read tool exploded",
     );
-    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
+    expect(mockAdminToolRunCreate).toHaveBeenCalledTimes(1);
+    const [telemetry] = getTelemetryRows();
+    expect(telemetry).toEqual(
       expect.objectContaining({
-        data: expect.objectContaining({
-          toolId: "read_runtime_capabilities",
-          toolKind: "read",
-          status: "failed",
-          errorCode: "error",
-          errorMessage: "read tool exploded",
-        }),
+        toolId: "read_runtime_capabilities",
+        toolKind: "read",
+        mode: "admin",
+        profile: "admin",
+        status: "failed",
+        userId: null,
+        confirmationTokenUsed: false,
+        inputHash: EMPTY_OBJECT_INPUT_HASH,
+        errorCode: "error",
+        errorMessage: "read tool exploded",
       }),
     );
+    expect(telemetry?.latencyMs).toBeGreaterThanOrEqual(0);
   });
 
   it("generate_chart_spec returns payload with provenance metadata", async () => {
@@ -510,16 +548,22 @@ describe("admin write tools policy and confirmation", () => {
     if (first.status !== "confirmation_required") return;
     expect(first.confirmation.token.length).toBeGreaterThan(10);
     expect(mockFeedbackCreate).not.toHaveBeenCalled();
-    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
+    const [telemetry] = getTelemetryRows();
+    expect(telemetry).toEqual(
       expect.objectContaining({
-        data: expect.objectContaining({
-          toolId: "create_review_note_draft",
-          toolKind: "write",
-          confirmationTokenUsed: false,
-          status: "confirmation_required",
-        }),
+        toolId: "create_review_note_draft",
+        toolKind: "write",
+        mode: "admin",
+        profile: "admin",
+        status: "confirmation_required",
+        userId: "admin_test",
+        confirmationTokenUsed: false,
+        inputHash: expect.any(String),
+        errorCode: null,
+        errorMessage: null,
       }),
     );
+    expect(telemetry?.latencyMs).toBeGreaterThanOrEqual(0);
   });
 
   it("binds minted confirmation token to requesting admin user", async () => {
@@ -569,16 +613,22 @@ describe("admin write tools policy and confirmation", () => {
     );
     expect(second.status).toBe("executed");
     expect(mockFeedbackCreate).toHaveBeenCalledTimes(1);
-    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
+    const successTelemetry = getTelemetryRows().find((row) => row.status === "success");
+    expect(successTelemetry).toEqual(
       expect.objectContaining({
-        data: expect.objectContaining({
-          toolId: "create_review_note_draft",
-          toolKind: "write",
-          confirmationTokenUsed: true,
-          status: "success",
-        }),
+        toolId: "create_review_note_draft",
+        toolKind: "write",
+        mode: "admin",
+        profile: "admin",
+        status: "success",
+        userId: "admin_test",
+        confirmationTokenUsed: true,
+        inputHash: REVIEW_NOTE_HASH_WITH_AUTHOR,
+        errorCode: null,
+        errorMessage: null,
       }),
     );
+    expect(successTelemetry?.latencyMs).toBeGreaterThanOrEqual(0);
 
     await expect(
       executeAdminWriteTool(
@@ -588,18 +638,25 @@ describe("admin write tools policy and confirmation", () => {
         { userId: "admin_test", nowMs: 2_200, ttlMs: 10_000 },
       ),
     ).rejects.toThrow("admin_write_confirmation_used");
-    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
+    const blockedTelemetry = getTelemetryRows().find(
+      (row) =>
+        row.status === "blocked" && row.errorMessage === "admin_write_confirmation_used",
+    );
+    expect(blockedTelemetry).toEqual(
       expect.objectContaining({
-        data: expect.objectContaining({
-          toolId: "create_review_note_draft",
-          toolKind: "write",
-          confirmationTokenUsed: true,
-          status: "blocked",
-          errorCode: "confirmation_rejected",
-          errorMessage: "admin_write_confirmation_used",
-        }),
+        toolId: "create_review_note_draft",
+        toolKind: "write",
+        mode: "admin",
+        profile: "admin",
+        status: "blocked",
+        userId: "admin_test",
+        confirmationTokenUsed: true,
+        inputHash: REVIEW_NOTE_HASH_WITH_AUTHOR,
+        errorCode: "confirmation_rejected",
+        errorMessage: "admin_write_confirmation_used",
       }),
     );
+    expect(blockedTelemetry?.latencyMs).toBeGreaterThanOrEqual(0);
   });
 
   it("enforces token replay race semantics with parallel confirms", async () => {
@@ -705,23 +762,33 @@ describe("admin write tools policy and confirmation", () => {
       ),
     ).rejects.toThrow("admin_write_confirmation_mismatch");
 
-    expect(mockAdminToolRunCreate).toHaveBeenNthCalledWith(
-      1,
+    const [firstTelemetry, secondTelemetry] = getTelemetryRows();
+    expect(firstTelemetry).toEqual(
       expect.objectContaining({
-        data: expect.objectContaining({
-          toolId: "create_review_note_draft",
-          status: "confirmation_required",
-        }),
+        toolId: "create_review_note_draft",
+        toolKind: "write",
+        mode: "admin",
+        profile: "admin",
+        status: "confirmation_required",
+        userId: "admin_map_a",
+        confirmationTokenUsed: false,
+        inputHash: expect.any(String),
+        errorCode: null,
+        errorMessage: null,
       }),
     );
-    expect(mockAdminToolRunCreate).toHaveBeenNthCalledWith(
-      2,
+    expect(secondTelemetry).toEqual(
       expect.objectContaining({
-        data: expect.objectContaining({
-          toolId: "create_review_note_draft",
-          status: "blocked",
-          errorCode: "confirmation_rejected",
-        }),
+        toolId: "create_review_note_draft",
+        toolKind: "write",
+        mode: "admin",
+        profile: "admin",
+        status: "blocked",
+        userId: "admin_map_b",
+        confirmationTokenUsed: true,
+        inputHash: expect.any(String),
+        errorCode: "confirmation_rejected",
+        errorMessage: "admin_write_confirmation_mismatch",
       }),
     );
   });
@@ -751,18 +818,26 @@ describe("admin write tools policy and confirmation", () => {
         { userId: "admin_test", nowMs: 3_101, ttlMs: 100 },
       ),
     ).rejects.toThrow("admin_write_confirmation_expired");
-    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
+    const blockedTelemetry = getTelemetryRows().find(
+      (row) =>
+        row.status === "blocked" &&
+        row.errorMessage === "admin_write_confirmation_expired",
+    );
+    expect(blockedTelemetry).toEqual(
       expect.objectContaining({
-        data: expect.objectContaining({
-          toolId: "create_review_note_draft",
-          toolKind: "write",
-          confirmationTokenUsed: true,
-          status: "blocked",
-          errorCode: "confirmation_rejected",
-          errorMessage: "admin_write_confirmation_expired",
-        }),
+        toolId: "create_review_note_draft",
+        toolKind: "write",
+        mode: "admin",
+        profile: "admin",
+        status: "blocked",
+        userId: "admin_test",
+        confirmationTokenUsed: true,
+        inputHash: expect.any(String),
+        errorCode: "confirmation_rejected",
+        errorMessage: "admin_write_confirmation_expired",
       }),
     );
+    expect(blockedTelemetry?.latencyMs).toBeGreaterThanOrEqual(0);
   });
 
   it("allows retry after expiry by minting a new token", async () => {
@@ -841,18 +916,26 @@ describe("admin write tools policy and confirmation", () => {
       ),
     ).rejects.toThrow("admin_write_confirmation_mismatch");
     expect(mockFeedbackCreate).not.toHaveBeenCalled();
-    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
+    const mismatchTelemetry = getTelemetryRows().find(
+      (row) =>
+        row.status === "blocked" &&
+        row.errorMessage === "admin_write_confirmation_mismatch",
+    );
+    expect(mismatchTelemetry).toEqual(
       expect.objectContaining({
-        data: expect.objectContaining({
-          toolId: "create_review_note_draft",
-          toolKind: "write",
-          confirmationTokenUsed: true,
-          status: "blocked",
-          errorCode: "confirmation_rejected",
-          errorMessage: "admin_write_confirmation_mismatch",
-        }),
+        toolId: "create_review_note_draft",
+        toolKind: "write",
+        mode: "admin",
+        profile: "admin",
+        status: "blocked",
+        userId: "admin_test",
+        confirmationTokenUsed: true,
+        inputHash: expect.any(String),
+        errorCode: "confirmation_rejected",
+        errorMessage: "admin_write_confirmation_mismatch",
       }),
     );
+    expect(mismatchTelemetry?.latencyMs).toBeGreaterThanOrEqual(0);
   });
 
   it("accepts semantically identical payload with reordered keys", async () => {
@@ -890,6 +973,47 @@ describe("admin write tools policy and confirmation", () => {
     );
     expect(executed.status).toBe("executed");
     expect(mockFeedbackCreate).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps telemetry inputHash stable across key-reordered payloads", async () => {
+    const context = { chatMode: "admin" as const, profile: "admin" as const };
+    const tool = ADMIN_WRITE_TOOLS.find(
+      (candidate) => candidate.id === "create_review_note_draft",
+    );
+    expect(tool).toBeDefined();
+    if (!tool) return;
+
+    mockFeedbackCreate.mockResolvedValueOnce({ id: "fb_hash_stability_1" } as never);
+    const mintInput = {
+      title: "Stable telemetry hash",
+      body: "Confirm with reordered keys",
+      author: "admin",
+    };
+    const mint = await executeAdminWriteTool(
+      tool,
+      context,
+      { input: mintInput },
+      { userId: "admin_hash", nowMs: 20_000, ttlMs: 2_000 },
+    );
+    expect(mint.status).toBe("confirmation_required");
+    if (mint.status !== "confirmation_required") return;
+
+    const confirmInput = {
+      author: "admin",
+      body: "Confirm with reordered keys",
+      title: "Stable telemetry hash",
+    };
+    const executed = await executeAdminWriteTool(
+      tool,
+      context,
+      { input: confirmInput, confirmedToken: mint.confirmation.token },
+      { userId: "admin_hash", nowMs: 20_010, ttlMs: 2_000 },
+    );
+    expect(executed.status).toBe("executed");
+
+    const [mintTelemetry, successTelemetry] = getTelemetryRows();
+    expect(mintTelemetry?.inputHash).toBe(successTelemetry?.inputHash);
+    expect(mintTelemetry?.inputHash).toBeTypeOf("string");
   });
 
   it("rejects confirmation when token toolId does not match target write tool", async () => {
@@ -979,16 +1103,25 @@ describe("admin write tools policy and confirmation", () => {
         data: expect.objectContaining({ state: "DRAFT", actionType: "pause" }),
       }),
     );
-    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
+    const successTelemetry = getTelemetryRows().find(
+      (row) =>
+        row.toolId === "create_governance_proposal_draft" && row.status === "success",
+    );
+    expect(successTelemetry).toEqual(
       expect.objectContaining({
-        data: expect.objectContaining({
-          toolId: "create_governance_proposal_draft",
-          toolKind: "write",
-          confirmationTokenUsed: true,
-          status: "success",
-        }),
+        toolId: "create_governance_proposal_draft",
+        toolKind: "write",
+        mode: "admin",
+        profile: "admin",
+        status: "success",
+        userId: "admin_test",
+        confirmationTokenUsed: true,
+        inputHash: expect.any(String),
+        errorCode: null,
+        errorMessage: null,
       }),
     );
+    expect(successTelemetry?.latencyMs).toBeGreaterThanOrEqual(0);
   });
 
   it("persists write telemetry on execution failure", async () => {
@@ -1024,17 +1157,21 @@ describe("admin write tools policy and confirmation", () => {
         { userId: "admin_test", nowMs: 10_100, ttlMs: 1_000 },
       ),
     ).rejects.toThrow("write tool exploded");
-    expect(mockAdminToolRunCreate).toHaveBeenLastCalledWith(
+    const failedTelemetry = getTelemetryRows().at(-1);
+    expect(failedTelemetry).toEqual(
       expect.objectContaining({
-        data: expect.objectContaining({
-          toolId: "create_review_note_draft",
-          toolKind: "write",
-          confirmationTokenUsed: true,
-          status: "failed",
-          errorCode: "error",
-          errorMessage: "write tool exploded",
-        }),
+        toolId: "create_review_note_draft",
+        toolKind: "write",
+        mode: "admin",
+        profile: "admin",
+        status: "failed",
+        userId: "admin_test",
+        confirmationTokenUsed: true,
+        inputHash: expect.any(String),
+        errorCode: "error",
+        errorMessage: "write tool exploded",
       }),
     );
+    expect(failedTelemetry?.latencyMs).toBeGreaterThanOrEqual(0);
   });
 });

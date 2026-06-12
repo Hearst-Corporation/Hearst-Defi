@@ -965,3 +965,29 @@
 .pf-container--zero .ct-section-preview .ct-product-section__preview-head .eyebrow {
   display: none !important;
 }
+
+/* ── Position detail: align doc-flow cards with portfolio Cockpit surfaces ── */
+.product-doc .position-detail-shell .position-detail-value-card,
+.product-doc .position-detail-shell .position-detail-transactions,
+.product-doc .position-detail-shell .position-detail-kpis .kpi-cell {
+  border-color: var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  box-shadow: none;
+}
+
+.product-doc .position-detail-shell .position-detail-value-card,
+.product-doc .position-detail-shell .position-detail-transactions {
+  border-radius: var(--ct-radius-lg);
+}
+
+.product-doc .position-detail-shell .position-detail-transactions {
+  padding: var(--ct-space-4) var(--ct-space-5);
+}
+
+@container product-doc (max-width: 40rem) {
+  .product-doc .position-detail-shell .position-detail-transactions {
+    padding: var(--ct-space-3);
+  }
+}

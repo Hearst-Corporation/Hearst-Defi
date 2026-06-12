@@ -15,7 +15,7 @@ import { LoginForm } from "@/components/auth/login-form";
  */
 export function LoginPanel() {
   return (
-    <div className="flex flex-col items-center text-center w-full max-w-sm gap-8">
+    <div className="flex w-full max-w-sm flex-col items-center gap-8 text-center">
       <header className="flex flex-col items-center gap-3">
         <span className="eyebrow ct-text-accent">Investor access</span>
         <h1 className="h1 m-0">Sign in</h1>

@@ -12,6 +12,8 @@ const STEP_EYEBROW: Record<InvestStepId, string> = {
   confirmed: "Invest · Step 4 of 4",
 };
 
+type InvestFlowWidth = "cap" | "narrow" | "full";
+
 interface InvestFlowShellProps {
   step: InvestStepId;
   title: string;
@@ -22,6 +24,8 @@ interface InvestFlowShellProps {
   headerBelowStepper?: ReactNode;
   align?: "start" | "center";
   headerClassName?: string;
+  /** Max-width modifier — mutually exclusive cap vs narrow. Default: cap. */
+  width?: InvestFlowWidth;
   children: ReactNode;
   footer?: ReactNode;
   className?: string;
@@ -37,6 +41,7 @@ export function InvestFlowShell({
   headerBelowStepper,
   align = "start",
   headerClassName,
+  width = "cap",
   children,
   footer,
   className,
@@ -44,7 +49,9 @@ export function InvestFlowShell({
   return (
     <div
       className={cn(
-        "invest-flow-shell product-doc-shell product-doc-shell--cap",
+        "invest-flow-shell product-doc-shell",
+        width === "cap" && "product-doc-shell--cap",
+        width === "narrow" && "product-doc-shell--narrow",
         className,
       )}
     >

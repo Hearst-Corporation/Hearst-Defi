@@ -53,6 +53,9 @@ jobs:
       - name: Run Typecheck
         run: pnpm typecheck
 
+      - name: DS layout guardrails
+        run: pnpm ds:layout
+
   # ────────────────────────────────────────────────────────────────
   # Job 2 — Vitest unit + integration tests (BLOCKING)
   # ────────────────────────────────────────────────────────────────

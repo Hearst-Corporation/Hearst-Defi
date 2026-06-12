@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Markdown } from "@/components/admin/markdown";
 import {
+  getPendingConfirmationGuardError,
   isValidPendingConfirmation,
   toConfirmationRequestedState,
   toExecutionSuccessState,
@@ -35,6 +36,20 @@ interface ReadUtilitySummary {
   counts: Array<{ label: string; value: number }>;
 }
 
+interface ReadUtilityInput {
+  objective: string;
+  audience: string;
+}
+
+interface ExportDemoPackInput extends ReadUtilityInput {
+  includeCharts?: boolean;
+  includeChecklist?: boolean;
+}
+
+interface ExportBriefingPackInput extends ReadUtilityInput {
+  includeCharts?: boolean;
+}
+
 const EXPORT_PACK_TOOL_IDS = new Set<ReadUtilitySummary["toolId"]>([
   "export_demo_pack",
   "export_briefing_pack",
@@ -49,6 +64,50 @@ function toCountLabel(key: string): string {
     .replace(/[_-]+/g, " ")
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
     .trim();
+}
+
+function buildReadUtilityInput(
+  toolId: AdminReadUtilityToolId,
+  params: {
+    chartIntent: string;
+    chartType: string;
+    chartTimeframe: string;
+    demoObjective: string;
+    demoAudience: string;
+    demoPackIncludeCharts: boolean;
+    demoPackIncludeChecklist: boolean;
+  },
+): unknown {
+  if (toolId === "generate_chart_spec") {
+    return {
+      intent: params.chartIntent.trim(),
+      chartType: params.chartType,
+      ...(params.chartTimeframe.trim().length > 0
+        ? { timeframe: params.chartTimeframe.trim() }
+        : {}),
+    };
+  }
+
+  const base: ReadUtilityInput = {
+    objective: params.demoObjective.trim(),
+    audience: params.demoAudience.trim(),
+  };
+  if (toolId === "generate_demo_plan") return base;
+
+  if (toolId === "export_demo_pack") {
+    const payload: ExportDemoPackInput = {
+      ...base,
+      includeCharts: params.demoPackIncludeCharts,
+      includeChecklist: params.demoPackIncludeChecklist,
+    };
+    return payload;
+  }
+
+  const payload: ExportBriefingPackInput = {
+    ...base,
+    includeCharts: params.demoPackIncludeCharts,
+  };
+  return payload;
 }
 
 export function getReadUtilitySummary(rawJson: string): ReadUtilitySummary | null {
@@ -472,12 +531,14 @@ export function AdminChatControls() {
 
   const confirmWriteAction = useCallback(async () => {
     if (!pendingConfirmation || writeActionInFlightRef.current) return;
-    if (!isValidPendingConfirmation(pendingConfirmation)) {
+    const confirmationGuardError =
+      getPendingConfirmationGuardError(pendingConfirmation);
+    if (confirmationGuardError) {
       applyActionFlowState({
         ...getActionFlowState(),
         pendingConfirmation: null,
         actionResult: null,
-        error: "Confirmation expiree, redemandez une validation.",
+        error: confirmationGuardError,
       });
       return;
     }
@@ -532,32 +593,15 @@ export function AdminChatControls() {
     if (readUtilityInFlightRef.current) return;
     setError(null);
     setReadUtilityResult(null);
-    const input =
-      readUtilityTool === "generate_chart_spec"
-        ? {
-            intent: chartIntent.trim(),
-            chartType,
-            ...(chartTimeframe.trim().length > 0
-              ? { timeframe: chartTimeframe.trim() }
-              : {}),
-          }
-        : readUtilityTool === "generate_demo_plan"
-          ? {
-              objective: demoObjective.trim(),
-              audience: demoAudience.trim(),
-            }
-          : readUtilityTool === "export_demo_pack"
-            ? {
-                objective: demoObjective.trim(),
-                audience: demoAudience.trim(),
-                includeCharts: demoPackIncludeCharts,
-                includeChecklist: demoPackIncludeChecklist,
-              }
-            : {
-                objective: demoObjective.trim(),
-                audience: demoAudience.trim(),
-                includeCharts: demoPackIncludeCharts,
-              };
+    const input = buildReadUtilityInput(readUtilityTool, {
+      chartIntent,
+      chartType,
+      chartTimeframe,
+      demoObjective,
+      demoAudience,
+      demoPackIncludeCharts,
+      demoPackIncludeChecklist,
+    });
     if (readUtilityTool === "generate_chart_spec" && chartIntent.trim().length === 0) {
       setError("Intent requis pour le chart spec.");
       return;

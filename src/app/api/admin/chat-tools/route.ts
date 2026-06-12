@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHash } from "node:crypto";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -15,6 +14,7 @@ import {
   projectAdminReadResultForExternal,
   type AdminReadToolExecutionContext,
 } from "@/lib/llm/tools";
+import { hashCanonicalPayload } from "@/lib/llm/tools/confirmations";
 import { assertBodySize, assertRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -76,31 +76,31 @@ function adminError(err: unknown): NextResponse<{ error: string }> {
 }
 
 function toSafeTelemetryCode(reason: string): string {
-  return reason
+  const sanitized = reason
     .trim()
     .replace(/[^a-z0-9_]/gi, "_")
     .replace(/_+/g, "_")
     .toLowerCase()
     .slice(0, MAX_TELEMETRY_ERROR_CODE_LEN);
+  return sanitized.length > 0 ? sanitized : "blocked";
 }
 
 function toSafeTelemetryMessage(reason: string): string {
-  return reason
+  const sanitized = reason
     .trim()
     .replace(/[^a-z0-9 _:\-]/gi, "_")
     .replace(/\s+/g, " ")
     .slice(0, MAX_TELEMETRY_ERROR_MESSAGE_LEN);
+  return sanitized.length > 0 ? sanitized : "blocked";
 }
 
 function hashToolInput(input: unknown): string | null {
   if (input === undefined) return null;
-  let serialized: string;
   try {
-    serialized = JSON.stringify(input);
+    return hashCanonicalPayload(input);
   } catch {
     return null;
   }
-  return createHash("sha256").update(serialized).digest("hex");
 }
 
 function mapWriteConfirmationError(

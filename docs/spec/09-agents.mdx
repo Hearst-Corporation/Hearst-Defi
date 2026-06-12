@@ -111,7 +111,7 @@ See **ADR-012** and the "Conversational chat" section below.
 - All outputs validated via Zod `.strict()` schemas (`src/lib/agents/schemas.ts`)
 - Forbidden-words list is canonical in `src/lib/agents/forbidden-words.ts`; the agent guard (`assertNoForbiddenWords`, `assertCitesAssumption`) lives in `src/lib/agents/validators.ts`
 - Cost/usage tracked in `LlmRun` Prisma table (GPT-4.1 list pricing $2.00 / $8.00 per MTOK, computed in `client.ts`)
-- Admin tool telemetry (`agentName = "admin-chat-tool"`) is also persisted in `LlmRun`: `model=<chatMode>:<profile>`, `promptHash=<toolId>`, status `success|blocked|failed|confirmation_required`, and bounded `errorMessage` (max 500 chars)
+- Admin tool telemetry is persisted in `AdminToolRun` (not `LlmRun`): `mode=<chatMode>`, `profile=<profile>`, `toolId`, status `success|blocked|failed|confirmation_required`, `inputHash` (SHA-256 over request JSON when serializable), and bounded `errorMessage` (max 500 chars)
 
 ## Conversational chat (scoped exception — ADR-012)
 
@@ -129,7 +129,7 @@ any admin action. Three admin-selectable modes:
   - **Read payload redaction contract**: tool outputs are deterministic, schema-bounded and read-only (`multiline_text_block` or typed `json_object`), with no secrets/env vars/internal IDs leakage. Missing data is returned as explicit `unavailable` markers instead of raw backend errors.
   - Any attempted model-side auto-execution of a write tool is deterministically blocked server-side (non-sensitive warning log), with no side effects; write remains explicit human confirmation flow only.
   - Admin write-tools for **draft-only** actions (`create_review_note_draft`, `create_governance_proposal_draft`) are exposed through `GET/POST /api/admin/chat-tools` (admin-only). They are **not auto-triggered by LLM output**: execution is explicit from the admin controls panel ("Actions admin"), and always uses a two-step handshake: step 1 returns `confirmation_required` (token + summary), step 2 requires explicit confirm click + token. Tokens are short-TTL and single-use; expired/invalid tokens are rejected server-side.
-  - **Confirmation token binding contract**: token is user-bound and tied to `(userId, toolId, payloadHash)` where payload hash is computed from a canonicalized input payload. Any user/tool/payload mismatch, replay (`usedAt`) or expiry rejects execution.
+  - **Confirmation token binding contract**: token is user-bound and tied to `(userId, toolId, payloadHash)` where payload hash is computed from a canonicalized input payload (stable key-sorted serialization). Any user/tool/payload mismatch, replay (`usedAt`) or expiry rejects execution.
 - **LP-facing Master Agent** — normal-mode chat, flag-gated behind `CHAT_MASTER_AGENT` (server-only env, OFF by default). Runs through the app-owned tool-capable engine (`runChatAgent`) whose **only** tool is `navigate` — a client-side, read-only route change restricted to a **closed whitelist** (`NAV_DESTINATIONS`: portfolio, vaults, proof-center, profile). No write / financial / admin tool exists.
 
 Guardrails (all enforced server-side):

@@ -13,7 +13,7 @@ import { safeFrom } from "@/lib/safe-redirect";
  *
  * On success the `login` server action redirects (this component never sees a
  * resolved promise). On failure it returns `{ ok: false, error }`, shown inline
- * via `.ct-status-danger`. Privy is NOT used here — wallet connect happens later
+ * via `.ct-status-danger`. Privy is NOT used here; wallet connect happens later
  * in the payment flow.
  *
  * Design-lock: only locked primitives (`Button`, `.ct-input`, `.ct-*`). No new
@@ -41,9 +41,7 @@ export function LoginForm() {
   return (
     <form action={onSubmit} className="space-y-4" aria-label="Sign in">
       <label className="block" htmlFor="login-email">
-        <span className="mb-1 block stat-label">
-          Email
-        </span>
+        <span className="stat-label mb-1 block">Email</span>
         <input
           id="login-email"
           name="email"
@@ -60,9 +58,7 @@ export function LoginForm() {
       </label>
 
       <label className="block" htmlFor="login-password">
-        <span className="mb-1 block stat-label">
-          Password
-        </span>
+        <span className="stat-label mb-1 block">Password</span>
         <input
           id="login-password"
           name="password"
@@ -96,11 +92,8 @@ export function LoginForm() {
         </Button>
       </div>
 
-      <p className="text-center body-xs ct-text-muted">
-        <Link
-          href="/forgot-password"
-          className="ct-link-accent hover:underline"
-        >
+      <p className="body-xs ct-text-muted text-center">
+        <Link href="/forgot-password" className="ct-link-accent">
           Forgot password?
         </Link>
       </p>

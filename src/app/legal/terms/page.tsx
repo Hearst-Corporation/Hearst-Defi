@@ -1,5 +1,7 @@
 import "../legal.css";
 
+import Link from "next/link";
+
 import { LegalPageHeader } from "@/components/legal/legal-page-header";
 
 export const dynamic = "force-static";
@@ -73,7 +75,7 @@ export default function TermsPage() {
       <p>
         Investment involves substantial risk, including loss of principal. See
         the{" "}
-        <a href="/legal/disclaimer">risk disclaimer</a> for a detailed list of
+        <Link href="/legal/disclaimer">risk disclaimer</Link> for a detailed list of
         risk factors specific to Bitcoin mining revenue, distribution coverage,
         the USDC principal reserve, custody, and smart contracts.
       </p>

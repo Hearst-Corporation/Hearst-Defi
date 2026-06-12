@@ -31,9 +31,7 @@ export function ForgotPasswordForm() {
   return (
     <form action={onSubmit} className="space-y-4" aria-label="Forgot password">
       <label className="block" htmlFor="fp-email">
-        <span className="mb-1 block stat-label">
-          Email address
-        </span>
+        <span className="stat-label mb-1 block">Email address</span>
         <input
           id="fp-email"
           name="email"
@@ -70,8 +68,8 @@ export function ForgotPasswordForm() {
         {isPending ? "Sending…" : "Send reset link"}
       </Button>
 
-      <p className="text-center body-xs ct-text-muted">
-        <Link href="/login" className="ct-link-accent hover:underline">
+      <p className="body-xs ct-text-muted text-center">
+        <Link href="/login" className="ct-link-accent">
           Back to sign in
         </Link>
       </p>

@@ -43,13 +43,15 @@ depuis le chat : `create_review_note_draft` et
 appel 1 -> token de confirmation (TTL court, single-use), appel 2 avec token
 valide -> persistance du draft. Aucun déploiement, aucune transaction financière,
 aucune action destructive.
-Le token est lié au couple `(userId,toolId,inputHash)` avec hash de payload canonique :
-si le payload change entre demande et confirmation (ou si token expiré/utilisé),
+Le token est lié au couple `(userId,toolId,payloadHash)` avec hash **canonique** du payload
+(serialization stable triée par clés) : si le payload change entre demande et confirmation
+(ou si token expiré/utilisé),
 exécution rejetée
 côté serveur.
-Télémétrie admin tools (`admin-chat-tool`) : chaque run est tracé dans `LlmRun`
-avec `model=<chatMode>:<profile>`, `promptHash=<toolId>`, statut
-`success|blocked|failed|confirmation_required` et message d'erreur tronqué.
+Télémétrie admin tools : chaque run est tracé dans `AdminToolRun`
+avec `mode=<chatMode>`, `profile=<profile>`, `toolId`, statut
+`success|blocked|failed|confirmation_required`, `inputHash` (SHA-256 du JSON d'input)
+et message d'erreur borné.
 Contrat de redaction read payload : sorties strictement schema-bounded et
 read-only, sans secrets/env vars/identifiants sensibles ; indisponibilité
 explicite via champs/lignes `unavailable` au lieu de fuite brute.
@@ -221,9 +223,10 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
 - H2 section : `.h2` · module : `.h3` / `DashboardPanelHeader` / `WidgetPanelHeader` · KPI : `.stat-value` + `.stat-label`.
 - Shell page : `product-doc-shell` (`gap: var(--ct-space-8)`) ; admin `admin-doc-shell` (`gap: var(--ct-space-4)`, `--compact` → `space-3`). Zone `.ct-page-area` admin : `24px 20px 32px` (vs `32px 40px 80px` LP).
 - Layout stacks : `src/app/doc-flow.css` — scopes `.product-doc` / `.admin-doc` ; stacks `*-doc-stack*` / `*-doc-inline-row*` (pas de `gap-*` / `space-y-*` Tailwind ad hoc en admin).
-- Admin spacing rule : utiliser une classe base + modifier (`admin-doc-stack admin-doc-stack--actions`, `admin-doc-inline-row admin-doc-inline-row--between`). Un modifier seul ne doit pas porter le layout.
+- Spacing rule (admin **et** product) : classe base + modifier (`admin-doc-stack admin-doc-stack--actions`, `product-doc-stack product-doc-stack--tight`, `*-doc-inline-row *-doc-inline-row--between`). Un modifier seul ne doit pas porter le layout.
 - Surface par défaut : `Card` → `.ct-glass-panel` (produit **et** admin). Header canon : `DashboardPanelHeader` (`src/components/ui/dashboard-panel-header.tsx`). **Interdit** : listes flat (`admin-doc-flat-list`, `admin-vault-list-card`).
 - Formatters : `src/lib/vaults/product-display.ts`.
+- Vault detail parity admin/LP : faits partagés `src/lib/vaults/vault-detail-facts.ts` ; présentation `vault-admin-kpi-strip`, `vault-legal-proof-rows`, `vault-allocation-display` (admin = `Card`, LP = sections plates).
 - Exceptions non-glass **seules autorisées** (commentaire `/* ADR-013 exception */` requis) : `.scenario-preset-bar`, `Ptai variant="flat"` en compare, `EmptySurface` seul — voir ADR-013 §10.3. Dashboard command board + KPI strip : `Card` / `.ct-glass-panel`.
 - Migration ADR-013 : **Lots 1+4 done** (surfaces JSX, `SystemPanel` supprimé, aliases CSS retirés, scenario-lab sur `Card`). Reste : token syntax legacy admin (shorthand `(-ct-TOKEN)` → canon bracket form).
 
@@ -245,7 +248,8 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
 ```bash
 pnpm typecheck            # tsc strict
 pnpm lint                 # eslint, no-any en erreur
-pnpm test                 # vitest
+pnpm test                 # vitest (inclut doc-flow-shells guardrail)
+pnpm ds:layout            # bloquant — ct-table-surface, ct-hover-surface, ct-card direct
 ```
 
 Hub d'audit DS **local, advisory** (n'échoue pas la CI — `exit 0` toujours) :

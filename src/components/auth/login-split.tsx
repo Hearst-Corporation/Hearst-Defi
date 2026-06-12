@@ -1,16 +1,17 @@
 import Image from "next/image";
 
 import { LoginPanel } from "@/components/auth/login-panel";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { listVaults } from "@/lib/data/vaults";
 
 export async function LoginSplit() {
   const vaults = await listVaults();
   const vault = vaults.find((v) => v.ticker === "HYV-A") ?? vaults[0];
   const apyRange =
-    vault != null ? `${vault.apyLow}–${vault.apyHigh}%` : null;
+    vault != null ? `${vault.apyLow}-${vault.apyHigh}%` : null;
 
   return (
-    <div className="login-split relative !p-0">
+    <div className="login-split relative p-0!">
       <div aria-hidden="true" className="login-split__ambient">
         <div className="login-split__glow" />
       </div>
@@ -34,7 +35,9 @@ export async function LoginSplit() {
 
               <h2 className="h1 login-split__title-wrap m-0">
                 Institutional yield, backed by{" "}
-                <span className="login-split__title-accent">Bitcoin mining</span>
+                <span className="login-split__title-accent">
+                  Bitcoin mining
+                </span>
               </h2>
 
               {apyRange != null && (
@@ -44,6 +47,7 @@ export async function LoginSplit() {
                   <span className="body-sm font-semibold ct-text-primary tabular">
                     {apyRange}
                   </span>
+                  <ProvenanceBadge kind="estimated" variant="strip" />
                 </div>
               )}
             </div>

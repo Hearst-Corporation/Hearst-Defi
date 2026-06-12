@@ -78,4 +78,25 @@ describe("TermSheetPreview — truthful institutional claims", () => {
     expect(html).toContain(">15%<");
     expect(html).not.toContain("Vault target allocation");
   });
+
+  it("renders regime scenarios without ct-table-surface wrapper", () => {
+    expect(html).toContain("regime-scenario-table");
+    expect(html).not.toContain("ct-table-surface");
+    expect(html).not.toContain("overflow-x-auto");
+  });
+
+  it("uses product-doc-stack base with layout modifiers (no orphan --tight)", () => {
+    expect(html).toContain("product-doc-stack product-doc-stack--tight");
+    for (const match of html.matchAll(/class="([^"]*)"/g)) {
+      const classValue = match[1];
+      if (!classValue) continue;
+      const tokens = classValue.trim().split(/\s+/);
+      if (
+        tokens.includes("product-doc-stack--tight") &&
+        !tokens.includes("product-doc-stack")
+      ) {
+        throw new Error(`Orphan product-doc-stack--tight in class="${match[1]}"`);
+      }
+    }
+  });
 });

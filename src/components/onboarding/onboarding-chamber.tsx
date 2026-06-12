@@ -84,7 +84,10 @@ export function OnboardingRequirementsList({
     <PanelStatusSection label="Requirements" aria-label="Onboarding requirements">
       <ul className="m-0 p-0 list-none product-doc-stack--list">
         {items.map((item) => (
-          <li key={item.id} className="product-doc-inline-row product-doc-inline-row--start product-doc-inline-row--loose">
+          <li
+            key={item.id}
+            className="product-doc-inline-row product-doc-inline-row--start product-doc-inline-row--loose"
+          >
             <span
               aria-hidden
               className={cn(
@@ -114,7 +117,7 @@ export function OnboardingRequirementsList({
             <span className="body-sm ct-text-body">
               {item.label}
               {item.optional ? (
-                <span className="eyebrow ct-text-faint ml-[var(--ct-space-2)] align-middle">
+                <span className="eyebrow ct-text-faint ml-(--ct-space-2) align-middle">
                   Optional
                 </span>
               ) : null}

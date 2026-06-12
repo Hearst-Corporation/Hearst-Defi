@@ -52,7 +52,7 @@ function pctCell(value: number) {
 
 export function RegimeScenarioTable() {
   return (
-    <div className="regime-scenario-table ct-table-surface">
+    <div className="regime-scenario-table">
       <table>
         <thead>
           <tr>

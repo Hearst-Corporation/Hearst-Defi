@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  getPendingConfirmationGuardError,
   isValidPendingConfirmation,
   toConfirmationRequestedState,
   toExecutionSuccessState,
@@ -91,5 +92,39 @@ describe("admin chat actions confirmation flow", () => {
       }),
     ).toBe(false);
     expect(isValidPendingConfirmation(null)).toBe(false);
+  });
+
+  it("rejects invalid tool id and missing input guardrails", () => {
+    expect(
+      getPendingConfirmationGuardError({
+        toolId: "not_a_real_tool" as never,
+        token: "token_123",
+        expiresAtIso: "2100-01-01T00:00:00.000Z",
+        summary: "ok",
+        input: { title: "A", body: "B" },
+      }),
+    ).toContain("outil non reconnu");
+
+    expect(
+      getPendingConfirmationGuardError({
+        toolId: "create_review_note_draft",
+        token: "token_123",
+        expiresAtIso: "2100-01-01T00:00:00.000Z",
+        summary: "ok",
+        input: null as unknown as Record<string, unknown>,
+      }),
+    ).toContain("input manquant");
+  });
+
+  it("returns explicit stale error message", () => {
+    expect(
+      getPendingConfirmationGuardError({
+        toolId: "create_review_note_draft",
+        token: "token_123",
+        expiresAtIso: "2000-01-01T00:00:00.000Z",
+        summary: "ok",
+        input: { title: "A", body: "B" },
+      }),
+    ).toContain("expiree");
   });
 });

@@ -26,11 +26,13 @@ export function TotpChallengeForm() {
   }
 
   return (
-    <form action={onSubmit} className="space-y-4" aria-label="Two-factor authentication">
+    <form
+      action={onSubmit}
+      className="space-y-4"
+      aria-label="Two-factor authentication"
+    >
       <label className="block" htmlFor="totp-challenge-code">
-        <span className="mb-1 block stat-label">
-          Authenticator code
-        </span>
+        <span className="stat-label mb-1 block">Authenticator code</span>
         <input
           id="totp-challenge-code"
           name="code"
@@ -64,8 +66,8 @@ export function TotpChallengeForm() {
         {isPending ? "Verifying…" : "Continue"}
       </Button>
 
-      <p className="text-center body-xs ct-text-muted">
-        <Link href="/login" className="ct-link-accent hover:underline">
+      <p className="body-xs ct-text-muted text-center">
+        <Link href="/login" className="ct-link-accent">
           Start over
         </Link>
       </p>

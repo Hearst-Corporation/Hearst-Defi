@@ -14,6 +14,7 @@
     "start": "next start -p 4105",
     "preflight": "node scripts/preflight-prod.mjs",
     "ds:classes": "bash scripts/ds-classes-audit.sh",
+    "ds:layout": "node scripts/ds-layout-audit.mjs",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

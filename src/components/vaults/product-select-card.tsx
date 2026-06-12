@@ -59,7 +59,10 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
         </div>
 
         <div aria-hidden className="vault-select-card__divider-h" />
-        <div aria-hidden className="vault-select-card__divider-v ct-card-divider-v" />
+        <div
+          aria-hidden
+          className="vault-select-card__divider-v border-l border-(--ct-border-soft)"
+        />
 
         <div className="vault-select-card__meta">
           <div className="product-doc-kpi-grid-2">

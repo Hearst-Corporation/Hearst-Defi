@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createHash } from "node:crypto";
 import type { AdminWriteToolId } from "@/lib/llm/tools/types";
 import { prisma } from "@/lib/db";
 
@@ -18,8 +19,8 @@ function stableSerialize(value: unknown): string {
   return JSON.stringify(value);
 }
 
-function hashPayload(value: unknown): string {
-  return stableSerialize(value);
+export function hashCanonicalPayload(value: unknown): string {
+  return createHash("sha256").update(stableSerialize(value)).digest("hex");
 }
 
 export async function createWriteConfirmation(params: {
@@ -32,7 +33,7 @@ export async function createWriteConfirmation(params: {
   const nowMs = params.nowMs ?? Date.now();
   const expiresAtMs = nowMs + params.ttlMs;
   const token = crypto.randomUUID();
-  const payloadHash = hashPayload(params.input);
+  const payloadHash = hashCanonicalPayload(params.input);
   await prisma.adminWriteToolConfirmation.create({
     data: {
       token,
@@ -72,7 +73,7 @@ export async function consumeWriteConfirmation(params: {
   if (record.toolId !== params.toolId) return { ok: false, reason: "mismatch" };
   if (record.usedAt !== null) return { ok: false, reason: "used" };
   if (nowMs > record.expiresAt.getTime()) return { ok: false, reason: "expired" };
-  if (record.payloadHash !== hashPayload(params.input)) {
+  if (record.payloadHash !== hashCanonicalPayload(params.input)) {
     return { ok: false, reason: "mismatch" };
   }
   const usedAt = new Date(nowMs);

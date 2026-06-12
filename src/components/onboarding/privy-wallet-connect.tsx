@@ -14,6 +14,7 @@ import {
   OnboardingRequirementsList,
   useOnboardingShell,
 } from "@/components/onboarding/onboarding-chamber";
+import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -53,7 +54,11 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
 
   if (!ready) {
     return (
-      <Card aria-busy="true" aria-label="Loading wallet connection">
+      <Card
+        hoverOverlay={false}
+        aria-busy="true"
+        aria-label="Loading wallet connection"
+      >
         <AwaitingMetricState variant="inline" message="Loading wallet connection…" />
       </Card>
     );
@@ -62,6 +67,7 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
   if (authenticated && address) {
     return (
       <Card
+        hoverOverlay={false}
         className="product-doc-stack--relaxed items-center text-center"
         role="region"
         aria-label="Wallet connected"
@@ -92,7 +98,10 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
   }
 
   return (
-    <Card className="product-doc-stack--relaxed items-center text-center">
+    <Card
+      hoverOverlay={false}
+      className="product-doc-stack--relaxed items-center text-center"
+    >
       <p className="body-sm ct-text-muted m-0 ct-prose-narrow">
         Link the wallet address that will receive your USDC distributions.
         Supported: MetaMask, Ledger, WalletConnect, Coinbase Wallet.
@@ -147,15 +156,18 @@ export function WalletChamber({
     <OnboardingChamber
       testId="onboarding-wallet"
       crown={
-        <div className="product-doc-stack--tight">
-          <p className="eyebrow ct-text-muted m-0">Onboarding · Step 3 of 3</p>
-          <h1 className="h1 m-0">Connect your wallet</h1>
-          <p className="body-md ct-text-muted m-0 text-pretty ct-prose-md">
-            Link the wallet address that will receive your USDC distributions.
-            This wallet will also be the signing key for on-chain position
-            management.
-          </p>
-        </div>
+        <>
+          <StepProgressBar active="wallet" />
+          <div className="product-doc-stack--tight">
+            <p className="eyebrow ct-text-muted m-0">Onboarding · Step 3 of 3</p>
+            <h1 className="h1 m-0">Connect your wallet</h1>
+            <p className="body-md ct-text-muted m-0 text-pretty ct-prose-md">
+              Link the wallet address that will receive your USDC distributions.
+              This wallet will also be the signing key for on-chain position
+              management.
+            </p>
+          </div>
+        </>
       }
       body={
         <>

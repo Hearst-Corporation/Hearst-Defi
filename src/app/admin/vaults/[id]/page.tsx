@@ -4,19 +4,21 @@ import { notFound } from "next/navigation";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { RejectDeploymentButton } from "@/components/admin/reject-deployment-button";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
-import { ApyRange } from "@/components/ui/apy-range";
+import { VaultAdminKpiStrip } from "@/components/vaults/vault-admin-kpi-strip";
+import { VaultAllocationAdminRows } from "@/components/vaults/vault-allocation-display";
+import { VaultLegalProofRows } from "@/components/vaults/vault-legal-proof-rows";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
-import { ProofRow } from "@/components/ui/nested-panel";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { Progress } from "@/components/ui/progress";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { cn } from "@/lib/cn";
 import { prisma } from "@/lib/db";
-import { STRATEGY_LABELS, REG_LABELS, SPV_LABELS } from "@/lib/constants/vault";
-import { formatUsdFull } from "@/lib/vaults/product-display";
+import {
+  toVaultAllocationFacts,
+  toVaultKpiFacts,
+  toVaultLegalFacts,
+} from "@/lib/vaults/vault-detail-facts";
 
 import {
   closeVault,
@@ -29,10 +31,6 @@ import {
 } from "../actions";
 
 export const dynamic = "force-dynamic";
-
-function pct(bps: number) {
-  return (bps / 100).toFixed(1);
-}
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -56,10 +54,23 @@ export default async function VaultDetailPage({ params }: PageProps) {
   if (!vault) notFound();
 
   const aumUsdc = vault.positions.reduce((sum, p) => sum + Number(p.principalUsdc), 0);
-  const capacityUsdc = Number(vault.capacityUsdc);
-  const aumPct = capacityUsdc > 0 ? (aumUsdc / capacityUsdc) * 100 : 0;
-  const apyLow = Number(vault.targetApyLowBps) / 100;
-  const apyHigh = Number(vault.targetApyHighBps) / 100;
+  const kpiFacts = toVaultKpiFacts({
+    targetApyLowBps: vault.targetApyLowBps,
+    targetApyHighBps: vault.targetApyHighBps,
+    mgmtFeeBps: vault.mgmtFeeBps,
+    perfFeeBps: vault.perfFeeBps,
+    softLockupDays: vault.softLockupDays,
+    capacityUsdc: Number(vault.capacityUsdc),
+    aumUsdc,
+  });
+  const legalFacts = toVaultLegalFacts({
+    strategy: vault.strategy,
+    spvJurisdiction: vault.spvJurisdiction,
+    shareClass: vault.shareClass,
+    regExemption: vault.regExemption,
+    minTicketUsdc: Number(vault.minTicketUsdc),
+  });
+  const allocationFacts = toVaultAllocationFacts(vault);
 
   let whitelist: string[];
   try {
@@ -236,97 +247,22 @@ export default async function VaultDetailPage({ params }: PageProps) {
         }
       />
 
-      {/* KPIs */}
-      <div className="admin-doc-kpi-grid-4">
-        <Card>
-          <div className="admin-doc-inline-row admin-doc-inline-row--between mb-1">
-            <span className="stat-label">Target APY</span>
-            <ProvenanceBadge kind="estimated" />
-          </div>
-          <ApyRange low={apyLow} high={apyHigh} precision={1} />
-          <p className="body-xs ct-text-faint mt-1">Not guaranteed — estimated</p>
-        </Card>
+      <VaultAdminKpiStrip
+        facts={kpiFacts}
+        showAumCard={vault.status === "live"}
+      />
 
-        <Card>
-          <span className="stat-label block mb-1">Fees</span>
-          <span className="stat-value mono tabular">
-            {pct(vault.mgmtFeeBps)}% / {pct(vault.perfFeeBps)}%
-          </span>
-          <p className="body-xs ct-text-faint mt-1">Mgmt / Perf</p>
-        </Card>
-
-        <Card>
-          <span className="stat-label block mb-1">Lock-up</span>
-          <span className="stat-value mono tabular">
-            {vault.softLockupDays}d
-          </span>
-          <p className="body-xs ct-text-faint mt-1">Soft lock-up</p>
-        </Card>
-
-        {vault.status === "live" && (
-          <Card>
-            <div className="admin-doc-inline-row admin-doc-inline-row--between mb-1">
-              <span className="stat-label">AUM</span>
-              <ProvenanceBadge kind={aumUsdc > 0 ? "live" : "estimated"} />
-            </div>
-            <span className="stat-value mono tabular">
-              {formatUsdFull(aumUsdc)}
-            </span>
-            <div className="mt-2">
-              <Progress value={aumPct} label="AUM vs capacity" />
-            </div>
-            <p className="body-xs ct-text-faint mt-1">
-              / {formatUsdFull(capacityUsdc)} capacity
-            </p>
-          </Card>
-        )}
-      </div>
-
-      {/* Details */}
       <div className="admin-doc-split-grid">
-        {/* Legal */}
         <Card>
           <DashboardPanelHeader title="Legal" />
           <div className="mt-4">
-            {(
-              [
-                ["Strategy", STRATEGY_LABELS[vault.strategy] ?? vault.strategy],
-                ["SPV", SPV_LABELS[vault.spvJurisdiction] ?? vault.spvJurisdiction],
-                ["Share Class", vault.shareClass],
-                ["Reg Exemption", REG_LABELS[vault.regExemption] ?? vault.regExemption],
-                ["Min Ticket", `${formatUsdFull(Number(vault.minTicketUsdc))} USDC`],
-              ] as [string, string][]
-            ).map(([label, value]) => (
-              <ProofRow key={label} label={label}>
-                {value}
-              </ProofRow>
-            ))}
+            <VaultLegalProofRows facts={legalFacts} variant="admin" />
           </div>
         </Card>
 
-        {/* Allocation policy */}
         <Card>
           <DashboardPanelHeader title="Allocation Policy" />
-          <div className="mt-4 admin-doc-stack admin-doc-stack--relaxed">
-            {(
-              [
-                ["Mining", vault.targetMiningBps],
-                ["BTC Tactical", vault.targetBtcTacticalBps],
-                ["USDC Base", vault.targetUsdcBaseBps],
-                ["Stable Reserve", vault.targetStableReserveBps],
-              ] as [string, number][]
-            ).map(([label, bps]) => (
-              <div key={label} className="admin-doc-stack admin-doc-stack--compact">
-                <div className="admin-doc-row-spread">
-                  <span className="stat-label">{label}</span>
-                  <span className="mono tabular body-sm ct-text-primary">
-                    {pct(bps)}%
-                  </span>
-                </div>
-                <Progress value={bps} max={10000} label={`${label} allocation`} />
-              </div>
-            ))}
-          </div>
+          <VaultAllocationAdminRows facts={allocationFacts} />
         </Card>
       </div>
 

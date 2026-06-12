@@ -1,5 +1,4 @@
 import "./profile.css";
-import "../../doc-flow.css";
 
 import Link from "next/link";
 
@@ -58,10 +57,7 @@ export default async function ProfilePage() {
   const kycRejected = kycStatus === "rejected";
 
   return (
-    <div
-      className="prof-shell product-doc-shell w-full min-w-0"
-      data-testid="profile-page"
-    >
+    <div className="prof-shell product-doc-shell" data-testid="profile-page">
       {showDemoBanner ? <DemoDataBanner /> : null}
 
       <ProductPageHeader

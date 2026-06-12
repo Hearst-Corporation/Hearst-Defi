@@ -68,7 +68,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       lead={
         <Link
           href="/vaults"
-          className="body-sm ct-text-muted transition-opacity hover:opacity-80"
+          className="body-sm ct-link-accent"
           aria-label="Back to product list"
         >
           ← Products
@@ -126,7 +126,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           <div
             role="note"
             aria-label="Important disclaimers"
-            className="ct-prose-xl product-doc-stack--actions"
+            className="ct-prose-xl product-doc-stack product-doc-stack--actions"
           >
             <p className="body-sm ct-text-muted leading-relaxed">
               {vault.disclaimers}

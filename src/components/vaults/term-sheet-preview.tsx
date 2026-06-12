@@ -1,89 +1,20 @@
 import { Badge } from "@/components/ui/badge";
-import { NestedKpiGrid, ProofRow } from "@/components/ui/nested-panel";
+import { NestedKpiGrid } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { VaultAllocationInvestorList } from "@/components/vaults/vault-allocation-display";
+import { VaultLegalProofRows } from "@/components/vaults/vault-legal-proof-rows";
 import { RegimeScenarioTable } from "@/components/vaults/regime-scenario-table";
 import {
   VaultFlowSection,
   VaultKpiCell,
 } from "@/components/vaults/vault-flow-primitives";
-import { allocationDashToneFor } from "@/lib/allocation-colors";
-import {
-  MODEL_B_ONELINER,
-  REG_LABELS_LONG,
-  SPV_LABELS_LONG,
-} from "@/lib/constants/vault";
-import { cn } from "@/lib/cn";
+import { MODEL_B_ONELINER } from "@/lib/constants/vault";
 import type { VaultProduct } from "@/lib/data/vaults";
-import type { AllocationBucket } from "@/lib/engine/types";
 import { formatFeeLine, formatUsdCompact } from "@/lib/vaults/product-display";
-
-const ALLOCATION_DESCRIPTIONS: Record<AllocationBucket, string> = {
-  mining:
-    "Directly deployed hashrate — revenue share from partner mining facilities.",
-  btc_tactical:
-    "Spot BTC exposure for directional upside within a realised-volatility guardrail.",
-  usdc_base: "T-bills + on-chain lending weighted average.",
-  stable_reserve: "USDC yield buffer for soft lock-up and redemption queue.",
-};
-
-const ALLOCATION_BUCKETS: AllocationBucket[] = [
-  "mining",
-  "btc_tactical",
-  "usdc_base",
-  "stable_reserve",
-];
-
-function allocationBps(vault: VaultProduct, bucket: AllocationBucket): number {
-  switch (bucket) {
-    case "mining":
-      return vault.targetMiningBps;
-    case "btc_tactical":
-      return vault.targetBtcTacticalBps;
-    case "usdc_base":
-      return vault.targetUsdcBaseBps;
-    case "stable_reserve":
-      return vault.targetStableReserveBps;
-  }
-}
-
-const ALLOCATION_LABELS: Record<AllocationBucket, string> = {
-  mining: "Bitcoin Mining Operations",
-  btc_tactical: "BTC Tactical Delta",
-  usdc_base: "USDC Base Lending",
-  stable_reserve: "Stable Reserve",
-};
-
-function AllocationTargetRow({
-  bucket,
-  bps,
-}: {
-  bucket: AllocationBucket;
-  bps: number;
-}) {
-  const dotTone = allocationDashToneFor(bucket);
-
-  return (
-    <div className="vault-allocation-row">
-      <span
-        aria-hidden
-        className={cn("dash-legend-dot mt-1 shrink-0", `dot-${dotTone}`)}
-      />
-      <div className="vault-allocation-row__body">
-        <div className="min-w-0">
-          <p className="body-sm font-semibold ct-text-primary">
-            {ALLOCATION_LABELS[bucket]}
-          </p>
-          <p className="body-xs ct-text-muted mt-0.5">
-            {ALLOCATION_DESCRIPTIONS[bucket]}
-          </p>
-        </div>
-        <span className="h4 tabular mono ct-text-strong shrink-0">
-          {(bps / 100).toFixed(0)}%
-        </span>
-      </div>
-    </div>
-  );
-}
+import {
+  toVaultAllocationFacts,
+  toVaultLegalFacts,
+} from "@/lib/vaults/vault-detail-facts";
 
 interface TermSheetPreviewProps {
   vault: VaultProduct;
@@ -92,6 +23,8 @@ interface TermSheetPreviewProps {
 export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
   const aumProvenance =
     vault.currentAumUsdc > 0 ? ("live" as const) : ("manual" as const);
+  const legalFacts = toVaultLegalFacts(vault);
+  const allocationFacts = toVaultAllocationFacts(vault);
 
   return (
     <div className="product-doc-stack">
@@ -109,7 +42,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
           </div>
         }
       >
-        <div className="product-doc-stack--tight">
+        <div className="product-doc-stack product-doc-stack--tight">
           <NestedKpiGrid columns={3}>
             <VaultKpiCell label="Management / performance">
               {formatFeeLine(vault.fees)}
@@ -154,15 +87,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
 
           <div>
             <h3 className="h3 mb-2">Target allocation</h3>
-            <div>
-              {ALLOCATION_BUCKETS.map((bucket) => (
-                <AllocationTargetRow
-                  key={bucket}
-                  bucket={bucket}
-                  bps={allocationBps(vault, bucket)}
-                />
-              ))}
-            </div>
+            <VaultAllocationInvestorList facts={allocationFacts} />
           </div>
 
           <div>
@@ -191,16 +116,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
         className="opacity-95"
       >
         <div className="ct-panel-fields">
-          <ProofRow label="SPV structure">
-            {SPV_LABELS_LONG[vault.spvJurisdiction] ?? vault.spvJurisdiction}
-          </ProofRow>
-          <ProofRow label="Share class">{`Class ${vault.shareClass}`}</ProofRow>
-          <ProofRow label="Regulatory exemption">
-            {REG_LABELS_LONG[vault.regExemption] ?? vault.regExemption}
-          </ProofRow>
-          <ProofRow label="Custodian">Custody configuration pending</ProofRow>
-          <ProofRow label="Multisig threshold">Multisig approval required</ProofRow>
-          <ProofRow label="Audit">Spearbit · scheduled</ProofRow>
+          <VaultLegalProofRows facts={legalFacts} variant="investor" />
         </div>
       </VaultFlowSection>
     </div>

@@ -169,7 +169,7 @@ export default async function ProductProofCenterPage({
 
       {/* ── Full proof grid (filtered) ──────────────────────── */}
       <section aria-labelledby="proof-grid-heading">
-        <div className="proof-center-section__toolbar mb-6">
+        <div className="proof-center-section__toolbar">
           <h2 id="proof-grid-heading" className="h2 min-w-0">
             Platform-wide proofs
           </h2>

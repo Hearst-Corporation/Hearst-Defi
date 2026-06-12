@@ -1,7 +1,6 @@
 import "server-only";
 
 import { z } from "zod";
-import { createHash } from "node:crypto";
 import { prisma } from "@/lib/db";
 import {
   VAULT_YIELD,
@@ -15,6 +14,7 @@ import { ADMIN_NAV_DESTINATIONS } from "@/lib/llm/navigate-tool";
 import {
   createWriteConfirmation,
   consumeWriteConfirmation,
+  hashCanonicalPayload,
 } from "@/lib/llm/tools/confirmations";
 import {
   isAdminReadToolAllowed,
@@ -204,20 +204,22 @@ function classifyAdminToolError(error: unknown): {
 }
 
 function toSafeTelemetryCode(value: string): string {
-  return value
+  const sanitized = value
     .trim()
     .replace(/[^a-z0-9_]/gi, "_")
     .replace(/_+/g, "_")
     .toLowerCase()
     .slice(0, MAX_TELEMETRY_ERROR_CODE_LEN);
+  return sanitized.length > 0 ? sanitized : "unknown_error";
 }
 
 function toSafeTelemetryMessage(value: string): string {
-  return value
+  const sanitized = value
     .trim()
     .replace(/[^a-z0-9 _:\-]/gi, "_")
     .replace(/\s+/g, " ")
     .slice(0, MAX_TELEMETRY_ERROR_MESSAGE_LEN);
+  return sanitized.length > 0 ? sanitized : "unknown error";
 }
 
 async function persistAdminToolTelemetry(args: {
@@ -246,8 +248,8 @@ async function persistAdminToolTelemetry(args: {
         userId: args.userId ?? null,
         confirmationTokenUsed: args.confirmationTokenUsed ?? false,
         inputHash: args.inputHash ?? null,
-        errorCode: errorData?.errorType,
-        errorMessage: errorData?.errorMessage,
+        errorCode: errorData?.errorType ?? null,
+        errorMessage: errorData?.errorMessage ?? null,
       },
     });
   } catch (traceErr) {
@@ -264,13 +266,11 @@ async function persistAdminToolTelemetry(args: {
 
 function hashToolInput(input: unknown): string | undefined {
   if (input === undefined) return undefined;
-  let serialized: string;
   try {
-    serialized = JSON.stringify(input);
+    return hashCanonicalPayload(input);
   } catch {
     return undefined;
   }
-  return createHash("sha256").update(serialized).digest("hex");
 }
 
 function buildChartProvenanceFreshness(

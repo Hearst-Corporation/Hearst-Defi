@@ -2,6 +2,7 @@ import "server-only";
 
 import { getSession } from "./session";
 import { enterRequestContext } from "@/lib/request-context";
+import { logger } from "@/lib/logger";
 
 /**
  * Asserts that the current request is authenticated as an admin.
@@ -39,9 +40,11 @@ export async function requireAdmin(): Promise<{
       userId: session.userId,
     });
   } catch (err) {
-    console.warn("[requireAdmin] enterRequestContext unavailable in this runtime; continuing without request context.", {
-      message: err instanceof Error ? err.message : String(err),
-    });
+    logger.warn(
+      "require-admin: enterRequestContext unavailable; continuing without request context",
+      {},
+      err instanceof Error ? err : undefined,
+    );
   }
 
   return {

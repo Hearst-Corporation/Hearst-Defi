@@ -1048,6 +1048,30 @@
   }
 }
 
+/* Regime scenario table — flat rows inside term sheet (no ct-table-surface box) */
+.product-doc .regime-scenario-table {
+  width: 100%;
+}
+
+.product-doc .regime-scenario-table table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  table-layout: fixed;
+}
+
+.product-doc .regime-scenario-table thead tr {
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.product-doc .regime-scenario-table tbody tr {
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
+}
+
+.product-doc .regime-scenario-table tbody tr:last-child {
+  border-bottom: none;
+}
+
 /* Regime scenario table — column visibility follows shell width */
 .product-doc .regime-scenario-table .regime-scenario-table__col-scenario,
 .product-doc .regime-scenario-table .regime-scenario-table__col-wide {
@@ -1180,6 +1204,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--ct-space-4);
+  margin-bottom: var(--ct-space-6);
 }
 
 .product-doc .proof-center-footer {

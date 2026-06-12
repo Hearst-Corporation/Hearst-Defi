@@ -40,9 +40,9 @@ export function ResetPasswordForm({ token }: Props) {
         </p>
         <Link
           href="/login"
-          className="ct-link-accent inline-block body-xs hover:underline"
+          className="body-xs ct-link-accent inline-block"
         >
-          Go to sign in →
+          Go to sign in
         </Link>
       </div>
     );
@@ -51,9 +51,7 @@ export function ResetPasswordForm({ token }: Props) {
   return (
     <form action={onSubmit} className="space-y-4" aria-label="Set new password">
       <label className="block" htmlFor="rp-password">
-        <span className="mb-1 block stat-label">
-          New password
-        </span>
+        <span className="stat-label mb-1 block">New password</span>
         <input
           id="rp-password"
           name="password"
@@ -85,8 +83,8 @@ export function ResetPasswordForm({ token }: Props) {
         {isPending ? "Updating…" : "Set new password"}
       </Button>
 
-      <p className="text-center body-xs ct-text-muted">
-        <Link href="/login" className="ct-link-accent hover:underline">
+      <p className="body-xs ct-text-muted text-center">
+        <Link href="/login" className="ct-link-accent">
           Back to sign in
         </Link>
       </p>
