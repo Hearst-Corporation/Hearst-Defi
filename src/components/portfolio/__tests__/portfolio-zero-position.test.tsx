@@ -69,6 +69,31 @@ describe("Portfolio zero-position — trust contracts", () => {
     expect(html).not.toContain("dash-cell-premium");
   });
 
+  it("grouped liquidity awaiting: single compact narrative", () => {
+    const html = renderToStaticMarkup(
+      <div className="pf-zero-await">
+        <AwaitingMetricState
+          message="Distribution cycle and lock terms appear after your first active position."
+          detail="Payout timing, soft lock-up progress, and unlock dates populate once share-class terms are confirmed."
+        />
+      </div>,
+    );
+    expect(html).toContain("pf-empty-widget");
+    expect(html).not.toContain("dash-cell-premium");
+    expect(html).not.toContain("Stale");
+  });
+
+  it("grouped activity empty: single narrative, not dual boxes", () => {
+    const html = renderToStaticMarkup(
+      <AwaitingMetricState message="Transactions and payout history appear after your first active position." />,
+    );
+    expect(html).toContain(
+      "Transactions and payout history appear after your first active position.",
+    );
+    expect(html).not.toContain("No transactions yet.");
+    expect(html).not.toContain("Distribution history will appear");
+  });
+
   it("distribution KPI contract: no countdown without positions", () => {
     const hasPositions = false;
     const nextDistributionAt = new Date("2026-06-30T00:00:00Z");
