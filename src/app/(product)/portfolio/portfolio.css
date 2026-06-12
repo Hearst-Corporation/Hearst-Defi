@@ -210,88 +210,97 @@
 .pf-tx-icon--withdraw { background: var(--ct-status-danger); }
 .pf-tx-icon--default { background: var(--ct-text-muted); }
 
-/* ── Hero chart — dominant focal surface ── */
+/* ── Hero — chart (premium) + integrated KPI rail ── */
 .pf-hero-grid {
-  align-items: start;
+  align-items: stretch;
 }
 
-.pf-main-chart-wrapper {
+.pf-main-chart-wrapper,
+.pf-hero-sidebar {
   align-self: stretch;
 }
 
-/* ── Hero KPI rail — compact cockpit sidebar ── */
+/* Single calm rail surface — no nested card stacks */
 .pf-hero-sidebar {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-2);
-  align-self: start;
+  gap: 0;
   min-width: 0;
-  padding: var(--ct-space-3);
+  padding: var(--ct-space-4);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-graphite-border-nested);
   background: var(--ct-graphite-subtle-bg);
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
+  box-shadow: none;
 }
 
-.pf-hero-kpi-card,
-.pf-hero-mini-card {
+.pf-hero-rail-group {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-2);
-  padding: var(--ct-space-3);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-border-soft);
-  background: color-mix(in srgb, var(--ct-surface-1) 35%, transparent);
+  flex: none;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
-.pf-hero-mini-title {
+.pf-hero-rail-group + .pf-hero-rail-group {
+  margin-top: var(--ct-space-3);
+  padding-top: var(--ct-space-3);
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 70%, transparent);
+}
+
+.pf-hero-rail-title {
   margin: 0;
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-semibold);
   letter-spacing: var(--ct-tracking-wide);
   text-transform: uppercase;
-  color: var(--ct-accent);
+  color: var(--ct-text-muted);
 }
 
-.pf-hero-kpi-list {
+.pf-hero-rail-list {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-2);
   margin: 0;
 }
 
-.pf-hero-kpi-row {
+.pf-hero-rail-row {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-0_5);
+  flex: none;
 }
 
-.pf-hero-kpi-row + .pf-hero-kpi-row {
+.pf-hero-rail-row + .pf-hero-rail-row {
   padding-top: var(--ct-space-2);
-  border-top: 1px solid var(--ct-border-soft);
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 55%, transparent);
 }
 
-.pf-hero-kpi-value {
+.pf-hero-rail-value {
   display: flex;
   align-items: baseline;
   gap: var(--ct-space-1);
   flex-wrap: wrap;
 }
 
-.pf-hero-kpi-value--inline {
+.pf-hero-rail-value--inline {
   align-items: center;
   justify-content: space-between;
 }
 
-.pf-hero-mini-meta {
+.pf-hero-rail-meta {
   font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
+  color: var(--ct-text-faint);
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
-/* Embedded mini-widgets — compact, no height stretch */
+/* Embedded widgets — compact, no stretch */
 .pf-hero-sidebar [aria-label] {
   height: auto !important;
   min-height: 0 !important;
@@ -302,29 +311,56 @@
   height: auto !important;
 }
 
-.pf-hero-mini-card [aria-label="Time to next distribution"],
-.pf-hero-mini-card [aria-label="Lock and liquidity status"] {
+.pf-hero-rail-group [aria-label="Time to next distribution"],
+.pf-hero-rail-group [aria-label="Lock and liquidity status"] {
   gap: var(--ct-space-2) !important;
 }
 
-/* Payout rail — hide duplicate "Next distribution" + verbose chrome */
-.pf-hero-mini-card--payout [aria-label="Time to next distribution"] > div:first-child > .stat-label {
+/* Payout — hide duplicate label + verbose chrome */
+.pf-hero-rail-group--payout [aria-label="Time to next distribution"] > div:first-child > .stat-label {
   display: none;
 }
 
-.pf-hero-mini-card--payout [aria-label="Time to next distribution"] .stat-value {
+.pf-hero-rail-group--payout [aria-label="Time to next distribution"] .stat-value {
   font-size: var(--ct-text-lg);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
 }
 
-.pf-hero-mini-card--payout [aria-label="Time to next distribution"] > p.body-xs,
-.pf-hero-mini-card--payout [aria-label="Time to next distribution"] > div.border-t {
+.pf-hero-rail-group--payout [aria-label="Time to next distribution"] > p.body-xs:not(.italic) {
+  color: var(--ct-text-faint);
+  font-style: normal;
+  font-size: var(--ct-text-xs);
+  line-height: var(--ct-leading-snug);
+}
+
+.pf-hero-rail-group--payout [aria-label="Time to next distribution"] > div.border-t {
   display: none;
 }
 
-/* Liquidity rail — no bottom stretch */
-.pf-hero-mini-card--liquidity [aria-label="Lock and liquidity status"] dl {
+/* Zero preview — short faint note instead of long paragraph */
+.pf-container--zero
+  .pf-hero-rail-group--payout
+  [aria-label="Time to next distribution"]
+  > p.body-xs.italic {
+  font-size: 0;
+  line-height: 0;
+  margin: 0;
+}
+
+.pf-container--zero
+  .pf-hero-rail-group--payout
+  [aria-label="Time to next distribution"]
+  > p.body-xs.italic::before {
+  content: "Available after first active position.";
+  font-size: var(--ct-text-xs);
+  line-height: var(--ct-leading-snug);
+  color: var(--ct-text-faint);
+  font-style: normal;
+}
+
+/* Liquidity — compact metadata */
+.pf-hero-rail-group--liquidity [aria-label="Lock and liquidity status"] dl {
   margin-top: var(--ct-space-1) !important;
 }
 

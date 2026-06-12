@@ -143,8 +143,8 @@ export default async function PortfolioPage() {
               hasPositions={hasPositions}
               previewZeros={previewZeros}
             />
-            <div className="pf-hero-mini-card pf-hero-mini-card--payout">
-              <h3 className="pf-hero-mini-title">Projected payout</h3>
+            <div className="pf-hero-rail-group pf-hero-rail-group--payout">
+              <h3 className="pf-hero-rail-title">Projected payout</h3>
               <SectionEmbedProvider>
                 <TimeToCash
                   {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
@@ -152,8 +152,8 @@ export default async function PortfolioPage() {
                 />
               </SectionEmbedProvider>
             </div>
-            <div className="pf-hero-mini-card pf-hero-mini-card--liquidity">
-              <h3 className="pf-hero-mini-title">Liquidity</h3>
+            <div className="pf-hero-rail-group pf-hero-rail-group--liquidity">
+              <h3 className="pf-hero-rail-title">Liquidity</h3>
               <SectionEmbedProvider>
                 <LockMeter
                   {...(previewZeros ? zeroLockMeterProps(previewAsOf) : lockMeterProps)}

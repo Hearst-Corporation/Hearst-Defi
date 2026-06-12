@@ -37,13 +37,16 @@ export function HeroKpiTable({
   const showValues = hasPositions || previewZeros;
 
   return (
-    <section className="pf-hero-kpi-card" aria-label="Key metrics summary">
-      <h3 className="pf-hero-mini-title">Key metrics</h3>
+    <section
+      className="pf-hero-rail-group pf-hero-rail-group--metrics"
+      aria-label="Key metrics summary"
+    >
+      <h3 className="pf-hero-rail-title">Key metrics</h3>
 
-      <dl className="pf-hero-kpi-list">
-        <div className="pf-hero-kpi-row">
+      <dl className="pf-hero-rail-list">
+        <div className="pf-hero-rail-row">
           <dt className="stat-label">Position value</dt>
-          <dd className="pf-hero-kpi-value m-0">
+          <dd className="pf-hero-rail-value m-0">
             <span className="dash-value tabular-nums text-2xl">
               {showValues
                 ? fmt.format(previewZeros ? 0 : totalValueUsdc)
@@ -53,9 +56,9 @@ export function HeroKpiTable({
           </dd>
         </div>
 
-        <div className="pf-hero-kpi-row">
+        <div className="pf-hero-rail-row">
           <dt className="stat-label">Yield YTD</dt>
-          <dd className="pf-hero-kpi-value m-0">
+          <dd className="pf-hero-rail-value m-0">
             <span className="dash-value tabular-nums">
               {showValues
                 ? formatUsdCompact(previewZeros ? 0 : totalYieldYtdUsdc)
@@ -65,9 +68,9 @@ export function HeroKpiTable({
           </dd>
         </div>
 
-        <div className="pf-hero-kpi-row">
+        <div className="pf-hero-rail-row">
           <dt className="stat-label">Next distribution</dt>
-          <dd className="pf-hero-kpi-value pf-hero-kpi-value--inline m-0">
+          <dd className="pf-hero-rail-value pf-hero-rail-value--inline m-0">
             <span className="dash-value tabular-nums">
               {showValues ? monthDayFmt.format(nextDistributionAt) : "—"}
             </span>
