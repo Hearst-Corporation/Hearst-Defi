@@ -1,4 +1,5 @@
 import { assessBtcTactical } from "./btc-tactical";
+import { findForbiddenWord } from "./forbidden-words";
 import type { ScenarioInputs, VaultMode } from "./types";
 
 /**
@@ -137,35 +138,14 @@ export const BASE_MIX_BY_MODE: Record<VaultMode, AllocationMix> = {
 };
 
 // ---------------------------------------------------------------------------
-// Forbidden-words guard (mirrors src/lib/agents/validators.ts; we duplicate
-// the list to preserve engine purity — non-negotiable #6 forbids depending
-// on src/lib/agents/*).
+// Forbidden-words guard — delegates to ./forbidden-words (pure engine module).
 // ---------------------------------------------------------------------------
 
-const FORBIDDEN_WORDS = [
-  "guarantee",
-  "promise",
-  "certain",
-  "will deliver",
-  "risk-free",
-  "no risk",
-] as const;
-
 function assertNoForbiddenWords(text: string, label: string): void {
-  const haystack = text.toLowerCase();
-  for (const needle of FORBIDDEN_WORDS) {
-    const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const pattern = new RegExp(`\\b${escaped}\\w*`);
-    if (!pattern.test(haystack)) continue;
-    const needleStartsWithNegation = /^(not|no|never|without)\b/.test(needle);
-    if (!needleStartsWithNegation) {
-      const negated = new RegExp(
-        `\\b(not|no|never|without)\\s+(\\w+\\s+){0,3}${escaped}`,
-      );
-      if (negated.test(haystack)) continue;
-    }
+  const hit = findForbiddenWord(text);
+  if (hit !== null) {
     throw new Error(
-      `[rebalancing-rules] forbidden word "${needle}" in ${label}: ${text}`,
+      `[rebalancing-rules] forbidden word "${hit}" in ${label}: ${text}`,
     );
   }
 }

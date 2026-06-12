@@ -1,3 +1,4 @@
+import { findForbiddenWord } from "./forbidden-words";
 import { computeMiningRevenue } from "./mining";
 import type {
   BtcGuardrail,
@@ -6,19 +7,6 @@ import type {
   ScenarioInputs,
   VaultMode,
 } from "./types";
-
-// keep in sync with src/lib/agents/validators.ts FORBIDDEN_WORDS
-// TECH DEBT: duplicated with scenario.ts / backtest.ts; canonical impl is
-// src/lib/agents/validators.ts. Not merged via import — the engine layer must
-// stay pure and must not depend on src/lib/agents/*.
-const FORBIDDEN_WORDS = [
-  "guarantee",
-  "promise",
-  "certain",
-  "will deliver",
-  "risk-free",
-  "no risk",
-] as const;
 
 const ACCUMULATE_DRAWDOWN_PCT = -20;
 const ACCUMULATE_VOL_MAX = 60;
@@ -183,21 +171,10 @@ function assertNoForbiddenWords(
   for (const g of guardrails) {
     lines.push(g.label, g.detail);
   }
-  // keep in sync with src/lib/agents/validators.ts assertNoForbiddenWords
   for (const line of lines) {
-    const haystack = line.toLowerCase();
-    for (const needle of FORBIDDEN_WORDS) {
-      const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const needlePattern = new RegExp(`\\b${escaped}\\w*`);
-      if (!needlePattern.test(haystack)) continue;
-      const needleStartsWithNegation = /^(not|no|never|without)\b/.test(needle);
-      if (!needleStartsWithNegation) {
-        const negatedPattern = new RegExp(
-          `\\b(not|no|never|without)\\s+(\\w+\\s+){0,3}${escaped}`,
-        );
-        if (negatedPattern.test(haystack)) continue;
-      }
-      throw new Error(`forbidden word "${needle}" in btc tactical text: ${line}`);
+    const hit = findForbiddenWord(line);
+    if (hit !== null) {
+      throw new Error(`forbidden word "${hit}" in btc tactical text: ${line}`);
     }
   }
 }

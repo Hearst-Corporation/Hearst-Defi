@@ -1,4 +1,5 @@
 import { METHODOLOGY_VERSION } from "./methodology";
+import { findForbiddenWord } from "./forbidden-words";
 import { runScenario } from "./scenario";
 import type {
   BacktestKey,
@@ -7,19 +8,6 @@ import type {
   ScenarioInputs,
   VaultMode,
 } from "./types";
-
-// keep in sync with src/lib/agents/validators.ts FORBIDDEN_WORDS
-// TECH DEBT: duplicated with scenario.ts / btc-tactical.ts; canonical impl is
-// src/lib/agents/validators.ts. Not merged via import — the engine layer must
-// stay pure and must not depend on src/lib/agents/*.
-const FORBIDDEN_WORDS = [
-  "guarantee",
-  "promise",
-  "certain",
-  "will deliver",
-  "risk-free",
-  "no risk",
-] as const;
 
 interface BacktestSpec {
   startDate: string;
@@ -158,22 +146,11 @@ function interpolateInputs(
   };
 }
 
-// keep in sync with src/lib/agents/validators.ts assertNoForbiddenWords
 function assertNoForbiddenWords(assumptions: string[]): void {
   for (const line of assumptions) {
-    const haystack = line.toLowerCase();
-    for (const needle of FORBIDDEN_WORDS) {
-      const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const needlePattern = new RegExp(`\\b${escaped}\\w*`);
-      if (!needlePattern.test(haystack)) continue;
-      const needleStartsWithNegation = /^(not|no|never|without)\b/.test(needle);
-      if (!needleStartsWithNegation) {
-        const negatedPattern = new RegExp(
-          `\\b(not|no|never|without)\\s+(\\w+\\s+){0,3}${escaped}`,
-        );
-        if (negatedPattern.test(haystack)) continue;
-      }
-      throw new Error(`forbidden word "${needle}" in backtest assumption: ${line}`);
+    const hit = findForbiddenWord(line);
+    if (hit !== null) {
+      throw new Error(`forbidden word "${hit}" in backtest assumption: ${line}`);
     }
   }
 }

@@ -193,22 +193,11 @@ function buildAssumptions(
   ];
 }
 
-// keep in sync with src/lib/agents/validators.ts assertNoForbiddenWords
 function assertNoForbiddenWords(assumptions: string[]): void {
   for (const line of assumptions) {
-    const haystack = line.toLowerCase();
-    for (const needle of FORBIDDEN_WORDS) {
-      const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const needlePattern = new RegExp(`\\b${escaped}\\w*`);
-      if (!needlePattern.test(haystack)) continue;
-      const needleStartsWithNegation = /^(not|no|never|without)\b/.test(needle);
-      if (!needleStartsWithNegation) {
-        const negatedPattern = new RegExp(
-          `\\b(not|no|never|without)\\s+(\\w+\\s+){0,3}${escaped}`,
-        );
-        if (negatedPattern.test(haystack)) continue;
-      }
-      throw new Error(`forbidden word "${needle}" in assumption: ${line}`);
+    const hit = findForbiddenWord(line);
+    if (hit !== null) {
+      throw new Error(`forbidden word "${hit}" in assumption: ${line}`);
     }
   }
 }
