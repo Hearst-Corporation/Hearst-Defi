@@ -7,6 +7,7 @@ import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -340,7 +341,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
         </CardHeader>
 
         {vault.approvals.length === 0 ? (
-          <p className="body-sm ct-text-muted">No signatures yet.</p>
+          <EmptySurface variant="inline" message="No signatures yet." />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

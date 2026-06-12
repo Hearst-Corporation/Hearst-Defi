@@ -7,6 +7,7 @@ import { OutputPanel } from "@/components/scenario/output-panel";
 import { PresetBar } from "@/components/scenario/preset-bar";
 import { Spinner } from "@/components/scenario/scenario-spinner";
 import { Button } from "@/components/ui/button";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
 import { useScenario } from "@/hooks/use-scenario";
 import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
@@ -14,19 +15,6 @@ import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
 export interface SingleModeProps {
   vaultId: VaultId;
   initialInputs?: ScenarioInputs;
-}
-
-function RunScenarioIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-4 w-4 shrink-0 ct-text-accent"
-      fill="currentColor"
-      aria-hidden
-    >
-      <path d="M8 5v14l11-7z" />
-    </svg>
-  );
 }
 
 export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
@@ -103,48 +91,35 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
           </div>
         </div>
 
-        <div
-          ref={outputRef}
-          className={cn(
-            "scenario-lab-output-card glass-panel",
-            state.output ? "p-5" : "p-0",
-          )}
-        >
-          {state.output ? (
+        {state.output ? (
+          <div
+            ref={outputRef}
+            className="scenario-lab-output-card glass-panel p-5"
+          >
             <OutputPanel
               output={state.output}
               isPending={pending}
               narrative={state.narrative}
             />
-          ) : (
-            <div
-              className={cn(
-                "scenario-lab-output-empty",
-                "transition-opacity duration-(--ct-dur-fast)",
-                pending && "opacity-50",
-              )}
-              aria-live="polite"
-            >
-              {pending ? (
-                <>
-                  <Spinner className="ct-text-strong" />
-                  <p className="stat-label">Computing…</p>
-                </>
-              ) : (
-                <>
-                  <div className="scenario-lab-output-empty__icon">
-                    <RunScenarioIcon />
-                  </div>
-                  <p className="max-w-xs text-center body-sm ct-text-muted">
-                    Select a preset or adjust sliders, then press{" "}
-                    <span className="font-semibold ct-text-body">Run scenario</span>{" "}
-                    to see projections.
-                  </p>
-                </>
-              )}
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <EmptySurface
+            variant="widget"
+            className={cn(
+              "scenario-lab-output-card transition-opacity duration-(--ct-dur-fast)",
+              pending && "opacity-50",
+            )}
+            message={
+              pending
+                ? "Computing…"
+                : "Select a preset or adjust sliders, then press Run scenario to see projections."
+            }
+            ariaLabel="Scenario output — awaiting first run"
+            role="status"
+          >
+            {pending ? <Spinner className="ct-text-strong" /> : null}
+          </EmptySurface>
+        )}
       </div>
     </div>
   );

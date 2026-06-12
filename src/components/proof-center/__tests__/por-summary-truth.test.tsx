@@ -84,7 +84,7 @@ describe("PorSummary — zero custody reserves", () => {
     expect(html).toContain(
       "Custody reserves will appear after the first verified Fireblocks snapshot.",
     );
-    expect(html).not.toContain("Custody (Fireblocks)</h3>");
+    expect(html).not.toMatch(/Custody \(Fireblocks\)<\/h3>/);
     expect(html).not.toContain("$0");
     expect(html).not.toContain(STALE_BADGE);
   });

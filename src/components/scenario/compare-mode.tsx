@@ -7,6 +7,7 @@ import { DeltaRow } from "@/components/scenario/delta-row";
 import { OutputPanel } from "@/components/scenario/output-panel";
 import { PRESETS } from "@/components/scenario/preset-bar";
 import { Spinner } from "@/components/scenario/scenario-spinner";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { PresetPicker } from "@/components/ui/preset-picker";
 import { cn } from "@/lib/cn";
 import type { Preset, ScenarioOutput, VaultId } from "@/lib/engine/types";
@@ -30,52 +31,22 @@ interface PlaceholderProps {
   pending: boolean;
 }
 
-function ComparePlaceholderIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-4 w-4 shrink-0 ct-text-accent"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      aria-hidden
-    >
-      <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />
-    </svg>
-  );
-}
-
 function Placeholder({ side, pending }: PlaceholderProps) {
   return (
-    <div
+    <EmptySurface
+      variant="widget"
       className={cn(
-        "scenario-compare-empty",
-        "border-l-4",
-        side === "A"
-          ? "border-l-(--ct-border-strong)"
-          : "border-l-(--ct-text-strong)",
-        "transition-opacity duration-(--ct-dur-fast)",
+        "min-h-48 transition-opacity duration-(--ct-dur-fast)",
         pending && "opacity-50",
       )}
-      aria-live="polite"
+      message={
+        pending ? "Computing…" : `Pick a preset to compare — Scenario ${side}`
+      }
+      ariaLabel={`Scenario ${side} — awaiting preset selection`}
+      role="status"
     >
-      {pending ? (
-        <>
-          <Spinner className="ct-text-strong" />
-          <p className="stat-label">Computing…</p>
-        </>
-      ) : (
-        <>
-          <div className="scenario-compare-empty__icon">
-            <ComparePlaceholderIcon />
-          </div>
-          <p className="font-semibold ct-text-body">Scenario {side}</p>
-          <p className="max-w-xs body-sm ct-text-muted">
-            Pick a preset to compare
-          </p>
-        </>
-      )}
-    </div>
+      {pending ? <Spinner className="ct-text-strong" /> : null}
+    </EmptySurface>
   );
 }
 

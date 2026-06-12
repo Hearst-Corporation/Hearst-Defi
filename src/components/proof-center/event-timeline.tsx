@@ -1,8 +1,8 @@
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { Card } from "@/components/ui/card";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import { EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { EventKind, OnChainEvent } from "@/lib/chain/event-logger";
 import { cn } from "@/lib/cn";
@@ -58,13 +58,12 @@ export function EventTimeline({ events }: EventTimelineProps) {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex flex-col gap-1">
-          <span className="eyebrow">On-chain event log</span>
-          <CardTitle>EventLogger — last {events.length} events</CardTitle>
-        </div>
-        <ProvenanceBadge kind="live" />
-      </CardHeader>
+      <DashboardPanelHeader
+        eyebrow="On-chain event log"
+        title={`EventLogger — last ${events.length} events`}
+        provenance="live"
+        tone="primary"
+      />
 
         <ol className="relative space-y-0" aria-label="On-chain event timeline">
           {events.map((event, idx) => (

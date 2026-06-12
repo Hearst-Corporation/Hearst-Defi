@@ -92,6 +92,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
           message="No deployments found."
           detail="Vault deployments will appear here once created."
           link={{ label: "Create the first one", href: "/admin/vaults/new" }}
+          className="min-h-32"
         />
       ) : (
         <div className="space-y-3">

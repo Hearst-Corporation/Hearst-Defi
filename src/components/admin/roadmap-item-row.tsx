@@ -7,6 +7,7 @@ import { safeUrl } from "@/lib/safe-url";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { NestedPanel } from "@/components/ui/nested-panel";
 import { cn } from "@/lib/cn";
 import {
   statusDotClass,
@@ -57,7 +58,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
   }
 
   return (
-    <div className="rounded-xl border border-[var(--ct-border)] ct-surface-1">
+    <NestedPanel className="p-0">
       <div className="flex items-center gap-4 px-5 py-4">
         <span
           role="img"
@@ -240,6 +241,6 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
           </div>
         </form>
       ) : null}
-    </div>
+    </NestedPanel>
   );
 }

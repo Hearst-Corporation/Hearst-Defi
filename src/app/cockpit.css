@@ -536,11 +536,7 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   align-self: stretch;
 }
 
-.scenario-lab-workspace--viewport .scenario-lab-output-card.glass-panel:has(.scenario-lab-output-empty) {
-  min-height: 0;
-}
-
-.scenario-lab-workspace--viewport .scenario-lab-output-empty {
+.scenario-lab-workspace--viewport .scenario-lab-output-card.ct-empty-surface {
   min-height: 0;
 }
 
@@ -834,12 +830,10 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   flex-direction: column;
 }
 
-.scenario-lab-output-card.glass-panel .scenario-lab-output-empty {
+.scenario-lab-output-card.ct-empty-surface {
   flex: 1 1 auto;
   min-height: 100%;
-  border: none;
-  border-radius: 0;
-  background: transparent;
+  align-self: stretch;
 }
 
 .scenario-lab-input-card {
@@ -871,8 +865,7 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   -webkit-backdrop-filter: blur(1rem);
 }
 
-.scenario-lab-output-empty,
-.scenario-compare-empty,
+/* Legacy projection studio empty — migrate to EmptySurface when studio is next touched */
 .projection-studio-empty {
   display: flex;
   min-height: calc(var(--ct-space-24) + var(--ct-space-10));
@@ -885,19 +878,6 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   border-radius: var(--ct-radius-xl);
   background: var(--ct-surface-0);
   text-align: center;
-}
-
-.scenario-lab-output-empty__icon,
-.scenario-compare-empty__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--ct-space-10);
-  height: var(--ct-space-10);
-  border: 1px solid color-mix(in srgb, var(--ct-accent) 24%, var(--ct-border-soft));
-  border-radius: var(--ct-radius-full);
-  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
-  box-shadow: var(--ct-glow-dot);
 }
 
 .projection-studio-preset-rail.ct-card,
@@ -1114,8 +1094,7 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 }
 
 @container lab-shell (max-width: 41.999rem) {
-  .scenario-lab-workspace--viewport .scenario-lab-output-card,
-  .scenario-lab-workspace--viewport .scenario-lab-output-empty {
+  .scenario-lab-workspace--viewport .scenario-lab-output-card {
     min-height: min(20rem, 45dvh);
   }
 }

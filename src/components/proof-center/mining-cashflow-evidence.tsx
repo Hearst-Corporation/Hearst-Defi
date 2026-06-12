@@ -1,8 +1,8 @@
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
 import { NestedKpiGrid } from "@/components/ui/nested-panel";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import type { CoverageView } from "@/lib/engine/coverage-view";
 
 /**
@@ -59,13 +59,12 @@ export function MiningCashFlowEvidence({
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex flex-col gap-1">
-          <span className="eyebrow">Mining cash-flow evidence</span>
-          <CardTitle>Yield source — Bitcoin mining revenue</CardTitle>
-        </div>
-        <ProvenanceBadge kind={BADGE[provenance]} />
-      </CardHeader>
+      <DashboardPanelHeader
+        eyebrow="Mining cash-flow evidence"
+        title="Yield source — Bitcoin mining revenue"
+        provenance={BADGE[provenance]}
+        tone="primary"
+      />
 
       <p className="body-sm mb-4">{COPY[provenance]}</p>
 

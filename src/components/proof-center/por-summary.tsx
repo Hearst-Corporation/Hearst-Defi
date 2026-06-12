@@ -1,9 +1,11 @@
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { Metric } from "@/components/ui/metric";
 import { NestedKpiGrid, ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import {
   EXPLORER_ADDRESS_BASE,
   EXPLORER_TX_BASE,
@@ -84,11 +86,25 @@ function isCustodyDisplayable(custody: CustodySnapshot): boolean {
   return custody.totalUsdcReserves > 0 && custodyProvenance(custody) === "attested";
 }
 
+const CUSTODY_EMPTY_MESSAGE =
+  "Custody reserves will appear after the first verified Fireblocks snapshot.";
+const CUSTODY_EMPTY_DETAIL =
+  "Fireblocks reserve scope must be pinned and a fresh snapshot posted before USDC reserves are shown here.";
+
+/** Standalone custody module (no active PoR card). */
 function CustodyAwaiting() {
   return (
-    <AwaitingMetricState
-      message="Custody reserves will appear after the first verified Fireblocks snapshot."
-      detail="Fireblocks reserve scope must be pinned and a fresh snapshot posted before USDC reserves are shown here."
+    <AwaitingMetricState message={CUSTODY_EMPTY_MESSAGE} detail={CUSTODY_EMPTY_DETAIL} />
+  );
+}
+
+/** Custody subsection inside an active PoR card (DS §9 — inline nested empty). */
+function CustodyAwaitingInline() {
+  return (
+    <EmptySurface
+      variant="inline"
+      message={CUSTODY_EMPTY_MESSAGE}
+      detail={CUSTODY_EMPTY_DETAIL}
     />
   );
 }
@@ -133,10 +149,11 @@ function CustodyCard({ custody }: { custody: CustodySnapshot }) {
   const provenance = custodyProvenance(custody);
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Custody (Fireblocks)</CardTitle>
-        <ProvenanceBadge kind={provenance} />
-      </CardHeader>
+      <DashboardPanelHeader
+        title="Custody (Fireblocks)"
+        provenance={provenance}
+        tone="primary"
+      />
       <CustodyKpis custody={custody} />
     </Card>
   );
@@ -186,16 +203,12 @@ export function PorSummary({
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex flex-col gap-1">
-          <span className="eyebrow">Proof of Reserves</span>
-          <CardTitle>
-            Period {formatPeriod(attestation.period)} — Attestation #
-            {attestation.attestationId.toString()}
-          </CardTitle>
-        </div>
-        <ProvenanceBadge kind={provenance} />
-      </CardHeader>
+      <DashboardPanelHeader
+        eyebrow="Proof of Reserves"
+        title={`Period ${formatPeriod(attestation.period)} — Attestation #${attestation.attestationId.toString()}`}
+        provenance={provenance}
+        tone="primary"
+      />
 
       <NestedKpiGrid columns={4}>
         <Metric variant="nested" label="Total AUM" value={usdFmt(attestation.totalAumUsd)} />
@@ -275,7 +288,7 @@ export function PorSummary({
           <CustodyBlock custody={custody} />
         ) : (
           <div className="mt-6 border-t border-[var(--ct-border-soft)] pt-6">
-            <CustodyAwaiting />
+            <CustodyAwaitingInline />
           </div>
         )
       ) : null}

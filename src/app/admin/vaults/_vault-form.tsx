@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
+import { NestedPanel } from "@/components/ui/nested-panel";
 import { Progress } from "@/components/ui/progress";
 import { MonteCarloReview } from "@/components/admin/monte-carlo-review";
 import { ProjectionFooter } from "@/components/admin/projection-footer";
@@ -449,14 +450,14 @@ export function VaultForm(props: VaultFormProps) {
               </label>
             </div>
 
-            <div className="p-4 rounded-lg ct-surface-2 border border-[var(--ct-border-soft)]">
+            <NestedPanel>
               <span className="stat-label block mb-1">APY Range Preview</span>
               <ApyRange
                 low={form.targetApyLowBps / 100}
                 high={form.targetApyHighBps / 100}
                 precision={1}
               />
-            </div>
+            </NestedPanel>
           </div>
         )}
 
@@ -763,7 +764,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="space-y-6">
             <CardTitle>Sign &amp; Deploy</CardTitle>
 
-            <div className="p-4 rounded-lg ct-surface-2 border border-[var(--ct-border-soft)] space-y-3">
+            <NestedPanel className="space-y-3">
               <p className="body-sm ct-text-muted">
                 This vault draft will be submitted to the multisig review queue. Once submitted,
                 it requires the configured quorum of signers to approve before deployment.
@@ -779,7 +780,7 @@ export function VaultForm(props: VaultFormProps) {
                   {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
                 </span>
               </div>
-            </div>
+            </NestedPanel>
 
             <p className="body-xs ct-text-faint">
               Target APY range: {pct(form.targetApyLowBps)}%–{pct(form.targetApyHighBps)}%.

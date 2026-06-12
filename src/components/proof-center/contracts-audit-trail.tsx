@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { ProofRow } from "@/components/ui/nested-panel";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import { getDeployment } from "@/lib/chain/deployments";
 import { cn } from "@/lib/cn";
 import {
@@ -101,19 +101,14 @@ export function ContractsAuditTrail() {
     <div className="space-y-6">
       {/* Deployed contracts */}
       <Card>
-        <CardHeader>
-          <div className="flex flex-col gap-1">
-            <span className="eyebrow">Phase 2 contracts · Base Sepolia</span>
-            <CardTitle>Configured deployment addresses</CardTitle>
-          </div>
-          <ProvenanceBadge
-            kind={
-              DEPLOYED_CONTRACTS.every((c) => c.sourceVerified)
-                ? "attested"
-                : "manual"
-            }
-          />
-        </CardHeader>
+        <DashboardPanelHeader
+          eyebrow="Phase 2 contracts · Base Sepolia"
+          title="Configured deployment addresses"
+          provenance={
+            DEPLOYED_CONTRACTS.every((c) => c.sourceVerified) ? "attested" : "manual"
+          }
+          tone="primary"
+        />
 
         <div>
           {DEPLOYED_CONTRACTS.map((contract, idx) => (
@@ -185,12 +180,11 @@ export function ContractsAuditTrail() {
 
       {/* Audit & methodology */}
       <Card>
-        <CardHeader>
-          <div className="flex flex-col gap-1">
-            <span className="eyebrow">Contract audit trail</span>
-            <CardTitle>Review status</CardTitle>
-          </div>
-        </CardHeader>
+        <DashboardPanelHeader
+          eyebrow="Contract audit trail"
+          title="Review status"
+          tone="quiet"
+        />
 
         <ul className="divide-y divide-[var(--ct-border-soft)]">
           {AUDIT_ENTRIES.map((entry) => (

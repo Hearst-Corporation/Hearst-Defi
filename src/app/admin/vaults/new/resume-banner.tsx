@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { NestedCallout } from "@/components/ui/nested-panel";
 import { discardWizardDraft } from "../draft-actions";
 
 interface DraftGateProps {
@@ -60,7 +62,7 @@ export function ResumeDraftBanner({
   const relTime = formatRelativeTime(new Date(updatedAt));
 
   return (
-    <div className="p-6 rounded-lg ct-surface-2 border border-[var(--ct-border-soft)] space-y-5 max-w-2xl">
+    <Card className="max-w-2xl space-y-5">
       <div className="space-y-1">
         <p className="body-sm ct-text-strong">
           An autosaved {draftLabel} was found on this account.
@@ -71,7 +73,7 @@ export function ResumeDraftBanner({
       </div>
 
       {confirmDiscard ? (
-        <div className="space-y-3 p-3 rounded-md border border-[var(--ct-status-danger-border)] ct-status-danger-bg">
+        <NestedCallout className="space-y-3 border border-[var(--ct-status-danger-border)] ct-status-danger-bg">
           <p className="body-xs ct-text-strong">
             You are about to lose this draft. Continue?
           </p>
@@ -95,7 +97,7 @@ export function ResumeDraftBanner({
               Cancel
             </Button>
           </div>
-        </div>
+        </NestedCallout>
       ) : (
         <div className="flex flex-wrap items-center gap-2">
           <Button
@@ -118,6 +120,6 @@ export function ResumeDraftBanner({
           </Button>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

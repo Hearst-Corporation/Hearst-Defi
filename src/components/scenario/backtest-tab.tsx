@@ -6,6 +6,7 @@
 
 import { BacktestPanel } from "@/components/scenario/backtest-panel";
 import { Spinner } from "@/components/scenario/scenario-spinner";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
 import { useBacktest } from "@/hooks/use-backtest";
 import type { BacktestKey } from "@/lib/engine/types";
@@ -102,13 +103,14 @@ export function BacktestTab() {
 
       {/* Loading state */}
       {pending ? (
-        <div
-          className="scenario-lab-output-empty ct-empty-surface ct-empty-surface--inline"
-          aria-live="polite"
+        <EmptySurface
+          variant="widget"
+          message="Computing backtest…"
+          ariaLabel="Backtest — computing"
+          role="status"
         >
           <Spinner className="ct-text-strong" />
-          <p className="stat-label">Computing backtest…</p>
-        </div>
+        </EmptySurface>
       ) : null}
 
       {/* Results */}
