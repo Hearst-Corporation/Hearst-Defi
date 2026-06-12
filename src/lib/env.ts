@@ -90,6 +90,13 @@ const serverEnvSchema = z.object({
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   INNGEST_SIGNING_KEY: z.string().optional(),
   INNGEST_EVENT_KEY: z.string().optional(),
+  // Resend — transactional email, the one currently-wired notification channel
+  // (investor distribution emails today; governance alerts once the dispatcher
+  // lands). Optional: when unset, `distribution-executed` and any future
+  // dispatcher SKIP email silently — investors are paid but never notified. The
+  // production guard below warns loudly when it is missing so a standard deploy
+  // doesn't ship with notifications quietly off.
+  RESEND_API_KEY: z.string().optional(),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).optional(),
   // LLM provider — OpenAI GPT-4.1 (via the `openai` SDK) is the single backend
   // for all four agents AND the cockpit chat. ADR-011 (supersedes ADR-007).
@@ -197,6 +204,13 @@ if (IS_RUNTIME_PRODUCTION && parsed.success) {
     console.error(
       "⚠️  OPENAI_API_KEY is not set. LLM features (agents, investor memo, chat) will " +
         "fail at runtime. Set OPENAI_API_KEY to enable them.",
+    );
+  }
+  if (!d.RESEND_API_KEY) {
+    console.error(
+      "⚠️  RESEND_API_KEY is not set. Transactional email (investor distribution " +
+        "notifications) will be skipped silently — investors are paid but never " +
+        "emailed. Set RESEND_API_KEY to enable delivery.",
     );
   }
   // P0: Redis is REQUIRED in production for distributed rate limiting.
