@@ -10,10 +10,11 @@
  * Layout: fixed 560×160 viewBox, bars left→right, labels below each bar.
  */
 
-import { ModuleChrome } from "@/components/ui/module-chrome";
-import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
+import {
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
 import { explorerTxUrl } from "@/lib/chain/client";
-import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 // ── Public types ──────────────────────────────────────────────────────────────
@@ -304,19 +305,14 @@ export function DistribCalendar({
       : resolveProvenance(source, updatedAt, "estimated");
 
   return (
-    <ModuleChrome aria-label="Payout calendar" className="gap-3">
-      <WidgetPanelHeader
+    <PfCockpitPanel variant="compact" aria-label="Payout calendar">
+      <PfCockpitPanelHeader
         title="Payout calendar"
-        subtitle={`12-month history · USDC${hasForecast ? " · incl. estimated forecast" : ""}`}
+        subtitle={`12m · USDC${hasForecast ? " · forecast" : ""}`}
         provenance={badgeKind}
-        trailing={
-          showZeroShell ? (
-            <PreviewModeChip label="Preview mode" />
-          ) : undefined
-        }
       />
 
-      <div className="w-full overflow-hidden rounded-md relative z-10">
+      <div className="w-full overflow-hidden rounded-md">
         <BarChart
           entries={displayEntries}
           refYear={refYear}
@@ -327,7 +323,7 @@ export function DistribCalendar({
       {/* Footer — share class + cadence. Rendered only when at least one is
           known, so an empty widget doesn't show a "— / —" stub. */}
       {(shareClass || cadence) && (
-        <dl className="flex flex-wrap gap-x-6 gap-y-2 border-t border-(--ct-border-soft) pt-4 mt-auto relative z-10">
+        <dl className="flex flex-wrap gap-x-4 gap-y-1 border-t border-(--ct-border-soft) pt-2 mt-auto">
           {shareClass ? (
             <div className="flex flex-col gap-0.5 min-w-0">
               <dt className="stat-label mono">
@@ -350,6 +346,6 @@ export function DistribCalendar({
           ) : null}
         </dl>
       )}
-    </ModuleChrome>
+    </PfCockpitPanel>
   );
 }

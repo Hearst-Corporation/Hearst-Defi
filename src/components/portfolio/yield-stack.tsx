@@ -11,10 +11,11 @@
  *  #5  Forbidden words absent (guarantee excluded by "not guaranteed" phrase).
  */
 
-import { ModuleChrome } from "@/components/ui/module-chrome";
-import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
+import {
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
-import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
 
@@ -115,18 +116,19 @@ export function YieldStack({
     : resolveProvenance(source, updatedAt, "estimated");
 
   return (
-    <ModuleChrome aria-label="Yield source stack — 12 month forward projection">
-      <WidgetPanelHeader
-        title="Yield Source Stack (12m fwd)"
+    <PfCockpitPanel
+      variant="wide"
+      aria-label="Yield source stack — 12 month forward projection"
+    >
+      <PfCockpitPanelHeader
+        title="Yield source stack"
+        subtitle="12m forward"
         provenance={badgeKind}
-        trailing={
-          showZeroShell ? <PreviewModeChip label="Preview mode" /> : undefined
-        }
       />
 
       {/* Visual bar stack */}
       <div
-        className="mt-3 flex flex-col gap-2 relative z-10"
+        className="flex flex-col gap-2"
         aria-hidden="true"
         role="presentation"
       >
@@ -185,12 +187,9 @@ export function YieldStack({
         })}
       </div>
 
-      <hr
-        className="my-4 border-0 border-t border-(--ct-border-soft) relative z-10"
-        aria-hidden="true"
-      />
+      <hr className="my-2 border-0 border-t border-(--ct-border-soft)" aria-hidden />
 
-      <dl className="flex flex-col gap-2 relative z-10">
+      <dl className="flex flex-col gap-1.5">
           {/* Blended forward range */}
           <div className="flex items-baseline justify-between">
             <dt className="body-xs min-w-0 truncate ct-text-muted">
@@ -218,14 +217,9 @@ export function YieldStack({
           </div>
         </dl>
 
-      {/* Disclaimer — visible, not tooltip-only (CLAUDE.md non-negotiable #10) */}
-      <p
-        className="mt-auto pt-4 body-xs italic ct-text-faint relative z-10"
-        role="note"
-      >
-        not guaranteed · methodology {methodologyVersion.startsWith("v") ? methodologyVersion : `v${methodologyVersion}`} · projections show
-        assumptions only
+      <p className="mt-auto pt-2 body-xs ct-text-faint m-0" role="note">
+        Conditional projection — not guaranteed · {methodologyVersion.startsWith("v") ? methodologyVersion : `v${methodologyVersion}`}
       </p>
-    </ModuleChrome>
+    </PfCockpitPanel>
   );
 }

@@ -1,7 +1,8 @@
-import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { ModuleChrome } from "@/components/ui/module-chrome";
-import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
+import {
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
@@ -22,6 +23,13 @@ const TYPE_LABELS: Record<string, string> = {
   withdraw: "Withdrawal",
   distribution: "Payout",
 };
+
+/** Ghost rows for layout preview — shell visible at zero, not an empty-state swap. */
+const PREVIEW_ZERO_ROWS: { type: keyof typeof TYPE_LABELS }[] = [
+  { type: "deposit" },
+  { type: "distribution" },
+  { type: "withdraw" },
+];
 
 /** Returns a relative time string like "3 days ago", "1 month ago". */
 function relativeTime(date: Date, asOf: Date): string {
@@ -77,21 +85,40 @@ export function RecentActivity({
   const asOf = new Date();
 
   return (
-    <ModuleChrome aria-label="Recent account activity">
-      <WidgetPanelHeader
-        title="Recent activity"
-        provenance={provenance}
-        trailing={
-          showZeroShell ? <PreviewModeChip label="Preview mode" /> : undefined
-        }
-      />
+    <PfCockpitPanel variant="wide" aria-label="Recent account activity">
+      <PfCockpitPanelHeader title="Recent activity" provenance={provenance} />
 
-        <div className="flex flex-col gap-1 mt-3">
-          {displayed.length === 0 ? (
+      <div className="flex flex-col gap-1">
+          {displayed.length === 0 && !previewZeros ? (
             <EmptySurface
               variant="inline"
               message="No transactions yet — deposits and payouts will appear here."
             />
+          ) : null}
+          {displayed.length === 0 && previewZeros ? (
+            <>
+              {PREVIEW_ZERO_ROWS.map((row) => (
+                <div
+                  key={row.type}
+                  className="flex items-center gap-3 py-2 border-b border-(--ct-border-soft) last:border-0 opacity-50"
+                  aria-hidden
+                >
+                  <TxIcon type={row.type} />
+                  <div className="flex-1 min-w-0">
+                    <div className="body-sm ct-text-muted font-semibold">
+                      {TYPE_LABELS[row.type]}
+                    </div>
+                    <div className="stat-label ct-text-faint mt-0.5 mono">—</div>
+                  </div>
+                  <span className="tabular body-md ct-text-faint mono font-semibold shrink-0">
+                    $0
+                  </span>
+                </div>
+              ))}
+              <p className="body-xs ct-text-faint m-0 mt-1">
+                Placeholder rows — activity appears after your first deposit or payout.
+              </p>
+            </>
           ) : null}
           {displayed.map((tx) => (
             <div
@@ -119,7 +146,7 @@ export function RecentActivity({
               </span>
             </div>
           ))}
-        </div>
-    </ModuleChrome>
+      </div>
+    </PfCockpitPanel>
   );
 }

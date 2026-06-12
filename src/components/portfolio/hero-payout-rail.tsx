@@ -1,5 +1,6 @@
 import { computeTimeToCash } from "@/lib/data/time-to-cash";
 import type { TimeToCashProps } from "@/components/portfolio/time-to-cash";
+import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
 
 const usdcFmt = new Intl.NumberFormat("en-US", {
   style: "decimal",
@@ -12,10 +13,7 @@ export type HeroPayoutRailProps = TimeToCashProps & {
   previewZeros?: boolean;
 };
 
-/**
- * Compact hero-rail slice for projected payout — same inputs as TimeToCash,
- * native rail DOM (no ModuleChrome / dashboard widget shell).
- */
+/** Hero-rail slice for projected payout — same inputs as TimeToCash. */
 export function HeroPayoutRail({
   cycleStart,
   cycleDays,
@@ -42,9 +40,7 @@ export function HeroPayoutRail({
 
   const valueText = showZeroShell
     ? "$0 USDC"
-    : daysRemaining === 0 && hoursRemaining === 0
-      ? `${usdcFmt.format(Math.round(projectedUsdc))} USDC`
-      : `${usdcFmt.format(Math.round(projectedUsdc))} USDC`;
+    : `${usdcFmt.format(Math.round(projectedUsdc))} USDC`;
 
   const metaText = showZeroShell
     ? "Cycle pending · Pending"
@@ -53,12 +49,11 @@ export function HeroPayoutRail({
       : `Day ${daysElapsed} of ${cycleDays} · ${progressRounded}%`;
 
   return (
-    <section
-      className="pf-hero-rail-group pf-hero-rail-group--payout"
+    <HeroRailGroup
+      title="Projected payout"
       aria-label="Projected payout"
+      payout
     >
-      <h3 className="pf-hero-rail-title">Projected payout</h3>
-
       <p className="pf-hero-rail-value dash-value tabular-nums m-0">{valueText}</p>
 
       <div
@@ -80,6 +75,6 @@ export function HeroPayoutRail({
       {showZeroShell ? (
         <p className="pf-hero-rail-note m-0">After first active position.</p>
       ) : null}
-    </section>
+    </HeroRailGroup>
   );
 }

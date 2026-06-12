@@ -1,6 +1,7 @@
-import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
-import { ModuleChrome } from "@/components/ui/module-chrome";
-import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
+import {
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
 
 export interface SecurityPulseProps {
   previewZeros?: boolean;
@@ -20,18 +21,11 @@ export function SecurityPulse({
   previewZeros = false,
 }: SecurityPulseProps = {}) {
   return (
-    <ModuleChrome aria-label="Security audit">
-      <WidgetPanelHeader
-        title="Security audit"
-        trailing={
-          <PreviewModeChip
-            label={previewZeros ? "Preview mode" : "Awaiting first position"}
-          />
-        }
-      />
+    <PfCockpitPanel variant="compact" aria-label="Security audit">
+      <PfCockpitPanelHeader title="Security audit" />
 
       <ul
-        className="flex flex-col gap-3 mt-3 relative z-10"
+        className="flex flex-col gap-2"
         aria-label="Security audit checklist"
       >
         {AUDIT_ROWS.map((row) => (
@@ -50,9 +44,11 @@ export function SecurityPulse({
         ))}
       </ul>
 
-      <p className="body-xs ct-text-faint mt-auto pt-4 italic relative z-10">
-        Preview checklist — live audit status populates after account verification.
-      </p>
-    </ModuleChrome>
+      {!previewZeros ? (
+        <p className="body-xs ct-text-faint mt-auto pt-2 m-0">
+          Live status after account verification.
+        </p>
+      ) : null}
+    </PfCockpitPanel>
   );
 }

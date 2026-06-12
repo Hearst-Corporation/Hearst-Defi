@@ -3,6 +3,7 @@ import {
   formatBps,
   type LockMeterProps,
 } from "@/components/portfolio/lock-meter";
+import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
 import { cn } from "@/lib/cn";
 
 const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
@@ -15,10 +16,7 @@ export type HeroLiquidityRailProps = LockMeterProps & {
   previewZeros?: boolean;
 };
 
-/**
- * Compact hero-rail slice for lock / liquidity — same inputs as LockMeter,
- * native rail DOM (no ModuleChrome / dashboard widget shell).
- */
+/** Hero-rail slice for lock / liquidity — same inputs as LockMeter. */
 export function HeroLiquidityRail({
   lockStart,
   softLockupDays,
@@ -50,12 +48,7 @@ export function HeroLiquidityRail({
       : `${daysRemaining}d left · Unlock ${unlockDateFmt.format(unlockDate)}`;
 
   return (
-    <section
-      className="pf-hero-rail-group pf-hero-rail-group--liquidity"
-      aria-label="Liquidity status"
-    >
-      <h3 className="pf-hero-rail-title">Liquidity</h3>
-
+    <HeroRailGroup title="Liquidity" aria-label="Liquidity status">
       <div
         role="progressbar"
         aria-valuenow={progressRounded}
@@ -75,15 +68,14 @@ export function HeroLiquidityRail({
 
       <p className="pf-hero-rail-meta m-0">{metaText}</p>
 
-      {!isUnlocked && earlyExitPenaltyBps !== undefined && !termsUnknown ? (
+      {!isUnlocked &&
+      earlyExitPenaltyBps !== undefined &&
+      !termsUnknown &&
+      !showZeroShell ? (
         <p className="pf-hero-rail-note m-0">
           Early exit penalty {formatBps(earlyExitPenaltyBps)}
         </p>
       ) : null}
-
-      {showZeroShell && termsUnknown ? (
-        <p className="pf-hero-rail-note m-0">After first active position.</p>
-      ) : null}
-    </section>
+    </HeroRailGroup>
   );
 }

@@ -5,7 +5,10 @@ export function PreviewModeChip({
   label?: string;
 }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-(--ct-border-soft) px-2.5 py-1 body-xs ct-text-faint uppercase ct-tracking-wide shrink-0">
+    <span
+      data-preview-chip
+      className="inline-flex items-center rounded-full border border-(--ct-border-soft) px-2.5 py-1 body-xs ct-text-faint uppercase ct-tracking-wide shrink-0"
+    >
       {label}
     </span>
   );

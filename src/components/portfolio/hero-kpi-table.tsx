@@ -1,11 +1,12 @@
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 
+import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
+
 export interface HeroKpiTableProps {
   totalValueUsdc: number;
   totalYieldYtdUsdc: number;
   nextDistributionAt: Date;
   hasPositions: boolean;
-  /** Layout preview: $0 and scheduled date instead of em-dashes. */
   previewZeros?: boolean;
 }
 
@@ -37,12 +38,7 @@ export function HeroKpiTable({
   const showValues = hasPositions || previewZeros;
 
   return (
-    <section
-      className="pf-hero-rail-group pf-hero-rail-group--metrics"
-      aria-label="Key metrics summary"
-    >
-      <h3 className="pf-hero-rail-title">Key metrics</h3>
-
+    <HeroRailGroup title="Key metrics" aria-label="Key metrics summary">
       <dl className="pf-hero-rail-list">
         <div className="pf-hero-rail-row">
           <dt className="stat-label">Position value</dt>
@@ -80,6 +76,6 @@ export function HeroKpiTable({
           </dd>
         </div>
       </dl>
-    </section>
+    </HeroRailGroup>
   );
 }

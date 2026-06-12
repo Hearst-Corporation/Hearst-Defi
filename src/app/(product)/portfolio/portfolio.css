@@ -45,10 +45,7 @@
   }
 }
 
-/* ── REFLOW GRILLE PAR LARGEUR RÉELLE DU CENTRE (container queries) ──
-   Quand le chat droit compresse le panneau central, on empile en pleine
-   largeur — pas de demi-colonne orpheline (span 6). */
-
+/* ── Reflow: chat-compressed centre → full-width stack (no orphan half-columns) ── */
 @container pf (max-width: 880px) {
   .pf-container .dash-cell.col-4,
   .pf-container .dash-cell.col-8,
@@ -58,18 +55,25 @@
   .pf-container .bento-col-12 {
     grid-column: span 12;
   }
-}
 
-@container pf (max-width: 560px) {
-  .pf-container .dash-cell.col-3,
-  .pf-container .dash-cell.col-4,
-  .pf-container .dash-cell.col-6,
-  .pf-container .dash-cell.col-8,
-  .pf-container .bento-col-4,
-  .pf-container .bento-col-6,
-  .pf-container .bento-col-8,
-  .pf-container .bento-col-12 {
-    grid-column: span 12;
+  /* Stacked rows — content height only (no cross-row stretch) */
+  .pf-container [data-section="yield-allocation"] .bento-col-8,
+  .pf-container [data-section="yield-allocation"] .bento-col-4,
+  .pf-container [data-section="yield-trust"] .bento-col-4 {
+    min-height: auto;
+  }
+
+  .pf-container .pf-cockpit-panel {
+    min-height: auto;
+  }
+
+  .pf-container [data-section="activity-payouts"] .bento-col-8,
+  .pf-container [data-section="activity-payouts"] .bento-col-4 {
+    min-height: auto;
+  }
+
+  .pf-container [data-testid="allocation-donut-widget"] .pf-allocation-donut-chart {
+    --pf-allocation-donut-size: min(11rem, 72vw, 36cqw);
   }
 }
 
@@ -85,46 +89,6 @@
   color: var(--ct-accent);
   background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--ct-accent) 20%, transparent);
-}
-
-.pf-status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-1);
-  padding: var(--ct-space-0_5) var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-semibold);
-  letter-spacing: var(--ct-tracking-wide);
-  text-transform: uppercase;
-  color: var(--ct-status-success);
-  background: var(--ct-status-success-soft);
-  border: 1px solid var(--ct-status-success-border);
-}
-
-.pf-status-pill__dot {
-  width: var(--ct-space-1);
-  height: var(--ct-space-1);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-status-success);
-  animation: pf-pulse 2s ease-in-out infinite;
-}
-
-@keyframes pf-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.45; }
-}
-
-.pf-icon-well {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--ct-space-8);
-  height: var(--ct-space-8);
-  flex-shrink: 0;
-  border-radius: var(--ct-radius-lg);
-  color: var(--ct-accent);
-  background: var(--ct-accent-soft);
 }
 
 .pf-progress-track {
@@ -165,26 +129,6 @@
 .pf-status-dot--exited { background: var(--ct-text-faint); }
 .pf-status-dot--default { background: var(--ct-text-faint); }
 
-.pf-widget-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-2);
-  min-width: 0;
-}
-
-.pf-widget-header .dash-label {
-  margin-bottom: 0;
-}
-
-.pf-widget-header .h3 {
-  margin: 0;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .pf-risk-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 2.25rem 4rem 3.5rem;
@@ -210,17 +154,67 @@
 .pf-tx-icon--withdraw { background: var(--ct-status-danger); }
 .pf-tx-icon--default { background: var(--ct-text-muted); }
 
-/* ── Hero — chart (premium) + integrated KPI rail ── */
-.pf-hero-grid {
-  align-items: stretch;
+.pf-secondary-grid {
+  gap: var(--ct-space-3) !important;
 }
 
-.pf-main-chart-wrapper,
-.pf-hero-sidebar {
-  align-self: stretch;
+/* ── Cockpit panels (secondary widgets — hero rail surface family) ── */
+.pf-cockpit-slot {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
-/* Single calm rail surface — no nested card stacks */
+.pf-cockpit-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-3);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  transition: border-color var(--ct-dur-base) var(--ct-ease);
+}
+
+.pf-cockpit-panel:hover {
+  border-color: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-graphite-border-nested));
+}
+
+.pf-cockpit-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+  margin: 0;
+}
+
+.pf-cockpit-panel--table {
+  min-height: 12rem;
+}
+
+/* ── Hero — flat preview section + chart / KPI rail ── */
+.pf-container .pf-hero-section.ct-section-preview {
+  gap: var(--ct-space-3);
+  padding: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+.pf-container .pf-hero-section .ct-product-section__preview-head {
+  display: none;
+}
+
+.pf-container .pf-hero-section .ct-product-section__content {
+  padding: 0;
+}
+
 .pf-hero-sidebar {
   display: flex;
   flex-direction: column;
@@ -240,11 +234,6 @@
   flex-direction: column;
   gap: var(--ct-space-2);
   flex: none;
-  padding: 0;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
 }
 
 .pf-hero-rail-group + .pf-hero-rail-group {
@@ -315,47 +304,31 @@
   line-height: var(--ct-leading-snug);
 }
 
-/* ── Value chart surface — single local recipe (portfolio scope) ──
-   ModuleChrome still emits ct-card + glass-panel + card-premium; pf-value-chart
-   owns the visible matter so section + chart read as one graphite family. */
-.pf-value-chart,
-.pf-container [aria-label="Portfolio value — 12-month trend"] {
-  min-height: 20rem;
-}
-
+/* Value chart — local graphite surface */
 .pf-container .pf-main-chart-wrapper .ct-card.pf-value-chart {
-  min-height: 22rem;
-  padding: var(--ct-space-4) var(--ct-space-5);
-  background: var(--ct-graphite-active-bg) !important;
-  background-image: radial-gradient(
+  --pf-chart-dots: radial-gradient(
     circle,
     color-mix(in srgb, var(--ct-accent) 2%, transparent) 1px,
     transparent 1px
-  ) !important;
+  );
+  min-height: 22rem;
+  padding: var(--ct-space-4) var(--ct-space-5);
+  background: var(--ct-graphite-subtle-bg) !important;
+  background-image: var(--pf-chart-dots) !important;
   background-size: 28px 28px;
-  border: 1px solid var(--ct-graphite-border) !important;
+  border: 1px solid var(--ct-graphite-border-nested) !important;
   border-radius: var(--ct-radius-lg);
-  box-shadow:
-    0 8px 24px -16px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
-    var(--ct-shadow-depth);
+  box-shadow: none;
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
   transition: border-color var(--ct-dur-base) var(--ct-ease);
 }
 
-/* Hover — border only, no background wash */
 .pf-value-chart.glass-panel:hover,
 .pf-container .pf-main-chart-wrapper .ct-card.pf-value-chart:hover {
-  background: var(--ct-graphite-active-bg) !important;
-  background-image: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--ct-accent) 2%, transparent) 1px,
-    transparent 1px
-  ) !important;
-  border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-graphite-border)) !important;
+  border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-graphite-border-nested)) !important;
 }
 
-/* Neutralise Card hover overlay if re-enabled globally */
 .pf-value-chart .ct-overlay-surface0 {
   display: none !important;
 }
@@ -364,7 +337,14 @@
   min-height: 14rem;
 }
 
-/* Section rhythm — no forced tall shells */
+@container pf (max-width: 880px) {
+  .pf-container .pf-main-chart-wrapper .ct-card.pf-value-chart {
+    min-height: 18rem;
+    padding: var(--ct-space-3) var(--ct-space-4);
+  }
+}
+
+/* ── Product sections (portfolio rhythm) ── */
 .pf-container [data-section="hero-pulse"],
 .pf-container [data-section="yield-trust"],
 .pf-container [data-section="activity-payouts"] {
@@ -379,80 +359,118 @@
   min-height: 8rem;
 }
 
-/* Preview / zero — compact section chrome */
-.pf-container--zero .ct-section-preview,
+.pf-container--zero
+  .ct-section-preview:not(.pf-hero-section):not(.pf-yield-trust-section):not(
+    .pf-activity-payouts-section
+  ),
 .pf-container--zero .ct-section-preview--compact {
   gap: var(--ct-space-4);
   padding: var(--ct-space-4) var(--ct-space-5);
 }
 
-.pf-container--zero .ct-product-section__preview-lead {
-  display: none;
-}
-
+.pf-container--zero .ct-product-section__preview-lead,
 .pf-container--zero .ct-product-section__preview-head .eyebrow {
   display: none;
 }
 
-/* Yield-allocation — no vertical stretch */
+/* Yield & Trust — flat preview frame; title only */
+.pf-container .pf-yield-trust-section.ct-section-preview {
+  gap: var(--ct-space-3);
+  padding: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+.pf-container .pf-yield-trust-section.ct-section-preview .ct-product-section__preview-head {
+  display: none;
+}
+
+.pf-container .pf-yield-trust-section .ct-product-section__content {
+  padding: 0;
+}
+
+/* Activity & Payouts — flat preview frame; panel cards own titles */
+.pf-container .pf-activity-payouts-section.ct-section-preview {
+  gap: var(--ct-space-3);
+  padding: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+/* Preview: widgets carry their own titles (Positions pattern) — hide section chrome */
+.pf-container .pf-activity-payouts-section.ct-section-preview .ct-product-section__preview-head {
+  display: none;
+}
+
+.pf-container .pf-activity-payouts-section .ct-product-section__content {
+  padding: 0;
+}
+
+/* ── Equal-height bento rows ── */
 .pf-container [data-section="yield-allocation"] .bento-col-8,
-.pf-container [data-section="yield-allocation"] .bento-col-4 {
+.pf-container [data-section="yield-allocation"] .bento-col-4,
+.pf-container [data-section="yield-trust"] .bento-col-4,
+.pf-container [data-section="activity-payouts"] .bento-col-8,
+.pf-container [data-section="activity-payouts"] .bento-col-4 {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  min-height: 100%;
 }
 
-.pf-container [data-section="yield-allocation"] .ct-card {
-  flex: unset;
-  height: auto;
+/* Allocation donut — scale to column */
+.pf-container [data-testid="allocation-donut-widget"].pf-cockpit-slot {
+  container-type: size;
+  container-name: pf-allocation-donut;
 }
 
-/* Secondary panels — calm surfaces, no premium dots (hero chart excluded) */
-.pf-container .ct-card.card-premium:not(.pf-value-chart) {
-  background-image: none;
+.pf-container [data-testid="allocation-donut-widget"] .pf-allocation-donut {
+  gap: var(--ct-space-2);
+  margin-top: var(--ct-space-1);
 }
 
-.pf-secondary-panel .ct-card,
-.pf-compact-panel .ct-card {
-  background: var(--ct-graphite-subtle-bg) !important;
+@container pf-allocation-donut (min-width: 0) {
+  .pf-allocation-donut-chart {
+    --pf-allocation-donut-size: min(12rem, 84cqw, 40cqh);
+    width: var(--pf-allocation-donut-size) !important;
+    height: var(--pf-allocation-donut-size) !important;
+    flex-shrink: 0;
+  }
+
+  .donut-val {
+    font-size: clamp(1.375rem, 7cqw, var(--ct-text-3xl));
+  }
+
+  .donut-lbl {
+    font-size: var(--ct-text-xs);
+    margin-top: var(--ct-space-0_5);
+  }
+}
+
+.pf-container [data-testid="allocation-donut-widget"] .pf-allocation-donut-note {
+  max-width: 20ch;
+  line-height: var(--ct-leading-snug);
+}
+
+/* Secondary widgets must not inherit premium card chrome */
+.pf-container .pf-cockpit-panel.ct-card,
+.pf-container .pf-cockpit-panel .ct-card,
+.pf-container .pf-cockpit-panel.card-premium,
+.pf-container .pf-cockpit-panel .card-premium {
   background-image: none !important;
   box-shadow: none !important;
-  backdrop-filter: blur(12px) !important;
 }
 
-.pf-secondary-panel .ct-card {
-  padding: var(--ct-space-3) var(--ct-space-4) !important;
-}
-
-.pf-compact-panel .ct-card {
-  padding: var(--ct-space-3) var(--ct-space-4) !important;
-}
-
-/* Embedded widgets (inside ProductSection) — flat, no nested card */
-.pf-container .pf-secondary-panel [aria-label] > .flex.h-full,
-.pf-container .pf-compact-panel [aria-label] > .flex.h-full {
-  gap: var(--ct-space-2);
-}
-
-.pf-secondary-panel .h3,
-.pf-compact-panel .h3 {
-  font-size: var(--ct-text-base) !important;
-  font-weight: var(--ct-font-semibold) !important;
-}
-
-.pf-secondary-grid {
-  gap: var(--ct-space-3) !important;
-}
-
-/* Preview chips — global banner is enough */
-.pf-container--zero .widget-panel-header span[class*="ct-text-faint"][class*="uppercase"],
-.pf-container .pf-secondary-panel .widget-panel-header span[class*="ct-text-faint"][class*="uppercase"],
-.pf-container .pf-compact-panel .widget-panel-header span[class*="ct-text-faint"][class*="uppercase"],
-.pf-container .pf-main-chart-wrapper .widget-panel-header span[class*="ct-text-faint"][class*="uppercase"] {
+.pf-container--zero [data-preview-chip] {
   display: none !important;
 }
 
-.pf-section-light--compact,
-.ct-section-preview--compact {
-  gap: var(--ct-space-4);
+.pf-container--zero .ct-section-preview .ct-product-section__preview-lead,
+.pf-container--zero .ct-section-preview .ct-product-section__preview-head .eyebrow {
+  display: none !important;
 }

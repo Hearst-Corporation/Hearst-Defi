@@ -1,9 +1,10 @@
 import Link from "next/link";
 
-import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { ModuleChrome } from "@/components/ui/module-chrome";
-import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
+import {
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
 import { ApyRange } from "@/components/ui/apy-range";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
@@ -52,22 +53,20 @@ export function PositionsList({
     : resolveProvenance(source, updatedAt);
 
   return (
-    <ModuleChrome aria-label="Open positions">
-      <WidgetPanelHeader
+    <PfCockpitPanel variant="table" aria-label="Open positions">
+      <PfCockpitPanelHeader
         title="Positions"
         provenance={provenance}
         trailing={
-          showZeroShell ? (
-            <PreviewModeChip label="Preview mode" />
-          ) : (
-            <span className="body-xs ct-text-muted tabular">
+          !showZeroShell ? (
+            <span className="body-xs ct-text-faint tabular">
               {positions.length} position{positions.length !== 1 ? "s" : ""}
             </span>
-          )
+          ) : undefined
         }
       />
 
-      <div className="flex flex-col gap-1 mt-3 overflow-x-auto min-w-0">
+      <div className="flex flex-col gap-1 overflow-x-auto min-w-0">
           {/* Header row */}
           <div className={cn("stat-label", ROW_GRID)}>
             <span>Vault</span>
@@ -77,11 +76,27 @@ export function PositionsList({
             <span className="text-right">Since</span>
           </div>
 
-          {showZeroShell ? (
+          {showZeroShell && !previewZeros ? (
             <EmptySurface
               variant="inline"
               message="No active positions yet — your first deposit will appear here once confirmed on-chain."
             />
+          ) : null}
+
+          {showZeroShell && previewZeros ? (
+            <div
+              className={cn(ROW_GRID, "items-center opacity-50")}
+              aria-hidden
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="pf-status-dot pf-status-dot--default" aria-hidden />
+                <span className="body-md ct-text-muted truncate">—</span>
+              </div>
+              <span className="tabular body-md text-right ct-text-faint">$0</span>
+              <span className="tabular body-md text-right ct-text-faint">$0</span>
+              <span className="body-xs text-right ct-text-faint">—</span>
+              <span className="body-xs tabular text-right ct-text-faint">—</span>
+            </div>
           ) : null}
 
           {positions.map((p) => (
@@ -133,6 +148,6 @@ export function PositionsList({
             </div>
           ))}
         </div>
-    </ModuleChrome>
+    </PfCockpitPanel>
   );
 }

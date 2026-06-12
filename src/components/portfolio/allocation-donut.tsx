@@ -1,8 +1,9 @@
-import { ModuleChrome } from "@/components/ui/module-chrome";
-import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
+import {
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
-import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -65,24 +66,25 @@ export function AllocationDonut({
   const hasAllocation = totalValueUsdc > 0 && segments.length > 0;
 
   return (
-    <ModuleChrome aria-label="Portfolio allocation">
-      <WidgetPanelHeader
-        title="Allocation by position status"
+    <PfCockpitPanel variant="compact" aria-label="Portfolio allocation">
+      <PfCockpitPanelHeader
+        title="Allocation"
+        subtitle="By position status"
         provenance={provenance}
-        trailing={
-          isPreviewShell ? (
-            <PreviewModeChip label="Preview mode" />
-          ) : undefined
-        }
       />
 
-      <div className="flex flex-col items-center gap-3 mt-2 relative z-10">
-        <div className="dash-chart-container relative mt-0 w-(--ct-donut-size) h-(--ct-donut-size)">
+      <div className="pf-allocation-donut flex min-h-0 flex-1 flex-col items-center">
+        <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center">
+        <div className="pf-allocation-donut-chart dash-chart-container relative m-0 w-(--ct-donut-size) h-(--ct-donut-size)">
           <svg
             className="dash-chart-svg w-full h-full"
             viewBox="0 0 42 42"
             role="img"
-            aria-label="Allocation by status"
+            aria-label={
+              hasAllocation
+                ? "Allocation by status"
+                : "Allocation by status — preview at zero, no positions"
+            }
           >
             <circle
               className="dash-chart-circle"
@@ -112,31 +114,31 @@ export function AllocationDonut({
           </div>
         </div>
 
-        <div className="dash-legend w-full mt-0">
-          {isPreviewShell && !hasAllocation ? (
-            <div className="dash-legend-row">
-              <span className="dash-legend-left">
-                <span className="dash-legend-dot dot-muted" />
-                Active
-              </span>
-              <span className="dash-legend-val">0% · $0</span>
-            </div>
-          ) : null}
-          {segments.map((s) => (
-            <div key={s.status} className="dash-legend-row">
-              <span className="dash-legend-left">
-                <span
-                  className={`dash-legend-dot dot-${STATUS_LEGEND_TONE[s.status] ?? "muted"}`}
-                />
-                {STATUS_LABELS[s.status] ?? s.status}
-              </span>
-              <span className="dash-legend-val">
-                {s.pct.toFixed(0)}% · {formatUsdCompact(s.valueUsdc)}
-              </span>
-            </div>
-          ))}
+        {hasAllocation ? (
+          <div className="dash-legend w-full mt-0">
+            {segments.map((s) => (
+              <div key={s.status} className="dash-legend-row">
+                <span className="dash-legend-left">
+                  <span
+                    className={`dash-legend-dot dot-${STATUS_LEGEND_TONE[s.status] ?? "muted"}`}
+                  />
+                  {STATUS_LABELS[s.status] ?? s.status}
+                </span>
+                <span className="dash-legend-val">
+                  {s.pct.toFixed(0)}% · {formatUsdCompact(s.valueUsdc)}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : null}
         </div>
+
+        {isPreviewShell ? (
+          <p className="pf-allocation-donut-note body-xs ct-text-faint m-0 mt-auto text-center">
+            Breakdown by status appears with your first position.
+          </p>
+        ) : null}
       </div>
-    </ModuleChrome>
+    </PfCockpitPanel>
   );
 }

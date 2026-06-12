@@ -1,9 +1,10 @@
 import { NestedPanel } from "@/components/ui/nested-panel";
-import { ModuleChrome } from "@/components/ui/module-chrome";
-import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
+import {
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
-import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -319,24 +320,19 @@ export function RiskPulse({
       );
 
   return (
-    <ModuleChrome aria-label="Risk pulse">
-      <WidgetPanelHeader
+    <PfCockpitPanel variant="compact" aria-label="Risk pulse">
+      <PfCockpitPanelHeader
         title={
           <Tooltip content="Composite risk score based on market, mining, liquidity, smart contract, and counterparty risks">
-            <h3 className="h3 ct-text-strong cursor-help border-b border-dotted border-(--ct-border-soft)">
+            <span className="pf-hero-rail-title cursor-help border-b border-dotted border-(--ct-border-soft)">
               Risk pulse
-            </h3>
+            </span>
           </Tooltip>
         }
         provenance={badgeKind}
-        trailing={
-          showZeroShell ? (
-            <PreviewModeChip label="Preview mode" />
-          ) : undefined
-        }
       />
 
-      <ul className="relative z-10" aria-label="Risk dimension scores">
+      <ul aria-label="Risk dimension scores">
         {scores.map((item) => (
           <ScoreRow key={item.dimension} item={item} />
         ))}
@@ -349,11 +345,9 @@ export function RiskPulse({
         noData={noData}
       />
 
-      <p className="mt-auto pt-4 body-xs italic leading-(--ct-leading-relaxed) relative z-10 opacity-70">
-        Scores are 0–100 (higher = more risk). Composite is the weighted sum of
-        the five dimensions per Methodology v1.0. Conditional projection — not
-        guaranteed.
+      <p className="mt-auto pt-2 body-xs ct-text-faint m-0">
+        0–100 scale · conditional — not guaranteed
       </p>
-    </ModuleChrome>
+    </PfCockpitPanel>
   );
 }

@@ -3,9 +3,10 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { NestedCallout, NestedPanel, ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { ModuleChrome } from "@/components/ui/module-chrome";
-import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
-import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
+import {
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -180,15 +181,10 @@ export function ProofPulse({
       : "stale";
 
   return (
-    <ModuleChrome aria-label="Proof and methodology">
-      <WidgetPanelHeader
+    <PfCockpitPanel variant="compact" aria-label="Proof and methodology">
+      <PfCockpitPanelHeader
         title="Proof & methodology"
         provenance={headerProvenance}
-        trailing={
-          showZeroShell ? (
-            <PreviewModeChip label="Preview mode" />
-          ) : undefined
-        }
       />
 
       {/* ── Last PoR block — only when an attestation actually exists ──────────
@@ -196,7 +192,7 @@ export function ProofPulse({
           "Awaiting proof / Awaiting record / no attestation yet" placeholder
           rows that fake an active widget. */}
       {hasData ? (
-        <section aria-label="Last Proof of Reserves" className="relative z-10">
+        <section aria-label="Last Proof of Reserves">
           <h3 className="h3 mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
             Last PoR
             <time
@@ -236,7 +232,7 @@ export function ProofPulse({
           </NestedPanel>
         </section>
       ) : (
-        <NestedCallout className="mt-4 relative z-10" role="status">
+        <NestedCallout className="mt-4" role="status">
           <p className="body-sm ct-text-primary font-semibold">
             {state === "pending"
               ? "On-chain proof is being reconciled."
@@ -254,7 +250,7 @@ export function ProofPulse({
           A bare "— + Manual" is not data; we omit the whole section rather than
           render an empty-looking methodology. */}
       {hasMethodologyData && (
-        <section aria-label="Methodology" className="mt-6 relative z-10">
+        <section aria-label="Methodology" className="mt-6">
           <h3 className="h3 mb-3">Methodology</h3>
 
           <NestedPanel>
@@ -287,7 +283,7 @@ export function ProofPulse({
       )}
 
       {/* ── CTA ────────────────────────────────────────────────────────────── */}
-      <div className="mt-auto pt-6 flex justify-end relative z-10">
+      <div className="mt-auto pt-6 flex justify-end">
         <Link
           href={proofCenterHref}
           className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-(--ct-border)"
@@ -296,6 +292,6 @@ export function ProofPulse({
           Open proof center
         </Link>
       </div>
-    </ModuleChrome>
+    </PfCockpitPanel>
   );
 }

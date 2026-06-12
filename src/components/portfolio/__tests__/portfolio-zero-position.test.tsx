@@ -132,10 +132,14 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
         previewZeros
       />,
     );
-    expect(yieldHtml).toContain("glass-panel");
+    expect(yieldHtml).toContain("pf-cockpit-panel");
     expect(yieldHtml).toContain("yield-stack-row");
-    expect(donutHtml).toContain("glass-panel");
+    expect(yieldHtml).not.toContain("card-premium");
+    expect(donutHtml).toContain("pf-cockpit-panel");
+    expect(donutHtml).not.toContain("card-premium");
     expect(donutHtml).toContain("<svg");
-    expect(donutHtml).toContain("0% · $0");
+    expect(donutHtml).toContain("$0");
+    expect(donutHtml).not.toContain("dash-legend-row");
+    expect(donutHtml).toContain("first position");
   });
 });

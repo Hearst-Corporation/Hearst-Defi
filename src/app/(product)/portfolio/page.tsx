@@ -32,7 +32,6 @@ import { SecurityPulse } from "@/components/portfolio/security-pulse";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
 import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
-import { SectionEmbedProvider } from "@/components/ui/section-embed";
 import {
   ZERO_YIELD_STACK,
   buildZeroDistribEntries,
@@ -61,8 +60,6 @@ function displayName(
   if (w) return `${w.slice(0, 6)}…${w.slice(-4)}`;
   return "Investor";
 }
-
-const previewSectionClass = "ct-section-preview--compact";
 
 export default async function PortfolioPage() {
   const [investor, data] = await Promise.all([getInvestor(), loadPortfolio()]);
@@ -100,7 +97,6 @@ export default async function PortfolioPage() {
 
   const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
   const sectionVariant = previewZeros ? "preview" : "active";
-  const sectionClass = previewZeros ? previewSectionClass : undefined;
 
   return (
     <div
@@ -122,7 +118,7 @@ export default async function PortfolioPage() {
         provenance={portfolioProvenance}
         showProvenance={hasPositions}
         variant={sectionVariant}
-        className={sectionClass}
+        className="pf-hero-section"
         data-section="hero-pulse"
       >
         <div className="dash-bento pf-secondary-grid pf-hero-grid">
@@ -157,13 +153,13 @@ export default async function PortfolioPage() {
 
       <div className="flex flex-col gap-4">
         <div className="dash-bento pf-secondary-grid" data-section="yield-allocation">
-          <div className="bento-col-8 pf-secondary-panel" data-testid="yield-stack-widget">
+          <div className="bento-col-8 pf-cockpit-slot" data-testid="yield-stack-widget">
             <YieldStack
               {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
               previewZeros={previewZeros}
             />
           </div>
-          <div className="bento-col-4 pf-secondary-panel" data-testid="allocation-donut-widget">
+          <div className="bento-col-4 pf-cockpit-slot" data-testid="allocation-donut-widget">
             <AllocationDonut
               positions={data.positions}
               totalValueUsdc={data.totalValueUsdc}
@@ -179,42 +175,31 @@ export default async function PortfolioPage() {
           provenance={portfolioProvenance}
           showProvenance={hasPositions}
           variant={sectionVariant}
-          className={sectionClass}
+          className="pf-yield-trust-section"
           data-section="yield-trust"
         >
-          <SectionEmbedProvider>
-            <div className="dash-bento pf-secondary-grid">
-              <div
-                data-testid="risk-pulse-widget"
-                className="bento-col-4 pf-compact-panel"
-              >
-                <RiskPulse {...riskPulseProps} previewZeros={previewZeros} />
-              </div>
-              <div
-                data-testid="proof-pulse-widget"
-                className="bento-col-4 pf-compact-panel"
-              >
-                <ProofPulse
-                  {...(previewZeros
-                    ? zeroProofPulseProps(previewAsOf)
-                    : proofPulseProps)}
-                  previewZeros={previewZeros}
-                />
-              </div>
-              <div
-                data-testid="security-pulse-widget"
-                className="bento-col-4 pf-compact-panel"
-              >
-                <SecurityPulse previewZeros={previewZeros} />
-              </div>
+          <div className="dash-bento pf-secondary-grid">
+            <div data-testid="risk-pulse-widget" className="bento-col-4 pf-cockpit-slot">
+              <RiskPulse {...riskPulseProps} previewZeros={previewZeros} />
             </div>
-          </SectionEmbedProvider>
+            <div data-testid="proof-pulse-widget" className="bento-col-4 pf-cockpit-slot">
+              <ProofPulse
+                {...(previewZeros
+                  ? zeroProofPulseProps(previewAsOf)
+                  : proofPulseProps)}
+                previewZeros={previewZeros}
+              />
+            </div>
+            <div data-testid="security-pulse-widget" className="bento-col-4 pf-cockpit-slot">
+              <SecurityPulse previewZeros={previewZeros} />
+            </div>
+          </div>
         </MergedSurface>
       </div>
 
       <div className="flex flex-col gap-4">
-        <div className="dash-bento pf-secondary-grid">
-          <div className="bento-col-12 pf-secondary-panel">
+        <div className="dash-bento pf-secondary-grid" data-section="positions">
+          <div className="bento-col-12 pf-cockpit-slot">
             <PositionsList
               positions={data.positions}
               source={data.source}
@@ -229,37 +214,32 @@ export default async function PortfolioPage() {
           provenance={portfolioProvenance}
           showProvenance={hasPositions}
           variant={sectionVariant}
-          className={sectionClass}
+          className="pf-activity-payouts-section"
           data-section="activity-payouts"
         >
-          <SectionEmbedProvider>
-            <div className="dash-bento pf-secondary-grid">
-              <div className="bento-col-8 pf-secondary-panel">
-                <RecentActivity
-                  transactions={data.recentTransactions}
-                  source={data.source}
-                  updatedAt={data.updatedAt}
-                  previewZeros={previewZeros}
-                />
-              </div>
-              <div
-                className="bento-col-4 pf-secondary-panel"
-                data-testid="distrib-calendar-widget"
-              >
-                <DistribCalendar
-                  {...distribCalendarProps}
-                  entries={
-                    previewZeros && distribCalendarProps.entries.length === 0
-                      ? buildZeroDistribEntries(previewAsOf.getUTCFullYear())
-                      : distribCalendarProps.entries
-                  }
-                  previewZeros={
-                    previewZeros && distribCalendarProps.entries.length === 0
-                  }
-                />
-              </div>
+          <div className="dash-bento pf-secondary-grid">
+            <div className="bento-col-8 pf-cockpit-slot" data-testid="recent-activity-widget">
+              <RecentActivity
+                transactions={data.recentTransactions}
+                source={data.source}
+                updatedAt={data.updatedAt}
+                previewZeros={previewZeros}
+              />
             </div>
-          </SectionEmbedProvider>
+            <div className="bento-col-4 pf-cockpit-slot" data-testid="distrib-calendar-widget">
+              <DistribCalendar
+                {...distribCalendarProps}
+                entries={
+                  previewZeros && distribCalendarProps.entries.length === 0
+                    ? buildZeroDistribEntries(previewAsOf.getUTCFullYear())
+                    : distribCalendarProps.entries
+                }
+                previewZeros={
+                  previewZeros && distribCalendarProps.entries.length === 0
+                }
+              />
+            </div>
+          </div>
         </MergedSurface>
       </div>
 
