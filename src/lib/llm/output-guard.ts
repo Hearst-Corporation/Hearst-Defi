@@ -38,32 +38,42 @@ const SETTLE = 64;
 const PERCENT_RE = /\d+(?:[.,]\d+)?\s?%/;
 
 /**
- * A genuine NUMERIC range construct: a number/percentage joined to ANOTHER
- * number by a range connector sitting BETWEEN the two operands. This is what
- * distinguishes "8 à 15 %" / "9.4-12.8%" / "8 % et 15 %" from a single point
- * whose sentence merely contains a bare "à"/"déjà"/"jusqu'à" or a stray hyphen.
+ * A genuine PERCENTAGE range construct: two numbers joined by a range connector
+ * where the construct itself carries a `%`. Requiring the `%` INSIDE the range
+ * is what stops an incidental numeric range elsewhere in the sentence ("sur 8 à
+ * 15 fermes", "entre 2024 et 2026", "3-4 fois le livret A") from excusing a
+ * single-point APY percentage (P1). An APY fourchette is ALWAYS quoted in % —
+ * "8 à 15 %", "9.4-12.8%", "8 % et 15 %" — so the genuine range always has a %
+ * within it, while a bare "<num> à <num>" of farms/years/multiples does not.
  *
- *   <num>[ digits / % / sep ] <connector> <num>
+ *   <num>[ digits / sep ] <connector> <num>[ digits / sep ] %
+ *   <num>[ digits / sep ] % <connector> <num>[ digits / sep ] %
  *
- * Connectors: "à", "to", "et", or a dash (- – —). A bare connector with no
- * number on one side does NOT match.
+ * Connectors: "à", "to", "et", or a dash (- – —).
  */
-const NUMERIC_RANGE_RE =
-  /\d[\d.,\s%]*?\s*(?:à|to|et|[-–—])\s*\d/i;
+const PERCENT_RANGE_RE =
+  /\d[\d.,\s]*%?\s*(?:à|to|et|[-–—])\s*\d[\d.,\s]*%/i;
 
 /**
- * "entre <num> ... et <num>" — the canonical French range phrasing, where the
- * two numbers may be separated by interposed words/percent signs.
+ * "entre <num>[%] ... et <num> %" — the canonical French range phrasing. The
+ * `%` must attach to the SECOND operand directly (only digits/decimal/space
+ * between the number after "et" and the `%`), so an incidental "entre 2024 et
+ * 2026" followed later by a lone "11 %" does NOT match (P1): there, the number
+ * right after "et" is 2026, which carries no `%`.
  */
-const ENTRE_RANGE_RE = /\bentre\b[^.!?\n]*?\d[^.!?\n]*?\bet\b[^.!?\n]*?\d/i;
+const ENTRE_RANGE_RE =
+  /\bentre\b[^.!?\n]*?\d[^.!?\n]*?\bet\b[^\d.!?\n]*?\d[\d.,\s]*%/i;
 
 /** Explicit range vocabulary that always denotes a fourchette. */
 const RANGE_WORD_RE = /\b(?:fourchette|range)\b/i;
 
-/** True when the sentence contains a genuine numeric range construct. */
+/** True when the sentence contains a genuine PERCENTAGE range construct (a
+ *  range that itself carries a `%`), or explicit fourchette/range vocabulary.
+ *  A bare numeric range with no `%` in it (farms, years, multiples) does NOT
+ *  count — it must not excuse a single-point APY percentage (P1). */
 function hasNumericRange(sentence: string): boolean {
   return (
-    NUMERIC_RANGE_RE.test(sentence) ||
+    PERCENT_RANGE_RE.test(sentence) ||
     ENTRE_RANGE_RE.test(sentence) ||
     RANGE_WORD_RE.test(sentence)
   );

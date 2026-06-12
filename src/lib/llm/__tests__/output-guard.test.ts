@@ -80,6 +80,32 @@ describe("chatOutputViolation — single-point APY", () => {
     // No terminator, not final → the trailing fragment is not yet judged.
     expect(chatOutputViolation("L'APY cible est de 8", false)).toBeNull();
   });
+
+  it("flags a single-point APY hidden by an INCIDENTAL numeric range (P1)", () => {
+    // P1: a range elsewhere in the sentence (farms, years, multiples) must NOT
+    // excuse a single-point APY percentage. Only a range that itself carries a
+    // `%` (a genuine fourchette) is compliant.
+    expect(
+      chatOutputViolation("Sur 8 à 15 fermes partenaires, l'APY ressort à 11 %.", true),
+    ).toBe("single_point_apy");
+    expect(
+      chatOutputViolation("Entre 2024 et 2026, l'APY est de 11 %.", true),
+    ).toBe("single_point_apy");
+    expect(
+      chatOutputViolation("L'APY est de 11 %, soit 3-4 fois le livret A.", true),
+    ).toBe("single_point_apy");
+    expect(
+      chatOutputViolation("L'APY est de 11 % sur 5 à 7 ans.", true),
+    ).toBe("single_point_apy");
+  });
+
+  it("still accepts a genuine percentage fourchette (no P1 false positive)", () => {
+    expect(chatOutputViolation("APY: 8 % à 15 %.", true)).toBeNull();
+    expect(chatOutputViolation("APY entre 8 % et 15 % cible.", true)).toBeNull();
+    expect(
+      chatOutputViolation("L'APY se situe dans la fourchette cible.", true),
+    ).toBeNull();
+  });
 });
 
 // ---------------------------------------------------------------------------
