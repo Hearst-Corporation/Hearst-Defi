@@ -1,6 +1,7 @@
 import { NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { Tooltip } from "@/components/ui/tooltip";
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { cn } from "@/lib/cn";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
@@ -309,6 +310,15 @@ export function RiskPulse({
     updatedAt,
     "estimated", // Risk is always an estimation
   );
+
+  // No snapshot yet → render a LIGHT empty surface, not a full dash-cell-premium
+  // with header + Stale badge + placeholder (which reads as a big black box).
+  // The outer section already labels this slot "Risk profile".
+  if (noData) {
+    return (
+      <AwaitingMetricState message="Risk scores will appear after the first snapshot." />
+    );
+  }
 
   return (
     <article className="dash-cell dash-cell-premium h-full flex flex-col">

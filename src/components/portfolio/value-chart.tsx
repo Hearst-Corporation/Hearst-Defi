@@ -1,6 +1,7 @@
 import { type Provenance } from "@/components/ui/provenance-badge";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
+import { EmptyChartState } from "@/components/portfolio/empty-chart-state";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
@@ -190,15 +191,11 @@ export function ValueChart({ positions, totalValueUsdc, source, updatedAt }: Val
       </div>
 
       {isEmpty ? (
-        /* Empty state preserved */
-        <div
-          className="mt-3 flex w-full flex-1 items-center justify-center rounded-md border border-dashed border-(--ct-border-soft) ct-surface-1 relative z-10 min-h-20"
-          aria-label="No portfolio data yet"
-        >
-          <p className="body-xs ct-text-muted">
-            Your value trend starts after the first active position.
-          </p>
-        </div>
+        /* No SVG/area chart rendered without data — a calm note at chart height. */
+        <EmptyChartState
+          message="Value trend will appear after the first active position."
+          className="mt-3 flex-1 min-h-20"
+        />
       ) : (
         /* Real area chart */
         <div
@@ -212,18 +209,23 @@ export function ValueChart({ positions, totalValueUsdc, source, updatedAt }: Val
         </div>
       )}
 
-      {/* Month labels */}
-      <div className="stat-label ct-text-muted flex justify-between mt-2 mono relative z-10">
-        {series
-          .filter((_, i) => i % 3 === 0 || i === series.length - 1)
-          .map((s, i) => (
-            <span key={i}>{s.label}</span>
-          ))}
-      </div>
+      {/* Month-axis labels + indicative disclaimer belong to the real chart —
+          don't render an axis or "indicative path" caption under an empty state. */}
+      {!isEmpty && (
+        <>
+          <div className="stat-label ct-text-muted flex justify-between mt-2 mono relative z-10">
+            {series
+              .filter((_, i) => i % 3 === 0 || i === series.length - 1)
+              .map((s, i) => (
+                <span key={i}>{s.label}</span>
+              ))}
+          </div>
 
-      <p className="body-xs ct-text-muted mt-2 italic relative z-10">
-        Indicative path derived from subscribed principal and current value. Past performance does not predict future results.
-      </p>
+          <p className="body-xs ct-text-muted mt-2 italic relative z-10">
+            Indicative path derived from subscribed principal and current value. Past performance does not predict future results.
+          </p>
+        </>
+      )}
     </article>
   );
 }

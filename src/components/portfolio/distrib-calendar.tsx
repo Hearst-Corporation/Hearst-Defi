@@ -11,6 +11,7 @@
  */
 
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { EmptyChartState } from "@/components/portfolio/empty-chart-state";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
@@ -310,15 +311,14 @@ export function DistribCalendar({
           </h3>
           <p className="body-xs ct-text-muted mono">
             12-month history · USDC
+            {hasForecast ? " · incl. estimated forecast" : ""}
           </p>
         </div>
 
-        {/* Provenance badges */}
+        {/* Single global provenance badge. The forecast bars carry their own
+            "(Estimated)" labelling on the chart, so we don't double-badge here. */}
         <div className="flex items-center gap-1.5 shrink-0">
           <ProvenanceBadge kind={badgeKind} />
-          {hasForecast && (
-            <ProvenanceBadge kind="estimated" />
-          )}
         </div>
       </div>
 
@@ -332,35 +332,39 @@ export function DistribCalendar({
           />
         </div>
       ) : (
-        <div
-          className="flex items-center justify-center rounded-md border border-dashed border-(--ct-border-soft) ct-surface-1 relative z-10 min-h-32"
-          aria-label="No distribution data yet"
-        >
-          <p className="body-xs ct-text-muted">
-            No distribution history yet.
-          </p>
-        </div>
+        /* No BarChart structure rendered without entries — a calm note at chart height. */
+        <EmptyChartState
+          message="Distribution history will appear after the first payout."
+          className="min-h-32"
+        />
       )}
 
-      {/* Footer — share class + cadence */}
-      <dl className="flex flex-wrap gap-x-6 gap-y-2 border-t border-(--ct-border-soft) pt-4 mt-auto relative z-10">
-        <div className="flex flex-col gap-0.5 min-w-0">
-          <dt className="stat-label mono">
-            Share class
-          </dt>
-          <dd className="body-sm ct-text-body mono tabular">
-            {shareClass ? `Series ${shareClass}` : "—"}
-          </dd>
-        </div>
-        <div className="flex flex-col gap-0.5 min-w-0">
-          <dt className="stat-label mono">
-            Cadence
-          </dt>
-          <dd className="body-sm ct-text-body mono tabular">
-            {cadence ?? "—"}
-          </dd>
-        </div>
-      </dl>
+      {/* Footer — share class + cadence. Rendered only when at least one is
+          known, so an empty widget doesn't show a "— / —" stub. */}
+      {(shareClass || cadence) && (
+        <dl className="flex flex-wrap gap-x-6 gap-y-2 border-t border-(--ct-border-soft) pt-4 mt-auto relative z-10">
+          {shareClass ? (
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <dt className="stat-label mono">
+                Share class
+              </dt>
+              <dd className="body-sm ct-text-body mono tabular">
+                Series {shareClass}
+              </dd>
+            </div>
+          ) : null}
+          {cadence ? (
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <dt className="stat-label mono">
+                Cadence
+              </dt>
+              <dd className="body-sm ct-text-body mono tabular">
+                {cadence}
+              </dd>
+            </div>
+          ) : null}
+        </dl>
+      )}
     </article>
   );
 }

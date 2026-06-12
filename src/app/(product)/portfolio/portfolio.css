@@ -243,16 +243,6 @@
   min-height: 20rem;
 }
 
-/* Specific empty state heights to fill the stable grid */
-.pf-container .dash-cell [aria-label="No allocation data yet"],
-.pf-container .dash-cell [aria-label="No distribution data yet"] {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 8rem;
-}
-
 /* === Merged cells — strip internal dash-cell styling when nested === */
 .pf-merged-surface {
   padding: var(--ct-space-6) !important;
@@ -314,6 +304,19 @@
 /* Adjust spacing for merged content children */
 .pf-merged-content > div {
   height: 100%;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   EMPTY WIDGET — surface LÉGÈRE pour un widget sans données principales.
+   Volontairement PAS une dash-cell-premium : pas de verre noir dense, pas de
+   blur lourd, pas d'ombre profonde, pas de header/badge. Juste un inset très
+   discret qui tient sa place dans la grille sans simuler une card active.
+   ─────────────────────────────────────────────────────────────────────────── */
+.pf-container .pf-empty-widget {
+  background: color-mix(in srgb, var(--ct-text-strong) 2%, transparent);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-lg);
+  min-height: 8rem;
 }
 
 /* ───────────────────────────────────────────────────────────────────────────

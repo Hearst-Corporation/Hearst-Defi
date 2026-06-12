@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { NestedCallout, NestedPanel, ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { cn } from "@/lib/cn";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -127,6 +128,10 @@ export function ProofPulse({
   const state =
     proofState === "attested" ? "attested" : derivedState;
   const hasData = state === "matched" || state === "mismatch" || state === "attested";
+  // Methodology section is shown only when it carries a real value — a bare
+  // "— / Not scheduled / (no auditor)" is not data worth a panel.
+  const hasMethodologyData =
+    Boolean(methodologyVersion) || nextAttestation !== null || Boolean(auditor);
   const deltaPct = hasData ? computeDeltaPct(statedTvlUsdc, onChainTvlUsdc) : 0;
   const level = hasData ? deltaLevel(deltaPct) : null;
 
@@ -165,6 +170,24 @@ export function ProofPulse({
   const headerProvenance: "attested" | "stale" =
     state === "matched" || state === "attested" ? "attested" : "stale";
 
+  // Nothing real to show (no attestation AND no methodology) → render a LIGHT
+  // empty surface instead of a full dash-cell-premium with header + Stale badge
+  // + nested callout, which reads as a big black placeholder box. The outer
+  // section already labels this slot "Proof of reserves".
+  if (!hasData && !hasMethodologyData) {
+    return (
+      <AwaitingMetricState
+        message="No attestation has been published yet."
+        detail="The first proof will appear here once vault activity is attested."
+        link={{
+          label: "Open proof center",
+          href: proofCenterHref,
+          ariaLabel: "Open proof center",
+        }}
+      />
+    );
+  }
+
   return (
     <article className="dash-cell dash-cell-premium h-full flex flex-col">
       <div className="pf-widget-header relative z-10">
@@ -174,113 +197,100 @@ export function ProofPulse({
         <ProvenanceBadge kind={headerProvenance} />
       </div>
 
-      {state !== "matched" && state !== "attested" && (
-        <NestedCallout className="mt-4 relative z-10">
+      {/* ── Last PoR block — only when an attestation actually exists ──────────
+          With no attestation we show a single calm callout instead of a grid of
+          "Awaiting proof / Awaiting record / no attestation yet" placeholder
+          rows that fake an active widget. */}
+      {hasData ? (
+        <section aria-label="Last Proof of Reserves" className="relative z-10">
+          <h3 className="h3 mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            Last PoR
+            <time
+              dateTime={formatIso(timestamp)}
+              className="body-xs ct-text-faint font-normal"
+            >
+              {formatDateHuman(timestamp)} · {formatTimeUtc(timestamp)}
+            </time>
+          </h3>
+
+          <NestedPanel>
+            <ProofRow label="Vault TVL">{formatUsdc(statedTvlUsdc)}</ProofRow>
+
+            <ProofRow label="On-chain">
+              <span className="inline-flex items-center justify-end gap-2">
+                {formatUsdc(onChainTvlUsdc)}
+                {indicator !== null ? (
+                  <span
+                    role="status"
+                    aria-label={indicator.label}
+                    className={cn(
+                      "body-sm font-semibold leading-none select-none",
+                      indicator.colorClass,
+                    )}
+                  >
+                    {indicator.glyph}
+                  </span>
+                ) : null}
+              </span>
+            </ProofRow>
+
+            <ProofRow label="Delta">
+              <span className={deltaColorClass}>
+                {deltaPct === 0 ? "0.00" : deltaPct.toFixed(2)}%
+              </span>
+            </ProofRow>
+          </NestedPanel>
+        </section>
+      ) : (
+        <NestedCallout className="mt-4 relative z-10" role="status">
           <p className="body-sm ct-text-primary font-semibold">
             {state === "pending"
               ? "On-chain proof is being reconciled."
-              : state === "mismatch"
-                ? "Proof figures need review."
-                : "No attestation has been published yet."}
+              : "No attestation has been published yet."}
           </p>
           <p className="body-xs ct-text-muted mt-1">
             {state === "pending"
               ? "Vault TVL is available, but the on-chain confirmation has not landed."
-              : state === "mismatch"
-                ? "Open the Proof Center to compare the stated TVL with on-chain records."
-                : "The first proof will appear here once vault activity is attested."}
+              : "The first proof will appear here once vault activity is attested."}
           </p>
         </NestedCallout>
       )}
 
-      {/* ── Last PoR block ─────────────────────────────────────────────────── */}
-      <section aria-label="Last Proof of Reserves" className="relative z-10">
-        <h3 className="h3 mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          Last PoR
-          <time
-            dateTime={formatIso(timestamp)}
-            className="body-xs ct-text-faint font-normal"
-          >
-            {formatDateHuman(timestamp)} · {formatTimeUtc(timestamp)}
-          </time>
-        </h3>
+      {/* ── Methodology block — only when it carries at least one real value ──
+          A bare "— + Manual" is not data; we omit the whole section rather than
+          render an empty-looking methodology. */}
+      {hasMethodologyData && (
+        <section aria-label="Methodology" className="mt-6 relative z-10">
+          <h3 className="h3 mb-3">Methodology</h3>
 
-        <NestedPanel>
-          <ProofRow label="Vault TVL">
-            {statedTvlUsdc > 0 ? formatUsdc(statedTvlUsdc) : "Awaiting proof"}
-          </ProofRow>
-
-          <ProofRow label="On-chain">
-            <span className="inline-flex items-center justify-end gap-2">
-              {onChainTvlUsdc > 0 ? formatUsdc(onChainTvlUsdc) : "Awaiting record"}
-              {indicator !== null ? (
-                <span
-                  role="status"
-                  aria-label={indicator.label}
-                  className={cn(
-                    "body-sm font-semibold leading-none select-none",
-                    indicator.colorClass,
+          <NestedPanel>
+            {methodologyVersion ? (
+              <ProofRow label="Version">
+                <span className="inline-flex items-center justify-end gap-2">
+                  <span className="ct-text-primary">{methodologyVersion}</span>
+                  <ProvenanceBadge kind="attested" />
+                  {methodologyLocked && (
+                    <Badge variant="default" aria-label="Methodology is locked">
+                      locked
+                    </Badge>
                   )}
-                >
-                  {indicator.glyph}
                 </span>
-              ) : null}
-            </span>
-          </ProofRow>
+              </ProofRow>
+            ) : null}
 
-          <ProofRow label="Delta">
-            {hasData ? (
-              <span className={deltaColorClass}>
-                {deltaPct === 0 ? "0.00" : deltaPct.toFixed(2)}%
-              </span>
-            ) : (
-              <span className="ct-text-faint italic">
-                {state === "pending"
-                  ? "on-chain pending"
-                  : "no attestation yet"}
-              </span>
-            )}
-          </ProofRow>
-        </NestedPanel>
-      </section>
-
-      {/* ── Methodology block ──────────────────────────────────────────────── */}
-      <section aria-label="Methodology" className="mt-6 relative z-10">
-        <h3 className="h3 mb-3">Methodology</h3>
-
-        <NestedPanel>
-          <ProofRow label="Version">
-            <span className="inline-flex items-center justify-end gap-2">
-              <span className="ct-text-faint">
-                {methodologyVersion || "—"}
-              </span>
-              {methodologyVersion ? (
-                <ProvenanceBadge kind="attested" />
-              ) : (
-                <ProvenanceBadge kind="manual" />
-              )}
-              {methodologyLocked && (
-                <Badge variant="default" aria-label="Methodology is locked">
-                  locked
-                </Badge>
-              )}
-            </span>
-          </ProofRow>
-
-          <ProofRow label="Next attest">
             {nextAttestation !== null ? (
-              <time dateTime={formatIso(nextAttestation)}>
-                {formatDateHuman(nextAttestation)} ·{" "}
-                {formatTimeUtc(nextAttestation)}
-              </time>
-            ) : (
-              <span className="ct-text-faint italic">Not scheduled yet</span>
-            )}
-          </ProofRow>
+              <ProofRow label="Next attest">
+                <time dateTime={formatIso(nextAttestation)}>
+                  {formatDateHuman(nextAttestation)} ·{" "}
+                  {formatTimeUtc(nextAttestation)}
+                </time>
+              </ProofRow>
+            ) : null}
 
-          <ProofRow label="Auditor">{auditor}</ProofRow>
-        </NestedPanel>
-      </section>
+            {auditor ? <ProofRow label="Auditor">{auditor}</ProofRow> : null}
+          </NestedPanel>
+        </section>
+      )}
 
       {/* ── CTA ────────────────────────────────────────────────────────────── */}
       <div className="mt-auto pt-6 flex justify-end relative z-10">
