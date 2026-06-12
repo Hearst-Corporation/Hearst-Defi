@@ -1401,6 +1401,39 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   min-width: 0;
 }
 
+/* Secondary cockpit instrumentation — quieter than ct-card glass-panel. */
+.dashboard-system-panel {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-nested-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  box-shadow: none;
+}
+
+.dashboard-system-panel__header {
+  margin-bottom: var(--ct-space-3);
+}
+
+.dashboard-system-panel table {
+  background: transparent;
+}
+
+.dashboard-system-panel thead tr {
+  border-color: var(--ct-border-soft);
+}
+
+.dashboard-system-panel tbody tr {
+  border-color: color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
+}
+
+.dashboard-system-panel tbody tr:hover {
+  background: var(--ct-surface-0);
+}
+
 /* Live metrics — reflow metric grid from card width, not viewport. */
 .dashboard-live-metrics {
   container-type: inline-size;

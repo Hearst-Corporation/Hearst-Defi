@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { SystemPanel, SystemPanelTitle } from "@/components/ui/system-panel";
 import type { AuditTrailEntry } from "@/lib/data/cockpit";
 
 interface AuditTrailRollingProps {
@@ -22,8 +22,8 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
  */
 export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   return (
-    <Card aria-label="Audit trail">
-      <h2 className="h2 mb-4">Audit Trail</h2>
+    <SystemPanel aria-label="Audit trail">
+      <SystemPanelTitle eyebrow="Compliance" title="Audit Trail" />
 
       {entries.length === 0 ? (
         <div className="py-6 ct-empty-state">
@@ -35,7 +35,7 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
         <div className="overflow-x-auto -mx-(--ct-card-p,1.5rem)">
           <table className="w-full text-sm min-w-160" aria-label="Admin audit log">
             <thead>
-              <tr className="border-b border-(--ct-border)">
+              <tr className="border-b border-(--ct-border-soft)">
                 <th className="text-left ct-table-header font-medium ct-text-faint w-36">
                   Time
                 </th>
@@ -61,7 +61,7 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
           </table>
         </div>
       )}
-    </Card>
+    </SystemPanel>
   );
 }
 
@@ -72,7 +72,7 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
     : entry.entityId;
 
   return (
-    <tr className="border-b border-(--ct-border-soft) hover:ct-surface-0 transition-colors">
+    <tr className="border-b border-(--ct-border-soft) transition-colors">
       <td className="ct-table-cell tabular ct-text-faint whitespace-nowrap">
         {dateFmt.format(new Date(entry.occurredAt))}
       </td>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Card } from "@/components/ui/card";
+import { SystemPanel, SystemPanelTitle } from "@/components/ui/system-panel";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl } from "@/lib/chain/client";
 import type {
@@ -26,8 +26,8 @@ interface LiveOpsProps {
  */
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
-    <Card aria-label="Live ops">
-      <h2 className="h2 mb-4">Live Ops</h2>
+    <SystemPanel aria-label="Live ops">
+      <SystemPanelTitle eyebrow="Operations" title="Live Ops" />
 
       {/* Inngest */}
       <div className="mb-5">
@@ -75,7 +75,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
           </ul>
         )}
       </div>
-    </Card>
+    </SystemPanel>
   );
 }
 
