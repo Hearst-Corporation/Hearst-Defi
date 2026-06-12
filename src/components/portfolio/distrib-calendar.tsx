@@ -94,19 +94,33 @@ export function barHeight(amount: number, maxAmount: number): number {
   return Math.max(4, (amount / maxAmount) * BAR_AREA_H);
 }
 
+/** Quarter-month indices (0-based) for compact zero-state labels: Jan, Apr, Jul, Oct. */
+export const COMPACT_LABEL_INDICES = [0, 3, 6, 9] as const;
+
+export function shouldShowCompactPeriodLabel(index: number): boolean {
+  return (COMPACT_LABEL_INDICES as readonly number[]).includes(index);
+}
+
+const COMPACT_RAIL_H = 3;
+
 // ── SVG component ─────────────────────────────────────────────────────────────
 
 interface BarChartProps {
   entries: DistribEntry[];
   refYear: number;
   currentPeriod: string;
+  /** Calm 12-month rail for layout-preview / zero-state — no per-bar amounts or [Estimate]. */
+  compactPreview?: boolean;
 }
 
-function BarChart({ entries, refYear, currentPeriod }: BarChartProps) {
+function BarChart({
+  entries,
+  refYear,
+  currentPeriod,
+  compactPreview = false,
+}: BarChartProps) {
   const n = entries.length;
   if (n === 0) return null;
-
-  const maxAmount = Math.max(...entries.map((e) => e.amountUsdc), 1);
 
   // Bar geometry
   const GAP = 4;
@@ -119,6 +133,71 @@ function BarChart({ entries, refYear, currentPeriod }: BarChartProps) {
   // max-h-[180px] below: render constraint, not a spacing token — caps the SVG
   // canvas height so the chart can't grow taller than its cell. Intentional
   // arbitrary value (chart dimension, off the --ct-space-* scale).
+
+  if (compactPreview) {
+    const compactTitle =
+      "Payout calendar — 12-month forecast timeline, no payout history yet";
+    const firstBx = barX(0, n, BAR_W, GAP);
+    const lastBx = barX(n - 1, n, BAR_W, GAP);
+
+    return (
+      <svg
+        viewBox={`0 0 ${VB_W} ${VB_H}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="w-full max-h-44"
+        role="img"
+        aria-label={compactTitle}
+      >
+        <title id={titleId}>{compactTitle}</title>
+
+        <line
+          x1={firstBx}
+          y1={BAR_AREA_BOT}
+          x2={lastBx + BAR_W}
+          y2={BAR_AREA_BOT}
+          stroke="var(--ct-border-soft)"
+          strokeWidth="1"
+          aria-hidden="true"
+        />
+
+        {entries.map((entry, i) => {
+          const bx = barX(i, n, BAR_W, GAP);
+          const by = BAR_AREA_BOT - COMPACT_RAIL_H;
+          const cx = bx + BAR_W / 2;
+          const periodLabel = formatPeriod(entry.period, refYear);
+
+          return (
+            <g key={i} aria-hidden="true">
+              <rect
+                x={bx}
+                y={by}
+                width={BAR_W}
+                height={COMPACT_RAIL_H}
+                fill="var(--ct-border-soft)"
+                opacity="0.85"
+                rx="1"
+              />
+              {shouldShowCompactPeriodLabel(i) ? (
+                <text
+                  x={cx}
+                  y={LABEL_Y}
+                  textAnchor="middle"
+                  fontSize="8"
+                  fill="var(--ct-text-muted)"
+                  fontFamily="var(--font-mono)"
+                >
+                  {periodLabel}
+                </text>
+              ) : null}
+            </g>
+          );
+        })}
+      </svg>
+    );
+  }
+
+  const maxAmount = Math.max(...entries.map((e) => e.amountUsdc), 1);
+
   return (
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
@@ -317,8 +396,13 @@ export function DistribCalendar({
           entries={displayEntries}
           refYear={refYear}
           currentPeriod={currentPeriod}
+          compactPreview={previewZeros}
         />
       </div>
+
+      {previewZeros ? (
+        <p className="body-xs ct-text-muted pt-1">No payout history yet</p>
+      ) : null}
 
       {/* Footer — share class + cadence. Rendered only when at least one is
           known, so an empty widget doesn't show a "— / —" stub. */}

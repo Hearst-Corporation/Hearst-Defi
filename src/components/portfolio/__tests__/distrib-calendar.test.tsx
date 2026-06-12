@@ -12,6 +12,7 @@ import {
   barX,
   formatPeriod,
   formatUsdc,
+  shouldShowCompactPeriodLabel,
   type DistribEntry,
 } from "@/components/portfolio/distrib-calendar";
 
@@ -146,7 +147,21 @@ describe("formatPeriod", () => {
   });
 });
 
-// ── Suite 6: formatUsdc helper ────────────────────────────────────────────────
+// ── Suite 6: compact zero-state label indices ─────────────────────────────────
+
+describe("shouldShowCompactPeriodLabel", () => {
+  it("shows labels only at quarter months (Jan, Apr, Jul, Oct)", () => {
+    expect(shouldShowCompactPeriodLabel(0)).toBe(true);
+    expect(shouldShowCompactPeriodLabel(3)).toBe(true);
+    expect(shouldShowCompactPeriodLabel(6)).toBe(true);
+    expect(shouldShowCompactPeriodLabel(9)).toBe(true);
+    expect(shouldShowCompactPeriodLabel(1)).toBe(false);
+    expect(shouldShowCompactPeriodLabel(5)).toBe(false);
+    expect(shouldShowCompactPeriodLabel(11)).toBe(false);
+  });
+});
+
+// ── Suite 7: formatUsdc helper ────────────────────────────────────────────────
 
 describe("formatUsdc", () => {
   it("formats whole number with $ and no decimals", () => {
