@@ -666,7 +666,7 @@ packages:
       react-dom: ^18 || ^19 || ^19.0.0-rc
 
   '@hearst/cockpit-shell@file:hearst-cockpit-shell-0.2.0.tgz':
-    resolution: {integrity: sha512-/xlLly5TixaEa4mose/swAiMYlFSxYq5CzSnrthXqfNWIpbAz3Ey1vi8cFVnWg5TS/BZumrEjG8Ng6NqYPNCcg==, tarball: file:hearst-cockpit-shell-0.2.0.tgz}
+    resolution: {integrity: sha512-HOYp3koJLeOeTWcYsVPnHeO9H7m8xu6dIm5ZfOycoq46rhrh7a5Uyfmko2+8lL0VbJ2Z4oLMkSaQHTcPGtKsqQ==, tarball: file:hearst-cockpit-shell-0.2.0.tgz}
     version: 0.2.0
     peerDependencies:
       next: '>=15'
