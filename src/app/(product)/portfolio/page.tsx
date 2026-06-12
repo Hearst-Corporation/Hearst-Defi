@@ -113,6 +113,17 @@ export default async function PortfolioPage() {
         <NextActionCard {...actionFlags} />
       ) : null}
 
+      <div className="dash-bento pf-secondary-grid" data-section="positions">
+        <div className="bento-col-12 pf-cockpit-slot">
+          <PositionsList
+            positions={data.positions}
+            source={data.source}
+            updatedAt={data.updatedAt}
+            previewZeros={previewZeros}
+          />
+        </div>
+      </div>
+
       <MergedSurface
         title="Performance & Liquidity"
         provenance={portfolioProvenance}
@@ -202,17 +213,6 @@ export default async function PortfolioPage() {
       </div>
 
       <div className="pf-section-stack">
-        <div className="dash-bento pf-secondary-grid" data-section="positions">
-          <div className="bento-col-12 pf-cockpit-slot">
-            <PositionsList
-              positions={data.positions}
-              source={data.source}
-              updatedAt={data.updatedAt}
-              previewZeros={previewZeros}
-            />
-          </div>
-        </div>
-
         <MergedSurface
           title="Activity & Payouts"
           provenance={portfolioProvenance}

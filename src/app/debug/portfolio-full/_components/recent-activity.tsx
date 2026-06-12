@@ -60,14 +60,14 @@ export function RecentActivity({ transactions, source }: RecentActivityProps) {
       className="dash-cell dash-cell-premium flex flex-col h-full overflow-hidden" 
       aria-label="Recent account activity"
     >
-      <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 shrink-0 relative z-10">
+      <div className="flex justify-between items-center stat-label mb-6 shrink-0 relative z-10">
         <span>Recent Activity</span>
         <ProvenanceBadge kind={provenance} />
       </div>
 
       <div className="overflow-y-auto flex-1 pr-2 -mr-2 relative z-10">
         {displayed.length === 0 ? (
-          <p className="text-sm text-(--ct-text-muted) mt-2 italic">No transactions yet.</p>
+          <p className="body-sm text-(--ct-text-muted) mt-2 italic">No transactions yet.</p>
         ) : (
           <div className="flex flex-col gap-0.5 mt-1">
             {displayed.map((tx) => (
@@ -78,7 +78,7 @@ export function RecentActivity({ transactions, source }: RecentActivityProps) {
                 <TxIcon type={tx.type} />
 
                 <div className="flex-1 min-w-0 overflow-hidden">
-                  <div className="text-sm text-(--ct-text-primary) font-medium truncate">
+                  <div className="body-sm text-(--ct-text-primary) font-medium truncate">
                     {TYPE_LABELS[tx.type] ?? tx.type}
                     {tx.positionVaultName && (
                       <span className="text-(--ct-text-muted) font-normal">
@@ -86,12 +86,12 @@ export function RecentActivity({ transactions, source }: RecentActivityProps) {
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-(--ct-text-muted) mt-0.5 mono truncate uppercase tracking-wider">
+                  <div className="body-xs text-(--ct-text-muted) mt-0.5 mono truncate uppercase tracking-wider">
                     {relativeTime(tx.occurredAt, asOf)}
                   </div>
                 </div>
 
-                <span className="tabular-nums text-sm text-(--ct-text-strong) mono font-medium shrink-0">
+                <span className="tabular-nums body-sm text-(--ct-text-strong) mono font-medium shrink-0">
                   {usdFmt.format(tx.amountUsdc)}
                 </span>
               </div>

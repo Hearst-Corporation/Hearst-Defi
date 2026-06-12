@@ -99,7 +99,7 @@ function EntityBadge({ entity }: { entity: Entity }) {
   const meta = ENTITY_META[entity];
   return (
     <span
-      className="inline-flex items-center rounded-full border border-[var(--ct-border)] ct-surface-1 px-2 py-0.5 text-[length:var(--ct-text-micro-size)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
+      className="stat-label inline-flex items-center rounded-full border border-[var(--ct-border)] ct-surface-1 px-2 py-0.5"
       style={{ color: meta.color }}
       aria-label={meta.label}
     >
@@ -146,13 +146,13 @@ function ResultItem({
           {result.title}
         </span>
         {result.subtitle && (
-          <span className="block truncate text-xs ct-text-muted">
+          <span className="block truncate body-xs ct-text-muted">
             {result.subtitle}
           </span>
         )}
       </span>
       {result.badge && (
-        <span className="shrink-0 rounded-sm border border-[var(--ct-border-soft)] ct-surface-1 px-1.5 py-0.5 text-[length:var(--ct-text-micro-size)] ct-text-muted">
+        <span className="shrink-0 rounded-sm border border-[var(--ct-border-soft)] ct-surface-1 px-1.5 py-0.5 ct-text-micro-size ct-text-muted">
           {result.badge}
         </span>
       )}
@@ -359,7 +359,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onInputKeyDown}
-            className="min-w-0 flex-1 bg-transparent text-sm ct-text-strong placeholder:ct-text-muted focus:outline-none"
+            className="min-w-0 flex-1 bg-transparent body-sm ct-text-strong placeholder:ct-text-muted focus:outline-none"
             autoComplete="off"
             spellCheck={false}
           />
@@ -389,7 +389,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
           )}
 
           {/* Kbd hint */}
-          <kbd className="hidden shrink-0 rounded-sm border border-[var(--ct-border)] ct-surface-1 px-1.5 py-0.5 text-[length:var(--ct-text-micro-size)] ct-text-muted sm:inline-block">
+          <kbd className="hidden shrink-0 rounded-sm border border-[var(--ct-border)] ct-surface-1 px-1.5 py-0.5 ct-text-micro-size ct-text-muted sm:inline-block">
             esc
           </kbd>
         </div>
@@ -417,7 +417,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
                               setQuery(entry.query);
                             }
                           }}
-                          className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm ct-text-body hover:ct-surface-3 transition-colors"
+                          className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 body-sm ct-text-body hover:ct-surface-3 transition-colors"
                         >
                           <svg
                             aria-hidden="true"
@@ -448,7 +448,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
                         type="button"
                         title={s.hint}
                         onClick={() => setQuery(s.label)}
-                        className="rounded-full border border-[var(--ct-border)] ct-surface-1 px-3 py-1 text-xs ct-text-muted hover:border-[var(--ct-border-strong)] hover:ct-text-strong transition-colors"
+                        className="rounded-full border border-[var(--ct-border)] ct-surface-1 px-3 py-1 body-xs ct-text-muted hover:border-[var(--ct-border-strong)] hover:ct-text-strong transition-colors"
                       >
                         {s.label}
                       </button>
@@ -461,7 +461,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
 
           {/* No results */}
           {showNoResults && (
-            <p className="px-4 py-8 text-center text-sm ct-text-muted">
+            <p className="px-4 py-8 text-center body-sm ct-text-muted">
               No results for{" "}
               <span className="font-medium ct-text-strong">
                 &ldquo;{query}&rdquo;
@@ -508,19 +508,19 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
 
         {/* Footer hint */}
         <div className="flex items-center gap-3 border-t border-[var(--ct-border-soft)] px-4 py-2">
-          <span className="text-[length:var(--ct-text-xs)] ct-text-muted">
+          <span className="body-xs ct-text-muted">
             <kbd className="rounded-sm border border-[var(--ct-border)] ct-surface-1 px-1 py-0.5">
               ↑↓
             </kbd>{" "}
             navigate
           </span>
-          <span className="text-[length:var(--ct-text-xs)] ct-text-muted">
+          <span className="body-xs ct-text-muted">
             <kbd className="rounded-sm border border-[var(--ct-border)] ct-surface-1 px-1 py-0.5">
               ↵
             </kbd>{" "}
             open
           </span>
-          <span className="text-[length:var(--ct-text-xs)] ct-text-muted">
+          <span className="body-xs ct-text-muted">
             <kbd className="rounded-sm border border-[var(--ct-border)] ct-surface-1 px-1 py-0.5">
               esc
             </kbd>{" "}

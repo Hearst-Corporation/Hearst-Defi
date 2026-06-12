@@ -9,7 +9,6 @@ import {
 } from "@/app/admin/roadmap/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { NestedPanel } from "@/components/ui/nested-panel";
 import { cn } from "@/lib/cn";
 import { safeUrl } from "@/lib/safe-url";
 import {
@@ -58,8 +57,8 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
   }
 
   return (
-    <NestedPanel aria-label={item.label}>
-      <div className="admin-doc-inline-row admin-doc-inline-row--relaxed py-2">
+    <div className="ct-roadmap-item-row" aria-label={item.label}>
+      <div className="admin-doc-inline-row admin-doc-inline-row--relaxed">
         <span
           role="img"
           aria-label={statusLabel(item.status)}
@@ -153,7 +152,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
           <input type="hidden" name="itemId" value={item.id} />
 
           <div className="admin-doc-form-grid-2">
-            <label className="block text-xs" htmlFor={`${formId}-status`}>
+            <label className="block body-xs" htmlFor={`${formId}-status`}>
               <span className="ct-form-label">Status</span>
               <select
                 id={`${formId}-status`}
@@ -169,7 +168,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
               </select>
             </label>
 
-            <label className="block text-xs" htmlFor={`${formId}-validatedBy`}>
+            <label className="block body-xs" htmlFor={`${formId}-validatedBy`}>
               <span className="ct-form-label">Validated by</span>
               <input
                 id={`${formId}-validatedBy`}
@@ -182,7 +181,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
             </label>
           </div>
 
-          <label className="block text-xs" htmlFor={`${formId}-evidenceUrl`}>
+          <label className="block body-xs" htmlFor={`${formId}-evidenceUrl`}>
             <span className="ct-form-label">Evidence URL</span>
             <input
               id={`${formId}-evidenceUrl`}
@@ -194,7 +193,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
             />
           </label>
 
-          <label className="block text-xs" htmlFor={`${formId}-notes`}>
+          <label className="block body-xs" htmlFor={`${formId}-notes`}>
             <span className="ct-form-label">Notes</span>
             <textarea
               id={`${formId}-notes`}
@@ -205,7 +204,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
             />
           </label>
 
-          <label className="block text-xs" htmlFor={`${formId}-blockers`}>
+          <label className="block body-xs" htmlFor={`${formId}-blockers`}>
             <span className="ct-form-label">Blockers</span>
             <textarea
               id={`${formId}-blockers`}
@@ -238,6 +237,6 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
           </div>
         </form>
       ) : null}
-    </NestedPanel>
+    </div>
   );
 }

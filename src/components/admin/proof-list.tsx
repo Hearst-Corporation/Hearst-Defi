@@ -76,7 +76,7 @@ function AdminProofRow({ item }: { item: ProofItem }) {
     <Card className="p-4">
       <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--loose">
         <div className="min-w-0 flex-1 admin-doc-stack--tight">
-          <div className="admin-doc-inline-row text-xs ct-text-muted">
+          <div className="admin-doc-inline-row body-xs ct-text-muted">
             <Badge variant="brand">{item.proofType}</Badge>
             {item.period ? (
               <Badge variant="default">{item.period}</Badge>
@@ -85,7 +85,7 @@ function AdminProofRow({ item }: { item: ProofItem }) {
             <span className="mono ct-text-body">by {abbreviateAddress(item.postedBy)}</span>
           </div>
 
-          <div className="admin-doc-inline-row admin-doc-inline-row--spacious text-xs ct-text-muted">
+          <div className="admin-doc-inline-row admin-doc-inline-row--spacious body-xs ct-text-muted">
             <span>
               <span className="ct-text-muted">hash </span>
               <span className="mono ct-text-body">{abbreviateAddress(item.hash)}</span>
@@ -110,7 +110,7 @@ function AdminProofRow({ item }: { item: ProofItem }) {
           </div>
 
           {item.notes ? (
-            <p className="text-xs ct-text-muted italic">{item.notes}</p>
+            <p className="body-xs ct-text-muted italic">{item.notes}</p>
           ) : null}
         </div>
 

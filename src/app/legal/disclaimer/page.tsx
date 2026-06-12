@@ -14,7 +14,7 @@ export default function DisclaimerPage() {
   return (
     <>
       <LegalPageHeader title="Risk Disclaimer" />
-      <p className="legal-meta">Draft — pending formal legal review.</p>
+      <p className="legal-meta body-xs ct-text-faint">Draft — pending formal legal review.</p>
 
       <div className="legal-stub">
         <strong>Engineering draft</strong>

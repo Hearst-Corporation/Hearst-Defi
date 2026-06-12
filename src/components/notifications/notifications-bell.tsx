@@ -60,7 +60,7 @@ export function NotificationsBell({
           className={cn(
             "absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center",
             "rounded-full px-1",
-            "ct-text-micro-size font-bold leading-none text-[var(--ct-bg-deep)]",
+            "ct-text-micro-size font-bold leading-tight text-[var(--ct-bg-deep)]",
             badgeColor,
           )}
           aria-hidden="true"

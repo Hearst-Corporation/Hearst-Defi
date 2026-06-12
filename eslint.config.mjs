@@ -30,4 +30,28 @@ export default [
       "@typescript-eslint/no-explicit-any": "error",
     },
   },
+  {
+    files: ["src/**/*.{tsx,jsx}"],
+    ignores: [
+      "src/components/ui/button.tsx",
+      "src/app/debug/**",
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "JSXAttribute[name.name='className'] Literal[value=/\\btext-(xs|sm|base|lg|xl|2xl|3xl|4xl)\\b/]",
+          message:
+            "Prefer semantic typography (.body-*, .h1–.h4, .stat-value) — see docs/DESIGN_SYSTEM.md §4.",
+        },
+        {
+          selector:
+            "JSXAttribute[name.name='className'] JSXExpressionContainer TemplateLiteral TemplateElement[value.raw=/\\btext-(xs|sm|base|lg|xl|2xl|3xl|4xl)\\b/]",
+          message:
+            "Prefer semantic typography (.body-*, .h1–.h4, .stat-value) — see docs/DESIGN_SYSTEM.md §4.",
+        },
+      ],
+    },
+  },
 ];

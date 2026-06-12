@@ -119,7 +119,7 @@ export function ChatNavBridge() {
         "border border-[var(--ct-border)]",
       )}
     >
-      <span className="text-sm">
+      <span className="body-sm">
         {pending.protected ? (
           <>Aller à <strong>{pending.label}</strong> ?</>
         ) : (
@@ -129,14 +129,14 @@ export function ChatNavBridge() {
       <button
         type="button"
         onClick={goNow}
-        className="rounded-full bg-[var(--ct-accent)] px-3 py-1 text-xs font-medium text-[var(--ct-bg-deep)]"
+        className="rounded-full bg-[var(--ct-accent)] px-3 py-1 body-xs font-medium text-[var(--ct-bg-deep)]"
       >
         {pending.protected ? "Ouvrir" : "Maintenant"}
       </button>
       <button
         type="button"
         onClick={cancel}
-        className="rounded-full px-2 py-1 text-xs ct-text-muted hover:ct-text-strong"
+        className="rounded-full px-2 py-1 body-xs ct-text-muted hover:ct-text-strong"
       >
         Annuler
       </button>

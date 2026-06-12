@@ -234,10 +234,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
                 <text
                   x={Math.min(targetX + 2, VB_W - PAD_R - 40)}
                   y={PAD_T + 5}
-                  fill="var(--ct-status-warning)"
-                  fontSize="5"
-                  fontFamily="inherit"
-                  fontWeight="600"
+                  className="dash-chart-svg-text-tick-warning"
                   aria-hidden="true"
                 >
                   {targetLabel}
@@ -253,9 +250,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
               x={xAt(m, totalPts)}
               y={VB_H - 1}
               textAnchor="middle"
-              fill="var(--ct-text-faint)"
-              fontSize="4"
-              fontFamily="inherit"
+              className="dash-chart-svg-text-tick-faint"
               aria-hidden="true"
             >
               M{m}

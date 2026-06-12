@@ -295,7 +295,7 @@ export function AdminChatControls() {
               role="radio"
               aria-checked={mode === "normal"}
               className={cn(
-                "h-8 flex-1 rounded-full px-3 text-xs font-medium",
+                "h-8 flex-1 rounded-full px-3 body-xs font-medium",
                 "transition-[background-color,color] duration-[var(--ct-dur-base)]",
                 "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                 "disabled:cursor-not-allowed disabled:opacity-60",
@@ -313,7 +313,7 @@ export function AdminChatControls() {
               role="radio"
               aria-checked={mode === "review"}
               className={cn(
-                "h-8 flex-1 rounded-full px-3 text-xs font-medium",
+                "h-8 flex-1 rounded-full px-3 body-xs font-medium",
                 "transition-[background-color,color] duration-[var(--ct-dur-base)]",
                 "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                 "disabled:cursor-not-allowed disabled:opacity-60",

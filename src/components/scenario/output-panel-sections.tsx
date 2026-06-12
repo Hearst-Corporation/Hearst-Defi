@@ -1,7 +1,7 @@
 // Shared presentational sections for the Scenario Lab OutputPanel.
 // Each section renders the SAME data in one of two visual densities:
 //   - "full"    → Card-based, large type (single-scenario view)
-//   - "compact" → glass-panel-subtle, condensed (side-by-side compare view)
+//   - "compact" → flat sections inside one compare panel (divide-y, no nested boxes)
 // No business logic here: all maths live in src/lib/engine/*. These components
 // only format engine output for display.
 
@@ -22,6 +22,10 @@ import { cn } from "@/lib/cn";
 import type { ScenarioOutput } from "@/lib/engine/types";
 
 export type OutputVariant = "full" | "compact";
+
+function CompactSection({ children }: { children: React.ReactNode }) {
+  return <div className="py-4">{children}</div>;
+}
 
 // ── APY hero ────────────────────────────────────────────────────────────────
 
@@ -94,7 +98,7 @@ export function ApyHero({
   }
 
   return (
-    <div className="glass-panel-subtle p-5">
+    <CompactSection>
       <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
         <h4 className="h4 ct-text-strong">Projected APY</h4>
         <ProvenanceBadge kind="estimated" />
@@ -106,7 +110,7 @@ export function ApyHero({
       </div>
 
       {delta}
-    </div>
+    </CompactSection>
   );
 }
 
@@ -170,7 +174,7 @@ function ScoreCard({
   );
 
   if (variant === "full") return <Card>{body}</Card>;
-  return <div className="glass-panel-subtle p-4">{body}</div>;
+  return body;
 }
 
 export function ScoreGrid({
@@ -189,11 +193,11 @@ export function ScoreGrid({
     false,
   );
 
-  return (
+  const grid = (
     <div
       className={cn(
         "grid sm:grid-cols-2",
-        variant === "full" ? "admin-doc-stack--relaxed" : "admin-doc-stack--actions",
+        variant === "full" ? "admin-doc-stack--relaxed" : "gap-4",
       )}
     >
       <ScoreCard
@@ -213,6 +217,9 @@ export function ScoreGrid({
       />
     </div>
   );
+
+  if (variant === "full") return grid;
+  return <CompactSection>{grid}</CompactSection>;
 }
 
 // ── Vault mode ────────────────────────────────────────────────────────────────
@@ -256,7 +263,7 @@ export function VaultMode({
   );
 
   if (variant === "full") return <Card>{inner}</Card>;
-  return <div className="glass-panel-subtle p-4">{inner}</div>;
+  return <CompactSection>{inner}</CompactSection>;
 }
 
 // ── Allocation ────────────────────────────────────────────────────────────────
@@ -379,12 +386,12 @@ export function AllocationSection({
   }
 
   return (
-    <div className="glass-panel-subtle p-4">
+    <CompactSection>
       <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
         <h4 className="h4 ct-text-strong">Allocation</h4>
         <ProvenanceBadge kind="estimated" />
       </div>
       <AllocationBreakdown allocations={output.allocations} variant="compact" />
-    </div>
+    </CompactSection>
   );
 }

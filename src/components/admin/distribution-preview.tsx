@@ -48,7 +48,7 @@ export function DistributionPreview({
 
       {/* Recipients table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm tabular border border-[var(--ct-border-soft)] rounded-lg overflow-hidden">
+        <table className="w-full body-sm tabular border border-[var(--ct-border-soft)] rounded-lg overflow-hidden">
           <thead>
             <tr className="ct-surface-1">
               <th className="text-left ct-table-header body-xs ct-text-muted">
@@ -68,7 +68,7 @@ export function DistributionPreview({
                 key={r.investorId}
                 className="border-t border-[var(--ct-border-soft)] ct-hover-surface transition-colors"
               >
-                <td className="ct-table-cell mono text-xs ct-text-body">
+                <td className="ct-table-cell mono body-xs ct-text-body">
                   {abbrWallet(r.walletAddress)}
                 </td>
                 <td className="ct-table-cell text-right ct-text-muted tabular">
@@ -85,10 +85,10 @@ export function DistributionPreview({
               <td className="ct-table-cell body-xs ct-text-muted font-medium">
                 Total ({recipients.length} recipients)
               </td>
-              <td className="ct-table-cell text-right ct-text-muted tabular text-xs">
+              <td className="ct-table-cell text-right ct-text-muted tabular body-xs">
                 100%
               </td>
-              <td className="ct-table-cell text-right ct-text-strong font-bold tabular text-sm">
+              <td className="ct-table-cell text-right ct-text-strong font-semibold tabular body-sm">
                 {formatUsdDetailed(totalUsdc)}
               </td>
             </tr>

@@ -52,7 +52,7 @@ export function BacktestTab() {
         className="scenario-preset-bar backtest-period-rail"
       >
         <div className="scenario-preset-bar__head">
-          <p className="eyebrow ct-text-muted">Historical periods</p>
+          <p className="stat-label m-0">Historical periods</p>
           <span className="body-xs ct-text-faint">Select a regime to simulate</span>
         </div>
         <div className="scenario-preset-bar__items">
@@ -96,7 +96,7 @@ export function BacktestTab() {
 
       {/* Error banner */}
       {error && (
-        <p className="rounded-full border border-(--ct-status-danger) ct-status-danger-bg px-4 py-2.5 text-sm ct-status-danger">
+        <p className="rounded-full border border-(--ct-status-danger) ct-status-danger-bg px-4 py-2.5 body-sm ct-status-danger">
           {error}
         </p>
       )}

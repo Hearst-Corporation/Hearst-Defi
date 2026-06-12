@@ -19,10 +19,10 @@ export default function LegalLayout({
   return (
     <div className="product-doc legal-shell">
       <header className="legal-header">
-        <Link href="/" className="legal-back">
+        <Link href="/" className="legal-back body-lg ct-text-strong">
           Hearst Connect
         </Link>
-        <nav className="legal-nav" aria-label="Legal documents">
+        <nav className="legal-nav body-sm" aria-label="Legal documents">
           <Link href="/legal/privacy">Privacy</Link>
           <Link href="/legal/terms">Terms</Link>
           <Link href="/legal/disclaimer">Disclaimer</Link>

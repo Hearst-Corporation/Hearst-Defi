@@ -336,7 +336,7 @@ export function InvestForm({ vault }: InvestFormProps) {
                   </div>
                   <div className="vault-confirm-panel__row body-sm">
                     <span className="ct-text-muted">Amount</span>
-                    <span className="ct-text-strong font-bold tabular">
+                    <span className="ct-text-strong font-semibold tabular-nums">
                       {formatUsdAmount(amount)} USDC
                     </span>
                   </div>
@@ -364,7 +364,7 @@ export function InvestForm({ vault }: InvestFormProps) {
                     size="md"
                     onClick={() => void handleConfirm()}
                     disabled={!ctaEnabled || depositing}
-                    className="vault-form-actions__primary font-bold"
+                    className="vault-form-actions__primary"
                   >
                     {depositing
                       ? "Confirming…"
@@ -385,7 +385,7 @@ export function InvestForm({ vault }: InvestFormProps) {
                   disabled={!ctaEnabled}
                   aria-disabled={!ctaEnabled}
                   className={cn(
-                    "vault-form-actions__primary font-bold",
+                    "vault-form-actions__primary",
                     !ctaEnabled && "opacity-60 cursor-not-allowed",
                   )}
                 >

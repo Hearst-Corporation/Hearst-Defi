@@ -27,6 +27,9 @@ Vérifier que seules ces tailles sont utilisées :
 - `--ct-text-display`
 
 Aucune taille arbitraire comme `text-[13px]`, `text-[15px]`.
+`text-xs`…`text-4xl` Tailwind dans `className` = **interdit** (ESLint error) — utiliser `.body-*`, `.h1`–`.h4`, `.stat-value`, `.stat-label` ; exception : `src/components/ui/button.tsx`.
+Labels KPI uppercase → `.stat-label` (éviter `ct-text-micro-size font-bold uppercase`).
+`font-bold` redondant sur `<Button variant="primary">` ou `<Badge>` — retirer (déjà dans la primitive).
 
 ### 3. Poids autorisés
 - `--ct-font-light: 300`

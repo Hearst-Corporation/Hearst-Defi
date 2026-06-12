@@ -79,13 +79,13 @@ export default async function ProposalDetailPage({ params }: PageProps) {
       <Card>
         <DashboardPanelHeader title={proposal.actionType} tone="primary" className="mb-6" />
         <div className="mb-6 admin-doc-inline-row admin-doc-inline-row--actions">
-          <span className="ct-pill mono text-xs">{proposal.vaultTicker}</span>
+          <span className="ct-pill mono body-xs">{proposal.vaultTicker}</span>
           <Badge variant={proposalStateVariant(proposal.state)}>
             {proposalStateLabel(proposal.state)}
           </Badge>
         </div>
 
-        <dl className="admin-doc-dl-grid text-sm">
+        <dl className="admin-doc-dl-grid body-sm">
           <div>
             <dt className="stat-label">Proposed by</dt>
             <dd className="mono mt-0.5 ct-text-primary">{proposal.proposedBy}</dd>
@@ -127,7 +127,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         {proposal.state === "TIMELOCK" && proposal.etaAt ? (
           <div className="mt-6 rounded-md border border-(--ct-border-soft) ct-surface-1 px-4 py-3">
             <p className="stat-label mb-1">Timelock countdown</p>
-            <p className="mono text-sm ct-text-strong">{timelockCountdown(proposal.etaAt)}</p>
+            <p className="mono body-sm ct-text-strong">{timelockCountdown(proposal.etaAt)}</p>
           </div>
         ) : null}
       </Card>
@@ -159,7 +159,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
       {proposal.calldata ? (
         <SystemPanel>
           <DashboardPanelHeader title="Calldata" tone="quiet" className="mb-4" />
-          <pre className="mono overflow-x-auto whitespace-pre-wrap rounded-md ct-surface-1 p-4 text-xs ct-text-muted">
+          <pre className="mono overflow-x-auto whitespace-pre-wrap rounded-md ct-surface-1 p-4 body-xs ct-text-muted">
             {formatProposalCalldata(proposal.calldata)}
           </pre>
         </SystemPanel>
@@ -196,12 +196,12 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                   {sig.decision === "approve" ? "✓" : sig.decision === "reject" ? "✗" : "⊘"}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="mono text-xs ct-text-primary">{sig.signerAddress}</span>
+                  <span className="mono body-xs ct-text-primary">{sig.signerAddress}</span>
                   {sig.reason ? (
-                    <p className="mt-0.5 truncate text-xs ct-text-muted">{sig.reason}</p>
+                    <p className="mt-0.5 truncate body-xs ct-text-muted">{sig.reason}</p>
                   ) : null}
                 </div>
-                <span className="shrink-0 text-xs tabular-nums ct-text-muted">
+                <span className="shrink-0 body-xs tabular-nums ct-text-muted">
                   {formatGovernanceTimestamp(sig.signedAt)}
                 </span>
               </div>

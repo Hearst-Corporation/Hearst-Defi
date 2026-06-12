@@ -28,56 +28,46 @@ interface LiveOpsProps {
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
     <SystemPanel aria-label="Live ops">
-      <DashboardPanelHeader eyebrow="Operations" title="Live Ops" tone="quiet" />
+      <DashboardPanelHeader title="Live ops" tone="quiet" />
 
-      {/* Inngest */}
-      <div className="mb-5">
-        <p className="stat-label mb-2">
-          Inngest Jobs
-        </p>
-        <div className="flex flex-col divide-y divide-[var(--ct-border-soft)]">
-          {inngestJobs.map((job) => (
-            <InngestRow key={job.id} job={job} />
-          ))}
-        </div>
-      </div>
-
-      {/* Sentry 24h */}
-      <div className="mb-5">
-        <p className="stat-label mb-2">
-          Sentry 24h
-        </p>
-        <div className="admin-doc-inline-row admin-doc-inline-row--relaxed">
-          <SentryCounter
-            label="Errors"
-            count={sentryStats.errors24h}
-            alert={sentryStats.errors24h > 0}
-          />
-          <SentryCounter
-            label="Warnings"
-            count={sentryStats.warnings24h}
-            alert={false}
-          />
-        </div>
-      </div>
-
-      {/* On-chain feed */}
-      <div>
-        <p className="stat-label mb-2">
-          On-chain feed
-        </p>
-        {onChainEvents.length === 0 ? (
-          <PanelStatus
-            message="No recent on-chain events."
-            className="py-4"
-          />
-        ) : (
-          <ul className="flex flex-col divide-y divide-[var(--ct-border-soft)]" role="list">
-            {onChainEvents.map((ev) => (
-              <OnChainEventRow key={ev.id} event={ev} />
+      <div className="flex flex-col divide-y divide-[var(--ct-border-soft)]">
+        <div className="py-4 first:pt-0">
+          <p className="stat-label mb-2 m-0">Inngest jobs</p>
+          <div className="flex flex-col divide-y divide-[var(--ct-border-soft)]">
+            {inngestJobs.map((job) => (
+              <InngestRow key={job.id} job={job} />
             ))}
-          </ul>
-        )}
+          </div>
+        </div>
+
+        <div className="py-4">
+          <p className="stat-label mb-2 m-0">Sentry 24h</p>
+          <div className="admin-doc-inline-row admin-doc-inline-row--relaxed">
+            <SentryCounter
+              label="Errors"
+              count={sentryStats.errors24h}
+              alert={sentryStats.errors24h > 0}
+            />
+            <SentryCounter
+              label="Warnings"
+              count={sentryStats.warnings24h}
+              alert={false}
+            />
+          </div>
+        </div>
+
+        <div className="py-4 last:pb-0">
+          <p className="stat-label mb-2 m-0">On-chain feed</p>
+          {onChainEvents.length === 0 ? (
+            <PanelStatus message="No recent on-chain events." />
+          ) : (
+            <ul className="flex flex-col divide-y divide-[var(--ct-border-soft)]" role="list">
+              {onChainEvents.map((ev) => (
+                <OnChainEventRow key={ev.id} event={ev} />
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </SystemPanel>
   );

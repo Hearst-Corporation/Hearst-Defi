@@ -30,11 +30,11 @@ export function PositionsList({ positions, source }: PositionsListProps) {
       className="ct-kpi-glass flex flex-col relative flex-1 h-full min-h-48 p-6 overflow-hidden" 
       aria-label="Open positions"
     >
-      <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 shrink-0 relative z-10">
+      <div className="flex justify-between items-center stat-label mb-6 shrink-0 relative z-10">
         <span>Positions</span>
         <div className="flex items-center gap-2">
           <ProvenanceBadge kind={provenance} />
-          <span className="mono text-micro uppercase tracking-widest px-1.5 py-0.5 rounded-xs bg-(--ct-surface-2) text-(--ct-text-primary)">
+          <span className="mono ct-text-micro-size uppercase tracking-widest px-1.5 py-0.5 rounded-xs bg-(--ct-surface-2) text-(--ct-text-primary)">
             {positions.length} position{positions.length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -42,10 +42,10 @@ export function PositionsList({ positions, source }: PositionsListProps) {
 
       <div className="overflow-x-auto overflow-y-auto flex-1 relative z-10">
         {positions.length === 0 ? (
-          <p className="text-sm text-(--ct-text-muted) mt-2 italic">No open positions.</p>
+          <p className="body-sm text-(--ct-text-muted) mt-2 italic">No open positions.</p>
         ) : (
           <div className="flex flex-col min-w-150 gap-2">
-            <div className="grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 pb-2 border-b border-(--ct-border-soft) text-micro text-(--ct-text-muted) uppercase tracking-widest font-medium">
+            <div className="grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 pb-2 border-b border-(--ct-border-soft) ct-text-micro-size text-(--ct-text-muted) uppercase tracking-widest font-medium">
               <span>Vault</span>
               <span className="text-right">Principal</span>
               <span className="text-right">Value</span>
@@ -66,28 +66,28 @@ export function PositionsList({ positions, source }: PositionsListProps) {
                         background: STATUS_DOT[p.status] ?? "var(--ct-text-muted)",
                       }}
                     />
-                    <span className="text-sm text-(--ct-text-primary) font-medium truncate">
+                    <span className="body-sm text-(--ct-text-primary) font-medium truncate">
                       {p.vaultName ?? "Unassigned vault"}
                     </span>
                   </div>
 
-                  <span className="tabular-nums text-sm text-right text-(--ct-text-body) mono">
+                  <span className="tabular-nums body-sm text-right text-(--ct-text-body) mono">
                     {formatUsdCompact(p.principalUsdc)}
                   </span>
 
-                  <span className="tabular-nums text-sm text-(--ct-text-strong) font-semibold text-right mono">
+                  <span className="tabular-nums body-sm text-(--ct-text-strong) font-semibold text-right mono">
                     {formatUsdCompact(p.valueUsdc)}
                   </span>
 
-                  <div className="text-right text-sm mono">
+                  <div className="text-right body-sm mono">
                     {p.apyLow !== null && p.apyHigh !== null ? (
                       <ApyRange low={p.apyLow} high={p.apyHigh} precision={1} />
                     ) : (
-                      <span className="text-xs text-(--ct-text-muted)">Unavailable</span>
+                      <span className="body-xs text-(--ct-text-muted)">Unavailable</span>
                     )}
                   </div>
 
-                  <span className="text-xs tabular-nums text-(--ct-text-muted) text-right mono">
+                  <span className="body-xs tabular-nums text-(--ct-text-muted) text-right mono">
                     {dateFmt.format(p.subscribedAt)}
                   </span>
                 </div>

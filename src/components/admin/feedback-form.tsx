@@ -26,7 +26,7 @@ export function FeedbackForm() {
   return (
     <form ref={formRef} action={onSubmit} className="admin-doc-stack--actions" aria-label="Feedback form">
       <div className="admin-doc-form-grid-2">
-        <label className="block text-xs" htmlFor="feedback-itemId">
+        <label className="block body-xs" htmlFor="feedback-itemId">
           <span className="ct-form-label">
             Roadmap item ID (optional)
           </span>
@@ -38,7 +38,7 @@ export function FeedbackForm() {
             className="ct-input mono"
           />
         </label>
-        <label className="block text-xs" htmlFor="feedback-author">
+        <label className="block body-xs" htmlFor="feedback-author">
           <span className="ct-form-label">
             Your name (optional)
           </span>
@@ -52,7 +52,7 @@ export function FeedbackForm() {
         </label>
       </div>
 
-      <label className="block text-xs" htmlFor="feedback-pathname">
+      <label className="block body-xs" htmlFor="feedback-pathname">
         <span className="mb-1 block ct-text-muted uppercase tracking-wide">
           Pathname or context (optional)
         </span>
@@ -65,7 +65,7 @@ export function FeedbackForm() {
         />
       </label>
 
-      <label className="block text-xs" htmlFor="feedback-message">
+      <label className="block body-xs" htmlFor="feedback-message">
         <span className="mb-1 block ct-text-muted uppercase tracking-wide">
           Feedback
         </span>

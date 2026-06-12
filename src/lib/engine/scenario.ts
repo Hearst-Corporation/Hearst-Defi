@@ -3,6 +3,7 @@ import {
   METHODOLOGY_VERSION,
 } from "./methodology";
 import { assessBtcTactical } from "./btc-tactical";
+import { findForbiddenWord } from "./forbidden-words";
 import { computeMiningRevenue } from "./mining";
 import { calcMaxDrawdown, calcSharpe, calcSortino, calcVaR } from "./ratios";
 import { decideMode, deriveAllocations } from "./rebalancing";
@@ -19,22 +20,6 @@ import type {
   ScenarioResult,
 } from "./types";
 import { VAULT_YIELD, type VaultDefinition } from "./vaults";
-
-// keep in sync with src/lib/agents/validators.ts FORBIDDEN_WORDS
-// TECH DEBT: this list + assertNoForbiddenWords are duplicated in
-// btc-tactical.ts and backtest.ts (and the canonical impl lives in
-// src/lib/agents/validators.ts). They cannot be merged via import because the
-// engine layer must stay pure and must not depend on src/lib/agents/* — the
-// engine sits below agents in the layering. Consolidate into a pure
-// src/lib/engine/forbidden-words.ts module once that file is in scope.
-const FORBIDDEN_WORDS = [
-  "guarantee",
-  "promise",
-  "certain",
-  "will deliver",
-  "risk-free",
-  "no risk",
-] as const;
 
 const MIN_APY_SPREAD_BPS = 50;
 

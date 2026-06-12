@@ -190,8 +190,8 @@ export function AllocationDonut({ segments, ariaLabel }: AllocationDonutProps) {
         </svg>
         {/* Center label */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="ct-text-micro-size font-bold uppercase tracking-widest ct-text-faint">Total</span>
-          <span className="text-lg font-bold ct-text-strong">100%</span>
+          <span className="stat-label ct-text-faint">Total</span>
+          <span className="mono stat-value ct-text-strong">100%</span>
         </div>
       </div>
     );
@@ -296,9 +296,9 @@ export function AllocationDonut({ segments, ariaLabel }: AllocationDonutProps) {
             : `Allocation donut, ${hierSegs.length} bucket${hierSegs.length === 1 ? "" : "s"}`}
         </title>
 
-      {/* Center label */}
+      {/* Center label — fontSize in viewBox units (VB 36×36); rem tokens would not scale */}
       <g className="pointer-events-none">
-        <text x={CX} y={CY - 2} textAnchor="middle" fontSize="3" fontWeight="bold" fill="var(--ct-text-faint)" letterSpacing="0.1em">TOTAL</text>
+        <text x={CX} y={CY - 2} textAnchor="middle" fontSize="3" fontWeight="bold" fill="var(--ct-text-faint)" letterSpacing="var(--ct-tracking-wide)">TOTAL</text>
         <text x={CX} y={CY + 3} textAnchor="middle" fontSize="6" fontWeight="bold" fill="var(--ct-text-strong)">100%</text>
       </g>
 

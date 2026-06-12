@@ -53,7 +53,7 @@ export function AllocationDonut({
       className="ct-kpi-glass flex flex-col relative flex-1 h-full min-h-48 p-6 overflow-hidden" 
       aria-label="Portfolio allocation"
     >
-      <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 relative z-10">
+      <div className="flex justify-between items-center stat-label mb-6 relative z-10">
         <span>Allocation by status</span>
         <ProvenanceBadge kind={provenance} />
       </div>
@@ -92,16 +92,16 @@ export function AllocationDonut({
             ))}
           </svg>
           <div className="flex flex-col items-center justify-center text-center z-10">
-            <span className="text-3xl font-light text-(--ct-text-strong) tabular-nums">
+            <span className="stat-value font-light text-(--ct-text-strong) tabular-nums">
               {totalValueUsdc > 0 ? formatUsdCompact(totalValueUsdc) : <span className="opacity-30">—</span>}
             </span>
-            <span className="text-xs text-(--ct-text-muted) uppercase tracking-widest mt-1">Portfolio</span>
+            <span className="body-xs text-(--ct-text-muted) uppercase tracking-widest mt-1">Portfolio</span>
           </div>
         </div>
 
         <div className="w-full flex flex-col gap-2 mt-2">
           {segments.map((s) => (
-            <div key={s.status} className="flex justify-between items-center text-sm">
+            <div key={s.status} className="flex justify-between items-center body-sm">
               <span className="flex items-center gap-2 text-(--ct-text-primary)">
                 <span
                   className="w-2 h-2 rounded-full"
@@ -109,13 +109,13 @@ export function AllocationDonut({
                 />
                 {STATUS_LABELS[s.status] ?? s.status}
               </span>
-              <span className="text-(--ct-text-strong) tabular-nums mono text-xs">
+              <span className="text-(--ct-text-strong) tabular-nums mono body-xs">
                 {s.pct.toFixed(0)}% <span className="text-(--ct-text-muted) opacity-50">·</span> {formatUsdCompact(s.valueUsdc)}
               </span>
             </div>
           ))}
           {segments.length === 0 && (
-            <span className="text-sm text-(--ct-text-muted) italic">
+            <span className="body-sm text-(--ct-text-muted) italic">
               No positions
             </span>
           )}

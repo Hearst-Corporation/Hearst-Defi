@@ -11,6 +11,12 @@ export default function PortfolioLoading() {
         <Skeleton className="pf-skeleton-greeting-recap" />
       </div>
 
+      <div className="dash-bento pf-secondary-grid" data-section="positions">
+        <div className="bento-col-12 pf-cockpit-slot pf-skeleton-widget--md">
+          <Skeleton className="pf-cockpit-panel pf-cockpit-panel--table h-full w-full" />
+        </div>
+      </div>
+
       <MergedSurface
         title="Performance & Liquidity"
         showProvenance={false}
@@ -58,12 +64,6 @@ export default function PortfolioLoading() {
       </div>
 
       <div className="pf-section-stack">
-        <div className="dash-bento pf-secondary-grid" data-section="positions">
-          <div className="bento-col-12 pf-cockpit-slot pf-skeleton-widget--md">
-            <Skeleton className="pf-cockpit-panel pf-cockpit-panel--table h-full w-full" />
-          </div>
-        </div>
-
         <MergedSurface
           title="Activity & Payouts"
           showProvenance={false}

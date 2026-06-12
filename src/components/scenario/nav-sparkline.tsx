@@ -217,22 +217,22 @@ export function NavSparkline({ output }: NavSparklineProps) {
         <CardTitle>12-Month NAV Projection</CardTitle>
       </CardHeader>
 
-      <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--end admin-doc-inline-row--spacious flex-wrap text-sm">
+      <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--end admin-doc-inline-row--spacious flex-wrap body-sm">
         <div className="admin-doc-stack--micro">
           <span className="stat-label">Low band</span>
-          <span className="mono font-bold ct-text-body">
+          <span className="mono body-sm font-semibold ct-text-body tabular-nums">
             {last ? formatUsd(last.p5) : "—"}
           </span>
         </div>
         <div className="admin-doc-stack--micro">
           <span className="stat-label">Midpoint</span>
-          <span className="mono font-bold ct-text-strong">
+          <span className="mono body-sm font-semibold ct-text-strong tabular-nums">
             {last ? formatUsd(last.p50) : "—"}
           </span>
         </div>
         <div className="admin-doc-stack--micro">
           <span className="stat-label">High band</span>
-          <span className="mono font-bold ct-text-body">
+          <span className="mono body-sm font-semibold ct-text-body tabular-nums">
             {last ? formatUsd(last.p95) : "—"}
           </span>
         </div>

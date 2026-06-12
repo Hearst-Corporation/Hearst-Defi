@@ -97,7 +97,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
           </div>
 
           {isLive ? (
-            <Button variant="primary" size="md" asChild className="mt-auto w-full font-bold">
+            <Button variant="primary" size="md" asChild className="mt-auto w-full">
               <Link href={href} aria-label={`View details for ${vault.name}`}>
                 View details
               </Link>

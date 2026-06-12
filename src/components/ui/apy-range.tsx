@@ -33,7 +33,7 @@ export function ApyRange({
         —
       </span>
       {fmt(b)}
-      <span aria-hidden className="ml-1 ct-text-micro-size font-medium opacity-80">
+      <span aria-hidden className="ml-1 ct-text-micro-size opacity-80">
         {suffix}
       </span>
     </span>

@@ -119,16 +119,21 @@ export function PresetPicker<T extends string>({
         aria-expanded={open}
         aria-label={`${PRESET_PICKER_STRINGS.scenarioLabel} ${side}: ${value ? labelFor(value) : PRESET_PICKER_STRINGS.selectScenarioLower}`}
         className={cn(
-          "flex w-full items-center justify-between gap-3 glass-panel",
+          "flex w-full items-center justify-between gap-3",
+          "rounded-md border border-(--ct-border-soft) bg-transparent",
           "border-l-4",
           sideAccent,
           "px-4 py-3 text-left",
           "disabled:cursor-not-allowed disabled:opacity-40",
+          "transition-colors duration-(--ct-dur-fast)",
+          "hover:ct-surface-1",
           "focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
         )}
       >
         <span className="flex min-w-0 flex-col gap-0.5">
-          <span className="eyebrow">{PRESET_PICKER_STRINGS.scenarioLabel} {side}</span>
+          <span className="stat-label m-0">
+            {PRESET_PICKER_STRINGS.scenarioLabel} {side}
+          </span>
           <span
             className={cn(
               "h4 truncate",

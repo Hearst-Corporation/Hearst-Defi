@@ -36,7 +36,7 @@ export function BatchActionButton({
       className={cn(
         // Base
         "inline-flex items-center gap-1.5 rounded-full",
-        "px-3 py-1 text-xs font-medium",
+        "px-3 py-1 body-xs font-medium",
         "transition-[background-color,border-color,color,opacity]",
         "duration-[var(--ct-dur-base)]",
         "disabled:opacity-40 disabled:cursor-not-allowed",

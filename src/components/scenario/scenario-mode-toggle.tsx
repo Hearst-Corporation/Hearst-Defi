@@ -60,7 +60,7 @@ export function ScenarioModeToggle({
             data-active={isActive}
             className={cn(
               TAB_BASE_CLASS,
-              "text-xs font-semibold tracking-wide",
+              "body-xs font-semibold tracking-wide",
               isActive ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS,
             )}
           >

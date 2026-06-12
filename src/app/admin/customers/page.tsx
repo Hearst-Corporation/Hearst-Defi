@@ -71,7 +71,7 @@ export default async function CustomersPage({
           />
         ) : (
           <div className="ct-table-surface">
-            <table className="w-full border-collapse text-left text-sm">
+            <table className="w-full border-collapse text-left body-sm">
               <thead>
                 <tr>
                   <th className="ct-table-header px-5 py-3 font-medium ct-text-muted">
@@ -133,14 +133,14 @@ export default async function CustomersPage({
         {/* Pagination controls */}
         {total > 0 && (
           <div className="admin-doc-row-spread pt-2">
-            <p className="text-xs ct-text-muted">
+            <p className="body-xs ct-text-muted">
               Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, total)} of {total}
             </p>
             <div className="admin-doc-inline-row">
               {page > 1 && (
                 <a
                   href={`/admin/customers?page=${page - 1}&pageSize=${pageSize}`}
-                  className="rounded-md border border-[var(--ct-border-soft)] px-3 py-1.5 text-xs ct-text-muted hover:ct-text-strong transition-colors"
+                  className="rounded-md border border-[var(--ct-border-soft)] px-3 py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors"
                 >
                   Previous
                 </a>
@@ -148,7 +148,7 @@ export default async function CustomersPage({
               {hasMore && (
                 <a
                   href={`/admin/customers?page=${page + 1}&pageSize=${pageSize}`}
-                  className="rounded-md border border-[var(--ct-border-soft)] px-3 py-1.5 text-xs ct-text-muted hover:ct-text-strong transition-colors"
+                  className="rounded-md border border-[var(--ct-border-soft)] px-3 py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors"
                 >
                   Next
                 </a>

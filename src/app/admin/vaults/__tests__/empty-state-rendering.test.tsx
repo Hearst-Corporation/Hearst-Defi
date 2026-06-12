@@ -37,7 +37,7 @@ describe("Admin vaults — empty state design contract", () => {
       <Card>
         <CardHeader>
           <CardTitle>Approvals</CardTitle>
-          <span className="mono tabular text-sm ct-text-muted">0 / 2 required</span>
+          <span className="mono tabular body-sm ct-text-muted">0 / 2 required</span>
         </CardHeader>
         <PanelStatus message="No signatures yet." />
       </Card>,

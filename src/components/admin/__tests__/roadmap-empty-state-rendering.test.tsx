@@ -49,9 +49,10 @@ function assertEmptyDesignContract(html: string, message: string): void {
 }
 
 describe("Admin roadmap — design contract", () => {
-  it("RoadmapItemRow uses NestedPanel without ad-hoc surface shell", () => {
+  it("RoadmapItemRow uses flat list row without nested graphite shell", () => {
     const html = renderToStaticMarkup(<RoadmapItemRow item={sampleItem} />);
-    expect(html).toContain("ct-nested-panel");
+    expect(html).toContain("ct-roadmap-item-row");
+    expect(html).not.toContain("ct-nested-panel");
     expect(html).not.toContain("ct-surface-1 rounded-xl");
     expect(html).not.toContain("border-dashed");
   });
@@ -91,12 +92,13 @@ describe("Admin roadmap — design contract", () => {
     expect(html).not.toMatch(/ct-card glass-panel[^>]*aria-label="Week 1"/);
   });
 
-  it("active week: Card shell with nested item rows", () => {
+  it("active week: Card shell with flat divided item rows", () => {
     const html = renderToStaticMarkup(
       <RoadmapBoard phases={[samplePhase]} />,
     );
     expect(html).toContain("ct-card glass-panel");
-    expect(html).toContain("ct-nested-panel");
+    expect(html).toContain("ct-roadmap-item-row");
+    expect(html).not.toContain("ct-nested-panel");
     expect(html).toContain("MVP progress");
     expect(html).not.toContain("ct-empty-surface--widget");
   });

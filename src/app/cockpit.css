@@ -659,12 +659,8 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   min-width: 0;
   flex-direction: column;
   gap: var(--ct-space-3);
-  padding: var(--ct-space-4) var(--ct-space-5);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-xl);
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  padding: 0 0 var(--ct-space-4);
+  border-bottom: 1px solid var(--ct-border-soft);
 }
 
 .scenario-preset-bar__head {
@@ -695,9 +691,9 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   min-height: var(--ct-space-14);
   width: 9.75rem;
   padding: var(--ct-space-3);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-lg);
-  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-md);
+  background: transparent;
   color: var(--ct-text-primary);
   text-align: left;
   white-space: normal;
@@ -725,8 +721,7 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 
 .scenario-preset-bar__button--active {
   border-color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-accent) 12%, transparent);
-  box-shadow: var(--ct-shadow-focus-ring);
+  background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
 }
 
 .scenario-preset-bar__label,
@@ -1162,7 +1157,10 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 
 @media (max-width: 47.999rem) {
   .scenario-preset-bar,
-  .backtest-period-rail,
+  .backtest-period-rail {
+    padding-bottom: var(--ct-space-3);
+  }
+
   .projection-studio-preset-rail {
     padding: var(--ct-space-4);
   }
@@ -1190,11 +1188,12 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   container-name: dash-board;
 }
 
-/* Compact KPI strip for /admin/dashboard — spaced cells, container-query columns. */
+/* KPI strip on --ct-bg-deep: typography + air, no bento cage (DS §7 bento = grid cells below). */
 .dashboard-kpi-strip {
   display: grid;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-3);
   grid-template-columns: minmax(0, 1fr);
+  background: transparent;
 }
 
 .dashboard-kpi-strip__cell {
@@ -1202,17 +1201,24 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   min-width: 0;
   flex-direction: column;
   gap: var(--ct-space-1);
-  padding: var(--ct-space-2_5) var(--ct-space-3);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-lg);
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  padding: var(--ct-space-1) 0;
+  background: transparent;
 }
 
 .dashboard-kpi-strip__cell--alert {
-  border-color: var(--ct-status-danger-border);
-  background: color-mix(in srgb, var(--ct-status-danger) 8%, var(--ct-graphite-subtle-bg));
+  padding-inline: var(--ct-space-2);
+  border-radius: var(--ct-radius-md);
+  background: color-mix(in srgb, var(--ct-status-danger) 8%, transparent);
+}
+
+/* Dot-only provenance — no glass pill on black hero strip */
+.dashboard-kpi-strip .dashboard-provenance-badge--compact {
+  padding: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
 }
 
 .dashboard-kpi-strip__label-row {
@@ -1329,6 +1335,22 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   max-width: 100%;
   aspect-ratio: 1;
   justify-self: center;
+}
+
+/* Dashboard chart slots — flat placeholder inside the bento (no nested graphite). */
+.dashboard-command-board .ct-empty-surface--chart {
+  background: transparent;
+  border: 1px solid var(--ct-border-soft);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.dashboard-command-board .ct-system-panel {
+  background: transparent;
+  border: 1px solid var(--ct-border-soft);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
 }
 
 .dashboard-command-performance {
@@ -1732,7 +1754,16 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 
 @container dash-board (min-width: 42rem) {
   .dashboard-kpi-strip {
+    gap: 0;
     grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .dashboard-kpi-strip__cell {
+    padding: var(--ct-space-1) var(--ct-space-3);
+  }
+
+  .dashboard-kpi-strip__cell:not(:last-child) {
+    border-right: 1px solid var(--ct-border-soft);
   }
 }
 
@@ -1903,6 +1934,12 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+
+/* Flat list row inside a week Card — no nested graphite shell */
+.ct-roadmap-item-row {
+  min-width: 0;
+  padding: var(--ct-space-2) 0;
 }
 
 /* Accent rail (border-l only) — highlighted inline row inside a parent card */

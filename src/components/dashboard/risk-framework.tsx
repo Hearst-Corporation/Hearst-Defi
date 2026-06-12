@@ -187,7 +187,7 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
             style={{ width: `${composite}%` }}
           />
         </div>
-        <Badge variant={BAND_VARIANT[band]} className="font-bold tracking-wider">{bandLabel}</Badge>
+        <Badge variant={BAND_VARIANT[band]} className="tracking-wider">{bandLabel}</Badge>
       </div>
     </div>
   );
@@ -542,7 +542,7 @@ function RiskRow({ dimension }: RiskRowProps) {
       <div className="flex items-center gap-4 sm:w-[11.25rem] sm:justify-end">
         <span
           className={cn(
-            "body-lg font-semibold leading-tight w-9 text-right tabular-nums",
+            "mono body-sm font-semibold leading-tight w-9 text-right tabular-nums",
             SEVERITY_TEXT[severity],
           )}
         >

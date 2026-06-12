@@ -28,7 +28,7 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
 
   return (
     <SystemPanel aria-label="Recent admin activity">
-      <DashboardPanelHeader eyebrow="Compliance" title="Recent admin activity" tone="quiet" />
+      <DashboardPanelHeader title="Recent admin activity" tone="quiet" />
       <div className="ct-system-panel__table-scroll ct-table-surface border-0 bg-transparent">
         <table className="w-full body-sm min-w-160" aria-label="Recent admin activity">
           <thead>

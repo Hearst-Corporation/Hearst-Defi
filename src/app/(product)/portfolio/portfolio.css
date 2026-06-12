@@ -857,6 +857,14 @@
   min-height: 8rem;
 }
 
+.pf-container--zero {
+  gap: var(--ct-space-8);
+}
+
+.pf-container--zero .pf-section-stack {
+  gap: var(--ct-space-6);
+}
+
 .pf-container--zero .ct-section-preview--compact {
   gap: var(--ct-space-4);
   padding: var(--ct-space-4) var(--ct-space-5);

@@ -119,7 +119,7 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
             >
               {tab.label}
               {count > 0 && (
-                <span className="ml-1.5 ct-pill text-xs">{count}</span>
+                <span className="ml-1.5 ct-pill body-xs">{count}</span>
               )}
             </Link>
           );

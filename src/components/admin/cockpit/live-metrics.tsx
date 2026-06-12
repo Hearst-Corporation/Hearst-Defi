@@ -36,7 +36,7 @@ export function LiveMetrics({ vaults }: LiveMetricsProps) {
 
   return (
     <SystemPanel aria-label="Live metrics" className="dashboard-live-metrics">
-      <DashboardPanelHeader eyebrow="Vault telemetry" title="Live Metrics" tone="quiet" />
+      <DashboardPanelHeader title="Live metrics" tone="quiet" />
       <div className="flex flex-col divide-y divide-[var(--ct-border-soft)]">
         {vaults.map((vault) => (
           <VaultMetricRow key={vault.vaultId} vault={vault} />
@@ -129,7 +129,7 @@ function MetricCell({
 }) {
   return (
     <div className="admin-doc-stack--micro">
-      <span className="ct-text-micro-size uppercase tracking-wide ct-text-faint font-medium">
+      <span className="stat-label ct-text-faint">
         {label}
       </span>
       <span className={cn("body-xs tabular font-semibold ct-text-strong", valueClassName)}>

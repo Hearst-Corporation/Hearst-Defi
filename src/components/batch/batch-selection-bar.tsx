@@ -106,7 +106,7 @@ export function BatchSelectionBar({
       )}
     >
       {/* Count label */}
-      <span className="text-sm font-semibold ct-text-accent tabular-nums">
+      <span className="body-sm font-semibold ct-text-accent tabular-nums">
         {count} selected
       </span>
 
@@ -173,7 +173,7 @@ export function BatchSelectionBar({
                     action.onClick();
                   }}
                   className={cn(
-                    "w-full px-3 py-1.5 text-left text-xs",
+                    "w-full px-3 py-1.5 text-left body-xs",
                     "transition-colors duration-(--ct-dur-base)",
                     "focus-visible:outline-none focus-visible:ct-surface-3",
                     action.danger

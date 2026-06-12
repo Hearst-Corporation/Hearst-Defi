@@ -108,7 +108,7 @@ function AllocationDiffTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm tabular ct-divide-soft border border-[var(--ct-border-soft)] rounded-lg overflow-hidden">
+      <table className="w-full body-sm tabular ct-divide-soft border border-[var(--ct-border-soft)] rounded-lg overflow-hidden">
         <thead>
           <tr className="ct-surface-1">
             <th className="text-left ct-table-header ct-text-muted body-xs">
@@ -138,7 +138,7 @@ function AllocationDiffTable({
                 key={bucket}
                 className="border-t border-[var(--ct-border-soft)] ct-hover-surface transition-colors"
               >
-                <td className="ct-table-cell ct-text-body mono text-xs capitalize">
+                <td className="ct-table-cell ct-text-body mono body-xs capitalize">
                   {bucket.replace(/_/g, " ")}
                 </td>
                 <td className="ct-table-cell text-right ct-text-muted tabular">
@@ -244,7 +244,7 @@ export function RebalanceCard({
       <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
         <div className="admin-doc-stack--compact">
           <div className="admin-doc-inline-row">
-            <span className="ct-pill accent mono text-xs">
+            <span className="ct-pill accent mono body-xs">
               {event.ruleId}
             </span>
             <Badge variant={statusVariant(event.status)}>
@@ -362,7 +362,7 @@ export function RebalanceCard({
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
                   placeholder="Rejection reason…"
-                  className="ct-input flex-1 text-sm"
+                  className="ct-input flex-1 body-sm"
                   disabled={isPending}
                 />
                 <Button

@@ -88,28 +88,23 @@ describe("Portfolio page — 3 sections contract", () => {
   });
 });
 
-// ── 2. 5 new widgets present ─────────────────────────────────────────────────
+// ── 2. 4 new widgets present (lock-meter has no page test-id) ────────────────
 
-describe("Portfolio page — 5 new widgets contract", () => {
+describe("Portfolio page — 4 new widgets contract", () => {
   const WIDGET_TEST_IDS = [
-    "lock-meter-widget",
     "yield-stack-widget",
     "risk-pulse-widget",
     "distrib-calendar-widget",
     "proof-pulse-widget",
   ] as const;
 
-  it("exactly 5 new widget test-ids are registered", () => {
-    expect(WIDGET_TEST_IDS).toHaveLength(5);
+  it("exactly 4 new widget test-ids are registered", () => {
+    expect(WIDGET_TEST_IDS).toHaveLength(4);
   });
 
-  it("all 5 widget test-ids are unique strings", () => {
+  it("all 4 widget test-ids are unique strings", () => {
     const unique = new Set(WIDGET_TEST_IDS);
-    expect(unique.size).toBe(5);
-  });
-
-  it("widget H: lock-meter-widget present", () => {
-    expect(WIDGET_TEST_IDS).toContain("lock-meter-widget");
+    expect(unique.size).toBe(4);
   });
 
   it("widget I: risk-pulse-widget present", () => {
@@ -477,36 +472,44 @@ describe("YieldStack props — loadYieldStackProps shape", () => {
 describe("Widget placement in sections", () => {
   // Section → expected widgets mapping (canonical, mirrors page.tsx structure)
   const SECTION_WIDGETS: Record<string, string[]> = {
-    "hero-pulse": ["lock-meter-widget", "nav-share-kpi", "position-value-kpi"],
-    "yield-trust": ["yield-stack-widget", "risk-pulse-widget", "proof-pulse-widget", "security-pulse-widget"],
+    // PositionsList — no data-testid; section precedes hero in DOM order
+    positions: [],
+    "hero-pulse": [],
+    "yield-allocation": ["yield-stack-widget", "allocation-donut-widget"],
+    "yield-trust": ["risk-pulse-widget", "proof-pulse-widget", "security-pulse-widget"],
     "activity-payouts": ["distrib-calendar-widget", "recent-activity-widget"],
   };
 
-  it("Section 1 (hero-pulse) hosts lock-meter-widget", () => {
-    expect(SECTION_WIDGETS["hero-pulse"]).toContain("lock-meter-widget");
+  it("positions section exists (PositionsList — no widget test-id)", () => {
+    expect(SECTION_WIDGETS).toHaveProperty("positions");
+    expect(SECTION_WIDGETS.positions).toHaveLength(0);
   });
 
-  it("Section 2 (yield-trust) hosts yield-stack-widget", () => {
-    expect(SECTION_WIDGETS["yield-trust"]).toContain("yield-stack-widget");
+  it("yield-allocation hosts yield-stack-widget", () => {
+    expect(SECTION_WIDGETS["yield-allocation"]).toContain("yield-stack-widget");
   });
 
-  it("Section 2 (yield-trust) hosts risk-pulse-widget", () => {
+  it("yield-allocation hosts allocation-donut-widget", () => {
+    expect(SECTION_WIDGETS["yield-allocation"]).toContain("allocation-donut-widget");
+  });
+
+  it("yield-trust hosts risk-pulse-widget", () => {
     expect(SECTION_WIDGETS["yield-trust"]).toContain("risk-pulse-widget");
   });
 
-  it("Section 2 (yield-trust) hosts proof-pulse-widget", () => {
+  it("yield-trust hosts proof-pulse-widget", () => {
     expect(SECTION_WIDGETS["yield-trust"]).toContain("proof-pulse-widget");
   });
 
-  it("Section 2 (yield-trust) hosts security-pulse-widget", () => {
+  it("yield-trust hosts security-pulse-widget", () => {
     expect(SECTION_WIDGETS["yield-trust"]).toContain("security-pulse-widget");
   });
 
-  it("Section 3 (activity-payouts) hosts distrib-calendar-widget", () => {
+  it("activity-payouts hosts distrib-calendar-widget", () => {
     expect(SECTION_WIDGETS["activity-payouts"]).toContain("distrib-calendar-widget");
   });
 
-  it("Section 3 (activity-payouts) hosts recent-activity-widget", () => {
+  it("activity-payouts hosts recent-activity-widget", () => {
     expect(SECTION_WIDGETS["activity-payouts"]).toContain("recent-activity-widget");
   });
 });

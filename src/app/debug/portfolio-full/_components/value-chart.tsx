@@ -58,11 +58,11 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
       className="ct-kpi-glass flex flex-col relative flex-1 h-full min-h-48 p-6 overflow-hidden" 
       aria-label="Portfolio value — 12-month trend"
     >
-      <div className="flex justify-between items-center text-micro font-medium text-(--ct-text-muted) tracking-widest uppercase mb-6 relative z-10">
+      <div className="flex justify-between items-center stat-label mb-6 relative z-10">
         <span>Portfolio value · 12-month trend</span>
         <div className="flex items-center gap-2">
           <ProvenanceBadge kind={provenance} />
-          <span className="mono text-micro uppercase tracking-widest px-1.5 py-0.5 rounded-xs bg-(--ct-surface-2) text-(--ct-text-primary)">
+          <span className="mono ct-text-micro-size uppercase tracking-widest px-1.5 py-0.5 rounded-xs bg-(--ct-surface-2) text-(--ct-text-primary)">
             {totalValueUsdc > 0 ? formatUsdCompact(totalValueUsdc) : <span className="opacity-30">—</span>}
           </span>
         </div>
@@ -92,7 +92,7 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
         </svg>
       </div>
 
-      <div className="flex justify-between mt-2 text-xs text-(--ct-text-muted) mono relative z-10">
+      <div className="flex justify-between mt-2 body-xs text-(--ct-text-muted) mono relative z-10">
         {series
           .filter((_, i) => i % 3 === 0 || i === series.length - 1)
           .map((s, i) => (
@@ -100,7 +100,7 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
           ))}
       </div>
 
-      <p className="text-xs text-(--ct-text-muted) mt-auto pt-4 italic relative z-10">
+      <p className="body-xs text-(--ct-text-muted) mt-auto pt-4 italic relative z-10">
         Indicative trend based on position history. Past performance does not predict future results.
       </p>
     </article>

@@ -281,7 +281,7 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
           <span className="stat-label">Score:</span>
           <span
             className={cn(
-              "body-sm font-bold tabular-nums",
+              "body-sm font-semibold tabular-nums",
               scoreTone(marginScore) === "good"
                 ? "ct-text-accent"
                 : scoreTone(marginScore) === "warn"

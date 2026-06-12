@@ -5,6 +5,7 @@ import "server-only";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
+import { requireAuth } from "@/lib/auth/require-auth";
 import { DEFAULT_VIEWS } from "./templates";
 import type { ViewScope, ViewVisibility, ViewFilters, ViewSort } from "./templates";
 
@@ -25,7 +26,6 @@ const ScopeEnum = z.enum([
 const VisibilityEnum = z.enum(["private", "team"] as [ViewVisibility, ...ViewVisibility[]]);
 
 const CreateViewSchema = z.object({
-  userId: z.string().min(1).max(255),
   scope: ScopeEnum,
   name: z.string().min(1).max(120),
   filters: z.record(z.string(), z.unknown()),
@@ -108,10 +108,10 @@ function hydrateRow(row: {
 // ---------------------------------------------------------------------------
 
 /**
- * Create a new saved view for a user.
+ * Create a new saved view for the authenticated user.
+ * userId is resolved from the server session — never accepted from the client.
  */
 export async function createView(
-  userId: string,
   scope: ViewScope,
   name: string,
   filters: ViewFilters,
@@ -119,8 +119,9 @@ export async function createView(
   columns?: string[],
   visibility: ViewVisibility = "private",
 ): Promise<SavedViewRow> {
+  const { userId } = await requireAuth();
+
   const parsed = CreateViewSchema.parse({
-    userId,
     scope,
     name,
     filters,
@@ -131,7 +132,7 @@ export async function createView(
 
   const row = await prisma.savedView.create({
     data: {
-      userId: parsed.userId,
+      userId,
       name: parsed.name,
       scope: parsed.scope,
       filters: JSON.stringify(parsed.filters),
@@ -146,6 +147,7 @@ export async function createView(
 
 /**
  * Update an existing saved view (partial — only supplied fields are changed).
+ * Ownership is verified: only the authenticated owner can mutate their view.
  */
 export async function updateView(
   id: string,
@@ -157,6 +159,7 @@ export async function updateView(
     visibility?: ViewVisibility;
   },
 ): Promise<SavedViewRow> {
+  const { userId } = await requireAuth();
   const parsed = UpdateViewSchema.parse(partial);
 
   const data: Record<string, unknown> = {};
@@ -170,28 +173,45 @@ export async function updateView(
   }
   if (parsed.visibility !== undefined) data.visibility = parsed.visibility;
 
-  const row = await prisma.savedView.update({
-    where: { id },
+  // updateMany scoped by both id AND userId; count===0 means not found or not owned.
+  const { count } = await prisma.savedView.updateMany({
+    where: { id, userId },
     data,
   });
 
+  if (count === 0) {
+    throw new Error("View not found or access denied");
+  }
+
+  // Re-fetch to return the hydrated row (updateMany does not return records).
+  const row = await prisma.savedView.findUniqueOrThrow({ where: { id } });
   return hydrateRow(row);
 }
 
 /**
  * Delete a saved view by id.
+ * Ownership is verified: only the authenticated owner can delete their view.
  */
 export async function deleteView(id: string): Promise<void> {
-  await prisma.savedView.delete({ where: { id } });
+  const { userId } = await requireAuth();
+
+  // deleteMany scoped by both id AND userId; count===0 means not found or not owned.
+  const { count } = await prisma.savedView.deleteMany({
+    where: { id, userId },
+  });
+
+  if (count === 0) {
+    throw new Error("View not found or access denied");
+  }
 }
 
 /**
- * Load all saved views for a user, optionally filtered by scope.
+ * Load all saved views for the authenticated user, optionally filtered by scope.
+ * userId is resolved from the server session — never accepted from the client.
  */
-export async function loadUserViews(
-  userId: string,
-  scope?: ViewScope,
-): Promise<SavedViewRow[]> {
+export async function loadUserViews(scope?: ViewScope): Promise<SavedViewRow[]> {
+  const { userId } = await requireAuth();
+
   const rows = await prisma.savedView.findMany({
     where: scope ? { userId, scope } : { userId },
     orderBy: { createdAt: "asc" },
@@ -201,10 +221,13 @@ export async function loadUserViews(
 }
 
 /**
- * Seed the 8 default view templates for a user if they have no views yet.
+ * Seed the 8 default view templates for the authenticated user if they have none.
  * Idempotent — running it a second time is a no-op.
+ * userId is resolved from the server session — never accepted from the client.
  */
-export async function seedDefaults(userId: string): Promise<void> {
+export async function seedDefaults(): Promise<void> {
+  const { userId } = await requireAuth();
+
   const existing = await prisma.savedView.count({ where: { userId } });
   if (existing > 0) return;
 

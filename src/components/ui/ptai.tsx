@@ -5,6 +5,8 @@ interface PtaiProps {
   trigger: string;
   action: string;
   impact: string;
+  /** `flat` = no nested box (parent card owns the surface). */
+  variant?: "inset" | "flat";
   className?: string;
 }
 
@@ -22,28 +24,46 @@ export function Ptai({
   trigger,
   action,
   impact,
+  variant = "inset",
   className,
 }: PtaiProps) {
   const values: Record<"projection" | "trigger" | "action" | "impact", string> =
     { projection, trigger, action, impact };
+
+  const rows = (
+    <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 body-sm">
+      {ROWS.map(({ key, label, iconColorClass }) => (
+        <div key={key} className="contents group/row">
+          <dt className="flex items-center gap-2 stat-label pt-0.5 group-hover/row:ct-text-body transition-colors">
+            <span
+              className={cn(
+                "h-1.5 w-1.5 rounded-full shadow-[var(--ct-glow-dot)] bg-current",
+                iconColorClass,
+              )}
+            />
+            {label}
+          </dt>
+          <dd className="ct-text-body font-medium group-hover/row:ct-text-strong transition-colors">
+            {values[key as "projection" | "trigger" | "action" | "impact"]}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+
+  if (variant === "flat") {
+    return <div className={className}>{rows}</div>;
+  }
+
   return (
-    <div className={cn("glass-panel-subtle p-4 rounded-xl relative overflow-hidden group", className)}>
+    <div
+      className={cn(
+        "glass-panel-subtle p-4 rounded-xl relative overflow-hidden group",
+        className,
+      )}
+    >
       <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[var(--ct-surface-3)] to-transparent opacity-50" />
-      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm relative z-[var(--ct-z-raised)]">
-        {ROWS.map(({ key, label, iconColorClass }) => (
-          <div key={key} className="contents group/row">
-            <dt className="flex items-center gap-2 mono text-[length:var(--ct-text-micro-size)] uppercase tracking-wide ct-text-muted pt-0.5 group-hover/row:ct-text-body transition-colors">
-              <span
-                className={cn("h-1.5 w-1.5 rounded-full shadow-[var(--ct-glow-dot)] bg-current", iconColorClass)}
-              />
-              {label}
-            </dt>
-            <dd className="ct-text-body font-medium group-hover/row:ct-text-strong transition-colors">
-              {values[key as "projection" | "trigger" | "action" | "impact"]}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      <div className="relative z-[var(--ct-z-raised)]">{rows}</div>
     </div>
   );
 }

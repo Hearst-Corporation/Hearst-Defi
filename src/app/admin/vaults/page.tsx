@@ -77,7 +77,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
               role="tab"
               aria-selected={isActive}
               className={cn(
-                "ct-pill text-xs font-semibold uppercase",
+                "ct-pill body-xs font-semibold uppercase",
                 isActive && "accent",
               )}
             >
@@ -121,7 +121,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                   <div className="admin-doc-inline-row admin-doc-inline-row--relaxed min-w-0">
                     <div className="admin-doc-stack--dense min-w-0">
                       <div className="admin-doc-inline-row admin-doc-inline-row--loose">
-                        <span className="mono tabular text-sm font-semibold ct-text-strong">
+                        <span className="mono tabular body-sm font-semibold ct-text-strong">
                           {vault.ticker}
                         </span>
                         <VaultStatusPill status={vault.status} />
@@ -142,7 +142,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                       <ProvenanceBadge kind={aumUsdc > 0 ? "live" : "estimated"} />
                     </div>
                     <Progress value={aumPct} label="AUM vs capacity" />
-                    <span className="mono tabular text-xs ct-text-muted">
+                    <span className="mono tabular body-xs ct-text-muted">
                       {formatUsdFull(aumUsdc)} / {formatUsdFull(capacityUsdc)}
                     </span>
                   </div>

@@ -47,7 +47,7 @@ export function PresetBar({ selected, onSelect, disabled }: PresetBarProps) {
   return (
     <nav aria-label="Scenario presets" className="scenario-preset-bar">
       <div className="scenario-preset-bar__head">
-        <p className="eyebrow ct-text-muted">Preset library</p>
+        <p className="stat-label m-0">Preset library</p>
         <span className="body-xs ct-text-faint">Select a starting scenario</span>
       </div>
       <div className="scenario-preset-bar__items">

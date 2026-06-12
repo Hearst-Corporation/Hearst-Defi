@@ -37,8 +37,7 @@ export function NavSlot({
       <div className="dashboard-command-performance">
         <header className="dashboard-card-header ct-system-panel__header dashboard-command-performance__header">
           <div className="min-w-0">
-            <p className="eyebrow mb-1">Performance</p>
-            <h3 className="h3 ct-text-body">NAV · 30d</h3>
+            <h3 className="h3 ct-text-body m-0">NAV · 30d</h3>
             <p className="stat-value tabular mt-1">
               {lastNav !== null && lastNav > 0 ? usdCompact.format(lastNav) : "—"}
             </p>

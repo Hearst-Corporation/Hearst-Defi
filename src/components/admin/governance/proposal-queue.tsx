@@ -31,12 +31,12 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
             <div className="admin-doc-inline-row admin-doc-inline-row--relaxed">
               <div className="min-w-0 flex-1">
                 <div className="mb-1 admin-doc-inline-row">
-                  <span className="ct-pill mono text-xs">{proposal.vaultTicker}</span>
+                  <span className="ct-pill mono body-xs">{proposal.vaultTicker}</span>
                   <span className="body-md truncate font-semibold ct-text-strong">
                     {proposal.actionType}
                   </span>
                 </div>
-                <p className="text-xs ct-text-muted">
+                <p className="body-xs ct-text-muted">
                   Proposed by{" "}
                   <span className="mono">{proposal.proposedBy.slice(0, 8)}…</span>
                   {" · "}
@@ -44,7 +44,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
                 </p>
               </div>
 
-              <div className="shrink-0 text-right text-xs ct-text-muted">
+              <div className="shrink-0 text-right body-xs ct-text-muted">
                 <span className="font-semibold ct-text-primary">
                   {proposal.approvalCount}/{proposal.requiredSigners}
                 </span>{" "}
@@ -62,7 +62,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
             </div>
 
             {proposal.state === "TIMELOCK" && proposal.etaAt ? (
-              <div className="mt-3 border-t border-(--ct-border-soft) pt-3 text-xs ct-text-muted">
+              <div className="mt-3 border-t border-(--ct-border-soft) pt-3 body-xs ct-text-muted">
                 Timelock ETA:{" "}
                 <span className="mono ct-text-primary">
                   {formatGovernanceTimestamp(proposal.etaAt)}

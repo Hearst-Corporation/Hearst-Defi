@@ -176,14 +176,14 @@ export function BacktestChart({ series }: BacktestChartProps) {
       {/* Header row */}
       <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
         <div className="admin-doc-stack--micro">
-          <span className="text-xs font-medium uppercase tracking-wide ct-text-muted">
+          <span className="body-xs font-medium uppercase tracking-wide ct-text-muted">
             NAV · Backtest series
           </span>
-          <span className="tabular-nums text-xl font-semibold leading-tight ct-text-primary">
+          <span className="tabular-nums stat-value leading-tight ct-text-primary">
             {usdFmt.format(lastNav)}
           </span>
           <span
-            className={`tabular-nums text-xs font-medium ${deltaPct >= 0 ? "ct-text-accent" : "text-[var(--ct-status-danger)]"}`}
+            className={`tabular-nums body-xs font-medium ${deltaPct >= 0 ? "ct-text-accent" : "text-[var(--ct-status-danger)]"}`}
           >
             {deltaPct >= 0 ? "+" : ""}
             {deltaPct.toFixed(1)}% total · max dd {maxDd.toFixed(1)}%
@@ -287,9 +287,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
         <text
           x={PAD_X + 2}
           y={navTop + 7}
-          fontSize="5"
-          fill="var(--ct-text-muted)"
-          fontFamily="inherit"
+          className="dash-chart-svg-text-tick-sans"
           aria-hidden="true"
         >
           NAV
@@ -297,9 +295,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
         <text
           x={PAD_X + 2}
           y={ddTop + 7}
-          fontSize="5"
-          fill="var(--ct-text-muted)"
-          fontFamily="inherit"
+          className="dash-chart-svg-text-tick-sans"
           aria-hidden="true"
         >
           DD%
@@ -308,7 +304,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
       </div>
 
       {/* Footer disclaimer */}
-      <p className="ct-text-micro-size leading-tight ct-text-faint,var(--ct-text-muted)">
+      <p className="body-xs ct-text-muted leading-tight">
         Projections only. Not guaranteed. Past results do not predict future
         returns. See Methodology v1.0.
       </p>

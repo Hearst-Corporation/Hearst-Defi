@@ -58,7 +58,7 @@ export function AdminSubNav() {
             href={withAdminVaultQuery(tab.href, vaultScope)}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "relative -mb-px border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
+              "relative -mb-px border-b-2 px-3 py-2.5 body-sm font-medium transition-colors",
               isActive
                 ? "border-[var(--ct-accent)] ct-text-accent"
                 : "border-transparent ct-text-muted hover:ct-text-primary",

@@ -124,7 +124,7 @@ function ScoreCell({
     <NestedPanel className="admin-doc-stack--tight p-4">
       <span className="stat-label">{label}</span>
       <div className="admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--tight">
-        <span className="mono text-2xl font-extrabold tabular-nums ct-text-primary">
+        <span className="mono stat-value tabular-nums ct-text-primary">
           {value.toFixed(0)}
         </span>
         <span className="body-sm ct-text-muted">/100</span>
@@ -180,7 +180,7 @@ function DecisionPanel({
           <ApyRange
             low={output.apy_range.low}
             high={output.apy_range.high}
-            className="mono text-3xl sm:text-4xl font-extrabold tabular-nums ct-text-strong leading-tight"
+            className="mono stat-value tabular-nums ct-text-strong leading-tight"
           />
         </div>
         <div className="flex flex-col items-end admin-doc-stack--dense">
@@ -195,7 +195,7 @@ function DecisionPanel({
       <div className="mt-5 admin-doc-form-grid-2 sm:grid-cols-3">
         <NestedPanel className="admin-doc-stack--tight p-4">
           <span className="stat-label">Stressed floor</span>
-          <span className="mono text-2xl font-extrabold tabular-nums ct-text-primary">
+          <span className="mono stat-value tabular-nums ct-text-primary">
             {output.stressed_apy.toFixed(1)}%
           </span>
           <span className="body-xs ct-text-muted">Bear scenario floor</span>
@@ -425,7 +425,7 @@ function CompactPanel({
     riskDeltaValue !== null ? (
       <p
         className={cn(
-          "mt-2 mono ct-text-micro-size font-semibold tabular-nums",
+          "mt-2 mono body-xs font-semibold tabular-nums ct-text-body",
           riskDeltaToneClass,
         )}
         aria-label={`Risk score delta vs Scenario A: ${Math.round(riskDeltaValue)}`}
@@ -440,7 +440,7 @@ function CompactPanel({
   return (
     <section
       className={cn(
-        "relative admin-doc-stack--relaxed glass-panel p-5",
+        "relative glass-panel p-5",
         "border-l-4",
         side === "A"
           ? "border-l-(--ct-border-strong)"
@@ -451,22 +451,17 @@ function CompactPanel({
       aria-busy={isPending}
       aria-label={`Scenario ${side}: ${presetLabel}`}
     >
-      <header className="admin-doc-stack--micro">
-        <span className="eyebrow">Scenario {side}</span>
-        <h3 className="h3 truncate" title={presetLabel}>
-          {presetLabel}
-        </h3>
-      </header>
-
-      <ApyHero output={output} variant="compact" delta={apyDelta} />
-      <ScoreGrid output={output} variant="compact" riskFooter={riskFooter} />
-      <VaultMode output={output} variant="compact" />
-      <AllocationSection output={output} variant="compact" />
-      <div>
-        <span className="stat-label">
-          Projection · Trigger · Action · Impact
-        </span>
-        <PtaiBlock output={output} className="mt-2" />
+      <div className="divide-y divide-(--ct-border-soft)">
+        <ApyHero output={output} variant="compact" delta={apyDelta} />
+        <ScoreGrid output={output} variant="compact" riskFooter={riskFooter} />
+        <VaultMode output={output} variant="compact" />
+        <AllocationSection output={output} variant="compact" />
+        <div className="py-4">
+          <span className="stat-label">
+            Projection · Trigger · Action · Impact
+          </span>
+          <PtaiBlock output={output} variant="flat" className="mt-2" />
+        </div>
       </div>
     </section>
   );

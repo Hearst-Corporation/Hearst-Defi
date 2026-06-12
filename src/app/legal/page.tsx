@@ -15,7 +15,7 @@ export default function LegalIndexPage() {
   return (
     <>
       <LegalPageHeader title="Legal" />
-      <p className="legal-meta">Effective date — to be finalized.</p>
+      <p className="legal-meta body-xs ct-text-faint">Effective date — to be finalized.</p>
       <p>
         Hearst Connect is operated as a Cayman Islands SPV (Hearst Yield Vault).
         The documents below cover privacy, terms of service, and risk

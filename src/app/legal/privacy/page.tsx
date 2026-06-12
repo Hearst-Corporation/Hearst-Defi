@@ -13,7 +13,7 @@ export default function PrivacyPage() {
   return (
     <>
       <LegalPageHeader title="Privacy Policy" />
-      <p className="legal-meta">Draft — pending formal legal review.</p>
+      <p className="legal-meta body-xs ct-text-faint">Draft — pending formal legal review.</p>
 
       <div className="legal-stub">
         <strong>Engineering draft</strong>

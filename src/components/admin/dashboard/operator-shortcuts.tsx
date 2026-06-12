@@ -10,7 +10,7 @@ export function OperatorShortcuts({ actions }: { actions: AdminActionItem[] }) {
   return (
     <section aria-label="Operator shortcuts" className="dashboard-command-shortcuts">
       <SystemPanel className="dashboard-command-cell">
-        <DashboardPanelHeader eyebrow="Shortcuts" title="Operator queues" tone="quiet" />
+        <DashboardPanelHeader title="Operator queues" tone="quiet" />
         <ul className="dashboard-command-shortcuts__list" role="list">
           {tracked.map((action) => (
             <li key={action.key}>

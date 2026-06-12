@@ -318,7 +318,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
               <div key={label} className="admin-doc-stack--compact">
                 <div className="admin-doc-row-spread">
                   <span className="stat-label">{label}</span>
-                  <span className="mono tabular text-sm ct-text-primary">
+                  <span className="mono tabular body-sm ct-text-primary">
                     {pct(bps)}%
                   </span>
                 </div>
@@ -333,7 +333,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       <SystemPanel>
         <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed mb-6">
           <DashboardPanelHeader title="Approvals" className="mb-0" />
-          <span className="mono tabular text-sm ct-text-muted mt-1">
+          <span className="mono tabular body-sm ct-text-muted mt-1">
             {approveCount} / {vault.requiredSigners} required
           </span>
         </div>
@@ -342,7 +342,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           <PanelStatus message="No signatures yet." />
         ) : (
           <div className="ct-table-surface">
-            <table className="w-full text-sm">
+            <table className="w-full body-sm">
               <thead>
                 <tr>
                   <th className="ct-table-header stat-label text-left">Signer</th>
@@ -354,7 +354,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
               <tbody>
                 {vault.approvals.map((approval) => (
                   <tr key={approval.id}>
-                    <td className="ct-table-cell mono tabular text-xs ct-text-muted truncate max-w-xs">
+                    <td className="ct-table-cell mono tabular body-xs ct-text-muted truncate max-w-xs">
                       {approval.signerWallet}
                     </td>
                     <td className="ct-table-cell">

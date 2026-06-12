@@ -42,7 +42,7 @@ export function ActionQueue({ items }: ActionQueueProps) {
 
   return (
     <SystemPanel aria-label="Action queue">
-      <DashboardPanelHeader eyebrow="Cockpit" title="Action Queue" tone="quiet" />
+      <DashboardPanelHeader title="Action queue" tone="quiet" />
       <ul className="flex flex-col divide-y divide-[var(--ct-border-soft)]" role="list">
         {items.map((item) => (
           <ActionRow key={item.id} item={item} />

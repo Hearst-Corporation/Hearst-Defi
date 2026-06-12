@@ -65,7 +65,7 @@ export function SavedViewsPicker({
           className={cn(
             "h-7 appearance-none rounded-md",
             "border border-[var(--ct-border-soft)] ct-surface-0",
-            "pl-3 pr-8 text-xs ct-text-primary",
+            "pl-3 pr-8 body-xs ct-text-primary",
             "backdrop-blur-xl transition-[border-color,background-color]",
             "hover:border-[var(--ct-border-strong)] hover:ct-surface-1",
             "focus:outline-none focus:shadow-[var(--ct-shadow-focus-ring)]",
@@ -104,7 +104,7 @@ export function SavedViewsPicker({
         onClick={onSaveAs}
         className={cn(
           "h-7 rounded-md border border-[var(--ct-border-soft)]",
-          "ct-surface-0 px-3 text-xs ct-text-muted",
+          "ct-surface-0 px-3 body-xs ct-text-muted",
           "backdrop-blur-xl transition-[border-color,color]",
           "hover:border-[var(--ct-border-strong)] hover:ct-text-strong",
           "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
@@ -120,7 +120,7 @@ export function SavedViewsPicker({
           onClick={onEditColumns}
           className={cn(
             "h-7 rounded-md border border-[var(--ct-border-soft)]",
-            "ct-surface-0 px-3 text-xs ct-text-muted",
+            "ct-surface-0 px-3 body-xs ct-text-muted",
             "backdrop-blur-xl transition-[border-color,color]",
             "hover:border-[var(--ct-border-strong)] hover:ct-text-strong",
             "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",

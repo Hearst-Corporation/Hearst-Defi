@@ -88,7 +88,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
     <div className="admin-doc-stack--dense">
       <div className="admin-doc-inline-row admin-doc-inline-row--between">
         <span className="ct-form-label">{label}</span>
-        <span className="mono tabular text-sm ct-text-primary">{fmt(value)}</span>
+        <span className="mono tabular body-sm ct-text-primary">{fmt(value)}</span>
       </div>
       <input
         type="range"
@@ -153,7 +153,7 @@ function AllocSliders({
         <span className="eyebrow ct-text-muted">Allocations</span>
         <span
           className={cn(
-            "mono tabular text-xs px-1.5 py-0.5 rounded",
+            "mono tabular body-xs px-1.5 py-0.5 rounded",
             sumOk
               ? "ct-status-success-bg"
               : "ct-status-danger-bg",
@@ -237,7 +237,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
             >
               <div className="admin-doc-stack--micro">
                 <span
-                  className={cn("mono tabular text-xs font-semibold leading-tight", riskTextClass(cell.riskScore))}
+                  className={cn("mono tabular body-xs font-semibold leading-tight", riskTextClass(cell.riskScore))}
                 >
                   {cell.apyLow.toFixed(1)}–{cell.apyHigh.toFixed(1)}%
                 </span>
@@ -488,7 +488,7 @@ export function ProjectionStudio() {
                 key={m.id}
                 type="button"
                 onClick={() => setBatchMode(m.id)}
-                className={cn("ct-pill text-xs", batchMode === m.id && "accent")}
+                className={cn("ct-pill body-xs", batchMode === m.id && "accent")}
               >
                 {m.label}
               </button>

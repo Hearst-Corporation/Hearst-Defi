@@ -39,7 +39,7 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
       {error ? (
         <p
           role="alert"
-          className="rounded-full border border-(--ct-status-danger) ct-status-danger-bg px-4 py-2.5 text-sm ct-status-danger"
+          className="rounded-full border border-(--ct-status-danger) ct-status-danger-bg px-4 py-2.5 body-sm ct-status-danger"
         >
           {error}
         </p>

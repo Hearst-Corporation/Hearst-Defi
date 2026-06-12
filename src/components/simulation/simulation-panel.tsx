@@ -70,7 +70,7 @@ export function SimulationPanel({
         {result && (
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[length:var(--ct-text-micro-size)] font-medium border",
+              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 ct-text-micro-size font-medium border",
               result.ok
                 ? "border-[var(--ct-status-success-border)] ct-status-success-bg ct-status-success"
                 : "border-[var(--ct-status-danger-border)] ct-status-danger-bg ct-status-danger",
@@ -140,7 +140,7 @@ function LoadingState() {
         className="block h-8 w-8 rounded-full border-2 border-[var(--ct-border-soft)] border-t-[var(--ct-accent)] animate-spin"
         aria-hidden="true"
       />
-      <p className="text-[length:var(--ct-text-sm)] ct-text-muted">
+      <p className="body-sm ct-text-muted">
         Simulating on fork…
       </p>
     </div>
@@ -153,10 +153,10 @@ function ErrorState({ message }: { message: string }) {
       role="alert"
       className="rounded-lg border border-[var(--ct-status-danger-border)] ct-status-danger-bg px-4 py-3"
     >
-      <p className="text-[length:var(--ct-text-sm)] font-medium ct-status-danger">
+      <p className="body-sm font-medium ct-status-danger">
         Simulation failed
       </p>
-      <p className="mt-1 text-[length:var(--ct-text-xs)] ct-text-muted">
+      <p className="mt-1 body-xs ct-text-muted">
         {message}
       </p>
     </div>
@@ -165,7 +165,7 @@ function ErrorState({ message }: { message: string }) {
 
 function EmptyState() {
   return (
-    <p className="text-[length:var(--ct-text-sm)] ct-text-faint text-center py-6">
+    <p className="body-sm ct-text-faint text-center py-6">
       No simulation run yet. Click <strong className="ct-text-muted">Simulate</strong> to preview execution.
     </p>
   );
@@ -174,10 +174,10 @@ function EmptyState() {
 function GasRow({ gas, usd }: { gas: number; usd: number }) {
   return (
     <div className="flex items-baseline justify-between gap-4">
-      <span className="text-[length:var(--ct-text-xs)] ct-text-muted uppercase tracking-[var(--ct-tracking-wide)]">
+      <span className="stat-label">
         Gas estimate
       </span>
-      <span className="mono tabular-nums text-[length:var(--ct-text-sm)] ct-text-strong">
+      <span className="mono tabular-nums body-sm ct-text-strong">
         {gas.toLocaleString("en-US")}{" "}
         <span className="ct-text-muted">
           (${usd.toFixed(2)})
@@ -192,7 +192,7 @@ function StateDiffSection({ entries }: { entries: StateDiffEntry[] }) {
     <div className="space-y-2">
       <SectionLabel>State diff</SectionLabel>
       {entries.length === 0 ? (
-        <p className="text-[length:var(--ct-text-xs)] ct-text-faint">
+        <p className="body-xs ct-text-faint">
           No storage changes detected.
         </p>
       ) : (
@@ -202,27 +202,27 @@ function StateDiffSection({ entries }: { entries: StateDiffEntry[] }) {
               key={i}
               className="rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-3 py-2.5 space-y-1"
             >
-              <p className="mono text-[length:var(--ct-text-micro-size)] ct-text-muted truncate">
+              <p className="mono ct-text-micro-size ct-text-muted truncate">
                 {entry.contract}
               </p>
-              <p className="mono text-[length:var(--ct-text-micro-size)] ct-text-faint truncate">
+              <p className="mono ct-text-micro-size ct-text-faint truncate">
                 slot {entry.slot.slice(0, 18)}…
               </p>
               <div className="flex items-center gap-2 flex-wrap">
                 <span
-                  className="mono text-[length:var(--ct-text-micro-size)] ct-text-faint"
+                  className="mono ct-text-micro-size ct-text-faint"
                   title={entry.before}
                 >
                   {truncateHex(entry.before)}
                 </span>
                 <span
-                  className="text-[length:var(--ct-text-micro-size)] ct-text-faint"
+                  className="ct-text-micro-size ct-text-faint"
                   aria-hidden="true"
                 >
                   →
                 </span>
                 <span
-                  className="mono text-[length:var(--ct-text-micro-size)] ct-text-accent"
+                  className="mono ct-text-micro-size ct-text-accent"
                   title={entry.after}
                 >
                   {truncateHex(entry.after)}
@@ -241,7 +241,7 @@ function BalanceDeltaSection({ entries }: { entries: BalanceDeltaEntry[] }) {
     <div className="space-y-2">
       <SectionLabel>Balance delta</SectionLabel>
       {entries.length === 0 ? (
-        <p className="text-[length:var(--ct-text-xs)] ct-text-faint">
+        <p className="body-xs ct-text-faint">
           No balance changes.
         </p>
       ) : (
@@ -254,12 +254,12 @@ function BalanceDeltaSection({ entries }: { entries: BalanceDeltaEntry[] }) {
                 key={i}
                 className="flex items-center justify-between gap-4 rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-3 py-2"
               >
-                <span className="mono text-[length:var(--ct-text-micro-size)] ct-text-muted truncate">
+                <span className="mono ct-text-micro-size ct-text-muted truncate">
                   {entry.address.slice(0, 10)}…
                 </span>
                 <span
                   className={cn(
-                    "mono tabular-nums text-[length:var(--ct-text-xs)]",
+                    "mono tabular-nums body-xs",
                     isPositive
                       ? "ct-text-accent"
                       : "ct-status-danger",
@@ -293,10 +293,10 @@ function RevertsSection({ entries }: { entries: RevertEntry[] }) {
             key={i}
             className="rounded-md border border-[var(--ct-status-danger-border)] ct-status-danger-bg px-3 py-2.5"
           >
-            <p className="text-[length:var(--ct-text-xs)] font-medium ct-status-danger">
+            <p className="body-xs font-medium ct-status-danger">
               {entry.reason}
             </p>
-            <p className="mt-0.5 mono text-[length:var(--ct-text-micro-size)] ct-text-faint">
+            <p className="mt-0.5 mono ct-text-micro-size ct-text-faint">
               PC: {entry.pc}
             </p>
           </li>
@@ -311,7 +311,7 @@ function EventsSection({ entries }: { entries: EventEntry[] }) {
     <div className="space-y-2">
       <SectionLabel>Events</SectionLabel>
       {entries.length === 0 ? (
-        <p className="text-[length:var(--ct-text-xs)] ct-text-faint">
+        <p className="body-xs ct-text-faint">
           No events emitted.
         </p>
       ) : (
@@ -321,17 +321,17 @@ function EventsSection({ entries }: { entries: EventEntry[] }) {
               key={i}
               className="rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-3 py-2.5 space-y-1.5"
             >
-              <p className="text-[length:var(--ct-text-xs)] font-semibold ct-text-strong">
+              <p className="body-xs font-semibold ct-text-strong">
                 {entry.name}
               </p>
               <ul className="space-y-0.5">
                 {Object.entries(entry.args).map(([key, val]) => (
                   <li key={key} className="flex gap-2 items-start">
-                    <span className="shrink-0 mono text-[length:var(--ct-text-micro-size)] ct-text-muted min-w-20">
+                    <span className="shrink-0 mono ct-text-micro-size ct-text-muted min-w-20">
                       {key}
                     </span>
                     <span
-                      className="mono text-[length:var(--ct-text-micro-size)] ct-text-faint truncate"
+                      className="mono ct-text-micro-size ct-text-faint truncate"
                       title={String(val)}
                     >
                       {String(val)}
@@ -353,12 +353,12 @@ function TraceLink() {
       <button
         type="button"
         disabled
-        className="text-[length:var(--ct-text-xs)] ct-text-muted underline underline-offset-2 opacity-50 cursor-not-allowed"
+        className="body-xs ct-text-muted underline underline-offset-2 opacity-50 cursor-not-allowed"
         title="Full Tenderly trace — available in Phase 2 (requires Tenderly account)"
       >
         ▶ View full trace
       </button>
-      <span className="ml-2 text-[length:var(--ct-text-micro-size)] ct-text-faint">
+      <span className="ml-2 ct-text-micro-size ct-text-faint">
         (P2 — stub only)
       </span>
     </div>
@@ -373,12 +373,7 @@ function SectionLabel({
   className?: string;
 }) {
   return (
-    <p
-      className={cn(
-        "text-[length:var(--ct-text-micro-size)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted",
-        className,
-      )}
-    >
+    <p className={cn("stat-label", className)}>
       {children}
     </p>
   );
