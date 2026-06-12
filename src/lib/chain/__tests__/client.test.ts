@@ -33,16 +33,12 @@ describe("chain client address resolution", () => {
     );
   });
 
-  it("falls back to registry addresses when env is absent", () => {
+  it("returns null for event logger when env is absent (no registry fallback)", () => {
     delete process.env.NEXT_PUBLIC_EVENT_LOGGER_ADDRESS;
     delete process.env.NEXT_PUBLIC_POR_REGISTRY_ADDRESS;
 
-    expect(getEventLoggerAddress()).toBe(
-      "0xb07E045D082d202bAc7C1d4F83e1A63d00653D9E",
-    );
-    expect(getPoRRegistryAddress()).toBe(
-      "0x2B7229Ea0c94f12D984d9045ee12fB0D2Efcd28D",
-    );
+    expect(getEventLoggerAddress()).toBeNull();
+    expect(getPoRRegistryAddress()).toBeNull();
   });
 
   it("throws on malformed env address (no silent fallback)", () => {
@@ -53,10 +49,27 @@ describe("chain client address resolution", () => {
     );
   });
 
-  it("reports chain configured via env or registry", () => {
+  it("reports chain NOT configured when both env vars are absent", () => {
     delete process.env.NEXT_PUBLIC_EVENT_LOGGER_ADDRESS;
     delete process.env.NEXT_PUBLIC_POR_REGISTRY_ADDRESS;
 
+    expect(isChainConfigured()).toBe(false);
+  });
+
+  it("reports chain configured when both env vars are set to valid addresses", () => {
+    process.env.NEXT_PUBLIC_EVENT_LOGGER_ADDRESS =
+      "0x1111111111111111111111111111111111111111";
+    process.env.NEXT_PUBLIC_POR_REGISTRY_ADDRESS =
+      "0x2222222222222222222222222222222222222222";
+
     expect(isChainConfigured()).toBe(true);
+  });
+
+  it("reports chain NOT configured when only one env var is set", () => {
+    process.env.NEXT_PUBLIC_EVENT_LOGGER_ADDRESS =
+      "0x1111111111111111111111111111111111111111";
+    delete process.env.NEXT_PUBLIC_POR_REGISTRY_ADDRESS;
+
+    expect(isChainConfigured()).toBe(false);
   });
 });

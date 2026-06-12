@@ -42,8 +42,13 @@ export interface DeploymentView extends DeploymentEntry {
   meta: DeploymentMeta;
 }
 
+let _cachedRegistry: DeploymentRegistry | null = null;
+
 export function getDeploymentRegistry(): DeploymentRegistry {
-  return registrySchema.parse(registryJson);
+  if (_cachedRegistry === null) {
+    _cachedRegistry = registrySchema.parse(registryJson);
+  }
+  return _cachedRegistry;
 }
 
 export function computeStaleness(entry: DeploymentEntry): DeploymentMeta {
