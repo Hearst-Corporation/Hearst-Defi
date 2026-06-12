@@ -20,14 +20,22 @@
  *   legitimate range ("8 à 15 %", "9.4-12.8%", "entre 8 et 15 %") while still
  *   catching a lone APY percentage whose sentence merely happens to contain a
  *   bare "à"/"déjà"/"jusqu'à" or a hyphen.
- * - On a violation the stream emits the `\x00ERROR:content_blocked` sentinel
- *   already understood by the cockpit-shell client (no new client contract).
+ * - On a violation the stream emits the `\x00ERROR:` sentinel understood by the
+ *   cockpit-shell client (no new client contract). The text AFTER the marker is
+ *   what the client shows the user via `setError(...)`, so it is a human FR
+ *   message — not a raw technical token (the client would otherwise surface
+ *   "content_blocked" verbatim to an investor).
  */
 
 import { containsForbiddenChat } from "@/lib/agents/forbidden-words";
 
-/** Sentinel the cockpit-shell client parses to surface a stream error. */
-export const BLOCK_SENTINEL = "\x00ERROR:content_blocked";
+/**
+ * Sentinel the cockpit-shell client parses to surface a stream error. The
+ * client takes the first line AFTER `\x00ERROR:` and calls `setError(...)` with
+ * it, so the suffix must be a user-readable FR message, not a technical token.
+ */
+export const BLOCK_SENTINEL =
+  "\x00ERROR:Réponse bloquée — elle ne respectait pas nos règles de conformité.";
 
 /** Chars held back from emission so a needle/sentence completing across a
  *  chunk boundary is caught before any of it is streamed. Must exceed the

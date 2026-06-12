@@ -6,6 +6,7 @@ import {
   resolveNavDestination,
   type NavDestination,
 } from "@/lib/llm/navigate-tool";
+import { logger } from "@/lib/logger";
 
 /**
  * App-side, tool-capable streaming chat engine for the LP Master Agent.
@@ -87,6 +88,13 @@ export const DEFAULT_CHAT_TURN_TIMEOUT_MS = 60_000;
 /** Short FR fallback emitted when the model returns a navigate-only completion
  *  (a tool call with no text content) so the chat bubble is never blank. */
 const NAV_ONLY_FALLBACK = "Je vous y emmène.";
+
+/** Generic FR error surfaced to the user on an upstream/LLM failure. The
+ *  cockpit-shell client shows the text after `\x00ERROR:` verbatim, so this must
+ *  never carry the raw provider error (which can leak model ids / quota detail /
+ *  internal hostnames). The real error stays in server logs. */
+const LLM_ERROR_MESSAGE =
+  "\x00ERROR:Le service est momentanément indisponible — réessayez dans un instant.";
 
 /** Picks the first valid `navigate` destination from accumulated tool calls. */
 function destinationFromToolCalls(
@@ -172,9 +180,16 @@ export function runChatAgent(
           { signal },
         );
       } catch (err) {
-        safeEnqueue(
-          `\x00ERROR:${err instanceof Error ? err.message : "LLM error"}`,
+        // Never surface the raw upstream/LLM error message to the user — it can
+        // leak provider internals (model ids, quota detail, internal hostnames).
+        // The client shows the text after `\x00ERROR:` verbatim, so emit a
+        // generic FR message and keep the detail in server logs only.
+        logger.error(
+          "chat-agent: LLM completion create() failed",
+          {},
+          err instanceof Error ? err : undefined,
         );
+        safeEnqueue(LLM_ERROR_MESSAGE);
         try {
           controller.close();
         } catch {
@@ -232,9 +247,18 @@ export function runChatAgent(
           }
         }
       } catch (err) {
-        safeEnqueue(
-          `\x00ERROR:${err instanceof Error ? err.message : "LLM error"}`,
+        // Never surface the raw upstream/LLM error message to the user — it can
+        // leak provider internals (model ids, quota detail, internal hostnames).
+        // The client shows the text after `\x00ERROR:` verbatim, so emit a
+        // generic FR message and keep the detail in server logs only. An abort
+        // (internal timeout / caller signal) is an EXPECTED terminator, not an
+        // incident — log it at warn, not error.
+        logger.warn(
+          "chat-agent: stream iteration ended on error/abort",
+          {},
+          err instanceof Error ? err : undefined,
         );
+        safeEnqueue(LLM_ERROR_MESSAGE);
       }
 
       // Navigate only when the model picked a whitelisted destination AND the
