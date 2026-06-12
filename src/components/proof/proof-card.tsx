@@ -234,17 +234,18 @@ function OnChainEventCard({
       </ProofFieldList>
 
       <ProofCardActions>
-        {proof.payloadCid.length > 0 ? (
-          <Button asChild variant="secondary" size="sm">
-            <a
-              href={ipfsGatewayUrl(proof.payloadCid)}
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              View payload (IPFS)
-            </a>
-          </Button>
-        ) : null}
+        {(() => {
+          const href = ipfsGatewayUrl(proof.payloadCid);
+          return href ? (
+            <Button asChild variant="secondary" size="sm">
+              <a href={href} target="_blank" rel="noreferrer noopener">
+                View payload (IPFS)
+              </a>
+            </Button>
+          ) : proof.payloadCid.length > 0 ? (
+            <span className="ct-text-muted body-sm">View payload (IPFS)</span>
+          ) : null;
+        })()}
         <Button asChild variant="primary" size="sm">
           <a
             href={`${EXPLORER_TX_BASE}${proof.txHash}`}
@@ -306,17 +307,18 @@ function OnChainAttestationCard({
       </ProofFieldList>
 
       <ProofCardActions>
-        {proof.evidenceCid.length > 0 ? (
-          <Button asChild variant="secondary" size="sm">
-            <a
-              href={ipfsGatewayUrl(proof.evidenceCid)}
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              View evidence (IPFS)
-            </a>
-          </Button>
-        ) : null}
+        {(() => {
+          const href = ipfsGatewayUrl(proof.evidenceCid);
+          return href ? (
+            <Button asChild variant="secondary" size="sm">
+              <a href={href} target="_blank" rel="noreferrer noopener">
+                View evidence (IPFS)
+              </a>
+            </Button>
+          ) : proof.evidenceCid.length > 0 ? (
+            <span className="ct-text-muted body-sm">View evidence (IPFS)</span>
+          ) : null;
+        })()}
         <Button asChild variant="primary" size="sm">
           <a
             href={`${EXPLORER_TX_BASE}${proof.txHash}`}

@@ -7,8 +7,8 @@ interface MemoSectionProps {
 
 export function MemoSection({ title, body }: MemoSectionProps) {
   return (
-    <section className="rounded-lg border border-[var(--ct-border)] ct-surface-2 p-6">
-      <h2 className="h2 mb-4">{title}</h2>
+    <section className="admin-doc-stack--actions border-b border-(--ct-border-soft) pb-6 last:border-b-0 last:pb-0">
+      <h2 className="h2">{title}</h2>
       <Markdown content={body} />
     </section>
   );

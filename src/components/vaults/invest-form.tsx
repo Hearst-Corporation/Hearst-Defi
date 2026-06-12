@@ -9,7 +9,6 @@ import { cn } from "@/lib/cn";
 import { Ptai } from "@/components/ui/ptai";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { NestedPanel } from "@/components/ui/nested-panel";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { DepositSummary } from "@/components/vaults/deposit-summary";
 import { PreFlightCheck, isPreFlightReady } from "@/components/vaults/preflight-check";
@@ -242,7 +241,7 @@ export function InvestForm({ vault }: InvestFormProps) {
   return (
     <div className="vault-invest-grid">
       <div className="vault-invest-form-main">
-        <NestedPanel className="py-0">
+        <div className="vault-flow-flat-section">
           <VaultPanelHeader title="Deposit amount" />
           <div className="vault-panel-body vault-panel-body--stack">
             <section>
@@ -394,18 +393,18 @@ export function InvestForm({ vault }: InvestFormProps) {
               </div>
             )}
           </div>
-        </NestedPanel>
+        </div>
 
         {deferredAmount > 0 && (
-          <NestedPanel className="py-0">
+          <div className="vault-flow-flat-section">
             <VaultPanelHeader title="Projected NAV — 24 month horizon" />
             <div className="vault-panel-body">
               <TimeToTargetChart amount={deferredAmount} vault={vault} />
             </div>
-          </NestedPanel>
+          </div>
         )}
 
-        <NestedPanel className="py-0">
+        <div className="vault-flow-flat-section">
           <VaultPanelHeader title="Projection (PTAI)" />
           <div className="vault-panel-body">
             <Ptai
@@ -415,7 +414,7 @@ export function InvestForm({ vault }: InvestFormProps) {
               impact={ptai.impact}
             />
           </div>
-        </NestedPanel>
+        </div>
       </div>
 
       <div className="vault-invest-grid__rail">

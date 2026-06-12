@@ -196,6 +196,26 @@
   }
 }
 
+/* Vault deployment list — flat rows, soft dividers (no glass card stack). */
+.admin-doc .admin-doc-flat-list {
+  min-width: 0;
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+.admin-doc .admin-doc-flat-list__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-doc .admin-doc-flat-list__body > * + * {
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+.admin-doc .admin-doc-flat-list__row {
+  padding: var(--ct-space-4) 0;
+  min-width: 0;
+}
+
 /* Vault deployment list — stacks on narrow, 3-col row on wide (identity · metrics · actions). */
 .admin-doc .admin-vault-list-card {
   display: grid;

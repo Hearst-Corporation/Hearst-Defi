@@ -54,6 +54,8 @@ const stripDotTone: Record<Provenance, string> = {
   stale: "ct-text-muted opacity-60",
 };
 
+const compactDotTone: Record<Provenance, string> = stripDotTone;
+
 export type ProvenanceBadgeVariant = "default" | "compact" | "strip";
 
 interface ProvenanceBadgeProps {
@@ -94,16 +96,20 @@ export function ProvenanceBadge({
   // (reduced opacity) so it stops competing with the numbers. All other kinds
   // are unchanged.
   const muted = kind === "stale";
+  const chromed = resolved !== "compact";
+
   return (
     <Tooltip content={descriptions[kind]}>
       <Badge
-        variant={variants[kind]}
+        variant={chromed ? variants[kind] : "flat"}
         aria-label={labels[kind]}
         className={
           resolved === "compact"
-            ? muted
-              ? "dashboard-provenance-badge--compact opacity-60"
-              : "dashboard-provenance-badge--compact"
+            ? cn(
+                "dashboard-provenance-badge--compact",
+                compactDotTone[kind],
+                muted && "opacity-60",
+              )
             : muted
               ? "shrink-0 whitespace-nowrap opacity-60"
               : "shrink-0 whitespace-nowrap"

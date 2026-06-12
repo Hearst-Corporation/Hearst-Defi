@@ -113,26 +113,24 @@ function MonitoringTable({
   children: ReactNode;
 }) {
   return (
-    <SystemPanel className="overflow-hidden p-0">
-      <div className="ct-table-surface rounded-none border-0 bg-transparent">
-        <table className="w-full body-sm">
-          <thead>
-            <tr>{header}</tr>
-          </thead>
-          <tbody>
-            {isEmpty ? (
-              <tr>
-                <td colSpan={colSpan}>
-                  <PanelStatus {...EMPTY_COPY} />
-                </td>
-              </tr>
-            ) : (
-              children
-            )}
-          </tbody>
-        </table>
-      </div>
-    </SystemPanel>
+    <div className="ct-table-surface overflow-hidden">
+      <table className="w-full body-sm">
+        <thead>
+          <tr>{header}</tr>
+        </thead>
+        <tbody>
+          {isEmpty ? (
+            <tr>
+              <td colSpan={colSpan}>
+                <PanelStatus {...EMPTY_COPY} />
+              </td>
+            </tr>
+          ) : (
+            children
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

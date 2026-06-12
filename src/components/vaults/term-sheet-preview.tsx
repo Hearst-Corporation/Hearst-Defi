@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { NestedKpiGrid, NestedPanel, ProofRow } from "@/components/ui/nested-panel";
+import { NestedKpiGrid, ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { RegimeScenarioTable } from "@/components/vaults/regime-scenario-table";
 import {
@@ -109,7 +109,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
           </div>
         }
       >
-        <NestedPanel>
+        <div className="product-doc-stack--tight">
           <NestedKpiGrid columns={3}>
             <VaultKpiCell label="Management / performance">
               {formatFeeLine(vault.fees)}
@@ -123,11 +123,11 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
                 : "Pending snapshot"}
             </VaultKpiCell>
           </NestedKpiGrid>
-          <p className="body-xs ct-text-faint mt-5 border-t ct-bc-soft pt-4">
+          <p className="body-xs ct-text-faint border-t ct-bc-soft pt-4">
             Distribution coverage pending first attested mining period ·
             Indicative cadence (monthly, T+5) · Methodology v1.0 active
           </p>
-        </NestedPanel>
+        </div>
       </VaultFlowSection>
 
       <VaultFlowSection
@@ -142,7 +142,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
           </div>
         }
       >
-        <NestedPanel className="product-doc-stack">
+        <div className="product-doc-stack">
           <div className="product-doc-section">
             <p className="body-sm ct-text-muted">{MODEL_B_ONELINER}</p>
             <div className="product-doc-inline-row">
@@ -181,7 +181,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
             assumption risk factors. APY is always shown as a range, never a
             point estimate. Results are not projected and are subject to change.
           </p>
-        </NestedPanel>
+        </div>
       </VaultFlowSection>
 
       <VaultFlowSection
@@ -190,7 +190,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
         provenance={<ProvenanceBadge kind="manual" />}
         className="opacity-95"
       >
-        <NestedPanel className="py-0">
+        <div className="ct-panel-fields">
           <ProofRow label="SPV structure">
             {SPV_LABELS_LONG[vault.spvJurisdiction] ?? vault.spvJurisdiction}
           </ProofRow>
@@ -201,7 +201,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
           <ProofRow label="Custodian">Custody configuration pending</ProofRow>
           <ProofRow label="Multisig threshold">Multisig approval required</ProofRow>
           <ProofRow label="Audit">Spearbit · scheduled</ProofRow>
-        </NestedPanel>
+        </div>
       </VaultFlowSection>
     </div>
   );

@@ -3,6 +3,8 @@ import { cn } from "@/lib/cn";
 interface ProgressProps {
   value: number;
   max?: number;
+  /** `plain` — no shimmer, shadow-inner, or backdrop blur (dense admin lists). */
+  variant?: "default" | "plain";
   /** Optional class applied to the fill bar (e.g. "bg-[var(--ct-status-danger)]"). */
   fillClassName?: string;
   className?: string;
@@ -19,16 +21,19 @@ interface ProgressProps {
 export function Progress({
   value,
   max = 100,
+  variant = "default",
   fillClassName,
   className,
   label,
   labelledBy,
 }: ProgressProps) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
+  const isPlain = variant === "plain";
   return (
     <div
       className={cn(
-        "h-1.5 w-full overflow-hidden rounded-full ct-surface-2 shadow-inner backdrop-blur-sm",
+        "h-1.5 w-full overflow-hidden rounded-full ct-surface-2",
+        !isPlain && "shadow-inner backdrop-blur-sm",
         className,
       )}
       role="progressbar"
@@ -45,7 +50,9 @@ export function Progress({
         )}
         style={{ width: `${pct}%` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--ct-surface-3)] to-transparent w-full h-full animate-[shimmer_var(--ct-dur-shimmer)_infinite]" />
+        {!isPlain ? (
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--ct-surface-3)] to-transparent w-full h-full animate-[shimmer_var(--ct-dur-shimmer)_infinite]" />
+        ) : null}
       </div>
     </div>
   );

@@ -843,8 +843,19 @@
   padding: var(--ct-space-4) var(--ct-space-5) !important;
 }
 
-.pf-container .ct-product-section__content .ct-empty-surface--widget {
-  min-height: 8rem;
+/* Nested empties inside portfolio panels — flat (cockpit.css mirrors globally). */
+.pf-container :is(.pf-cockpit-panel, .module-chrome, .glass-panel)
+  :is(.ct-empty-surface, .ct-empty-surface--widget, .ct-empty-surface--chart):not(
+    .ct-empty-surface--round
+  ) {
+  min-height: unset;
+  padding: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  align-items: flex-start;
+  text-align: left;
 }
 
 .pf-container--zero {

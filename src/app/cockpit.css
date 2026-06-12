@@ -1377,6 +1377,17 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   box-shadow: none;
 }
 
+/* Dense panels — quiet provenance compact (dot + sr-only label, no glass pill). */
+:is(.pf-cockpit-panel, .dash-cell, .glass-panel, .ct-system-panel)
+  .dashboard-provenance-badge--compact {
+  padding: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
 .dashboard-command-divide-stack {
   display: flex;
   flex-direction: column;
@@ -1945,6 +1956,47 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   -webkit-backdrop-filter: none;
   align-items: flex-start;
   text-align: left;
+}
+
+/* Widget — page-level module placeholder (inherits base chrome above). */
+.ct-empty-surface--widget {
+  min-height: 8rem;
+}
+
+/* Flatten nested empties inside structured parents — no cage in a cage (DS §9.3). */
+:is(
+  .pf-cockpit-panel,
+  .glass-panel,
+  .ct-system-panel,
+  .ct-card,
+  .module-chrome
+) :is(.ct-empty-surface, .ct-empty-surface--widget, .ct-empty-surface--chart):not(
+    .ct-empty-surface--round
+  ) {
+  min-height: unset;
+  padding: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* Scenario Lab output slot — inline empty, centered in workspace flex cell. */
+.scenario-lab-output-card.ct-empty-surface--inline {
+  flex: 1 1 auto;
+  min-height: 100%;
+  align-self: stretch;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: var(--ct-space-8) var(--ct-space-5);
+}
+
+/* Table empty row — typography only, no nested box. */
+.ct-table-surface tbody td .ct-panel-status {
+  padding: var(--ct-space-4) 0;
 }
 
 /* Inline status inside a parent surface — no nested box (DS §9.3) */
@@ -3482,6 +3534,25 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 }
 
 /* Vault invest flow — panel chrome (header + padded body) */
+/* Invest / vault flow — flat sections (no NestedPanel graphite shell). */
+.vault-flow-flat-section {
+  min-width: 0;
+}
+
+.vault-flow-flat-section + .vault-flow-flat-section {
+  padding-top: var(--ct-space-5);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+.vault-flow-flat-section .vault-panel-header {
+  border-bottom: none;
+  padding: 0 0 var(--ct-space-3);
+}
+
+.vault-flow-flat-section .vault-panel-body {
+  padding: 0;
+}
+
 .vault-panel-header {
   display: flex;
   align-items: center;

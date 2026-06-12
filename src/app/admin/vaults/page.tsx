@@ -1,10 +1,8 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { VaultStatusPill } from "@/components/admin/vault-status-pill";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -28,6 +26,35 @@ const FILTER_TABS = [
 ] as const;
 
 type FilterKey = (typeof FILTER_TABS)[number]["key"];
+
+type VaultStatus =
+  | "draft"
+  | "review"
+  | "deployed"
+  | "live"
+  | "paused"
+  | "closed";
+
+const VAULT_STATUS_DISPLAY: Record<
+  VaultStatus,
+  { label: string; dotClass: string }
+> = {
+  draft: { label: "Draft", dotClass: "bg-(--ct-text-muted)" },
+  review: { label: "Review", dotClass: "ct-status-dot-warning" },
+  deployed: { label: "Deployed", dotClass: "bg-(--ct-text-strong)" },
+  live: { label: "Live", dotClass: "ct-status-dot-success" },
+  paused: { label: "Paused", dotClass: "ct-status-dot-warning" },
+  closed: { label: "Closed", dotClass: "ct-status-dot-danger" },
+};
+
+function vaultStatusDisplay(status: string) {
+  return (
+    VAULT_STATUS_DISPLAY[status as VaultStatus] ?? {
+      label: status,
+      dotClass: "bg-(--ct-text-muted)",
+    }
+  );
+}
 
 function isFilterKey(v: unknown): v is FilterKey {
   return FILTER_TABS.some((t) => t.key === v);
@@ -103,101 +130,130 @@ export default async function VaultsPage({ searchParams }: PageProps) {
           </Link>
         </EmptySurface>
       ) : (
-        <div className="admin-doc-stack--actions">
-          {vaults.map((vault) => {
-            const aumUsdc = vault.positions.reduce(
-              (sum, p) => sum + Number(p.principalUsdc),
-              0,
-            );
-            const capacityUsdc = Number(vault.capacityUsdc);
-            const aumPct = capacityUsdc > 0 ? (aumUsdc / capacityUsdc) * 100 : 0;
-            const apyLow = Number(vault.targetApyLowBps) / 100;
-            const apyHigh = Number(vault.targetApyHighBps) / 100;
+        <section aria-label="Vault deployments" className="admin-doc-flat-list">
+          <div className="admin-doc-flat-list__body">
+            {vaults.map((vault) => {
+              const aumUsdc = vault.positions.reduce(
+                (sum, p) => sum + Number(p.principalUsdc),
+                0,
+              );
+              const capacityUsdc = Number(vault.capacityUsdc);
+              const aumPct = capacityUsdc > 0 ? (aumUsdc / capacityUsdc) * 100 : 0;
+              const apyLow = Number(vault.targetApyLowBps) / 100;
+              const apyHigh = Number(vault.targetApyHighBps) / 100;
+              const statusDisplay = vaultStatusDisplay(vault.status);
 
-            return (
-              <Card key={vault.id}>
-                <div className="admin-vault-list-card">
-                  <div className="admin-vault-list-card__identity">
-                    <div className="admin-doc-stack--dense min-w-0">
-                      <div className="admin-doc-inline-row admin-doc-inline-row--loose">
-                        <span className="mono tabular body-sm font-semibold ct-text-strong">
-                          {vault.ticker}
+              return (
+                <div
+                  key={vault.id}
+                  className="admin-doc-flat-list__row"
+                  aria-label={`${vault.ticker} deployment`}
+                >
+                  <div className="admin-vault-list-card">
+                    <div className="admin-vault-list-card__identity">
+                      <div className="admin-doc-stack--dense min-w-0">
+                        <div className="admin-doc-inline-row admin-doc-inline-row--loose">
+                          <span className="mono tabular body-sm font-semibold ct-text-strong">
+                            {vault.ticker}
+                          </span>
+                          <span className="admin-doc-inline-row admin-doc-inline-row--actions shrink-0">
+                            <span
+                              role="img"
+                              aria-label={statusDisplay.label}
+                              className={cn(
+                                "inline-block h-2 w-2 shrink-0 rounded-full",
+                                statusDisplay.dotClass,
+                              )}
+                            />
+                            <span className="body-xs ct-text-muted">
+                              {statusDisplay.label}
+                            </span>
+                          </span>
+                        </div>
+                        <p className="body-sm ct-text-muted truncate max-w-xs">
+                          {vault.name}
+                        </p>
+                        <p className="body-xs ct-text-faint">
+                          {STRATEGY_LABELS[vault.strategy] ?? vault.strategy}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="admin-vault-list-card__metrics">
+                      <div className="admin-doc-stack--compact min-w-0">
+                        <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                          <span className="stat-label">AUM vs Capacity</span>
+                          <ProvenanceBadge
+                            kind={aumUsdc > 0 ? "live" : "estimated"}
+                            variant="strip"
+                          />
+                        </div>
+                        <Progress
+                          value={aumPct}
+                          label="AUM vs capacity"
+                          variant="plain"
+                          className="h-1"
+                        />
+                        <span className="mono tabular body-xs ct-text-muted">
+                          {formatUsdFull(aumUsdc)} / {formatUsdFull(capacityUsdc)}
                         </span>
-                        <VaultStatusPill status={vault.status} />
                       </div>
-                      <p className="body-sm ct-text-muted truncate">
-                        {vault.name}
-                      </p>
-                      <p className="body-xs ct-text-faint">
-                        {STRATEGY_LABELS[vault.strategy] ?? vault.strategy}
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="admin-vault-list-card__metrics">
-                    <div className="admin-doc-stack--compact min-w-0">
-                      <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                        <span className="stat-label">AUM vs Capacity</span>
-                        <ProvenanceBadge kind={aumUsdc > 0 ? "live" : "estimated"} />
+                      <div className="admin-doc-stack--compact min-w-0">
+                        <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                          <span className="stat-label">Target APY</span>
+                          <ProvenanceBadge kind="estimated" variant="strip" />
+                        </div>
+                        <ApyRange low={apyLow} high={apyHigh} precision={1} />
+                        <span className="body-xs ct-text-faint">Not guaranteed</span>
                       </div>
-                      <Progress value={aumPct} label="AUM vs capacity" />
-                      <span className="mono tabular body-xs ct-text-muted">
-                        {formatUsdFull(aumUsdc)} / {formatUsdFull(capacityUsdc)}
-                      </span>
                     </div>
 
-                    <div className="admin-doc-stack--compact min-w-0">
-                      <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                        <span className="stat-label">Target APY</span>
-                        <ProvenanceBadge kind="estimated" />
-                      </div>
-                      <ApyRange low={apyLow} high={apyHigh} precision={1} />
-                      <span className="body-xs ct-text-faint">Not guaranteed</span>
+                    <div className="admin-vault-list-card__actions">
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link href={`/admin/vaults/${vault.id}`}>View</Link>
+                      </Button>
+
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link
+                          href={`/admin/vaults/new?cloneFrom=${encodeURIComponent(vault.ticker)}`}
+                        >
+                          Clone
+                        </Link>
+                      </Button>
+
+                      {vault.status === "live" && (
+                        <form
+                          action={async () => {
+                            "use server";
+                            await pauseVault(vault.id);
+                          }}
+                        >
+                          <Button variant="secondary" size="sm" type="submit">
+                            Pause
+                          </Button>
+                        </form>
+                      )}
+
+                      {vault.status === "paused" && (
+                        <form
+                          action={async () => {
+                            "use server";
+                            await resumeVault(vault.id);
+                          }}
+                        >
+                          <Button variant="secondary" size="sm" type="submit">
+                            Resume
+                          </Button>
+                        </form>
+                      )}
                     </div>
-                  </div>
-
-                  <div className="admin-vault-list-card__actions">
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/admin/vaults/${vault.id}`}>View</Link>
-                    </Button>
-
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/admin/vaults/new?cloneFrom=${encodeURIComponent(vault.ticker)}`}>
-                        Clone
-                      </Link>
-                    </Button>
-
-                    {vault.status === "live" && (
-                      <form
-                        action={async () => {
-                          "use server";
-                          await pauseVault(vault.id);
-                        }}
-                      >
-                        <Button variant="secondary" size="sm" type="submit">
-                          Pause
-                        </Button>
-                      </form>
-                    )}
-
-                    {vault.status === "paused" && (
-                      <form
-                        action={async () => {
-                          "use server";
-                          await resumeVault(vault.id);
-                        }}
-                      >
-                        <Button variant="secondary" size="sm" type="submit">
-                          Resume
-                        </Button>
-                      </form>
-                    )}
                   </div>
                 </div>
-              </Card>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </section>
       )}
     </div>
   );

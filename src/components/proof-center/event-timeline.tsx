@@ -105,19 +105,28 @@ function EventTimelineItem({
           </ProofRow>
         </div>
 
-        {event.payloadCid.length > 0 ? (
-          <div className="mt-1">
-            <Button asChild variant="secondary" size="md">
-              <a
-                href={ipfsGatewayUrl(event.payloadCid)}
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                View payload (IPFS)
-              </a>
-            </Button>
-          </div>
-        ) : null}
+        {(() => {
+          const href = ipfsGatewayUrl(event.payloadCid);
+          if (href) {
+            return (
+              <div className="mt-1">
+                <Button asChild variant="secondary" size="md">
+                  <a href={href} target="_blank" rel="noreferrer noopener">
+                    View payload (IPFS)
+                  </a>
+                </Button>
+              </div>
+            );
+          }
+          if (event.payloadCid.length > 0) {
+            return (
+              <div className="mt-1">
+                <span className="ct-text-muted body-sm">View payload (IPFS)</span>
+              </div>
+            );
+          }
+          return null;
+        })()}
       </div>
     </li>
   );

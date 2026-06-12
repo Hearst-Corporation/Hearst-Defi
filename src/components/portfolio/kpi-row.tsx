@@ -33,7 +33,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
       <article className="dash-cell dash-cell-premium" aria-label="Portfolio value">
         <div className="pf-widget-header">
           <h3 className="h3">Portfolio Value</h3>
-          <ProvenanceBadge kind={valueProvenance} />
+          <ProvenanceBadge kind={valueProvenance} variant="strip" />
         </div>
         <div className="dash-value-group">
           <span className="stat-value">
@@ -60,7 +60,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
       <article className="dash-cell dash-cell-premium" aria-label="Yield year to date">
         <div className="pf-widget-header">
           <h3 className="h3">Yield YTD</h3>
-          <ProvenanceBadge kind={yieldProvenance} />
+          <ProvenanceBadge kind={yieldProvenance} variant="strip" />
         </div>
         <div className="dash-value-group">
           <span className="stat-value">
@@ -77,7 +77,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
       <article className="dash-cell dash-cell-premium" aria-label="Next distribution date">
         <div className="pf-widget-header">
           <h3 className="h3">Next Distribution</h3>
-          <ProvenanceBadge kind={distProvenance} />
+          <ProvenanceBadge kind={distProvenance} variant="strip" />
         </div>
         <div className="dash-value-group">
           <span className="stat-value tabular">

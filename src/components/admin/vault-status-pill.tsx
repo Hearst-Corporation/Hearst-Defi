@@ -1,17 +1,23 @@
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/cn";
 
 type VaultStatus = "draft" | "review" | "deployed" | "live" | "paused" | "closed";
 
-const STATUS_MAP: Record<
-  VaultStatus,
-  { label: string; variant: "default" | "success" | "warning" | "danger" | "brand" }
-> = {
-  draft: { label: "Draft", variant: "default" },
-  review: { label: "Review", variant: "warning" },
-  deployed: { label: "Deployed", variant: "brand" },
-  live: { label: "Live", variant: "success" },
-  paused: { label: "Paused", variant: "warning" },
-  closed: { label: "Closed", variant: "danger" },
+const STATUS_MAP: Record<VaultStatus, { label: string }> = {
+  draft: { label: "Draft" },
+  review: { label: "Review" },
+  deployed: { label: "Deployed" },
+  live: { label: "Live" },
+  paused: { label: "Paused" },
+  closed: { label: "Closed" },
+};
+
+const STATUS_TONE: Record<VaultStatus, string> = {
+  draft: "ct-text-muted",
+  review: "ct-status-warning",
+  deployed: "ct-text-strong",
+  live: "ct-status-success",
+  paused: "ct-status-warning",
+  closed: "ct-status-danger",
 };
 
 interface VaultStatusPillProps {
@@ -19,11 +25,25 @@ interface VaultStatusPillProps {
   className?: string;
 }
 
+/** Vault lifecycle — dot + label, no glass pill (DS PASS B). */
 export function VaultStatusPill({ status, className }: VaultStatusPillProps) {
-  const config = STATUS_MAP[status as VaultStatus] ?? { label: status, variant: "default" as const };
+  const key = status as VaultStatus;
+  const config = STATUS_MAP[key] ?? { label: status };
+  const tone = STATUS_TONE[key] ?? "ct-text-muted";
+
   return (
-    <Badge variant={config.variant} className={className}>
+    <span
+      className={cn(
+        "inline-flex shrink-0 items-center gap-1.5 body-xs font-medium",
+        tone,
+        className,
+      )}
+    >
+      <span
+        aria-hidden
+        className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-current"
+      />
       {config.label}
-    </Badge>
+    </span>
   );
 }

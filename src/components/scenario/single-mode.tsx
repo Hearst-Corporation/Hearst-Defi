@@ -104,7 +104,7 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
           </div>
         ) : (
           <EmptySurface
-            variant="widget"
+            variant="inline"
             className={cn(
               "scenario-lab-output-card transition-opacity duration-(--ct-dur-fast)",
               pending && "opacity-50",

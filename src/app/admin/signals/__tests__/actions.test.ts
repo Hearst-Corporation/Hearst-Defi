@@ -8,9 +8,13 @@
  * admin signing twice is idempotent and must NOT reach quorum, and the on-chain
  * write must fire exactly once when (and only when) two distinct admins approve.
  *
- * Mock strategy mirrors src/lib/governance/__tests__/actions.test.ts:
+ * CAS regression lock (DB-3): the pending→executed transition uses updateMany
+ * with a status:"pending" guard. A concurrent caller that loses the CAS race
+ * (count===0) must NOT fire writeRebalanceEvent a second time.
+ *
+ * Mock strategy:
  * • requireAdmin               — vi.mock'd, controlled per test
- * • prisma.rebalanceEvent.*    — vi.mock'd (findUnique + update)
+ * • prisma.rebalanceEvent.*    — vi.mock'd (findUnique + updateMany)
  * • writeRebalanceEvent        — vi.mock'd (the on-chain / oracle write)
  * • recordAdminAudit / logger  — silenced
  * • assertRateLimit            — resolves (no throttling in tests)
@@ -30,6 +34,7 @@ vi.mock("@/lib/db", () => ({
     rebalanceEvent: {
       findUnique: vi.fn(),
       update: vi.fn(),
+      updateMany: vi.fn(),
     },
   },
 }));
@@ -78,8 +83,12 @@ const EVENT_ID = "rebalance_cuid_001";
 const ADMIN_A = { userId: "admin_user_A" };
 const ADMIN_B = { userId: "admin_user_B" };
 
+type RebalanceEventRow = NonNullable<
+  Awaited<ReturnType<typeof prisma.rebalanceEvent.findUnique>>
+>;
+
 /** A pending RebalanceEvent row. approvedBy is a JSON-encoded string array. */
-function baseEvent(overrides: Partial<Record<string, unknown>> = {}) {
+function baseEvent(overrides: Partial<RebalanceEventRow> = {}): RebalanceEventRow {
   return {
     id: EVENT_ID,
     ruleId: "R2",
@@ -89,6 +98,13 @@ function baseEvent(overrides: Partial<Record<string, unknown>> = {}) {
     approvedBy: "[]",
     executedAt: new Date("2026-01-01T00:00:00Z"),
     triggeredAt: new Date("2026-01-01T00:00:00Z"),
+    actionText: "",
+    impactText: "",
+    sourceEventName: null,
+    sourceEventId: null,
+    fromAllocation: "{}",
+    toAllocation: "{}",
+    txHash: null,
     ...overrides,
   };
 }
@@ -97,14 +113,6 @@ function baseEvent(overrides: Partial<Record<string, unknown>> = {}) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  // update() echoes back the data it was called with so `after` reflects state.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (eventMock().update as any).mockImplementation(
-    async (args: { where: unknown; data: Record<string, unknown> }) => ({
-      ...baseEvent(),
-      ...args.data,
-    }),
-  );
 });
 
 // ── approveRebalance — multisig quorum on authenticated identity ──────────
@@ -113,101 +121,110 @@ describe("approveRebalance", () => {
   it("does NOT flip to executed when the SAME admin approves twice (idempotent, no second on-chain write)", async () => {
     vi.mocked(requireAdmin).mockResolvedValue(ADMIN_A);
 
-    // First approval: pending event, no signers yet.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (eventMock().findUnique as any).mockResolvedValue(baseEvent({ approvedBy: "[]" }));
+    eventMock().findUnique.mockResolvedValueOnce(baseEvent({ approvedBy: "[]" }));
+    eventMock().updateMany.mockResolvedValueOnce({ count: 1 });
 
     await approveRebalance(EVENT_ID);
 
-    // After first approval the event is still pending (quorum = 2, only 1 signer).
-    expect(eventMock().update).toHaveBeenCalledOnce();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const firstUpdate = (eventMock().update as any).mock.calls[0]?.[0] as {
-      data: Record<string, unknown>;
-    };
-    expect(firstUpdate.data.status).toBe("pending");
-    expect(JSON.parse(firstUpdate.data.approvedBy as string)).toEqual([ADMIN_A.userId]);
-    expect(firstUpdate.data.executedAt).toBeUndefined();
-    // No on-chain write below quorum.
+    expect(eventMock().updateMany).toHaveBeenCalledOnce();
+    const firstCas = vi.mocked(eventMock().updateMany).mock
+      .calls[0]?.[0] as { where: Record<string, unknown>; data: Record<string, unknown> };
+    expect(firstCas.where).toMatchObject({ id: EVENT_ID, status: "pending" });
+    expect(JSON.parse(firstCas.data.approvedBy as string)).toEqual([ADMIN_A.userId]);
+    expect(firstCas.data.status).toBeUndefined();
     expect(chainMock()).not.toHaveBeenCalled();
 
-    // Second approval by the SAME admin — the event now already carries their key.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (eventMock().findUnique as any).mockResolvedValue(
+    eventMock().findUnique.mockResolvedValueOnce(
       baseEvent({ approvedBy: JSON.stringify([ADMIN_A.userId]) }),
     );
 
     await approveRebalance(EVENT_ID);
 
-    // Idempotent short-circuit: NO further update, status never flips to executed,
-    // and the on-chain / oracle write is NOT fired a second time.
-    expect(eventMock().update).toHaveBeenCalledOnce(); // still only the first call
+    expect(eventMock().updateMany).toHaveBeenCalledOnce();
     expect(chainMock()).not.toHaveBeenCalled();
   });
 
   it("reaches quorum when TWO DISTINCT admins approve → status executed, executedAt set, on-chain write fired once", async () => {
-    // First distinct admin signs the pending event.
     vi.mocked(requireAdmin).mockResolvedValue(ADMIN_A);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (eventMock().findUnique as any).mockResolvedValue(baseEvent({ approvedBy: "[]" }));
+    eventMock().findUnique.mockResolvedValueOnce(baseEvent({ approvedBy: "[]" }));
+    eventMock().updateMany.mockResolvedValueOnce({ count: 1 });
 
     await approveRebalance(EVENT_ID);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const firstUpdate = (eventMock().update as any).mock.calls[0]?.[0] as {
-      data: Record<string, unknown>;
-    };
-    expect(firstUpdate.data.status).toBe("pending");
+    const firstCas = vi.mocked(eventMock().updateMany).mock
+      .calls[0]?.[0] as { where: Record<string, unknown>; data: Record<string, unknown> };
+    expect(firstCas.data.status).toBeUndefined();
     expect(chainMock()).not.toHaveBeenCalled();
 
-    // Second DISTINCT admin signs — event now already carries admin A's key.
     vi.mocked(requireAdmin).mockResolvedValue(ADMIN_B);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (eventMock().findUnique as any).mockResolvedValue(
+    eventMock().findUnique.mockResolvedValueOnce(
       baseEvent({ approvedBy: JSON.stringify([ADMIN_A.userId]) }),
     );
+    eventMock().updateMany.mockResolvedValueOnce({ count: 1 });
 
     await approveRebalance(EVENT_ID);
 
-    // Second update flips to executed with both distinct signers recorded.
-    expect(eventMock().update).toHaveBeenCalledTimes(2);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const secondUpdate = (eventMock().update as any).mock.calls[1]?.[0] as {
-      data: Record<string, unknown>;
-    };
-    expect(secondUpdate.data.status).toBe("executed");
-    expect(secondUpdate.data.executedAt).toBeInstanceOf(Date);
-    expect(JSON.parse(secondUpdate.data.approvedBy as string)).toEqual([
+    const secondCas = vi.mocked(eventMock().updateMany).mock
+      .calls[1]?.[0] as { where: Record<string, unknown>; data: Record<string, unknown> };
+    expect(secondCas.where).toMatchObject({ id: EVENT_ID, status: "pending" });
+    expect(secondCas.data.status).toBe("executed");
+    expect(secondCas.data.executedAt).toBeInstanceOf(Date);
+    expect(JSON.parse(secondCas.data.approvedBy as string)).toEqual([
       ADMIN_A.userId,
       ADMIN_B.userId,
     ]);
 
-    // On-chain / oracle write fires exactly ONCE — at the quorum-reaching step.
     expect(chainMock()).toHaveBeenCalledOnce();
     expect(chainMock()).toHaveBeenCalledWith(
       expect.objectContaining({ eventId: EVENT_ID, ruleId: "R2" }),
     );
   });
 
+  it("CAS race: loser retries, sees executed row, throws without on-chain write", async () => {
+    vi.mocked(requireAdmin).mockResolvedValue(ADMIN_B);
+
+    eventMock().findUnique
+      .mockResolvedValueOnce(
+        baseEvent({ approvedBy: JSON.stringify([ADMIN_A.userId]) }),
+      )
+      .mockResolvedValueOnce(
+        baseEvent({
+          status: "executed",
+          approvedBy: JSON.stringify([ADMIN_A.userId, ADMIN_B.userId]),
+        }),
+      );
+    eventMock().updateMany.mockResolvedValueOnce({ count: 0 });
+
+    await expect(approveRebalance(EVENT_ID)).rejects.toThrow(
+      'Cannot approve a signal with status "executed"',
+    );
+
+    expect(eventMock().updateMany).toHaveBeenCalledOnce();
+    expect(chainMock()).not.toHaveBeenCalled();
+  });
+
   it("rejects approval on a non-pending event (already executed) and never writes on-chain", async () => {
     vi.mocked(requireAdmin).mockResolvedValue(ADMIN_A);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (eventMock().findUnique as any).mockResolvedValue(
-      baseEvent({ status: "executed", approvedBy: JSON.stringify([ADMIN_A.userId, ADMIN_B.userId]) }),
+
+    eventMock().findUnique.mockResolvedValue(
+      baseEvent({
+        status: "executed",
+        approvedBy: JSON.stringify([ADMIN_A.userId, ADMIN_B.userId]),
+      }),
     );
 
     await expect(approveRebalance(EVENT_ID)).rejects.toThrow(
       'Cannot approve a signal with status "executed"',
     );
 
-    expect(eventMock().update).not.toHaveBeenCalled();
+    expect(eventMock().updateMany).not.toHaveBeenCalled();
     expect(chainMock()).not.toHaveBeenCalled();
   });
 
   it("throws when the event does not exist", async () => {
     vi.mocked(requireAdmin).mockResolvedValue(ADMIN_A);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (eventMock().findUnique as any).mockResolvedValue(null);
+
+    eventMock().findUnique.mockResolvedValue(null);
 
     await expect(approveRebalance(EVENT_ID)).rejects.toThrow("Not found");
     expect(chainMock()).not.toHaveBeenCalled();

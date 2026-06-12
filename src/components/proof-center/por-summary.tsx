@@ -102,17 +102,18 @@ export function PorSummary({
             View attestation tx on Base Sepolia
           </a>
         </Button>
-        {attestation.evidenceCid.length > 0 ? (
-          <Button asChild variant="secondary" size="md">
-            <a
-              href={ipfsGatewayUrl(attestation.evidenceCid)}
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              View evidence (IPFS)
-            </a>
-          </Button>
-        ) : null}
+        {(() => {
+          const href = ipfsGatewayUrl(attestation.evidenceCid);
+          return href ? (
+            <Button asChild variant="secondary" size="md">
+              <a href={href} target="_blank" rel="noreferrer noopener">
+                View evidence (IPFS)
+              </a>
+            </Button>
+          ) : attestation.evidenceCid.length > 0 ? (
+            <span className="ct-text-muted body-sm">View evidence (IPFS)</span>
+          ) : null;
+        })()}
       </div>
 
       {stale ? (
