@@ -30,10 +30,10 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
     <SystemPanel aria-label="Live ops">
       <DashboardPanelHeader title="Live ops" tone="quiet" />
 
-      <div className="flex flex-col divide-y divide-[var(--ct-border-soft)]">
+      <div className="dashboard-command-divide-stack">
         <div className="py-4 first:pt-0">
           <p className="stat-label mb-2 m-0">Inngest jobs</p>
-          <div className="flex flex-col divide-y divide-[var(--ct-border-soft)]">
+          <div className="dashboard-command-divide-stack">
             {inngestJobs.map((job) => (
               <InngestRow key={job.id} job={job} />
             ))}
@@ -61,7 +61,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
           {onChainEvents.length === 0 ? (
             <PanelStatus message="No recent on-chain events." />
           ) : (
-            <ul className="flex flex-col divide-y divide-[var(--ct-border-soft)]" role="list">
+            <ul className="dashboard-command-divide-stack" role="list">
               {onChainEvents.map((ev) => (
                 <OnChainEventRow key={ev.id} event={ev} />
               ))}

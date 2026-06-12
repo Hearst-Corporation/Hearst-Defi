@@ -42,7 +42,7 @@ export function NavSlot({
               {lastNav !== null && lastNav > 0 ? usdCompact.format(lastNav) : "—"}
             </p>
           </div>
-          <ProvenanceBadge kind={navProvenance} compact />
+          <ProvenanceBadge kind={navProvenance} variant="strip" />
         </header>
 
         <NavBarChart points={navPoints} />

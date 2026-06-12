@@ -37,7 +37,7 @@ export function LiveMetrics({ vaults }: LiveMetricsProps) {
   return (
     <SystemPanel aria-label="Live metrics" className="dashboard-live-metrics">
       <DashboardPanelHeader title="Live metrics" tone="quiet" />
-      <div className="flex flex-col divide-y divide-[var(--ct-border-soft)]">
+      <div className="dashboard-command-divide-stack">
         {vaults.map((vault) => (
           <VaultMetricRow key={vault.vaultId} vault={vault} />
         ))}

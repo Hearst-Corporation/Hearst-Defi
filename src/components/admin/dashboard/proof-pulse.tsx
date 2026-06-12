@@ -53,7 +53,7 @@ export function ProofPulse({
               {" · "}
               {usdCompact.format(custodyUsdc)}
               {" · "}
-              <ProvenanceBadge kind={proof.custodyProvenance} compact />
+              <ProvenanceBadge kind={proof.custodyProvenance} variant="strip" />
             </>
           ) : (
             <span> · Not configured</span>
