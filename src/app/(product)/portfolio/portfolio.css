@@ -339,6 +339,21 @@
   min-height: 12rem;
 }
 
+/* Positions table — zero-state row under column headers (preview shell) */
+.pf-positions-empty-row.pf-table-empty-row {
+  padding: var(--ct-space-4) var(--ct-space-1);
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.pf-table-empty-title {
+  letter-spacing: var(--ct-tracking-tight);
+}
+
+.pf-table-empty-copy {
+  max-width: 36ch;
+  line-height: var(--ct-leading-snug);
+}
+
 /* Preview sections — content only (banner carries preview context) */
 .pf-container .ct-section-preview--content-only {
   gap: var(--ct-space-3);

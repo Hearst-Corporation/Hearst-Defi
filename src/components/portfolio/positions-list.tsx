@@ -85,17 +85,15 @@ export function PositionsList({
 
           {showZeroShell && previewZeros ? (
             <div
-              className={cn(ROW_GRID, "items-center opacity-50")}
-              aria-hidden
+              role="status"
+              className="pf-positions-empty-row pf-table-empty-row"
             >
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="pf-status-dot pf-status-dot--default" aria-hidden />
-                <span className="body-md ct-text-muted truncate">—</span>
-              </div>
-              <span className="tabular body-md text-right ct-text-faint">—</span>
-              <span className="tabular body-md text-right ct-text-faint">—</span>
-              <span className="body-xs text-right ct-text-faint">—</span>
-              <span className="body-xs tabular text-right ct-text-faint">—</span>
+              <p className="pf-table-empty-title body-sm ct-text-muted font-semibold m-0">
+                No open positions yet
+              </p>
+              <p className="pf-table-empty-copy body-xs ct-text-faint m-0 mt-1">
+                Your first confirmed deposit will appear here.
+              </p>
             </div>
           ) : null}
 

@@ -14,6 +14,7 @@ import { LockMeter } from "@/components/portfolio/lock-meter";
 import { ValueChart } from "@/components/portfolio/value-chart";
 import { YieldStack } from "@/components/portfolio/yield-stack";
 import { AllocationDonut } from "@/components/portfolio/allocation-donut";
+import { PositionsList } from "@/components/portfolio/positions-list";
 import {
   ZERO_YIELD_STACK,
   zeroLockMeterProps,
@@ -118,6 +119,20 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     );
     expect(html).toContain("pf-progress-track");
     expect(html).not.toContain("ct-empty-surface--widget");
+  });
+
+  it("PositionsList previewZeros: table header + clear empty row, no ghost dashes", () => {
+    const html = renderToStaticMarkup(
+      <PositionsList positions={[]} source="fallback" previewZeros />,
+    );
+    expect(html).toContain("Principal");
+    expect(html).toContain("Target APY");
+    expect(html).toContain('role="status"');
+    expect(html).toContain("No open positions yet");
+    expect(html).toContain("Your first confirmed deposit will appear here.");
+    expect(html).toContain("pf-positions-empty-row");
+    expect(html).not.toContain("pf-status-dot");
+    expect(html).not.toContain('aria-hidden="true"');
   });
 
   it("YieldStack + AllocationDonut previewZeros: widget shells with zero graphics", () => {
