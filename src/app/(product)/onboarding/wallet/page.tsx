@@ -15,7 +15,7 @@ import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { Button } from "@/components/ui/button";
 import { PrivyWalletConnect } from "@/components/onboarding/privy-wallet-connect";
 import { getSession } from "@/lib/auth/session";
-import { prisma } from "@/lib/db";
+import { resolveKycWalletGate } from "@/lib/onboarding/kyc-gate";
 
 export const dynamic = "force-dynamic";
 
@@ -33,11 +33,21 @@ export default async function WalletPage() {
   if (personaConfigured) {
     const session = await getSession();
     if (session?.userId) {
-      const startedKyc = await prisma.kycInquiry.findFirst({
-        where: { userId: session.userId },
-        select: { inquiryId: true },
-      });
-      if (!startedKyc) redirect("/onboarding/identity");
+      const gate = await resolveKycWalletGate(session.userId);
+      if (gate === "requires_identity") redirect("/onboarding/identity");
+      if (gate === "db_unavailable") {
+        return (
+          <div className="ct-card w-full max-w-lg flex flex-col gap-6">
+            <ProductPageHeader
+              className="gap-2"
+              eyebrow="Step 4 of 4"
+              title="Connect Your Wallet"
+              description="Identity verification is temporarily unavailable. Please try again later or contact support."
+            />
+          </div>
+        );
+      }
+      // passed | gate_skipped — continue (gate_skipped never marks KYC complete)
     }
   }
 
