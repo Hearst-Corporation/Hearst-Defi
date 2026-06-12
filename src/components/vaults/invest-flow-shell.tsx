@@ -43,10 +43,7 @@ export function InvestFlowShell({
 }: InvestFlowShellProps) {
   return (
     <div
-      className={cn(
-        "mx-auto w-full max-w-5xl space-y-8 pb-8",
-        className,
-      )}
+      className={cn("invest-flow-shell space-y-8 pb-8", className)}
     >
       <ProductPageHeader
         lead={lead}

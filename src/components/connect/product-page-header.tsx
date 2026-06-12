@@ -40,7 +40,7 @@ export function ProductPageHeader({
     >
       <div
         className={cn(
-          "flex w-full flex-wrap gap-4",
+          "product-page-header__row flex w-full min-w-0 flex-wrap gap-4",
           centered ? "flex-col items-center" : "items-start justify-between",
         )}
       >
@@ -73,7 +73,9 @@ export function ProductPageHeader({
           </div>
         </div>
         {actions ? (
-          <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
+          <div className="product-page-header__actions flex shrink-0 flex-wrap items-center gap-2">
+            {actions}
+          </div>
         ) : null}
       </div>
       {children}
