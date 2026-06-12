@@ -101,29 +101,29 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
           className="admin-doc-seg-track ct-seg-track"
           aria-label="Signal status filter"
         >
-        {TABS.map((tab) => {
-          const count = tab.value === "all"
-            ? Object.values(countMap).reduce((a, b) => a + b, 0)
-            : (countMap[tab.value] ?? 0);
+          {TABS.map((tab) => {
+            const count = tab.value === "all"
+              ? Object.values(countMap).reduce((a, b) => a + b, 0)
+              : (countMap[tab.value] ?? 0);
 
-          return (
-            <Link
-              key={tab.value}
-              href={withAdminVaultQuery("/admin/signals", vaultQuery, {
-                status: tab.value,
-              })}
-              className={cn(
-                "ct-seg-btn",
-                activeStatus === tab.value && "active",
-              )}
-            >
-              {tab.label}
-              {count > 0 && (
-                <span className="ml-1.5 ct-pill body-xs">{count}</span>
-              )}
-            </Link>
-          );
-        })}
+            return (
+              <Link
+                key={tab.value}
+                href={withAdminVaultQuery("/admin/signals", vaultQuery, {
+                  status: tab.value,
+                })}
+                className={cn(
+                  "ct-seg-btn",
+                  activeStatus === tab.value && "active",
+                )}
+              >
+                {tab.label}
+                {count > 0 && (
+                  <span className="ml-1.5 ct-pill body-xs">{count}</span>
+                )}
+              </Link>
+            );
+          })}
         </nav>
       </div>
 
@@ -136,11 +136,11 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
           className="min-h-32"
         />
       ) : (
-        <section className="admin-doc-stack--relaxed">
+        <section className="admin-doc-stack admin-doc-stack--relaxed">
           <p className="stat-label">
             {events.length} signal{events.length !== 1 ? "s" : ""}
           </p>
-          <div className="admin-doc-stack--relaxed">
+          <div className="admin-doc-stack admin-doc-stack--relaxed">
             {events.map((event) => (
               <RebalanceCard key={event.id} event={event} requiredSigners={2} />
             ))}

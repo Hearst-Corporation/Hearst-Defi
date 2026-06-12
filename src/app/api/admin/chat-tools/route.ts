@@ -20,6 +20,7 @@ export const dynamic = "force-dynamic";
 const ExecuteReadSchema = z.object({
   action: z.literal("execute_read"),
   toolId: z.enum(ADMIN_READ_TOOL_IDS),
+  input: z.unknown().optional(),
 });
 
 const ExecuteWriteSchema = z.object({
@@ -77,6 +78,7 @@ export async function GET(): Promise<
           description: string;
           riskLevel: "low" | "medium" | "high";
           confirmationRequired: false;
+          parameters: unknown;
         }>;
         writeTools: Array<{
           id: string;
@@ -102,6 +104,7 @@ export async function GET(): Promise<
     description: tool.description,
     riskLevel: tool.riskLevel,
     confirmationRequired: tool.confirmationRequired,
+    parameters: tool.parameters,
   }));
   const writeTools = getAllowedAdminWriteTools(context).map((tool) => ({
     id: tool.id,
@@ -167,7 +170,7 @@ export async function POST(
     }
 
     try {
-      const result = await executeAdminReadTool(tool, context);
+      const result = await executeAdminReadTool(tool, context, payload.input);
       return NextResponse.json({ status: "executed", toolId: tool.id, result });
     } catch (err) {
       logger.error(

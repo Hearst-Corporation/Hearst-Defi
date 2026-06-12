@@ -214,12 +214,23 @@ async function executeAdminReadCalls(
 
     const readTool = readToolById.get(calledName);
     if (readTool) {
+      let parsedInput: unknown = undefined;
+      if (toolCall.args.trim().length > 0) {
+        try {
+          parsedInput = JSON.parse(toolCall.args);
+        } catch {
+          parsedInput = {};
+        }
+      }
       try {
-        const result = await executeAdminReadTool(readTool, context);
+        const result = await executeAdminReadTool(readTool, context, parsedInput);
+        const payloadLine = result.payload
+          ? [`JSON_PAYLOAD`, JSON.stringify(result.payload)]
+          : [];
         readRuns.push({
           toolCallId: toolCall.id,
           toolId: readTool.id,
-          content: [result.title, ...result.lines].join("\n"),
+          content: [result.title, ...result.lines, ...payloadLine].join("\n"),
         });
       } catch (error) {
         logger.warn(
@@ -367,11 +378,7 @@ export function runChatAgent(
             function: {
               name: tool.id,
               description: tool.description,
-              parameters: {
-                type: "object",
-                properties: {},
-                additionalProperties: false,
-              },
+              parameters: tool.parameters,
             },
           })),
         ];

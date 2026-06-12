@@ -359,6 +359,28 @@
   gap: var(--ct-space-1);
 }
 
+.admin-doc .admin-doc-seg-track.ct-seg-track {
+  background: var(--ct-surface-0);
+  box-shadow: inset 0 0 0 1px var(--ct-border-soft);
+}
+
+.admin-doc .admin-doc-seg-track .ct-seg-btn {
+  padding: var(--ct-space-2) var(--ct-space-4);
+  color: var(--ct-text-muted);
+}
+
+.admin-doc .admin-doc-seg-track .ct-seg-btn:hover {
+  color: var(--ct-text-strong);
+  background: var(--ct-surface-1);
+}
+
+.admin-doc .admin-doc-seg-track .ct-seg-btn.active {
+  color: var(--ct-text-strong);
+  background: var(--ct-surface-1);
+  border-color: var(--ct-border-soft);
+  box-shadow: none;
+}
+
 /* Spec sidebar layout */
 .admin-doc .admin-doc-spec-layout {
   display: grid;

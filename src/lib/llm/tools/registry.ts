@@ -10,6 +10,7 @@ import {
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { getProductRoutes } from "@/lib/product-routes";
 import { getSpecIndex } from "@/lib/spec";
+import { ADMIN_NAV_DESTINATIONS } from "@/lib/llm/navigate-tool";
 import {
   createWriteConfirmation,
   consumeWriteConfirmation,
@@ -33,6 +34,18 @@ import type {
 const MAX_ROUTES = 20;
 const MAX_SPECS = 12;
 const DEFAULT_WRITE_CONFIRMATION_TTL_MS = 5 * 60 * 1000;
+const DEFAULT_CHART_TIMEFRAME = "30d";
+
+const ChartSpecInputSchema = z.object({
+  intent: z.string().trim().min(1).max(120),
+  chartType: z.enum(["line", "bar", "area", "stacked_bar", "pie"]),
+  timeframe: z.string().trim().min(1).max(40).optional(),
+});
+
+const DemoPlanInputSchema = z.object({
+  objective: z.string().trim().min(1).max(300),
+  audience: z.string().trim().min(1).max(200),
+});
 
 const ReviewNoteInputSchema = z.object({
   title: z.string().trim().min(1).max(200),
@@ -57,6 +70,26 @@ function formatIso(value: Date | null | undefined): string {
   return value ? value.toISOString() : "unknown";
 }
 
+function buildChartProvenanceFreshness(
+  timestamp: Date | null | undefined,
+  source: string,
+): { source: string; timestampIso: string; freshness: "fresh" | "stale" | "unknown" } {
+  if (!timestamp) {
+    return {
+      source,
+      timestampIso: "unknown",
+      freshness: "unknown",
+    };
+  }
+  const ageMs = Date.now() - timestamp.getTime();
+  const freshness: "fresh" | "stale" = ageMs <= 24 * 60 * 60 * 1000 ? "fresh" : "stale";
+  return {
+    source,
+    timestampIso: timestamp.toISOString(),
+    freshness,
+  };
+}
+
 export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
   {
     id: "read_allocations_canonical",
@@ -67,6 +100,11 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
     allowedChatModes: ["admin"],
     allowedProfiles: ["admin"],
     resultFormat: "multiline_text_block",
+    parameters: {
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    },
     run: async () => {
       const rows = [
         { key: "HYV", vault: VAULT_YIELD },
@@ -88,6 +126,11 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
     allowedChatModes: ["admin"],
     allowedProfiles: ["admin"],
     resultFormat: "multiline_text_block",
+    parameters: {
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    },
     run: async () => {
       const [latestMiningMetric, latestVaultSnapshot] = await Promise.all([
         prisma.miningMetric.findFirst({
@@ -166,6 +209,11 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
     allowedChatModes: ["admin"],
     allowedProfiles: ["admin"],
     resultFormat: "multiline_text_block",
+    parameters: {
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    },
     run: async () => {
       const routes = await getProductRoutes();
       const lines = routes.slice(0, MAX_ROUTES).map((route) => `- ${route}`);
@@ -184,6 +232,11 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
     allowedChatModes: ["admin"],
     allowedProfiles: ["admin"],
     resultFormat: "multiline_text_block",
+    parameters: {
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    },
     run: async () => {
       const specs = await getSpecIndex();
       const lines = specs
@@ -204,6 +257,11 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
     allowedChatModes: ["admin"],
     allowedProfiles: ["admin"],
     resultFormat: "multiline_text_block",
+    parameters: {
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    },
     run: async () => ({
       title: "CAPACITES OUTILLEES (RUNTIME APP)",
       lines: [
@@ -216,6 +274,205 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
         "- demo_runner_outille: no",
       ],
     }),
+  },
+  {
+    id: "generate_chart_spec",
+    kind: "read",
+    description: "Generate deterministic chart specification from available data",
+    riskLevel: "low",
+    confirmationRequired: false,
+    allowedChatModes: ["admin"],
+    allowedProfiles: ["admin"],
+    resultFormat: "json_object",
+    parameters: {
+      type: "object",
+      properties: {
+        intent: { type: "string" },
+        chartType: {
+          type: "string",
+          enum: ["line", "bar", "area", "stacked_bar", "pie"],
+        },
+        timeframe: { type: "string" },
+      },
+      required: ["intent", "chartType"],
+      additionalProperties: false,
+    },
+    run: async (_context, input) => {
+      const parsed = ChartSpecInputSchema.safeParse(input);
+      if (!parsed.success) {
+        throw new Error("invalid_generate_chart_spec_input");
+      }
+      const params = parsed.data;
+      const timeframe = params.timeframe ?? DEFAULT_CHART_TIMEFRAME;
+
+      const [miningRows, vaultRows] = await Promise.all([
+        prisma.miningMetric.findMany({
+          orderBy: { takenAt: "asc" },
+          take: 30,
+          select: {
+            takenAt: true,
+            btcPrice: true,
+            hashprice: true,
+            miningMarginScore: true,
+          },
+        }),
+        prisma.vaultSnapshot.findMany({
+          orderBy: { takenAt: "asc" },
+          take: 30,
+          select: {
+            takenAt: true,
+            currentApyLow: true,
+            currentApyHigh: true,
+            riskScore: true,
+            source: true,
+          },
+        }),
+      ]);
+
+      const latestMiningAt = miningRows.at(-1)?.takenAt;
+      const latestVaultAt = vaultRows.at(-1)?.takenAt;
+      const miningSeries = miningRows.map((row) => ({
+        x: row.takenAt.toISOString(),
+        btc_price_usd: Number(row.btcPrice),
+        hashprice_usd_th_day: Number(row.hashprice),
+        mining_margin_score: row.miningMarginScore,
+      }));
+      const vaultSeries = vaultRows.map((row) => ({
+        x: row.takenAt.toISOString(),
+        apy_low_pct: Number(row.currentApyLow),
+        apy_high_pct: Number(row.currentApyHigh),
+        risk_score: row.riskScore,
+      }));
+
+      const payload: Record<string, unknown> = {
+        chart: {
+          title: `${params.intent} (${timeframe})`,
+          intent: params.intent,
+          type: params.chartType,
+          timeframe,
+          axes: {
+            x: { key: "x", label: "Timestamp (UTC)" },
+            y: { key: "value", label: "Metric value" },
+          },
+          labels: ["mining", "vault"],
+          series: {
+            mining: {
+              available: miningSeries.length > 0,
+              points: miningSeries,
+            },
+            vault: {
+              available: vaultSeries.length > 0,
+              points: vaultSeries,
+            },
+          },
+          provenance: [
+            buildChartProvenanceFreshness(latestMiningAt ?? null, "MiningMetric"),
+            buildChartProvenanceFreshness(
+              latestVaultAt ?? null,
+              vaultRows.at(-1)?.source ?? "VaultSnapshot",
+            ),
+          ],
+          caveats: [
+            "Spec is read-only and deterministic from current DB snapshot.",
+            miningSeries.length === 0
+              ? "MiningMetric unavailable: no rows found."
+              : "Mining series sourced from MiningMetric table.",
+            vaultSeries.length === 0
+              ? "VaultSnapshot unavailable: no rows found."
+              : "Vault series sourced from VaultSnapshot table.",
+          ],
+        },
+      };
+
+      return {
+        title: "CHART SPEC",
+        lines: [
+          `- intent: ${params.intent}`,
+          `- type: ${params.chartType}`,
+          `- timeframe: ${timeframe}`,
+          `- mining_points: ${miningSeries.length}`,
+          `- vault_points: ${vaultSeries.length}`,
+        ],
+        payload,
+      };
+    },
+  },
+  {
+    id: "generate_demo_plan",
+    kind: "read",
+    description: "Generate ordered admin demo plan from indexed routes/specs",
+    riskLevel: "low",
+    confirmationRequired: false,
+    allowedChatModes: ["admin"],
+    allowedProfiles: ["admin"],
+    resultFormat: "json_object",
+    parameters: {
+      type: "object",
+      properties: {
+        objective: { type: "string" },
+        audience: { type: "string" },
+      },
+      required: ["objective", "audience"],
+      additionalProperties: false,
+    },
+    run: async (_context, input) => {
+      const parsed = DemoPlanInputSchema.safeParse(input);
+      if (!parsed.success) {
+        throw new Error("invalid_generate_demo_plan_input");
+      }
+      const params = parsed.data;
+      const [routes, specs] = await Promise.all([getProductRoutes(), getSpecIndex()]);
+      const allowedAdminRoutes = new Set(
+        ADMIN_NAV_DESTINATIONS.map((destination) => destination.route),
+      );
+      const availableAdminRoutes = routes.filter((route) => allowedAdminRoutes.has(route));
+      const firstSpec = specs[0];
+
+      const orderedSteps = availableAdminRoutes.slice(0, 5).map((route, index) => ({
+        order: index + 1,
+        route,
+        talkingPoints: [
+          `Objective alignment: ${params.objective}`,
+          `Audience focus: ${params.audience}`,
+          `Explain why ${route} matters in the admin workflow.`,
+        ],
+        references: firstSpec
+          ? [
+              {
+                type: "spec",
+                slug: firstSpec.slug,
+                title: firstSpec.title,
+              },
+            ]
+          : [],
+      }));
+
+      const payload: Record<string, unknown> = {
+        objective: params.objective,
+        audience: params.audience,
+        routesWhitelist: [...allowedAdminRoutes],
+        steps: orderedSteps,
+        caveats: [
+          "Plan is read-only and uses current route/spec indexes.",
+          orderedSteps.length === 0
+            ? "No whitelisted admin routes found in current index."
+            : "Route targets constrained to current admin navigation whitelist.",
+          specs.length === 0
+            ? "Spec index unavailable: no docs/spec entries found."
+            : "Spec references use current docs/spec index snapshot.",
+        ],
+      };
+
+      return {
+        title: "DEMO PLAN",
+        lines: [
+          `- objective: ${params.objective}`,
+          `- audience: ${params.audience}`,
+          `- steps: ${orderedSteps.length}`,
+        ],
+        payload,
+      };
+    },
   },
 ] as const;
 
@@ -335,13 +592,15 @@ export function getAllowedAdminWriteTools(
 export async function executeAdminReadTool(
   tool: AdminReadToolDefinition,
   context: AdminReadToolExecutionContext,
+  input?: unknown,
 ): Promise<AdminReadToolResult> {
-  const result = await tool.run(context);
+  const result = await tool.run(context, input);
   return {
     id: tool.id,
     format: tool.resultFormat,
     title: result.title,
     lines: result.lines,
+    payload: result.payload,
   };
 }
 

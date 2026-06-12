@@ -7,6 +7,8 @@ export const ADMIN_READ_TOOL_IDS = [
   "read_routes_index",
   "read_specs_index",
   "read_runtime_capabilities",
+  "generate_chart_spec",
+  "generate_demo_plan",
 ] as const;
 
 export type AdminReadToolId = (typeof ADMIN_READ_TOOL_IDS)[number];
@@ -24,9 +26,19 @@ export type AdminToolRiskLevel = (typeof ADMIN_TOOL_RISK_LEVELS)[number];
 
 export type AdminToolScopeProfile = NavProfile;
 
-export const ADMIN_TOOL_RESULT_FORMATS = ["multiline_text_block"] as const;
+export const ADMIN_TOOL_RESULT_FORMATS = [
+  "multiline_text_block",
+  "json_object",
+] as const;
 export type AdminToolResultFormat = (typeof ADMIN_TOOL_RESULT_FORMATS)[number];
 export type AdminToolKind = "read" | "write";
+
+export interface AdminReadToolParametersSchema {
+  type: "object";
+  properties: Record<string, unknown>;
+  required?: readonly string[];
+  additionalProperties?: boolean;
+}
 
 export interface AdminReadToolExecutionContext {
   chatMode: ChatMode;
@@ -38,6 +50,7 @@ export interface AdminReadToolResult {
   title: string;
   lines: string[];
   format: AdminToolResultFormat;
+  payload?: Record<string, unknown>;
 }
 
 interface AdminBaseToolDefinition<TId extends AdminToolId, TKind extends AdminToolKind> {
@@ -54,8 +67,10 @@ export interface AdminReadToolDefinition
   extends AdminBaseToolDefinition<AdminReadToolId, "read"> {
   confirmationRequired: false;
   resultFormat: AdminToolResultFormat;
+  parameters: AdminReadToolParametersSchema;
   run: (
     context: AdminReadToolExecutionContext,
+    input?: unknown,
   ) => Promise<Omit<AdminReadToolResult, "id" | "format">>;
 }
 

@@ -24,6 +24,7 @@ type Mode = ChatMode;
 type AdminWriteToolId =
   | "create_review_note_draft"
   | "create_governance_proposal_draft";
+type AdminReadUtilityToolId = "generate_chart_spec" | "generate_demo_plan";
 
 interface PendingConfirmation {
   toolId: AdminWriteToolId;
@@ -110,6 +111,15 @@ export function AdminChatControls() {
   const [govProposedBy, setGovProposedBy] = useState("");
   const [govRequiredSigners, setGovRequiredSigners] = useState("1");
   const [govCalldata, setGovCalldata] = useState("");
+  const [readUtilityTool, setReadUtilityTool] =
+    useState<AdminReadUtilityToolId>("generate_chart_spec");
+  const [readUtilityBusy, setReadUtilityBusy] = useState(false);
+  const [readUtilityResult, setReadUtilityResult] = useState<string | null>(null);
+  const [chartIntent, setChartIntent] = useState("APY and risk trend");
+  const [chartType, setChartType] = useState("line");
+  const [chartTimeframe, setChartTimeframe] = useState("30d");
+  const [demoObjective, setDemoObjective] = useState("Admin product walkthrough");
+  const [demoAudience, setDemoAudience] = useState("Internal stakeholders");
 
   const getActionFlowState = useCallback(
     (): AdminActionFlowState => ({
@@ -435,6 +445,68 @@ export function AdminChatControls() {
     abortRef.current?.abort();
   }, []);
 
+  const requestReadUtility = useCallback(async () => {
+    setError(null);
+    setReadUtilityResult(null);
+    setReadUtilityBusy(true);
+    try {
+      const input =
+        readUtilityTool === "generate_chart_spec"
+          ? {
+              intent: chartIntent.trim(),
+              chartType,
+              ...(chartTimeframe.trim().length > 0
+                ? { timeframe: chartTimeframe.trim() }
+                : {}),
+            }
+          : {
+              objective: demoObjective.trim(),
+              audience: demoAudience.trim(),
+            };
+      const res = await fetch("/api/admin/chat-tools", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "execute_read",
+          toolId: readUtilityTool,
+          input,
+        }),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | {
+            status?: string;
+            result?: { payload?: unknown; title?: string; lines?: string[] };
+            error?: string;
+          }
+        | null;
+      if (!res.ok || data?.status !== "executed" || !data.result) {
+        throw new Error(data?.error ?? "Read tool execution failed.");
+      }
+      setReadUtilityResult(
+        JSON.stringify(
+          {
+            title: data.result.title,
+            lines: data.result.lines,
+            payload: data.result.payload ?? null,
+          },
+          null,
+          2,
+        ),
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur read tool.");
+    } finally {
+      setReadUtilityBusy(false);
+    }
+  }, [
+    readUtilityTool,
+    chartIntent,
+    chartType,
+    chartTimeframe,
+    demoObjective,
+    demoAudience,
+  ]);
+
   // Abort any in-flight generation if the component unmounts.
   useEffect(() => {
     return () => {
@@ -708,6 +780,104 @@ export function AdminChatControls() {
               ) : null}
               {actionResult ? (
                 <div className="ct-chat-settings-hint">{actionResult}</div>
+              ) : null}
+              <div className="ct-chat-settings-label mt-2">Read utilities</div>
+              <div className="ct-chat-settings-row">
+                <select
+                  className={adminInputClassName}
+                  value={readUtilityTool}
+                  onChange={(event) => {
+                    setReadUtilityTool(event.target.value as AdminReadUtilityToolId);
+                    setReadUtilityResult(null);
+                    setError(null);
+                  }}
+                  disabled={readUtilityBusy}
+                  aria-label="Select admin read utility tool"
+                >
+                  <option value="generate_chart_spec">Generate chart spec</option>
+                  <option value="generate_demo_plan">Generate demo plan</option>
+                </select>
+              </div>
+              {readUtilityTool === "generate_chart_spec" ? (
+                <>
+                  <div className="ct-chat-settings-row">
+                    <input
+                      className={adminInputClassName}
+                      placeholder="Chart intent"
+                      value={chartIntent}
+                      onChange={(event) => setChartIntent(event.target.value)}
+                      disabled={readUtilityBusy}
+                    />
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <select
+                      className={adminInputClassName}
+                      value={chartType}
+                      onChange={(event) => setChartType(event.target.value)}
+                      disabled={readUtilityBusy}
+                      aria-label="Select chart type"
+                    >
+                      <option value="line">line</option>
+                      <option value="bar">bar</option>
+                      <option value="area">area</option>
+                      <option value="stacked_bar">stacked_bar</option>
+                      <option value="pie">pie</option>
+                    </select>
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <input
+                      className={adminInputClassName}
+                      placeholder="Timeframe (optional)"
+                      value={chartTimeframe}
+                      onChange={(event) => setChartTimeframe(event.target.value)}
+                      disabled={readUtilityBusy}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="ct-chat-settings-row">
+                    <input
+                      className={adminInputClassName}
+                      placeholder="Objective"
+                      value={demoObjective}
+                      onChange={(event) => setDemoObjective(event.target.value)}
+                      disabled={readUtilityBusy}
+                    />
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <input
+                      className={adminInputClassName}
+                      placeholder="Audience"
+                      value={demoAudience}
+                      onChange={(event) => setDemoAudience(event.target.value)}
+                      disabled={readUtilityBusy}
+                    />
+                  </div>
+                </>
+              )}
+              <div className="ct-chat-settings-row">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="w-full"
+                  onClick={requestReadUtility}
+                  disabled={readUtilityBusy}
+                >
+                  {readUtilityBusy ? "Running utility..." : "Run read utility"}
+                </Button>
+              </div>
+              {readUtilityResult ? (
+                <div className="ct-chat-settings-row">
+                  <pre
+                    className={cn(
+                      "w-full overflow-x-auto rounded-md border border-(--ct-border-soft)",
+                      "ct-surface-1 p-2 body-xs",
+                    )}
+                  >
+                    {readUtilityResult}
+                  </pre>
+                </div>
               ) : null}
             </>
           ) : (
