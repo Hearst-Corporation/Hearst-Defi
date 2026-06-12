@@ -113,7 +113,8 @@ dans `cockpit.css` (zéro `style={{}}` statique). Utilitaires composés récents
 provenance sur le bloc parent) · `NestedPanel` + `ProofRow` (preuves / evidence
 tabulaires denses uniquement) · `PanelStatus` / `PanelStatusSection`
 (`src/components/ui/panel-status.tsx`, réexport `pf-cockpit-panel`) — message
-inline **sans** boîte dans un parent déjà encadré (cockpit panel, card, chamber)
+inline **sans** boîte dans un parent déjà encadré (cockpit panel, card, chamber) ·
+`PanelStatusAccent` — rail `border-l` accentué (action recommandée, risk warning)
 · `EmptySurface` / `AwaitingMetricState` — module vide seul ou `variant="inline"`
 dans un parent · `.ct-nested-callout` — legacy admin / alertes accentuées hors
 portfolio. Définis dans `cockpit.css` ; nested panels dans

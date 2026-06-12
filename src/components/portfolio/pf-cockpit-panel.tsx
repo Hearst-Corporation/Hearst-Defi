@@ -5,6 +5,7 @@ import { cn } from "@/lib/cn";
 
 export {
   PanelStatus,
+  PanelStatusAccent,
   PanelStatusSection,
   type PanelStatusProps,
   type PanelStatusTone,

@@ -43,6 +43,23 @@ export function PanelStatus({
   );
 }
 
+/** Left-accent inline row inside a parent card — no nested box background. */
+export function PanelStatusAccent({
+  children,
+  className,
+  role = "status",
+}: {
+  children: ReactNode;
+  className?: string;
+  role?: "status" | "alert" | "note";
+}) {
+  return (
+    <div className={cn("ct-panel-status-accent", className)} role={role}>
+      {children}
+    </div>
+  );
+}
+
 /** Subsection label + children (checklists, field groups) without nested boxes. */
 export function PanelStatusSection({
   label,

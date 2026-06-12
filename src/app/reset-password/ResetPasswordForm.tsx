@@ -50,8 +50,8 @@ export function ResetPasswordForm({ token }: Props) {
 
   return (
     <form action={onSubmit} className="space-y-4" aria-label="Set new password">
-      <label className="block body-xs" htmlFor="rp-password">
-        <span className="mb-1 block ct-text-muted uppercase tracking-wide">
+      <label className="block" htmlFor="rp-password">
+        <span className="mb-1 block stat-label">
           New password
         </span>
         <input

@@ -111,8 +111,8 @@ function PaperProofCard({
             <dd
               className={
                 verification
-                  ? "body-xs font-semibold ct-status-success"
-                  : "body-xs font-semibold ct-status-danger"
+                  ? "body-xs ct-status-success"
+                  : "body-xs ct-status-danger"
               }
             >
               {verification ? "Verified" : "Failed"}
@@ -134,7 +134,7 @@ function PaperProofCard({
         <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Hash</dt>
           <dd
-            className="mono tabular text-xs ct-text-primary"
+            className="mono tabular body-xs ct-text-primary"
             title={proof.hash}
             aria-label={`Hash ${proof.hash}`}
           >
@@ -216,7 +216,7 @@ function OnChainEventCard({
         <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Publisher</dt>
           <dd
-            className="mono tabular text-xs ct-text-body"
+            className="mono tabular body-xs ct-text-body"
             title={proof.publisher}
           >
             {abbreviateAddress(proof.publisher)}
@@ -225,7 +225,7 @@ function OnChainEventCard({
         <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Tx hash</dt>
           <dd
-            className="mono tabular text-xs ct-text-primary"
+            className="mono tabular body-xs ct-text-primary"
             title={proof.txHash}
             aria-label={`Transaction hash ${proof.txHash}`}
           >
@@ -235,7 +235,7 @@ function OnChainEventCard({
         <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Context hash</dt>
           <dd
-            className="mono tabular text-xs ct-text-body"
+            className="mono tabular body-xs ct-text-body"
             title={proof.contextHash}
           >
             {abbreviateAddress(proof.contextHash)}
@@ -304,20 +304,20 @@ function OnChainAttestationCard({
         </div>
         <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Total AUM</dt>
-          <dd className="mono tabular text-xs ct-text-primary">
+          <dd className="mono tabular body-xs ct-text-primary">
             {usdCompactFmt(proof.totalAumUsd)}
           </dd>
         </div>
         <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Mined</dt>
-          <dd className="mono tabular text-xs ct-text-primary">
+          <dd className="mono tabular body-xs ct-text-primary">
             {btcFmt(proof.minedBtc)}
           </dd>
         </div>
         <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Attestor</dt>
           <dd
-            className="mono tabular text-xs ct-text-body"
+            className="mono tabular body-xs ct-text-body"
             title={proof.attestor}
           >
             <a
@@ -333,7 +333,7 @@ function OnChainAttestationCard({
         <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Evidence hash</dt>
           <dd
-            className="mono tabular text-xs ct-text-primary"
+            className="mono tabular body-xs ct-text-primary"
             title={proof.evidenceHash}
           >
             {abbreviateAddress(proof.evidenceHash)}

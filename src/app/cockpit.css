@@ -1905,6 +1905,18 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   min-width: 0;
 }
 
+/* Accent rail (border-l only) — highlighted inline row inside a parent card */
+.ct-panel-status-accent {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  margin: 0;
+  padding-left: var(--ct-space-3);
+  border-left-width: 4px;
+  border-left-style: solid;
+  background: transparent;
+}
+
 .ct-empty-surface--round {
   border-radius: var(--ct-radius-full);
 }

@@ -21,7 +21,8 @@ import {
 import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { NestedCallout, NestedPanel } from "@/components/ui/nested-panel";
+import { NestedPanel } from "@/components/ui/nested-panel";
+import { PanelStatusAccent } from "@/components/ui/panel-status";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import {
@@ -216,23 +217,22 @@ function DecisionPanel({
       {/* Recommended action */}
       <div className="mt-5">
         <span className="stat-label">Recommended action</span>
-        <NestedCallout
-          className={cn("mt-2 admin-doc-inline-row admin-doc-inline-row--actions border-l-4", tone.border)}
+        <PanelStatusAccent
+          className={cn("mt-2 admin-doc-inline-row admin-doc-inline-row--actions", tone.border)}
         >
           <span
             className={cn("inline-block h-2 w-2 shrink-0 rounded-full", tone.dot)}
             aria-hidden
           />
-          <p className="body-sm font-semibold ct-text-strong">{actionLabel}</p>
+          <p className="body-sm font-semibold ct-text-strong m-0 flex-1 min-w-0">
+            {actionLabel}
+          </p>
           {topAction ? (
-            <Badge
-              variant={topAction.variant}
-              className="ml-auto shrink-0 text-micro"
-            >
+            <Badge variant={topAction.variant} className="ml-auto shrink-0 text-micro">
               {topAction.ruleId}
             </Badge>
           ) : null}
-        </NestedCallout>
+        </PanelStatusAccent>
       </div>
 
       {/* PTAI — calm nested panel inside the decision */}
@@ -253,10 +253,15 @@ function DecisionPanel({
             <Markdown content={narrative.narrative_md} />
           </div>
           {narrative.risk_warning ? (
-            <NestedCallout className="mt-3 border-l-4 border-l-(--ct-status-warning)">
-              <p className="stat-label mb-1 ct-status-warning">Risk warning</p>
-              <p className="body-sm ct-text-body">{narrative.risk_warning}</p>
-            </NestedCallout>
+            <PanelStatusAccent
+              className="mt-3 items-start border-l-(--ct-status-warning)"
+              role="note"
+            >
+              <div className="ct-panel-status">
+                <p className="stat-label m-0 ct-status-warning">Risk warning</p>
+                <p className="body-sm ct-text-body m-0">{narrative.risk_warning}</p>
+              </div>
+            </PanelStatusAccent>
           ) : null}
         </div>
       ) : null}

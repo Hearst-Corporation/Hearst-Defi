@@ -27,8 +27,8 @@ export function TotpChallengeForm() {
 
   return (
     <form action={onSubmit} className="space-y-4" aria-label="Two-factor authentication">
-      <label className="block body-xs" htmlFor="totp-challenge-code">
-        <span className="mb-1 block ct-text-muted uppercase tracking-wide">
+      <label className="block" htmlFor="totp-challenge-code">
+        <span className="mb-1 block stat-label">
           Authenticator code
         </span>
         <input

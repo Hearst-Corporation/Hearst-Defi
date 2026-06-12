@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { PanelStatus, PanelStatusSection } from "@/components/ui/panel-status";
+import {
+  PanelStatus,
+  PanelStatusAccent,
+  PanelStatusSection,
+} from "@/components/ui/panel-status";
 
 describe("PanelStatus", () => {
   it("renders canonical inline status without nested callout classes", () => {
@@ -23,6 +27,18 @@ describe("PanelStatus", () => {
     );
     expect(html).toContain('role="alert"');
     expect(html).toContain("ct-status-danger");
+  });
+});
+
+describe("PanelStatusAccent", () => {
+  it("renders left-accent rail without nested callout chrome", () => {
+    const html = renderToStaticMarkup(
+      <PanelStatusAccent className="border-l-(--ct-status-warning)">
+        <p className="body-sm m-0">Hold posture</p>
+      </PanelStatusAccent>,
+    );
+    expect(html).toContain("ct-panel-status-accent");
+    expect(html).not.toContain("ct-nested-callout");
   });
 });
 
