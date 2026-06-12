@@ -223,15 +223,24 @@ export default async function PortfolioPage() {
             data-section="yield-trust"
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-              <div data-testid="risk-pulse-widget" className="flex flex-col gap-4">
+              <div
+                data-testid="risk-pulse-widget"
+                className="flex flex-col gap-4"
+              >
                 <span className="stat-label ct-text-accent">Risk profile</span>
                 <RiskPulse {...riskPulseProps} />
               </div>
-              <div data-testid="proof-pulse-widget" className="flex flex-col gap-4">
+              <div
+                data-testid="proof-pulse-widget"
+                className="flex flex-col gap-4"
+              >
                 <span className="stat-label ct-text-accent">Proof of reserves</span>
                 <ProofPulse {...proofPulseProps} />
               </div>
-              <div data-testid="security-pulse-widget" className="flex flex-col gap-4">
+              <div
+                data-testid="security-pulse-widget"
+                className="flex flex-col gap-4"
+              >
                 <span className="stat-label ct-text-accent">Security audit</span>
                 <SecurityPulse />
               </div>

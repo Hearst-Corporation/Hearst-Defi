@@ -123,7 +123,8 @@ export function AllocationDonut({
              sized to the donut footprint so the cell keeps its height. */
           <EmptyChartState
             message="Allocation will appear after the first active position."
-            className="w-(--ct-donut-size) h-(--ct-donut-size) px-4"
+            round
+            className="w-(--ct-donut-size) h-(--ct-donut-size)"
           />
         )}
       </div>

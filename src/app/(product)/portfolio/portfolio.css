@@ -319,6 +319,36 @@
   min-height: 8rem;
 }
 
+/* In the yield-trust grid, empty widgets stretch to fill column height */
+.pf-container [data-section="yield-trust"] .pf-empty-widget {
+  min-height: 16rem;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   EMPTY CHART — zone réservée calme pour un graphique sans données. PAS une
+   card : matière quasi nulle (fond ~1.5%, hairline très discrète), radius DS,
+   zéro blur, zéro ombre. Ce n'est ni un trou vide, ni un wireframe, ni une
+   dropzone — juste un emplacement volontaire qui tient sa place. La hauteur est
+   passée par le call-site (parité avec le chart peuplé).
+   ─────────────────────────────────────────────────────────────────────────── */
+.pf-container .pf-empty-chart {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-inline: var(--ct-space-4);
+  background: color-mix(in srgb, var(--ct-text-strong) 1.5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 60%, transparent);
+  border-radius: var(--ct-radius-lg);
+}
+
+/* Le donut d'allocation passe une zone carrée (w/h = --ct-donut-size) → la
+   matière doit être ronde, pas un carré arrondi posé sur un cercle. */
+.pf-container .pf-empty-chart--round {
+  border-radius: var(--ct-radius-full);
+}
+
 /* ───────────────────────────────────────────────────────────────────────────
    FOND UNIFORME — toutes les box du portfolio prennent le verre translucide
    NOIR de la barre de chat (.ct-rail-right) : même couleur, même profondeur,
