@@ -328,21 +328,49 @@
   margin-top: var(--ct-space-1) !important;
 }
 
+/* ── Value chart surface — single local recipe (portfolio scope) ──
+   ModuleChrome still emits ct-card + glass-panel + card-premium; pf-value-chart
+   owns the visible matter so section + chart read as one graphite family. */
 .pf-value-chart,
 .pf-container [aria-label="Portfolio value — 12-month trend"] {
   min-height: 20rem;
 }
 
-.pf-main-chart-wrapper .ct-card {
+.pf-container .pf-main-chart-wrapper .ct-card.pf-value-chart {
   min-height: 22rem;
-  max-height: none;
-  background: var(--ct-graphite-active-bg);
+  padding: var(--ct-space-4) var(--ct-space-5);
+  background: var(--ct-graphite-active-bg) !important;
   background-image: radial-gradient(
     circle,
-    color-mix(in srgb, var(--ct-accent) 3%, transparent) 1px,
+    color-mix(in srgb, var(--ct-accent) 2%, transparent) 1px,
     transparent 1px
   ) !important;
-  background-size: 32px 32px;
+  background-size: 28px 28px;
+  border: 1px solid var(--ct-graphite-border) !important;
+  border-radius: var(--ct-radius-lg);
+  box-shadow:
+    0 8px 24px -16px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
+    var(--ct-shadow-depth);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  transition: border-color var(--ct-dur-base) var(--ct-ease);
+}
+
+/* Hover — border only, no background wash */
+.pf-value-chart.glass-panel:hover,
+.pf-container .pf-main-chart-wrapper .ct-card.pf-value-chart:hover {
+  background: var(--ct-graphite-active-bg) !important;
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--ct-accent) 2%, transparent) 1px,
+    transparent 1px
+  ) !important;
+  border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-graphite-border)) !important;
+}
+
+/* Neutralise Card hover overlay if re-enabled globally */
+.pf-value-chart .ct-overlay-surface0 {
+  display: none !important;
 }
 
 .pf-main-chart-wrapper .pf-value-chart [class*="flex-1"] {
@@ -392,8 +420,8 @@
   height: auto;
 }
 
-/* Secondary panels — calm surfaces, no premium dots */
-.pf-container .ct-card.card-premium {
+/* Secondary panels — calm surfaces, no premium dots (hero chart excluded) */
+.pf-container .ct-card.card-premium:not(.pf-value-chart) {
   background-image: none;
 }
 
