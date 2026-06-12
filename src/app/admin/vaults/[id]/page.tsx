@@ -8,6 +8,7 @@ import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { STRATEGY_LABELS, REG_LABELS, SPV_LABELS } from "@/lib/constants/vault";
@@ -233,7 +234,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <Card>
-          <span className="stat-label block mb-1">Target APY</span>
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <span className="stat-label">Target APY</span>
+            <ProvenanceBadge kind="estimated" />
+          </div>
           <ApyRange low={apyLow} high={apyHigh} precision={1} />
           <p className="body-xs ct-text-faint mt-1">Not guaranteed — estimated</p>
         </Card>
@@ -256,7 +260,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
         {vault.status === "live" && (
           <Card>
-            <span className="stat-label block mb-1">AUM</span>
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <span className="stat-label">AUM</span>
+              <ProvenanceBadge kind={aumUsdc > 0 ? "live" : "estimated"} />
+            </div>
             <span className="mono tabular text-base font-semibold ct-text-strong">
               ${aumUsdc.toLocaleString()}
             </span>

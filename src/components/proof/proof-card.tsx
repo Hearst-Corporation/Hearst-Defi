@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { EXPLORER_ADDRESS_BASE, EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { ProofType } from "@/lib/proof-center-types";
 
@@ -84,14 +85,25 @@ function PaperProofCard({
   const postedAt = new Date(proof.postedAt);
   const hashTruncated = abbreviateAddress(proof.hash);
 
+  // Honesty: off-chain proofs need a visible provenance, and the end-to-end
+  // signature check must not be silently dropped.
+  //  - verified signature → "attested"
+  //  - failed signature   → keep "manual" provenance but flag the failure
+  //  - no/absent signature → "manual" (off-chain evidence, manually posted)
+  const verification = proof.attestationVerified;
+  const provenance: Provenance = verification === true ? "attested" : "manual";
+
   return (
     <Card className="flex flex-col gap-4">
       <header className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
           <span className="eyebrow">{TYPE_LABEL[proof.proofType]}</span>
-          <Badge variant={TYPE_VARIANT[proof.proofType]}>
-            {proof.period ?? "evergreen"}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <ProvenanceBadge kind={provenance} />
+            <Badge variant={TYPE_VARIANT[proof.proofType]}>
+              {proof.period ?? "evergreen"}
+            </Badge>
+          </div>
         </div>
         <h4 className="h4 text-balance">{proof.title}</h4>
       </header>
@@ -101,6 +113,20 @@ function PaperProofCard({
           <dt className="body-xs">Source</dt>
           <dd className="body-xs ct-text-body">Off-chain</dd>
         </div>
+        {verification !== null && verification !== undefined ? (
+          <div className="flex items-baseline justify-between gap-3">
+            <dt className="body-xs">Signature</dt>
+            <dd
+              className={
+                verification
+                  ? "body-xs font-semibold ct-status-success"
+                  : "body-xs font-semibold ct-status-danger"
+              }
+            >
+              {verification ? "Verified" : "Failed"}
+            </dd>
+          </div>
+        ) : null}
         <div className="flex items-baseline justify-between gap-3">
           <dt className="body-xs">Posted</dt>
           <dd className="body-xs ct-text-body">

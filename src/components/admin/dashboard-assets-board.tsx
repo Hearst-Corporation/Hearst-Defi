@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EmptyChartState } from "@/components/portfolio/empty-chart-state";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Card } from "@/components/ui/card";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
@@ -52,6 +53,14 @@ export function DashboardAssetsBoard({
   const miningProvenance: Provenance = data.source === "db" ? "live" : "estimated";
   const proofProvenance: Provenance = proofFresh ? "attested" : "stale";
 
+  // Honesty gate: an allocation orbit / capital stack is only a *real* asset map
+  // when (a) the dashboard data came from a DB snapshot AND (b) there is actual
+  // capital to allocate. A fallback/methodology preset rendered over $0 AUM is a
+  // ghost chart — render an awaiting surface that replaces it instead (DS §9).
+  const hasRealSnapshot = data.source === "db";
+  const hasCapital = capitalUsdc > 0;
+  const allocationLive = hasRealSnapshot && hasCapital && allocation.length > 0;
+
   return (
     <section className="dashboard-assets-board relative z-10" aria-label="Dashboard asset cockpit">
       <Card className="dashboard-assets-card dashboard-assets-card--hero">
@@ -64,14 +73,23 @@ export function DashboardAssetsBoard({
         </div>
 
         <div className="dashboard-assets-hero">
-          <div className="dashboard-assets-orbit" aria-label="Allocation orbital asset map">
-            <AllocationOrbit allocations={allocation} />
-            <div className="dashboard-assets-orbit__core">
-              <span>AUM</span>
-              <strong>{usdCompact.format(capitalUsdc)}</strong>
-              <small>{allocationTotal.toFixed(0)}% mapped</small>
+          {allocationLive ? (
+            <div className="dashboard-assets-orbit" aria-label="Allocation orbital asset map">
+              <AllocationOrbit allocations={allocation} />
+              <div className="dashboard-assets-orbit__core">
+                <span>AUM</span>
+                <strong>{usdCompact.format(capitalUsdc)}</strong>
+                <small>{allocationTotal.toFixed(0)}% mapped</small>
+              </div>
             </div>
-          </div>
+          ) : (
+            <EmptyChartState
+              round
+              className="dashboard-assets-orbit"
+              message="Allocation map appears after the first vault snapshot."
+              ariaLabel="Allocation orbital asset map awaiting first snapshot"
+            />
+          )}
 
           <div className="dashboard-assets-command">
             <PerformanceChart data={data} headlineApy={headlineApy} />
@@ -105,16 +123,26 @@ export function DashboardAssetsBoard({
       </Card>
 
       <Card className="dashboard-assets-card dashboard-assets-card--allocation">
-        <AssetCardHeader title="Capital stack" subtitle="Token-only allocation map" provenance={allocation.length > 0 ? "live" : "stale"} />
-        <div className="dashboard-assets-stack">
-          {allocation.length > 0 ? (
-            allocation.map((item) => (
-              <AllocationStackRow key={item.bucket} item={item} capitalUsdc={capitalUsdc} />
-            ))
-          ) : (
-            <p className="body-sm ct-text-muted">No allocation rows yet.</p>
-          )}
-        </div>
+        {allocationLive ? (
+          <>
+            <AssetCardHeader
+              title="Capital stack"
+              subtitle="Token-only allocation map"
+              provenance="live"
+            />
+            <div className="dashboard-assets-stack">
+              {allocation.map((item) => (
+                <AllocationStackRow key={item.bucket} item={item} />
+              ))}
+            </div>
+          </>
+        ) : (
+          <EmptyChartState
+            className="dashboard-assets-stack"
+            message="Capital stack appears once the first snapshot books real allocations."
+            ariaLabel="Capital stack awaiting first snapshot"
+          />
+        )}
       </Card>
 
       <Card className="dashboard-assets-card dashboard-assets-card--risk">
@@ -246,10 +274,14 @@ function PerformanceChart({
       </div>
 
       <div className="dashboard-assets-performance__footer">
-        <span className={cn(navDelta >= 0 ? "ct-status-success" : "ct-status-danger")}>
-          {navDelta >= 0 ? "+" : ""}
-          {navDelta.toFixed(1)}% NAV
-        </span>
+        {navPath ? (
+          <span className={cn(navDelta >= 0 ? "ct-status-success" : "ct-status-danger")}>
+            {navDelta >= 0 ? "+" : ""}
+            {navDelta.toFixed(1)}% NAV
+          </span>
+        ) : (
+          <span className="ct-text-faint">NAV trend pending</span>
+        )}
         <span>
           APY <ApyRange low={headlineApy.low} high={headlineApy.high} precision={1} />
         </span>
@@ -303,14 +335,10 @@ function AllocationOrbit({ allocations }: { allocations: DashboardAllocation[] }
   );
 }
 
-function AllocationStackRow({
-  item,
-  capitalUsdc,
-}: {
-  item: DashboardAllocation;
-  capitalUsdc: number;
-}) {
-  const value = item.valueUsdc > 0 ? item.valueUsdc : capitalUsdc * (item.pct / 100);
+function AllocationStackRow({ item }: { item: DashboardAllocation }) {
+  // Show the booked value only — never synthesise `AUM × preset%`, which would
+  // present a methodology preset as a measured allocation (Admin Honesty).
+  const hasValue = item.valueUsdc > 0;
   return (
     <div className="dashboard-assets-stack__row">
       <div>
@@ -325,7 +353,7 @@ function AllocationStackRow({
         <span style={{ width: `${Math.max(2, Math.min(100, item.pct))}%`, background: allocationStrokeFor(item.bucket) }} />
       </div>
       <strong>{item.pct.toFixed(0)}%</strong>
-      <small>{usdCompact.format(value)}</small>
+      <small>{hasValue ? usdCompact.format(item.valueUsdc) : "—"}</small>
     </div>
   );
 }

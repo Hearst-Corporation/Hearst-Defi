@@ -34,14 +34,16 @@ export default async function AdminProofCenterPage({
   const filter = parseFilter(raw);
   const requestedVault = params.vault;
 
-  // Resolve which vault is active — default to "yield" if none requested
+  // Honesty: the proof grid is NOT scoped per vault yet — on-chain attestations,
+  // events, and off-chain proofs are platform-wide. Resolve the requested vault
+  // only to surface an honest caveat; the grid itself stays unfiltered, so we do
+  // not relabel it as "<vault> · proofs" (that would imply a scope we don't apply).
   const resolvedRef = requestedVault
     ? await resolveVault(requestedVault)
     : null;
-  const isAllVaults = !requestedVault;
-  const scopeLabel = isAllVaults
-    ? "All vaults"
-    : (resolvedRef ? vaultLabel(resolvedRef) : requestedVault ?? "Unknown");
+  const requestedVaultLabel = resolvedRef
+    ? vaultLabel(resolvedRef)
+    : requestedVault ?? null;
 
   const chainConfigured = isChainConfigured();
   const [onChainEvents, onChainAttestations, paper, custody] =
@@ -112,13 +114,21 @@ export default async function AdminProofCenterPage({
         <EventTimeline events={onChainEvents} />
       </section>
 
-      {/* ── Full proof grid (filtered) ──────────────────────── */}
+      {/* ── Full proof grid (platform-wide, type-filtered only) ── */}
       <section aria-labelledby="proof-grid-heading">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <h2 id="proof-grid-heading" className="h2">
-            {isAllVaults ? "All proofs" : `${scopeLabel} · proofs`}
-          </h2>
-          <ProofFilter />
+          <div className="space-y-1">
+            <h2 id="proof-grid-heading" className="h2">
+              All proofs
+            </h2>
+            {requestedVaultLabel ? (
+              <p className="body-xs ct-text-faint max-w-prose">
+                Proofs are platform-wide and not yet scoped per vault — this view
+                is not filtered to {requestedVaultLabel}.
+              </p>
+            ) : null}
+          </div>
+          {proofs.length > 0 ? <ProofFilter /> : null}
         </div>
         {proofs.length === 0 ? (
           <AwaitingMetricState

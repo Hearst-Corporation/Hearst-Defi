@@ -1,10 +1,12 @@
 import Link from "next/link";
 
 import { VaultStatusPill } from "@/components/admin/vault-status-pill";
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { STRATEGY_LABELS } from "@/lib/constants/vault";
@@ -86,14 +88,11 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
       {/* List */}
       {vaults.length === 0 ? (
-        <Card>
-          <p className="body-md ct-text-muted text-center py-8">
-            No deployments found.{" "}
-            <Link href="/admin/vaults/new" className="ct-text-primary underline underline-offset-2">
-              Create the first one.
-            </Link>
-          </p>
-        </Card>
+        <AwaitingMetricState
+          message="No deployments found."
+          detail="Vault deployments will appear here once created."
+          link={{ label: "Create the first one", href: "/admin/vaults/new" }}
+        />
       ) : (
         <div className="space-y-3">
           {vaults.map((vault) => {
@@ -129,7 +128,10 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
                   {/* AUM progress */}
                   <div className="flex flex-col gap-1 min-w-36">
-                    <span className="stat-label">AUM vs Capacity</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="stat-label">AUM vs Capacity</span>
+                      <ProvenanceBadge kind={aumUsdc > 0 ? "live" : "estimated"} />
+                    </div>
                     <Progress value={aumPct} label="AUM vs capacity" />
                     <span className="mono tabular text-xs ct-text-muted">
                       ${aumUsdc.toLocaleString()} / ${capacityUsdc.toLocaleString()}
@@ -138,8 +140,12 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
                   {/* APY */}
                   <div className="flex flex-col gap-0.5">
-                    <span className="stat-label">Target APY</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="stat-label">Target APY</span>
+                      <ProvenanceBadge kind="estimated" />
+                    </div>
                     <ApyRange low={apyLow} high={apyHigh} precision={1} />
+                    <span className="body-xs ct-text-faint">Not guaranteed</span>
                   </div>
 
                   {/* Actions */}
