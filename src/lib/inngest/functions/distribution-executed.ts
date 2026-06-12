@@ -136,72 +136,81 @@ export async function distributionExecutedHandler({
     });
   }
 
-  // ── 2. Load recipients, dedupe by investor, send one email per investor ────
-  const result = await step.run("load-and-send-emails", async () => {
-    // ── Single RESEND guard (checked once, before any work) ────────────────
-    if (!process.env.RESEND_API_KEY) {
-      logger.warn(
-        "[distribution-executed] RESEND_API_KEY not set — skipping all emails",
-        { distributionId },
-      );
-      return { emailsSent: 0, skippedNoEmail: 0, skipped: true as const };
-    }
+  // ── 2. RESEND guard — checked before any work ────────────────────────────
+  if (!process.env.RESEND_API_KEY) {
+    logger.warn(
+      "[distribution-executed] RESEND_API_KEY not set — skipping all emails",
+      { distributionId },
+    );
+    return { skipped: true, reason: "missing_resend_api_key" };
+  }
 
-    const ledgerEntries = await prisma.distributionLedgerEntry.findMany({
-      where: { distributionId },
-      select: { positionId: true, amountUsdc: true },
-    });
-
-    // ── Resolve position → email, accumulate per-investor totals ───────────
-    // Key: investor email (normalised lowercase). Value: summed USDC amount.
-    const investorTotals = new Map<string, number>();
-    let skippedNoEmail = 0;
-
-    for (const entry of ledgerEntries) {
-      const position = await prisma.position.findUnique({
-        where: { id: entry.positionId },
-        select: {
-          investor: {
-            select: { email: true },
-          },
-        },
+  // ── 3. Load recipients — one durable step, returns JSON-serialisable array ─
+  const { recipients, skippedNoEmail } = await step.run(
+    "load-recipients",
+    async () => {
+      const ledgerEntries = await prisma.distributionLedgerEntry.findMany({
+        where: { distributionId },
+        select: { positionId: true, amountUsdc: true },
       });
 
-      const email = position?.investor?.email ?? null;
+      // Resolve position → email, accumulate per-investor totals.
+      // Key: investor email (normalised lowercase). Value: summed USDC amount.
+      const investorTotals = new Map<string, number>();
+      let skipped = 0;
 
-      if (!email) {
-        skippedNoEmail += 1;
-        continue;
+      for (const entry of ledgerEntries) {
+        const position = await prisma.position.findUnique({
+          where: { id: entry.positionId },
+          select: {
+            investor: {
+              select: { email: true },
+            },
+          },
+        });
+
+        const email = position?.investor?.email ?? null;
+
+        if (!email) {
+          skipped += 1;
+          continue;
+        }
+
+        const entryAmount =
+          typeof entry.amountUsdc === "object" && "toNumber" in entry.amountUsdc
+            ? (entry.amountUsdc as { toNumber: () => number }).toNumber()
+            : (entry.amountUsdc as number);
+
+        const key = email.toLowerCase();
+        investorTotals.set(key, (investorTotals.get(key) ?? 0) + entryAmount);
       }
 
-      const entryAmount =
-        typeof entry.amountUsdc === "object" && "toNumber" in entry.amountUsdc
-          ? (entry.amountUsdc as { toNumber: () => number }).toNumber()
-          : (entry.amountUsdc as number);
+      if (skipped > 0) {
+        logger.info("[distribution-executed] skipped recipients without email", {
+          distributionId,
+          skippedNoEmail: skipped,
+        });
+      }
 
-      const key = email.toLowerCase();
-      investorTotals.set(key, (investorTotals.get(key) ?? 0) + entryAmount);
-    }
+      // Deterministically sorted by email ascending → stable step indices on retry.
+      const sorted = Array.from(investorTotals.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([email, amountUsdc]) => ({ email, amountUsdc }));
 
-    if (skippedNoEmail > 0) {
-      logger.info("[distribution-executed] skipped recipients without email", {
-        distributionId,
-        skippedNoEmail,
-      });
-    }
+      return { recipients: sorted, skippedNoEmail: skipped };
+    },
+  );
 
-    // ── Send ONE email per unique investor with summed amount ───────────────
-    let emailsSent = 0;
-    for (const [email, totalAmount] of investorTotals) {
-      await sendDistributionEmail(email, { period, amountUsdc: totalAmount });
-      emailsSent += 1;
-    }
-
-    return { emailsSent, skippedNoEmail };
-  });
-
-  if ("skipped" in result && result.skipped) {
-    return { skipped: true, reason: "missing_resend_api_key" };
+  // ── 4. Per-recipient send — each step is individually memoised by Inngest ──
+  // A replay after a mid-fan-out crash skips steps that already completed,
+  // so no investor receives a duplicate email.
+  let emailsSent = 0;
+  for (let i = 0; i < recipients.length; i++) {
+    const r = recipients[i]!;
+    await step.run(`send-email-${i}`, () =>
+      sendDistributionEmail(r.email, { period, amountUsdc: r.amountUsdc }),
+    );
+    emailsSent += 1;
   }
 
   await markComplete(idempotencyKey, today);
@@ -210,11 +219,11 @@ export async function distributionExecutedHandler({
     distributionId,
     period,
     totalAmountUsdc: amountUsdc,
-    emailsSent: result.emailsSent,
-    skippedNoEmail: result.skippedNoEmail,
+    emailsSent,
+    skippedNoEmail,
   });
 
-  return result;
+  return { emailsSent, skippedNoEmail };
 }
 
 // ---------------------------------------------------------------------------

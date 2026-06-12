@@ -133,8 +133,6 @@ async function marketDataHourlyHandler({
     }
   });
 
-  await markComplete(MARKET_DATA_HOURLY_ID, now);
-
   await step.sendEvent("emit-market-data-updated", {
     name: "market.data.updated",
     data: {
@@ -143,6 +141,8 @@ async function marketDataHourlyHandler({
       miningMarginScore: marginScore,
     },
   });
+
+  await markComplete(MARKET_DATA_HOURLY_ID, now);
 
   return { btcUsd: btc.usd, hashprice: hp.usd_per_th_day, miningMarginScore: marginScore };
 }

@@ -6,6 +6,8 @@
  *   - Recipients with null email are skipped (counted, not thrown)
  *   - Duplicate invocations short-circuit via idempotency (isDuplicate → true)
  *   - Missing RESEND_API_KEY → returns { skipped: true }, does NOT throw
+ *   - Per-recipient step IDs are stable (send-email-0, send-email-1, …)
+ *   - On-chain mirror step fires exactly once
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -53,6 +55,10 @@ vi.mock("@/lib/logger", () => ({
   },
 }));
 
+vi.mock("@/lib/chain/event-logger", () => ({
+  writeHearstEvent: vi.fn(async () => null),
+}));
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -64,11 +70,22 @@ function buildEvent(distributionId = "dist_001", period = "2026-05", amountUsdc 
   };
 }
 
-/** Minimal step shim — executes fn() synchronously */
-const stepShim = {
-  run: <T,>(_name: string, fn: () => T | Promise<T>): Promise<T> =>
-    Promise.resolve(fn()),
-};
+/**
+ * Step shim that executes fn() and records which step names were called.
+ * The `stepNames` array is populated during each test so assertions can
+ * verify stable per-recipient IDs.
+ */
+function buildStepShim() {
+  const stepNames: string[] = [];
+  const shim = {
+    stepNames,
+    run: <T,>(name: string, fn: () => T | Promise<T>): Promise<T> => {
+      stepNames.push(name);
+      return Promise.resolve(fn());
+    },
+  };
+  return shim;
+}
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -119,10 +136,17 @@ describe("distributionExecutedHandler", () => {
       "@/lib/inngest/functions/distribution-executed"
     );
 
+    const stepShim = buildStepShim();
     const result = await distributionExecutedHandler({
       step: stepShim,
       event: buildEvent(),
     });
+
+    // Two distinct investors → two send-email-<i> steps + one load-recipients step
+    // + one mirror-onchain-distribution step
+    expect(stepShim.stepNames).toContain("load-recipients");
+    expect(stepShim.stepNames).toContain("send-email-0");
+    expect(stepShim.stepNames).toContain("send-email-1");
 
     expect(global.fetch).toHaveBeenCalledTimes(2);
     expect("skipped" in result).toBe(false);
@@ -146,10 +170,15 @@ describe("distributionExecutedHandler", () => {
       "@/lib/inngest/functions/distribution-executed"
     );
 
+    const stepShim = buildStepShim();
     const result = await distributionExecutedHandler({
       step: stepShim,
       event: buildEvent(),
     });
+
+    // Only ONE send-email step
+    expect(stepShim.stepNames).toContain("send-email-0");
+    expect(stepShim.stepNames).not.toContain("send-email-1");
 
     // Only ONE email must be sent (not two)
     expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -181,7 +210,7 @@ describe("distributionExecutedHandler", () => {
     );
 
     const result = await distributionExecutedHandler({
-      step: stepShim,
+      step: buildStepShim(),
       event: buildEvent(),
     });
 
@@ -199,7 +228,7 @@ describe("distributionExecutedHandler", () => {
     );
 
     const result = await distributionExecutedHandler({
-      step: stepShim,
+      step: buildStepShim(),
       event: buildEvent(),
     });
 
@@ -225,7 +254,7 @@ describe("distributionExecutedHandler", () => {
     );
 
     const result = await distributionExecutedHandler({
-      step: stepShim,
+      step: buildStepShim(),
       event: buildEvent(),
     });
 
@@ -233,5 +262,60 @@ describe("distributionExecutedHandler", () => {
     expect("skipped" in result && result.skipped).toBe(true);
     // No email sent
     expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it("on-chain mirror step fires exactly once per distribution", async () => {
+    distributionLedgerEntryFindManyMock.mockResolvedValue([]);
+    positionFindUniqueMock.mockResolvedValue(null);
+
+    const { distributionExecutedHandler } = await import(
+      "@/lib/inngest/functions/distribution-executed"
+    );
+
+    const stepShim = buildStepShim();
+    await distributionExecutedHandler({
+      step: stepShim,
+      event: buildEvent(),
+    });
+
+    // mirror-onchain-distribution must appear exactly once
+    const mirrorCalls = stepShim.stepNames.filter(
+      (n) => n === "mirror-onchain-distribution",
+    );
+    expect(mirrorCalls).toHaveLength(1);
+  });
+
+  it("send-email step IDs are stable (sorted by email) across invocations", async () => {
+    // Two investors: bob comes before alice alphabetically → alice is index 0 after sort
+    distributionLedgerEntryFindManyMock.mockResolvedValue([
+      { positionId: "pos_1", amountUsdc: 1_000 },
+      { positionId: "pos_2", amountUsdc: 2_000 },
+    ]);
+
+    positionFindUniqueMock
+      .mockResolvedValueOnce({ investor: { email: "bob@example.com" } })
+      .mockResolvedValueOnce({ investor: { email: "alice@example.com" } });
+
+    const { distributionExecutedHandler } = await import(
+      "@/lib/inngest/functions/distribution-executed"
+    );
+
+    const stepShim = buildStepShim();
+    const result = await distributionExecutedHandler({
+      step: stepShim,
+      event: buildEvent(),
+    });
+
+    // After sort: alice@example.com (index 0), bob@example.com (index 1)
+    expect(stepShim.stepNames).toContain("send-email-0");
+    expect(stepShim.stepNames).toContain("send-email-1");
+
+    if (!("emailsSent" in result)) throw new Error("Expected emailsSent in result");
+    expect(result.emailsSent).toBe(2);
+
+    // First fetch call should be to alice (lower sort order)
+    const fetchCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
+    const firstBody = JSON.parse((fetchCalls[0]![1] as RequestInit).body as string) as { to: string[] };
+    expect(firstBody.to[0]).toBe("alice@example.com");
   });
 });
