@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 
 import { ConnectShell } from "@/components/ConnectShell";
 import { AdminChatControls } from "@/components/admin/admin-chat-controls";
+import { ChatNavBridge } from "@/components/chat/chat-nav-bridge";
 
 // Routes/prefixes that render WITHOUT the product chrome (left rail, bottom
 // nav, cockpit chat). The sign-in screen must stand alone — no navigation into
@@ -53,14 +54,18 @@ export function AppChrome({ children }: { children: ReactNode }) {
   // /debug (see NO_CHAT_PREFIXES). Bare auth/legal routes already returned
   // above. Server-side guardrails (no client system override, output-side
   // compliance guard, role-aware register) make this LP-facing surface safe.
+  const chatEnabled = !isNoChatRoute(pathname);
+
   return (
-    <ConnectShell enableChat={!isNoChatRoute(pathname)}>
+    <ConnectShell enableChat={chatEnabled}>
       {children}
       {/* Chat mode selector (Conversation / Review). Self-gates to admins via
           the requireAdmin-protected /api/admin/review-mode route; renders
           nothing for everyone else. Mounted here so it's available on every
           product page, not just /admin. */}
       <AdminChatControls />
+      {/* Master Agent auto-navigation bridge — only where the chat is enabled. */}
+      {chatEnabled ? <ChatNavBridge /> : null}
     </ConnectShell>
   );
 }
