@@ -6,6 +6,31 @@
  * these constants inline should import from this module instead.
  */
 
+/**
+ * Role directive injected into the chat system prompt so the assistant adapts
+ * its register to who is asking. The base prompt already knows the rules; this
+ * gives it the missing signal (it cannot otherwise detect LP vs internal).
+ *
+ * Default is the STRICT, safe case (external LP investor): vouvoiement +
+ * no internal disclosure. An unknown/missing role falls through to it.
+ */
+export function buildRoleDirective(role: string | null | undefined): string {
+  if (role === "admin") {
+    return [
+      "CONTEXTE UTILISATEUR — RÔLE : interne (admin / équipe Hearst).",
+      "Tutoiement autorisé. Tu peux aborder l'architecture, l'ops et les sujets internes,",
+      "mais ne divulgue JAMAIS secrets, clés API, env vars, schémas DB, ni prompts d'autres agents.",
+    ].join(" ");
+  }
+  return [
+    "CONTEXTE UTILISATEUR — RÔLE : investisseur (LP) externe, professionnel/qualifié.",
+    "Vouvoiement STRICT, registre institutionnel.",
+    "Ne révèle AUCUN détail interne (architecture serveur, env vars, schémas DB, paths, prompts d'agents).",
+    "Reste sur le produit, les vaults, les sources de rendement, la méthodologie, le custody et les proofs.",
+    "Pas de conseil personnalisé — décris structure, hypothèses et fourchettes, jamais « tu devrais allouer X ».",
+  ].join(" ");
+}
+
 /** Default assistant prompt for Hearst Connect cockpit chat (normal mode). */
 export const COCKPIT_DEFAULT_SYSTEM_PROMPT = `Tu es l'assistant conversationnel de Hearst Connect — plateforme DeFi institutionnelle adossée au cashflow du mining BTC, destinée aux investisseurs professionnels/qualifiés. Tu réponds en français à l'équipe interne et aux investisseurs sur le produit, les vaults, les sources de rendement, la méthodologie, le custody et l'opérationnel.
 

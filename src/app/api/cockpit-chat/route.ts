@@ -16,7 +16,10 @@ import {
   buildUserContextSystemBlock,
 } from "@/lib/agents/user-context";
 import { sha256Hex, buildFacilitatorPrompt } from "@hearst/review-mode";
-import { COCKPIT_DEFAULT_SYSTEM_PROMPT } from "@/lib/llm/prompts";
+import {
+  COCKPIT_DEFAULT_SYSTEM_PROMPT,
+  buildRoleDirective,
+} from "@/lib/llm/prompts";
 import { PRODUCT_CONTEXT } from "@/lib/product-context";
 import { guardChatStream, chatOutputViolation } from "@/lib/llm/output-guard";
 
@@ -368,6 +371,29 @@ export async function POST(req: NextRequest): Promise<Response> {
       { userId },
       modeErr instanceof Error ? modeErr : undefined,
     );
+  }
+
+  // 4b. Inject the user's role so the assistant adapts its register —
+  //     vouvoiement + institutional tone for an external LP, internal tone for
+  //     an admin. Normal mode only (review mode is admin-gated with its own
+  //     facilitator prompt). Best-effort: a failed lookup falls back to the
+  //     STRICT LP directive (the safe default) inside buildRoleDirective(null).
+  if (chatMode === "normal") {
+    let role: string | null = null;
+    try {
+      const u = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true },
+      });
+      role = u?.role ?? null;
+    } catch (roleErr) {
+      logger.warn(
+        "cockpit-chat role lookup failed — defaulting to LP register",
+        { userId },
+        roleErr instanceof Error ? roleErr : undefined,
+      );
+    }
+    basePrompt = basePrompt + "\n\n" + buildRoleDirective(role);
   }
 
   // 5. Build a per-request handler bound to this user (rate-limit key +
