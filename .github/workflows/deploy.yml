@@ -201,9 +201,11 @@ jobs:
           fi
           node scripts/prisma-provider.mjs
           # Note: db push (state-driven) is used instead of migrate deploy because
-          # the versioned migrations in prisma/migrations/ are SQLite dialect
-          # (DATETIME/DECIMAL/TEXT PK) and the migration_lock.toml is pinned to
-          # sqlite. db push diffs schema.prisma directly against the live DB.
+          # a Postgres-dialect squashed baseline migration now exists
+          # (prisma/migrations/*_init_postgresql_baseline) and migration_lock.toml
+          # is pinned to postgresql. A deliberate switch to `prisma migrate deploy`
+          # + a one-time prod baseline/reset is pending; until then db push diffs
+          # schema.prisma directly against the live DB.
           # Atomicity caveat: if the following 'Deploy to Railway' step fails,
           # the DB will be ahead of the deployed code. Acceptable for MVP (no
           # destructive changes deployed without manual review). Future: move

@@ -35,6 +35,8 @@ const serverEnvSchema = z.object({
   INNGEST_SIGNING_KEY: z.string().optional(),
   INNGEST_EVENT_KEY: z.string().optional(),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).optional(),
+  RESEND_API_KEY: z.string().optional(),
+  CHAINLINK_RPC_URL: z.string().url().optional(),
 });
 
 describe("env validation", () => {
@@ -193,6 +195,43 @@ describe("env validation", () => {
     expect(parsed.success).toBe(false);
     if (!parsed.success) {
       expect(parsed.error.flatten().fieldErrors).toHaveProperty("LOG_LEVEL");
+    }
+  });
+
+  it("allows RESEND_API_KEY to be absent", () => {
+    const parsed = serverEnvSchema.safeParse({ DATABASE_URL: "file:./prisma/dev.db" });
+    expect(parsed.success).toBe(true);
+  });
+
+  it("accepts a valid RESEND_API_KEY", () => {
+    const parsed = serverEnvSchema.safeParse({
+      DATABASE_URL: "file:./prisma/dev.db",
+      RESEND_API_KEY: "re_abc123",
+    });
+    expect(parsed.success).toBe(true);
+  });
+
+  it("allows CHAINLINK_RPC_URL to be absent", () => {
+    const parsed = serverEnvSchema.safeParse({ DATABASE_URL: "file:./prisma/dev.db" });
+    expect(parsed.success).toBe(true);
+  });
+
+  it("accepts a valid CHAINLINK_RPC_URL", () => {
+    const parsed = serverEnvSchema.safeParse({
+      DATABASE_URL: "file:./prisma/dev.db",
+      CHAINLINK_RPC_URL: "https://eth-mainnet.chainlink.example.com",
+    });
+    expect(parsed.success).toBe(true);
+  });
+
+  it("rejects CHAINLINK_RPC_URL that is not a valid URL", () => {
+    const parsed = serverEnvSchema.safeParse({
+      DATABASE_URL: "file:./prisma/dev.db",
+      CHAINLINK_RPC_URL: "not-a-url",
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.flatten().fieldErrors).toHaveProperty("CHAINLINK_RPC_URL");
     }
   });
 });
