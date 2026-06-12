@@ -90,7 +90,7 @@ export function DeltaRow({ a, b }: DeltaRowProps) {
         <ProvenanceBadge kind="estimated" />
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="scenario-compare-delta__grid">
         {metrics.map((m) => (
           <div key={m.label} className="flex flex-col gap-1">
             <span className="stat-label text-micro">{m.label}</span>

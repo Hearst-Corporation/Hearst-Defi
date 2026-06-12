@@ -135,8 +135,8 @@ function ScoreCard({
       : "mono text-xl font-extrabold tabular-nums ct-text-primary";
   const slashCls =
     variant === "full"
-      ? "text-sm ct-text-muted"
-      : "text-xs ct-text-muted";
+      ? "body-sm ct-text-muted"
+      : "body-xs ct-text-muted";
 
   const body = (
     <>
@@ -251,7 +251,7 @@ export function VaultMode({
       <Badge
         variant={MODE_VARIANT[output.mode]}
         className={
-          variant === "full" ? "px-4 py-2 text-sm" : "px-3 py-1.5 text-xs"
+          variant === "full" ? "px-4 py-2 body-sm" : "px-3 py-1.5 body-xs"
         }
       >
         {MODE_LABEL[output.mode]}
@@ -310,10 +310,10 @@ export function AllocationSection({
           <li
             key={a.bucket}
             className={cn(
-              "grid grid-cols-[1fr_auto_auto] items-center text-sm",
+              "grid grid-cols-[1fr_auto_auto] items-center",
               variant === "full"
-                ? "gap-x-4 py-2.5 first:pt-1 last:pb-1"
-                : "gap-x-3 py-1.5 first:pt-0.5 last:pb-0.5",
+                ? "gap-x-4 py-2.5 body-sm first:pt-1 last:pb-1"
+                : "gap-x-3 py-1.5 body-xs first:pt-0.5 last:pb-0.5",
             )}
           >
             <span className="flex min-w-0 items-center gap-2 ct-text-body">
@@ -331,12 +331,7 @@ export function AllocationSection({
             <span className="text-right mono tabular-nums ct-text-primary">
               {a.pct.toFixed(0)}%
             </span>
-            <span
-              className={cn(
-                "text-right mono tabular-nums ct-text-muted",
-                variant === "compact" && "text-xs",
-              )}
-            >
+            <span className="text-right mono tabular-nums ct-text-muted">
               {a.yield_contribution_bps > 0
                 ? variant === "full"
                   ? `+${a.yield_contribution_bps} bps`
@@ -370,7 +365,8 @@ export function AllocationSection({
         <h4 className="h4 ct-text-strong">Allocation</h4>
         <ProvenanceBadge kind="estimated" />
       </div>
-      {table}
+      <AllocationBar allocations={output.allocations} />
+      <div className="mt-3">{table}</div>
     </div>
   );
 }

@@ -528,7 +528,7 @@ function CompactPanel({
     apyDeltaValue !== null ? (
       <p
         className={cn(
-          "mt-3 mono text-xs font-semibold tabular-nums",
+          "mt-3 mono body-xs font-semibold tabular-nums",
           apyDeltaToneClass,
         )}
         aria-label={`APY midpoint delta vs Scenario A: ${apyDeltaValue.toFixed(2)} percentage points`}
@@ -581,6 +581,12 @@ function CompactPanel({
       <ScoreGrid output={output} variant="compact" riskFooter={riskFooter} />
       <VaultMode output={output} variant="compact" />
       <AllocationSection output={output} variant="compact" />
+      <div>
+        <span className="stat-label text-micro">
+          Projection · Trigger · Action · Impact
+        </span>
+        <PtaiBlock output={output} className="mt-2" />
+      </div>
     </section>
   );
 }

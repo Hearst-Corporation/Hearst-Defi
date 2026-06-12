@@ -1009,6 +1009,35 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   min-width: 0;
 }
 
+.scenario-compare-shell__selectors,
+.scenario-compare-shell__panels {
+  display: grid;
+  min-width: 0;
+  gap: var(--ct-space-4);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container lab-shell (min-width: 42rem) {
+  .scenario-compare-shell__selectors,
+  .scenario-compare-shell__panels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--ct-space-5);
+  }
+}
+
+.scenario-compare-delta__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ct-space-4);
+}
+
+@container lab-shell (max-width: 35.999rem) {
+  .scenario-compare-delta__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ct-space-3);
+  }
+}
+
 .projection-studio-preset-rail__head {
   display: flex;
   min-width: 0;
