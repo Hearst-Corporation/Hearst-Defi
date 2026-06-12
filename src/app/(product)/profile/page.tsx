@@ -2,6 +2,7 @@ import "./profile.css";
 
 import Link from "next/link";
 
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { ProfileSecurityRow } from "@/components/profile/profile-security-row";
 import { requireInvestor } from "@/lib/auth/require-investor";
@@ -16,11 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
-import {
-  NestedCallout,
-  NestedKpiGrid,
-  ProofRow,
-} from "@/components/ui/nested-panel";
+import { NestedKpiGrid, ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 
@@ -91,13 +88,13 @@ export default async function ProfilePage() {
           </ProofRow>
         </Card>
 
-        <Card className="bento-col-6" aria-labelledby="prof-summary-label">
-          <div className="prof-card-header">
-            <CardTitle id="prof-summary-label">Investment summary</CardTitle>
-            <ProvenanceBadge kind={positions.length === 0 ? "manual" : "live"} />
-          </div>
+        {hasPositions ? (
+          <Card className="bento-col-6" aria-labelledby="prof-summary-label">
+            <div className="prof-card-header">
+              <CardTitle id="prof-summary-label">Investment summary</CardTitle>
+              <ProvenanceBadge kind="live" />
+            </div>
 
-          {hasPositions ? (
             <NestedKpiGrid columns={2}>
               <Metric variant="nested" label="Active positions" value={positions.length} />
               <Metric
@@ -113,20 +110,20 @@ export default async function ProfilePage() {
                 }
               />
             </NestedKpiGrid>
-          ) : (
-            <NestedCallout>
-              <p className="body-sm ct-text-primary">
-                Your investment summary starts after your first active position.
-              </p>
-              <p className="body-xs ct-text-muted">
-                Once a deposit is confirmed, deployed capital and subscription history appear here.
-              </p>
-              <Button variant="primary" size="lg" asChild>
-                <Link href="/vaults">Explore the vault</Link>
-              </Button>
-            </NestedCallout>
-          )}
-        </Card>
+          </Card>
+        ) : (
+          <div className="bento-col-6">
+            <AwaitingMetricState
+              message="Your investment summary starts after your first active position."
+              detail="Once a deposit is confirmed, deployed capital and subscription history appear here."
+              link={{
+                label: "Explore the vault",
+                href: "/vaults",
+                ariaLabel: "Explore the vault",
+              }}
+            />
+          </div>
+        )}
 
         <Card className="bento-col-12" aria-labelledby="prof-security-label">
           <CardTitle id="prof-security-label">Security</CardTitle>

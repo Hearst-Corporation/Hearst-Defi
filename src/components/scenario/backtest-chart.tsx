@@ -87,13 +87,11 @@ export function BacktestChart({ series }: BacktestChartProps) {
   if (!hasData) {
     return (
       <div
-        role="status"
+        role="note"
         aria-label="Backtest chart — insufficient data"
-        className="flex min-h-[var(--ct-chart-empty-h,8rem)] items-center justify-center rounded-lg border border-dashed border-[var(--ct-border-soft)] ct-surface-1 px-6 py-8 text-center"
+        className="pf-empty-chart min-h-[var(--ct-chart-empty-h,8rem)]"
       >
-        <p className="text-xs ct-text-faint,var(--ct-text-muted)">
-          Insufficient data — preview only
-        </p>
+        <span className="body-xs ct-text-faint">Insufficient data — preview only</span>
       </div>
     );
   }

@@ -306,18 +306,8 @@
   height: 100%;
 }
 
-/* ───────────────────────────────────────────────────────────────────────────
-   EMPTY WIDGET — surface LÉGÈRE pour un widget sans données principales.
-   Volontairement PAS une dash-cell-premium : pas de verre noir dense, pas de
-   blur lourd, pas d'ombre profonde, pas de header/badge. Juste un inset très
-   discret qui tient sa place dans la grille sans simuler une card active.
-   ─────────────────────────────────────────────────────────────────────────── */
-.pf-container .pf-empty-widget {
-  background: color-mix(in srgb, var(--ct-text-strong) 2%, transparent);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-lg);
-  min-height: 8rem;
-}
+/* DS §9 empty surfaces — base styles live in cockpit.css (.pf-empty-*).
+   Portfolio-only layout overrides below. */
 
 /* In the yield-trust grid, empty widgets stretch to fill column height */
 .pf-container [data-section="yield-trust"] .pf-empty-widget {
@@ -327,31 +317,6 @@
 /* Hero value chart empty slot — parity with populated chart height */
 .pf-container [data-section="hero-pulse"] .pf-empty-chart {
   min-height: 12rem;
-}
-
-/* ───────────────────────────────────────────────────────────────────────────
-   EMPTY CHART — zone réservée calme pour un graphique sans données. PAS une
-   card : matière quasi nulle (fond ~1.5%, hairline très discrète), radius DS,
-   zéro blur, zéro ombre. Ce n'est ni un trou vide, ni un wireframe, ni une
-   dropzone — juste un emplacement volontaire qui tient sa place. La hauteur est
-   passée par le call-site (parité avec le chart peuplé).
-   ─────────────────────────────────────────────────────────────────────────── */
-.pf-container .pf-empty-chart {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding-inline: var(--ct-space-4);
-  background: color-mix(in srgb, var(--ct-text-strong) 1.5%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 60%, transparent);
-  border-radius: var(--ct-radius-lg);
-}
-
-/* Le donut d'allocation passe une zone carrée (w/h = --ct-donut-size) → la
-   matière doit être ronde, pas un carré arrondi posé sur un cercle. */
-.pf-container .pf-empty-chart--round {
-  border-radius: var(--ct-radius-full);
 }
 
 /* ───────────────────────────────────────────────────────────────────────────

@@ -11,6 +11,7 @@
  *  #5  Forbidden words absent (guarantee excluded by "not guaranteed" phrase).
  */
 
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
@@ -106,6 +107,12 @@ export function YieldStack({
 
   const badgeKind = resolveProvenance(source, updatedAt, "estimated");
 
+  if (!hasData) {
+    return (
+      <AwaitingMetricState message="No yield source data yet — awaiting first vault snapshot." />
+    );
+  }
+
   return (
     <article
       className="dash-cell dash-cell-premium h-full flex flex-col"
@@ -180,24 +187,12 @@ export function YieldStack({
         })}
       </div>
 
-      {/* Empty state — no allocation snapshot in DB yet. */}
-      {!hasData && (
-        <p className="body-sm ct-text-muted mt-3 relative z-10" role="note">
-          No yield source data yet — awaiting first vault snapshot.
-        </p>
-      )}
+      <hr
+        className="my-4 border-0 border-t border-(--ct-border-soft) relative z-10"
+        aria-hidden="true"
+      />
 
-      {/* Divider */}
-      {hasData && (
-        <hr
-          className="my-4 border-0 border-t border-(--ct-border-soft) relative z-10"
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Summary metrics — only when we have a snapshot. */}
-      {hasData && (
-        <dl className="flex flex-col gap-2 relative z-10">
+      <dl className="flex flex-col gap-2 relative z-10">
           {/* Blended forward range */}
           <div className="flex items-baseline justify-between">
             <dt className="body-xs min-w-0 truncate ct-text-muted">
@@ -224,7 +219,6 @@ export function YieldStack({
             </dd>
           </div>
         </dl>
-      )}
 
       {/* Disclaimer — visible, not tooltip-only (CLAUDE.md non-negotiable #10) */}
       <p

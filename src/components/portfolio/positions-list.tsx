@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ApyRange } from "@/components/ui/apy-range";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
@@ -37,6 +38,12 @@ interface PositionsListProps {
 export function PositionsList({ positions, source, updatedAt }: PositionsListProps) {
   const provenance = resolveProvenance(source, updatedAt);
 
+  if (positions.length === 0) {
+    return (
+      <AwaitingMetricState message="No open positions." />
+    );
+  }
+
   return (
     <article className="dash-cell dash-cell-premium flex flex-col" aria-label="Open positions">
       <div className="pf-widget-header">
@@ -51,13 +58,6 @@ export function PositionsList({ positions, source, updatedAt }: PositionsListPro
         </span>
       </div>
 
-      {positions.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center min-h-24">
-          <p className="body-sm ct-text-muted">
-            No open positions.
-          </p>
-        </div>
-      ) : (
       <div className="flex flex-col gap-1 mt-3 overflow-x-auto min-w-0">
           {/* Header row */}
           <div className={cn("stat-label", ROW_GRID)}>
@@ -117,7 +117,6 @@ export function PositionsList({ positions, source, updatedAt }: PositionsListPro
             </div>
           ))}
         </div>
-      )}
     </article>
   );
 }

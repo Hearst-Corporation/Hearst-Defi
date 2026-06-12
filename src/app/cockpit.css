@@ -2801,3 +2801,29 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-tabular-nums {
   font-variant-numeric: tabular-nums;
 }
+
+/* ── DS §9 — empty / awaiting module surfaces (global) ───────────────────────
+   Portfolio keeps section-specific min-heights in portfolio.css. These classes
+   must NOT wrap dash-cell-premium / ct-card shells — they replace them. */
+.pf-empty-widget {
+  background: color-mix(in srgb, var(--ct-text-strong) 2%, transparent);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-lg);
+  min-height: 8rem;
+}
+
+.pf-empty-chart {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-inline: var(--ct-space-4);
+  background: color-mix(in srgb, var(--ct-text-strong) 1.5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 60%, transparent);
+  border-radius: var(--ct-radius-lg);
+}
+
+.pf-empty-chart--round {
+  border-radius: var(--ct-radius-full);
+}

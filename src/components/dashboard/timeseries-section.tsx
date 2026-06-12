@@ -1,6 +1,5 @@
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { ApyRange } from "@/components/ui/apy-range";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { computeDrawdownPeriods } from "@/lib/engine/drawdown";
 import { cn } from "@/lib/cn";
@@ -41,29 +40,18 @@ interface NavChartProps {
 }
 
 interface ChartEmptyProps {
-  title: string;
-  subtitle: string;
-  provenance: import("@/components/ui/provenance-badge").Provenance;
+  message: string;
 }
 
-function ChartEmpty({ title, subtitle, provenance }: ChartEmptyProps) {
+/** DS §9 — light chart empty; no Card shell, no dashed border, no Stale badge. */
+function ChartEmpty({ message }: ChartEmptyProps) {
   return (
-    <Card className="flex flex-col">
-      <CardHeader>
-        <div className="flex flex-col gap-2">
-          <CardTitle>{title}</CardTitle>
-          <p className="text-xs font-medium uppercase tracking-wide ct-text-muted">
-            {subtitle}
-          </p>
-        </div>
-        <ProvenanceBadge kind={provenance === "live" ? "stale" : provenance} />
-      </CardHeader>
-      <div className="flex-1 min-h-[var(--ct-chart-empty-h)] flex items-center justify-center text-center -mx-4 -mb-4 mt-4 rounded-b-[var(--ct-radius-lg)] border border-dashed border-[var(--ct-border-soft)] ct-surface-1">
-        <p className="text-xs ct-text-muted px-6 py-8">
-          No historical data yet — first snapshot needed.
-        </p>
-      </div>
-    </Card>
+    <div
+      role="note"
+      className="pf-empty-chart min-h-[var(--ct-chart-empty-h)]"
+    >
+      <span className="body-xs ct-text-faint">{message}</span>
+    </div>
   );
 }
 
@@ -217,11 +205,7 @@ function BandChart({ low, high, ariaLabel }: BandChartProps) {
 function NavChart({ points, provenance }: NavChartProps) {
   if (points.length === 0) {
     return (
-      <ChartEmpty
-        title="Net Asset Value"
-        subtitle="Trailing 30 days · USDC"
-        provenance={provenance}
-      />
+      <ChartEmpty message="No historical data yet — first snapshot needed." />
     );
   }
 
@@ -296,11 +280,7 @@ interface ApyChartProps {
 function ApyChart({ points, provenance }: ApyChartProps) {
   if (points.length === 0) {
     return (
-      <ChartEmpty
-        title="APY Range"
-        subtitle={`Trailing 30d · Target ${METHODOLOGY_TARGET_APY_LOW.toFixed(1)}–${METHODOLOGY_TARGET_APY_HIGH.toFixed(1)}%`}
-        provenance={provenance}
-      />
+      <ChartEmpty message="No historical data yet — first snapshot needed." />
     );
   }
 

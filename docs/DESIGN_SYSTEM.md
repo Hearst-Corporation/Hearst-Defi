@@ -153,7 +153,8 @@ first position · awaiting attestation · chart sans data · module non initiali
 | `EmptyChartState` | `.pf-empty-chart` | Zone chart/donut/calendrier sans data |
 | `AwaitingMetricState` | `.pf-empty-widget` | Widget métrique / pulse sans snapshot |
 
-Styles : `src/app/(product)/portfolio/portfolio.css` (scopé `.pf-container`).
+Styles : `src/app/cockpit.css` (`.pf-empty-chart` / `.pf-empty-widget`, global) ;
+overrides layout Portfolio dans `portfolio.css` (scopé `.pf-container`).
 
 **Obligatoire** : si les données principales d'un widget sont absentes, le
 widget rend **directement** l'état vide léger — **pas** :

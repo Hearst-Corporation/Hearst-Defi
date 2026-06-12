@@ -17,6 +17,10 @@ import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { RiskPulse } from "@/components/portfolio/risk-pulse";
 import { ProofPulse } from "@/components/portfolio/proof-pulse";
 import { SecurityPulse } from "@/components/portfolio/security-pulse";
+import { YieldStack } from "@/components/portfolio/yield-stack";
+import { RecentActivity } from "@/components/portfolio/recent-activity";
+import { PositionsList } from "@/components/portfolio/positions-list";
+import { TimeseriesSection } from "@/components/dashboard/timeseries-section";
 
 const ZERO_SCORES = [
   { dimension: "market" as const, score: 0, delta30d: 0 },
@@ -130,6 +134,49 @@ describe("Portfolio empty states — design contract", () => {
     expect(html).toContain("pf-empty-widget");
     expect(html).not.toContain("AES-256");
     expect(html).not.toContain("Spearbit");
+  });
+
+  it("YieldStack: empty message outside active module surface", () => {
+    const html = renderToStaticMarkup(
+      <YieldStack
+        sources={[]}
+        blendedLow={9.4}
+        blendedHigh={12.8}
+        stressedBearRange={{ low: 5.2, high: 6.0 }}
+      />,
+    );
+    assertEmptyDesignContract(
+      html,
+      "No yield source data yet — awaiting first vault snapshot.",
+    );
+    expect(html).toContain("pf-empty-widget");
+  });
+
+  it("RecentActivity: empty message outside active module surface", () => {
+    const html = renderToStaticMarkup(
+      <RecentActivity transactions={[]} source="fallback" />,
+    );
+    assertEmptyDesignContract(html, "No transactions yet.");
+    expect(html).toContain("pf-empty-widget");
+  });
+
+  it("PositionsList: empty message outside active module surface", () => {
+    const html = renderToStaticMarkup(
+      <PositionsList positions={[]} source="fallback" />,
+    );
+    assertEmptyDesignContract(html, "No open positions.");
+    expect(html).toContain("pf-empty-widget");
+  });
+
+  it("TimeseriesSection: empty charts outside Card shell", () => {
+    const html = renderToStaticMarkup(
+      <TimeseriesSection
+        data={{ nav30d: [], apy30d: [], source: "fallback" }}
+      />,
+    );
+    assertEmptyDesignContract(html, "No historical data yet — first snapshot needed.");
+    expect(html).toContain("pf-empty-chart");
+    expect(html).not.toContain("border-dashed");
   });
 });
 

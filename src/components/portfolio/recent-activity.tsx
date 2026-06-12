@@ -1,3 +1,4 @@
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
@@ -62,6 +63,12 @@ export function RecentActivity({ transactions, source, updatedAt }: RecentActivi
   const asOf = new Date();
   const displayed = transactions.slice(0, 5);
 
+  if (displayed.length === 0) {
+    return (
+      <AwaitingMetricState message="No transactions yet." />
+    );
+  }
+
   return (
     <article className="dash-cell dash-cell-premium flex flex-col" aria-label="Recent account activity">
       <div className="pf-widget-header">
@@ -71,13 +78,6 @@ export function RecentActivity({ transactions, source, updatedAt }: RecentActivi
         <ProvenanceBadge kind={provenance} />
       </div>
 
-      {displayed.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="body-sm ct-text-muted">
-            No transactions yet.
-          </p>
-        </div>
-      ) : (
         <div className="flex flex-col gap-1 mt-3">
           {displayed.map((tx) => (
             <div
@@ -106,7 +106,6 @@ export function RecentActivity({ transactions, source, updatedAt }: RecentActivi
             </div>
           ))}
         </div>
-      )}
     </article>
   );
 }

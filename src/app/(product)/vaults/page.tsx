@@ -6,7 +6,6 @@ import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { listVaults } from "@/lib/data/vaults";
 import { ProductSelectCard } from "@/components/vaults/product-select-card";
 import { StepProgress } from "@/components/vaults/step-progress";
-import { Card } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
@@ -41,12 +40,15 @@ export default async function VaultsPage() {
         </h2>
 
         {vaults.length === 0 ? (
-          <Card>
-            <p className="body-md">No products available right now.</p>
-            <p className="body-sm ct-text-muted mt-2">
+          <div
+            role="status"
+            className="pf-empty-widget flex flex-col items-center justify-center gap-1 px-5 py-12 text-center"
+          >
+            <p className="body-sm ct-text-muted">No products available right now.</p>
+            <p className="body-xs ct-text-faint">
               Check back soon or contact your manager.
             </p>
-          </Card>
+          </div>
         ) : (
           <div className="flex flex-col gap-6">
             {vaults.map((vault) => (
