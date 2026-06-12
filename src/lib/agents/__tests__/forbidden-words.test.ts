@@ -339,6 +339,29 @@ describe("containsForbiddenChat — French claims are caught", () => {
     expect(containsForbiddenChat("This is risk-free.")).not.toBeNull();
     expect(containsForbiddenChat("We guarantee the yield.")).not.toBeNull();
   });
+
+  it("catches the curation-gap claims surfaced by the audit (P2)", () => {
+    // "aucun risque" / "sans aucun risque" — a double-negation yield claim.
+    expect(containsForbiddenChat("Il n'y a aucun risque de perte."))
+      .not.toBeNull();
+    expect(containsForbiddenChat("Investissez sans aucun risque."))
+      .not.toBeNull();
+    // "placement sûr" (distinct from "rendement sûr").
+    expect(containsForbiddenChat("C'est un placement sûr.")).not.toBeNull();
+    // "capital protégé" with an interposed verb, and the loss-protection claim.
+    expect(containsForbiddenChat("Votre capital est protégé.")).not.toBeNull();
+    expect(containsForbiddenChat("Vous êtes protégé contre les pertes."))
+      .not.toBeNull();
+  });
+
+  it("keeps the new needles from false-positiving on disclaimers", () => {
+    expect(containsForbiddenChat("Le risque de perte existe.")).toBeNull();
+    expect(containsForbiddenChat("Ce placement comporte un risque.")).toBeNull();
+    expect(containsForbiddenChat("Le capital n'est pas protégé.")).toBeNull();
+    expect(containsForbiddenChat("Vos actifs sont protégés par Fireblocks."))
+      .toBeNull();
+    expect(containsForbiddenChat("Ce produit n'est pas sans risque.")).toBeNull();
+  });
 });
 
 describe("containsForbiddenChat — compliant French is NOT flagged", () => {

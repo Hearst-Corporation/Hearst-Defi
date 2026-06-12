@@ -65,7 +65,10 @@ export const CHAT_FORBIDDEN_WORDS = [
   // French compliance vocabulary
   "garanti",
   "sans risque",
+  "aucun risque",
+  "sans aucun risque",
   "rendement sûr",
+  "placement sûr",
   "rendement certain",
   "gain certain",
   "rendement assuré",
@@ -73,6 +76,8 @@ export const CHAT_FORBIDDEN_WORDS = [
   "gain assuré",
   "zéro risque",
   "capital protégé",
+  "capital est protégé",
+  "protégé contre les pertes",
   "promesse",
 ] as const;
 
