@@ -35,14 +35,18 @@ const ATTESTATIONS = [
 
 type AttestationId = (typeof ATTESTATIONS)[number]["id"];
 
-interface AccreditationCheckboxesProps {
-  /** Called when all boxes are checked and user clicks Continue. */
-  onContinue?: () => void;
+export interface AccreditationAttestationState {
+  allChecked: boolean;
+  isPending: boolean;
+  attestError: string | null;
+  toggle: (id: AttestationId) => void;
+  isChecked: (id: AttestationId) => boolean;
+  handleContinue: () => void;
 }
 
-export function AccreditationCheckboxes({
-  onContinue,
-}: AccreditationCheckboxesProps) {
+export function useAccreditationAttestations(
+  onContinue?: () => void,
+): AccreditationAttestationState {
   const [checked, setChecked] = useState<Set<AttestationId>>(new Set());
   const [attestError, setAttestError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -58,6 +62,10 @@ export function AccreditationCheckboxes({
     });
   }
 
+  function isChecked(id: AttestationId) {
+    return checked.has(id);
+  }
+
   function handleContinue() {
     if (!allChecked) return;
     setAttestError(null);
@@ -71,6 +79,25 @@ export function AccreditationCheckboxes({
     });
   }
 
+  return {
+    allChecked,
+    isPending,
+    attestError,
+    toggle,
+    isChecked,
+    handleContinue,
+  };
+}
+
+interface AccreditationFieldsProps {
+  state: AccreditationAttestationState;
+}
+
+export function AccreditationAttestationFields({
+  state,
+}: AccreditationFieldsProps) {
+  const { allChecked, attestError, toggle, isChecked } = state;
+
   return (
     <div className="flex flex-col gap-5">
       <fieldset
@@ -83,7 +110,7 @@ export function AccreditationCheckboxes({
 
         <div className="flex flex-col gap-3">
           {ATTESTATIONS.map(({ id, label }) => {
-            const isChecked = checked.has(id);
+            const checked = isChecked(id);
             return (
               <label
                 key={id}
@@ -94,10 +121,12 @@ export function AccreditationCheckboxes({
                   id={`attest-${id}`}
                   type="checkbox"
                   name={id}
-                  checked={isChecked}
-                  onChange={() => { toggle(id); }}
+                  checked={checked}
+                  onChange={() => {
+                    toggle(id);
+                  }}
                   className="mt-0.5 w-4 h-4 shrink-0 rounded accent-[var(--ct-accent)] cursor-pointer"
-                  aria-checked={isChecked}
+                  aria-checked={checked}
                 />
                 <span className="body-sm ct-text-body leading-relaxed group-hover:ct-text-primary transition-colors">
                   {label}
@@ -108,19 +137,13 @@ export function AccreditationCheckboxes({
         </div>
       </fieldset>
 
-      {/* Inline hint when not all checked */}
-      {!allChecked && (
-        <p
-          className="body-xs ct-text-faint"
-          aria-live="polite"
-          role="status"
-        >
+      {!allChecked ? (
+        <p className="body-xs ct-text-faint" aria-live="polite" role="status">
           All three attestations are required to continue.
         </p>
-      )}
+      ) : null}
 
-      {/* Server action error — shown only on failure */}
-      {attestError && (
+      {attestError ? (
         <p
           className="body-xs ct-status-danger"
           aria-live="assertive"
@@ -128,18 +151,40 @@ export function AccreditationCheckboxes({
         >
           {attestError}
         </p>
-      )}
+      ) : null}
+    </div>
+  );
+}
 
-      <Button
-        variant="primary"
-        size="lg"
-        disabled={!allChecked || isPending}
-        aria-disabled={!allChecked || isPending}
-        onClick={handleContinue}
-        className="w-full font-bold"
-      >
-        {isPending ? "Confirming…" : "Continue"}
-      </Button>
+interface AccreditationCheckboxesProps {
+  /** Called when all boxes are checked and user clicks Continue. */
+  onContinue?: () => void;
+  /** When true, omit inline Continue — render via chamber Sole instead. */
+  hideContinue?: boolean;
+}
+
+export function AccreditationCheckboxes({
+  onContinue,
+  hideContinue = false,
+}: AccreditationCheckboxesProps) {
+  const state = useAccreditationAttestations(onContinue);
+
+  return (
+    <div className="flex flex-col gap-5">
+      <AccreditationAttestationFields state={state} />
+
+      {hideContinue ? null : (
+        <Button
+          variant="primary"
+          size="lg"
+          disabled={!state.allChecked || state.isPending}
+          aria-disabled={!state.allChecked || state.isPending}
+          onClick={state.handleContinue}
+          className="w-full font-bold"
+        >
+          {state.isPending ? "Confirming…" : "Continue"}
+        </Button>
+      )}
     </div>
   );
 }

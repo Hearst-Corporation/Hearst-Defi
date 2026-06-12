@@ -1,4 +1,4 @@
-/* Onboarding funnel — bare shell (no product rails). Ambient + split mirror login-split. */
+/* Onboarding funnel — Institutional Chamber (slice 1). Product-global ambient. */
 
 .onboarding-shell {
   min-height: 100dvh;
@@ -7,36 +7,28 @@
   overflow: auto;
 }
 
+/* Product halo — DS §7 continuum (not login-split blur island) */
 .onboarding-shell__ambient {
   position: fixed;
   inset: 0;
   z-index: var(--ct-z-base);
   pointer-events: none;
-}
-
-/* Same placement as .login-split__glow — centered ambient, not left-weighted */
-.onboarding-shell__glow {
-  position: absolute;
-  width: 70vw;
-  height: 70vw;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -60%);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-accent);
-  filter: blur(11.25rem);
-  opacity: 0.06;
+  background: radial-gradient(
+    ellipse 80% 70% at 50% 45%,
+    color-mix(in srgb, var(--ct-accent-soft) 45%, transparent),
+    var(--ct-bg-deep) 72%
+  );
 }
 
 .onboarding-shell__frame {
   position: relative;
   z-index: var(--ct-z-raised);
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-8);
-  grid-template-columns: 1fr;
   margin: 0 auto;
   width: 100%;
-  max-width: 72rem;
+  max-width: 42rem;
   padding: var(--ct-space-6) var(--ct-space-6) var(--ct-space-12);
 }
 
@@ -48,7 +40,7 @@
 
 .onboarding-shell__header {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   margin: 0;
 }
 
@@ -64,59 +56,82 @@
   }
 }
 
-.onboarding-shell__main {
+.onboarding-shell__stage {
   display: flex;
+  width: 100%;
+  flex-direction: column;
   min-width: 0;
-  flex-direction: column;
 }
 
-.onboarding-shell__main-inner {
+.onboarding-shell__legacy {
+  width: 100%;
+}
+
+/* ── Institutional Chamber ── */
+
+.onboarding-chamber {
+  position: relative;
   display: flex;
-  width: 100%;
-  max-width: 45rem;
   flex-direction: column;
-  gap: var(--ct-space-8);
-  margin-inline: auto;
-}
-
-.onboarding-rail {
   width: 100%;
-  max-width: 22rem;
-  margin-inline: auto;
+  overflow: hidden;
+  border-radius: var(--ct-radius-xl);
 }
 
-@media (min-width: 961px) {
-  .onboarding-shell__frame {
-    gap: var(--ct-space-10);
-    grid-template-columns: minmax(0, 38fr) minmax(0, 62fr);
-    grid-template-rows: auto 1fr;
-  }
+.onboarding-chamber__halo {
+  position: absolute;
+  inset: -20% -10%;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 20%,
+    color-mix(in srgb, var(--ct-accent-soft) 18%, transparent),
+    transparent 70%
+  );
+}
 
-  .onboarding-shell__header {
-    grid-column: 2;
-    grid-row: 1;
-    justify-content: flex-start;
-  }
+.onboarding-chamber__crown,
+.onboarding-chamber__body,
+.onboarding-chamber__sole {
+  position: relative;
+  z-index: var(--ct-z-base);
+}
 
-  .onboarding-rail {
-    position: sticky;
-    top: var(--ct-space-6);
-    grid-column: 1;
-    grid-row: 1 / span 2;
-    align-self: start;
-    justify-self: end;
-    margin-inline: 0;
-    width: min(100%, 22rem);
-  }
+.onboarding-chamber__crown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+  padding: var(--ct-space-8) var(--ct-space-6) var(--ct-space-6);
+}
 
-  .onboarding-shell__main {
-    grid-column: 2;
-    grid-row: 2;
-    width: 100%;
+@media (min-width: 640px) {
+  .onboarding-chamber__crown {
+    padding: var(--ct-space-10) var(--ct-space-8) var(--ct-space-6);
   }
+}
 
-  .onboarding-shell__main-inner {
-    margin-inline: 0;
-    max-width: 45rem;
+.onboarding-chamber__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+  padding: var(--ct-space-2) var(--ct-space-6) var(--ct-space-8);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+@media (min-width: 640px) {
+  .onboarding-chamber__body {
+    padding: var(--ct-space-2) var(--ct-space-8) var(--ct-space-8);
+  }
+}
+
+.onboarding-chamber__sole {
+  padding: var(--ct-space-6) var(--ct-space-6) var(--ct-space-8);
+  border-top: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-0);
+}
+
+@media (min-width: 640px) {
+  .onboarding-chamber__sole {
+    padding: var(--ct-space-6) var(--ct-space-8) var(--ct-space-8);
   }
 }

@@ -1,44 +1,82 @@
 /**
  * Step 1 — Accreditation attestations (Rule 506(c) + Cayman PIF).
+ * Institutional Chamber layout — slice 1.
  */
 
 "use client";
 
 import { useRouter } from "next/navigation";
 
-import { ProductPageHeader } from "@/components/connect/product-page-header";
-import { AccreditationCheckboxes } from "@/components/onboarding/AccreditationCheckboxes";
-import { Card } from "@/components/ui/card";
+import {
+  AccreditationAttestationFields,
+  useAccreditationAttestations,
+} from "@/components/onboarding/AccreditationCheckboxes";
+import {
+  OnboardingChamber,
+  useOnboardingShell,
+} from "@/components/onboarding/onboarding-chamber";
+import {
+  OnboardingChamberSole,
+  OnboardingRequirementsList,
+} from "@/components/onboarding/onboarding-context-rail";
+import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
+import { Button } from "@/components/ui/button";
 
 export default function AccreditationPage() {
   const router = useRouter();
-
-  function handleContinue() {
+  const { checklist, irContact } = useOnboardingShell();
+  const attestation = useAccreditationAttestations(() => {
     router.push("/onboarding/identity");
-  }
+  });
 
   return (
-    <Card className="flex flex-col gap-6" data-testid="onboarding-accreditation">
-      <ProductPageHeader
-        className="gap-2"
-        eyebrow="Onboarding · Step 1 of 3"
-        title="Investor accreditation"
-        description={
-          <>
-            Hearst Yield Vault is offered exclusively to accredited investors under
-            SEC Rule 506(c) and eligible participants under Cayman Islands law.
-            Please confirm each statement below.
-          </>
-        }
-      />
-
-      <AccreditationCheckboxes onContinue={handleContinue} />
-
-      <p className="body-xs ct-text-faint text-pretty m-0">
-        False attestation may result in immediate termination of participation.
-        This is not a solicitation of investment. All projections are estimates
-        subject to stated assumptions — not a commitment of future returns.
-      </p>
-    </Card>
+    <OnboardingChamber
+      testId="onboarding-accreditation"
+      crown={
+        <>
+          <StepProgressBar active="accreditation" />
+          <div className="flex flex-col gap-2">
+            <p className="eyebrow ct-text-muted m-0">
+              Onboarding · Step 1 of 3
+            </p>
+            <h1 className="h1 m-0">Investor accreditation</h1>
+            <p className="body-md ct-text-muted m-0 text-pretty max-w-prose">
+              Hearst Yield Vault is offered exclusively to accredited investors
+              under SEC Rule 506(c) and eligible participants under Cayman
+              Islands law. Please confirm each statement below.
+            </p>
+          </div>
+        </>
+      }
+      body={
+        <>
+          <OnboardingRequirementsList items={checklist} />
+          <AccreditationAttestationFields state={attestation} />
+        </>
+      }
+      sole={
+        <OnboardingChamberSole
+          irContact={irContact}
+          compliance={
+            <>
+              False attestation may result in immediate termination of
+              participation. This is not a solicitation of investment.
+            </>
+          }
+          actions={
+            <Button
+              variant="primary"
+              size="lg"
+              disabled={!attestation.allChecked || attestation.isPending}
+              aria-disabled={!attestation.allChecked || attestation.isPending}
+              onClick={attestation.handleContinue}
+              className="w-full font-bold"
+            >
+              {attestation.isPending ? "Confirming…" : "Continue"}
+            </Button>
+          }
+        />
+      }
+    />
   );
 }
