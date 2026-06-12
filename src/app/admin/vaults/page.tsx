@@ -116,9 +116,8 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
             return (
               <Card key={vault.id}>
-                <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
-                  {/* Identity */}
-                  <div className="admin-doc-inline-row admin-doc-inline-row--relaxed min-w-0">
+                <div className="admin-vault-list-card">
+                  <div className="admin-vault-list-card__identity">
                     <div className="admin-doc-stack--dense min-w-0">
                       <div className="admin-doc-inline-row admin-doc-inline-row--loose">
                         <span className="mono tabular body-sm font-semibold ct-text-strong">
@@ -126,7 +125,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                         </span>
                         <VaultStatusPill status={vault.status} />
                       </div>
-                      <p className="body-sm ct-text-muted truncate max-w-xs">
+                      <p className="body-sm ct-text-muted truncate">
                         {vault.name}
                       </p>
                       <p className="body-xs ct-text-faint">
@@ -135,30 +134,29 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                     </div>
                   </div>
 
-                  {/* AUM progress */}
-                  <div className="admin-doc-stack--compact min-w-36">
-                    <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                      <span className="stat-label">AUM vs Capacity</span>
-                      <ProvenanceBadge kind={aumUsdc > 0 ? "live" : "estimated"} />
+                  <div className="admin-vault-list-card__metrics">
+                    <div className="admin-doc-stack--compact min-w-0">
+                      <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                        <span className="stat-label">AUM vs Capacity</span>
+                        <ProvenanceBadge kind={aumUsdc > 0 ? "live" : "estimated"} />
+                      </div>
+                      <Progress value={aumPct} label="AUM vs capacity" />
+                      <span className="mono tabular body-xs ct-text-muted">
+                        {formatUsdFull(aumUsdc)} / {formatUsdFull(capacityUsdc)}
+                      </span>
                     </div>
-                    <Progress value={aumPct} label="AUM vs capacity" />
-                    <span className="mono tabular body-xs ct-text-muted">
-                      {formatUsdFull(aumUsdc)} / {formatUsdFull(capacityUsdc)}
-                    </span>
+
+                    <div className="admin-doc-stack--compact min-w-0">
+                      <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                        <span className="stat-label">Target APY</span>
+                        <ProvenanceBadge kind="estimated" />
+                      </div>
+                      <ApyRange low={apyLow} high={apyHigh} precision={1} />
+                      <span className="body-xs ct-text-faint">Not guaranteed</span>
+                    </div>
                   </div>
 
-                  {/* APY */}
-                  <div className="admin-doc-stack--compact">
-                    <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                      <span className="stat-label">Target APY</span>
-                      <ProvenanceBadge kind="estimated" />
-                    </div>
-                    <ApyRange low={apyLow} high={apyHigh} precision={1} />
-                    <span className="body-xs ct-text-faint">Not guaranteed</span>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="admin-doc-inline-row shrink-0">
+                  <div className="admin-vault-list-card__actions">
                     <Button variant="ghost" size="sm" asChild>
                       <Link href={`/admin/vaults/${vault.id}`}>View</Link>
                     </Button>

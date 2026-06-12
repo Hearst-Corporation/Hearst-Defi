@@ -329,11 +329,11 @@ export default async function VaultDetailPage({ params }: PageProps) {
         </SystemPanel>
       </div>
 
-      {/* Approvals */}
-      <SystemPanel>
-        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed mb-6">
+      {/* Approvals — table shell only (no SystemPanel double frame; cf. audit/customers). */}
+      <section className="admin-doc-stack--compact" aria-label="Approvals">
+        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline admin-doc-inline-row--relaxed">
           <DashboardPanelHeader title="Approvals" className="mb-0" />
-          <span className="mono tabular body-sm ct-text-muted mt-1">
+          <span className="mono tabular body-sm ct-text-muted">
             {approveCount} / {vault.requiredSigners} required
           </span>
         </div>
@@ -342,22 +342,22 @@ export default async function VaultDetailPage({ params }: PageProps) {
           <PanelStatus message="No signatures yet." />
         ) : (
           <div className="ct-table-surface">
-            <table className="w-full body-sm">
+            <table className="w-full border-collapse text-left body-sm">
               <thead>
                 <tr>
-                  <th className="ct-table-header stat-label text-left">Signer</th>
-                  <th className="ct-table-header stat-label text-left">Decision</th>
-                  <th className="ct-table-header stat-label text-left">Reason</th>
-                  <th className="ct-table-header stat-label text-left">Date</th>
+                  <th className="ct-table-header px-5 py-3 stat-label text-left">Signer</th>
+                  <th className="ct-table-header px-5 py-3 stat-label text-left">Decision</th>
+                  <th className="ct-table-header px-5 py-3 stat-label text-left">Reason</th>
+                  <th className="ct-table-header px-5 py-3 stat-label text-left">Date</th>
                 </tr>
               </thead>
               <tbody>
                 {vault.approvals.map((approval) => (
                   <tr key={approval.id}>
-                    <td className="ct-table-cell mono tabular body-xs ct-text-muted truncate max-w-xs">
+                    <td className="ct-table-cell px-5 py-3 mono tabular body-xs ct-text-muted truncate max-w-xs">
                       {approval.signerWallet}
                     </td>
-                    <td className="ct-table-cell">
+                    <td className="ct-table-cell px-5 py-3">
                       <span
                         className={
                           approval.decision === "approve"
@@ -368,10 +368,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
                         {approval.decision}
                       </span>
                     </td>
-                    <td className="ct-table-cell body-xs ct-text-muted">
+                    <td className="ct-table-cell px-5 py-3 body-xs ct-text-muted">
                       {approval.reason ?? "—"}
                     </td>
-                    <td className="ct-table-cell body-xs ct-text-faint tabular mono">
+                    <td className="ct-table-cell px-5 py-3 body-xs ct-text-faint tabular mono">
                       {approval.signedAt.toISOString().slice(0, 10)}
                     </td>
                   </tr>
@@ -380,7 +380,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
             </table>
           </div>
         )}
-      </SystemPanel>
+      </section>
 
       {/* Disclaimers */}
       <SystemPanel>
