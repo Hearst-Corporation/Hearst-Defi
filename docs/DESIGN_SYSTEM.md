@@ -216,6 +216,160 @@ inchangé et orthogonal.
 `doc-flow.css` ne définit PAS de valeurs token — uniquement des primitives layout.
 Ordre d'import : après `cockpit.css`, avant `globals.css`.
 
+## 12. Invest Flow DS taxonomy (closure — 2026-06-13)
+
+Established after the final DS closure audit and Batch 1–2 fixes.
+These rules govern the invest flow surface hierarchy and must not be reopened without a new ADR.
+
+### 12.1 Three-level surface hierarchy (invest flow)
+
+**Rule: no giant outer box. Yes to internal DS modules.**
+
+The cockpit center panel already provides the outer visible boundary.
+No page-level `<Card>` or `.ct-glass-panel` wrapper should wrap an entire page or workspace shell.
+
+#### Level 1 — Card (`ct-glass-panel`)
+
+`<Card>` / `.ct-card.ct-glass-panel` — primary visible content modules inside a workspace or document shell.
+
+Use for self-contained information units that need visual separation from the workspace background.
+
+Examples in invest flow:
+- Target allocation panel (Term sheet workspace, primary column)
+- Regime scenarios panel (Term sheet workspace, primary column)
+- Vault metrics panel (Term sheet workspace, secondary column)
+- Legal & structure panel (Term sheet workspace, secondary column)
+
+Do **not** use to wrap:
+- The workspace shell itself
+- A page-level container
+- A flat layout column or grid row
+
+#### Level 2 — NestedPanel (`ct-nested-panel`)
+
+`<NestedPanel>` — compact nested summaries or detail panels inside a flow, typically within the support rail or a narrow confirmation page.
+
+Examples in invest flow:
+- Deposit summary (Step 3 deposit rail)
+- Position details (Step 4 confirmed page)
+
+Do **not** use NestedPanel as a first-level visible container — it reads as nested-inside-something even when used alone.
+
+#### Level 3 — Flat sections / layout-only wrappers
+
+`vault-flow-flat-section`, `invest-flow-detail__grid`, `invest-flow-detail__primary/secondary`, `product-doc-stack`, `invest-flow-shell__body` — invisible layout chrome. No background, no border, no glass.
+
+Use for:
+- Workspace body wrappers
+- Two-column desktop grids
+- Section separators (border-top only, no box)
+- Lightweight context text blocks
+
+These must never acquire a background color, border-radius, or shadow. If you feel the need to add one, use a Card instead.
+
+---
+
+### 12.2 Invest Flow shell rules (per step)
+
+#### Step 1 — `/vaults` (Select a product)
+
+Shell: `<InvestFlowShell step="select">` — no `workspace` prop.
+Layout: document-style `--cap` (64rem max-width, centered). Natural document scroll.
+Surface: `<ProductSelectCard>` wraps `<Card>` — one glass layer per vault card. No outer wrapper.
+Acceptable: standard document rhythm.
+
+#### Step 2 — `/vaults/[id]` (Term sheet / vault detail)
+
+Shell: `<InvestFlowShell step="product" workspace>` — `workspace` prop is **required**.
+Layout: viewport-fit (`100dvh`), header fixed, body scrolls internally via `.invest-flow-shell__body`. Two-column `invest-flow-detail__grid` on desktop (≥52rem), single column on mobile.
+Surface: **no outer Card**. Internal Card modules only (Level 1 above).
+CTA: lives in the fixed header (`.invest-flow-shell__header-cta`), plus a mobile fallback in the KPI strip.
+Mobile: reverts to natural document scroll — all `:has(.invest-flow-shell--workspace)` chains reset.
+
+#### Step 3 — `/vaults/[id]/invest` (Deposit form)
+
+Shell: `<InvestFlowShell step="deposit">` — no `workspace` prop (intentional).
+Layout: natural document scroll — correct for a form with variable height. Two-column `vault-invest-grid` at ≥48rem.
+Surface: left column uses flat `vault-flow-flat-section` separators; right rail uses `<NestedPanel>` (Level 2).
+
+#### Step 4 — `/vaults/[id]/invest/confirmed` (Confirmation)
+
+Shell: `<InvestFlowShell step="confirmed" width="narrow" align="center">` — intentionally document-like.
+Layout: natural scroll, `--narrow` (600px max), centered. Correct — this is a success state, not a workspace.
+Surface: `<NestedPanel>` for position details (Level 2); flat stack for next steps.
+
+---
+
+### 12.3 `ct-pill` vs `Badge` / `ProvenanceBadge`
+
+These are distinct primitives with different roles. Do not substitute one for the other.
+
+#### `ct-pill`
+
+Mono product tag / compact chip / identifier label.
+No status semantics. Use for structured codes, tickers, and compact product tags.
+
+Examples:
+- `HYV-A` (share class ticker)
+- `Strategy: Mining-backed` (compact strategy chip)
+- Step eyebrow tags in the invest flow header
+
+Class: `ct-pill` (plain) · `ct-pill accent mono` (accent ticker variant).
+
+#### `Badge` (`src/components/ui/badge.tsx`)
+
+Status label with color semantics. Use for lifecycle states, availability, and typed conditions.
+
+Examples:
+- `Live` / `Coming soon` / `Pending` (vault status)
+- `Mining-backed` (strategy badge inside term sheet)
+
+Variants: `default` · `success` · `warning` · `danger` · `accent` · `flat`.
+
+#### `ProvenanceBadge` (`src/components/ui/provenance-badge.tsx`)
+
+Evidence provenance marker. Use on every metric — mandatory per Non-negotiable #2.
+
+Kinds: `live` · `oracle` · `attested` · `estimated` · `partial` · `manual` · `stale`.
+Display modes: `default` (pill) · `compact` (dot only) · `strip` (no glass, hero KPI strip).
+
+Do not use `ProvenanceBadge` for general status. Do not use `Badge` for data provenance.
+
+---
+
+### 12.4 Accepted micro-adjustment exceptions
+
+Tailwind micro-adjustment helpers are acceptable when:
+- No `--ct-space-*` token maps to the required offset, **and**
+- The adjustment is sub-rem and purely local (not a layout concern)
+
+**Accepted exceptions in vault components:**
+
+| Class | Usage | Why |
+|---|---|---|
+| `mt-auto` | Push CTA to bottom of flex column | No DS token equivalent for flex push |
+| `mt-0.5` | 2px nudge on inline text/icon | Sub-pixel alignment, no `--ct-space-0_5` map |
+| `mx-0.5` | 2px horizontal nudge on separator dot | Same |
+
+**Not acceptable via Tailwind arbitrary values** — must use DS utilities/tokens:
+- Spacing above 0.5rem → use `--ct-space-*` via a CSS class
+- Colors / backgrounds → use `--ct-*` token via a `ct-*` utility class
+- Focus rings / outlines → use `ct-ring-*` (see `cockpit.css`)
+- Line-height → use `ct-leading-*` (see `cockpit.css`)
+- Border color → use `ct-bc-*` (see `cockpit.css`)
+
+---
+
+### 12.5 `product-doc-stack--tight` standalone usage
+
+`product-doc-stack--tight` is defined as a modifier name but is **standalone-safe** under `.product-doc`.
+
+The CSS selector `.product-doc .product-doc-stack--tight` scopes to the product-doc container regardless of whether a `product-doc-stack` parent is present. Using it without a wrapping `product-doc-stack` element is intentional and tested (confirmed page, next-steps block).
+
+Do not rename in a future batch without updating all call-sites and the selector in `doc-flow.css`.
+
+---
+
 ## 11. Working log / audit summary
 
 | Date | Commit | Note |
