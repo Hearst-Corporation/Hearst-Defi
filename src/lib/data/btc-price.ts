@@ -9,13 +9,15 @@ import { captureMessage } from "@/lib/error-tracking";
 /**
  * BTC price loader — methodology v1.0 source contract.
  *
- *   - Primary  : Chainlink `BTC/USD` aggregator (on-chain oracle).
- *                Wired when `NEXT_PUBLIC_CHAIN_RPC_URL` resolves to a chain
- *                where the aggregator exists AND
- *                `NEXT_PUBLIC_CHAINLINK_BTC_USD_ADDRESS` is set (or the chain
- *                default address is known — Ethereum mainnet
- *                `0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c`).
- *                When read successfully, `provenance: "oracle"`.
+ *   - Primary  : Chainlink `BTC/USD` aggregator (on-chain oracle, Ethereum
+ *                mainnet). Wired ONLY when `CHAINLINK_RPC_URL` (a mainnet RPC)
+ *                is set — the aggregator lives on mainnet, so it must be read
+ *                over a mainnet RPC, NOT the app's Base-Sepolia
+ *                `NEXT_PUBLIC_CHAIN_RPC_URL`. Address defaults to mainnet
+ *                `0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c` (override via
+ *                `NEXT_PUBLIC_CHAINLINK_BTC_USD_ADDRESS`). When read
+ *                successfully, `provenance: "oracle"`. When `CHAINLINK_RPC_URL`
+ *                is unset the oracle is skipped and CoinGecko `live` is served.
  *   - Fallback : CoinGecko spot price. `provenance: "live"`.
  *   - Stale    : age > 5 minutes OR neither source responded. `provenance: "stale"`.
  *
@@ -95,7 +97,11 @@ async function fetchChainlinkBtcUsd(): Promise<{
   usd: number;
   updatedAt: Date;
 } | null> {
-  const rpcUrl = process.env.NEXT_PUBLIC_CHAIN_RPC_URL;
+  // The Chainlink BTC/USD aggregator lives on Ethereum MAINNET, so it must be
+  // read over a mainnet RPC — NOT the app's Base-Sepolia NEXT_PUBLIC_CHAIN_RPC_URL
+  // (querying a mainnet aggregator address over the Base-Sepolia RPC always
+  // failed, which is why "oracle" provenance was never actually reachable).
+  const rpcUrl = process.env.CHAINLINK_RPC_URL;
   if (!rpcUrl || rpcUrl.trim().length === 0) return null;
 
   const explicit = parseAddress(process.env.NEXT_PUBLIC_CHAINLINK_BTC_USD_ADDRESS);
@@ -178,20 +184,20 @@ export async function fetchBtcPrice(): Promise<BtcPriceData> {
     };
   }
 
-  // Oracle unavailable. In production this is a degradation worth surfacing:
-  // the NAV-relevant BTC price is no longer oracle-backed. `captureMessage` is
-  // a no-op without SENTRY_DSN, and Sentry groups identical messages — so a
-  // per-call capture becomes one grouped issue with a count, not log spam. We
-  // never fire in dev/test (silent fallback is fine locally).
-  if (process.env.NODE_ENV === "production") {
-    const rpcConfigured =
-      !!process.env.NEXT_PUBLIC_CHAIN_RPC_URL &&
-      process.env.NEXT_PUBLIC_CHAIN_RPC_URL.trim().length > 0;
+  // Oracle unavailable. Only a CONFIGURED-but-failing oracle is a genuine
+  // degradation worth surfacing. When CHAINLINK_RPC_URL is unset, CoinGecko
+  // `live` is the intended mode (not a degradation), so we stay quiet instead
+  // of firing a permanent false "degraded" alert every call. `captureMessage`
+  // is a no-op without SENTRY_DSN and Sentry groups identical messages, so a
+  // per-call capture becomes one grouped issue with a count, not log spam.
+  const oracleConfigured =
+    !!process.env.CHAINLINK_RPC_URL &&
+    process.env.CHAINLINK_RPC_URL.trim().length > 0;
+  if (process.env.NODE_ENV === "production" && oracleConfigured) {
     captureMessage(
-      "BTC price degraded: Chainlink oracle unavailable, falling back to CoinGecko spot.",
+      "BTC price degraded: Chainlink oracle call failed, falling back to CoinGecko spot.",
       {
-        reason: rpcConfigured ? "oracle_call_failed" : "rpc_not_configured",
-        rpcConfigured,
+        reason: "oracle_call_failed",
         expectedProvenance: "oracle",
       },
     );

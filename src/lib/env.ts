@@ -60,6 +60,12 @@ const serverEnvSchema = z.object({
   // (0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c). Override only if the RPC
   // points at a chain that hosts a different aggregator address.
   NEXT_PUBLIC_CHAINLINK_BTC_USD_ADDRESS: z.string().optional(),
+  // Ethereum-mainnet RPC used ONLY to read the Chainlink BTC/USD aggregator
+  // (the aggregator lives on mainnet, so it cannot be read over the app's
+  // Base-Sepolia NEXT_PUBLIC_CHAIN_RPC_URL). Server-only (may embed an API key),
+  // so NOT NEXT_PUBLIC_. When unset, the BTC loader skips the oracle and serves
+  // CoinGecko `live` — provenance is honest either way.
+  CHAINLINK_RPC_URL: z.string().url().optional(),
   // Mining energy cost override (USD per kWh). When unset, the loader falls
   // back to the industry default 0.05 USD/kWh and surfaces a `Manual`
   // provenance badge. Methodology v1.0 promises a partner-attested feed
