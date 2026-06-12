@@ -67,6 +67,12 @@ export interface ChatAgentResult {
    * model chose (whitelisted + compliant answer), or null. Never rejects.
    */
   nav: Promise<NavDestination | null>;
+  /**
+   * Resolves AFTER the turn with the final answer text (for persistence) and
+   * whether it was compliance-blocked. When `blocked` is true the caller MUST
+   * NOT persist `text` (it never reached the user either). Never rejects.
+   */
+  final: Promise<{ text: string; blocked: boolean }>;
 }
 
 /**
@@ -130,6 +136,17 @@ export function runChatAgent(
     resolveNav(d);
   };
 
+  let resolveFinal: (r: { text: string; blocked: boolean }) => void = () => {};
+  const final = new Promise<{ text: string; blocked: boolean }>((r) => {
+    resolveFinal = r;
+  });
+  let finalSettled = false;
+  const finishFinal = (r: { text: string; blocked: boolean }): void => {
+    if (finalSettled) return;
+    finalSettled = true;
+    resolveFinal(r);
+  };
+
   const raw = new ReadableStream<Uint8Array>({
     async start(controller) {
       let consumerGone = false;
@@ -164,6 +181,7 @@ export function runChatAgent(
           /* already closed */
         }
         finishNav(null);
+        finishFinal({ text: "", blocked: false });
         return;
       }
 
@@ -221,8 +239,9 @@ export function runChatAgent(
 
       // Navigate only when the model picked a whitelisted destination AND the
       // answer is compliant — never off the back of a blocked answer.
+      const blocked = chatOutputViolation(fullText, true) !== null;
       let dest = destinationFromToolCalls(toolCalls);
-      if (dest && chatOutputViolation(fullText, true)) {
+      if (dest && blocked) {
         dest = null;
       }
 
@@ -230,12 +249,14 @@ export function runChatAgent(
       // fallback so the bubble is never blank — but only when we actually have
       // a valid destination to send the user to, and only if the answer so far
       // is compliant (never bypass the output guard).
+      let persistText = fullText;
       if (
         fullText.trim().length === 0 &&
         dest &&
         !chatOutputViolation(NAV_ONLY_FALLBACK, true)
       ) {
         safeEnqueue(NAV_ONLY_FALLBACK);
+        persistText = NAV_ONLY_FALLBACK;
       }
 
       try {
@@ -245,12 +266,15 @@ export function runChatAgent(
       }
 
       finishNav(dest);
+      // Persist only a compliant answer — a blocked one never reached the user.
+      finishFinal({ text: blocked ? "" : persistText, blocked });
     },
 
     cancel() {
       finishNav(null);
+      finishFinal({ text: "", blocked: false });
     },
   });
 
-  return { stream: guardChatStream(raw), nav };
+  return { stream: guardChatStream(raw), nav, final };
 }

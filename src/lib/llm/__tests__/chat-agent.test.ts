@@ -172,4 +172,18 @@ describe("runChatAgent", () => {
     const dest = await nav;
     expect(dest?.route).toBe("/portfolio");
   });
+
+  it("resolves `final` with the answer text for persistence (compliant)", async () => {
+    const client = fakeClient([textChunk("Réponse compliant.")]);
+    const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS);
+    await readAll(stream);
+    expect(await final).toEqual({ text: "Réponse compliant.", blocked: false });
+  });
+
+  it("resolves `final` blocked=true with empty text on a non-compliant answer", async () => {
+    const client = fakeClient([textChunk("Le rendement est garanti.")]);
+    const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS);
+    await readAll(stream);
+    expect(await final).toEqual({ text: "", blocked: true });
+  });
 });
