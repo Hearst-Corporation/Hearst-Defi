@@ -284,17 +284,17 @@ function AllocationBar({
   );
 }
 
-export function AllocationSection({
-  output,
+function AllocationTable({
+  allocations,
   variant,
 }: {
-  output: ScenarioOutput;
+  allocations: ScenarioOutput["allocations"];
   variant: OutputVariant;
 }) {
   const yieldHeader = variant === "full" ? "Yield contribution" : "Yield";
 
-  const table = (
-    <div className={variant === "full" ? "mt-4" : undefined}>
+  return (
+    <div className={variant === "full" ? "mt-4" : "mt-3"}>
       <div
         className={cn(
           "grid grid-cols-[1fr_auto_auto] text-micro font-semibold uppercase tracking-(--ct-tracking-wide) ct-text-muted",
@@ -306,7 +306,7 @@ export function AllocationSection({
         <span className="text-right">{yieldHeader}</span>
       </div>
       <ul className="divide-y divide-(--ct-border-soft)">
-        {output.allocations.map((a) => (
+        {allocations.map((a) => (
           <li
             key={a.bucket}
             className={cn(
@@ -345,7 +345,31 @@ export function AllocationSection({
       </ul>
     </div>
   );
+}
 
+/** Bar + bucket table — shared by full Allocation card and Allocation & rebalancing. */
+export function AllocationBreakdown({
+  allocations,
+  variant,
+}: {
+  allocations: ScenarioOutput["allocations"];
+  variant: OutputVariant;
+}) {
+  return (
+    <>
+      <AllocationBar allocations={allocations} />
+      <AllocationTable allocations={allocations} variant={variant} />
+    </>
+  );
+}
+
+export function AllocationSection({
+  output,
+  variant,
+}: {
+  output: ScenarioOutput;
+  variant: OutputVariant;
+}) {
   if (variant === "full") {
     return (
       <Card>
@@ -353,8 +377,7 @@ export function AllocationSection({
           <CardTitle>Allocation</CardTitle>
           <ProvenanceBadge kind="estimated" />
         </CardHeader>
-        <AllocationBar allocations={output.allocations} />
-        {table}
+        <AllocationBreakdown allocations={output.allocations} variant="full" />
       </Card>
     );
   }
@@ -365,8 +388,7 @@ export function AllocationSection({
         <h4 className="h4 ct-text-strong">Allocation</h4>
         <ProvenanceBadge kind="estimated" />
       </div>
-      <AllocationBar allocations={output.allocations} />
-      <div className="mt-3">{table}</div>
+      <AllocationBreakdown allocations={output.allocations} variant="compact" />
     </div>
   );
 }

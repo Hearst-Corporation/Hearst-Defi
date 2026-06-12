@@ -1,5 +1,10 @@
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
+import {
+  apyRangeMidpoint,
+  deltaToneClass,
+  formatSignedFixed,
+} from "@/lib/scenario/compare-metrics";
 import type { ScenarioOutput } from "@/lib/engine/types";
 
 // ── Delta row for compare mode ────────────────────────────────────────────────
@@ -19,13 +24,10 @@ interface DeltaMetric {
 }
 
 function buildDeltas(a: ScenarioOutput, b: ScenarioOutput): DeltaMetric[] {
-  const apyMidA = (a.apy_range.low + a.apy_range.high) / 2;
-  const apyMidB = (b.apy_range.low + b.apy_range.high) / 2;
-
   return [
     {
       label: "ΔAPY",
-      delta: apyMidB - apyMidA,
+      delta: apyRangeMidpoint(b) - apyRangeMidpoint(a),
       unit: "pts",
       betterWhenPositive: true,
       precision: 2,
@@ -48,24 +50,12 @@ function buildDeltas(a: ScenarioOutput, b: ScenarioOutput): DeltaMetric[] {
 }
 
 function toneClass(metric: DeltaMetric): string {
-  const THRESHOLD = 0.05;
-  const isBetter = metric.betterWhenPositive
-    ? metric.delta > THRESHOLD
-    : metric.delta < -THRESHOLD;
-  const isWorse = metric.betterWhenPositive
-    ? metric.delta < -THRESHOLD
-    : metric.delta > THRESHOLD;
-
-  if (isBetter) return "ct-status-success";
-  if (isWorse) return "ct-status-danger";
-  return "ct-text-body";
+  const threshold = metric.label === "ΔAPY" ? 0.05 : 0.5;
+  return deltaToneClass(metric.delta, metric.betterWhenPositive, threshold);
 }
 
 function formatDelta(metric: DeltaMetric): string {
-  const abs = Math.abs(metric.delta).toFixed(metric.precision);
-  if (metric.delta > 0.005) return `+${abs}`;
-  if (metric.delta < -0.005) return `−${abs}`;
-  return `±${abs}`;
+  return formatSignedFixed(metric.delta, metric.precision);
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────

@@ -1,3 +1,7 @@
+import {
+  deriveScenarioImpact,
+  deriveScenarioProjection,
+} from "@/components/scenario/ptai-derive";
 import { Badge } from "@/components/ui/badge";
 import { NestedCallout } from "@/components/ui/nested-panel";
 import type { BtcTriggerKind, ScenarioOutput } from "@/lib/engine/types";
@@ -30,33 +34,10 @@ const KIND_VARIANT: Record<BtcTriggerKind, BadgeVariant> = {
   hold: "default",
 };
 
-function formatModeLabel(mode: ScenarioOutput["mode"]): string {
-  if (mode === "defensive") return "Defensive";
-  if (mode === "opportunistic") return "Opportunistic";
-  return "Balanced";
-}
-
-function projectionLine(output: ScenarioOutput): string {
-  const { low, high } = output.apy_range;
-  return `APY ${low.toFixed(1)}–${high.toFixed(1)}% in ${formatModeLabel(output.mode)} mode (confidence: ${output.confidence}).`;
-}
-
-function impactLine(output: ScenarioOutput): string {
-  const { low, high } = output.apy_range;
-  const stressed = output.stressed_apy.toFixed(1);
-  const riskLabel =
-    output.risk_score > 70
-      ? "elevated"
-      : output.risk_score > 40
-        ? "moderate"
-        : "low";
-  return `APY range ${low.toFixed(1)}–${high.toFixed(1)}%; stressed floor ${stressed}%. Risk score ${output.risk_score.toFixed(0)}/100 (${riskLabel}).`;
-}
-
 export function deriveActions(output: ScenarioOutput): RebalancingAction[] {
   const actions: RebalancingAction[] = [];
-  const projection = projectionLine(output);
-  const impact = impactLine(output);
+  const projection = deriveScenarioProjection(output);
+  const impact = deriveScenarioImpact(output);
 
   for (const trigger of output.btc_tactical.triggers) {
     if (!trigger.armed) continue;

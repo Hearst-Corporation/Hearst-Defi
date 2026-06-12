@@ -3,8 +3,10 @@
 import { useState } from "react";
 
 import { Markdown } from "@/components/admin/markdown";
+import { AssumptionsList } from "@/components/scenario/assumptions-list";
 import { NavSparkline } from "@/components/scenario/nav-sparkline";
 import {
+  AllocationBreakdown,
   AllocationSection,
   ApyHero,
   ScoreGrid,
@@ -18,20 +20,23 @@ import {
 } from "@/components/scenario/rebalancing-actions";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { NestedCallout, NestedPanel } from "@/components/ui/nested-panel";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import {
-  BUCKET_COLOR,
-  BUCKET_LABEL,
   CONFIDENCE_VARIANT,
   MODE_LABEL,
   MODE_VARIANT,
   progressScoreFillClass,
 } from "@/lib/constants/scenario";
 import { cn } from "@/lib/cn";
+import {
+  computeApyDelta,
+  deltaToneClass,
+  formatSignedFixed,
+  formatSignedInt,
+} from "@/lib/scenario/compare-metrics";
 import type { ScenarioNarrativeOutput } from "@/lib/agents/schemas";
 import type {
   BtcGuardrail,
@@ -98,36 +103,6 @@ const ACTION_TONE: Record<
   brand: { dot: "bg-(--ct-accent)", border: "border-l-(--ct-accent)" },
   default: { dot: "bg-(--ct-text-muted)", border: "border-l-(--ct-border-strong)" },
 };
-
-/**
- * Parses an assumption string. If it contains `=`, splits on first `=` and
- * returns { key, value }. Otherwise returns the full string as value.
- */
-function parseAssumption(line: string): { key: string | null; value: string } {
-  const eqIdx = line.indexOf("=");
-  if (eqIdx === -1) return { key: null, value: line };
-  const key = line.slice(0, eqIdx).trim().replace(/_/g, " ");
-  const value = line.slice(eqIdx + 1).trim();
-  return { key, value };
-}
-
-// ── compact delta helpers ─────────────────────────────────────────────────────
-
-function computeApyDelta(a: ScenarioOutput, b: ScenarioOutput): number {
-  const midA = (a.apy_range.low + a.apy_range.high) / 2;
-  const midB = (b.apy_range.low + b.apy_range.high) / 2;
-  return midB - midA;
-}
-
-function formatSignedFixed(n: number, precision: number): string {
-  const sign = n > 0 ? "+" : n < 0 ? "−" : "±";
-  return `${sign}${Math.abs(n).toFixed(precision)}`;
-}
-
-function formatSignedInt(n: number): string {
-  const sign = n > 0 ? "+" : n < 0 ? "−" : "±";
-  return `${sign}${Math.abs(Math.round(n))}`;
-}
 
 // ── full-view: decision panel ─────────────────────────────────────────────────
 
@@ -319,48 +294,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
           BTC tactical target {output.btc_tactical.targetExposurePct.toFixed(0)}%
         </span>
       </div>
-      <div className="flex h-2 w-full overflow-hidden rounded-full">
-        {output.allocations.map((a) => (
-          <div
-            key={a.bucket}
-            className="ct-alloc-bar-segment"
-            style={{ width: `${a.pct}%`, color: BUCKET_COLOR[a.bucket] }}
-            title={`${BUCKET_LABEL[a.bucket]}: ${a.pct.toFixed(0)}%`}
-          />
-        ))}
-      </div>
-      <div className="mt-4">
-        <div className="mb-2 grid grid-cols-[1fr_auto_auto] gap-x-4 text-micro font-semibold uppercase tracking-(--ct-tracking-wide) ct-text-muted">
-          <span>Bucket</span>
-          <span className="text-right">Pct</span>
-          <span className="text-right">Yield contribution</span>
-        </div>
-        <ul className="divide-y divide-(--ct-border-soft)">
-          {output.allocations.map((a) => (
-            <li
-              key={a.bucket}
-              className="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 py-2.5 body-sm first:pt-1 last:pb-1"
-            >
-              <span className="flex min-w-0 items-center gap-2 ct-text-body">
-                <span
-                  className="inline-block h-2 w-2 shrink-0 rounded-full shadow-(--ct-glow-dot) bg-current"
-                  style={{ color: BUCKET_COLOR[a.bucket] }}
-                  aria-hidden
-                />
-                {BUCKET_LABEL[a.bucket]}
-              </span>
-              <span className="text-right mono tabular-nums ct-text-primary">
-                {a.pct.toFixed(0)}%
-              </span>
-              <span className="text-right mono tabular-nums ct-text-muted">
-                {a.yield_contribution_bps > 0
-                  ? `+${a.yield_contribution_bps} bps`
-                  : "P&L variable"}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <AllocationBreakdown allocations={output.allocations} variant="full" />
 
       {/* Tactical guardrails */}
       {hasGuardrails ? (
@@ -408,56 +342,6 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
 }
 
 // ── full-view: assumptions (secondary, collapsed by default) ──────────────────
-
-function AssumptionsList({ assumptions }: { assumptions: string[] }) {
-  const [expanded, setExpanded] = useState(false);
-  const THRESHOLD = 5;
-  const shouldTruncate = assumptions.length > THRESHOLD;
-  const visible =
-    shouldTruncate && !expanded ? assumptions.slice(0, THRESHOLD) : assumptions;
-
-  return (
-    <div>
-      <ul className="space-y-2">
-        {visible.map((line, i) => {
-          const { key, value } = parseAssumption(line);
-          return (
-            <li key={i} className="flex items-start gap-2 body-sm">
-              <span
-                className="mt-0.5 shrink-0 text-micro ct-text-strong"
-                aria-hidden
-              >
-                ▸
-              </span>
-              {key !== null ? (
-                <span>
-                  <span className="font-semibold ct-text-body capitalize">
-                    {key}
-                  </span>
-                  <span className="ct-text-muted">: </span>
-                  <span className="mono ct-text-body">{value}</span>
-                </span>
-              ) : (
-                <span className="ct-text-body">{value}</span>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-      {shouldTruncate && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => setExpanded((x) => !x)}
-          className="mt-3 ct-text-strong hover:ct-text-strong"
-        >
-          {expanded ? "Show less" : `Show ${assumptions.length - THRESHOLD} more`}
-        </Button>
-      )}
-    </div>
-  );
-}
 
 /** Assumptions live below the decision as a collapsed, secondary block — they
  * must never weigh as much as the result itself. */
@@ -508,20 +392,12 @@ function CompactPanel({
   // For Risk: higher is "worse" (positive delta = red).
   const apyDeltaToneClass =
     apyDeltaValue !== null
-      ? apyDeltaValue > 0.05
-        ? "ct-status-success"
-        : apyDeltaValue < -0.05
-          ? "ct-status-danger"
-          : "ct-text-muted"
+      ? deltaToneClass(apyDeltaValue, true, 0.05)
       : "";
 
   const riskDeltaToneClass =
     riskDeltaValue !== null
-      ? riskDeltaValue > 0.5
-        ? "ct-status-danger"
-        : riskDeltaValue < -0.5
-          ? "ct-status-success"
-          : "ct-text-muted"
+      ? deltaToneClass(riskDeltaValue, false, 0.5)
       : "";
 
   const apyDelta =
