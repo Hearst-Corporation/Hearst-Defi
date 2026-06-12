@@ -189,7 +189,7 @@ export function PresetPicker<T extends string>({
                   )}
                 >
                   <span className="h4">{o.label}</span>
-                  <span className="text-micro ct-text-muted">
+                  <span className="ct-text-micro-size ct-text-muted">
                     {isExcluded ? PRESET_PICKER_STRINGS.alreadySelectedOtherSide : o.description}
                   </span>
                 </button>

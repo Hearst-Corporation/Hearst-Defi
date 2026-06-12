@@ -70,7 +70,7 @@ export function SimulationPanel({
         {result && (
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium border",
+              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[length:var(--ct-text-micro-size)] font-medium border",
               result.ok
                 ? "border-[var(--ct-status-success-border)] ct-status-success-bg ct-status-success"
                 : "border-[var(--ct-status-danger-border)] ct-status-danger-bg ct-status-danger",
@@ -202,27 +202,27 @@ function StateDiffSection({ entries }: { entries: StateDiffEntry[] }) {
               key={i}
               className="rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-3 py-2.5 space-y-1"
             >
-              <p className="mono text-[length:var(--ct-text-micro)] ct-text-muted truncate">
+              <p className="mono text-[length:var(--ct-text-micro-size)] ct-text-muted truncate">
                 {entry.contract}
               </p>
-              <p className="mono text-[length:var(--ct-text-micro)] ct-text-faint truncate">
+              <p className="mono text-[length:var(--ct-text-micro-size)] ct-text-faint truncate">
                 slot {entry.slot.slice(0, 18)}…
               </p>
               <div className="flex items-center gap-2 flex-wrap">
                 <span
-                  className="mono text-[length:var(--ct-text-micro)] ct-text-faint"
+                  className="mono text-[length:var(--ct-text-micro-size)] ct-text-faint"
                   title={entry.before}
                 >
                   {truncateHex(entry.before)}
                 </span>
                 <span
-                  className="text-[length:var(--ct-text-micro)] ct-text-faint"
+                  className="text-[length:var(--ct-text-micro-size)] ct-text-faint"
                   aria-hidden="true"
                 >
                   →
                 </span>
                 <span
-                  className="mono text-[length:var(--ct-text-micro)] ct-text-accent"
+                  className="mono text-[length:var(--ct-text-micro-size)] ct-text-accent"
                   title={entry.after}
                 >
                   {truncateHex(entry.after)}
@@ -254,7 +254,7 @@ function BalanceDeltaSection({ entries }: { entries: BalanceDeltaEntry[] }) {
                 key={i}
                 className="flex items-center justify-between gap-4 rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-3 py-2"
               >
-                <span className="mono text-[length:var(--ct-text-micro)] ct-text-muted truncate">
+                <span className="mono text-[length:var(--ct-text-micro-size)] ct-text-muted truncate">
                   {entry.address.slice(0, 10)}…
                 </span>
                 <span
@@ -296,7 +296,7 @@ function RevertsSection({ entries }: { entries: RevertEntry[] }) {
             <p className="text-[length:var(--ct-text-xs)] font-medium ct-status-danger">
               {entry.reason}
             </p>
-            <p className="mt-0.5 mono text-[length:var(--ct-text-micro)] ct-text-faint">
+            <p className="mt-0.5 mono text-[length:var(--ct-text-micro-size)] ct-text-faint">
               PC: {entry.pc}
             </p>
           </li>
@@ -327,11 +327,11 @@ function EventsSection({ entries }: { entries: EventEntry[] }) {
               <ul className="space-y-0.5">
                 {Object.entries(entry.args).map(([key, val]) => (
                   <li key={key} className="flex gap-2 items-start">
-                    <span className="shrink-0 mono text-[length:var(--ct-text-micro)] ct-text-muted min-w-20">
+                    <span className="shrink-0 mono text-[length:var(--ct-text-micro-size)] ct-text-muted min-w-20">
                       {key}
                     </span>
                     <span
-                      className="mono text-[length:var(--ct-text-micro)] ct-text-faint truncate"
+                      className="mono text-[length:var(--ct-text-micro-size)] ct-text-faint truncate"
                       title={String(val)}
                     >
                       {String(val)}
@@ -358,7 +358,7 @@ function TraceLink() {
       >
         ▶ View full trace
       </button>
-      <span className="ml-2 text-[length:var(--ct-text-micro)] ct-text-faint">
+      <span className="ml-2 text-[length:var(--ct-text-micro-size)] ct-text-faint">
         (P2 — stub only)
       </span>
     </div>
@@ -375,7 +375,7 @@ function SectionLabel({
   return (
     <p
       className={cn(
-        "text-[length:var(--ct-text-micro)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted",
+        "text-[length:var(--ct-text-micro-size)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted",
         className,
       )}
     >

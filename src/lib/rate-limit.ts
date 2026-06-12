@@ -145,9 +145,9 @@ async function checkRedis(
 
   // Upstash REST eval can return numeric Lua values as strings; coerce at the
   // boundary so downstream arithmetic is always numeric (AUTH-5 fix).
-  const allowed = Number((raw as [unknown, unknown, unknown])[0]);
-  const count = Number((raw as [unknown, unknown, unknown])[1]);
-  const rawOldest = Number((raw as [unknown, unknown, unknown])[2]);
+  const allowed = Number(raw[0]);
+  const count = Number(raw[1]);
+  const rawOldest = Number(raw[2]);
   // Guard against NaN (e.g. Redis returned null/undefined for oldest score):
   // treat it as "no prior entry" so resetAt falls back to now + windowMs.
   const oldestScore = Number.isNaN(rawOldest) ? 0 : rawOldest;

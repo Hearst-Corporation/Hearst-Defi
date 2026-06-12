@@ -190,7 +190,7 @@ export function AllocationDonut({ segments, ariaLabel }: AllocationDonutProps) {
         </svg>
         {/* Center label */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-micro font-bold uppercase tracking-widest ct-text-faint">Total</span>
+          <span className="ct-text-micro-size font-bold uppercase tracking-widest ct-text-faint">Total</span>
           <span className="text-lg font-bold ct-text-strong">100%</span>
         </div>
       </div>

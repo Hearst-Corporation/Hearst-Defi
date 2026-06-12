@@ -308,7 +308,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
       </div>
 
       {/* Footer disclaimer */}
-      <p className="text-micro leading-tight ct-text-faint,var(--ct-text-muted)">
+      <p className="ct-text-micro-size leading-tight ct-text-faint,var(--ct-text-muted)">
         Projections only. Not guaranteed. Past results do not predict future
         returns. See Methodology v1.0.
       </p>

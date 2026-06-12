@@ -81,7 +81,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       {page.preview ? (
         <Card className="relative z-10 border-[var(--ct-status-warning-border)] ct-status-warning-bg/20">
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
-            <span className="text-micro font-bold uppercase tracking-widest ct-status-warning">
+            <span className="ct-text-micro-size font-bold uppercase tracking-widest ct-status-warning">
               Per-vault live snapshot pending
             </span>
             <ProvenanceBadge kind="estimated" />

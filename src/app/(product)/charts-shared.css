@@ -45,7 +45,7 @@
   font-size: var(--ct-text-3xl);
   font-weight: var(--ct-font-extrabold);
   color: var(--ct-text-strong);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-none);
   font-variant-numeric: tabular-nums;
 }

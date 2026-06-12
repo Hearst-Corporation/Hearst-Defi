@@ -101,13 +101,13 @@ describe("Admin roadmap — design contract", () => {
     expect(html).not.toContain("ct-empty-surface--widget");
   });
 
-  it("phase with no weeks: inline empty under active phase header", () => {
+  it("phase with no weeks: PanelStatus inline under active phase header", () => {
     const html = renderToStaticMarkup(
       <RoadmapBoard
         phases={[{ ...samplePhase, weeks: [], total: 0, doneCount: 0 }]}
       />,
     );
-    expect(html).toContain("ct-empty-surface--inline");
+    expect(html).toContain("ct-panel-status");
     expect(html).toContain("No sprint weeks in this phase.");
     expect(html).toContain('class="h2"');
   });

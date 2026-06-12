@@ -1,6 +1,9 @@
+import type { ReactNode } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { EXPLORER_ADDRESS_BASE, EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { ProofType } from "@/lib/proof-center-types";
@@ -8,19 +11,13 @@ import type { ProofType } from "@/lib/proof-center-types";
 import { ipfsGatewayUrl } from "@/lib/ipfs-gateway";
 import { safeUrl } from "@/lib/safe-url";
 import { abbreviateAddress } from "@/lib/onchain";
+import { cn } from "@/lib/cn";
 
 import type { UnifiedProof } from "./proof-types";
 
 interface ProofCardProps {
   proof: UnifiedProof;
 }
-
-const TYPE_LABEL: Record<ProofType, string> = {
-  mining_attestation: "Mining attestation",
-  custody: "Custody",
-  audit: "Audit",
-  methodology: "Methodology",
-};
 
 const TYPE_VARIANT: Record<
   ProofType,
@@ -36,7 +33,6 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
   timeZone: "UTC",
 });
-
 
 function uriLabel(uri: string): string {
   if (uri.startsWith("ipfs://")) return "View on IPFS";
@@ -59,6 +55,57 @@ function btcFmt(value: number): string {
   }).format(value)} BTC`;
 }
 
+function ProofCardShell({ children }: { children: ReactNode }) {
+  return (
+    <Card className="product-doc-stack--relaxed h-full" hoverOverlay={false}>
+      {children}
+    </Card>
+  );
+}
+
+function ProofCardHeader({
+  title,
+  trailing,
+}: {
+  title: string;
+  trailing: ReactNode;
+}) {
+  return (
+    <header className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--start gap-3">
+      <h4 className="h4 text-balance m-0 min-w-0">{title}</h4>
+      <div className="product-doc-inline-row shrink-0">{trailing}</div>
+    </header>
+  );
+}
+
+function ProofFieldList({ children }: { children: ReactNode }) {
+  return <div className="ct-panel-fields">{children}</div>;
+}
+
+function ProofCardActions({ children }: { children: ReactNode }) {
+  return (
+    <div className="mt-auto product-doc-inline-row product-doc-inline-row--tight pt-3 border-t border-(--ct-border-soft)">
+      {children}
+    </div>
+  );
+}
+
+function OffChainMirrorButton() {
+  return (
+    <Button
+      type="button"
+      variant="secondary"
+      size="sm"
+      disabled
+      aria-label="On-chain mirror not yet available — Phase 2 will publish this proof via the EventLogger contract."
+      className="ct-text-muted"
+      title="Phase 2 will mirror this proof on-chain via the EventLogger contract."
+    >
+      Off-chain (Phase 1)
+    </Button>
+  );
+}
+
 export function ProofCard({ proof }: ProofCardProps) {
   if (proof.source === "paper") {
     return <PaperProofCard proof={proof} />;
@@ -77,73 +124,48 @@ function PaperProofCard({
   const postedAt = new Date(proof.postedAt);
   const hashTruncated = abbreviateAddress(proof.hash);
 
-  // Honesty: off-chain proofs need a visible provenance, and the end-to-end
-  // signature check must not be silently dropped.
-  //  - verified signature → "attested"
-  //  - failed signature   → keep "manual" provenance but flag the failure
-  //  - no/absent signature → "manual" (off-chain evidence, manually posted)
   const verification = proof.attestationVerified;
   const provenance: Provenance = verification === true ? "attested" : "manual";
 
   return (
-    <Card className="product-doc-stack--relaxed">
-      <header className="product-doc-stack--tight">
-        <div className="product-doc-inline-row product-doc-inline-row--between">
-          <span className="eyebrow">{TYPE_LABEL[proof.proofType]}</span>
-          <div className="product-doc-inline-row">
+    <ProofCardShell>
+      <ProofCardHeader
+        title={proof.title}
+        trailing={
+          <>
             <ProvenanceBadge kind={provenance} />
             <Badge variant={TYPE_VARIANT[proof.proofType]}>
               {proof.period ?? "Standing"}
             </Badge>
-          </div>
-        </div>
-        <h4 className="h4 text-balance">{proof.title}</h4>
-      </header>
+          </>
+        }
+      />
 
-      <dl className="product-doc-stack--dense">
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Source</dt>
-          <dd className="body-xs ct-text-body">Off-chain</dd>
-        </div>
+      <ProofFieldList>
+        <ProofRow label="Source">Off-chain</ProofRow>
         {verification !== null && verification !== undefined ? (
-          <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-            <dt className="body-xs">Signature</dt>
-            <dd
-              className={
-                verification
-                  ? "body-xs ct-status-success"
-                  : "body-xs ct-status-danger"
-              }
+          <ProofRow label="Signature">
+            <span
+              className={cn(
+                verification ? "ct-status-success" : "ct-status-danger",
+              )}
             >
               {verification ? "Verified" : "Failed"}
-            </dd>
-          </div>
+            </span>
+          </ProofRow>
         ) : null}
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Posted</dt>
-          <dd className="body-xs ct-text-body">
-            {dateFmt.format(postedAt)} UTC
-          </dd>
-        </div>
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Signer</dt>
-          <dd className="body-xs ct-text-body">
-            {proof.postedBy}
-          </dd>
-        </div>
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Hash</dt>
-          <dd
-            className="mono tabular body-xs ct-text-primary"
-            title={proof.hash}
-            aria-label={`Hash ${proof.hash}`}
-          >
+        <ProofRow label="Posted">
+          {dateFmt.format(postedAt)} UTC
+        </ProofRow>
+        <ProofRow label="Signer">{proof.postedBy}</ProofRow>
+        <ProofRow label="Hash">
+          <span title={proof.hash} aria-label={`Hash ${proof.hash}`}>
             {hashTruncated}
-          </dd>
-        </div>
-      </dl>
+          </span>
+        </ProofRow>
+      </ProofFieldList>
 
-      <div className="mt-auto product-doc-inline-row pt-2">
+      <ProofCardActions>
         <Button asChild variant="secondary" size="sm">
           <a
             href={safeUrl(proof.uri)}
@@ -164,20 +186,10 @@ function PaperProofCard({
             </a>
           </Button>
         ) : (
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled
-            aria-label="On-chain mirror not yet available — Phase 2 will publish this proof via the EventLogger contract."
-            className="ct-text-muted"
-            title="Phase 2 will mirror this proof on-chain via the EventLogger contract."
-          >
-            Off-chain (Phase 1)
-          </Button>
+          <OffChainMirrorButton />
         )}
-      </div>
-    </Card>
+      </ProofCardActions>
+    </ProofCardShell>
   );
 }
 
@@ -187,63 +199,39 @@ function OnChainEventCard({
   proof: import("@/lib/chain/event-logger").OnChainEvent;
 }) {
   return (
-    <Card className="product-doc-stack--relaxed">
-      <header className="product-doc-stack--tight">
-        <div className="product-doc-inline-row product-doc-inline-row--between">
-          <span className="eyebrow">EventLogger · {proof.kind}</span>
+    <ProofCardShell>
+      <ProofCardHeader
+        title={`Hearst event #${proof.eventId.toString()} — ${proof.kind}`}
+        trailing={
           <Badge variant="success" title="Read directly from Base Sepolia">
             On-chain
           </Badge>
-        </div>
-        <h4 className="h4 text-balance">
-          Hearst event #{proof.eventId.toString()} — {proof.kind}
-        </h4>
-      </header>
+        }
+      />
 
-      <dl className="product-doc-stack--dense">
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Source</dt>
-          <dd className="body-xs ct-text-body">
-            Base Sepolia · block {proof.blockNumber.toString()}
-          </dd>
-        </div>
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Posted</dt>
-          <dd className="body-xs ct-text-body">
-            {dateFmt.format(proof.timestamp)} UTC
-          </dd>
-        </div>
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Publisher</dt>
-          <dd
-            className="mono tabular body-xs ct-text-body"
-            title={proof.publisher}
-          >
-            {abbreviateAddress(proof.publisher)}
-          </dd>
-        </div>
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Tx hash</dt>
-          <dd
-            className="mono tabular body-xs ct-text-primary"
-            title={proof.txHash}
-            aria-label={`Transaction hash ${proof.txHash}`}
-          >
+      <ProofFieldList>
+        <ProofRow label="Source">
+          Base Sepolia · block {proof.blockNumber.toString()}
+        </ProofRow>
+        <ProofRow label="Posted">
+          {dateFmt.format(proof.timestamp)} UTC
+        </ProofRow>
+        <ProofRow label="Publisher">
+          <span title={proof.publisher}>{abbreviateAddress(proof.publisher)}</span>
+        </ProofRow>
+        <ProofRow label="Tx hash">
+          <span title={proof.txHash} aria-label={`Transaction hash ${proof.txHash}`}>
             {abbreviateAddress(proof.txHash)}
-          </dd>
-        </div>
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Context hash</dt>
-          <dd
-            className="mono tabular body-xs ct-text-body"
-            title={proof.contextHash}
-          >
+          </span>
+        </ProofRow>
+        <ProofRow label="Context hash">
+          <span title={proof.contextHash}>
             {abbreviateAddress(proof.contextHash)}
-          </dd>
-        </div>
-      </dl>
+          </span>
+        </ProofRow>
+      </ProofFieldList>
 
-      <div className="mt-auto product-doc-inline-row pt-2">
+      <ProofCardActions>
         {proof.payloadCid.length > 0 ? (
           <Button asChild variant="secondary" size="sm">
             <a
@@ -264,13 +252,12 @@ function OnChainEventCard({
             TX on Base
           </a>
         </Button>
-      </div>
-    </Card>
+      </ProofCardActions>
+    </ProofCardShell>
   );
 }
 
 function formatPeriod(period: bigint): string {
-  // YYYYMM → "YYYY-MM"
   const raw = period.toString();
   if (raw.length !== 6) return raw;
   return `${raw.slice(0, 4)}-${raw.slice(4)}`;
@@ -282,66 +269,41 @@ function OnChainAttestationCard({
   proof: import("@/lib/chain/por-registry").OnChainAttestation;
 }) {
   return (
-    <Card className="product-doc-stack--relaxed">
-      <header className="product-doc-stack--tight">
-        <div className="product-doc-inline-row product-doc-inline-row--between">
-          <span className="eyebrow">PoR attestation</span>
+    <ProofCardShell>
+      <ProofCardHeader
+        title={`PoR #${proof.attestationId.toString()} — ${formatPeriod(proof.period)}`}
+        trailing={
           <Badge variant="brand" title="Proof-of-reserves period">
             {formatPeriod(proof.period)}
           </Badge>
-        </div>
-        <h4 className="h4 text-balance">
-          PoR #{proof.attestationId.toString()} — {formatPeriod(proof.period)}
-        </h4>
-      </header>
+        }
+      />
 
-      <dl className="product-doc-stack--dense">
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Source</dt>
-          <dd className="body-xs">
-            <Badge variant="success">On-chain</Badge>
-          </dd>
-        </div>
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Total AUM</dt>
-          <dd className="mono tabular body-xs ct-text-primary">
-            {usdCompactFmt(proof.totalAumUsd)}
-          </dd>
-        </div>
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Mined</dt>
-          <dd className="mono tabular body-xs ct-text-primary">
-            {btcFmt(proof.minedBtc)}
-          </dd>
-        </div>
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Attestor</dt>
-          <dd
-            className="mono tabular body-xs ct-text-body"
+      <ProofFieldList>
+        <ProofRow label="Source">
+          <Badge variant="success">On-chain</Badge>
+        </ProofRow>
+        <ProofRow label="Total AUM">{usdCompactFmt(proof.totalAumUsd)}</ProofRow>
+        <ProofRow label="Mined">{btcFmt(proof.minedBtc)}</ProofRow>
+        <ProofRow label="Attestor">
+          <a
+            href={`${EXPLORER_ADDRESS_BASE}${proof.attestor}`}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="hover:ct-text-strong"
             title={proof.attestor}
           >
-            <a
-              href={`${EXPLORER_ADDRESS_BASE}${proof.attestor}`}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="hover:ct-text-strong"
-            >
-              {abbreviateAddress(proof.attestor)}
-            </a>
-          </dd>
-        </div>
-        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
-          <dt className="body-xs">Evidence hash</dt>
-          <dd
-            className="mono tabular body-xs ct-text-primary"
-            title={proof.evidenceHash}
-          >
+            {abbreviateAddress(proof.attestor)}
+          </a>
+        </ProofRow>
+        <ProofRow label="Evidence hash">
+          <span title={proof.evidenceHash}>
             {abbreviateAddress(proof.evidenceHash)}
-          </dd>
-        </div>
-      </dl>
+          </span>
+        </ProofRow>
+      </ProofFieldList>
 
-      <div className="mt-auto product-doc-inline-row pt-2">
+      <ProofCardActions>
         {proof.evidenceCid.length > 0 ? (
           <Button asChild variant="secondary" size="sm">
             <a
@@ -362,7 +324,7 @@ function OnChainAttestationCard({
             TX on Base
           </a>
         </Button>
-      </div>
-    </Card>
+      </ProofCardActions>
+    </ProofCardShell>
   );
 }

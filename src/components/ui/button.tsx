@@ -18,7 +18,7 @@ const buttonVariants = cva(
           "border ct-bc-danger ct-status-danger-bg ct-status-danger hover:ct-status-danger-bg",
       },
       size: {
-        sm: "h-5 px-2 text-micro",
+        sm: "h-5 px-2 ct-text-micro-size",
         md: "h-7 px-3 text-xs",
         lg: "h-9 px-4 text-sm",
       },

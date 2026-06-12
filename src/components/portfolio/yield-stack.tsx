@@ -213,7 +213,7 @@ export function YieldStack({
           {/* Stressed bear scenario — range per CLAUDE.md #1, never single point. */}
           <div className="flex items-baseline justify-between">
             <dt className="body-xs min-w-0 truncate ct-text-muted">
-              Stressed (bear) <span className="text-micro opacity-70">(proxy)</span>
+              Stressed (bear) <span className="ct-text-micro-size opacity-70">(proxy)</span>
             </dt>
             <dd
               className={cn(

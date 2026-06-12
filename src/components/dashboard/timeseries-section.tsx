@@ -243,7 +243,7 @@ function NavChart({ points, provenance }: NavChartProps) {
           </span>
           <span
             className={cn(
-              "mono tabular-nums text-micro font-bold px-1.5 py-0.5 rounded-full backdrop-blur-md border",
+              "mono tabular-nums ct-text-micro-size font-bold px-1.5 py-0.5 rounded-full backdrop-blur-md border",
               trendDir === "up" && "ct-status-success-bg ct-status-success border-[var(--ct-status-success-border)]",
               trendDir === "down" && "ct-status-danger-bg ct-status-danger border-[var(--ct-status-danger-border)]",
               trendDir === "flat" && "ct-surface-1 ct-text-muted border-[var(--ct-border)]"

@@ -60,10 +60,15 @@ Transition : `var(--ct-dur-base) 180ms` + `var(--ct-ease) cubic-bezier(.2,.7,.2,
 
 ## 4. Typographie
 
-Sans/mono = **Satoshi** (`--font-sans`/`--font-mono`). Échelle
-`--text-micro .6875 → --text-5xl 3.75rem`. Poids `400/500/600/700/800`.
-Chiffres : `font-variant-numeric: tabular-nums` obligatoire. Tracking titres
-`-0.02em`. Labels : `uppercase` + `letter-spacing .08em` + `--ct-text-muted`.
+Sans/mono = **Satoshi** (`--font-sans`/`--font-mono`). Échelle cockpit
+(`cockpit.css` = source ; `globals.css` `@theme` miroir 1:1) :
+`--ct-text-micro` 9px (`.5625rem`) · `--ct-text-xs` 10px · `--ct-text-sm` 14px ·
+`--ct-text-base` 16px · `--ct-text-lg`…`--ct-text-display` (clamp responsive).
+Poids `400/500/600/700/800`. Chiffres : `tabular-nums` obligatoire (`.mono`/`.tabular`).
+Tracking titres : `--ct-tracking-tight` (`-0.03em`). Labels KPI :
+`.stat-label` / `.eyebrow` → `uppercase` + `--ct-tracking-wide` (`0.04em`) +
+`--ct-text-muted`. Micro utilitaire Tailwind : `text-micro` = `ct-text-micro-size`
+(9px) — préférer la classe cockpit ou les rôles `.body-xs`/`.stat-label`.
 
 ## 5. Charts SVG — convention canonique (RÈGLE)
 

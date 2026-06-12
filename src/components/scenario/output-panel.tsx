@@ -228,7 +228,7 @@ function DecisionPanel({
             {actionLabel}
           </p>
           {topAction ? (
-            <Badge variant={topAction.variant} className="ml-auto shrink-0 text-micro">
+            <Badge variant={topAction.variant} className="ml-auto shrink-0 ct-text-micro-size">
               {topAction.ruleId}
             </Badge>
           ) : null}
@@ -321,7 +321,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
               {armedTriggers.map((t) => (
                 <li key={t.id} className="admin-doc-inline-row admin-doc-inline-row--start body-sm">
                   <span
-                    className="mt-0.5 shrink-0 text-micro ct-status-warning"
+                    className="mt-0.5 shrink-0 ct-text-micro-size ct-status-warning"
                     aria-hidden
                   >
                     ▸
@@ -425,7 +425,7 @@ function CompactPanel({
     riskDeltaValue !== null ? (
       <p
         className={cn(
-          "mt-2 mono text-micro font-semibold tabular-nums",
+          "mt-2 mono ct-text-micro-size font-semibold tabular-nums",
           riskDeltaToneClass,
         )}
         aria-label={`Risk score delta vs Scenario A: ${Math.round(riskDeltaValue)}`}
@@ -463,7 +463,7 @@ function CompactPanel({
       <VaultMode output={output} variant="compact" />
       <AllocationSection output={output} variant="compact" />
       <div>
-        <span className="stat-label text-micro">
+        <span className="stat-label">
           Projection · Trigger · Action · Impact
         </span>
         <PtaiBlock output={output} className="mt-2" />

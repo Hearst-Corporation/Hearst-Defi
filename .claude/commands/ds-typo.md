@@ -22,7 +22,7 @@ Interdit : `Inter`, `Roboto`, `system-ui` seul, toute autre fonte.
 
 ### 2. Tailles autorisées
 Vérifier que seules ces tailles sont utilisées :
-- `--ct-text-micro: 0.6875rem` (11px)
+- `--ct-text-micro: 0.5625rem` (9px) — miroir `@theme --text-micro`
 - `--ct-text-xs` à `--ct-text-5xl` (échelle Tailwind)
 - `--ct-text-display`
 
@@ -53,7 +53,7 @@ Vérifier l'utilisation des classes de rôle :
 ### 6. Tracking
 Vérifier les valeurs de tracking :
 - Titres : `-0.02em`
-- Labels : `0.08em`
+- Labels KPI (`.stat-label`, `.eyebrow`) : `--ct-tracking-wide` (`0.04em`) ; emphase large : `--ct-tracking-wider` (`0.08em`)
 
 ### 7. Rapport
 ```

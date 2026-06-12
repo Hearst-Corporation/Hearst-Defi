@@ -40,7 +40,6 @@ function buildSignature(secret: string, timestamp: string, body: string): string
   return `t=${timestamp},v1=${v1}`;
 }
 
-
 const VALID_PAYLOAD = JSON.stringify({
   data: {
     id: "inq_test123",

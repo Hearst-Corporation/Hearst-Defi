@@ -137,7 +137,7 @@ function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             <span
               className={
-                "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-micro font-bold tabular-nums " +
+                "flex h-6 w-6 shrink-0 items-center justify-center rounded-full ct-text-micro-size font-bold tabular-nums " +
                 (action.armed
                   ? "bg-(--ct-accent) text-(--ct-bg-deep)"
                   : "ct-surface-3 ct-text-muted")
@@ -149,7 +149,7 @@ function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
             <span className="body-sm font-semibold ct-text-primary">
               {action.label}
             </span>
-            <Badge variant={action.variant} className="ml-auto text-micro">
+            <Badge variant={action.variant} className="ml-auto ct-text-micro-size">
               {action.ruleId}
             </Badge>
           </div>

@@ -32,7 +32,7 @@
 .product-doc .stat-label {
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
-  letter-spacing: 0.06em;
+  letter-spacing: var(--ct-tracking-wide);
 }
 
 /* ── Shared layout primitives ─────────────────────────────────────────────── */

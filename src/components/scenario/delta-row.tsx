@@ -83,7 +83,7 @@ export function DeltaRow({ a, b }: DeltaRowProps) {
       <div className="scenario-compare-delta__grid">
         {metrics.map((m) => (
           <div key={m.label} className="admin-doc-stack--compact">
-            <span className="stat-label text-micro">{m.label}</span>
+            <span className="stat-label">{m.label}</span>
             <span
               className={cn(
                 "mono text-2xl font-extrabold tabular-nums",
@@ -92,14 +92,14 @@ export function DeltaRow({ a, b }: DeltaRowProps) {
             >
               {formatDelta(m)}
             </span>
-            <span className="text-micro ct-text-muted">
+            <span className="ct-text-micro-size ct-text-muted">
               {m.unit} · midpoint
             </span>
           </div>
         ))}
       </div>
 
-      <p className="mt-3 text-micro ct-text-muted">
+      <p className="mt-3 ct-text-micro-size ct-text-muted">
         Green = Scenario B is better. Red = Scenario B is worse. All deltas are midpoint estimates.
         <span className="ml-1 font-semibold ct-text-body">
           Not guaranteed.

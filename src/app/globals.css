@@ -65,8 +65,8 @@
      Si cockpit.css change un token, mirror ICI pour que les classes Tailwind
      (text-xl/2xl/3xl/etc.) restent en phase avec les usages CSS directs
      `var(--ct-text-*)`. */
-  --text-micro: 0.625rem;
-  --text-xs: 0.6875rem;
+  --text-micro: 0.5625rem; /* 9px — mirror --ct-text-micro (cockpit.css) */
+  --text-xs: 0.625rem;     /* 10px — mirror --ct-text-xs */
   --text-sm: 0.875rem;
   --text-md: 1rem;
   --text-lg: clamp(1rem, 0.956rem + 0.188vw, 1.125rem);    /* 16 → 18 */
@@ -87,7 +87,8 @@
   --tracking-normal: 0;
   --tracking-uppercase: 0.08em;
   --tracking-loose: 0.05em;
-  --tracking-wide: 0.12em;
+  --tracking-wide: 0.04em; /* mirror --ct-tracking-wide */
+  --tracking-wider: 0.08em; /* mirror --ct-tracking-wider */
   --tracking-display: 0.2em;
 
   /* Line heights — mirror cockpit.css --ct-leading-* (source of truth) */

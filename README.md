@@ -91,6 +91,11 @@ ici doit être un **mirror** d'un token CSS existant (jamais une valeur nouvelle
 
 Doc DS complète + tableau des tokens autorisés : [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).
 
+**Typographie (échelle canonique)** : `cockpit.css` (`--ct-text-*`) → miroir
+`globals.css` `@theme` (`text-micro` = 9px, `text-xs` = 10px). Rôles sémantiques :
+`.h1`–`.body-xs`, `.stat-label`, `.stat-value`, `ct-text-micro-size`. Éviter
+`text-xs`/`text-sm` Tailwind nus hors primitives (`Button`). Audit : `.claude/commands/ds-typo.md`.
+
 **Un seul design system en runtime** : Cockpit (`--ct-*` via `@hearst/cockpit-shell`).
 Le package orphelin `packages/ds` (`@ds/core`, namespace `--ds-*`) a été retiré du repo.
 Primitives de page : `AdminPageHeader` (admin), `ProductPageHeader` (investor,

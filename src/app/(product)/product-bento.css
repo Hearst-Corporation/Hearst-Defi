@@ -176,7 +176,7 @@
   font-size: var(--ct-text-xl);
   font-weight: var(--ct-font-light);
   color: var(--ct-text-strong);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-none);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
@@ -234,7 +234,7 @@
 .dash-header h1 {
   font-size: var(--ct-text-2xl);
   font-weight: var(--ct-font-extrabold);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--ct-tracking-tight);
   color: var(--ct-text-primary);
   line-height: 1.15;
   margin: 0;

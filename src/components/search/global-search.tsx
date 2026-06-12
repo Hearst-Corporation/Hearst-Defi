@@ -99,7 +99,7 @@ function EntityBadge({ entity }: { entity: Entity }) {
   const meta = ENTITY_META[entity];
   return (
     <span
-      className="inline-flex items-center rounded-full border border-[var(--ct-border)] ct-surface-1 px-2 py-0.5 text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
+      className="inline-flex items-center rounded-full border border-[var(--ct-border)] ct-surface-1 px-2 py-0.5 text-[length:var(--ct-text-micro-size)] font-medium uppercase tracking-[var(--ct-tracking-wide)]"
       style={{ color: meta.color }}
       aria-label={meta.label}
     >
@@ -152,7 +152,7 @@ function ResultItem({
         )}
       </span>
       {result.badge && (
-        <span className="shrink-0 rounded-sm border border-[var(--ct-border-soft)] ct-surface-1 px-1.5 py-0.5 text-[length:var(--ct-text-micro)] ct-text-muted">
+        <span className="shrink-0 rounded-sm border border-[var(--ct-border-soft)] ct-surface-1 px-1.5 py-0.5 text-[length:var(--ct-text-micro-size)] ct-text-muted">
           {result.badge}
         </span>
       )}
@@ -389,7 +389,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
           )}
 
           {/* Kbd hint */}
-          <kbd className="hidden shrink-0 rounded-sm border border-[var(--ct-border)] ct-surface-1 px-1.5 py-0.5 text-[length:var(--ct-text-micro)] ct-text-muted sm:inline-block">
+          <kbd className="hidden shrink-0 rounded-sm border border-[var(--ct-border)] ct-surface-1 px-1.5 py-0.5 text-[length:var(--ct-text-micro-size)] ct-text-muted sm:inline-block">
             esc
           </kbd>
         </div>

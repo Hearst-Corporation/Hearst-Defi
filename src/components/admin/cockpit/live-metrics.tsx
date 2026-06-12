@@ -129,7 +129,7 @@ function MetricCell({
 }) {
   return (
     <div className="admin-doc-stack--micro">
-      <span className="text-micro uppercase tracking-wide ct-text-faint font-medium">
+      <span className="ct-text-micro-size uppercase tracking-wide ct-text-faint font-medium">
         {label}
       </span>
       <span className={cn("body-xs tabular font-semibold ct-text-strong", valueClassName)}>
