@@ -1,93 +1,32 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { cn } from "@/lib/cn";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { Ptai } from "@/components/ui/ptai";
+import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { requireAdmin } from "@/lib/auth/require-admin";
-import { loadProposalDetail } from "@/lib/governance/actions";
-import { executeProposal, signProposal } from "@/lib/governance/actions";
-import { PtaiSchema, type Ptai as PtaiPayload } from "@/lib/agents/schemas";
-import type { ProposalState } from "@/lib/governance/state-machine";
+import { executeProposal, loadProposalDetail, signProposal } from "@/lib/governance/actions";
+import {
+  extractPtaiFromCalldata,
+  formatProposalCalldata,
+} from "@/lib/governance/proposal-calldata";
+import {
+  formatGovernanceTimestamp,
+  proposalStateLabel,
+  proposalStateVariant,
+  timelockCountdown,
+} from "@/lib/governance/display";
+import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
-
-// ---------------------------------------------------------------------------
-// Helpers (duplicated from queue page — small, no extraction warranted)
-// ---------------------------------------------------------------------------
-
-function stateVariant(
-  state: ProposalState,
-): "default" | "warning" | "success" | "danger" | "accent" {
-  switch (state) {
-    case "DRAFT":
-      return "default";
-    case "SIGNING":
-      return "warning";
-    case "QUEUED":
-    case "TIMELOCK":
-      return "accent";
-    case "EXECUTABLE":
-    case "EXECUTED":
-      return "success";
-    case "CANCELLED":
-    case "REJECTED":
-    case "EXPIRED":
-      return "danger";
-  }
-}
-
-function stateLabel(state: ProposalState): string {
-  return state.charAt(0) + state.slice(1).toLowerCase();
-}
-
-function formatDate(d: Date | null): string {
-  if (!d) return "—";
-  return d.toISOString().replace("T", " ").slice(0, 19) + " UTC";
-}
-
-/**
- * Extract a PTAI payload from a proposal's calldata JSON, when present.
- *
- * Rebalance-style proposals (audit coherence-2026-05-26 / 08-ptai-format
- * P1.3) embed `{ projection, trigger, action, impact }` inside the calldata
- * object so multisig signers see the canonical 4-line PTAI rendering before
- * approving. We use the shared `PtaiSchema` (single source of truth) and
- * return `null` for any non-conforming payload — the page falls back to the
- * plain calldata pre block in that case.
- */
-function extractPtaiFromCalldata(calldata: string | null): PtaiPayload | null {
-  if (calldata === null || calldata.trim() === "") return null;
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(calldata);
-  } catch {
-    return null;
-  }
-  if (parsed === null || typeof parsed !== "object") return null;
-  const candidate = (parsed as { ptai?: unknown }).ptai ?? parsed;
-  const result = PtaiSchema.safeParse(candidate);
-  return result.success ? result.data : null;
-}
-
-function timelockCountdown(etaAt: Date): string {
-  const ms = etaAt.getTime() - Date.now();
-  if (ms <= 0) return "Elapsed — ready to execute";
-  const hours = Math.floor(ms / 3_600_000);
-  const minutes = Math.floor((ms % 3_600_000) / 60_000);
-  return `${hours}h ${minutes}m remaining`;
-}
-
-// ---------------------------------------------------------------------------
-// Server Actions (thin wrappers bound to this proposal's id)
-// ---------------------------------------------------------------------------
 
 async function handleSign(
   proposalId: string,
@@ -104,10 +43,6 @@ async function handleExecute(proposalId: string) {
   await executeProposal(proposalId);
 }
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
-
 export default async function ProposalDetailPage({ params }: PageProps) {
   await requireAdmin();
   const { id } = await params;
@@ -123,17 +58,12 @@ export default async function ProposalDetailPage({ params }: PageProps) {
   const canSign = proposal.state === "SIGNING";
   const canCancel = proposal.state === "TIMELOCK" || proposal.state === "QUEUED";
   const canExecute = proposal.state === "EXECUTABLE" || proposal.state === "TIMELOCK";
+  const ptai = extractPtaiFromCalldata(proposal.calldata);
 
   const approveAction = handleSign.bind(null, proposal.id, "approve");
   const rejectAction = handleSign.bind(null, proposal.id, "reject");
   const cancelAction = handleSign.bind(null, proposal.id, "cancel");
   const executeAction = handleExecute.bind(null, proposal.id);
-
-  // Audit coherence-2026-05-26 / 08-ptai-format (P1.3): surface the canonical
-  // PTAI block to multisig signers whenever the proposal calldata embeds it.
-  // Future `rebalanceVault` proposals will populate this without any code
-  // change here — the contract is "if calldata.ptai parses, render".
-  const ptai = extractPtaiFromCalldata(proposal.calldata);
 
   return (
     <div className="space-y-8">
@@ -146,115 +76,112 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         }
       />
 
-      {/* Meta card */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <span className="ct-pill text-xs mono">{proposal.vaultTicker}</span>
-            <span className="body-md ct-text-strong font-semibold">{proposal.actionType}</span>
-          </div>
-          <Badge variant={stateVariant(proposal.state)}>{stateLabel(proposal.state)}</Badge>
-        </CardHeader>
+        <DashboardPanelHeader title={proposal.actionType} tone="primary" className="mb-6" />
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+          <span className="ct-pill mono text-xs">{proposal.vaultTicker}</span>
+          <Badge variant={proposalStateVariant(proposal.state)}>
+            {proposalStateLabel(proposal.state)}
+          </Badge>
+        </div>
 
         <dl className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
           <div>
             <dt className="stat-label">Proposed by</dt>
-            <dd className="mono ct-text-primary mt-0.5">{proposal.proposedBy}</dd>
+            <dd className="mono mt-0.5 ct-text-primary">{proposal.proposedBy}</dd>
           </div>
           <div>
             <dt className="stat-label">Required signers</dt>
-            <dd className="ct-text-primary mt-0.5">{proposal.requiredSigners}</dd>
+            <dd className="mt-0.5 ct-text-primary">{proposal.requiredSigners}</dd>
           </div>
           <div>
             <dt className="stat-label">Created</dt>
-            <dd className="ct-text-primary mt-0.5 tabular-nums">{formatDate(proposal.createdAt)}</dd>
+            <dd className="mt-0.5 tabular-nums ct-text-primary">
+              {formatGovernanceTimestamp(proposal.createdAt)}
+            </dd>
           </div>
           <div>
             <dt className="stat-label">ETA (timelock)</dt>
-            <dd className="ct-text-primary mt-0.5 tabular-nums">{formatDate(proposal.etaAt)}</dd>
+            <dd className="mt-0.5 tabular-nums ct-text-primary">
+              {formatGovernanceTimestamp(proposal.etaAt)}
+            </dd>
           </div>
-          {proposal.executedAt && (
+          {proposal.executedAt ? (
             <div>
               <dt className="stat-label">Executed at</dt>
-              <dd className="ct-text-primary mt-0.5 tabular-nums">{formatDate(proposal.executedAt)}</dd>
+              <dd className="mt-0.5 tabular-nums ct-text-primary">
+                {formatGovernanceTimestamp(proposal.executedAt)}
+              </dd>
             </div>
-          )}
-          {proposal.cancelledAt && (
+          ) : null}
+          {proposal.cancelledAt ? (
             <div>
               <dt className="stat-label">Cancelled at</dt>
-              <dd className="ct-text-primary mt-0.5 tabular-nums">{formatDate(proposal.cancelledAt)}</dd>
+              <dd className="mt-0.5 tabular-nums ct-text-primary">
+                {formatGovernanceTimestamp(proposal.cancelledAt)}
+              </dd>
             </div>
-          )}
+          ) : null}
         </dl>
 
-        {/* Timelock countdown */}
-        {proposal.state === "TIMELOCK" && proposal.etaAt && (
-          <div className="mt-6 pt-4 border-t border-[var(--ct-border-soft)] rounded-md ct-surface-1 px-4 py-3">
+        {proposal.state === "TIMELOCK" && proposal.etaAt ? (
+          <div className="mt-6 rounded-md border border-(--ct-border-soft) ct-surface-1 px-4 py-3">
             <p className="stat-label mb-1">Timelock countdown</p>
-            <p className="ct-text-strong mono text-sm">
-              {timelockCountdown(proposal.etaAt)}
-            </p>
+            <p className="mono text-sm ct-text-strong">{timelockCountdown(proposal.etaAt)}</p>
           </div>
-        )}
+        ) : null}
       </Card>
 
-      {/* PTAI block — rendered when the proposal calldata embeds a structured
-          Projection / Trigger / Action / Impact tuple (rebalance proposals). */}
-      {ptai && (
-        <Card>
-          <CardHeader>
-            <h2 className="h2">Projection · Trigger · Action · Impact</h2>
-          </CardHeader>
+      {ptai ? (
+        <SystemPanel>
+          <DashboardPanelHeader
+            title="Projection · Trigger · Action · Impact"
+            tone="quiet"
+            className="mb-4"
+          />
           <Ptai
             projection={ptai.projection}
             trigger={ptai.trigger}
             action={ptai.action}
             impact={ptai.impact}
           />
-          <p className="mt-3 text-xs italic ct-text-faint leading-[var(--ct-leading-relaxed)]">
+          <p className="body-xs mt-3 italic leading-(--ct-leading-relaxed) ct-text-faint">
             Conditional projection — not guaranteed. Methodology v1.0.
           </p>
-        </Card>
-      )}
+        </SystemPanel>
+      ) : null}
 
-      {/* Justification */}
-      <Card>
-        <h2 className="h2 mb-3">Justification</h2>
-        <p className="body-md ct-text-primary whitespace-pre-wrap">{proposal.justification}</p>
-      </Card>
+      <SystemPanel>
+        <DashboardPanelHeader title="Justification" tone="quiet" className="mb-4" />
+        <p className="body-md whitespace-pre-wrap ct-text-primary">{proposal.justification}</p>
+      </SystemPanel>
 
-      {/* Calldata diff */}
-      {proposal.calldata && (
-        <Card>
-          <h2 className="h2 mb-3">Calldata</h2>
-          <pre className="ct-text-muted text-xs mono ct-surface-1 p-4 rounded-md overflow-x-auto whitespace-pre-wrap">
-            {(() => {
-              try {
-                return JSON.stringify(JSON.parse(proposal.calldata), null, 2);
-              } catch {
-                return proposal.calldata;
-              }
-            })()}
+      {proposal.calldata ? (
+        <SystemPanel>
+          <DashboardPanelHeader title="Calldata" tone="quiet" className="mb-4" />
+          <pre className="mono overflow-x-auto whitespace-pre-wrap rounded-md ct-surface-1 p-4 text-xs ct-text-muted">
+            {formatProposalCalldata(proposal.calldata)}
           </pre>
-        </Card>
-      )}
+        </SystemPanel>
+      ) : null}
 
-      {/* Signatures */}
-      <Card>
-        <h2 className="h2 mb-4">
-          Signatures ({proposal.approvalCount}/{proposal.requiredSigners} approved
-          {proposal.rejectionCount > 0 ? `, ${proposal.rejectionCount} rejected` : ""}
-          {proposal.cancelCount > 0 ? `, ${proposal.cancelCount} cancel` : ""})
-        </h2>
+      <SystemPanel>
+        <DashboardPanelHeader
+          title={`Signatures (${proposal.approvalCount}/${proposal.requiredSigners} approved${
+            proposal.rejectionCount > 0 ? `, ${proposal.rejectionCount} rejected` : ""
+          }${proposal.cancelCount > 0 ? `, ${proposal.cancelCount} cancel` : ""})`}
+          tone="quiet"
+          className="mb-4"
+        />
 
         {proposal.signatures.length === 0 ? (
-          <p className="body-sm ct-text-muted">No signatures yet.</p>
+          <EmptySurface variant="inline" message="No signatures yet." />
         ) : (
           <div className="space-y-2">
             {proposal.signatures.map((sig) => (
               <div
                 key={sig.id}
-                className="flex items-center gap-3 py-2 border-b border-[var(--ct-border-soft)] last:border-0"
+                className="flex items-center gap-3 border-b border-(--ct-border-soft) py-2 last:border-0"
               >
                 <div
                   className={cn(
@@ -268,27 +195,26 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                 >
                   {sig.decision === "approve" ? "✓" : sig.decision === "reject" ? "✗" : "⊘"}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <span className="mono text-xs ct-text-primary">{sig.signerAddress}</span>
-                  {sig.reason && (
-                    <p className="text-xs ct-text-muted mt-0.5 truncate">{sig.reason}</p>
-                  )}
+                  {sig.reason ? (
+                    <p className="mt-0.5 truncate text-xs ct-text-muted">{sig.reason}</p>
+                  ) : null}
                 </div>
-                <span className="text-xs ct-text-muted tabular-nums shrink-0">
-                  {formatDate(sig.signedAt)}
+                <span className="shrink-0 text-xs tabular-nums ct-text-muted">
+                  {formatGovernanceTimestamp(sig.signedAt)}
                 </span>
               </div>
             ))}
           </div>
         )}
-      </Card>
+      </SystemPanel>
 
-      {/* Actions */}
-      {!isTerminal && (
-        <Card>
-          <h2 className="h2 mb-4">Actions</h2>
+      {!isTerminal ? (
+        <SystemPanel>
+          <DashboardPanelHeader title="Actions" tone="quiet" className="mb-4" />
           <div className="flex flex-wrap gap-3">
-            {canSign && (
+            {canSign ? (
               <>
                 <form action={approveAction}>
                   <input type="hidden" name="reason" value="" />
@@ -303,31 +229,28 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                   </Button>
                 </form>
               </>
-            )}
-
-            {canCancel && (
+            ) : null}
+            {canCancel ? (
               <form action={cancelAction}>
                 <input type="hidden" name="reason" value="" />
                 <Button variant="danger" size="lg" type="submit">
                   Cancel (quorum)
                 </Button>
               </form>
-            )}
-
-            {canExecute && (
+            ) : null}
+            {canExecute ? (
               <form action={executeAction}>
                 <Button variant="primary" size="lg" type="submit">
                   Execute
                 </Button>
               </form>
-            )}
+            ) : null}
           </div>
-
-          <p className="mt-3 text-xs ct-text-muted">
+          <p className="body-xs mt-3 ct-text-muted">
             Actions are recorded on-chain mock only — no Solidity calls at this stage.
           </p>
-        </Card>
-      )}
+        </SystemPanel>
+      ) : null}
     </div>
   );
 }

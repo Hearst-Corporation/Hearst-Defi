@@ -3,6 +3,7 @@
 // APY shown as range (#1). Section-level provenance on parent page (#2).
 // No forbidden words (#5).
 
+import { NestedPanel } from "@/components/ui/nested-panel";
 import { cn } from "@/lib/cn";
 import { allocationStrokeFor } from "@/lib/allocation-colors";
 import type { AllocationBucket } from "@/lib/engine/types";
@@ -117,12 +118,9 @@ export function DynamicAllocationCards() {
       {REGIME_CARDS.map((card) => {
         const toneClass = TONE_CLASSES[card.tone];
         return (
-          <div
+          <NestedPanel
             key={card.id}
-            className={cn(
-              "flex flex-col gap-2.5 rounded-lg border ct-surface-1 p-3.5",
-              toneClass.border,
-            )}
+            className={cn("flex flex-col gap-2.5", toneClass.border)}
             aria-label={`${card.label} regime allocation`}
           >
             <div className="flex items-center gap-2">
@@ -147,7 +145,7 @@ export function DynamicAllocationCards() {
 
             <p className="body-xs ct-text-muted">{card.scenario}</p>
 
-            <div className="flex flex-col gap-1.5 pt-2 border-t border-[var(--ct-border-soft)]">
+            <div className="flex flex-col gap-1.5 pt-2 border-t border-(--ct-border-soft)">
               <AllocationBar label="Mining" pct={card.miningPct} bucket="mining" />
               <AllocationBar
                 label="BTC"
@@ -161,7 +159,7 @@ export function DynamicAllocationCards() {
                 bucket="stable_reserve"
               />
             </div>
-          </div>
+          </NestedPanel>
         );
       })}
     </div>

@@ -21,14 +21,52 @@ export function isEngineFixtureVaultId(id: string): id is VaultId {
 
 /** Dashboard URL for an engine fixture vault id. */
 export function adminDashboardVaultHref(vaultId: string): string {
-  return vaultId === "yield" ? "/admin/dashboard" : `/admin/dashboard?vault=${vaultId}`;
+  return adminFixtureScopedHref("/admin/dashboard", vaultId);
 }
 
 /** Scenario Lab URL for an engine fixture vault id. */
 export function adminScenarioLabVaultHref(vaultId: string): string {
-  return vaultId === "yield"
-    ? "/admin/scenario-lab"
-    : `/admin/scenario-lab?vault=${vaultId}`;
+  return adminFixtureScopedHref("/admin/scenario-lab", vaultId);
+}
+
+/** Distributions URL for an engine fixture vault id. */
+export function adminDistributionsVaultHref(vaultId: string): string {
+  return adminFixtureScopedHref("/admin/distributions", vaultId);
+}
+
+/** Rebalancing signals URL for an engine fixture vault id. */
+export function adminSignalsVaultHref(vaultId: string): string {
+  return adminFixtureScopedHref("/admin/signals", vaultId);
+}
+
+/** Resolve `?vault=` to a fixture id (defaults to yield). */
+export function resolveFixtureVaultId(raw: string | undefined): VaultId {
+  if (raw && isEngineFixtureVaultId(raw)) return raw;
+  return "yield";
+}
+
+/**
+ * Append `?vault=` (and optional extra params) to an admin path.
+ * Used by section sub-nav and in-page filters so scope is not lost on navigation.
+ */
+export function withAdminVaultQuery(
+  href: string,
+  vault: string | null | undefined,
+  extra?: Record<string, string | undefined>,
+): string {
+  const sp = new URLSearchParams();
+  if (vault) sp.set("vault", vault);
+  if (extra) {
+    for (const [key, value] of Object.entries(extra)) {
+      if (value !== undefined && value !== "") sp.set(key, value);
+    }
+  }
+  const query = sp.toString();
+  return query ? `${href}?${query}` : href;
+}
+
+function adminFixtureScopedHref(path: string, vaultId: string): string {
+  return vaultId === "yield" ? path : `${path}?vault=${vaultId}`;
 }
 
 /**

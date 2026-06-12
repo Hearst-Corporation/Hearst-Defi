@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 
 import { AdminRailIntra } from "@/components/nav/product-rail-intra";
@@ -37,7 +38,9 @@ export default async function AdminLayout({
   return (
     <>
       <AdminRailIntra />
-      <AdminSubNav />
+      <Suspense fallback={null}>
+        <AdminSubNav />
+      </Suspense>
       {children}
     </>
   );

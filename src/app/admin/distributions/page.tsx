@@ -2,9 +2,15 @@ import Link from "next/link";
 
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { SystemPanel } from "@/components/ui/system-panel";
+import {
+  adminDistributionsVaultHref,
+  resolveFixtureVaultId,
+} from "@/lib/vaults/dashboard-scope";
 import { listAllVaults, vaultSlug, vaultLabel } from "@/lib/vaults/resolver";
 import { DistributionForm } from "./distribution-form";
 
@@ -26,8 +32,17 @@ function formatDate(d: Date | string): string {
 // Page
 // ---------------------------------------------------------------------------
 
-export default async function DistributionsPage() {
+interface DistributionsPageProps {
+  searchParams: Promise<{ vault?: string }>;
+}
+
+export default async function DistributionsPage({
+  searchParams,
+}: DistributionsPageProps) {
   await requireAdmin();
+
+  const params = await searchParams;
+  const vaultId = resolveFixtureVaultId(params.vault);
 
   const [history, allVaults] = await Promise.all([
     prisma.distribution.findMany({
@@ -52,6 +67,12 @@ export default async function DistributionsPage() {
     <div className="space-y-8">
       <AdminPageHeader
         title="Distributions"
+        actions={
+          <FixtureVaultPills
+            activeVaultId={vaultId}
+            resolveHref={adminDistributionsVaultHref}
+          />
+        }
       />
 
       {/* Compute + confirm form (client) */}
@@ -69,116 +90,118 @@ export default async function DistributionsPage() {
             className="min-h-32"
           />
         ) : (
-          <div className="ct-table-surface overflow-x-auto">
-            <table className="w-full text-sm tabular">
-              <thead>
-                <tr className="ct-surface-1">
-                  <th className="text-left ct-table-header body-xs ct-text-muted font-medium">
-                    Vault
-                  </th>
-                  <th className="text-left ct-table-header body-xs ct-text-muted font-medium">
-                    Period
-                  </th>
-                  <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
-                    Amount (USDC)
-                  </th>
-                  <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
-                    Recipients
-                  </th>
-                  <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
-                    Distributed at
-                  </th>
-                  <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
-                    Tx hash
-                  </th>
-                  <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
-                    Source
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.map((d) => {
-                  const slug = d.vaultRef;
-                  const label = slug
-                    ? (vaultLabelBySlug.get(slug) ?? slug)
-                    : null;
+          <SystemPanel className="p-0 overflow-hidden">
+            <div className="ct-table-surface border-0 rounded-none overflow-x-auto">
+              <table className="w-full text-sm tabular">
+                <thead>
+                  <tr className="ct-surface-1">
+                    <th className="text-left ct-table-header body-xs ct-text-muted font-medium">
+                      Vault
+                    </th>
+                    <th className="text-left ct-table-header body-xs ct-text-muted font-medium">
+                      Period
+                    </th>
+                    <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
+                      Amount (USDC)
+                    </th>
+                    <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
+                      Recipients
+                    </th>
+                    <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
+                      Distributed at
+                    </th>
+                    <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
+                      Tx hash
+                    </th>
+                    <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
+                      Source
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((d) => {
+                    const slug = d.vaultRef;
+                    const label = slug
+                      ? (vaultLabelBySlug.get(slug) ?? slug)
+                      : null;
 
-                  // Fixture slugs navigate to /admin/dashboard?vault=<slug>;
-                  // deployment slugs navigate to /admin/vaults/<slug> (ticker lowercase).
-                  // Without a vaultRef we render plain text.
-                  const vaultHref = slug
-                    ? slug === "yield" || slug === "defensive" || slug === "btc-plus"
-                      ? `/admin/dashboard${slug !== "yield" ? `?vault=${slug}` : ""}`
-                      : `/admin/vaults/${slug}`
-                    : null;
+                    // Fixture slugs navigate to /admin/dashboard?vault=<slug>;
+                    // deployment slugs navigate to /admin/vaults/<slug> (ticker lowercase).
+                    // Without a vaultRef we render plain text.
+                    const vaultHref = slug
+                      ? slug === "yield" || slug === "defensive" || slug === "btc-plus"
+                        ? `/admin/dashboard${slug !== "yield" ? `?vault=${slug}` : ""}`
+                        : `/admin/vaults/${slug}`
+                      : null;
 
-                  return (
-                    <tr
-                      key={d.id}
-                      className="border-t ct-border-soft ct-hover-surface transition-colors"
-                    >
-                      <td className="ct-table-cell body-xs ct-text-body">
-                        {vaultHref && label ? (
-                          <Link
-                            href={vaultHref}
-                            className="ct-text-accent hover:underline font-medium"
-                          >
-                            {label}
-                          </Link>
-                        ) : label ? (
-                          <span className="ct-text-muted">{label}</span>
-                        ) : (
-                          <span className="ct-text-faint">—</span>
-                        )}
-                      </td>
-                      <td className="ct-table-cell mono text-xs ct-text-body">
-                        {d.period}
-                      </td>
-                      <td className="ct-table-cell text-right ct-text-strong font-semibold tabular">
-                        $
-                        {d.amountUsdc.toNumber().toLocaleString("en-US", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </td>
-                      <td className="ct-table-cell text-right ct-text-muted tabular">
-                        {d.recipientsCount}
-                      </td>
-                      <td className="ct-table-cell text-right ct-text-muted">
-                        {formatDate(d.distributedAt)}
-                      </td>
-                      <td className="ct-table-cell text-right mono text-xs ct-text-faint">
-                        {d.txHash ? (
-                          d.txHash.startsWith("0xMOCK") ? (
-                            <span className="ct-text-faint">simulated</span>
+                    return (
+                      <tr
+                        key={d.id}
+                        className="border-t ct-border-soft ct-hover-surface transition-colors"
+                      >
+                        <td className="ct-table-cell body-xs ct-text-body">
+                          {vaultHref && label ? (
+                            <Link
+                              href={vaultHref}
+                              className="ct-text-accent hover:underline font-medium"
+                            >
+                              {label}
+                            </Link>
+                          ) : label ? (
+                            <span className="ct-text-muted">{label}</span>
                           ) : (
-                            `${d.txHash.slice(0, 8)}…`
-                          )
-                        ) : (
-                          <span className="ct-text-faint">—</span>
-                        )}
-                      </td>
-                      <td className="ct-table-cell text-right">
-                        {/* B4 — only a REAL on-chain tx hash earns "attested".
-                            A simulated `0xMOCK_*` hash is `estimated`; no hash
-                            yet (ops-confirmed, not broadcast) is `manual`. */}
-                        <span className="inline-flex justify-end">
-                          <ProvenanceBadge
-                            kind={
-                              d.txHash
-                                ? d.txHash.startsWith("0xMOCK")
-                                  ? "estimated"
-                                  : "attested"
-                                : "manual"
-                            }
-                          />
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                            <span className="ct-text-faint">—</span>
+                          )}
+                        </td>
+                        <td className="ct-table-cell mono text-xs ct-text-body">
+                          {d.period}
+                        </td>
+                        <td className="ct-table-cell text-right ct-text-strong font-semibold tabular">
+                          $
+                          {d.amountUsdc.toNumber().toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                        <td className="ct-table-cell text-right ct-text-muted tabular">
+                          {d.recipientsCount}
+                        </td>
+                        <td className="ct-table-cell text-right ct-text-muted">
+                          {formatDate(d.distributedAt)}
+                        </td>
+                        <td className="ct-table-cell text-right mono text-xs ct-text-faint">
+                          {d.txHash ? (
+                            d.txHash.startsWith("0xMOCK") ? (
+                              <span className="ct-text-faint">simulated</span>
+                            ) : (
+                              `${d.txHash.slice(0, 8)}…`
+                            )
+                          ) : (
+                            <span className="ct-text-faint">—</span>
+                          )}
+                        </td>
+                        <td className="ct-table-cell text-right">
+                          {/* B4 — only a REAL on-chain tx hash earns "attested".
+                              A simulated `0xMOCK_*` hash is `estimated`; no hash
+                              yet (ops-confirmed, not broadcast) is `manual`. */}
+                          <span className="inline-flex justify-end">
+                            <ProvenanceBadge
+                              kind={
+                                d.txHash
+                                  ? d.txHash.startsWith("0xMOCK")
+                                    ? "estimated"
+                                    : "attested"
+                                  : "manual"
+                              }
+                            />
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </SystemPanel>
         )}
       </section>
 

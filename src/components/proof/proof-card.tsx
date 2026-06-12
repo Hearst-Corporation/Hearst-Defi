@@ -5,6 +5,7 @@ import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-bad
 import { EXPLORER_ADDRESS_BASE, EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { ProofType } from "@/lib/proof-center-types";
 
+import { ipfsGatewayUrl } from "@/lib/ipfs-gateway";
 import { safeUrl } from "@/lib/safe-url";
 import { abbreviateAddress } from "@/lib/onchain";
 
@@ -41,15 +42,6 @@ function uriLabel(uri: string): string {
   if (uri.startsWith("ipfs://")) return "View on IPFS";
   if (uri.startsWith("https://")) return "View document";
   return "Open";
-}
-
-function ipfsGatewayUrl(cid: string): string {
-  // viem returns the raw CID string; the contract spec says no "ipfs://" prefix on payloadCid.
-  if (cid.startsWith("ipfs://")) {
-    return `https://ipfs.io/ipfs/${cid.slice("ipfs://".length)}`;
-  }
-  if (cid.startsWith("https://") || cid.startsWith("http://")) return cid;
-  return `https://ipfs.io/ipfs/${cid}`;
 }
 
 function usdCompactFmt(value: number): string {

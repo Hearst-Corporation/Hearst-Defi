@@ -15,6 +15,7 @@ import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { cn } from "@/lib/cn";
 import { Ptai } from "@/components/ui/ptai";
 import { Button } from "@/components/ui/button";
+import { NestedCallout, NestedPanel } from "@/components/ui/nested-panel";
 import { DepositSummary } from "@/components/vaults/deposit-summary";
 import { PreFlightCheck, isPreFlightReady } from "@/components/vaults/preflight-check";
 import { TimeToTargetChart } from "@/components/vaults/time-to-target-chart";
@@ -364,15 +365,15 @@ export function InvestForm({ vault }: InvestFormProps) {
         </label>
 
         {/* Deposit error */}
-        {depositError && (
-          <p className="body-xs ct-status-danger px-3 py-2 rounded-lg border border-[var(--ct-status-danger-border)] ct-surface-1">
-            {depositError}
-          </p>
-        )}
+        {depositError ? (
+          <NestedCallout className="border border-(--ct-status-danger-border) ct-status-danger-bg">
+            <p className="body-xs ct-status-danger">{depositError}</p>
+          </NestedCallout>
+        ) : null}
 
         {/* CTA row — two-step confirmation */}
         {awaitingConfirm ? (
-          <div className="rounded-lg border border-[var(--ct-border-strong)] ct-surface-1 p-4 space-y-4">
+          <NestedPanel className="space-y-4 border-(--ct-border-strong)">
             <p className="eyebrow">Confirm your deposit</p>
             <div className="space-y-1">
               <div className="flex justify-between body-sm">
@@ -411,7 +412,7 @@ export function InvestForm({ vault }: InvestFormProps) {
                 {depositing ? "Confirming…" : `Confirm ${formatUsd(amount)} deposit`}
               </Button>
             </div>
-          </div>
+          </NestedPanel>
         ) : (
           <div className="flex items-center gap-3 flex-wrap">
             <Button
@@ -440,10 +441,10 @@ export function InvestForm({ vault }: InvestFormProps) {
 
         {/* Time-to-target chart — only when amount is set */}
         {deferredAmount > 0 && (
-          <div className="rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 p-4 mt-1">
+          <NestedPanel className="mt-1">
             <p className="eyebrow mb-3">Projected NAV — 24 month horizon</p>
             <TimeToTargetChart amount={deferredAmount} vault={vault} />
-          </div>
+          </NestedPanel>
         )}
 
         {/* PTAI block — mandatory (#3) */}

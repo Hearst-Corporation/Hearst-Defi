@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
-import { NestedPanel } from "@/components/ui/nested-panel";
+import { NestedCallout, NestedPanel } from "@/components/ui/nested-panel";
 import { Progress } from "@/components/ui/progress";
 import { MonteCarloReview } from "@/components/admin/monte-carlo-review";
 import { ProjectionFooter } from "@/components/admin/projection-footer";
@@ -623,7 +623,7 @@ export function VaultForm(props: VaultFormProps) {
               )}
 
               {/* Required signers — multisig threshold M-of-N */}
-              <div className="space-y-2 pt-2 border-t border-[var(--ct-border-soft)]">
+              <div className="space-y-2 pt-2 border-t border-(--ct-border-soft)">
                 <span className="stat-label block">
                   Required signers (M-of-N quorum) *
                 </span>
@@ -665,7 +665,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="space-y-6">
             <CardTitle>Review &amp; Simulate</CardTitle>
 
-            <div className="space-y-3 divide-y divide-border-subtle">
+            <NestedPanel className="space-y-3 divide-y divide-border-subtle">
               <div className="grid grid-cols-2 gap-2 pb-3">
                 <span className="stat-label">Ticker</span>
                 <span className="mono tabular text-sm ct-text-strong">{form.ticker}</span>
@@ -736,7 +736,7 @@ export function VaultForm(props: VaultFormProps) {
                   {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
                 </span>
               </div>
-            </div>
+            </NestedPanel>
 
             {/* Monte Carlo inline projection (ADR-006, methodology v2.0 ratified 2026-05-22) */}
             <MonteCarloReview
@@ -751,7 +751,7 @@ export function VaultForm(props: VaultFormProps) {
               runs={1000}
             />
 
-            <p className="body-xs ct-text-faint border-t border-[var(--ct-border-soft)] pt-3">
+            <p className="body-xs ct-text-faint border-t border-(--ct-border-soft) pt-3">
               Assumptions: mining yields, BTC price, network difficulty, energy costs are
               projected based on historical ranges. Target APY is a range, not guaranteed.
               Past performance is not indicative of future results.
@@ -790,11 +790,11 @@ export function VaultForm(props: VaultFormProps) {
         )}
 
         {/* Navigation */}
-        {error && (
-          <div className="mt-4 p-3 rounded-lg ct-status-danger-bg">
+        {error ? (
+          <NestedCallout className="mt-4 border border-(--ct-status-danger-border) ct-status-danger-bg">
             <p className="body-sm ct-status-danger">{error}</p>
-          </div>
-        )}
+          </NestedCallout>
+        ) : null}
 
         <div className="mt-8 flex items-center justify-between gap-3">
           <Button

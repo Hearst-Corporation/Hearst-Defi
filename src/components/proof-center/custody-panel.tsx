@@ -1,0 +1,115 @@
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { Card } from "@/components/ui/card";
+import { EmptySurface } from "@/components/ui/empty-surface";
+import { Metric } from "@/components/ui/metric";
+import { NestedKpiGrid } from "@/components/ui/nested-panel";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import type { CustodySnapshot } from "@/lib/data/custody";
+import { sectionDividerClass } from "@/lib/ui/surface-classes";
+import { cn } from "@/lib/cn";
+
+import { formatNestedTimestamp, formatUsdCompact, isOlderThan24h } from "./formatters";
+
+function custodyProvenance(snapshot: CustodySnapshot): "attested" | "stale" {
+  const live = snapshot.provenance === "live" && snapshot.configured;
+  const fresh = !isOlderThan24h(new Date(snapshot.asOf));
+  return live && fresh ? "attested" : "stale";
+}
+
+function isCustodyDisplayable(custody: CustodySnapshot): boolean {
+  return custody.totalUsdcReserves > 0 && custodyProvenance(custody) === "attested";
+}
+
+const CUSTODY_EMPTY = {
+  message: "Custody reserves will appear after the first verified Fireblocks snapshot.",
+  detail:
+    "Fireblocks reserve scope must be pinned and a fresh snapshot posted before USDC reserves are shown here.",
+} as const;
+
+function CustodyStaleNote({ custody }: { custody: CustodySnapshot }) {
+  if (custodyProvenance(custody) !== "stale") return null;
+  return (
+    <p className="mt-3 body-xs ct-status-warning">
+      {custody.provenance === "live" && !custody.configured
+        ? "Reserve scope not pinned (FIREBLOCKS_VAULT_ACCOUNT_IDS unset) — badge shows Stale."
+        : "Custody snapshot is unverified or older than 24h — badge shows Stale."}
+    </p>
+  );
+}
+
+function CustodyKpis({ custody }: { custody: CustodySnapshot }) {
+  const snapshotTs = formatNestedTimestamp(new Date(custody.asOf));
+  return (
+    <>
+      <NestedKpiGrid columns={3}>
+        <Metric
+          variant="nested"
+          label="USDC reserves"
+          value={formatUsdCompact(custody.totalUsdcReserves)}
+        />
+        <Metric
+          variant="nested"
+          label="Vault accounts"
+          value={custody.accountsCount.toString()}
+        />
+        <Metric
+          variant="nested"
+          label="Snapshot at"
+          value={snapshotTs.value}
+          sublabel={snapshotTs.sublabel}
+        />
+      </NestedKpiGrid>
+      <CustodyStaleNote custody={custody} />
+    </>
+  );
+}
+
+function CustodyCard({ custody }: { custody: CustodySnapshot }) {
+  return (
+    <Card>
+      <DashboardPanelHeader
+        title="Custody (Fireblocks)"
+        provenance={custodyProvenance(custody)}
+        tone="primary"
+      />
+      <CustodyKpis custody={custody} />
+    </Card>
+  );
+}
+
+function CustodyBlock({ custody }: { custody: CustodySnapshot }) {
+  return (
+    <div className={cn(sectionDividerClass, "pt-6")}>
+      <DashboardPanelHeader
+        title="Custody (Fireblocks)"
+        provenance={custodyProvenance(custody)}
+        tone="quiet"
+        className="mb-4"
+      />
+      <CustodyKpis custody={custody} />
+    </div>
+  );
+}
+
+/** Renders custody card, nested block, or empty state (standalone / inline). */
+export function CustodySection({
+  custody,
+  nested = false,
+}: {
+  custody: CustodySnapshot;
+  nested?: boolean;
+}) {
+  if (isCustodyDisplayable(custody)) {
+    return nested ? <CustodyBlock custody={custody} /> : <CustodyCard custody={custody} />;
+  }
+
+  if (nested) {
+    return (
+      <div className={cn(sectionDividerClass, "pt-6")}>
+        <EmptySurface variant="inline" {...CUSTODY_EMPTY} />
+      </div>
+    );
+  }
+
+  return <AwaitingMetricState {...CUSTODY_EMPTY} />;
+}

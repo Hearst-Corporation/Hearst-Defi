@@ -73,7 +73,7 @@ export function ResumeDraftBanner({
       </div>
 
       {confirmDiscard ? (
-        <NestedCallout className="space-y-3 border border-[var(--ct-status-danger-border)] ct-status-danger-bg">
+        <NestedCallout className="space-y-3 border border-(--ct-status-danger-border) ct-status-danger-bg">
           <p className="body-xs ct-text-strong">
             You are about to lose this draft. Continue?
           </p>

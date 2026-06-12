@@ -5,19 +5,22 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import Link from "next/link";
+
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 
 describe("Admin vaults — empty state design contract", () => {
   it("vault list empty: EmptySurface only, no active module shell", () => {
     const html = renderToStaticMarkup(
-      <AwaitingMetricState
+      <EmptySurface
+        variant="widget"
         message="No deployments found."
         detail="Vault deployments will appear here once created."
-        link={{ label: "Create the first one", href: "/admin/vaults/new" }}
         className="min-h-32"
-      />,
+      >
+        <Link href="/admin/vaults/new">Create the first one</Link>
+      </EmptySurface>,
     );
 
     expect(html).toContain("ct-empty-surface");

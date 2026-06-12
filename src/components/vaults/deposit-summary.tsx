@@ -4,6 +4,7 @@
 // Non-negotiable #5: no forbidden words.
 
 import { ApyRange } from "@/components/ui/apy-range";
+import { NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type { VaultProduct } from "@/lib/data/vaults";
@@ -40,8 +41,8 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
   const hurdleFee = vault.fees.hurdleBps > 0 ? vault.fees.hurdleBps / 100 : null;
 
   return (
-    <div className="rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 p-5 flex flex-col gap-0">
-      <div className="flex items-center justify-between pb-3 mb-1 border-b border-[var(--ct-border-soft)]">
+    <NestedPanel className="flex flex-col gap-0">
+      <div className="flex items-center justify-between pb-3 mb-1 border-b border-(--ct-border-soft)">
         <p className="eyebrow">Deposit summary</p>
         <div className="body-xs ct-text-faint flex items-center gap-1">
           <ProvenanceBadge kind="estimated" />
@@ -91,10 +92,10 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         </span>
       </SumRow>
 
-      <p className="body-xs ct-text-faint mt-3 pt-3 border-t border-[var(--ct-border-soft)] leading-relaxed">
+      <p className="body-xs ct-text-faint mt-3 pt-3 border-t border-(--ct-border-soft) leading-relaxed">
         Yield figures use the midpoint of the APY range — not a commitment of
         future returns. Methodology v1.0.
       </p>
-    </div>
+    </NestedPanel>
   );
 }

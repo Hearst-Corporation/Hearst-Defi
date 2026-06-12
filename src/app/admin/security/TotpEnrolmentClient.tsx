@@ -98,7 +98,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
               Can&apos;t scan? Enter the key manually
             </summary>
             <p
-              className="mt-2 rounded ct-surface-1 px-2 py-1 font-mono break-all select-all"
+              className="mono mt-2 break-all rounded ct-surface-1 px-2 py-1 select-all"
             >
               {state.payload.secretBase32}
             </p>
@@ -163,7 +163,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
     <div className="space-y-4">
       {totpEnabled ? (
         <div className="flex items-center gap-2">
-          <span className="inline-block h-2 w-2 rounded-full bg-[var(--ct-accent)]" />
+          <span className="inline-block h-2 w-2 rounded-full bg-(--ct-accent)" />
           <span className="body-xs ct-text-accent">
             MFA is enabled for this account.
           </span>
@@ -171,7 +171,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
       ) : (
         <>
           <div className="flex items-center gap-2">
-            <span className="inline-block h-2 w-2 rounded-full bg-[var(--ct-status-warning)]" />
+            <span className="inline-block h-2 w-2 rounded-full bg-(--ct-status-warning)" />
             <span className="body-xs ct-text-muted">
               MFA is not yet enabled. We recommend enabling it for admin accounts.
             </span>

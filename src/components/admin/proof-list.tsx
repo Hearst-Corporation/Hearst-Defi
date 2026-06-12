@@ -3,13 +3,16 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-import { safeUrl } from "@/lib/safe-url";
-
+import { deleteProof } from "@/app/admin/proofs/actions";
+import { OFF_CHAIN_PROOFS_EMPTY } from "@/components/proof/empty-messages";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { abbreviateAddress } from "@/lib/onchain";
+import { safeUrl } from "@/lib/safe-url";
+import { explorerLinkClass } from "@/lib/ui/surface-classes";
+import { cn } from "@/lib/cn";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { deleteProof } from "@/app/admin/proofs/actions";
 
 interface ProofItem {
   id: string;
@@ -23,21 +26,15 @@ interface ProofItem {
   txHash?: string | null;
 }
 
-function truncate(str: string, head: number, tail: number): string {
-  if (str.length <= head + tail + 3) return str;
-  if (tail === 0) return `${str.slice(0, head)}…`;
-  return `${str.slice(0, head)}…${str.slice(-tail)}`;
+function truncateUri(str: string, max: number): string {
+  if (str.length <= max) return str;
+  return `${str.slice(0, max)}…`;
 }
 
 export function ProofList({ items }: { items: ProofItem[] }) {
   if (items.length === 0) {
     return (
-      <EmptySurface
-        variant="widget"
-        message="No off-chain proofs published yet."
-        detail="Mining attestations and custody snapshots appear here once posted via the ingest CLI."
-        className="min-h-32"
-      />
+      <EmptySurface variant="widget" {...OFF_CHAIN_PROOFS_EMPTY} className="min-h-32" />
     );
   }
 
@@ -71,9 +68,7 @@ function AdminProofRow({ item }: { item: ProofItem }) {
     });
   }
 
-  const hashDisplay = truncate(item.hash, 8, 4);
-  const uriDisplay = truncate(item.uri, 40, 0);
-  const postedByDisplay = truncate(item.postedBy, 6, 4);
+  const uriDisplay = truncateUri(item.uri, 40);
   const postedAtDisplay = item.postedAt.toISOString().slice(0, 10);
 
   return (
@@ -86,17 +81,13 @@ function AdminProofRow({ item }: { item: ProofItem }) {
               <Badge variant="default">{item.period}</Badge>
             ) : null}
             <time className="mono">{postedAtDisplay}</time>
-            <span className="mono ct-text-body">
-              by {postedByDisplay}
-            </span>
+            <span className="mono ct-text-body">by {abbreviateAddress(item.postedBy)}</span>
           </div>
 
           <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs ct-text-muted">
             <span>
               <span className="ct-text-muted">hash </span>
-              <span className="mono ct-text-body">
-                {hashDisplay}
-              </span>
+              <span className="mono ct-text-body">{abbreviateAddress(item.hash)}</span>
             </span>
             <span>
               <span className="ct-text-muted">uri </span>
@@ -104,7 +95,7 @@ function AdminProofRow({ item }: { item: ProofItem }) {
                 href={safeUrl(item.uri)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mono ct-text-body hover:ct-text-strong underline underline-offset-2"
+                className={cn(explorerLinkClass, "mono underline underline-offset-2")}
               >
                 {uriDisplay} ↗
               </a>
@@ -112,9 +103,7 @@ function AdminProofRow({ item }: { item: ProofItem }) {
             {item.txHash ? (
               <span>
                 <span className="ct-text-muted">tx </span>
-                <span className="mono ct-text-body">
-                  {truncate(item.txHash, 8, 4)}
-                </span>
+                <span className="mono ct-text-body">{abbreviateAddress(item.txHash)}</span>
               </span>
             ) : null}
           </div>

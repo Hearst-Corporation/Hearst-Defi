@@ -1,12 +1,13 @@
 import Link from "next/link";
 
 import { VaultStatusPill } from "@/components/admin/vault-status-pill";
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { STRATEGY_LABELS } from "@/lib/constants/vault";
@@ -74,11 +75,10 @@ export default async function VaultsPage({ searchParams }: PageProps) {
               href={tab.key === "all" ? "/admin/vaults" : `/admin/vaults?filter=${tab.key}`}
               role="tab"
               aria-selected={isActive}
-              className={
-                isActive
-                  ? "ct-pill accent text-xs font-semibold uppercase tracking-[var(--ct-tracking-wide)]"
-                  : "ct-pill text-xs font-semibold uppercase tracking-[var(--ct-tracking-wide)]"
-              }
+              className={cn(
+                "ct-pill text-xs font-semibold uppercase",
+                isActive && "accent",
+              )}
             >
               {tab.label}
             </Link>
@@ -88,12 +88,19 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
       {/* List */}
       {vaults.length === 0 ? (
-        <AwaitingMetricState
+        <EmptySurface
+          variant="widget"
           message="No deployments found."
           detail="Vault deployments will appear here once created."
-          link={{ label: "Create the first one", href: "/admin/vaults/new" }}
           className="min-h-32"
-        />
+        >
+          <Link
+            href="/admin/vaults/new"
+            className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-(--ct-border) mt-1"
+          >
+            Create the first one
+          </Link>
+        </EmptySurface>
       ) : (
         <div className="space-y-3">
           {vaults.map((vault) => {

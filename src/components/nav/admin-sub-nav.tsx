@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { ADMIN_SECTIONS } from "@/components/nav/product-nav-items";
 import { cn } from "@/lib/cn";
+import { withAdminVaultQuery } from "@/lib/vaults/dashboard-scope";
 
 /** Is `pathname` inside `href` (exact or nested route)? */
 function matches(pathname: string, href: string): boolean {
@@ -21,6 +22,8 @@ function matches(pathname: string, href: string): boolean {
  */
 export function AdminSubNav() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const vaultScope = searchParams.get("vault");
 
   const section = ADMIN_SECTIONS.find(
     (s) => s.tabs.some((t) => matches(pathname, t.href)) || matches(pathname, s.href),
@@ -52,7 +55,7 @@ export function AdminSubNav() {
         return (
           <Link
             key={tab.id}
-            href={tab.href}
+            href={withAdminVaultQuery(tab.href, vaultScope)}
             aria-current={isActive ? "page" : undefined}
             className={cn(
               "relative -mb-px border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",

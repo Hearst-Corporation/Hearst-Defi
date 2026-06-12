@@ -6,8 +6,10 @@ import { RejectDeploymentButton } from "@/components/admin/reject-deployment-but
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
+import { ProofRow } from "@/components/ui/nested-panel";
+import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -281,11 +283,9 @@ export default async function VaultDetailPage({ params }: PageProps) {
       {/* Details */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Legal */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Legal</CardTitle>
-          </CardHeader>
-          <dl className="space-y-3">
+        <SystemPanel>
+          <DashboardPanelHeader title="Legal" />
+          <div className="mt-4">
             {(
               [
                 ["Strategy", STRATEGY_LABELS[vault.strategy] ?? vault.strategy],
@@ -295,20 +295,17 @@ export default async function VaultDetailPage({ params }: PageProps) {
                 ["Min Ticket", `$${Number(vault.minTicketUsdc).toLocaleString()} USDC`],
               ] as [string, string][]
             ).map(([label, value]) => (
-              <div key={label} className="flex items-start justify-between gap-3">
-                <dt className="stat-label">{label}</dt>
-                <dd className="body-sm ct-text-primary text-right">{value}</dd>
-              </div>
+              <ProofRow key={label} label={label}>
+                {value}
+              </ProofRow>
             ))}
-          </dl>
-        </Card>
+          </div>
+        </SystemPanel>
 
         {/* Allocation policy */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Allocation Policy</CardTitle>
-          </CardHeader>
-          <div className="space-y-4">
+        <SystemPanel>
+          <DashboardPanelHeader title="Allocation Policy" />
+          <div className="mt-4 space-y-4">
             {(
               [
                 ["Mining", vault.targetMiningBps],
@@ -328,38 +325,38 @@ export default async function VaultDetailPage({ params }: PageProps) {
               </div>
             ))}
           </div>
-        </Card>
+        </SystemPanel>
       </div>
 
       {/* Approvals */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Approvals</CardTitle>
-          <span className="mono tabular text-sm ct-text-muted">
+      <SystemPanel>
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <DashboardPanelHeader title="Approvals" className="mb-0" />
+          <span className="mono tabular text-sm ct-text-muted mt-1">
             {approveCount} / {vault.requiredSigners} required
           </span>
-        </CardHeader>
+        </div>
 
         {vault.approvals.length === 0 ? (
           <EmptySurface variant="inline" message="No signatures yet." />
         ) : (
-          <div className="overflow-x-auto">
+          <div className="ct-table-surface">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[var(--ct-border-soft)]">
-                  <th className="stat-label text-left pb-2">Signer</th>
-                  <th className="stat-label text-left pb-2">Decision</th>
-                  <th className="stat-label text-left pb-2">Reason</th>
-                  <th className="stat-label text-left pb-2">Date</th>
+                <tr>
+                  <th className="ct-table-header stat-label text-left">Signer</th>
+                  <th className="ct-table-header stat-label text-left">Decision</th>
+                  <th className="ct-table-header stat-label text-left">Reason</th>
+                  <th className="ct-table-header stat-label text-left">Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody>
                 {vault.approvals.map((approval) => (
                   <tr key={approval.id}>
-                    <td className="py-2 pr-4 mono tabular text-xs ct-text-muted truncate max-w-xs">
+                    <td className="ct-table-cell mono tabular text-xs ct-text-muted truncate max-w-xs">
                       {approval.signerWallet}
                     </td>
-                    <td className="py-2 pr-4">
+                    <td className="ct-table-cell">
                       <span
                         className={
                           approval.decision === "approve"
@@ -370,10 +367,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
                         {approval.decision}
                       </span>
                     </td>
-                    <td className="py-2 pr-4 body-xs ct-text-muted">
+                    <td className="ct-table-cell body-xs ct-text-muted">
                       {approval.reason ?? "—"}
                     </td>
-                    <td className="py-2 pr-4 body-xs ct-text-faint tabular mono">
+                    <td className="ct-table-cell body-xs ct-text-faint tabular mono">
                       {approval.signedAt.toISOString().slice(0, 10)}
                     </td>
                   </tr>
@@ -382,15 +379,13 @@ export default async function VaultDetailPage({ params }: PageProps) {
             </table>
           </div>
         )}
-      </Card>
+      </SystemPanel>
 
       {/* Disclaimers */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Disclaimers</CardTitle>
-        </CardHeader>
-        <p className="body-sm ct-text-muted whitespace-pre-wrap">{vault.disclaimers}</p>
-      </Card>
+      <SystemPanel>
+        <DashboardPanelHeader title="Disclaimers" />
+        <p className="body-sm ct-text-muted whitespace-pre-wrap mt-4">{vault.disclaimers}</p>
+      </SystemPanel>
     </div>
   );
 }

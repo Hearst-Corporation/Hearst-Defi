@@ -1,31 +1,14 @@
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import {
+  MINING_CASHFLOW_COPY,
+  miningCashflowAwaitingState,
+} from "@/components/proof/empty-messages";
 import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
 import { NestedKpiGrid } from "@/components/ui/nested-panel";
 import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import type { CoverageView } from "@/lib/engine/coverage-view";
 
-/**
- * Mining Cash-Flow Evidence — the RWA proof that matters most: the yield source.
- * Reserves prove the principal is custodied; THIS proves the distribution is
- * funded by real mining revenue, via the distribution-coverage engine.
- *
- * When `coverage` is provided it renders the live/estimated/pending state from
- * the engine. With no inputs attested yet (pre-launch), it stays Pending — never
- * a fabricated figure, never "Live" without complete inputs, never "healthy"
- * when coverage < 1.0.
- */
-
-// Required copy per state (P1).
-const COPY: Record<CoverageView["provenance"], string> = {
-  live: "Coverage calculated from complete mining cash-flow inputs.",
-  estimated:
-    "Estimated from available (demo/staging) mining inputs. Not attested.",
-  pending: "Coverage pending until mining cash-flow inputs are attested.",
-  invalid: "Coverage unavailable — mining cash-flow inputs are invalid.",
-};
-
-// Map coverage provenance → ProvenanceBadge kind (never "live" unless attested).
 const BADGE: Record<CoverageView["provenance"], "live" | "estimated" | "manual" | "stale"> = {
   live: "live",
   estimated: "estimated",
@@ -41,21 +24,13 @@ export function MiningCashFlowEvidence({
   const provenance = coverage?.provenance ?? "pending";
 
   if (provenance === "pending" || provenance === "invalid") {
-    return (
-      <AwaitingMetricState
-        message={
-          provenance === "invalid"
-            ? "Mining cash-flow coverage unavailable"
-            : "Mining cash-flow coverage pending"
-        }
-        detail={COPY[provenance]}
-      />
-    );
+    return <AwaitingMetricState {...miningCashflowAwaitingState(provenance)} />;
   }
 
   const ratioLabel =
-    coverage && coverage.ratio !== null ? `${coverage.ratio.toFixed(2)}×` : "Pending";
-  const coverageState = coverage?.state ?? "invalid";
+    coverage?.ratio !== null && coverage?.ratio !== undefined
+      ? `${coverage.ratio.toFixed(2)}×`
+      : "Pending";
 
   return (
     <Card>
@@ -66,7 +41,7 @@ export function MiningCashFlowEvidence({
         tone="primary"
       />
 
-      <p className="body-sm mb-4">{COPY[provenance]}</p>
+      <p className="body-sm mb-4">{MINING_CASHFLOW_COPY[provenance]}</p>
 
       <NestedKpiGrid columns={4}>
         <Metric
@@ -78,16 +53,14 @@ export function MiningCashFlowEvidence({
         <Metric
           variant="nested"
           label="State"
-          value={coverageState}
+          value={coverage?.state ?? "invalid"}
           sublabel={coverage?.recommendation.action ?? "—"}
         />
         <Metric
           variant="nested"
           label="Latest revenue period"
           value={coverage?.period ?? "—"}
-          sublabel={
-            coverage?.lastUpdated ? "as of attestation" : "awaiting first close"
-          }
+          sublabel={coverage?.lastUpdated ? "as of attestation" : "awaiting first close"}
         />
         <Metric
           variant="nested"

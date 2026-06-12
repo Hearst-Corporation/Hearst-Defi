@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ApyRange } from "@/components/ui/apy-range";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
@@ -79,10 +80,10 @@ export function PositionsList({
           </div>
 
           {isPreviewEmpty ? (
-            <p className="body-sm ct-text-muted py-6 text-center">
-              No active positions yet — your first deposit will appear here once
-              confirmed on-chain.
-            </p>
+            <EmptySurface
+              variant="inline"
+              message="No active positions yet — your first deposit will appear here once confirmed on-chain."
+            />
           ) : null}
 
           {positions.map((p) => (

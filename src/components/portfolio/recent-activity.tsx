@@ -1,4 +1,5 @@
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
@@ -95,11 +96,10 @@ export function RecentActivity({
 
         <div className="flex flex-col gap-1 mt-3">
           {displayed.length === 0 ? (
-            <p className="body-sm ct-text-muted py-6 text-center">
-              {previewZeros
-                ? "No transactions yet — deposits and payouts will appear here."
-                : "No transactions yet."}
-            </p>
+            <EmptySurface
+              variant="inline"
+              message="No transactions yet — deposits and payouts will appear here."
+            />
           ) : null}
           {displayed.map((tx) => (
             <div

@@ -9,6 +9,7 @@ import { TriangleAlert } from "lucide-react";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { PLATFORM_PROOFS_EMPTY } from "@/components/proof/empty-messages";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
 import { ProofFilter } from "@/components/proof/proof-filter";
 import { parseFilter } from "@/components/proof/proof-filter-types";
@@ -175,10 +176,7 @@ export default async function ProductProofCenterPage({
           {proofs.length > 0 ? <ProofFilter /> : null}
         </div>
         {proofs.length === 0 ? (
-          <AwaitingMetricState
-            message="No proofs published yet"
-            detail="Off-chain attestations, custody snapshots, and audits will appear here once posted. On-chain entries are read live from Base Sepolia."
-          />
+          <AwaitingMetricState {...PLATFORM_PROOFS_EMPTY} />
         ) : (
           <ProofGrid proofs={proofs} filter={filter} />
         )}

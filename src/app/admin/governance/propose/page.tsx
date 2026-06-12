@@ -4,15 +4,25 @@ import { redirect } from "next/navigation";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { proposeAction } from "@/lib/governance/actions";
+import { adminFormField } from "@/lib/ui/form-classes";
+import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
 
-// ---------------------------------------------------------------------------
-// Server action
-// ---------------------------------------------------------------------------
+const ACTION_TYPES = [
+  "deploy",
+  "pause",
+  "unpause",
+  "updateFees",
+  "updateCaps",
+  "rotateSigners",
+  "sweepFees",
+  "emergencyShutdown",
+] as const;
 
 async function handlePropose(formData: FormData) {
   "use server";
@@ -32,21 +42,6 @@ async function handlePropose(formData: FormData) {
 
   redirect(`/admin/governance/proposal/${result.id}`);
 }
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
-
-const ACTION_TYPES = [
-  "deploy",
-  "pause",
-  "unpause",
-  "updateFees",
-  "updateCaps",
-  "rotateSigners",
-  "sweepFees",
-  "emergencyShutdown",
-] as const;
 
 export default async function ProposePage() {
   await requireAdmin();
@@ -69,8 +64,8 @@ export default async function ProposePage() {
       />
 
       <Card>
+        <DashboardPanelHeader title="Proposal details" tone="quiet" className="mb-6" />
         <form action={handlePropose} className="space-y-6">
-          {/* Vault */}
           <div className="space-y-1.5">
             <label htmlFor="vaultId" className="stat-label block">
               Vault *
@@ -83,12 +78,7 @@ export default async function ProposePage() {
                 </Link>
               </p>
             ) : (
-              <select
-                id="vaultId"
-                name="vaultId"
-                required
-                className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-3 py-2 text-sm ct-text-primary focus:outline-none focus:border-[var(--ct-border-strong)]"
-              >
+              <select id="vaultId" name="vaultId" required className={adminFormField}>
                 <option value="">Select a vault…</option>
                 {vaults.map((v) => (
                   <option key={v.id} value={v.id}>
@@ -99,17 +89,11 @@ export default async function ProposePage() {
             )}
           </div>
 
-          {/* Action type */}
           <div className="space-y-1.5">
             <label htmlFor="actionType" className="stat-label block">
               Action type *
             </label>
-            <select
-              id="actionType"
-              name="actionType"
-              required
-              className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-3 py-2 text-sm ct-text-primary focus:outline-none focus:border-[var(--ct-border-strong)]"
-            >
+            <select id="actionType" name="actionType" required className={adminFormField}>
               <option value="">Select an action…</option>
               {ACTION_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -119,7 +103,6 @@ export default async function ProposePage() {
             </select>
           </div>
 
-          {/* Calldata */}
           <div className="space-y-1.5">
             <label htmlFor="calldata" className="stat-label block">
               Calldata (raw JSON — optional)
@@ -129,14 +112,14 @@ export default async function ProposePage() {
               name="calldata"
               rows={4}
               placeholder='{"newFeeBps": 250}'
-              className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-3 py-2 text-sm ct-text-primary mono focus:outline-none focus:border-[var(--ct-border-strong)] resize-y"
+              className={cn(adminFormField, "mono resize-y")}
             />
           </div>
 
-          {/* Justification */}
           <div className="space-y-1.5">
             <label htmlFor="justification" className="stat-label block">
-              Justification * <span className="ct-text-muted normal-case tracking-normal">(min 80 characters)</span>
+              Justification *{" "}
+              <span className="normal-case tracking-normal ct-text-muted">(min 80 characters)</span>
             </label>
             <textarea
               id="justification"
@@ -145,18 +128,12 @@ export default async function ProposePage() {
               required
               minLength={80}
               placeholder="Explain why this action is necessary, what the expected impact is, and any risk mitigations applied…"
-              className="w-full rounded-md border border-[var(--ct-border)] ct-surface-1 px-3 py-2 text-sm ct-text-primary focus:outline-none focus:border-[var(--ct-border-strong)] resize-y"
+              className={cn(adminFormField, "resize-y")}
             />
           </div>
 
-          {/* Submit */}
           <div className="flex items-center gap-3 pt-2">
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              disabled={vaults.length === 0}
-            >
+            <Button type="submit" variant="primary" size="lg" disabled={vaults.length === 0}>
               Submit proposal
             </Button>
             <Button variant="secondary" size="lg" asChild>
@@ -164,7 +141,7 @@ export default async function ProposePage() {
             </Button>
           </div>
 
-          <p className="text-xs ct-text-muted">
+          <p className="body-xs ct-text-muted">
             Submitting moves the proposal directly to SIGNING state. The proposer&apos;s own
             approval is not automatically counted — sign explicitly in the detail view.
           </p>

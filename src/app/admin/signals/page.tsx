@@ -2,11 +2,18 @@ import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import Link from "next/link";
+
+import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { RebalanceCard } from "@/components/admin/rebalance-card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
-import Link from "next/link";
+import {
+  adminSignalsVaultHref,
+  resolveFixtureVaultId,
+  withAdminVaultQuery,
+} from "@/lib/vaults/dashboard-scope";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +55,7 @@ const TABS: { label: string; value: StatusFilter }[] = [
 // ---------------------------------------------------------------------------
 
 interface SignalsPageProps {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; vault?: string }>;
 }
 
 export default async function SignalsPage({ searchParams }: SignalsPageProps) {
@@ -56,6 +63,8 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
 
   const params = await searchParams;
   const activeStatus = toFilter(params.status);
+  const vaultId = resolveFixtureVaultId(params.vault);
+  const vaultQuery = params.vault ?? null;
 
   const where: Prisma.RebalanceEventWhereInput =
     activeStatus === "all" ? {} : { status: activeStatus };
@@ -79,6 +88,12 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
     <div className="space-y-8">
       <AdminPageHeader
         title="Rebalancing"
+        actions={
+          <FixtureVaultPills
+            activeVaultId={vaultId}
+            resolveHref={adminSignalsVaultHref}
+          />
+        }
       />
 
       <div className="ct-seg-scroll">
@@ -94,7 +109,9 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
           return (
             <Link
               key={tab.value}
-              href={`/admin/signals?status=${tab.value}`}
+              href={withAdminVaultQuery("/admin/signals", vaultQuery, {
+                status: tab.value,
+              })}
               className={cn(
                 "ct-seg-btn",
                 activeStatus === tab.value && "active",

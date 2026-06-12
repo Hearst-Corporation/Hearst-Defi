@@ -5,6 +5,7 @@
 
 import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
+import { NestedKpiGrid, NestedPanel, ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { DynamicAllocationCards } from "@/components/vaults/dynamic-allocation-cards";
 import { cn } from "@/lib/cn";
@@ -121,39 +122,11 @@ function Section({ id, title, provenance, children, className }: SectionProps) {
   );
 }
 
-function LightPanel({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        "rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 p-4",
-        className,
-      )}
-    >
-      {children}
-    </div>
-  );
-}
-
 function MetricRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-0.5 min-w-0">
       <span className="stat-label">{label}</span>
       <span className="h4 tabular mono ct-text-strong">{value}</span>
-    </div>
-  );
-}
-
-function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex items-start justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] last:border-0">
-      <span className="stat-label shrink-0">{label}</span>
-      <span className="body-sm ct-text-body text-right">{value}</span>
     </div>
   );
 }
@@ -193,8 +166,8 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
           </div>
         }
       >
-        <LightPanel>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <NestedPanel>
+          <NestedKpiGrid columns={3}>
             <MetricRow
               label="Target APY range"
               value={
@@ -225,12 +198,12 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
                   : "Pending snapshot"
               }
             />
-          </div>
-          <p className="body-xs ct-text-faint mt-5 pt-4 border-t border-[var(--ct-border-soft)]">
+          </NestedKpiGrid>
+          <p className="body-xs ct-text-faint mt-5 pt-4 border-t border-(--ct-border-soft)">
             Distribution coverage pending first attested mining period ·
             Indicative cadence (monthly, T+5) · Methodology v1.0 active
           </p>
-        </LightPanel>
+        </NestedPanel>
       </Section>
 
       {/* ── Strategy ── */}
@@ -239,7 +212,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
         title="Strategy"
         provenance={<ProvenanceBadge kind="manual" />}
       >
-        <LightPanel className="flex flex-col gap-4">
+        <NestedPanel className="flex flex-col gap-4">
           <p className="body-md ct-text-body leading-relaxed">{vault.description}</p>
           <p className="body-sm ct-text-muted">
             Principal held in a USDC cash reserve — not deployed on-chain; yield
@@ -250,14 +223,14 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
             <Badge variant="default">Rule-based rebalancing</Badge>
             <Badge variant="default">Monthly USDC distributions</Badge>
           </div>
-          <p className="body-sm ct-text-muted pt-2 border-t border-[var(--ct-border-soft)]">
+          <p className="body-sm ct-text-muted pt-2 border-t border-(--ct-border-soft)">
             Projections follow Methodology{" "}
             <span className="mono">v1.0</span> — weighted buckets with ±10–30%
             assumption risk factors. APY is always shown as a range, never a
             point estimate. Immutable once published; changes require a version
             bump and ADR.
           </p>
-        </LightPanel>
+        </NestedPanel>
       </Section>
 
       {/* ── Allocation policy — compact ── */}
@@ -266,12 +239,9 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
           {allocRows.map((row) => {
             const tone = ALLOCATION_BUCKET_CLASS[row.bucket];
             return (
-              <div
+              <NestedPanel
                 key={row.label}
-                className={cn(
-                  "glass-panel-subtle flex flex-col gap-1 border-l-[3px] px-4 py-3",
-                  tone.border,
-                )}
+                className={cn("flex flex-col gap-1 border-l-[3px]", tone.border)}
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="flex min-w-0 items-center gap-2">
@@ -288,7 +258,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
                   </span>
                 </div>
                 <p className="body-xs ct-text-muted">{row.description}</p>
-              </div>
+              </NestedPanel>
             );
           })}
         </div>
@@ -319,26 +289,18 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
         provenance={<ProvenanceBadge kind="manual" />}
         className="opacity-95"
       >
-        <LightPanel className="py-3 px-4">
-          <DetailRow
-            label="SPV structure"
-            value={SPV_LABELS[vault.spvJurisdiction] ?? vault.spvJurisdiction}
-          />
-          <DetailRow label="Share class" value={`Class ${vault.shareClass}`} />
-          <DetailRow
-            label="Regulatory exemption"
-            value={REG_LABELS[vault.regExemption] ?? vault.regExemption}
-          />
-          <DetailRow
-            label="Custodian"
-            value="Custody configuration pending"
-          />
-          <DetailRow
-            label="Multisig threshold"
-            value="Multisig approval required"
-          />
-          <DetailRow label="Audit" value="Spearbit · scheduled" />
-        </LightPanel>
+        <NestedPanel className="py-0">
+          <ProofRow label="SPV structure">
+            {SPV_LABELS[vault.spvJurisdiction] ?? vault.spvJurisdiction}
+          </ProofRow>
+          <ProofRow label="Share class">{`Class ${vault.shareClass}`}</ProofRow>
+          <ProofRow label="Regulatory exemption">
+            {REG_LABELS[vault.regExemption] ?? vault.regExemption}
+          </ProofRow>
+          <ProofRow label="Custodian">Custody configuration pending</ProofRow>
+          <ProofRow label="Multisig threshold">Multisig approval required</ProofRow>
+          <ProofRow label="Audit">Spearbit · scheduled</ProofRow>
+        </NestedPanel>
       </Section>
     </div>
   );

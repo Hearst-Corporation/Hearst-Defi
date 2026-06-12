@@ -7,8 +7,8 @@ import { describe, expect, it } from "vitest";
 
 import { EventTimeline } from "@/components/proof-center/event-timeline";
 import { PorSummary } from "@/components/proof-center/por-summary";
-import type { OnChainAttestation } from "@/lib/chain/por-registry";
-import type { CustodySnapshot } from "@/lib/data/custody";
+
+import { freshAttestation, zeroReservesCustody } from "./fixtures";
 
 function assertModuleEmptyContract(html: string, message: string): void {
   expect(html).toContain(message);
@@ -17,34 +17,6 @@ function assertModuleEmptyContract(html: string, message: string): void {
   expect(html).not.toContain("ct-system-panel");
   expect(html).not.toContain("border-dashed");
   expect(html).not.toContain("Stale");
-}
-
-function freshAttestation(): OnChainAttestation {
-  return {
-    attestationId: 1n,
-    period: 202605n,
-    attestor: "0x1111111111111111111111111111111111111111",
-    totalAumUsd: 25_000_000,
-    minedBtc: 12.3456,
-    rawTotalAumUsd: 25_000_000_000_000n,
-    rawMinedBtcSats: 1_234_560_000n,
-    evidenceHash: "0xabc",
-    evidenceCid: "ipfs://QmTest",
-    timestamp: new Date(),
-    txHash: "0xdef",
-    blockNumber: 123n,
-  };
-}
-
-function zeroReservesCustody(): CustodySnapshot {
-  return {
-    provenance: "manual",
-    configured: false,
-    asOf: new Date().toISOString(),
-    accountsCount: 0,
-    totalUsdcReserves: 0,
-    accounts: [],
-  };
 }
 
 describe("Proof Center empty states — design contract", () => {

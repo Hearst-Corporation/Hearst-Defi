@@ -1,0 +1,77 @@
+import Link from "next/link";
+
+import { GOVERNANCE_QUEUE_EMPTY } from "@/components/admin/governance/empty-messages";
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import {
+  formatGovernanceTimestamp,
+  formatProposalAge,
+  proposalStateLabel,
+  proposalStateVariant,
+} from "@/lib/governance/display";
+import type { loadProposalQueue } from "@/lib/governance/actions";
+
+type ProposalSummary = Awaited<ReturnType<typeof loadProposalQueue>>[number];
+
+export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
+  if (proposals.length === 0) {
+    return <AwaitingMetricState {...GOVERNANCE_QUEUE_EMPTY} />;
+  }
+
+  return (
+    <div className="space-y-3">
+      {proposals.map((proposal) => (
+        <Link
+          key={proposal.id}
+          href={`/admin/governance/proposal/${proposal.id}`}
+          className="block"
+        >
+          <Card className="cursor-pointer p-4 transition-colors hover:border-(--ct-border-strong)">
+            <div className="flex items-center gap-4">
+              <div className="min-w-0 flex-1">
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="ct-pill mono text-xs">{proposal.vaultTicker}</span>
+                  <span className="body-md truncate font-semibold ct-text-strong">
+                    {proposal.actionType}
+                  </span>
+                </div>
+                <p className="text-xs ct-text-muted">
+                  Proposed by{" "}
+                  <span className="mono">{proposal.proposedBy.slice(0, 8)}…</span>
+                  {" · "}
+                  {formatProposalAge(proposal.createdAt)}
+                </p>
+              </div>
+
+              <div className="shrink-0 text-right text-xs ct-text-muted">
+                <span className="font-semibold ct-text-primary">
+                  {proposal.approvalCount}/{proposal.requiredSigners}
+                </span>{" "}
+                approved
+                {proposal.rejectionCount > 0 ? (
+                  <span className="ml-2 ct-status-danger">
+                    {proposal.rejectionCount} rejected
+                  </span>
+                ) : null}
+              </div>
+
+              <Badge variant={proposalStateVariant(proposal.state)}>
+                {proposalStateLabel(proposal.state)}
+              </Badge>
+            </div>
+
+            {proposal.state === "TIMELOCK" && proposal.etaAt ? (
+              <div className="mt-3 border-t border-(--ct-border-soft) pt-3 text-xs ct-text-muted">
+                Timelock ETA:{" "}
+                <span className="mono ct-text-primary">
+                  {formatGovernanceTimestamp(proposal.etaAt)}
+                </span>
+              </div>
+            ) : null}
+          </Card>
+        </Link>
+      ))}
+    </div>
+  );
+}
