@@ -74,11 +74,11 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
                   : "Pending"}
               </VaultKpiCell>
             </MetricGrid>
-            <p className="body-xs ct-text-faint mt-2 product-doc-inline-row product-doc-inline-row--dense">
+            <div className="body-xs ct-text-faint mt-2 product-doc-inline-row product-doc-inline-row--dense">
               <span>Metrics:</span>
               <ProvenanceBadge kind="estimated" />
               {vault.currentAumUsdc > 0 ? <ProvenanceBadge kind={aumProvenance} /> : null}
-            </p>
+            </div>
           </div>
 
           {/* Legal & risk — compact rows, no section heading */}
