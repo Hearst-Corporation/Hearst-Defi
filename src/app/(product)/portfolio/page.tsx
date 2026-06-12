@@ -205,14 +205,8 @@ export default async function PortfolioPage() {
           variant={sectionVariant}
           data-section="hero-pulse"
         >
-          <div
-            className={
-              previewZeros
-                ? "pf-zero-hero-body"
-                : "grid grid-cols-12 gap-6"
-            }
-          >
-            <div className={previewZeros ? undefined : "col-span-12 lg:col-span-8"}>
+          <div className="dash-bento pf-secondary-grid">
+            <div className="bento-col-8 pf-main-chart-wrapper">
               <ValueChart
                 positions={data.positions}
                 totalValueUsdc={data.totalValueUsdc}
@@ -221,13 +215,7 @@ export default async function PortfolioPage() {
                 previewZeros={previewZeros}
               />
             </div>
-            <div
-              className={
-                previewZeros
-                  ? "flex flex-col gap-4"
-                  : "col-span-12 lg:col-span-4 flex flex-col gap-6"
-              }
-            >
+            <div className="bento-col-4 flex flex-col gap-6 pf-secondary-panel">
               <HeroKpiTable
                 totalValueUsdc={data.totalValueUsdc}
                 totalYieldYtdUsdc={data.totalYieldYtdUsdc}
@@ -235,13 +223,7 @@ export default async function PortfolioPage() {
                 hasPositions={hasPositions}
                 previewZeros={previewZeros}
               />
-              <div
-                className={cn(
-                  "flex flex-col gap-6",
-                  !previewZeros && "pt-6 border-t border-(--ct-border-soft)",
-                  previewZeros && "pf-zero-liquidity",
-                )}
-              >
+              <div className="flex flex-col gap-6 pt-6 border-t border-(--ct-border-soft)">
                 <span className="stat-label ct-text-accent">Liquidity status</span>
                 <TimeToCash
                   {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
@@ -259,14 +241,14 @@ export default async function PortfolioPage() {
 
       <MotionViewport>
         <div className="flex flex-col gap-4">
-          <div className="dash-bento" data-section="yield-allocation">
-            <div className="bento-col-8" data-testid="yield-stack-widget">
+          <div className="dash-bento pf-secondary-grid" data-section="yield-allocation">
+            <div className="bento-col-8 pf-secondary-panel" data-testid="yield-stack-widget">
               <YieldStack
                 {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
                 previewZeros={previewZeros}
               />
             </div>
-            <div className="bento-col-4" data-testid="allocation-donut-widget">
+            <div className="bento-col-4 pf-secondary-panel" data-testid="allocation-donut-widget">
               <AllocationDonut
                 positions={data.positions}
                 totalValueUsdc={data.totalValueUsdc}
@@ -285,15 +267,19 @@ export default async function PortfolioPage() {
             data-section="yield-trust"
           >
             <div
-              className={
+              className={cn(
+                "pf-secondary-grid",
                 previewZeros
                   ? "pf-zero-trust-list grid grid-cols-1 md:grid-cols-3 gap-4"
-                  : "grid grid-cols-1 md:grid-cols-3 gap-6"
-              }
+                  : "dash-bento",
+              )}
             >
               <div
                 data-testid="risk-pulse-widget"
-                className={previewZeros ? "pf-zero-trust-row" : "flex flex-col gap-4"}
+                className={cn(
+                  "pf-compact-panel",
+                  previewZeros ? "pf-zero-trust-row" : "bento-col-4 flex flex-col gap-4",
+                )}
               >
                 <span className="stat-label ct-text-accent">Risk profile</span>
                 <RiskPulse
@@ -303,7 +289,10 @@ export default async function PortfolioPage() {
               </div>
               <div
                 data-testid="proof-pulse-widget"
-                className={previewZeros ? "pf-zero-trust-row" : "flex flex-col gap-4"}
+                className={cn(
+                  "pf-compact-panel",
+                  previewZeros ? "pf-zero-trust-row" : "bento-col-4 flex flex-col gap-4",
+                )}
               >
                 <span className="stat-label ct-text-accent">Proof of reserves</span>
                 <ProofPulse
@@ -315,7 +304,10 @@ export default async function PortfolioPage() {
               </div>
               <div
                 data-testid="security-pulse-widget"
-                className={previewZeros ? "pf-zero-trust-row" : "flex flex-col gap-4"}
+                className={cn(
+                  "pf-compact-panel",
+                  previewZeros ? "pf-zero-trust-row" : "bento-col-4 flex flex-col gap-4",
+                )}
               >
                 <span className="stat-label ct-text-accent">Security audit</span>
                 <SecurityPulse previewZeros={previewZeros} />
@@ -327,8 +319,8 @@ export default async function PortfolioPage() {
 
       <MotionViewport>
         <div className="flex flex-col gap-4">
-          <div className="dash-bento">
-            <div className="bento-col-12">
+          <div className="dash-bento pf-secondary-grid">
+            <div className="bento-col-12 pf-secondary-panel">
               <PositionsList
                 positions={data.positions}
                 source={data.source}
@@ -345,8 +337,8 @@ export default async function PortfolioPage() {
             variant={sectionVariant}
             data-section="activity-payouts"
           >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-8 flex flex-col gap-4">
+            <div className="dash-bento pf-secondary-grid">
+              <div className="bento-col-8 flex flex-col gap-4 pf-secondary-panel">
                 <span className="stat-label ct-text-accent">Recent transactions</span>
                 <RecentActivity
                   transactions={data.recentTransactions}
@@ -356,7 +348,7 @@ export default async function PortfolioPage() {
                 />
               </div>
               <div
-                className="lg:col-span-4 flex flex-col gap-4"
+                className="bento-col-4 flex flex-col gap-4 pf-secondary-panel"
                 data-testid="distrib-calendar-widget"
               >
                 <span className="stat-label ct-text-accent">Payout calendar</span>

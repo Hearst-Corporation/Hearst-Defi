@@ -170,10 +170,12 @@
   border-radius: var(--ct-radius-full);
 }
 
-.pf-status-dot--active { background: var(--ct-text-strong); }
-.pf-status-dot--matured { background: var(--ct-surface-3); }
-.pf-status-dot--exited { background: var(--ct-accent-strong); }
-.pf-status-dot--default { background: var(--ct-text-muted); }
+/* Semantics: active = live (accent green, the single UI green), matured = neutral,
+   exited/default = faint (closed / inactive). */
+.pf-status-dot--active { background: var(--ct-accent); }
+.pf-status-dot--matured { background: var(--ct-text-muted); }
+.pf-status-dot--exited { background: var(--ct-text-faint); }
+.pf-status-dot--default { background: var(--ct-text-faint); }
 
 /* Widget header row — dash-label title + meta slot */
 .pf-widget-header {
@@ -268,5 +270,64 @@
 
 .pf-container [data-section="yield-allocation"] .ct-card {
   flex: 1;
+}
+
+/* Drop the premium accent dot-grid "background colour" from portfolio data
+   widgets (yield / source / stack / allocation / positions). Keeps the panel
+   frame + border; only the tinted radial grid is removed. Scoped to .pf-container
+   so the rest of the cockpit's premium cards are untouched. */
+.pf-container .ct-card.card-premium {
+  background-image: none;
+}
+
+/* ── Portfolio Cockpit Overrides (Local) ── */
+
+/* Main chart stays strong and dominant */
+.pf-main-chart-wrapper .ct-card {
+  min-height: 22rem;
+  background: var(--ct-graphite-active-bg);
+  /* Keep default card-premium dots for the hero chart */
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--ct-accent) 3%, transparent) 1px,
+    transparent 1px
+  ) !important;
+}
+
+/* Secondary panels: darker, no dots, more compact */
+.pf-secondary-panel .ct-card,
+.pf-compact-panel .ct-card {
+  background: var(--ct-graphite-subtle-bg) !important;
+  background-image: none !important; /* Remove card-premium dots */
+  box-shadow: none !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.pf-secondary-panel .ct-card {
+  padding: var(--ct-space-4) var(--ct-space-5) !important;
+}
+
+.pf-compact-panel .ct-card {
+  padding: var(--ct-space-3) var(--ct-space-4) !important;
+}
+
+/* Reduce header size in secondary/compact panels */
+.pf-secondary-panel .h3,
+.pf-compact-panel .h3 {
+  font-size: var(--ct-text-base) !important;
+  font-weight: var(--ct-font-semibold) !important;
+}
+
+/* Reduce gap in bento for secondary sections */
+.pf-secondary-grid {
+  gap: var(--ct-space-3) !important;
+}
+
+/* Hide redundant preview chips in secondary panels to reduce visual noise.
+   They are already covered by the section-level "Preview" eyebrow. */
+.pf-container .pf-secondary-panel .widget-panel-header span[class*="ct-text-faint"][class*="uppercase"],
+.pf-container .pf-compact-panel .widget-panel-header span[class*="ct-text-faint"][class*="uppercase"],
+.pf-container .pf-main-chart-wrapper .widget-panel-header span[class*="ct-text-faint"][class*="uppercase"] {
+  display: none !important;
 }
 
