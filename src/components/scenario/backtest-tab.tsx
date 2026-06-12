@@ -85,7 +85,7 @@ export function BacktestTab() {
       {!state.output && !pending && state.selectedKey === null ? (
         <div className="backtest-period-details">
           {BACKTEST_PERIODS.map((p) => (
-            <div key={p.key} className="glass-panel px-5 py-4">
+            <div key={p.key} className="ct-card ct-glass-panel px-5 py-4">
               <p className="scenario-preset-bar__label">{p.label}</p>
               <p className="mt-1 body-xs ct-text-muted">{p.subtitle}</p>
               <p className="mt-2 body-sm ct-text-body">{p.description}</p>

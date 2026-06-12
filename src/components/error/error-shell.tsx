@@ -8,6 +8,7 @@
 
 import type React from "react";
 
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -45,11 +46,9 @@ export function ErrorShellLayout({
       : "ct-status-warning";
 
   return (
-    <div
-      className={cn(
-        "glass-panel error-shell",
-        "mx-auto my-10 max-w-2xl p-8",
-      )}
+    <Card
+      className={cn("error-shell", "mx-auto my-10 max-w-2xl p-8")}
+      hoverOverlay={false}
       role={tone === "danger" ? "alert" : "status"}
       aria-live={tone === "danger" ? "assertive" : "polite"}
     >
@@ -88,7 +87,7 @@ export function ErrorShellLayout({
       ) : null}
 
       <div className="error-shell__actions">{actions}</div>
-    </div>
+    </Card>
   );
 }
 

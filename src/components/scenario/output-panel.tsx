@@ -440,7 +440,7 @@ function CompactPanel({
   return (
     <section
       className={cn(
-        "relative glass-panel p-5",
+        "relative ct-card ct-glass-panel p-5",
         "border-l-4",
         side === "A"
           ? "border-l-(--ct-border-strong)"

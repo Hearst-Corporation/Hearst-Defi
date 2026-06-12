@@ -160,7 +160,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
   return (
     <div className="ct-card admin-doc-stack">
       <div className="admin-doc-stack--compact">
-        <h3 className="h3">Compute next distribution</h3>
+        <h2 className="h2">Compute next distribution</h2>
         <p className="body-sm ct-text-muted">
           Dry-run computes pro-rata payouts from active positions. No DB writes
           until multisig confirmation.
@@ -270,7 +270,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
 
               {awaitingConfirm ? (
                 <Card className="admin-confirm-panel">
-                  <h3 className="h3">Confirm distribution</h3>
+                  <h2 className="h2">Confirm distribution</h2>
                   <div className="admin-confirm-panel__rows">
                     <div className="admin-confirm-panel__row body-sm">
                       <span className="ct-text-muted">Vault</span>

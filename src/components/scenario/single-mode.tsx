@@ -46,7 +46,7 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
       ) : null}
 
       <div className="scenario-lab-workspace scenario-lab-workspace--viewport">
-        <div className="scenario-lab-input-card glass-panel p-0">
+        <div className="scenario-lab-input-card ct-card ct-glass-panel p-0">
           <div className="scenario-lab-input-card__header">
             <h4 className="h4">Inputs</h4>
             <p className="mt-0.5 body-xs ct-text-muted">
@@ -94,7 +94,7 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
         {state.output ? (
           <div
             ref={outputRef}
-            className="scenario-lab-output-card glass-panel p-5"
+            className="scenario-lab-output-card ct-card ct-glass-panel p-5"
           >
             <OutputPanel
               output={state.output}

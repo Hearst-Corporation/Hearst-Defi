@@ -48,7 +48,14 @@ interface OnboardingChamberProps {
   testId?: string;
 }
 
-/** Single premium surface — Crown · Body · Sole. */
+/**
+ * Single premium surface — Crown · Body · Sole.
+ *
+ * ADR-013 exception: crown slots use inline `<h1 className="h1 m-0">` instead of
+ * `ProductPageHeader` — the chamber is a centered wizard shell (StepProgressBar +
+ * tight eyebrow stack). Typography still flows through `.product-doc` on
+ * `onboarding-shell__stage`; only the header primitive differs from doc-flow pages.
+ */
 export function OnboardingChamber({
   crown,
   body,
