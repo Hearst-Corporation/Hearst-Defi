@@ -185,7 +185,7 @@ export default async function AuditLogPage({
                         {truncateWallet(entry.actorWallet)}
                       </span>
                       {entry.ip ? (
-                        <span className="block ct-text-micro-size ct-text-muted">
+                        <span className="block body-xs">
                           {entry.ip}
                         </span>
                       ) : null}
@@ -203,7 +203,7 @@ export default async function AuditLogPage({
                       <span className="block body-xs ct-text-strong">
                         {entry.entityType}
                       </span>
-                      <span className="mono block ct-text-micro-size ct-text-muted">
+                      <span className="mono block body-xs">
                         {entry.entityId}
                       </span>
                     </td>
@@ -224,7 +224,7 @@ export default async function AuditLogPage({
                             </p>
                             <pre
                               className={cn(
-                                "mono max-h-40 overflow-auto rounded border p-2 ct-text-micro-size leading-relaxed whitespace-pre-wrap break-all",
+                                "mono body-xs max-h-40 overflow-auto rounded border p-2 leading-relaxed whitespace-pre-wrap break-all",
                                 "ct-bc-soft ct-surface-0 ct-text-muted",
                               )}
                             >
@@ -239,7 +239,7 @@ export default async function AuditLogPage({
                             </p>
                             <pre
                               className={cn(
-                                "mono max-h-40 overflow-auto rounded border p-2 ct-text-micro-size leading-relaxed whitespace-pre-wrap break-all",
+                                "mono body-xs max-h-40 overflow-auto rounded border p-2 leading-relaxed whitespace-pre-wrap break-all",
                                 "ct-bc-soft ct-surface-0 ct-text-body",
                               )}
                             >
@@ -249,7 +249,7 @@ export default async function AuditLogPage({
                             </pre>
                           </div>
                           {entry.userAgent ? (
-                            <p className="ct-text-micro-size ct-text-muted truncate">
+                            <p className="body-xs truncate">
                               UA: {entry.userAgent}
                             </p>
                           ) : null}

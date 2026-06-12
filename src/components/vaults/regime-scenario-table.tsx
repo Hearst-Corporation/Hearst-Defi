@@ -56,33 +56,33 @@ export function RegimeScenarioTable() {
       <table>
         <thead>
           <tr>
-            <th scope="col" className="stat-label ct-table-header font-medium">
+            <th scope="col" className="stat-label ct-table-header">
               Regime
             </th>
             <th
               scope="col"
-              className="stat-label ct-table-header font-medium regime-scenario-table__col-scenario"
+              className="stat-label ct-table-header regime-scenario-table__col-scenario"
             >
               Scenario
             </th>
-            <th scope="col" className="stat-label ct-table-header font-medium">
+            <th scope="col" className="stat-label ct-table-header">
               APY range
             </th>
-            <th scope="col" className="stat-label ct-table-header font-medium text-right">
+            <th scope="col" className="stat-label ct-table-header text-right">
               Min
             </th>
-            <th scope="col" className="stat-label ct-table-header font-medium text-right">
+            <th scope="col" className="stat-label ct-table-header text-right">
               BTC
             </th>
             <th
               scope="col"
-              className="stat-label ct-table-header font-medium text-right regime-scenario-table__col-wide"
+              className="stat-label ct-table-header text-right regime-scenario-table__col-wide"
             >
               USDC
             </th>
             <th
               scope="col"
-              className="stat-label ct-table-header font-medium text-right regime-scenario-table__col-wide"
+              className="stat-label ct-table-header text-right regime-scenario-table__col-wide"
             >
               Res
             </th>

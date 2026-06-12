@@ -43,7 +43,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
           <span className="mono stat-value font-light text-(--ct-text-strong) tracking-tighter leading-tight tabular-nums truncate">
             {navPerShare.toFixed(4)}
           </span>
-          <span className="body-xs uppercase tracking-widest opacity-50 ml-1.5">USDC</span>
+          <span className="dash-unit opacity-50 ml-1.5">USDC</span>
         </div>
         <div className="mt-2 h-4 relative z-10">
           <p className="body-xs text-(--ct-text-muted) mono uppercase tracking-wider leading-4 truncate opacity-70">
@@ -64,7 +64,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
           <span className="mono stat-value font-light text-(--ct-text-strong) tracking-tighter leading-tight tabular-nums truncate">
             {hasPositions ? formatUsdCompact(data.totalValueUsdc) : <span className="opacity-30">—</span>}
           </span>
-          <span className="body-xs uppercase tracking-widest opacity-50 ml-1.5">USDC</span>
+          <span className="dash-unit opacity-50 ml-1.5">USDC</span>
         </div>
         <div className="mt-2 h-4 relative z-10">
           {hasPositions && data.pnl ? (
@@ -95,7 +95,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
           <span className="mono stat-value font-light text-(--ct-text-strong) tracking-tighter leading-tight tabular-nums truncate">
             {hasPositions ? formatUsdCompact(data.totalYieldYtdUsdc) : <span className="opacity-30">—</span>}
           </span>
-          <span className="body-xs uppercase tracking-widest opacity-50 ml-1.5">USDC</span>
+          <span className="dash-unit opacity-50 ml-1.5">USDC</span>
         </div>
         <div className="mt-2 h-4 relative z-10">
           <p className="body-xs text-(--ct-text-muted) mono uppercase tracking-wider leading-4 truncate opacity-70">

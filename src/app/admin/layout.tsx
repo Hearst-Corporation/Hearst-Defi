@@ -40,10 +40,12 @@ export default async function AdminLayout({
   return (
     <>
       <AdminRailIntra />
-      <Suspense fallback={null}>
-        <AdminSubNav />
-      </Suspense>
-      <div className="admin-doc w-full min-w-0">{children}</div>
+      <div className="admin-doc w-full min-w-0">
+        <Suspense fallback={null}>
+          <AdminSubNav />
+        </Suspense>
+        {children}
+      </div>
     </>
   );
 }

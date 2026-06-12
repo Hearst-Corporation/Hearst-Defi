@@ -77,7 +77,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
               role="tab"
               aria-selected={isActive}
               className={cn(
-                "ct-pill body-xs font-semibold uppercase",
+                "ct-pill",
                 isActive && "accent",
               )}
             >

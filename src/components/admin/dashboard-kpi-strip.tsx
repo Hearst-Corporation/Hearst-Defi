@@ -43,17 +43,17 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
     >
       <div className="dashboard-kpi-strip__label-row">
         <span className="stat-label truncate">{kpi.label}</span>
-        <ProvenanceBadge kind={kpi.provenance} compact />
+        <ProvenanceBadge kind={kpi.provenance} variant="strip" />
       </div>
       <span
         className={cn(
-          "dashboard-kpi-strip__value tabular",
+          "stat-value",
           kpi.alert ? "ct-status-danger" : "ct-text-strong",
         )}
       >
         {kpi.value}
       </span>
-      <span className="dashboard-kpi-strip__sublabel truncate">{kpi.sublabel}</span>
+      <span className="body-xs ct-text-faint truncate">{kpi.sublabel}</span>
     </div>
   );
 }

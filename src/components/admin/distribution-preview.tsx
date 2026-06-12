@@ -51,13 +51,13 @@ export function DistributionPreview({
         <table className="w-full body-sm tabular border border-[var(--ct-border-soft)] rounded-lg overflow-hidden">
           <thead>
             <tr className="ct-surface-1">
-              <th className="text-left ct-table-header body-xs ct-text-muted">
+              <th className="text-left stat-label ct-table-header">
                 Investor wallet
               </th>
-              <th className="text-right ct-table-header body-xs ct-text-muted">
+              <th className="text-right stat-label ct-table-header">
                 Share %
               </th>
-              <th className="text-right ct-table-header body-xs ct-text-muted">
+              <th className="text-right stat-label ct-table-header">
                 Payout (USDC)
               </th>
             </tr>
@@ -74,7 +74,7 @@ export function DistributionPreview({
                 <td className="ct-table-cell text-right ct-text-muted tabular">
                   {r.sharesPct.toFixed(4)}%
                 </td>
-                <td className="ct-table-cell text-right ct-text-strong font-semibold tabular">
+                <td className="ct-table-cell text-right ct-text-strong tabular body-sm">
                   {formatUsdDetailed(r.payoutUsdc)}
                 </td>
               </tr>
@@ -82,13 +82,13 @@ export function DistributionPreview({
           </tbody>
           <tfoot>
             <tr className="border-t border-[var(--ct-border-strong)] ct-surface-2">
-              <td className="ct-table-cell body-xs ct-text-muted font-medium">
+              <td className="ct-table-cell body-xs ct-text-muted">
                 Total ({recipients.length} recipients)
               </td>
               <td className="ct-table-cell text-right ct-text-muted tabular body-xs">
                 100%
               </td>
-              <td className="ct-table-cell text-right ct-text-strong font-semibold tabular body-sm">
+              <td className="ct-table-cell text-right ct-text-strong tabular body-sm">
                 {formatUsdDetailed(totalUsdc)}
               </td>
             </tr>

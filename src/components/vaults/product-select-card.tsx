@@ -48,7 +48,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
               low={vault.apyLow}
               high={vault.apyHigh}
               precision={1}
-              className="h4 tabular mono ct-text-strong"
+              className="stat-value tabular mono ct-text-strong"
             />
             <p className="body-xs ct-text-muted">
               Conditional on stated assumptions · not a projection

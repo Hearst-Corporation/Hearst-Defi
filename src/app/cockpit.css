@@ -489,7 +489,8 @@
   overflow: hidden;
 }
 
-main#main-content:has(.scenario-lab-page--viewport) > nav {
+main#main-content:has(.scenario-lab-page--viewport) > nav,
+main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   flex-shrink: 0;
 }
 
@@ -1211,16 +1212,6 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   background: color-mix(in srgb, var(--ct-status-danger) 8%, transparent);
 }
 
-/* Dot-only provenance — no glass pill on black hero strip */
-.dashboard-kpi-strip .dashboard-provenance-badge--compact {
-  padding: 0;
-  border: none;
-  background: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
-}
-
 .dashboard-kpi-strip__label-row {
   display: flex;
   min-width: 0;
@@ -1245,17 +1236,16 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   gap: var(--ct-space-2);
 }
 
-.dashboard-kpi-strip__value {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-bold);
-  letter-spacing: var(--ct-tracking-tight);
-  line-height: var(--ct-leading-none);
-}
-
-.dashboard-kpi-strip__sublabel {
-  font-size: var(--ct-text-micro);
-  line-height: var(--ct-leading-tight);
-  color: var(--ct-text-faint);
+/* Hero KPI strip — dot-only provenance (no glass pill on --ct-bg-deep). */
+.provenance-badge--strip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
 }
 
 .fixture-vault-pills {
@@ -1337,20 +1327,63 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   justify-self: center;
 }
 
-/* Dashboard chart slots — flat placeholder inside the bento (no nested graphite). */
-.dashboard-command-board .ct-empty-surface--chart {
+/* Flat black command board — typography + air; no nested graphite / chart cages. */
+.dashboard-command-board .ct-empty-surface,
+.dashboard-command-board .ct-empty-surface--chart,
+.dashboard-command-board .ct-empty-surface--widget {
+  align-items: flex-start;
+  min-height: unset;
+  padding: var(--ct-space-2) 0;
+  text-align: left;
   background: transparent;
-  border: 1px solid var(--ct-border-soft);
+  border: none;
+  border-radius: 0;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
 
 .dashboard-command-board .ct-system-panel {
+  padding: var(--ct-space-4) 0;
   background: transparent;
-  border: 1px solid var(--ct-border-soft);
+  border: none;
+  border-bottom: 1px solid var(--ct-border-soft);
+  border-radius: 0;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
+}
+
+.dashboard-command-board .glass-panel,
+.dashboard-command-board .ct-card {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--ct-border-soft);
+  border-radius: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+.dashboard-command-board .glass-panel .absolute.inset-0 {
+  display: none;
+}
+
+.dashboard-command-board .dashboard-provenance-badge--compact {
+  padding: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+.dashboard-command-divide-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-command-divide-stack > * + * {
+  border-top: 1px solid var(--ct-border-soft);
 }
 
 .dashboard-command-performance {

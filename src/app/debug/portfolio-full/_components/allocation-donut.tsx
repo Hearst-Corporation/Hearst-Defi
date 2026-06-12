@@ -95,7 +95,7 @@ export function AllocationDonut({
             <span className="stat-value font-light text-(--ct-text-strong) tabular-nums">
               {totalValueUsdc > 0 ? formatUsdCompact(totalValueUsdc) : <span className="opacity-30">—</span>}
             </span>
-            <span className="body-xs text-(--ct-text-muted) uppercase tracking-widest mt-1">Portfolio</span>
+            <span className="stat-label mt-1">Portfolio</span>
           </div>
         </div>
 

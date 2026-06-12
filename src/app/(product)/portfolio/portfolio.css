@@ -10,7 +10,7 @@
  *   Panel label    .pf-panel-title / .pf-hero-rail-title (micro uppercase)
  *   Panel primary  .pf-cockpit-panel__title--primary (sm — chart, CTA headline)
  *   Subsection     .pf-cockpit-panel__subhead + .stat-label
- *   KPI value      .pf-hero-kpi-value (= dash-value scale, no text-2xl override)
+ *   KPI value      .pf-hero-kpi-value (= xl scale, no stat-value 2xl override)
  *   Body           .body-sm / .body-xs
  *   Chart SVG      .pf-distrib-chart__*
  *
@@ -672,16 +672,6 @@
 .pf-positions-empty-row.pf-table-empty-row {
   padding: var(--ct-space-4) var(--ct-space-1);
   border-bottom: 1px solid var(--ct-border-soft);
-}
-
-.pf-table-empty-title {
-  letter-spacing: var(--ct-tracking-tight);
-}
-
-.pf-table-empty-copy {
-  max-width: 36ch;
-  line-height: var(--ct-leading-snug);
-  margin-top: var(--ct-space-1);
 }
 
 /* Preview sections — content only (banner carries preview context) */

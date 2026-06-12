@@ -53,7 +53,7 @@ export function FeedbackForm() {
       </div>
 
       <label className="block body-xs" htmlFor="feedback-pathname">
-        <span className="mb-1 block ct-text-muted uppercase tracking-wide">
+        <span className="mb-1 block stat-label">
           Pathname or context (optional)
         </span>
         <input
@@ -66,7 +66,7 @@ export function FeedbackForm() {
       </label>
 
       <label className="block body-xs" htmlFor="feedback-message">
-        <span className="mb-1 block ct-text-muted uppercase tracking-wide">
+        <span className="mb-1 block stat-label">
           Feedback
         </span>
         <textarea

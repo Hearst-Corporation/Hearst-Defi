@@ -643,10 +643,10 @@ export function VaultForm(props: VaultFormProps) {
                         onClick={() => set("requiredSigners", n)}
                         className={
                           active
-                            ? "ct-pill accent body-xs font-semibold"
+                            ? "ct-pill accent"
                             : disabled
-                              ? "ct-pill body-xs font-semibold opacity-40 cursor-not-allowed"
-                              : "ct-pill body-xs font-semibold"
+                              ? "ct-pill opacity-40 cursor-not-allowed"
+                              : "ct-pill"
                         }
                       >
                         {n} of {form.signersWhitelist.length}

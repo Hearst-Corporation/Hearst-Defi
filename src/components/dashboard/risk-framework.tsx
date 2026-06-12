@@ -187,7 +187,7 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
             style={{ width: `${composite}%` }}
           />
         </div>
-        <Badge variant={BAND_VARIANT[band]} className="tracking-wider">{bandLabel}</Badge>
+        <Badge variant={BAND_VARIANT[band]} className="ct-tracking-wider">{bandLabel}</Badge>
       </div>
     </div>
   );

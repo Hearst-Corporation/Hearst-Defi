@@ -134,8 +134,7 @@
     );
 }
 
-.module-debug-container .stat-value,
-.module-debug-container .dash-value {
+.module-debug-container .stat-value {
   color: var(--ct-text-strong);
 }
 
@@ -143,18 +142,33 @@
   color: var(--ct-text-muted);
 }
 
-.module-debug-container .dash-label {
-  color: var(--ct-text-body);
-}
-
-.module-debug-container .dash-label > span:first-child {
-  color: var(--ct-text-primary);
-}
-
 .module-debug-container .pf-demo-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ct-space-2);
+  height: 2.25rem;
+  padding-inline: var(--ct-space-6);
+  border-radius: var(--ct-radius-full);
+  border: none;
+  background: var(--ct-accent);
+  color: var(--ct-bg-deep);
+  font-weight: var(--ct-font-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
+  transition: opacity var(--ct-dur-base) var(--ct-ease), transform var(--ct-dur-base) var(--ct-ease);
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--ct-accent) 20%, transparent),
     0 10px 24px -12px color-mix(in srgb, var(--ct-accent) 30%, transparent);
+}
+
+.module-debug-container .pf-demo-btn:hover {
+  opacity: 0.9;
+}
+
+.module-debug-container .pf-demo-btn:active {
+  transform: scale(0.95);
 }
 
 /* Lists scroll inside footer-pinned cells when content overflows */
@@ -207,7 +221,7 @@
   padding: var(--ct-space-4);
 }
 
-.pf-fixed-kpis .dash-value {
+.pf-fixed-kpis .stat-value {
   font-size: var(--ct-text-3xl);
 }
 
@@ -348,7 +362,7 @@
     overflow: hidden;
   }
 
-  .pf-fixed-kpis .dash-value {
+  .pf-fixed-kpis .stat-value {
     font-size: var(--ct-text-2xl);
   }
 

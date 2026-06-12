@@ -28,12 +28,12 @@ export function ApyRange({
       {fmt(a)}
       <span
         aria-hidden
-        className="mx-1 ct-text-muted font-normal ct-text-micro-size leading-tight"
+        className="mx-1 ct-text-muted font-normal body-xs leading-tight"
       >
         —
       </span>
       {fmt(b)}
-      <span aria-hidden className="ml-1 ct-text-micro-size opacity-80">
+      <span aria-hidden className="ml-1 body-xs opacity-80">
         {suffix}
       </span>
     </span>

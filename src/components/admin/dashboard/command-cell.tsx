@@ -3,10 +3,8 @@ import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { SystemPanel } from "@/components/ui/system-panel";
-import { cn } from "@/lib/cn";
 
 const CELL = "dashboard-command-cell";
-const EMPTY_CELL = cn(CELL, "min-h-32");
 
 type DashboardCommandCellProps = {
   ready: boolean;
@@ -28,8 +26,8 @@ export function DashboardCommandCell({
   if (!ready) {
     return (
       <EmptySurface
-        variant="chart"
-        className={EMPTY_CELL}
+        variant="inline"
+        className={CELL}
         message={emptyMessage}
         ariaLabel={emptyAriaLabel}
       />

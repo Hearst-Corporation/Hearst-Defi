@@ -64,7 +64,7 @@ export function DashboardPanelHeader({
               {trustLabel}
             </span>
           ) : null}
-          {provenance ? <ProvenanceBadge kind={provenance} compact /> : null}
+          {provenance ? <ProvenanceBadge kind={provenance} variant="strip" /> : null}
         </div>
       ) : null}
     </header>

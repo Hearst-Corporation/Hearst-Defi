@@ -1,38 +1,23 @@
 /**
  * Admin document-flow layout — mirror of product-doc.css for /admin/* surfaces.
- * Scoped via `.admin-doc` on the admin layout root.
+ * `.admin-doc` wraps sub-nav + page content (see admin/layout.tsx).
  */
+@import "../doc-flow-typography.css";
+
 .admin-doc {
   container-type: inline-size;
   container-name: admin-doc;
 }
-.admin-doc .h1 {
-  font-size: var(--ct-text-2xl);
-  font-weight: var(--ct-font-bold);
-}
 
-.admin-doc .h2 {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-body);
-}
-
-.admin-doc .h3 {
-  font-size: var(--ct-text-base);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-body);
-}
-
-.admin-doc .stat-value {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-body);
-}
-
-.admin-doc .stat-label {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  letter-spacing: var(--ct-tracking-wide);
+/* Scenario Lab viewport lock — admin-doc sits between main and the lab shell. */
+.admin-doc:has(.scenario-lab-page--viewport) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* ── Shared layout primitives ─────────────────────────────────────────────── */

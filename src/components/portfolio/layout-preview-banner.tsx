@@ -7,7 +7,7 @@ export function PreviewModeChip({
   return (
     <span
       data-preview-chip
-      className="pf-preview-mode-chip body-xs ct-text-faint uppercase ct-tracking-wide"
+      className="pf-preview-mode-chip stat-label ct-text-faint"
     >
       {label}
     </span>
@@ -30,7 +30,7 @@ export function LayoutPreviewBanner() {
         <span>
         Portfolio structure shown at zero until your first active position.
         Projections are{" "}
-        <strong className="ct-text-body font-medium">not guaranteed</strong>.
+        <strong className="ct-text-body">not guaranteed</strong>.
         </span>
       </p>
     </div>

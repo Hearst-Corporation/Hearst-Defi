@@ -62,7 +62,7 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
         <span>Portfolio value · 12-month trend</span>
         <div className="flex items-center gap-2">
           <ProvenanceBadge kind={provenance} />
-          <span className="mono ct-text-micro-size uppercase tracking-widest px-1.5 py-0.5 rounded-xs bg-(--ct-surface-2) text-(--ct-text-primary)">
+          <span className="stat-label mono px-1.5 py-0.5 rounded-xs bg-(--ct-surface-2) text-(--ct-text-primary)">
             {totalValueUsdc > 0 ? formatUsdCompact(totalValueUsdc) : <span className="opacity-30">—</span>}
           </span>
         </div>

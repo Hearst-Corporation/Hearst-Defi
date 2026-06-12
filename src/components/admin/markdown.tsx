@@ -76,7 +76,7 @@ export function Markdown({
             </div>
           ),
           th: ({ children }) => (
-            <th className="border-b border-[var(--ct-border)] ct-table-header text-left ct-text-body uppercase tracking-[var(--ct-tracking-wide)]">
+            <th className="border-b border-[var(--ct-border)] ct-table-header stat-label text-left">
               {children}
             </th>
           ),
@@ -107,7 +107,7 @@ export function Markdown({
             <hr className="my-6 border-t border-[var(--ct-border)]" />
           ),
           strong: ({ children }) => (
-            <strong className="font-medium ct-text-primary">
+            <strong className="ct-text-primary">
               {children}
             </strong>
           ),

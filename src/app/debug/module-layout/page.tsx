@@ -27,7 +27,7 @@ export default function ModuleLayoutDebugPage() {
           <PortfolioGreeting name="Demo Investor" data={data} />
           <button
             type="button"
-            className="pf-demo-btn inline-flex shrink-0 items-center justify-center gap-2 rounded-full font-bold transition-[opacity,transform] duration-[var(--ct-dur-base)] bg-[var(--ct-accent)] text-[var(--ct-bg-deep)] hover:opacity-90 active:scale-95 h-9 px-6 ct-text-micro-size uppercase tracking-wider"
+            className="pf-demo-btn body-sm"
           >
             Démo
           </button>

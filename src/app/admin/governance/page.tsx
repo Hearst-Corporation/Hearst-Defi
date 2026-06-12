@@ -71,7 +71,7 @@ export default async function GovernancePage({ searchParams }: PageProps) {
               href={href}
               role="tab"
               aria-selected={isActive}
-              className={cn("ct-pill body-xs font-semibold uppercase", isActive && "accent")}
+              className={cn("ct-pill", isActive && "accent")}
             >
               {tab.label}
             </Link>

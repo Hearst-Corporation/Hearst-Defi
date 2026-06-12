@@ -176,14 +176,14 @@ export function BacktestChart({ series }: BacktestChartProps) {
       {/* Header row */}
       <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
         <div className="admin-doc-stack--micro">
-          <span className="body-xs font-medium uppercase tracking-wide ct-text-muted">
+          <span className="stat-label">
             NAV · Backtest series
           </span>
           <span className="tabular-nums stat-value leading-tight ct-text-primary">
             {usdFmt.format(lastNav)}
           </span>
           <span
-            className={`tabular-nums body-xs font-medium ${deltaPct >= 0 ? "ct-text-accent" : "text-[var(--ct-status-danger)]"}`}
+            className={`tabular-nums body-xs ${deltaPct >= 0 ? "ct-text-accent" : "ct-status-danger"}`}
           >
             {deltaPct >= 0 ? "+" : ""}
             {deltaPct.toFixed(1)}% total · max dd {maxDd.toFixed(1)}%

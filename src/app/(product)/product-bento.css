@@ -4,7 +4,7 @@
  * Chart donuts/legends: charts-shared.css.
  *
  * Source du chrome bento investisseur (.dash-cell, .dash-cell-premium,
- * .dash-bento, .dash-label, .kpi-cell). Les pages peuvent ajouter des overrides
+ * .dash-bento, .dash-value-group, .kpi-cell). Les pages peuvent ajouter des overrides
  * scopés (ex. portfolio.css sous .pf-container).
  * Layout-only (spacing, max-width) est autorisé.
  *
@@ -120,66 +120,12 @@
   }
 }
 
-/* === KPI label / value (kpi-elegant) === */
-.dash-label {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-muted);
-  letter-spacing: var(--ct-tracking-wider);
-    margin-bottom: var(--ct-space-1_5);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--ct-space-2);
-  min-width: 0;
-  text-transform: uppercase;
-}
-
-/* Title (first text child) may shrink + truncate so it never collides with the
-   right-side badge/meta. The badge/meta block must never shrink. */
-.dash-label > span:first-child {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dash-label .dash-label-meta,
-.dash-label > span:first-child ~ * {
-  flex-shrink: 0;
-}
-
+/* === KPI value row === */
 .dash-value-group {
   display: flex;
   align-items: baseline;
   gap: var(--ct-space-2);
   margin-top: auto;
-}
-
-.dash-value {
-  font-family: var(--font-sans);
-  font-size: var(--ct-text-xl);
-  font-weight: var(--ct-font-extrabold);
-  color: var(--ct-text-primary);
-  letter-spacing: var(--ct-tracking-tight);
-  line-height: var(--ct-leading-tight);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
-}
-
-.dash-value-range {
-  font-family: var(--font-sans);
-  font-size: var(--ct-text-xl);
-  font-weight: var(--ct-font-light);
-  color: var(--ct-text-strong);
-  letter-spacing: var(--ct-tracking-tight);
-  line-height: var(--ct-leading-none);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
 }
 
 .dash-unit {
@@ -189,85 +135,3 @@
   font-weight: var(--ct-font-normal);
 }
 
-.dash-trend {
-  font-family: var(--font-mono);
-  font-size: var(--ct-text-xs);
-  padding: var(--ct-space-0_5) var(--ct-space-1_5);
-  border-radius: 0.125rem;
-  background: var(--ct-surface-1);
-}
-
-.dash-trend.up { color: var(--ct-status-success); }
-.dash-trend.down { color: var(--ct-status-danger); }
-.dash-trend.flat { color: var(--ct-text-muted); }
-
-.dash-label-meta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  flex-shrink: 0;
-}
-
-/* === Section stack === */
-.dash-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-
-.dash-section-title {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-extrabold);
-  letter-spacing: var(--ct-tracking-wide);
-  text-transform: uppercase;
-  color: var(--ct-text-muted);
-}
-
-/* === Page shell === */
-.dash-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  padding-bottom: var(--ct-space-2);
-}
-
-.dash-header h1 {
-  font-size: var(--ct-text-2xl);
-  font-weight: var(--ct-font-extrabold);
-  letter-spacing: var(--ct-tracking-tight);
-  color: var(--ct-text-primary);
-  line-height: 1.15;
-  margin: 0;
-}
-
-.dash-header .eyebrow {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-bold);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--ct-accent-strong);
-}
-
-.dash-header .sub {
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-muted);
-  font-family: var(--font-mono);
-}
-
-.dash-disclaimer {
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
-  text-align: center;
-  padding: var(--ct-space-6) 0;
-  border-top: 1px solid var(--ct-border-soft);
-  margin-top: var(--ct-space-2);
-  font-style: italic;
-}
-
-.dash-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-6);
-  /* Breathing room so the top KPI boxes don't sit flush against the shell edge. */
-  padding-top: var(--ct-space-8);
-}

@@ -152,7 +152,7 @@ function ResultItem({
         )}
       </span>
       {result.badge && (
-        <span className="shrink-0 rounded-sm border border-[var(--ct-border-soft)] ct-surface-1 px-1.5 py-0.5 ct-text-micro-size ct-text-muted">
+        <span className="shrink-0 rounded-sm border border-[var(--ct-border-soft)] ct-surface-1 px-1.5 py-0.5 body-xs">
           {result.badge}
         </span>
       )}
@@ -389,7 +389,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
           )}
 
           {/* Kbd hint */}
-          <kbd className="hidden shrink-0 rounded-sm border border-[var(--ct-border)] ct-surface-1 px-1.5 py-0.5 ct-text-micro-size ct-text-muted sm:inline-block">
+          <kbd className="hidden shrink-0 rounded-sm border border-[var(--ct-border)] ct-surface-1 px-1.5 py-0.5 body-xs sm:inline-block">
             esc
           </kbd>
         </div>

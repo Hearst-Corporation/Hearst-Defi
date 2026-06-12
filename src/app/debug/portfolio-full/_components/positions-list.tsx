@@ -34,7 +34,7 @@ export function PositionsList({ positions, source }: PositionsListProps) {
         <span>Positions</span>
         <div className="flex items-center gap-2">
           <ProvenanceBadge kind={provenance} />
-          <span className="mono ct-text-micro-size uppercase tracking-widest px-1.5 py-0.5 rounded-xs bg-(--ct-surface-2) text-(--ct-text-primary)">
+          <span className="stat-label mono px-1.5 py-0.5 rounded-xs bg-(--ct-surface-2) text-(--ct-text-primary)">
             {positions.length} position{positions.length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -45,7 +45,7 @@ export function PositionsList({ positions, source }: PositionsListProps) {
           <p className="body-sm text-(--ct-text-muted) mt-2 italic">No open positions.</p>
         ) : (
           <div className="flex flex-col min-w-150 gap-2">
-            <div className="grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 pb-2 border-b border-(--ct-border-soft) ct-text-micro-size text-(--ct-text-muted) uppercase tracking-widest font-medium">
+            <div className="grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 pb-2 border-b border-(--ct-border-soft) stat-label">
               <span>Vault</span>
               <span className="text-right">Principal</span>
               <span className="text-right">Value</span>

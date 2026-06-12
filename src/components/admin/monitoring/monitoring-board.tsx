@@ -36,9 +36,9 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
           isEmpty={stats.runsByAgent.length === 0}
           header={
             <>
-              <th className="ct-table-header px-4 py-3 text-left font-medium ct-text-muted">Agent</th>
-              <th className="ct-table-header px-4 py-3 text-right font-medium ct-text-muted">Runs</th>
-              <th className="ct-table-header px-4 py-3 text-right font-medium ct-text-muted">Cost (USD)</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left">Agent</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-right">Runs</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-right">Cost (USD)</th>
             </>
           }
         >
@@ -59,12 +59,12 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
           isEmpty={stats.recentRuns.length === 0}
           header={
             <>
-              <th className="ct-table-header px-4 py-3 text-left font-medium ct-text-muted">Agent</th>
-              <th className="ct-table-header px-4 py-3 text-left font-medium ct-text-muted">Model</th>
-              <th className="ct-table-header px-4 py-3 text-left font-medium ct-text-muted">Status</th>
-              <th className="ct-table-header px-4 py-3 text-right font-medium ct-text-muted">Latency</th>
-              <th className="ct-table-header px-4 py-3 text-right font-medium ct-text-muted">Cost</th>
-              <th className="ct-table-header px-4 py-3 text-right font-medium ct-text-muted">Time</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left">Agent</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left">Model</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left">Status</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-right">Latency</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-right">Cost</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-right">Time</th>
             </>
           }
         >

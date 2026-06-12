@@ -1,0 +1,32 @@
+/**
+ * Shared document-flow typography — calmer than portfolio / dashboard hero KPIs.
+ * Scoped to `.product-doc` and `.admin-doc` layout roots.
+ */
+:is(.product-doc, .admin-doc) .h1 {
+  font-size: var(--ct-text-2xl);
+  font-weight: var(--ct-font-bold);
+}
+
+:is(.product-doc, .admin-doc) .h2 {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-body);
+}
+
+:is(.product-doc, .admin-doc) .h3 {
+  font-size: var(--ct-text-base);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-body);
+}
+
+:is(.product-doc, .admin-doc) .stat-value {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-bold);
+  color: var(--ct-text-body);
+}
+
+:is(.product-doc, .admin-doc) .stat-label {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-wide);
+}

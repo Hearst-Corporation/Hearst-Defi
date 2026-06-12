@@ -74,22 +74,22 @@ export default async function CustomersPage({
             <table className="w-full border-collapse text-left body-sm">
               <thead>
                 <tr>
-                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted">
+                  <th className="stat-label ct-table-header px-5 py-3">
                     Email
                   </th>
-                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted">
+                  <th className="stat-label ct-table-header px-5 py-3">
                     Wallet
                   </th>
-                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted">
+                  <th className="stat-label ct-table-header px-5 py-3">
                     KYC
                   </th>
-                  <th className="ct-table-header px-5 py-3 text-right font-medium ct-text-muted">
+                  <th className="stat-label ct-table-header px-5 py-3 text-right">
                     Active positions
                   </th>
-                  <th className="ct-table-header px-5 py-3 text-right font-medium ct-text-muted">
+                  <th className="stat-label ct-table-header px-5 py-3 text-right">
                     Total principal
                   </th>
-                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted">
+                  <th className="stat-label ct-table-header px-5 py-3">
                     Joined
                   </th>
                 </tr>

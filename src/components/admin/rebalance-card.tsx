@@ -111,16 +111,16 @@ function AllocationDiffTable({
       <table className="w-full body-sm tabular ct-divide-soft border border-[var(--ct-border-soft)] rounded-lg overflow-hidden">
         <thead>
           <tr className="ct-surface-1">
-            <th className="text-left ct-table-header ct-text-muted body-xs">
+            <th className="text-left stat-label ct-table-header">
               Bucket
             </th>
-            <th className="text-right ct-table-header ct-text-muted body-xs">
+            <th className="text-right stat-label ct-table-header">
               Current %
             </th>
-            <th className="text-right ct-table-header ct-text-muted body-xs">
+            <th className="text-right stat-label ct-table-header">
               Target %
             </th>
-            <th className="text-right ct-table-header ct-text-muted body-xs">
+            <th className="text-right stat-label ct-table-header">
               Delta
             </th>
           </tr>

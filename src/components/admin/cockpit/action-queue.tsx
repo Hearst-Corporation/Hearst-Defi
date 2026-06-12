@@ -43,7 +43,7 @@ export function ActionQueue({ items }: ActionQueueProps) {
   return (
     <SystemPanel aria-label="Action queue">
       <DashboardPanelHeader title="Action queue" tone="quiet" />
-      <ul className="flex flex-col divide-y divide-[var(--ct-border-soft)]" role="list">
+      <ul className="dashboard-command-divide-stack" role="list">
         {items.map((item) => (
           <ActionRow key={item.id} item={item} />
         ))}
@@ -101,7 +101,7 @@ function SeverityPill({ severity }: { severity: ActionSeverity }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center justify-center shrink-0 w-8 h-5 rounded-sm border ct-text-micro-size font-bold tracking-wide",
+        "stat-label inline-flex items-center justify-center shrink-0 w-8 h-5 rounded-sm border",
         styles[severity],
       )}
       aria-label={`Priority ${severity}`}

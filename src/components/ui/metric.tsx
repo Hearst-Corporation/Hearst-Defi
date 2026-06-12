@@ -55,7 +55,7 @@ export function Metric({
           {value}
         </span>
         {sublabel ? (
-          <span className="ct-metric-nested__sublabel body-xs ct-text-muted mono uppercase ct-tracking-wide">
+          <span className="ct-metric-nested__sublabel stat-label mono">
             {sublabel}
           </span>
         ) : null}
@@ -117,7 +117,7 @@ export function Metric({
             </span>
           ) : null}
           {sublabel ? (
-            <span className="truncate opacity-70 mono uppercase ct-tracking-wide body-xs">
+            <span className="truncate opacity-70 stat-label mono">
               {sublabel}
             </span>
           ) : null}

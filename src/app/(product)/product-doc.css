@@ -1,39 +1,8 @@
 /**
- * Document-flow typography — calmer than portfolio / admin hero KPIs.
- * Scoped via `.product-doc` on layout roots; does not alter global DS classes.
- *
- * Layout primitives (shell, stack, section, kpi-grid) are shared across
- * invest-flow, position detail, proof-center, and profile surfaces.
- * Container name is always `product-doc` — one narrow-panel reflow block.
+ * Document-flow layout — calmer than portfolio / admin hero KPIs.
+ * Typography overrides: doc-flow-typography.css (shared with admin-doc).
  */
-.product-doc .h1 {
-  font-size: var(--ct-text-2xl);
-  font-weight: var(--ct-font-bold);
-}
-
-.product-doc .h2 {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-body);
-}
-
-.product-doc .h3 {
-  font-size: var(--ct-text-base);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-body);
-}
-
-.product-doc .stat-value {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-body);
-}
-
-.product-doc .stat-label {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  letter-spacing: var(--ct-tracking-wide);
-}
+@import "../doc-flow-typography.css";
 
 /* ── Shared layout primitives ─────────────────────────────────────────────── */
 

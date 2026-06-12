@@ -96,7 +96,7 @@ Doc DS complète + tableau des tokens autorisés : [`docs/DESIGN_SYSTEM.md`](doc
 `.h1`–`.body-xs`, `.stat-label`, `.stat-value`, `ct-text-micro-size`. Éviter
 Tailles Tailwind nues (`text-xs`…`text-4xl`) hors primitives (`Button`) — ESLint **error**
 sur `className` ; préférer `.body-*`, `.h1`–`.h4`, `.stat-value`, `.stat-label`. Labels micro
-uppercase → `.stat-label` (pas `ct-text-micro-size font-bold`). Audit : `.claude/commands/ds-typo.md`.
+uppercase → `.stat-label` (pas `ct-text-micro-size font-bold`) ; en-têtes table → `stat-label ct-table-header` ; KPI vault LP/admin → `stat-value`. Downscale doc partagé : `src/app/doc-flow-typography.css` (`:is(.product-doc, .admin-doc)`). Audit : `.claude/commands/ds-typo.md`.
 
 **Un seul design system en runtime** : Cockpit (`--ct-*` via `@hearst/cockpit-shell`).
 Le package orphelin `packages/ds` (`@ds/core`, namespace `--ds-*`) a été retiré du repo.

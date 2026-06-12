@@ -17,8 +17,6 @@
 }
 
 .legal-back {
-  font-family: var(--font-sans);
-  font-size: var(--ct-text-lg);
   letter-spacing: var(--ct-tracking-tight);
   color: var(--ct-text-strong);
   text-decoration: none;

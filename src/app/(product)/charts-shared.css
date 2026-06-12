@@ -108,14 +108,12 @@
 
 /* SVG axis labels — token-sized (viewBox-relative charts) */
 .dash-chart-svg-text-axis {
-  font-size: var(--ct-text-micro);
   font-family: var(--font-mono);
   font-weight: var(--ct-font-medium);
   fill: var(--ct-text-muted);
 }
 
 .dash-chart-svg-text-axis-unit {
-  font-size: var(--ct-text-micro);
   font-family: var(--font-mono);
   font-weight: var(--ct-font-bold);
   fill: var(--ct-text-muted);
@@ -124,32 +122,39 @@
 }
 
 .dash-chart-svg-text-tick {
-  font-size: var(--ct-text-micro);
   font-family: var(--font-mono);
   fill: var(--ct-text-muted);
 }
 
 .dash-chart-svg-text-tick-accent {
-  font-size: var(--ct-text-micro);
   font-family: var(--font-mono);
   font-weight: var(--ct-font-semibold);
 }
 
 .dash-chart-svg-text-tick-sans {
-  font-size: var(--ct-text-micro);
   font-family: var(--font-sans);
   fill: var(--ct-text-muted);
 }
 
 .dash-chart-svg-text-tick-faint {
-  font-size: var(--ct-text-micro);
   font-family: var(--font-sans);
   fill: var(--ct-text-faint);
 }
 
 .dash-chart-svg-text-tick-warning {
-  font-size: var(--ct-text-micro);
   font-family: var(--font-sans);
   font-weight: var(--ct-font-semibold);
   fill: var(--ct-status-warning);
+}
+
+:is(
+  .dash-chart-svg-text-axis,
+  .dash-chart-svg-text-axis-unit,
+  .dash-chart-svg-text-tick,
+  .dash-chart-svg-text-tick-accent,
+  .dash-chart-svg-text-tick-sans,
+  .dash-chart-svg-text-tick-faint,
+  .dash-chart-svg-text-tick-warning
+) {
+  font-size: var(--ct-text-micro);
 }

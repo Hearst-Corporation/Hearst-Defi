@@ -38,7 +38,12 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         </ProofRow>
 
         <ProofRow label="Target APY">
-          <ApyRange low={vault.apyLow} high={vault.apyHigh} precision={1} />
+          <ApyRange
+            low={vault.apyLow}
+            high={vault.apyHigh}
+            precision={1}
+            className="stat-value mono tabular-nums ct-text-strong"
+          />
         </ProofRow>
 
         <ProofRow label="Est. yearly yield">

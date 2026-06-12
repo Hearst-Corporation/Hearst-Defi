@@ -62,9 +62,9 @@ export function PortfolioCockpitDebug({
           <div className="lg:col-span-8 flex flex-col h-full">
             {/* Yield Stack placeholder in debug */}
             <article className="dash-cell dash-cell-premium flex flex-col p-6 h-full">
-              <div className="dash-label">
+              <div className="pf-panel-title flex justify-between items-center gap-2 mb-1.5">
                 <span>Yield Source Stack</span>
-                <div className="h-4 w-12 bg-(--ct-surface-3) rounded-full" />
+                <div className="h-4 w-12 bg-(--ct-surface-3) rounded-full shrink-0" />
               </div>
               <div className="flex-1 flex items-center justify-center text-(--ct-text-muted) italic">
                 Yield stack visualization placeholder
@@ -77,13 +77,13 @@ export function PortfolioCockpitDebug({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-64">
            <div className="h-full">
              <article className="dash-cell dash-cell-premium flex flex-col p-6 h-full">
-               <div className="dash-label"><span>Risk Pulse</span></div>
+               <div className="pf-panel-title mb-1.5"><span>Risk Pulse</span></div>
                <div className="flex-1 flex items-center justify-center text-(--ct-text-muted) italic">Risk placeholder</div>
              </article>
            </div>
            <div className="h-full">
              <article className="dash-cell dash-cell-premium flex flex-col p-6 h-full">
-               <div className="dash-label"><span>Proof Pulse</span></div>
+               <div className="pf-panel-title mb-1.5"><span>Proof Pulse</span></div>
                <div className="flex-1 flex items-center justify-center text-(--ct-text-muted) italic">Proof placeholder</div>
              </article>
            </div>
@@ -99,7 +99,7 @@ export function PortfolioCockpitDebug({
           <div className="lg:col-span-8 flex flex-col h-full">
             {/* Distrib Calendar placeholder */}
             <article className="dash-cell dash-cell-premium flex flex-col p-6 h-full">
-              <div className="dash-label"><span>Distributions Calendar</span></div>
+              <div className="pf-panel-title mb-1.5"><span>Distributions Calendar</span></div>
               <div className="flex-1 flex items-center justify-center text-(--ct-text-muted) italic">Calendar placeholder</div>
             </article>
           </div>

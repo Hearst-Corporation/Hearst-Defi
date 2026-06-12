@@ -228,7 +228,7 @@ function DecisionPanel({
             {actionLabel}
           </p>
           {topAction ? (
-            <Badge variant={topAction.variant} className="ml-auto shrink-0 ct-text-micro-size">
+            <Badge variant={topAction.variant} className="ml-auto shrink-0">
               {topAction.ruleId}
             </Badge>
           ) : null}
@@ -321,7 +321,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
               {armedTriggers.map((t) => (
                 <li key={t.id} className="admin-doc-inline-row admin-doc-inline-row--start body-sm">
                   <span
-                    className="mt-0.5 shrink-0 ct-text-micro-size ct-status-warning"
+                    className="mt-0.5 shrink-0 body-xs ct-status-warning"
                     aria-hidden
                   >
                     ▸
