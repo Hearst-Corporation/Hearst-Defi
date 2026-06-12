@@ -219,8 +219,113 @@
   align-self: stretch;
 }
 
+/* ── Hero KPI rail — compact cockpit sidebar ── */
 .pf-hero-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
   align-self: start;
+  min-width: 0;
+  padding: var(--ct-space-3);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+}
+
+.pf-hero-kpi-card,
+.pf-hero-mini-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-3);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-surface-1) 35%, transparent);
+}
+
+.pf-hero-mini-title {
+  margin: 0;
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-wide);
+  text-transform: uppercase;
+  color: var(--ct-accent);
+}
+
+.pf-hero-kpi-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  margin: 0;
+}
+
+.pf-hero-kpi-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+}
+
+.pf-hero-kpi-row + .pf-hero-kpi-row {
+  padding-top: var(--ct-space-2);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+.pf-hero-kpi-value {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ct-space-1);
+  flex-wrap: wrap;
+}
+
+.pf-hero-kpi-value--inline {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pf-hero-mini-meta {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Embedded mini-widgets — compact, no height stretch */
+.pf-hero-sidebar [aria-label] {
+  height: auto !important;
+  min-height: 0 !important;
+  flex: none !important;
+}
+
+.pf-hero-sidebar .flex.h-full {
+  height: auto !important;
+}
+
+.pf-hero-mini-card [aria-label="Time to next distribution"],
+.pf-hero-mini-card [aria-label="Lock and liquidity status"] {
+  gap: var(--ct-space-2) !important;
+}
+
+/* Payout rail — hide duplicate "Next distribution" + verbose chrome */
+.pf-hero-mini-card--payout [aria-label="Time to next distribution"] > div:first-child > .stat-label {
+  display: none;
+}
+
+.pf-hero-mini-card--payout [aria-label="Time to next distribution"] .stat-value {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-tight);
+}
+
+.pf-hero-mini-card--payout [aria-label="Time to next distribution"] > p.body-xs,
+.pf-hero-mini-card--payout [aria-label="Time to next distribution"] > div.border-t {
+  display: none;
+}
+
+/* Liquidity rail — no bottom stretch */
+.pf-hero-mini-card--liquidity [aria-label="Lock and liquidity status"] dl {
+  margin-top: var(--ct-space-1) !important;
 }
 
 .pf-value-chart,
@@ -330,12 +435,6 @@
 .pf-container .pf-compact-panel .widget-panel-header span[class*="ct-text-faint"][class*="uppercase"],
 .pf-container .pf-main-chart-wrapper .widget-panel-header span[class*="ct-text-faint"][class*="uppercase"] {
   display: none !important;
-}
-
-/* Embedded liquidity widgets — compact rhythm */
-.pf-hero-sidebar [aria-label="Time to next distribution"],
-.pf-hero-sidebar [aria-label="Lock and liquidity status"] {
-  gap: var(--ct-space-2);
 }
 
 .pf-section-light--compact,

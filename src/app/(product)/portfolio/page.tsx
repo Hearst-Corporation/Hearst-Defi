@@ -31,8 +31,8 @@ import { LayoutPreviewBanner } from "@/components/portfolio/layout-preview-banne
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
 import { SecurityPulse } from "@/components/portfolio/security-pulse";
+import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { SectionEmbedProvider } from "@/components/ui/section-embed";
-import { formatUsdCompact } from "@/lib/format/usd-compact";
 import {
   ZERO_YIELD_STACK,
   buildZeroDistribEntries,
@@ -60,87 +60,6 @@ function displayName(
   const w = investor?.walletAddress;
   if (w) return `${w.slice(0, 6)}…${w.slice(-4)}`;
   return "Investor";
-}
-
-interface HeroKpiTableProps {
-  totalValueUsdc: number;
-  totalYieldYtdUsdc: number;
-  nextDistributionAt: Date;
-  hasPositions: boolean;
-  /** Layout preview: $0 and scheduled date instead of em-dashes. */
-  previewZeros?: boolean;
-}
-
-function HeroKpiTable({
-  totalValueUsdc,
-  totalYieldYtdUsdc,
-  nextDistributionAt,
-  hasPositions,
-  previewZeros = false,
-}: HeroKpiTableProps) {
-  const fmt = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  });
-
-  const monthDayFmt = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
-
-  const now = new Date();
-  const diffDays = Math.ceil(
-    Math.max(0, nextDistributionAt.getTime() - now.getTime()) /
-      (1000 * 60 * 60 * 24),
-  );
-
-  const showValues = hasPositions || previewZeros;
-
-  return (
-    <div className="flex flex-col gap-3" aria-label="Key metrics summary">
-      <span className="stat-label ct-text-accent">Key metrics</span>
-
-      <div className="grid grid-cols-1 gap-3">
-        <div className="flex flex-col gap-1">
-          <span className="stat-label">Position value</span>
-          <div className="dash-value-group">
-            <span className="dash-value tabular-nums text-3xl">
-              {showValues
-                ? fmt.format(previewZeros ? 0 : totalValueUsdc)
-                : "—"}
-            </span>
-            <span className="dash-unit">USDC</span>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <span className="stat-label">Yield YTD</span>
-          <div className="dash-value-group">
-            <span className="dash-value tabular-nums">
-              {showValues
-                ? formatUsdCompact(previewZeros ? 0 : totalYieldYtdUsdc)
-                : "—"}
-            </span>
-            <span className="dash-unit">USDC</span>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <span className="stat-label">Next distribution</span>
-          <div className="flex items-center justify-between gap-2 min-w-0">
-            <span className="dash-value tabular-nums">
-              {showValues ? monthDayFmt.format(nextDistributionAt) : "—"}
-            </span>
-            {hasPositions && diffDays > 0 ? (
-              <span className="pf-chip-accent shrink-0">{diffDays}d left</span>
-            ) : null}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 const previewSectionClass = "ct-section-preview--compact";
@@ -216,7 +135,7 @@ export default async function PortfolioPage() {
               previewZeros={previewZeros}
             />
           </div>
-          <div className="bento-col-4 flex flex-col gap-3 pf-secondary-panel pf-hero-sidebar">
+          <aside className="bento-col-4 pf-hero-sidebar">
             <HeroKpiTable
               totalValueUsdc={data.totalValueUsdc}
               totalYieldYtdUsdc={data.totalYieldYtdUsdc}
@@ -224,19 +143,25 @@ export default async function PortfolioPage() {
               hasPositions={hasPositions}
               previewZeros={previewZeros}
             />
-            <SectionEmbedProvider>
-              <div className="flex flex-col gap-3 pt-3 border-t border-(--ct-border-soft)">
+            <div className="pf-hero-mini-card pf-hero-mini-card--payout">
+              <h3 className="pf-hero-mini-title">Projected payout</h3>
+              <SectionEmbedProvider>
                 <TimeToCash
                   {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
                   previewZeros={previewZeros}
                 />
+              </SectionEmbedProvider>
+            </div>
+            <div className="pf-hero-mini-card pf-hero-mini-card--liquidity">
+              <h3 className="pf-hero-mini-title">Liquidity</h3>
+              <SectionEmbedProvider>
                 <LockMeter
                   {...(previewZeros ? zeroLockMeterProps(previewAsOf) : lockMeterProps)}
                   previewZeros={previewZeros}
                 />
-              </div>
-            </SectionEmbedProvider>
-          </div>
+              </SectionEmbedProvider>
+            </div>
+          </aside>
         </div>
       </MergedSurface>
 
