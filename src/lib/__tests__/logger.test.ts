@@ -86,3 +86,47 @@ describe("logger — Sentry integration", () => {
     expect(mockCaptureError).not.toHaveBeenCalled();
   });
 });
+
+describe("logger — userId PII guard", () => {
+  let logger: typeof import("../logger").logger;
+  let hashId: typeof import("../logger").hashId;
+  let infoSpy: ReturnType<typeof vi.spyOn>;
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    const mod = await import("../logger");
+    logger = mod.logger;
+    hashId = mod.hashId;
+    infoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    infoSpy.mockRestore();
+    errorSpy.mockRestore();
+    vi.resetModules();
+  });
+
+  it("hashes a raw userId passed in the call-site context (never plaintext)", () => {
+    const raw = "user-secret-abc123";
+    logger.info("did a thing", { userId: raw });
+    const line = infoSpy.mock.calls[0]?.[0] as string;
+    const parsed = JSON.parse(line) as { userId?: string };
+    expect(parsed.userId).toBe(hashId(raw));
+    expect(parsed.userId).not.toBe(raw);
+    expect(line).not.toContain(raw);
+  });
+
+  it("forwards only the hashed userId to Sentry on error", () => {
+    const raw = "user-secret-def456";
+    logger.error("boom", { userId: raw }, new Error("x"));
+    expect(mockCaptureError).toHaveBeenCalledOnce();
+    const [, extra] = mockCaptureError.mock.calls[0] as [
+      unknown,
+      { userId?: string },
+    ];
+    expect(extra.userId).toBe(hashId(raw));
+    expect(extra.userId).not.toBe(raw);
+  });
+});

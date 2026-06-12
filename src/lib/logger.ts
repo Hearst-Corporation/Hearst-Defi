@@ -64,11 +64,20 @@ function write(level: LogLevel, message: string, context?: LogContext, error?: u
     message,
     env: process.env.NODE_ENV ?? "unknown",
     ...(ctx?.requestId ? { requestId: ctx.requestId } : {}),
-    ...(ctx?.userId ? { userId: hashId(ctx.userId) } : {}),
+    ...(ctx?.userId ? { userId: ctx.userId } : {}),
     ...(ctx?.runId ? { runId: ctx.runId } : {}),
     ...(ctx?.jobId ? { jobId: ctx.jobId } : {}),
     ...context,
   };
+
+  // PII guard: hash `userId` LAST — AFTER the `...context` spread. Many
+  // call-sites pass a raw `{ userId }` in their context, which (object spread
+  // is last-wins) would otherwise clobber the request-context value and emit
+  // the plaintext id to logs AND Sentry. Hashing here, once, after every
+  // possible writer, makes the protection hold regardless of who set it.
+  if (typeof entry.userId === "string") {
+    entry.userId = hashId(entry.userId);
+  }
 
   if (error instanceof Error) {
     entry.errorType = error.name;
@@ -80,10 +89,12 @@ function write(level: LogLevel, message: string, context?: LogContext, error?: u
 
   const serialized = JSON.stringify(entry);
 
-  // Auto-forward errors to Sentry (no-op when DSN is absent)
+  // Auto-forward errors to Sentry (no-op when DSN is absent). Forward the
+  // ALREADY-HASHED userId (entry.userId), never the raw `context.userId`.
   if (level === "error") {
     captureError(error ?? new Error(message), {
       ...context,
+      ...(typeof entry.userId === "string" ? { userId: entry.userId } : {}),
       requestId: ctx?.requestId,
       runId: ctx?.runId,
       jobId: ctx?.jobId,
