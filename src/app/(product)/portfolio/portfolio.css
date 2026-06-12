@@ -542,7 +542,7 @@
 }
 
 .pf-container [data-testid="distrib-calendar-widget"] .pf-cockpit-panel {
-  gap: var(--ct-space-1);
+  gap: var(--ct-space-2);
 }
 
 .pf-container [data-testid="distrib-calendar-widget"] .pf-distrib-chart:not(.pf-distrib-chart--compact) {
@@ -550,7 +550,7 @@
 }
 
 .pf-container [data-testid="distrib-calendar-widget"] .pf-distrib-chart--compact {
-  max-height: 3rem;
+  max-height: 4rem;
   display: block;
 }
 

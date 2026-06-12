@@ -247,7 +247,6 @@ function CompositePendingRow() {
   return (
     <div
       className="pf-risk-composite-pending mt-3 pt-3 border-t border-(--ct-border-soft) flex flex-col gap-1.5"
-      role="status"
       aria-label="Composite risk score not available; snapshot pending"
     >
       <div className="flex items-baseline justify-between gap-2">
@@ -286,7 +285,6 @@ function CompositeSection({
 
   return (
     <NestedPanel
-      role="status"
       className="pf-risk-composite mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:py-4"
       aria-label={ariaLabel}
     >
@@ -367,7 +365,7 @@ export function RiskPulse({
       />
 
       {compositeUnavailable ? (
-        <p className="body-xs ct-text-faint m-0" role="status">
+        <p className="body-xs ct-text-faint m-0">
           Snapshot pending
         </p>
       ) : null}

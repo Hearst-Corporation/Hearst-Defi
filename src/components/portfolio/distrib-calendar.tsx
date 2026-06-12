@@ -102,11 +102,9 @@ export function shouldShowCompactPeriodLabel(index: number): boolean {
 }
 
 /** Compact zero-state canvas — cropped to axis + quarter labels only (not VB_H). */
-const COMPACT_VB_H = 48;
-const COMPACT_AXIS_Y = 28;
-const COMPACT_TICK_SHORT = 4;
-const COMPACT_TICK_QUARTER = 8;
-const COMPACT_LABEL_Y = 42;
+const COMPACT_VB_H = 64;
+const COMPACT_AXIS_Y = 36;
+const COMPACT_LABEL_Y = 54;
 
 // ── SVG component ─────────────────────────────────────────────────────────────
 
@@ -130,7 +128,8 @@ function BarChart({
   // Bar geometry
   const GAP = 4;
   const totalGaps = (n - 1) * GAP;
-  const BAR_W = Math.floor((VB_W - totalGaps) / n);
+  // Cap bar width to avoid "shaft" look when there are few entries or wide container
+  const BAR_W = Math.min(Math.floor((VB_W - totalGaps) / n), 40);
   // Unique IDs for SVG defs (static — RSC renders once per request)
   const forecastPatternId = "dc-forecast-hatch";
   const titleId = "dc-title";
@@ -171,26 +170,22 @@ function BarChart({
           const cx = bx + BAR_W / 2;
           const isCurrent = entry.period === currentPeriod;
           const isQuarter = shouldShowCompactPeriodLabel(i);
-          const tickH = isCurrent
-            ? COMPACT_TICK_QUARTER + 2
-            : isQuarter
-              ? COMPACT_TICK_QUARTER
-              : COMPACT_TICK_SHORT;
           const periodLabel = formatPeriod(entry.period, refYear);
-          const tickStroke = isCurrent
-            ? "var(--ct-accent)"
-            : "var(--ct-border-soft)";
+
+          // Fixed width for zero-state bars to avoid "shaft" look when stretched
+          const COMPACT_BAR_W = 12;
+          const cbx = cx - COMPACT_BAR_W / 2;
 
           return (
             <g key={i} aria-hidden="true">
-              <line
-                x1={cx}
-                y1={COMPACT_AXIS_Y - tickH}
-                x2={cx}
-                y2={COMPACT_AXIS_Y}
-                stroke={tickStroke}
-                strokeWidth={isCurrent || isQuarter ? 1.5 : 1}
-                strokeOpacity={isCurrent ? 1 : isQuarter ? 1 : 0.65}
+              <rect
+                x={cbx}
+                y={COMPACT_AXIS_Y - 4}
+                width={COMPACT_BAR_W}
+                height={4}
+                rx={1}
+                fill={isCurrent ? "var(--ct-accent)" : "var(--ct-border-soft)"}
+                fillOpacity={isCurrent ? 0.8 : 0.4}
               />
               {isQuarter ? (
                 <text
@@ -415,7 +410,7 @@ export function DistribCalendar({
       </div>
 
       {previewZeros ? (
-        <div className="pt-1" role="status">
+        <div className="pt-1" role="note">
           <p className="body-xs ct-text-muted m-0">
             No payout history yet · $0 forecast
           </p>
