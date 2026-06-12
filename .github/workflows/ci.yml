@@ -109,6 +109,10 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
 
+    env:
+      DATABASE_URL: "file:./prisma/dev.db"
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY != '' && secrets.OPENAI_API_KEY || 'sk-ci-e2e-placeholder' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -143,6 +147,18 @@ jobs:
       - name: Install Chromium system deps (cache hit)
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: pnpm exec playwright install-deps chromium
+
+      - name: Prepare SQLite for E2E
+        run: |
+          pnpm db:generate
+          pnpm exec prisma db push
+        env:
+          DATABASE_URL: "file:./prisma/dev.db"
+
+      - name: Seed E2E test user
+        run: pnpm seed:test
+        env:
+          DATABASE_URL: "file:./prisma/dev.db"
 
       - name: Run Playwright E2E tests
         run: pnpm test:e2e

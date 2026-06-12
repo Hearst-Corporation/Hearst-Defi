@@ -36,6 +36,8 @@ export default defineConfig({
     // The login-flow spec seeds a real user via `pnpm seed:test` and signs in
     // through the actual form + server action.
     env: {
+      DATABASE_URL: process.env.DATABASE_URL ?? "file:./prisma/dev.db",
+      OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? "sk-e2e-local-placeholder",
       DEV_AUTH_BYPASS: "",
       // Hard-gated in src/lib/rate-limit.ts: refuses in production builds.
       // Lets the login-flow spec hammer the form without saturating the

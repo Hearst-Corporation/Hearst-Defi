@@ -119,7 +119,7 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
       INNGEST_SIGNING_KEY: ${{ secrets.INNGEST_SIGNING_KEY }}
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY != '' && secrets.OPENAI_API_KEY || 'sk-ci-vitest-placeholder' }}
       HYPERCLI_API_KEY: ${{ secrets.HYPERCLI_API_KEY }}
       HYPERCLI_BASE_URL: ${{ secrets.HYPERCLI_BASE_URL }}
       HEARST_PUBLISHER: ${{ secrets.HEARST_PUBLISHER }}
