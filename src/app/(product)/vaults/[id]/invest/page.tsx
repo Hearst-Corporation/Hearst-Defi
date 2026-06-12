@@ -31,7 +31,16 @@ export default async function InvestPage({ params }: PageProps) {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto w-full">
-      <ProductPageHeader eyebrow="Deposit" title={vault.name} className="gap-3">
+      <ProductPageHeader
+        eyebrow="Invest · Step 3 of 4"
+        title="Deposit"
+        description={
+          <span className="body-sm ct-text-muted">
+            {vault.name} · {vault.ticker}
+          </span>
+        }
+        className="gap-3"
+      >
         <StepProgress active="deposit" />
       </ProductPageHeader>
 

@@ -20,7 +20,7 @@ export default async function VaultsPage() {
   return (
     <div className="space-y-8">
       <ProductPageHeader
-        eyebrow="Invest"
+        eyebrow="Invest · Step 1 of 4"
         title="Select a product"
         description={
           <p className="body-lg max-w-xl">

@@ -15,7 +15,6 @@ import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { cn } from "@/lib/cn";
 import { Ptai } from "@/components/ui/ptai";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { DepositSummary } from "@/components/vaults/deposit-summary";
 import { PreFlightCheck, isPreFlightReady } from "@/components/vaults/preflight-check";
 import { TimeToTargetChart } from "@/components/vaults/time-to-target-chart";
@@ -373,7 +372,7 @@ export function InvestForm({ vault }: InvestFormProps) {
 
         {/* CTA row — two-step confirmation */}
         {awaitingConfirm ? (
-          <Card className="space-y-4">
+          <div className="rounded-lg border border-[var(--ct-border-strong)] ct-surface-1 p-4 space-y-4">
             <p className="eyebrow">Confirm your deposit</p>
             <div className="space-y-1">
               <div className="flex justify-between body-sm">
@@ -412,7 +411,7 @@ export function InvestForm({ vault }: InvestFormProps) {
                 {depositing ? "Confirming…" : `Confirm ${formatUsd(amount)} deposit`}
               </Button>
             </div>
-          </Card>
+          </div>
         ) : (
           <div className="flex items-center gap-3 flex-wrap">
             <Button
@@ -441,10 +440,10 @@ export function InvestForm({ vault }: InvestFormProps) {
 
         {/* Time-to-target chart — only when amount is set */}
         {deferredAmount > 0 && (
-          <Card className="mt-1">
+          <div className="rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 p-4 mt-1">
             <p className="eyebrow mb-3">Projected NAV — 24 month horizon</p>
             <TimeToTargetChart amount={deferredAmount} vault={vault} />
-          </Card>
+          </div>
         )}
 
         {/* PTAI block — mandatory (#3) */}
