@@ -24,7 +24,7 @@ function ComboKey({ label }: { label: string }) {
         "min-w-[1.625rem] h-[1.375rem] px-1.5",
         "rounded-sm",
         "ct-surface-2 border border-[var(--ct-border)]",
-        "mono text-xs leading-none tracking-tight",
+        "mono body-xs leading-tight tracking-tight",
         "ct-text-primary",
         "shadow-[0_1px_0_var(--ct-border-strong)]",
       )}

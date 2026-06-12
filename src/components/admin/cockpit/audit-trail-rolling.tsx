@@ -37,22 +37,22 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
     <SystemPanel aria-label="Recent admin activity">
       <DashboardPanelHeader eyebrow="Compliance" title="Recent admin activity" tone="quiet" />
       <div className="ct-system-panel__table-scroll ct-table-surface border-0 bg-transparent">
-        <table className="w-full text-sm min-w-160" aria-label="Recent admin activity">
+        <table className="w-full body-sm min-w-160" aria-label="Recent admin activity">
           <thead>
             <tr className="border-b border-(--ct-border-soft)">
-              <th className="text-left ct-table-header font-medium ct-text-faint w-36">
+              <th className="text-left ct-table-header stat-label w-36">
                 Time
               </th>
-              <th className="text-left ct-table-header font-medium ct-text-faint w-32">
+              <th className="text-left ct-table-header stat-label w-32">
                 Actor
               </th>
-              <th className="text-left ct-table-header font-medium ct-text-faint">
+              <th className="text-left ct-table-header stat-label">
                 Action
               </th>
-              <th className="text-left ct-table-header font-medium ct-text-faint w-28">
+              <th className="text-left ct-table-header stat-label w-28">
                 Entity
               </th>
-              <th className="text-left ct-table-header font-medium ct-text-faint w-32">
+              <th className="text-left ct-table-header stat-label w-32">
                 Entity ID
               </th>
             </tr>
@@ -76,10 +76,10 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
 
   return (
     <tr className="border-b border-(--ct-border-soft) transition-colors">
-      <td className="ct-table-cell tabular ct-text-faint whitespace-nowrap">
+      <td className="ct-table-cell tabular body-xs ct-text-muted whitespace-nowrap">
         {dateFmt.format(new Date(entry.occurredAt))}
       </td>
-      <td className="ct-table-cell ct-text-muted mono text-xs">
+      <td className="ct-table-cell ct-text-muted mono body-xs">
         {wallet}
       </td>
       <td className="ct-table-cell ct-text-body font-medium">
@@ -88,7 +88,7 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
       <td className="ct-table-cell ct-text-muted">
         {entry.entityType}
       </td>
-      <td className="ct-table-cell ct-text-faint mono text-xs">
+      <td className="ct-table-cell ct-text-muted mono body-xs">
         {entityId}
       </td>
     </tr>

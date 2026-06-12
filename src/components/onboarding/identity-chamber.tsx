@@ -75,7 +75,7 @@ export function IdentityChamber({
           actions={
             <div className="product-doc-stack--actions">
               {mayContinue ? (
-                <Button variant="primary" size="lg" asChild className="w-full font-bold">
+                <Button variant="primary" size="lg" asChild className="w-full">
                   <Link href="/onboarding/wallet">Continue to wallet binding</Link>
                 </Button>
               ) : personaReady ? (

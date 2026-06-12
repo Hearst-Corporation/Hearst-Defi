@@ -93,7 +93,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
           </div>
 
           {/* Manual entry fallback */}
-          <details className="text-xs ct-text-muted">
+          <details className="body-xs ct-text-muted">
             <summary className="cursor-pointer select-none hover:underline ct-text-accent">
               Can&apos;t scan? Enter the key manually
             </summary>
@@ -106,8 +106,8 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
         </div>
 
         <form action={handleConfirm} className="admin-doc-stack--relaxed">
-          <label className="block body-xs" htmlFor="totp-code">
-            <span className="mb-1 block ct-text-muted uppercase tracking-wide">
+          <label className="block" htmlFor="totp-code">
+            <span className="mb-1 block stat-label">
               Verification code
             </span>
             <input

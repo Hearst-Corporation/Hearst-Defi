@@ -102,7 +102,7 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
         type="button"
         variant="primary"
         size="lg"
-        className="w-full font-bold"
+        className="w-full"
         onClick={() => void connectWallet()}
       >
         Connect wallet
@@ -186,7 +186,7 @@ export function WalletChamber({
                 </Link>
                 .
               </p>
-              <Button variant="primary" size="lg" asChild className="w-full font-bold">
+              <Button variant="primary" size="lg" asChild className="w-full">
                 <Link href="/portfolio">
                   {walletBound ? "Continue to portfolio" : "Continue without wallet"}
                 </Link>

@@ -218,11 +218,14 @@ if (IS_RUNTIME_PRODUCTION && parsed.success) {
         "an attacker can spoof KYC completions and bypass investor onboarding checks.",
     );
   }
+  // DocuSign is warn-not-throw (unlike Persona KYC which is live): DocuSign may not
+  // be provisioned yet in a given production environment. The webhook route already
+  // fails-closed at runtime (401 when secret is absent), so a missing secret degrades
+  // that endpoint only — not the whole app. A hard throw here would outage the entire
+  // server before DocuSign is even configured.
   if (!d.DOCUSIGN_WEBHOOK_SECRET) {
-    throw new Error(
-      "DOCUSIGN_WEBHOOK_SECRET is required in production. " +
-        "Without it, the DocuSign Connect webhook accepts unauthenticated events — " +
-        "an attacker can forge envelope-completed events and unlock subscription flows without a real signature.",
+    console.warn(
+      "[env] DOCUSIGN_WEBHOOK_SECRET is not set in production — DocuSign webhook will fail-closed at runtime until configured.",
     );
   }
   if (!d.OPENAI_API_KEY) {
@@ -302,6 +305,8 @@ function resolveEnv(): ServerEnv {
         ...lenient.data,
         DATABASE_URL: lenient.data.DATABASE_URL ?? "",
         OPENAI_MODEL: lenient.data.OPENAI_MODEL ?? "gpt-4.1",
+        DOCUSIGN_BASE_URL: lenient.data.DOCUSIGN_BASE_URL ?? "https://demo.docusign.net/restapi",
+        FEAR_GREED_BASE_URL: lenient.data.FEAR_GREED_BASE_URL ?? "https://api.alternative.me",
       };
       return data;
     }

@@ -195,7 +195,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
         ) : null}
 
         <div className="product-doc-stack--actions">
-          <Button variant="primary" size="lg" asChild className="w-full font-bold">
+          <Button variant="primary" size="lg" asChild className="w-full">
             <Link href={positionId ? `/portfolio/${positionId}` : "/portfolio"}>
               Go to portfolio
             </Link>

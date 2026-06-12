@@ -102,7 +102,7 @@ export function Metric({
       </div>
 
       {(sublabel || trend) && (
-        <div className="flex min-w-0 items-center gap-2 text-xs ct-text-muted relative z-10 pt-1 border-t ct-bc-soft-50">
+        <div className="flex min-w-0 items-center gap-2 body-xs ct-text-muted relative z-10 pt-1 border-t ct-bc-soft-50">
           {trend ? (
             <span
               className={cn(
@@ -117,7 +117,7 @@ export function Metric({
             </span>
           ) : null}
           {sublabel ? (
-            <span className="truncate opacity-70 mono uppercase ct-tracking-wide text-micro">
+            <span className="truncate opacity-70 mono uppercase ct-tracking-wide body-xs">
               {sublabel}
             </span>
           ) : null}

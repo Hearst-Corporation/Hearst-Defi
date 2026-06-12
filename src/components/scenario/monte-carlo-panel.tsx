@@ -197,8 +197,8 @@ function PctRow({
         className={cn(
           "mono tabular-nums",
           strong
-            ? "text-lg font-bold ct-text-strong"
-            : "text-sm ct-text-body",
+            ? "stat-value ct-text-strong"
+            : "body-sm ct-text-body",
         )}
       >
         {pct}%
@@ -225,7 +225,7 @@ function SimParams({
   disabled,
 }: SimParamsProps) {
   return (
-    <div className="admin-doc-inline-row admin-doc-inline-row--relaxed text-sm">
+    <div className="admin-doc-inline-row admin-doc-inline-row--relaxed body-sm">
       <label className="admin-doc-inline-row ct-text-muted">
         <span className="stat-label">Seed</span>
         <input
@@ -240,7 +240,7 @@ function SimParams({
           }}
           className={cn(
             "w-24 rounded-base border border-[var(--ct-border-soft)]",
-            "ct-surface-1 px-2 py-1 text-xs mono ct-text-strong",
+            "ct-surface-1 px-2 py-1 body-xs mono ct-text-strong",
             "focus:border-[var(--ct-accent)] focus:outline-none",
             "disabled:opacity-40",
           )}
@@ -262,7 +262,7 @@ function SimParams({
           }}
           className={cn(
             "w-28 rounded-base border border-[var(--ct-border-soft)]",
-            "ct-surface-1 px-2 py-1 text-xs mono ct-text-strong",
+            "ct-surface-1 px-2 py-1 body-xs mono ct-text-strong",
             "focus:border-[var(--ct-accent)] focus:outline-none",
             "disabled:opacity-40",
           )}
@@ -336,10 +336,10 @@ export function MonteCarloPanel() {
             aria-label={`Headline APY range: ${headlineLow}% to ${headlineHigh}%`}
           >
             <p className="stat-label mb-1">Headline range (p25–p75)</p>
-            <p className="mono text-2xl font-bold tabular-nums ct-text-strong">
+            <p className="mono stat-value tabular-nums ct-text-strong">
               {headlineLow}–{headlineHigh}%
             </p>
-            <p className="mt-1 text-micro ct-text-muted">
+            <p className="mt-1 body-xs ct-text-muted">
               Annual yield range · {runs.toLocaleString()} paths · seed {seed}
             </p>
           </div>
@@ -350,7 +350,7 @@ export function MonteCarloPanel() {
           </div>
 
           {/* Legend */}
-          <div className="admin-doc-inline-row admin-doc-inline-row--relaxed text-micro ct-text-muted">
+          <div className="admin-doc-inline-row admin-doc-inline-row--relaxed body-xs ct-text-muted">
             <span className="admin-doc-inline-row admin-doc-inline-row--dense">
               <span className="inline-block h-0.5 w-4 rounded-full bg-[var(--ct-accent)]" />
               Median (p50)
@@ -371,22 +371,22 @@ export function MonteCarloPanel() {
           </div>
 
           {/* Prob below floor */}
-          <div className="rounded-base border border-[var(--ct-border-soft)] px-4 py-3 text-sm">
+          <div className="rounded-base border border-[var(--ct-border-soft)] px-4 py-3 body-sm">
             <span className="stat-label">P(APY &lt; 8% floor): </span>
-            <span className="mono font-semibold ct-text-body">
+            <span className="mono body-sm ct-text-body">
               {(output.probBelowFloor * 100).toFixed(1)}%
             </span>
           </div>
         </div>
       ) : (
-        <div className="flex h-24 items-center justify-center text-sm ct-text-muted">
+        <div className="flex h-24 items-center justify-center body-sm ct-text-muted">
           Run the simulation to see results.
         </div>
       )}
 
       {/* Disclaimer */}
-      <p className="mt-6 border-t border-[var(--ct-border-soft)] pt-4 text-xs italic ct-text-muted">
-        <span className="font-semibold not-italic ct-text-body">
+      <p className="mt-6 border-t border-[var(--ct-border-soft)] pt-4 body-xs italic ct-text-muted">
+        <span className="not-italic ct-text-body">
           Monte Carlo — methodology v2.0. Not guaranteed.
         </span>{" "}
         Simulation assumes GBM for BTC price and bounded mean-reverting

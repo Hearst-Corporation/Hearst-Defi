@@ -52,6 +52,12 @@
   margin-inline: auto;
 }
 
+.admin-doc .admin-doc-narrow {
+  width: 100%;
+  max-width: var(--ct-prose-md);
+  margin-inline: auto;
+}
+
 .admin-doc .admin-doc-shell--narrow {
   max-width: var(--ct-prose-md);
   margin-inline: auto;

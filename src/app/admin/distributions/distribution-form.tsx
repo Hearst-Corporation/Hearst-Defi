@@ -274,19 +274,19 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
                   <div className="admin-confirm-panel__rows">
                     <div className="admin-confirm-panel__row body-sm">
                       <span className="ct-text-muted">Vault</span>
-                      <span className="ct-text-body font-semibold">
+                      <span className="body-sm ct-text-body">
                         {selectedVaultLabel}
                       </span>
                     </div>
                     <div className="admin-confirm-panel__row body-sm">
                       <span className="ct-text-muted">Period</span>
-                      <span className="mono ct-text-body font-semibold">
+                      <span className="mono body-sm ct-text-body">
                         {period}
                       </span>
                     </div>
                     <div className="admin-confirm-panel__row body-sm">
                       <span className="ct-text-muted">Total USDC</span>
-                      <span className="ct-text-strong font-bold tabular">
+                      <span className="stat-value tabular">
                         {formatUsdDetailed(totalUsdcNum)} USDC
                       </span>
                     </div>
@@ -339,7 +339,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
       {/* Confirmed — finaliser succeeded */}
       {confirmResult?.confirmed && confirmResult.finisher !== "failed" && (
         <div className="ct-status-success-bg px-4 py-3 rounded-xl admin-doc-stack--compact">
-          <p className="body-sm ct-status-success font-semibold">
+          <p className="body-sm ct-status-success">
             Distribution confirmed for period {period}.
           </p>
           <p className="body-xs ct-text-muted">
@@ -355,7 +355,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
         confirmResult.distributionId && (
           <div className="ct-status-warning-bg px-4 py-3 rounded-xl admin-doc-stack--actions">
             <div className="admin-doc-stack--compact">
-              <p className="body-sm ct-status-warning font-semibold">
+              <p className="body-sm ct-status-warning">
                 Confirmed, but finalisation (ledger / PCAP / emails) failed —
                 retry below.
               </p>

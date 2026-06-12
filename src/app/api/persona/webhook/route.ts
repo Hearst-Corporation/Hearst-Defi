@@ -107,7 +107,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   if (rawContentLength !== null) {
     const bodySize = parseInt(rawContentLength, 10);
     if (!Number.isNaN(bodySize) && bodySize > MAX_BODY_BYTES) {
-      return new Response("Payload too large", { status: 413 });
+      return NextResponse.json({ error: "Payload too large" }, { status: 413 });
     }
   }
 

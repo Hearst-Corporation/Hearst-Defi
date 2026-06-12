@@ -59,7 +59,7 @@ export function ErrorShellLayout({
       </header>
 
       {message ? (
-        <p className="body-md m-0 text-sm leading-normal ct-text-body">
+        <p className="body-md m-0 ct-text-body">
           {message}
         </p>
       ) : null}
@@ -74,7 +74,7 @@ export function ErrorShellLayout({
             "ct-text-primary",
             "overflow-auto",
             "whitespace-pre-wrap break-words",
-            "max-h-64 px-4 py-4 text-xs leading-normal",
+            "max-h-64 px-4 py-4 body-xs leading-normal",
           )}
         >
           {errorMessage}

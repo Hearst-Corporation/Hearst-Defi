@@ -28,7 +28,7 @@ export function SecurityPulse({
         {AUDIT_ROWS.map((row) => (
           <li key={row.label} className="pf-checklist-row">
             <span className="body-sm ct-text-muted">{row.label}</span>
-            <span className="pf-checklist-row__status body-xs ct-text-faint">
+            <span className="pf-checklist-row__status body-xs ct-text-muted">
               <span
                 className="pf-status-dot pf-status-dot--default opacity-50"
                 aria-hidden

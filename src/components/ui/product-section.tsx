@@ -73,6 +73,7 @@ export function ProductSection({
       <DashboardPanelHeader
         eyebrow="Section"
         title={title}
+        titleLevel="section"
         provenance={showProvenance ? provenance : undefined}
         trustLabel={
           showProvenance && provenance ? "Verified data" : undefined

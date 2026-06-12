@@ -174,7 +174,7 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
     <div className="flex flex-col gap-4 rounded-xl bg-[var(--ct-bg-deep)]/50 border border-[var(--ct-border-soft)]/50 px-5 py-5 sm:flex-row sm:items-center sm:justify-between relative overflow-hidden group">
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--ct-accent)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       <div className="flex items-baseline gap-3 relative z-10">
-        <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">Composite</span>
+        <span className="stat-label">Composite</span>
         <span className={cn("stat-value tabular-nums", BAND_TEXT[band])}>
           {composite}
           <span className="dash-unit opacity-50 ml-1">/ 100</span>
@@ -358,9 +358,7 @@ function WaterfallChart({ data }: WaterfallChartProps) {
                 y={y + 1}
                 textAnchor="end"
                 dominantBaseline="middle"
-                fontSize="4.5"
-                fill="var(--ct-text-muted)"
-                fontFamily="var(--font-mono, monospace)"
+                className="dash-chart-svg-text-tick"
               >
                 {score}
               </text>
@@ -413,9 +411,7 @@ function WaterfallChart({ data }: WaterfallChartProps) {
                   x={bx + barW / 2}
                   y={step.y1 - 2}
                   textAnchor="middle"
-                  fontSize="4"
-                  fill="var(--ct-text-muted)"
-                  fontFamily="var(--font-mono, monospace)"
+                  className="dash-chart-svg-text-tick"
                 >
                   -{step.score}
                 </text>
@@ -427,10 +423,8 @@ function WaterfallChart({ data }: WaterfallChartProps) {
                   x={bx + barW / 2}
                   y={step.y1 - 2}
                   textAnchor="middle"
-                  fontSize="4.5"
-                  fontWeight="600"
+                  className="dash-chart-svg-text-tick-accent"
                   fill={BAND_FILL[data.band]}
-                  fontFamily="var(--font-mono, monospace)"
                 >
                   {step.score}
                 </text>
@@ -441,9 +435,7 @@ function WaterfallChart({ data }: WaterfallChartProps) {
                 x={cx + colW / 2}
                 y={CHART_BOTTOM + 6}
                 textAnchor="middle"
-                fontSize="4"
-                fill="var(--ct-text-muted)"
-                fontFamily="var(--font-sans, sans-serif)"
+                className="dash-chart-svg-text-tick-sans"
               >
                 {step.tick}
               </text>
@@ -550,7 +542,7 @@ function RiskRow({ dimension }: RiskRowProps) {
       <div className="flex items-center gap-4 sm:w-[11.25rem] sm:justify-end">
         <span
           className={cn(
-            "body-lg font-semibold leading-[var(--ct-leading-none)] w-9 text-right tabular-nums",
+            "body-lg font-semibold leading-tight w-9 text-right tabular-nums",
             SEVERITY_TEXT[severity],
           )}
         >

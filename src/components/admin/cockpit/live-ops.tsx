@@ -32,7 +32,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
 
       {/* Inngest */}
       <div className="mb-5">
-        <p className="body-xs ct-text-faint uppercase tracking-wide mb-2 font-medium">
+        <p className="stat-label mb-2">
           Inngest Jobs
         </p>
         <div className="flex flex-col divide-y divide-[var(--ct-border-soft)]">
@@ -44,7 +44,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
 
       {/* Sentry 24h */}
       <div className="mb-5">
-        <p className="body-xs ct-text-faint uppercase tracking-wide mb-2 font-medium">
+        <p className="stat-label mb-2">
           Sentry 24h
         </p>
         <div className="admin-doc-inline-row admin-doc-inline-row--relaxed">
@@ -63,7 +63,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
 
       {/* On-chain feed */}
       <div>
-        <p className="body-xs ct-text-faint uppercase tracking-wide mb-2 font-medium">
+        <p className="stat-label mb-2">
           On-chain feed
         </p>
         {onChainEvents.length === 0 ? (
@@ -110,7 +110,7 @@ function InngestRow({ job }: { job: InngestJob }) {
               ? "ct-status-success"
               : job.status === "err"
                 ? "ct-status-danger"
-                : "ct-text-faint",
+                : "ct-text-muted",
           )}
         >
           {label}
@@ -147,7 +147,7 @@ function SentryCounter({
     <div className="admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--dense">
       <span
         className={cn(
-          "text-lg font-bold tabular leading-none",
+          "stat-value tabular leading-tight",
           alert && count > 0
             ? "ct-status-danger"
             : "ct-text-strong",
@@ -155,7 +155,7 @@ function SentryCounter({
       >
         {count}
       </span>
-      <span className="body-xs ct-text-faint">{label}</span>
+      <span className="body-xs ct-text-muted">{label}</span>
     </div>
   );
 }
@@ -179,13 +179,13 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
     >
       <span
         aria-hidden
-        className="shrink-0 w-4 text-center ct-text-faint text-xs mt-0.5"
+        className="shrink-0 w-4 text-center ct-text-muted body-xs mt-0.5"
       >
         {icon}
       </span>
       <span className="min-w-0 flex-1">
         <span className="body-xs ct-text-body truncate block">{event.label}</span>
-        <span className="text-micro ct-text-faint">{ago}</span>
+        <span className="body-xs ct-text-muted">{ago}</span>
       </span>
     </li>
   );

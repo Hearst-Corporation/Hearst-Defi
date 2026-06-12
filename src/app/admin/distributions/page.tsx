@@ -78,28 +78,28 @@ export default async function DistributionsPage({
         ) : (
           <SystemPanel className="p-0 overflow-hidden">
             <div className="ct-table-surface border-0 rounded-none overflow-x-auto">
-              <table className="w-full text-sm tabular">
+              <table className="w-full body-sm tabular">
                 <thead>
                   <tr className="ct-surface-1">
-                    <th className="text-left ct-table-header body-xs ct-text-muted font-medium">
+                    <th className="text-left ct-table-header stat-label">
                       Vault
                     </th>
-                    <th className="text-left ct-table-header body-xs ct-text-muted font-medium">
+                    <th className="text-left ct-table-header stat-label">
                       Period
                     </th>
-                    <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
+                    <th className="text-right ct-table-header stat-label">
                       Amount (USDC)
                     </th>
-                    <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
+                    <th className="text-right ct-table-header stat-label">
                       Recipients
                     </th>
-                    <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
+                    <th className="text-right ct-table-header stat-label">
                       Distributed at
                     </th>
-                    <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
+                    <th className="text-right ct-table-header stat-label">
                       Tx hash
                     </th>
-                    <th className="text-right ct-table-header body-xs ct-text-muted font-medium">
+                    <th className="text-right ct-table-header stat-label">
                       Source
                     </th>
                   </tr>
@@ -139,10 +139,10 @@ export default async function DistributionsPage({
                             <span className="ct-text-faint">—</span>
                           )}
                         </td>
-                        <td className="ct-table-cell mono text-xs ct-text-body">
+                        <td className="ct-table-cell mono body-xs ct-text-body">
                           {d.period}
                         </td>
-                        <td className="ct-table-cell text-right ct-text-strong font-semibold tabular">
+                        <td className="ct-table-cell text-right body-sm ct-text-strong tabular">
                           {formatUsdDetailed(d.amountUsdc.toNumber())}
                         </td>
                         <td className="ct-table-cell text-right ct-text-muted tabular">
@@ -151,7 +151,7 @@ export default async function DistributionsPage({
                         <td className="ct-table-cell text-right ct-text-muted">
                           {formatAdminDate(new Date(d.distributedAt))}
                         </td>
-                        <td className="ct-table-cell text-right mono text-xs ct-text-faint">
+                        <td className="ct-table-cell text-right mono body-xs ct-text-faint">
                           {d.txHash ? (
                             d.txHash.startsWith("0xMOCK") ? (
                               <span className="ct-text-faint">simulated</span>

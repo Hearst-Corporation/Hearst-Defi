@@ -21,6 +21,7 @@ export function DashboardPanelHeader({
   provenance,
   trustLabel,
   tone = "quiet",
+  titleLevel = "widget",
   className,
 }: {
   title: string;
@@ -30,8 +31,13 @@ export function DashboardPanelHeader({
   trustLabel?: string;
   /** primary = command-row data cards; quiet = instrumentation panels */
   tone?: "primary" | "quiet";
+  /** section = h2 (.h2) for portfolio/product sections; widget = h3 (.h3) default */
+  titleLevel?: "section" | "widget";
   className?: string;
 }) {
+  const TitleTag = titleLevel === "section" ? "h2" : "h3";
+  const titleRoleClass = titleLevel === "section" ? "h2" : "h3";
+
   return (
     <header
       className={cn(
@@ -41,14 +47,15 @@ export function DashboardPanelHeader({
     >
       <div className="min-w-0">
         {eyebrow ? <p className="eyebrow mb-1">{eyebrow}</p> : null}
-        <h3
+        <TitleTag
           className={cn(
-            "h3 min-w-0 break-words",
+            titleRoleClass,
+            "min-w-0 break-words",
             tone === "quiet" ? "ct-text-body" : "ct-text-strong",
           )}
         >
           {title}
-        </h3>
+        </TitleTag>
       </div>
       {provenance || trustLabel ? (
         <div className="flex items-center gap-3 shrink-0">

@@ -67,7 +67,7 @@ export default function AccreditationPage() {
               disabled={!attestation.allChecked || attestation.isPending}
               aria-disabled={!attestation.allChecked || attestation.isPending}
               onClick={attestation.handleContinue}
-              className="w-full font-bold"
+              className="w-full"
             >
               {attestation.isPending ? "Confirming…" : "Continue"}
             </Button>

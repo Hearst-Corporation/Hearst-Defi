@@ -132,7 +132,7 @@ export function PersonaEmbed({
         type="button"
         variant="primary"
         size="lg"
-        className="w-full font-bold"
+        className="w-full"
         disabled={!sdkReady || loading}
         onClick={handleLaunch}
       >

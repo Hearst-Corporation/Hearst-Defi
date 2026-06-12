@@ -204,7 +204,7 @@ export function ProofPulse({
                     role="status"
                     aria-label={indicator.label}
                     className={cn(
-                      "pf-proof-row__meta body-xs font-semibold leading-none select-none",
+                      "pf-proof-row__meta body-xs leading-tight select-none",
                       indicator.colorClass,
                     )}
                   >

@@ -9,34 +9,59 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { Prisma } from "@prisma/client";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 vi.mock("@/lib/auth/session", () => ({ getInvestor: vi.fn() }));
 
-// Inner tx client returned by $transaction callback
-const txFindUnique = vi.fn();
-const txUpdateMany = vi.fn(() => ({ count: 1 }));
-const txCreate = vi.fn(() => ({}));
+type TxPosition = {
+  status: string;
+  principalUsdc: { toNumber: () => number };
+};
+
+type OuterPosition = {
+  id: string;
+  investorId: string;
+  status: string;
+  principalUsdc: { toNumber: () => number };
+};
+
+const txFindUnique = vi.fn<
+  (args: Prisma.PositionFindUniqueArgs) => Promise<TxPosition | null>
+>();
+const txUpdateMany = vi.fn<
+  (args: Prisma.PositionUpdateManyArgs) => Promise<Prisma.BatchPayload>
+>();
+const txCreate = vi.fn<
+  (args: Prisma.InvestorTransactionCreateArgs) => Promise<object>
+>();
 
 const txClient = {
   position: {
-    findUnique: (...a: unknown[]) => txFindUnique(...a),
-    updateMany: (...a: unknown[]) => txUpdateMany(...a),
+    findUnique: (a: Prisma.PositionFindUniqueArgs) => txFindUnique(a),
+    updateMany: (a: Prisma.PositionUpdateManyArgs) => txUpdateMany(a),
   },
-  investorTransaction: { create: (...a: unknown[]) => txCreate(...a) },
+  investorTransaction: {
+    create: (a: Prisma.InvestorTransactionCreateArgs) => txCreate(a),
+  },
 };
 
-const findUnique = vi.fn();
-const txn = vi.fn();
+const findUnique = vi.fn<
+  (args: Prisma.PositionFindUniqueArgs) => Promise<OuterPosition | null>
+>();
+const txn = vi.fn<
+  (fn: (tx: typeof txClient) => Promise<unknown>) => Promise<unknown>
+>();
+
 vi.mock("@/lib/db", () => ({
   prisma: {
     position: {
-      findUnique: (...a: unknown[]) => findUnique(...a),
+      findUnique: (a: Prisma.PositionFindUniqueArgs) => findUnique(a),
     },
     investorTransaction: { create: vi.fn(() => ({ __op: "create" })) },
-    $transaction: (...a: unknown[]) => txn(...a),
+    $transaction: (fn: (tx: typeof txClient) => Promise<unknown>) => txn(fn),
   },
 }));
 
@@ -75,7 +100,7 @@ function mockTxSuccess(principal = 250_000, status = "active") {
   });
   txUpdateMany.mockResolvedValue({ count: 1 });
   txCreate.mockResolvedValue({});
-  txn.mockImplementation(async (fn: (tx: typeof txClient) => Promise<unknown>) => fn(txClient));
+  txn.mockImplementation(async (fn) => fn(txClient));
 }
 
 describe("redeem server action", () => {
@@ -144,35 +169,35 @@ describe("redeem server action", () => {
     findUnique.mockResolvedValue(pos({ principal: 250_000 }));
     mockTxSuccess(250_000);
     await redeem("pos_1", 100_000, "0xtoctou");
-    // The conditional update must use updateMany with a principalUsdc gte guard
-    expect(txUpdateMany).toHaveBeenCalledOnce();
-    const callArg = txUpdateMany.mock.calls[0]?.[0] as { where: { principalUsdc: { gte: unknown } } };
-    expect(callArg?.where?.principalUsdc?.gte).toBeDefined();
+    expect(txUpdateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          principalUsdc: expect.objectContaining({ gte: expect.anything() }),
+        }),
+      }),
+    );
   });
 
   it("DB-4: when updateMany returns count=0 (concurrent conflict), the transaction throws", async () => {
     mockGetInvestor.mockResolvedValue(INVESTOR);
     findUnique.mockResolvedValue(pos({ principal: 250_000 }));
-    // Override txUpdateMany to simulate the loser of a concurrent race
     txFindUnique.mockResolvedValue({
       status: "active",
       principalUsdc: { toNumber: () => 250_000 },
     });
     txUpdateMany.mockResolvedValue({ count: 0 });
-    txn.mockImplementation(async (fn: (tx: typeof txClient) => Promise<unknown>) => fn(txClient));
+    txn.mockImplementation(async (fn) => fn(txClient));
     await expect(redeem("pos_1", 100_000)).rejects.toThrow(/concurrent/i);
   });
 
   it("DB-4: inner tx re-check catches a position that went inactive between outer read and tx", async () => {
     mockGetInvestor.mockResolvedValue(INVESTOR);
-    // Outer read: active
     findUnique.mockResolvedValue(pos({ principal: 250_000, status: "active" }));
-    // Inner tx re-read: now exited (race condition)
     txFindUnique.mockResolvedValue({
       status: "exited",
       principalUsdc: { toNumber: () => 0 },
     });
-    txn.mockImplementation(async (fn: (tx: typeof txClient) => Promise<unknown>) => fn(txClient));
+    txn.mockImplementation(async (fn) => fn(txClient));
     await expect(redeem("pos_1", 100_000)).rejects.toThrow(/not active/i);
   });
 });

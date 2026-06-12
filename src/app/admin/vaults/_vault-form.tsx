@@ -254,7 +254,7 @@ export function VaultForm(props: VaultFormProps) {
         : "Save Changes";
 
   return (
-    <div className="admin-doc-shell admin-doc-shell--narrow pb-24" onBlur={handleBlur}>
+    <div className="admin-doc-stack admin-doc-narrow pb-24" onBlur={handleBlur}>
       {/* Progress bar */}
       <div className="admin-doc-stack--actions">
         <div className="flex items-center justify-between">
@@ -490,7 +490,7 @@ export function VaultForm(props: VaultFormProps) {
               <div key={key} className="admin-doc-stack--tight">
                 <div className="flex items-center justify-between">
                   <span className="stat-label">{label}</span>
-                  <span className="mono tabular text-sm ct-text-primary">
+                  <span className="mono tabular body-sm ct-text-primary">
                     {pct(form[key])}%
                   </span>
                 </div>
@@ -642,10 +642,10 @@ export function VaultForm(props: VaultFormProps) {
                         onClick={() => set("requiredSigners", n)}
                         className={
                           active
-                            ? "ct-pill accent text-xs font-semibold"
+                            ? "ct-pill accent body-xs font-semibold"
                             : disabled
-                              ? "ct-pill text-xs font-semibold opacity-40 cursor-not-allowed"
-                              : "ct-pill text-xs font-semibold"
+                              ? "ct-pill body-xs font-semibold opacity-40 cursor-not-allowed"
+                              : "ct-pill body-xs font-semibold"
                         }
                       >
                         {n} of {form.signersWhitelist.length}
@@ -669,7 +669,7 @@ export function VaultForm(props: VaultFormProps) {
             <NestedPanel className="admin-doc-stack--actions divide-y divide-border-subtle">
               <div className="admin-doc-confirm-grid pb-3">
                 <span className="stat-label">Ticker</span>
-                <span className="mono tabular text-sm ct-text-strong">{form.ticker}</span>
+                <span className="mono tabular body-sm ct-text-strong">{form.ticker}</span>
                 <span className="stat-label">Name</span>
                 <span className="body-sm ct-text-primary">{form.name}</span>
                 <span className="stat-label">Strategy</span>
@@ -680,15 +680,15 @@ export function VaultForm(props: VaultFormProps) {
 
               <div className="admin-doc-confirm-grid py-3">
                 <span className="stat-label">Min Ticket</span>
-                <span className="mono tabular text-sm">{formatUsdFull(form.minTicketUsdc)}</span>
+                <span className="mono tabular body-sm">{formatUsdFull(form.minTicketUsdc)}</span>
                 <span className="stat-label">Capacity</span>
-                <span className="mono tabular text-sm">{formatUsdFull(form.capacityUsdc)}</span>
+                <span className="mono tabular body-sm">{formatUsdFull(form.capacityUsdc)}</span>
                 <span className="stat-label">Fees</span>
-                <span className="mono tabular text-sm">
+                <span className="mono tabular body-sm">
                   {pct(form.mgmtFeeBps)}% mgmt / {pct(form.perfFeeBps)}% perf
                 </span>
                 <span className="stat-label">Lockup</span>
-                <span className="mono tabular text-sm">{form.softLockupDays} days</span>
+                <span className="mono tabular body-sm">{form.softLockupDays} days</span>
                 <span className="stat-label">Target APY</span>
                 <ApyRange
                   low={form.targetApyLowBps / 100}
@@ -708,19 +708,19 @@ export function VaultForm(props: VaultFormProps) {
 
               <div className="admin-doc-confirm-grid py-3">
                 <span className="stat-label">Mining</span>
-                <span className="mono tabular text-sm">{pct(form.targetMiningBps)}%</span>
+                <span className="mono tabular body-sm">{pct(form.targetMiningBps)}%</span>
                 <span className="stat-label">BTC Tactical</span>
-                <span className="mono tabular text-sm">{pct(form.targetBtcTacticalBps)}%</span>
+                <span className="mono tabular body-sm">{pct(form.targetBtcTacticalBps)}%</span>
                 <span className="stat-label">USDC Base</span>
-                <span className="mono tabular text-sm">{pct(form.targetUsdcBaseBps)}%</span>
+                <span className="mono tabular body-sm">{pct(form.targetUsdcBaseBps)}%</span>
                 <span className="stat-label">Stable Reserve</span>
-                <span className="mono tabular text-sm">{pct(form.targetStableReserveBps)}%</span>
+                <span className="mono tabular body-sm">{pct(form.targetStableReserveBps)}%</span>
                 <span className="stat-label">Total</span>
                 <span
                   className={
                     allocTotal() === 10000
-                      ? "mono tabular text-sm ct-status-success font-semibold"
-                      : "mono tabular text-sm ct-status-danger font-semibold"
+                      ? "mono tabular body-sm ct-status-success font-semibold"
+                      : "mono tabular body-sm ct-status-danger font-semibold"
                   }
                 >
                   {pct(allocTotal())}%
@@ -733,7 +733,7 @@ export function VaultForm(props: VaultFormProps) {
                   {form.signersWhitelist.filter((s) => s.trim().length > 0).length} whitelisted
                 </span>
                 <span className="stat-label">Required Quorum</span>
-                <span className="mono tabular text-sm">
+                <span className="mono tabular body-sm">
                   {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
                 </span>
               </div>
@@ -775,9 +775,9 @@ export function VaultForm(props: VaultFormProps) {
               </p>
               <div className="admin-doc-confirm-grid pt-2">
                 <span className="stat-label">Vault</span>
-                <span className="mono tabular text-sm ct-text-strong">{form.ticker || "—"}</span>
+                <span className="mono tabular body-sm ct-text-strong">{form.ticker || "—"}</span>
                 <span className="stat-label">Required signers</span>
-                <span className="mono tabular text-sm">
+                <span className="mono tabular body-sm">
                   {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
                 </span>
               </div>

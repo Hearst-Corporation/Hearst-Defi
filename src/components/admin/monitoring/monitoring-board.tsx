@@ -114,7 +114,7 @@ function MonitoringTable({
   return (
     <SystemPanel className="overflow-hidden p-0">
       <div className="ct-table-surface rounded-none border-0 bg-transparent">
-        <table className="w-full text-sm">
+        <table className="w-full body-sm">
           <thead>
             <tr>{header}</tr>
           </thead>
@@ -146,7 +146,7 @@ function RunStatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+        "inline-flex items-center rounded-full px-2 py-0.5 body-xs font-medium",
         tone[status] ?? "ct-surface-2 ct-text-muted",
       )}
     >

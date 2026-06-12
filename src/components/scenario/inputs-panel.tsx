@@ -121,14 +121,14 @@ export function InputsPanel({ inputs, onChange, disabled }: InputsPanelProps) {
               <div className="admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--dense">
                 <span
                   className={cn(
-                    "mono text-xl font-bold tabular-nums ct-text-primary",
+                    "mono stat-value tabular-nums ct-text-primary",
                     disabled && "opacity-50",
                   )}
                 >
                   {field.format(value)}
                 </span>
                 {!isVolIndex && (
-                  <span className="text-xs ct-text-muted">
+                  <span className="body-xs ct-text-muted">
                     {field.unit}
                   </span>
                 )}

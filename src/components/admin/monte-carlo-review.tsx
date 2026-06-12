@@ -228,10 +228,10 @@ interface MetricCellProps {
 function MetricCell({ label, value, tone }: MetricCellProps) {
   const valueClass =
     tone === "accent"
-      ? "tabular font-semibold text-sm ct-text-accent"
+      ? "tabular body-sm ct-text-accent"
       : tone === "primary"
-        ? "tabular font-semibold text-sm ct-text-strong"
-        : "tabular font-semibold text-sm ct-text-muted";
+        ? "tabular body-sm ct-text-strong"
+        : "tabular body-sm ct-text-muted";
 
   return (
     <div className="admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--dense">

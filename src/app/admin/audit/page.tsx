@@ -88,7 +88,7 @@ export default async function AuditLogPage({
               defaultValue={entityType ?? ""}
               placeholder="e.g. VaultDeployment"
               className={cn(
-                "h-8 rounded-md border px-3 text-sm ct-bc-soft ct-surface-0 ct-text-body",
+                "h-8 rounded-md border px-3 body-sm ct-bc-soft ct-surface-0 ct-text-body",
                 "placeholder:ct-text-muted focus:outline-none focus:ct-bc-strong",
               )}
             />
@@ -101,7 +101,7 @@ export default async function AuditLogPage({
               defaultValue={actor ?? ""}
               placeholder="0x…"
               className={cn(
-                "h-8 rounded-md border px-3 text-sm mono ct-bc-soft ct-surface-0 ct-text-body",
+                "h-8 rounded-md border px-3 body-sm mono ct-bc-soft ct-surface-0 ct-text-body",
                 "placeholder:ct-text-muted focus:outline-none focus:ct-bc-strong",
               )}
             />
@@ -114,7 +114,7 @@ export default async function AuditLogPage({
               defaultValue={action ?? ""}
               placeholder="e.g. vault.approve"
               className={cn(
-                "h-8 rounded-md border px-3 text-sm ct-bc-soft ct-surface-0 ct-text-body",
+                "h-8 rounded-md border px-3 body-sm ct-bc-soft ct-surface-0 ct-text-body",
                 "placeholder:ct-text-muted focus:outline-none focus:ct-bc-strong",
               )}
             />
@@ -155,22 +155,22 @@ export default async function AuditLogPage({
           />
         ) : (
           <div className="ct-table-surface">
-            <table className="w-full border-collapse text-left text-sm">
+            <table className="w-full border-collapse text-left body-sm">
               <thead>
                 <tr>
-                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted whitespace-nowrap">
+                  <th className="ct-table-header px-5 py-3 stat-label whitespace-nowrap">
                     When
                   </th>
-                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted whitespace-nowrap">
+                  <th className="ct-table-header px-5 py-3 stat-label whitespace-nowrap">
                     Actor
                   </th>
-                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted whitespace-nowrap">
+                  <th className="ct-table-header px-5 py-3 stat-label whitespace-nowrap">
                     Action
                   </th>
-                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted whitespace-nowrap">
+                  <th className="ct-table-header px-5 py-3 stat-label whitespace-nowrap">
                     Entity
                   </th>
-                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted whitespace-nowrap">
+                  <th className="ct-table-header px-5 py-3 stat-label whitespace-nowrap">
                     Details
                   </th>
                 </tr>
@@ -182,14 +182,14 @@ export default async function AuditLogPage({
                     className="border-b border-[var(--ct-border)] last:border-0 align-top"
                   >
                     {/* When */}
-                    <td className="px-5 py-3 whitespace-nowrap mono text-xs ct-text-muted">
+                    <td className="px-5 py-3 whitespace-nowrap mono body-xs ct-text-muted">
                       {dtFmt.format(entry.occurredAt)}
                     </td>
 
                     {/* Actor */}
                     <td className="px-5 py-3">
                       <span
-                        className="mono text-xs ct-text-body"
+                        className="mono body-xs ct-text-body"
                         title={entry.actorWallet}
                       >
                         {truncateWallet(entry.actorWallet)}
@@ -210,7 +210,7 @@ export default async function AuditLogPage({
 
                     {/* Entity */}
                     <td className="px-5 py-3">
-                      <span className="block text-xs font-medium ct-text-strong">
+                      <span className="block body-xs ct-text-strong">
                         {entry.entityType}
                       </span>
                       <span className="mono block text-micro ct-text-muted">
@@ -221,7 +221,7 @@ export default async function AuditLogPage({
                     {/* Details — before/after diff in a native <details> */}
                     <td className="px-5 py-3 max-w-xs">
                       <details className="group">
-                        <summary className="cursor-pointer list-none text-xs ct-text-muted hover:ct-text-body select-none">
+                        <summary className="cursor-pointer list-none body-xs ct-text-muted hover:ct-text-body select-none">
                           <span className="group-open:hidden">Show diff</span>
                           <span className="hidden group-open:inline">
                             Hide diff

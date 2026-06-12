@@ -105,3 +105,38 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
+
+/* SVG axis labels — token-sized (viewBox-relative charts) */
+.dash-chart-svg-text-axis {
+  font-size: var(--ct-text-micro);
+  font-family: var(--font-mono);
+  font-weight: var(--ct-font-medium);
+  fill: var(--ct-text-muted);
+}
+
+.dash-chart-svg-text-axis-unit {
+  font-size: var(--ct-text-micro);
+  font-family: var(--font-mono);
+  font-weight: var(--ct-font-bold);
+  fill: var(--ct-text-muted);
+  letter-spacing: var(--ct-tracking-wider);
+  text-transform: uppercase;
+}
+
+.dash-chart-svg-text-tick {
+  font-size: var(--ct-text-micro);
+  font-family: var(--font-mono);
+  fill: var(--ct-text-muted);
+}
+
+.dash-chart-svg-text-tick-accent {
+  font-size: var(--ct-text-micro);
+  font-family: var(--font-mono);
+  font-weight: var(--ct-font-semibold);
+}
+
+.dash-chart-svg-text-tick-sans {
+  font-size: var(--ct-text-micro);
+  font-family: var(--font-sans);
+  fill: var(--ct-text-muted);
+}

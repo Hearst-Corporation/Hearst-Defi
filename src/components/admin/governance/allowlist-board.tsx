@@ -170,7 +170,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
             />
             <SystemPanel className="overflow-hidden p-0">
               <div className="ct-table-surface overflow-x-auto rounded-none border-0 bg-transparent">
-                <table className="w-full text-sm" aria-label="Address allowlist">
+                <table className="w-full body-sm" aria-label="Address allowlist">
                   <thead>
                     <tr className="border-b border-(--ct-border) ct-surface-1">
                       <th scope="col" className="stat-label px-4 py-3 text-left">Label / Address</th>
@@ -191,10 +191,10 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                         )}
                       >
                         <td className="px-4 py-3">
-                          <p className="text-sm font-semibold ct-text-strong">{entry.label}</p>
-                          <p className="mono mt-0.5 break-all text-xs ct-text-muted">{entry.address}</p>
+                          <p className="body-sm ct-text-strong">{entry.label}</p>
+                          <p className="mono mt-0.5 break-all body-xs ct-text-muted">{entry.address}</p>
                           {entry.notes ? (
-                            <p className="mt-1 text-xs italic ct-text-muted">{entry.notes}</p>
+                            <p className="mt-1 body-xs italic ct-text-muted">{entry.notes}</p>
                           ) : null}
                         </td>
                         <td className="px-4 py-3">
@@ -218,7 +218,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                                   : `Reactivate ${entry.label}`
                               }
                               className={cn(
-                                "ct-pill cursor-pointer text-xs font-semibold transition-colors",
+                                "ct-pill cursor-pointer body-xs font-semibold transition-colors",
                                 entry.active
                                   ? "hover:border-(--ct-status-danger-border) hover:ct-status-danger"
                                   : "hover:border-(--ct-status-success-border) hover:ct-status-success",
@@ -230,7 +230,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                         </td>
                         <td className="px-4 py-3">
                           <details className="group">
-                            <summary className="cursor-pointer list-none text-xs ct-text-muted select-none hover:ct-text-primary">
+                            <summary className="cursor-pointer list-none body-xs ct-text-muted select-none hover:ct-text-primary">
                               <span className="group-open:hidden">Edit ▾</span>
                               <span className="hidden group-open:inline">Close ▴</span>
                             </summary>

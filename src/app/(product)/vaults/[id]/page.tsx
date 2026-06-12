@@ -83,7 +83,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           <InvestCta
             isLive={isLive}
             investHref={investHref}
-            className="invest-flow-shell__header-cta font-bold"
+            className="invest-flow-shell__header-cta"
           />
         </>
       }
@@ -111,7 +111,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
             <InvestCta
               isLive={isLive}
               investHref={investHref}
-              className="w-full font-bold"
+              className="w-full"
             />
           </div>
         </dl>
@@ -145,7 +145,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
               isLive={isLive}
               investHref={investHref}
               size="lg"
-              className="invest-flow-shell__footer-cta font-bold"
+              className="invest-flow-shell__footer-cta"
             />
           </div>
         </>

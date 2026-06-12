@@ -40,7 +40,7 @@ export function ApyHero({
       low={output.apy_range.low}
       high={output.apy_range.high}
       className={cn(
-        "mono text-3xl sm:text-4xl font-extrabold tabular-nums",
+        "mono stat-value tabular-nums",
         "ct-text-strong leading-tight",
       )}
     />
@@ -53,12 +53,11 @@ export function ApyHero({
         variant === "full" ? "admin-doc-stack--dense" : "admin-doc-stack--compact",
       )}
     >
-      <span className={cn("stat-label", variant === "compact" && "text-micro")}>
+      <span className="stat-label">
         Confidence
       </span>
       <Badge
         variant={CONFIDENCE_VARIANT[output.confidence]}
-        className={variant === "full" ? "text-xs" : "text-micro"}
       >
         {output.confidence.toUpperCase()}
       </Badge>
@@ -83,10 +82,10 @@ export function ApyHero({
             <span className="stat-label">Stressed APY</span>
             <ProvenanceBadge kind="estimated" />
           </div>
-          <span className="mono text-2xl font-extrabold tabular-nums ct-text-primary">
+          <span className="mono stat-value tabular-nums ct-text-primary">
             {output.stressed_apy.toFixed(1)}%
           </span>
-          <span className="ml-2 text-xs ct-text-muted">
+          <span className="ml-2 body-xs ct-text-muted">
             bear scenario floor
           </span>
         </div>
@@ -128,11 +127,8 @@ function ScoreCard({
   caption?: string;
   footer?: React.ReactNode;
 }) {
-  const labelCls = cn("stat-label", variant === "compact" && "text-micro");
-  const numberCls =
-    variant === "full"
-      ? "mono text-2xl font-extrabold tabular-nums ct-text-primary"
-      : "mono text-xl font-extrabold tabular-nums ct-text-primary";
+  const labelCls = "stat-label";
+  const numberCls = "mono stat-value tabular-nums ct-text-primary";
   const slashCls =
     variant === "full"
       ? "body-sm ct-text-muted"
@@ -163,8 +159,8 @@ function ScoreCard({
         <p
           className={cn(
             variant === "full"
-              ? "mt-2 text-xs ct-text-muted"
-              : "mt-2 text-micro ct-text-muted",
+              ? "mt-2 body-xs ct-text-muted"
+              : "mt-2 body-xs ct-text-faint",
           )}
         >
           {caption}
@@ -236,13 +232,13 @@ export function VaultMode({
       )}
     >
       <div>
-        <p className={cn("stat-label", variant === "full" ? "mb-1" : "text-micro")}>
+        <p className={cn("stat-label", variant === "full" && "mb-1")}>
           Vault Mode
         </p>
         <p
           className={cn(
-            "ct-text-muted",
-            variant === "full" ? "text-xs" : "mt-0.5 text-micro",
+            "body-xs ct-text-muted",
+            variant === "compact" && "mt-0.5",
           )}
         >
           {variant === "full" ? "Current allocation posture" : "Allocation posture"}
@@ -297,13 +293,13 @@ function AllocationTable({
     <div className={variant === "full" ? "mt-4" : "mt-3"}>
       <div
         className={cn(
-          "grid grid-cols-[1fr_auto_auto] text-micro font-semibold uppercase tracking-(--ct-tracking-wide) ct-text-muted",
+          "grid grid-cols-[1fr_auto_auto]",
           variant === "full" ? "mb-2 admin-doc-inline-row--relaxed" : "mb-1.5 admin-doc-inline-row--actions",
         )}
       >
-        <span>Bucket</span>
-        <span className="text-right">Pct</span>
-        <span className="text-right">{yieldHeader}</span>
+        <span className="stat-label">Bucket</span>
+        <span className="stat-label text-right">Pct</span>
+        <span className="stat-label text-right">{yieldHeader}</span>
       </div>
       <ul className="divide-y divide-(--ct-border-soft)">
         {allocations.map((a) => (

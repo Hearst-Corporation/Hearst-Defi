@@ -178,11 +178,11 @@ function ScoreRow({ label, hint, value, tone, bar }: ScoreRowProps) {
                 TONE_DOT_CLASS[tone],
               )}
             />
-            <span className="text-sm font-medium ct-text-primary group-hover:ct-text-body transition-colors">{label}</span>
+            <span className="body-sm font-medium ct-text-primary group-hover:ct-text-body transition-colors">{label}</span>
           </div>
-          <p className="mt-1 text-xs ct-text-muted">{hint}</p>
+          <p className="mt-1 body-xs ct-text-muted">{hint}</p>
         </div>
-        <span className={cn("text-xl font-semibold leading-tight tabular-nums", TONE_TEXT[tone])}>
+        <span className={cn("stat-value leading-tight tabular-nums", TONE_TEXT[tone])}>
           {value}
         </span>
       </div>
@@ -209,11 +209,11 @@ function HashpriceRow({ hashprice }: HashpriceRowProps) {
       <div className="flex items-baseline justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium ct-text-primary group-hover:ct-text-body transition-colors">
+            <span className="body-sm font-medium ct-text-primary group-hover:ct-text-body transition-colors">
               Hashprice
             </span>
           </div>
-          <p className="mt-1 text-xs ct-text-muted">
+          <p className="mt-1 body-xs ct-text-muted">
             BTC subsidy / network difficulty
           </p>
         </div>
@@ -274,14 +274,14 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <span className="text-micro font-bold text-(--ct-text-muted) uppercase tracking-widest">
+        <span className="stat-label">
           Mining Margin Heatmap · 90d
         </span>
         <div className="flex items-center gap-2">
-          <span className="text-micro font-bold text-(--ct-text-muted) uppercase tracking-widest">Score:</span>
+          <span className="stat-label">Score:</span>
           <span
             className={cn(
-              "text-sm font-bold tabular-nums",
+              "body-sm font-bold tabular-nums",
               scoreTone(marginScore) === "good"
                 ? "ct-text-accent"
                 : scoreTone(marginScore) === "warn"
@@ -310,10 +310,7 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
               x={PAD_LEFT - 6}
               y={PAD_TOP + (r + 0.5) * CELL_H + 2}
               textAnchor="end"
-              fontSize={6}
-              fontWeight="500"
-              fill="var(--ct-text-muted)"
-              fontFamily="var(--font-mono)"
+              className="dash-chart-svg-text-axis"
             >
               {label}
             </text>
@@ -354,10 +351,7 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
                 x={PAD_LEFT + (colIdx + 0.5) * CELL_W}
                 y={SVG_H - PAD_BOTTOM + 12}
                 textAnchor="middle"
-                fontSize={6}
-                fontWeight="500"
-                fill="var(--ct-text-muted)"
-                fontFamily="var(--font-mono)"
+                className="dash-chart-svg-text-axis"
               >
                 {label}
               </text>
@@ -369,11 +363,7 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
             x={PAD_LEFT + GRID_W / 2}
             y={SVG_H - 4}
             textAnchor="middle"
-            fontSize={5}
-            fontWeight="bold"
-            fill="var(--ct-text-muted)"
-            letterSpacing="0.1em"
-            className="uppercase"
+            className="dash-chart-svg-text-axis-unit"
           >
             $/TH/day
           </text>
@@ -414,7 +404,7 @@ function HeatmapSVG({ marginScore, currentPair }: HeatmapSVGProps) {
               className="ct-legend-dot rounded-sm"
               style={{ background: s.fill, opacity: s.opacity }}
             />
-            <span className="text-micro font-bold uppercase tracking-wider text-(--ct-text-muted)">{s.label}</span>
+            <span className="stat-label">{s.label}</span>
           </div>
         ))}
       </div>

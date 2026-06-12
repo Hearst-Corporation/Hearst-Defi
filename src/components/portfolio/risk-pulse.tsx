@@ -292,10 +292,10 @@ function CompositeSection({
       <div className="pf-inline-row pf-inline-row--baseline min-w-0">
         <span className="stat-label shrink-0">Composite</span>
         <span
-          className={cn("pf-risk-composite-value tabular leading-none", valueColor)}
+          className={cn("pf-risk-composite-value tabular leading-tight", valueColor)}
         >
           {composite}
-          <span className="body-xs font-medium ct-text-faint"> / 100</span>
+          <span className="body-xs font-medium ct-text-muted"> / 100</span>
         </span>
       </div>
 
