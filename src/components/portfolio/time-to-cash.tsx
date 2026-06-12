@@ -3,6 +3,7 @@
 // Non-negotiable #1: projected USDC shown as estimate (no guarantee).
 // Non-negotiable #2: dual ProvenanceBadge Live (cycle) + Estimate (projected USDC).
 
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ApyRange } from "@/components/ui/apy-range";
 import { cn } from "@/lib/cn";
@@ -76,6 +77,15 @@ export function TimeToCash({
     updatedAt,
     "estimated",
   );
+
+  if (isStale) {
+    return (
+      <AwaitingMetricState
+        message="Distribution cycle starts after your first active position."
+        detail="Payout timing and projected USDC appear once deposited capital is confirmed and yield data is live."
+      />
+    );
+  }
 
   const { daysElapsed, daysRemaining, hoursRemaining, progressPct } =
     computeTimeToCash({ cycleStart, cycleDays, asOf: effectiveAsOf });

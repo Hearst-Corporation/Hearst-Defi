@@ -81,8 +81,22 @@ export function StepProgress({ active }: StepProgressProps) {
               )}
             >
               {isDone ? (
-                // Checkmark placeholder for completed steps
-                <span className="inline-block w-3 h-3 rounded-sm bg-current" />
+                <svg
+                  aria-hidden="true"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  className="shrink-0"
+                >
+                  <path
+                    d="M2 6l3 3 5-5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               ) : (
                 step.index
               )}

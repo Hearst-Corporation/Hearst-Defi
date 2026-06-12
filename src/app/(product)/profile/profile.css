@@ -111,10 +111,3 @@
 .prof-signout {
   margin-top: var(--ct-space-4);
 }
-
-[data-testid="profile-page"] .ct-nested-callout {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--ct-space-3);
-}

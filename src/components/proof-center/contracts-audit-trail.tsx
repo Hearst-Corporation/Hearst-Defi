@@ -89,6 +89,13 @@ function truncateTx(tx: string): string {
   return `${tx.slice(0, 10)}…${tx.slice(-6)}`;
 }
 
+function auditBadgeLabel(entry: AuditEntry): string {
+  if (entry.href !== null) return "Published";
+  if (entry.variant === "warning") return "In progress";
+  if (entry.variant === "success") return "Completed";
+  return "Pending";
+}
+
 export function ContractsAuditTrail() {
   return (
     <div className="space-y-6">
@@ -97,9 +104,9 @@ export function ContractsAuditTrail() {
         <CardHeader>
           <div className="flex flex-col gap-1">
             <span className="eyebrow">Phase 2 contracts · Base Sepolia</span>
-            <CardTitle>Deployed contract addresses</CardTitle>
+            <CardTitle>Configured deployment addresses</CardTitle>
           </div>
-          <ProvenanceBadge kind="attested" />
+          <ProvenanceBadge kind="manual" />
         </CardHeader>
 
         <div>
@@ -185,13 +192,7 @@ export function ContractsAuditTrail() {
                 <span className="body-xs">{entry.status}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={entry.variant}>
-                  {entry.variant === "success"
-                    ? "Published"
-                    : entry.variant === "warning"
-                      ? "In progress"
-                      : "Pending"}
-                </Badge>
+                <Badge variant={entry.variant}>{auditBadgeLabel(entry)}</Badge>
                 {entry.href !== null ? (
                   <Button asChild variant="secondary" size="md">
                     <a

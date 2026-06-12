@@ -22,6 +22,8 @@ import { YieldStack } from "@/components/portfolio/yield-stack";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
 import { PositionsList } from "@/components/portfolio/positions-list";
 import { TimeseriesSection } from "@/components/dashboard/timeseries-section";
+import { TimeToCash } from "@/components/portfolio/time-to-cash";
+import { LockMeter } from "@/components/portfolio/lock-meter";
 
 const ZERO_SCORES = [
   { dimension: "market" as const, score: 0, delta30d: 0 },
@@ -182,6 +184,40 @@ describe("Portfolio empty states — design contract", () => {
       <PositionsList positions={[]} source="fallback" />,
     );
     assertEmptyDesignContract(html, "No open positions.");
+    expect(html).toContain("pf-empty-widget");
+  });
+
+  it("TimeToCash: stale source uses awaiting state outside premium surface", () => {
+    const html = renderToStaticMarkup(
+      <TimeToCash
+        cycleStart={new Date("2026-06-01T00:00:00Z")}
+        cycleDays={30}
+        projectedUsdc={0}
+        aprLow={0}
+        aprHigh={0}
+        source="stale"
+      />,
+    );
+    assertEmptyDesignContract(
+      html,
+      "Distribution cycle starts after your first active position.",
+    );
+    expect(html).toContain("pf-empty-widget");
+  });
+
+  it("LockMeter: unknown terms uses awaiting state outside premium surface", () => {
+    const html = renderToStaticMarkup(
+      <LockMeter
+        lockStart={new Date("2026-01-01T00:00:00Z")}
+        softLockupDays={0}
+        earlyExitPenaltyBps={150}
+        source="stale"
+      />,
+    );
+    assertEmptyDesignContract(
+      html,
+      "Lock and liquidity terms appear after your first active position.",
+    );
     expect(html).toContain("pf-empty-widget");
   });
 

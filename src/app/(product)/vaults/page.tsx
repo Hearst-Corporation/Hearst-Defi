@@ -42,8 +42,8 @@ export default async function VaultsPage() {
 
         {vaults.length === 0 ? (
           <AwaitingMetricState
-            message="No products available right now."
-            detail="Check back soon or contact your manager."
+            message="No vault is currently deployed with a verified on-chain contract."
+            detail="Products appear here once a vault is live on Base Sepolia with a confirmed deployment address."
           />
         ) : (
           <div className="flex flex-col gap-6">

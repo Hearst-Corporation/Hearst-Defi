@@ -159,7 +159,7 @@ export default async function ProductProofCenterPage({
           <h2 id="proof-grid-heading" className="h2">
             All proofs
           </h2>
-          <ProofFilter />
+          {proofs.length > 0 ? <ProofFilter /> : null}
         </div>
         {proofs.length === 0 ? (
           <AwaitingMetricState

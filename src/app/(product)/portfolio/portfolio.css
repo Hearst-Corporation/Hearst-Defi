@@ -309,8 +309,24 @@
 /* DS §9 empty surfaces — base styles live in cockpit.css (.pf-empty-*).
    Portfolio-only layout overrides below. */
 
+/* Zero-position layout — light section headers, no premium chrome */
+.pf-section-light {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+}
+
+.pf-container--zero [data-section="yield-trust"] .pf-empty-widget,
+.pf-container--zero [data-section="activity-payouts"] .pf-empty-widget {
+  min-height: 10rem;
+}
+
+.pf-container--zero [data-section="hero-pulse"] .pf-empty-chart {
+  min-height: 10rem;
+}
+
 /* In the yield-trust grid, empty widgets stretch to fill column height */
-.pf-container [data-section="yield-trust"] .pf-empty-widget {
+.pf-container:not(.pf-container--zero) [data-section="yield-trust"] .pf-empty-widget {
   min-height: 16rem;
 }
 

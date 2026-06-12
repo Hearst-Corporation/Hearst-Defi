@@ -111,10 +111,12 @@ function HeroKpiTable({
           <span className="stat-label">Next distribution</span>
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="dash-value tabular-nums">
-              {monthDayFmt.format(nextDistributionAt)}
+              {hasPositions ? monthDayFmt.format(nextDistributionAt) : "—"}
             </span>
-            {diffDays > 0 ? (
+            {hasPositions && diffDays > 0 ? (
               <span className="pf-chip-accent shrink-0">{diffDays}d left</span>
+            ) : !hasPositions ? (
+              <span className="body-xs ct-text-faint shrink-0">After first position</span>
             ) : null}
           </div>
         </div>
@@ -163,6 +165,7 @@ export default async function PortfolioPage() {
 
   const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
   const showNextAction = shouldShowNextActionCard(actionFlags);
+  const useLightSections = !hasPositions;
 
   return (
     <div
@@ -174,36 +177,69 @@ export default async function PortfolioPage() {
       {showNextAction ? <NextActionCard {...actionFlags} /> : null}
 
       <MotionViewport>
-        <MergedSurface
-          title="Performance & Liquidity"
-          provenance={portfolioProvenance}
-          data-section="hero-pulse"
-        >
-          <div className="grid grid-cols-12 gap-8">
-            <div className="col-span-12 lg:col-span-8">
-              <ValueChart
-                positions={data.positions}
-                totalValueUsdc={data.totalValueUsdc}
-                source={data.source}
-                updatedAt={data.updatedAt}
-              />
-            </div>
-
-            <div className="col-span-12 lg:col-span-4 flex flex-col gap-8">
-              <HeroKpiTable
-                totalValueUsdc={data.totalValueUsdc}
-                totalYieldYtdUsdc={data.totalYieldYtdUsdc}
-                nextDistributionAt={data.nextDistributionAt}
-                hasPositions={hasPositions}
-              />
-              <div className="flex flex-col gap-6 pt-6 border-t border-(--ct-border-soft)">
-                <span className="stat-label ct-text-accent">Liquidity status</span>
-                <TimeToCash {...timeToCashProps} />
-                <LockMeter {...lockMeterProps} />
+        {useLightSections ? (
+          <section
+            data-section="hero-pulse"
+            className="pf-section-light flex flex-col gap-6"
+            aria-label="Performance and liquidity"
+          >
+            <h3 className="h3">Performance &amp; Liquidity</h3>
+            <div className="grid grid-cols-12 gap-8">
+              <div className="col-span-12 lg:col-span-8">
+                <ValueChart
+                  positions={data.positions}
+                  totalValueUsdc={data.totalValueUsdc}
+                  source={data.source}
+                  updatedAt={data.updatedAt}
+                />
+              </div>
+              <div className="col-span-12 lg:col-span-4 flex flex-col gap-8">
+                <HeroKpiTable
+                  totalValueUsdc={data.totalValueUsdc}
+                  totalYieldYtdUsdc={data.totalYieldYtdUsdc}
+                  nextDistributionAt={data.nextDistributionAt}
+                  hasPositions={hasPositions}
+                />
+                <div className="flex flex-col gap-6 pt-6 border-t border-(--ct-border-soft)">
+                  <span className="stat-label ct-text-accent">Liquidity status</span>
+                  <TimeToCash {...timeToCashProps} />
+                  <LockMeter {...lockMeterProps} />
+                </div>
               </div>
             </div>
-          </div>
-        </MergedSurface>
+          </section>
+        ) : (
+          <MergedSurface
+            title="Performance & Liquidity"
+            provenance={portfolioProvenance}
+            showProvenance
+            data-section="hero-pulse"
+          >
+            <div className="grid grid-cols-12 gap-8">
+              <div className="col-span-12 lg:col-span-8">
+                <ValueChart
+                  positions={data.positions}
+                  totalValueUsdc={data.totalValueUsdc}
+                  source={data.source}
+                  updatedAt={data.updatedAt}
+                />
+              </div>
+              <div className="col-span-12 lg:col-span-4 flex flex-col gap-8">
+                <HeroKpiTable
+                  totalValueUsdc={data.totalValueUsdc}
+                  totalYieldYtdUsdc={data.totalYieldYtdUsdc}
+                  nextDistributionAt={data.nextDistributionAt}
+                  hasPositions={hasPositions}
+                />
+                <div className="flex flex-col gap-6 pt-6 border-t border-(--ct-border-soft)">
+                  <span className="stat-label ct-text-accent">Liquidity status</span>
+                  <TimeToCash {...timeToCashProps} />
+                  <LockMeter {...lockMeterProps} />
+                </div>
+              </div>
+            </div>
+          </MergedSurface>
+        )}
       </MotionViewport>
 
       <MotionViewport>
@@ -233,35 +269,51 @@ export default async function PortfolioPage() {
             )}
           </div>
 
-          <MergedSurface
-            title="Yield & Trust Pulse"
-            provenance={portfolioProvenance}
-            data-section="yield-trust"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-              <div
-                data-testid="risk-pulse-widget"
-                className="flex flex-col gap-4"
-              >
-                <span className="stat-label ct-text-accent">Risk profile</span>
-                <RiskPulse {...riskPulseProps} />
+          {useLightSections ? (
+            <section
+              data-section="yield-trust"
+              className="pf-section-light flex flex-col gap-6"
+              aria-label="Yield and trust pulse"
+            >
+              <h3 className="h3">Yield &amp; Trust Pulse</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div data-testid="risk-pulse-widget" className="flex flex-col gap-4">
+                  <span className="stat-label ct-text-accent">Risk profile</span>
+                  <RiskPulse {...riskPulseProps} />
+                </div>
+                <div data-testid="proof-pulse-widget" className="flex flex-col gap-4">
+                  <span className="stat-label ct-text-accent">Proof of reserves</span>
+                  <ProofPulse {...proofPulseProps} />
+                </div>
+                <div data-testid="security-pulse-widget" className="flex flex-col gap-4">
+                  <span className="stat-label ct-text-accent">Security audit</span>
+                  <SecurityPulse />
+                </div>
               </div>
-              <div
-                data-testid="proof-pulse-widget"
-                className="flex flex-col gap-4"
-              >
-                <span className="stat-label ct-text-accent">Proof of reserves</span>
-                <ProofPulse {...proofPulseProps} />
+            </section>
+          ) : (
+            <MergedSurface
+              title="Yield & Trust Pulse"
+              provenance={portfolioProvenance}
+              showProvenance
+              data-section="yield-trust"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div data-testid="risk-pulse-widget" className="flex flex-col gap-4">
+                  <span className="stat-label ct-text-accent">Risk profile</span>
+                  <RiskPulse {...riskPulseProps} />
+                </div>
+                <div data-testid="proof-pulse-widget" className="flex flex-col gap-4">
+                  <span className="stat-label ct-text-accent">Proof of reserves</span>
+                  <ProofPulse {...proofPulseProps} />
+                </div>
+                <div data-testid="security-pulse-widget" className="flex flex-col gap-4">
+                  <span className="stat-label ct-text-accent">Security audit</span>
+                  <SecurityPulse />
+                </div>
               </div>
-              <div
-                data-testid="security-pulse-widget"
-                className="flex flex-col gap-4"
-              >
-                <span className="stat-label ct-text-accent">Security audit</span>
-                <SecurityPulse />
-              </div>
-            </div>
-          </MergedSurface>
+            </MergedSurface>
+          )}
         </div>
       </MotionViewport>
 
@@ -277,29 +329,57 @@ export default async function PortfolioPage() {
             </div>
           </div>
 
-          <MergedSurface
-            title="Activity & Payouts"
-            provenance={portfolioProvenance}
-            data-section="activity-payouts"
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-              <div className="lg:col-span-8 flex flex-col gap-4">
-                <span className="stat-label ct-text-accent">Recent transactions</span>
-                <RecentActivity
-                  transactions={data.recentTransactions}
-                  source={data.source}
-                  updatedAt={data.updatedAt}
-                />
+          {useLightSections ? (
+            <section
+              data-section="activity-payouts"
+              className="pf-section-light flex flex-col gap-6"
+              aria-label="Activity and payouts"
+            >
+              <h3 className="h3">Activity &amp; Payouts</h3>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-8 flex flex-col gap-4">
+                  <span className="stat-label ct-text-accent">Recent transactions</span>
+                  <RecentActivity
+                    transactions={data.recentTransactions}
+                    source={data.source}
+                    updatedAt={data.updatedAt}
+                  />
+                </div>
+                <div
+                  className="lg:col-span-4 flex flex-col gap-4"
+                  data-testid="distrib-calendar-widget"
+                >
+                  <span className="stat-label ct-text-accent">Payout calendar</span>
+                  <DistribCalendar {...distribCalendarProps} />
+                </div>
               </div>
-              <div
-                className="lg:col-span-4 flex flex-col gap-4"
-                data-testid="distrib-calendar-widget"
-              >
-                <span className="stat-label ct-text-accent">Payout calendar</span>
-                <DistribCalendar {...distribCalendarProps} />
+            </section>
+          ) : (
+            <MergedSurface
+              title="Activity & Payouts"
+              provenance={portfolioProvenance}
+              showProvenance
+              data-section="activity-payouts"
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div className="lg:col-span-8 flex flex-col gap-4">
+                  <span className="stat-label ct-text-accent">Recent transactions</span>
+                  <RecentActivity
+                    transactions={data.recentTransactions}
+                    source={data.source}
+                    updatedAt={data.updatedAt}
+                  />
+                </div>
+                <div
+                  className="lg:col-span-4 flex flex-col gap-4"
+                  data-testid="distrib-calendar-widget"
+                >
+                  <span className="stat-label ct-text-accent">Payout calendar</span>
+                  <DistribCalendar {...distribCalendarProps} />
+                </div>
               </div>
-            </div>
-          </MergedSurface>
+            </MergedSurface>
+          )}
         </div>
       </MotionViewport>
 

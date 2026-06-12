@@ -6,6 +6,8 @@ import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-bad
 interface MergedSurfaceProps {
   title: string;
   provenance?: Provenance;
+  /** When false, hides the “Verified data” label and header provenance badge. */
+  showProvenance?: boolean;
   children: ReactNode;
   className?: string;
   "data-section"?: string;
@@ -18,6 +20,7 @@ interface MergedSurfaceProps {
 export function MergedSurface({
   title,
   provenance,
+  showProvenance = true,
   children,
   className,
   "data-section": dataSection,
@@ -32,14 +35,14 @@ export function MergedSurface({
           <span className="eyebrow ct-text-accent">Section</span>
           <h3 className="h3">{title}</h3>
         </div>
-        {provenance && (
+        {showProvenance && provenance ? (
           <div className="flex items-center gap-3">
             <span className="body-xs ct-text-faint italic hidden sm:inline">
               Verified data
             </span>
             <ProvenanceBadge kind={provenance} />
           </div>
-        )}
+        ) : null}
       </div>
       <div className="pf-merged-content">
         {children}

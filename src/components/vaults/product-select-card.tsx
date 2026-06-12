@@ -66,6 +66,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
         {/* Header */}
         <div className="flex flex-col gap-2 min-w-0">
           <h3 className="h3">{vault.name}</h3>
+          <span className="ct-pill text-xs w-fit">{STRATEGY_LABELS[vault.strategy]}</span>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="ct-pill accent mono text-xs">{vault.ticker}</span>
             <Badge variant={STATUS_VARIANT[vault.status]}>
@@ -130,25 +131,37 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
       <div className="flex w-full md:w-56 shrink-0 flex-col justify-between gap-6">
         <div className="grid grid-cols-2 items-start gap-x-8 gap-y-6">
           <div className="flex flex-col gap-1">
-            <span className="stat-label">Min. ticket</span>
+            <div className="flex items-center gap-2">
+              <span className="stat-label">Min. ticket</span>
+              <ProvenanceBadge kind="manual" />
+            </div>
             <span className="tabular text-base font-semibold ct-text-strong whitespace-nowrap">
               {USD_COMPACT.format(vault.minTicketUsdc)}
             </span>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="stat-label">Soft lock-up</span>
+            <div className="flex items-center gap-2">
+              <span className="stat-label">Soft lock-up</span>
+              <ProvenanceBadge kind="manual" />
+            </div>
             <span className="tabular text-base font-semibold ct-text-strong whitespace-nowrap">
               {vault.softLockupDays}d
             </span>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="stat-label">Risk level</span>
+            <div className="flex items-center gap-2">
+              <span className="stat-label">Risk level</span>
+              <ProvenanceBadge kind="estimated" />
+            </div>
             <span className="text-base font-semibold ct-text-strong whitespace-nowrap">
               {RISK_LABELS[vault.riskLevel]}
             </span>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="stat-label">AUM</span>
+            <div className="flex items-center gap-2">
+              <span className="stat-label">AUM</span>
+              <ProvenanceBadge kind={vault.currentAumUsdc > 0 ? "live" : "estimated"} />
+            </div>
             {vault.currentAumUsdc > 0 ? (
               <span className="tabular text-base font-semibold ct-text-strong whitespace-nowrap">
                 {USD_COMPACT.format(vault.currentAumUsdc)}

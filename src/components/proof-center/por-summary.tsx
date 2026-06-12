@@ -80,6 +80,19 @@ function custodyProvenance(snapshot: CustodySnapshot): "attested" | "stale" {
   return live && fresh ? "attested" : "stale";
 }
 
+function isCustodyDisplayable(custody: CustodySnapshot): boolean {
+  return custody.totalUsdcReserves > 0 && custodyProvenance(custody) === "attested";
+}
+
+function CustodyAwaiting() {
+  return (
+    <AwaitingMetricState
+      message="Custody reserves will appear after the first verified Fireblocks snapshot."
+      detail="Fireblocks reserve scope must be pinned and a fresh snapshot posted before USDC reserves are shown here."
+    />
+  );
+}
+
 function CustodyKpis({ custody }: { custody: CustodySnapshot }) {
   const provenance = custodyProvenance(custody);
   const asOf = new Date(custody.asOf);
@@ -155,7 +168,13 @@ export function PorSummary({
           message="No on-chain Proof of Reserves attestation yet."
           detail="Contracts are live on Base Sepolia — the publisher will post the first attestation after the initial vault period closes."
         />
-        {custody ? <CustodyCard custody={custody} /> : null}
+        {custody ? (
+          isCustodyDisplayable(custody) ? (
+            <CustodyCard custody={custody} />
+          ) : (
+            <CustodyAwaiting />
+          )
+        ) : null}
       </>
     );
   }
@@ -251,7 +270,15 @@ export function PorSummary({
         </p>
       ) : null}
 
-      {custody ? <CustodyBlock custody={custody} /> : null}
+      {custody ? (
+        isCustodyDisplayable(custody) ? (
+          <CustodyBlock custody={custody} />
+        ) : (
+          <div className="mt-6 border-t border-[var(--ct-border-soft)] pt-6">
+            <CustodyAwaiting />
+          </div>
+        )
+      ) : null}
     </Card>
   );
 }

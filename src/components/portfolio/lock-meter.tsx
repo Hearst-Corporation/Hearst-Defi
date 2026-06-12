@@ -2,6 +2,7 @@
 // Server Component (pure — no I/O, no side effects).
 // Non-negotiable #2: ProvenanceBadge kind="live" (CLAUDE.md).
 
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
@@ -98,26 +99,34 @@ export function LockMeter({
   source = "live",
 }: LockMeterProps) {
   const effectiveAsOf = asOf ?? new Date();
-  const { progressPct, unlockDate, daysRemaining, isUnlocked } =
-    computeLockMeter(lockStart, softLockupDays, effectiveAsOf);
 
   // When share-class terms are not wired, render a neutral "no data" state
   // instead of a fabricated progress bar.
   const termsUnknown = softLockupDays <= 0;
 
-  const badgeKind = termsUnknown || source === "stale" ? "stale" : "live";
+  if (termsUnknown || source === "stale") {
+    return (
+      <AwaitingMetricState
+        message="Lock and liquidity terms appear after your first active position."
+        detail="Soft lock-up progress and unlock dates populate once share-class terms are tied to a confirmed deposit."
+      />
+    );
+  }
+
+  const { progressPct, unlockDate, daysRemaining, isUnlocked } =
+    computeLockMeter(lockStart, softLockupDays, effectiveAsOf);
+
+  const badgeKind = "live";
 
   // Penalty text color: faint when more than 50% elapsed (less urgent),
   // warning when less than 50% elapsed (early-exit risk is high).
   const penaltyHalfPassed = progressPct >= 50;
 
-  const progressLabel = termsUnknown
-    ? "Lock terms unavailable"
-    : `Lockup progress: ${Math.floor(progressPct)}% — ${
-        isUnlocked
-          ? "fully unlocked"
-          : `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} remaining of ${softLockupDays}`
-      }`;
+  const progressLabel = `Lockup progress: ${Math.floor(progressPct)}% — ${
+    isUnlocked
+      ? "fully unlocked"
+      : `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} remaining of ${softLockupDays}`
+  }`;
 
   return (
     <article

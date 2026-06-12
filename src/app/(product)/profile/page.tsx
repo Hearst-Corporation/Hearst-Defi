@@ -46,12 +46,15 @@ export default async function ProfilePage() {
 
   const firstSubAt = positions[0]?.subscribedAt ?? null;
   const hasPositions = positions.length > 0;
-  const kycApproved = investor?.kycStatus === "approved";
+  const kycStatus = investor?.kycStatus ?? "";
+  const kycApproved = kycStatus === "approved";
+  const kycPending = kycStatus === "pending";
+  const kycRejected = kycStatus === "rejected";
 
   return (
     <div className="space-y-8" data-testid="profile-page">
       <ProductPageHeader
-        eyebrow="Account"
+        eyebrow="Investor profile"
         title={profileDisplayName(session.email)}
         description={<span className="mono tabular-nums">{session.email}</span>}
         actions={
@@ -68,9 +71,8 @@ export default async function ProfilePage() {
 
       <div className="dash-bento">
         <Card className="bento-col-6" aria-labelledby="prof-account-label">
-          <CardTitle id="prof-account-label">Account</CardTitle>
+          <CardTitle id="prof-account-label">Identity</CardTitle>
 
-          <ProofRow label="Email">{session.email}</ProofRow>
           <ProofRow label="Member since">
             {investor ? formatProfileDate(investor.createdAt) : "—"}
           </ProofRow>
@@ -85,6 +87,13 @@ export default async function ProfilePage() {
                 {kycLabel(investor.kycStatus)}
               </Badge>
             ) : "—"}
+          </ProofRow>
+          <ProofRow label="Accreditation">
+            {investor?.accreditationAttestedAt ? (
+              <>Attested {formatProfileDate(investor.accreditationAttestedAt)}</>
+            ) : (
+              <span className="prof-empty">Not attested</span>
+            )}
           </ProofRow>
         </Card>
 
@@ -140,7 +149,7 @@ export default async function ProfilePage() {
               title="Wallet connection"
               description={
                 session.walletAddress
-                  ? abbreviateAddress(session.walletAddress)
+                  ? "Wallet connected — ready for deposits"
                   : "Required for deposits — connect at subscription time"
               }
               action={
@@ -159,11 +168,19 @@ export default async function ProfilePage() {
               description={
                 kycApproved
                   ? "Verified — full access enabled"
-                  : "Under review — contact support if delayed"
+                  : kycRejected
+                    ? "Verification did not pass — contact support to resubmit"
+                    : kycPending
+                      ? "Documents submitted — review typically completes within 2 business days"
+                      : "Complete identity verification to subscribe"
               }
               action={
                 kycApproved ? (
                   <Badge variant="success">Approved</Badge>
+                ) : kycRejected ? (
+                  <Badge variant="danger">Rejected</Badge>
+                ) : kycPending ? (
+                  <Badge variant="warning">Pending</Badge>
                 ) : (
                   <Button variant="secondary" size="md" asChild>
                     <Link href="/onboarding/identity">Continue</Link>
@@ -181,9 +198,9 @@ export default async function ProfilePage() {
 
       <footer>
         <p className="body-xs ct-text-faint prof-disclaimer">
-          APY ranges are target projections based on stated assumptions — they are
-          not a commitment of future returns. Past performance does not predict
-          future results.
+          Profile information reflects your investor account status. Product
+          eligibility depends on accreditation, KYC approval, and jurisdictional
+          restrictions.
         </p>
       </footer>
     </div>

@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PorSummary } from "@/components/proof-center/por-summary";
 import type { OnChainAttestation } from "@/lib/chain/por-registry";
+import type { CustodySnapshot } from "@/lib/data/custody";
 
 // A4 — the "Attested" badge must require a verified, allowlisted signer, not
 // just a fresh (<24h) timestamp.
@@ -60,5 +61,31 @@ describe("PorSummary — Attested requires verification (A4)", () => {
     const header = headerProvenanceBadge(html);
     expect(header).toContain(ATTESTED_BADGE);
     expect(header).not.toContain(STALE_BADGE);
+  });
+});
+
+function zeroReservesCustody(): CustodySnapshot {
+  return {
+    provenance: "manual",
+    configured: false,
+    asOf: new Date().toISOString(),
+    accountsCount: 0,
+    totalUsdcReserves: 0,
+    accounts: [],
+  };
+}
+
+describe("PorSummary — zero custody reserves", () => {
+  it("does not render active CustodyCard with $0 and Stale when reserves are zero", () => {
+    const html = renderToStaticMarkup(
+      <PorSummary attestation={null} custody={zeroReservesCustody()} />,
+    );
+    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain(
+      "Custody reserves will appear after the first verified Fireblocks snapshot.",
+    );
+    expect(html).not.toContain("Custody (Fireblocks)</h3>");
+    expect(html).not.toContain("$0");
+    expect(html).not.toContain(STALE_BADGE);
   });
 });

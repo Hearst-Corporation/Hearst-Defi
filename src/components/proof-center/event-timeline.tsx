@@ -63,7 +63,7 @@ export function EventTimeline({ events }: EventTimelineProps) {
           <span className="eyebrow">On-chain event log</span>
           <CardTitle>EventLogger — last {events.length} events</CardTitle>
         </div>
-        <ProvenanceBadge kind="attested" />
+        <ProvenanceBadge kind="live" />
       </CardHeader>
 
         <ol className="relative space-y-0" aria-label="On-chain event timeline">
