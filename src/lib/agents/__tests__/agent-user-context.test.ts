@@ -20,7 +20,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { LlmParams } from "@/lib/llm/client";
-import { LLM_MODEL } from "@/lib/llm/kimi";
+import { LLM_MODEL } from "@/lib/llm/openai";
 
 // ---- module mocks (must be top-level before any imports) -------------------
 

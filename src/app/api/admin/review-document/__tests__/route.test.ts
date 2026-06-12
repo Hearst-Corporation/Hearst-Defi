@@ -1,7 +1,7 @@
 /**
  * Integration tests for /api/admin/review-document
  *
- * All I/O (auth, db, kimi LLM, rate-limit, logger, product-routes, spec,
+ * All I/O (auth, db, OpenAI LLM, rate-limit, logger, product-routes, spec,
  * system-prompts) is mocked so tests run with no real DB or network.
  */
 
@@ -36,8 +36,8 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-vi.mock("@/lib/llm/kimi", () => ({
-  kimi: {
+vi.mock("@/lib/llm/openai", () => ({
+  openai: {
     chat: {
       completions: {
         create: vi.fn(),
@@ -45,7 +45,6 @@ vi.mock("@/lib/llm/kimi", () => ({
     },
   },
   LLM_MODEL: "gpt-4.1",
-  KIMI_MODEL: "gpt-4.1",
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
@@ -79,7 +78,7 @@ vi.mock("@/lib/agents/system-prompts/review", () => ({
 import { GET, POST } from "@/app/api/admin/review-document/route";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
-import { kimi } from "@/lib/llm/kimi";
+import { openai } from "@/lib/llm/openai";
 import { assertRateLimit } from "@/lib/rate-limit";
 
 // ── Typed mock helpers ─────────────────────────────────────────────────────
@@ -90,7 +89,7 @@ const mockMessageFindMany = vi.mocked(prisma.cockpitMessage.findMany);
 const mockDocFindFirst = vi.mocked(prisma.reviewDocument.findFirst);
 const mockDocCreate = vi.mocked(prisma.reviewDocument.create);
 const mockLlmRunCreate = vi.mocked(prisma.llmRun.create);
-const mockKimiCreate = vi.mocked(kimi.chat.completions.create);
+const mockOpenAICreate = vi.mocked(openai.chat.completions.create);
 const mockAssertRateLimit = vi.mocked(assertRateLimit);
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -130,7 +129,7 @@ const fakeJsonBlock = JSON.stringify({
   clarifications: [],
 });
 
-/** A minimal kimi completion response with the date placeholder and a JSON block */
+/** A minimal OpenAI completion response with the date placeholder and a JSON block */
 const fakeCompletion = {
   choices: [
     {
@@ -144,7 +143,7 @@ const fakeCompletion = {
   ],
 };
 
-/** A kimi completion response with an INVALID JSON block */
+/** An OpenAI completion response with an INVALID JSON block */
 const fakeCompletionBadJson = {
   choices: [
     {
@@ -164,7 +163,7 @@ const fakeSavedDoc = {
   createdAt: new Date("2026-05-26T00:00:00.000Z"),
 };
 
-/** Async generator simulating a Kimi streaming completion */
+/** Async generator simulating an OpenAI streaming completion */
 async function* makeStreamChunks(
   texts: string[],
 ): AsyncGenerator<{ choices: Array<{ delta: { content: string } }> }> {
@@ -291,7 +290,7 @@ describe("POST /api/admin/review-document", () => {
     mockRequireAdmin.mockResolvedValue({ userId: "admin_123" });
     mockChatFindFirst.mockResolvedValue(fakeChatRow as never);
     mockMessageFindMany.mockResolvedValue(fakeMessages as never);
-    mockKimiCreate.mockResolvedValue(fakeCompletion as never);
+    mockOpenAICreate.mockResolvedValue(fakeCompletion as never);
     mockDocCreate.mockResolvedValue(fakeSavedDoc as never);
 
     const req = makePostRequest();
@@ -320,7 +319,7 @@ describe("POST /api/admin/review-document", () => {
     mockRequireAdmin.mockResolvedValue({ userId: "admin_123" });
     mockChatFindFirst.mockResolvedValue(fakeChatRow as never);
     mockMessageFindMany.mockResolvedValue(fakeMessages as never);
-    mockKimiCreate.mockResolvedValue(fakeCompletionBadJson as never);
+    mockOpenAICreate.mockResolvedValue(fakeCompletionBadJson as never);
     const savedDocNullJson = { ...fakeSavedDoc, contentJson: null };
     mockDocCreate.mockResolvedValue(savedDocNullJson as never);
 
@@ -345,7 +344,7 @@ describe("POST /api/admin/review-document", () => {
     mockRequireAdmin.mockResolvedValue({ userId: "admin_123" });
     mockChatFindFirst.mockResolvedValue(fakeChatRow as never);
     mockMessageFindMany.mockResolvedValue(fakeMessages as never);
-    mockKimiCreate.mockResolvedValue(fakeCompletion as never);
+    mockOpenAICreate.mockResolvedValue(fakeCompletion as never);
     mockDocCreate.mockResolvedValue(fakeSavedDoc as never);
 
     const req = makePostRequest();
@@ -366,7 +365,7 @@ describe("POST /api/admin/review-document", () => {
     mockRequireAdmin.mockResolvedValue({ userId: "admin_123" });
     mockChatFindFirst.mockResolvedValue(fakeChatRow as never);
     mockMessageFindMany.mockResolvedValue(fakeMessages as never);
-    mockKimiCreate.mockRejectedValue(new Error("LLM service unavailable"));
+    mockOpenAICreate.mockRejectedValue(new Error("LLM service unavailable"));
 
     const req = makePostRequest();
     const res = await POST(req);
@@ -404,7 +403,7 @@ describe("POST /api/admin/review-document", () => {
     mockRequireAdmin.mockResolvedValue({ userId: "admin_123" });
     mockChatFindFirst.mockResolvedValue(fakeChatRow as never);
     mockMessageFindMany.mockResolvedValue(fakeMessages as never);
-    mockKimiCreate.mockResolvedValue(fakeWithThink as never);
+    mockOpenAICreate.mockResolvedValue(fakeWithThink as never);
     mockDocCreate.mockResolvedValue(fakeSavedDoc as never);
 
     await POST(makePostRequest());
@@ -422,7 +421,7 @@ describe("POST /api/admin/review-document", () => {
     mockRequireAdmin.mockResolvedValue({ userId: "admin_123" });
     mockChatFindFirst.mockResolvedValue(fakeChatRow as never);
     mockMessageFindMany.mockResolvedValue(fakeMessages as never);
-    mockKimiCreate.mockResolvedValue(fakeCompletion as never);
+    mockOpenAICreate.mockResolvedValue(fakeCompletion as never);
     mockDocCreate.mockResolvedValue(fakeSavedDoc as never);
 
     const req = makePostRequest(); // no ?stream=1
@@ -453,7 +452,7 @@ describe("POST /api/admin/review-document — streaming (?stream=1)", () => {
     // The streaming content: two chunks that together form a valid document
     const chunk1 = "# Review Document\n\n_Date de génération : _\n\n";
     const chunk2 = "Some content.\n\n```json\n" + fakeJsonBlock + "\n```";
-    mockKimiCreate.mockResolvedValue(makeStreamChunks([chunk1, chunk2]) as never);
+    mockOpenAICreate.mockResolvedValue(makeStreamChunks([chunk1, chunk2]) as never);
     mockDocCreate.mockResolvedValue(fakeSavedDoc as never);
 
     const req = makeStreamPostRequest();
@@ -503,7 +502,7 @@ describe("POST /api/admin/review-document — streaming (?stream=1)", () => {
 
     const chunk1 = "# Review Document\n\n_Date de génération : _\n\n";
     const chunk2 = "Content.\n\n```json\n" + fakeJsonBlock + "\n```";
-    mockKimiCreate.mockResolvedValue(makeStreamChunks([chunk1, chunk2]) as never);
+    mockOpenAICreate.mockResolvedValue(makeStreamChunks([chunk1, chunk2]) as never);
     mockDocCreate.mockResolvedValue(fakeSavedDoc as never);
 
     const req = makeStreamPostRequest();
@@ -531,7 +530,7 @@ describe("POST /api/admin/review-document — streaming (?stream=1)", () => {
 
     const chunk1 = "# Review Document\n\n_Date de génération : _\n\n";
     const chunk2 = "Content.\n\n```json\n" + fakeJsonBlock + "\n```";
-    mockKimiCreate.mockResolvedValue(makeStreamChunks([chunk1, chunk2]) as never);
+    mockOpenAICreate.mockResolvedValue(makeStreamChunks([chunk1, chunk2]) as never);
     mockDocCreate.mockResolvedValue(fakeSavedDoc as never);
 
     const req = makeStreamPostRequest();
@@ -561,7 +560,7 @@ describe("POST /api/admin/review-document — streaming (?stream=1)", () => {
 
     const chunk1 = "# Review Document\n\n_Date de génération : _\n\n";
     const chunk2 = "Content.\n\n```json\n" + fakeJsonBlock + "\n```";
-    mockKimiCreate.mockResolvedValue(makeStreamChunks([chunk1, chunk2]) as never);
+    mockOpenAICreate.mockResolvedValue(makeStreamChunks([chunk1, chunk2]) as never);
     mockDocCreate.mockResolvedValue(fakeSavedDoc as never);
 
     const req = makeStreamPostRequest();
@@ -593,7 +592,7 @@ describe("POST /api/admin/review-document — streaming (?stream=1)", () => {
     mockRequireAdmin.mockResolvedValue({ userId: "admin_123" });
     mockChatFindFirst.mockResolvedValue(fakeChatRow as never);
     mockMessageFindMany.mockResolvedValue(fakeMessages as never);
-    mockKimiCreate.mockRejectedValue(new Error("stream LLM failure"));
+    mockOpenAICreate.mockRejectedValue(new Error("stream LLM failure"));
 
     const req = makeStreamPostRequest();
     const res = await POST(req);

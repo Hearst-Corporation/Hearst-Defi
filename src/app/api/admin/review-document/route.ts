@@ -1,6 +1,6 @@
 import { createReviewDocumentRoute } from "@hearst/review-mode";
 import { prisma } from "@/lib/db";
-import { kimi, LLM_MODEL } from "@/lib/llm/kimi";
+import { openai, LLM_MODEL } from "@/lib/llm/openai";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { logger } from "@/lib/logger";
 import { assertRateLimit, assertBodySize } from "@/lib/rate-limit";
@@ -13,7 +13,10 @@ export const dynamic = "force-dynamic";
 
 const handlers = createReviewDocumentRoute({
   prisma,
-  kimi,
+  // `kimi` is the dep key name fixed by @hearst/review-mode's API; the value is
+  // the OpenAI GPT-4.1 client (ADR-011). Renaming the key would break the typed
+  // contract of the shared package.
+  kimi: openai,
   model: LLM_MODEL,
   requireAdmin,
   logger,

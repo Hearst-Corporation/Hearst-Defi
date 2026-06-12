@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { prisma } from "@/lib/db";
 import { callLlm } from "@/lib/llm/client";
-import { LLM_MODEL } from "@/lib/llm/kimi";
+import { LLM_MODEL } from "@/lib/llm/openai";
 import { withRequestContext } from "@/lib/request-context";
 
 /** A minimal OpenAI-SDK-style error: an Error carrying an HTTP `status`. The

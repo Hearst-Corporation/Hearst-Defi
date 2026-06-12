@@ -9,7 +9,7 @@ import {
   type ProvenanceTag,
 } from "@/lib/agents/schemas";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
-import { LLM_MODEL } from "@/lib/llm/kimi";
+import { LLM_MODEL } from "@/lib/llm/openai";
 import {
   METHODOLOGY_VERSION,
   getMethodologyMd,

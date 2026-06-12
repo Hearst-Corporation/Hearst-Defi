@@ -27,8 +27,9 @@ import { logger } from "@/lib/logger";
  */
 
 // Minimal structural client type — avoids hard-coupling to a specific `openai`
-// version and lets tests inject a fake. The real `kimi` OpenAI instance
-// satisfies this shape (its streamed `create` returns an AsyncIterable).
+// version and lets tests inject a fake. The real OpenAI instance
+// (`@/lib/llm/openai`) satisfies this shape (its streamed `create` returns an
+// AsyncIterable).
 interface ToolCallDelta {
   index?: number;
   function?: { name?: string; arguments?: string };

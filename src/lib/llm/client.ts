@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { CircuitBreaker } from "@/lib/circuit-breaker";
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/env";
-import { kimi, LLM_MODEL } from "@/lib/llm/kimi";
+import { openai, LLM_MODEL } from "@/lib/llm/openai";
 import { getRequestContext } from "@/lib/request-context";
 
 /**
@@ -391,7 +391,7 @@ async function callOpenAi(
     });
   }
 
-  const completion = await kimi.chat.completions.create(
+  const completion = await openai.chat.completions.create(
     {
       model,
       max_tokens: params.max_tokens,

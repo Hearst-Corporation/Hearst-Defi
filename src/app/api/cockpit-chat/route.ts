@@ -4,7 +4,7 @@ import {
 } from "@hearst/cockpit-shell/handler";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { kimi, LLM_MODEL } from "@/lib/llm/kimi";
+import { openai, LLM_MODEL } from "@/lib/llm/openai";
 import { env } from "@/lib/env";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { getSession } from "@/lib/auth/session";
@@ -379,7 +379,7 @@ async function runMasterAgentTurn(args: {
 
   const startedAt = Date.now();
   const { stream, nav, final } = runChatAgent(
-    kimi as unknown as StreamingChatClient,
+    openai as unknown as StreamingChatClient,
     model,
     messages,
     { signal: req.signal },
@@ -677,7 +677,7 @@ export async function POST(req: NextRequest): Promise<Response> {
   }
 
   const handler = createCockpitChatHandler({
-    llmClient: kimi,
+    llmClient: openai,
     model: resolveModel(requestedModel),
     systemPrompt: enrichedSystemPrompt,
     userId,
