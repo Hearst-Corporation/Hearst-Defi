@@ -195,8 +195,8 @@ export function MemoShell({
           ))}
         </div>
       ) : (
-        <div className="flex min-h-48 items-center justify-center rounded-lg border border-dashed border-[var(--ct-border-soft)] text-center">
-          <p className="body-sm max-w-md">
+        <div className="ct-empty-surface min-h-48">
+          <p className="body-sm max-w-md ct-text-muted">
             Press{" "}
             <span className="ct-text-primary">Generate memo</span> to produce
             the 8-section institutional memo via GPT-4.1 (OpenAI). Generation

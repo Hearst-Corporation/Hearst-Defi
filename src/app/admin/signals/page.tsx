@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { RebalanceCard } from "@/components/admin/rebalance-card";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
 import Link from "next/link";
 
@@ -111,15 +112,12 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
 
       {/* Event list */}
       {events.length === 0 ? (
-        <div className="ct-card text-center py-12 space-y-2">
-          <p className="ct-text-muted body-sm">
-            No rebalance signals with status &quot;{activeStatus}&quot;.
-          </p>
-          <p className="body-xs ct-text-faint">
-            Signals are created automatically by the Inngest rebalancing-signal
-            function when engine rules fire.
-          </p>
-        </div>
+        <EmptySurface
+          variant="widget"
+          message={`No rebalance signals with status "${activeStatus}".`}
+          detail="Signals are created automatically by the Inngest rebalancing-signal function when engine rules fire."
+          className="min-h-32"
+        />
       ) : (
         <section className="space-y-4">
           <p className="stat-label">

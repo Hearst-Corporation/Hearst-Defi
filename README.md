@@ -81,9 +81,10 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
   `dash-cell` ni provenance dupliquée). **Layout preview** (`pf-container--zero`) :
   placeholders DS §9.3 uniquement — `pf-empty-widget` (subtle) /
   `pf-empty-chart` (nested), jamais de `dash-cell-premium` + badge Stale
-  simulé. **Empty states** :
-  `EmptyChartState` / `AwaitingMetricState` (`.pf-empty-chart` /
-  `.pf-empty-widget`) — voir [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) §9.
+  simulé.   **Empty states** : primitive canonique `EmptySurface` (`.ct-empty-surface` —
+  variantes `--chart` / `--inline` ; aliases `.pf-empty-*`). Wrappers :
+  `EmptyChartState` / `AwaitingMetricState`. Dashed réservé à `.ct-dropzone`
+  uniquement — voir [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) §9.
   Règle : *Empty states replace active module surfaces; they are not rendered
   inside active module surfaces.*
 - **Portfolio data** : `/portfolio` lit uniquement les loaders DB réels. Pas de

@@ -1,4 +1,5 @@
 import type { DistributionRecipient } from "@/app/admin/distributions/actions";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
 
 interface DistributionPreviewProps {
@@ -21,17 +22,12 @@ export function DistributionPreview({
 }: DistributionPreviewProps) {
   if (recipients.length === 0) {
     return (
-      <div
-        className={cn(
-          "ct-card text-center space-y-2 py-8",
-          className,
-        )}
-      >
-        <p className="ct-text-muted body-sm">No active positions found.</p>
-        <p className="body-xs ct-text-faint">
-          Distributions require at least one active investor position.
-        </p>
-      </div>
+      <EmptySurface
+        variant="widget"
+        message="No active positions found."
+        detail="Distributions require at least one active investor position."
+        className={cn("min-h-32", className)}
+      />
     );
   }
 

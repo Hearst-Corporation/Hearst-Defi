@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -127,17 +128,13 @@ export default async function GovernancePage({ searchParams }: PageProps) {
 
       {/* Empty state */}
       {filtered.length === 0 && (
-        <Card>
-          <p className="body-md ct-text-muted text-center py-8">
-            No proposals found.{" "}
-            <Link
-              href="/admin/governance/propose"
-              className="ct-text-primary underline underline-offset-2"
-            >
-              Create the first one.
-            </Link>
-          </p>
-        </Card>
+        <AwaitingMetricState
+          message="No proposals found."
+          link={{
+            label: "Create the first one",
+            href: "/admin/governance/propose",
+          }}
+        />
       )}
 
       {/* Proposal list */}

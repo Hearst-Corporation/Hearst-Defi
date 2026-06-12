@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { listAllVaults, vaultSlug, vaultLabel } from "@/lib/vaults/resolver";
 import { DistributionForm } from "./distribution-form";
@@ -61,15 +62,15 @@ export default async function DistributionsPage() {
         <h2 className="h2">History (last 6)</h2>
 
         {history.length === 0 ? (
-          <div className="ct-card text-center py-8 space-y-2">
-            <p className="ct-text-muted body-sm">No distributions yet.</p>
-            <p className="body-xs ct-text-faint">
-              Confirmed distributions will appear here.
-            </p>
-          </div>
+          <EmptySurface
+            variant="widget"
+            message="No distributions yet."
+            detail="Confirmed distributions will appear here after multisig approval."
+            className="min-h-32"
+          />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm tabular ct-border-soft rounded-lg overflow-hidden">
+          <div className="ct-table-surface overflow-x-auto">
+            <table className="w-full text-sm tabular">
               <thead>
                 <tr className="ct-surface-1">
                   <th className="text-left ct-table-header body-xs ct-text-muted font-medium">

@@ -3,8 +3,8 @@
 // redundant auth check here. Reads via the server-only loadCustomers() loader.
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
 import { loadCustomers, type KycStatus } from "@/lib/data/customers";
 
@@ -68,28 +68,35 @@ export default async function CustomersPage({
         <h3 className="h3">Directory ({total})</h3>
 
         {customers.length === 0 ? (
-          <Card className="p-8">
-            <p className="body-sm ct-text-muted">
-              No investors yet. Investor rows appear here once an account is
-              provisioned with an <code className="mono ct-text-body">Investor</code>{" "}
-              profile.
-            </p>
-          </Card>
+          <EmptySurface
+            variant="widget"
+            message="No investors yet."
+            detail="Investor rows appear here once an account is provisioned with an Investor profile."
+            className="min-h-32"
+          />
         ) : (
-          <Card className="overflow-x-auto p-0">
-            <table className="w-full border-collapse text-left">
+          <div className="ct-table-surface">
+            <table className="w-full border-collapse text-left text-sm">
               <thead>
-                <tr className="border-b border-[var(--ct-border)]">
-                  <th className="stat-label px-5 py-3 font-medium">Email</th>
-                  <th className="stat-label px-5 py-3 font-medium">Wallet</th>
-                  <th className="stat-label px-5 py-3 font-medium">KYC</th>
-                  <th className="stat-label px-5 py-3 text-right font-medium">
+                <tr>
+                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted">
+                    Email
+                  </th>
+                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted">
+                    Wallet
+                  </th>
+                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted">
+                    KYC
+                  </th>
+                  <th className="ct-table-header px-5 py-3 text-right font-medium ct-text-muted">
                     Active positions
                   </th>
-                  <th className="stat-label px-5 py-3 text-right font-medium">
+                  <th className="ct-table-header px-5 py-3 text-right font-medium ct-text-muted">
                     Total principal
                   </th>
-                  <th className="stat-label px-5 py-3 font-medium">Joined</th>
+                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted">
+                    Joined
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -125,7 +132,7 @@ export default async function CustomersPage({
                 ))}
               </tbody>
             </table>
-          </Card>
+          </div>
         )}
 
         {/* Pagination controls */}
