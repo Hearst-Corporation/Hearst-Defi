@@ -1,6 +1,7 @@
 import type { MonthlyPoint } from "@/lib/engine/types";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
+import { EmptySurface } from "@/components/ui/empty-surface";
 
 // ── ViewBox constants ──────────────────────────────────────────────────────
 // Fixed 400×160 grid. Padded 16px top/bottom/left/right.
@@ -86,13 +87,12 @@ export function BacktestChart({ series }: BacktestChartProps) {
 
   if (!hasData) {
     return (
-      <div
-        role="note"
-        aria-label="Backtest chart — insufficient data"
-        className="pf-empty-chart min-h-[var(--ct-chart-empty-h,8rem)]"
-      >
-        <span className="body-xs ct-text-faint">Insufficient data — preview only</span>
-      </div>
+      <EmptySurface
+        variant="chart"
+        message="Insufficient data — preview only"
+        ariaLabel="Backtest chart — insufficient data"
+        className="min-h-[var(--ct-chart-empty-h,8rem)]"
+      />
     );
   }
 

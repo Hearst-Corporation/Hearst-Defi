@@ -1,7 +1,7 @@
 import { type Provenance } from "@/components/ui/provenance-badge";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
-import { EmptyChartState } from "@/components/portfolio/empty-chart-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 import { cn } from "@/lib/cn";
@@ -202,16 +202,12 @@ export function ValueChart({
       ? buildZeroValueChartSeries(asOf)
       : buildMonthSeries(positions, totalValueUsdc, asOf);
 
-  // No positions → nested empty chart surface (DS §9.3). Layout preview uses the
-  // same tier — no phantom SVG or dash-cell-premium shell.
-  if (isEmpty) {
+  // No positions → empty chart unless layout preview (flat $0 series + area chart).
+  if (isEmpty && !previewZeros) {
     return (
-      <EmptyChartState
-        message={
-          previewZeros
-            ? "Layout preview at zero — path populates after your first active position."
-            : "Value trend will appear after the first active position."
-        }
+      <EmptySurface
+        variant="chart"
+        message="Value trend will appear after the first active position."
         className="h-full min-h-32"
       />
     );

@@ -1336,8 +1336,9 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   min-width: 0;
 }
 
-/* Secondary cockpit instrumentation — quieter than ct-card glass-panel. */
-.dashboard-system-panel {
+/* Secondary cockpit instrumentation — quieter than ct-card glass-panel.
+   Inner inset matches .ct-card (20px 24px) so headers/body align with Card cells. */
+.ct-system-panel {
   position: relative;
   min-width: 0;
   overflow: hidden;
@@ -1347,29 +1348,30 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
   box-shadow: none;
+  padding: var(--ct-space-5) var(--ct-space-6);
 }
 
-.dashboard-system-panel__header {
+.ct-system-panel__header {
   margin-bottom: var(--ct-space-3);
 }
 
-.dashboard-system-panel table {
+.ct-system-panel table {
   background: transparent;
 }
 
-.dashboard-system-panel thead tr {
+.ct-system-panel thead tr {
   border-color: var(--ct-border-soft);
 }
 
-.dashboard-system-panel tbody tr {
+.ct-system-panel tbody tr {
   border-color: color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
 }
 
-.dashboard-system-panel tbody tr:hover {
+.ct-system-panel tbody tr:hover {
   background: var(--ct-surface-0);
 }
 
-.dashboard-system-panel__table-scroll {
+.ct-system-panel__table-scroll {
   overflow-x: auto;
   margin-inline: calc(-1 * var(--ct-space-6));
   padding-inline: var(--ct-space-6);
@@ -1408,6 +1410,19 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   .dashboard-live-metrics__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+.dashboard-command-shortcuts {
+  min-width: 0;
+}
+
+.dashboard-command-shortcuts__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .dashboard-command-queue-link {
@@ -1832,6 +1847,10 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 .ct-empty-surface--inline {
   min-height: unset;
   padding: var(--ct-space-6) var(--ct-space-4);
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .ct-empty-surface--round {
@@ -3151,54 +3170,6 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 /* fontVariantNumeric tabular helper (avoids repeated style attr) */
 .ct-tabular-nums {
   font-variant-numeric: tabular-nums;
-}
-
-/* ── DS §9 — legacy aliases (pf-empty-*) share ct-empty-surface material ─── */
-.pf-empty-widget {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ct-space-1);
-  text-align: center;
-  padding: var(--ct-space-8) var(--ct-space-5);
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-lg);
-  min-height: 8rem;
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
-}
-
-.pf-empty-chart {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding-inline: var(--ct-space-4);
-  background: var(--ct-graphite-nested-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-lg);
-  backdrop-filter: blur(8px) saturate(100%);
-  -webkit-backdrop-filter: blur(8px) saturate(100%);
-}
-
-.pf-empty-chart--round {
-  border-radius: var(--ct-radius-full);
-}
-
-/* Secondary system panel — quieter than ct-card glass-panel */
-.ct-system-panel {
-  position: relative;
-  min-width: 0;
-  overflow: hidden;
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-nested-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
-  box-shadow: none;
 }
 
 /* Admin table shell — shared headers/cells */

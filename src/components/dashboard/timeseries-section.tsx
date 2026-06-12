@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { ApyRange } from "@/components/ui/apy-range";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { computeDrawdownPeriods } from "@/lib/engine/drawdown";
 import { cn } from "@/lib/cn";
 import type {
@@ -46,12 +47,11 @@ interface ChartEmptyProps {
 /** DS §9 — light chart empty; no Card shell, no dashed border, no Stale badge. */
 function ChartEmpty({ message }: ChartEmptyProps) {
   return (
-    <div
-      role="note"
-      className="pf-empty-chart min-h-[var(--ct-chart-empty-h)]"
-    >
-      <span className="body-xs ct-text-faint">{message}</span>
-    </div>
+    <EmptySurface
+      variant="chart"
+      message={message}
+      className="min-h-[var(--ct-chart-empty-h)]"
+    />
   );
 }
 

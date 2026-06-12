@@ -106,16 +106,6 @@ export function LockMeter({
 }: LockMeterProps) {
   const effectiveAsOf = asOf ?? new Date();
 
-  if (previewZeros) {
-    return (
-      <AwaitingMetricState
-        message="Lock and liquidity preview — terms appear after your first active position."
-        detail="Soft lock-up progress and unlock dates populate once share-class terms are confirmed."
-        className="pf-zero-await"
-      />
-    );
-  }
-
   // When share-class terms are not wired, render a neutral "no data" state
   // instead of a fabricated progress bar.
   const termsUnknown = softLockupDays <= 0;

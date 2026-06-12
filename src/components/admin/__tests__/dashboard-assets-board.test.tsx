@@ -150,7 +150,7 @@ function render(
 describe("DashboardAssetsBoard — Admin Honesty", () => {
   it("fallback source + $0 AUM does NOT render a live CSS orbit ring", () => {
     const html = render(makeData({ source: "fallback" }), 0);
-    expect(html).toContain("pf-empty-chart");
+    expect(html).toContain("ct-empty-surface--chart");
     expect(html).not.toContain("dashboard-orbit__ring");
     expect(html).not.toContain("% mapped");
   });
@@ -231,5 +231,15 @@ describe("DashboardAssetsBoard — Admin Honesty", () => {
     const html = render(makeData({ source: "fallback" }), 0);
     expect(html).toContain("Proof and custody records appear after");
     expect(html).not.toContain('href="/admin/proof-center"');
+  });
+
+  it("empty cockpit modules replace SystemPanel shells (DS §9)", () => {
+    const html = render(makeData({ source: "fallback" }), 0);
+    expect(html).toContain("All clear — no pending actions.");
+    expect(html).toContain("No vault telemetry yet.");
+    expect(html).toContain("No admin activity recorded yet.");
+    expect(html).not.toContain(">Action Queue<");
+    expect(html).not.toContain(">Live Metrics<");
+    expect(html).not.toContain(">Recent admin activity<");
   });
 });

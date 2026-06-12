@@ -314,14 +314,21 @@
   height: 100%;
 }
 
-/* DS §9 empty surfaces — base styles live in cockpit.css (.pf-empty-*).
+/* DS §9 empty surfaces — base styles live in cockpit.css (.ct-empty-surface*).
    Portfolio-only layout overrides below. */
 
-/* Zero-position layout — light section headers, no premium chrome */
+/* Zero-position layout — section frame (quieter than dash-cell-premium, but
+   still a visible box so hero / trust / activity read as modules). */
 .pf-section-light {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-6);
+  padding: var(--ct-space-6);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
 }
 
 .pf-section-light--compact {
@@ -372,7 +379,7 @@
 }
 
 /* Compact awaiting surfaces — left-aligned narrative, not chart-sized boxes */
-.pf-container--zero .pf-zero-await .pf-empty-widget {
+.pf-container--zero .pf-zero-await .ct-empty-surface--widget {
   min-height: unset;
   height: auto;
   padding: var(--ct-space-4) var(--ct-space-5);
@@ -401,23 +408,23 @@
 }
 
 /* Yield-trust columns — awaiting surfaces fill column rhythm */
-.pf-container [data-section="yield-trust"] .pf-empty-widget {
+.pf-container [data-section="yield-trust"] .ct-empty-surface--widget {
   min-height: 16rem;
 }
 
 /* Yield + allocation — grouped awaiting surface (layout preview) */
-.pf-container [data-section="yield-allocation"] .pf-empty-widget {
+.pf-container [data-section="yield-allocation"] .ct-empty-surface--widget {
   min-height: 12rem;
 }
 
 /* Hero chart + activity calendar — nested empty chart tier */
-.pf-container [data-section="hero-pulse"] .pf-empty-chart,
-.pf-container [data-section="activity-payouts"] .pf-empty-chart {
+.pf-container [data-section="hero-pulse"] .ct-empty-surface--chart,
+.pf-container [data-section="activity-payouts"] .ct-empty-surface--chart {
   min-height: 12rem;
 }
 
 /* Liquidity column — awaiting surfaces inside merged hero */
-.pf-container [data-section="hero-pulse"] .pf-merged-content .pf-empty-widget {
+.pf-container [data-section="hero-pulse"] .pf-merged-content .ct-empty-surface--widget {
   min-height: 10rem;
 }
 

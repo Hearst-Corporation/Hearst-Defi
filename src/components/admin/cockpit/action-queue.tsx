@@ -30,23 +30,24 @@ const ACTION_LABELS: Record<string, string> = {
  * Graceful empty state when there are no queued items.
  */
 export function ActionQueue({ items }: ActionQueueProps) {
+  if (items.length === 0) {
+    return (
+      <EmptySurface
+        variant="widget"
+        message="All clear — no pending actions."
+        ariaLabel="Action queue"
+      />
+    );
+  }
+
   return (
     <SystemPanel aria-label="Action queue">
       <DashboardPanelHeader eyebrow="Cockpit" title="Action Queue" tone="quiet" />
-
-      {items.length === 0 ? (
-        <EmptySurface
-          variant="inline"
-          message="All clear — no pending actions."
-          className="py-6"
-        />
-      ) : (
-        <ul className="flex flex-col divide-y divide-[var(--ct-border-soft)]" role="list">
-          {items.map((item) => (
-            <ActionRow key={item.id} item={item} />
-          ))}
-        </ul>
-      )}
+      <ul className="flex flex-col divide-y divide-[var(--ct-border-soft)]" role="list">
+        {items.map((item) => (
+          <ActionRow key={item.id} item={item} />
+        ))}
+      </ul>
     </SystemPanel>
   );
 }

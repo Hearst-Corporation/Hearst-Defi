@@ -24,19 +24,24 @@ const usdCompact = new Intl.NumberFormat("en-US", {
  * oracle delay, BTC posture.
  */
 export function LiveMetrics({ vaults }: LiveMetricsProps) {
+  if (vaults.length === 0) {
+    return (
+      <EmptySurface
+        variant="widget"
+        message="No vault telemetry yet."
+        ariaLabel="Live metrics"
+      />
+    );
+  }
+
   return (
     <SystemPanel aria-label="Live metrics" className="dashboard-live-metrics">
       <DashboardPanelHeader eyebrow="Vault telemetry" title="Live Metrics" tone="quiet" />
-
-      {vaults.length === 0 ? (
-        <EmptySurface variant="inline" message="No vault telemetry yet." className="py-8" />
-      ) : (
-        <div className="flex flex-col divide-y divide-[var(--ct-border-soft)]">
-          {vaults.map((vault) => (
-            <VaultMetricRow key={vault.vaultId} vault={vault} />
-          ))}
-        </div>
-      )}
+      <div className="flex flex-col divide-y divide-[var(--ct-border-soft)]">
+        {vaults.map((vault) => (
+          <VaultMetricRow key={vault.vaultId} vault={vault} />
+        ))}
+      </div>
     </SystemPanel>
   );
 }

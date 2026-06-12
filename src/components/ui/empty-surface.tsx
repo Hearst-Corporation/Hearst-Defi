@@ -8,7 +8,7 @@ export interface EmptySurfaceProps {
   /** Single calm headline. */
   message: string;
   detail?: string;
-  /** widget = full module placeholder; chart = chart/donut slot; inline = table cell / panel inset */
+  /** widget = full module placeholder; chart = chart/donut slot; inline = nested inset (no chrome) */
   variant?: EmptySurfaceVariant;
   round?: boolean;
   className?: string;
@@ -19,8 +19,7 @@ export interface EmptySurfaceProps {
 
 /**
  * Canonical empty / awaiting surface (DS §9).
- * Replaces ad-hoc `.ct-empty-state` (dashed), raw `Card` shells, and divergent
- * `pf-empty-*` markup. Dashed borders are reserved for `.ct-dropzone` only.
+ * Single component + `ct-empty-surface*` classes in cockpit.css.
  */
 export function EmptySurface({
   message,
@@ -38,10 +37,10 @@ export function EmptySurface({
       {...(ariaLabel ? { "aria-label": ariaLabel } : {})}
       className={cn(
         "ct-empty-surface",
-        variant === "widget" && "pf-empty-widget",
-        variant === "chart" && "ct-empty-surface--chart pf-empty-chart",
+        variant === "widget" && "ct-empty-surface--widget",
+        variant === "chart" && "ct-empty-surface--chart relative z-10",
         variant === "inline" && "ct-empty-surface--inline",
-        round && "ct-empty-surface--round pf-empty-chart--round",
+        round && "ct-empty-surface--round",
         className,
       )}
     >

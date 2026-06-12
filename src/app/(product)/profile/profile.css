@@ -2,16 +2,16 @@
 
 /*
  * Profile — space-y-8 + dash-bento. Card material: global glass-panel graphite
- * (cockpit.css). Empty investment summary: pf-empty-widget (DS §9).
+ * (cockpit.css). Empty investment summary: ct-empty-surface (DS §9).
  */
 
-/* ── Empty investment summary — stretch pf-empty-widget in bento row ── */
+/* ── Empty investment summary — stretch awaiting surface in bento row ── */
 [data-testid="profile-page"] .dash-bento > .bento-col-6 {
   display: flex;
   flex-direction: column;
 }
 
-[data-testid="profile-page"] .dash-bento > .bento-col-6 > .pf-empty-widget {
+[data-testid="profile-page"] .dash-bento > .bento-col-6 > .ct-empty-surface--widget {
   flex: 1 1 auto;
   width: 100%;
 }

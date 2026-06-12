@@ -9,17 +9,11 @@ export function SystemPanel({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn("ct-system-panel dashboard-system-panel", className)}
-      {...props}
-    />
-  );
+  return <div className={cn("ct-system-panel", className)} {...props} />;
 }
 
 /**
  * Canonical dashboard panel header — eyebrow, h3 title, optional provenance.
- * Replaces ad-hoc CellHeader / SystemPanelTitle duplicates.
  */
 export function DashboardPanelHeader({
   title,
@@ -38,7 +32,7 @@ export function DashboardPanelHeader({
   return (
     <header
       className={cn(
-        "dashboard-card-header dashboard-system-panel__header",
+        "dashboard-card-header ct-system-panel__header",
         className,
       )}
     >
@@ -46,8 +40,8 @@ export function DashboardPanelHeader({
         {eyebrow ? <p className="eyebrow mb-1">{eyebrow}</p> : null}
         <h3
           className={cn(
-            "h3 min-w-0",
-            tone === "quiet" && "ct-text-body",
+            "h3 min-w-0 break-words",
+            tone === "quiet" ? "ct-text-body" : "ct-text-strong",
           )}
         >
           {title}
@@ -57,6 +51,3 @@ export function DashboardPanelHeader({
     </header>
   );
 }
-
-/** @deprecated Use DashboardPanelHeader */
-export const SystemPanelTitle = DashboardPanelHeader;

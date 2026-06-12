@@ -11,7 +11,7 @@
  */
 
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { EmptyChartState } from "@/components/portfolio/empty-chart-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { explorerTxUrl } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
@@ -293,15 +293,6 @@ export function DistribCalendar({
   // Derive current month period string "YYYY-MM"
   const currentPeriod = `${refYear}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
 
-  if (previewZeros && entries.length === 0) {
-    return (
-      <EmptyChartState
-        message="Payout calendar preview — history appears after the first distribution."
-        className="min-h-32 h-full"
-      />
-    );
-  }
-
   const displayEntries = entries;
   const hasEntries = displayEntries.length > 0;
   const hasForecast = displayEntries.some((e) => e.paidAt === null);
@@ -316,7 +307,8 @@ export function DistribCalendar({
   // this slot "Payout calendar" — no dash-cell-premium shell or provenance badge.
   if (!hasEntries && !previewZeros) {
     return (
-      <EmptyChartState
+      <EmptySurface
+        variant="chart"
         message="Distribution history will appear after the first payout."
         className="min-h-32"
       />

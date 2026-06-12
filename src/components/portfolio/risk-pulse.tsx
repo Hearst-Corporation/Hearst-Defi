@@ -317,20 +317,10 @@ export function RiskPulse({
     "estimated", // Risk is always an estimation
   );
 
-  // Layout preview at zero → awaiting surface only (no N/A rows or fake scores).
-  if (previewZeros) {
-    return (
-      <AwaitingMetricState
-        message="Risk scores will appear after the first snapshot."
-        className="pf-zero-await"
-      />
-    );
-  }
-
   // No snapshot yet → render a LIGHT empty surface, not a full dash-cell-premium
   // with header + Stale badge + placeholder (which reads as a big black box).
   // The outer section already labels this slot "Risk profile".
-  if (noData) {
+  if (noData && !previewZeros) {
     return (
       <AwaitingMetricState message="Risk scores will appear after the first snapshot." />
     );

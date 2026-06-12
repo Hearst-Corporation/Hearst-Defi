@@ -10,7 +10,8 @@ interface MergedSurfaceProps {
   showProvenance?: boolean;
   /**
    * active = premium glass module (populated portfolio).
-   * preview = light section shell at zero — no dash-cell-premium chrome.
+   * preview = framed section at zero (`pf-section-light`) — graphite box,
+ * no dash-cell-premium / Verified data chrome.
    */
   variant?: "active" | "preview";
   children: ReactNode;

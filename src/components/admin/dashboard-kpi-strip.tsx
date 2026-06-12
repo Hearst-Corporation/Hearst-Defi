@@ -1,3 +1,4 @@
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type { HeroKpi } from "@/lib/data/cockpit";
@@ -10,12 +11,12 @@ interface DashboardKpiStripProps {
 export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
   if (kpis.length === 0) {
     return (
-      <div
-        aria-label="Vault KPIs — no data"
-        className="rounded-lg border border-(--ct-border-soft) ct-surface-0 px-4 py-3"
-      >
-        <p className="body-xs ct-text-faint">No vault KPIs available.</p>
-      </div>
+      <EmptySurface
+        variant="widget"
+        message="No vault KPIs available."
+        ariaLabel="Vault KPIs — no data"
+        className="min-h-0 py-4"
+      />
     );
   }
 

@@ -80,7 +80,7 @@ describe("PorSummary — zero custody reserves", () => {
     const html = renderToStaticMarkup(
       <PorSummary attestation={null} custody={zeroReservesCustody()} />,
     );
-    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain("ct-empty-surface--widget");
     expect(html).toContain(
       "Custody reserves will appear after the first verified Fireblocks snapshot.",
     );

@@ -72,16 +72,6 @@ export function TimeToCash({
 }: TimeToCashProps) {
   const effectiveAsOf = asOf ?? new Date();
 
-  if (previewZeros) {
-    return (
-      <AwaitingMetricState
-        message="Distribution cycle preview — payout timing appears after your first active position."
-        detail="Projected USDC and cycle progress populate once yield data is live."
-        className="pf-zero-await"
-      />
-    );
-  }
-
   // No-data guard: stale source OR no projected payout OR flat 0 APR range.
   // When triggered, both the cycle badge and the APY range provenance flip to
   // "Stale" so we don't badge "Live" on top of meaningless zeroes.

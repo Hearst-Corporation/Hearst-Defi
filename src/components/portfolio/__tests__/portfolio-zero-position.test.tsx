@@ -11,7 +11,13 @@ import { LayoutPreviewBanner } from "@/components/portfolio/layout-preview-banne
 import { TimeToCash } from "@/components/portfolio/time-to-cash";
 import { LockMeter } from "@/components/portfolio/lock-meter";
 import { ValueChart } from "@/components/portfolio/value-chart";
-import { zeroLockMeterProps, zeroTimeToCashProps } from "@/lib/portfolio/layout-preview";
+import { YieldStack } from "@/components/portfolio/yield-stack";
+import { AllocationDonut } from "@/components/portfolio/allocation-donut";
+import {
+  ZERO_YIELD_STACK,
+  zeroLockMeterProps,
+  zeroTimeToCashProps,
+} from "@/lib/portfolio/layout-preview";
 
 const PREVIEW_AS_OF = new Date("2026-06-11T00:00:00Z");
 
@@ -73,36 +79,54 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     expect(html).toContain("not guaranteed");
   });
 
-  it("TimeToCash previewZeros: awaiting surface (graphite-subtle), no Stale badge", () => {
+  it("TimeToCash previewZeros: progress bar shell at zero, no awaiting surface", () => {
     const html = renderToStaticMarkup(
-      <TimeToCash {...zeroTimeToCashProps(PREVIEW_AS_OF)} previewZeros />,
+      <TimeToCash {...zeroTimeToCashProps(PREVIEW_AS_OF)} previewZeros embedded />,
     );
-    expect(html).toContain("ct-empty-surface--widget");
-    expect(html).not.toContain("dash-cell-premium");
-    expect(html).not.toContain("Stale");
+    expect(html).toContain("pf-progress-track");
+    expect(html).toContain("$0 USDC projected");
+    expect(html).not.toContain("ct-empty-surface--widget");
   });
 
-  it("ValueChart previewZeros: nested empty chart (graphite-nested), no phantom svg", () => {
+  it("ValueChart previewZeros: flat $0 area chart, not empty surface", () => {
     const html = renderToStaticMarkup(
       <ValueChart
         positions={[]}
         totalValueUsdc={0}
         source="fallback"
         previewZeros
+        embedded
       />,
     );
-    expect(html).toContain("ct-empty-surface--chart");
-    expect(html).not.toContain("dash-cell-premium");
-    expect(html).not.toContain("<svg");
+    expect(html).toContain("<svg");
+    expect(html).not.toContain("ct-empty-surface--chart");
     expect(html).toContain("Layout preview at zero");
   });
 
-  it("LockMeter previewZeros: awaiting surface, no premium shell", () => {
+  it("LockMeter previewZeros: progress bar at 0%, not awaiting surface", () => {
     const html = renderToStaticMarkup(
-      <LockMeter {...zeroLockMeterProps(PREVIEW_AS_OF)} previewZeros />,
+      <LockMeter {...zeroLockMeterProps(PREVIEW_AS_OF)} previewZeros embedded />,
     );
-    expect(html).toContain("ct-empty-surface--widget");
-    expect(html).not.toContain("dash-cell-premium");
-    expect(html).not.toContain("Stale");
+    expect(html).toContain("pf-progress-track");
+    expect(html).not.toContain("ct-empty-surface--widget");
+  });
+
+  it("YieldStack + AllocationDonut previewZeros: widget shells with zero graphics", () => {
+    const yieldHtml = renderToStaticMarkup(
+      <YieldStack {...ZERO_YIELD_STACK} previewZeros />,
+    );
+    const donutHtml = renderToStaticMarkup(
+      <AllocationDonut
+        positions={[]}
+        totalValueUsdc={0}
+        source="fallback"
+        previewZeros
+      />,
+    );
+    expect(yieldHtml).toContain("dash-cell-premium");
+    expect(yieldHtml).toContain("yield-stack-row");
+    expect(donutHtml).toContain("dash-cell-premium");
+    expect(donutHtml).toContain("<svg");
+    expect(donutHtml).toContain("0% · $0");
   });
 });

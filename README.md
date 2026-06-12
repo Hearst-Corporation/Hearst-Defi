@@ -79,11 +79,11 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
   institutionnelle. Utilise `MergedSurface` pour les sections (tier 1 :
   `--ct-graphite-active-bg`) — widgets enfants passent `embedded` (pas de
   `dash-cell` ni provenance dupliquée). **Layout preview** (`pf-container--zero`) :
-  placeholders DS §9.3 uniquement — `pf-empty-widget` (subtle) /
-  `pf-empty-chart` (nested), jamais de `dash-cell-premium` + badge Stale
-  simulé.   **Empty states** : primitive canonique `EmptySurface` (`.ct-empty-surface` —
-  variantes `--chart` / `--inline` ; aliases `.pf-empty-*`). Wrappers :
-  `EmptyChartState` / `AwaitingMetricState`. Dashed réservé à `.ct-dropzone`
+  placeholders DS §9.3 uniquement — `ct-empty-surface--widget` /
+  `ct-empty-surface--chart`, jamais de `dash-cell-premium` + badge Stale
+  simulé. **Empty states** : primitive canonique `EmptySurface` (`.ct-empty-surface*`
+  dans `cockpit.css`). Wrapper portfolio : `AwaitingMetricState` (lien optionnel).
+  Dashed réservé à `.ct-dropzone`
   uniquement — voir [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) §9.
   Règle : *Empty states replace active module surfaces; they are not rendered
   inside active module surfaces.*
@@ -126,7 +126,7 @@ provenance sur le bloc parent) · `NestedPanel` + `ProofRow` (preuves / evidence
 
 **Surfaces module (dark graphite)** — `.glass-panel` / `.ct-glass-panel` (Card),
 `.dash-cell` / `.dash-cell-premium` (bento investisseur), `.glass-panel-subtle`,
-`.pf-empty-*`, nested panels : recette `--ct-graphite-*` dans `cockpit.css`
+`.ct-empty-surface*`, `.ct-system-panel`, nested panels : recette `--ct-graphite-*` dans `cockpit.css`
 (bg-deep smoked glass). Chips/badges gardent `--ct-surface-1` littéral.
 
 **Canon typo/layout** (cohérence pages) :

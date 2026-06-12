@@ -82,12 +82,6 @@ export function RecentActivity({
     );
   }
 
-  if (displayed.length === 0 && previewZeros) {
-    return (
-      <AwaitingMetricState message="No transactions yet — deposits and payouts will appear here." />
-    );
-  }
-
   const shellClass = embedded
     ? "flex flex-col"
     : "dash-cell dash-cell-premium flex flex-col";
@@ -100,6 +94,13 @@ export function RecentActivity({
       </div>
 
         <div className="flex flex-col gap-1 mt-3">
+          {displayed.length === 0 ? (
+            <p className="body-sm ct-text-muted py-6 text-center">
+              {previewZeros
+                ? "No transactions yet — deposits and payouts will appear here."
+                : "No transactions yet."}
+            </p>
+          ) : null}
           {displayed.map((tx) => (
             <div
               key={tx.id}

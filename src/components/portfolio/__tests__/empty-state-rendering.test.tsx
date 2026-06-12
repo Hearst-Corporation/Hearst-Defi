@@ -11,7 +11,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ValueChart } from "@/components/portfolio/value-chart";
 import { AllocationDonut } from "@/components/portfolio/allocation-donut";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
@@ -24,6 +23,7 @@ import { PositionsList } from "@/components/portfolio/positions-list";
 import { TimeseriesSection } from "@/components/dashboard/timeseries-section";
 import { TimeToCash } from "@/components/portfolio/time-to-cash";
 import { LockMeter } from "@/components/portfolio/lock-meter";
+import { ZERO_YIELD_STACK } from "@/lib/portfolio/layout-preview";
 
 const ZERO_SCORES = [
   { dimension: "market" as const, score: 0, delta30d: 0 },
@@ -70,7 +70,7 @@ describe("Portfolio empty states — design contract", () => {
       html,
       "Value trend will appear after the first active position.",
     );
-    expect(html).toContain("pf-empty-chart");
+    expect(html).toContain("ct-empty-surface--chart");
     expect(html).not.toContain("<svg");
   });
 
@@ -82,7 +82,7 @@ describe("Portfolio empty states — design contract", () => {
       html,
       "Allocation will appear after the first active position.",
     );
-    expect(html).toContain("pf-empty-chart");
+    expect(html).toContain("ct-empty-surface--chart");
     expect(html).not.toContain("<svg");
   });
 
@@ -94,7 +94,7 @@ describe("Portfolio empty states — design contract", () => {
       html,
       "Distribution history will appear after the first payout.",
     );
-    expect(html).toContain("pf-empty-chart");
+    expect(html).toContain("ct-empty-surface--chart");
     expect(html).not.toContain("PAYOUT CALENDAR");
   });
 
@@ -111,7 +111,7 @@ describe("Portfolio empty states — design contract", () => {
       html,
       "Risk scores will appear after the first snapshot.",
     );
-    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain("ct-empty-surface--widget");
   });
 
   it("ProofPulse: empty message outside active module surface", () => {
@@ -125,7 +125,7 @@ describe("Portfolio empty states — design contract", () => {
       />,
     );
     assertEmptyDesignContract(html, "No attestation has been published yet.");
-    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain("ct-empty-surface--widget");
   });
 
   it("SecurityPulse: empty message outside active module surface", () => {
@@ -134,7 +134,7 @@ describe("Portfolio empty states — design contract", () => {
       html,
       "Security status will appear after account verification.",
     );
-    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain("ct-empty-surface--widget");
     expect(html).not.toContain("AES-256");
     expect(html).not.toContain("Spearbit");
   });
@@ -152,23 +152,22 @@ describe("Portfolio empty states — design contract", () => {
       html,
       "No yield source data yet — awaiting first vault snapshot.",
     );
-    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain("ct-empty-surface--widget");
   });
 
-  it("Yield+allocation row: grouped empty is one pf-empty-widget, not chart+donut", () => {
+  it("YieldStack previewZeros: full widget shell with zero bars, not awaiting surface", () => {
     const html = renderToStaticMarkup(
-      <AwaitingMetricState
-        message="Yield and allocation appear after your first active position."
-        detail="The forward yield stack and position breakdown populate once deposited capital is confirmed."
+      <YieldStack
+        sources={ZERO_YIELD_STACK.sources}
+        blendedLow={0}
+        blendedHigh={0}
+        stressedBearRange={{ low: 0, high: 0 }}
+        previewZeros
       />,
     );
-    assertEmptyDesignContract(
-      html,
-      "Yield and allocation appear after your first active position.",
-    );
-    expect(html).toContain("pf-empty-widget");
-    expect(html).not.toContain("pf-empty-chart");
-    expect(html).not.toContain("pf-empty-chart--round");
+    expect(html).toContain("dash-cell-premium");
+    expect(html).toContain("yield-stack-row");
+    expect(html).not.toContain("ct-empty-surface--widget");
   });
 
   it("RecentActivity: empty message outside active module surface", () => {
@@ -176,7 +175,7 @@ describe("Portfolio empty states — design contract", () => {
       <RecentActivity transactions={[]} source="fallback" />,
     );
     assertEmptyDesignContract(html, "No transactions yet.");
-    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain("ct-empty-surface--widget");
   });
 
   it("PositionsList: empty message outside active module surface", () => {
@@ -184,7 +183,7 @@ describe("Portfolio empty states — design contract", () => {
       <PositionsList positions={[]} source="fallback" />,
     );
     assertEmptyDesignContract(html, "No open positions.");
-    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain("ct-empty-surface--widget");
   });
 
   it("TimeToCash: stale source uses awaiting state outside premium surface", () => {
@@ -202,7 +201,7 @@ describe("Portfolio empty states — design contract", () => {
       html,
       "Distribution cycle starts after your first active position.",
     );
-    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain("ct-empty-surface--widget");
   });
 
   it("LockMeter: unknown terms uses awaiting state outside premium surface", () => {
@@ -218,7 +217,7 @@ describe("Portfolio empty states — design contract", () => {
       html,
       "Lock and liquidity terms appear after your first active position.",
     );
-    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain("ct-empty-surface--widget");
   });
 
   it("TimeseriesSection: empty charts outside Card shell", () => {
@@ -228,7 +227,7 @@ describe("Portfolio empty states — design contract", () => {
       />,
     );
     assertEmptyDesignContract(html, "No historical data yet — first snapshot needed.");
-    expect(html).toContain("pf-empty-chart");
+    expect(html).toContain("ct-empty-surface--chart");
     expect(html).not.toContain("border-dashed");
   });
 });
@@ -257,6 +256,6 @@ describe("Portfolio populated states — dash-cell-premium preserved", () => {
     );
     expect(html).toContain("dash-cell-premium");
     expect(html).toContain("<svg");
-    expect(html).not.toContain("pf-empty-chart");
+    expect(html).not.toContain("ct-empty-surface--chart");
   });
 });

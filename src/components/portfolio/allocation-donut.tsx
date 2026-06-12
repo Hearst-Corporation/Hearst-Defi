@@ -1,5 +1,5 @@
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { EmptyChartState } from "@/components/portfolio/empty-chart-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
@@ -66,7 +66,8 @@ export function AllocationDonut({
   // No allocation data → light placeholder only (no dash-cell-premium shell).
   if (!hasAllocation && !previewZeros) {
     return (
-      <EmptyChartState
+      <EmptySurface
+        variant="chart"
         message="Allocation will appear after the first active position."
         round
         className="mx-auto w-(--ct-donut-size) h-(--ct-donut-size)"

@@ -54,15 +54,7 @@ export function PositionsList({
     );
   }
 
-  if (positions.length === 0 && previewZeros) {
-    return (
-      <AwaitingMetricState
-        message="No active positions yet."
-        detail="Your first deposit will appear here once confirmed on-chain."
-        className="pf-zero-await"
-      />
-    );
-  }
+  const isPreviewEmpty = positions.length === 0 && previewZeros;
 
   return (
     <article className="dash-cell dash-cell-premium flex flex-col" aria-label="Open positions">
@@ -85,6 +77,13 @@ export function PositionsList({
             <span className="text-right">Target APY</span>
             <span className="text-right">Since</span>
           </div>
+
+          {isPreviewEmpty ? (
+            <p className="body-sm ct-text-muted py-6 text-center">
+              No active positions yet — your first deposit will appear here once
+              confirmed on-chain.
+            </p>
+          ) : null}
 
           {positions.map((p) => (
             <div
