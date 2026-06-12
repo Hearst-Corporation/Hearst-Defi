@@ -925,6 +925,106 @@
   }
 }
 
+/* ── Invest flow workspace mode — viewport-fit, internal scroll ──────────────
+   Activated by .invest-flow-shell--workspace on the shell root.
+   Mirrors the scenario-lab-page--viewport :has() chain.
+   Mobile reverts to natural document scroll (overflow: visible). */
+
+.ct-panels-row:has(.invest-flow-shell--workspace) {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+.ct-center-panel:has(.invest-flow-shell--workspace) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ct-page-area:has(.invest-flow-shell--workspace) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: var(--ct-space-6) var(--ct-space-5) var(--ct-space-4);
+}
+
+.ct-page-area:has(.invest-flow-shell--workspace) > main#main-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* product-doc and invest-flow-shell fill the available column */
+.product-doc:has(.invest-flow-shell--workspace) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.product-doc .invest-flow-shell--workspace {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  padding-bottom: 0;
+}
+
+/* Header stays fixed; body scrolls internally */
+.product-doc .invest-flow-shell--workspace .invest-flow-shell__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+  padding-bottom: var(--ct-space-6);
+}
+
+/* Remove the outer visual surface — keep layout only */
+.product-doc .invest-flow-shell--workspace.product-doc-shell {
+  gap: 0;
+}
+
+/* Desktop: tighten the gap between header chrome and body */
+@container product-doc (min-width: 40rem) {
+  .product-doc .invest-flow-shell--workspace .invest-flow-shell__body {
+    gap: var(--ct-space-5);
+  }
+}
+
+/* Mobile: revert to natural document scroll */
+@media (max-width: 47.999rem) {
+  .ct-panels-row:has(.invest-flow-shell--workspace),
+  .ct-center-panel:has(.invest-flow-shell--workspace),
+  .ct-page-area:has(.invest-flow-shell--workspace),
+  .ct-page-area:has(.invest-flow-shell--workspace) > main#main-content,
+  .product-doc:has(.invest-flow-shell--workspace) {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .product-doc .invest-flow-shell--workspace,
+  .product-doc .invest-flow-shell--workspace .invest-flow-shell__body {
+    height: auto;
+    overflow: visible;
+  }
+}
+
 /* Product select card */
 .product-doc .vault-select-card {
   display: flex;

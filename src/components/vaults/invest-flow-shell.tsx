@@ -26,6 +26,8 @@ interface InvestFlowShellProps {
   headerClassName?: string;
   /** Max-width modifier — mutually exclusive cap vs narrow. Default: cap. */
   width?: InvestFlowWidth;
+  /** Viewport-fit workspace mode — header fixed, body scrolls internally. */
+  workspace?: boolean;
   children: ReactNode;
   footer?: ReactNode;
   className?: string;
@@ -42,6 +44,7 @@ export function InvestFlowShell({
   align = "start",
   headerClassName,
   width = "cap",
+  workspace = false,
   children,
   footer,
   className,
@@ -52,6 +55,7 @@ export function InvestFlowShell({
         "invest-flow-shell product-doc-shell",
         width === "cap" && "product-doc-shell--cap",
         width === "narrow" && "product-doc-shell--narrow",
+        workspace && "invest-flow-shell--workspace",
         className,
       )}
     >
@@ -71,11 +75,13 @@ export function InvestFlowShell({
         </div>
       </ProductPageHeader>
 
-      {children}
+      <div className={workspace ? "invest-flow-shell__body" : undefined}>
+        {children}
 
-      {footer ? (
-        <footer className="product-doc-footer-rule">{footer}</footer>
-      ) : null}
+        {footer ? (
+          <footer className="product-doc-footer-rule">{footer}</footer>
+        ) : null}
+      </div>
     </div>
   );
 }

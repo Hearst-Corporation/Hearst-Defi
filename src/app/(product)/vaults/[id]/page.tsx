@@ -61,6 +61,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
   return (
     <InvestFlowShell
       step="product"
+      workspace
       title={vault.name}
       description={
         <span className="line-clamp-2 ct-prose-lg">{vault.description}</span>
