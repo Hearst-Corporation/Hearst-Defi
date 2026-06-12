@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { truncateWallet } from "@/lib/wallet-display";
 import { formatAdminRollingTimestamp } from "@/lib/vaults/product-display";
 import type { AuditTrailEntry } from "@/lib/data/cockpit";

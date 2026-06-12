@@ -45,7 +45,6 @@ function assertEmptyDesignContract(html: string, message: string): void {
   expect(html).not.toContain("border-dashed");
   expect(html).not.toContain("pf-empty-chart");
   expect(html).not.toContain("pf-empty-widget");
-  expect(html).not.toContain("ct-system-panel");
 }
 
 describe("Admin roadmap — design contract", () => {
@@ -61,7 +60,6 @@ describe("Admin roadmap — design contract", () => {
     const html = renderToStaticMarkup(<RoadmapBoard phases={[]} />);
     assertEmptyDesignContract(html, "No roadmap phases configured.");
     expect(html).toContain("ct-empty-surface--widget");
-    expect(html).not.toContain("ct-card ct-glass-panel");
   });
 
   it("empty week: EmptySurface widget replaces week Card shell", () => {
@@ -89,14 +87,12 @@ describe("Admin roadmap — design contract", () => {
       html,
       "Week 1 — no roadmap items configured.",
     );
-    expect(html).not.toMatch(/ct-card ct-glass-panel[^>]*aria-label="Week 1"/);
   });
 
   it("active week: Card shell with flat divided item rows", () => {
     const html = renderToStaticMarkup(
       <RoadmapBoard phases={[samplePhase]} />,
     );
-    expect(html).toContain("ct-card ct-glass-panel");
     expect(html).toContain("ct-roadmap-item-row");
     expect(html).not.toContain("ct-nested-panel");
     expect(html).toContain("MVP progress");

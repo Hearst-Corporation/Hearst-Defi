@@ -119,7 +119,7 @@ function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
     return (
       <div className="admin-doc-inline-row admin-doc-inline-row--actions">
         <span
-          className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--ct-status-success)"
+          className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ct-status-success)]"
           aria-hidden
         />
         <PanelStatus message="No rebalancing actions triggered — vault allocation is within target bands." />
@@ -132,14 +132,14 @@ function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
       {actions.map((action, idx) => (
         <li
           key={action.ruleId}
-          className="rounded-md border border-(--ct-border-soft) ct-surface-1 px-4 py-3"
+          className="rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-3"
         >
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             <span
               className={
                 "stat-label flex h-6 w-6 shrink-0 items-center justify-center rounded-full tabular-nums " +
                 (action.armed
-                  ? "bg-(--ct-accent) text-(--ct-bg-deep)"
+                  ? "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]"
                   : "ct-surface-3 ct-text-muted")
               }
               aria-hidden

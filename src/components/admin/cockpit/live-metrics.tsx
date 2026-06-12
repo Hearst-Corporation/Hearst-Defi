@@ -3,7 +3,7 @@ import Link from "next/link";
 import { VaultStatusPill } from "@/components/admin/vault-status-pill";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { cn } from "@/lib/cn";
 import type { VaultLiveMetric } from "@/lib/data/cockpit";
 

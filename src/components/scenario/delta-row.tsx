@@ -70,7 +70,7 @@ export function DeltaRow({ a, b }: DeltaRowProps) {
 
   return (
     <div
-      className="border-t border-(--ct-border-soft) pt-5"
+      className="border-t border-[var(--ct-border-soft)] pt-5"
       aria-label="Scenario B vs A delta metrics"
     >
       <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">

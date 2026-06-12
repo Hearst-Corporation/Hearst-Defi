@@ -2,18 +2,7 @@ import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-bad
 import { cn } from "@/lib/cn";
 
 /**
- * Secondary instrumentation surface for admin cockpit panels. Quieter than
- * `Card` — no glass-panel chrome or hover wash.
- */
-export function SystemPanel({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("ct-system-panel", className)} {...props} />;
-}
-
-/**
- * Canonical dashboard panel header — eyebrow, h3 title, optional provenance.
+ * Canonical dashboard panel header — eyebrow, h2/h3 title, optional provenance.
  */
 export function DashboardPanelHeader({
   title,
@@ -39,9 +28,7 @@ export function DashboardPanelHeader({
   const titleRoleClass = titleLevel === "section" ? "h2" : "h3";
 
   return (
-    <header
-      className={cn("dashboard-card-header", className)}
-    >
+    <header className={cn("dashboard-card-header", className)}>
       <div className="min-w-0">
         {eyebrow ? <p className="eyebrow mb-1">{eyebrow}</p> : null}
         <TitleTag

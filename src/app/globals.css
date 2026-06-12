@@ -4,10 +4,12 @@
 @layer cockpit, theme, base, components, utilities;
 @import "tailwindcss";
 
-/* Docs hold illustrative class names (e.g. wildcards like duration-[var(--ct-dur-*)])
-   that are NOT valid CSS — keep them out of Tailwind's content scan so example
-   snippets never leak into the generated utilities. */
+/* Non-component files may hold illustrative class/token examples — exclude from
+   Tailwind content scan so wildcards never become generated utilities. */
 @source not "../../docs";
+@source not "../../README.md";
+@source not "../../.claude";
+@source not "../../scripts";
 
 @font-face {
   font-family: "Satoshi Variable";
@@ -19,10 +21,10 @@
 
 /* ============================================================
    Tailwind @theme — heritage Connect token names aliased to
-   Cockpit (--ct-*) tokens. Source of truth lives in
+   Cockpit (--ct-…) tokens. Source of truth lives in
    `node_modules/@hearst/cockpit-shell/tokens.css` (canon) and
    `src/app/cockpit.css` (extension). DO NOT reintroduce hex
-   values here — only aliases to --ct-* tokens.
+   values here — only aliases to --ct-… tokens.
    ============================================================ */
 
 @theme {
@@ -187,7 +189,7 @@ textarea {
 }
 
 /* Typographic roles (.h1/.h2/.h3/.h4, .eyebrow, .stat-value/.stat-label,
-   .body-*) are defined in cockpit.css against --ct-* tokens. */
+   .body-…) are defined in cockpit.css against --ct-… tokens. */
 
 /* Numeric UI — Satoshi Variable + tabular figures (not a separate mono face) */
 code,
@@ -247,7 +249,7 @@ code,
 }
 
 /* Glass panel utility — definitive version lives in cockpit.css against
-   --ct-* tokens. Kept here only as a no-op safety net for legacy bundles. */
+   --ct-… tokens. Kept here only as a no-op safety net for legacy bundles. */
 
 @keyframes shimmer {
   0% { transform: translateX(-100%); }

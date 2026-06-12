@@ -5,7 +5,7 @@ import { useState } from "react";
 import { SimulationPanel } from "@/components/simulation/simulation-panel";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { simulateProposal } from "@/lib/simulation/tenderly-stub";
 import type { SimulationResult } from "@/lib/simulation/types";
 

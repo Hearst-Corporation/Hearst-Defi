@@ -18,7 +18,7 @@ function assertEmptyDesignContract(html: string, message: string): void {
 }
 
 describe("Scenario Lab empty states — design contract", () => {
-  it("SingleMode output slot: EmptySurface replaces glass-panel shell", () => {
+  it("SingleMode output slot: EmptySurface inline in output card", () => {
     const html = renderToStaticMarkup(
       <SingleMode vaultId="yield" />,
     );
@@ -30,7 +30,6 @@ describe("Scenario Lab empty states — design contract", () => {
       /class="[^"]*ct-empty-surface--inline[^"]*scenario-lab-output-card/,
     );
     expect(html).not.toContain("ct-empty-surface--widget");
-    expect(html).not.toContain("scenario-lab-output-card glass-panel");
   });
 
   it("BacktestChart: chart slot uses ct-empty-surface--chart without SVG", () => {

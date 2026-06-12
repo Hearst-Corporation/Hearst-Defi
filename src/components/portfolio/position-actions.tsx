@@ -224,7 +224,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
           href={`https://sepolia.basescan.org/tx/${result.txHash}`}
           target="_blank"
           rel="noreferrer noopener"
-          className="body-xs text-(--ct-accent-strong) no-underline hover:underline font-medium"
+          className="body-xs text-[var(--ct-accent-strong)] no-underline hover:underline font-medium"
         >
           {shortHash(result.txHash)} — view on BaseScan (Sepolia) ↗
         </a>

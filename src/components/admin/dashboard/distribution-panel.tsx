@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import { adminNavLinks } from "@/lib/admin/nav-links";
 import type { DashboardData } from "@/lib/data/dashboard";

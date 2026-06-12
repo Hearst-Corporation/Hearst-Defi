@@ -33,7 +33,7 @@ describe("PanelStatus", () => {
 describe("PanelStatusAccent", () => {
   it("renders left-accent rail without nested callout chrome", () => {
     const html = renderToStaticMarkup(
-      <PanelStatusAccent className="border-l-(--ct-status-warning)">
+      <PanelStatusAccent className="border-l-[var(--ct-status-warning)]">
         <p className="body-sm m-0">Hold posture</p>
       </PanelStatusAccent>,
     );

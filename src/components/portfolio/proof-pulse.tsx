@@ -289,7 +289,7 @@ export function ProofPulse({
       <div className="mt-auto pt-3 flex justify-end">
         <Link
           href={proofCenterHref}
-          className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-(--ct-border)"
+          className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-[var(--ct-border)]"
           aria-label="Open proof center"
         >
           Open proof center

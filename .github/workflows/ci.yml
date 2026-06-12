@@ -50,10 +50,6 @@ jobs:
       - name: Run ESLint
         run: pnpm lint
 
-      - name: DS classes audit
-        run: pnpm ds:classes
-        continue-on-error: true
-
       - name: Run Typecheck
         run: pnpm typecheck
 

@@ -25,7 +25,7 @@ export function WidgetPanelHeader({
   return (
     <header
       className={cn(
-        "widget-panel-header dashboard-card-header ct-system-panel__header relative z-10",
+        "widget-panel-header dashboard-card-header relative z-10",
         className,
       )}
     >

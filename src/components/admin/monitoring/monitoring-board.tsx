@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { PanelStatus } from "@/components/ui/panel-status";
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { cn } from "@/lib/cn";
 import type { MonitoringStats } from "@/lib/data/monitoring";
 import { formatAdminDateTime } from "@/lib/vaults/product-display";

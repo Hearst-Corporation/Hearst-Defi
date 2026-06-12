@@ -30,12 +30,12 @@ function relativeTime(date: Date, asOf: Date): string {
 function TxIcon({ type }: { type: string }) {
   const colorClass =
     type === "deposit"
-      ? "bg-(--ct-accent)"
+      ? "bg-[var(--ct-accent)]"
       : type === "distribution"
-        ? "bg-(--ct-accent-strong)"
+        ? "bg-[var(--ct-accent-strong)]"
         : type === "withdraw"
-          ? "bg-(--ct-status-danger)"
-          : "bg-(--ct-text-muted)";
+          ? "bg-[var(--ct-status-danger)]"
+          : "bg-[var(--ct-text-muted)]";
 
   return (
     <span
@@ -67,31 +67,31 @@ export function RecentActivity({ transactions, source }: RecentActivityProps) {
 
       <div className="overflow-y-auto flex-1 pr-2 -mr-2 relative z-10">
         {displayed.length === 0 ? (
-          <p className="body-sm text-(--ct-text-muted) mt-2 italic">No transactions yet.</p>
+          <p className="body-sm text-[var(--ct-text-muted)] mt-2 italic">No transactions yet.</p>
         ) : (
           <div className="flex flex-col gap-0.5 mt-1">
             {displayed.map((tx) => (
               <div
                 key={tx.id}
-                className="flex items-center gap-3 py-2 border-b border-(--ct-border-soft) last:border-0 hover:bg-(--ct-surface-2) -mx-2 px-2 rounded-sm transition-colors"
+                className="flex items-center gap-3 py-2 border-b border-[var(--ct-border-soft)] last:border-0 hover:bg-[var(--ct-surface-2)] -mx-2 px-2 rounded-sm transition-colors"
               >
                 <TxIcon type={tx.type} />
 
                 <div className="flex-1 min-w-0 overflow-hidden">
-                  <div className="body-sm text-(--ct-text-primary) font-medium truncate">
+                  <div className="body-sm text-[var(--ct-text-primary)] font-medium truncate">
                     {TYPE_LABELS[tx.type] ?? tx.type}
                     {tx.positionVaultName && (
-                      <span className="text-(--ct-text-muted) font-normal">
+                      <span className="text-[var(--ct-text-muted)] font-normal">
                         {" "}· {tx.positionVaultName}
                       </span>
                     )}
                   </div>
-                  <div className="body-xs text-(--ct-text-muted) mt-0.5 mono truncate uppercase tracking-wider">
+                  <div className="body-xs text-[var(--ct-text-muted)] mt-0.5 mono truncate uppercase tracking-wider">
                     {relativeTime(tx.occurredAt, asOf)}
                   </div>
                 </div>
 
-                <span className="tabular-nums body-sm text-(--ct-text-strong) mono font-medium shrink-0">
+                <span className="tabular-nums body-sm text-[var(--ct-text-strong)] mono font-medium shrink-0">
                   {usdFmt.format(tx.amountUsdc)}
                 </span>
               </div>

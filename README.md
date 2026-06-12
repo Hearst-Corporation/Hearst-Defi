@@ -129,8 +129,8 @@ le primitive pour compat). Définis dans `cockpit.css` ; nested panels dans
 
 **Surfaces module (dark graphite — ADR-013)** — recette canonique **`.ct-glass-panel`**,
 appliquée via `Card` (`src/components/ui/card.tsx`). S'applique à toutes les surfaces,
-y compris l'admin. `.ct-system-panel` et `.glass-panel-subtle` sont DEPRECATED (cibles
-de migration). Exceptions documentées (seules autorisées) :
+y compris l'admin. Aliases legacy `.glass-panel` / `.glass-panel-subtle` / `.ct-system-panel`
+retirés de `cockpit.css` (ADR-013 Lot 4). Exceptions documentées (seules autorisées) :
 `.scenario-preset-bar`, `Ptai variant="flat"` en compare mode, `EmptySurface` seul.
 Recette définie une seule fois dans `cockpit.css` ; aucune page ne redéfinit localement
 un matériau graphite. Doc complète : [`docs/DESIGN_SYSTEM.md §10`](docs/DESIGN_SYSTEM.md) +
@@ -147,10 +147,10 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
 - H2 section : `.h2` · module : `.h3` / `DashboardPanelHeader` / `WidgetPanelHeader` · KPI : `.stat-value` + `.stat-label`.
 - Shell page : `admin-doc-shell` / `product-doc-shell` (`gap: var(--ct-space-8)`).
 - Layout stacks : `src/app/doc-flow.css` — scopes `.product-doc` / `.admin-doc` ; stacks `*-doc-stack*` / `*-doc-inline-row*` (pas de `gap-*` / `space-y-*` Tailwind ad hoc en admin).
-- Surface par défaut : `Card` → `.ct-glass-panel` (produit **et** admin). **Interdit nouveau code** : `.ct-system-panel`, `.glass-panel`, `.glass-panel-subtle`, listes flat (`admin-doc-flat-list`, `admin-vault-list-card`).
+- Surface par défaut : `Card` → `.ct-glass-panel` (produit **et** admin). Header canon : `DashboardPanelHeader` (`src/components/ui/dashboard-panel-header.tsx`). **Interdit** : listes flat (`admin-doc-flat-list`, `admin-vault-list-card`).
 - Formatters : `src/lib/vaults/product-display.ts`.
 - Exceptions non-glass **seules autorisées** (commentaire `/* ADR-013 exception */` requis) : `.scenario-preset-bar`, `Ptai variant="flat"` en compare, `EmptySurface` seul — voir ADR-013 §10.3. Dashboard command board + KPI strip : `Card` / `.ct-glass-panel`.
-- Migration ADR-013 admin : **Lot 2 done** (`SystemPanel` → `Card` sur tout `src/app/admin` + `src/components/admin`). Reste Lot 4 (cleanup aliases `glass-panel` / `ct-system-panel` dans `cockpit.css`) + pages produit (scenario-lab, etc.).
+- Migration ADR-013 : **Lots 1+4 done** (surfaces JSX, `SystemPanel` supprimé, aliases CSS retirés, scenario-lab sur `Card`). Reste : token syntax legacy admin (shorthand `(-ct-TOKEN)` → canon bracket form).
 
 ### Process pour ajouter un token (rare, validé Adrien uniquement)
 
@@ -174,10 +174,10 @@ pnpm lint                 # eslint, no-any en erreur
 pnpm test                 # vitest — pin les tokens canoniques (cockpit-tokens.test.ts)
 ```
 
-Et le hub d'audit DS local :
+Hub d'audit DS **local, advisory** (n'échoue pas la CI — `exit 0` toujours) :
 
 ```
-pnpm ds:classes  # ct-* allowlist auto (cockpit.css) + src/lib/ui + DEPRECATED ADR-013
+pnpm ds:classes  # ct-* allowlist + DEPRECATED ADR-013 — warnings only, jamais bloquant
 /ds-tokens     # hex / rgba magiques hors fichiers tokens
 /ds-typo       # font-mono interdit, font-family hors cockpit
 /ds-layout     # px magiques Tailwind, dimensions arbitraires

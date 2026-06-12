@@ -21,13 +21,13 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
   return (
     <div
       className={cn(
-        "relative admin-doc-stack--relaxed transition-opacity duration-(--ct-dur-fast)",
+        "relative admin-doc-stack--relaxed transition-opacity duration-[var(--ct-dur-fast)]",
         isPending && "pointer-events-none opacity-50",
       )}
       aria-busy={isPending}
     >
       {isPending && (
-        <div className="pointer-events-none absolute inset-0 z-(--ct-z-overlay) flex items-center justify-center rounded-lg ct-surface-2/60 backdrop-blur-sm">
+        <div className="pointer-events-none absolute inset-0 z-[var(--ct-z-overlay)] flex items-center justify-center rounded-lg ct-surface-2/60 backdrop-blur-sm">
           <span className="body-sm ct-text-body">Computing backtest…</span>
         </div>
       )}
@@ -128,7 +128,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
       </Card>
 
       {/* ── Disclaimer ───────────────────────────────────────────────────── */}
-      <p className="border-t border-(--ct-border-soft) pt-4 body-xs italic ct-text-muted">
+      <p className="border-t border-[var(--ct-border-soft)] pt-4 body-xs italic ct-text-muted">
         <span className="font-semibold not-italic ct-text-body">
           Not guaranteed.
         </span>{" "}

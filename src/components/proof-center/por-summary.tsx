@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
 import { NestedKpiGrid, ProofRow } from "@/components/ui/nested-panel";
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { POR_ATTESTATION_EMPTY } from "@/components/proof/empty-messages";
 import {
   EXPLORER_ADDRESS_BASE,

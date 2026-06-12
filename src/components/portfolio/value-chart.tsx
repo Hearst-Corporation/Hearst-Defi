@@ -227,7 +227,7 @@ export function ValueChart({
         {showZeroShell ? (
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-6 border-t border-(--ct-border-soft)"
+            className="pointer-events-none absolute inset-x-0 bottom-6 border-t border-[var(--ct-border-soft)]"
           />
         ) : (
           <ChartDisclaimerUnderlay />

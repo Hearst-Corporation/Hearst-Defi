@@ -36,7 +36,7 @@ function Placeholder({ side, pending }: PlaceholderProps) {
     <EmptySurface
       variant="widget"
       className={cn(
-        "min-h-48 transition-opacity duration-(--ct-dur-fast)",
+        "min-h-48 transition-opacity duration-[var(--ct-dur-fast)]",
         pending && "opacity-50",
       )}
       message={
@@ -155,7 +155,7 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
       {error && (
         <p
           role="alert"
-          className="rounded-full border border-(--ct-status-danger) ct-status-danger-bg px-4 py-2.5 body-sm ct-status-danger"
+          className="rounded-full border border-[var(--ct-status-danger)] ct-status-danger-bg px-4 py-2.5 body-sm ct-status-danger"
         >
           {error}
         </p>
@@ -195,7 +195,7 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
       )}
 
       {/* Shared disclaimer */}
-      <p className="border-t border-(--ct-border-soft) pt-4 body-xs italic ct-text-muted">
+      <p className="border-t border-[var(--ct-border-soft)] pt-4 body-xs italic ct-text-muted">
         <span className="font-semibold not-italic ct-text-body">
           Not guaranteed.
         </span>{" "}

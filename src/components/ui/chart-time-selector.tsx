@@ -59,7 +59,7 @@ export function ChartTimeSelector({
               isActive
                 ? [
                     "ct-text-primary",
-                    "border-b border-b-(--ct-accent)",
+                    "border-b border-b-[var(--ct-accent)]",
                   ]
                 : [
                     "ct-text-muted",

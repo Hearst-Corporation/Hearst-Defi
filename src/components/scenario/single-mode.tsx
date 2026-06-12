@@ -7,6 +7,7 @@ import { OutputPanel } from "@/components/scenario/output-panel";
 import { PresetBar } from "@/components/scenario/preset-bar";
 import { Spinner } from "@/components/scenario/scenario-spinner";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
 import { useScenario } from "@/hooks/use-scenario";
@@ -39,14 +40,14 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
       {error ? (
         <p
           role="alert"
-          className="rounded-full border border-(--ct-status-danger) ct-status-danger-bg px-4 py-2.5 body-sm ct-status-danger"
+          className="rounded-full border border-[var(--ct-status-danger)] ct-status-danger-bg px-4 py-2.5 body-sm ct-status-danger"
         >
           {error}
         </p>
       ) : null}
 
       <div className="scenario-lab-workspace scenario-lab-workspace--viewport">
-        <div className="scenario-lab-input-card ct-card ct-glass-panel p-0">
+        <Card className="scenario-lab-input-card p-0" hoverOverlay={false}>
           <div className="scenario-lab-input-card__header">
             <h4 className="h4">Inputs</h4>
             <p className="mt-0.5 body-xs ct-text-muted">
@@ -89,24 +90,23 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
               )}
             </Button>
           </div>
-        </div>
+        </Card>
 
         {state.output ? (
-          <div
-            ref={outputRef}
-            className="scenario-lab-output-card ct-card ct-glass-panel p-5"
-          >
-            <OutputPanel
-              output={state.output}
-              isPending={pending}
-              narrative={state.narrative}
-            />
+          <div ref={outputRef} className="scenario-lab-output-card min-h-0">
+            <Card className="h-full p-5" hoverOverlay={false}>
+              <OutputPanel
+                output={state.output}
+                isPending={pending}
+                narrative={state.narrative}
+              />
+            </Card>
           </div>
         ) : (
           <EmptySurface
             variant="inline"
             className={cn(
-              "scenario-lab-output-card transition-opacity duration-(--ct-dur-fast)",
+              "scenario-lab-output-card transition-opacity duration-[var(--ct-dur-fast)]",
               pending && "opacity-50",
             )}
             message={

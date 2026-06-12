@@ -1,4 +1,4 @@
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { allocationLabelFor, allocationStrokeFor } from "@/lib/allocation-colors";
 import type { DashboardAllocation } from "@/lib/data/dashboard";
 

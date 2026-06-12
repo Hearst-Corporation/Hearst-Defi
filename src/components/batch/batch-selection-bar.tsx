@@ -91,15 +91,15 @@ export function BatchSelectionBar({
       data-testid="batch-selection-bar"
       className={cn(
         // Position — bottom-center, sticky above page scroll.
-        "fixed bottom-6 left-1/2 z-(--ct-z-popover) -translate-x-1/2",
+        "fixed bottom-6 left-1/2 z-[var(--ct-z-popover)] -translate-x-1/2",
         // Surface — glass with accent border.
         "flex items-center gap-2",
         "rounded-xl",
         "bg-[color-mix(in_srgb,var(--ct-bg-deep)_70%,transparent)]",
         "backdrop-blur-xl",
-        "border border-(--ct-accent)",
+        "border border-[var(--ct-accent)]",
         "px-4 py-2",
-        "shadow-(--ct-shadow-elevated)",
+        "shadow-[var(--ct-shadow-elevated)]",
         // Animation.
         "animate-in slide-in-from-bottom-3 fade-in duration-200",
         className,
@@ -113,7 +113,7 @@ export function BatchSelectionBar({
       <div
         role="separator"
         aria-orientation="vertical"
-        className="mx-1 h-4 w-px bg-(--ct-border-soft)"
+        className="mx-1 h-4 w-px bg-[var(--ct-border-soft)]"
       />
 
       {/* Clear */}
@@ -158,8 +158,8 @@ export function BatchSelectionBar({
                 "absolute bottom-full right-0 mb-2 min-w-[140px]",
                 "rounded-lg",
                 "ct-surface-2",
-                "border border-(--ct-border-soft)",
-                "py-1 shadow-(--ct-shadow-elevated)",
+                "border border-[var(--ct-border-soft)]",
+                "py-1 shadow-[var(--ct-shadow-elevated)]",
                 "animate-in slide-in-from-bottom-1 fade-in duration-150",
               )}
             >
@@ -174,7 +174,7 @@ export function BatchSelectionBar({
                   }}
                   className={cn(
                     "w-full px-3 py-1.5 text-left body-xs",
-                    "transition-colors duration-(--ct-dur-base)",
+                    "transition-colors duration-[var(--ct-dur-base)]",
                     "focus-visible:outline-none focus-visible:ct-surface-3",
                     action.danger
                       ? "ct-status-danger hover:ct-status-danger-bg"

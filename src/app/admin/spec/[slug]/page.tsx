@@ -39,8 +39,8 @@ export default async function SpecPage({
                 className={cn(
                   "block rounded-lg px-2 py-1.5 body-sm transition-colors",
                   active
-                    ? "glass-panel-subtle ct-text-primary"
-                    : "ct-text-muted hover:glass-panel-subtle",
+                    ? "ct-surface-1 ct-text-primary"
+                    : "ct-text-muted ct-hover-surface",
                 )}
               >
                 <span className="mono tabular mr-2 body-xs ct-text-faint">

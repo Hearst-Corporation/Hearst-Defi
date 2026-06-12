@@ -6,6 +6,7 @@
 
 import { BacktestPanel } from "@/components/scenario/backtest-panel";
 import { Spinner } from "@/components/scenario/scenario-spinner";
+import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
 import { useBacktest } from "@/hooks/use-backtest";
@@ -85,18 +86,18 @@ export function BacktestTab() {
       {!state.output && !pending && state.selectedKey === null ? (
         <div className="backtest-period-details">
           {BACKTEST_PERIODS.map((p) => (
-            <div key={p.key} className="ct-card ct-glass-panel px-5 py-4">
+            <Card key={p.key} className="px-5 py-4" hoverOverlay={false}>
               <p className="scenario-preset-bar__label">{p.label}</p>
               <p className="mt-1 body-xs ct-text-muted">{p.subtitle}</p>
               <p className="mt-2 body-sm ct-text-body">{p.description}</p>
-            </div>
+            </Card>
           ))}
         </div>
       ) : null}
 
       {/* Error banner */}
       {error && (
-        <p className="rounded-full border border-(--ct-status-danger) ct-status-danger-bg px-4 py-2.5 body-sm ct-status-danger">
+        <p className="rounded-full border border-[var(--ct-status-danger)] ct-status-danger-bg px-4 py-2.5 body-sm ct-status-danger">
           {error}
         </p>
       )}

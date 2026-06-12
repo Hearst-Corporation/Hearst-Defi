@@ -1,7 +1,7 @@
 @import "../product-bento.css";
 
 /*
- * Profile — space-y-8 + dash-bento. Card material: global glass-panel graphite
+ * Profile — space-y-8 + dash-bento. Card material: ct-glass-panel graphite
  * (cockpit.css). Empty investment summary: ct-empty-surface (DS §9).
  *
  * Responsive: container queries on .prof-shell (centre panel width), aligned with

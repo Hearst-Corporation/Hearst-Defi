@@ -105,8 +105,8 @@ export function PresetPicker<T extends string>({
 
   const sideAccent =
     side === "A"
-      ? "border-l-(--ct-border-strong)"
-      : "border-l-(--ct-text-strong)";
+      ? "border-l-[var(--ct-border-strong)]"
+      : "border-l-[var(--ct-text-strong)]";
 
   return (
     <div ref={rootRef} className="relative">
@@ -120,14 +120,14 @@ export function PresetPicker<T extends string>({
         aria-label={`${PRESET_PICKER_STRINGS.scenarioLabel} ${side}: ${value ? labelFor(value) : PRESET_PICKER_STRINGS.selectScenarioLower}`}
         className={cn(
           "flex w-full items-center justify-between gap-3",
-          "rounded-md border border-(--ct-border-soft) bg-transparent",
+          "rounded-md border border-[var(--ct-border-soft)] bg-transparent",
           "border-l-4",
           sideAccent,
           "px-4 py-3 text-left",
           "disabled:cursor-not-allowed disabled:opacity-40",
-          "transition-colors duration-(--ct-dur-fast)",
+          "transition-colors duration-[var(--ct-dur-fast)]",
           "hover:ct-surface-1",
-          "focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
+          "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
         )}
       >
         <span className="flex min-w-0 flex-col gap-0.5">
@@ -145,7 +145,7 @@ export function PresetPicker<T extends string>({
         </span>
         <span
           className={cn(
-            "shrink-0 ct-text-body transition-transform duration-(--ct-dur-fast)",
+            "shrink-0 ct-text-body transition-transform duration-[var(--ct-dur-fast)]",
             open && "rotate-180",
           )}
           aria-hidden
@@ -161,9 +161,9 @@ export function PresetPicker<T extends string>({
           aria-label={`${PRESET_PICKER_STRINGS.pickScenarioLabel} for ${side}`}
           onKeyDown={onListKeyDown}
           className={cn(
-            "absolute z-(--ct-z-dropdown) mt-2 w-full overflow-hidden",
-            "glass-panel p-0",
-            "shadow-(--ct-shadow-elevated)",
+            "absolute z-[var(--ct-z-dropdown)] mt-2 w-full overflow-hidden",
+            "ct-glass-panel p-0 overflow-hidden",
+            "shadow-[var(--ct-shadow-elevated)]",
           )}
         >
           {options.map((o) => {
@@ -184,8 +184,8 @@ export function PresetPicker<T extends string>({
                   title={o.description}
                   className={cn(
                     "flex w-full flex-col items-start gap-0.5 px-4 py-3 text-left",
-                    "transition-colors duration-(--ct-dur-fast)",
-                    "focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
+                    "transition-colors duration-[var(--ct-dur-fast)]",
+                    "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                     isSelected
                       ? "ct-surface-1 ct-text-accent"
                       : "ct-text-body hover:ct-surface-3 hover:ct-text-primary",

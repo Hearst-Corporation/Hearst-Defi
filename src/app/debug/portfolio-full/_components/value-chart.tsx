@@ -62,7 +62,7 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
         <span>Portfolio value · 12-month trend</span>
         <div className="flex items-center gap-2">
           <ProvenanceBadge kind={provenance} />
-          <span className="stat-label mono px-1.5 py-0.5 rounded-xs bg-(--ct-surface-2) text-(--ct-text-primary)">
+          <span className="stat-label mono px-1.5 py-0.5 rounded-xs bg-[var(--ct-surface-2)] text-[var(--ct-text-primary)]">
             {totalValueUsdc > 0 ? formatUsdCompact(totalValueUsdc) : <span className="opacity-30">—</span>}
           </span>
         </div>
@@ -72,7 +72,7 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
         className="mt-3 w-full h-36 rounded-xl ct-kpi-glass overflow-hidden flex items-end relative z-10"
         aria-hidden="true"
       >
-        <svg className="w-full h-full text-(--ct-accent)" viewBox="0 0 100 40" preserveAspectRatio="none">
+        <svg className="w-full h-full text-[var(--ct-accent)]" viewBox="0 0 100 40" preserveAspectRatio="none">
           <defs>
             <linearGradient id="spark-gradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="currentColor" stopOpacity="0.2" />
@@ -92,7 +92,7 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
         </svg>
       </div>
 
-      <div className="flex justify-between mt-2 body-xs text-(--ct-text-muted) mono relative z-10">
+      <div className="flex justify-between mt-2 body-xs text-[var(--ct-text-muted)] mono relative z-10">
         {series
           .filter((_, i) => i % 3 === 0 || i === series.length - 1)
           .map((s, i) => (
@@ -100,7 +100,7 @@ export function ValueChart({ positions, totalValueUsdc, source }: ValueChartProp
           ))}
       </div>
 
-      <p className="body-xs text-(--ct-text-muted) mt-auto pt-4 italic relative z-10">
+      <p className="body-xs text-[var(--ct-text-muted)] mt-auto pt-4 italic relative z-10">
         Indicative trend based on position history. Past performance does not predict future results.
       </p>
     </article>

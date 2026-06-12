@@ -72,7 +72,6 @@ describe("Portfolio zero-position — cockpit shell always visible", () => {
     );
     expect(html).toContain("ct-section-preview");
     expect(html).toContain("Preview");
-    expect(html).not.toContain("glass-panel");
     expect(html).not.toContain("Verified data");
   });
 });

@@ -415,7 +415,7 @@ export function DistribCalendar({
       {/* Footer — share class + cadence. Rendered only when at least one is
           known, so an empty widget doesn't show a "— / —" stub. */}
       {(shareClass || cadence) && (
-        <dl className="flex flex-wrap gap-x-4 gap-y-1 border-t border-(--ct-border-soft) pt-2 mt-auto">
+        <dl className="flex flex-wrap gap-x-4 gap-y-1 border-t border-[var(--ct-border-soft)] pt-2 mt-auto">
           {shareClass ? (
             <div className="pf-stack--compact min-w-0">
               <dt className="stat-label mono">

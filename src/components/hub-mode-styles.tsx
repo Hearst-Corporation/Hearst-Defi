@@ -10,7 +10,7 @@ import { useHubMode } from "@hearst/hub-sdk";
 // WHY backdrop-filter → none :
 // Dans un guest <webview> Electron, Chromium ne peut pas résoudre
 // backdrop-filter:blur, -webkit-backdrop-filter, ni mask-image correctement →
-// zones noires/vides. On neutralise .glass-panel qui porte ces propriétés.
+// zones noires/vides. On neutralise .ct-glass-panel qui porte ces propriétés.
 //
 // Accent couleur Connect : see CT_PRODUCT_CONNECT_HEX in src/lib/cockpit-tokens.ts
 // ---------------------------------------------------------------------------
@@ -43,14 +43,11 @@ export function HubModeStyles() {
       main#main-content { padding-top: 0 !important; margin-top: 0 !important; }
 
       /* ── backdrop-filter → none (webview compositing Electron) ── */
-      .glass-panel {
+      .ct-glass-panel,
+      .ct-card {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
         background: var(--ct-bg-deep) !important;
-      }
-      .glass-panel::before {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
       }
 
       /* ── backdrop-blur Tailwind → none ── */

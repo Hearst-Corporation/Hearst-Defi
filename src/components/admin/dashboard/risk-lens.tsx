@@ -1,4 +1,4 @@
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import { riskSeverityTone } from "@/lib/admin/dashboard-board-view";

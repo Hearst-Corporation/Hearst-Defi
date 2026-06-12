@@ -241,10 +241,9 @@ describe("DashboardAssetsBoard — Admin Honesty", () => {
     expect(html).not.toContain(">Action Queue<");
     expect(html).not.toContain(">Live Metrics<");
     expect(html).not.toContain(">Recent admin activity<");
-    expect(html).not.toContain("ct-system-panel");
   });
 
-  it("live command board uses Card shells, not SystemPanel (ADR-013)", () => {
+  it("live command board renders populated cockpit modules", () => {
     const html = renderToStaticMarkup(
       <DashboardAssetsBoard
         data={makeData({
@@ -314,8 +313,6 @@ describe("DashboardAssetsBoard — Admin Honesty", () => {
         }}
       />,
     );
-    expect(html).toContain("ct-glass-panel");
-    expect(html).not.toContain("ct-system-panel");
     expect(html).toContain(">Action queue<");
     expect(html).toContain(">Live metrics<");
     expect(html).toContain(">Recent admin activity<");

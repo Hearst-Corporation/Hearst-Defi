@@ -103,11 +103,11 @@ export function PositionTransactions({
               scrolls horizontally on narrow viewports instead of crushing cells. */}
           <table className="body-sm w-full min-w-max border-collapse">
             <thead>
-              <tr className="stat-label ct-text-muted border-b border-(--ct-border-soft)">
-                <th className="text-left pb-(--ct-space-2) font-[inherit]">Date</th>
-                <th className="text-left pb-(--ct-space-2) font-[inherit]">Type</th>
-                <th className="text-right pb-(--ct-space-2) font-[inherit]">Amount</th>
-                <th className="text-right pb-(--ct-space-2) font-[inherit]">Tx</th>
+              <tr className="stat-label ct-text-muted border-b border-[var(--ct-border-soft)]">
+                <th className="text-left pb-[var(--ct-space-2)] font-[inherit]">Date</th>
+                <th className="text-left pb-[var(--ct-space-2)] font-[inherit]">Type</th>
+                <th className="text-right pb-[var(--ct-space-2)] font-[inherit]">Amount</th>
+                <th className="text-right pb-[var(--ct-space-2)] font-[inherit]">Tx</th>
               </tr>
             </thead>
             <tbody>
@@ -116,7 +116,7 @@ export function PositionTransactions({
                 return (
                   <tr
                     key={tx.id}
-                    className="border-b border-(--ct-border-soft)"
+                    className="border-b border-[var(--ct-border-soft)]"
                   >
                     {/* Date */}
                     <td className="tabular body-xs ct-text-muted py-2 pr-4 mono whitespace-nowrap">
@@ -154,7 +154,7 @@ export function PositionTransactions({
                           href={explorerTxUrl(tx.txHash)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="tabular body-xs mono text-(--ct-accent-strong) no-underline transition-opacity duration-(--ct-dur-fast) hover:opacity-80"
+                          className="tabular body-xs mono text-[var(--ct-accent-strong)] no-underline transition-opacity duration-[var(--ct-dur-fast)] hover:opacity-80"
                           title={tx.txHash}
                         >
                           {tx.txHash.slice(0, 6)}&hellip;{tx.txHash.slice(-4)} ↗

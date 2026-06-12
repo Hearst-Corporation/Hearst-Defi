@@ -81,7 +81,7 @@ export function ApyHero({
           {confidence}
         </div>
 
-        <div className="mt-4 border-t border-(--ct-border-soft) pt-4">
+        <div className="mt-4 border-t border-[var(--ct-border-soft)] pt-4">
           <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between">
             <span className="stat-label">Stressed APY</span>
             <ProvenanceBadge kind="estimated" />
@@ -308,7 +308,7 @@ function AllocationTable({
         <span className="stat-label text-right">Pct</span>
         <span className="stat-label text-right">{yieldHeader}</span>
       </div>
-      <ul className="divide-y divide-(--ct-border-soft)">
+      <ul className="divide-y divide-[var(--ct-border-soft)]">
         {allocations.map((a) => (
           <li
             key={a.bucket}
@@ -321,7 +321,7 @@ function AllocationTable({
           >
             <span className="admin-doc-inline-row min-w-0 ct-text-body">
               <span
-                className="inline-block h-2 w-2 shrink-0 rounded-full shadow-(--ct-glow-dot) bg-current"
+                className="inline-block h-2 w-2 shrink-0 rounded-full shadow-[var(--ct-glow-dot)] bg-current"
                 style={{ color: BUCKET_COLOR[a.bucket] }}
                 aria-hidden
               />

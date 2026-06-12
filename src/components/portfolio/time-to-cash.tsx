@@ -161,7 +161,7 @@ export function TimeToCash({
       </p>
 
       {/* Settings CTA ------------------------------------------------------ */}
-      <div className="flex items-center justify-between border-t border-(--ct-border-soft) pt-2 mt-auto relative z-10">
+      <div className="flex items-center justify-between border-t border-[var(--ct-border-soft)] pt-2 mt-auto relative z-10">
         <span className="body-xs ct-text-muted">
           {showZeroShell
             ? "Projection pending"

@@ -96,7 +96,7 @@ export function InputsPanel({ inputs, onChange, disabled }: InputsPanelProps) {
   }
 
   return (
-    <div className="divide-y divide-(--ct-border-soft)">
+    <div className="divide-y divide-[var(--ct-border-soft)]">
       {FIELDS.map((field) => {
         const value = inputs[field.key];
         const pct = ((value - field.min) / (field.max - field.min)) * 100;

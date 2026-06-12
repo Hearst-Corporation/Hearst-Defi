@@ -36,7 +36,7 @@ export function AwaitingMetricState({
         <Link
           href={link.href}
           aria-label={link.ariaLabel ?? link.label}
-          className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-(--ct-border) mt-1"
+          className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-[var(--ct-border)] mt-1"
         >
           {link.label}
         </Link>

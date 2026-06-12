@@ -137,7 +137,7 @@ function ConfirmDialogBody({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center p-4 z-(--ct-z-modal)"
+      className="fixed inset-0 flex items-center justify-center p-4 z-[var(--ct-z-modal)]"
       role="presentation"
     >
       {/* Backdrop */}
@@ -147,7 +147,7 @@ function ConfirmDialogBody({
         tabIndex={-1}
         onClick={close}
         disabled={isPending}
-        className="absolute inset-0 cursor-default bg-(--ct-bg-deep)/70 backdrop-blur-sm disabled:cursor-not-allowed"
+        className="absolute inset-0 cursor-default bg-[var(--ct-bg-deep)]/70 backdrop-blur-sm disabled:cursor-not-allowed"
       />
 
       {/* Panel */}
@@ -158,8 +158,8 @@ function ConfirmDialogBody({
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
         className={cn(
-          "relative w-full max-w-md rounded-xl border border-(--ct-border-strong)",
-          "ct-surface-2 p-6 shadow-(--ct-shadow-elevated) z-(--ct-z-base)",
+          "relative w-full max-w-md rounded-xl border border-[var(--ct-border-strong)]",
+          "ct-surface-2 p-6 shadow-[var(--ct-shadow-elevated)] z-[var(--ct-z-base)]",
         )}
       >
         <h2 id={titleId} className="h2 shrink-0">

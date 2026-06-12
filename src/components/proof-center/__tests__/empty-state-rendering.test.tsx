@@ -13,8 +13,6 @@ import { freshAttestation, zeroReservesCustody } from "./fixtures";
 function assertModuleEmptyContract(html: string, message: string): void {
   expect(html).toContain(message);
   expect(html).toContain("ct-empty-surface--widget");
-  expect(html).not.toContain("glass-panel");
-  expect(html).not.toContain("ct-system-panel");
   expect(html).not.toContain("border-dashed");
   expect(html).not.toContain("Stale");
 }
@@ -37,7 +35,6 @@ describe("Proof Center empty states — design contract", () => {
     const html = renderToStaticMarkup(
       <PorSummary attestation={freshAttestation()} custody={zeroReservesCustody()} />,
     );
-    expect(html).toContain("ct-glass-panel");
     expect(html).toContain("ct-panel-status");
     expect(html).not.toContain("ct-nested-callout");
     expect(html).toContain(

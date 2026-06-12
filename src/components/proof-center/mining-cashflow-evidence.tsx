@@ -6,7 +6,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
 import { NestedKpiGrid } from "@/components/ui/nested-panel";
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { CoverageView } from "@/lib/engine/coverage-view";
 
 const BADGE: Record<CoverageView["provenance"], "live" | "estimated" | "manual" | "stale"> = {

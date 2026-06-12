@@ -149,7 +149,7 @@ Noms extraits de `var(--ct-*)` / `(--ct-*)` — **variables CSS**, pas classes :
 
 Undefined ct-*     : [liste ou vide]
 DEPRECATED hits    : [liste + count]
-Token syntax admin : (--ct-*) vs [var(--ct-*)] counts
+Token syntax admin : legacy shorthand vs bracket var() counts
 Recommandations    : [actions]
 ```
 

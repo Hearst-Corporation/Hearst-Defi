@@ -1,3 +1,4 @@
+import { NestedPanel } from "@/components/ui/nested-panel";
 import { cn } from "@/lib/cn";
 
 interface PtaiProps {
@@ -56,14 +57,6 @@ export function Ptai({
   }
 
   return (
-    <div
-      className={cn(
-        "glass-panel-subtle p-4 rounded-xl relative overflow-hidden group",
-        className,
-      )}
-    >
-      <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[var(--ct-surface-3)] to-transparent opacity-50" />
-      <div className="relative z-[var(--ct-z-raised)]">{rows}</div>
-    </div>
+    <NestedPanel className={cn("p-4 group", className)}>{rows}</NestedPanel>
   );
 }

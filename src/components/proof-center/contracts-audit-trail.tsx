@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProofRow } from "@/components/ui/nested-panel";
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { getDeployment } from "@/lib/chain/deployments";
 import {
   EXPLORER_ADDRESS_BASE,
@@ -175,7 +175,7 @@ export function ContractsAuditTrail() {
           tone="quiet"
         />
 
-        <ul className="divide-y divide-(--ct-border-soft)">
+        <ul className="divide-y divide-[var(--ct-border-soft)]">
           {AUDIT_ENTRIES.map((entry) => (
             <li
               key={entry.label}
@@ -199,7 +199,7 @@ export function ContractsAuditTrail() {
           ))}
         </ul>
 
-        <p className="body-xs mt-4 border-t border-(--ct-border-soft) pt-4">
+        <p className="body-xs mt-4 border-t border-[var(--ct-border-soft)] pt-4">
           Phase 3 will require a Spearbit audit pass before any ERC-4626 vault
           deployment. Methodology is immutable at v1.0; a version bump requires
           an ADR and LP notification.

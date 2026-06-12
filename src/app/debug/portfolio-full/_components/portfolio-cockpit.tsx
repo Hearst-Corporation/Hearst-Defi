@@ -55,7 +55,7 @@ export function PortfolioCockpitDebug({
       </section>
 
       {/* ── Section 2 — Under the Hood (Yield & Trust) ────────────────────── */}
-      <section className="flex flex-col gap-6 relative z-10 border-t border-(--ct-border-soft) pt-12">
+      <section className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12">
         {/* Ligne 1 : Yield Analytics */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 shrink-0 min-h-72">
           <div className="lg:col-span-4 flex flex-col h-full">{donut}</div>
@@ -64,9 +64,9 @@ export function PortfolioCockpitDebug({
             <article className="dash-cell dash-cell-premium flex flex-col p-6 h-full">
               <div className="pf-panel-title flex justify-between items-center gap-2 mb-1.5">
                 <span>Yield Source Stack</span>
-                <div className="h-4 w-12 bg-(--ct-surface-3) rounded-full shrink-0" />
+                <div className="h-4 w-12 bg-[var(--ct-surface-3)] rounded-full shrink-0" />
               </div>
-              <div className="flex-1 flex items-center justify-center text-(--ct-text-muted) italic">
+              <div className="flex-1 flex items-center justify-center text-[var(--ct-text-muted)] italic">
                 Yield stack visualization placeholder
               </div>
             </article>
@@ -78,20 +78,20 @@ export function PortfolioCockpitDebug({
            <div className="h-full">
              <article className="dash-cell dash-cell-premium flex flex-col p-6 h-full">
                <div className="pf-panel-title mb-1.5"><span>Risk Pulse</span></div>
-               <div className="flex-1 flex items-center justify-center text-(--ct-text-muted) italic">Risk placeholder</div>
+               <div className="flex-1 flex items-center justify-center text-[var(--ct-text-muted)] italic">Risk placeholder</div>
              </article>
            </div>
            <div className="h-full">
              <article className="dash-cell dash-cell-premium flex flex-col p-6 h-full">
                <div className="pf-panel-title mb-1.5"><span>Proof Pulse</span></div>
-               <div className="flex-1 flex items-center justify-center text-(--ct-text-muted) italic">Proof placeholder</div>
+               <div className="flex-1 flex items-center justify-center text-[var(--ct-text-muted)] italic">Proof placeholder</div>
              </article>
            </div>
         </div>
       </section>
 
       {/* ── Section 3 — Details & History ─────────────────────────────────── */}
-      <section className="flex flex-col gap-6 relative z-10 border-t border-(--ct-border-soft) pt-12">
+      <section className="flex flex-col gap-6 relative z-10 border-t border-[var(--ct-border-soft)] pt-12">
         {/* Positions List — Full width */}
         <div className="flex flex-col min-h-72">{positions}</div>
 
@@ -100,7 +100,7 @@ export function PortfolioCockpitDebug({
             {/* Distrib Calendar placeholder */}
             <article className="dash-cell dash-cell-premium flex flex-col p-6 h-full">
               <div className="pf-panel-title mb-1.5"><span>Distributions Calendar</span></div>
-              <div className="flex-1 flex items-center justify-center text-(--ct-text-muted) italic">Calendar placeholder</div>
+              <div className="flex-1 flex items-center justify-center text-[var(--ct-text-muted)] italic">Calendar placeholder</div>
             </article>
           </div>
           <div className="lg:col-span-4 flex flex-col h-full">{activity}</div>

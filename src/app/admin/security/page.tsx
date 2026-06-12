@@ -1,6 +1,6 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Card } from "@/components/ui/card";
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { isTotpEnabled } from "@/lib/auth/totp";
 

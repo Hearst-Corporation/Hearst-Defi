@@ -816,7 +816,6 @@
   transition: border-color var(--ct-dur-base) var(--ct-ease);
 }
 
-.pf-value-chart.glass-panel:hover,
 .pf-container .pf-main-chart-wrapper .ct-card.pf-value-chart:hover {
   border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-graphite-border-nested)) !important;
 }
@@ -844,7 +843,7 @@
 }
 
 /* Nested empties inside portfolio panels — flat (cockpit.css mirrors globally). */
-.pf-container :is(.pf-cockpit-panel, .module-chrome, .glass-panel)
+.pf-container :is(.pf-cockpit-panel, .module-chrome, .ct-card)
   :is(.ct-empty-surface, .ct-empty-surface--widget, .ct-empty-surface--chart):not(
     .ct-empty-surface--round
   ) {

@@ -174,7 +174,7 @@ export function YieldStack({
                 aria-hidden="true"
               >
                 <div
-                  className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-(--ct-dur-base)"
+                  className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-[var(--ct-dur-base)]"
                   style={{
                     width: `${widthPct.toFixed(1)}%`,
                     background: color,
@@ -187,7 +187,7 @@ export function YieldStack({
         })}
       </div>
 
-      <hr className="my-2 border-0 border-t border-(--ct-border-soft)" aria-hidden />
+      <hr className="my-2 border-0 border-t border-[var(--ct-border-soft)]" aria-hidden />
 
       <dl className="pf-stack--dense">
           {/* Blended forward range */}

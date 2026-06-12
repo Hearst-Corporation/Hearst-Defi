@@ -98,11 +98,11 @@ const ACTION_TONE: Record<
   RebalancingAction["variant"],
   { dot: string; border: string }
 > = {
-  success: { dot: "bg-(--ct-status-success)", border: "border-l-(--ct-status-success)" },
-  warning: { dot: "bg-(--ct-status-warning)", border: "border-l-(--ct-status-warning)" },
-  danger: { dot: "bg-(--ct-status-danger)", border: "border-l-(--ct-status-danger)" },
-  brand: { dot: "bg-(--ct-accent)", border: "border-l-(--ct-accent)" },
-  default: { dot: "bg-(--ct-text-muted)", border: "border-l-(--ct-border-strong)" },
+  success: { dot: "bg-[var(--ct-status-success)]", border: "border-l-[var(--ct-status-success)]" },
+  warning: { dot: "bg-[var(--ct-status-warning)]", border: "border-l-[var(--ct-status-warning)]" },
+  danger: { dot: "bg-[var(--ct-status-danger)]", border: "border-l-[var(--ct-status-danger)]" },
+  brand: { dot: "bg-[var(--ct-accent)]", border: "border-l-[var(--ct-accent)]" },
+  default: { dot: "bg-[var(--ct-text-muted)]", border: "border-l-[var(--ct-border-strong)]" },
 };
 
 // ── full-view: decision panel ─────────────────────────────────────────────────
@@ -243,18 +243,18 @@ function DecisionPanel({
 
       {/* AI narrative — discreet, never a broken-looking standalone card */}
       {narrative === null ? (
-        <p className="mt-4 border-t border-(--ct-border-soft) pt-3 body-xs ct-text-muted">
+        <p className="mt-4 border-t border-[var(--ct-border-soft)] pt-3 body-xs ct-text-muted">
           AI narrative unavailable — deterministic engine output shown.
         </p>
       ) : narrative ? (
-        <div className="mt-4 border-t border-(--ct-border-soft) pt-4">
+        <div className="mt-4 border-t border-[var(--ct-border-soft)] pt-4">
           <span className="stat-label">AI narrative</span>
           <div className="mt-2">
             <Markdown content={narrative.narrative_md} />
           </div>
           {narrative.risk_warning ? (
             <PanelStatusAccent
-              className="mt-3 items-start border-l-(--ct-status-warning)"
+              className="mt-3 items-start border-l-[var(--ct-status-warning)]"
               role="note"
             >
               <div className="ct-panel-status">
@@ -303,7 +303,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
 
       {/* Tactical guardrails */}
       {hasGuardrails ? (
-        <div className="mt-5 border-t border-(--ct-border-soft) pt-5">
+        <div className="mt-5 border-t border-[var(--ct-border-soft)] pt-5">
           <span className="stat-label">Guardrails</span>
           <div className="mt-2 admin-doc-inline-row">
             {output.btc_tactical.guardrails.map((g) => (
@@ -335,7 +335,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
       ) : null}
 
       {/* Rebalancing actions (PTAI list) */}
-      <div className="mt-5 border-t border-(--ct-border-soft) pt-5">
+      <div className="mt-5 border-t border-[var(--ct-border-soft)] pt-5">
         <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
           <span className="stat-label">Rebalancing actions</span>
           <span className="eyebrow">Max 4 · Rule-based · PTAI</span>
@@ -372,7 +372,7 @@ function AssumptionsPanel({ assumptions }: { assumptions: string[] }) {
         </span>
       </button>
       {open ? (
-        <div className="mt-4 border-t border-(--ct-border-soft) pt-4">
+        <div className="mt-4 border-t border-[var(--ct-border-soft)] pt-4">
           <AssumptionsList assumptions={assumptions} />
         </div>
       ) : null}
@@ -438,20 +438,20 @@ function CompactPanel({
     ) : undefined;
 
   return (
-    <section
+    <Card
       className={cn(
-        "relative ct-card ct-glass-panel p-5",
-        "border-l-4",
+        "p-5 border-l-4",
         side === "A"
-          ? "border-l-(--ct-border-strong)"
-          : "border-l-(--ct-text-strong)",
-        "transition-opacity duration-(--ct-dur-fast)",
+          ? "border-l-[var(--ct-border-strong)]"
+          : "border-l-[var(--ct-text-strong)]",
+        "transition-opacity duration-[var(--ct-dur-fast)]",
         isPending && "pointer-events-none opacity-50",
       )}
+      hoverOverlay={false}
       aria-busy={isPending}
       aria-label={`Scenario ${side}: ${presetLabel}`}
     >
-      <div className="divide-y divide-(--ct-border-soft)">
+      <div className="divide-y divide-[var(--ct-border-soft)]">
         <ApyHero output={output} variant="compact" delta={apyDelta} />
         <ScoreGrid output={output} variant="compact" riskFooter={riskFooter} />
         <VaultMode output={output} variant="compact" />
@@ -463,7 +463,7 @@ function CompactPanel({
           <PtaiBlock output={output} variant="flat" className="mt-2" />
         </div>
       </div>
-    </section>
+    </Card>
   );
 }
 
@@ -488,13 +488,13 @@ export function OutputPanel(props: OutputPanelProps) {
   return (
     <div
       className={cn(
-        "relative admin-doc-stack--roomy transition-opacity duration-(--ct-dur-fast)",
+        "relative admin-doc-stack--roomy transition-opacity duration-[var(--ct-dur-fast)]",
         isPending && "pointer-events-none opacity-50",
       )}
       aria-busy={isPending}
     >
       {isPending && (
-        <div className="pointer-events-none absolute inset-0 z-(--ct-z-overlay) flex items-center justify-center rounded-lg ct-surface-2/60 backdrop-blur-sm">
+        <div className="pointer-events-none absolute inset-0 z-[var(--ct-z-overlay)] flex items-center justify-center rounded-lg ct-surface-2/60 backdrop-blur-sm">
           <span className="body-sm ct-text-body">Computing…</span>
         </div>
       )}
@@ -512,7 +512,7 @@ export function OutputPanel(props: OutputPanelProps) {
       <AssumptionsPanel assumptions={output.assumptions} />
 
       {/* Disclaimer */}
-      <p className="border-t border-(--ct-border-soft) pt-4 body-xs italic ct-text-muted">
+      <p className="border-t border-[var(--ct-border-soft)] pt-4 body-xs italic ct-text-muted">
         <span className="font-semibold not-italic ct-text-body">
           Not guaranteed.
         </span>{" "}

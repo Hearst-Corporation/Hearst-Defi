@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { AdminActionItem } from "@/lib/data/admin-overview";
 
 export function OperatorShortcuts({ actions }: { actions: AdminActionItem[] }) {

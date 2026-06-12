@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProofRow } from "@/components/ui/nested-panel";
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { EVENT_TIMELINE_EMPTY } from "@/components/proof/empty-messages";
 import { EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { EventKind, OnChainEvent } from "@/lib/chain/event-logger";
@@ -44,10 +44,10 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
 });
 
 function eventDotClass(kind: EventKind): string {
-  if (kind === "GuardrailBreach") return "bg-(--ct-status-danger)";
-  if (kind === "Distribution") return "bg-(--ct-status-success)";
-  if (kind === "TriggerArmed") return "bg-(--ct-status-warning)";
-  return "bg-(--ct-accent)";
+  if (kind === "GuardrailBreach") return "bg-[var(--ct-status-danger)]";
+  if (kind === "Distribution") return "bg-[var(--ct-status-success)]";
+  if (kind === "TriggerArmed") return "bg-[var(--ct-status-warning)]";
+  return "bg-[var(--ct-accent)]";
 }
 
 function EventTimelineItem({
@@ -67,7 +67,7 @@ function EventTimelineItem({
       <div className="relative mt-1 flex h-7 w-7 shrink-0 items-center justify-center">
         <span
           className={cn(
-            "h-3 w-3 rounded-full border-2 border-(--ct-surface-2)",
+            "h-3 w-3 rounded-full border-2 border-[var(--ct-surface-2)]",
             eventDotClass(event.kind),
           )}
         />

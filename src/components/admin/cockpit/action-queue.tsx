@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { cn } from "@/lib/cn";
 import type { ActionQueueItem, ActionSeverity } from "@/lib/data/cockpit";
 

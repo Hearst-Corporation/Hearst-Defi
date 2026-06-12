@@ -12,7 +12,6 @@ describe("Proof & System empty states", () => {
   it("ProofList: widget empty without card shell", () => {
     const html = renderToStaticMarkup(<ProofList items={[]} />);
     expect(html).toContain("ct-empty-surface--widget");
-    expect(html).not.toContain("glass-panel");
   });
 
   it("MonitoringBoard: widget empty only when no runs", () => {
@@ -30,7 +29,6 @@ describe("Proof & System empty states", () => {
       />,
     );
     expect(html).toContain("ct-empty-surface--widget");
-    expect(html).not.toContain("ct-system-panel");
     expect(html).not.toContain("Runs by Agent");
   });
 });

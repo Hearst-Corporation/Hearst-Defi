@@ -40,13 +40,13 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
           <ProvenanceBadge kind={valueProvenance} />
         </div>
         <div className="flex items-baseline mt-auto relative z-10">
-          <span className="mono stat-value font-light text-(--ct-text-strong) tracking-tighter leading-tight tabular-nums truncate">
+          <span className="mono stat-value font-light text-[var(--ct-text-strong)] tracking-tighter leading-tight tabular-nums truncate">
             {navPerShare.toFixed(4)}
           </span>
           <span className="dash-unit opacity-50 ml-1.5">USDC</span>
         </div>
         <div className="mt-2 h-4 relative z-10">
-          <p className="body-xs text-(--ct-text-muted) mono uppercase tracking-wider leading-4 truncate opacity-70">
+          <p className="body-xs text-[var(--ct-text-muted)] mono uppercase tracking-wider leading-4 truncate opacity-70">
             Par $1.00 · class A
           </p>
         </div>
@@ -61,7 +61,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
           <ProvenanceBadge kind={valueProvenance} />
         </div>
         <div className="flex items-baseline mt-auto relative z-10">
-          <span className="mono stat-value font-light text-(--ct-text-strong) tracking-tighter leading-tight tabular-nums truncate">
+          <span className="mono stat-value font-light text-[var(--ct-text-strong)] tracking-tighter leading-tight tabular-nums truncate">
             {hasPositions ? formatUsdCompact(data.totalValueUsdc) : <span className="opacity-30">—</span>}
           </span>
           <span className="dash-unit opacity-50 ml-1.5">USDC</span>
@@ -72,8 +72,8 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
               className={cn(
                 "body-xs mono leading-4 uppercase tracking-wider",
                 data.pnl.netReturnPct >= 0
-                  ? "text-(--ct-accent)"
-                  : "text-(--ct-status-danger)",
+                  ? "text-[var(--ct-accent)]"
+                  : "text-[var(--ct-status-danger)]",
               )}
             >
               {data.pnl.netReturnPct >= 0 ? "+" : ""}
@@ -92,13 +92,13 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
           <ProvenanceBadge kind={yieldProvenance} />
         </div>
         <div className="flex items-baseline mt-auto relative z-10">
-          <span className="mono stat-value font-light text-(--ct-text-strong) tracking-tighter leading-tight tabular-nums truncate">
+          <span className="mono stat-value font-light text-[var(--ct-text-strong)] tracking-tighter leading-tight tabular-nums truncate">
             {hasPositions ? formatUsdCompact(data.totalYieldYtdUsdc) : <span className="opacity-30">—</span>}
           </span>
           <span className="dash-unit opacity-50 ml-1.5">USDC</span>
         </div>
         <div className="mt-2 h-4 relative z-10">
-          <p className="body-xs text-(--ct-text-muted) mono uppercase tracking-wider leading-4 truncate opacity-70">
+          <p className="body-xs text-[var(--ct-text-muted)] mono uppercase tracking-wider leading-4 truncate opacity-70">
             Accrued + distributed
           </p>
         </div>
@@ -113,12 +113,12 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
           <ProvenanceBadge kind={distProvenance} />
         </div>
         <div className="flex items-baseline mt-auto relative z-10">
-          <span className="mono stat-value font-light text-(--ct-text-strong) tracking-tighter leading-tight tabular-nums truncate">
+          <span className="mono stat-value font-light text-[var(--ct-text-strong)] tracking-tighter leading-tight tabular-nums truncate">
             {monthDayFmt.format(data.nextDistributionAt)}
           </span>
         </div>
         <div className="mt-2 h-4 relative z-10">
-          <p className="body-xs text-(--ct-text-muted) mono uppercase tracking-wider leading-4 truncate opacity-70">
+          <p className="body-xs text-[var(--ct-text-muted)] mono uppercase tracking-wider leading-4 truncate opacity-70">
             Monthly · Day 1, T+5
           </p>
         </div>

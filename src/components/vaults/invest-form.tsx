@@ -274,7 +274,7 @@ export function InvestForm({ vault }: InvestFormProps) {
                   className={cn(
                     "ct-input tabular w-full pl-8 pr-4 py-3 mono body-lg",
                     amount > 0 && !amountValid
-                      ? "ct-bc-warning focus:ring-(--ct-status-warning)"
+                      ? "ct-bc-warning focus:ring-[var(--ct-status-warning)]"
                       : "",
                   )}
                 />
@@ -324,7 +324,7 @@ export function InvestForm({ vault }: InvestFormProps) {
 
             {awaitingConfirm ? (
               <div
-                className="vault-confirm-panel border-t border-(--ct-border-soft) pt-4"
+                className="vault-confirm-panel border-t border-[var(--ct-border-soft)] pt-4"
                 aria-label="Confirm your deposit"
               >
                 <p className="eyebrow">Confirm your deposit</p>

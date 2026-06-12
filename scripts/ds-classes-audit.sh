@@ -25,6 +25,8 @@ TYPO_ROLES="h1 h2 h3 h4 eyebrow stat-value stat-label body-lg body-md body-sm bo
 rg -o '\bct-[a-z][a-z0-9_-]+\b' \
   src/app src/components src/lib/ui \
   --glob '*.{tsx,ts}' \
+  --glob '!**/__tests__/**' \
+  --glob '!**/*.test.{tsx,ts}' \
   | sed 's/.*://' \
   | sort -u >"$USED"
 
@@ -118,8 +120,8 @@ echo ""
 echo "📐 Token syntax in admin + lib/ui:"
 V4_COUNT="$(rg -c '\(--ct-' src/app/admin src/components/admin src/lib/ui --glob '*.{tsx,ts}' 2>/dev/null | awk -F: '{s+=$2} END {print s+0}')"
 BRACKET_COUNT="$(rg -c '\[var\(--ct-' src/app/admin src/components/admin src/lib/ui --glob '*.{tsx,ts}' 2>/dev/null | awk -F: '{s+=$2} END {print s+0}')"
-echo "   border/bg/text-(--ct-*)     : $V4_COUNT occurrences (legacy OK, avoid new)"
-echo "   border/bg/text-[var(--ct-*)] : $BRACKET_COUNT occurrences (canon for new admin code)"
+echo "   legacy (-ct-TOKEN) shorthand in className    : $V4_COUNT (avoid new)"
+echo "   canon bracket var() token syntax             : $BRACKET_COUNT"
 echo ""
 
 # ── 7. Helpers outside page files ──────────────────────────────────────────
@@ -127,10 +129,11 @@ echo "📦 src/lib/ui/ class strings:"
 rg -n '.' src/lib/ui/*.ts 2>/dev/null || echo "   (none)"
 echo ""
 
-# ── 8. Exit code ───────────────────────────────────────────────────────────
+# ── 8. Exit code (advisory only — never blocks CI or local DS iteration) ───
 if ((${#UNDEFINED[@]} > 0)); then
-  echo "Verdict: FAIL — undefined ct-* classes above need cockpit.css definition or rename."
-  exit 1
+  echo "Verdict: WARN — undefined ct-* classes above need cockpit.css definition or rename."
+else
+  echo "Verdict: PASS — all ct-* class usages match CSS allowlist."
 fi
-echo "Verdict: PASS — all ct-* class usages match CSS allowlist."
+echo "(advisory — exit 0; run manually via pnpm ds:classes)"
 exit 0

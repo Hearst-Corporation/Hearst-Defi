@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { ProofRow } from "@/components/ui/nested-panel";
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { requireAdmin } from "@/lib/auth/require-admin";

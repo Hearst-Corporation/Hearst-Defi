@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { Metric } from "@/components/ui/metric";
 import { NestedKpiGrid } from "@/components/ui/nested-panel";
-import { DashboardPanelHeader } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { CustodySnapshot } from "@/lib/data/custody";
 import { sectionDividerClass } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/cn";

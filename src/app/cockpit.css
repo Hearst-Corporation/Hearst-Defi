@@ -3,7 +3,7 @@
    Importé après tokens.css (package) et avant globals.css.
 
    RÈGLES :
-   - Aucune couleur hex en dur (var(--ct-*) uniquement)
+   - Aucune couleur hex en dur (var(--ct-…) uniquement)
    - Aucun spacing en px hors transitions/borders (rem ou tokens)
    - Ne redéfinit PAS les tokens --ct-* ni les classes .ct-* du package
    ============================================================ */
@@ -32,7 +32,7 @@
   /* ── FONDS DE CARDS — lift "plus blanc" (demande Adrien 2026-06-10) ──
      Le package tokens.css plafonne les surfaces à 2/4/6/9% de blanc, ce qui
      rend les cards quasi indistinctes du noir pur. Remontées pour que TOUS les
-     fonds de boxe (dash-cell→surface-2, ct-card→surface-1, glass-panel→
+     fonds de boxe (dash-cell→surface-2, ct-card→surface-1, ct-glass-panel→
      surface-1/2) lisent clairement comme des surfaces translucides plus claires.
      cockpit.css est non-layered → bat le layer(cockpit) du package sans !important.
      Réversible : supprimer ce bloc restaure les valeurs du package. */
@@ -106,10 +106,8 @@
 
   /* ── GLASS — canonical premium recipe (source of truth) ──
      One token set drives the `.ct-glass-panel` utility below; that class is the
-     ONLY recipe new premium surfaces should use. The older `.glass-panel` /
-     `.glass-panel-subtle` (lighter everyday tiers, admin-shared) are kept stable
-     and should migrate toward these tokens over time. Inline backdrop recipes in
-     components should also converge here rather than re-declaring the effect. */
+     ONLY recipe new premium surfaces should use. Inline backdrop recipes in
+     components should converge here rather than re-declaring the effect. */
   --ct-glass-radius: 28px;
   /* Quiet glass: gentle blur, no saturate punch — the glossy look is gone. */
   --ct-glass-blur: blur(20px) saturate(100%);
@@ -1379,7 +1377,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 }
 
 /* Dense panels — quiet provenance compact (dot + sr-only label, no glass pill). */
-:is(.pf-cockpit-panel, .dash-cell, .glass-panel, .ct-card, .ct-system-panel)
+:is(.pf-cockpit-panel, .dash-cell, .ct-card)
   .dashboard-provenance-badge--compact {
   padding: 0;
   border: none;
@@ -1427,47 +1425,6 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 
 .dashboard-command-cell {
   min-width: 0;
-}
-
-/* Secondary cockpit instrumentation — quieter than ct-card glass-panel.
-   Inner inset matches .ct-card (20px 24px) so headers/body align with Card cells. */
-.ct-system-panel {
-  position: relative;
-  min-width: 0;
-  overflow: hidden;
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-nested-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
-  box-shadow: none;
-  padding: var(--ct-space-5) var(--ct-space-6);
-}
-
-.ct-system-panel__header {
-  margin-bottom: var(--ct-space-3);
-}
-
-.ct-system-panel table {
-  background: transparent;
-}
-
-.ct-system-panel thead tr {
-  border-color: var(--ct-border-soft);
-}
-
-.ct-system-panel tbody tr {
-  border-color: color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
-}
-
-.ct-system-panel tbody tr:hover {
-  background: var(--ct-surface-0);
-}
-
-.ct-system-panel__table-scroll {
-  overflow-x: auto;
-  margin-inline: calc(-1 * var(--ct-space-6));
-  padding-inline: var(--ct-space-6);
 }
 
 /* Live metrics — reflow metric grid from card width, not viewport. */
@@ -1861,9 +1818,9 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 .ct-shadow-elevated { box-shadow: var(--ct-shadow-elevated); }
 .ct-shadow-depth { box-shadow: var(--ct-shadow-depth); }
 
-/* ── PRIMITIVE TOKEN UTILITIES — arbitraires [var(--ct-*)] des primitives UI
-   (Button/Badge/Card/Metric) factorisés en classes DS nommées.
-   Visual-neutral : chaque classe résout à la valeur exacte de l'arbitraire remplacé. ── */
+/* ── PRIMITIVE TOKEN UTILITIES — named classes for UI primitives (Button/Badge/
+   Card/Metric), replacing per-component arbitrary token values.
+   Visual-neutral: each class resolves to the exact token the arbitrary used. ── */
 .ct-bg-deep { background-color: var(--ct-bg-deep); }
 .ct-bg-accent { background-color: var(--ct-accent); }
 .ct-bg-accent-strong-hover:hover { background-color: var(--ct-accent-strong); }
@@ -1957,8 +1914,6 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 /* Flatten nested empties inside structured parents — no cage in a cage (DS §9.3). */
 :is(
   .pf-cockpit-panel,
-  .glass-panel,
-  .ct-system-panel,
   .ct-card,
   .module-chrome
 ) :is(.ct-empty-surface, .ct-empty-surface--widget, .ct-empty-surface--chart):not(
@@ -2068,26 +2023,6 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
    Permet aux ~30 composants métier d'afficher le look Cockpit
    sans modifier leurs className. */
 
-/* glass-panel → active module surface (Card primitive, scenario lab, admin).
-   Dark graphite smoked glass — not milky white translucency (green bg bleed). */
-.glass-panel {
-  background: var(--ct-graphite-active-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
-  border: 1px solid var(--ct-graphite-border);
-  box-shadow:
-    0 8px 24px -16px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
-    var(--ct-shadow-depth);
-  border-radius: var(--ct-radius-lg);
-  transition:
-    background var(--ct-dur-base) var(--ct-ease),
-    border-color var(--ct-dur-base) var(--ct-ease);
-}
-
-.glass-panel:hover {
-  border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-border-soft));
-}
-
 /* Premium dot grid — primary investor/admin modules (alias: .dash-cell-premium) */
 .card-premium,
 .dash-cell-premium {
@@ -2161,14 +2096,6 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   white-space: nowrap;
 }
 
-.glass-panel-subtle {
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-lg);
-}
-
 /* Card hover wash disabled — keeps graphite calm over cockpit bg */
 .ct-card .ct-overlay-surface0 {
   display: none;
@@ -2199,11 +2126,7 @@ pre.ct-surface-1.rounded-md {
    never dissolves into the dark background — this preserves the prior contrast
    pass.
 
-   CASCADE NOTE (do not reorder): this rule and its :hover MUST stay AFTER
-   `.glass-panel` / `.glass-panel:hover` (above). An element using the Card
-   primitive carries both `glass-panel` and `ct-glass-panel`; equal specificity
-   means source order decides, and `.glass-panel:hover` (a pseudo-class, 0,2,0)
-   would otherwise reclaim the background on hover. */
+/* Canonical premium glass surface — applied by Card and explicit call-sites. */
 .ct-glass-panel {
   border-radius: var(--ct-glass-radius);
   border: 1px solid var(--ct-graphite-border);
