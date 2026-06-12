@@ -256,6 +256,8 @@ pnpm test                 # vitest (inclut doc-flow-shells guardrail)
 pnpm ds:layout            # bloquant — ct-table-surface, ct-hover-surface, ct-card direct
 ```
 
+Journal DS / résumé d'audit : [`docs/DESIGN_SYSTEM.md §11`](docs/DESIGN_SYSTEM.md) (working log — checkpoints, commits mixtes acceptés, prochaine famille DS sur branche fraîche).
+
 Hub d'audit DS **local, advisory** (n'échoue pas la CI — `exit 0` toujours) :
 
 ```

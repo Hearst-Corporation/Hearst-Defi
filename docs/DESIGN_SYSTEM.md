@@ -215,3 +215,9 @@ inchangé et orthogonal.
 
 `doc-flow.css` ne définit PAS de valeurs token — uniquement des primitives layout.
 Ordre d'import : après `cockpit.css`, avant `globals.css`.
+
+## 11. Working log / audit summary
+
+| Date | Commit | Note |
+|------|--------|------|
+| 2026-06-13 | `66b528f` (pushed `main`) | **Mixed checkpoint — accepted as-is.** DS row taxonomy (`DataRow` / `LegalMetadataRow` / `ProofRow`) and `MetricGrid` / `NestedKpiGrid` aliases shipped in `nested-panel.tsx` + §6/§9 doc updates. Same commit also contains scenario task-flow polish (`cockpit.css`, `central-task-runner.tsx`, `single-mode.tsx`). **No history rewrite** — commit already on `origin/main`; do not reopen or split `66b528f`. Next DS family: **fresh branch + isolated commit only.**
