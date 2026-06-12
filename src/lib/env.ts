@@ -92,6 +92,8 @@ const serverEnvSchema = z.object({
   ADMIN_INITIAL_PASSWORD: z.string().optional(),
   ADMIN_ADDRESSES: z.string().optional(),
   HEARST_PUBLISHER: z.string().optional(),
+  // Comma-separated default multisig signer addresses; read by admin/projection/actions; validated at boot so a malformed value surfaces early.
+  VAULT_DEFAULT_SIGNERS: z.string().optional(),
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   INNGEST_SIGNING_KEY: z.string().optional(),

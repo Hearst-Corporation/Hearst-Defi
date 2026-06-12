@@ -40,7 +40,6 @@ function useChatSettingsAnchor(): Element | null {
   useEffect(() => {
     const resolve = () => {
       const el = document.querySelector(".ct-chat-settings");
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAnchor((prev) => (prev === el ? prev : el));
     };
     resolve();
