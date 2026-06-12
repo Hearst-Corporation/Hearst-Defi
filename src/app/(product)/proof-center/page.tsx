@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 import { TriangleAlert } from "lucide-react";
 
 import { ProductPageHeader } from "@/components/connect/product-page-header";
+import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
 import { ProofFilter } from "@/components/proof/proof-filter";
@@ -25,6 +26,7 @@ import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
 import { isAttestorAllowlisted } from "@/lib/attestation/stored";
 import { loadCustody } from "@/lib/data/custody";
 import { getProofs } from "@/lib/data/proofs";
+import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
 import { prisma } from "@/lib/db";
 import { TIMELOCK_DELAY_HOURS } from "@/lib/governance/state-machine";
 
@@ -40,7 +42,7 @@ export default async function ProductProofCenterPage({
   const filter = parseFilter(raw);
 
   const chainConfigured = isChainConfigured();
-  const [onChainEvents, onChainAttestations, paper, custody, timelockProposals] =
+  const [onChainEvents, onChainAttestations, paper, custody, timelockProposals, showDemoBanner] =
     await Promise.all([
       fetchOnChainEvents({ limit: 20 }),
       fetchOnChainAttestations({ limit: 12 }),
@@ -50,6 +52,7 @@ export default async function ProductProofCenterPage({
         where: { state: "TIMELOCK" },
         orderBy: { queuedAt: "asc" },
       }),
+      databaseHasDemoProofs(),
     ]);
 
   const latestAttestation = onChainAttestations[0] ?? null;
@@ -123,6 +126,8 @@ export default async function ProductProofCenterPage({
         }
       />
 
+      {showDemoBanner ? <DemoDataBanner /> : null}
+
       {/* ── Proof of Reserves summary ───────────────────────── */}
       <section aria-labelledby="por-heading">
         <h2 id="por-heading" className="sr-only">
@@ -157,7 +162,7 @@ export default async function ProductProofCenterPage({
       <section aria-labelledby="proof-grid-heading">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <h2 id="proof-grid-heading" className="h2">
-            All proofs
+            Platform-wide proofs
           </h2>
           {proofs.length > 0 ? <ProofFilter /> : null}
         </div>

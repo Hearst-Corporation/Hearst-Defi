@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
 
+import { redirect } from "next/navigation";
+
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
@@ -15,10 +17,10 @@ import { isChainConfigured } from "@/lib/chain/client";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
 import { isAttestorAllowlisted } from "@/lib/attestation/stored";
+import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { loadCustody } from "@/lib/data/custody";
 import { getProofs } from "@/lib/data/proofs";
-import { resolveVault } from "@/lib/vaults/resolver";
-import { vaultLabel } from "@/lib/vaults/slug";
+import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
 
 interface AdminProofCenterPageProps {
   searchParams: Promise<{ type?: string | string[]; vault?: string }>;
@@ -30,28 +32,27 @@ export default async function AdminProofCenterPage({
   await requireAdmin();
 
   const params = await searchParams;
+  const vaultParam = Array.isArray(params.vault) ? params.vault[0] : params.vault;
+  if (vaultParam) {
+    const rawType = Array.isArray(params.type) ? params.type[0] : params.type;
+    const qs =
+      rawType != null && rawType !== ""
+        ? `?type=${encodeURIComponent(rawType)}`
+        : "";
+    redirect(`/admin/proof-center${qs}`);
+  }
+
   const raw = Array.isArray(params.type) ? params.type[0] : params.type;
   const filter = parseFilter(raw);
-  const requestedVault = params.vault;
-
-  // Honesty: the proof grid is NOT scoped per vault yet — on-chain attestations,
-  // events, and off-chain proofs are platform-wide. Resolve the requested vault
-  // only to surface an honest caveat; the grid itself stays unfiltered, so we do
-  // not relabel it as "<vault> · proofs" (that would imply a scope we don't apply).
-  const resolvedRef = requestedVault
-    ? await resolveVault(requestedVault)
-    : null;
-  const requestedVaultLabel = resolvedRef
-    ? vaultLabel(resolvedRef)
-    : requestedVault ?? null;
 
   const chainConfigured = isChainConfigured();
-  const [onChainEvents, onChainAttestations, paper, custody] =
+  const [onChainEvents, onChainAttestations, paper, custody, showDemoBanner] =
     await Promise.all([
       fetchOnChainEvents({ limit: 20 }),
       fetchOnChainAttestations({ limit: 12 }),
       getProofs().then((r) => r.data),
       loadCustody(),
+      databaseHasDemoProofs(),
     ]);
 
   // Latest PoR attestation for the summary panel (descending order, index 0 = newest)
@@ -94,6 +95,8 @@ export default async function AdminProofCenterPage({
         }
       />
 
+      {showDemoBanner ? <DemoDataBanner /> : null}
+
       {/* ── Proof of Reserves summary ───────────────────────── */}
       <section aria-labelledby="por-heading">
         <h2 id="por-heading" className="sr-only">
@@ -117,17 +120,9 @@ export default async function AdminProofCenterPage({
       {/* ── Full proof grid (platform-wide, type-filtered only) ── */}
       <section aria-labelledby="proof-grid-heading">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h2 id="proof-grid-heading" className="h2">
-              All proofs
-            </h2>
-            {requestedVaultLabel ? (
-              <p className="body-xs ct-text-faint max-w-prose">
-                Proofs are platform-wide and not yet scoped per vault — this view
-                is not filtered to {requestedVaultLabel}.
-              </p>
-            ) : null}
-          </div>
+          <h2 id="proof-grid-heading" className="h2">
+            Platform-wide proofs
+          </h2>
           {proofs.length > 0 ? <ProofFilter /> : null}
         </div>
         {proofs.length === 0 ? (

@@ -28,6 +28,8 @@ import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { ProofPulse } from "@/components/portfolio/proof-pulse";
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { YieldStack } from "@/components/portfolio/yield-stack";
+import { DemoDataBanner } from "@/components/product/demo-data-banner";
+import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
 import { SecurityPulse } from "@/components/portfolio/security-pulse";
 import { MotionViewport } from "@/components/ui/motion-viewport";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
@@ -188,6 +190,7 @@ export default async function PortfolioPage() {
     distribCalendarProps,
     proofPulseProps,
     yieldStackProps,
+    showDemoBanner,
   ] = await Promise.all([
     loadLockMeterProps(),
     loadTimeToCashProps(),
@@ -195,6 +198,9 @@ export default async function PortfolioPage() {
     loadDistribCalendarProps(),
     loadProofPulseProps(),
     loadYieldStackProps(hasPositions),
+    investor?.id != null
+      ? investorHasDemoPosition(investor.id)
+      : Promise.resolve(false),
   ]);
 
   const name = displayName(investor);
@@ -221,6 +227,8 @@ export default async function PortfolioPage() {
       className={cn("pf-container", !hasPositions && "pf-container--zero")}
       data-testid="portfolio-page"
     >
+      {showDemoBanner ? <DemoDataBanner /> : null}
+
       <PortfolioGreeting name={name} data={data} />
 
       {showNextAction ? <NextActionCard {...actionFlags} /> : null}

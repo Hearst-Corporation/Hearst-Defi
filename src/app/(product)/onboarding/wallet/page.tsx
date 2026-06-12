@@ -75,10 +75,12 @@ export default async function WalletPage() {
 
       {/* Navigation */}
       <div className="flex flex-col gap-3">
+        <p className="body-sm ct-text-faint m-0 text-pretty">
+          Wallet binding is optional during onboarding. Connect above now or link
+          one later from Profile.
+        </p>
         <Button variant="primary" size="lg" asChild className="w-full font-bold">
-          <Link href="/portfolio">
-            Continue to Portfolio
-          </Link>
+          <Link href="/portfolio">Continue without wallet</Link>
         </Button>
         <Button variant="ghost" size="md" asChild className="w-full">
           <Link href="/onboarding/identity">

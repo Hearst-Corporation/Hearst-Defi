@@ -101,7 +101,7 @@ function PaperProofCard({
           <div className="flex items-center gap-2">
             <ProvenanceBadge kind={provenance} />
             <Badge variant={TYPE_VARIANT[proof.proofType]}>
-              {proof.period ?? "evergreen"}
+              {proof.period ?? "Standing"}
             </Badge>
           </div>
         </div>
