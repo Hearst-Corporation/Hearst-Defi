@@ -137,7 +137,7 @@ describe("subscribe — Class B wiring (E2)", () => {
       txHashOpen: null,
     });
 
-    const result = await subscribe("hearst-yield-vault", 2_000_000, "B");
+    const result = await subscribe("hearst-yield-vault", 2_000_000, "B", undefined, { allowOffChain: true });
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -204,7 +204,7 @@ describe("subscribe — Class B wiring (E2)", () => {
     });
 
     // Omit classCode — defaults to "A"
-    const result = await subscribe("hearst-yield-vault", 250_000);
+    const result = await subscribe("hearst-yield-vault", 250_000, undefined, undefined, { allowOffChain: true });
 
     expect(result.ok).toBe(true);
   });
@@ -316,7 +316,7 @@ describe("subscribe — C-01 KYC gate", () => {
       txHashOpen: null,
     });
 
-    const result = await subscribe("hearst-yield-vault", 250_000, "A");
+    const result = await subscribe("hearst-yield-vault", 250_000, "A", undefined, { allowOffChain: true });
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -340,12 +340,13 @@ describe("subscribe — P0-1 idempotency on txHash", () => {
   });
 
   it("replaying the same txHash returns the existing position WITHOUT creating a new one", async () => {
+    const validTx = "0x" + "de".repeat(32);
     // Pre-existing position for this on-chain deposit.
     vi.mocked(prisma.position.findUnique).mockResolvedValue({
       id: "pos_existing_001",
     } as unknown as Awaited<ReturnType<typeof prisma.position.findUnique>>);
 
-    const result = await subscribe("hearst-yield-vault", 250_000, "A", "0xDEADBEEF");
+    const result = await subscribe("hearst-yield-vault", 250_000, "A", validTx);
 
     expect(result).toEqual({ ok: true, positionId: "pos_existing_001" });
     // No write, no transaction — pure dedup short-circuit.
@@ -354,6 +355,7 @@ describe("subscribe — P0-1 idempotency on txHash", () => {
   });
 
   it("losing the race (P2002 on txHashOpen) resolves to the now-existing position", async () => {
+    const validTx = "0x" + "ef".repeat(32);
     // First lookup: miss. Post-violation lookup: the winner's row.
     vi.mocked(prisma.position.findUnique)
       .mockResolvedValueOnce(null)
@@ -370,17 +372,17 @@ describe("subscribe — P0-1 idempotency on txHash", () => {
     } as unknown as Awaited<ReturnType<typeof prisma.position.aggregate>>);
     vi.mocked(prisma.position.create).mockRejectedValue(p2002);
 
-    const result = await subscribe("hearst-yield-vault", 250_000, "A", "0xRACE");
+    const result = await subscribe("hearst-yield-vault", 250_000, "A", validTx);
 
     expect(result).toEqual({ ok: true, positionId: "pos_winner_001" });
   });
 
-  it("a subscription without a txHash skips the dedup lookup and still writes", async () => {
+  it("the off-chain pilot path (allowOffChain) skips the dedup lookup and still writes", async () => {
     vi.mocked(prisma.position.create).mockResolvedValue({
       id: "pos_no_hash_001",
     } as unknown as Awaited<ReturnType<typeof prisma.position.create>>);
 
-    const result = await subscribe("hearst-yield-vault", 250_000, "A");
+    const result = await subscribe("hearst-yield-vault", 250_000, "A", undefined, { allowOffChain: true });
 
     expect(result).toEqual({ ok: true, positionId: "pos_no_hash_001" });
     expect(prisma.position.findUnique).not.toHaveBeenCalled();
@@ -404,7 +406,7 @@ describe("subscribe — P0-2 transactional capacity guard", () => {
       _sum: { principalUsdc: decimal(99_900_000) },
     } as unknown as Awaited<ReturnType<typeof prisma.position.aggregate>>);
 
-    const result = await subscribe("hearst-yield-vault", 1_000_000, "A");
+    const result = await subscribe("hearst-yield-vault", 1_000_000, "A", undefined, { allowOffChain: true });
 
     expect(result).toEqual({
       ok: false,
@@ -423,9 +425,44 @@ describe("subscribe — P0-2 transactional capacity guard", () => {
       id: "pos_cap_ok_001",
     } as unknown as Awaited<ReturnType<typeof prisma.position.create>>);
 
-    const result = await subscribe("hearst-yield-vault", 1_000_000, "A");
+    const result = await subscribe("hearst-yield-vault", 1_000_000, "A", undefined, { allowOffChain: true });
 
     expect(result).toEqual({ ok: true, positionId: "pos_cap_ok_001" });
     expect(prisma.position.aggregate).toHaveBeenCalledOnce();
+  });
+});
+
+// ── H: ledger integrity — on-chain deposit required ────────────────────────
+
+describe("subscribe — ledger integrity (on-chain deposit required)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(prisma.vaultDeployment.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.position.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.position.aggregate).mockResolvedValue({
+      _sum: { principalUsdc: null },
+    } as unknown as Awaited<ReturnType<typeof prisma.position.aggregate>>);
+    vi.mocked(getInvestor).mockResolvedValue(MOCK_INVESTOR);
+    vi.mocked(getVault).mockResolvedValue(LIVE_VAULT);
+  });
+
+  it("public path with no txHash and no allowOffChain → ok:false, on-chain deposit required", async () => {
+    const result = await subscribe("hearst-yield-vault", 250_000, "A");
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/on-chain deposit/i);
+    }
+    expect(prisma.position.create).not.toHaveBeenCalled();
+  });
+
+  it("a malformed txHash is rejected before any write", async () => {
+    const result = await subscribe("hearst-yield-vault", 250_000, "A", "0xnothex");
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/invalid.*hash/i);
+    }
+    expect(prisma.position.create).not.toHaveBeenCalled();
   });
 });

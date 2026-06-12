@@ -54,6 +54,7 @@ export async function subscribe(
   amountUsdc: number,
   classCode: ShareClassCode = "A",
   txHash?: string,
+  opts?: { allowOffChain?: boolean },
 ): Promise<SubscribeResult> {
   const investor = await getInvestor();
   if (!investor) {
@@ -98,11 +99,29 @@ export async function subscribe(
     };
   }
 
+  // Ledger integrity: a subscription must be backed by a confirmed on-chain
+  // deposit. The public investor flow (invest-form) always passes the deposit
+  // tx hash; only the explicit, audited pilot path may create an off-chain
+  // position with no settlement (`allowOffChain`). A malformed hash is rejected
+  // so a typo can neither poison the ledger nor the txHashOpen idempotency key.
+  const allowOffChain = opts?.allowOffChain ?? false;
+  const txHashClean =
+    txHash && txHash.trim().length > 0 ? txHash.trim() : undefined;
+  if (txHashClean && !/^0x[0-9a-fA-F]{64}$/.test(txHashClean)) {
+    return { ok: false, error: "Invalid deposit transaction hash." };
+  }
+  if (!allowOffChain && !txHashClean) {
+    return {
+      ok: false,
+      error: "A confirmed on-chain deposit is required to subscribe.",
+    };
+  }
+
   // P0-1: idempotency — if this on-chain deposit was already recorded, return
   // the existing position instead of creating a duplicate (retry/double-submit).
-  if (txHash) {
+  if (txHashClean) {
     const existing = await prisma.position.findUnique({
-      where: { txHashOpen: txHash },
+      where: { txHashOpen: txHashClean },
       select: { id: true },
     });
     if (existing) {
@@ -149,15 +168,15 @@ export async function subscribe(
           vaultKey: `${vaultId}:class-${classCode}`,
           principalUsdc: amountUsdc,
           status: "active",
-          // On-chain deposit tx hash (Base Sepolia). Null for in-cockpit/manual
-          // subscriptions that did not originate from a signed vault deposit.
-          txHashOpen: txHash ?? null,
+          // On-chain deposit tx hash (Base Sepolia). Null only for the audited
+          // off-chain pilot path (`allowOffChain`); the public flow requires it.
+          txHashOpen: txHashClean ?? null,
           transactions: {
             create: {
               investorId: investor.id,
               type: "deposit",
               amountUsdc,
-              txHash: txHash ?? null,
+              txHash: txHashClean ?? null,
             },
           },
         },
@@ -172,9 +191,9 @@ export async function subscribe(
     }
     // P0-1: lost the race against a concurrent retry of the same deposit —
     // the unique txHashOpen constraint fired. Resolve to the existing position.
-    if (isUniqueViolation(err) && txHash) {
+    if (isUniqueViolation(err) && txHashClean) {
       const existing = await prisma.position.findUnique({
-        where: { txHashOpen: txHash },
+        where: { txHashOpen: txHashClean },
         select: { id: true },
       });
       if (existing) {
