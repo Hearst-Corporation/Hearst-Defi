@@ -201,7 +201,7 @@ export function ValueChart({
   return (
     <ModuleChrome
       aria-label="Portfolio value — 12-month trend"
-      className="relative h-full"
+      className="relative pf-value-chart"
       adornment={
         provenance ? <ChartProvenanceCorner kind={provenance} /> : null
       }
@@ -247,7 +247,7 @@ export function ValueChart({
 
       <p className="body-xs ct-text-muted mt-2 italic relative z-10">
         {showZeroShell
-          ? "Layout preview — indicative path at zero until your first active position. Not guaranteed."
+          ? "Indicative path at zero until your first active position. Not guaranteed."
           : "Indicative path derived from subscribed principal and current value. Past performance does not predict future results. Not guaranteed."}
       </p>
     </ModuleChrome>

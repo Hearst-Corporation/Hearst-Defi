@@ -35,12 +35,6 @@
   gap: var(--ct-space-4);
   max-width: 1440px;
   margin-inline: auto;
-  /* Mesure la largeur RÉELLE du panneau central. product-bento reflow la grille
-     sur le VIEWPORT (1280/768px) ; mais quand le chat droit (420px) est ouvert,
-     le centre est comprimé (~690–850px) alors que le viewport reste large → la
-     grille resterait en 12 colonnes dans un espace étroit. On mesure donc le
-     conteneur lui-même et on reflow la grille en conséquence (cf. @container
-     plus bas). N'affecte QUE le reflow grille + tables — pas la typo. */
   container-type: inline-size;
   container-name: pf;
 }
@@ -52,24 +46,20 @@
 }
 
 /* ── REFLOW GRILLE PAR LARGEUR RÉELLE DU CENTRE (container queries) ──
-   Spécificité 0,2,0 (.pf-container .dash-cell.col-X = 0,3,0) → bat les règles
-   product-bento (0,2,0) et leurs media queries. On NE touche pas aux tailles de
-   police ni au chrome des cellules : uniquement grid-column. */
+   Quand le chat droit compresse le panneau central, on empile en pleine
+   largeur — pas de demi-colonne orpheline (span 6). */
 
-/* Sous ~880px réels : les KPIs en tiers (col-4) passent en demi (span 6),
-   les pleins-larges 8/12 passent pleine largeur. */
 @container pf (max-width: 880px) {
   .pf-container .dash-cell.col-4,
-  .pf-container .bento-col-4 {
-    grid-column: span 6;
-  }
   .pf-container .dash-cell.col-8,
-  .pf-container .bento-col-8 {
+  .pf-container .bento-col-4,
+  .pf-container .bento-col-6,
+  .pf-container .bento-col-8,
+  .pf-container .bento-col-12 {
     grid-column: span 12;
   }
 }
 
-/* Sous ~560px réels : tout passe en pleine largeur (1 colonne effective). */
 @container pf (max-width: 560px) {
   .pf-container .dash-cell.col-3,
   .pf-container .dash-cell.col-4,
@@ -77,7 +67,8 @@
   .pf-container .dash-cell.col-8,
   .pf-container .bento-col-4,
   .pf-container .bento-col-6,
-  .pf-container .bento-col-8 {
+  .pf-container .bento-col-8,
+  .pf-container .bento-col-12 {
     grid-column: span 12;
   }
 }
@@ -162,7 +153,6 @@
   background: var(--ct-status-success);
 }
 
-/* Position status dots — tokenized (no inline background) */
 .pf-status-dot {
   width: var(--ct-space-2);
   height: var(--ct-space-2);
@@ -170,14 +160,11 @@
   border-radius: var(--ct-radius-full);
 }
 
-/* Semantics: active = live (accent green, the single UI green), matured = neutral,
-   exited/default = faint (closed / inactive). */
 .pf-status-dot--active { background: var(--ct-accent); }
 .pf-status-dot--matured { background: var(--ct-text-muted); }
 .pf-status-dot--exited { background: var(--ct-text-faint); }
 .pf-status-dot--default { background: var(--ct-text-faint); }
 
-/* Widget header row — dash-label title + meta slot */
 .pf-widget-header {
   display: flex;
   align-items: center;
@@ -198,20 +185,18 @@
   white-space: nowrap;
 }
 
-/* Risk row grid — replaces ad-hoc w-16 spacers */
 .pf-risk-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 2.25rem 4rem 3.5rem;
   align-items: center;
   gap: var(--ct-space-3);
-  padding-block: var(--ct-space-2_5);
+  padding-block: var(--ct-space-2);
 }
 
 .pf-risk-row + .pf-risk-row {
   border-top: 1px solid var(--ct-border-soft);
 }
 
-/* Activity row type markers */
 .pf-tx-icon {
   display: inline-block;
   width: var(--ct-space-4);
@@ -225,109 +210,135 @@
 .pf-tx-icon--withdraw { background: var(--ct-status-danger); }
 .pf-tx-icon--default { background: var(--ct-text-muted); }
 
-/* ── Graphique trop grand : le ValueChart (col-8) est en h-full → il s'étire à
-   la hauteur de la colonne droite (3 cards). On plafonne sa hauteur ; le SVG
-   interne (flex-1) suit. Padding des cellules = DS canonique (--ct-space-6),
-   on n'y touche pas. */
+/* ── Hero chart — dominant focal surface ── */
+.pf-hero-grid {
+  align-items: start;
+}
+
+.pf-main-chart-wrapper {
+  align-self: stretch;
+}
+
+.pf-hero-sidebar {
+  align-self: start;
+}
+
+.pf-value-chart,
 .pf-container [aria-label="Portfolio value — 12-month trend"] {
-  min-height: 18rem;
-}
-
-/* Stable grid heights — populated portfolio only */
-.pf-container [data-section="hero-pulse"] {
-  min-height: 32rem;
-}
-
-.pf-container [data-section="yield-trust"] {
-  min-height: 22rem;
-}
-
-.pf-container [data-section="activity-payouts"] {
   min-height: 20rem;
 }
 
-/* ProductSection layout — section padding inside Card (canonical DS) */
-.pf-container .ct-product-section {
-  padding: var(--ct-space-6) !important;
-}
-
-.pf-container .ct-product-section__content .ct-empty-surface--widget {
-  min-height: 10rem;
-}
-
-/* Preview section compact variant (layout-only) */
-.pf-section-light--compact,
-.ct-section-preview--compact {
-  gap: var(--ct-space-4);
-}
-
-/* Yield-allocation row — equal-height cockpit cards in zero preview */
-.pf-container [data-section="yield-allocation"] .bento-col-8,
-.pf-container [data-section="yield-allocation"] .bento-col-4 {
-  display: flex;
-  flex-direction: column;
-}
-
-.pf-container [data-section="yield-allocation"] .ct-card {
-  flex: 1;
-}
-
-/* Drop the premium accent dot-grid "background colour" from portfolio data
-   widgets (yield / source / stack / allocation / positions). Keeps the panel
-   frame + border; only the tinted radial grid is removed. Scoped to .pf-container
-   so the rest of the cockpit's premium cards are untouched. */
-.pf-container .ct-card.card-premium {
-  background-image: none;
-}
-
-/* ── Portfolio Cockpit Overrides (Local) ── */
-
-/* Main chart stays strong and dominant */
 .pf-main-chart-wrapper .ct-card {
   min-height: 22rem;
+  max-height: none;
   background: var(--ct-graphite-active-bg);
-  /* Keep default card-premium dots for the hero chart */
   background-image: radial-gradient(
     circle,
     color-mix(in srgb, var(--ct-accent) 3%, transparent) 1px,
     transparent 1px
   ) !important;
+  background-size: 32px 32px;
 }
 
-/* Secondary panels: darker, no dots, more compact */
+.pf-main-chart-wrapper .pf-value-chart [class*="flex-1"] {
+  min-height: 14rem;
+}
+
+/* Section rhythm — no forced tall shells */
+.pf-container [data-section="hero-pulse"],
+.pf-container [data-section="yield-trust"],
+.pf-container [data-section="activity-payouts"] {
+  min-height: unset;
+}
+
+.pf-container .ct-product-section {
+  padding: var(--ct-space-4) var(--ct-space-5) !important;
+}
+
+.pf-container .ct-product-section__content .ct-empty-surface--widget {
+  min-height: 8rem;
+}
+
+/* Preview / zero — compact section chrome */
+.pf-container--zero .ct-section-preview,
+.pf-container--zero .ct-section-preview--compact {
+  gap: var(--ct-space-4);
+  padding: var(--ct-space-4) var(--ct-space-5);
+}
+
+.pf-container--zero .ct-product-section__preview-lead {
+  display: none;
+}
+
+.pf-container--zero .ct-product-section__preview-head .eyebrow {
+  display: none;
+}
+
+/* Yield-allocation — no vertical stretch */
+.pf-container [data-section="yield-allocation"] .bento-col-8,
+.pf-container [data-section="yield-allocation"] .bento-col-4 {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.pf-container [data-section="yield-allocation"] .ct-card {
+  flex: unset;
+  height: auto;
+}
+
+/* Secondary panels — calm surfaces, no premium dots */
+.pf-container .ct-card.card-premium {
+  background-image: none;
+}
+
 .pf-secondary-panel .ct-card,
 .pf-compact-panel .ct-card {
   background: var(--ct-graphite-subtle-bg) !important;
-  background-image: none !important; /* Remove card-premium dots */
+  background-image: none !important;
   box-shadow: none !important;
   backdrop-filter: blur(12px) !important;
 }
 
 .pf-secondary-panel .ct-card {
-  padding: var(--ct-space-4) var(--ct-space-5) !important;
+  padding: var(--ct-space-3) var(--ct-space-4) !important;
 }
 
 .pf-compact-panel .ct-card {
   padding: var(--ct-space-3) var(--ct-space-4) !important;
 }
 
-/* Reduce header size in secondary/compact panels */
+/* Embedded widgets (inside ProductSection) — flat, no nested card */
+.pf-container .pf-secondary-panel [aria-label] > .flex.h-full,
+.pf-container .pf-compact-panel [aria-label] > .flex.h-full {
+  gap: var(--ct-space-2);
+}
+
 .pf-secondary-panel .h3,
 .pf-compact-panel .h3 {
   font-size: var(--ct-text-base) !important;
   font-weight: var(--ct-font-semibold) !important;
 }
 
-/* Reduce gap in bento for secondary sections */
 .pf-secondary-grid {
   gap: var(--ct-space-3) !important;
 }
 
-/* Hide redundant preview chips in secondary panels to reduce visual noise.
-   They are already covered by the section-level "Preview" eyebrow. */
+/* Preview chips — global banner is enough */
+.pf-container--zero .widget-panel-header span[class*="ct-text-faint"][class*="uppercase"],
 .pf-container .pf-secondary-panel .widget-panel-header span[class*="ct-text-faint"][class*="uppercase"],
 .pf-container .pf-compact-panel .widget-panel-header span[class*="ct-text-faint"][class*="uppercase"],
 .pf-container .pf-main-chart-wrapper .widget-panel-header span[class*="ct-text-faint"][class*="uppercase"] {
   display: none !important;
 }
 
+/* Embedded liquidity widgets — compact rhythm */
+.pf-hero-sidebar [aria-label="Time to next distribution"],
+.pf-hero-sidebar [aria-label="Lock and liquidity status"] {
+  gap: var(--ct-space-2);
+}
+
+.pf-section-light--compact,
+.ct-section-preview--compact {
+  gap: var(--ct-space-4);
+}

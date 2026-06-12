@@ -31,7 +31,7 @@ import { LayoutPreviewBanner } from "@/components/portfolio/layout-preview-banne
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
 import { SecurityPulse } from "@/components/portfolio/security-pulse";
-import { MotionViewport } from "@/components/ui/motion-viewport";
+import { SectionEmbedProvider } from "@/components/ui/section-embed";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 import {
   ZERO_YIELD_STACK,
@@ -99,10 +99,10 @@ function HeroKpiTable({
   const showValues = hasPositions || previewZeros;
 
   return (
-    <div className="flex flex-col gap-6" aria-label="Key metrics summary">
+    <div className="flex flex-col gap-3" aria-label="Key metrics summary">
       <span className="stat-label ct-text-accent">Key metrics</span>
 
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-3">
         <div className="flex flex-col gap-1">
           <span className="stat-label">Position value</span>
           <div className="dash-value-group">
@@ -135,8 +135,6 @@ function HeroKpiTable({
             </span>
             {hasPositions && diffDays > 0 ? (
               <span className="pf-chip-accent shrink-0">{diffDays}d left</span>
-            ) : previewZeros ? (
-              <span className="body-xs ct-text-faint shrink-0">Preview</span>
             ) : null}
           </div>
         </div>
@@ -144,6 +142,8 @@ function HeroKpiTable({
     </div>
   );
 }
+
+const previewSectionClass = "ct-section-preview--compact";
 
 export default async function PortfolioPage() {
   const [investor, data] = await Promise.all([getInvestor(), loadPortfolio()]);
@@ -181,6 +181,7 @@ export default async function PortfolioPage() {
 
   const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
   const sectionVariant = previewZeros ? "preview" : "active";
+  const sectionClass = previewZeros ? previewSectionClass : undefined;
 
   return (
     <div
@@ -197,34 +198,34 @@ export default async function PortfolioPage() {
         <NextActionCard {...actionFlags} />
       ) : null}
 
-      <MotionViewport>
-        <MergedSurface
-          title="Performance & Liquidity"
-          provenance={portfolioProvenance}
-          showProvenance={hasPositions}
-          variant={sectionVariant}
-          data-section="hero-pulse"
-        >
-          <div className="dash-bento pf-secondary-grid">
-            <div className="bento-col-8 pf-main-chart-wrapper">
-              <ValueChart
-                positions={data.positions}
-                totalValueUsdc={data.totalValueUsdc}
-                source={data.source}
-                updatedAt={data.updatedAt}
-                previewZeros={previewZeros}
-              />
-            </div>
-            <div className="bento-col-4 flex flex-col gap-6 pf-secondary-panel">
-              <HeroKpiTable
-                totalValueUsdc={data.totalValueUsdc}
-                totalYieldYtdUsdc={data.totalYieldYtdUsdc}
-                nextDistributionAt={data.nextDistributionAt}
-                hasPositions={hasPositions}
-                previewZeros={previewZeros}
-              />
-              <div className="flex flex-col gap-6 pt-6 border-t border-(--ct-border-soft)">
-                <span className="stat-label ct-text-accent">Liquidity status</span>
+      <MergedSurface
+        title="Performance & Liquidity"
+        provenance={portfolioProvenance}
+        showProvenance={hasPositions}
+        variant={sectionVariant}
+        className={sectionClass}
+        data-section="hero-pulse"
+      >
+        <div className="dash-bento pf-secondary-grid pf-hero-grid">
+          <div className="bento-col-8 pf-main-chart-wrapper">
+            <ValueChart
+              positions={data.positions}
+              totalValueUsdc={data.totalValueUsdc}
+              source={data.source}
+              updatedAt={data.updatedAt}
+              previewZeros={previewZeros}
+            />
+          </div>
+          <div className="bento-col-4 flex flex-col gap-3 pf-secondary-panel pf-hero-sidebar">
+            <HeroKpiTable
+              totalValueUsdc={data.totalValueUsdc}
+              totalYieldYtdUsdc={data.totalYieldYtdUsdc}
+              nextDistributionAt={data.nextDistributionAt}
+              hasPositions={hasPositions}
+              previewZeros={previewZeros}
+            />
+            <SectionEmbedProvider>
+              <div className="flex flex-col gap-3 pt-3 border-t border-(--ct-border-soft)">
                 <TimeToCash
                   {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
                   previewZeros={previewZeros}
@@ -234,67 +235,50 @@ export default async function PortfolioPage() {
                   previewZeros={previewZeros}
                 />
               </div>
-            </div>
+            </SectionEmbedProvider>
           </div>
-        </MergedSurface>
-      </MotionViewport>
+        </div>
+      </MergedSurface>
 
-      <MotionViewport>
-        <div className="flex flex-col gap-4">
-          <div className="dash-bento pf-secondary-grid" data-section="yield-allocation">
-            <div className="bento-col-8 pf-secondary-panel" data-testid="yield-stack-widget">
-              <YieldStack
-                {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
-                previewZeros={previewZeros}
-              />
-            </div>
-            <div className="bento-col-4 pf-secondary-panel" data-testid="allocation-donut-widget">
-              <AllocationDonut
-                positions={data.positions}
-                totalValueUsdc={data.totalValueUsdc}
-                source={data.source}
-                updatedAt={data.updatedAt}
-                previewZeros={previewZeros}
-              />
-            </div>
+      <div className="flex flex-col gap-4">
+        <div className="dash-bento pf-secondary-grid" data-section="yield-allocation">
+          <div className="bento-col-8 pf-secondary-panel" data-testid="yield-stack-widget">
+            <YieldStack
+              {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
+              previewZeros={previewZeros}
+            />
           </div>
+          <div className="bento-col-4 pf-secondary-panel" data-testid="allocation-donut-widget">
+            <AllocationDonut
+              positions={data.positions}
+              totalValueUsdc={data.totalValueUsdc}
+              source={data.source}
+              updatedAt={data.updatedAt}
+              previewZeros={previewZeros}
+            />
+          </div>
+        </div>
 
-          <MergedSurface
-            title="Yield & Trust Pulse"
-            provenance={portfolioProvenance}
-            showProvenance={hasPositions}
-            variant={sectionVariant}
-            data-section="yield-trust"
-          >
-            <div
-              className={cn(
-                "pf-secondary-grid",
-                previewZeros
-                  ? "pf-zero-trust-list grid grid-cols-1 md:grid-cols-3 gap-4"
-                  : "dash-bento",
-              )}
-            >
+        <MergedSurface
+          title="Yield & Trust Pulse"
+          provenance={portfolioProvenance}
+          showProvenance={hasPositions}
+          variant={sectionVariant}
+          className={sectionClass}
+          data-section="yield-trust"
+        >
+          <SectionEmbedProvider>
+            <div className="dash-bento pf-secondary-grid">
               <div
                 data-testid="risk-pulse-widget"
-                className={cn(
-                  "pf-compact-panel",
-                  previewZeros ? "pf-zero-trust-row" : "bento-col-4 flex flex-col gap-4",
-                )}
+                className="bento-col-4 pf-compact-panel"
               >
-                <span className="stat-label ct-text-accent">Risk profile</span>
-                <RiskPulse
-                  {...riskPulseProps}
-                  previewZeros={previewZeros}
-                />
+                <RiskPulse {...riskPulseProps} previewZeros={previewZeros} />
               </div>
               <div
                 data-testid="proof-pulse-widget"
-                className={cn(
-                  "pf-compact-panel",
-                  previewZeros ? "pf-zero-trust-row" : "bento-col-4 flex flex-col gap-4",
-                )}
+                className="bento-col-4 pf-compact-panel"
               >
-                <span className="stat-label ct-text-accent">Proof of reserves</span>
                 <ProofPulse
                   {...(previewZeros
                     ? zeroProofPulseProps(previewAsOf)
@@ -304,42 +288,38 @@ export default async function PortfolioPage() {
               </div>
               <div
                 data-testid="security-pulse-widget"
-                className={cn(
-                  "pf-compact-panel",
-                  previewZeros ? "pf-zero-trust-row" : "bento-col-4 flex flex-col gap-4",
-                )}
+                className="bento-col-4 pf-compact-panel"
               >
-                <span className="stat-label ct-text-accent">Security audit</span>
                 <SecurityPulse previewZeros={previewZeros} />
               </div>
             </div>
-          </MergedSurface>
-        </div>
-      </MotionViewport>
+          </SectionEmbedProvider>
+        </MergedSurface>
+      </div>
 
-      <MotionViewport>
-        <div className="flex flex-col gap-4">
-          <div className="dash-bento pf-secondary-grid">
-            <div className="bento-col-12 pf-secondary-panel">
-              <PositionsList
-                positions={data.positions}
-                source={data.source}
-                updatedAt={data.updatedAt}
-                previewZeros={previewZeros}
-              />
-            </div>
+      <div className="flex flex-col gap-4">
+        <div className="dash-bento pf-secondary-grid">
+          <div className="bento-col-12 pf-secondary-panel">
+            <PositionsList
+              positions={data.positions}
+              source={data.source}
+              updatedAt={data.updatedAt}
+              previewZeros={previewZeros}
+            />
           </div>
+        </div>
 
-          <MergedSurface
-            title="Activity & Payouts"
-            provenance={portfolioProvenance}
-            showProvenance={hasPositions}
-            variant={sectionVariant}
-            data-section="activity-payouts"
-          >
+        <MergedSurface
+          title="Activity & Payouts"
+          provenance={portfolioProvenance}
+          showProvenance={hasPositions}
+          variant={sectionVariant}
+          className={sectionClass}
+          data-section="activity-payouts"
+        >
+          <SectionEmbedProvider>
             <div className="dash-bento pf-secondary-grid">
-              <div className="bento-col-8 flex flex-col gap-4 pf-secondary-panel">
-                <span className="stat-label ct-text-accent">Recent transactions</span>
+              <div className="bento-col-8 pf-secondary-panel">
                 <RecentActivity
                   transactions={data.recentTransactions}
                   source={data.source}
@@ -348,10 +328,9 @@ export default async function PortfolioPage() {
                 />
               </div>
               <div
-                className="bento-col-4 flex flex-col gap-4 pf-secondary-panel"
+                className="bento-col-4 pf-secondary-panel"
                 data-testid="distrib-calendar-widget"
               >
-                <span className="stat-label ct-text-accent">Payout calendar</span>
                 <DistribCalendar
                   {...distribCalendarProps}
                   entries={
@@ -365,9 +344,9 @@ export default async function PortfolioPage() {
                 />
               </div>
             </div>
-          </MergedSurface>
-        </div>
-      </MotionViewport>
+          </SectionEmbedProvider>
+        </MergedSurface>
+      </div>
 
       <footer className="border-t border-(--ct-border-soft) pt-12 pb-24">
         <p className="body-xs ct-text-muted max-w-3xl">

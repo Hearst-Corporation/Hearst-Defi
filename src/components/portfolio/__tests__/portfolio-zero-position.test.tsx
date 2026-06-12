@@ -106,7 +106,7 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     );
     expect(html).toContain("<svg");
     expect(html).not.toContain("ct-empty-surface--chart");
-    expect(html).toContain("Layout preview");
+    expect(html).toContain("Indicative path at zero");
     expect(html).not.toContain("Stale");
   });
 
