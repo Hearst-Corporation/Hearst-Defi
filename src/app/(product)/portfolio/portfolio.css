@@ -314,6 +314,11 @@
   min-height: 16rem;
 }
 
+/* Yield + allocation row — single grouped empty (no fake 8/4 placeholders) */
+.pf-container [data-section="yield-allocation"] .pf-empty-widget {
+  min-height: 12rem;
+}
+
 /* Hero value chart empty slot — parity with populated chart height */
 .pf-container [data-section="hero-pulse"] .pf-empty-chart {
   min-height: 12rem;

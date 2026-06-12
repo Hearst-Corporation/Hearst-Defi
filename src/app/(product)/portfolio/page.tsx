@@ -26,6 +26,7 @@ import { TimeToCash } from "@/components/portfolio/time-to-cash";
 import { RiskPulse } from "@/components/portfolio/risk-pulse";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { ProofPulse } from "@/components/portfolio/proof-pulse";
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { YieldStack } from "@/components/portfolio/yield-stack";
 import { SecurityPulse } from "@/components/portfolio/security-pulse";
 import { MotionViewport } from "@/components/ui/motion-viewport";
@@ -149,6 +150,10 @@ export default async function PortfolioPage() {
 
   const name = displayName(investor);
 
+  /** Both widgets empty — skip fake 8/4 chart/donut placeholders (DS §9). */
+  const yieldAllocationRowEmpty =
+    yieldStackProps.sources.length === 0 && data.totalValueUsdc <= 0;
+
   const actionFlags = {
     kycStatus: investor?.kycStatus ?? "pending",
     accreditationAttested: investor?.accreditationAttestedAt != null,
@@ -203,18 +208,29 @@ export default async function PortfolioPage() {
 
       <MotionViewport>
         <div className="flex flex-col gap-4">
-          <div className="dash-bento">
-            <div className="bento-col-8">
-              <YieldStack {...yieldStackProps} />
-            </div>
-            <div className="bento-col-4">
-              <AllocationDonut
-                positions={data.positions}
-                totalValueUsdc={data.totalValueUsdc}
-                source={data.source}
-                updatedAt={data.updatedAt}
-              />
-            </div>
+          <div className="dash-bento" data-section="yield-allocation">
+            {yieldAllocationRowEmpty ? (
+              <div className="bento-col-12" data-testid="yield-allocation-empty">
+                <AwaitingMetricState
+                  message="Yield and allocation appear after your first active position."
+                  detail="The forward yield stack and position breakdown populate once deposited capital is confirmed."
+                />
+              </div>
+            ) : (
+              <>
+                <div className="bento-col-8" data-testid="yield-stack-widget">
+                  <YieldStack {...yieldStackProps} />
+                </div>
+                <div className="bento-col-4" data-testid="allocation-donut-widget">
+                  <AllocationDonut
+                    positions={data.positions}
+                    totalValueUsdc={data.totalValueUsdc}
+                    source={data.source}
+                    updatedAt={data.updatedAt}
+                  />
+                </div>
+              </>
+            )}
           </div>
 
           <MergedSurface

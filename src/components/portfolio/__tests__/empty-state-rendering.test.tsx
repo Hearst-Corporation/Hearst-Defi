@@ -11,6 +11,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ValueChart } from "@/components/portfolio/value-chart";
 import { AllocationDonut } from "@/components/portfolio/allocation-donut";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
@@ -150,6 +151,22 @@ describe("Portfolio empty states — design contract", () => {
       "No yield source data yet — awaiting first vault snapshot.",
     );
     expect(html).toContain("pf-empty-widget");
+  });
+
+  it("Yield+allocation row: grouped empty is one pf-empty-widget, not chart+donut", () => {
+    const html = renderToStaticMarkup(
+      <AwaitingMetricState
+        message="Yield and allocation appear after your first active position."
+        detail="The forward yield stack and position breakdown populate once deposited capital is confirmed."
+      />,
+    );
+    assertEmptyDesignContract(
+      html,
+      "Yield and allocation appear after your first active position.",
+    );
+    expect(html).toContain("pf-empty-widget");
+    expect(html).not.toContain("pf-empty-chart");
+    expect(html).not.toContain("pf-empty-chart--round");
   });
 
   it("RecentActivity: empty message outside active module surface", () => {
