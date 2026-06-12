@@ -111,6 +111,7 @@ See **ADR-012** and the "Conversational chat" section below.
 - All outputs validated via Zod `.strict()` schemas (`src/lib/agents/schemas.ts`)
 - Forbidden-words list is canonical in `src/lib/agents/forbidden-words.ts`; the agent guard (`assertNoForbiddenWords`, `assertCitesAssumption`) lives in `src/lib/agents/validators.ts`
 - Cost/usage tracked in `LlmRun` Prisma table (GPT-4.1 list pricing $2.00 / $8.00 per MTOK, computed in `client.ts`)
+- Admin tool telemetry (`agentName = "admin-chat-tool"`) is also persisted in `LlmRun`: `model=<chatMode>:<profile>`, `promptHash=<toolId>`, status `success|blocked|failed|confirmation_required`, and bounded `errorMessage` (max 500 chars)
 
 ## Conversational chat (scoped exception — ADR-012)
 
@@ -125,8 +126,10 @@ any admin action. Three admin-selectable modes:
   - Admin read utilities also include deterministic planning/spec tools: `generate_chart_spec` (structured chart spec with provenance/freshness and explicit unavailable flags), `generate_demo_plan` (ordered route-based demo steps constrained by admin whitelist + route/spec indexes), `export_demo_pack` (structured export: metadata + ordered demo plan + optional chart specs + optional checklist + provenance/freshness summary), and `export_briefing_pack` (executive-ready package: summary + ordered demo plan + optional chart specs + risk/action sections + provenance/freshness summary).
   - In-chat tool-calling is enabled only in `admin` mode for a bounded server allowlist of **read** tools from the same registry; tool outputs are fed back into the same model turn (controlled two-pass flow).
   - `POST /api/admin/chat-tools` supports `execute_read` with optional `input` JSON for these read-only tools; no write side effect is permitted in this path.
+  - **Read payload redaction contract**: tool outputs are deterministic, schema-bounded and read-only (`multiline_text_block` or typed `json_object`), with no secrets/env vars/internal IDs leakage. Missing data is returned as explicit `unavailable` markers instead of raw backend errors.
   - Any attempted model-side auto-execution of a write tool is deterministically blocked server-side (non-sensitive warning log), with no side effects; write remains explicit human confirmation flow only.
   - Admin write-tools for **draft-only** actions (`create_review_note_draft`, `create_governance_proposal_draft`) are exposed through `GET/POST /api/admin/chat-tools` (admin-only). They are **not auto-triggered by LLM output**: execution is explicit from the admin controls panel ("Actions admin"), and always uses a two-step handshake: step 1 returns `confirmation_required` (token + summary), step 2 requires explicit confirm click + token. Tokens are short-TTL and single-use; expired/invalid tokens are rejected server-side.
+  - **Confirmation token binding contract**: token is user-bound and tied to `(userId, toolId, payloadHash)` where payload hash is computed from a canonicalized input payload. Any user/tool/payload mismatch, replay (`usedAt`) or expiry rejects execution.
 - **LP-facing Master Agent** — normal-mode chat, flag-gated behind `CHAT_MASTER_AGENT` (server-only env, OFF by default). Runs through the app-owned tool-capable engine (`runChatAgent`) whose **only** tool is `navigate` — a client-side, read-only route change restricted to a **closed whitelist** (`NAV_DESTINATIONS`: portfolio, vaults, proof-center, profile). No write / financial / admin tool exists.
 
 Guardrails (all enforced server-side):
@@ -136,7 +139,14 @@ Guardrails (all enforced server-side):
 - **Role-aware register** (`buildRoleDirective`): LP default is strict vouvoiement + zero internal disclosure; admin gets a looser internal register but still no secrets / env vars / DB schemas / other agents' prompts.
 - **No vector RAG today**: chat context is server-built from Prisma-backed user profile/memory, live portfolio context when available, static prompts, and filesystem route/spec indexes for review document generation.
 - **Human-in-the-loop preserved** (#4): no auto-execution of any financial or rebalancing action — the chat suggests and navigates, humans decide.
-- **Write confirmation binding**: confirmation tokens are short-TTL, single-use, and bound to `(toolId,input)`; replay or payload mismatch is rejected server-side.
+- **Write confirmation binding**: confirmation tokens are short-TTL, single-use, and bound to `(userId,toolId,payloadHash)`; replay or payload mismatch is rejected server-side.
+
+Operational commands (runtime truth):
+
+```bash
+pnpm db:push && pnpm db:generate
+pnpm test src/app/api/admin/chat-tools/__tests__/route.test.ts src/lib/llm/__tests__/admin-tools-registry.test.ts src/lib/llm/__tests__/chat-agent.test.ts src/components/admin/__tests__/admin-chat-actions-flow.test.ts
+```
 
 ## Forbidden absolutely
 

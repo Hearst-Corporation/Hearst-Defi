@@ -18,7 +18,7 @@ describe("admin chat actions confirmation flow", () => {
     const next = toConfirmationRequestedState(initial, {
       toolId: "create_review_note_draft",
       token: "token_123",
-      expiresAtIso: "2026-06-12T12:00:00.000Z",
+      expiresAtIso: "2100-06-12T12:00:00.000Z",
       summary: "create_review_note_draft requires explicit confirmation",
       input: { title: "A", body: "B" },
     });
@@ -33,7 +33,7 @@ describe("admin chat actions confirmation flow", () => {
       pendingConfirmation: {
         toolId: "create_review_note_draft",
         token: "token_123",
-        expiresAtIso: "2026-06-12T12:00:00.000Z",
+        expiresAtIso: "2100-06-12T12:00:00.000Z",
         summary: "create_review_note_draft requires explicit confirmation",
         input: { title: "A", body: "B" },
       },

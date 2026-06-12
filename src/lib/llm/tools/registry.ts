@@ -1,6 +1,7 @@
 import "server-only";
 
 import { z } from "zod";
+import { createHash } from "node:crypto";
 import { prisma } from "@/lib/db";
 import {
   VAULT_YIELD,
@@ -37,8 +38,8 @@ const MAX_ROUTES = 20;
 const MAX_SPECS = 12;
 const DEFAULT_WRITE_CONFIRMATION_TTL_MS = 5 * 60 * 1000;
 const DEFAULT_CHART_TIMEFRAME = "30d";
-const ADMIN_TOOL_AGENT_NAME = "admin-chat-tool";
 const MAX_TELEMETRY_ERROR_MESSAGE_LEN = 500;
+const MAX_TELEMETRY_ERROR_CODE_LEN = 120;
 
 const ChartSpecInputSchema = z.object({
   intent: z.string().trim().min(1).max(120),
@@ -177,33 +178,75 @@ function classifyAdminToolError(error: unknown): {
       errorMessage: "unknown error",
     };
   }
+  const message = error.message;
+  if (message.startsWith("admin_write_confirmation_")) {
+    return {
+      errorType: "confirmation_rejected",
+      errorMessage: toSafeTelemetryMessage(message),
+    };
+  }
+  if (message === "admin_write_tool_not_allowed") {
+    return {
+      errorType: "tool_not_allowed",
+      errorMessage: toSafeTelemetryMessage(message),
+    };
+  }
+  if (message.startsWith("invalid_")) {
+    return {
+      errorType: "input_invalid",
+      errorMessage: toSafeTelemetryMessage(message),
+    };
+  }
   return {
-    errorType: error.name || "Error",
-    errorMessage: error.message.slice(0, MAX_TELEMETRY_ERROR_MESSAGE_LEN),
+    errorType: toSafeTelemetryCode(error.name || "Error"),
+    errorMessage: toSafeTelemetryMessage(message),
   };
+}
+
+function toSafeTelemetryCode(value: string): string {
+  return value
+    .trim()
+    .replace(/[^a-z0-9_]/gi, "_")
+    .replace(/_+/g, "_")
+    .toLowerCase()
+    .slice(0, MAX_TELEMETRY_ERROR_CODE_LEN);
+}
+
+function toSafeTelemetryMessage(value: string): string {
+  return value
+    .trim()
+    .replace(/[^a-z0-9 _:\-]/gi, "_")
+    .replace(/\s+/g, " ")
+    .slice(0, MAX_TELEMETRY_ERROR_MESSAGE_LEN);
 }
 
 async function persistAdminToolTelemetry(args: {
   toolId: string;
+  toolKind: "read" | "write";
   mode: AdminReadToolExecutionContext["chatMode"];
   profile: AdminReadToolExecutionContext["profile"];
   status: AdminToolTelemetryStatus;
   latencyMs: number;
   userId?: string;
+  confirmationTokenUsed?: boolean;
+  inputHash?: string;
   error?: unknown;
 }): Promise<void> {
   const errorData =
     args.error === undefined ? null : classifyAdminToolError(args.error);
   try {
-    await prisma.llmRun.create({
+    await prisma.adminToolRun.create({
       data: {
-        agentName: ADMIN_TOOL_AGENT_NAME,
-        model: `${args.mode}:${args.profile}`,
+        toolId: args.toolId,
+        toolKind: args.toolKind,
+        mode: args.mode,
+        profile: args.profile,
         status: args.status,
         latencyMs: Math.max(0, Math.round(args.latencyMs)),
         userId: args.userId ?? null,
-        promptHash: args.toolId,
-        errorType: errorData?.errorType,
+        confirmationTokenUsed: args.confirmationTokenUsed ?? false,
+        inputHash: args.inputHash ?? null,
+        errorCode: errorData?.errorType,
         errorMessage: errorData?.errorMessage,
       },
     });
@@ -217,6 +260,17 @@ async function persistAdminToolTelemetry(args: {
       traceErr instanceof Error ? traceErr : undefined,
     );
   }
+}
+
+function hashToolInput(input: unknown): string | undefined {
+  if (input === undefined) return undefined;
+  let serialized: string;
+  try {
+    serialized = JSON.stringify(input);
+  } catch {
+    return undefined;
+  }
+  return createHash("sha256").update(serialized).digest("hex");
 }
 
 function buildChartProvenanceFreshness(
@@ -985,11 +1039,13 @@ export async function executeAdminReadTool(
     const result = await tool.run(context, input);
     await persistAdminToolTelemetry({
       toolId: tool.id,
+      toolKind: "read",
       mode: context.chatMode,
       profile: context.profile,
       status: "success",
       latencyMs: performance.now() - startedAt,
-      userId: options?.userId,
+      userId: options?.userId ?? undefined,
+      inputHash: hashToolInput(input),
     });
     return {
       id: tool.id,
@@ -1001,11 +1057,13 @@ export async function executeAdminReadTool(
   } catch (error) {
     await persistAdminToolTelemetry({
       toolId: tool.id,
+      toolKind: "read",
       mode: context.chatMode,
       profile: context.profile,
       status: "failed",
       latencyMs: performance.now() - startedAt,
-      userId: options?.userId,
+      userId: options?.userId ?? undefined,
+      inputHash: hashToolInput(input),
       error,
     });
     throw error;
@@ -1022,11 +1080,14 @@ export async function executeAdminWriteTool(
   if (!isAdminWriteToolAllowed(tool, context)) {
     await persistAdminToolTelemetry({
       toolId: tool.id,
+      toolKind: "write",
       mode: context.chatMode,
       profile: context.profile,
       status: "blocked",
       latencyMs: performance.now() - startedAt,
-      userId: options?.userId,
+      userId: options?.userId ?? undefined,
+      inputHash: hashToolInput(request.input),
+      confirmationTokenUsed: Boolean(request.confirmedToken),
       error: new Error("admin_write_tool_not_allowed"),
     });
     throw new Error("admin_write_tool_not_allowed");
@@ -1037,6 +1098,7 @@ export async function executeAdminWriteTool(
 
   if (!request.confirmedToken) {
     const confirmation = await createWriteConfirmation({
+      userId: options?.userId ?? "unknown",
       toolId: tool.id,
       input: request.input,
       ttlMs,
@@ -1044,11 +1106,14 @@ export async function executeAdminWriteTool(
     });
     await persistAdminToolTelemetry({
       toolId: tool.id,
+      toolKind: "write",
       mode: context.chatMode,
       profile: context.profile,
       status: "confirmation_required",
       latencyMs: performance.now() - startedAt,
-      userId: options?.userId,
+      userId: options?.userId ?? undefined,
+      inputHash: hashToolInput(request.input),
+      confirmationTokenUsed: false,
     });
     return {
       status: "confirmation_required",
@@ -1062,6 +1127,7 @@ export async function executeAdminWriteTool(
   }
 
   const consume = await consumeWriteConfirmation({
+    userId: options?.userId ?? "unknown",
     token: request.confirmedToken,
     toolId: tool.id,
     input: request.input,
@@ -1074,11 +1140,14 @@ export async function executeAdminWriteTool(
     });
     await persistAdminToolTelemetry({
       toolId: tool.id,
+      toolKind: "write",
       mode: context.chatMode,
       profile: context.profile,
       status: "blocked",
       latencyMs: performance.now() - startedAt,
-      userId: options?.userId,
+      userId: options?.userId ?? undefined,
+      inputHash: hashToolInput(request.input),
+      confirmationTokenUsed: true,
       error: new Error(`admin_write_confirmation_${consume.reason}`),
     });
     throw new Error(`admin_write_confirmation_${consume.reason}`);
@@ -1088,11 +1157,14 @@ export async function executeAdminWriteTool(
     const result = await tool.run(context, request.input);
     await persistAdminToolTelemetry({
       toolId: tool.id,
+      toolKind: "write",
       mode: context.chatMode,
       profile: context.profile,
       status: "success",
       latencyMs: performance.now() - startedAt,
-      userId: options?.userId,
+      userId: options?.userId ?? undefined,
+      inputHash: hashToolInput(request.input),
+      confirmationTokenUsed: true,
     });
     return {
       status: "executed",
@@ -1107,11 +1179,14 @@ export async function executeAdminWriteTool(
     );
     await persistAdminToolTelemetry({
       toolId: tool.id,
+      toolKind: "write",
       mode: context.chatMode,
       profile: context.profile,
       status: "failed",
       latencyMs: performance.now() - startedAt,
-      userId: options?.userId,
+      userId: options?.userId ?? undefined,
+      inputHash: hashToolInput(request.input),
+      confirmationTokenUsed: true,
       error,
     });
     throw error;

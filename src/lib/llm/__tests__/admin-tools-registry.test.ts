@@ -19,6 +19,7 @@ import { prisma } from "@/lib/db";
 
 type ConfirmationRow = {
   token: string;
+  userId: string;
   toolId: string;
   payloadHash: string;
   expiresAt: Date;
@@ -55,7 +56,7 @@ const mockAdminWriteConfirmationDeleteMany = prisma.adminWriteToolConfirmation
   .deleteMany as unknown as MockWithImplementation<{ count: number }>;
 const mockFeedbackCreate = vi.mocked(prisma.feedback.create);
 const mockGovernanceCreate = vi.mocked(prisma.governanceProposal.create);
-const mockLlmRunCreate = vi.mocked(prisma.llmRun.create);
+const mockAdminToolRunCreate = vi.mocked(prisma.llmRun.create);
 const mockMiningFindMany = vi.mocked(prisma.miningMetric.findMany);
 const mockVaultFindMany = vi.mocked(prisma.vaultSnapshot.findMany);
 
@@ -65,6 +66,7 @@ function setupConfirmationMocks(): void {
   mockAdminWriteConfirmationCreate.mockImplementation(async (args: unknown) => {
     const data = (args as { data: {
       token: string;
+      userId: string;
       toolId: string;
       payloadHash: string;
       expiresAt: Date;
@@ -130,7 +132,7 @@ describe("admin read tools policy", () => {
     tokenStore.clear();
     setupConfirmationMocks();
     await clearWriteConfirmationsForTests();
-    mockLlmRunCreate.mockResolvedValue({ id: "run_1" } as never);
+    mockAdminToolRunCreate.mockResolvedValue({ id: "run_1" } as never);
     mockMiningFindMany.mockResolvedValue([] as never);
     mockVaultFindMany.mockResolvedValue([] as never);
   });
@@ -164,7 +166,7 @@ describe("admin read tools registry", () => {
     tokenStore.clear();
     setupConfirmationMocks();
     await clearWriteConfirmationsForTests();
-    mockLlmRunCreate.mockResolvedValue({ id: "run_1" } as never);
+    mockAdminToolRunCreate.mockResolvedValue({ id: "run_1" } as never);
   });
 
   it("returns no tools when policy disallows the context", () => {
@@ -198,10 +200,12 @@ describe("admin read tools registry", () => {
     expect(result.lines.some((line) => line.includes("internet_live_outille: no"))).toBe(
       true,
     );
-    expect(mockLlmRunCreate).toHaveBeenCalledWith(
+    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          promptHash: "read_runtime_capabilities",
+          toolId: "read_runtime_capabilities",
+          toolKind: "read",
+          inputHash: null,
           status: "success",
         }),
       }),
@@ -227,11 +231,13 @@ describe("admin read tools registry", () => {
     await expect(executeAdminReadTool(failingTool, context, {})).rejects.toThrow(
       "read tool exploded",
     );
-    expect(mockLlmRunCreate).toHaveBeenCalledWith(
+    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          promptHash: "read_runtime_capabilities",
+          toolId: "read_runtime_capabilities",
+          toolKind: "read",
           status: "failed",
+          errorCode: "error",
           errorMessage: "read tool exploded",
         }),
       }),
@@ -473,7 +479,7 @@ describe("admin write tools policy and confirmation", () => {
     tokenStore.clear();
     setupConfirmationMocks();
     await clearWriteConfirmationsForTests();
-    mockLlmRunCreate.mockResolvedValue({ id: "run_1" } as never);
+    mockAdminToolRunCreate.mockResolvedValue({ id: "run_1" } as never);
   });
 
   it("denies write tools outside admin mode/profile", () => {
@@ -497,21 +503,43 @@ describe("admin write tools policy and confirmation", () => {
       tool,
       context,
       { input: { title: "Ops note", body: "Draft content" } },
-      { nowMs: 1_000, ttlMs: 500 },
+      { userId: "admin_test", nowMs: 1_000, ttlMs: 500 },
     );
 
     expect(first.status).toBe("confirmation_required");
     if (first.status !== "confirmation_required") return;
     expect(first.confirmation.token.length).toBeGreaterThan(10);
     expect(mockFeedbackCreate).not.toHaveBeenCalled();
-    expect(mockLlmRunCreate).toHaveBeenCalledWith(
+    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          promptHash: "create_review_note_draft",
+          toolId: "create_review_note_draft",
+          toolKind: "write",
+          confirmationTokenUsed: false,
           status: "confirmation_required",
         }),
       }),
     );
+  });
+
+  it("binds minted confirmation token to requesting admin user", async () => {
+    const context = { chatMode: "admin" as const, profile: "admin" as const };
+    const tool = ADMIN_WRITE_TOOLS.find(
+      (candidate) => candidate.id === "create_review_note_draft",
+    );
+    expect(tool).toBeDefined();
+    if (!tool) return;
+
+    const first = await executeAdminWriteTool(
+      tool,
+      context,
+      { input: { title: "Bound token", body: "user binding check" } },
+      { userId: "admin_bound_user", nowMs: 11_000, ttlMs: 1_000 },
+    );
+    expect(first.status).toBe("confirmation_required");
+    if (first.status !== "confirmation_required") return;
+
+    expect(tokenStore.get(first.confirmation.token)?.userId).toBe("admin_bound_user");
   });
 
   it("enforces confirmation token single-use semantics", async () => {
@@ -528,7 +556,7 @@ describe("admin write tools policy and confirmation", () => {
       tool,
       context,
       { input },
-      { nowMs: 2_000, ttlMs: 10_000 },
+      { userId: "admin_test", nowMs: 2_000, ttlMs: 10_000 },
     );
     if (first.status !== "confirmation_required") return;
     const token = first.confirmation.token;
@@ -537,14 +565,16 @@ describe("admin write tools policy and confirmation", () => {
       tool,
       context,
       { input, confirmedToken: token },
-      { nowMs: 2_100, ttlMs: 10_000 },
+      { userId: "admin_test", nowMs: 2_100, ttlMs: 10_000 },
     );
     expect(second.status).toBe("executed");
     expect(mockFeedbackCreate).toHaveBeenCalledTimes(1);
-    expect(mockLlmRunCreate).toHaveBeenCalledWith(
+    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          promptHash: "create_review_note_draft",
+          toolId: "create_review_note_draft",
+          toolKind: "write",
+          confirmationTokenUsed: true,
           status: "success",
         }),
       }),
@@ -555,14 +585,17 @@ describe("admin write tools policy and confirmation", () => {
         tool,
         context,
         { input, confirmedToken: token },
-        { nowMs: 2_200, ttlMs: 10_000 },
+        { userId: "admin_test", nowMs: 2_200, ttlMs: 10_000 },
       ),
     ).rejects.toThrow("admin_write_confirmation_used");
-    expect(mockLlmRunCreate).toHaveBeenCalledWith(
+    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          promptHash: "create_review_note_draft",
+          toolId: "create_review_note_draft",
+          toolKind: "write",
+          confirmationTokenUsed: true,
           status: "blocked",
+          errorCode: "confirmation_rejected",
           errorMessage: "admin_write_confirmation_used",
         }),
       }),
@@ -583,7 +616,7 @@ describe("admin write tools policy and confirmation", () => {
       tool,
       context,
       { input },
-      { nowMs: 2_500, ttlMs: 10_000 },
+      { userId: "admin_test", nowMs: 2_500, ttlMs: 10_000 },
     );
     if (initial.status !== "confirmation_required") return;
     const token = initial.confirmation.token;
@@ -593,13 +626,13 @@ describe("admin write tools policy and confirmation", () => {
         tool,
         context,
         { input, confirmedToken: token },
-        { nowMs: 2_501, ttlMs: 10_000 },
+        { userId: "admin_test", nowMs: 2_501, ttlMs: 10_000 },
       ),
       executeAdminWriteTool(
         tool,
         context,
         { input, confirmedToken: token },
-        { nowMs: 2_501, ttlMs: 10_000 },
+        { userId: "admin_test", nowMs: 2_501, ttlMs: 10_000 },
       ),
     ]);
 
@@ -618,6 +651,81 @@ describe("admin write tools policy and confirmation", () => {
     expect(mockFeedbackCreate).toHaveBeenCalledTimes(1);
   });
 
+  it("rejects confirmation replay by another admin user", async () => {
+    const context = { chatMode: "admin" as const, profile: "admin" as const };
+    const tool = ADMIN_WRITE_TOOLS.find(
+      (candidate) => candidate.id === "create_review_note_draft",
+    );
+    expect(tool).toBeDefined();
+    if (!tool) return;
+
+    const input = { title: "Bound token", body: "user-bound confirm" };
+    const first = await executeAdminWriteTool(
+      tool,
+      context,
+      { input },
+      { userId: "admin_a", nowMs: 2_700, ttlMs: 10_000 },
+    );
+    if (first.status !== "confirmation_required") return;
+
+    await expect(
+      executeAdminWriteTool(
+        tool,
+        context,
+        { input, confirmedToken: first.confirmation.token },
+        { userId: "admin_b", nowMs: 2_710, ttlMs: 10_000 },
+      ),
+    ).rejects.toThrow("admin_write_confirmation_mismatch");
+    expect(mockFeedbackCreate).not.toHaveBeenCalled();
+  });
+
+  it("maps confirmation-required then mismatch to telemetry statuses", async () => {
+    const context = { chatMode: "admin" as const, profile: "admin" as const };
+    const tool = ADMIN_WRITE_TOOLS.find(
+      (candidate) => candidate.id === "create_review_note_draft",
+    );
+    expect(tool).toBeDefined();
+    if (!tool) return;
+
+    const input = { title: "Telemetry mapping", body: "status mapping check" };
+    const first = await executeAdminWriteTool(
+      tool,
+      context,
+      { input },
+      { userId: "admin_map_a", nowMs: 14_000, ttlMs: 2_000 },
+    );
+    if (first.status !== "confirmation_required") return;
+
+    await expect(
+      executeAdminWriteTool(
+        tool,
+        context,
+        { input, confirmedToken: first.confirmation.token },
+        { userId: "admin_map_b", nowMs: 14_010, ttlMs: 2_000 },
+      ),
+    ).rejects.toThrow("admin_write_confirmation_mismatch");
+
+    expect(mockAdminToolRunCreate).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        data: expect.objectContaining({
+          toolId: "create_review_note_draft",
+          status: "confirmation_required",
+        }),
+      }),
+    );
+    expect(mockAdminToolRunCreate).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        data: expect.objectContaining({
+          toolId: "create_review_note_draft",
+          status: "blocked",
+          errorCode: "confirmation_rejected",
+        }),
+      }),
+    );
+  });
+
   it("rejects expired confirmation token", async () => {
     const context = { chatMode: "admin" as const, profile: "admin" as const };
     const tool = ADMIN_WRITE_TOOLS.find(
@@ -631,7 +739,7 @@ describe("admin write tools policy and confirmation", () => {
       tool,
       context,
       { input },
-      { nowMs: 3_000, ttlMs: 100 },
+      { userId: "admin_test", nowMs: 3_000, ttlMs: 100 },
     );
     if (first.status !== "confirmation_required") return;
 
@@ -640,14 +748,17 @@ describe("admin write tools policy and confirmation", () => {
         tool,
         context,
         { input, confirmedToken: first.confirmation.token },
-        { nowMs: 3_101, ttlMs: 100 },
+        { userId: "admin_test", nowMs: 3_101, ttlMs: 100 },
       ),
     ).rejects.toThrow("admin_write_confirmation_expired");
-    expect(mockLlmRunCreate).toHaveBeenCalledWith(
+    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          promptHash: "create_review_note_draft",
+          toolId: "create_review_note_draft",
+          toolKind: "write",
+          confirmationTokenUsed: true,
           status: "blocked",
+          errorCode: "confirmation_rejected",
           errorMessage: "admin_write_confirmation_expired",
         }),
       }),
@@ -667,7 +778,7 @@ describe("admin write tools policy and confirmation", () => {
       tool,
       context,
       { input },
-      { nowMs: 6_000, ttlMs: 50 },
+      { userId: "admin_test", nowMs: 6_000, ttlMs: 50 },
     );
     if (initial.status !== "confirmation_required") return;
 
@@ -676,7 +787,7 @@ describe("admin write tools policy and confirmation", () => {
         tool,
         context,
         { input, confirmedToken: initial.confirmation.token },
-        { nowMs: 6_051, ttlMs: 50 },
+        { userId: "admin_test", nowMs: 6_051, ttlMs: 50 },
       ),
     ).rejects.toThrow("admin_write_confirmation_expired");
 
@@ -684,7 +795,7 @@ describe("admin write tools policy and confirmation", () => {
       tool,
       context,
       { input },
-      { nowMs: 6_060, ttlMs: 1_000 },
+      { userId: "admin_test", nowMs: 6_060, ttlMs: 1_000 },
     );
     expect(retry.status).toBe("confirmation_required");
     if (retry.status !== "confirmation_required") return;
@@ -695,7 +806,7 @@ describe("admin write tools policy and confirmation", () => {
       tool,
       context,
       { input, confirmedToken: retry.confirmation.token },
-      { nowMs: 6_061, ttlMs: 1_000 },
+      { userId: "admin_test", nowMs: 6_061, ttlMs: 1_000 },
     );
     expect(executed.status).toBe("executed");
     expect(mockFeedbackCreate).toHaveBeenCalledTimes(1);
@@ -714,7 +825,7 @@ describe("admin write tools policy and confirmation", () => {
       tool,
       context,
       { input: originalInput },
-      { nowMs: 3_500, ttlMs: 1_000 },
+      { userId: "admin_test", nowMs: 3_500, ttlMs: 1_000 },
     );
     if (first.status !== "confirmation_required") return;
 
@@ -726,19 +837,59 @@ describe("admin write tools policy and confirmation", () => {
           input: { ...originalInput, body: "Changed body after confirmation request" },
           confirmedToken: first.confirmation.token,
         },
-        { nowMs: 3_550, ttlMs: 1_000 },
+        { userId: "admin_test", nowMs: 3_550, ttlMs: 1_000 },
       ),
     ).rejects.toThrow("admin_write_confirmation_mismatch");
     expect(mockFeedbackCreate).not.toHaveBeenCalled();
-    expect(mockLlmRunCreate).toHaveBeenCalledWith(
+    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          promptHash: "create_review_note_draft",
+          toolId: "create_review_note_draft",
+          toolKind: "write",
+          confirmationTokenUsed: true,
           status: "blocked",
+          errorCode: "confirmation_rejected",
           errorMessage: "admin_write_confirmation_mismatch",
         }),
       }),
     );
+  });
+
+  it("accepts semantically identical payload with reordered keys", async () => {
+    const context = { chatMode: "admin" as const, profile: "admin" as const };
+    const tool = ADMIN_WRITE_TOOLS.find(
+      (candidate) => candidate.id === "create_review_note_draft",
+    );
+    expect(tool).toBeDefined();
+    if (!tool) return;
+
+    mockFeedbackCreate.mockResolvedValueOnce({ id: "fb_canonical_1" } as never);
+    const firstInput = {
+      title: "Canonical note",
+      body: "Stable hash payload order",
+      author: "admin",
+    };
+    const confirmation = await executeAdminWriteTool(
+      tool,
+      context,
+      { input: firstInput },
+      { userId: "admin_test", nowMs: 12_000, ttlMs: 1_000 },
+    );
+    if (confirmation.status !== "confirmation_required") return;
+
+    const reorderedInput = {
+      author: "admin",
+      body: "Stable hash payload order",
+      title: "Canonical note",
+    };
+    const executed = await executeAdminWriteTool(
+      tool,
+      context,
+      { input: reorderedInput, confirmedToken: confirmation.confirmation.token },
+      { userId: "admin_test", nowMs: 12_010, ttlMs: 1_000 },
+    );
+    expect(executed.status).toBe("executed");
+    expect(mockFeedbackCreate).toHaveBeenCalledTimes(1);
   });
 
   it("rejects confirmation when token toolId does not match target write tool", async () => {
@@ -757,7 +908,7 @@ describe("admin write tools policy and confirmation", () => {
       reviewTool,
       context,
       { input: { title: "Review token", body: "Bound to review tool" } },
-      { nowMs: 7_000, ttlMs: 1_000 },
+      { userId: "admin_test", nowMs: 7_000, ttlMs: 1_000 },
     );
     if (reviewDraft.status !== "confirmation_required") return;
 
@@ -777,7 +928,7 @@ describe("admin write tools policy and confirmation", () => {
           },
           confirmedToken: reviewDraft.confirmation.token,
         },
-        { nowMs: 7_010, ttlMs: 1_000 },
+        { userId: "admin_test", nowMs: 7_010, ttlMs: 1_000 },
       ),
     ).rejects.toThrow("admin_write_confirmation_mismatch");
     expect(mockGovernanceCreate).not.toHaveBeenCalled();
@@ -809,7 +960,7 @@ describe("admin write tools policy and confirmation", () => {
       tool,
       context,
       { input },
-      { nowMs: 4_000, ttlMs: 1_000 },
+      { userId: "admin_test", nowMs: 4_000, ttlMs: 1_000 },
     );
     if (first.status !== "confirmation_required") return;
 
@@ -817,7 +968,7 @@ describe("admin write tools policy and confirmation", () => {
       tool,
       context,
       { input, confirmedToken: first.confirmation.token },
-      { nowMs: 4_010, ttlMs: 1_000 },
+      { userId: "admin_test", nowMs: 4_010, ttlMs: 1_000 },
     );
 
     expect(executed.status).toBe("executed");
@@ -828,10 +979,12 @@ describe("admin write tools policy and confirmation", () => {
         data: expect.objectContaining({ state: "DRAFT", actionType: "pause" }),
       }),
     );
-    expect(mockLlmRunCreate).toHaveBeenCalledWith(
+    expect(mockAdminToolRunCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          promptHash: "create_governance_proposal_draft",
+          toolId: "create_governance_proposal_draft",
+          toolKind: "write",
+          confirmationTokenUsed: true,
           status: "success",
         }),
       }),
@@ -856,7 +1009,7 @@ describe("admin write tools policy and confirmation", () => {
       failingTool,
       context,
       { input: { title: "x", body: "y" } },
-      { nowMs: 10_000, ttlMs: 1_000 },
+      { userId: "admin_test", nowMs: 10_000, ttlMs: 1_000 },
     );
     if (initial.status !== "confirmation_required") return;
 
@@ -868,14 +1021,17 @@ describe("admin write tools policy and confirmation", () => {
           input: { title: "x", body: "y" },
           confirmedToken: initial.confirmation.token,
         },
-        { nowMs: 10_100, ttlMs: 1_000 },
+        { userId: "admin_test", nowMs: 10_100, ttlMs: 1_000 },
       ),
     ).rejects.toThrow("write tool exploded");
-    expect(mockLlmRunCreate).toHaveBeenCalledWith(
+    expect(mockAdminToolRunCreate).toHaveBeenLastCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          promptHash: "create_review_note_draft",
+          toolId: "create_review_note_draft",
+          toolKind: "write",
+          confirmationTokenUsed: true,
           status: "failed",
+          errorCode: "error",
           errorMessage: "write tool exploded",
         }),
       }),

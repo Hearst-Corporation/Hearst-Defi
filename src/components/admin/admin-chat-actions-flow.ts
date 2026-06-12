@@ -1,5 +1,7 @@
+import type { AdminWriteToolId } from "@/lib/llm/tools/types";
+
 export interface AdminActionConfirmationState {
-  toolId: "create_review_note_draft" | "create_governance_proposal_draft";
+  toolId: AdminWriteToolId;
   token: string;
   expiresAtIso: string;
   summary: string;

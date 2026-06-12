@@ -212,6 +212,39 @@ describe("runChatAgent", () => {
       expect.objectContaining({ id: "generate_chart_spec" }),
       { chatMode: "admin", profile: "admin" },
       { intent: "APY trend", chartType: "line", timeframe: "30d" },
+      { userId: undefined },
+    );
+  });
+
+  it("passes userId to admin read tool execution for telemetry attribution", async () => {
+    mockGetAllowedAdminReadTools.mockReturnValue([
+      {
+        id: "read_runtime_capabilities",
+        description: "caps",
+        parameters: { type: "object", properties: {}, additionalProperties: false },
+      },
+    ]);
+    mockExecuteAdminReadTool.mockResolvedValue({
+      id: "read_runtime_capabilities",
+      format: "multiline_text_block",
+      title: "CAPS",
+      lines: ["ok"],
+    });
+    const client = fakeClient([
+      toolChunk(0, { name: "read_runtime_capabilities", arguments: "{}" }, "call_read_uid"),
+      textChunk("Caps user-bound."),
+    ]);
+    const { stream } = runChatAgent(client, "gpt-4.1", MSGS, {
+      navProfile: "admin",
+      chatMode: "admin",
+      userId: "user_admin_42",
+    });
+    await readAll(stream);
+    expect(mockExecuteAdminReadTool).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "read_runtime_capabilities" }),
+      { chatMode: "admin", profile: "admin" },
+      {},
+      { userId: "user_admin_42" },
     );
   });
 

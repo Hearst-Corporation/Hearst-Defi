@@ -43,9 +43,16 @@ depuis le chat : `create_review_note_draft` et
 appel 1 -> token de confirmation (TTL court, single-use), appel 2 avec token
 valide -> persistance du draft. Aucun déploiement, aucune transaction financière,
 aucune action destructive.
-Le token est lié au couple `(toolId,input)` : si le payload change entre
-demande et confirmation (ou si token expiré/utilisé), exécution rejetée
+Le token est lié au couple `(userId,toolId,inputHash)` avec hash de payload canonique :
+si le payload change entre demande et confirmation (ou si token expiré/utilisé),
+exécution rejetée
 côté serveur.
+Télémétrie admin tools (`admin-chat-tool`) : chaque run est tracé dans `LlmRun`
+avec `model=<chatMode>:<profile>`, `promptHash=<toolId>`, statut
+`success|blocked|failed|confirmation_required` et message d'erreur tronqué.
+Contrat de redaction read payload : sorties strictement schema-bounded et
+read-only, sans secrets/env vars/identifiants sensibles ; indisponibilité
+explicite via champs/lignes `unavailable` au lieu de fuite brute.
 
 En mode `admin`, le moteur chat peut désormais appeler en cours de réponse un
 allowlist strict de read-tools du registre (`src/lib/llm/tools/*`) et réinjecter
@@ -56,7 +63,9 @@ reformulée en proposition structurée sans effet de bord.
 
 Intégration app/chat active via `POST /api/admin/chat-tools` (admin-only) :
 - `GET` liste les outils admin autorisés (read + write metadata)
-- `POST { action: "execute_read", input? }` exécute un read tool directement
+- `POST { action: "execute_read", input? }` exécute un read tool directement et
+  retourne un payload JSON **projeté/allowlisté par tool id** (les champs
+  internes non explicitement autorisés sont retirés côté API/UI)
 - `POST { action: "execute_write" }` sans token retourne `confirmation_required`
 - `POST { action: "execute_write", confirmedToken }` exécute uniquement après clic
   explicite de confirmation dans le panel **Actions admin** des réglages chat.
@@ -306,6 +315,19 @@ pnpm db:seed              # Admin fixture timeline (snapshots, proofs, mining)
 pnpm seed:test            # E2E login user (test@hearst.local)
 pnpm seed:investor-demo   # Local visual QA — demo position + vault + profile
 pnpm seed:investor-demo:reset  # Wipe fixture rows (positions, proofs, snapshots…)
+```
+
+Admin chat-tools confirmation flow (integration-style, no heavy E2E bootstrap):
+
+```bash
+pnpm test src/app/api/admin/chat-tools/__tests__/route.test.ts -t "completes write confirmation flow from request to success"
+```
+
+Runtime sync (admin tools):
+
+```bash
+pnpm db:push && pnpm db:generate
+pnpm test src/app/api/admin/chat-tools/__tests__/route.test.ts src/lib/llm/__tests__/admin-tools-registry.test.ts src/lib/llm/__tests__/chat-agent.test.ts src/components/admin/__tests__/admin-chat-actions-flow.test.ts
 ```
 
 **Investor visual QA (local only)** — login `test@hearst.local` / `TestPassword123!` :

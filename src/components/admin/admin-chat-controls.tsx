@@ -20,16 +20,76 @@ import {
 } from "@/components/admin/admin-chat-actions-flow";
 import { cn } from "@/lib/cn";
 import type { ChatMode } from "@/lib/llm/chat-modes";
+import type { AdminWriteToolId } from "@/lib/llm/tools/types";
 
 type Mode = ChatMode;
-type AdminWriteToolId =
-  | "create_review_note_draft"
-  | "create_governance_proposal_draft";
 type AdminReadUtilityToolId =
   | "generate_chart_spec"
   | "generate_demo_plan"
   | "export_demo_pack"
   | "export_briefing_pack";
+
+interface ReadUtilitySummary {
+  toolId: "export_demo_pack" | "export_briefing_pack";
+  generatedAt: string | null;
+  counts: Array<{ label: string; value: number }>;
+}
+
+const EXPORT_PACK_TOOL_IDS = new Set<ReadUtilitySummary["toolId"]>([
+  "export_demo_pack",
+  "export_briefing_pack",
+]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function toCountLabel(key: string): string {
+  return key
+    .replace(/[_-]+/g, " ")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .trim();
+}
+
+export function getReadUtilitySummary(rawJson: string): ReadUtilitySummary | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(rawJson) as unknown;
+  } catch {
+    return null;
+  }
+  if (!isRecord(parsed)) return null;
+  const toolIdCandidate =
+    typeof parsed.executedToolId === "string"
+      ? parsed.executedToolId
+      : typeof parsed.requestedToolId === "string"
+        ? parsed.requestedToolId
+        : null;
+  if (!toolIdCandidate || !EXPORT_PACK_TOOL_IDS.has(toolIdCandidate as never)) {
+    return null;
+  }
+  const toolId = toolIdCandidate as ReadUtilitySummary["toolId"];
+  const payload = isRecord(parsed.payload) ? parsed.payload : null;
+  const metadata = payload && isRecord(payload.metadata) ? payload.metadata : null;
+  const generatedAt =
+    metadata && typeof metadata.generatedAt === "string"
+      ? metadata.generatedAt
+      : null;
+
+  const counts = payload
+    ? Object.entries(payload).flatMap(([key, value]) =>
+        Array.isArray(value)
+          ? [{ label: toCountLabel(key), value: value.length }]
+          : [],
+      )
+    : [];
+
+  return {
+    toolId,
+    generatedAt,
+    counts,
+  };
+}
 
 interface PendingConfirmation {
   toolId: AdminWriteToolId;
@@ -593,6 +653,14 @@ export function AdminChatControls() {
 
   const hydrated = useHydrated();
   const canConfirmPending = isValidPendingConfirmation(pendingConfirmation);
+  const readUtilitySummary = readUtilityResult
+    ? getReadUtilitySummary(readUtilityResult)
+    : null;
+  const formattedGeneratedAt =
+    readUtilitySummary?.generatedAt &&
+    !Number.isNaN(new Date(readUtilitySummary.generatedAt).getTime())
+      ? new Date(readUtilitySummary.generatedAt).toLocaleString()
+      : readUtilitySummary?.generatedAt ?? "n/a";
   const adminInputClassName =
     "w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-2 py-1 body-xs";
   // Hidden until hydrated and admin status confirmed. The settings-panel
@@ -953,19 +1021,21 @@ export function AdminChatControls() {
                       Include charts
                     </label>
                   </div>
-                  <div className="ct-chat-settings-row">
-                    <label className="body-xs inline-flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={demoPackIncludeChecklist}
-                        onChange={(event) =>
-                          setDemoPackIncludeChecklist(event.target.checked)
-                        }
-                        disabled={readUtilityBusy}
-                      />
-                      Include checklist
-                    </label>
-                  </div>
+                  {readUtilityTool === "export_demo_pack" ? (
+                    <div className="ct-chat-settings-row">
+                      <label className="body-xs inline-flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={demoPackIncludeChecklist}
+                          onChange={(event) =>
+                            setDemoPackIncludeChecklist(event.target.checked)
+                          }
+                          disabled={readUtilityBusy}
+                        />
+                        Include checklist
+                      </label>
+                    </div>
+                  ) : null}
                 </>
               )}
               <div className="ct-chat-settings-row">
@@ -981,6 +1051,35 @@ export function AdminChatControls() {
               </div>
               {readUtilityResult ? (
                 <>
+                  {readUtilitySummary ? (
+                    <div className="ct-chat-settings-row">
+                      <div
+                        className={cn(
+                          "w-full rounded-md border border-(--ct-border-soft)",
+                          "ct-surface-1 px-2 py-1 body-xs",
+                          "flex flex-wrap items-center gap-x-3 gap-y-1",
+                        )}
+                        aria-label="Export pack summary"
+                      >
+                        <span>
+                          <span className="opacity-70">tool</span>:{" "}
+                          {readUtilitySummary.toolId}
+                        </span>
+                        <span>
+                          <span className="opacity-70">generatedAt</span>:{" "}
+                          {formattedGeneratedAt}
+                        </span>
+                        {readUtilitySummary.counts.length > 0 ? (
+                          <span>
+                            <span className="opacity-70">counts</span>:{" "}
+                            {readUtilitySummary.counts
+                              .map((entry) => `${entry.label} ${entry.value}`)
+                              .join(" · ")}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
                   <div className="ct-chat-settings-row">
                     <Button
                       variant="ghost"

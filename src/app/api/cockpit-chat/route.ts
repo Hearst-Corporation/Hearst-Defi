@@ -387,7 +387,12 @@ async function runMasterAgentTurn(args: {
     openai as unknown as StreamingChatClient,
     model,
     messages,
-    { signal: req.signal, navProfile, chatMode: chatMode === "admin" ? "admin" : "normal" },
+    {
+      signal: req.signal,
+      navProfile,
+      chatMode: chatMode === "admin" ? "admin" : "normal",
+      userId,
+    },
   );
 
   // Persist the assistant answer once the turn completes (compliant only).

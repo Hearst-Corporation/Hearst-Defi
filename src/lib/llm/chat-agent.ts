@@ -196,6 +196,7 @@ async function consumeCompletion(params: {
 
 async function executeAdminReadCalls(
   toolCalls: AggregatedToolCall[],
+  userId?: string,
 ): Promise<{
   readRuns: AdminReadToolRun[];
   blockedWriteCalls: Array<{ toolCallId: string; toolId: string }>;
@@ -223,7 +224,9 @@ async function executeAdminReadCalls(
         }
       }
       try {
-        const result = await executeAdminReadTool(readTool, context, parsedInput);
+        const result = await executeAdminReadTool(readTool, context, parsedInput, {
+          userId,
+        });
         const payloadLine = result.payload
           ? [`JSON_PAYLOAD`, JSON.stringify(result.payload)]
           : [];
@@ -314,6 +317,7 @@ export function runChatAgent(
     timeoutMs?: number;
     navProfile?: NavProfile;
     chatMode?: "normal" | "admin";
+    userId?: string;
   },
 ): ChatAgentResult {
   const enc = new TextEncoder();
@@ -426,6 +430,7 @@ export function runChatAgent(
         if (isAdminMode) {
           const { readRuns, blockedWriteCalls } = await executeAdminReadCalls(
             firstPass.toolCalls,
+            options?.userId,
           );
           const shouldSecondPass =
             readRuns.length > 0 || blockedWriteCalls.length > 0;

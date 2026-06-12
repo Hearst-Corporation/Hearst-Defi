@@ -555,6 +555,7 @@ model AdminChatMode {
 
 model AdminWriteToolConfirmation {
   token       String   @id
+  userId      String
   toolId      String
   payloadHash String
   expiresAt   DateTime
@@ -562,7 +563,29 @@ model AdminWriteToolConfirmation {
   createdAt   DateTime @default(now())
 
   @@index([expiresAt])
+  @@index([userId, createdAt])
   @@index([toolId, createdAt])
+}
+
+model AdminToolRun {
+  id                    String   @id @default(cuid())
+  createdAt             DateTime @default(now())
+  userId                String?
+  toolId                String
+  toolKind              String // read | write
+  mode                  String
+  profile               String
+  status                String // success | blocked | failed | confirmation_required
+  latencyMs             Int?
+  confirmationTokenUsed Boolean  @default(false)
+  errorCode             String?
+  errorMessage          String?
+  inputHash             String?
+
+  @@index([createdAt])
+  @@index([userId, createdAt])
+  @@index([toolId, createdAt])
+  @@index([status, createdAt])
 }
 
 // A generated "suggested modifications" document, distilled from a review-mode

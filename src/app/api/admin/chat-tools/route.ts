@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHash } from "node:crypto";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -11,14 +12,18 @@ import {
   executeAdminWriteTool,
   getAllowedAdminReadTools,
   getAllowedAdminWriteTools,
+  projectAdminReadResultForExternal,
   type AdminReadToolExecutionContext,
 } from "@/lib/llm/tools";
-import { assertBodySize } from "@/lib/rate-limit";
+import { assertBodySize, assertRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-const ADMIN_TOOL_AGENT_NAME = "admin-chat-tool";
 const MAX_TELEMETRY_ERROR_MESSAGE_LEN = 500;
+const MAX_TELEMETRY_ERROR_CODE_LEN = 120;
+const AUTH_ERROR_MESSAGE = "Authentication required";
+const TOOL_RATE_MAX = 30;
+const TOOL_RATE_WINDOW_MS = 60_000;
 
 const ExecuteReadSchema = z.object({
   action: z.literal("execute_read"),
@@ -47,13 +52,55 @@ async function requireAdminUser(): Promise<string> {
   return auth.userId;
 }
 
-function adminError(err: unknown): NextResponse<{ error: string }> {
-  const message = err instanceof Error ? err.message : "Admin access required";
-  const isAuthRequired = message.toLowerCase().includes("authentication required");
-  return NextResponse.json(
-    { error: message },
-    { status: isAuthRequired ? 401 : 403 },
+async function rateLimitToolAction(
+  userId: string,
+  action: "read" | "write",
+): Promise<void> {
+  await assertRateLimit(
+    `admin-chat-tools:${action}:${userId}`,
+    TOOL_RATE_MAX,
+    TOOL_RATE_WINDOW_MS,
   );
+}
+
+function adminError(err: unknown): NextResponse<{ error: string }> {
+  logger.warn(
+    "admin chat tools auth denied",
+    {},
+    err instanceof Error ? err : undefined,
+  );
+  return NextResponse.json(
+    { error: AUTH_ERROR_MESSAGE },
+    { status: 401 },
+  );
+}
+
+function toSafeTelemetryCode(reason: string): string {
+  return reason
+    .trim()
+    .replace(/[^a-z0-9_]/gi, "_")
+    .replace(/_+/g, "_")
+    .toLowerCase()
+    .slice(0, MAX_TELEMETRY_ERROR_CODE_LEN);
+}
+
+function toSafeTelemetryMessage(reason: string): string {
+  return reason
+    .trim()
+    .replace(/[^a-z0-9 _:\-]/gi, "_")
+    .replace(/\s+/g, " ")
+    .slice(0, MAX_TELEMETRY_ERROR_MESSAGE_LEN);
+}
+
+function hashToolInput(input: unknown): string | null {
+  if (input === undefined) return null;
+  let serialized: string;
+  try {
+    serialized = JSON.stringify(input);
+  } catch {
+    return null;
+  }
+  return createHash("sha256").update(serialized).digest("hex");
 }
 
 function mapWriteConfirmationError(
@@ -75,20 +122,26 @@ function mapWriteConfirmationError(
 async function persistBlockedToolTelemetry(args: {
   userId: string;
   toolId: string;
+  toolKind: "read" | "write";
   context: AdminReadToolExecutionContext;
   reason: string;
+  input?: unknown;
+  confirmationTokenUsed?: boolean;
 }): Promise<void> {
   try {
-    await prisma.llmRun.create({
+    await prisma.adminToolRun.create({
       data: {
-        agentName: ADMIN_TOOL_AGENT_NAME,
-        model: `${args.context.chatMode}:${args.context.profile}`,
+        toolId: args.toolId,
+        toolKind: args.toolKind,
+        mode: args.context.chatMode,
+        profile: args.context.profile,
         status: "blocked",
         latencyMs: 0,
         userId: args.userId,
-        promptHash: args.toolId,
-        errorType: "blocked",
-        errorMessage: args.reason.slice(0, MAX_TELEMETRY_ERROR_MESSAGE_LEN),
+        inputHash: hashToolInput(args.input),
+        confirmationTokenUsed: args.confirmationTokenUsed ?? false,
+        errorCode: toSafeTelemetryCode("blocked"),
+        errorMessage: toSafeTelemetryMessage(args.reason),
       },
     });
   } catch (traceErr) {
@@ -189,6 +242,16 @@ export async function POST(
   const payload = parsed.data;
 
   if (payload.action === "execute_read") {
+    try {
+      await rateLimitToolAction(userId, "read");
+    } catch {
+      logger.warn("admin chat read tool rate limited", { userId });
+      return NextResponse.json(
+        { error: "Trop de requêtes — réessayez dans un instant." },
+        { status: 429 },
+      );
+    }
+
     const tool = getAllowedAdminReadTools(context).find(
       (candidate) => candidate.id === payload.toolId,
     );
@@ -200,8 +263,11 @@ export async function POST(
       await persistBlockedToolTelemetry({
         userId,
         toolId: payload.toolId,
+        toolKind: "read",
         context,
         reason: "read_tool_not_allowed",
+        input: payload.input,
+        confirmationTokenUsed: false,
       });
       return NextResponse.json({ error: "Tool not allowed" }, { status: 403 });
     }
@@ -210,7 +276,12 @@ export async function POST(
       const result = await executeAdminReadTool(tool, context, payload.input, {
         userId,
       });
-      return NextResponse.json({ status: "executed", toolId: tool.id, result });
+      const projectedResult = projectAdminReadResultForExternal(result);
+      return NextResponse.json({
+        status: "executed",
+        toolId: tool.id,
+        result: projectedResult,
+      });
     } catch (err) {
       logger.error(
         "admin chat read tool failed",
@@ -219,6 +290,16 @@ export async function POST(
       );
       return NextResponse.json({ error: "Read tool execution failed" }, { status: 500 });
     }
+  }
+
+  try {
+    await rateLimitToolAction(userId, "write");
+  } catch {
+    logger.warn("admin chat write tool rate limited", { userId });
+    return NextResponse.json(
+      { error: "Trop de requêtes — réessayez dans un instant." },
+      { status: 429 },
+    );
   }
 
   const writeTool = getAllowedAdminWriteTools(context).find(
@@ -232,8 +313,11 @@ export async function POST(
     await persistBlockedToolTelemetry({
       userId,
       toolId: payload.toolId,
+      toolKind: "write",
       context,
       reason: "write_tool_not_allowed",
+      input: payload.input,
+      confirmationTokenUsed: Boolean(payload.confirmedToken),
     });
     return NextResponse.json({ error: "Tool not allowed" }, { status: 403 });
   }
@@ -265,8 +349,11 @@ export async function POST(
         await persistBlockedToolTelemetry({
           userId,
           toolId: writeTool.id,
+          toolKind: "write",
           context,
           reason: "write_tool_not_allowed",
+          input: payload.input,
+          confirmationTokenUsed: Boolean(payload.confirmedToken),
         });
         return NextResponse.json({ error: "Tool not allowed" }, { status: 403 });
       }

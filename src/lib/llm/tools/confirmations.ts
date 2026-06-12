@@ -3,11 +3,27 @@ import "server-only";
 import type { AdminWriteToolId } from "@/lib/llm/tools/types";
 import { prisma } from "@/lib/db";
 
-function hashPayload(value: unknown): string {
+function stableSerialize(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableSerialize(item)).join(",")}]`;
+  }
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>).sort(([a], [b]) =>
+      a.localeCompare(b),
+    );
+    return `{${entries
+      .map(([key, entryValue]) => `${JSON.stringify(key)}:${stableSerialize(entryValue)}`)
+      .join(",")}}`;
+  }
   return JSON.stringify(value);
 }
 
+function hashPayload(value: unknown): string {
+  return stableSerialize(value);
+}
+
 export async function createWriteConfirmation(params: {
+  userId: string;
   toolId: AdminWriteToolId;
   input: unknown;
   ttlMs: number;
@@ -20,6 +36,7 @@ export async function createWriteConfirmation(params: {
   await prisma.adminWriteToolConfirmation.create({
     data: {
       token,
+      userId: params.userId,
       toolId: params.toolId,
       payloadHash,
       expiresAt: new Date(expiresAtMs),
@@ -32,6 +49,7 @@ export async function createWriteConfirmation(params: {
 type ConsumeResultReason = "not_found" | "expired" | "used" | "mismatch";
 
 export async function consumeWriteConfirmation(params: {
+  userId: string;
   token: string;
   toolId: AdminWriteToolId;
   input: unknown;
@@ -42,6 +60,7 @@ export async function consumeWriteConfirmation(params: {
     where: { token: params.token },
     select: {
       token: true,
+      userId: true,
       toolId: true,
       payloadHash: true,
       expiresAt: true,
@@ -49,6 +68,7 @@ export async function consumeWriteConfirmation(params: {
     },
   });
   if (!record) return { ok: false, reason: "not_found" };
+  if (record.userId !== params.userId) return { ok: false, reason: "mismatch" };
   if (record.toolId !== params.toolId) return { ok: false, reason: "mismatch" };
   if (record.usedAt !== null) return { ok: false, reason: "used" };
   if (nowMs > record.expiresAt.getTime()) return { ok: false, reason: "expired" };
