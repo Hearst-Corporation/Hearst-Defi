@@ -1,5 +1,6 @@
-version: "3.8"
-
+# Local-dev convenience: app + Postgres + Redis. NOT the production path
+# (prod = Railway/Dockerfile). The app needs more env (Upstash, Inngest) to run
+# fully; only the minimum is wired here for a local smoke.
 services:
   app:
     build:
@@ -13,7 +14,8 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/hearst
       - NEXT_PUBLIC_PRIVY_APP_ID=${NEXT_PUBLIC_PRIVY_APP_ID}
       - PRIVY_APP_SECRET=${PRIVY_APP_SECRET}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4.1}
       - NEXT_PUBLIC_CHAIN_RPC_URL=${NEXT_PUBLIC_CHAIN_RPC_URL}
       - ADMIN_ADDRESSES=${ADMIN_ADDRESSES}
       - HEARST_PUBLISHER=${HEARST_PUBLISHER}
