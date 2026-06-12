@@ -1,5 +1,5 @@
 /**
- * Onboarding layout — bare funnel shell (no product rails).
+ * Onboarding layout — Institutional Chamber + product chrome (left rail).
  * Progress + checklist driven by pathname and live investor state.
  */
 
@@ -12,7 +12,6 @@ import type { ReactNode } from "react";
 import { OnboardingShell } from "@/components/onboarding/onboarding-shell";
 import { getIrContact } from "@/lib/ir-contact";
 import { getInvestor, getSession } from "@/lib/auth/session";
-import { listVaults } from "@/lib/data/vaults";
 import { requireAccreditationAttested } from "@/lib/onboarding/gates";
 import { investorHasKycInquiry } from "@/lib/onboarding/kyc-gate";
 import {
@@ -46,16 +45,12 @@ export default async function OnboardingLayout({
     await requireAccreditationAttested();
   }
 
-  const vaults = state.accreditationAttested ? await listVaults() : [];
-  const vault = vaults.find((v) => v.ticker === "HYV-A") ?? vaults[0] ?? null;
-
   const irContact = getIrContact();
 
   return (
     <OnboardingShell
       activeStep={activeStep}
       state={state}
-      vault={vault}
       irContact={irContact}
     >
       {children}

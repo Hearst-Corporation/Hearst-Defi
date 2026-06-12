@@ -1,6 +1,5 @@
 /**
  * Step 1 — Accreditation attestations (Rule 506(c) + Cayman PIF).
- * Institutional Chamber layout — slice 1.
  */
 
 "use client";
@@ -10,15 +9,13 @@ import { useRouter } from "next/navigation";
 import {
   AccreditationAttestationFields,
   useAccreditationAttestations,
-} from "@/components/onboarding/AccreditationCheckboxes";
+} from "@/components/onboarding/accreditation-attestations";
 import {
   OnboardingChamber,
-  useOnboardingShell,
-} from "@/components/onboarding/onboarding-chamber";
-import {
   OnboardingChamberSole,
   OnboardingRequirementsList,
-} from "@/components/onboarding/onboarding-context-rail";
+  useOnboardingShell,
+} from "@/components/onboarding/onboarding-chamber";
 import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
 import { Button } from "@/components/ui/button";
 

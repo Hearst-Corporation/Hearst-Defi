@@ -10,7 +10,7 @@ export default function FeedbackError(props: {
     <SegmentError
       {...props}
       scope="Feedback · Error"
-      homeHref="/admin"
+      homeHref="/admin/dashboard"
       homeLabel="Back to admin"
     />
   );

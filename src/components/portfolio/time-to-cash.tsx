@@ -28,6 +28,8 @@ export interface TimeToCashProps {
   /** Provenance metadata from the loader. */
   source?: "live" | "stale";
   updatedAt?: Date;
+  /** Render payout shell at $0 (layout preview). */
+  previewZeros?: boolean;
 }
 
 // ── Formatters ────────────────────────────────────────────────────────────────
@@ -63,6 +65,7 @@ export function TimeToCash({
   asOf,
   source,
   updatedAt,
+  previewZeros = false,
 }: TimeToCashProps) {
   const effectiveAsOf = asOf ?? new Date();
 
@@ -70,10 +73,11 @@ export function TimeToCash({
   // When triggered, both the cycle badge and the APY range provenance flip to
   // "Stale" so we don't badge "Live" on top of meaningless zeroes.
   const isStale =
-    source === "stale" || projectedUsdc === 0 || aprLow + aprHigh === 0;
+    !previewZeros &&
+    (source === "stale" || projectedUsdc === 0 || aprLow + aprHigh === 0);
   
   const widgetProvenance = resolveProvenance(
-    isStale ? "stale" : source ?? "live",
+    previewZeros ? "stale" : isStale ? "stale" : source ?? "live",
     updatedAt,
     "estimated",
   );

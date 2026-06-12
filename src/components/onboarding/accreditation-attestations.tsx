@@ -1,19 +1,13 @@
 "use client";
 
 /**
- * AccreditationCheckboxes — Rule 506(c) + Cayman PIF attestation.
- *
- * Three checkboxes. "Continue" CTA is disabled until all three are checked.
- * On Continue: calls attestAccreditation() server action first, then onContinue.
- * If the server action fails, the error is shown and onContinue is NOT called.
- * A11y: each checkbox has an associated <label>; error state announced via aria-live.
- * Cockpit tokens only — no hex, no magic px.
+ * Accreditation attestations — Rule 506(c) + Cayman PIF.
+ * Used inside OnboardingChamber (CTA lives in Sole, not here).
  */
 
 import { useState, useTransition } from "react";
 
 import { attestAccreditation } from "@/app/actions/accreditation";
-import { Button } from "@/components/ui/button";
 
 const ATTESTATIONS = [
   {
@@ -89,13 +83,11 @@ export function useAccreditationAttestations(
   };
 }
 
-interface AccreditationFieldsProps {
-  state: AccreditationAttestationState;
-}
-
 export function AccreditationAttestationFields({
   state,
-}: AccreditationFieldsProps) {
+}: {
+  state: AccreditationAttestationState;
+}) {
   const { allChecked, attestError, toggle, isChecked } = state;
 
   return (
@@ -158,39 +150,6 @@ export function AccreditationAttestationFields({
           {attestError}
         </p>
       ) : null}
-    </div>
-  );
-}
-
-interface AccreditationCheckboxesProps {
-  /** Called when all boxes are checked and user clicks Continue. */
-  onContinue?: () => void;
-  /** When true, omit inline Continue — render via chamber Sole instead. */
-  hideContinue?: boolean;
-}
-
-export function AccreditationCheckboxes({
-  onContinue,
-  hideContinue = false,
-}: AccreditationCheckboxesProps) {
-  const state = useAccreditationAttestations(onContinue);
-
-  return (
-    <div className="flex flex-col gap-5">
-      <AccreditationAttestationFields state={state} />
-
-      {hideContinue ? null : (
-        <Button
-          variant="primary"
-          size="lg"
-          disabled={!state.allChecked || state.isPending}
-          aria-disabled={!state.allChecked || state.isPending}
-          onClick={state.handleContinue}
-          className="w-full font-bold"
-        >
-          {state.isPending ? "Confirming…" : "Continue"}
-        </Button>
-      )}
     </div>
   );
 }

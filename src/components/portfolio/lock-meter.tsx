@@ -74,6 +74,8 @@ export interface LockMeterProps {
   /** Provenance metadata from the loader. */
   source?: "live" | "stale";
   updatedAt?: Date;
+  /** Render progress shell at 0% (layout preview). */
+  previewZeros?: boolean;
 }
 
 const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
@@ -97,6 +99,7 @@ export function LockMeter({
   earlyExitPenaltyBps,
   asOf,
   source = "live",
+  previewZeros = false,
 }: LockMeterProps) {
   const effectiveAsOf = asOf ?? new Date();
 
@@ -104,7 +107,7 @@ export function LockMeter({
   // instead of a fabricated progress bar.
   const termsUnknown = softLockupDays <= 0;
 
-  if (termsUnknown || source === "stale") {
+  if ((termsUnknown || source === "stale") && !previewZeros) {
     return (
       <AwaitingMetricState
         message="Lock and liquidity terms appear after your first active position."
@@ -116,7 +119,7 @@ export function LockMeter({
   const { progressPct, unlockDate, daysRemaining, isUnlocked } =
     computeLockMeter(lockStart, softLockupDays, effectiveAsOf);
 
-  const badgeKind = "live";
+  const badgeKind = previewZeros ? "stale" : "live";
 
   // Penalty text color: faint when more than 50% elapsed (less urgent),
   // warning when less than 50% elapsed (early-exit risk is high).

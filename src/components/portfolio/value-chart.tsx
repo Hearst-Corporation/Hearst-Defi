@@ -169,18 +169,45 @@ interface ValueChartProps {
   totalValueUsdc: number;
   source: "live" | "fallback";
   updatedAt?: Date;
+  /** Render full chart shell with a flat $0 series (layout preview, no position). */
+  previewZeros?: boolean;
 }
 
-export function ValueChart({ positions, totalValueUsdc, source, updatedAt }: ValueChartProps) {
-  const provenance: Provenance = resolveProvenance(source, updatedAt, "estimated");
+export function ValueChart({
+  positions,
+  totalValueUsdc,
+  source,
+  updatedAt,
+  previewZeros = false,
+}: ValueChartProps) {
   const asOf = new Date(); // rendered server-side; consistent within a request
-  const series = buildMonthSeries(positions, totalValueUsdc, asOf);
-
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
+  const provenance: Provenance = resolveProvenance(
+    previewZeros && isEmpty ? "stale" : source,
+    updatedAt,
+    "estimated",
+  );
+  const series =
+    previewZeros && isEmpty
+      ? Array.from({ length: 12 }, (_, i) => {
+          const d = new Date(
+            Date.UTC(
+              asOf.getUTCFullYear(),
+              asOf.getUTCMonth() - (11 - i),
+              1,
+            ),
+          );
+          return {
+            label: MONTHS[d.getUTCMonth() % 12] ?? "",
+            value: 0,
+            isDistribution: false,
+          };
+        })
+      : buildMonthSeries(positions, totalValueUsdc, asOf);
 
   // No positions → light placeholder only. Do NOT wrap in dash-cell-premium with
   // header + Stale badge — that reads as a big black "placeholder box".
-  if (isEmpty) {
+  if (isEmpty && !previewZeros) {
     return (
       <EmptyChartState
         message="Value trend will appear after the first active position."
@@ -196,7 +223,7 @@ export function ValueChart({ positions, totalValueUsdc, source, updatedAt }: Val
         <h3 className="h3">Portfolio value · indicative 12-month path</h3>
         <span className="dash-label-meta">
           <span className="dash-trend flat">
-            {formatUsdCompact(totalValueUsdc)}
+            {formatUsdCompact(previewZeros && isEmpty ? 0 : totalValueUsdc)}
           </span>
         </span>
       </div>

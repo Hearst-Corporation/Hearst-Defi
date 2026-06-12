@@ -11,7 +11,7 @@ export default function AdminNotFound() {
       message="La page admin que vous cherchez n'existe pas ou a été déplacée. Vérifiez l'URL ou revenez au tableau de bord administrateur."
       actions={
         <Link
-          href="/admin"
+          href="/admin/dashboard"
           className="inline-flex items-center rounded-full border border-[var(--ct-border-strong)] ct-surface-1 px-4 py-2 text-sm font-medium ct-text-primary no-underline"
         >
           Retour à l&apos;admin

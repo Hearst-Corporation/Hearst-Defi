@@ -47,7 +47,6 @@ const ACTIONS: AdminActionItem[] = [
 ];
 
 const COCKPIT: CockpitPayload = {
-  heroKpis: [],
   actionQueue: [],
   vaultMetrics: [],
   inngestJobs: [],

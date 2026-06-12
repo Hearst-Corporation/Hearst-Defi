@@ -11,7 +11,8 @@ import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-bad
 import { allocationLabelFor, allocationStrokeFor } from "@/lib/allocation-colors";
 import { cn } from "@/lib/cn";
 import { adminNavLinks } from "@/lib/admin/nav-links";
-import type { CockpitPayload, HeroKpi } from "@/lib/data/cockpit";
+import { buildDashboardHeroKpis } from "@/lib/admin/dashboard-hero-kpis";
+import type { CockpitPayload } from "@/lib/data/cockpit";
 import type { AdminActionItem, AdminProofStatus } from "@/lib/data/admin-overview";
 import type { DashboardAllocation, DashboardData, NavPoint } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
@@ -88,7 +89,7 @@ export function DashboardAssetsBoard({
   const miningProvenance: Provenance = hasLiveKpis ? "live" : "manual";
   const proofProvenance: Provenance = proofFresh ? "attested" : proof.attestationsCount > 0 ? "stale" : "manual";
 
-  const heroKpis = buildHeroKpis({
+  const heroKpis = buildDashboardHeroKpis({
     capitalUsdc,
     capitalProvenance,
     vaultName: data.vaultMeta.name,
@@ -98,13 +99,13 @@ export function DashboardAssetsBoard({
     risk,
     riskProvenance,
     miningMarginScore: data.vault.miningMarginScore,
-    miningSublabel: hashpriceLabel(data),
     miningProvenance,
     hasLiveKpis,
     proofFresh,
     proofProvenance,
     proof,
     totalActionRequired,
+    data,
   });
 
   const lastNav = navLive ? (navPoints.at(-1)?.aum_usdc ?? 0) : null;
@@ -248,87 +249,6 @@ export function DashboardAssetsBoard({
       </section>
     </div>
   );
-}
-
-function heroProvenance(kind: Provenance): HeroKpi["provenance"] {
-  return kind === "partial" ? "estimated" : kind;
-}
-
-function buildHeroKpis(input: {
-  capitalUsdc: number;
-  capitalProvenance: Provenance;
-  vaultName: string;
-  headlineApy: { low: number; high: number } | null;
-  yieldPosture: string;
-  apyProvenance: Provenance;
-  risk: RiskFrameworkData;
-  riskProvenance: Provenance;
-  miningMarginScore: number;
-  miningSublabel: string;
-  miningProvenance: Provenance;
-  hasLiveKpis: boolean;
-  proofFresh: boolean;
-  proofProvenance: Provenance;
-  proof: AdminProofStatus;
-  totalActionRequired: number;
-}): HeroKpi[] {
-  const riskTone =
-    input.risk.band === "high" ? "danger" : input.risk.band === "medium" ? "warning" : "success";
-  const apyValue =
-    input.headlineApy !== null && input.headlineApy.low > 0 && input.headlineApy.high > 0
-      ? `${input.headlineApy.low.toFixed(1)}–${input.headlineApy.high.toFixed(1)}%`
-      : "—";
-
-  return [
-    {
-      label: "Capital",
-      value: input.capitalUsdc > 0 ? usdCompact.format(input.capitalUsdc) : "—",
-      sublabel: input.vaultName,
-      provenance: heroProvenance(input.capitalProvenance),
-    },
-    {
-      label: "APY",
-      value: apyValue,
-      sublabel: input.yieldPosture,
-      provenance: heroProvenance(input.apyProvenance),
-    },
-    {
-      label: "Risk",
-      value:
-        input.hasLiveKpis && input.risk.composite > 0
-          ? `${input.risk.composite}/100`
-          : "—",
-      sublabel:
-        input.hasLiveKpis && input.risk.composite > 0
-          ? input.risk.bandLabel
-          : "awaiting snapshot",
-      provenance: heroProvenance(input.riskProvenance),
-      alert: riskTone === "danger",
-    },
-    {
-      label: "Mining",
-      value:
-        input.hasLiveKpis && input.miningMarginScore > 0
-          ? `${input.miningMarginScore}/100`
-          : "—",
-      sublabel: input.miningSublabel,
-      provenance: heroProvenance(input.miningProvenance),
-      alert: input.hasLiveKpis && input.miningMarginScore > 0 && input.miningMarginScore < 15,
-    },
-    {
-      label: "Proof",
-      value: input.proofFresh ? "Current" : input.proof.attestationsCount > 0 ? "Stale" : "Pending",
-      sublabel: proofSubtitle(input.proof),
-      provenance: heroProvenance(input.proofProvenance),
-    },
-    {
-      label: "Queues",
-      value: String(input.totalActionRequired),
-      sublabel: input.totalActionRequired === 1 ? "tracked action" : "tracked actions",
-      provenance: "manual",
-      alert: input.totalActionRequired > 0,
-    },
-  ];
 }
 
 /** NAV slot — empty = single awaiting surface (DS §9); live = active card + chart. */
@@ -639,15 +559,3 @@ function toneClass(tone: "success" | "warning" | "danger"): string {
   return "ct-status-success";
 }
 
-function hashpriceLabel(data: DashboardData): string {
-  const hashprice = data.miningOps.hashprice;
-  if (!hashprice) return "Hashprice pending";
-  return `$${hashprice.usd_per_th_day.toFixed(3)} / TH / day`;
-}
-
-function proofSubtitle(proof: AdminProofStatus): string {
-  if (proof.lastMiningAttestationAt) {
-    return `Last ${dateFmt.format(proof.lastMiningAttestationAt)}`;
-  }
-  return proof.proofsTotal > 0 ? `${proof.proofsTotal} proofs on file` : "No attestation yet";
-}

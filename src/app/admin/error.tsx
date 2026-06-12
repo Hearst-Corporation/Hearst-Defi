@@ -34,7 +34,7 @@ export default function AdminError({ error, reset }: AdminErrorProps) {
             Try again
           </Button>
           <Button variant="secondary" size="md" asChild>
-            <Link href="/admin">Back to admin</Link>
+            <Link href="/admin/dashboard">Back to admin</Link>
           </Button>
         </>
       }

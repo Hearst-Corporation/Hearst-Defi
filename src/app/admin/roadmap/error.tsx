@@ -10,7 +10,7 @@ export default function RoadmapError(props: {
     <SegmentError
       {...props}
       scope="Roadmap · Error"
-      homeHref="/admin"
+      homeHref="/admin/dashboard"
       homeLabel="Back to admin"
     />
   );

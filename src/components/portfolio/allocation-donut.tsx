@@ -21,6 +21,8 @@ interface AllocationDonutProps {
   totalValueUsdc: number;
   source: "live" | "fallback";
   updatedAt?: Date;
+  /** Render donut shell at $0 (layout preview, no allocation). */
+  previewZeros?: boolean;
 }
 
 export function AllocationDonut({
@@ -28,8 +30,12 @@ export function AllocationDonut({
   totalValueUsdc,
   source,
   updatedAt,
+  previewZeros = false,
 }: AllocationDonutProps) {
-  const provenance = resolveProvenance(source, updatedAt);
+  const provenance = resolveProvenance(
+    previewZeros && totalValueUsdc === 0 ? "stale" : source,
+    updatedAt,
+  );
 
   // Group by status for the donut arcs.
   type StatusKey = "active" | "matured" | "exited";
@@ -58,7 +64,7 @@ export function AllocationDonut({
   const hasAllocation = totalValueUsdc > 0 && segments.length > 0;
 
   // No allocation data → light placeholder only (no dash-cell-premium shell).
-  if (!hasAllocation) {
+  if (!hasAllocation && !previewZeros) {
     return (
       <EmptyChartState
         message="Allocation will appear after the first active position."
@@ -105,13 +111,22 @@ export function AllocationDonut({
           </svg>
           <div className="donut-center">
             <span className="donut-val">
-              {formatUsdCompact(totalValueUsdc)}
+              {formatUsdCompact(previewZeros && !hasAllocation ? 0 : totalValueUsdc)}
             </span>
             <span className="donut-lbl">Portfolio</span>
           </div>
         </div>
 
         <div className="dash-legend w-full mt-0">
+          {previewZeros && !hasAllocation ? (
+            <div className="dash-legend-row">
+              <span className="dash-legend-left">
+                <span className="dash-legend-dot dot-muted" />
+                Active
+              </span>
+              <span className="dash-legend-val">0% · $0</span>
+            </div>
+          ) : null}
           {segments.map((s) => (
             <div key={s.status} className="dash-legend-row">
               <span className="dash-legend-left">

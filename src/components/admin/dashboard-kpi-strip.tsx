@@ -6,10 +6,7 @@ interface DashboardKpiStripProps {
   kpis: HeroKpi[];
 }
 
-/**
- * Compact KPI row for `/admin/dashboard` — denser than cockpit `HeroStrip`
- * (smaller type, more gutter between cells, no glass-panel hover chrome).
- */
+/** Compact per-vault KPI row for `/admin/dashboard` (container-query grid). */
 export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
   if (kpis.length === 0) {
     return (

@@ -10,7 +10,7 @@ import { vaultLabel, vaultSlug } from "@/lib/vaults/slug";
 // Cockpit Admin Dashboard — data loaders.
 //
 // All functions in this module are server-only. They supply the 3-column
-// cockpit layout:  Action Queue | Live Metrics | Live Ops  + Hero Strip + Audit Trail.
+// cockpit layout: Action Queue | Live Metrics | Live Ops + Audit Trail.
 //
 // Philosophy: prefer real Prisma data where available; fall back to a typed
 // stub/mock so the UI never crashes on an empty dev DB.
@@ -128,7 +128,6 @@ export interface AuditTrailEntry {
 // ---------------------------------------------------------------------------
 
 export interface CockpitPayload {
-  heroKpis: HeroKpi[];
   actionQueue: ActionQueueItem[];
   vaultMetrics: VaultLiveMetric[];
   inngestJobs: InngestJob[];
@@ -136,17 +135,6 @@ export interface CockpitPayload {
   onChainEvents: OnChainEvent[];
   auditTrail: AuditTrailEntry[];
 }
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-const usdCompact = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
 
 // ---------------------------------------------------------------------------
 // Stub Inngest job status.
@@ -421,97 +409,6 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
 }
 
 // ---------------------------------------------------------------------------
-// Cross-vault hero KPIs
-// ---------------------------------------------------------------------------
-
-async function buildHeroKpis(): Promise<HeroKpi[]> {
-  try {
-    const [vaultRefs, latestSnapshot, latestMetric, latestDistrib] =
-      await Promise.all([
-        listAllVaults({ status: "live-or-paused" }),
-        loadLatestTimelineSnapshot(),
-        prisma.miningMetric.findFirst({ orderBy: { takenAt: "desc" } }),
-        prisma.distribution.findFirst({
-          orderBy: { distributedAt: "desc" },
-        }),
-      ]);
-
-    const tvl = latestSnapshot?.aumUsdc?.toNumber() ?? 0;
-    const apyLow = latestSnapshot?.currentApyLow?.toNumber() ?? 0;
-    const apyHigh = latestSnapshot?.currentApyHigh?.toNumber() ?? 0;
-    const oracleAge = latestMetric
-      ? Math.round((Date.now() - latestMetric.takenAt.getTime()) / 60_000)
-      : null;
-    const isOracleStale = oracleAge === null || oracleAge > 360;
-
-    // P0 count from a quick proxy: oracle stale or margin red
-    const p0Count =
-      (isOracleStale ? 1 : 0) +
-      (latestSnapshot && latestSnapshot.miningMarginScore < 15 ? 1 : 0);
-
-    // Next distribution label (most recent completed distribution period)
-    const nextDistLabel = latestDistrib
-      ? `${latestDistrib.period ?? "—"}`
-      : "—";
-
-    return [
-      {
-        label: "TVL",
-        value: tvl > 0 ? usdCompact.format(tvl) : "—",
-        sublabel: `${vaultRefs.length} vault${vaultRefs.length !== 1 ? "s" : ""}`,
-        provenance: latestSnapshot ? "live" : "manual",
-      },
-      {
-        label: "APY",
-        value:
-          latestSnapshot && apyLow > 0 && apyHigh > 0
-            ? `${apyLow.toFixed(1)}–${apyHigh.toFixed(1)}%`
-            : "—",
-        sublabel: "forward 12m · not guaranteed",
-        provenance: latestSnapshot ? "live" : "manual",
-      },
-      {
-        label: "Next J-3",
-        value: nextDistLabel,
-        sublabel: "distribution window",
-        provenance: latestDistrib ? "live" : "estimated",
-      },
-      {
-        label: "Signers",
-        value: "—",
-        sublabel: "multisig not wired",
-        provenance: "manual",
-      },
-      {
-        label: "Oracles",
-        value: isOracleStale ? "Stale" : `${oracleAge}m ago`,
-        sublabel: isOracleStale ? "feed degraded" : "last update",
-        provenance: isOracleStale ? "stale" : "live",
-        alert: isOracleStale,
-      },
-      {
-        label: "P0",
-        value: String(p0Count),
-        sublabel: p0Count > 0 ? "critical actions" : "all clear",
-        provenance: "live",
-        alert: p0Count > 0,
-      },
-    ];
-  } catch {
-    // Return safe stubs so the page never crashes
-    return [
-      { label: "TVL", value: "—", sublabel: "no snapshot", provenance: "manual" },
-      { label: "APY", value: "—", sublabel: "no snapshot", provenance: "manual" },
-      { label: "Next J-3", value: "—", sublabel: "no distribution", provenance: "manual" },
-      { label: "Signers", value: "—", sublabel: "multisig not wired", provenance: "manual" },
-      { label: "Oracles", value: "—", sublabel: "no data", provenance: "stale", alert: true },
-      // A3 — DB-error fallback stub: nothing here is live.
-      { label: "P0", value: "0", sublabel: "no snapshot", provenance: "stale" },
-    ];
-  }
-}
-
-// ---------------------------------------------------------------------------
 // Live metrics per vault
 // ---------------------------------------------------------------------------
 
@@ -643,9 +540,8 @@ async function buildAuditTrail(): Promise<AuditTrailEntry[]> {
 // ---------------------------------------------------------------------------
 
 export async function loadCockpitPayload(): Promise<CockpitPayload> {
-  const [heroKpis, actionQueue, vaultMetrics, inngestJobs, sentryStats, onChainEvents, auditTrail] =
+  const [actionQueue, vaultMetrics, inngestJobs, sentryStats, onChainEvents, auditTrail] =
     await Promise.all([
-      buildHeroKpis(),
       buildActionQueue(),
       buildVaultMetrics(),
       inferInngestJobs(),
@@ -655,7 +551,6 @@ export async function loadCockpitPayload(): Promise<CockpitPayload> {
     ]);
 
   return {
-    heroKpis,
     actionQueue,
     vaultMetrics,
     inngestJobs,

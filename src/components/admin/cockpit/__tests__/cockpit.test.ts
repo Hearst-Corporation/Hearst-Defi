@@ -13,7 +13,6 @@ import { describe, it, expect } from "vitest";
 import type {
   ActionQueueItem,
   ActionSeverity,
-  HeroKpi,
   VaultLiveMetric,
   InngestJob,
   InngestJobStatus,
@@ -21,121 +20,7 @@ import type {
 } from "@/lib/data/cockpit";
 
 // ---------------------------------------------------------------------------
-// 1. HeroStrip — empty vault list → all KPI values should be "—" or sentinel
-// ---------------------------------------------------------------------------
-
-describe("HeroStrip — zero-vault graceful state", () => {
-  /**
-   * When `vaultMetrics` is empty the hero KPIs stub array should still
-   * satisfy the HeroKpi shape (6 entries, no missing required fields).
-   */
-  const emptyStateKpis: HeroKpi[] = [
-    { label: "TVL", value: "—", sublabel: "no snapshot", provenance: "manual" },
-    { label: "APY", value: "9.4–12.8%", sublabel: "methodology preset", provenance: "estimated" },
-    { label: "Next J-3", value: "—", sublabel: "no distribution", provenance: "estimated" },
-    { label: "Signers", value: "3/3", sublabel: "multisig quorum", provenance: "manual" },
-    { label: "Oracles", value: "—", sublabel: "no data", provenance: "stale", alert: true },
-    { label: "P0", value: "0", sublabel: "all clear", provenance: "live" },
-  ];
-
-  it("produces 6 KPI entries", () => {
-    expect(emptyStateKpis).toHaveLength(6);
-  });
-
-  it("all entries have required label, value, sublabel, provenance", () => {
-    for (const kpi of emptyStateKpis) {
-      expect(kpi.label).toBeTruthy();
-      expect(typeof kpi.value).toBe("string");
-      expect(kpi.sublabel).toBeTruthy();
-      expect(kpi.provenance).toBeTruthy();
-    }
-  });
-
-  it("TVL value is '—' when no snapshot", () => {
-    const tvl = emptyStateKpis.find((k) => k.label === "TVL");
-    expect(tvl?.value).toBe("—");
-  });
-
-  it("Oracles has alert=true when no data", () => {
-    const oracle = emptyStateKpis.find((k) => k.label === "Oracles");
-    expect(oracle?.alert).toBe(true);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// 2. HeroStrip — mock vaults → 6 KPIs calculated
-// ---------------------------------------------------------------------------
-
-describe("HeroStrip — with mock vault data", () => {
-  const mockKpis: HeroKpi[] = [
-    {
-      label: "TVL",
-      value: "$42.5M",
-      sublabel: "3 vaults",
-      provenance: "live",
-    },
-    {
-      label: "APY",
-      value: "9.4–12.8%",
-      sublabel: "forward 12m · not guaranteed",
-      provenance: "estimated",
-    },
-    {
-      label: "Next J-3",
-      value: "Jun-2026",
-      sublabel: "distribution window",
-      provenance: "live",
-    },
-    {
-      label: "Signers",
-      value: "3/3",
-      sublabel: "multisig quorum",
-      provenance: "manual",
-    },
-    {
-      label: "Oracles",
-      value: "5m ago",
-      sublabel: "last update",
-      provenance: "live",
-      alert: false,
-    },
-    {
-      label: "P0",
-      value: "0",
-      sublabel: "all clear",
-      provenance: "live",
-      alert: false,
-    },
-  ];
-
-  it("has exactly 6 KPIs", () => {
-    expect(mockKpis).toHaveLength(6);
-  });
-
-  it("TVL is non-empty string when vaults have AUM", () => {
-    const tvl = mockKpis.find((k) => k.label === "TVL");
-    expect(tvl?.value).toBe("$42.5M");
-  });
-
-  it("APY is a range string (contains –)", () => {
-    const apy = mockKpis.find((k) => k.label === "APY");
-    expect(apy?.value).toContain("–");
-  });
-
-  it("Oracles not alert when recent update", () => {
-    const oracle = mockKpis.find((k) => k.label === "Oracles");
-    expect(oracle?.alert).toBe(false);
-  });
-
-  it("P0 alert false when count is 0", () => {
-    const p0 = mockKpis.find((k) => k.label === "P0");
-    expect(p0?.alert).toBe(false);
-    expect(p0?.value).toBe("0");
-  });
-});
-
-// ---------------------------------------------------------------------------
-// 3. ActionQueue — 3 P0 items produce correct severity ordering
+// 1. ActionQueue — 3 P0 items produce correct severity ordering
 // ---------------------------------------------------------------------------
 
 describe("ActionQueue — P0 item ordering", () => {
@@ -149,7 +34,7 @@ describe("ActionQueue — P0 item ordering", () => {
     severity,
     title: `Action ${id}`,
     context: "test context",
-    href: "/admin",
+    href: "/admin/dashboard",
     createdAt,
   });
 

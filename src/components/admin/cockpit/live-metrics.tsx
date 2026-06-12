@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { VaultStatusPill } from "@/components/admin/vault-status-pill";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 import type { VaultLiveMetric } from "@/lib/data/cockpit";
@@ -77,7 +78,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
         >
           {vault.vaultName}
         </Link>
-        <VaultStatusPill status={vault.status} />
+        <VaultStatusPill status={vault.status} className="shrink-0" />
       </div>
 
       <div className="dashboard-live-metrics__grid">
@@ -134,23 +135,3 @@ function MetricCell({
   );
 }
 
-function VaultStatusPill({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    live: "ct-status-success-bg ct-status-success border-[var(--ct-status-success-border)]",
-    paused: "ct-status-warning-bg ct-status-warning border-[var(--ct-status-warning-border)]",
-    review: "ct-surface-1 ct-text-muted border-[var(--ct-border)]",
-    draft: "ct-surface-1 ct-text-faint border-[var(--ct-border-soft)]",
-    closed: "ct-surface-0 ct-text-faint border-[var(--ct-border-soft)]",
-  };
-
-  return (
-    <span
-      className={cn(
-        "inline-flex shrink-0 items-center rounded-sm border px-1.5 py-0.5 text-micro font-semibold uppercase tracking-wide",
-        styles[status] ?? styles["draft"],
-      )}
-    >
-      {status}
-    </span>
-  );
-}

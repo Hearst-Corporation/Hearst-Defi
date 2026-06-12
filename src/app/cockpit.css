@@ -1229,7 +1229,7 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   container-name: dash-board;
 }
 
-/* Compact KPI strip — smaller than cockpit HeroStrip, spaced cells. */
+/* Compact KPI strip for /admin/dashboard — spaced cells, container-query columns. */
 .dashboard-kpi-strip {
   display: grid;
   gap: var(--ct-space-2);
@@ -1607,12 +1607,10 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 }
 
 .dashboard-assets-stack,
-.dashboard-assets-risk,
-.dashboard-assets-actions {
+.dashboard-assets-risk {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-3);
-  margin-top: var(--ct-space-6);
 }
 
 .dashboard-assets-stack__row {
@@ -1711,69 +1709,6 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   border-radius: inherit;
   background: currentColor;
   box-shadow: var(--ct-glow-dot);
-}
-
-.dashboard-assets-actions__link {
-  display: block;
-  border-radius: var(--ct-radius-lg);
-}
-
-.dashboard-assets-actions__row {
-  display: grid;
-  gap: var(--ct-space-3);
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  padding: var(--ct-space-3);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-lg);
-  background: var(--ct-surface-0);
-  transition:
-    background-color var(--ct-dur-base) var(--ct-ease),
-    border-color var(--ct-dur-base) var(--ct-ease);
-}
-
-.dashboard-assets-actions__link:hover .dashboard-assets-actions__row {
-  border-color: var(--ct-border-strong);
-  background: var(--ct-surface-1);
-}
-
-.dashboard-assets-actions__count {
-  display: inline-flex;
-  min-width: var(--ct-space-10);
-  align-items: center;
-  justify-content: center;
-  padding: var(--ct-space-2) var(--ct-space-3);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-full);
-  color: var(--ct-text-muted);
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-bold);
-  line-height: var(--ct-leading-none);
-}
-
-.dashboard-assets-actions__count--hot {
-  border-color: var(--ct-status-warning-border);
-  background: var(--ct-status-warning-soft);
-  color: var(--ct-status-warning);
-}
-
-.dashboard-assets-actions__row strong {
-  display: block;
-  overflow: hidden;
-  color: var(--ct-text-strong);
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-semibold);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dashboard-assets-actions__row span {
-  display: block;
-  overflow: hidden;
-  color: var(--ct-text-muted);
-  font-size: var(--ct-text-xs);
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 @container dash-board (min-width: 18rem) {

@@ -24,6 +24,8 @@ export interface ProofPulseProps {
   updatedAt?: Date;
   /** Attestation state from the loader. */
   proofState?: "attested" | "stale";
+  /** Render PoR shell at $0 (layout preview). */
+  previewZeros?: boolean;
 }
 
 // ── Pure helpers (exported for tests) ────────────────────────────────────────
@@ -121,6 +123,7 @@ export function ProofPulse({
   source: _source = "live",
   updatedAt: _updatedAt,
   proofState,
+  previewZeros = false,
 }: ProofPulseProps) {
   const { timestamp, statedTvlUsdc, onChainTvlUsdc } = lastPor;
 
@@ -174,7 +177,7 @@ export function ProofPulse({
   // empty surface instead of a full dash-cell-premium with header + Stale badge
   // + nested callout, which reads as a big black placeholder box. The outer
   // section already labels this slot "Proof of reserves".
-  if (!hasData && !hasMethodologyData) {
+  if (!hasData && !hasMethodologyData && !previewZeros) {
     return (
       <AwaitingMetricState
         message="No attestation has been published yet."

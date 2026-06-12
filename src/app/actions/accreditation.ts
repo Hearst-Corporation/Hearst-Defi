@@ -20,7 +20,7 @@ export type AttestAccreditationResult =
  * Idempotent: calling it multiple times simply overwrites the timestamp with
  * the most recent attestation date (re-attestation is acceptable behaviour).
  *
- * Usage (from AccreditationCheckboxes.onContinue or any client component):
+ * Usage (from accreditation attestations flow or any client component):
  *   import { attestAccreditation } from "@/app/actions/accreditation";
  *   const result = await attestAccreditation();
  *   if (!result.ok) { ... }

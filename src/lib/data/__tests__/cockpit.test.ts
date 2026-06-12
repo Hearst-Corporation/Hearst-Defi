@@ -48,8 +48,7 @@ const prismaMock = vi.hoisted(() => ({
 
 vi.mock("@/lib/db", () => ({ prisma: prismaMock }));
 
-// Stub vaults resolver — cockpit uses listAllVaults inside buildHeroKpis /
-// buildVaultMetrics. Return an empty list so those branches return quickly.
+// Stub vaults resolver — cockpit uses listAllVaults inside buildVaultMetrics.
 vi.mock("@/lib/vaults/resolver", () => ({
   listAllVaults: vi.fn().mockResolvedValue([]),
 }));

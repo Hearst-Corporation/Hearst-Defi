@@ -36,6 +36,8 @@ export interface YieldStackProps {
   /** Provenance for the badge — defaults to "estimated" when omitted. */
   source?: "live" | "estimated" | "stale";
   updatedAt?: Date;
+  /** Render full widget shell at 0% (layout preview). */
+  previewZeros?: boolean;
 }
 
 // ── Pure helpers (also exported for unit tests) ───────────────────────────────
@@ -86,6 +88,7 @@ export function YieldStack({
   methodologyVersion = METHODOLOGY_VERSION,
   source = "estimated",
   updatedAt,
+  previewZeros = false,
 }: YieldStackProps) {
   // ...
   const [stressedLow, stressedHigh] =
@@ -104,10 +107,15 @@ export function YieldStack({
       : [blendedHigh, blendedLow];
 
   const hasData = sources.length > 0;
+  const displaySources = hasData ? sources : previewZeros ? sources : [];
 
-  const badgeKind = resolveProvenance(source, updatedAt, "estimated");
+  const badgeKind = resolveProvenance(
+    previewZeros && !hasData ? "stale" : source,
+    updatedAt,
+    "estimated",
+  );
 
-  if (!hasData) {
+  if (!hasData && !previewZeros) {
     return (
       <AwaitingMetricState message="No yield source data yet — awaiting first vault snapshot." />
     );
@@ -130,7 +138,7 @@ export function YieldStack({
         aria-hidden="true"
         role="presentation"
       >
-        {sources.map((s) => {
+        {displaySources.map((s) => {
           const widthPct = barWidthPct(s.contributionPct, maxAbsPct);
           const color = BUCKET_COLOR[s.bucket];
           const contribution = formatContribution(
