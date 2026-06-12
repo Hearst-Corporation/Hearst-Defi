@@ -217,20 +217,20 @@ export function NavSparkline({ output }: NavSparklineProps) {
         <CardTitle>12-Month NAV Projection</CardTitle>
       </CardHeader>
 
-      <div className="mb-3 flex flex-wrap items-end gap-6 text-sm">
-        <div className="flex flex-col gap-0.5">
+      <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--end admin-doc-inline-row--spacious flex-wrap text-sm">
+        <div className="admin-doc-stack--micro">
           <span className="stat-label text-micro">Low band</span>
           <span className="mono font-bold ct-text-body">
             {last ? formatUsd(last.p5) : "—"}
           </span>
         </div>
-        <div className="flex flex-col gap-0.5">
+        <div className="admin-doc-stack--micro">
           <span className="stat-label text-micro">Midpoint</span>
           <span className="mono font-bold ct-text-strong">
             {last ? formatUsd(last.p50) : "—"}
           </span>
         </div>
-        <div className="flex flex-col gap-0.5">
+        <div className="admin-doc-stack--micro">
           <span className="stat-label text-micro">High band</span>
           <span className="mono font-bold ct-text-body">
             {last ? formatUsd(last.p95) : "—"}
@@ -257,26 +257,26 @@ export function NavSparkline({ output }: NavSparklineProps) {
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-4 text-micro ct-text-muted">
-        <span className="flex items-center gap-1.5">
+      <div className="mt-3 admin-doc-inline-row admin-doc-inline-row--relaxed text-micro ct-text-muted">
+        <span className="admin-doc-inline-row admin-doc-inline-row--dense">
           <span
             className="inline-block h-0.5 w-4 rounded-full bg-[var(--ct-accent)]"
           />
           Median (p50)
         </span>
-        <span className="flex items-center gap-1.5">
+        <span className="admin-doc-inline-row admin-doc-inline-row--dense">
           <span
             className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-accent-soft)] opacity-45"
           />
           p25–p75
         </span>
-        <span className="flex items-center gap-1.5">
+        <span className="admin-doc-inline-row admin-doc-inline-row--dense">
           <span
             className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-accent-soft)] opacity-18"
           />
           p5–p95
         </span>
-        <span className="flex items-center gap-1.5">
+        <span className="admin-doc-inline-row admin-doc-inline-row--dense">
           <span
             className="inline-block h-0.5 w-4 border-t border-dashed border-[var(--ct-status-warning)]"
           />

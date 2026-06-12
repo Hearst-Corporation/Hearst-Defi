@@ -199,6 +199,10 @@ export async function consumeResetToken(
       where: { tokenHash },
       data: { usedAt: new Date() },
     }),
+    // Revoke all existing sessions for the user so any device that was
+    // logged in before the reset cannot continue to operate with a stale
+    // session cookie (AUTH-1).
+    prisma.session.deleteMany({ where: { userId } }),
   ]);
 
   return { ok: true };

@@ -7,6 +7,7 @@
  *   3. computation: sum of ledger entries == distribution.amountUsdc
  *   4. rollback: pcap creation fail → ledger entries not committed
  *   5. Inngest event emitted with correct payload
+ *   6. BLA-5/JOB-4: CAS — concurrent second call gets NOT_PENDING (count=0)
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -20,6 +21,7 @@ vi.mock("@/lib/db", () => ({
     distribution: {
       findUnique: vi.fn(),
       update: vi.fn(),
+      updateMany: vi.fn(),
     },
     position: {
       findMany: vi.fn(),
@@ -86,9 +88,12 @@ function buildPositions(
 
 /**
  * Helper that simulates a real Prisma $transaction by running the callback
- * with the mocked prisma client. Captures the callback for inspection.
+ * with the mocked prisma client. Also wires updateMany to return count=1
+ * (successful CAS) by default.
  */
 function mockTransactionSuccess() {
+  // Default CAS: count=1 (first and only caller wins)
+  vi.mocked(prisma.distribution.updateMany).mockResolvedValue({ count: 1 } as never);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (prisma.$transaction as any).mockImplementation(
     async (fn: (tx: unknown) => Promise<unknown>) => {
@@ -112,7 +117,7 @@ describe("executeDistributionAtomically", () => {
 
   // ── 1. Happy path ──────────────────────────────────────────────────────────
 
-  it("happy path — returns all artifacts, marks distribution executed", async () => {
+  it("happy path — returns all artifacts, marks distribution executed via CAS", async () => {
     vi.mocked(prisma.distribution.findUnique).mockResolvedValue(
       buildDistribution("pending") as never,
     );
@@ -159,10 +164,10 @@ describe("executeDistributionAtomically", () => {
     // emails
     expect(result.emailsQueued).toBe(1);
 
-    // distribution.update called with executed status + txHash
-    expect(prisma.distribution.update).toHaveBeenCalledWith(
+    // CAS: distribution.updateMany must have been called with pending guard
+    expect(prisma.distribution.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: DIST_ID },
+        where: { id: DIST_ID, status: "pending" },
         data: expect.objectContaining({
           status: "executed",
           txHash: `0xMOCK_${DIST_ID}`,
@@ -173,7 +178,7 @@ describe("executeDistributionAtomically", () => {
 
   // ── 2. Distribution not pending ────────────────────────────────────────────
 
-  it("not pending — throws AtomicExecError with code NOT_PENDING", async () => {
+  it("not pending (outer guard) — throws AtomicExecError with code NOT_PENDING", async () => {
     vi.mocked(prisma.distribution.findUnique).mockResolvedValue(
       buildDistribution("executed") as never,
     );
@@ -347,5 +352,36 @@ describe("executeDistributionAtomically", () => {
     // Should still succeed — emailsQueued = 0 (send failed)
     expect(result.tx.hash).toBe(`0xMOCK_${DIST_ID}`);
     expect(result.emailsQueued).toBe(0);
+  });
+
+  // ── 6. BLA-5/JOB-4: CAS concurrency — second finisher gets NOT_PENDING ─────
+
+  it("BLA-5: CAS count=0 inside transaction throws NOT_PENDING (concurrent finisher)", async () => {
+    vi.mocked(prisma.distribution.findUnique).mockResolvedValue(
+      buildDistribution("pending") as never,
+    );
+    vi.mocked(prisma.position.findMany).mockResolvedValue(
+      buildPositions([
+        { id: "pos1", investorId: "inv1", principal: AMOUNT_USDC },
+      ]) as never,
+    );
+
+    // Simulate the loser of a concurrent race: CAS finds no pending row (count=0)
+    vi.mocked(prisma.distribution.updateMany).mockResolvedValue({ count: 0 } as never);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (prisma.$transaction as any).mockImplementation(
+      async (fn: (tx: unknown) => Promise<unknown>) => {
+        const { prisma: tx } = await import("@/lib/db");
+        return fn(tx);
+      },
+    );
+
+    await expect(
+      executeDistributionAtomically(DIST_ID),
+    ).rejects.toMatchObject({ code: "NOT_PENDING" });
+
+    // Ledger entries must NOT have been written
+    expect(prisma.distributionLedgerEntry.createMany).not.toHaveBeenCalled();
+    expect(prisma.pcap.create).not.toHaveBeenCalled();
   });
 });

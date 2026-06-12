@@ -25,11 +25,11 @@ export function AssumptionsList({ assumptions }: AssumptionsListProps) {
 
   return (
     <div>
-      <ul className="space-y-2">
+      <ul className="admin-doc-stack--tight">
         {visible.map((line, i) => {
           const { key, value } = parseAssumption(line);
           return (
-            <li key={i} className="flex items-start gap-2 body-sm">
+            <li key={i} className="admin-doc-inline-row admin-doc-inline-row--start body-sm">
               <span
                 className="mt-0.5 shrink-0 text-micro ct-text-strong"
                 aria-hidden

@@ -85,7 +85,7 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="Rebalancing"
         actions={
@@ -98,7 +98,7 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
 
       <div className="ct-seg-scroll">
         <nav
-          className="inline-flex gap-1 ct-seg-track"
+          className="admin-doc-seg-track ct-seg-track"
           aria-label="Signal status filter"
         >
         {TABS.map((tab) => {
@@ -136,11 +136,11 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
           className="min-h-32"
         />
       ) : (
-        <section className="space-y-4">
+        <section className="admin-doc-stack--relaxed">
           <p className="stat-label">
             {events.length} signal{events.length !== 1 ? "s" : ""}
           </p>
-          <div className="grid gap-4">
+          <div className="admin-doc-stack--relaxed">
             {events.map((event) => (
               <RebalanceCard key={event.id} event={event} requiredSigners={2} />
             ))}

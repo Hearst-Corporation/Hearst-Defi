@@ -72,7 +72,7 @@ export default async function AuditLogPage({
     Boolean(action?.trim());
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="Admin activity log"
         description="Immutable record of admin actions — approvals, pauses, distributions, and state transitions."
@@ -80,8 +80,8 @@ export default async function AuditLogPage({
 
       {/* Filter bar — plain GET form, zero client JS */}
       <Card className="p-5">
-        <form method="get" className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-1">
+        <form method="get" className="admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions">
+          <label className="admin-doc-field">
             <span className="stat-label ct-text-muted">Entity type</span>
             <input
               name="entityType"
@@ -94,7 +94,7 @@ export default async function AuditLogPage({
             />
           </label>
 
-          <label className="flex flex-col gap-1">
+          <label className="admin-doc-field">
             <span className="stat-label ct-text-muted">Actor wallet</span>
             <input
               name="actor"
@@ -107,7 +107,7 @@ export default async function AuditLogPage({
             />
           </label>
 
-          <label className="flex flex-col gap-1">
+          <label className="admin-doc-field">
             <span className="stat-label ct-text-muted">Action</span>
             <input
               name="action"
@@ -133,7 +133,7 @@ export default async function AuditLogPage({
       </Card>
 
       {/* Results */}
-      <section className="space-y-3" aria-label="Audit entries">
+      <section className="admin-doc-stack--actions" aria-label="Audit entries">
         <h3 className="h3">
           {hasFilters ? "Filtered results" : "Recent events"} ({entries.length})
         </h3>
@@ -227,7 +227,7 @@ export default async function AuditLogPage({
                             Hide diff
                           </span>
                         </summary>
-                        <div className="mt-2 space-y-2">
+                        <div className="mt-2 admin-doc-stack--tight">
                           <div>
                             <p className="stat-label mb-0.5 ct-text-muted">
                               Before

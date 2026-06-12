@@ -3,6 +3,9 @@
  *
  * Verifies the guards and the position-update branch (full exit vs partial),
  * mirroring the deposit/subscribe contract.
+ *
+ * TOCTOU fix (DB-4): the $transaction now receives an async callback that
+ * re-reads the position and uses a conditional updateMany. Tests reflect that.
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -12,13 +15,25 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 vi.mock("@/lib/auth/session", () => ({ getInvestor: vi.fn() }));
 
+// Inner tx client returned by $transaction callback
+const txFindUnique = vi.fn();
+const txUpdateMany = vi.fn(() => ({ count: 1 }));
+const txCreate = vi.fn(() => ({}));
+
+const txClient = {
+  position: {
+    findUnique: (...a: unknown[]) => txFindUnique(...a),
+    updateMany: (...a: unknown[]) => txUpdateMany(...a),
+  },
+  investorTransaction: { create: (...a: unknown[]) => txCreate(...a) },
+};
+
 const findUnique = vi.fn();
 const txn = vi.fn();
 vi.mock("@/lib/db", () => ({
   prisma: {
     position: {
       findUnique: (...a: unknown[]) => findUnique(...a),
-      update: vi.fn(() => ({ __op: "update" })),
     },
     investorTransaction: { create: vi.fn(() => ({ __op: "create" })) },
     $transaction: (...a: unknown[]) => txn(...a),
@@ -49,10 +64,23 @@ function pos(over: Partial<{ status: string; principal: number; investorId: stri
   };
 }
 
+/**
+ * Wire up the $transaction mock to execute the async callback with the tx client.
+ * Also set txFindUnique to return a fresh position for re-validation inside the tx.
+ */
+function mockTxSuccess(principal = 250_000, status = "active") {
+  txFindUnique.mockResolvedValue({
+    status,
+    principalUsdc: { toNumber: () => principal },
+  });
+  txUpdateMany.mockResolvedValue({ count: 1 });
+  txCreate.mockResolvedValue({});
+  txn.mockImplementation(async (fn: (tx: typeof txClient) => Promise<unknown>) => fn(txClient));
+}
+
 describe("redeem server action", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    txn.mockResolvedValue([{}, {}]);
   });
 
   it("unauthenticated → throws", async () => {
@@ -75,7 +103,7 @@ describe("redeem server action", () => {
     expect(txn).not.toHaveBeenCalled();
   });
 
-  it("rejects a non-active position", async () => {
+  it("rejects a non-active position (outer guard)", async () => {
     mockGetInvestor.mockResolvedValue(INVESTOR);
     findUnique.mockResolvedValue(pos({ status: "exited" }));
     const r = await redeem("pos_1", 1000);
@@ -83,7 +111,7 @@ describe("redeem server action", () => {
     expect(txn).not.toHaveBeenCalled();
   });
 
-  it("rejects an amount above the principal", async () => {
+  it("rejects an amount above the principal (outer guard)", async () => {
     mockGetInvestor.mockResolvedValue(INVESTOR);
     findUnique.mockResolvedValue(pos({ principal: 250_000 }));
     const r = await redeem("pos_1", 300_000);
@@ -94,6 +122,7 @@ describe("redeem server action", () => {
   it("full redemption closes the position (exited)", async () => {
     mockGetInvestor.mockResolvedValue(INVESTOR);
     findUnique.mockResolvedValue(pos({ principal: 250_000 }));
+    mockTxSuccess(250_000);
     const r = await redeem("pos_1", 250_000, "0xabc");
     expect(r).toEqual({ ok: true, positionId: "pos_1", closed: true });
     expect(txn).toHaveBeenCalledOnce();
@@ -102,8 +131,48 @@ describe("redeem server action", () => {
   it("partial redemption keeps the position active", async () => {
     mockGetInvestor.mockResolvedValue(INVESTOR);
     findUnique.mockResolvedValue(pos({ principal: 250_000 }));
+    mockTxSuccess(250_000);
     const r = await redeem("pos_1", 100_000, "0xdef");
     expect(r).toEqual({ ok: true, positionId: "pos_1", closed: false });
     expect(txn).toHaveBeenCalledOnce();
+  });
+
+  // ── TOCTOU / conditional update tests ────────────────────────────────────
+
+  it("DB-4: updateMany is called with conditional principal guard (gte amount)", async () => {
+    mockGetInvestor.mockResolvedValue(INVESTOR);
+    findUnique.mockResolvedValue(pos({ principal: 250_000 }));
+    mockTxSuccess(250_000);
+    await redeem("pos_1", 100_000, "0xtoctou");
+    // The conditional update must use updateMany with a principalUsdc gte guard
+    expect(txUpdateMany).toHaveBeenCalledOnce();
+    const callArg = txUpdateMany.mock.calls[0]?.[0] as { where: { principalUsdc: { gte: unknown } } };
+    expect(callArg?.where?.principalUsdc?.gte).toBeDefined();
+  });
+
+  it("DB-4: when updateMany returns count=0 (concurrent conflict), the transaction throws", async () => {
+    mockGetInvestor.mockResolvedValue(INVESTOR);
+    findUnique.mockResolvedValue(pos({ principal: 250_000 }));
+    // Override txUpdateMany to simulate the loser of a concurrent race
+    txFindUnique.mockResolvedValue({
+      status: "active",
+      principalUsdc: { toNumber: () => 250_000 },
+    });
+    txUpdateMany.mockResolvedValue({ count: 0 });
+    txn.mockImplementation(async (fn: (tx: typeof txClient) => Promise<unknown>) => fn(txClient));
+    await expect(redeem("pos_1", 100_000)).rejects.toThrow(/concurrent/i);
+  });
+
+  it("DB-4: inner tx re-check catches a position that went inactive between outer read and tx", async () => {
+    mockGetInvestor.mockResolvedValue(INVESTOR);
+    // Outer read: active
+    findUnique.mockResolvedValue(pos({ principal: 250_000, status: "active" }));
+    // Inner tx re-read: now exited (race condition)
+    txFindUnique.mockResolvedValue({
+      status: "exited",
+      principalUsdc: { toNumber: () => 0 },
+    });
+    txn.mockImplementation(async (fn: (tx: typeof txClient) => Promise<unknown>) => fn(txClient));
+    await expect(redeem("pos_1", 100_000)).rejects.toThrow(/not active/i);
   });
 });

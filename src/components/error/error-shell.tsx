@@ -47,14 +47,13 @@ export function ErrorShellLayout({
   return (
     <div
       className={cn(
-        "glass-panel",
+        "glass-panel error-shell",
         "mx-auto my-10 max-w-2xl p-8",
-        "flex flex-col gap-5",
       )}
       role={tone === "danger" ? "alert" : "status"}
       aria-live={tone === "danger" ? "assertive" : "polite"}
     >
-      <header className="flex flex-col gap-2">
+      <header className="error-shell__head">
         <span className={cn("eyebrow", eyebrowColor)}>{scope}</span>
         <h1 className="h1 m-0">{title}</h1>
       </header>
@@ -88,7 +87,7 @@ export function ErrorShellLayout({
         </p>
       ) : null}
 
-      <div className="mt-1 flex flex-wrap items-center gap-3">{actions}</div>
+      <div className="error-shell__actions">{actions}</div>
     </div>
   );
 }

@@ -144,7 +144,7 @@ describe("POST /api/docusign/webhook", () => {
     expect(mockUpdateMany).toHaveBeenCalledOnce();
     expect(mockUpdateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { envelopeId: "env-complete-1" },
+        where: expect.objectContaining({ envelopeId: "env-complete-1" }),
         data: expect.objectContaining({ status: "completed" }),
       }),
     );
@@ -188,7 +188,7 @@ describe("POST /api/docusign/webhook", () => {
 
     expect(mockUpdateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { envelopeId: "env-declined-1" },
+        where: expect.objectContaining({ envelopeId: "env-declined-1" }),
         data: { status: "declined" },
       }),
     );
@@ -207,7 +207,7 @@ describe("POST /api/docusign/webhook", () => {
 
     expect(mockUpdateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { envelopeId: "env-voided-1" },
+        where: expect.objectContaining({ envelopeId: "env-voided-1" }),
         data: { status: "voided" },
       }),
     );
@@ -249,5 +249,49 @@ describe("POST /api/docusign/webhook", () => {
 
     const res = await POST(req);
     expect(res.status).toBe(400);
+  });
+
+  it("returns 413 when content-length exceeds 10 MB", async () => {
+    const body = envelopeCompletedPayload();
+    const sig = sign(SECRET, body);
+    const url = "https://connect.hearst.app/api/docusign/webhook";
+    const req = new NextRequest(url, {
+      method: "POST",
+      body,
+      headers: {
+        "content-type": "application/json",
+        // Simulate an oversized payload via the Content-Length header
+        "content-length": String(11 * 1024 * 1024), // 11 MB > 10 MB limit
+        "x-docusign-signature-1": sig,
+      },
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(413);
+    // Body was rejected before buffering — no DB interaction
+    expect(mockUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it("replay-safe: re-delivering an envelope-completed event does not re-fire side effects (notIn predicate)", async () => {
+    // The route passes status: { notIn: TERMINAL_STATUSES } so a replay on an
+    // already-completed envelope matches 0 rows → updateMany is still called
+    // but the predicate makes it a no-op in the real DB. We verify the predicate
+    // is present on the where clause.
+    const body = envelopeCompletedPayload("env-replay-1");
+    const sig = sign(SECRET, body);
+    const req = buildRequest(body, sig);
+
+    mockUpdateMany.mockResolvedValueOnce({ count: 0 }); // simulate already-terminal
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+
+    expect(mockUpdateMany).toHaveBeenCalledOnce();
+    const call = mockUpdateMany.mock.calls[0]?.[0] as {
+      where: { envelopeId: string; status: { notIn: string[] } };
+    };
+    expect(call.where.envelopeId).toBe("env-replay-1");
+    // Must contain the notIn predicate to guard against terminal-state replays
+    expect(call.where.status?.notIn).toContain("completed");
+    expect(call.where.status?.notIn).toContain("declined");
+    expect(call.where.status?.notIn).toContain("voided");
   });
 });

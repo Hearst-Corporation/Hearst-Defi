@@ -6,7 +6,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { NestedCallout } from "@/components/ui/nested-panel";
+import { PanelStatusSection } from "@/components/ui/panel-status";
 import type { IrContact } from "@/lib/ir-contact";
 import type { OnboardingChecklistItem } from "@/lib/onboarding/state";
 import { cn } from "@/lib/cn";
@@ -74,8 +74,7 @@ export function OnboardingRequirementsList({
   items: OnboardingChecklistItem[];
 }) {
   return (
-    <NestedCallout aria-label="Onboarding requirements">
-      <p className="eyebrow ct-text-muted m-0 mb-[var(--ct-space-3)]">Requirements</p>
+    <PanelStatusSection label="Requirements" aria-label="Onboarding requirements">
       <ul className="m-0 p-0 list-none product-doc-stack--list">
         {items.map((item) => (
           <li key={item.id} className="product-doc-inline-row product-doc-inline-row--start product-doc-inline-row--loose">
@@ -116,7 +115,7 @@ export function OnboardingRequirementsList({
           </li>
         ))}
       </ul>
-    </NestedCallout>
+    </PanelStatusSection>
   );
 }
 

@@ -33,12 +33,13 @@ describe("Proof Center empty states — design contract", () => {
     assertModuleEmptyContract(html, "No on-chain events yet.");
   });
 
-  it("PorSummary: nested custody empty uses inline variant inside active card", () => {
+  it("PorSummary: nested custody empty uses PanelStatus inside active card", () => {
     const html = renderToStaticMarkup(
       <PorSummary attestation={freshAttestation()} custody={zeroReservesCustody()} />,
     );
     expect(html).toContain("glass-panel");
-    expect(html).toContain("ct-empty-surface--inline");
+    expect(html).toContain("ct-panel-status");
+    expect(html).not.toContain("ct-nested-callout");
     expect(html).toContain(
       "Custody reserves will appear after the first verified Fireblocks snapshot.",
     );

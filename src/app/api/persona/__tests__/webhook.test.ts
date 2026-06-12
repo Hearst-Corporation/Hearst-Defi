@@ -70,6 +70,25 @@ describe("POST /api/persona/webhook", () => {
     });
   });
 
+  it("returns 413 when content-length exceeds 1 MB (before HMAC check)", async () => {
+    const { POST } = await import("../webhook/route");
+    const { NextRequest } = await import("next/server");
+    const nextReq = new NextRequest("http://localhost/api/persona/webhook", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        // Declare a body size just over 1 MB — body is not actually that large
+        // (the guard rejects based on the header, before buffering).
+        "content-length": String(1_000_001),
+      },
+      body: VALID_PAYLOAD,
+    });
+    const res = await POST(nextReq);
+    expect(res.status).toBe(413);
+    // HMAC check and DB were never reached
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
   it("returns 401 when Persona-Signature header is missing", async () => {
     const { POST } = await import("../webhook/route");
     const { NextRequest } = await import("next/server");

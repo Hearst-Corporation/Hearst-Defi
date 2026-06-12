@@ -21,22 +21,22 @@ export function DistributionPanel({
   return (
     <>
       <DashboardPanelHeader title="Distribution" provenance={provenance} tone="quiet" />
-      <dl className="flex flex-col gap-2 body-sm">
-        <div className="flex justify-between gap-2">
+      <dl className="admin-doc-stack--tight body-sm">
+        <div className="admin-doc-row-spread">
           <dt className="ct-text-muted">Period</dt>
           <dd className="tabular ct-text-strong">{distribution.period}</dd>
         </div>
-        <div className="flex justify-between gap-2">
+        <div className="admin-doc-row-spread">
           <dt className="ct-text-muted">Amount</dt>
           <dd className="tabular ct-text-strong">
             {distribution.amount_usdc > 0 ? usdFull.format(distribution.amount_usdc) : "—"}
           </dd>
         </div>
-        <div className="flex justify-between gap-2">
+        <div className="admin-doc-row-spread">
           <dt className="ct-text-muted">Status</dt>
           <dd className="capitalize ct-text-strong">{distribution.status}</dd>
         </div>
-        <div className="flex justify-between gap-2">
+        <div className="admin-doc-row-spread">
           <dt className="ct-text-muted">Paid</dt>
           <dd className="ct-text-strong">
             {distribution.paid_at ? dashboardDateFmt.format(distribution.paid_at) : "—"}

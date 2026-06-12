@@ -24,8 +24,8 @@ export function FeedbackForm() {
   }
 
   return (
-    <form ref={formRef} action={onSubmit} className="space-y-3" aria-label="Feedback form">
-      <div className="grid gap-3 sm:grid-cols-2">
+    <form ref={formRef} action={onSubmit} className="admin-doc-stack--actions" aria-label="Feedback form">
+      <div className="admin-doc-form-grid-2">
         <label className="block text-xs" htmlFor="feedback-itemId">
           <span className="ct-form-label">
             Roadmap item ID (optional)

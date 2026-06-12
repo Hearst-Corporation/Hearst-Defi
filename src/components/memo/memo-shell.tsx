@@ -61,7 +61,7 @@ function SkeletonSection() {
   return (
     <div className="rounded-md border border-[var(--ct-border)] ct-surface-2 p-6">
       <div className="mb-4 h-5 w-1/3 animate-pulse rounded ct-surface-1" />
-      <div className="space-y-2">
+      <div className="admin-doc-stack--tight">
         <div className="h-3 w-full animate-pulse rounded ct-surface-1" />
         <div className="h-3 w-11/12 animate-pulse rounded ct-surface-1" />
         <div className="h-3 w-4/5 animate-pulse rounded ct-surface-1" />
@@ -162,7 +162,7 @@ export function MemoShell({
   }, [memo, vaultId]);
 
   return (
-    <div className="space-y-6">
+    <div className="admin-doc-stack">
       <MemoToolbar
         hasMemo={memo !== null}
         isPending={isPending}
@@ -183,13 +183,13 @@ export function MemoShell({
       ) : null}
 
       {isPending && memo === null ? (
-        <div className="space-y-4">
+        <div className="admin-doc-stack--relaxed">
           {SECTIONS.map((s) => (
             <SkeletonSection key={s.key} />
           ))}
         </div>
       ) : memo ? (
-        <div className="space-y-4">
+        <div className="admin-doc-stack--relaxed">
           {SECTIONS.map(({ key, title }) => (
             <MemoSection key={key} title={title} body={memo[key]} />
           ))}

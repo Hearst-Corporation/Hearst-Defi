@@ -86,6 +86,10 @@
   gap: var(--ct-space-1_5);
 }
 
+.product-doc .product-doc-stack--flat {
+  gap: 0;
+}
+
 .product-doc .product-doc-inline-row {
   display: flex;
   align-items: center;
@@ -100,6 +104,21 @@
 
 .product-doc .product-doc-inline-row--start {
   align-items: flex-start;
+}
+
+.product-doc .product-doc-inline-row--between {
+  justify-content: space-between;
+}
+
+.product-doc .product-doc-inline-row--actions {
+  gap: var(--ct-space-3);
+}
+
+.product-doc .product-doc-row-spread {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
 }
 
 .product-doc .product-doc-inline-row--loose {

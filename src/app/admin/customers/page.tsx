@@ -59,12 +59,12 @@ export default async function CustomersPage({
   const { data: customers, total, hasMore } = result;
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="Customers"
       />
 
-      <section className="space-y-3" aria-label="Customers">
+      <section className="admin-doc-stack--actions" aria-label="Customers">
         <h3 className="h3">Directory ({total})</h3>
 
         {customers.length === 0 ? (
@@ -112,7 +112,7 @@ export default async function CustomersPage({
                       {truncateWallet(c.walletAddress)}
                     </td>
                     <td className="px-5 py-3">
-                      <div className="flex items-center gap-2">
+                      <div className="admin-doc-inline-row">
                         <Badge variant={KYC_VARIANT[c.kycStatus]}>
                           {KYC_LABEL[c.kycStatus]}
                         </Badge>
@@ -141,7 +141,7 @@ export default async function CustomersPage({
             <p className="text-xs ct-text-muted">
               Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, total)} of {total}
             </p>
-            <div className="flex gap-2">
+            <div className="admin-doc-inline-row">
               {page > 1 && (
                 <a
                   href={`/admin/customers?page=${page - 1}&pageSize=${pageSize}`}

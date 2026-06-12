@@ -4,6 +4,7 @@ import { EmptySurface } from "@/components/ui/empty-surface";
 import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { cn } from "@/lib/cn";
 import type { MonitoringStats } from "@/lib/data/monitoring";
+import { formatAdminDateTime } from "@/lib/vaults/product-display";
 
 const EMPTY_COPY = {
   message: "No agent runs recorded yet.",
@@ -16,8 +17,8 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="grid gap-4 md:grid-cols-4">
+    <div className="admin-doc-stack">
+      <div className="admin-doc-kpi-grid-4">
         <KpiTile label="Total Runs" value={stats.totalRuns.toString()} />
         <KpiTile
           label="Success Rate"
@@ -80,7 +81,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
                 {run.costUsd ? `$${run.costUsd.toFixed(4)}` : "—"}
               </td>
               <td className="ct-table-cell px-4 text-right ct-text-muted">
-                {run.createdAt.toLocaleString()}
+                {formatAdminDateTime(run.createdAt)}
               </td>
             </tr>
           ))}

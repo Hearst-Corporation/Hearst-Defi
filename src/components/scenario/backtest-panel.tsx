@@ -21,7 +21,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
   return (
     <div
       className={cn(
-        "relative space-y-4 transition-opacity duration-(--ct-dur-fast)",
+        "relative admin-doc-stack--relaxed transition-opacity duration-(--ct-dur-fast)",
         isPending && "pointer-events-none opacity-50",
       )}
       aria-busy={isPending}
@@ -33,10 +33,10 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
       )}
 
       {/* ── Section 1: KPIs 2×2 grid ────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="admin-doc-kpi-grid-2">
         {/* Total Return */}
         <Card>
-          <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="mb-2 admin-doc-inline-row admin-doc-inline-row--between">
             <p className="stat-label">Total Return</p>
             <ProvenanceBadge kind="estimated" />
           </div>
@@ -56,7 +56,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
 
         {/* Max Drawdown */}
         <Card>
-          <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="mb-2 admin-doc-inline-row admin-doc-inline-row--between">
             <p className="stat-label">Max Drawdown</p>
             <ProvenanceBadge kind="estimated" />
           </div>
@@ -68,7 +68,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
 
         {/* Worst Month */}
         <Card>
-          <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="mb-2 admin-doc-inline-row admin-doc-inline-row--between">
             <p className="stat-label">Worst Month</p>
             <ProvenanceBadge kind="estimated" />
           </div>
@@ -82,7 +82,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
 
         {/* Rebalances */}
         <Card>
-          <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="mb-2 admin-doc-inline-row admin-doc-inline-row--between">
             <p className="stat-label">Rebalances</p>
             <ProvenanceBadge kind="estimated" />
           </div>
@@ -106,7 +106,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
 
       {/* ── Section 3: Hearst Rules badge ────────────────────────────────── */}
       <Card>
-        <div className="flex items-center justify-between gap-4">
+        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
           <div>
             <p className="stat-label mb-1">Rule Engine</p>
             <p className="body-xs ct-text-muted">

@@ -22,7 +22,7 @@ export default async function InvestorMemoPage({
   const vault = VAULTS[vaultId];
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader title="Investor Memo" />
 
       <MemoShell vaultId={vaultId} vaultName={vault.label} />

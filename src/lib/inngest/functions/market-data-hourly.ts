@@ -150,6 +150,7 @@ async function marketDataHourlyHandler({
 export const marketDataHourly = inngest.createFunction(
   {
     id: MARKET_DATA_HOURLY_ID,
+    concurrency: { limit: 1 },
     triggers: [{ cron: MARKET_DATA_HOURLY_CRON }],
   },
   marketDataHourlyHandler,

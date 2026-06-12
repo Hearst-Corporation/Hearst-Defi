@@ -27,9 +27,9 @@ export default async function SpecPage({
   }
 
   return (
-    <div className="grid gap-8 md:grid-cols-[var(--ct-spec-nav-w)_1fr]">
+    <div className="admin-doc-spec-layout">
       <aside className="md:sticky md:top-24 md:self-start">
-        <nav className="space-y-1" aria-label="Spec documents">
+        <nav className="admin-doc-stack--compact" aria-label="Spec documents">
           {index.map((entry) => {
             const active = entry.slug === slug;
             return (

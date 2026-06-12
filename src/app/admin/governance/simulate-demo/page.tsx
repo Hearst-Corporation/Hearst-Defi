@@ -3,7 +3,7 @@ import { SimulateDemoPanel } from "@/components/admin/governance/simulate-demo-p
 
 export default function SimulateDemoPage() {
   return (
-    <div className="mx-auto max-w-2xl space-y-8">
+    <div className="admin-doc-shell admin-doc-shell--narrow">
       <AdminPageHeader title="Simulation Panel — Demo" />
       <SimulateDemoPanel />
     </div>

@@ -45,7 +45,7 @@ export function ProofFilter() {
   }
 
   return (
-    <nav aria-label="Proof type filter" className="flex flex-wrap gap-2">
+    <nav aria-label="Proof type filter" className="product-doc-inline-row">
       {OPTIONS.map((opt) => {
         const isActive = current === opt.value;
         return (

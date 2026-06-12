@@ -137,7 +137,7 @@ export function EventTimeline({ events }: EventTimelineProps) {
         tone="primary"
       />
 
-      <ol className="relative space-y-0" aria-label="On-chain event timeline">
+      <ol className="relative product-doc-stack--flat" aria-label="On-chain event timeline">
         {events.map((event, idx) => (
           <EventTimelineItem
             key={`${event.eventId.toString()}-${event.txHash}`}

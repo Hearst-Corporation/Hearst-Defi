@@ -1,0 +1,493 @@
+/**
+ * Admin document-flow layout — mirror of product-doc.css for /admin/* surfaces.
+ * Scoped via `.admin-doc` on the admin layout root.
+ */
+.admin-doc {
+  container-type: inline-size;
+  container-name: admin-doc;
+}
+.admin-doc .h1 {
+  font-size: var(--ct-text-2xl);
+  font-weight: var(--ct-font-bold);
+}
+
+.admin-doc .h2 {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-body);
+}
+
+.admin-doc .h3 {
+  font-size: var(--ct-text-base);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-body);
+}
+
+.admin-doc .stat-value {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-bold);
+  color: var(--ct-text-body);
+}
+
+.admin-doc .stat-label {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: 0.06em;
+}
+
+/* ── Shared layout primitives ─────────────────────────────────────────────── */
+
+.admin-doc .admin-doc-shell {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--ct-space-8);
+  container-type: inline-size;
+  container-name: admin-doc;
+}
+
+.admin-doc .admin-doc-shell--cap {
+  max-width: var(--ct-invest-flow-max-w);
+  margin-inline: auto;
+}
+
+.admin-doc .admin-doc-shell--narrow {
+  max-width: var(--ct-prose-md);
+  margin-inline: auto;
+}
+
+.admin-doc .admin-doc-shell--compact {
+  gap: var(--ct-space-4);
+}
+
+.admin-doc .admin-doc-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+}
+
+.admin-doc .admin-doc-stack--tight {
+  gap: var(--ct-space-2);
+}
+
+.admin-doc .admin-doc-stack--actions {
+  gap: var(--ct-space-3);
+}
+
+.admin-doc .admin-doc-stack--relaxed {
+  gap: var(--ct-space-4);
+}
+
+.admin-doc .admin-doc-stack--list {
+  gap: var(--ct-space-2_5);
+}
+
+.admin-doc .admin-doc-stack--compact {
+  gap: var(--ct-space-1);
+}
+
+.admin-doc .admin-doc-stack--dense {
+  gap: var(--ct-space-1_5);
+}
+
+.admin-doc .admin-doc-stack--roomy {
+  gap: var(--ct-space-5);
+}
+
+.admin-doc .admin-doc-stack--micro {
+  gap: var(--ct-space-0_5);
+}
+
+.admin-doc .admin-doc-inline-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.admin-doc .admin-doc-inline-row--baseline {
+  align-items: baseline;
+}
+
+.admin-doc .admin-doc-inline-row--start {
+  align-items: flex-start;
+}
+
+.admin-doc .admin-doc-inline-row--between {
+  justify-content: space-between;
+}
+
+.admin-doc .admin-doc-inline-row--end {
+  align-items: flex-end;
+}
+
+.admin-doc .admin-doc-inline-row--loose {
+  gap: var(--ct-space-2_5);
+}
+
+.admin-doc .admin-doc-inline-row--tight {
+  gap: var(--ct-space-1);
+}
+
+.admin-doc .admin-doc-inline-row--dense {
+  gap: var(--ct-space-1_5);
+}
+
+.admin-doc .admin-doc-inline-row--relaxed {
+  gap: var(--ct-space-4);
+}
+
+.admin-doc .admin-doc-inline-row--spacious {
+  gap: var(--ct-space-5);
+}
+
+.admin-doc .admin-doc-inline-row--actions {
+  gap: var(--ct-space-3);
+}
+
+.admin-doc .admin-doc-inline-row--micro {
+  gap: var(--ct-space-0_5);
+}
+
+.admin-doc .admin-doc-inline-row--nowrap {
+  flex-wrap: nowrap;
+}
+
+.admin-doc .admin-doc-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ct-space-3);
+  border-radius: var(--ct-radius-md);
+  border: 1px solid var(--ct-status-warning-border);
+  background: var(--ct-status-warning-bg);
+  padding: var(--ct-space-3) var(--ct-space-4);
+}
+
+.admin-doc .admin-doc-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+
+.admin-doc .admin-doc-section__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+}
+
+.admin-doc .admin-doc-footer-rule {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  padding-top: var(--ct-space-6);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+.admin-doc .admin-doc-kpi-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ct-space-4);
+}
+
+.admin-doc .admin-doc-kpi-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ct-space-4);
+}
+
+@container admin-doc (min-width: 48rem) {
+  .admin-doc .admin-doc-kpi-grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Form fields & grids */
+.admin-doc .admin-doc-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1_5);
+}
+
+.admin-doc .admin-doc-form-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--ct-space-4);
+}
+
+@container admin-doc (min-width: 40rem) {
+  .admin-doc .admin-doc-form-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.admin-doc .admin-doc-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--ct-space-3);
+}
+
+@container admin-doc (min-width: 40rem) {
+  .admin-doc .admin-doc-form-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.admin-doc .admin-doc-split-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--ct-space-6);
+}
+
+@container admin-doc (min-width: 48rem) {
+  .admin-doc .admin-doc-split-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.admin-doc .admin-doc-confirm-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ct-space-2);
+}
+
+.admin-doc .admin-doc-dl-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--ct-space-8);
+  row-gap: var(--ct-space-3);
+}
+
+.admin-doc .admin-doc-grid-dense {
+  display: grid;
+  gap: var(--ct-space-1_5);
+}
+
+.admin-doc .admin-doc-spec-loading {
+  display: flex;
+  gap: var(--ct-space-6);
+}
+
+.admin-doc .admin-doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-doc .admin-doc-list--disc {
+  list-style: disc;
+  padding-left: var(--ct-space-5);
+}
+
+.admin-doc .admin-doc-list--decimal {
+  list-style: decimal;
+  padding-left: var(--ct-space-5);
+}
+
+.admin-doc .admin-doc-row-spread {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+}
+
+.admin-doc .admin-doc-seg-track {
+  display: inline-flex;
+  gap: var(--ct-space-1);
+}
+
+/* Spec sidebar layout */
+.admin-doc .admin-doc-spec-layout {
+  display: grid;
+  gap: var(--ct-space-8);
+}
+
+@container admin-doc (min-width: 48rem) {
+  .admin-doc .admin-doc-spec-layout {
+    grid-template-columns: var(--ct-spec-nav-w) 1fr;
+  }
+}
+
+/* Confirm panels (vault wizard, governance forms) */
+.admin-doc .admin-confirm-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.admin-doc .admin-confirm-panel__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
+.admin-doc .admin-confirm-panel__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+}
+
+.admin-doc .admin-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ct-space-3);
+}
+
+.admin-doc .admin-form-actions__primary {
+  flex: 1;
+}
+
+/* Shared admin page title */
+.admin-doc .admin-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.admin-doc .admin-page-header__row {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.25rem;
+  flex-wrap: wrap;
+  gap: var(--ct-space-4);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.admin-doc .admin-page-header__main {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
+.admin-doc .admin-page-header__actions {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
+.admin-doc .admin-page-header__actions--stack {
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+@container admin-doc (min-width: 40rem) {
+  .admin-doc .admin-page-header__actions--stack {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* 40rem = --ct-invest-flow-narrow — literal required for @container support */
+@container admin-doc (max-width: 40rem) {
+  .admin-doc .admin-page-header__row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-doc .admin-page-header__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .admin-doc .admin-page-header__actions--stack {
+    align-items: stretch;
+  }
+}
+
+/* Toolbar — stacks on narrow, row on wide (memo, forms) */
+.admin-doc .admin-doc-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+
+@container admin-doc (min-width: 40rem) {
+  .admin-doc .admin-doc-toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.admin-doc .admin-doc-stack--flat {
+  gap: 0;
+}
+
+.admin-doc .admin-doc-sub-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-1);
+  margin-bottom: var(--ct-space-6);
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+/* product-doc stack aliases — shared components (proof-grid) under admin */
+.admin-doc :is(.product-doc-stack, .admin-doc-stack) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+}
+
+.admin-doc :is(.product-doc-stack--tight, .admin-doc-stack--tight) {
+  gap: var(--ct-space-2);
+}
+
+.admin-doc :is(.product-doc-stack--actions, .admin-doc-stack--actions) {
+  gap: var(--ct-space-3);
+}
+
+.admin-doc :is(.product-doc-stack--relaxed, .admin-doc-stack--relaxed) {
+  gap: var(--ct-space-4);
+}
+
+.admin-doc :is(.product-doc-stack--compact, .admin-doc-stack--compact) {
+  gap: var(--ct-space-1);
+}
+
+.admin-doc :is(.product-doc-stack--dense, .admin-doc-stack--dense) {
+  gap: var(--ct-space-1_5);
+}
+
+.admin-doc :is(.product-doc-stack--flat, .admin-doc-stack--flat) {
+  gap: 0;
+}
+
+.admin-doc :is(.product-doc-inline-row, .admin-doc-inline-row) {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.admin-doc :is(.product-doc-inline-row--between, .admin-doc-inline-row--between) {
+  justify-content: space-between;
+}
+
+.admin-doc :is(.product-doc-inline-row--baseline, .admin-doc-inline-row--baseline) {
+  align-items: baseline;
+}
+
+.admin-doc :is(.product-doc-inline-row--actions, .admin-doc-inline-row--actions) {
+  gap: var(--ct-space-3);
+}
+
+.admin-doc :is(.product-doc-row-spread, .admin-doc-row-spread) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+}

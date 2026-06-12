@@ -19,10 +19,10 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
   const mvpPhase = phases.find((phase) => phase.id === "mvp");
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-stack">
       {mvpPhase ? (
         <Card className="max-w-xl" aria-label="MVP progress">
-          <div className="flex items-center justify-between gap-3">
+          <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--loose">
             <span className="stat-label">MVP progress</span>
             <span className="mono tabular text-base ct-text-primary">
               {mvpPhase.doneCount} / {mvpPhase.total} (
@@ -47,10 +47,10 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
         phases.map((phase) => (
           <section
             key={phase.id}
-            className="space-y-6"
+            className="admin-doc-stack"
             aria-label={phase.label}
           >
-            <div className="flex items-baseline justify-between gap-3 border-b border-(--ct-border-soft) pb-3">
+            <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline admin-doc-inline-row--loose border-b border-(--ct-border-soft) pb-3">
               <h2 className="h2">{phase.label}</h2>
               <span className="mono tabular text-sm ct-text-muted">
                 {phase.doneCount} / {phase.total}
@@ -64,7 +64,7 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
                 className="min-h-24"
               />
             ) : (
-              <div className="space-y-6">
+              <div className="admin-doc-stack">
                 {phase.weeks.map((week) => (
                   <RoadmapWeekCard key={week.id} week={week} />
                 ))}
@@ -92,9 +92,9 @@ function RoadmapWeekCard({ week }: { week: RoadmapWeekWithState }) {
   return (
     <Card aria-label={week.label}>
       <CardHeader>
-        <div className="space-y-2">
+        <div className="admin-doc-stack--tight">
           <CardTitle>{week.label}</CardTitle>
-          <div className="flex items-center gap-3 text-sm ct-text-muted">
+          <div className="admin-doc-inline-row admin-doc-inline-row--loose text-sm ct-text-muted">
             <span className="mono tabular">
               {week.doneCount} / {week.total}
             </span>
@@ -106,7 +106,7 @@ function RoadmapWeekCard({ week }: { week: RoadmapWeekWithState }) {
         </div>
       </CardHeader>
 
-      <ul className="flex list-none flex-col gap-2 p-0 m-0">
+      <ul className="admin-doc-stack--tight list-none p-0 m-0">
         {week.items.map((item) => (
           <li key={item.id}>
             <RoadmapItemRow item={item} />

@@ -110,9 +110,14 @@ dans `cockpit.css` (zéro `style={{}}` statique). Utilitaires composés récents
 `.ct-projection-footer`, `.ct-kpi-auto-grid`, `.ct-kpi-glass`.
 **Sous-surfaces imbriquées (box-in-box)** — langage canonique P0 :
 `Metric variant="nested"` + `NestedKpiGrid` (KPI calmes dans une Card/dash-cell,
-provenance sur le bloc parent) · `NestedPanel` + `ProofRow` (preuves / evidence)
-· `.ct-nested-callout` (alertes status dans un widget). Définis dans
-`cockpit.css` ; composants dans `src/components/ui/nested-panel.tsx`.
+provenance sur le bloc parent) · `NestedPanel` + `ProofRow` (preuves / evidence
+tabulaires denses uniquement) · `PanelStatus` / `PanelStatusSection`
+(`src/components/ui/panel-status.tsx`, réexport `pf-cockpit-panel`) — message
+inline **sans** boîte dans un parent déjà encadré (cockpit panel, card, chamber)
+· `EmptySurface` / `AwaitingMetricState` — module vide seul ou `variant="inline"`
+dans un parent · `.ct-nested-callout` — legacy admin / alertes accentuées hors
+portfolio. Définis dans `cockpit.css` ; nested panels dans
+`src/components/ui/nested-panel.tsx`.
 
 **Surfaces module (dark graphite)** — `.glass-panel` / `Card` + `.card-premium`
 (dot grid), `.ct-section-preview`, `.ct-empty-surface*`, `.ct-system-panel`,
@@ -120,16 +125,17 @@ provenance sur le bloc parent) · `NestedPanel` + `ProofRow` (preuves / evidence
 (bg-deep smoked glass). Chips/badges gardent `--ct-surface-1` littéral.
 
 **Canon typo/layout** (cohérence pages) :
-- H1 page : `.h1` via `ProductPageHeader` / `AdminPageHeader` (gap-4, description `body-md max-w-xl`).
+- H1 page : `.h1` via `ProductPageHeader` / `AdminPageHeader` (classes `product-page-header*` / `admin-page-header*` dans `product-doc.css` / `admin-doc.css`).
 - H2 section : `.h2` · titre module : `.h3` / `DashboardPanelHeader` ou `WidgetPanelHeader` · KPI valeur : `.stat-value` + `.stat-label` · labels section compacte : `.stat-label`.
-- Padding vertical page : `space-y-8` / `gap-8` (`--ct-space-8`).
+- Padding vertical page : `admin-doc-shell` / `product-doc-shell` (`gap: var(--ct-space-8)`).
 - **Exceptions documentées** : Portfolio → `PortfolioGreeting` (même `.h1`, greeting personnalisé) ;
   login marketing → titre visuel `.h1` sur `<p>` (H1 sémantique unique = « Sign in ») ;
   `/admin` → redirect `/admin/dashboard` ; command board dense (KPI strip + orbit CSS conic-gradient + barres NAV CSS ; cockpit 3 col + audit trail ; pills vault `?vault=`) ; loaders partagent `timeline-snapshot.ts` (sources `daily-seed|live|oracle|attested` uniquement — pas de synthèse distribution ni KPI fantômes) ;
   `/admin/scenario-lab` → viewport-locked (`.scenario-lab-page--viewport`) : header/toolbar/presets fixes, workspace remplit la hauteur restante — inputs (sliders + Run) et output scrollent chacun dans leur colonne ; slot output vide = `EmptySurface` seul (pas de `glass-panel` autour) ; compare/backtest idem ; pills `FixtureVaultPills` + `?vault=` ;
-  `/admin/proof-center` → module vide = `EmptySurface`/`AwaitingMetricState` seul (PoR, timeline, grille) ; module actif = `Card` + `DashboardPanelHeader` ; sous-section custody vide dans PoR actif = `EmptySurface variant="inline"` ;
+  `/admin/proof-center` → module vide = `EmptySurface`/`AwaitingMetricState` seul (PoR, timeline, grille) ; module actif = `Card` + `DashboardPanelHeader` ; sous-section custody vide dans PoR actif = `PanelStatus` (pas de nested box) ;
   section **Proof & System** (`/admin/proofs`, `/admin/monitoring`, `/admin/security`, `/admin/governance`, `/admin/governance/propose`, `/admin/governance/proposal/[id]`, `/admin/governance/allowlist`, `/admin/governance/simulate-demo` dev-only) → même contrat DS : `EmptySurface` widget remplace le module vide ; tables dans `SystemPanel` + `DashboardPanelHeader` ; listes actives = `Card` sans faux placeholder ; utilitaires partagés `src/lib/ui/surface-classes.ts`, `form-classes.ts`, `src/components/proof/empty-messages.ts`, `src/lib/governance/proposal-calldata.ts`, `src/components/admin/governance/*` ;
-  flux document `.product-doc` (`product-doc.css`) sur `/vaults/*`, `/onboarding/*`, `/proof-center`, `/profile`, `/portfolio` (+ `[positionId]`), `/legal/*` : stacks `product-doc-stack*` / `product-doc-inline-row*` ; `ProductPageHeader` tokenisé ; formatters LP centralisés dans `src/lib/vaults/product-display.ts` (`formatUsdAmount`, `formatUsdCompact` → re-export `lib/format/usd-compact`, `formatUsdcGrouped`, `formatUsdDetailed`) ; H1/H2/H3 + `.stat-value` réduits ; KPI vault en `.h4` ; invest flow 4 steps = shell unique `InvestFlowShell` (cap `64rem`, container `product-doc`, stepper dans header, footer `product-doc-footer-rule`) ; widgets cockpit `/portfolio` = `pf-container` + stacks `pf-stack*` / `pf-inline-row*` (`portfolio.css`) ; `/admin/*` inchangés.
+  flux document `.product-doc` (`product-doc.css`) sur `/vaults/*`, `/onboarding/*`, `/proof-center`, `/profile`, `/portfolio` (+ `[positionId]`), `/legal/*` : stacks `product-doc-stack*` / `product-doc-inline-row*` ; `ProductPageHeader` tokenisé ; formatters LP centralisés dans `src/lib/vaults/product-display.ts` (`formatUsdAmount`, `formatUsdCompact` → re-export `lib/format/usd-compact`, `formatUsdcGrouped`, `formatUsdDetailed`, `formatAdminDate`, `formatAdminDateTime`) ; H1/H2/H3 + `.stat-value` réduits ; KPI vault en `.h4` ; invest flow 4 steps = shell unique `InvestFlowShell` (cap `64rem`, container `product-doc`, stepper dans header, footer `product-doc-footer-rule`) ; widgets cockpit `/portfolio` = `pf-container` + stacks `pf-stack*` / `pf-inline-row*` (`portfolio.css`) ;
+  flux document `.admin-doc` (`admin-doc.css`) sur `/admin/*` (wrapper layout) : stacks `admin-doc-stack*` / `admin-doc-inline-row*` ; **zéro** `gap-*` / `space-y-*` Tailwind ad hoc dans `src/app/admin/**`, `src/components/admin/**`, sous-arbres admin-only (`memo/*`, `scenario/*`) et nav admin ; `AdminPageHeader` tokenisé ; shell page `admin-doc-shell` ; formatters admin = `product-display.ts` ; confirm panels `admin-confirm-panel*` ; composants proof partagés = classes `product-doc-*` (aliasées sous `.admin-doc`) ; exceptions inchangées : dashboard orbit (`admin-doc-shell--compact`), scenario-lab viewport-locked, grilles bento dashboard, `EmptySurface` §9.3.
 
 ### Process pour ajouter un token (rare, validé Adrien uniquement)
 

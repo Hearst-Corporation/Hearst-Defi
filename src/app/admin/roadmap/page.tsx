@@ -15,7 +15,7 @@ export default async function RoadmapPage() {
   const { version, phases } = await getRoadmap();
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="Roadmap"
         actions={<Badge variant="default">v {version}</Badge>}

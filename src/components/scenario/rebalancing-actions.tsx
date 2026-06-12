@@ -3,7 +3,7 @@ import {
   deriveScenarioProjection,
 } from "@/components/scenario/ptai-derive";
 import { Badge } from "@/components/ui/badge";
-import { NestedCallout } from "@/components/ui/nested-panel";
+import { PanelStatus } from "@/components/ui/panel-status";
 import type { BtcTriggerKind, ScenarioOutput } from "@/lib/engine/types";
 
 type BadgeVariant = "success" | "warning" | "danger" | "default" | "brand";
@@ -117,27 +117,24 @@ export function deriveActions(output: ScenarioOutput): RebalancingAction[] {
 function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
   if (actions.length === 0) {
     return (
-      <NestedCallout className="flex items-center gap-3">
+      <div className="admin-doc-inline-row admin-doc-inline-row--actions">
         <span
           className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--ct-status-success)"
           aria-hidden
         />
-        <p className="body-xs ct-text-muted">
-          No rebalancing actions triggered — vault allocation is within target
-          bands.
-        </p>
-      </NestedCallout>
+        <PanelStatus message="No rebalancing actions triggered — vault allocation is within target bands." />
+      </div>
     );
   }
 
   return (
-    <ol className="space-y-3">
+    <ol className="admin-doc-stack--actions">
       {actions.map((action, idx) => (
         <li
           key={action.ruleId}
           className="rounded-md border border-(--ct-border-soft) ct-surface-1 px-4 py-3"
         >
-          <div className="flex items-center gap-3">
+          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             <span
               className={
                 "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-micro font-bold tabular-nums " +

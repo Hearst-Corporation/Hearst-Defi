@@ -15,7 +15,7 @@ export default async function FeedbackPage() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="Feedback"
       />
@@ -27,7 +27,7 @@ export default async function FeedbackPage() {
         <FeedbackForm />
       </Card>
 
-      <section className="space-y-3">
+      <section className="admin-doc-stack--actions">
         <h3 className="h3">Latest ({items.length})</h3>
         <FeedbackList items={items} />
       </section>

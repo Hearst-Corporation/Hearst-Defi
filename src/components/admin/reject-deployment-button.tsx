@@ -67,7 +67,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
           audit log.
         </p>
 
-        <div className="space-y-2">
+        <div className="admin-doc-stack--tight">
           <label
             id={labelId}
             htmlFor={`${labelId}-reason`}
@@ -100,7 +100,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
           </div>
         )}
 
-        <div className="mt-6 flex items-center justify-end gap-3">
+        <div className="mt-6 admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions justify-end">
           <Button variant="ghost" size="md" onClick={handleClose} disabled={isPending}>
             Cancel
           </Button>

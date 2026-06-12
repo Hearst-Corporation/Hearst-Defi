@@ -266,6 +266,28 @@
   border: 1px solid var(--ct-border-soft);
 }
 
+/* ── Error / not-found shell (admin + product + global-error) ─────────────── */
+
+.error-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+}
+
+.error-shell__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.error-shell__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ct-space-3);
+  margin-top: var(--ct-space-1);
+}
+
 /* ── Nested surfaces (box-in-box) — calmer than parent Card/dash-cell ────────
    KPI cells: Metric variant="nested" (.ct-metric-nested).
    Proof/evidence blocks: NestedPanel (.ct-nested-panel).
@@ -1852,11 +1874,35 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 
 .ct-empty-surface--inline {
   min-height: unset;
-  padding: var(--ct-space-6) var(--ct-space-4);
+  padding: 0;
   border: none;
   background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* Inline status inside a parent surface — no nested box (DS §9.3) */
+.ct-panel-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ct-space-0_5);
+  margin: 0;
+  text-align: left;
+}
+
+.ct-panel-status-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.ct-panel-fields {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .ct-empty-surface--round {

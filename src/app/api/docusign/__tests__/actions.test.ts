@@ -29,6 +29,25 @@ vi.mock("@/lib/db", () => ({
 }));
 
 // ---------------------------------------------------------------------------
+// Mock @/lib/env so test mutations to individual vars are visible.
+// The env module parses process.env at import time; mutations in beforeEach
+// would be invisible to a cached object. Using a factory that reads
+// process.env at call time lets the existing test pattern (set env in
+// beforeEach) work correctly.
+// ---------------------------------------------------------------------------
+
+vi.mock("@/lib/env", () => ({
+  get env() {
+    return {
+      DOCUSIGN_BASE_URL:
+        process.env.DOCUSIGN_BASE_URL ?? "https://demo.docusign.net/restapi",
+      DOCUSIGN_API_KEY: process.env.DOCUSIGN_API_KEY,
+      DOCUSIGN_ACCOUNT_ID: process.env.DOCUSIGN_ACCOUNT_ID,
+    };
+  },
+}));
+
+// ---------------------------------------------------------------------------
 // Import after mocks are in place
 // ---------------------------------------------------------------------------
 
@@ -186,8 +205,8 @@ describe("createSubscriptionEnvelope (server action)", () => {
     });
   });
 
-  it("throws when DOCUSIGN_BASE_URL is missing", async () => {
-    delete process.env.DOCUSIGN_BASE_URL;
+  it("throws when DOCUSIGN_API_KEY is missing", async () => {
+    delete process.env.DOCUSIGN_API_KEY;
 
     await expect(
       createSubscriptionEnvelope("user-1", "vault-1", 250_000, "user1@example.com"),
@@ -196,8 +215,8 @@ describe("createSubscriptionEnvelope (server action)", () => {
     expect(mockCreate).not.toHaveBeenCalled();
   });
 
-  it("throws when DOCUSIGN_API_KEY is missing", async () => {
-    delete process.env.DOCUSIGN_API_KEY;
+  it("throws when DOCUSIGN_ACCOUNT_ID is missing", async () => {
+    delete process.env.DOCUSIGN_ACCOUNT_ID;
 
     await expect(
       createSubscriptionEnvelope("user-1", "vault-1", 250_000, "user1@example.com"),

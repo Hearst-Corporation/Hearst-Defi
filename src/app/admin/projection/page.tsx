@@ -12,7 +12,7 @@ export default async function ProjectionPage() {
   await requireAdmin();
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="Projection"
         description="Run single or matrix projections against the deterministic engine (methodology v1.0). All projections are conditional on stated assumptions and are not guaranteed."

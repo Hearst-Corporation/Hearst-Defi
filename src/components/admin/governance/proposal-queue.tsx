@@ -20,7 +20,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="admin-doc-stack--actions">
       {proposals.map((proposal) => (
         <Link
           key={proposal.id}
@@ -28,9 +28,9 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
           className="block"
         >
           <Card className="cursor-pointer p-4 transition-colors hover:border-(--ct-border-strong)">
-            <div className="flex items-center gap-4">
+            <div className="admin-doc-inline-row admin-doc-inline-row--relaxed">
               <div className="min-w-0 flex-1">
-                <div className="mb-1 flex items-center gap-2">
+                <div className="mb-1 admin-doc-inline-row">
                   <span className="ct-pill mono text-xs">{proposal.vaultTicker}</span>
                   <span className="body-md truncate font-semibold ct-text-strong">
                     {proposal.actionType}

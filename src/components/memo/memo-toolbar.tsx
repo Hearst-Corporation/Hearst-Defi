@@ -28,8 +28,8 @@ export function MemoToolbar({
   onDownloadPdf,
 }: MemoToolbarProps) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="admin-doc-toolbar">
+      <div className="admin-doc-inline-row admin-doc-inline-row--actions">
         <Button
           type="button"
           variant="primary"

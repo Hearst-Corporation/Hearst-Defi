@@ -1,7 +1,8 @@
 import Link from "next/link";
 
-import { NestedCallout, NestedPanel, ProofRow } from "@/components/ui/nested-panel";
+import { NestedPanel, ProofRow } from "@/components/ui/nested-panel";
 import {
+  PanelStatus,
   PfCockpitPanel,
   PfCockpitPanelHeader,
   PfCockpitSubhead,
@@ -178,8 +179,7 @@ export function ProofPulse({
       />
 
       {/* ── Last PoR block — only when an attestation actually exists ──────────
-          With no attestation we show a single calm callout instead of a grid of
-          "Awaiting proof / Awaiting record / no attestation yet" placeholder
+          With no attestation we show a flat status stack instead of placeholder
           rows that fake an active widget. */}
       {hasData ? (
         <section aria-label="Last Proof of Reserves">
@@ -222,28 +222,28 @@ export function ProofPulse({
           </NestedPanel>
         </section>
       ) : (
-        <NestedCallout className="mt-4" role="status">
-          <p className="body-sm ct-text-primary font-semibold">
-            {state === "pending"
+        <PanelStatus
+          message={
+            state === "pending"
               ? "On-chain proof is being reconciled."
-              : "No vault attestation yet."}
-          </p>
-          <p className="body-xs ct-text-muted mt-1">
-            {state === "pending"
+              : "No vault attestation yet."
+          }
+          detail={
+            state === "pending"
               ? "Vault TVL is available, but the on-chain confirmation has not landed."
-              : "PoR publish appears here once vault TVL is attested on-chain."}
-          </p>
-        </NestedCallout>
+              : "PoR publish appears here once vault TVL is attested on-chain."
+          }
+        />
       )}
 
       {/* ── Methodology block — only when it carries at least one real value ──
           A bare "— + Manual" is not data; we omit the whole section rather than
           render an empty-looking methodology. */}
       {hasMethodologyData && (
-        <section aria-label="Methodology" className="mt-4">
-          <PfCockpitSubhead className="mb-2" title="Methodology" />
+        <section aria-label="Methodology" className="ct-panel-status-section">
+          <PfCockpitSubhead title="Methodology" />
 
-          <NestedPanel>
+          <div className="ct-panel-fields">
             {methodologyVersion ? (
               <ProofRow label="Version">
                 <span className="pf-proof-row__stack">
@@ -281,7 +281,7 @@ export function ProofPulse({
                 <span className="pf-proof-row__truncate">{auditor}</span>
               </ProofRow>
             ) : null}
-          </NestedPanel>
+          </div>
         </section>
       )}
 

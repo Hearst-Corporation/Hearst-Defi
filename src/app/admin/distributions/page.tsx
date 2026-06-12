@@ -16,21 +16,7 @@ import { DistributionForm } from "./distribution-form";
 
 export const dynamic = "force-dynamic";
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function formatDate(d: Date | string): string {
-  return new Date(d).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
+import { formatAdminDate, formatUsdDetailed } from "@/lib/vaults/product-display";
 
 interface DistributionsPageProps {
   searchParams: Promise<{ vault?: string }>;
@@ -64,7 +50,7 @@ export default async function DistributionsPage({
   );
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="Distributions"
         actions={
@@ -79,7 +65,7 @@ export default async function DistributionsPage({
       <DistributionForm vaultOptions={vaultOptions} />
 
       {/* Distribution history */}
-      <section className="space-y-3">
+      <section className="admin-doc-stack--actions">
         <h2 className="h2">History (last 6)</h2>
 
         {history.length === 0 ? (
@@ -157,16 +143,13 @@ export default async function DistributionsPage({
                           {d.period}
                         </td>
                         <td className="ct-table-cell text-right ct-text-strong font-semibold tabular">
-                          $
-                          {d.amountUsdc.toNumber().toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                          })}
+                          {formatUsdDetailed(d.amountUsdc.toNumber())}
                         </td>
                         <td className="ct-table-cell text-right ct-text-muted tabular">
                           {d.recipientsCount}
                         </td>
                         <td className="ct-table-cell text-right ct-text-muted">
-                          {formatDate(d.distributedAt)}
+                          {formatAdminDate(new Date(d.distributedAt))}
                         </td>
                         <td className="ct-table-cell text-right mono text-xs ct-text-faint">
                           {d.txHash ? (

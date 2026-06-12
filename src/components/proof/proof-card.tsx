@@ -86,11 +86,11 @@ function PaperProofCard({
   const provenance: Provenance = verification === true ? "attested" : "manual";
 
   return (
-    <Card className="flex flex-col gap-4">
-      <header className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-2">
+    <Card className="product-doc-stack--relaxed">
+      <header className="product-doc-stack--tight">
+        <div className="product-doc-inline-row product-doc-inline-row--between">
           <span className="eyebrow">{TYPE_LABEL[proof.proofType]}</span>
-          <div className="flex items-center gap-2">
+          <div className="product-doc-inline-row">
             <ProvenanceBadge kind={provenance} />
             <Badge variant={TYPE_VARIANT[proof.proofType]}>
               {proof.period ?? "Standing"}
@@ -100,13 +100,13 @@ function PaperProofCard({
         <h4 className="h4 text-balance">{proof.title}</h4>
       </header>
 
-      <dl className="space-y-1.5">
-        <div className="flex items-baseline justify-between gap-3">
+      <dl className="product-doc-stack--dense">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Source</dt>
           <dd className="body-xs ct-text-body">Off-chain</dd>
         </div>
         {verification !== null && verification !== undefined ? (
-          <div className="flex items-baseline justify-between gap-3">
+          <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
             <dt className="body-xs">Signature</dt>
             <dd
               className={
@@ -119,19 +119,19 @@ function PaperProofCard({
             </dd>
           </div>
         ) : null}
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Posted</dt>
           <dd className="body-xs ct-text-body">
             {dateFmt.format(postedAt)} UTC
           </dd>
         </div>
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Signer</dt>
           <dd className="body-xs ct-text-body">
             {proof.postedBy}
           </dd>
         </div>
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Hash</dt>
           <dd
             className="mono tabular text-xs ct-text-primary"
@@ -143,7 +143,7 @@ function PaperProofCard({
         </div>
       </dl>
 
-      <div className="mt-auto flex flex-wrap items-center gap-2 pt-2">
+      <div className="mt-auto product-doc-inline-row pt-2">
         <Button asChild variant="secondary" size="sm">
           <a
             href={safeUrl(proof.uri)}
@@ -187,9 +187,9 @@ function OnChainEventCard({
   proof: import("@/lib/chain/event-logger").OnChainEvent;
 }) {
   return (
-    <Card className="flex flex-col gap-4">
-      <header className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-2">
+    <Card className="product-doc-stack--relaxed">
+      <header className="product-doc-stack--tight">
+        <div className="product-doc-inline-row product-doc-inline-row--between">
           <span className="eyebrow">EventLogger · {proof.kind}</span>
           <Badge variant="success" title="Read directly from Base Sepolia">
             On-chain
@@ -200,20 +200,20 @@ function OnChainEventCard({
         </h4>
       </header>
 
-      <dl className="space-y-1.5">
-        <div className="flex items-baseline justify-between gap-3">
+      <dl className="product-doc-stack--dense">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Source</dt>
           <dd className="body-xs ct-text-body">
             Base Sepolia · block {proof.blockNumber.toString()}
           </dd>
         </div>
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Posted</dt>
           <dd className="body-xs ct-text-body">
             {dateFmt.format(proof.timestamp)} UTC
           </dd>
         </div>
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Publisher</dt>
           <dd
             className="mono tabular text-xs ct-text-body"
@@ -222,7 +222,7 @@ function OnChainEventCard({
             {abbreviateAddress(proof.publisher)}
           </dd>
         </div>
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Tx hash</dt>
           <dd
             className="mono tabular text-xs ct-text-primary"
@@ -232,7 +232,7 @@ function OnChainEventCard({
             {abbreviateAddress(proof.txHash)}
           </dd>
         </div>
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Context hash</dt>
           <dd
             className="mono tabular text-xs ct-text-body"
@@ -243,7 +243,7 @@ function OnChainEventCard({
         </div>
       </dl>
 
-      <div className="mt-auto flex flex-wrap items-center gap-2 pt-2">
+      <div className="mt-auto product-doc-inline-row pt-2">
         {proof.payloadCid.length > 0 ? (
           <Button asChild variant="secondary" size="sm">
             <a
@@ -282,9 +282,9 @@ function OnChainAttestationCard({
   proof: import("@/lib/chain/por-registry").OnChainAttestation;
 }) {
   return (
-    <Card className="flex flex-col gap-4">
-      <header className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-2">
+    <Card className="product-doc-stack--relaxed">
+      <header className="product-doc-stack--tight">
+        <div className="product-doc-inline-row product-doc-inline-row--between">
           <span className="eyebrow">PoR attestation</span>
           <Badge variant="brand" title="Proof-of-reserves period">
             {formatPeriod(proof.period)}
@@ -295,26 +295,26 @@ function OnChainAttestationCard({
         </h4>
       </header>
 
-      <dl className="space-y-1.5">
-        <div className="flex items-baseline justify-between gap-3">
+      <dl className="product-doc-stack--dense">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Source</dt>
           <dd className="body-xs">
             <Badge variant="success">On-chain</Badge>
           </dd>
         </div>
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Total AUM</dt>
           <dd className="mono tabular text-xs ct-text-primary">
             {usdCompactFmt(proof.totalAumUsd)}
           </dd>
         </div>
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Mined</dt>
           <dd className="mono tabular text-xs ct-text-primary">
             {btcFmt(proof.minedBtc)}
           </dd>
         </div>
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Attestor</dt>
           <dd
             className="mono tabular text-xs ct-text-body"
@@ -330,7 +330,7 @@ function OnChainAttestationCard({
             </a>
           </dd>
         </div>
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--baseline product-doc-inline-row--actions">
           <dt className="body-xs">Evidence hash</dt>
           <dd
             className="mono tabular text-xs ct-text-primary"
@@ -341,7 +341,7 @@ function OnChainAttestationCard({
         </div>
       </dl>
 
-      <div className="mt-auto flex flex-wrap items-center gap-2 pt-2">
+      <div className="mt-auto product-doc-inline-row pt-2">
         {proof.evidenceCid.length > 0 ? (
           <Button asChild variant="secondary" size="sm">
             <a

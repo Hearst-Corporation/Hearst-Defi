@@ -3,6 +3,8 @@ import { describe, it, expect } from "vitest";
 import {
   buildDistributionIcsUri,
   daysFromNow,
+  formatAdminDate,
+  formatAdminDateTime,
   formatDateGb,
   formatUsdAmount,
   formatUsdDetailed,
@@ -62,6 +64,20 @@ describe("formatUsdcFromParam", () => {
 describe("formatDateGb", () => {
   it("formats dates in en-GB short month style", () => {
     expect(formatDateGb(new Date(2026, 5, 12))).toBe("12 Jun 2026");
+  });
+});
+
+describe("formatAdminDate", () => {
+  it("formats admin date-only labels", () => {
+    expect(formatAdminDate(new Date(2026, 5, 12, 14, 30))).toMatch(/Jun 12, 2026/);
+  });
+});
+
+describe("formatAdminDateTime", () => {
+  it("formats admin datetime labels", () => {
+    const label = formatAdminDateTime(new Date(2026, 5, 12, 14, 30));
+    expect(label).toMatch(/Jun 12, 2026/);
+    expect(label).toMatch(/2:30/);
   });
 });
 

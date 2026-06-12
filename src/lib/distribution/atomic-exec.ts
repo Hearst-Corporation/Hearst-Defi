@@ -69,6 +69,9 @@ export async function executeDistributionAtomically(
 ): Promise<AtomicExecResult> {
   // ── 1. Pre-flight ─────────────────────────────────────────────────────────
 
+  // Fast-path existence check outside the transaction to surface "not found"
+  // early without holding a TX slot. The definitive TOCTOU guard is the
+  // compare-and-set updateMany inside the $transaction below.
   const distribution = await prisma.distribution.findUnique({
     where: { id: distributionId },
   });
@@ -136,7 +139,22 @@ export async function executeDistributionAtomically(
 
   try {
     await prisma.$transaction(async (tx) => {
-      // 3. Ledger entries
+      // 3. Compare-and-set: atomically flip status pending→executed.
+      // If another concurrent finisher already wrote "executed", count===0 and
+      // we throw NOT_PENDING before touching ledger entries or PCAP.
+      const cas = await tx.distribution.updateMany({
+        where: { id: distributionId, status: "pending" },
+        data: { status: "executed", executedAt, txHash },
+      });
+
+      if (cas.count === 0) {
+        throw new AtomicExecError(
+          `Distribution "${distributionId}" was already executed by a concurrent call. CAS failed.`,
+          "NOT_PENDING",
+        );
+      }
+
+      // 4. Ledger entries — only reached after a successful CAS write.
       await tx.distributionLedgerEntry.createMany({
         data: ledgerComputed.map((entry) => ({
           distributionId,
@@ -145,7 +163,7 @@ export async function executeDistributionAtomically(
         })),
       });
 
-      // 4. PCAP record
+      // 5. PCAP record
       const pcapPdfUrl = `/pcap/${distributionId}/distribution-${distribution.period}.pdf`;
       const pcap = await tx.pcap.create({
         data: {
@@ -156,18 +174,13 @@ export async function executeDistributionAtomically(
       });
       persistedPcapUrl = pcap.pdfUrl ?? pcapPdfUrl;
       persistedPcapAt = pcap.generatedAt;
-
-      // 5. Mark distribution executed
-      await tx.distribution.update({
-        where: { id: distributionId },
-        data: {
-          status: "executed",
-          executedAt,
-          txHash,
-        },
-      });
     });
   } catch (err) {
+    // Re-throw AtomicExecError directly (e.g. CAS NOT_PENDING thrown inside the
+    // callback) so the caller sees the correct error code rather than PERSIST_FAILED.
+    if (err instanceof AtomicExecError) {
+      throw err;
+    }
     logger.error("[atomic-exec] transaction rollback", { distributionId }, err);
     throw new AtomicExecError(
       `Atomic transaction failed and was rolled back: ${err instanceof Error ? err.message : String(err)}`,

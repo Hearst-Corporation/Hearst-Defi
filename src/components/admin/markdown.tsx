@@ -39,12 +39,12 @@ export function Markdown({
             </p>
           ),
           ul: ({ children }) => (
-            <ul className="my-3 list-disc space-y-1 pl-5 text-sm ct-text-body">
+            <ul className="my-3 admin-doc-list admin-doc-list--disc text-sm ct-text-body">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="my-3 list-decimal space-y-1 pl-5 text-sm ct-text-body">
+            <ol className="my-3 admin-doc-list admin-doc-list--decimal text-sm ct-text-body">
               {children}
             </ol>
           ),

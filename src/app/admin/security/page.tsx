@@ -17,7 +17,7 @@ export default async function AdminSecurityPage() {
   const totpEnabled = await isTotpEnabled(userId);
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="Security"
         description="Manage two-factor authentication and session security."

@@ -50,7 +50,7 @@ export default async function GovernancePage({ searchParams }: PageProps) {
   const filtered = filterProposals(await loadProposalQueue(), activeTab);
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="Governance"
         actions={
@@ -60,7 +60,7 @@ export default async function GovernancePage({ searchParams }: PageProps) {
         }
       />
 
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter proposals by status">
+      <div className="admin-doc-inline-row" role="tablist" aria-label="Filter proposals by status">
         {TABS.map((tab) => {
           const isActive = tab.key === activeTab;
           const href =

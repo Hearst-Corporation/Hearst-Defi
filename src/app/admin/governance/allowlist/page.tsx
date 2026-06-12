@@ -13,7 +13,7 @@ export default async function AllowlistPage() {
   const entries = await getAllAllowlistEntries();
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="Allowlist"
         lead={

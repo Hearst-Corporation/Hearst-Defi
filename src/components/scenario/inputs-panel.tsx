@@ -108,7 +108,7 @@ export function InputsPanel({ inputs, onChange, disabled }: InputsPanelProps) {
             className="py-5 first:pt-0 last:pb-0"
           >
             {/* Label row — eyebrow left, value right */}
-            <div className="mb-3 flex items-baseline justify-between gap-2">
+            <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
               <label
                 htmlFor={`slider-${field.key}`}
                 className={cn(
@@ -118,7 +118,7 @@ export function InputsPanel({ inputs, onChange, disabled }: InputsPanelProps) {
               >
                 {field.label}
               </label>
-              <div className="flex items-baseline gap-1.5">
+              <div className="admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--dense">
                 <span
                   className={cn(
                     "mono text-xl font-bold tabular-nums ct-text-primary",
@@ -156,7 +156,7 @@ export function InputsPanel({ inputs, onChange, disabled }: InputsPanelProps) {
             />
 
             {/* Min / max labels */}
-            <div className="mt-1.5 flex justify-between gap-2">
+            <div className="mt-1.5 admin-doc-row-spread">
               <span className="body-xs ct-text-muted">
                 {field.key === "btc_price_change_pct"
                   ? "−60%"

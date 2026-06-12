@@ -83,6 +83,7 @@ export async function investorMemoMonthlyHandler({
 export const investorMemoMonthly = inngest.createFunction(
   {
     id: INVESTOR_MEMO_MONTHLY_ID,
+    concurrency: { limit: 1 },
     triggers: [{ cron: INVESTOR_MEMO_MONTHLY_CRON }],
   },
   investorMemoMonthlyHandler,

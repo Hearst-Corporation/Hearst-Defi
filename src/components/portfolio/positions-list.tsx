@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { EmptySurface } from "@/components/ui/empty-surface";
 import {
+  PanelStatus,
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
@@ -73,25 +73,20 @@ export function PositionsList({
             <span className="text-right">Since</span>
           </div>
 
-          {showZeroShell && !previewZeros ? (
-            <EmptySurface
-              variant="inline"
-              message="No active positions yet — your first deposit will appear here once confirmed on-chain."
-            />
-          ) : null}
-
-          {showZeroShell && previewZeros ? (
-            <div
-              role="status"
+          {showZeroShell ? (
+            <PanelStatus
               className="pf-positions-empty-row pf-table-empty-row"
-            >
-              <p className="pf-table-empty-title body-sm ct-text-muted font-semibold m-0">
-                No open positions yet
-              </p>
-              <p className="pf-table-empty-copy body-xs ct-text-faint m-0">
-                Your first confirmed deposit will appear here.
-              </p>
-            </div>
+              message={
+                previewZeros
+                  ? "No open positions yet"
+                  : "No active positions yet"
+              }
+              detail={
+                previewZeros
+                  ? "Your first confirmed deposit will appear here."
+                  : "Your first deposit will appear here once confirmed on-chain."
+              }
+            />
           ) : null}
 
           {positions.map((p) => (

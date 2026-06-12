@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { MonteCarloReview } from "@/components/admin/monte-carlo-review";
 import { ProjectionFooter } from "@/components/admin/projection-footer";
 import { ForbiddenWordsInput } from "@/components/admin/forbidden-words-input";
+import { formatUsdFull } from "@/lib/vaults/product-display";
 import {
   createDraftVault,
   updateDraftVault,
@@ -253,9 +254,9 @@ export function VaultForm(props: VaultFormProps) {
         : "Save Changes";
 
   return (
-    <div className="space-y-8 max-w-2xl mx-auto pb-24" onBlur={handleBlur}>
+    <div className="admin-doc-shell admin-doc-shell--narrow pb-24" onBlur={handleBlur}>
       {/* Progress bar */}
-      <div className="space-y-3">
+      <div className="admin-doc-stack--actions">
         <div className="flex items-center justify-between">
           {STEPS.map((s, i) => (
             <span
@@ -278,10 +279,10 @@ export function VaultForm(props: VaultFormProps) {
       <Card>
         {/* Step 1 — Identity & Strategy */}
         {step === "identity" && (
-          <div className="space-y-6">
+          <div className="admin-doc-stack">
             <CardTitle>Identity &amp; Strategy</CardTitle>
 
-            <label className="block space-y-1.5">
+            <label className="admin-doc-field block">
               <span className="stat-label">Ticker *</span>
               <input
                 className={inputClass()}
@@ -295,7 +296,7 @@ export function VaultForm(props: VaultFormProps) {
               </span>
             </label>
 
-            <label className="block space-y-1.5">
+            <label className="admin-doc-field block">
               <span className="stat-label">Name *</span>
               <ForbiddenWordsInput
                 className={inputClass()}
@@ -307,7 +308,7 @@ export function VaultForm(props: VaultFormProps) {
               />
             </label>
 
-            <label className="block space-y-1.5">
+            <label className="admin-doc-field block">
               <span className="stat-label">Strategy *</span>
               <select
                 className={inputClass("ct-select")}
@@ -322,7 +323,7 @@ export function VaultForm(props: VaultFormProps) {
               </select>
             </label>
 
-            <label className="block space-y-1.5">
+            <label className="admin-doc-field block">
               <span className="stat-label">Description</span>
               <ForbiddenWordsInput
                 multiline
@@ -335,7 +336,7 @@ export function VaultForm(props: VaultFormProps) {
               />
             </label>
 
-            <label className="block space-y-1.5">
+            <label className="admin-doc-field block">
               <span className="stat-label">Color Tag</span>
               <input
                 className={inputClass()}
@@ -353,11 +354,11 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Step 2 — Economics */}
         {step === "economics" && (
-          <div className="space-y-6">
+          <div className="admin-doc-stack">
             <CardTitle>Economics</CardTitle>
 
-            <div className="grid grid-cols-2 gap-4">
-              <label className="block space-y-1.5">
+            <div className="admin-doc-kpi-grid-2">
+              <label className="admin-doc-field block">
                 <span className="stat-label">Min Ticket (USDC) *</span>
                 <input
                   type="number"
@@ -368,7 +369,7 @@ export function VaultForm(props: VaultFormProps) {
                 />
               </label>
 
-              <label className="block space-y-1.5">
+              <label className="admin-doc-field block">
                 <span className="stat-label">Capacity (USDC) *</span>
                 <input
                   type="number"
@@ -380,8 +381,8 @@ export function VaultForm(props: VaultFormProps) {
               </label>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <label className="block space-y-1.5">
+            <div className="admin-doc-kpi-grid-2">
+              <label className="admin-doc-field block">
                 <span className="stat-label">Mgmt Fee (bps) *</span>
                 <input
                   type="number"
@@ -396,7 +397,7 @@ export function VaultForm(props: VaultFormProps) {
                 </span>
               </label>
 
-              <label className="block space-y-1.5">
+              <label className="admin-doc-field block">
                 <span className="stat-label">Perf Fee (bps) *</span>
                 <input
                   type="number"
@@ -412,7 +413,7 @@ export function VaultForm(props: VaultFormProps) {
               </label>
             </div>
 
-            <label className="block space-y-1.5">
+            <label className="admin-doc-field block">
               <span className="stat-label">Soft Lock-up (days) *</span>
               <input
                 type="number"
@@ -424,8 +425,8 @@ export function VaultForm(props: VaultFormProps) {
               />
             </label>
 
-            <div className="grid grid-cols-2 gap-4">
-              <label className="block space-y-1.5">
+            <div className="admin-doc-kpi-grid-2">
+              <label className="admin-doc-field block">
                 <span className="stat-label">Target APY Low (bps) *</span>
                 <input
                   type="number"
@@ -437,7 +438,7 @@ export function VaultForm(props: VaultFormProps) {
                 <span className="body-xs ct-text-faint">{pct(form.targetApyLowBps)}%</span>
               </label>
 
-              <label className="block space-y-1.5">
+              <label className="admin-doc-field block">
                 <span className="stat-label">Target APY High (bps) *</span>
                 <input
                   type="number"
@@ -463,7 +464,7 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Step 3 — Allocation targets */}
         {step === "allocations" && (
-          <div className="space-y-6">
+          <div className="admin-doc-stack">
             <CardTitle>Allocation Targets</CardTitle>
             <p className="body-sm ct-text-muted">
               Must sum to exactly 10 000 bps (100%). Currently:{" "}
@@ -486,7 +487,7 @@ export function VaultForm(props: VaultFormProps) {
                 { key: "targetStableReserveBps", label: "Stable Reserve" },
               ] as const
             ).map(({ key, label }) => (
-              <div key={key} className="space-y-2">
+              <div key={key} className="admin-doc-stack--tight">
                 <div className="flex items-center justify-between">
                   <span className="stat-label">{label}</span>
                   <span className="mono tabular text-sm ct-text-primary">
@@ -511,11 +512,11 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Step 4 — Legal & SPV */}
         {step === "legal" && (
-          <div className="space-y-6">
+          <div className="admin-doc-stack">
             <CardTitle>Legal &amp; SPV</CardTitle>
 
-            <div className="grid grid-cols-2 gap-4">
-              <label className="block space-y-1.5">
+            <div className="admin-doc-kpi-grid-2">
+              <label className="admin-doc-field block">
                 <span className="stat-label">SPV Jurisdiction *</span>
                 <select
                   className={inputClass("ct-select")}
@@ -531,7 +532,7 @@ export function VaultForm(props: VaultFormProps) {
                 </select>
               </label>
 
-              <label className="block space-y-1.5">
+              <label className="admin-doc-field block">
                 <span className="stat-label">Share Class *</span>
                 <input
                   className={inputClass()}
@@ -543,7 +544,7 @@ export function VaultForm(props: VaultFormProps) {
               </label>
             </div>
 
-            <label className="block space-y-1.5">
+            <label className="admin-doc-field block">
               <span className="stat-label">Regulatory Exemption *</span>
               <select
                 className={inputClass("ct-select")}
@@ -558,7 +559,7 @@ export function VaultForm(props: VaultFormProps) {
               </select>
             </label>
 
-            <label className="block space-y-1.5">
+            <label className="admin-doc-field block">
               <span className="stat-label">Disclaimers * (min 80 chars)</span>
               <ForbiddenWordsInput
                 multiline
@@ -578,13 +579,13 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Step 5 — Governance */}
         {step === "governance" && (
-          <div className="space-y-6">
+          <div className="admin-doc-stack">
             <CardTitle>Governance</CardTitle>
 
-            <div className="space-y-3">
+            <div className="admin-doc-stack--actions">
               <span className="stat-label block">Signers Whitelist (2–5 wallet addresses) *</span>
               {form.signersWhitelist.map((s, i) => (
-                <div key={i} className="flex gap-2">
+                <div key={i} className="admin-doc-inline-row">
                   <input
                     className={inputClass("flex-1")}
                     value={s}
@@ -623,11 +624,11 @@ export function VaultForm(props: VaultFormProps) {
               )}
 
               {/* Required signers — multisig threshold M-of-N */}
-              <div className="space-y-2 pt-2 border-t border-(--ct-border-soft)">
+              <div className="admin-doc-stack--tight pt-2 border-t border-(--ct-border-soft)">
                 <span className="stat-label block">
                   Required signers (M-of-N quorum) *
                 </span>
-                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Required signers">
+                <div className="admin-doc-inline-row" role="radiogroup" aria-label="Required signers">
                   {[2, 3, 4, 5].map((n) => {
                     const disabled = n > form.signersWhitelist.length;
                     const active = form.requiredSigners === n;
@@ -662,11 +663,11 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Step 6 — Review & Simulate (read-only recap) */}
         {step === "review_simulate" && (
-          <div className="space-y-6">
+          <div className="admin-doc-stack">
             <CardTitle>Review &amp; Simulate</CardTitle>
 
-            <NestedPanel className="space-y-3 divide-y divide-border-subtle">
-              <div className="grid grid-cols-2 gap-2 pb-3">
+            <NestedPanel className="admin-doc-stack--actions divide-y divide-border-subtle">
+              <div className="admin-doc-confirm-grid pb-3">
                 <span className="stat-label">Ticker</span>
                 <span className="mono tabular text-sm ct-text-strong">{form.ticker}</span>
                 <span className="stat-label">Name</span>
@@ -677,11 +678,11 @@ export function VaultForm(props: VaultFormProps) {
                 <span className="body-sm ct-text-primary">{form.colorTag}</span>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 py-3">
+              <div className="admin-doc-confirm-grid py-3">
                 <span className="stat-label">Min Ticket</span>
-                <span className="mono tabular text-sm">${form.minTicketUsdc.toLocaleString()}</span>
+                <span className="mono tabular text-sm">{formatUsdFull(form.minTicketUsdc)}</span>
                 <span className="stat-label">Capacity</span>
-                <span className="mono tabular text-sm">${form.capacityUsdc.toLocaleString()}</span>
+                <span className="mono tabular text-sm">{formatUsdFull(form.capacityUsdc)}</span>
                 <span className="stat-label">Fees</span>
                 <span className="mono tabular text-sm">
                   {pct(form.mgmtFeeBps)}% mgmt / {pct(form.perfFeeBps)}% perf
@@ -696,7 +697,7 @@ export function VaultForm(props: VaultFormProps) {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2 py-3">
+              <div className="admin-doc-confirm-grid py-3">
                 <span className="stat-label">SPV</span>
                 <span className="body-sm ct-text-primary">{form.spvJurisdiction}</span>
                 <span className="stat-label">Share Class</span>
@@ -705,7 +706,7 @@ export function VaultForm(props: VaultFormProps) {
                 <span className="body-sm">{form.regExemption}</span>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 py-3">
+              <div className="admin-doc-confirm-grid py-3">
                 <span className="stat-label">Mining</span>
                 <span className="mono tabular text-sm">{pct(form.targetMiningBps)}%</span>
                 <span className="stat-label">BTC Tactical</span>
@@ -726,7 +727,7 @@ export function VaultForm(props: VaultFormProps) {
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 py-3">
+              <div className="admin-doc-confirm-grid py-3">
                 <span className="stat-label">Signers</span>
                 <span className="body-sm ct-text-primary">
                   {form.signersWhitelist.filter((s) => s.trim().length > 0).length} whitelisted
@@ -761,10 +762,10 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Step 7 — Sign & Deploy */}
         {step === "sign_deploy" && (
-          <div className="space-y-6">
+          <div className="admin-doc-stack">
             <CardTitle>Sign &amp; Deploy</CardTitle>
 
-            <NestedPanel className="space-y-3">
+            <NestedPanel className="admin-doc-stack--actions">
               <p className="body-sm ct-text-muted">
                 This vault draft will be submitted to the multisig review queue. Once submitted,
                 it requires the configured quorum of signers to approve before deployment.
@@ -772,7 +773,7 @@ export function VaultForm(props: VaultFormProps) {
               <p className="body-sm ct-text-primary">
                 Click <strong>Submit for Review</strong> below to enter the multisig queue.
               </p>
-              <div className="grid grid-cols-2 gap-2 pt-2">
+              <div className="admin-doc-confirm-grid pt-2">
                 <span className="stat-label">Vault</span>
                 <span className="mono tabular text-sm ct-text-strong">{form.ticker || "—"}</span>
                 <span className="stat-label">Required signers</span>
@@ -796,7 +797,7 @@ export function VaultForm(props: VaultFormProps) {
           </NestedCallout>
         ) : null}
 
-        <div className="mt-8 flex items-center justify-between gap-3">
+        <div className="mt-8 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions">
           <Button
             variant="ghost"
             size="sm"
@@ -807,7 +808,7 @@ export function VaultForm(props: VaultFormProps) {
             Back
           </Button>
 
-          <div className="flex items-center gap-3">
+          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             {stepIndex < STEPS.length - 1 ? (
               <Button variant="primary" size="md" type="button" onClick={nextStep}>
                 Next

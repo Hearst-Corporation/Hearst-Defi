@@ -31,6 +31,14 @@ export const dynamic = "force-dynamic";
 const MAX_BODY_BYTES = 10 * 1024 * 1024; // 10 MB
 const SIGNATURE_HEADER = "x-docusign-signature-1";
 
+/**
+ * Terminal envelope statuses: once an envelope is in one of these states,
+ * no further transitions are valid. Using this as a `notIn` predicate in
+ * updateMany makes every webhook delivery idempotent — a replay of an
+ * already-terminal event simply matches 0 rows and is a silent no-op.
+ */
+const TERMINAL_STATUSES = ["completed", "declined", "voided"] as const;
+
 // ---------------------------------------------------------------------------
 // HMAC validation
 // ---------------------------------------------------------------------------
@@ -153,7 +161,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const documentUrl = summary?.documentsUri ?? null;
 
     await prisma.subscriptionEnvelope.updateMany({
-      where: { envelopeId },
+      where: { envelopeId, status: { notIn: [...TERMINAL_STATUSES] } },
       data: {
         status: "completed",
         signedAt,
@@ -169,7 +177,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const newStatus = event === "envelope-declined" ? "declined" : "voided";
 
     await prisma.subscriptionEnvelope.updateMany({
-      where: { envelopeId },
+      where: { envelopeId, status: { notIn: [...TERMINAL_STATUSES] } },
       data: { status: newStatus },
     });
 

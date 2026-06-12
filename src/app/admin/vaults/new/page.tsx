@@ -97,7 +97,7 @@ export default async function NewVaultPage({ searchParams }: NewVaultPageProps) 
   const applyResumeForm = resumeAcknowledged ? resumeForm : undefined;
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="New Vault Deployment"
       />

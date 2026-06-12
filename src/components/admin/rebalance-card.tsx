@@ -13,6 +13,7 @@ import {
   rejectRebalance,
   executeRebalance,
 } from "@/app/admin/signals/actions";
+import { formatAdminDateTime } from "@/lib/vaults/product-display";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -76,16 +77,6 @@ function statusVariant(
     default:
       return "default";
   }
-}
-
-function formatDate(d: Date | string): string {
-  return new Date(d).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
 
 function abbrWallet(w: string): string {
@@ -248,11 +239,11 @@ export function RebalanceCard({
   }
 
   return (
-    <div className="ct-card space-y-5">
+    <div className="ct-card admin-doc-stack--roomy">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
+      <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
+        <div className="admin-doc-stack--compact">
+          <div className="admin-doc-inline-row">
             <span className="ct-pill accent mono text-xs">
               {event.ruleId}
             </span>
@@ -261,7 +252,7 @@ export function RebalanceCard({
             </Badge>
           </div>
           <p className="body-sm ct-text-muted">
-            Triggered {formatDate(event.triggeredAt)}
+            Triggered {formatAdminDateTime(new Date(event.triggeredAt))}
           </p>
         </div>
         <div className="text-right">
@@ -293,7 +284,7 @@ export function RebalanceCard({
 
       {/* Allocation diff */}
       {(fromAlloc.length > 0 || toAlloc.length > 0) && (
-        <div className="space-y-2">
+        <div className="admin-doc-stack--tight">
           <p className="stat-label">Allocation delta</p>
           <AllocationDiffTable from={fromAlloc} to={toAlloc} />
         </div>
@@ -301,9 +292,9 @@ export function RebalanceCard({
 
       {/* Approved signers list */}
       {signers.length > 0 && (
-        <div className="space-y-1">
+        <div className="admin-doc-stack--compact">
           <p className="stat-label">Signers</p>
-          <ul className="space-y-[var(--ct-space-0_5)]">
+          <ul className="admin-doc-stack--micro">
             {signers.map((w) => (
               <li key={w} className="body-xs mono ct-text-muted">
                 {abbrWallet(w)}
@@ -321,10 +312,10 @@ export function RebalanceCard({
       )}
 
       {/* Actions */}
-      <div className="space-y-3">
+      <div className="admin-doc-stack--actions">
         {event.status === "pending" && (
           <>
-            <div className="flex gap-2">
+            <div className="admin-doc-inline-row">
               {confirmingAction === "approve" ? (
                 <>
                   <Button
@@ -365,7 +356,7 @@ export function RebalanceCard({
               )}
             </div>
             {showRejectForm && (
-              <div className="flex gap-2">
+              <div className="admin-doc-inline-row">
                 <input
                   type="text"
                   value={rejectReason}
@@ -389,7 +380,7 @@ export function RebalanceCard({
         {/* "approved" status is transient — auto-execute fires immediately on threshold.
             This branch handles signals that were approved before the oracle path landed. */}
         {event.status === "approved" && (
-          <div className="flex gap-2">
+          <div className="admin-doc-inline-row">
             {confirmingAction === "execute" ? (
               <>
                 <Button variant="primary" onClick={handleExecute} disabled={isPending}>
@@ -408,9 +399,9 @@ export function RebalanceCard({
         )}
 
         {event.status === "executed" && (
-          <div className="space-y-1">
+          <div className="admin-doc-stack--compact">
             <p className="body-xs ct-status-success">
-              Auto-executed on approval · {formatDate(event.executedAt)}
+              Auto-executed on approval · {formatAdminDateTime(new Date(event.executedAt))}
             </p>
             {event.txHash && (
               <p className="body-xs mono ct-text-muted">

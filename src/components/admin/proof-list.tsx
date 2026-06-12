@@ -40,7 +40,7 @@ export function ProofList({ items }: { items: ProofItem[] }) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="admin-doc-stack--actions">
       {items.map((item) => (
         <AdminProofRow key={item.id} item={item} />
       ))}
@@ -74,9 +74,9 @@ function AdminProofRow({ item }: { item: ProofItem }) {
 
   return (
     <Card className="p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="flex flex-wrap items-center gap-2 text-xs ct-text-muted">
+      <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--loose">
+        <div className="min-w-0 flex-1 admin-doc-stack--tight">
+          <div className="admin-doc-inline-row text-xs ct-text-muted">
             <Badge variant="brand">{item.proofType}</Badge>
             {item.period ? (
               <Badge variant="default">{item.period}</Badge>
@@ -85,7 +85,7 @@ function AdminProofRow({ item }: { item: ProofItem }) {
             <span className="mono ct-text-body">by {abbreviateAddress(item.postedBy)}</span>
           </div>
 
-          <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs ct-text-muted">
+          <div className="admin-doc-inline-row admin-doc-inline-row--spacious text-xs ct-text-muted">
             <span>
               <span className="ct-text-muted">hash </span>
               <span className="mono ct-text-body">{abbreviateAddress(item.hash)}</span>
@@ -114,7 +114,7 @@ function AdminProofRow({ item }: { item: ProofItem }) {
           ) : null}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="admin-doc-inline-row">
           {item.proofType === "mining_attestation" && !item.txHash ? (
             <PublishOnChainButton proofId={item.id} />
           ) : null}

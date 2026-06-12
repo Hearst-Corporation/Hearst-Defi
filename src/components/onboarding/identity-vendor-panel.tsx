@@ -12,6 +12,7 @@ export function IdentityVendorPanel({ isProduction }: { isProduction: boolean })
       aria-label="Identity verification unavailable"
     >
       <AwaitingMetricState
+        variant="inline"
         message="Identity verification not configured"
         detail={
           isProduction

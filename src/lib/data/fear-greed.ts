@@ -2,6 +2,7 @@ import "server-only";
 
 import { CircuitBreaker } from "@/lib/circuit-breaker";
 import { STALE_THRESHOLDS } from "@/lib/data/freshness";
+import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 
 /**
@@ -54,13 +55,10 @@ interface FearGreedResponse {
   metadata?: { error: string | null };
 }
 
-const DEFAULT_BASE_URL = "https://api.alternative.me";
 const FNG_PATH = "/fng/?limit=1";
 
 function resolveBaseUrl(): string {
-  const fromEnv = process.env.FEAR_GREED_BASE_URL;
-  if (fromEnv && fromEnv.length > 0) return fromEnv;
-  return DEFAULT_BASE_URL;
+  return env.FEAR_GREED_BASE_URL;
 }
 
 // Cache TTL aligned with the freshness SLO published in

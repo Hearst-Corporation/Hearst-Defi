@@ -59,7 +59,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
 
   return (
     <NestedPanel aria-label={item.label}>
-      <div className="flex items-center gap-4 py-2">
+      <div className="admin-doc-inline-row admin-doc-inline-row--relaxed py-2">
         <span
           role="img"
           aria-label={statusLabel(item.status)}
@@ -70,7 +70,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
           title={statusLabel(item.status)}
         />
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             <span className="body-sm font-medium ct-text-primary">
               {item.label}
             </span>
@@ -87,7 +87,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
             ) : null}
             {item.blockers ? <Badge variant="danger">Blocker</Badge> : null}
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-2 body-xs ct-text-muted">
+          <div className="mt-2 admin-doc-inline-row body-xs ct-text-muted">
             <span className="mono">{item.id}</span>
             {item.spec_ref ? (
               <span className="mono ct-text-faint">· {item.spec_ref}</span>
@@ -103,7 +103,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
           </div>
         </div>
 
-        <div className="hidden items-center gap-1 sm:flex">
+        <div className="hidden admin-doc-inline-row admin-doc-inline-row--tight sm:flex">
           {STATUSES.map((s) => (
             <Button
               key={s}
@@ -147,12 +147,12 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
         <form
           id={formId}
           action={onSubmit}
-          className="space-y-3 border-t border-(--ct-border-soft) pt-4"
+          className="admin-doc-stack--actions border-t border-(--ct-border-soft) pt-4"
           aria-label={`Edit ${item.label}`}
         >
           <input type="hidden" name="itemId" value={item.id} />
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="admin-doc-form-grid-2">
             <label className="block text-xs" htmlFor={`${formId}-status`}>
               <span className="ct-form-label">Status</span>
               <select
@@ -217,7 +217,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
             />
           </label>
 
-          <div className="flex items-center justify-end gap-2">
+          <div className="admin-doc-inline-row justify-end">
             <Button
               type="button"
               variant="ghost"

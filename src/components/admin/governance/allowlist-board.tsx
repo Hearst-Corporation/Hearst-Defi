@@ -71,9 +71,9 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
             Add entry
           </h2>
           <DashboardPanelHeader title="Add entry" tone="quiet" className="mb-4" />
-          <form action={addAllowlistEntryAction} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5 sm:col-span-2">
+          <form action={addAllowlistEntryAction} className="admin-doc-stack--relaxed">
+            <div className="admin-doc-form-grid-2">
+              <div className="admin-doc-stack--dense sm:col-span-2">
                 <label htmlFor="add-address" className="stat-label block">
                   Address (0x…) *
                 </label>
@@ -87,7 +87,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   className={cn(adminFormField, "mono")}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="admin-doc-stack--dense">
                 <label htmlFor="add-label" className="stat-label block">
                   Label *
                 </label>
@@ -101,7 +101,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   className={adminFormField}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="admin-doc-stack--dense">
                 <label htmlFor="add-category" className="stat-label block">
                   Category *
                 </label>
@@ -113,7 +113,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   ))}
                 </select>
               </div>
-              <div className="space-y-1.5">
+              <div className="admin-doc-stack--dense">
                 <label htmlFor="add-riskScore" className="stat-label block">
                   Risk score (0–100)
                 </label>
@@ -127,7 +127,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   className={adminFormField}
                 />
               </div>
-              <div className="space-y-1.5 sm:col-span-2">
+              <div className="admin-doc-stack--dense sm:col-span-2">
                 <label htmlFor="add-notes" className="stat-label block">
                   Notes (optional)
                 </label>
@@ -234,9 +234,9 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                               <span className="group-open:hidden">Edit ▾</span>
                               <span className="hidden group-open:inline">Close ▴</span>
                             </summary>
-                            <form action={updateAllowlistEntryAction} className="mt-3 min-w-64 space-y-2">
+                            <form action={updateAllowlistEntryAction} className="mt-3 min-w-64 admin-doc-stack--tight">
                               <input type="hidden" name="id" value={entry.id} />
-                              <div className="space-y-1">
+                              <div className="admin-doc-stack--compact">
                                 <label htmlFor={`edit-label-${entry.id}`} className="stat-label block">
                                   Label
                                 </label>
@@ -249,7 +249,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                                   className={adminFormFieldCompact}
                                 />
                               </div>
-                              <div className="space-y-1">
+                              <div className="admin-doc-stack--compact">
                                 <label htmlFor={`edit-risk-${entry.id}`} className="stat-label block">
                                   Risk score
                                 </label>
@@ -263,7 +263,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                                   className={adminFormFieldCompact}
                                 />
                               </div>
-                              <div className="space-y-1">
+                              <div className="admin-doc-stack--compact">
                                 <label htmlFor={`edit-notes-${entry.id}`} className="stat-label block">
                                   Notes
                                 </label>

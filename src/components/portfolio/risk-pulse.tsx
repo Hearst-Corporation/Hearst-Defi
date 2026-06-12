@@ -1,5 +1,6 @@
 import { NestedPanel } from "@/components/ui/nested-panel";
 import {
+  PanelStatus,
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
@@ -365,9 +366,10 @@ export function RiskPulse({
       />
 
       {compositeUnavailable ? (
-        <p className="body-xs ct-text-faint m-0">
-          Snapshot pending
-        </p>
+        <PanelStatus
+          message="Snapshot pending"
+          detail="Risk scores populate after the first snapshot."
+        />
       ) : null}
 
       <ul aria-label="Risk dimension scores">

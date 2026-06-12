@@ -69,6 +69,57 @@ export function getRedis(): Redis | null {
   return redis;
 }
 
+/**
+ * Atomic Lua script for the sliding-window rate limiter (AUTH-5).
+ *
+ * Eliminates the TOCTOU race where concurrent callers each read a count below
+ * the cap before any write lands, then all insert and exceed the limit.
+ *
+ * All five operations execute in a single server-side round-trip under Redis's
+ * sequential-script guarantee (no interleaving from other clients):
+ *   1. ZREMRANGEBYSCORE  — prune entries older than the window
+ *   2. ZCARD             — count entries currently in window
+ *   3. Conditional ZADD  — add this request only if count < limit
+ *   4. PEXPIRE           — refresh the key TTL (only on the success branch)
+ *   5. Return [allowed(0|1), count_after_prune, oldest_score_or_0]
+ *
+ * KEYS[1]  = the rate-limit key
+ * ARGV[1]  = now (ms, integer string)
+ * ARGV[2]  = windowStart = now - windowMs  (ms, integer string)
+ * ARGV[3]  = maxRequests
+ * ARGV[4]  = member = unique string for this call ("now:rand")
+ * ARGV[5]  = windowMs (ms, integer string)  — used for PEXPIRE
+ *
+ * Returns a three-element array:
+ *   [0] allowed  — 1 if the request is permitted, 0 if rate-limited
+ *   [1] count    — number of entries in window AFTER pruning (before insert)
+ *   [2] oldest   — score of the oldest entry in window (0 when set is empty)
+ */
+const SLIDING_WINDOW_LUA = `
+local key         = KEYS[1]
+local now         = tonumber(ARGV[1])
+local windowStart = tonumber(ARGV[2])
+local maxReq      = tonumber(ARGV[3])
+local member      = ARGV[4]
+local windowMs    = tonumber(ARGV[5])
+
+redis.call('ZREMRANGEBYSCORE', key, 0, windowStart)
+local count = redis.call('ZCARD', key)
+
+if count < maxReq then
+  redis.call('ZADD', key, now, member)
+  redis.call('PEXPIRE', key, windowMs + 1000)
+  return {1, count, 0}
+end
+
+local oldest = redis.call('ZRANGE', key, 0, 0, 'WITHSCORES')
+local oldestScore = 0
+if #oldest > 0 then
+  oldestScore = tonumber(oldest[2])
+end
+return {0, count, oldestScore}
+`.trim();
+
 async function checkRedis(
   key: string,
   maxRequests: number,
@@ -81,30 +132,30 @@ async function checkRedis(
 
   const now = nowMs();
   const windowStart = now - windowMs;
+  // Unique member: millisecond timestamp + random suffix prevents collision when
+  // two callers arrive within the same millisecond.
+  const member = `${now}:${Math.random()}`;
 
-  // Remove entries outside the window
-  await client.zremrangebyscore(key, 0, windowStart);
+  // Single atomic round-trip — no TOCTOU between count and insert (AUTH-5).
+  const raw = await client.eval(
+    SLIDING_WINDOW_LUA,
+    [key],
+    [String(now), String(windowStart), String(maxRequests), member, String(windowMs)],
+  ) as [number, number, number];
 
-  // Count current entries
-  const currentCount = await client.zcard(key);
+  const [allowed, count, oldestScore] = raw;
 
-  if (currentCount >= maxRequests) {
-    const oldest = await client.zrange(key, 0, 0, { withScores: true });
-    const oldestArr = oldest as Array<{ score: number; member: string }>;
-    const resetAt = oldestArr.length > 0 ? (oldestArr[0]?.score ?? 0) + windowMs : now + windowMs;
-    return { success: false, limit: maxRequests, remaining: 0, resetAt };
+  if (allowed === 1) {
+    return {
+      success: true,
+      limit: maxRequests,
+      remaining: maxRequests - count - 1,
+      resetAt: now + windowMs,
+    };
   }
 
-  // Add current request
-  await client.zadd(key, { score: now, member: `${now}:${Math.random()}` });
-  await client.expire(key, Math.ceil(windowMs / 1000) + 1);
-
-  return {
-    success: true,
-    limit: maxRequests,
-    remaining: maxRequests - currentCount - 1,
-    resetAt: now + windowMs,
-  };
+  const resetAt = oldestScore > 0 ? oldestScore + windowMs : now + windowMs;
+  return { success: false, limit: maxRequests, remaining: 0, resetAt };
 }
 
 /* -------------------------------------------------------------------------- */

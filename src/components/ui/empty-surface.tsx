@@ -44,11 +44,24 @@ export function EmptySurface({
         className,
       )}
     >
-      <p className={cn(variant === "chart" ? "body-xs ct-text-faint" : "body-sm ct-text-muted")}>
+      <p
+        className={cn(
+          "m-0",
+          variant === "chart" && "body-xs ct-text-faint",
+          variant !== "chart" && "body-sm ct-text-muted",
+        )}
+      >
         {message}
       </p>
       {detail ? (
-        <p className="body-xs ct-text-faint max-w-prose mt-1">{detail}</p>
+        <p
+          className={cn(
+            "body-xs ct-text-faint m-0",
+            variant === "widget" && "max-w-prose mt-1",
+          )}
+        >
+          {detail}
+        </p>
       ) : null}
       {children}
     </div>

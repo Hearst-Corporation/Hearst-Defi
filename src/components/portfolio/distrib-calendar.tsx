@@ -11,6 +11,7 @@
  */
 
 import {
+  PanelStatus,
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
@@ -404,14 +405,11 @@ export function DistribCalendar({
       </div>
 
       {previewZeros ? (
-        <div className="pt-1" role="note">
-          <p className="body-xs ct-text-muted m-0">
-            No payout history yet · $0 forecast
-          </p>
-          <p className="body-xs ct-text-faint m-0 mt-0.5">
-            Current period marked
-          </p>
-        </div>
+        <PanelStatus
+          role="note"
+          message="No payout history yet · $0 forecast"
+          detail="Current period marked"
+        />
       ) : null}
 
       {/* Footer — share class + cadence. Rendered only when at least one is

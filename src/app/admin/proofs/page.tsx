@@ -14,7 +14,7 @@ export default async function ProofsPage() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="Off-chain proofs"
         description="Paper attestations ingested off-chain. Live on-chain proofs are in Proof Center."
@@ -23,7 +23,7 @@ export default async function ProofsPage() {
       {items.length === 0 ? (
         <ProofList items={items} />
       ) : (
-        <section className="space-y-3">
+        <section className="admin-doc-stack--actions">
           <h2 className="h2">Published proofs ({items.length})</h2>
           <ProofList items={items} />
         </section>

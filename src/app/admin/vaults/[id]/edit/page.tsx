@@ -63,7 +63,7 @@ export default async function EditVaultPage({ params }: PageProps) {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         lead={
           <Button variant="ghost" size="sm" asChild>

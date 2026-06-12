@@ -53,7 +53,7 @@ export default async function ProposePage() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="New proposal"
         lead={
@@ -65,8 +65,8 @@ export default async function ProposePage() {
 
       <Card>
         <DashboardPanelHeader title="Proposal details" tone="quiet" className="mb-6" />
-        <form action={handlePropose} className="space-y-6">
-          <div className="space-y-1.5">
+        <form action={handlePropose} className="admin-doc-stack">
+          <div className="admin-doc-stack--dense">
             <label htmlFor="vaultId" className="stat-label block">
               Vault *
             </label>
@@ -89,7 +89,7 @@ export default async function ProposePage() {
             )}
           </div>
 
-          <div className="space-y-1.5">
+          <div className="admin-doc-stack--dense">
             <label htmlFor="actionType" className="stat-label block">
               Action type *
             </label>
@@ -103,7 +103,7 @@ export default async function ProposePage() {
             </select>
           </div>
 
-          <div className="space-y-1.5">
+          <div className="admin-doc-stack--dense">
             <label htmlFor="calldata" className="stat-label block">
               Calldata (raw JSON — optional)
             </label>
@@ -116,7 +116,7 @@ export default async function ProposePage() {
             />
           </div>
 
-          <div className="space-y-1.5">
+          <div className="admin-doc-stack--dense">
             <label htmlFor="justification" className="stat-label block">
               Justification *{" "}
               <span className="normal-case tracking-normal ct-text-muted">(min 80 characters)</span>
@@ -132,7 +132,7 @@ export default async function ProposePage() {
             />
           </div>
 
-          <div className="flex items-center gap-3 pt-2">
+          <div className="admin-doc-inline-row admin-doc-inline-row--actions pt-2">
             <Button type="submit" variant="primary" size="lg" disabled={vaults.length === 0}>
               Submit proposal
             </Button>

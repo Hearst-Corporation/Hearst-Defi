@@ -91,6 +91,30 @@ export function formatDateGb(d: Date): string {
   });
 }
 
+const ADMIN_DATE = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+
+/** Admin tables — date-only (no time). */
+export function formatAdminDate(d: Date): string {
+  return ADMIN_DATE.format(d);
+}
+
+const ADMIN_DATETIME = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+});
+
+/** Admin tables / audit — locale-stable datetime. */
+export function formatAdminDateTime(d: Date): string {
+  return ADMIN_DATETIME.format(d);
+}
+
 export function buildDistributionIcsUri(title: string, date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   const ymd = `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}`;

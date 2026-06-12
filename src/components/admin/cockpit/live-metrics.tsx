@@ -75,7 +75,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
       aria-label={`Vault ${vault.vaultName} metrics`}
     >
       {/* Vault name + status */}
-      <div className="dashboard-live-metrics__vault-head mb-2 flex min-w-0 items-center justify-between gap-2">
+      <div className="dashboard-live-metrics__vault-head mb-2 admin-doc-inline-row admin-doc-inline-row--between min-w-0">
         <Link
           href={vault.href}
           className="body-sm ct-text-strong min-w-0 truncate font-medium hover:ct-text-accent hover:underline"
@@ -128,7 +128,7 @@ function MetricCell({
   valueClassName?: string;
 }) {
   return (
-    <div className="flex flex-col gap-0.5">
+    <div className="admin-doc-stack--micro">
       <span className="text-micro uppercase tracking-wide ct-text-faint font-medium">
         {label}
       </span>

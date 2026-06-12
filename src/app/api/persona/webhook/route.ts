@@ -97,7 +97,20 @@ function isP2002(err: unknown): boolean {
 // POST /api/persona/webhook
 // ---------------------------------------------------------------------------
 
+/** Maximum body size accepted before HMAC buffering (1 MB). */
+const MAX_BODY_BYTES = 1_000_000;
+
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  // 0. Content-length guard — reject oversized bodies BEFORE buffering.
+  //    Mirrors the same pattern in src/app/api/docusign/webhook/route.ts.
+  const rawContentLength = req.headers.get("content-length");
+  if (rawContentLength !== null) {
+    const bodySize = parseInt(rawContentLength, 10);
+    if (!Number.isNaN(bodySize) && bodySize > MAX_BODY_BYTES) {
+      return new Response("Payload too large", { status: 413 });
+    }
+  }
+
   // 1. Read raw body — must be done before any parsing
   const rawBody = await req.text();
 

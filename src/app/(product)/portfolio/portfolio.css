@@ -214,6 +214,10 @@
   padding-block: var(--ct-space-2);
 }
 
+.pf-cockpit-panel--compact .ct-panel-fields .ct-proof-row:first-child {
+  padding-top: 0;
+}
+
 .pf-cockpit-panel--compact .ct-proof-row__value {
   font-size: var(--ct-text-xs);
   line-height: var(--ct-leading-snug);
@@ -520,10 +524,6 @@
 
 .pf-recent-activity-empty {
   padding-block: var(--ct-space-4);
-}
-
-.pf-recent-activity-empty__detail {
-  margin-top: var(--ct-space-1);
 }
 
 .pf-recent-activity-row__main {

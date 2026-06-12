@@ -32,7 +32,7 @@ export function FeedbackList({ items }: { items: FeedbackItem[] }) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="admin-doc-stack--actions">
       {items.map((item) => (
         <FeedbackRow key={item.id} item={item} />
       ))}
@@ -58,9 +58,9 @@ function FeedbackRow({ item }: { item: FeedbackItem }) {
 
   return (
     <Card className={cn("p-4", item.resolved && "opacity-60")}>
-      <div className="flex items-start justify-between gap-3">
+      <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions">
         <div className="min-w-0 flex-1">
-          <div className="mb-2 flex flex-wrap items-center gap-2 text-xs ct-text-muted">
+          <div className="mb-2 admin-doc-inline-row text-xs ct-text-muted">
             <time>{item.createdAt.toISOString().slice(0, 16).replace("T", " ")}</time>
             {item.author ? <span>· {item.author}</span> : null}
             {item.itemId ? (

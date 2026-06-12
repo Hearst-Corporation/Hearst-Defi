@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { VaultStatusPill } from "@/components/admin/vault-status-pill";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { STRATEGY_LABELS } from "@/lib/constants/vault";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { formatUsdFull } from "@/lib/vaults/product-display";
 
 import { pauseVault, resumeVault } from "./actions";
 
@@ -55,7 +56,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="Vaults"
         actions={
@@ -66,7 +67,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
       />
 
       {/* Filter tabs */}
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter vaults by status">
+      <div className="admin-doc-inline-row" role="tablist" aria-label="Filter vaults by status">
         {FILTER_TABS.map((tab) => {
           const isActive = tab.key === activeFilter;
           return (
@@ -102,7 +103,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
           </Link>
         </EmptySurface>
       ) : (
-        <div className="space-y-3">
+        <div className="admin-doc-stack--actions">
           {vaults.map((vault) => {
             const aumUsdc = vault.positions.reduce(
               (sum, p) => sum + Number(p.principalUsdc),
@@ -115,11 +116,11 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
             return (
               <Card key={vault.id}>
-                <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
                   {/* Identity */}
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="flex items-center gap-3">
+                  <div className="admin-doc-inline-row admin-doc-inline-row--relaxed min-w-0">
+                    <div className="admin-doc-stack--dense min-w-0">
+                      <div className="admin-doc-inline-row admin-doc-inline-row--loose">
                         <span className="mono tabular text-sm font-semibold ct-text-strong">
                           {vault.ticker}
                         </span>
@@ -135,20 +136,20 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                   </div>
 
                   {/* AUM progress */}
-                  <div className="flex flex-col gap-1 min-w-36">
-                    <div className="flex items-center justify-between gap-2">
+                  <div className="admin-doc-stack--compact min-w-36">
+                    <div className="admin-doc-inline-row admin-doc-inline-row--between">
                       <span className="stat-label">AUM vs Capacity</span>
                       <ProvenanceBadge kind={aumUsdc > 0 ? "live" : "estimated"} />
                     </div>
                     <Progress value={aumPct} label="AUM vs capacity" />
                     <span className="mono tabular text-xs ct-text-muted">
-                      ${aumUsdc.toLocaleString()} / ${capacityUsdc.toLocaleString()}
+                      {formatUsdFull(aumUsdc)} / {formatUsdFull(capacityUsdc)}
                     </span>
                   </div>
 
                   {/* APY */}
-                  <div className="flex flex-col gap-0.5">
-                    <div className="flex items-center justify-between gap-2">
+                  <div className="admin-doc-stack--compact">
+                    <div className="admin-doc-inline-row admin-doc-inline-row--between">
                       <span className="stat-label">Target APY</span>
                       <ProvenanceBadge kind="estimated" />
                     </div>
@@ -157,7 +158,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="admin-doc-inline-row shrink-0">
                     <Button variant="ghost" size="sm" asChild>
                       <Link href={`/admin/vaults/${vault.id}`}>View</Link>
                     </Button>

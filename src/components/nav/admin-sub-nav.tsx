@@ -48,7 +48,7 @@ export function AdminSubNav() {
   return (
     <nav
       aria-label={`${section.label} sections`}
-      className="mb-6 flex items-center gap-1 border-b border-[var(--ct-border-soft)]"
+      className="admin-doc-sub-nav"
     >
       {visibleTabs.map((tab) => {
         const isActive = tab.href === activeHref;

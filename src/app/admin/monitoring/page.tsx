@@ -10,7 +10,7 @@ export default async function MonitoringPage() {
   const stats = await getMonitoringStats();
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader title="Monitoring" />
       <MonitoringBoard stats={stats} />
     </div>

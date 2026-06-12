@@ -15,6 +15,7 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { STRATEGY_LABELS, REG_LABELS, SPV_LABELS } from "@/lib/constants/vault";
+import { formatUsdFull } from "@/lib/vaults/product-display";
 
 import {
   closeVault,
@@ -103,11 +104,11 @@ export default async function VaultDetailPage({ params }: PageProps) {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title={vault.name}
         actions={
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="admin-doc-inline-row admin-doc-inline-row--actions">
           {vault.status === "draft" && (
             <>
               <Button variant="secondary" size="md" asChild>
@@ -235,9 +236,9 @@ export default async function VaultDetailPage({ params }: PageProps) {
       />
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="admin-doc-kpi-grid-4">
         <Card>
-          <div className="flex items-center justify-between gap-2 mb-1">
+          <div className="admin-doc-inline-row admin-doc-inline-row--between mb-1">
             <span className="stat-label">Target APY</span>
             <ProvenanceBadge kind="estimated" />
           </div>
@@ -263,25 +264,25 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
         {vault.status === "live" && (
           <Card>
-            <div className="flex items-center justify-between gap-2 mb-1">
+            <div className="admin-doc-inline-row admin-doc-inline-row--between mb-1">
               <span className="stat-label">AUM</span>
               <ProvenanceBadge kind={aumUsdc > 0 ? "live" : "estimated"} />
             </div>
             <span className="stat-value mono tabular">
-              ${aumUsdc.toLocaleString()}
+              {formatUsdFull(aumUsdc)}
             </span>
             <div className="mt-2">
               <Progress value={aumPct} label="AUM vs capacity" />
             </div>
             <p className="body-xs ct-text-faint mt-1">
-              / ${capacityUsdc.toLocaleString()} capacity
+              / {formatUsdFull(capacityUsdc)} capacity
             </p>
           </Card>
         )}
       </div>
 
       {/* Details */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="admin-doc-split-grid">
         {/* Legal */}
         <SystemPanel>
           <DashboardPanelHeader title="Legal" />
@@ -292,7 +293,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
                 ["SPV", SPV_LABELS[vault.spvJurisdiction] ?? vault.spvJurisdiction],
                 ["Share Class", vault.shareClass],
                 ["Reg Exemption", REG_LABELS[vault.regExemption] ?? vault.regExemption],
-                ["Min Ticket", `$${Number(vault.minTicketUsdc).toLocaleString()} USDC`],
+                ["Min Ticket", `${formatUsdFull(Number(vault.minTicketUsdc))} USDC`],
               ] as [string, string][]
             ).map(([label, value]) => (
               <ProofRow key={label} label={label}>
@@ -305,7 +306,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
         {/* Allocation policy */}
         <SystemPanel>
           <DashboardPanelHeader title="Allocation Policy" />
-          <div className="mt-4 space-y-4">
+          <div className="mt-4 admin-doc-stack--relaxed">
             {(
               [
                 ["Mining", vault.targetMiningBps],
@@ -314,7 +315,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
                 ["Stable Reserve", vault.targetStableReserveBps],
               ] as [string, number][]
             ).map(([label, bps]) => (
-              <div key={label} className="space-y-1">
+              <div key={label} className="admin-doc-stack--compact">
                 <div className="flex items-center justify-between">
                   <span className="stat-label">{label}</span>
                   <span className="mono tabular text-sm ct-text-primary">
@@ -330,7 +331,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
       {/* Approvals */}
       <SystemPanel>
-        <div className="flex items-start justify-between gap-4 mb-6">
+        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed mb-6">
           <DashboardPanelHeader title="Approvals" className="mb-0" />
           <span className="mono tabular text-sm ct-text-muted mt-1">
             {approveCount} / {vault.requiredSigners} required

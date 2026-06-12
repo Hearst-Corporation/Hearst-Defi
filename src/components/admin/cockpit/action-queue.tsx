@@ -57,11 +57,11 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
 
   return (
     <li
-      className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0"
+      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions py-3 first:pt-0 last:pb-0"
       aria-label={`${item.severity} — ${item.title}`}
     >
-      <div className="flex min-w-0 flex-col gap-0.5">
-        <div className="flex items-center gap-2">
+      <div className="min-w-0 admin-doc-stack--micro">
+        <div className="admin-doc-inline-row">
           <SeverityPill severity={item.severity} />
           <span className="body-sm ct-text-strong font-medium truncate">
             {item.title}

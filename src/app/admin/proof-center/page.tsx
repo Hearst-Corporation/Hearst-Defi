@@ -80,7 +80,7 @@ export default async function AdminProofCenterPage({
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title="Proof Center"
         actions={
@@ -113,7 +113,7 @@ export default async function AdminProofCenterPage({
       </section>
 
       <section aria-labelledby="proof-grid-heading">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="mb-6 admin-doc-section__head">
           <h2 id="proof-grid-heading" className="h2">
             Platform-wide proofs
           </h2>

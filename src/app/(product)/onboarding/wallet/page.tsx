@@ -29,6 +29,7 @@ export default async function WalletPage() {
           </p>
         </div>
         <AwaitingMetricState
+          variant="inline"
           message="Verification service unavailable"
           detail="The KYC gate cannot run until database migrations are applied."
         />

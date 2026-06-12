@@ -62,8 +62,8 @@ export function ResumeDraftBanner({
   const relTime = formatRelativeTime(new Date(updatedAt));
 
   return (
-    <Card className="max-w-2xl space-y-5">
-      <div className="space-y-1">
+    <Card className="max-w-2xl admin-doc-stack--roomy">
+      <div className="admin-doc-stack--compact">
         <p className="body-sm ct-text-strong">
           An autosaved {draftLabel} was found on this account.
         </p>
@@ -73,11 +73,11 @@ export function ResumeDraftBanner({
       </div>
 
       {confirmDiscard ? (
-        <NestedCallout className="space-y-3 border border-(--ct-status-danger-border) ct-status-danger-bg">
+        <NestedCallout className="admin-doc-stack--actions border border-(--ct-status-danger-border) ct-status-danger-bg">
           <p className="body-xs ct-text-strong">
             You are about to lose this draft. Continue?
           </p>
-          <div className="flex items-center gap-2">
+          <div className="admin-doc-inline-row">
             <Button
               variant="danger"
               size="sm"
@@ -99,7 +99,7 @@ export function ResumeDraftBanner({
           </div>
         </NestedCallout>
       ) : (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="admin-doc-inline-row">
           <Button
             variant="primary"
             size="lg"

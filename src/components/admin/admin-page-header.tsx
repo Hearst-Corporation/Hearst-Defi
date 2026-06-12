@@ -13,6 +13,7 @@ export function AdminPageHeader({
   description,
   lead,
   actions,
+  actionsLayout = "inline",
   children,
   className,
 }: {
@@ -21,13 +22,15 @@ export function AdminPageHeader({
   description?: ReactNode;
   lead?: ReactNode;
   actions?: ReactNode;
+  /** Stack actions vertically on narrow panels (dashboard vault pills). */
+  actionsLayout?: "inline" | "stack";
   children?: ReactNode;
   className?: string;
 }) {
   return (
-    <header className={cn("flex flex-col gap-4", className)}>
-      <div className="flex min-h-9 flex-wrap items-start justify-between gap-x-4 gap-y-2">
-        <div className="flex min-w-0 flex-col gap-1">
+    <header className={cn("admin-page-header", className)}>
+      <div className="admin-page-header__row">
+        <div className="admin-page-header__main">
           {lead}
           {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
           <h1 className="h1 shrink-0">{title}</h1>
@@ -36,7 +39,14 @@ export function AdminPageHeader({
           ) : null}
         </div>
         {actions ? (
-          <div className="flex flex-wrap items-center gap-2">{actions}</div>
+          <div
+            className={cn(
+              "admin-page-header__actions",
+              actionsLayout === "stack" && "admin-page-header__actions--stack",
+            )}
+          >
+            {actions}
+          </div>
         ) : null}
       </div>
       {children}

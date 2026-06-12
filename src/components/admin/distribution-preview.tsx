@@ -1,6 +1,7 @@
 import type { DistributionRecipient } from "@/app/admin/distributions/actions";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
+import { formatUsdDetailed } from "@/lib/vaults/product-display";
 
 interface DistributionPreviewProps {
   period: string;
@@ -32,12 +33,12 @@ export function DistributionPreview({
   }
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("admin-doc-stack--relaxed", className)}>
       {/* Summary */}
-      <div className="flex items-center justify-between">
+      <div className="admin-doc-inline-row admin-doc-inline-row--between">
         <div>
           <p className="stat-label">Distribution preview</p>
-          <p className="stat-value tabular">${totalUsdc.toLocaleString("en-US", { minimumFractionDigits: 2 })} USDC</p>
+          <p className="stat-value tabular">{formatUsdDetailed(totalUsdc)} USDC</p>
         </div>
         <div className="text-right">
           <p className="body-xs ct-text-muted">Period</p>
@@ -74,7 +75,7 @@ export function DistributionPreview({
                   {r.sharesPct.toFixed(4)}%
                 </td>
                 <td className="ct-table-cell text-right ct-text-strong font-semibold tabular">
-                  ${r.payoutUsdc.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                  {formatUsdDetailed(r.payoutUsdc)}
                 </td>
               </tr>
             ))}
@@ -88,7 +89,7 @@ export function DistributionPreview({
                 100%
               </td>
               <td className="ct-table-cell text-right ct-text-strong font-bold tabular text-sm">
-                ${totalUsdc.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                {formatUsdDetailed(totalUsdc)}
               </td>
             </tr>
           </tfoot>

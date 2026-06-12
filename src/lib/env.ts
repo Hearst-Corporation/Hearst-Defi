@@ -139,6 +139,17 @@ const serverEnvSchema = z.object({
   // Persona KYC — HMAC secret for webhook signature verification.
   // Required at runtime when the persona webhook endpoint is active.
   PERSONA_WEBHOOK_SECRET: z.string().optional(),
+  // DocuSign Connect — HMAC secret for webhook signature verification.
+  DOCUSIGN_WEBHOOK_SECRET: z.string().optional(),
+  // DocuSign API credentials (server-only — never expose in NEXT_PUBLIC_*).
+  DOCUSIGN_API_KEY: z.string().optional(),
+  DOCUSIGN_ACCOUNT_ID: z.string().optional(),
+  // DocuSign REST base URL (e.g. https://demo.docusign.net/restapi or
+  // https://www.docusign.net/restapi). Validated as a URL when present.
+  DOCUSIGN_BASE_URL: z.string().url().default("https://demo.docusign.net/restapi"),
+  // Crypto Fear & Greed Index — alternative.me base URL override.
+  // Defaults to the official endpoint; override in tests or for a self-hosted proxy.
+  FEAR_GREED_BASE_URL: z.string().url().default("https://api.alternative.me"),
   // Persona KYC — server-side API key (optional, only needed if we call
   // Persona's REST API to pre-create inquiries; the embed flow doesn't need it).
   PERSONA_API_KEY: z.string().optional(),
@@ -198,6 +209,20 @@ if (IS_RUNTIME_PRODUCTION && parsed.success) {
       "INNGEST_SIGNING_KEY is required in production. " +
         "Without it, /api/inngest accepts unauthenticated requests — anyone can trigger " +
         "background jobs (mining health, investor memo) and rack up LLM costs.",
+    );
+  }
+  if (!d.PERSONA_WEBHOOK_SECRET) {
+    throw new Error(
+      "PERSONA_WEBHOOK_SECRET is required in production. " +
+        "Without it, the Persona KYC webhook accepts unauthenticated events — " +
+        "an attacker can spoof KYC completions and bypass investor onboarding checks.",
+    );
+  }
+  if (!d.DOCUSIGN_WEBHOOK_SECRET) {
+    throw new Error(
+      "DOCUSIGN_WEBHOOK_SECRET is required in production. " +
+        "Without it, the DocuSign Connect webhook accepts unauthenticated events — " +
+        "an attacker can forge envelope-completed events and unlock subscription flows without a real signature.",
     );
   }
   if (!d.OPENAI_API_KEY) {

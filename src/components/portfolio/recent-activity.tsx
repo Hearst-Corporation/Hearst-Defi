@@ -1,5 +1,5 @@
-import { EmptySurface } from "@/components/ui/empty-surface";
 import {
+  PanelStatus,
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
@@ -82,19 +82,18 @@ export function RecentActivity({
       <PfCockpitPanelHeader title="Recent activity" provenance={provenance} />
 
       <div className="pf-recent-activity-list">
-          {displayed.length === 0 && !previewZeros ? (
-            <EmptySurface
-              variant="inline"
-              message="No transactions yet — deposits and payouts will appear here."
+          {displayed.length === 0 ? (
+            <PanelStatus
+              className="pf-recent-activity-empty"
+              message={
+                previewZeros ? "No activity yet" : "No transactions yet"
+              }
+              detail={
+                previewZeros
+                  ? "Deposits, payouts and withdrawals will appear here."
+                  : "Deposits and payouts will appear here."
+              }
             />
-          ) : null}
-          {displayed.length === 0 && previewZeros ? (
-            <div className="pf-recent-activity-empty" role="status">
-              <p className="body-sm ct-text-body font-medium m-0">No activity yet</p>
-              <p className="pf-recent-activity-empty__detail body-xs ct-text-faint m-0">
-                Deposits, payouts and withdrawals will appear here.
-              </p>
-            </div>
           ) : null}
           {displayed.map((tx) => (
             <div

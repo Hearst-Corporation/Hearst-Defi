@@ -41,6 +41,9 @@ export async function redeem(
     return { ok: false, error: "Enter a valid amount." };
   }
 
+  // Pre-flight: load the position to verify ownership and status before entering
+  // the transaction. This is a fast-path check only; the definitive guard is the
+  // conditional update inside the transaction (see TOCTOU fix below).
   const position = await prisma.position.findUnique({
     where: { id: positionId },
     select: { id: true, investorId: true, status: true, principalUsdc: true },
@@ -53,16 +56,56 @@ export async function redeem(
     return { ok: false, error: "Position is not active." };
   }
 
-  const principal = position.principalUsdc.toNumber();
-  if (amountUsdc > principal + 0.5) {
+  const principalSnapshot = position.principalUsdc.toNumber();
+  if (amountUsdc > principalSnapshot + 0.5) {
     return { ok: false, error: "Amount exceeds your position principal." };
   }
 
-  const closed = amountUsdc >= principal - 0.5;
+  // TOCTOU fix: instead of relying on the principal read above, perform a
+  // conditional update inside the $transaction that re-validates the fresh
+  // principal at write time. Two concurrent partial redeems will race on the
+  // `principalUsdc: { gte: amount }` guard; the loser gets count=0 and we
+  // abort, preventing over-withdraw.
+  let closed = false;
 
-  // Atomic: record the withdrawal transaction AND update the position together.
-  await prisma.$transaction([
-    prisma.investorTransaction.create({
+  await prisma.$transaction(async (tx) => {
+    // Re-read the position inside the transaction for a fresh principal.
+    const fresh = await tx.position.findUnique({
+      where: { id: positionId },
+      select: { principalUsdc: true, status: true },
+    });
+
+    if (!fresh || fresh.status !== "active") {
+      throw new Error("Position is not active.");
+    }
+
+    const freshPrincipal = fresh.principalUsdc.toNumber();
+    if (amountUsdc > freshPrincipal + 0.5) {
+      throw new Error("Amount exceeds your position principal.");
+    }
+
+    closed = amountUsdc >= freshPrincipal - 0.5;
+
+    // Conditional update — guard: principal must still cover the requested amount.
+    // For a partial redemption we use a relative decrement; for a full exit we
+    // set principal to 0 and mark the position exited.
+    const updateResult = await tx.position.updateMany({
+      where: {
+        id: position.id,
+        status: "active",
+        principalUsdc: { gte: new Prisma.Decimal(amountUsdc - 0.5) },
+      },
+      data: closed
+        ? { status: "exited", exitedAt: new Date(), principalUsdc: new Prisma.Decimal(0) }
+        : { principalUsdc: { decrement: new Prisma.Decimal(amountUsdc) } },
+    });
+
+    if (updateResult.count === 0) {
+      // Another concurrent redeem already consumed the principal.
+      throw new Error("Concurrent redeem conflict — please retry.");
+    }
+
+    await tx.investorTransaction.create({
       data: {
         investorId: investor.id,
         positionId: position.id,
@@ -70,14 +113,8 @@ export async function redeem(
         amountUsdc: new Prisma.Decimal(amountUsdc),
         txHash: txHash ?? null,
       },
-    }),
-    prisma.position.update({
-      where: { id: position.id },
-      data: closed
-        ? { status: "exited", exitedAt: new Date(), principalUsdc: new Prisma.Decimal(0) }
-        : { principalUsdc: new Prisma.Decimal(principal - amountUsdc) },
-    }),
-  ]);
+    });
+  });
 
   revalidatePath("/portfolio");
   return { ok: true, positionId: position.id, closed };

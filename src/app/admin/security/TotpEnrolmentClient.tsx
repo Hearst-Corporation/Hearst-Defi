@@ -60,7 +60,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
 
   if (state.phase === "success") {
     return (
-      <div className="space-y-2">
+      <div className="admin-doc-stack--tight">
         <p className="body-xs ct-text-accent">
           Two-factor authentication is now enabled. Your next login will require a TOTP code.
         </p>
@@ -70,8 +70,8 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
 
   if (state.phase === "pending") {
     return (
-      <div className="space-y-6">
-        <div className="space-y-2">
+      <div className="admin-doc-stack">
+        <div className="admin-doc-stack--tight">
           <p className="body-xs ct-text-muted">
             Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.),
             then enter the 6-digit code below to complete setup.
@@ -105,7 +105,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
           </details>
         </div>
 
-        <form action={handleConfirm} className="space-y-4">
+        <form action={handleConfirm} className="admin-doc-stack--relaxed">
           <label className="block body-xs" htmlFor="totp-code">
             <span className="mb-1 block ct-text-muted uppercase tracking-wide">
               Verification code
@@ -132,7 +132,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
             </p>
           ) : null}
 
-          <div className="flex gap-3">
+          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             <Button
               type="submit"
               variant="primary"
@@ -160,9 +160,9 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
 
   // phase === "idle"
   return (
-    <div className="space-y-4">
+    <div className="admin-doc-stack--relaxed">
       {totpEnabled ? (
-        <div className="flex items-center gap-2">
+        <div className="admin-doc-inline-row">
           <span className="inline-block h-2 w-2 rounded-full bg-(--ct-accent)" />
           <span className="body-xs ct-text-accent">
             MFA is enabled for this account.
@@ -170,7 +170,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
         </div>
       ) : (
         <>
-          <div className="flex items-center gap-2">
+          <div className="admin-doc-inline-row">
             <span className="inline-block h-2 w-2 rounded-full bg-(--ct-status-warning)" />
             <span className="body-xs ct-text-muted">
               MFA is not yet enabled. We recommend enabling it for admin accounts.

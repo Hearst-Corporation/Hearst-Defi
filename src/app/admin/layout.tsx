@@ -5,6 +5,8 @@ import { AdminRailIntra } from "@/components/nav/product-rail-intra";
 import { AdminSubNav } from "@/components/nav/admin-sub-nav";
 import { getSession } from "@/lib/auth/session";
 
+import "./admin-doc.css";
+
 export const metadata = {
   title: "Admin — Hearst Connect",
 };
@@ -41,7 +43,7 @@ export default async function AdminLayout({
       <Suspense fallback={null}>
         <AdminSubNav />
       </Suspense>
-      {children}
+      <div className="admin-doc w-full min-w-0">{children}</div>
     </>
   );
 }

@@ -67,9 +67,9 @@ export function SimulateDemoPanel() {
       <Card>
         <DashboardPanelHeader title="Mock proposal" tone="quiet" className="mb-4" />
 
-        <div className="flex flex-col gap-2">
+        <div className="admin-doc-stack--tight">
           {MOCK_PROPOSALS.map((proposal, index) => (
-            <label key={proposal.label} className="flex cursor-pointer items-center gap-3">
+            <label key={proposal.label} className="admin-doc-inline-row admin-doc-inline-row--actions cursor-pointer">
               <input
                 type="radio"
                 name="proposal"
@@ -86,7 +86,7 @@ export function SimulateDemoPanel() {
           ))}
         </div>
 
-        <div className="mt-4 space-y-1 rounded-md border border-(--ct-border-soft) ct-surface-1 px-3 py-2.5">
+        <div className="mt-4 admin-doc-stack--compact rounded-md border border-(--ct-border-soft) ct-surface-1 px-3 py-2.5">
           <p className="mono body-xs ct-text-muted">vault: {selectedProposal.vaultAddress}</p>
           <p className="mono body-xs ct-text-faint truncate">
             calldata: {selectedProposal.calldata}
@@ -94,7 +94,7 @@ export function SimulateDemoPanel() {
           <p className="mono body-xs ct-text-faint">actionType: {selectedProposal.actionType}</p>
         </div>
 
-        <div className="mt-4 flex gap-3">
+        <div className="mt-4 admin-doc-inline-row admin-doc-inline-row--actions">
           <Button type="button" variant="primary" size="md" onClick={handleSimulate} disabled={loading}>
             {loading ? "Simulating…" : "Simulate"}
           </Button>

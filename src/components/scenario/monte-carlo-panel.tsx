@@ -191,7 +191,7 @@ function PctRow({
 }) {
   const pct = (value * 100).toFixed(1);
   return (
-    <div className="flex items-baseline justify-between gap-2">
+    <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
       <span className="stat-label">{label}</span>
       <span
         className={cn(
@@ -225,8 +225,8 @@ function SimParams({
   disabled,
 }: SimParamsProps) {
   return (
-    <div className="flex flex-wrap gap-4 text-sm">
-      <label className="flex items-center gap-2 ct-text-muted">
+    <div className="admin-doc-inline-row admin-doc-inline-row--relaxed text-sm">
+      <label className="admin-doc-inline-row ct-text-muted">
         <span className="stat-label">Seed</span>
         <input
           type="number"
@@ -247,7 +247,7 @@ function SimParams({
           aria-label="PRNG seed for Monte Carlo simulation"
         />
       </label>
-      <label className="flex items-center gap-2 ct-text-muted">
+      <label className="admin-doc-inline-row ct-text-muted">
         <span className="stat-label">Paths</span>
         <input
           type="number"
@@ -308,7 +308,7 @@ export function MonteCarloPanel() {
       </CardHeader>
 
       {/* Params + Run button */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-6 admin-doc-toolbar sm:items-end">
         <SimParams
           seed={seed}
           runs={runs}
@@ -329,7 +329,7 @@ export function MonteCarloPanel() {
 
       {/* Output */}
       {output !== null && fanSeries !== null ? (
-        <div className="space-y-5">
+        <div className="admin-doc-stack--roomy">
           {/* Headline APY range */}
           <div
             className="rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-5 py-4"
@@ -350,19 +350,19 @@ export function MonteCarloPanel() {
           </div>
 
           {/* Legend */}
-          <div className="flex flex-wrap items-center gap-4 text-micro ct-text-muted">
-            <span className="flex items-center gap-1.5">
+          <div className="admin-doc-inline-row admin-doc-inline-row--relaxed text-micro ct-text-muted">
+            <span className="admin-doc-inline-row admin-doc-inline-row--dense">
               <span className="inline-block h-0.5 w-4 rounded-full bg-[var(--ct-accent)]" />
               Median (p50)
             </span>
-            <span className="flex items-center gap-1.5">
+            <span className="admin-doc-inline-row admin-doc-inline-row--dense">
               <span className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-accent-soft)] opacity-22" />
               p5–p95
             </span>
           </div>
 
           {/* Percentile table */}
-          <div className="space-y-2">
+          <div className="admin-doc-stack--tight">
             <PctRow label="p5 (pessimistic)"  value={output.percentiles.p5} />
             <PctRow label="p25" value={output.percentiles.p25} />
             <PctRow label="p50 (median)"       value={output.percentiles.p50} strong />

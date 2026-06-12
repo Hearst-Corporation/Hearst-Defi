@@ -66,7 +66,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
   const executeAction = handleExecute.bind(null, proposal.id);
 
   return (
-    <div className="space-y-8">
+    <div className="admin-doc-shell">
       <AdminPageHeader
         title={proposal.actionType}
         lead={
@@ -78,14 +78,14 @@ export default async function ProposalDetailPage({ params }: PageProps) {
 
       <Card>
         <DashboardPanelHeader title={proposal.actionType} tone="primary" className="mb-6" />
-        <div className="mb-6 flex flex-wrap items-center gap-3">
+        <div className="mb-6 admin-doc-inline-row admin-doc-inline-row--actions">
           <span className="ct-pill mono text-xs">{proposal.vaultTicker}</span>
           <Badge variant={proposalStateVariant(proposal.state)}>
             {proposalStateLabel(proposal.state)}
           </Badge>
         </div>
 
-        <dl className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
+        <dl className="admin-doc-dl-grid text-sm">
           <div>
             <dt className="stat-label">Proposed by</dt>
             <dd className="mono mt-0.5 ct-text-primary">{proposal.proposedBy}</dd>
@@ -177,11 +177,11 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         {proposal.signatures.length === 0 ? (
           <EmptySurface variant="inline" message="No signatures yet." />
         ) : (
-          <div className="space-y-2">
+          <div className="admin-doc-stack--tight">
             {proposal.signatures.map((sig) => (
               <div
                 key={sig.id}
-                className="flex items-center gap-3 border-b border-(--ct-border-soft) py-2 last:border-0"
+                className="admin-doc-inline-row admin-doc-inline-row--actions border-b border-(--ct-border-soft) py-2 last:border-0"
               >
                 <div
                   className={cn(
@@ -213,7 +213,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
       {!isTerminal ? (
         <SystemPanel>
           <DashboardPanelHeader title="Actions" tone="quiet" className="mb-4" />
-          <div className="flex flex-wrap gap-3">
+          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             {canSign ? (
               <>
                 <form action={approveAction}>

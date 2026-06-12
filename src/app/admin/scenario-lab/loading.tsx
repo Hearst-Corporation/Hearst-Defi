@@ -4,11 +4,11 @@ export default function ScenarioLabLoading() {
   return (
     <div className="scenario-lab-page scenario-lab-page--viewport">
       <div className="scenario-lab-page__chrome">
-        <div className="flex flex-col gap-4">
+        <div className="admin-doc-stack--relaxed">
           <Skeleton className="h-3 w-40" />
-          <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
             <Skeleton className="h-10 w-56" />
-            <div className="flex gap-2">
+            <div className="admin-doc-inline-row">
               <Skeleton className="h-8 w-16 rounded-full" />
               <Skeleton className="h-8 w-20 rounded-full" />
               <Skeleton className="h-8 w-24 rounded-full" />

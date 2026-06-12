@@ -47,7 +47,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
         <p className="body-xs ct-text-faint uppercase tracking-wide mb-2 font-medium">
           Sentry 24h
         </p>
-        <div className="flex items-center gap-4">
+        <div className="admin-doc-inline-row admin-doc-inline-row--relaxed">
           <SentryCounter
             label="Errors"
             count={sentryStats.errors24h}
@@ -94,11 +94,11 @@ function InngestRow({ job }: { job: InngestJob }) {
 
   return (
     <div
-      className="flex items-center justify-between gap-2 py-2 first:pt-0 last:pb-0"
+      className="admin-doc-inline-row admin-doc-inline-row--between py-2 first:pt-0 last:pb-0"
       aria-label={`${job.name}: ${label}`}
     >
       <span className="body-xs ct-text-body truncate">{job.name}</span>
-      <div className="flex items-center gap-1.5 shrink-0">
+      <div className="admin-doc-inline-row admin-doc-inline-row--dense shrink-0">
         <span
           aria-hidden
           className={cn("inline-block h-2 w-2 rounded-full", dot)}
@@ -144,7 +144,7 @@ function SentryCounter({
   alert: boolean;
 }) {
   return (
-    <div className="flex items-baseline gap-1.5">
+    <div className="admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--dense">
       <span
         className={cn(
           "text-lg font-bold tabular leading-none",
@@ -174,7 +174,7 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
 
   const inner = (
     <li
-      className="flex items-start gap-2 py-1.5 first:pt-0 last:pb-0"
+      className="admin-doc-inline-row admin-doc-inline-row--start py-1.5 first:pt-0 last:pb-0"
       aria-label={`${event.type}: ${event.label}`}
     >
       <span

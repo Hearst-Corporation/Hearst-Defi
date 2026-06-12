@@ -188,6 +188,9 @@ const nextConfig: NextConfig = {
                   ? "frame-ancestors 'self'"
                   : "frame-ancestors 'self' http://localhost:4200 http://localhost:4201",
                 "font-src 'self' data:",
+                // Restrict <base> hijacking and block plugin embeds (Flash, etc.)
+                "base-uri 'self'",
+                "object-src 'none'",
               ].join("; "),
             };
           })(),

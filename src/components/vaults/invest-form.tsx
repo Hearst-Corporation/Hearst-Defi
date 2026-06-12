@@ -9,7 +9,8 @@ import { cn } from "@/lib/cn";
 import { Ptai } from "@/components/ui/ptai";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { NestedCallout, NestedPanel } from "@/components/ui/nested-panel";
+import { NestedPanel } from "@/components/ui/nested-panel";
+import { PanelStatus } from "@/components/ui/panel-status";
 import { DepositSummary } from "@/components/vaults/deposit-summary";
 import { PreFlightCheck, isPreFlightReady } from "@/components/vaults/preflight-check";
 import { VaultPanelHeader } from "@/components/vaults/vault-flow-primitives";
@@ -315,13 +316,18 @@ export function InvestForm({ vault }: InvestFormProps) {
             </Checkbox>
 
             {depositError ? (
-              <NestedCallout className="border ct-bc-danger ct-status-danger-bg">
-                <p className="body-xs ct-status-danger">{depositError}</p>
-              </NestedCallout>
+              <PanelStatus
+                tone="danger"
+                role="alert"
+                message={depositError}
+              />
             ) : null}
 
             {awaitingConfirm ? (
-              <NestedPanel className="vault-confirm-panel ct-bc-strong border">
+              <div
+                className="vault-confirm-panel border-t border-(--ct-border-soft) pt-4"
+                aria-label="Confirm your deposit"
+              >
                 <p className="eyebrow">Confirm your deposit</p>
                 <div className="vault-confirm-panel__rows">
                   <div className="vault-confirm-panel__row body-sm">
@@ -365,7 +371,7 @@ export function InvestForm({ vault }: InvestFormProps) {
                       : `Confirm ${formatUsdAmount(amount)} deposit`}
                   </Button>
                 </div>
-              </NestedPanel>
+              </div>
             ) : (
               <div className="vault-form-actions">
                 <Button variant="secondary" size="md" asChild>

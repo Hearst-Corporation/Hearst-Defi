@@ -37,7 +37,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const page = resolveDashboardPageInputs(data, risk, overview);
 
   return (
-    <div className="relative flex flex-col gap-4">
+    <div className="relative admin-doc-shell admin-doc-shell--compact">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -inset-20 z-0 overflow-hidden"
@@ -50,8 +50,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <AdminPageHeader
           title="Dashboard"
           eyebrow={`${data.vaultMeta.name} · as of ${dateFmt.format(data.vault.asOf)}`}
+          actionsLayout="stack"
           actions={
-            <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+            <>
               <FixtureVaultPills
                 activeVaultId={data.vaultMeta.id}
                 resolveHref={adminDashboardVaultHref}
@@ -62,7 +63,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                   {overview.totalActionRequired === 1 ? "" : "s"}
                 </span>
               ) : null}
-            </div>
+            </>
           }
         />
       </div>
@@ -84,7 +85,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       {page.preview ? (
         <Card className="relative z-10 border-[var(--ct-status-warning-border)] ct-status-warning-bg/20">
-          <div className="flex items-center gap-3">
+          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             <span className="text-micro font-bold uppercase tracking-widest ct-status-warning">
               Per-vault live snapshot pending
             </span>

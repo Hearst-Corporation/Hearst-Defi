@@ -120,9 +120,9 @@ function ScoreCell({
   caption: string;
 }) {
   return (
-    <NestedPanel className="flex flex-col gap-2 p-4">
+    <NestedPanel className="admin-doc-stack--tight p-4">
       <span className="stat-label">{label}</span>
-      <div className="flex items-baseline gap-1">
+      <div className="admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--tight">
         <span className="mono text-2xl font-extrabold tabular-nums ct-text-primary">
           {value.toFixed(0)}
         </span>
@@ -164,7 +164,7 @@ function DecisionPanel({
             Deterministic engine output · conditional on stated assumptions
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="admin-doc-inline-row shrink-0">
           <Badge variant={MODE_VARIANT[output.mode]}>
             {MODE_LABEL[output.mode]}
           </Badge>
@@ -173,8 +173,8 @@ function DecisionPanel({
       </CardHeader>
 
       {/* Hero: APY range + confidence */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex min-w-0 flex-col gap-1">
+      <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--end admin-doc-inline-row--relaxed flex-wrap">
+        <div className="flex min-w-0 admin-doc-stack--compact">
           <span className="stat-label">Projected APY range</span>
           <ApyRange
             low={output.apy_range.low}
@@ -182,7 +182,7 @@ function DecisionPanel({
             className="mono text-3xl sm:text-4xl font-extrabold tabular-nums ct-text-strong leading-tight"
           />
         </div>
-        <div className="flex flex-col items-end gap-1.5">
+        <div className="flex flex-col items-end admin-doc-stack--dense">
           <span className="stat-label">Confidence</span>
           <Badge variant={CONFIDENCE_VARIANT[output.confidence]}>
             {output.confidence.toUpperCase()}
@@ -191,8 +191,8 @@ function DecisionPanel({
       </div>
 
       {/* Stat strip: stressed floor · risk · mining */}
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        <NestedPanel className="flex flex-col gap-2 p-4">
+      <div className="mt-5 admin-doc-form-grid-2 sm:grid-cols-3">
+        <NestedPanel className="admin-doc-stack--tight p-4">
           <span className="stat-label">Stressed floor</span>
           <span className="mono text-2xl font-extrabold tabular-nums ct-text-primary">
             {output.stressed_apy.toFixed(1)}%
@@ -217,7 +217,7 @@ function DecisionPanel({
       <div className="mt-5">
         <span className="stat-label">Recommended action</span>
         <NestedCallout
-          className={cn("mt-2 flex items-center gap-3 border-l-4", tone.border)}
+          className={cn("mt-2 admin-doc-inline-row admin-doc-inline-row--actions border-l-4", tone.border)}
         >
           <span
             className={cn("inline-block h-2 w-2 shrink-0 rounded-full", tone.dot)}
@@ -288,7 +288,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
       </CardHeader>
 
       {/* Target allocation */}
-      <div className="mb-2 flex items-baseline justify-between gap-2">
+      <div className="mb-2 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
         <span className="stat-label">Target allocation</span>
         <span className="body-xs ct-text-muted">
           BTC tactical target {output.btc_tactical.targetExposurePct.toFixed(0)}%
@@ -300,7 +300,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
       {hasGuardrails ? (
         <div className="mt-5 border-t border-(--ct-border-soft) pt-5">
           <span className="stat-label">Guardrails</span>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-2 admin-doc-inline-row">
             {output.btc_tactical.guardrails.map((g) => (
               <Badge
                 key={g.id}
@@ -312,9 +312,9 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
             ))}
           </div>
           {armedTriggers.length > 0 ? (
-            <ul className="mt-3 space-y-1.5">
+            <ul className="mt-3 admin-doc-stack--dense">
               {armedTriggers.map((t) => (
-                <li key={t.id} className="flex items-start gap-2 body-sm">
+                <li key={t.id} className="admin-doc-inline-row admin-doc-inline-row--start body-sm">
                   <span
                     className="mt-0.5 shrink-0 text-micro ct-status-warning"
                     aria-hidden
@@ -331,7 +331,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
 
       {/* Rebalancing actions (PTAI list) */}
       <div className="mt-5 border-t border-(--ct-border-soft) pt-5">
-        <div className="mb-3 flex items-baseline justify-between gap-2">
+        <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
           <span className="stat-label">Rebalancing actions</span>
           <span className="eyebrow">Max 4 · Rule-based · PTAI</span>
         </div>
@@ -354,7 +354,7 @@ function AssumptionsPanel({ assumptions }: { assumptions: string[] }) {
         type="button"
         onClick={() => setOpen((x) => !x)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-4 text-left"
+        className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed w-full text-left"
       >
         <div className="min-w-0">
           <CardTitle>Assumptions</CardTitle>
@@ -435,7 +435,7 @@ function CompactPanel({
   return (
     <section
       className={cn(
-        "relative flex flex-col gap-4 glass-panel p-5",
+        "relative admin-doc-stack--relaxed glass-panel p-5",
         "border-l-4",
         side === "A"
           ? "border-l-(--ct-border-strong)"
@@ -446,7 +446,7 @@ function CompactPanel({
       aria-busy={isPending}
       aria-label={`Scenario ${side}: ${presetLabel}`}
     >
-      <header className="flex flex-col gap-0.5">
+      <header className="admin-doc-stack--micro">
         <span className="eyebrow">Scenario {side}</span>
         <h3 className="h3 truncate" title={presetLabel}>
           {presetLabel}
@@ -488,7 +488,7 @@ export function OutputPanel(props: OutputPanelProps) {
   return (
     <div
       className={cn(
-        "relative space-y-5 transition-opacity duration-(--ct-dur-fast)",
+        "relative admin-doc-stack--roomy transition-opacity duration-(--ct-dur-fast)",
         isPending && "pointer-events-none opacity-50",
       )}
       aria-busy={isPending}

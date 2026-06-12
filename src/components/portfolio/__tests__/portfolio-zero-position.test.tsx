@@ -139,6 +139,7 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
       />,
     );
     expect(html).toContain("Snapshot pending");
+    expect(html).toContain("ct-panel-status");
     expect(html).toContain("Pending");
     expect(html).toContain("pf-risk-composite-pending");
     expect(html).toContain("pf-risk-composite-value");

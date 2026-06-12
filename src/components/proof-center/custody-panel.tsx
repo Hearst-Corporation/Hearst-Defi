@@ -1,6 +1,6 @@
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { Card } from "@/components/ui/card";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { PanelStatus } from "@/components/ui/panel-status";
 import { Metric } from "@/components/ui/metric";
 import { NestedKpiGrid } from "@/components/ui/nested-panel";
 import { DashboardPanelHeader } from "@/components/ui/system-panel";
@@ -106,7 +106,7 @@ export function CustodySection({
   if (nested) {
     return (
       <div className={cn(sectionDividerClass, "pt-6")}>
-        <EmptySurface variant="inline" {...CUSTODY_EMPTY} />
+        <PanelStatus {...CUSTODY_EMPTY} />
       </div>
     );
   }

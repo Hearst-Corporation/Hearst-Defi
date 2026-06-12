@@ -3,19 +3,20 @@
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
+import { env } from "@/lib/env";
 
 function getDocusignConfig(): {
   baseUrl: string;
   apiKey: string;
   accountId: string;
 } {
-  const baseUrl = process.env.DOCUSIGN_BASE_URL;
-  const apiKey = process.env.DOCUSIGN_API_KEY;
-  const accountId = process.env.DOCUSIGN_ACCOUNT_ID;
+  const baseUrl = env.DOCUSIGN_BASE_URL;
+  const apiKey = env.DOCUSIGN_API_KEY;
+  const accountId = env.DOCUSIGN_ACCOUNT_ID;
 
-  if (!baseUrl || !apiKey || !accountId) {
+  if (!apiKey || !accountId) {
     throw new Error(
-      "Missing DocuSign configuration. Set DOCUSIGN_BASE_URL, DOCUSIGN_API_KEY, and DOCUSIGN_ACCOUNT_ID.",
+      "Missing DocuSign configuration. Set DOCUSIGN_API_KEY and DOCUSIGN_ACCOUNT_ID.",
     );
   }
 

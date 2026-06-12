@@ -1,5 +1,6 @@
 import "server-only";
 
+import { z } from "zod";
 import { keccak256, toBytes } from "viem";
 
 import { inngest } from "@/lib/inngest/client";
@@ -9,6 +10,20 @@ import { isDuplicate, markComplete } from "@/lib/idempotency";
 import { writeHearstEvent } from "@/lib/chain/event-logger";
 import { DISTRIBUTION_EVENTS } from "@/lib/distribution/events";
 import type { DistributionExecutedPayload } from "@/lib/distribution/events";
+
+// ---------------------------------------------------------------------------
+// JOB-6: Zod schema for DistributionExecutedPayload — validates at handler
+// entry so a malformed event fails fast before touching emails or on-chain writes.
+// ---------------------------------------------------------------------------
+
+const DistributionExecutedPayloadSchema = z.object({
+  distributionId: z.string().min(1),
+  period: z.string().min(1),
+  amountUsdc: z.number().finite().nonnegative(),
+  ledgerEntriesCount: z.number().int().nonnegative(),
+  txHash: z.string().min(1),
+  executedAt: z.string().min(1),
+});
 
 /**
  * Distribution Executed — email fan-out consumer.
@@ -107,12 +122,27 @@ export async function distributionExecutedHandler({
   | { emailsSent: number; skippedNoEmail: number }
   | { skipped: true; reason: string }
 > {
-  const { distributionId, period, amountUsdc } = event.data;
+  // ── JOB-6: validate event.data with Zod before any work ───────────────────
+  const parseResult = DistributionExecutedPayloadSchema.safeParse(event.data);
+  if (!parseResult.success) {
+    const msg = parseResult.error.issues
+      .map((i) => `${i.path.join(".")}: ${i.message}`)
+      .join("; ");
+    logger.error("[distribution-executed] invalid event payload", { issues: msg, raw: event.data });
+    throw new Error(`[distribution-executed] malformed payload — ${msg}`);
+  }
+  const { distributionId, period, amountUsdc } = parseResult.data;
   const idempotencyKey = `distribution-emails-${distributionId}`;
   const today = new Date();
 
-  // ── 1. Idempotency check ──────────────────────────────────────────────────
-  if (await isDuplicate(idempotencyKey, today)) {
+  // ── 1. Idempotency check — wrapped in step.run so Inngest memoises it ─────
+  // Without step.run, a retry would re-execute isDuplicate and could write a
+  // duplicate audit row (markComplete). Wrapping guarantees the result is
+  // replayed from Inngest's step cache on retry.
+  const alreadyRun = await step.run("idempotency-check", () =>
+    isDuplicate(idempotencyKey, today),
+  );
+  if (alreadyRun) {
     return { skipped: true, reason: "already_run_today" };
   }
 
@@ -121,14 +151,17 @@ export async function distributionExecutedHandler({
   // path (which can early-return when RESEND is unset). No-op when the publisher
   // is disarmed (writeHearstEvent returns null without HEARST_PUBLISHER_PRIVATE_KEY).
   const mirrorKey = `distribution-onchain-${distributionId}`;
-  if (!(await isDuplicate(mirrorKey, today))) {
+  const mirrorAlreadyRun = await step.run("idempotency-check-mirror", () =>
+    isDuplicate(mirrorKey, today),
+  );
+  if (!mirrorAlreadyRun) {
     const contextHash = keccak256(
       toBytes(`distribution:${distributionId}:${period}`),
     );
     const txHash = await step.run("mirror-onchain-distribution", () =>
       writeHearstEvent({ kind: "Distribution", contextHash, payloadCid: "" }),
     );
-    await markComplete(mirrorKey, today);
+    await step.run("mark-complete-mirror", () => markComplete(mirrorKey, today));
     logger.info("[distribution-executed] on-chain mirror", {
       distributionId,
       armed: txHash !== null,
@@ -213,7 +246,7 @@ export async function distributionExecutedHandler({
     emailsSent += 1;
   }
 
-  await markComplete(idempotencyKey, today);
+  await step.run("mark-complete", () => markComplete(idempotencyKey, today));
 
   logger.info("[distribution-executed] email fan-out complete", {
     distributionId,

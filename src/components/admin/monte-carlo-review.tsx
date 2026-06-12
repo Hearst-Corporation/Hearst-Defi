@@ -11,6 +11,7 @@ import { useMemo } from "react";
 
 import { cn } from "@/lib/cn";
 import { runMonteCarlo } from "@/lib/engine/monte-carlo";
+import { formatUsdcGrouped } from "@/lib/vaults/product-display";
 
 // ---------------------------------------------------------------------------
 // VaultDraft — the slice of FormState the component needs
@@ -148,16 +149,16 @@ export function MonteCarloReview({
     <div
       className={cn(
         "rounded-lg border border-[var(--ct-border-soft)]",
-        "ct-surface-2 p-4 space-y-4",
+        "ct-surface-2 p-4 admin-doc-stack--relaxed",
         className,
       )}
       role="region"
       aria-label="Monte Carlo projection"
     >
       {/* Header */}
-      <div className="flex items-center justify-between gap-2">
+      <div className="admin-doc-inline-row admin-doc-inline-row--between">
         <p className="stat-label ct-text-muted">
-          Monte Carlo — 1y horizon ({result.paths.toLocaleString()} paths,
+          Monte Carlo — 1y horizon ({formatUsdcGrouped(result.paths)} paths,
           seed&nbsp;{result.seed})
         </p>
         <span
@@ -170,7 +171,7 @@ export function MonteCarloReview({
 
       {/* Percentile row — p5 · p50 · p95 */}
       <div
-        className="flex flex-wrap items-center gap-x-4 gap-y-2"
+        className="admin-doc-inline-row admin-doc-inline-row--relaxed"
         aria-label={`p5: ${fmtPct(p5)}%, p50: ${fmtPct(p50)}%, p95: ${fmtPct(p95)}%`}
       >
         <MetricCell label="p5" value={fmtPct(p5)} tone="muted" />
@@ -233,7 +234,7 @@ function MetricCell({ label, value, tone }: MetricCellProps) {
         : "tabular font-semibold text-sm ct-text-muted";
 
   return (
-    <div className="flex items-baseline gap-1.5">
+    <div className="admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--dense">
       <span className="stat-label ct-text-faint">{label}</span>
       <span className={valueClass}>
         {value}%

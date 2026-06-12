@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DistributionPreview } from "@/components/admin/distribution-preview";
+import { formatUsdDetailed } from "@/lib/vaults/product-display";
 import {
   computeDistribution,
   confirmDistribution,
@@ -157,8 +158,8 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
     vaultOptions.find((o) => o.value === selectedVault)?.label ?? selectedVault;
 
   return (
-    <div className="ct-card space-y-6">
-      <div className="space-y-1">
+    <div className="ct-card admin-doc-stack">
+      <div className="admin-doc-stack--compact">
         <h3 className="h3">Compute next distribution</h3>
         <p className="body-sm ct-text-muted">
           Dry-run computes pro-rata payouts from active positions. No DB writes
@@ -167,9 +168,9 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
       </div>
 
       {/* Inputs */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="admin-doc-form-grid-3">
         {/* Vault select */}
-        <div className="space-y-1">
+        <div className="admin-doc-stack--compact">
           <label className="stat-label" htmlFor="dist-vault">
             Vault
           </label>
@@ -194,7 +195,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
           </select>
         </div>
 
-        <div className="space-y-1">
+        <div className="admin-doc-stack--compact">
           <label className="stat-label" htmlFor="dist-period">
             Period (YYYY-MM)
           </label>
@@ -208,7 +209,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
             disabled={isPending}
           />
         </div>
-        <div className="space-y-1">
+        <div className="admin-doc-stack--compact">
           <label className="stat-label" htmlFor="dist-usdc">
             Total USDC
           </label>
@@ -252,7 +253,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
 
           {/* Multisig confirm */}
           {preview.recipients.length > 0 && (
-            <div className="space-y-3">
+            <div className="admin-doc-stack--actions">
               <p className="body-xs ct-text-muted">
                 Your multisig signature is recorded under your authenticated
                 admin identity. Two distinct admins must confirm the same amount.
@@ -268,28 +269,28 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
               )}
 
               {awaitingConfirm ? (
-                <Card className="space-y-4">
+                <Card className="admin-confirm-panel">
                   <h3 className="h3">Confirm distribution</h3>
-                  <div className="space-y-1">
-                    <div className="flex justify-between body-sm">
+                  <div className="admin-confirm-panel__rows">
+                    <div className="admin-confirm-panel__row body-sm">
                       <span className="ct-text-muted">Vault</span>
                       <span className="ct-text-body font-semibold">
                         {selectedVaultLabel}
                       </span>
                     </div>
-                    <div className="flex justify-between body-sm">
+                    <div className="admin-confirm-panel__row body-sm">
                       <span className="ct-text-muted">Period</span>
-                      <span className="ct-text-body font-semibold mono">
+                      <span className="mono ct-text-body font-semibold">
                         {period}
                       </span>
                     </div>
-                    <div className="flex justify-between body-sm">
+                    <div className="admin-confirm-panel__row body-sm">
                       <span className="ct-text-muted">Total USDC</span>
                       <span className="ct-text-strong font-bold tabular">
-                        ${totalUsdcNum.toLocaleString("en-US")} USDC
+                        {formatUsdDetailed(totalUsdcNum)} USDC
                       </span>
                     </div>
-                    <div className="flex justify-between body-sm">
+                    <div className="admin-confirm-panel__row body-sm">
                       <span className="ct-text-muted">Recipients</span>
                       <span className="ct-text-body tabular">
                         {preview.recipients.length}
@@ -301,7 +302,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
                     finalised once the required threshold is reached. Results
                     are not projected — see methodology v1.0.
                   </p>
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="admin-doc-inline-row">
                     <Button
                       variant="secondary"
                       onClick={() => setAwaitingConfirm(false)}
@@ -337,7 +338,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
 
       {/* Confirmed — finaliser succeeded */}
       {confirmResult?.confirmed && confirmResult.finisher !== "failed" && (
-        <div className="ct-status-success-bg px-4 py-3 rounded-xl space-y-1">
+        <div className="ct-status-success-bg px-4 py-3 rounded-xl admin-doc-stack--compact">
           <p className="body-sm ct-status-success font-semibold">
             Distribution confirmed for period {period}.
           </p>
@@ -352,8 +353,8 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
       {confirmResult?.confirmed &&
         confirmResult.finisher === "failed" &&
         confirmResult.distributionId && (
-          <div className="ct-status-warning-bg px-4 py-3 rounded-xl space-y-3">
-            <div className="space-y-1">
+          <div className="ct-status-warning-bg px-4 py-3 rounded-xl admin-doc-stack--actions">
+            <div className="admin-doc-stack--compact">
               <p className="body-sm ct-status-warning font-semibold">
                 Confirmed, but finalisation (ledger / PCAP / emails) failed —
                 retry below.

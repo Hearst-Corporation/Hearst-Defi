@@ -114,6 +114,7 @@ export async function miningHealthDailyHandler({
 export const miningHealthDaily = inngest.createFunction(
   {
     id: MINING_HEALTH_DAILY_ID,
+    concurrency: { limit: 1 },
     triggers: [{ cron: MINING_HEALTH_DAILY_CRON }],
   },
   miningHealthDailyHandler,

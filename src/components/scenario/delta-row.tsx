@@ -75,14 +75,14 @@ export function DeltaRow({ a, b }: DeltaRowProps) {
       )}
       aria-label="Scenario B vs A delta metrics"
     >
-      <div className="mb-3 flex items-center justify-between gap-4">
+      <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
         <p className="eyebrow">B vs A — Delta</p>
         <ProvenanceBadge kind="estimated" />
       </div>
 
       <div className="scenario-compare-delta__grid">
         {metrics.map((m) => (
-          <div key={m.label} className="flex flex-col gap-1">
+          <div key={m.label} className="admin-doc-stack--compact">
             <span className="stat-label text-micro">{m.label}</span>
             <span
               className={cn(

@@ -54,7 +54,7 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
   if (!ready) {
     return (
       <Card aria-busy="true" aria-label="Loading wallet connection">
-        <AwaitingMetricState message="Loading wallet connection…" />
+        <AwaitingMetricState variant="inline" message="Loading wallet connection…" />
       </Card>
     );
   }

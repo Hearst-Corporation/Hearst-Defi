@@ -85,8 +85,8 @@ type SliderProps = {
 function SliderField({ label, value, min, max, step, onChange, format }: SliderProps) {
   const fmt = format ?? ((v: number) => v.toFixed(2));
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between gap-2">
+    <div className="admin-doc-stack--dense">
+      <div className="admin-doc-inline-row admin-doc-inline-row--between">
         <span className="ct-form-label">{label}</span>
         <span className="mono tabular text-sm ct-text-primary">{fmt(value)}</span>
       </div>
@@ -100,7 +100,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
         className="w-full accent-(--ct-accent) h-1.5 rounded-full cursor-pointer"
         aria-label={label}
       />
-      <div className="flex justify-between eyebrow ct-text-faint">
+      <div className="admin-doc-row-spread eyebrow ct-text-faint">
         <span>{fmt(min)}</span>
         <span>{fmt(max)}</span>
       </div>
@@ -148,7 +148,7 @@ function AllocSliders({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="admin-doc-stack--actions">
       <div className="flex items-center justify-between">
         <span className="eyebrow ct-text-muted">Allocations</span>
         <span
@@ -196,7 +196,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
   const rows = is2D ? (yValues?.length ?? 1) : 1;
 
   return (
-    <div className="space-y-3">
+    <div className="admin-doc-stack--actions">
       {xAxis && (
         <p className="body-xs ct-text-muted">
           X: <span className="mono ct-text-body">{xAxis}</span>
@@ -208,7 +208,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
         </p>
       )}
       <div
-        className="grid gap-1.5"
+        className="admin-doc-grid-dense"
         style={{
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
           gridTemplateRows: `repeat(${rows}, auto)`,
@@ -235,7 +235,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
                 "hover:border-(--ct-border) hover:shadow-(--ct-shadow-elevated) focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
               )}
             >
-              <div className="flex flex-col gap-0.5">
+              <div className="admin-doc-stack--micro">
                 <span
                   className={cn("mono tabular text-xs font-semibold leading-tight", riskTextClass(cell.riskScore))}
                 >
@@ -474,9 +474,9 @@ export function ProjectionStudio() {
         <div className="projection-studio-input-divider" />
 
         {/* Batch mode toggle */}
-        <div className="space-y-3">
+        <div className="admin-doc-stack--actions">
           <p className="eyebrow ct-text-muted">Batch Mode</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="admin-doc-inline-row">
             {(
               [
                 { id: "none", label: "Single run" },
@@ -511,7 +511,7 @@ export function ProjectionStudio() {
         <div className="projection-studio-input-divider" />
 
         {/* Methodology version */}
-        <div className="space-y-2">
+        <div className="admin-doc-stack--tight">
           <p className="eyebrow ct-text-muted">Methodology</p>
           <select
             className="ct-select w-full"
@@ -581,7 +581,7 @@ export function ProjectionStudio() {
                 <p className="eyebrow ct-text-muted">Result scene</p>
                 <h3 className="h3 mt-1 ct-text-strong">Projection output</h3>
               </div>
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="admin-doc-inline-row">
                 <Badge variant="default">
                   Study {result.studyId.slice(-8)}
                 </Badge>
@@ -593,7 +593,7 @@ export function ProjectionStudio() {
 
             {/* Single run: KPI grid */}
             {result.runIds.length === 1 && selectedCell && (
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="admin-doc-form-grid-2">
                 <Metric
                   label="APY Range"
                   provenance="estimated"
@@ -633,7 +633,7 @@ export function ProjectionStudio() {
 
             {/* Selected cell detail (batch) */}
             {result.runIds.length > 1 && selectedCell && (
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="admin-doc-form-grid-2">
                 <Metric
                   label="Selected APY Range"
                   provenance="estimated"
@@ -673,7 +673,7 @@ export function ProjectionStudio() {
             </p>
 
             {/* Promote to vault draft */}
-            <div className="flex items-center gap-3">
+            <div className="admin-doc-inline-row admin-doc-inline-row--actions">
               <Button
                 variant="primary"
                 onClick={handlePromote}

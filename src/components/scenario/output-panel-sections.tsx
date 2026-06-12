@@ -50,7 +50,7 @@ export function ApyHero({
     <div
       className={cn(
         "flex flex-col items-end",
-        variant === "full" ? "gap-1.5" : "gap-1",
+        variant === "full" ? "admin-doc-stack--dense" : "admin-doc-stack--compact",
       )}
     >
       <span className={cn("stat-label", variant === "compact" && "text-micro")}>
@@ -73,13 +73,13 @@ export function ApyHero({
           <ProvenanceBadge kind="estimated" />
         </CardHeader>
 
-        <div className="flex flex-wrap items-end justify-between gap-4 pt-1">
+        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--end admin-doc-inline-row--relaxed flex-wrap pt-1">
           {apy}
           {confidence}
         </div>
 
         <div className="mt-4 border-t border-(--ct-border-soft) pt-4">
-          <div className="mb-3 flex items-center justify-between gap-2">
+          <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between">
             <span className="stat-label">Stressed APY</span>
             <ProvenanceBadge kind="estimated" />
           </div>
@@ -96,12 +96,12 @@ export function ApyHero({
 
   return (
     <div className="glass-panel-subtle p-5">
-      <div className="mb-3 flex items-start justify-between gap-4">
+      <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
         <h4 className="h4 ct-text-strong">Projected APY</h4>
         <ProvenanceBadge kind="estimated" />
       </div>
 
-      <div className="flex flex-wrap items-end justify-between gap-3 pt-1">
+      <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--end admin-doc-inline-row--actions flex-wrap pt-1">
         {apy}
         {confidence}
       </div>
@@ -142,14 +142,14 @@ function ScoreCard({
     <>
       <div
         className={cn(
-          "flex items-center justify-between gap-2",
+          "admin-doc-inline-row admin-doc-inline-row--between",
           variant === "full" ? "mb-3" : "mb-2",
         )}
       >
         <span className={labelCls}>{label}</span>
         <ProvenanceBadge kind="estimated" />
       </div>
-      <div className="mb-1 flex items-baseline gap-1">
+      <div className="mb-1 admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--tight">
         <span className={numberCls}>{value.toFixed(0)}</span>
         <span className={slashCls}>/100</span>
       </div>
@@ -197,7 +197,7 @@ export function ScoreGrid({
     <div
       className={cn(
         "grid sm:grid-cols-2",
-        variant === "full" ? "gap-4" : "gap-3",
+        variant === "full" ? "admin-doc-stack--relaxed" : "admin-doc-stack--actions",
       )}
     >
       <ScoreCard
@@ -232,7 +232,7 @@ export function VaultMode({
     <div
       className={cn(
         "flex items-center justify-between",
-        variant === "full" ? "gap-4" : "gap-3",
+        variant === "full" ? "admin-doc-stack--relaxed" : "admin-doc-stack--actions",
       )}
     >
       <div>
@@ -298,7 +298,7 @@ function AllocationTable({
       <div
         className={cn(
           "grid grid-cols-[1fr_auto_auto] text-micro font-semibold uppercase tracking-(--ct-tracking-wide) ct-text-muted",
-          variant === "full" ? "mb-2 gap-x-4" : "mb-1.5 gap-x-3",
+          variant === "full" ? "mb-2 admin-doc-inline-row--relaxed" : "mb-1.5 admin-doc-inline-row--actions",
         )}
       >
         <span>Bucket</span>
@@ -312,11 +312,11 @@ function AllocationTable({
             className={cn(
               "grid grid-cols-[1fr_auto_auto] items-center",
               variant === "full"
-                ? "gap-x-4 py-2.5 body-sm first:pt-1 last:pb-1"
-                : "gap-x-3 py-1.5 body-xs first:pt-0.5 last:pb-0.5",
+                ? "admin-doc-inline-row--relaxed py-2.5 body-sm first:pt-1 last:pb-1"
+                : "admin-doc-inline-row--actions py-1.5 body-xs first:pt-0.5 last:pb-0.5",
             )}
           >
-            <span className="flex min-w-0 items-center gap-2 ct-text-body">
+            <span className="admin-doc-inline-row min-w-0 ct-text-body">
               <span
                 className="inline-block h-2 w-2 shrink-0 rounded-full shadow-(--ct-glow-dot) bg-current"
                 style={{ color: BUCKET_COLOR[a.bucket] }}
@@ -384,7 +384,7 @@ export function AllocationSection({
 
   return (
     <div className="glass-panel-subtle p-4">
-      <div className="mb-3 flex items-start justify-between gap-4">
+      <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
         <h4 className="h4 ct-text-strong">Allocation</h4>
         <ProvenanceBadge kind="estimated" />
       </div>

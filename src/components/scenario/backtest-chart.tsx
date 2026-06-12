@@ -171,11 +171,11 @@ export function BacktestChart({ series }: BacktestChartProps) {
   });
 
   return (
-    <div className="relative flex w-full flex-col gap-2">
+    <div className="relative flex w-full admin-doc-stack--tight">
       <ChartProvenanceCorner kind="estimated" />
       {/* Header row */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex flex-col gap-0.5">
+      <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
+        <div className="admin-doc-stack--micro">
           <span className="text-xs font-medium uppercase tracking-wide ct-text-muted">
             NAV · Backtest series
           </span>
