@@ -111,7 +111,7 @@ export function AllocationDonut({
           </svg>
           <div className="donut-center">
             <span className="donut-val">
-              {formatUsdCompact(previewZeros && !hasAllocation ? 0 : totalValueUsdc)}
+              {formatUsdCompact(hasAllocation ? totalValueUsdc : 0)}
             </span>
             <span className="donut-lbl">Portfolio</span>
           </div>

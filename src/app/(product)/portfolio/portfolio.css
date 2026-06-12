@@ -234,7 +234,8 @@
    la hauteur de la colonne droite (3 cards). On plafonne sa hauteur ; le SVG
    interne (flex-1) suit. Padding des cellules = DS canonique (--ct-space-6),
    on n'y touche pas. */
-.pf-container:not(.pf-container--zero) [aria-label="Portfolio value — 12-month trend"] {
+.pf-container:not(.pf-container--zero) [aria-label="Portfolio value — 12-month trend"],
+.pf-container--zero [aria-label="Portfolio value — 12-month trend"] {
   min-height: 18rem;
 }
 
@@ -339,7 +340,10 @@
   }
 }
 
-.pf-container--zero [data-section="hero-pulse"],
+.pf-container--zero [data-section="hero-pulse"] {
+  min-height: 28rem;
+}
+
 .pf-container--zero [data-section="yield-trust"],
 .pf-container--zero [data-section="activity-payouts"] {
   min-height: unset;

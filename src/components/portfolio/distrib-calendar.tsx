@@ -14,6 +14,7 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { EmptyChartState } from "@/components/portfolio/empty-chart-state";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl } from "@/lib/chain/client";
+import { buildZeroDistribEntries } from "@/lib/portfolio/layout-preview";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 // ── Public types ──────────────────────────────────────────────────────────────
@@ -38,6 +39,8 @@ export interface DistribCalendarProps {
   /** Provenance metadata from the loader. */
   source?: "live" | "stale";
   updatedAt?: Date;
+  /** Render calendar shell with $0 bars (layout preview). */
+  previewZeros?: boolean;
 }
 
 // ── Formatting helpers (exported for tests) ───────────────────────────────────
@@ -281,6 +284,7 @@ export function DistribCalendar({
   asOf,
   source = "live",
   updatedAt,
+  previewZeros = false,
 }: DistribCalendarProps) {
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
@@ -288,17 +292,20 @@ export function DistribCalendar({
   // Derive current month period string "YYYY-MM"
   const currentPeriod = `${refYear}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
 
-  const hasEntries = entries.length > 0;
-  const hasForecast = entries.some((e) => e.paidAt === null);
+  const displayEntries =
+    entries.length > 0 ? entries : previewZeros ? buildZeroDistribEntries(refYear) : [];
+  const hasEntries = displayEntries.length > 0;
+  const hasForecast = displayEntries.some((e) => e.paidAt === null);
 
-  const badgeKind =
-    hasEntries && source === "live"
+  const badgeKind = previewZeros
+    ? "stale"
+    : hasEntries && source === "live"
       ? "attested"
       : resolveProvenance(source, updatedAt, "estimated");
 
   // No payout history → light placeholder only. The page section already labels
   // this slot "Payout calendar" — no dash-cell-premium shell or provenance badge.
-  if (!hasEntries) {
+  if (!hasEntries && !previewZeros) {
     return (
       <EmptyChartState
         message="Distribution history will appear after the first payout."
@@ -333,7 +340,7 @@ export function DistribCalendar({
 
       <div className="w-full overflow-hidden rounded-md relative z-10">
         <BarChart
-          entries={entries}
+          entries={displayEntries}
           refYear={refYear}
           currentPeriod={currentPeriod}
         />

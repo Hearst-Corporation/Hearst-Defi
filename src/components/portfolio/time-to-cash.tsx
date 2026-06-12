@@ -75,9 +75,9 @@ export function TimeToCash({
   const isStale =
     !previewZeros &&
     (source === "stale" || projectedUsdc === 0 || aprLow + aprHigh === 0);
-  
+
   const widgetProvenance = resolveProvenance(
-    previewZeros ? "stale" : isStale ? "stale" : source ?? "live",
+    previewZeros || isStale ? "stale" : (source ?? "live"),
     updatedAt,
     "estimated",
   );
@@ -95,10 +95,12 @@ export function TimeToCash({
     computeTimeToCash({ cycleStart, cycleDays, asOf: effectiveAsOf });
 
   const progressRounded = Math.round(progressPct);
-  const displayedProgressPct = isStale ? 0 : progressPct;
-  const displayedProgressLabel = isStale ? "Pending" : `${progressRounded}%`;
+  const displayedProgressPct = previewZeros ? 0 : isStale ? 0 : progressPct;
+  const displayedProgressLabel =
+    previewZeros || isStale ? "Pending" : `${progressRounded}%`;
 
-  const progressLabel = isStale
+  const progressLabel =
+    previewZeros || isStale
     ? "Distribution cycle unavailable until an active position and current yield are available."
     : `Distribution cycle progress: ${progressRounded}% — Day ${daysElapsed} of ${cycleDays}. ${
         daysRemaining === 0 && hoursRemaining === 0
@@ -107,11 +109,13 @@ export function TimeToCash({
       }`;
 
   const countdownText =
-    isStale
-      ? "Payout starts after activation"
-      : daysRemaining === 0 && hoursRemaining === 0
-      ? "Distribution reached"
-      : `~${usdcFmt.format(Math.round(projectedUsdc))} USDC in ${daysRemaining}d ${hoursRemaining}h`;
+    previewZeros
+      ? "$0 USDC projected"
+      : isStale
+        ? "Payout starts after activation"
+        : daysRemaining === 0 && hoursRemaining === 0
+          ? "Distribution reached"
+          : `~${usdcFmt.format(Math.round(projectedUsdc))} USDC in ${daysRemaining}d ${hoursRemaining}h`;
 
   return (
     <article
@@ -130,11 +134,11 @@ export function TimeToCash({
         <p
           className={cn(
             "stat-value tabular-nums mono break-words",
-            isStale
+            previewZeros || isStale
               ? "ct-text-primary"
               : daysRemaining === 0 && hoursRemaining === 0
-              ? "ct-status-success"
-              : "ct-text-primary",
+                ? "ct-status-success"
+                : "ct-text-primary",
           )}
           aria-live="polite"
           aria-atomic="true"
@@ -162,7 +166,7 @@ export function TimeToCash({
         {/* Day counter label */}
         <div className="flex items-center justify-between">
           <span className="body-xs tabular mono ct-text-muted ct-tabular-nums">
-            {isStale ? "Cycle pending" : `Day ${daysElapsed} of ${cycleDays}`}
+            {previewZeros || isStale ? "Cycle pending" : `Day ${daysElapsed} of ${cycleDays}`}
           </span>
           <span className="body-xs tabular mono ct-text-muted ct-tabular-nums">
             {displayedProgressLabel}
@@ -172,7 +176,7 @@ export function TimeToCash({
 
       {/* Disclosure -------------------------------------------------------- */}
       <p className="body-xs italic relative z-10 ct-text-faint">
-        {isStale ? (
+        {previewZeros || isStale ? (
           <>No payout projection until the first active position has current yield data.</>
         ) : (
           <>
@@ -185,7 +189,9 @@ export function TimeToCash({
       {/* Settings CTA ------------------------------------------------------ */}
       <div className="flex items-center justify-between border-t border-(--ct-border-soft) pt-2 mt-auto relative z-10">
         <span className="body-xs ct-text-muted">
-          {isStale ? "Projection pending" : `${formatUsdc(projectedUsdc)} USDC projected`}
+          {previewZeros || isStale
+            ? "Projection pending"
+            : `${formatUsdc(projectedUsdc)} USDC projected`}
         </span>
         <span className="body-xs ct-text-faint">Notifications after first payout</span>
       </div>

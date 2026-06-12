@@ -107,7 +107,6 @@ export function YieldStack({
       : [blendedHigh, blendedLow];
 
   const hasData = sources.length > 0;
-  const displaySources = hasData ? sources : previewZeros ? sources : [];
 
   const badgeKind = resolveProvenance(
     previewZeros && !hasData ? "stale" : source,
@@ -138,7 +137,7 @@ export function YieldStack({
         aria-hidden="true"
         role="presentation"
       >
-        {displaySources.map((s) => {
+        {sources.map((s) => {
           const widthPct = barWidthPct(s.contributionPct, maxAbsPct);
           const color = BUCKET_COLOR[s.bucket];
           const contribution = formatContribution(

@@ -4,6 +4,8 @@ import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underl
 import { EmptyChartState } from "@/components/portfolio/empty-chart-state";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
+import { cn } from "@/lib/cn";
+import { buildZeroValueChartSeries } from "@/lib/portfolio/layout-preview";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 /**
@@ -66,11 +68,15 @@ function toXY(
   max: number,
 ): Array<{ x: number; y: number }> {
   const n = values.length;
-  const span = max - min || 1;
   const innerH = VB_H - PAD_Y * 2;
+  // Degenerate flat series (e.g. layout preview at $0) — center in the viewport
+  // instead of pinning to the bottom edge where the stroke disappears.
+  const yMin = min === max ? min - 1 : min;
+  const yMax = min === max ? max + 1 : max;
+  const span = yMax - yMin || 1;
   return values.map((v, i) => ({
     x: PAD_X + (n === 1 ? VB_W / 2 : (i / (n - 1)) * (VB_W - PAD_X * 2)),
-    y: PAD_Y + innerH - ((v - min) / span) * innerH,
+    y: PAD_Y + innerH - ((v - yMin) / span) * innerH,
   }));
 }
 
@@ -187,22 +193,10 @@ export function ValueChart({
     updatedAt,
     "estimated",
   );
+  const chartValue = previewZeros && isEmpty ? 0 : totalValueUsdc;
   const series =
     previewZeros && isEmpty
-      ? Array.from({ length: 12 }, (_, i) => {
-          const d = new Date(
-            Date.UTC(
-              asOf.getUTCFullYear(),
-              asOf.getUTCMonth() - (11 - i),
-              1,
-            ),
-          );
-          return {
-            label: MONTHS[d.getUTCMonth() % 12] ?? "",
-            value: 0,
-            isDistribution: false,
-          };
-        })
+      ? buildZeroValueChartSeries(asOf)
       : buildMonthSeries(positions, totalValueUsdc, asOf);
 
   // No positions → light placeholder only. Do NOT wrap in dash-cell-premium with
@@ -223,18 +217,28 @@ export function ValueChart({
         <h3 className="h3">Portfolio value · indicative 12-month path</h3>
         <span className="dash-label-meta">
           <span className="dash-trend flat">
-            {formatUsdCompact(previewZeros && isEmpty ? 0 : totalValueUsdc)}
+            {formatUsdCompact(chartValue)}
           </span>
         </span>
       </div>
 
       <div
-        className="relative mt-3 block w-full flex-1 overflow-hidden rounded-md z-10 min-h-20"
+        className={cn(
+          "relative mt-3 block w-full flex-1 overflow-hidden rounded-md z-10",
+          previewZeros && isEmpty ? "min-h-32" : "min-h-20",
+        )}
       >
-        <ChartDisclaimerUnderlay />
+        {previewZeros && isEmpty ? (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-6 border-t border-(--ct-border-soft)"
+          />
+        ) : (
+          <ChartDisclaimerUnderlay />
+        )}
         <AreaChart
           series={series}
-          ariaLabel={`Portfolio value area chart, 12 months, current value ${formatUsdCompact(totalValueUsdc)}`}
+          ariaLabel={`Portfolio value area chart, 12 months, current value ${formatUsdCompact(chartValue)}`}
         />
       </div>
 
@@ -247,7 +251,9 @@ export function ValueChart({
       </div>
 
       <p className="body-xs ct-text-muted mt-2 italic relative z-10">
-        Indicative path derived from subscribed principal and current value. Past performance does not predict future results.
+        {previewZeros && isEmpty
+          ? "Layout preview at zero — path populates after your first active position."
+          : "Indicative path derived from subscribed principal and current value. Past performance does not predict future results."}
       </p>
     </article>
   );

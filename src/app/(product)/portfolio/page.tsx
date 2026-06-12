@@ -26,13 +26,22 @@ import { TimeToCash } from "@/components/portfolio/time-to-cash";
 import { RiskPulse } from "@/components/portfolio/risk-pulse";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { ProofPulse } from "@/components/portfolio/proof-pulse";
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { YieldStack } from "@/components/portfolio/yield-stack";
+import { LayoutPreviewBanner } from "@/components/portfolio/layout-preview-banner";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
 import { SecurityPulse } from "@/components/portfolio/security-pulse";
 import { MotionViewport } from "@/components/ui/motion-viewport";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
+import {
+  ZERO_YIELD_STACK,
+  isLayoutPreview,
+  isProofPulseEmpty,
+  isRiskPulseEmpty,
+  zeroLockMeterProps,
+  zeroProofPulseProps,
+  zeroTimeToCashProps,
+} from "@/lib/portfolio/layout-preview";
 import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +51,6 @@ export const metadata = {
   description: "Your positions and distributions",
 };
 
-/** Derive a friendly display name from the investor identity. */
 function displayName(
   investor: { email: string | null; walletAddress: string | null } | null,
 ): string {
@@ -60,7 +68,8 @@ interface HeroKpiTableProps {
   totalYieldYtdUsdc: number;
   nextDistributionAt: Date;
   hasPositions: boolean;
-  compact?: boolean;
+  /** Layout preview: $0 and scheduled date instead of em-dashes. */
+  previewZeros?: boolean;
 }
 
 function HeroKpiTable({
@@ -68,7 +77,7 @@ function HeroKpiTable({
   totalYieldYtdUsdc,
   nextDistributionAt,
   hasPositions,
-  compact = false,
+  previewZeros = false,
 }: HeroKpiTableProps) {
   const fmt = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -83,32 +92,25 @@ function HeroKpiTable({
   });
 
   const now = new Date();
-  const diffTime = Math.max(0, nextDistributionAt.getTime() - now.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diffDays = Math.ceil(
+    Math.max(0, nextDistributionAt.getTime() - now.getTime()) /
+      (1000 * 60 * 60 * 24),
+  );
+
+  const showValues = hasPositions || previewZeros;
 
   return (
-    <div
-      className={cn("flex flex-col", compact ? "gap-3" : "gap-6")}
-      aria-label="Key metrics summary"
-    >
+    <div className="flex flex-col gap-6" aria-label="Key metrics summary">
       <span className="stat-label ct-text-accent">Key metrics</span>
 
-      <div
-        className={cn(
-          "grid gap-4",
-          compact ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 gap-6",
-        )}
-      >
+      <div className="grid grid-cols-1 gap-6">
         <div className="flex flex-col gap-1">
           <span className="stat-label">Position value</span>
           <div className="dash-value-group">
-            <span
-              className={cn(
-                "dash-value tabular-nums",
-                compact ? "text-xl" : "text-3xl",
-              )}
-            >
-              {totalValueUsdc > 0 ? fmt.format(totalValueUsdc) : "—"}
+            <span className="dash-value tabular-nums text-3xl">
+              {showValues
+                ? fmt.format(previewZeros ? 0 : totalValueUsdc)
+                : "—"}
             </span>
             <span className="dash-unit">USDC</span>
           </div>
@@ -118,7 +120,9 @@ function HeroKpiTable({
           <span className="stat-label">Yield YTD</span>
           <div className="dash-value-group">
             <span className="dash-value tabular-nums">
-              {hasPositions ? formatUsdCompact(totalYieldYtdUsdc) : "—"}
+              {showValues
+                ? formatUsdCompact(previewZeros ? 0 : totalYieldYtdUsdc)
+                : "—"}
             </span>
             <span className="dash-unit">USDC</span>
           </div>
@@ -128,12 +132,12 @@ function HeroKpiTable({
           <span className="stat-label">Next distribution</span>
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="dash-value tabular-nums">
-              {hasPositions ? monthDayFmt.format(nextDistributionAt) : "—"}
+              {showValues ? monthDayFmt.format(nextDistributionAt) : "—"}
             </span>
             {hasPositions && diffDays > 0 ? (
               <span className="pf-chip-accent shrink-0">{diffDays}d left</span>
-            ) : !hasPositions ? (
-              <span className="body-xs ct-text-faint shrink-0">After first position</span>
+            ) : previewZeros ? (
+              <span className="body-xs ct-text-faint shrink-0">Preview</span>
             ) : null}
           </div>
         </div>
@@ -142,46 +146,12 @@ function HeroKpiTable({
   );
 }
 
-/** Compact trust preview rows — zero-position only (no large empty cards). */
-function ZeroTrustRows() {
-  const rows = [
-    {
-      id: "risk-pulse-widget",
-      label: "Risk profile",
-      hint: "Risk scores will appear after the first snapshot.",
-    },
-    {
-      id: "proof-pulse-widget",
-      label: "Proof of reserves",
-      hint: "No attestation published yet — appears after vault activity is attested.",
-    },
-    {
-      id: "security-pulse-widget",
-      label: "Security audit",
-      hint: "Security status will appear after account verification.",
-    },
-  ] as const;
-
-  return (
-    <ul className="pf-zero-trust-list">
-      {rows.map((row) => (
-        <li key={row.id} data-testid={row.id} className="pf-zero-trust-row">
-          <span className="stat-label ct-text-accent">{row.label}</span>
-          <p className="body-xs ct-text-faint m-0">{row.hint}</p>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 export default async function PortfolioPage() {
-  const [investor, loadedData] = await Promise.all([
-    getInvestor(),
-    loadPortfolio(),
-  ]);
+  const [investor, data] = await Promise.all([getInvestor(), loadPortfolio()]);
 
-  const data = loadedData;
   const hasPositions = data.positions.length > 0;
+  const previewZeros = isLayoutPreview(hasPositions);
+  const previewAsOf = new Date();
 
   const [
     lockMeterProps,
@@ -203,12 +173,6 @@ export default async function PortfolioPage() {
       : Promise.resolve(false),
   ]);
 
-  const name = displayName(investor);
-
-  /** Both widgets empty — skip fake 8/4 chart/donut placeholders (DS §9). */
-  const yieldAllocationRowEmpty =
-    yieldStackProps.sources.length === 0 && data.totalValueUsdc <= 0;
-
   const actionFlags = {
     kycStatus: investor?.kycStatus ?? "pending",
     accreditationAttested: investor?.accreditationAttestedAt != null,
@@ -216,237 +180,175 @@ export default async function PortfolioPage() {
     positionCount: data.positions.length,
   };
 
-  const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
-  const showNextAction = shouldShowNextActionCard(actionFlags);
-  const useLightSections = !hasPositions;
-  const activityPayoutsEmpty =
-    data.recentTransactions.length === 0 && distribCalendarProps.entries.length === 0;
+  const portfolioProvenance = resolveProvenance(
+    previewZeros ? "stale" : data.source,
+    data.updatedAt,
+  );
+
+  const yieldStack =
+    previewZeros && yieldStackProps.sources.length === 0
+      ? ZERO_YIELD_STACK
+      : yieldStackProps;
+
+  const riskPulse =
+    previewZeros && isRiskPulseEmpty(riskPulseProps)
+      ? { ...riskPulseProps, source: "stale" as const }
+      : riskPulseProps;
+
+  const proofPulse =
+    previewZeros && isProofPulseEmpty(proofPulseProps)
+      ? zeroProofPulseProps(previewAsOf)
+      : proofPulseProps;
 
   return (
     <div
-      className={cn("pf-container", !hasPositions && "pf-container--zero")}
+      className={cn("pf-container", previewZeros && "pf-container--zero")}
       data-testid="portfolio-page"
     >
       {showDemoBanner ? <DemoDataBanner /> : null}
 
-      <PortfolioGreeting name={name} data={data} />
+      <PortfolioGreeting name={displayName(investor)} data={data} />
 
-      {showNextAction ? <NextActionCard {...actionFlags} /> : null}
+      {previewZeros ? <LayoutPreviewBanner /> : null}
+
+      {shouldShowNextActionCard(actionFlags) ? (
+        <NextActionCard {...actionFlags} />
+      ) : null}
 
       <MotionViewport>
-        {useLightSections ? (
-          <section
-            data-section="hero-pulse"
-            className="pf-section-light pf-section-light--compact"
-            aria-label="Performance and liquidity"
-          >
-            <div className="pf-zero-section-head">
-              <h3 className="h3 m-0">Performance &amp; Liquidity</h3>
-              <p className="pf-zero-lead body-sm ct-text-muted m-0">
-                Value trend, payout timing, and lock progress populate after your
-                first active position.
-              </p>
+        <MergedSurface
+          title="Performance & Liquidity"
+          provenance={portfolioProvenance}
+          showProvenance
+          data-section="hero-pulse"
+        >
+          <div className="grid grid-cols-12 gap-8">
+            <div className="col-span-12 lg:col-span-8">
+              <ValueChart
+                positions={data.positions}
+                totalValueUsdc={data.totalValueUsdc}
+                source={data.source}
+                updatedAt={data.updatedAt}
+                previewZeros={previewZeros}
+              />
             </div>
-            <div className="pf-zero-hero-body">
+            <div className="col-span-12 lg:col-span-4 flex flex-col gap-8">
               <HeroKpiTable
                 totalValueUsdc={data.totalValueUsdc}
                 totalYieldYtdUsdc={data.totalYieldYtdUsdc}
                 nextDistributionAt={data.nextDistributionAt}
                 hasPositions={hasPositions}
-                compact
+                previewZeros={previewZeros}
               />
-              <div className="pf-zero-liquidity">
+              <div className="flex flex-col gap-6 pt-6 border-t border-(--ct-border-soft)">
                 <span className="stat-label ct-text-accent">Liquidity status</span>
-                <div className="pf-zero-await" data-testid="liquidity-awaiting">
-                  <AwaitingMetricState
-                    message="Distribution cycle and lock terms appear after your first active position."
-                    detail="Payout timing, soft lock-up progress, and unlock dates populate once share-class terms are confirmed."
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-        ) : (
-          <MergedSurface
-            title="Performance & Liquidity"
-            provenance={portfolioProvenance}
-            showProvenance
-            data-section="hero-pulse"
-          >
-            <div className="grid grid-cols-12 gap-8">
-              <div className="col-span-12 lg:col-span-8">
-                <ValueChart
-                  positions={data.positions}
-                  totalValueUsdc={data.totalValueUsdc}
-                  source={data.source}
-                  updatedAt={data.updatedAt}
+                <TimeToCash
+                  {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
+                  previewZeros={previewZeros}
+                />
+                <LockMeter
+                  {...(previewZeros ? zeroLockMeterProps(previewAsOf) : lockMeterProps)}
+                  previewZeros={previewZeros}
                 />
               </div>
-              <div className="col-span-12 lg:col-span-4 flex flex-col gap-8">
-                <HeroKpiTable
-                  totalValueUsdc={data.totalValueUsdc}
-                  totalYieldYtdUsdc={data.totalYieldYtdUsdc}
-                  nextDistributionAt={data.nextDistributionAt}
-                  hasPositions={hasPositions}
-                />
-                <div className="flex flex-col gap-6 pt-6 border-t border-(--ct-border-soft)">
-                  <span className="stat-label ct-text-accent">Liquidity status</span>
-                  <TimeToCash {...timeToCashProps} />
-                  <LockMeter {...lockMeterProps} />
-                </div>
-              </div>
             </div>
-          </MergedSurface>
-        )}
+          </div>
+        </MergedSurface>
       </MotionViewport>
 
       <MotionViewport>
         <div className="flex flex-col gap-4">
           <div className="dash-bento" data-section="yield-allocation">
-            {yieldAllocationRowEmpty ? (
-              <div
-                className="bento-col-12 pf-zero-await"
-                data-testid="yield-allocation-empty"
-              >
-                <AwaitingMetricState
-                  message="Yield and allocation appear after your first active position."
-                  detail="The forward yield stack and position breakdown populate once deposited capital is confirmed."
-                />
-              </div>
-            ) : (
-              <>
-                <div className="bento-col-8" data-testid="yield-stack-widget">
-                  <YieldStack {...yieldStackProps} />
-                </div>
-                <div className="bento-col-4" data-testid="allocation-donut-widget">
-                  <AllocationDonut
-                    positions={data.positions}
-                    totalValueUsdc={data.totalValueUsdc}
-                    source={data.source}
-                    updatedAt={data.updatedAt}
-                  />
-                </div>
-              </>
-            )}
+            <div className="bento-col-8" data-testid="yield-stack-widget">
+              <YieldStack
+                {...yieldStack}
+                previewZeros={previewZeros && yieldStackProps.sources.length === 0}
+              />
+            </div>
+            <div className="bento-col-4" data-testid="allocation-donut-widget">
+              <AllocationDonut
+                positions={data.positions}
+                totalValueUsdc={data.totalValueUsdc}
+                source={data.source}
+                updatedAt={data.updatedAt}
+                previewZeros={previewZeros}
+              />
+            </div>
           </div>
 
-          {useLightSections ? (
-            <section
-              data-section="yield-trust"
-              className="pf-section-light pf-section-light--compact"
-              aria-label="Yield and trust pulse"
-            >
-              <div className="pf-zero-section-head">
-                <h3 className="h3 m-0">Yield &amp; Trust Pulse</h3>
-                <p className="pf-zero-lead body-sm ct-text-muted m-0">
-                  Risk, proof, and security signals unlock as the vault operates
-                  and your account is verified.
-                </p>
+          <MergedSurface
+            title="Yield & Trust Pulse"
+            provenance={portfolioProvenance}
+            showProvenance
+            data-section="yield-trust"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+              <div data-testid="risk-pulse-widget" className="flex flex-col gap-4">
+                <span className="stat-label ct-text-accent">Risk profile</span>
+                <RiskPulse
+                  {...riskPulse}
+                  previewZeros={previewZeros && isRiskPulseEmpty(riskPulseProps)}
+                />
               </div>
-              <ZeroTrustRows />
-            </section>
-          ) : (
-            <MergedSurface
-              title="Yield & Trust Pulse"
-              provenance={portfolioProvenance}
-              showProvenance
-              data-section="yield-trust"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                <div data-testid="risk-pulse-widget" className="flex flex-col gap-4">
-                  <span className="stat-label ct-text-accent">Risk profile</span>
-                  <RiskPulse {...riskPulseProps} />
-                </div>
-                <div data-testid="proof-pulse-widget" className="flex flex-col gap-4">
-                  <span className="stat-label ct-text-accent">Proof of reserves</span>
-                  <ProofPulse {...proofPulseProps} />
-                </div>
-                <div data-testid="security-pulse-widget" className="flex flex-col gap-4">
-                  <span className="stat-label ct-text-accent">Security audit</span>
-                  <SecurityPulse />
-                </div>
+              <div data-testid="proof-pulse-widget" className="flex flex-col gap-4">
+                <span className="stat-label ct-text-accent">Proof of reserves</span>
+                <ProofPulse
+                  {...proofPulse}
+                  previewZeros={previewZeros && isProofPulseEmpty(proofPulseProps)}
+                />
               </div>
-            </MergedSurface>
-          )}
+              <div data-testid="security-pulse-widget" className="flex flex-col gap-4">
+                <span className="stat-label ct-text-accent">Security audit</span>
+                <SecurityPulse previewZeros={previewZeros} />
+              </div>
+            </div>
+          </MergedSurface>
         </div>
       </MotionViewport>
 
       <MotionViewport>
         <div className="flex flex-col gap-4">
-          {hasPositions ? (
-            <div className="dash-bento">
-              <div className="bento-col-12">
-                <PositionsList
-                  positions={data.positions}
+          <div className="dash-bento">
+            <div className="bento-col-12">
+              <PositionsList
+                positions={data.positions}
+                source={data.source}
+                updatedAt={data.updatedAt}
+                previewZeros={previewZeros}
+              />
+            </div>
+          </div>
+
+          <MergedSurface
+            title="Activity & Payouts"
+            provenance={portfolioProvenance}
+            showProvenance
+            data-section="activity-payouts"
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+              <div className="lg:col-span-8 flex flex-col gap-4">
+                <span className="stat-label ct-text-accent">Recent transactions</span>
+                <RecentActivity
+                  transactions={data.recentTransactions}
                   source={data.source}
                   updatedAt={data.updatedAt}
+                  previewZeros={previewZeros}
+                />
+              </div>
+              <div
+                className="lg:col-span-4 flex flex-col gap-4"
+                data-testid="distrib-calendar-widget"
+              >
+                <span className="stat-label ct-text-accent">Payout calendar</span>
+                <DistribCalendar
+                  {...distribCalendarProps}
+                  previewZeros={
+                    previewZeros && distribCalendarProps.entries.length === 0
+                  }
                 />
               </div>
             </div>
-          ) : null}
-
-          {useLightSections ? (
-            <section
-              data-section="activity-payouts"
-              className="pf-section-light pf-section-light--compact"
-              aria-label="Activity and payouts"
-            >
-              <div className="pf-zero-section-head">
-                <h3 className="h3 m-0">Activity &amp; Payouts</h3>
-              </div>
-              {activityPayoutsEmpty ? (
-                <div className="pf-zero-await" data-testid="activity-payouts-empty">
-                  <AwaitingMetricState
-                    message="Transactions and payout history appear after your first active position."
-                    detail="Recent deposits, distributions, and the payout calendar populate once capital is active."
-                  />
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                  <div className="lg:col-span-8 flex flex-col gap-3">
-                    <span className="stat-label ct-text-accent">Recent transactions</span>
-                    <RecentActivity
-                      transactions={data.recentTransactions}
-                      source={data.source}
-                      updatedAt={data.updatedAt}
-                    />
-                  </div>
-                  <div
-                    className="lg:col-span-4 flex flex-col gap-3"
-                    data-testid="distrib-calendar-widget"
-                  >
-                    <span className="stat-label ct-text-accent">Payout calendar</span>
-                    <DistribCalendar {...distribCalendarProps} />
-                  </div>
-                </div>
-              )}
-            </section>
-          ) : (
-            <MergedSurface
-              title="Activity & Payouts"
-              provenance={portfolioProvenance}
-              showProvenance
-              data-section="activity-payouts"
-            >
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                <div className="lg:col-span-8 flex flex-col gap-4">
-                  <span className="stat-label ct-text-accent">Recent transactions</span>
-                  <RecentActivity
-                    transactions={data.recentTransactions}
-                    source={data.source}
-                    updatedAt={data.updatedAt}
-                  />
-                </div>
-                <div
-                  className="lg:col-span-4 flex flex-col gap-4"
-                  data-testid="distrib-calendar-widget"
-                >
-                  <span className="stat-label ct-text-accent">Payout calendar</span>
-                  <DistribCalendar {...distribCalendarProps} />
-                </div>
-              </div>
-            </MergedSurface>
-          )}
+          </MergedSurface>
         </div>
       </MotionViewport>
 

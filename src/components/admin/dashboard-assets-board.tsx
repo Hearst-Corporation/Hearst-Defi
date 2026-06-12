@@ -140,10 +140,6 @@ export function DashboardAssetsBoard({
           navDelta={navDelta}
           navProvenance={navProvenance}
         />
-
-        <Card className="dashboard-command-slot dashboard-command-slot--proof">
-          <ProofPulse proof={proof} proofFresh={proofFresh} custodyUsdc={proof.custodyReservesUsdc} />
-        </Card>
       </div>
 
       <div className="dashboard-command-row-b">
@@ -210,6 +206,10 @@ export function DashboardAssetsBoard({
             ariaLabel="Distribution awaiting first record"
           />
         )}
+
+        <Card className="dashboard-command-cell">
+          <ProofPulse proof={proof} proofFresh={proofFresh} custodyUsdc={proof.custodyReservesUsdc} />
+        </Card>
       </div>
 
       {trackedActions.length > 0 ? (
@@ -429,16 +429,16 @@ function ProofPulse({
   proofFresh: boolean;
   custodyUsdc: number;
 }) {
+  const provenance: Provenance = proofFresh
+    ? "attested"
+    : proof.attestationsCount > 0
+      ? "stale"
+      : "manual";
+
   return (
-    <div className="dashboard-proof-pulse">
-      <div className="dashboard-card-header dashboard-card-header--tight">
-        <span className="eyebrow min-w-0">Proof & custody</span>
-        <ProvenanceBadge
-          kind={proofFresh ? "attested" : proof.attestationsCount > 0 ? "stale" : "manual"}
-          compact
-        />
-      </div>
-      <ul className="mt-2 flex flex-col gap-1.5 body-xs" role="list">
+    <>
+      <CellHeader title="Proof & custody" provenance={provenance} />
+      <ul className="flex flex-col gap-1.5 body-xs" role="list">
         <li>
           <Link href={adminNavLinks.proofCenter()} className="ct-text-accent hover:underline">
             Proof Center
@@ -474,7 +474,7 @@ function ProofPulse({
           )}
         </li>
       </ul>
-    </div>
+    </>
   );
 }
 
@@ -487,17 +487,7 @@ function DistributionPanel({
 
   return (
     <>
-      <div className="dashboard-card-header mb-4">
-        <div className="min-w-0">
-          <h2 className="h3">Distribution</h2>
-          <p className="body-xs ct-text-muted mt-1">
-            <Link href={adminNavLinks.distributions()} className="ct-text-accent hover:underline">
-              Open distributions
-            </Link>
-          </p>
-        </div>
-        <ProvenanceBadge kind={provenance} compact />
-      </div>
+      <CellHeader title="Distribution" provenance={provenance} />
       <dl className="flex flex-col gap-2 body-sm">
         <div className="flex justify-between gap-2">
           <dt className="ct-text-muted">Period</dt>
@@ -520,8 +510,13 @@ function DistributionPanel({
           </dd>
         </div>
       </dl>
+      <p className="mt-3 body-xs ct-text-muted">
+        <Link href={adminNavLinks.distributions()} className="ct-text-accent hover:underline">
+          Open distributions
+        </Link>
+      </p>
       {distribution.synthesized ? (
-        <p className="mt-3 body-xs ct-text-faint">Indicative projection — not a committed payout.</p>
+        <p className="mt-2 body-xs ct-text-faint">Indicative projection — not a committed payout.</p>
       ) : null}
     </>
   );

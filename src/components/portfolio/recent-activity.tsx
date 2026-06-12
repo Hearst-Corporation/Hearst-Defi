@@ -1,4 +1,5 @@
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { PreviewWidgetShell } from "@/components/portfolio/preview-widget-shell";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
@@ -51,21 +52,45 @@ interface RecentActivityProps {
   transactions: PortfolioTransaction[];
   source: "live" | "fallback";
   updatedAt?: Date;
+  /** Render activity shell with empty list (layout preview). */
+  previewZeros?: boolean;
 }
 
 /**
  * 5 latest transactions with icon, type, amount, and relative time.
  * ProvenanceBadge on the header (CLAUDE.md non-negotiable #2).
  */
-export function RecentActivity({ transactions, source, updatedAt }: RecentActivityProps) {
-  const provenance = resolveProvenance(source, updatedAt);
+export function RecentActivity({
+  transactions,
+  source,
+  updatedAt,
+  previewZeros = false,
+}: RecentActivityProps) {
+  const provenance = resolveProvenance(
+    previewZeros && transactions.length === 0 ? "stale" : source,
+    updatedAt,
+  );
   // Server-rendered timestamp keeps relative labels current without client JS.
   const asOf = new Date();
   const displayed = transactions.slice(0, 5);
 
-  if (displayed.length === 0) {
+  if (displayed.length === 0 && !previewZeros) {
     return (
       <AwaitingMetricState message="No transactions yet." />
+    );
+  }
+
+  if (displayed.length === 0 && previewZeros) {
+    return (
+      <PreviewWidgetShell
+        title="Recent activity"
+        provenance={provenance}
+        ariaLabel="Recent account activity"
+      >
+        <p className="body-sm ct-text-faint py-6 text-center m-0 mt-3">
+          No transactions yet — deposits and payouts will appear here.
+        </p>
+      </PreviewWidgetShell>
     );
   }
 

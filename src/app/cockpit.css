@@ -1278,10 +1278,6 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   gap: var(--ct-space-2);
 }
 
-.dashboard-card-header--tight {
-  align-items: center;
-}
-
 .dashboard-kpi-strip__value {
   font-size: var(--ct-text-lg);
   font-weight: var(--ct-font-bold);
@@ -1387,10 +1383,6 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   align-items: center;
   justify-content: space-between;
   gap: var(--ct-space-3);
-}
-
-.dashboard-proof-pulse {
-  min-width: 0;
 }
 
 .dashboard-command-row-b {
@@ -1731,7 +1723,7 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 
 @container dash-board (min-width: 36rem) {
   .dashboard-command-row-b {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 0.9fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .dashboard-command-row-c {
@@ -1739,13 +1731,16 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   }
 }
 
-/* Orbit | NAV | proof — needs ~40rem board or NAV collapses (~120px at 1024 viewport). */
+@container dash-board (min-width: 48rem) {
+  .dashboard-command-row-b {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Orbit | NAV — needs ~40rem board or NAV collapses (~120px at 1024 viewport). */
 @container dash-board (min-width: 40rem) {
   .dashboard-command-row-a {
-    grid-template-columns:
-      minmax(7rem, 0.22fr)
-      minmax(11rem, 0.48fr)
-      minmax(8rem, 0.3fr);
+    grid-template-columns: minmax(7rem, 0.28fr) minmax(11rem, 1fr);
     align-items: stretch;
   }
 
