@@ -267,7 +267,6 @@
   justify-content: space-between;
   border-bottom: 1px solid color-mix(in srgb, var(--ct-text-strong) 10%, var(--ct-border-soft));
   padding-bottom: var(--ct-space-4);
-  margin-bottom: var(--ct-space-6);
 }
 
 .pf-merged-header .h3 {
@@ -329,19 +328,9 @@
   gap: var(--ct-space-4);
 }
 
-/* Zero-position — tighter vertical rhythm, no forced section heights */
-.pf-container--zero {
-  gap: var(--ct-space-3);
-}
-
-@media (min-width: 768px) {
-  .pf-container--zero {
-    gap: var(--ct-space-4);
-  }
-}
-
+/* Zero-position — same vertical rhythm as populated; no forced section heights */
 .pf-container--zero [data-section="hero-pulse"] {
-  min-height: 28rem;
+  min-height: unset;
 }
 
 .pf-container--zero [data-section="yield-trust"],
@@ -426,69 +415,3 @@
   min-height: 12rem;
 }
 
-/* ───────────────────────────────────────────────────────────────────────────
-   FOND UNIFORME — toutes les box du portfolio prennent le verre translucide
-   NOIR de la barre de chat (.ct-rail-right) : même couleur, même profondeur,
-   même aspect. On remplace le gradient vert + pattern de points de
-   dash-cell-premium par le verre bg-deep 68→80% + blur. Bordure douce
-   identique au chat, pas de hover qui change le fond, pas de sheen.
-
-   Override LOCAL (scopé .pf-container) demandé explicitement — ne touche pas
-   le dash-cell global des autres surfaces.
-   ─────────────────────────────────────────────────────────────────────────── */
-.pf-container .dash-cell,
-.pf-container .dash-cell-premium {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 68%, transparent) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 80%, transparent) 100%
-    ) !important;
-  background-image:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 68%, transparent) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 80%, transparent) 100%
-    ) !important;
-  background-size: auto !important;
-  backdrop-filter: blur(28px) saturate(100%);
-  -webkit-backdrop-filter: blur(28px) saturate(100%);
-  border: 1px solid color-mix(in srgb, var(--ct-text-strong) 7%, var(--ct-border-soft)) !important;
-}
-
-/* Hover : on garde le MÊME fond (pas de flash), aspect constant. */
-.pf-container .dash-cell:hover {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 68%, transparent) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 80%, transparent) 100%
-    ) !important;
-  border-color: color-mix(in srgb, var(--ct-text-strong) 7%, var(--ct-border-soft)) !important;
-}
-
-/* Neutralise le sheen diagonal (::after) du dash-cell pour un noir plat net. */
-.pf-container .dash-cell::after {
-  display: none;
-}
-
-/* Subtle ambient glows using accent color #A7FB90 */
-.pf-container::before {
-  content: "";
-  position: absolute;
-  inset: -5% -2%;
-  z-index: -1;
-  background: 
-    radial-gradient(
-      circle at 15% 20%,
-      color-mix(in srgb, var(--ct-accent) 7%, transparent) 0%,
-      transparent 40%
-    ),
-    radial-gradient(
-      circle at 85% 60%,
-      color-mix(in srgb, var(--ct-accent) 5%, transparent) 0%,
-      transparent 45%
-    );
-  pointer-events: none;
-  filter: blur(80px);
-}

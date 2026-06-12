@@ -11,26 +11,27 @@ const PREVIEW_ROWS = [
 export interface SecurityPulseProps {
   /** Render structural shell at placeholder values (layout preview). */
   previewZeros?: boolean;
+  /** Inside MergedSurface — parent supplies section label; no nested dash-cell. */
+  embedded?: boolean;
 }
 
 /**
  * Security posture summary. Live values require a verified backend feed;
  * layout preview shows the shell at em-dash placeholders with Stale provenance.
  */
-export function SecurityPulse({ previewZeros = false }: SecurityPulseProps) {
+export function SecurityPulse({
+  previewZeros = false,
+  embedded = false,
+}: SecurityPulseProps) {
   if (!previewZeros) {
     return (
       <AwaitingMetricState message="Security status will appear after account verification." />
     );
   }
 
-  return (
-    <PreviewWidgetShell
-      title="Security posture"
-      provenance="stale"
-      ariaLabel="Security posture"
-    >
-      <ul className="flex flex-col gap-2 relative z-10 m-0 mt-3 p-0 list-none">
+  const previewBody = (
+    <>
+      <ul className="flex flex-col gap-2 relative z-10 m-0 p-0 list-none">
         {PREVIEW_ROWS.map((row) => (
           <li
             key={row.label}
@@ -41,9 +42,27 @@ export function SecurityPulse({ previewZeros = false }: SecurityPulseProps) {
           </li>
         ))}
       </ul>
-      <p className="mt-auto pt-4 body-xs italic ct-text-faint">
+      <p className="mt-auto pt-4 body-xs italic ct-text-faint m-0">
         Status populates after account verification and audit attestation.
       </p>
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <div aria-label="Security posture" className="flex flex-col gap-2">
+        {previewBody}
+      </div>
+    );
+  }
+
+  return (
+    <PreviewWidgetShell
+      title="Security posture"
+      provenance="stale"
+      ariaLabel="Security posture"
+    >
+      {previewBody}
     </PreviewWidgetShell>
   );
 }

@@ -7,6 +7,9 @@
  * .dash-cell-premium, .dash-bento, .dash-label, .kpi-cell). Aucune page ne
  * doit réécrire ces sélecteurs dans un CSS de route (ex. portfolio.css).
  * Layout-only (spacing, max-width) est autorisé.
+ *
+ * Matière : --ct-graphite-* (cockpit.css) — même recette que .glass-panel /
+ * Card pour alignement Profile · Portfolio · Vaults.
  */
 
 @import "./charts-shared.css";
@@ -20,32 +23,16 @@
 }
 
 .dash-cell {
-  /* Floating material for investor bento: dark glass with a readable inner veil,
-     so the spatial background adds depth without fighting the numbers. */
-  background:
-    radial-gradient(
-      120% 84% at 18% 0%,
-      color-mix(in srgb, var(--ct-text-strong) 22%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 16%, transparent) 44%,
-      transparent 62%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-text-strong) 22%, var(--ct-surface-3)) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 4%, var(--ct-surface-2)) 48%,
-      color-mix(in srgb, var(--ct-bg-deep) 16%, var(--ct-surface-1)) 100%
-    );
-  backdrop-filter: var(--ct-glass-blur);
-  -webkit-backdrop-filter: var(--ct-glass-blur);
-  border: var(--ct-space-px) solid color-mix(in srgb, var(--ct-text-strong) 30%, var(--ct-border));
-  border-top-color: color-mix(in srgb, var(--ct-text-strong) 44%, transparent);
-  border-left-color: color-mix(in srgb, var(--ct-text-strong) 34%, transparent);
+  /* Investor bento — graphite active tier (mirrors .glass-panel in cockpit.css). */
+  background: var(--ct-graphite-active-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  border: 1px solid var(--ct-graphite-border);
   border-radius: var(--ct-radius-lg);
   box-shadow:
-    0 14px 34px -21px color-mix(in srgb, var(--ct-bg-deep) 92%, transparent),
-    var(--ct-shadow-depth),
-    inset 0 var(--ct-space-px) 0 color-mix(in srgb, var(--ct-text-strong) 34%, transparent);
-      padding: var(--ct-space-2) var(--ct-space-3);
+    0 8px 24px -16px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
+    var(--ct-shadow-depth);
+  padding: var(--ct-space-2) var(--ct-space-3);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -57,63 +44,16 @@
 }
 
 .dash-cell:hover {
-  border-color: color-mix(in srgb, var(--ct-text-strong) 13%, var(--ct-border));
-  border-top-color: color-mix(in srgb, var(--ct-text-strong) 22%, transparent);
-  background:
-    radial-gradient(
-      120% 84% at 18% 0%,
-      color-mix(in srgb, var(--ct-text-strong) 12%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 5%, transparent) 42%,
-      transparent 62%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 20%, var(--ct-surface-2)) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 50%, var(--ct-surface-1)) 48%,
-      color-mix(in srgb, var(--ct-bg-deep) 68%, var(--ct-surface-0)) 100%
-    );
-}
-
-.dash-cell::after {
-  content: "";
-  position: absolute;
-  inset: var(--ct-space-px);
-  z-index: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background:
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--ct-text-strong) 9%, transparent) 0%,
-      transparent 26%,
-      transparent 74%,
-      color-mix(in srgb, var(--ct-accent) 5%, transparent) 100%
-    );
-  opacity: 0.75;
-}
-
-.dash-cell > * {
-  position: relative;
-  z-index: 1;
+  border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-border-soft));
 }
 
 /* === KPI cell — compact metric card for KPI grids (not bento panels) ===
  * Lighter padding, no min-height, height fits content only. */
 .kpi-cell {
-  background:
-    radial-gradient(
-      100% 70% at 18% 0%,
-      color-mix(in srgb, var(--ct-text-strong) 6%, transparent) 0%,
-      transparent 46%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 34%, var(--ct-surface-1)) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 70%, var(--ct-surface-0)) 100%
-    );
-  backdrop-filter: var(--ct-glass-blur);
-  -webkit-backdrop-filter: var(--ct-glass-blur);
-  border: var(--ct-space-px) solid color-mix(in srgb, var(--ct-text-strong) 8%, var(--ct-border));
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
   box-shadow:
     0 8px 24px -16px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
@@ -130,12 +70,13 @@
   background-size: 28px 28px;
 }
 
-/* Premium pattern utility — kept very subtle so it never competes with the
-   numbers. Dot opacity dropped from 8% to 3% and the grid widened. */
+/* Premium dot grid only — no green radial wash (graphite stays calm). */
 .dash-cell-premium {
-  background-image:
-    radial-gradient(circle, color-mix(in srgb, var(--ct-accent) 4%, transparent) 1px, transparent 1px),
-    radial-gradient(105% 78% at 14% 0%, color-mix(in srgb, var(--ct-accent) 8%, transparent), transparent 52%);
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--ct-accent) 3%, transparent) 1px,
+    transparent 1px
+  );
   background-size: 32px 32px;
 }
 

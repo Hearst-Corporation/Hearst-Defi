@@ -222,7 +222,7 @@ export default async function PortfolioPage() {
           showProvenance
           data-section="hero-pulse"
         >
-          <div className="grid grid-cols-12 gap-8">
+          <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 lg:col-span-8">
               <ValueChart
                 positions={data.positions}
@@ -232,7 +232,7 @@ export default async function PortfolioPage() {
                 previewZeros={previewZeros}
               />
             </div>
-            <div className="col-span-12 lg:col-span-4 flex flex-col gap-8">
+            <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
               <HeroKpiTable
                 totalValueUsdc={data.totalValueUsdc}
                 totalYieldYtdUsdc={data.totalYieldYtdUsdc}
@@ -282,7 +282,7 @@ export default async function PortfolioPage() {
             showProvenance
             data-section="yield-trust"
           >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div data-testid="risk-pulse-widget" className="flex flex-col gap-4">
                 <span className="stat-label ct-text-accent">Risk profile</span>
                 <RiskPulse
@@ -299,7 +299,7 @@ export default async function PortfolioPage() {
               </div>
               <div data-testid="security-pulse-widget" className="flex flex-col gap-4">
                 <span className="stat-label ct-text-accent">Security audit</span>
-                <SecurityPulse previewZeros={previewZeros} />
+                <SecurityPulse embedded previewZeros={previewZeros} />
               </div>
             </div>
           </MergedSurface>
@@ -325,7 +325,7 @@ export default async function PortfolioPage() {
             showProvenance
             data-section="activity-payouts"
           >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-8 flex flex-col gap-4">
                 <span className="stat-label ct-text-accent">Recent transactions</span>
                 <RecentActivity
@@ -333,6 +333,7 @@ export default async function PortfolioPage() {
                   source={data.source}
                   updatedAt={data.updatedAt}
                   previewZeros={previewZeros}
+                  embedded
                 />
               </div>
               <div

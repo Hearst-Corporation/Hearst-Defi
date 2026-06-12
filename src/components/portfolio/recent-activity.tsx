@@ -54,6 +54,8 @@ interface RecentActivityProps {
   updatedAt?: Date;
   /** Render activity shell with empty list (layout preview). */
   previewZeros?: boolean;
+  /** Inside MergedSurface — parent supplies section label; no nested dash-cell. */
+  embedded?: boolean;
 }
 
 /**
@@ -65,6 +67,7 @@ export function RecentActivity({
   source,
   updatedAt,
   previewZeros = false,
+  embedded = false,
 }: RecentActivityProps) {
   const provenance = resolveProvenance(
     previewZeros && transactions.length === 0 ? "stale" : source,
@@ -81,21 +84,35 @@ export function RecentActivity({
   }
 
   if (displayed.length === 0 && previewZeros) {
+    const emptyMessage = (
+      <p className="body-sm ct-text-faint py-4 text-center m-0">
+        No transactions yet — deposits and payouts will appear here.
+      </p>
+    );
+
+    if (embedded) {
+      return (
+        <div aria-label="Recent account activity">{emptyMessage}</div>
+      );
+    }
+
     return (
       <PreviewWidgetShell
         title="Recent activity"
         provenance={provenance}
         ariaLabel="Recent account activity"
       >
-        <p className="body-sm ct-text-faint py-6 text-center m-0 mt-3">
-          No transactions yet — deposits and payouts will appear here.
-        </p>
+        {emptyMessage}
       </PreviewWidgetShell>
     );
   }
 
+  const shellClass = embedded
+    ? "flex flex-col"
+    : "dash-cell dash-cell-premium flex flex-col";
+
   return (
-    <article className="dash-cell dash-cell-premium flex flex-col" aria-label="Recent account activity">
+    <article className={shellClass} aria-label="Recent account activity">
       <div className="pf-widget-header">
         <h3 className="h3">Recent activity</h3>
         <ProvenanceBadge kind={provenance} />

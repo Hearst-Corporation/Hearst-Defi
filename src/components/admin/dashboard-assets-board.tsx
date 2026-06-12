@@ -7,6 +7,7 @@ import { LiveOps } from "@/components/admin/cockpit/live-ops";
 import { DashboardKpiStrip } from "@/components/admin/dashboard-kpi-strip";
 import { EmptyChartState } from "@/components/portfolio/empty-chart-state";
 import { Card } from "@/components/ui/card";
+import { SystemPanel } from "@/components/ui/system-panel";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { allocationLabelFor, allocationStrokeFor } from "@/lib/allocation-colors";
 import { cn } from "@/lib/cn";
@@ -196,9 +197,9 @@ export function DashboardAssetsBoard({
         )}
 
         {data.latestDistribution ? (
-          <Card className="dashboard-command-cell">
+          <SystemPanel className="dashboard-command-cell">
             <DistributionPanel distribution={data.latestDistribution} />
-          </Card>
+          </SystemPanel>
         ) : (
           <EmptyChartState
             className="dashboard-command-cell min-h-32"
@@ -207,9 +208,9 @@ export function DashboardAssetsBoard({
           />
         )}
 
-        <Card className="dashboard-command-cell">
+        <SystemPanel className="dashboard-command-cell">
           <ProofPulse proof={proof} proofFresh={proofFresh} custodyUsdc={proof.custodyReservesUsdc} />
-        </Card>
+        </SystemPanel>
       </div>
 
       {trackedActions.length > 0 ? (
@@ -309,10 +310,27 @@ function NavSlot({
   );
 }
 
-function CellHeader({ title, provenance }: { title: string; provenance: Provenance }) {
+function CellHeader({
+  title,
+  provenance,
+  quiet = false,
+}: {
+  title: string;
+  provenance: Provenance;
+  quiet?: boolean;
+}) {
   return (
-    <div className="dashboard-card-header mb-4">
-      <h2 className="h3 min-w-0">{title}</h2>
+    <div
+      className={cn(
+        "dashboard-card-header",
+        quiet ? "dashboard-system-panel__header" : "mb-4",
+      )}
+    >
+      {quiet ? (
+        <h3 className="h3 ct-text-body min-w-0">{title}</h3>
+      ) : (
+        <h2 className="h3 min-w-0">{title}</h2>
+      )}
       <ProvenanceBadge kind={provenance} compact />
     </div>
   );
@@ -437,7 +455,7 @@ function ProofPulse({
 
   return (
     <>
-      <CellHeader title="Proof & custody" provenance={provenance} />
+      <CellHeader title="Proof & custody" provenance={provenance} quiet />
       <ul className="flex flex-col gap-1.5 body-xs" role="list">
         <li>
           <Link href={adminNavLinks.proofCenter()} className="ct-text-accent hover:underline">
@@ -487,7 +505,7 @@ function DistributionPanel({
 
   return (
     <>
-      <CellHeader title="Distribution" provenance={provenance} />
+      <CellHeader title="Distribution" provenance={provenance} quiet />
       <dl className="flex flex-col gap-2 body-sm">
         <div className="flex justify-between gap-2">
           <dt className="ct-text-muted">Period</dt>

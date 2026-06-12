@@ -2,7 +2,8 @@ import { cn } from "@/lib/cn";
 
 /**
  * Secondary instrumentation surface for admin cockpit panels (Live Metrics,
- * Live Ops, Audit Trail). Quieter than `Card` — no glass-panel chrome or hover wash.
+ * Live Ops, Audit Trail, Distribution, Proof & custody). Quieter than `Card` —
+ * no glass-panel chrome or hover wash.
  */
 export function SystemPanel({
   className,
