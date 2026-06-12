@@ -64,34 +64,50 @@
 }
 
 .admin-doc .admin-doc-stack--tight {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-2);
 }
 
 .admin-doc .admin-doc-stack--actions {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-3);
 }
 
 .admin-doc .admin-doc-stack--relaxed {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-4);
 }
 
 .admin-doc .admin-doc-stack--list {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-2_5);
 }
 
 .admin-doc .admin-doc-stack--compact {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-1);
 }
 
 .admin-doc .admin-doc-stack--dense {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-1_5);
 }
 
 .admin-doc .admin-doc-stack--roomy {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-5);
 }
 
 .admin-doc .admin-doc-stack--micro {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-0_5);
 }
 
@@ -104,46 +120,91 @@
 }
 
 .admin-doc .admin-doc-inline-row--baseline {
+  display: flex;
+  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+  min-width: 0;
   align-items: baseline;
 }
 
 .admin-doc .admin-doc-inline-row--start {
+  display: flex;
+  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+  min-width: 0;
   align-items: flex-start;
 }
 
 .admin-doc .admin-doc-inline-row--between {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+  min-width: 0;
   justify-content: space-between;
 }
 
 .admin-doc .admin-doc-inline-row--end {
+  display: flex;
+  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+  min-width: 0;
   align-items: flex-end;
 }
 
 .admin-doc .admin-doc-inline-row--loose {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--ct-space-2_5);
 }
 
 .admin-doc .admin-doc-inline-row--tight {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--ct-space-1);
 }
 
 .admin-doc .admin-doc-inline-row--dense {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--ct-space-1_5);
 }
 
 .admin-doc .admin-doc-inline-row--relaxed {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--ct-space-4);
 }
 
 .admin-doc .admin-doc-inline-row--spacious {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--ct-space-5);
 }
 
 .admin-doc .admin-doc-inline-row--actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--ct-space-3);
 }
 
 .admin-doc .admin-doc-inline-row--micro {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--ct-space-0_5);
 }
 

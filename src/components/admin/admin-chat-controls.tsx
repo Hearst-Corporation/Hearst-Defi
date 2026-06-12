@@ -12,10 +12,26 @@ import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Markdown } from "@/components/admin/markdown";
+import {
+  toConfirmationRequestedState,
+  toExecutionSuccessState,
+  type AdminActionFlowState,
+} from "@/components/admin/admin-chat-actions-flow";
 import { cn } from "@/lib/cn";
 import type { ChatMode } from "@/lib/llm/chat-modes";
 
 type Mode = ChatMode;
+type AdminWriteToolId =
+  | "create_review_note_draft"
+  | "create_governance_proposal_draft";
+
+interface PendingConfirmation {
+  toolId: AdminWriteToolId;
+  token: string;
+  expiresAtIso: string;
+  summary: string;
+  input: Record<string, unknown>;
+}
 
 /** `false` on the server + first client render, `true` after hydration — gates
  * the client-only portal so it never causes an SSR mismatch. */
@@ -78,6 +94,37 @@ export function AdminChatControls() {
   const [error, setError] = useState<string | null>(null);
   const [doc, setDoc] = useState<string | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [adminActionTool, setAdminActionTool] = useState<AdminWriteToolId>(
+    "create_review_note_draft",
+  );
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionResult, setActionResult] = useState<string | null>(null);
+  const [pendingConfirmation, setPendingConfirmation] =
+    useState<PendingConfirmation | null>(null);
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [reviewBody, setReviewBody] = useState("");
+  const [reviewAuthor, setReviewAuthor] = useState("");
+  const [govVaultDeploymentId, setGovVaultDeploymentId] = useState("");
+  const [govActionType, setGovActionType] = useState("");
+  const [govJustification, setGovJustification] = useState("");
+  const [govProposedBy, setGovProposedBy] = useState("");
+  const [govRequiredSigners, setGovRequiredSigners] = useState("1");
+  const [govCalldata, setGovCalldata] = useState("");
+
+  const getActionFlowState = useCallback(
+    (): AdminActionFlowState => ({
+      pendingConfirmation,
+      actionResult,
+      error,
+    }),
+    [pendingConfirmation, actionResult, error],
+  );
+
+  const applyActionFlowState = useCallback((next: AdminActionFlowState) => {
+    setPendingConfirmation(next.pendingConfirmation);
+    setActionResult(next.actionResult);
+    setError(next.error);
+  }, []);
 
   // Resolve admin status + current mode in one call. The route is
   // requireAdmin-gated: 200 → admin (use the returned mode); anything else
@@ -249,6 +296,141 @@ export function AdminChatControls() {
     }
   }, []);
 
+  const buildWriteInput = useCallback((): Record<string, unknown> | null => {
+    if (adminActionTool === "create_review_note_draft") {
+      if (reviewTitle.trim().length === 0 || reviewBody.trim().length === 0) {
+        setError("Titre et contenu sont requis.");
+        return null;
+      }
+      return {
+        title: reviewTitle.trim(),
+        body: reviewBody.trim(),
+        ...(reviewAuthor.trim().length > 0 ? { author: reviewAuthor.trim() } : {}),
+      };
+    }
+
+    const requiredSignersNum = Number.parseInt(govRequiredSigners, 10);
+    if (
+      govVaultDeploymentId.trim().length === 0 ||
+      govActionType.trim().length === 0 ||
+      govJustification.trim().length < 20 ||
+      govProposedBy.trim().length === 0 ||
+      !Number.isInteger(requiredSignersNum) ||
+      requiredSignersNum <= 0
+    ) {
+      setError("Champs gouvernance invalides (justification >= 20 chars).");
+      return null;
+    }
+    return {
+      vaultDeploymentId: govVaultDeploymentId.trim(),
+      actionType: govActionType.trim(),
+      justification: govJustification.trim(),
+      proposedBy: govProposedBy.trim(),
+      requiredSigners: requiredSignersNum,
+      ...(govCalldata.trim().length > 0 ? { calldata: govCalldata.trim() } : {}),
+    };
+  }, [
+    adminActionTool,
+    reviewTitle,
+    reviewBody,
+    reviewAuthor,
+    govVaultDeploymentId,
+    govActionType,
+    govJustification,
+    govProposedBy,
+    govRequiredSigners,
+    govCalldata,
+  ]);
+
+  const requestWriteConfirmation = useCallback(async () => {
+    setError(null);
+    setActionResult(null);
+    const input = buildWriteInput();
+    if (!input) return;
+    setActionBusy(true);
+    try {
+      const res = await fetch("/api/admin/chat-tools", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "execute_write",
+          toolId: adminActionTool,
+          input,
+        }),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | {
+            status?: string;
+            confirmation?: {
+              token: string;
+              expiresAtIso: string;
+              summary: string;
+            };
+            error?: string;
+          }
+        | null;
+      if (!res.ok || data?.status !== "confirmation_required" || !data.confirmation) {
+        throw new Error(data?.error ?? "Impossible de demander la confirmation.");
+      }
+      applyActionFlowState(
+        toConfirmationRequestedState(getActionFlowState(), {
+          toolId: adminActionTool,
+          token: data.confirmation.token,
+          expiresAtIso: data.confirmation.expiresAtIso,
+          summary: data.confirmation.summary,
+          input,
+        }),
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur de confirmation.");
+    } finally {
+      setActionBusy(false);
+    }
+  }, [adminActionTool, buildWriteInput, applyActionFlowState, getActionFlowState]);
+
+  const confirmWriteAction = useCallback(async () => {
+    if (!pendingConfirmation) return;
+    setError(null);
+    setActionResult(null);
+    setActionBusy(true);
+    try {
+      const res = await fetch("/api/admin/chat-tools", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "execute_write",
+          toolId: pendingConfirmation.toolId,
+          input: pendingConfirmation.input,
+          confirmedToken: pendingConfirmation.token,
+        }),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | {
+            status?: string;
+            result?: { title?: string; createdEntityId?: string };
+            error?: string;
+            code?: string;
+          }
+        | null;
+      if (!res.ok || data?.status !== "executed") {
+        throw new Error(
+          data?.error ??
+            (data?.code ? `Confirmation rejetee: ${data.code}` : "Execution refusee."),
+        );
+      }
+      applyActionFlowState(
+        toExecutionSuccessState(
+          getActionFlowState(),
+          `${data.result?.title ?? "Write action executed"} · id ${data.result?.createdEntityId ?? "n/a"}`,
+        ),
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur d'execution.");
+    } finally {
+      setActionBusy(false);
+    }
+  }, [pendingConfirmation, applyActionFlowState, getActionFlowState]);
+
   const cancelGeneration = useCallback(() => {
     abortRef.current?.abort();
   }, []);
@@ -276,6 +458,8 @@ export function AdminChatControls() {
   }, [doc]);
 
   const hydrated = useHydrated();
+  const adminInputClassName =
+    "w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-2 py-1 body-xs";
   // Hidden until hydrated and admin status confirmed. The settings-panel
   // section only renders when the réglages view is open (target present), but
   // the error toast + Modal must stay mountable regardless.
@@ -300,15 +484,7 @@ export function AdminChatControls() {
               disabled={savingMode}
               role="radio"
               aria-checked={mode === "normal"}
-              className={cn(
-                "h-8 flex-1 rounded-full px-3 body-xs font-medium",
-                "transition-[background-color,color] duration-[var(--ct-dur-base)]",
-                "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
-                "disabled:cursor-not-allowed disabled:opacity-60",
-                mode === "normal"
-                  ? "bg-[var(--ct-accent)] ct-text-on-accent"
-                  : "ct-surface-1 ct-text-muted hover:ct-text-strong",
-              )}
+              className="ct-chat-settings-segment ct-focus-ring"
             >
               Conversation
             </button>
@@ -318,15 +494,7 @@ export function AdminChatControls() {
               disabled={savingMode}
               role="radio"
               aria-checked={mode === "review"}
-              className={cn(
-                "h-8 flex-1 rounded-full px-3 body-xs font-medium",
-                "transition-[background-color,color] duration-[var(--ct-dur-base)]",
-                "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
-                "disabled:cursor-not-allowed disabled:opacity-60",
-                mode === "review"
-                  ? "bg-[var(--ct-accent)] ct-text-on-accent"
-                  : "ct-surface-1 ct-text-muted hover:ct-text-strong",
-              )}
+              className="ct-chat-settings-segment ct-focus-ring"
             >
               Review
             </button>
@@ -336,15 +504,7 @@ export function AdminChatControls() {
               disabled={savingMode}
               role="radio"
               aria-checked={mode === "admin"}
-              className={cn(
-                "h-8 flex-1 rounded-full px-3 body-xs font-medium",
-                "transition-[background-color,color] duration-[var(--ct-dur-base)]",
-                "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
-                "disabled:cursor-not-allowed disabled:opacity-60",
-                mode === "admin"
-                  ? "bg-[var(--ct-accent)] ct-text-on-accent"
-                  : "ct-surface-1 ct-text-muted hover:ct-text-strong",
-              )}
+              className="ct-chat-settings-segment ct-focus-ring"
             >
               Admin
             </button>
@@ -352,7 +512,7 @@ export function AdminChatControls() {
 
           {mode === "review" ? (
             <>
-              <div className="ct-chat-settings-row mt-2">
+              <div className="ct-chat-settings-row ct-chat-settings-row--stack">
                 <Button
                   variant="primary"
                   size="lg"
@@ -368,7 +528,7 @@ export function AdminChatControls() {
                 </Button>
               </div>
               {generating ? (
-                <div className="ct-chat-settings-row">
+                <div className="ct-chat-settings-row ct-chat-settings-row--stack">
                   <Button
                     variant="ghost"
                     size="lg"
@@ -381,7 +541,7 @@ export function AdminChatControls() {
                 </div>
               ) : null}
               {doc && !panelOpen && !generating ? (
-                <div className="ct-chat-settings-row">
+                <div className="ct-chat-settings-row ct-chat-settings-row--stack">
                   <Button
                     variant="secondary"
                     size="lg"
@@ -397,10 +557,159 @@ export function AdminChatControls() {
               </div>
             </>
           ) : mode === "admin" ? (
-            <div className="ct-chat-settings-hint">
-              Copilote interne : architecture, allocations, marché disponible,
-              déploiements et runbooks. Pas d'exécution autonome.
-            </div>
+            <>
+              <div className="ct-chat-settings-hint">
+                Copilote interne : architecture, allocations, marche disponible,
+                deploiements et runbooks. Pas d'execution autonome.
+              </div>
+              <div className="ct-chat-settings-label mt-2">Actions admin</div>
+              <div className="ct-chat-settings-row">
+                <select
+                  className={adminInputClassName}
+                  value={adminActionTool}
+                  onChange={(event) => {
+                    setAdminActionTool(event.target.value as AdminWriteToolId);
+                    setPendingConfirmation(null);
+                    setActionResult(null);
+                    setError(null);
+                  }}
+                  disabled={actionBusy}
+                  aria-label="Select admin write tool"
+                >
+                  <option value="create_review_note_draft">
+                    Review note draft
+                  </option>
+                  <option value="create_governance_proposal_draft">
+                    Governance proposal draft
+                  </option>
+                </select>
+              </div>
+              {adminActionTool === "create_review_note_draft" ? (
+                <>
+                  <div className="ct-chat-settings-row">
+                    <input
+                      className={adminInputClassName}
+                      placeholder="Title"
+                      value={reviewTitle}
+                      onChange={(event) => setReviewTitle(event.target.value)}
+                      disabled={actionBusy}
+                    />
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <textarea
+                      className={adminInputClassName}
+                      placeholder="Body"
+                      value={reviewBody}
+                      onChange={(event) => setReviewBody(event.target.value)}
+                      disabled={actionBusy}
+                      rows={3}
+                    />
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <input
+                      className={adminInputClassName}
+                      placeholder="Author (optional)"
+                      value={reviewAuthor}
+                      onChange={(event) => setReviewAuthor(event.target.value)}
+                      disabled={actionBusy}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="ct-chat-settings-row">
+                    <input
+                      className={adminInputClassName}
+                      placeholder="Vault deployment id"
+                      value={govVaultDeploymentId}
+                      onChange={(event) => setGovVaultDeploymentId(event.target.value)}
+                      disabled={actionBusy}
+                    />
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <input
+                      className={adminInputClassName}
+                      placeholder="Action type"
+                      value={govActionType}
+                      onChange={(event) => setGovActionType(event.target.value)}
+                      disabled={actionBusy}
+                    />
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <textarea
+                      className={adminInputClassName}
+                      placeholder="Justification (min 20 chars)"
+                      value={govJustification}
+                      onChange={(event) => setGovJustification(event.target.value)}
+                      disabled={actionBusy}
+                      rows={3}
+                    />
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <input
+                      className={adminInputClassName}
+                      placeholder="Proposed by"
+                      value={govProposedBy}
+                      onChange={(event) => setGovProposedBy(event.target.value)}
+                      disabled={actionBusy}
+                    />
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <input
+                      className={adminInputClassName}
+                      placeholder="Required signers"
+                      value={govRequiredSigners}
+                      onChange={(event) => setGovRequiredSigners(event.target.value)}
+                      disabled={actionBusy}
+                    />
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <textarea
+                      className={adminInputClassName}
+                      placeholder="Calldata (optional)"
+                      value={govCalldata}
+                      onChange={(event) => setGovCalldata(event.target.value)}
+                      disabled={actionBusy}
+                      rows={2}
+                    />
+                  </div>
+                </>
+              )}
+              <div className="ct-chat-settings-row">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="w-full"
+                  onClick={requestWriteConfirmation}
+                  disabled={actionBusy}
+                >
+                  Request confirmation
+                </Button>
+              </div>
+              {pendingConfirmation ? (
+                <>
+                  <div className="ct-chat-settings-hint">
+                    {pendingConfirmation.summary}
+                    <br />
+                    Expires: {new Date(pendingConfirmation.expiresAtIso).toLocaleString()}
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="w-full"
+                      onClick={confirmWriteAction}
+                      disabled={actionBusy}
+                    >
+                      Confirm and execute
+                    </Button>
+                  </div>
+                </>
+              ) : null}
+              {actionResult ? (
+                <div className="ct-chat-settings-hint">{actionResult}</div>
+              ) : null}
+            </>
           ) : (
             <div className="ct-chat-settings-hint">
               Assistant conversationnel produit/LP avec garde-fous compliance.

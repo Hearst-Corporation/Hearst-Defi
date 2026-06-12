@@ -33,7 +33,7 @@ export function DistributionPreview({
   }
 
   return (
-    <div className={cn("admin-doc-stack--relaxed", className)}>
+    <div className={cn("admin-doc-stack admin-doc-stack--relaxed", className)}>
       {/* Summary */}
       <div className="admin-doc-inline-row admin-doc-inline-row--between">
         <div>
@@ -47,28 +47,25 @@ export function DistributionPreview({
       </div>
 
       {/* Recipients table */}
-      <div className="overflow-x-auto">
-        <table className="w-full body-sm tabular border border-[var(--ct-border-soft)] rounded-lg overflow-hidden">
+      <div className="overflow-hidden">
+        <table className="w-full table-fixed body-sm tabular">
           <thead>
-            <tr className="ct-surface-1">
-              <th className="text-left stat-label ct-table-header">
+            <tr>
+              <th className="w-[42%] text-left stat-label ct-table-header">
                 Investor wallet
               </th>
-              <th className="text-right stat-label ct-table-header">
+              <th className="w-[18%] text-right stat-label ct-table-header">
                 Share %
               </th>
-              <th className="text-right stat-label ct-table-header">
+              <th className="w-[40%] text-right stat-label ct-table-header">
                 Payout (USDC)
               </th>
             </tr>
           </thead>
           <tbody>
             {recipients.map((r) => (
-              <tr
-                key={r.investorId}
-                className="border-t border-[var(--ct-border-soft)] ct-hover-surface transition-colors"
-              >
-                <td className="ct-table-cell mono body-xs ct-text-body">
+              <tr key={r.investorId} className="border-t border-(--ct-border-soft)">
+                <td className="ct-table-cell mono body-xs ct-text-body truncate">
                   {abbrWallet(r.walletAddress)}
                 </td>
                 <td className="ct-table-cell text-right ct-text-muted tabular">
@@ -81,7 +78,7 @@ export function DistributionPreview({
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t border-[var(--ct-border-strong)] ct-surface-2">
+            <tr className="border-t border-(--ct-border-strong)">
               <td className="ct-table-cell body-xs ct-text-muted">
                 Total ({recipients.length} recipients)
               </td>

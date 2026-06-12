@@ -14,11 +14,54 @@ model for all 4 agents + cockpit chat. No Anthropic SDK. See **ADR-011**
 
 Cockpit chat modes : `normal` (conversation produit/LP), `review` (facilitateur
 admin générant un document de revue), `admin` (copilote interne architecture /
-allocations / runbooks). Pas de RAG vectoriel câblé aujourd'hui : contexte via
+allocations / runbooks). Réglages rail (`@hearst/cockpit-shell` ≥ 0.2.1) :
+infra LLM **serveur uniquement** (`OPENAI_API_KEY` / `OPENAI_MODEL`, pas de clé
+client) ; toggle Markdown local branché ; clés legacy Hypercli purgées au mount.
+Pas de RAG vectoriel câblé aujourd'hui : contexte via
 profil/mémoire Prisma, portefeuille live si disponible, prompts statiques et
 index specs/routes pour la revue. Outil chat unique : `navigate`, seulement avec
 `CHAT_MASTER_AGENT=1`; aucun outil autonome d'écriture, marché, internet ou
 déploiement.
+
+Admin mode est maintenant enrichi côté serveur avec un bloc live interne :
+allocations canoniques (`HYV`/`HDV`/`HBP`), dernier `MiningMetric` (BTC/hashprice/
+difficulty/uptime), dernier `VaultSnapshot`, échantillon routes/specs et matrice
+de capacités réellement outillées. Le chat reste en lecture/seuil de préparation :
+il peut proposer runbooks, plans démo et specs graphiques textuelles, sans
+exécution autonome d'actions sensibles.
+La composition passe par une couche interne `src/lib/llm/tools/*` (registre
+typé + policy `chatMode/profile`) avec uniquement des outils de lecture
+(`read_allocations_canonical`, `read_market_snapshot`, `read_routes_index`,
+`read_specs_index`, `read_runtime_capabilities`) et dégradation partielle en cas
+d'erreur backend.
+
+Base write-tools admin (draft-only) ajoutée dans le même registre, sans auto-exec
+depuis le chat : `create_review_note_draft` et
+`create_governance_proposal_draft`. Exécution en **2 phases obligatoire** :
+appel 1 -> token de confirmation (TTL court, single-use), appel 2 avec token
+valide -> persistance du draft. Aucun déploiement, aucune transaction financière,
+aucune action destructive.
+
+En mode `admin`, le moteur chat peut désormais appeler en cours de réponse un
+allowlist strict de read-tools du registre (`src/lib/llm/tools/*`) et réinjecter
+leurs sorties dans la **même** réponse modèle. Les modes `normal`/`review` ne
+peuvent pas auto-appeler ces outils admin. Toute tentative modèle d'auto-exécuter
+un write-tool est bloquée côté serveur (warning non sensible en logs), puis
+reformulée en proposition structurée sans effet de bord.
+
+Intégration app/chat active via `POST /api/admin/chat-tools` (admin-only) :
+- `GET` liste les outils admin autorisés (read + write metadata)
+- `POST { action: "execute_read" }` exécute un read tool directement
+- `POST { action: "execute_write" }` sans token retourne `confirmation_required`
+- `POST { action: "execute_write", confirmedToken }` exécute uniquement après clic
+  explicite de confirmation dans le panel **Actions admin** des réglages chat.
+Les tokens sont TTL court + single-use; expiré/invalide => rejet HTTP explicite.
+
+Navigation outillée : le mode `conversation` garde une whitelist LP (`/portfolio`,
+`/vaults`, `/proof-center`, `/profile`) ; le mode `admin` dispose d'une whitelist
+admin dédiée (`/admin/dashboard`, `/admin/vaults`, `/admin/proofs`,
+`/admin/governance`, `/admin/roadmap`, `/admin/projection`). Le mode `review`
+reste sans tools.
 
 ---
 
@@ -106,6 +149,10 @@ uppercase → `.stat-label` (pas `ct-text-micro-size font-bold`) ; en-têtes tab
 
 **Un seul design system en runtime** : Cockpit (`--ct-*` via `@hearst/cockpit-shell`).
 Le package orphelin `packages/ds` (`@ds/core`, namespace `--ds-*`) a été retiré du repo.
+Admin et user partagent le **même** design system : mêmes tokens, mêmes surfaces,
+mêmes rôles typo. L'admin n'est qu'une variante de densité/layout portée par
+`src/app/doc-flow.css` (`.admin-doc-*`) ; ne pas recréer de surface, couleur,
+radius ou padding local pour "faire admin".
 Primitives de page : `AdminPageHeader` (admin), `ProductPageHeader` (investor,
 `align="center"` pour onboarding / confirmation), `AuthFormShell` (auth
 secondaire avec `title`/`description`), `LegalPageHeader` (docs légales).
@@ -153,6 +200,7 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
 - H2 section : `.h2` · module : `.h3` / `DashboardPanelHeader` / `WidgetPanelHeader` · KPI : `.stat-value` + `.stat-label`.
 - Shell page : `product-doc-shell` (`gap: var(--ct-space-8)`) ; admin `admin-doc-shell` (`gap: var(--ct-space-4)`, `--compact` → `space-3`). Zone `.ct-page-area` admin : `24px 20px 32px` (vs `32px 40px 80px` LP).
 - Layout stacks : `src/app/doc-flow.css` — scopes `.product-doc` / `.admin-doc` ; stacks `*-doc-stack*` / `*-doc-inline-row*` (pas de `gap-*` / `space-y-*` Tailwind ad hoc en admin).
+- Admin spacing rule : utiliser une classe base + modifier (`admin-doc-stack admin-doc-stack--actions`, `admin-doc-inline-row admin-doc-inline-row--between`). Un modifier seul ne doit pas porter le layout.
 - Surface par défaut : `Card` → `.ct-glass-panel` (produit **et** admin). Header canon : `DashboardPanelHeader` (`src/components/ui/dashboard-panel-header.tsx`). **Interdit** : listes flat (`admin-doc-flat-list`, `admin-vault-list-card`).
 - Formatters : `src/lib/vaults/product-display.ts`.
 - Exceptions non-glass **seules autorisées** (commentaire `/* ADR-013 exception */` requis) : `.scenario-preset-bar`, `Ptai variant="flat"` en compare, `EmptySurface` seul — voir ADR-013 §10.3. Dashboard command board + KPI strip : `Card` / `.ct-glass-panel`.
@@ -200,8 +248,10 @@ pnpm ds:classes  # ct-* allowlist + DEPRECATED ADR-013 — warnings only, jamais
    Estimated / Manual / Stale.
 3. **Format PTAI obligatoire** pour simulations et rebalancing :
    Projection → Trigger → Action → Impact.
-4. **Pas de chat IA.** Les agents produisent du JSON structuré uniquement
-   (voir [`docs/spec/09-agents.mdx`](docs/spec/09-agents.mdx)).
+4. **Pas de chat IA avec outils write/execute autonomes.** Les 4 agents restent en
+   JSON structuré uniquement. Le cockpit chat est une exception cadrée : read-only
+   + workflow de confirmation explicite pour les drafts admin (voir
+   [`docs/spec/09-agents.mdx`](docs/spec/09-agents.mdx)).
 5. **Mots interdits** dans les agents : "guarantee", "promise", "certain",
    "will deliver", "risk-free".
 6. **Scenario Engine = pure function** : pas de DB, pas de fetch, pas d'I/O

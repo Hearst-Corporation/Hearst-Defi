@@ -23,8 +23,8 @@ importers:
         specifier: ^19.0.0
         version: 19.0.0
       '@hearst/cockpit-shell':
-        specifier: file:./hearst-cockpit-shell-0.2.0.tgz
-        version: file:hearst-cockpit-shell-0.2.0.tgz(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(openai@6.38.0(ws@8.20.1(bufferutil@4.1.0)(utf-8-validate@5.0.10))(zod@4.4.3))(react@19.2.6)
+        specifier: file:./hearst-cockpit-shell-0.2.1.tgz
+        version: file:hearst-cockpit-shell-0.2.1.tgz(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(openai@6.38.0(ws@8.20.1(bufferutil@4.1.0)(utf-8-validate@5.0.10))(zod@4.4.3))(react@19.2.6)
       '@hearst/hub-sdk':
         specifier: file:./hearst-hub-sdk-0.2.0.tgz
         version: file:hearst-hub-sdk-0.2.0.tgz(react@19.2.6)
@@ -665,9 +665,9 @@ packages:
       react: ^18 || ^19 || ^19.0.0-rc
       react-dom: ^18 || ^19 || ^19.0.0-rc
 
-  '@hearst/cockpit-shell@file:hearst-cockpit-shell-0.2.0.tgz':
-    resolution: {integrity: sha512-HOYp3koJLeOeTWcYsVPnHeO9H7m8xu6dIm5ZfOycoq46rhrh7a5Uyfmko2+8lL0VbJ2Z4oLMkSaQHTcPGtKsqQ==, tarball: file:hearst-cockpit-shell-0.2.0.tgz}
-    version: 0.2.0
+  '@hearst/cockpit-shell@file:hearst-cockpit-shell-0.2.1.tgz':
+    resolution: {integrity: sha512-9zi8N4ZjAT5C82KAl9yrR+K/snwdrFfmmkTXk0xCC+5Jip6IrgUZoWG2K1lmVBRspIVXHHi3n7D4bul9Ku9t/A==, tarball: file:hearst-cockpit-shell-0.2.1.tgz}
+    version: 0.2.1
     peerDependencies:
       next: '>=15'
       openai: '>=4'
@@ -9097,7 +9097,7 @@ snapshots:
       react-dom: 19.2.6(react@19.2.6)
       use-sync-external-store: 1.6.0(react@19.2.6)
 
-  '@hearst/cockpit-shell@file:hearst-cockpit-shell-0.2.0.tgz(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(openai@6.38.0(ws@8.20.1(bufferutil@4.1.0)(utf-8-validate@5.0.10))(zod@4.4.3))(react@19.2.6)':
+  '@hearst/cockpit-shell@file:hearst-cockpit-shell-0.2.1.tgz(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(openai@6.38.0(ws@8.20.1(bufferutil@4.1.0)(utf-8-validate@5.0.10))(zod@4.4.3))(react@19.2.6)':
     dependencies:
       dompurify: 3.4.4
       next: 16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)

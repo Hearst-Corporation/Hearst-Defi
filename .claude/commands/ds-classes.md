@@ -135,7 +135,8 @@ Noms extraits de `var(--ct-*)` / `(--ct-*)` — **variables CSS**, pas classes :
 ### Classes BEM composant (définies dans cockpit.css)
 
 `ct-panel-status__message`, `ct-panel-status__detail`, `ct-product-section__header`,
-`ct-chat-settings-label`, `ct-chat-settings-row`, `ct-chat-settings-hint`,
+`ct-chat-settings-label`, `ct-chat-settings-row`, `ct-chat-settings-row--stack`,
+`ct-chat-settings-segment`, `ct-chat-settings-readonly`, `ct-chat-settings-hint`,
 `ct-status-dot-info`, `ct-tracking-wider`
 
 ## Rapport attendu

@@ -11,16 +11,19 @@ import {
   adminDistributionsVaultHref,
   resolveFixtureVaultId,
 } from "@/lib/vaults/dashboard-scope";
+import { formatAdminDate, formatUsdDetailed } from "@/lib/vaults/product-display";
 import { listAllVaults, vaultSlug, vaultLabel } from "@/lib/vaults/resolver";
 import { DistributionForm } from "./distribution-form";
 
 export const dynamic = "force-dynamic";
 
-import { formatAdminDate, formatUsdDetailed } from "@/lib/vaults/product-display";
-
 interface DistributionsPageProps {
   searchParams: Promise<{ vault?: string }>;
 }
+
+const LEGACY_VAULT_LABELS: Record<string, string> = {
+  "hearst-yield-vault": "Hearst Yield Vault",
+};
 
 export default async function DistributionsPage({
   searchParams,
@@ -65,7 +68,7 @@ export default async function DistributionsPage({
       <DistributionForm vaultOptions={vaultOptions} />
 
       {/* Distribution history */}
-      <section className="admin-doc-stack--actions">
+      <section className="admin-doc-stack admin-doc-stack--actions">
         <h2 className="h2">History (last 6)</h2>
 
         {history.length === 0 ? (
@@ -76,30 +79,30 @@ export default async function DistributionsPage({
             className="min-h-32"
           />
         ) : (
-          <Card className="p-0 overflow-hidden">
-            <div className="ct-table-surface border-0 rounded-none overflow-x-auto">
-              <table className="w-full body-sm tabular">
+          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
+            <div className="overflow-hidden">
+              <table className="w-full table-fixed body-sm tabular">
                 <thead>
-                  <tr className="ct-surface-1">
-                    <th className="text-left ct-table-header stat-label">
+                  <tr>
+                    <th className="w-[28%] text-left ct-table-header stat-label">
                       Vault
                     </th>
-                    <th className="text-left ct-table-header stat-label">
+                    <th className="w-[16%] text-left ct-table-header stat-label">
                       Period
                     </th>
-                    <th className="text-right ct-table-header stat-label">
+                    <th className="w-[22%] text-right ct-table-header stat-label">
                       Amount (USDC)
                     </th>
-                    <th className="text-right ct-table-header stat-label">
+                    <th className="hidden w-[12%] text-right ct-table-header stat-label md:table-cell">
                       Recipients
                     </th>
-                    <th className="text-right ct-table-header stat-label">
+                    <th className="w-[34%] text-right ct-table-header stat-label md:w-[22%]">
                       Distributed at
                     </th>
-                    <th className="text-right ct-table-header stat-label">
+                    <th className="hidden text-right ct-table-header stat-label xl:table-cell">
                       Tx hash
                     </th>
-                    <th className="text-right ct-table-header stat-label">
+                    <th className="hidden text-right ct-table-header stat-label lg:table-cell">
                       Source
                     </th>
                   </tr>
@@ -108,7 +111,7 @@ export default async function DistributionsPage({
                   {history.map((d) => {
                     const slug = d.vaultRef;
                     const label = slug
-                      ? (vaultLabelBySlug.get(slug) ?? slug)
+                      ? (LEGACY_VAULT_LABELS[slug] ?? vaultLabelBySlug.get(slug) ?? slug)
                       : null;
 
                     // Fixture slugs navigate to /admin/dashboard?vault=<slug>;
@@ -121,15 +124,12 @@ export default async function DistributionsPage({
                       : null;
 
                     return (
-                      <tr
-                        key={d.id}
-                        className="border-t ct-border-soft ct-hover-surface transition-colors"
-                      >
-                        <td className="ct-table-cell body-xs ct-text-body">
+                      <tr key={d.id} className="border-t ct-border-soft">
+                        <td className="ct-table-cell body-sm ct-text-body truncate">
                           {vaultHref && label ? (
                             <Link
                               href={vaultHref}
-                              className="ct-text-accent hover:underline font-medium"
+                              className="block max-w-full truncate ct-text-accent hover:underline"
                             >
                               {label}
                             </Link>
@@ -145,13 +145,13 @@ export default async function DistributionsPage({
                         <td className="ct-table-cell text-right body-sm ct-text-strong tabular">
                           {formatUsdDetailed(d.amountUsdc.toNumber())}
                         </td>
-                        <td className="ct-table-cell text-right ct-text-muted tabular">
+                        <td className="hidden ct-table-cell text-right ct-text-muted tabular md:table-cell">
                           {d.recipientsCount}
                         </td>
                         <td className="ct-table-cell text-right ct-text-muted">
                           {formatAdminDate(new Date(d.distributedAt))}
                         </td>
-                        <td className="ct-table-cell text-right mono body-xs ct-text-faint">
+                        <td className="hidden ct-table-cell text-right mono body-xs ct-text-faint xl:table-cell">
                           {d.txHash ? (
                             d.txHash.startsWith("0xMOCK") ? (
                               <span className="ct-text-faint">simulated</span>
@@ -162,12 +162,13 @@ export default async function DistributionsPage({
                             <span className="ct-text-faint">—</span>
                           )}
                         </td>
-                        <td className="ct-table-cell text-right">
+                        <td className="hidden ct-table-cell text-right lg:table-cell">
                           {/* B4 — only a REAL on-chain tx hash earns "attested".
                               A simulated `0xMOCK_*` hash is `estimated`; no hash
                               yet (ops-confirmed, not broadcast) is `manual`. */}
                           <span className="inline-flex justify-end">
                             <ProvenanceBadge
+                              variant="strip"
                               kind={
                                 d.txHash
                                   ? d.txHash.startsWith("0xMOCK")

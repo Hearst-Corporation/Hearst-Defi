@@ -41,6 +41,7 @@
   ],
   "exclude": [
     "node_modules",
+    "package/**",
     "packages/**",
     "dist-electron/**",
     "release/**"

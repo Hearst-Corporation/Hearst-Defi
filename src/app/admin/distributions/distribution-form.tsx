@@ -158,229 +158,231 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
     vaultOptions.find((o) => o.value === selectedVault)?.label ?? selectedVault;
 
   return (
-    <div className="ct-card admin-doc-stack">
-      <div className="admin-doc-stack--compact">
-        <h2 className="h2">Compute next distribution</h2>
-        <p className="body-sm ct-text-muted">
-          Dry-run computes pro-rata payouts from active positions. No DB writes
-          until multisig confirmation.
-        </p>
-      </div>
-
-      {/* Inputs */}
-      <div className="admin-doc-form-grid-3">
-        {/* Vault select */}
-        <div className="admin-doc-stack--compact">
-          <label className="stat-label" htmlFor="dist-vault">
-            Vault
-          </label>
-          <select
-            id="dist-vault"
-            value={selectedVault}
-            onChange={(e) => setSelectedVault(e.target.value)}
-            className="ct-input w-full"
-            disabled={isPending}
-            required
-          >
-            {vaultOptions.length === 0 && (
-              <option value="" disabled>
-                No live vaults
-              </option>
-            )}
-            {vaultOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="admin-doc-stack--compact">
-          <label className="stat-label" htmlFor="dist-period">
-            Period (YYYY-MM)
-          </label>
-          <input
-            id="dist-period"
-            type="text"
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            placeholder="2026-05"
-            className="ct-input w-full mono"
-            disabled={isPending}
-          />
-        </div>
-        <div className="admin-doc-stack--compact">
-          <label className="stat-label" htmlFor="dist-usdc">
-            Total USDC
-          </label>
-          <input
-            id="dist-usdc"
-            type="number"
-            value={totalUsdc}
-            onChange={(e) => setTotalUsdc(e.target.value)}
-            placeholder="50000"
-            min={0}
-            step={0.01}
-            className="ct-input w-full tabular"
-            disabled={isPending}
-          />
-        </div>
-      </div>
-
-      <Button
-        variant="secondary"
-        onClick={handleCompute}
-        disabled={isPending || !period || !totalUsdc || !selectedVault}
-      >
-        {isPending && !preview ? "Computing…" : "Compute"}
-      </Button>
-
-      {/* Error */}
-      {error && (
-        <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-lg">
-          {error}
-        </p>
-      )}
-
-      {/* Preview */}
-      {preview && (
-        <>
-          <DistributionPreview
-            period={preview.period}
-            totalUsdc={preview.totalUsdc}
-            recipients={preview.recipients}
-          />
-
-          {/* Multisig confirm */}
-          {preview.recipients.length > 0 && (
-            <div className="admin-doc-stack--actions">
-              <p className="body-xs ct-text-muted">
-                Your multisig signature is recorded under your authenticated
-                admin identity. Two distinct admins must confirm the same amount.
-              </p>
-
-              {confirmResult && !confirmResult.confirmed && (
-                <p className="body-xs ct-status-info-bg px-3 py-2 rounded-lg">
-                  Signature {confirmResult.signersCount}/{confirmResult.required}{" "}
-                  recorded. Awaiting{" "}
-                  {confirmResult.required - confirmResult.signersCount} more
-                  distinct signer(s).
-                </p>
-              )}
-
-              {awaitingConfirm ? (
-                <Card className="admin-confirm-panel">
-                  <h2 className="h2">Confirm distribution</h2>
-                  <div className="admin-confirm-panel__rows">
-                    <div className="admin-confirm-panel__row body-sm">
-                      <span className="ct-text-muted">Vault</span>
-                      <span className="body-sm ct-text-body">
-                        {selectedVaultLabel}
-                      </span>
-                    </div>
-                    <div className="admin-confirm-panel__row body-sm">
-                      <span className="ct-text-muted">Period</span>
-                      <span className="mono body-sm ct-text-body">
-                        {period}
-                      </span>
-                    </div>
-                    <div className="admin-confirm-panel__row body-sm">
-                      <span className="ct-text-muted">Total USDC</span>
-                      <span className="stat-value tabular">
-                        {formatUsdDetailed(totalUsdcNum)} USDC
-                      </span>
-                    </div>
-                    <div className="admin-confirm-panel__row body-sm">
-                      <span className="ct-text-muted">Recipients</span>
-                      <span className="ct-text-body tabular">
-                        {preview.recipients.length}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="body-xs ct-text-muted">
-                    This will record your multisig signature. Distribution is
-                    finalised once the required threshold is reached. Results
-                    are not projected — see methodology v1.0.
-                  </p>
-                  <div className="admin-doc-inline-row">
-                    <Button
-                      variant="secondary"
-                      onClick={() => setAwaitingConfirm(false)}
-                      disabled={isPending}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="primary"
-                      onClick={handleConfirm}
-                      disabled={isPending}
-                      className="flex-1"
-                    >
-                      {isPending
-                        ? "Confirming…"
-                        : "Confirm distribution (multisig)"}
-                    </Button>
-                  </div>
-                </Card>
-              ) : (
-                <Button
-                  variant="primary"
-                  onClick={handleReview}
-                  disabled={isPending}
-                >
-                  Review distribution
-                </Button>
-              )}
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Confirmed — finaliser succeeded */}
-      {confirmResult?.confirmed && confirmResult.finisher !== "failed" && (
-        <div className="ct-status-success-bg px-4 py-3 rounded-xl admin-doc-stack--compact">
-          <p className="body-sm ct-status-success">
-            Distribution confirmed for period {period}.
-          </p>
-          <p className="body-xs ct-text-muted">
-            Distribution row and investor transactions have been created. Reload
-            the page to see the updated history.
+    <Card>
+      <div className="admin-doc-stack">
+        <div className="admin-doc-stack admin-doc-stack--compact">
+          <h2 className="h2">Compute next distribution</h2>
+          <p className="body-sm ct-text-muted">
+            Dry-run computes pro-rata payouts from active positions. No DB writes
+            until multisig confirmation.
           </p>
         </div>
-      )}
 
-      {/* Confirmed — but finalisation (ledger / PCAP / emails) failed */}
-      {confirmResult?.confirmed &&
-        confirmResult.finisher === "failed" &&
-        confirmResult.distributionId && (
-          <div className="ct-status-warning-bg px-4 py-3 rounded-xl admin-doc-stack--actions">
-            <div className="admin-doc-stack--compact">
-              <p className="body-sm ct-status-warning">
-                Confirmed, but finalisation (ledger / PCAP / emails) failed —
-                retry below.
-              </p>
-              <p className="body-xs ct-text-muted">
-                The distribution for period {period} stays pending until
-                finalisation completes. Investor ledger entries and PCAP have
-                not been generated yet.
-              </p>
-            </div>
-            {retryError && (
-              <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-lg">
-                {retryError}
-              </p>
-            )}
-            <Button
-              variant="primary"
-              onClick={() =>
-                handleRetryFinisher(confirmResult.distributionId!)
-              }
+        {/* Inputs */}
+        <div className="admin-doc-form-grid-3">
+          {/* Vault select */}
+          <div className="admin-doc-stack admin-doc-stack--compact">
+            <label className="stat-label" htmlFor="dist-vault">
+              Vault
+            </label>
+            <select
+              id="dist-vault"
+              value={selectedVault}
+              onChange={(e) => setSelectedVault(e.target.value)}
+              className="ct-input w-full"
               disabled={isPending}
+              required
             >
-              {isPending ? "Retrying…" : "Retry finalisation"}
-            </Button>
+              {vaultOptions.length === 0 && (
+                <option value="" disabled>
+                  No live vaults
+                </option>
+              )}
+              {vaultOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="admin-doc-stack admin-doc-stack--compact">
+            <label className="stat-label" htmlFor="dist-period">
+              Period (YYYY-MM)
+            </label>
+            <input
+              id="dist-period"
+              type="text"
+              value={period}
+              onChange={(e) => setPeriod(e.target.value)}
+              placeholder="2026-05"
+              className="ct-input w-full mono"
+              disabled={isPending}
+            />
+          </div>
+          <div className="admin-doc-stack admin-doc-stack--compact">
+            <label className="stat-label" htmlFor="dist-usdc">
+              Total USDC
+            </label>
+            <input
+              id="dist-usdc"
+              type="number"
+              value={totalUsdc}
+              onChange={(e) => setTotalUsdc(e.target.value)}
+              placeholder="50000"
+              min={0}
+              step={0.01}
+              className="ct-input w-full tabular"
+              disabled={isPending}
+            />
+          </div>
+        </div>
+
+        <Button
+          variant="secondary"
+          onClick={handleCompute}
+          disabled={isPending || !period || !totalUsdc || !selectedVault}
+        >
+          {isPending && !preview ? "Computing…" : "Compute"}
+        </Button>
+
+        {/* Error */}
+        {error && (
+          <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-lg">
+            {error}
+          </p>
+        )}
+
+        {/* Preview */}
+        {preview && (
+          <>
+            <DistributionPreview
+              period={preview.period}
+              totalUsdc={preview.totalUsdc}
+              recipients={preview.recipients}
+            />
+
+            {/* Multisig confirm */}
+            {preview.recipients.length > 0 && (
+              <div className="admin-doc-stack admin-doc-stack--actions">
+                <p className="body-xs ct-text-muted">
+                  Your multisig signature is recorded under your authenticated
+                  admin identity. Two distinct admins must confirm the same amount.
+                </p>
+
+                {confirmResult && !confirmResult.confirmed && (
+                  <p className="body-xs ct-status-info-bg px-3 py-2 rounded-lg">
+                    Signature {confirmResult.signersCount}/{confirmResult.required}{" "}
+                    recorded. Awaiting{" "}
+                    {confirmResult.required - confirmResult.signersCount} more
+                    distinct signer(s).
+                  </p>
+                )}
+
+                {awaitingConfirm ? (
+                  <div className="admin-confirm-panel">
+                    <h2 className="h2">Confirm distribution</h2>
+                    <div className="admin-confirm-panel__rows">
+                      <div className="admin-confirm-panel__row body-sm">
+                        <span className="ct-text-muted">Vault</span>
+                        <span className="body-sm ct-text-body">
+                          {selectedVaultLabel}
+                        </span>
+                      </div>
+                      <div className="admin-confirm-panel__row body-sm">
+                        <span className="ct-text-muted">Period</span>
+                        <span className="mono body-sm ct-text-body">
+                          {period}
+                        </span>
+                      </div>
+                      <div className="admin-confirm-panel__row body-sm">
+                        <span className="ct-text-muted">Total USDC</span>
+                        <span className="stat-value tabular">
+                          {formatUsdDetailed(totalUsdcNum)} USDC
+                        </span>
+                      </div>
+                      <div className="admin-confirm-panel__row body-sm">
+                        <span className="ct-text-muted">Recipients</span>
+                        <span className="ct-text-body tabular">
+                          {preview.recipients.length}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="body-xs ct-text-muted">
+                      This will record your multisig signature. Distribution is
+                      finalised once the required threshold is reached. Results
+                      are not projected — see methodology v1.0.
+                    </p>
+                    <div className="admin-doc-inline-row">
+                      <Button
+                        variant="secondary"
+                        onClick={() => setAwaitingConfirm(false)}
+                        disabled={isPending}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={handleConfirm}
+                        disabled={isPending}
+                        className="flex-1"
+                      >
+                        {isPending
+                          ? "Confirming…"
+                          : "Confirm distribution (multisig)"}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button
+                    variant="primary"
+                    onClick={handleReview}
+                    disabled={isPending}
+                  >
+                    Review distribution
+                  </Button>
+                )}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Confirmed — finaliser succeeded */}
+        {confirmResult?.confirmed && confirmResult.finisher !== "failed" && (
+          <div className="ct-status-success-bg px-4 py-3 rounded-xl admin-doc-stack admin-doc-stack--compact">
+            <p className="body-sm ct-status-success">
+              Distribution confirmed for period {period}.
+            </p>
+            <p className="body-xs ct-text-muted">
+              Distribution row and investor transactions have been created. Reload
+              the page to see the updated history.
+            </p>
           </div>
         )}
-    </div>
+
+        {/* Confirmed — but finalisation (ledger / PCAP / emails) failed */}
+        {confirmResult?.confirmed &&
+          confirmResult.finisher === "failed" &&
+          confirmResult.distributionId && (
+            <div className="ct-status-warning-bg px-4 py-3 rounded-xl admin-doc-stack admin-doc-stack--actions">
+              <div className="admin-doc-stack admin-doc-stack--compact">
+                <p className="body-sm ct-status-warning">
+                  Confirmed, but finalisation (ledger / PCAP / emails) failed —
+                  retry below.
+                </p>
+                <p className="body-xs ct-text-muted">
+                  The distribution for period {period} stays pending until
+                  finalisation completes. Investor ledger entries and PCAP have
+                  not been generated yet.
+                </p>
+              </div>
+              {retryError && (
+                <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-lg">
+                  {retryError}
+                </p>
+              )}
+              <Button
+                variant="primary"
+                onClick={() =>
+                  handleRetryFinisher(confirmResult.distributionId!)
+                }
+                disabled={isPending}
+              >
+                {isPending ? "Retrying…" : "Retry finalisation"}
+              </Button>
+            </div>
+          )}
+      </div>
+    </Card>
   );
 }

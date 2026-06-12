@@ -24,6 +24,11 @@ describe("nav-channel (in-memory fallback)", () => {
     expect(await consumeNav("user-3")).toBeNull();
   });
 
+  it("accepts a whitelisted admin destination key", async () => {
+    await publishNav("user-4", "admin-vaults");
+    expect((await consumeNav("user-4"))?.route).toBe("/admin/vaults");
+  });
+
   it("isolates channels per user", async () => {
     await publishNav("user-A", "proof-center");
     expect(await consumeNav("user-B")).toBeNull();

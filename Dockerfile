@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Local tarball deps (file:./hearst-*.tgz in package.json) must be present
 # during install — copy them alongside the lockfile.
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml hearst-cockpit-shell-0.2.0.tgz hearst-hub-sdk-0.2.0.tgz ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml hearst-cockpit-shell-0.2.1.tgz hearst-hub-sdk-0.2.0.tgz ./
 # Pin pnpm@10 — pnpm@11 ships the minimumReleaseAge supply-chain policy on by
 # default, which rejects file:./*.tgz workspace tarballs (lookup → 404 on
 # npm registry). The lockfile was generated with 10.x anyway.

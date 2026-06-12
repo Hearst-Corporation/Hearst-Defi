@@ -41,5 +41,7 @@ describe("COCKPIT_ADMIN_SYSTEM_PROMPT", () => {
     expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("HBP = mining 40 %");
     expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("Tu n'as pas de navigateur web");
     expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("Tu ne peux pas déployer");
+    expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("plan démo");
+    expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("spec graphique");
   });
 });

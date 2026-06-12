@@ -3003,10 +3003,6 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 /* Chat settings */
 .ct-chat-settings                          { padding: 4px 2px; }
 .ct-chat-settings-section                  { padding: 16px 0; }
-.ct-chat-settings-input,
-.ct-chat-settings-select                   { padding: 9px 12px; }
-.ct-chat-settings-select                   { padding-right: 32px; }
-.ct-chat-settings-save                     { padding: 9px 14px; }
 .ct-chat-settings-product                  { padding: 10px 12px; }
 .ct-chat-settings-label {
   margin-bottom: var(--ct-space-2);
@@ -3015,20 +3011,40 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-wide);
 }
-.ct-chat-settings-row {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  width: 100%;
-}
-.ct-chat-settings-row[role="radiogroup"] {
-  flex-direction: row;
-}
 .ct-chat-settings-hint {
   margin-top: var(--ct-space-2);
   font-size: var(--ct-text-xs);
   color: var(--ct-text-faint);
   line-height: var(--ct-leading-relaxed);
+}
+.ct-chat-settings-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+.ct-chat-settings-row--stack {
+  align-items: stretch;
+}
+.ct-chat-settings-segment {
+  flex: 1 1 0;
+  min-width: 0;
+  height: var(--ct-space-8);
+  border-radius: var(--ct-radius-full);
+  padding: 0 var(--ct-space-3);
+  color: var(--ct-text-muted);
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-medium);
+  transition:
+    color var(--ct-dur-base) var(--ct-ease),
+    background-color var(--ct-dur-base) var(--ct-ease);
+}
+.ct-chat-settings-segment:hover {
+  color: var(--ct-text-strong);
+  background: var(--ct-surface-1);
+}
+.ct-chat-settings-segment[aria-checked="true"] {
+  color: var(--ct-bg-deep);
+  background: var(--ct-accent);
 }
 
 /* Chat history */
