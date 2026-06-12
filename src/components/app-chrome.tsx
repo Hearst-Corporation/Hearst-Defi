@@ -37,11 +37,13 @@ export function AppChrome({ children }: { children: ReactNode }) {
     return <div className="min-h-dvh bg-[var(--ct-bg-deep)]">{children}</div>;
   }
 
-  // Chat is only enabled in the admin zone — LP surfaces have no chat UI.
-  const isAdmin = pathname.startsWith("/admin");
-
+  // The conversational Master Agent is available on every authenticated product
+  // surface — LP investors and admins alike. Bare auth/legal routes already
+  // returned above, so they never get the chat. Server-side guardrails (no
+  // client system override, output-side compliance guard, role-aware register)
+  // make this LP-facing surface safe.
   return (
-    <ConnectShell enableChat={isAdmin}>
+    <ConnectShell enableChat>
       {children}
       {/* Chat mode selector (Conversation / Review). Self-gates to admins via
           the requireAdmin-protected /api/admin/review-mode route; renders
