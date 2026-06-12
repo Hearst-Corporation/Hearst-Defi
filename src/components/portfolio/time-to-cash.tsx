@@ -3,8 +3,9 @@
 // Non-negotiable #1: projected USDC shown as estimate (no guarantee).
 // Non-negotiable #2: dual ProvenanceBadge Live (cycle) + Estimate (projected USDC).
 
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { ModuleChrome } from "@/components/ui/module-chrome";
+import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { ApyRange } from "@/components/ui/apy-range";
 import { cn } from "@/lib/cn";
 import { computeTimeToCash } from "@/lib/data/time-to-cash";
@@ -30,8 +31,6 @@ export interface TimeToCashProps {
   updatedAt?: Date;
   /** Layout preview at zero — awaiting surface only (DS §9.3). */
   previewZeros?: boolean;
-  /** Inside MergedSurface — parent supplies section label; no nested dash-cell. */
-  embedded?: boolean;
 }
 
 // ── Formatters ────────────────────────────────────────────────────────────────
@@ -68,7 +67,6 @@ export function TimeToCash({
   source,
   updatedAt,
   previewZeros = false,
-  embedded = false,
 }: TimeToCashProps) {
   const effectiveAsOf = asOf ?? new Date();
 
@@ -120,14 +118,9 @@ export function TimeToCash({
           ? "Distribution reached"
           : `~${usdcFmt.format(Math.round(projectedUsdc))} USDC in ${daysRemaining}d ${hoursRemaining}h`;
 
-  const body = (
-    <>
-      {!embedded ? (
-        <div className="pf-widget-header relative z-10">
-          <h3 className="h3">Time to cash</h3>
-          <ProvenanceBadge kind={widgetProvenance} />
-        </div>
-      ) : null}
+  return (
+    <ModuleChrome aria-label="Time to next distribution" className="gap-3">
+      <WidgetPanelHeader title="Time to cash" provenance={widgetProvenance} />
 
       {/* Next distribution row --------------------------------------------- */}
       <div className="flex flex-col gap-0.5 relative z-10 min-w-0">
@@ -196,23 +189,6 @@ export function TimeToCash({
         </span>
         <span className="body-xs ct-text-faint">Notifications after first payout</span>
       </div>
-    </>
-  );
-
-  if (embedded) {
-    return (
-      <div className="flex flex-col gap-3" aria-label="Time to next distribution">
-        {body}
-      </div>
-    );
-  }
-
-  return (
-    <article
-      className="dash-cell dash-cell-premium flex flex-col gap-3"
-      aria-label="Time to next distribution"
-    >
-      {body}
-    </article>
+    </ModuleChrome>
   );
 }

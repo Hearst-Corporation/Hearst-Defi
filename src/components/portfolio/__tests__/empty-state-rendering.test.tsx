@@ -33,23 +33,28 @@ const ZERO_SCORES = [
   { dimension: "counterparty" as const, score: 0, delta30d: 0 },
 ];
 
-/** True when `needle` sits inside an unclosed article.dash-cell-premium. */
+/** True when `needle` sits inside an unclosed active module shell. */
 function isInsideActiveModuleSurface(html: string, needle: string): boolean {
   const idx = html.indexOf(needle);
   if (idx === -1) return false;
 
   const before = html.slice(0, idx);
-  const openRe = /<article[^>]*dash-cell-premium[^>]*>/g;
+  const shellPatterns = [
+    /<div[^>]*glass-panel[^>]*>/g,
+    /<article[^>]*dash-cell-premium[^>]*>/g,
+  ];
   let lastOpen = -1;
-  let match: RegExpExecArray | null;
-  while ((match = openRe.exec(before)) !== null) {
-    lastOpen = match.index;
+  for (const openRe of shellPatterns) {
+    let match: RegExpExecArray | null;
+    while ((match = openRe.exec(before)) !== null) {
+      lastOpen = Math.max(lastOpen, match.index);
+    }
   }
   if (lastOpen === -1) return false;
 
   const slice = before.slice(lastOpen);
-  const openCount = (slice.match(/<article/g) ?? []).length;
-  const closeCount = (slice.match(/<\/article>/g) ?? []).length;
+  const openCount = (slice.match(/<(div|article)\b/g) ?? []).length;
+  const closeCount = (slice.match(/<\/(div|article)>/g) ?? []).length;
   return openCount > closeCount;
 }
 
@@ -57,6 +62,7 @@ function assertEmptyDesignContract(html: string, message: string): void {
   expect(html).toContain(message);
   expect(isInsideActiveModuleSurface(html, message)).toBe(false);
   expect(html).not.toContain("dash-cell-premium");
+  expect(html).not.toContain("glass-panel");
   expect(html).not.toContain("border-dashed");
   expect(html).not.toContain("Stale");
 }
@@ -165,7 +171,7 @@ describe("Portfolio empty states — design contract", () => {
         previewZeros
       />,
     );
-    expect(html).toContain("dash-cell-premium");
+    expect(html).toContain("glass-panel");
     expect(html).toContain("yield-stack-row");
     expect(html).not.toContain("ct-empty-surface--widget");
   });
@@ -232,7 +238,7 @@ describe("Portfolio empty states — design contract", () => {
   });
 });
 
-describe("Portfolio populated states — dash-cell-premium preserved", () => {
+describe("Portfolio populated states — Card shell preserved", () => {
   it("ValueChart with data renders active card + svg", () => {
     const html = renderToStaticMarkup(
       <ValueChart
@@ -254,7 +260,7 @@ describe("Portfolio populated states — dash-cell-premium preserved", () => {
         source="live"
       />,
     );
-    expect(html).toContain("dash-cell-premium");
+    expect(html).toContain("glass-panel");
     expect(html).toContain("<svg");
     expect(html).not.toContain("ct-empty-surface--chart");
   });

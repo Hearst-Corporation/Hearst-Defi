@@ -11,8 +11,9 @@
  *  #5  Forbidden words absent (guarantee excluded by "not guaranteed" phrase).
  */
 
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { ModuleChrome } from "@/components/ui/module-chrome";
+import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { cn } from "@/lib/cn";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
@@ -121,15 +122,11 @@ export function YieldStack({
   }
 
   return (
-    <article
-      className="dash-cell dash-cell-premium h-full flex flex-col"
-      aria-label="Yield source stack — 12 month forward projection"
-    >
-      {/* Header */}
-      <div className="pf-widget-header relative z-10">
-        <h3 className="h3">Yield Source Stack (12m fwd)</h3>
-        <ProvenanceBadge kind={badgeKind} />
-      </div>
+    <ModuleChrome aria-label="Yield source stack — 12 month forward projection">
+      <WidgetPanelHeader
+        title="Yield Source Stack (12m fwd)"
+        provenance={badgeKind}
+      />
 
       {/* Visual bar stack */}
       <div
@@ -233,6 +230,6 @@ export function YieldStack({
         not guaranteed · methodology {methodologyVersion.startsWith("v") ? methodologyVersion : `v${methodologyVersion}`} · projections show
         assumptions only
       </p>
-    </article>
+    </ModuleChrome>
   );
 }

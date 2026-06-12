@@ -1,6 +1,7 @@
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { ModuleChrome } from "@/components/ui/module-chrome";
+import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { cn } from "@/lib/cn";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
@@ -54,8 +55,6 @@ interface RecentActivityProps {
   updatedAt?: Date;
   /** Render activity shell with empty list (layout preview). */
   previewZeros?: boolean;
-  /** Inside MergedSurface — parent supplies section label; no nested dash-cell. */
-  embedded?: boolean;
 }
 
 /**
@@ -67,7 +66,6 @@ export function RecentActivity({
   source,
   updatedAt,
   previewZeros = false,
-  embedded = false,
 }: RecentActivityProps) {
   const provenance = resolveProvenance(
     previewZeros && transactions.length === 0 ? "stale" : source,
@@ -83,16 +81,9 @@ export function RecentActivity({
     );
   }
 
-  const shellClass = embedded
-    ? "flex flex-col"
-    : "dash-cell dash-cell-premium flex flex-col";
-
   return (
-    <article className={shellClass} aria-label="Recent account activity">
-      <div className="pf-widget-header">
-        <h3 className="h3">Recent activity</h3>
-        <ProvenanceBadge kind={provenance} />
-      </div>
+    <ModuleChrome aria-label="Recent account activity">
+      <WidgetPanelHeader title="Recent activity" provenance={provenance} />
 
         <div className="flex flex-col gap-1 mt-3">
           {displayed.length === 0 ? (
@@ -128,6 +119,6 @@ export function RecentActivity({
             </div>
           ))}
         </div>
-    </article>
+    </ModuleChrome>
   );
 }

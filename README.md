@@ -46,13 +46,11 @@ model for all 4 agents + cockpit chat. No Anthropic SDK. See **ADR-011**
 demander une exception explicite à Adrien et la documenter dans l'ADR si
 elle est accordée.
 
-**Bento investisseur (`product-bento.css`)** : chrome unique `.dash-cell` /
-`.dash-cell-premium` / `.dash-bento` pour Portfolio et surfaces LP — matière
-`--ct-graphite-*` (alignée sur `.glass-panel` / `Card`).
-Grille 12 col : spans sur `.dash-cell.col-*` ou enfants directs `.bento-col-4|6|8|12`
-(Card / wrappers widget — pas `col-*` nu sur un `<div>`). `portfolio.css` =
-layout-only (spacing) — **interdit** d'y réécrire le material bento (test guard :
-`portfolio-bento-lock.test.ts`).
+**Grille investisseur (`product-bento.css`)** : layout `.dash-bento` / `.bento-col-*`
+uniquement — **material** = primitives UI canoniques (`Card` + `.card-premium`,
+`ProductSection`, `EmptySurface`). `.dash-cell-premium` reste un alias CSS vers
+`.card-premium` (legacy profile/debug). `portfolio.css` = layout-only (spacing) —
+**interdit** d'y réécrire le material module (test guard : `portfolio-bento-lock.test.ts`).
 
 ### Source de vérité du design system
 
@@ -76,13 +74,13 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
 - **Tooltips** : Composant `Tooltip` (via `framer-motion`) intégré aux `ProvenanceBadge` et `Metric`.
 - **Transitions** : Composant `MotionViewport` pour les animations d'entrée de section (fade-in + slide-up).
 - **Portfolio** : Page complète avec bento analytics, gestion KYC/KYB
-  institutionnelle. Utilise `MergedSurface` pour les sections (tier 1 :
-  `--ct-graphite-active-bg`) — widgets enfants passent `embedded` (pas de
-  `dash-cell` ni provenance dupliquée). **Layout preview** (`pf-container--zero`) :
-  placeholders DS §9.3 uniquement — `ct-empty-surface--widget` /
-  `ct-empty-surface--chart`, jamais de `dash-cell-premium` + badge Stale
-  simulé. **Empty states** : primitive canonique `EmptySurface` (`.ct-empty-surface*`
-  dans `cockpit.css`). Wrapper portfolio : `AwaitingMetricState` (lien optionnel).
+  institutionnelle. Sections multi-widgets : `ProductSection` (`Card` actif /
+  `ct-section-preview` en layout preview) + `SectionEmbedProvider` — widgets via
+  `ModuleChrome` + `WidgetPanelHeader` (headers masqués automatiquement en embed).
+  **Layout preview** (`pf-container--zero`) : shells structurels à $0 dans les
+  widgets preview ; true-empty = `EmptySurface` seul. **Empty states** :
+  `EmptySurface` (`.ct-empty-surface*` dans `cockpit.css`) · `AwaitingMetricState`
+  (`src/components/ui/awaiting-metric-state.tsx`, lien optionnel).
   Dashed réservé à `.ct-dropzone`
   uniquement — voir [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) §9.
   Règle : *Empty states replace active module surfaces; they are not rendered
@@ -124,14 +122,14 @@ provenance sur le bloc parent) · `NestedPanel` + `ProofRow` (preuves / evidence
 · `.ct-nested-callout` (alertes status dans un widget). Définis dans
 `cockpit.css` ; composants dans `src/components/ui/nested-panel.tsx`.
 
-**Surfaces module (dark graphite)** — `.glass-panel` / `.ct-glass-panel` (Card),
-`.dash-cell` / `.dash-cell-premium` (bento investisseur), `.glass-panel-subtle`,
-`.ct-empty-surface*`, `.ct-system-panel`, nested panels : recette `--ct-graphite-*` dans `cockpit.css`
+**Surfaces module (dark graphite)** — `.glass-panel` / `Card` + `.card-premium`
+(dot grid), `.ct-section-preview`, `.ct-empty-surface*`, `.ct-system-panel`,
+`ProductSection`, nested panels : recette `--ct-graphite-*` dans `cockpit.css`
 (bg-deep smoked glass). Chips/badges gardent `--ct-surface-1` littéral.
 
 **Canon typo/layout** (cohérence pages) :
 - H1 page : `.h1` via `ProductPageHeader` / `AdminPageHeader` (gap-4, description `body-md max-w-xl`).
-- H2 section : `.h2` (y compris titres modales `Modal`, `ConfirmDialog`, `ShortcutsOverlay`) · titre carte / widget : `.h3` / `DashboardPanelHeader` (admin + proof-center) ou `CardTitle` (portfolio bento, header `.pf-widget-header`) · KPI valeur : `.stat-value` + `.stat-label` · labels section compacte : `.stat-label`.
+- H2 section : `.h2` · titre module : `.h3` / `DashboardPanelHeader` ou `WidgetPanelHeader` · KPI valeur : `.stat-value` + `.stat-label` · labels section compacte : `.stat-label`.
 - Padding vertical page : `space-y-8` / `gap-8` (`--ct-space-8`).
 - **Exceptions documentées** : Portfolio → `PortfolioGreeting` (même `.h1`, greeting personnalisé) ;
   login marketing → titre visuel `.h1` sur `<p>` (H1 sémantique unique = « Sign in ») ;

@@ -1,8 +1,9 @@
 import Link from "next/link";
 
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { ModuleChrome } from "@/components/ui/module-chrome";
+import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { ApyRange } from "@/components/ui/apy-range";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
@@ -58,16 +59,16 @@ export function PositionsList({
   const isPreviewEmpty = positions.length === 0 && previewZeros;
 
   return (
-    <article className="dash-cell dash-cell-premium flex flex-col" aria-label="Open positions">
-      <div className="pf-widget-header">
-        <h3 className="h3">Positions</h3>
-        <span className="dash-label-meta">
-          <ProvenanceBadge kind={provenance} />
+    <ModuleChrome aria-label="Open positions">
+      <WidgetPanelHeader
+        title="Positions"
+        provenance={provenance}
+        trailing={
           <span className="body-xs ct-text-muted tabular">
             {positions.length} position{positions.length !== 1 ? "s" : ""}
           </span>
-        </span>
-      </div>
+        }
+      />
 
       <div className="flex flex-col gap-1 mt-3 overflow-x-auto min-w-0">
           {/* Header row */}
@@ -135,6 +136,6 @@ export function PositionsList({
             </div>
           ))}
         </div>
-    </article>
+    </ModuleChrome>
   );
 }

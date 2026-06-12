@@ -3,7 +3,9 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { NestedCallout, NestedPanel, ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { ModuleChrome } from "@/components/ui/module-chrome";
+import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { cn } from "@/lib/cn";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -26,8 +28,6 @@ export interface ProofPulseProps {
   proofState?: "attested" | "stale";
   /** Render PoR shell at $0 (layout preview). */
   previewZeros?: boolean;
-  /** Inside MergedSurface — parent supplies section label; no nested dash-cell. */
-  embedded?: boolean;
 }
 
 // ── Pure helpers (exported for tests) ────────────────────────────────────────
@@ -126,7 +126,6 @@ export function ProofPulse({
   updatedAt: _updatedAt,
   proofState,
   previewZeros = false,
-  embedded = false,
 }: ProofPulseProps) {
   const { timestamp, statedTvlUsdc, onChainTvlUsdc } = lastPor;
 
@@ -196,14 +195,12 @@ export function ProofPulse({
     );
   }
 
-  const body = (
-    <>
-      {!embedded ? (
-        <div className="pf-widget-header relative z-10">
-          <h3 className="h3">Proof &amp; methodology</h3>
-          <ProvenanceBadge kind={headerProvenance} />
-        </div>
-      ) : null}
+  return (
+    <ModuleChrome aria-label="Proof and methodology">
+      <WidgetPanelHeader
+        title="Proof & methodology"
+        provenance={headerProvenance}
+      />
 
       {/* ── Last PoR block — only when an attestation actually exists ──────────
           With no attestation we show a single calm callout instead of a grid of
@@ -310,20 +307,6 @@ export function ProofPulse({
           Open proof center
         </Link>
       </div>
-    </>
-  );
-
-  if (embedded) {
-    return (
-      <div className="flex h-full flex-col" aria-label="Proof and methodology">
-        {body}
-      </div>
-    );
-  }
-
-  return (
-    <article className="dash-cell dash-cell-premium h-full flex flex-col">
-      {body}
-    </article>
+    </ModuleChrome>
   );
 }

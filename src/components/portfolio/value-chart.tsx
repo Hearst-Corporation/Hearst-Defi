@@ -2,6 +2,8 @@ import { type Provenance } from "@/components/ui/provenance-badge";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
 import { EmptySurface } from "@/components/ui/empty-surface";
+import { ModuleChrome } from "@/components/ui/module-chrome";
+import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 import { cn } from "@/lib/cn";
@@ -177,8 +179,6 @@ interface ValueChartProps {
   updatedAt?: Date;
   /** Render full chart shell with a flat $0 series (layout preview, no position). */
   previewZeros?: boolean;
-  /** Inside MergedSurface — section header owns provenance; no nested dash-cell. */
-  embedded?: boolean;
 }
 
 export function ValueChart({
@@ -187,7 +187,6 @@ export function ValueChart({
   source,
   updatedAt,
   previewZeros = false,
-  embedded = false,
 }: ValueChartProps) {
   const asOf = new Date(); // rendered server-side; consistent within a request
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
@@ -213,23 +212,22 @@ export function ValueChart({
     );
   }
 
-  const shellClass = embedded
-    ? "relative flex h-full flex-col"
-    : "dash-cell dash-cell-premium relative h-full";
-
   return (
-    <article className={shellClass} aria-label="Portfolio value — 12-month trend">
-      {!embedded ? <ChartProvenanceCorner kind={provenance} /> : null}
-      {!embedded ? (
-        <div className="pf-widget-header relative z-10">
-          <h3 className="h3">Portfolio value · indicative 12-month path</h3>
+    <ModuleChrome
+      aria-label="Portfolio value — 12-month trend"
+      className="relative h-full"
+      adornment={<ChartProvenanceCorner kind={provenance} />}
+    >
+      <WidgetPanelHeader
+        title="Portfolio value · indicative 12-month path"
+        trailing={
           <span className="dash-label-meta">
             <span className="dash-trend flat">
               {formatUsdCompact(chartValue)}
             </span>
           </span>
-        </div>
-      ) : null}
+        }
+      />
 
       <div
         className={cn(
@@ -264,6 +262,6 @@ export function ValueChart({
           ? "Layout preview at zero — path populates after your first active position."
           : "Indicative path derived from subscribed principal and current value. Past performance does not predict future results."}
       </p>
-    </article>
+    </ModuleChrome>
   );
 }

@@ -6,8 +6,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { MergedSurface } from "@/components/portfolio/merged-surface";
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { LayoutPreviewBanner } from "@/components/portfolio/layout-preview-banner";
+import { SectionEmbedProvider } from "@/components/ui/section-embed";
 import { TimeToCash } from "@/components/portfolio/time-to-cash";
 import { LockMeter } from "@/components/portfolio/lock-meter";
 import { ValueChart } from "@/components/portfolio/value-chart";
@@ -34,7 +35,7 @@ describe("Portfolio zero-position — default empty widgets", () => {
   it("TimeToCash stale: awaiting surface, no premium shell", () => {
     const html = renderToStaticMarkup(<TimeToCash {...STALE_TIME_TO_CASH_PROPS} />);
     expect(html).toContain("ct-empty-surface--widget");
-    expect(html).not.toContain("dash-cell-premium");
+    expect(html).not.toContain("glass-panel");
   });
 
   it("LockMeter unknown terms: awaiting surface, no premium shell", () => {
@@ -47,7 +48,7 @@ describe("Portfolio zero-position — default empty widgets", () => {
       />,
     );
     expect(html).toContain("ct-empty-surface--widget");
-    expect(html).not.toContain("dash-cell-premium");
+    expect(html).not.toContain("glass-panel");
   });
 
   it("MergedSurface with showProvenance=false hides Verified data label", () => {
@@ -59,15 +60,15 @@ describe("Portfolio zero-position — default empty widgets", () => {
     expect(html).not.toContain("Verified data");
   });
 
-  it("MergedSurface preview variant uses pf-section-light, not dash-cell-premium", () => {
+  it("MergedSurface preview variant uses ct-section-preview, not glass-panel", () => {
     const html = renderToStaticMarkup(
       <MergedSurface title="Performance" variant="preview" data-section="hero-pulse">
         <AwaitingMetricState message="Awaiting first position." className="pf-zero-await" />
       </MergedSurface>,
     );
-    expect(html).toContain("pf-section-light");
+    expect(html).toContain("ct-section-preview");
     expect(html).toContain("Preview");
-    expect(html).not.toContain("dash-cell-premium");
+    expect(html).not.toContain("glass-panel");
     expect(html).not.toContain("Verified data");
   });
 });
@@ -81,7 +82,9 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
 
   it("TimeToCash previewZeros: progress bar shell at zero, no awaiting surface", () => {
     const html = renderToStaticMarkup(
-      <TimeToCash {...zeroTimeToCashProps(PREVIEW_AS_OF)} previewZeros embedded />,
+      <SectionEmbedProvider>
+        <TimeToCash {...zeroTimeToCashProps(PREVIEW_AS_OF)} previewZeros />
+      </SectionEmbedProvider>,
     );
     expect(html).toContain("pf-progress-track");
     expect(html).toContain("$0 USDC projected");
@@ -90,13 +93,14 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
 
   it("ValueChart previewZeros: flat $0 area chart, not empty surface", () => {
     const html = renderToStaticMarkup(
-      <ValueChart
-        positions={[]}
-        totalValueUsdc={0}
-        source="fallback"
-        previewZeros
-        embedded
-      />,
+      <SectionEmbedProvider>
+        <ValueChart
+          positions={[]}
+          totalValueUsdc={0}
+          source="fallback"
+          previewZeros
+        />
+      </SectionEmbedProvider>,
     );
     expect(html).toContain("<svg");
     expect(html).not.toContain("ct-empty-surface--chart");
@@ -105,7 +109,9 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
 
   it("LockMeter previewZeros: progress bar at 0%, not awaiting surface", () => {
     const html = renderToStaticMarkup(
-      <LockMeter {...zeroLockMeterProps(PREVIEW_AS_OF)} previewZeros embedded />,
+      <SectionEmbedProvider>
+        <LockMeter {...zeroLockMeterProps(PREVIEW_AS_OF)} previewZeros />
+      </SectionEmbedProvider>,
     );
     expect(html).toContain("pf-progress-track");
     expect(html).not.toContain("ct-empty-surface--widget");
@@ -123,9 +129,9 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
         previewZeros
       />,
     );
-    expect(yieldHtml).toContain("dash-cell-premium");
+    expect(yieldHtml).toContain("glass-panel");
     expect(yieldHtml).toContain("yield-stack-row");
-    expect(donutHtml).toContain("dash-cell-premium");
+    expect(donutHtml).toContain("glass-panel");
     expect(donutHtml).toContain("<svg");
     expect(donutHtml).toContain("0% · $0");
   });

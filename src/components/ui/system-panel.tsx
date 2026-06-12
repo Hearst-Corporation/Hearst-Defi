@@ -19,12 +19,15 @@ export function DashboardPanelHeader({
   title,
   eyebrow,
   provenance,
+  trustLabel,
   tone = "quiet",
   className,
 }: {
   title: string;
   eyebrow?: string;
   provenance?: Provenance;
+  /** Investor-facing trust copy shown beside provenance (e.g. Verified data). */
+  trustLabel?: string;
   /** primary = command-row data cards; quiet = instrumentation panels */
   tone?: "primary" | "quiet";
   className?: string;
@@ -47,7 +50,16 @@ export function DashboardPanelHeader({
           {title}
         </h3>
       </div>
-      {provenance ? <ProvenanceBadge kind={provenance} compact /> : null}
+      {provenance || trustLabel ? (
+        <div className="flex items-center gap-3 shrink-0">
+          {trustLabel ? (
+            <span className="body-xs ct-text-faint italic hidden sm:inline">
+              {trustLabel}
+            </span>
+          ) : null}
+          {provenance ? <ProvenanceBadge kind={provenance} compact /> : null}
+        </div>
+      ) : null}
     </header>
   );
 }

@@ -1885,6 +1885,74 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-border-soft));
 }
 
+/* Premium dot grid — primary investor/admin modules (alias: .dash-cell-premium) */
+.card-premium,
+.dash-cell-premium {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--ct-accent) 3%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 32px 32px;
+}
+
+/* Layout-preview section frame — quieter than active Card */
+.ct-section-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+  padding: var(--ct-space-6);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+}
+
+.ct-product-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+  min-height: auto !important;
+}
+
+.ct-product-section__preview-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.ct-product-section__preview-lead {
+  max-width: 52ch;
+}
+
+.ct-product-section__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ct-product-section__content > div {
+  height: 100%;
+}
+
+.widget-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+
+.widget-panel-header .h3 {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .glass-panel-subtle {
   background: var(--ct-graphite-subtle-bg);
   backdrop-filter: var(--ct-graphite-blur);

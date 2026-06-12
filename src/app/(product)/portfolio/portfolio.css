@@ -252,86 +252,21 @@
   min-height: 20rem;
 }
 
-/* === Merged cells — strip internal dash-cell styling when nested === */
-.pf-merged-surface {
+/* ProductSection layout — section padding inside Card (canonical DS) */
+.pf-container .ct-product-section {
   padding: var(--ct-space-6) !important;
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-6);
-  min-height: auto !important;
 }
 
-.pf-merged-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-text-strong) 10%, var(--ct-border-soft));
-  padding-bottom: var(--ct-space-4);
-}
-
-.pf-merged-header .h3 {
-  margin: 0;
-  line-height: 1;
-}
-
-.pf-merged-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Hide internal headers when nested in a merged surface */
-.pf-merged-content .pf-widget-header,
-.pf-merged-content .dash-label:not(.pf-merged-header .dash-label),
-.pf-merged-content .chart-provenance-corner,
-.pf-merged-content [aria-label*="provenance" i] {
-  display: none !important;
-}
-
-/* Specific overrides for nested components to remove their own dash-cell chrome */
-.pf-merged-content article.dash-cell,
-.pf-merged-content .dash-cell {
-  background: transparent !important;
-  background-image: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  min-height: unset !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  height: auto !important;
-  overflow: visible !important;
-}
-
-.pf-merged-content article.dash-cell::after,
-.pf-merged-content .dash-cell::after {
-  display: none !important;
-}
-
-/* Adjust spacing for merged content children */
-.pf-merged-content > div {
-  height: 100%;
+.pf-container .ct-product-section__content .ct-empty-surface--widget {
+  min-height: 10rem;
 }
 
 /* DS §9 empty surfaces — base styles live in cockpit.css (.ct-empty-surface*).
    Portfolio-only layout overrides below. */
 
-/* Zero-position layout — section frame (quieter than dash-cell-premium, but
-   still a visible box so hero / trust / activity read as modules). */
-.pf-section-light {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-6);
-  padding: var(--ct-space-6);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
-}
-
-.pf-section-light--compact {
+/* Preview section compact variant (layout-only) */
+.pf-section-light--compact,
+.ct-section-preview--compact {
   gap: var(--ct-space-4);
 }
 
@@ -350,15 +285,6 @@
   padding-bottom: var(--ct-space-16);
 }
 
-.pf-zero-section-head {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-
-.pf-zero-lead {
-  max-width: 52ch;
-}
 
 .pf-zero-hero-body {
   display: grid;
@@ -421,10 +347,5 @@
 .pf-container [data-section="hero-pulse"] .ct-empty-surface--chart,
 .pf-container [data-section="activity-payouts"] .ct-empty-surface--chart {
   min-height: 12rem;
-}
-
-/* Liquidity column — awaiting surfaces inside merged hero */
-.pf-container [data-section="hero-pulse"] .pf-merged-content .ct-empty-surface--widget {
-  min-height: 10rem;
 }
 

@@ -10,8 +10,9 @@
  * Layout: fixed 560×160 viewBox, bars left→right, labels below each bar.
  */
 
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { EmptySurface } from "@/components/ui/empty-surface";
+import { ModuleChrome } from "@/components/ui/module-chrome";
+import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { explorerTxUrl } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
@@ -40,7 +41,6 @@ export interface DistribCalendarProps {
   /** Layout preview at zero — nested empty chart only (DS §9.3). */
   previewZeros?: boolean;
   /** Inside MergedSurface — parent supplies section label; no nested dash-cell. */
-  embedded?: boolean;
 }
 
 // ── Formatting helpers (exported for tests) ───────────────────────────────────
@@ -285,7 +285,6 @@ export function DistribCalendar({
   source = "live",
   updatedAt,
   previewZeros = false,
-  embedded = false,
 }: DistribCalendarProps) {
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
@@ -315,23 +314,13 @@ export function DistribCalendar({
     );
   }
 
-  const body = (
-    <>
-      {!embedded ? (
-        <div className="flex items-start justify-between gap-3 relative z-10">
-          <div className="flex flex-col gap-0.5">
-            <h3 className="h3 mb-0">Payout calendar</h3>
-            <p className="body-xs ct-text-muted mono">
-              12-month history · USDC
-              {hasForecast ? " · incl. estimated forecast" : ""}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-1.5 shrink-0">
-            <ProvenanceBadge kind={badgeKind} />
-          </div>
-        </div>
-      ) : null}
+  return (
+    <ModuleChrome aria-label="Payout calendar" className="gap-3">
+      <WidgetPanelHeader
+        title="Payout calendar"
+        subtitle={`12-month history · USDC${hasForecast ? " · incl. estimated forecast" : ""}`}
+        provenance={badgeKind}
+      />
 
       <div className="w-full overflow-hidden rounded-md relative z-10">
         <BarChart
@@ -367,23 +356,6 @@ export function DistribCalendar({
           ) : null}
         </dl>
       )}
-    </>
-  );
-
-  if (embedded) {
-    return (
-      <div className="flex h-full flex-col gap-3" aria-label="Payout calendar">
-        {body}
-      </div>
-    );
-  }
-
-  return (
-    <article
-      aria-label="Payout calendar"
-      className="dash-cell dash-cell-premium flex flex-col gap-3 h-full"
-    >
-      {body}
-    </article>
+    </ModuleChrome>
   );
 }

@@ -70,15 +70,7 @@
   background-size: 28px 28px;
 }
 
-/* Premium dot grid only — no green radial wash (graphite stays calm). */
-.dash-cell-premium {
-  background-image: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--ct-accent) 3%, transparent) 1px,
-    transparent 1px
-  );
-  background-size: 32px 32px;
-}
+/* Premium dot grid: canonical recipe in cockpit.css (.card-premium / .dash-cell-premium) */
 
 .dash-cell.col-3 { grid-column: span 3; }
 .dash-cell.col-4 { grid-column: span 4; }

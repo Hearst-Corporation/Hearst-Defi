@@ -1,5 +1,6 @@
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { EmptySurface } from "@/components/ui/empty-surface";
+import { ModuleChrome } from "@/components/ui/module-chrome";
+import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
@@ -76,11 +77,11 @@ export function AllocationDonut({
   }
 
   return (
-    <article className="dash-cell dash-cell-premium h-full" aria-label="Portfolio allocation">
-      <div className="pf-widget-header relative z-10">
-        <h3 className="h3">Allocation by position status</h3>
-        <ProvenanceBadge kind={provenance} />
-      </div>
+    <ModuleChrome aria-label="Portfolio allocation">
+      <WidgetPanelHeader
+        title="Allocation by position status"
+        provenance={provenance}
+      />
 
       <div className="flex flex-col items-center gap-3 mt-2 relative z-10">
         <div className="dash-chart-container relative mt-0 w-(--ct-donut-size) h-(--ct-donut-size)">
@@ -143,6 +144,6 @@ export function AllocationDonut({
           ))}
         </div>
       </div>
-    </article>
+    </ModuleChrome>
   );
 }

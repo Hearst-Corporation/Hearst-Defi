@@ -28,9 +28,8 @@ describe("portfolio bento lock", () => {
     expect(portfolioCss).not.toContain(".pf-empty-preview");
   });
 
-  it("defines merged-surface layout primitives", () => {
-    expect(portfolioCss).toContain(".pf-merged-surface");
-    expect(portfolioCss).toContain(".pf-merged-header");
-    expect(portfolioCss).toContain(".pf-merged-content");
+  it("defines product-section layout primitives", () => {
+    expect(portfolioCss).toContain(".ct-product-section");
+    expect(portfolioCss).toContain(".ct-product-section__content");
   });
 });

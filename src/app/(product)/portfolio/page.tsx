@@ -219,7 +219,6 @@ export default async function PortfolioPage() {
                 source={data.source}
                 updatedAt={data.updatedAt}
                 previewZeros={previewZeros}
-                embedded
               />
             </div>
             <div
@@ -247,12 +246,10 @@ export default async function PortfolioPage() {
                 <TimeToCash
                   {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
                   previewZeros={previewZeros}
-                  embedded
                 />
                 <LockMeter
                   {...(previewZeros ? zeroLockMeterProps(previewAsOf) : lockMeterProps)}
                   previewZeros={previewZeros}
-                  embedded
                 />
               </div>
             </div>
@@ -302,7 +299,6 @@ export default async function PortfolioPage() {
                 <RiskPulse
                   {...riskPulseProps}
                   previewZeros={previewZeros}
-                  embedded
                 />
               </div>
               <div
@@ -315,7 +311,6 @@ export default async function PortfolioPage() {
                     ? zeroProofPulseProps(previewAsOf)
                     : proofPulseProps)}
                   previewZeros={previewZeros}
-                  embedded
                 />
               </div>
               <div
@@ -323,7 +318,7 @@ export default async function PortfolioPage() {
                 className={previewZeros ? "pf-zero-trust-row" : "flex flex-col gap-4"}
               >
                 <span className="stat-label ct-text-accent">Security audit</span>
-                <SecurityPulse embedded previewZeros={previewZeros} />
+                <SecurityPulse previewZeros={previewZeros} />
               </div>
             </div>
           </MergedSurface>
@@ -358,7 +353,6 @@ export default async function PortfolioPage() {
                   source={data.source}
                   updatedAt={data.updatedAt}
                   previewZeros={previewZeros}
-                  embedded
                 />
               </div>
               <div
@@ -376,7 +370,6 @@ export default async function PortfolioPage() {
                   previewZeros={
                     previewZeros && distribCalendarProps.entries.length === 0
                   }
-                  embedded
                 />
               </div>
             </div>

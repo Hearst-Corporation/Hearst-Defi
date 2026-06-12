@@ -2,8 +2,9 @@
 // Server Component (pure — no I/O, no side effects).
 // Non-negotiable #2: ProvenanceBadge kind="live" (CLAUDE.md).
 
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { ModuleChrome } from "@/components/ui/module-chrome";
+import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 // ── Internal helpers (exported for unit tests) ────────────────────────────────
@@ -76,8 +77,6 @@ export interface LockMeterProps {
   updatedAt?: Date;
   /** Layout preview at zero — awaiting surface only (DS §9.3). */
   previewZeros?: boolean;
-  /** Inside MergedSurface — parent supplies section label; no nested dash-cell. */
-  embedded?: boolean;
 }
 
 const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
@@ -102,7 +101,6 @@ export function LockMeter({
   asOf,
   source = "live",
   previewZeros = false,
-  embedded = false,
 }: LockMeterProps) {
   const effectiveAsOf = asOf ?? new Date();
 
@@ -134,18 +132,18 @@ export function LockMeter({
       : `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} remaining of ${softLockupDays}`
   }`;
 
-  const body = (
-    <>
-      {!embedded ? (
-        <div className="pf-widget-header relative z-10">
+  return (
+    <ModuleChrome aria-label="Lock and liquidity status" className="gap-3">
+      <WidgetPanelHeader
+        title={
           <Tooltip content="Progress towards your 60-day soft lockup period">
-            <h3 className="h3 cursor-help border-b border-dotted border-(--ct-border-soft)">
+            <h3 className="h3 ct-text-strong cursor-help border-b border-dotted border-(--ct-border-soft)">
               Lock · liquidity
             </h3>
           </Tooltip>
-          <ProvenanceBadge kind={badgeKind} />
-        </div>
-      ) : null}
+        }
+        provenance={badgeKind}
+      />
 
       {/* Progress bar ------------------------------------------------------ */}
       <div className="flex flex-col gap-1.5 relative z-10">
@@ -228,23 +226,6 @@ export function LockMeter({
           </div>
         )}
       </dl>
-    </>
-  );
-
-  if (embedded) {
-    return (
-      <div className="flex flex-col gap-3" aria-label="Lock and liquidity status">
-        {body}
-      </div>
-    );
-  }
-
-  return (
-    <article
-      className="dash-cell dash-cell-premium flex flex-col gap-3"
-      aria-label="Lock and liquidity status"
-    >
-      {body}
-    </article>
+    </ModuleChrome>
   );
 }
