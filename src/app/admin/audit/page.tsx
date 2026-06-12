@@ -2,6 +2,7 @@
 // Server Component — inherits the /admin layout's requireAdmin() gate.
 // Filterable via plain GET <form>; no client JS required.
 
+import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -125,7 +126,7 @@ export default async function AuditLogPage({
 
           {hasFilters && (
             <Button asChild variant="ghost" size="md">
-              <a href="/admin/audit">Clear</a>
+              <Link href="/admin/audit">Clear</Link>
             </Button>
           )}
         </form>
@@ -194,7 +195,7 @@ export default async function AuditLogPage({
                         {truncateWallet(entry.actorWallet)}
                       </span>
                       {entry.ip ? (
-                        <span className="block text-[10px] ct-text-muted">
+                        <span className="block text-micro ct-text-muted">
                           {entry.ip}
                         </span>
                       ) : null}
@@ -212,7 +213,7 @@ export default async function AuditLogPage({
                       <span className="block text-xs font-medium ct-text-strong">
                         {entry.entityType}
                       </span>
-                      <span className="mono block text-[10px] ct-text-muted">
+                      <span className="mono block text-micro ct-text-muted">
                         {entry.entityId}
                       </span>
                     </td>
@@ -233,7 +234,7 @@ export default async function AuditLogPage({
                             </p>
                             <pre
                               className={cn(
-                                "mono max-h-40 overflow-auto rounded border p-2 text-[10px] leading-relaxed whitespace-pre-wrap break-all",
+                                "mono max-h-40 overflow-auto rounded border p-2 text-micro leading-relaxed whitespace-pre-wrap break-all",
                                 "ct-bc-soft ct-surface-0 ct-text-muted",
                               )}
                             >
@@ -248,7 +249,7 @@ export default async function AuditLogPage({
                             </p>
                             <pre
                               className={cn(
-                                "mono max-h-40 overflow-auto rounded border p-2 text-[10px] leading-relaxed whitespace-pre-wrap break-all",
+                                "mono max-h-40 overflow-auto rounded border p-2 text-micro leading-relaxed whitespace-pre-wrap break-all",
                                 "ct-bc-soft ct-surface-0 ct-text-body",
                               )}
                             >
@@ -258,7 +259,7 @@ export default async function AuditLogPage({
                             </pre>
                           </div>
                           {entry.userAgent ? (
-                            <p className="text-[10px] ct-text-muted truncate">
+                            <p className="text-micro ct-text-muted truncate">
                               UA: {entry.userAgent}
                             </p>
                           ) : null}
