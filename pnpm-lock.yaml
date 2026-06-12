@@ -662,7 +662,7 @@ packages:
       react-dom: ^18 || ^19 || ^19.0.0-rc
 
   '@hearst/cockpit-shell@file:hearst-cockpit-shell-0.2.0.tgz':
-    resolution: {integrity: sha512-9RIoEJLxfjH8UBYWv6b0QeVpABekQAreyziqJdXDwjobaWRB/hUqvwny2MbFD/MaXanZriGaxxcWR3SJe7Zm/g==, tarball: file:hearst-cockpit-shell-0.2.0.tgz}
+    resolution: {integrity: sha512-R19k7Mml5T96CXwF25+0Ljn3X5zG30FPynDcFaH3UmBetn9k5F3zsgY68MuBiVOMtelyIL29+dEeq8fzCetOkQ==, tarball: file:hearst-cockpit-shell-0.2.0.tgz}
     version: 0.2.0
     peerDependencies:
       next: '>=15'
@@ -15555,7 +15555,7 @@ snapshots:
 
   extension-port-stream@3.0.0:
     dependencies:
-      readable-stream: 3.6.2
+      readable-stream: 4.7.0
       webextension-polyfill: 0.10.0
 
   extract-zip@2.0.1:
