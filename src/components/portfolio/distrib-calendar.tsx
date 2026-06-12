@@ -141,7 +141,7 @@ function BarChart({
 
   if (compactPreview) {
     const compactTitle =
-      "Payout calendar — 12-month forecast timeline, no payout history yet";
+      "Payout calendar — 12-month USDC forecast, no payout history yet, current period marked";
     const firstBx = barX(0, n, BAR_W, GAP);
     const lastBx = barX(n - 1, n, BAR_W, GAP);
     const axisEnd = lastBx + BAR_W;
@@ -399,7 +399,7 @@ export function DistribCalendar({
         title="Payout calendar"
         subtitle={
           previewZeros
-            ? "12m · USDC · $0 est. forecast"
+            ? "12m forecast · USDC"
             : `12m · USDC${hasForecast ? " · forecast" : ""}`
         }
         provenance={badgeKind}
@@ -413,6 +413,17 @@ export function DistribCalendar({
           compactPreview={previewZeros}
         />
       </div>
+
+      {previewZeros ? (
+        <div className="pt-1" role="status">
+          <p className="body-xs ct-text-muted m-0">
+            No payout history yet · $0 forecast
+          </p>
+          <p className="body-xs ct-text-faint m-0 mt-0.5">
+            Current period marked
+          </p>
+        </div>
+      ) : null}
 
       {/* Footer — share class + cadence. Rendered only when at least one is
           known, so an empty widget doesn't show a "— / —" stub. */}
