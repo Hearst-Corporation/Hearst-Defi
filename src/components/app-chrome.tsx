@@ -24,6 +24,17 @@ function isBareRoute(pathname: string): boolean {
   return BARE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
+// Authenticated surfaces that keep the shell but must NOT show the chat rail:
+// the onboarding/KYC funnel has its own focused chrome (the chat would be a
+// double-chrome distraction mid-flow), and /debug is a dev-only scaffold.
+const NO_CHAT_PREFIXES = ["/onboarding", "/debug"] as const;
+
+function isNoChatRoute(pathname: string): boolean {
+  return NO_CHAT_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+}
+
 /**
  * Decides whether to wrap children in the full Cockpit shell or render them
  * bare. The shell (rail + chat + bottom nav) is for authenticated product
@@ -38,12 +49,12 @@ export function AppChrome({ children }: { children: ReactNode }) {
   }
 
   // The conversational Master Agent is available on every authenticated product
-  // surface — LP investors and admins alike. Bare auth/legal routes already
-  // returned above, so they never get the chat. Server-side guardrails (no
-  // client system override, output-side compliance guard, role-aware register)
-  // make this LP-facing surface safe.
+  // surface — LP investors and admins alike — EXCEPT the onboarding funnel and
+  // /debug (see NO_CHAT_PREFIXES). Bare auth/legal routes already returned
+  // above. Server-side guardrails (no client system override, output-side
+  // compliance guard, role-aware register) make this LP-facing surface safe.
   return (
-    <ConnectShell enableChat>
+    <ConnectShell enableChat={!isNoChatRoute(pathname)}>
       {children}
       {/* Chat mode selector (Conversation / Review). Self-gates to admins via
           the requireAdmin-protected /api/admin/review-mode route; renders
