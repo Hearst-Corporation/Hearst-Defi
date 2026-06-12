@@ -15,7 +15,7 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 - **Methodology**: `/docs/methodology/v1.0.md` — immutable once published, bump version if change needed
 - **Roadmap**: `/docs/roadmap.json` + `/admin/roadmap` UI — every PR must reference a roadmap item
 - **Decisions**: `/docs/decisions/ADR-*.md` — Architecture Decision Records, append-only
-- **Design system** (source unique) : cascade `@hearst/cockpit-shell/tokens.css` → `src/app/cockpit.css` → `src/app/globals.css`. Doc : `/docs/DESIGN_SYSTEM.md` + verrou dans `README.md` § Design system. **Aucun nouveau token/primitive/classe sans validation explicite.** Le package `packages/ds` (`@ds/core`) a été retiré — ne pas réintroduire un second namespace `--ds-*`.
+- **Design system** (source unique) : cascade `@hearst/cockpit-shell/tokens.css` → `src/app/cockpit.css` → `src/app/globals.css`. Doc : `/docs/DESIGN_SYSTEM.md` + guidelines dans `README.md` § Design system. Préférer tokens/primitives existants. Le package `packages/ds` (`@ds/core`) a été retiré — ne pas réintroduire un second namespace `--ds-*`.
 - **Plan source**: `/Users/adrienbeyondcrypto/.claude/plans/tu-es-claude-opus-functional-eich.md`
 
 ## Non-negotiables (CI enforces most)
@@ -52,13 +52,9 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 - **Réversibilité.** Toute modif doit pouvoir être annulée vite. Pas de `git add/commit/push/reset` sans demande explicite.
 - **Après chaque modif CSS/Turbopack** : `browser_close` puis re-`navigate` (sinon CSS servi en cache, Playwright garde l'ancien chunk).
 - **Accent = vert `#A7FB90` principalement** (fond noir `--ct-bg-deep`). Le Glassmorphism = surfaces translucides, les lueurs ambiantes sont autorisées pour la profondeur.
-- **Empty states (Portfolio / Cockpit)** — voir `docs/DESIGN_SYSTEM.md` §9.
-  **Empty states replace active module surfaces; they are not rendered inside
-  active module surfaces.** Si un widget n'a pas ses données principales :
-  early-return `EmptyChartState` / `AwaitingMetricState` (`.pf-empty-chart` /
-  `.pf-empty-widget`) — **jamais** `dash-cell-premium` + header + badge Stale +
-  placeholder dedans. Nested evidence (`NestedPanel`, `ct-nested-callout`) =
-  détails **dans** une card déjà active, pas substitut d'empty state.
+- **Portfolio cockpit preview** — voir `docs/DESIGN_SYSTEM.md` §9. Sans position
+  active : cockpit complet visible (`previewZeros`) avec `PreviewModeChip` — pas
+  de badge `Live`/`Verified` faux. Messages inline optionnels dans le shell.
 
 ## Stack
 

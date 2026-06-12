@@ -5,9 +5,8 @@
 > Toute nouvelle page produit (scenario-lab, proof-center, investor-memo) se
 > construit contre ce document. Dernière révision : 2026-05-19.
 >
-> **🔒 VERROU** : le DS est figé depuis 2026-05-20. Règles anti-hardcode et process
-> d’ajout de token : [`README.md`](../README.md) § Design system. **Source unique
-> runtime** : Cockpit (`--ct-*`) — pas de second design system (`@ds/core` retiré).
+> Guidelines tokens/primitives : [`README.md`](../README.md) § Design system.
+> **Source runtime** : Cockpit (`--ct-*`) — pas de second design system (`@ds/core` retiré).
 
 ## 1. Principe
 
@@ -40,7 +39,7 @@ dans `cockpit.css` (pattern établi : Sonner, rails).
 | `--ct-status-danger` | `#f87171` | Stale, négatif |
 | `--ct-status-info` | `#60a5fa` | Oracle, USDC bucket, neutre info |
 
-**🔒 Règles dures** (CI/audit) :
+**Guidelines** (CI/audit) :
 - Tout hex/rgba en dehors de ces tokens dans `src/**` = **interdit**.
   Exception unique documentée : `src/lib/cockpit-tokens.ts` (palette PDF print
   + Privy theme — ne peuvent pas lire de CSS vars runtime).
@@ -112,77 +111,19 @@ guaranteed" sur toute projection.
 
 ## 9. Taxonomie des surfaces (Portfolio / Cockpit)
 
-Trois niveaux de surface — ne pas les confondre. **Règle canonique** :
-
-> **Empty states replace active module surfaces; they are not rendered inside
-> active module surfaces.**
+Trois niveaux — hiérarchie cockpit, pas de verrou empty-vs-active :
 
 ### 9.1 Active module surface
 
-**Quand** : vraie donnée disponible · action disponible · preuve disponible ·
-chart réel · module opérationnel.
-
-**Exemples** : `.dash-cell-premium` · `.ct-card` · `.glass-panel` ·
-`MergedSurface` (section shell quand elle porte du contenu actif).
-
-**Interdit** : ne pas utiliser pour un **module entièrement vide** (pas de
-données principales). Une card noire + header + badge + placeholder intérieur
-= faux signal d'activité.
+`ModuleChrome` / `.ct-card` / `.glass-panel` — données réelles ou **preview cockpit**
+(valeurs à zéro avec `PreviewModeChip`, pas de badge `Live`/`Verified` faux).
 
 ### 9.2 Nested evidence surface
 
-**Quand** : détails **à l'intérieur** d'une card active déjà peuplée — proof
-rows · metric breakdowns · evidence panels · alertes status localisées.
+`NestedPanel` · `ProofRow` · `.ct-nested-callout` — détails **dans** une card déjà active.
 
-**Exemples** : `NestedPanel` · `ProofRow` · `.ct-nested-callout` ·
-`Metric variant="nested"`.
+### 9.3 Empty / inline placeholder (optionnel)
 
-**Interdit** : ne pas utiliser comme **faux empty state** quand la card entière
-est vide. Si les données principales manquent, ne pas rendre une card active
-avec un `NestedCallout` dedans.
-
-### 9.3 Empty / awaiting surface
-
-**Quand** : absence de données principales · awaiting first snapshot · awaiting
-first position · awaiting attestation · chart sans data · module non initialisé.
-
-**Composants** (Portfolio, noms locaux — pas de promotion `ct-*` pour l'instant) :
-
-| Composant | Classe CSS | Usage |
-|---|---|---|
-| `EmptyChartState` | `.pf-empty-chart` | Zone chart/donut/calendrier sans data |
-| `AwaitingMetricState` | `.pf-empty-widget` | Widget métrique / pulse sans snapshot |
-
-Styles : `src/app/cockpit.css` (`.pf-empty-chart` / `.pf-empty-widget`, global) ;
-overrides layout Portfolio dans `portfolio.css` (scopé `.pf-container`).
-
-**Obligatoire** : si les données principales d'un widget sont absentes, le
-widget rend **directement** l'état vide léger — **pas** :
-
-- `dash-cell-premium` / header actif / badge Stale ou provenance
-- chart label actif · rows vides · SVG/chart fantôme
-- `ct-nested-callout` dans une card active
-- double message · N/A répété ligne par ligne
-- valeurs fallback hardcodées présentées comme actives
-
-**Interdits empty state** :
-
-- pas de `dash-cell-premium` ni `ct-card` / `glass-panel` complet
-- pas de badge Stale / provenance sur le placeholder
-- pas de `border-dashed` (sauf vraie dropzone upload)
-- pas de `ct-surface-1` imbriqué
-- pas de SVG/chart fantôme
-
-**Exemple accepté** (allocation vide) :
-
-```html
-<div role="note" class="pf-empty-chart pf-empty-chart--round …">
-  <span class="body-xs ct-text-faint">Allocation will appear after the first active position.</span>
-</div>
-```
-
-**Garde-fous** : `src/components/portfolio/__tests__/empty-state-rendering.test.tsx`
-verrouille le contrat structurel (pas de shell actif autour du message vide).
-
-**Promotion future** : quand le pattern sera généralisé hors Portfolio, renommer
-`pf-empty-*` → tokens Cockpit globaux — documenter ici avant migration.
+`EmptySurface` · `AwaitingMetricState` — messages légers **inline** dans un shell cockpit
+ou seuls sur les surfaces admin/proof qui n'ont pas de preview structurale.
+`PreviewModeChip` = label honnête quand le module est visible à zéro.

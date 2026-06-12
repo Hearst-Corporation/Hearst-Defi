@@ -3,9 +3,9 @@
  * surfaces. Admin dashboard uses Card/glass-panel instead (no bento here).
  * Chart donuts/legends: charts-shared.css.
  *
- * 🔒 VERROU — source unique du chrome bento investisseur (.dash-cell,
- * .dash-cell-premium, .dash-bento, .dash-label, .kpi-cell). Aucune page ne
- * doit réécrire ces sélecteurs dans un CSS de route (ex. portfolio.css).
+ * Source du chrome bento investisseur (.dash-cell, .dash-cell-premium,
+ * .dash-bento, .dash-label, .kpi-cell). Les pages peuvent ajouter des overrides
+ * scopés (ex. portfolio.css sous .pf-container).
  * Layout-only (spacing, max-width) est autorisé.
  *
  * Matière : --ct-graphite-* (cockpit.css) — même recette que .glass-panel /

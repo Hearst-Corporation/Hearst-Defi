@@ -1,7 +1,6 @@
 import { type Provenance } from "@/components/ui/provenance-badge";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
-import { EmptySurface } from "@/components/ui/empty-surface";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
@@ -190,25 +189,14 @@ export function ValueChart({
 }: ValueChartProps) {
   const asOf = new Date(); // rendered server-side; consistent within a request
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
-  const provenance: Provenance | undefined = previewZeros && isEmpty
+  const showZeroShell = previewZeros || isEmpty;
+  const provenance: Provenance | undefined = showZeroShell
     ? undefined
     : resolveProvenance(source, updatedAt, "estimated");
-  const chartValue = previewZeros && isEmpty ? 0 : totalValueUsdc;
-  const series =
-    previewZeros && isEmpty
-      ? buildZeroValueChartSeries(asOf)
-      : buildMonthSeries(positions, totalValueUsdc, asOf);
-
-  // No positions → empty chart unless layout preview (flat $0 series + area chart).
-  if (isEmpty && !previewZeros) {
-    return (
-      <EmptySurface
-        variant="chart"
-        message="Value trend will appear after the first active position."
-        className="h-full min-h-32"
-      />
-    );
-  }
+  const chartValue = showZeroShell ? 0 : totalValueUsdc;
+  const series = showZeroShell
+    ? buildZeroValueChartSeries(asOf)
+    : buildMonthSeries(positions, totalValueUsdc, asOf);
 
   return (
     <ModuleChrome
@@ -232,10 +220,10 @@ export function ValueChart({
       <div
         className={cn(
           "relative mt-3 block w-full flex-1 overflow-hidden rounded-md z-10",
-          previewZeros && isEmpty ? "min-h-32" : "min-h-20",
+          showZeroShell ? "min-h-32" : "min-h-20",
         )}
       >
-        {previewZeros && isEmpty ? (
+        {showZeroShell ? (
           <div
             aria-hidden
             className="pointer-events-none absolute inset-x-0 bottom-6 border-t border-(--ct-border-soft)"
@@ -258,7 +246,7 @@ export function ValueChart({
       </div>
 
       <p className="body-xs ct-text-muted mt-2 italic relative z-10">
-        {previewZeros && isEmpty
+        {showZeroShell
           ? "Layout preview — indicative path at zero until your first active position. Not guaranteed."
           : "Indicative path derived from subscribed principal and current value. Past performance does not predict future results. Not guaranteed."}
       </p>

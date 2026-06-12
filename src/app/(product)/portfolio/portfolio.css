@@ -1,15 +1,8 @@
 @import "../product-bento.css";
 
 /*
- * Portfolio — layout-only overrides. Bento chrome (dash-cell / dash-cell-premium)
- * MUST come exclusively from product-bento.css — same material as Profile and
- * all investor surfaces.
- *
- * 🔒 VERROU — interdit sur cette page :
- *   - override de .dash-cell / .dash-cell-premium (background, border, shadow…)
- *   - recette glass parallèle (pf-next-action)
- *   - grille ad-hoc si dash-bento 12-col suffit
- * Toute exception = validation Adrien + ADR.
+ * Portfolio — layout and rhythm overrides. Bento chrome from product-bento.css;
+ * page-scoped tuning allowed under .pf-container.
  */
 
 /* === Welcome line (PortfolioGreeting) === */
@@ -234,21 +227,20 @@
    la hauteur de la colonne droite (3 cards). On plafonne sa hauteur ; le SVG
    interne (flex-1) suit. Padding des cellules = DS canonique (--ct-space-6),
    on n'y touche pas. */
-.pf-container:not(.pf-container--zero) [aria-label="Portfolio value — 12-month trend"],
-.pf-container--zero [aria-label="Portfolio value — 12-month trend"] {
+.pf-container [aria-label="Portfolio value — 12-month trend"] {
   min-height: 18rem;
 }
 
 /* Stable grid heights — populated portfolio only */
-.pf-container:not(.pf-container--zero) [data-section="hero-pulse"] {
+.pf-container [data-section="hero-pulse"] {
   min-height: 32rem;
 }
 
-.pf-container:not(.pf-container--zero) [data-section="yield-trust"] {
+.pf-container [data-section="yield-trust"] {
   min-height: 22rem;
 }
 
-.pf-container:not(.pf-container--zero) [data-section="activity-payouts"] {
+.pf-container [data-section="activity-payouts"] {
   min-height: 20rem;
 }
 
@@ -261,91 +253,20 @@
   min-height: 10rem;
 }
 
-/* DS §9 empty surfaces — base styles live in cockpit.css (.ct-empty-surface*).
-   Portfolio-only layout overrides below. */
-
 /* Preview section compact variant (layout-only) */
 .pf-section-light--compact,
 .ct-section-preview--compact {
   gap: var(--ct-space-4);
 }
 
-/* Zero-position — same vertical rhythm as populated; no forced section heights */
-.pf-container--zero [data-section="hero-pulse"] {
-  min-height: unset;
-}
-
-.pf-container--zero [data-section="yield-trust"],
-.pf-container--zero [data-section="activity-payouts"] {
-  min-height: unset;
-}
-
-.pf-container--zero footer {
-  padding-top: var(--ct-space-8);
-  padding-bottom: var(--ct-space-16);
-}
-
-
-.pf-zero-hero-body {
-  display: grid;
-  gap: var(--ct-space-4);
-}
-
-@container pf (min-width: 720px) {
-  .pf-zero-hero-body {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    align-items: start;
-  }
-}
-
-.pf-zero-liquidity {
+/* Yield-allocation row — equal-height cockpit cards in zero preview */
+.pf-container [data-section="yield-allocation"] .bento-col-8,
+.pf-container [data-section="yield-allocation"] .bento-col-4 {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-2);
 }
 
-/* Compact awaiting surfaces — left-aligned narrative, not chart-sized boxes */
-.pf-container--zero .pf-zero-await .ct-empty-surface--widget {
-  min-height: unset;
-  height: auto;
-  padding: var(--ct-space-4) var(--ct-space-5);
-  text-align: left;
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-
-.pf-zero-trust-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-
-.pf-zero-trust-row {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  padding: var(--ct-space-3) var(--ct-space-4);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid color-mix(in srgb, var(--ct-text-strong) 7%, var(--ct-border-soft));
-  background: color-mix(in srgb, var(--ct-bg-deep) 55%, transparent);
-}
-
-/* Yield-trust columns — awaiting surfaces fill column rhythm */
-.pf-container [data-section="yield-trust"] .ct-empty-surface--widget {
-  min-height: 16rem;
-}
-
-/* Yield + allocation — grouped awaiting surface (layout preview) */
-.pf-container [data-section="yield-allocation"] .ct-empty-surface--widget {
-  min-height: 12rem;
-}
-
-/* Hero chart + activity calendar — nested empty chart tier */
-.pf-container [data-section="hero-pulse"] .ct-empty-surface--chart,
-.pf-container [data-section="activity-payouts"] .ct-empty-surface--chart {
-  min-height: 12rem;
+.pf-container [data-section="yield-allocation"] .ct-card {
+  flex: 1;
 }
 

@@ -1,4 +1,4 @@
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
@@ -67,23 +67,24 @@ export function RecentActivity({
   updatedAt,
   previewZeros = false,
 }: RecentActivityProps) {
-  const provenance = resolveProvenance(
-    previewZeros && transactions.length === 0 ? "stale" : source,
-    updatedAt,
-  );
+  const displayed = transactions.slice(0, 5);
+  const isEmpty = displayed.length === 0;
+  const showZeroShell = previewZeros || isEmpty;
+  const provenance = showZeroShell
+    ? undefined
+    : resolveProvenance(source, updatedAt);
   // Server-rendered timestamp keeps relative labels current without client JS.
   const asOf = new Date();
-  const displayed = transactions.slice(0, 5);
-
-  if (displayed.length === 0 && !previewZeros) {
-    return (
-      <AwaitingMetricState message="No transactions yet." />
-    );
-  }
 
   return (
     <ModuleChrome aria-label="Recent account activity">
-      <WidgetPanelHeader title="Recent activity" provenance={provenance} />
+      <WidgetPanelHeader
+        title="Recent activity"
+        provenance={provenance}
+        trailing={
+          showZeroShell ? <PreviewModeChip label="Preview mode" /> : undefined
+        }
+      />
 
         <div className="flex flex-col gap-1 mt-3">
           {displayed.length === 0 ? (

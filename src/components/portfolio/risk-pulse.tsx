@@ -1,5 +1,4 @@
 import { NestedPanel } from "@/components/ui/nested-panel";
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -310,22 +309,14 @@ export function RiskPulse({
   const dimensionsAvailable = scores.some((s) => s.score > 0);
 
   // Use centralized provenance resolver
-  const badgeKind = previewZeros
+  const showZeroShell = previewZeros || noData || !dimensionsAvailable;
+  const badgeKind = showZeroShell
     ? undefined
     : resolveProvenance(
-        source === "stale" || noData || !dimensionsAvailable ? "stale" : source,
+        source === "stale" ? "stale" : source,
         updatedAt,
         "estimated",
       );
-
-  // No snapshot yet → render a LIGHT empty surface, not a full dash-cell-premium
-  // with header + Stale badge + placeholder (which reads as a big black box).
-  // The outer section already labels this slot "Risk profile".
-  if (noData && !previewZeros) {
-    return (
-      <AwaitingMetricState message="Risk scores will appear after the first snapshot." />
-    );
-  }
 
   return (
     <ModuleChrome aria-label="Risk pulse">
@@ -339,8 +330,8 @@ export function RiskPulse({
         }
         provenance={badgeKind}
         trailing={
-          previewZeros ? (
-            <PreviewModeChip label="Awaiting first position" />
+          showZeroShell ? (
+            <PreviewModeChip label="Preview mode" />
           ) : undefined
         }
       />

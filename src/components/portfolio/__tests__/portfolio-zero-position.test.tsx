@@ -31,14 +31,15 @@ const STALE_TIME_TO_CASH_PROPS = {
   source: "stale" as const,
 };
 
-describe("Portfolio zero-position — default empty widgets", () => {
-  it("TimeToCash stale: awaiting surface, no premium shell", () => {
+describe("Portfolio zero-position — cockpit shell always visible", () => {
+  it("TimeToCash stale: progress shell at zero, not empty surface", () => {
     const html = renderToStaticMarkup(<TimeToCash {...STALE_TIME_TO_CASH_PROPS} />);
-    expect(html).toContain("ct-empty-surface--widget");
-    expect(html).not.toContain("glass-panel");
+    expect(html).toContain("pf-progress-track");
+    expect(html).toContain("Preview mode");
+    expect(html).not.toContain("ct-empty-surface--widget");
   });
 
-  it("LockMeter unknown terms: awaiting surface, no premium shell", () => {
+  it("LockMeter unknown terms: progress shell, not empty surface", () => {
     const html = renderToStaticMarkup(
       <LockMeter
         lockStart={new Date("2026-01-01T00:00:00Z")}
@@ -47,8 +48,9 @@ describe("Portfolio zero-position — default empty widgets", () => {
         source="stale"
       />,
     );
-    expect(html).toContain("ct-empty-surface--widget");
-    expect(html).not.toContain("glass-panel");
+    expect(html).toContain("pf-progress-track");
+    expect(html).toContain("Preview mode");
+    expect(html).not.toContain("ct-empty-surface--widget");
   });
 
   it("MergedSurface with showProvenance=false hides Verified data label", () => {

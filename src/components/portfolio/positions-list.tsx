@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
@@ -45,18 +45,11 @@ export function PositionsList({
   updatedAt,
   previewZeros = false,
 }: PositionsListProps) {
-  const provenance = resolveProvenance(
-    previewZeros && positions.length === 0 ? "stale" : source,
-    updatedAt,
-  );
-
-  if (positions.length === 0 && !previewZeros) {
-    return (
-      <AwaitingMetricState message="No open positions." />
-    );
-  }
-
-  const isPreviewEmpty = positions.length === 0 && previewZeros;
+  const isEmpty = positions.length === 0;
+  const showZeroShell = previewZeros || isEmpty;
+  const provenance = showZeroShell
+    ? undefined
+    : resolveProvenance(source, updatedAt);
 
   return (
     <ModuleChrome aria-label="Open positions">
@@ -64,9 +57,13 @@ export function PositionsList({
         title="Positions"
         provenance={provenance}
         trailing={
-          <span className="body-xs ct-text-muted tabular">
-            {positions.length} position{positions.length !== 1 ? "s" : ""}
-          </span>
+          showZeroShell ? (
+            <PreviewModeChip label="Preview mode" />
+          ) : (
+            <span className="body-xs ct-text-muted tabular">
+              {positions.length} position{positions.length !== 1 ? "s" : ""}
+            </span>
+          )
         }
       />
 
@@ -80,7 +77,7 @@ export function PositionsList({
             <span className="text-right">Since</span>
           </div>
 
-          {isPreviewEmpty ? (
+          {showZeroShell ? (
             <EmptySurface
               variant="inline"
               message="No active positions yet — your first deposit will appear here once confirmed on-chain."

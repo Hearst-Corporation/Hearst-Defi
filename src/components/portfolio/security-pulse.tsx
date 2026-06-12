@@ -1,5 +1,4 @@
 import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 
@@ -20,17 +19,15 @@ const AUDIT_ROWS = [
 export function SecurityPulse({
   previewZeros = false,
 }: SecurityPulseProps = {}) {
-  if (!previewZeros) {
-    return (
-      <AwaitingMetricState message="Security status will appear after account verification." />
-    );
-  }
-
   return (
     <ModuleChrome aria-label="Security audit">
       <WidgetPanelHeader
         title="Security audit"
-        trailing={<PreviewModeChip label="Preview mode" />}
+        trailing={
+          <PreviewModeChip
+            label={previewZeros ? "Preview mode" : "Awaiting first position"}
+          />
+        }
       />
 
       <ul

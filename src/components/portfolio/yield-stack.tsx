@@ -11,7 +11,6 @@
  *  #5  Forbidden words absent (guarantee excluded by "not guaranteed" phrase).
  */
 
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { cn } from "@/lib/cn";
@@ -110,15 +109,10 @@ export function YieldStack({
 
   const hasData = sources.length > 0;
 
-  const badgeKind = previewZeros
+  const showZeroShell = previewZeros || !hasData || maxAbsPct === 0;
+  const badgeKind = showZeroShell
     ? undefined
     : resolveProvenance(source, updatedAt, "estimated");
-
-  if (!hasData && !previewZeros) {
-    return (
-      <AwaitingMetricState message="No yield source data yet — awaiting first vault snapshot." />
-    );
-  }
 
   return (
     <ModuleChrome aria-label="Yield source stack — 12 month forward projection">
@@ -126,7 +120,7 @@ export function YieldStack({
         title="Yield Source Stack (12m fwd)"
         provenance={badgeKind}
         trailing={
-          previewZeros ? <PreviewModeChip label="Indicative" /> : undefined
+          showZeroShell ? <PreviewModeChip label="Preview mode" /> : undefined
         }
       />
 

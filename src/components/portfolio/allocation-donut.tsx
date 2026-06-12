@@ -1,4 +1,3 @@
-import { EmptySurface } from "@/components/ui/empty-surface";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
@@ -34,7 +33,7 @@ export function AllocationDonut({
   updatedAt,
   previewZeros = false,
 }: AllocationDonutProps) {
-  const isPreviewShell = previewZeros && totalValueUsdc === 0;
+  const isPreviewShell = previewZeros || (totalValueUsdc === 0 && positions.length === 0);
   const provenance = isPreviewShell
     ? undefined
     : resolveProvenance(source, updatedAt);
@@ -65,25 +64,15 @@ export function AllocationDonut({
 
   const hasAllocation = totalValueUsdc > 0 && segments.length > 0;
 
-  // No allocation data → light placeholder only (no dash-cell-premium shell).
-  if (!hasAllocation && !previewZeros) {
-    return (
-      <EmptySurface
-        variant="chart"
-        message="Allocation will appear after the first active position."
-        round
-        className="mx-auto w-(--ct-donut-size) h-(--ct-donut-size)"
-      />
-    );
-  }
-
   return (
     <ModuleChrome aria-label="Portfolio allocation">
       <WidgetPanelHeader
         title="Allocation by position status"
         provenance={provenance}
         trailing={
-          isPreviewShell ? <PreviewModeChip label="Preview mode" /> : undefined
+          isPreviewShell ? (
+            <PreviewModeChip label="Preview mode" />
+          ) : undefined
         }
       />
 
@@ -124,7 +113,7 @@ export function AllocationDonut({
         </div>
 
         <div className="dash-legend w-full mt-0">
-          {previewZeros && !hasAllocation ? (
+          {isPreviewShell && !hasAllocation ? (
             <div className="dash-legend-row">
               <span className="dash-legend-left">
                 <span className="dash-legend-dot dot-muted" />

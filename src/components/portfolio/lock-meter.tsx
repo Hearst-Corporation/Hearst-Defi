@@ -2,7 +2,6 @@
 // Server Component (pure — no I/O, no side effects).
 // Non-negotiable #2: ProvenanceBadge kind="live" (CLAUDE.md).
 
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
@@ -109,14 +108,7 @@ export function LockMeter({
   // instead of a fabricated progress bar.
   const termsUnknown = softLockupDays <= 0;
 
-  if ((termsUnknown || source === "stale") && !previewZeros) {
-    return (
-      <AwaitingMetricState
-        message="Lock and liquidity terms appear after your first active position."
-        detail="Soft lock-up progress and unlock dates populate once share-class terms are tied to a confirmed deposit."
-      />
-    );
-  }
+  const showZeroShell = previewZeros || termsUnknown || source === "stale";
 
   const { progressPct, unlockDate, daysRemaining, isUnlocked } =
     computeLockMeter(lockStart, softLockupDays, effectiveAsOf);
@@ -142,9 +134,9 @@ export function LockMeter({
             </h3>
           </Tooltip>
         }
-        provenance={previewZeros ? undefined : "live"}
+        provenance={showZeroShell ? undefined : "live"}
         trailing={
-          previewZeros ? <PreviewModeChip label="Indicative" /> : undefined
+          showZeroShell ? <PreviewModeChip label="Preview mode" /> : undefined
         }
       />
 

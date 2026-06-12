@@ -14,9 +14,9 @@ model for all 4 agents + cockpit chat. No Anthropic SDK. See **ADR-011**
 
 ---
 
-## 🔒 DESIGN SYSTEM — VERROU TOTAL (lock-only, anti-hardcode)
+## Design system — guidelines (tokens & primitives)
 
-**Aucun agent, aucun humain, aucune PR ne doit introduire :**
+**Préférer les tokens et primitives existants. Éviter :**
 - ❌ Un hex ou rgba/hsl hors des fichiers tokens (exception unique :
   [`src/lib/cockpit-tokens.ts`](src/lib/cockpit-tokens.ts) pour PDF/Privy
   qui ne lisent pas les CSS vars runtime, et fichiers tests qui pin des
@@ -42,15 +42,11 @@ model for all 4 agents + cockpit chat. No Anthropic SDK. See **ADR-011**
 - ❌ Des inline `rgba(0,0,0,X)` pour overlays/scrims — utiliser
   `color-mix(in srgb, var(--ct-bg-deep) X%, transparent)`.
 
-**Tout PR qui introduit l'un de ces patterns est rejeté.** L'agent doit
-demander une exception explicite à Adrien et la documenter dans l'ADR si
-elle est accordée.
+Documenter dans un ADR toute exception token/primitive nouvelle.
 
-**Grille investisseur (`product-bento.css`)** : layout `.dash-bento` / `.bento-col-*`
-uniquement — **material** = primitives UI canoniques (`Card` + `.card-premium`,
-`ProductSection`, `EmptySurface`). `.dash-cell-premium` reste un alias CSS vers
-`.card-premium` (legacy profile/debug). `portfolio.css` = layout-only (spacing) —
-**interdit** d'y réécrire le material module (test guard : `portfolio-bento-lock.test.ts`).
+**Grille investisseur (`product-bento.css`)** : `.dash-bento` / `.bento-col-*` ;
+material via `Card`, `ProductSection`, `ModuleChrome`. `portfolio.css` = layout
+scopé `.pf-container` (spacing, reflow container queries).
 
 ### Source de vérité du design system
 
@@ -77,23 +73,11 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
   institutionnelle. Sections multi-widgets : `ProductSection` (`Card` actif /
   `ct-section-preview` en layout preview) + `SectionEmbedProvider` — widgets via
   `ModuleChrome` + `WidgetPanelHeader` (headers masqués automatiquement en embed).
-  **Zero portfolio** (`isLayoutPreview` / `previewZeros`) : cockpit complet
-  visible (charts, donuts, progress bars à $0) avec `PreviewModeChip` honnête —
-  pas de badge `Live` / `Stale` / `Verified data` sans donnée réelle.
-  Sans `previewZeros`, widgets sans donnée = `EmptySurface` / `AwaitingMetricState`.
-  **Empty states** :
-  `EmptySurface` (`.ct-empty-surface*` dans `cockpit.css`) · `AwaitingMetricState`
-  (`src/components/ui/awaiting-metric-state.tsx`, lien optionnel).
-  Dashed réservé à `.ct-dropzone`
-  uniquement — voir [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) §9.
-  Règle : *Empty states replace active module surfaces; they are not rendered
-  inside active module surfaces.*
-- **Portfolio data** : `/portfolio` lit uniquement les loaders DB réels. Pas de
-  `?preview=subscribed`, pas de mock preview en runtime, et pas de fallback
-  silencieux pour `VaultDeployment` (`vaultName`, ticker, APY, share class,
-  lockup). Le dashboard reste affiché même à zéro position ; chaque widget sans
-  données principales affiche une surface vide légère (pas de card active
-  simulée).
+  **Zero portfolio** (`previewZeros`) : cockpit complet toujours visible (charts,
+  donuts, progress bars à $0) avec `PreviewModeChip` — pas de `Live` / `Stale` /
+  `Verified data` sans donnée réelle. Messages inline dans le shell si besoin.
+- **Portfolio data** : `/portfolio` lit les loaders DB réels. Cockpit affiché
+  même à zéro position (structure preview testable visuellement).
 
 Mirror TypeScript des valeurs canoniques (pour les surfaces qui ne lisent pas
 les CSS vars runtime — PDF react-pdf, Privy SDK theme, error pages standalone) :

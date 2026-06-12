@@ -10,7 +10,6 @@
  * Layout: fixed 560×160 viewBox, bars left→right, labels below each bar.
  */
 
-import { EmptySurface } from "@/components/ui/empty-surface";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { explorerTxUrl } from "@/lib/chain/client";
@@ -297,23 +296,12 @@ export function DistribCalendar({
   const hasEntries = displayEntries.length > 0;
   const hasForecast = displayEntries.some((e) => e.paidAt === null);
 
-  const badgeKind = previewZeros
+  const showZeroShell = previewZeros || !hasEntries;
+  const badgeKind = showZeroShell
     ? undefined
     : hasEntries && source === "live"
       ? "attested"
       : resolveProvenance(source, updatedAt, "estimated");
-
-  // No payout history → light placeholder only. The page section already labels
-  // this slot "Payout calendar" — no dash-cell-premium shell or provenance badge.
-  if (!hasEntries && !previewZeros) {
-    return (
-      <EmptySurface
-        variant="chart"
-        message="Distribution history will appear after the first payout."
-        className="min-h-32"
-      />
-    );
-  }
 
   return (
     <ModuleChrome aria-label="Payout calendar" className="gap-3">
@@ -322,8 +310,8 @@ export function DistribCalendar({
         subtitle={`12-month history · USDC${hasForecast ? " · incl. estimated forecast" : ""}`}
         provenance={badgeKind}
         trailing={
-          previewZeros ? (
-            <PreviewModeChip label="Awaiting first position" />
+          showZeroShell ? (
+            <PreviewModeChip label="Preview mode" />
           ) : undefined
         }
       />

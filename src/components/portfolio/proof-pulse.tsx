@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { NestedCallout, NestedPanel, ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
@@ -172,29 +171,13 @@ export function ProofPulse({
             }
           : null; // "none" — no glyph at all
 
-  const headerProvenance: "attested" | "stale" | undefined = previewZeros
+  const showZeroShell =
+    previewZeros || (!hasData && !hasMethodologyData);
+  const headerProvenance: "attested" | "stale" | undefined = showZeroShell
     ? undefined
     : state === "matched" || state === "attested"
       ? "attested"
       : "stale";
-
-  // Nothing real to show (no attestation AND no methodology) → render a LIGHT
-  // empty surface instead of a full dash-cell-premium with header + Stale badge
-  // + nested callout, which reads as a big black placeholder box. The outer
-  // section already labels this slot "Proof of reserves".
-  if (!hasData && !hasMethodologyData && !previewZeros) {
-    return (
-      <AwaitingMetricState
-        message="No attestation has been published yet."
-        detail="The first proof will appear here once vault activity is attested."
-        link={{
-          label: "Open proof center",
-          href: proofCenterHref,
-          ariaLabel: "Open proof center",
-        }}
-      />
-    );
-  }
 
   return (
     <ModuleChrome aria-label="Proof and methodology">
@@ -202,8 +185,8 @@ export function ProofPulse({
         title="Proof & methodology"
         provenance={headerProvenance}
         trailing={
-          previewZeros ? (
-            <PreviewModeChip label="Awaiting first position" />
+          showZeroShell ? (
+            <PreviewModeChip label="Preview mode" />
           ) : undefined
         }
       />
