@@ -23,6 +23,10 @@ overrides:
   postcss: ">=8.5.10"
   uuid: ">=11.1.1"
   "@hono/node-server": ">=1.19.13"
+  hono: ">=4.12.21"
+  shell-quote: ">=1.8.4"
+  tmp: ">=0.2.6"
+  "@grpc/grpc-js": ">=1.14.4"
 
 # pnpm 11.5: `onlyBuiltDependencies` is the canonical allow-list for postinstall
 # build scripts (replaces the legacy `allowBuilds` map). Native deps needed at
