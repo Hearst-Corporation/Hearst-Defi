@@ -1047,10 +1047,27 @@
    invest-flow-detail__grid: primary (strategy/allocation) + secondary (KPIs/legal)
    Mobile: single column natural stack. */
 
+/* In workspace mode — always show the header CTA (not hidden until 40rem).
+   The header CTA is the primary action on this command surface. */
+.product-doc .invest-flow-shell--workspace .invest-flow-shell__header-cta {
+  display: inline-flex;
+}
+
+/* Quiet panel label — replaces H2/H3 section headings inside workspace grid.
+   Reads as context, not document structure. */
+.product-doc .invest-flow-detail__panel-label {
+  font-size: var(--ct-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ct-text-muted);
+  margin-bottom: var(--ct-space-2);
+}
+
 .product-doc .invest-flow-detail__grid {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-6);
+  gap: var(--ct-space-5);
   min-height: 0;
 }
 
@@ -1064,7 +1081,7 @@
 .product-doc .invest-flow-detail__secondary {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  gap: var(--ct-space-4);
   min-width: 0;
 }
 
@@ -1073,39 +1090,15 @@
   .product-doc .invest-flow-detail__grid {
     display: grid;
     grid-template-columns: 3fr 2fr;
-    grid-template-rows: 1fr;
     gap: var(--ct-space-6);
     align-items: start;
     min-height: 0;
-  }
-
-  .product-doc .invest-flow-detail__primary {
-    overflow-y: auto;
-    overscroll-behavior: contain;
   }
 
   .product-doc .invest-flow-detail__secondary {
     position: sticky;
     top: 0;
   }
-}
-
-/* Compact CTA strip — replaces document footer, sits at bottom of body scroll */
-.product-doc .invest-flow-detail__cta-strip {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  border-top: 1px solid var(--ct-border-soft);
-  padding-top: var(--ct-space-4);
-  margin-top: auto;
-}
-
-.product-doc .invest-flow-detail__cta-strip__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
 }
 
 /* Product select card */

@@ -63,9 +63,6 @@ export default async function VaultDetailPage({ params }: PageProps) {
       step="product"
       workspace
       title={vault.name}
-      description={
-        <span className="line-clamp-2 ct-prose-lg">{vault.description}</span>
-      }
       lead={
         <Link
           href="/vaults"
@@ -124,19 +121,6 @@ export default async function VaultDetailPage({ params }: PageProps) {
       }
     >
       <TermSheetPreview vault={vault} workspace />
-
-      {/* Compact CTA strip — replaces document-style footer */}
-      <div className="invest-flow-detail__cta-strip" role="note" aria-label="Proceed to deposit">
-        <p className="body-xs ct-text-faint leading-relaxed">
-          {vault.disclaimers}
-        </p>
-        <div className="invest-flow-detail__cta-strip__actions">
-          <p className="body-xs ct-text-muted">
-            Term sheet acknowledgement required on the next step.
-          </p>
-          <InvestCta isLive={isLive} investHref={investHref} size="lg" />
-        </div>
-      </div>
     </InvestFlowShell>
   );
 }

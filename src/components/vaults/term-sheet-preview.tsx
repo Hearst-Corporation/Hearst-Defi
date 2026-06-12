@@ -30,61 +30,41 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
   if (workspace) {
     return (
       <div className="invest-flow-detail__grid">
-        {/* Left — primary: strategy, allocation, scenarios */}
+        {/* Primary column — strategy signal */}
         <div className="invest-flow-detail__primary">
-          <VaultFlowSection
-            id="sec-strategy-allocation"
-            title="Strategy & allocation"
-            provenance={
-              <div className="body-xs ct-text-faint product-doc-inline-row product-doc-inline-row--dense">
-                <span>Methodology:</span>
-                <ProvenanceBadge kind="manual" />
-                <span>Scenarios:</span>
-                <ProvenanceBadge kind="estimated" />
-              </div>
-            }
-          >
-            <div className="product-doc-stack product-doc-stack--relaxed">
-              <div className="product-doc-section">
-                <p className="body-sm ct-text-muted">{MODEL_B_ONELINER}</p>
-                <div className="product-doc-inline-row">
-                  <Badge variant="brand">Mining-backed</Badge>
-                  <Badge variant="default">Rule-based rebalancing</Badge>
-                  <Badge variant="default">Monthly USDC distributions</Badge>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="h3 mb-2">Target allocation</h3>
-                <VaultAllocationInvestorList facts={allocationFacts} />
-              </div>
-
-              <div>
-                <h3 className="h3 mb-2">Regime scenarios</h3>
-                <p className="body-xs ct-text-muted mb-3 ct-prose-lg">
-                  Stress postures from Methodology v1.0 (Bull / Bear). Conditional — not a projection.
-                </p>
-                <RegimeScenarioTable />
+          <div className="product-doc-stack product-doc-stack--relaxed">
+            {/* Strategy summary */}
+            <div>
+              <p className="body-sm ct-text-muted">{MODEL_B_ONELINER}</p>
+              <div className="product-doc-inline-row mt-2">
+                <Badge variant="brand">Mining-backed</Badge>
+                <Badge variant="default">Rule-based rebalancing</Badge>
+                <Badge variant="default">Monthly USDC distributions</Badge>
               </div>
             </div>
-          </VaultFlowSection>
+
+            {/* Allocation */}
+            <div>
+              <p className="invest-flow-detail__panel-label">Target allocation</p>
+              <VaultAllocationInvestorList facts={allocationFacts} />
+            </div>
+
+            {/* Scenario table */}
+            <div>
+              <p className="invest-flow-detail__panel-label">Regime scenarios</p>
+              <RegimeScenarioTable />
+              <p className="body-xs ct-text-faint mt-2">
+                Conditional stress postures — not a projection of future returns · Methodology v1.0
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Right — secondary: at a glance + legal */}
+        {/* Secondary column — KPIs + legal support */}
         <div className="invest-flow-detail__secondary">
-          <VaultFlowSection
-            id="sec-glance"
-            title="At a glance"
-            provenance={
-              <div className="body-xs ct-text-faint product-doc-inline-row product-doc-inline-row--dense">
-                <ProvenanceBadge kind="estimated" />
-                <ProvenanceBadge kind="manual" />
-                {vault.currentAumUsdc > 0 ? (
-                  <ProvenanceBadge kind={aumProvenance} />
-                ) : null}
-              </div>
-            }
-          >
+          {/* Vault metrics */}
+          <div>
+            <p className="invest-flow-detail__panel-label">Vault metrics</p>
             <MetricGrid columns={2}>
               <VaultKpiCell label="Mgmt / perf">{formatFeeLine(vault.fees)}</VaultKpiCell>
               <VaultKpiCell label="Capacity">{formatUsdCompact(vault.capacityUsdc)}</VaultKpiCell>
@@ -94,17 +74,25 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
                   : "Pending"}
               </VaultKpiCell>
             </MetricGrid>
-          </VaultFlowSection>
+            <p className="body-xs ct-text-faint mt-2 product-doc-inline-row product-doc-inline-row--dense">
+              <span>Metrics:</span>
+              <ProvenanceBadge kind="estimated" />
+              {vault.currentAumUsdc > 0 ? <ProvenanceBadge kind={aumProvenance} /> : null}
+            </p>
+          </div>
 
-          <VaultFlowSection
-            id="sec-legal"
-            title="Legal & risk"
-            provenance={<ProvenanceBadge kind="manual" />}
-          >
+          {/* Legal & risk — compact rows, no section heading */}
+          <div>
+            <p className="invest-flow-detail__panel-label">Legal & structure</p>
             <div className="ct-panel-fields">
               <VaultLegalProofRows facts={legalFacts} variant="investor" />
             </div>
-          </VaultFlowSection>
+          </div>
+
+          {/* Quiet disclaimer */}
+          <p className="body-xs ct-text-faint leading-relaxed">
+            {vault.disclaimers} APY ranges are target projections — not guaranteed.
+          </p>
         </div>
       </div>
     );
