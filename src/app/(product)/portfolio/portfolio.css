@@ -324,6 +324,11 @@
   min-height: 16rem;
 }
 
+/* Hero value chart empty slot — parity with populated chart height */
+.pf-container [data-section="hero-pulse"] .pf-empty-chart {
+  min-height: 12rem;
+}
+
 /* ───────────────────────────────────────────────────────────────────────────
    EMPTY CHART — zone réservée calme pour un graphique sans données. PAS une
    card : matière quasi nulle (fond ~1.5%, hairline très discrète), radius DS,

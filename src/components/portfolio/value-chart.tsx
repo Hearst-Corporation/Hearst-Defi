@@ -178,6 +178,17 @@ export function ValueChart({ positions, totalValueUsdc, source, updatedAt }: Val
 
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
 
+  // No positions → light placeholder only. Do NOT wrap in dash-cell-premium with
+  // header + Stale badge — that reads as a big black "placeholder box".
+  if (isEmpty) {
+    return (
+      <EmptyChartState
+        message="Value trend will appear after the first active position."
+        className="h-full min-h-32"
+      />
+    );
+  }
+
   return (
     <article className="dash-cell dash-cell-premium relative h-full" aria-label="Portfolio value — 12-month trend">
       <ChartProvenanceCorner kind={provenance} />
@@ -185,47 +196,32 @@ export function ValueChart({ positions, totalValueUsdc, source, updatedAt }: Val
         <span>Portfolio value · indicative 12-month path</span>
         <span className="dash-label-meta">
           <span className="dash-trend flat">
-            {totalValueUsdc > 0 ? formatUsdCompact(totalValueUsdc) : "Awaiting position"}
+            {formatUsdCompact(totalValueUsdc)}
           </span>
         </span>
       </div>
 
-      {isEmpty ? (
-        /* No SVG/area chart rendered without data — a calm note at chart height. */
-        <EmptyChartState
-          message="Value trend will appear after the first active position."
-          className="mt-3 flex-1 min-h-20"
+      <div
+        className="relative mt-3 block w-full flex-1 overflow-hidden rounded-md z-10 min-h-20"
+      >
+        <ChartDisclaimerUnderlay />
+        <AreaChart
+          series={series}
+          ariaLabel={`Portfolio value area chart, 12 months, current value ${formatUsdCompact(totalValueUsdc)}`}
         />
-      ) : (
-        /* Real area chart */
-        <div
-          className="relative mt-3 block w-full flex-1 overflow-hidden rounded-md z-10 min-h-20"
-        >
-          <ChartDisclaimerUnderlay />
-          <AreaChart
-            series={series}
-            ariaLabel={`Portfolio value area chart, 12 months, current value ${totalValueUsdc > 0 ? formatUsdCompact(totalValueUsdc) : "n/a"}`}
-          />
-        </div>
-      )}
+      </div>
 
-      {/* Month-axis labels + indicative disclaimer belong to the real chart —
-          don't render an axis or "indicative path" caption under an empty state. */}
-      {!isEmpty && (
-        <>
-          <div className="stat-label ct-text-muted flex justify-between mt-2 mono relative z-10">
-            {series
-              .filter((_, i) => i % 3 === 0 || i === series.length - 1)
-              .map((s, i) => (
-                <span key={i}>{s.label}</span>
-              ))}
-          </div>
+      <div className="stat-label ct-text-muted flex justify-between mt-2 mono relative z-10">
+        {series
+          .filter((_, i) => i % 3 === 0 || i === series.length - 1)
+          .map((s, i) => (
+            <span key={i}>{s.label}</span>
+          ))}
+      </div>
 
-          <p className="body-xs ct-text-muted mt-2 italic relative z-10">
-            Indicative path derived from subscribed principal and current value. Past performance does not predict future results.
-          </p>
-        </>
-      )}
+      <p className="body-xs ct-text-muted mt-2 italic relative z-10">
+        Indicative path derived from subscribed principal and current value. Past performance does not predict future results.
+      </p>
     </article>
   );
 }

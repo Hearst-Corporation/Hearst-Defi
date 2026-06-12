@@ -57,6 +57,17 @@ export function AllocationDonut({
 
   const hasAllocation = totalValueUsdc > 0 && segments.length > 0;
 
+  // No allocation data → light placeholder only (no dash-cell-premium shell).
+  if (!hasAllocation) {
+    return (
+      <EmptyChartState
+        message="Allocation will appear after the first active position."
+        round
+        className="mx-auto w-(--ct-donut-size) h-(--ct-donut-size)"
+      />
+    );
+  }
+
   return (
     <article className="dash-cell dash-cell-premium h-full" aria-label="Portfolio allocation">
       <div className="dash-label relative z-10">
@@ -65,68 +76,56 @@ export function AllocationDonut({
       </div>
 
       <div className="flex flex-col items-center gap-3 mt-2 relative z-10">
-        {hasAllocation ? (
-          <>
-            <div className="dash-chart-container relative mt-0 w-(--ct-donut-size) h-(--ct-donut-size)">
-              <svg
-                className="dash-chart-svg w-full h-full"
-                viewBox="0 0 42 42"
-                role="img"
-                aria-label="Allocation by status"
-              >
-                <circle
-                  className="dash-chart-circle"
-                  cx="21"
-                  cy="21"
-                  r="15.9155"
-                  stroke="var(--ct-surface-3)"
-                  strokeDasharray="100 0"
-                />
-                {segments.map((s) => (
-                  <circle
-                    key={s.status}
-                    className={`dash-chart-circle color-${STATUS_LEGEND_TONE[s.status] ?? "muted"}`}
-                    cx="21"
-                    cy="21"
-                    r="15.9155"
-                    strokeDasharray={`${s.pct.toFixed(2)} ${(100 - s.pct).toFixed(2)}`}
-                    strokeDashoffset={s.dashOffset.toFixed(2)}
-                  />
-                ))}
-              </svg>
-              <div className="donut-center">
-                <span className="donut-val">
-                  {formatUsdCompact(totalValueUsdc)}
-                </span>
-                <span className="donut-lbl">Portfolio</span>
-              </div>
-            </div>
+        <div className="dash-chart-container relative mt-0 w-(--ct-donut-size) h-(--ct-donut-size)">
+          <svg
+            className="dash-chart-svg w-full h-full"
+            viewBox="0 0 42 42"
+            role="img"
+            aria-label="Allocation by status"
+          >
+            <circle
+              className="dash-chart-circle"
+              cx="21"
+              cy="21"
+              r="15.9155"
+              stroke="var(--ct-surface-3)"
+              strokeDasharray="100 0"
+            />
+            {segments.map((s) => (
+              <circle
+                key={s.status}
+                className={`dash-chart-circle color-${STATUS_LEGEND_TONE[s.status] ?? "muted"}`}
+                cx="21"
+                cy="21"
+                r="15.9155"
+                strokeDasharray={`${s.pct.toFixed(2)} ${(100 - s.pct).toFixed(2)}`}
+                strokeDashoffset={s.dashOffset.toFixed(2)}
+              />
+            ))}
+          </svg>
+          <div className="donut-center">
+            <span className="donut-val">
+              {formatUsdCompact(totalValueUsdc)}
+            </span>
+            <span className="donut-lbl">Portfolio</span>
+          </div>
+        </div>
 
-            <div className="dash-legend w-full mt-0">
-              {segments.map((s) => (
-                <div key={s.status} className="dash-legend-row">
-                  <span className="dash-legend-left">
-                    <span
-                      className={`dash-legend-dot dot-${STATUS_LEGEND_TONE[s.status] ?? "muted"}`}
-                    />
-                    {STATUS_LABELS[s.status] ?? s.status}
-                  </span>
-                  <span className="dash-legend-val">
-                    {s.pct.toFixed(0)}% · {formatUsdCompact(s.valueUsdc)}
-                  </span>
-                </div>
-              ))}
+        <div className="dash-legend w-full mt-0">
+          {segments.map((s) => (
+            <div key={s.status} className="dash-legend-row">
+              <span className="dash-legend-left">
+                <span
+                  className={`dash-legend-dot dot-${STATUS_LEGEND_TONE[s.status] ?? "muted"}`}
+                />
+                {STATUS_LABELS[s.status] ?? s.status}
+              </span>
+              <span className="dash-legend-val">
+                {s.pct.toFixed(0)}% · {formatUsdCompact(s.valueUsdc)}
+              </span>
             </div>
-          </>
-        ) : (
-          /* No SVG, no ghost circle, no dashed mini-surface — a single calm note
-             sized to the donut footprint so the cell keeps its height. */
-          <EmptyChartState
-            message="Allocation will appear after the first active position."
-            round
-            className="w-(--ct-donut-size) h-(--ct-donut-size)"
-          />
-        )}
+          ))}
+        </div>
       </div>
     </article>
   );

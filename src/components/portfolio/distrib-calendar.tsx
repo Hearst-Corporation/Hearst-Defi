@@ -296,6 +296,17 @@ export function DistribCalendar({
       ? "attested"
       : resolveProvenance(source, updatedAt, "estimated");
 
+  // No payout history → light placeholder only. The page section already labels
+  // this slot "Payout calendar" — no dash-cell-premium shell or provenance badge.
+  if (!hasEntries) {
+    return (
+      <EmptyChartState
+        message="Distribution history will appear after the first payout."
+        className="min-h-32"
+      />
+    );
+  }
+
   return (
     <article
       aria-label="Payout calendar"
@@ -322,22 +333,13 @@ export function DistribCalendar({
         </div>
       </div>
 
-      {/* Chart */}
-      {hasEntries ? (
-        <div className="w-full overflow-hidden rounded-md relative z-10">
-          <BarChart
-            entries={entries}
-            refYear={refYear}
-            currentPeriod={currentPeriod}
-          />
-        </div>
-      ) : (
-        /* No BarChart structure rendered without entries — a calm note at chart height. */
-        <EmptyChartState
-          message="Distribution history will appear after the first payout."
-          className="min-h-32"
+      <div className="w-full overflow-hidden rounded-md relative z-10">
+        <BarChart
+          entries={entries}
+          refYear={refYear}
+          currentPeriod={currentPeriod}
         />
-      )}
+      </div>
 
       {/* Footer — share class + cadence. Rendered only when at least one is
           known, so an empty widget doesn't show a "— / —" stub. */}
