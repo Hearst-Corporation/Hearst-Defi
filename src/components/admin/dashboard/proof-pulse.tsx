@@ -6,7 +6,9 @@ import { adminNavLinks } from "@/lib/admin/nav-links";
 import { resolveProofProvenance } from "@/lib/admin/dashboard-board-view";
 import type { AdminProofStatus } from "@/lib/data/admin-overview";
 
-import { dashboardDateFmt, usdCompact } from "./formatters";
+import { formatAdminMonthDay } from "@/lib/vaults/product-display";
+
+import { usdCompact } from "./formatters";
 
 export function ProofPulse({
   proof,
@@ -40,7 +42,7 @@ export function ProofPulse({
             {" "}
             · {proof.attestationsCount} on file
             {proof.lastMiningAttestationAt
-              ? ` · last ${dashboardDateFmt.format(proof.lastMiningAttestationAt)}`
+              ? ` · last ${formatAdminMonthDay(proof.lastMiningAttestationAt)}`
               : ""}
           </span>
         </li>

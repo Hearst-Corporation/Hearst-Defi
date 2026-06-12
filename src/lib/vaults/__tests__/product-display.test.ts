@@ -6,6 +6,8 @@ import {
   formatAdminAuditTimestamp,
   formatAdminDate,
   formatAdminDateTime,
+  formatAdminMonthDay,
+  formatAdminRollingTimestamp,
   formatDateGb,
   formatUsdAmount,
   formatUsdDetailed,
@@ -88,6 +90,21 @@ describe("formatAdminAuditTimestamp", () => {
     expect(label).toMatch(/Jun/);
     expect(label).toMatch(/2026/);
     expect(label).toMatch(/14:30:45/);
+  });
+});
+
+describe("formatAdminMonthDay", () => {
+  it("formats month and day without year", () => {
+    expect(formatAdminMonthDay(new Date(2026, 5, 12))).toMatch(/Jun 12/);
+    expect(formatAdminMonthDay(new Date(2026, 5, 12))).not.toMatch(/2026/);
+  });
+});
+
+describe("formatAdminRollingTimestamp", () => {
+  it("formats compact rolling audit datetime", () => {
+    const label = formatAdminRollingTimestamp(new Date(2026, 5, 12, 14, 30));
+    expect(label).toMatch(/Jun 12/);
+    expect(label).toMatch(/14:30/);
   });
 });
 

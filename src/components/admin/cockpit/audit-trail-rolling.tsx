@@ -1,19 +1,12 @@
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { truncateWallet } from "@/lib/wallet-display";
+import { formatAdminRollingTimestamp } from "@/lib/vaults/product-display";
 import type { AuditTrailEntry } from "@/lib/data/cockpit";
 
 interface AuditTrailRollingProps {
   entries: AuditTrailEntry[];
 }
-
-const dateFmt = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-});
 
 /**
  * Cockpit Admin — Recent admin activity (rolling 20 AdminAudit rows).
@@ -77,7 +70,7 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
   return (
     <tr className="border-b border-(--ct-border-soft) transition-colors">
       <td className="ct-table-cell tabular body-xs ct-text-muted whitespace-nowrap">
-        {dateFmt.format(new Date(entry.occurredAt))}
+        {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
       </td>
       <td className="ct-table-cell ct-text-muted mono body-xs">
         {wallet}

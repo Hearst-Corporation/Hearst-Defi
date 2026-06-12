@@ -5,7 +5,9 @@ import type { Provenance } from "@/components/ui/provenance-badge";
 import { adminNavLinks } from "@/lib/admin/nav-links";
 import type { DashboardData } from "@/lib/data/dashboard";
 
-import { dashboardDateFmt, usdFull } from "./formatters";
+import { formatAdminMonthDay } from "@/lib/vaults/product-display";
+
+import { usdFull } from "./formatters";
 
 export function DistributionPanel({
   distribution,
@@ -39,7 +41,7 @@ export function DistributionPanel({
         <div className="admin-doc-row-spread">
           <dt className="ct-text-muted">Paid</dt>
           <dd className="ct-text-strong">
-            {distribution.paid_at ? dashboardDateFmt.format(distribution.paid_at) : "—"}
+            {distribution.paid_at ? formatAdminMonthDay(distribution.paid_at) : "—"}
           </dd>
         </div>
       </dl>

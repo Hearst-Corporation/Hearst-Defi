@@ -3,17 +3,13 @@ import type { AdminProofStatus } from "@/lib/data/admin-overview";
 import type { HeroKpi } from "@/lib/data/cockpit";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
+import { formatAdminMonthDay } from "@/lib/vaults/product-display";
 
 const usdCompact = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
   notation: "compact",
   maximumFractionDigits: 1,
-});
-
-const dateFmt = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
 });
 
 function heroProvenance(kind: Provenance): HeroKpi["provenance"] {
@@ -28,7 +24,7 @@ function hashpriceLabel(data: DashboardData): string {
 
 function proofSubtitle(proof: AdminProofStatus): string {
   if (proof.lastMiningAttestationAt) {
-    return `Last ${dateFmt.format(proof.lastMiningAttestationAt)}`;
+    return `Last ${formatAdminMonthDay(proof.lastMiningAttestationAt)}`;
   }
   return proof.proofsTotal > 0 ? `${proof.proofsTotal} proofs on file` : "No attestation yet";
 }

@@ -10,8 +10,3 @@ export const usdFull = new Intl.NumberFormat("en-US", {
   currency: "USD",
   maximumFractionDigits: 0,
 });
-
-export const dashboardDateFmt = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-});

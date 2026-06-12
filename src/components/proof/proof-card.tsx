@@ -57,8 +57,10 @@ function btcFmt(value: number): string {
 
 function ProofCardShell({ children }: { children: ReactNode }) {
   return (
-    <Card className="product-doc-stack--relaxed h-full" hoverOverlay={false}>
-      {children}
+    <Card className="h-full" hoverOverlay={false}>
+      <div className="product-doc-stack product-doc-stack--relaxed h-full">
+        {children}
+      </div>
     </Card>
   );
 }

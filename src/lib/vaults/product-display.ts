@@ -102,6 +102,16 @@ export function formatAdminDate(d: Date): string {
   return ADMIN_DATE.format(d);
 }
 
+const ADMIN_MONTH_DAY = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+});
+
+/** Admin dashboard compact labels — month + day without year. */
+export function formatAdminMonthDay(d: Date): string {
+  return ADMIN_MONTH_DAY.format(d);
+}
+
 const ADMIN_DATETIME = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
@@ -129,6 +139,19 @@ const ADMIN_AUDIT_TIMESTAMP = new Intl.DateTimeFormat("en-US", {
 /** Admin audit log — full timestamp with timezone (compliance review). */
 export function formatAdminAuditTimestamp(d: Date): string {
   return ADMIN_AUDIT_TIMESTAMP.format(d);
+}
+
+const ADMIN_ROLLING_TIME = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+/** Admin cockpit rolling audit table — compact datetime without year. */
+export function formatAdminRollingTimestamp(d: Date): string {
+  return ADMIN_ROLLING_TIME.format(d);
 }
 
 export function buildDistributionIcsUri(title: string, date: Date): string {
