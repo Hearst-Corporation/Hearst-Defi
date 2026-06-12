@@ -7,6 +7,7 @@ import { z } from "zod";
 import { kimi, LLM_MODEL } from "@/lib/llm/kimi";
 import { env } from "@/lib/env";
 import { requireAuth } from "@/lib/auth/require-auth";
+import { getSession } from "@/lib/auth/session";
 import { assertRateLimit, assertBodySize } from "@/lib/rate-limit";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
@@ -381,11 +382,11 @@ export async function POST(req: NextRequest): Promise<Response> {
   if (chatMode === "normal") {
     let role: string | null = null;
     try {
-      const u = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { role: true },
-      });
-      role = u?.role ?? null;
+      // The role is already loaded: requireAuth() above called getSession(),
+      // which is request-deduped via React cache(), so this second call is
+      // free (no extra DB round-trip) and reuses the SessionUser.role.
+      const session = await getSession();
+      role = session?.role ?? null;
     } catch (roleErr) {
       logger.warn(
         "cockpit-chat role lookup failed — defaulting to LP register",
