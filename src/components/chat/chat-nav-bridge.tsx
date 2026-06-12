@@ -115,7 +115,7 @@ export function ChatNavBridge() {
         "fixed bottom-4 left-1/2 z-50 -translate-x-1/2",
         "flex items-center gap-3 rounded-full px-4 py-2",
         "ct-surface-1 ct-text-primary",
-        "shadow-[var(--ct-shadow-elevated,0_8px_24px_rgba(0,0,0,0.4))]",
+        "shadow-[var(--ct-shadow-elevated)]",
         "border border-[var(--ct-border)]",
       )}
     >
