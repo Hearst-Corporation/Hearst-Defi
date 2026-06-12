@@ -21,8 +21,6 @@ import { AllocationDonut } from "@/components/portfolio/allocation-donut";
 import { ValueChart } from "@/components/portfolio/value-chart";
 import { PositionsList } from "@/components/portfolio/positions-list";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
-import { LockMeter } from "@/components/portfolio/lock-meter";
-import { TimeToCash } from "@/components/portfolio/time-to-cash";
 import { RiskPulse } from "@/components/portfolio/risk-pulse";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { ProofPulse } from "@/components/portfolio/proof-pulse";
@@ -32,6 +30,8 @@ import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
 import { SecurityPulse } from "@/components/portfolio/security-pulse";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
+import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
+import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
 import { SectionEmbedProvider } from "@/components/ui/section-embed";
 import {
   ZERO_YIELD_STACK,
@@ -143,24 +143,14 @@ export default async function PortfolioPage() {
               hasPositions={hasPositions}
               previewZeros={previewZeros}
             />
-            <div className="pf-hero-rail-group pf-hero-rail-group--payout">
-              <h3 className="pf-hero-rail-title">Projected payout</h3>
-              <SectionEmbedProvider>
-                <TimeToCash
-                  {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
-                  previewZeros={previewZeros}
-                />
-              </SectionEmbedProvider>
-            </div>
-            <div className="pf-hero-rail-group pf-hero-rail-group--liquidity">
-              <h3 className="pf-hero-rail-title">Liquidity</h3>
-              <SectionEmbedProvider>
-                <LockMeter
-                  {...(previewZeros ? zeroLockMeterProps(previewAsOf) : lockMeterProps)}
-                  previewZeros={previewZeros}
-                />
-              </SectionEmbedProvider>
-            </div>
+            <HeroPayoutRail
+              {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
+              previewZeros={previewZeros}
+            />
+            <HeroLiquidityRail
+              {...(previewZeros ? zeroLockMeterProps(previewAsOf) : lockMeterProps)}
+              previewZeros={previewZeros}
+            />
           </aside>
         </div>
       </MergedSurface>

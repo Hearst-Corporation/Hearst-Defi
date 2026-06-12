@@ -295,73 +295,24 @@
 
 .pf-hero-rail-meta {
   font-size: var(--ct-text-xs);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-muted);
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
-/* Embedded widgets — compact, no stretch */
-.pf-hero-sidebar [aria-label] {
-  height: auto !important;
-  min-height: 0 !important;
-  flex: none !important;
-}
-
-.pf-hero-sidebar .flex.h-full {
-  height: auto !important;
-}
-
-.pf-hero-rail-group [aria-label="Time to next distribution"],
-.pf-hero-rail-group [aria-label="Lock and liquidity status"] {
-  gap: var(--ct-space-2) !important;
-}
-
-/* Payout — hide duplicate label + verbose chrome */
-.pf-hero-rail-group--payout [aria-label="Time to next distribution"] > div:first-child > .stat-label {
-  display: none;
-}
-
-.pf-hero-rail-group--payout [aria-label="Time to next distribution"] .stat-value {
+.pf-hero-rail-group--payout > .pf-hero-rail-value {
+  display: block;
   font-size: var(--ct-text-lg);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
+  color: var(--ct-text-strong);
 }
 
-.pf-hero-rail-group--payout [aria-label="Time to next distribution"] > p.body-xs:not(.italic) {
-  color: var(--ct-text-faint);
-  font-style: normal;
-  font-size: var(--ct-text-xs);
-  line-height: var(--ct-leading-snug);
-}
-
-.pf-hero-rail-group--payout [aria-label="Time to next distribution"] > div.border-t {
-  display: none;
-}
-
-/* Zero preview — short faint note instead of long paragraph */
-.pf-container--zero
-  .pf-hero-rail-group--payout
-  [aria-label="Time to next distribution"]
-  > p.body-xs.italic {
-  font-size: 0;
-  line-height: 0;
+.pf-hero-rail-note {
   margin: 0;
-}
-
-.pf-container--zero
-  .pf-hero-rail-group--payout
-  [aria-label="Time to next distribution"]
-  > p.body-xs.italic::before {
-  content: "Available after first active position.";
   font-size: var(--ct-text-xs);
-  line-height: var(--ct-leading-snug);
   color: var(--ct-text-faint);
-  font-style: normal;
-}
-
-/* Liquidity — compact metadata */
-.pf-hero-rail-group--liquidity [aria-label="Lock and liquidity status"] dl {
-  margin-top: var(--ct-space-1) !important;
+  line-height: var(--ct-leading-snug);
 }
 
 /* ── Value chart surface — single local recipe (portfolio scope) ──
