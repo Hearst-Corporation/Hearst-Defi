@@ -18,14 +18,99 @@ import {
 
 interface TermSheetPreviewProps {
   vault: VaultProduct;
+  workspace?: boolean;
 }
 
-export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
+export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewProps) {
   const aumProvenance =
     vault.currentAumUsdc > 0 ? ("live" as const) : ("manual" as const);
   const legalFacts = toVaultLegalFacts(vault);
   const allocationFacts = toVaultAllocationFacts(vault);
 
+  if (workspace) {
+    return (
+      <div className="invest-flow-detail__grid">
+        {/* Left — primary: strategy, allocation, scenarios */}
+        <div className="invest-flow-detail__primary">
+          <VaultFlowSection
+            id="sec-strategy-allocation"
+            title="Strategy & allocation"
+            provenance={
+              <div className="body-xs ct-text-faint product-doc-inline-row product-doc-inline-row--dense">
+                <span>Methodology:</span>
+                <ProvenanceBadge kind="manual" />
+                <span>Scenarios:</span>
+                <ProvenanceBadge kind="estimated" />
+              </div>
+            }
+          >
+            <div className="product-doc-stack product-doc-stack--relaxed">
+              <div className="product-doc-section">
+                <p className="body-sm ct-text-muted">{MODEL_B_ONELINER}</p>
+                <div className="product-doc-inline-row">
+                  <Badge variant="brand">Mining-backed</Badge>
+                  <Badge variant="default">Rule-based rebalancing</Badge>
+                  <Badge variant="default">Monthly USDC distributions</Badge>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="h3 mb-2">Target allocation</h3>
+                <VaultAllocationInvestorList facts={allocationFacts} />
+              </div>
+
+              <div>
+                <h3 className="h3 mb-2">Regime scenarios</h3>
+                <p className="body-xs ct-text-muted mb-3 ct-prose-lg">
+                  Stress postures from Methodology v1.0 (Bull / Bear). Conditional — not a projection.
+                </p>
+                <RegimeScenarioTable />
+              </div>
+            </div>
+          </VaultFlowSection>
+        </div>
+
+        {/* Right — secondary: at a glance + legal */}
+        <div className="invest-flow-detail__secondary">
+          <VaultFlowSection
+            id="sec-glance"
+            title="At a glance"
+            provenance={
+              <div className="body-xs ct-text-faint product-doc-inline-row product-doc-inline-row--dense">
+                <ProvenanceBadge kind="estimated" />
+                <ProvenanceBadge kind="manual" />
+                {vault.currentAumUsdc > 0 ? (
+                  <ProvenanceBadge kind={aumProvenance} />
+                ) : null}
+              </div>
+            }
+          >
+            <MetricGrid columns={2}>
+              <VaultKpiCell label="Mgmt / perf">{formatFeeLine(vault.fees)}</VaultKpiCell>
+              <VaultKpiCell label="Capacity">{formatUsdCompact(vault.capacityUsdc)}</VaultKpiCell>
+              <VaultKpiCell label="Current AUM">
+                {vault.currentAumUsdc > 0
+                  ? formatUsdCompact(vault.currentAumUsdc)
+                  : "Pending"}
+              </VaultKpiCell>
+            </MetricGrid>
+          </VaultFlowSection>
+
+          <VaultFlowSection
+            id="sec-legal"
+            title="Legal & risk"
+            provenance={<ProvenanceBadge kind="manual" />}
+          >
+            <div className="ct-panel-fields">
+              <VaultLegalProofRows facts={legalFacts} variant="investor" />
+            </div>
+          </VaultFlowSection>
+        </div>
+      </div>
+    );
+  }
+
+  // Non-workspace: original document layout preserved for other flows
   return (
     <div className="product-doc-stack">
       <VaultFlowSection

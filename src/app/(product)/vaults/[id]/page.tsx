@@ -122,42 +122,21 @@ export default async function VaultDetailPage({ params }: PageProps) {
           </div>
         </dl>
       }
-      footer={
-        <>
-          <div
-            role="note"
-            aria-label="Important disclaimers"
-            className="ct-prose-xl product-doc-stack product-doc-stack--actions"
-          >
-            <p className="body-sm ct-text-muted leading-relaxed">
-              {vault.disclaimers}
-            </p>
-            <p className="body-xs ct-text-faint leading-relaxed">
-              APY ranges are target projections based on stated assumptions — they
-              are not a projection of future returns and are subject to change
-              without notice. Past performance does not indicate future results.
-              Allocations shown are targets and may deviate. This document is
-              informational only and does not constitute an offer or solicitation
-              where prohibited by law.
-            </p>
-          </div>
-
-          <div className="invest-flow-shell__footer-cta-row">
-            <p className="body-xs ct-text-muted ct-prose-md">
-              Review complete? Proceed to deposit — term sheet acknowledgement
-              required on the next step.
-            </p>
-            <InvestCta
-              isLive={isLive}
-              investHref={investHref}
-              size="lg"
-              className="invest-flow-shell__footer-cta"
-            />
-          </div>
-        </>
-      }
     >
-      <TermSheetPreview vault={vault} />
+      <TermSheetPreview vault={vault} workspace />
+
+      {/* Compact CTA strip — replaces document-style footer */}
+      <div className="invest-flow-detail__cta-strip" role="note" aria-label="Proceed to deposit">
+        <p className="body-xs ct-text-faint leading-relaxed">
+          {vault.disclaimers}
+        </p>
+        <div className="invest-flow-detail__cta-strip__actions">
+          <p className="body-xs ct-text-muted">
+            Term sheet acknowledgement required on the next step.
+          </p>
+          <InvestCta isLive={isLive} investHref={investHref} size="lg" />
+        </div>
+      </div>
     </InvestFlowShell>
   );
 }

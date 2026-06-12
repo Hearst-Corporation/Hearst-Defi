@@ -1043,6 +1043,71 @@
   }
 }
 
+/* ── Invest flow workspace — 2-col desktop composition ───────────────────────
+   invest-flow-detail__grid: primary (strategy/allocation) + secondary (KPIs/legal)
+   Mobile: single column natural stack. */
+
+.product-doc .invest-flow-detail__grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+  min-height: 0;
+}
+
+.product-doc .invest-flow-detail__primary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  min-width: 0;
+}
+
+.product-doc .invest-flow-detail__secondary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  min-width: 0;
+}
+
+/* Desktop: switch to 2-col grid — primary takes ~60%, secondary ~40% */
+@container product-doc (min-width: 52rem) {
+  .product-doc .invest-flow-detail__grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    grid-template-rows: 1fr;
+    gap: var(--ct-space-6);
+    align-items: start;
+    min-height: 0;
+  }
+
+  .product-doc .invest-flow-detail__primary {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .product-doc .invest-flow-detail__secondary {
+    position: sticky;
+    top: 0;
+  }
+}
+
+/* Compact CTA strip — replaces document footer, sits at bottom of body scroll */
+.product-doc .invest-flow-detail__cta-strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  border-top: 1px solid var(--ct-border-soft);
+  padding-top: var(--ct-space-4);
+  margin-top: auto;
+}
+
+.product-doc .invest-flow-detail__cta-strip__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+}
+
 /* Product select card */
 .product-doc .vault-select-card {
   display: flex;
