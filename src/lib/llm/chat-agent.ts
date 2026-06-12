@@ -69,6 +69,19 @@ export interface ChatAgentResult {
   nav: Promise<NavDestination | null>;
 }
 
+/**
+ * Default internal cap on a single model turn. The route awaits `nav`; if the
+ * upstream stream stalls and no signal ever fires, that await would deadlock the
+ * request. An internal `AbortSignal.timeout(...)` is always combined with the
+ * optional caller signal so the turn can never hang unboundedly. Overridable per
+ * call via `options.timeoutMs` (kept small in tests for speed).
+ */
+export const DEFAULT_CHAT_TURN_TIMEOUT_MS = 60_000;
+
+/** Short FR fallback emitted when the model returns a navigate-only completion
+ *  (a tool call with no text content) so the chat bubble is never blank. */
+const NAV_ONLY_FALLBACK = "Je vous y emmène.";
+
 /** Picks the first valid `navigate` destination from accumulated tool calls. */
 function destinationFromToolCalls(
   toolCalls: Map<number, { name: string; args: string }>,
@@ -94,9 +107,17 @@ export function runChatAgent(
   client: StreamingChatClient,
   model: string,
   messages: ChatAgentMessage[],
-  options?: { signal?: AbortSignal },
+  options?: { signal?: AbortSignal; timeoutMs?: number },
 ): ChatAgentResult {
   const enc = new TextEncoder();
+
+  // Combine the optional caller signal with an internal timeout so the model
+  // turn can never hang unboundedly (B1). Whichever fires first aborts the turn.
+  const timeoutMs = options?.timeoutMs ?? DEFAULT_CHAT_TURN_TIMEOUT_MS;
+  const timeoutSignal = AbortSignal.timeout(timeoutMs);
+  const signal = options?.signal
+    ? AbortSignal.any([options.signal, timeoutSignal])
+    : timeoutSignal;
 
   let resolveNav: (d: NavDestination | null) => void = () => {};
   const nav = new Promise<NavDestination | null>((r) => {
@@ -131,7 +152,7 @@ export function runChatAgent(
             tools: [navigateTool],
             tool_choice: "auto",
           },
-          options?.signal ? { signal: options.signal } : undefined,
+          { signal },
         );
       } catch (err) {
         safeEnqueue(
@@ -150,8 +171,33 @@ export function runChatAgent(
       const toolCalls = new Map<number, { name: string; args: string }>();
 
       try {
-        for await (const part of completion) {
-          const delta = part.choices?.[0]?.delta;
+        // Race each pull against the abort signal so a stalled upstream stream
+        // (one that ignores the signal) still terminates the turn — nav must
+        // always settle, the route must never deadlock (B1).
+        const iterator = completion[Symbol.asyncIterator]();
+        for (;;) {
+          const abortPromise = new Promise<never>((_, reject) => {
+            if (signal.aborted) {
+              reject(signal.reason ?? new Error("aborted"));
+              return;
+            }
+            signal.addEventListener(
+              "abort",
+              () => reject(signal.reason ?? new Error("aborted")),
+              { once: true },
+            );
+          });
+          // Swallow rejection if the pull wins the race — avoids an unhandled
+          // rejection from the loser abortPromise.
+          abortPromise.catch(() => {});
+
+          const { done, value } = await Promise.race([
+            iterator.next(),
+            abortPromise,
+          ]);
+          if (done) break;
+
+          const delta = value.choices?.[0]?.delta;
           if (!delta) continue;
           if (delta.content) {
             fullText += delta.content;
@@ -173,18 +219,31 @@ export function runChatAgent(
         );
       }
 
-      try {
-        controller.close();
-      } catch {
-        /* already closed */
-      }
-
       // Navigate only when the model picked a whitelisted destination AND the
       // answer is compliant — never off the back of a blocked answer.
       let dest = destinationFromToolCalls(toolCalls);
       if (dest && chatOutputViolation(fullText, true)) {
         dest = null;
       }
+
+      // B2: a tool-call-only completion produces no text. Emit a short FR
+      // fallback so the bubble is never blank — but only when we actually have
+      // a valid destination to send the user to, and only if the answer so far
+      // is compliant (never bypass the output guard).
+      if (
+        fullText.trim().length === 0 &&
+        dest &&
+        !chatOutputViolation(NAV_ONLY_FALLBACK, true)
+      ) {
+        safeEnqueue(NAV_ONLY_FALLBACK);
+      }
+
+      try {
+        controller.close();
+      } catch {
+        /* already closed */
+      }
+
       finishNav(dest);
     },
 

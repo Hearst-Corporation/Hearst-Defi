@@ -47,4 +47,27 @@ describe("navigate-tool whitelist", () => {
     expect(isProtectedRoute("/vaults")).toBe(false);
     expect(isProtectedRoute("/vaults/abc123")).toBe(false);
   });
+
+  // BUG R2 — repro: segment-anchored onboarding + normalized path.
+  it("does NOT treat a sibling route that merely starts with 'onboarding' as protected", () => {
+    // "/onboarding-complete" is NOT an in-progress onboarding step.
+    expect(isProtectedRoute("/onboarding-complete")).toBe(false);
+    expect(isProtectedRoute("/onboarding/step-2")).toBe(true); // real nested step stays protected
+  });
+
+  it("protects totp-challenge even with a trailing slash", () => {
+    expect(isProtectedRoute("/totp-challenge/")).toBe(true);
+  });
+
+  it("protects the deposit flow even with a query string", () => {
+    expect(isProtectedRoute("/vaults/x/invest?step=2")).toBe(true);
+  });
+
+  it("normalizes trailing slash + query string consistently", () => {
+    expect(isProtectedRoute("/onboarding/")).toBe(true);
+    expect(isProtectedRoute("/onboarding?next=kyc")).toBe(true);
+    expect(isProtectedRoute("/totp-challenge?return=/portfolio")).toBe(true);
+    expect(isProtectedRoute("/portfolio?tab=positions")).toBe(false);
+    expect(isProtectedRoute("/onboarding-complete/")).toBe(false);
+  });
 });

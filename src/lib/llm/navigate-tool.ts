@@ -99,11 +99,30 @@ export function resolveNavDestination(
  * Routes where auto-navigation must NOT yank the user away — an in-progress
  * form/flow. On these the client bridge degrades to a non-intrusive suggestion
  * instead of pushing the route.
+ *
+ * `currentPath` is normalized first — the query string and a trailing slash are
+ * stripped — so a flow stays protected regardless of `?step=2` or a trailing
+ * `/`. The onboarding check is segment-anchored (`/onboarding` or
+ * `/onboarding/...`) so a sibling like `/onboarding-complete` is NOT mistaken
+ * for an in-progress onboarding step.
  */
 export function isProtectedRoute(currentPath: string): boolean {
+  const path = normalizePath(currentPath);
   return (
-    /^\/vaults\/[^/]+\/invest(\/|$)/.test(currentPath) || // deposit flow
-    currentPath.startsWith("/onboarding") ||
-    currentPath === "/totp-challenge"
+    /^\/vaults\/[^/]+\/invest(\/|$)/.test(path) || // deposit flow
+    path === "/onboarding" ||
+    path.startsWith("/onboarding/") ||
+    path === "/totp-challenge"
   );
+}
+
+/** Strips the query string and a single trailing slash (root `/` preserved). */
+function normalizePath(currentPath: string): string {
+  const queryStart = currentPath.search(/[?#]/);
+  const withoutQuery =
+    queryStart === -1 ? currentPath : currentPath.slice(0, queryStart);
+  if (withoutQuery.length > 1 && withoutQuery.endsWith("/")) {
+    return withoutQuery.slice(0, -1);
+  }
+  return withoutQuery;
 }

@@ -117,4 +117,59 @@ describe("runChatAgent", () => {
     expect(text).toContain("\x00ERROR:");
     expect(await nav).toBeNull();
   });
+
+  // BUG B1 — repro: a stream that yields one chunk then HANGS forever (never
+  // returns). Without an internal abort the turn (and nav) would deadlock the
+  // route. With a short injected timeout the stream ends and nav resolves.
+  it("aborts a hanging upstream stream via internal timeout and settles nav", async () => {
+    const hangingClient: StreamingChatClient = {
+      chat: {
+        completions: {
+          create: async (_params, options) =>
+            (async function* () {
+              yield textChunk("Un instant");
+              // Stall forever unless the injected AbortSignal fires.
+              await new Promise<void>((_resolve, reject) => {
+                const signal = options?.signal;
+                if (signal) {
+                  if (signal.aborted) {
+                    reject(new Error("aborted"));
+                    return;
+                  }
+                  signal.addEventListener(
+                    "abort",
+                    () => reject(new Error("aborted")),
+                    { once: true },
+                  );
+                }
+              });
+            })(),
+        },
+      },
+    };
+
+    const { stream, nav } = runChatAgent(hangingClient, "gpt-4.1", MSGS, {
+      timeoutMs: 30,
+    });
+    // Must resolve (not hang). readAll completing IS the assertion the stream
+    // ended; the partial text streamed before the stall is preserved.
+    const text = await readAll(stream);
+    expect(text).toContain("Un instant");
+    expect(await nav).toBeNull();
+  });
+
+  // BUG B2 — repro: tool-call-only completion with NO text content. The bubble
+  // must not be empty — a short FR fallback sentence is emitted, and nav still
+  // resolves the chosen destination.
+  it("emits a fallback sentence when the model returns a tool call with no text", async () => {
+    const client = fakeClient([
+      toolChunk(0, { name: "navigate", arguments: '{"destination":"portfolio"}' }),
+    ]);
+    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS);
+    const text = await readAll(stream);
+    expect(text.trim().length).toBeGreaterThan(0);
+    expect(text).not.toContain(BLOCK_SENTINEL);
+    const dest = await nav;
+    expect(dest?.route).toBe("/portfolio");
+  });
 });
