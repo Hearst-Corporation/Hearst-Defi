@@ -12,10 +12,36 @@ export interface AdminActionFlowState {
   error: string | null;
 }
 
+function isFutureIso(value: string): boolean {
+  const epoch = Date.parse(value);
+  return Number.isFinite(epoch) && epoch > Date.now();
+}
+
+export function isValidPendingConfirmation(
+  confirmation: AdminActionConfirmationState | null,
+): confirmation is AdminActionConfirmationState {
+  if (!confirmation) return false;
+  if (
+    confirmation.token.trim().length === 0 ||
+    confirmation.summary.trim().length === 0
+  ) {
+    return false;
+  }
+  return isFutureIso(confirmation.expiresAtIso);
+}
+
 export function toConfirmationRequestedState(
   state: AdminActionFlowState,
   confirmation: AdminActionConfirmationState,
 ): AdminActionFlowState {
+  if (!isValidPendingConfirmation(confirmation)) {
+    return {
+      ...state,
+      pendingConfirmation: null,
+      actionResult: null,
+      error: "Confirmation invalide ou expiree.",
+    };
+  }
   return {
     ...state,
     pendingConfirmation: confirmation,

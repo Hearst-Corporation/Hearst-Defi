@@ -123,7 +123,7 @@ export default async function AuditLogPage({
       </Card>
 
       {/* Results */}
-      <section className="admin-doc-stack--actions" aria-label="Audit entries">
+      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Audit entries">
         <h2 className="h2">
           {hasFilters ? "Filtered results" : "Recent events"} ({entries.length})
         </h2>
@@ -144,123 +144,125 @@ export default async function AuditLogPage({
             className="min-h-32"
           />
         ) : (
-          <div className="ct-table-surface">
-            <table className="w-full border-collapse text-left body-sm">
-              <thead>
-                <tr>
-                  <th className="ct-table-header px-5 py-3 stat-label whitespace-nowrap">
-                    When
-                  </th>
-                  <th className="ct-table-header px-5 py-3 stat-label whitespace-nowrap">
-                    Actor
-                  </th>
-                  <th className="ct-table-header px-5 py-3 stat-label whitespace-nowrap">
-                    Action
-                  </th>
-                  <th className="ct-table-header px-5 py-3 stat-label whitespace-nowrap">
-                    Entity
-                  </th>
-                  <th className="ct-table-header px-5 py-3 stat-label whitespace-nowrap">
-                    Details
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {entries.map((entry) => (
-                  <tr
-                    key={entry.id}
-                    className="border-b border-[var(--ct-border)] last:border-0 align-top"
-                  >
-                    {/* When */}
-                    <td className="px-5 py-3 whitespace-nowrap mono body-xs ct-text-muted">
-                      {formatAdminAuditTimestamp(entry.occurredAt)}
-                    </td>
-
-                    {/* Actor */}
-                    <td className="px-5 py-3">
-                      <span
-                        className="mono body-xs ct-text-body"
-                        title={entry.actorWallet}
-                      >
-                        {truncateWallet(entry.actorWallet)}
-                      </span>
-                      {entry.ip ? (
-                        <span className="block body-xs">
-                          {entry.ip}
-                        </span>
-                      ) : null}
-                    </td>
-
-                    {/* Action */}
-                    <td className="px-5 py-3 whitespace-nowrap">
-                      <Badge variant={actionVariant(entry.action)}>
-                        {entry.action}
-                      </Badge>
-                    </td>
-
-                    {/* Entity */}
-                    <td className="px-5 py-3">
-                      <span className="block body-xs ct-text-strong">
-                        {entry.entityType}
-                      </span>
-                      <span className="mono block body-xs">
-                        {entry.entityId}
-                      </span>
-                    </td>
-
-                    {/* Details — before/after diff in a native <details> */}
-                    <td className="px-5 py-3 max-w-xs">
-                      <details className="group">
-                        <summary className="cursor-pointer list-none body-xs ct-text-muted hover:ct-text-body select-none">
-                          <span className="group-open:hidden">Show diff</span>
-                          <span className="hidden group-open:inline">
-                            Hide diff
-                          </span>
-                        </summary>
-                        <div className="mt-2 admin-doc-stack--tight">
-                          <div>
-                            <p className="stat-label mb-0.5 ct-text-muted">
-                              Before
-                            </p>
-                            <pre
-                              className={cn(
-                                "mono body-xs max-h-40 overflow-auto rounded border p-2 leading-relaxed whitespace-pre-wrap break-all",
-                                "ct-bc-soft ct-surface-0 ct-text-muted",
-                              )}
-                            >
-                              {entry.before === null
-                                ? "null"
-                                : JSON.stringify(entry.before, null, 2)}
-                            </pre>
-                          </div>
-                          <div>
-                            <p className="stat-label mb-0.5 ct-text-muted">
-                              After
-                            </p>
-                            <pre
-                              className={cn(
-                                "mono body-xs max-h-40 overflow-auto rounded border p-2 leading-relaxed whitespace-pre-wrap break-all",
-                                "ct-bc-soft ct-surface-0 ct-text-body",
-                              )}
-                            >
-                              {entry.after === null
-                                ? "null"
-                                : JSON.stringify(entry.after, null, 2)}
-                            </pre>
-                          </div>
-                          {entry.userAgent ? (
-                            <p className="body-xs truncate">
-                              UA: {entry.userAgent}
-                            </p>
-                          ) : null}
-                        </div>
-                      </details>
-                    </td>
+          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
+            <div className="overflow-x-auto">
+              <table className="w-full table-fixed text-left body-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[18%] ct-table-header stat-label">
+                      When
+                    </th>
+                    <th className="w-[18%] ct-table-header stat-label">
+                      Actor
+                    </th>
+                    <th className="w-[18%] ct-table-header stat-label">
+                      Action
+                    </th>
+                    <th className="hidden w-[18%] ct-table-header stat-label lg:table-cell">
+                      Entity
+                    </th>
+                    <th className="w-[46%] ct-table-header stat-label lg:w-[28%]">
+                      Details
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {entries.map((entry) => (
+                    <tr
+                      key={entry.id}
+                      className="border-b border-(--ct-border-soft) last:border-0 align-top"
+                    >
+                      {/* When */}
+                      <td className="ct-table-cell mono body-xs ct-text-muted">
+                        {formatAdminAuditTimestamp(entry.occurredAt)}
+                      </td>
+
+                      {/* Actor */}
+                      <td className="ct-table-cell">
+                        <span
+                          className="mono body-xs ct-text-body"
+                          title={entry.actorWallet}
+                        >
+                          {truncateWallet(entry.actorWallet)}
+                        </span>
+                        {entry.ip ? (
+                          <span className="block body-xs">
+                            {entry.ip}
+                          </span>
+                        ) : null}
+                      </td>
+
+                      {/* Action */}
+                      <td className="ct-table-cell">
+                        <Badge variant={actionVariant(entry.action)}>
+                          {entry.action}
+                        </Badge>
+                      </td>
+
+                      {/* Entity */}
+                      <td className="hidden ct-table-cell lg:table-cell">
+                        <span className="block body-xs ct-text-strong">
+                          {entry.entityType}
+                        </span>
+                        <span className="mono block body-xs">
+                          {entry.entityId}
+                        </span>
+                      </td>
+
+                      {/* Details — before/after diff in a native <details> */}
+                      <td className="ct-table-cell">
+                        <details className="group">
+                          <summary className="cursor-pointer list-none body-xs ct-text-muted hover:ct-text-body select-none">
+                            <span className="group-open:hidden">Show diff</span>
+                            <span className="hidden group-open:inline">
+                              Hide diff
+                            </span>
+                          </summary>
+                          <div className="mt-2 admin-doc-stack admin-doc-stack--tight">
+                            <div>
+                              <p className="stat-label mb-0.5 ct-text-muted">
+                                Before
+                              </p>
+                              <pre
+                                className={cn(
+                                  "mono body-xs max-h-40 overflow-auto rounded border p-2 leading-relaxed whitespace-pre-wrap break-all",
+                                  "ct-bc-soft ct-surface-0 ct-text-muted",
+                                )}
+                              >
+                                {entry.before === null
+                                  ? "null"
+                                  : JSON.stringify(entry.before, null, 2)}
+                              </pre>
+                            </div>
+                            <div>
+                              <p className="stat-label mb-0.5 ct-text-muted">
+                                After
+                              </p>
+                              <pre
+                                className={cn(
+                                  "mono body-xs max-h-40 overflow-auto rounded border p-2 leading-relaxed whitespace-pre-wrap break-all",
+                                  "ct-bc-soft ct-surface-0 ct-text-body",
+                                )}
+                              >
+                                {entry.after === null
+                                  ? "null"
+                                  : JSON.stringify(entry.after, null, 2)}
+                              </pre>
+                            </div>
+                            {entry.userAgent ? (
+                              <p className="body-xs truncate">
+                                UA: {entry.userAgent}
+                              </p>
+                            ) : null}
+                          </div>
+                        </details>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         )}
       </section>
 

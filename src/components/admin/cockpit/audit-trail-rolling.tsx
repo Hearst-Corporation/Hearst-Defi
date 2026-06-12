@@ -28,25 +28,25 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   }
 
   return (
-    <Card aria-label="Recent admin activity">
+    <Card aria-label="Recent admin activity" hoverOverlay={false}>
       <DashboardPanelHeader title="Recent admin activity" tone="quiet" />
-      <div className="dashboard-panel-table-scroll ct-table-surface border-0 bg-transparent">
-        <table className="w-full body-sm min-w-160" aria-label="Recent admin activity">
+      <div className="overflow-hidden">
+        <table className="w-full table-fixed body-sm" aria-label="Recent admin activity">
           <thead>
-            <tr className="border-b border-[var(--ct-border-soft)]">
-              <th className="text-left ct-table-header stat-label w-36">
+            <tr className="border-b border-(--ct-border-soft)">
+              <th className="w-[20%] text-left ct-table-header stat-label">
                 Time
               </th>
-              <th className="text-left ct-table-header stat-label w-32">
+              <th className="w-[18%] text-left ct-table-header stat-label">
                 Actor
               </th>
-              <th className="text-left ct-table-header stat-label">
+              <th className="w-[24%] text-left ct-table-header stat-label">
                 Action
               </th>
-              <th className="text-left ct-table-header stat-label w-28">
+              <th className="hidden w-[18%] text-left ct-table-header stat-label md:table-cell">
                 Entity
               </th>
-              <th className="text-left ct-table-header stat-label w-32">
+              <th className="hidden w-[20%] text-left ct-table-header stat-label lg:table-cell">
                 Entity ID
               </th>
             </tr>
@@ -69,20 +69,20 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
     : entry.entityId;
 
   return (
-    <tr className="border-b border-[var(--ct-border-soft)] transition-colors">
-      <td className="ct-table-cell tabular body-xs ct-text-muted whitespace-nowrap">
+    <tr className="border-b border-(--ct-border-soft)">
+      <td className="ct-table-cell tabular body-xs ct-text-muted">
         {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
       </td>
       <td className="ct-table-cell ct-text-muted mono body-xs">
         {wallet}
       </td>
-      <td className="ct-table-cell ct-text-body font-medium">
+      <td className="ct-table-cell ct-text-body truncate">
         {entry.action}
       </td>
-      <td className="ct-table-cell ct-text-muted">
+      <td className="hidden ct-table-cell ct-text-muted md:table-cell">
         {entry.entityType}
       </td>
-      <td className="ct-table-cell ct-text-muted mono body-xs">
+      <td className="hidden ct-table-cell ct-text-muted mono body-xs lg:table-cell">
         {entityId}
       </td>
     </tr>

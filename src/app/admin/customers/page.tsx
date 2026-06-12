@@ -4,6 +4,7 @@
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
 import { loadCustomers, type KycStatus } from "@/lib/data/customers";
@@ -59,7 +60,7 @@ export default async function CustomersPage({
         title="Customers"
       />
 
-      <section className="admin-doc-stack--actions" aria-label="Customers">
+      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Customers">
         <h2 className="h2">Directory ({total})</h2>
 
         {customers.length === 0 ? (
@@ -70,64 +71,66 @@ export default async function CustomersPage({
             className="min-h-32"
           />
         ) : (
-          <div className="ct-table-surface">
-            <table className="w-full border-collapse text-left body-sm">
-              <thead>
-                <tr>
-                  <th className="stat-label ct-table-header px-5 py-3">
-                    Email
-                  </th>
-                  <th className="stat-label ct-table-header px-5 py-3">
-                    Wallet
-                  </th>
-                  <th className="stat-label ct-table-header px-5 py-3">
-                    KYC
-                  </th>
-                  <th className="stat-label ct-table-header px-5 py-3 text-right">
-                    Active positions
-                  </th>
-                  <th className="stat-label ct-table-header px-5 py-3 text-right">
-                    Total principal
-                  </th>
-                  <th className="stat-label ct-table-header px-5 py-3">
-                    Joined
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {customers.map((c) => (
-                  <tr
-                    key={c.id}
-                    className="border-b border-[var(--ct-border)] last:border-0"
-                  >
-                    <td className="px-5 py-3 ct-text-strong">
-                      {c.email}
-                    </td>
-                    <td className="mono px-5 py-3 ct-text-muted">
-                      {truncateWallet(c.walletAddress)}
-                    </td>
-                    <td className="px-5 py-3">
-                      <div className="admin-doc-inline-row">
-                        <Badge variant={KYC_VARIANT[c.kycStatus]}>
-                          {KYC_LABEL[c.kycStatus]}
-                        </Badge>
-                        <KycAction investorId={c.id} status={c.kycStatus} />
-                      </div>
-                    </td>
-                    <td className="px-5 py-3 text-right tabular-nums ct-text-body">
-                      {c.activePositions}
-                    </td>
-                    <td className="px-5 py-3 text-right tabular-nums ct-text-strong">
-                      {usdFull.format(c.totalPrincipalUsdc)}
-                    </td>
-                    <td className="px-5 py-3 ct-text-muted">
-                      {formatAdminDate(c.joinedAt)}
-                    </td>
+          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
+            <div className="overflow-x-auto">
+              <table className="w-full table-fixed text-left body-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[30%] stat-label ct-table-header">
+                      Email
+                    </th>
+                    <th className="hidden w-[18%] stat-label ct-table-header lg:table-cell">
+                      Wallet
+                    </th>
+                    <th className="w-[24%] stat-label ct-table-header md:w-[18%]">
+                      KYC
+                    </th>
+                    <th className="hidden w-[14%] stat-label ct-table-header text-right md:table-cell">
+                      Active positions
+                    </th>
+                    <th className="w-[24%] stat-label ct-table-header text-right">
+                      Total principal
+                    </th>
+                    <th className="hidden w-[14%] stat-label ct-table-header lg:table-cell">
+                      Joined
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {customers.map((c) => (
+                    <tr
+                      key={c.id}
+                      className="border-b border-(--ct-border-soft) last:border-0"
+                    >
+                      <td className="ct-table-cell truncate ct-text-strong">
+                        {c.email}
+                      </td>
+                      <td className="hidden ct-table-cell mono ct-text-muted lg:table-cell">
+                        {truncateWallet(c.walletAddress)}
+                      </td>
+                      <td className="ct-table-cell">
+                        <div className="admin-doc-inline-row">
+                          <Badge variant={KYC_VARIANT[c.kycStatus]}>
+                            {KYC_LABEL[c.kycStatus]}
+                          </Badge>
+                          <KycAction investorId={c.id} status={c.kycStatus} />
+                        </div>
+                      </td>
+                      <td className="hidden ct-table-cell text-right tabular-nums ct-text-body md:table-cell">
+                        {c.activePositions}
+                      </td>
+                      <td className="ct-table-cell text-right tabular-nums ct-text-strong">
+                        {usdFull.format(c.totalPrincipalUsdc)}
+                      </td>
+                      <td className="hidden ct-table-cell ct-text-muted lg:table-cell">
+                        {formatAdminDate(c.joinedAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         )}
 
         {/* Pagination controls */}
@@ -140,7 +143,7 @@ export default async function CustomersPage({
               {page > 1 && (
                 <a
                   href={`/admin/customers?page=${page - 1}&pageSize=${pageSize}`}
-                  className="rounded-md border border-[var(--ct-border-soft)] px-3 py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors"
+                  className="rounded-md border border-(--ct-border-soft) px-3 py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors"
                 >
                   Previous
                 </a>
@@ -148,7 +151,7 @@ export default async function CustomersPage({
               {hasMore && (
                 <a
                   href={`/admin/customers?page=${page + 1}&pageSize=${pageSize}`}
-                  className="rounded-md border border-[var(--ct-border-soft)] px-3 py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors"
+                  className="rounded-md border border-(--ct-border-soft) px-3 py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors"
                 >
                   Next
                 </a>

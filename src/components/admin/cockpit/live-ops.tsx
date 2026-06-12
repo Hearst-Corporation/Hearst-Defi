@@ -28,7 +28,7 @@ interface LiveOpsProps {
  */
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
-    <Card aria-label="Live ops">
+    <Card aria-label="Live ops" className="dashboard-command-cell">
       <DashboardPanelHeader title="Live ops" tone="quiet" />
 
       <div className="dashboard-command-divide-stack">
@@ -43,7 +43,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
 
         <div className="py-4">
           <p className="stat-label mb-2 m-0">Sentry 24h</p>
-          <div className="admin-doc-inline-row admin-doc-inline-row--relaxed">
+          <div className="admin-doc-inline-row admin-doc-inline-row--relaxed admin-doc-inline-row--actions">
             <SentryCounter
               label="Errors"
               count={sentryStats.errors24h}
@@ -84,7 +84,7 @@ function InngestRow({ job }: { job: InngestJob }) {
 
   return (
     <div
-      className="admin-doc-inline-row admin-doc-inline-row--between py-2 first:pt-0 last:pb-0"
+      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions py-2 first:pt-0 last:pb-0"
       aria-label={`${job.name}: ${label}`}
     >
       <span className="body-xs ct-text-body truncate">{job.name}</span>
@@ -111,10 +111,10 @@ function InngestRow({ job }: { job: InngestJob }) {
 }
 
 const STATUS_DOT: Record<InngestJobStatus, string> = {
-  ok: "bg-[var(--ct-status-success)]",
-  err: "bg-[var(--ct-status-danger)]",
-  pending: "bg-[var(--ct-status-warning)] animate-pulse",
-  unknown: "bg-[var(--ct-border)] opacity-60",
+  ok: "bg-(--ct-status-success)",
+  err: "bg-(--ct-status-danger)",
+  pending: "bg-(--ct-status-warning) animate-pulse",
+  unknown: "bg-(--ct-border) opacity-60",
 };
 
 const STATUS_LABEL: Record<InngestJobStatus, string> = {
@@ -164,7 +164,7 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
 
   const inner = (
     <li
-      className="admin-doc-inline-row admin-doc-inline-row--start py-1.5 first:pt-0 last:pb-0"
+      className="admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--actions py-1.5 first:pt-0 last:pb-0"
       aria-label={`${event.type}: ${event.label}`}
     >
       <span

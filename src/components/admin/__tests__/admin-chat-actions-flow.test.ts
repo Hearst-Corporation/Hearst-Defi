@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  isValidPendingConfirmation,
   toConfirmationRequestedState,
   toExecutionSuccessState,
   type AdminActionFlowState,
@@ -48,5 +49,47 @@ describe("admin chat actions confirmation flow", () => {
     expect(next.pendingConfirmation).toBeNull();
     expect(next.actionResult).toContain("fb_1");
     expect(next.error).toBeNull();
+  });
+
+  it("rejects stale pending confirmation payload", () => {
+    const initial: AdminActionFlowState = {
+      pendingConfirmation: null,
+      actionResult: "old result",
+      error: null,
+    };
+
+    const next = toConfirmationRequestedState(initial, {
+      toolId: "create_review_note_draft",
+      token: "token_123",
+      expiresAtIso: "2000-01-01T00:00:00.000Z",
+      summary: "create_review_note_draft requires explicit confirmation",
+      input: { title: "A", body: "B" },
+    });
+
+    expect(next.pendingConfirmation).toBeNull();
+    expect(next.actionResult).toBeNull();
+    expect(next.error).toContain("expiree");
+  });
+
+  it("accepts only future valid confirmation state", () => {
+    expect(
+      isValidPendingConfirmation({
+        toolId: "create_review_note_draft",
+        token: "token_123",
+        expiresAtIso: "2100-01-01T00:00:00.000Z",
+        summary: "ok",
+        input: { title: "A", body: "B" },
+      }),
+    ).toBe(true);
+    expect(
+      isValidPendingConfirmation({
+        toolId: "create_review_note_draft",
+        token: " ",
+        expiresAtIso: "2100-01-01T00:00:00.000Z",
+        summary: "ok",
+        input: { title: "A", body: "B" },
+      }),
+    ).toBe(false);
+    expect(isValidPendingConfirmation(null)).toBe(false);
   });
 });

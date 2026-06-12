@@ -23,7 +23,7 @@ export function DistributionPanel({
   return (
     <>
       <DashboardPanelHeader title="Distribution" provenance={provenance} tone="quiet" />
-      <dl className="admin-doc-stack--tight body-sm">
+      <dl className="admin-doc-stack admin-doc-stack--tight body-sm">
         <div className="admin-doc-row-spread">
           <dt className="ct-text-muted">Period</dt>
           <dd className="tabular ct-text-strong">{distribution.period}</dd>

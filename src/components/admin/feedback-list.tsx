@@ -32,7 +32,7 @@ export function FeedbackList({ items }: { items: FeedbackItem[] }) {
   }
 
   return (
-    <div className="admin-doc-stack--actions">
+    <div className="admin-doc-stack admin-doc-stack--actions">
       {items.map((item) => (
         <FeedbackRow key={item.id} item={item} />
       ))}
@@ -57,7 +57,7 @@ function FeedbackRow({ item }: { item: FeedbackItem }) {
   }
 
   return (
-    <Card className={cn("p-4", item.resolved && "opacity-60")}>
+    <Card className={cn(item.resolved && "opacity-60")} hoverOverlay={false}>
       <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions">
         <div className="min-w-0 flex-1">
           <div className="mb-2 admin-doc-inline-row body-xs ct-text-muted">

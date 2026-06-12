@@ -40,9 +40,9 @@ const VAULT_STATUS_DISPLAY: Record<
   VaultStatus,
   { label: string; dotClass: string }
 > = {
-  draft: { label: "Draft", dotClass: "bg-[var(--ct-text-muted)]" },
+  draft: { label: "Draft", dotClass: "bg-(--ct-text-muted)" },
   review: { label: "Review", dotClass: "ct-status-dot-warning" },
-  deployed: { label: "Deployed", dotClass: "bg-[var(--ct-text-strong)]" },
+  deployed: { label: "Deployed", dotClass: "bg-(--ct-text-strong)" },
   live: { label: "Live", dotClass: "ct-status-dot-success" },
   paused: { label: "Paused", dotClass: "ct-status-dot-warning" },
   closed: { label: "Closed", dotClass: "ct-status-dot-danger" },
@@ -52,7 +52,7 @@ function vaultStatusDisplay(status: string) {
   return (
     VAULT_STATUS_DISPLAY[status as VaultStatus] ?? {
       label: status,
-      dotClass: "bg-[var(--ct-text-muted)]",
+      dotClass: "bg-(--ct-text-muted)",
     }
   );
 }
@@ -117,21 +117,23 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
       {/* List */}
       {vaults.length === 0 ? (
-        <EmptySurface
-          variant="widget"
-          message="No deployments found."
-          detail="Vault deployments will appear here once created."
-          className="min-h-32"
-        >
-          <Link
-            href="/admin/vaults/new"
-            className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-[var(--ct-border)] mt-1"
+        <Card aria-label="No vault deployments" hoverOverlay={false}>
+          <EmptySurface
+            variant="inline"
+            message="No deployments found."
+            detail="Vault deployments will appear here once created."
+            className="min-h-32"
           >
-            Create the first one
-          </Link>
-        </EmptySurface>
+            <Link
+              href="/admin/vaults/new"
+              className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-(--ct-border) mt-1"
+            >
+              Create the first one
+            </Link>
+          </EmptySurface>
+        </Card>
       ) : (
-        <section aria-label="Vault deployments" className="admin-doc-stack--list">
+        <section aria-label="Vault deployments" className="admin-doc-stack admin-doc-stack--list">
           {vaults.map((vault) => {
             const aumUsdc = vault.positions.reduce(
               (sum, p) => sum + Number(p.principalUsdc),
@@ -148,9 +150,9 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                 key={vault.id}
                 aria-label={`${vault.ticker} deployment`}
               >
-                <div className="admin-doc-stack--relaxed">
+                <div className="admin-doc-stack admin-doc-stack--relaxed">
                   <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
-                    <div className="admin-doc-stack--dense min-w-0">
+                    <div className="admin-doc-stack admin-doc-stack--dense min-w-0">
                       <div className="admin-doc-inline-row admin-doc-inline-row--loose">
                         <span className="mono tabular body-sm font-semibold ct-text-strong">
                           {vault.ticker}
@@ -219,7 +221,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                   </div>
 
                   <div className="admin-doc-kpi-grid-2">
-                    <div className="admin-doc-stack--compact min-w-0">
+                    <div className="admin-doc-stack admin-doc-stack--compact min-w-0">
                       <div className="admin-doc-inline-row admin-doc-inline-row--between">
                         <span className="stat-label">AUM vs Capacity</span>
                         <ProvenanceBadge
@@ -238,7 +240,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                       </span>
                     </div>
 
-                    <div className="admin-doc-stack--compact min-w-0">
+                    <div className="admin-doc-stack admin-doc-stack--compact min-w-0">
                       <div className="admin-doc-inline-row admin-doc-inline-row--between">
                         <span className="stat-label">Target APY</span>
                         <ProvenanceBadge kind="estimated" variant="strip" />

@@ -9,6 +9,8 @@ export const ADMIN_READ_TOOL_IDS = [
   "read_runtime_capabilities",
   "generate_chart_spec",
   "generate_demo_plan",
+  "export_demo_pack",
+  "export_briefing_pack",
 ] as const;
 
 export type AdminReadToolId = (typeof ADMIN_READ_TOOL_IDS)[number];
@@ -43,6 +45,19 @@ export interface AdminReadToolParametersSchema {
 export interface AdminReadToolExecutionContext {
   chatMode: ChatMode;
   profile: AdminToolScopeProfile;
+}
+
+export const ADMIN_TOOL_TELEMETRY_STATUSES = [
+  "success",
+  "blocked",
+  "failed",
+  "confirmation_required",
+] as const;
+export type AdminToolTelemetryStatus =
+  (typeof ADMIN_TOOL_TELEMETRY_STATUSES)[number];
+
+export interface AdminReadToolExecutionOptions {
+  userId?: string;
 }
 
 export interface AdminReadToolResult {
@@ -117,4 +132,5 @@ export type AdminToolDefinition = AdminReadToolDefinition | AdminWriteToolDefini
 export interface AdminWriteToolExecutionOptions {
   nowMs?: number;
   ttlMs?: number;
+  userId?: string;
 }

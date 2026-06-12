@@ -45,7 +45,7 @@ export function ActionQueue({ items }: ActionQueueProps) {
   }
 
   return (
-    <Card aria-label="Action queue">
+    <Card aria-label="Action queue" className="dashboard-command-cell">
       <DashboardPanelHeader title="Action queue" tone="quiet" />
       <ul className="dashboard-command-divide-stack" role="list">
         {items.map((item) => (
@@ -64,8 +64,8 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
       className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions py-3 first:pt-0 last:pb-0"
       aria-label={`${item.severity} — ${item.title}`}
     >
-      <div className="min-w-0 admin-doc-stack--micro">
-        <div className="admin-doc-inline-row">
+      <div className="min-w-0 admin-doc-stack admin-doc-stack--micro">
+        <div className="admin-doc-inline-row admin-doc-inline-row--dense">
           <SeverityPill severity={item.severity} />
           <span className="body-sm ct-text-strong font-medium truncate">
             {item.title}
@@ -81,10 +81,10 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
           href={item.href}
           className={cn(
             "shrink-0 rounded-sm px-3 py-1 body-xs font-medium",
-            "border transition-colors duration-[var(--ct-dur-fast)]",
+            "border transition-colors duration-(--ct-dur-fast)",
             item.severity === "P0"
-              ? "border-[var(--ct-status-danger-border)] ct-status-danger ct-status-danger-bg hover:bg-[var(--ct-status-danger)] hover:ct-text-on-accent"
-              : "border-[var(--ct-border)] ct-text-muted hover:border-[var(--ct-accent)] hover:ct-text-accent",
+              ? "border-(--ct-status-danger-border) ct-status-danger ct-status-danger-bg hover:bg-(--ct-status-danger) hover:ct-text-on-accent"
+              : "border-(--ct-border) ct-text-muted hover:border-(--ct-accent) hover:ct-text-accent",
           )}
           aria-label={`${actionLabel} — ${item.title}`}
         >
@@ -97,9 +97,9 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
 
 function SeverityPill({ severity }: { severity: ActionSeverity }) {
   const styles: Record<ActionSeverity, string> = {
-    P0: "ct-status-danger-bg ct-status-danger border-[var(--ct-status-danger-border)]",
-    P1: "ct-status-warning-bg ct-status-warning border-[var(--ct-status-warning-border)]",
-    P2: "ct-surface-1 ct-text-faint border-[var(--ct-border-soft)]",
+    P0: "ct-status-danger-bg ct-status-danger border-(--ct-status-danger-border)",
+    P1: "ct-status-warning-bg ct-status-warning border-(--ct-status-warning-border)",
+    P2: "ct-surface-1 ct-text-faint border-(--ct-border-soft)",
   };
 
   return (

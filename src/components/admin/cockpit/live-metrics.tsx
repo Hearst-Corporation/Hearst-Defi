@@ -39,7 +39,7 @@ export function LiveMetrics({ vaults }: LiveMetricsProps) {
   }
 
   return (
-    <Card aria-label="Live metrics" className="dashboard-live-metrics">
+    <Card aria-label="Live metrics" className="dashboard-command-cell dashboard-live-metrics">
       <DashboardPanelHeader title="Live metrics" tone="quiet" />
       <div className="dashboard-command-divide-stack">
         {vaults.map((vault) => (
@@ -79,7 +79,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
       aria-label={`Vault ${vault.vaultName} metrics`}
     >
       {/* Vault name + status */}
-      <div className="dashboard-live-metrics__vault-head mb-2 admin-doc-inline-row admin-doc-inline-row--between min-w-0">
+      <div className="dashboard-live-metrics__vault-head mb-2 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions min-w-0">
         <Link
           href={vault.href}
           className="body-sm ct-text-strong min-w-0 truncate font-medium hover:ct-text-accent hover:underline"
@@ -132,7 +132,7 @@ function MetricCell({
   valueClassName?: string;
 }) {
   return (
-    <div className="admin-doc-stack--micro">
+    <div className="admin-doc-stack admin-doc-stack--micro">
       <span className="stat-label ct-text-faint">
         {label}
       </span>

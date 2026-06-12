@@ -104,7 +104,7 @@ export function ForbiddenWordsInput({
     className: cn(
       className,
       hasViolations &&
-        "ring-1 ring-[var(--ct-status-danger)] focus:ring-[var(--ct-status-danger)]",
+        "ring-1 ring-(--ct-status-danger) focus:ring-(--ct-status-danger)",
     ),
   };
 

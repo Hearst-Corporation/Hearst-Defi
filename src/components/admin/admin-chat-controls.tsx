@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Markdown } from "@/components/admin/markdown";
 import {
+  isValidPendingConfirmation,
   toConfirmationRequestedState,
   toExecutionSuccessState,
   type AdminActionFlowState,
@@ -24,7 +25,11 @@ type Mode = ChatMode;
 type AdminWriteToolId =
   | "create_review_note_draft"
   | "create_governance_proposal_draft";
-type AdminReadUtilityToolId = "generate_chart_spec" | "generate_demo_plan";
+type AdminReadUtilityToolId =
+  | "generate_chart_spec"
+  | "generate_demo_plan"
+  | "export_demo_pack"
+  | "export_briefing_pack";
 
 interface PendingConfirmation {
   toolId: AdminWriteToolId;
@@ -120,6 +125,8 @@ export function AdminChatControls() {
   const [chartTimeframe, setChartTimeframe] = useState("30d");
   const [demoObjective, setDemoObjective] = useState("Admin product walkthrough");
   const [demoAudience, setDemoAudience] = useState("Internal stakeholders");
+  const [demoPackIncludeCharts, setDemoPackIncludeCharts] = useState(true);
+  const [demoPackIncludeChecklist, setDemoPackIncludeChecklist] = useState(true);
 
   const getActionFlowState = useCallback(
     (): AdminActionFlowState => ({
@@ -207,6 +214,8 @@ export function AdminChatControls() {
   // AbortController for the in-flight generation. Lets the admin cancel a
   // pending 60s call instead of staring at a frozen spinner.
   const abortRef = useRef<AbortController | null>(null);
+  const writeActionInFlightRef = useRef(false);
+  const readUtilityInFlightRef = useRef(false);
 
   const generateDocument = useCallback(async () => {
     setError(null);
@@ -353,10 +362,12 @@ export function AdminChatControls() {
   ]);
 
   const requestWriteConfirmation = useCallback(async () => {
+    if (writeActionInFlightRef.current) return;
     setError(null);
     setActionResult(null);
     const input = buildWriteInput();
     if (!input) return;
+    writeActionInFlightRef.current = true;
     setActionBusy(true);
     try {
       const res = await fetch("/api/admin/chat-tools", {
@@ -394,14 +405,25 @@ export function AdminChatControls() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur de confirmation.");
     } finally {
+      writeActionInFlightRef.current = false;
       setActionBusy(false);
     }
   }, [adminActionTool, buildWriteInput, applyActionFlowState, getActionFlowState]);
 
   const confirmWriteAction = useCallback(async () => {
-    if (!pendingConfirmation) return;
+    if (!pendingConfirmation || writeActionInFlightRef.current) return;
+    if (!isValidPendingConfirmation(pendingConfirmation)) {
+      applyActionFlowState({
+        ...getActionFlowState(),
+        pendingConfirmation: null,
+        actionResult: null,
+        error: "Confirmation expiree, redemandez une validation.",
+      });
+      return;
+    }
     setError(null);
     setActionResult(null);
+    writeActionInFlightRef.current = true;
     setActionBusy(true);
     try {
       const res = await fetch("/api/admin/chat-tools", {
@@ -437,6 +459,7 @@ export function AdminChatControls() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur d'execution.");
     } finally {
+      writeActionInFlightRef.current = false;
       setActionBusy(false);
     }
   }, [pendingConfirmation, applyActionFlowState, getActionFlowState]);
@@ -446,45 +469,81 @@ export function AdminChatControls() {
   }, []);
 
   const requestReadUtility = useCallback(async () => {
+    if (readUtilityInFlightRef.current) return;
     setError(null);
     setReadUtilityResult(null);
-    setReadUtilityBusy(true);
-    try {
-      const input =
-        readUtilityTool === "generate_chart_spec"
+    const input =
+      readUtilityTool === "generate_chart_spec"
+        ? {
+            intent: chartIntent.trim(),
+            chartType,
+            ...(chartTimeframe.trim().length > 0
+              ? { timeframe: chartTimeframe.trim() }
+              : {}),
+          }
+        : readUtilityTool === "generate_demo_plan"
           ? {
-              intent: chartIntent.trim(),
-              chartType,
-              ...(chartTimeframe.trim().length > 0
-                ? { timeframe: chartTimeframe.trim() }
-                : {}),
-            }
-          : {
               objective: demoObjective.trim(),
               audience: demoAudience.trim(),
-            };
-      const res = await fetch("/api/admin/chat-tools", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "execute_read",
-          toolId: readUtilityTool,
-          input,
-        }),
-      });
-      const data = (await res.json().catch(() => null)) as
-        | {
-            status?: string;
-            result?: { payload?: unknown; title?: string; lines?: string[] };
-            error?: string;
-          }
-        | null;
+            }
+          : readUtilityTool === "export_demo_pack"
+            ? {
+                objective: demoObjective.trim(),
+                audience: demoAudience.trim(),
+                includeCharts: demoPackIncludeCharts,
+                includeChecklist: demoPackIncludeChecklist,
+              }
+            : {
+                objective: demoObjective.trim(),
+                audience: demoAudience.trim(),
+                includeCharts: demoPackIncludeCharts,
+              };
+    if (readUtilityTool === "generate_chart_spec" && chartIntent.trim().length === 0) {
+      setError("Intent requis pour le chart spec.");
+      return;
+    }
+    if (
+      (readUtilityTool === "generate_demo_plan" ||
+        readUtilityTool === "export_demo_pack" ||
+        readUtilityTool === "export_briefing_pack") &&
+      (demoObjective.trim().length === 0 || demoAudience.trim().length === 0)
+    ) {
+      setError("Champs read utility manquants.");
+      return;
+    }
+    readUtilityInFlightRef.current = true;
+    setReadUtilityBusy(true);
+    try {
+      const executeReadTool = async (toolId: AdminReadUtilityToolId) => {
+        const res = await fetch("/api/admin/chat-tools", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "execute_read",
+            toolId,
+            input,
+          }),
+        });
+        const data = (await res.json().catch(() => null)) as
+          | {
+              status?: string;
+              result?: { payload?: unknown; title?: string; lines?: string[] };
+              error?: string;
+            }
+          | null;
+        return { res, data };
+      };
+      const requestedToolId = readUtilityTool;
+      const executedToolId = requestedToolId;
+      const { res, data } = await executeReadTool(requestedToolId);
       if (!res.ok || data?.status !== "executed" || !data.result) {
         throw new Error(data?.error ?? "Read tool execution failed.");
       }
       setReadUtilityResult(
         JSON.stringify(
           {
+            requestedToolId,
+            executedToolId,
             title: data.result.title,
             lines: data.result.lines,
             payload: data.result.payload ?? null,
@@ -496,6 +555,7 @@ export function AdminChatControls() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur read tool.");
     } finally {
+      readUtilityInFlightRef.current = false;
       setReadUtilityBusy(false);
     }
   }, [
@@ -505,6 +565,8 @@ export function AdminChatControls() {
     chartTimeframe,
     demoObjective,
     demoAudience,
+    demoPackIncludeCharts,
+    demoPackIncludeChecklist,
   ]);
 
   // Abort any in-flight generation if the component unmounts.
@@ -530,6 +592,7 @@ export function AdminChatControls() {
   }, [doc]);
 
   const hydrated = useHydrated();
+  const canConfirmPending = isValidPendingConfirmation(pendingConfirmation);
   const adminInputClassName =
     "w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-2 py-1 body-xs";
   // Hidden until hydrated and admin status confirmed. The settings-panel
@@ -771,7 +834,7 @@ export function AdminChatControls() {
                       size="sm"
                       className="w-full"
                       onClick={confirmWriteAction}
-                      disabled={actionBusy}
+                      disabled={actionBusy || !canConfirmPending}
                     >
                       Confirm and execute
                     </Button>
@@ -796,6 +859,8 @@ export function AdminChatControls() {
                 >
                   <option value="generate_chart_spec">Generate chart spec</option>
                   <option value="generate_demo_plan">Generate demo plan</option>
+                  <option value="export_demo_pack">Export demo pack</option>
+                  <option value="export_briefing_pack">Export briefing pack</option>
                 </select>
               </div>
               {readUtilityTool === "generate_chart_spec" ? (
@@ -834,7 +899,7 @@ export function AdminChatControls() {
                     />
                   </div>
                 </>
-              ) : (
+              ) : readUtilityTool === "generate_demo_plan" ? (
                 <>
                   <div className="ct-chat-settings-row">
                     <input
@@ -855,6 +920,53 @@ export function AdminChatControls() {
                     />
                   </div>
                 </>
+              ) : (
+                <>
+                  <div className="ct-chat-settings-row">
+                    <input
+                      className={adminInputClassName}
+                      placeholder="Objective"
+                      value={demoObjective}
+                      onChange={(event) => setDemoObjective(event.target.value)}
+                      disabled={readUtilityBusy}
+                    />
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <input
+                      className={adminInputClassName}
+                      placeholder="Audience"
+                      value={demoAudience}
+                      onChange={(event) => setDemoAudience(event.target.value)}
+                      disabled={readUtilityBusy}
+                    />
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <label className="body-xs inline-flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={demoPackIncludeCharts}
+                        onChange={(event) =>
+                          setDemoPackIncludeCharts(event.target.checked)
+                        }
+                        disabled={readUtilityBusy}
+                      />
+                      Include charts
+                    </label>
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <label className="body-xs inline-flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={demoPackIncludeChecklist}
+                        onChange={(event) =>
+                          setDemoPackIncludeChecklist(event.target.checked)
+                        }
+                        disabled={readUtilityBusy}
+                      />
+                      Include checklist
+                    </label>
+                  </div>
+                </>
               )}
               <div className="ct-chat-settings-row">
                 <Button
@@ -868,16 +980,28 @@ export function AdminChatControls() {
                 </Button>
               </div>
               {readUtilityResult ? (
-                <div className="ct-chat-settings-row">
-                  <pre
-                    className={cn(
-                      "w-full overflow-x-auto rounded-md border border-(--ct-border-soft)",
-                      "ct-surface-1 p-2 body-xs",
-                    )}
-                  >
-                    {readUtilityResult}
-                  </pre>
-                </div>
+                <>
+                  <div className="ct-chat-settings-row">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => void navigator.clipboard.writeText(readUtilityResult)}
+                    >
+                      Copy JSON
+                    </Button>
+                  </div>
+                  <div className="ct-chat-settings-row">
+                    <pre
+                      className={cn(
+                        "w-full max-h-56 overflow-auto rounded-md border border-(--ct-border-soft)",
+                        "ct-surface-1 p-2 body-xs",
+                      )}
+                    >
+                      {readUtilityResult}
+                    </pre>
+                  </div>
+                </>
               ) : null}
             </>
           ) : (

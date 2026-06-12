@@ -67,7 +67,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
           audit log.
         </p>
 
-        <div className="admin-doc-stack--tight">
+        <div className="admin-doc-stack admin-doc-stack--tight">
           <label
             id={labelId}
             htmlFor={`${labelId}-reason`}

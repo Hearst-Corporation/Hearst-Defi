@@ -20,14 +20,12 @@ export default async function ProofsPage() {
         description="Paper attestations ingested off-chain. Live on-chain proofs are in Proof Center."
       />
 
-      {items.length === 0 ? (
-        <ProofList items={items} />
-      ) : (
-        <section className="admin-doc-stack--actions">
+      <section className="admin-doc-stack admin-doc-stack--actions">
+        {items.length > 0 ? (
           <h2 className="h2">Published proofs ({items.length})</h2>
-          <ProofList items={items} />
-        </section>
-      )}
+        ) : null}
+        <ProofList items={items} />
+      </section>
 
       <p className="body-sm ct-text-muted">
         New attestations are ingested via the{" "}

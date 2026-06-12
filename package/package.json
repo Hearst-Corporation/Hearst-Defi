@@ -1,0 +1,45 @@
+{
+  "name": "@hearst/cockpit-shell",
+  "version": "0.2.1",
+  "private": true,
+  "description": "Shell Cockpit Hearst — RailLeft + CenterPanel + RailRight + ChatKimi + tokens. Consommé par les 13 apps.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./tokens.css": "./tokens.css",
+    "./handler": {
+      "import": "./dist/handler/createCockpitChatHandler.js",
+      "types": "./dist/handler/createCockpitChatHandler.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "tokens.css",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/handler/createCockpitChatHandler.ts --format esm --external react --external react-dom --external next --external openai && node -e \"const fs=require('fs');const p='dist/index.js';fs.writeFileSync(p,'\\\"use client\\\";\\n\\n'+fs.readFileSync(p,'utf8').replace(/^\\\"use client\\\";\\n*/,''))\" && tsc -p tsconfig.build.json"
+  },
+  "peerDependencies": {
+    "next": ">=15",
+    "openai": ">=4",
+    "react": ">=18"
+  },
+  "dependencies": {
+    "dompurify": "^3.2.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/dompurify": "^3.0.5",
+    "@types/react": "^19.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.4.0"
+  }
+}

@@ -66,7 +66,7 @@ export default async function ProposePage() {
       <Card>
         <DashboardPanelHeader title="Proposal details" tone="quiet" className="mb-6" />
         <form action={handlePropose} className="admin-doc-stack">
-          <div className="admin-doc-stack--dense">
+          <div className="admin-doc-stack admin-doc-stack--dense">
             <label htmlFor="vaultId" className="stat-label block">
               Vault *
             </label>
@@ -89,7 +89,7 @@ export default async function ProposePage() {
             )}
           </div>
 
-          <div className="admin-doc-stack--dense">
+          <div className="admin-doc-stack admin-doc-stack--dense">
             <label htmlFor="actionType" className="stat-label block">
               Action type *
             </label>
@@ -103,7 +103,7 @@ export default async function ProposePage() {
             </select>
           </div>
 
-          <div className="admin-doc-stack--dense">
+          <div className="admin-doc-stack admin-doc-stack--dense">
             <label htmlFor="calldata" className="stat-label block">
               Calldata (raw JSON — optional)
             </label>
@@ -116,7 +116,7 @@ export default async function ProposePage() {
             />
           </div>
 
-          <div className="admin-doc-stack--dense">
+          <div className="admin-doc-stack admin-doc-stack--dense">
             <label htmlFor="justification" className="stat-label block">
               Justification *{" "}
               <span className="normal-case tracking-normal ct-text-muted">(min 80 characters)</span>

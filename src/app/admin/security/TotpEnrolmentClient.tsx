@@ -60,7 +60,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
 
   if (state.phase === "success") {
     return (
-      <div className="admin-doc-stack--tight">
+      <div className="admin-doc-stack admin-doc-stack--tight">
         <p className="body-xs ct-text-accent">
           Two-factor authentication is now enabled. Your next login will require a TOTP code.
         </p>
@@ -71,7 +71,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
   if (state.phase === "pending") {
     return (
       <div className="admin-doc-stack">
-        <div className="admin-doc-stack--tight">
+        <div className="admin-doc-stack admin-doc-stack--tight">
           <p className="body-xs ct-text-muted">
             Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.),
             then enter the 6-digit code below to complete setup.
@@ -105,7 +105,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
           </details>
         </div>
 
-        <form action={handleConfirm} className="admin-doc-stack--relaxed">
+        <form action={handleConfirm} className="admin-doc-stack admin-doc-stack--relaxed">
           <label className="block" htmlFor="totp-code">
             <span className="mb-1 block stat-label">
               Verification code
@@ -160,10 +160,10 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
 
   // phase === "idle"
   return (
-    <div className="admin-doc-stack--relaxed">
+    <div className="admin-doc-stack admin-doc-stack--relaxed">
       {totpEnabled ? (
         <div className="admin-doc-inline-row">
-          <span className="inline-block h-2 w-2 rounded-full bg-[var(--ct-accent)]" />
+          <span className="inline-block h-2 w-2 rounded-full bg-(--ct-accent)" />
           <span className="body-xs ct-text-accent">
             MFA is enabled for this account.
           </span>
@@ -171,7 +171,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
       ) : (
         <>
           <div className="admin-doc-inline-row">
-            <span className="inline-block h-2 w-2 rounded-full bg-[var(--ct-status-warning)]" />
+            <span className="inline-block h-2 w-2 rounded-full bg-(--ct-status-warning)" />
             <span className="body-xs ct-text-muted">
               MFA is not yet enabled. We recommend enabling it for admin accounts.
             </span>

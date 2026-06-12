@@ -90,7 +90,7 @@ export function DashboardAssetsBoard({
   });
 
   return (
-    <div className="dashboard-command-board relative z-10 admin-doc-stack--relaxed">
+    <div className="dashboard-command-board relative z-10 admin-doc-stack admin-doc-stack--relaxed">
       <section aria-label="Vault KPIs">
         <DashboardKpiStrip kpis={heroKpis} />
       </section>

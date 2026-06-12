@@ -553,6 +553,18 @@ model AdminChatMode {
   updatedAt DateTime @updatedAt
 }
 
+model AdminWriteToolConfirmation {
+  token       String   @id
+  toolId      String
+  payloadHash String
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([expiresAt])
+  @@index([toolId, createdAt])
+}
+
 // A generated "suggested modifications" document, distilled from a review-mode
 // conversation. Kept append-only (history of generations) and scoped per user.
 model ReviewDocument {

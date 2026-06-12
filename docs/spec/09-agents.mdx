@@ -13,9 +13,11 @@ Zod-validated, no free-form text.
 
 A separate **conversational cockpit chat** also ships — an admin review-mode
 facilitator and an LP-facing **Master Agent** — as a deliberately **scoped
-exception** to the old "No AI chat" non-negotiable. It is read-only: it has no
-write / financial / admin tool, only a closed-whitelist `navigate` capability,
-and every answer passes the same compliance guard (forbidden words + APY-range).
+exception** to the old "No AI chat" non-negotiable. The in-chat execution path
+remains read-only: only a closed-whitelist `navigate` capability + admin
+read-tools are callable by the model, and every answer passes the same
+compliance guard (forbidden words + APY-range). Admin write tools exist only as
+confirmation-gated, explicit human actions (out of the model auto-exec path).
 See **ADR-012** and the "Conversational chat" section below.
 
 ## The 4 agents
@@ -120,7 +122,9 @@ any admin action. Three admin-selectable modes:
 - **Admin review-mode facilitator** — admin-gated (`AdminChatMode` row → `chatMode = "review"`); a product-review facilitator prompt that produces review documents (MD + JSON). Always runs through the `@hearst/cockpit-shell` handler (no tools).
 - **Admin ops mode** — admin-gated (`chatMode = "admin"`); internal copilot prompt for architecture, canonical allocations, market-data freshness, proofs, governance, deployment runbooks and operational checks. It can use injected app context but has no browser, market terminal, DB-write, signing, Fireblocks, deploy or transaction tool.
   - Internal implementation: the admin live block is assembled through a typed tools registry (`src/lib/llm/tools/*`) with explicit policy gating (`chatMode/profile`). Current runtime context enrichment uses read-tools (`read_allocations_canonical`, `read_market_snapshot`, `read_routes_index`, `read_specs_index`, `read_runtime_capabilities`); partial backend failures degrade gracefully (best-effort context).
+  - Admin read utilities also include deterministic planning/spec tools: `generate_chart_spec` (structured chart spec with provenance/freshness and explicit unavailable flags), `generate_demo_plan` (ordered route-based demo steps constrained by admin whitelist + route/spec indexes), `export_demo_pack` (structured export: metadata + ordered demo plan + optional chart specs + optional checklist + provenance/freshness summary), and `export_briefing_pack` (executive-ready package: summary + ordered demo plan + optional chart specs + risk/action sections + provenance/freshness summary).
   - In-chat tool-calling is enabled only in `admin` mode for a bounded server allowlist of **read** tools from the same registry; tool outputs are fed back into the same model turn (controlled two-pass flow).
+  - `POST /api/admin/chat-tools` supports `execute_read` with optional `input` JSON for these read-only tools; no write side effect is permitted in this path.
   - Any attempted model-side auto-execution of a write tool is deterministically blocked server-side (non-sensitive warning log), with no side effects; write remains explicit human confirmation flow only.
   - Admin write-tools for **draft-only** actions (`create_review_note_draft`, `create_governance_proposal_draft`) are exposed through `GET/POST /api/admin/chat-tools` (admin-only). They are **not auto-triggered by LLM output**: execution is explicit from the admin controls panel ("Actions admin"), and always uses a two-step handshake: step 1 returns `confirmation_required` (token + summary), step 2 requires explicit confirm click + token. Tokens are short-TTL and single-use; expired/invalid tokens are rejected server-side.
 - **LP-facing Master Agent** — normal-mode chat, flag-gated behind `CHAT_MASTER_AGENT` (server-only env, OFF by default). Runs through the app-owned tool-capable engine (`runChatAgent`) whose **only** tool is `navigate` — a client-side, read-only route change restricted to a **closed whitelist** (`NAV_DESTINATIONS`: portfolio, vaults, proof-center, profile). No write / financial / admin tool exists.
@@ -132,11 +136,12 @@ Guardrails (all enforced server-side):
 - **Role-aware register** (`buildRoleDirective`): LP default is strict vouvoiement + zero internal disclosure; admin gets a looser internal register but still no secrets / env vars / DB schemas / other agents' prompts.
 - **No vector RAG today**: chat context is server-built from Prisma-backed user profile/memory, live portfolio context when available, static prompts, and filesystem route/spec indexes for review document generation.
 - **Human-in-the-loop preserved** (#4): no auto-execution of any financial or rebalancing action — the chat suggests and navigates, humans decide.
+- **Write confirmation binding**: confirmation tokens are short-TTL, single-use, and bound to `(toolId,input)`; replay or payload mismatch is rejected server-side.
 
 ## Forbidden absolutely
 
 - ❌ Free-form chat from the **structured agents** (they return STRICT JSON only)
-- ❌ Any write / financial / admin tool on the conversational chat (navigate-only, closed whitelist)
+- ❌ Any autonomous write / financial execution by conversational chat (write tools are explicit confirm-only, never model auto-exec)
 - ❌ Unsourced recommendations
 - ❌ Yield affirmations / guarantees
 - ❌ Autonomous decisions (agents propose, humans decide)

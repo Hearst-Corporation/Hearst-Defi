@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PanelStatusAccent } from "@/components/ui/panel-status";
@@ -68,67 +69,71 @@ export function ResumeDraftBanner({
   }, [updatedAt]);
 
   return (
-    <Card className="max-w-2xl admin-doc-stack--roomy">
-      <div className="admin-doc-stack--compact">
-        <p className="body-sm ct-text-strong">
-          An autosaved {draftLabel} was found on this account.
-        </p>
-        <p className="body-xs ct-text-faint">
-          Step {stepNumber}/7 — {stepLabel} · Autosaved {relTime ?? "…"}
-        </p>
-      </div>
-
-      {confirmDiscard ? (
-        <PanelStatusAccent
-          className="admin-doc-stack--actions items-stretch border-l-[var(--ct-status-danger)]"
-          role="alert"
-        >
-          <p className="body-xs ct-text-strong m-0">
-            You are about to lose this draft. Continue?
+    <Card className="max-w-2xl">
+      <div className="admin-doc-stack admin-doc-stack--roomy">
+        <div className="admin-doc-stack admin-doc-stack--compact">
+          <p className="body-sm ct-text-strong">
+            An autosaved {draftLabel} was found on this account.
           </p>
+          <p className="body-xs ct-text-faint">
+            Step {stepNumber}/7 — {stepLabel} · Autosaved {relTime ?? "…"}
+          </p>
+        </div>
+
+        {confirmDiscard ? (
+          <PanelStatusAccent
+            className="items-stretch border-l-(--ct-status-danger)"
+            role="alert"
+          >
+            <div className="admin-doc-stack admin-doc-stack--actions">
+              <p className="body-xs ct-text-strong m-0">
+                You are about to lose this draft. Continue?
+              </p>
+              <div className="admin-doc-inline-row">
+                <Button
+                  variant="danger"
+                  size="sm"
+                  type="button"
+                  onClick={handleStartFresh}
+                  disabled={isPending}
+                >
+                  {isPending ? "Discarding…" : "Yes, discard and start fresh"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  onClick={() => setConfirmDiscard(false)}
+                  disabled={isPending}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </PanelStatusAccent>
+        ) : (
           <div className="admin-doc-inline-row">
             <Button
-              variant="danger"
-              size="sm"
+              variant="primary"
+              size="lg"
               type="button"
-              onClick={handleStartFresh}
+              onClick={handleResume}
               disabled={isPending}
             >
-              {isPending ? "Discarding…" : "Yes, discard and start fresh"}
+              Resume draft (step {stepNumber}/7{relTime ? `, autosaved ${relTime}` : ""})
             </Button>
             <Button
-              variant="ghost"
-              size="sm"
+              variant="secondary"
+              size="lg"
               type="button"
-              onClick={() => setConfirmDiscard(false)}
+              onClick={() => setConfirmDiscard(true)}
               disabled={isPending}
             >
-              Cancel
+              Start from scratch
             </Button>
           </div>
-        </PanelStatusAccent>
-      ) : (
-        <div className="admin-doc-inline-row">
-          <Button
-            variant="primary"
-            size="lg"
-            type="button"
-            onClick={handleResume}
-            disabled={isPending}
-          >
-            Resume draft (step {stepNumber}/7{relTime ? `, autosaved ${relTime}` : ""})
-          </Button>
-          <Button
-            variant="secondary"
-            size="lg"
-            type="button"
-            onClick={() => setConfirmDiscard(true)}
-            disabled={isPending}
-          >
-            Start from scratch
-          </Button>
-        </div>
-      )}
+        )}
+      </div>
     </Card>
   );
 }

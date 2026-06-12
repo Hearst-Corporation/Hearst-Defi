@@ -168,6 +168,53 @@ describe("runChatAgent", () => {
     expect(await nav).toBeNull();
   });
 
+  it("admin mode invokes generate_chart_spec with parsed args", async () => {
+    mockGetAllowedAdminReadTools.mockReturnValue([
+      {
+        id: "generate_chart_spec",
+        description: "Generate deterministic chart specification from available data",
+        parameters: {
+          type: "object",
+          properties: {
+            intent: { type: "string" },
+            chartType: { type: "string" },
+          },
+          required: ["intent", "chartType"],
+          additionalProperties: false,
+        },
+      },
+    ]);
+    mockExecuteAdminReadTool.mockResolvedValue({
+      id: "generate_chart_spec",
+      format: "json_object",
+      title: "CHART SPEC",
+      lines: ["- intent: APY trend", "- type: line"],
+      payload: { chart: { title: "APY trend (30d)" } },
+    });
+    const client = fakeClient([
+      toolChunk(
+        0,
+        {
+          name: "generate_chart_spec",
+          arguments: '{"intent":"APY trend","chartType":"line","timeframe":"30d"}',
+        },
+        "call_chart_1",
+      ),
+      textChunk("Spec de chart préparée."),
+    ]);
+    const { stream } = runChatAgent(client, "gpt-4.1", MSGS, {
+      navProfile: "admin",
+      chatMode: "admin",
+    });
+    const text = await readAll(stream);
+    expect(text).toContain("Spec de chart");
+    expect(mockExecuteAdminReadTool).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "generate_chart_spec" }),
+      { chatMode: "admin", profile: "admin" },
+      { intent: "APY trend", chartType: "line", timeframe: "30d" },
+    );
+  });
+
   it("normal mode does not execute admin read tools", async () => {
     mockGetAllowedAdminReadTools.mockReturnValue([
       {
@@ -207,6 +254,48 @@ describe("runChatAgent", () => {
       "chat-agent: blocked model write tool auto-exec attempt",
       { toolId: "create_review_note_draft" },
     );
+  });
+
+  it("keeps write tool auto-exec blocked across first and second pass in admin mode", async () => {
+    mockGetAllowedAdminReadTools.mockReturnValue([
+      {
+        id: "read_runtime_capabilities",
+        description: "Runtime capabilities matrix",
+      },
+    ]);
+    mockExecuteAdminReadTool.mockResolvedValue({
+      id: "read_runtime_capabilities",
+      format: "multiline_text_block",
+      title: "CAPACITES OUTILLEES (RUNTIME APP)",
+      lines: ["- db_write_outille: no"],
+    });
+
+    const client = fakeClient([
+      toolChunk(0, { name: "read_runtime_capabilities", arguments: "{}" }, "call_read_1"),
+      toolChunk(
+        1,
+        {
+          name: "create_governance_proposal_draft",
+          arguments: '{"vaultDeploymentId":"v1","actionType":"pause"}',
+        },
+        "call_write_1",
+      ),
+      textChunk("Je fournis une proposition a confirmer manuellement."),
+    ]);
+
+    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS, {
+      chatMode: "admin",
+      navProfile: "admin",
+    });
+    const text = await readAll(stream);
+
+    expect(text).toContain("proposition");
+    expect(mockExecuteAdminReadTool).toHaveBeenCalledTimes(1);
+    expect(mockLoggerWarn).toHaveBeenCalledWith(
+      "chat-agent: blocked model write tool auto-exec attempt",
+      { toolId: "create_governance_proposal_draft" },
+    );
+    expect(await nav).toBeNull();
   });
 
   it("does NOT navigate when the answer is non-compliant (blocked)", async () => {

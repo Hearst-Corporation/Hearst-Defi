@@ -85,7 +85,7 @@ type SliderProps = {
 function SliderField({ label, value, min, max, step, onChange, format }: SliderProps) {
   const fmt = format ?? ((v: number) => v.toFixed(2));
   return (
-    <div className="admin-doc-stack--dense">
+    <div className="admin-doc-stack admin-doc-stack--dense">
       <div className="admin-doc-inline-row admin-doc-inline-row--between">
         <span className="ct-form-label">{label}</span>
         <span className="mono tabular body-sm ct-text-primary">{fmt(value)}</span>
@@ -97,7 +97,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full accent-[var(--ct-accent)] h-1.5 rounded-full cursor-pointer"
+        className="w-full accent-(--ct-accent) h-1.5 rounded-full cursor-pointer"
         aria-label={label}
       />
       <div className="admin-doc-row-spread eyebrow ct-text-faint">
@@ -148,7 +148,7 @@ function AllocSliders({
   }
 
   return (
-    <div className="admin-doc-stack--actions">
+    <div className="admin-doc-stack admin-doc-stack--actions">
       <div className="admin-doc-row-spread">
         <span className="eyebrow ct-text-muted">Allocations</span>
         <span
@@ -196,7 +196,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
   const rows = is2D ? (yValues?.length ?? 1) : 1;
 
   return (
-    <div className="admin-doc-stack--actions">
+    <div className="admin-doc-stack admin-doc-stack--actions">
       {xAxis && (
         <p className="body-xs ct-text-muted">
           X: <span className="mono ct-text-body">{xAxis}</span>
@@ -227,15 +227,15 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
               aria-selected={isSelected}
               aria-label={`APY ${cell.apyLow.toFixed(1)}–${cell.apyHigh.toFixed(1)}%, risk ${cell.riskScore}. Cell ${idx + 1} of ${cells.length}.`}
               className={cn(
-                "relative p-2.5 rounded-md border text-left transition-[background-color,border-color] duration-[var(--ct-dur-base)]",
+                "relative p-2.5 rounded-md border text-left transition-[background-color,border-color] duration-(--ct-dur-base)",
                 riskBgClass(cell.riskScore),
-                "border-[var(--ct-border-soft)]",
-                isSelected && "ring-2 ring-offset-1 ring-offset-[var(--ct-bg-deep)]",
-                isSelected && "ring-[var(--ct-accent)]",
-                "hover:border-[var(--ct-border)] hover:shadow-[var(--ct-shadow-elevated)] focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
+                "border-(--ct-border-soft)",
+                isSelected && "ring-2 ring-offset-1 ring-offset-(--ct-bg-deep)",
+                isSelected && "ring-(--ct-accent)",
+                "hover:border-(--ct-border) hover:shadow-(--ct-shadow-elevated) focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
               )}
             >
-              <div className="admin-doc-stack--micro">
+              <div className="admin-doc-stack admin-doc-stack--micro">
                 <span
                   className={cn("mono tabular body-xs font-semibold leading-tight", riskTextClass(cell.riskScore))}
                 >
@@ -474,7 +474,7 @@ export function ProjectionStudio() {
         <div className="projection-studio-input-divider" />
 
         {/* Batch mode toggle */}
-        <div className="admin-doc-stack--actions">
+        <div className="admin-doc-stack admin-doc-stack--actions">
           <p className="eyebrow ct-text-muted">Batch Mode</p>
           <div className="admin-doc-inline-row">
             {(
@@ -511,7 +511,7 @@ export function ProjectionStudio() {
         <div className="projection-studio-input-divider" />
 
         {/* Methodology version */}
-        <div className="admin-doc-stack--tight">
+        <div className="admin-doc-stack admin-doc-stack--tight">
           <p className="eyebrow ct-text-muted">Methodology</p>
           <select
             className="ct-select w-full"
@@ -615,8 +615,8 @@ export function ProjectionStudio() {
 
             {/* Batch: heatmap */}
             {result.runIds.length > 1 && (
-              <Card>
-                <p className="eyebrow ct-text-muted mb-4">
+              <div className="admin-doc-stack admin-doc-stack--actions rounded-xl border border-(--ct-border-soft) ct-surface-0 p-4">
+                <p className="eyebrow ct-text-muted">
                   Projection Heatmap — {result.runIds.length} cells
                 </p>
                 <Heatmap
@@ -628,7 +628,7 @@ export function ProjectionStudio() {
                   selectedRunId={selectedRunId}
                   onSelect={setSelectedRunId}
                 />
-              </Card>
+              </div>
             )}
 
             {/* Selected cell detail (batch) */}
@@ -664,7 +664,7 @@ export function ProjectionStudio() {
             )}
 
             {/* "Not guaranteed" disclaimer — non-negotiable #10 */}
-            <p className="body-xs ct-text-faint border border-[var(--ct-border-soft)] rounded-md px-3 py-2">
+            <p className="body-xs ct-text-faint border border-(--ct-border-soft) rounded-md px-3 py-2">
               <strong className="ct-text-muted">Disclaimer:</strong>{" "}
               Projections are conditional on stated assumptions and are not guaranteed.
               Rule-based engine — no Monte Carlo. Past performance does not predict future

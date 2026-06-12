@@ -257,7 +257,7 @@ export function VaultForm(props: VaultFormProps) {
   return (
     <div className="admin-doc-stack admin-doc-narrow pb-8" onBlur={handleBlur}>
       {/* Progress bar */}
-      <div className="admin-doc-stack--actions">
+      <div className="admin-doc-stack admin-doc-stack--actions">
         <div className="admin-doc-row-spread">
           {STEPS.map((s, i) => (
             <span
@@ -488,7 +488,7 @@ export function VaultForm(props: VaultFormProps) {
                 { key: "targetStableReserveBps", label: "Stable Reserve" },
               ] as const
             ).map(({ key, label }) => (
-              <div key={key} className="admin-doc-stack--tight">
+              <div key={key} className="admin-doc-stack admin-doc-stack--tight">
                 <div className="admin-doc-row-spread">
                   <span className="stat-label">{label}</span>
                   <span className="mono tabular body-sm ct-text-primary">
@@ -583,7 +583,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="admin-doc-stack">
             <CardTitle>Governance</CardTitle>
 
-            <div className="admin-doc-stack--actions">
+            <div className="admin-doc-stack admin-doc-stack--actions">
               <span className="stat-label block">Signers Whitelist (2–5 wallet addresses) *</span>
               {form.signersWhitelist.map((s, i) => (
                 <div key={i} className="admin-doc-inline-row">
@@ -625,7 +625,7 @@ export function VaultForm(props: VaultFormProps) {
               )}
 
               {/* Required signers — multisig threshold M-of-N */}
-              <div className="admin-doc-stack--tight pt-2 border-t border-[var(--ct-border-soft)]">
+              <div className="admin-doc-stack admin-doc-stack--tight pt-2 border-t border-(--ct-border-soft)">
                 <span className="stat-label block">
                   Required signers (M-of-N quorum) *
                 </span>
@@ -791,7 +791,7 @@ export function VaultForm(props: VaultFormProps) {
               runs={1000}
             />
 
-            <p className="body-xs ct-text-faint border-t border-[var(--ct-border-soft)] pt-3">
+            <p className="body-xs ct-text-faint border-t border-(--ct-border-soft) pt-3">
               Assumptions: mining yields, BTC price, network difficulty, energy costs are
               projected based on historical ranges. Target APY is a range, not guaranteed.
               Past performance is not indicative of future results.
@@ -804,7 +804,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="admin-doc-stack">
             <CardTitle>Sign &amp; Deploy</CardTitle>
 
-            <NestedPanel className="admin-doc-stack--actions">
+            <NestedPanel className="admin-doc-stack admin-doc-stack--actions">
               <p className="body-sm ct-text-muted">
                 This vault draft will be submitted to the multisig review queue. Once submitted,
                 it requires the configured quorum of signers to approve before deployment.

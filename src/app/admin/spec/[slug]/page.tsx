@@ -29,7 +29,7 @@ export default async function SpecPage({
   return (
     <div className="admin-doc-spec-layout">
       <aside className="md:sticky md:top-24 md:self-start">
-        <nav className="admin-doc-stack--compact" aria-label="Spec documents">
+        <nav className="admin-doc-stack admin-doc-stack--compact" aria-label="Spec documents">
           {index.map((entry) => {
             const active = entry.slug === slug;
             return (
@@ -40,7 +40,7 @@ export default async function SpecPage({
                   "block rounded-lg px-2 py-1.5 body-sm transition-colors",
                   active
                     ? "ct-surface-1 ct-text-primary"
-                    : "ct-text-muted ct-hover-surface",
+                    : "ct-text-muted hover:ct-text-primary",
                 )}
               >
                 <span className="mono tabular mr-2 body-xs ct-text-faint">

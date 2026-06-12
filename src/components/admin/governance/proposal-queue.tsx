@@ -20,14 +20,14 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
   }
 
   return (
-    <div className="admin-doc-stack--actions">
+    <div className="admin-doc-stack admin-doc-stack--actions">
       {proposals.map((proposal) => (
         <Link
           key={proposal.id}
           href={`/admin/governance/proposal/${proposal.id}`}
           className="block"
         >
-          <Card className="cursor-pointer p-4 transition-colors hover:border-[var(--ct-border-strong)]">
+          <Card className="cursor-pointer" hoverOverlay={false}>
             <div className="admin-doc-inline-row admin-doc-inline-row--relaxed">
               <div className="min-w-0 flex-1">
                 <div className="mb-1 admin-doc-inline-row">
@@ -62,7 +62,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
             </div>
 
             {proposal.state === "TIMELOCK" && proposal.etaAt ? (
-              <div className="mt-3 border-t border-[var(--ct-border-soft)] pt-3 body-xs ct-text-muted">
+              <div className="mt-3 border-t border-(--ct-border-soft) pt-3 body-xs ct-text-muted">
                 Timelock ETA:{" "}
                 <span className="mono ct-text-primary">
                   {formatGovernanceTimestamp(proposal.etaAt)}

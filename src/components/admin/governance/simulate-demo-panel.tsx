@@ -67,7 +67,7 @@ export function SimulateDemoPanel() {
       <Card>
         <DashboardPanelHeader title="Mock proposal" tone="quiet" className="mb-4" />
 
-        <div className="admin-doc-stack--tight">
+        <div className="admin-doc-stack admin-doc-stack--tight">
           {MOCK_PROPOSALS.map((proposal, index) => (
             <label key={proposal.label} className="admin-doc-inline-row admin-doc-inline-row--actions cursor-pointer">
               <input
@@ -86,7 +86,7 @@ export function SimulateDemoPanel() {
           ))}
         </div>
 
-        <div className="mt-4 admin-doc-stack--compact rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-3 py-2.5">
+        <div className="mt-4 admin-doc-stack admin-doc-stack--compact rounded-md border border-(--ct-border-soft) ct-surface-1 px-3 py-2.5">
           <p className="mono body-xs ct-text-muted">vault: {selectedProposal.vaultAddress}</p>
           <p className="mono body-xs ct-text-faint truncate">
             calldata: {selectedProposal.calldata}

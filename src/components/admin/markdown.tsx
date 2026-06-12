@@ -64,7 +64,7 @@ export function Markdown({
             );
           },
           pre: ({ children }) => (
-            <pre className="my-4 overflow-x-auto rounded-md border border-[var(--ct-border)] ct-surface-1 p-4 body-xs">
+            <pre className="my-4 overflow-x-auto rounded-md border border-(--ct-border) ct-surface-1 p-4 body-xs">
               {children}
             </pre>
           ),
@@ -76,12 +76,12 @@ export function Markdown({
             </div>
           ),
           th: ({ children }) => (
-            <th className="border-b border-[var(--ct-border)] ct-table-header stat-label text-left">
+            <th className="border-b border-(--ct-border) ct-table-header stat-label text-left">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border-b border-[var(--ct-border)] ct-table-cell align-top ct-text-body">
+            <td className="border-b border-(--ct-border) ct-table-cell align-top ct-text-body">
               {children}
             </td>
           ),
@@ -99,12 +99,12 @@ export function Markdown({
             );
           },
           blockquote: ({ children }) => (
-            <blockquote className="my-4 border-l-2 border-[var(--ct-text-strong)] pl-4 body-sm italic ct-text-body">
+            <blockquote className="my-4 border-l-2 border-(--ct-text-strong) pl-4 body-sm italic ct-text-body">
               {children}
             </blockquote>
           ),
           hr: () => (
-            <hr className="my-6 border-t border-[var(--ct-border)]" />
+            <hr className="my-6 border-t border-(--ct-border)" />
           ),
           strong: ({ children }) => (
             <strong className="ct-text-primary">

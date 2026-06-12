@@ -32,7 +32,9 @@ exécution autonome d'actions sensibles.
 La composition passe par une couche interne `src/lib/llm/tools/*` (registre
 typé + policy `chatMode/profile`) avec uniquement des outils de lecture
 (`read_allocations_canonical`, `read_market_snapshot`, `read_routes_index`,
-`read_specs_index`, `read_runtime_capabilities`) et dégradation partielle en cas
+`read_specs_index`, `read_runtime_capabilities`, `generate_chart_spec`,
+`generate_demo_plan`, `export_demo_pack`, `export_briefing_pack`) et
+dégradation partielle en cas
 d'erreur backend.
 
 Base write-tools admin (draft-only) ajoutée dans le même registre, sans auto-exec
@@ -41,6 +43,9 @@ depuis le chat : `create_review_note_draft` et
 appel 1 -> token de confirmation (TTL court, single-use), appel 2 avec token
 valide -> persistance du draft. Aucun déploiement, aucune transaction financière,
 aucune action destructive.
+Le token est lié au couple `(toolId,input)` : si le payload change entre
+demande et confirmation (ou si token expiré/utilisé), exécution rejetée
+côté serveur.
 
 En mode `admin`, le moteur chat peut désormais appeler en cours de réponse un
 allowlist strict de read-tools du registre (`src/lib/llm/tools/*`) et réinjecter
@@ -51,11 +56,18 @@ reformulée en proposition structurée sans effet de bord.
 
 Intégration app/chat active via `POST /api/admin/chat-tools` (admin-only) :
 - `GET` liste les outils admin autorisés (read + write metadata)
-- `POST { action: "execute_read" }` exécute un read tool directement
+- `POST { action: "execute_read", input? }` exécute un read tool directement
 - `POST { action: "execute_write" }` sans token retourne `confirmation_required`
 - `POST { action: "execute_write", confirmedToken }` exécute uniquement après clic
   explicite de confirmation dans le panel **Actions admin** des réglages chat.
 Les tokens sont TTL court + single-use; expiré/invalide => rejet HTTP explicite.
+Le panel admin inclut aussi une zone **Read utilities** (lecture seule) pour
+demander manuellement une spec de chart (`generate_chart_spec`) et un plan de
+démo (`generate_demo_plan`), ainsi qu’un **demo pack export** structuré
+(`export_demo_pack` : metadata + plan + charts optionnels + checklist optionnelle +
+provenance/freshness summary, `export_briefing_pack` : executive summary + plan +
+charts optionnels + actions + risk notes + provenance/freshness) puis afficher/copier
+le JSON résultat en mode compact.
 
 Navigation outillée : le mode `conversation` garde une whitelist LP (`/portfolio`,
 `/vaults`, `/proof-center`, `/profile`) ; le mode `admin` dispose d'une whitelist
@@ -253,7 +265,7 @@ pnpm ds:classes  # ct-* allowlist + DEPRECATED ADR-013 — warnings only, jamais
    + workflow de confirmation explicite pour les drafts admin (voir
    [`docs/spec/09-agents.mdx`](docs/spec/09-agents.mdx)).
 5. **Mots interdits** dans les agents : "guarantee", "promise", "certain",
-   "will deliver", "risk-free".
+   "will deliver", "risk-free", "no risk".
 6. **Scenario Engine = pure function** : pas de DB, pas de fetch, pas d'I/O
    dans `src/lib/engine/*`.
 7. **Smart contracts** : event logger Phase 2 ✅, ERC-4626 vault testé sur

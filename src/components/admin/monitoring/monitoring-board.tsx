@@ -95,7 +95,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
 
 function KpiTile({ label, value }: { label: string; value: string }) {
   return (
-    <Card className="p-4">
+    <Card>
       <p className="stat-label ct-text-muted mb-1">{label}</p>
       <p className="stat-value ct-text-strong tabular">{value}</p>
     </Card>
@@ -114,39 +114,41 @@ function MonitoringTable({
   children: ReactNode;
 }) {
   return (
-    <div className="ct-table-surface overflow-hidden">
-      <table className="w-full body-sm">
-        <thead>
-          <tr>{header}</tr>
-        </thead>
-        <tbody>
-          {isEmpty ? (
-            <tr>
-              <td colSpan={colSpan}>
-                <PanelStatus {...EMPTY_COPY} />
-              </td>
-            </tr>
-          ) : (
-            children
-          )}
-        </tbody>
-      </table>
-    </div>
+    <Card className="p-0 overflow-hidden" hoverOverlay={false}>
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-fixed body-sm">
+          <thead>
+            <tr>{header}</tr>
+          </thead>
+          <tbody>
+            {isEmpty ? (
+              <tr>
+                <td colSpan={colSpan}>
+                  <PanelStatus {...EMPTY_COPY} />
+                </td>
+              </tr>
+            ) : (
+              children
+            )}
+          </tbody>
+        </table>
+      </div>
+    </Card>
   );
 }
 
 function RunStatusBadge({ status }: { status: string }) {
   const tone: Record<string, string> = {
-    success: "ct-status-success-bg",
-    failed: "ct-status-danger-bg",
-    timeout: "ct-status-warning-bg",
-    queued: "ct-status-info-bg",
+    success: "ct-status-success-bg ct-status-success ct-bc-success",
+    failed: "ct-status-danger-bg ct-status-danger ct-bc-danger",
+    timeout: "ct-status-warning-bg ct-status-warning ct-bc-warning",
+    queued: "ct-status-info-bg ct-status-info border-[var(--ct-status-info-border)]",
   };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5 body-xs font-medium",
+        "inline-flex items-center rounded-full border px-2 py-0.5 body-xs font-medium",
         tone[status] ?? "ct-surface-2 ct-text-muted",
       )}
     >

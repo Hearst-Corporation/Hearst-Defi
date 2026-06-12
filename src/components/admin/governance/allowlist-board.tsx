@@ -71,9 +71,9 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
             Add entry
           </h2>
           <DashboardPanelHeader title="Add entry" tone="quiet" className="mb-4" />
-          <form action={addAllowlistEntryAction} className="admin-doc-stack--relaxed">
+          <form action={addAllowlistEntryAction} className="admin-doc-stack admin-doc-stack--relaxed">
             <div className="admin-doc-form-grid-2">
-              <div className="admin-doc-stack--dense sm:col-span-2">
+              <div className="admin-doc-stack admin-doc-stack--dense sm:col-span-2">
                 <label htmlFor="add-address" className="stat-label block">
                   Address (0x…) *
                 </label>
@@ -87,7 +87,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   className={cn(adminFormField, "mono")}
                 />
               </div>
-              <div className="admin-doc-stack--dense">
+              <div className="admin-doc-stack admin-doc-stack--dense">
                 <label htmlFor="add-label" className="stat-label block">
                   Label *
                 </label>
@@ -101,7 +101,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   className={adminFormField}
                 />
               </div>
-              <div className="admin-doc-stack--dense">
+              <div className="admin-doc-stack admin-doc-stack--dense">
                 <label htmlFor="add-category" className="stat-label block">
                   Category *
                 </label>
@@ -113,7 +113,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   ))}
                 </select>
               </div>
-              <div className="admin-doc-stack--dense">
+              <div className="admin-doc-stack admin-doc-stack--dense">
                 <label htmlFor="add-riskScore" className="stat-label block">
                   Risk score (0–100)
                 </label>
@@ -127,7 +127,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   className={adminFormField}
                 />
               </div>
-              <div className="admin-doc-stack--dense sm:col-span-2">
+              <div className="admin-doc-stack admin-doc-stack--dense sm:col-span-2">
                 <label htmlFor="add-notes" className="stat-label block">
                   Notes (optional)
                 </label>
@@ -168,44 +168,44 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
               tone="quiet"
               className="mb-4"
             />
-            <Card className="overflow-hidden p-0">
-              <div className="ct-table-surface overflow-x-auto rounded-none border-0 bg-transparent">
-                <table className="w-full body-sm" aria-label="Address allowlist">
+            <Card className="overflow-hidden p-0" hoverOverlay={false}>
+              <div className="overflow-x-auto">
+                <table className="min-w-184 w-full table-fixed body-sm" aria-label="Address allowlist">
                   <thead>
-                    <tr className="border-b border-[var(--ct-border)] ct-surface-1">
-                      <th scope="col" className="stat-label px-4 py-3 text-left">Label / Address</th>
-                      <th scope="col" className="stat-label px-4 py-3 text-left">Category</th>
-                      <th scope="col" className="stat-label px-4 py-3 text-left">Risk score</th>
-                      <th scope="col" className="stat-label px-4 py-3 text-left">Status</th>
-                      <th scope="col" className="stat-label px-4 py-3 text-left">Edit</th>
+                    <tr className="border-b border-(--ct-border)">
+                      <th scope="col" className="w-[38%] stat-label ct-table-header text-left">Label / Address</th>
+                      <th scope="col" className="hidden w-[18%] stat-label ct-table-header text-left md:table-cell">Category</th>
+                      <th scope="col" className="hidden w-[14%] stat-label ct-table-header text-left lg:table-cell">Risk score</th>
+                      <th scope="col" className="w-[22%] stat-label ct-table-header text-left">Status</th>
+                      <th scope="col" className="w-[40%] stat-label ct-table-header text-left md:w-[22%] lg:w-[8%]">Edit</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--ct-border)]">
+                  <tbody className="divide-y divide-(--ct-border)">
                     {entries.map((entry) => (
                       <tr
                         key={entry.id}
                         className={cn(
                           entry.active
-                            ? "bg-[var(--ct-bg-deep)] transition-colors hover:ct-surface-1"
-                            : "ct-surface-1 opacity-50 transition-opacity hover:opacity-70",
+                            ? "ct-text-body"
+                            : "opacity-55",
                         )}
                       >
-                        <td className="px-4 py-3">
+                        <td className="ct-table-cell">
                           <p className="body-sm ct-text-strong">{entry.label}</p>
                           <p className="mono mt-0.5 break-all body-xs ct-text-muted">{entry.address}</p>
                           {entry.notes ? (
                             <p className="mt-1 body-xs italic ct-text-muted">{entry.notes}</p>
                           ) : null}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="hidden ct-table-cell md:table-cell">
                           <Badge variant={CATEGORY_VARIANT[entry.category]}>
                             {CATEGORY_LABELS[entry.category]}
                           </Badge>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="hidden ct-table-cell lg:table-cell">
                           <Badge variant={riskVariant(entry.riskScore)}>{entry.riskScore}</Badge>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="ct-table-cell">
                           <form action={toggleAllowlistEntryAction}>
                             <input type="hidden" name="id" value={entry.id} />
                             <input type="hidden" name="active" value={entry.active ? "true" : "false"} />
@@ -220,23 +220,23 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                               className={cn(
                                 "ct-pill cursor-pointer body-xs font-semibold transition-colors",
                                 entry.active
-                                  ? "hover:border-[var(--ct-status-danger-border)] hover:ct-status-danger"
-                                  : "hover:border-[var(--ct-status-success-border)] hover:ct-status-success",
+                                  ? "hover:border-(--ct-status-danger-border) hover:text-(--ct-status-danger)"
+                                  : "hover:border-(--ct-status-success-border) hover:text-(--ct-status-success)",
                               )}
                             >
                               {entry.active ? "Active" : "Inactive"}
                             </button>
                           </form>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="ct-table-cell">
                           <details className="group">
-                            <summary className="cursor-pointer list-none body-xs ct-text-muted select-none hover:ct-text-primary">
+                            <summary className="cursor-pointer list-none body-xs ct-text-muted select-none hover:text-(--ct-text-primary)">
                               <span className="group-open:hidden">Edit ▾</span>
                               <span className="hidden group-open:inline">Close ▴</span>
                             </summary>
-                            <form action={updateAllowlistEntryAction} className="mt-3 min-w-64 admin-doc-stack--tight">
+                            <form action={updateAllowlistEntryAction} className="mt-3 admin-doc-stack admin-doc-stack--tight">
                               <input type="hidden" name="id" value={entry.id} />
-                              <div className="admin-doc-stack--compact">
+                              <div className="admin-doc-stack admin-doc-stack--compact">
                                 <label htmlFor={`edit-label-${entry.id}`} className="stat-label block">
                                   Label
                                 </label>
@@ -249,7 +249,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                                   className={adminFormFieldCompact}
                                 />
                               </div>
-                              <div className="admin-doc-stack--compact">
+                              <div className="admin-doc-stack admin-doc-stack--compact">
                                 <label htmlFor={`edit-risk-${entry.id}`} className="stat-label block">
                                   Risk score
                                 </label>
@@ -263,7 +263,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                                   className={adminFormFieldCompact}
                                 />
                               </div>
-                              <div className="admin-doc-stack--compact">
+                              <div className="admin-doc-stack admin-doc-stack--compact">
                                 <label htmlFor={`edit-notes-${entry.id}`} className="stat-label block">
                                   Notes
                                 </label>

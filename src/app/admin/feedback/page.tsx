@@ -20,14 +20,14 @@ export default async function FeedbackPage() {
         title="Feedback"
       />
 
-      <Card>
+      <Card hoverOverlay={false}>
         <CardHeader>
           <CardTitle>Post new</CardTitle>
         </CardHeader>
         <FeedbackForm />
       </Card>
 
-      <section className="admin-doc-stack--actions">
+      <section className="admin-doc-stack admin-doc-stack--actions">
         <h2 className="h2">Latest ({items.length})</h2>
         <FeedbackList items={items} />
       </section>

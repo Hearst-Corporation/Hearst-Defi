@@ -24,7 +24,7 @@ export function FeedbackForm() {
   }
 
   return (
-    <form ref={formRef} action={onSubmit} className="admin-doc-stack--actions" aria-label="Feedback form">
+    <form ref={formRef} action={onSubmit} className="admin-doc-stack admin-doc-stack--actions" aria-label="Feedback form">
       <div className="admin-doc-form-grid-2">
         <label className="block body-xs" htmlFor="feedback-itemId">
           <span className="ct-form-label">
@@ -53,7 +53,7 @@ export function FeedbackForm() {
       </div>
 
       <label className="block body-xs" htmlFor="feedback-pathname">
-        <span className="mb-1 block stat-label">
+        <span className="ct-form-label">
           Pathname or context (optional)
         </span>
         <input
@@ -66,7 +66,7 @@ export function FeedbackForm() {
       </label>
 
       <label className="block body-xs" htmlFor="feedback-message">
-        <span className="mb-1 block stat-label">
+        <span className="ct-form-label">
           Feedback
         </span>
         <textarea

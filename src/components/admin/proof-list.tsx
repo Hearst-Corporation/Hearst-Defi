@@ -39,13 +39,7 @@ export function ProofList({ items }: { items: ProofItem[] }) {
     );
   }
 
-  return (
-    <div className="admin-doc-stack--actions">
-      {items.map((item) => (
-        <AdminProofRow key={item.id} item={item} />
-      ))}
-    </div>
-  );
+  return items.map((item) => <AdminProofRow key={item.id} item={item} />);
 }
 
 function AdminProofRow({ item }: { item: ProofItem }) {
@@ -73,9 +67,9 @@ function AdminProofRow({ item }: { item: ProofItem }) {
   const postedAtDisplay = item.postedAt.toISOString().slice(0, 10);
 
   return (
-    <Card className="p-4">
+    <Card>
       <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--loose">
-        <div className="min-w-0 flex-1 admin-doc-stack--tight">
+        <div className="min-w-0 flex-1 admin-doc-stack admin-doc-stack--tight">
           <div className="admin-doc-inline-row body-xs ct-text-muted">
             <Badge variant="brand">{item.proofType}</Badge>
             {item.period ? (

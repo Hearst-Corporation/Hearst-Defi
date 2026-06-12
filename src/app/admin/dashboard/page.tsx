@@ -71,7 +71,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       />
 
       {page.preview ? (
-        <Card className="relative z-10 border-[var(--ct-status-warning-border)] ct-status-warning-bg/20">
+        <Card className="relative z-10 border-(--ct-status-warning-border) ct-status-warning-bg/20">
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             <span className="stat-label ct-status-warning">
               Per-vault live snapshot pending

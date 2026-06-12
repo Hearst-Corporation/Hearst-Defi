@@ -13,6 +13,7 @@ import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { cn } from "@/lib/cn";
 import { prisma } from "@/lib/db";
 import { STRATEGY_LABELS, REG_LABELS, SPV_LABELS } from "@/lib/constants/vault";
 import { formatUsdFull } from "@/lib/vaults/product-display";
@@ -108,130 +109,130 @@ export default async function VaultDetailPage({ params }: PageProps) {
       <AdminPageHeader
         title={vault.name}
         actions={
-        <div className="admin-doc-inline-row admin-doc-inline-row--actions">
-          {vault.status === "draft" && (
-            <>
-              <Button variant="secondary" size="md" asChild>
-                <Link href={`/admin/vaults/${id}/edit`}>Edit</Link>
-              </Button>
+          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+            {vault.status === "draft" && (
+              <>
+                <Button variant="secondary" size="md" asChild>
+                  <Link href={`/admin/vaults/${id}/edit`}>Edit</Link>
+                </Button>
+                <VaultActionButton
+                  label="Submit for Review"
+                  variant="primary"
+                  action={submitForReviewAction}
+                  confirm={{
+                    title: "Soumettre pour revue ?",
+                    description:
+                      "Le vault passera en statut « review » et sera soumis aux signataires.",
+                    confirmLabel: "Soumettre",
+                    confirmVariant: "primary",
+                  }}
+                />
+              </>
+            )}
+
+            {vault.status === "review" && (
+              <>
+                {whitelist.includes(actorWallet) && !alreadySigned && (
+                  <>
+                    <VaultActionButton
+                      label="Sign Approval"
+                      variant="primary"
+                      action={approveAction}
+                      confirm={{
+                        title: "Signer l'approbation ?",
+                        description:
+                          "Votre signature d'approbation sera enregistrée de façon permanente.",
+                        confirmLabel: "Signer",
+                        confirmVariant: "primary",
+                      }}
+                    />
+                    <VaultActionButton
+                      label="Sign Rejection"
+                      variant="danger"
+                      action={rejectAction}
+                      confirm={{
+                        title: "Signer le rejet ?",
+                        description:
+                          "Votre signature de rejet sera enregistrée de façon permanente.",
+                        confirmLabel: "Rejeter",
+                        confirmVariant: "danger",
+                      }}
+                    />
+                  </>
+                )}
+                {whitelist.includes(actorWallet) && (
+                  <RejectDeploymentButton action={rejectDeploymentAction} />
+                )}
+              </>
+            )}
+
+            {vault.status === "deployed" && (
               <VaultActionButton
-                label="Submit for Review"
+                label="Mark as Live"
                 variant="primary"
-                action={submitForReviewAction}
+                action={markAsLiveAction}
                 confirm={{
-                  title: "Soumettre pour revue ?",
+                  title: "Passer le vault en live ?",
                   description:
-                    "Le vault passera en statut « review » et sera soumis aux signataires.",
-                  confirmLabel: "Soumettre",
+                    "Le vault deviendra actif et ouvert aux souscriptions.",
+                  confirmLabel: "Mettre en live",
                   confirmVariant: "primary",
                 }}
               />
-            </>
-          )}
+            )}
 
-          {vault.status === "review" && (
-            <>
-              {whitelist.includes(actorWallet) && !alreadySigned && (
-                <>
-                  <VaultActionButton
-                    label="Sign Approval"
-                    variant="primary"
-                    action={approveAction}
-                    confirm={{
-                      title: "Signer l'approbation ?",
-                      description:
-                        "Votre signature d'approbation sera enregistrée de façon permanente.",
-                      confirmLabel: "Signer",
-                      confirmVariant: "primary",
-                    }}
-                  />
-                  <VaultActionButton
-                    label="Sign Rejection"
-                    variant="danger"
-                    action={rejectAction}
-                    confirm={{
-                      title: "Signer le rejet ?",
-                      description:
-                        "Votre signature de rejet sera enregistrée de façon permanente.",
-                      confirmLabel: "Rejeter",
-                      confirmVariant: "danger",
-                    }}
-                  />
-                </>
-              )}
-              {whitelist.includes(actorWallet) && (
-                <RejectDeploymentButton action={rejectDeploymentAction} />
-              )}
-            </>
-          )}
-
-          {vault.status === "deployed" && (
-            <VaultActionButton
-              label="Mark as Live"
-              variant="primary"
-              action={markAsLiveAction}
-              confirm={{
-                title: "Passer le vault en live ?",
-                description:
-                  "Le vault deviendra actif et ouvert aux souscriptions.",
-                confirmLabel: "Mettre en live",
-                confirmVariant: "primary",
-              }}
-            />
-          )}
-
-          {vault.status === "live" && (
-            <VaultActionButton
-              label="Pause"
-              variant="secondary"
-              action={pauseAction}
-              confirm={{
-                title: "Mettre en pause ?",
-                description:
-                  "Les souscriptions et l'activité du vault seront suspendues.",
-                confirmLabel: "Pause",
-                confirmVariant: "primary",
-              }}
-            />
-          )}
-
-          {vault.status === "paused" && (
-            <>
+            {vault.status === "live" && (
               <VaultActionButton
-                label="Resume"
-                variant="primary"
-                action={resumeAction}
+                label="Pause"
+                variant="secondary"
+                action={pauseAction}
                 confirm={{
-                  title: "Reprendre l'activité ?",
-                  description: "Le vault repassera en statut « live ».",
-                  confirmLabel: "Reprendre",
+                  title: "Mettre en pause ?",
+                  description:
+                    "Les souscriptions et l'activité du vault seront suspendues.",
+                  confirmLabel: "Pause",
                   confirmVariant: "primary",
                 }}
               />
-              <VaultActionButton
-                label="Close Vault"
-                variant="danger"
-                action={closeAction}
-                confirm={{
-                  title: "Clôturer le vault ?",
-                  description: (
-                    <>
-                      Cette action est{" "}
-                      <strong className="ct-status-danger">
-                        irréversible
-                      </strong>
-                      . Une fois clôturé, le vault ne pourra plus jamais être
-                      réactivé. Aucune transition d'état ne sera possible.
-                    </>
-                  ),
-                  confirmLabel: "Clôturer définitivement",
-                  confirmVariant: "danger",
-                  confirmPhrase: vault.ticker,
-                }}
-              />
-            </>
-          )}
-        </div>
+            )}
+
+            {vault.status === "paused" && (
+              <>
+                <VaultActionButton
+                  label="Resume"
+                  variant="primary"
+                  action={resumeAction}
+                  confirm={{
+                    title: "Reprendre l'activité ?",
+                    description: "Le vault repassera en statut « live ».",
+                    confirmLabel: "Reprendre",
+                    confirmVariant: "primary",
+                  }}
+                />
+                <VaultActionButton
+                  label="Close Vault"
+                  variant="danger"
+                  action={closeAction}
+                  confirm={{
+                    title: "Clôturer le vault ?",
+                    description: (
+                      <>
+                        Cette action est{" "}
+                        <strong className="ct-status-danger">
+                          irréversible
+                        </strong>
+                        . Une fois clôturé, le vault ne pourra plus jamais être
+                        réactivé. Aucune transition d'état ne sera possible.
+                      </>
+                    ),
+                    confirmLabel: "Clôturer définitivement",
+                    confirmVariant: "danger",
+                    confirmPhrase: vault.ticker,
+                  }}
+                />
+              </>
+            )}
+          </div>
         }
       />
 
@@ -306,7 +307,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
         {/* Allocation policy */}
         <Card>
           <DashboardPanelHeader title="Allocation Policy" />
-          <div className="mt-4 admin-doc-stack--relaxed">
+          <div className="mt-4 admin-doc-stack admin-doc-stack--relaxed">
             {(
               [
                 ["Mining", vault.targetMiningBps],
@@ -315,7 +316,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
                 ["Stable Reserve", vault.targetStableReserveBps],
               ] as [string, number][]
             ).map(([label, bps]) => (
-              <div key={label} className="admin-doc-stack--compact">
+              <div key={label} className="admin-doc-stack admin-doc-stack--compact">
                 <div className="admin-doc-row-spread">
                   <span className="stat-label">{label}</span>
                   <span className="mono tabular body-sm ct-text-primary">
@@ -330,7 +331,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       </div>
 
       {/* Approvals — table shell only (no Card double frame; cf. audit/customers). */}
-      <section className="admin-doc-stack--compact" aria-label="Approvals">
+      <section className="admin-doc-stack admin-doc-stack--compact" aria-label="Approvals">
         <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline admin-doc-inline-row--relaxed">
           <DashboardPanelHeader title="Approvals" className="mb-0" />
           <span className="mono tabular body-sm ct-text-muted">
@@ -341,44 +342,45 @@ export default async function VaultDetailPage({ params }: PageProps) {
         {vault.approvals.length === 0 ? (
           <PanelStatus message="No signatures yet." />
         ) : (
-          <div className="ct-table-surface">
-            <table className="w-full border-collapse text-left body-sm">
+          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
+            <table className="w-full table-fixed text-left body-sm">
               <thead>
                 <tr>
-                  <th className="ct-table-header px-5 py-3 stat-label text-left">Signer</th>
-                  <th className="ct-table-header px-5 py-3 stat-label text-left">Decision</th>
-                  <th className="ct-table-header px-5 py-3 stat-label text-left">Reason</th>
-                  <th className="ct-table-header px-5 py-3 stat-label text-left">Date</th>
+                  <th className="w-[38%] ct-table-header stat-label text-left">Signer</th>
+                  <th className="w-[24%] ct-table-header stat-label text-left">Decision</th>
+                  <th className="hidden w-[26%] ct-table-header stat-label text-left md:table-cell">Reason</th>
+                  <th className="w-[38%] ct-table-header stat-label text-left md:w-[12%]">Date</th>
                 </tr>
               </thead>
               <tbody>
                 {vault.approvals.map((approval) => (
                   <tr key={approval.id}>
-                    <td className="ct-table-cell px-5 py-3 mono tabular body-xs ct-text-muted truncate max-w-xs">
+                    <td className="ct-table-cell mono tabular body-xs ct-text-muted truncate align-top">
                       {approval.signerWallet}
                     </td>
-                    <td className="ct-table-cell px-5 py-3">
+                    <td className="ct-table-cell align-top">
                       <span
-                        className={
+                        className={cn(
+                          "body-xs font-semibold",
                           approval.decision === "approve"
-                            ? "ct-status-success body-xs font-semibold"
-                            : "ct-status-danger body-xs font-semibold"
-                        }
+                            ? "ct-status-success"
+                            : "ct-status-danger",
+                        )}
                       >
                         {approval.decision}
                       </span>
                     </td>
-                    <td className="ct-table-cell px-5 py-3 body-xs ct-text-muted">
+                    <td className="hidden ct-table-cell body-xs ct-text-muted wrap-break-word align-top md:table-cell">
                       {approval.reason ?? "—"}
                     </td>
-                    <td className="ct-table-cell px-5 py-3 body-xs ct-text-faint tabular mono">
+                    <td className="ct-table-cell body-xs ct-text-faint tabular mono whitespace-nowrap align-top">
                       {approval.signedAt.toISOString().slice(0, 10)}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
+          </Card>
         )}
       </section>
 
