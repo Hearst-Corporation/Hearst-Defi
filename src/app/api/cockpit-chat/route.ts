@@ -18,6 +18,7 @@ import {
 import { sha256Hex, buildFacilitatorPrompt } from "@hearst/review-mode";
 import { COCKPIT_DEFAULT_SYSTEM_PROMPT } from "@/lib/llm/prompts";
 import { PRODUCT_CONTEXT } from "@/lib/product-context";
+import { guardChatStream, chatOutputViolation } from "@/lib/llm/output-guard";
 
 const REVIEW_FACILITATOR_PROMPT = buildFacilitatorPrompt({ productContext: PRODUCT_CONTEXT });
 const REVIEW_FACILITATOR_HASH = sha256Hex(REVIEW_FACILITATOR_PROMPT);
@@ -190,6 +191,17 @@ function createUserScopedPersistence(
     async saveMessage(chatId: string, msg: PersistedMessage): Promise<void> {
       if (!(await ownsChat(chatId))) {
         // Refuse to write into a chat this user does not own.
+        return;
+      }
+      // The handler persists the assistant message from its own (un-guarded)
+      // accumulated text, independent of the guarded stream returned to the
+      // client. Lint it here so a non-compliant answer is never stored and
+      // re-injected into the next turn's prompt (cumulative compliance drift).
+      if (msg.role === "assistant" && chatOutputViolation(msg.content, true)) {
+        logger.warn("cockpit-chat: blocked assistant output not persisted", {
+          userId,
+          chatId,
+        });
         return;
       }
       const role: PersistedRole = msg.role;
@@ -432,6 +444,15 @@ export async function POST(req: NextRequest): Promise<Response> {
         {},
         traceErr instanceof Error ? traceErr : undefined,
       );
+    }
+    // Wrap the streamed answer with the output-side compliance guard so a
+    // forbidden claim or single-point APY is never emitted to an investor.
+    // Preserve status + headers (notably x-chat-id) on the new Response.
+    if (res.body && ok) {
+      return new Response(guardChatStream(res.body), {
+        status: res.status,
+        headers: res.headers,
+      });
     }
     return res;
   } catch (err) {
