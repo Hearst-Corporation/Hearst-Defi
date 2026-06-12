@@ -357,3 +357,100 @@ describe("containsForbiddenChat — compliant French is NOT flagged", () => {
     ).toBeNull();
   });
 });
+
+// ---------------------------------------------------------------------------
+// BUG #1 — chat matcher must NOT exempt on an AFTER-window negation.
+// A French disclaimer word trailing the claim ("garanti, sans aucun doute")
+// previously slipped the claim through. The exemption is BEFORE-only for chat.
+// ---------------------------------------------------------------------------
+
+describe("containsForbiddenChat — AFTER-window negation does NOT exempt", () => {
+  it.each([
+    "Le rendement est garanti, sans aucun doute, à 12 %.",
+    "C'est garanti — pas de souci.",
+    "Capital garanti, ni risque ni perte.",
+    "Un rendement sûr, sans condition.",
+  ])("catches claim with trailing negation: %s", (text) => {
+    expect(containsForbiddenChat(text)).not.toBeNull();
+  });
+
+  it("still exempts BEFORE-window negation disclaimers", () => {
+    expect(containsForbiddenChat("Ce rendement n'est pas garanti.")).toBeNull();
+    expect(containsForbiddenChat("Rendement non garanti.")).toBeNull();
+    expect(containsForbiddenChat("Sans garantie de résultat.")).toBeNull();
+    expect(
+      containsForbiddenChat("Il n'y a aucune garantie de rendement."),
+    ).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// BUG — curation holes: assured / certain (multi-word) / zero-risk / protected
+// ---------------------------------------------------------------------------
+
+describe("containsForbiddenChat — curation holes are closed", () => {
+  it("catches 'rendement assuré'", () => {
+    expect(containsForbiddenChat("Le rendement est assuré.")).not.toBeNull();
+  });
+
+  it("catches the multi-word 'rendement certain'", () => {
+    expect(containsForbiddenChat("Un rendement certain de 12 %.")).not.toBeNull();
+  });
+
+  it("does NOT flag bare French 'certains/certaine' (= 'some')", () => {
+    expect(
+      containsForbiddenChat("Certains investisseurs préfèrent le vault défensif."),
+    ).toBeNull();
+    expect(
+      containsForbiddenChat("Une certaine volatilité est attendue."),
+    ).toBeNull();
+  });
+
+  it("catches 'zéro risque'", () => {
+    expect(containsForbiddenChat("Stratégie zéro risque.")).not.toBeNull();
+  });
+
+  it("catches 'capital protégé'", () => {
+    expect(containsForbiddenChat("capital protégé")).not.toBeNull();
+  });
+
+  it("does NOT false-positive on legitimate custody language ('protégés par')", () => {
+    // "protégé" alone (custody) is fine — only the multi-word "capital protégé"
+    // is the claim, and "actifs protégés par Fireblocks" has no "capital" token.
+    expect(
+      containsForbiddenChat("Vos actifs sont protégés par Fireblocks."),
+    ).toBeNull();
+  });
+
+  it("ACCEPTED fail-closed: 'garantie des dépôts' IS flagged (safe direction)", () => {
+    // "garanti" is a core French claim needle with `\w*` inflection, so it also
+    // matches "garantie" in the regulatory term "fonds de garantie des dépôts".
+    // Narrowing the needle to dodge this would weaken the core yield-claim guard
+    // (the whole point of #5). Blocking is the safe direction; the LP chat never
+    // needs to emit a deposit-guarantee fund reference, so we accept the
+    // fail-closed match and assert it explicitly rather than pretend it passes.
+    expect(containsForbiddenChat("fonds de garantie des dépôts")).not.toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// BUG — multi-word whitespace brittleness: tolerate \s+ between tokens
+// ---------------------------------------------------------------------------
+
+describe("multi-word needles tolerate extra whitespace", () => {
+  it("chat: 'sans  risque' (double space) is caught", () => {
+    expect(containsForbiddenChat("C'est un placement sans  risque."))
+      .not.toBeNull();
+  });
+
+  it("chat: 'rendement  sûr' (double space) is caught", () => {
+    expect(containsForbiddenChat("Nous offrons un rendement  sûr."))
+      .not.toBeNull();
+  });
+
+  it("EN: 'will  deliver' (double space) is caught", () => {
+    const r = containsForbidden("This product will  deliver 12% APY.");
+    expect(r).not.toBeNull();
+    expect(r!.found).toContain("will deliver");
+  });
+});

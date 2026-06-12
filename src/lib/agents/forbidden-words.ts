@@ -37,11 +37,24 @@ export type ForbiddenWord = (typeof FORBIDDEN_WORDS)[number];
  * - "garanti" (inflection `\w*` → garanti/e/s/t/r) is the core claim, but the
  *   REQUIRED disclaimers say "non garanti" / "sans garantie" — so the French
  *   negation set below MUST exempt those, otherwise the guard would block a
- *   compliant answer. That is exactly what the negation window handles.
+ *   compliant answer. The BEFORE-window negation handles that. Note this needle
+ *   also matches "garantie des dépôts" (deposit-guarantee fund) — an ACCEPTED
+ *   fail-closed case: blocking a regulatory term is the safe direction and the
+ *   LP chat never needs to emit it.
  * - "sans risque" starts with a negation word ("sans"), so per the engine rule
  *   it is never exemptable — a "sans risque" claim is always caught.
  * - The bare English "certain" is DELIBERATELY excluded here: in French
- *   "certains/certaine" means "some" and would false-positive constantly.
+ *   "certains/certaine" means "some" and would false-positive constantly. The
+ *   French equivalents are added as MULTI-WORD needles ("rendement certain" /
+ *   "gain certain") so the bare "certains/certaine" never trips.
+ * - "rendement assuré" / "gain assuré" / "rendement est assuré" — same
+ *   multi-word guard: bare "assuré" ("insured / policyholder") must not
+ *   false-positive, only the yield claim. The copula form ("le rendement est
+ *   assuré") is covered by the dedicated "rendement est assuré" needle.
+ * - "zéro risque" is a multi-word needle whose first token ("zéro") is not a
+ *   negation, so the claim is caught.
+ * - "capital protégé" is multi-word so the legitimate custody phrasing
+ *   "actifs protégés par Fireblocks" (no "capital" token) is NOT flagged.
  */
 export const CHAT_FORBIDDEN_WORDS = [
   // English claims (guard against code-switching / verbatim quotes)
@@ -53,6 +66,13 @@ export const CHAT_FORBIDDEN_WORDS = [
   "garanti",
   "sans risque",
   "rendement sûr",
+  "rendement certain",
+  "gain certain",
+  "rendement assuré",
+  "rendement est assuré",
+  "gain assuré",
+  "zéro risque",
+  "capital protégé",
   "promesse",
 ] as const;
 
@@ -90,6 +110,20 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/**
+ * Build the case-insensitive, inflection-aware pattern for a needle.
+ *
+ * Multi-word needles ("will deliver", "sans risque", "rendement sûr") tolerate
+ * any run of whitespace between tokens (`\s+`) so a stray double space
+ * ("sans  risque") still matches. Single-word needles keep the exact escaped
+ * literal. A trailing `\w*` captures inflections on the final token.
+ */
+function buildNeedlePattern(needle: string): RegExp {
+  const tokens = needle.split(/\s+/);
+  const body = tokens.map((t) => escapeRegex(t)).join("\\s+");
+  return new RegExp(`\\b${body}\\w*`, "gi");
+}
+
 /** Strip non-alpha chars so hyphenated tokens like "guaranteed-not-applicable"
  *  normalise to "guaranteednotapplicable" — used for negation detection.
  *  Keeps accented letters so French negations (e.g. accented forms) survive. */
@@ -108,10 +142,17 @@ function startsWithNegation(needle: string, negations: Set<string>): boolean {
 /**
  * Returns `true` when a match at `[index, index+matchLength)` is exempted
  * because a negation word from `negations` appears within a 3-word window
- * BEFORE or AFTER the match.
+ * BEFORE the match — and, when `checkAfter` is `true`, the 3-word window AFTER
+ * the match as well.
  *
  * The window is clamped to 100 chars on each side; words split on whitespace
  * or hyphens so "money-back guarantee, not applicable" surfaces "not".
+ *
+ * `checkAfter` rationale: the EN matcher relies on bidirectional exemption
+ * ("money-back guarantee, not applicable" must pass), so it sets
+ * `checkAfter: true`. The French chat matcher MUST NOT exempt on a trailing
+ * negation — "garanti, sans aucun doute" is a non-compliant claim, not a
+ * disclaimer — so it sets `checkAfter: false` (BEFORE-window only).
  *
  * Needles that themselves START with a negation word (e.g. "no risk",
  * "sans risque") are never exempted, because the negation prefix is the needle.
@@ -122,19 +163,21 @@ function isNegated(
   index: number,
   matchLength: number,
   negations: Set<string>,
+  { checkAfter }: { checkAfter: boolean },
 ): boolean {
   if (startsWithNegation(needle, negations)) return false;
 
   const WINDOW = 3;
   const before = text.slice(Math.max(0, index - 100), index);
-  const after = text.slice(index + matchLength, index + matchLength + 100);
-
   const beforeWords = before.split(/[\s-]+/).filter(Boolean).slice(-WINDOW);
+
+  if (beforeWords.some((w) => negations.has(stripPunct(w)))) return true;
+  if (!checkAfter) return false;
+
+  const after = text.slice(index + matchLength, index + matchLength + 100);
   const afterWords = after.split(/[\s-]+/).slice(0, WINDOW);
 
-  return [...beforeWords, ...afterWords].some((w) =>
-    negations.has(stripPunct(w)),
-  );
+  return afterWords.some((w) => negations.has(stripPunct(w)));
 }
 
 /**
@@ -147,17 +190,23 @@ function scanForbidden(
   text: string,
   needles: readonly string[],
   negations: Set<string>,
+  { checkAfter }: { checkAfter: boolean },
 ): string[] | null {
   if (!text) return null;
   const haystack = text.toLowerCase();
   const found: string[] = [];
 
   for (const needle of needles) {
-    const pattern = new RegExp(`\\b${escapeRegex(needle)}\\w*`, "gi");
+    const pattern = buildNeedlePattern(needle);
     let m: RegExpExecArray | null;
     let hit = false;
     while ((m = pattern.exec(haystack)) !== null) {
-      if (isNegated(haystack, needle, m.index, m[0].length, negations)) continue;
+      if (
+        isNegated(haystack, needle, m.index, m[0].length, negations, {
+          checkAfter,
+        })
+      )
+        continue;
       hit = true;
       break;
     }
@@ -176,12 +225,15 @@ function scanForbidden(
  * needles, or `null` when the text is clean.
  *
  * Negation exemption: a match is silently skipped when a negation word
- * appears in the 3-word window surrounding it (e.g. `not guaranteed`).
+ * appears in the 3-word window surrounding it — BEFORE or AFTER — so
+ * "money-back guarantee, not applicable" passes (e.g. `not guaranteed`).
  * Multi-word needles starting with a negation (`no risk`) are NOT eligible
  * for the exemption — the negation prefix IS the needle.
  */
 export function containsForbidden(text: string): ForbiddenScanResult | null {
-  const found = scanForbidden(text, FORBIDDEN_WORDS, EN_NEGATIONS);
+  const found = scanForbidden(text, FORBIDDEN_WORDS, EN_NEGATIONS, {
+    checkAfter: true,
+  });
   return found === null ? null : { found: found as ForbiddenWord[] };
 }
 
@@ -190,12 +242,16 @@ export function containsForbidden(text: string): ForbiddenScanResult | null {
  * `CHAT_FORBIDDEN_WORDS` (FR ∪ EN) with the FR ∪ EN negation vocabulary, so
  * required disclaimers like "non garanti" / "sans garantie" are NOT flagged
  * while a bare "garanti" / "sans risque" claim is. Same engine as
- * `containsForbidden`.
+ * `containsForbidden`, but the exemption window is BEFORE-only (`checkAfter:
+ * false`): a trailing French negation ("garanti, sans aucun doute") is part of
+ * a non-compliant claim, not a disclaimer, and must NOT exempt the match.
  */
 export function containsForbiddenChat(
   text: string,
 ): { found: string[] } | null {
-  const found = scanForbidden(text, CHAT_FORBIDDEN_WORDS, CHAT_NEGATIONS);
+  const found = scanForbidden(text, CHAT_FORBIDDEN_WORDS, CHAT_NEGATIONS, {
+    checkAfter: false,
+  });
   return found === null ? null : { found };
 }
 
@@ -222,10 +278,15 @@ export function findForbiddenMatches(text: string): ForbiddenMatchRange[] {
   const out: ForbiddenMatchRange[] = [];
 
   for (const word of FORBIDDEN_WORDS) {
-    const pattern = new RegExp(`\\b${escapeRegex(word)}\\w*`, "gi");
+    const pattern = buildNeedlePattern(word);
     let m: RegExpExecArray | null;
     while ((m = pattern.exec(lower)) !== null) {
-      if (isNegated(lower, word, m.index, m[0].length, EN_NEGATIONS)) continue;
+      if (
+        isNegated(lower, word, m.index, m[0].length, EN_NEGATIONS, {
+          checkAfter: true,
+        })
+      )
+        continue;
       out.push({ word, index: m.index, length: m[0].length });
     }
   }
