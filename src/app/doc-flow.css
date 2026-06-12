@@ -981,6 +981,13 @@
   padding-bottom: 0;
 }
 
+/* Thin separator between fixed header chrome and scrollable body */
+.product-doc .invest-flow-shell--workspace > .product-page-header {
+  border-bottom: 1px solid var(--ct-border-soft);
+  padding-bottom: var(--ct-space-4);
+  margin-bottom: 0;
+}
+
 /* Header stays fixed; body scrolls internally */
 .product-doc .invest-flow-shell--workspace .invest-flow-shell__body {
   flex: 1 1 auto;
@@ -994,9 +1001,20 @@
   padding-bottom: var(--ct-space-6);
 }
 
-/* Remove the outer visual surface — keep layout only */
+/* Remove the outer visual surface — keep layout only.
+   Override --cap max-width: the cockpit center panel constrains width already.
+   Centered narrow box inside a padded area reads as a framed document. */
 .product-doc .invest-flow-shell--workspace.product-doc-shell {
   gap: 0;
+  max-width: none;
+  margin-inline: 0;
+  width: 100%;
+}
+
+/* Neutralize footer-rule border in workspace — it reads as a document divider */
+.product-doc .invest-flow-shell--workspace .product-doc-footer-rule {
+  border-top: none;
+  padding-top: 0;
 }
 
 /* Desktop: tighten the gap between header chrome and body */
