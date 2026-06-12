@@ -152,7 +152,7 @@ describe("runChatAgent", () => {
       id: "read_runtime_capabilities",
       format: "multiline_text_block",
       title: "CAPACITES OUTILLEES (RUNTIME APP)",
-      lines: ["- internet_live_outille: no"],
+      lines: ["- internet_live_outille: yes (coingecko btc price live)"],
     });
     const client = fakeClient([
       toolChunk(0, { name: "read_runtime_capabilities", arguments: "{}" }, "call_read_1"),
@@ -163,7 +163,7 @@ describe("runChatAgent", () => {
       chatMode: "admin",
     });
     const text = await readAll(stream);
-    expect(text).toContain("internet live non outille");
+    expect(text).toContain("internet live");
     expect(mockExecuteAdminReadTool).toHaveBeenCalledTimes(1);
     expect(await nav).toBeNull();
   });

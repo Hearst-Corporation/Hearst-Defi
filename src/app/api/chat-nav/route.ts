@@ -27,7 +27,14 @@ export async function GET(): Promise<Response> {
   try {
     const dest = await consumeNav(userId);
     return NextResponse.json(
-      dest ? { route: dest.route, label: dest.label } : { route: null },
+      dest
+        ? {
+            route: dest.route,
+            label: dest.label,
+            ...(dest.objective ? { objective: dest.objective } : {}),
+            ...(dest.autostart ? { autostart: true } : {}),
+          }
+        : { route: null },
     );
   } catch (err) {
     // A channel hiccup must never break the page — report "nothing pending".

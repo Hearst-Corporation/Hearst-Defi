@@ -23,6 +23,7 @@ import {
 } from "@/lib/onchain/vault";
 import { monthsToTarget } from "@/lib/projection-chart";
 import { subscribe } from "@/app/actions/subscribe";
+import { isPrivyConfigured } from "@/lib/auth/is-privy-configured";
 import type { VaultProduct } from "@/lib/data/vaults";
 import {
   formatUsdAmount,
@@ -95,6 +96,18 @@ interface InvestFormProps {
 }
 
 export function InvestForm({ vault }: InvestFormProps) {
+  if (!isPrivyConfigured()) {
+    return (
+      <PanelStatus
+        message="Wallet connection is being configured."
+        detail="Set NEXT_PUBLIC_PRIVY_APP_ID to enable deposits from this environment."
+      />
+    );
+  }
+  return <InvestFormLive vault={vault} />;
+}
+
+function InvestFormLive({ vault }: InvestFormProps) {
   const router = useRouter();
   const { ready } = usePrivy();
   const { wallets } = useWallets();

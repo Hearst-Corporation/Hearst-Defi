@@ -20,9 +20,21 @@ export interface LabShellProps {
   vaultId: VaultId;
   /** Live market data seeded at page render; falls back to BASE_INPUTS when absent. */
   initialInputs?: ScenarioInputs;
+  /** Optional objective seeded from admin chat when framing a product. */
+  initialObjective?: string;
+  /** When true, auto-run scenario once the shell mounts (chat-directed flow). */
+  autostart?: boolean;
+  /** Optional BTC spot used for center context rendering. */
+  liveBtcPrice?: { usd: number; stale: boolean };
 }
 
-export function LabShell({ vaultId, initialInputs }: LabShellProps) {
+export function LabShell({
+  vaultId,
+  initialInputs,
+  initialObjective,
+  autostart,
+  liveBtcPrice,
+}: LabShellProps) {
   const [activeTab, setActiveTab] = useState<LabTab>("scenario");
   const [scenarioMode, setScenarioMode] = useState<ScenarioMode>("single");
 
@@ -49,7 +61,13 @@ export function LabShell({ vaultId, initialInputs }: LabShellProps) {
           tabIndex={0}
         >
           {scenarioMode === "single" ? (
-            <SingleMode vaultId={vaultId} initialInputs={initialInputs} />
+            <SingleMode
+              vaultId={vaultId}
+              initialInputs={initialInputs}
+              initialObjective={initialObjective}
+              autostart={autostart}
+              liveBtcPrice={liveBtcPrice}
+            />
           ) : null}
         </div>
         <div

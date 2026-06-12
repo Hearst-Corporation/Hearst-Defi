@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { NestedKpiGrid } from "@/components/ui/nested-panel";
+import { MetricGrid } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { VaultAllocationInvestorList } from "@/components/vaults/vault-allocation-display";
 import { VaultLegalProofRows } from "@/components/vaults/vault-legal-proof-rows";
@@ -43,7 +43,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
         }
       >
         <div className="product-doc-stack product-doc-stack--tight">
-          <NestedKpiGrid columns={3}>
+          <MetricGrid columns={3}>
             <VaultKpiCell label="Management / performance">
               {formatFeeLine(vault.fees)}
             </VaultKpiCell>
@@ -55,7 +55,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
                 ? formatUsdCompact(vault.currentAumUsdc)
                 : "Pending snapshot"}
             </VaultKpiCell>
-          </NestedKpiGrid>
+          </MetricGrid>
           <p className="body-xs ct-text-faint border-t ct-bc-soft pt-4">
             Distribution coverage pending first attested mining period ·
             Indicative cadence (monthly, T+5) · Methodology v1.0 active

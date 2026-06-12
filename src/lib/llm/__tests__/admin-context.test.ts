@@ -77,7 +77,7 @@ describe("buildAdminContextBlock", () => {
     expect(block).toContain("apy_target_range: 8.00% to 15.00%");
     expect(block).toContain("- /portfolio");
     expect(block).toContain("09-agents");
-    expect(block).toContain("internet_live_outille: no");
+    expect(block).toContain("internet_live_outille: yes");
   });
 
   it("degrades gracefully when no db rows are available", async () => {

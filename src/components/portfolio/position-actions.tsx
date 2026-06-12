@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 
 import { Button } from "@/components/ui/button";
+import { isPrivyConfigured } from "@/lib/auth/is-privy-configured";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import { Card } from "@/components/ui/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -97,7 +98,7 @@ export function canRunOnChainWithdraw(current: Phase): boolean {
  */
 export function PositionActions({ position }: PositionActionsProps) {
   if (position.status !== "active") return null;
-  if (!process.env.NEXT_PUBLIC_PRIVY_APP_ID) {
+  if (!isPrivyConfigured()) {
     return (
       <section aria-label="Position actions" className="product-doc-section">
         <p className="body-xs ct-text-muted">

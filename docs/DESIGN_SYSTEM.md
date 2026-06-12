@@ -94,6 +94,11 @@ non-carré déforme le cercle en ellipse.
 `provenance-badge` · `apy-range` · `ptai` · `toaster`/`client-toaster`.
 
 - **ProvenanceBadge** sur **chaque métrique** : `live | oracle | attested | estimated | manual | stale` (non-négociable CLAUDE.md #2).
+- **Metric** = bloc atomique label/value/meta. `Metric variant="nested"` garde le
+  rendu `.ct-metric-nested` dans une card/panel parent. **MetricGrid** =
+  grille sémantique canonique pour ces métriques imbriquées ; `NestedKpiGrid`
+  reste un alias rétrocompatible et `.ct-nested-kpi-grid` une classe CSS
+  d'implémentation.
 - **ApyRange** : jamais un APY point unique — toujours `low–high %` (#1).
 - **Ptai** : Projection → Trigger → Action → Impact pour simulations/rebalancing (#3).
 - Skeleton : importer `SkeletonCard` — ne pas redéfinir par page.
@@ -139,7 +144,21 @@ des aliases en cours de migration vers `.ct-glass-panel`.
 
 ### 9.2 Nested evidence surface
 
-`NestedPanel` · `ProofRow` · `.ct-nested-callout` — détails **dans** une card déjà active.
+`NestedPanel` · `DataRow` · `LegalMetadataRow` · `ProofRow` · `.ct-nested-callout`
+— détails **dans** une card déjà active.
+
+Row taxonomy (zéro différence visuelle) :
+
+- `DataRow` — faits génériques label/value : deposit summary, profile facts,
+  metadata simple.
+- `LegalMetadataRow` — faits legal/compliance : SPV structure, regulatory
+  exemption, KYC/accreditation, custody, audit, multisig.
+- `ProofRow` — faits proof/provenance : attestor, evidence hash, block, tx hash,
+  signature, proof-center events.
+
+`.ct-proof-row` reste une classe CSS d'implémentation. Ne pas introduire de
+nouvel usage JSX sémantique direct de `.ct-proof-row` : passer par l'un des
+wrappers ci-dessus.
 
 ### 9.3 Empty / inline placeholder (optionnel)
 

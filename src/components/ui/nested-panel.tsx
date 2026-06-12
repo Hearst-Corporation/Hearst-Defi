@@ -26,18 +26,19 @@ export function NestedPanel({
   );
 }
 
-/**
- * Label/value row inside a NestedPanel (proof, evidence, methodology fields).
- */
-export function ProofRow({
-  label,
-  children,
-  className,
-}: {
+type RowProps = {
   label: string;
   children: React.ReactNode;
   className?: string;
-}) {
+};
+
+// Semantic wrappers below intentionally share the exact `.ct-proof-row` DOM/CSS.
+// The class is implementation-only; callers choose DataRow / LegalMetadataRow / ProofRow.
+function Row({
+  label,
+  children,
+  className,
+}: RowProps) {
   return (
     <div className={cn("ct-proof-row", className)}>
       <span className="ct-proof-row__label body-xs ct-text-muted">{label}</span>
@@ -46,6 +47,28 @@ export function ProofRow({
       </span>
     </div>
   );
+}
+
+/**
+ * Generic label/value row inside a NestedPanel.
+ */
+export function DataRow(props: RowProps) {
+  return <Row {...props} />;
+}
+
+/**
+ * Legal/compliance metadata row inside a NestedPanel.
+ */
+export function LegalMetadataRow(props: RowProps) {
+  return <Row {...props} />;
+}
+
+/**
+ * Label/value row inside a NestedPanel (proof, evidence, methodology fields).
+ * Backwards-compatible alias while callers migrate to semantic row names.
+ */
+export function ProofRow(props: RowProps) {
+  return <Row {...props} />;
 }
 
 /** Status callout inside a parent card or dash-cell (alerts, pending states). */
@@ -65,17 +88,19 @@ export function NestedCallout({
   );
 }
 
-/** Responsive grid for nested Metric cells (2 → 3 → 4 columns). */
-export function NestedKpiGrid({
-  children,
-  className,
-  columns = 3,
-}: {
+type MetricGridProps = {
   children: React.ReactNode;
   className?: string;
   /** Max column count at large breakpoints (2, 3, or 4). */
   columns?: 2 | 3 | 4;
-}) {
+};
+
+/** Responsive semantic grid for nested Metric cells (2 → 3 → 4 columns). */
+export function MetricGrid({
+  children,
+  className,
+  columns = 3,
+}: MetricGridProps) {
   return (
     <div
       className={cn(
@@ -87,4 +112,11 @@ export function NestedKpiGrid({
       {children}
     </div>
   );
+}
+
+/**
+ * Backwards-compatible alias. Prefer MetricGrid for new semantic metric grids.
+ */
+export function NestedKpiGrid(props: MetricGridProps) {
+  return <MetricGrid {...props} />;
 }

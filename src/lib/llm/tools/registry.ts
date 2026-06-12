@@ -40,6 +40,9 @@ const DEFAULT_WRITE_CONFIRMATION_TTL_MS = 5 * 60 * 1000;
 const DEFAULT_CHART_TIMEFRAME = "30d";
 const MAX_TELEMETRY_ERROR_MESSAGE_LEN = 500;
 const MAX_TELEMETRY_ERROR_CODE_LEN = 120;
+const LIVE_PRICE_STALE_THRESHOLD_MS = 60_000;
+const COINGECKO_BTC_SIMPLE_PRICE_URL =
+  "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_last_updated_at=true";
 
 const ChartSpecInputSchema = z.object({
   intent: z.string().trim().min(1).max(120),
@@ -290,6 +293,51 @@ function buildChartProvenanceFreshness(
     source,
     timestampIso: timestamp.toISOString(),
     freshness,
+  };
+}
+
+type BtcLivePrice = {
+  priceUsd: number;
+  takenAt: Date;
+  freshnessSeconds: number;
+  freshness: "fresh" | "stale";
+  source: "coingecko";
+};
+
+async function fetchBtcLivePriceFromCoinGecko(): Promise<BtcLivePrice> {
+  const startedAt = Date.now();
+  const response = await fetch(COINGECKO_BTC_SIMPLE_PRICE_URL, {
+    method: "GET",
+    headers: { accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(`coingecko_http_${response.status}`);
+  }
+
+  const raw = (await response.json()) as {
+    bitcoin?: { usd?: unknown; last_updated_at?: unknown };
+  };
+  const priceRaw = raw.bitcoin?.usd;
+  const updatedAtRaw = raw.bitcoin?.last_updated_at;
+  const priceUsd = typeof priceRaw === "number" ? priceRaw : Number.NaN;
+  const updatedAtSeconds =
+    typeof updatedAtRaw === "number" ? updatedAtRaw : Number.NaN;
+  if (!Number.isFinite(priceUsd) || !Number.isFinite(updatedAtSeconds)) {
+    throw new Error("coingecko_invalid_payload");
+  }
+
+  const takenAt = new Date(updatedAtSeconds * 1000);
+  if (Number.isNaN(takenAt.getTime())) {
+    throw new Error("coingecko_invalid_timestamp");
+  }
+  const freshnessSeconds = Math.max(0, Math.floor((startedAt - takenAt.getTime()) / 1000));
+  return {
+    priceUsd,
+    takenAt,
+    freshnessSeconds,
+    freshness: freshnessSeconds * 1000 <= LIVE_PRICE_STALE_THRESHOLD_MS ? "fresh" : "stale",
+    source: "coingecko",
   };
 }
 
@@ -681,7 +729,7 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
       additionalProperties: false,
     },
     run: async () => {
-      const [latestMiningMetric, latestVaultSnapshot] = await Promise.all([
+      const [latestMiningMetric, latestVaultSnapshot, btcLive] = await Promise.all([
         prisma.miningMetric.findFirst({
           orderBy: { takenAt: "desc" },
           select: {
@@ -708,6 +756,7 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
             source: true,
           },
         }),
+        fetchBtcLivePriceFromCoinGecko().catch(() => null),
       ]);
 
       const miningLines = latestMiningMetric
@@ -715,6 +764,11 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
             "- MARCHE BTC / MINING (latest)",
             `  - taken_at: ${formatIso(latestMiningMetric.takenAt)}`,
             `  - btc_price_usd: ${latestMiningMetric.btcPrice.toString()}`,
+            `  - btc_price_usd_exact_live: ${btcLive ? btcLive.priceUsd.toFixed(2) : "unavailable"}`,
+            `  - btc_price_live_source: ${btcLive?.source ?? "unavailable"}`,
+            `  - btc_price_live_taken_at: ${btcLive ? btcLive.takenAt.toISOString() : "unavailable"}`,
+            `  - btc_price_live_freshness_seconds: ${btcLive ? String(btcLive.freshnessSeconds) : "unavailable"}`,
+            `  - btc_price_live_freshness: ${btcLive?.freshness ?? "unknown"}`,
             `  - hashprice_usd_th_day: ${latestMiningMetric.hashprice.toString()}`,
             `  - difficulty: ${latestMiningMetric.difficulty.toString()}`,
             `  - energy_cost_usd_kwh: ${latestMiningMetric.energyCost.toString()}`,
@@ -815,7 +869,7 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
       title: "CAPACITES OUTILLEES (RUNTIME APP)",
       lines: [
         `- navigation_outillee: ${FEATURE_FLAGS.CHAT_MASTER_AGENT ? "yes" : "no"} (navigate whitelist seulement)`,
-        "- internet_live_outille: no",
+        "- internet_live_outille: yes (coingecko btc price live)",
         "- deploy_execute_outille: no",
         "- db_write_outille: no",
         "- fireblocks_sign_outille: no",

@@ -2,7 +2,7 @@ import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-stat
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
-import { NestedKpiGrid, ProofRow } from "@/components/ui/nested-panel";
+import { MetricGrid, ProofRow } from "@/components/ui/nested-panel";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { POR_ATTESTATION_EMPTY } from "@/components/proof/empty-messages";
 import {
@@ -60,7 +60,7 @@ export function PorSummary({
         tone="primary"
       />
 
-      <NestedKpiGrid columns={4}>
+      <MetricGrid columns={4}>
         <Metric variant="nested" label="Total AUM" value={formatUsdCompact(attestation.totalAumUsd)} />
         <Metric variant="nested" label="Mined (period)" value={formatBtc(attestation.minedBtc)} />
         <Metric
@@ -70,7 +70,7 @@ export function PorSummary({
           sublabel={attestedAt.sublabel}
         />
         <Metric variant="nested" label="Period" value={formatPorPeriod(attestation.period)} />
-      </NestedKpiGrid>
+      </MetricGrid>
 
       <div className={cn(sectionDividerClass, "pt-2")}>
         <ProofRow label="Attestor address">

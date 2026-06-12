@@ -5,7 +5,7 @@ import {
 } from "@/components/proof/empty-messages";
 import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
-import { NestedKpiGrid } from "@/components/ui/nested-panel";
+import { MetricGrid } from "@/components/ui/nested-panel";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { CoverageView } from "@/lib/engine/coverage-view";
 
@@ -43,7 +43,7 @@ export function MiningCashFlowEvidence({
 
       <p className="body-sm mb-4">{MINING_CASHFLOW_COPY[provenance]}</p>
 
-      <NestedKpiGrid columns={4}>
+      <MetricGrid columns={4}>
         <Metric
           variant="nested"
           label="Distribution coverage"
@@ -68,7 +68,7 @@ export function MiningCashFlowEvidence({
           value={provenance === "live" ? "Attested" : "Pending"}
           sublabel="mining partner + pool"
         />
-      </NestedKpiGrid>
+      </MetricGrid>
     </Card>
   );
 }

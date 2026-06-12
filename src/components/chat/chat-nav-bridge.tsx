@@ -23,14 +23,16 @@ import { cn } from "@/lib/cn";
  *    an "Annuler" affordance), so a stray directive can be stopped.
  */
 
-const POLL_MS = 2500;
-const AUTO_NAV_DELAY_MS = 1600;
+const POLL_MS = 900;
+const AUTO_NAV_DELAY_MS = 500;
 
 interface PendingNav {
   route: string;
   label: string;
   /** true when the current route is an in-progress flow — offer, don't yank. */
   protected: boolean;
+  objective?: string;
+  autostart?: boolean;
 }
 
 export function ChatNavBridge() {
@@ -57,14 +59,30 @@ export function ChatNavBridge() {
         const data = (await res.json()) as {
           route?: string | null;
           label?: string;
+          objective?: string;
+          autostart?: boolean;
         };
         if (cancelled || !data.route) return;
         const current = pathRef.current;
         if (data.route === current) return; // anti-loop: already here
+        const routeWithParams =
+          data.route === "/admin/scenario-lab"
+            ? (() => {
+                const params = new URLSearchParams();
+                if (data.autostart) params.set("autostart", "1");
+                if (data.objective && data.objective.trim().length > 0) {
+                  params.set("objective", data.objective.trim());
+                }
+                const query = params.toString();
+                return query.length > 0 ? `${data.route}?${query}` : data.route;
+              })()
+            : data.route;
         setPending({
-          route: data.route,
+          route: routeWithParams,
           label: data.label ?? "la page",
           protected: isProtectedRoute(current),
+          ...(data.objective ? { objective: data.objective } : {}),
+          ...(data.autostart ? { autostart: true } : {}),
         });
       } catch {
         // network hiccup — ignore, try again next tick
@@ -115,8 +133,8 @@ export function ChatNavBridge() {
         "fixed bottom-4 left-1/2 z-50 -translate-x-1/2",
         "flex items-center gap-3 rounded-full px-4 py-2",
         "ct-surface-1 ct-text-primary",
-        "shadow-[var(--ct-shadow-elevated)]",
-        "border border-[var(--ct-border)]",
+        "shadow-(--ct-shadow-elevated)",
+        "border border-(--ct-border)",
       )}
     >
       <span className="body-sm">
@@ -129,7 +147,7 @@ export function ChatNavBridge() {
       <button
         type="button"
         onClick={goNow}
-        className="rounded-full bg-[var(--ct-accent)] px-3 py-1 body-xs font-medium ct-text-on-accent"
+        className="rounded-full bg-(--ct-accent) px-3 py-1 body-xs font-medium ct-text-on-accent"
       >
         {pending.protected ? "Ouvrir" : "Maintenant"}
       </button>

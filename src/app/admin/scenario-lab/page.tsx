@@ -12,7 +12,7 @@ import { VAULTS, VAULT_YIELD } from "@/lib/engine/vaults";
 import { adminScenarioLabVaultHref } from "@/lib/vaults/dashboard-scope";
 
 interface ScenarioLabPageProps {
-  searchParams: Promise<{ vault?: string }>;
+  searchParams: Promise<{ vault?: string; autostart?: string; objective?: string }>;
 }
 
 function resolveVaultId(raw: string | undefined): VaultId {
@@ -26,13 +26,22 @@ export default async function ScenarioLabPage({
   const params = await searchParams;
   const vaultId = resolveVaultId(params.vault);
   const vault = VAULTS[vaultId];
+  const autostart = params.autostart === "1";
+  const objective =
+    typeof params.objective === "string" && params.objective.trim().length > 0
+      ? params.objective.trim().slice(0, 220)
+      : undefined;
 
   let liveInputs: ScenarioInputs | undefined;
+  let liveBtcPrice: { usd: number; stale: boolean } | undefined;
   try {
     const [latestMining, btc] = await Promise.all([
       prisma.miningMetric.findFirst({ orderBy: { takenAt: "desc" } }),
       fetchBtcPrice(),
     ]);
+    if (btc.usd > 0) {
+      liveBtcPrice = { usd: btc.usd, stale: btc.stale };
+    }
     if (latestMining && btc.usd > 0 && !btc.stale) {
       liveInputs = {
         btc_price_change_pct: Math.round(btc.usd_24h_change * 10) / 10,
@@ -62,7 +71,13 @@ export default async function ScenarioLabPage({
       </div>
 
       <div className="scenario-lab-page__body">
-        <LabShell vaultId={vaultId} initialInputs={liveInputs} />
+        <LabShell
+          vaultId={vaultId}
+          initialInputs={liveInputs}
+          initialObjective={objective}
+          autostart={autostart}
+          liveBtcPrice={liveBtcPrice}
+        />
       </div>
 
       {FEATURE_FLAGS.ENABLE_MONTE_CARLO ? <MonteCarloPanel /> : null}

@@ -29,6 +29,9 @@ difficulty/uptime), dernier `VaultSnapshot`, échantillon routes/specs et matric
 de capacités réellement outillées. Le chat reste en lecture/seuil de préparation :
 il peut proposer runbooks, plans démo et specs graphiques textuelles, sans
 exécution autonome d'actions sensibles.
+Le snapshot marché inclut aussi `btc_price_usd_exact_live` via CoinGecko
+avec provenance/fraîcheur (`btc_price_live_source`, `btc_price_live_taken_at`,
+`btc_price_live_freshness_seconds`).
 La composition passe par une couche interne `src/lib/llm/tools/*` (registre
 typé + policy `chatMode/profile`) avec uniquement des outils de lecture
 (`read_allocations_canonical`, `read_market_snapshot`, `read_routes_index`,
@@ -82,7 +85,7 @@ le JSON résultat en mode compact.
 
 Navigation outillée : le mode `conversation` garde une whitelist LP (`/portfolio`,
 `/vaults`, `/proof-center`, `/profile`) ; le mode `admin` dispose d'une whitelist
-admin dédiée (`/admin/dashboard`, `/admin/vaults`, `/admin/proofs`,
+admin dédiée (`/admin/scenario-lab`, `/admin/dashboard`, `/admin/vaults`, `/admin/proofs`,
 `/admin/governance`, `/admin/roadmap`, `/admin/projection`). Le mode `review`
 reste sans tools.
 
@@ -223,10 +226,11 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
 - H2 section : `.h2` · module : `.h3` / `DashboardPanelHeader` / `WidgetPanelHeader` · KPI : `.stat-value` + `.stat-label`.
 - Shell page : `product-doc-shell` (`gap: var(--ct-space-8)`) ; admin `admin-doc-shell` (`gap: var(--ct-space-4)`, `--compact` → `space-3`). Zone `.ct-page-area` admin : `24px 20px 32px` (vs `32px 40px 80px` LP).
 - Layout stacks : `src/app/doc-flow.css` — scopes `.product-doc` / `.admin-doc` ; stacks `*-doc-stack*` / `*-doc-inline-row*` (pas de `gap-*` / `space-y-*` Tailwind ad hoc en admin).
-- Spacing rule (admin **et** product) : classe base + modifier (`admin-doc-stack admin-doc-stack--actions`, `product-doc-stack product-doc-stack--tight`, `*-doc-inline-row *-doc-inline-row--between`). Un modifier seul ne doit pas porter le layout.
+- Spacing rule (admin **et** product) : classe base + modifier en JSX (`admin-doc-stack admin-doc-stack--actions`, `product-doc-stack product-doc-stack--tight`). Côté CSS product, chaque `product-doc-stack--*` / `product-doc-inline-row--*` est autonome (flex + gap), comme admin — un modifier seul reste layout-safe.
 - Surface par défaut : `Card` → `.ct-glass-panel` (produit **et** admin). Header canon : `DashboardPanelHeader` (`src/components/ui/dashboard-panel-header.tsx`). **Interdit** : listes flat (`admin-doc-flat-list`, `admin-vault-list-card`).
 - Formatters : `src/lib/vaults/product-display.ts`.
 - Vault detail parity admin/LP : faits partagés `src/lib/vaults/vault-detail-facts.ts` ; présentation `vault-admin-kpi-strip`, `vault-legal-proof-rows`, `vault-allocation-display` (admin = `Card`, LP = sections plates).
+- Shell compact : le rail chat droit (`.ct-rail-right`, 420px) est masqué sous `1200px` via `src/app/cockpit.css` pour préserver la largeur du contenu central ; seul le padding `.ct-page-area` se resserre sous `768px`.
 - Exceptions non-glass **seules autorisées** (commentaire `/* ADR-013 exception */` requis) : `.scenario-preset-bar`, `Ptai variant="flat"` en compare, `EmptySurface` seul — voir ADR-013 §10.3. Dashboard command board + KPI strip : `Card` / `.ct-glass-panel`.
 - Migration ADR-013 : **Lots 1+4 done** (surfaces JSX, `SystemPanel` supprimé, aliases CSS retirés, scenario-lab sur `Card`). Reste : token syntax legacy admin (shorthand `(-ct-TOKEN)` → canon bracket form).
 

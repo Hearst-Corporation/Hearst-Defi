@@ -607,31 +607,46 @@
   gap: var(--ct-space-6);
 }
 
+/* Stack modifiers — self-contained (mirrors .admin-doc .admin-doc-stack--*) */
 .product-doc .product-doc-stack--tight {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-2);
 }
 
 .product-doc .product-doc-stack--actions {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-3);
 }
 
 .product-doc .product-doc-stack--relaxed {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-4);
 }
 
 .product-doc .product-doc-stack--list {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-2_5);
 }
 
 .product-doc .product-doc-stack--compact {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-1);
 }
 
 .product-doc .product-doc-stack--dense {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-space-1_5);
 }
 
 .product-doc .product-doc-stack--flat {
+  display: flex;
+  flex-direction: column;
   gap: 0;
 }
 
@@ -643,19 +658,37 @@
   min-width: 0;
 }
 
+/* Inline-row modifiers — self-contained (mirrors .admin-doc .admin-doc-inline-row--*) */
 .product-doc .product-doc-inline-row--baseline {
+  display: flex;
+  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+  min-width: 0;
   align-items: baseline;
 }
 
 .product-doc .product-doc-inline-row--start {
+  display: flex;
+  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+  min-width: 0;
   align-items: flex-start;
 }
 
 .product-doc .product-doc-inline-row--between {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+  min-width: 0;
   justify-content: space-between;
 }
 
 .product-doc .product-doc-inline-row--actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--ct-space-3);
 }
 
@@ -667,18 +700,34 @@
 }
 
 .product-doc .product-doc-inline-row--loose {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--ct-space-2_5);
 }
 
 .product-doc .product-doc-inline-row--tight {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--ct-space-1);
 }
 
 .product-doc .product-doc-inline-row--dense {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--ct-space-1_5);
 }
 
 .product-doc .product-doc-inline-row--spacious {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--ct-space-5);
 }
 

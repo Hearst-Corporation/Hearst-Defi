@@ -41,8 +41,8 @@ vi.mock("@/lib/db", () => ({
     feedback: { create: vi.fn() },
     governanceProposal: { create: vi.fn() },
     adminToolRun: { create: vi.fn() },
-    miningMetric: { findMany: vi.fn() },
-    vaultSnapshot: { findMany: vi.fn() },
+    miningMetric: { findMany: vi.fn(), findFirst: vi.fn() },
+    vaultSnapshot: { findMany: vi.fn(), findFirst: vi.fn() },
   },
 }));
 
@@ -59,6 +59,9 @@ const mockGovernanceCreate = vi.mocked(prisma.governanceProposal.create);
 const mockAdminToolRunCreate = vi.mocked(prisma.adminToolRun.create);
 const mockMiningFindMany = vi.mocked(prisma.miningMetric.findMany);
 const mockVaultFindMany = vi.mocked(prisma.vaultSnapshot.findMany);
+const mockMiningFindFirst = vi.mocked(prisma.miningMetric.findFirst);
+const mockVaultFindFirst = vi.mocked(prisma.vaultSnapshot.findFirst);
+const mockFetch = vi.fn();
 
 const tokenStore = new Map<string, ConfirmationRow>();
 const EMPTY_OBJECT_INPUT_HASH =
@@ -154,12 +157,25 @@ function setupConfirmationMocks(): void {
 describe("admin read tools policy", () => {
   beforeEach(async () => {
     vi.clearAllMocks();
+    vi.stubGlobal("fetch", mockFetch);
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        bitcoin: {
+          usd: 70234.12,
+          last_updated_at: Math.floor(Date.now() / 1000),
+        },
+      }),
+    } as Response);
     tokenStore.clear();
     setupConfirmationMocks();
     await clearWriteConfirmationsForTests();
     mockAdminToolRunCreate.mockResolvedValue({ id: "run_1" } as never);
     mockMiningFindMany.mockResolvedValue([] as never);
     mockVaultFindMany.mockResolvedValue([] as never);
+    mockMiningFindFirst.mockResolvedValue(null as never);
+    mockVaultFindFirst.mockResolvedValue(null as never);
   });
 
   it("allows tools in admin/admin context", () => {
@@ -188,10 +204,23 @@ describe("admin read tools policy", () => {
 describe("admin read tools registry", () => {
   beforeEach(async () => {
     vi.clearAllMocks();
+    vi.stubGlobal("fetch", mockFetch);
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        bitcoin: {
+          usd: 70234.12,
+          last_updated_at: Math.floor(Date.now() / 1000),
+        },
+      }),
+    } as Response);
     tokenStore.clear();
     setupConfirmationMocks();
     await clearWriteConfirmationsForTests();
     mockAdminToolRunCreate.mockResolvedValue({ id: "run_1" } as never);
+    mockMiningFindFirst.mockResolvedValue(null as never);
+    mockVaultFindFirst.mockResolvedValue(null as never);
   });
 
   it("returns no tools when policy disallows the context", () => {
@@ -222,7 +251,7 @@ describe("admin read tools registry", () => {
     expect(result.id).toBe("read_runtime_capabilities");
     expect(result.format).toBe("multiline_text_block");
     expect(result.title).toBe("CAPACITES OUTILLEES (RUNTIME APP)");
-    expect(result.lines.some((line) => line.includes("internet_live_outille: no"))).toBe(
+    expect(result.lines.some((line) => line.includes("internet_live_outille: yes"))).toBe(
       true,
     );
     expect(mockAdminToolRunCreate).toHaveBeenCalledTimes(1);
@@ -325,6 +354,47 @@ describe("admin read tools registry", () => {
     expect(payload.chart?.title).toContain("APY trend");
     expect(Array.isArray(payload.chart?.provenance)).toBe(true);
     expect((payload.chart?.provenance ?? []).length).toBeGreaterThan(0);
+  });
+
+  it("read_market_snapshot includes CoinGecko live btc fields when available", async () => {
+    const context = { chatMode: "admin" as const, profile: "admin" as const };
+    const tool = ADMIN_READ_TOOLS.find(
+      (candidate) => candidate.id === "read_market_snapshot",
+    );
+    expect(tool).toBeDefined();
+    if (!tool) return;
+
+    mockMiningFindFirst.mockResolvedValueOnce({
+      takenAt: new Date("2026-06-10T00:00:00.000Z"),
+      btcPrice: 70000,
+      hashprice: 0.082,
+      difficulty: 123,
+      energyCost: 0.05,
+      uptimePct: 99,
+      miningMarginScore: 70,
+    } as never);
+    mockVaultFindFirst.mockResolvedValueOnce({
+      takenAt: new Date("2026-06-10T00:00:00.000Z"),
+      aumUsdc: 1_000_000,
+      currentApyLow: 8,
+      currentApyHigh: 12,
+      stressedApy: 5,
+      riskScore: 42,
+      miningMarginScore: 70,
+      mode: "balanced",
+      source: "computed",
+    } as never);
+
+    const result = await executeAdminReadTool(tool, context);
+    expect(result.lines.some((line) => line.includes("btc_price_usd_exact_live: 70234.12"))).toBe(
+      true,
+    );
+    expect(result.lines.some((line) => line.includes("btc_price_live_source: coingecko"))).toBe(
+      true,
+    );
+    expect(result.lines.some((line) => line.includes("btc_price_live_freshness_seconds:"))).toBe(
+      true,
+    );
   });
 
   it("generate_demo_plan returns ordered non-empty steps with valid admin routes", async () => {

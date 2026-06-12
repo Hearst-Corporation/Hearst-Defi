@@ -2,7 +2,7 @@ import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-stat
 import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { Metric } from "@/components/ui/metric";
-import { NestedKpiGrid } from "@/components/ui/nested-panel";
+import { MetricGrid } from "@/components/ui/nested-panel";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { CustodySnapshot } from "@/lib/data/custody";
 import { sectionDividerClass } from "@/lib/ui/surface-classes";
@@ -41,7 +41,7 @@ function CustodyKpis({ custody }: { custody: CustodySnapshot }) {
   const snapshotTs = formatNestedTimestamp(new Date(custody.asOf));
   return (
     <>
-      <NestedKpiGrid columns={3}>
+      <MetricGrid columns={3}>
         <Metric
           variant="nested"
           label="USDC reserves"
@@ -58,7 +58,7 @@ function CustodyKpis({ custody }: { custody: CustodySnapshot }) {
           value={snapshotTs.value}
           sublabel={snapshotTs.sublabel}
         />
-      </NestedKpiGrid>
+      </MetricGrid>
       <CustodyStaleNote custody={custody} />
     </>
   );

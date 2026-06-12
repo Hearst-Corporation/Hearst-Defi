@@ -1,5 +1,5 @@
 import { ApyRange } from "@/components/ui/apy-range";
-import { NestedPanel, ProofRow } from "@/components/ui/nested-panel";
+import { DataRow, NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { VaultPanelHeader } from "@/components/vaults/vault-flow-primitives";
 import type { VaultProduct } from "@/lib/data/vaults";
@@ -29,24 +29,24 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       />
 
       <div className="vault-panel-body">
-        <ProofRow label="You deposit">
+        <DataRow label="You deposit">
           {amount > 0 ? (
             <span className="mono">{formatUsdFull(amount)} USDC</span>
           ) : (
             <span className="ct-text-muted">—</span>
           )}
-        </ProofRow>
+        </DataRow>
 
-        <ProofRow label="Target APY">
+        <DataRow label="Target APY">
           <ApyRange
             low={vault.apyLow}
             high={vault.apyHigh}
             precision={1}
             className="stat-value mono tabular-nums ct-text-strong"
           />
-        </ProofRow>
+        </DataRow>
 
-        <ProofRow label="Est. yearly yield">
+        <DataRow label="Est. yearly yield">
           {yearlyYield !== null ? (
             <span className="mono">
               {formatUsdFull(yearlyYield)} USDC
@@ -54,9 +54,9 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           ) : (
             <span className="ct-text-muted">—</span>
           )}
-        </ProofRow>
+        </DataRow>
 
-        <ProofRow label="At soft close">
+        <DataRow label="At soft close">
           {totalAtClose !== null ? (
             <span className="mono">
               ~{formatUsdFull(totalAtClose)} USDC
@@ -64,16 +64,16 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           ) : (
             <span className="ct-text-muted">—</span>
           )}
-        </ProofRow>
+        </DataRow>
 
-        <ProofRow label="Lock-up">{vault.softLockupDays}d soft</ProofRow>
+        <DataRow label="Lock-up">{vault.softLockupDays}d soft</DataRow>
 
-        <ProofRow label="Fees">
+        <DataRow label="Fees">
           <span className="text-right">
             {mgmtFee.toFixed(2)}% mgmt · {perfFee.toFixed(0)}% perf
             {hurdleFee ? ` · ${hurdleFee.toFixed(1)}% hurdle` : ""}
           </span>
-        </ProofRow>
+        </DataRow>
 
         <p className="body-xs ct-text-faint vault-disclaimer-inset leading-relaxed">
           Yield figures use the midpoint of the APY range — not a commitment of

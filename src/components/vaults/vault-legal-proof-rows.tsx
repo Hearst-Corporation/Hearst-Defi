@@ -1,4 +1,4 @@
-import { ProofRow } from "@/components/ui/nested-panel";
+import { LegalMetadataRow } from "@/components/ui/nested-panel";
 import {
   REG_LABELS,
   REG_LABELS_LONG,
@@ -18,35 +18,35 @@ export function VaultLegalProofRows({ facts, variant }: VaultLegalProofRowsProps
   if (variant === "admin") {
     return (
       <>
-        <ProofRow label="Strategy">
+        <LegalMetadataRow label="Strategy">
           {STRATEGY_LABELS[facts.strategy] ?? facts.strategy}
-        </ProofRow>
-        <ProofRow label="SPV">
+        </LegalMetadataRow>
+        <LegalMetadataRow label="SPV">
           {SPV_LABELS[facts.spvJurisdiction] ?? facts.spvJurisdiction}
-        </ProofRow>
-        <ProofRow label="Share Class">{facts.shareClass}</ProofRow>
-        <ProofRow label="Reg Exemption">
+        </LegalMetadataRow>
+        <LegalMetadataRow label="Share Class">{facts.shareClass}</LegalMetadataRow>
+        <LegalMetadataRow label="Reg Exemption">
           {REG_LABELS[facts.regExemption] ?? facts.regExemption}
-        </ProofRow>
-        <ProofRow label="Min Ticket">
+        </LegalMetadataRow>
+        <LegalMetadataRow label="Min Ticket">
           {`${formatUsdFull(facts.minTicketUsdc)} USDC`}
-        </ProofRow>
+        </LegalMetadataRow>
       </>
     );
   }
 
   return (
     <>
-      <ProofRow label="SPV structure">
+      <LegalMetadataRow label="SPV structure">
         {SPV_LABELS_LONG[facts.spvJurisdiction] ?? facts.spvJurisdiction}
-      </ProofRow>
-      <ProofRow label="Share class">{`Class ${facts.shareClass}`}</ProofRow>
-      <ProofRow label="Regulatory exemption">
+      </LegalMetadataRow>
+      <LegalMetadataRow label="Share class">{`Class ${facts.shareClass}`}</LegalMetadataRow>
+      <LegalMetadataRow label="Regulatory exemption">
         {REG_LABELS_LONG[facts.regExemption] ?? facts.regExemption}
-      </ProofRow>
-      <ProofRow label="Custodian">Custody configuration pending</ProofRow>
-      <ProofRow label="Multisig threshold">Multisig approval required</ProofRow>
-      <ProofRow label="Audit">Spearbit · scheduled</ProofRow>
+      </LegalMetadataRow>
+      <LegalMetadataRow label="Custodian">Custody configuration pending</LegalMetadataRow>
+      <LegalMetadataRow label="Multisig threshold">Multisig approval required</LegalMetadataRow>
+      <LegalMetadataRow label="Audit">Spearbit · scheduled</LegalMetadataRow>
     </>
   );
 }

@@ -4,9 +4,20 @@ import { usePrivy, useWallets, useLogin } from "@privy-io/react-auth";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { isPrivyConfigured } from "@/lib/auth/is-privy-configured";
 import { safeFrom } from "@/lib/safe-redirect";
 
+/**
+ * Wallet pill in the product rail header.
+ * When Privy is not configured, renders nothing — never calls usePrivy() without
+ * a provider (PrivyProvider is a pass-through when the app id is unset).
+ */
 export function HeaderConnect() {
+  if (!isPrivyConfigured()) return null;
+  return <HeaderConnectLive />;
+}
+
+function HeaderConnectLive() {
   const { ready, authenticated } = usePrivy();
   if (!ready) return null;
   if (!authenticated) return <HeaderConnectGuest />;
@@ -46,9 +57,7 @@ function HeaderConnectAuthed() {
           className="ct-status-dot-success w-1.5 h-1.5 shrink-0 rounded-full"
           aria-hidden="true"
         />
-        <span className="tabular">
-          {displayAddress}
-        </span>
+        <span className="tabular">{displayAddress}</span>
       </span>
 
       <Button
