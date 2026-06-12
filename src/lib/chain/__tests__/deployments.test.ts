@@ -6,12 +6,12 @@ import { describe, expect, it } from "vitest";
 import { getDeployment } from "@/lib/chain/deployments";
 
 describe("deployments registry", () => {
-  it("flags the live vault as stale", () => {
+  it("marks the redeployed vault as safe and source-verified", () => {
     const vault = getDeployment("vault");
 
-    expect(vault.meta.stale).toBe(true);
-    expect(vault.meta.reasons).toContain("constructor-5-args");
-    expect(vault.meta.reasons).toContain("min-deposit-below-250k");
+    expect(vault.meta.stale).toBe(false);
+    expect(vault.meta.reasons).toHaveLength(0);
+    expect(vault.meta.provenanceVerified).toBe(true);
   });
 
   it("marks the redeployed phase-2 contracts as source-verified", () => {

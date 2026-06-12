@@ -2,21 +2,22 @@
   "chainId": 84532,
   "contracts": {
     "vault": {
-      "address": "0xEc733c6dbD69F862489a9Da01338aA5D39C1F60d",
-      "deployBlock": 42027165,
-      "deployTx": "0xce9ca54f6c8aa8d0d2ccc15d3b022f184f398585dbbeba5cd16c2f9a70aa494b",
-      "commitSha": "3da03cd",
+      "address": "0x2bd14d52518a04f4c12949c51df03a161a9e329e",
+      "deployBlock": 42743997,
+      "deployTx": "0xd888837287a741ff01f1f18a6020605b8b54b39c7d284962385c13e237b03779",
+      "commitSha": "80d93a3",
       "constructorArgs": [
         "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
         "Hearst Yield Vault Share",
         "hyvUSDC",
+        "0x1d1d87443f7B76f7C2248956240dE735Bce81707",
         "0x5530db3B10e3F872ffA89cD2e3C542e9351EAA57",
-        "1000000000"
+        "250000000000"
       ],
-      "hasGuardian": false,
-      "minDepositUsdc": 1000,
+      "hasGuardian": true,
+      "minDepositUsdc": 250000,
       "broadcastCommitted": true,
-      "sourceMatchesCommitted": false
+      "sourceMatchesCommitted": true
     },
     "eventLogger": {
       "address": "0x6A5483F6D6a5d43A3CAFE36d3001dd23e24EbD38",
