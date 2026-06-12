@@ -150,7 +150,7 @@ function render(
 describe("DashboardAssetsBoard — Admin Honesty", () => {
   it("fallback source + $0 AUM does NOT render a live CSS orbit ring", () => {
     const html = render(makeData({ source: "fallback" }), 0);
-    expect(html).toContain("ct-empty-surface--chart");
+    expect(html).toContain("dashboard-orbit-empty");
     expect(html).not.toContain("dashboard-orbit__ring");
     expect(html).not.toContain("% mapped");
   });
