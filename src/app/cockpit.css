@@ -214,6 +214,18 @@
   --ct-cell-note-max: 10rem;       /* regime scenario note column */
   --ct-step-dot-size: 1.75rem;     /* wizard step circle diameter */
   --ct-chart-empty-h: 8.75rem;     /* empty-state chart placeholder height */
+
+  /* Scenario central flow — token aliases (Cockpit-only values). */
+  --ct-scenario-central-surface: var(--ct-surface-1);
+  --ct-scenario-central-surface-strong: var(--ct-surface-2);
+  --ct-scenario-central-border: var(--ct-border-soft);
+  --ct-scenario-central-border-active: var(--ct-border-accent);
+  --ct-scenario-central-shadow: var(--ct-shadow-soft);
+  --ct-scenario-central-glow: color-mix(in srgb, var(--ct-accent) 28%, transparent);
+  --ct-scenario-central-radius: var(--ct-radius-lg);
+  --ct-scenario-central-dur-fast: var(--ct-dur-fast);
+  --ct-scenario-central-dur-base: var(--ct-dur-base);
+  --ct-scenario-central-ease: var(--ct-ease);
 }
 
 /* ── HELPERS sémantiques status (utilitaires Cockpit) ── */
@@ -885,6 +897,53 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   overflow: hidden;
 }
 
+/* Scenario central flow — dedicated utility classes (strictly scoped). */
+.scenario-central-flow-shell {
+  border: 1px solid var(--ct-scenario-central-border);
+  border-radius: var(--ct-scenario-central-radius);
+  background: var(--ct-scenario-central-surface);
+  box-shadow: var(--ct-scenario-central-shadow);
+  transition:
+    border-color var(--ct-scenario-central-dur-fast) var(--ct-scenario-central-ease),
+    box-shadow var(--ct-scenario-central-dur-fast) var(--ct-scenario-central-ease),
+    background-color var(--ct-scenario-central-dur-base) var(--ct-scenario-central-ease);
+}
+
+.scenario-central-flow-shell[data-state="active"],
+.scenario-central-flow-shell:focus-within {
+  border-color: var(--ct-scenario-central-border-active);
+  box-shadow:
+    var(--ct-scenario-central-shadow),
+    0 0 0 1px var(--ct-scenario-central-glow);
+}
+
+.scenario-central-flow-console {
+  border-top: 1px solid var(--ct-scenario-central-border);
+  background: color-mix(in srgb, var(--ct-bg-deep) 62%, var(--ct-scenario-central-surface-strong));
+}
+
+.scenario-central-flow-line {
+  opacity: 1;
+  animation: ct-scenario-central-flow-appear var(--ct-scenario-central-dur-base) var(--ct-scenario-central-ease);
+  will-change: opacity, transform;
+}
+
+.scenario-central-flow-line[data-state="pending"] {
+  color: var(--ct-text-muted);
+}
+
+.scenario-central-flow-line[data-state="done"] {
+  color: var(--ct-text-body);
+}
+
+.scenario-central-flow-caret {
+  animation: ct-scenario-central-caret var(--ct-dur-pulse) steps(1, end) infinite;
+}
+
+.scenario-central-flow-pending {
+  animation: ct-scenario-central-soft-pulse var(--ct-dur-pulse) ease-in-out infinite;
+}
+
 .scenario-lab-input-card__header {
   flex: none;
   padding: var(--ct-space-4) var(--ct-space-5);
@@ -905,6 +964,53 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   background: color-mix(in srgb, var(--ct-bg-deep) 48%, var(--ct-surface-2));
   backdrop-filter: blur(1rem);
   -webkit-backdrop-filter: blur(1rem);
+}
+
+@keyframes ct-scenario-central-flow-appear {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--ct-space-1), 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes ct-scenario-central-caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes ct-scenario-central-soft-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scenario-central-flow-shell,
+  .scenario-central-flow-line,
+  .scenario-central-flow-caret,
+  .scenario-central-flow-pending {
+    animation: none !important;
+    transition-duration: 1ms !important;
+    transform: none !important;
+  }
+
+  .scenario-central-flow-line {
+    will-change: auto;
+  }
 }
 
 /* Legacy projection studio empty — migrate to EmptySurface when studio is next touched */

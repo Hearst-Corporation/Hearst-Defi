@@ -95,7 +95,7 @@ type MetricGridProps = {
   columns?: 2 | 3 | 4;
 };
 
-/** Responsive semantic grid for nested Metric cells (2 → 3 → 4 columns). */
+/** Responsive semantic grid for nested Metric cells. Renders `.ct-nested-kpi-grid`. */
 export function MetricGrid({
   children,
   className,

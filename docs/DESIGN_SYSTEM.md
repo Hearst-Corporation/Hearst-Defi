@@ -95,10 +95,15 @@ non-carré déforme le cercle en ellipse.
 
 - **ProvenanceBadge** sur **chaque métrique** : `live | oracle | attested | estimated | manual | stale` (non-négociable CLAUDE.md #2).
 - **Metric** = bloc atomique label/value/meta. `Metric variant="nested"` garde le
-  rendu `.ct-metric-nested` dans une card/panel parent. **MetricGrid** =
-  grille sémantique canonique pour ces métriques imbriquées ; `NestedKpiGrid`
-  reste un alias rétrocompatible et `.ct-nested-kpi-grid` une classe CSS
-  d'implémentation.
+  rendu `.ct-metric-nested` dans une card/panel parent.
+- **MetricGrid** = grille sémantique canonique pour les groupes KPI compacts /
+  nested. `NestedKpiGrid` reste un alias rétrocompatible ; `.ct-nested-kpi-grid`
+  est une classe CSS d'implémentation uniquement. Tout nouvel usage JSX
+  sémantique doit préférer `MetricGrid`.
+- Non-cibles MetricGrid pour l'instant : `dashboard-kpi-strip` (futur
+  `MetricStrip` spécialisé), `vault-detail-kpis` (header `MetricStrip` avec CTA
+  mobile), `pf-hero-*` (display/rail metrics), `admin-doc-kpi-grid-*` (alias
+  page-specific à auditer séparément).
 - **ApyRange** : jamais un APY point unique — toujours `low–high %` (#1).
 - **Ptai** : Projection → Trigger → Action → Impact pour simulations/rebalancing (#3).
 - Skeleton : importer `SkeletonCard` — ne pas redéfinir par page.

@@ -6,6 +6,7 @@ import { InputsPanel } from "@/components/scenario/inputs-panel";
 import { OutputPanel } from "@/components/scenario/output-panel";
 import { PresetBar } from "@/components/scenario/preset-bar";
 import { Spinner } from "@/components/scenario/scenario-spinner";
+import { CentralTaskRunner } from "@/components/scenario/central-task-runner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
@@ -28,9 +29,12 @@ export function SingleMode({
   autostart,
   liveBtcPrice,
 }: SingleModeProps) {
+  const briefInputId = "scenario-central-brief";
   const outputRef = useRef<HTMLDivElement | null>(null);
   const hasRunRef = useRef(false);
   const didAutostartRef = useRef(false);
+  const runCounterRef = useRef(0);
+  const [activeRunId, setActiveRunId] = useState(0);
   const [objective, setObjective] = useState(initialObjective ?? "");
   const { state, pending, error, submit, selectPreset, setInputs } =
     useScenario({ vaultId, initialInputs });
@@ -40,6 +44,8 @@ export function SingleMode({
     didAutostartRef.current = true;
     hasRunRef.current = true;
     setObjective((prev) => prev.trim());
+    runCounterRef.current += 1;
+    setActiveRunId(runCounterRef.current);
     submit(state.inputs, "chat_seeded");
   }, [autostart, state.inputs, submit]);
 
@@ -63,25 +69,6 @@ export function SingleMode({
         >
           {error}
         </p>
-      ) : null}
-
-      {objective.trim().length > 0 || liveBtcPrice ? (
-        <Card className="scenario-lab-input-card p-4" hoverOverlay={false}>
-          <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
-            <span className="stat-label">Central brief</span>
-            {liveBtcPrice ? (
-              <span className="mono body-xs tabular-nums ct-text-muted">
-                BTC ${liveBtcPrice.usd.toFixed(2)} {liveBtcPrice.stale ? "(stale)" : "(live)"}
-              </span>
-            ) : null}
-          </div>
-          <textarea
-            value={objective}
-            onChange={(e) => setObjective(e.target.value)}
-            placeholder="Objective produit (seeded par le chat admin)"
-            className="mt-2 min-h-[72px] w-full resize-y rounded-md border border-(--ct-border-soft) bg-transparent p-3 body-sm ct-text-body"
-          />
-        </Card>
       ) : null}
 
       <div className="scenario-lab-workspace scenario-lab-workspace--viewport">
@@ -113,6 +100,8 @@ export function SingleMode({
               className="w-full font-semibold"
               onClick={() => {
                 hasRunRef.current = true;
+                runCounterRef.current += 1;
+                setActiveRunId(runCounterRef.current);
                 submit(state.inputs);
               }}
               disabled={pending}
@@ -130,34 +119,81 @@ export function SingleMode({
           </div>
         </Card>
 
-        {state.output ? (
-          <div ref={outputRef} className="scenario-lab-output-card min-h-0">
-            <Card className="h-full p-5" hoverOverlay={false}>
-              <OutputPanel
-                output={state.output}
-                isPending={pending}
-                narrative={state.narrative}
+        <section
+          className="min-h-0 flex flex-col gap-4"
+          aria-labelledby="single-mode-central-flow-title"
+        >
+          <h3 id="single-mode-central-flow-title" className="sr-only">
+            Central flow
+          </h3>
+
+          {objective.trim().length > 0 || liveBtcPrice ? (
+            <Card className="scenario-lab-input-card p-4" hoverOverlay={false}>
+              <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
+                <label htmlFor={briefInputId} className="stat-label">
+                  Central brief
+                </label>
+                {liveBtcPrice ? (
+                  <span className="mono body-xs tabular-nums ct-text-muted">
+                    BTC ${liveBtcPrice.usd.toFixed(2)} {liveBtcPrice.stale ? "(stale)" : "(live)"}
+                  </span>
+                ) : null}
+              </div>
+              <textarea
+                id={briefInputId}
+                value={objective}
+                onChange={(e) => setObjective(e.target.value)}
+                placeholder="Objective produit (seeded par le chat admin)"
+                className="mt-2 min-h-[72px] w-full resize-y rounded-md border border-(--ct-border-soft) bg-transparent p-3 body-sm ct-text-body"
               />
             </Card>
+          ) : null}
+
+          <div className="rounded-xl border border-(--ct-border-soft)/70 bg-(--ct-surface-2)/40 p-1">
+            <CentralTaskRunner
+              runId={activeRunId}
+              objective={objective}
+              pending={pending}
+              output={state.output}
+            />
           </div>
-        ) : (
-          <EmptySurface
-            variant="inline"
-            className={cn(
-              "scenario-lab-output-card transition-opacity duration-(--ct-dur-fast)",
-              pending && "opacity-50",
+
+          <div className="min-h-0 flex flex-col gap-2">
+            <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline px-1">
+              <span className="stat-label">Output assets</span>
+              <span className="body-xs ct-text-muted">Projection & narrative</span>
+            </div>
+
+            {state.output ? (
+              <div ref={outputRef} className="scenario-lab-output-card min-h-0">
+                <Card className="h-full p-5" hoverOverlay={false}>
+                  <OutputPanel
+                    output={state.output}
+                    isPending={pending}
+                    narrative={state.narrative}
+                  />
+                </Card>
+              </div>
+            ) : (
+              <EmptySurface
+                variant="inline"
+                className={cn(
+                  "scenario-lab-output-card transition-opacity duration-(--ct-dur-fast)",
+                  pending && "opacity-50",
+                )}
+                message={
+                  pending
+                    ? "Computing…"
+                    : "Select a preset or adjust sliders, then press Run scenario to see projections."
+                }
+                ariaLabel="Scenario output — awaiting first run"
+                role="status"
+              >
+                {pending ? <Spinner className="ct-text-strong" /> : null}
+              </EmptySurface>
             )}
-            message={
-              pending
-                ? "Computing…"
-                : "Select a preset or adjust sliders, then press Run scenario to see projections."
-            }
-            ariaLabel="Scenario output — awaiting first run"
-            role="status"
-          >
-            {pending ? <Spinner className="ct-text-strong" /> : null}
-          </EmptySurface>
-        )}
+          </div>
+        </section>
       </div>
     </div>
   );
