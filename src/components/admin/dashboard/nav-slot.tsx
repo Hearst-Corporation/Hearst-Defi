@@ -35,7 +35,7 @@ export function NavSlot({
   return (
     <Card className="dashboard-command-slot dashboard-command-slot--nav">
       <div className="dashboard-command-performance">
-        <header className="dashboard-card-header ct-system-panel__header dashboard-command-performance__header">
+        <header className="dashboard-card-header dashboard-command-performance__header">
           <div className="min-w-0">
             <h3 className="h3 ct-text-body m-0">NAV · 30d</h3>
             <p className="stat-value tabular mt-1">

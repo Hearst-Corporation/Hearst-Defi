@@ -16,7 +16,8 @@ function heroProvenance(kind: Provenance): HeroKpi["provenance"] {
   return kind === "partial" ? "estimated" : kind;
 }
 
-function hashpriceLabel(data: DashboardData): string {
+function hashpriceLabel(data: DashboardData, hasLiveKpis: boolean): string {
+  if (!hasLiveKpis) return "awaiting snapshot";
   const hashprice = data.miningOps.hashprice;
   if (!hashprice) return "Hashprice pending";
   return `$${hashprice.usd_per_th_day.toFixed(3)} / TH / day`;
@@ -86,13 +87,21 @@ export function buildDashboardHeroKpis(input: {
         input.hasLiveKpis && input.miningMarginScore > 0
           ? `${input.miningMarginScore}/100`
           : "—",
-      sublabel: hashpriceLabel(input.data),
+      sublabel: hashpriceLabel(input.data, input.hasLiveKpis),
       provenance: heroProvenance(input.miningProvenance),
       alert: input.hasLiveKpis && input.miningMarginScore > 0 && input.miningMarginScore < 15,
     },
     {
       label: "Proof",
-      value: input.proofFresh ? "Current" : input.proof.attestationsCount > 0 ? "Stale" : "Pending",
+      value: input.hasLiveKpis
+        ? input.proofFresh
+          ? "Current"
+          : input.proof.attestationsCount > 0
+            ? "Stale"
+            : "Pending"
+        : input.proof.attestationsCount > 0
+          ? "Attested"
+          : "Pending",
       sublabel: proofSubtitle(input.proof),
       provenance: heroProvenance(input.proofProvenance),
     },

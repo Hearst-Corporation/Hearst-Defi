@@ -97,7 +97,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full accent-(--ct-accent) h-1.5 rounded-full cursor-pointer"
+        className="w-full accent-[var(--ct-accent)] h-1.5 rounded-full cursor-pointer"
         aria-label={label}
       />
       <div className="admin-doc-row-spread eyebrow ct-text-faint">
@@ -227,12 +227,12 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
               aria-selected={isSelected}
               aria-label={`APY ${cell.apyLow.toFixed(1)}–${cell.apyHigh.toFixed(1)}%, risk ${cell.riskScore}. Cell ${idx + 1} of ${cells.length}.`}
               className={cn(
-                "relative p-2.5 rounded-md border text-left transition-[background-color,border-color] duration-(--ct-dur-base)",
+                "relative p-2.5 rounded-md border text-left transition-[background-color,border-color] duration-[var(--ct-dur-base)]",
                 riskBgClass(cell.riskScore),
-                "border-(--ct-border-soft)",
-                isSelected && "ring-2 ring-offset-1 ring-offset-(--ct-bg-deep)",
-                isSelected && "ring-(--ct-accent)",
-                "hover:border-(--ct-border) hover:shadow-(--ct-shadow-elevated) focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
+                "border-[var(--ct-border-soft)]",
+                isSelected && "ring-2 ring-offset-1 ring-offset-[var(--ct-bg-deep)]",
+                isSelected && "ring-[var(--ct-accent)]",
+                "hover:border-[var(--ct-border)] hover:shadow-[var(--ct-shadow-elevated)] focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
               )}
             >
               <div className="admin-doc-stack--micro">
@@ -664,7 +664,7 @@ export function ProjectionStudio() {
             )}
 
             {/* "Not guaranteed" disclaimer — non-negotiable #10 */}
-            <p className="body-xs ct-text-faint border border-(--ct-border-soft) rounded-md px-3 py-2">
+            <p className="body-xs ct-text-faint border border-[var(--ct-border-soft)] rounded-md px-3 py-2">
               <strong className="ct-text-muted">Disclaimer:</strong>{" "}
               Projections are conditional on stated assumptions and are not guaranteed.
               Rule-based engine — no Monte Carlo. Past performance does not predict future

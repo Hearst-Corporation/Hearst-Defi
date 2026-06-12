@@ -9,7 +9,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "ct-card glass-panel relative overflow-hidden",
+        "ct-card ct-glass-panel relative overflow-hidden",
         hoverOverlay && "group",
         className,
       )}

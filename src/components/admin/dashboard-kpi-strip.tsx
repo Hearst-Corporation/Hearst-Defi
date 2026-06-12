@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
@@ -21,14 +22,13 @@ export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
   }
 
   return (
-    <div
-      aria-label="Vault KPIs"
-      className="dashboard-kpi-strip"
-    >
-      {kpis.map((kpi) => (
-        <DashboardKpiCell key={kpi.label} kpi={kpi} />
-      ))}
-    </div>
+    <Card aria-label="Vault KPIs" className="dashboard-kpi-strip-card">
+      <div className="dashboard-kpi-strip">
+        {kpis.map((kpi) => (
+          <DashboardKpiCell key={kpi.label} kpi={kpi} />
+        ))}
+      </div>
+    </Card>
   );
 }
 

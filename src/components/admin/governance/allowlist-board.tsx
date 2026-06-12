@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import {
   addAllowlistEntryAction,
   toggleAllowlistEntryAction,
@@ -168,11 +168,11 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
               tone="quiet"
               className="mb-4"
             />
-            <SystemPanel className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0">
               <div className="ct-table-surface overflow-x-auto rounded-none border-0 bg-transparent">
                 <table className="w-full body-sm" aria-label="Address allowlist">
                   <thead>
-                    <tr className="border-b border-(--ct-border) ct-surface-1">
+                    <tr className="border-b border-[var(--ct-border)] ct-surface-1">
                       <th scope="col" className="stat-label px-4 py-3 text-left">Label / Address</th>
                       <th scope="col" className="stat-label px-4 py-3 text-left">Category</th>
                       <th scope="col" className="stat-label px-4 py-3 text-left">Risk score</th>
@@ -180,13 +180,13 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                       <th scope="col" className="stat-label px-4 py-3 text-left">Edit</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-(--ct-border)">
+                  <tbody className="divide-y divide-[var(--ct-border)]">
                     {entries.map((entry) => (
                       <tr
                         key={entry.id}
                         className={cn(
                           entry.active
-                            ? "bg-(--ct-bg-deep) transition-colors hover:ct-surface-1"
+                            ? "bg-[var(--ct-bg-deep)] transition-colors hover:ct-surface-1"
                             : "ct-surface-1 opacity-50 transition-opacity hover:opacity-70",
                         )}
                       >
@@ -220,8 +220,8 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                               className={cn(
                                 "ct-pill cursor-pointer body-xs font-semibold transition-colors",
                                 entry.active
-                                  ? "hover:border-(--ct-status-danger-border) hover:ct-status-danger"
-                                  : "hover:border-(--ct-status-success-border) hover:ct-status-success",
+                                  ? "hover:border-[var(--ct-status-danger-border)] hover:ct-status-danger"
+                                  : "hover:border-[var(--ct-status-success-border)] hover:ct-status-success",
                               )}
                             >
                               {entry.active ? "Active" : "Inactive"}
@@ -287,7 +287,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   </tbody>
                 </table>
               </div>
-            </SystemPanel>
+            </Card>
           </>
         )}
       </section>

@@ -233,7 +233,7 @@ describe("DashboardAssetsBoard — Admin Honesty", () => {
     expect(html).not.toContain('href="/admin/proof-center"');
   });
 
-  it("empty cockpit modules replace SystemPanel shells (DS §9)", () => {
+  it("empty cockpit modules use EmptySurface, not panel shells (DS §9)", () => {
     const html = render(makeData({ source: "fallback" }), 0);
     expect(html).toContain("All clear — no pending actions.");
     expect(html).toContain("No vault telemetry yet.");
@@ -241,5 +241,83 @@ describe("DashboardAssetsBoard — Admin Honesty", () => {
     expect(html).not.toContain(">Action Queue<");
     expect(html).not.toContain(">Live Metrics<");
     expect(html).not.toContain(">Recent admin activity<");
+    expect(html).not.toContain("ct-system-panel");
+  });
+
+  it("live command board uses Card shells, not SystemPanel (ADR-013)", () => {
+    const html = renderToStaticMarkup(
+      <DashboardAssetsBoard
+        data={makeData({
+          source: "db",
+          hasTimelineSnapshot: true,
+          allocations: [
+            { bucket: "mining", pct: 40, valueUsdc: 200_000, yieldContributionBps: 0 },
+            { bucket: "usdc_base", pct: 60, valueUsdc: 300_000, yieldContributionBps: 0 },
+          ],
+        })}
+        risk={RISK}
+        proof={PROOF}
+        actions={ACTIONS}
+        totalActionRequired={0}
+        capitalUsdc={500_000}
+        capitalProvenance="live"
+        headlineApy={{ low: 9.4, high: 12.8 }}
+        yieldPosture="within target band"
+        hasLiveKpis
+        proofFresh={false}
+        cockpit={{
+          ...COCKPIT,
+          actionQueue: [
+            {
+              id: "aq-1",
+              type: "memo.publish",
+              severity: "P2",
+              title: "Publish memo",
+              context: "Q2 draft ready",
+              href: "/admin/memos",
+              createdAt: "2026-06-01T12:00:00.000Z",
+            },
+          ],
+          vaultMetrics: [
+            {
+              vaultId: "yield",
+              vaultName: "Hearst Yield Vault",
+              href: "/admin/vaults/yield",
+              status: "active",
+              tvlUsdc: 500_000,
+              miningMarginScore: 60,
+              riskScore: 47,
+              oracleDelayMs: 120_000,
+              btcPosture: "neutral",
+              hasTimelineData: true,
+            },
+          ],
+          inngestJobs: [
+            {
+              id: "job-1",
+              name: "sync-oracle",
+              status: "ok",
+              lastRunAt: "2026-06-01T12:00:00.000Z",
+              errorMsg: null,
+            },
+          ],
+          auditTrail: [
+            {
+              id: "audit-1",
+              occurredAt: "2026-06-01T12:00:00.000Z",
+              actorWallet: "0x1234567890123456789012345678901234567890",
+              action: "vault.update",
+              entityType: "Vault",
+              entityId: "yield",
+            },
+          ],
+        }}
+      />,
+    );
+    expect(html).toContain("ct-glass-panel");
+    expect(html).not.toContain("ct-system-panel");
+    expect(html).toContain(">Action queue<");
+    expect(html).toContain(">Live metrics<");
+    expect(html).toContain(">Recent admin activity<");
   });
 });

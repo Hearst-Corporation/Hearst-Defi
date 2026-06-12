@@ -79,14 +79,14 @@ export function SimulateDemoPanel() {
                   setSelectedIdx(index);
                   handleReset();
                 }}
-                className="accent-(--ct-accent)"
+                className="accent-[var(--ct-accent)]"
               />
               <span className="body-sm ct-text-strong">{proposal.label}</span>
             </label>
           ))}
         </div>
 
-        <div className="mt-4 admin-doc-stack--compact rounded-md border border-(--ct-border-soft) ct-surface-1 px-3 py-2.5">
+        <div className="mt-4 admin-doc-stack--compact rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-3 py-2.5">
           <p className="mono body-xs ct-text-muted">vault: {selectedProposal.vaultAddress}</p>
           <p className="mono body-xs ct-text-faint truncate">
             calldata: {selectedProposal.calldata}

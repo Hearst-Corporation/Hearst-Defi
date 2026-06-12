@@ -79,7 +79,7 @@ export function ProductSection({
           showProvenance && provenance ? "Verified data" : undefined
         }
         tone="primary"
-        className="ct-product-section__header border-b border-(--ct-border-soft) pb-4"
+        className="ct-product-section__header"
       />
       <div className="ct-product-section__content">{children}</div>
     </section>

@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 
+import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { PanelStatus } from "@/components/ui/panel-status";
-import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import { cn } from "@/lib/cn";
 import type { MonitoringStats } from "@/lib/data/monitoring";
 import { formatAdminDateTime } from "@/lib/vaults/product-display";
@@ -94,10 +95,10 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
 
 function KpiTile({ label, value }: { label: string; value: string }) {
   return (
-    <SystemPanel className="p-4">
+    <Card className="p-4">
       <p className="stat-label ct-text-muted mb-1">{label}</p>
       <p className="stat-value ct-text-strong tabular">{value}</p>
-    </SystemPanel>
+    </Card>
   );
 }
 

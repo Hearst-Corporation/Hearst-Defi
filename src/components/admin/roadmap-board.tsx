@@ -51,7 +51,7 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
             className="admin-doc-stack"
             aria-label={phase.label}
           >
-            <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline admin-doc-inline-row--loose border-b border-(--ct-border-soft) pb-3">
+            <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline admin-doc-inline-row--loose border-b border-[var(--ct-border-soft)] pb-3">
               <h2 className="h2">{phase.label}</h2>
               <span className="mono tabular body-sm ct-text-muted">
                 {phase.doneCount} / {phase.total}
@@ -91,7 +91,7 @@ function RoadmapWeekCard({ week }: { week: RoadmapWeekWithState }) {
 
   return (
     <Card aria-label={week.label} hoverOverlay={false}>
-      <header className="admin-doc-stack--tight border-b border-(--ct-border-soft) pb-4">
+      <header className="admin-doc-stack--tight border-b border-[var(--ct-border-soft)] pb-4">
         <h3 className="h3 ct-text-strong m-0">{week.label}</h3>
         <div className="admin-doc-inline-row admin-doc-inline-row--loose body-sm ct-text-muted">
           <span className="mono tabular">
@@ -104,7 +104,7 @@ function RoadmapWeekCard({ week }: { week: RoadmapWeekWithState }) {
         </div>
       </header>
 
-      <ul className="list-none p-0 m-0 divide-y divide-(--ct-border-soft)">
+      <ul className="list-none p-0 m-0 divide-y divide-[var(--ct-border-soft)]">
         {week.items.map((item) => (
           <li key={item.id}>
             <RoadmapItemRow item={item} />

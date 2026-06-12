@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PanelStatusAccent } from "@/components/ui/panel-status";
@@ -59,7 +59,13 @@ export function ResumeDraftBanner({
   }
 
   const draftLabel = ticker ? `${ticker} draft` : "vault draft";
-  const relTime = formatRelativeTime(new Date(updatedAt));
+  const [relTime, setRelTime] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Intentional: client-only Date.now() call to avoid SSR/hydration mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRelTime(formatRelativeTime(new Date(updatedAt)));
+  }, [updatedAt]);
 
   return (
     <Card className="max-w-2xl admin-doc-stack--roomy">
@@ -68,13 +74,13 @@ export function ResumeDraftBanner({
           An autosaved {draftLabel} was found on this account.
         </p>
         <p className="body-xs ct-text-faint">
-          Step {stepNumber}/7 — {stepLabel} · Autosaved {relTime}
+          Step {stepNumber}/7 — {stepLabel} · Autosaved {relTime ?? "…"}
         </p>
       </div>
 
       {confirmDiscard ? (
         <PanelStatusAccent
-          className="admin-doc-stack--actions items-stretch border-l-(--ct-status-danger)"
+          className="admin-doc-stack--actions items-stretch border-l-[var(--ct-status-danger)]"
           role="alert"
         >
           <p className="body-xs ct-text-strong m-0">
@@ -110,7 +116,7 @@ export function ResumeDraftBanner({
             onClick={handleResume}
             disabled={isPending}
           >
-            Resume draft (step {stepNumber}/7, autosaved {relTime})
+            Resume draft (step {stepNumber}/7{relTime ? `, autosaved ${relTime}` : ""})
           </Button>
           <Button
             variant="secondary"

@@ -40,10 +40,7 @@ export function DashboardPanelHeader({
 
   return (
     <header
-      className={cn(
-        "dashboard-card-header ct-system-panel__header",
-        className,
-      )}
+      className={cn("dashboard-card-header", className)}
     >
       <div className="min-w-0">
         {eyebrow ? <p className="eyebrow mb-1">{eyebrow}</p> : null}

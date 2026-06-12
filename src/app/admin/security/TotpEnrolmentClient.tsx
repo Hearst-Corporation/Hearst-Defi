@@ -163,7 +163,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
     <div className="admin-doc-stack--relaxed">
       {totpEnabled ? (
         <div className="admin-doc-inline-row">
-          <span className="inline-block h-2 w-2 rounded-full bg-(--ct-accent)" />
+          <span className="inline-block h-2 w-2 rounded-full bg-[var(--ct-accent)]" />
           <span className="body-xs ct-text-accent">
             MFA is enabled for this account.
           </span>
@@ -171,7 +171,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
       ) : (
         <>
           <div className="admin-doc-inline-row">
-            <span className="inline-block h-2 w-2 rounded-full bg-(--ct-status-warning)" />
+            <span className="inline-block h-2 w-2 rounded-full bg-[var(--ct-status-warning)]" />
             <span className="body-xs ct-text-muted">
               MFA is not yet enabled. We recommend enabling it for admin accounts.
             </span>

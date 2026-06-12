@@ -146,7 +146,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
         <form
           id={formId}
           action={onSubmit}
-          className="admin-doc-stack--actions border-t border-(--ct-border-soft) pt-4"
+          className="admin-doc-stack--actions border-t border-[var(--ct-border-soft)] pt-4"
           aria-label={`Edit ${item.label}`}
         >
           <input type="hidden" name="itemId" value={item.id} />

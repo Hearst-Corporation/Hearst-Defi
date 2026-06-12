@@ -37,7 +37,7 @@ describe("Proof Center empty states — design contract", () => {
     const html = renderToStaticMarkup(
       <PorSummary attestation={freshAttestation()} custody={zeroReservesCustody()} />,
     );
-    expect(html).toContain("glass-panel");
+    expect(html).toContain("ct-glass-panel");
     expect(html).toContain("ct-panel-status");
     expect(html).not.toContain("ct-nested-callout");
     expect(html).toContain(

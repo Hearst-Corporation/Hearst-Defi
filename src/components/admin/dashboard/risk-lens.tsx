@@ -18,7 +18,6 @@ export function RiskLens({
   return (
     <DashboardCommandCell
       ready={ready}
-      surface="card"
       emptyMessage="Risk lens appears once mining and vault snapshots are on file."
       emptyAriaLabel="Risk lens awaiting data"
     >

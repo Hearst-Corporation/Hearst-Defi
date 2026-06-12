@@ -15,7 +15,6 @@ export function CapitalStack({
   return (
     <DashboardCommandCell
       ready={live}
-      surface="card"
       emptyMessage="Capital stack appears once the first snapshot books real allocations."
       emptyAriaLabel="Capital stack awaiting first snapshot"
     >

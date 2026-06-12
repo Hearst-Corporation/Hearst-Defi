@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { Ptai } from "@/components/ui/ptai";
-import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { executeProposal, loadProposalDetail, signProposal } from "@/lib/governance/actions";
 import {
@@ -125,7 +125,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         </dl>
 
         {proposal.state === "TIMELOCK" && proposal.etaAt ? (
-          <div className="mt-6 rounded-md border border-(--ct-border-soft) ct-surface-1 px-4 py-3">
+          <div className="mt-6 rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-3">
             <p className="stat-label mb-1">Timelock countdown</p>
             <p className="mono body-sm ct-text-strong">{timelockCountdown(proposal.etaAt)}</p>
           </div>
@@ -133,7 +133,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
       </Card>
 
       {ptai ? (
-        <SystemPanel>
+        <Card>
           <DashboardPanelHeader
             title="Projection · Trigger · Action · Impact"
             tone="quiet"
@@ -145,27 +145,27 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             action={ptai.action}
             impact={ptai.impact}
           />
-          <p className="body-xs mt-3 italic leading-(--ct-leading-relaxed) ct-text-faint">
+          <p className="body-xs mt-3 italic leading-[var(--ct-leading-relaxed)] ct-text-faint">
             Conditional projection — not guaranteed. Methodology v1.0.
           </p>
-        </SystemPanel>
+        </Card>
       ) : null}
 
-      <SystemPanel>
+      <Card>
         <DashboardPanelHeader title="Justification" tone="quiet" className="mb-4" />
         <p className="body-md whitespace-pre-wrap ct-text-primary">{proposal.justification}</p>
-      </SystemPanel>
+      </Card>
 
       {proposal.calldata ? (
-        <SystemPanel>
+        <Card>
           <DashboardPanelHeader title="Calldata" tone="quiet" className="mb-4" />
           <pre className="mono overflow-x-auto whitespace-pre-wrap rounded-md ct-surface-1 p-4 body-xs ct-text-muted">
             {formatProposalCalldata(proposal.calldata)}
           </pre>
-        </SystemPanel>
+        </Card>
       ) : null}
 
-      <SystemPanel>
+      <Card>
         <DashboardPanelHeader
           title={`Signatures (${proposal.approvalCount}/${proposal.requiredSigners} approved${
             proposal.rejectionCount > 0 ? `, ${proposal.rejectionCount} rejected` : ""
@@ -181,7 +181,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             {proposal.signatures.map((sig) => (
               <div
                 key={sig.id}
-                className="admin-doc-inline-row admin-doc-inline-row--actions border-b border-(--ct-border-soft) py-2 last:border-0"
+                className="admin-doc-inline-row admin-doc-inline-row--actions border-b border-[var(--ct-border-soft)] py-2 last:border-0"
               >
                 <div
                   className={cn(
@@ -208,10 +208,10 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             ))}
           </div>
         )}
-      </SystemPanel>
+      </Card>
 
       {!isTerminal ? (
-        <SystemPanel>
+        <Card>
           <DashboardPanelHeader title="Actions" tone="quiet" className="mb-4" />
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             {canSign ? (
@@ -249,7 +249,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
           <p className="body-xs mt-3 ct-text-muted">
             Actions are recorded on-chain mock only — no Solidity calls at this stage.
           </p>
-        </SystemPanel>
+        </Card>
       ) : null}
     </div>
   );

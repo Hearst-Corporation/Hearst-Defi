@@ -4,9 +4,9 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { SystemPanel } from "@/components/ui/system-panel";
 import {
   adminDistributionsVaultHref,
   resolveFixtureVaultId,
@@ -76,7 +76,7 @@ export default async function DistributionsPage({
             className="min-h-32"
           />
         ) : (
-          <SystemPanel className="p-0 overflow-hidden">
+          <Card className="p-0 overflow-hidden">
             <div className="ct-table-surface border-0 rounded-none overflow-x-auto">
               <table className="w-full body-sm tabular">
                 <thead>
@@ -184,7 +184,7 @@ export default async function DistributionsPage({
                 </tbody>
               </table>
             </div>
-          </SystemPanel>
+          </Card>
         )}
       </section>
 

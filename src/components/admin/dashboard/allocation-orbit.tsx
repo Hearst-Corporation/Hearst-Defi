@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { allocationLabelFor, allocationStrokeFor } from "@/lib/allocation-colors";
 import type { DashboardAllocation } from "@/lib/data/dashboard";
@@ -45,33 +46,35 @@ export function AllocationOrbit({
   const gradient = conicGradientFromAllocations(allocations);
 
   return (
-    <div className="dashboard-orbit" aria-label="Vault allocation map">
-      <div className="dashboard-orbit__visual">
-        <div className="dashboard-orbit__track" aria-hidden />
-        <div
-          className="dashboard-orbit__ring"
-          style={{ "--dashboard-orbit-gradient": gradient } as React.CSSProperties}
-          aria-hidden
-        />
-        <div className="dashboard-orbit__core">
-          <span>AUM</span>
-          <strong className="tabular">{usdCompact.format(capitalUsdc)}</strong>
-          <small>{allocationTotal.toFixed(0)}% mapped</small>
+    <Card className="dashboard-command-cell" aria-label="Vault allocation map">
+      <div className="dashboard-orbit">
+        <div className="dashboard-orbit__visual">
+          <div className="dashboard-orbit__track" aria-hidden />
+          <div
+            className="dashboard-orbit__ring"
+            style={{ "--dashboard-orbit-gradient": gradient } as React.CSSProperties}
+            aria-hidden
+          />
+          <div className="dashboard-orbit__core">
+            <span>AUM</span>
+            <strong className="tabular">{usdCompact.format(capitalUsdc)}</strong>
+            <small>{allocationTotal.toFixed(0)}% mapped</small>
+          </div>
         </div>
+        <ul className="dashboard-orbit__legend" aria-label="Allocation legend">
+          {allocations.map((item) => (
+            <li key={item.bucket}>
+              <span
+                className="dashboard-orbit__legend-dot"
+                style={{ background: allocationStrokeFor(item.bucket) }}
+                aria-hidden
+              />
+              <span>{allocationLabelFor(item.bucket)}</span>
+              <span className="tabular">{item.pct.toFixed(0)}%</span>
+            </li>
+          ))}
+        </ul>
       </div>
-      <ul className="dashboard-orbit__legend" aria-label="Allocation legend">
-        {allocations.map((item) => (
-          <li key={item.bucket}>
-            <span
-              className="dashboard-orbit__legend-dot"
-              style={{ background: allocationStrokeFor(item.bucket) }}
-              aria-hidden
-            />
-            <span>{allocationLabelFor(item.bucket)}</span>
-            <span className="tabular">{item.pct.toFixed(0)}%</span>
-          </li>
-        ))}
-      </ul>
-    </div>
+    </Card>
   );
 }

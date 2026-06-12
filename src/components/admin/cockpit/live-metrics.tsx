@@ -1,8 +1,9 @@
 import Link from "next/link";
 
 import { VaultStatusPill } from "@/components/admin/vault-status-pill";
+import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import { cn } from "@/lib/cn";
 import type { VaultLiveMetric } from "@/lib/data/cockpit";
 
@@ -35,14 +36,14 @@ export function LiveMetrics({ vaults }: LiveMetricsProps) {
   }
 
   return (
-    <SystemPanel aria-label="Live metrics" className="dashboard-live-metrics">
+    <Card aria-label="Live metrics" className="dashboard-live-metrics">
       <DashboardPanelHeader title="Live metrics" tone="quiet" />
       <div className="dashboard-command-divide-stack">
         {vaults.map((vault) => (
           <VaultMetricRow key={vault.vaultId} vault={vault} />
         ))}
       </div>
-    </SystemPanel>
+    </Card>
   );
 }
 

@@ -1,5 +1,6 @@
+import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import { truncateWallet } from "@/lib/wallet-display";
 import { formatAdminRollingTimestamp } from "@/lib/vaults/product-display";
 import type { AuditTrailEntry } from "@/lib/data/cockpit";
@@ -27,12 +28,12 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   }
 
   return (
-    <SystemPanel aria-label="Recent admin activity">
+    <Card aria-label="Recent admin activity">
       <DashboardPanelHeader title="Recent admin activity" tone="quiet" />
-      <div className="ct-system-panel__table-scroll ct-table-surface border-0 bg-transparent">
+      <div className="dashboard-panel-table-scroll ct-table-surface border-0 bg-transparent">
         <table className="w-full body-sm min-w-160" aria-label="Recent admin activity">
           <thead>
-            <tr className="border-b border-(--ct-border-soft)">
+            <tr className="border-b border-[var(--ct-border-soft)]">
               <th className="text-left ct-table-header stat-label w-36">
                 Time
               </th>
@@ -57,7 +58,7 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
           </tbody>
         </table>
       </div>
-    </SystemPanel>
+    </Card>
   );
 }
 
@@ -68,7 +69,7 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
     : entry.entityId;
 
   return (
-    <tr className="border-b border-(--ct-border-soft) transition-colors">
+    <tr className="border-b border-[var(--ct-border-soft)] transition-colors">
       <td className="ct-table-cell tabular body-xs ct-text-muted whitespace-nowrap">
         {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
       </td>

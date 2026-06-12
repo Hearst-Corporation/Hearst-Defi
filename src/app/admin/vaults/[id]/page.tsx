@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { ProofRow } from "@/components/ui/nested-panel";
-import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -284,7 +284,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       {/* Details */}
       <div className="admin-doc-split-grid">
         {/* Legal */}
-        <SystemPanel>
+        <Card>
           <DashboardPanelHeader title="Legal" />
           <div className="mt-4">
             {(
@@ -301,10 +301,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
               </ProofRow>
             ))}
           </div>
-        </SystemPanel>
+        </Card>
 
         {/* Allocation policy */}
-        <SystemPanel>
+        <Card>
           <DashboardPanelHeader title="Allocation Policy" />
           <div className="mt-4 admin-doc-stack--relaxed">
             {(
@@ -326,10 +326,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
               </div>
             ))}
           </div>
-        </SystemPanel>
+        </Card>
       </div>
 
-      {/* Approvals — table shell only (no SystemPanel double frame; cf. audit/customers). */}
+      {/* Approvals — table shell only (no Card double frame; cf. audit/customers). */}
       <section className="admin-doc-stack--compact" aria-label="Approvals">
         <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline admin-doc-inline-row--relaxed">
           <DashboardPanelHeader title="Approvals" className="mb-0" />
@@ -383,10 +383,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
       </section>
 
       {/* Disclaimers */}
-      <SystemPanel>
+      <Card>
         <DashboardPanelHeader title="Disclaimers" />
         <p className="body-sm ct-text-muted whitespace-pre-wrap mt-4">{vault.disclaimers}</p>
-      </SystemPanel>
+      </Card>
     </div>
   );
 }

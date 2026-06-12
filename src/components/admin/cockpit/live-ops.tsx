@@ -1,7 +1,8 @@
 import Link from "next/link";
 
+import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
-import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl } from "@/lib/chain/client";
 import type {
@@ -27,7 +28,7 @@ interface LiveOpsProps {
  */
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
-    <SystemPanel aria-label="Live ops">
+    <Card aria-label="Live ops">
       <DashboardPanelHeader title="Live ops" tone="quiet" />
 
       <div className="dashboard-command-divide-stack">
@@ -69,7 +70,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
           )}
         </div>
       </div>
-    </SystemPanel>
+    </Card>
   );
 }
 

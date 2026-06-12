@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
+import { Card } from "@/components/ui/card";
+import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import type { AdminActionItem } from "@/lib/data/admin-overview";
 
 export function OperatorShortcuts({ actions }: { actions: AdminActionItem[] }) {
@@ -9,9 +10,9 @@ export function OperatorShortcuts({ actions }: { actions: AdminActionItem[] }) {
 
   return (
     <section aria-label="Operator shortcuts" className="dashboard-command-shortcuts">
-      <SystemPanel className="dashboard-command-cell">
+      <Card className="dashboard-command-cell">
         <DashboardPanelHeader title="Operator queues" tone="quiet" />
-        <ul className="dashboard-command-shortcuts__list" role="list">
+        <ul className="dashboard-command-divide-stack" role="list">
           {tracked.map((action) => (
             <li key={action.key}>
               <Link href={action.href!} className="dashboard-command-queue-link">
@@ -24,7 +25,7 @@ export function OperatorShortcuts({ actions }: { actions: AdminActionItem[] }) {
             </li>
           ))}
         </ul>
-      </SystemPanel>
+      </Card>
     </section>
   );
 }

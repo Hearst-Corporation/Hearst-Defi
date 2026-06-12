@@ -26,7 +26,7 @@ describe("Admin vaults — empty state design contract", () => {
 
     expect(html).toContain("ct-empty-surface");
     expect(html).toContain("No deployments found.");
-    expect(html).not.toContain("glass-panel");
+    expect(html).not.toContain("ct-glass-panel");
     expect(html).not.toContain("ct-system-panel");
     expect(html).not.toContain("border-dashed");
     expect(html).not.toContain("Stale");
@@ -46,7 +46,7 @@ describe("Admin vaults — empty state design contract", () => {
     expect(html).toContain("ct-panel-status");
     expect(html).not.toContain("ct-nested-callout");
     expect(html).toContain("No signatures yet.");
-    expect(html).toContain("glass-panel");
+    expect(html).toContain("ct-glass-panel");
     expect(html).not.toContain("border-dashed");
   });
 });

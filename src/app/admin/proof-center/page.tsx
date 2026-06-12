@@ -133,7 +133,7 @@ export default async function AdminProofCenterPage({
         <ContractsAuditTrail />
       </section>
 
-      <footer className="border-t border-(--ct-border-soft) pt-6">
+      <footer className="border-t border-[var(--ct-border-soft)] pt-6">
         <p className="body-xs">
           On-chain entries are read directly from Base Sepolia via the
           EventLogger (

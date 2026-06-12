@@ -232,6 +232,7 @@
 .ct-status-dot-success { background: var(--ct-status-success); box-shadow: 0 0 10px var(--ct-status-success-glow); }
 .ct-status-dot-warning { background: var(--ct-status-warning); box-shadow: 0 0 10px var(--ct-status-warning-glow); }
 .ct-status-dot-danger  { background: var(--ct-status-danger);  box-shadow: 0 0 10px var(--ct-status-danger-glow); }
+.ct-status-dot-info    { background: var(--ct-status-info);    box-shadow: 0 0 10px color-mix(in srgb, var(--ct-status-info) 50%, transparent); }
 
 .ct-status-glow-success { color: var(--ct-status-success); filter: drop-shadow(0 0 8px var(--ct-status-success-glow)); }
 .ct-status-glow-warning { color: var(--ct-status-warning); filter: drop-shadow(0 0 8px var(--ct-status-warning-glow)); }
@@ -1189,12 +1190,16 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   container-name: dash-board;
 }
 
-/* KPI strip on --ct-bg-deep: typography + air, no bento cage (DS §7 bento = grid cells below). */
+/* KPI strip — dense grid inside Card / ct-glass-panel (ADR-013 canon). */
+.dashboard-kpi-strip-card.ct-card {
+  padding: var(--ct-space-4) var(--ct-space-5);
+}
+
 .dashboard-kpi-strip {
   display: grid;
   gap: var(--ct-space-3);
   grid-template-columns: minmax(0, 1fr);
-  background: transparent;
+  min-width: 0;
 }
 
 .dashboard-kpi-strip__cell {
@@ -1203,7 +1208,6 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   flex-direction: column;
   gap: var(--ct-space-1);
   padding: var(--ct-space-1) 0;
-  background: transparent;
 }
 
 .dashboard-kpi-strip__cell--alert {
@@ -1234,6 +1238,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--ct-space-2);
+  margin-bottom: var(--ct-space-3);
 }
 
 /* Hero KPI strip — dot-only provenance (no glass pill on --ct-bg-deep). */
@@ -1327,7 +1332,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   justify-self: center;
 }
 
-/* Flat black command board — typography + air; no nested graphite / chart cages. */
+/* ADR-013 exception — empty placeholders only; active modules use Card / ct-glass-panel. */
 .dashboard-command-board .ct-empty-surface,
 .dashboard-command-board .ct-empty-surface--chart,
 .dashboard-command-board .ct-empty-surface--widget {
@@ -1342,30 +1347,26 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   -webkit-backdrop-filter: none;
 }
 
-.dashboard-command-board .ct-system-panel {
-  padding: var(--ct-space-4) 0;
+.dashboard-command-board .ct-card table {
   background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--ct-border-soft);
-  border-radius: 0;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
 }
 
-.dashboard-command-board .glass-panel,
-.dashboard-command-board .ct-card {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--ct-border-soft);
-  border-radius: 0;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
+.dashboard-command-board .ct-card thead tr {
+  border-color: var(--ct-border-soft);
 }
 
-.dashboard-command-board .glass-panel .absolute.inset-0 {
-  display: none;
+.dashboard-command-board .ct-card tbody tr {
+  border-color: color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
+}
+
+.dashboard-command-board .ct-card tbody tr:hover {
+  background: var(--ct-surface-0);
+}
+
+.dashboard-panel-table-scroll {
+  overflow-x: auto;
+  margin-inline: calc(-1 * var(--ct-space-6));
+  padding-inline: var(--ct-space-6);
 }
 
 .dashboard-command-board .dashboard-provenance-badge--compact {
@@ -1378,7 +1379,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 }
 
 /* Dense panels — quiet provenance compact (dot + sr-only label, no glass pill). */
-:is(.pf-cockpit-panel, .dash-cell, .glass-panel, .ct-system-panel)
+:is(.pf-cockpit-panel, .dash-cell, .glass-panel, .ct-card, .ct-system-panel)
   .dashboard-provenance-badge--compact {
   padding: 0;
   border: none;
@@ -1508,32 +1509,21 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   min-width: 0;
 }
 
-.dashboard-command-shortcuts__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
 .dashboard-command-queue-link {
   display: grid;
   gap: var(--ct-space-3);
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  padding: var(--ct-space-3);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-lg);
-  background: var(--ct-surface-0);
-  transition:
-    border-color var(--ct-dur-base) var(--ct-ease),
-    background-color var(--ct-dur-base) var(--ct-ease);
+  padding: var(--ct-space-3) 0;
+  transition: color var(--ct-dur-base) var(--ct-ease);
 }
 
 .dashboard-command-queue-link:hover {
-  border-color: var(--ct-border-strong);
-  background: var(--ct-surface-1);
+  color: var(--ct-accent);
+}
+
+.dashboard-command-queue-link:hover strong {
+  color: var(--ct-accent);
 }
 
 .dashboard-command-queue-link__count {
@@ -1897,6 +1887,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 .ct-drop-glow-subtle { filter: none; }
 .ct-leading-none { line-height: var(--ct-leading-none); }
 .ct-tracking-wide { letter-spacing: var(--ct-tracking-wide); }
+.ct-tracking-wider { letter-spacing: var(--ct-tracking-wider); }
 .ct-text-micro-size { font-size: var(--ct-text-micro); }
 .ct-overlay-surface0 { background-image: linear-gradient(to bottom right, var(--ct-surface-0), transparent); }
 .ct-overlay-accent5 { background-image: linear-gradient(to bottom right, color-mix(in srgb, var(--ct-accent) 5%, transparent), transparent); }
@@ -2007,6 +1998,11 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   gap: var(--ct-space-0_5);
   margin: 0;
   text-align: left;
+}
+
+.ct-panel-status__message,
+.ct-panel-status__detail {
+  margin: 0;
 }
 
 .ct-panel-status-section {
@@ -2121,6 +2117,11 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   flex-direction: column;
   gap: var(--ct-space-6);
   min-height: auto !important;
+}
+
+.ct-product-section__header {
+  border-bottom: 1px solid var(--ct-border-soft);
+  padding-bottom: var(--ct-space-4);
 }
 
 .ct-product-section__preview-head {
@@ -3072,6 +3073,28 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-chat-settings-select                   { padding-right: 32px; }
 .ct-chat-settings-save                     { padding: 9px 14px; }
 .ct-chat-settings-product                  { padding: 10px 12px; }
+.ct-chat-settings-label {
+  margin-bottom: var(--ct-space-2);
+  color: var(--ct-text-muted);
+  font-size: var(--ct-text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide);
+}
+.ct-chat-settings-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  width: 100%;
+}
+.ct-chat-settings-row[role="radiogroup"] {
+  flex-direction: row;
+}
+.ct-chat-settings-hint {
+  margin-top: var(--ct-space-2);
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-faint);
+  line-height: var(--ct-leading-relaxed);
+}
 
 /* Chat history */
 .ct-chat-history                           { padding: 4px 2px; }
