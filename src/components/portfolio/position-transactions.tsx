@@ -125,7 +125,7 @@ export function PositionTransactions({
 
                     {/* Type + icon */}
                     <td className="py-2 pr-4">
-                      <span className="body-xs ct-text-body inline-flex items-center gap-1.5">
+                      <span className="body-xs ct-text-body pf-inline-row pf-inline-row--dense">
                         <span
                           aria-hidden="true"
                           className={incoming ? "ct-status-success body-xs" : "ct-text-muted body-xs"}

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { NestedPanel } from "@/components/ui/nested-panel";
 import { VaultPanelHeader } from "@/components/vaults/vault-flow-primitives";
+import { formatUsdAmount } from "@/lib/vaults/product-display";
 import {
   approveUsdc,
   walletClientFromProvider,
@@ -33,7 +34,7 @@ function CheckRow({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-3 py-2.5">
+    <div className="product-doc-inline-row product-doc-inline-row--start product-doc-inline-row--loose py-2.5">
       <span
         aria-hidden
         className={cn(
@@ -43,7 +44,7 @@ function CheckRow({
           status === "pending" && "ct-status-dot-info",
         )}
       />
-      <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+      <div className="pf-inline-row pf-inline-row--between min-w-0 flex-1">
         <div className="min-w-0">
           <span className="body-sm font-semibold ct-text-primary">{label}</span>
           <span className="body-xs ct-text-muted ml-2">{detail}</span>
@@ -158,7 +159,7 @@ export function PreFlightCheck({
       Loading wallet…
     </p>
   ) : !vaultConfigured ? (
-    <div className="flex flex-col gap-2 py-4">
+    <div className="product-doc-stack--tight py-4">
       <Badge variant="warning" className="self-start">
         Configuration en attente
       </Badge>
@@ -171,7 +172,7 @@ export function PreFlightCheck({
   ) : (
     <>
       {vaultStale ? (
-        <div className="flex flex-col gap-1.5 py-3">
+        <div className="product-doc-stack--dense py-3">
           <Badge variant="warning" className="self-start">
             Testnet contract
           </Badge>
@@ -205,7 +206,7 @@ export function PreFlightCheck({
           allowanceOk
             ? "USDC approved"
             : amount > 0
-              ? `Approve $${amount.toLocaleString("en-US")} USDC`
+              ? `Approve ${formatUsdAmount(amount)} USDC`
               : "Enter amount first"
         }
         action={

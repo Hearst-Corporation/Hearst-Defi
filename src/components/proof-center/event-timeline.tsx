@@ -60,9 +60,8 @@ function EventTimelineItem({
   return (
     <li
       className={cn(
-        "relative flex gap-5 pb-8",
-        showConnector &&
-          "before:absolute before:left-3.25 before:top-7 before:bottom-0 before:w-px before:bg-(--ct-border-soft)",
+        "proof-timeline-item",
+        showConnector && "proof-timeline-item--connected",
       )}
     >
       <div className="relative mt-1 flex h-7 w-7 shrink-0 items-center justify-center">
@@ -74,8 +73,8 @@ function EventTimelineItem({
         />
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="min-w-0 flex-1 pf-stack--dense">
+        <div className="product-doc-inline-row">
           <Badge variant={KIND_VARIANT[event.kind]}>{KIND_LABEL[event.kind]}</Badge>
           <span className="body-xs">Event #{event.eventId.toString()}</span>
         </div>

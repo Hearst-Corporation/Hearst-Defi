@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 
 import { Button } from "@/components/ui/button";
+import { formatUsdFull } from "@/lib/vaults/product-display";
 import { Card } from "@/components/ui/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import {
@@ -211,12 +212,12 @@ function PositionActionsLive({ position }: PositionActionsProps) {
   if (phase === "done" && result) {
     return (
       <section aria-label="Redemption confirmed" className="product-doc-section">
-        <div className="flex items-center gap-2">
+        <div className="product-doc-inline-row">
           <span className="body-sm ct-text-strong">Redemption confirmed</span>
           <ProvenanceBadge kind="manual" />
         </div>
         <p className="body-xs ct-text-muted">
-          ~${result.assetsUsdc.toLocaleString("en-US")} USDC redeemed. Your
+          ~{formatUsdFull(result.assetsUsdc)} USDC redeemed. Your
           position is now closed.
         </p>
         <a
@@ -239,30 +240,30 @@ function PositionActionsLive({ position }: PositionActionsProps) {
   if (phase === "confirm" || busy) {
     return (
       <section aria-label="Review withdrawal" className="product-doc-section">
-        <Card className="space-y-4">
+        <Card className="vault-confirm-panel">
           <p className="eyebrow">Review your withdrawal before signing</p>
-          <div className="space-y-1">
-            <div className="flex justify-between gap-2 body-sm">
+          <div className="vault-confirm-panel__rows">
+            <div className="vault-confirm-panel__row body-sm">
               <span className="ct-text-muted min-w-0">Action</span>
               <span className="ct-text-body font-semibold">Withdraw</span>
             </div>
-            <div className="flex justify-between gap-2 body-sm">
+            <div className="vault-confirm-panel__row body-sm">
               <span className="ct-text-muted min-w-0">Amount</span>
               <span className="ct-text-strong font-semibold tabular">
                 Full position
               </span>
             </div>
-            <div className="flex justify-between gap-2 body-sm">
+            <div className="vault-confirm-panel__row body-sm">
               <span className="ct-text-muted min-w-0">You receive</span>
               <span className="ct-text-body">USDC</span>
             </div>
-            <div className="flex justify-between gap-2 body-sm">
+            <div className="vault-confirm-panel__row body-sm">
               <span className="ct-text-muted min-w-0 shrink-0">Vault</span>
               <span className="ct-text-body font-semibold min-w-0 truncate text-right">
                 {position.vaultName ?? "Unassigned vault"}
               </span>
             </div>
-            <div className="flex justify-between gap-2 body-sm">
+            <div className="vault-confirm-panel__row body-sm">
               <span className="ct-text-muted min-w-0">Network</span>
               <span className="ct-text-body">Base Sepolia</span>
             </div>
@@ -272,7 +273,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
             60-day soft lock-up. You&rsquo;ll be asked to confirm this transaction
             in your wallet. Past performance does not predict future results.
           </p>
-          <div className="flex gap-2 flex-wrap">
+          <div className="vault-form-actions">
             <Button
               type="button"
               variant="secondary"
@@ -288,7 +289,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
               size="md"
               onClick={() => void handleConfirmWithdraw()}
               disabled={busy}
-              className="flex-1"
+              className="vault-form-actions__primary"
             >
               {phase === "redeeming"
                 ? "Confirm in wallet…"

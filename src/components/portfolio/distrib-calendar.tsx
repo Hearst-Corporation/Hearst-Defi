@@ -16,6 +16,7 @@ import {
 } from "@/components/portfolio/pf-cockpit-panel";
 import { explorerTxUrl } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { formatUsdcAmount } from "@/lib/vaults/product-display";
 
 // ── Public types ──────────────────────────────────────────────────────────────
 
@@ -58,15 +59,8 @@ export function formatPeriod(period: string, refYear: number): string {
   return year !== refYear ? `${label}'${String(year).slice(2)}` : label;
 }
 
-/** Format USDC amount as compact string, e.g. 2310 → "$2,310" */
-export function formatUsdc(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
+/** @deprecated Import formatUsdcAmount from @/lib/vaults/product-display */
+export const formatUsdc = formatUsdcAmount;
 
 // ── SVG constants ─────────────────────────────────────────────────────────────
 
@@ -425,7 +419,7 @@ export function DistribCalendar({
       {(shareClass || cadence) && (
         <dl className="flex flex-wrap gap-x-4 gap-y-1 border-t border-(--ct-border-soft) pt-2 mt-auto">
           {shareClass ? (
-            <div className="flex flex-col gap-0.5 min-w-0">
+            <div className="pf-stack--compact min-w-0">
               <dt className="stat-label mono">
                 Share class
               </dt>
@@ -435,7 +429,7 @@ export function DistribCalendar({
             </div>
           ) : null}
           {cadence ? (
-            <div className="flex flex-col gap-0.5 min-w-0">
+            <div className="pf-stack--compact min-w-0">
               <dt className="stat-label mono">
                 Cadence
               </dt>

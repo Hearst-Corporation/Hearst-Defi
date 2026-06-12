@@ -1,9 +1,7 @@
-import "../../product-doc.css";
-
 export default function PositionDetailLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="product-doc w-full min-w-0">{children}</div>;
+  return children;
 }

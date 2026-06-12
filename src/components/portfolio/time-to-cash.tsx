@@ -10,6 +10,7 @@ import { cn } from "@/lib/cn";
 import { computeTimeToCash } from "@/lib/data/time-to-cash";
 import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { formatUsdcGrouped } from "@/lib/vaults/product-display";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -31,19 +32,6 @@ export interface TimeToCashProps {
   updatedAt?: Date;
   /** Layout preview at zero — awaiting surface only (DS §9.3). */
   previewZeros?: boolean;
-}
-
-// ── Formatters ────────────────────────────────────────────────────────────────
-
-const usdcFmt = new Intl.NumberFormat("en-US", {
-  style: "decimal",
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-  useGrouping: true,
-});
-
-function formatUsdc(amount: number): string {
-  return usdcFmt.format(Math.round(amount));
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -100,10 +88,10 @@ export function TimeToCash({
       ? "$0 USDC projected"
       : daysRemaining === 0 && hoursRemaining === 0
           ? "Distribution reached"
-          : `~${usdcFmt.format(Math.round(projectedUsdc))} USDC in ${daysRemaining}d ${hoursRemaining}h`;
+          : `~${formatUsdcGrouped(projectedUsdc)} USDC in ${daysRemaining}d ${hoursRemaining}h`;
 
   return (
-    <ModuleChrome aria-label="Time to next distribution" className="gap-3">
+    <ModuleChrome aria-label="Time to next distribution" className="pf-module-chrome">
       <WidgetPanelHeader
         title="Time to cash"
         provenance={widgetProvenance}
@@ -115,7 +103,7 @@ export function TimeToCash({
       />
 
       {/* Next distribution row --------------------------------------------- */}
-      <div className="flex flex-col gap-0.5 relative z-10 min-w-0">
+      <div className="pf-stack--compact relative z-10 min-w-0">
         <span className="stat-label">Next distribution</span>
         <p
           className={cn(
@@ -134,7 +122,7 @@ export function TimeToCash({
       </div>
 
       {/* Progress bar ------------------------------------------------------ */}
-      <div className="flex flex-col gap-1.5 relative z-10">
+      <div className="pf-stack--dense relative z-10">
         <div
           role="progressbar"
           aria-valuenow={progressRounded}
@@ -177,7 +165,7 @@ export function TimeToCash({
         <span className="body-xs ct-text-muted">
           {showZeroShell
             ? "Projection pending"
-            : `${formatUsdc(projectedUsdc)} USDC projected`}
+            : `${formatUsdcGrouped(projectedUsdc)} USDC projected`}
         </span>
         <span className="body-xs ct-text-faint">Notifications after first payout</span>
       </div>

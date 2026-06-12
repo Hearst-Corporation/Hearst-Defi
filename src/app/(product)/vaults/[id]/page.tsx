@@ -121,7 +121,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           <div
             role="note"
             aria-label="Important disclaimers"
-            className="ct-prose-xl space-y-3"
+            className="ct-prose-xl product-doc-stack--actions"
           >
             <p className="body-sm ct-text-muted leading-relaxed">
               {vault.disclaimers}

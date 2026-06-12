@@ -28,9 +28,9 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
     <Card aria-label={`${vault.name} — ${strategyLabel}`}>
       <div className="vault-select-card">
         <div className="vault-select-card__main">
-          <div className="flex min-w-0 flex-col gap-2">
+          <div className="min-w-0 product-doc-stack--tight">
             <p className="h4 ct-text-strong">{vault.name}</p>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="product-doc-inline-row">
               <span className="ct-pill">{strategyLabel}</span>
               <span className="ct-pill accent mono">{vault.ticker}</span>
               <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
@@ -39,8 +39,8 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
+          <div className="product-doc-stack--compact">
+            <div className="product-doc-inline-row">
               <span className="stat-label">Target APY range</span>
               <ProvenanceBadge kind="estimated" />
             </div>
@@ -84,7 +84,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
             </VaultKpiCell>
           </div>
 
-          <div className="body-xs ct-text-faint flex flex-wrap items-center gap-1">
+          <div className="body-xs ct-text-faint product-doc-inline-row product-doc-inline-row--tight">
             <span>Terms</span>
             <ProvenanceBadge kind="manual" />
             {vault.currentAumUsdc > 0 ? (

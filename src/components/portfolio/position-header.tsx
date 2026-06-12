@@ -7,13 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type { PositionDetail } from "@/lib/data/portfolio";
-
-const usdFull = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
+import { formatUsdDetailed } from "@/lib/vaults/product-display";
 
 type StatusVariant = "success" | "warning" | "default";
 
@@ -53,7 +47,7 @@ export function PositionHeader({ position }: PositionHeaderProps) {
       {/* Back link */}
       <Link
         href="/portfolio"
-        className="body-sm ct-text-muted inline-flex items-center gap-1 no-underline transition-opacity duration-(--ct-dur-base) hover:opacity-80"
+        className="body-sm ct-text-muted product-doc-inline-row product-doc-inline-row--tight no-underline transition-opacity duration-(--ct-dur-base) hover:opacity-80"
       >
         ← Portfolio
       </Link>
@@ -86,7 +80,7 @@ export function PositionHeader({ position }: PositionHeaderProps) {
             Total value
           </span>
           <span className="stat-value tabular ct-text-strong mono">
-            {usdFull.format(totalValue)}
+            {formatUsdDetailed(totalValue)}
           </span>
           {delta !== 0 && (
             <span
@@ -96,7 +90,7 @@ export function PositionHeader({ position }: PositionHeaderProps) {
               )}
             >
               {deltaSign}
-              {usdFull.format(delta)} · {deltaSign}
+              {formatUsdDetailed(delta)} · {deltaSign}
               {deltaPct.toFixed(1)}%
             </span>
           )}

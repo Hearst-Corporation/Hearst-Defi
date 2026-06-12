@@ -32,7 +32,7 @@ export default function AccreditationPage() {
       crown={
         <>
           <StepProgressBar active="accreditation" />
-          <div className="flex flex-col gap-2">
+          <div className="product-doc-stack--tight">
             <p className="eyebrow ct-text-muted m-0">
               Onboarding · Step 1 of 3
             </p>

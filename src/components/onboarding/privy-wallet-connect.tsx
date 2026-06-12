@@ -62,7 +62,7 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
   if (authenticated && address) {
     return (
       <Card
-        className="flex flex-col items-center gap-4 text-center"
+        className="product-doc-stack--relaxed items-center text-center"
         role="region"
         aria-label="Wallet connected"
       >
@@ -92,7 +92,7 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
   }
 
   return (
-    <Card className="flex flex-col items-center gap-4 text-center">
+    <Card className="product-doc-stack--relaxed items-center text-center">
       <p className="body-sm ct-text-muted m-0 ct-prose-narrow">
         Link the wallet address that will receive your USDC distributions.
         Supported: MetaMask, Ledger, WalletConnect, Coinbase Wallet.
@@ -147,7 +147,7 @@ export function WalletChamber({
     <OnboardingChamber
       testId="onboarding-wallet"
       crown={
-        <div className="flex flex-col gap-[var(--ct-space-2)]">
+        <div className="product-doc-stack--tight">
           <p className="eyebrow ct-text-muted m-0">Onboarding · Step 3 of 3</p>
           <h1 className="h1 m-0">Connect your wallet</h1>
           <p className="body-md ct-text-muted m-0 text-pretty ct-prose-md">
@@ -177,7 +177,7 @@ export function WalletChamber({
             </>
           }
           actions={
-            <div className="flex flex-col gap-[var(--ct-space-3)]">
+            <div className="product-doc-stack--actions">
               <p className="body-sm ct-text-faint m-0 text-pretty text-center ct-prose-md">
                 Wallet binding is optional during onboarding. Connect above now
                 or link one later from{" "}

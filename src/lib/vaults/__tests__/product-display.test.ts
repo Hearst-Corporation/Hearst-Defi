@@ -5,6 +5,9 @@ import {
   daysFromNow,
   formatDateGb,
   formatUsdAmount,
+  formatUsdDetailed,
+  formatUsdcAmount,
+  formatUsdcGrouped,
   formatUsdcFromParam,
 } from "@/lib/vaults/product-display";
 
@@ -17,6 +20,29 @@ describe("formatUsdAmount", () => {
   it("formats compact amounts at k and M thresholds", () => {
     expect(formatUsdAmount(250_000, true)).toBe("$250k");
     expect(formatUsdAmount(1_200_000, true)).toBe("$1.2M");
+  });
+});
+
+describe("formatUsdDetailed", () => {
+  it("formats with two decimal places", () => {
+    expect(formatUsdDetailed(1_250_500.5)).toBe("$1,250,500.50");
+    expect(formatUsdDetailed(0)).toBe("$0.00");
+  });
+});
+
+describe("formatUsdcAmount", () => {
+  it("matches full USD formatting", () => {
+    expect(formatUsdcAmount(358_000)).toBe("$358,000");
+    expect(formatUsdcAmount(2_310)).toBe("$2,310");
+  });
+});
+
+describe("formatUsdcGrouped", () => {
+  it("formats rounded grouped integers without currency symbol", () => {
+    expect(formatUsdcGrouped(2847)).toBe("2,847");
+    expect(formatUsdcGrouped(0)).toBe("0");
+    expect(formatUsdcGrouped(10_000)).toBe("10,000");
+    expect(formatUsdcGrouped(2847.9)).toBe("2,848");
   });
 });
 

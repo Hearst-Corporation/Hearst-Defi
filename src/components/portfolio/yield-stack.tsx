@@ -127,7 +127,7 @@ export function YieldStack({
       />
 
       {/* Visual bar stack */}
-      <div className="flex flex-col gap-2">
+      <div className="pf-stack">
         {sources.map((s) => {
           const widthPct = showZeroShell
             ? 0
@@ -141,7 +141,7 @@ export function YieldStack({
           return (
             <div key={s.bucket} className="yield-stack-row">
               {/* Label row */}
-              <div className="flex items-center justify-between gap-2 mb-1">
+              <div className="pf-inline-row pf-inline-row--between mb-1">
                 <span
                   className={cn(
                     "body-xs min-w-0 truncate",
@@ -189,7 +189,7 @@ export function YieldStack({
 
       <hr className="my-2 border-0 border-t border-(--ct-border-soft)" aria-hidden />
 
-      <dl className="flex flex-col gap-1.5">
+      <dl className="pf-stack--dense">
           {/* Blended forward range */}
           <div className="flex items-baseline justify-between">
             <dt className="body-xs min-w-0 truncate ct-text-muted">

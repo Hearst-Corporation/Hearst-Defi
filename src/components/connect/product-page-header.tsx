@@ -33,28 +33,28 @@ export function ProductPageHeader({
   return (
     <header
       className={cn(
-        "flex flex-col gap-4",
-        centered && "items-center text-center",
+        "product-page-header",
+        centered && "product-page-header--center",
         className,
       )}
     >
       <div
         className={cn(
-          "product-page-header__row flex w-full min-w-0 flex-wrap gap-4",
-          centered ? "flex-col items-center" : "items-start justify-between",
+          "product-page-header__row",
+          centered && "product-page-header__row--center",
         )}
       >
         <div
           className={cn(
-            "flex min-w-0 flex-1 items-center gap-4",
-            centered && "flex-col items-center",
+            "product-page-header__main",
+            centered && "product-page-header__main--center",
           )}
         >
           {media ? <div className="shrink-0">{media}</div> : null}
           <div
             className={cn(
-              "flex min-w-0 flex-col gap-1",
-              centered && "items-center",
+              "product-page-header__title-stack",
+              centered && "product-page-header__title-stack--center",
             )}
           >
             {lead}
@@ -73,9 +73,7 @@ export function ProductPageHeader({
           </div>
         </div>
         {actions ? (
-          <div className="product-page-header__actions flex shrink-0 flex-wrap items-center gap-2">
-            {actions}
-          </div>
+          <div className="product-page-header__actions">{actions}</div>
         ) : null}
       </div>
       {children}

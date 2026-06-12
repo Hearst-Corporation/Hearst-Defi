@@ -24,7 +24,11 @@ import {
 import { monthsToTarget } from "@/lib/projection-chart";
 import { subscribe } from "@/app/actions/subscribe";
 import type { VaultProduct } from "@/lib/data/vaults";
-import { formatUsdAmount, shareClassCode } from "@/lib/vaults/product-display";
+import {
+  formatUsdAmount,
+  formatUsdcGrouped,
+  shareClassCode,
+} from "@/lib/vaults/product-display";
 
 type CtaState =
   | "no_wallet"
@@ -264,7 +268,7 @@ export function InvestForm({ vault }: InvestFormProps) {
                     setAllowanceApproved(false);
                     setAwaitingConfirm(false);
                   }}
-                  placeholder={vault.minTicketUsdc.toLocaleString("en-US")}
+                  placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
                   aria-describedby="amt-helper"
                   aria-invalid={amount > 0 && !amountValid}
                   className={cn(

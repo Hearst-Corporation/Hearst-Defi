@@ -4,7 +4,7 @@ import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underl
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { PfCockpitPanelHeader } from "@/components/portfolio/pf-cockpit-panel";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
-import { formatUsdCompact } from "@/lib/format/usd-compact";
+import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { cn } from "@/lib/cn";
 import { buildZeroValueChartSeries } from "@/lib/portfolio/layout-preview";
 import { resolveProvenance } from "@/lib/portfolio/provenance";

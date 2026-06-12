@@ -121,7 +121,7 @@ function DeployedContractCard({
       <ProofRow label="Deploy block">{contract.deployBlock}</ProofRow>
       <ProofRow label="Network">Base Sepolia (chain id 84532)</ProofRow>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-4 product-doc-inline-row">
         <Badge variant={contract.sourceVerified ? "success" : "warning"}>
           {contract.sourceVerified
             ? "Source-verified @ commit"
@@ -154,7 +154,7 @@ export function ContractsAuditTrail() {
   const deploymentsVerified = DEPLOYED_CONTRACTS.every((c) => c.sourceVerified);
 
   return (
-    <div className="space-y-6">
+    <div className="product-doc-stack">
       <Card>
         <DashboardPanelHeader
           eyebrow="Phase 2 contracts · Base Sepolia"
@@ -179,13 +179,13 @@ export function ContractsAuditTrail() {
           {AUDIT_ENTRIES.map((entry) => (
             <li
               key={entry.label}
-              className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+              className="product-doc-section__head py-3 first:pt-0 last:pb-0"
             >
-              <div className="flex flex-col gap-0.5">
+              <div className="product-doc-stack--compact">
                 <span className="body-sm font-medium ct-text-primary">{entry.label}</span>
                 <span className="body-xs">{entry.status}</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="product-doc-inline-row">
                 <Badge variant={entry.variant}>{auditBadgeLabel(entry)}</Badge>
                 {entry.href !== null ? (
                   <Button asChild variant="secondary" size="md">

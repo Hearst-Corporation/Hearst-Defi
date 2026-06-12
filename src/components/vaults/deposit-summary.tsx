@@ -3,6 +3,7 @@ import { NestedPanel, ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { VaultPanelHeader } from "@/components/vaults/vault-flow-primitives";
 import type { VaultProduct } from "@/lib/data/vaults";
+import { formatUsdFull } from "@/lib/vaults/product-display";
 
 interface DepositSummaryProps {
   vault: VaultProduct;
@@ -30,7 +31,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       <div className="vault-panel-body">
         <ProofRow label="You deposit">
           {amount > 0 ? (
-            <span className="mono">${amount.toLocaleString("en-US")} USDC</span>
+            <span className="mono">{formatUsdFull(amount)} USDC</span>
           ) : (
             <span className="ct-text-muted">—</span>
           )}
@@ -43,7 +44,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         <ProofRow label="Est. yearly yield">
           {yearlyYield !== null ? (
             <span className="mono">
-              ${yearlyYield.toLocaleString("en-US", { maximumFractionDigits: 0 })} USDC
+              {formatUsdFull(yearlyYield)} USDC
             </span>
           ) : (
             <span className="ct-text-muted">—</span>
@@ -53,7 +54,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         <ProofRow label="At soft close">
           {totalAtClose !== null ? (
             <span className="mono">
-              ~${totalAtClose.toLocaleString("en-US", { maximumFractionDigits: 0 })} USDC
+              ~{formatUsdFull(totalAtClose)} USDC
             </span>
           ) : (
             <span className="ct-text-muted">—</span>

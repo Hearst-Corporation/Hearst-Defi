@@ -1,4 +1,4 @@
-import { formatUsdCompact } from "@/lib/format/usd-compact";
+import { formatUsdCompact } from "@/lib/vaults/product-display";
 
 import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
 

@@ -76,9 +76,9 @@ export function OnboardingRequirementsList({
   return (
     <NestedCallout aria-label="Onboarding requirements">
       <p className="eyebrow ct-text-muted m-0 mb-[var(--ct-space-3)]">Requirements</p>
-      <ul className="m-0 flex flex-col gap-[var(--ct-space-2_5)] p-0 list-none">
+      <ul className="m-0 p-0 list-none product-doc-stack--list">
         {items.map((item) => (
-          <li key={item.id} className="flex items-start gap-[var(--ct-space-2_5)]">
+          <li key={item.id} className="product-doc-inline-row product-doc-inline-row--start product-doc-inline-row--loose">
             <span
               aria-hidden
               className={cn(
@@ -130,7 +130,7 @@ export function OnboardingChamberSole({
   actions?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-[var(--ct-space-4)]">
+    <div className="product-doc-stack--relaxed">
       {actions}
 
       <p className="body-xs ct-text-faint m-0 text-pretty text-center">

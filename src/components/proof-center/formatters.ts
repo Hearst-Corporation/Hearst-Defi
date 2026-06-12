@@ -12,12 +12,9 @@ const timeUtcFmt = new Intl.DateTimeFormat("en-US", {
   hour12: false,
 });
 
-const usdCompactFmt = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  notation: "compact",
-  maximumFractionDigits: 2,
-});
+import { formatUsdCompact } from "@/lib/format/usd-compact";
+
+export { formatUsdCompact };
 
 const btcFmt = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 4,
@@ -36,10 +33,6 @@ export function formatPorPeriod(period: bigint): string {
   const raw = period.toString();
   if (raw.length !== 6) return raw;
   return `${raw.slice(0, 4)}-${raw.slice(4)}`;
-}
-
-export function formatUsdCompact(value: number): string {
-  return usdCompactFmt.format(value);
 }
 
 export function formatBtc(value: number): string {

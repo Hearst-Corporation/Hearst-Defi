@@ -288,7 +288,7 @@ function CompositeSection({
       className="pf-risk-composite"
       aria-label={ariaLabel}
     >
-      <div className="flex items-baseline gap-2 min-w-0">
+      <div className="pf-inline-row pf-inline-row--baseline min-w-0">
         <span className="stat-label shrink-0">Composite</span>
         <span
           className={cn("pf-risk-composite-value tabular leading-none", valueColor)}

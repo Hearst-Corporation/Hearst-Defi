@@ -19,13 +19,13 @@ export function OpsContactCard({
 }: OpsContactCardProps) {
   return (
     <Card
-      className="w-full flex flex-col gap-3"
+      className="w-full product-doc-stack--actions"
       role="complementary"
       aria-label="Investor Relations contact"
     >
       <span className="eyebrow ct-text-muted">Your IR contact</span>
 
-      <div className="flex items-center gap-3">
+      <div className="product-doc-inline-row product-doc-inline-row--loose">
         <span
           aria-hidden="true"
           className="inline-flex items-center justify-center w-10 h-10 rounded-full ct-status-success-bg shrink-0 ct-text-accent body-sm font-semibold"
@@ -33,7 +33,7 @@ export function OpsContactCard({
           {name.charAt(0)}
         </span>
 
-        <div className="flex flex-col gap-0.5 min-w-0">
+        <div className="product-doc-stack--compact min-w-0">
           <span className="body-sm ct-text-strong truncate font-semibold tracking-tight">
             {name}
           </span>
@@ -41,7 +41,7 @@ export function OpsContactCard({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="product-doc-stack--tight">
         <a
           href={`mailto:${email}`}
           className="body-xs ct-link-accent truncate hover:underline"
@@ -54,7 +54,7 @@ export function OpsContactCard({
           href={calendlyHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 body-xs ct-link-accent hover:underline"
+          className="product-doc-inline-row product-doc-inline-row--dense body-xs ct-link-accent hover:underline"
           aria-label={`Book a call with ${name} (opens in new tab)`}
         >
           Book a call ↗

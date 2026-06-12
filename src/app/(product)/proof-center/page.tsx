@@ -101,7 +101,7 @@ export default async function ProductProofCenterPage({
         <div
           role="note"
           aria-label="Testnet data notice"
-          className="flex items-start gap-3 rounded-md border border-(--ct-status-warning-border) ct-status-warning-bg px-4 py-3"
+          className="product-doc-callout"
         >
           <TriangleAlert
             className="mt-0.5 h-4 w-4 shrink-0 ct-status-warning"
@@ -198,7 +198,7 @@ export default async function ProductProofCenterPage({
           <h2 id="timelock-heading" className="h2 mb-4">
             Pending governance timelocks
           </h2>
-          <div className="space-y-4">
+          <div className="product-doc-stack--relaxed">
             {timelockProposals.map((proposal) => (
               <TimelockCountdown
                 key={proposal.id}

@@ -125,7 +125,7 @@ export function LockMeter({
   }`;
 
   return (
-    <ModuleChrome aria-label="Lock and liquidity status" className="gap-3">
+    <ModuleChrome aria-label="Lock and liquidity status" className="pf-module-chrome">
       <WidgetPanelHeader
         title={
           <Tooltip content="Progress towards your 60-day soft lockup period">
@@ -141,7 +141,7 @@ export function LockMeter({
       />
 
       {/* Progress bar ------------------------------------------------------ */}
-      <div className="flex flex-col gap-1.5 relative z-10">
+      <div className="pf-stack--dense relative z-10">
         {/* Bar */}
         <div
           role="progressbar"
@@ -183,9 +183,9 @@ export function LockMeter({
       </div>
 
       {/* Metadata ---------------------------------------------------------- */}
-      <dl className="flex flex-col gap-1 relative z-10 mt-auto">
+      <dl className="pf-stack--tight relative z-10 mt-auto">
         {/* Unlock date */}
-        <div className="flex items-center justify-between gap-2">
+        <div className="pf-inline-row pf-inline-row--between">
           <dt className="body-xs ct-text-muted">
             {termsUnknown ? "Lock terms" : isUnlocked ? "Unlocked" : "Unlock"}
           </dt>
@@ -205,7 +205,7 @@ export function LockMeter({
 
         {/* Early-exit penalty (only shown when still locked) */}
         {!isUnlocked && earlyExitPenaltyBps !== undefined && (
-          <div className="flex items-center justify-between gap-2">
+          <div className="pf-inline-row pf-inline-row--between">
             <Tooltip content="Early-exit penalty applied to withdrawals before the lockup period ends">
               <dt className="body-xs ct-text-muted cursor-help border-b border-dotted border-(--ct-border-soft)">Penalty</dt>
             </Tooltip>

@@ -7,7 +7,7 @@ import {
 } from "@/components/portfolio/pf-cockpit-panel";
 import { ApyRange } from "@/components/ui/apy-range";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
-import { formatUsdCompact } from "@/lib/format/usd-compact";
+import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { cn } from "@/lib/cn";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
@@ -63,7 +63,7 @@ export function PositionsList({
         }
       />
 
-      <div className="flex flex-col gap-1 overflow-x-auto min-w-0">
+      <div className="pf-stack--tight overflow-x-auto min-w-0">
           {/* Header row */}
           <div className={cn("stat-label", "pf-positions-row-grid")}>
             <span>Vault</span>
@@ -100,7 +100,7 @@ export function PositionsList({
               className={cn("pf-positions-row-grid", "pf-positions-row-grid--body")}
             >
               {/* Vault name + status */}
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="pf-inline-row min-w-0">
                 <span
                   className={cn(
                     "pf-status-dot",

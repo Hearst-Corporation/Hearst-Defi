@@ -1,5 +1,5 @@
 import type { PortfolioData } from "@/lib/data/portfolio";
-import { formatUsdCompact } from "@/lib/format/usd-compact";
+import { formatUsdCompact } from "@/lib/vaults/product-display";
 
 /** Relative time string for the recap line ("today", "3 days ago", "1 month ago"). */
 function relativeTime(date: Date, asOf: Date): string {

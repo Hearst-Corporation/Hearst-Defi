@@ -40,7 +40,7 @@ export function PorSummary({
 }: PorSummaryProps) {
   if (attestation === null) {
     return (
-      <div className="space-y-6">
+      <div className="product-doc-stack">
         <AwaitingMetricState {...POR_ATTESTATION_EMPTY} />
         {custody ? <CustodySection custody={custody} /> : null}
       </div>
@@ -92,7 +92,7 @@ export function PorSummary({
         <ProofRow label="Block">{attestation.blockNumber.toString()}</ProofRow>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
+      <div className="mt-4 product-doc-inline-row">
         <Button asChild variant="secondary" size="md">
           <a
             href={`${EXPLORER_TX_BASE}${attestation.txHash}`}

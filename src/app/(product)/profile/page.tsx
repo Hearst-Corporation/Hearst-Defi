@@ -9,7 +9,7 @@ import { ProfileSecurityRow } from "@/components/profile/profile-security-row";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { getInvestor } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { formatUsdCompact } from "@/lib/format/usd-compact";
+import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { abbreviateAddress } from "@/lib/onchain";
 import { profileDisplayName } from "@/lib/profile/display-name";
 import { formatProfileDate } from "@/lib/profile/format-date";
@@ -207,7 +207,7 @@ export default async function ProfilePage() {
         </Card>
       </div>
 
-      <footer>
+      <footer className="product-doc-footer-rule">
         <p className="body-xs ct-text-faint ct-prose-xl prof-disclaimer">
           Profile information reflects your investor account status. Product
           eligibility depends on accreditation, KYC approval, and jurisdictional

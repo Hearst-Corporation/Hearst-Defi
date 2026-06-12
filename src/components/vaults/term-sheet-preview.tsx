@@ -99,7 +99,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
         id="sec-glance"
         title="At a glance"
         provenance={
-          <div className="body-xs ct-text-faint flex flex-wrap items-center gap-1.5">
+          <div className="body-xs ct-text-faint product-doc-inline-row product-doc-inline-row--dense">
             <span>Metrics:</span>
             <ProvenanceBadge kind="estimated" />
             <ProvenanceBadge kind="manual" />
@@ -134,7 +134,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
         id="sec-strategy-allocation"
         title="Strategy & allocation"
         provenance={
-          <div className="body-xs ct-text-faint flex flex-wrap items-center gap-1.5">
+          <div className="body-xs ct-text-faint product-doc-inline-row product-doc-inline-row--dense">
             <span>Methodology:</span>
             <ProvenanceBadge kind="manual" />
             <span>Scenarios:</span>
@@ -145,7 +145,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
         <NestedPanel className="product-doc-stack">
           <div className="product-doc-section">
             <p className="body-sm ct-text-muted">{MODEL_B_ONELINER}</p>
-            <div className="flex flex-wrap gap-2">
+            <div className="product-doc-inline-row">
               <Badge variant="brand">Mining-backed</Badge>
               <Badge variant="default">Rule-based rebalancing</Badge>
               <Badge variant="default">Monthly USDC distributions</Badge>

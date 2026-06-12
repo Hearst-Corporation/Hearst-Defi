@@ -19,8 +19,8 @@ export default async function WalletPage() {
 
   if (gateStatus === "db_unavailable") {
     return (
-      <Card className="flex flex-col gap-6" data-testid="onboarding-wallet">
-        <div className="flex flex-col gap-[var(--ct-space-2)]">
+      <Card className="product-doc-stack" data-testid="onboarding-wallet">
+        <div className="product-doc-stack--tight">
           <p className="eyebrow ct-text-muted m-0">Onboarding · Step 3 of 3</p>
           <h1 className="h1 m-0">Connect your wallet</h1>
           <p className="body-md ct-text-muted m-0 text-pretty ct-prose-md">

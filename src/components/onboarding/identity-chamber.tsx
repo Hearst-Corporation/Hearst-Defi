@@ -38,7 +38,7 @@ export function IdentityChamber({
       crown={
         <>
           <StepProgressBar active="identity" />
-          <div className="flex flex-col gap-2">
+          <div className="product-doc-stack--tight">
             <p className="eyebrow ct-text-muted m-0">Onboarding · Step 2 of 3</p>
             <h1 className="h1 m-0">Identity verification</h1>
             <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
@@ -73,7 +73,7 @@ export function IdentityChamber({
             </>
           }
           actions={
-            <div className="flex flex-col gap-[var(--ct-space-3)]">
+            <div className="product-doc-stack--actions">
               {mayContinue ? (
                 <Button variant="primary" size="lg" asChild className="w-full font-bold">
                   <Link href="/onboarding/wallet">Continue to wallet binding</Link>

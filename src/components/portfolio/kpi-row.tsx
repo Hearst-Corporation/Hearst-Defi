@@ -1,7 +1,7 @@
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import type { PortfolioData } from "@/lib/data/portfolio";
 import { cn } from "@/lib/cn";
-import { formatUsdCompact } from "@/lib/format/usd-compact";
+import { formatUsdCompact } from "@/lib/vaults/product-display";
 
 const monthDayFmt = new Intl.DateTimeFormat("en-US", {
   month: "short",

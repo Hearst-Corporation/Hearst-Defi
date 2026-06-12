@@ -8,6 +8,7 @@ import { monthsToTarget, buildProjectionSeries } from "@/lib/projection-chart";
 import type { VaultProduct } from "@/lib/data/vaults";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
+import { formatUsdFull } from "@/lib/vaults/product-display";
 
 interface TimeToTargetChartProps {
   amount: number; // USDC
@@ -125,7 +126,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
   const targetUsdcRaw = targetNav !== null && amount > 0 ? (targetNav / 100) * amount : null;
   const targetLabel =
     targetUsdcRaw !== null
-      ? `Target: $${Math.round(targetUsdcRaw).toLocaleString("en-US")} at M${months10pct ?? "—"}`
+      ? `Target: ${formatUsdFull(Math.round(targetUsdcRaw))} at M${months10pct ?? "—"}`
       : months10pct !== null
         ? `+${TARGET_CUMULATIVE_PCT}% at M${months10pct}`
         : null;

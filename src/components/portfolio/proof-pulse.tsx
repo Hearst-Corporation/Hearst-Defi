@@ -7,6 +7,7 @@ import {
   PfCockpitSubhead,
 } from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
+import { formatUsdCompact } from "@/lib/vaults/product-display";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -77,16 +78,6 @@ export function attestationState(
 }
 
 // ── Formatting helpers ────────────────────────────────────────────────────────
-
-function formatUsdc(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 1,
-    notation: "compact",
-    compactDisplay: "short",
-  }).format(amount);
-}
 
 function formatDateHuman(date: Date): string {
   return date.toLocaleDateString("en-US", {
@@ -203,11 +194,11 @@ export function ProofPulse({
           />
 
           <NestedPanel>
-            <ProofRow label="Vault TVL">{formatUsdc(statedTvlUsdc)}</ProofRow>
+            <ProofRow label="Vault TVL">{formatUsdCompact(statedTvlUsdc)}</ProofRow>
 
             <ProofRow label="On-chain">
               <span className="pf-proof-row__stack">
-                <span>{formatUsdc(onChainTvlUsdc)}</span>
+                <span>{formatUsdCompact(onChainTvlUsdc)}</span>
                 {indicator !== null ? (
                   <span
                     role="status"

@@ -13,6 +13,7 @@
 
 import { describe, it, expect } from "vitest";
 import { computeTimeToCash } from "@/lib/data/time-to-cash";
+import { formatUsdcGrouped } from "@/lib/vaults/product-display";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -22,36 +23,24 @@ function daysAgo(n: number, from: Date): Date {
   return new Date(from.getTime() - n * MS_PER_DAY);
 }
 
-// Mirrors the USDC formatter used inside the component.
-const usdcFmt = new Intl.NumberFormat("en-US", {
-  style: "decimal",
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-  useGrouping: true,
-});
-
-function formatUsdc(amount: number): string {
-  return usdcFmt.format(Math.round(amount));
-}
-
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe("TimeToCash widget — projected USDC display", () => {
   it("4. projectedUsdc 2847 formats as '2,847'", () => {
-    expect(formatUsdc(2847)).toBe("2,847");
+    expect(formatUsdcGrouped(2847)).toBe("2,847");
   });
 
   it("projectedUsdc 0 formats as '0'", () => {
-    expect(formatUsdc(0)).toBe("0");
+    expect(formatUsdcGrouped(0)).toBe("0");
   });
 
   it("projectedUsdc 10000 formats as '10,000'", () => {
-    expect(formatUsdc(10_000)).toBe("10,000");
+    expect(formatUsdcGrouped(10_000)).toBe("10,000");
   });
 
   it("projectedUsdc with decimal rounds to nearest integer", () => {
-    expect(formatUsdc(2847.9)).toBe("2,848");
-    expect(formatUsdc(2847.1)).toBe("2,847");
+    expect(formatUsdcGrouped(2847.9)).toBe("2,848");
+    expect(formatUsdcGrouped(2847.1)).toBe("2,847");
   });
 });
 

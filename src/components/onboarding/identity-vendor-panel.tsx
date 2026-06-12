@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 export function IdentityVendorPanel({ isProduction }: { isProduction: boolean }) {
   return (
     <div
-      className="flex flex-col gap-[var(--ct-space-4)]"
+      className="product-doc-stack--relaxed"
       role="region"
       aria-label="Identity verification unavailable"
     >

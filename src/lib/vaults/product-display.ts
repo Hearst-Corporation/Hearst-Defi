@@ -1,16 +1,25 @@
 // LP product-surface formatters — pure, no I/O.
 
-const USD_COMPACT = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
+import { formatUsdCompact } from "@/lib/format/usd-compact";
+
+export { formatUsdCompact };
 
 const USD_FULL = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
   maximumFractionDigits: 0,
+});
+
+const USDC_GROUPED = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 0,
+  useGrouping: true,
+});
+
+const USD_DETAILED = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 });
 
 export function formatMinTicketUsdc(usdc: number): string {
@@ -20,12 +29,21 @@ export function formatMinTicketUsdc(usdc: number): string {
   return `$${(usdc / 1_000).toFixed(0)}k`;
 }
 
-export function formatUsdCompact(usdc: number): string {
-  return USD_COMPACT.format(usdc);
-}
-
 export function formatUsdFull(usdc: number): string {
   return USD_FULL.format(usdc);
+}
+
+/** Position detail / accrued yield — two decimal places. */
+export function formatUsdDetailed(usdc: number): string {
+  return USD_DETAILED.format(usdc);
+}
+
+/** Portfolio USDC labels — full currency ($358,000). */
+export const formatUsdcAmount = formatUsdFull;
+
+/** Grouped integer without currency symbol (time-to-cash widget). */
+export function formatUsdcGrouped(amount: number): string {
+  return USDC_GROUPED.format(Math.round(amount));
 }
 
 /** Invest form amounts — optional compact ($250k / $1.2M). */
