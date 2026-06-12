@@ -40,16 +40,26 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const vault = data.vault;
   const preview = vaultMeta.livePreview;
 
-  const headlineApy = preview ? vaultMeta.apyTarget : vault.apyRange;
-  const apyMid = (headlineApy.low + headlineApy.high) / 2;
+  const hasLiveKpis = data.hasTimelineSnapshot && !preview;
+  const headlineApy = hasLiveKpis
+    ? vault.apyRange
+    : preview
+      ? vaultMeta.apyTarget
+      : null;
+  const apyMid =
+    headlineApy !== null ? (headlineApy.low + headlineApy.high) / 2 : null;
   const targetLow = vaultMeta.apyTarget.low;
   const targetHigh = vaultMeta.apyTarget.high;
   const yieldPosture =
-    apyMid < targetLow
-      ? "below target band"
-      : apyMid > targetHigh
-        ? "above target band"
-        : "within target band";
+    apyMid === null
+      ? preview
+        ? "methodology preset"
+        : "awaiting first snapshot"
+      : apyMid < targetLow
+        ? "below target band"
+        : apyMid > targetHigh
+          ? "above target band"
+          : "within target band";
 
   const reconciledData = {
     ...data,
@@ -63,9 +73,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     ? "estimated"
     : useCustody
       ? custodyProvenance
-      : data.source === "db"
+      : hasLiveKpis && aumNumeric > 0
         ? "live"
-        : "estimated";
+        : "manual";
 
   const proofFresh =
     overview.proof.miningFreshness === "live" && overview.proof.attestationsCount > 0;
@@ -110,6 +120,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         capitalUsdc={aumNumeric}
         capitalProvenance={capitalProvenance}
         headlineApy={headlineApy}
+        hasLiveKpis={hasLiveKpis}
         yieldPosture={yieldPosture}
         proofFresh={proofFresh}
         cockpit={cockpit}

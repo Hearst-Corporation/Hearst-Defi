@@ -40,8 +40,8 @@ export function ExecutiveSummaryPage({
   const safeBullets = bullets.length > 0 ? bullets : FALLBACK_BULLETS;
   // Distribution is loaded from the `Distribution` table (or its synthesised
   // fallback) and reported verbatim — no longer derived from AUM × 0.8%.
-  const distributionUsdc = data.distribution.amount_usdc;
-  const distributionStatus = data.distribution.status;
+  const distributionUsdc = data.distribution?.amount_usdc ?? 0;
+  const distributionStatus = data.distribution?.status ?? "pending";
 
   return (
     <Page size="A4" style={styles.page}>

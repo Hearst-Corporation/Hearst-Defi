@@ -24,8 +24,9 @@ interface DashboardAssetsBoardProps {
   totalActionRequired: number;
   capitalUsdc: number;
   capitalProvenance: Provenance;
-  headlineApy: { low: number; high: number };
+  headlineApy: { low: number; high: number } | null;
   yieldPosture: string;
+  hasLiveKpis: boolean;
   proofFresh: boolean;
   cockpit: CockpitPayload;
 }
@@ -58,6 +59,7 @@ export function DashboardAssetsBoard({
   capitalProvenance,
   headlineApy,
   yieldPosture,
+  hasLiveKpis,
   proofFresh,
   cockpit,
 }: DashboardAssetsBoardProps) {
@@ -73,12 +75,12 @@ export function DashboardAssetsBoard({
 
   const riskProvenance: Provenance =
     risk.source === "db" ? "live" : risk.source === "partial" ? "partial" : "estimated";
-  const apyProvenance: Provenance = data.vaultMeta.livePreview
-    ? "estimated"
-    : data.source === "db"
-      ? "live"
-      : "estimated";
-  const miningProvenance: Provenance = data.source === "db" ? "live" : "estimated";
+  const apyProvenance: Provenance = hasLiveKpis
+    ? "live"
+    : data.vaultMeta.livePreview
+      ? "estimated"
+      : "manual";
+  const miningProvenance: Provenance = hasLiveKpis ? "live" : "manual";
   const proofProvenance: Provenance = proofFresh ? "attested" : proof.attestationsCount > 0 ? "stale" : "manual";
 
   const heroKpis = buildHeroKpis({
@@ -93,6 +95,7 @@ export function DashboardAssetsBoard({
     miningMarginScore: data.vault.miningMarginScore,
     miningSublabel: hashpriceLabel(data),
     miningProvenance,
+    hasLiveKpis,
     proofFresh,
     proofProvenance,
     proof,
@@ -138,55 +141,69 @@ export function DashboardAssetsBoard({
       </div>
 
       <div className="dashboard-command-row-b">
-        <Card className="dashboard-command-cell">
-          {allocationLive ? (
-            <>
-              <CellHeader title="Capital stack" provenance="live" />
-              <div className="dashboard-assets-stack">
-                {allocation.map((item) => (
-                  <AllocationStackRow key={item.bucket} item={item} />
-                ))}
-              </div>
-            </>
-          ) : (
-            <EmptyChartState
-              className="min-h-32"
-              message="Capital stack appears once the first snapshot books real allocations."
-              ariaLabel="Capital stack awaiting first snapshot"
-            />
-          )}
-        </Card>
+        {allocationLive ? (
+          <Card className="dashboard-command-cell">
+            <CellHeader title="Capital stack" provenance="live" />
+            <div className="dashboard-assets-stack">
+              {allocation.map((item) => (
+                <AllocationStackRow key={item.bucket} item={item} />
+              ))}
+            </div>
+          </Card>
+        ) : (
+          <EmptyChartState
+            className="dashboard-command-cell min-h-32"
+            message="Capital stack appears once the first snapshot books real allocations."
+            ariaLabel="Capital stack awaiting first snapshot"
+          />
+        )}
 
-        <Card className="dashboard-command-cell">
-          <CellHeader title="Risk lens" provenance={riskProvenance} />
-          <div className="dashboard-assets-risk">
-            {risk.dimensions.slice(0, 5).map((dimension) => (
-              <div key={dimension.id} className="dashboard-assets-risk__row">
-                <span>{dimension.label}</span>
-                <div className="dashboard-assets-risk__track">
-                  <span
-                    className={cn(
-                      "dashboard-assets-risk__fill",
-                      toneClass(
-                        dimension.severity === "high"
-                          ? "danger"
-                          : dimension.severity === "medium"
-                            ? "warning"
-                            : "success",
-                      ),
-                    )}
-                    style={{ width: `${Math.max(4, Math.min(100, dimension.score))}%` }}
-                  />
+        {risk.dimensions.length > 0 ? (
+          <Card className="dashboard-command-cell">
+            <CellHeader title="Risk lens" provenance={riskProvenance} />
+            <div className="dashboard-assets-risk">
+              {risk.dimensions.slice(0, 5).map((dimension) => (
+                <div key={dimension.id} className="dashboard-assets-risk__row">
+                  <span>{dimension.label}</span>
+                  <div className="dashboard-assets-risk__track">
+                    <span
+                      className={cn(
+                        "dashboard-assets-risk__fill",
+                        toneClass(
+                          dimension.severity === "high"
+                            ? "danger"
+                            : dimension.severity === "medium"
+                              ? "warning"
+                              : "success",
+                        ),
+                      )}
+                      style={{ width: `${Math.max(4, Math.min(100, dimension.score))}%` }}
+                    />
+                  </div>
+                  <strong className="tabular">{dimension.score}</strong>
                 </div>
-                <strong className="tabular">{dimension.score}</strong>
-              </div>
-            ))}
-          </div>
-        </Card>
+              ))}
+            </div>
+          </Card>
+        ) : (
+          <EmptyChartState
+            className="dashboard-command-cell min-h-32"
+            message="Risk lens appears once mining and vault snapshots are on file."
+            ariaLabel="Risk lens awaiting data"
+          />
+        )}
 
-        <Card className="dashboard-command-cell">
-          <DistributionPanel distribution={data.latestDistribution} />
-        </Card>
+        {data.latestDistribution ? (
+          <Card className="dashboard-command-cell">
+            <DistributionPanel distribution={data.latestDistribution} />
+          </Card>
+        ) : (
+          <EmptyChartState
+            className="dashboard-command-cell min-h-32"
+            message="No distribution on file yet."
+            ariaLabel="Distribution awaiting first record"
+          />
+        )}
       </div>
 
       {trackedActions.length > 0 ? (
@@ -236,7 +253,7 @@ function buildHeroKpis(input: {
   capitalUsdc: number;
   capitalProvenance: Provenance;
   vaultName: string;
-  headlineApy: { low: number; high: number };
+  headlineApy: { low: number; high: number } | null;
   yieldPosture: string;
   apyProvenance: Provenance;
   risk: RiskFrameworkData;
@@ -244,6 +261,7 @@ function buildHeroKpis(input: {
   miningMarginScore: number;
   miningSublabel: string;
   miningProvenance: Provenance;
+  hasLiveKpis: boolean;
   proofFresh: boolean;
   proofProvenance: Provenance;
   proof: AdminProofStatus;
@@ -251,6 +269,10 @@ function buildHeroKpis(input: {
 }): HeroKpi[] {
   const riskTone =
     input.risk.band === "high" ? "danger" : input.risk.band === "medium" ? "warning" : "success";
+  const apyValue =
+    input.headlineApy !== null && input.headlineApy.low > 0 && input.headlineApy.high > 0
+      ? `${input.headlineApy.low.toFixed(1)}–${input.headlineApy.high.toFixed(1)}%`
+      : "—";
 
   return [
     {
@@ -261,23 +283,32 @@ function buildHeroKpis(input: {
     },
     {
       label: "APY",
-      value: `${input.headlineApy.low.toFixed(1)}–${input.headlineApy.high.toFixed(1)}%`,
+      value: apyValue,
       sublabel: input.yieldPosture,
       provenance: heroProvenance(input.apyProvenance),
     },
     {
       label: "Risk",
-      value: `${input.risk.composite}/100`,
-      sublabel: input.risk.bandLabel,
+      value:
+        input.hasLiveKpis && input.risk.composite > 0
+          ? `${input.risk.composite}/100`
+          : "—",
+      sublabel:
+        input.hasLiveKpis && input.risk.composite > 0
+          ? input.risk.bandLabel
+          : "awaiting snapshot",
       provenance: heroProvenance(input.riskProvenance),
       alert: riskTone === "danger",
     },
     {
       label: "Mining",
-      value: `${input.miningMarginScore}/100`,
+      value:
+        input.hasLiveKpis && input.miningMarginScore > 0
+          ? `${input.miningMarginScore}/100`
+          : "—",
       sublabel: input.miningSublabel,
       provenance: heroProvenance(input.miningProvenance),
-      alert: input.miningMarginScore < 15,
+      alert: input.hasLiveKpis && input.miningMarginScore > 0 && input.miningMarginScore < 15,
     },
     {
       label: "Proof",
@@ -522,7 +553,7 @@ function ProofPulse({
 function DistributionPanel({
   distribution,
 }: {
-  distribution: DashboardData["latestDistribution"];
+  distribution: NonNullable<DashboardData["latestDistribution"]>;
 }) {
   const provenance: Provenance = distribution.synthesized ? "estimated" : distribution.status === "paid" ? "live" : "manual";
 

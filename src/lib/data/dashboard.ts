@@ -13,6 +13,10 @@ import {
 } from "@/lib/agents/loaders/distribution";
 import { loadVaultMonthlyHistory, type VaultMonthlyRow } from "@/lib/agents/loaders/vault";
 import { fetchBtcPrice, type BtcPriceData } from "@/lib/data/btc-price";
+import {
+  loadLatestTimelineSnapshot,
+  timelineSnapshotWhere,
+} from "@/lib/data/timeline-snapshot";
 import { prisma } from "@/lib/db";
 import type { VaultMode, VaultId } from "@/lib/engine/types";
 import {
@@ -21,10 +25,7 @@ import {
   type AllocationTargets,
   type VaultDefinition,
 } from "@/lib/engine/vaults";
-import {
-  METHODOLOGY_ANCHORS,
-  METHODOLOGY_FACTORS,
-} from "@/lib/engine/methodology";
+import { METHODOLOGY_FACTORS } from "@/lib/engine/methodology";
 import type { VaultRef } from "@/lib/vaults/resolver";
 import { toVaultProfile } from "@/lib/vaults/profile";
 
@@ -151,7 +152,7 @@ export interface DashboardData {
   hashpriceTrendPct: number;
   /** Operational confidence composite, 0-100. */
   operationalConfidence: number;
-  latestDistribution: DistributionSnapshot;
+  latestDistribution: DistributionSnapshot | null;
   monthlyHistory: VaultMonthlyRow[];
   btcPrice: BtcPriceData;
   recentEvents: DashboardRecentEvent[];
@@ -162,12 +163,9 @@ export interface DashboardData {
    * one fallback fired; `fallback` when no DB data exists yet.
    */
   source: "db" | "partial" | "fallback";
+  /** True when a timeline snapshot row exists for the Yield vault series. */
+  hasTimelineSnapshot: boolean;
 }
-
-// Snapshot `source` values that represent the real vault timeline (vs the
-// `computed` preset/scenario snapshots used by the memo loader). The dashboard
-// reads only these so a stress-preset never leaks into the live KPIs.
-const TIMELINE_SOURCES: string[] = ["daily-seed", "live", "oracle", "attested"];
 
 // Mode vérité live: with no DB row, report honest zeros — never the old
 // fabricated "paper phase" numbers (−3.4% trend / 81 confidence). A zero
@@ -292,15 +290,7 @@ async function buildDashboardFromSnapshot(
     rebalanceRows,
     trailingSnapshots,
   ] = await Promise.all([
-    prisma.vaultSnapshot.findFirst({
-      // Exclude scenario/preset snapshots (`source: "computed"`) — those are
-      // anchored to preset dates for the memo/scenario loaders and would
-      // otherwise pollute the dashboard's "latest" with extreme stress values.
-      // Only the real timeline counts here: daily seed locally, live in prod.
-      where: { source: { in: TIMELINE_SOURCES } },
-      orderBy: { takenAt: "desc" },
-      include: { allocations: true },
-    }),
+    loadLatestTimelineSnapshot({ includeAllocations: true }),
     loadMiningOpsSnapshot(),
     safeLoadLatestMining(),
     loadLatestDistribution(),
@@ -311,7 +301,7 @@ async function buildDashboardFromSnapshot(
       take: 5,
     }),
     prisma.vaultSnapshot.findMany({
-      where: { takenAt: { gte: thirtyDaysAgo }, source: { in: TIMELINE_SOURCES } },
+      where: { takenAt: { gte: thirtyDaysAgo }, ...timelineSnapshotWhere() },
       orderBy: { takenAt: "asc" },
       select: {
         takenAt: true,
@@ -377,6 +367,7 @@ async function buildDashboardFromSnapshot(
     recentEvents,
     timeseries,
     source,
+    hasTimelineSnapshot: latestSnapshot !== null,
   };
 }
 
@@ -432,15 +423,14 @@ async function buildVault(
 ): Promise<DashboardVault> {
   if (snapshot === null) {
     markFallback();
-    const stressedApy = vaultMeta.apyTarget.low * METHODOLOGY_FACTORS.BEAR_STRESS_FACTOR;
     return {
       aumUsdc: 0,
       delta30dUsdc: 0,
-      apyRange: { ...vaultMeta.apyTarget },
-      stressedApy,
-      stressedApyRange: stressedRangeFor(stressedApy),
-      riskScore: METHODOLOGY_ANCHORS.RISK_SCORE,
-      miningMarginScore: METHODOLOGY_ANCHORS.MINING_MARGIN_SCORE,
+      apyRange: { low: 0, high: 0 },
+      stressedApy: 0,
+      stressedApyRange: { low: 0, high: 0 },
+      riskScore: 0,
+      miningMarginScore: 0,
       mode: "balanced",
       asOf: new Date(),
     };
@@ -450,12 +440,12 @@ async function buildVault(
   const thirtyDaysAgo = new Date(snapshot.takenAt.getTime() - THIRTY_DAYS_MS);
   const [prior, oldest] = await Promise.all([
     prisma.vaultSnapshot.findFirst({
-      where: { takenAt: { lte: thirtyDaysAgo }, source: { in: TIMELINE_SOURCES } },
+      where: { takenAt: { lte: thirtyDaysAgo }, ...timelineSnapshotWhere() },
       orderBy: { takenAt: "desc" },
       select: { aumUsdc: true },
     }),
     prisma.vaultSnapshot.findFirst({
-      where: { source: { in: TIMELINE_SOURCES } },
+      where: timelineSnapshotWhere(),
       orderBy: { takenAt: "asc" },
       select: { aumUsdc: true },
     }),
@@ -516,14 +506,7 @@ function buildAllocations(
 ): DashboardAllocation[] {
   if (rows.length === 0) {
     markFallback();
-    // Use methodology targets from vaultMeta when DB is empty.
-    // valueUsdc and yieldContributionBps stay 0 as they require live AUM/metrics.
-    return Object.entries(vaultMeta.allocationTargets).map(([bucket, pct]) => ({
-      bucket: normaliseBucket(bucket),
-      pct,
-      valueUsdc: 0,
-      yieldContributionBps: 0,
-    }));
+    return [];
   }
   return rows.map((r) => ({
     bucket: normaliseBucket(r.bucket),

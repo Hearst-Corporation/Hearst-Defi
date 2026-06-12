@@ -111,6 +111,7 @@ function makeData(overrides: Partial<DashboardData>): DashboardData {
     recentEvents: [],
     timeseries: { nav30d: [], apy30d: [], source: "fallback" },
     source: "fallback",
+    hasTimelineSnapshot: false,
   };
   return { ...base, ...overrides };
 }
@@ -134,8 +135,9 @@ function render(data: DashboardData, capitalUsdc: number) {
       totalActionRequired={0}
       capitalUsdc={capitalUsdc}
       capitalProvenance="estimated"
-      headlineApy={{ low: 9.4, high: 12.8 }}
-      yieldPosture="within target band"
+      headlineApy={null}
+      yieldPosture="awaiting first snapshot"
+      hasLiveKpis={false}
       proofFresh={false}
       cockpit={COCKPIT}
     />,
@@ -168,6 +170,7 @@ describe("DashboardAssetsBoard — Admin Honesty", () => {
   it("db source WITH capital renders the live orbit + capital stack", () => {
     const data = makeData({
       source: "db",
+      hasTimelineSnapshot: true,
       allocations: [
         { bucket: "mining", pct: 40, valueUsdc: 200_000, yieldContributionBps: 0 },
         { bucket: "usdc_base", pct: 60, valueUsdc: 300_000, yieldContributionBps: 0 },
@@ -181,7 +184,22 @@ describe("DashboardAssetsBoard — Admin Honesty", () => {
         apy30d: [],
       },
     });
-    const html = render(data, 500_000);
+    const html = renderToStaticMarkup(
+      <DashboardAssetsBoard
+        data={data}
+        risk={RISK}
+        proof={PROOF}
+        actions={ACTIONS}
+        totalActionRequired={0}
+        capitalUsdc={500_000}
+        capitalProvenance="live"
+        headlineApy={{ low: 9.4, high: 12.8 }}
+        yieldPosture="within target band"
+        hasLiveKpis
+        proofFresh={false}
+        cockpit={COCKPIT}
+      />,
+    );
     expect(html).toContain("dashboard-orbit__ring");
     expect(html).toContain("% mapped");
     expect(html).toContain("dashboard-nav-bars__bar");

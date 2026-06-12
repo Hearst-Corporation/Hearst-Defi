@@ -52,45 +52,19 @@ function coverageFor(ratio: number | null): DistributionRecommendation {
 }
 
 /**
- * Target monthly distribution rate when nothing is on file in the DB.
- * Matches the 0.8%/mo rate used by the investor-memo PDF test fixture
- * (`src/lib/pdf/__tests__/memo-input.fixture.ts`, `monthlySeries(...)`).
+ * Returns the most recent distribution row from the DB, or `null` when none
+ * exists. Callers render an empty/awaiting state — no synthesised amounts.
  */
-const DEFAULT_MONTHLY_RATE = 0.008;
-
-/**
- * Returns the most recent distribution row, falling back to a synthesised
- * "scheduled" entry for the current calendar month sized at 0.8% of the
- * latest `VaultSnapshot.aumUsdc`. Never throws on empty data.
- */
-export async function loadLatestDistribution(): Promise<DistributionSnapshot> {
+export async function loadLatestDistribution(): Promise<DistributionSnapshot | null> {
   const row = await prisma.distribution.findFirst({
     orderBy: { distributedAt: "desc" },
   });
 
-  if (row) {
-    return rowToSnapshot({ ...row, amountUsdc: row.amountUsdc.toNumber() });
+  if (!row) {
+    return null;
   }
 
-  // Fallback: synthesise a scheduled distribution for the current month
-  // based on the latest vault snapshot AUM. If even the vault is empty we
-  // fall further back to a sensible $25M baseline.
-  const snapshot = await prisma.vaultSnapshot.findFirst({
-    orderBy: { takenAt: "desc" },
-    select: { aumUsdc: true },
-  });
-  // Mode vérité live: never invent capital. With no snapshot the real reserve
-  // basis is 0, so the synthesised amount is 0 (an honest "nothing computed"),
-  // not a fabricated $25M baseline.
-  const aum = snapshot?.aumUsdc?.toNumber() ?? 0;
-  return {
-    period: periodOf(new Date()),
-    amount_usdc: Math.round(aum * DEFAULT_MONTHLY_RATE),
-    paid_at: null,
-    status: "scheduled",
-    synthesized: true,
-    coverage: coverageFor(null),
-  };
+  return rowToSnapshot({ ...row, amountUsdc: row.amountUsdc.toNumber() });
 }
 
 // ---------------------------------------------------------------------------
@@ -105,18 +79,12 @@ interface DistributionRow {
 }
 
 function rowToSnapshot(row: DistributionRow): DistributionSnapshot {
+  const status: DistributionSnapshot["status"] = row.txHash ? "paid" : "scheduled";
   return {
     period: row.period,
     amount_usdc: row.amountUsdc,
-    paid_at: row.distributedAt,
-    status: row.txHash ? "paid" : "scheduled",
-    // No live coverage source yet (P1) → pending recommendation, not a fake ratio.
+    paid_at: status === "paid" ? row.distributedAt : null,
+    status,
     coverage: coverageFor(null),
   };
-}
-
-function periodOf(d: Date): string {
-  const y = d.getUTCFullYear();
-  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-  return `${y}-${m}`;
 }

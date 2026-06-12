@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/db";
+import { loadLatestTimelineSnapshot } from "@/lib/data/timeline-snapshot";
 import { adminDashboardVaultHref } from "@/lib/vaults/dashboard-scope";
 import { listAllVaults } from "@/lib/vaults/resolver";
 import { vaultLabel, vaultSlug } from "@/lib/vaults/slug";
@@ -75,6 +76,8 @@ export interface VaultLiveMetric {
   status: string;
   /** Admin deep-link — dashboard fixture scope or deployment detail. */
   href: string;
+  /** Yield vault timeline snapshot exists — other vaults stay empty until Phase 3. */
+  hasTimelineData: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -237,9 +240,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
 
   try {
     // ── P0: Mining margin red (latest snapshot miningMarginScore < 15) ──────
-    const latestSnapshot = await prisma.vaultSnapshot.findFirst({
-      orderBy: { takenAt: "desc" },
-    });
+    const latestSnapshot = await loadLatestTimelineSnapshot();
     if (latestSnapshot && latestSnapshot.miningMarginScore < 15) {
       items.push({
         id: "mining-margin-red",
@@ -428,7 +429,7 @@ async function buildHeroKpis(): Promise<HeroKpi[]> {
     const [vaultRefs, latestSnapshot, latestMetric, latestDistrib] =
       await Promise.all([
         listAllVaults({ status: "live-or-paused" }),
-        prisma.vaultSnapshot.findFirst({ orderBy: { takenAt: "desc" } }),
+        loadLatestTimelineSnapshot(),
         prisma.miningMetric.findFirst({ orderBy: { takenAt: "desc" } }),
         prisma.distribution.findFirst({
           orderBy: { distributedAt: "desc" },
@@ -436,8 +437,8 @@ async function buildHeroKpis(): Promise<HeroKpi[]> {
       ]);
 
     const tvl = latestSnapshot?.aumUsdc?.toNumber() ?? 0;
-    const apyLow = latestSnapshot?.currentApyLow?.toNumber() ?? 9.4;
-    const apyHigh = latestSnapshot?.currentApyHigh?.toNumber() ?? 12.8;
+    const apyLow = latestSnapshot?.currentApyLow?.toNumber() ?? 0;
+    const apyHigh = latestSnapshot?.currentApyHigh?.toNumber() ?? 0;
     const oracleAge = latestMetric
       ? Math.round((Date.now() - latestMetric.takenAt.getTime()) / 60_000)
       : null;
@@ -453,20 +454,21 @@ async function buildHeroKpis(): Promise<HeroKpi[]> {
       ? `${latestDistrib.period ?? "—"}`
       : "—";
 
-    const signerCount = 3; // stub — Fireblocks multisig threshold; Phase 3 wires live signer list
-
     return [
       {
         label: "TVL",
         value: tvl > 0 ? usdCompact.format(tvl) : "—",
         sublabel: `${vaultRefs.length} vault${vaultRefs.length !== 1 ? "s" : ""}`,
-        provenance: latestSnapshot ? "live" : "estimated",
+        provenance: latestSnapshot ? "live" : "manual",
       },
       {
         label: "APY",
-        value: tvl > 0 || latestSnapshot ? `${apyLow.toFixed(1)}–${apyHigh.toFixed(1)}%` : "9.4–12.8%",
+        value:
+          latestSnapshot && apyLow > 0 && apyHigh > 0
+            ? `${apyLow.toFixed(1)}–${apyHigh.toFixed(1)}%`
+            : "—",
         sublabel: "forward 12m · not guaranteed",
-        provenance: "estimated",
+        provenance: latestSnapshot ? "live" : "manual",
       },
       {
         label: "Next J-3",
@@ -476,8 +478,8 @@ async function buildHeroKpis(): Promise<HeroKpi[]> {
       },
       {
         label: "Signers",
-        value: `${signerCount}/3`,
-        sublabel: "multisig quorum",
+        value: "—",
+        sublabel: "multisig not wired",
         provenance: "manual",
       },
       {
@@ -499,9 +501,9 @@ async function buildHeroKpis(): Promise<HeroKpi[]> {
     // Return safe stubs so the page never crashes
     return [
       { label: "TVL", value: "—", sublabel: "no snapshot", provenance: "manual" },
-      { label: "APY", value: "9.4–12.8%", sublabel: "methodology preset", provenance: "estimated" },
-      { label: "Next J-3", value: "—", sublabel: "no distribution", provenance: "estimated" },
-      { label: "Signers", value: "3/3", sublabel: "multisig quorum", provenance: "manual" },
+      { label: "APY", value: "—", sublabel: "no snapshot", provenance: "manual" },
+      { label: "Next J-3", value: "—", sublabel: "no distribution", provenance: "manual" },
+      { label: "Signers", value: "—", sublabel: "multisig not wired", provenance: "manual" },
       { label: "Oracles", value: "—", sublabel: "no data", provenance: "stale", alert: true },
       // A3 — DB-error fallback stub: nothing here is live.
       { label: "P0", value: "0", sublabel: "no snapshot", provenance: "stale" },
@@ -517,7 +519,7 @@ async function buildVaultMetrics(): Promise<VaultLiveMetric[]> {
   try {
     const [vaultRefs, latestSnapshot, latestMetric] = await Promise.all([
       listAllVaults({ status: "live-or-paused" }),
-      prisma.vaultSnapshot.findFirst({ orderBy: { takenAt: "desc" } }),
+      loadLatestTimelineSnapshot(),
       prisma.miningMetric.findFirst({ orderBy: { takenAt: "desc" } }),
     ]);
 
@@ -534,6 +536,7 @@ async function buildVaultMetrics(): Promise<VaultLiveMetric[]> {
         ref.kind === "fixture"
           ? ref.fixture.id === "yield"
           : false;
+      const hasTimelineData = isYield && latestSnapshot !== null;
 
       const href =
         ref.kind === "fixture"
@@ -544,13 +547,14 @@ async function buildVaultMetrics(): Promise<VaultLiveMetric[]> {
         vaultId:
           ref.kind === "fixture" ? ref.fixture.id : ref.deployment.id,
         vaultName: name,
-        tvlUsdc: isYield ? (latestSnapshot?.aumUsdc?.toNumber() ?? 0) : 0,
-        miningMarginScore: latestSnapshot?.miningMarginScore ?? 0,
-        riskScore: latestSnapshot?.riskScore ?? 0,
+        tvlUsdc: hasTimelineData ? (latestSnapshot.aumUsdc.toNumber() ?? 0) : 0,
+        miningMarginScore: hasTimelineData ? latestSnapshot.miningMarginScore : 0,
+        riskScore: hasTimelineData ? latestSnapshot.riskScore : 0,
         oracleDelayMs,
-        btcPosture: latestSnapshot?.mode ?? "neutral",
+        btcPosture: hasTimelineData ? latestSnapshot.mode : "neutral",
         status: ref.kind === "fixture" ? "live" : ref.deployment.status,
         href,
+        hasTimelineData,
       };
     });
   } catch {

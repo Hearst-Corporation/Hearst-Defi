@@ -472,8 +472,8 @@
 }
 
 /* ── Viewport-locked mode (Single tab) ───────────────────────────────────────
-   Chrome (H1, sub-nav sibling, toolbar, presets, inputs) stays fixed in the
-   centre panel. Only the scenario output column scrolls. */
+   Chrome (H1, toolbar, presets) stays fixed in the centre panel. The workspace
+   fills remaining height; input + output cards each scroll inside their column. */
 .ct-panels-row:has(.scenario-lab-page--viewport) {
   height: 100dvh;
   max-height: 100dvh;
@@ -572,20 +572,25 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
+  align-items: stretch;
 }
 
 .scenario-lab-workspace--viewport .scenario-lab-input-card {
-  position: static;
-  top: auto;
-  max-height: none;
+  min-height: 0;
   align-self: stretch;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .scenario-lab-workspace--viewport .scenario-lab-input-scroll {
-  flex: none;
-  max-height: none;
-  overflow: visible;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.scenario-lab-workspace--viewport .scenario-lab-input-footer {
+  flex-shrink: 0;
 }
 
 .scenario-lab-workspace--viewport .scenario-lab-output-card {
@@ -836,12 +841,19 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
   grid-template-columns: minmax(0, 1fr);
 }
 
-/* Desktop: 30/70 split — viewport mode locks chrome; output column scrolls. */
+/* Desktop: 30/70 split — both columns stretch to workspace height. */
 @container lab-shell (min-width: 42rem) {
   .scenario-lab-workspace--viewport {
-    align-items: stretch;
     grid-template-columns: minmax(15rem, 30fr) minmax(0, 70fr);
     gap: var(--ct-space-4);
+  }
+}
+
+/* Stacked workspace: split vertical space so inputs stay reachable. */
+@container lab-shell (max-width: 41.999rem) {
+  .scenario-lab-workspace--viewport {
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--ct-space-3);
   }
 }
 

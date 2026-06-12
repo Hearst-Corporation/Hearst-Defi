@@ -46,7 +46,7 @@ export interface MemoPdfData {
    * `Distribution`; falls back to a synthesised 0.8% × AUM scheduled entry
    * when the table is empty.
    */
-  distribution: DistributionSnapshot;
+  distribution: DistributionSnapshot | null;
   /**
    * Trailing monthly performance rows. Drives the performance overview
    * table. Sourced from `VaultSnapshot` joined with `Distribution`; falls
@@ -72,7 +72,7 @@ const MEMO_MONTHLY_HISTORY_WINDOW = 4;
  */
 export async function loadMemoPdfExtras(): Promise<{
   miningOps: MiningOpsSnapshot;
-  distribution: DistributionSnapshot;
+  distribution: DistributionSnapshot | null;
   monthlyHistory: VaultMonthlyRow[];
 }> {
   const [miningOps, distribution, monthlyHistory] = await Promise.all([

@@ -88,13 +88,13 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
         />
         <MetricCell
           label="Margin"
-          value={`${vault.miningMarginScore}`}
-          valueClassName={marginColor}
+          value={vault.hasTimelineData ? `${vault.miningMarginScore}` : "—"}
+          valueClassName={vault.hasTimelineData ? marginColor : undefined}
         />
         <MetricCell
           label="Risk"
-          value={`${vault.riskScore}`}
-          valueClassName={riskColor}
+          value={vault.hasTimelineData ? `${vault.riskScore}` : "—"}
+          valueClassName={vault.hasTimelineData ? riskColor : undefined}
         />
         <MetricCell
           label="Oracle"
@@ -103,7 +103,11 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
         />
         <MetricCell
           label="BTC"
-          value={vault.btcPosture.charAt(0).toUpperCase() + vault.btcPosture.slice(1)}
+          value={
+            vault.hasTimelineData
+              ? vault.btcPosture.charAt(0).toUpperCase() + vault.btcPosture.slice(1)
+              : "—"
+          }
         />
       </div>
     </div>

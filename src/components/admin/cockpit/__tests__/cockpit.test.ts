@@ -302,6 +302,7 @@ describe("VaultLiveMetric — shape", () => {
     btcPosture: "neutral",
     status: "live",
     href: "/admin/dashboard",
+    hasTimelineData: true,
   };
 
   it("oracleDelayMs < 6h means oracle is not stale", () => {

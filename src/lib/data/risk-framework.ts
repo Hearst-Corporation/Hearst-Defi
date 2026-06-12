@@ -2,8 +2,7 @@ import "server-only";
 
 import { prisma } from "@/lib/db";
 import { fetchBtcPrice } from "@/lib/data/btc-price";
-import { getEnergyCostUsdPerKwh } from "@/lib/data/energy-cost";
-import { METHODOLOGY_ANCHORS } from "@/lib/engine/methodology";
+import { loadLatestTimelineSnapshot } from "@/lib/data/timeline-snapshot";
 import { computeRiskBreakdown } from "@/lib/engine/risk";
 import type { ScenarioInputs } from "@/lib/engine/types";
 
@@ -71,25 +70,6 @@ export interface RiskFrameworkData {
   dimensions: RiskDimension[];
   /** `db` when every input came from real rows; `partial`/`fallback` otherwise. */
   source: "db" | "partial" | "fallback";
-}
-
-// ---------------------------------------------------------------------------
-// Engine input fallbacks — chosen to land in the middle of each threshold band
-// so the visual still reads "Medium" when the DB is empty.
-// ---------------------------------------------------------------------------
-
-// Built lazily so the energy-cost env override (`MINING_ENERGY_COST_USD_PER_KWH`)
-// is honoured even on the no-DB fallback path. We never compute this at module
-// import time because `getEnergyCostUsdPerKwh()` reads env via the validated
-// `env` module which itself imports `server-only`.
-function buildFallbackInputs(): ScenarioInputs {
-  return {
-    btc_price_change_pct: 0,
-    hashprice_usd_th_day: 0.078,
-    energy_cost_kwh: getEnergyCostUsdPerKwh().usdPerKwh,
-    stable_apy_pct: 4.5,
-    vol_index: 50,
-  };
 }
 
 // Stable proxy for vol_index — same constant the mining loader uses to keep
@@ -208,15 +188,22 @@ function compositeBand(score: number): { band: RiskBand; label: string } {
 
 export async function loadRiskFramework(): Promise<RiskFrameworkData> {
   const [latestSnapshot, latestMining, btcPrice] = await Promise.all([
-    prisma.vaultSnapshot.findFirst({
-      orderBy: { takenAt: "desc" },
-      include: { allocations: true },
-    }),
+    loadLatestTimelineSnapshot({ includeAllocations: true }),
     prisma.miningMetric.findFirst({
       orderBy: { takenAt: "desc" },
     }),
     fetchBtcPrice(),
   ]);
+
+  if (latestSnapshot === null && latestMining === null) {
+    return {
+      composite: 0,
+      band: "low",
+      bandLabel: "Awaiting data",
+      dimensions: [],
+      source: "fallback",
+    };
+  }
 
   let usedFallback = false;
   const markFallback = (): void => {
@@ -240,15 +227,23 @@ export async function loadRiskFramework(): Promise<RiskFrameworkData> {
       ? (usdcBaseBps / usdcBasePct) / 100
       : STABLE_APY_PROXY_PCT;
 
-  const inputs: ScenarioInputs = latestMining
-    ? {
-        btc_price_change_pct: btcPrice.usd === 0 ? 0 : btcPrice.usd_24h_change,
-        hashprice_usd_th_day: latestMining.hashprice.toNumber(),
-        energy_cost_kwh: latestMining.energyCost.toNumber(),
-        stable_apy_pct: stableApyPct,
-        vol_index: VOL_INDEX_PROXY,
-      }
-    : buildFallbackInputs();
+  if (latestMining === null) {
+    return {
+      composite: latestSnapshot?.riskScore ?? 0,
+      band: "low",
+      bandLabel: "Awaiting mining feed",
+      dimensions: [],
+      source: "partial",
+    };
+  }
+
+  const inputs: ScenarioInputs = {
+    btc_price_change_pct: btcPrice.usd === 0 ? 0 : btcPrice.usd_24h_change,
+    hashprice_usd_th_day: latestMining.hashprice.toNumber(),
+    energy_cost_kwh: latestMining.energyCost.toNumber(),
+    stable_apy_pct: stableApyPct,
+    vol_index: VOL_INDEX_PROXY,
+  };
 
   // ---- Numeric breakdown (delegated to the engine, pure) ------------------
   const breakdown = computeRiskBreakdown(inputs);
@@ -259,7 +254,7 @@ export async function loadRiskFramework(): Promise<RiskFrameworkData> {
     ? latestSnapshot.riskScore
     : Math.round(breakdown.composite);
 
-  const miningMarginScore = latestSnapshot?.miningMarginScore ?? METHODOLOGY_ANCHORS.MINING_MARGIN_SCORE;
+  const miningMarginScore = latestSnapshot?.miningMarginScore ?? 0;
 
   // ---- Compose the 5 dimensions ------------------------------------------
   const dimensions: RiskDimension[] = [
