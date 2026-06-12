@@ -1,3 +1,4 @@
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ProofCard } from "@/components/proof/proof-card";
 import type { FilterValue } from "@/components/proof/proof-filter-types";
 import {
@@ -34,15 +35,7 @@ export function ProofGrid({ proofs, filter }: ProofGridProps) {
       ? "Try a different filter or check back as new attestations are published."
       : "Proofs (audits, custody attestations, on-chain events) will appear here once published.";
     return (
-      <div className="flex flex-col items-center gap-4 py-16 text-center">
-        <div className="h-10 w-10 rounded-lg ct-surface-2" aria-hidden />
-        <div>
-          <p className="body-sm font-medium ct-text-strong">
-            {emptyTitle}
-          </p>
-          <p className="body-xs mt-1">{emptyHint}</p>
-        </div>
-      </div>
+      <AwaitingMetricState message={emptyTitle} detail={emptyHint} />
     );
   }
 

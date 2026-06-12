@@ -1,7 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { cn } from "@/lib/cn";
 import { EXPLORER_ADDRESS_BASE, EXPLORER_TX_BASE } from "@/lib/chain/client";
 import { abbreviateAddress } from "@/lib/onchain";
 
@@ -100,61 +102,41 @@ export function ContractsAuditTrail() {
           <ProvenanceBadge kind="attested" />
         </CardHeader>
 
-        <div className="space-y-6">
-          {DEPLOYED_CONTRACTS.map((contract) => (
+        <div>
+          {DEPLOYED_CONTRACTS.map((contract, idx) => (
             <article
               key={contract.address}
-              className="ct-nested-panel p-5"
+              className={cn(idx > 0 && "mt-6 border-t border-[var(--ct-border-soft)] pt-6")}
             >
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <h4 className="h4">{contract.name}</h4>
-                <ProvenanceBadge kind="attested" />
-              </div>
-
+              <h4 className="h4 mb-2">{contract.name}</h4>
               <p className="body-sm mb-4">{contract.description}</p>
 
-              <dl className="space-y-2">
-                <div className="flex flex-wrap items-baseline justify-between gap-3">
-                  <dt className="body-xs">Contract address</dt>
-                  <dd>
-                    <a
-                      href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="mono tabular text-xs ct-text-primary hover:ct-text-strong transition-colors duration-[var(--ct-dur-fast)]"
-                      title={contract.address}
-                    >
-                      {abbreviateAddress(contract.address)}
-                    </a>
-                  </dd>
-                </div>
-                <div className="flex flex-wrap items-baseline justify-between gap-3">
-                  <dt className="body-xs">Deploy tx</dt>
-                  <dd>
-                    <a
-                      href={`${EXPLORER_TX_BASE}${contract.deployTxHash}`}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="mono tabular text-xs ct-text-body hover:ct-text-strong transition-colors duration-[var(--ct-dur-fast)]"
-                      title={contract.deployTxHash}
-                    >
-                      {truncateTx(contract.deployTxHash)}
-                    </a>
-                  </dd>
-                </div>
-                <div className="flex flex-wrap items-baseline justify-between gap-3">
-                  <dt className="body-xs">Deploy block</dt>
-                  <dd className="mono tabular text-xs ct-text-body">
-                    {contract.deployBlock}
-                  </dd>
-                </div>
-                <div className="flex flex-wrap items-baseline justify-between gap-3">
-                  <dt className="body-xs">Network</dt>
-                  <dd className="body-xs ct-text-body">
-                    Base Sepolia (chain id 84532)
-                  </dd>
-                </div>
-              </dl>
+              <div>
+                <ProofRow label="Contract address">
+                  <a
+                    href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="hover:ct-text-strong transition-colors duration-[var(--ct-dur-fast)]"
+                    title={contract.address}
+                  >
+                    {abbreviateAddress(contract.address)}
+                  </a>
+                </ProofRow>
+                <ProofRow label="Deploy tx">
+                  <a
+                    href={`${EXPLORER_TX_BASE}${contract.deployTxHash}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="hover:ct-text-strong transition-colors duration-[var(--ct-dur-fast)]"
+                    title={contract.deployTxHash}
+                  >
+                    {truncateTx(contract.deployTxHash)}
+                  </a>
+                </ProofRow>
+                <ProofRow label="Deploy block">{contract.deployBlock}</ProofRow>
+                <ProofRow label="Network">Base Sepolia (chain id 84532)</ProofRow>
+              </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button asChild variant="secondary" size="md">
@@ -190,11 +172,11 @@ export function ContractsAuditTrail() {
           </div>
         </CardHeader>
 
-        <ul className="space-y-3">
+        <ul className="divide-y divide-[var(--ct-border-soft)]">
           {AUDIT_ENTRIES.map((entry) => (
             <li
               key={entry.label}
-              className="ct-nested-callout flex flex-wrap items-center justify-between gap-3"
+              className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
             >
               <div className="flex flex-col gap-0.5">
                 <span className="body-sm font-medium ct-text-primary">

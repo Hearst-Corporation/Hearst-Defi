@@ -1,7 +1,8 @@
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
-import { NestedKpiGrid } from "@/components/ui/nested-panel";
+import { NestedKpiGrid, ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import {
   EXPLORER_ADDRESS_BASE,
@@ -79,16 +80,12 @@ function custodyProvenance(snapshot: CustodySnapshot): "attested" | "stale" {
   return live && fresh ? "attested" : "stale";
 }
 
-function CustodyBlock({ custody }: { custody: CustodySnapshot }) {
+function CustodyKpis({ custody }: { custody: CustodySnapshot }) {
   const provenance = custodyProvenance(custody);
   const asOf = new Date(custody.asOf);
   const snapshotTs = formatNestedTimestamp(asOf);
   return (
-    <div className="mt-6 border-t border-[var(--ct-border-soft)] pt-6">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <span className="eyebrow">Custody (Fireblocks)</span>
-        <ProvenanceBadge kind={provenance} />
-      </div>
+    <>
       <NestedKpiGrid columns={3}>
         <Metric
           variant="nested"
@@ -114,6 +111,34 @@ function CustodyBlock({ custody }: { custody: CustodySnapshot }) {
             : "Custody snapshot is unverified or older than 24h — badge shows Stale."}
         </p>
       ) : null}
+    </>
+  );
+}
+
+/** Standalone custody card when PoR attestation is absent (DS §9 — separate active surface). */
+function CustodyCard({ custody }: { custody: CustodySnapshot }) {
+  const provenance = custodyProvenance(custody);
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Custody (Fireblocks)</CardTitle>
+        <ProvenanceBadge kind={provenance} />
+      </CardHeader>
+      <CustodyKpis custody={custody} />
+    </Card>
+  );
+}
+
+/** Custody section nested inside an active PoR card (divider, not a second card). */
+function CustodyBlock({ custody }: { custody: CustodySnapshot }) {
+  const provenance = custodyProvenance(custody);
+  return (
+    <div className="mt-6 border-t border-[var(--ct-border-soft)] pt-6">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <span className="eyebrow">Custody (Fireblocks)</span>
+        <ProvenanceBadge kind={provenance} />
+      </div>
+      <CustodyKpis custody={custody} />
     </div>
   );
 }
@@ -125,18 +150,13 @@ export function PorSummary({
 }: PorSummaryProps) {
   if (attestation === null) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Proof of Reserves</CardTitle>
-          <ProvenanceBadge kind="manual" />
-        </CardHeader>
-        <p className="body-sm">
-          No on-chain Proof of Reserves attestation yet. Contracts are live on
-          Base Sepolia — the publisher will post the first attestation after the
-          initial vault period closes.
-        </p>
-        {custody ? <CustodyBlock custody={custody} /> : null}
-      </Card>
+      <>
+        <AwaitingMetricState
+          message="No on-chain Proof of Reserves attestation yet."
+          detail="Contracts are live on Base Sepolia — the publisher will post the first attestation after the initial vault period closes."
+        />
+        {custody ? <CustodyCard custody={custody} /> : null}
+      </>
     );
   }
 
@@ -170,37 +190,25 @@ export function PorSummary({
         <Metric variant="nested" label="Period" value={formatPeriod(attestation.period)} />
       </NestedKpiGrid>
 
-      <dl className="mt-6 space-y-2 border-t border-[var(--ct-border-soft)] pt-6">
-        <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <dt className="body-xs">Attestor address</dt>
-          <dd>
-            <a
-              href={`${EXPLORER_ADDRESS_BASE}${attestation.attestor}`}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="mono tabular text-xs ct-text-primary hover:ct-text-strong transition-colors duration-[var(--ct-dur-fast)]"
-              title={attestation.attestor}
-            >
-              {abbreviateAddress(attestation.attestor)}
-            </a>
-          </dd>
-        </div>
-        <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <dt className="body-xs">Evidence hash</dt>
-          <dd
-            className="mono tabular text-xs ct-text-body"
-            title={attestation.evidenceHash}
+      <div className="mt-6 border-t border-[var(--ct-border-soft)] pt-2">
+        <ProofRow label="Attestor address">
+          <a
+            href={`${EXPLORER_ADDRESS_BASE}${attestation.attestor}`}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="hover:ct-text-strong transition-colors duration-[var(--ct-dur-fast)]"
+            title={attestation.attestor}
           >
+            {abbreviateAddress(attestation.attestor)}
+          </a>
+        </ProofRow>
+        <ProofRow label="Evidence hash">
+          <span title={attestation.evidenceHash}>
             {abbreviateAddress(attestation.evidenceHash)}
-          </dd>
-        </div>
-        <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <dt className="body-xs">Block</dt>
-          <dd className="mono tabular text-xs ct-text-body">
-            {attestation.blockNumber.toString()}
-          </dd>
-        </div>
-      </dl>
+          </span>
+        </ProofRow>
+        <ProofRow label="Block">{attestation.blockNumber.toString()}</ProofRow>
+      </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <Button asChild variant="secondary" size="md">

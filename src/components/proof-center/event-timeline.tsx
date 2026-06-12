@@ -1,3 +1,4 @@
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,6 +47,15 @@ function ipfsGatewayUrl(cid: string): string {
 }
 
 export function EventTimeline({ events }: EventTimelineProps) {
+  if (events.length === 0) {
+    return (
+      <AwaitingMetricState
+        message="No on-chain events yet."
+        detail="Contracts are live on Base Sepolia — events appear here as the vault operates."
+      />
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -53,18 +63,9 @@ export function EventTimeline({ events }: EventTimelineProps) {
           <span className="eyebrow">On-chain event log</span>
           <CardTitle>EventLogger — last {events.length} events</CardTitle>
         </div>
-        <ProvenanceBadge kind={events.length > 0 ? "attested" : "manual"} />
+        <ProvenanceBadge kind="attested" />
       </CardHeader>
 
-      {events.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <div className="h-10 w-10 rounded-lg ct-surface-2" aria-hidden />
-          <p className="body-sm">
-            No on-chain events yet. Contracts are live on Base Sepolia — events
-            appear here as the vault operates.
-          </p>
-        </div>
-      ) : (
         <ol className="relative space-y-0" aria-label="On-chain event timeline">
           {events.map((event, idx) => (
             <li
@@ -163,7 +164,6 @@ export function EventTimeline({ events }: EventTimelineProps) {
             </li>
           ))}
         </ol>
-      )}
     </Card>
   );
 }

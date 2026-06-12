@@ -1,3 +1,4 @@
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
 import { NestedKpiGrid } from "@/components/ui/nested-panel";
@@ -38,6 +39,20 @@ export function MiningCashFlowEvidence({
   coverage?: CoverageView | null;
 }) {
   const provenance = coverage?.provenance ?? "pending";
+
+  if (provenance === "pending" || provenance === "invalid") {
+    return (
+      <AwaitingMetricState
+        message={
+          provenance === "invalid"
+            ? "Mining cash-flow coverage unavailable"
+            : "Mining cash-flow coverage pending"
+        }
+        detail={COPY[provenance]}
+      />
+    );
+  }
+
   const ratioLabel =
     coverage && coverage.ratio !== null ? `${coverage.ratio.toFixed(2)}×` : "Pending";
   const coverageState = coverage?.state ?? "invalid";
