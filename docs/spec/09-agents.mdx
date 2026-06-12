@@ -7,103 +7,130 @@ order: 9
 
 ## Principle
 
-Agents produce **artifacts**, not chat. Invisible in UX except when delivering output.
+The four structured agents produce **artifacts**, not chat — invisible in UX
+except when delivering output. Their contract is unchanged: STRICT JSON,
+Zod-validated, no free-form text.
+
+A separate **conversational cockpit chat** also ships — an admin review-mode
+facilitator and an LP-facing **Master Agent** — as a deliberately **scoped
+exception** to the old "No AI chat" non-negotiable. It is read-only: it has no
+write / financial / admin tool, only a closed-whitelist `navigate` capability,
+and every answer passes the same compliance guard (forbidden words + APY-range).
+See **ADR-012** and the "Conversational chat" section below.
 
 ## The 4 agents
 
-### 1. Scenario Narrative Agent (Kimi K2.6)
+### 1. Scenario Narrative Agent (OpenAI GPT-4.1 — ADR-011)
 - **Trigger**: `runScenarioAction()` Server Action (`src/app/(product)/scenario-lab/actions.ts`)
 - **Input**: scenario_run JSON (assumptions + computed outputs)
-- **Output schema**:
+- **Output schema** (`ScenarioNarrativeOutputSchema`, `.strict()`):
   ```ts
   {
-    narrative: string;          // max 500 chars
-    risk_warning: string;       // max 200 chars
+    narrative_md: string;       // min 1, max 2000 chars (markdown)
+    risk_warning: string;       // min 1, max 500 chars
     confidence: "low" | "medium" | "high";
-    key_drivers: string[];      // max 3
-  }
-  ```
-- **Guardrails**:
-  - Forbidden words: "guarantee", "promise", "certain", "will deliver", "risk-free"
-  - Must mention ≥ 1 assumption
-  - If confidence = low → must say so explicitly
-
-### 2. Mining Health Agent (Kimi K2.6)
-- **Trigger**: daily 08:00 UTC cron + on-demand from Dashboard
-- **Input**: 30d hashprice, difficulty, BTC price, energy cost, uptime, allocation
-- **Output schema**:
-  ```ts
-  {
-    alert_level: "green" | "orange" | "red";
-    summary: string;            // max 400 chars
-    recommendation: string;     // max 200 chars (suggests, never executes)
-    key_metrics: {
-      mining_margin_score: number;
-      hashprice_trend_pct: number;
-      operational_confidence: number;
+    key_drivers: string[];      // 1–5 items, each min 1 / max 200 chars
+    ptai: {                     // MANDATORY — Projection/Trigger/Action/Impact
+      projection: string;       // min 1, max 500 chars
+      trigger: string;          // min 1, max 500 chars
+      action: string;           // min 1, max 500 chars
+      impact: string;           // min 1, max 500 chars
     };
   }
   ```
 - **Guardrails**:
-  - Red alert → notify manager (no auto-action)
-  - Summary must cite ≥ 2 numeric metrics
+  - Forbidden words (6): "guarantee", "promise", "certain", "will deliver", "risk-free", "no risk" — applied to `narrative_md`, `risk_warning`, and all four `ptai` strings
+  - `narrative_md` must cite ≥ 1 engine assumption
+  - If confidence = low → `narrative_md` must say "low confidence" explicitly (enforced)
+  - `ptai` is required (non-negotiable #3); the UI `<Ptai>` primitive and the Investor Memo PDF render it without re-parsing the prose
 
-### 3. Risk Explanation Agent (Kimi K2.6)
-- **Trigger**: daily + on every rebalancing event
-- **Input**: 5 risk scores + 30d evolution + current allocation
-- **Output schema**:
+### 2. Mining Health Agent (OpenAI GPT-4.1 — ADR-011)
+- **Trigger**: daily 08:00 UTC cron + on-demand from Dashboard
+- **Input**: 30d hashprice, difficulty change, margin, uptime, period
+- **Output schema** (`MiningHealthOutputSchema`, `.strict()`):
   ```ts
   {
-    top_risks: Array<{
-      risk_type: "market" | "mining" | "liquidity" | "smart_contract" | "counterparty";
-      score: number;
-      trend: "rising" | "stable" | "falling";
-      explanation: string;       // max 300 chars
-      suggested_guardrail: string; // max 200 chars
+    alert_level: "green" | "amber" | "red";
+    summary: string;            // min 1, max 1000 chars
+    recommendation: string;     // min 1, max 500 chars (suggests, never executes)
+  }
+  ```
+- **Guardrails**:
+  - Red alert → notify manager (no auto-action)
+  - Alert rubric applied consistently — red: margin < 5 OR uptime < 95 OR difficulty change > 10; amber: margin < 15 OR uptime < 97 OR difficulty change > 5; green otherwise
+  - `summary` must cite ≥ 1 assumption (enforced) and ≥ 1 numeric metric
+
+### 3. Risk Explanation Agent (OpenAI GPT-4.1 — ADR-011)
+- **Trigger**: daily + on every rebalancing event
+- **Input**: 5 risk scores + 30d evolution + current allocation
+- **Output schema** (`RiskExplanationOutputSchema`, `.strict()`):
+  ```ts
+  {
+    top_risks: Array<{                                    // 1–2 items
+      risk_id: "market" | "mining" | "liquidity" | "smart_contract" | "counterparty";
+      name: string;               // min 1
+      explanation: string;        // min 1
+      suggested_guardrail: string; // min 1
     }>;
+    overall_summary: string;      // min 1
   }
   ```
 - **Guardrails**:
   - Guardrails proposed must stay within vault bounds
   - Never claims "we will fix" — proposes, doesn't decide
 
-### 4. Investor Memo Agent (Kimi K2.6, max_tokens 4096)
-- **Trigger**: click "Generate memo" + `client_name` + `logo_url`
-- **Input**: vault state + 3 scenarios + 3 backtests + methodology version
-- **Output schema**:
+### 4. Investor Memo Agent (OpenAI GPT-4.1 — ADR-011, max_tokens 4096)
+- **Trigger**: click "Generate memo" — bound to a vault id (ADR-006 #9)
+- **Input**: vault state + scenarios + backtests + methodology version
+- **Output schema** (`InvestorMemoOutputSchema`, `.strict()` — flat 8-field Markdown):
   ```ts
   {
-    sections: {
-      executive_summary: string;     // markdown
-      yield_source: string;          // markdown
-      stress_scenarios: PtaiBlock[]; // structured
-      vault_response: string;
-      methodology: string;
-      trust: string;
-      risks_and_terms: string;
-    };
-    methodology_version: string;
-    generated_at: string;            // ISO datetime
-    warnings: string[];              // missing data, low-confidence flags
+    executive_summary: string;    // min 1, markdown
+    vault_structure: string;      // min 1, markdown
+    scenario_analysis: string;    // min 1, markdown
+    risk_section: string;         // min 1, markdown (5 canonical risks)
+    mining_section: string;       // min 1, markdown
+    performance_section: string;  // min 1, markdown
+    methodology_note: string;     // min 1, markdown
+    disclaimer: string;           // min 1, verbatim template
   }
   ```
 - **Guardrails**:
-  - Methodology + glossary + disclaimers injected as immutable system blocks (Kimi has no native prompt caching; `cache_control` accepted but ignored)
-  - Disclaimers NEVER generated, only templated
-  - If data missing → explicitly flagged in `warnings[]`, no invention
+  - Methodology + disclaimers injected as immutable system blocks. `cache_control: "ephemeral"` is accepted but ignored by the wrapper; OpenAI applies automatic prompt caching for prompts > 1024 tokens (ADR-011)
+  - Disclaimers NEVER generated, only templated; reproduced verbatim in `disclaimer`
+  - All 7 narrative sections must cite ≥ 1 assumption (enforced); `disclaimer` is exempted (verbatim legal text)
+  - APY is always a range; if data missing → stated explicitly in the relevant section, no invention
 
 ## Stack
 
-- **Kimi K2.6 via Hypercli** (OpenAI-compatible endpoint) — single model for all 4 agents (ADR-007, 2026-05-26)
-- `openai@6.x` SDK pointed at `HYPERCLI_BASE_URL` (key in `HYPERCLI_API_KEY`)
-- No native prompt caching (Kimi limitation); `cache_control` is accepted forward-compat but ignored
-- All outputs validated via Zod schemas (`src/lib/agents/schemas.ts`)
-- Linter strips/rejects forbidden words (`src/lib/agents/validators.ts`)
-- Cost/usage tracked in `LlmRun` Prisma table (Kimi pricing $0.60 / $2.50 per MTOK indicative)
+- **OpenAI GPT-4.1** — single model for all 4 agents **and** the cockpit chat (ADR-011, 2026-06-11, supersedes ADR-007 / Kimi-via-Hypercli, retired)
+- `openai@6.x` SDK from `OPENAI_API_KEY` (optional `OPENAI_BASE_URL`, `OPENAI_ORG_ID`); model id `OPENAI_MODEL` (default `gpt-4.1`). The historical client export `kimi` / `KIMI_MODEL` are legacy aliases that now resolve to OpenAI (no Kimi, no Anthropic SDK in this codebase)
+- `cache_control: "ephemeral"` is accepted but ignored by the wrapper; OpenAI applies **automatic prompt caching** for prompts > 1024 tokens, so the re-sent methodology block is partially cached at no code cost
+- All outputs validated via Zod `.strict()` schemas (`src/lib/agents/schemas.ts`)
+- Forbidden-words list is canonical in `src/lib/agents/forbidden-words.ts`; the agent guard (`assertNoForbiddenWords`, `assertCitesAssumption`) lives in `src/lib/agents/validators.ts`
+- Cost/usage tracked in `LlmRun` Prisma table (GPT-4.1 list pricing $2.00 / $8.00 per MTOK, computed in `client.ts`)
+
+## Conversational chat (scoped exception — ADR-012)
+
+A conversational cockpit chat ships **alongside** the four structured agents, on
+the same model (GPT-4.1). It is a **read-only** assistant — it explains the
+product and can guide the user to a page, but it cannot transact, write, or take
+any admin action. Two surfaces:
+
+- **Admin review-mode facilitator** — admin-gated (`AdminChatMode` row → `chatMode = "review"`); a product-review facilitator prompt that produces review documents (MD + JSON). Always runs through the `@hearst/cockpit-shell` handler (no tools).
+- **LP-facing Master Agent** — normal-mode chat, flag-gated behind `CHAT_MASTER_AGENT` (server-only env, OFF by default). Runs through the app-owned tool-capable engine (`runChatAgent`) whose **only** tool is `navigate` — a client-side, read-only route change restricted to a **closed whitelist** (`NAV_DESTINATIONS`: portfolio, vaults, proof-center, profile). No write / financial / admin tool exists.
+
+Guardrails (all enforced server-side):
+
+- **System prompt is server-built** (`COCKPIT_DEFAULT_SYSTEM_PROMPT` + role directive). A client `system` field is stripped by the inbound Zod schema — it cannot override the curated prompt.
+- **Output-side compliance guard** (`guardChatStream` / `chatOutputViolation`) wraps the streamed answer and enforces the **same** forbidden-words list (FR ∪ EN, negation-aware) plus the **APY-always-a-range** rule, aborting before any offending span is emitted. Navigation fires only on a compliant answer.
+- **Role-aware register** (`buildRoleDirective`): LP default is strict vouvoiement + zero internal disclosure; admin gets a looser internal register but still no secrets / env vars / DB schemas / other agents' prompts.
+- **Human-in-the-loop preserved** (#4): no auto-execution of any financial or rebalancing action — the chat suggests and navigates, humans decide.
 
 ## Forbidden absolutely
 
-- ❌ Chat ("Ask the AI" widget)
+- ❌ Free-form chat from the **structured agents** (they return STRICT JSON only)
+- ❌ Any write / financial / admin tool on the conversational chat (navigate-only, closed whitelist)
 - ❌ Unsourced recommendations
 - ❌ Yield affirmations / guarantees
 - ❌ Autonomous decisions (agents propose, humans decide)
