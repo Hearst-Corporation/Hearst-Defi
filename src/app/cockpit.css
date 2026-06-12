@@ -886,9 +886,6 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 }
 
 .scenario-lab-input-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: var(--ct-z-raised);
   flex: none;
   padding: var(--ct-space-4) var(--ct-space-5);
   border-top: 1px solid var(--ct-border-soft);

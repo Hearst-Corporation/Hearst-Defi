@@ -1,17 +1,6 @@
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { NestedCallout } from "@/components/ui/nested-panel";
-import { Ptai } from "@/components/ui/ptai";
 import type { BtcTriggerKind, ScenarioOutput } from "@/lib/engine/types";
-
-// ── Rebalancing action list ───────────────────────────────────────────────────
-//
-// Derives an ordered list of rebalancing actions (max 4) from the engine output
-// and renders each one through the canonical <Ptai> primitive (Projection /
-// Trigger / Action / Impact). All four strings come from the engine — no
-// arithmetic, no copy invented in the component. PTAI format is mandated by
-// CLAUDE.md non-negotiable #3 and audit coherence-2026-05-26 / 08-ptai-format
-// (P1.1).
 
 type BadgeVariant = "success" | "warning" | "danger" | "default" | "brand";
 
@@ -41,8 +30,6 @@ const KIND_VARIANT: Record<BtcTriggerKind, BadgeVariant> = {
   hold: "default",
 };
 
-// ── PTAI string derivation (display-only, no math) ────────────────────────────
-
 function formatModeLabel(mode: ScenarioOutput["mode"]): string {
   if (mode === "defensive") return "Defensive";
   if (mode === "opportunistic") return "Opportunistic";
@@ -71,7 +58,6 @@ export function deriveActions(output: ScenarioOutput): RebalancingAction[] {
   const projection = projectionLine(output);
   const impact = impactLine(output);
 
-  // 1. BTC tactical armed triggers first
   for (const trigger of output.btc_tactical.triggers) {
     if (!trigger.armed) continue;
     actions.push({
@@ -87,7 +73,6 @@ export function deriveActions(output: ScenarioOutput): RebalancingAction[] {
     });
   }
 
-  // 2. Mode-level rule inferred from vault mode
   if (output.mode === "defensive") {
     actions.push({
       ruleId: "R1/R2",
@@ -117,7 +102,6 @@ export function deriveActions(output: ScenarioOutput): RebalancingAction[] {
     });
   }
 
-  // 3. Guardrail warnings / breaches
   for (const g of output.btc_tactical.guardrails) {
     if (g.status !== "breached" && g.status !== "warning") continue;
     actions.push({
@@ -136,7 +120,6 @@ export function deriveActions(output: ScenarioOutput): RebalancingAction[] {
     });
   }
 
-  // Sort by priority, deduplicate on ruleId, keep max 4
   const sorted = [...actions].sort((a, b) => a.priority - b.priority);
   const seen = new Set<string>();
   const result: RebalancingAction[] = [];
@@ -150,17 +133,7 @@ export function deriveActions(output: ScenarioOutput): RebalancingAction[] {
   return result;
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
-
-/** Inner list (or empty callout) shared by the standalone Card and the
- * embedded (inside a parent panel) renders. No own chrome. */
-function ActionsBody({
-  actions,
-  compact = false,
-}: {
-  actions: RebalancingAction[];
-  compact?: boolean;
-}) {
+function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
   if (actions.length === 0) {
     return (
       <NestedCallout className="flex items-center gap-3">
@@ -176,45 +149,13 @@ function ActionsBody({
     );
   }
 
-  if (compact) {
-    return (
-      <ol className="space-y-3">
-        {actions.map((action, idx) => (
-          <li
-            key={action.ruleId}
-            className="rounded-md border border-(--ct-border-soft) ct-surface-1 px-4 py-3"
-          >
-            <div className="flex items-center gap-3">
-              <span
-                className={
-                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-micro font-bold tabular-nums " +
-                  (action.armed
-                    ? "bg-(--ct-accent) text-(--ct-bg-deep)"
-                    : "ct-surface-3 ct-text-muted")
-                }
-                aria-hidden
-              >
-                {idx + 1}
-              </span>
-              <span className="body-sm font-semibold ct-text-primary">
-                {action.label}
-              </span>
-              <Badge variant={action.variant} className="ml-auto text-micro">
-                {action.ruleId}
-              </Badge>
-            </div>
-            <p className="mt-2 body-xs ct-text-muted">{action.trigger}</p>
-            <p className="mt-1 body-sm ct-text-body">{action.action}</p>
-          </li>
-        ))}
-      </ol>
-    );
-  }
-
   return (
-    <ol className="space-y-4">
+    <ol className="space-y-3">
       {actions.map((action, idx) => (
-        <li key={action.ruleId} className="space-y-2">
+        <li
+          key={action.ruleId}
+          className="rounded-md border border-(--ct-border-soft) ct-surface-1 px-4 py-3"
+        >
           <div className="flex items-center gap-3">
             <span
               className={
@@ -230,17 +171,12 @@ function ActionsBody({
             <span className="body-sm font-semibold ct-text-primary">
               {action.label}
             </span>
-            <Badge variant={action.variant} className="text-micro">
+            <Badge variant={action.variant} className="ml-auto text-micro">
               {action.ruleId}
             </Badge>
           </div>
-
-          <Ptai
-            projection={action.projection}
-            trigger={action.trigger}
-            action={action.action}
-            impact={action.impact}
-          />
+          <p className="mt-2 body-xs ct-text-muted">{action.trigger}</p>
+          <p className="mt-1 body-sm ct-text-body">{action.action}</p>
         </li>
       ))}
     </ol>
@@ -249,42 +185,14 @@ function ActionsBody({
 
 interface RebalancingActionsProps {
   output: ScenarioOutput;
-  /**
-   * "card" → standalone Card with its own header + disclaimer (default).
-   * "embedded" → list only, for placement inside a parent decision panel
-   * that already owns the section header and disclaimer.
-   */
-  variant?: "card" | "embedded";
   className?: string;
 }
 
-export function RebalancingActions({
-  output,
-  variant = "card",
-  className,
-}: RebalancingActionsProps) {
-  const actions = deriveActions(output);
-
-  if (variant === "embedded") {
-    return (
-      <div className={className}>
-        <ActionsBody actions={actions} compact />
-      </div>
-    );
-  }
-
+/** Compact rebalancing list — parent panel owns header + disclaimer. */
+export function RebalancingActions({ output, className }: RebalancingActionsProps) {
   return (
-    <Card className={className}>
-      <CardHeader className="mb-4">
-        <CardTitle>Rebalancing Actions</CardTitle>
-        <span className="eyebrow">Max 4 · Rule-based · PTAI</span>
-      </CardHeader>
-
-      <ActionsBody actions={actions} />
-
-      <p className="mt-4 body-xs italic ct-text-faint leading-(--ct-leading-relaxed)">
-        Conditional projection — not guaranteed. Methodology v1.0.
-      </p>
-    </Card>
+    <div className={className}>
+      <ActionsBody actions={deriveActions(output)} />
+    </div>
   );
 }

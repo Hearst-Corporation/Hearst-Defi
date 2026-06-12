@@ -263,7 +263,7 @@ function DecisionPanel({
       {/* PTAI — calm nested panel inside the decision */}
       <div className="mt-5">
         <span className="stat-label">Projection · Trigger · Action · Impact</span>
-        <PtaiBlock output={output} variant="embedded" className="mt-2" />
+        <PtaiBlock output={output} className="mt-2" />
       </div>
 
       {/* AI narrative — discreet, never a broken-looking standalone card */}
@@ -401,7 +401,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
           <span className="stat-label">Rebalancing actions</span>
           <span className="eyebrow">Max 4 · Rule-based · PTAI</span>
         </div>
-        <RebalancingActions output={output} variant="embedded" />
+        <RebalancingActions output={output} />
       </div>
     </Card>
   );
