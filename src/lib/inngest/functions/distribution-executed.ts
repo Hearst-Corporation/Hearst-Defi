@@ -1,9 +1,12 @@
 import "server-only";
 
+import { keccak256, toBytes } from "viem";
+
 import { inngest } from "@/lib/inngest/client";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { isDuplicate, markComplete } from "@/lib/idempotency";
+import { writeHearstEvent } from "@/lib/chain/event-logger";
 import { DISTRIBUTION_EVENTS } from "@/lib/distribution/events";
 import type { DistributionExecutedPayload } from "@/lib/distribution/events";
 
@@ -111,6 +114,26 @@ export async function distributionExecutedHandler({
   // ── 1. Idempotency check ──────────────────────────────────────────────────
   if (await isDuplicate(idempotencyKey, today)) {
     return { skipped: true, reason: "already_run_today" };
+  }
+
+  // ── 1b. On-chain mirror — append a Distribution entry to the EventLogger ────
+  // Independent idempotency key so it fires exactly once regardless of the email
+  // path (which can early-return when RESEND is unset). No-op when the publisher
+  // is disarmed (writeHearstEvent returns null without HEARST_PUBLISHER_PRIVATE_KEY).
+  const mirrorKey = `distribution-onchain-${distributionId}`;
+  if (!(await isDuplicate(mirrorKey, today))) {
+    const contextHash = keccak256(
+      toBytes(`distribution:${distributionId}:${period}`),
+    );
+    const txHash = await step.run("mirror-onchain-distribution", () =>
+      writeHearstEvent({ kind: "Distribution", contextHash, payloadCid: "" }),
+    );
+    await markComplete(mirrorKey, today);
+    logger.info("[distribution-executed] on-chain mirror", {
+      distributionId,
+      armed: txHash !== null,
+      txHash,
+    });
   }
 
   // ── 2. Load recipients, dedupe by investor, send one email per investor ────
