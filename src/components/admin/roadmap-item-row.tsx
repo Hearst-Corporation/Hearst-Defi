@@ -1,24 +1,23 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { safeUrl } from "@/lib/safe-url";
-
+import {
+  quickSetStatus,
+  updateRoadmapItem,
+} from "@/app/admin/roadmap/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { NestedPanel } from "@/components/ui/nested-panel";
 import { cn } from "@/lib/cn";
+import { safeUrl } from "@/lib/safe-url";
 import {
   statusDotClass,
   statusLabel,
   type RoadmapItemWithState,
   type RoadmapStatus,
 } from "@/lib/roadmap-types";
-import {
-  quickSetStatus,
-  updateRoadmapItem,
-} from "@/app/admin/roadmap/actions";
 
 const STATUSES: RoadmapStatus[] = [
   "todo",
@@ -31,6 +30,7 @@ const STATUSES: RoadmapStatus[] = [
 export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const formId = useId();
 
   function setStatus(next: RoadmapStatus) {
     startTransition(async () => {
@@ -58,8 +58,8 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
   }
 
   return (
-    <NestedPanel className="p-0">
-      <div className="flex items-center gap-4 px-5 py-4">
+    <NestedPanel aria-label={item.label}>
+      <div className="flex items-center gap-4 py-2">
         <span
           role="img"
           aria-label={statusLabel(item.status)}
@@ -71,7 +71,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
         />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <span className="text-base font-medium ct-text-primary">
+            <span className="body-sm font-medium ct-text-primary">
               {item.label}
             </span>
             <Badge variant="default">{item.owner}</Badge>
@@ -80,19 +80,17 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
                 href={safeUrl(item.evidenceUrl)}
                 target="_blank"
                 rel="noreferrer"
-                className="text-sm font-medium ct-text-accent underline-offset-2 hover:underline"
+                className="body-sm font-medium ct-text-accent underline-offset-2 hover:underline"
               >
                 Evidence ↗
               </a>
             ) : null}
             {item.blockers ? <Badge variant="danger">Blocker</Badge> : null}
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs ct-text-muted">
+          <div className="mt-2 flex flex-wrap items-center gap-2 body-xs ct-text-muted">
             <span className="mono">{item.id}</span>
             {item.spec_ref ? (
-              <span className="mono ct-text-faint">
-                · {item.spec_ref}
-              </span>
+              <span className="mono ct-text-faint">· {item.spec_ref}</span>
             ) : null}
             {item.validatedBy ? (
               <span>
@@ -137,8 +135,9 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setOpen((o) => !o)}
+          onClick={() => setOpen((current) => !current)}
           aria-expanded={open}
+          aria-controls={formId}
         >
           {open ? "Close" : "Details"}
         </Button>
@@ -146,17 +145,18 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
 
       {open ? (
         <form
+          id={formId}
           action={onSubmit}
-          className="space-y-3 border-t border-[var(--ct-border)] p-4"
+          className="space-y-3 border-t border-(--ct-border-soft) pt-4"
+          aria-label={`Edit ${item.label}`}
         >
           <input type="hidden" name="itemId" value={item.id} />
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="block text-xs">
-              <span className="ct-form-label">
-                Status
-              </span>
+            <label className="block text-xs" htmlFor={`${formId}-status`}>
+              <span className="ct-form-label">Status</span>
               <select
+                id={`${formId}-status`}
                 name="status"
                 defaultValue={item.status}
                 className="ct-select"
@@ -169,11 +169,10 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
               </select>
             </label>
 
-            <label className="block text-xs">
-              <span className="ct-form-label">
-                Validated by
-              </span>
+            <label className="block text-xs" htmlFor={`${formId}-validatedBy`}>
+              <span className="ct-form-label">Validated by</span>
               <input
+                id={`${formId}-validatedBy`}
                 name="validatedBy"
                 type="text"
                 defaultValue={item.validatedBy ?? ""}
@@ -183,11 +182,10 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
             </label>
           </div>
 
-          <label className="block text-xs">
-            <span className="mb-1 block ct-text-muted uppercase tracking-wide">
-              Evidence URL
-            </span>
+          <label className="block text-xs" htmlFor={`${formId}-evidenceUrl`}>
+            <span className="ct-form-label">Evidence URL</span>
             <input
+              id={`${formId}-evidenceUrl`}
               name="evidenceUrl"
               type="url"
               defaultValue={item.evidenceUrl ?? ""}
@@ -196,11 +194,10 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
             />
           </label>
 
-          <label className="block text-xs">
-            <span className="mb-1 block ct-text-muted uppercase tracking-wide">
-              Notes
-            </span>
+          <label className="block text-xs" htmlFor={`${formId}-notes`}>
+            <span className="ct-form-label">Notes</span>
             <textarea
+              id={`${formId}-notes`}
               name="notes"
               rows={2}
               defaultValue={item.notes ?? ""}
@@ -208,11 +205,10 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
             />
           </label>
 
-          <label className="block text-xs">
-            <span className="mb-1 block ct-text-muted uppercase tracking-wide">
-              Blockers
-            </span>
+          <label className="block text-xs" htmlFor={`${formId}-blockers`}>
+            <span className="ct-form-label">Blockers</span>
             <textarea
+              id={`${formId}-blockers`}
               name="blockers"
               rows={2}
               defaultValue={item.blockers ?? ""}
@@ -235,6 +231,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
               variant="primary"
               size="sm"
               disabled={isPending}
+              aria-busy={isPending}
             >
               {isPending ? "Saving…" : "Save"}
             </Button>

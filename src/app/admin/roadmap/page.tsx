@@ -6,11 +6,13 @@ import { getRoadmap } from "@/lib/roadmap";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Roadmap — Hearst Connect",
+};
+
 export default async function RoadmapPage() {
   await requireAdmin();
   const { version, phases } = await getRoadmap();
-
-  const mvpPhase = phases.find((p) => p.id === "mvp");
 
   return (
     <div className="space-y-8">
@@ -18,7 +20,7 @@ export default async function RoadmapPage() {
         title="Roadmap"
         actions={<Badge variant="default">v {version}</Badge>}
       />
-      <RoadmapBoard phases={phases} mvpPhase={mvpPhase} />
+      <RoadmapBoard phases={phases} />
     </div>
   );
 }

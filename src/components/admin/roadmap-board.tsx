@@ -2,31 +2,35 @@ import { RoadmapItemRow } from "@/components/admin/roadmap-item-row";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { Progress } from "@/components/ui/progress";
-import type { RoadmapPhaseWithState } from "@/lib/roadmap-types";
+import type {
+  RoadmapPhaseWithState,
+  RoadmapWeekWithState,
+} from "@/lib/roadmap-types";
 
-export function RoadmapBoard({
-  phases,
-  mvpPhase,
-}: {
+export interface RoadmapBoardProps {
   phases: RoadmapPhaseWithState[];
-  mvpPhase?: RoadmapPhaseWithState;
-}) {
-  const mvpPct = mvpPhase
-    ? Math.round((mvpPhase.doneCount / Math.max(1, mvpPhase.total)) * 100)
-    : 0;
+}
+
+function progressPct(done: number, total: number): number {
+  return Math.round((done / Math.max(1, total)) * 100);
+}
+
+export function RoadmapBoard({ phases }: RoadmapBoardProps) {
+  const mvpPhase = phases.find((phase) => phase.id === "mvp");
 
   return (
-    <>
+    <div className="space-y-8">
       {mvpPhase ? (
-        <Card className="max-w-xl">
+        <Card className="max-w-xl" aria-label="MVP progress">
           <div className="flex items-center justify-between gap-3">
             <span className="stat-label">MVP progress</span>
             <span className="mono tabular text-base ct-text-primary">
-              {mvpPhase.doneCount} / {mvpPhase.total} ({mvpPct}%)
+              {mvpPhase.doneCount} / {mvpPhase.total} (
+              {progressPct(mvpPhase.doneCount, mvpPhase.total)}%)
             </span>
           </div>
           <div className="mt-4">
-            <Progress value={mvpPct} />
+            <Progress value={progressPct(mvpPhase.doneCount, mvpPhase.total)} />
           </div>
         </Card>
       ) : null}
@@ -41,8 +45,12 @@ export function RoadmapBoard({
         />
       ) : (
         phases.map((phase) => (
-          <div key={phase.id} className="space-y-6">
-            <div className="flex items-baseline justify-between gap-3 border-b ct-border-soft pb-3">
+          <section
+            key={phase.id}
+            className="space-y-6"
+            aria-label={phase.label}
+          >
+            <div className="flex items-baseline justify-between gap-3 border-b border-(--ct-border-soft) pb-3">
               <h2 className="h2">{phase.label}</h2>
               <span className="mono tabular text-sm ct-text-muted">
                 {phase.doneCount} / {phase.total}
@@ -62,24 +70,19 @@ export function RoadmapBoard({
                 ))}
               </div>
             )}
-          </div>
+          </section>
         ))
       )}
-    </>
+    </div>
   );
 }
 
-function RoadmapWeekCard({
-  week,
-}: {
-  week: RoadmapPhaseWithState["weeks"][number];
-}) {
+function RoadmapWeekCard({ week }: { week: RoadmapWeekWithState }) {
   if (week.items.length === 0) {
     return (
       <EmptySurface
         variant="widget"
-        message="No roadmap items in this sprint week."
-        detail={week.label}
+        message={`${week.label} — no roadmap items configured.`}
         className="min-h-32"
         ariaLabel={`${week.label} — no items`}
       />
@@ -87,7 +90,7 @@ function RoadmapWeekCard({
   }
 
   return (
-    <Card>
+    <Card aria-label={week.label}>
       <CardHeader>
         <div className="space-y-2">
           <CardTitle>{week.label}</CardTitle>
@@ -96,18 +99,20 @@ function RoadmapWeekCard({
               {week.doneCount} / {week.total}
             </span>
             <Progress
-              value={(week.doneCount / Math.max(1, week.total)) * 100}
+              value={progressPct(week.doneCount, week.total)}
               className="w-40"
             />
           </div>
         </div>
       </CardHeader>
 
-      <div className="space-y-2">
+      <ul className="flex list-none flex-col gap-2 p-0 m-0">
         {week.items.map((item) => (
-          <RoadmapItemRow key={item.id} item={item} />
+          <li key={item.id}>
+            <RoadmapItemRow item={item} />
+          </li>
         ))}
-      </div>
+      </ul>
     </Card>
   );
 }

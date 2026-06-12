@@ -1,18 +1,19 @@
-import { SkeletonCard, Skeleton } from "@/components/ui/skeleton";
+import { Skeleton, SkeletonCard } from "@/components/ui/skeleton";
 
 export default function RoadmapLoading() {
   return (
-    <section className="ct-section space-y-16 animate-in fade-in duration-[var(--ct-dur-slower)]">
-      {/* Header */}
-      <div className="space-y-5">
-        <Skeleton className="h-3 w-28" variant="text" />
-        <Skeleton className="h-12 w-56" />
-        <Skeleton className="h-4 w-80" />
+    <div className="space-y-8 animate-in fade-in duration-[var(--ct-dur-slower)]">
+      <div className="space-y-3">
+        <Skeleton className="h-3 w-24" variant="text" />
+        <Skeleton className="h-12 w-48" />
       </div>
 
-      {/* Phases */}
-      {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="space-y-6">
+      <div className="max-w-xl">
+        <SkeletonCard />
+      </div>
+
+      {Array.from({ length: 2 }).map((_, index) => (
+        <div key={index} className="space-y-6">
           <Skeleton className="h-7 w-48" />
           <div className="space-y-6">
             <SkeletonCard />
@@ -20,6 +21,6 @@ export default function RoadmapLoading() {
           </div>
         </div>
       ))}
-    </section>
+    </div>
   );
 }

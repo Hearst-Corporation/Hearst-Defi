@@ -45,42 +45,55 @@ function assertEmptyDesignContract(html: string, message: string): void {
   expect(html).not.toContain("border-dashed");
   expect(html).not.toContain("pf-empty-chart");
   expect(html).not.toContain("pf-empty-widget");
+  expect(html).not.toContain("ct-system-panel");
 }
 
 describe("Admin roadmap — design contract", () => {
-  it("RoadmapItemRow uses NestedPanel, not ad-hoc ct-surface-1 shell", () => {
+  it("RoadmapItemRow uses NestedPanel without ad-hoc surface shell", () => {
     const html = renderToStaticMarkup(<RoadmapItemRow item={sampleItem} />);
     expect(html).toContain("ct-nested-panel");
-    expect(html).not.toMatch(/rounded-xl border border-\[var\(--ct-border\)\] ct-surface-1/);
+    expect(html).not.toContain("ct-surface-1 rounded-xl");
+    expect(html).not.toContain("border-dashed");
   });
 
   it("empty phases: EmptySurface widget replaces phase list shell", () => {
-    const html = renderToStaticMarkup(
-      <RoadmapBoard phases={[]} mvpPhase={undefined} />,
-    );
+    const html = renderToStaticMarkup(<RoadmapBoard phases={[]} />);
     assertEmptyDesignContract(html, "No roadmap phases configured.");
     expect(html).toContain("ct-empty-surface--widget");
     expect(html).not.toContain("ct-card glass-panel");
   });
 
-  it("empty week: EmptySurface widget replaces Card shell (no header when no items)", () => {
+  it("empty week: EmptySurface widget replaces week Card shell", () => {
     const html = renderToStaticMarkup(
       <RoadmapBoard
         phases={[
           {
-            ...samplePhase,
-            weeks: [{ ...sampleWeek, items: [], total: 0, doneCount: 0 }],
+            id: "phase-2",
+            label: "Phase 2",
+            total: 0,
+            doneCount: 0,
+            weeks: [
+              {
+                ...sampleWeek,
+                items: [],
+                total: 0,
+                doneCount: 0,
+              },
+            ],
           },
         ]}
       />,
     );
-    assertEmptyDesignContract(html, "No roadmap items in this sprint week.");
-    expect(html).not.toContain("ct-card glass-panel");
+    assertEmptyDesignContract(
+      html,
+      "Week 1 — no roadmap items configured.",
+    );
+    expect(html).not.toMatch(/ct-card glass-panel[^>]*aria-label="Week 1"/);
   });
 
   it("active week: Card shell with nested item rows", () => {
     const html = renderToStaticMarkup(
-      <RoadmapBoard phases={[samplePhase]} mvpPhase={samplePhase} />,
+      <RoadmapBoard phases={[samplePhase]} />,
     );
     expect(html).toContain("ct-card glass-panel");
     expect(html).toContain("ct-nested-panel");
