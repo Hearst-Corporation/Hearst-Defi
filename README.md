@@ -85,7 +85,7 @@ le JSON résultat en mode compact.
 
 Navigation outillée : le mode `conversation` garde une whitelist LP (`/portfolio`,
 `/vaults`, `/proof-center`, `/profile`) ; le mode `admin` dispose d'une whitelist
-admin dédiée (`/admin/scenario-lab`, `/admin/dashboard`, `/admin/vaults`, `/admin/proofs`,
+admin dédiée (`/admin/product-workspace`, `/admin/scenario-lab`, `/admin/dashboard`, `/admin/vaults`, `/admin/proofs`,
 `/admin/governance`, `/admin/roadmap`, `/admin/projection`). Le mode `review`
 reste sans tools.
 

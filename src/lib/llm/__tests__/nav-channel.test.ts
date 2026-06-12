@@ -29,6 +29,20 @@ describe("nav-channel (in-memory fallback)", () => {
     expect((await consumeNav("user-4"))?.route).toBe("/admin/vaults");
   });
 
+  it("carries product workspace objective and autostart metadata", async () => {
+    await publishNav("user-product", {
+      destinationKey: "admin-product-workspace",
+      objective: "Créer une offre Defensive avec notes de calcul",
+      autostart: true,
+    });
+    expect(await consumeNav("user-product")).toEqual({
+      route: "/admin/product-workspace",
+      label: "Admin Product Workspace",
+      objective: "Créer une offre Defensive avec notes de calcul",
+      autostart: true,
+    });
+  });
+
   it("isolates channels per user", async () => {
     await publishNav("user-A", "proof-center");
     expect(await consumeNav("user-B")).toBeNull();

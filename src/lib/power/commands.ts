@@ -84,6 +84,14 @@ const NAVIGATE_COMMANDS: Omit<Command, "handler">[] = [
     shortcut: "g s",
   },
   {
+    id: "nav-product-workspace",
+    label: "Product Workspace",
+    section: "Navigate",
+    href: "/admin/product-workspace",
+    keywords: ["product", "new product", "workspace", "framing", "creation", "agent"],
+    shortcut: "g p",
+  },
+  {
     id: "nav-scenarios",
     label: "Scenarios",
     section: "Navigate",

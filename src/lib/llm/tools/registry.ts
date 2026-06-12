@@ -12,6 +12,10 @@ import { getProductRoutes } from "@/lib/product-routes";
 import { getSpecIndex } from "@/lib/spec";
 import { ADMIN_NAV_DESTINATIONS } from "@/lib/llm/navigate-tool";
 import {
+  isExplicitSimulationIntent,
+  isProductWorkspaceIntent,
+} from "@/lib/llm/product-workspace-intent";
+import {
   createWriteConfirmation,
   consumeWriteConfirmation,
   hashCanonicalPayload,
@@ -41,6 +45,8 @@ const DEFAULT_CHART_TIMEFRAME = "30d";
 const MAX_TELEMETRY_ERROR_MESSAGE_LEN = 500;
 const MAX_TELEMETRY_ERROR_CODE_LEN = 120;
 const LIVE_PRICE_STALE_THRESHOLD_MS = 60_000;
+const PRODUCT_WORKSPACE_ROUTE = "/admin/product-workspace";
+const SCENARIO_LAB_ROUTE = "/admin/scenario-lab";
 const COINGECKO_BTC_SIMPLE_PRICE_URL =
   "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_last_updated_at=true";
 
@@ -169,6 +175,26 @@ function formatPercent(value: number): string {
 
 function formatIso(value: Date | null | undefined): string {
   return value ? value.toISOString() : "unknown";
+}
+
+function orderDemoRoutesForObjective(
+  routes: readonly string[],
+  objective: string,
+): string[] {
+  const uniqueRoutes = Array.from(new Set(routes));
+  if (isExplicitSimulationIntent(objective)) {
+    if (!uniqueRoutes.includes(SCENARIO_LAB_ROUTE)) return uniqueRoutes;
+    return [
+      SCENARIO_LAB_ROUTE,
+      ...uniqueRoutes.filter((route) => route !== SCENARIO_LAB_ROUTE),
+    ];
+  }
+  if (!isProductWorkspaceIntent(objective)) return uniqueRoutes;
+  if (!uniqueRoutes.includes(PRODUCT_WORKSPACE_ROUTE)) return uniqueRoutes;
+  return [
+    PRODUCT_WORKSPACE_ROUTE,
+    ...uniqueRoutes.filter((route) => route !== PRODUCT_WORKSPACE_ROUTE),
+  ];
 }
 
 function classifyAdminToolError(error: unknown): {
@@ -459,7 +485,10 @@ async function runGenerateDemoPlan(input: unknown): Promise<{
   const allowedAdminRoutes = new Set(
     ADMIN_NAV_DESTINATIONS.map((destination) => destination.route),
   );
-  const availableAdminRoutes = routes.filter((route) => allowedAdminRoutes.has(route));
+  const availableAdminRoutes = orderDemoRoutesForObjective(
+    routes.filter((route) => allowedAdminRoutes.has(route)),
+    params.objective,
+  );
   const firstSpec = specs[0];
 
   const orderedSteps = availableAdminRoutes.slice(0, 5).map((route, index) => ({

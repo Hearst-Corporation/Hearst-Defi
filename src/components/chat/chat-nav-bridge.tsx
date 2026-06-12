@@ -66,7 +66,8 @@ export function ChatNavBridge() {
         const current = pathRef.current;
         if (data.route === current) return; // anti-loop: already here
         const routeWithParams =
-          data.route === "/admin/scenario-lab"
+          data.route === "/admin/scenario-lab" ||
+          data.route === "/admin/product-workspace"
             ? (() => {
                 const params = new URLSearchParams();
                 if (data.autostart) params.set("autostart", "1");

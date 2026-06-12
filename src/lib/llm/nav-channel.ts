@@ -59,14 +59,13 @@ function normalizeDirective(
 
   const destination = resolveNavDestination(input.destinationKey);
   if (!destination) return null;
-  const objective =
-    input.destinationKey === "admin-scenario-lab"
-      ? sanitizeObjective(input.objective)
-      : undefined;
-  const autostart =
-    input.destinationKey === "admin-scenario-lab" && input.autostart === true
-      ? true
-      : undefined;
+  const supportsSeededObjective =
+    input.destinationKey === "admin-product-workspace" ||
+    input.destinationKey === "admin-scenario-lab";
+  const objective = supportsSeededObjective
+    ? sanitizeObjective(input.objective)
+    : undefined;
+  const autostart = supportsSeededObjective && input.autostart === true ? true : undefined;
   return {
     destinationKey: input.destinationKey,
     ...(objective ? { objective } : {}),

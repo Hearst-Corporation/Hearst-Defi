@@ -70,12 +70,20 @@ export const LP_NAV_DESTINATIONS: readonly NavDestination[] = [
 /** Admin destinations (internal ops surfaces). */
 export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
   {
+    key: "admin-product-workspace",
+    profile: "admin",
+    route: "/admin/product-workspace",
+    label: "Admin Product Workspace",
+    description:
+      "Page indépendante générée depuis l'intention agent pour cadrer un nouveau produit: décision, graph specs, notes de calcul, hypothèses et garde-fous.",
+  },
+  {
     key: "admin-scenario-lab",
     profile: "admin",
     route: "/admin/scenario-lab",
     label: "Admin Scenario Lab",
     description:
-      "Page centrale pour cadrer un produit admin costaud: structure produit, paramètres, hypothèses, scénario et runbook.",
+      "Laboratoire de scénarios et stress tests pour un produit déjà cadré: paramètres moteur, hypothèses et runbook de simulation.",
   },
   {
     key: "admin-dashboard",
@@ -149,7 +157,7 @@ export function createNavigateTool(profile: NavProfile) {
       name: "navigate",
       description:
         profile === "admin"
-          ? "Amène l'utilisateur admin à la surface interne la plus pertinente (scenario lab, dashboard, vaults, proofs, governance, roadmap, projection). Pour toute demande de création/cadrage produit « costaud », privilégie admin-scenario-lab comme page centrale. Continue TOUJOURS de répondre en texte aussi. Ne choisis QUE dans l'énumération, n'invente jamais de destination."
+          ? "Amène l'utilisateur admin à la surface interne la plus pertinente (product workspace, scenario lab, dashboard, vaults, proofs, governance, roadmap, projection). Pour toute demande de création/cadrage d'un nouveau produit, privilégie admin-product-workspace comme page indépendante. Utilise admin-scenario-lab uniquement pour des simulations/stress tests d'un produit déjà cadré. Continue TOUJOURS de répondre en texte aussi. Ne choisis QUE dans l'énumération, n'invente jamais de destination."
           : "Amène l'utilisateur à la page la plus pertinente de Hearst Connect quand ta réponse renvoie à une surface précise (portefeuille, produits, proof center, profil) — par exemple « où vois-je mon allocation ? », « comment souscrire ? », ou pour appuyer une explication par la bonne page. Continue TOUJOURS de répondre en texte aussi. Ne choisis QUE dans l'énumération, n'invente jamais de destination.",
       parameters: {
         type: "object",

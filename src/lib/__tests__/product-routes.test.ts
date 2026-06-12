@@ -28,6 +28,7 @@ const EXPECTED_ROUTES = [
   "/admin/governance/simulate-demo",
   "/admin/investor-memo",
   "/admin/monitoring",
+  "/admin/product-workspace",
   "/admin/projection",
   "/admin/proof-center",
   "/admin/proofs",

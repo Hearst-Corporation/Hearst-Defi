@@ -35,6 +35,10 @@ import {
 import { publishNav } from "@/lib/llm/nav-channel";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { ADMIN_NAV_DESTINATIONS } from "@/lib/llm/navigate-tool";
+import {
+  PRODUCT_WORKSPACE_DESTINATION_KEY,
+  resolveMasterAgentNavPublish,
+} from "@/lib/llm/product-workspace-intent";
 
 const REVIEW_FACILITATOR_PROMPT = buildFacilitatorPrompt({ productContext: PRODUCT_CONTEXT });
 // NOTE: the LlmRun trace no longer stores a BASE-prompt hash. PR-3 #2 hashes the
@@ -74,15 +78,6 @@ const MAX_MESSAGES = 30;
 // malicious user from inflating the system prompt arbitrarily, but must be
 // generous enough that the base prompt is never silently truncated mid-rule.
 const MAX_ENRICHED_SYSTEM_LEN = 16_000;
-const PRODUCT_INTENT_RE =
-  /\b(produit|product|lancer|lancement|nouveau vault|nouvelle offre|go to market|go-to-market|spec|scenario|scénario|architecture|allocation|runbook)\b/i;
-
-function deriveScenarioLabObjective(message: string): string | undefined {
-  const compact = message.replace(/\s+/g, " ").trim();
-  if (!compact) return undefined;
-  return compact.slice(0, 220);
-}
-
 const HTML_TAG_RE = /<[^>]*>/g;
 // Control chars (except \t \n \r) — stripped from persisted/assistant history so
 // a smuggled escape sequence can't reshape the prompt sent to the model.
@@ -424,19 +419,15 @@ async function runMasterAgentTurn(args: {
   void nav
     .then(async (dest) => {
       if (dest) {
-        const shouldSeedScenarioLab =
-          navProfile === "admin" &&
-          PRODUCT_INTENT_RE.test(message) &&
-          ADMIN_NAV_DESTINATIONS.some((d) => d.key === "admin-scenario-lab");
-        if (shouldSeedScenarioLab) {
-          await publishNav(userId, {
-            destinationKey: "admin-scenario-lab",
-            objective: deriveScenarioLabObjective(message),
-            autostart: true,
-          });
-          return;
-        }
-        await publishNav(userId, dest.key);
+        const directive = resolveMasterAgentNavPublish({
+          navProfile,
+          message,
+          modelDestinationKey: dest.key,
+          productWorkspaceNavEnabled: ADMIN_NAV_DESTINATIONS.some(
+            (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
+          ),
+        });
+        await publishNav(userId, directive);
       }
     })
     .catch(() => {

@@ -422,6 +422,47 @@ describe("admin read tools registry", () => {
     }
   });
 
+  it("generate_demo_plan starts product creation objectives at Product Workspace", async () => {
+    const context = { chatMode: "admin" as const, profile: "admin" as const };
+    const tool = ADMIN_READ_TOOLS.find(
+      (candidate) => candidate.id === "generate_demo_plan",
+    );
+    expect(tool).toBeDefined();
+    if (!tool) return;
+
+    const result = await executeAdminReadTool(tool, context, {
+      objective: "Créer un nouveau produit Defensive avec notes de calcul",
+      audience: "Ops team",
+    });
+    const payload = result.payload as {
+      steps?: Array<{ order: number; route: string }>;
+      routesWhitelist?: string[];
+    };
+
+    expect(payload.steps?.[0]?.route).toBe("/admin/product-workspace");
+    expect(payload.routesWhitelist).toContain("/admin/scenario-lab");
+  });
+
+  it("generate_demo_plan keeps explicit simulation objectives on Scenario Lab when selected", async () => {
+    const context = { chatMode: "admin" as const, profile: "admin" as const };
+    const tool = ADMIN_READ_TOOLS.find(
+      (candidate) => candidate.id === "generate_demo_plan",
+    );
+    expect(tool).toBeDefined();
+    if (!tool) return;
+
+    const result = await executeAdminReadTool(tool, context, {
+      objective: "Simuler un scénario BTC bear dans le lab",
+      audience: "Ops team",
+    });
+    const payload = result.payload as {
+      steps?: Array<{ order: number; route: string }>;
+    };
+
+    expect(payload.steps?.map((step) => step.route)).toContain("/admin/scenario-lab");
+    expect(payload.steps?.[0]?.route).not.toBe("/admin/product-workspace");
+  });
+
   it("export_demo_pack returns structured payload shape", async () => {
     const context = { chatMode: "admin" as const, profile: "admin" as const };
     const tool = ADMIN_READ_TOOLS.find(
@@ -467,6 +508,26 @@ describe("admin read tools registry", () => {
     expect(Array.isArray(payload.charts)).toBe(true);
     expect(Array.isArray(payload.checklist)).toBe(true);
     expect(payload.provenanceFreshnessSummary).toBeTruthy();
+  });
+
+  it("export_demo_pack inherits Product Workspace as first route for product creation", async () => {
+    const context = { chatMode: "admin" as const, profile: "admin" as const };
+    const tool = ADMIN_READ_TOOLS.find(
+      (candidate) => candidate.id === "export_demo_pack",
+    );
+    expect(tool).toBeDefined();
+    if (!tool) return;
+
+    const result = await executeAdminReadTool(tool, context, {
+      objective: "new product creation for BTC Plus",
+      audience: "Committee",
+      includeCharts: false,
+      includeChecklist: false,
+    });
+    const payload = result.payload as {
+      demoPlan?: Array<{ route: string }>;
+    };
+    expect(payload.demoPlan?.[0]?.route).toBe("/admin/product-workspace");
   });
 
   it("export_demo_pack honors include toggles", async () => {

@@ -43,6 +43,7 @@ describe("COCKPIT_ADMIN_SYSTEM_PROMPT", () => {
     expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("Tu ne peux pas déployer");
     expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("plan démo");
     expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("spec graphique");
+    expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("/admin/product-workspace");
     expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("/admin/scenario-lab");
     expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("CoinGecko");
   });

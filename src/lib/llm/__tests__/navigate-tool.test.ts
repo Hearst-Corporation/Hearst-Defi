@@ -27,6 +27,7 @@ describe("navigate-tool whitelist", () => {
 
   it("admin whitelist exposes admin routes only", () => {
     expect(ADMIN_NAV_DESTINATIONS.map((d) => d.route)).toEqual([
+      "/admin/product-workspace",
       "/admin/scenario-lab",
       "/admin/dashboard",
       "/admin/vaults",
@@ -55,6 +56,9 @@ describe("navigate-tool whitelist", () => {
 
   it("resolves a known key and rejects an unknown one", () => {
     expect(resolveNavDestination("portfolio")?.route).toBe("/portfolio");
+    expect(resolveNavDestination("admin-product-workspace")?.route).toBe(
+      "/admin/product-workspace",
+    );
     expect(resolveNavDestination("admin-dashboard")?.route).toBe(
       "/admin/dashboard",
     );
