@@ -300,7 +300,7 @@ export function AdminChatControls() {
                 "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                 "disabled:cursor-not-allowed disabled:opacity-60",
                 mode === "normal"
-                  ? "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]"
+                  ? "bg-[var(--ct-accent)] ct-text-on-accent"
                   : "ct-surface-1 ct-text-muted hover:ct-text-strong",
               )}
             >
@@ -318,7 +318,7 @@ export function AdminChatControls() {
                 "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                 "disabled:cursor-not-allowed disabled:opacity-60",
                 mode === "review"
-                  ? "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]"
+                  ? "bg-[var(--ct-accent)] ct-text-on-accent"
                   : "ct-surface-1 ct-text-muted hover:ct-text-strong",
               )}
             >

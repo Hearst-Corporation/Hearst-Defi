@@ -52,7 +52,7 @@ export default function RootLayout({
             targets #main-content, which can live anywhere in the document. */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[var(--ct-z-overlay)] focus:rounded-lg focus:bg-[var(--ct-accent)] focus:px-4 focus:py-2 focus:text-[var(--ct-bg-deep)]"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[var(--ct-z-overlay)] focus:rounded-lg focus:bg-[var(--ct-accent)] focus:px-4 focus:py-2 focus:ct-text-on-accent"
         >
           Skip to main content
         </a>

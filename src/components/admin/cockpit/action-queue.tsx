@@ -79,7 +79,7 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
             "shrink-0 rounded-sm px-3 py-1 body-xs font-medium",
             "border transition-colors duration-[var(--ct-dur-fast)]",
             item.severity === "P0"
-              ? "border-[var(--ct-status-danger-border)] ct-status-danger ct-status-danger-bg hover:bg-[var(--ct-status-danger)] hover:text-[var(--ct-bg-deep)]"
+              ? "border-[var(--ct-status-danger-border)] ct-status-danger ct-status-danger-bg hover:bg-[var(--ct-status-danger)] hover:ct-text-on-accent"
               : "border-[var(--ct-border)] ct-text-muted hover:border-[var(--ct-accent)] hover:ct-text-accent",
           )}
           aria-label={`${actionLabel} — ${item.title}`}

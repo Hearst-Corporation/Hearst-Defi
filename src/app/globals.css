@@ -115,6 +115,11 @@
   --transition-slow: 400ms var(--ct-ease);
 }
 
+/* Ink color for content on accent/status fills. */
+@utility ct-text-on-accent {
+  color: var(--ct-bg-deep);
+}
+
 :root {
   --font-sans: "Satoshi Variable", sans-serif;
   --font-mono: "Satoshi Variable", sans-serif;

@@ -129,7 +129,7 @@ export function ChatNavBridge() {
       <button
         type="button"
         onClick={goNow}
-        className="rounded-full bg-[var(--ct-accent)] px-3 py-1 body-xs font-medium text-[var(--ct-bg-deep)]"
+        className="rounded-full bg-[var(--ct-accent)] px-3 py-1 body-xs font-medium ct-text-on-accent"
       >
         {pending.protected ? "Ouvrir" : "Maintenant"}
       </button>
