@@ -3,8 +3,6 @@
 import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 
-import { CT_PRODUCT_CONNECT_HEX } from "@/lib/cockpit-tokens";
-
 // Privy (via styled-components) evaluates React hooks at module level,
 // which crashes Next.js 16 SSR prerender of special pages (/_not-found, /_global-error).
 // Dynamic import with ssr:false ensures the Privy module only loads in the browser.
@@ -16,14 +14,8 @@ const PrivyNoSSR = dynamic(
   { ssr: false }
 );
 
-/**
- * Brand accent for the Privy login modal.
- *
- * Privy's `accentColor` prop only accepts a literal hex template-string, so
- * we resolve through the shared `cockpit-tokens` mirror (which tracks the
- * `--ct-product-connect` CSS token) rather than hard-coding a value here.
- */
-const BRAND_ACCENT = CT_PRODUCT_CONNECT_HEX as `#${string}`;
+/** Mirrors --ct-accent / --ct-product-connect (Privy requires a hex literal). */
+const BRAND_ACCENT = "#A7FB90" as `#${string}`;
 
 const PRIVY_CONFIG = {
   appearance: {

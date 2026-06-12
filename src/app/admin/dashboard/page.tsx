@@ -32,16 +32,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const page = resolveDashboardPageInputs(data, risk, overview);
 
   return (
-    <div className="relative admin-doc-shell admin-doc-shell--compact">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -inset-20 z-0 overflow-hidden"
-      >
-        <div className="dash-ambient-orb dash-ambient-orb--primary" />
-        <div className="dash-ambient-orb dash-ambient-orb--secondary" />
-      </div>
-
-      <div className="relative z-10">
+    <div className="admin-doc-shell admin-doc-shell--compact">
+      <div>
         <AdminPageHeader
           title="Dashboard"
           eyebrow={`${data.vaultMeta.name} · as of ${formatAdminDate(data.vault.asOf)}`}

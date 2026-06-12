@@ -34,12 +34,13 @@ export function AllocationOrbit({
 }) {
   if (!live) {
     return (
-      <EmptySurface
-        variant="chart"
-        round
-        className="dashboard-orbit-empty"
-        message="Allocation map appears after the first vault snapshot."
-      />
+      <Card className="dashboard-command-cell dashboard-command-cell--awaiting">
+        <EmptySurface
+          variant="inline"
+          className="dashboard-orbit-empty"
+          message="Allocation map appears after the first vault snapshot."
+        />
+      </Card>
     );
   }
 

@@ -476,7 +476,7 @@
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  padding-bottom: var(--ct-space-4);
+  padding: var(--ct-space-6) var(--ct-space-5) var(--ct-space-4);
 }
 
 .ct-page-area:has(.scenario-lab-page--viewport) > main#main-content {
@@ -1188,6 +1188,11 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   container-name: dash-board;
 }
 
+/* Admin cards — operator density (LP product keeps global .ct-card 20/24). */
+.admin-doc .ct-card:not(.p-0) {
+  padding: var(--ct-space-4) var(--ct-space-5);
+}
+
 /* KPI strip — dense grid inside Card / ct-glass-panel (ADR-013 canon). */
 .dashboard-kpi-strip-card.ct-card {
   padding: var(--ct-space-4) var(--ct-space-5);
@@ -1287,6 +1292,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   display: grid;
   gap: var(--ct-space-3);
   grid-template-columns: minmax(0, 1fr);
+  align-items: start;
 }
 
 .dashboard-command-slot {
@@ -1308,13 +1314,11 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 .dashboard-orbit-empty {
   width: 100%;
   min-width: 0;
-  min-height: 10rem;
   box-sizing: border-box;
 }
 
 .dashboard-command-nav-empty {
-  flex: 1;
-  padding-block: var(--ct-space-3);
+  padding-block: var(--ct-space-2);
 }
 
 .dashboard-command-nav-empty span {
@@ -1324,10 +1328,9 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 }
 
 .dashboard-orbit-empty {
-  width: min(100%, 10rem);
+  width: min(100%, 8rem);
   max-width: 100%;
-  aspect-ratio: 1;
-  justify-self: center;
+  justify-self: start;
 }
 
 /* ADR-013 exception — empty placeholders only; active modules use Card / ct-glass-panel. */
@@ -1363,8 +1366,8 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 
 .dashboard-panel-table-scroll {
   overflow-x: auto;
-  margin-inline: calc(-1 * var(--ct-space-6));
-  padding-inline: var(--ct-space-6);
+  margin-inline: calc(-1 * var(--ct-space-5));
+  padding-inline: var(--ct-space-5);
 }
 
 .dashboard-command-board .dashboard-provenance-badge--compact {
@@ -1413,18 +1416,24 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 
 .dashboard-command-row-b {
   display: grid;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-3);
   grid-template-columns: minmax(0, 1fr);
+  align-items: start;
 }
 
 .dashboard-command-row-c {
   display: grid;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-3);
   grid-template-columns: minmax(0, 1fr);
+  align-items: start;
 }
 
 .dashboard-command-cell {
   min-width: 0;
+}
+
+.dashboard-command-cell--awaiting .ct-empty-surface--inline {
+  padding: 0;
 }
 
 /* Live metrics — reflow metric grid from card width, not viewport. */
@@ -1768,16 +1777,18 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   }
 }
 
-@container dash-board (min-width: 48rem) {
+@container dash-board (min-width: 56rem) {
   .dashboard-command-row-b {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
-/* Orbit | NAV — needs ~40rem board or NAV collapses (~120px at 1024 viewport). */
+/* Orbit | NAV side-by-side only when both slots have live data (not awaiting). */
 @container dash-board (min-width: 40rem) {
-  .dashboard-command-row-a {
-    grid-template-columns: minmax(7rem, 0.28fr) minmax(11rem, 1fr);
+  .dashboard-command-row-a:has(
+      .dashboard-command-slot--nav.ct-card:not(.dashboard-command-cell--awaiting)
+    ):has(.dashboard-command-slot--allocation > .ct-card:not(.dashboard-command-cell--awaiting)) {
+    grid-template-columns: minmax(7rem, 0.32fr) minmax(11rem, 1fr);
     align-items: stretch;
   }
 
@@ -1787,10 +1798,6 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 
   .dashboard-orbit {
     justify-self: start;
-  }
-
-  .dashboard-command-nav-empty {
-    min-height: 100%;
   }
 }
 
@@ -2943,6 +2950,11 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 
 /* Centre — page area & embed */
 .ct-page-area                              { padding: 32px 40px 80px; }
+
+/* Admin operator surfaces — denser inset (rails + chat compress centre vs LP). */
+.ct-page-area:has(.admin-doc):not(:has(.scenario-lab-page--viewport)) {
+  padding: var(--ct-space-6) var(--ct-space-5) var(--ct-space-8);
+}
 .ct-embed-overlay                          { padding: 40px; }
 .ct-embed-sub code                         { padding: 1px 6px; }
 .ct-embed-btn                              { padding: 9px 18px; }

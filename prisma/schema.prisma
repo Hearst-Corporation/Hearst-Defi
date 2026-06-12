@@ -297,10 +297,10 @@ model CockpitMessage {
   role      String // 'user' | 'assistant' | 'system'
   content   String
   // Persona under which this message was exchanged: "normal" (default
-  // assistant) or "review" (admin product-review facilitator). Stamped at
-  // write time from AdminChatMode so the review-document generator can
-  // filter on exactly the messages produced in review sessions, avoiding
-  // contamination by normal-mode chatter that happened in the same chat row.
+  // assistant), "review" (admin product-review facilitator), or "admin"
+  // (internal ops copilot). Stamped at write time from AdminChatMode so the
+  // review-document generator can filter on exactly the messages produced in
+  // review sessions, avoiding contamination by other chat modes.
   mode      String      @default("normal")
   createdAt DateTime    @default(now())
 
@@ -540,15 +540,16 @@ model UserAgentProfile {
 // ADMIN REVIEW — head-of-product walkthrough copilot
 // =============================================================================
 //
-// The admin cockpit chat can run in two modes: "normal" (assistant) or
+// The admin cockpit chat can run in three modes: "normal" (assistant),
 // "review" (a facilitator persona that probes the platform A→Z and whose
-// conversation can be distilled into a structured change document).
+// conversation can be distilled into a structured change document), or "admin"
+// (internal ops copilot with no autonomous write/deploy tool).
 // Mode is per-user state (one row per admin), read by the cockpit-chat route
 // to swap the system prompt — the package chat UI cannot carry the flag itself.
 
 model AdminChatMode {
   userId    String   @id
-  mode      String   @default("normal") // normal | review
+  mode      String   @default("normal") // normal | review | admin
   updatedAt DateTime @updatedAt
 }
 

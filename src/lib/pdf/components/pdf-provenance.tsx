@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 
-import { CT_PDF } from "@/lib/cockpit-tokens";
+import { PDF_LIGHT } from "@/lib/pdf/pdf-palette";
 
 /**
  * PDF mirror of the web `<ProvenanceBadge>` primitive (CLAUDE.md §2 —
@@ -12,7 +12,7 @@ import { CT_PDF } from "@/lib/cockpit-tokens";
  *   - All metrics printed to PDF (LP statements, monthly investor memo, etc.)
  *     must carry their provenance — this gives the renderer one canonical
  *     element to drop next to a `Text` value.
- *   - The colour ramp is sourced from `CT_PDF` so we never hardcode hex.
+ *   - The colour ramp is sourced from `pdf-palette` (print ink on white).
  *
  * The set of kinds mirrors the 7 kinds exposed by the web badge
  * (`live | oracle | attested | estimated | partial | manual | stale`).
@@ -38,7 +38,7 @@ const LABELS: Record<PdfProvenanceKind, string> = {
 };
 
 /**
- * Foreground (dot + ink) colour for each kind, sourced from `CT_PDF`.
+ * Foreground (dot + ink) colour for each kind, sourced from `PDF_LIGHT`.
  *
  * Mapping mirrors the web `<ProvenanceBadge>` variants:
  *   live      → success (green, on-chain confirmed)
@@ -50,13 +50,13 @@ const LABELS: Record<PdfProvenanceKind, string> = {
  *   stale     → textDim   (faded grey, freshness expired)
  */
 const FG: Record<PdfProvenanceKind, string> = {
-  live: CT_PDF.statusSuccess,
-  oracle: CT_PDF.brand,
-  attested: CT_PDF.brand,
-  estimated: CT_PDF.statusWarning,
-  partial: CT_PDF.statusWarning,
-  manual: CT_PDF.textMuted,
-  stale: CT_PDF.textDim,
+  live: PDF_LIGHT.statusSuccess,
+  oracle: PDF_LIGHT.brand,
+  attested: PDF_LIGHT.brand,
+  estimated: PDF_LIGHT.statusWarning,
+  partial: PDF_LIGHT.statusWarning,
+  manual: PDF_LIGHT.textMuted,
+  stale: PDF_LIGHT.textDim,
 };
 
 const styles = StyleSheet.create({
@@ -103,7 +103,7 @@ export function PdfProvenance({
         <Text
           style={{
             fontSize: 7,
-            color: CT_PDF.textDim,
+            color: PDF_LIGHT.textDim,
             letterSpacing: 0.4,
           }}
         >

@@ -33,11 +33,14 @@ const ACTION_LABELS: Record<string, string> = {
 export function ActionQueue({ items }: ActionQueueProps) {
   if (items.length === 0) {
     return (
-      <EmptySurface
-        variant="widget"
-        message="All clear — no pending actions."
-        ariaLabel="Action queue"
-      />
+      <Card className="dashboard-command-cell dashboard-command-cell--awaiting">
+        <DashboardPanelHeader title="Action queue" tone="quiet" />
+        <EmptySurface
+          variant="inline"
+          message="All clear — no pending actions."
+          ariaLabel="Action queue"
+        />
+      </Card>
     );
   }
 

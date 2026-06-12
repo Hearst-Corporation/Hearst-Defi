@@ -27,11 +27,14 @@ const usdCompact = new Intl.NumberFormat("en-US", {
 export function LiveMetrics({ vaults }: LiveMetricsProps) {
   if (vaults.length === 0) {
     return (
-      <EmptySurface
-        variant="widget"
-        message="No vault telemetry yet."
-        ariaLabel="Live metrics"
-      />
+      <Card className="dashboard-command-cell dashboard-command-cell--awaiting">
+        <DashboardPanelHeader title="Live metrics" tone="quiet" />
+        <EmptySurface
+          variant="inline"
+          message="No vault telemetry yet."
+          ariaLabel="Live metrics"
+        />
+      </Card>
     );
   }
 

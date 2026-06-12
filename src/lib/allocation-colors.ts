@@ -3,7 +3,7 @@
  *
  * Source of truth for donut strokes, legend dots, and scenario allocation bars.
  * Dashboard bento (`dashboard/page.tsx` + `.dash-chart-circle.color-*`) is the
- * reference; PDF uses `CT_ALLOCATION` hex in `cockpit-tokens.ts` (light print).
+ * reference; PDF uses `PDF_ALLOCATION` in `src/lib/pdf/pdf-palette.ts`.
  *
  * Do not hardcode per-component `BUCKET_COLOR` / `BUCKET_TONES` maps — import here.
  */

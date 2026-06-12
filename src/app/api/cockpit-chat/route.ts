@@ -18,9 +18,11 @@ import {
 } from "@/lib/agents/user-context";
 import { sha256Hex, buildFacilitatorPrompt } from "@hearst/review-mode";
 import {
+  COCKPIT_ADMIN_SYSTEM_PROMPT,
   COCKPIT_DEFAULT_SYSTEM_PROMPT,
   buildRoleDirective,
 } from "@/lib/llm/prompts";
+import { isChatMode, type ChatMode } from "@/lib/llm/chat-modes";
 import { PRODUCT_CONTEXT } from "@/lib/product-context";
 import { guardChatStream, chatOutputViolation } from "@/lib/llm/output-guard";
 import { buildPortfolioContextBlock } from "@/lib/llm/chat-context";
@@ -207,7 +209,7 @@ function createUserScopedPersistence(
   // Resolved once per request from AdminChatMode (step 4 below) — this lets
   // the review-document generator filter on exactly the messages exchanged
   // in review sessions, instead of mixing them with normal-mode chatter.
-  chatMode: "normal" | "review",
+  chatMode: ChatMode,
 ): NonNullable<CockpitChatHandlerConfig["persistence"]> {
   async function ownsChat(chatId: string): Promise<boolean> {
     const chat = await prisma.cockpitChat.findUnique({
@@ -312,10 +314,11 @@ function createUserScopedPersistence(
 async function runMasterAgentTurn(args: {
   req: NextRequest;
   userId: string;
+  chatMode: ChatMode;
   model: string;
   systemPrompt: string;
 }): Promise<Response> {
-  const { req, userId, model, systemPrompt } = args;
+  const { req, userId, chatMode, model, systemPrompt } = args;
 
   let body: {
     chatId?: string | null;
@@ -339,7 +342,7 @@ async function runMasterAgentTurn(args: {
     });
   }
 
-  const persistence = createUserScopedPersistence(userId, "normal");
+  const persistence = createUserScopedPersistence(userId, chatMode);
 
   // Resolve the chat + load history, then persist the user message.
   let chatId: string | null = body.chatId ?? null;
@@ -550,22 +553,24 @@ export async function POST(req: NextRequest): Promise<Response> {
     });
   }
 
-  // 4. Resolve the base persona. An admin who flipped the chat into "review"
-  //    mode (AdminChatMode row) gets the product-review facilitator prompt
-  //    instead of the default assistant. Only admins can ever set this row
-  //    (the setter route is requireAdmin-gated), so reading it here is safe.
+  // 4. Resolve the base persona. Admins can flip the chat between normal,
+  //    review, and admin modes via the requireAdmin-gated settings route.
   //    The resolved mode is ALSO used downstream to stamp persisted messages
   //    with their persona — `chatMode` is the source of truth for both.
-  let chatMode: "normal" | "review" = "normal";
+  let chatMode: ChatMode = "normal";
   let basePrompt = COCKPIT_DEFAULT_SYSTEM_PROMPT;
   try {
     const modeRow = await prisma.adminChatMode.findUnique({
       where: { userId },
       select: { mode: true },
     });
-    if (modeRow?.mode === "review") {
-      chatMode = "review";
-      basePrompt = REVIEW_FACILITATOR_PROMPT;
+    if (isChatMode(modeRow?.mode)) {
+      chatMode = modeRow.mode;
+      if (chatMode === "review") {
+        basePrompt = REVIEW_FACILITATOR_PROMPT;
+      } else if (chatMode === "admin") {
+        basePrompt = COCKPIT_ADMIN_SYSTEM_PROMPT;
+      }
     }
   } catch (modeErr) {
     // NOTE: si le lookup AdminChatMode échoue (DB hiccup, RLS), on dégrade en
@@ -585,6 +590,7 @@ export async function POST(req: NextRequest): Promise<Response> {
   //     an admin. Normal mode only (review mode is admin-gated with its own
   //     facilitator prompt). Best-effort: a failed lookup falls back to the
   //     STRICT LP directive (the safe default) inside buildRoleDirective(null).
+  //     Admin mode has its own internal directive baked into the prompt.
   if (chatMode === "normal") {
     let role: string | null = null;
     try {
@@ -635,12 +641,12 @@ export async function POST(req: NextRequest): Promise<Response> {
   //     each with a provenance qualifier). This lets the assistant answer
   //     "pourquoi mon portefeuille est stale ?" with the user's real figures
   //     and their freshness instead of inventing numbers. Best-effort + clamped,
-  //     like the user-context block. Normal mode only: the review facilitator
+  //     like the user-context block. Normal + admin only: the review facilitator
   //     prompt is admin-product-review and must stay portfolio-free.
   //     The block is strictly scoped to `userId` inside the loader (never another
   //     investor) and is prefixed with an explicit delimiter so the model treats
   //     it as data, not instructions.
-  if (chatMode === "normal") {
+  if (chatMode === "normal" || chatMode === "admin") {
     try {
       const portfolioBlock = await buildPortfolioContextBlock(userId);
       if (portfolioBlock !== null) {
@@ -663,14 +669,18 @@ export async function POST(req: NextRequest): Promise<Response> {
     }
   }
 
-  // 5b. Master Agent path (flag-gated, normal mode only): route through the
+  // 5b. Master Agent path (flag-gated, normal/admin modes only): route through the
   //     app-side tool-capable engine so the assistant can navigate the LP.
   //     OFF by default → falls through to the cockpit-shell handler below.
   //     Review mode always uses the cockpit-shell handler (no tools).
-  if (FEATURE_FLAGS.CHAT_MASTER_AGENT && chatMode === "normal") {
+  if (
+    FEATURE_FLAGS.CHAT_MASTER_AGENT &&
+    (chatMode === "normal" || chatMode === "admin")
+  ) {
     return runMasterAgentTurn({
       req: sanitizedReq,
       userId,
+      chatMode,
       model: resolveModel(requestedModel),
       systemPrompt: enrichedSystemPrompt,
     });

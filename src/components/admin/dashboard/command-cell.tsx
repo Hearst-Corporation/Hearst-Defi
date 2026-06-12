@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
+import { cn } from "@/lib/cn";
 
 const CELL = "dashboard-command-cell";
 
@@ -21,12 +22,13 @@ export function DashboardCommandCell({
 }: DashboardCommandCellProps) {
   if (!ready) {
     return (
-      <EmptySurface
-        variant="inline"
-        className={CELL}
-        message={emptyMessage}
-        ariaLabel={emptyAriaLabel}
-      />
+      <Card className={cn(CELL, "dashboard-command-cell--awaiting")}>
+        <EmptySurface
+          variant="inline"
+          message={emptyMessage}
+          ariaLabel={emptyAriaLabel}
+        />
+      </Card>
     );
   }
 

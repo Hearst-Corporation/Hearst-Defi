@@ -255,7 +255,7 @@ export function VaultForm(props: VaultFormProps) {
         : "Save Changes";
 
   return (
-    <div className="admin-doc-stack admin-doc-narrow pb-24" onBlur={handleBlur}>
+    <div className="admin-doc-stack admin-doc-narrow pb-8" onBlur={handleBlur}>
       {/* Progress bar */}
       <div className="admin-doc-stack--actions">
         <div className="admin-doc-row-spread">

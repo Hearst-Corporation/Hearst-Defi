@@ -32,7 +32,7 @@
   width: 100%;
   min-width: 0;
   flex-direction: column;
-  gap: var(--ct-space-8);
+  gap: var(--ct-space-4);
   container-type: inline-size;
   container-name: admin-doc;
 }
@@ -54,7 +54,7 @@
 }
 
 .admin-doc .admin-doc-shell--compact {
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-3);
 }
 
 .admin-doc .admin-doc-stack {
@@ -426,7 +426,7 @@
   display: flex;
   align-items: center;
   gap: var(--ct-space-1);
-  margin-bottom: var(--ct-space-6);
+  margin-bottom: var(--ct-space-4);
   border-bottom: 1px solid var(--ct-border-soft);
 }
 

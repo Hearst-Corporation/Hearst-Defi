@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  COCKPIT_ADMIN_SYSTEM_PROMPT,
   buildRoleDirective,
   COCKPIT_DEFAULT_SYSTEM_PROMPT,
 } from "@/lib/llm/prompts";
@@ -30,5 +31,15 @@ describe("COCKPIT_DEFAULT_SYSTEM_PROMPT", () => {
   it("still carries the load-bearing guardrails", () => {
     expect(COCKPIT_DEFAULT_SYSTEM_PROMPT).toContain("APY toujours en fourchette");
     expect(COCKPIT_DEFAULT_SYSTEM_PROMPT).toContain("GPT-4.1");
+  });
+});
+
+describe("COCKPIT_ADMIN_SYSTEM_PROMPT", () => {
+  it("declares canonical allocations and admin limits", () => {
+    expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("HYV = mining 60 %");
+    expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("HDV = mining 20 %");
+    expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("HBP = mining 40 %");
+    expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("Tu n'as pas de navigateur web");
+    expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("Tu ne peux pas déployer");
   });
 });

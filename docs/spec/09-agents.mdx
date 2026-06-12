@@ -115,9 +115,10 @@ See **ADR-012** and the "Conversational chat" section below.
 A conversational cockpit chat ships **alongside** the four structured agents, on
 the same model (GPT-4.1). It is a **read-only** assistant — it explains the
 product and can guide the user to a page, but it cannot transact, write, or take
-any admin action. Two surfaces:
+any admin action. Three admin-selectable modes:
 
 - **Admin review-mode facilitator** — admin-gated (`AdminChatMode` row → `chatMode = "review"`); a product-review facilitator prompt that produces review documents (MD + JSON). Always runs through the `@hearst/cockpit-shell` handler (no tools).
+- **Admin ops mode** — admin-gated (`chatMode = "admin"`); internal copilot prompt for architecture, canonical allocations, market-data freshness, proofs, governance, deployment runbooks and operational checks. It can use injected app context but has no browser, market terminal, DB-write, signing, Fireblocks, deploy or transaction tool.
 - **LP-facing Master Agent** — normal-mode chat, flag-gated behind `CHAT_MASTER_AGENT` (server-only env, OFF by default). Runs through the app-owned tool-capable engine (`runChatAgent`) whose **only** tool is `navigate` — a client-side, read-only route change restricted to a **closed whitelist** (`NAV_DESTINATIONS`: portfolio, vaults, proof-center, profile). No write / financial / admin tool exists.
 
 Guardrails (all enforced server-side):
@@ -125,6 +126,7 @@ Guardrails (all enforced server-side):
 - **System prompt is server-built** (`COCKPIT_DEFAULT_SYSTEM_PROMPT` + role directive). A client `system` field is stripped by the inbound Zod schema — it cannot override the curated prompt.
 - **Output-side compliance guard** (`guardChatStream` / `chatOutputViolation`) wraps the streamed answer and enforces the **same** forbidden-words list (FR ∪ EN, negation-aware) plus the **APY-always-a-range** rule, aborting before any offending span is emitted. Navigation fires only on a compliant answer.
 - **Role-aware register** (`buildRoleDirective`): LP default is strict vouvoiement + zero internal disclosure; admin gets a looser internal register but still no secrets / env vars / DB schemas / other agents' prompts.
+- **No vector RAG today**: chat context is server-built from Prisma-backed user profile/memory, live portfolio context when available, static prompts, and filesystem route/spec indexes for review document generation.
 - **Human-in-the-loop preserved** (#4): no auto-execution of any financial or rebalancing action — the chat suggests and navigates, humans decide.
 
 ## Forbidden absolutely

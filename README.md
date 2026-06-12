@@ -12,15 +12,22 @@ LLM provider : **OpenAI GPT-4.1** (`openai@6.x` SDK, `OPENAI_API_KEY`) — singl
 model for all 4 agents + cockpit chat. No Anthropic SDK. See **ADR-011**
 (supersedes ADR-007 / Kimi-via-Hypercli).
 
+Cockpit chat modes : `normal` (conversation produit/LP), `review` (facilitateur
+admin générant un document de revue), `admin` (copilote interne architecture /
+allocations / runbooks). Pas de RAG vectoriel câblé aujourd'hui : contexte via
+profil/mémoire Prisma, portefeuille live si disponible, prompts statiques et
+index specs/routes pour la revue. Outil chat unique : `navigate`, seulement avec
+`CHAT_MASTER_AGENT=1`; aucun outil autonome d'écriture, marché, internet ou
+déploiement.
+
 ---
 
 ## Design system — guidelines (tokens & primitives)
 
 **Préférer les tokens et primitives existants. Éviter :**
-- ❌ Un hex ou rgba/hsl hors des fichiers tokens (exception unique :
-  [`src/lib/cockpit-tokens.ts`](src/lib/cockpit-tokens.ts) pour PDF/Privy
-  qui ne lisent pas les CSS vars runtime, et fichiers tests qui pin des
-  valeurs canoniques pour détecter une dérive silencieuse).
+- ❌ Un hex ou rgba/hsl hors des fichiers tokens (exceptions : palette PDF
+  [`src/lib/pdf/pdf-palette.ts`](src/lib/pdf/pdf-palette.ts) pour react-pdf ;
+  hex SDK tiers — Privy / CockpitShell — alignés sur `--ct-accent` en commentaire).
 - ❌ Un nouveau token CSS (`--ct-*`) sans validation explicite d'Adrien.
 - ❌ Une nouvelle primitive UI (`src/components/ui/*`) si elle duplique
   une primitive existante. Avant de créer, **lire** `src/components/ui/` et
@@ -84,10 +91,9 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
 - **Portfolio data** : `/portfolio` lit les loaders DB réels. Cockpit affiché
   même à zéro position (structure preview testable visuellement).
 
-Mirror TypeScript des valeurs canoniques (pour les surfaces qui ne lisent pas
-les CSS vars runtime — PDF react-pdf, Privy SDK theme, error pages standalone) :
-[`src/lib/cockpit-tokens.ts`](src/lib/cockpit-tokens.ts). Toute valeur ajoutée
-ici doit être un **mirror** d'un token CSS existant (jamais une valeur nouvelle).
+PDF react-pdf : palette hex locale [`src/lib/pdf/pdf-palette.ts`](src/lib/pdf/pdf-palette.ts)
+(ink-on-white, distincte des `--ct-status-*` web). Source runtime = CSS (`cockpit.css` +
+`@hearst/cockpit-shell/tokens.css`).
 
 Doc DS complète + tableau des tokens autorisés : [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).
 
@@ -145,7 +151,7 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
 
 - H1 page : `.h1` via `ProductPageHeader` / `AdminPageHeader` (classes `*-page-header*` dans `doc-flow.css`).
 - H2 section : `.h2` · module : `.h3` / `DashboardPanelHeader` / `WidgetPanelHeader` · KPI : `.stat-value` + `.stat-label`.
-- Shell page : `admin-doc-shell` / `product-doc-shell` (`gap: var(--ct-space-8)`).
+- Shell page : `product-doc-shell` (`gap: var(--ct-space-8)`) ; admin `admin-doc-shell` (`gap: var(--ct-space-4)`, `--compact` → `space-3`). Zone `.ct-page-area` admin : `24px 20px 32px` (vs `32px 40px 80px` LP).
 - Layout stacks : `src/app/doc-flow.css` — scopes `.product-doc` / `.admin-doc` ; stacks `*-doc-stack*` / `*-doc-inline-row*` (pas de `gap-*` / `space-y-*` Tailwind ad hoc en admin).
 - Surface par défaut : `Card` → `.ct-glass-panel` (produit **et** admin). Header canon : `DashboardPanelHeader` (`src/components/ui/dashboard-panel-header.tsx`). **Interdit** : listes flat (`admin-doc-flat-list`, `admin-vault-list-card`).
 - Formatters : `src/lib/vaults/product-display.ts`.
@@ -162,16 +168,15 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
      ne couvre le besoin.
    - **Alternative** : la solution color-mix / dérivation possible.
 3. Attendre validation Adrien.
-4. Si validé : ajouter dans `src/app/cockpit.css` + mirror dans
-   `cockpit-tokens.ts` si nécessaire + mettre à jour `docs/DESIGN_SYSTEM.md`
-   + ADR si non-trivial.
+4. Si validé : ajouter dans `src/app/cockpit.css` (+ `pdf-palette.ts` si surface
+   PDF) + mettre à jour `docs/DESIGN_SYSTEM.md` + ADR si non-trivial.
 
 ### Le verrou se contrôle avec
 
 ```bash
 pnpm typecheck            # tsc strict
 pnpm lint                 # eslint, no-any en erreur
-pnpm test                 # vitest — pin les tokens canoniques (cockpit-tokens.test.ts)
+pnpm test                 # vitest
 ```
 
 Hub d'audit DS **local, advisory** (n'échoue pas la CI — `exit 0` toujours) :

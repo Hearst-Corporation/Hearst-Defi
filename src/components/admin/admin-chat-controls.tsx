@@ -13,8 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Markdown } from "@/components/admin/markdown";
 import { cn } from "@/lib/cn";
+import type { ChatMode } from "@/lib/llm/chat-modes";
 
-type Mode = "normal" | "review";
+type Mode = ChatMode;
 
 /** `false` on the server + first client render, `true` after hydration — gates
  * the client-only portal so it never causes an SSR mismatch. */
@@ -52,7 +53,7 @@ function useChatSettingsAnchor(): Element | null {
 }
 
 /**
- * Review-mode controls for the Cockpit chat, rendered as a native section AT
+ * Admin chat mode controls for the Cockpit chat, rendered as a native section AT
  * THE END of the chat SETTINGS panel ("réglages" view of the right rail) —
  * NOT as a floating sticky toolbar over the conversation. Admin-gated: on mount
  * it calls `GET /api/admin/review-mode` (requireAdmin-protected); a 403 means
@@ -65,7 +66,8 @@ function useChatSettingsAnchor(): Element | null {
  * back to the conversation removes the panel and this section with it.
  *
  * In Review mode it exposes a "Générer le document" action that distills the
- * conversation into a structured change doc.
+ * conversation into a structured change doc. Admin mode is an internal ops
+ * copilot prompt; it does not add write/deploy tools by itself.
  */
 export function AdminChatControls() {
   // null = not yet resolved / not an admin → render nothing.
@@ -90,7 +92,11 @@ export function AdminChatControls() {
           | { mode?: Mode }
           | null;
         if (!cancelled) {
-          setMode(data?.mode === "review" ? "review" : "normal");
+          setMode(
+            data?.mode === "review" || data?.mode === "admin"
+              ? data.mode
+              : "normal",
+          );
         }
       } catch {
         // Network error → leave null (hidden). Non-fatal.
@@ -279,9 +285,9 @@ export function AdminChatControls() {
     ? createPortal(
         <section
           className="ct-chat-settings-section"
-          aria-label="Mode de revue"
+          aria-label="Mode du chat"
         >
-          <div className="ct-chat-settings-label">Mode de revue</div>
+          <div className="ct-chat-settings-label">Mode du chat</div>
 
           <div
             className="ct-chat-settings-row"
@@ -323,6 +329,24 @@ export function AdminChatControls() {
               )}
             >
               Review
+            </button>
+            <button
+              type="button"
+              onClick={() => switchMode("admin")}
+              disabled={savingMode}
+              role="radio"
+              aria-checked={mode === "admin"}
+              className={cn(
+                "h-8 flex-1 rounded-full px-3 body-xs font-medium",
+                "transition-[background-color,color] duration-[var(--ct-dur-base)]",
+                "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
+                "disabled:cursor-not-allowed disabled:opacity-60",
+                mode === "admin"
+                  ? "bg-[var(--ct-accent)] ct-text-on-accent"
+                  : "ct-surface-1 ct-text-muted hover:ct-text-strong",
+              )}
+            >
+              Admin
             </button>
           </div>
 
@@ -372,9 +396,14 @@ export function AdminChatControls() {
                 Distille la conversation en plan de modifications structuré.
               </div>
             </>
+          ) : mode === "admin" ? (
+            <div className="ct-chat-settings-hint">
+              Copilote interne : architecture, allocations, marché disponible,
+              déploiements et runbooks. Pas d'exécution autonome.
+            </div>
           ) : (
             <div className="ct-chat-settings-hint">
-              Passe l’assistant en facilitateur de revue produit.
+              Assistant conversationnel produit/LP avec garde-fous compliance.
             </div>
           )}
 

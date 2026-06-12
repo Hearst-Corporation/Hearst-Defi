@@ -107,6 +107,17 @@ describe("GET /api/admin/review-mode", () => {
     expect(body).toEqual({ mode: "review" });
   });
 
+  it("returns 200 with mode 'admin' when row has mode='admin'", async () => {
+    mockRequireAdmin.mockResolvedValue({ userId: "admin_123" });
+    mockFindUnique.mockResolvedValue({ mode: "admin" } as never);
+
+    const res = await GET();
+
+    expect(res.status).toBe(200);
+    const body = await res.json() as { mode: string };
+    expect(body).toEqual({ mode: "admin" });
+  });
+
   it("returns 429 when rate limit is exceeded", async () => {
     mockRequireAdmin.mockResolvedValue({ userId: "admin_123" });
     mockAssertRateLimit.mockRejectedValue(new Error("Rate limit exceeded. Try again in 30s."));
@@ -157,6 +168,31 @@ describe("POST /api/admin/review-mode", () => {
       expect.objectContaining({
         update: { mode: "review" },
         create: expect.objectContaining({ mode: "review" }),
+      }),
+    );
+  });
+
+  it("returns 200 and calls upsert with mode='admin' on valid body", async () => {
+    mockRequireAdmin.mockResolvedValue({ userId: "admin_123" });
+    mockUpsert.mockResolvedValue({
+      id: "1",
+      userId: "admin_123",
+      mode: "admin",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as never);
+
+    const req = makeRequest("POST", { mode: "admin" });
+    const res = await POST(req);
+
+    expect(res.status).toBe(200);
+    const body = await res.json() as { mode: string };
+    expect(body).toEqual({ mode: "admin" });
+
+    expect(mockUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        update: { mode: "admin" },
+        create: expect.objectContaining({ mode: "admin" }),
       }),
     );
   });

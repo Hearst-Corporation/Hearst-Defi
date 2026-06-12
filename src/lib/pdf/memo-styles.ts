@@ -1,6 +1,6 @@
 import { StyleSheet } from "@react-pdf/renderer";
 
-import { CT_ALLOCATION, CT_PDF } from "@/lib/cockpit-tokens";
+import { PDF_ALLOCATION, PDF_LIGHT } from "@/lib/pdf/pdf-palette";
 
 /**
  * Print-friendly token set for the Hearst Investor Memo PDF.
@@ -9,24 +9,21 @@ import { CT_ALLOCATION, CT_PDF } from "@/lib/cockpit-tokens";
  * dashboard dark mode. Brand green stays restricted to fine accents (rules,
  * eyebrow titles, status pills) so the document reads as a serious document
  * rather than a marketing splash.
- *
- * Source of truth: `src/lib/cockpit-tokens.ts` (CT_PDF + CT_ALLOCATION). No
- * raw hex in this file — every colour is resolved through that mirror.
  */
 export const COLORS = {
-  bg: CT_PDF.bg,
-  bgMuted: CT_PDF.bgMuted,
-  bgRow: CT_PDF.bgRow,
-  textPrimary: CT_PDF.textPrimary,
-  textMuted: CT_PDF.textMuted,
-  textDim: CT_PDF.textDim,
-  brand: CT_PDF.brand,
-  brandStrong: CT_PDF.brandStrong,
-  border: CT_PDF.border,
-  borderStrong: CT_PDF.borderStrong,
-  danger: CT_PDF.statusDanger,
-  warning: CT_PDF.statusWarning,
-  success: CT_PDF.statusSuccess,
+  bg: PDF_LIGHT.bg,
+  bgMuted: PDF_LIGHT.bgMuted,
+  bgRow: PDF_LIGHT.bgRow,
+  textPrimary: PDF_LIGHT.textPrimary,
+  textMuted: PDF_LIGHT.textMuted,
+  textDim: PDF_LIGHT.textDim,
+  brand: PDF_LIGHT.brand,
+  brandStrong: PDF_LIGHT.brandStrong,
+  border: PDF_LIGHT.border,
+  borderStrong: PDF_LIGHT.borderStrong,
+  danger: PDF_LIGHT.statusDanger,
+  warning: PDF_LIGHT.statusWarning,
+  success: PDF_LIGHT.statusSuccess,
 } as const;
 
 /**
@@ -336,15 +333,15 @@ export const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   pillSuccess: {
-    backgroundColor: CT_PDF.statusSuccessSoft,
+    backgroundColor: PDF_LIGHT.statusSuccessSoft,
     color: COLORS.success,
   },
   pillWarning: {
-    backgroundColor: CT_PDF.statusWarningSoft,
+    backgroundColor: PDF_LIGHT.statusWarningSoft,
     color: COLORS.warning,
   },
   pillDanger: {
-    backgroundColor: CT_PDF.statusDangerSoft,
+    backgroundColor: PDF_LIGHT.statusDangerSoft,
     color: COLORS.danger,
   },
   pillNeutral: {
@@ -352,7 +349,7 @@ export const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   pillBrand: {
-    backgroundColor: CT_PDF.statusSuccessBrandTint,
+    backgroundColor: PDF_LIGHT.statusSuccessBrandTint,
     color: COLORS.brandStrong,
   },
   // ---- Section structure ----------------------------------------------------
@@ -423,10 +420,10 @@ export const styles = StyleSheet.create({
 });
 
 export const ALLOCATION_PALETTE: Record<string, string> = {
-  mining: CT_ALLOCATION.mining,
-  usdc_base: CT_ALLOCATION.usdc_base,
-  btc_tactical: CT_ALLOCATION.btc_tactical,
-  stable_reserve: CT_ALLOCATION.stable_reserve,
+  mining: PDF_ALLOCATION.mining,
+  usdc_base: PDF_ALLOCATION.usdc_base,
+  btc_tactical: PDF_ALLOCATION.btc_tactical,
+  stable_reserve: PDF_ALLOCATION.stable_reserve,
 };
 
 export const ALLOCATION_LABELS: Record<string, string> = {

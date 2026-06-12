@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { renderToBuffer, Document, Page, Text, View, Svg, Rect, G, StyleSheet } from "@react-pdf/renderer";
 
 import { requireAuth } from "@/lib/auth/require-auth";
-import { CT_PDF_DARK } from "@/lib/cockpit-tokens";
+import { PDF_DARK } from "@/lib/pdf/pdf-palette";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import {
@@ -80,7 +80,7 @@ const {
   textMuted: TEXT_MUTED,
   textFaint: TEXT_FAINT,
   border: BORDER,
-} = CT_PDF_DARK;
+} = PDF_DARK;
 
 const styles = StyleSheet.create({
   page: {
