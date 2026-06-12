@@ -55,7 +55,9 @@ Score global : X/5
 ```
 
 ## Règle d'or
-> **Aucun nouveau token, aucune nouvelle primitive, aucune nouvelle classe utilitaire ne peut être créé sans validation explicite d'Adrien.**
+> **Canon surfaces = ADR-013** : `.ct-glass-panel` / `Card` par défaut. `.ct-system-panel`, `.glass-panel`, flat admin = DEPRECATED — signaler comme P1 migration, pas comme spec valide.
+
+> **Nouveaux tokens/primitives** : validation explicite Adrien uniquement (voir README § Process pour ajouter un token). Les utilitaires déjà dans `globals.css` / `cockpit.css` (`ct-text-on-accent`, etc.) font partie du canon — ne pas les rejeter.
 
 Si l'audit révèle un besoin non couvert par le vocabulaire actuel :
 1. **Stop l'implémentation.**

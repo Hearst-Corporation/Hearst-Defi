@@ -89,9 +89,9 @@ pnpm db:migrate           # prisma migrate dev (create + apply named migration)
 pnpm db:studio            # Prisma Studio GUI
 ```
 
-No test runner is wired up yet. Vitest is referenced in agent specs (`engine-dev`, `agent-dev`) as the
-intended runner for engine snapshot tests and agent schema tests — add it under that umbrella when
-introducing the first test, not standalone.
+**Test runner: Vitest 4 is wired.** `pnpm test` runs `vitest run`; config and setup live at the repo
+root. ~185 test files / ~2171 tests under `src/**/__tests__/`. End-to-end tests run via Playwright
+(`pnpm test:e2e`). Do not re-add or re-configure either runner.
 
 ## Architecture — big picture
 

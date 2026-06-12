@@ -12,6 +12,13 @@ You are the UI specialist for Hearst Connect.
 - `src/lib/cn.ts` — class merging helper
 - Tailwind v4 theme in `src/app/globals.css` `@theme` block
 
+## Design system (ADR-013)
+- **Default surface** : `Card` → `.ct-glass-panel` on all pages (product + admin).
+- **DEPRECATED — do not use in new code** : `.ct-system-panel`, `SystemPanel`, `.glass-panel`, `.glass-panel-subtle`, flat admin (`admin-doc-flat-list`, `admin-vault-list-card`).
+- **Layout** : `src/app/doc-flow.css` (scopes `.product-doc` / `.admin-doc`). No `admin-doc.css` / `product-doc.css`.
+- **Exceptions only** (ADR-013 §10.3 + inline comment) : command-board dense, `.scenario-preset-bar`, `Ptai variant="flat"`, `EmptySurface` alone.
+- Read `docs/DESIGN_SYSTEM.md` §9–10 and `docs/decisions/ADR-013-design-system-canon-full-glass.md` before any UI work.
+
 ## Non-negotiables
 - **Server Components by default.** `"use client"` only when interactivity demands it.
 - **Tailwind v4.** No `tailwind.config.js`. Theme lives in `globals.css`.

@@ -70,7 +70,7 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
 ```
 
 **Interactivité & Animations (Agent 3)** :
-- **Hover states** : Bento (`.dash-cell`) et Card (`.glass-panel`) — bordure
+- **Hover states** : Bento (`.dash-cell`) et Card (`.ct-glass-panel`) — bordure
   légèrement renforcée au survol (graphite calme, pas de lift ni wash radial).
 - **Tooltips** : Composant `Tooltip` (via `framer-motion`) intégré aux `ProvenanceBadge` et `Metric`.
 - **Transitions** : Composant `MotionViewport` pour les animations d'entrée de section (fade-in + slide-up).
@@ -130,7 +130,7 @@ le primitive pour compat). Définis dans `cockpit.css` ; nested panels dans
 **Surfaces module (dark graphite — ADR-013)** — recette canonique **`.ct-glass-panel`**,
 appliquée via `Card` (`src/components/ui/card.tsx`). S'applique à toutes les surfaces,
 y compris l'admin. `.ct-system-panel` et `.glass-panel-subtle` sont DEPRECATED (cibles
-de migration). Exceptions documentées (seules autorisées) : dashboard command-board dense,
+de migration). Exceptions documentées (seules autorisées) :
 `.scenario-preset-bar`, `Ptai variant="flat"` en compare mode, `EmptySurface` seul.
 Recette définie une seule fois dans `cockpit.css` ; aucune page ne redéfinit localement
 un matériau graphite. Doc complète : [`docs/DESIGN_SYSTEM.md §10`](docs/DESIGN_SYSTEM.md) +
@@ -141,19 +141,16 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
 `admin-doc.css` sont consolidés dans `doc-flow.css` (ADR-013 Lot 3). Companion typo :
 `src/app/doc-flow-typography.css`. Chips/badges gardent `--ct-surface-1` littéral.
 
-**Canon typo/layout** (cohérence pages) :
-- H1 page : `.h1` via `ProductPageHeader` / `AdminPageHeader` (classes `product-page-header*` / `admin-page-header*` dans `product-doc.css` / `admin-doc.css`).
-- H2 section : `.h2` · titre module : `.h3` / `DashboardPanelHeader` ou `WidgetPanelHeader` · KPI valeur : `.stat-value` + `.stat-label` · labels section compacte : `.stat-label`.
-- Padding vertical page : `admin-doc-shell` / `product-doc-shell` (`gap: var(--ct-space-8)`).
-- **Exceptions documentées** : Portfolio → `PortfolioGreeting` (même `.h1`, greeting personnalisé) ;
-  login marketing → titre visuel `.h1` sur `<p>` (H1 sémantique unique = « Sign in ») ;
-  `/admin` → redirect `/admin/dashboard` ; command board dense (KPI strip = typo sur `--ct-bg-deep`, séparateurs verticaux seulement en 6 col — pas de cage bento ni pill provenance glass ; chart empties + `ct-system-panel` plats sous `.dashboard-command-board` ; headers cockpit sans eyebrow redondant ; orbit CSS conic-gradient + barres NAV ; cockpit 3 col + audit trail ; pills vault `?vault=`) ; loaders partagent `timeline-snapshot.ts` (sources `daily-seed|live|oracle|attested` uniquement — pas de synthèse distribution ni KPI fantômes) ;
-  `/admin/scenario-lab` → viewport-locked (`.scenario-lab-page--viewport`) : header/toolbar/presets fixes, workspace remplit la hauteur restante — `.scenario-preset-bar` = rail plat (`border-bottom` seul, boutons transparents — pas de graphite box-in-box) ; compare mode = une `glass-panel` par scénario + `divide-y` interne (pas de `glass-panel-subtle` par métrique) ; `PresetPicker` / delta row plats ; `Ptai variant="flat"` dans les panneaux compare ; inputs (sliders + Run) et output scrollent chacun dans leur colonne ; slot output vide = `EmptySurface` seul (pas de `glass-panel` autour) ; backtest idem ; pills `FixtureVaultPills` + `?vault=` ;
-  `/admin/proof-center` → module vide = `EmptySurface`/`AwaitingMetricState` seul (PoR, timeline, grille) ; module actif = `Card` + `DashboardPanelHeader` ; sous-section custody vide dans PoR actif = `PanelStatus` (pas de nested box) ;
-  section **Proof & System** (`/admin/proofs`, `/admin/monitoring`, `/admin/security`, `/admin/governance`, `/admin/governance/propose`, `/admin/governance/proposal/[id]`, `/admin/governance/allowlist`, `/admin/governance/simulate-demo` dev-only) → même contrat DS : `EmptySurface` widget remplace le module vide ; tables dans `SystemPanel` + `DashboardPanelHeader` ; listes actives = `Card` sans faux placeholder ; utilitaires partagés `src/lib/ui/surface-classes.ts`, `form-classes.ts`, `src/components/proof/empty-messages.ts`, `src/lib/governance/proposal-calldata.ts`, `src/components/admin/governance/*` ;
-  flux document `.product-doc` (`product-doc.css`) sur `/vaults/*`, `/onboarding/*`, `/proof-center`, `/profile`, `/portfolio` (+ `[positionId]`), `/legal/*` : stacks `product-doc-stack*` / `product-doc-inline-row*` ; `ProductPageHeader` tokenisé ; formatters LP centralisés dans `src/lib/vaults/product-display.ts` (`formatUsdAmount`, `formatUsdCompact` → re-export `lib/format/usd-compact`, `formatUsdcGrouped`, `formatUsdDetailed`, `formatAdminDate`, `formatAdminDateTime`) ; H1/H2/H3 + `.stat-value` réduits ; KPI vault en `.h4` ; invest flow 4 steps = shell unique `InvestFlowShell` (cap `64rem`, container `product-doc`, stepper dans header, footer `product-doc-footer-rule`) ; widgets cockpit `/portfolio` = `pf-container` + stacks `pf-stack*` / `pf-inline-row*` (`portfolio.css`) ;
-  `/admin/roadmap` → une `Card` par semaine (`hoverOverlay={false}`) ; lignes items = `.ct-roadmap-item-row` + `divide-y` (pas de `NestedPanel` par item) ;
-  flux document `.admin-doc` (`admin-doc.css`) sur `/admin/*` (wrapper layout incl. `AdminSubNav`) : stacks `admin-doc-stack*` / `admin-doc-inline-row*` ; liste vaults = grille `admin-vault-list-card` (container `admin-doc`) ; table approvals détail vault = `ct-table-surface` seul (aligné audit/customers, pas `SystemPanel` + table) ; **zéro** `gap-*` / `space-y-*` Tailwind ad hoc dans `src/app/admin/**`, `src/components/admin/**`, sous-arbres admin-only (`memo/*`, `scenario/*`) et nav admin ; `AdminPageHeader` tokenisé ; shell page `admin-doc-shell` ; formatters admin = `product-display.ts` ; confirm panels `admin-confirm-panel*` ; composants proof partagés = classes `product-doc-*` (aliasées sous `.admin-doc`) ; exceptions inchangées : dashboard orbit (`admin-doc-shell--compact`), scenario-lab viewport-locked, grilles bento dashboard, `EmptySurface` §9.3.
+**Canon typo/layout** — source unique : [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) + [ADR-013](docs/decisions/ADR-013-design-system-canon-full-glass.md).
+
+- H1 page : `.h1` via `ProductPageHeader` / `AdminPageHeader` (classes `*-page-header*` dans `doc-flow.css`).
+- H2 section : `.h2` · module : `.h3` / `DashboardPanelHeader` / `WidgetPanelHeader` · KPI : `.stat-value` + `.stat-label`.
+- Shell page : `admin-doc-shell` / `product-doc-shell` (`gap: var(--ct-space-8)`).
+- Layout stacks : `src/app/doc-flow.css` — scopes `.product-doc` / `.admin-doc` ; stacks `*-doc-stack*` / `*-doc-inline-row*` (pas de `gap-*` / `space-y-*` Tailwind ad hoc en admin).
+- Surface par défaut : `Card` → `.ct-glass-panel` (produit **et** admin). **Interdit nouveau code** : `.ct-system-panel`, `.glass-panel`, `.glass-panel-subtle`, listes flat (`admin-doc-flat-list`, `admin-vault-list-card`).
+- Formatters : `src/lib/vaults/product-display.ts`.
+- Exceptions non-glass **seules autorisées** (commentaire `/* ADR-013 exception */` requis) : `.scenario-preset-bar`, `Ptai variant="flat"` en compare, `EmptySurface` seul — voir ADR-013 §10.3. Dashboard command board + KPI strip : `Card` / `.ct-glass-panel`.
+- Migration ADR-013 admin : **Lot 2 done** (`SystemPanel` → `Card` sur tout `src/app/admin` + `src/components/admin`). Reste Lot 4 (cleanup aliases `glass-panel` / `ct-system-panel` dans `cockpit.css`) + pages produit (scenario-lab, etc.).
 
 ### Process pour ajouter un token (rare, validé Adrien uniquement)
 
@@ -180,6 +177,7 @@ pnpm test                 # vitest — pin les tokens canoniques (cockpit-tokens
 Et le hub d'audit DS local :
 
 ```
+pnpm ds:classes  # ct-* allowlist auto (cockpit.css) + src/lib/ui + DEPRECATED ADR-013
 /ds-tokens     # hex / rgba magiques hors fichiers tokens
 /ds-typo       # font-mono interdit, font-family hors cockpit
 /ds-layout     # px magiques Tailwind, dimensions arbitraires

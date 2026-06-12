@@ -31,7 +31,7 @@ Aucune taille arbitraire comme `text-[13px]`, `text-[15px]`.
 Labels KPI uppercase → `.stat-label` (éviter `ct-text-micro-size font-bold uppercase`).
 `font-bold` redondant sur `<Button variant="primary">` ou `<Badge>` — retirer (déjà dans la primitive).
 `ct-pill` seul suffit (pas `body-xs font-semibold uppercase` en plus).
-Typo doc-flow : `src/app/doc-flow-typography.css` — ne pas dupliquer dans `product-doc.css` / `admin-doc.css`.
+Typo doc-flow : `src/app/doc-flow-typography.css` — ne pas dupliquer dans `doc-flow.css` ni les CSS de page.
 CSS mort retiré : `.dash-label`, `.dash-value`, `.dash-header` dans `product-bento.css` ; utiliser `.stat-label` / `.stat-value` / `.pf-panel-title`.
 
 ### 3. Poids autorisés

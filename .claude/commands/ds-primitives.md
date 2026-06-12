@@ -11,7 +11,7 @@ Vérifier que les 14 primitives UI de `src/components/ui/` sont utilisées et ja
 
 | Primitive | Fichier | Usage obligatoire |
 |-----------|---------|-------------------|
-| Card | `card.tsx` | Wrapper glass standard |
+| Card | `card.tsx` | Wrapper `.ct-glass-panel` (ADR-013 canon) |
 | Metric | `metric.tsx` | KPI value + label + delta |
 | Badge | `badge.tsx` | Pill générique |
 | Button | `button.tsx` | Primary / secondary / ghost |
