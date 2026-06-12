@@ -11,9 +11,9 @@ import {
 } from "@/lib/attestation/publish";
 import type { SignedAttestation } from "@/lib/attestation/types";
 
-const FAKE_TX = `0x${"ab".repeat(32)}`;
-const DIGEST = `0x${"cd".repeat(32)}`;
-const ATTESTOR = `0x${"11".repeat(20)}`;
+const FAKE_TX = `0x${"ab".repeat(32)}` as const;
+const DIGEST: `0x${string}` = `0x${"cd".repeat(32)}`;
+const ATTESTOR: `0x${string}` = `0x${"11".repeat(20)}`;
 
 function makeSigned(): SignedAttestation {
   return {
