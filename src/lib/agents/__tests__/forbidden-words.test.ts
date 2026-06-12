@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   containsForbidden,
+  containsForbiddenChat,
   findForbiddenMatches,
   FORBIDDEN_WORDS,
 } from "@/lib/agents/forbidden-words";
@@ -294,5 +295,65 @@ describe("FORBIDDEN_WORDS — exhaustive guard", () => {
       expect(r, `word "${word}" should be detected`).not.toBeNull();
       expect(r!.found).toContain(word);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// containsForbiddenChat — French-aware matcher for the LP cockpit chat
+// ---------------------------------------------------------------------------
+
+describe("containsForbiddenChat — French claims are caught", () => {
+  it("catches a bare 'garanti' claim", () => {
+    expect(containsForbiddenChat("Le rendement est garanti.")).not.toBeNull();
+    expect(containsForbiddenChat("Un rendement annualisé garanti de 12 %."))
+      .not.toBeNull();
+  });
+
+  it("catches 'sans risque' (starts with a negation, so never exempted)", () => {
+    expect(containsForbiddenChat("C'est un placement sans risque."))
+      .not.toBeNull();
+  });
+
+  it("catches 'rendement sûr'", () => {
+    expect(containsForbiddenChat("Nous offrons un rendement sûr."))
+      .not.toBeNull();
+  });
+
+  it("catches 'promesse' and embedded English claims", () => {
+    expect(containsForbiddenChat("C'est une promesse de rendement."))
+      .not.toBeNull();
+    expect(containsForbiddenChat("This is risk-free.")).not.toBeNull();
+    expect(containsForbiddenChat("We guarantee the yield.")).not.toBeNull();
+  });
+});
+
+describe("containsForbiddenChat — compliant French is NOT flagged", () => {
+  it("exempts the required 'non garanti' / 'pas garanti' disclaimers", () => {
+    expect(containsForbiddenChat("Ce rendement n'est pas garanti.")).toBeNull();
+    expect(containsForbiddenChat("Rendement non garanti, projection conditionnelle."))
+      .toBeNull();
+    expect(containsForbiddenChat("Sans garantie de résultat.")).toBeNull();
+    expect(containsForbiddenChat("Il n'y a aucune garantie de rendement."))
+      .toBeNull();
+  });
+
+  it("does not false-positive on French 'certains/certaine' (= 'some')", () => {
+    expect(containsForbiddenChat("Certains investisseurs préfèrent le vault défensif."))
+      .toBeNull();
+    expect(containsForbiddenChat("Une certaine volatilité est attendue."))
+      .toBeNull();
+  });
+
+  it("passes the canonical French disclaimers clean", () => {
+    expect(
+      containsForbiddenChat(
+        "Les performances passées ne préjugent pas des performances futures.",
+      ),
+    ).toBeNull();
+    expect(
+      containsForbiddenChat(
+        "Projection conditionnelle aux hypothèses présentées, sans engagement de résultat.",
+      ),
+    ).toBeNull();
   });
 });

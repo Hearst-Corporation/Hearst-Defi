@@ -225,7 +225,7 @@ export function findForbiddenMatches(text: string): ForbiddenMatchRange[] {
     const pattern = new RegExp(`\\b${escapeRegex(word)}\\w*`, "gi");
     let m: RegExpExecArray | null;
     while ((m = pattern.exec(lower)) !== null) {
-      if (isNegated(lower, word, m.index, m[0].length)) continue;
+      if (isNegated(lower, word, m.index, m[0].length, EN_NEGATIONS)) continue;
       out.push({ word, index: m.index, length: m[0].length });
     }
   }
