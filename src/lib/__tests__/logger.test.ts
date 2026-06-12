@@ -129,4 +129,33 @@ describe("logger — userId PII guard", () => {
     expect(extra.userId).toBe(hashId(raw));
     expect(extra.userId).not.toBe(raw);
   });
+
+  it("hashes a NON-STRING (numeric) userId, never leaking the raw id", () => {
+    logger.info("x", { userId: 12345 });
+    const line = infoSpy.mock.calls[0]?.[0] as string;
+    const parsed = JSON.parse(line) as { userId?: string };
+    expect(parsed.userId).toBe(hashId("12345"));
+    expect(parsed.userId).not.toBe(12345);
+    expect(line).not.toContain("12345");
+  });
+
+  it("forwards only the hashed NON-STRING userId to Sentry on error", () => {
+    logger.error("boom", { userId: 98765 }, new Error("x"));
+    expect(mockCaptureError).toHaveBeenCalledOnce();
+    const [, extra] = mockCaptureError.mock.calls[0] as [
+      unknown,
+      { userId?: string },
+    ];
+    expect(extra.userId).toBe(hashId("98765"));
+    expect(extra.userId).not.toBe(98765);
+  });
+
+  it("does not double-hash a userId already passed as a string", () => {
+    const raw = "user-no-double-hash";
+    logger.info("x", { userId: raw });
+    const line = infoSpy.mock.calls[0]?.[0] as string;
+    const parsed = JSON.parse(line) as { userId?: string };
+    expect(parsed.userId).toBe(hashId(raw));
+    expect(parsed.userId).not.toBe(hashId(hashId(raw)));
+  });
 });

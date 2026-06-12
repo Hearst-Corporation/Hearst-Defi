@@ -75,8 +75,14 @@ function write(level: LogLevel, message: string, context?: LogContext, error?: u
   // is last-wins) would otherwise clobber the request-context value and emit
   // the plaintext id to logs AND Sentry. Hashing here, once, after every
   // possible writer, makes the protection hold regardless of who set it.
-  if (typeof entry.userId === "string") {
-    entry.userId = hashId(entry.userId);
+  //
+  // `LogContext` is `[key: string]: unknown`, so a call-site can legally pass a
+  // NON-STRING userId (number/object). Hash whenever it is present (not
+  // null/undefined), coercing to string first — a `typeof === "string"` check
+  // would silently leak a numeric id. Hashing here only, never on read, keeps
+  // it single-pass: no double-hash.
+  if (entry.userId != null) {
+    entry.userId = hashId(String(entry.userId));
   }
 
   if (error instanceof Error) {
