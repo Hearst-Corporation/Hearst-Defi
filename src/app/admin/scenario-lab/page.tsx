@@ -47,19 +47,23 @@ export default async function ScenarioLabPage({
   }
 
   return (
-    <div className="scenario-lab-page">
-      <AdminPageHeader
-        title="Scenario Lab"
-        eyebrow={`${vault.label} · ${vault.ticker}`}
-        actions={
-          <FixtureVaultPills
-            activeVaultId={vaultId}
-            resolveHref={adminScenarioLabVaultHref}
-          />
-        }
-      />
+    <div className="scenario-lab-page scenario-lab-page--viewport">
+      <div className="scenario-lab-page__chrome">
+        <AdminPageHeader
+          title="Scenario Lab"
+          eyebrow={`${vault.label} · ${vault.ticker}`}
+          actions={
+            <FixtureVaultPills
+              activeVaultId={vaultId}
+              resolveHref={adminScenarioLabVaultHref}
+            />
+          }
+        />
+      </div>
 
-      <LabShell vaultId={vaultId} initialInputs={liveInputs} />
+      <div className="scenario-lab-page__body">
+        <LabShell vaultId={vaultId} initialInputs={liveInputs} />
+      </div>
 
       {FEATURE_FLAGS.ENABLE_MONTE_CARLO ? <MonteCarloPanel /> : null}
     </div>

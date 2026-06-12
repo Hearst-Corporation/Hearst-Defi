@@ -468,7 +468,167 @@
   margin-inline: auto;
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-6);
+  gap: var(--ct-space-4);
+}
+
+/* ── Viewport-locked mode (Single tab) ───────────────────────────────────────
+   Chrome (H1, sub-nav sibling, toolbar, presets, inputs) stays fixed in the
+   centre panel. Only the scenario output column scrolls. */
+.ct-panels-row:has(.scenario-lab-page--viewport) {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+.ct-center-panel:has(.scenario-lab-page--viewport) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ct-page-area:has(.scenario-lab-page--viewport) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: var(--ct-space-4);
+}
+
+.ct-page-area:has(.scenario-lab-page--viewport) > main#main-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+main#main-content:has(.scenario-lab-page--viewport) > nav {
+  flex-shrink: 0;
+}
+
+.scenario-lab-page--viewport {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  gap: var(--ct-space-4);
+}
+
+.scenario-lab-page__chrome,
+.scenario-lab-page--viewport .scenario-lab-toolbar,
+.scenario-lab-page--viewport .scenario-preset-bar,
+.scenario-lab-page--viewport .scenario-lab-single > [role="alert"] {
+  flex-shrink: 0;
+}
+
+.scenario-lab-page__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.scenario-lab-page--viewport .scenario-lab-shell {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.scenario-lab-page--viewport .scenario-lab-shell > [role="tabpanel"]:not([hidden]) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.scenario-lab-page--viewport #tabpanel-scenario > [role="tabpanel"]:not([hidden]) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.scenario-lab-page--viewport .scenario-lab-single {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.scenario-lab-workspace--viewport {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.scenario-lab-workspace--viewport .scenario-lab-input-card {
+  position: static;
+  top: auto;
+  max-height: none;
+  align-self: stretch;
+  overflow: visible;
+}
+
+.scenario-lab-workspace--viewport .scenario-lab-input-scroll {
+  flex: none;
+  max-height: none;
+  overflow: visible;
+}
+
+.scenario-lab-workspace--viewport .scenario-lab-output-card {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  align-self: stretch;
+}
+
+.scenario-lab-workspace--viewport .scenario-lab-output-card.glass-panel:has(.scenario-lab-output-empty) {
+  min-height: 0;
+}
+
+.scenario-lab-workspace--viewport .scenario-lab-output-empty {
+  min-height: 0;
+}
+
+/* Compare / Backtest tabs: scroll the whole panel (no split workspace). */
+.scenario-lab-page--viewport #tabpanel-scenario > #tabpanel-mode-compare:not([hidden]),
+.scenario-lab-page--viewport #tabpanel-backtest:not([hidden]) {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 47.999rem) {
+  .ct-panels-row:has(.scenario-lab-page--viewport) {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .ct-center-panel:has(.scenario-lab-page--viewport),
+  .ct-page-area:has(.scenario-lab-page--viewport),
+  .ct-page-area:has(.scenario-lab-page--viewport) > main#main-content,
+  .scenario-lab-page--viewport {
+    height: auto;
+    overflow: visible;
+  }
+
+  .scenario-lab-workspace--viewport .scenario-lab-output-card {
+    overflow: visible;
+  }
 }
 
 .scenario-lab-shell,
@@ -483,10 +643,14 @@
 
 .scenario-lab-shell {
   container-name: lab-shell;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
 }
 
-.scenario-lab-shell {
+.scenario-lab-single {
   display: flex;
+  min-width: 0;
   flex-direction: column;
   gap: var(--ct-space-4);
 }
@@ -497,8 +661,7 @@
   gap: var(--ct-space-5);
 }
 
-/* Single menu-button row: vault selector + tabs (left group), Single/Compare
-   (right). Compact, wraps cleanly — no centred card, no page subtitle. */
+/* Toolbar row: Scenario/Backtest (left) · Single/Compare (right, scenario tab). */
 .scenario-lab-toolbar {
   display: flex;
   min-width: 0;
@@ -513,21 +676,24 @@
   min-width: 0;
   flex-direction: column;
   gap: var(--ct-space-3);
-  padding: var(--ct-space-4);
+  padding: var(--ct-space-4) var(--ct-space-5);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-xl);
-  background: var(--ct-surface-0);
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
 }
 
 .scenario-preset-bar__head {
   display: flex;
   min-width: 0;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--ct-space-2) var(--ct-space-4);
 }
 
+/* Narrow: horizontal scroll strip. Wide: five equal columns (no broken auto-fit). */
 .scenario-preset-bar__items {
   display: flex;
   min-width: 0;
@@ -537,45 +703,86 @@
   scrollbar-width: thin;
 }
 
-/* Tablet+ : wrap presets into a readable auto-fit grid (no horizontal scroll,
-   no harsh truncation). Phone keeps the horizontal scroll strip. */
-@container lab-shell (min-width: 40rem) {
-  .scenario-preset-bar__items {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
-    overflow-x: visible;
-    padding-bottom: 0;
-  }
-}
-
 .scenario-preset-bar__button {
-  min-width: 8.5rem;
-  height: auto;
-  flex: 0 0 auto;
+  display: flex;
+  flex: 0 0 9.75rem;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--ct-space-1);
+  min-height: var(--ct-space-14);
+  width: 9.75rem;
+  padding: var(--ct-space-3);
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-lg);
+  background: var(--ct-graphite-subtle-bg);
+  color: var(--ct-text-primary);
+  text-align: left;
   white-space: normal;
+  cursor: pointer;
+  transition:
+    border-color var(--ct-dur-base) var(--ct-ease),
+    background-color var(--ct-dur-base) var(--ct-ease),
+    box-shadow var(--ct-dur-base) var(--ct-ease);
+}
+
+.scenario-preset-bar__button:hover:not(:disabled) {
+  border-color: var(--ct-border);
+  background: var(--ct-surface-1);
+}
+
+.scenario-preset-bar__button:focus-visible {
+  outline: none;
+  box-shadow: var(--ct-shadow-focus-ring);
+}
+
+.scenario-preset-bar__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.scenario-preset-bar__button--active {
+  border-color: var(--ct-accent);
+  background: color-mix(in srgb, var(--ct-accent) 12%, transparent);
+  box-shadow: var(--ct-shadow-focus-ring);
 }
 
 .scenario-preset-bar__label,
 .projection-studio-preset-button__label {
-  line-height: var(--ct-leading-none);
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-tight);
+  color: var(--ct-text-primary);
 }
 
-/* Scenario presets: let the description wrap to 2 lines instead of a hard
-   single-line ellipsis, so values like "BTC -40%, hashprice -30%" stay legible. */
+.scenario-preset-bar__button--active .scenario-preset-bar__label {
+  color: var(--ct-text-strong);
+}
+
 .scenario-preset-bar__description {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
-  color: currentColor;
-  font-size: var(--ct-text-micro);
+  font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-medium);
   line-height: var(--ct-leading-tight);
-  opacity: 0.68;
+  color: var(--ct-text-muted);
   white-space: normal;
+}
+
+@container lab-shell (min-width: 36rem) {
+  .scenario-preset-bar__items {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+
+  .scenario-preset-bar__button {
+    flex: unset;
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 /* Projection Studio keeps its original single-line ellipsis (unchanged). */
@@ -629,24 +836,12 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
-/* Desktop / laptop: split inputs (~34%) and results (~66%). Sticky input card
-   with internal scroll + pinned Run CTA footer. */
+/* Desktop: 30/70 split — viewport mode locks chrome; output column scrolls. */
 @container lab-shell (min-width: 42rem) {
-  .scenario-lab-workspace {
-    align-items: start;
+  .scenario-lab-workspace--viewport {
+    align-items: stretch;
     grid-template-columns: minmax(15rem, 30fr) minmax(0, 70fr);
     gap: var(--ct-space-4);
-  }
-
-  .scenario-lab-input-card {
-    position: sticky;
-    top: var(--ct-space-4);
-    align-self: start;
-    max-height: calc(100dvh - var(--ct-space-8));
-  }
-
-  .scenario-lab-output-card.glass-panel:has(.scenario-lab-output-empty) {
-    min-height: min(36rem, calc(100dvh - var(--ct-space-24)));
   }
 }
 
@@ -916,15 +1111,9 @@
 }
 
 @container lab-shell (max-width: 41.999rem) {
-  .scenario-lab-input-scroll {
-    max-height: 28rem;
-    overflow-y: auto;
-  }
-
-  .scenario-lab-output-card,
-  .scenario-lab-output-card.glass-panel,
-  .scenario-lab-output-empty {
-    min-height: min(24rem, 55dvh);
+  .scenario-lab-workspace--viewport .scenario-lab-output-card,
+  .scenario-lab-workspace--viewport .scenario-lab-output-empty {
+    min-height: min(20rem, 45dvh);
   }
 }
 
@@ -953,7 +1142,11 @@
     justify-content: flex-start;
   }
 
-  .scenario-preset-bar__button,
+  .scenario-preset-bar__button {
+    flex: 0 0 8.75rem;
+    width: 8.75rem;
+  }
+
   .projection-studio-preset-button {
     min-width: 8.75rem;
   }

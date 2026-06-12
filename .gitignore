@@ -47,6 +47,7 @@ coverage/
 # Playwright artifacts
 playwright-report/
 test-results/
+.tmp/
 
 # Generated audit reports (HTML reports + screenshots only — durable .md packs tracked below)
 docs/audit/*.html

@@ -37,11 +37,11 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
 
   useEffect(() => {
     if (!state.output || !hasRunRef.current) return;
-    outputRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    outputRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [state.output]);
 
   return (
-    <div className="space-y-4">
+    <div className="scenario-lab-single">
       <PresetBar
         selected={state.selectedPreset}
         onSelect={selectPreset}
@@ -57,7 +57,7 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
         </p>
       ) : null}
 
-      <div className="scenario-lab-workspace">
+      <div className="scenario-lab-workspace scenario-lab-workspace--viewport">
         <div className="scenario-lab-input-card glass-panel p-0">
           <div className="scenario-lab-input-card__header">
             <h4 className="h4">Inputs</h4>

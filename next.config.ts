@@ -181,8 +181,8 @@ const nextConfig: NextConfig = {
                 "style-src 'self' 'unsafe-inline'",
                 "img-src 'self' data: blob: https:",
                 `connect-src ${connectHosts}`,
-                // frame-src: Privy auth + Persona inquiry iframe + DocuSign embedded
-                // signing ceremony (docusign-embedded.tsx) + Calendly ops scheduling.
+                // frame-src: Privy auth + Persona inquiry iframe + DocuSign signing
+                // (invest/subscribe flows via lib/docusign) + Calendly ops scheduling.
                 "frame-src https://auth.privy.io https://*.withpersona.com https://*.docusign.net https://*.docusign.com https://calendly.com",
                 process.env.NODE_ENV === "production"
                   ? "frame-ancestors 'self'"

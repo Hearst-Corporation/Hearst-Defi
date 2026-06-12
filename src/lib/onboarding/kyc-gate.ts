@@ -36,6 +36,38 @@ function isProductionRuntime(): boolean {
 }
 
 /**
+ * Whether the investor has a server-claimed Persona inquiry row.
+ * Returns false (never throws) when the KycInquiry table is missing in dev.
+ */
+export async function investorHasKycInquiry(userId: string): Promise<boolean> {
+  try {
+    const row = await prisma.kycInquiry.findFirst({
+      where: { userId },
+      select: { inquiryId: true },
+    });
+    return row != null;
+  } catch (err) {
+    if (!isMissingKycInquiryTable(err)) {
+      throw err;
+    }
+
+    if (isProductionRuntime()) {
+      logger.error(
+        "KycInquiry table missing in production — cannot resolve inquiry state",
+        { userId },
+        err instanceof Error ? err : undefined,
+      );
+    } else {
+      logger.warn(
+        "KycInquiry table missing — inquiry checklist treated as false (non-production)",
+        { userId },
+      );
+    }
+    return false;
+  }
+}
+
+/**
  * Resolves whether wallet binding may proceed when Persona is configured.
  * Caller must still skip this entirely when Persona is not configured.
  */

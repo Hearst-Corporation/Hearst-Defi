@@ -4,6 +4,7 @@
  */
 
 import "./onboarding.css";
+import "../product-doc.css";
 
 import { headers } from "next/headers";
 import type { ReactNode } from "react";
@@ -12,8 +13,8 @@ import { OnboardingShell } from "@/components/onboarding/onboarding-shell";
 import { getIrContact } from "@/lib/ir-contact";
 import { getInvestor, getSession } from "@/lib/auth/session";
 import { listVaults } from "@/lib/data/vaults";
-import { prisma } from "@/lib/db";
 import { requireAccreditationAttested } from "@/lib/onboarding/gates";
+import { investorHasKycInquiry } from "@/lib/onboarding/kyc-gate";
 import {
   onboardingStepFromPathname,
   resolveOnboardingState,
@@ -36,10 +37,7 @@ export default async function OnboardingLayout({
 
   const hasKycInquiry =
     session?.userId != null
-      ? (await prisma.kycInquiry.findFirst({
-          where: { userId: session.userId },
-          select: { inquiryId: true },
-        })) != null
+      ? await investorHasKycInquiry(session.userId)
       : false;
 
   const state = resolveOnboardingState(investor, hasKycInquiry);

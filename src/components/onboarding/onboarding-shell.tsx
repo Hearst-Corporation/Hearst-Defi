@@ -39,15 +39,15 @@ export function OnboardingShell({
           />
         </header>
 
-        <div className="onboarding-shell__grid">
-          <OnboardingContextRail
-            activeStep={activeStep}
-            state={state}
-            vault={vault}
-            irContact={irContact}
-          />
+        <OnboardingContextRail
+          activeStep={activeStep}
+          state={state}
+          vault={vault}
+          irContact={irContact}
+        />
 
-          <div className="onboarding-shell__main">{children}</div>
+        <div className="onboarding-shell__main product-doc">
+          <div className="onboarding-shell__main-inner">{children}</div>
         </div>
       </div>
     </div>

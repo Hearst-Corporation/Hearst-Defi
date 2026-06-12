@@ -1,4 +1,4 @@
-/* Onboarding funnel — bare shell (no product rails). Reuses login ambient pattern. */
+/* Onboarding funnel — bare shell (no product rails). Ambient + split mirror login-split. */
 
 .onboarding-shell {
   min-height: 100dvh;
@@ -14,13 +14,14 @@
   pointer-events: none;
 }
 
+/* Same placement as .login-split__glow — centered ambient, not left-weighted */
 .onboarding-shell__glow {
   position: absolute;
   width: 70vw;
   height: 70vw;
-  top: 42%;
-  left: 35%;
-  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
   border-radius: var(--ct-radius-full);
   background: var(--ct-accent);
   filter: blur(11.25rem);
@@ -30,43 +31,92 @@
 .onboarding-shell__frame {
   position: relative;
   z-index: var(--ct-z-raised);
+  display: grid;
+  gap: var(--ct-space-8);
+  grid-template-columns: 1fr;
   margin: 0 auto;
+  width: 100%;
   max-width: 72rem;
-  padding: var(--ct-space-8) var(--ct-space-6) var(--ct-space-16);
+  padding: var(--ct-space-6) var(--ct-space-6) var(--ct-space-12);
+}
+
+@media (min-width: 640px) {
+  .onboarding-shell__frame {
+    padding: var(--ct-space-8) var(--ct-space-6) var(--ct-space-16);
+  }
 }
 
 .onboarding-shell__header {
-  margin-bottom: var(--ct-space-8);
+  display: flex;
+  justify-content: flex-start;
+  margin: 0;
 }
 
 .onboarding-shell__logo {
-  width: 10rem;
+  width: 9rem;
   height: auto;
   display: block;
 }
 
-.onboarding-shell__grid {
-  display: grid;
-  gap: var(--ct-space-8);
-  grid-template-columns: minmax(17.5rem, 22rem) minmax(0, 1fr);
-  align-items: start;
+@media (min-width: 640px) {
+  .onboarding-shell__logo {
+    width: 10rem;
+  }
 }
 
 .onboarding-shell__main {
+  display: flex;
   min-width: 0;
+  flex-direction: column;
+}
+
+.onboarding-shell__main-inner {
+  display: flex;
+  width: 100%;
+  max-width: 45rem;
+  flex-direction: column;
+  gap: var(--ct-space-8);
+  margin-inline: auto;
 }
 
 .onboarding-rail {
-  position: sticky;
-  top: var(--ct-space-6);
+  width: 100%;
+  max-width: 22rem;
+  margin-inline: auto;
 }
 
-@media (max-width: 960px) {
-  .onboarding-shell__grid {
-    grid-template-columns: 1fr;
+@media (min-width: 961px) {
+  .onboarding-shell__frame {
+    gap: var(--ct-space-10);
+    grid-template-columns: minmax(0, 38fr) minmax(0, 62fr);
+    grid-template-rows: auto 1fr;
+  }
+
+  .onboarding-shell__header {
+    grid-column: 2;
+    grid-row: 1;
+    justify-content: flex-start;
   }
 
   .onboarding-rail {
-    position: static;
+    position: sticky;
+    top: var(--ct-space-6);
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: start;
+    justify-self: end;
+    margin-inline: 0;
+    width: min(100%, 22rem);
+  }
+
+  .onboarding-shell__main {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+  }
+
+  .onboarding-shell__main-inner {
+    margin-inline: 0;
+    max-width: 45rem;
   }
 }

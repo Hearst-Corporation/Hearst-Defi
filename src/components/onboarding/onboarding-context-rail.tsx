@@ -38,13 +38,29 @@ export function OnboardingContextRail({
               <span
                 aria-hidden
                 className={cn(
-                  "mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-micro font-semibold",
+                  "mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
                   item.done
                     ? "border-[var(--ct-border-accent)] bg-[var(--ct-accent)] ct-text-deep"
                     : "border-[var(--ct-border-soft)] ct-text-muted",
                 )}
               >
-                {item.done ? "✓" : ""}
+                {item.done ? (
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    className="shrink-0"
+                  >
+                    <path
+                      d="M2 6l3 3 5-5"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                ) : null}
               </span>
               <span className="body-sm ct-text-body">
                 {item.label}

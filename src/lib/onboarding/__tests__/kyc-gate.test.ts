@@ -18,9 +18,41 @@ vi.mock("@/lib/logger", () => ({
 }));
 
 import { logger } from "@/lib/logger";
-import { resolveKycWalletGate } from "@/lib/onboarding/kyc-gate";
+import {
+  investorHasKycInquiry,
+  resolveKycWalletGate,
+} from "@/lib/onboarding/kyc-gate";
 
 const P2021 = Object.assign(new Error("table does not exist"), { code: "P2021" });
+
+describe("investorHasKycInquiry", () => {
+  beforeEach(() => {
+    findFirstMock.mockReset();
+    vi.mocked(logger.warn).mockReset();
+    vi.mocked(logger.error).mockReset();
+    vi.stubEnv("NODE_ENV", "development");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("returns true when a row exists", async () => {
+    findFirstMock.mockResolvedValue({ inquiryId: "inq_1" });
+    await expect(investorHasKycInquiry("user-1")).resolves.toBe(true);
+  });
+
+  it("returns false when no row exists", async () => {
+    findFirstMock.mockResolvedValue(null);
+    await expect(investorHasKycInquiry("user-1")).resolves.toBe(false);
+  });
+
+  it("returns false in dev when table is missing (does not throw)", async () => {
+    findFirstMock.mockRejectedValue(P2021);
+    await expect(investorHasKycInquiry("user-1")).resolves.toBe(false);
+    expect(logger.warn).toHaveBeenCalled();
+  });
+});
 
 describe("resolveKycWalletGate", () => {
   beforeEach(() => {
