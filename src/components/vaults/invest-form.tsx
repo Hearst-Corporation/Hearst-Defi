@@ -1,12 +1,5 @@
 "use client";
 
-// InvestForm — Step 3 of 4: Deposit form with PTAI projection.
-// Non-negotiable #1: APY always range.
-// Non-negotiable #3: PTAI mandatory via <Ptai> primitive.
-// Non-negotiable #5: no forbidden words — checked via linter in CI.
-// Non-negotiable #10: "not guaranteed" disclaimer present.
-// Design lock: .tabular on all numeric amounts, no new primitives.
-
 import { useState, useCallback, useDeferredValue } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -18,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { NestedCallout, NestedPanel } from "@/components/ui/nested-panel";
 import { DepositSummary } from "@/components/vaults/deposit-summary";
 import { PreFlightCheck, isPreFlightReady } from "@/components/vaults/preflight-check";
+import { VaultPanelHeader } from "@/components/vaults/vault-flow-primitives";
 import { TimeToTargetChart } from "@/components/vaults/time-to-target-chart";
 import {
   depositToVault,
@@ -29,10 +23,7 @@ import {
 import { monthsToTarget } from "@/lib/projection-chart";
 import { subscribe } from "@/app/actions/subscribe";
 import type { VaultProduct } from "@/lib/data/vaults";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+import { shareClassCode } from "@/lib/vaults/product-display";
 
 function formatUsd(n: number, compact = false): string {
   if (compact && n >= 1_000_000) {
@@ -43,10 +34,6 @@ function formatUsd(n: number, compact = false): string {
   }
   return `$${n.toLocaleString("en-US")}`;
 }
-
-// ---------------------------------------------------------------------------
-// CTA label morph logic
-// ---------------------------------------------------------------------------
 
 type CtaState =
   | "no_wallet"
@@ -78,10 +65,6 @@ function ctaLabel(state: CtaState, amount: number): string {
   }
 }
 
-// ---------------------------------------------------------------------------
-// PTAI content — mandatory (#3). No forbidden words (#5).
-// ---------------------------------------------------------------------------
-
 function buildPtai(
   amount: number,
   vault: VaultProduct,
@@ -112,10 +95,6 @@ function buildPtai(
   };
 }
 
-// ---------------------------------------------------------------------------
-// InvestForm
-// ---------------------------------------------------------------------------
-
 interface InvestFormProps {
   vault: VaultProduct;
 }
@@ -127,7 +106,6 @@ export function InvestForm({ vault }: InvestFormProps) {
 
   const maxAmount = vault.capacityUsdc - vault.currentAumUsdc;
 
-  // Form state
   const [rawAmount, setRawAmount] = useState<string>("");
   const [agreedToTermSheet, setAgreedToTermSheet] = useState(false);
   const [allowanceApproved, setAllowanceApproved] = useState(false);
@@ -136,22 +114,18 @@ export function InvestForm({ vault }: InvestFormProps) {
   const [awaitingConfirm, setAwaitingConfirm] = useState(false);
   const [depositError, setDepositError] = useState<string | null>(null);
 
-  // Live wallet from Privy
   const privyWallet = wallets[0] ?? null;
   const walletAddress: string | null = privyWallet?.address ?? null;
 
   const amount = rawAmount === "" ? 0 : Math.max(0, Number(rawAmount.replace(/,/g, "")));
   const deferredAmount = useDeferredValue(amount);
 
-  // Validity
   const amountValid = amount >= vault.minTicketUsdc && amount <= maxAmount;
 
-  // Epoch — indicative, not live (no on-chain epoch registry in V1).
   const epochIndicative = { status: "ACTIVE" as const, endsInDays: 18 };
 
   const preFlightOk = isPreFlightReady(walletAddress, allowanceApproved, epochIndicative);
 
-  // CTA gating
   function ctaState(): CtaState {
     if (depositing) return "confirming";
     if (!ready || walletAddress === null) return "no_wallet";
@@ -165,7 +139,6 @@ export function InvestForm({ vault }: InvestFormProps) {
   const currentCtaState = ctaState();
   const ctaEnabled = currentCtaState === "ready";
 
-  // Helper text for the amount input
   function amountHelperText(): { text: string; variant: "ok" | "warn" | "neutral" } {
     if (amount === 0) {
       return {
@@ -190,14 +163,12 @@ export function InvestForm({ vault }: InvestFormProps) {
 
   const helper = amountHelperText();
 
-  // Step 1 — first CTA click: enter the confirmation staging area
   const handleReview = useCallback(() => {
     if (!ctaEnabled || depositing) return;
     setDepositError(null);
     setAwaitingConfirm(true);
   }, [ctaEnabled, depositing]);
 
-  // Step 2 — second explicit action: actually execute the deposit
   const handleConfirm = useCallback(async () => {
     if (!ctaEnabled || depositing) {
       setAwaitingConfirm(false);
@@ -234,7 +205,12 @@ export function InvestForm({ vault }: InvestFormProps) {
       // On-chain deposit succeeded → record the Position in the DB with the
       // real tx hash so it surfaces in the portfolio. The on-chain settlement
       // and the DB record must not drift apart.
-      const sub = await subscribe(vault.id, amount, "A", result.txHash);
+      const sub = await subscribe(
+        vault.id,
+        amount,
+        shareClassCode(vault.shareClass),
+        result.txHash,
+      );
       if (!sub.ok) {
         setDepositError(
           `Deposit confirmed on-chain (tx ${result.txHash.slice(0, 10)}…) but recording it failed: ${sub.error}. Contact support with this tx hash.`,
@@ -260,7 +236,6 @@ export function InvestForm({ vault }: InvestFormProps) {
     }
   }, [ctaEnabled, depositing, privyWallet, amount, vault, router]);
 
-  // Cancel — return to form without executing
   const handleCancelConfirm = useCallback(() => {
     setAwaitingConfirm(false);
     setDepositError(null);
@@ -269,10 +244,8 @@ export function InvestForm({ vault }: InvestFormProps) {
   const ptai = buildPtai(deferredAmount, vault);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full max-w-5xl mx-auto">
-      {/* ── LEFT COLUMN ──────────────────────────────── */}
-      <div className="flex flex-col gap-5">
-        {/* Amount input */}
+    <div className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
+      <NestedPanel className="flex flex-col gap-5">
         <section aria-labelledby="amt-label">
           <label htmlFor="amt-input" id="amt-label" className="eyebrow block mb-2">
             Amount (USDC)
@@ -294,7 +267,6 @@ export function InvestForm({ vault }: InvestFormProps) {
               value={rawAmount}
               onChange={(e) => {
                 setRawAmount(e.target.value);
-                // Reset allowance when amount changes
                 setAllowanceApproved(false);
                 setAwaitingConfirm(false);
               }}
@@ -302,9 +274,9 @@ export function InvestForm({ vault }: InvestFormProps) {
               aria-describedby="amt-helper"
               aria-invalid={amount > 0 && !amountValid}
               className={cn(
-                "ct-input tabular w-full pl-8 pr-4 py-3 mono text-lg",
+                "ct-input tabular w-full pl-8 pr-4 py-3 mono body-lg",
                 amount > 0 && !amountValid
-                  ? "border-[var(--ct-status-warning-border)] focus:ring-[var(--ct-status-warning)]"
+                  ? "ct-bc-warning focus:ring-(--ct-status-warning)"
                   : "",
               )}
             />
@@ -340,12 +312,12 @@ export function InvestForm({ vault }: InvestFormProps) {
               className={cn(
                 "flex items-center justify-center w-5 h-5 rounded border transition-colors",
                 agreedToTermSheet
-                  ? "bg-[var(--ct-accent)] border-[var(--ct-border-accent)]"
-                  : "ct-surface-1 border-[var(--ct-border-soft)] group-hover:border-[var(--ct-border-strong)]",
+                  ? "ct-bg-accent ct-bc-accent"
+                  : "ct-surface-1 ct-bc-soft group-hover:ct-bc-strong-hover",
               )}
             >
               {agreedToTermSheet && (
-                <span className="inline-block w-2.5 h-2 rounded-sm bg-[var(--ct-accent)]" />
+                <span className="inline-block h-2.5 w-2.5 rounded-sm bg-black" />
               )}
             </span>
           </span>
@@ -364,16 +336,14 @@ export function InvestForm({ vault }: InvestFormProps) {
           </span>
         </label>
 
-        {/* Deposit error */}
         {depositError ? (
-          <NestedCallout className="border border-(--ct-status-danger-border) ct-status-danger-bg">
+          <NestedCallout className="border ct-bc-danger ct-status-danger-bg">
             <p className="body-xs ct-status-danger">{depositError}</p>
           </NestedCallout>
         ) : null}
 
-        {/* CTA row — two-step confirmation */}
         {awaitingConfirm ? (
-          <NestedPanel className="space-y-4 border-(--ct-border-strong)">
+          <NestedPanel className="space-y-4 ct-bc-strong border">
             <p className="eyebrow">Confirm your deposit</p>
             <div className="space-y-1">
               <div className="flex justify-between body-sm">
@@ -390,8 +360,9 @@ export function InvestForm({ vault }: InvestFormProps) {
               </div>
             </div>
             <p className="body-xs ct-text-muted">
-              This action is irreversible once submitted. Subject to 60-day soft
-              lock-up. Results are not projected — see methodology v1.0.
+              This action is irreversible once submitted. Subject to{" "}
+              {vault.softLockupDays}-day soft lock-up. Results are not projected
+              — see methodology v1.0.
             </p>
             <div className="flex gap-2 flex-wrap">
               <Button
@@ -439,32 +410,30 @@ export function InvestForm({ vault }: InvestFormProps) {
           </div>
         )}
 
-        {/* Time-to-target chart — only when amount is set */}
         {deferredAmount > 0 && (
-          <NestedPanel className="mt-1">
-            <p className="eyebrow mb-3">Projected NAV — 24 month horizon</p>
-            <TimeToTargetChart amount={deferredAmount} vault={vault} />
+          <NestedPanel className="mt-1 py-0">
+            <VaultPanelHeader title="Projected NAV — 24 month horizon" />
+            <div className="px-4 py-4">
+              <TimeToTargetChart amount={deferredAmount} vault={vault} />
+            </div>
           </NestedPanel>
         )}
 
-        {/* PTAI block — mandatory (#3) */}
-        <div>
-          <p className="eyebrow mb-2">Projection (PTAI)</p>
-          <Ptai
-            projection={ptai.projection}
-            trigger={ptai.trigger}
-            action={ptai.action}
-            impact={ptai.impact}
-          />
+        <div className="border-t ct-bc-soft pt-4">
+          <VaultPanelHeader title="Projection (PTAI)" />
+          <div className="pt-3">
+            <Ptai
+              projection={ptai.projection}
+              trigger={ptai.trigger}
+              action={ptai.action}
+              impact={ptai.impact}
+            />
+          </div>
         </div>
-      </div>
+      </NestedPanel>
 
-      {/* ── RIGHT COLUMN ─────────────────────────────── */}
-      <div className="flex flex-col gap-5">
-        {/* Deposit summary */}
+      <div className="flex flex-col gap-5 lg:sticky lg:top-6 lg:self-start">
         <DepositSummary vault={vault} amount={amount} />
-
-        {/* Pre-flight check */}
         <PreFlightCheck
           walletAddress={walletAddress}
           amount={amount}

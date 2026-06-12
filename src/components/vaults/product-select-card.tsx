@@ -6,69 +6,34 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import type { VaultProduct } from "@/lib/data/vaults";
-
-const STRATEGY_LABELS: Record<VaultProduct["strategy"], string> = {
-  mining_yield: "Mining Yield",
-  btc_tactical: "BTC Tactical",
-  stable_reserve: "Stable Reserve",
-};
-
-const RISK_LABELS: Record<VaultProduct["riskLevel"], string> = {
-  low: "Low risk",
-  "low-moderate": "Low–Moderate",
-  moderate: "Moderate",
-  high: "High",
-};
-
-const STATUS_VARIANT: Record<
-  VaultProduct["status"],
-  "success" | "warning" | "default" | "danger"
-> = {
-  live: "success",
-  review: "warning",
-  draft: "default",
-  paused: "warning",
-  closed: "danger",
-};
-
-const USD_COMPACT = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
+import {
+  RISK_LABELS,
+  STRATEGY_LABELS,
+  VAULT_STATUS_VARIANT,
+  vaultStatusLabel,
+} from "@/lib/constants/vault";
+import { formatUsdCompact } from "@/lib/vaults/product-display";
 
 interface ProductSelectCardProps {
   vault: VaultProduct;
 }
 
-/**
- * Card shown in the /vaults grid — Step 1 of 4.
- * Provenance grouped at section level, not per metric row.
- */
 export function ProductSelectCard({ vault }: ProductSelectCardProps) {
   const isLive = vault.status === "live";
   const href = `/vaults/${vault.ticker.toLowerCase()}`;
+  const strategyLabel = STRATEGY_LABELS[vault.strategy] ?? vault.strategy;
 
   return (
-    <Card aria-label={`${vault.name} — ${STRATEGY_LABELS[vault.strategy]}`}>
+    <Card aria-label={`${vault.name} — ${strategyLabel}`}>
       <div className="flex flex-col items-stretch gap-5 md:flex-row md:gap-6">
         <div className="flex min-w-0 flex-1 flex-col gap-4">
-          <div className="flex flex-col gap-2 min-w-0">
-            <h3 className="h4 ct-text-strong">{vault.name}</h3>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="ct-pill text-xs">{STRATEGY_LABELS[vault.strategy]}</span>
-              <span className="ct-pill accent mono text-xs">{vault.ticker}</span>
-              <Badge variant={STATUS_VARIANT[vault.status]}>
-                {vault.status === "live"
-                  ? "Live"
-                  : vault.status === "review"
-                    ? "In review"
-                    : vault.status === "draft"
-                      ? "Draft"
-                      : vault.status === "paused"
-                        ? "Paused"
-                        : "Closed"}
+          <div className="flex min-w-0 flex-col gap-2">
+            <p className="h4 ct-text-strong">{vault.name}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="ct-pill">{strategyLabel}</span>
+              <span className="ct-pill accent mono">{vault.ticker}</span>
+              <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
+                {vaultStatusLabel(vault.status)}
               </Badge>
             </div>
           </div>
@@ -92,15 +57,15 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
           <p className="body-sm ct-text-body line-clamp-2">{vault.description}</p>
         </div>
 
-        <div aria-hidden className="md:hidden border-t border-(--ct-border-soft)" />
+        <div aria-hidden className="border-t ct-bc-soft md:hidden" />
         <div aria-hidden className="hidden md:block ct-card-divider-v" />
 
-        <div className="flex w-full md:w-56 shrink-0 flex-col gap-5 md:min-h-full">
+        <div className="flex w-full shrink-0 flex-col gap-5 md:min-h-full md:w-56">
           <div className="grid grid-cols-2 gap-x-4 gap-y-4">
             <div className="flex min-w-0 flex-col gap-0.5">
               <span className="stat-label">Min. ticket</span>
               <span className="h4 tabular truncate">
-                {USD_COMPACT.format(vault.minTicketUsdc)}
+                {formatUsdCompact(vault.minTicketUsdc)}
               </span>
             </div>
             <div className="flex min-w-0 flex-col gap-0.5">
@@ -115,7 +80,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
               <span className="stat-label">AUM</span>
               {vault.currentAumUsdc > 0 ? (
                 <span className="h4 tabular truncate">
-                  {USD_COMPACT.format(vault.currentAumUsdc)}
+                  {formatUsdCompact(vault.currentAumUsdc)}
                 </span>
               ) : (
                 <span className="body-sm ct-text-muted">Pending</span>

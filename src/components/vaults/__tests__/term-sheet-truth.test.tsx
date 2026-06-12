@@ -49,4 +49,33 @@ describe("TermSheetPreview — truthful institutional claims", () => {
     expect(html).not.toContain("Monthly · Day 1, T+5");
     expect(html).toContain("Indicative");
   });
+
+  it("C-13 — displays the Model B one-liner verbatim on the LP surface", () => {
+    expect(html).toContain(
+      "Principal held in a USDC cash reserve — not deployed on-chain; yield is a monthly mining-revenue-share distribution.",
+    );
+  });
+
+  it("uses vault.fees for management / performance (not share-class fallback)", () => {
+    expect(html).toContain("2.00% · 10%");
+    expect(html).not.toContain("1.00% · 10%");
+  });
+
+  it("fuses strategy and allocation into a single chapter", () => {
+    expect(html).toContain('id="sec-strategy-allocation"');
+    expect(html).toContain("Strategy &amp; allocation");
+    expect(html).not.toContain('id="sec-regimes"');
+  });
+
+  it("does not repeat APY / min ticket / lock-up in At a glance (hero owns synthesis)", () => {
+    expect(html).not.toContain("Target APY range");
+    expect(html).not.toContain("Minimum subscription");
+    expect(html).not.toContain("Soft lock-up");
+  });
+
+  it("shows vault allocation in target list only (no duplicate base regime row)", () => {
+    expect(html).toContain("BTC Tactical Delta");
+    expect(html).toContain(">15%<");
+    expect(html).not.toContain("Vault target allocation");
+  });
 });

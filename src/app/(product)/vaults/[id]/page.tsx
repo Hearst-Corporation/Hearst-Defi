@@ -1,19 +1,17 @@
-// /vaults/[id] — Step 2 of 4: Product details (term sheet preview)
-// Server Component. Reads vault by ticker or id. Single vault MVP.
-// Non-negotiable #1: APY always range via <ApyRange>.
-// Non-negotiable #2: provenance badges grouped — not per KPI row.
-// Non-negotiable #5: no forbidden words in any copy.
-// Non-negotiable #10: disclaimers + "not guaranteed" present.
-
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
-import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { getVault } from "@/lib/data/vaults";
+import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { StepProgress } from "@/components/vaults/step-progress";
+import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { TermSheetPreview } from "@/components/vaults/term-sheet-preview";
+import {
+  VAULT_STATUS_VARIANT,
+  vaultStatusLabel,
+} from "@/lib/constants/vault";
+import { formatMinTicketUsdc } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
 
@@ -25,79 +23,29 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  live: "Live",
-  review: "In review",
-  draft: "Draft",
-  paused: "Paused",
-  closed: "Closed",
-};
-
-const STATUS_VARIANT: Record<
-  string,
-  "success" | "warning" | "default" | "danger"
-> = {
-  live: "success",
-  review: "warning",
-  draft: "default",
-  paused: "warning",
-  closed: "danger",
-};
-
-function InvestFlowCta({
+function InvestCta({
   isLive,
   investHref,
-  layout,
+  size = "md",
+  className,
 }: {
   isLive: boolean;
   investHref: string;
-  layout: "header" | "footer";
+  size?: "md" | "lg";
+  className?: string;
 }) {
-  if (layout === "header") {
-    return isLive ? (
-      <Button variant="primary" size="md" asChild className="font-bold shrink-0">
+  if (isLive) {
+    return (
+      <Button variant="primary" size={size} asChild className={className}>
         <Link href={investHref}>Continue to deposit</Link>
-      </Button>
-    ) : (
-      <Button variant="secondary" size="md" disabled aria-disabled className="shrink-0">
-        Coming soon
       </Button>
     );
   }
 
   return (
-    <section
-      aria-label="Invest flow actions"
-      className="glass-panel flex flex-col gap-4 rounded-xl px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-    >
-      <div className="min-w-0">
-        <p className="eyebrow ct-text-muted">Next step</p>
-        <p className="h4 ct-text-strong mt-1">Ready to subscribe?</p>
-        <p className="body-xs ct-text-muted mt-1 max-w-xl">
-          Term sheet and regime assumptions reviewed — proceed to deposit when ready.
-        </p>
-      </div>
-      {isLive ? (
-        <Button
-          variant="primary"
-          size="lg"
-          asChild
-          className="w-full shrink-0 font-bold sm:w-auto"
-        >
-          <Link href={investHref}>Continue to deposit</Link>
-        </Button>
-      ) : (
-        <Button
-          variant="secondary"
-          size="lg"
-          disabled
-          aria-disabled
-          className="w-full shrink-0 sm:w-auto"
-        >
-          Coming soon
-        </Button>
-      )}
-    </section>
+    <Button variant="secondary" size={size} disabled aria-disabled className={className}>
+      Coming soon
+    </Button>
   );
 }
 
@@ -111,61 +59,99 @@ export default async function VaultDetailPage({ params }: PageProps) {
   const investHref = `/vaults/${id}/invest`;
 
   return (
-    <div className="space-y-8 pb-4">
-      <ProductPageHeader
-        lead={
-          <Link
-            href="/vaults"
-            className="body-sm ct-text-muted transition-opacity hover:opacity-80"
-            aria-label="Back to product list"
-          >
-            ← Products
-          </Link>
-        }
-        eyebrow="Invest · Step 2 of 4"
-        title={vault.name}
-        actions={
-          <>
-            <span className="ct-pill accent mono eyebrow">{vault.ticker}</span>
-            <Badge variant={STATUS_VARIANT[vault.status] ?? "default"}>
-              {STATUS_LABEL[vault.status] ?? vault.status}
-            </Badge>
-            <InvestFlowCta
+    <InvestFlowShell
+      step="product"
+      title={vault.name}
+      description={
+        <span className="line-clamp-2 max-w-2xl">{vault.description}</span>
+      }
+      lead={
+        <Link
+          href="/vaults"
+          className="body-sm ct-text-muted transition-opacity hover:opacity-80"
+          aria-label="Back to product list"
+        >
+          ← Products
+        </Link>
+      }
+      actions={
+        <>
+          <span className="ct-pill accent mono eyebrow">{vault.ticker}</span>
+          <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
+            {vaultStatusLabel(vault.status)}
+          </Badge>
+          <InvestCta
+            isLive={isLive}
+            investHref={investHref}
+            className="hidden shrink-0 font-bold sm:inline-flex"
+          />
+        </>
+      }
+      headerBelowStepper={
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-8">
+          <div>
+            <dt className="stat-label">Target APY</dt>
+            <dd className="h4 mt-0.5">
+              <ApyRange low={vault.apyLow} high={vault.apyHigh} precision={1} />
+            </dd>
+          </div>
+          <div>
+            <dt className="stat-label">Min subscription</dt>
+            <dd className="h4 tabular mono ct-text-strong mt-0.5">
+              {formatMinTicketUsdc(vault.minTicketUsdc)}
+            </dd>
+          </div>
+          <div>
+            <dt className="stat-label">Soft lock-up</dt>
+            <dd className="h4 tabular mono ct-text-strong mt-0.5">
+              {vault.softLockupDays} days
+            </dd>
+          </div>
+          <div className="col-span-2 sm:col-span-1 sm:hidden">
+            <InvestCta
               isLive={isLive}
               investHref={investHref}
-              layout="header"
+              className="w-full font-bold"
             />
-          </>
-        }
-      >
-        <div className="pt-2">
-          <StepProgress active="product" />
-        </div>
-      </ProductPageHeader>
+          </div>
+        </dl>
+      }
+      footer={
+        <>
+          <div
+            role="note"
+            aria-label="Important disclaimers"
+            className="max-w-3xl space-y-3"
+          >
+            <p className="body-sm ct-text-muted leading-relaxed">
+              {vault.disclaimers}
+            </p>
+            <p className="body-xs ct-text-faint leading-relaxed">
+              APY ranges are target projections based on stated assumptions — they
+              are not a projection of future returns and are subject to change
+              without notice. Past performance does not indicate future results.
+              Allocations shown are targets and may deviate. This document is
+              informational only and does not constitute an offer or solicitation
+              where prohibited by law.
+            </p>
+          </div>
 
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="body-xs ct-text-muted max-w-md">
+              Review complete? Proceed to deposit — term sheet acknowledgement
+              required on the next step.
+            </p>
+            <InvestCta
+              isLive={isLive}
+              investHref={investHref}
+              size="lg"
+              className="w-full shrink-0 font-bold sm:w-auto"
+            />
+          </div>
+        </>
+      }
+    >
       <TermSheetPreview vault={vault} />
-
-      <InvestFlowCta isLive={isLive} investHref={investHref} layout="footer" />
-
-      <footer className="border-t border-[var(--ct-border-soft)] pt-6">
-        <div
-          role="note"
-          aria-label="Important disclaimers"
-          className="max-w-3xl space-y-3"
-        >
-          <p className="body-sm ct-text-muted leading-relaxed">
-            {vault.disclaimers}
-          </p>
-          <p className="body-xs ct-text-faint leading-relaxed">
-            APY ranges are target projections based on stated assumptions — they
-            are not a projection of future returns and are subject to change
-            without notice. Past performance does not indicate future results.
-            Allocations shown are targets and may deviate. This document is
-            informational only and does not constitute an offer or solicitation
-            where prohibited by law.
-          </p>
-        </div>
-      </footer>
-    </div>
+    </InvestFlowShell>
   );
 }

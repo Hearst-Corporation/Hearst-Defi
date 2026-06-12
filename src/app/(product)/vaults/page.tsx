@@ -1,12 +1,7 @@
-// /vaults — Step 1 of 4: Select a product
-// Server Component. Single ProductSelectCard at MVP (forward-compatible grid).
-// Non-negotiable #9: single vault MVP, no multi-vault abstractions today.
-
-import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { listVaults } from "@/lib/data/vaults";
+import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { ProductSelectCard } from "@/components/vaults/product-select-card";
-import { StepProgress } from "@/components/vaults/step-progress";
 
 export const dynamic = "force-dynamic";
 
@@ -18,23 +13,24 @@ export default async function VaultsPage() {
   const vaults = await listVaults();
 
   return (
-    <div className="space-y-8">
-      <ProductPageHeader
-        eyebrow="Invest · Step 1 of 4"
-        title="Select a product"
-        description={
-          <p className="body-md max-w-xl">
-            Professional-grade structured yield for qualified investors.
-            Review the term sheet and confirm before depositing.
-          </p>
-        }
-      >
-        <div className="pt-6">
-          <StepProgress active="select" />
-        </div>
-      </ProductPageHeader>
-
-      {/* Product grid — auto-fit, single card at MVP */}
+    <InvestFlowShell
+      step="select"
+      title="Select a product"
+      description={
+        <span className="max-w-xl">
+          Professional-grade structured yield for qualified investors. Review the
+          term sheet and confirm before depositing.
+        </span>
+      }
+      footer={
+        <p className="body-xs ct-text-faint max-w-3xl">
+          Products listed are offered exclusively to professional and qualified
+          investors. Past performance does not indicate future results. APY
+          ranges are not a projection of returns. Subject to minimum
+          subscription, jurisdictional restrictions, and soft lock-up terms.
+        </p>
+      }
+    >
       <section aria-labelledby="vaults-heading">
         <h2 id="vaults-heading" className="h2 mb-4">
           Available products
@@ -53,16 +49,6 @@ export default async function VaultsPage() {
           </div>
         )}
       </section>
-
-      {/* Global disclaimer (#10) */}
-      <footer>
-        <p className="body-xs ct-text-faint max-w-2xl">
-          Products listed are offered exclusively to professional and qualified
-          investors. Past performance does not indicate future results. APY
-          ranges are not a projection of returns. Subject to minimum
-          subscription, jurisdictional restrictions, and soft lock-up terms.
-        </p>
-      </footer>
-    </div>
+    </InvestFlowShell>
   );
 }

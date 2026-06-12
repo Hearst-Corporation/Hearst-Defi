@@ -1,28 +1,8 @@
-// deposit-summary.tsx — vault deposit summary rows
-// Server-compatible (no "use client"), imported by client InvestForm.
-// Non-negotiable #1: APY always as range via <ApyRange>.
-// Non-negotiable #5: no forbidden words.
-
 import { ApyRange } from "@/components/ui/apy-range";
-import { NestedPanel } from "@/components/ui/nested-panel";
+import { NestedPanel, ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { cn } from "@/lib/cn";
+import { VaultPanelHeader } from "@/components/vaults/vault-flow-primitives";
 import type { VaultProduct } from "@/lib/data/vaults";
-
-interface SumRowProps {
-  label: string;
-  children: React.ReactNode;
-  className?: string;
-}
-
-function SumRow({ label, children, className }: SumRowProps) {
-  return (
-    <div className={cn("flex items-baseline justify-between gap-3 py-2", className)}>
-      <span className="stat-label ct-text-muted">{label}</span>
-      <span className="stat-label ct-text-primary text-right tabular">{children}</span>
-    </div>
-  );
-}
 
 interface DepositSummaryProps {
   vault: VaultProduct;
@@ -41,27 +21,25 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
   const hurdleFee = vault.fees.hurdleBps > 0 ? vault.fees.hurdleBps / 100 : null;
 
   return (
-    <NestedPanel className="flex flex-col gap-0">
-      <div className="flex items-center justify-between pb-3 mb-1 border-b border-(--ct-border-soft)">
-        <p className="eyebrow">Deposit summary</p>
-        <div className="body-xs ct-text-faint flex items-center gap-1">
-          <ProvenanceBadge kind="estimated" />
-        </div>
-      </div>
+    <NestedPanel className="flex flex-col gap-0 py-0">
+      <VaultPanelHeader
+        title="Deposit summary"
+        trailing={<ProvenanceBadge kind="estimated" />}
+      />
 
-      <SumRow label="You deposit">
+      <ProofRow label="You deposit">
         {amount > 0 ? (
           <span className="mono">${amount.toLocaleString("en-US")} USDC</span>
         ) : (
           <span className="ct-text-muted">—</span>
         )}
-      </SumRow>
+      </ProofRow>
 
-      <SumRow label="Target APY">
-        <ApyRange low={vault.apyLow} high={vault.apyHigh} precision={1} className="body-sm" />
-      </SumRow>
+      <ProofRow label="Target APY">
+        <ApyRange low={vault.apyLow} high={vault.apyHigh} precision={1} />
+      </ProofRow>
 
-      <SumRow label="Est. yearly yield">
+      <ProofRow label="Est. yearly yield">
         {yearlyYield !== null ? (
           <span className="mono">
             ${yearlyYield.toLocaleString("en-US", { maximumFractionDigits: 0 })} USDC
@@ -69,9 +47,9 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         ) : (
           <span className="ct-text-muted">—</span>
         )}
-      </SumRow>
+      </ProofRow>
 
-      <SumRow label="At soft close">
+      <ProofRow label="At soft close">
         {totalAtClose !== null ? (
           <span className="mono">
             ~${totalAtClose.toLocaleString("en-US", { maximumFractionDigits: 0 })} USDC
@@ -79,20 +57,18 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         ) : (
           <span className="ct-text-muted">—</span>
         )}
-      </SumRow>
+      </ProofRow>
 
-      <SumRow label="Lock-up">
-        <span>{vault.softLockupDays}d soft</span>
-      </SumRow>
+      <ProofRow label="Lock-up">{vault.softLockupDays}d soft</ProofRow>
 
-      <SumRow label="Fees" className="border-0">
-        <span className="text-right text-sm">
+      <ProofRow label="Fees">
+        <span className="text-right">
           {mgmtFee.toFixed(2)}% mgmt · {perfFee.toFixed(0)}% perf
           {hurdleFee ? ` · ${hurdleFee.toFixed(1)}% hurdle` : ""}
         </span>
-      </SumRow>
+      </ProofRow>
 
-      <p className="body-xs ct-text-faint mt-3 pt-3 border-t border-(--ct-border-soft) leading-relaxed">
+      <p className="body-xs ct-text-faint mx-4 mb-4 mt-2 border-t ct-bc-soft pt-3 leading-relaxed">
         Yield figures use the midpoint of the APY range — not a commitment of
         future returns. Methodology v1.0.
       </p>

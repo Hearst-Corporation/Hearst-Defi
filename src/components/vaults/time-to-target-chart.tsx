@@ -80,7 +80,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
           role="img"
           aria-label="No projection data available"
         >
-          <p className="text-xs ct-text-muted">No projection data.</p>
+          <p className="body-xs ct-text-muted">No projection data.</p>
         </div>
         <p className="body-xs ct-text-faint text-center">
           Conditional projection — not a projection of future returns. Methodology v1.0.
