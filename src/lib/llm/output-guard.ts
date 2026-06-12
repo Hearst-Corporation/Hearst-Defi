@@ -15,9 +15,11 @@
  * - A look-back buffer of SETTLE chars is held back from emission so a forbidden
  *   needle (or a completing sentence) is detected while still un-emitted.
  * - The APY single-point check is deliberately CONSERVATIVE: it only fires on a
- *   completed sentence that contains the literal token "APY", exactly one
- *   percentage, and no range marker — so it can never block a legitimate range
- *   ("8 à 15 %", "9.4-12.8%") or an incidental percentage ("uptime 99 %").
+ *   completed sentence that contains the literal token "APY", at least one
+ *   percentage, and NO genuine numeric range construct — so it can never block a
+ *   legitimate range ("8 à 15 %", "9.4-12.8%", "entre 8 et 15 %") while still
+ *   catching a lone APY percentage whose sentence merely happens to contain a
+ *   bare "à"/"déjà"/"jusqu'à" or a hyphen.
  * - On a violation the stream emits the `\x00ERROR:content_blocked` sentinel
  *   already understood by the cockpit-shell client (no new client contract).
  */
@@ -32,15 +34,40 @@ export const BLOCK_SENTINEL = "\x00ERROR:content_blocked";
  *  longest needle + a short trailing window. */
 const SETTLE = 64;
 
-const PERCENT_RE = /\d+(?:[.,]\d+)?\s?%/g;
+/** Non-global so `.test()` is stateless across sentences (no `lastIndex` carry). */
+const PERCENT_RE = /\d+(?:[.,]\d+)?\s?%/;
 
 /**
- * A range marker anywhere in the sentence means the percentage is part of a
- * fourchette, not a single point. Intentionally broad (favours false-negatives
- * over false-positives — the system prompt is the primary APY-range guard, this
- * is defence-in-depth that must never block compliant copy).
+ * A genuine NUMERIC range construct: a number/percentage joined to ANOTHER
+ * number by a range connector sitting BETWEEN the two operands. This is what
+ * distinguishes "8 à 15 %" / "9.4-12.8%" / "8 % et 15 %" from a single point
+ * whose sentence merely contains a bare "à"/"déjà"/"jusqu'à" or a stray hyphen.
+ *
+ *   <num>[ digits / % / sep ] <connector> <num>
+ *
+ * Connectors: "à", "to", "et", or a dash (- – —). A bare connector with no
+ * number on one side does NOT match.
  */
-const RANGE_MARKER_RE = /à|[-–—]|\b(?:to|entre|fourchette|range)\b/i;
+const NUMERIC_RANGE_RE =
+  /\d[\d.,\s%]*?\s*(?:à|to|et|[-–—])\s*\d/i;
+
+/**
+ * "entre <num> ... et <num>" — the canonical French range phrasing, where the
+ * two numbers may be separated by interposed words/percent signs.
+ */
+const ENTRE_RANGE_RE = /\bentre\b[^.!?\n]*?\d[^.!?\n]*?\bet\b[^.!?\n]*?\d/i;
+
+/** Explicit range vocabulary that always denotes a fourchette. */
+const RANGE_WORD_RE = /\b(?:fourchette|range)\b/i;
+
+/** True when the sentence contains a genuine numeric range construct. */
+function hasNumericRange(sentence: string): boolean {
+  return (
+    NUMERIC_RANGE_RE.test(sentence) ||
+    ENTRE_RANGE_RE.test(sentence) ||
+    RANGE_WORD_RE.test(sentence)
+  );
+}
 
 /** Split into sentences. When `final` is false, the trailing fragment (not yet
  *  terminated by . ! ? or newline) is dropped — it may still be growing and a
@@ -53,14 +80,15 @@ function completedSentences(text: string, final: boolean): string[] {
   return parts.filter((s) => s.trim().length > 0);
 }
 
-/** True when a completed sentence presents an APY as a single point (one
- *  percentage, no range marker). */
+/** True when a completed sentence presents an APY as a single point: it names
+ *  APY, quotes at least one percentage, and carries NO genuine numeric range
+ *  construct. A bare "à" or stray hyphen no longer excuses it; only a number
+ *  actually bracketed by a range connector (or explicit range vocabulary) does. */
 function hasSinglePointApy(text: string, final: boolean): boolean {
   for (const sentence of completedSentences(text, final)) {
     if (!/\bAPY\b/i.test(sentence)) continue;
-    const pcts = sentence.match(PERCENT_RE);
-    if (!pcts || pcts.length !== 1) continue; // 0 or ≥2 → not a lone point
-    if (RANGE_MARKER_RE.test(sentence)) continue;
+    if (!PERCENT_RE.test(sentence)) continue; // no percentage → nothing quoted
+    if (hasNumericRange(sentence)) continue; // genuine fourchette → compliant
     return true;
   }
   return false;
@@ -101,7 +129,13 @@ export function guardChatStream(
       if (blocked) return;
       scanned += dec.decode(chunk, { stream: true });
 
-      const settledEnd = Math.max(emitted, scanned.length - SETTLE);
+      let settledEnd = Math.max(emitted, scanned.length - SETTLE);
+      // Never cut a UTF-16 surrogate pair: if the boundary lands right after a
+      // lone high surrogate, hold the half-pair back for the next chunk.
+      if (settledEnd > emitted && settledEnd < scanned.length) {
+        const lead = scanned.charCodeAt(settledEnd - 1);
+        if (lead >= 0xd800 && lead <= 0xdbff) settledEnd -= 1;
+      }
       const settled = scanned.slice(0, settledEnd);
 
       if (chatOutputViolation(settled, false)) {

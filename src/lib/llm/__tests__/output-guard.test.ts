@@ -46,6 +46,30 @@ describe("chatOutputViolation — single-point APY", () => {
     expect(chatOutputViolation("APY entre 8 et 15 %.", true)).toBeNull();
     expect(chatOutputViolation("Fourchette cible 9.4-12.8% annualisé d'APY.", true))
       .toBeNull();
+    expect(chatOutputViolation("L'APY oscille entre 8 % et 15 %.", true)).toBeNull();
+  });
+
+  it("flags a single-point APY even when the sentence contains a bare 'à'", () => {
+    // BUG #2: a bare 'à' must NOT count as a numeric range marker.
+    expect(chatOutputViolation("L'APY est à 11 %.", true)).toBe(
+      "single_point_apy",
+    );
+    expect(
+      chatOutputViolation(
+        "Pour répondre à votre question, l'APY est de 11 %.",
+        true,
+      ),
+    ).toBe("single_point_apy");
+    expect(chatOutputViolation("L'APY ressort déjà à 11 %.", true)).toBe(
+      "single_point_apy",
+    );
+  });
+
+  it("flags a single-point APY even with a second incidental percentage", () => {
+    // Two percentages, but the APY itself is a single point.
+    expect(
+      chatOutputViolation("L'APY est de 11 % avec un uptime de 99 %.", true),
+    ).toBe("single_point_apy");
   });
 
   it("does NOT flag an incidental percentage without APY", () => {
