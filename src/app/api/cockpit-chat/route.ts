@@ -23,6 +23,13 @@ import {
 } from "@/lib/llm/prompts";
 import { PRODUCT_CONTEXT } from "@/lib/product-context";
 import { guardChatStream, chatOutputViolation } from "@/lib/llm/output-guard";
+import {
+  runChatAgent,
+  type ChatAgentMessage,
+  type StreamingChatClient,
+} from "@/lib/llm/chat-agent";
+import { publishNav } from "@/lib/llm/nav-channel";
+import { FEATURE_FLAGS } from "@/lib/feature-flags";
 
 const REVIEW_FACILITATOR_PROMPT = buildFacilitatorPrompt({ productContext: PRODUCT_CONTEXT });
 const REVIEW_FACILITATOR_HASH = sha256Hex(REVIEW_FACILITATOR_PROMPT);
@@ -238,6 +245,136 @@ function createUserScopedPersistence(
   };
 }
 
+/**
+ * Master Agent turn (flag-gated). Runs the app-side tool-capable engine:
+ * streams the guarded answer to the client, persists the user + assistant
+ * messages (the cockpit-shell handler did this itself), and publishes the
+ * chosen navigation destination to the out-of-band channel for the client
+ * bridge. Persistence + nav publish happen AFTER the turn, off the response
+ * path, so the stream is returned immediately.
+ */
+async function runMasterAgentTurn(args: {
+  req: NextRequest;
+  userId: string;
+  model: string;
+  systemPrompt: string;
+}): Promise<Response> {
+  const { req, userId, model, systemPrompt } = args;
+
+  let body: {
+    chatId?: string | null;
+    message?: string;
+    messages?: Array<{ role: "user" | "assistant"; content: string }>;
+  };
+  try {
+    body = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const message = typeof body.message === "string" ? body.message.trim() : "";
+  if (!message) {
+    return new Response(JSON.stringify({ error: "Empty message" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const persistence = createUserScopedPersistence(userId, "normal");
+
+  // Resolve the chat + load history, then persist the user message.
+  let chatId: string | null = body.chatId ?? null;
+  const history: ChatAgentMessage[] = [];
+  try {
+    if (!chatId) {
+      chatId = await persistence.createChat();
+    } else {
+      const loaded = await persistence.loadMessages(chatId);
+      for (const m of loaded) history.push({ role: m.role, content: m.content });
+    }
+    if (chatId) {
+      await persistence.saveMessage(chatId, {
+        id: crypto.randomUUID(),
+        role: "user",
+        content: message,
+        createdAt: Date.now(),
+      });
+    }
+  } catch {
+    // Persistence down → degrade to the client-sent (already-sanitized) history.
+    if (Array.isArray(body.messages)) {
+      for (const m of body.messages) history.push({ role: m.role, content: m.content });
+    }
+  }
+
+  const messages: ChatAgentMessage[] = [
+    { role: "system", content: systemPrompt },
+    ...history,
+    { role: "user", content: message },
+  ];
+
+  const startedAt = Date.now();
+  const { stream, nav, final } = runChatAgent(
+    kimi as unknown as StreamingChatClient,
+    model,
+    messages,
+    { signal: req.signal },
+  );
+
+  // Persist the assistant answer once the turn completes (compliant only).
+  const persistChatId = chatId;
+  void final
+    .then(async ({ text, blocked }) => {
+      if (blocked || !text || !persistChatId) return;
+      await persistence.saveMessage(persistChatId, {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: text,
+        createdAt: Date.now(),
+      });
+    })
+    .catch(() => {
+      /* best-effort persistence */
+    });
+
+  // Publish the chosen navigation destination for the client bridge.
+  void nav
+    .then(async (dest) => {
+      if (dest) await publishNav(userId, dest.key);
+    })
+    .catch(() => {
+      /* best-effort nav publish */
+    });
+
+  // Best-effort LlmRun trace (latency is wall-clock to response start, as in the
+  // cockpit-shell path — the stream completes after the Response is returned).
+  void prisma.llmRun
+    .create({
+      data: {
+        agentName: "cockpit-chat",
+        model: LLM_MODEL,
+        status: "success",
+        latencyMs: Date.now() - startedAt,
+        userId,
+        systemPromptHash: COCKPIT_DEFAULT_HASH,
+      },
+    })
+    .catch(() => {
+      /* tracing must never break the response */
+    });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-cache",
+      ...(persistChatId ? { "x-chat-id": persistChatId } : {}),
+    },
+  });
+}
+
 export async function POST(req: NextRequest): Promise<Response> {
   // 0. Body size guard — prevent DoS via oversized payloads.
   try {
@@ -422,6 +559,19 @@ export async function POST(req: NextRequest): Promise<Response> {
       { userId },
       ctxErr instanceof Error ? ctxErr : undefined,
     );
+  }
+
+  // 5b. Master Agent path (flag-gated, normal mode only): route through the
+  //     app-side tool-capable engine so the assistant can navigate the LP.
+  //     OFF by default → falls through to the cockpit-shell handler below.
+  //     Review mode always uses the cockpit-shell handler (no tools).
+  if (FEATURE_FLAGS.CHAT_MASTER_AGENT && chatMode === "normal") {
+    return runMasterAgentTurn({
+      req: sanitizedReq,
+      userId,
+      model: resolveModel(requestedModel),
+      systemPrompt: enrichedSystemPrompt,
+    });
   }
 
   const handler = createCockpitChatHandler({

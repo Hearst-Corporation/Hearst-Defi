@@ -15,4 +15,16 @@ export const FEATURE_FLAGS = {
    */
   ENABLE_MONTE_CARLO:
     process.env.NEXT_PUBLIC_ENABLE_MONTE_CARLO === "true",
+
+  /**
+   * CHAT_MASTER_AGENT — routes the (normal-mode) cockpit chat through the
+   * app-side tool-capable engine (runChatAgent) so the assistant can navigate
+   * the LP to the right page. Server-only (no NEXT_PUBLIC_): the value never
+   * ships to the client.
+   *
+   * OFF by default. Set CHAT_MASTER_AGENT=1 to enable. When OFF the chat keeps
+   * running through the @hearst/cockpit-shell handler (no tools). Review mode is
+   * unaffected (always the cockpit-shell handler).
+   */
+  CHAT_MASTER_AGENT: process.env.CHAT_MASTER_AGENT === "1",
 } as const;
