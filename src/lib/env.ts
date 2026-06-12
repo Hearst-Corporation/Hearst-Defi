@@ -116,14 +116,6 @@ const serverEnvSchema = z.object({
   /** Optional secondary OpenAI model. When set, callLlm retries on it if the
    *  primary fails all retries OR the circuit breaker opens. e.g. "gpt-4o". */
   OPENAI_FALLBACK_MODEL: z.string().optional(),
-  // ── Deprecated (Hypercli/Kimi retired by ADR-011) ──────────────────────────
-  // Kept optional so legacy .env files + env.test.ts don't break; no code path
-  // reads these anymore.
-  HYPERCLI_API_KEY: z.string().min(1).optional(),
-  HYPERCLI_BASE_URL: z.string().url().optional(),
-  HYPERCLI_DEFAULT_MODEL: z.string().min(1).default("kimi-k2.6"),
-  HYPERCLI_FALLBACK_MODEL: z.string().optional(),
-  HYPERCLI_ORG_ID: z.string().optional(),
   // Sentry observability — all optional, project boots without them (no-op fallback)
   SENTRY_DSN: z.string().url().optional(),
   NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
@@ -283,7 +275,6 @@ function resolveEnv(): ServerEnv {
         ...lenient.data,
         DATABASE_URL: lenient.data.DATABASE_URL ?? "",
         OPENAI_MODEL: lenient.data.OPENAI_MODEL ?? "gpt-4.1",
-        HYPERCLI_DEFAULT_MODEL: lenient.data.HYPERCLI_DEFAULT_MODEL ?? "kimi-k2.6",
       };
       return data;
     }

@@ -17,10 +17,6 @@ const serverEnvSchema = z.object({
   OPENAI_BASE_URL: z.string().url().optional(),
   OPENAI_ORG_ID: z.string().optional(),
   OPENAI_FALLBACK_MODEL: z.string().optional(),
-  HYPERCLI_API_KEY: z.string().min(1).optional(),
-  HYPERCLI_BASE_URL: z.string().url().optional(),
-  HYPERCLI_DEFAULT_MODEL: z.string().min(1).default("kimi-k2.6"),
-  HYPERCLI_ORG_ID: z.string().optional(),
   PRIVY_APP_SECRET: z.string().optional(),
   NEXT_PUBLIC_PRIVY_APP_ID: z.string().optional(),
   NEXT_PUBLIC_CHAIN_RPC_URL: z.string().url().optional(),
@@ -80,36 +76,6 @@ describe("env validation", () => {
     if (!parsed.success) {
       expect(parsed.error.flatten().fieldErrors).toHaveProperty("OPENAI_BASE_URL");
     }
-  });
-
-  it("fails when HYPERCLI_BASE_URL is not a valid URL", () => {
-    const parsed = serverEnvSchema.safeParse({
-      DATABASE_URL: "file:./prisma/dev.db",
-      HYPERCLI_BASE_URL: "not-a-url",
-    });
-    expect(parsed.success).toBe(false);
-    if (!parsed.success) {
-      expect(parsed.error.flatten().fieldErrors).toHaveProperty(
-        "HYPERCLI_BASE_URL",
-      );
-    }
-  });
-
-  it("defaults HYPERCLI_DEFAULT_MODEL to kimi-k2.6 when absent", () => {
-    const parsed = serverEnvSchema.safeParse({
-      DATABASE_URL: "file:./prisma/dev.db",
-    });
-    expect(parsed.success).toBe(true);
-    if (parsed.success) {
-      expect(parsed.data.HYPERCLI_DEFAULT_MODEL).toBe("kimi-k2.6");
-    }
-  });
-
-  it("allows HYPERCLI_API_KEY to be absent", () => {
-    const parsed = serverEnvSchema.safeParse({
-      DATABASE_URL: "file:./prisma/dev.db",
-    });
-    expect(parsed.success).toBe(true);
   });
 
   it("rejects an invalid URL for NEXT_PUBLIC_CHAIN_RPC_URL", () => {
