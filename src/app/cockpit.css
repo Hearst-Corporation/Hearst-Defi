@@ -391,71 +391,6 @@
   grid-template-columns: repeat(auto-fill, minmax(var(--ct-card-min-w), 1fr));
 }
 
-/* Admin dashboard hero KPI grid.
-   Distinct from the generic auto grid: these are primary decision metrics, so
-   they need vertical rhythm and readable badges instead of five cramped tiles. */
-.dashboard-kpi-grid {
-  display: grid;
-  gap: var(--ct-space-5);
-  align-items: stretch;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-}
-
-.dashboard-kpi-grid .metric-dashboard-card {
-  min-height: 9.5rem;
-}
-
-.dashboard-kpi-grid .metric-dashboard-head {
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: var(--ct-space-2);
-}
-
-.dashboard-kpi-grid .metric-dashboard-label {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-extrabold);
-  letter-spacing: var(--ct-tracking-wide);
-  line-height: var(--ct-leading-none);
-  color: var(--ct-text-strong);
-}
-
-.dashboard-kpi-grid .metric-dashboard-provenance {
-  opacity: 0.78;
-  transform: scale(0.92);
-  transform-origin: left top;
-}
-
-.dashboard-kpi-grid .metric-dashboard-value {
-  display: block;
-  font-size: clamp(var(--ct-text-3xl), 3vw, var(--ct-text-5xl));
-  line-height: var(--ct-leading-none);
-  letter-spacing: var(--ct-tracking-tight);
-  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--ct-accent) 20%, transparent));
-}
-
-.dashboard-kpi-grid .metric-dashboard-value .text-2xl {
-  font-size: inherit;
-  line-height: inherit;
-}
-
-.dashboard-kpi-grid .metric-dashboard-footer {
-  margin-top: auto;
-  padding-top: var(--ct-space-3);
-  border-color: color-mix(in srgb, var(--ct-text-strong) 14%, transparent);
-}
-
-.dashboard-kpi-grid .metric-dashboard-sublabel {
-  color: var(--ct-text-body);
-  opacity: 0.86;
-}
-
-@media (min-width: 90rem) {
-  .dashboard-kpi-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
-
 /* Scenario Lab / Projection Studio layout shells.
    Page-scoped, token-only wrappers that keep input/output panels centered and
    prevent wide result panels from escaping the centre column. */
@@ -1432,6 +1367,12 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 
 .dashboard-system-panel tbody tr:hover {
   background: var(--ct-surface-0);
+}
+
+.dashboard-system-panel__table-scroll {
+  overflow-x: auto;
+  margin-inline: calc(-1 * var(--ct-space-6));
+  padding-inline: var(--ct-space-6);
 }
 
 /* Live metrics — reflow metric grid from card width, not viewport. */

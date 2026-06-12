@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { VaultStatusPill } from "@/components/admin/vault-status-pill";
-import { SystemPanel, SystemPanelTitle } from "@/components/ui/system-panel";
+import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { cn } from "@/lib/cn";
 import type { VaultLiveMetric } from "@/lib/data/cockpit";
 
@@ -25,7 +25,7 @@ const usdCompact = new Intl.NumberFormat("en-US", {
 export function LiveMetrics({ vaults }: LiveMetricsProps) {
   return (
     <SystemPanel aria-label="Live metrics" className="dashboard-live-metrics">
-      <SystemPanelTitle eyebrow="Vault telemetry" title="Live Metrics" />
+      <DashboardPanelHeader eyebrow="Vault telemetry" title="Live Metrics" tone="quiet" />
 
       {vaults.length === 0 ? (
         <div className="py-8 ct-empty-state">

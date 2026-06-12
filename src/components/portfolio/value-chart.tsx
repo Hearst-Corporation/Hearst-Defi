@@ -177,6 +177,8 @@ interface ValueChartProps {
   updatedAt?: Date;
   /** Render full chart shell with a flat $0 series (layout preview, no position). */
   previewZeros?: boolean;
+  /** Inside MergedSurface — section header owns provenance; no nested dash-cell. */
+  embedded?: boolean;
 }
 
 export function ValueChart({
@@ -185,6 +187,7 @@ export function ValueChart({
   source,
   updatedAt,
   previewZeros = false,
+  embedded = false,
 }: ValueChartProps) {
   const asOf = new Date(); // rendered server-side; consistent within a request
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
@@ -210,17 +213,23 @@ export function ValueChart({
     );
   }
 
+  const shellClass = embedded
+    ? "relative flex h-full flex-col"
+    : "dash-cell dash-cell-premium relative h-full";
+
   return (
-    <article className="dash-cell dash-cell-premium relative h-full" aria-label="Portfolio value — 12-month trend">
-      <ChartProvenanceCorner kind={provenance} />
-      <div className="pf-widget-header relative z-10">
-        <h3 className="h3">Portfolio value · indicative 12-month path</h3>
-        <span className="dash-label-meta">
-          <span className="dash-trend flat">
-            {formatUsdCompact(chartValue)}
+    <article className={shellClass} aria-label="Portfolio value — 12-month trend">
+      {!embedded ? <ChartProvenanceCorner kind={provenance} /> : null}
+      {!embedded ? (
+        <div className="pf-widget-header relative z-10">
+          <h3 className="h3">Portfolio value · indicative 12-month path</h3>
+          <span className="dash-label-meta">
+            <span className="dash-trend flat">
+              {formatUsdCompact(chartValue)}
+            </span>
           </span>
-        </span>
-      </div>
+        </div>
+      ) : null}
 
       <div
         className={cn(

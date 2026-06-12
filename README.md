@@ -76,7 +76,9 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
 - **Tooltips** : Composant `Tooltip` (via `framer-motion`) intégré aux `ProvenanceBadge` et `Metric`.
 - **Transitions** : Composant `MotionViewport` pour les animations d'entrée de section (fade-in + slide-up).
 - **Portfolio** : Page complète avec bento analytics, gestion KYC/KYB
-  institutionnelle. Utilise `MergedSurface` pour les sections. **Empty states** :
+  institutionnelle. Utilise `MergedSurface` pour les sections — widgets enfants
+  passent `embedded` (pas de `dash-cell` ni provenance dupliquée ; badge section
+  unique en header). **Empty states** :
   `EmptyChartState` / `AwaitingMetricState` (`.pf-empty-chart` /
   `.pf-empty-widget`) — voir [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) §9.
   Règle : *Empty states replace active module surfaces; they are not rendered

@@ -230,6 +230,7 @@ export default async function PortfolioPage() {
                 source={data.source}
                 updatedAt={data.updatedAt}
                 previewZeros={previewZeros}
+                embedded
               />
             </div>
             <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
@@ -288,6 +289,7 @@ export default async function PortfolioPage() {
                 <RiskPulse
                   {...riskPulse}
                   previewZeros={previewZeros && isRiskPulseEmpty(riskPulseProps)}
+                  embedded
                 />
               </div>
               <div data-testid="proof-pulse-widget" className="flex flex-col gap-4">
@@ -295,6 +297,7 @@ export default async function PortfolioPage() {
                 <ProofPulse
                   {...proofPulse}
                   previewZeros={previewZeros && isProofPulseEmpty(proofPulseProps)}
+                  embedded
                 />
               </div>
               <div data-testid="security-pulse-widget" className="flex flex-col gap-4">

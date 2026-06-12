@@ -10,6 +10,8 @@
  */
 
 import { describe, it, expect } from "vitest";
+
+import { truncateWallet } from "@/lib/wallet-display";
 import type {
   ActionQueueItem,
   ActionSeverity,
@@ -141,14 +143,6 @@ describe("LiveOps — Inngest job status", () => {
 // ---------------------------------------------------------------------------
 
 describe("AuditTrail — wallet truncation", () => {
-  // Mirror of truncateWallet from audit-trail-rolling.tsx (pure function)
-  function truncateWallet(addr: string): string {
-    if (addr.startsWith("0x") && addr.length >= 10) {
-      return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
-    }
-    return addr.length > 12 ? `${addr.slice(0, 10)}…` : addr;
-  }
-
   it("truncates a 42-char ETH address to 0x…xxxx form", () => {
     // addr is 42 chars: slice(0,6) = "0xAbCd", slice(-4) = "Ef12"
     const addr = "0xAbCdEf1234567890AbCdEf1234567890AbCdEf12";

@@ -283,8 +283,8 @@
 /* Hide internal headers when nested in a merged surface */
 .pf-merged-content .pf-widget-header,
 .pf-merged-content .dash-label:not(.pf-merged-header .dash-label),
-.pf-merged-content .ChartProvenanceCorner,
-.pf-merged-content [aria-label*="Provenance"] {
+.pf-merged-content .chart-provenance-corner,
+.pf-merged-content [aria-label*="provenance" i] {
   display: none !important;
 }
 

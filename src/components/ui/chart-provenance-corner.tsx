@@ -51,7 +51,11 @@ export function ChartProvenanceCorner({
 
   return (
     <div
-      className={cn("absolute z-10", positionClasses[position], className)}
+      className={cn(
+        "chart-provenance-corner absolute z-10",
+        positionClasses[position],
+        className,
+      )}
       title={tooltipText}
       aria-label={`Data provenance: ${kind}${lastUpdateAt ? ` — last updated ${formatTime(lastUpdateAt)}` : ""}`}
     >

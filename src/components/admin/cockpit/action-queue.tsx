@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Card } from "@/components/ui/card";
+import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { cn } from "@/lib/cn";
 import type { ActionQueueItem, ActionSeverity } from "@/lib/data/cockpit";
 
@@ -30,8 +30,8 @@ const ACTION_LABELS: Record<string, string> = {
  */
 export function ActionQueue({ items }: ActionQueueProps) {
   return (
-    <Card aria-label="Action queue">
-      <h2 className="h2 mb-4">Action Queue</h2>
+    <SystemPanel aria-label="Action queue">
+      <DashboardPanelHeader eyebrow="Cockpit" title="Action Queue" tone="quiet" />
 
       {items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-8 ct-empty-state">
@@ -47,7 +47,7 @@ export function ActionQueue({ items }: ActionQueueProps) {
           ))}
         </ul>
       )}
-    </Card>
+    </SystemPanel>
   );
 }
 

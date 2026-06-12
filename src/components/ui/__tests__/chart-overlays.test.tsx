@@ -48,6 +48,7 @@ describe("ChartProvenanceCorner", () => {
       .className as string;
     expect(className).toContain("top-2");
     expect(className).toContain("right-2");
+    expect(className).toContain("chart-provenance-corner");
   });
 
   // ─────────────────────────────────────────────────────────────────────────

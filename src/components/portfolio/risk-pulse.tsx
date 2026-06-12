@@ -45,6 +45,8 @@ export interface RiskPulseProps {
   updatedAt?: Date;
   /** Render full risk shell at 0 (layout preview). */
   previewZeros?: boolean;
+  /** Inside MergedSurface — parent supplies section label; no nested dash-cell. */
+  embedded?: boolean;
 }
 
 // ── Helpers (exported for unit tests) ────────────────────────────────────────
@@ -294,6 +296,7 @@ export function RiskPulse({
   source = "live",
   updatedAt,
   previewZeros = false,
+  embedded = false,
 }: RiskPulseProps) {
   // No-data: every sub-score is 0, composite is 0, and the loader did not
   // assign a label. Showing "Low" here would be a misleading positive signal
@@ -323,16 +326,18 @@ export function RiskPulse({
     );
   }
 
-  return (
-    <article className="dash-cell dash-cell-premium h-full flex flex-col">
-      <div className="pf-widget-header relative z-10">
-        <Tooltip content="Composite risk score based on market, mining, liquidity, smart contract, and counterparty risks">
-          <h3 className="h3 cursor-help border-b border-dotted border-(--ct-border-soft)">
-            Risk pulse
-          </h3>
-        </Tooltip>
-        <ProvenanceBadge kind={badgeKind} />
-      </div>
+  const body = (
+    <>
+      {!embedded ? (
+        <div className="pf-widget-header relative z-10">
+          <Tooltip content="Composite risk score based on market, mining, liquidity, smart contract, and counterparty risks">
+            <h3 className="h3 cursor-help border-b border-dotted border-(--ct-border-soft)">
+              Risk pulse
+            </h3>
+          </Tooltip>
+          <ProvenanceBadge kind={badgeKind} />
+        </div>
+      ) : null}
 
       <ul className="relative z-10" aria-label="Risk dimension scores">
         {scores.map((item) => (
@@ -352,6 +357,20 @@ export function RiskPulse({
         the five dimensions per Methodology v1.0. Conditional projection — not
         guaranteed.
       </p>
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <div className="flex h-full flex-col" aria-label="Risk pulse">
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <article className="dash-cell dash-cell-premium h-full flex flex-col">
+      {body}
     </article>
   );
 }

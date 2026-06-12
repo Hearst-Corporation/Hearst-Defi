@@ -1,4 +1,5 @@
-import { SystemPanel, SystemPanelTitle } from "@/components/ui/system-panel";
+import { truncateWallet } from "@/lib/wallet-display";
+import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import type { AuditTrailEntry } from "@/lib/data/cockpit";
 
 interface AuditTrailRollingProps {
@@ -23,7 +24,7 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
 export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   return (
     <SystemPanel aria-label="Audit trail">
-      <SystemPanelTitle eyebrow="Compliance" title="Audit Trail" />
+      <DashboardPanelHeader eyebrow="Compliance" title="Audit Trail" tone="quiet" />
 
       {entries.length === 0 ? (
         <div className="py-6 ct-empty-state">
@@ -32,7 +33,7 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto -mx-(--ct-card-p,1.5rem)">
+        <div className="dashboard-system-panel__table-scroll">
           <table className="w-full text-sm min-w-160" aria-label="Admin audit log">
             <thead>
               <tr className="border-b border-(--ct-border-soft)">
@@ -90,19 +91,4 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
       </td>
     </tr>
   );
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Truncate a wallet address to 0x…abcd format (8 chars visible + last 4).
- * Falls back to first 10 chars for non-hex strings.
- */
-function truncateWallet(addr: string): string {
-  if (addr.startsWith("0x") && addr.length >= 10) {
-    return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
-  }
-  return addr.length > 12 ? `${addr.slice(0, 10)}…` : addr;
 }

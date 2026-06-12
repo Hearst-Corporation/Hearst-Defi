@@ -7,7 +7,7 @@ import { LiveOps } from "@/components/admin/cockpit/live-ops";
 import { DashboardKpiStrip } from "@/components/admin/dashboard-kpi-strip";
 import { EmptyChartState } from "@/components/portfolio/empty-chart-state";
 import { Card } from "@/components/ui/card";
-import { SystemPanel } from "@/components/ui/system-panel";
+import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { allocationLabelFor, allocationStrokeFor } from "@/lib/allocation-colors";
 import { cn } from "@/lib/cn";
@@ -146,7 +146,7 @@ export function DashboardAssetsBoard({
       <div className="dashboard-command-row-b">
         {allocationLive ? (
           <Card className="dashboard-command-cell">
-            <CellHeader title="Capital stack" provenance="live" />
+            <DashboardPanelHeader title="Capital stack" provenance="live" tone="primary" />
             <div className="dashboard-assets-stack">
               {allocation.map((item) => (
                 <AllocationStackRow key={item.bucket} item={item} />
@@ -163,7 +163,7 @@ export function DashboardAssetsBoard({
 
         {risk.dimensions.length > 0 ? (
           <Card className="dashboard-command-cell">
-            <CellHeader title="Risk lens" provenance={riskProvenance} />
+            <DashboardPanelHeader title="Risk lens" provenance={riskProvenance} tone="primary" />
             <div className="dashboard-assets-risk">
               {risk.dimensions.slice(0, 5).map((dimension) => (
                 <div key={dimension.id} className="dashboard-assets-risk__row">
@@ -214,8 +214,8 @@ export function DashboardAssetsBoard({
       </div>
 
       {trackedActions.length > 0 ? (
-        <Card className="dashboard-command-cell" aria-label="Operator queue counts">
-          <h2 className="h3 mb-3">Operator queues</h2>
+        <SystemPanel className="dashboard-command-cell" aria-label="Operator queue counts">
+          <DashboardPanelHeader eyebrow="Shortcuts" title="Operator queues" tone="quiet" />
           <ul className="flex flex-col gap-2" role="list">
             {trackedActions.map((action) => (
               <li key={action.key}>
@@ -229,7 +229,7 @@ export function DashboardAssetsBoard({
               </li>
             ))}
           </ul>
-        </Card>
+        </SystemPanel>
       ) : null}
 
       <section
@@ -280,15 +280,16 @@ function NavSlot({
   return (
     <Card className="dashboard-command-slot dashboard-command-slot--nav">
       <div className="dashboard-command-performance">
-        <div className="dashboard-card-header dashboard-command-performance__header">
+        <header className="dashboard-card-header dashboard-system-panel__header dashboard-command-performance__header">
           <div className="min-w-0">
-            <span className="eyebrow">NAV · 30d</span>
-            <strong className="stat-value tabular block mt-1">
+            <p className="eyebrow mb-1">Performance</p>
+            <h3 className="h3 ct-text-body">NAV · 30d</h3>
+            <p className="stat-value tabular mt-1">
               {lastNav !== null && lastNav > 0 ? usdCompact.format(lastNav) : "—"}
-            </strong>
+            </p>
           </div>
           <ProvenanceBadge kind={navProvenance} compact />
-        </div>
+        </header>
 
         <NavBarChart points={navPoints} />
 
@@ -307,32 +308,6 @@ function NavSlot({
         ) : null}
       </div>
     </Card>
-  );
-}
-
-function CellHeader({
-  title,
-  provenance,
-  quiet = false,
-}: {
-  title: string;
-  provenance: Provenance;
-  quiet?: boolean;
-}) {
-  return (
-    <div
-      className={cn(
-        "dashboard-card-header",
-        quiet ? "dashboard-system-panel__header" : "mb-4",
-      )}
-    >
-      {quiet ? (
-        <h3 className="h3 ct-text-body min-w-0">{title}</h3>
-      ) : (
-        <h2 className="h3 min-w-0">{title}</h2>
-      )}
-      <ProvenanceBadge kind={provenance} compact />
-    </div>
   );
 }
 
@@ -361,7 +336,7 @@ function AllocationOrbitCss({
   const gradient = conicGradientFromAllocations(allocations);
 
   return (
-    <div className="dashboard-orbit dashboard-orbit--live" aria-label="Vault allocation map">
+    <div className="dashboard-orbit" aria-label="Vault allocation map">
       <div className="dashboard-orbit__visual">
         <div className="dashboard-orbit__track" aria-hidden />
         <div
@@ -455,7 +430,7 @@ function ProofPulse({
 
   return (
     <>
-      <CellHeader title="Proof & custody" provenance={provenance} quiet />
+      <DashboardPanelHeader title="Proof & custody" provenance={provenance} tone="quiet" />
       <ul className="flex flex-col gap-1.5 body-xs" role="list">
         <li>
           <Link href={adminNavLinks.proofCenter()} className="ct-text-accent hover:underline">
@@ -505,7 +480,7 @@ function DistributionPanel({
 
   return (
     <>
-      <CellHeader title="Distribution" provenance={provenance} quiet />
+      <DashboardPanelHeader title="Distribution" provenance={provenance} tone="quiet" />
       <dl className="flex flex-col gap-2 body-sm">
         <div className="flex justify-between gap-2">
           <dt className="ct-text-muted">Period</dt>

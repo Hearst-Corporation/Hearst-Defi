@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { SystemPanel, SystemPanelTitle } from "@/components/ui/system-panel";
+import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl } from "@/lib/chain/client";
 import type {
@@ -27,7 +27,7 @@ interface LiveOpsProps {
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
     <SystemPanel aria-label="Live ops">
-      <SystemPanelTitle eyebrow="Operations" title="Live Ops" />
+      <DashboardPanelHeader eyebrow="Operations" title="Live Ops" tone="quiet" />
 
       {/* Inngest */}
       <div className="mb-5">
