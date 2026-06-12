@@ -77,10 +77,11 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
   institutionnelle. Sections multi-widgets : `ProductSection` (`Card` actif /
   `ct-section-preview` en layout preview) + `SectionEmbedProvider` — widgets via
   `ModuleChrome` + `WidgetPanelHeader` (headers masqués automatiquement en embed).
-  **Zero portfolio** (`isLayoutPreview` / `resolvePortfolioSurfaceState`) :
-  sections en `ct-section-preview` (badge Preview, pas de Verified data) ;
-  widgets sans position = `EmptySurface` / `AwaitingMetricState` uniquement —
-  pas de charts/progressbars à $0 ni badge Stale. **Empty states** :
+  **Zero portfolio** (`isLayoutPreview` / `previewZeros`) : cockpit complet
+  visible (charts, donuts, progress bars à $0) avec `PreviewModeChip` honnête —
+  pas de badge `Live` / `Stale` / `Verified data` sans donnée réelle.
+  Sans `previewZeros`, widgets sans donnée = `EmptySurface` / `AwaitingMetricState`.
+  **Empty states** :
   `EmptySurface` (`.ct-empty-surface*` dans `cockpit.css`) · `AwaitingMetricState`
   (`src/components/ui/awaiting-metric-state.tsx`, lien optionnel).
   Dashed réservé à `.ct-dropzone`

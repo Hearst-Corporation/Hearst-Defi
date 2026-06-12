@@ -3,6 +3,7 @@ import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
+import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -22,6 +23,8 @@ interface AllocationDonutProps {
   totalValueUsdc: number;
   source: "live" | "fallback";
   updatedAt?: Date;
+  /** Render donut shell at $0 (layout preview, no allocation). */
+  previewZeros?: boolean;
 }
 
 export function AllocationDonut({
@@ -29,7 +32,12 @@ export function AllocationDonut({
   totalValueUsdc,
   source,
   updatedAt,
+  previewZeros = false,
 }: AllocationDonutProps) {
+  const isPreviewShell = previewZeros && totalValueUsdc === 0;
+  const provenance = isPreviewShell
+    ? undefined
+    : resolveProvenance(source, updatedAt);
 
   // Group by status for the donut arcs.
   type StatusKey = "active" | "matured" | "exited";
@@ -57,25 +65,26 @@ export function AllocationDonut({
 
   const hasAllocation = totalValueUsdc > 0 && segments.length > 0;
 
-  if (!hasAllocation) {
+  // No allocation data → light placeholder only (no dash-cell-premium shell).
+  if (!hasAllocation && !previewZeros) {
     return (
       <EmptySurface
-        message="Allocation will appear after the first active position."
-        detail="Position status breakdown populates once capital is deployed."
         variant="chart"
+        message="Allocation will appear after the first active position."
         round
-        ariaLabel="Allocation donut awaiting first position"
+        className="mx-auto w-(--ct-donut-size) h-(--ct-donut-size)"
       />
     );
   }
-
-  const provenance = resolveProvenance(source, updatedAt);
 
   return (
     <ModuleChrome aria-label="Portfolio allocation">
       <WidgetPanelHeader
         title="Allocation by position status"
         provenance={provenance}
+        trailing={
+          isPreviewShell ? <PreviewModeChip label="Preview mode" /> : undefined
+        }
       />
 
       <div className="flex flex-col items-center gap-3 mt-2 relative z-10">
@@ -115,6 +124,15 @@ export function AllocationDonut({
         </div>
 
         <div className="dash-legend w-full mt-0">
+          {previewZeros && !hasAllocation ? (
+            <div className="dash-legend-row">
+              <span className="dash-legend-left">
+                <span className="dash-legend-dot dot-muted" />
+                Active
+              </span>
+              <span className="dash-legend-val">0% · $0</span>
+            </div>
+          ) : null}
           {segments.map((s) => (
             <div key={s.status} className="dash-legend-row">
               <span className="dash-legend-left">

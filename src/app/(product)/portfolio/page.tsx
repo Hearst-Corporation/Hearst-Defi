@@ -33,7 +33,15 @@ import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
 import { SecurityPulse } from "@/components/portfolio/security-pulse";
 import { MotionViewport } from "@/components/ui/motion-viewport";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
-import { isLayoutPreview } from "@/lib/portfolio/layout-preview";
+import {
+  ZERO_YIELD_STACK,
+  buildZeroDistribEntries,
+  isLayoutPreview,
+  zeroLockMeterProps,
+  zeroProofPulseProps,
+  zeroTimeToCashProps,
+} from "@/lib/portfolio/layout-preview";
+import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +67,8 @@ interface HeroKpiTableProps {
   totalYieldYtdUsdc: number;
   nextDistributionAt: Date;
   hasPositions: boolean;
+  /** Layout preview: $0 and scheduled date instead of em-dashes. */
+  previewZeros?: boolean;
 }
 
 function HeroKpiTable({
@@ -66,6 +76,7 @@ function HeroKpiTable({
   totalYieldYtdUsdc,
   nextDistributionAt,
   hasPositions,
+  previewZeros = false,
 }: HeroKpiTableProps) {
   const fmt = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -85,6 +96,8 @@ function HeroKpiTable({
       (1000 * 60 * 60 * 24),
   );
 
+  const showValues = hasPositions || previewZeros;
+
   return (
     <div className="flex flex-col gap-6" aria-label="Key metrics summary">
       <span className="stat-label ct-text-accent">Key metrics</span>
@@ -94,7 +107,9 @@ function HeroKpiTable({
           <span className="stat-label">Position value</span>
           <div className="dash-value-group">
             <span className="dash-value tabular-nums text-3xl">
-              {hasPositions ? fmt.format(totalValueUsdc) : "—"}
+              {showValues
+                ? fmt.format(previewZeros ? 0 : totalValueUsdc)
+                : "—"}
             </span>
             <span className="dash-unit">USDC</span>
           </div>
@@ -104,7 +119,9 @@ function HeroKpiTable({
           <span className="stat-label">Yield YTD</span>
           <div className="dash-value-group">
             <span className="dash-value tabular-nums">
-              {hasPositions ? formatUsdCompact(totalYieldYtdUsdc) : "—"}
+              {showValues
+                ? formatUsdCompact(previewZeros ? 0 : totalYieldYtdUsdc)
+                : "—"}
             </span>
             <span className="dash-unit">USDC</span>
           </div>
@@ -114,10 +131,12 @@ function HeroKpiTable({
           <span className="stat-label">Next distribution</span>
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="dash-value tabular-nums">
-              {hasPositions ? monthDayFmt.format(nextDistributionAt) : "—"}
+              {showValues ? monthDayFmt.format(nextDistributionAt) : "—"}
             </span>
             {hasPositions && diffDays > 0 ? (
               <span className="pf-chip-accent shrink-0">{diffDays}d left</span>
+            ) : previewZeros ? (
+              <span className="body-xs ct-text-faint shrink-0">Preview</span>
             ) : null}
           </div>
         </div>
@@ -130,7 +149,8 @@ export default async function PortfolioPage() {
   const [investor, data] = await Promise.all([getInvestor(), loadPortfolio()]);
 
   const hasPositions = data.positions.length > 0;
-  const isZeroPortfolio = isLayoutPreview(hasPositions);
+  const previewZeros = isLayoutPreview(hasPositions);
+  const previewAsOf = new Date();
 
   const [
     lockMeterProps,
@@ -160,18 +180,18 @@ export default async function PortfolioPage() {
   };
 
   const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
-  const sectionVariant = hasPositions ? "active" : "preview";
+  const sectionVariant = previewZeros ? "preview" : "active";
 
   return (
     <div
-      className="pf-container"
+      className={cn("pf-container", previewZeros && "pf-container--zero")}
       data-testid="portfolio-page"
     >
       {showDemoBanner ? <DemoDataBanner /> : null}
 
       <PortfolioGreeting name={displayName(investor)} data={data} />
 
-      {isZeroPortfolio ? <LayoutPreviewBanner /> : null}
+      {previewZeros ? <LayoutPreviewBanner /> : null}
 
       {shouldShowNextActionCard(actionFlags) ? (
         <NextActionCard {...actionFlags} />
@@ -185,26 +205,52 @@ export default async function PortfolioPage() {
           variant={sectionVariant}
           data-section="hero-pulse"
         >
-          <div className="dash-bento">
-            <div className="bento-col-8">
+          <div
+            className={
+              previewZeros
+                ? "pf-zero-hero-body"
+                : "grid grid-cols-12 gap-6"
+            }
+          >
+            <div className={previewZeros ? undefined : "col-span-12 lg:col-span-8"}>
               <ValueChart
                 positions={data.positions}
                 totalValueUsdc={data.totalValueUsdc}
                 source={data.source}
                 updatedAt={data.updatedAt}
+                previewZeros={previewZeros}
               />
             </div>
-            <div className="bento-col-4 flex flex-col gap-6">
+            <div
+              className={
+                previewZeros
+                  ? "flex flex-col gap-4"
+                  : "col-span-12 lg:col-span-4 flex flex-col gap-6"
+              }
+            >
               <HeroKpiTable
                 totalValueUsdc={data.totalValueUsdc}
                 totalYieldYtdUsdc={data.totalYieldYtdUsdc}
                 nextDistributionAt={data.nextDistributionAt}
                 hasPositions={hasPositions}
+                previewZeros={previewZeros}
               />
-              <div className="flex flex-col gap-6 pt-6 border-t border-(--ct-border-soft)">
+              <div
+                className={cn(
+                  "flex flex-col gap-6",
+                  !previewZeros && "pt-6 border-t border-(--ct-border-soft)",
+                  previewZeros && "pf-zero-liquidity",
+                )}
+              >
                 <span className="stat-label ct-text-accent">Liquidity status</span>
-                <TimeToCash {...timeToCashProps} />
-                <LockMeter {...lockMeterProps} />
+                <TimeToCash
+                  {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
+                  previewZeros={previewZeros}
+                />
+                <LockMeter
+                  {...(previewZeros ? zeroLockMeterProps(previewAsOf) : lockMeterProps)}
+                  previewZeros={previewZeros}
+                />
               </div>
             </div>
           </div>
@@ -215,7 +261,10 @@ export default async function PortfolioPage() {
         <div className="flex flex-col gap-4">
           <div className="dash-bento" data-section="yield-allocation">
             <div className="bento-col-8" data-testid="yield-stack-widget">
-              <YieldStack {...yieldStackProps} />
+              <YieldStack
+                {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
+                previewZeros={previewZeros}
+              />
             </div>
             <div className="bento-col-4" data-testid="allocation-donut-widget">
               <AllocationDonut
@@ -223,6 +272,7 @@ export default async function PortfolioPage() {
                 totalValueUsdc={data.totalValueUsdc}
                 source={data.source}
                 updatedAt={data.updatedAt}
+                previewZeros={previewZeros}
               />
             </div>
           </div>
@@ -234,27 +284,41 @@ export default async function PortfolioPage() {
             variant={sectionVariant}
             data-section="yield-trust"
           >
-            <div className="dash-bento">
+            <div
+              className={
+                previewZeros
+                  ? "pf-zero-trust-list grid grid-cols-1 md:grid-cols-3 gap-4"
+                  : "grid grid-cols-1 md:grid-cols-3 gap-6"
+              }
+            >
               <div
                 data-testid="risk-pulse-widget"
-                className="bento-col-4 flex flex-col gap-4"
+                className={previewZeros ? "pf-zero-trust-row" : "flex flex-col gap-4"}
               >
                 <span className="stat-label ct-text-accent">Risk profile</span>
-                <RiskPulse {...riskPulseProps} />
+                <RiskPulse
+                  {...riskPulseProps}
+                  previewZeros={previewZeros}
+                />
               </div>
               <div
                 data-testid="proof-pulse-widget"
-                className="bento-col-4 flex flex-col gap-4"
+                className={previewZeros ? "pf-zero-trust-row" : "flex flex-col gap-4"}
               >
                 <span className="stat-label ct-text-accent">Proof of reserves</span>
-                <ProofPulse {...proofPulseProps} />
+                <ProofPulse
+                  {...(previewZeros
+                    ? zeroProofPulseProps(previewAsOf)
+                    : proofPulseProps)}
+                  previewZeros={previewZeros}
+                />
               </div>
               <div
                 data-testid="security-pulse-widget"
-                className="bento-col-4 flex flex-col gap-4"
+                className={previewZeros ? "pf-zero-trust-row" : "flex flex-col gap-4"}
               >
                 <span className="stat-label ct-text-accent">Security audit</span>
-                <SecurityPulse />
+                <SecurityPulse previewZeros={previewZeros} />
               </div>
             </div>
           </MergedSurface>
@@ -269,6 +333,7 @@ export default async function PortfolioPage() {
                 positions={data.positions}
                 source={data.source}
                 updatedAt={data.updatedAt}
+                previewZeros={previewZeros}
               />
             </div>
           </div>
@@ -280,21 +345,32 @@ export default async function PortfolioPage() {
             variant={sectionVariant}
             data-section="activity-payouts"
           >
-            <div className="dash-bento">
-              <div className="bento-col-8 flex flex-col gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="lg:col-span-8 flex flex-col gap-4">
                 <span className="stat-label ct-text-accent">Recent transactions</span>
                 <RecentActivity
                   transactions={data.recentTransactions}
                   source={data.source}
                   updatedAt={data.updatedAt}
+                  previewZeros={previewZeros}
                 />
               </div>
               <div
-                className="bento-col-4 flex flex-col gap-4"
+                className="lg:col-span-4 flex flex-col gap-4"
                 data-testid="distrib-calendar-widget"
               >
                 <span className="stat-label ct-text-accent">Payout calendar</span>
-                <DistribCalendar {...distribCalendarProps} />
+                <DistribCalendar
+                  {...distribCalendarProps}
+                  entries={
+                    previewZeros && distribCalendarProps.entries.length === 0
+                      ? buildZeroDistribEntries(previewAsOf.getUTCFullYear())
+                      : distribCalendarProps.entries
+                  }
+                  previewZeros={
+                    previewZeros && distribCalendarProps.entries.length === 0
+                  }
+                />
               </div>
             </div>
           </MergedSurface>

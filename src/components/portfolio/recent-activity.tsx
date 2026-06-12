@@ -1,4 +1,5 @@
 import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { cn } from "@/lib/cn";
@@ -52,6 +53,8 @@ interface RecentActivityProps {
   transactions: PortfolioTransaction[];
   source: "live" | "fallback";
   updatedAt?: Date;
+  /** Render activity shell with empty list (layout preview). */
+  previewZeros?: boolean;
 }
 
 /**
@@ -62,21 +65,33 @@ export function RecentActivity({
   transactions,
   source,
   updatedAt,
+  previewZeros = false,
 }: RecentActivityProps) {
-  if (transactions.length === 0) {
-    return <AwaitingMetricState message="No transactions yet." />;
-  }
-
-  const provenance = resolveProvenance(source, updatedAt);
+  const provenance = resolveProvenance(
+    previewZeros && transactions.length === 0 ? "stale" : source,
+    updatedAt,
+  );
   // Server-rendered timestamp keeps relative labels current without client JS.
   const asOf = new Date();
   const displayed = transactions.slice(0, 5);
+
+  if (displayed.length === 0 && !previewZeros) {
+    return (
+      <AwaitingMetricState message="No transactions yet." />
+    );
+  }
 
   return (
     <ModuleChrome aria-label="Recent account activity">
       <WidgetPanelHeader title="Recent activity" provenance={provenance} />
 
         <div className="flex flex-col gap-1 mt-3">
+          {displayed.length === 0 ? (
+            <EmptySurface
+              variant="inline"
+              message="No transactions yet — deposits and payouts will appear here."
+            />
+          ) : null}
           {displayed.map((tx) => (
             <div
               key={tx.id}

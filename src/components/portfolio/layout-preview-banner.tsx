@@ -1,3 +1,16 @@
+/** Compact header chip — honest preview label (not Live / Stale / Verified). */
+export function PreviewModeChip({
+  label = "Preview mode",
+}: {
+  label?: string;
+}) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-(--ct-border-soft) px-2.5 py-1 body-xs ct-text-faint uppercase ct-tracking-wide shrink-0">
+      {label}
+    </span>
+  );
+}
+
 /**
  * Layout preview — full portfolio structure at zero before the first LP position.
  * DS: values are explicitly non-live; sections use preview tier (no Stale/Live badges).

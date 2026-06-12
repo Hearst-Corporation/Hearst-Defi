@@ -6,6 +6,7 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
+import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { cn } from "@/lib/cn";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -26,6 +27,8 @@ export interface ProofPulseProps {
   updatedAt?: Date;
   /** Attestation state from the loader. */
   proofState?: "attested" | "stale";
+  /** Render PoR shell at $0 (layout preview). */
+  previewZeros?: boolean;
 }
 
 // ── Pure helpers (exported for tests) ────────────────────────────────────────
@@ -123,6 +126,7 @@ export function ProofPulse({
   source: _source = "live",
   updatedAt: _updatedAt,
   proofState,
+  previewZeros = false,
 }: ProofPulseProps) {
   const { timestamp, statedTvlUsdc, onChainTvlUsdc } = lastPor;
 
@@ -168,15 +172,26 @@ export function ProofPulse({
             }
           : null; // "none" — no glyph at all
 
-  const headerProvenance: "attested" | "stale" =
-    state === "matched" || state === "attested" ? "attested" : "stale";
+  const headerProvenance: "attested" | "stale" | undefined = previewZeros
+    ? undefined
+    : state === "matched" || state === "attested"
+      ? "attested"
+      : "stale";
 
-  if (!hasData && !hasMethodologyData) {
+  // Nothing real to show (no attestation AND no methodology) → render a LIGHT
+  // empty surface instead of a full dash-cell-premium with header + Stale badge
+  // + nested callout, which reads as a big black placeholder box. The outer
+  // section already labels this slot "Proof of reserves".
+  if (!hasData && !hasMethodologyData && !previewZeros) {
     return (
       <AwaitingMetricState
         message="No attestation has been published yet."
         detail="The first proof will appear here once vault activity is attested."
-        link={{ label: "Open proof center", href: proofCenterHref }}
+        link={{
+          label: "Open proof center",
+          href: proofCenterHref,
+          ariaLabel: "Open proof center",
+        }}
       />
     );
   }
@@ -186,6 +201,11 @@ export function ProofPulse({
       <WidgetPanelHeader
         title="Proof & methodology"
         provenance={headerProvenance}
+        trailing={
+          previewZeros ? (
+            <PreviewModeChip label="Awaiting first position" />
+          ) : undefined
+        }
       />
 
       {/* ── Last PoR block — only when an attestation actually exists ──────────

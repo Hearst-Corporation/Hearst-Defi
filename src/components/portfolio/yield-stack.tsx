@@ -15,6 +15,7 @@ import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { cn } from "@/lib/cn";
+import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
 
@@ -37,6 +38,8 @@ export interface YieldStackProps {
   /** Provenance for the badge — defaults to "estimated" when omitted. */
   source?: "live" | "estimated" | "stale";
   updatedAt?: Date;
+  /** Render full widget shell at 0% (layout preview). */
+  previewZeros?: boolean;
 }
 
 // ── Pure helpers (also exported for unit tests) ───────────────────────────────
@@ -87,6 +90,7 @@ export function YieldStack({
   methodologyVersion = METHODOLOGY_VERSION,
   source = "estimated",
   updatedAt,
+  previewZeros = false,
 }: YieldStackProps) {
   // ...
   const [stressedLow, stressedHigh] =
@@ -104,24 +108,26 @@ export function YieldStack({
       ? [blendedLow, blendedHigh]
       : [blendedHigh, blendedLow];
 
-  const hasData = sources.length > 0 && maxAbsPct > 0;
+  const hasData = sources.length > 0;
 
-  if (!hasData) {
+  const badgeKind = previewZeros
+    ? undefined
+    : resolveProvenance(source, updatedAt, "estimated");
+
+  if (!hasData && !previewZeros) {
     return (
-      <AwaitingMetricState
-        message="No yield source data yet — awaiting first vault snapshot."
-        detail="Forward yield stack populates after your first active position and vault snapshot."
-      />
+      <AwaitingMetricState message="No yield source data yet — awaiting first vault snapshot." />
     );
   }
-
-  const badgeKind = resolveProvenance(source, updatedAt, "estimated");
 
   return (
     <ModuleChrome aria-label="Yield source stack — 12 month forward projection">
       <WidgetPanelHeader
         title="Yield Source Stack (12m fwd)"
         provenance={badgeKind}
+        trailing={
+          previewZeros ? <PreviewModeChip label="Indicative" /> : undefined
+        }
       />
 
       {/* Visual bar stack */}

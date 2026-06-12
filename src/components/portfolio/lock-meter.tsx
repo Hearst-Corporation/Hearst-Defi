@@ -5,6 +5,7 @@
 import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
+import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 // ── Internal helpers (exported for unit tests) ────────────────────────────────
@@ -75,6 +76,8 @@ export interface LockMeterProps {
   /** Provenance metadata from the loader. */
   source?: "live" | "stale";
   updatedAt?: Date;
+  /** Layout preview at zero — awaiting surface only (DS §9.3). */
+  previewZeros?: boolean;
 }
 
 const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
@@ -98,18 +101,19 @@ export function LockMeter({
   earlyExitPenaltyBps,
   asOf,
   source = "live",
+  previewZeros = false,
 }: LockMeterProps) {
   const effectiveAsOf = asOf ?? new Date();
 
   // When share-class terms are not wired, render a neutral "no data" state
   // instead of a fabricated progress bar.
-  const termsUnknown = softLockupDays <= 0 || source === "stale";
+  const termsUnknown = softLockupDays <= 0;
 
-  if (termsUnknown) {
+  if ((termsUnknown || source === "stale") && !previewZeros) {
     return (
       <AwaitingMetricState
         message="Lock and liquidity terms appear after your first active position."
-        detail="Soft lock-up progress and unlock dates populate once deposited capital is confirmed."
+        detail="Soft lock-up progress and unlock dates populate once share-class terms are tied to a confirmed deposit."
       />
     );
   }
@@ -117,7 +121,6 @@ export function LockMeter({
   const { progressPct, unlockDate, daysRemaining, isUnlocked } =
     computeLockMeter(lockStart, softLockupDays, effectiveAsOf);
 
-  const badgeKind = "live";
 
   // Penalty text color: faint when more than 50% elapsed (less urgent),
   // warning when less than 50% elapsed (early-exit risk is high).
@@ -139,7 +142,10 @@ export function LockMeter({
             </h3>
           </Tooltip>
         }
-        provenance={badgeKind}
+        provenance={previewZeros ? undefined : "live"}
+        trailing={
+          previewZeros ? <PreviewModeChip label="Indicative" /> : undefined
+        }
       />
 
       {/* Progress bar ------------------------------------------------------ */}
@@ -167,16 +173,20 @@ export function LockMeter({
           <span
             className={cn(
               "body-xs tabular mono",
-              isUnlocked ? "ct-status-success" : "ct-text-primary",
+              termsUnknown
+                ? "ct-text-faint"
+                : isUnlocked
+                  ? "ct-status-success"
+                  : "ct-text-primary",
             )}
           >
-            {`${Math.round(progressPct)}%`}
+            {termsUnknown ? "—" : `${Math.round(progressPct)}%`}
           </span>
-          {!isUnlocked ? (
+          {!termsUnknown && !isUnlocked && (
             <span className="body-xs tabular mono ct-text-muted">
               {daysRemaining}d left
             </span>
-          ) : null}
+          )}
         </div>
       </div>
 
@@ -185,15 +195,19 @@ export function LockMeter({
         {/* Unlock date */}
         <div className="flex items-center justify-between gap-2">
           <dt className="body-xs ct-text-muted">
-            {isUnlocked ? "Unlocked" : "Unlock"}
+            {termsUnknown ? "Lock terms" : isUnlocked ? "Unlocked" : "Unlock"}
           </dt>
           <dd
             className={cn(
               "body-xs tabular mono m-0",
-              isUnlocked ? "ct-status-success" : "ct-text-primary",
+              termsUnknown
+                ? "ct-text-faint"
+                : isUnlocked
+                  ? "ct-status-success"
+                  : "ct-text-primary",
             )}
           >
-            {isUnlocked ? "Now" : unlockDateFmt.format(unlockDate)}
+            {termsUnknown ? "—" : isUnlocked ? "Now" : unlockDateFmt.format(unlockDate)}
           </dd>
         </div>
 

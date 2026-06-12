@@ -4,6 +4,7 @@ import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
+import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -44,6 +45,8 @@ export interface RiskPulseProps {
    */
   source?: "live" | "stale";
   updatedAt?: Date;
+  /** Render full risk shell at 0 (layout preview). */
+  previewZeros?: boolean;
 }
 
 // ── Helpers (exported for unit tests) ────────────────────────────────────────
@@ -292,6 +295,7 @@ export function RiskPulse({
   composite30dTrend,
   source = "live",
   updatedAt,
+  previewZeros = false,
 }: RiskPulseProps) {
   // No-data: every sub-score is 0, composite is 0, and the loader did not
   // assign a label. Showing "Low" here would be a misleading positive signal
@@ -306,18 +310,20 @@ export function RiskPulse({
   const dimensionsAvailable = scores.some((s) => s.score > 0);
 
   // Use centralized provenance resolver
-  const badgeKind = resolveProvenance(
-    source === "stale" || noData || !dimensionsAvailable ? "stale" : source,
-    updatedAt,
-    "estimated", // Risk is always an estimation
-  );
+  const badgeKind = previewZeros
+    ? undefined
+    : resolveProvenance(
+        source === "stale" || noData || !dimensionsAvailable ? "stale" : source,
+        updatedAt,
+        "estimated",
+      );
 
-  if (noData || !dimensionsAvailable) {
+  // No snapshot yet → render a LIGHT empty surface, not a full dash-cell-premium
+  // with header + Stale badge + placeholder (which reads as a big black box).
+  // The outer section already labels this slot "Risk profile".
+  if (noData && !previewZeros) {
     return (
-      <AwaitingMetricState
-        message="Risk scores will appear after the first snapshot."
-        detail="Composite and dimension scores populate once vault activity is recorded."
-      />
+      <AwaitingMetricState message="Risk scores will appear after the first snapshot." />
     );
   }
 
@@ -332,6 +338,11 @@ export function RiskPulse({
           </Tooltip>
         }
         provenance={badgeKind}
+        trailing={
+          previewZeros ? (
+            <PreviewModeChip label="Awaiting first position" />
+          ) : undefined
+        }
       />
 
       <ul className="relative z-10" aria-label="Risk dimension scores">
