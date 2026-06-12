@@ -16,6 +16,7 @@ import { getProductRoutes } from "@/lib/product-routes";
 const EXPECTED_ROUTES = [
   "/",
   "/admin",
+  "/admin/audit",
   "/admin/customers",
   "/admin/dashboard",
   "/admin/distributions",
