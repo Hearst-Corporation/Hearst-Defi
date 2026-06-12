@@ -309,9 +309,23 @@ describe("containsForbiddenChat — French claims are caught", () => {
       .not.toBeNull();
   });
 
-  it("catches 'sans risque' (starts with a negation, so never exempted)", () => {
+  it("catches a bare 'sans risque' claim", () => {
     expect(containsForbiddenChat("C'est un placement sans risque."))
       .not.toBeNull();
+    expect(containsForbiddenChat("Un rendement sans risque garanti."))
+      .not.toBeNull();
+  });
+
+  it("exempts a NEGATED 'sans risque' (compliant refusal, not a claim)", () => {
+    // The injection-refusal that wrongly tripped the live guard:
+    expect(
+      containsForbiddenChat("Aucun rendement n'est garanti, ni sans risque."),
+    ).toBeNull();
+    expect(containsForbiddenChat("Ce placement n'est pas sans risque."))
+      .toBeNull();
+    expect(
+      containsForbiddenChat("Hearst ne propose pas de rendement sans risque."),
+    ).toBeNull();
   });
 
   it("catches 'rendement sûr'", () => {

@@ -163,9 +163,21 @@ function isNegated(
   index: number,
   matchLength: number,
   negations: Set<string>,
-  { checkAfter }: { checkAfter: boolean },
+  {
+    checkAfter,
+    exemptNegationPrefixed = false,
+  }: { checkAfter: boolean; exemptNegationPrefixed?: boolean },
 ): boolean {
-  if (startsWithNegation(needle, negations)) return false;
+  // A needle whose first token is itself a negation ("sans risque", "no risk")
+  // is normally never exempted — the negation IS the claim. But the chat matcher
+  // sets `exemptNegationPrefixed` so a SECOND, distinct negation in front of it
+  // ("n'est pas sans risque", "ni sans risque") still exempts it: the before-
+  // window below never includes the needle's own prefix (it ends at `index`),
+  // so a preceding "pas"/"ni"/"aucun" flips a "sans risque" claim into a
+  // compliant negation — symmetric with how "garanti" / "non garanti" behaves.
+  if (!exemptNegationPrefixed && startsWithNegation(needle, negations)) {
+    return false;
+  }
 
   const WINDOW = 3;
   const before = text.slice(Math.max(0, index - 100), index);
@@ -190,7 +202,10 @@ function scanForbidden(
   text: string,
   needles: readonly string[],
   negations: Set<string>,
-  { checkAfter }: { checkAfter: boolean },
+  {
+    checkAfter,
+    exemptNegationPrefixed = false,
+  }: { checkAfter: boolean; exemptNegationPrefixed?: boolean },
 ): string[] | null {
   if (!text) return null;
   const haystack = text.toLowerCase();
@@ -204,6 +219,7 @@ function scanForbidden(
       if (
         isNegated(haystack, needle, m.index, m[0].length, negations, {
           checkAfter,
+          exemptNegationPrefixed,
         })
       )
         continue;
@@ -251,6 +267,9 @@ export function containsForbiddenChat(
 ): { found: string[] } | null {
   const found = scanForbidden(text, CHAT_FORBIDDEN_WORDS, CHAT_NEGATIONS, {
     checkAfter: false,
+    // "sans risque" is exemptable by a preceding negation ("n'est pas sans
+    // risque", "ni sans risque") — a compliant refusal, not a claim.
+    exemptNegationPrefixed: true,
   });
   return found === null ? null : { found };
 }
