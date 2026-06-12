@@ -38,9 +38,6 @@ export interface DistribCalendarProps {
   /** Provenance metadata from the loader. */
   source?: "live" | "stale";
   updatedAt?: Date;
-  /** Layout preview at zero — nested empty chart only (DS §9.3). */
-  previewZeros?: boolean;
-  /** Inside MergedSurface — parent supplies section label; no nested dash-cell. */
 }
 
 // ── Formatting helpers (exported for tests) ───────────────────────────────────
@@ -284,7 +281,6 @@ export function DistribCalendar({
   asOf,
   source = "live",
   updatedAt,
-  previewZeros = false,
 }: DistribCalendarProps) {
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
@@ -296,23 +292,21 @@ export function DistribCalendar({
   const hasEntries = displayEntries.length > 0;
   const hasForecast = displayEntries.some((e) => e.paidAt === null);
 
-  const badgeKind = previewZeros
-    ? "stale"
-    : hasEntries && source === "live"
-      ? "attested"
-      : resolveProvenance(source, updatedAt, "estimated");
-
-  // No payout history → light placeholder only. The page section already labels
-  // this slot "Payout calendar" — no dash-cell-premium shell or provenance badge.
-  if (!hasEntries && !previewZeros) {
+  if (!hasEntries) {
     return (
       <EmptySurface
-        variant="chart"
         message="Distribution history will appear after the first payout."
-        className="min-h-32"
+        detail="Monthly payout bars populate once your first distribution is recorded."
+        variant="chart"
+        ariaLabel="Payout calendar awaiting first distribution"
       />
     );
   }
+
+  const badgeKind =
+    hasEntries && source === "live"
+      ? "attested"
+      : resolveProvenance(source, updatedAt, "estimated");
 
   return (
     <ModuleChrome aria-label="Payout calendar" className="gap-3">

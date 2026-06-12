@@ -37,8 +37,6 @@ export interface YieldStackProps {
   /** Provenance for the badge — defaults to "estimated" when omitted. */
   source?: "live" | "estimated" | "stale";
   updatedAt?: Date;
-  /** Render full widget shell at 0% (layout preview). */
-  previewZeros?: boolean;
 }
 
 // ── Pure helpers (also exported for unit tests) ───────────────────────────────
@@ -89,7 +87,6 @@ export function YieldStack({
   methodologyVersion = METHODOLOGY_VERSION,
   source = "estimated",
   updatedAt,
-  previewZeros = false,
 }: YieldStackProps) {
   // ...
   const [stressedLow, stressedHigh] =
@@ -107,19 +104,18 @@ export function YieldStack({
       ? [blendedLow, blendedHigh]
       : [blendedHigh, blendedLow];
 
-  const hasData = sources.length > 0;
+  const hasData = sources.length > 0 && maxAbsPct > 0;
 
-  const badgeKind = resolveProvenance(
-    previewZeros && !hasData ? "stale" : source,
-    updatedAt,
-    "estimated",
-  );
-
-  if (!hasData && !previewZeros) {
+  if (!hasData) {
     return (
-      <AwaitingMetricState message="No yield source data yet — awaiting first vault snapshot." />
+      <AwaitingMetricState
+        message="No yield source data yet — awaiting first vault snapshot."
+        detail="Forward yield stack populates after your first active position and vault snapshot."
+      />
     );
   }
+
+  const badgeKind = resolveProvenance(source, updatedAt, "estimated");
 
   return (
     <ModuleChrome aria-label="Yield source stack — 12 month forward projection">

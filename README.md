@@ -77,8 +77,10 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
   institutionnelle. Sections multi-widgets : `ProductSection` (`Card` actif /
   `ct-section-preview` en layout preview) + `SectionEmbedProvider` — widgets via
   `ModuleChrome` + `WidgetPanelHeader` (headers masqués automatiquement en embed).
-  **Layout preview** (`pf-container--zero`) : shells structurels à $0 dans les
-  widgets preview ; true-empty = `EmptySurface` seul. **Empty states** :
+  **Zero portfolio** (`isLayoutPreview` / `resolvePortfolioSurfaceState`) :
+  sections en `ct-section-preview` (badge Preview, pas de Verified data) ;
+  widgets sans position = `EmptySurface` / `AwaitingMetricState` uniquement —
+  pas de charts/progressbars à $0 ni badge Stale. **Empty states** :
   `EmptySurface` (`.ct-empty-surface*` dans `cockpit.css`) · `AwaitingMetricState`
   (`src/components/ui/awaiting-metric-state.tsx`, lien optionnel).
   Dashed réservé à `.ct-dropzone`
@@ -137,7 +139,7 @@ provenance sur le bloc parent) · `NestedPanel` + `ProofRow` (preuves / evidence
   `/admin/scenario-lab` → viewport-locked (`.scenario-lab-page--viewport`) : header/toolbar/presets fixes, workspace remplit la hauteur restante — inputs (sliders + Run) et output scrollent chacun dans leur colonne ; slot output vide = `EmptySurface` seul (pas de `glass-panel` autour) ; compare/backtest idem ; pills `FixtureVaultPills` + `?vault=` ;
   `/admin/proof-center` → module vide = `EmptySurface`/`AwaitingMetricState` seul (PoR, timeline, grille) ; module actif = `Card` + `DashboardPanelHeader` ; sous-section custody vide dans PoR actif = `EmptySurface variant="inline"` ;
   section **Proof & System** (`/admin/proofs`, `/admin/monitoring`, `/admin/security`, `/admin/governance`, `/admin/governance/propose`, `/admin/governance/proposal/[id]`, `/admin/governance/allowlist`, `/admin/governance/simulate-demo` dev-only) → même contrat DS : `EmptySurface` widget remplace le module vide ; tables dans `SystemPanel` + `DashboardPanelHeader` ; listes actives = `Card` sans faux placeholder ; utilitaires partagés `src/lib/ui/surface-classes.ts`, `form-classes.ts`, `src/components/proof/empty-messages.ts`, `src/lib/governance/proposal-calldata.ts`, `src/components/admin/governance/*` ;
-  flux document `.product-doc` (`product-doc.css`) sur `/vaults/*`, `/onboarding/*`, `/proof-center`, `/profile`, `/portfolio/[positionId]`, `/legal/*` : H1/H2/H3 + `.stat-value` réduits ; KPI term sheet vault en `.h4` ; `/portfolio` (cockpit) et `/admin/*` inchangés.
+  flux document `.product-doc` (`product-doc.css`) sur `/vaults/*`, `/onboarding/*`, `/proof-center`, `/profile`, `/portfolio/[positionId]`, `/legal/*` : H1/H2/H3 + `.stat-value` réduits ; KPI vault en `.h4` ; invest flow 4 steps = shell unique `InvestFlowShell` (`max-w-5xl`, stepper dans header, eyebrow Step N/4, footer border-t), wizard actif/done = `bg-(--ct-accent) ct-text-deep`, Step 3 colonne gauche `NestedPanel` ; `/portfolio` (cockpit) et `/admin/*` inchangés.
 
 ### Process pour ajouter un token (rare, validé Adrien uniquement)
 

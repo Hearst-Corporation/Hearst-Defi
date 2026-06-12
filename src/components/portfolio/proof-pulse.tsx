@@ -26,8 +26,6 @@ export interface ProofPulseProps {
   updatedAt?: Date;
   /** Attestation state from the loader. */
   proofState?: "attested" | "stale";
-  /** Render PoR shell at $0 (layout preview). */
-  previewZeros?: boolean;
 }
 
 // ── Pure helpers (exported for tests) ────────────────────────────────────────
@@ -125,7 +123,6 @@ export function ProofPulse({
   source: _source = "live",
   updatedAt: _updatedAt,
   proofState,
-  previewZeros = false,
 }: ProofPulseProps) {
   const { timestamp, statedTvlUsdc, onChainTvlUsdc } = lastPor;
 
@@ -171,26 +168,15 @@ export function ProofPulse({
             }
           : null; // "none" — no glyph at all
 
-  // `attested` only when on-chain figures actually match; preview tier stays stale.
   const headerProvenance: "attested" | "stale" =
-    previewZeros || !(state === "matched" || state === "attested")
-      ? "stale"
-      : "attested";
+    state === "matched" || state === "attested" ? "attested" : "stale";
 
-  // Nothing real to show (no attestation AND no methodology) → render a LIGHT
-  // empty surface instead of a full dash-cell-premium with header + Stale badge
-  // + nested callout, which reads as a big black placeholder box. The outer
-  // section already labels this slot "Proof of reserves".
-  if (!hasData && !hasMethodologyData && !previewZeros) {
+  if (!hasData && !hasMethodologyData) {
     return (
       <AwaitingMetricState
         message="No attestation has been published yet."
         detail="The first proof will appear here once vault activity is attested."
-        link={{
-          label: "Open proof center",
-          href: proofCenterHref,
-          ariaLabel: "Open proof center",
-        }}
+        link={{ label: "Open proof center", href: proofCenterHref }}
       />
     );
   }

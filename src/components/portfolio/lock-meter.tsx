@@ -75,8 +75,6 @@ export interface LockMeterProps {
   /** Provenance metadata from the loader. */
   source?: "live" | "stale";
   updatedAt?: Date;
-  /** Layout preview at zero — awaiting surface only (DS §9.3). */
-  previewZeros?: boolean;
 }
 
 const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
@@ -100,19 +98,18 @@ export function LockMeter({
   earlyExitPenaltyBps,
   asOf,
   source = "live",
-  previewZeros = false,
 }: LockMeterProps) {
   const effectiveAsOf = asOf ?? new Date();
 
   // When share-class terms are not wired, render a neutral "no data" state
   // instead of a fabricated progress bar.
-  const termsUnknown = softLockupDays <= 0;
+  const termsUnknown = softLockupDays <= 0 || source === "stale";
 
-  if ((termsUnknown || source === "stale") && !previewZeros) {
+  if (termsUnknown) {
     return (
       <AwaitingMetricState
         message="Lock and liquidity terms appear after your first active position."
-        detail="Soft lock-up progress and unlock dates populate once share-class terms are tied to a confirmed deposit."
+        detail="Soft lock-up progress and unlock dates populate once deposited capital is confirmed."
       />
     );
   }
@@ -120,7 +117,7 @@ export function LockMeter({
   const { progressPct, unlockDate, daysRemaining, isUnlocked } =
     computeLockMeter(lockStart, softLockupDays, effectiveAsOf);
 
-  const badgeKind = previewZeros ? "stale" : "live";
+  const badgeKind = "live";
 
   // Penalty text color: faint when more than 50% elapsed (less urgent),
   // warning when less than 50% elapsed (early-exit risk is high).
@@ -170,20 +167,16 @@ export function LockMeter({
           <span
             className={cn(
               "body-xs tabular mono",
-              termsUnknown
-                ? "ct-text-faint"
-                : isUnlocked
-                  ? "ct-status-success"
-                  : "ct-text-primary",
+              isUnlocked ? "ct-status-success" : "ct-text-primary",
             )}
           >
-            {termsUnknown ? "—" : `${Math.round(progressPct)}%`}
+            {`${Math.round(progressPct)}%`}
           </span>
-          {!termsUnknown && !isUnlocked && (
+          {!isUnlocked ? (
             <span className="body-xs tabular mono ct-text-muted">
               {daysRemaining}d left
             </span>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -192,19 +185,15 @@ export function LockMeter({
         {/* Unlock date */}
         <div className="flex items-center justify-between gap-2">
           <dt className="body-xs ct-text-muted">
-            {termsUnknown ? "Lock terms" : isUnlocked ? "Unlocked" : "Unlock"}
+            {isUnlocked ? "Unlocked" : "Unlock"}
           </dt>
           <dd
             className={cn(
               "body-xs tabular mono m-0",
-              termsUnknown
-                ? "ct-text-faint"
-                : isUnlocked
-                  ? "ct-status-success"
-                  : "ct-text-primary",
+              isUnlocked ? "ct-status-success" : "ct-text-primary",
             )}
           >
-            {termsUnknown ? "—" : isUnlocked ? "Now" : unlockDateFmt.format(unlockDate)}
+            {isUnlocked ? "Now" : unlockDateFmt.format(unlockDate)}
           </dd>
         </div>
 

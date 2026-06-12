@@ -1,13 +1,11 @@
 import type { ReactNode } from "react";
 
-import { Card } from "@/components/ui/card";
 import { DashboardPanelHeader } from "@/components/ui/system-panel";
-import { SectionEmbedProvider } from "@/components/ui/section-embed";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 
 const PREVIEW_LEAD =
-  "Appears after your first active position — structure shown at zero for orientation only.";
+  "Appears after your first active position — placeholders only until capital is deployed.";
 
 export interface ProductSectionProps {
   title: string;
@@ -47,16 +45,14 @@ export function ProductSection({
             {PREVIEW_LEAD}
           </p>
         </div>
-        <SectionEmbedProvider>
-          <div className="ct-product-section__content">{children}</div>
-        </SectionEmbedProvider>
+        <div className="ct-product-section__content">{children}</div>
       </section>
     );
   }
 
   return (
-    <Card
-      className={cn("ct-product-section card-premium", className)}
+    <section
+      className={cn("ct-product-section", className)}
       data-section={dataSection}
     >
       <DashboardPanelHeader
@@ -69,9 +65,7 @@ export function ProductSection({
         tone="primary"
         className="ct-product-section__header border-b border-(--ct-border-soft) pb-4"
       />
-      <SectionEmbedProvider>
-        <div className="ct-product-section__content">{children}</div>
-      </SectionEmbedProvider>
-    </Card>
+      <div className="ct-product-section__content">{children}</div>
+    </section>
   );
 }

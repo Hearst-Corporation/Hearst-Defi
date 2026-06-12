@@ -23,8 +23,6 @@ import { PositionsList } from "@/components/portfolio/positions-list";
 import { TimeseriesSection } from "@/components/dashboard/timeseries-section";
 import { TimeToCash } from "@/components/portfolio/time-to-cash";
 import { LockMeter } from "@/components/portfolio/lock-meter";
-import { ZERO_YIELD_STACK } from "@/lib/portfolio/layout-preview";
-
 const ZERO_SCORES = [
   { dimension: "market" as const, score: 0, delta30d: 0 },
   { dimension: "mining" as const, score: 0, delta30d: 0 },
@@ -159,21 +157,6 @@ describe("Portfolio empty states — design contract", () => {
       "No yield source data yet — awaiting first vault snapshot.",
     );
     expect(html).toContain("ct-empty-surface--widget");
-  });
-
-  it("YieldStack previewZeros: full widget shell with zero bars, not awaiting surface", () => {
-    const html = renderToStaticMarkup(
-      <YieldStack
-        sources={ZERO_YIELD_STACK.sources}
-        blendedLow={0}
-        blendedHigh={0}
-        stressedBearRange={{ low: 0, high: 0 }}
-        previewZeros
-      />,
-    );
-    expect(html).toContain("glass-panel");
-    expect(html).toContain("yield-stack-row");
-    expect(html).not.toContain("ct-empty-surface--widget");
   });
 
   it("RecentActivity: empty message outside active module surface", () => {

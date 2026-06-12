@@ -44,8 +44,6 @@ export interface RiskPulseProps {
    */
   source?: "live" | "stale";
   updatedAt?: Date;
-  /** Render full risk shell at 0 (layout preview). */
-  previewZeros?: boolean;
 }
 
 // ── Helpers (exported for unit tests) ────────────────────────────────────────
@@ -294,7 +292,6 @@ export function RiskPulse({
   composite30dTrend,
   source = "live",
   updatedAt,
-  previewZeros = false,
 }: RiskPulseProps) {
   // No-data: every sub-score is 0, composite is 0, and the loader did not
   // assign a label. Showing "Low" here would be a misleading positive signal
@@ -315,12 +312,12 @@ export function RiskPulse({
     "estimated", // Risk is always an estimation
   );
 
-  // No snapshot yet → render a LIGHT empty surface, not a full dash-cell-premium
-  // with header + Stale badge + placeholder (which reads as a big black box).
-  // The outer section already labels this slot "Risk profile".
-  if (noData && !previewZeros) {
+  if (noData || !dimensionsAvailable) {
     return (
-      <AwaitingMetricState message="Risk scores will appear after the first snapshot." />
+      <AwaitingMetricState
+        message="Risk scores will appear after the first snapshot."
+        detail="Composite and dimension scores populate once vault activity is recorded."
+      />
     );
   }
 

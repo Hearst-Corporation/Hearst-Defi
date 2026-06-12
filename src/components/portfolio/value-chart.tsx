@@ -6,8 +6,6 @@ import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
-import { cn } from "@/lib/cn";
-import { buildZeroValueChartSeries } from "@/lib/portfolio/layout-preview";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 /**
@@ -177,8 +175,6 @@ interface ValueChartProps {
   totalValueUsdc: number;
   source: "live" | "fallback";
   updatedAt?: Date;
-  /** Render full chart shell with a flat $0 series (layout preview, no position). */
-  previewZeros?: boolean;
 }
 
 export function ValueChart({
@@ -186,31 +182,23 @@ export function ValueChart({
   totalValueUsdc,
   source,
   updatedAt,
-  previewZeros = false,
 }: ValueChartProps) {
   const asOf = new Date(); // rendered server-side; consistent within a request
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
-  const provenance: Provenance = resolveProvenance(
-    previewZeros && isEmpty ? "stale" : source,
-    updatedAt,
-    "estimated",
-  );
-  const chartValue = previewZeros && isEmpty ? 0 : totalValueUsdc;
-  const series =
-    previewZeros && isEmpty
-      ? buildZeroValueChartSeries(asOf)
-      : buildMonthSeries(positions, totalValueUsdc, asOf);
 
-  // No positions → empty chart unless layout preview (flat $0 series + area chart).
-  if (isEmpty && !previewZeros) {
+  if (isEmpty) {
     return (
       <EmptySurface
-        variant="chart"
         message="Value trend will appear after the first active position."
-        className="h-full min-h-32"
+        detail="Indicative 12-month path populates once deposited capital is confirmed."
+        variant="chart"
+        ariaLabel="Portfolio value chart awaiting first position"
       />
     );
   }
+
+  const provenance: Provenance = resolveProvenance(source, updatedAt, "estimated");
+  const series = buildMonthSeries(positions, totalValueUsdc, asOf);
 
   return (
     <ModuleChrome
@@ -223,29 +211,17 @@ export function ValueChart({
         trailing={
           <span className="dash-label-meta">
             <span className="dash-trend flat">
-              {formatUsdCompact(chartValue)}
+              {formatUsdCompact(totalValueUsdc)}
             </span>
           </span>
         }
       />
 
-      <div
-        className={cn(
-          "relative mt-3 block w-full flex-1 overflow-hidden rounded-md z-10",
-          previewZeros && isEmpty ? "min-h-32" : "min-h-20",
-        )}
-      >
-        {previewZeros && isEmpty ? (
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-6 border-t border-(--ct-border-soft)"
-          />
-        ) : (
-          <ChartDisclaimerUnderlay />
-        )}
+      <div className="relative mt-3 block w-full flex-1 overflow-hidden rounded-md z-10 min-h-20">
+        <ChartDisclaimerUnderlay />
         <AreaChart
           series={series}
-          ariaLabel={`Portfolio value area chart, 12 months, current value ${formatUsdCompact(chartValue)}`}
+          ariaLabel={`Portfolio value area chart, 12 months, current value ${formatUsdCompact(totalValueUsdc)}`}
         />
       </div>
 
@@ -258,9 +234,8 @@ export function ValueChart({
       </div>
 
       <p className="body-xs ct-text-muted mt-2 italic relative z-10">
-        {previewZeros && isEmpty
-          ? "Layout preview at zero — path populates after your first active position."
-          : "Indicative path derived from subscribed principal and current value. Past performance does not predict future results."}
+        Indicative path derived from subscribed principal and current value. Past
+        performance does not predict future results. Not guaranteed.
       </p>
     </ModuleChrome>
   );

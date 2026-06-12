@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
-import { EmptySurface } from "@/components/ui/empty-surface";
 import { ModuleChrome } from "@/components/ui/module-chrome";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { ApyRange } from "@/components/ui/apy-range";
@@ -30,8 +29,6 @@ interface PositionsListProps {
   positions: PortfolioPosition[];
   source: "live" | "fallback";
   updatedAt?: Date;
-  /** Render table shell with zero row (layout preview). */
-  previewZeros?: boolean;
 }
 
 /**
@@ -43,20 +40,12 @@ export function PositionsList({
   positions,
   source,
   updatedAt,
-  previewZeros = false,
 }: PositionsListProps) {
-  const provenance = resolveProvenance(
-    previewZeros && positions.length === 0 ? "stale" : source,
-    updatedAt,
-  );
-
-  if (positions.length === 0 && !previewZeros) {
-    return (
-      <AwaitingMetricState message="No open positions." />
-    );
+  if (positions.length === 0) {
+    return <AwaitingMetricState message="No open positions." />;
   }
 
-  const isPreviewEmpty = positions.length === 0 && previewZeros;
+  const provenance = resolveProvenance(source, updatedAt);
 
   return (
     <ModuleChrome aria-label="Open positions">
@@ -79,13 +68,6 @@ export function PositionsList({
             <span className="text-right">Target APY</span>
             <span className="text-right">Since</span>
           </div>
-
-          {isPreviewEmpty ? (
-            <EmptySurface
-              variant="inline"
-              message="No active positions yet — your first deposit will appear here once confirmed on-chain."
-            />
-          ) : null}
 
           {positions.map((p) => (
             <div

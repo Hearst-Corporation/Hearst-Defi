@@ -6,9 +6,18 @@ import type { TimeToCashProps } from "@/components/portfolio/time-to-cash";
 import type { YieldStackProps } from "@/components/portfolio/yield-stack";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
 
-/** Portfolio renders structural shells at zero when the LP has no active position. */
+/** Portfolio renders preview/empty surfaces when the LP has no active position. */
 export function isLayoutPreview(hasPositions: boolean): boolean {
   return !hasPositions;
+}
+
+/** Surface tier for portfolio sections — active when positions exist, else preview. */
+export type PortfolioSurfaceState = "active" | "preview";
+
+export function resolvePortfolioSurfaceState(
+  hasActivePosition: boolean,
+): PortfolioSurfaceState {
+  return hasActivePosition ? "active" : "preview";
 }
 
 const MONTH_LABELS = [
