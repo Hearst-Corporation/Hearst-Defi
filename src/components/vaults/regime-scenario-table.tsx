@@ -52,37 +52,37 @@ function pctCell(value: number) {
 
 export function RegimeScenarioTable() {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-0 border-collapse text-left">
+    <div className="regime-scenario-table ct-table-surface">
+      <table>
         <thead>
-          <tr className="border-b ct-bc-soft">
-            <th scope="col" className="stat-label py-2 pr-3 font-medium">
+          <tr>
+            <th scope="col" className="stat-label ct-table-header font-medium">
               Regime
             </th>
             <th
               scope="col"
-              className="stat-label py-2 pr-3 font-medium hidden sm:table-cell"
+              className="stat-label ct-table-header font-medium regime-scenario-table__col-scenario"
             >
               Scenario
             </th>
-            <th scope="col" className="stat-label py-2 pr-3 font-medium">
+            <th scope="col" className="stat-label ct-table-header font-medium">
               APY range
             </th>
-            <th scope="col" className="stat-label py-2 pr-2 font-medium text-right">
+            <th scope="col" className="stat-label ct-table-header font-medium text-right">
               Min
             </th>
-            <th scope="col" className="stat-label py-2 pr-2 font-medium text-right">
+            <th scope="col" className="stat-label ct-table-header font-medium text-right">
               BTC
             </th>
             <th
               scope="col"
-              className="stat-label py-2 pr-2 font-medium text-right hidden md:table-cell"
+              className="stat-label ct-table-header font-medium text-right regime-scenario-table__col-wide"
             >
               USDC
             </th>
             <th
               scope="col"
-              className="stat-label py-2 font-medium text-right hidden md:table-cell"
+              className="stat-label ct-table-header font-medium text-right regime-scenario-table__col-wide"
             >
               Res
             </th>
@@ -90,22 +90,19 @@ export function RegimeScenarioTable() {
         </thead>
         <tbody>
           {STRESS_REGIMES.map((row) => (
-            <tr
-              key={row.id}
-              className="border-b ct-bc-soft last:border-0"
-            >
-              <td className="py-2.5 pr-3 align-top">
+            <tr key={row.id}>
+              <td className="ct-table-cell align-top">
                 <span className={cn("body-sm font-semibold", TONE_TEXT[row.tone])}>
                   {row.label}
                 </span>
-                <span className="block body-xs ct-text-faint mt-0.5 sm:hidden">
+                <span className="regime-scenario-table__scenario-inline body-xs ct-text-faint">
                   {row.scenario}
                 </span>
               </td>
-              <td className="py-2.5 pr-3 align-top body-xs ct-text-muted max-w-40 hidden sm:table-cell">
+              <td className="ct-table-cell align-top body-xs ct-text-muted ct-cell-note-max regime-scenario-table__col-scenario">
                 {row.scenario}
               </td>
-              <td className="py-2.5 pr-3 align-top">
+              <td className="ct-table-cell align-top">
                 <ApyRange
                   low={row.apyLow}
                   high={row.apyHigh}
@@ -113,16 +110,16 @@ export function RegimeScenarioTable() {
                   className="body-sm font-semibold ct-text-strong"
                 />
               </td>
-              <td className="py-2.5 pr-2 align-top text-right">
+              <td className="ct-table-cell align-top text-right">
                 {pctCell(row.miningPct)}
               </td>
-              <td className="py-2.5 pr-2 align-top text-right">
+              <td className="ct-table-cell align-top text-right">
                 {pctCell(row.btcTacticalPct)}
               </td>
-              <td className="py-2.5 pr-2 align-top text-right hidden md:table-cell">
+              <td className="ct-table-cell align-top text-right regime-scenario-table__col-wide">
                 {pctCell(row.usdcBasePct)}
               </td>
-              <td className="py-2.5 align-top text-right hidden md:table-cell">
+              <td className="ct-table-cell align-top text-right regime-scenario-table__col-wide">
                 {pctCell(row.stableReservePct)}
               </td>
             </tr>

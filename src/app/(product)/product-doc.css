@@ -1,6 +1,10 @@
 /**
  * Document-flow typography — calmer than portfolio / admin hero KPIs.
  * Scoped via `.product-doc` on layout roots; does not alter global DS classes.
+ *
+ * Layout primitives (shell, stack, section, kpi-grid) are shared across
+ * invest-flow, position detail, proof-center, and profile surfaces.
+ * Container name is always `product-doc` — one narrow-panel reflow block.
  */
 .product-doc .h1 {
   font-size: var(--ct-text-2xl);
@@ -31,27 +35,469 @@
   letter-spacing: 0.06em;
 }
 
-/* Invest flow — centred column cap (64rem), same as /portfolio/[positionId].
-   min-width:0 + container queries so the stepper/header never blow past 100%
-   of the centre panel when the chat rail compresses the viewport. */
-.product-doc .invest-flow-shell {
+/* ── Shared layout primitives ─────────────────────────────────────────────── */
+
+.product-doc .product-doc-shell {
+  display: flex;
   width: 100%;
-  max-width: 64rem;
-  margin-inline: auto;
   min-width: 0;
+  flex-direction: column;
+  gap: var(--ct-space-8);
   container-type: inline-size;
-  container-name: invest-flow;
+  container-name: product-doc;
 }
 
-@container invest-flow (max-width: 40rem) {
-  .invest-flow-shell .product-page-header__row {
+.product-doc .product-doc-shell--cap {
+  max-width: var(--ct-invest-flow-max-w);
+  margin-inline: auto;
+}
+
+.product-doc .product-doc-shell--narrow {
+  max-width: var(--ct-prose-md);
+}
+
+.product-doc .product-doc-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+}
+
+.product-doc .product-doc-stack--tight {
+  gap: var(--ct-space-2);
+}
+
+.product-doc .product-doc-stack--actions {
+  gap: var(--ct-space-3);
+}
+
+.product-doc .product-doc-bullet-list {
+  margin: 0;
+  padding-left: var(--ct-space-4);
+  list-style: disc;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
+.product-doc .product-doc-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+
+.product-doc .product-doc-section__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+}
+
+.product-doc .product-doc-kpi-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ct-space-4);
+}
+
+.product-doc .product-doc-footer-rule {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  padding-top: var(--ct-space-6);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+/* 40rem = --ct-invest-flow-narrow — literal required for @container support */
+@container product-doc (max-width: 40rem) {
+  .product-doc .product-page-header__row {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .invest-flow-shell .product-page-header__actions {
+  .product-doc .product-page-header__actions {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .product-doc .proof-center-section__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .product-doc .wizard-step-progress__label {
+    display: none;
+  }
+}
+
+/* ── Invest flow (/vaults/*) ─────────────────────────────────────────────── */
+
+.product-doc .invest-flow-shell {
+  padding-bottom: var(--ct-space-8);
+}
+
+.product-doc .invest-flow-shell__stepper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  padding-top: var(--ct-space-2);
+}
+
+.product-doc .invest-flow-shell__header-cta {
+  display: none;
+  flex-shrink: 0;
+}
+
+@container product-doc (min-width: 40rem) {
+  .product-doc .invest-flow-shell__header-cta {
+    display: inline-flex;
+  }
+}
+
+.product-doc .invest-flow-shell__footer-cta-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+
+@container product-doc (min-width: 40rem) {
+  .product-doc .invest-flow-shell__footer-cta-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.product-doc .invest-flow-shell__footer-cta {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+@container product-doc (min-width: 40rem) {
+  .product-doc .invest-flow-shell__footer-cta {
+    width: auto;
+  }
+}
+
+/* Product select card */
+.product-doc .vault-select-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ct-space-5);
+}
+
+.product-doc .vault-select-card__main {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.product-doc .vault-select-card__meta {
+  display: flex;
+  width: 100%;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  min-width: 0;
+}
+
+.product-doc .vault-select-card__divider-h {
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+.product-doc .vault-select-card__divider-v {
+  display: none;
+}
+
+@container product-doc (min-width: 40rem) {
+  .product-doc .vault-select-card {
+    flex-direction: row;
+    gap: var(--ct-space-6);
+  }
+
+  .product-doc .vault-select-card__meta {
+    width: var(--ct-vault-card-min-w);
+    min-height: 100%;
+  }
+
+  .product-doc .vault-select-card__divider-h {
+    display: none;
+  }
+
+  .product-doc .vault-select-card__divider-v {
+    display: block;
+  }
+}
+
+/* Deposit form — 2-col when shell is wide enough */
+.product-doc .vault-invest-grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 1fr;
+  gap: var(--ct-space-6);
+}
+
+@container product-doc (min-width: 48rem) {
+  .product-doc .vault-invest-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .product-doc .vault-invest-grid__rail {
+    position: sticky;
+    top: var(--ct-space-6);
+    align-self: start;
+  }
+}
+
+.product-doc .vault-invest-grid__rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+}
+
+.product-doc .vault-invest-form-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+}
+
+.product-doc .vault-panel-body--stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+}
+
+.product-doc .vault-confirm-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.product-doc .vault-confirm-panel__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
+.product-doc .vault-confirm-panel__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+}
+
+.product-doc .vault-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ct-space-3);
+}
+
+.product-doc .vault-form-actions__primary {
+  flex: 1;
+}
+
+/* Vault detail KPI strip */
+.product-doc .vault-detail-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ct-space-3) var(--ct-space-6);
+}
+
+.product-doc .vault-detail-kpis__mobile-cta {
+  grid-column: span 2;
+}
+
+@container product-doc (min-width: 40rem) {
+  .product-doc .vault-detail-kpis {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ct-space-3) var(--ct-space-8);
+  }
+
+  .product-doc .vault-detail-kpis__mobile-cta {
+    display: none;
+  }
+}
+
+/* Term sheet allocation rows */
+.product-doc .vault-allocation-row {
+  display: flex;
+  gap: var(--ct-space-3);
+  border-bottom: 1px solid var(--ct-border-soft);
+  padding-block: var(--ct-space-3);
+}
+
+.product-doc .vault-allocation-row:last-child {
+  border-bottom: none;
+}
+
+.product-doc .vault-allocation-row__body {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+}
+
+@container product-doc (min-width: 40rem) {
+  .product-doc .vault-allocation-row__body {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--ct-space-4);
+  }
+}
+
+/* Regime scenario table — column visibility follows shell width */
+.product-doc .regime-scenario-table .regime-scenario-table__col-scenario,
+.product-doc .regime-scenario-table .regime-scenario-table__col-wide {
+  display: none;
+}
+
+.product-doc .regime-scenario-table .regime-scenario-table__scenario-inline {
+  display: block;
+  margin-top: var(--ct-space-0_5);
+}
+
+@container product-doc (min-width: 40rem) {
+  .product-doc .regime-scenario-table .regime-scenario-table__col-scenario {
+    display: table-cell;
+  }
+
+  .product-doc .regime-scenario-table .regime-scenario-table__scenario-inline {
+    display: none;
+  }
+}
+
+@container product-doc (min-width: 48rem) {
+  .product-doc .regime-scenario-table .regime-scenario-table__col-wide {
+    display: table-cell;
+  }
+}
+
+/* ── Position detail (/portfolio/[positionId]) ───────────────────────────── */
+
+.product-doc .position-detail-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.product-doc .position-detail-header__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+}
+
+.product-doc .position-detail-header__identity {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
+.product-doc .position-detail-value-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  padding: var(--ct-space-3) var(--ct-space-4);
+}
+
+.product-doc .position-detail-value-card__body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
+.product-doc .position-detail-kpis {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--ct-space-3);
+  align-items: start;
+}
+
+.product-doc .position-detail-kpis .kpi-cell {
+  background: var(--ct-surface-1);
+  border-color: var(--ct-border-soft);
+  box-shadow: none;
+}
+
+@container product-doc (min-width: 28rem) {
+  .product-doc .position-detail-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container product-doc (min-width: 48rem) {
+  .product-doc .position-detail-kpis {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.product-doc .position-detail-transactions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  border-radius: var(--ct-radius-xl);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  padding: var(--ct-space-5) var(--ct-space-6);
+}
+
+.product-doc .position-detail-transactions__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+}
+
+.product-doc .position-detail-transactions__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ct-space-2);
+}
+
+.product-doc .position-detail-disclaimer {
+  margin: 0;
+  max-width: var(--ct-prose-xl);
+}
+
+/* ── Proof Center ────────────────────────────────────────────────────────── */
+
+.product-doc .proof-center-section__toolbar {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-4);
+}
+
+.product-doc .proof-center-footer {
+  padding-top: var(--ct-space-6);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+@container product-doc (min-width: 36rem) {
+  .product-doc .proof-center-shell .ct-proof-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container product-doc (min-width: 56rem) {
+  .product-doc .proof-center-shell .ct-proof-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

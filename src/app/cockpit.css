@@ -43,24 +43,12 @@
 
   /* Dark graphite module surfaces — active card / nested / empty tiers.
      Chips & badges keep --ct-surface-* literals; large panels use these. */
-  --ct-graphite-active-bg: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-bg-deep) 62%, transparent) 0%,
-    color-mix(in srgb, var(--ct-bg-deep) 74%, transparent) 100%
-  );
-  --ct-graphite-subtle-bg: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-bg-deep) 50%, transparent) 0%,
-    color-mix(in srgb, var(--ct-bg-deep) 60%, transparent) 100%
-  );
-  --ct-graphite-nested-bg: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-bg-deep) 38%, transparent) 0%,
-    color-mix(in srgb, var(--ct-bg-deep) 48%, transparent) 100%
-  );
+  --ct-graphite-active-bg: var(--ct-surface-2);
+  --ct-graphite-subtle-bg: var(--ct-surface-1);
+  --ct-graphite-nested-bg: var(--ct-surface-0);
   --ct-graphite-border: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-border-soft));
   --ct-graphite-border-nested: color-mix(in srgb, var(--ct-text-strong) 4%, var(--ct-border-soft));
-  --ct-graphite-blur: blur(12px) saturate(100%);
+  --ct-graphite-blur: blur(20px) saturate(100%);
 
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
      Success = canonical accent green (#A7FB90) — single green across UI. */
@@ -124,7 +112,7 @@
      components should also converge here rather than re-declaring the effect. */
   --ct-glass-radius: 28px;
   /* Quiet glass: gentle blur, no saturate punch — the glossy look is gone. */
-  --ct-glass-blur: blur(30px) saturate(100%);
+  --ct-glass-blur: blur(20px) saturate(100%);
   --ct-glass-border: color-mix(in srgb, #fff 9%, transparent);
   /* Faint inner top rim + soft drop — depth without a glossy sheen. */
   --ct-glass-rim: inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
@@ -218,6 +206,15 @@
   --ct-card-min-w: 11rem;          /* generic KPI card floor */
   --ct-vault-card-min-w: 22.5rem;  /* vault summary card floor */
   --ct-regime-card-min-w: 17.5rem; /* regime/scenario card floor */
+  --ct-invest-flow-max-w: 64rem;   /* invest / term-sheet column cap */
+  --ct-invest-flow-narrow: 40rem;  /* container query — stack header + cards */
+  --ct-invest-flow-split: 48rem;   /* container query — deposit 2-col grid */
+  --ct-prose-md: 36rem;            /* header description cap */
+  --ct-prose-lg: 42rem;            /* term-sheet copy cap */
+  --ct-prose-xl: 48rem;            /* legal / disclaimer cap */
+  --ct-legal-shell-max: 55rem;     /* 880px — legal shell + portfolio pf stack */
+  --ct-cell-note-max: 10rem;       /* regime scenario note column */
+  --ct-step-dot-size: 1.75rem;     /* wizard step circle diameter */
   --ct-chart-empty-h: 8.75rem;     /* empty-state chart placeholder height */
 }
 
@@ -259,6 +256,10 @@
   max-width: 34ch;
   margin-inline: auto;
 }
+
+.ct-prose-md { max-width: var(--ct-prose-md); }
+.ct-prose-lg { max-width: var(--ct-prose-lg); }
+.ct-prose-xl { max-width: var(--ct-prose-xl); }
 
 .ct-panel-inset {
   background: var(--ct-surface-0);
@@ -348,6 +349,30 @@
 @media (min-width: 1024px) {
   .ct-nested-kpi-grid--4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Proof grid — viewport fallback; product proof-center overrides via @container */
+.ct-proof-grid {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: 1fr;
+  gap: var(--ct-space-6);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .ct-proof-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .ct-proof-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -1752,6 +1777,7 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 /* ── PRIMITIVE TOKEN UTILITIES — arbitraires [var(--ct-*)] des primitives UI
    (Button/Badge/Card/Metric) factorisés en classes DS nommées.
    Visual-neutral : chaque classe résout à la valeur exacte de l'arbitraire remplacé. ── */
+.ct-bg-deep { background-color: var(--ct-bg-deep); }
 .ct-bg-accent { background-color: var(--ct-accent); }
 .ct-bg-accent-strong-hover:hover { background-color: var(--ct-accent-strong); }
 .ct-text-deep { color: var(--ct-bg-deep); }
@@ -1781,6 +1807,7 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 .ct-bc-soft { border-color: var(--ct-border-soft); }
 .ct-bc-soft-50 { border-color: color-mix(in srgb, var(--ct-border-soft) 50%, transparent); }
 .ct-bc-strong { border-color: var(--ct-border-strong); }
+.ct-bc-accent { border-color: var(--ct-border-accent); }
 .ct-bc-strong-hover:hover { border-color: var(--ct-border-strong); }
 .ct-bc-success { border-color: var(--ct-status-success-border); }
 .ct-bc-warning { border-color: var(--ct-status-warning-border); }
@@ -2004,8 +2031,8 @@ pre.ct-surface-1.rounded-md {
     0 8px 24px -16px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
     var(--ct-glass-rim),
     var(--ct-glass-drop);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
-  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-glass-blur);
+  backdrop-filter: var(--ct-glass-blur);
 }
 
 .ct-glass-panel:hover {
@@ -3206,6 +3233,264 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   border-left: 1px solid var(--ct-border-soft);
   align-self: stretch;
   flex-shrink: 0;
+}
+
+/* Wizard step progress — crisp dots, no glow (invest + onboarding) */
+.wizard-step-progress {
+  display: flex;
+  width: 100%;
+}
+
+.wizard-step-progress__item {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-1);
+}
+
+.wizard-step-progress__connector {
+  position: absolute;
+  top: calc(var(--ct-step-dot-size) / 2);
+  height: 1px;
+  border-radius: var(--ct-radius-full);
+  transition: background-color var(--ct-dur-base) var(--ct-ease);
+}
+
+.wizard-step-progress__connector--left {
+  right: 50%;
+  left: 0;
+}
+
+.wizard-step-progress__connector--right {
+  left: 50%;
+  right: 0;
+}
+
+.wizard-step-progress__connector--done,
+.wizard-step-progress__connector--active {
+  background: var(--ct-accent);
+}
+
+.wizard-step-progress__connector--pending {
+  background: var(--ct-border-soft);
+}
+
+.wizard-step-progress__dot {
+  position: relative;
+  z-index: var(--ct-z-base);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ct-step-dot-size);
+  height: var(--ct-step-dot-size);
+  border-radius: var(--ct-radius-full);
+  border: 1px solid transparent;
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  line-height: 1;
+  box-shadow: none;
+  transition:
+    border-color var(--ct-dur-base) var(--ct-ease),
+    background-color var(--ct-dur-base) var(--ct-ease),
+    color var(--ct-dur-base) var(--ct-ease);
+}
+
+.wizard-step-progress__dot--done {
+  border-color: var(--ct-border-accent);
+  background: var(--ct-accent);
+  color: var(--ct-bg-deep);
+}
+
+.wizard-step-progress__dot--active {
+  border-color: var(--ct-accent);
+  background: var(--ct-surface-2);
+  color: var(--ct-accent);
+}
+
+.wizard-step-progress__dot--pending {
+  border-color: var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  color: var(--ct-text-muted);
+}
+
+.wizard-step-progress__label {
+  font-weight: var(--ct-font-medium);
+  white-space: nowrap;
+}
+
+.wizard-step-progress__label--active {
+  color: var(--ct-accent);
+}
+
+.wizard-step-progress__label--done {
+  color: var(--ct-text-primary);
+}
+
+.wizard-step-progress__label--pending {
+  color: var(--ct-text-muted);
+}
+
+/* Checklist dot — onboarding requirements (mirrors wizard-step done/pending) */
+.ct-checklist-dot {
+  margin-top: var(--ct-space-0_5);
+  display: inline-flex;
+  height: var(--ct-space-4);
+  width: var(--ct-space-4);
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ct-radius-full);
+  border: 1px solid var(--ct-border-soft);
+  color: var(--ct-text-muted);
+}
+
+.ct-checklist-dot--done {
+  border-color: var(--ct-border-accent);
+  background: var(--ct-accent);
+  color: var(--ct-bg-deep);
+}
+
+/* Vault invest flow — panel chrome (header + padded body) */
+.vault-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+  border-bottom: 1px solid var(--ct-border-soft);
+  padding: var(--ct-space-3) var(--ct-space-4);
+}
+
+.vault-panel-header__stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+  min-width: 0;
+}
+
+.vault-panel-body {
+  padding: var(--ct-space-4);
+}
+
+.vault-panel-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-2_5) 0;
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.vault-panel-row:last-child {
+  border-bottom: none;
+}
+
+.vault-panel-row__stack {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+}
+
+.vault-panel-inset-block {
+  padding: var(--ct-space-2_5) 0;
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.vault-panel-inset-block__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+  margin-bottom: var(--ct-space-2);
+}
+
+.vault-chart-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.ct-copy-chip {
+  flex-shrink: 0;
+  border-radius: var(--ct-radius-sm);
+  border: 1px solid var(--ct-border-soft);
+  padding: var(--ct-space-1) var(--ct-space-2);
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+  transition: color var(--ct-dur-base) var(--ct-ease),
+    border-color var(--ct-dur-base) var(--ct-ease);
+}
+
+.ct-copy-chip:hover {
+  border-color: var(--ct-border-strong);
+  color: var(--ct-text-primary);
+}
+
+/* DS checkbox — invest-form + onboarding attestations */
+.ct-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ct-space-3);
+  cursor: pointer;
+}
+
+.ct-checkbox__control {
+  position: relative;
+  margin-top: var(--ct-space-0_5);
+  flex-shrink: 0;
+}
+
+.ct-checkbox__box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ct-space-5);
+  height: var(--ct-space-5);
+  border-radius: var(--ct-radius-sm);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  transition:
+    border-color var(--ct-dur-base) var(--ct-ease),
+    background-color var(--ct-dur-base) var(--ct-ease);
+}
+
+.group:hover .ct-checkbox__box:not(.ct-checkbox__box--checked) {
+  border-color: var(--ct-border-strong);
+}
+
+.ct-checkbox__box--checked {
+  border-color: var(--ct-border-accent);
+  background: var(--ct-accent);
+}
+
+.ct-checkbox__mark {
+  display: inline-block;
+  width: var(--ct-space-2_5);
+  height: var(--ct-space-2_5);
+  border-radius: var(--ct-radius-sm);
+  background: var(--ct-bg-deep);
+}
+
+.ct-checkbox__label {
+  min-width: 0;
+}
+
+.vault-disclaimer-inset {
+  margin: var(--ct-space-2) var(--ct-space-4) var(--ct-space-4);
+  padding-top: var(--ct-space-3);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+.vault-panel-body .vault-disclaimer-inset {
+  margin-inline: 0;
+  margin-bottom: 0;
+}
+
+.ct-cell-note-max {
+  max-width: var(--ct-cell-note-max);
 }
 
 /* Allocation bar segment (width driven by JS data) */

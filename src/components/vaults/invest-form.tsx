@@ -8,6 +8,7 @@ import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { cn } from "@/lib/cn";
 import { Ptai } from "@/components/ui/ptai";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { NestedCallout, NestedPanel } from "@/components/ui/nested-panel";
 import { DepositSummary } from "@/components/vaults/deposit-summary";
 import { PreFlightCheck, isPreFlightReady } from "@/components/vaults/preflight-check";
@@ -23,17 +24,7 @@ import {
 import { monthsToTarget } from "@/lib/projection-chart";
 import { subscribe } from "@/app/actions/subscribe";
 import type { VaultProduct } from "@/lib/data/vaults";
-import { shareClassCode } from "@/lib/vaults/product-display";
-
-function formatUsd(n: number, compact = false): string {
-  if (compact && n >= 1_000_000) {
-    return `$${(n / 1_000_000).toFixed(1)}M`;
-  }
-  if (compact && n >= 1_000) {
-    return `$${(n / 1_000).toFixed(0)}k`;
-  }
-  return `$${n.toLocaleString("en-US")}`;
-}
+import { formatUsdAmount, shareClassCode } from "@/lib/vaults/product-display";
 
 type CtaState =
   | "no_wallet"
@@ -60,7 +51,7 @@ function ctaLabel(state: CtaState, amount: number): string {
       return "Confirming…";
     case "ready":
       return amount > 0
-        ? `Review deposit · ${formatUsd(amount)} →`
+        ? `Review deposit · ${formatUsdAmount(amount)} →`
         : "Review deposit →";
   }
 }
@@ -79,8 +70,8 @@ function buildPtai(
   return {
     projection:
       amount > 0
-        ? `At ${formatUsd(amount)} principal you reach +10% cumulative yield in ${months10Str} under base assumptions.`
-        : `Deposit at least ${formatUsd(vault.minTicketUsdc, true)} to see your personalized projection.`,
+        ? `At ${formatUsdAmount(amount)} principal you reach +10% cumulative yield in ${months10Str} under base assumptions.`
+        : `Deposit at least ${formatUsdAmount(vault.minTicketUsdc, true)} to see your personalized projection.`,
 
     trigger:
       `Hashprice ≥ $0.085/TH/day AND BTC ≥ $60,000 AND mining uptime ≥ 95% sustained over 30 days.`,
@@ -90,7 +81,7 @@ function buildPtai(
 
     impact:
       annualYield !== null
-        ? `Estimated ${formatUsd(annualYield)} annual yield — range ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}%. Results are not projected. Subject to assumptions — see methodology v1.0.`
+        ? `Estimated ${formatUsdAmount(annualYield)} annual yield — range ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}%. Results are not projected. Subject to assumptions — see methodology v1.0.`
         : `Target APY ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}%. Results are not projected. Subject to assumptions — see methodology v1.0.`,
   };
 }
@@ -142,23 +133,23 @@ export function InvestForm({ vault }: InvestFormProps) {
   function amountHelperText(): { text: string; variant: "ok" | "warn" | "neutral" } {
     if (amount === 0) {
       return {
-        text: `Minimum ${formatUsd(vault.minTicketUsdc, true)} · Capacity remaining: ${formatUsd(maxAmount, true)}`,
+        text: `Minimum ${formatUsdAmount(vault.minTicketUsdc, true)} · Capacity remaining: ${formatUsdAmount(maxAmount, true)}`,
         variant: "neutral",
       };
     }
     if (amount < vault.minTicketUsdc) {
       return {
-        text: `Below minimum of ${formatUsd(vault.minTicketUsdc, true)}`,
+        text: `Below minimum of ${formatUsdAmount(vault.minTicketUsdc, true)}`,
         variant: "warn",
       };
     }
     if (amount > maxAmount) {
       return {
-        text: `Exceeds available capacity (${formatUsd(maxAmount, true)} remaining)`,
+        text: `Exceeds available capacity (${formatUsdAmount(maxAmount, true)} remaining)`,
         variant: "warn",
       };
     }
-    return { text: `Amount valid · ${formatUsd(amount)} USDC`, variant: "ok" };
+    return { text: `Amount valid · ${formatUsdAmount(amount)} USDC`, variant: "ok" };
   }
 
   const helper = amountHelperText();
@@ -244,184 +235,169 @@ export function InvestForm({ vault }: InvestFormProps) {
   const ptai = buildPtai(deferredAmount, vault);
 
   return (
-    <div className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-      <NestedPanel className="flex flex-col gap-5">
-        <section aria-labelledby="amt-label">
-          <label htmlFor="amt-input" id="amt-label" className="eyebrow block mb-2">
-            Amount (USDC)
-          </label>
+    <div className="vault-invest-grid">
+      <div className="vault-invest-form-main">
+        <NestedPanel className="py-0">
+          <VaultPanelHeader title="Deposit amount" />
+          <div className="vault-panel-body vault-panel-body--stack">
+            <section>
+              <label htmlFor="amt-input" className="sr-only">
+                Amount (USDC)
+              </label>
 
-          <div className="relative">
-            <span
-              aria-hidden
-              className="absolute left-4 top-1/2 -translate-y-1/2 mono font-semibold ct-text-muted select-none"
-            >
-              $
-            </span>
-            <input
-              id="amt-input"
-              type="number"
-              min={vault.minTicketUsdc}
-              max={maxAmount}
-              step={1000}
-              value={rawAmount}
-              onChange={(e) => {
-                setRawAmount(e.target.value);
-                setAllowanceApproved(false);
-                setAwaitingConfirm(false);
-              }}
-              placeholder={vault.minTicketUsdc.toLocaleString("en-US")}
-              aria-describedby="amt-helper"
-              aria-invalid={amount > 0 && !amountValid}
-              className={cn(
-                "ct-input tabular w-full pl-8 pr-4 py-3 mono body-lg",
-                amount > 0 && !amountValid
-                  ? "ct-bc-warning focus:ring-(--ct-status-warning)"
-                  : "",
-              )}
-            />
-          </div>
+              <div className="relative">
+                <span
+                  aria-hidden
+                  className="absolute left-4 top-1/2 -translate-y-1/2 mono font-semibold ct-text-muted select-none"
+                >
+                  $
+                </span>
+                <input
+                  id="amt-input"
+                  type="number"
+                  min={vault.minTicketUsdc}
+                  max={maxAmount}
+                  step={1000}
+                  value={rawAmount}
+                  onChange={(e) => {
+                    setRawAmount(e.target.value);
+                    setAllowanceApproved(false);
+                    setAwaitingConfirm(false);
+                  }}
+                  placeholder={vault.minTicketUsdc.toLocaleString("en-US")}
+                  aria-describedby="amt-helper"
+                  aria-invalid={amount > 0 && !amountValid}
+                  className={cn(
+                    "ct-input tabular w-full pl-8 pr-4 py-3 mono body-lg",
+                    amount > 0 && !amountValid
+                      ? "ct-bc-warning focus:ring-(--ct-status-warning)"
+                      : "",
+                  )}
+                />
+              </div>
 
-          <p
-            id="amt-helper"
-            className={cn(
-              "body-xs mt-1.5",
-              helper.variant === "ok" && "ct-status-success",
-              helper.variant === "warn" && "ct-status-warning",
-              helper.variant === "neutral" && "ct-text-muted",
-            )}
-          >
-            {helper.text}
-          </p>
-        </section>
+              <p
+                id="amt-helper"
+                className={cn(
+                  "body-xs mt-1.5",
+                  helper.variant === "ok" && "ct-status-success",
+                  helper.variant === "warn" && "ct-status-warning",
+                  helper.variant === "neutral" && "ct-text-muted",
+                )}
+              >
+                {helper.text}
+              </p>
+            </section>
 
-        {/* Term sheet checkbox */}
-        <label className="flex items-start gap-3 cursor-pointer group">
-          <span className="mt-0.5 relative shrink-0">
-            <input
-              type="checkbox"
+            {/* Term sheet checkbox */}
+            <Checkbox
               checked={agreedToTermSheet}
-              onChange={(e) => {
-                setAgreedToTermSheet(e.target.checked);
+              onChange={(checked) => {
+                setAgreedToTermSheet(checked);
                 setAwaitingConfirm(false);
               }}
-              className="sr-only"
-            />
-            <span
-              aria-hidden
-              className={cn(
-                "flex items-center justify-center w-5 h-5 rounded border transition-colors",
-                agreedToTermSheet
-                  ? "ct-bg-accent ct-bc-accent"
-                  : "ct-surface-1 ct-bc-soft group-hover:ct-bc-strong-hover",
-              )}
             >
-              {agreedToTermSheet && (
-                <span className="inline-block h-2.5 w-2.5 rounded-sm bg-black" />
-              )}
-            </span>
-          </span>
-          <span className="body-sm ct-text-body">
-            I have reviewed and accept the{" "}
-            <Link
-              href={`/vaults/${vault.id}`}
-              className="underline ct-text-primary hover:ct-text-strong transition-colors"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              term sheet
-            </Link>{" "}
-            for {vault.name}. I understand this is a structured product offered
-            exclusively to qualified investors.
-          </span>
-        </label>
-
-        {depositError ? (
-          <NestedCallout className="border ct-bc-danger ct-status-danger-bg">
-            <p className="body-xs ct-status-danger">{depositError}</p>
-          </NestedCallout>
-        ) : null}
-
-        {awaitingConfirm ? (
-          <NestedPanel className="space-y-4 ct-bc-strong border">
-            <p className="eyebrow">Confirm your deposit</p>
-            <div className="space-y-1">
-              <div className="flex justify-between body-sm">
-                <span className="ct-text-muted">Vault</span>
-                <span className="ct-text-body font-semibold">{vault.name}</span>
-              </div>
-              <div className="flex justify-between body-sm">
-                <span className="ct-text-muted">Amount</span>
-                <span className="ct-text-strong font-bold tabular">{formatUsd(amount)} USDC</span>
-              </div>
-              <div className="flex justify-between body-sm">
-                <span className="ct-text-muted">Action</span>
-                <span className="ct-text-body">Deposit</span>
-              </div>
-            </div>
-            <p className="body-xs ct-text-muted">
-              This action is irreversible once submitted. Subject to{" "}
-              {vault.softLockupDays}-day soft lock-up. Results are not projected
-              — see methodology v1.0.
-            </p>
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={handleCancelConfirm}
-                disabled={depositing}
+              I have reviewed and accept the{" "}
+              <Link
+                href={`/vaults/${vault.id}`}
+                className="underline ct-text-primary hover:ct-text-strong transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                size="md"
-                onClick={() => void handleConfirm()}
-                disabled={!ctaEnabled || depositing}
-                className="font-bold flex-1"
-              >
-                {depositing ? "Confirming…" : `Confirm ${formatUsd(amount)} deposit`}
-              </Button>
-            </div>
-          </NestedPanel>
-        ) : (
-          <div className="flex items-center gap-3 flex-wrap">
-            <Button
-              variant="secondary"
-              size="md"
-              asChild
-            >
-              <Link href={`/vaults/${vault.id}`}>← Back</Link>
-            </Button>
+                term sheet
+              </Link>{" "}
+              for {vault.name}. I understand this is a structured product offered
+              exclusively to qualified investors.
+            </Checkbox>
 
-            <Button
-              variant="primary"
-              size="md"
-              onClick={handleReview}
-              disabled={!ctaEnabled}
-              aria-disabled={!ctaEnabled}
-              className={cn(
-                "font-bold flex-1",
-                !ctaEnabled && "opacity-60 cursor-not-allowed",
-              )}
-            >
-              {ctaLabel(currentCtaState, amount)}
-            </Button>
+            {depositError ? (
+              <NestedCallout className="border ct-bc-danger ct-status-danger-bg">
+                <p className="body-xs ct-status-danger">{depositError}</p>
+              </NestedCallout>
+            ) : null}
+
+            {awaitingConfirm ? (
+              <NestedPanel className="vault-confirm-panel ct-bc-strong border">
+                <p className="eyebrow">Confirm your deposit</p>
+                <div className="vault-confirm-panel__rows">
+                  <div className="vault-confirm-panel__row body-sm">
+                    <span className="ct-text-muted">Vault</span>
+                    <span className="ct-text-body font-semibold">{vault.name}</span>
+                  </div>
+                  <div className="vault-confirm-panel__row body-sm">
+                    <span className="ct-text-muted">Amount</span>
+                    <span className="ct-text-strong font-bold tabular">
+                      {formatUsdAmount(amount)} USDC
+                    </span>
+                  </div>
+                  <div className="vault-confirm-panel__row body-sm">
+                    <span className="ct-text-muted">Action</span>
+                    <span className="ct-text-body">Deposit</span>
+                  </div>
+                </div>
+                <p className="body-xs ct-text-muted">
+                  This action is irreversible once submitted. Subject to{" "}
+                  {vault.softLockupDays}-day soft lock-up. Results are not projected
+                  — see methodology v1.0.
+                </p>
+                <div className="vault-form-actions">
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    onClick={handleCancelConfirm}
+                    disabled={depositing}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={() => void handleConfirm()}
+                    disabled={!ctaEnabled || depositing}
+                    className="vault-form-actions__primary font-bold"
+                  >
+                    {depositing
+                      ? "Confirming…"
+                      : `Confirm ${formatUsdAmount(amount)} deposit`}
+                  </Button>
+                </div>
+              </NestedPanel>
+            ) : (
+              <div className="vault-form-actions">
+                <Button variant="secondary" size="md" asChild>
+                  <Link href={`/vaults/${vault.id}`}>← Back</Link>
+                </Button>
+
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={handleReview}
+                  disabled={!ctaEnabled}
+                  aria-disabled={!ctaEnabled}
+                  className={cn(
+                    "vault-form-actions__primary font-bold",
+                    !ctaEnabled && "opacity-60 cursor-not-allowed",
+                  )}
+                >
+                  {ctaLabel(currentCtaState, amount)}
+                </Button>
+              </div>
+            )}
           </div>
-        )}
+        </NestedPanel>
 
         {deferredAmount > 0 && (
-          <NestedPanel className="mt-1 py-0">
+          <NestedPanel className="py-0">
             <VaultPanelHeader title="Projected NAV — 24 month horizon" />
-            <div className="px-4 py-4">
+            <div className="vault-panel-body">
               <TimeToTargetChart amount={deferredAmount} vault={vault} />
             </div>
           </NestedPanel>
         )}
 
-        <div className="border-t ct-bc-soft pt-4">
+        <NestedPanel className="py-0">
           <VaultPanelHeader title="Projection (PTAI)" />
-          <div className="pt-3">
+          <div className="vault-panel-body">
             <Ptai
               projection={ptai.projection}
               trigger={ptai.trigger}
@@ -429,10 +405,10 @@ export function InvestForm({ vault }: InvestFormProps) {
               impact={ptai.impact}
             />
           </div>
-        </div>
-      </NestedPanel>
+        </NestedPanel>
+      </div>
 
-      <div className="flex flex-col gap-5 lg:sticky lg:top-6 lg:self-start">
+      <div className="vault-invest-grid__rail">
         <DepositSummary vault={vault} amount={amount} />
         <PreFlightCheck
           walletAddress={walletAddress}

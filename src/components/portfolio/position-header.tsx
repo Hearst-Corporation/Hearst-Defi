@@ -49,7 +49,7 @@ export function PositionHeader({ position }: PositionHeaderProps) {
   const provenance = position.source === "live" ? "live" : "stale";
 
   return (
-    <header className="flex flex-col gap-4">
+    <header className="position-detail-header">
       {/* Back link */}
       <Link
         href="/portfolio"
@@ -59,8 +59,8 @@ export function PositionHeader({ position }: PositionHeaderProps) {
       </Link>
 
       {/* Title row */}
-      <div className="flex items-start justify-between flex-wrap gap-3">
-        <div className="flex flex-col gap-1 min-w-0">
+      <div className="position-detail-header__title-row">
+        <div className="position-detail-header__identity">
           <h1 className="h1 m-0 wrap-break-word">
             {position.vaultName ?? "Unassigned vault"}
           </h1>
@@ -79,9 +79,9 @@ export function PositionHeader({ position }: PositionHeaderProps) {
       <div
         role="region"
         aria-label="Total position value"
-        className="flex items-center justify-between flex-wrap gap-3 rounded-lg border border-(--ct-border-soft) ct-surface-1 px-4 py-3.5"
+        className="position-detail-value-card"
       >
-        <div className="flex flex-col gap-1 min-w-0">
+        <div className="position-detail-value-card__body">
           <span className="eyebrow ct-text-muted">
             Total value
           </span>

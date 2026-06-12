@@ -171,6 +171,7 @@ export function ContractsAuditTrail() {
         <DashboardPanelHeader
           eyebrow="Contract audit trail"
           title="Review status"
+          provenance="manual"
           tone="quiet"
         />
 

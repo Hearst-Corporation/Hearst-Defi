@@ -6,9 +6,9 @@
 // Non-negotiable #10: disclaimer present in InvestForm and DepositSummary.
 
 import { notFound } from "next/navigation";
-import { ProductPageHeader } from "@/components/connect/product-page-header";
+
 import { getVault } from "@/lib/data/vaults";
-import { StepProgress } from "@/components/vaults/step-progress";
+import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { InvestForm } from "@/components/vaults/invest-form";
 
 export const dynamic = "force-dynamic";
@@ -26,30 +26,19 @@ export default async function InvestPage({ params }: PageProps) {
   const vault = await getVault(id);
 
   if (!vault) notFound();
-  // Only live vaults accept deposits
   if (vault.status !== "live") notFound();
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto w-full">
-      <ProductPageHeader
-        eyebrow="Invest · Step 3 of 4"
-        title="Deposit"
-        description={
-          <span className="body-sm ct-text-muted">
-            {vault.name} · {vault.ticker}
-          </span>
-        }
-        className="gap-3"
-      >
-        <StepProgress active="deposit" />
-      </ProductPageHeader>
-
-      {/* Deposit form (Client Component) */}
-      <InvestForm vault={vault} />
-
-      {/* Footer disclaimer — mandatory #10 */}
-      <footer>
-        <p className="body-xs ct-text-faint max-w-3xl">
+    <InvestFlowShell
+      step="deposit"
+      title="Deposit"
+      description={
+        <span className="body-sm ct-text-muted">
+          {vault.name} · {vault.ticker}
+        </span>
+      }
+      footer={
+        <p className="body-xs ct-text-faint ct-prose-xl">
           {vault.disclaimers} APY ranges are target projections based on
           stated assumptions — they are not a projection of future returns
           and are subject to change without notice. Subject to minimum
@@ -57,7 +46,9 @@ export default async function InvestPage({ params }: PageProps) {
           {vault.softLockupDays}-day soft lock-up, and jurisdictional
           restrictions. Methodology v1.0.
         </p>
-      </footer>
-    </div>
+      }
+    >
+      <InvestForm vault={vault} />
+    </InvestFlowShell>
   );
 }

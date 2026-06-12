@@ -17,9 +17,18 @@ import {
   type ShareClassTerms,
 } from "@/lib/engine/share-class";
 import { getTaxPreview, type TaxPreview } from "@/lib/portfolio/tax";
-import { resolveProvenance } from "@/lib/portfolio/provenance";
+import {
+  coercePortfolioDate,
+  resolveProvenance,
+} from "@/lib/portfolio/provenance";
 
 export { resolveProvenance };
+
+function asCachedDate(
+  value: Date | string | null | undefined,
+): Date | undefined {
+  return coercePortfolioDate(value) ?? undefined;
+}
 import {
   METHODOLOGY_FACTORS,
   METHODOLOGY_VERSION,
@@ -340,7 +349,7 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
     source: "live",
     // Snapshot freshness when available; otherwise positions were just read live.
     updatedAt:
-      latestSnapshot?.takenAt ??
+      asCachedDate(latestSnapshot?.takenAt) ??
       (positions.length > 0 ? new Date() : undefined),
   };
 });
@@ -454,7 +463,7 @@ export const loadRiskPulseProps = cache(async (): Promise<RiskPulseProps & { sou
     compositeLabel,
     composite30dTrend: "stable",
     source: compositeAvailable ? "live" : "stale",
-    updatedAt: snapshot.takenAt,
+    updatedAt: asCachedDate(snapshot.takenAt),
   };
 });
 
@@ -561,9 +570,11 @@ export const loadProofPulseProps = cache(async (): Promise<ProofPulseProps & { s
   const statedTvlUsdc = snapshot ? toNumber(snapshot.aumUsdc) : 0;
   const onChainTvlUsdc = 0; // Populated in Phase 2
 
+  const postedAt = asCachedDate(latestProof.postedAt) ?? now;
+
   return {
     lastPor: {
-      timestamp: latestProof.postedAt,
+      timestamp: postedAt,
       statedTvlUsdc,
       onChainTvlUsdc,
     },
@@ -572,7 +583,7 @@ export const loadProofPulseProps = cache(async (): Promise<ProofPulseProps & { s
     nextAttestation: null,
     auditor: "",
     source: "attested", // Proof exists, so it's attested
-    updatedAt: latestProof.postedAt,
+    updatedAt: postedAt,
   };
 });
 
@@ -640,7 +651,7 @@ export const loadYieldStackProps = cache(async (hasPositions: boolean = true): P
     stressedBearRange,
     methodologyVersion: METHODOLOGY_VERSION,
     source: "live",
-    updatedAt: snapshot.takenAt,
+    updatedAt: asCachedDate(snapshot.takenAt),
   };
 });
 
@@ -703,7 +714,7 @@ export const loadTimeToCashProps = cache(async (): Promise<TimeToCashProps & { s
     aprHigh,
     asOf: now,
     source: hasMeaningfulYield ? "live" : "stale",
-    updatedAt: snapshot.takenAt,
+    updatedAt: asCachedDate(snapshot.takenAt),
   };
 });
 

@@ -189,7 +189,6 @@ export function RebalanceCard({
   const [isPending, startTransition] = useTransition();
   const [rejectReason, setRejectReason] = useState("");
   const [showRejectForm, setShowRejectForm] = useState(false);
-  const [signerWallet, setSignerWallet] = useState("");
   const [error, setError] = useState<string | null>(null);
   // Confirmation gate: null = no pending confirm, "approve" | "execute" = awaiting 2nd click
   const [confirmingAction, setConfirmingAction] = useState<"approve" | "execute" | null>(null);
@@ -200,10 +199,6 @@ export function RebalanceCard({
   const signerCount = signers.length;
 
   function handleApprove() {
-    if (!signerWallet.trim()) {
-      setError("Signer wallet address is required.");
-      return;
-    }
     setError(null);
     // First click → stage confirmation; second click (confirmingAction === "approve") → execute
     if (confirmingAction !== "approve") {
@@ -213,7 +208,7 @@ export function RebalanceCard({
     setConfirmingAction(null);
     startTransition(async () => {
       try {
-        await approveRebalance(event.id, signerWallet.trim());
+        await approveRebalance(event.id);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Approve failed.");
       }
@@ -329,20 +324,6 @@ export function RebalanceCard({
       <div className="space-y-3">
         {event.status === "pending" && (
           <>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={signerWallet}
-                onChange={(e) => {
-                  setSignerWallet(e.target.value);
-                  // Reset confirmation gate if wallet changes mid-confirm
-                  if (confirmingAction === "approve") setConfirmingAction(null);
-                }}
-                placeholder="Signer wallet (0x…)"
-                className="ct-input flex-1 mono text-sm"
-                disabled={isPending}
-              />
-            </div>
             <div className="flex gap-2">
               {confirmingAction === "approve" ? (
                 <>

@@ -163,6 +163,25 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     expect(html).not.toContain('aria-hidden="true"');
   });
 
+  it("YieldStack previewZeros: bar shell without fake APY strings", () => {
+    const yieldHtml = renderToStaticMarkup(
+      <YieldStack {...ZERO_YIELD_STACK} previewZeros />,
+    );
+    expect(yieldHtml).toContain("pf-cockpit-panel");
+    expect(yieldHtml).toContain("yield-stack-row");
+    expect(yieldHtml).toContain("Mining cashflow");
+    expect(yieldHtml).toContain("USDC base yield");
+    expect(yieldHtml).toContain("BTC tactical");
+    expect(yieldHtml).toContain("Stable reserve");
+    expect(yieldHtml).not.toContain("0.0–0.0%");
+    expect(yieldHtml).not.toContain("+0.0%");
+    expect(yieldHtml).not.toContain("±0.0%");
+    expect(yieldHtml).not.toMatch(
+      /<div class="flex flex-col gap-2"[^>]*aria-hidden/,
+    );
+    expect(yieldHtml).not.toContain("not guaranteed");
+  });
+
   it("YieldStack + AllocationDonut previewZeros: widget shells with zero graphics", () => {
     const yieldHtml = renderToStaticMarkup(
       <YieldStack {...ZERO_YIELD_STACK} previewZeros />,

@@ -98,7 +98,7 @@ export function PositionActions({ position }: PositionActionsProps) {
   if (position.status !== "active") return null;
   if (!process.env.NEXT_PUBLIC_PRIVY_APP_ID) {
     return (
-      <section aria-label="Position actions" className="flex flex-col gap-3">
+      <section aria-label="Position actions" className="product-doc-section">
         <p className="body-xs ct-text-muted">
           Self-served redemption connects your wallet to redeem vault shares on
           Base Sepolia. Wallet connection is being configured — contact Investor
@@ -210,7 +210,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
 
   if (phase === "done" && result) {
     return (
-      <section aria-label="Redemption confirmed" className="flex flex-col gap-3">
+      <section aria-label="Redemption confirmed" className="product-doc-section">
         <div className="flex items-center gap-2">
           <span className="body-sm ct-text-strong">Redemption confirmed</span>
           <ProvenanceBadge kind="manual" />
@@ -238,7 +238,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
   // the chain from here is the "Confirm withdrawal" button.
   if (phase === "confirm" || busy) {
     return (
-      <section aria-label="Review withdrawal" className="flex flex-col gap-3">
+      <section aria-label="Review withdrawal" className="product-doc-section">
         <Card className="space-y-4">
           <p className="eyebrow">Review your withdrawal before signing</p>
           <div className="space-y-1">
@@ -309,7 +309,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
 
   // Step A — intent. Clicking "Withdraw" only opens the review card above.
   return (
-    <section aria-label="Position actions" className="flex flex-col gap-3">
+    <section aria-label="Position actions" className="product-doc-section">
       <p className="body-xs ct-text-muted">
         Withdraw returns your full position as USDC on Base Sepolia (testnet),
         subject to the 60-day soft lock-up. Past performance does not predict

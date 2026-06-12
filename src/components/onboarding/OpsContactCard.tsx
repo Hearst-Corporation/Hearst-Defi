@@ -28,13 +28,13 @@ export function OpsContactCard({
       <div className="flex items-center gap-3">
         <span
           aria-hidden="true"
-          className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[var(--ct-accent-soft)] border border-[var(--ct-border-accent)] shrink-0 ct-text-accent font-semibold text-sm"
+          className="inline-flex items-center justify-center w-10 h-10 rounded-full ct-status-success-bg shrink-0 ct-text-accent body-sm font-semibold"
         >
           {name.charAt(0)}
         </span>
 
         <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="text-sm font-semibold ct-text-strong truncate tracking-tight">
+          <span className="body-sm ct-text-strong truncate font-semibold tracking-tight">
             {name}
           </span>
           <span className="body-xs ct-text-muted truncate">{title}</span>
@@ -44,7 +44,7 @@ export function OpsContactCard({
       <div className="flex flex-col gap-2">
         <a
           href={`mailto:${email}`}
-          className="body-xs text-[var(--ct-accent-strong)] no-underline hover:underline truncate transition-opacity hover:opacity-80"
+          className="body-xs ct-link-accent truncate hover:underline"
           aria-label={`Email ${name} at ${email}`}
         >
           {email}
@@ -54,7 +54,7 @@ export function OpsContactCard({
           href={calendlyHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 body-xs text-[var(--ct-accent-strong)] no-underline hover:underline transition-opacity hover:opacity-80"
+          className="inline-flex items-center gap-1.5 body-xs ct-link-accent hover:underline"
           aria-label={`Book a call with ${name} (opens in new tab)`}
         >
           Book a call ↗

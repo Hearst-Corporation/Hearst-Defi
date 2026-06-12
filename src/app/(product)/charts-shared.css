@@ -55,7 +55,7 @@
   color: var(--ct-text-muted);
   font-weight: var(--ct-font-medium);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--ct-tracking-wider);
   margin-top: var(--ct-space-1);
 }
 

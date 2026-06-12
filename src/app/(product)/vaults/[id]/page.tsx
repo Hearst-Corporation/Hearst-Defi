@@ -63,7 +63,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       step="product"
       title={vault.name}
       description={
-        <span className="line-clamp-2 max-w-2xl">{vault.description}</span>
+        <span className="line-clamp-2 ct-prose-lg">{vault.description}</span>
       }
       lead={
         <Link
@@ -83,12 +83,12 @@ export default async function VaultDetailPage({ params }: PageProps) {
           <InvestCta
             isLive={isLive}
             investHref={investHref}
-            className="hidden shrink-0 font-bold sm:inline-flex"
+            className="invest-flow-shell__header-cta font-bold"
           />
         </>
       }
       headerBelowStepper={
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-8">
+        <dl className="vault-detail-kpis">
           <div>
             <dt className="stat-label">Target APY</dt>
             <dd className="h4 mt-0.5">
@@ -107,7 +107,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
               {vault.softLockupDays} days
             </dd>
           </div>
-          <div className="col-span-2 sm:col-span-1 sm:hidden">
+          <div className="vault-detail-kpis__mobile-cta">
             <InvestCta
               isLive={isLive}
               investHref={investHref}
@@ -121,7 +121,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           <div
             role="note"
             aria-label="Important disclaimers"
-            className="max-w-3xl space-y-3"
+            className="ct-prose-xl space-y-3"
           >
             <p className="body-sm ct-text-muted leading-relaxed">
               {vault.disclaimers}
@@ -136,8 +136,8 @@ export default async function VaultDetailPage({ params }: PageProps) {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="body-xs ct-text-muted max-w-md">
+          <div className="invest-flow-shell__footer-cta-row">
+            <p className="body-xs ct-text-muted ct-prose-md">
               Review complete? Proceed to deposit — term sheet acknowledgement
               required on the next step.
             </p>
@@ -145,7 +145,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
               isLive={isLive}
               investHref={investHref}
               size="lg"
-              className="w-full shrink-0 font-bold sm:w-auto"
+              className="invest-flow-shell__footer-cta font-bold"
             />
           </div>
         </>

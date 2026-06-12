@@ -1,6 +1,6 @@
 import "../product-doc.css";
 
-export default function ProofCenterLayout({
+export default function ProfileLayout({
   children,
 }: {
   children: React.ReactNode;

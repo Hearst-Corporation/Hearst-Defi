@@ -32,7 +32,10 @@ describe("Hero rail — native layout at zero", () => {
     );
     expect(html).toContain("pf-hero-rail-group");
     expect(html).toContain("pf-progress-track");
-    expect(html).toContain("60d left");
+    expect(html).toContain("60-day soft lock shown after deposit");
+    expect(html).not.toContain("Unlock");
+    expect(html).not.toContain("60d left");
+    expect(html).toContain('aria-valuenow="0"');
     expect(html).not.toContain("Early exit penalty");
     expect(html).not.toContain("flex h-full");
     expect(html).not.toContain("mt-auto");

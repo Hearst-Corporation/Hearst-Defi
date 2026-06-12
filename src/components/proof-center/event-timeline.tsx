@@ -2,6 +2,7 @@ import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-stat
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ProofRow } from "@/components/ui/nested-panel";
 import { DashboardPanelHeader } from "@/components/ui/system-panel";
 import { EVENT_TIMELINE_EMPTY } from "@/components/proof/empty-messages";
 import { EXPLORER_TX_BASE } from "@/lib/chain/client";
@@ -79,35 +80,31 @@ function EventTimelineItem({
           <span className="body-xs">Event #{event.eventId.toString()}</span>
         </div>
 
-        <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
-          <dt className="ct-text-muted">Timestamp</dt>
-          <dd className="ct-text-body">{dateFmt.format(event.timestamp)} UTC</dd>
-
-          <dt className="ct-text-muted">Block</dt>
-          <dd className="mono tabular ct-text-body">{event.blockNumber.toString()}</dd>
-
-          <dt className="ct-text-muted">Publisher</dt>
-          <dd className="mono tabular ct-text-body" title={event.publisher}>
-            {abbreviateAddress(event.publisher)}
-          </dd>
-
-          <dt className="ct-text-muted">Tx hash</dt>
-          <dd className="mono tabular ct-text-primary" title={event.txHash}>
+        <div className="mt-1 min-w-0">
+          <ProofRow label="Timestamp">
+            {dateFmt.format(event.timestamp)} UTC
+          </ProofRow>
+          <ProofRow label="Block">{event.blockNumber.toString()}</ProofRow>
+          <ProofRow label="Publisher">
+            <span title={event.publisher}>{abbreviateAddress(event.publisher)}</span>
+          </ProofRow>
+          <ProofRow label="Tx hash">
             <a
               href={`${EXPLORER_TX_BASE}${event.txHash}`}
               target="_blank"
               rel="noreferrer noopener"
               className={explorerLinkClass}
+              title={event.txHash}
             >
               {abbreviateAddress(event.txHash)}
             </a>
-          </dd>
-
-          <dt className="ct-text-muted">Context hash</dt>
-          <dd className="mono tabular ct-text-muted" title={event.contextHash}>
-            {abbreviateAddress(event.contextHash)}
-          </dd>
-        </dl>
+          </ProofRow>
+          <ProofRow label="Context hash">
+            <span className="ct-text-muted" title={event.contextHash}>
+              {abbreviateAddress(event.contextHash)}
+            </span>
+          </ProofRow>
+        </div>
 
         {event.payloadCid.length > 0 ? (
           <div className="mt-1">

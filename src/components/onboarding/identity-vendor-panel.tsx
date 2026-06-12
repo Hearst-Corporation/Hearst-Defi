@@ -6,7 +6,11 @@ import { Badge } from "@/components/ui/badge";
  */
 export function IdentityVendorPanel({ isProduction }: { isProduction: boolean }) {
   return (
-    <div className="flex flex-col gap-4" role="region" aria-label="Identity verification unavailable">
+    <div
+      className="flex flex-col gap-[var(--ct-space-4)]"
+      role="region"
+      aria-label="Identity verification unavailable"
+    >
       <AwaitingMetricState
         message="Identity verification not configured"
         detail={

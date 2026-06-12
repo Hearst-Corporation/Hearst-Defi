@@ -153,7 +153,7 @@ export default async function PortfolioPage() {
         </div>
       </MergedSurface>
 
-      <div className="flex flex-col gap-4">
+      <div className="pf-section-stack">
         <div className="dash-bento pf-secondary-grid" data-section="yield-allocation">
           <div className="bento-col-8 pf-cockpit-slot" data-testid="yield-stack-widget">
             <YieldStack
@@ -201,7 +201,7 @@ export default async function PortfolioPage() {
         </MergedSurface>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="pf-section-stack">
         <div className="dash-bento pf-secondary-grid" data-section="positions">
           <div className="bento-col-12 pf-cockpit-slot">
             <PositionsList
@@ -255,8 +255,8 @@ export default async function PortfolioPage() {
         </MergedSurface>
       </div>
 
-      <footer className="border-t border-(--ct-border-soft) pt-12 pb-24">
-        <p className="body-xs ct-text-muted max-w-3xl">
+      <footer className="pf-footer">
+        <p className="pf-footer-disclaimer body-xs ct-text-muted ct-prose-xl">
           Projections and estimated yields are conditional on stated assumptions
           and are <strong>not guaranteed</strong>. Past performance is not
           indicative of future results. All data is subject to methodology v1.0

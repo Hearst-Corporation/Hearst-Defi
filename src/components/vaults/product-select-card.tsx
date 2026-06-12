@@ -12,6 +12,7 @@ import {
   VAULT_STATUS_VARIANT,
   vaultStatusLabel,
 } from "@/lib/constants/vault";
+import { VaultKpiCell } from "@/components/vaults/vault-flow-primitives";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 
 interface ProductSelectCardProps {
@@ -25,8 +26,8 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
 
   return (
     <Card aria-label={`${vault.name} — ${strategyLabel}`}>
-      <div className="flex flex-col items-stretch gap-5 md:flex-row md:gap-6">
-        <div className="flex min-w-0 flex-1 flex-col gap-4">
+      <div className="vault-select-card">
+        <div className="vault-select-card__main">
           <div className="flex min-w-0 flex-col gap-2">
             <p className="h4 ct-text-strong">{vault.name}</p>
             <div className="flex flex-wrap items-center gap-2">
@@ -57,35 +58,30 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
           <p className="body-sm ct-text-body line-clamp-2">{vault.description}</p>
         </div>
 
-        <div aria-hidden className="border-t ct-bc-soft md:hidden" />
-        <div aria-hidden className="hidden md:block ct-card-divider-v" />
+        <div aria-hidden className="vault-select-card__divider-h" />
+        <div aria-hidden className="vault-select-card__divider-v ct-card-divider-v" />
 
-        <div className="flex w-full shrink-0 flex-col gap-5 md:min-h-full md:w-56">
-          <div className="grid grid-cols-2 gap-x-4 gap-y-4">
-            <div className="flex min-w-0 flex-col gap-0.5">
-              <span className="stat-label">Min. ticket</span>
-              <span className="h4 tabular truncate">
-                {formatUsdCompact(vault.minTicketUsdc)}
-              </span>
-            </div>
-            <div className="flex min-w-0 flex-col gap-0.5">
-              <span className="stat-label">Lock-up</span>
-              <span className="h4 tabular">{vault.softLockupDays}d</span>
-            </div>
-            <div className="flex min-w-0 flex-col gap-0.5">
-              <span className="stat-label">Risk</span>
-              <span className="h4 truncate">{RISK_LABELS[vault.riskLevel]}</span>
-            </div>
-            <div className="flex min-w-0 flex-col gap-0.5">
-              <span className="stat-label">AUM</span>
+        <div className="vault-select-card__meta">
+          <div className="product-doc-kpi-grid-2">
+            <VaultKpiCell label="Min. ticket">
+              <span className="truncate">{formatUsdCompact(vault.minTicketUsdc)}</span>
+            </VaultKpiCell>
+            <VaultKpiCell label="Lock-up">{vault.softLockupDays}d</VaultKpiCell>
+            <VaultKpiCell label="Risk">
+              <span className="truncate">{RISK_LABELS[vault.riskLevel]}</span>
+            </VaultKpiCell>
+            <VaultKpiCell
+              label="AUM"
+              valueClassName={
+                vault.currentAumUsdc > 0 ? undefined : "body-sm ct-text-muted font-normal"
+              }
+            >
               {vault.currentAumUsdc > 0 ? (
-                <span className="h4 tabular truncate">
-                  {formatUsdCompact(vault.currentAumUsdc)}
-                </span>
+                <span className="truncate">{formatUsdCompact(vault.currentAumUsdc)}</span>
               ) : (
-                <span className="body-sm ct-text-muted">Pending</span>
+                "Pending"
               )}
-            </div>
+            </VaultKpiCell>
           </div>
 
           <div className="body-xs ct-text-faint flex flex-wrap items-center gap-1">

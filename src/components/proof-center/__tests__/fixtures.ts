@@ -1,3 +1,4 @@
+import type { OnChainEvent } from "@/lib/chain/event-logger";
 import type { OnChainAttestation } from "@/lib/chain/por-registry";
 import type { CustodySnapshot } from "@/lib/data/custody";
 
@@ -15,6 +16,19 @@ export function freshAttestation(): OnChainAttestation {
     timestamp: new Date(),
     txHash: "0xdef",
     blockNumber: 123n,
+  };
+}
+
+export function freshEvent(): OnChainEvent {
+  return {
+    eventId: 42n,
+    kind: "Distribution",
+    contextHash: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    publisher: "0x1111111111111111111111111111111111111111",
+    timestamp: new Date("2026-05-01T12:00:00Z"),
+    payloadCid: "",
+    txHash: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    blockNumber: 9_001n,
   };
 }
 

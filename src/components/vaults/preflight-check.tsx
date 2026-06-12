@@ -158,7 +158,7 @@ export function PreFlightCheck({
       Loading wallet…
     </p>
   ) : !vaultConfigured ? (
-    <div className="flex flex-col gap-2 px-1 py-4">
+    <div className="flex flex-col gap-2 py-4">
       <Badge variant="warning" className="self-start">
         Configuration en attente
       </Badge>
@@ -171,7 +171,7 @@ export function PreFlightCheck({
   ) : (
     <>
       {vaultStale ? (
-        <div className="flex flex-col gap-1.5 px-1 py-3">
+        <div className="flex flex-col gap-1.5 py-3">
           <Badge variant="warning" className="self-start">
             Testnet contract
           </Badge>
@@ -235,7 +235,7 @@ export function PreFlightCheck({
   return (
     <NestedPanel className="ct-divide-soft py-0">
       <VaultPanelHeader title="Pre-flight check" />
-      <div className="px-4">{panelBody}</div>
+      <div className="vault-panel-body">{panelBody}</div>
     </NestedPanel>
   );
 }

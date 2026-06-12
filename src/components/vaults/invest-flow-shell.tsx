@@ -43,7 +43,10 @@ export function InvestFlowShell({
 }: InvestFlowShellProps) {
   return (
     <div
-      className={cn("invest-flow-shell space-y-8 pb-8", className)}
+      className={cn(
+        "invest-flow-shell product-doc-shell product-doc-shell--cap",
+        className,
+      )}
     >
       <ProductPageHeader
         lead={lead}
@@ -55,7 +58,7 @@ export function InvestFlowShell({
         align={align}
         className={headerClassName}
       >
-        <div className="flex flex-col gap-4 pt-2">
+        <div className="invest-flow-shell__stepper">
           <StepProgress active={step} />
           {headerBelowStepper}
         </div>
@@ -64,9 +67,7 @@ export function InvestFlowShell({
       {children}
 
       {footer ? (
-        <footer className="space-y-4 border-t ct-bc-soft pt-6">
-          {footer}
-        </footer>
+        <footer className="product-doc-footer-rule">{footer}</footer>
       ) : null}
     </div>
   );

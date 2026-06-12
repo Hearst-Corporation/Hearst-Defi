@@ -95,13 +95,13 @@ export default async function ProductProofCenterPage({
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="proof-center-shell product-doc-shell">
       {/* ── Testnet notice ─────────────────────────────────── */}
       {chainConfigured && (
         <div
           role="note"
           aria-label="Testnet data notice"
-          className="flex items-start gap-3 rounded-md border border-[var(--ct-status-warning-border)] ct-status-warning-bg px-4 py-3"
+          className="flex items-start gap-3 rounded-md border border-(--ct-status-warning-border) ct-status-warning-bg px-4 py-3"
         >
           <TriangleAlert
             className="mt-0.5 h-4 w-4 shrink-0 ct-status-warning"
@@ -169,8 +169,8 @@ export default async function ProductProofCenterPage({
 
       {/* ── Full proof grid (filtered) ──────────────────────── */}
       <section aria-labelledby="proof-grid-heading">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <h2 id="proof-grid-heading" className="h2">
+        <div className="proof-center-section__toolbar mb-6">
+          <h2 id="proof-grid-heading" className="h2 min-w-0">
             Platform-wide proofs
           </h2>
           {proofs.length > 0 ? <ProofFilter /> : null}
@@ -212,8 +212,8 @@ export default async function ProductProofCenterPage({
       )}
 
       {/* ── Footer ─────────────────────────────────────────── */}
-      <footer className="border-t border-[var(--ct-border-soft)] pt-6">
-        <p className="body-xs">
+      <footer className="proof-center-footer">
+        <p className="body-xs ct-prose-md ct-text-muted">
           {chainConfigured ? (
             <>
               On-chain entries are read directly from Base Sepolia via the

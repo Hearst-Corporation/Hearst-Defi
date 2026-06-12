@@ -74,7 +74,7 @@ export function AllocationDonut({
       />
 
       <div className="pf-allocation-donut flex min-h-0 flex-1 flex-col items-center">
-        <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center">
+        <div className="pf-allocation-donut-body flex min-h-0 w-full flex-1 flex-col items-center justify-center">
         <div className="pf-allocation-donut-chart dash-chart-container relative m-0 w-(--ct-donut-size) h-(--ct-donut-size)">
           <svg
             className="dash-chart-svg w-full h-full"

@@ -21,57 +21,59 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
   const hurdleFee = vault.fees.hurdleBps > 0 ? vault.fees.hurdleBps / 100 : null;
 
   return (
-    <NestedPanel className="flex flex-col gap-0 py-0">
+    <NestedPanel className="py-0">
       <VaultPanelHeader
         title="Deposit summary"
         trailing={<ProvenanceBadge kind="estimated" />}
       />
 
-      <ProofRow label="You deposit">
-        {amount > 0 ? (
-          <span className="mono">${amount.toLocaleString("en-US")} USDC</span>
-        ) : (
-          <span className="ct-text-muted">—</span>
-        )}
-      </ProofRow>
+      <div className="vault-panel-body">
+        <ProofRow label="You deposit">
+          {amount > 0 ? (
+            <span className="mono">${amount.toLocaleString("en-US")} USDC</span>
+          ) : (
+            <span className="ct-text-muted">—</span>
+          )}
+        </ProofRow>
 
-      <ProofRow label="Target APY">
-        <ApyRange low={vault.apyLow} high={vault.apyHigh} precision={1} />
-      </ProofRow>
+        <ProofRow label="Target APY">
+          <ApyRange low={vault.apyLow} high={vault.apyHigh} precision={1} />
+        </ProofRow>
 
-      <ProofRow label="Est. yearly yield">
-        {yearlyYield !== null ? (
-          <span className="mono">
-            ${yearlyYield.toLocaleString("en-US", { maximumFractionDigits: 0 })} USDC
+        <ProofRow label="Est. yearly yield">
+          {yearlyYield !== null ? (
+            <span className="mono">
+              ${yearlyYield.toLocaleString("en-US", { maximumFractionDigits: 0 })} USDC
+            </span>
+          ) : (
+            <span className="ct-text-muted">—</span>
+          )}
+        </ProofRow>
+
+        <ProofRow label="At soft close">
+          {totalAtClose !== null ? (
+            <span className="mono">
+              ~${totalAtClose.toLocaleString("en-US", { maximumFractionDigits: 0 })} USDC
+            </span>
+          ) : (
+            <span className="ct-text-muted">—</span>
+          )}
+        </ProofRow>
+
+        <ProofRow label="Lock-up">{vault.softLockupDays}d soft</ProofRow>
+
+        <ProofRow label="Fees">
+          <span className="text-right">
+            {mgmtFee.toFixed(2)}% mgmt · {perfFee.toFixed(0)}% perf
+            {hurdleFee ? ` · ${hurdleFee.toFixed(1)}% hurdle` : ""}
           </span>
-        ) : (
-          <span className="ct-text-muted">—</span>
-        )}
-      </ProofRow>
+        </ProofRow>
 
-      <ProofRow label="At soft close">
-        {totalAtClose !== null ? (
-          <span className="mono">
-            ~${totalAtClose.toLocaleString("en-US", { maximumFractionDigits: 0 })} USDC
-          </span>
-        ) : (
-          <span className="ct-text-muted">—</span>
-        )}
-      </ProofRow>
-
-      <ProofRow label="Lock-up">{vault.softLockupDays}d soft</ProofRow>
-
-      <ProofRow label="Fees">
-        <span className="text-right">
-          {mgmtFee.toFixed(2)}% mgmt · {perfFee.toFixed(0)}% perf
-          {hurdleFee ? ` · ${hurdleFee.toFixed(1)}% hurdle` : ""}
-        </span>
-      </ProofRow>
-
-      <p className="body-xs ct-text-faint mx-4 mb-4 mt-2 border-t ct-bc-soft pt-3 leading-relaxed">
-        Yield figures use the midpoint of the APY range — not a commitment of
-        future returns. Methodology v1.0.
-      </p>
+        <p className="body-xs ct-text-faint vault-disclaimer-inset leading-relaxed">
+          Yield figures use the midpoint of the APY range — not a commitment of
+          future returns. Methodology v1.0.
+        </p>
+      </div>
     </NestedPanel>
   );
 }

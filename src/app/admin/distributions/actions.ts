@@ -9,7 +9,10 @@ import { recordAdminAudit } from "@/lib/admin/audit";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { assertRateLimit } from "@/lib/rate-limit";
-import { executeDistributionAtomically } from "@/lib/distribution/atomic-exec";
+import {
+  AtomicExecError,
+  executeDistributionAtomically,
+} from "@/lib/distribution/atomic-exec";
 
 /** Admin distribution actions rate limit: 10 requests / 60s / admin. */
 const DIST_RATE_MAX = 10;
@@ -33,9 +36,6 @@ const ComputeSchema = z.object({
 
 const ConfirmSchema = z.object({
   period: PeriodSchema,
-  signerWallet: z
-    .string()
-    .regex(/^0x[a-fA-F0-9]{40}$/, "Must be a valid Ethereum address"),
   totalUsdc: z.number().positive(),
   vaultRef: VaultRefSchema,
 });
@@ -144,11 +144,24 @@ export async function computeDistribution(
 
 export async function confirmDistribution(
   period: string,
-  signerWallet: string,
   totalUsdc: number,
   vaultRef: string,
-): Promise<{ confirmed: boolean; signersCount: number; required: number }> {
+): Promise<{
+  confirmed: boolean;
+  signersCount: number;
+  required: number;
+  finisher?: "ok" | "failed";
+  distributionId?: string;
+}> {
   const admin = await requireAdmin();
+
+  // Identity binding (P1-A): the signer key is derived server-side from the
+  // authenticated admin — NEVER from a client-supplied parameter. walletAddress
+  // is null for admins (no Investor row), so this collapses to admin.userId.
+  // This mirrors the canonical multisig pattern in signApproval / signProposal,
+  // and makes @@unique([period, signerWallet]) de-dup per AUTHENTICATED ADMIN:
+  // one admin can no longer forge multiple distinct signers to reach quorum.
+  const signerKey = admin.walletAddress ?? admin.userId;
 
   try {
     await assertRateLimit(
@@ -160,7 +173,7 @@ export async function confirmDistribution(
     throw new Error("Too many requests");
   }
 
-  const parsed = ConfirmSchema.safeParse({ period, signerWallet, totalUsdc, vaultRef });
+  const parsed = ConfirmSchema.safeParse({ period, totalUsdc, vaultRef });
   if (!parsed.success) {
     throw new Error(`Invalid input: ${parsed.error.message}`);
   }
@@ -186,9 +199,10 @@ export async function confirmDistribution(
   });
 
   if (approvals.length === 0) {
-    // First signer: create approval and lock in the reference amount
+    // First signer: create approval and lock in the reference amount.
+    // signerWallet is the server-derived authenticated admin identity.
     await prisma.distributionApproval.create({
-      data: { period, signerWallet, totalUsdc },
+      data: { period, signerWallet: signerKey, totalUsdc },
     });
   } else {
     // Subsequent signer: reject if the submitted amount differs from reference
@@ -200,10 +214,12 @@ export async function confirmDistribution(
           `All signers must approve the same amount.`,
       );
     }
-    // Idempotent create — @@unique([period, signerWallet]) prevents duplicates
+    // Idempotent create — @@unique([period, signerWallet]) prevents duplicates.
+    // The unique key now de-dups per authenticated admin, so the same admin
+    // signing twice counts once toward the threshold.
     await prisma.distributionApproval
       .create({
-        data: { period, signerWallet, totalUsdc: reference },
+        data: { period, signerWallet: signerKey, totalUsdc: reference },
       })
       .catch(() => {
         /* already approved by this signer, ignore */
@@ -219,7 +235,7 @@ export async function confirmDistribution(
 
   logger.info("[distributions] confirm partial", {
     period,
-    signerWallet,
+    signerWallet: signerKey,
     signersCount,
     required: REQUIRED_SIGNERS,
   });
@@ -309,10 +325,14 @@ export async function confirmDistribution(
     // Kick off the atomic finisher (ledger entries + PCAP + status→executed +
     // Inngest email event). Runs OUTSIDE the transaction — atomic-exec opens its
     // own tx. Non-fatal: if it fails, the distribution stays "pending" and can
-    // be retried via the admin UI.
+    // be retried via retryDistributionFinisher from the admin UI. We surface the
+    // finisher status honestly so the caller can offer a retry instead of
+    // reporting a clean success while finalisation silently failed (P1-B).
+    let finisherStatus: "ok" | "failed" = "ok";
     try {
       await executeDistributionAtomically(distributionId);
     } catch (err) {
+      finisherStatus = "failed";
       logger.error(
         "[distributions] atomic finisher failed — distribution stays 'pending', retry via admin",
         { period, distributionId },
@@ -320,7 +340,13 @@ export async function confirmDistribution(
       );
     }
 
-    return { confirmed: true, signersCount, required: REQUIRED_SIGNERS };
+    return {
+      confirmed: true,
+      signersCount,
+      required: REQUIRED_SIGNERS,
+      finisher: finisherStatus,
+      distributionId,
+    };
   } catch (err) {
     // P0-3: lost the TOCTOU race — a concurrent confirmation already created the
     // Distribution for this (period, vaultRef) and the unique constraint fired.
@@ -339,5 +365,61 @@ export async function confirmDistribution(
     }
     logger.error("confirmDistribution failed", { period }, err);
     throw err;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// retryDistributionFinisher — re-run the atomic finisher for a distribution
+// whose confirm succeeded but whose finalisation (ledger / PCAP / status →
+// executed / Inngest emails) failed. Deliberately bypasses the confirm-time
+// "already confirmed" guard (that guard only protects the multisig confirm
+// flow); idempotency here is owned entirely by the finisher's own status guard
+// (it throws AtomicExecError NOT_PENDING for anything that is not "pending").
+// ---------------------------------------------------------------------------
+
+export async function retryDistributionFinisher(
+  distributionId: string,
+): Promise<
+  | { finisher: "ok" }
+  | { finisher: "failed"; message: string }
+> {
+  const admin = await requireAdmin();
+
+  try {
+    await assertRateLimit(
+      `admin:distributions:${admin.userId}`,
+      DIST_RATE_MAX,
+      DIST_RATE_WINDOW_MS,
+    );
+  } catch {
+    throw new Error("Too many requests");
+  }
+
+  try {
+    await executeDistributionAtomically(distributionId);
+    revalidatePath("/admin/distributions");
+    revalidatePath("/admin/proof-center");
+    return { finisher: "ok" };
+  } catch (err) {
+    // NOT_PENDING means the distribution was already finalised (or never
+    // pending) — treat as a friendly success-ish result rather than an error.
+    if (err instanceof AtomicExecError && err.code === "NOT_PENDING") {
+      logger.info(
+        "[distributions] retry finisher — distribution already finalised",
+        { distributionId },
+      );
+      revalidatePath("/admin/distributions");
+      revalidatePath("/admin/proof-center");
+      return { finisher: "ok" };
+    }
+    logger.error(
+      "[distributions] retry finisher failed",
+      { distributionId },
+      err instanceof Error ? err : undefined,
+    );
+    return {
+      finisher: "failed",
+      message: err instanceof Error ? err.message : "Finalisation retry failed.",
+    };
   }
 }

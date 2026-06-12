@@ -93,9 +93,7 @@
     grid-template-columns: repeat(6, 1fr);
   }
   .dash-cell.col-3 { grid-column: span 3; }
-    .dash-cell.col-4 {
-      grid-column: span 2;
-    }
+  .dash-cell.col-4 { grid-column: span 2; }
   .dash-cell.col-6 { grid-column: span 6; }
   .dash-cell.col-8 { grid-column: span 6; }
   .dash-cell.col-12 { grid-column: span 6; }
@@ -127,7 +125,7 @@
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-bold);
   color: var(--ct-text-muted);
-  letter-spacing: 0.08em;
+  letter-spacing: var(--ct-tracking-wider);
     margin-bottom: var(--ct-space-1_5);
   display: flex;
   justify-content: space-between;

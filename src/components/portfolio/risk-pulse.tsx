@@ -246,14 +246,14 @@ interface CompositeSectionProps {
 function CompositePendingRow() {
   return (
     <div
-      className="pf-risk-composite-pending mt-3 pt-3 border-t border-(--ct-border-soft) flex flex-col gap-1.5"
+      className="pf-risk-composite-pending"
       aria-label="Composite risk score not available; snapshot pending"
     >
-      <div className="flex items-baseline justify-between gap-2">
+      <div className="pf-risk-composite-pending__row">
         <span className="stat-label">Composite</span>
         <span className="pf-risk-composite-value tabular ct-text-faint">—</span>
       </div>
-      <div className="flex items-baseline justify-between gap-2">
+      <div className="pf-risk-composite-pending__row">
         <span className="body-xs ct-text-faint">30d trend</span>
         <span className="body-xs ct-text-faint tabular">Pending</span>
       </div>
@@ -285,7 +285,7 @@ function CompositeSection({
 
   return (
     <NestedPanel
-      className="pf-risk-composite mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:py-4"
+      className="pf-risk-composite"
       aria-label={ariaLabel}
     >
       <div className="flex items-baseline gap-2 min-w-0">
@@ -298,7 +298,7 @@ function CompositeSection({
         </span>
       </div>
 
-      <div className="flex flex-col items-start gap-1 min-w-0 sm:items-end sm:shrink-0">
+      <div className="pf-risk-composite__trail">
         <span
           className={cn(
             "body-xs font-semibold ct-tracking-wide",

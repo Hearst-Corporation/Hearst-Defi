@@ -29,7 +29,7 @@ const VAULT: VaultProduct = {
   targetStableReserveBps: 1000,
 };
 
-describe("ProductSelectCard — provenance badges", () => {
+describe("ProductSelectCard — DS layout + provenance", () => {
   it("renders strategy label visibly and provenance badges on metrics", () => {
     const html = renderToStaticMarkup(<ProductSelectCard vault={VAULT} />);
 
@@ -37,5 +37,29 @@ describe("ProductSelectCard — provenance badges", () => {
     expect(html).toContain(">Estimated</span>");
     expect(html).toContain(">Manual</span>");
     expect(html).toContain(">Live</span>");
+  });
+
+  it("uses container-query card classes — no md: width breakpoints", () => {
+    const html = renderToStaticMarkup(<ProductSelectCard vault={VAULT} />);
+
+    expect(html).toContain("vault-select-card");
+    expect(html).toContain("vault-select-card__main");
+    expect(html).toContain("vault-select-card__meta");
+    expect(html).toContain("product-doc-kpi-grid-2");
+    expect(html).not.toMatch(/md:(flex|w|hidden|block|gap)/);
+  });
+
+  it("renders APY as a range", () => {
+    const html = renderToStaticMarkup(<ProductSelectCard vault={VAULT} />);
+
+    expect(html).toContain("9.4");
+    expect(html).toContain("12.8");
+  });
+
+  it("links live vaults to detail page", () => {
+    const html = renderToStaticMarkup(<ProductSelectCard vault={VAULT} />);
+
+    expect(html).toContain('href="/vaults/hyv-a"');
+    expect(html).toContain("View details");
   });
 });

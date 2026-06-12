@@ -66,13 +66,13 @@ export function PfCockpitPanelHeader({
           title
         )}
         {subtitle ? (
-          <p className="pf-cockpit-panel__subtitle body-xs ct-text-faint m-0 mt-0.5 mono">
+          <p className="pf-cockpit-panel__subtitle body-xs ct-text-faint m-0 mono">
             {subtitle}
           </p>
         ) : null}
       </div>
       {trailing || provenance ? (
-        <div className="pf-cockpit-panel__header-trail flex items-center gap-1.5 shrink-0">
+        <div className="pf-cockpit-panel__header-trail">
           {trailing}
           {provenance ? <ProvenanceBadge kind={provenance} compact /> : null}
         </div>
@@ -95,7 +95,7 @@ export function PfCockpitSubhead({
     <div className={cn("pf-cockpit-panel__subhead", className)}>
       <span className="stat-label">{title}</span>
       {meta ? (
-        <span className="pf-cockpit-panel__subhead-meta body-xs ct-text-faint font-normal">
+        <span className="pf-cockpit-panel__subhead-meta tabular body-xs ct-text-faint font-normal">
           {meta}
         </span>
       ) : null}

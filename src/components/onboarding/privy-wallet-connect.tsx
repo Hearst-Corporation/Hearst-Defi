@@ -5,8 +5,15 @@
  */
 
 import { usePrivy, useConnectWallet, useWallets } from "@privy-io/react-auth";
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 
+import {
+  OnboardingChamber,
+  OnboardingChamberSole,
+  OnboardingRequirementsList,
+  useOnboardingShell,
+} from "@/components/onboarding/onboarding-chamber";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -70,13 +77,13 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
         <p
           className={cn(
             "mono tabular body-sm ct-text-strong m-0",
-            "rounded-md border border-[var(--ct-border-soft)] px-4 py-2",
+            "rounded-md ct-border-soft px-4 py-2",
           )}
         >
           {abbreviateAddress(address)}
         </p>
 
-        <p className="body-xs ct-text-faint text-pretty m-0">
+        <p className="body-xs ct-text-faint text-pretty m-0 ct-prose-narrow">
           This wallet will receive your monthly USDC distributions and act as
           the signing key for on-chain position management.
         </p>
@@ -101,7 +108,7 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
         Connect wallet
       </Button>
 
-      <p className="body-xs ct-text-faint text-pretty m-0">
+      <p className="body-xs ct-text-faint text-pretty m-0 ct-prose-narrow">
         Wallet binding is used solely for on-chain distribution delivery.
         No private keys are stored or transmitted.
       </p>
@@ -120,4 +127,77 @@ export function PrivyWalletConnect({ appId, boundAddress = null }: PrivyWalletCo
   }
 
   return <PrivyConnectInner boundAddress={boundAddress} />;
+}
+
+interface WalletChamberProps {
+  appId: string;
+  boundAddress: string | null;
+  walletBound: boolean;
+}
+
+/** Step 3 shell — Crown · Privy connect · Sole CTAs. */
+export function WalletChamber({
+  appId,
+  boundAddress,
+  walletBound,
+}: WalletChamberProps) {
+  const { checklist, irContact } = useOnboardingShell();
+
+  return (
+    <OnboardingChamber
+      testId="onboarding-wallet"
+      crown={
+        <div className="flex flex-col gap-[var(--ct-space-2)]">
+          <p className="eyebrow ct-text-muted m-0">Onboarding · Step 3 of 3</p>
+          <h1 className="h1 m-0">Connect your wallet</h1>
+          <p className="body-md ct-text-muted m-0 text-pretty ct-prose-md">
+            Link the wallet address that will receive your USDC distributions.
+            This wallet will also be the signing key for on-chain position
+            management.
+          </p>
+        </div>
+      }
+      body={
+        <>
+          <OnboardingRequirementsList items={checklist} />
+          <PrivyWalletConnect appId={appId} boundAddress={boundAddress} />
+        </>
+      }
+      sole={
+        <OnboardingChamberSole
+          irContact={irContact}
+          compliance={
+            <>
+              You can update your distribution wallet after onboarding via your{" "}
+              <Link href="/profile" className="ct-link-accent hover:underline">
+                Profile
+              </Link>{" "}
+              settings. Hearst Connect does not custody funds between deposit
+              and vault allocation.
+            </>
+          }
+          actions={
+            <div className="flex flex-col gap-[var(--ct-space-3)]">
+              <p className="body-sm ct-text-faint m-0 text-pretty text-center ct-prose-md">
+                Wallet binding is optional during onboarding. Connect above now
+                or link one later from{" "}
+                <Link href="/profile" className="ct-link-accent hover:underline">
+                  Profile
+                </Link>
+                .
+              </p>
+              <Button variant="primary" size="lg" asChild className="w-full font-bold">
+                <Link href="/portfolio">
+                  {walletBound ? "Continue to portfolio" : "Continue without wallet"}
+                </Link>
+              </Button>
+              <Button variant="ghost" size="md" asChild className="w-full">
+                <Link href="/onboarding/identity">← Back</Link>
+              </Button>
+            </div>
+          }
+        />
+      }
+    />
+  );
 }

@@ -24,13 +24,6 @@ const TYPE_LABELS: Record<string, string> = {
   distribution: "Payout",
 };
 
-/** Ghost rows for layout preview — shell visible at zero, not an empty-state swap. */
-const PREVIEW_ZERO_ROWS: { type: keyof typeof TYPE_LABELS }[] = [
-  { type: "deposit" },
-  { type: "distribution" },
-  { type: "withdraw" },
-];
-
 /** Returns a relative time string like "3 days ago", "1 month ago". */
 function relativeTime(date: Date, asOf: Date): string {
   const diffMs = asOf.getTime() - date.getTime();
@@ -88,7 +81,7 @@ export function RecentActivity({
     <PfCockpitPanel variant="wide" aria-label="Recent account activity">
       <PfCockpitPanelHeader title="Recent activity" provenance={provenance} />
 
-      <div className="flex flex-col gap-1">
+      <div className="pf-recent-activity-list">
           {displayed.length === 0 && !previewZeros ? (
             <EmptySurface
               variant="inline"
@@ -96,35 +89,21 @@ export function RecentActivity({
             />
           ) : null}
           {displayed.length === 0 && previewZeros ? (
-            <>
-              {PREVIEW_ZERO_ROWS.map((row) => (
-                <div
-                  key={row.type}
-                  className="flex items-center gap-3 py-2 border-b border-(--ct-border-soft) last:border-0 opacity-50"
-                  aria-hidden
-                >
-                  <TxIcon type={row.type} />
-                  <div className="flex-1 min-w-0">
-                    <div className="body-sm ct-text-muted font-semibold">
-                      {TYPE_LABELS[row.type]}
-                    </div>
-                    <div className="stat-label ct-text-faint mt-0.5 mono">—</div>
-                  </div>
-                  <span className="tabular body-md ct-text-faint mono font-semibold shrink-0">
-                    —
-                  </span>
-                </div>
-              ))}
-            </>
+            <div className="pf-recent-activity-empty" role="status">
+              <p className="body-sm ct-text-body font-medium m-0">No activity yet</p>
+              <p className="pf-recent-activity-empty__detail body-xs ct-text-faint m-0">
+                Deposits, payouts and withdrawals will appear here.
+              </p>
+            </div>
           ) : null}
           {displayed.map((tx) => (
             <div
               key={tx.id}
-              className="flex items-center gap-3 py-2 border-b border-(--ct-border-soft) last:border-0"
+              className="pf-recent-activity-row"
             >
               <TxIcon type={tx.type} />
 
-              <div className="flex-1 min-w-0 overflow-hidden">
+              <div className="pf-recent-activity-row__main">
                 <div className="body-sm ct-text-primary font-semibold truncate">
                   {TYPE_LABELS[tx.type] ?? tx.type}
                   {tx.positionVaultName && (
@@ -133,7 +112,7 @@ export function RecentActivity({
                     </span>
                   )}
                 </div>
-                <div className="stat-label ct-text-muted mt-0.5 mono truncate">
+                <div className="pf-recent-activity-row__time stat-label ct-text-muted mono truncate">
                   {relativeTime(tx.occurredAt, asOf)}
                 </div>
               </div>

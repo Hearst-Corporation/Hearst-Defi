@@ -7,7 +7,7 @@ export function PreviewModeChip({
   return (
     <span
       data-preview-chip
-      className="inline-flex items-center rounded-full border border-(--ct-border-soft) px-2.5 py-1 body-xs ct-text-faint uppercase ct-tracking-wide shrink-0"
+      className="pf-preview-mode-chip body-xs ct-text-faint uppercase ct-tracking-wide"
     >
       {label}
     </span>
@@ -21,15 +21,17 @@ export function PreviewModeChip({
 export function LayoutPreviewBanner() {
   return (
     <div
-      className="rounded-lg border border-(--ct-border-soft) px-4 py-3 ct-surface-1"
+      className="pf-layout-preview-banner ct-surface-1"
       role="note"
       data-testid="portfolio-layout-preview-banner"
     >
-      <p className="body-sm ct-text-muted m-0">
-        <span className="stat-label ct-text-accent mr-2">Layout preview</span>
+      <p className="pf-layout-preview-banner__copy body-sm ct-text-muted">
+        <span className="stat-label ct-text-accent">Layout preview</span>
+        <span>
         Portfolio structure shown at zero until your first active position.
         Projections are{" "}
         <strong className="ct-text-body font-medium">not guaranteed</strong>.
+        </span>
       </p>
     </div>
   );

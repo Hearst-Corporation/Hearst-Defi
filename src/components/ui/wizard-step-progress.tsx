@@ -15,7 +15,7 @@ interface WizardStepProgressProps<T extends string> {
 
 /**
  * Shared horizontal step indicator for multi-step flows (onboarding, invest).
- * Server Component — no interactivity.
+ * Crisp solid dots — no glow, no translucent accent-soft fill.
  */
 export function WizardStepProgress<T extends string>({
   steps,
@@ -34,7 +34,7 @@ export function WizardStepProgress<T extends string>({
       aria-valuemin={1}
       aria-valuemax={steps.length}
       aria-valuetext={`Step ${activeIndex} of ${steps.length}: ${activeStep?.label ?? ""}`}
-      className="flex w-full"
+      className="wizard-step-progress"
     >
       {steps.map((step, i) => {
         const isDone = step.index < activeIndex;
@@ -43,44 +43,37 @@ export function WizardStepProgress<T extends string>({
         const isLast = i === steps.length - 1;
 
         return (
-          <div
-            key={step.id}
-            className="relative flex flex-1 basis-0 min-w-0 flex-col items-center gap-1"
-          >
-            {!isFirst && (
+          <div key={step.id} className="wizard-step-progress__item">
+            {!isFirst ? (
               <span
                 aria-hidden="true"
                 className={cn(
-                  "absolute right-1/2 top-3.5 left-0 h-px rounded-full transition-colors",
+                  "wizard-step-progress__connector wizard-step-progress__connector--left",
                   isDone || isActive
-                    ? "bg-[var(--ct-accent)]"
-                    : "bg-[var(--ct-border-soft)]",
+                    ? "wizard-step-progress__connector--done"
+                    : "wizard-step-progress__connector--pending",
                 )}
               />
-            )}
-            {!isLast && (
+            ) : null}
+            {!isLast ? (
               <span
                 aria-hidden="true"
                 className={cn(
-                  "absolute left-1/2 top-3.5 right-0 h-px rounded-full transition-colors",
+                  "wizard-step-progress__connector wizard-step-progress__connector--right",
                   isDone
-                    ? "bg-[var(--ct-accent)]"
-                    : "bg-[var(--ct-border-soft)]",
+                    ? "wizard-step-progress__connector--done"
+                    : "wizard-step-progress__connector--pending",
                 )}
               />
-            )}
+            ) : null}
 
             <span
               aria-current={isActive ? "step" : undefined}
               className={cn(
-                "relative z-[var(--ct-z-base)] inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-semibold border transition-colors",
-                isDone &&
-                  "border-[var(--ct-border-accent)] bg-[var(--ct-accent)] ct-text-strong",
-                isActive &&
-                  "border-[var(--ct-border-accent)] bg-[var(--ct-accent-soft)] ct-text-accent shadow-[var(--ct-glow-subtle)]",
-                !isDone &&
-                  !isActive &&
-                  "border-[var(--ct-border-soft)] ct-surface-1 ct-text-muted",
+                "wizard-step-progress__dot",
+                isDone && "wizard-step-progress__dot--done",
+                isActive && "wizard-step-progress__dot--active",
+                !isDone && !isActive && "wizard-step-progress__dot--pending",
               )}
             >
               {isDone ? (
@@ -107,13 +100,11 @@ export function WizardStepProgress<T extends string>({
 
             <span
               className={cn(
-                "eyebrow font-medium whitespace-nowrap",
+                "wizard-step-progress__label eyebrow",
                 hideLabelsBelow === "sm" && "hidden sm:block",
-                isActive
-                  ? "ct-text-accent"
-                  : isDone
-                    ? "ct-text-primary"
-                    : "ct-text-muted",
+                isActive && "wizard-step-progress__label--active",
+                isDone && "wizard-step-progress__label--done",
+                !isDone && !isActive && "wizard-step-progress__label--pending",
               )}
             >
               {step.label}

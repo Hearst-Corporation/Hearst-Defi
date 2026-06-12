@@ -24,9 +24,6 @@ const STATUS_DOT_CLASS: Record<string, string> = {
   exited: "pf-status-dot--exited",
 };
 
-const ROW_GRID =
-  "grid grid-cols-[minmax(0,1fr)_minmax(4.5rem,auto)_minmax(4.5rem,auto)_minmax(5rem,auto)_minmax(5.5rem,auto)] gap-3 pb-2 border-b border-(--ct-border-soft) last:border-0 min-w-0";
-
 interface PositionsListProps {
   positions: PortfolioPosition[];
   source: "live" | "fallback";
@@ -68,7 +65,7 @@ export function PositionsList({
 
       <div className="flex flex-col gap-1 overflow-x-auto min-w-0">
           {/* Header row */}
-          <div className={cn("stat-label", ROW_GRID)}>
+          <div className={cn("stat-label", "pf-positions-row-grid")}>
             <span>Vault</span>
             <span className="text-right">Principal</span>
             <span className="text-right">Value</span>
@@ -91,7 +88,7 @@ export function PositionsList({
               <p className="pf-table-empty-title body-sm ct-text-muted font-semibold m-0">
                 No open positions yet
               </p>
-              <p className="pf-table-empty-copy body-xs ct-text-faint m-0 mt-1">
+              <p className="pf-table-empty-copy body-xs ct-text-faint m-0">
                 Your first confirmed deposit will appear here.
               </p>
             </div>
@@ -100,7 +97,7 @@ export function PositionsList({
           {positions.map((p) => (
             <div
               key={p.id}
-              className={cn(ROW_GRID, "items-center")}
+              className={cn("pf-positions-row-grid", "pf-positions-row-grid--body")}
             >
               {/* Vault name + status */}
               <div className="flex items-center gap-2 min-w-0">

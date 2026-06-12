@@ -37,7 +37,7 @@ export default function AccreditationPage() {
               Onboarding · Step 1 of 3
             </p>
             <h1 className="h1 m-0">Investor accreditation</h1>
-            <p className="body-md ct-text-muted m-0 text-pretty max-w-xl">
+            <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
               Hearst Yield Vault is offered exclusively to accredited investors
               under SEC Rule 506(c) and eligible participants under Cayman
               Islands law. Please confirm each statement below.

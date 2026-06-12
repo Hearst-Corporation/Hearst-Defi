@@ -111,6 +111,18 @@ guaranteed" sur toute projection.
 
 ## 9. Taxonomie des surfaces (Portfolio / Cockpit)
 
+Typographie portfolio (page `/portfolio`, source `portfolio.css`) :
+
+| Rôle | Classe | Token |
+|------|--------|-------|
+| Page title | `.h1` | `--ct-text-3xl` |
+| Section (live) | `.h2` | `--ct-text-xl` |
+| Panel label | `.pf-hero-rail-title` | `--ct-text-micro` |
+| Panel primary (chart, CTA) | `.pf-cockpit-panel__title--primary` | `--ct-text-sm` |
+| Subsection | `.pf-cockpit-panel__subhead` + `.stat-label` | micro |
+| KPI value | `.pf-hero-kpi-value` | `--ct-text-xl` |
+| Corps | `.body-sm` / `.body-xs` | sm / xs |
+
 Trois niveaux — hiérarchie cockpit, pas de verrou empty-vs-active :
 
 ### 9.1 Active module surface

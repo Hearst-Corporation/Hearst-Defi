@@ -46,7 +46,7 @@ export function PortfolioGreeting({ name, data }: PortfolioGreetingProps) {
       <h1 className="h1">
         Welcome back, <span className="pf-greeting-name">{name}</span>
       </h1>
-      <p className="pf-greeting-recap">{recap}</p>
+      <p className="pf-greeting-recap tabular">{recap}</p>
     </div>
   );
 }

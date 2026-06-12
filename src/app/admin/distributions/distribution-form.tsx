@@ -8,6 +8,7 @@ import { DistributionPreview } from "@/components/admin/distribution-preview";
 import {
   computeDistribution,
   confirmDistribution,
+  retryDistributionFinisher,
   type ComputeDistributionResult,
 } from "./actions";
 
@@ -50,13 +51,16 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
   const [preview, setPreview] = useState<ComputeDistributionResult | null>(
     null,
   );
-  const [signerWallet, setSignerWallet] = useState("");
   const [confirmResult, setConfirmResult] = useState<{
     confirmed: boolean;
     signersCount: number;
     required: number;
+    finisher?: "ok" | "failed";
+    distributionId?: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Set when a retried finalisation fails again.
+  const [retryError, setRetryError] = useState<string | null>(null);
   // Two-step confirmation gate
   const [awaitingConfirm, setAwaitingConfirm] = useState(false);
 
@@ -95,10 +99,6 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
 
   // Step 1 — review: show the confirmation recap Card
   function handleReview() {
-    if (!signerWallet.trim()) {
-      setError("Signer wallet is required to confirm.");
-      return;
-    }
     if (!preview) {
       setError("Run compute first.");
       return;
@@ -107,16 +107,18 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
     setAwaitingConfirm(true);
   }
 
-  // Step 2 — actual execution after explicit confirmation
+  // Step 2 — actual execution after explicit confirmation.
+  // The signer identity is derived server-side from the authenticated admin —
+  // no client-supplied wallet is sent or trusted.
   function handleConfirm() {
     setError(null);
+    setRetryError(null);
     setAwaitingConfirm(false);
 
     startTransition(async () => {
       try {
         const result = await confirmDistribution(
           period,
-          signerWallet.trim(),
           totalUsdcNum,
           selectedVault,
         );
@@ -126,6 +128,26 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : "Confirm failed.");
+      }
+    });
+  }
+
+  // Retry the atomic finisher when confirm succeeded but finalisation failed.
+  function handleRetryFinisher(distributionId: string) {
+    setRetryError(null);
+
+    startTransition(async () => {
+      try {
+        const result = await retryDistributionFinisher(distributionId);
+        if (result.finisher === "ok") {
+          setConfirmResult((prev) =>
+            prev ? { ...prev, finisher: "ok" } : prev,
+          );
+        } else {
+          setRetryError(result.message);
+        }
+      } catch (e) {
+        setRetryError(e instanceof Error ? e.message : "Retry failed.");
       }
     });
   }
@@ -231,23 +253,10 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
           {/* Multisig confirm */}
           {preview.recipients.length > 0 && (
             <div className="space-y-3">
-              <div className="space-y-1">
-                <label className="stat-label" htmlFor="dist-signer">
-                  Your signer wallet
-                </label>
-                <input
-                  id="dist-signer"
-                  type="text"
-                  value={signerWallet}
-                  onChange={(e) => {
-                    setSignerWallet(e.target.value);
-                    if (awaitingConfirm) setAwaitingConfirm(false);
-                  }}
-                  placeholder="0x…"
-                  className="ct-input w-full mono"
-                  disabled={isPending}
-                />
-              </div>
+              <p className="body-xs ct-text-muted">
+                Your multisig signature is recorded under your authenticated
+                admin identity. Two distinct admins must confirm the same amount.
+              </p>
 
               {confirmResult && !confirmResult.confirmed && (
                 <p className="body-xs ct-status-info-bg px-3 py-2 rounded-lg">
@@ -316,7 +325,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
                 <Button
                   variant="primary"
                   onClick={handleReview}
-                  disabled={isPending || !signerWallet.trim()}
+                  disabled={isPending}
                 >
                   Review distribution
                 </Button>
@@ -326,8 +335,8 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
         </>
       )}
 
-      {/* Confirmed */}
-      {confirmResult?.confirmed && (
+      {/* Confirmed — finaliser succeeded */}
+      {confirmResult?.confirmed && confirmResult.finisher !== "failed" && (
         <div className="ct-status-success-bg px-4 py-3 rounded-xl space-y-1">
           <p className="body-sm ct-status-success font-semibold">
             Distribution confirmed for period {period}.
@@ -338,6 +347,39 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
           </p>
         </div>
       )}
+
+      {/* Confirmed — but finalisation (ledger / PCAP / emails) failed */}
+      {confirmResult?.confirmed &&
+        confirmResult.finisher === "failed" &&
+        confirmResult.distributionId && (
+          <div className="ct-status-warning-bg px-4 py-3 rounded-xl space-y-3">
+            <div className="space-y-1">
+              <p className="body-sm ct-status-warning font-semibold">
+                Confirmed, but finalisation (ledger / PCAP / emails) failed —
+                retry below.
+              </p>
+              <p className="body-xs ct-text-muted">
+                The distribution for period {period} stays pending until
+                finalisation completes. Investor ledger entries and PCAP have
+                not been generated yet.
+              </p>
+            </div>
+            {retryError && (
+              <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-lg">
+                {retryError}
+              </p>
+            )}
+            <Button
+              variant="primary"
+              onClick={() =>
+                handleRetryFinisher(confirmResult.distributionId!)
+              }
+              disabled={isPending}
+            >
+              {isPending ? "Retrying…" : "Retry finalisation"}
+            </Button>
+          </div>
+        )}
     </div>
   );
 }

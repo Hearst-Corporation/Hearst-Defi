@@ -127,7 +127,7 @@ export function PersonaEmbed({
   }
 
   return (
-    <div className={cn("flex flex-col gap-3", className)}>
+    <div className={cn("flex flex-col gap-[var(--ct-space-3)]", className)}>
       <Button
         type="button"
         variant="primary"

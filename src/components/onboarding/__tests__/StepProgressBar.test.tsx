@@ -41,4 +41,13 @@ describe("StepProgressBar", () => {
     const html = renderToStaticMarkup(<StepProgressBar active="wallet" />);
     expect(html).toContain('aria-valuenow="3"');
   });
+
+  it("uses DS wizard-step-progress classes without inline glow utilities", () => {
+    const html = renderToStaticMarkup(<StepProgressBar active="identity" />);
+    expect(html).toContain("wizard-step-progress");
+    expect(html).toContain("wizard-step-progress__dot--active");
+    expect(html).not.toContain("shadow-");
+    expect(html).not.toContain("ct-glow");
+    expect(html).not.toContain("accent-soft");
+  });
 });

@@ -8,6 +8,7 @@
 import { useState, useTransition } from "react";
 
 import { attestAccreditation } from "@/app/actions/accreditation";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const ATTESTATIONS = [
   {
@@ -91,7 +92,7 @@ export function AccreditationAttestationFields({
   const { allChecked, attestError, toggle, isChecked } = state;
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="product-doc-stack">
       <fieldset
         className="border-none p-0 m-0"
         aria-label="Accreditation attestations"
@@ -100,32 +101,19 @@ export function AccreditationAttestationFields({
           Please confirm all three attestations to proceed
         </legend>
 
-        <div className="flex flex-col gap-3">
-          {ATTESTATIONS.map(({ id, label }) => {
-            const checked = isChecked(id);
-            return (
-              <label
-                key={id}
-                htmlFor={`attest-${id}`}
-                className="flex items-start gap-3 cursor-pointer group"
-              >
-                <input
-                  id={`attest-${id}`}
-                  type="checkbox"
-                  name={id}
-                  checked={checked}
-                  onChange={() => {
-                    toggle(id);
-                  }}
-                  className="mt-0.5 w-4 h-4 shrink-0 rounded accent-[var(--ct-accent)] cursor-pointer"
-                  aria-checked={checked}
-                />
-                <span className="body-sm ct-text-body leading-relaxed group-hover:ct-text-primary transition-colors">
-                  {label}
-                </span>
-              </label>
-            );
-          })}
+        <div className="product-doc-stack--actions">
+          {ATTESTATIONS.map(({ id, label }) => (
+            <Checkbox
+              key={id}
+              id={`attest-${id}`}
+              name={id}
+              checked={isChecked(id)}
+              onChange={() => toggle(id)}
+              labelClassName="leading-relaxed"
+            >
+              {label}
+            </Checkbox>
+          ))}
         </div>
       </fieldset>
 

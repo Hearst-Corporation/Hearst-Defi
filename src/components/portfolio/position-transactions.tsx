@@ -5,6 +5,7 @@
 import type { PositionDetailTransaction } from "@/lib/data/portfolio";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { explorerTxUrl } from "@/lib/chain/client";
+import { cn } from "@/lib/cn";
 
 const usdSigned = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -65,10 +66,10 @@ export function PositionTransactions({
   return (
     <section
       aria-label="Transaction history"
-      className="flex flex-col gap-4 rounded-xl border border-(--ct-border-soft) ct-surface-1 px-6 py-5"
+      className="position-detail-transactions"
     >
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="position-detail-transactions__head">
         <span className="eyebrow ct-text-muted">
           Transaction history
         </span>
@@ -77,7 +78,7 @@ export function PositionTransactions({
 
       {/* Visual filter chips — decorative only, not interactive */}
       <div
-        className="flex gap-2 flex-wrap"
+        className="position-detail-transactions__chips"
         aria-hidden="true"
       >
         {chips.map((c) => (
@@ -137,7 +138,10 @@ export function PositionTransactions({
 
                     {/* Amount — green for incoming (deposit), muted for outgoing */}
                     <td
-                      className={`tabular body-md py-2 pr-4 text-right mono font-semibold whitespace-nowrap ${incoming ? "ct-status-success" : "ct-text-primary"}`}
+                      className={cn(
+                        "tabular body-md py-2 pr-4 text-right mono font-semibold whitespace-nowrap",
+                        incoming ? "ct-status-success" : "ct-text-primary",
+                      )}
                     >
                       {incoming ? "+" : ""}
                       {usdSigned.format(tx.amountUsdc)}

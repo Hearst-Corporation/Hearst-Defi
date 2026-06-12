@@ -23,7 +23,6 @@ export function StepProgress({ active }: StepProgressProps) {
       steps={STEPS}
       active={active}
       ariaLabel="Invest flow progress"
-      hideLabelsBelow="sm"
     />
   );
 }

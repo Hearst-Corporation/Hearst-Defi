@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 interface CopyAddressButtonProps {
   address: string;
@@ -12,13 +12,14 @@ interface CopyAddressButtonProps {
  */
 export function CopyAddressButton({ address }: CopyAddressButtonProps) {
   const [copied, setCopied] = useState(false);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(address);
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
       setCopied(true);
-      const timer = setTimeout(() => setCopied(false), 2000);
-      return () => clearTimeout(timer);
+      resetTimerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       // Clipboard API unavailable (non-https / permissions denied) — silent.
     }
@@ -28,7 +29,7 @@ export function CopyAddressButton({ address }: CopyAddressButtonProps) {
     <button
       type="button"
       onClick={handleCopy}
-      className="body-xs ct-text-muted border border-[var(--ct-border-soft)] rounded-sm px-2 py-1 hover:ct-text-primary hover:border-[var(--ct-border-strong)] transition-colors shrink-0"
+      className="ct-copy-chip"
       aria-label="Copy vault contract address"
     >
       {copied ? "Copied" : "copy"}

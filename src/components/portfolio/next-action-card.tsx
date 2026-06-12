@@ -134,16 +134,16 @@ export function NextActionCard(props: NextActionCardProps) {
       aria-label="Next step"
       className="pf-next-action-card"
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-        <div className="flex max-w-3xl flex-col gap-1">
+      <div className="pf-next-action-card__layout">
+        <div className="pf-next-action-card__copy">
           <span className="pf-panel-title">{step.eyebrow}</span>
           <p className="pf-cockpit-panel__title--primary m-0">{step.headline}</p>
           {step.detail ? (
-            <p className="body-sm ct-text-muted max-w-prose m-0">{step.detail}</p>
+            <p className="body-sm ct-text-muted m-0">{step.detail}</p>
           ) : null}
         </div>
         {step.cta ? (
-          <div className="shrink-0">
+          <div className="pf-next-action-card__cta">
             <Button variant="primary" size="lg" asChild>
               <Link href={step.cta.href}>{step.cta.label}</Link>
             </Button>

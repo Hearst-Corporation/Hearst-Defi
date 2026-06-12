@@ -70,7 +70,7 @@ export function HeroPayoutRail({
         />
       </div>
 
-      <p className="pf-hero-rail-meta m-0">{metaText}</p>
+      <p className="pf-hero-rail-meta tabular m-0">{metaText}</p>
     </HeroRailGroup>
   );
 }

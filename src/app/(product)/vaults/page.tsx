@@ -16,14 +16,9 @@ export default async function VaultsPage() {
     <InvestFlowShell
       step="select"
       title="Select a product"
-      description={
-        <span className="max-w-xl">
-          Professional-grade structured yield for qualified investors. Review the
-          term sheet and confirm before depositing.
-        </span>
-      }
+      description="Professional-grade structured yield for qualified investors. Review the term sheet and confirm before depositing."
       footer={
-        <p className="body-xs ct-text-faint max-w-3xl">
+        <p className="body-xs ct-text-faint ct-prose-xl">
           Products listed are offered exclusively to professional and qualified
           investors. Past performance does not indicate future results. APY
           ranges are not a projection of returns. Subject to minimum

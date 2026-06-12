@@ -57,7 +57,7 @@ export function PositionKpis({ position }: PositionKpisProps) {
   return (
     <section
       aria-label="Position metrics"
-      className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 items-start"
+      className="position-detail-kpis"
     >
       {/* 1 — Principal */}
       <Metric

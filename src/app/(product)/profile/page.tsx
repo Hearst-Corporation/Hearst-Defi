@@ -58,13 +58,16 @@ export default async function ProfilePage() {
   const kycRejected = kycStatus === "rejected";
 
   return (
-    <div className="product-doc space-y-8" data-testid="profile-page">
+    <div
+      className="prof-shell product-doc-shell w-full min-w-0"
+      data-testid="profile-page"
+    >
       {showDemoBanner ? <DemoDataBanner /> : null}
 
       <ProductPageHeader
         eyebrow="Investor profile"
         title={profileDisplayName(session.email)}
-        description={<span className="mono tabular-nums">{session.email}</span>}
+        description={session.email}
         actions={
           <Badge variant={session.role === "admin" ? "default" : "accent"}>
             {session.role === "admin" ? "Admin" : "Investor"}
@@ -205,7 +208,7 @@ export default async function ProfilePage() {
       </div>
 
       <footer>
-        <p className="body-xs ct-text-faint prof-disclaimer">
+        <p className="body-xs ct-text-faint ct-prose-xl prof-disclaimer">
           Profile information reflects your investor account status. Product
           eligibility depends on accreditation, KYC approval, and jurisdictional
           restrictions.

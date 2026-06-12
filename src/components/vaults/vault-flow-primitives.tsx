@@ -15,8 +15,8 @@ export function VaultFlowSection({
   className?: string;
 }) {
   return (
-    <section aria-labelledby={id} className={cn("flex flex-col gap-3", className)}>
-      <div className="flex flex-wrap items-end justify-between gap-2">
+    <section aria-labelledby={id} className={cn("product-doc-section", className)}>
+      <div className="product-doc-section__head">
         <h2 id={id} className="h2">
           {title}
         </h2>
@@ -37,8 +37,8 @@ export function VaultPanelHeader({
   trailing?: ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between border-b ct-bc-soft px-4 py-3">
-      <div className="flex flex-col gap-0.5">
+    <div className="vault-panel-header">
+      <div className="vault-panel-header__stack">
         {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
         <h3 className="h3 ct-text-body">{title}</h3>
       </div>
@@ -50,14 +50,76 @@ export function VaultPanelHeader({
 export function VaultKpiCell({
   label,
   children,
+  valueClassName,
 }: {
   label: string;
   children: React.ReactNode;
+  valueClassName?: string;
 }) {
   return (
-    <div className="flex min-w-0 flex-col gap-0.5">
+    <div className="ct-metric-nested">
       <span className="stat-label">{label}</span>
-      <span className="h4 tabular mono ct-text-strong">{children}</span>
+      <span
+        className={cn(
+          "h4 tabular mono ct-text-strong ct-metric-nested__value",
+          valueClassName,
+        )}
+      >
+        {children}
+      </span>
     </div>
   );
+}
+
+/** Label / value row inside a vault-panel-body (confirmed, detail panels). */
+export function VaultDetailRow({
+  label,
+  value,
+  action,
+}: {
+  label: string;
+  value: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="vault-panel-row">
+      <div className="vault-panel-row__stack">
+        <span className="eyebrow ct-text-muted">{label}</span>
+        <span className="body-sm tabular mono ct-text-primary">{value}</span>
+      </div>
+      {action ? <div className="shrink-0">{action}</div> : null}
+    </div>
+  );
+}
+
+/** Accent inline action link inside vault panels (explorer, calendar, etc.). */
+export function VaultPanelLink({
+  href,
+  children,
+  className,
+  ...rest
+}: React.ComponentProps<"a">) {
+  return (
+    <a
+      {...rest}
+      href={href}
+      className={cn(
+        "body-xs ct-text-accent-strong font-medium no-underline hover:underline",
+        className,
+      )}
+    >
+      {children}
+    </a>
+  );
+}
+
+/** Inset block inside vault-panel-body (soft-lock bar, multi-line fields). */
+export function VaultPanelInsetBlock({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <div className={cn("vault-panel-inset-block", className)}>{children}</div>;
 }

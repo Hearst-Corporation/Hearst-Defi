@@ -63,12 +63,12 @@ function AllocationTargetRow({
   const dotTone = allocationDashToneFor(bucket);
 
   return (
-    <div className="flex gap-3 border-b ct-bc-soft py-3 last:border-0">
+    <div className="vault-allocation-row">
       <span
         aria-hidden
         className={cn("dash-legend-dot mt-1 shrink-0", `dot-${dotTone}`)}
       />
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+      <div className="vault-allocation-row__body">
         <div className="min-w-0">
           <p className="body-sm font-semibold ct-text-primary">
             {ALLOCATION_LABELS[bucket]}
@@ -94,7 +94,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
     vault.currentAumUsdc > 0 ? ("live" as const) : ("manual" as const);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="product-doc-stack">
       <VaultFlowSection
         id="sec-glance"
         title="At a glance"
@@ -142,8 +142,8 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
           </div>
         }
       >
-        <NestedPanel className="flex flex-col gap-5">
-          <div className="flex flex-col gap-3">
+        <NestedPanel className="product-doc-stack">
+          <div className="product-doc-section">
             <p className="body-sm ct-text-muted">{MODEL_B_ONELINER}</p>
             <div className="flex flex-wrap gap-2">
               <Badge variant="brand">Mining-backed</Badge>
@@ -154,7 +154,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
 
           <div>
             <h3 className="h3 mb-2">Target allocation</h3>
-            <div className="px-1">
+            <div>
               {ALLOCATION_BUCKETS.map((bucket) => (
                 <AllocationTargetRow
                   key={bucket}
@@ -167,7 +167,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
 
           <div>
             <h3 className="h3 mb-2">Regime scenarios</h3>
-            <p className="body-xs ct-text-muted mb-3 max-w-2xl">
+            <p className="body-xs ct-text-muted mb-3 ct-prose-lg">
               Stress postures from Methodology v1.0 (Bull / Bear). Base case =
               target allocation above. Conditional — not a projection of future
               returns.

@@ -32,20 +32,30 @@ export function HeroLiquidityRail({
   const { progressPct, unlockDate, daysRemaining, isUnlocked } =
     computeLockMeter(lockStart, softLockupDays, effectiveAsOf);
 
-  const progressRounded = Math.round(progressPct);
-  const progressLabel = termsUnknown
-    ? "Lock terms unavailable until share-class data is wired."
-    : `Lockup progress: ${progressRounded}% — ${
-        isUnlocked
-          ? "fully unlocked"
-          : `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} remaining of ${softLockupDays}`
-      }`;
+  const progressRounded = showZeroShell ? 0 : Math.round(progressPct);
+  const fillPct = showZeroShell ? 0 : progressPct;
 
-  const metaText = termsUnknown
-    ? "Terms pending"
-    : isUnlocked
-      ? "Unlocked · Now"
-      : `${daysRemaining}d left · Unlock ${unlockDateFmt.format(unlockDate)}`;
+  const progressLabel = showZeroShell
+    ? termsUnknown
+      ? "Lock terms unavailable until share-class data is wired."
+      : "Liquidity terms pending until an active position is available."
+    : termsUnknown
+      ? "Lock terms unavailable until share-class data is wired."
+      : `Lockup progress: ${progressRounded}% — ${
+          isUnlocked
+            ? "fully unlocked"
+            : `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} remaining of ${softLockupDays}`
+        }`;
+
+  const metaText = showZeroShell
+    ? termsUnknown
+      ? "Terms pending"
+      : "60-day soft lock shown after deposit"
+    : termsUnknown
+      ? "Terms pending"
+      : isUnlocked
+        ? "Unlocked · Now"
+        : `${daysRemaining}d left · Unlock ${unlockDateFmt.format(unlockDate)}`;
 
   return (
     <HeroRailGroup title="Liquidity" aria-label="Liquidity status">
@@ -60,13 +70,15 @@ export function HeroLiquidityRail({
         <div
           className={cn(
             "pf-progress-fill",
-            isUnlocked ? "pf-progress-fill--success" : "pf-progress-fill--accent",
+            !showZeroShell && isUnlocked
+              ? "pf-progress-fill--success"
+              : "pf-progress-fill--accent",
           )}
-          style={{ width: `${progressPct}%` }}
+          style={{ width: `${fillPct}%` }}
         />
       </div>
 
-      <p className="pf-hero-rail-meta m-0">{metaText}</p>
+      <p className="pf-hero-rail-meta tabular m-0">{metaText}</p>
 
       {!isUnlocked &&
       earlyExitPenaltyBps !== undefined &&

@@ -20,7 +20,6 @@ const SIGNAL_RATE_WINDOW_MS = 60_000;
 
 const ApproveSchema = z.object({
   eventId: z.string().min(1),
-  signerWallet: z.string().min(1),
 });
 
 const RejectSchema = z.object({
@@ -42,11 +41,14 @@ const REQUIRED_SIGNERS = 2;
 // approveRebalance
 // ---------------------------------------------------------------------------
 
-export async function approveRebalance(
-  eventId: string,
-  signerWallet: string,
-): Promise<void> {
+export async function approveRebalance(eventId: string): Promise<void> {
   const admin = await requireAdmin();
+
+  // Signer identity is derived server-side from the authenticated admin — NEVER
+  // a client-supplied value. walletAddress is null for admins (no Investor row),
+  // so this collapses to admin.userId. The quorum counts DISTINCT AUTHENTICATED
+  // ADMINS, mirroring signApproval() in src/app/admin/vaults/actions.ts.
+  const signerKey = admin.walletAddress ?? admin.userId;
 
   try {
     await assertRateLimit(
@@ -58,7 +60,7 @@ export async function approveRebalance(
     throw new Error("Too many requests");
   }
 
-  const parsed = ApproveSchema.safeParse({ eventId, signerWallet });
+  const parsed = ApproveSchema.safeParse({ eventId });
   if (!parsed.success) {
     throw new Error(`Invalid input: ${parsed.error.message}`);
   }
@@ -81,16 +83,16 @@ export async function approveRebalance(
       throw new Error("Invalid approvedBy format");
     }
 
-    // Idempotent: skip if signer already present
-    if (currentSigners.includes(signerWallet)) {
+    // Idempotent: skip if this admin already signed
+    if (currentSigners.includes(signerKey)) {
       logger.info("[signals] signer already present — idempotent", {
         eventId,
-        signerWallet,
+        signerKey,
       });
       return;
     }
 
-    const updatedSigners = [...currentSigners, signerWallet];
+    const updatedSigners = [...currentSigners, signerKey];
     const thresholdReached = updatedSigners.length >= REQUIRED_SIGNERS;
 
     const before = { status: event.status, approvedBy: event.approvedBy };
@@ -132,7 +134,7 @@ export async function approveRebalance(
 
     logger.info("[signals] approve", {
       eventId,
-      signerWallet,
+      signerKey,
       signersCount: updatedSigners.length,
       thresholdReached,
       newStatus: updated.status,

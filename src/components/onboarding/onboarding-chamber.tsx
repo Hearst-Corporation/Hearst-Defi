@@ -75,17 +75,15 @@ export function OnboardingRequirementsList({
 }) {
   return (
     <NestedCallout aria-label="Onboarding requirements">
-      <p className="eyebrow ct-text-muted m-0 mb-3">Requirements</p>
+      <p className="eyebrow ct-text-muted m-0 mb-[var(--ct-space-3)]">Requirements</p>
       <ul className="m-0 flex flex-col gap-[var(--ct-space-2_5)] p-0 list-none">
         {items.map((item) => (
           <li key={item.id} className="flex items-start gap-[var(--ct-space-2_5)]">
             <span
               aria-hidden
               className={cn(
-                "mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
-                item.done
-                  ? "border-[var(--ct-border-accent)] bg-[var(--ct-accent)] ct-text-deep"
-                  : "border-[var(--ct-border-soft)] ct-text-muted",
+                "ct-checklist-dot",
+                item.done ? "ct-checklist-dot--done" : undefined,
               )}
             >
               {item.done ? (
@@ -132,7 +130,7 @@ export function OnboardingChamberSole({
   actions?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-[var(--ct-space-4)]">
       {actions}
 
       <p className="body-xs ct-text-faint m-0 text-pretty text-center">
@@ -144,7 +142,7 @@ export function OnboardingChamberSole({
           Questions?{" "}
           <a
             href={`mailto:${irContact.email}`}
-            className="text-[var(--ct-accent-strong)] no-underline hover:underline"
+            className="ct-link-accent hover:underline"
           >
             {irContact.name}
           </a>
@@ -155,7 +153,7 @@ export function OnboardingChamberSole({
                 href={irContact.calendlyHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[var(--ct-accent-strong)] no-underline hover:underline"
+                className="ct-link-accent hover:underline"
               >
                 Schedule a call
               </a>

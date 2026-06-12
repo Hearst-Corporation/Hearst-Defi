@@ -127,19 +127,16 @@ export function YieldStack({
       />
 
       {/* Visual bar stack */}
-      <div
-        className="flex flex-col gap-2"
-        aria-hidden="true"
-        role="presentation"
-      >
+      <div className="flex flex-col gap-2">
         {sources.map((s) => {
-          const widthPct = barWidthPct(s.contributionPct, maxAbsPct);
+          const widthPct = showZeroShell
+            ? 0
+            : barWidthPct(s.contributionPct, maxAbsPct);
           const color = BUCKET_COLOR[s.bucket];
-          const contribution = formatContribution(
-            s.contributionPct,
-            s.isVolatile ?? false,
-          );
-          const isNegative = s.contributionPct < 0;
+          const contribution = showZeroShell
+            ? "—"
+            : formatContribution(s.contributionPct, s.isVolatile ?? false);
+          const isNegative = !showZeroShell && s.contributionPct < 0;
 
           return (
             <div key={s.bucket} className="yield-stack-row">
@@ -148,7 +145,7 @@ export function YieldStack({
                 <span
                   className={cn(
                     "body-xs min-w-0 truncate",
-                    s.isVolatile
+                    !showZeroShell && s.isVolatile
                       ? "ct-status-warning"
                       : "ct-text-body",
                   )}
@@ -158,11 +155,13 @@ export function YieldStack({
                 <span
                   className={cn(
                     "tabular body-xs font-medium",
-                    isNegative
-                      ? "ct-status-danger"
-                      : s.isVolatile
-                        ? "ct-status-warning"
-                        : "ct-text-strong",
+                    showZeroShell
+                      ? "ct-text-faint"
+                      : isNegative
+                        ? "ct-status-danger"
+                        : s.isVolatile
+                          ? "ct-status-warning"
+                          : "ct-text-strong",
                   )}
                 >
                   {contribution}
@@ -172,6 +171,7 @@ export function YieldStack({
               {/* Bar track */}
               <div
                 className="relative h-1.5 rounded-full overflow-hidden ct-surface-2"
+                aria-hidden="true"
               >
                 <div
                   className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-(--ct-dur-base)"
@@ -196,10 +196,17 @@ export function YieldStack({
               Blended fwd range
             </dt>
             <dd
-              className="tabular font-semibold ct-text-primary"
-              aria-label={`Blended forward range ${rangeLow.toFixed(1)} to ${rangeHigh.toFixed(1)} percent`}
+              className={cn(
+                "tabular font-semibold",
+                showZeroShell ? "ct-text-faint" : "ct-text-primary",
+              )}
+              aria-label={
+                showZeroShell
+                  ? "Blended forward range pending"
+                  : `Blended forward range ${rangeLow.toFixed(1)} to ${rangeHigh.toFixed(1)} percent`
+              }
             >
-              {rangeLow.toFixed(1)}–{rangeHigh.toFixed(1)}%
+              {showZeroShell ? "—" : `${rangeLow.toFixed(1)}–${rangeHigh.toFixed(1)}%`}
             </dd>
           </div>
 
@@ -209,16 +216,23 @@ export function YieldStack({
               Stressed (bear) <span className="text-micro opacity-70">(proxy)</span>
             </dt>
             <dd
-              className="tabular font-medium ct-status-warning"
-              aria-label={`Stressed bear scenario ${stressedLow.toFixed(1)} to ${stressedHigh.toFixed(1)} percent`}
+              className={cn(
+                "tabular font-medium",
+                showZeroShell ? "ct-text-faint" : "ct-status-warning",
+              )}
+              aria-label={
+                showZeroShell
+                  ? "Stressed bear scenario pending"
+                  : `Stressed bear scenario ${stressedLow.toFixed(1)} to ${stressedHigh.toFixed(1)} percent`
+              }
             >
-              {stressedLow.toFixed(1)}–{stressedHigh.toFixed(1)}%
+              {showZeroShell ? "—" : `${stressedLow.toFixed(1)}–${stressedHigh.toFixed(1)}%`}
             </dd>
           </div>
         </dl>
 
       {!showZeroShell ? (
-        <p className="mt-auto pt-2 body-xs ct-text-faint m-0" role="note">
+        <p className="pf-panel-footnote body-xs ct-text-faint" role="note">
           Conditional projection — not guaranteed ·{" "}
           {methodologyVersion.startsWith("v")
             ? methodologyVersion

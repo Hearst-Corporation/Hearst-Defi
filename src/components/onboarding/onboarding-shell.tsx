@@ -21,7 +21,8 @@ export function OnboardingShell({
   irContact,
   children,
 }: OnboardingShellProps) {
-  const showStepper = activeStep !== "accreditation";
+  const showStepper =
+    activeStep !== "accreditation" && activeStep !== "identity";
 
   return (
     <OnboardingShellProvider
@@ -41,9 +42,11 @@ export function OnboardingShell({
             />
           </header>
 
-          <div className="onboarding-shell__stage product-doc">
+          <div className="onboarding-shell__stage product-doc product-doc-shell">
             {showStepper ? (
-              <StepProgressBar active={activeStep} />
+              <div className="onboarding-shell__stepper">
+                <StepProgressBar active={activeStep} />
+              </div>
             ) : null}
             {children}
           </div>

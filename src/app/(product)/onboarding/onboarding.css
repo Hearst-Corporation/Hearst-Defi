@@ -12,7 +12,7 @@
   position: relative;
   z-index: var(--ct-z-base);
   display: flex;
-  width: min(100%, 42rem);
+  width: min(100%, var(--ct-prose-lg));
   flex-direction: column;
   gap: var(--ct-space-8);
   margin-inline: auto;
@@ -39,12 +39,14 @@
   display: block;
 }
 
+/* Layout + container queries: product-doc-shell (product-doc.css) */
 .onboarding-shell__stage {
-  display: flex;
   width: 100%;
-  flex-direction: column;
-  gap: var(--ct-space-8);
-  min-width: 0;
+}
+
+.onboarding-shell__stepper {
+  width: 100%;
+  padding-top: var(--ct-space-2);
 }
 
 /* ── Institutional Chamber ── */
@@ -65,11 +67,6 @@
   .onboarding-chamber.ct-glass-panel {
     border-radius: var(--ct-radius-xl);
   }
-}
-
-/* Quiet stepper — no glow on active step dots */
-.onboarding-chamber nav[role="progressbar"] [aria-current="step"] {
-  box-shadow: none;
 }
 
 .onboarding-chamber__crown,

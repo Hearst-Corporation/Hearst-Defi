@@ -24,14 +24,11 @@ export function SecurityPulse({
     <PfCockpitPanel variant="compact" aria-label="Security audit">
       <PfCockpitPanelHeader title="Security audit" />
 
-      <ul
-        className="flex flex-col gap-2"
-        aria-label="Security audit checklist"
-      >
+      <ul className="pf-checklist-list" aria-label="Security audit checklist">
         {AUDIT_ROWS.map((row) => (
-          <li key={row.label} className="flex items-center justify-between gap-2">
+          <li key={row.label} className="pf-checklist-row">
             <span className="body-sm ct-text-muted">{row.label}</span>
-            <span className="inline-flex items-center gap-1.5 body-xs ct-text-faint">
+            <span className="pf-checklist-row__status body-xs ct-text-faint">
               <span
                 className="pf-status-dot pf-status-dot--default opacity-50"
                 aria-hidden
@@ -43,7 +40,7 @@ export function SecurityPulse({
       </ul>
 
       {!previewZeros ? (
-        <p className="body-xs ct-text-faint mt-auto pt-2 m-0">
+        <p className="pf-panel-footnote body-xs ct-text-faint">
           Live status after account verification.
         </p>
       ) : null}

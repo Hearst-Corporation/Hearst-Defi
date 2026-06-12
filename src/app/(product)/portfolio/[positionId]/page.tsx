@@ -32,19 +32,21 @@ export default async function PositionDetailPage({ params }: PageProps) {
   if (!position) notFound();
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto w-full">
+    <div className="position-detail-shell product-doc-shell product-doc-shell--cap">
       <PositionHeader position={position} />
       <PositionKpis position={position} />
       <PositionActions position={position} />
       <PositionTransactions transactions={position.transactions} source={position.source} />
 
       {/* Disclaimer — non-negotiable #10 */}
-      <p className="body-xs ct-text-faint max-w-3xl">
-        APY ranges are target projections based on stated assumptions — they are
-        not a commitment of future returns. Accrued yield figures are indicative
-        and subject to change based on vault conditions and Methodology v1.0.
-        Past performance does not predict future results.
-      </p>
+      <footer className="product-doc-footer-rule">
+        <p className="position-detail-disclaimer body-xs ct-text-faint">
+          APY ranges are target projections based on stated assumptions — they are
+          not a commitment of future returns. Accrued yield figures are indicative
+          and subject to change based on vault conditions and Methodology v1.0.
+          Past performance does not predict future results.
+        </p>
+      </footer>
     </div>
   );
 }

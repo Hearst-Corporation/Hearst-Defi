@@ -74,7 +74,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
 
   if (!hasData) {
     return (
-      <div className="space-y-2">
+      <div className="vault-chart-stack">
         <div
           className="ct-chart-empty-box"
           role="img"
@@ -137,7 +137,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
   const axisMonths = [0, 6, 12, 18, 24].filter((m) => m < totalPts);
 
   return (
-    <div className="space-y-2">
+    <div className="vault-chart-stack">
       <div
         className="ct-chart-box-160"
       >

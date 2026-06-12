@@ -3,7 +3,12 @@
 /*
  * Profile — space-y-8 + dash-bento. Card material: global glass-panel graphite
  * (cockpit.css). Empty investment summary: ct-empty-surface (DS §9).
+ *
+ * Responsive: container queries on .prof-shell (centre panel width), aligned with
+ * product-doc invest-flow + portfolio pf-container — not ad-hoc viewport caps.
  */
+
+/* Container queries: inherits product-doc-shell from page root */
 
 /* ── Empty investment summary — stretch awaiting surface in bento row ── */
 [data-testid="profile-page"] .dash-bento > .bento-col-6 {
@@ -16,12 +21,27 @@
   width: 100%;
 }
 
+/* Chat-compressed centre panel — stack bento before viewport 1280/768 kicks in */
+@container product-doc (max-width: 55rem) {
+  .prof-shell .dash-bento {
+    grid-template-columns: 1fr;
+  }
+
+  .prof-shell .dash-bento > .bento-col-4,
+  .prof-shell .dash-bento > .bento-col-6,
+  .prof-shell .dash-bento > .bento-col-8,
+  .prof-shell .dash-bento > .bento-col-12 {
+    grid-column: span 1;
+  }
+}
+
 .prof-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--ct-space-2);
   margin-bottom: var(--ct-space-4);
+  min-width: 0;
 }
 
 .prof-card-header .h3 {
@@ -33,7 +53,6 @@
 }
 
 .prof-disclaimer {
-  max-width: 70ch;
   margin: 0;
   font-style: italic;
 }
@@ -70,7 +89,7 @@
 
 .prof-security-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--ct-space-4);
   padding: var(--ct-space-2_5) 0;
   border-bottom: var(--ct-space-px) solid var(--ct-border-soft);
@@ -85,6 +104,7 @@
   height: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
   flex-shrink: 0;
+  margin-top: var(--ct-space-1_5);
 }
 
 .prof-security-dot--off {
@@ -106,6 +126,18 @@
 
 .prof-security-action {
   flex-shrink: 0;
+}
+
+@container product-doc (max-width: 40rem) {
+  .prof-security-row {
+    flex-wrap: wrap;
+    gap: var(--ct-space-2) var(--ct-space-4);
+  }
+
+  .prof-security-action {
+    width: 100%;
+    padding-left: calc(var(--ct-space-2) + var(--ct-space-4));
+  }
 }
 
 .prof-signout {

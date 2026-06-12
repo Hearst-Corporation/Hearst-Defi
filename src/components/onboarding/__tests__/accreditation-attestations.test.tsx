@@ -19,6 +19,15 @@ const INITIAL_STATE: AccreditationAttestationState = {
   handleContinue: () => {},
 };
 
+const ALL_CHECKED_STATE: AccreditationAttestationState = {
+  allChecked: true,
+  isPending: false,
+  attestError: null,
+  toggle: () => {},
+  isChecked: () => true,
+  handleContinue: () => {},
+};
+
 describe("AccreditationAttestationFields — static / initial state", () => {
   it("renders exactly 3 checkbox inputs", () => {
     const html = renderToStaticMarkup(
@@ -53,5 +62,41 @@ describe("AccreditationAttestationFields — static / initial state", () => {
     expect(html).toContain('id="attest-rule-506c"');
     expect(html).toContain('for="attest-cayman-pif"');
     expect(html).toContain('for="attest-not-guaranteed"');
+  });
+
+  it("uses DS Checkbox — sr-only input + ct-checkbox visual", () => {
+    const html = renderToStaticMarkup(
+      <AccreditationAttestationFields state={INITIAL_STATE} />,
+    );
+    expect(html).toContain('class="sr-only"');
+    expect(html).toContain("ct-checkbox");
+    expect(html).not.toContain("accent-[var(--ct-accent)]");
+  });
+
+  it("renders ct-checkbox__box--checked on checked boxes", () => {
+    const html = renderToStaticMarkup(
+      <AccreditationAttestationFields state={ALL_CHECKED_STATE} />,
+    );
+    const checkedMatches = html.match(/ct-checkbox__box--checked/g);
+    expect(checkedMatches).not.toBeNull();
+    expect(checkedMatches?.length).toBe(3);
+  });
+
+  it("renders attestError when present", () => {
+    const html = renderToStaticMarkup(
+      <AccreditationAttestationFields
+        state={{ ...INITIAL_STATE, attestError: "Authentication required." }}
+      />,
+    );
+    expect(html).toContain("Authentication required.");
+    expect(html).toContain('role="alert"');
+  });
+
+  it("includes APY range disclaimer (not single point)", () => {
+    const html = renderToStaticMarkup(
+      <AccreditationAttestationFields state={INITIAL_STATE} />,
+    );
+    expect(html).toContain("8–15%");
+    expect(html).toContain("not a commitment of future returns");
   });
 });
