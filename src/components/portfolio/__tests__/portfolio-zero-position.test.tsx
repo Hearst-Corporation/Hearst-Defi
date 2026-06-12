@@ -15,6 +15,7 @@ import { ValueChart } from "@/components/portfolio/value-chart";
 import { YieldStack } from "@/components/portfolio/yield-stack";
 import { AllocationDonut } from "@/components/portfolio/allocation-donut";
 import { PositionsList } from "@/components/portfolio/positions-list";
+import { RiskPulse } from "@/components/portfolio/risk-pulse";
 import {
   ZERO_YIELD_STACK,
   zeroLockMeterProps,
@@ -119,6 +120,33 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     );
     expect(html).toContain("pf-progress-track");
     expect(html).not.toContain("ct-empty-surface--widget");
+  });
+
+  it("RiskPulse previewZeros: pending dimensions, light composite row, no fake score", () => {
+    const html = renderToStaticMarkup(
+      <RiskPulse
+        scores={[
+          { dimension: "market", score: 0, delta30d: 0 },
+          { dimension: "mining", score: 0, delta30d: 0 },
+          { dimension: "liquidity", score: 0, delta30d: 0 },
+          { dimension: "smart_contract", score: 0, delta30d: 0 },
+          { dimension: "counterparty", score: 0, delta30d: 0 },
+        ]}
+        composite={0}
+        compositeLabel={undefined}
+        composite30dTrend="stable"
+        previewZeros
+      />,
+    );
+    expect(html).toContain("Snapshot pending");
+    expect(html).toContain("Pending");
+    expect(html).toContain("pf-risk-composite-pending");
+    expect(html).toContain("pf-risk-composite-value");
+    expect(html).not.toContain("pf-hero-kpi-value");
+    expect(html).not.toContain("Awaiting snapshot");
+    expect(html).not.toContain(">N/A<");
+    expect(html).not.toContain(">42<");
+    expect(html).not.toContain("ct-nested-panel pf-risk-composite");
   });
 
   it("PositionsList previewZeros: table header + clear empty row, no ghost dashes", () => {

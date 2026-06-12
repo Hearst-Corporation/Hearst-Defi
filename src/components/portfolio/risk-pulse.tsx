@@ -187,15 +187,20 @@ function ScoreRow({ item, unavailable = false }: ScoreRowProps) {
 
   if (unavailable) {
     return (
-      <li
-        role="group"
-        aria-labelledby={rowId}
-        className="flex items-center justify-between gap-2 py-2 border-t border-(--ct-border-soft) first:border-t-0"
-      >
-        <span id={rowId} className="body-sm ct-text-muted">
+      <li role="group" aria-labelledby={rowId} className="pf-risk-row">
+        <span id={rowId} className="body-sm min-w-0 truncate ct-text-muted">
           {label}
         </span>
-        <span className="body-sm ct-text-faint">N/A</span>
+        <span
+          className="body-sm ct-text-faint text-right tabular"
+          aria-label={`${label} score pending`}
+        >
+          Pending
+        </span>
+        <span aria-hidden />
+        <span className="body-xs ct-text-faint text-right" aria-hidden>
+          —
+        </span>
       </li>
     );
   }
@@ -238,31 +243,46 @@ interface CompositeSectionProps {
   noData: boolean;
 }
 
+function CompositePendingRow() {
+  return (
+    <div
+      className="pf-risk-composite-pending mt-3 pt-3 border-t border-(--ct-border-soft) flex flex-col gap-1.5"
+      role="status"
+      aria-label="Composite risk score not available; snapshot pending"
+    >
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="stat-label">Composite</span>
+        <span className="pf-risk-composite-value tabular ct-text-faint">—</span>
+      </div>
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="body-xs ct-text-faint">30d trend</span>
+        <span className="body-xs ct-text-faint tabular">Pending</span>
+      </div>
+    </div>
+  );
+}
+
 function CompositeSection({
   composite,
   compositeLabel,
   trend,
   noData,
 }: CompositeSectionProps) {
-  const trendIcon = noData
-    ? "pending"
-    : trend === "rising"
+  if (noData) {
+    return <CompositePendingRow />;
+  }
+
+  const trendIcon =
+    trend === "rising"
       ? "▲ rising"
       : trend === "falling"
         ? "▼ falling"
         : "━━ stable";
 
-  const ariaLabel = noData
-    ? "Composite risk score not available, no data"
-    : `Composite risk score ${String(composite)} out of 100, ${compositeLabel ?? "unknown"}, 30-day trend ${trend}`;
+  const ariaLabel = `Composite risk score ${String(composite)} out of 100, ${compositeLabel ?? "unknown"}, 30-day trend ${trend}`;
 
-  const valueColor = noData
-    ? "ct-text-faint"
-    : compositeLabelColor(compositeLabel as CompositeLabel);
-
-  const labelColor = noData
-    ? "ct-text-faint"
-    : compositeLabelColor(compositeLabel as CompositeLabel);
+  const valueColor = compositeLabelColor(compositeLabel as CompositeLabel);
+  const labelColor = compositeLabelColor(compositeLabel as CompositeLabel);
 
   return (
     <NestedPanel
@@ -273,15 +293,10 @@ function CompositeSection({
       <div className="flex items-baseline gap-2 min-w-0">
         <span className="stat-label shrink-0">Composite</span>
         <span
-          className={cn(
-            "pf-hero-kpi-value tabular leading-none",
-            valueColor,
-          )}
+          className={cn("pf-risk-composite-value tabular leading-none", valueColor)}
         >
-          {noData ? "Awaiting" : composite}
-          <span className="body-xs font-medium ct-text-faint">
-            {noData ? "" : " / 100"}
-          </span>
+          {composite}
+          <span className="body-xs font-medium ct-text-faint"> / 100</span>
         </span>
       </div>
 
@@ -292,7 +307,7 @@ function CompositeSection({
             labelColor,
           )}
         >
-          {noData ? "Awaiting snapshot" : compositeLabel}
+          {compositeLabel}
         </span>
         <span className="body-xs ct-text-faint">
           30d trend{" "}
@@ -350,6 +365,12 @@ export function RiskPulse({
         }
         provenance={badgeKind}
       />
+
+      {compositeUnavailable ? (
+        <p className="body-xs ct-text-faint m-0" role="status">
+          Snapshot pending
+        </p>
+      ) : null}
 
       <ul aria-label="Risk dimension scores">
         {scores.map((item) => (

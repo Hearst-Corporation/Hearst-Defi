@@ -284,6 +284,15 @@
   align-items: flex-start;
 }
 
+.pf-risk-composite-value {
+  font-family: var(--font-sans);
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-tight);
+  line-height: var(--ct-leading-tight);
+  font-variant-numeric: tabular-nums;
+}
+
 .pf-tx-icon {
   display: inline-block;
   width: var(--ct-space-4);
