@@ -1,11 +1,10 @@
 import Link from "next/link";
 
-import { Badge } from "@/components/ui/badge";
 import { NestedCallout, NestedPanel, ProofRow } from "@/components/ui/nested-panel";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
+  PfCockpitSubhead,
 } from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
 
@@ -193,28 +192,28 @@ export function ProofPulse({
           rows that fake an active widget. */}
       {hasData ? (
         <section aria-label="Last Proof of Reserves">
-          <h3 className="h3 mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            Last PoR
-            <time
-              dateTime={formatIso(timestamp)}
-              className="body-xs ct-text-faint font-normal"
-            >
-              {formatDateHuman(timestamp)} · {formatTimeUtc(timestamp)}
-            </time>
-          </h3>
+          <PfCockpitSubhead
+            className="mb-2"
+            title="Last PoR"
+            meta={
+              <time dateTime={formatIso(timestamp)}>
+                {formatDateHuman(timestamp)} · {formatTimeUtc(timestamp)}
+              </time>
+            }
+          />
 
           <NestedPanel>
             <ProofRow label="Vault TVL">{formatUsdc(statedTvlUsdc)}</ProofRow>
 
             <ProofRow label="On-chain">
-              <span className="inline-flex items-center justify-end gap-2">
-                {formatUsdc(onChainTvlUsdc)}
+              <span className="pf-proof-row__stack">
+                <span>{formatUsdc(onChainTvlUsdc)}</span>
                 {indicator !== null ? (
                   <span
                     role="status"
                     aria-label={indicator.label}
                     className={cn(
-                      "body-sm font-semibold leading-none select-none",
+                      "pf-proof-row__meta body-xs font-semibold leading-none select-none",
                       indicator.colorClass,
                     )}
                   >
@@ -236,12 +235,12 @@ export function ProofPulse({
           <p className="body-sm ct-text-primary font-semibold">
             {state === "pending"
               ? "On-chain proof is being reconciled."
-              : "No attestation has been published yet."}
+              : "No vault attestation yet."}
           </p>
           <p className="body-xs ct-text-muted mt-1">
             {state === "pending"
               ? "Vault TVL is available, but the on-chain confirmation has not landed."
-              : "The first proof will appear here once vault activity is attested."}
+              : "PoR publish appears here once vault TVL is attested on-chain."}
           </p>
         </NestedCallout>
       )}
@@ -250,40 +249,53 @@ export function ProofPulse({
           A bare "— + Manual" is not data; we omit the whole section rather than
           render an empty-looking methodology. */}
       {hasMethodologyData && (
-        <section aria-label="Methodology" className="mt-6">
-          <h3 className="h3 mb-3">Methodology</h3>
+        <section aria-label="Methodology" className="mt-4">
+          <PfCockpitSubhead className="mb-2" title="Methodology" />
 
           <NestedPanel>
             {methodologyVersion ? (
               <ProofRow label="Version">
-                <span className="inline-flex items-center justify-end gap-2">
+                <span className="pf-proof-row__stack">
                   <span className="ct-text-primary">{methodologyVersion}</span>
-                  <ProvenanceBadge kind="attested" />
-                  {methodologyLocked && (
-                    <Badge variant="default" aria-label="Methodology is locked">
-                      locked
-                    </Badge>
-                  )}
+                  <span className="pf-proof-row__meta body-xs ct-text-faint">
+                    Methodology attested
+                    {methodologyLocked ? (
+                      <span
+                        className="uppercase ct-tracking-wide"
+                        aria-label="Methodology is locked"
+                      >
+                        {" "}
+                        · locked
+                      </span>
+                    ) : null}
+                  </span>
                 </span>
               </ProofRow>
             ) : null}
 
             {nextAttestation !== null ? (
               <ProofRow label="Next attest">
-                <time dateTime={formatIso(nextAttestation)}>
+                <time
+                  dateTime={formatIso(nextAttestation)}
+                  className="pf-proof-row__datetime"
+                >
                   {formatDateHuman(nextAttestation)} ·{" "}
                   {formatTimeUtc(nextAttestation)}
                 </time>
               </ProofRow>
             ) : null}
 
-            {auditor ? <ProofRow label="Auditor">{auditor}</ProofRow> : null}
+            {auditor ? (
+              <ProofRow label="Auditor">
+                <span className="pf-proof-row__truncate">{auditor}</span>
+              </ProofRow>
+            ) : null}
           </NestedPanel>
         </section>
       )}
 
       {/* ── CTA ────────────────────────────────────────────────────────────── */}
-      <div className="mt-auto pt-6 flex justify-end">
+      <div className="mt-auto pt-3 flex justify-end">
         <Link
           href={proofCenterHref}
           className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-(--ct-border)"

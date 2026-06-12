@@ -101,7 +101,12 @@ export function shouldShowCompactPeriodLabel(index: number): boolean {
   return (COMPACT_LABEL_INDICES as readonly number[]).includes(index);
 }
 
-const COMPACT_RAIL_H = 3;
+/** Compact zero-state canvas — cropped to axis + quarter labels only (not VB_H). */
+const COMPACT_VB_H = 48;
+const COMPACT_AXIS_Y = 28;
+const COMPACT_TICK_SHORT = 4;
+const COMPACT_TICK_QUARTER = 8;
+const COMPACT_LABEL_Y = 42;
 
 // ── SVG component ─────────────────────────────────────────────────────────────
 
@@ -139,12 +144,13 @@ function BarChart({
       "Payout calendar — 12-month forecast timeline, no payout history yet";
     const firstBx = barX(0, n, BAR_W, GAP);
     const lastBx = barX(n - 1, n, BAR_W, GAP);
+    const axisEnd = lastBx + BAR_W;
 
     return (
       <svg
-        viewBox={`0 0 ${VB_W} ${VB_H}`}
-        preserveAspectRatio="xMidYMid meet"
-        className="w-full max-h-44"
+        viewBox={`0 0 ${VB_W} ${COMPACT_VB_H}`}
+        preserveAspectRatio="xMidYMin meet"
+        className="pf-distrib-chart pf-distrib-chart--compact w-full"
         role="img"
         aria-label={compactTitle}
       >
@@ -152,9 +158,9 @@ function BarChart({
 
         <line
           x1={firstBx}
-          y1={BAR_AREA_BOT}
-          x2={lastBx + BAR_W}
-          y2={BAR_AREA_BOT}
+          y1={COMPACT_AXIS_Y}
+          x2={axisEnd}
+          y2={COMPACT_AXIS_Y}
           stroke="var(--ct-border-soft)"
           strokeWidth="1"
           aria-hidden="true"
@@ -162,29 +168,37 @@ function BarChart({
 
         {entries.map((entry, i) => {
           const bx = barX(i, n, BAR_W, GAP);
-          const by = BAR_AREA_BOT - COMPACT_RAIL_H;
           const cx = bx + BAR_W / 2;
+          const isCurrent = entry.period === currentPeriod;
+          const isQuarter = shouldShowCompactPeriodLabel(i);
+          const tickH = isCurrent
+            ? COMPACT_TICK_QUARTER + 2
+            : isQuarter
+              ? COMPACT_TICK_QUARTER
+              : COMPACT_TICK_SHORT;
           const periodLabel = formatPeriod(entry.period, refYear);
+          const tickStroke = isCurrent
+            ? "var(--ct-accent)"
+            : "var(--ct-border-soft)";
 
           return (
             <g key={i} aria-hidden="true">
-              <rect
-                x={bx}
-                y={by}
-                width={BAR_W}
-                height={COMPACT_RAIL_H}
-                fill="var(--ct-border-soft)"
-                opacity="0.85"
-                rx="1"
+              <line
+                x1={cx}
+                y1={COMPACT_AXIS_Y - tickH}
+                x2={cx}
+                y2={COMPACT_AXIS_Y}
+                stroke={tickStroke}
+                strokeWidth={isCurrent || isQuarter ? 1.5 : 1}
+                strokeOpacity={isCurrent ? 1 : isQuarter ? 1 : 0.65}
               />
-              {shouldShowCompactPeriodLabel(i) ? (
+              {isQuarter ? (
                 <text
                   x={cx}
-                  y={LABEL_Y}
+                  y={COMPACT_LABEL_Y}
                   textAnchor="middle"
-                  fontSize="8"
                   fill="var(--ct-text-muted)"
-                  fontFamily="var(--font-mono)"
+                  className="pf-distrib-chart__period"
                 >
                   {periodLabel}
                 </text>
@@ -202,7 +216,7 @@ function BarChart({
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
       preserveAspectRatio="xMidYMid meet"
-      className="w-full max-h-44"
+      className="pf-distrib-chart w-full max-h-44"
       role="img"
       aria-labelledby={titleId}
     >
@@ -262,9 +276,8 @@ function BarChart({
               x={cx}
               y={by - 4}
               textAnchor="middle"
-              fontSize="6"
               fill="var(--ct-status-warning)"
-              fontFamily="var(--font-mono)"
+              className="pf-distrib-chart__estimate"
               aria-hidden="true"
             >
               [Estimate]
@@ -314,9 +327,8 @@ function BarChart({
               <text
                 x={cx + BAR_W / 2 + 2}
                 y={by + bh / 2 + 2}
-                fontSize="7"
                 fill="var(--ct-accent)"
-                className="ct-donut-slice-glow"
+                className="pf-distrib-chart__marker ct-donut-slice-glow"
                 aria-hidden="true"
               >
                 ◀
@@ -328,9 +340,8 @@ function BarChart({
               x={cx}
               y={LABEL_Y}
               textAnchor="middle"
-              fontSize="7"
               fill={isCurrent ? "var(--ct-accent)" : "var(--ct-text-muted)"}
-              fontFamily="var(--font-mono)"
+              className="pf-distrib-chart__period"
               aria-hidden="true"
             >
               {periodLabel}
@@ -341,9 +352,8 @@ function BarChart({
               x={cx}
               y={AMOUNT_Y}
               textAnchor="middle"
-              fontSize="6.5"
               fill="var(--ct-text-primary)"
-              fontFamily="var(--font-mono)"
+              className="pf-distrib-chart__amount"
               aria-hidden="true"
             >
               {amountLabel}
@@ -387,7 +397,11 @@ export function DistribCalendar({
     <PfCockpitPanel variant="compact" aria-label="Payout calendar">
       <PfCockpitPanelHeader
         title="Payout calendar"
-        subtitle={`12m · USDC${hasForecast ? " · forecast" : ""}`}
+        subtitle={
+          previewZeros
+            ? "12m · USDC · $0 est. forecast"
+            : `12m · USDC${hasForecast ? " · forecast" : ""}`
+        }
         provenance={badgeKind}
       />
 
@@ -399,10 +413,6 @@ export function DistribCalendar({
           compactPreview={previewZeros}
         />
       </div>
-
-      {previewZeros ? (
-        <p className="body-xs ct-text-muted pt-1">No payout history yet</p>
-      ) : null}
 
       {/* Footer — share class + cadence. Rendered only when at least one is
           known, so an empty widget doesn't show a "— / —" stub. */}

@@ -46,9 +46,12 @@ Documenter dans un ADR toute exception token/primitive nouvelle.
 
 **Grille investisseur (`product-bento.css`)** : `.dash-bento` / `.bento-col-*` ;
 material via `Card`, `ProductSection`, `ModuleChrome`. `portfolio.css` = layout
-scopé `.pf-container` (spacing, reflow `@container pf` 880px, secondary widgets
-`pf-cockpit-panel` / hero rail graphite, chart seul en `card-premium`
-`pf-value-chart`, sections preview aplaties).
+scopé `.pf-container` (spacing, reflow `@container pf` 880px, typo roles
+`pf-hero-rail-title` / `pf-cockpit-panel__title--primary` / `pf-hero-kpi-value`,
+secondary `pf-cockpit-panel`, chart seul en `card-premium` `pf-value-chart`).
+Section **Activity & Payouts** : `bento-col-8` activity + `bento-col-4` calendar
+(compact timeline ~48px de haut — tient en sidebar ; stack `@container pf` ≤880px).
+Titres panels : `.pf-panel-title` (alias de `.pf-hero-rail-title` hors hero).
 
 ### Source de vérité du design system
 

@@ -16,10 +16,10 @@ describe("Hero rail — native layout at zero", () => {
       <HeroPayoutRail {...zeroTimeToCashProps(PREVIEW_AS_OF)} previewZeros />,
     );
     expect(html).toContain("pf-hero-rail-group--payout");
-    expect(html).toContain("$0 USDC");
+    expect(html).toContain("—");
+    expect(html).not.toContain("$0 USDC");
     expect(html).toContain("pf-progress-track");
     expect(html).toContain("Cycle pending · Pending");
-    expect(html).toContain("After first active position.");
     expect(html).not.toContain("ModuleChrome");
     expect(html).not.toContain("Next distribution");
     expect(html).not.toContain("Projection pending");

@@ -92,8 +92,8 @@ export function PositionsList({
                 <span className="pf-status-dot pf-status-dot--default" aria-hidden />
                 <span className="body-md ct-text-muted truncate">—</span>
               </div>
-              <span className="tabular body-md text-right ct-text-faint">$0</span>
-              <span className="tabular body-md text-right ct-text-faint">$0</span>
+              <span className="tabular body-md text-right ct-text-faint">—</span>
+              <span className="tabular body-md text-right ct-text-faint">—</span>
               <span className="body-xs text-right ct-text-faint">—</span>
               <span className="body-xs tabular text-right ct-text-faint">—</span>
             </div>

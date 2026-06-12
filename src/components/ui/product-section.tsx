@@ -17,6 +17,10 @@ export interface ProductSectionProps {
    * preview = ct-section-preview frame at zero — no verified-data chrome.
    */
   variant?: "active" | "preview";
+  /** Preview section lead copy. Pass `false` to omit (e.g. when a page banner already explains preview). */
+  previewLead?: string | false;
+  /** When false, omit preview eyebrow + title (page banner carries preview context). */
+  showPreviewHead?: boolean;
   children: ReactNode;
   className?: string;
   "data-section"?: string;
@@ -28,6 +32,8 @@ export function ProductSection({
   provenance,
   showProvenance = true,
   variant = "active",
+  previewLead = PREVIEW_LEAD,
+  showPreviewHead = true,
   children,
   className,
   "data-section": dataSection,
@@ -35,16 +41,25 @@ export function ProductSection({
   if (variant === "preview") {
     return (
       <section
-        className={cn("ct-section-preview", className)}
+        className={cn(
+          "ct-section-preview",
+          !showPreviewHead && "ct-section-preview--content-only",
+          className,
+        )}
         data-section={dataSection}
+        aria-label={showPreviewHead ? undefined : title}
       >
-        <div className="ct-product-section__preview-head">
-          <span className="eyebrow ct-text-faint">Preview</span>
-          <h2 className="h2">{title}</h2>
-          <p className="body-sm ct-text-muted ct-product-section__preview-lead">
-            {PREVIEW_LEAD}
-          </p>
-        </div>
+        {showPreviewHead ? (
+          <div className="ct-product-section__preview-head">
+            <span className="eyebrow ct-text-faint">Preview</span>
+            <h2 className="h2">{title}</h2>
+            {previewLead !== false ? (
+              <p className="body-sm ct-text-muted ct-product-section__preview-lead">
+                {previewLead}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
         <div className="ct-product-section__content">{children}</div>
       </section>
     );

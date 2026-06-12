@@ -46,11 +46,14 @@ export default function PortfolioLoading() {
         </div>
       </div>
 
-      <div className="dash-bento pf-secondary-grid" data-section="activity-payouts">
+      <div
+        className="dash-bento pf-secondary-grid pf-activity-payouts-grid"
+        data-section="activity-payouts"
+      >
         <div className="bento-col-8 pf-cockpit-slot min-h-40">
           <Skeleton className="pf-cockpit-panel h-full w-full" />
         </div>
-        <div className="bento-col-4 pf-cockpit-slot min-h-40">
+        <div className="bento-col-4 pf-cockpit-slot min-h-28">
           <Skeleton className="pf-cockpit-panel h-full w-full" />
         </div>
       </div>

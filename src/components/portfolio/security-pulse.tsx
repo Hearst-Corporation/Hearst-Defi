@@ -29,17 +29,15 @@ export function SecurityPulse({
         aria-label="Security audit checklist"
       >
         {AUDIT_ROWS.map((row) => (
-          <li key={row.label} className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between gap-2">
-              <span className="body-sm ct-text-muted">{row.label}</span>
-              <span className="body-xs ct-text-faint tabular">{row.status}</span>
-            </div>
-            <div className="pf-progress-track" aria-hidden>
-              <div
-                className="pf-progress-fill pf-progress-fill--accent"
-                style={{ width: "0%" }}
+          <li key={row.label} className="flex items-center justify-between gap-2">
+            <span className="body-sm ct-text-muted">{row.label}</span>
+            <span className="inline-flex items-center gap-1.5 body-xs ct-text-faint">
+              <span
+                className="pf-status-dot pf-status-dot--default opacity-50"
+                aria-hidden
               />
-            </div>
+              {row.status}
+            </span>
           </li>
         ))}
       </ul>

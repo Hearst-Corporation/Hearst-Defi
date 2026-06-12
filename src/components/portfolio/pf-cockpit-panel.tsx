@@ -5,6 +5,8 @@ import { cn } from "@/lib/cn";
 
 export type PfCockpitPanelVariant = "wide" | "compact" | "table";
 
+export type PfCockpitTitleVariant = "rail" | "primary";
+
 /** Flat graphite panel — same surface family as the hero rail sidebar. */
 export function PfCockpitPanel({
   variant = "wide",
@@ -33,23 +35,33 @@ export function PfCockpitPanel({
   );
 }
 
-/** Rail-style panel title — uppercase micro label, optional provenance. */
+function panelTitleClass(variant: PfCockpitTitleVariant): string {
+  return variant === "primary"
+    ? "pf-cockpit-panel__title--primary"
+    : "pf-panel-title";
+}
+
+/** Panel title — rail (micro uppercase) or primary (sm semibold, chart / CTA). */
 export function PfCockpitPanelHeader({
   title,
   subtitle,
   provenance,
   trailing,
+  titleVariant = "rail",
 }: {
   title: ReactNode;
   subtitle?: string;
   provenance?: Provenance;
   trailing?: ReactNode;
+  titleVariant?: PfCockpitTitleVariant;
 }) {
+  const titleClass = panelTitleClass(titleVariant);
+
   return (
     <header className="pf-cockpit-panel__header">
       <div className="min-w-0">
         {typeof title === "string" ? (
-          <h3 className="pf-hero-rail-title">{title}</h3>
+          <h3 className={titleClass}>{title}</h3>
         ) : (
           title
         )}
@@ -66,5 +78,27 @@ export function PfCockpitPanelHeader({
         </div>
       ) : null}
     </header>
+  );
+}
+
+/** Subsection label inside a cockpit panel (stat-label scale, not h3). */
+export function PfCockpitSubhead({
+  title,
+  meta,
+  className,
+}: {
+  title: string;
+  meta?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("pf-cockpit-panel__subhead", className)}>
+      <span className="stat-label">{title}</span>
+      {meta ? (
+        <span className="pf-cockpit-panel__subhead-meta body-xs ct-text-faint font-normal">
+          {meta}
+        </span>
+      ) : null}
+    </div>
   );
 }

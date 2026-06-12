@@ -2,18 +2,23 @@ import { cn } from "@/lib/cn";
 
 export function Card({
   className,
+  hoverOverlay = true,
+  children,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: React.HTMLAttributes<HTMLDivElement> & { hoverOverlay?: boolean }) {
   return (
     <div
       className={cn(
-        "ct-card glass-panel relative overflow-hidden group",
+        "ct-card glass-panel relative overflow-hidden",
+        hoverOverlay && "group",
         className,
       )}
       {...props}
     >
-      <div className="absolute inset-0 ct-overlay-surface0 opacity-0 group-hover:opacity-100 ct-transition-opacity-slow pointer-events-none" />
-      <div className="relative ct-z-base">{props.children}</div>
+      {hoverOverlay ? (
+        <div className="absolute inset-0 ct-overlay-surface0 opacity-0 group-hover:opacity-100 ct-transition-opacity-slow pointer-events-none" />
+      ) : null}
+      <div className="relative ct-z-base">{children}</div>
     </div>
   );
 }

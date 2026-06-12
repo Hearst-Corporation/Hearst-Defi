@@ -118,6 +118,8 @@ export default async function PortfolioPage() {
         provenance={portfolioProvenance}
         showProvenance={hasPositions}
         variant={sectionVariant}
+        previewLead={previewZeros ? false : undefined}
+        showPreviewHead={!previewZeros}
         className="pf-hero-section"
         data-section="hero-pulse"
       >
@@ -175,6 +177,8 @@ export default async function PortfolioPage() {
           provenance={portfolioProvenance}
           showProvenance={hasPositions}
           variant={sectionVariant}
+          previewLead={previewZeros ? false : undefined}
+          showPreviewHead={!previewZeros}
           className="pf-yield-trust-section"
           data-section="yield-trust"
         >
@@ -214,11 +218,16 @@ export default async function PortfolioPage() {
           provenance={portfolioProvenance}
           showProvenance={hasPositions}
           variant={sectionVariant}
+          previewLead={previewZeros ? false : undefined}
+          showPreviewHead={!previewZeros}
           className="pf-activity-payouts-section"
           data-section="activity-payouts"
         >
-          <div className="dash-bento pf-secondary-grid">
-            <div className="bento-col-8 pf-cockpit-slot" data-testid="recent-activity-widget">
+          <div className="dash-bento pf-secondary-grid pf-activity-payouts-grid">
+            <div
+              className="bento-col-8 pf-cockpit-slot"
+              data-testid="recent-activity-widget"
+            >
               <RecentActivity
                 transactions={data.recentTransactions}
                 source={data.source}
@@ -226,7 +235,10 @@ export default async function PortfolioPage() {
                 previewZeros={previewZeros}
               />
             </div>
-            <div className="bento-col-4 pf-cockpit-slot" data-testid="distrib-calendar-widget">
+            <div
+              className="bento-col-4 pf-cockpit-slot"
+              data-testid="distrib-calendar-widget"
+            >
               <DistribCalendar
                 {...distribCalendarProps}
                 entries={
@@ -247,8 +259,10 @@ export default async function PortfolioPage() {
         <p className="body-xs ct-text-muted max-w-3xl">
           Projections and estimated yields are conditional on stated assumptions
           and are <strong>not guaranteed</strong>. Past performance is not
-          indicative of future results. All data is subject to the methodology
-          v1.0 and latest Proof of Reserves attestation.
+          indicative of future results. All data is subject to methodology v1.0
+          {previewZeros
+            ? " and future Proof of Reserves attestations."
+            : " and the latest Proof of Reserves attestation."}
         </p>
       </footer>
     </div>

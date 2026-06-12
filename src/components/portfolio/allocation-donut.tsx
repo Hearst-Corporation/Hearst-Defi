@@ -108,7 +108,7 @@ export function AllocationDonut({
           </svg>
           <div className="donut-center">
             <span className="donut-val">
-              {formatUsdCompact(hasAllocation ? totalValueUsdc : 0)}
+              {isPreviewShell ? "—" : formatUsdCompact(totalValueUsdc)}
             </span>
             <span className="donut-lbl">Portfolio</span>
           </div>
@@ -133,11 +133,6 @@ export function AllocationDonut({
         ) : null}
         </div>
 
-        {isPreviewShell ? (
-          <p className="pf-allocation-donut-note body-xs ct-text-faint m-0 mt-auto text-center">
-            Breakdown by status appears with your first position.
-          </p>
-        ) : null}
       </div>
     </PfCockpitPanel>
   );

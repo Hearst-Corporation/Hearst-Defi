@@ -1,9 +1,138 @@
 @import "../product-bento.css";
 
 /*
- * Portfolio — layout and rhythm overrides. Bento chrome from product-bento.css;
- * page-scoped tuning allowed under .pf-container.
+ * Portfolio — layout, typography, and rhythm overrides.
+ * Bento chrome from product-bento.css; page-scoped tuning under .pf-container.
+ *
+ * Typography roles (tokens from cockpit.css):
+ *   Page title     .h1
+ *   Section        .h2 (live ProductSection only; preview heads hidden)
+ *   Panel label    .pf-panel-title / .pf-hero-rail-title (micro uppercase)
+ *   Panel primary  .pf-cockpit-panel__title--primary (sm — chart, CTA headline)
+ *   Subsection     .pf-cockpit-panel__subhead + .stat-label
+ *   KPI value      .pf-hero-kpi-value (= dash-value scale, no text-2xl override)
+ *   Body           .body-sm / .body-xs
+ *   Chart SVG      .pf-distrib-chart__*
+ *
+ * Responsive breakpoints:
+ *   @media 768px     — pf-container gap
+ *   @media 1280px    — product-bento 6-col grid (imported)
+ *   @container pf 880px — full-width stack (chat-compressed centre)
+ *   @container pf-allocation-donut — donut size + donut-val clamp
  */
+
+/* ── Portfolio typography roles ── */
+.pf-cockpit-panel__title--primary {
+  margin: 0;
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-tight);
+  line-height: var(--ct-leading-snug);
+  color: var(--ct-text-strong);
+}
+
+.pf-cockpit-panel__subhead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--ct-space-1) var(--ct-space-2);
+}
+
+.pf-cockpit-panel__subhead-meta {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-hero-kpi-value {
+  font-family: var(--font-sans);
+  font-size: var(--ct-text-xl);
+  font-weight: var(--ct-font-extrabold);
+  color: var(--ct-text-primary);
+  letter-spacing: var(--ct-tracking-tight);
+  line-height: var(--ct-leading-tight);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum", "ss01";
+}
+
+/* Payout calendar SVG — token-sized labels (not raw fontSize 6–8) */
+.pf-distrib-chart text.pf-distrib-chart__estimate {
+  font-size: var(--ct-text-micro);
+  font-family: var(--font-mono);
+}
+
+.pf-distrib-chart text.pf-distrib-chart__period {
+  font-size: var(--ct-text-micro);
+  font-family: var(--font-mono);
+}
+
+.pf-distrib-chart text.pf-distrib-chart__amount {
+  font-size: var(--ct-text-xs);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-distrib-chart text.pf-distrib-chart__marker {
+  font-size: var(--ct-text-xs);
+}
+
+.pf-next-action-card {
+  gap: var(--ct-space-3);
+}
+
+/* Proof rows in compact cockpit panels — avoid badge cramming on narrow cols */
+.pf-cockpit-panel--compact .ct-proof-row {
+  align-items: flex-start;
+  gap: var(--ct-space-2);
+}
+
+.pf-cockpit-panel--compact .ct-proof-row__value {
+  flex: 1;
+  min-width: 0;
+}
+
+.pf-proof-row__stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--ct-space-1);
+  width: 100%;
+}
+
+.pf-proof-row__meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ct-space-1);
+}
+
+.pf-cockpit-panel--compact .ct-nested-panel {
+  padding: var(--ct-space-2) var(--ct-space-3);
+}
+
+.pf-cockpit-panel--compact .ct-proof-row {
+  padding-block: var(--ct-space-2);
+}
+
+.pf-cockpit-panel--compact .ct-proof-row__value {
+  font-size: var(--ct-text-xs);
+  line-height: var(--ct-leading-snug);
+}
+
+.pf-proof-row__datetime {
+  display: block;
+  max-width: 100%;
+  text-align: right;
+  white-space: normal;
+}
+
+.pf-proof-row__truncate {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* === Welcome line (PortfolioGreeting) === */
 .pf-greeting {
@@ -141,6 +270,20 @@
   border-top: 1px solid var(--ct-border-soft);
 }
 
+.pf-cockpit-panel--compact .pf-risk-row {
+  grid-template-columns: minmax(0, 1fr) 2rem 2.5rem 2.25rem;
+  gap: var(--ct-space-2);
+}
+
+.pf-cockpit-panel--compact .pf-risk-composite {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.pf-cockpit-panel--compact .pf-risk-composite > div:last-child {
+  align-items: flex-start;
+}
+
 .pf-tx-icon {
   display: inline-block;
   width: var(--ct-space-4);
@@ -196,8 +339,8 @@
   min-height: 12rem;
 }
 
-/* ── Hero — flat preview section + chart / KPI rail ── */
-.pf-container .pf-hero-section.ct-section-preview {
+/* Preview sections — content only (banner carries preview context) */
+.pf-container .ct-section-preview--content-only {
   gap: var(--ct-space-3);
   padding: 0;
   border: none;
@@ -207,11 +350,7 @@
   box-shadow: none;
 }
 
-.pf-container .pf-hero-section .ct-product-section__preview-head {
-  display: none;
-}
-
-.pf-container .pf-hero-section .ct-product-section__content {
+.pf-container .ct-section-preview--content-only .ct-product-section__content {
   padding: 0;
 }
 
@@ -242,6 +381,8 @@
   border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 70%, transparent);
 }
 
+/* Panel micro-title — hero rail + cockpit panels share the same role */
+.pf-panel-title,
 .pf-hero-rail-title {
   margin: 0;
   font-size: var(--ct-text-micro);
@@ -329,10 +470,6 @@
   border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-graphite-border-nested)) !important;
 }
 
-.pf-value-chart .ct-overlay-surface0 {
-  display: none !important;
-}
-
 .pf-main-chart-wrapper .pf-value-chart [class*="flex-1"] {
   min-height: 14rem;
 }
@@ -359,68 +496,38 @@
   min-height: 8rem;
 }
 
-.pf-container--zero
-  .ct-section-preview:not(.pf-hero-section):not(.pf-yield-trust-section):not(
-    .pf-activity-payouts-section
-  ),
 .pf-container--zero .ct-section-preview--compact {
   gap: var(--ct-space-4);
   padding: var(--ct-space-4) var(--ct-space-5);
 }
 
-.pf-container--zero .ct-product-section__preview-lead,
-.pf-container--zero .ct-product-section__preview-head .eyebrow {
-  display: none;
-}
-
-/* Yield & Trust — flat preview frame; title only */
-.pf-container .pf-yield-trust-section.ct-section-preview {
-  gap: var(--ct-space-3);
-  padding: 0;
-  border: none;
-  background: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
-}
-
-.pf-container .pf-yield-trust-section.ct-section-preview .ct-product-section__preview-head {
-  display: none;
-}
-
-.pf-container .pf-yield-trust-section .ct-product-section__content {
-  padding: 0;
-}
-
-/* Activity & Payouts — flat preview frame; panel cards own titles */
-.pf-container .pf-activity-payouts-section.ct-section-preview {
-  gap: var(--ct-space-3);
-  padding: 0;
-  border: none;
-  background: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
-}
-
-/* Preview: widgets carry their own titles (Positions pattern) — hide section chrome */
-.pf-container .pf-activity-payouts-section.ct-section-preview .ct-product-section__preview-head {
-  display: none;
-}
-
-.pf-container .pf-activity-payouts-section .ct-product-section__content {
-  padding: 0;
-}
-
 /* ── Equal-height bento rows ── */
 .pf-container [data-section="yield-allocation"] .bento-col-8,
 .pf-container [data-section="yield-allocation"] .bento-col-4,
-.pf-container [data-section="yield-trust"] .bento-col-4,
+.pf-container [data-section="yield-trust"] .bento-col-4 {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
 .pf-container [data-section="activity-payouts"] .bento-col-8,
 .pf-container [data-section="activity-payouts"] .bento-col-4 {
   display: flex;
   flex-direction: column;
   min-height: 100%;
+}
+
+.pf-container [data-testid="distrib-calendar-widget"] .pf-cockpit-panel {
+  gap: var(--ct-space-1);
+}
+
+.pf-container [data-testid="distrib-calendar-widget"] .pf-distrib-chart:not(.pf-distrib-chart--compact) {
+  max-height: 7rem;
+}
+
+.pf-container [data-testid="distrib-calendar-widget"] .pf-distrib-chart--compact {
+  max-height: 3rem;
+  display: block;
 }
 
 /* Allocation donut — scale to column */
@@ -447,7 +554,7 @@
   }
 
   .donut-lbl {
-    font-size: var(--ct-text-xs);
+    font-size: var(--ct-text-micro);
     margin-top: var(--ct-space-0_5);
   }
 }

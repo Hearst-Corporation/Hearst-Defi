@@ -2,7 +2,7 @@ import { type Provenance } from "@/components/ui/provenance-badge";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
 import { ModuleChrome } from "@/components/ui/module-chrome";
-import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
+import { PfCockpitPanelHeader } from "@/components/portfolio/pf-cockpit-panel";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 import { cn } from "@/lib/cn";
@@ -202,17 +202,18 @@ export function ValueChart({
     <ModuleChrome
       aria-label="Portfolio value — 12-month trend"
       className="relative pf-value-chart"
+      hoverOverlay={false}
       adornment={
         provenance ? <ChartProvenanceCorner kind={provenance} /> : null
       }
     >
-      <WidgetPanelHeader
-        title="Portfolio value · indicative 12-month path"
+      <PfCockpitPanelHeader
+        title="Portfolio value"
+        subtitle="Indicative 12-month path"
+        titleVariant="primary"
         trailing={
-          <span className="dash-label-meta">
-            <span className="dash-trend flat">
-              {formatUsdCompact(chartValue)}
-            </span>
+          <span className="pf-hero-kpi-value tabular-nums ct-text-muted">
+            {showZeroShell ? "—" : formatUsdCompact(chartValue)}
           </span>
         }
       />
@@ -245,11 +246,12 @@ export function ValueChart({
           ))}
       </div>
 
-      <p className="body-xs ct-text-muted mt-2 italic relative z-10">
-        {showZeroShell
-          ? "Indicative path at zero until your first active position. Not guaranteed."
-          : "Indicative path derived from subscribed principal and current value. Past performance does not predict future results. Not guaranteed."}
-      </p>
+      {!showZeroShell ? (
+        <p className="body-xs ct-text-muted mt-2 italic relative z-10">
+          Indicative path derived from subscribed principal and current value.
+          Past performance does not predict future results. Not guaranteed.
+        </p>
+      ) : null}
     </ModuleChrome>
   );
 }

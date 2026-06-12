@@ -111,13 +111,10 @@ export function RecentActivity({
                     <div className="stat-label ct-text-faint mt-0.5 mono">—</div>
                   </div>
                   <span className="tabular body-md ct-text-faint mono font-semibold shrink-0">
-                    $0
+                    —
                   </span>
                 </div>
               ))}
-              <p className="body-xs ct-text-faint m-0 mt-1">
-                Placeholder rows — activity appears after your first deposit or payout.
-              </p>
             </>
           ) : null}
           {displayed.map((tx) => (

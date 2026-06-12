@@ -420,7 +420,6 @@ export const loadRiskPulseProps = cache(async (): Promise<RiskPulseProps & { sou
     };
   }
 
-  const composite = snapshot.riskScore ?? 0;
   const scores: RiskPulseProps["scores"] = [
     { dimension: "market",         score: 0, delta30d: 0 },
     { dimension: "mining",         score: 0, delta30d: 0 },
@@ -429,19 +428,32 @@ export const loadRiskPulseProps = cache(async (): Promise<RiskPulseProps & { sou
     { dimension: "counterparty",   score: 0, delta30d: 0 },
   ];
 
-  const compositeLabel: RiskPulseProps["compositeLabel"] =
-    composite <= 33 ? "Low"
-    : composite <= 50 ? "Low–Moderate"
-    : composite <= 66 ? "Moderate"
-    : composite <= 80 ? "Elevated"
-    : "High";
+  // Per-dimension scores are not persisted yet — a headline composite without
+  // dimension breakdown would read as a false positive (e.g. 42 / Low–Moderate
+  // while every row is N/A).
+  const dimensionsPopulated = scores.some((s) => s.score > 0);
+  const rawComposite = snapshot.riskScore ?? 0;
+  const compositeAvailable = dimensionsPopulated && rawComposite > 0;
+
+  const composite = compositeAvailable ? rawComposite : 0;
+  const compositeLabel: RiskPulseProps["compositeLabel"] = compositeAvailable
+    ? rawComposite <= 33
+      ? "Low"
+      : rawComposite <= 50
+        ? "Low–Moderate"
+        : rawComposite <= 66
+          ? "Moderate"
+          : rawComposite <= 80
+            ? "Elevated"
+            : "High"
+    : undefined;
 
   return {
     scores,
     composite,
     compositeLabel,
     composite30dTrend: "stable",
-    source: "live",
+    source: compositeAvailable ? "live" : "stale",
     updatedAt: snapshot.takenAt,
   };
 });

@@ -39,7 +39,7 @@ export function HeroPayoutRail({
     : `Distribution cycle progress: ${progressRounded}% — Day ${daysElapsed} of ${cycleDays}.`;
 
   const valueText = showZeroShell
-    ? "$0 USDC"
+    ? "—"
     : `${usdcFmt.format(Math.round(projectedUsdc))} USDC`;
 
   const metaText = showZeroShell
@@ -54,7 +54,7 @@ export function HeroPayoutRail({
       aria-label="Projected payout"
       payout
     >
-      <p className="pf-hero-rail-value dash-value tabular-nums m-0">{valueText}</p>
+      <p className="pf-hero-rail-value pf-hero-kpi-value tabular-nums m-0">{valueText}</p>
 
       <div
         role="progressbar"
@@ -71,10 +71,6 @@ export function HeroPayoutRail({
       </div>
 
       <p className="pf-hero-rail-meta m-0">{metaText}</p>
-
-      {showZeroShell ? (
-        <p className="pf-hero-rail-note m-0">After first active position.</p>
-      ) : null}
     </HeroRailGroup>
   );
 }

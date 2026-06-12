@@ -217,9 +217,14 @@ export function YieldStack({
           </div>
         </dl>
 
-      <p className="mt-auto pt-2 body-xs ct-text-faint m-0" role="note">
-        Conditional projection — not guaranteed · {methodologyVersion.startsWith("v") ? methodologyVersion : `v${methodologyVersion}`}
-      </p>
+      {!showZeroShell ? (
+        <p className="mt-auto pt-2 body-xs ct-text-faint m-0" role="note">
+          Conditional projection — not guaranteed ·{" "}
+          {methodologyVersion.startsWith("v")
+            ? methodologyVersion
+            : `v${methodologyVersion}`}
+        </p>
+      ) : null}
     </PfCockpitPanel>
   );
 }

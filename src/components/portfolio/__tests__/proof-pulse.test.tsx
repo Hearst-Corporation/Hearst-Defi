@@ -6,8 +6,10 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
 
 import {
+  ProofPulse,
   computeDeltaPct,
   isMatch,
   deltaLevel,
@@ -156,5 +158,29 @@ describe("attestationState — no false-positive ✓ on missing data", () => {
   it("never matches when on-chain figure is missing", () => {
     expect(attestationState(0, 0)).not.toBe("matched");
     expect(attestationState(1_000_000, 0)).not.toBe("matched");
+  });
+});
+
+// ── Compact layout — methodology row stack ────────────────────────────────────
+
+describe("ProofPulse compact layout", () => {
+  const baseProps = {
+    lastPor: {
+      timestamp: new Date("2026-06-01T12:00:00.000Z"),
+      statedTvlUsdc: 24_600_000,
+      onChainTvlUsdc: 24_600_000,
+    },
+    methodologyVersion: "v1.0",
+    methodologyLocked: true,
+    nextAttestation: new Date("2026-07-01T12:00:00.000Z"),
+    auditor: "Spearbit",
+  };
+
+  it("stacks version meta with methodology attested label in methodology row", () => {
+    const html = renderToStaticMarkup(<ProofPulse {...baseProps} />);
+    expect(html).toContain("pf-proof-row__stack");
+    expect(html).toContain("Methodology attested");
+    expect(html).toContain("pf-proof-row__datetime");
+    expect(html).toContain("pf-proof-row__truncate");
   });
 });

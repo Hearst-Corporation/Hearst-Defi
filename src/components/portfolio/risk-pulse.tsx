@@ -177,11 +177,28 @@ function Sparkline({ series, label }: SparklineProps) {
 
 interface ScoreRowProps {
   item: RiskScore;
+  /** Calm preview shell — label + N/A only, no faux trend columns. */
+  unavailable?: boolean;
 }
 
-function ScoreRow({ item }: ScoreRowProps) {
+function ScoreRow({ item, unavailable = false }: ScoreRowProps) {
   const label = DIMENSION_LABEL[item.dimension];
   const rowId = `risk-pulse-row-${item.dimension}`;
+
+  if (unavailable) {
+    return (
+      <li
+        role="group"
+        aria-labelledby={rowId}
+        className="flex items-center justify-between gap-2 py-2 border-t border-(--ct-border-soft) first:border-t-0"
+      >
+        <span id={rowId} className="body-sm ct-text-muted">
+          {label}
+        </span>
+        <span className="body-sm ct-text-faint">N/A</span>
+      </li>
+    );
+  }
 
   return (
     <li role="group" aria-labelledby={rowId} className="pf-risk-row">
@@ -250,19 +267,19 @@ function CompositeSection({
   return (
     <NestedPanel
       role="status"
-      className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:py-4"
+      className="pf-risk-composite mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:py-4"
       aria-label={ariaLabel}
     >
       <div className="flex items-baseline gap-2 min-w-0">
         <span className="stat-label shrink-0">Composite</span>
         <span
           className={cn(
-            "stat-value tabular leading-none",
+            "pf-hero-kpi-value tabular leading-none",
             valueColor,
           )}
         >
           {noData ? "Awaiting" : composite}
-          <span className="body-sm font-medium ct-text-faint">
+          <span className="body-xs font-medium ct-text-faint">
             {noData ? "" : " / 100"}
           </span>
         </span>
@@ -308,9 +325,11 @@ export function RiskPulse({
   // Per-dimension sub-scores are not yet persisted; a 0 means "not available",
   // not "low risk".
   const dimensionsAvailable = scores.some((s) => s.score > 0);
+  const compositeUnavailable =
+    previewZeros || noData || !dimensionsAvailable;
 
   // Use centralized provenance resolver
-  const showZeroShell = previewZeros || noData || !dimensionsAvailable;
+  const showZeroShell = compositeUnavailable;
   const badgeKind = showZeroShell
     ? undefined
     : resolveProvenance(
@@ -324,7 +343,7 @@ export function RiskPulse({
       <PfCockpitPanelHeader
         title={
           <Tooltip content="Composite risk score based on market, mining, liquidity, smart contract, and counterparty risks">
-            <span className="pf-hero-rail-title cursor-help border-b border-dotted border-(--ct-border-soft)">
+            <span className="pf-panel-title cursor-help border-b border-dotted border-(--ct-border-soft)">
               Risk pulse
             </span>
           </Tooltip>
@@ -334,7 +353,11 @@ export function RiskPulse({
 
       <ul aria-label="Risk dimension scores">
         {scores.map((item) => (
-          <ScoreRow key={item.dimension} item={item} />
+          <ScoreRow
+            key={item.dimension}
+            item={item}
+            unavailable={compositeUnavailable}
+          />
         ))}
       </ul>
 
@@ -342,12 +365,14 @@ export function RiskPulse({
         composite={composite}
         compositeLabel={compositeLabel}
         trend={composite30dTrend}
-        noData={noData}
+        noData={compositeUnavailable}
       />
 
-      <p className="mt-auto pt-2 body-xs ct-text-faint m-0">
-        0–100 scale · conditional — not guaranteed
-      </p>
+      {!showZeroShell ? (
+        <p className="mt-auto pt-2 body-xs ct-text-faint m-0">
+          0–100 scale · conditional — not guaranteed
+        </p>
+      ) : null}
     </PfCockpitPanel>
   );
 }

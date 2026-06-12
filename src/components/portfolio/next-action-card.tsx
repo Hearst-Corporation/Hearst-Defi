@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 
 /**
  * NextActionCard — the single, calm "what to do next" surface at the top of the
@@ -129,13 +129,17 @@ export function NextActionCard(props: NextActionCardProps) {
   const step = resolveNextStep(props);
 
   return (
-    <Card>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+    <PfCockpitPanel
+      variant="wide"
+      aria-label="Next step"
+      className="pf-next-action-card"
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="flex max-w-3xl flex-col gap-1">
-          <span className="eyebrow">{step.eyebrow}</span>
-          <h3 className="h3 ct-text-strong">{step.headline}</h3>
+          <span className="pf-panel-title">{step.eyebrow}</span>
+          <p className="pf-cockpit-panel__title--primary m-0">{step.headline}</p>
           {step.detail ? (
-            <p className="body-sm ct-text-muted max-w-prose">{step.detail}</p>
+            <p className="body-sm ct-text-muted max-w-prose m-0">{step.detail}</p>
           ) : null}
         </div>
         {step.cta ? (
@@ -146,6 +150,6 @@ export function NextActionCard(props: NextActionCardProps) {
           </div>
         ) : null}
       </div>
-    </Card>
+    </PfCockpitPanel>
   );
 }

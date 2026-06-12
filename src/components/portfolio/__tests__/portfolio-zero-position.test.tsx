@@ -106,7 +106,7 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     );
     expect(html).toContain("<svg");
     expect(html).not.toContain("ct-empty-surface--chart");
-    expect(html).toContain("Indicative path at zero");
+    expect(html).not.toContain("Indicative path at zero");
     expect(html).not.toContain("Stale");
   });
 
@@ -138,8 +138,9 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     expect(donutHtml).toContain("pf-cockpit-panel");
     expect(donutHtml).not.toContain("card-premium");
     expect(donutHtml).toContain("<svg");
-    expect(donutHtml).toContain("$0");
+    expect(donutHtml).toContain("—");
+    expect(donutHtml).not.toContain("$0");
     expect(donutHtml).not.toContain("dash-legend-row");
-    expect(donutHtml).toContain("first position");
+    expect(donutHtml).toContain("no positions");
   });
 });

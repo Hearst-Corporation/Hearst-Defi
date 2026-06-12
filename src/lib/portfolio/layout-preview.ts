@@ -122,6 +122,12 @@ export function isRiskPulseEmpty(props: RiskPulseProps): boolean {
   );
 }
 
+/** Composite must not display when every dimension is still N/A. */
+export function isRiskCompositeUnavailable(props: RiskPulseProps): boolean {
+  const dimensionsPopulated = props.scores.some((s) => s.score > 0);
+  return isRiskPulseEmpty(props) || !dimensionsPopulated;
+}
+
 export function isProofPulseEmpty(props: ProofPulseProps): boolean {
   return (
     props.lastPor.statedTvlUsdc === 0 && props.lastPor.onChainTvlUsdc === 0

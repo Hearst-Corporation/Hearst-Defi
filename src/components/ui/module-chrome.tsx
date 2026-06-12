@@ -15,12 +15,15 @@ export function ModuleChrome({
   adornment,
   children,
   className,
+  hoverOverlay = true,
 }: {
   "aria-label": string;
   /** Optional chrome (e.g. chart provenance corner) hidden when embedded. */
   adornment?: ReactNode;
   children: ReactNode;
   className?: string;
+  /** Card hover wash — off for portfolio pf-value-chart (graphite surface). */
+  hoverOverlay?: boolean;
 }) {
   const embedded = useSectionEmbed();
 
@@ -46,6 +49,7 @@ export function ModuleChrome({
     <Card
       className={cn("card-premium flex h-full min-w-0 flex-col", className)}
       aria-label={ariaLabel}
+      hoverOverlay={hoverOverlay}
     >
       {content}
     </Card>
