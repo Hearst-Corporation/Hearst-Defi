@@ -56,7 +56,11 @@ export function PositionsList({
 
   if (positions.length === 0 && previewZeros) {
     return (
-      <AwaitingMetricState message="No open positions — first deposit will appear here." />
+      <AwaitingMetricState
+        message="No active positions yet."
+        detail="Your first deposit will appear here once confirmed on-chain."
+        className="pf-zero-await"
+      />
     );
   }
 

@@ -177,10 +177,8 @@ export default async function PortfolioPage() {
     positionCount: data.positions.length,
   };
 
-  const portfolioProvenance = resolveProvenance(
-    previewZeros ? "stale" : data.source,
-    data.updatedAt,
-  );
+  const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
+  const sectionVariant = previewZeros ? "preview" : "active";
 
   return (
     <div
@@ -201,11 +199,18 @@ export default async function PortfolioPage() {
         <MergedSurface
           title="Performance & Liquidity"
           provenance={portfolioProvenance}
-          showProvenance={hasPositions && !previewZeros}
+          showProvenance={hasPositions}
+          variant={sectionVariant}
           data-section="hero-pulse"
         >
-          <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12 lg:col-span-8">
+          <div
+            className={
+              previewZeros
+                ? "pf-zero-hero-body"
+                : "grid grid-cols-12 gap-6"
+            }
+          >
+            <div className={previewZeros ? undefined : "col-span-12 lg:col-span-8"}>
               <ValueChart
                 positions={data.positions}
                 totalValueUsdc={data.totalValueUsdc}
@@ -215,15 +220,34 @@ export default async function PortfolioPage() {
                 embedded
               />
             </div>
-            <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
-              <HeroKpiTable
-                totalValueUsdc={data.totalValueUsdc}
-                totalYieldYtdUsdc={data.totalYieldYtdUsdc}
-                nextDistributionAt={data.nextDistributionAt}
-                hasPositions={hasPositions}
-                previewZeros={previewZeros}
-              />
-              <div className="flex flex-col gap-6 pt-6 border-t border-(--ct-border-soft)">
+            <div
+              className={
+                previewZeros
+                  ? "flex flex-col gap-4"
+                  : "col-span-12 lg:col-span-4 flex flex-col gap-6"
+              }
+            >
+              {previewZeros ? (
+                <AwaitingMetricState
+                  message="Key metrics appear after your first active position."
+                  detail="Position value, yield YTD, and next distribution date populate once capital is confirmed."
+                  className="pf-zero-await"
+                />
+              ) : (
+                <HeroKpiTable
+                  totalValueUsdc={data.totalValueUsdc}
+                  totalYieldYtdUsdc={data.totalYieldYtdUsdc}
+                  nextDistributionAt={data.nextDistributionAt}
+                  hasPositions={hasPositions}
+                />
+              )}
+              <div
+                className={cn(
+                  "flex flex-col gap-6",
+                  !previewZeros && "pt-6 border-t border-(--ct-border-soft)",
+                  previewZeros && "pf-zero-liquidity",
+                )}
+              >
                 <span className="stat-label ct-text-accent">Liquidity status</span>
                 <TimeToCash
                   {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
@@ -271,11 +295,21 @@ export default async function PortfolioPage() {
           <MergedSurface
             title="Yield & Trust Pulse"
             provenance={portfolioProvenance}
-            showProvenance={hasPositions && !previewZeros}
+            showProvenance={hasPositions}
+            variant={sectionVariant}
             data-section="yield-trust"
           >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div data-testid="risk-pulse-widget" className="flex flex-col gap-4">
+            <div
+              className={
+                previewZeros
+                  ? "pf-zero-trust-list grid grid-cols-1 md:grid-cols-3 gap-4"
+                  : "grid grid-cols-1 md:grid-cols-3 gap-6"
+              }
+            >
+              <div
+                data-testid="risk-pulse-widget"
+                className={previewZeros ? "pf-zero-trust-row" : "flex flex-col gap-4"}
+              >
                 <span className="stat-label ct-text-accent">Risk profile</span>
                 <RiskPulse
                   {...riskPulseProps}
@@ -283,7 +317,10 @@ export default async function PortfolioPage() {
                   embedded
                 />
               </div>
-              <div data-testid="proof-pulse-widget" className="flex flex-col gap-4">
+              <div
+                data-testid="proof-pulse-widget"
+                className={previewZeros ? "pf-zero-trust-row" : "flex flex-col gap-4"}
+              >
                 <span className="stat-label ct-text-accent">Proof of reserves</span>
                 <ProofPulse
                   {...proofPulseProps}
@@ -291,7 +328,10 @@ export default async function PortfolioPage() {
                   embedded
                 />
               </div>
-              <div data-testid="security-pulse-widget" className="flex flex-col gap-4">
+              <div
+                data-testid="security-pulse-widget"
+                className={previewZeros ? "pf-zero-trust-row" : "flex flex-col gap-4"}
+              >
                 <span className="stat-label ct-text-accent">Security audit</span>
                 <SecurityPulse embedded previewZeros={previewZeros} />
               </div>
@@ -316,7 +356,8 @@ export default async function PortfolioPage() {
           <MergedSurface
             title="Activity & Payouts"
             provenance={portfolioProvenance}
-            showProvenance={hasPositions && !previewZeros}
+            showProvenance={hasPositions}
+            variant={sectionVariant}
             data-section="activity-payouts"
           >
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

@@ -27,7 +27,7 @@ const STALE_TIME_TO_CASH_PROPS = {
 describe("Portfolio zero-position — default empty widgets", () => {
   it("TimeToCash stale: awaiting surface, no premium shell", () => {
     const html = renderToStaticMarkup(<TimeToCash {...STALE_TIME_TO_CASH_PROPS} />);
-    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain("ct-empty-surface--widget");
     expect(html).not.toContain("dash-cell-premium");
   });
 
@@ -40,7 +40,7 @@ describe("Portfolio zero-position — default empty widgets", () => {
         source="stale"
       />,
     );
-    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain("ct-empty-surface--widget");
     expect(html).not.toContain("dash-cell-premium");
   });
 
@@ -50,6 +50,18 @@ describe("Portfolio zero-position — default empty widgets", () => {
         <AwaitingMetricState message="Section awaiting data." />
       </MergedSurface>,
     );
+    expect(html).not.toContain("Verified data");
+  });
+
+  it("MergedSurface preview variant uses pf-section-light, not dash-cell-premium", () => {
+    const html = renderToStaticMarkup(
+      <MergedSurface title="Performance" variant="preview" data-section="hero-pulse">
+        <AwaitingMetricState message="Awaiting first position." className="pf-zero-await" />
+      </MergedSurface>,
+    );
+    expect(html).toContain("pf-section-light");
+    expect(html).toContain("Preview");
+    expect(html).not.toContain("dash-cell-premium");
     expect(html).not.toContain("Verified data");
   });
 });
@@ -65,7 +77,7 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     const html = renderToStaticMarkup(
       <TimeToCash {...zeroTimeToCashProps(PREVIEW_AS_OF)} previewZeros />,
     );
-    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain("ct-empty-surface--widget");
     expect(html).not.toContain("dash-cell-premium");
     expect(html).not.toContain("Stale");
   });
@@ -79,7 +91,7 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
         previewZeros
       />,
     );
-    expect(html).toContain("pf-empty-chart");
+    expect(html).toContain("ct-empty-surface--chart");
     expect(html).not.toContain("dash-cell-premium");
     expect(html).not.toContain("<svg");
     expect(html).toContain("Layout preview at zero");
@@ -89,7 +101,7 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     const html = renderToStaticMarkup(
       <LockMeter {...zeroLockMeterProps(PREVIEW_AS_OF)} previewZeros />,
     );
-    expect(html).toContain("pf-empty-widget");
+    expect(html).toContain("ct-empty-surface--widget");
     expect(html).not.toContain("dash-cell-premium");
     expect(html).not.toContain("Stale");
   });

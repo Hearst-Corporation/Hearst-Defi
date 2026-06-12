@@ -1,6 +1,6 @@
 /**
  * Layout preview — full portfolio structure at zero before the first LP position.
- * DS: values are explicitly non-live; section-level Stale badges mark preview data.
+ * DS: values are explicitly non-live; sections use preview tier (no Stale/Live badges).
  */
 export function LayoutPreviewBanner() {
   return (

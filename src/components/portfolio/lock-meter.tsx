@@ -111,6 +111,7 @@ export function LockMeter({
       <AwaitingMetricState
         message="Lock and liquidity preview — terms appear after your first active position."
         detail="Soft lock-up progress and unlock dates populate once share-class terms are confirmed."
+        className="pf-zero-await"
       />
     );
   }

@@ -11,8 +11,11 @@ export interface SecurityPulseProps {
  * Security posture summary. Live values require a verified backend feed;
  * until then, render DS §9.3 awaiting surface only (no fake audit rows).
  */
-export function SecurityPulse(_props: SecurityPulseProps = {}) {
+export function SecurityPulse({ previewZeros = false }: SecurityPulseProps = {}) {
   return (
-    <AwaitingMetricState message="Security status will appear after account verification." />
+    <AwaitingMetricState
+      message="Security status will appear after account verification."
+      className={previewZeros ? "pf-zero-await" : undefined}
+    />
   );
 }

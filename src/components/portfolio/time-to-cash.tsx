@@ -77,6 +77,7 @@ export function TimeToCash({
       <AwaitingMetricState
         message="Distribution cycle preview — payout timing appears after your first active position."
         detail="Projected USDC and cycle progress populate once yield data is live."
+        className="pf-zero-await"
       />
     );
   }

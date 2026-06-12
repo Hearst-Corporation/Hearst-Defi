@@ -320,7 +320,10 @@ export function RiskPulse({
   // Layout preview at zero → awaiting surface only (no N/A rows or fake scores).
   if (previewZeros) {
     return (
-      <AwaitingMetricState message="Risk scores will appear after the first snapshot." />
+      <AwaitingMetricState
+        message="Risk scores will appear after the first snapshot."
+        className="pf-zero-await"
+      />
     );
   }
 

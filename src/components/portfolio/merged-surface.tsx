@@ -8,23 +8,49 @@ interface MergedSurfaceProps {
   provenance?: Provenance;
   /** When false, hides the “Verified data” label and header provenance badge. */
   showProvenance?: boolean;
+  /**
+   * active = premium glass module (populated portfolio).
+   * preview = light section shell at zero — no dash-cell-premium chrome.
+   */
+  variant?: "active" | "preview";
   children: ReactNode;
   className?: string;
   "data-section"?: string;
 }
 
+const PREVIEW_LEAD =
+  "Appears after your first active position — structure shown at zero for orientation only.";
+
 /**
- * A premium container for merging multiple widgets into a single visual surface.
- * Handles the unified header and the consistent glassmorphism styling.
+ * Portfolio section shell — active module (`dash-cell-premium`) or preview tier
+ * (`pf-section-light`). Preview replaces premium chrome; empty widgets inside
+ * use `EmptySurface` / `AwaitingMetricState` (DS §9).
  */
 export function MergedSurface({
   title,
   provenance,
   showProvenance = true,
+  variant = "active",
   children,
   className,
   "data-section": dataSection,
 }: MergedSurfaceProps) {
+  if (variant === "preview") {
+    return (
+      <section
+        className={cn("pf-section-light", className)}
+        data-section={dataSection}
+      >
+        <div className="pf-zero-section-head">
+          <span className="eyebrow ct-text-faint">Preview</span>
+          <h2 className="h2">{title}</h2>
+          <p className="body-sm ct-text-muted pf-zero-lead">{PREVIEW_LEAD}</p>
+        </div>
+        <div className="pf-merged-content">{children}</div>
+      </section>
+    );
+  }
+
   return (
     <article
       className={cn("dash-cell dash-cell-premium pf-merged-surface", className)}
@@ -44,9 +70,7 @@ export function MergedSurface({
           </div>
         ) : null}
       </div>
-      <div className="pf-merged-content">
-        {children}
-      </div>
+      <div className="pf-merged-content">{children}</div>
     </article>
   );
 }

@@ -187,6 +187,7 @@ export function ProofPulse({
           href: proofCenterHref,
           ariaLabel: "Open proof center",
         }}
+        className="pf-zero-await"
       />
     );
   }
