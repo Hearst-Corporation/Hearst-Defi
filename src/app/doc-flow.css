@@ -218,7 +218,7 @@
   gap: var(--ct-space-3);
   border-radius: var(--ct-radius-md);
   border: 1px solid var(--ct-status-warning-border);
-  background: var(--ct-status-warning-bg);
+  background: var(--ct-status-warning-soft);
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 
@@ -754,7 +754,7 @@
   gap: var(--ct-space-3);
   border-radius: var(--ct-radius-md);
   border: 1px solid var(--ct-status-warning-border);
-  background: var(--ct-status-warning-bg);
+  background: var(--ct-status-warning-soft);
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 

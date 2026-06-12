@@ -1,9 +1,9 @@
 import { CockpitShell } from "@hearst/cockpit-shell";
 import type { ChatConfig } from "@hearst/cockpit-shell";
 import type { ReactNode } from "react";
+import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 
-/** Mirrors --ct-accent / --ct-product-connect in cockpit.css */
-const CONNECT_ACCENT = "#A7FB90";
+const CONNECT_ACCENT = CONNECT_ACCENT_HEX;
 
 const CONNECT_PRODUCTS = [
   { id: "connect" as const, name: "Hearst Connect", short: "CN", color: CONNECT_ACCENT },

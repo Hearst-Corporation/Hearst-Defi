@@ -4,7 +4,8 @@
  * ink-on-white values where noted (status colours).
  */
 
-export const CONNECT_ACCENT_HEX = "#A7FB90" as const;
+export { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
+import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 
 /** Dark statement PDF — flattened colours for react-pdf on deep background. */
 export const PDF_DARK = {
