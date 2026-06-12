@@ -77,7 +77,6 @@ export default async function ProposalDetailPage({ params }: PageProps) {
       />
 
       <Card>
-        <DashboardPanelHeader title={proposal.actionType} tone="primary" className="mb-6" />
         <div className="mb-6 admin-doc-inline-row admin-doc-inline-row--actions">
           <span className="ct-pill mono body-xs">{proposal.vaultTicker}</span>
           <Badge variant={proposalStateVariant(proposal.state)}>
@@ -125,7 +124,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         </dl>
 
         {proposal.state === "TIMELOCK" && proposal.etaAt ? (
-          <div className="mt-6 rounded-md border border-(--ct-border-soft) ct-surface-1 px-4 py-3">
+          <div className="mt-6 rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-3">
             <p className="stat-label mb-1">Timelock countdown</p>
             <p className="mono body-sm ct-text-strong">{timelockCountdown(proposal.etaAt)}</p>
           </div>
@@ -181,7 +180,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             {proposal.signatures.map((sig) => (
               <div
                 key={sig.id}
-                className="admin-doc-inline-row admin-doc-inline-row--actions border-b border-(--ct-border-soft) py-2 last:border-0"
+                className="admin-doc-inline-row admin-doc-inline-row--actions border-b border-[var(--ct-border-soft)] py-2 last:border-0"
               >
                 <div
                   className={cn(
