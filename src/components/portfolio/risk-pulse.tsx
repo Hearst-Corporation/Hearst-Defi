@@ -324,9 +324,9 @@ export function RiskPulse({
     <article className="dash-cell dash-cell-premium h-full flex flex-col">
       <div className="pf-widget-header relative z-10">
         <Tooltip content="Composite risk score based on market, mining, liquidity, smart contract, and counterparty risks">
-          <span className="dash-label cursor-help border-b border-dotted border-(--ct-border-soft)">
-            <span>Risk pulse</span>
-          </span>
+          <h3 className="h3 cursor-help border-b border-dotted border-(--ct-border-soft)">
+            Risk pulse
+          </h3>
         </Tooltip>
         <ProvenanceBadge kind={badgeKind} />
       </div>

@@ -119,10 +119,8 @@ export function YieldStack({
       aria-label="Yield source stack — 12 month forward projection"
     >
       {/* Header */}
-      <div className="dash-label relative z-10">
-        <span className="body-xs uppercase tracking-(--ct-tracking-wide) ct-text-muted">
-          Yield Source Stack (12m fwd)
-        </span>
+      <div className="pf-widget-header relative z-10">
+        <h3 className="h3">Yield Source Stack (12m fwd)</h3>
         <ProvenanceBadge kind={badgeKind} />
       </div>
 

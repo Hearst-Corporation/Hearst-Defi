@@ -142,7 +142,7 @@ function ResultItem({
     >
       <EntityBadge entity={result.entity} />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium">
+        <span className="h4 block truncate">
           {result.title}
         </span>
         {result.subtitle && (
@@ -401,7 +401,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
             <div className="p-4 space-y-4">
               {recent.length > 0 && (
                 <section aria-label="Recent searches">
-                  <p className="mb-2 text-[length:var(--ct-text-xs)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted">
+                  <p className="stat-label mb-2 block ct-text-muted">
                     Recent
                   </p>
                   <ul className="space-y-1">
@@ -438,7 +438,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
               )}
 
               <section aria-label="Suggestions">
-                <p className="mb-2 text-[length:var(--ct-text-xs)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted">
+                <p className="stat-label mb-2 block ct-text-muted">
                   Suggestions
                 </p>
                 <ul className="flex flex-wrap gap-2">
@@ -480,7 +480,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
               {Array.from(grouped.entries()).map(([entity, items]) => {
                 return (
                   <section key={entity} aria-label={ENTITY_META[entity].label}>
-                    <p className="mb-1 px-3 text-[length:var(--ct-text-xs)] font-semibold uppercase tracking-[var(--ct-tracking-wide)] ct-text-muted">
+                    <p className="stat-label mb-1 block px-3 ct-text-muted">
                       {ENTITY_META[entity].label}
                     </p>
                     <ul>

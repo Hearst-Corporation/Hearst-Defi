@@ -195,6 +195,14 @@
   margin-bottom: 0;
 }
 
+.pf-widget-header .h3 {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Risk row grid — replaces ad-hoc w-16 spacers */
 .pf-risk-row {
   display: grid;

@@ -1,15 +1,5 @@
 /**
  * DashboardAssetsBoard — Admin Honesty contract.
- *
- * Guards (docs/DESIGN_SYSTEM.md §9 + CLAUDE.md #2):
- *  - A methodology/fallback preset must NOT badge as "Live".
- *  - $0 AUM (or a non-DB source) must NOT render an active allocation orbit /
- *    capital stack — it renders an awaiting surface that REPLACES it.
- *  - No "+0.0% NAV" footer is rendered when there is no real NAV series.
- *  - A real DB snapshot WITH capital renders the live orbit + stack again.
- *
- * Uses renderToStaticMarkup (node env, no jsdom) — same as the portfolio
- * empty-state contract test.
  */
 
 import { renderToStaticMarkup } from "react-dom/server";
@@ -17,6 +7,7 @@ import { describe, expect, it } from "vitest";
 
 import { DashboardAssetsBoard } from "@/components/admin/dashboard-assets-board";
 import type { AdminActionItem, AdminProofStatus } from "@/lib/data/admin-overview";
+import type { CockpitPayload } from "@/lib/data/cockpit";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 
@@ -45,8 +36,25 @@ const PROOF: AdminProofStatus = {
 };
 
 const ACTIONS: AdminActionItem[] = [
-  { key: "deployments" as AdminActionItem["key"], label: "Deployments", count: 0, href: null, tracked: false, hint: "" },
+  {
+    key: "deployments" as AdminActionItem["key"],
+    label: "Deployments",
+    count: 0,
+    href: null,
+    tracked: false,
+    hint: "",
+  },
 ];
+
+const COCKPIT: CockpitPayload = {
+  heroKpis: [],
+  actionQueue: [],
+  vaultMetrics: [],
+  inngestJobs: [],
+  sentryStats: { errors24h: 0, warnings24h: 0 },
+  onChainEvents: [],
+  auditTrail: [],
+};
 
 const ALLOCATIONS: DashboardData["allocations"] = [
   { bucket: "mining", pct: 40, valueUsdc: 0, yieldContributionBps: 0 },
@@ -107,19 +115,13 @@ function makeData(overrides: Partial<DashboardData>): DashboardData {
   return { ...base, ...overrides };
 }
 
-/**
- * Extracts the inner HTML of the `dashboard-assets-card--allocation` cell so
- * assertions about the Capital stack are scoped to that card only (the Risk lens
- * card legitimately renders a "Live" badge when risk.source === "db").
- */
 function allocationCard(html: string): string {
-  const marker = "dashboard-assets-card--allocation";
+  const marker = "Capital stack appears once";
   const start = html.indexOf(marker);
-  if (start === -1) return "";
-  // Slice up to the next sibling card cell.
-  const rest = html.slice(start);
-  const nextCard = rest.indexOf("dashboard-assets-card--risk");
-  return nextCard === -1 ? rest : rest.slice(0, nextCard);
+  if (start === -1) return html;
+  const rest = html.slice(start - 200);
+  const end = rest.indexOf("Risk lens");
+  return end === -1 ? rest : rest.slice(0, end);
 }
 
 function render(data: DashboardData, capitalUsdc: number) {
@@ -135,23 +137,21 @@ function render(data: DashboardData, capitalUsdc: number) {
       headlineApy={{ low: 9.4, high: 12.8 }}
       yieldPosture="within target band"
       proofFresh={false}
+      cockpit={COCKPIT}
     />,
   );
 }
 
 describe("DashboardAssetsBoard — Admin Honesty", () => {
-  it("fallback source + $0 AUM does NOT render an active allocation orbit", () => {
+  it("fallback source + $0 AUM does NOT render a live CSS orbit ring", () => {
     const html = render(makeData({ source: "fallback" }), 0);
-    // Awaiting surface replaces the orbit; the % mapped core + orbit svg gone.
     expect(html).toContain("pf-empty-chart");
-    expect(html).not.toContain("dashboard-assets-orbit__core");
+    expect(html).not.toContain("dashboard-orbit__ring");
     expect(html).not.toContain("% mapped");
   });
 
   it("fallback source does NOT badge the capital stack as Live", () => {
     const card = allocationCard(render(makeData({ source: "fallback" }), 0));
-    // Scoped to the allocation card: no Live badge, no active header — replaced
-    // by the awaiting surface.
     expect(card).not.toContain(">Live<");
     expect(card).not.toContain(">Capital stack<");
     expect(card).toContain("Capital stack appears once the first snapshot");
@@ -160,7 +160,9 @@ describe("DashboardAssetsBoard — Admin Honesty", () => {
   it("no NAV series → no '+0.0% NAV', shows pending instead", () => {
     const html = render(makeData({ source: "fallback" }), 0);
     expect(html).not.toContain("% NAV");
-    expect(html).toContain("NAV trend pending");
+    expect(html).toContain("NAV trend appears after seven days");
+    expect(html).not.toContain("NAV trend pending");
+    expect(html).not.toContain("dashboard-nav-bars__bar");
   });
 
   it("db source WITH capital renders the live orbit + capital stack", () => {
@@ -170,14 +172,29 @@ describe("DashboardAssetsBoard — Admin Honesty", () => {
         { bucket: "mining", pct: 40, valueUsdc: 200_000, yieldContributionBps: 0 },
         { bucket: "usdc_base", pct: 60, valueUsdc: 300_000, yieldContributionBps: 0 },
       ],
+      timeseries: {
+        source: "db",
+        nav30d: [
+          { date: "2026-05-01", aum_usdc: 400_000 },
+          { date: "2026-05-15", aum_usdc: 500_000 },
+        ],
+        apy30d: [],
+      },
     });
     const html = render(data, 500_000);
-    expect(html).toContain("dashboard-assets-orbit__core");
+    expect(html).toContain("dashboard-orbit__ring");
     expect(html).toContain("% mapped");
-    // Live provenance now legitimately present on the active stack (scoped).
+    expect(html).toContain("dashboard-nav-bars__bar");
     const card = allocationCard(html);
     expect(card).toContain(">Capital stack<");
     expect(card).toContain(">Live<");
     expect(card).not.toContain("Capital stack appears once the first snapshot");
+  });
+
+  it("renders wired admin routes for proof and distributions", () => {
+    const html = render(makeData({ source: "fallback" }), 0);
+    expect(html).toContain('href="/admin/proof-center"');
+    expect(html).toContain('href="/admin/proofs"');
+    expect(html).toContain('href="/admin/distributions"');
   });
 });

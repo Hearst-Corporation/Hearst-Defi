@@ -72,7 +72,7 @@ const MOCK_INVESTOR = {
   walletAddress: null,
   email: "lp@hedgefund.io",
   kycStatus: "approved",
-  accreditationAttestedAt: null,
+  accreditationAttestedAt: new Date("2026-01-01"),
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -224,6 +224,34 @@ describe("subscribe — Class B wiring (E2)", () => {
 });
 
 // ── C-01: KYC gate tests ───────────────────────────────────────────────────
+
+describe("subscribe — accreditation gate", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(prisma.vaultDeployment.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.position.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.position.aggregate).mockResolvedValue({
+      _sum: { principalUsdc: null },
+    } as unknown as Awaited<ReturnType<typeof prisma.position.aggregate>>);
+  });
+
+  it("accreditationAttestedAt=null → { ok:false, error: Accreditation... }", async () => {
+    vi.mocked(getInvestor).mockResolvedValue({
+      ...MOCK_INVESTOR,
+      accreditationAttestedAt: null,
+      kycStatus: "approved",
+    });
+    vi.mocked(getVault).mockResolvedValue(LIVE_VAULT);
+
+    const result = await subscribe("hearst-yield-vault", 250_000, "A");
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toBe("Accreditation attestation required before subscribing.");
+    }
+    expect(prisma.position.create).not.toHaveBeenCalled();
+  });
+});
 
 describe("subscribe — C-01 KYC gate", () => {
   beforeEach(() => {

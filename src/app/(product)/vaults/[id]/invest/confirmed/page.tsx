@@ -12,6 +12,7 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { DepositSuccessIcon } from "@/components/vaults/deposit-success-icon";
 import { StepProgress } from "@/components/vaults/step-progress";
 import { OpsContactCard } from "@/components/onboarding/OpsContactCard";
+import { getIrContact } from "@/lib/ir-contact";
 import { CopyAddressButton } from "./copy-address-button";
 import { abbreviateAddress } from "@/lib/onchain";
 
@@ -79,9 +80,6 @@ const VAULT_CONTRACT =
   process.env.NEXT_PUBLIC_HEARST_VAULT_ADDRESS ??
   null;
 
-const CALENDLY_URL =
-  process.env.NEXT_PUBLIC_CALENDLY_URL ?? "https://calendly.com/hearstconnect/15min";
-
 function DetailRow({
   label,
   value,
@@ -124,6 +122,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
   const icsUri = buildIcsDataUri("Hearst Yield Vault — Distribution", nextDistrib);
 
   const hasOnChainProof = hasHash && positionId;
+  const irContact = getIrContact();
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-8">
@@ -144,9 +143,9 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
         <div className="rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 p-5">
           <div className="flex items-center justify-between gap-2 pb-3 mb-1 border-b border-[var(--ct-border-soft)]">
             <p className="eyebrow">Position details</p>
-            <p className="body-xs ct-text-faint flex items-center gap-1">
+            <div className="body-xs ct-text-faint flex items-center gap-1">
               <ProvenanceBadge kind={hasHash ? "manual" : "estimated"} />
-            </p>
+            </div>
           </div>
 
           <DetailRow
@@ -231,7 +230,14 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
           </ul>
         </div>
 
-        <OpsContactCard calendlyHref={CALENDLY_URL} />
+        {irContact ? (
+          <OpsContactCard
+            name={irContact.name}
+            title={irContact.title}
+            email={irContact.email}
+            calendlyHref={irContact.calendlyHref}
+          />
+        ) : null}
 
         <div className="flex flex-col gap-3">
           <Button variant="primary" size="lg" asChild className="w-full font-bold">

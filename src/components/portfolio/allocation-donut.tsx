@@ -70,8 +70,8 @@ export function AllocationDonut({
 
   return (
     <article className="dash-cell dash-cell-premium h-full" aria-label="Portfolio allocation">
-      <div className="dash-label relative z-10">
-        <span>Allocation by position status</span>
+      <div className="pf-widget-header relative z-10">
+        <h3 className="h3">Allocation by position status</h3>
         <ProvenanceBadge kind={provenance} />
       </div>
 

@@ -28,14 +28,17 @@ export function AdminSubNav() {
 
   if (!section) return null;
 
-  // Exclude the root tab (the one whose href matches the section root) — it
-  // duplicates the page's own H1 and is reachable via the left rail.
-  const visibleTabs = section.tabs.filter((t) => t.href !== section.href);
+  // Dashboard section keeps the Overview tab so `/admin/dashboard` has an active
+  // sub-nav state. Other sections hide the root tab (duplicates the page H1).
+  const visibleTabs =
+    section.id === "dashboard"
+      ? section.tabs
+      : section.tabs.filter((t) => t.href !== section.href);
 
   if (visibleTabs.length <= 1) return null;
 
   // Longest matching href wins (so nested routes pick the most specific tab).
-  const activeHref = visibleTabs
+  const activeHref = section.tabs
     .filter((t) => matches(pathname, t.href))
     .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 

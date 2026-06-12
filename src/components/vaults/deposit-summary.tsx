@@ -43,9 +43,9 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
     <div className="rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 p-5 flex flex-col gap-0">
       <div className="flex items-center justify-between pb-3 mb-1 border-b border-[var(--ct-border-soft)]">
         <p className="eyebrow">Deposit summary</p>
-        <p className="body-xs ct-text-faint flex items-center gap-1">
+        <div className="body-xs ct-text-faint flex items-center gap-1">
           <ProvenanceBadge kind="estimated" />
-        </p>
+        </div>
       </div>
 
       <SumRow label="You deposit">

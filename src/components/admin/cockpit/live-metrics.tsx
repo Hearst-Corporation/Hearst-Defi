@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 import type { VaultLiveMetric } from "@/lib/data/cockpit";
@@ -69,9 +71,12 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
     >
       {/* Vault name + status */}
       <div className="flex items-center justify-between gap-2 mb-2">
-        <span className="body-sm ct-text-strong font-medium truncate">
+        <Link
+          href={vault.href}
+          className="body-sm ct-text-strong font-medium truncate hover:ct-text-accent hover:underline"
+        >
           {vault.vaultName}
-        </span>
+        </Link>
         <VaultStatusPill status={vault.status} />
       </div>
 

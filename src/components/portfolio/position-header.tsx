@@ -79,7 +79,7 @@ export function PositionHeader({ position }: PositionHeaderProps) {
       <div
         role="region"
         aria-label="Total position value"
-        className="flex items-center justify-between flex-wrap gap-4 rounded-xl border border-(--ct-border-soft) ct-surface-1 px-6 py-5"
+        className="flex items-center justify-between flex-wrap gap-3 rounded-lg border border-(--ct-border-soft) ct-surface-1 px-4 py-3.5"
       >
         <div className="flex flex-col gap-1 min-w-0">
           <span className="eyebrow ct-text-muted">

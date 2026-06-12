@@ -162,7 +162,8 @@ function ScoreCell({
 /**
  * Single hero block answering "what should I do?" in five seconds:
  * APY range, stressed floor, risk + mining posture, confidence, the
- * recommended action, then PTAI as a calm nested panel. One Estimated badge.
+ * recommended action, then scenario-level PTAI. Rebalancing detail lives below.
+ * One Estimated badge.
  */
 function DecisionPanel({
   output,
@@ -561,9 +562,9 @@ function CompactPanel({
         "relative flex flex-col gap-4 glass-panel p-5",
         "border-l-4",
         side === "A"
-          ? "border-l-[var(--ct-border-strong)]"
-          : "border-l-[var(--ct-text-strong)]",
-        "transition-opacity duration-[var(--ct-dur-fast)]",
+          ? "border-l-(--ct-border-strong)"
+          : "border-l-(--ct-text-strong)",
+        "transition-opacity duration-(--ct-dur-fast)",
         isPending && "pointer-events-none opacity-50",
       )}
       aria-busy={isPending}

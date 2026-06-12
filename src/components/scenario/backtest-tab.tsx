@@ -59,29 +59,29 @@ export function BacktestTab() {
               aria-pressed={isActive}
               className={cn(
                 "flex flex-col items-start gap-0.5 rounded-full border px-4 py-3 text-left",
-                "transition-[background-color,color,border-color,box-shadow] duration-[var(--ct-dur-fast)]",
+                "transition-[background-color,color,border-color,box-shadow] duration-(--ct-dur-fast)",
                 "disabled:cursor-not-allowed disabled:opacity-40",
-                "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
+                "focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
                 isActive
                   ? [
-                      "border-[var(--ct-accent)] bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]",
-                      "shadow-[var(--ct-shadow-focus-ring)]",
+                      "border-(--ct-accent) bg-(--ct-accent) text-(--ct-bg-deep)",
+                      "shadow-(--ct-shadow-focus-ring)",
                     ]
                   : [
-                      "border-[var(--ct-border-strong)] ct-surface-1",
+                      "border-(--ct-border-strong) ct-surface-1",
                       "ct-text-body",
-                      "hover:border-[var(--ct-border-strong)] hover:ct-surface-3 hover:ct-text-primary",
+                      "hover:border-(--ct-border-strong) hover:ct-surface-3 hover:ct-text-primary",
                     ],
               )}
             >
-              <span className="text-sm font-semibold leading-[var(--ct-leading-tight)]">
+              <span className="text-sm font-semibold leading-(--ct-leading-tight)">
                 {p.label}
               </span>
               <span
                 className={cn(
-                  "text-xs leading-[var(--ct-leading-tight)]",
+                  "text-xs leading-(--ct-leading-tight)",
                   isActive
-                    ? "text-[var(--ct-bg-deep)] opacity-70"
+                    ? "text-(--ct-bg-deep) opacity-70"
                     : "ct-text-muted",
                 )}
               >
@@ -113,7 +113,7 @@ export function BacktestTab() {
 
       {/* Error banner */}
       {error && (
-        <p className="rounded-full border border-[var(--ct-status-danger)] ct-status-danger-bg px-4 py-2.5 text-sm ct-status-danger">
+        <p className="rounded-full border border-(--ct-status-danger) ct-status-danger-bg px-4 py-2.5 text-sm ct-status-danger">
           {error}
         </p>
       )}

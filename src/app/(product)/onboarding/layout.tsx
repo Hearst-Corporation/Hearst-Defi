@@ -1,30 +1,66 @@
 /**
- * Onboarding layout — wraps all /onboarding/* pages with the 7-step progress bar.
- *
- * The active step is passed via the `step` searchParam so each page can
- * declare its own step without a parallel route or context.
- * Server Component — no interactivity.
+ * Onboarding layout — bare funnel shell (no product rails).
+ * Progress + checklist driven by pathname and live investor state.
  */
 
-import { Suspense } from "react";
+import "./onboarding.css";
+
+import { headers } from "next/headers";
 import type { ReactNode } from "react";
 
-import { OnboardingProgressWrapper } from "./progress-wrapper";
+import { OnboardingShell } from "@/components/onboarding/onboarding-shell";
+import { getIrContact } from "@/lib/ir-contact";
+import { getInvestor, getSession } from "@/lib/auth/session";
+import { listVaults } from "@/lib/data/vaults";
+import { prisma } from "@/lib/db";
+import { requireAccreditationAttested } from "@/lib/onboarding/gates";
+import {
+  onboardingStepFromPathname,
+  resolveOnboardingState,
+} from "@/lib/onboarding/state";
 
 export const metadata = {
   title: "Onboarding — Hearst Yield Vault",
 };
 
-export default function OnboardingLayout({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex flex-col items-center gap-8 px-6 py-10 max-w-2xl mx-auto w-full">
-      {/* Progress bar — reads `step` searchParam; wrapped in Suspense per Next.js requirements for useSearchParams */}
-      <Suspense fallback={<div className="h-10 w-full" />}>
-        <OnboardingProgressWrapper />
-      </Suspense>
+export default async function OnboardingLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const h = await headers();
+  const pathname = h.get("x-pathname") ?? "/onboarding/accreditation";
+  const activeStep = onboardingStepFromPathname(pathname);
 
-      {/* Page content */}
+  const [investor, session] = await Promise.all([getInvestor(), getSession()]);
+
+  const hasKycInquiry =
+    session?.userId != null
+      ? (await prisma.kycInquiry.findFirst({
+          where: { userId: session.userId },
+          select: { inquiryId: true },
+        })) != null
+      : false;
+
+  const state = resolveOnboardingState(investor, hasKycInquiry);
+
+  if (activeStep === "identity" || activeStep === "wallet") {
+    await requireAccreditationAttested();
+  }
+
+  const vaults = state.accreditationAttested ? await listVaults() : [];
+  const vault = vaults.find((v) => v.ticker === "HYV-A") ?? vaults[0] ?? null;
+
+  const irContact = getIrContact();
+
+  return (
+    <OnboardingShell
+      activeStep={activeStep}
+      state={state}
+      vault={vault}
+      irContact={irContact}
+    >
       {children}
-    </div>
+    </OnboardingShell>
   );
 }

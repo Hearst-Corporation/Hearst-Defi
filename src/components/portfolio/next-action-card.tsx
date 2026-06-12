@@ -133,7 +133,7 @@ export function NextActionCard(props: NextActionCardProps) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <div className="flex max-w-3xl flex-col gap-1">
           <span className="eyebrow">{step.eyebrow}</span>
-          <p className="h3 ct-text-strong">{step.headline}</p>
+          <h3 className="h3 ct-text-strong">{step.headline}</h3>
           {step.detail ? (
             <p className="body-sm ct-text-muted max-w-prose">{step.detail}</p>
           ) : null}

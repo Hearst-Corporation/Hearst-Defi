@@ -31,12 +31,12 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
     <div className="pf-kpi-grid">
       {/* Portfolio Value */}
       <article className="dash-cell dash-cell-premium" aria-label="Portfolio value">
-        <div className="dash-label">
-          <span>Portfolio Value</span>
+        <div className="pf-widget-header">
+          <h3 className="h3">Portfolio Value</h3>
           <ProvenanceBadge kind={valueProvenance} />
         </div>
         <div className="dash-value-group">
-          <span className="dash-value">
+          <span className="stat-value">
             {hasPositions ? formatUsdCompact(data.totalValueUsdc) : "—"}
           </span>
           <span className="dash-unit">USDC</span>
@@ -58,12 +58,12 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
 
       {/* Yield YTD */}
       <article className="dash-cell dash-cell-premium" aria-label="Yield year to date">
-        <div className="dash-label">
-          <span>Yield YTD</span>
+        <div className="pf-widget-header">
+          <h3 className="h3">Yield YTD</h3>
           <ProvenanceBadge kind={yieldProvenance} />
         </div>
         <div className="dash-value-group">
-          <span className="dash-value">
+          <span className="stat-value">
             {hasPositions ? formatUsdCompact(data.totalYieldYtdUsdc) : "—"}
           </span>
           <span className="dash-unit">USDC</span>
@@ -75,12 +75,12 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
 
       {/* Next Distribution */}
       <article className="dash-cell dash-cell-premium" aria-label="Next distribution date">
-        <div className="dash-label">
-          <span>Next Distribution</span>
+        <div className="pf-widget-header">
+          <h3 className="h3">Next Distribution</h3>
           <ProvenanceBadge kind={distProvenance} />
         </div>
         <div className="dash-value-group">
-          <span className="dash-value-range stat-value tabular">
+          <span className="stat-value tabular">
             {monthDayFmt.format(data.nextDistributionAt)}
           </span>
         </div>

@@ -5,7 +5,7 @@ import { LoginForm } from "@/components/auth/login-form";
  *
  * Pendant symétrique du MarketingPanel (à gauche) :
  *   - même eyebrow (.eyebrow accent)
- *   - même H1 (.h1 cockpit)
+ *   - H1 unique (.h1 cockpit) — le panneau marketing utilise un titre visuel `.h1` sur `<p>`
  *   - même sous-titre body-sm
  *   - même disclaimer body-xs
  *   - même rythme vertical (gap entre blocs)

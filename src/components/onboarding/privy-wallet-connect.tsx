@@ -1,86 +1,82 @@
 "use client";
 
 /**
- * PrivyWalletConnect — real Privy embedded wallet connect for the onboarding
- * wallet-binding step.
- *
- * Gated: only renders the live Privy flow when `appId` is truthy (i.e.
- * `NEXT_PUBLIC_PRIVY_APP_ID` is set). When absent it renders the
- * `WalletConnectPlaceholder` "Configuration en attente" state so the page
- * never breaks in local dev or CI.
- *
- * Cockpit tokens only. No new DS tokens.
+ * Privy wallet connect — persists Investor.walletAddress via bindWallet.
  */
 
 import { usePrivy, useConnectWallet, useWallets } from "@privy-io/react-auth";
+import { useEffect, useRef } from "react";
 
-import { cn } from "@/lib/cn";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { cn } from "@/lib/cn";
+import { abbreviateAddress } from "@/lib/onchain";
+import { bindWallet } from "@/lib/onboarding/actions";
 
 interface PrivyWalletConnectProps {
-  /** Pass `process.env.NEXT_PUBLIC_PRIVY_APP_ID` from the Server Component. */
   appId: string;
+  boundAddress?: string | null;
 }
 
-/**
- * Inner component — only mounted when Privy is configured (appId truthy).
- * Uses Privy hooks safely within the PrivyProvider context.
- */
-function PrivyConnectInner() {
+function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
   const { ready, authenticated } = usePrivy();
   const { connectWallet } = useConnectWallet();
   const { wallets } = useWallets();
+  const persistRef = useRef<string | null>(boundAddress?.toLowerCase() ?? null);
 
   const connectedWallet = wallets[0];
-  const address = connectedWallet?.address ?? null;
-  const displayAddress = address
-    ? `${address.slice(0, 6)}…${address.slice(-4)}`
-    : null;
+  const address = connectedWallet?.address ?? boundAddress;
 
-  // Not yet ready — show a brief skeleton to avoid flash
+  useEffect(() => {
+    const next = connectedWallet?.address;
+    if (!next) return;
+    const normalized = next.toLowerCase();
+    if (normalized === persistRef.current) return;
+
+    persistRef.current = normalized;
+    void bindWallet(next).then((result) => {
+      if (!result.ok) {
+        console.error("[PrivyWalletConnect] bindWallet failed:", result.error);
+        persistRef.current = null;
+      }
+    });
+  }, [connectedWallet?.address]);
+
   if (!ready) {
     return (
-      <Card
-        className="w-full flex items-center justify-center"
-        aria-busy="true"
-        aria-label="Loading wallet connection"
-      >
-        <span className="body-sm ct-text-faint animate-pulse">
-          Loading wallet connection…
-        </span>
+      <Card aria-busy="true" aria-label="Loading wallet connection">
+        <AwaitingMetricState message="Loading wallet connection…" />
       </Card>
     );
   }
 
-  // Wallet already connected
-  if (authenticated && displayAddress) {
+  if (authenticated && address) {
     return (
       <Card
-        className="w-full flex flex-col items-center gap-4 text-center"
+        className="flex flex-col items-center gap-4 text-center"
         role="region"
         aria-label="Wallet connected"
       >
-        {/* Status dot */}
         <Badge variant="success">
           <span
             aria-hidden="true"
-            className="inline-block w-1.5 h-1.5 rounded-full bg-current"
+            className="inline-block h-1.5 w-1.5 rounded-full bg-current"
           />
-          Wallet Connected
+          Wallet linked
         </Badge>
 
         <p
           className={cn(
-            "font-mono text-sm ct-text-strong",
-            "rounded-md ct-surface-2",
-            "px-4 py-2 tabular-nums tracking-widest",
+            "mono tabular body-sm ct-text-strong m-0",
+            "rounded-md border border-[var(--ct-border-soft)] px-4 py-2",
           )}
         >
-          {displayAddress}
+          {abbreviateAddress(address)}
         </p>
 
-        <p className="body-xs ct-text-faint text-pretty">
+        <p className="body-xs ct-text-faint text-pretty m-0">
           This wallet will receive your monthly USDC distributions and act as
           the signing key for on-chain position management.
         </p>
@@ -88,92 +84,40 @@ function PrivyConnectInner() {
     );
   }
 
-  // Prompt to connect
   return (
-    <div
-      className="w-full rounded-lg border border-dashed border-[var(--ct-border-soft)] ct-surface-1 px-8 py-8 flex flex-col items-center gap-4 text-center"
-      role="region"
-      aria-label="Connect wallet"
-    >
-      <div className="flex flex-col gap-2">
-        <h3 className="h3">
-          Connect Your Wallet
-        </h3>
-        <p className="body-sm ct-text-muted ct-prose-narrow">
-          Link the wallet address that will receive your USDC distributions.
-          Supported: MetaMask, Ledger, WalletConnect, Coinbase Wallet.
-        </p>
-      </div>
+    <Card className="flex flex-col items-center gap-4 text-center">
+      <p className="body-sm ct-text-muted m-0 ct-prose-narrow">
+        Link the wallet address that will receive your USDC distributions.
+        Supported: MetaMask, Ledger, WalletConnect, Coinbase Wallet.
+      </p>
 
-      <button
+      <Button
         type="button"
+        variant="primary"
+        size="lg"
+        className="w-full font-bold"
         onClick={() => void connectWallet()}
-        className={cn(
-          "inline-flex items-center justify-center gap-2 rounded-md px-6 py-2.5",
-          "text-sm font-semibold transition-opacity duration-[var(--ct-dur-fast)]",
-          "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]",
-          "hover:opacity-90 active:opacity-75",
-        )}
       >
-        Connect Wallet
-      </button>
+        Connect wallet
+      </Button>
 
-      <p className="body-xs ct-text-faint text-center text-pretty">
+      <p className="body-xs ct-text-faint text-pretty m-0">
         Wallet binding is used solely for on-chain distribution delivery.
         No private keys are stored or transmitted.
       </p>
-    </div>
+    </Card>
   );
 }
 
-/**
- * ConfigPending — shown when NEXT_PUBLIC_PRIVY_APP_ID is not set.
- * Reuses the visual language of the existing `WalletConnectPlaceholder`
- * but signals "Configuration en attente" clearly.
- */
-function ConfigPending() {
-  return (
-    <div
-      className="w-full rounded-lg border border-dashed border-[var(--ct-border-soft)] ct-surface-1 p-8 flex flex-col items-center gap-4 text-center"
-      role="region"
-      aria-label="Wallet connection — configuration pending"
-    >
-      <div className="flex flex-col gap-2">
-        <h3 className="h3">
-          Connect Your Wallet
-        </h3>
-        <p className="body-sm ct-text-muted ct-prose-narrow">
-          Link your institutional wallet to receive USDC distributions and manage
-          your vault position.
-        </p>
-      </div>
+export function PrivyWalletConnect({ appId, boundAddress = null }: PrivyWalletConnectProps) {
+  if (!appId) {
+    return (
+      <AwaitingMetricState
+        message="Wallet connection not configured"
+        detail="Set NEXT_PUBLIC_PRIVY_APP_ID to enable Privy wallet binding."
+      />
+    );
+  }
 
-      <Badge variant="warning">
-        <span
-          aria-hidden="true"
-          className="inline-block w-1.5 h-1.5 rounded-full bg-current"
-        />
-        Configuration en attente
-      </Badge>
-
-      <p className="body-xs ct-text-faint text-center text-pretty">
-        Set{" "}
-        <code className="font-mono ct-text-muted">
-          NEXT_PUBLIC_PRIVY_APP_ID
-        </code>{" "}
-        to activate wallet binding.
-      </p>
-    </div>
-  );
-}
-
-/**
- * PrivyWalletConnect — exported component used by `wallet/page.tsx`.
- *
- * When `appId` is empty the component returns `ConfigPending` — the page stays
- * fully renderable and the build does not crash.
- */
-export function PrivyWalletConnect({ appId }: PrivyWalletConnectProps) {
-  if (!appId) return <ConfigPending />;
-  return <PrivyConnectInner />;
+  return <PrivyConnectInner boundAddress={boundAddress} />;
 }

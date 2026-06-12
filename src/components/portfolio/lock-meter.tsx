@@ -136,9 +136,9 @@ export function LockMeter({
       {/* Header row -------------------------------------------------------- */}
       <div className="pf-widget-header relative z-10">
         <Tooltip content="Progress towards your 60-day soft lockup period">
-          <span className="dash-label cursor-help border-b border-dotted border-(--ct-border-soft)">
-            <span>Lock · liquidity</span>
-          </span>
+          <h3 className="h3 cursor-help border-b border-dotted border-(--ct-border-soft)">
+            Lock · liquidity
+          </h3>
         </Tooltip>
         <ProvenanceBadge kind={badgeKind} />
       </div>

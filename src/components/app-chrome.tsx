@@ -17,7 +17,7 @@ const BARE_EXACT = new Set<string>([
   "/reset-password",
   "/totp-challenge",
 ]);
-const BARE_PREFIXES = ["/legal"] as const;
+const BARE_PREFIXES = ["/legal", "/onboarding"] as const;
 
 function isBareRoute(pathname: string): boolean {
   if (BARE_EXACT.has(pathname)) return true;

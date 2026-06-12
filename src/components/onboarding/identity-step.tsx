@@ -11,10 +11,7 @@ interface IdentityStepProps {
   referenceId?: string;
 }
 
-/**
- * Client wrapper around PersonaEmbed that handles the post-completion
- * navigation. Lives in its own file so the page stays a Server Component.
- */
+/** Client wrapper — navigates to wallet after Persona completes. */
 export function IdentityStep({ templateId, environment, referenceId }: IdentityStepProps) {
   const router = useRouter();
 

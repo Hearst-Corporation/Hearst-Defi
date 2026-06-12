@@ -192,8 +192,8 @@ export function ValueChart({ positions, totalValueUsdc, source, updatedAt }: Val
   return (
     <article className="dash-cell dash-cell-premium relative h-full" aria-label="Portfolio value — 12-month trend">
       <ChartProvenanceCorner kind={provenance} />
-      <div className="dash-label relative z-10">
-        <span>Portfolio value · indicative 12-month path</span>
+      <div className="pf-widget-header relative z-10">
+        <h3 className="h3">Portfolio value · indicative 12-month path</h3>
         <span className="dash-label-meta">
           <span className="dash-trend flat">
             {formatUsdCompact(totalValueUsdc)}

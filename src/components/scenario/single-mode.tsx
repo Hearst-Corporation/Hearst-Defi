@@ -1,8 +1,6 @@
 "use client";
 
-// SingleMode — the "run one scenario" sub-view (inputs + output).
-// Extracted from lab-shell.tsx. Owns its own state via useScenario. Behaviour
-// preserved (preset bar, sliders, run button, empty/loading output states).
+import { useEffect, useRef } from "react";
 
 import { InputsPanel } from "@/components/scenario/inputs-panel";
 import { OutputPanel } from "@/components/scenario/output-panel";
@@ -12,11 +10,23 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { useScenario } from "@/hooks/use-scenario";
 import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
-import { useEffect, useRef } from "react";
 
 export interface SingleModeProps {
   vaultId: VaultId;
   initialInputs?: ScenarioInputs;
+}
+
+function RunScenarioIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4 shrink-0 ct-text-accent"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M8 5v14l11-7z" />
+    </svg>
+  );
 }
 
 export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
@@ -38,25 +48,27 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
         disabled={pending}
       />
 
-      {error && (
-        <p className="rounded-full border border-(--ct-status-danger) ct-status-danger-bg px-4 py-2.5 text-sm ct-status-danger">
+      {error ? (
+        <p
+          role="alert"
+          className="rounded-full border border-(--ct-status-danger) ct-status-danger-bg px-4 py-2.5 text-sm ct-status-danger"
+        >
           {error}
         </p>
-      )}
+      ) : null}
 
       <div className="scenario-lab-workspace">
-        {/* Left: Inputs panel */}
         <div className="scenario-lab-input-card glass-panel p-0">
-          <div className="border-b border-(--ct-border-soft) px-5 py-4">
+          <div className="scenario-lab-input-card__header">
             <h4 className="h4">Inputs</h4>
-            <p className="mt-0.5 text-xs ct-text-muted">
+            <p className="mt-0.5 body-xs ct-text-muted">
               Adjust sliders or select a preset above
             </p>
           </div>
 
           <div
             className={cn(
-              "scenario-lab-input-scroll flex-1",
+              "scenario-lab-input-scroll",
               pending && "pointer-events-none opacity-50",
             )}
           >
@@ -67,7 +79,7 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
             />
           </div>
 
-          <div className="border-t border-(--ct-border-soft) px-5 py-4">
+          <div className="scenario-lab-input-footer">
             <Button
               variant="primary"
               size="lg"
@@ -77,6 +89,7 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
                 submit(state.inputs);
               }}
               disabled={pending}
+              aria-busy={pending}
             >
               {pending ? (
                 <>
@@ -90,12 +103,11 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
           </div>
         </div>
 
-        {/* Right: Output panel */}
         <div
           ref={outputRef}
           className={cn(
-            "scenario-lab-output-card",
-            !state.output && "glass-panel p-0",
+            "scenario-lab-output-card glass-panel",
+            state.output ? "p-5" : "p-0",
           )}
         >
           {state.output ? (
@@ -111,6 +123,7 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
                 "transition-opacity duration-(--ct-dur-fast)",
                 pending && "opacity-50",
               )}
+              aria-live="polite"
             >
               {pending ? (
                 <>
@@ -119,12 +132,12 @@ export function SingleMode({ vaultId, initialInputs }: SingleModeProps) {
                 </>
               ) : (
                 <>
-                  <div className="scenario-lab-output-empty__icon" />
-                  <p className="max-w-xs text-center text-sm ct-text-muted">
+                  <div className="scenario-lab-output-empty__icon">
+                    <RunScenarioIcon />
+                  </div>
+                  <p className="max-w-xs text-center body-sm ct-text-muted">
                     Select a preset or adjust sliders, then press{" "}
-                    <span className="font-semibold ct-text-body">
-                      Run scenario
-                    </span>{" "}
+                    <span className="font-semibold ct-text-body">Run scenario</span>{" "}
                     to see projections.
                   </p>
                 </>

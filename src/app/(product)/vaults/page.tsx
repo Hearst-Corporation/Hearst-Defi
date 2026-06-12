@@ -23,7 +23,7 @@ export default async function VaultsPage() {
         eyebrow="Invest · Step 1 of 4"
         title="Select a product"
         description={
-          <p className="body-lg max-w-xl">
+          <p className="body-md max-w-xl">
             Professional-grade structured yield for qualified investors.
             Review the term sheet and confirm before depositing.
           </p>
@@ -36,7 +36,7 @@ export default async function VaultsPage() {
 
       {/* Product grid — auto-fit, single card at MVP */}
       <section aria-labelledby="vaults-heading">
-        <h2 id="vaults-heading" className="h2 mb-6">
+        <h2 id="vaults-heading" className="h2 mb-4">
           Available products
         </h2>
 

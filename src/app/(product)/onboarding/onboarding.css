@@ -1,0 +1,72 @@
+/* Onboarding funnel — bare shell (no product rails). Reuses login ambient pattern. */
+
+.onboarding-shell {
+  min-height: 100dvh;
+  position: relative;
+  background: var(--ct-bg-deep);
+  overflow: auto;
+}
+
+.onboarding-shell__ambient {
+  position: fixed;
+  inset: 0;
+  z-index: var(--ct-z-base);
+  pointer-events: none;
+}
+
+.onboarding-shell__glow {
+  position: absolute;
+  width: 70vw;
+  height: 70vw;
+  top: 42%;
+  left: 35%;
+  transform: translate(-50%, -50%);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-accent);
+  filter: blur(11.25rem);
+  opacity: 0.06;
+}
+
+.onboarding-shell__frame {
+  position: relative;
+  z-index: var(--ct-z-raised);
+  margin: 0 auto;
+  max-width: 72rem;
+  padding: var(--ct-space-8) var(--ct-space-6) var(--ct-space-16);
+}
+
+.onboarding-shell__header {
+  margin-bottom: var(--ct-space-8);
+}
+
+.onboarding-shell__logo {
+  width: 10rem;
+  height: auto;
+  display: block;
+}
+
+.onboarding-shell__grid {
+  display: grid;
+  gap: var(--ct-space-8);
+  grid-template-columns: minmax(17.5rem, 22rem) minmax(0, 1fr);
+  align-items: start;
+}
+
+.onboarding-shell__main {
+  min-width: 0;
+}
+
+.onboarding-rail {
+  position: sticky;
+  top: var(--ct-space-6);
+}
+
+@media (max-width: 960px) {
+  .onboarding-shell__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .onboarding-rail {
+    position: static;
+  }
+}

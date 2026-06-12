@@ -244,7 +244,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
         <Card>
           <span className="stat-label block mb-1">Fees</span>
-          <span className="mono tabular text-base font-semibold ct-text-strong">
+          <span className="stat-value mono tabular">
             {pct(vault.mgmtFeeBps)}% / {pct(vault.perfFeeBps)}%
           </span>
           <p className="body-xs ct-text-faint mt-1">Mgmt / Perf</p>
@@ -252,7 +252,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
         <Card>
           <span className="stat-label block mb-1">Lock-up</span>
-          <span className="mono tabular text-base font-semibold ct-text-strong">
+          <span className="stat-value mono tabular">
             {vault.softLockupDays}d
           </span>
           <p className="body-xs ct-text-faint mt-1">Soft lock-up</p>
@@ -264,7 +264,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
               <span className="stat-label">AUM</span>
               <ProvenanceBadge kind={aumUsdc > 0 ? "live" : "estimated"} />
             </div>
-            <span className="mono tabular text-base font-semibold ct-text-strong">
+            <span className="stat-value mono tabular">
               ${aumUsdc.toLocaleString()}
             </span>
             <div className="mt-2">

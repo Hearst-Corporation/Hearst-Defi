@@ -60,6 +60,14 @@ export async function subscribe(
     throw new Error("Unauthenticated");
   }
 
+  if (!investor.accreditationAttestedAt) {
+    return { ok: false, error: "Accreditation attestation required before subscribing." };
+  }
+
+  if (investor.accreditationAttestedAt == null) {
+    return { ok: false, error: "Accreditation attestation required before subscribing." };
+  }
+
   // C-01: KYC gate — only approved investors may subscribe.
   if (investor.kycStatus !== "approved") {
     return { ok: false, error: "KYC approval required before subscribing." };

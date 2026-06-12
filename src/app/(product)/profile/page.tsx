@@ -1,4 +1,5 @@
 import "./profile.css";
+import "../product-doc.css";
 
 import Link from "next/link";
 
@@ -57,7 +58,7 @@ export default async function ProfilePage() {
   const kycRejected = kycStatus === "rejected";
 
   return (
-    <div className="space-y-8" data-testid="profile-page">
+    <div className="product-doc space-y-8" data-testid="profile-page">
       {showDemoBanner ? <DemoDataBanner /> : null}
 
       <ProductPageHeader

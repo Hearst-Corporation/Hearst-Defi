@@ -4,6 +4,8 @@
 // No forbidden words (#5).
 
 import { cn } from "@/lib/cn";
+import { allocationStrokeFor } from "@/lib/allocation-colors";
+import type { AllocationBucket } from "@/lib/engine/types";
 
 interface RegimeCard {
   id: "bull" | "sideways" | "bear";
@@ -82,16 +84,20 @@ const TONE_CLASSES: Record<
 interface AllocationBarProps {
   label: string;
   pct: number;
+  bucket: AllocationBucket;
 }
 
-function AllocationBar({ label, pct }: AllocationBarProps) {
+function AllocationBar({ label, pct, bucket }: AllocationBarProps) {
   return (
     <div className="flex items-center gap-2 min-w-0">
       <span className="body-xs ct-text-muted w-16 shrink-0 truncate">{label}</span>
       <div className="flex-1 h-1 rounded-full ct-surface-2 overflow-hidden">
         <div
-          className="h-full rounded-full bg-[var(--ct-accent)] opacity-80"
-          style={{ width: `${pct}%` }}
+          className="h-full rounded-full opacity-90"
+          style={{
+            width: `${pct}%`,
+            background: allocationStrokeFor(bucket),
+          }}
           aria-label={`${label}: ${pct}%`}
         />
       </div>
@@ -114,30 +120,25 @@ export function DynamicAllocationCards() {
           <div
             key={card.id}
             className={cn(
-              "flex flex-col gap-3 rounded-lg border ct-surface-1 p-4",
+              "flex flex-col gap-2.5 rounded-lg border ct-surface-1 p-3.5",
               toneClass.border,
             )}
             aria-label={`${card.label} regime allocation`}
           >
             <div className="flex items-center gap-2">
               <span
-                className={cn("text-lg font-semibold tabular", toneClass.text)}
+                className={cn("body-sm font-semibold tabular", toneClass.text)}
                 aria-hidden="true"
               >
                 {card.icon}
               </span>
-              <h3 className="body-md font-semibold ct-text-primary">
-                {card.label}
-              </h3>
+              <h3 className="h4 ct-text-strong">{card.label}</h3>
             </div>
 
             <div>
               <span className="stat-label">APY range</span>
               <p
-                className={cn(
-                  "mono tabular-nums font-semibold text-base mt-0.5",
-                  toneClass.text,
-                )}
+                className={cn("h4 mono tabular-nums mt-0.5", toneClass.text)}
                 aria-label={`APY range ${card.apyLow} to ${card.apyHigh} percent`}
               >
                 {card.apyLow.toFixed(1)}–{card.apyHigh.toFixed(1)}%
@@ -147,10 +148,18 @@ export function DynamicAllocationCards() {
             <p className="body-xs ct-text-muted">{card.scenario}</p>
 
             <div className="flex flex-col gap-1.5 pt-2 border-t border-[var(--ct-border-soft)]">
-              <AllocationBar label="Mining" pct={card.miningPct} />
-              <AllocationBar label="BTC" pct={card.btcTacticalPct} />
-              <AllocationBar label="USDC" pct={card.usdcBasePct} />
-              <AllocationBar label="Reserve" pct={card.stableReservePct} />
+              <AllocationBar label="Mining" pct={card.miningPct} bucket="mining" />
+              <AllocationBar
+                label="BTC"
+                pct={card.btcTacticalPct}
+                bucket="btc_tactical"
+              />
+              <AllocationBar label="USDC" pct={card.usdcBasePct} bucket="usdc_base" />
+              <AllocationBar
+                label="Reserve"
+                pct={card.stableReservePct}
+                bucket="stable_reserve"
+              />
             </div>
           </div>
         );

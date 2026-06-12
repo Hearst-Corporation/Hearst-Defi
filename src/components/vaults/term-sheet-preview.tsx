@@ -6,8 +6,10 @@
 import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { DynamicAllocationCards } from "@/components/vaults/dynamic-allocation-cards";
 import { cn } from "@/lib/cn";
 import type { VaultProduct } from "@/lib/data/vaults";
+import type { AllocationBucket } from "@/lib/engine/types";
 import {
   SHARE_CLASS_A,
   SHARE_CLASS_B,
@@ -40,30 +42,62 @@ const REG_LABELS: Record<string, string> = {
   art2_lux: "Art. 2 RAIF — EU Professional Investors",
 };
 
-const ALLOCATION_ROWS = (vault: VaultProduct) => [
-  {
-    label: "Bitcoin Mining Operations",
-    bps: vault.targetMiningBps,
-    description:
-      "Directly deployed hashrate — revenue share from partner mining facilities.",
+/** Web UI bucket accents — same mapping as `allocation-colors.ts` / portfolio donut. */
+const ALLOCATION_BUCKET_CLASS: Record<
+  AllocationBucket,
+  { border: string; value: string; dot: string }
+> = {
+  mining: {
+    border: "border-l-[var(--ct-text-primary)]",
+    value: "ct-text-primary",
+    dot: "dot-primary",
   },
-  {
-    label: "BTC Tactical Delta",
-    bps: vault.targetBtcTacticalBps,
-    description:
-      "Spot BTC exposure for directional upside within a realised-volatility guardrail.",
+  btc_tactical: {
+    border: "border-l-[var(--ct-accent-strong)]",
+    value: "ct-text-accent",
+    dot: "dot-accent",
   },
-  {
-    label: "USDC Base Lending",
-    bps: vault.targetUsdcBaseBps,
-    description: "T-bills + on-chain lending weighted average.",
+  usdc_base: {
+    border: "border-l-[var(--ct-status-info)]",
+    value: "ct-status-info",
+    dot: "dot-soft",
   },
-  {
-    label: "Stable Reserve",
-    bps: vault.targetStableReserveBps,
-    description: "USDC yield buffer for soft lock-up and redemption queue.",
+  stable_reserve: {
+    border: "border-l-[var(--ct-status-warning)]",
+    value: "ct-status-warning",
+    dot: "dot-muted",
   },
-];
+};
+
+const ALLOCATION_ROWS = (vault: VaultProduct) =>
+  [
+    {
+      bucket: "mining" as const,
+      label: "Bitcoin Mining Operations",
+      bps: vault.targetMiningBps,
+      description:
+        "Directly deployed hashrate — revenue share from partner mining facilities.",
+    },
+    {
+      bucket: "btc_tactical" as const,
+      label: "BTC Tactical Delta",
+      bps: vault.targetBtcTacticalBps,
+      description:
+        "Spot BTC exposure for directional upside within a realised-volatility guardrail.",
+    },
+    {
+      bucket: "usdc_base" as const,
+      label: "USDC Base Lending",
+      bps: vault.targetUsdcBaseBps,
+      description: "T-bills + on-chain lending weighted average.",
+    },
+    {
+      bucket: "stable_reserve" as const,
+      label: "Stable Reserve",
+      bps: vault.targetStableReserveBps,
+      description: "USDC yield buffer for soft lock-up and redemption queue.",
+    },
+  ] as const;
 
 interface SectionProps {
   id: string;
@@ -75,7 +109,7 @@ interface SectionProps {
 
 function Section({ id, title, provenance, children, className }: SectionProps) {
   return (
-    <section aria-labelledby={id} className={cn("flex flex-col gap-4", className)}>
+    <section aria-labelledby={id} className={cn("flex flex-col gap-3", className)}>
       <div className="flex flex-wrap items-end justify-between gap-2">
         <h2 id={id} className="h2">
           {title}
@@ -97,7 +131,7 @@ function LightPanel({
   return (
     <div
       className={cn(
-        "rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 p-5",
+        "rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 p-4",
         className,
       )}
     >
@@ -110,7 +144,7 @@ function MetricRow({ label, value }: { label: string; value: React.ReactNode }) 
   return (
     <div className="flex flex-col gap-0.5 min-w-0">
       <span className="stat-label">{label}</span>
-      <span className="tabular text-base font-semibold ct-text-strong">{value}</span>
+      <span className="h4 tabular mono ct-text-strong">{value}</span>
     </div>
   );
 }
@@ -145,22 +179,22 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
     vault.currentAumUsdc > 0 ? ("live" as const) : ("manual" as const);
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-6">
       {/* ── At a glance — 6 headline metrics, one provenance line ── */}
       <Section
         id="sec-glance"
         title="At a glance"
         provenance={
-          <p className="body-xs ct-text-faint flex flex-wrap items-center gap-1.5">
+          <div className="body-xs ct-text-faint flex flex-wrap items-center gap-1.5">
             <span>Metrics:</span>
             <ProvenanceBadge kind="estimated" />
             <ProvenanceBadge kind="manual" />
             {vault.currentAumUsdc > 0 ? <ProvenanceBadge kind={aumProvenance} /> : null}
-          </p>
+          </div>
         }
       >
         <LightPanel>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <MetricRow
               label="Target APY range"
               value={
@@ -228,24 +262,54 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
 
       {/* ── Allocation policy — compact ── */}
       <Section id="sec-alloc" title="Allocation policy">
-        <div className="grid gap-px rounded-lg border border-[var(--ct-border-soft)] overflow-hidden md:grid-cols-2">
-          {allocRows.map((row) => (
-            <div
-              key={row.label}
-              className="ct-surface-1 px-4 py-3 flex flex-col gap-1"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="body-sm font-semibold ct-text-primary">
-                  {row.label}
-                </span>
-                <span className="tabular mono text-sm font-semibold ct-text-strong">
-                  {(row.bps / 100).toFixed(0)}%
-                </span>
+        <div className="grid gap-3 md:grid-cols-2">
+          {allocRows.map((row) => {
+            const tone = ALLOCATION_BUCKET_CLASS[row.bucket];
+            return (
+              <div
+                key={row.label}
+                className={cn(
+                  "glass-panel-subtle flex flex-col gap-1 border-l-[3px] px-4 py-3",
+                  tone.border,
+                )}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span
+                      aria-hidden
+                      className={cn("dash-legend-dot shrink-0", tone.dot)}
+                    />
+                    <span className="body-sm font-semibold ct-text-primary truncate">
+                      {row.label}
+                    </span>
+                  </span>
+                  <span className={cn("h4 tabular mono shrink-0", tone.value)}>
+                    {(row.bps / 100).toFixed(0)}%
+                  </span>
+                </div>
+                <p className="body-xs ct-text-muted">{row.description}</p>
               </div>
-              <p className="body-xs ct-text-muted">{row.description}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
+      </Section>
+
+      {/* ── Market regimes — follows allocation targets in the same document ── */}
+      <Section
+        id="sec-regimes"
+        title="Market regimes"
+        provenance={
+          <div className="body-xs ct-text-faint flex items-center gap-1.5">
+            <span>Scenarios:</span>
+            <ProvenanceBadge kind="estimated" />
+          </div>
+        }
+      >
+        <p className="body-sm ct-text-muted max-w-2xl">
+          Target postures under Bull, Sideways, and Bear scenarios from
+          Methodology v1.0. APY ranges are conditional — not a projection.
+        </p>
+        <DynamicAllocationCards />
       </Section>
 
       {/* ── Legal & risk — secondary, compact ── */}
@@ -275,19 +339,6 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
           />
           <DetailRow label="Audit" value="Spearbit · scheduled" />
         </LightPanel>
-      </Section>
-
-      {/* ── Disclaimers — sober, not a premium card ── */}
-      <Section id="sec-disclaimers" title="Disclaimers">
-        <div role="note" aria-label="Important disclaimers" className="max-w-3xl">
-          <p className="body-sm ct-text-muted leading-relaxed">{vault.disclaimers}</p>
-          <p className="body-xs ct-text-faint mt-3 leading-relaxed">
-            APY ranges are not a projection of returns. Past performance does not
-            indicate future results. Allocations shown are targets and may deviate.
-            This document is informational only and does not constitute an offer
-            or solicitation where prohibited by law.
-          </p>
-        </div>
       </Section>
     </div>
   );

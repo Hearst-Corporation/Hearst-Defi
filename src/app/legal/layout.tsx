@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+import "../(product)/product-doc.css";
+import "./legal.css";
+
 export const dynamic = "force-static";
 
 export const metadata = {
@@ -14,7 +17,7 @@ export default function LegalLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="legal-shell">
+    <div className="product-doc legal-shell">
       <header className="legal-header">
         <Link href="/" className="legal-back">
           Hearst Connect

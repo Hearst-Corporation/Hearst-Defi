@@ -162,10 +162,7 @@ function ConfirmDialogBody({
           "ct-surface-2 p-6 shadow-(--ct-shadow-elevated) z-(--ct-z-base)",
         )}
       >
-        <h2
-          id={titleId}
-          className="text-lg font-semibold ct-text-strong"
-        >
+        <h2 id={titleId} className="h2 shrink-0">
           {title}
         </h2>
 

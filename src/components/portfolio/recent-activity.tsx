@@ -72,9 +72,7 @@ export function RecentActivity({ transactions, source, updatedAt }: RecentActivi
   return (
     <article className="dash-cell dash-cell-premium flex flex-col" aria-label="Recent account activity">
       <div className="pf-widget-header">
-        <span className="dash-label">
-          <span>Recent activity</span>
-        </span>
+        <h3 className="h3">Recent activity</h3>
         <ProvenanceBadge kind={provenance} />
       </div>
 

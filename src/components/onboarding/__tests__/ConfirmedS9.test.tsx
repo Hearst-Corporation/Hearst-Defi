@@ -17,7 +17,7 @@
  */
 
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, it, expect } from "vitest";
+import { beforeEach, describe, it, expect, vi } from "vitest";
 
 import ConfirmedPage from "@/app/(product)/vaults/[id]/invest/confirmed/page";
 
@@ -46,6 +46,11 @@ async function getHtml(overrides?: {
 }
 
 describe("S9 ConfirmedPage — all required elements present", () => {
+  beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_IR_CONTACT_NAME", "Sarah Chen");
+    vi.stubEnv("NEXT_PUBLIC_IR_CONTACT_EMAIL", "sarah@hearstconnect.io");
+    vi.stubEnv("NEXT_PUBLIC_CALENDLY_URL", "https://calendly.com/hearstconnect/15min");
+  });
   it("shows the deposited amount", async () => {
     const html = await getHtml({ amount: "500000" });
     expect(html).toContain("500,000");
@@ -110,7 +115,7 @@ describe("S9 ConfirmedPage — all required elements present", () => {
     expect(html).toContain("Sarah Chen");
     expect(html).toContain("Investor Relations");
     expect(html).toContain("sarah@hearstconnect.io");
-    expect(html).toContain("Book 15-min call");
+    expect(html).toContain("Book a call");
   });
 
   it("has a 'Go to portfolio' primary CTA linking to the position", async () => {

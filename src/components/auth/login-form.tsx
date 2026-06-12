@@ -40,7 +40,7 @@ export function LoginForm() {
 
   return (
     <form action={onSubmit} className="space-y-4" aria-label="Sign in">
-      <label className="block text-xs" htmlFor="login-email">
+      <label className="block body-xs" htmlFor="login-email">
         <span className="mb-1 block ct-text-muted uppercase tracking-wide">
           Email
         </span>
@@ -59,7 +59,7 @@ export function LoginForm() {
         />
       </label>
 
-      <label className="block text-xs" htmlFor="login-password">
+      <label className="block body-xs" htmlFor="login-password">
         <span className="mb-1 block ct-text-muted uppercase tracking-wide">
           Password
         </span>

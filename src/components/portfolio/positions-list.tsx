@@ -47,9 +47,7 @@ export function PositionsList({ positions, source, updatedAt }: PositionsListPro
   return (
     <article className="dash-cell dash-cell-premium flex flex-col" aria-label="Open positions">
       <div className="pf-widget-header">
-        <span className="dash-label">
-          <span>Positions</span>
-        </span>
+        <h3 className="h3">Positions</h3>
         <span className="dash-label-meta">
           <ProvenanceBadge kind={provenance} />
           <span className="body-xs ct-text-muted tabular">

@@ -1,5 +1,7 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DashboardAssetsBoard } from "@/components/admin/dashboard-assets-board";
+import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
+import { adminDashboardVaultHref } from "@/lib/vaults/dashboard-scope";
 import { Card } from "@/components/ui/card";
 import {
   ProvenanceBadge,
@@ -7,6 +9,7 @@ import {
 } from "@/components/ui/provenance-badge";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadAdminOverview } from "@/lib/data/admin-overview";
+import { loadCockpitPayload } from "@/lib/data/cockpit";
 import { loadDashboardData } from "@/lib/data/dashboard";
 import { loadRiskFramework } from "@/lib/data/risk-framework";
 
@@ -16,21 +19,27 @@ interface DashboardPageProps {
   searchParams: Promise<{ vault?: string }>;
 }
 
+const dateFmt = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   await requireAdmin();
   const params = await searchParams;
   const requestedVault = params.vault;
 
-  const [data, risk, overview] = await Promise.all([
+  const [data, risk, overview, cockpit] = await Promise.all([
     loadDashboardData(requestedVault),
     loadRiskFramework(),
     loadAdminOverview(),
+    loadCockpitPayload(),
   ]);
   const { vaultMeta } = data;
   const vault = data.vault;
   const preview = vaultMeta.livePreview;
 
-  // ── Headline APY (engine preset for preview vaults, live band otherwise) ──
   const headlineApy = preview ? vaultMeta.apyTarget : vault.apyRange;
   const apyMid = (headlineApy.low + headlineApy.high) / 2;
   const targetLow = vaultMeta.apyTarget.low;
@@ -41,22 +50,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       : apyMid > targetHigh
         ? "above target band"
         : "within target band";
-  // ── Risk score — single source of truth ──────────────────────────────────────
-  // `loadRiskFramework()` computes the composite from live engine inputs (or
-  // engine fallback inputs when the DB is empty). `loadDashboardData()` falls
-  // back to METHODOLOGY_ANCHORS.RISK_SCORE (a stale constant = 38) when no
-  // VaultSnapshot exists, which diverges from the engine computation (~47).
-  // Reconcile here: replace vault.riskScore with risk.composite so every
-  // downstream component reading data.vault.riskScore gets the same value that
-  // the "Risk score" stat card displays from risk.composite.
+
   const reconciledData = {
     ...data,
     vault: { ...data.vault, riskScore: risk.composite },
   };
 
-  // ── Capital posture (custody reserves when scope pinned, else snapshot AUM) ──
-  const { custodyConfigured, custodyReservesUsdc, custodyProvenance } =
-    overview.proof;
+  const { custodyConfigured, custodyReservesUsdc, custodyProvenance } = overview.proof;
   const useCustody = custodyConfigured && custodyReservesUsdc > 0;
   const aumNumeric = useCustody ? custodyReservesUsdc : vault.aumUsdc;
   const capitalProvenance: Provenance = preview
@@ -66,24 +66,39 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       : data.source === "db"
         ? "live"
         : "estimated";
-  // ── Proof posture ──
+
   const proofFresh =
-    overview.proof.miningFreshness === "live" &&
-    overview.proof.attestationsCount > 0;
+    overview.proof.miningFreshness === "live" && overview.proof.attestationsCount > 0;
 
   return (
-    <div className="flex flex-col gap-8 relative">
-      {/* Ambient glow for the dashboard */}
+    <div className="relative flex flex-col gap-4">
       <div
         aria-hidden="true"
-        className="absolute -inset-20 z-0 pointer-events-none overflow-hidden"
+        className="pointer-events-none absolute -inset-20 z-0 overflow-hidden"
       >
         <div className="dash-ambient-orb dash-ambient-orb--primary" />
         <div className="dash-ambient-orb dash-ambient-orb--secondary" />
       </div>
 
       <div className="relative z-10">
-        <AdminPageHeader title="Dashboard" />
+        <AdminPageHeader
+          title="Dashboard"
+          eyebrow={`${vaultMeta.name} · as of ${dateFmt.format(vault.asOf)}`}
+          actions={
+            <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+              <FixtureVaultPills
+                activeVaultId={vaultMeta.id}
+                resolveHref={adminDashboardVaultHref}
+              />
+              {overview.totalActionRequired > 0 ? (
+                <span className="body-xs ct-text-muted tabular">
+                  {overview.totalActionRequired} tracked action
+                  {overview.totalActionRequired === 1 ? "" : "s"}
+                </span>
+              ) : null}
+            </div>
+          }
+        />
       </div>
 
       <DashboardAssetsBoard
@@ -97,6 +112,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         headlineApy={headlineApy}
         yieldPosture={yieldPosture}
         proofFresh={proofFresh}
+        cockpit={cockpit}
       />
 
       {preview ? (

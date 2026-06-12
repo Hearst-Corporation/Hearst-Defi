@@ -1,0 +1,37 @@
+/**
+ * Document-flow typography — calmer than portfolio / admin hero KPIs.
+ * Scoped via `.product-doc` on layout roots; does not alter global DS classes.
+ */
+.product-doc .h1 {
+  font-size: var(--ct-text-2xl);
+  font-weight: var(--ct-font-bold);
+}
+
+.product-doc .h2 {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-body);
+}
+
+.product-doc .h3 {
+  font-size: var(--ct-text-base);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-body);
+}
+
+.product-doc .stat-value {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-bold);
+  color: var(--ct-text-body);
+}
+
+.product-doc .stat-label {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: 0.06em;
+}
+
+/* Legal long-form — tighter section rhythm */
+.product-doc.legal-shell .legal-body h2 {
+  margin: var(--ct-space-6) 0 var(--ct-space-2);
+}

@@ -154,7 +154,13 @@ export function deriveActions(output: ScenarioOutput): RebalancingAction[] {
 
 /** Inner list (or empty callout) shared by the standalone Card and the
  * embedded (inside a parent panel) renders. No own chrome. */
-function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
+function ActionsBody({
+  actions,
+  compact = false,
+}: {
+  actions: RebalancingAction[];
+  compact?: boolean;
+}) {
   if (actions.length === 0) {
     return (
       <NestedCallout className="flex items-center gap-3">
@@ -167,6 +173,41 @@ function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
           bands.
         </p>
       </NestedCallout>
+    );
+  }
+
+  if (compact) {
+    return (
+      <ol className="space-y-3">
+        {actions.map((action, idx) => (
+          <li
+            key={action.ruleId}
+            className="rounded-md border border-(--ct-border-soft) ct-surface-1 px-4 py-3"
+          >
+            <div className="flex items-center gap-3">
+              <span
+                className={
+                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-micro font-bold tabular-nums " +
+                  (action.armed
+                    ? "bg-(--ct-accent) text-(--ct-bg-deep)"
+                    : "ct-surface-3 ct-text-muted")
+                }
+                aria-hidden
+              >
+                {idx + 1}
+              </span>
+              <span className="body-sm font-semibold ct-text-primary">
+                {action.label}
+              </span>
+              <Badge variant={action.variant} className="ml-auto text-micro">
+                {action.ruleId}
+              </Badge>
+            </div>
+            <p className="mt-2 body-xs ct-text-muted">{action.trigger}</p>
+            <p className="mt-1 body-sm ct-text-body">{action.action}</p>
+          </li>
+        ))}
+      </ol>
     );
   }
 
@@ -227,7 +268,7 @@ export function RebalancingActions({
   if (variant === "embedded") {
     return (
       <div className={className}>
-        <ActionsBody actions={actions} />
+        <ActionsBody actions={actions} compact />
       </div>
     );
   }

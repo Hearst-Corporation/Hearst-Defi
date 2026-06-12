@@ -564,7 +564,7 @@ export function ProjectionStudio() {
             <div className="projection-studio-empty">
               <div className="scenario-lab-output-empty__icon" />
               <div>
-                <p className="h3 ct-text-strong">Projection scene ready</p>
+                <h3 className="h3 ct-text-strong">Projection scene ready</h3>
                 <p className="body-sm mt-2 ct-text-muted">
                   Configure inputs and run a scenario or batch to populate APY range,
                   risk score and PTAI impact.

@@ -179,7 +179,7 @@ export default async function ProductProofCenterPage({
       {/* ── Deployed contracts + audit trail (only when chain is configured) ── */}
       {chainConfigured && (
         <section aria-labelledby="contracts-heading">
-          <h2 id="contracts-heading" className="h2 mb-6">
+          <h2 id="contracts-heading" className="h2 mb-4">
             Contracts &amp; audit trail
           </h2>
           <ContractsAuditTrail />
@@ -189,7 +189,7 @@ export default async function ProductProofCenterPage({
       {/* ── Governance timelocks ───────────────────────────── */}
       {timelockProposals.length > 0 && (
         <section aria-labelledby="timelock-heading">
-          <h2 id="timelock-heading" className="h2 mb-6">
+          <h2 id="timelock-heading" className="h2 mb-4">
             Pending governance timelocks
           </h2>
           <div className="space-y-4">

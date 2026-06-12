@@ -218,9 +218,9 @@ function HashpriceRow({ hashprice }: HashpriceRowProps) {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-lg font-semibold leading-tight ct-text-primary tabular-nums">
+          <span className="stat-value tabular-nums">
             ${hashprice.usd_per_th_day.toFixed(3)}{" "}
-            <span className="text-sm ct-text-muted font-normal">/TH/day</span>
+            <span className="dash-unit">/TH/day</span>
           </span>
           <ProvenanceBadge kind={provenance} />
         </div>
@@ -440,10 +440,8 @@ export function MiningHealthSection({
     <Card className="h-full flex flex-col">
       {/* A2 — the margin/health score is an engine estimate computed from public
           hashprice/BTC feeds + assumed energy cost, NOT an on-chain oracle. */}
-      <div className="dash-label relative z-10">
-        <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">
-          Mining Health
-        </span>
+      <div className="pf-widget-header relative z-10">
+        <h3 className="h3">Mining Health</h3>
         <ProvenanceBadge kind="estimated" />
       </div>
 

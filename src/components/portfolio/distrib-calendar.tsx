@@ -317,9 +317,7 @@ export function DistribCalendar({
       {/* Header */}
       <div className="flex items-start justify-between gap-3 relative z-10">
         <div className="flex flex-col gap-0.5">
-          <h3 className="h3 mb-0">
-            PAYOUT CALENDAR
-          </h3>
+          <h3 className="h3 mb-0">Payout calendar</h3>
           <p className="body-xs ct-text-muted mono">
             12-month history · USDC
             {hasForecast ? " · incl. estimated forecast" : ""}

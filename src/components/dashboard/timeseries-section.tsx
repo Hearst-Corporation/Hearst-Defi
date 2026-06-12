@@ -230,15 +230,15 @@ function NavChart({ points, provenance }: NavChartProps) {
   return (
     <Card className="relative flex flex-col h-full">
       <ChartProvenanceCorner kind={provenance} />
-      <div className="dash-label relative z-10">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">Net Asset Value</span>
-          <p className="text-micro font-medium uppercase tracking-wide ct-text-faint mono">
+      <div className="pf-widget-header relative z-10 items-start">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <h3 className="h3">Net Asset Value</h3>
+          <p className="stat-label ct-text-faint mono">
             Trailing 30 days · USDC
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <span className="text-2xl font-semibold tabular-nums leading-tight ct-text-strong drop-shadow-[var(--ct-glow-subtle)]">
+          <span className="stat-value tabular-nums drop-shadow-[var(--ct-glow-subtle)]">
             {usdCompact.format(last)}
           </span>
           <span
@@ -291,17 +291,17 @@ function ApyChart({ points, provenance }: ApyChartProps) {
   return (
     <Card className="relative flex flex-col h-full">
       <ChartProvenanceCorner kind={provenance} />
-      <div className="dash-label relative z-10">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">APY Range</span>
-          <p className="text-micro font-medium uppercase tracking-wide ct-text-faint mono">
+      <div className="pf-widget-header relative z-10 items-start">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <h3 className="h3">APY Range</h3>
+          <p className="stat-label ct-text-faint mono">
             Trailing 30d · Target {METHODOLOGY_TARGET_APY_LOW.toFixed(1)}–{METHODOLOGY_TARGET_APY_HIGH.toFixed(1)}%
           </p>
         </div>
         <div className="flex flex-col items-end">
           {lastPoint ? (
             <ApyRange
-              className="text-2xl font-semibold leading-tight ct-text-strong"
+              className="stat-value"
               low={lastPoint.apy_low}
               high={lastPoint.apy_high}
             />

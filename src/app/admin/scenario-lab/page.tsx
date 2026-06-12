@@ -1,13 +1,15 @@
 export const dynamic = "force-dynamic";
 
+import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { LabShell } from "@/components/scenario/lab-shell";
 import { MonteCarloPanel } from "@/components/scenario/monte-carlo-panel";
 import { prisma } from "@/lib/db";
 import { fetchBtcPrice } from "@/lib/data/btc-price";
-import { VAULT_YIELD } from "@/lib/engine/vaults";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
+import { VAULTS, VAULT_YIELD } from "@/lib/engine/vaults";
+import { adminScenarioLabVaultHref } from "@/lib/vaults/dashboard-scope";
 
 interface ScenarioLabPageProps {
   searchParams: Promise<{ vault?: string }>;
@@ -23,9 +25,8 @@ export default async function ScenarioLabPage({
 }: ScenarioLabPageProps) {
   const params = await searchParams;
   const vaultId = resolveVaultId(params.vault);
+  const vault = VAULTS[vaultId];
 
-  // Load live market data to seed the scenario sliders with current values.
-  // Falls back to BASE_INPUTS defaults if data is unavailable.
   let liveInputs: ScenarioInputs | undefined;
   try {
     const [latestMining, btc] = await Promise.all([
@@ -37,23 +38,30 @@ export default async function ScenarioLabPage({
         btc_price_change_pct: Math.round(btc.usd_24h_change * 10) / 10,
         hashprice_usd_th_day: latestMining.hashprice.toNumber(),
         energy_cost_kwh: latestMining.energyCost.toNumber(),
-        // Mirror of BASE_INPUTS in use-scenario.ts — keep in sync.
-        // Cannot import from that "use client" file here (Server Component).
         stable_apy_pct: 4.5,
         vol_index: 45,
       };
     }
   } catch {
-    // Silently fall back to defaults if data loading fails
+    // Fall back to BASE_INPUTS when live data is unavailable.
   }
 
   return (
     <div className="scenario-lab-page">
-      <AdminPageHeader title="Scenario Lab" />
+      <AdminPageHeader
+        title="Scenario Lab"
+        eyebrow={`${vault.label} · ${vault.ticker}`}
+        actions={
+          <FixtureVaultPills
+            activeVaultId={vaultId}
+            resolveHref={adminScenarioLabVaultHref}
+          />
+        }
+      />
 
       <LabShell vaultId={vaultId} initialInputs={liveInputs} />
 
-      {FEATURE_FLAGS.ENABLE_MONTE_CARLO && <MonteCarloPanel />}
+      {FEATURE_FLAGS.ENABLE_MONTE_CARLO ? <MonteCarloPanel /> : null}
     </div>
   );
 }

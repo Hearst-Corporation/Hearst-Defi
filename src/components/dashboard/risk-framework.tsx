@@ -104,10 +104,8 @@ export function RiskFrameworkSection({
   if (data.source === "fallback") {
     return (
       <Card className="h-full flex flex-col">
-        <div className="dash-label relative z-10">
-          <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">
-            Risk Framework
-          </span>
+        <div className="pf-widget-header relative z-10">
+          <h3 className="h3">Risk Framework</h3>
           <ProvenanceBadge kind={provenanceFromSource(data.source)} />
         </div>
         <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center py-12 relative z-10">
@@ -125,10 +123,8 @@ export function RiskFrameworkSection({
 
   return (
     <Card className="h-full flex flex-col">
-      <div className="dash-label relative z-10">
-        <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">
-          Risk Framework
-        </span>
+      <div className="pf-widget-header relative z-10">
+        <h3 className="h3">Risk Framework</h3>
         <ProvenanceBadge kind={provenanceFromSource(data.source)} />
       </div>
 
@@ -179,9 +175,9 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--ct-accent)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       <div className="flex items-baseline gap-3 relative z-10">
         <span className="text-micro font-bold uppercase tracking-widest ct-text-muted">Composite</span>
-        <span className={cn("text-2xl font-semibold tracking-tight tabular-nums", BAND_TEXT[band])}>
+        <span className={cn("stat-value tabular-nums", BAND_TEXT[band])}>
           {composite}
-          <span className="text-sm font-medium opacity-50 ml-1 ct-text-faint">/ 100</span>
+          <span className="dash-unit opacity-50 ml-1">/ 100</span>
         </span>
       </div>
       <div className="flex items-center gap-4 sm:min-w-60 relative z-10">

@@ -36,7 +36,7 @@ import {
   createSubscriptionEnvelope,
   docusignCreateEnvelope,
   docusignCreateRecipientView,
-} from "@/lib/onboarding/actions";
+} from "@/lib/docusign/envelope";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -123,7 +123,7 @@ describe("docusignCreateRecipientView", () => {
       "test-api-key",
       "account-id-1",
       "env-abc",
-      { userId: "user-1", email: "user1@example.com", returnUrl: "https://connect.hearst.app/onboarding/signed" },
+      { userId: "user-1", email: "user1@example.com", returnUrl: "https://connect.hearst.app/profile" },
     );
 
     expect(result).toBe(url);
@@ -138,7 +138,7 @@ describe("docusignCreateRecipientView", () => {
         "test-api-key",
         "account-id-1",
         "env-missing",
-        { userId: "user-1", email: "user1@example.com", returnUrl: "https://connect.hearst.app/onboarding/signed" },
+        { userId: "user-1", email: "user1@example.com", returnUrl: "https://connect.hearst.app/profile" },
       ),
     ).rejects.toThrow("DocuSign createRecipientView failed: 404 Not Found");
   });

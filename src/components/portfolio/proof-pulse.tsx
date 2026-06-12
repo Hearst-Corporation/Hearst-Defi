@@ -191,9 +191,7 @@ export function ProofPulse({
   return (
     <article className="dash-cell dash-cell-premium h-full flex flex-col">
       <div className="pf-widget-header relative z-10">
-        <span className="dash-label">
-          <span>Proof &amp; methodology</span>
-        </span>
+        <h3 className="h3">Proof &amp; methodology</h3>
         <ProvenanceBadge kind={headerProvenance} />
       </div>
 

@@ -100,6 +100,12 @@ Primitives de page : `AdminPageHeader` (admin), `ProductPageHeader` (investor,
 secondaire avec `title`/`description`), `LegalPageHeader` (docs légales).
 Routes auth secondaires (`/forgot-password`, `/reset-password`,
 `/totp-challenge`) : shell bare via `app-chrome.tsx` (pas de `ConnectShell`).
+**Onboarding** (`/onboarding/*`) : shell bare + layout split
+(`OnboardingShell` / checklist live DB) — 3 étapes
+accreditation → identity → wallet ; `bindWallet` persiste
+`Investor.walletAddress` ; gates serveur dans `src/lib/onboarding/gates.ts` ;
+IR contact via `NEXT_PUBLIC_IR_CONTACT_*` + `NEXT_PUBLIC_CALENDLY_URL` (aucun
+default fictif).
 Login marketing (`/`, `/login`) : classes `.login-split__*` + `.ct-input-bare`
 dans `cockpit.css` (zéro `style={{}}` statique). Utilitaires composés récents :
 `.ct-text-accent`, `.ct-link-accent`, `.ct-panel-inset`, `.ct-overlay-backdrop`,
@@ -118,10 +124,13 @@ gardent `--ct-surface-1` littéral.
 
 **Canon typo/layout** (cohérence pages) :
 - H1 page : `.h1` via `ProductPageHeader` / `AdminPageHeader` (gap-4, description `body-md max-w-xl`).
-- H2 section : `.h2` · titre carte : `.h3` / `CardTitle` · label widget bento : `.dash-label` (`--ct-text-micro`).
+- H2 section : `.h2` (y compris titres modales `Modal`, `ConfirmDialog`, `ShortcutsOverlay`) · titre carte / widget bento : `.h3` / `CardTitle` (header row `.pf-widget-header`) · KPI valeur : `.stat-value` + `.stat-label` · labels section compacte : `.stat-label`.
 - Padding vertical page : `space-y-8` / `gap-8` (`--ct-space-8`).
 - **Exceptions documentées** : Portfolio → `PortfolioGreeting` (même `.h1`, greeting personnalisé) ;
-  dashboard admin hero → `.dashboard-assets-title` (`--ct-text-display`, carte premium volontairement plus grande que le H1 page).
+  login marketing → titre visuel `.h1` sur `<p>` (H1 sémantique unique = « Sign in ») ;
+  `/admin/dashboard` → command board dense (hero strip bento + orbit CSS conic-gradient + barres NAV CSS ; cockpit 3 col + audit trail ; pills vault `?vault=`) ;
+  `/admin/scenario-lab` → workspace 2 col (inputs sticky + CTA footer ; output `glass-panel`) ; pills vault partagés (`FixtureVaultPills` + `?vault=`) ;
+  flux document `.product-doc` (`product-doc.css`) sur `/vaults/*`, `/onboarding/*`, `/proof-center`, `/profile`, `/portfolio/[positionId]`, `/legal/*` : H1/H2/H3 + `.stat-value` réduits ; KPI term sheet vault en `.h4` ; `/portfolio` (cockpit) et `/admin/*` inchangés.
 
 ### Process pour ajouter un token (rare, validé Adrien uniquement)
 
@@ -221,10 +230,13 @@ pnpm db:seed && pnpm seed:investor-demo
 pnpm seed:investor-demo:reset
 ```
 
-On-chain Proof Center panels also need Base Sepolia addresses in `.env.local`
-(`NEXT_PUBLIC_EVENT_LOGGER_ADDRESS`, `NEXT_PUBLIC_POR_REGISTRY_ADDRESS` — see
-`.env.example`). Paper proofs are seeded by `seed:investor-demo` when the DB
-has none.
+On-chain Proof Center addresses and deploy-block defaults read from
+`config/deployments.base-sepolia.json` and can be overridden in `.env.local`
+(`NEXT_PUBLIC_EVENT_LOGGER_ADDRESS`, `NEXT_PUBLIC_POR_REGISTRY_ADDRESS`,
+`NEXT_PUBLIC_EVENT_LOGGER_DEPLOY_BLOCK`, `NEXT_PUBLIC_POR_REGISTRY_DEPLOY_BLOCK`).
+Vault transactions still require `NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS` for
+invest/redeem flows (see `.env.example`). Paper proofs are seeded by
+`seed:investor-demo` when the DB has none.
 
 Refuses `NODE_ENV=production` by default. Exceptional override only (e.g.
 staging smoke): `ALLOW_INVESTOR_DEMO_SEED=true pnpm seed:investor-demo`.

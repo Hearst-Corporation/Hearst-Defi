@@ -20,8 +20,8 @@ export function ApyRange({
   return (
     <span
       className={cn(
-        "tabular font-semibold ct-text-strong inline-flex items-baseline",
-        className,
+        "tabular inline-flex items-baseline",
+        className ?? "font-semibold ct-text-strong",
       )}
       aria-label={`APY range ${fmt(a)} to ${fmt(b)} ${suffix}`}
     >

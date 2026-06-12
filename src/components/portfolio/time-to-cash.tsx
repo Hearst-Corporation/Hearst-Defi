@@ -116,9 +116,7 @@ export function TimeToCash({
     >
       {/* Header row -------------------------------------------------------- */}
       <div className="pf-widget-header relative z-10">
-        <span className="dash-label">
-          <span>Time to cash</span>
-        </span>
+        <h3 className="h3">Time to cash</h3>
         <ProvenanceBadge kind={widgetProvenance} />
       </div>
 

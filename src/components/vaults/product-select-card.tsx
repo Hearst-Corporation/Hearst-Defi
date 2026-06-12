@@ -52,10 +52,10 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
 
   return (
     <Card aria-label={`${vault.name} — ${STRATEGY_LABELS[vault.strategy]}`}>
-      <div className="flex flex-col items-stretch gap-6 md:flex-row md:gap-8">
-        <div className="flex min-w-0 flex-1 flex-col gap-5">
+      <div className="flex flex-col items-stretch gap-5 md:flex-row md:gap-6">
+        <div className="flex min-w-0 flex-1 flex-col gap-4">
           <div className="flex flex-col gap-2 min-w-0">
-            <h3 className="h3">{vault.name}</h3>
+            <h3 className="h4 ct-text-strong">{vault.name}</h3>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="ct-pill text-xs">{STRATEGY_LABELS[vault.strategy]}</span>
               <span className="ct-pill accent mono text-xs">{vault.ticker}</span>
@@ -82,7 +82,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
               low={vault.apyLow}
               high={vault.apyHigh}
               precision={1}
-              className="stat-value"
+              className="h4 tabular mono ct-text-strong"
             />
             <p className="body-xs ct-text-muted">
               Conditional on stated assumptions · not a projection
@@ -95,39 +95,35 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
         <div aria-hidden className="md:hidden border-t border-(--ct-border-soft)" />
         <div aria-hidden className="hidden md:block ct-card-divider-v" />
 
-        <div className="flex w-full md:w-52 shrink-0 flex-col justify-between gap-5">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-            <div className="flex flex-col gap-0.5">
+        <div className="flex w-full md:w-56 shrink-0 flex-col gap-5 md:min-h-full">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <span className="stat-label">Min. ticket</span>
-              <span className="tabular text-base font-semibold ct-text-strong">
+              <span className="h4 tabular truncate">
                 {USD_COMPACT.format(vault.minTicketUsdc)}
               </span>
             </div>
-            <div className="flex flex-col gap-0.5">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <span className="stat-label">Lock-up</span>
-              <span className="tabular text-base font-semibold ct-text-strong">
-                {vault.softLockupDays}d
-              </span>
+              <span className="h4 tabular">{vault.softLockupDays}d</span>
             </div>
-            <div className="flex flex-col gap-0.5">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <span className="stat-label">Risk</span>
-              <span className="text-sm font-semibold ct-text-strong">
-                {RISK_LABELS[vault.riskLevel]}
-              </span>
+              <span className="h4 truncate">{RISK_LABELS[vault.riskLevel]}</span>
             </div>
-            <div className="flex flex-col gap-0.5">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <span className="stat-label">AUM</span>
               {vault.currentAumUsdc > 0 ? (
-                <span className="tabular text-base font-semibold ct-text-strong">
+                <span className="h4 tabular truncate">
                   {USD_COMPACT.format(vault.currentAumUsdc)}
                 </span>
               ) : (
-                <span className="text-sm ct-text-muted">Pending</span>
+                <span className="body-sm ct-text-muted">Pending</span>
               )}
             </div>
           </div>
 
-          <p className="body-xs ct-text-faint flex flex-wrap items-center gap-1">
+          <div className="body-xs ct-text-faint flex flex-wrap items-center gap-1">
             <span>Terms</span>
             <ProvenanceBadge kind="manual" />
             {vault.currentAumUsdc > 0 ? (
@@ -137,16 +133,16 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
                 <ProvenanceBadge kind="live" />
               </>
             ) : null}
-          </p>
+          </div>
 
           {isLive ? (
-            <Button variant="primary" size="md" asChild className="w-full font-bold">
+            <Button variant="primary" size="md" asChild className="mt-auto w-full font-bold">
               <Link href={href} aria-label={`View details for ${vault.name}`}>
                 View details
               </Link>
             </Button>
           ) : (
-            <Button variant="secondary" size="md" disabled aria-disabled className="w-full">
+            <Button variant="secondary" size="md" disabled aria-disabled className="mt-auto w-full">
               Coming soon
             </Button>
           )}

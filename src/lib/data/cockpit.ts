@@ -1,8 +1,9 @@
 import "server-only";
 
 import { prisma } from "@/lib/db";
+import { adminDashboardVaultHref } from "@/lib/vaults/dashboard-scope";
 import { listAllVaults } from "@/lib/vaults/resolver";
-import { vaultLabel } from "@/lib/vaults/slug";
+import { vaultLabel, vaultSlug } from "@/lib/vaults/slug";
 
 // =============================================================================
 // Cockpit Admin Dashboard — data loaders.
@@ -72,6 +73,8 @@ export interface VaultLiveMetric {
   btcPosture: string;
   /** "live" | "paused" | "review" | "draft" | "closed" */
   status: string;
+  /** Admin deep-link — dashboard fixture scope or deployment detail. */
+  href: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -532,6 +535,11 @@ async function buildVaultMetrics(): Promise<VaultLiveMetric[]> {
           ? ref.fixture.id === "yield"
           : false;
 
+      const href =
+        ref.kind === "fixture"
+          ? adminDashboardVaultHref(ref.fixture.id)
+          : `/admin/vaults/${vaultSlug(ref)}`;
+
       return {
         vaultId:
           ref.kind === "fixture" ? ref.fixture.id : ref.deployment.id,
@@ -542,6 +550,7 @@ async function buildVaultMetrics(): Promise<VaultLiveMetric[]> {
         oracleDelayMs,
         btcPosture: latestSnapshot?.mode ?? "neutral",
         status: ref.kind === "fixture" ? "live" : ref.deployment.status,
+        href,
       };
     });
   } catch {

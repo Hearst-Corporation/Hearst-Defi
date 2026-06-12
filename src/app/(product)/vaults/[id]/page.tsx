@@ -12,11 +12,8 @@ import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { getVault } from "@/lib/data/vaults";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ApyRange } from "@/components/ui/apy-range";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { StepProgress } from "@/components/vaults/step-progress";
 import { TermSheetPreview } from "@/components/vaults/term-sheet-preview";
-import { DynamicAllocationCards } from "@/components/vaults/dynamic-allocation-cards";
 
 export const dynamic = "force-dynamic";
 
@@ -47,12 +44,62 @@ const STATUS_VARIANT: Record<
   closed: "danger",
 };
 
-const USD_COMPACT = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  notation: "compact",
-  maximumFractionDigits: 0,
-});
+function InvestFlowCta({
+  isLive,
+  investHref,
+  layout,
+}: {
+  isLive: boolean;
+  investHref: string;
+  layout: "header" | "footer";
+}) {
+  if (layout === "header") {
+    return isLive ? (
+      <Button variant="primary" size="md" asChild className="font-bold shrink-0">
+        <Link href={investHref}>Continue to deposit</Link>
+      </Button>
+    ) : (
+      <Button variant="secondary" size="md" disabled aria-disabled className="shrink-0">
+        Coming soon
+      </Button>
+    );
+  }
+
+  return (
+    <section
+      aria-label="Invest flow actions"
+      className="glass-panel flex flex-col gap-4 rounded-xl px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <div className="min-w-0">
+        <p className="eyebrow ct-text-muted">Next step</p>
+        <p className="h4 ct-text-strong mt-1">Ready to subscribe?</p>
+        <p className="body-xs ct-text-muted mt-1 max-w-xl">
+          Term sheet and regime assumptions reviewed — proceed to deposit when ready.
+        </p>
+      </div>
+      {isLive ? (
+        <Button
+          variant="primary"
+          size="lg"
+          asChild
+          className="w-full shrink-0 font-bold sm:w-auto"
+        >
+          <Link href={investHref}>Continue to deposit</Link>
+        </Button>
+      ) : (
+        <Button
+          variant="secondary"
+          size="lg"
+          disabled
+          aria-disabled
+          className="w-full shrink-0 sm:w-auto"
+        >
+          Coming soon
+        </Button>
+      )}
+    </section>
+  );
+}
 
 export default async function VaultDetailPage({ params }: PageProps) {
   const { id } = await params;
@@ -64,7 +111,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
   const investHref = `/vaults/${id}/invest`;
 
   return (
-    <div className="space-y-10 pb-4">
+    <div className="space-y-8 pb-4">
       <ProductPageHeader
         lead={
           <Link
@@ -83,98 +130,41 @@ export default async function VaultDetailPage({ params }: PageProps) {
             <Badge variant={STATUS_VARIANT[vault.status] ?? "default"}>
               {STATUS_LABEL[vault.status] ?? vault.status}
             </Badge>
+            <InvestFlowCta
+              isLive={isLive}
+              investHref={investHref}
+              layout="header"
+            />
           </>
         }
       >
-        {/* Hero metrics — synthesis, not a compliance grid */}
-        <div className="flex flex-col gap-4 pt-2">
-          <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <span className="stat-label">Target APY range</span>
-                <ProvenanceBadge kind="estimated" />
-              </div>
-              <ApyRange
-                low={vault.apyLow}
-                high={vault.apyHigh}
-                precision={1}
-                className="stat-value"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="stat-label">Min. ticket</span>
-              <span className="tabular text-lg font-semibold ct-text-strong">
-                {USD_COMPACT.format(vault.minTicketUsdc)}
-              </span>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="stat-label">Soft lock-up</span>
-              <span className="tabular text-lg font-semibold ct-text-strong">
-                {vault.softLockupDays}d
-              </span>
-            </div>
-          </div>
+        <div className="pt-2">
           <StepProgress active="product" />
         </div>
       </ProductPageHeader>
 
       <TermSheetPreview vault={vault} />
 
-      <section aria-labelledby="sec-regimes" className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h2 id="sec-regimes" className="h2">
-              Market regimes
-            </h2>
-            <p className="body-sm ct-text-muted mt-2 max-w-2xl">
-              Target postures under Bull, Sideways, and Bear scenarios from
-              Methodology v1.0. APY ranges are conditional — not a projection.
-            </p>
-          </div>
-          <p className="body-xs ct-text-faint flex items-center gap-1.5">
-            <span>Scenarios:</span>
-            <ProvenanceBadge kind="estimated" />
+      <InvestFlowCta isLive={isLive} investHref={investHref} layout="footer" />
+
+      <footer className="border-t border-[var(--ct-border-soft)] pt-6">
+        <div
+          role="note"
+          aria-label="Important disclaimers"
+          className="max-w-3xl space-y-3"
+        >
+          <p className="body-sm ct-text-muted leading-relaxed">
+            {vault.disclaimers}
+          </p>
+          <p className="body-xs ct-text-faint leading-relaxed">
+            APY ranges are target projections based on stated assumptions — they
+            are not a projection of future returns and are subject to change
+            without notice. Past performance does not indicate future results.
+            Allocations shown are targets and may deviate. This document is
+            informational only and does not constitute an offer or solicitation
+            where prohibited by law.
           </p>
         </div>
-        <DynamicAllocationCards />
-      </section>
-
-      {/* Sticky CTA — calm, action-focused */}
-      <nav
-        aria-label="Invest flow actions"
-        className="sticky bottom-6 z-(--ct-z-bottom-bar) flex items-center justify-between gap-4 rounded-lg border border-(--ct-border-soft) bg-(--ct-bg-deep)/95 backdrop-blur-sm px-5 py-3"
-      >
-        <p className="body-sm ct-text-muted min-w-0 truncate hidden sm:block">
-          Ready to subscribe?
-        </p>
-
-        {isLive ? (
-          <Button
-            variant="primary"
-            size="md"
-            asChild
-            className="font-bold w-full sm:w-auto sm:shrink-0 sm:ml-auto"
-          >
-            <Link href={investHref}>Continue to deposit</Link>
-          </Button>
-        ) : (
-          <Button
-            variant="secondary"
-            size="md"
-            disabled
-            aria-disabled
-            className="w-full sm:w-auto sm:shrink-0 sm:ml-auto"
-          >
-            Coming soon
-          </Button>
-        )}
-      </nav>
-
-      <footer>
-        <p className="body-xs ct-text-faint max-w-3xl">
-          {vault.disclaimers} APY ranges are target projections — they are not a
-          projection of future returns and are subject to change without notice.
-        </p>
       </footer>
     </div>
   );

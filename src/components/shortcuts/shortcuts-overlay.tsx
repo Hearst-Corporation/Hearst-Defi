@@ -201,10 +201,7 @@ function ShortcutsOverlayBody({ onClose }: { onClose: () => void }) {
             "ct-surface-2/50",
           )}
         >
-          <h2
-            id={titleId}
-            className="text-base font-semibold ct-text-strong tracking-tight"
-          >
+          <h2 id={titleId} className="h2 shrink-0">
             Keyboard shortcuts
           </h2>
           <button

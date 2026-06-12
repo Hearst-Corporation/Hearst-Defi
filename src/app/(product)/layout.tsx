@@ -29,15 +29,16 @@ export default async function ProductLayout({
   // Investor gate: no session → /login?from=<destination>. Admins are allowed
   // through (admin ⊇ investor) so they can review the product surfaces A→Z.
   const session = await requireInvestor(destination);
+  const isOnboarding = rawPathname.startsWith("/onboarding");
+
+  if (isOnboarding) {
+    return <>{children}</>;
+  }
 
   return (
     <>
       <HubModeStyles />
-      {/* Left rail — investor nav (Portfolio / Vaults / Profile).
-          Admins additionally get an "Admin" entry to jump to their zone. */}
       <InvestorRailIntra isAdmin={session.role === "admin"} />
-      {/* Identity slot — docked into the bottom of the left rail (Section 1).
-          HeaderConnect renders only when Privy authenticated. */}
       <div className="connect-rail-identity">
         <HeaderConnect />
       </div>

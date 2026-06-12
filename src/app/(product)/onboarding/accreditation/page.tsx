@@ -1,10 +1,5 @@
 /**
- * S2 — Accreditation page.
- *
- * Three Rule 506(c) + Cayman PIF attestation checkboxes.
- * "Continue" is disabled until all boxes are checked.
- * Non-negotiable #10: "not guaranteed" disclaimer in the checkbox copy.
- * Non-negotiable #5: no forbidden words.
+ * Step 1 — Accreditation attestations (Rule 506(c) + Cayman PIF).
  */
 
 "use client";
@@ -13,21 +8,21 @@ import { useRouter } from "next/navigation";
 
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { AccreditationCheckboxes } from "@/components/onboarding/AccreditationCheckboxes";
+import { Card } from "@/components/ui/card";
 
 export default function AccreditationPage() {
   const router = useRouter();
 
   function handleContinue() {
-    // Navigate to next step: S3 identity
     router.push("/onboarding/identity");
   }
 
   return (
-    <div className="ct-card w-full max-w-lg flex flex-col gap-6">
+    <Card className="flex flex-col gap-6" data-testid="onboarding-accreditation">
       <ProductPageHeader
         className="gap-2"
-        eyebrow="Step 2 of 4"
-        title="Investor Accreditation"
+        eyebrow="Onboarding · Step 1 of 3"
+        title="Investor accreditation"
         description={
           <>
             Hearst Yield Vault is offered exclusively to accredited investors under
@@ -37,15 +32,13 @@ export default function AccreditationPage() {
         }
       />
 
-      {/* Attestation checkboxes */}
       <AccreditationCheckboxes onContinue={handleContinue} />
 
-      {/* Footer disclaimer */}
-      <p className="body-xs ct-text-faint text-pretty">
+      <p className="body-xs ct-text-faint text-pretty m-0">
         False attestation may result in immediate termination of participation.
         This is not a solicitation of investment. All projections are estimates
         subject to stated assumptions — not a commitment of future returns.
       </p>
-    </div>
+    </Card>
   );
 }
