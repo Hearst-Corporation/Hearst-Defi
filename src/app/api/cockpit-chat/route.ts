@@ -49,7 +49,6 @@ const CHAT_RATE_WINDOW_MS = 60_000;
 const MAX_OUTPUT_TOKENS = 2048;
 const MAX_CONTENT_LEN = 8_000;
 const MAX_MESSAGES = 30;
-const MAX_SYSTEM_LEN = 4_000;
 // Cap on the enriched system prompt (base + user-context block).
 // Must be >> the base COCKPIT_DEFAULT_SYSTEM_PROMPT length (currently ~11k
 // chars / ~2.7k tokens) to leave room for the per-user context block on top.
@@ -89,11 +88,15 @@ function deriveTitleFromContent(content: string): string | null {
 /**
  * Inbound body validation.
  *
- * The cockpit-shell handler's own schema is
- * `{ chatId?, message, messages?, productId?, system? }`. We validate the
- * security-relevant fields here (BEFORE the handler re-parses the body) and
- * keep the shape backwards-compatible: `message` stays required, `messages` is
- * the optional history array we constrain here for security.
+ * The cockpit-shell handler's own schema accepts a client `system` field that
+ * REPLACES (not appends to) the server system prompt — a guardrail-bypass on
+ * an LP-facing endpoint. We deliberately DO NOT accept `system` here: the Zod
+ * object strips it from the parsed body, and the sanitized body we forward
+ * never carries it, so the curated server prompt (built below) always wins.
+ *
+ * We validate the security-relevant fields here (BEFORE the handler re-parses
+ * the body) and keep the shape backwards-compatible: `message` stays required,
+ * `messages` is the optional history array we constrain here for security.
  */
 const ChatMessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -105,7 +108,9 @@ const ChatBodySchema = z.object({
   message: z.string().min(1).max(MAX_CONTENT_LEN),
   messages: z.array(ChatMessageSchema).max(MAX_MESSAGES).optional(),
   productId: z.string().max(200).nullish(),
-  system: z.string().max(MAX_SYSTEM_LEN).optional(),
+  // NOTE: `system` is intentionally NOT in this schema. Accepting a client
+  // system prompt would let any authenticated user strip every compliance
+  // guardrail (APY-as-range, forbidden words, confidentiality). Stripped here.
   // Model the client requests (from localStorage). Validated against an
   // allowlist downstream — an unknown value falls back to the default.
   model: z.string().max(100).optional(),
@@ -307,7 +312,8 @@ export async function POST(req: NextRequest): Promise<Response> {
           }
         : {}),
       ...(body.productId != null ? { productId: body.productId } : {}),
-      ...(body.system ? { system: body.system } : {}),
+      // `system` is never forwarded — the handler falls back to the curated
+      // server `systemPrompt` (enrichedSystemPrompt) we pass at handler build.
     };
 
     sanitizedReq = new Request(req.url, {
