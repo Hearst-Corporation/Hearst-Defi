@@ -112,6 +112,27 @@ export const POR_REGISTRY_ABI = [
 ] as const;
 
 /**
+ * Write-side ABI subset for PoRRegistry — just `publish`.
+ * Kept separate (same pattern as EVENT_LOGGER_WRITE_ABI) so viem can
+ * const-type the write call without merging into the read ABI tuple.
+ */
+export const POR_REGISTRY_WRITE_ABI = [
+  {
+    type: "function",
+    name: "publish",
+    inputs: [
+      { name: "period", type: "uint64" },
+      { name: "totalAumUsd", type: "uint256" },
+      { name: "minedBtcSats", type: "uint256" },
+      { name: "evidenceHash", type: "bytes32" },
+      { name: "evidenceCid", type: "string" },
+    ],
+    outputs: [{ type: "uint256" }],
+    stateMutability: "nonpayable",
+  },
+] as const;
+
+/**
  * EventKind enum mirror — order MUST match `EventLogger.sol`.
  */
 export const EVENT_KIND_LABELS = [

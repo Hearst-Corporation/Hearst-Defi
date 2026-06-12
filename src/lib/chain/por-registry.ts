@@ -2,8 +2,9 @@ import "server-only";
 
 import { env } from "@/lib/env";
 
-import { POR_REGISTRY_ABI } from "./abis";
+import { POR_REGISTRY_ABI, POR_REGISTRY_WRITE_ABI } from "./abis";
 import { getPoRRegistryAddress, getPublicClient } from "./client";
+import { getPublisherWalletClient } from "./publisher";
 
 /**
  * eth_getLogs window guard — Alchemy free tier rejects ranges wider than
@@ -137,6 +138,68 @@ export async function fetchOnChainAttestations(
       err,
     );
     return [];
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Write path
+// ---------------------------------------------------------------------------
+
+export interface PublishAttestationOptions {
+  period: bigint;       // YYYYMM encoded as uint64
+  totalAumUsd: bigint;  // 6-decimal USDC base units (uint256)
+  minedBtcSats: bigint; // satoshis (uint256)
+  evidenceHash: `0x${string}`; // bytes32 hash of the evidence document
+  evidenceCid?: string; // optional IPFS CID for the evidence document
+}
+
+/**
+ * Publishes a Proof-of-Reserves attestation to the PoRRegistry contract on
+ * Base Sepolia.
+ *
+ * Gated on the publisher key — silently returns null (disarmed) when:
+ *  - HEARST_PUBLISHER_PRIVATE_KEY is absent or malformed
+ *  - NEXT_PUBLIC_POR_REGISTRY_ADDRESS is not configured
+ *
+ * Never throws — caller does not need to guard.
+ *
+ * Returns the transaction hash on success, null when disarmed or on error.
+ *
+ * ⚠️  Testnet-only: always targets Base Sepolia. Mainnet deployment is gated
+ * on a completed Spearbit audit (ADR-006).
+ */
+export async function publishAttestation(
+  opts: PublishAttestationOptions,
+): Promise<`0x${string}` | null> {
+  const contractAddr = getPoRRegistryAddress();
+  if (!contractAddr) return null;
+
+  const walletClient = getPublisherWalletClient();
+  if (!walletClient) return null;
+
+  try {
+    const txHash = await walletClient.writeContract({
+      address: contractAddr,
+      abi: POR_REGISTRY_WRITE_ABI,
+      functionName: "publish",
+      args: [
+        opts.period,
+        opts.totalAumUsd,
+        opts.minedBtcSats,
+        opts.evidenceHash,
+        opts.evidenceCid ?? "",
+      ],
+      account: walletClient.account!,
+      chain: walletClient.chain,
+    });
+
+    return txHash;
+  } catch (err) {
+    console.warn(
+      "[chain/por-registry] publishAttestation failed:",
+      err instanceof Error ? err.message : String(err),
+    );
+    return null;
   }
 }
 

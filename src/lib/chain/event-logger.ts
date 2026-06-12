@@ -1,13 +1,12 @@
 import "server-only";
 
-import { createWalletClient, http, keccak256, toBytes } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { baseSepolia } from "viem/chains";
+import { keccak256, toBytes } from "viem";
 
 import { env } from "@/lib/env";
 
 import { EVENT_KIND_LABELS, EVENT_LOGGER_ABI, EVENT_LOGGER_WRITE_ABI, type EventKind } from "./abis";
 import { getEventLoggerAddress, getHearstPublisherAddress, getPublicClient } from "./client";
+import { getPublisherWalletClient } from "./publisher";
 
 /**
  * eth_getLogs window guard — Alchemy free tier rejects ranges wider than
@@ -142,10 +141,53 @@ export async function fetchOnChainEvents(
 // Write path
 // ---------------------------------------------------------------------------
 
-function getRpcUrlForWrite(): string {
-  const url = process.env.NEXT_PUBLIC_CHAIN_RPC_URL;
-  if (!url || url.trim().length === 0) return "https://sepolia.base.org";
-  return url;
+export interface WriteHearstEventOptions {
+  kind: EventKind;
+  contextHash: `0x${string}`;
+  payloadCid?: string;
+}
+
+/**
+ * General-purpose writer for any EventKind to the EventLogger contract on
+ * Base Sepolia.
+ *
+ * Silently returns null (disarmed) when:
+ *  - contract address is not configured in env
+ *  - HEARST_PUBLISHER_PRIVATE_KEY is absent or malformed
+ *  - kind is not a known EventKind label
+ *
+ * Never throws — caller does not need to guard.
+ */
+export async function writeHearstEvent(
+  opts: WriteHearstEventOptions,
+): Promise<`0x${string}` | null> {
+  const contractAddr = getEventLoggerAddress();
+  if (!contractAddr) return null;
+
+  const walletClient = getPublisherWalletClient();
+  if (!walletClient) return null;
+
+  const kindIndex = EVENT_KIND_LABELS.indexOf(opts.kind);
+  if (kindIndex === -1) return null;
+
+  try {
+    const txHash = await walletClient.writeContract({
+      address: contractAddr,
+      abi: EVENT_LOGGER_WRITE_ABI,
+      functionName: "logEvent",
+      args: [kindIndex, opts.contextHash, opts.payloadCid ?? ""],
+      account: walletClient.account!,
+      chain: walletClient.chain,
+    });
+
+    return txHash;
+  } catch (err) {
+    console.warn(
+      "[chain/event-logger] writeHearstEvent failed:",
+      err instanceof Error ? err.message : String(err),
+    );
+    return null;
+  }
 }
 
 export interface WriteRebalanceEventOptions {
@@ -162,49 +204,17 @@ export interface WriteRebalanceEventOptions {
  *  - HEARST_PUBLISHER_PRIVATE_KEY is not set (not a signing environment)
  *
  * Never throws — caller does not need to guard.
+ *
+ * Delegates to writeHearstEvent internally — key/wallet management lives in
+ * publisher.ts.
  */
 export async function writeRebalanceEvent(
   opts: WriteRebalanceEventOptions,
 ): Promise<`0x${string}` | null> {
-  const contractAddr = getEventLoggerAddress();
-  if (!contractAddr) return null;
-
-  const privateKey = process.env.HEARST_PUBLISHER_PRIVATE_KEY;
-  if (!privateKey) return null;
-
-  // Guard the key format up front so a misconfigured env var (missing 0x,
-  // wrong length, whitespace) is rejected explicitly rather than throwing
-  // inside privateKeyToAccount. 0x + 64 hex chars = 66 chars total.
-  if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey.trim())) {
-    console.warn(
-      "[chain/event-logger] HEARST_PUBLISHER_PRIVATE_KEY is malformed — on-chain write skipped",
-    );
-    return null;
-  }
-
-  try {
-    const account = privateKeyToAccount(privateKey.trim() as `0x${string}`);
-    const walletClient = createWalletClient({
-      account,
-      chain: baseSepolia,
-      transport: http(getRpcUrlForWrite()),
-    });
-
-    // EventKind.Rebalance = 0 (mirrors the on-chain enum order in abis.ts)
-    const kindRebalance = 0;
-    const contextHash = keccak256(toBytes(`${opts.eventId}:${opts.ruleId}`));
-    const payloadCid = opts.payloadCid ?? "";
-
-    const txHash = await walletClient.writeContract({
-      address: contractAddr,
-      abi: EVENT_LOGGER_WRITE_ABI,
-      functionName: "logEvent",
-      args: [kindRebalance, contextHash, payloadCid],
-    });
-
-    return txHash;
-  } catch (err) {
-    console.warn("[chain/event-logger] writeRebalanceEvent failed:", err instanceof Error ? err.message : String(err));
-    return null;
-  }
+  const contextHash = keccak256(toBytes(`${opts.eventId}:${opts.ruleId}`));
+  return writeHearstEvent({
+    kind: "Rebalance",
+    contextHash,
+    payloadCid: opts.payloadCid,
+  });
 }
