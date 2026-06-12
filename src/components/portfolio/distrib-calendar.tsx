@@ -12,7 +12,6 @@
 
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { EmptyChartState } from "@/components/portfolio/empty-chart-state";
-import { cn } from "@/lib/cn";
 import { explorerTxUrl } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 

@@ -13,11 +13,12 @@ export default async function ProofsPage() {
   return (
     <div className="space-y-8">
       <AdminPageHeader
-        title="Proofs"
+        title="Off-chain proofs"
+        description="Paper attestations ingested off-chain. Live on-chain proofs are in Proof Center."
       />
 
       <section className="space-y-3">
-        <h3 className="h3">Attestations ({items.length})</h3>
+        <h3 className="h3">Published proofs ({items.length})</h3>
         <ProofList items={items} />
       </section>
 

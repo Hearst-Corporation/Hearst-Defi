@@ -187,7 +187,7 @@ export function ContractsAuditTrail() {
       <Card>
         <CardHeader>
           <div className="flex flex-col gap-1">
-            <span className="eyebrow">Audit &amp; methodology</span>
+            <span className="eyebrow">Contract audit trail</span>
             <CardTitle>Review status</CardTitle>
           </div>
         </CardHeader>

@@ -103,7 +103,7 @@ export function BacktestTab() {
       {/* Loading state */}
       {pending ? (
         <div
-          className="scenario-lab-output-empty glass-panel-subtle border-dashed"
+          className="scenario-lab-output-empty ct-empty-surface ct-empty-surface--inline"
           aria-live="polite"
         >
           <Spinner className="ct-text-strong" />

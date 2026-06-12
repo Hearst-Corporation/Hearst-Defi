@@ -3,17 +3,18 @@
 // Filterable via plain GET <form>; no client JS required.
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { getAdminAuditLog } from "@/lib/admin/audit";
-import { abbreviateAddress } from "@/lib/onchain";
 import { cn } from "@/lib/cn";
+import { truncateWallet } from "@/lib/wallet-display";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Audit Log — Hearst Connect",
+  title: "Admin Activity Log — Hearst Connect",
 };
 
 const dtFmt = new Intl.DateTimeFormat("en-US", {
@@ -72,7 +73,7 @@ export default async function AuditLogPage({
   return (
     <div className="space-y-8">
       <AdminPageHeader
-        title="Audit Log"
+        title="Admin activity log"
         description="Immutable record of admin actions — approvals, pauses, distributions, and state transitions."
       />
 
@@ -137,37 +138,38 @@ export default async function AuditLogPage({
         </h3>
 
         {entries.length === 0 ? (
-          <Card className="p-8">
-            <p className="body-sm ct-text-muted">
-              No audit entries match the current filter. Adjust the criteria
-              above or{" "}
-              <a
-                href="/admin/audit"
-                className="ct-text-accent underline-offset-2 hover:underline"
-              >
-                clear all filters
-              </a>{" "}
-              to see the full log.
-            </p>
-          </Card>
+          <EmptySurface
+            variant="widget"
+            message={
+              hasFilters
+                ? "No admin activity matches the current filter."
+                : "No admin activity recorded yet."
+            }
+            detail={
+              hasFilters
+                ? "Adjust the criteria above or clear all filters to see the full log."
+                : undefined
+            }
+            className="min-h-32"
+          />
         ) : (
-          <Card className="overflow-x-auto p-0">
-            <table className="w-full border-collapse text-left">
+          <div className="ct-table-surface">
+            <table className="w-full border-collapse text-left text-sm">
               <thead>
-                <tr className="border-b border-[var(--ct-border)]">
-                  <th className="stat-label px-5 py-3 font-medium whitespace-nowrap">
+                <tr>
+                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted whitespace-nowrap">
                     When
                   </th>
-                  <th className="stat-label px-5 py-3 font-medium whitespace-nowrap">
+                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted whitespace-nowrap">
                     Actor
                   </th>
-                  <th className="stat-label px-5 py-3 font-medium whitespace-nowrap">
+                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted whitespace-nowrap">
                     Action
                   </th>
-                  <th className="stat-label px-5 py-3 font-medium whitespace-nowrap">
+                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted whitespace-nowrap">
                     Entity
                   </th>
-                  <th className="stat-label px-5 py-3 font-medium whitespace-nowrap">
+                  <th className="ct-table-header px-5 py-3 font-medium ct-text-muted whitespace-nowrap">
                     Details
                   </th>
                 </tr>
@@ -189,7 +191,7 @@ export default async function AuditLogPage({
                         className="mono text-xs ct-text-body"
                         title={entry.actorWallet}
                       >
-                        {abbreviateAddress(entry.actorWallet)}
+                        {truncateWallet(entry.actorWallet)}
                       </span>
                       {entry.ip ? (
                         <span className="block text-[10px] ct-text-muted">
@@ -267,7 +269,7 @@ export default async function AuditLogPage({
                 ))}
               </tbody>
             </table>
-          </Card>
+          </div>
         )}
       </section>
 

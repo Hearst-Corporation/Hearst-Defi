@@ -11,7 +11,7 @@ export function SystemPanel({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("dashboard-system-panel ct-card", className)}
+      className={cn("ct-system-panel dashboard-system-panel", className)}
       {...props}
     />
   );

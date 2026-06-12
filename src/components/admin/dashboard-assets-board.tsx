@@ -208,9 +208,23 @@ export function DashboardAssetsBoard({
           />
         )}
 
-        <SystemPanel className="dashboard-command-cell">
-          <ProofPulse proof={proof} proofFresh={proofFresh} custodyUsdc={proof.custodyReservesUsdc} />
-        </SystemPanel>
+        {proof.proofsTotal === 0 &&
+        proof.attestationsCount === 0 &&
+        (!proof.custodyConfigured || proof.custodyReservesUsdc <= 0) ? (
+          <EmptyChartState
+            className="dashboard-command-cell min-h-32"
+            message="Proof and custody records appear after the first attestation or reserve snapshot."
+            ariaLabel="Proof and custody awaiting first record"
+          />
+        ) : (
+          <SystemPanel className="dashboard-command-cell">
+            <ProofPulse
+              proof={proof}
+              proofFresh={proofFresh}
+              custodyUsdc={proof.custodyReservesUsdc}
+            />
+          </SystemPanel>
+        )}
       </div>
 
       {trackedActions.length > 0 ? (
@@ -245,7 +259,7 @@ export function DashboardAssetsBoard({
         />
       </section>
 
-      <section aria-label="Audit trail">
+      <section aria-label="Recent admin activity">
         <AuditTrailRolling entries={cockpit.auditTrail} />
       </section>
     </div>
@@ -443,7 +457,7 @@ function ProofPulse({
         </li>
         <li>
           <Link href={adminNavLinks.proofs()} className="ct-text-accent hover:underline">
-            Mining attestations
+            Off-chain proofs
           </Link>
           <span className="ct-text-muted">
             {" "}

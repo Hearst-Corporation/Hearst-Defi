@@ -1,5 +1,6 @@
-import { truncateWallet } from "@/lib/wallet-display";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
+import { truncateWallet } from "@/lib/wallet-display";
 import type { AuditTrailEntry } from "@/lib/data/cockpit";
 
 interface AuditTrailRollingProps {
@@ -15,7 +16,7 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
 });
 
 /**
- * Cockpit Admin — Audit Trail (rolling 20 entries).
+ * Cockpit Admin — Recent admin activity (rolling 20 AdminAudit rows).
  *
  * Table rendering of AdminAudit rows: time, actor wallet (truncated),
  * action, entity type + id.
@@ -23,18 +24,18 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
  */
 export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   return (
-    <SystemPanel aria-label="Audit trail">
-      <DashboardPanelHeader eyebrow="Compliance" title="Audit Trail" tone="quiet" />
+    <SystemPanel aria-label="Recent admin activity">
+      <DashboardPanelHeader eyebrow="Compliance" title="Recent admin activity" tone="quiet" />
 
       {entries.length === 0 ? (
-        <div className="py-6 ct-empty-state">
-          <p className="body-sm ct-text-muted text-center">
-            No audit events recorded yet.
-          </p>
-        </div>
+        <EmptySurface
+          variant="inline"
+          message="No admin activity recorded yet."
+          className="py-6"
+        />
       ) : (
-        <div className="dashboard-system-panel__table-scroll">
-          <table className="w-full text-sm min-w-160" aria-label="Admin audit log">
+        <div className="dashboard-system-panel__table-scroll ct-table-surface border-0 bg-transparent">
+          <table className="w-full text-sm min-w-160" aria-label="Recent admin activity">
             <thead>
               <tr className="border-b border-(--ct-border-soft)">
                 <th className="text-left ct-table-header font-medium ct-text-faint w-36">

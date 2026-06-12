@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
 import { toggleResolved } from "@/app/admin/feedback/actions";
 
@@ -22,9 +23,11 @@ interface FeedbackItem {
 export function FeedbackList({ items }: { items: FeedbackItem[] }) {
   if (items.length === 0) {
     return (
-      <div className="ct-empty-state">
-        No feedback yet. Be the first.
-      </div>
+      <EmptySurface
+        variant="widget"
+        message="No feedback submitted yet."
+        className="min-h-32"
+      />
     );
   }
 

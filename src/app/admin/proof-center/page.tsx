@@ -13,7 +13,12 @@ import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-t
 import { EventTimeline } from "@/components/proof-center/event-timeline";
 import { PorSummary } from "@/components/proof-center/por-summary";
 import { requireAdmin } from "@/lib/auth/require-admin";
-import { isChainConfigured } from "@/lib/chain/client";
+import {
+  getEventLoggerAddress,
+  getPoRRegistryAddress,
+  isChainConfigured,
+} from "@/lib/chain/client";
+import { abbreviateAddress } from "@/lib/onchain";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
 import { isAttestorAllowlisted } from "@/lib/attestation/stored";
@@ -62,6 +67,9 @@ export default async function AdminProofCenterPage({
   const latestAttestationVerified =
     latestAttestation !== null &&
     isAttestorAllowlisted(latestAttestation.attestor);
+
+  const eventLoggerAddr = getEventLoggerAddress();
+  const porRegistryAddr = getPoRRegistryAddress();
 
   const proofs: UnifiedProof[] = [
     ...onChainAttestations.map(
@@ -138,7 +146,7 @@ export default async function AdminProofCenterPage({
       {/* ── Deployed contracts + audit trail ───────────────── */}
       <section aria-labelledby="contracts-heading">
         <h2 id="contracts-heading" className="h2 mb-6">
-          Contracts &amp; audit trail
+          Deployments &amp; contract audit trail
         </h2>
         <ContractsAuditTrail />
       </section>
@@ -147,8 +155,15 @@ export default async function AdminProofCenterPage({
       <footer className="border-t border-[var(--ct-border-soft)] pt-6">
         <p className="body-xs">
           On-chain entries are read directly from Base Sepolia via the
-          EventLogger (<span className="mono">0xb07E…3D9E</span>) and
-          PoRRegistry (<span className="mono">0x2B72…28D</span>) contracts.
+          EventLogger (
+          <span className="mono">
+            {eventLoggerAddr ? abbreviateAddress(eventLoggerAddr) : "not configured"}
+          </span>
+          ) and PoRRegistry (
+          <span className="mono">
+            {porRegistryAddr ? abbreviateAddress(porRegistryAddr) : "not configured"}
+          </span>
+          ) contracts.
           Off-chain entries are pinned to IPFS or signed HTTPS endpoints; Phase
           2 mirrors each new entry on-chain and surfaces the tx hash here.
           On-chain data and vault state are fetched fresh on every request.

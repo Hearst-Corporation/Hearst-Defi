@@ -1794,14 +1794,64 @@ main#main-content:has(.scenario-lab-page--viewport) > nav {
 
 /* ── UTILITAIRES RÉCURRENTS (factorise les patterns dupliqués) ── */
 
-/* État vide — dashed border, centré, muted text */
-.ct-empty-state {
+/* dashed is reserved for dropzones — not generic empty states (DS §9) */
+.ct-dropzone {
   border-radius: var(--ct-radius-md);
   border: 1px dashed var(--ct-border);
   padding: var(--ct-space-8) var(--ct-space-4);
   text-align: center;
-  font-size: var(--ct-text-sm);
   color: var(--ct-text-muted);
+}
+
+/* ── DS §9 — canonical empty / awaiting surfaces ─────────────────────────── */
+.ct-empty-surface {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ct-space-1);
+  text-align: center;
+  padding: var(--ct-space-8) var(--ct-space-5);
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-lg);
+  min-height: 8rem;
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+}
+
+.ct-empty-surface--chart {
+  width: 100%;
+  min-height: unset;
+  padding-inline: var(--ct-space-4);
+  background: var(--ct-graphite-nested-bg);
+  backdrop-filter: blur(8px) saturate(100%);
+  -webkit-backdrop-filter: blur(8px) saturate(100%);
+}
+
+.ct-empty-surface--inline {
+  min-height: unset;
+  padding: var(--ct-space-6) var(--ct-space-4);
+}
+
+.ct-empty-surface--round {
+  border-radius: var(--ct-radius-full);
+}
+
+/* Legacy alias — no dashed; same material as inline empty */
+.ct-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ct-space-1);
+  text-align: center;
+  padding: var(--ct-space-6) var(--ct-space-4);
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-lg);
+  color: var(--ct-text-muted);
+  font-size: var(--ct-text-sm);
 }
 
 /* Label de formulaire — uppercase, muted, tracked */
@@ -3103,12 +3153,15 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── DS §9 — empty / awaiting module surfaces (global) ───────────────────────
-   Portfolio keeps section-specific min-heights in portfolio.css. These classes
-   must NOT wrap dash-cell-premium / ct-card shells — they replace them.
-   Material: dark graphite smoked glass — lighter than an active card (68–80%
-   bg-deep) but never milky (no white/text-strong tint). */
+/* ── DS §9 — legacy aliases (pf-empty-*) share ct-empty-surface material ─── */
 .pf-empty-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ct-space-1);
+  text-align: center;
+  padding: var(--ct-space-8) var(--ct-space-5);
   background: var(--ct-graphite-subtle-bg);
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
@@ -3133,4 +3186,47 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 
 .pf-empty-chart--round {
   border-radius: var(--ct-radius-full);
+}
+
+/* Secondary system panel — quieter than ct-card glass-panel */
+.ct-system-panel {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-nested-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  box-shadow: none;
+}
+
+/* Admin table shell — shared headers/cells */
+.ct-table-surface {
+  overflow-x: auto;
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-nested-bg);
+}
+
+.ct-table-surface table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.ct-table-surface thead tr {
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.ct-table-surface tbody tr {
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
+}
+
+.ct-table-surface tbody tr:hover {
+  background: var(--ct-surface-0);
+}
+
+.ct-table-surface tbody tr:last-child {
+  border-bottom: none;
 }

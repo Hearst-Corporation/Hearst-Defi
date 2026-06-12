@@ -8,6 +8,7 @@ import { safeUrl } from "@/lib/safe-url";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { deleteProof } from "@/app/admin/proofs/actions";
 
 interface ProofItem {
@@ -31,9 +32,12 @@ function truncate(str: string, head: number, tail: number): string {
 export function ProofList({ items }: { items: ProofItem[] }) {
   if (items.length === 0) {
     return (
-      <div className="ct-empty-state">
-        No proofs yet. Use the ingest CLI to publish an attestation.
-      </div>
+      <EmptySurface
+        variant="widget"
+        message="No off-chain proofs published yet."
+        detail="Mining attestations and custody snapshots appear here once posted via the ingest CLI."
+        className="min-h-32"
+      />
     );
   }
 

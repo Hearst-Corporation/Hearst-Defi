@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { cn } from "@/lib/cn";
 import type { ActionQueueItem, ActionSeverity } from "@/lib/data/cockpit";
@@ -34,12 +35,11 @@ export function ActionQueue({ items }: ActionQueueProps) {
       <DashboardPanelHeader eyebrow="Cockpit" title="Action Queue" tone="quiet" />
 
       {items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 py-8 ct-empty-state">
-          <span className="ct-text-accent text-2xl" aria-hidden>
-            ✓
-          </span>
-          <span className="body-sm ct-text-muted">All clear — no pending actions.</span>
-        </div>
+        <EmptySurface
+          variant="inline"
+          message="All clear — no pending actions."
+          className="py-6"
+        />
       ) : (
         <ul className="flex flex-col divide-y divide-[var(--ct-border-soft)]" role="list">
           {items.map((item) => (

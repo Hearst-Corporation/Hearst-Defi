@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { VaultStatusPill } from "@/components/admin/vault-status-pill";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { cn } from "@/lib/cn";
 import type { VaultLiveMetric } from "@/lib/data/cockpit";
@@ -28,9 +29,7 @@ export function LiveMetrics({ vaults }: LiveMetricsProps) {
       <DashboardPanelHeader eyebrow="Vault telemetry" title="Live Metrics" tone="quiet" />
 
       {vaults.length === 0 ? (
-        <div className="py-8 ct-empty-state">
-          <p className="body-sm ct-text-muted text-center">No vault data.</p>
-        </div>
+        <EmptySurface variant="inline" message="No vault telemetry yet." className="py-8" />
       ) : (
         <div className="flex flex-col divide-y divide-[var(--ct-border-soft)]">
           {vaults.map((vault) => (

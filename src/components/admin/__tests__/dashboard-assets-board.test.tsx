@@ -124,12 +124,16 @@ function allocationCard(html: string): string {
   return end === -1 ? rest : rest.slice(0, end);
 }
 
-function render(data: DashboardData, capitalUsdc: number) {
+function render(
+  data: DashboardData,
+  capitalUsdc: number,
+  proof: AdminProofStatus = PROOF,
+) {
   return renderToStaticMarkup(
     <DashboardAssetsBoard
       data={data}
       risk={RISK}
-      proof={PROOF}
+      proof={proof}
       actions={ACTIONS}
       totalActionRequired={0}
       capitalUsdc={capitalUsdc}
@@ -209,9 +213,23 @@ describe("DashboardAssetsBoard — Admin Honesty", () => {
   });
 
   it("renders wired admin routes for proof and distributions", () => {
-    const html = render(makeData({ source: "fallback" }), 0);
+    const proofWithRecords: AdminProofStatus = {
+      ...PROOF,
+      proofsTotal: 2,
+      attestationsCount: 1,
+      custodyConfigured: true,
+      custodyReservesUsdc: 250_000,
+      custodyProvenance: "live",
+    };
+    const html = render(makeData({ source: "fallback" }), 0, proofWithRecords);
     expect(html).toContain('href="/admin/proof-center"');
     expect(html).toContain('href="/admin/proofs"');
     expect(html).toContain('href="/admin/distributions"');
+  });
+
+  it("empty proof slot uses chart placeholder, not active proof panel", () => {
+    const html = render(makeData({ source: "fallback" }), 0);
+    expect(html).toContain("Proof and custody records appear after");
+    expect(html).not.toContain('href="/admin/proof-center"');
   });
 });

@@ -201,7 +201,7 @@ export default async function PortfolioPage() {
         <MergedSurface
           title="Performance & Liquidity"
           provenance={portfolioProvenance}
-          showProvenance
+          showProvenance={hasPositions && !previewZeros}
           data-section="hero-pulse"
         >
           <div className="grid grid-cols-12 gap-6">
@@ -271,7 +271,7 @@ export default async function PortfolioPage() {
           <MergedSurface
             title="Yield & Trust Pulse"
             provenance={portfolioProvenance}
-            showProvenance
+            showProvenance={hasPositions && !previewZeros}
             data-section="yield-trust"
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -316,7 +316,7 @@ export default async function PortfolioPage() {
           <MergedSurface
             title="Activity & Payouts"
             provenance={portfolioProvenance}
-            showProvenance
+            showProvenance={hasPositions && !previewZeros}
             data-section="activity-payouts"
           >
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
