@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { MetricGrid } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { VaultAllocationInvestorList } from "@/components/vaults/vault-allocation-display";
@@ -32,38 +33,36 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
       <div className="invest-flow-detail__grid">
         {/* Primary column — strategy signal */}
         <div className="invest-flow-detail__primary">
-          <div className="product-doc-stack product-doc-stack--relaxed">
-            {/* Strategy summary */}
-            <div>
-              <p className="body-sm ct-text-muted">{MODEL_B_ONELINER}</p>
-              <div className="product-doc-inline-row mt-2">
-                <Badge variant="brand">Mining-backed</Badge>
-                <Badge variant="default">Rule-based rebalancing</Badge>
-                <Badge variant="default">Monthly USDC distributions</Badge>
-              </div>
-            </div>
-
-            {/* Allocation */}
-            <div>
-              <p className="invest-flow-detail__panel-label">Target allocation</p>
-              <VaultAllocationInvestorList facts={allocationFacts} />
-            </div>
-
-            {/* Scenario table */}
-            <div>
-              <p className="invest-flow-detail__panel-label">Regime scenarios</p>
-              <RegimeScenarioTable />
-              <p className="body-xs ct-text-faint mt-2">
-                Conditional stress postures — not a projection of future returns · Methodology v1.0
-              </p>
+          {/* Strategy context — floats on workspace background, not a card */}
+          <div>
+            <p className="body-sm ct-text-muted">{MODEL_B_ONELINER}</p>
+            <div className="product-doc-inline-row mt-2">
+              <Badge variant="brand">Mining-backed</Badge>
+              <Badge variant="default">Rule-based rebalancing</Badge>
+              <Badge variant="default">Monthly USDC distributions</Badge>
             </div>
           </div>
+
+          {/* Target allocation — DS module */}
+          <Card hoverOverlay={false}>
+            <p className="invest-flow-detail__panel-label">Target allocation</p>
+            <VaultAllocationInvestorList facts={allocationFacts} />
+          </Card>
+
+          {/* Regime scenarios — DS module */}
+          <Card hoverOverlay={false}>
+            <p className="invest-flow-detail__panel-label">Regime scenarios</p>
+            <RegimeScenarioTable />
+            <p className="body-xs ct-text-faint mt-3">
+              Conditional stress postures — not a projection of future returns · Methodology v1.0
+            </p>
+          </Card>
         </div>
 
-        {/* Secondary column — KPIs + legal support */}
+        {/* Secondary column — support modules */}
         <div className="invest-flow-detail__secondary">
-          {/* Vault metrics */}
-          <div>
+          {/* Vault metrics — compact DS module */}
+          <Card hoverOverlay={false}>
             <p className="invest-flow-detail__panel-label">Vault metrics</p>
             <MetricGrid columns={2}>
               <VaultKpiCell label="Mgmt / perf">{formatFeeLine(vault.fees)}</VaultKpiCell>
@@ -74,22 +73,22 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
                   : "Pending"}
               </VaultKpiCell>
             </MetricGrid>
-            <div className="body-xs ct-text-faint mt-2 product-doc-inline-row product-doc-inline-row--dense">
+            <div className="body-xs ct-text-faint mt-3 product-doc-inline-row product-doc-inline-row--dense">
               <span>Metrics:</span>
               <ProvenanceBadge kind="estimated" />
               {vault.currentAumUsdc > 0 ? <ProvenanceBadge kind={aumProvenance} /> : null}
             </div>
-          </div>
+          </Card>
 
-          {/* Legal & risk — compact rows, no section heading */}
-          <div>
+          {/* Legal & structure — compact support DS module */}
+          <Card hoverOverlay={false}>
             <p className="invest-flow-detail__panel-label">Legal & structure</p>
             <div className="ct-panel-fields">
               <VaultLegalProofRows facts={legalFacts} variant="investor" />
             </div>
-          </div>
+          </Card>
 
-          {/* Quiet disclaimer */}
+          {/* Quiet disclaimer — secondary support, not a card */}
           <p className="body-xs ct-text-faint leading-relaxed">
             {vault.disclaimers} APY ranges are target projections — not guaranteed.
           </p>
