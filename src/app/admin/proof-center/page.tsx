@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
 import { ProofFilter } from "@/components/proof/proof-filter";
 import { parseFilter } from "@/components/proof/proof-filter-types";
@@ -120,16 +121,10 @@ export default async function AdminProofCenterPage({
           <ProofFilter />
         </div>
         {proofs.length === 0 ? (
-          <div
-            role="status"
-            className="pf-empty-widget flex flex-col items-center justify-center gap-1 px-5 py-16 text-center"
-          >
-            <p className="body-sm ct-text-muted">No proofs published yet</p>
-            <p className="body-xs ct-text-faint max-w-md">
-              Off-chain attestations, custody snapshots, and audits will appear
-              here once posted. On-chain entries are read live from Base Sepolia.
-            </p>
-          </div>
+          <AwaitingMetricState
+            message="No proofs published yet"
+            detail="Off-chain attestations, custody snapshots, and audits will appear here once posted. On-chain entries are read live from Base Sepolia."
+          />
         ) : (
           <ProofGrid proofs={proofs} filter={filter} />
         )}

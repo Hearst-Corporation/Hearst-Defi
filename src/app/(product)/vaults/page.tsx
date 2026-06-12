@@ -3,6 +3,7 @@
 // Non-negotiable #9: single vault MVP, no multi-vault abstractions today.
 
 import { ProductPageHeader } from "@/components/connect/product-page-header";
+import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { listVaults } from "@/lib/data/vaults";
 import { ProductSelectCard } from "@/components/vaults/product-select-card";
 import { StepProgress } from "@/components/vaults/step-progress";
@@ -40,15 +41,10 @@ export default async function VaultsPage() {
         </h2>
 
         {vaults.length === 0 ? (
-          <div
-            role="status"
-            className="pf-empty-widget flex flex-col items-center justify-center gap-1 px-5 py-12 text-center"
-          >
-            <p className="body-sm ct-text-muted">No products available right now.</p>
-            <p className="body-xs ct-text-faint">
-              Check back soon or contact your manager.
-            </p>
-          </div>
+          <AwaitingMetricState
+            message="No products available right now."
+            detail="Check back soon or contact your manager."
+          />
         ) : (
           <div className="flex flex-col gap-6">
             {vaults.map((vault) => (
