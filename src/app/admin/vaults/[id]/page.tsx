@@ -7,7 +7,7 @@ import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { PanelStatus } from "@/components/ui/panel-status";
 import { ProofRow } from "@/components/ui/nested-panel";
 import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { Progress } from "@/components/ui/progress";
@@ -316,7 +316,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
               ] as [string, number][]
             ).map(([label, bps]) => (
               <div key={label} className="admin-doc-stack--compact">
-                <div className="flex items-center justify-between">
+                <div className="admin-doc-row-spread">
                   <span className="stat-label">{label}</span>
                   <span className="mono tabular text-sm ct-text-primary">
                     {pct(bps)}%
@@ -339,7 +339,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
         </div>
 
         {vault.approvals.length === 0 ? (
-          <EmptySurface variant="inline" message="No signatures yet." />
+          <PanelStatus message="No signatures yet." />
         ) : (
           <div className="ct-table-surface">
             <table className="w-full text-sm">

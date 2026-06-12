@@ -1,6 +1,7 @@
 import { RoadmapItemRow } from "@/components/admin/roadmap-item-row";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
+import { PanelStatus } from "@/components/ui/panel-status";
 import { Progress } from "@/components/ui/progress";
 import type {
   RoadmapPhaseWithState,
@@ -58,8 +59,7 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
             </div>
 
             {phase.weeks.length === 0 ? (
-              <EmptySurface
-                variant="inline"
+              <PanelStatus
                 message="No sprint weeks in this phase."
                 className="min-h-24"
               />

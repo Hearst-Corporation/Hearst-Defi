@@ -149,7 +149,7 @@ function AllocSliders({
 
   return (
     <div className="admin-doc-stack--actions">
-      <div className="flex items-center justify-between">
+      <div className="admin-doc-row-spread">
         <span className="eyebrow ct-text-muted">Allocations</span>
         <span
           className={cn(

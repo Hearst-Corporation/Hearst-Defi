@@ -9,6 +9,7 @@ import Link from "next/link";
 
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
+import { PanelStatus } from "@/components/ui/panel-status";
 
 describe("Admin vaults — empty state design contract", () => {
   it("vault list empty: EmptySurface only, no active module shell", () => {
@@ -31,18 +32,19 @@ describe("Admin vaults — empty state design contract", () => {
     expect(html).not.toContain("Stale");
   });
 
-  it("approvals partial empty: inline EmptySurface inside active Card", () => {
+  it("approvals partial empty: PanelStatus inside active Card", () => {
     const html = renderToStaticMarkup(
       <Card>
         <CardHeader>
           <CardTitle>Approvals</CardTitle>
           <span className="mono tabular text-sm ct-text-muted">0 / 2 required</span>
         </CardHeader>
-        <EmptySurface variant="inline" message="No signatures yet." />
+        <PanelStatus message="No signatures yet." />
       </Card>,
     );
 
-    expect(html).toContain("ct-empty-surface--inline");
+    expect(html).toContain("ct-panel-status");
+    expect(html).not.toContain("ct-nested-callout");
     expect(html).toContain("No signatures yet.");
     expect(html).toContain("glass-panel");
     expect(html).not.toContain("border-dashed");

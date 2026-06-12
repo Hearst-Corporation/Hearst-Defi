@@ -116,8 +116,8 @@ tabulaires denses uniquement) · `PanelStatus` / `PanelStatusSection`
 inline **sans** boîte dans un parent déjà encadré (cockpit panel, card, chamber) ·
 `PanelStatusAccent` — rail `border-l` accentué (action recommandée, risk warning)
 · `EmptySurface` / `AwaitingMetricState` — module vide seul ou `variant="inline"`
-dans un parent · `.ct-nested-callout` — legacy admin / alertes accentuées hors
-portfolio. Définis dans `cockpit.css` ; nested panels dans
+dans un parent · `.ct-nested-callout` — **deprecated** (plus d'usage produit/admin ; garder
+le primitive pour compat). Définis dans `cockpit.css` ; nested panels dans
 `src/components/ui/nested-panel.tsx`.
 
 **Surfaces module (dark graphite)** — `.glass-panel` / `Card` + `.card-premium`

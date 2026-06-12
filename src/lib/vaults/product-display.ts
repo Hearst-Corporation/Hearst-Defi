@@ -115,6 +115,22 @@ export function formatAdminDateTime(d: Date): string {
   return ADMIN_DATETIME.format(d);
 }
 
+const ADMIN_AUDIT_TIMESTAMP = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+  timeZoneName: "short",
+});
+
+/** Admin audit log — full timestamp with timezone (compliance review). */
+export function formatAdminAuditTimestamp(d: Date): string {
+  return ADMIN_AUDIT_TIMESTAMP.format(d);
+}
+
 export function buildDistributionIcsUri(title: string, date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   const ymd = `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}`;

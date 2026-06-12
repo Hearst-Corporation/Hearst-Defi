@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { NestedCallout } from "@/components/ui/nested-panel";
+import { PanelStatusAccent } from "@/components/ui/panel-status";
 import { discardWizardDraft } from "../draft-actions";
 
 interface DraftGateProps {
@@ -73,8 +73,11 @@ export function ResumeDraftBanner({
       </div>
 
       {confirmDiscard ? (
-        <NestedCallout className="admin-doc-stack--actions border border-(--ct-status-danger-border) ct-status-danger-bg">
-          <p className="body-xs ct-text-strong">
+        <PanelStatusAccent
+          className="admin-doc-stack--actions items-stretch border-l-(--ct-status-danger)"
+          role="alert"
+        >
+          <p className="body-xs ct-text-strong m-0">
             You are about to lose this draft. Continue?
           </p>
           <div className="admin-doc-inline-row">
@@ -97,7 +100,7 @@ export function ResumeDraftBanner({
               Cancel
             </Button>
           </div>
-        </NestedCallout>
+        </PanelStatusAccent>
       ) : (
         <div className="admin-doc-inline-row">
           <Button

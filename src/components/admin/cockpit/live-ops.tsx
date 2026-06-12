@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { PanelStatus } from "@/components/ui/panel-status";
 import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl } from "@/lib/chain/client";
@@ -67,8 +67,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
           On-chain feed
         </p>
         {onChainEvents.length === 0 ? (
-          <EmptySurface
-            variant="inline"
+          <PanelStatus
             message="No recent on-chain events."
             className="py-4"
           />

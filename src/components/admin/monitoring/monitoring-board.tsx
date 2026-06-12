@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { EmptySurface } from "@/components/ui/empty-surface";
+import { PanelStatus } from "@/components/ui/panel-status";
 import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { cn } from "@/lib/cn";
 import type { MonitoringStats } from "@/lib/data/monitoring";
@@ -122,7 +123,7 @@ function MonitoringTable({
             {isEmpty ? (
               <tr>
                 <td colSpan={colSpan}>
-                  <EmptySurface variant="inline" {...EMPTY_COPY} />
+                  <PanelStatus {...EMPTY_COPY} />
                 </td>
               </tr>
             ) : (

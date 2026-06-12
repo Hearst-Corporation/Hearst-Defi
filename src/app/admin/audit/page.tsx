@@ -11,23 +11,13 @@ import { EmptySurface } from "@/components/ui/empty-surface";
 import { getAdminAuditLog } from "@/lib/admin/audit";
 import { cn } from "@/lib/cn";
 import { truncateWallet } from "@/lib/wallet-display";
+import { formatAdminAuditTimestamp } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Admin Activity Log — Hearst Connect",
 };
-
-const dtFmt = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "short",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hour12: false,
-  timeZoneName: "short",
-});
 
 /**
  * Derive a Badge variant from an action string so compliance reviewers
@@ -183,7 +173,7 @@ export default async function AuditLogPage({
                   >
                     {/* When */}
                     <td className="px-5 py-3 whitespace-nowrap mono body-xs ct-text-muted">
-                      {dtFmt.format(entry.occurredAt)}
+                      {formatAdminAuditTimestamp(entry.occurredAt)}
                     </td>
 
                     {/* Actor */}

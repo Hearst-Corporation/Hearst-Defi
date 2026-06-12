@@ -10,18 +10,13 @@ import { loadCockpitPayload } from "@/lib/data/cockpit";
 import { loadDashboardData } from "@/lib/data/dashboard";
 import { loadRiskFramework } from "@/lib/data/risk-framework";
 import { adminDashboardVaultHref } from "@/lib/vaults/dashboard-scope";
+import { formatAdminDate } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
 
 interface DashboardPageProps {
   searchParams: Promise<{ vault?: string }>;
 }
-
-const dateFmt = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-});
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   await requireAdmin();
@@ -49,7 +44,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <div className="relative z-10">
         <AdminPageHeader
           title="Dashboard"
-          eyebrow={`${data.vaultMeta.name} · as of ${dateFmt.format(data.vault.asOf)}`}
+          eyebrow={`${data.vaultMeta.name} · as of ${formatAdminDate(data.vault.asOf)}`}
           actionsLayout="stack"
           actions={
             <>

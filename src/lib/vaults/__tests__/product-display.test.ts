@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest";
 import {
   buildDistributionIcsUri,
   daysFromNow,
+  formatAdminAuditTimestamp,
   formatAdminDate,
   formatAdminDateTime,
   formatDateGb,
@@ -78,6 +79,15 @@ describe("formatAdminDateTime", () => {
     const label = formatAdminDateTime(new Date(2026, 5, 12, 14, 30));
     expect(label).toMatch(/Jun 12, 2026/);
     expect(label).toMatch(/2:30/);
+  });
+});
+
+describe("formatAdminAuditTimestamp", () => {
+  it("includes date, time, and timezone for audit rows", () => {
+    const label = formatAdminAuditTimestamp(new Date(2026, 5, 12, 14, 30, 45));
+    expect(label).toMatch(/Jun/);
+    expect(label).toMatch(/2026/);
+    expect(label).toMatch(/14:30:45/);
   });
 });
 

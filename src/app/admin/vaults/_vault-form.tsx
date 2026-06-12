@@ -6,7 +6,8 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
-import { NestedCallout, NestedPanel } from "@/components/ui/nested-panel";
+import { NestedPanel } from "@/components/ui/nested-panel";
+import { PanelStatus } from "@/components/ui/panel-status";
 import { Progress } from "@/components/ui/progress";
 import { MonteCarloReview } from "@/components/admin/monte-carlo-review";
 import { ProjectionFooter } from "@/components/admin/projection-footer";
@@ -257,7 +258,7 @@ export function VaultForm(props: VaultFormProps) {
     <div className="admin-doc-stack admin-doc-narrow pb-24" onBlur={handleBlur}>
       {/* Progress bar */}
       <div className="admin-doc-stack--actions">
-        <div className="flex items-center justify-between">
+        <div className="admin-doc-row-spread">
           {STEPS.map((s, i) => (
             <span
               key={s.key}
@@ -488,7 +489,7 @@ export function VaultForm(props: VaultFormProps) {
               ] as const
             ).map(({ key, label }) => (
               <div key={key} className="admin-doc-stack--tight">
-                <div className="flex items-center justify-between">
+                <div className="admin-doc-row-spread">
                   <span className="stat-label">{label}</span>
                   <span className="mono tabular body-sm ct-text-primary">
                     {pct(form[key])}%
@@ -666,76 +667,114 @@ export function VaultForm(props: VaultFormProps) {
           <div className="admin-doc-stack">
             <CardTitle>Review &amp; Simulate</CardTitle>
 
-            <NestedPanel className="admin-doc-stack--actions divide-y divide-border-subtle">
-              <div className="admin-doc-confirm-grid pb-3">
-                <span className="stat-label">Ticker</span>
-                <span className="mono tabular body-sm ct-text-strong">{form.ticker}</span>
-                <span className="stat-label">Name</span>
-                <span className="body-sm ct-text-primary">{form.name}</span>
-                <span className="stat-label">Strategy</span>
-                <span className="body-sm ct-text-primary">{form.strategy}</span>
-                <span className="stat-label">Color Tag</span>
-                <span className="body-sm ct-text-primary">{form.colorTag}</span>
+            <NestedPanel className="admin-confirm-panel divide-y divide-border-subtle">
+              <div className="admin-confirm-panel__rows pb-3">
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Ticker</span>
+                  <span className="mono tabular body-sm ct-text-strong">{form.ticker}</span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Name</span>
+                  <span className="body-sm ct-text-primary">{form.name}</span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Strategy</span>
+                  <span className="body-sm ct-text-primary">{form.strategy}</span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Color Tag</span>
+                  <span className="body-sm ct-text-primary">{form.colorTag}</span>
+                </div>
               </div>
 
-              <div className="admin-doc-confirm-grid py-3">
-                <span className="stat-label">Min Ticket</span>
-                <span className="mono tabular body-sm">{formatUsdFull(form.minTicketUsdc)}</span>
-                <span className="stat-label">Capacity</span>
-                <span className="mono tabular body-sm">{formatUsdFull(form.capacityUsdc)}</span>
-                <span className="stat-label">Fees</span>
-                <span className="mono tabular body-sm">
-                  {pct(form.mgmtFeeBps)}% mgmt / {pct(form.perfFeeBps)}% perf
-                </span>
-                <span className="stat-label">Lockup</span>
-                <span className="mono tabular body-sm">{form.softLockupDays} days</span>
-                <span className="stat-label">Target APY</span>
-                <ApyRange
-                  low={form.targetApyLowBps / 100}
-                  high={form.targetApyHighBps / 100}
-                  precision={1}
-                />
+              <div className="admin-confirm-panel__rows py-3">
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Min Ticket</span>
+                  <span className="mono tabular body-sm">{formatUsdFull(form.minTicketUsdc)}</span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Capacity</span>
+                  <span className="mono tabular body-sm">{formatUsdFull(form.capacityUsdc)}</span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Fees</span>
+                  <span className="mono tabular body-sm">
+                    {pct(form.mgmtFeeBps)}% mgmt / {pct(form.perfFeeBps)}% perf
+                  </span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Lockup</span>
+                  <span className="mono tabular body-sm">{form.softLockupDays} days</span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Target APY</span>
+                  <ApyRange
+                    low={form.targetApyLowBps / 100}
+                    high={form.targetApyHighBps / 100}
+                    precision={1}
+                  />
+                </div>
               </div>
 
-              <div className="admin-doc-confirm-grid py-3">
-                <span className="stat-label">SPV</span>
-                <span className="body-sm ct-text-primary">{form.spvJurisdiction}</span>
-                <span className="stat-label">Share Class</span>
-                <span className="body-sm">{form.shareClass}</span>
-                <span className="stat-label">Reg Exemption</span>
-                <span className="body-sm">{form.regExemption}</span>
+              <div className="admin-confirm-panel__rows py-3">
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">SPV</span>
+                  <span className="body-sm ct-text-primary">{form.spvJurisdiction}</span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Share Class</span>
+                  <span className="body-sm">{form.shareClass}</span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Reg Exemption</span>
+                  <span className="body-sm">{form.regExemption}</span>
+                </div>
               </div>
 
-              <div className="admin-doc-confirm-grid py-3">
-                <span className="stat-label">Mining</span>
-                <span className="mono tabular body-sm">{pct(form.targetMiningBps)}%</span>
-                <span className="stat-label">BTC Tactical</span>
-                <span className="mono tabular body-sm">{pct(form.targetBtcTacticalBps)}%</span>
-                <span className="stat-label">USDC Base</span>
-                <span className="mono tabular body-sm">{pct(form.targetUsdcBaseBps)}%</span>
-                <span className="stat-label">Stable Reserve</span>
-                <span className="mono tabular body-sm">{pct(form.targetStableReserveBps)}%</span>
-                <span className="stat-label">Total</span>
-                <span
-                  className={
-                    allocTotal() === 10000
-                      ? "mono tabular body-sm ct-status-success font-semibold"
-                      : "mono tabular body-sm ct-status-danger font-semibold"
-                  }
-                >
-                  {pct(allocTotal())}%
-                </span>
+              <div className="admin-confirm-panel__rows py-3">
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Mining</span>
+                  <span className="mono tabular body-sm">{pct(form.targetMiningBps)}%</span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">BTC Tactical</span>
+                  <span className="mono tabular body-sm">{pct(form.targetBtcTacticalBps)}%</span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">USDC Base</span>
+                  <span className="mono tabular body-sm">{pct(form.targetUsdcBaseBps)}%</span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Stable Reserve</span>
+                  <span className="mono tabular body-sm">{pct(form.targetStableReserveBps)}%</span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Total</span>
+                  <span
+                    className={
+                      allocTotal() === 10000
+                        ? "mono tabular body-sm ct-status-success font-semibold"
+                        : "mono tabular body-sm ct-status-danger font-semibold"
+                    }
+                  >
+                    {pct(allocTotal())}%
+                  </span>
+                </div>
               </div>
 
-              <div className="admin-doc-confirm-grid py-3">
-                <span className="stat-label">Signers</span>
-                <span className="body-sm ct-text-primary">
-                  {form.signersWhitelist.filter((s) => s.trim().length > 0).length} whitelisted
-                </span>
-                <span className="stat-label">Required Quorum</span>
-                <span className="mono tabular body-sm">
-                  {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
-                </span>
+              <div className="admin-confirm-panel__rows py-3">
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Signers</span>
+                  <span className="body-sm ct-text-primary">
+                    {form.signersWhitelist.filter((s) => s.trim().length > 0).length} whitelisted
+                  </span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Required Quorum</span>
+                  <span className="mono tabular body-sm">
+                    {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
+                  </span>
+                </div>
               </div>
             </NestedPanel>
 
@@ -773,13 +812,17 @@ export function VaultForm(props: VaultFormProps) {
               <p className="body-sm ct-text-primary">
                 Click <strong>Submit for Review</strong> below to enter the multisig queue.
               </p>
-              <div className="admin-doc-confirm-grid pt-2">
-                <span className="stat-label">Vault</span>
-                <span className="mono tabular body-sm ct-text-strong">{form.ticker || "—"}</span>
-                <span className="stat-label">Required signers</span>
-                <span className="mono tabular body-sm">
-                  {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
-                </span>
+              <div className="admin-confirm-panel__rows pt-2">
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Vault</span>
+                  <span className="mono tabular body-sm ct-text-strong">{form.ticker || "—"}</span>
+                </div>
+                <div className="admin-confirm-panel__row">
+                  <span className="stat-label">Required signers</span>
+                  <span className="mono tabular body-sm">
+                    {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
+                  </span>
+                </div>
               </div>
             </NestedPanel>
 
@@ -792,9 +835,7 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Navigation */}
         {error ? (
-          <NestedCallout className="mt-4 border border-(--ct-status-danger-border) ct-status-danger-bg">
-            <p className="body-sm ct-status-danger">{error}</p>
-          </NestedCallout>
+          <PanelStatus tone="danger" role="alert" message={error} className="mt-4" />
         ) : null}
 
         <div className="mt-8 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions">

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
 import { loadCustomers, type KycStatus } from "@/lib/data/customers";
+import { formatAdminDate } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
 
@@ -19,12 +20,6 @@ const usdFull = new Intl.NumberFormat("en-US", {
   currency: "USD",
   minimumFractionDigits: 0,
   maximumFractionDigits: 0,
-});
-
-const joinedFmt = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "short",
-  day: "2-digit",
 });
 
 const KYC_VARIANT: Record<KycStatus, "success" | "warning" | "danger"> = {
@@ -126,7 +121,7 @@ export default async function CustomersPage({
                       {usdFull.format(c.totalPrincipalUsdc)}
                     </td>
                     <td className="px-5 py-3 ct-text-muted">
-                      {joinedFmt.format(c.joinedAt)}
+                      {formatAdminDate(c.joinedAt)}
                     </td>
                   </tr>
                 ))}
@@ -137,7 +132,7 @@ export default async function CustomersPage({
 
         {/* Pagination controls */}
         {total > 0 && (
-          <div className="flex items-center justify-between pt-2">
+          <div className="admin-doc-row-spread pt-2">
             <p className="text-xs ct-text-muted">
               Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, total)} of {total}
             </p>

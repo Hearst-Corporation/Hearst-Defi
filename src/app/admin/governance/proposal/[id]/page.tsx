@@ -5,7 +5,7 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { PanelStatus } from "@/components/ui/panel-status";
 import { Ptai } from "@/components/ui/ptai";
 import { DashboardPanelHeader, SystemPanel } from "@/components/ui/system-panel";
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -175,7 +175,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         />
 
         {proposal.signatures.length === 0 ? (
-          <EmptySurface variant="inline" message="No signatures yet." />
+          <PanelStatus message="No signatures yet." />
         ) : (
           <div className="admin-doc-stack--tight">
             {proposal.signatures.map((sig) => (
