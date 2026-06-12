@@ -47,7 +47,8 @@ demander une exception explicite à Adrien et la documenter dans l'ADR si
 elle est accordée.
 
 **Bento investisseur (`product-bento.css`)** : chrome unique `.dash-cell` /
-`.dash-cell-premium` / `.dash-bento` pour Portfolio, Profile et surfaces LP.
+`.dash-cell-premium` / `.dash-bento` pour Portfolio et surfaces LP — matière
+`--ct-graphite-*` (alignée sur `.glass-panel` / `Card`).
 Grille 12 col : spans sur `.dash-cell.col-*` ou enfants directs `.bento-col-4|6|8|12`
 (Card / wrappers widget — pas `col-*` nu sur un `<div>`). `portfolio.css` =
 layout-only (spacing) — **interdit** d'y réécrire le material bento (test guard :
@@ -70,7 +71,8 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
 ```
 
 **Interactivité & Animations (Agent 3)** :
-- **Hover states** : Les cartes bento (`.dash-cell`, `.dash-cell-premium`) disposent d'un effet de "lift" (translateY) et d'un décalage de gradient radial pour la profondeur.
+- **Hover states** : Bento (`.dash-cell`) et Card (`.glass-panel`) — bordure
+  légèrement renforcée au survol (graphite calme, pas de lift ni wash radial).
 - **Tooltips** : Composant `Tooltip` (via `framer-motion`) intégré aux `ProvenanceBadge` et `Metric`.
 - **Transitions** : Composant `MotionViewport` pour les animations d'entrée de section (fade-in + slide-up).
 - **Portfolio** : Page complète avec bento analytics, gestion KYC/KYB
@@ -116,11 +118,10 @@ provenance sur le bloc parent) · `NestedPanel` + `ProofRow` (preuves / evidence
 · `.ct-nested-callout` (alertes status dans un widget). Définis dans
 `cockpit.css` ; composants dans `src/components/ui/nested-panel.tsx`.
 
-**Surfaces module (dark graphite)** — `.glass-panel` / `.ct-glass-panel` (Card
-primitive, admin + investor), `.glass-panel-subtle`, `.pf-empty-*`, nested
-panels : recette `--ct-graphite-*` dans `cockpit.css` (bg-deep smoked glass,
-pas de translucidité blanche qui laisse passer le vert cockpit). Chips/badges
-gardent `--ct-surface-1` littéral.
+**Surfaces module (dark graphite)** — `.glass-panel` / `.ct-glass-panel` (Card),
+`.dash-cell` / `.dash-cell-premium` (bento investisseur), `.glass-panel-subtle`,
+`.pf-empty-*`, nested panels : recette `--ct-graphite-*` dans `cockpit.css`
+(bg-deep smoked glass). Chips/badges gardent `--ct-surface-1` littéral.
 
 **Canon typo/layout** (cohérence pages) :
 - H1 page : `.h1` via `ProductPageHeader` / `AdminPageHeader` (gap-4, description `body-md max-w-xl`).
