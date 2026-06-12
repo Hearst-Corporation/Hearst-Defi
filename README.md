@@ -205,7 +205,29 @@ pnpm db:generate          # prisma generate
 pnpm db:push              # prisma db push (SQLite dev.db)
 pnpm db:migrate           # prisma migrate dev (named migration)
 pnpm db:studio            # Prisma Studio GUI
+pnpm db:seed              # Admin fixture timeline (snapshots, proofs, mining)
+pnpm seed:test            # E2E login user (test@hearst.local)
+pnpm seed:investor-demo   # Local visual QA — demo position + vault + profile
+pnpm seed:investor-demo:reset  # Wipe fixture rows (positions, proofs, snapshots…)
 ```
+
+**Investor visual QA (local only)** — login `test@hearst.local` / `TestPassword123!` :
+
+```bash
+pnpm seed:investor-demo
+# optional richer admin timeline:
+pnpm db:seed && pnpm seed:investor-demo
+# reset to empty fixture state:
+pnpm seed:investor-demo:reset
+```
+
+On-chain Proof Center panels also need Base Sepolia addresses in `.env.local`
+(`NEXT_PUBLIC_EVENT_LOGGER_ADDRESS`, `NEXT_PUBLIC_POR_REGISTRY_ADDRESS` — see
+`.env.example`). Paper proofs are seeded by `seed:investor-demo` when the DB
+has none.
+
+Refuses `NODE_ENV=production` by default. Exceptional override only (e.g.
+staging smoke): `ALLOW_INVESTOR_DEMO_SEED=true pnpm seed:investor-demo`.
 
 ---
 
