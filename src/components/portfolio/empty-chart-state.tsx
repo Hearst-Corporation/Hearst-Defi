@@ -4,17 +4,18 @@ import { cn } from "@/lib/cn";
  * EmptyChartState — calm, institutional placeholder for a chart/visual that has
  * no data yet.
  *
- * Renders the `.pf-empty-chart` surface (portfolio.css): a quiet reserved zone
- * with a near-invisible fill and a hairline border — DS radius, no blur, no
- * shadow, no `ct-surface-1`, no dashed border, no `dash-cell-premium`. The
- * parent widget is already a surface; an empty chart should read as a
- * deliberate placeholder, not a wireframe dropzone or a hollow gap.
+ * Design contract (`docs/DESIGN_SYSTEM.md` §9.3):
+ * **Empty states replace active module surfaces; they are not rendered inside
+ * active module surfaces.**
  *
- * - Preserves the chart's visual height to avoid layout shift between the empty
- *   and populated states (caller passes the same height the chart would take).
- * - Centers a single message — no second "no data" line elsewhere.
- * - `role="note"` (not `img`/`chart`) so assistive tech doesn't announce a chart
- *   that isn't there.
+ * Callers must early-return this component when primary chart data is missing —
+ * never wrap it in `dash-cell-premium`, headers, or provenance badges.
+ *
+ * Renders `.pf-empty-chart` (portfolio.css): quiet reserved zone, hairline
+ * border, DS radius — no blur, shadow, `ct-surface-1`, dashed border, or ghost
+ * SVG. Preserves chart height (caller passes parity classes). Single message
+ * only. `role="note"` so assistive tech does not announce a chart that is not
+ * there.
  */
 export interface EmptyChartStateProps {
   /** Single calm sentence. Keep institutional, no marketing. */

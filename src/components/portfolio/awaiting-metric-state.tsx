@@ -2,14 +2,15 @@
  * AwaitingMetricState — light, self-contained empty surface for a widget whose
  * primary data is missing.
  *
- * Key principle: an empty widget must NOT look like an active card. So this is
- * NOT a `dash-cell dash-cell-premium` with a header + provenance badge + a
- * centered placeholder (which reads as a big black "placeholder box"). It is a
- * quiet, low surface — a single calm message, optionally a secondary detail and
- * one discreet link — that holds its grid slot without faking activity.
+ * Design contract (`docs/DESIGN_SYSTEM.md` §9.3):
+ * **Empty states replace active module surfaces; they are not rendered inside
+ * active module surfaces.**
  *
- * No dash-cell-premium, no provenance badge, no dashed border, no nested
- * mini-surface. Just a calm note on a faint inset.
+ * Callers must early-return this component when primary metric data is missing —
+ * never wrap it in `dash-cell-premium`, headers, provenance badges, or nested
+ * callouts inside an active card. Renders `.pf-empty-widget`: single calm
+ * message, optional detail line, optional discreet link. No dashed border, no
+ * hardcoded fallback values presented as live data.
  */
 import Link from "next/link";
 

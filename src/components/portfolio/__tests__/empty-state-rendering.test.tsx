@@ -1,8 +1,11 @@
 /**
  * Portfolio empty-state rendering — structural contract.
  *
- * Empty widgets must NOT render inside dash-cell-premium shells with headers
- * or provenance badges. Uses renderToStaticMarkup (node env, no jsdom).
+ * Design rule (docs/DESIGN_SYSTEM.md §9):
+ * Empty states replace active module surfaces; they are not rendered inside
+ * active module surfaces.
+ *
+ * Uses renderToStaticMarkup (node env, no jsdom).
  */
 
 import { renderToStaticMarkup } from "react-dom/server";
@@ -23,39 +26,72 @@ const ZERO_SCORES = [
   { dimension: "counterparty" as const, score: 0, delta30d: 0 },
 ];
 
-describe("Portfolio empty states — no dash-cell-premium shell", () => {
-  it("ValueChart empty renders pf-empty-chart without article shell", () => {
+/** True when `needle` sits inside an unclosed article.dash-cell-premium. */
+function isInsideActiveModuleSurface(html: string, needle: string): boolean {
+  const idx = html.indexOf(needle);
+  if (idx === -1) return false;
+
+  const before = html.slice(0, idx);
+  const openRe = /<article[^>]*dash-cell-premium[^>]*>/g;
+  let lastOpen = -1;
+  let match: RegExpExecArray | null;
+  while ((match = openRe.exec(before)) !== null) {
+    lastOpen = match.index;
+  }
+  if (lastOpen === -1) return false;
+
+  const slice = before.slice(lastOpen);
+  const openCount = (slice.match(/<article/g) ?? []).length;
+  const closeCount = (slice.match(/<\/article>/g) ?? []).length;
+  return openCount > closeCount;
+}
+
+function assertEmptyDesignContract(html: string, message: string): void {
+  expect(html).toContain(message);
+  expect(isInsideActiveModuleSurface(html, message)).toBe(false);
+  expect(html).not.toContain("dash-cell-premium");
+  expect(html).not.toContain("border-dashed");
+  expect(html).not.toContain("Stale");
+}
+
+describe("Portfolio empty states — design contract", () => {
+  it("ValueChart: empty message outside active module surface", () => {
     const html = renderToStaticMarkup(
       <ValueChart positions={[]} totalValueUsdc={0} source="fallback" />,
     );
+    assertEmptyDesignContract(
+      html,
+      "Value trend will appear after the first active position.",
+    );
     expect(html).toContain("pf-empty-chart");
-    expect(html).toContain("Value trend will appear after the first active position.");
-    expect(html).not.toContain("dash-cell-premium");
-    expect(html).not.toContain("Stale");
     expect(html).not.toContain("<svg");
   });
 
-  it("AllocationDonut empty renders pf-empty-chart without article shell", () => {
+  it("AllocationDonut: empty message outside active module surface", () => {
     const html = renderToStaticMarkup(
       <AllocationDonut positions={[]} totalValueUsdc={0} source="fallback" />,
     );
+    assertEmptyDesignContract(
+      html,
+      "Allocation will appear after the first active position.",
+    );
     expect(html).toContain("pf-empty-chart");
-    expect(html).toContain("Allocation will appear after the first active position.");
-    expect(html).not.toContain("dash-cell-premium");
     expect(html).not.toContain("<svg");
   });
 
-  it("DistribCalendar empty renders pf-empty-chart without article shell", () => {
+  it("DistribCalendar: empty message outside active module surface", () => {
     const html = renderToStaticMarkup(
       <DistribCalendar entries={[]} shareClass={null} cadence={null} />,
     );
+    assertEmptyDesignContract(
+      html,
+      "Distribution history will appear after the first payout.",
+    );
     expect(html).toContain("pf-empty-chart");
-    expect(html).toContain("Distribution history will appear after the first payout.");
-    expect(html).not.toContain("dash-cell-premium");
     expect(html).not.toContain("PAYOUT CALENDAR");
   });
 
-  it("RiskPulse noData renders pf-empty-widget without article shell", () => {
+  it("RiskPulse: empty message outside active module surface", () => {
     const html = renderToStaticMarkup(
       <RiskPulse
         scores={ZERO_SCORES}
@@ -64,12 +100,14 @@ describe("Portfolio empty states — no dash-cell-premium shell", () => {
         composite30dTrend="stable"
       />,
     );
+    assertEmptyDesignContract(
+      html,
+      "Risk scores will appear after the first snapshot.",
+    );
     expect(html).toContain("pf-empty-widget");
-    expect(html).toContain("Risk scores will appear after the first snapshot.");
-    expect(html).not.toContain("dash-cell-premium");
   });
 
-  it("ProofPulse no attestation renders pf-empty-widget without article shell", () => {
+  it("ProofPulse: empty message outside active module surface", () => {
     const html = renderToStaticMarkup(
       <ProofPulse
         lastPor={{ timestamp: new Date(0), statedTvlUsdc: 0, onChainTvlUsdc: 0 }}
@@ -79,16 +117,17 @@ describe("Portfolio empty states — no dash-cell-premium shell", () => {
         auditor=""
       />,
     );
+    assertEmptyDesignContract(html, "No attestation has been published yet.");
     expect(html).toContain("pf-empty-widget");
-    expect(html).toContain("No attestation has been published yet.");
-    expect(html).not.toContain("dash-cell-premium");
   });
 
-  it("SecurityPulse renders pf-empty-widget (no hardcoded active card)", () => {
+  it("SecurityPulse: empty message outside active module surface", () => {
     const html = renderToStaticMarkup(<SecurityPulse />);
+    assertEmptyDesignContract(
+      html,
+      "Security status will appear after account verification.",
+    );
     expect(html).toContain("pf-empty-widget");
-    expect(html).toContain("Security status will appear after account verification.");
-    expect(html).not.toContain("dash-cell-premium");
     expect(html).not.toContain("AES-256");
     expect(html).not.toContain("Spearbit");
   });

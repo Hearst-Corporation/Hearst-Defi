@@ -73,12 +73,18 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
 - **Hover states** : Les cartes bento (`.dash-cell`, `.dash-cell-premium`) disposent d'un effet de "lift" (translateY) et d'un décalage de gradient radial pour la profondeur.
 - **Tooltips** : Composant `Tooltip` (via `framer-motion`) intégré aux `ProvenanceBadge` et `Metric`.
 - **Transitions** : Composant `MotionViewport` pour les animations d'entrée de section (fade-in + slide-up).
-- **Portfolio** : Page complète avec bento analytics, gestion KYC/KYB institutionnelle et `SecurityPulse` (audit Spearbit, encryption AES-256). Utilise la primitive `MergedSurface` pour une fusion visuelle premium des widgets.
+- **Portfolio** : Page complète avec bento analytics, gestion KYC/KYB
+  institutionnelle. Utilise `MergedSurface` pour les sections. **Empty states** :
+  `EmptyChartState` / `AwaitingMetricState` (`.pf-empty-chart` /
+  `.pf-empty-widget`) — voir [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) §9.
+  Règle : *Empty states replace active module surfaces; they are not rendered
+  inside active module surfaces.*
 - **Portfolio data** : `/portfolio` lit uniquement les loaders DB réels. Pas de
   `?preview=subscribed`, pas de mock preview en runtime, et pas de fallback
   silencieux pour `VaultDeployment` (`vaultName`, ticker, APY, share class,
-  lockup). Le dashboard reste affiché même à zéro position ; chaque widget
-  affiche un état neutre/stale si la donnée manque.
+  lockup). Le dashboard reste affiché même à zéro position ; chaque widget sans
+  données principales affiche une surface vide légère (pas de card active
+  simulée).
 
 Mirror TypeScript des valeurs canoniques (pour les surfaces qui ne lisent pas
 les CSS vars runtime — PDF react-pdf, Privy SDK theme, error pages standalone) :

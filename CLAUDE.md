@@ -52,6 +52,13 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 - **Réversibilité.** Toute modif doit pouvoir être annulée vite. Pas de `git add/commit/push/reset` sans demande explicite.
 - **Après chaque modif CSS/Turbopack** : `browser_close` puis re-`navigate` (sinon CSS servi en cache, Playwright garde l'ancien chunk).
 - **Accent = vert `#A7FB90` principalement** (fond noir `--ct-bg-deep`). Le Glassmorphism = surfaces translucides, les lueurs ambiantes sont autorisées pour la profondeur.
+- **Empty states (Portfolio / Cockpit)** — voir `docs/DESIGN_SYSTEM.md` §9.
+  **Empty states replace active module surfaces; they are not rendered inside
+  active module surfaces.** Si un widget n'a pas ses données principales :
+  early-return `EmptyChartState` / `AwaitingMetricState` (`.pf-empty-chart` /
+  `.pf-empty-widget`) — **jamais** `dash-cell-premium` + header + badge Stale +
+  placeholder dedans. Nested evidence (`NestedPanel`, `ct-nested-callout`) =
+  détails **dans** une card déjà active, pas substitut d'empty state.
 
 ## Stack
 
