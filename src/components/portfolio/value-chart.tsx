@@ -221,7 +221,7 @@ export function ValueChart({
       <div
         className={cn(
           "relative mt-3 block w-full flex-1 overflow-hidden rounded-md z-10",
-          showZeroShell ? "min-h-32" : "min-h-20",
+          showZeroShell ? "min-h-28" : "min-h-20",
         )}
       >
         {showZeroShell ? (

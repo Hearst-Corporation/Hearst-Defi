@@ -149,7 +149,7 @@ function BarChart({
       <svg
         viewBox={`0 0 ${VB_W} ${COMPACT_VB_H}`}
         preserveAspectRatio="xMidYMin meet"
-        className="pf-distrib-chart pf-distrib-chart--compact w-full"
+        className="pf-distrib-chart pf-distrib-chart--compact block w-full max-h-16"
         role="img"
         aria-label={compactTitle}
       >
@@ -211,7 +211,7 @@ function BarChart({
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
       preserveAspectRatio="xMidYMid meet"
-      className="pf-distrib-chart w-full max-h-44"
+      className="pf-distrib-chart w-full max-h-28"
       role="img"
       aria-labelledby={titleId}
     >
