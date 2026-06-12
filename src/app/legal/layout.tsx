@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import "../(product)/product-doc.css";
+import "../doc-flow.css";
 import "./legal.css";
 
 export const dynamic = "force-static";

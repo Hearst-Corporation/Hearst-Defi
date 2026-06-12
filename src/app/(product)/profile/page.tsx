@@ -1,5 +1,5 @@
 import "./profile.css";
-import "../product-doc.css";
+import "../../doc-flow.css";
 
 import Link from "next/link";
 

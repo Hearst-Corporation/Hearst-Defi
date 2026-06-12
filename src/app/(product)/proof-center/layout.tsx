@@ -1,4 +1,4 @@
-import "../product-doc.css";
+import "../../doc-flow.css";
 
 export default function ProofCenterLayout({
   children,

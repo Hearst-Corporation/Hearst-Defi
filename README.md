@@ -127,10 +127,19 @@ dans un parent · `.ct-nested-callout` — **deprecated** (plus d'usage produit/
 le primitive pour compat). Définis dans `cockpit.css` ; nested panels dans
 `src/components/ui/nested-panel.tsx`.
 
-**Surfaces module (dark graphite)** — `.glass-panel` / `Card` + `.card-premium`
-(dot grid), `.ct-section-preview`, `.ct-empty-surface*`, `.ct-system-panel`,
-`ProductSection`, nested panels : recette `--ct-graphite-*` dans `cockpit.css`
-(bg-deep smoked glass). Chips/badges gardent `--ct-surface-1` littéral.
+**Surfaces module (dark graphite — ADR-013)** — recette canonique **`.ct-glass-panel`**,
+appliquée via `Card` (`src/components/ui/card.tsx`). S'applique à toutes les surfaces,
+y compris l'admin. `.ct-system-panel` et `.glass-panel-subtle` sont DEPRECATED (cibles
+de migration). Exceptions documentées (seules autorisées) : dashboard command-board dense,
+`.scenario-preset-bar`, `Ptai variant="flat"` en compare mode, `EmptySurface` seul.
+Recette définie une seule fois dans `cockpit.css` ; aucune page ne redéfinit localement
+un matériau graphite. Doc complète : [`docs/DESIGN_SYSTEM.md §10`](docs/DESIGN_SYSTEM.md) +
+[ADR-013](docs/decisions/ADR-013-design-system-canon-full-glass.md).
+
+**Layout document-flow** — un seul fichier source : `src/app/doc-flow.css`, portant les
+scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css` et
+`admin-doc.css` sont consolidés dans `doc-flow.css` (ADR-013 Lot 3). Companion typo :
+`src/app/doc-flow-typography.css`. Chips/badges gardent `--ct-surface-1` littéral.
 
 **Canon typo/layout** (cohérence pages) :
 - H1 page : `.h1` via `ProductPageHeader` / `AdminPageHeader` (classes `product-page-header*` / `admin-page-header*` dans `product-doc.css` / `admin-doc.css`).

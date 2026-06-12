@@ -3,7 +3,7 @@
 > Dérivé du dashboard corrigé + `@hearst/cockpit-shell/tokens.css` (source amont :
 > `~/.claude/assets/cockpit/SPEC.md`). **Ne jamais réinventer ces valeurs.**
 > Toute nouvelle page produit (scenario-lab, proof-center, investor-memo) se
-> construit contre ce document. Dernière révision : 2026-05-19.
+> construit contre ce document. Dernière révision : 2026-06-12 (ADR-013).
 >
 > Guidelines tokens/primitives : [`README.md`](../README.md) § Design system.
 > **Source runtime** : Cockpit (`--ct-*`) — pas de second design system (`@ds/core` retiré).
@@ -132,8 +132,10 @@ Trois niveaux — hiérarchie cockpit, pas de verrou empty-vs-active :
 
 ### 9.1 Active module surface
 
-`ModuleChrome` / `.ct-card` / `.glass-panel` — données réelles ou **preview cockpit**
+`ModuleChrome` / `Card` (→ `.ct-glass-panel`) — données réelles ou **preview cockpit**
 (valeurs à zéro avec `PreviewModeChip`, pas de badge `Live`/`Verified` faux).
+**Canonical material: `.ct-glass-panel`** (ADR-013). `.glass-panel` et `.ct-card` sont
+des aliases en cours de migration vers `.ct-glass-panel`.
 
 ### 9.2 Nested evidence surface
 
@@ -144,3 +146,48 @@ Trois niveaux — hiérarchie cockpit, pas de verrou empty-vs-active :
 `EmptySurface` · `AwaitingMetricState` — messages légers **inline** dans un shell cockpit
 ou seuls sur les surfaces admin/proof qui n'ont pas de preview structurale.
 `PreviewModeChip` = label honnête quand le module est visible à zéro.
+
+## 10. Surface tiers (canon ADR-013 — 2026-06-12)
+
+Source de vérité : [`docs/decisions/ADR-013-design-system-canon-full-glass.md`](decisions/ADR-013-design-system-canon-full-glass.md).
+
+### 10.1 Tier par défaut — Glass premium
+
+**`.ct-glass-panel`** est la surface par défaut pour TOUTES les pages (produit ET admin).
+`Card` (`src/components/ui/card.tsx`) est le JSX canonical qui l'applique.
+
+Recette définie **une seule fois** dans `src/app/cockpit.css` (`--ct-graphite-*` +
+`--ct-surface-*`). Aucun fichier de page ne peut redéfinir une recette graphite localement.
+
+### 10.2 Tier DEPRECATED — Flat / SystemPanel
+
+`.ct-system-panel` et la logique "flat admin" (introduite dans les commits 313ca71 /
+9ad2b53) sont **DEPRECATED** et ne doivent PAS être utilisés dans du nouveau code.
+Les usages existants sont des cibles de migration (voir ADR-013 §Lots de migration).
+
+Les recettes legacy `.glass-panel` et `.glass-panel-subtle` sont également
+DEPRECATED et seront retirées de `cockpit.css` une fois tous les call-sites migrés.
+
+### 10.3 Exceptions documentées (non-glass autorisé)
+
+Les exceptions suivantes sont les **seules** departures autorisées de glass-as-default.
+Chaque usage doit être annoté d'un commentaire inline `/* ADR-013 exception */` :
+
+| Surface | Exception | Raison |
+|---|---|---|
+| Dashboard command-board dense | strip `--ct-bg-deep`, séparateurs seuls | densité opérateur |
+| `.scenario-preset-bar` (Scenario Lab) | rail plat `border-bottom` seul | toolbar viewport-locked |
+| `Ptai variant="flat"` | dans les panneaux compare | compare mode flat par spec |
+| `EmptySurface` seul | pas de box wrapper | placeholder inline, pas de conteneur |
+
+### 10.4 Doc-flow — couche layout unique
+
+`src/app/doc-flow.css` est le **seul** fichier de layout document-flow.
+Il porte les deux scopes `.product-doc` et `.admin-doc` (et leurs stacks/grilles).
+`product-doc.css` et `admin-doc.css` sont **supprimés** après migration (Lot 3 ADR-013).
+
+Companion typographie : `src/app/doc-flow-typography.css` (`:is(.product-doc, .admin-doc)`),
+inchangé et orthogonal.
+
+`doc-flow.css` ne définit PAS de valeurs token — uniquement des primitives layout.
+Ordre d'import : après `cockpit.css`, avant `globals.css`.

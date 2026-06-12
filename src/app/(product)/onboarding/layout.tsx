@@ -4,7 +4,7 @@
  */
 
 import "./onboarding.css";
-import "../product-doc.css";
+import "../../doc-flow.css";
 
 import { headers } from "next/headers";
 import type { ReactNode } from "react";

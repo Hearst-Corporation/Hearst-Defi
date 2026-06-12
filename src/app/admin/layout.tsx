@@ -5,7 +5,7 @@ import { AdminRailIntra } from "@/components/nav/product-rail-intra";
 import { AdminSubNav } from "@/components/nav/admin-sub-nav";
 import { getSession } from "@/lib/auth/session";
 
-import "./admin-doc.css";
+import "../doc-flow.css";
 
 export const metadata = {
   title: "Admin — Hearst Connect",
