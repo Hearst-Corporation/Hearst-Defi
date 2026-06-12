@@ -1,0 +1,48 @@
+{
+  "chainId": 84532,
+  "contracts": {
+    "vault": {
+      "address": "0xEc733c6dbD69F862489a9Da01338aA5D39C1F60d",
+      "deployBlock": 42027165,
+      "deployTx": "0xce9ca54f6c8aa8d0d2ccc15d3b022f184f398585dbbeba5cd16c2f9a70aa494b",
+      "commitSha": "3da03cd",
+      "constructorArgs": [
+        "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "Hearst Yield Vault Share",
+        "hyvUSDC",
+        "0x5530db3B10e3F872ffA89cD2e3C542e9351EAA57",
+        "1000000000"
+      ],
+      "hasGuardian": false,
+      "minDepositUsdc": 1000,
+      "broadcastCommitted": true,
+      "sourceMatchesCommitted": false
+    },
+    "eventLogger": {
+      "address": "0xb07E045D082d202bAc7C1d4F83e1A63d00653D9E",
+      "deployBlock": 41418022,
+      "deployTx": "0x587e7723e57bdbd97774d7fe0da057dc47c94fc8633f05c7add0860c1461c2b8",
+      "commitSha": null,
+      "constructorArgs": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "hasGuardian": false,
+      "minDepositUsdc": null,
+      "broadcastCommitted": false,
+      "sourceMatchesCommitted": false
+    },
+    "porRegistry": {
+      "address": "0x2B7229Ea0c94f12D984d9045ee12fB0D2Efcd28D",
+      "deployBlock": 41418022,
+      "deployTx": "0x5240a7dcbd65b1573e9e778ecf774dcc09e398bf6e67d33880f060c80a54e534",
+      "commitSha": null,
+      "constructorArgs": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "hasGuardian": false,
+      "minDepositUsdc": null,
+      "broadcastCommitted": false,
+      "sourceMatchesCommitted": false
+    }
+  }
+}

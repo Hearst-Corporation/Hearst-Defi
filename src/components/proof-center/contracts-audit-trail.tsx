@@ -3,8 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { getDeployment } from "@/lib/chain/deployments";
 import { cn } from "@/lib/cn";
-import { EXPLORER_ADDRESS_BASE, EXPLORER_TX_BASE } from "@/lib/chain/client";
+import {
+  EXPLORER_ADDRESS_BASE,
+  EXPLORER_TX_BASE,
+  getEventLoggerAddress,
+  getPoRRegistryAddress,
+} from "@/lib/chain/client";
 import { abbreviateAddress } from "@/lib/onchain";
 
 interface DeployedContract {
@@ -13,40 +19,34 @@ interface DeployedContract {
   deployTxHash: `0x${string}`;
   deployBlock: string;
   description: string;
+  sourceVerified: boolean;
 }
 
-// Addresses + deploy blocks come from env when set (NEXT_PUBLIC_* are inlined at
-// build), falling back to the known Base Sepolia Phase-2 deployment values so
-// the Proof Center never renders an empty contract panel. Ops can override per
-// environment without a code change. Tx hashes stay literal — they are the real
-// on-chain deploy receipts and have no env override.
-const EVENT_LOGGER_ADDRESS = (process.env.NEXT_PUBLIC_EVENT_LOGGER_ADDRESS ??
-  "0xb07E045D082d202bAc7C1d4F83e1A63d00653D9E") as `0x${string}`;
-const POR_REGISTRY_ADDRESS = (process.env.NEXT_PUBLIC_POR_REGISTRY_ADDRESS ??
-  "0x2B7229Ea0c94f12D984d9045ee12fB0D2Efcd28D") as `0x${string}`;
-const EVENT_LOGGER_DEPLOY_BLOCK =
-  process.env.NEXT_PUBLIC_EVENT_LOGGER_DEPLOY_BLOCK ?? "41,418,022";
-const POR_REGISTRY_DEPLOY_BLOCK =
-  process.env.NEXT_PUBLIC_POR_REGISTRY_DEPLOY_BLOCK ?? "41,418,022";
+const EVENT_LOGGER_DEPLOYMENT = getDeployment("eventLogger");
+const POR_REGISTRY_DEPLOYMENT = getDeployment("porRegistry");
+const EVENT_LOGGER_ADDRESS =
+  getEventLoggerAddress() ?? (EVENT_LOGGER_DEPLOYMENT.address as `0x${string}`);
+const POR_REGISTRY_ADDRESS =
+  getPoRRegistryAddress() ?? (POR_REGISTRY_DEPLOYMENT.address as `0x${string}`);
 
 const DEPLOYED_CONTRACTS: ReadonlyArray<DeployedContract> = [
   {
     name: "EventLogger",
     address: EVENT_LOGGER_ADDRESS,
-    deployTxHash:
-      "0x587e7723e57bdbd97774d7fe0da057dc47c94fc8633f05c7add0860c1461c2b8",
-    deployBlock: EVENT_LOGGER_DEPLOY_BLOCK,
+    deployTxHash: EVENT_LOGGER_DEPLOYMENT.deployTx as `0x${string}`,
+    deployBlock: EVENT_LOGGER_DEPLOYMENT.deployBlock.toLocaleString(),
     description:
       "Immutable on-chain journal. Logs rebalancing, distribution and state-change events. Publisher is the Hearst manager EOA (testnet) / multisig (Phase 3).",
+    sourceVerified: EVENT_LOGGER_DEPLOYMENT.meta.provenanceVerified,
   },
   {
     name: "PoRRegistry",
     address: POR_REGISTRY_ADDRESS,
-    deployTxHash:
-      "0x5240a7dcbd65b1573e9e778ecf774dcc09e398bf6e67d33880f060c80a54e534",
-    deployBlock: POR_REGISTRY_DEPLOY_BLOCK,
+    deployTxHash: POR_REGISTRY_DEPLOYMENT.deployTx as `0x${string}`,
+    deployBlock: POR_REGISTRY_DEPLOYMENT.deployBlock.toLocaleString(),
     description:
       "Proof-of-Reserves attestation registry. One immutable attestation per YYYYMM period. Pins AUM, mined BTC, and a keccak256 hash of the evidence PDF.",
+    sourceVerified: POR_REGISTRY_DEPLOYMENT.meta.provenanceVerified,
   },
 ];
 
@@ -106,7 +106,13 @@ export function ContractsAuditTrail() {
             <span className="eyebrow">Phase 2 contracts · Base Sepolia</span>
             <CardTitle>Configured deployment addresses</CardTitle>
           </div>
-          <ProvenanceBadge kind="manual" />
+          <ProvenanceBadge
+            kind={
+              DEPLOYED_CONTRACTS.every((c) => c.sourceVerified)
+                ? "attested"
+                : "manual"
+            }
+          />
         </CardHeader>
 
         <div>
@@ -146,6 +152,13 @@ export function ContractsAuditTrail() {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
+                <Badge
+                  variant={contract.sourceVerified ? "success" : "warning"}
+                >
+                  {contract.sourceVerified
+                    ? "Source-verified @ commit"
+                    : "Deployment provenance unverified"}
+                </Badge>
                 <Button asChild variant="secondary" size="md">
                   <a
                     href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}

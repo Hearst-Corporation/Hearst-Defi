@@ -23,6 +23,7 @@ import {
   type PublicClient,
   type Address,
 } from "viem";
+import { getDeployment } from "@/lib/chain/deployments";
 // Privy's EIP1193Provider uses `on(eventName: string, ...)` which is structurally
 // narrower than viem's generic-overloaded signature. Bridging via `unknown` is the
 // only safe cast — we never use the `on`/`removeListener` methods ourselves, and
@@ -56,10 +57,15 @@ export function resolveVaultAddress(
 
 /** The deployed ERC-4626 vault address. */
 export const VAULT_ADDRESS: Address | null = resolveVaultAddress();
+const VAULT_DEPLOYMENT = getDeployment("vault");
 
 /** The USDC token address on Base Sepolia. */
 export const USDC_ADDRESS: Address =
   "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+
+export function isVaultStale(): boolean {
+  return VAULT_DEPLOYMENT.meta.stale;
+}
 
 /** USDC has 6 decimals on all chains. */
 const USDC_DECIMALS = 6;

@@ -17,6 +17,7 @@ import {
   VAULT_ADDRESS,
   ConfigError,
   ChainError,
+  isVaultStale,
 } from "@/lib/onchain/vault";
 import { abbreviateAddress } from "@/lib/onchain";
 import type { EpochStatus } from "@/lib/onchain";
@@ -109,6 +110,7 @@ export function PreFlightCheck({
 
   // Vault address configured?
   const vaultConfigured = VAULT_ADDRESS !== null;
+  const vaultStale = isVaultStale();
 
   async function handleApprove() {
     if (!privyWallet) {
@@ -202,6 +204,22 @@ export function PreFlightCheck({
   return (
     <Card className="divide-y divide-[var(--ct-border-soft)]">
       <p className="eyebrow py-3">Pre-flight check</p>
+
+      {vaultStale ? (
+        <div className="py-3 px-1 flex flex-col gap-1.5">
+          <span className="inline-flex items-center gap-2 px-3 py-1 self-start rounded-full border border-[var(--ct-status-warning-border)] ct-status-warning-bg ct-status-warning text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[var(--ct-tracking-wide)]">
+            <span
+              aria-hidden="true"
+              className="inline-block w-1.5 h-1.5 rounded-full bg-current"
+            />
+            Testnet contract
+          </span>
+          <p className="body-xs ct-text-muted">
+            This vault is a testnet build with no emergency pause or guardian and a
+            $1,000 minimum — not the audited production contract.
+          </p>
+        </div>
+      ) : null}
 
       {/* 1 — Wallet */}
       <CheckRow

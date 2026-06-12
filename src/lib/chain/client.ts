@@ -2,6 +2,7 @@ import "server-only";
 
 import { createPublicClient, getAddress, http, type Address } from "viem";
 import { baseSepolia } from "viem/chains";
+import { getDeployment } from "@/lib/chain/deployments";
 
 const DEFAULT_RPC_URL = "https://sepolia.base.org";
 const RPC_TIMEOUT_MS = 10_000;
@@ -73,11 +74,15 @@ function parseAddress(raw: string | undefined): Address | null {
 }
 
 export function getEventLoggerAddress(): `0x${string}` | null {
-  return parseAddress(process.env.NEXT_PUBLIC_EVENT_LOGGER_ADDRESS);
+  const fromEnv = parseAddress(process.env.NEXT_PUBLIC_EVENT_LOGGER_ADDRESS);
+  if (fromEnv !== null) return fromEnv;
+  return getDeployment("eventLogger").address as `0x${string}`;
 }
 
 export function getPoRRegistryAddress(): `0x${string}` | null {
-  return parseAddress(process.env.NEXT_PUBLIC_POR_REGISTRY_ADDRESS);
+  const fromEnv = parseAddress(process.env.NEXT_PUBLIC_POR_REGISTRY_ADDRESS);
+  if (fromEnv !== null) return fromEnv;
+  return getDeployment("porRegistry").address as `0x${string}`;
 }
 
 export function getHearstPublisherAddress(): `0x${string}` | null {
