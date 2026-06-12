@@ -185,7 +185,6 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
         id="sec-legal"
         title="Legal & risk"
         provenance={<ProvenanceBadge kind="manual" />}
-        className="opacity-95"
       >
         <div className="ct-panel-fields">
           <VaultLegalProofRows facts={legalFacts} variant="investor" />
