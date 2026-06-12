@@ -1,6 +1,6 @@
 import "./portfolio.css";
 
-import { MergedSurface } from "@/components/portfolio/merged-surface";
+import { ProductSection } from "@/components/ui/product-section";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PortfolioLoading() {
@@ -17,7 +17,7 @@ export default function PortfolioLoading() {
         </div>
       </div>
 
-      <MergedSurface
+      <ProductSection
         title="Performance & Liquidity"
         showProvenance={false}
         className="pf-hero-section"
@@ -31,7 +31,7 @@ export default function PortfolioLoading() {
             <Skeleton className="pf-skeleton-sidebar" />
           </aside>
         </div>
-      </MergedSurface>
+      </ProductSection>
 
       <div className="pf-section-stack">
         <div className="dash-bento pf-secondary-grid" data-section="yield-allocation">
@@ -43,7 +43,7 @@ export default function PortfolioLoading() {
           </div>
         </div>
 
-        <MergedSurface
+        <ProductSection
           title="Yield & Trust Pulse"
           showProvenance={false}
           className="pf-yield-trust-section"
@@ -60,11 +60,11 @@ export default function PortfolioLoading() {
               <Skeleton className="pf-cockpit-panel h-full w-full" />
             </div>
           </div>
-        </MergedSurface>
+        </ProductSection>
       </div>
 
       <div className="pf-section-stack">
-        <MergedSurface
+        <ProductSection
           title="Activity & Payouts"
           showProvenance={false}
           className="pf-activity-payouts-section"
@@ -78,7 +78,7 @@ export default function PortfolioLoading() {
               <Skeleton className="pf-cockpit-panel w-full" />
             </div>
           </div>
-        </MergedSurface>
+        </ProductSection>
       </div>
     </div>
   );

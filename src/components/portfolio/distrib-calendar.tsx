@@ -43,7 +43,7 @@ export interface DistribCalendarProps {
   updatedAt?: Date;
   /** Layout preview at zero — nested empty chart only (DS §9.3). */
   previewZeros?: boolean;
-  /** Inside MergedSurface — parent supplies section label; no nested dash-cell. */
+  /** Inside ProductSection — parent supplies section label; no nested dash-cell. */
 }
 
 // ── Formatting helpers (exported for tests) ───────────────────────────────────

@@ -26,7 +26,7 @@ export interface ProductSectionProps {
   "data-section"?: string;
 }
 
-/** Canonical multi-widget section shell (DS — replaces portfolio MergedSurface). */
+/** Canonical multi-widget section shell (DS). */
 export function ProductSection({
   title,
   provenance,

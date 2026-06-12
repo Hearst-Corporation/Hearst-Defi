@@ -42,9 +42,10 @@ is required or used. It then applies a two-tier check:
   by enforcing the `signkey-prod-` prefix (keys without this prefix exit 1)
 - `PERSONA_WEBHOOK_SECRET` — must be present and non-empty
 - `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` — both must be present
-- Vault on-chain address (`VAULT_ADDRESS` or equivalent env var) — must be a format-valid
-  `0x` address (regex, case-insensitive, 40 hex characters); the zero address is rejected;
-  EIP-55 checksum validation is deferred to the chain client layer
+- Vault on-chain address (`NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS`, with fallback to legacy
+  `NEXT_PUBLIC_HEARST_VAULT_ADDRESS`) — must be a format-valid `0x` address (regex,
+  case-insensitive, 40 hex characters); the zero address is rejected; EIP-55 checksum
+  validation is deferred to the chain client layer
 
 If any P0 check fails, the script prints a labelled error and exits with code 1,
 preventing the deploy pipeline from proceeding.

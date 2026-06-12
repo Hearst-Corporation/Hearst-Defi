@@ -28,7 +28,7 @@ export default async function FeedbackPage() {
       </Card>
 
       <section className="admin-doc-stack--actions">
-        <h3 className="h3">Latest ({items.length})</h3>
+        <h2 className="h2">Latest ({items.length})</h2>
         <FeedbackList items={items} />
       </section>
     </div>

@@ -11,7 +11,7 @@ import {
   loadTimeToCashProps,
   resolveProvenance,
 } from "@/lib/data/portfolio";
-import { MergedSurface } from "@/components/portfolio/merged-surface";
+import { ProductSection } from "@/components/ui/product-section";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
 import {
   NextActionCard,
@@ -124,7 +124,7 @@ export default async function PortfolioPage() {
         </div>
       </div>
 
-      <MergedSurface
+      <ProductSection
         title="Performance & Liquidity"
         provenance={portfolioProvenance}
         showProvenance={hasPositions}
@@ -162,7 +162,7 @@ export default async function PortfolioPage() {
             />
           </aside>
         </div>
-      </MergedSurface>
+      </ProductSection>
 
       <div className="pf-section-stack">
         <div className="dash-bento pf-secondary-grid" data-section="yield-allocation">
@@ -183,7 +183,7 @@ export default async function PortfolioPage() {
           </div>
         </div>
 
-        <MergedSurface
+        <ProductSection
           title="Yield & Trust Pulse"
           provenance={portfolioProvenance}
           showProvenance={hasPositions}
@@ -209,11 +209,11 @@ export default async function PortfolioPage() {
               <SecurityPulse previewZeros={previewZeros} />
             </div>
           </div>
-        </MergedSurface>
+        </ProductSection>
       </div>
 
       <div className="pf-section-stack">
-        <MergedSurface
+        <ProductSection
           title="Activity & Payouts"
           provenance={portfolioProvenance}
           showProvenance={hasPositions}
@@ -252,7 +252,7 @@ export default async function PortfolioPage() {
               />
             </div>
           </div>
-        </MergedSurface>
+        </ProductSection>
       </div>
 
       <footer className="pf-footer">

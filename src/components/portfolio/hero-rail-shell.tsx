@@ -19,7 +19,7 @@ export function HeroRailGroup({
       className={cn("pf-hero-rail-group", payout && "pf-hero-rail-group--payout")}
       aria-label={ariaLabel}
     >
-      <h3 className="pf-hero-rail-title">{title}</h3>
+      <p className="pf-hero-rail-title">{title}</p>
       {children}
     </section>
   );

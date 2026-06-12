@@ -124,9 +124,9 @@ export default async function AuditLogPage({
 
       {/* Results */}
       <section className="admin-doc-stack--actions" aria-label="Audit entries">
-        <h3 className="h3">
+        <h2 className="h2">
           {hasFilters ? "Filtered results" : "Recent events"} ({entries.length})
-        </h3>
+        </h2>
 
         {entries.length === 0 ? (
           <EmptySurface

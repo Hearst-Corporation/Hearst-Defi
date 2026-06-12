@@ -60,7 +60,7 @@ export default async function CustomersPage({
       />
 
       <section className="admin-doc-stack--actions" aria-label="Customers">
-        <h3 className="h3">Directory ({total})</h3>
+        <h2 className="h2">Directory ({total})</h2>
 
         {customers.length === 0 ? (
           <EmptySurface

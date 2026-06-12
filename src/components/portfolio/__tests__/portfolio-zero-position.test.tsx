@@ -5,7 +5,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { MergedSurface } from "@/components/portfolio/merged-surface";
+import { ProductSection } from "@/components/ui/product-section";
 import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { LayoutPreviewBanner } from "@/components/portfolio/layout-preview-banner";
 import { SectionEmbedProvider } from "@/components/ui/section-embed";
@@ -55,20 +55,20 @@ describe("Portfolio zero-position — cockpit shell always visible", () => {
     expect(html).not.toContain("ct-empty-surface--widget");
   });
 
-  it("MergedSurface with showProvenance=false hides Verified data label", () => {
+  it("ProductSection with showProvenance=false hides Verified data label", () => {
     const html = renderToStaticMarkup(
-      <MergedSurface title="Test" provenance="stale" showProvenance={false}>
+      <ProductSection title="Test" provenance="stale" showProvenance={false}>
         <AwaitingMetricState message="Section awaiting data." />
-      </MergedSurface>,
+      </ProductSection>,
     );
     expect(html).not.toContain("Verified data");
   });
 
-  it("MergedSurface preview variant uses ct-section-preview, not glass-panel", () => {
+  it("ProductSection preview variant uses ct-section-preview, not glass-panel", () => {
     const html = renderToStaticMarkup(
-      <MergedSurface title="Performance" variant="preview" data-section="hero-pulse">
+      <ProductSection title="Performance" variant="preview" data-section="hero-pulse">
         <AwaitingMetricState message="Awaiting first position." className="pf-zero-await" />
-      </MergedSurface>,
+      </ProductSection>,
     );
     expect(html).toContain("ct-section-preview");
     expect(html).toContain("Preview");
