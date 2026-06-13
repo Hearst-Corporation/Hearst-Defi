@@ -187,7 +187,7 @@ export function PresetPicker<T extends string>({
                     "transition-colors duration-[var(--ct-dur-fast)]",
                     "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                     isSelected
-                      ? "ct-surface-1 ct-text-accent"
+                      ? "ct-surface-1 ct-text-primary"
                       : "ct-text-body hover:ct-surface-3 hover:ct-text-primary",
                     isExcluded &&
                       "cursor-not-allowed opacity-40 hover:bg-transparent",

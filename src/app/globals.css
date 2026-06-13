@@ -209,8 +209,8 @@ code,
   border: none;
   background: linear-gradient(
     to right,
-    var(--ct-accent) 0%,
-    var(--ct-accent) var(--slider-pct, 50%),
+    var(--ct-status-info) 0%,
+    var(--ct-status-info) var(--slider-pct, 50%),
     var(--ct-surface-3) var(--slider-pct, 50%),
     var(--ct-surface-3) 100%
   );
@@ -218,7 +218,7 @@ code,
 }
 
 .slider-track:focus-visible {
-  outline: 2px solid var(--ct-accent);
+  outline: 2px solid color-mix(in srgb, var(--ct-accent) 35%, transparent);
   outline-offset: 2px;
 }
 
@@ -228,7 +228,7 @@ code,
   width: var(--ct-space-5);
   height: var(--ct-space-5);
   border-radius: var(--ct-radius-full);
-  background: var(--ct-accent);
+  background: var(--ct-text-strong);
   box-shadow: var(--ct-shadow-soft);
   cursor: pointer;
   transition: transform var(--ct-dur-base) var(--ct-ease);
@@ -242,7 +242,7 @@ code,
   width: var(--ct-space-5);
   height: var(--ct-space-5);
   border-radius: var(--ct-radius-full);
-  background: var(--ct-accent);
+  background: var(--ct-text-strong);
   box-shadow: var(--ct-shadow-soft);
   cursor: pointer;
   border: none;

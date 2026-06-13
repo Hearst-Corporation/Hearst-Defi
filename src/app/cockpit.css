@@ -23,7 +23,7 @@
   /* Dérivés d'accent — dérivés du maroon canonique */
   --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 82%, #ffffff);
   --ct-accent-soft: color-mix(in srgb, var(--ct-accent) 18%, transparent);
-  --ct-border-accent: color-mix(in srgb, var(--ct-accent) 55%, transparent);
+  --ct-border-accent: color-mix(in srgb, var(--ct-accent) 28%, transparent);
   --ct-border-ghost: color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
 
   /* Readability pass — secondary text tokens were too dim on the pure-black
@@ -113,11 +113,11 @@
   --ct-shadow-soft: 0 4px 24px -4px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.10);
   --ct-shadow-elevated: 0 12px 48px -12px rgba(0, 0, 0, 0.60), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   --ct-shadow-depth: 0 8px 32px -8px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.10);
-  --ct-glow-subtle: 0 0 22px color-mix(in srgb, var(--ct-accent) 38%, transparent);
-  --ct-glow-soft:   0 0 32px color-mix(in srgb, var(--ct-accent) 62%, transparent);
-  --ct-glow-strong: 0 0 22px color-mix(in srgb, var(--ct-accent) 75%, transparent);
+  --ct-glow-subtle: 0 0 18px color-mix(in srgb, var(--ct-accent) 16%, transparent);
+  --ct-glow-soft:   0 0 24px color-mix(in srgb, var(--ct-accent) 22%, transparent);
+  --ct-glow-strong: 0 0 18px color-mix(in srgb, var(--ct-accent) 28%, transparent);
   --ct-glow-dot: 0 0 8px currentColor;
-  --ct-shadow-focus-ring: 0 0 0 3px color-mix(in srgb, var(--ct-accent) 45%, transparent);
+  --ct-shadow-focus-ring: 0 0 0 3px color-mix(in srgb, var(--ct-accent) 28%, transparent);
   --ct-scrollbar-size: 6px;
 
   /* ── GLASS — canonical premium recipe (source of truth) ──
@@ -300,10 +300,15 @@
 .ct-text-accent-strong { color: var(--ct-accent-strong); }
 
 .ct-link-accent {
-  color: var(--ct-accent);
-  text-decoration: none;
+  color: var(--ct-text-strong);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--ct-text-muted) 55%, transparent);
+  text-underline-offset: 2px;
 }
-.ct-link-accent:hover { text-decoration: underline; }
+.ct-link-accent:hover {
+  color: var(--ct-text-primary);
+  text-decoration-color: color-mix(in srgb, var(--ct-accent) 45%, transparent);
+}
 
 .ct-prose-narrow {
   max-width: 34ch;
@@ -629,9 +634,9 @@
 
 .scenario-preset-bar__button[aria-checked="true"] {
   background: color-mix(in srgb, var(--ct-surface-1) 60%, transparent);
-  border-color: var(--ct-accent);
+  border-color: var(--ct-border);
   color: var(--ct-text-strong);
-  box-shadow: inset 3px 0 0 var(--ct-accent);
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
 }
 
 .scenario-preset-bar__button:focus-visible {
@@ -641,7 +646,9 @@
 
 .scenario-preset-bar__button[aria-checked="true"]:focus-visible {
   outline: none;
-  box-shadow: var(--ct-shadow-focus-ring), inset 3px 0 0 var(--ct-accent);
+  box-shadow:
+    var(--ct-shadow-focus-ring),
+    inset 2px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
 }
 
 .scenario-preset-bar__label {
@@ -1340,9 +1347,10 @@
 }
 
 .fixture-vault-pills__pill--active {
-  border-color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-accent) 12%, transparent);
-  color: var(--ct-accent);
+  border-color: var(--ct-border-strong);
+  background: var(--ct-surface-2);
+  color: var(--ct-text-strong);
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--ct-accent) 55%, transparent);
 }
 
 .dashboard-command-row-a {
@@ -1612,8 +1620,8 @@
   color: var(--ct-text-muted);
 }
 .dashboard-action-cta--neutral:hover {
-  border-color: var(--ct-accent);
-  color: var(--ct-accent);
+  border-color: var(--ct-border-strong);
+  color: var(--ct-text-primary);
 }
 
 .dashboard-command-shortcuts {
@@ -1630,11 +1638,11 @@
 }
 
 .dashboard-command-queue-link:hover {
-  color: var(--ct-accent);
+  color: var(--ct-text-primary);
 }
 
 .dashboard-command-queue-link:hover strong {
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);
 }
 
 .dashboard-command-queue-link__count {
@@ -2410,10 +2418,10 @@ pre.ct-surface-1.rounded-md {
 }
 
 .ct-pill.accent {
-  background: color-mix(in srgb, var(--ct-surface-2) 85%, transparent);
-  border-color: color-mix(in srgb, var(--ct-accent) 42%, var(--ct-border));
+  background: var(--ct-surface-2);
+  border-color: var(--ct-border);
   color: var(--ct-text-strong);
-  box-shadow: inset 2px 0 0 var(--ct-accent);
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
 }
 
 /* Native buttons need UA reset before ct-pill / ct-seg-btn tokens apply. */
@@ -2466,6 +2474,14 @@ button.ct-seg-btn {
 .ct-input-bare {
   background: color-mix(in srgb, var(--ct-bg-deep) 40%, transparent);
   border-color: var(--ct-border-soft);
+}
+
+.ct-input-bare:focus,
+.ct-input-bare:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ct-text-strong) 22%, transparent);
+  outline-offset: 2px;
+  border-color: var(--ct-border-strong);
+  background: color-mix(in srgb, var(--ct-bg-deep) 55%, transparent);
 }
 
 .ct-input-otp {
@@ -2825,15 +2841,15 @@ button.ct-seg-btn {
 .ct-rail-item-active {
   color: var(--ct-text-primary);
   background: color-mix(in srgb, var(--ct-surface-2) 75%, transparent);
-  border-color: color-mix(in srgb, var(--ct-accent) 38%, var(--ct-border));
-  box-shadow: inset 3px 0 0 var(--ct-accent);
+  border-color: var(--ct-border);
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
 }
 
 .ct-rail-item-active:hover {
   color: var(--ct-text-strong);
   background: color-mix(in srgb, var(--ct-surface-2) 90%, transparent);
-  border-color: color-mix(in srgb, var(--ct-accent) 48%, var(--ct-border));
-  box-shadow: inset 3px 0 0 var(--ct-accent);
+  border-color: var(--ct-border);
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
 }
 
 /* Label statique sous l'icône — visible en permanence (style Oracle rail).
@@ -3240,9 +3256,9 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -60%);
-  background: var(--ct-accent);
+  background: var(--ct-text-strong);
   filter: blur(11.25rem);
-  opacity: 0.06;
+  opacity: 0.025;
 }
 
 .login-split__grid {
@@ -3306,8 +3322,8 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   gap: var(--ct-space-2_5);
   padding: var(--ct-space-2) var(--ct-space-4);
   border-radius: var(--ct-radius-full);
-  border: 1px solid color-mix(in srgb, var(--ct-accent) 22%, var(--ct-border-soft));
-  background: color-mix(in srgb, var(--ct-accent) 6%, transparent);
+  border: 1px solid var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-surface-1) 80%, transparent);
   backdrop-filter: blur(var(--ct-space-2));
 }
 
@@ -3315,8 +3331,8 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   width: var(--ct-space-1_5);
   height: var(--ct-space-1_5);
   border-radius: var(--ct-radius-full);
-  background: var(--ct-accent);
-  box-shadow: var(--ct-glow-dot);
+  background: var(--ct-status-success);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--ct-status-success) 45%, transparent);
 }
 
 .login-split__signin {
@@ -3586,9 +3602,12 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   right: 0;
 }
 
-.wizard-step-progress__connector--done,
+.wizard-step-progress__connector--done {
+  background: var(--ct-border-strong);
+}
+
 .wizard-step-progress__connector--active {
-  background: var(--ct-accent);
+  background: color-mix(in srgb, var(--ct-accent) 32%, var(--ct-border-soft));
 }
 
 .wizard-step-progress__connector--pending {
@@ -3616,15 +3635,16 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 }
 
 .wizard-step-progress__dot--done {
-  border-color: var(--ct-border-accent);
-  background: var(--ct-accent);
+  border-color: var(--ct-border-strong);
+  background: var(--ct-text-strong);
   color: var(--ct-bg-deep);
 }
 
 .wizard-step-progress__dot--active {
-  border-color: var(--ct-accent);
+  border-color: color-mix(in srgb, var(--ct-accent) 55%, var(--ct-border));
   background: var(--ct-surface-2);
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ct-accent) 35%, transparent);
 }
 
 .wizard-step-progress__dot--pending {
@@ -3639,7 +3659,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 }
 
 .wizard-step-progress__label--active {
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);
 }
 
 .wizard-step-progress__label--done {

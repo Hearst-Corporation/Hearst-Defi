@@ -60,7 +60,7 @@ export function AdminSubNav() {
             className={cn(
               "relative -mb-px border-b-2 px-3 py-2.5 body-sm font-medium transition-colors",
               isActive
-                ? "border-[var(--ct-accent)] ct-text-accent"
+                ? "border-[var(--ct-text-strong)] ct-text-primary"
                 : "border-transparent ct-text-muted hover:ct-text-primary",
             )}
           >
