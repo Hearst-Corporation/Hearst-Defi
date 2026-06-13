@@ -307,7 +307,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
                     <div className="admin-doc-inline-row">
                       <Button
                         variant="secondary"
-                        size="sm"
+                        size="md"
                         onClick={() => setAwaitingConfirm(false)}
                         disabled={isPending}
                       >

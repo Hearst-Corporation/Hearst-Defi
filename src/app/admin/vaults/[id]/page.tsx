@@ -302,7 +302,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
       {/* Approvals — table shell only (no Card double frame; cf. audit/customers). */}
       <section className="admin-doc-stack admin-doc-stack--compact" aria-label="Approvals">
-        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline admin-doc-inline-row--relaxed">
+        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
           <DashboardPanelHeader title="Approvals" className="mb-0" />
           <span className="mono tabular body-sm ct-text-muted">
             {approveCount} / {vault.requiredSigners} required
@@ -356,7 +356,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
       {/* Subscribers — visible once vault has at least one active position */}
       <section className="admin-doc-stack admin-doc-stack--compact" aria-label="Subscribers">
-        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline admin-doc-inline-row--relaxed">
+        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
           <DashboardPanelHeader title="Subscribers" className="mb-0" />
           <span className="mono tabular body-sm ct-text-muted">
             {vault.positions.length} active · {usdFull.format(aumUsdc)}
