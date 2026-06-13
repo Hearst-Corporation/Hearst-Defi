@@ -11,6 +11,8 @@ describe("PresetBar", () => {
     expect(html).toContain("scenario-preset-bar__button");
     expect(html).toContain("scenario-preset-bar__button--active");
     expect(html).toContain('aria-pressed="true"');
+    expect(html).toContain("<button");
+    expect(html).not.toContain('variant="ghost"');
     expect(html).not.toContain("ct-bg-accent");
     expect(html).not.toContain("ct-glow-accent");
   });

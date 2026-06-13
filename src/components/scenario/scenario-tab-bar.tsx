@@ -1,7 +1,7 @@
 "use client";
 
 // ScenarioTabBar — top-level tab toggle (Scenario / Backtest).
-// Extracted from lab-shell.tsx. Behaviour preserved (arrow-key nav, ARIA).
+// Uses the same admin filter tab primitive as /admin/vaults (admin-doc-inline-row + ct-pill).
 
 import { cn } from "@/lib/cn";
 
@@ -26,11 +26,11 @@ export function ScenarioTabBar({ active, onChange }: ScenarioTabBarProps) {
   }
 
   return (
-    <nav
+    <div
       role="tablist"
       aria-label="Scenario Lab tabs"
       aria-orientation="horizontal"
-      className="doc-flow-tablist"
+      className="admin-doc-inline-row"
       onKeyDown={handleKeyDown}
     >
       {(["scenario", "backtest"] as LabTab[]).map((tab) => {
@@ -45,17 +45,12 @@ export function ScenarioTabBar({ active, onChange }: ScenarioTabBarProps) {
             aria-selected={isActive}
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(tab)}
-            className={cn(
-              "rounded-md border-b-2 px-3 py-1.5 body-sm font-medium ct-transition-base",
-              isActive
-                ? "ct-text-strong border-b-(--ct-border-strong)"
-                : "ct-text-muted border-b-transparent hover:ct-text-primary",
-            )}
+            className={cn("ct-pill capitalize", isActive && "accent")}
           >
             {tab === "scenario" ? "Scenario" : "Backtest"}
           </button>
         );
       })}
-    </nav>
+    </div>
   );
 }

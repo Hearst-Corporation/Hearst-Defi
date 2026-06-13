@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import type { Preset } from "@/lib/engine/types";
 
@@ -55,11 +54,9 @@ export function PresetBar({ selected, onSelect, disabled }: PresetBarProps) {
         {PRESETS.map((p) => {
           const isActive = selected === p.id;
           return (
-            <Button
+            <button
               key={p.id}
               type="button"
-              variant="ghost"
-              size="sm"
               disabled={disabled}
               onClick={() => onSelect(p.id)}
               title={p.description}
@@ -71,7 +68,7 @@ export function PresetBar({ selected, onSelect, disabled }: PresetBarProps) {
             >
               <span className="scenario-preset-bar__label">{p.label}</span>
               <span className="scenario-preset-bar__description">{p.description}</span>
-            </Button>
+            </button>
           );
         })}
       </div>

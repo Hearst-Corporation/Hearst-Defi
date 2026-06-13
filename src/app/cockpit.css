@@ -760,26 +760,42 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 
 /* Narrow: horizontal scroll. Wide: five equal columns inside lab-shell. */
 .scenario-preset-bar__items {
+  display: flex;
   min-width: 0;
+  gap: var(--ct-space-3);
+  overflow-x: auto;
+  padding-bottom: var(--ct-space-1);
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 
 .scenario-preset-bar__button {
+  display: inline-flex;
+  flex: 0 0 auto;
   min-width: 9rem;
   height: auto;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--ct-space-1);
   padding-block: var(--ct-space-2) var(--ct-space-3);
+  padding-inline: var(--ct-space-3);
   text-align: left;
   border-radius: var(--ct-radius-md);
   border: 1px solid var(--ct-border-soft);
   background: transparent;
   color: var(--ct-text-body);
   box-shadow: none;
+  cursor: pointer;
+  font: inherit;
   transition:
     border-color var(--ct-dur-base) var(--ct-ease),
     background-color var(--ct-dur-base) var(--ct-ease),
     color var(--ct-dur-base) var(--ct-ease);
+}
+
+.scenario-preset-bar__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .scenario-lab-shell .scenario-preset-bar__button:hover:not(:disabled) {

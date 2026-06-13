@@ -6,7 +6,6 @@
 
 import { BacktestPanel } from "@/components/scenario/backtest-panel";
 import { Spinner } from "@/components/scenario/scenario-spinner";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
@@ -58,11 +57,9 @@ export function BacktestTab() {
           {BACKTEST_PERIODS.map((p) => {
             const isActive = state.selectedKey === p.key;
             return (
-              <Button
+              <button
                 key={p.key}
                 type="button"
-                variant="ghost"
-                size="sm"
                 disabled={pending}
                 onClick={() => select(p.key)}
                 aria-pressed={isActive}
@@ -74,7 +71,7 @@ export function BacktestTab() {
               >
                 <span className="scenario-preset-bar__label">{p.label}</span>
                 <span className="scenario-preset-bar__description">{p.subtitle}</span>
-              </Button>
+              </button>
             );
           })}
         </div>

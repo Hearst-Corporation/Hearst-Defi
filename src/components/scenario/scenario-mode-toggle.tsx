@@ -1,7 +1,7 @@
 "use client";
 
 // ScenarioModeToggle — Single / Compare sub-tab toggle.
-// Extracted from lab-shell.tsx. Behaviour preserved.
+// Same filter-tab primitive as admin vaults / governance pages.
 
 import { cn } from "@/lib/cn";
 
@@ -33,7 +33,7 @@ export function ScenarioModeToggle({
       role="tablist"
       aria-label="Scenario mode"
       aria-orientation="horizontal"
-      className="doc-flow-tablist"
+      className="admin-doc-inline-row"
       onKeyDown={handleKeyDown}
     >
       {(["single", "compare"] as ScenarioMode[]).map((mode) => {
@@ -49,10 +49,8 @@ export function ScenarioModeToggle({
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(mode)}
             className={cn(
-              "rounded-md border-b-2 px-3 py-1.5 body-xs font-semibold uppercase tracking-wide ct-transition-base",
-              isActive
-                ? "ct-text-strong border-b-(--ct-border-strong)"
-                : "ct-text-muted border-b-transparent hover:ct-text-primary",
+              "ct-pill uppercase body-xs font-semibold tracking-wide",
+              isActive && "accent",
             )}
           >
             {mode}
