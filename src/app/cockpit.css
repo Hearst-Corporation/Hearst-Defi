@@ -2906,8 +2906,8 @@ pre.ct-surface-1.rounded-md {
     ),
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 8%, transparent) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 22%, transparent) 100%
+      color-mix(in srgb, var(--ct-bg-deep) 3%, transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 12%, transparent) 100%
     );
   opacity: 1;
   mix-blend-mode: normal;
