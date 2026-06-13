@@ -1,8 +1,13 @@
 "use client";
 
 // ScenarioModeToggle — Single / Compare sub-tab toggle.
+// Witness consumer for the SegmentedControl primitive (ARIA + roving tabindex +
+// keyboard + focus ring now live in the primitive, not hand-rolled here).
 
-import { cn } from "@/lib/cn";
+import {
+  SegmentedControl,
+  type SegmentedItem,
+} from "@/components/ui/segmented-control";
 
 export type ScenarioMode = "single" | "compare";
 
@@ -11,53 +16,35 @@ interface ScenarioModeToggleProps {
   onChange: (mode: ScenarioMode) => void;
 }
 
+const MODES: ReadonlyArray<SegmentedItem<ScenarioMode>> = [
+  {
+    value: "single",
+    label: "single",
+    id: "tab-mode-single",
+    controls: "tabpanel-mode-single",
+  },
+  {
+    value: "compare",
+    label: "compare",
+    id: "tab-mode-compare",
+    controls: "tabpanel-mode-compare",
+  },
+];
+
 export function ScenarioModeToggle({
   active,
   onChange,
 }: ScenarioModeToggleProps) {
-  function handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
-    const modes: ScenarioMode[] = ["single", "compare"];
-    const idx = modes.indexOf(active);
-    if (e.key === "ArrowRight") {
-      e.preventDefault();
-      onChange(modes[(idx + 1) % modes.length]!);
-    } else if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      onChange(modes[(idx - 1 + modes.length) % modes.length]!);
-    }
-  }
-
   return (
-    <div
-      role="tablist"
-      aria-label="Scenario mode"
-      aria-orientation="horizontal"
-      className="ct-seg-scroll shrink-0"
-      onKeyDown={handleKeyDown}
-    >
-      <div className="admin-doc-seg-track ct-seg-track">
-        {(["single", "compare"] as ScenarioMode[]).map((mode) => {
-          const isActive = active === mode;
-          return (
-            <button
-              key={mode}
-              type="button"
-              role="tab"
-              id={`tab-mode-${mode}`}
-              aria-controls={`tabpanel-mode-${mode}`}
-              aria-selected={isActive}
-              tabIndex={isActive ? 0 : -1}
-              onClick={() => onChange(mode)}
-              className={cn(
-                "ct-seg-btn uppercase body-xs font-semibold tracking-wide",
-                isActive && "active",
-              )}
-            >
-              {mode}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <SegmentedControl
+      items={MODES}
+      value={active}
+      onChange={onChange}
+      ariaLabel="Scenario mode"
+      variant="tablist"
+      className="shrink-0"
+      trackClassName="admin-doc-seg-track"
+      itemClassName="uppercase body-xs font-semibold tracking-wide"
+    />
   );
 }
