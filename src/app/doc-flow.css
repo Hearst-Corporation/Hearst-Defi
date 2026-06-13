@@ -1162,7 +1162,7 @@
   width: 100%;
   flex-shrink: 0;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  gap: var(--ct-space-3);
   min-width: 0;
 }
 

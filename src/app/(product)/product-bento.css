@@ -22,15 +22,12 @@
 }
 
 .dash-cell {
-  /* Investor bento — graphite active tier (ct-glass-panel family). */
-  background: var(--ct-graphite-active-bg);
+  /* Investor bento — unified on the graphite-subtle surface family (ct-glass-panel). */
+  background: var(--ct-graphite-subtle-bg);
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
-  border: 1px solid var(--ct-graphite-border);
-  border-radius: var(--ct-glass-radius);
-  box-shadow:
-    0 8px 24px -16px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
-    var(--ct-shadow-depth);
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-xl);
   padding: var(--ct-space-2) var(--ct-space-3);
   display: flex;
   flex-direction: column;
@@ -43,7 +40,7 @@
 }
 
 .dash-cell:hover {
-  border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-border-soft));
+  border-color: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-graphite-border-nested));
 }
 
 .dash-cell:focus-visible {
@@ -58,10 +55,7 @@
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
   border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-glass-radius);
-  box-shadow:
-    0 8px 24px -16px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
-    var(--ct-shadow-depth);
+  border-radius: var(--ct-radius-xl);
   padding: var(--ct-space-2) var(--ct-space-3);
   display: flex;
   flex-direction: column;

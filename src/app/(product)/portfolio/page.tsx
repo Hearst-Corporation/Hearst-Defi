@@ -24,7 +24,6 @@ import { RecentActivity } from "@/components/portfolio/recent-activity";
 import { TrustPanel } from "@/components/portfolio/trust-panel";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { CapitalYield } from "@/components/portfolio/capital-yield";
-import { LayoutPreviewBanner } from "@/components/portfolio/layout-preview-banner";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
@@ -106,8 +105,6 @@ export default async function PortfolioPage() {
       {showDemoBanner ? <DemoDataBanner /> : null}
 
       <PortfolioGreeting name={displayName(investor)} data={data} />
-
-      {previewZeros ? <LayoutPreviewBanner /> : null}
 
       {shouldShowNextActionCard(actionFlags) ? (
         <NextActionCard {...actionFlags} />

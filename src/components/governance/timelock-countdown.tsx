@@ -17,7 +17,6 @@ import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { cn } from "@/lib/cn";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -92,9 +91,7 @@ export function TimelockCountdown({
 
   return (
     <div
-      className={cn(
-        "rounded-lg ct-border-soft ct-surface-1 p-4 flex flex-col gap-3",
-      )}
+      className="ct-nested-panel flex flex-col gap-3"
       data-proposal-id={proposalId}
       aria-label={`Governance proposal #${proposalId} timelock countdown`}
     >

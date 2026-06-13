@@ -2,7 +2,6 @@ import "./profile.css";
 
 import Link from "next/link";
 
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { ProfileSecurityRow } from "@/components/profile/profile-security-row";
 import { requireInvestor } from "@/lib/auth/require-investor";
@@ -140,17 +139,29 @@ export default async function ProfilePage() {
             </MetricGrid>
           </Card>
         ) : (
-          <div className="bento-col-6">
-            <AwaitingMetricState
-              message="Your investment summary starts after your first active position."
-              detail="Once a deposit is confirmed, deployed capital and subscription history appear here."
-              link={{
-                label: "Explore the vault",
-                href: "/vaults",
-                ariaLabel: "Explore the vault",
-              }}
+          <Card className="bento-col-6" aria-labelledby="prof-summary-label">
+            <DashboardPanelHeader
+              id="prof-summary-label"
+              title="Investment summary"
+              tone="quiet"
             />
-          </div>
+            <div className="prof-summary-empty">
+              <div className="prof-summary-empty__copy">
+                <p className="body-sm ct-text-muted m-0">
+                  Your investment summary starts after your first active position.
+                </p>
+                <p className="body-xs ct-text-faint m-0">
+                  Once a deposit is confirmed, deployed capital and subscription
+                  history appear here.
+                </p>
+              </div>
+              <Button variant="secondary" size="md" asChild className="self-start">
+                <Link href="/vaults" aria-label="Explore the vault">
+                  Explore the vault
+                </Link>
+              </Button>
+            </div>
+          </Card>
         )}
 
         <Card className="bento-col-12" aria-labelledby="prof-security-label">

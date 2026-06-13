@@ -2202,7 +2202,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   padding: var(--ct-space-8) var(--ct-space-5);
   background: var(--ct-graphite-subtle-bg);
   border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-lg);
+  border-radius: var(--ct-radius-xl);
   min-height: 8rem;
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
@@ -2251,6 +2251,13 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   text-align: left;
 }
 
+/* h-full empties fill the card height and centre vertically so a half-empty
+   bento cell doesn't read as top-aligned dead space next to a dense sibling. */
+:is(.pf-cockpit-panel, .ct-card, .module-chrome)
+  :is(.ct-empty-surface, .ct-empty-surface--widget).h-full:not(.ct-empty-surface--round) {
+  justify-content: center;
+}
+
 /* Scenario Lab output slot — inline empty, centered in workspace flex cell. */
 .scenario-lab-output-card.ct-empty-surface--inline {
   flex: 1 1 auto;
@@ -2274,12 +2281,14 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   align-items: flex-start;
   gap: var(--ct-space-0_5);
   margin: 0;
+  min-width: 0;
   text-align: left;
 }
 
 .ct-panel-status__message,
 .ct-panel-status__detail {
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .ct-panel-status-section {
@@ -2448,21 +2457,19 @@ pre.ct-surface-1.rounded-md {
    never dissolves into the dark background — this preserves the prior contrast
    pass.
 
-/* Canonical premium glass surface — applied by Card and explicit call-sites. */
+/* Canonical surface — unified on the portfolio pf-cockpit-panel graphite family
+   so product / profile / admin / portfolio all read as one app (no glass-vs-flat
+   split). radius-xl + graphite-subtle + graphite-blur, no premium rim/drop. */
 .ct-glass-panel {
-  border-radius: var(--ct-glass-radius);
-  border: 1px solid var(--ct-graphite-border);
-  background: var(--ct-graphite-active-bg);
-  box-shadow:
-    0 8px 24px -16px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
-    var(--ct-glass-rim),
-    var(--ct-glass-drop);
-  -webkit-backdrop-filter: var(--ct-glass-blur);
-  backdrop-filter: var(--ct-glass-blur);
+  border-radius: var(--ct-radius-xl);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  backdrop-filter: var(--ct-graphite-blur);
 }
 
 .ct-glass-panel:hover {
-  border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-border-soft));
+  border-color: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-graphite-border-nested));
 }
 
 /* .h1 → ct-title style */
@@ -3284,20 +3291,23 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-kpi-card                               { padding: 20px 24px; }
 .ct-card                                   { padding: 20px 24px; }
 
-/* Compact card density — smaller data/list surfaces (audit D1/D2). */
-/* Does not override .ct-glass-panel globally; only adds a tighter size tier. */
-.ct-card--compact.ct-glass-panel                  { border-radius: var(--ct-radius-xl); }
+/* Compact card density — smaller data/list surfaces (audit D1/D2).
+   Radius already radius-xl on the unified base; only the padding tier differs. */
 .ct-card--compact,
 .admin-doc .ct-card--compact:not(.p-0)            { padding: var(--ct-space-3) var(--ct-space-4); }
 
-/* Vault selector card — tighten gaps when rendered inside a compact card. */
-.ct-card--compact .vault-select-card               { gap: var(--ct-space-4); }
-.ct-card--compact .vault-select-card__main         { gap: var(--ct-space-3); }
-.ct-card--compact .vault-select-card__meta         { gap: var(--ct-space-3); }
+/* Vault selector card — tighten gaps + scale down type when inside compact card. */
+.ct-card--compact .vault-select-card               { gap: var(--ct-space-3); }
+.ct-card--compact .vault-select-card__main         { gap: var(--ct-space-2); }
+.ct-card--compact .vault-select-card__meta         { gap: var(--ct-space-2); }
+/* Vault name: lg → sm in compact context */
+.ct-card--compact .vault-select-card .h3           { font-size: var(--ct-text-sm); }
+/* APY stat: 2xl → lg in compact context */
+.ct-card--compact .vault-select-card .stat-value   { font-size: var(--ct-text-lg); }
 
 @container product-doc (min-width: 40rem) {
-  .ct-card--compact .vault-select-card             { gap: var(--ct-space-4); }
-  .ct-card--compact .vault-select-card__meta       { min-width: 16rem; width: 16rem; }
+  .ct-card--compact .vault-select-card             { gap: var(--ct-space-3); }
+  .ct-card--compact .vault-select-card__meta       { min-width: 15rem; width: 15rem; }
 }
 
 /* Cockpit chat rail */
@@ -4052,10 +4062,10 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .admin-vaults-list {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-glass-radius);
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-xl);
   overflow: hidden;
-  background: var(--ct-graphite-active-bg);
+  background: var(--ct-graphite-subtle-bg);
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
 }

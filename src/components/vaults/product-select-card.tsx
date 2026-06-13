@@ -50,9 +50,6 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
               precision={1}
               className="stat-value tabular mono ct-text-strong"
             />
-            <p className="body-xs ct-text-muted">
-              Conditional on stated assumptions · not a projection
-            </p>
           </div>
 
           <p className="body-sm ct-text-body line-clamp-2">{vault.description}</p>

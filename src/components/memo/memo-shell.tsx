@@ -60,7 +60,7 @@ function downloadMarkdown(memo: InvestorMemoOutput, vaultName: string): void {
 
 function SkeletonSection() {
   return (
-    <Card hoverOverlay={false} className="p-6">
+    <Card hoverOverlay={false}>
       <div className="mb-4 h-5 w-1/3 animate-pulse rounded ct-surface-1" />
       <div className="admin-doc-stack--tight">
         <div className="h-3 w-full animate-pulse rounded ct-surface-1" />

@@ -69,7 +69,7 @@ export default async function AuditLogPage({
       />
 
       {/* Filter bar — plain GET form, zero client JS */}
-      <Card className="p-5">
+      <Card>
         <form method="get" className="admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions">
           <label className="admin-doc-field">
             <span className="stat-label ct-text-muted">Entity type</span>

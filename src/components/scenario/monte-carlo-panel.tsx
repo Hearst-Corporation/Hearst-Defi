@@ -14,6 +14,7 @@ import { useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import {
@@ -331,8 +332,7 @@ export function MonteCarloPanel() {
       {output !== null && fanSeries !== null ? (
         <div className="admin-doc-stack--roomy">
           {/* Headline APY range */}
-          <div
-            className="rounded-lg border border-[var(--ct-border-soft)] ct-surface-1 px-5 py-4"
+          <NestedPanel
             aria-label={`Headline APY range: ${headlineLow}% to ${headlineHigh}%`}
           >
             <p className="stat-label mb-1">Headline range (p25–p75)</p>
@@ -342,7 +342,7 @@ export function MonteCarloPanel() {
             <p className="mt-1 body-xs ct-text-muted">
               Annual yield range · {runs.toLocaleString()} paths · seed {seed}
             </p>
-          </div>
+          </NestedPanel>
 
           {/* Fan chart */}
           <div className="relative h-24 w-full overflow-hidden rounded-base">

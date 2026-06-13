@@ -115,20 +115,6 @@
   border: 1px solid var(--ct-border-soft);
 }
 
-.pf-layout-preview-banner {
-  padding: var(--ct-space-3) var(--ct-space-4);
-  border-radius: var(--ct-glass-radius);
-  border: 1px solid var(--ct-border-soft);
-}
-
-.pf-layout-preview-banner__copy {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--ct-space-2);
-  margin: 0;
-}
-
 .pf-section-stack {
   display: flex;
   flex-direction: column;
@@ -342,6 +328,7 @@
   .pf-container [data-section="activity-payouts"] .bento-col-8,
   .pf-container [data-section="activity-payouts"] .bento-col-4 {
     min-height: auto;
+    align-self: stretch;
   }
 
   /* Hero stays 8+4 while the centre column fits two bento columns */
@@ -408,8 +395,8 @@
 }
 
 .pf-status-dot {
-  width: var(--ct-space-2);
-  height: var(--ct-space-2);
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
   flex-shrink: 0;
   border-radius: var(--ct-radius-full);
 }
@@ -596,6 +583,11 @@
   container-name: pf-panel;
 }
 
+.pf-cockpit-panel--wide {
+  padding: var(--ct-space-4);
+  gap: var(--ct-space-4);
+}
+
 .pf-cockpit-panel:hover {
   border-color: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-graphite-border-nested));
 }
@@ -622,6 +614,7 @@
 
 .pf-cockpit-panel__subtitle {
   margin-top: var(--ct-space-0_5);
+  overflow-wrap: anywhere;
 }
 
 .pf-panel-footnote {
@@ -637,7 +630,7 @@
 .pf-trust-grid {
   display: grid;
   grid-template-columns: 1.3fr 1fr 0.95fr;
-  gap: var(--ct-space-5);
+  gap: var(--ct-space-6);
   flex: 1;
   min-width: 0;
 }
@@ -645,14 +638,20 @@
 .pf-trust-section {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-3);
   min-width: 0;
+}
+
+/* Column subhead (RISK PULSE / PROOF & METHODOLOGY / SECURITY AUDIT) —
+   accent-tinted so each column has a clear visual identity vs the panel header. */
+.pf-trust-section > .pf-cockpit-panel__subhead:first-child .stat-label {
+  color: color-mix(in srgb, var(--ct-accent) 65%, var(--ct-text-muted));
 }
 
 /* Vertical spine between columns */
 .pf-trust-grid > .pf-trust-section + .pf-trust-section {
-  border-left: 1px solid var(--ct-graphite-border-nested);
-  padding-left: var(--ct-space-5);
+  border-left: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 120%, transparent);
+  padding-left: var(--ct-space-6);
 }
 
 @container pf-panel (max-width: 52rem) {
@@ -665,8 +664,8 @@
     border-left: 0;
     padding-left: 0;
     border-top: 1px solid var(--ct-border-soft);
-    padding-top: var(--ct-space-3);
-    margin-top: var(--ct-space-3);
+    padding-top: var(--ct-space-4);
+    margin-top: var(--ct-space-4);
   }
 }
 
@@ -705,7 +704,8 @@
   gap: var(--ct-space-3);
   padding-bottom: var(--ct-space-2);
   border-bottom: 1px solid var(--ct-border-soft);
-  min-width: 0;
+  /* floor prevents columns from compressing into each other on narrow panels */
+  min-width: 28rem;
 }
 
 .pf-positions-row-grid:last-child {
@@ -808,6 +808,7 @@
   letter-spacing: var(--ct-tracking-wide);
   text-transform: uppercase;
   color: var(--ct-text-muted);
+  overflow-wrap: anywhere;
 }
 
 .pf-hero-rail-list {
@@ -1037,6 +1038,8 @@
   height: clamp(8.5rem, 34cqw, 12rem);
   margin-inline: auto;
   margin-top: 0;
+  /* Override dash-chart-container fixed height so donut-center stays centred */
+  --ct-donut-size: clamp(8.5rem, 34cqw, 12rem);
 }
 
 .cy-donut .dash-chart-circle {
