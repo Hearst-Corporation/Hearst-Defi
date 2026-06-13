@@ -129,6 +129,9 @@
 
 .pf-footer-disclaimer {
   margin: 0;
+  /* Anti-orphan: don't strand a lone word on the last line / split a phrase
+     awkwardly when the column narrows (chat open). */
+  text-wrap: pretty;
 }
 
 /* Loading skeleton heights — mirror live widget min-heights */
@@ -262,10 +265,6 @@
 
 .pf-stack--dense {
   gap: var(--ct-space-1_5);
-}
-
-.pf-stack--relaxed {
-  gap: var(--ct-space-3);
 }
 
 .pf-inline-row {
@@ -1040,6 +1039,13 @@
   margin-top: 0;
   /* Override dash-chart-container fixed height so donut-center stays centred */
   --ct-donut-size: clamp(8.5rem, 34cqw, 12rem);
+}
+
+/* SVG fills the square donut box so the gauge + donut-center share one centre. */
+.cy-donut .dash-chart-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .cy-donut .dash-chart-circle {
