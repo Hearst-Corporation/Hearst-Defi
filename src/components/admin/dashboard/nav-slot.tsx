@@ -38,7 +38,7 @@ export function NavSlot({
         <header className="dashboard-card-header dashboard-command-performance__header">
           <div className="min-w-0">
             <h3 className="h3 ct-text-body m-0">NAV · 30d</h3>
-            <p className="stat-value tabular mt-1">
+            <p className="stat-value tabular" style={{ marginTop: "var(--ct-space-1)" }}>
               {lastNav !== null && lastNav > 0 ? usdCompact.format(lastNav) : "—"}
             </p>
           </div>
@@ -51,9 +51,10 @@ export function NavSlot({
           <div className="dashboard-command-performance__footer">
             <span
               className={cn(
-                "body-xs font-semibold tabular",
+                "body-xs tabular",
                 navDelta >= 0 ? "ct-status-success" : "ct-status-danger",
               )}
+              style={{ fontWeight: "var(--ct-font-semibold)" }}
             >
               {navDelta >= 0 ? "+" : ""}
               {navDelta.toFixed(1)}% NAV · 30d

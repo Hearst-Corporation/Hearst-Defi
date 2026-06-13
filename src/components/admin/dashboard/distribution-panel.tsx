@@ -45,13 +45,13 @@ export function DistributionPanel({
           </dd>
         </div>
       </dl>
-      <p className="mt-3 body-xs ct-text-muted">
+      <p className="body-xs ct-text-muted" style={{ marginTop: "var(--ct-space-3)" }}>
         <Link href={adminNavLinks.distributions()} className="ct-text-accent hover:underline">
           Open distributions
         </Link>
       </p>
       {distribution.synthesized ? (
-        <p className="mt-2 body-xs ct-text-faint">Indicative projection — not a committed payout.</p>
+        <p className="body-xs ct-text-faint" style={{ marginTop: "var(--ct-space-2)" }}>Indicative projection — not a committed payout.</p>
       ) : null}
     </>
   );
