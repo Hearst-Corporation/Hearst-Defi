@@ -94,6 +94,7 @@
 
 
   /* Radius tokens (alignés sur le DS) */
+  --ct-radius-xs: 0.125rem; /* 2px — chart legend swatch, micro chips */
   --ct-radius-sm: 0.375rem;
   --ct-radius-md: 0.5rem;
   --ct-radius-lg: 0.75rem;
@@ -148,8 +149,8 @@
   /* Chat rail width — override du package (420px). Calibré densité globale. */
   --ct-rail-right: 23.75rem; /* 380px */
 
-  /* Left nav rail — icon + label permanent. Calibré densité globale (était 128px). */
-  --ct-rail-left: 7rem; /* 112px */
+  /* Left nav rail — icon + label permanent. Calibré densité globale (était 128px, puis 112px). */
+  --ct-rail-left: 5.75rem; /* 92px */
 
   /* Transitions — déclarées explicitement ici car le package tokens.css
      ne les expose pas (--ct-dur-base était référencé partout sans valeur).
@@ -161,6 +162,21 @@
   --ct-dur-pulse: 2s;     /* dash-pulse animation cycle (dashboard status dot) */
   --ct-dur-shimmer: 2s;   /* shimmer sweep (progress bars, skeletons) */
   --ct-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ct-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* symmetric — loops (pulse/shimmer), reversible toggles */
+
+  /* Blur scale — backdrop-filter & decorative ambient glows. Single source so
+     no rule hardcodes a raw blur() radius (DS lint enforces this). */
+  --ct-blur-xs:  blur(3px);      /* faint depth (chart overlay veil) */
+  --ct-blur-sm:  blur(8px);      /* compact glass (chips, small panels) */
+  --ct-blur-md:  blur(12px);     /* rail items, nested glass */
+  --ct-blur-lg:  blur(16px);     /* sticky footers (1rem) */
+  --ct-blur-xl:  blur(20px);     /* canonical glass panel (.ct-glass-panel) */
+  --ct-blur-2xl: blur(24px);     /* KPI glass */
+  --ct-blur-3xl: blur(28px);     /* heavy modal/overlay scrim */
+  --ct-blur-glow-sm: blur(40px); /* ambient glow (small) */
+  --ct-blur-glow-md: blur(60px); /* ambient glow (medium) */
+  --ct-blur-glow-lg: blur(9.375rem);  /* radial brand glow (150px) */
+  --ct-blur-glow-xl: blur(11.25rem);  /* hero radial brand glow (180px) */
 
   /* Gradients */
   --ct-gradient-surface: linear-gradient(135deg, var(--ct-surface-3), var(--ct-surface-1));
@@ -499,8 +515,8 @@
   bottom: 0;
   z-index: var(--ct-z-dropdown);
   width: 100%;
-  backdrop-filter: blur(1.25rem);
-  -webkit-backdrop-filter: blur(1.25rem);
+  backdrop-filter: var(--ct-blur-xl);
+  -webkit-backdrop-filter: var(--ct-blur-xl);
   background: color-mix(in srgb, var(--ct-bg-deep) 55%, transparent);
   border-top: 1px solid var(--ct-border-soft);
   padding: var(--ct-space-4) var(--ct-space-6);
@@ -836,7 +852,7 @@
 }
 
 .scenario-central-flow-pending {
-  animation: ct-scenario-central-soft-pulse var(--ct-dur-pulse) ease-in-out infinite;
+  animation: ct-scenario-central-soft-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 
 .scenario-lab-input-card__header {
@@ -876,8 +892,8 @@
   padding: var(--ct-space-4) var(--ct-space-5);
   border-top: 1px solid var(--ct-border-soft);
   background: color-mix(in srgb, var(--ct-bg-deep) 48%, var(--ct-surface-2));
-  backdrop-filter: blur(1rem);
-  -webkit-backdrop-filter: blur(1rem);
+  backdrop-filter: var(--ct-blur-lg);
+  -webkit-backdrop-filter: var(--ct-blur-lg);
 }
 
 @keyframes ct-scenario-central-flow-appear {
@@ -943,7 +959,7 @@
     color-mix(in srgb, var(--ct-status-warning) 32%, transparent) 0 6px,
     transparent 6px 12px
   );
-  animation: ct-scenario-central-soft-pulse var(--ct-dur-pulse) ease-in-out infinite;
+  animation: ct-scenario-central-soft-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 @media (prefers-reduced-motion: reduce) {
   .mining-coverage-calibration__bar { animation: none; }
@@ -1120,8 +1136,8 @@
   padding: var(--ct-space-4) var(--ct-space-5);
   border-top: 1px solid var(--ct-border-soft);
   background: color-mix(in srgb, var(--ct-bg-deep) 48%, var(--ct-surface-2));
-  backdrop-filter: blur(1rem);
-  -webkit-backdrop-filter: blur(1rem);
+  backdrop-filter: var(--ct-blur-lg);
+  -webkit-backdrop-filter: var(--ct-blur-lg);
 }
 
 .projection-studio-output {
@@ -1232,12 +1248,12 @@
 
 /* Admin cards — operator density (LP product keeps global .ct-card 20/24). */
 .admin-doc .ct-card:not(.p-0) {
-  padding: var(--ct-space-4) var(--ct-space-5);
+  padding: var(--ct-space-3) var(--ct-space-4);
 }
 
 /* KPI strip — dense grid inside Card / ct-glass-panel (ADR-013 canon). */
 .dashboard-kpi-strip-card.ct-card {
-  padding: var(--ct-space-4) var(--ct-space-5);
+  padding: var(--ct-space-3) var(--ct-space-4);
 }
 
 .dashboard-kpi-strip {
@@ -1909,7 +1925,7 @@
   }
 }
 
-@container dash-board (min-width: 36rem) {
+@container dash-board (min-width: 30rem) {
   .dashboard-command-row-b {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1919,14 +1935,14 @@
   }
 }
 
-@container dash-board (min-width: 56rem) {
+@container dash-board (min-width: 48rem) {
   .dashboard-command-row-b {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 /* Orbit | NAV side-by-side only when both slots have live data (not awaiting). */
-@container dash-board (min-width: 40rem) {
+@container dash-board (min-width: 34rem) {
   .dashboard-command-row-a:has(
       .dashboard-command-slot--nav.ct-card:not(.dashboard-command-cell--awaiting)
     ):has(.dashboard-command-slot--allocation > .ct-card:not(.dashboard-command-cell--awaiting)) {
@@ -1943,7 +1959,7 @@
   }
 }
 
-@container dash-board (min-width: 52rem) {
+@container dash-board (min-width: 44rem) {
   .dashboard-command-row-c {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1981,12 +1997,12 @@
 .ct-transition-base {
   transition-property: background-color, border-color, color, transform, opacity;
   transition-duration: var(--ct-dur-base);
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-timing-function: var(--ct-ease-in-out);
 }
 .ct-transition-opacity-slow {
   transition-property: opacity;
   transition-duration: var(--ct-dur-slow);
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-timing-function: var(--ct-ease-in-out);
 }
 .ct-z-base { z-index: var(--ct-z-base); }
 /* Lueur verte retirée des titres/metrics des box centrales (rayonnait dans les
@@ -2044,8 +2060,8 @@
   min-height: unset;
   padding-inline: var(--ct-space-4);
   background: var(--ct-graphite-nested-bg);
-  backdrop-filter: blur(8px) saturate(100%);
-  -webkit-backdrop-filter: blur(8px) saturate(100%);
+  backdrop-filter: var(--ct-blur-sm) saturate(100%);
+  -webkit-backdrop-filter: var(--ct-blur-sm) saturate(100%);
 }
 
 .ct-empty-surface--inline {
@@ -2521,8 +2537,8 @@ button.ct-seg-btn {
   border-radius: var(--ct-radius-full);
   background: var(--ct-surface-2);
   border: 1px solid var(--ct-border-strong);
-  backdrop-filter: blur(60px) saturate(100%) brightness(105%);
-  -webkit-backdrop-filter: blur(60px) saturate(100%) brightness(105%);
+  backdrop-filter: var(--ct-blur-glow-md) saturate(100%) brightness(105%);
+  -webkit-backdrop-filter: var(--ct-blur-glow-md) saturate(100%) brightness(105%);
   box-shadow: var(--ct-shadow-elevated);
 }
 
@@ -2617,8 +2633,8 @@ button.ct-seg-btn {
   background: var(--ct-surface-2) !important;
   border: 1px solid var(--ct-border) !important;
   color: var(--ct-text-primary) !important;
-  backdrop-filter: blur(40px) saturate(100%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(100%) !important;
+  backdrop-filter: var(--ct-blur-glow-sm) saturate(100%) !important;
+  -webkit-backdrop-filter: var(--ct-blur-glow-sm) saturate(100%) !important;
 }
 
 [data-sonner-toaster] [data-sonner-toast] [data-description] {
@@ -2651,8 +2667,8 @@ button.ct-seg-btn {
       color-mix(in srgb, var(--ct-bg-deep) 62%, transparent) 0%,
       color-mix(in srgb, var(--ct-bg-deep) 72%, transparent) 100%
     ) !important;
-  backdrop-filter: blur(20px) saturate(100%);
-  -webkit-backdrop-filter: blur(20px) saturate(100%);
+  backdrop-filter: var(--ct-blur-xl) saturate(100%);
+  -webkit-backdrop-filter: var(--ct-blur-xl) saturate(100%);
   border-right: 1px solid color-mix(in srgb, var(--ct-text-strong) 7%, var(--ct-border-soft));
   /* Rail verrouillé en position fermée — largeur fixe, jamais déployé. */
   width: var(--ct-rail-left) !important;
@@ -2671,8 +2687,8 @@ button.ct-seg-btn {
       color-mix(in srgb, var(--ct-bg-deep) 68%, transparent) 0%,
       color-mix(in srgb, var(--ct-bg-deep) 80%, transparent) 100%
     ) !important;
-  backdrop-filter: blur(28px) saturate(100%);
-  -webkit-backdrop-filter: blur(28px) saturate(100%);
+  backdrop-filter: var(--ct-blur-3xl) saturate(100%);
+  -webkit-backdrop-filter: var(--ct-blur-3xl) saturate(100%);
   border-left: 1px solid color-mix(in srgb, var(--ct-text-strong) 7%, var(--ct-border-soft));
 }
 
@@ -2714,13 +2730,13 @@ button.ct-seg-btn {
     radial-gradient(
       135% 125% at 50% 44%,
       transparent 26%,
-      color-mix(in srgb, #000000 38%, transparent) 64%,
-      color-mix(in srgb, #000000 70%, transparent) 100%
+      color-mix(in srgb, var(--ct-bg-deep) 38%, transparent) 64%,
+      color-mix(in srgb, var(--ct-bg-deep) 70%, transparent) 100%
     ),
     /* 3. base verticale noire (haut sombre → bas profond) */
     linear-gradient(
       180deg,
-      color-mix(in srgb, #000000 24%, transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 24%, transparent) 0%,
       transparent 42%,
       color-mix(in srgb, var(--ct-bg-deep) 30%, transparent) 100%
     );
@@ -2744,7 +2760,7 @@ button.ct-seg-btn {
   background-size: cover;
   background-position: center left;
   background-repeat: no-repeat;
-  filter: brightness(0.95) blur(2px);
+  filter: brightness(0.95) var(--ct-blur-xs);
 }
 
 .ct-panels-row::after {
@@ -2755,8 +2771,14 @@ button.ct-seg-btn {
   pointer-events: none;
   background:
     radial-gradient(
+      62% 44% at 40% 34%,
+      color-mix(in srgb, var(--ct-accent) 10%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 4%, transparent) 48%,
+      transparent 82%
+    ),
+    radial-gradient(
       68% 50% at 32% 54%,
-      color-mix(in srgb, var(--ct-text-strong) 12%, transparent) 0%,
+      color-mix(in srgb, var(--ct-text-strong) 16%, transparent) 0%,
       transparent 72%
     ),
     linear-gradient(
@@ -2857,8 +2879,8 @@ button.ct-seg-btn {
   justify-content: center;
   gap: var(--ct-space-1);
   width: calc(var(--ct-rail-left) - var(--ct-space-2));
-  padding: var(--ct-space-2) var(--ct-space-1);
-  border-radius: var(--ct-radius-lg);
+  padding: var(--ct-space-1) var(--ct-space-1);
+  border-radius: var(--ct-radius-md);
   color: var(--ct-text-muted);
   background: transparent;
   border: 1px solid transparent;
@@ -2875,22 +2897,22 @@ button.ct-seg-btn {
   color: var(--ct-text-primary);
   background: color-mix(in srgb, var(--ct-surface-2) 80%, transparent);
   border-color: var(--ct-border);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: var(--ct-blur-md);
+  -webkit-backdrop-filter: var(--ct-blur-md);
 }
 
 .ct-rail-item-active {
-  color: var(--ct-text-primary);
-  background: color-mix(in srgb, var(--ct-surface-2) 75%, transparent);
-  border-color: var(--ct-border);
-  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
+  color: var(--ct-accent);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .ct-rail-item-active:hover {
-  color: var(--ct-text-strong);
-  background: color-mix(in srgb, var(--ct-surface-2) 90%, transparent);
-  border-color: var(--ct-border);
-  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
+  color: var(--ct-accent);
+  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
+  border-color: transparent;
+  box-shadow: none;
 }
 
 /* Label statique sous l'icône — visible en permanence (style Oracle rail).
@@ -3217,8 +3239,8 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   padding: var(--ct-space-2) var(--ct-space-2) var(--ct-space-2) var(--ct-space-3);
   background: color-mix(in srgb, var(--ct-surface-1) 50%, transparent) !important;
   border: 1px solid var(--ct-border-soft) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: var(--ct-blur-md);
+  -webkit-backdrop-filter: var(--ct-blur-md);
 }
 .ct-chat-form:focus-within {
   border-color: var(--ct-border-accent) !important;
@@ -3323,7 +3345,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   left: 50%;
   transform: translate(-50%, -60%);
   background: var(--ct-text-strong);
-  filter: blur(11.25rem);
+  filter: var(--ct-blur-glow-xl);
   opacity: 0.025;
 }
 
@@ -3423,7 +3445,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   top: 20%;
   left: 30%;
   transform: translate(-50%, -50%);
-  filter: blur(9.375rem);
+  filter: var(--ct-blur-glow-lg);
   opacity: 0.04;
 }
 
@@ -3433,7 +3455,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   bottom: 10%;
   right: 10%;
   transform: translate(50%, 50%);
-  filter: blur(8.125rem);
+  filter: var(--ct-blur-glow-lg);
   opacity: 0.03;
 }
 
@@ -3469,8 +3491,8 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
    Same recipe used across all 4 KPI articles in the debug portfolio view. */
 .ct-kpi-glass {
   background: color-mix(in srgb, var(--ct-surface-1) 20%, transparent);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: var(--ct-blur-2xl);
+  -webkit-backdrop-filter: var(--ct-blur-2xl);
   border-radius: var(--ct-radius-xl);
   border: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent);
   background-image: radial-gradient(
