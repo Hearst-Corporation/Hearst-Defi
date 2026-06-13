@@ -45,10 +45,10 @@ export interface YieldStackProps {
 // ── Pure helpers (also exported for unit tests) ───────────────────────────────
 
 /** CSS custom property for each bucket's bar colour (token-only, no hex).
- *  Vert canonique = accent uniquement. Tout autre bucket utilise un token
- *  non-vert pour rester distinct visuellement (cohérence allocation-colors.ts). */
+ *  Mining = success (live yield). Other buckets use distinct status/neutral tokens
+ *  (aligned with allocation-colors.ts). */
 export const BUCKET_COLOR: Record<YieldSource["bucket"], string> = {
-  mining:          "var(--ct-accent)",         // vert canonique var(--ct-accent)
+  mining:          "var(--ct-status-success)",
   usdc_base:       "var(--ct-status-info)",    // bleu — base stable
   btc_tactical:    "var(--ct-status-warning)", // orange — volatile
   stable_reserve:  "var(--ct-text-faint)",     // gris

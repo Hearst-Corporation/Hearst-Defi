@@ -140,14 +140,14 @@ function FanChart({ series }: FanChartProps) {
       {/* Fan band p5–p95 */}
       <polygon
         points={bandPoly}
-        fill="var(--ct-accent-soft)"
+        fill="var(--ct-status-success-soft)"
         opacity="0.22"
       />
       {/* p5 edge */}
       <polyline
         points={pts(p5Coords)}
         fill="none"
-        stroke="var(--ct-accent)"
+        stroke="var(--ct-status-success)"
         strokeWidth="0.4"
         strokeOpacity="0.45"
         strokeLinejoin="round"
@@ -158,7 +158,7 @@ function FanChart({ series }: FanChartProps) {
       <polyline
         points={pts(p95Coords)}
         fill="none"
-        stroke="var(--ct-accent)"
+        stroke="var(--ct-status-success)"
         strokeWidth="0.4"
         strokeOpacity="0.45"
         strokeLinejoin="round"
@@ -169,7 +169,7 @@ function FanChart({ series }: FanChartProps) {
       <polyline
         points={pts(p50Coords)}
         fill="none"
-        stroke="var(--ct-accent)"
+        stroke="var(--ct-status-success)"
         strokeWidth="1.0"
         strokeLinejoin="round"
         strokeLinecap="round"
@@ -352,11 +352,11 @@ export function MonteCarloPanel() {
           {/* Legend */}
           <div className="admin-doc-inline-row admin-doc-inline-row--relaxed body-xs ct-text-muted">
             <span className="admin-doc-inline-row admin-doc-inline-row--dense">
-              <span className="inline-block h-0.5 w-4 rounded-full bg-[var(--ct-accent)]" />
+              <span className="inline-block h-0.5 w-4 rounded-full bg-[var(--ct-status-success)]" />
               Median (p50)
             </span>
             <span className="admin-doc-inline-row admin-doc-inline-row--dense">
-              <span className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-accent-soft)] opacity-22" />
+              <span className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-status-success-soft)] opacity-22" />
               p5–p95
             </span>
           </div>

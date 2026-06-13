@@ -10,22 +10,22 @@
 
 import type { AllocationBucket as EngineBucket } from "@/lib/engine/types";
 
-export type AllocationDashTone = "primary" | "accent" | "soft" | "muted";
+export type AllocationDashTone = "primary" | "accent" | "soft" | "muted" | "success" | "faint";
 
 /** CSS `stroke` / `color` for engine bucket ids (`btc_tactical`, …). */
 export const ALLOCATION_STROKE: Record<EngineBucket, string> = {
-  mining: "var(--ct-text-primary)",
-  btc_tactical: "var(--ct-accent-strong)",
+  mining: "var(--ct-status-success)",
+  btc_tactical: "var(--ct-status-warning)",
   usdc_base: "var(--ct-status-info)",
-  stable_reserve: "var(--ct-status-warning)",
+  stable_reserve: "var(--ct-text-faint)",
 };
 
 /** Class suffix for `.dash-chart-circle.color-*` and `.dash-legend-dot.dot-*`. */
 export const ALLOCATION_DASH_TONE: Record<EngineBucket, AllocationDashTone> = {
-  mining: "primary",
-  btc_tactical: "accent",
+  mining: "success",
+  btc_tactical: "muted",
   usdc_base: "soft",
-  stable_reserve: "muted",
+  stable_reserve: "faint",
 };
 
 export const ALLOCATION_LABELS: Record<EngineBucket, string> = {

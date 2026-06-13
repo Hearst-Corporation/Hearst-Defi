@@ -350,10 +350,9 @@
 
 /* Product-workspace L1 hero panel (§13.3 display tier — graphite + accent wash). */
 .admin-doc .pw-hero-panel {
-  border-color: color-mix(in srgb, var(--ct-accent) 22%, var(--ct-graphite-border-nested));
-  background: color-mix(in srgb, var(--ct-surface-1) 92%, var(--ct-accent-soft));
+  border-color: var(--ct-graphite-border-nested);
+  background: var(--ct-surface-1);
   box-shadow:
-    0 0 48px color-mix(in srgb, var(--ct-accent) 10%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--ct-text-strong) 6%, transparent);
 }
 

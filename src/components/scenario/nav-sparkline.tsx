@@ -138,14 +138,14 @@ function FanChart({ series, ariaLabel: _ariaLabel }: FanChartProps) {
       {/* Outer band p5-p95 */}
       <polygon
         points={outerBand}
-        fill="var(--ct-accent-soft)"
+        fill="var(--ct-status-success-soft)"
         opacity="0.18"
       />
 
       {/* Inner band p25-p75 */}
       <polygon
         points={innerBand}
-        fill="var(--ct-accent-soft)"
+        fill="var(--ct-status-success-soft)"
         opacity="0.45"
       />
 
@@ -153,7 +153,7 @@ function FanChart({ series, ariaLabel: _ariaLabel }: FanChartProps) {
       <polyline
         points={pts(p95Coords)}
         fill="none"
-        stroke="var(--ct-accent)"
+        stroke="var(--ct-status-success)"
         strokeWidth="0.4"
         strokeOpacity="0.4"
         strokeLinejoin="round"
@@ -165,7 +165,7 @@ function FanChart({ series, ariaLabel: _ariaLabel }: FanChartProps) {
       <polyline
         points={pts(p5Coords)}
         fill="none"
-        stroke="var(--ct-accent)"
+        stroke="var(--ct-status-success)"
         strokeWidth="0.4"
         strokeOpacity="0.4"
         strokeLinejoin="round"
@@ -177,7 +177,7 @@ function FanChart({ series, ariaLabel: _ariaLabel }: FanChartProps) {
       <polyline
         points={pts(p50Coords)}
         fill="none"
-        stroke="var(--ct-accent)"
+        stroke="var(--ct-status-success)"
         strokeWidth="1.0"
         strokeLinejoin="round"
         strokeLinecap="round"
@@ -260,19 +260,19 @@ export function NavSparkline({ output }: NavSparklineProps) {
       <div className="mt-3 admin-doc-inline-row admin-doc-inline-row--relaxed body-xs">
         <span className="admin-doc-inline-row admin-doc-inline-row--dense">
           <span
-            className="inline-block h-0.5 w-4 rounded-full bg-[var(--ct-accent)]"
+            className="inline-block h-0.5 w-4 rounded-full bg-[var(--ct-status-success)]"
           />
           Median (p50)
         </span>
         <span className="admin-doc-inline-row admin-doc-inline-row--dense">
           <span
-            className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-accent-soft)] opacity-45"
+            className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-status-success-soft)] opacity-45"
           />
           p25–p75
         </span>
         <span className="admin-doc-inline-row admin-doc-inline-row--dense">
           <span
-            className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-accent-soft)] opacity-18"
+            className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-status-success-soft)] opacity-18"
           />
           p5–p95
         </span>

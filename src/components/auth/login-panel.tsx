@@ -17,7 +17,7 @@ export function LoginPanel() {
   return (
     <div className="flex w-full max-w-sm flex-col items-center gap-8 text-center">
       <header className="flex flex-col items-center gap-3">
-        <span className="eyebrow ct-text-accent">Investor access</span>
+        <span className="eyebrow ct-text-muted">Investor access</span>
         <h2 className="h2 m-0">Sign in</h2>
         <p className="body-sm ct-text-muted">
           Access your vaults and portfolio

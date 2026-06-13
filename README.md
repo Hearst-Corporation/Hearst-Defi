@@ -185,6 +185,8 @@ typo headlines (`--ct-text-lg`…`display`), `.ct-page-area` / `.ct-card` / chat
 
 **Accent brand (Phase 1, 2026-06)** : `--ct-accent` #9E1B2E (maroon institutionnel) ;
 success/live découplé → `--ct-status-success` #16A34A. `CONNECT_ACCENT_HEX` aligné pour Privy/shell.
+**Portée accent** : CTA primaires, focus rings, sélection inset (pills/rail) — pas titres, data bars,
+charts, mining/status ni wash de fond (tokens sémantiques `--ct-status-*` / `--ct-text-*`).
 
 **Un seul design system en runtime** : Cockpit (`--ct-*` via `@hearst/cockpit-shell`).
 Le package orphelin `packages/ds` (`@ds/core`, namespace `--ds-*`) a été retiré du repo.

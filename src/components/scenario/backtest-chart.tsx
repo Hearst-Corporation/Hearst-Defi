@@ -255,7 +255,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
         {/* ── NAV area fill ── */}
         <polygon
           points={navAreaPts}
-          fill="var(--ct-accent)"
+          fill="var(--ct-status-success)"
           opacity="0.08"
         />
 
@@ -263,7 +263,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
         <path
           d={navLinePath}
           fill="none"
-          stroke="var(--ct-accent)"
+          stroke="var(--ct-status-success)"
           strokeWidth="1.2"
           strokeLinejoin="round"
           strokeLinecap="round"
@@ -277,7 +277,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
             cx={pt.x}
             cy={pt.y}
             r={2}
-            fill="var(--ct-accent-soft, var(--ct-accent))"
+            fill="var(--ct-status-success-soft)"
             opacity="0.8"
             aria-label="Distribution event"
           />

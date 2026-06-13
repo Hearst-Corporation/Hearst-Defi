@@ -185,8 +185,8 @@ describe("BUCKET_COLOR token contract", () => {
     }
   });
 
-  it("mining uses --ct-accent (green)", () => {
-    expect(BUCKET_COLOR.mining).toBe("var(--ct-accent)");
+  it("mining uses --ct-status-success (live yield)", () => {
+    expect(BUCKET_COLOR.mining).toBe("var(--ct-status-success)");
   });
 
   it("btc_tactical uses --ct-status-warning (orange — volatile)", () => {

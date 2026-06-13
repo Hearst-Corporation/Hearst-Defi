@@ -290,7 +290,7 @@ function buildSteps(data: RiskFrameworkData): WaterfallStep[] {
 
     const isPositive = contribution < 0; // rare upward adjustment
     const fill = isPositive
-      ? "var(--ct-accent)"
+      ? "var(--ct-status-success)"
       : "var(--ct-status-danger)";
 
     steps.push({
@@ -478,7 +478,7 @@ function WaterfallChart({ data }: WaterfallChartProps) {
           label="Negative contribution"
         />
         <LegendDot
-          color="var(--ct-accent)"
+          color="var(--ct-status-success)"
           label="Positive contribution"
         />
         <LegendDot

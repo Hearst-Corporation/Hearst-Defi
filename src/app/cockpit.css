@@ -2729,14 +2729,8 @@ button.ct-seg-btn {
   pointer-events: none;
   background:
     radial-gradient(
-      62% 44% at 40% 34%,
-      color-mix(in srgb, var(--ct-accent) 10%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 4%, transparent) 48%,
-      transparent 82%
-    ),
-    radial-gradient(
       68% 50% at 32% 54%,
-      color-mix(in srgb, var(--ct-text-strong) 16%, transparent) 0%,
+      color-mix(in srgb, var(--ct-text-strong) 12%, transparent) 0%,
       transparent 72%
     ),
     linear-gradient(

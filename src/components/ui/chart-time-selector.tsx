@@ -26,7 +26,7 @@ export interface ChartTimeSelectorProps {
  *
  * Height: 24 px · Mono font · Accessible radiogroup.
  *
- * Active segment  : var(--ct-accent) underline + var(--ct-text-primary).
+ * Active segment  : strong underline + var(--ct-text-primary).
  * Inactive segment: var(--ct-text-muted), hover → var(--ct-text-body).
  */
 export function ChartTimeSelector({
@@ -59,7 +59,7 @@ export function ChartTimeSelector({
               isActive
                 ? [
                     "ct-text-primary",
-                    "border-b border-b-[var(--ct-accent)]",
+                    "border-b border-b-[var(--ct-text-strong)]",
                   ]
                 : [
                     "ct-text-muted",

@@ -92,9 +92,15 @@ function polyline(pts: Array<{ x: number; y: number }>): string {
 interface AreaChartProps {
   series: Array<{ label: string; value: number; isDistribution: boolean }>;
   ariaLabel: string;
+  /** Preview / flat $0 series — neutral stroke, not brand or success. */
+  muted?: boolean;
 }
 
-function AreaChart({ series, ariaLabel: _ariaLabel }: AreaChartProps) {
+function AreaChart({ series, ariaLabel: _ariaLabel, muted = false }: AreaChartProps) {
+  const seriesColor = muted ? "var(--ct-text-faint)" : "var(--ct-status-success)";
+  const markerFill = muted
+    ? "color-mix(in srgb, var(--ct-text-faint) 35%, transparent)"
+    : "color-mix(in srgb, var(--ct-status-success) 28%, transparent)";
   const values = series.map((d) => d.value);
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -125,10 +131,9 @@ function AreaChart({ series, ariaLabel: _ariaLabel }: AreaChartProps) {
       </desc>
 
       <defs>
-        {/* Vertical gradient: accent at top, transparent at bottom */}
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--ct-accent)" stopOpacity="0.22" />
-          <stop offset="100%" stopColor="var(--ct-accent)" stopOpacity="0.02" />
+          <stop offset="0%" stopColor={seriesColor} stopOpacity={muted ? "0.12" : "0.22"} />
+          <stop offset="100%" stopColor={seriesColor} stopOpacity="0.02" />
         </linearGradient>
       </defs>
 
@@ -142,7 +147,7 @@ function AreaChart({ series, ariaLabel: _ariaLabel }: AreaChartProps) {
       <polyline
         points={linePts}
         fill="none"
-        stroke="var(--ct-accent)"
+        stroke={seriesColor}
         strokeWidth="0.8"
         strokeLinejoin="round"
         strokeLinecap="round"
@@ -159,8 +164,8 @@ function AreaChart({ series, ariaLabel: _ariaLabel }: AreaChartProps) {
             cx={p.x.toFixed(2)}
             cy={p.y.toFixed(2)}
             r="1.2"
-            fill="var(--ct-accent-soft)"
-            stroke="var(--ct-accent)"
+            fill={markerFill}
+            stroke={seriesColor}
             strokeWidth="0.4"
             vectorEffect="non-scaling-stroke"
             aria-label={`Distribution marker — ${point.label}`}
@@ -234,6 +239,7 @@ export function ValueChart({
         )}
         <AreaChart
           series={series}
+          muted={showZeroShell}
           ariaLabel={`Portfolio value area chart, 12 months, current value ${formatUsdCompact(chartValue)}`}
         />
       </div>
