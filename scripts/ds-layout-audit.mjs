@@ -50,6 +50,51 @@ const SEG_ALLOWLIST = new Set([
   "src/components/ui/segmented-control.tsx", // the primitive — owns ct-seg-* classes
 ]);
 
+// ── Token-scale invariants (CSS) — every blur/easing/duration goes through a
+//    --ct-* token. Raw values are how agents drift the scale; block at the gate. ──
+/** Raw blur() radius in a rule — must be var(--ct-blur-*). */
+const RAW_BLUR_RE = /\bblur\(\s*[\d.]/g;
+/** Raw cubic-bezier() in a rule — must be var(--ct-ease) / var(--ct-ease-in-out). */
+const RAW_CUBIC_RE = /\bcubic-bezier\(/g;
+/** Raw transition/animation duration literal (e.g. 0.2s, 300ms) — must be var(--ct-dur-*). */
+const RAW_DUR_RE = /(?:transition(?:-duration)?|animation(?:-duration)?)\s*:[^;]*?\b\d[\d.]*m?s\b/g;
+/** Forbidden second token namespace (the removed @ds/core). */
+const DS_NAMESPACE_RE = /--ds-[a-z]/gi;
+/** Hardcoded hex colour in a rule body (not a --ct-* token definition). */
+const RAW_HEX_RE = /#[0-9a-fA-F]{3,8}\b/g;
+
+/** Files allowed to hold raw hex (non-CSS-runtime contexts): email HTML strings,
+ *  PDF/print palettes, brand SDK constants. These never reach the web cascade. */
+const HEX_ALLOWLIST = new Set([
+  "src/lib/auth/password-reset.ts",
+  "src/lib/inngest/functions/distribution-executed.ts",
+  "src/lib/pdf/pdf-palette.ts",
+  "src/lib/brand-constants.ts",
+  "src/lib/data/allocation-colors.ts",
+]);
+/** A line that DEFINES a --ct-* token may contain a literal value — that is the
+ *  one sanctioned home for raw px/hex/blur. Detect "  --ct-...:" anywhere on line. */
+const TOKEN_DEF_LINE = /--ct-[a-z0-9_-]+\s*:/i;
+/** Strip CSS comment bodies so hex/values mentioned in prose are not flagged.
+ *  Handles full-line and inline /* … *​/ (incl. comments spanning the line). */
+function stripComments(line, inBlockRef) {
+  let out = "";
+  let inBlock = inBlockRef.v;
+  for (let i = 0; i < line.length; i++) {
+    if (inBlock) {
+      if (line[i] === "*" && line[i + 1] === "/") { inBlock = false; i++; }
+      continue;
+    }
+    if (line[i] === "/" && line[i + 1] === "*") { inBlock = true; i++; continue; }
+    out += line[i];
+  }
+  inBlockRef.v = inBlock;
+  return out;
+}
+/** Reduced-motion reset values (≤1ms, 0.01ms) are a11y cancellations, not design
+ *  durations — never flag them. */
+const REDUCED_MOTION_DUR = /\b0?\.?0*1?m?s\b/; // 1ms, 0.01ms, 0.001s, etc. (tiny)
+
 /** Only Card primitive may bind `.ct-card` directly. */
 const CT_CARD_ALLOWLIST = new Set([
   "src/components/ui/card.tsx",
@@ -193,12 +238,75 @@ function scanRawSeg(rel, content) {
   }
 }
 
+/** Generic line-scanner: flags every match of `re` whose line is NOT a --ct-*
+ *  token definition, ignoring comment bodies. Used for blur/easing/duration. */
+function scanRawTokenScale(rel, content, re, rule, detail, skipReducedMotion = false) {
+  const lines = content.split("\n");
+  const block = { v: false };
+  for (let i = 0; i < lines.length; i++) {
+    const code = stripComments(lines[i], block);
+    if (TOKEN_DEF_LINE.test(code)) continue; // a token definition — sanctioned home
+    if (skipReducedMotion && REDUCED_MOTION_DUR.test(code)) continue; // a11y reset, not design
+    re.lastIndex = 0;
+    if (re.test(code)) {
+      violations.push({ file: rel, line: i + 1, rule, detail });
+    }
+  }
+}
+
+function scanDsNamespace(rel, content) {
+  const lines = content.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    DS_NAMESPACE_RE.lastIndex = 0;
+    const m = DS_NAMESPACE_RE.exec(lines[i]);
+    if (m) {
+      violations.push({
+        file: rel,
+        line: i + 1,
+        rule: "ds-namespace",
+        detail: `Forbidden "${m[0]}…" — the @ds/core namespace was removed. Use --ct-* tokens only.`,
+      });
+    }
+  }
+}
+
+function scanRawHexCss(rel, content) {
+  if (HEX_ALLOWLIST.has(rel)) return;
+  const lines = content.split("\n");
+  const block = { v: false };
+  for (let i = 0; i < lines.length; i++) {
+    const code = stripComments(lines[i], block);
+    if (TOKEN_DEF_LINE.test(code)) continue; // token def may hold a literal hex
+    RAW_HEX_RE.lastIndex = 0;
+    const m = RAW_HEX_RE.exec(code);
+    if (m) {
+      violations.push({
+        file: rel,
+        line: i + 1,
+        rule: "raw-hex",
+        detail: `Hardcoded colour "${m[0]}" outside a token definition — use a var(--ct-*) token.`,
+      });
+    }
+  }
+}
+
 for (const abs of walk(SRC)) {
   const rel = relative(ROOT, abs).replaceAll("\\", "/");
   const content = readFileSync(abs, "utf8");
   // colour/shadow invariants run on every file (incl. CSS for maroon).
   scanMaroon(rel, content);
-  if (rel.endsWith(".css")) continue; // class/component scans are code-only
+  scanDsNamespace(rel, content); // --ds-* forbidden everywhere
+  if (rel.endsWith(".css")) {
+    // CSS-only token-scale invariants: blur / easing / duration / hex must be tokens.
+    scanRawTokenScale(rel, content, RAW_BLUR_RE, "raw-blur",
+      "Raw blur() radius — use var(--ct-blur-*).");
+    scanRawTokenScale(rel, content, RAW_CUBIC_RE, "raw-easing",
+      "Raw cubic-bezier() — use var(--ct-ease) or var(--ct-ease-in-out).");
+    scanRawTokenScale(rel, content, RAW_DUR_RE, "raw-duration",
+      "Raw transition/animation duration literal — use var(--ct-dur-*).", true);
+    scanRawHexCss(rel, content);
+    continue; // class/component scans are code-only
+  }
   scanBannedClasses(rel, content);
   scanDirectCtCard(rel, content);
   scanStaticCtPill(rel, content);
