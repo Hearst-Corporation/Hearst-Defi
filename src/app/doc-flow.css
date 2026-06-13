@@ -681,6 +681,120 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   SHARED PRIMITIVES — identical values in both scopes
+   Selector: :is(.admin-doc, .product-doc) .doc-*
+   Old prefixed classes remain in their scopes as backward-compat aliases.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Stack — shared list variant */
+:is(.admin-doc, .product-doc) .doc-stack--list,
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--list, .product-doc-stack--list) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2_5);
+}
+
+/* Inline-row — shared modifiers */
+:is(.admin-doc, .product-doc) .doc-inline-row--start,
+:is(.admin-doc, .product-doc) :is(.admin-doc-inline-row--start, .product-doc-inline-row--start) {
+  display: flex;
+  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+  min-width: 0;
+  align-items: flex-start;
+}
+
+:is(.admin-doc, .product-doc) .doc-inline-row--loose,
+:is(.admin-doc, .product-doc) :is(.admin-doc-inline-row--loose, .product-doc-inline-row--loose) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: var(--ct-space-2_5);
+}
+
+:is(.admin-doc, .product-doc) .doc-inline-row--tight,
+:is(.admin-doc, .product-doc) :is(.admin-doc-inline-row--tight, .product-doc-inline-row--tight) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: var(--ct-space-1);
+}
+
+:is(.admin-doc, .product-doc) .doc-inline-row--dense,
+:is(.admin-doc, .product-doc) :is(.admin-doc-inline-row--dense, .product-doc-inline-row--dense) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: var(--ct-space-1_5);
+}
+
+:is(.admin-doc, .product-doc) .doc-inline-row--spacious,
+:is(.admin-doc, .product-doc) :is(.admin-doc-inline-row--spacious, .product-doc-inline-row--spacious) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: var(--ct-space-5);
+}
+
+/* Callout — warning surface, identical in both scopes */
+:is(.admin-doc, .product-doc) .doc-callout,
+:is(.admin-doc, .product-doc) :is(.admin-doc-callout, .product-doc-callout) {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ct-space-3);
+  border-radius: var(--ct-radius-md);
+  border: 1px solid var(--ct-status-warning-border);
+  background: var(--ct-status-warning-soft);
+  padding: var(--ct-space-3) var(--ct-space-4);
+}
+
+/* Section — title group + head row, identical in both scopes */
+:is(.admin-doc, .product-doc) .doc-section,
+:is(.admin-doc, .product-doc) :is(.admin-doc-section, .product-doc-section) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+
+:is(.admin-doc, .product-doc) .doc-section__head,
+:is(.admin-doc, .product-doc) :is(.admin-doc-section__head, .product-doc-section__head) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+}
+
+/* Footer rule — bottom divider, identical in both scopes */
+:is(.admin-doc, .product-doc) .doc-footer-rule,
+:is(.admin-doc, .product-doc) :is(.admin-doc-footer-rule, .product-doc-footer-rule) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  padding-top: var(--ct-space-6);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+/* KPI grid 2-col, identical in both scopes */
+:is(.admin-doc, .product-doc) .doc-kpi-grid-2,
+:is(.admin-doc, .product-doc) :is(.admin-doc-kpi-grid-2, .product-doc-kpi-grid-2) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ct-space-4);
+}
+
+/* Shell cap — max-width centering, identical in both scopes */
+:is(.admin-doc, .product-doc) .doc-shell--cap,
+:is(.admin-doc, .product-doc) :is(.admin-doc-shell--cap, .product-doc-shell--cap) {
+  max-width: var(--ct-invest-flow-max-w);
+  margin-inline: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    PRODUCT-DOC SCOPE  (.product-doc)
    ═══════════════════════════════════════════════════════════════════════════ */
 
