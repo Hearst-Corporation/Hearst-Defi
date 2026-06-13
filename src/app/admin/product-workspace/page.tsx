@@ -1,7 +1,6 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { VAULTS, VAULT_YIELD, type VaultDefinition } from "@/lib/engine/vaults";
@@ -20,7 +19,6 @@ interface ProductGraphSpec {
   chart: string;
   series: string;
   note: string;
-  progress: number;
 }
 
 const GRAPH_SPECS: readonly ProductGraphSpec[] = [
@@ -29,21 +27,18 @@ const GRAPH_SPECS: readonly ProductGraphSpec[] = [
     chart: "Stacked allocation bar",
     series: "Mining cashflow, USDC base, BTC tactical, stable reserve",
     note: "Compare target weights against hard bounds before any vault draft.",
-    progress: 72,
   },
   {
     title: "Distribution Path",
     chart: "12-month range band",
     series: "P25/P75 monthly USDC distributions",
     note: "Shows range only; no single-point APY headline.",
-    progress: 58,
   },
   {
     title: "Stress Corridor",
     chart: "Drawdown and liquidity curve",
     series: "BTC shock, hashprice compression, stable depeg, liquidity buffer",
     note: "PTAI trigger candidates must map to documented rule IDs.",
-    progress: 44,
   },
 ];
 
@@ -180,7 +175,6 @@ export default async function ProductWorkspacePage({
             <Badge variant={autostart ? "success" : "default"}>
               {autostart ? "Seeded by agent" : "Manual"}
             </Badge>
-            <ProvenanceBadge kind="manual" />
           </div>
         }
       />
@@ -203,77 +197,77 @@ export default async function ProductWorkspacePage({
             validation.
           </p>
 
-          <div className="rounded-2xl border border-[var(--ct-border-soft)] ct-surface-1 p-4">
-            <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
-              <div className="admin-doc-stack admin-doc-stack--tight">
-                <span className="stat-label">Agent decision</span>
-                <p className="body-sm ct-text-strong">
-                  {decision.label}: {decision.status}
-                </p>
-                <p className="body-xs ct-text-muted">{decision.detail}</p>
+          {/* Agent decision — flat row, no nested card */}
+          <div className="border-t ct-bc-soft pt-4 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
+            <div className="admin-doc-stack admin-doc-stack--tight">
+              <span className="stat-label">Agent decision</span>
+              <p className="body-sm ct-text-strong">
+                {decision.label}: {decision.status}
+              </p>
+              <p className="body-xs ct-text-muted">{decision.detail}</p>
+            </div>
+            <ProvenanceBadge kind="manual" />
+          </div>
+
+          {/* Product thesis */}
+          <div className="border-t ct-bc-soft pt-4 admin-doc-stack admin-doc-stack--tight">
+            <span className="stat-label">Product thesis</span>
+            <p className="body-sm ct-text-muted">{productThesis(inferredVault, objective)}</p>
+          </div>
+
+          {/* Generated artifact */}
+          <div className="border-t ct-bc-soft pt-4 admin-doc-stack admin-doc-stack--tight">
+            <span className="stat-label">Generated product artifact</span>
+            <p className="body-sm ct-text-muted">
+              Draft artifact: {inferredVault.ticker} product workspace with thesis,
+              assumptions, chart specs, calculation notes, decision gate and next actions.
+            </p>
+          </div>
+
+          {/* Vault parameters — flat definition list */}
+          <div className="border-t ct-bc-soft pt-4">
+            <span className="stat-label mb-3 block">Vault parameters</span>
+            <div className="admin-doc-stack admin-doc-stack--tight">
+              <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                <span className="body-sm ct-text-muted">Inferred vault</span>
+                <span className="body-sm ct-text-strong">
+                  {inferredVault.label} · {inferredVault.ticker}
+                </span>
               </div>
-              <ProvenanceBadge kind="manual" />
+              <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                <span className="body-sm ct-text-muted">Base mode</span>
+                <span className="body-sm ct-text-body">{inferredVault.baseMode}</span>
+              </div>
+              <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                <span className="body-sm ct-text-muted">APY range</span>
+                <span className="body-sm ct-text-strong">
+                  {inferredVault.apyTarget.low}–{inferredVault.apyTarget.high}%
+                  <span className="body-xs ct-text-muted ml-2">Estimated · range only</span>
+                </span>
+              </div>
+              <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                <span className="body-sm ct-text-muted">Methodology</span>
+                <span className="body-sm ct-text-body">{inferredVault.methodologyVersion}</span>
+              </div>
             </div>
           </div>
 
-          <div className="grid gap-3 lg:grid-cols-2">
-            <div className="admin-doc-stack admin-doc-stack--tight rounded-2xl border border-[var(--ct-border-soft)] ct-surface-1 p-4">
-              <span className="stat-label">Product thesis</span>
-              <p className="body-sm ct-text-muted">{productThesis(inferredVault, objective)}</p>
-            </div>
-            <div className="admin-doc-stack admin-doc-stack--tight rounded-2xl border border-[var(--ct-border-soft)] ct-surface-1 p-4">
-              <span className="stat-label">Generated product artifact</span>
-              <p className="body-sm ct-text-muted">
-                Draft artifact: {inferredVault.ticker} product workspace with thesis,
-                assumptions, chart specs, calculation notes, decision gate and next actions.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-3">
-            <div className="admin-doc-stack admin-doc-stack--tight rounded-2xl border border-[var(--ct-border-soft)] ct-surface-1 p-4">
-              <span className="stat-label">Inferred vault</span>
-              <p className="body-sm ct-text-strong">
-                {inferredVault.label} · {inferredVault.ticker}
-              </p>
-              <p className="body-xs ct-text-muted">
-                Base mode: {inferredVault.baseMode}
-              </p>
-            </div>
-            <div className="admin-doc-stack admin-doc-stack--tight rounded-2xl border border-[var(--ct-border-soft)] ct-surface-1 p-4">
-              <span className="stat-label">APY range</span>
-              <p className="body-sm ct-text-strong">
-                {inferredVault.apyTarget.low}-{inferredVault.apyTarget.high}%
-              </p>
-              <p className="body-xs ct-text-muted">
-                Range only, estimated provenance until evidence is attached.
-              </p>
-            </div>
-            <div className="admin-doc-stack admin-doc-stack--tight rounded-2xl border border-[var(--ct-border-soft)] ct-surface-1 p-4">
-              <span className="stat-label">Methodology</span>
-              <p className="body-sm ct-text-strong">
-                {inferredVault.methodologyVersion}
-              </p>
-              <p className="body-xs ct-text-muted">
-                Assumptions must remain visible in every projection.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-3">
-            {DECISION_LANES.map((lane) => (
-              <div
-                key={lane.label}
-                className="admin-doc-stack admin-doc-stack--tight rounded-2xl border border-[var(--ct-border-soft)] ct-surface-1 p-4"
-              >
-                <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                  <span className="stat-label">{lane.label}</span>
-                  <ProvenanceBadge kind="manual" compact />
+          {/* Decision gate — flat list, no card per lane */}
+          <div className="border-t ct-bc-soft pt-4">
+            <span className="stat-label mb-3 block">Decision gate</span>
+            <div className="admin-doc-stack admin-doc-stack--tight">
+              {DECISION_LANES.map((lane) => (
+                <div
+                  key={lane.label}
+                  className="admin-doc-inline-row admin-doc-inline-row--start"
+                >
+                  <span className="body-sm ct-text-strong w-16 shrink-0">{lane.label}</span>
+                  <span className="body-sm ct-text-muted">
+                    {lane.status} — {lane.detail}
+                  </span>
                 </div>
-                <p className="body-sm ct-text-strong">{lane.status}</p>
-                <p className="body-xs ct-text-muted">{lane.detail}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </Card>
 
@@ -290,7 +284,7 @@ export default async function ProductWorkspacePage({
               </li>
             ))}
           </ul>
-          <div className="rounded-2xl border border-(--ct-status-warning-border) ct-status-warning-bg px-4 py-3">
+          <div className="rounded-2xl border ct-bc-warning ct-status-warning-bg px-4 py-3">
             <p className="stat-label ct-status-warning">Required disclaimer</p>
             <p className="mt-1 body-xs ct-text-muted">
               Projection conditionnelle aux hypothèses présentées, sans engagement de
@@ -363,8 +357,10 @@ export default async function ProductWorkspacePage({
                 <ProvenanceBadge kind="estimated" compact />
               </div>
               <p className="body-sm ct-text-muted">{spec.series}</p>
-              <Progress value={spec.progress} label={`${spec.title} readiness`} />
-              <p className="body-xs ct-text-muted">{spec.note}</p>
+              <div className="border-t ct-bc-soft pt-3 admin-doc-stack admin-doc-stack--tight">
+                <p className="body-xs ct-text-muted">{spec.note}</p>
+                <p className="body-xs ct-text-faint">Pending — attach chart before review.</p>
+              </div>
             </Card>
           ))}
         </div>
