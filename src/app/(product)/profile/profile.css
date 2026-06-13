@@ -67,7 +67,7 @@
 
 .prof-legal-link {
   text-decoration: none;
-  transition: color 0.15s;
+  transition: color var(--ct-dur-fast) var(--ct-ease);
 }
 
 .prof-legal-link:hover {

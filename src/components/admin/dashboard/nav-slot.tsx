@@ -51,10 +51,9 @@ export function NavSlot({
           <div className="dashboard-command-performance__footer">
             <span
               className={cn(
-                "body-xs tabular",
+                "body-xs tabular font-semibold",
                 navDelta >= 0 ? "ct-status-success" : "ct-status-danger",
               )}
-              style={{ fontWeight: "var(--ct-font-semibold)" }}
             >
               {navDelta >= 0 ? "+" : ""}
               {navDelta.toFixed(1)}% NAV · 30d

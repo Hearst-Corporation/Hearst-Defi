@@ -1075,7 +1075,7 @@
 /* Mining halo — duplicate success arc behind, blurred */
 .cy-donut-halo {
   stroke: var(--ct-status-success);
-  filter: blur(3px); /* px: no blur-radius token */
+  filter: var(--ct-blur-xs);
   opacity: 0.55;
   animation: cy-halo-breathe var(--ct-dur-pulse) var(--ct-ease) infinite;
 }
@@ -1200,7 +1200,7 @@
   inset: 0;
   background: linear-gradient(90deg, transparent, var(--ct-surface-3), transparent);
   transform: translateX(-120%);
-  animation: cy-shimmer var(--ct-dur-shimmer) ease-in-out infinite;
+  animation: cy-shimmer var(--ct-dur-shimmer) var(--ct-ease-in-out) infinite;
 }
 
 .cy-ledger .cy-row:nth-of-type(2) .cy-fill::before { animation-delay: calc(var(--ct-dur-shimmer) * 0.18); }
@@ -1224,7 +1224,7 @@
   inset: 0;
   background: linear-gradient(90deg, transparent, var(--ct-surface-3), transparent);
   transform: translateX(-120%);
-  animation: cy-shimmer var(--ct-dur-shimmer) ease-in-out infinite;
+  animation: cy-shimmer var(--ct-dur-shimmer) var(--ct-ease-in-out) infinite;
 }
 
 .cy-row--pending .cy-dot { opacity: 0.4; }
