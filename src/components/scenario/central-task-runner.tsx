@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/cn";
 import type { ScenarioOutput } from "@/lib/engine/types";
@@ -12,6 +11,7 @@ interface CentralTaskRunnerProps {
   objective: string;
   pending: boolean;
   output: ScenarioOutput | null;
+  liveBtcPrice?: { usd: number; stale: boolean };
 }
 
 function appendLine(setter: React.Dispatch<React.SetStateAction<string[]>>, line: string): void {
@@ -23,6 +23,7 @@ export function CentralTaskRunner({
   objective,
   pending,
   output,
+  liveBtcPrice,
 }: CentralTaskRunnerProps) {
   const [lines, setLines] = useState<string[]>(
     runId > 0
@@ -133,17 +134,32 @@ export function CentralTaskRunner({
   }, [output, runId]);
 
   return (
-    <Card
-      className="scenario-lab-input-card scenario-central-flow-shell p-0"
-      hoverOverlay={false}
+    <div
+      className="scenario-lab-input-card scenario-central-flow-shell"
       data-state={pending ? "active" : undefined}
     >
-      <CardHeader className="border-b border-(--ct-border-soft) pb-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <CardTitle>Task Console (central)</CardTitle>
-          <div className="flex items-center gap-2">
-            {runId > 0 ? <Badge variant="default" className="mono body-xs">Run #{runId}</Badge> : null}
-            <Badge variant="default" className={cn("mono body-xs transition-colors duration-150", status.toneClass)}>
+      <div className="scenario-lab-input-card__header">
+        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline w-full min-w-0">
+          <div className="min-w-0">
+            <p className="eyebrow ct-text-muted m-0">Central flow</p>
+            <h4 className="h4 mt-0.5">Task console</h4>
+          </div>
+          <div className="admin-doc-inline-row admin-doc-inline-row--dense shrink-0">
+            {liveBtcPrice ? (
+              <span className="mono body-xs tabular-nums ct-text-muted">
+                BTC ${liveBtcPrice.usd.toFixed(2)}{" "}
+                {liveBtcPrice.stale ? "(stale)" : "(live)"}
+              </span>
+            ) : null}
+            {runId > 0 ? (
+              <Badge variant="default" className="mono body-xs">
+                Run #{runId}
+              </Badge>
+            ) : null}
+            <Badge
+              variant="default"
+              className={cn("mono body-xs transition-colors duration-150", status.toneClass)}
+            >
               <span className="inline-flex items-center gap-2">
                 <span
                   className={cn(
@@ -158,7 +174,8 @@ export function CentralTaskRunner({
             </Badge>
           </div>
         </div>
-      </CardHeader>
+      </div>
+
       <div className="scenario-central-flow-console">
         <div className="scenario-central-flow-terminal">
           <pre className="mono whitespace-pre-wrap body-sm ct-text-body m-0">
@@ -203,6 +220,6 @@ export function CentralTaskRunner({
           <p className="body-sm ct-text-muted m-0">Aucune execution en cours.</p>
         )}
       </div>
-    </Card>
+    </div>
   );
 }

@@ -404,6 +404,14 @@
   word-break: break-word;
 }
 
+.ct-proof-row__truncate {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .ct-nested-callout {
   background: var(--ct-graphite-nested-bg);
   border: 1px solid var(--ct-graphite-border-nested);
@@ -719,12 +727,22 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 
 /* Toolbar row: Scenario/Backtest (left) · Single/Compare (right, scenario tab). */
 .scenario-lab-toolbar {
-  display: flex;
+  display: grid;
   min-width: 0;
-  flex-wrap: wrap;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: var(--ct-space-3);
+}
+
+@container lab-shell (max-width: 35.999rem) {
+  .scenario-lab-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
+  }
+
+  .scenario-lab-toolbar > :last-child {
+    justify-self: start;
+  }
 }
 
 .scenario-preset-bar {
@@ -740,97 +758,54 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   display: flex;
   min-width: 0;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: var(--ct-space-2) var(--ct-space-4);
 }
 
-/* Narrow: horizontal scroll strip. Wide: five equal columns (no broken auto-fit). */
+/* Narrow: horizontal scroll. Wide: five equal columns inside lab-shell. */
 .scenario-preset-bar__items {
-  display: flex;
   min-width: 0;
-  gap: var(--ct-space-2);
-  overflow-x: auto;
-  padding-bottom: var(--ct-space-1);
-  scrollbar-width: thin;
 }
 
 .scenario-preset-bar__button {
-  display: flex;
-  flex: 0 0 9.75rem;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--ct-space-1);
-  min-height: var(--ct-space-14);
-  width: 9.75rem;
-  padding: var(--ct-space-3);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-md);
-  background: transparent;
-  color: var(--ct-text-primary);
+  min-width: 9rem;
+  height: auto;
   text-align: left;
-  white-space: normal;
-  cursor: pointer;
+  border-radius: var(--ct-radius-md);
+  border: 1px solid var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-surface-1) 72%, transparent);
+  color: var(--ct-text-body);
+  box-shadow: none;
   transition:
     border-color var(--ct-dur-base) var(--ct-ease),
     background-color var(--ct-dur-base) var(--ct-ease),
-    box-shadow var(--ct-dur-base) var(--ct-ease);
+    color var(--ct-dur-base) var(--ct-ease);
 }
 
-.scenario-preset-bar__button:hover:not(:disabled) {
+.scenario-lab-shell .scenario-preset-bar__button:hover:not(:disabled) {
+  background: var(--ct-surface-2);
   border-color: var(--ct-border);
-  background: var(--ct-surface-1);
-}
-
-.scenario-preset-bar__button:focus-visible {
-  outline: none;
-  box-shadow: var(--ct-shadow-focus-ring);
-}
-
-.scenario-preset-bar__button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.scenario-preset-bar__button--active {
-  border-color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
-}
-
-.scenario-preset-bar__label,
-.projection-studio-preset-button__label {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  line-height: var(--ct-leading-tight);
   color: var(--ct-text-primary);
 }
 
-.scenario-preset-bar__button--active .scenario-preset-bar__label {
+.scenario-preset-bar__button--active,
+.scenario-lab-shell .scenario-preset-bar__button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--ct-surface-2) 88%, transparent);
+  border-color: color-mix(in srgb, var(--ct-accent) 38%, var(--ct-border-soft));
   color: var(--ct-text-strong);
-}
-
-.scenario-preset-bar__description {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  line-height: var(--ct-leading-tight);
-  color: var(--ct-text-muted);
-  white-space: normal;
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--ct-accent) 55%, transparent);
 }
 
 @container lab-shell (min-width: 36rem) {
-  .scenario-preset-bar__items {
+  .scenario-preset-bar .scenario-preset-bar__items {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     overflow-x: visible;
     padding-bottom: 0;
   }
 
-  .scenario-preset-bar__button {
-    flex: unset;
+  .scenario-preset-bar .scenario-preset-bar__button {
     width: 100%;
     min-width: 0;
   }
@@ -866,6 +841,29 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   }
 }
 
+/* Scenario preset labels — shared with Projection Studio button primitive. */
+.projection-studio-preset-button__label {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-tight);
+}
+
+.scenario-preset-bar__button .projection-studio-preset-button__description {
+  display: -webkit-box;
+  max-width: none;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: normal;
+  text-overflow: unset;
+  color: var(--ct-text-muted);
+  opacity: 1;
+}
+
+.scenario-preset-bar__button[aria-pressed="true"] .projection-studio-preset-button__description {
+  color: var(--ct-text-body);
+}
+
 /* Projection Studio keeps its original single-line ellipsis (unchanged). */
 .projection-studio-preset-button__description {
   display: block;
@@ -883,12 +881,14 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 .scenario-lab-tablist {
   display: inline-flex;
   max-width: 100%;
-  gap: var(--ct-space-1);
+  gap: var(--ct-space-0_5);
   overflow-x: auto;
-  padding: var(--ct-space-1);
+  padding: var(--ct-space-0_5);
   border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-0);
+  border-radius: var(--ct-radius-lg);
+  background: color-mix(in srgb, var(--ct-surface-1) 78%, transparent);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
   scrollbar-width: none;
 }
 
@@ -897,19 +897,41 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 }
 
 .scenario-lab-tab {
-  min-height: var(--ct-space-10);
-  border-radius: var(--ct-radius-full);
+  min-height: var(--ct-space-8);
+  border-radius: var(--ct-radius-md);
+  border: 1px solid transparent;
   white-space: nowrap;
+  color: var(--ct-text-muted);
+  background: transparent;
+  font-weight: var(--ct-font-medium);
+  transition:
+    background-color var(--ct-dur-base) var(--ct-ease),
+    border-color var(--ct-dur-base) var(--ct-ease),
+    color var(--ct-dur-base) var(--ct-ease),
+    box-shadow var(--ct-dur-base) var(--ct-ease);
+}
+
+.scenario-lab-tab:hover:not([data-active="true"]):not(:disabled) {
+  color: var(--ct-text-primary);
+  background: color-mix(in srgb, var(--ct-surface-2) 55%, transparent);
 }
 
 .scenario-lab-tab[data-active="true"] {
-  background: var(--ct-accent);
-  color: var(--ct-bg-deep);
+  background: color-mix(in srgb, var(--ct-surface-2) 90%, transparent);
+  border-color: var(--ct-border);
+  color: var(--ct-text-strong);
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--ct-accent) 55%, transparent);
 }
 
 .scenario-lab-tab:focus-visible {
   outline: none;
   box-shadow: var(--ct-shadow-focus-ring);
+}
+
+.scenario-lab-tab[data-active="true"]:focus-visible {
+  box-shadow:
+    var(--ct-shadow-focus-ring),
+    inset 0 -2px 0 color-mix(in srgb, var(--ct-accent) 55%, transparent);
 }
 
 .scenario-lab-workspace,
@@ -963,7 +985,10 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   overflow: hidden;
 }
 
-/* Scenario central flow — dedicated utility classes (strictly scoped). */
+.scenario-lab-workspace--viewport .scenario-central-flow-shell {
+  align-self: stretch;
+}
+
 .scenario-central-flow-shell {
   border: 1px solid var(--ct-scenario-central-border);
   border-radius: var(--ct-scenario-central-radius);
@@ -3312,14 +3337,15 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-card--compact,
 .admin-doc .ct-card--compact:not(.p-0)            { padding: var(--ct-space-3) var(--ct-space-4); }
 
-/* Vault selector card — tighten gaps + scale down type when inside compact card. */
+/* Vault selector card — compact density without crushing module title / KPI. */
 .ct-card--compact .vault-select-card               { gap: var(--ct-space-3); }
-.ct-card--compact .vault-select-card__main         { gap: var(--ct-space-2); }
+.ct-card--compact .vault-select-card__main         { gap: var(--ct-space-3); }
 .ct-card--compact .vault-select-card__meta         { gap: var(--ct-space-2); }
-/* Vault name: lg → sm in compact context */
-.ct-card--compact .vault-select-card .h3           { font-size: var(--ct-text-sm); }
-/* APY stat: 2xl → lg in compact context */
-.ct-card--compact .vault-select-card .stat-value   { font-size: var(--ct-text-lg); }
+.ct-card--compact .vault-select-card .h3           { font-size: var(--ct-text-lg); }
+.ct-card--compact .vault-select-card .stat-value   {
+  font-size: var(--ct-text-xl);
+  font-weight: var(--ct-font-extrabold);
+}
 
 @container product-doc (min-width: 40rem) {
   .ct-card--compact .vault-select-card             { gap: var(--ct-space-3); }

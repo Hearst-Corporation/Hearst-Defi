@@ -127,17 +127,12 @@ export function SingleMode({
             Central flow
           </h3>
 
-          {objective.trim().length > 0 || liveBtcPrice ? (
+          {objective.trim().length > 0 ? (
             <Card className="scenario-lab-input-card p-4" hoverOverlay={false}>
               <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
                 <label htmlFor={briefInputId} className="stat-label">
                   Central brief
                 </label>
-                {liveBtcPrice ? (
-                  <span className="mono body-xs tabular-nums ct-text-muted">
-                    BTC ${liveBtcPrice.usd.toFixed(2)} {liveBtcPrice.stale ? "(stale)" : "(live)"}
-                  </span>
-                ) : null}
               </div>
               <textarea
                 id={briefInputId}
@@ -154,6 +149,7 @@ export function SingleMode({
             objective={objective}
             pending={pending}
             output={state.output}
+            liveBtcPrice={liveBtcPrice}
           />
 
           <div className="min-h-0 flex flex-col gap-2">

@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import type { Preset } from "@/lib/engine/types";
 
@@ -45,30 +46,37 @@ interface PresetBarProps {
 
 export function PresetBar({ selected, onSelect, disabled }: PresetBarProps) {
   return (
-    <nav aria-label="Scenario presets" className="scenario-preset-bar">
-      <div className="scenario-preset-bar__head">
-        <p className="body-xs font-semibold ct-text-body m-0">Preset library</p>
+    <nav
+      aria-label="Scenario presets"
+      className="scenario-preset-bar projection-studio-preset-strip"
+    >
+      <div className="projection-studio-preset-strip__head">
+        <span className="eyebrow ct-text-muted">Preset library</span>
         <span className="body-xs ct-text-faint">Select a starting scenario</span>
       </div>
-      <div className="scenario-preset-bar__items">
+      <div className="projection-studio-preset-rail__items scenario-preset-bar__items">
         {PRESETS.map((p) => {
           const isActive = selected === p.id;
           return (
-            <button
+            <Button
               key={p.id}
               type="button"
+              variant="ghost"
+              size="sm"
               disabled={disabled}
               onClick={() => onSelect(p.id)}
               title={p.description}
               aria-pressed={isActive}
               className={cn(
-                "scenario-preset-bar__button",
+                "projection-studio-preset-button scenario-preset-bar__button",
                 isActive && "scenario-preset-bar__button--active",
               )}
             >
-              <span className="scenario-preset-bar__label">{p.label}</span>
-              <span className="scenario-preset-bar__description">{p.description}</span>
-            </button>
+              <span className="projection-studio-preset-button__label">{p.label}</span>
+              <span className="projection-studio-preset-button__description">
+                {p.description}
+              </span>
+            </Button>
           );
         })}
       </div>

@@ -6,6 +6,7 @@
 
 import { BacktestPanel } from "@/components/scenario/backtest-panel";
 import { Spinner } from "@/components/scenario/scenario-spinner";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
@@ -50,33 +51,35 @@ export function BacktestTab() {
     <div className="backtest-tab">
       <nav
         aria-label="Backtest periods"
-        className="scenario-preset-bar backtest-period-rail"
+        className="scenario-preset-bar backtest-period-rail projection-studio-preset-strip"
       >
-        <div className="scenario-preset-bar__head">
-          <p className="body-xs font-semibold ct-text-body m-0">Historical periods</p>
+        <div className="projection-studio-preset-strip__head">
+          <span className="eyebrow ct-text-muted">Historical periods</span>
           <span className="body-xs ct-text-faint">Select a regime to simulate</span>
         </div>
-        <div className="scenario-preset-bar__items">
+        <div className="projection-studio-preset-rail__items scenario-preset-bar__items">
           {BACKTEST_PERIODS.map((p) => {
             const isActive = state.selectedKey === p.key;
             return (
-              <button
+              <Button
                 key={p.key}
                 type="button"
+                variant="ghost"
+                size="sm"
                 disabled={pending}
                 onClick={() => select(p.key)}
                 aria-pressed={isActive}
                 title={p.description}
                 className={cn(
-                  "scenario-preset-bar__button",
+                  "projection-studio-preset-button scenario-preset-bar__button",
                   isActive && "scenario-preset-bar__button--active",
                 )}
               >
-                <span className="scenario-preset-bar__label">{p.label}</span>
-                <span className="scenario-preset-bar__description">
+                <span className="projection-studio-preset-button__label">{p.label}</span>
+                <span className="projection-studio-preset-button__description">
                   {p.subtitle}
                 </span>
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -87,7 +90,7 @@ export function BacktestTab() {
         <div className="backtest-period-details">
           {BACKTEST_PERIODS.map((p) => (
             <Card key={p.key} className="px-5 py-4" hoverOverlay={false}>
-              <p className="scenario-preset-bar__label">{p.label}</p>
+              <p className="projection-studio-preset-button__label">{p.label}</p>
               <p className="mt-1 body-xs ct-text-muted">{p.subtitle}</p>
               <p className="mt-2 body-sm ct-text-body">{p.description}</p>
             </Card>

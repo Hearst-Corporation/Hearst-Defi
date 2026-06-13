@@ -4,7 +4,6 @@
 // Extracted from lab-shell.tsx. Behaviour preserved (arrow-key nav, ARIA).
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/cn";
 
 export type LabTab = "scenario" | "backtest";
 
@@ -15,9 +14,7 @@ interface ScenarioTabBarProps {
 
 const TABLIST_CLASS = "scenario-lab-tablist";
 const TAB_BASE_CLASS =
-  "scenario-lab-tab px-4 capitalize shadow-none active:scale-100";
-const TAB_ACTIVE_CLASS = "hover:ct-bg-accent hover:ct-text-deep";
-const TAB_INACTIVE_CLASS = "ct-text-body hover:ct-text-primary";
+  "scenario-lab-tab px-3 capitalize shadow-none active:scale-100";
 
 export function ScenarioTabBar({ active, onChange }: ScenarioTabBarProps) {
   function handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
@@ -55,10 +52,7 @@ export function ScenarioTabBar({ active, onChange }: ScenarioTabBarProps) {
             size="sm"
             onClick={() => onChange(tab)}
             data-active={isActive}
-            className={cn(
-              TAB_BASE_CLASS,
-              isActive ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS,
-            )}
+            className={TAB_BASE_CLASS}
           >
             {tab === "scenario" ? "Scenario" : "Backtest"}
           </Button>
