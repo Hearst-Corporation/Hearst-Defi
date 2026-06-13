@@ -215,14 +215,28 @@ const ALLOC_COLORS = [
   "var(--ct-text-faint)",
 ] as const;
 
+// Inline-SVG chart geometry — all three charts share viewBox "0 0 320 72".
+// Computed coordinates are rounded so a series never leaks float noise like
+// 31.8879999… into the rendered DOM. The drift / scale factors are illustrative
+// presentation shaping (not vault data), named here instead of bare literals.
+const round2 = (n: number): number => Math.round(n * 100) / 100;
+const CHART_BAR_WIDTH = 320;
+const DIST_X0 = 24;
+const DIST_X_STEP = 24;
+const DIST_BASELINE_Y = 52;
+const DIST_Y_SCALE = 1.2;
+const DIST_DRIFT_LOW = 0.12;
+const DIST_DRIFT_HIGH = 0.16;
+const STRESS_TROUGH_X = 152;
+
 function AllocationStackChart({ vault }: { vault: VaultDefinition }) {
   let x = 0;
   return (
     <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} allocation stack`}>
       <rect x="0" y="24" width="320" height="18" rx="9" className="fill-(--ct-surface-2)" />
       {Object.entries(vault.allocationTargets).map(([bucket, weight], index) => {
-        const width = (weight / 100) * 320;
-        const currentX = x;
+        const width = round2((weight / 100) * CHART_BAR_WIDTH);
+        const currentX = round2(x);
         x += width;
         return (
           <g key={bucket}>
@@ -247,18 +261,19 @@ function AllocationStackChart({ vault }: { vault: VaultDefinition }) {
 
 function DistributionRangeChart({ vault }: { vault: VaultDefinition }) {
   const months = Array.from({ length: 12 }, (_, index) => index);
-  const low = vault.apyTarget.low;
-  const high = vault.apyTarget.high;
-  const pointsLow = months
-    .map((month) => `${24 + month * 24},${52 - (low + month * 0.12) * 1.2}`)
-    .join(" ");
-  const pointsHigh = months
-    .map((month) => `${24 + month * 24},${52 - (high + month * 0.16) * 1.2}`)
-    .join(" ");
+  const series = (apy: number, drift: number) =>
+    months
+      .map(
+        (month) =>
+          `${DIST_X0 + month * DIST_X_STEP},${round2(
+            DIST_BASELINE_Y - (apy + month * drift) * DIST_Y_SCALE,
+          )}`,
+      )
+      .join(" ");
   return (
     <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} distribution range`}>
-      <polyline points={pointsHigh} fill="none" stroke="var(--ct-accent)" strokeWidth="2" />
-      <polyline points={pointsLow} fill="none" stroke="var(--ct-status-info)" strokeWidth="2" />
+      <polyline points={series(vault.apyTarget.high, DIST_DRIFT_HIGH)} fill="none" stroke="var(--ct-accent)" strokeWidth="2" />
+      <polyline points={series(vault.apyTarget.low, DIST_DRIFT_LOW)} fill="none" stroke="var(--ct-status-info)" strokeWidth="2" />
       <line x1="24" y1="56" x2="288" y2="56" className="stroke-(--ct-border-soft)" />
       <text x="24" y="68" className="fill-(--ct-text-muted) text-micro">M1</text>
       <text x="266" y="68" className="fill-(--ct-text-muted) text-micro">M12</text>
@@ -269,18 +284,20 @@ function DistributionRangeChart({ vault }: { vault: VaultDefinition }) {
 function StressCorridorChart({ vault }: { vault: VaultDefinition }) {
   const reserve = vault.allocationTargets.stable_reserve;
   const mining = vault.allocationTargets.mining;
+  // Shock trough — one source, shared by the corridor vertex and the marker dot.
+  const troughY = round2(40 - reserve * 0.12);
   const corridor = [
-    `24,${34 + mining * 0.18}`,
-    `88,${30 + reserve * 0.08}`,
-    `152,${40 - reserve * 0.12}`,
-    `216,${34 - reserve * 0.08}`,
-    `288,${28 - reserve * 0.05}`,
+    `24,${round2(34 + mining * 0.18)}`,
+    `88,${round2(30 + reserve * 0.08)}`,
+    `${STRESS_TROUGH_X},${troughY}`,
+    `216,${round2(34 - reserve * 0.08)}`,
+    `288,${round2(28 - reserve * 0.05)}`,
   ].join(" ");
   return (
     <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} stress corridor`}>
       <polyline points={corridor} fill="none" stroke="var(--ct-status-warning)" strokeWidth="2.5" />
       <line x1="24" y1="54" x2="288" y2="54" className="stroke-(--ct-border-soft)" />
-      <circle cx="152" cy={40 - reserve * 0.12} r="4" fill="var(--ct-accent)" />
+      <circle cx={STRESS_TROUGH_X} cy={troughY} r="4" fill="var(--ct-accent)" />
       <text x="24" y="68" className="fill-(--ct-text-muted) text-micro">Shock</text>
       <text x="232" y="68" className="fill-(--ct-text-muted) text-micro">Recovery</text>
     </svg>

@@ -58,15 +58,20 @@ const METHODOLOGY_VERSIONS = [{ id: "v1.0", label: "v1.0 (current)" }];
 
 // ─── Risk color helper (uses status tokens, no hardcoded hex) ─────────────────
 
+// Risk band thresholds (0–100) — single source shared by both color helpers and
+// the PTAI rebalancing-trigger copy below, so the number can't drift apart.
+const RISK_SUCCESS_MAX = 35;
+const RISK_WARN_MAX = 65;
+
 function riskTextClass(score: number): string {
-  if (score <= 35) return "ct-status-success";
-  if (score <= 65) return "ct-status-warning";
+  if (score <= RISK_SUCCESS_MAX) return "ct-status-success";
+  if (score <= RISK_WARN_MAX) return "ct-status-warning";
   return "ct-status-danger";
 }
 
 function riskBgClass(score: number): string {
-  if (score <= 35) return "ct-status-success-bg";
-  if (score <= 65) return "ct-status-warning-bg";
+  if (score <= RISK_SUCCESS_MAX) return "ct-status-success-bg";
+  if (score <= RISK_WARN_MAX) return "ct-status-warning-bg";
   return "ct-status-danger-bg";
 }
 
@@ -653,7 +658,7 @@ export function ProjectionStudio() {
             {selectedCell && (
               <Ptai
                 projection={`APY range ${selectedCell.apyLow.toFixed(1)}–${selectedCell.apyHigh.toFixed(1)}% under current assumptions (methodology v1.0). Not guaranteed — projections are conditional on stated inputs.`}
-                trigger={`Risk score ${selectedCell.riskScore}/100 computed from vol_index, hashprice margin, and BTC price change inputs. Rebalancing rule activates when risk > 65.`}
+                trigger={`Risk score ${selectedCell.riskScore}/100 computed from vol_index, hashprice margin, and BTC price change inputs. Rebalancing rule activates when risk > ${RISK_WARN_MAX}.`}
                 action={`Admin review of projection study ${result.studyId.slice(-8)} required before promotion. Promote to vault draft via button below.`}
                 impact={`Target APY range seeded into VaultDeployment (draft status). Requires 2-of-N multisig approval before going live. Past performance does not predict future results.`}
               />
