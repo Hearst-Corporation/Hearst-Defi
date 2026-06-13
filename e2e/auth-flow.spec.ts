@@ -8,11 +8,9 @@ import { test, expect } from "@playwright/test";
  * scripts/ because Playwright runs specs outside the tsconfig path-alias graph.
  * Keep in sync with `scripts/seed-test-user.ts`.
  *
- * NOTE: There is currently no visible "Logout" button for email/password
- * sessions in the UI. The sign-out step is therefore simulated by clearing the
- * `hc_session` cookie, which causes the edge proxy to redirect back to /login
- * on the next protected-route visit — exactly the same outcome as a real
- * logout.
+ * The profile page exposes the real email/password "Sign out" form. Use that
+ * path so the test exercises the server action that destroys the session row
+ * and clears the `hc_session` cookie.
  */
 
 // Must match scripts/seed-test-user.ts (seeded in CI before Playwright runs).
@@ -43,9 +41,10 @@ test.describe("Auth flow", () => {
       page.getByRole("heading", { name: /Welcome back,/i }),
     ).toBeVisible();
 
-    // 6. Simulate logout — clear the session cookie
-    //    (No logout UI control exists for email/password auth at this time.)
-    await page.context().clearCookies();
+    // 6. Sign out through the real profile form.
+    await page.goto("/profile");
+    await page.getByRole("button", { name: /^Sign out$/i }).click();
+    await page.waitForURL("/login**");
 
     // 7. Visit a protected route and verify redirect back to /login
     await page.goto("/portfolio");

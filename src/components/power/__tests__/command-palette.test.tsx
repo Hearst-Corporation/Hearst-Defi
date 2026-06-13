@@ -4,7 +4,7 @@
  * Environment: node (via vitest.config.ts — renderToStaticMarkup, no jsdom).
  *
  * Tests:
- *   1. 30 commands registered
+ *   1. 31 commands registered
  *   2. filterCommands — fuzzy search works
  *   3. filterCommands — empty query returns all
  *   4. groupBySection — correct section grouping
@@ -25,10 +25,10 @@ import {
   type CommandSection,
 } from "@/lib/power/commands";
 
-// ── 1. 30 commands registered ─────────────────────────────────────────────────
+// ── 1. 31 commands registered ─────────────────────────────────────────────────
 describe("COMMAND_REGISTRY", () => {
-  it("has exactly 30 commands", () => {
-    expect(COMMAND_REGISTRY).toHaveLength(30);
+  it("has exactly 31 commands", () => {
+    expect(COMMAND_REGISTRY).toHaveLength(31);
   });
 
   it("has no duplicate IDs", () => {
@@ -67,8 +67,8 @@ describe("COMMAND_REGISTRY", () => {
     }
   });
 
-  it("has 10 Navigate commands", () => {
-    expect(COMMAND_REGISTRY.filter((c) => c.section === "Navigate")).toHaveLength(10);
+  it("has 11 Navigate commands", () => {
+    expect(COMMAND_REGISTRY.filter((c) => c.section === "Navigate")).toHaveLength(11);
   });
 
   it("has 10 Action commands", () => {
@@ -140,18 +140,18 @@ describe("groupBySection", () => {
     }
   });
 
-  it("Navigate bucket has 10 entries", () => {
+  it("Navigate bucket has 11 entries", () => {
     const map = groupBySection(COMMAND_REGISTRY);
-    expect(map.get("Navigate")).toHaveLength(10);
+    expect(map.get("Navigate")).toHaveLength(11);
   });
 
-  it("total commands across all buckets equals 30", () => {
+  it("total commands across all buckets equals 31", () => {
     const map = groupBySection(COMMAND_REGISTRY);
     let total = 0;
     for (const bucket of map.values()) {
       total += bucket.length;
     }
-    expect(total).toBe(30);
+    expect(total).toBe(31);
   });
 });
 
