@@ -630,16 +630,17 @@
 }
 
 .scenario-lab-shell .scenario-preset-bar__button:hover:not(:disabled) {
-  background: var(--ct-surface-1);
-  border-color: var(--ct-border);
+  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
+  border-color: var(--ct-border-soft);
   color: var(--ct-text-primary);
 }
 
 .scenario-preset-bar__button--active,
 .scenario-lab-shell .scenario-preset-bar__button[aria-pressed="true"] {
-  background: var(--ct-surface-1);
+  background: color-mix(in srgb, var(--ct-surface-1) 60%, transparent);
   border-color: var(--ct-border);
   color: var(--ct-text-strong);
+  box-shadow: inset 2px 0 0 var(--ct-accent);
 }
 
 .scenario-preset-bar__label {
