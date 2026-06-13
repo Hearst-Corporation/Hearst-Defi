@@ -565,13 +565,19 @@
 }
 
 
+/* Surface taxonomy (DESIGN_SYSTEM §13.3): pf-cockpit-panel shares the graphite
+   background/border/radius/blur with ct-card — the only legitimate difference is
+   the padding tier. Default padding raised space-3 (12px) → space-4 (16px) so a
+   cockpit panel breathes on the same rhythm as a ct-card module and the two stop
+   reading as "different apps". --wide stays 16px+, --compact tightens nested rows
+   (not the panel pad). */
 .pf-cockpit-panel {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
   gap: var(--ct-space-2);
-  padding: var(--ct-space-3);
+  padding: var(--ct-space-4);
   border-radius: var(--ct-radius-xl);
   border: 1px solid var(--ct-graphite-border-nested);
   background: var(--ct-graphite-subtle-bg);
@@ -582,8 +588,9 @@
   container-name: pf-panel;
 }
 
+/* --wide = display tier (hero rail): roomier than the 16px default. */
 .pf-cockpit-panel--wide {
-  padding: var(--ct-space-4);
+  padding: var(--ct-space-5);
   gap: var(--ct-space-4);
 }
 
