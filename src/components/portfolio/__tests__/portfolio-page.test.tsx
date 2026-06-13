@@ -92,13 +92,13 @@ describe("Portfolio page — 3 sections contract", () => {
 
 describe("Portfolio page — 4 new widgets contract", () => {
   const WIDGET_TEST_IDS = [
-    "yield-stack-widget",
-    "risk-pulse-widget",
+    "capital-yield-widget",
+    "trust-panel-widget",
     "distrib-calendar-widget",
-    "proof-pulse-widget",
+    "recent-activity-widget",
   ] as const;
 
-  it("exactly 4 new widget test-ids are registered", () => {
+  it("exactly 4 widget test-ids are registered", () => {
     expect(WIDGET_TEST_IDS).toHaveLength(4);
   });
 
@@ -107,20 +107,20 @@ describe("Portfolio page — 4 new widgets contract", () => {
     expect(unique.size).toBe(4);
   });
 
-  it("widget I: risk-pulse-widget present", () => {
-    expect(WIDGET_TEST_IDS).toContain("risk-pulse-widget");
+  it("widget I: trust-panel-widget present", () => {
+    expect(WIDGET_TEST_IDS).toContain("trust-panel-widget");
   });
 
   it("widget J: distrib-calendar-widget present", () => {
     expect(WIDGET_TEST_IDS).toContain("distrib-calendar-widget");
   });
 
-  it("widget K: proof-pulse-widget present", () => {
-    expect(WIDGET_TEST_IDS).toContain("proof-pulse-widget");
+  it("widget K: recent-activity-widget present", () => {
+    expect(WIDGET_TEST_IDS).toContain("recent-activity-widget");
   });
 
-  it("widget L: yield-stack-widget present", () => {
-    expect(WIDGET_TEST_IDS).toContain("yield-stack-widget");
+  it("widget L: capital-yield-widget present", () => {
+    expect(WIDGET_TEST_IDS).toContain("capital-yield-widget");
   });
 });
 
@@ -475,7 +475,7 @@ describe("Widget placement in sections", () => {
     // PositionsList — no data-testid; section precedes hero in DOM order
     positions: [],
     "hero-pulse": [],
-    "yield-allocation": ["yield-stack-widget", "allocation-donut-widget"],
+    "yield-allocation": ["capital-yield-widget"],
     "yield-trust": ["trust-panel-widget"],
     "activity-payouts": ["distrib-calendar-widget", "recent-activity-widget"],
   };
@@ -485,12 +485,8 @@ describe("Widget placement in sections", () => {
     expect(SECTION_WIDGETS.positions).toHaveLength(0);
   });
 
-  it("yield-allocation hosts yield-stack-widget", () => {
-    expect(SECTION_WIDGETS["yield-allocation"]).toContain("yield-stack-widget");
-  });
-
-  it("yield-allocation hosts allocation-donut-widget", () => {
-    expect(SECTION_WIDGETS["yield-allocation"]).toContain("allocation-donut-widget");
+  it("yield-allocation hosts the merged capital-yield-widget", () => {
+    expect(SECTION_WIDGETS["yield-allocation"]).toContain("capital-yield-widget");
   });
 
   it("yield-trust hosts the merged trust-panel-widget", () => {

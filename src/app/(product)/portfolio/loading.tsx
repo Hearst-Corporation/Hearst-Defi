@@ -35,13 +35,8 @@ export default function PortfolioLoading() {
       </ProductSection>
 
       <div className="pf-section-stack">
-        <div className="dash-bento pf-secondary-grid" data-section="yield-allocation">
-          <div className="bento-col-8 pf-cockpit-slot pf-skeleton-widget">
-            <Skeleton className="pf-cockpit-panel h-full w-full" />
-          </div>
-          <div className="bento-col-4 pf-cockpit-slot pf-skeleton-widget">
-            <Skeleton className="pf-cockpit-panel h-full w-full" />
-          </div>
+        <div className="pf-cockpit-slot pf-skeleton-widget" data-section="yield-allocation">
+          <Skeleton className="pf-cockpit-panel h-full w-full" />
         </div>
 
         <ProductSection

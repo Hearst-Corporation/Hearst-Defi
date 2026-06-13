@@ -1036,3 +1036,239 @@
     padding: var(--ct-space-3);
   }
 }
+
+/* ============================================================================
+ * Capital & Yield — "Living Precision" instrument panel (merged showpiece).
+ * Tokens only. SVG geometry + glow blur radii are the sole raw-px escape hatch
+ * (no blur-radius / glow-radius token exists). All motion CSS-only, SSR-safe,
+ * frozen under prefers-reduced-motion.
+ * ========================================================================== */
+
+/* Layout: gauge | hairline spine | ledger */
+.cy-panel .cy-body {
+  display: grid;
+  grid-template-columns: minmax(13rem, 0.85fr) var(--ct-space-px) 1fr;
+  gap: var(--ct-space-5);
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+}
+
+.cy-spine {
+  align-self: stretch;
+  width: var(--ct-space-px);
+  background: var(--ct-graphite-border-nested);
+}
+
+/* ── Zone 1 — donut gauge ── */
+.cy-panel .cy-donut {
+  position: relative;
+  width: clamp(8.5rem, 34cqw, 12rem);
+  height: clamp(8.5rem, 34cqw, 12rem);
+  margin-inline: auto;
+  margin-top: 0;
+}
+
+.cy-donut .dash-chart-circle {
+  stroke-width: 4.4;
+}
+
+/* Mining halo — duplicate accent arc behind, blurred (the green hero blooms) */
+.cy-donut-halo {
+  stroke: var(--ct-accent);
+  filter: blur(3px); /* px: no blur-radius token */
+  opacity: 0.55;
+  animation: cy-halo-breathe var(--ct-dur-pulse) var(--ct-ease) infinite;
+}
+
+.cy-donut-arc {
+  transition: stroke-dashoffset var(--ct-dur-slow) var(--ct-ease);
+}
+
+.cy-panel:hover .cy-donut-arc.cy-arc-mining {
+  filter: drop-shadow(var(--ct-glow-subtle));
+}
+
+/* Pending — one dashed accent calibration arc, slow rotation ("listening") */
+.cy-donut-pending {
+  stroke: var(--ct-accent);
+  stroke-dasharray: 2 4; /* dash geometry, not colour */
+  opacity: 0.35;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: cy-await-sweep calc(var(--ct-dur-pulse) * 6) linear infinite;
+}
+
+/* ── Zone 3 — yield ledger (these rows ARE the donut legend) ── */
+.cy-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+
+.cy-ledger-head {
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
+}
+
+.cy-row {
+  display: grid;
+  grid-template-columns: var(--ct-space-2) 1fr auto;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
+.cy-dot {
+  width: var(--ct-space-2);
+  height: var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  background: var(--cy-bucket);
+}
+
+.cy-val {
+  font-family: var(--font-mono);
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--ct-text-strong);
+  text-align: right;
+}
+
+.cy-row-mining .cy-val {
+  text-shadow: 0 0 10px color-mix(in srgb, var(--ct-accent) 45%, transparent); /* glow px */
+}
+
+/* Precision track: ghost rail + ticks + gradient fill + end-cap needle + shimmer */
+.cy-track {
+  position: relative;
+  grid-column: 1 / -1;
+  height: var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-surface-2);
+  overflow: hidden;
+  margin-top: var(--ct-space-1);
+}
+
+.cy-ticks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 calc(25% - var(--ct-space-px)),
+    var(--ct-border-soft) calc(25% - var(--ct-space-px)) 25%
+  );
+}
+
+.cy-fill {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  border-radius: var(--ct-radius-full);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--cy-bucket) 55%, transparent),
+    var(--cy-bucket)
+  );
+  transform-origin: left;
+  animation: cy-fill-rise var(--ct-dur-slow) var(--ct-ease) both;
+}
+
+/* End-cap glow needle — only the green hero truly blooms */
+.cy-fill::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
+  transform: translate(40%, -50%);
+  border-radius: var(--ct-radius-full);
+  background: var(--cy-bucket);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--cy-bucket) 70%, transparent); /* glow px */
+}
+
+.cy-row-mining .cy-fill::after {
+  box-shadow: var(--ct-glow-subtle);
+}
+
+/* Staggered shimmer sweep */
+.cy-fill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--ct-surface-3), transparent);
+  transform: translateX(-120%);
+  animation: cy-shimmer var(--ct-dur-shimmer) ease-in-out infinite;
+}
+
+.cy-ledger .cy-row:nth-of-type(2) .cy-fill::before { animation-delay: calc(var(--ct-dur-shimmer) * 0.18); }
+.cy-ledger .cy-row:nth-of-type(3) .cy-fill::before { animation-delay: calc(var(--ct-dur-shimmer) * 0.36); }
+.cy-ledger .cy-row:nth-of-type(4) .cy-fill::before { animation-delay: calc(var(--ct-dur-shimmer) * 0.54); }
+
+.cy-fill--neg { opacity: 0.6; }
+
+.cy-fill--volatile {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--cy-bucket) 0 6px,
+    color-mix(in srgb, var(--cy-bucket) 55%, transparent) 6px 10px
+  );
+}
+
+/* Pending ghost-track shimmer */
+.cy-track--pending::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--ct-surface-3), transparent);
+  transform: translateX(-120%);
+  animation: cy-shimmer var(--ct-dur-shimmer) ease-in-out infinite;
+}
+
+.cy-row--pending .cy-dot { opacity: 0.4; }
+
+.cy-ledger-rule {
+  margin: var(--ct-space-1) 0;
+  border: 0;
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+@keyframes cy-shimmer {
+  0% { transform: translateX(-120%); }
+  60%, 100% { transform: translateX(320%); }
+}
+@keyframes cy-fill-rise {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes cy-halo-breathe {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.7; }
+}
+@keyframes cy-await-sweep {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive collapse (panel container-name: pf-panel) */
+@container pf-panel (max-width: 34rem) {
+  .cy-panel .cy-body { grid-template-columns: 1fr; gap: var(--ct-space-4); }
+  .cy-spine { width: auto; height: var(--ct-space-px); }
+}
+
+/* Reduced-motion: freeze to final state */
+@media (prefers-reduced-motion: reduce) {
+  .cy-fill,
+  .cy-fill::before,
+  .cy-track--pending::before,
+  .cy-donut-halo,
+  .cy-donut-pending,
+  .cy-donut-arc {
+    animation: none;
+    transition: none;
+  }
+  .cy-fill { transform: none; }
+  .cy-donut-halo { opacity: 0.55; }
+}

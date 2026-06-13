@@ -18,13 +18,12 @@ import {
   NextActionCard,
   shouldShowNextActionCard,
 } from "@/components/portfolio/next-action-card";
-import { AllocationDonut } from "@/components/portfolio/allocation-donut";
 import { ValueChart } from "@/components/portfolio/value-chart";
 import { PositionsList } from "@/components/portfolio/positions-list";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
 import { TrustPanel } from "@/components/portfolio/trust-panel";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
-import { YieldStack } from "@/components/portfolio/yield-stack";
+import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { LayoutPreviewBanner } from "@/components/portfolio/layout-preview-banner";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
@@ -167,22 +166,17 @@ export default async function PortfolioPage() {
       </ProductSection>
 
       <div className="pf-section-stack">
-        <div className="dash-bento pf-secondary-grid" data-section="yield-allocation">
-          <div className="bento-col-8 pf-cockpit-slot" data-testid="yield-stack-widget">
-            <YieldStack
-              {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
-              previewZeros={previewZeros}
-            />
-          </div>
-          <div className="bento-col-4 pf-cockpit-slot" data-testid="allocation-donut-widget">
-            <AllocationDonut
-              buckets={allocationDonutProps.buckets}
-              totalValueUsdc={data.totalValueUsdc}
-              source={allocationDonutProps.source}
-              updatedAt={allocationDonutProps.updatedAt}
-              previewZeros={previewZeros}
-            />
-          </div>
+        <div
+          className="pf-cockpit-slot"
+          data-section="yield-allocation"
+          data-testid="capital-yield-widget"
+        >
+          <CapitalYield
+            {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
+            buckets={allocationDonutProps.buckets}
+            totalValueUsdc={data.totalValueUsdc}
+            previewZeros={previewZeros}
+          />
         </div>
 
         <ProductSection
