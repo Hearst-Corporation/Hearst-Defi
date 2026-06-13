@@ -15,6 +15,7 @@ export default async function VaultsPage() {
   return (
     <InvestFlowShell
       step="select"
+      width="full"
       title="Select a product"
       description="Professional-grade structured yield for qualified investors. Review the term sheet and confirm before depositing."
       footer={
