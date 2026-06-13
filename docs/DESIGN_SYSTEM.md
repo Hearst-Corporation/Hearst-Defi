@@ -10,7 +10,7 @@
 
 ## 1. Principe
 
-Dark-mode unique au MVP. Shell bordeaux verre dépoli. Le token `--ct-accent`
+Dark-mode unique au MVP. Shell vert (#A7FB90) verre dépoli. Le token `--ct-accent`
 porte la couleur du produit actif ; **tous les autres accents en dérivent** via
 `color-mix` → re-coloration globale d'un seul point.
 
