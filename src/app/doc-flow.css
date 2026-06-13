@@ -349,6 +349,60 @@
   background: var(--ct-status-warning-soft);
 }
 
+/* Product-workspace L1 hero (DESIGN_SYSTEM §13.4 — thesis fused with the page
+   h1). The objective is the dominant first-viewport object; decision + posture
+   sit beside it as a compact L4 strip. No competing in-card h2. */
+.admin-doc .pw-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+
+.admin-doc .pw-hero__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-4);
+}
+
+/* The thesis — visually the loudest text on the page after the h1, but it is a
+   thesis statement (not a section heading), so it carries no heading tag. */
+.admin-doc .pw-hero__thesis {
+  font-size: var(--ct-text-xl);
+  font-weight: var(--ct-font-bold);
+  letter-spacing: var(--ct-tracking-tight);
+  line-height: var(--ct-leading-tight);
+  color: var(--ct-text-primary);
+  text-wrap: balance;
+  max-width: var(--ct-prose-lg, 60ch);
+}
+
+/* Decision posture chip cluster — right of the thesis on wide, below on narrow. */
+.admin-doc .pw-hero__aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--ct-space-2);
+  flex-shrink: 0;
+}
+
+@container admin-doc (max-width: 40rem) {
+  .admin-doc .pw-hero__aside {
+    align-items: flex-start;
+  }
+}
+
+/* Accent list bullet — tokenized dot (replaces inline h-1.5/w-1.5/mt-1.5). */
+.admin-doc .pw-bullet {
+  flex-shrink: 0;
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
+  margin-top: var(--ct-space-1_5);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-accent);
+}
+
 /* Divider section — border-top + top padding, for flat sub-sections inside a Card */
 .admin-doc-divider-section {
   border-top: 1px solid var(--ct-border-soft);

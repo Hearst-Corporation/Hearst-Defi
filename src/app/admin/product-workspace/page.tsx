@@ -362,6 +362,8 @@ export default async function ProductWorkspacePage({
 
   return (
     <div className="admin-doc-shell">
+      {/* L1 — page h1 fused with the objective thesis (DESIGN_SYSTEM §13.1/§13.4).
+          The thesis is the dominant first-viewport object; no in-card h2 restates it. */}
       <AdminPageHeader
         title="Product Workspace"
         eyebrow="Agent-created product surface"
@@ -376,20 +378,33 @@ export default async function ProductWorkspacePage({
             ) : null}
           </div>
         }
-      />
-
-      <section className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
-        <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--relaxed">
-          <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
-            <div className="admin-doc-stack admin-doc-stack--tight">
-              <span className="eyebrow">Product brief</span>
-              <h2 className="h2 ct-text-strong">
-                {objective ?? "New product objective pending"}
-              </h2>
+      >
+        <div className="pw-hero admin-doc-divider-section">
+          <span className="eyebrow">Product objective</span>
+          <div className="pw-hero__row">
+            <p className="pw-hero__thesis">
+              {objective ?? "New product objective pending"}
+            </p>
+            <div className="pw-hero__aside">
+              <Badge variant="accent">Human-in-the-loop</Badge>
+              <span className="body-xs ct-text-muted text-right">
+                {decision.label} · {decision.status}
+              </span>
             </div>
-            <Badge variant="accent">Human-in-the-loop</Badge>
           </div>
-          <p className="body-sm ct-text-muted max-w-3xl">
+        </div>
+      </AdminPageHeader>
+
+      {/* L2 — Product brief & decision. Flat L4 sub-rows inside one L3 card. */}
+      <section
+        aria-labelledby="pw-brief-heading"
+        className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]"
+      >
+        <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--relaxed">
+          <h2 id="pw-brief-heading" className="h2 ct-text-strong">
+            Brief &amp; decision
+          </h2>
+          <p className="body-sm ct-text-muted ct-prose-lg">
             The agent can frame, visualize and document the product workspace, but it
             cannot create a vault, execute allocations, publish a memo or bypass approvals.
             This page is the decision room; Scenario Lab is only used later for stress
@@ -504,10 +519,7 @@ export default async function ProductWorkspacePage({
           <ul className="admin-doc-stack admin-doc-stack--tight">
             {CALC_NOTES.map((note) => (
               <li key={note} className="admin-doc-inline-row admin-doc-inline-row--start">
-                <span
-                  aria-hidden
-                  className="shrink-0 h-1.5 w-1.5 rounded-full bg-(--ct-accent) mt-1.5"
-                />
+                <span aria-hidden className="pw-bullet" />
                 <span className="body-sm ct-text-muted">{note}</span>
               </li>
             ))}
@@ -522,46 +534,61 @@ export default async function ProductWorkspacePage({
         </Card>
       </section>
 
-      <section className="admin-doc-card-grid-3">
-        <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
-          <CardTitle>Assumptions</CardTitle>
-          <ul className="admin-doc-stack admin-doc-stack--tight">
-            {inferredVault.assumptions.map((assumption) => (
-              <li key={assumption} className="body-sm ct-text-muted">
-                {assumption}
-              </li>
-            ))}
-          </ul>
-        </Card>
+      {/* L2 — Reference notes (three L3 modules). */}
+      <section aria-labelledby="pw-notes-heading" className="admin-doc-section">
+        <div className="admin-doc-section__head">
+          <div>
+            <p className="eyebrow">Methodology context</p>
+            <h2 id="pw-notes-heading" className="h2 ct-text-strong">
+              Reference notes
+            </h2>
+          </div>
+        </div>
 
-        <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
-          <CardTitle>Scenario Outputs</CardTitle>
-          <ul className="admin-doc-stack admin-doc-stack--tight">
-            {scenarioOutputNotes.map((note) => (
-              <li key={note} className="body-sm ct-text-muted">
-                {note}
-              </li>
-            ))}
-          </ul>
-        </Card>
+        <div className="admin-doc-card-grid-3">
+          <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
+            <CardTitle>Assumptions</CardTitle>
+            <ul className="admin-doc-stack admin-doc-stack--tight">
+              {inferredVault.assumptions.map((assumption) => (
+                <li key={assumption} className="body-sm ct-text-muted">
+                  {assumption}
+                </li>
+              ))}
+            </ul>
+          </Card>
 
-        <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
-          <CardTitle>Next Actions</CardTitle>
-          <ol className="admin-doc-stack admin-doc-stack--tight">
-            {NEXT_ACTIONS.map((action) => (
-              <li key={action} className="body-sm ct-text-muted">
-                {action}
-              </li>
-            ))}
-          </ol>
-        </Card>
+          <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
+            <CardTitle>Scenario Outputs</CardTitle>
+            <ul className="admin-doc-stack admin-doc-stack--tight">
+              {scenarioOutputNotes.map((note) => (
+                <li key={note} className="body-sm ct-text-muted">
+                  {note}
+                </li>
+              ))}
+            </ul>
+          </Card>
+
+          <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
+            <CardTitle>Next Actions</CardTitle>
+            <ol className="admin-doc-stack admin-doc-stack--tight">
+              {NEXT_ACTIONS.map((action) => (
+                <li key={action} className="body-sm ct-text-muted">
+                  {action}
+                </li>
+              ))}
+            </ol>
+          </Card>
+        </div>
       </section>
 
-      <section className="admin-doc-section">
+      {/* L2 — Agent graph specs. */}
+      <section aria-labelledby="pw-graphs-heading" className="admin-doc-section">
         <div className="admin-doc-section__head">
           <div>
             <p className="eyebrow">Agent graph specs</p>
-            <h2 className="h2 ct-text-strong">Visuals to attach before review</h2>
+            <h2 id="pw-graphs-heading" className="h2 ct-text-strong">
+              Visuals to attach before review
+            </h2>
           </div>
           <Badge variant="default">Runtime charts</Badge>
         </div>
@@ -585,7 +612,7 @@ export default async function ProductWorkspacePage({
               </div>
               <p className="body-xs ct-text-strong">{spec.metric}</p>
               <p className="body-sm ct-text-muted">{spec.series}</p>
-              <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight pt-3">
+              <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight">
                 <p className="body-xs ct-text-muted">{spec.note}</p>
                 <p className="body-xs ct-text-faint">
                   Generated from methodology assumptions; attach external evidence before review.
