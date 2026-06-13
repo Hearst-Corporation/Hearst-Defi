@@ -18,14 +18,14 @@ export function ModuleChrome({
   adornment,
   children,
   className,
-  hoverOverlay = false,
+  hoverOverlay = true,
 }: {
   "aria-label": string;
   /** Optional chrome (e.g. chart provenance corner) hidden when embedded. */
   adornment?: ReactNode;
   children: ReactNode;
   className?: string;
-  /** Card hover wash — opt-in, only when the whole module is clickable. */
+  /** Card hover wash — off for portfolio pf-value-chart (graphite surface). */
   hoverOverlay?: boolean;
 }) {
   const embedded = useSectionEmbed();

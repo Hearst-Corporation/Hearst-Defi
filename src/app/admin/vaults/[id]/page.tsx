@@ -287,14 +287,14 @@ export default async function VaultDetailPage({ params }: PageProps) {
       />
 
       <div className="admin-doc-split-grid">
-        <Card>
+        <Card hoverOverlay={false}>
           <DashboardPanelHeader title="Legal" />
           <div className="mt-4">
             <VaultLegalProofRows facts={legalFacts} variant="admin" />
           </div>
         </Card>
 
-        <Card>
+        <Card hoverOverlay={false}>
           <DashboardPanelHeader title="Allocation Policy" />
           <VaultAllocationAdminRows facts={allocationFacts} />
         </Card>
@@ -414,7 +414,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       </section>
 
       {/* Disclaimers */}
-      <Card>
+      <Card hoverOverlay={false}>
         <DashboardPanelHeader title="Disclaimers" />
         <p className="body-sm ct-text-muted whitespace-pre-wrap mt-4">{vault.disclaimers}</p>
       </Card>

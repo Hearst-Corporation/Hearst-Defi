@@ -27,7 +27,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
     vault.currentAumUsdc > 0 ? formatUsdCompact(vault.currentAumUsdc) : "Pending";
 
   return (
-    <Card density="compact" aria-label={`${vault.name} — ${strategyLabel}`}>
+    <Card density="compact" aria-label={`${vault.name} — ${strategyLabel}`} hoverOverlay={false}>
       <div className="vault-select-card">
         <div className="vault-select-card__main">
           <div className="min-w-0 product-doc-stack--tight">

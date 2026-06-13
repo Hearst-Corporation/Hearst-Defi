@@ -423,8 +423,10 @@ difference are **padding tier** and **interactivity**.
 | Row (L4) | transparent | `--ct-border-soft` divider | 0 | `--ct-space-2/3 × 3/5` | tint only if row links | `admin-vaults-list__row`, `pf-positions-row`, `ct-divide-soft` |
 | Inline callout | status-soft | status-border | `--ct-radius-lg` | `--ct-space-3 × 4` | none | `ct-panel-status` |
 
-**`hoverOverlay` is opt-in** (`Card` default `false` since 2026-06-13). A static
-container never shimmers; pass `hoverOverlay` only when the whole Card is clickable.
+**`hoverOverlay`** — a static informational card must not shimmer on hover; pass
+`hoverOverlay={false}` on it. Clickable / selectable cards keep the overlay as a
+hover affordance. (`Card` default stays `true` for now; cleanup is per-call-site,
+not a global flip, until every site is classified.)
 
 ### 13.4 KPI attention
 
@@ -451,4 +453,4 @@ container never shimmers; pass `hoverOverlay` only when the whole Card is clicka
 | Date | Commit | Note |
 |------|--------|------|
 | 2026-06-13 | `66b528f` (pushed `main`) | **Mixed checkpoint — accepted as-is.** DS row taxonomy (`DataRow` / `LegalMetadataRow` / `ProofRow`) and `MetricGrid` / `NestedKpiGrid` aliases shipped in `nested-panel.tsx` + §6/§9 doc updates. Same commit also contains scenario task-flow polish (`cockpit.css`, `central-task-runner.tsx`, `single-mode.tsx`). **No history rewrite** — commit already on `origin/main`; do not reopen or split `66b528f`. Next DS family: **fresh branch + isolated commit only.**
-| 2026-06-13 | Batch A (this change) | **UI hierarchy contract (§13) + `Card`/`ModuleChrome` `hoverOverlay` default `true`→`false`** (audited: no Card relied on the overlay for affordance) + `/vaults` thesis de-duplicated (removed redundant section h2 under the shell h1). |
+| 2026-06-13 | Batch A | **UI hierarchy contract (§13)** + `/vaults` thesis de-duplicated (removed redundant section h2 under the shell h1). `Card` default kept `true`; `hoverOverlay` cleanup is **per-call-site** (static cards opt out, clickable cards keep it) — no global default flip yet. |

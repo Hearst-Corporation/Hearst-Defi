@@ -5,15 +5,14 @@ import { cn } from "@/lib/cn";
  * §UI-Hierarchy / Surface taxonomy). Shares background/border/radius/blur with
  * `pf-cockpit-panel`.
  *
- * `hoverOverlay` is **opt-in** (default `false`). A static container must not
- * shimmer on hover — pass `hoverOverlay` only when the whole Card is genuinely
- * clickable (wraps a link / carries onClick). Audited 2026-06-13: no Card in
- * the app was relying on the overlay for affordance, so the prior `true`
- * default only added decorative noise to static cards.
+ * `hoverOverlay` default stays `true` for now. Per-call-site cleanup is in
+ * progress: clearly **static informational** cards opt out with
+ * `hoverOverlay={false}`; **clickable / selectable** cards keep the overlay.
+ * A global default flip is deferred until every call-site is classified.
  */
 export function Card({
   className,
-  hoverOverlay = false,
+  hoverOverlay = true,
   density = "default",
   children,
   ...props

@@ -76,7 +76,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         }
       />
 
-      <Card>
+      <Card hoverOverlay={false}>
         <div className="mb-6 admin-doc-inline-row admin-doc-inline-row--actions">
           <Badge variant="accent" className="mono body-xs">{proposal.vaultTicker}</Badge>
           <Badge variant={proposalStateVariant(proposal.state)}>
@@ -132,7 +132,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
       </Card>
 
       {ptai ? (
-        <Card density="compact">
+        <Card density="compact" hoverOverlay={false}>
           <DashboardPanelHeader
             title="Projection · Trigger · Action · Impact"
             tone="quiet"
@@ -150,13 +150,13 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         </Card>
       ) : null}
 
-      <Card density="compact">
+      <Card density="compact" hoverOverlay={false}>
         <DashboardPanelHeader title="Justification" tone="quiet" className="mb-4" />
         <p className="body-md whitespace-pre-wrap ct-text-primary">{proposal.justification}</p>
       </Card>
 
       {proposal.calldata ? (
-        <Card density="compact">
+        <Card density="compact" hoverOverlay={false}>
           <DashboardPanelHeader title="Calldata" tone="quiet" className="mb-4" />
           <pre className="mono overflow-x-auto whitespace-pre-wrap rounded-md ct-surface-1 p-4 body-xs ct-text-muted">
             {formatProposalCalldata(proposal.calldata)}
@@ -164,7 +164,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         </Card>
       ) : null}
 
-      <Card density="compact">
+      <Card density="compact" hoverOverlay={false}>
         <DashboardPanelHeader
           title={`Signatures (${proposal.approvalCount}/${proposal.requiredSigners} approved${
             proposal.rejectionCount > 0 ? `, ${proposal.rejectionCount} rejected` : ""
@@ -210,7 +210,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
       </Card>
 
       {!isTerminal ? (
-        <Card>
+        <Card hoverOverlay={false}>
           <DashboardPanelHeader title="Actions" tone="quiet" className="mb-4" />
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             {canSign ? (
