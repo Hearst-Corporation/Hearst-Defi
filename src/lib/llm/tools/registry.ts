@@ -25,7 +25,6 @@ import {
 } from "@/lib/llm/tools/policy";
 import { logger } from "@/lib/logger";
 import type {
-  AdminToolDefinition,
   AdminToolTelemetryStatus,
   AdminWriteToolDefinition,
   AdminWriteToolExecutionOptions,
@@ -1082,10 +1081,6 @@ export const ADMIN_WRITE_TOOLS: readonly AdminWriteToolDefinition[] = [
   },
 ] as const;
 
-export const ADMIN_TOOLS: readonly AdminToolDefinition[] = [
-  ...ADMIN_READ_TOOLS,
-  ...ADMIN_WRITE_TOOLS,
-] as const;
 
 function parseReviewNoteInput(input: unknown): {
   title: string;

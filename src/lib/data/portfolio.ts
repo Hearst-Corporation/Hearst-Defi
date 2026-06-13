@@ -160,19 +160,6 @@ function bpsToApyPct(bps: number): number {
  * `src/lib/engine/share-class.ts` (SHARE_CLASS_A, SHARE_CLASS_B) — NEVER from
  * Prisma `@default(200)` (which is a known drift, P0-4 in the LP audit).
  *
- * TODO (schema): once Position carries its own `shareClass` column independent
- * of VaultDeployment, switch this to read from `position.shareClass` directly.
- * Until then we look at `position.vaultDeployment?.shareClass` and fall back
- * to class A.
- */
-export function getShareClassForPosition(
-  position: {
-    vaultDeployment?: { shareClass?: string | null } | null;
-  },
-): ShareClassTerms {
-  const code = position.vaultDeployment?.shareClass?.toUpperCase() ?? "A";
-  return code === "B" ? SHARE_CLASS_B : SHARE_CLASS_A;
-}
 
 /**
  * Derive the share-class code ("A" | "B") from a position's vaultKey.

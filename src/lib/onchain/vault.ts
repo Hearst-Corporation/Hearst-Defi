@@ -356,44 +356,6 @@ export async function depositToVault(
   return { txHash, amountUsdc: opts.amountUsdc };
 }
 
-// ---------------------------------------------------------------------------
-// Read helpers (no wallet required)
-// ---------------------------------------------------------------------------
-
-/**
- * Reads the current USDC allowance granted by `owner` to the vault.
- * Returns the allowance as a USDC whole-dollar integer.
- * Returns 0 if the vault address is not configured.
- */
-export async function readAllowance(owner: Address): Promise<number> {
-  if (!VAULT_ADDRESS) return 0;
-  const publicClient = getBrowserPublicClient();
-  const raw = await publicClient.readContract({
-    address: USDC_ADDRESS,
-    abi: ERC20_ABI,
-    functionName: "allowance",
-    args: [owner, VAULT_ADDRESS],
-  });
-  // Convert from 6-decimal USDC units to whole dollars (truncated)
-  return Number(raw / BigInt(10 ** USDC_DECIMALS));
-}
-
-/**
- * Returns the vault's underlying asset address.
- * Useful as a sanity-check that the vault is wired to the expected USDC.
- * Returns null if vault address is not configured.
- */
-export async function readVaultAsset(): Promise<Address | null> {
-  if (!VAULT_ADDRESS) return null;
-  const publicClient = getBrowserPublicClient();
-  const asset = await publicClient.readContract({
-    address: VAULT_ADDRESS,
-    abi: ERC4626_ABI,
-    functionName: "asset",
-    args: [],
-  });
-  return asset as Address;
-}
 
 // ---------------------------------------------------------------------------
 // ERC-4626 redeem (withdrawal exit path)

@@ -90,7 +90,7 @@ export function barHeight(amount: number, maxAmount: number): number {
 }
 
 /** Quarter-month indices (0-based) for compact zero-state labels: Jan, Apr, Jul, Oct. */
-export const COMPACT_LABEL_INDICES = [0, 3, 6, 9] as const;
+const COMPACT_LABEL_INDICES = [0, 3, 6, 9] as const;
 
 export function shouldShowCompactPeriodLabel(index: number): boolean {
   return (COMPACT_LABEL_INDICES as readonly number[]).includes(index);
@@ -415,7 +415,7 @@ export function DistribCalendar({
       {/* Footer — share class + cadence. Rendered only when at least one is
           known, so an empty widget doesn't show a "— / —" stub. */}
       {(shareClass || cadence) && (
-        <dl className="flex flex-wrap gap-x-4 gap-y-1 border-t border-[var(--ct-border-soft)] pt-2 mt-auto">
+        <dl className="flex flex-wrap gap-x-4 gap-y-1 border-t border-(--ct-border-soft) pt-2 mt-auto">
           {shareClass ? (
             <div className="pf-stack--compact min-w-0">
               <dt className="stat-label mono">

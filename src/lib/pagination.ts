@@ -1,4 +1,3 @@
-import { z } from "zod";
 
 /**
  * Shared pagination types and helpers.
@@ -11,10 +10,6 @@ import { z } from "zod";
 export const DEFAULT_PAGE_SIZE = 50;
 export const MAX_PAGE_SIZE = 100;
 
-export interface PaginationParams {
-  page: number;
-  pageSize: number;
-}
 
 export interface PaginatedResult<T> {
   data: T[];
@@ -24,16 +19,6 @@ export interface PaginatedResult<T> {
   hasMore: boolean;
 }
 
-/** Zod schema for validating pagination query params. */
-export const PaginationQuerySchema = z.object({
-  page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.coerce
-    .number()
-    .int()
-    .min(1)
-    .max(MAX_PAGE_SIZE)
-    .default(DEFAULT_PAGE_SIZE),
-});
 
 /** Clamp a raw page size to the allowed [1, MAX_PAGE_SIZE] range. */
 export function clampPageSize(n: number): number {

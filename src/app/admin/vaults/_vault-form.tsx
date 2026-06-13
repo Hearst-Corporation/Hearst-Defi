@@ -50,7 +50,7 @@ const STEPS: { key: Step; label: string }[] = [
 
 export type FormState = CreateDraftInput & { colorTag: string };
 
-export const FORM_INITIAL: FormState = {
+const FORM_INITIAL: FormState = {
   ticker: "",
   name: "",
   description: "",

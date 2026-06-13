@@ -197,8 +197,14 @@ function graphSpecsForVault(vault: VaultDefinition): ProductGraphSpec[] {
   });
 }
 
+const ALLOC_COLORS = [
+  "var(--ct-accent)",
+  "var(--ct-status-info)",
+  "var(--ct-status-warning)",
+  "var(--ct-text-faint)",
+] as const;
+
 function AllocationStackChart({ vault }: { vault: VaultDefinition }) {
-  const colors = ["#A7FB90", "#7DD3FC", "#FDE68A", "#C4B5FD"];
   let x = 0;
   return (
     <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} allocation stack`}>
@@ -215,7 +221,7 @@ function AllocationStackChart({ vault }: { vault: VaultDefinition }) {
               width={width}
               height="18"
               rx="9"
-              fill={colors[index] ?? "#A7FB90"}
+              fill={ALLOC_COLORS[index] ?? "var(--ct-accent)"}
               opacity="0.9"
             />
             <text x={currentX + 4} y="58" className="fill-(--ct-text-muted) text-[9px]">
@@ -240,8 +246,8 @@ function DistributionRangeChart({ vault }: { vault: VaultDefinition }) {
     .join(" ");
   return (
     <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} distribution range`}>
-      <polyline points={pointsHigh} fill="none" stroke="#A7FB90" strokeWidth="2" />
-      <polyline points={pointsLow} fill="none" stroke="#7DD3FC" strokeWidth="2" />
+      <polyline points={pointsHigh} fill="none" stroke="var(--ct-accent)" strokeWidth="2" />
+      <polyline points={pointsLow} fill="none" stroke="var(--ct-status-info)" strokeWidth="2" />
       <line x1="24" y1="56" x2="288" y2="56" className="stroke-(--ct-border-soft)" />
       <text x="24" y="68" className="fill-(--ct-text-muted) text-[9px]">M1</text>
       <text x="266" y="68" className="fill-(--ct-text-muted) text-[9px]">M12</text>
@@ -261,9 +267,9 @@ function StressCorridorChart({ vault }: { vault: VaultDefinition }) {
   ].join(" ");
   return (
     <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} stress corridor`}>
-      <polyline points={corridor} fill="none" stroke="#FDE68A" strokeWidth="2.5" />
+      <polyline points={corridor} fill="none" stroke="var(--ct-status-warning)" strokeWidth="2.5" />
       <line x1="24" y1="54" x2="288" y2="54" className="stroke-(--ct-border-soft)" />
-      <circle cx="152" cy={40 - reserve * 0.12} r="4" fill="#A7FB90" />
+      <circle cx="152" cy={40 - reserve * 0.12} r="4" fill="var(--ct-accent)" />
       <text x="24" y="68" className="fill-(--ct-text-muted) text-[9px]">Shock</text>
       <text x="232" y="68" className="fill-(--ct-text-muted) text-[9px]">Recovery</text>
     </svg>

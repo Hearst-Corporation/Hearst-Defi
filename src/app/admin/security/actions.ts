@@ -4,7 +4,6 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import {
   generateTotpEnrolment,
   confirmTotpEnrolment,
-  isTotpEnabled,
   type TotpEnrolmentPayload,
 } from "@/lib/auth/totp";
 import { revalidatePath } from "next/cache";
@@ -51,11 +50,3 @@ export async function confirmEnrolment(
   return result;
 }
 
-/**
- * Read the current TOTP status for the session admin.
- */
-export async function getTotpStatus(): Promise<{ enabled: boolean }> {
-  const { userId } = await requireAdmin();
-  const enabled = await isTotpEnabled(userId);
-  return { enabled };
-}

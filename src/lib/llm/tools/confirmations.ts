@@ -93,16 +93,3 @@ export async function consumeWriteConfirmation(params: {
 export async function clearWriteConfirmationsForTests(): Promise<void> {
   await prisma.adminWriteToolConfirmation.deleteMany();
 }
-
-export async function pruneExpiredWriteConfirmations(nowMs?: number): Promise<number> {
-  const now = new Date(nowMs ?? Date.now());
-  const deleted = await prisma.adminWriteToolConfirmation.deleteMany({
-    where: {
-      OR: [
-        { expiresAt: { lt: now } },
-        { usedAt: { not: null } },
-      ],
-    },
-  });
-  return deleted.count;
-}

@@ -1,6 +1,6 @@
 import type { ScenarioOutput } from "@/lib/engine/types";
 
-export function formatModeLabel(mode: ScenarioOutput["mode"]): string {
+function formatModeLabel(mode: ScenarioOutput["mode"]): string {
   if (mode === "defensive") return "Defensive";
   if (mode === "opportunistic") return "Opportunistic";
   return "Balanced";

@@ -23,11 +23,6 @@ export interface Notification {
   createdAt: Date;
 }
 
-export interface NotificationsPayload {
-  unread: Notification[];
-  archived: Notification[];
-}
-
 /** Label map for UI display */
 export const CATEGORY_LABELS: Record<NotificationCategory, string> = {
   action: "Action Required",

@@ -153,12 +153,6 @@ const serverEnvSchema = z.object({
   // Persona KYC — server-side API key (optional, only needed if we call
   // Persona's REST API to pre-create inquiries; the embed flow doesn't need it).
   PERSONA_API_KEY: z.string().optional(),
-  // Risk-free rate (annual, as a decimal — e.g. "0.045" for 4.5%). Optional:
-  // when unset, `src/lib/data/risk-free-rate.ts` falls back to the
-  // Methodology v1.0 default (0.045) with `provenance: "manual"`. When set,
-  // the loader tags provenance as `live`. Future ingestion (Ondo + FRED, see
-  // audit P0-03) will replace this manual override with an oracle/live feed.
-  RISK_FREE_RATE_ANNUAL_DECIMAL: z.string().optional(),
   // Attestation signer allowlist — comma-separated 0x addresses of attestors
   // authorised to sign Proofs. `verifyStoredAttestation` rejects any signed
   // proof whose recovered signer is not in this list. In production, when

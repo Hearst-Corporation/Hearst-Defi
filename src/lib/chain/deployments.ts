@@ -1,8 +1,7 @@
 import { z } from "zod";
 import registryJson from "../../../config/deployments.base-sepolia.json";
 
-const CONTRACT_KEYS = ["vault", "eventLogger", "porRegistry"] as const;
-type DeploymentName = (typeof CONTRACT_KEYS)[number];
+type DeploymentName = "vault" | "eventLogger" | "porRegistry";
 
 const addressSchema = z.string().regex(/^0x[0-9a-fA-F]{40}$/);
 
@@ -76,8 +75,4 @@ export function getDeployment(name: DeploymentName): DeploymentView {
     chainId: registry.chainId,
     meta: computeStaleness(entry),
   };
-}
-
-export function getAllDeployments(): ReadonlyArray<DeploymentView> {
-  return CONTRACT_KEYS.map((name) => getDeployment(name));
 }

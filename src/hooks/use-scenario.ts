@@ -18,7 +18,7 @@ import type {
   VaultId,
 } from "@/lib/engine/types";
 
-export const BASE_INPUTS: ScenarioInputs = {
+const BASE_INPUTS: ScenarioInputs = {
   btc_price_change_pct: 0,
   hashprice_usd_th_day: 0.085,
   energy_cost_kwh: 0.045,
