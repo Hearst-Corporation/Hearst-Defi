@@ -431,6 +431,12 @@
   border-top: 1px solid var(--ct-border-soft);
 }
 
+/* Pending rows carry only label + "Pending" — a 2-column grid keeps them aligned
+   instead of the live numeric 4-column track (score / sparkline / trend). */
+.pf-risk-row--pending {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .pf-cockpit-panel--compact .pf-risk-row {
   grid-template-columns: minmax(0, 1fr) 2rem 2.5rem 2.25rem;
   gap: var(--ct-space-2);

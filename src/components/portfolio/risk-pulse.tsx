@@ -187,8 +187,15 @@ export function ScoreRow({ item, unavailable = false }: ScoreRowProps) {
   const rowId = `risk-pulse-row-${item.dimension}`;
 
   if (unavailable) {
+    // Pending: a clean 2-column row (label | Pending). The live 4-column grid
+    // (numeric score + sparkline + trend) would leave "Pending" overflowing the
+    // narrow score column and a dead sparkline gap → misaligned.
     return (
-      <li role="group" aria-labelledby={rowId} className="pf-risk-row">
+      <li
+        role="group"
+        aria-labelledby={rowId}
+        className="pf-risk-row pf-risk-row--pending"
+      >
         <span id={rowId} className="body-sm min-w-0 truncate ct-text-muted">
           {label}
         </span>
@@ -197,10 +204,6 @@ export function ScoreRow({ item, unavailable = false }: ScoreRowProps) {
           aria-label={`${label} score pending`}
         >
           Pending
-        </span>
-        <span aria-hidden />
-        <span className="body-xs ct-text-faint text-right" aria-hidden>
-          —
         </span>
       </li>
     );
