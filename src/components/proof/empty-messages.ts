@@ -40,15 +40,3 @@ export const MINING_CASHFLOW_COPY = {
   pending: "Coverage pending until mining cash-flow inputs are attested.",
   invalid: "Coverage unavailable — mining cash-flow inputs are invalid.",
 } as const;
-
-export function miningCashflowAwaitingState(
-  provenance: "pending" | "invalid",
-): { message: string; detail: string } {
-  return {
-    message:
-      provenance === "invalid"
-        ? "Mining cash-flow coverage unavailable"
-        : "Mining cash-flow coverage pending",
-    detail: MINING_CASHFLOW_COPY[provenance],
-  };
-}

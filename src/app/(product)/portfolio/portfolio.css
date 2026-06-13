@@ -335,11 +335,6 @@
   }
 
   /* Stacked rows — content height only (no cross-row stretch) */
-  .pf-container [data-section="yield-allocation"] .bento-col-8,
-  .pf-container [data-section="yield-allocation"] .bento-col-4 {
-    min-height: auto;
-  }
-
   .pf-container .pf-cockpit-panel {
     min-height: auto;
   }
@@ -347,10 +342,6 @@
   .pf-container [data-section="activity-payouts"] .bento-col-8,
   .pf-container [data-section="activity-payouts"] .bento-col-4 {
     min-height: auto;
-  }
-
-  .pf-container [data-testid="allocation-donut-widget"] .pf-allocation-donut-chart {
-    --pf-allocation-donut-size: min(11rem, 84cqw);
   }
 
   /* Hero stays 8+4 while the centre column fits two bento columns */
@@ -925,14 +916,6 @@
   min-height: 11rem;
 }
 
-/* ── Equal-height bento rows — yield stack + donut only (paired widgets) ── */
-.pf-container [data-section="yield-allocation"] .bento-col-8,
-.pf-container [data-section="yield-allocation"] .bento-col-4 {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-}
-
 /* Activity — content-sized columns (no cross-column stretch) */
 .pf-container [data-section="activity-payouts"] .pf-cockpit-slot {
   min-height: auto;
@@ -947,50 +930,8 @@
   align-self: start;
 }
 
-.pf-container--zero [data-section="yield-allocation"] .bento-col-4 {
-  min-height: auto;
-  align-self: start;
-}
-
 .pf-container [data-testid="distrib-calendar-widget"] .pf-cockpit-panel {
   gap: var(--ct-space-2);
-}
-
-/* Allocation donut — scale to column width (inline-size container on inner body, not grid slot) */
-.pf-container [data-testid="allocation-donut-widget"] .pf-allocation-donut-body {
-  container-type: inline-size;
-  container-name: pf-allocation-donut;
-  flex: 1;
-  min-height: 0;
-  width: 100%;
-}
-
-.pf-container [data-testid="allocation-donut-widget"] .pf-allocation-donut {
-  gap: var(--ct-space-2);
-  margin-top: var(--ct-space-1);
-}
-
-@container pf-allocation-donut (min-width: 0) {
-  .pf-allocation-donut-chart {
-    --pf-allocation-donut-size: min(12rem, 84cqw);
-    width: var(--pf-allocation-donut-size) !important;
-    height: var(--pf-allocation-donut-size) !important;
-    flex-shrink: 0;
-  }
-
-  .donut-val {
-    font-size: clamp(1.375rem, 7cqw, var(--ct-text-3xl));
-  }
-
-  .donut-lbl {
-    font-size: var(--ct-text-micro);
-    margin-top: var(--ct-space-0_5);
-  }
-}
-
-.pf-container [data-testid="allocation-donut-widget"] .pf-allocation-donut-note {
-  max-width: 20ch;
-  line-height: var(--ct-leading-snug);
 }
 
 /* Secondary widgets must not inherit premium card chrome */
