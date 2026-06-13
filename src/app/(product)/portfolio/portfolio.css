@@ -830,10 +830,10 @@
   );
   min-height: 22rem;
   padding: var(--ct-space-4) var(--ct-space-5);
-  background: var(--ct-graphite-subtle-bg) !important;
-  background-image: var(--pf-chart-dots) !important;
+  background: var(--ct-graphite-subtle-bg);
+  background-image: var(--pf-chart-dots);
   background-size: 28px 28px;
-  border: 1px solid var(--ct-graphite-border-nested) !important;
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
   box-shadow: none;
   backdrop-filter: var(--ct-graphite-blur);
@@ -842,7 +842,7 @@
 }
 
 .pf-container .pf-main-chart-wrapper .ct-card.pf-value-chart:hover {
-  border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-graphite-border-nested)) !important;
+  border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-graphite-border-nested));
 }
 
 .pf-main-chart-wrapper .pf-value-chart [class*="flex-1"] {
@@ -864,7 +864,7 @@
 }
 
 .pf-container .ct-product-section {
-  padding: var(--ct-space-4) var(--ct-space-5) !important;
+  padding: var(--ct-space-4) var(--ct-space-5);
 }
 
 /* Nested empties inside portfolio panels — flat (cockpit.css mirrors globally). */
