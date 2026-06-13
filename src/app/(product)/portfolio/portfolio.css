@@ -1,8 +1,8 @@
-@import "../product-bento.css";
+@import "../charts-shared.css";
 
 /*
  * Portfolio — layout, typography, and rhythm overrides.
- * Bento chrome from product-bento.css; page-scoped tuning under .pf-container.
+ * Page-scoped tuning under .pf-container.
  *
  * Typography roles (tokens from cockpit.css):
  *   Page title     .h1
@@ -16,8 +16,7 @@
  *
  * Responsive breakpoints:
  *   @media 768px     — pf-container gap
- *   @media 1280px    — product-bento 6-col grid (imported)
- *   @container pf 880px — full-width stack (chat-compressed centre)
+ *   @container pf 880px — hero+activity grids stack to single column
  *   @container pf-allocation-donut — donut size + donut-val clamp
  */
 
@@ -308,46 +307,21 @@
   }
 }
 
-/* ── Reflow: chat-compressed centre → full-width stack (no orphan half-columns) ── */
+/* ── Reflow: hero + activity grids stack below 880px ── */
 @container pf (max-width: 880px) {
-  .pf-container .dash-cell.col-4,
-  .pf-container .dash-cell.col-8,
-  .pf-container .bento-col-4,
-  .pf-container .bento-col-6,
-  .pf-container .bento-col-8,
-  .pf-container .bento-col-12 {
-    grid-column: span 12;
+  .pf-hero-grid,
+  .pf-activity-grid {
+    grid-template-columns: 1fr;
   }
 
-  /* Stacked rows — content height only (no cross-row stretch) */
   .pf-container .pf-cockpit-panel {
     min-height: auto;
-  }
-
-  .pf-container [data-section="activity-payouts"] .bento-col-8,
-  .pf-container [data-section="activity-payouts"] .bento-col-4 {
-    min-height: auto;
-    align-self: stretch;
-  }
-
-  /* Hero stays 8+4 while the centre column fits two bento columns */
-  .pf-container [data-section="hero-pulse"] .bento-col-8 {
-    grid-column: span 8;
-  }
-
-  .pf-container [data-section="hero-pulse"] .bento-col-4 {
-    grid-column: span 4;
   }
 }
 
 @container pf (max-width: 520px) {
-  .pf-container [data-section="hero-pulse"] .bento-col-8,
-  .pf-container [data-section="hero-pulse"] .bento-col-4 {
-    grid-column: span 12;
-  }
-
   /* Welded hero stacks → seam moves from left edge to top edge */
-  .pf-container [data-section="hero-pulse"] .pf-hero-sidebar {
+  .pf-hero-sidebar {
     border-left: none;
     border-top: 1px solid var(--ct-graphite-border-nested);
   }
@@ -553,15 +527,25 @@
 .pf-tx-icon--withdraw { background: var(--ct-status-danger); }
 .pf-tx-icon--default { background: var(--ct-text-muted); }
 
-.pf-secondary-grid {
-  gap: var(--ct-space-3) !important;
+/* ── Two-column grids (chart+sidebar, activity+calendar) ── */
+.pf-hero-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 0;
+  align-items: stretch;
+  border-radius: var(--ct-radius-xl);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  overflow: hidden;
 }
 
-/* ── Cockpit panels (secondary widgets — hero rail surface family) ── */
-.pf-cockpit-slot {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
+.pf-activity-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--ct-space-3);
+  align-items: start;
 }
 
 
@@ -741,39 +725,25 @@
   padding: 0;
 }
 
-/* Hero row — chart + rail sidebar WELDED into one full-width surface.
-   The grid itself carries the border/background/radius; the chart and the
-   sidebar become internal zones split by a single vertical divider — no two
-   separate card frames. */
-.pf-container [data-section="hero-pulse"] .pf-hero-grid {
-  align-items: stretch;
-  gap: 0;
-  border-radius: var(--ct-radius-xl);
-  border: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
-  overflow: hidden;
-}
-
-.pf-container [data-section="hero-pulse"] .pf-main-chart-wrapper,
-.pf-container [data-section="hero-pulse"] .pf-hero-sidebar {
+/* Hero grid internals — chart + sidebar as welded zones */
+.pf-main-chart-wrapper,
+.pf-hero-sidebar {
   display: flex;
   flex-direction: column;
   min-height: 100%;
 }
 
 /* Vertical seam between chart zone and KPI zone */
-.pf-container [data-section="hero-pulse"] .pf-hero-sidebar {
+.pf-hero-sidebar {
   border-left: 1px solid var(--ct-graphite-border-nested);
 }
 
-.pf-container [data-section="hero-pulse"] .pf-main-chart-wrapper .pf-value-chart {
+.pf-main-chart-wrapper .pf-value-chart {
   flex: 1;
 }
 
-/* Chart zone: drop its own frame — the welded grid owns the chrome now. */
-.pf-container [data-section="hero-pulse"] .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
+/* Chart zone: drop its own frame — the welded grid owns the chrome */
+.pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
   border: none;
   border-radius: 0;
   background: transparent;
@@ -951,15 +921,7 @@
 }
 
 /* Activity — content-sized columns (no cross-column stretch) */
-.pf-container [data-section="activity-payouts"] .pf-cockpit-slot {
-  min-height: auto;
-  align-self: start;
-}
-
-.pf-container [data-section="activity-payouts"] .bento-col-8,
-.pf-container [data-section="activity-payouts"] .bento-col-4 {
-  display: flex;
-  flex-direction: column;
+.pf-activity-grid > * {
   min-height: auto;
   align-self: start;
 }

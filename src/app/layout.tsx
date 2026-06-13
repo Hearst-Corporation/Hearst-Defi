@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import "./tokens-layer.css";
 import "./globals.css";
 import "./cockpit.css";
-// Bento KPI primitives (.dash-cell, .dash-value-group) for investor surfaces.
-// Admin dashboard uses Card (ct-glass-panel) instead.
-import "./(product)/product-bento.css";
 
 import { AppChrome } from "@/components/app-chrome";
 import { Analytics } from "@/components/analytics";

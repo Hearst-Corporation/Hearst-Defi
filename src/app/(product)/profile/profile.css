@@ -1,56 +1,38 @@
-@import "../product-bento.css";
-
 /*
- * Profile — dash-bento layout. Card material: ct-glass-panel graphite
+ * Profile — standard grid layout. Card material: ct-glass-panel graphite
  * (cockpit.css). Empty investment summary: ct-empty-surface (DS §9).
  *
  * Responsive: container queries on .prof-shell (centre panel width), aligned with
  * product-doc invest-flow + portfolio pf-container — not ad-hoc viewport caps.
  */
 
-/* Container queries: inherits product-doc-shell from page root */
-
-/* ── Empty investment summary — stretch awaiting surface in bento row ── */
-[data-testid="profile-page"] .dash-bento > .bento-col-6 {
-  display: flex;
-  flex-direction: column;
+/* ── Profile grid: 2 cards top row, security card full-width ── */
+.prof-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ct-space-4);
 }
 
-[data-testid="profile-page"] .dash-bento > .bento-col-6 > .ct-empty-surface--widget {
-  flex: 1 1 auto;
-  width: 100%;
+.prof-security-card {
+  grid-column: 1 / -1;
 }
 
-/* Chat-compressed centre panel — stack bento before viewport 1280/768 kicks in */
+/* Stack to single column on narrow centre panel */
 @container product-doc (max-width: 55rem) {
-  .prof-shell .dash-bento {
+  .prof-grid {
     grid-template-columns: 1fr;
   }
-
-  .prof-shell .dash-bento > .bento-col-4,
-  .prof-shell .dash-bento > .bento-col-6,
-  .prof-shell .dash-bento > .bento-col-8,
-  .prof-shell .dash-bento > .bento-col-12 {
-    grid-column: span 1;
-  }
 }
 
-/* Empty investment summary — structured copy + CTA, fills the card height so it
-   reads level with the dense Identity card beside it (not top-aligned dead space).
-   The card + its inner z-base wrapper must stretch to a column for the centring
-   to have height to work with. */
-[data-testid="profile-page"] .dash-bento > .ct-card[aria-labelledby="prof-summary-label"] {
+/* Empty investment summary — stretch awaiting surface in grid row */
+.prof-grid > :is([aria-labelledby="prof-summary-label"]) {
   display: flex;
   flex-direction: column;
 }
 
-[data-testid="profile-page"]
-  .ct-card[aria-labelledby="prof-summary-label"]
-  > .relative.ct-z-base {
-  display: flex;
-  flex-direction: column;
+.prof-grid > :is([aria-labelledby="prof-summary-label"]) > .ct-empty-surface--widget {
   flex: 1 1 auto;
-  min-height: 0;
+  width: 100%;
 }
 
 .prof-disclaimer {

@@ -110,15 +110,13 @@ export default async function PortfolioPage() {
         <NextActionCard {...actionFlags} />
       ) : null}
 
-      <div className="dash-bento pf-secondary-grid" data-section="positions">
-        <div className="bento-col-12 pf-cockpit-slot">
-          <PositionsList
-            positions={data.positions}
-            source={data.source}
-            updatedAt={data.updatedAt}
-            previewZeros={previewZeros}
-          />
-        </div>
+      <div data-section="positions">
+        <PositionsList
+          positions={data.positions}
+          source={data.source}
+          updatedAt={data.updatedAt}
+          previewZeros={previewZeros}
+        />
       </div>
 
       <ProductSection
@@ -132,8 +130,8 @@ export default async function PortfolioPage() {
         className="pf-hero-section"
         data-section="hero-pulse"
       >
-        <div className="dash-bento pf-secondary-grid pf-hero-grid">
-          <div className="bento-col-8 pf-main-chart-wrapper">
+        <div className="pf-hero-grid">
+          <div className="pf-main-chart-wrapper">
             <ValueChart
               positions={data.positions}
               totalValueUsdc={data.totalValueUsdc}
@@ -142,7 +140,7 @@ export default async function PortfolioPage() {
               previewZeros={previewZeros}
             />
           </div>
-          <aside className="bento-col-4 pf-hero-sidebar">
+          <aside className="pf-hero-sidebar">
             <HeroKpiTable
               totalValueUsdc={data.totalValueUsdc}
               totalYieldYtdUsdc={data.totalYieldYtdUsdc}
@@ -164,7 +162,6 @@ export default async function PortfolioPage() {
 
       <div className="pf-section-stack">
         <div
-          className="pf-cockpit-slot"
           data-section="yield-allocation"
           data-testid="capital-yield-widget"
         >
@@ -187,10 +184,7 @@ export default async function PortfolioPage() {
           className="pf-yield-trust-section"
           data-section="yield-trust"
         >
-          <div
-            data-testid="trust-panel-widget"
-            className="pf-cockpit-slot"
-          >
+          <div data-testid="trust-panel-widget">
             <TrustPanel
               risk={riskPulseProps}
               proof={previewZeros ? zeroProofPulseProps(previewAsOf) : proofPulseProps}
@@ -212,11 +206,8 @@ export default async function PortfolioPage() {
           className="pf-activity-payouts-section"
           data-section="activity-payouts"
         >
-          <div className="dash-bento pf-secondary-grid pf-activity-payouts-grid">
-            <div
-              className="bento-col-8 pf-cockpit-slot"
-              data-testid="recent-activity-widget"
-            >
+          <div className="pf-activity-grid">
+            <div data-testid="recent-activity-widget">
               <RecentActivity
                 transactions={data.recentTransactions}
                 source={data.source}
@@ -224,10 +215,7 @@ export default async function PortfolioPage() {
                 previewZeros={previewZeros}
               />
             </div>
-            <div
-              className="bento-col-4 pf-cockpit-slot"
-              data-testid="distrib-calendar-widget"
-            >
+            <div data-testid="distrib-calendar-widget">
               <DistribCalendar
                 {...distribCalendarProps}
                 entries={

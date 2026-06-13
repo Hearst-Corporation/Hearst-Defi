@@ -80,8 +80,8 @@ export default async function ProfilePage() {
         }
       />
 
-      <div className="dash-bento">
-        <Card className="bento-col-6" aria-labelledby="prof-account-label" hoverOverlay={false}>
+      <div className="prof-grid">
+        <Card aria-labelledby="prof-account-label" hoverOverlay={false}>
           <DashboardPanelHeader
             id="prof-account-label"
             title="Identity"
@@ -115,7 +115,7 @@ export default async function ProfilePage() {
         </Card>
 
         {hasPositions ? (
-          <Card className="bento-col-6" aria-labelledby="prof-summary-label" hoverOverlay={false}>
+          <Card aria-labelledby="prof-summary-label" hoverOverlay={false}>
             <DashboardPanelHeader
               id="prof-summary-label"
               title="Investment summary"
@@ -140,7 +140,7 @@ export default async function ProfilePage() {
             </MetricGrid>
           </Card>
         ) : (
-          <Card className="bento-col-6" aria-labelledby="prof-summary-label" hoverOverlay={false}>
+          <Card aria-labelledby="prof-summary-label" hoverOverlay={false}>
             <DashboardPanelHeader
               id="prof-summary-label"
               title="Investment summary"
@@ -161,7 +161,7 @@ export default async function ProfilePage() {
           </Card>
         )}
 
-        <Card className="bento-col-12" aria-labelledby="prof-security-label" hoverOverlay={false}>
+        <Card className="prof-security-card" aria-labelledby="prof-security-label" hoverOverlay={false}>
           <DashboardPanelHeader
             id="prof-security-label"
             title="Security"
