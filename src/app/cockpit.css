@@ -121,7 +121,7 @@
      One token set drives the `.ct-glass-panel` utility below; that class is the
      ONLY recipe new premium surfaces should use. Inline backdrop recipes in
      components should converge here rather than re-declaring the effect. */
-  --ct-glass-radius: 28px;
+  --ct-glass-radius: 1.25rem; /* 20px — density calibration (était 28px) */
   /* Quiet glass: gentle blur, no saturate punch — the glossy look is gone. */
   --ct-glass-blur: blur(20px) saturate(100%);
   --ct-glass-border: color-mix(in srgb, #fff 9%, transparent);
@@ -135,17 +135,13 @@
   /* Layout — hauteur du header inter-apps du shell Cockpit (launcher + offset).
      Référencé dans .ct-rail-intra (top:) mais absent de tokens.css du package.
      Si une future v0.3.0 l'expose, retirer ce bloc et conserver le fallback. */
-  --ct-shell-header-h: 5rem;
+  --ct-shell-header-h: 4rem;
 
-  /* Chat rail width — override du package (420px) : +25px pour plus de confort
-     de lecture du fil de conversation. */
-  --ct-rail-right: 445px;
+  /* Chat rail width — override du package (420px). Calibré densité globale. */
+  --ct-rail-right: 23.75rem; /* 380px */
 
-  /* Left nav rail width — override du package (88px). Le rail affiche icône +
-     label en permanence (style spacieux) → la COLONNE réservée doit suivre,
-     sinon le contenu recouvre le rail (le shell calcule ses colonnes sur ce
-     token, pas sur la width de .ct-rail-left). */
-  --ct-rail-left: 128px;
+  /* Left nav rail — icon + label permanent. Calibré densité globale (était 128px). */
+  --ct-rail-left: 7rem; /* 112px */
 
   /* Transitions — déclarées explicitement ici car le package tokens.css
      ne les expose pas (--ct-dur-base était référencé partout sans valeur).
@@ -172,15 +168,16 @@
   --ct-space-2_5: 0.625rem; /* 10px */
   --ct-space-3: 0.75rem;    /* 12px */
   --ct-space-4: 1rem;       /* 16px */
-  --ct-space-5: 1.25rem;    /* 20px */
-  --ct-space-6: 1.5rem;     /* 24px */
-  --ct-space-8: 2rem;       /* 32px */
-  --ct-space-10: 2.5rem;    /* 40px */
-  --ct-space-12: 3rem;      /* 48px */
-  --ct-space-14: 3.5rem;    /* 56px */
-  --ct-space-16: 4rem;      /* 64px */
-  --ct-space-24: 6rem;      /* 96px */
-  --ct-space-32: 8rem;      /* 128px */
+  /* Spacing scale — global density calibration (~15% tighter on layout tiers). */
+  --ct-space-5: 1.125rem;   /* 18px */
+  --ct-space-6: 1.25rem;    /* 20px */
+  --ct-space-8: 1.5rem;     /* 24px */
+  --ct-space-10: 2rem;      /* 32px */
+  --ct-space-12: 2.5rem;    /* 40px */
+  --ct-space-14: 3rem;      /* 48px */
+  --ct-space-16: 3.5rem;    /* 56px */
+  --ct-space-24: 4rem;      /* 64px */
+  --ct-space-32: 7rem;      /* 112px — aligné --ct-rail-left */
 
   /* Text scale — RESPONSIVE via clamp(min, fluid, max).
      - Small (base/sm/xs/micro) restent fixes pour la lisibilité du body sur mobile.
@@ -193,12 +190,13 @@
   --ct-text-xs: 0.8125rem;    /* 13px — reading-tier bump (table/body) */
   --ct-text-sm: 0.9375rem;    /* 15px — reading-tier bump */
   --ct-text-base: 1rem;       /* 16px — fix */
-  --ct-text-lg:      clamp(1rem,     0.956rem + 0.188vw, 1.125rem);  /* 16 → 18 */
-  --ct-text-xl:      clamp(1.125rem, 1.081rem + 0.188vw, 1.25rem);   /* 18 → 20 */
-  --ct-text-2xl:     clamp(1.25rem,  1.162rem + 0.376vw, 1.5rem);    /* 20 → 24 */
-  --ct-text-3xl:     clamp(1.5rem,   1.412rem + 0.376vw, 1.75rem);   /* 24 → 28 */
-  --ct-text-5xl:     clamp(1.75rem,  1.574rem + 0.751vw, 2.25rem);   /* 28 → 36 */
-  --ct-text-display: clamp(2rem,     1.824rem + 0.751vw, 2.5rem);    /* 32 → 40 */
+  /* Typography big scale — density calibration (headlines −1 step desktop max). */
+  --ct-text-lg:      clamp(0.9375rem, 0.912rem + 0.141vw, 1.0625rem); /* 15 → 17 */
+  --ct-text-xl:      clamp(1.0625rem, 1.024rem + 0.188vw, 1.1875rem); /* 17 → 19 */
+  --ct-text-2xl:     clamp(1.125rem,  1.074rem + 0.263vw, 1.375rem);  /* 18 → 22 */
+  --ct-text-3xl:     clamp(1.375rem,  1.324rem + 0.329vw, 1.625rem);  /* 22 → 26 */
+  --ct-text-5xl:     clamp(1.5rem,    1.412rem + 0.376vw, 1.875rem);  /* 24 → 30 */
+  --ct-text-display: clamp(1.75rem,   1.636rem + 0.470vw, 2.125rem);  /* 28 → 34 */
 
   /* Font weight scale (mirrors Tailwind). */
   --ct-font-light: 300;
@@ -2311,7 +2309,7 @@ pre.ct-surface-1.rounded-md {
 /* .h2 → titres de sections (Level 2) — accent vert, espace au-dessus.
    Le vert est l'accent de structure : il marque le début d'un bloc. */
 .h2 {
-  font-size: clamp(1.25rem, 1.206rem + 0.188vw, 1.375rem);  /* 20 → 22 */
+  font-size: clamp(1.125rem, 1.081rem + 0.188vw, 1.25rem);  /* 18 → 20 */
   font-weight: var(--ct-font-bold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
@@ -2630,9 +2628,9 @@ button.ct-seg-btn {
   -webkit-backdrop-filter: blur(20px) saturate(100%);
   border-right: 1px solid color-mix(in srgb, var(--ct-text-strong) 7%, var(--ct-border-soft));
   /* Rail verrouillé en position fermée — largeur fixe, jamais déployé. */
-  width: var(--ct-space-32) !important;     /* 128px — spacious icon+label rail */
-  min-width: var(--ct-space-32) !important;
-  max-width: var(--ct-space-32) !important;
+  width: var(--ct-rail-left) !important;
+  min-width: var(--ct-rail-left) !important;
+  max-width: var(--ct-rail-left) !important;
 }
 
 .ct-rail-right {
@@ -2780,13 +2778,13 @@ button.ct-seg-btn {
      icônes verticalement. overflow-y:auto + padding-block évitent le débordement
      sur le slot identity quand le viewport est court (ex: 10 items admin). */
   top: var(--ct-shell-header-h);
-  bottom: 88px;
-  width: var(--ct-space-32);   /* 128px — spacious icon+label rail */
+  bottom: 4.5rem;
+  width: var(--ct-rail-left);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--ct-space-4);
-  padding: var(--ct-space-3) 0;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-2) 0;
   justify-content: center;
   overflow-y: auto;
   z-index: 1001; /* Au-dessus du shell cockpit */
@@ -2805,9 +2803,9 @@ button.ct-seg-btn {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--ct-space-1_5);
-  width: var(--ct-space-24);   /* 96px — room for icon + label */
-  padding: var(--ct-space-2_5) var(--ct-space-1);
+  gap: var(--ct-space-1);
+  width: calc(var(--ct-rail-left) - var(--ct-space-2));
+  padding: var(--ct-space-2) var(--ct-space-1);
   border-radius: var(--ct-radius-lg);
   color: var(--ct-text-muted);
   background: transparent;
@@ -2850,7 +2848,7 @@ button.ct-seg-btn {
 /* Label statique sous l'icône — visible en permanence (style Oracle rail).
    Wrap 2 lignes max pour un libellé long ("Proofs & Documents"). */
 .ct-rail-item-tooltip {
-  font-size: var(--ct-text-sm);
+  font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
   letter-spacing: var(--ct-tracking-tight);
@@ -2876,13 +2874,13 @@ button.ct-seg-btn {
 
 html[data-rail-mode="expanded"] .ct-rail-left,
 html[data-rail-mode="expanded"] .ct-rail-left.launcher {
-  width: 232px !important;
-  min-width: 232px !important;
-  max-width: 232px !important;
+  width: 13.5rem !important;
+  min-width: 13.5rem !important;
+  max-width: 13.5rem !important;
 }
 
 html[data-rail-mode="expanded"] .ct-rail-intra {
-  width: 232px;
+  width: 13.5rem;
   align-items: stretch;
   padding-left: var(--ct-space-3);
   padding-right: var(--ct-space-3);
@@ -3060,7 +3058,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
    no !important needed. ── */
 
 /* Rail gauche */
-.ct-rail-left                              { padding: 32px 0; align-items: center; }
+.ct-rail-left                              { padding: var(--ct-space-5) 0; align-items: center; }
 .ct-rail-left.launcher                     { padding: clamp(20px, 2.4vh, 32px) clamp(12px, 0.8vw, 16px); }
 
 /* Badge user recentré sur l'axe du rail (88px) — sans override il dérive de
@@ -3083,7 +3081,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-rail-row                               { padding: clamp(10px, 1.3vh, 16px) 14px; }
 
 /* Logout hero */
-.ct-logout-hero                            { padding: 32px 24px; }
+.ct-logout-hero                            { padding: var(--ct-space-5) var(--ct-space-4); }
 
 /* Hub bar */
 .ct-hub-bar                                { padding: 10px 16px; }
@@ -3094,25 +3092,25 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 /* Master FAB */
 .ct-master-fab                             { padding: 10px 18px; }
 
-/* Centre — page area & embed */
-.ct-page-area                              { padding: 32px 40px 80px; }
+/* Centre — page area & embed (global density calibration) */
+.ct-page-area                              { padding: var(--ct-space-5) var(--ct-space-6) var(--ct-space-10); }
 
 /* Admin operator surfaces — denser inset (rails + chat compress centre vs LP). */
 .ct-page-area:has(.admin-doc) {
-  padding: var(--ct-space-6) var(--ct-space-5) var(--ct-space-8);
+  padding: var(--ct-space-4) var(--ct-space-4) var(--ct-space-6);
 }
-.ct-embed-overlay                          { padding: 40px; }
+.ct-embed-overlay                          { padding: var(--ct-space-6); }
 .ct-embed-sub code                         { padding: 1px 6px; }
 .ct-embed-btn                              { padding: 9px 18px; }
 
-/* Rail droit — header & body */
-.ct-rail-right-header                      { padding: 20px 20px 12px; }
-.ct-rail-right.collapsed .ct-rail-right-header { padding: 10px 0; }
-.ct-rail-right-body                        { padding: 20px 20px 20px; }
+/* Rail droit — header & body (density calibration) */
+.ct-rail-right-header                      { padding: var(--ct-space-4) var(--ct-space-4) var(--ct-space-2); }
+.ct-rail-right.collapsed .ct-rail-right-header { padding: var(--ct-space-2) 0; }
+.ct-rail-right-body                        { padding: var(--ct-space-3) var(--ct-space-4) var(--ct-space-4); }
 
 /* Page composants */
-.ct-kpi-card                               { padding: 20px 24px; }
-.ct-card                                   { padding: 20px 24px; }
+.ct-kpi-card                               { padding: var(--ct-space-4) var(--ct-space-5); }
+.ct-card                                   { padding: var(--ct-space-4) var(--ct-space-5); }
 
 /* Compact card density — smaller data/list surfaces (audit D1/D2).
    Radius already radius-xl on the unified base; only the padding tier differs. */
@@ -3134,16 +3132,16 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   .ct-card--compact .vault-select-card__meta       { min-width: 15rem; width: 15rem; }
 }
 
-/* Cockpit chat rail */
-.ct-chat-actionbar                         { padding-bottom: 8px; }
-.ct-chat-newbtn                            { padding: 4px 10px; }
-.ct-chat-list                              { padding-bottom: 12px; }
-.ct-chat-msg                               { padding: 12px 14px; }
-.ct-chat-msg.assistant code                { padding: 1px 5px; }
+/* Cockpit chat rail — density calibration */
+.ct-chat-actionbar                         { padding-bottom: var(--ct-space-1); }
+.ct-chat-newbtn                            { padding: 3px 8px; font-size: var(--ct-text-micro); }
+.ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-2); }
+.ct-chat-msg                               { padding: var(--ct-space-2) var(--ct-space-2_5); font-size: var(--ct-text-xs); border-radius: var(--ct-radius-md); }
+.ct-chat-msg.assistant code                { padding: 1px 4px; font-size: var(--ct-text-micro); }
 
 /* Formulaire de chat - on enlève la lourdeur du package */
 .ct-chat-form {
-  padding: 10px 10px 10px 14px;
+  padding: var(--ct-space-2) var(--ct-space-2) var(--ct-space-2) var(--ct-space-3);
   background: color-mix(in srgb, var(--ct-surface-1) 50%, transparent) !important;
   border: 1px solid var(--ct-border-soft) !important;
   backdrop-filter: blur(12px);
@@ -3221,11 +3219,11 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
    Le package fixe aussi border-radius:10px ; on l'aligne sur --ct-radius-full
    (pilule) comme tous les autres boutons de l'app.
    cockpit.css est unlayered + importé en dernier → gagne sans !important. */
-.ct-chat-history-newbtn                    { padding: 9px 14px; color: var(--ct-bg-deep); border-radius: var(--ct-radius-full); }
-.ct-chat-history-clearbtn                  { padding: 9px 12px; border-radius: var(--ct-radius-full); }
+.ct-chat-history-newbtn                    { padding: var(--ct-space-2) var(--ct-space-3); color: var(--ct-bg-deep); border-radius: var(--ct-radius-full); }
+.ct-chat-history-clearbtn                  { padding: var(--ct-space-2) var(--ct-space-2_5); border-radius: var(--ct-radius-full); }
 .ct-chat-history-list                      { padding: 0; }
-.ct-chat-history-item-main                 { padding: 10px 12px; }
-.ct-chat-history-delete                    { padding: 0 10px; }
+.ct-chat-history-item-main                 { padding: var(--ct-space-2) var(--ct-space-2_5); }
+.ct-chat-history-delete                    { padding: 0 var(--ct-space-2); }
 
 /* ── LOGIN SPLIT — bare marketing + sign-in (no ConnectShell) ── */
 .login-split {

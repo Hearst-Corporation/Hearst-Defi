@@ -44,7 +44,7 @@ export function CardHeader({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("mb-8 flex items-start justify-between gap-4", className)}
+      className={cn("mb-5 flex items-start justify-between gap-3", className)}
       {...props}
     />
   );

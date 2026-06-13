@@ -179,6 +179,11 @@ Tailles Tailwind nues (`text-xs`…`text-4xl`) hors primitives (`Button`) — ES
 sur `className` ; préférer `.body-*`, `.h1`–`.h4`, `.stat-value`, `.stat-label`. Labels micro
 uppercase → `.stat-label` (pas `ct-text-micro-size font-bold`) ; en-têtes table → `stat-label ct-table-header` ; KPI vault LP/admin → `stat-value`. Downscale doc partagé : `src/app/doc-flow-typography.css` (`:is(.product-doc, .admin-doc)`). Audit : `.claude/commands/ds-typo.md`.
 
+**Densité globale (calibration 2026-06)** : rails (`--ct-rail-left` 112px, `--ct-rail-right` 380px),
+header shell (`--ct-shell-header-h` 4rem), échelle spacing layout (`--ct-space-5`…`--ct-space-32`),
+typo headlines (`--ct-text-lg`…`display`), `.ct-page-area` / `.ct-card` / chat rail — source
+`cockpit.css` `:root` + overrides composants. Accent couleur inchangé (Phase 1 rouge = futur).
+
 **Un seul design system en runtime** : Cockpit (`--ct-*` via `@hearst/cockpit-shell`).
 Le package orphelin `packages/ds` (`@ds/core`, namespace `--ds-*`) a été retiré du repo.
 Admin et user partagent le **même** design system : mêmes tokens, mêmes surfaces,

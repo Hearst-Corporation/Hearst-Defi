@@ -71,11 +71,11 @@
   --text-xs: 0.8125rem;    /* 13px — mirror --ct-text-xs */
   --text-sm: 0.9375rem;    /* 15px — mirror --ct-text-sm */
   --text-md: 1rem;
-  --text-lg: clamp(1rem, 0.956rem + 0.188vw, 1.125rem);    /* 16 → 18 */
-  --text-xl: clamp(1.125rem, 1.081rem + 0.188vw, 1.25rem); /* 18 → 20 */
-  --text-2xl: clamp(1.25rem, 1.162rem + 0.376vw, 1.5rem);  /* 20 → 24 */
-  --text-3xl: clamp(1.5rem, 1.412rem + 0.376vw, 1.75rem);  /* 24 → 28 */
-  --text-4xl: clamp(1.75rem, 1.574rem + 0.751vw, 2.25rem); /* 28 → 36 */
+  --text-lg: clamp(0.9375rem, 0.912rem + 0.141vw, 1.0625rem); /* 15 → 17 */
+  --text-xl: clamp(1.0625rem, 1.024rem + 0.188vw, 1.1875rem); /* 17 → 19 */
+  --text-2xl: clamp(1.125rem, 1.074rem + 0.263vw, 1.375rem);  /* 18 → 22 */
+  --text-3xl: clamp(1.375rem, 1.324rem + 0.329vw, 1.625rem);  /* 22 → 26 */
+  --text-4xl: clamp(1.5rem, 1.412rem + 0.376vw, 1.875rem);    /* 24 → 30 */
 
   /* Font weights */
   --weight-regular: 400;

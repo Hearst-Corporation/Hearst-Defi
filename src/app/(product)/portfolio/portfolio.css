@@ -122,8 +122,8 @@
 }
 
 .pf-footer {
-  padding-top: var(--ct-space-12);
-  padding-bottom: var(--ct-space-24);
+  padding-top: var(--ct-space-8);
+  padding-bottom: var(--ct-space-16);
   border-top: 1px solid var(--ct-border-soft);
 }
 
@@ -590,8 +590,8 @@
 
 /* --wide = display tier (hero rail): roomier than the 16px default. */
 .pf-cockpit-panel--wide {
-  padding: var(--ct-space-5);
-  gap: var(--ct-space-4);
+  padding: var(--ct-space-4);
+  gap: var(--ct-space-3);
 }
 
 .pf-cockpit-panel:hover {
