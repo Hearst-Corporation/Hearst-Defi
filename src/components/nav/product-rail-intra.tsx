@@ -171,9 +171,10 @@ interface RailItemProps {
   /** Override the path-based active check (e.g. a section active on any of its
    *  sibling pages, not just its own href). */
   active?: boolean;
+  iconSize?: number;
 }
 
-function RailItem({ item, pathname, active }: RailItemProps) {
+function RailItem({ item, pathname, active, iconSize = 26 }: RailItemProps) {
   const Icon = ICON_MAP[item.icon];
   const isActive =
     active ?? (pathname === item.href || pathname.startsWith(`${item.href}/`));
@@ -186,7 +187,7 @@ function RailItem({ item, pathname, active }: RailItemProps) {
       title={item.label}
       className={cn("ct-rail-item", isActive && "ct-rail-item-active")}
     >
-      {Icon ? <Icon size={26} strokeWidth={1.8} /> : null}
+      {Icon ? <Icon size={iconSize} strokeWidth={1.8} /> : null}
       <span className="ct-rail-item-tooltip">{item.label}</span>
     </Link>
   );
@@ -232,12 +233,12 @@ export function InvestorRailIntra({ isAdmin = false }: { isAdmin?: boolean }) {
     >
       <RailToggle expanded={expanded} onToggle={toggle} />
       {PRODUCT_NAV.map((item) => (
-        <RailItem key={item.id} item={item} pathname={pathname} />
+        <RailItem key={item.id} item={item} pathname={pathname} iconSize={20} />
       ))}
       {isAdmin && adminEntry ? (
         <>
           <RailSeparator />
-          <RailItem item={adminEntry} pathname={pathname} />
+          <RailItem item={adminEntry} pathname={pathname} iconSize={20} />
         </>
       ) : null}
     </nav>

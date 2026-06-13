@@ -2823,10 +2823,6 @@ button.ct-seg-btn {
   gap: 2px;
 }
 
-.ct-rail-intra[data-rail="investor"] .ct-rail-item svg {
-  width: 20px;
-  height: 20px;
-}
 
 /* Bouton nav : icône au-dessus + label dessous, visibles en permanence. */
 .ct-rail-item {
