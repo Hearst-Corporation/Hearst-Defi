@@ -1166,6 +1166,30 @@
   min-width: 0;
 }
 
+/* Terms — flat label↔value rows split by hairlines (no nested KPI surfaces). */
+.product-doc .vault-select-card__terms {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.product-doc .vault-select-card__term-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: var(--ct-space-3);
+  padding-block: var(--ct-space-2);
+}
+
+/* Value column right-aligned so all four values form one clean edge. */
+.product-doc .vault-select-card__term-row > dd {
+  text-align: right;
+}
+
+.product-doc .vault-select-card__term-row + .vault-select-card__term-row {
+  border-top: 1px solid var(--ct-border-soft);
+}
+
 .product-doc .vault-select-card__divider-h {
   border-top: 1px solid var(--ct-border-soft);
 }

@@ -12,7 +12,6 @@ import {
   VAULT_STATUS_VARIANT,
   vaultStatusLabel,
 } from "@/lib/constants/vault";
-import { VaultKpiCell } from "@/components/vaults/vault-flow-primitives";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 
 interface ProductSelectCardProps {
@@ -24,19 +23,24 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
   const href = `/vaults/${vault.ticker.toLowerCase()}`;
   const strategyLabel = STRATEGY_LABELS[vault.strategy] ?? vault.strategy;
 
+  const aumDisplay =
+    vault.currentAumUsdc > 0 ? formatUsdCompact(vault.currentAumUsdc) : "Pending";
+
   return (
     <Card density="compact" aria-label={`${vault.name} — ${strategyLabel}`}>
       <div className="vault-select-card">
         <div className="vault-select-card__main">
           <div className="min-w-0 product-doc-stack--tight">
-            <h3 className="h3 ct-text-strong">{vault.name}</h3>
-            <div className="product-doc-inline-row">
-              <Badge variant="default">{strategyLabel}</Badge>
-              <Badge variant="accent" className="mono">{vault.ticker}</Badge>
+            <div className="product-doc-inline-row product-doc-inline-row--between">
+              <h3 className="h3 ct-text-strong min-w-0">
+                {vault.name}{" "}
+                <span className="mono ct-text-faint font-normal">{vault.ticker}</span>
+              </h3>
               <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
                 {vaultStatusLabel(vault.status)}
               </Badge>
             </div>
+            <span className="stat-label">{strategyLabel}</span>
           </div>
 
           <div className="product-doc-stack--compact">
@@ -62,39 +66,12 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
         />
 
         <div className="vault-select-card__meta">
-          <div className="product-doc-kpi-grid-2">
-            <VaultKpiCell label="Min. ticket">
-              <span className="truncate">{formatUsdCompact(vault.minTicketUsdc)}</span>
-            </VaultKpiCell>
-            <VaultKpiCell label="Lock-up">{vault.softLockupDays}d</VaultKpiCell>
-            <VaultKpiCell label="Risk">
-              <span className="truncate">{RISK_LABELS[vault.riskLevel]}</span>
-            </VaultKpiCell>
-            <VaultKpiCell
-              label="AUM"
-              valueClassName={
-                vault.currentAumUsdc > 0 ? undefined : "body-sm ct-text-muted font-normal"
-              }
-            >
-              {vault.currentAumUsdc > 0 ? (
-                <span className="truncate">{formatUsdCompact(vault.currentAumUsdc)}</span>
-              ) : (
-                "Pending"
-              )}
-            </VaultKpiCell>
-          </div>
-
-          <div className="body-xs ct-text-faint product-doc-inline-row product-doc-inline-row--tight">
-            <span>Terms</span>
-            <ProvenanceBadge kind="manual" />
-            {vault.currentAumUsdc > 0 ? (
-              <>
-                <span className="mx-0.5">·</span>
-                <span>AUM</span>
-                <ProvenanceBadge kind="live" />
-              </>
-            ) : null}
-          </div>
+          <dl className="vault-select-card__terms">
+            <VaultTermRow label="Min. ticket" value={formatUsdCompact(vault.minTicketUsdc)} />
+            <VaultTermRow label="Lock-up" value={`${vault.softLockupDays}d`} />
+            <VaultTermRow label="Risk" value={RISK_LABELS[vault.riskLevel]} />
+            <VaultTermRow label="AUM" value={aumDisplay} muted={vault.currentAumUsdc === 0} />
+          </dl>
 
           {isLive ? (
             <Button variant="primary" size="md" asChild className="mt-auto w-full">
@@ -110,5 +87,27 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
         </div>
       </div>
     </Card>
+  );
+}
+
+/** Flat label↔value term row — no nested KPI surface (DS list hierarchy). */
+function VaultTermRow({
+  label,
+  value,
+  muted = false,
+}: {
+  label: string;
+  value: string;
+  muted?: boolean;
+}) {
+  return (
+    <div className="vault-select-card__term-row">
+      <dt className="body-sm ct-text-muted">{label}</dt>
+      <dd
+        className={`tabular mono ${muted ? "body-sm ct-text-muted font-normal" : "body-sm ct-text-strong font-semibold"}`}
+      >
+        {value}
+      </dd>
+    </div>
   );
 }

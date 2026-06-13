@@ -186,7 +186,7 @@ function RailItem({ item, pathname, active }: RailItemProps) {
       title={item.label}
       className={cn("ct-rail-item", isActive && "ct-rail-item-active")}
     >
-      {Icon ? <Icon size={20} strokeWidth={1.8} /> : null}
+      {Icon ? <Icon size={26} strokeWidth={1.8} /> : null}
       <span className="ct-rail-item-tooltip">{item.label}</span>
     </Link>
   );

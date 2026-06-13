@@ -137,6 +137,16 @@
      Si une future v0.3.0 l'expose, retirer ce bloc et conserver le fallback. */
   --ct-shell-header-h: 5rem;
 
+  /* Chat rail width — override du package (420px) : +25px pour plus de confort
+     de lecture du fil de conversation. */
+  --ct-rail-right: 445px;
+
+  /* Left nav rail width — override du package (88px). Le rail affiche icône +
+     label en permanence (style spacieux) → la COLONNE réservée doit suivre,
+     sinon le contenu recouvre le rail (le shell calcule ses colonnes sur ce
+     token, pas sur la width de .ct-rail-left). */
+  --ct-rail-left: 128px;
+
   /* Transitions — déclarées explicitement ici car le package tokens.css
      ne les expose pas (--ct-dur-base était référencé partout sans valeur).
      Si une future version 0.3.0 du package les ajoute, retirer ce bloc. */
@@ -2807,9 +2817,9 @@ pre.ct-surface-1.rounded-md {
   -webkit-backdrop-filter: blur(20px) saturate(100%);
   border-right: 1px solid color-mix(in srgb, var(--ct-text-strong) 7%, var(--ct-border-soft));
   /* Rail verrouillé en position fermée — largeur fixe, jamais déployé. */
-  width: 88px !important;
-  min-width: 88px !important;
-  max-width: 88px !important;
+  width: var(--ct-space-32) !important;     /* 128px — spacious icon+label rail */
+  min-width: var(--ct-space-32) !important;
+  max-width: var(--ct-space-32) !important;
 }
 
 .ct-rail-right {
@@ -2958,11 +2968,11 @@ pre.ct-surface-1.rounded-md {
      sur le slot identity quand le viewport est court (ex: 10 items admin). */
   top: var(--ct-shell-header-h);
   bottom: 88px;
-  width: 88px;
+  width: var(--ct-space-32);   /* 128px — spacious icon+label rail */
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--ct-space-1);
+  gap: var(--ct-space-4);
   padding: var(--ct-space-3) 0;
   justify-content: center;
   overflow-y: auto;
@@ -2975,15 +2985,17 @@ pre.ct-surface-1.rounded-md {
   justify-content: center;
 }
 
-/* Bouton nav : 44×44px, icône centrée H+V. */
+/* Bouton nav : icône au-dessus + label dessous, visibles en permanence. */
 .ct-rail-item {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;   /* 44px */
-  height: 2.75rem;  /* 44px */
-  border-radius: var(--ct-radius-md);
+  gap: var(--ct-space-1_5);
+  width: var(--ct-space-24);   /* 96px — room for icon + label */
+  padding: var(--ct-space-2_5) var(--ct-space-1);
+  border-radius: var(--ct-radius-lg);
   color: var(--ct-text-muted);
   background: transparent;
   border: 1px solid transparent;
@@ -3022,31 +3034,23 @@ pre.ct-surface-1.rounded-md {
     inset 0 1px 0 color-mix(in srgb, var(--ct-accent) 20%, transparent);
 }
 
-/* Tooltip label au hover — apparaît à droite de l'icône. */
+/* Label statique sous l'icône — visible en permanence (style Oracle rail).
+   Wrap 2 lignes max pour un libellé long ("Proofs & Documents"). */
 .ct-rail-item-tooltip {
-  position: absolute;
-  left: calc(100% + 0.625rem);
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--ct-surface-3);
-  border: 1px solid var(--ct-border-strong);
-  color: var(--ct-text-primary);
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  padding: 0.25rem 0.625rem;
-  border-radius: var(--ct-radius-sm);
-  white-space: nowrap;
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-tight);
+  letter-spacing: var(--ct-tracking-tight);
+  color: inherit;
+  text-align: center;
+  text-wrap: balance;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--ct-dur-fast) var(--ct-ease);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  z-index: var(--ct-z-rail-tooltip);
-  box-shadow: var(--ct-shadow-depth);
 }
-
-/* Pas de popover au survol en mode replié : le label n'apparaît QUE déplié
-   (inline, via la règle html[data-rail-mode="expanded"] plus bas). */
 
 /* ── RAIL COLLAPSIBLE — déplié (html[data-rail-mode="expanded"]) ──
    On élargit la colonne réservée du shell (.ct-rail-left) ET le rail intra
@@ -3074,28 +3078,20 @@ html[data-rail-mode="expanded"] .ct-rail-intra {
 /* Item = ligne icône + label sur toute la largeur. */
 html[data-rail-mode="expanded"] .ct-rail-item {
   width: 100%;
+  flex-direction: row;
   justify-content: flex-start;
   gap: var(--ct-space-3);
   padding-inline: var(--ct-space-3);
 }
 
-/* Le span tooltip devient le label inline. */
+/* Le label repasse en ligne unique alignée à gauche en mode déplié. */
 html[data-rail-mode="expanded"] .ct-rail-item-tooltip {
-  position: static;
-  left: auto;
-  top: auto;
-  transform: none;
-  opacity: 1;
-  pointer-events: none;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  padding: 0;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  display: block;
+  -webkit-line-clamp: none;
+  text-align: left;
+  text-wrap: nowrap;
   color: inherit;
   font-size: var(--ct-text-sm);
-  z-index: auto;
 }
 
 /* Séparateur pleine largeur en mode déplié. */

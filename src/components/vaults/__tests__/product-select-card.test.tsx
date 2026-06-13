@@ -30,22 +30,22 @@ const VAULT: VaultProduct = {
 };
 
 describe("ProductSelectCard — DS layout + provenance", () => {
-  it("renders strategy label visibly and provenance badges on metrics", () => {
+  it("renders strategy label visibly, the APY provenance badge, and status", () => {
     const html = renderToStaticMarkup(<ProductSelectCard vault={VAULT} />);
 
     expect(html).toContain("Mining Yield");
     expect(html).toContain(">Estimated</span>");
-    expect(html).toContain(">Manual</span>");
     expect(html).toContain(">Live</span>");
   });
 
-  it("uses container-query card classes — no md: width breakpoints", () => {
+  it("uses container-query card classes with flat term rows — no md: width breakpoints", () => {
     const html = renderToStaticMarkup(<ProductSelectCard vault={VAULT} />);
 
     expect(html).toContain("vault-select-card");
     expect(html).toContain("vault-select-card__main");
     expect(html).toContain("vault-select-card__meta");
-    expect(html).toContain("product-doc-kpi-grid-2");
+    expect(html).toContain("vault-select-card__terms");
+    expect(html).toContain("vault-select-card__term-row");
     expect(html).not.toMatch(/md:(flex|w|hidden|block|gap)/);
   });
 

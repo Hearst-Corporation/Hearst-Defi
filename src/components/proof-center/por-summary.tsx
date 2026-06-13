@@ -1,4 +1,4 @@
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
@@ -41,7 +41,14 @@ export function PorSummary({
   if (attestation === null) {
     return (
       <div className="product-doc-stack">
-        <AwaitingMetricState {...POR_ATTESTATION_EMPTY} />
+        <Card>
+          <DashboardPanelHeader
+            eyebrow="Proof of Reserves"
+            title="Awaiting first attestation"
+            tone="quiet"
+          />
+          <AwaitingMetricState {...POR_ATTESTATION_EMPTY} />
+        </Card>
         {custody ? <CustodySection custody={custody} /> : null}
       </div>
     );
