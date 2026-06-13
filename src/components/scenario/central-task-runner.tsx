@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 import type { ScenarioOutput } from "@/lib/engine/types";
 
@@ -134,8 +135,9 @@ export function CentralTaskRunner({
   }, [output, runId]);
 
   return (
-    <div
-      className="scenario-lab-input-card scenario-central-flow-shell"
+    <Card
+      className="scenario-lab-input-card p-0"
+      hoverOverlay={false}
       data-state={pending ? "active" : undefined}
     >
       <div className="scenario-lab-input-card__header">
@@ -220,6 +222,6 @@ export function CentralTaskRunner({
           <p className="body-sm ct-text-muted m-0">Aucune execution en cours.</p>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

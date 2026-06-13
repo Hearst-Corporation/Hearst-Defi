@@ -49,15 +49,12 @@ export function BacktestTab() {
 
   return (
     <div className="backtest-tab">
-      <nav
-        aria-label="Backtest periods"
-        className="scenario-preset-bar backtest-period-rail projection-studio-preset-strip"
-      >
-        <div className="projection-studio-preset-strip__head">
+      <nav aria-label="Backtest periods" className="scenario-preset-bar backtest-period-rail">
+        <div className="scenario-preset-bar__head">
           <span className="eyebrow ct-text-muted">Historical periods</span>
           <span className="body-xs ct-text-faint">Select a regime to simulate</span>
         </div>
-        <div className="projection-studio-preset-rail__items scenario-preset-bar__items">
+        <div className="scenario-preset-bar__items">
           {BACKTEST_PERIODS.map((p) => {
             const isActive = state.selectedKey === p.key;
             return (
@@ -71,14 +68,12 @@ export function BacktestTab() {
                 aria-pressed={isActive}
                 title={p.description}
                 className={cn(
-                  "projection-studio-preset-button scenario-preset-bar__button",
+                  "scenario-preset-bar__button",
                   isActive && "scenario-preset-bar__button--active",
                 )}
               >
-                <span className="projection-studio-preset-button__label">{p.label}</span>
-                <span className="projection-studio-preset-button__description">
-                  {p.subtitle}
-                </span>
+                <span className="scenario-preset-bar__label">{p.label}</span>
+                <span className="scenario-preset-bar__description">{p.subtitle}</span>
               </Button>
             );
           })}
@@ -90,7 +85,7 @@ export function BacktestTab() {
         <div className="backtest-period-details">
           {BACKTEST_PERIODS.map((p) => (
             <Card key={p.key} className="px-5 py-4" hoverOverlay={false}>
-              <p className="projection-studio-preset-button__label">{p.label}</p>
+              <p className="scenario-preset-bar__label">{p.label}</p>
               <p className="mt-1 body-xs ct-text-muted">{p.subtitle}</p>
               <p className="mt-2 body-sm ct-text-body">{p.description}</p>
             </Card>

@@ -3,7 +3,7 @@
 // ScenarioModeToggle — Single / Compare sub-tab toggle.
 // Extracted from lab-shell.tsx. Behaviour preserved.
 
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 
 export type ScenarioMode = "single" | "compare";
 
@@ -11,10 +11,6 @@ interface ScenarioModeToggleProps {
   active: ScenarioMode;
   onChange: (mode: ScenarioMode) => void;
 }
-
-const TABLIST_CLASS = "scenario-lab-tablist";
-const TAB_BASE_CLASS =
-  "scenario-lab-tab px-3 uppercase shadow-none active:scale-100 body-xs font-semibold tracking-wide";
 
 export function ScenarioModeToggle({
   active,
@@ -37,13 +33,13 @@ export function ScenarioModeToggle({
       role="tablist"
       aria-label="Scenario mode"
       aria-orientation="horizontal"
-      className={TABLIST_CLASS}
+      className="doc-flow-tablist"
       onKeyDown={handleKeyDown}
     >
       {(["single", "compare"] as ScenarioMode[]).map((mode) => {
         const isActive = active === mode;
         return (
-          <Button
+          <button
             key={mode}
             type="button"
             role="tab"
@@ -51,14 +47,16 @@ export function ScenarioModeToggle({
             aria-controls={`tabpanel-mode-${mode}`}
             aria-selected={isActive}
             tabIndex={isActive ? 0 : -1}
-            variant="ghost"
-            size="sm"
             onClick={() => onChange(mode)}
-            data-active={isActive}
-            className={TAB_BASE_CLASS}
+            className={cn(
+              "rounded-md border-b-2 px-3 py-1.5 body-xs font-semibold uppercase tracking-wide ct-transition-base",
+              isActive
+                ? "ct-text-strong border-b-(--ct-border-strong)"
+                : "ct-text-muted border-b-transparent hover:ct-text-primary",
+            )}
           >
             {mode}
-          </Button>
+          </button>
         );
       })}
     </div>

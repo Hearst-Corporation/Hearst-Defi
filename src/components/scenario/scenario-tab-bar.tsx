@@ -3,7 +3,7 @@
 // ScenarioTabBar — top-level tab toggle (Scenario / Backtest).
 // Extracted from lab-shell.tsx. Behaviour preserved (arrow-key nav, ARIA).
 
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 
 export type LabTab = "scenario" | "backtest";
 
@@ -11,10 +11,6 @@ interface ScenarioTabBarProps {
   active: LabTab;
   onChange: (tab: LabTab) => void;
 }
-
-const TABLIST_CLASS = "scenario-lab-tablist";
-const TAB_BASE_CLASS =
-  "scenario-lab-tab px-3 capitalize shadow-none active:scale-100";
 
 export function ScenarioTabBar({ active, onChange }: ScenarioTabBarProps) {
   function handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
@@ -34,13 +30,13 @@ export function ScenarioTabBar({ active, onChange }: ScenarioTabBarProps) {
       role="tablist"
       aria-label="Scenario Lab tabs"
       aria-orientation="horizontal"
-      className={TABLIST_CLASS}
+      className="doc-flow-tablist"
       onKeyDown={handleKeyDown}
     >
       {(["scenario", "backtest"] as LabTab[]).map((tab) => {
         const isActive = active === tab;
         return (
-          <Button
+          <button
             key={tab}
             type="button"
             role="tab"
@@ -48,14 +44,16 @@ export function ScenarioTabBar({ active, onChange }: ScenarioTabBarProps) {
             aria-controls={`tabpanel-${tab}`}
             aria-selected={isActive}
             tabIndex={isActive ? 0 : -1}
-            variant="ghost"
-            size="sm"
             onClick={() => onChange(tab)}
-            data-active={isActive}
-            className={TAB_BASE_CLASS}
+            className={cn(
+              "rounded-md border-b-2 px-3 py-1.5 body-sm font-medium ct-transition-base",
+              isActive
+                ? "ct-text-strong border-b-(--ct-border-strong)"
+                : "ct-text-muted border-b-transparent hover:ct-text-primary",
+            )}
           >
             {tab === "scenario" ? "Scenario" : "Backtest"}
-          </Button>
+          </button>
         );
       })}
     </nav>

@@ -46,15 +46,12 @@ interface PresetBarProps {
 
 export function PresetBar({ selected, onSelect, disabled }: PresetBarProps) {
   return (
-    <nav
-      aria-label="Scenario presets"
-      className="scenario-preset-bar projection-studio-preset-strip"
-    >
-      <div className="projection-studio-preset-strip__head">
+    <nav aria-label="Scenario presets" className="scenario-preset-bar">
+      <div className="scenario-preset-bar__head">
         <span className="eyebrow ct-text-muted">Preset library</span>
         <span className="body-xs ct-text-faint">Select a starting scenario</span>
       </div>
-      <div className="projection-studio-preset-rail__items scenario-preset-bar__items">
+      <div className="scenario-preset-bar__items">
         {PRESETS.map((p) => {
           const isActive = selected === p.id;
           return (
@@ -68,14 +65,12 @@ export function PresetBar({ selected, onSelect, disabled }: PresetBarProps) {
               title={p.description}
               aria-pressed={isActive}
               className={cn(
-                "projection-studio-preset-button scenario-preset-bar__button",
+                "scenario-preset-bar__button",
                 isActive && "scenario-preset-bar__button--active",
               )}
             >
-              <span className="projection-studio-preset-button__label">{p.label}</span>
-              <span className="projection-studio-preset-button__description">
-                {p.description}
-              </span>
+              <span className="scenario-preset-bar__label">{p.label}</span>
+              <span className="scenario-preset-bar__description">{p.description}</span>
             </Button>
           );
         })}

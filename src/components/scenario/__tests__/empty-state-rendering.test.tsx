@@ -27,7 +27,7 @@ describe("Scenario Lab empty states — design contract", () => {
       "Select a preset or adjust sliders, then press Run scenario to see projections.",
     );
     expect(html).toMatch(
-      /class="[^"]*ct-empty-surface--inline[^"]*scenario-lab-output-card/,
+      /scenario-lab-output-card[\s\S]*ct-empty-surface--inline/,
     );
     expect(html).not.toContain("ct-empty-surface--widget");
   });

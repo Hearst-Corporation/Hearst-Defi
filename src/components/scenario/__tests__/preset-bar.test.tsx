@@ -8,7 +8,7 @@ describe("PresetBar", () => {
     const html = renderToStaticMarkup(
       <PresetBar selected="base" onSelect={vi.fn()} />,
     );
-    expect(html).toContain("projection-studio-preset-button");
+    expect(html).toContain("scenario-preset-bar__button");
     expect(html).toContain("scenario-preset-bar__button--active");
     expect(html).toContain('aria-pressed="true"');
     expect(html).not.toContain("ct-bg-accent");

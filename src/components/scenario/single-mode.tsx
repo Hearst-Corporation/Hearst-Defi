@@ -169,22 +169,29 @@ export function SingleMode({
                 </Card>
               </div>
             ) : (
-              <EmptySurface
-                variant="inline"
-                className={cn(
-                  "scenario-lab-output-card transition-opacity duration-(--ct-dur-fast)",
-                  pending && "opacity-50",
-                )}
-                message={
-                  pending
-                    ? "Computing…"
-                    : "Select a preset or adjust sliders, then press Run scenario to see projections."
-                }
-                ariaLabel="Scenario output — awaiting first run"
-                role="status"
-              >
-                {pending ? <Spinner className="ct-text-strong" /> : null}
-              </EmptySurface>
+              <div className="scenario-lab-output-card min-h-0">
+                <Card
+                  className={cn(
+                    "h-full min-h-48 transition-opacity duration-(--ct-dur-fast)",
+                    pending && "opacity-50",
+                  )}
+                  hoverOverlay={false}
+                >
+                  <EmptySurface
+                    variant="inline"
+                    className="h-full min-h-48"
+                    message={
+                      pending
+                        ? "Computing…"
+                        : "Select a preset or adjust sliders, then press Run scenario to see projections."
+                    }
+                    ariaLabel="Scenario output — awaiting first run"
+                    role="status"
+                  >
+                    {pending ? <Spinner className="ct-text-strong" /> : null}
+                  </EmptySurface>
+                </Card>
+              </div>
             )}
           </div>
         </section>
