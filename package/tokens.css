@@ -204,7 +204,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
   width: 46px; height: 46px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; font-weight: 800; letter-spacing: .03em;
-  color: var(--p-color, var(--ct-text-strong));
+  color: var(--ct-text-strong);
   background: transparent;
   border: none;
 }

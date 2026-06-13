@@ -2928,8 +2928,8 @@ html[data-rail-mode="collapsed"] .ct-rail-top-name {
 
 /* ── RAIL COLLAPSIBLE — déplié, logo officiel HearstConnect ──
    En mode déplié, on remplace le H + nom par le wordmark complet
-   « HEARST Connect » officiel (SVG /logos/hearst-connect-blackbg.svg, déjà
-   en accent vert #a7fb90). Le SVG d'origine a un viewBox 1920×1080 avec
+   « HEARST Connect » officiel (SVG /logos/hearst-connect-blackbg.svg —
+   HEARST blanc, H + Connect en maroon #9E1B2E). Le SVG d'origine a un viewBox 1920×1080 avec
    beaucoup d'espace vide autour du logo ; on utilise `background-size: cover`
    pour zoomer sur la zone centrale utile (le wordmark). */
 html[data-rail-mode="expanded"] .ct-rail-top-badge,
@@ -3073,7 +3073,11 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-avatar                                 { margin: 0 auto; }
 
 /* Rail gauche — nav */
-.ct-rail-top                               { padding: 8px; }
+/* Logo bouton rail — H blanc (wordmark garde le maroon sur « Connect »). */
+.ct-rail-top-badge,
+.ct-rail-top-badge svg {
+  color: var(--ct-text-strong) !important;
+}
 .ct-rail-left:not(.launcher) .ct-rail-top  { padding: 8px 0; }
 
 /* Launcher verrouillé en position repliée — un seul produit (Connect), le

@@ -213,7 +213,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           <div
             className="ct-chat-thinking active"
             aria-label="L'assistant réfléchit"
-            style={{ color: accent }}
+            style={{ color: "var(--ct-text-strong)" }}
           >
             <HearstMark size={18} />
           </div>
