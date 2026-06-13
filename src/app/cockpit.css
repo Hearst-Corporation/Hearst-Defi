@@ -3076,7 +3076,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 
 /* Rail gauche */
 .ct-rail-left                              { padding: var(--ct-space-5) 0; align-items: center; }
-.ct-rail-left.launcher                     { padding: clamp(20px, 2.4vh, 32px) clamp(12px, 0.8vw, 16px); }
+.ct-rail-left.launcher                     { padding: clamp(12px, 1.4vh, 18px) clamp(8px, 0.6vw, 12px); }
 
 /* Badge user recentré sur l'axe du rail (88px) — sans override il dérive de
    ~10px vers la gauche dans la largeur réduite. */
@@ -3089,6 +3089,27 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   color: var(--ct-text-strong) !important;
 }
 .ct-rail-left:not(.launcher) .ct-rail-top  { padding: 8px 0; }
+
+/* Icône du launcher (mode déplié `.launcher`) — pas de box autour de l'icône :
+   on resserre le badge sur le glyphe seul et on neutralise tout fond/bordure/
+   radius/ombre résiduels. L'icône H reste, mais sans cadre ni padding qui la
+   font lire comme un bouton encadré. */
+.ct-rail-left.launcher .ct-rail-top {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.ct-rail-left.launcher .ct-rail-top-badge {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
 
 /* Launcher verrouillé en position repliée — un seul produit (Connect), le
    panneau lanceur n'a rien à afficher. On neutralise le toggle pour qu'il
