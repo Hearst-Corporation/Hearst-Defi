@@ -40,9 +40,14 @@ export default function ModuleLayoutDebugPage() {
         <div className="pf-fixed-body">
           <div className="pf-row-charts">
             <AllocationDonut
-              positions={data.positions}
+              buckets={[
+                { bucket: "mining", pct: 60, valueUsdc: data.totalValueUsdc * 0.6 },
+                { bucket: "btc_tactical", pct: 15, valueUsdc: data.totalValueUsdc * 0.15 },
+                { bucket: "usdc_base", pct: 15, valueUsdc: data.totalValueUsdc * 0.15 },
+                { bucket: "stable_reserve", pct: 10, valueUsdc: data.totalValueUsdc * 0.1 },
+              ]}
               totalValueUsdc={data.totalValueUsdc}
-              source={data.source}
+              source="live"
             />
             <ValueChart
               positions={data.positions}

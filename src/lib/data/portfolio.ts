@@ -642,6 +642,56 @@ export const loadYieldStackProps = cache(async (hasPositions: boolean = true): P
   };
 });
 
+export interface AllocationBucketSlice {
+  bucket: "mining" | "btc_tactical" | "usdc_base" | "stable_reserve";
+  pct: number;
+  valueUsdc: number;
+}
+
+export interface AllocationDonutData {
+  buckets: AllocationBucketSlice[];
+  source: "live" | "stale";
+  updatedAt?: Date;
+}
+
+const BUCKET_ORDER: AllocationBucketSlice["bucket"][] = [
+  "mining",
+  "btc_tactical",
+  "usdc_base",
+  "stable_reserve",
+];
+
+/**
+ * Build allocation-by-bucket slices for the portfolio donut from the latest
+ * vault snapshot (same source as the yield stack — shares its 1h cache). Empty
+ * when no snapshot / no positions, so the donut renders its preview shell.
+ */
+export const loadAllocationDonutProps = cache(
+  async (hasPositions: boolean = true): Promise<AllocationDonutData> => {
+    const snapshot = await fetchYieldStackData();
+
+    if (!snapshot || snapshot.allocations.length === 0 || !hasPositions) {
+      return { buckets: [], source: "stale" };
+    }
+
+    const slices: AllocationBucketSlice[] = snapshot.allocations
+      .map((alloc) => ({
+        bucket: alloc.bucket as AllocationBucketSlice["bucket"],
+        pct: toNumber(alloc.pct),
+        valueUsdc: toNumber(alloc.valueUsdc),
+      }))
+      .sort(
+        (a, b) => BUCKET_ORDER.indexOf(a.bucket) - BUCKET_ORDER.indexOf(b.bucket),
+      );
+
+    return {
+      buckets: slices,
+      source: "live",
+      updatedAt: asCachedDate(snapshot.takenAt),
+    };
+  },
+);
+
 /**
  * Build TimeToCashProps from the first active position and vault yield.
  */

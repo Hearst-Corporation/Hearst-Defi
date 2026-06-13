@@ -188,9 +188,9 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     );
     const donutHtml = renderToStaticMarkup(
       <AllocationDonut
-        positions={[]}
+        buckets={[]}
         totalValueUsdc={0}
-        source="fallback"
+        source="stale"
         previewZeros
       />,
     );

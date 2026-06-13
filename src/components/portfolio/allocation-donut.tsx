@@ -2,137 +2,122 @@ import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
-import type { PortfolioPosition } from "@/lib/data/portfolio";
+import {
+  ALLOCATION_DASH_TONE,
+  ALLOCATION_LABELS,
+} from "@/lib/allocation-colors";
+import type { AllocationBucketSlice } from "@/lib/data/portfolio";
+import type { Provenance } from "@/components/ui/provenance-badge";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
-const STATUS_LABELS: Record<string, string> = {
-  active: "Active",
-  matured: "Matured",
-  exited: "Exited",
-};
-
-const STATUS_LEGEND_TONE: Record<string, "primary" | "accent" | "accent-raw"> = {
-  active: "primary",
-  matured: "accent",
-  exited: "accent-raw",
-};
-
 interface AllocationDonutProps {
-  positions: PortfolioPosition[];
+  /** Allocation slices by yield bucket (mining / btc_tactical / usdc_base / stable_reserve). */
+  buckets: AllocationBucketSlice[];
   totalValueUsdc: number;
-  source: "live" | "fallback";
+  source: "live" | "stale";
   updatedAt?: Date;
   /** Render donut shell at $0 (layout preview, no allocation). */
   previewZeros?: boolean;
 }
 
 export function AllocationDonut({
-  positions,
+  buckets,
   totalValueUsdc,
   source,
   updatedAt,
   previewZeros = false,
 }: AllocationDonutProps) {
-  const isPreviewShell = previewZeros || (totalValueUsdc === 0 && positions.length === 0);
-  const provenance = isPreviewShell
+  const isPreviewShell =
+    previewZeros || totalValueUsdc === 0 || buckets.length === 0;
+  const provenance: Provenance | undefined = isPreviewShell
     ? undefined
-    : resolveProvenance(source, updatedAt);
-
-  // Group by status for the donut arcs.
-  type StatusKey = "active" | "matured" | "exited";
-  const grouped = new Map<StatusKey, number>();
-  for (const p of positions) {
-    grouped.set(p.status, (grouped.get(p.status) ?? 0) + p.valueUsdc);
-  }
+    : resolveProvenance(source, updatedAt, "estimated");
 
   // Canonical donut convention (r=15.9155 → C=100, pct maps 1:1 to dasharray):
   // dashArray = `${pct} ${100 - pct}`, dashOffset = -running cumulative.
-  // Derived immutably so each arc starts where the previous ended.
-  const segments: Array<{
-    status: StatusKey;
-    pct: number;
-    valueUsdc: number;
-    dashOffset: number;
-  }> = [];
-
+  // Each arc starts where the previous ended. The allocation `pct` is the vault
+  // mix; the $ value shown is that mix applied to THIS investor's holding
+  // (totalValueUsdc), not the vault-wide bucket value.
   let cumulative = 0;
-  for (const [status, value] of grouped.entries()) {
-    const pct = totalValueUsdc > 0 ? (value / totalValueUsdc) * 100 : 0;
-    segments.push({ status, pct, valueUsdc: value, dashOffset: -cumulative });
-    cumulative += pct;
-  }
+  const segments = buckets.map((slice) => {
+    const investorValueUsdc = (totalValueUsdc * slice.pct) / 100;
+    const segment = { ...slice, investorValueUsdc, dashOffset: -cumulative };
+    cumulative += slice.pct;
+    return segment;
+  });
 
-  const hasAllocation = totalValueUsdc > 0 && segments.length > 0;
+  const hasAllocation = !isPreviewShell && segments.length > 0;
 
   return (
     <PfCockpitPanel variant="compact" aria-label="Portfolio allocation">
       <PfCockpitPanelHeader
         title="Allocation"
-        subtitle="By position status"
+        subtitle="By yield source"
         provenance={provenance}
       />
 
       <div className="pf-allocation-donut flex min-h-0 flex-1 flex-col items-center">
         <div className="pf-allocation-donut-body flex min-h-0 w-full flex-1 flex-col items-center justify-center">
-        <div className="pf-allocation-donut-chart dash-chart-container relative m-0 w-[var(--ct-donut-size)] h-[var(--ct-donut-size)]">
-          <svg
-            className="dash-chart-svg w-full h-full"
-            viewBox="0 0 42 42"
-            role="img"
-            aria-label={
-              hasAllocation
-                ? "Allocation by status"
-                : "Allocation by status — preview at zero, no positions"
-            }
-          >
-            <circle
-              className="dash-chart-circle"
-              cx="21"
-              cy="21"
-              r="15.9155"
-              stroke="var(--ct-surface-3)"
-              strokeDasharray="100 0"
-            />
-            {segments.map((s) => (
+          <div className="pf-allocation-donut-chart dash-chart-container relative m-0 w-[var(--ct-donut-size)] h-[var(--ct-donut-size)]">
+            <svg
+              className="dash-chart-svg w-full h-full"
+              viewBox="0 0 42 42"
+              role="img"
+              aria-label={
+                hasAllocation
+                  ? "Allocation by yield source"
+                  : "Allocation by yield source — preview at zero, no positions"
+              }
+            >
               <circle
-                key={s.status}
-                className={`dash-chart-circle color-${STATUS_LEGEND_TONE[s.status] ?? "muted"}`}
+                className="dash-chart-circle"
                 cx="21"
                 cy="21"
                 r="15.9155"
-                strokeDasharray={`${s.pct.toFixed(2)} ${(100 - s.pct).toFixed(2)}`}
-                strokeDashoffset={s.dashOffset.toFixed(2)}
+                stroke="var(--ct-surface-3)"
+                strokeDasharray="100 0"
               />
-            ))}
-          </svg>
-          <div className="donut-center">
-            <span className="donut-val">
-              {isPreviewShell ? "—" : formatUsdCompact(totalValueUsdc)}
-            </span>
-            <span className="donut-lbl">Portfolio</span>
+              {hasAllocation
+                ? segments.map((s) => (
+                    <circle
+                      key={s.bucket}
+                      className={`dash-chart-circle color-${ALLOCATION_DASH_TONE[s.bucket]}`}
+                      cx="21"
+                      cy="21"
+                      r="15.9155"
+                      strokeDasharray={`${s.pct.toFixed(2)} ${(100 - s.pct).toFixed(2)}`}
+                      strokeDashoffset={s.dashOffset.toFixed(2)}
+                    />
+                  ))
+                : null}
+            </svg>
+            <div className="donut-center">
+              <span className="donut-val">
+                {isPreviewShell ? "—" : formatUsdCompact(totalValueUsdc)}
+              </span>
+              <span className="donut-lbl">Portfolio</span>
+            </div>
           </div>
-        </div>
 
-        {hasAllocation ? (
-          <div className="dash-legend w-full mt-0">
-            {segments.map((s) => (
-              <div key={s.status} className="dash-legend-row">
-                <span className="dash-legend-left">
-                  <span
-                    className={`dash-legend-dot dot-${STATUS_LEGEND_TONE[s.status] ?? "muted"}`}
-                  />
-                  {STATUS_LABELS[s.status] ?? s.status}
-                </span>
-                <span className="dash-legend-val">
-                  {s.pct.toFixed(0)}% · {formatUsdCompact(s.valueUsdc)}
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : null}
+          {hasAllocation ? (
+            <div className="dash-legend w-full mt-0">
+              {segments.map((s) => (
+                <div key={s.bucket} className="dash-legend-row">
+                  <span className="dash-legend-left">
+                    <span
+                      className={`dash-legend-dot dot-${ALLOCATION_DASH_TONE[s.bucket]}`}
+                    />
+                    {ALLOCATION_LABELS[s.bucket] ?? s.bucket}
+                  </span>
+                  <span className="dash-legend-val">
+                    {s.pct.toFixed(0)}% · {formatUsdCompact(s.investorValueUsdc)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
-
       </div>
     </PfCockpitPanel>
   );

@@ -8,6 +8,7 @@ import {
   loadDistribCalendarProps,
   loadProofPulseProps,
   loadYieldStackProps,
+  loadAllocationDonutProps,
   loadTimeToCashProps,
   resolveProvenance,
 } from "@/lib/data/portfolio";
@@ -75,6 +76,7 @@ export default async function PortfolioPage() {
     distribCalendarProps,
     proofPulseProps,
     yieldStackProps,
+    allocationDonutProps,
     showDemoBanner,
   ] = await Promise.all([
     loadLockMeterProps(),
@@ -83,6 +85,7 @@ export default async function PortfolioPage() {
     loadDistribCalendarProps(),
     loadProofPulseProps(),
     loadYieldStackProps(hasPositions),
+    loadAllocationDonutProps(hasPositions),
     investor?.id != null
       ? investorHasDemoPosition(investor.id)
       : Promise.resolve(false),
@@ -175,10 +178,10 @@ export default async function PortfolioPage() {
           </div>
           <div className="bento-col-4 pf-cockpit-slot" data-testid="allocation-donut-widget">
             <AllocationDonut
-              positions={data.positions}
+              buckets={allocationDonutProps.buckets}
               totalValueUsdc={data.totalValueUsdc}
-              source={data.source}
-              updatedAt={data.updatedAt}
+              source={allocationDonutProps.source}
+              updatedAt={allocationDonutProps.updatedAt}
               previewZeros={previewZeros}
             />
           </div>
