@@ -14,17 +14,6 @@
   container-name: admin-doc;
 }
 
-/* Scenario Lab viewport lock — admin-doc sits between main and the lab shell. */
-.admin-doc:has(.scenario-lab-page--viewport) {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  min-width: 0;
-  overflow: hidden;
-}
-
 /* ── Shared layout primitives ─────────────────────────────────────────────── */
 
 .admin-doc .admin-doc-shell {
@@ -55,6 +44,10 @@
 
 .admin-doc .admin-doc-shell--compact {
   gap: var(--ct-space-3);
+}
+
+.admin-doc .admin-doc-shell--roomy {
+  gap: var(--ct-space-6);
 }
 
 .admin-doc .admin-doc-stack {
@@ -355,13 +348,13 @@
   width: var(--ct-space-16);
 }
 
-/* Product-workspace L1 hero (DESIGN_SYSTEM §13.4 — thesis fused with the page
-   h1). The objective is the dominant first-viewport object; decision + posture
-   sit beside it as a compact L4 strip. No competing in-card h2. */
-.admin-doc .pw-hero {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
+/* Product-workspace L1 hero panel (§13.3 display tier — graphite + accent wash). */
+.admin-doc .pw-hero-panel {
+  border-color: color-mix(in srgb, var(--ct-accent) 22%, var(--ct-graphite-border-nested));
+  background: color-mix(in srgb, var(--ct-surface-1) 92%, var(--ct-accent-soft));
+  box-shadow:
+    0 0 48px color-mix(in srgb, var(--ct-accent) 10%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--ct-text-strong) 6%, transparent);
 }
 
 .admin-doc .pw-hero__row {
@@ -369,33 +362,52 @@
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-5);
 }
 
-/* The thesis — visually the loudest text on the page after the h1, but it is a
-   thesis statement (not a section heading), so it carries no heading tag. */
+.admin-doc .pw-hero__main {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
 .admin-doc .pw-hero__thesis {
-  font-size: var(--ct-text-xl);
+  font-size: var(--ct-text-2xl);
   font-weight: var(--ct-font-bold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
   color: var(--ct-text-primary);
   text-wrap: balance;
-  max-width: var(--ct-prose-lg, 60ch);
+  max-width: var(--ct-prose-xl, 68ch);
 }
 
-/* Decision posture chip cluster — right of the thesis on wide, below on narrow. */
+.admin-doc .pw-hero__thesis--empty {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-muted);
+}
+
+.admin-doc .pw-hero__mandate {
+  font-size: var(--ct-text-xs);
+  line-height: var(--ct-leading-relaxed);
+  color: var(--ct-text-faint);
+  max-width: var(--ct-prose-lg);
+}
+
 .admin-doc .pw-hero__aside {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
   gap: var(--ct-space-2);
   flex-shrink: 0;
 }
 
 @container admin-doc (max-width: 40rem) {
   .admin-doc .pw-hero__aside {
-    align-items: flex-start;
+    justify-content: flex-start;
   }
 }
 
@@ -1176,6 +1188,8 @@
   flex-direction: column;
   gap: var(--ct-space-5);
   min-width: 0;
+  container-type: inline-size;
+  container-name: invest-flow-primary;
 }
 
 .product-doc .invest-flow-detail__secondary {
@@ -1183,6 +1197,8 @@
   flex-direction: column;
   gap: var(--ct-space-5);
   min-width: 0;
+  container-type: inline-size;
+  container-name: invest-flow-secondary;
 }
 
 /* Desktop: switch to 2-col grid — primary takes ~60%, secondary ~40% */
@@ -1397,6 +1413,25 @@
   }
 }
 
+/* Workspace primary lane is ~60% of shell — defer row layout to primary width */
+@container product-doc (min-width: 40rem) {
+  .product-doc .invest-flow-detail__primary .vault-allocation-row__body {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: var(--ct-space-0_5);
+  }
+}
+
+@container invest-flow-primary (min-width: 28rem) {
+  .product-doc .invest-flow-detail__primary .vault-allocation-row__body {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--ct-space-4);
+  }
+}
+
 /* Regime scenario table — flat rows inside term sheet (no ct-table-surface box) */
 .product-doc .regime-scenario-table {
   width: 100%;
@@ -1445,6 +1480,50 @@
 @container product-doc (min-width: 48rem) {
   .product-doc .regime-scenario-table .regime-scenario-table__col-wide {
     display: table-cell;
+  }
+}
+
+/* Workspace primary: column visibility tracks the strategy lane, not full shell */
+@container product-doc (min-width: 40rem) {
+  .product-doc .invest-flow-detail__primary .regime-scenario-table .regime-scenario-table__col-scenario {
+    display: none;
+  }
+
+  .product-doc .invest-flow-detail__primary .regime-scenario-table .regime-scenario-table__scenario-inline {
+    display: block;
+  }
+}
+
+@container product-doc (min-width: 48rem) {
+  .product-doc .invest-flow-detail__primary .regime-scenario-table .regime-scenario-table__col-wide {
+    display: none;
+  }
+}
+
+@container invest-flow-primary (min-width: 32rem) {
+  .product-doc .invest-flow-detail__primary .regime-scenario-table .regime-scenario-table__col-scenario {
+    display: table-cell;
+  }
+
+  .product-doc .invest-flow-detail__primary .regime-scenario-table .regime-scenario-table__scenario-inline {
+    display: none;
+  }
+}
+
+@container invest-flow-primary (min-width: 42rem) {
+  .product-doc .invest-flow-detail__primary .regime-scenario-table .regime-scenario-table__col-wide {
+    display: table-cell;
+  }
+}
+
+/* Sidebar KPIs — never inherit viewport 3-col; follow secondary lane width */
+.product-doc .invest-flow-detail__secondary .ct-nested-kpi-grid {
+  grid-template-columns: 1fr;
+}
+
+@container invest-flow-secondary (min-width: 17rem) {
+  .product-doc .invest-flow-detail__secondary .ct-nested-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1546,11 +1625,20 @@
 
 /* ── Proof Center ────────────────────────────────────────────────────────── */
 
+/* Shared filter tablist — product + admin (not scoped to admin-doc-inline-row) */
+:is(.product-doc, .admin-doc) .doc-flow-tablist {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
 .product-doc .proof-center-section__toolbar {
   display: flex;
   min-width: 0;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--ct-space-4);
   margin-bottom: var(--ct-space-6);
@@ -1559,6 +1647,11 @@
 .product-doc .proof-center-footer {
   padding-top: var(--ct-space-6);
   border-top: 1px solid var(--ct-border-soft);
+}
+
+/* Panel-scoped columns — overrides viewport .ct-proof-grid rules in cockpit.css */
+.product-doc .proof-center-shell .ct-proof-grid {
+  grid-template-columns: 1fr;
 }
 
 @container product-doc (min-width: 36rem) {
@@ -1575,7 +1668,7 @@
 
 /* ── Mobile narrow (< 600px) ── */
 @media (max-width: 600px) {
-  .admin-doc .admin-doc-inline-row[role="tablist"] {
+  :is(.product-doc, .admin-doc) :is(.doc-flow-tablist, .admin-doc-inline-row)[role="tablist"] {
     gap: var(--ct-space-1_5);
     overflow-x: auto;
     flex-wrap: nowrap;
@@ -1583,7 +1676,7 @@
     scrollbar-width: none;
   }
 
-  .admin-doc .admin-doc-inline-row[role="tablist"]::-webkit-scrollbar {
+  :is(.product-doc, .admin-doc) :is(.doc-flow-tablist, .admin-doc-inline-row)[role="tablist"]::-webkit-scrollbar {
     display: none;
   }
 }

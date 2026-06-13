@@ -515,179 +515,10 @@
    Page-scoped, token-only wrappers that keep input/output panels centered and
    prevent wide result panels from escaping the centre column. */
 
-/* Scenario Lab master container — header, controls, presets and workspace all
-   share this single horizontal axis so nothing floats on its own width. */
+/* Scenario Lab — same width rhythm as other admin-doc-shell pages (no max-width cap). */
 .scenario-lab-page {
   width: 100%;
-  max-width: 75rem;
-  margin-inline: auto;
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-}
-
-/* ── Viewport-locked mode (Single tab) ───────────────────────────────────────
-   Chrome (H1, toolbar, presets) stays fixed in the centre panel. The workspace
-   fills remaining height; input + output cards each scroll inside their column. */
-.ct-panels-row:has(.scenario-lab-page--viewport) {
-  height: 100dvh;
-  max-height: 100dvh;
-  overflow: hidden;
-}
-
-.ct-center-panel:has(.scenario-lab-page--viewport) {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.ct-page-area:has(.scenario-lab-page--viewport) {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-  padding: var(--ct-space-6) var(--ct-space-5) var(--ct-space-4);
-}
-
-.ct-page-area:has(.scenario-lab-page--viewport) > main#main-content {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-}
-
-main#main-content:has(.scenario-lab-page--viewport) > nav,
-main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
-  flex-shrink: 0;
-}
-
-.scenario-lab-page--viewport {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-  gap: var(--ct-space-4);
-}
-
-.scenario-lab-page__chrome,
-.scenario-lab-page--viewport .scenario-lab-toolbar,
-.scenario-lab-page--viewport .scenario-preset-bar,
-.scenario-lab-page--viewport .scenario-lab-single > [role="alert"] {
-  flex-shrink: 0;
-}
-
-.scenario-lab-page__body {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.scenario-lab-page--viewport .scenario-lab-shell {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.scenario-lab-page--viewport .scenario-lab-shell > [role="tabpanel"]:not([hidden]) {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.scenario-lab-page--viewport #tabpanel-scenario > [role="tabpanel"]:not([hidden]) {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.scenario-lab-page--viewport .scenario-lab-single {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.scenario-lab-workspace--viewport {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
-  align-items: stretch;
-}
-
-.scenario-lab-workspace--viewport .scenario-lab-input-card {
-  min-height: 0;
-  align-self: stretch;
-  overflow: hidden;
-}
-
-.scenario-lab-workspace--viewport .scenario-lab-input-scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-.scenario-lab-workspace--viewport .scenario-lab-input-footer {
-  flex-shrink: 0;
-}
-
-.scenario-lab-workspace--viewport .scenario-lab-output-card {
-  min-height: 0;
-  align-self: stretch;
-  overflow: hidden;
-}
-
-.scenario-lab-workspace--viewport .scenario-lab-output-scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-/* Compare / Backtest tabs: scroll the whole panel (no split workspace). */
-.scenario-lab-page--viewport #tabpanel-scenario > #tabpanel-mode-compare:not([hidden]),
-.scenario-lab-page--viewport #tabpanel-backtest:not([hidden]) {
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-@media (max-width: 47.999rem) {
-  .ct-panels-row:has(.scenario-lab-page--viewport) {
-    height: auto;
-    max-height: none;
-    overflow: visible;
-  }
-
-  .ct-center-panel:has(.scenario-lab-page--viewport),
-  .ct-page-area:has(.scenario-lab-page--viewport),
-  .ct-page-area:has(.scenario-lab-page--viewport) > main#main-content,
-  .scenario-lab-page--viewport {
-    height: auto;
-    overflow: visible;
-  }
-
-  .scenario-lab-workspace--viewport .scenario-lab-output-card {
-    overflow: visible;
-  }
+  min-width: 0;
 }
 
 .scenario-lab-shell,
@@ -910,19 +741,26 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   grid-template-columns: minmax(0, 1fr);
 }
 
-/* Desktop: 30/70 split — both columns stretch to workspace height. */
+/* Desktop: input column + central flow column. */
 @container lab-shell (min-width: 42rem) {
-  .scenario-lab-workspace--viewport {
-    grid-template-columns: minmax(15rem, 30fr) minmax(0, 70fr);
-    gap: var(--ct-space-4);
+  .scenario-lab-workspace {
+    grid-template-columns: minmax(18rem, 32fr) minmax(0, 68fr);
+    gap: var(--ct-space-5);
+    align-items: start;
   }
 }
 
-/* Stacked workspace: split vertical space so inputs stay reachable. */
 @container lab-shell (max-width: 41.999rem) {
-  .scenario-lab-workspace--viewport {
-    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
-    gap: var(--ct-space-3);
+  .scenario-lab-input-card {
+    max-height: clamp(24rem, 65dvh, 32rem);
+  }
+
+  .scenario-lab-input-scroll {
+    overflow-y: auto;
+  }
+
+  .scenario-lab-output-idle {
+    min-height: min(16rem, 40dvh);
   }
 }
 
@@ -943,7 +781,6 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 .scenario-lab-input-card {
   display: flex;
   flex-direction: column;
-  align-self: start;
   overflow: hidden;
 }
 
@@ -1356,12 +1193,6 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   .projection-studio-workspace--filled .projection-studio-output,
   .projection-studio-workspace--filled .projection-studio-output-stage {
     min-height: 100%;
-  }
-}
-
-@container lab-shell (max-width: 41.999rem) {
-  .scenario-lab-workspace--viewport .scenario-lab-output-card {
-    min-height: min(20rem, 45dvh);
   }
 }
 
@@ -3261,7 +3092,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-page-area                              { padding: 32px 40px 80px; }
 
 /* Admin operator surfaces — denser inset (rails + chat compress centre vs LP). */
-.ct-page-area:has(.admin-doc):not(:has(.scenario-lab-page--viewport)) {
+.ct-page-area:has(.admin-doc) {
   padding: var(--ct-space-6) var(--ct-space-5) var(--ct-space-8);
 }
 .ct-embed-overlay                          { padding: 40px; }

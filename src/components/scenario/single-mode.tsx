@@ -70,7 +70,7 @@ export function SingleMode({
         </p>
       ) : null}
 
-      <div className="scenario-lab-workspace scenario-lab-workspace--viewport">
+      <div className="scenario-lab-workspace">
         <Card className="scenario-lab-input-card p-0" hoverOverlay={false}>
           <div className="scenario-lab-input-card__header">
             <h4 className="h4">Inputs</h4>
