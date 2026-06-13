@@ -2777,9 +2777,10 @@ button.ct-seg-btn {
       transparent 82%
     ),
     radial-gradient(
-      68% 50% at 32% 54%,
-      color-mix(in srgb, var(--ct-text-strong) 16%, transparent) 0%,
-      transparent 72%
+      74% 56% at 32% 54%,
+      color-mix(in srgb, var(--ct-text-strong) 22%, transparent) 0%,
+      color-mix(in srgb, var(--ct-text-strong) 9%, transparent) 46%,
+      transparent 80%
     ),
     linear-gradient(
       180deg,
