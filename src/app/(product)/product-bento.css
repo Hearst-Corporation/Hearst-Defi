@@ -27,7 +27,7 @@
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
   border: 1px solid var(--ct-graphite-border);
-  border-radius: var(--ct-radius-lg);
+  border-radius: var(--ct-glass-radius);
   box-shadow:
     0 8px 24px -16px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
     var(--ct-shadow-depth);
@@ -58,7 +58,7 @@
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
   border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-lg);
+  border-radius: var(--ct-glass-radius);
   box-shadow:
     0 8px 24px -16px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent),
     var(--ct-shadow-depth);
