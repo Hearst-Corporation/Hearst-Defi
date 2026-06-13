@@ -44,7 +44,7 @@ export function ProofFilter() {
   }
 
   return (
-    <nav aria-label="Proof type filter" className="admin-doc-inline-row" role="tablist">
+    <nav aria-label="Proof type filter" className="doc-flow-tablist" role="tablist">
       {OPTIONS.map((opt) => {
         const isActive = current === opt.value;
         return (

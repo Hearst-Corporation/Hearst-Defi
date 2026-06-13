@@ -95,7 +95,7 @@ function ProofCardHeader({
   trailing: ReactNode;
 }) {
   return (
-    <header className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--start gap-3">
+    <header className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--actions items-start">
       <div className="min-w-0 product-doc-stack product-doc-stack--micro">
         {eyebrow ? (
           <span className="eyebrow product-doc-inline-row product-doc-inline-row--dense ct-text-muted">
@@ -109,7 +109,9 @@ function ProofCardHeader({
         ) : null}
         <h3 className="h3 text-balance m-0 min-w-0">{title}</h3>
       </div>
-      <div className="product-doc-inline-row shrink-0">{trailing}</div>
+      {trailing ? (
+        <div className="product-doc-inline-row shrink-0">{trailing}</div>
+      ) : null}
     </header>
   );
 }
@@ -120,7 +122,7 @@ function ProofFieldList({ children }: { children: ReactNode }) {
 
 function ProofCardActions({ children }: { children: ReactNode }) {
   return (
-    <div className="mt-auto product-doc-inline-row product-doc-inline-row--tight pt-3 border-t border-[var(--ct-border-soft)]">
+    <div className="mt-auto product-doc-inline-row product-doc-inline-row--tight border-t ct-bc-soft pt-3">
       {children}
     </div>
   );
@@ -191,7 +193,7 @@ function PaperProofCard({
           {dateFmt.format(postedAt)} UTC
         </ProofRow>
         <ProofRow label="Signer">
-          <span className="pf-proof-row__truncate">{proof.postedBy}</span>
+          <span className="ct-proof-row__truncate">{proof.postedBy}</span>
         </ProofRow>
         <ProofRow label="Hash">
           <span title={proof.hash} aria-label={`Hash ${proof.hash}`}>
