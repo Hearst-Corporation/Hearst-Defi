@@ -59,7 +59,6 @@ export function PresetBar({ selected, onSelect, disabled }: PresetBarProps) {
               type="button"
               disabled={disabled}
               onClick={() => onSelect(p.id)}
-              title={p.description}
               aria-pressed={isActive}
               className={cn(
                 "scenario-preset-bar__button",
