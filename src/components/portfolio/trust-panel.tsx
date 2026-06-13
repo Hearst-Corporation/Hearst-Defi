@@ -257,14 +257,14 @@ export function TrustPanel({ risk, proof, previewZeros = false }: TrustPanelProp
                   <span className="pf-proof-row__stack">
                     <span className="ct-text-primary">{methodologyVersion}</span>
                     <span className="pf-proof-row__meta body-xs ct-text-faint">
-                      Methodology attested
+                      {proofHasData ? "Methodology attested" : "Methodology published"}
                       {methodologyLocked ? (
                         <span
                           className="uppercase ct-tracking-wide"
                           aria-label="Methodology is locked"
                         >
                           {" "}
-                          · locked
+                          · LOCKED
                         </span>
                       ) : null}
                     </span>

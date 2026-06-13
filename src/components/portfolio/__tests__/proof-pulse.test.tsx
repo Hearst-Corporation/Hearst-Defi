@@ -183,4 +183,15 @@ describe("ProofPulse compact layout", () => {
     expect(html).toContain("pf-proof-row__datetime");
     expect(html).toContain("pf-proof-row__truncate");
   });
+
+  it("shows 'Methodology published' (not 'attested') when no PoR attestation exists", () => {
+    // No attestation: both TVL figures are 0 → attestationState returns "none" → hasData = false
+    const noAttestation = {
+      ...baseProps,
+      lastPor: { timestamp: new Date("2026-06-01T12:00:00.000Z"), statedTvlUsdc: 0, onChainTvlUsdc: 0 },
+    };
+    const html = renderToStaticMarkup(<ProofPulse {...noAttestation} />);
+    expect(html).toContain("Methodology published");
+    expect(html).not.toContain("Methodology attested");
+  });
 });
