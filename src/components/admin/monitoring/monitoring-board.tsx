@@ -35,6 +35,13 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
         <MonitoringTable
           colSpan={3}
           isEmpty={stats.runsByAgent.length === 0}
+          colgroup={
+            <colgroup>
+              <col style={{ width: "60%" }} />
+              <col style={{ width: "20%" }} />
+              <col style={{ width: "20%" }} />
+            </colgroup>
+          }
           header={
             <>
               <th className="stat-label ct-table-header px-4 py-3 text-left">Agent</th>
@@ -58,6 +65,16 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
         <MonitoringTable
           colSpan={6}
           isEmpty={stats.recentRuns.length === 0}
+          colgroup={
+            <colgroup>
+              <col style={{ width: "22%" }} />
+              <col style={{ width: "14%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "28%" }} />
+            </colgroup>
+          }
           header={
             <>
               <th className="stat-label ct-table-header px-4 py-3 text-left">Agent</th>
@@ -105,11 +122,13 @@ function KpiTile({ label, value }: { label: string; value: string }) {
 function MonitoringTable({
   colSpan,
   isEmpty,
+  colgroup,
   header,
   children,
 }: {
   colSpan: number;
   isEmpty: boolean;
+  colgroup?: ReactNode;
   header: ReactNode;
   children: ReactNode;
 }) {
@@ -117,6 +136,7 @@ function MonitoringTable({
     <Card className="p-0 overflow-hidden" hoverOverlay={false}>
       <div className="overflow-x-auto">
         <table className="min-w-full table-fixed body-sm">
+          {colgroup}
           <thead>
             <tr>{header}</tr>
           </thead>
@@ -146,12 +166,7 @@ function RunStatusBadge({ status }: { status: string }) {
   };
 
   return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full border px-2 py-0.5 body-xs font-medium",
-        tone[status] ?? "ct-surface-2 ct-text-muted",
-      )}
-    >
+    <span className={cn("ct-pill", tone[status] ?? "ct-surface-2 ct-text-muted")}>
       {status}
     </span>
   );
