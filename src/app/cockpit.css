@@ -170,6 +170,7 @@
   --ct-space-14: 3.5rem;    /* 56px */
   --ct-space-16: 4rem;      /* 64px */
   --ct-space-24: 6rem;      /* 96px */
+  --ct-space-32: 8rem;      /* 128px */
 
   /* Text scale — RESPONSIVE via clamp(min, fluid, max).
      - Small (base/sm/xs/micro) restent fixes pour la lisibilité du body sur mobile.
@@ -444,6 +445,19 @@
   .ct-proof-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+/* Proof card — per-type accent bar on the left edge (colour via --ct-proof-accent,
+   set inline per proof type). Inset from the rounded corners for a clean strip. */
+.ct-proof-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: var(--ct-space-5);
+  bottom: var(--ct-space-5);
+  width: 2px;
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-proof-accent, var(--ct-border));
 }
 
 .ct-overlay-backdrop {
@@ -4068,24 +4082,30 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   background: var(--ct-graphite-subtle-bg);
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
+  /* Reflow on the list's OWN width (compressed by the open chat), not the
+     viewport — a viewport media query misses chat-compressed admin centre. */
+  container-type: inline-size;
+  container-name: vaults-list;
+}
+
+.admin-vaults-list__header,
+.admin-vaults-list__row {
+  display: grid;
+  /* Actions sized for the worst case (View + Clone + Pause); apy fits the
+     widest range (e.g. 24.2—35.7%) so columns never overflow before stacking. */
+  grid-template-columns: minmax(0, 2fr) 6rem minmax(0, 1.4fr) 7.5rem 8.5rem;
+  gap: var(--ct-space-4);
+  align-items: center;
+  min-width: 0;
 }
 
 .admin-vaults-list__header {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) 6rem minmax(0, 1.5fr) 7rem 6rem;
-  gap: var(--ct-space-4);
-  align-items: center;
   padding: var(--ct-space-2) var(--ct-space-5);
   border-bottom: 1px solid var(--ct-border-soft);
 }
 
 .admin-vaults-list__row {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) 6rem minmax(0, 1.5fr) 7rem 6rem;
-  gap: var(--ct-space-4);
-  align-items: center;
   padding: var(--ct-space-3) var(--ct-space-5);
-  min-width: 0;
   transition: background var(--ct-dur-fast) var(--ct-ease);
 }
 
@@ -4131,20 +4151,30 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   flex-wrap: nowrap;
 }
 
-/* Mobile: stack each row */
-@media (max-width: 640px) {
+/* Narrow list (chat-compressed centre or mobile): stack each row into a card.
+   Container query → fires on the list's own width, not the viewport. */
+@container vaults-list (max-width: 48rem) {
   .admin-vaults-list__header {
     display: none;
   }
 
   .admin-vaults-list__row {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-    gap: var(--ct-space-2_5);
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: var(--ct-space-2) var(--ct-space-3);
     padding: var(--ct-space-4);
   }
 
-  .admin-vaults-list__actions {
+  .admin-vaults-list__identity { grid-column: 1; grid-row: 1; }
+  .admin-vaults-list__status   { grid-column: 2; grid-row: 1; justify-content: flex-end; }
+  .admin-vaults-list__metrics  { grid-column: 1; grid-row: 2; }
+  .admin-vaults-list__apy      { grid-column: 2; grid-row: 2; align-items: flex-end; }
+  .admin-vaults-list__actions  {
+    grid-column: 1 / -1;
+    grid-row: 3;
     justify-content: flex-start;
+    flex-wrap: wrap;
+    padding-top: var(--ct-space-1);
+    border-top: 1px solid var(--ct-border-soft);
   }
 }

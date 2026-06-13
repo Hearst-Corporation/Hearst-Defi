@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProofRow } from "@/components/ui/nested-panel";
-import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
+import { type Provenance } from "@/components/ui/provenance-badge";
 import { EXPLORER_ADDRESS_BASE, EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { ProofType } from "@/lib/proof-center-types";
 
@@ -19,14 +19,20 @@ interface ProofCardProps {
   proof: UnifiedProof;
 }
 
-const TYPE_VARIANT: Record<
-  ProofType,
-  "brand" | "success" | "warning" | "default"
-> = {
-  mining_attestation: "brand",
-  custody: "success",
-  audit: "warning",
-  methodology: "default",
+/** Per-type accent colour (token-only). Mining = the single green; the rest
+ *  use distinct non-green tokens — drives the card's left accent bar + dot. */
+const TYPE_ACCENT: Record<ProofType, string> = {
+  mining_attestation: "var(--ct-accent)",
+  custody: "var(--ct-status-info)",
+  audit: "var(--ct-status-warning)",
+  methodology: "var(--ct-text-faint)",
+};
+
+const TYPE_LABEL: Record<ProofType, string> = {
+  mining_attestation: "Mining",
+  custody: "Custody",
+  audit: "Audit",
+  methodology: "Methodology",
 };
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
@@ -55,9 +61,20 @@ function btcFmt(value: number): string {
   }).format(value)} BTC`;
 }
 
-function ProofCardShell({ children }: { children: ReactNode }) {
+function ProofCardShell({
+  children,
+  accent,
+}: {
+  children: ReactNode;
+  /** Per-type accent colour for the left bar (token var). */
+  accent?: string;
+}) {
   return (
-    <Card className="h-full" hoverOverlay={false}>
+    <Card
+      className={cn("h-full", accent && "ct-proof-card")}
+      hoverOverlay={false}
+      style={accent ? ({ "--ct-proof-accent": accent } as React.CSSProperties) : undefined}
+    >
       <div className="product-doc-stack product-doc-stack--relaxed h-full">
         {children}
       </div>
@@ -67,14 +84,31 @@ function ProofCardShell({ children }: { children: ReactNode }) {
 
 function ProofCardHeader({
   title,
+  eyebrow,
+  accent,
   trailing,
 }: {
   title: string;
+  /** Small type label shown above the title with a colour dot. */
+  eyebrow?: string;
+  accent?: string;
   trailing: ReactNode;
 }) {
   return (
     <header className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--start gap-3">
-      <h3 className="h3 text-balance m-0 min-w-0">{title}</h3>
+      <div className="min-w-0 product-doc-stack product-doc-stack--micro">
+        {eyebrow ? (
+          <span className="eyebrow product-doc-inline-row product-doc-inline-row--dense ct-text-muted">
+            <span
+              aria-hidden
+              className="ct-dot"
+              style={{ background: accent ?? "var(--ct-border)" }}
+            />
+            {eyebrow}
+          </span>
+        ) : null}
+        <h3 className="h3 text-balance m-0 min-w-0">{title}</h3>
+      </div>
       <div className="product-doc-inline-row shrink-0">{trailing}</div>
     </header>
   );
@@ -92,20 +126,30 @@ function ProofCardActions({ children }: { children: ReactNode }) {
   );
 }
 
-function OffChainMirrorButton() {
+/** Subtle inline tag (not a dead button) marking the Phase-1 off-chain status. */
+function OffChainMirrorTag() {
   return (
-    <Button
-      type="button"
-      variant="secondary"
-      size="sm"
-      disabled
-      aria-label="On-chain mirror not yet available — Phase 2 will publish this proof via the EventLogger contract."
-      className="ct-text-muted"
+    <span
+      className="ml-auto product-doc-inline-row product-doc-inline-row--dense body-xs ct-text-faint"
       title="Phase 2 will mirror this proof on-chain via the EventLogger contract."
     >
-      Off-chain (Phase 1)
-    </Button>
+      <span aria-hidden className="ct-dot" style={{ background: "var(--ct-text-faint)" }} />
+      Off-chain · Phase 1
+    </span>
   );
+}
+
+/** Verification chip — only when an end-to-end signature result exists.
+ *  Provenance (Attested / Manual) lives in the header eyebrow so BOTH the
+ *  provenance AND the signature result stay visible (Admin Honesty contract). */
+function VerificationChip({
+  verification,
+}: {
+  verification: boolean | null | undefined;
+}) {
+  if (verification === true) return <Badge variant="success">✓ Verified</Badge>;
+  if (verification === false) return <Badge variant="danger">✗ Failed</Badge>;
+  return null;
 }
 
 export function ProofCard({ proof }: ProofCardProps) {
@@ -129,37 +173,26 @@ function PaperProofCard({
   const verification = proof.attestationVerified;
   const provenance: Provenance = verification === true ? "attested" : "manual";
 
+  const accent = TYPE_ACCENT[proof.proofType];
+  const provenanceLabel = provenance === "attested" ? "Attested" : "Manual";
+
   return (
-    <ProofCardShell>
+    <ProofCardShell accent={accent}>
       <ProofCardHeader
         title={proof.title}
-        trailing={
-          <>
-            <ProvenanceBadge kind={provenance} />
-            <Badge variant={TYPE_VARIANT[proof.proofType]}>
-              {proof.period ?? "Standing"}
-            </Badge>
-          </>
-        }
+        eyebrow={`${TYPE_LABEL[proof.proofType]} · ${provenanceLabel}`}
+        accent={accent}
+        trailing={<VerificationChip verification={verification} />}
       />
 
       <ProofFieldList>
         <ProofRow label="Source">Off-chain</ProofRow>
-        {verification !== null && verification !== undefined ? (
-          <ProofRow label="Signature">
-            <span
-              className={cn(
-                verification ? "ct-status-success" : "ct-status-danger",
-              )}
-            >
-              {verification ? "Verified" : "Failed"}
-            </span>
-          </ProofRow>
-        ) : null}
         <ProofRow label="Posted">
           {dateFmt.format(postedAt)} UTC
         </ProofRow>
-        <ProofRow label="Signer">{proof.postedBy}</ProofRow>
+        <ProofRow label="Signer">
+          <span className="pf-proof-row__truncate">{proof.postedBy}</span>
+        </ProofRow>
         <ProofRow label="Hash">
           <span title={proof.hash} aria-label={`Hash ${proof.hash}`}>
             {hashTruncated}
@@ -188,7 +221,7 @@ function PaperProofCard({
             </a>
           </Button>
         ) : (
-          <OffChainMirrorButton />
+          <OffChainMirrorTag />
         )}
       </ProofCardActions>
     </ProofCardShell>
