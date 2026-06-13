@@ -68,10 +68,12 @@
   --ct-graphite-blur: blur(28px);
 
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
-     Success/live/positive = semantic green (#16A34A) — kept distinct from the
-     brand accent green (#A7FB90) so status ≠ identity. */
+     Success/live/positive = the single brand green. The semantic token NAME
+     stays (components keep using --ct-status-success) but it resolves to the
+     brand accent — one runtime green, never a second. PDF keeps its own
+     print-green (#16a34a on white) in pdf-palette.ts; that's print, not web. */
   --ct-product-connect: var(--ct-accent);
-  --ct-status-success: #16A34A;
+  --ct-status-success: var(--ct-accent);
   --ct-status-success-soft: color-mix(in srgb, var(--ct-status-success) 10%, transparent);
   --ct-status-success-border: color-mix(in srgb, var(--ct-status-success) 20%, transparent);
   --ct-status-success-glow: color-mix(in srgb, var(--ct-status-success) 50%, transparent);
@@ -115,6 +117,7 @@
   --ct-shadow-soft: 0 4px 24px -4px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.10);
   --ct-shadow-elevated: 0 12px 48px -12px rgba(0, 0, 0, 0.60), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   --ct-shadow-depth: 0 8px 32px -8px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  --ct-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.30);
   --ct-glow-subtle: 0 0 18px color-mix(in srgb, var(--ct-accent) 16%, transparent);
   --ct-glow-soft:   0 0 24px color-mix(in srgb, var(--ct-accent) 22%, transparent);
   --ct-glow-strong: 0 0 18px color-mix(in srgb, var(--ct-accent) 28%, transparent);
@@ -946,21 +949,6 @@
   .mining-coverage-calibration__bar { animation: none; }
 }
 
-/* Legacy projection studio empty — migrate to EmptySurface when studio is next touched */
-.projection-studio-empty {
-  display: flex;
-  min-height: calc(var(--ct-space-24) + var(--ct-space-10));
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-6);
-  border: 1px dashed var(--ct-border-soft);
-  border-radius: var(--ct-radius-xl);
-  background: var(--ct-surface-0);
-  text-align: center;
-}
-
 .projection-studio-preset-rail.ct-card,
 .projection-studio-input-card.ct-card,
 .projection-studio-output-stage.ct-card {
@@ -1171,18 +1159,6 @@
 
 .projection-studio-output-head {
   padding: var(--ct-space-5);
-}
-
-.projection-studio-empty {
-  min-height: 100%;
-  flex: 1 1 auto;
-  margin: var(--ct-space-5);
-  border-style: solid;
-  text-align: left;
-}
-
-.projection-studio-empty > div:last-child {
-  max-width: 28rem;
 }
 
 @container projection-shell (min-width: 42rem) {

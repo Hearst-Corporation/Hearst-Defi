@@ -53,22 +53,6 @@
   min-height: 0;
 }
 
-.prof-summary-empty {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--ct-space-4);
-  flex: 1 1 auto;
-  min-height: 0;
-}
-
-.prof-summary-empty__copy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  max-width: var(--ct-prose-md);
-}
-
 .prof-disclaimer {
   margin: 0;
   font-style: italic;

@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { Metric } from "@/components/ui/metric";
 import {
   DataRow,
@@ -145,22 +146,18 @@ export default async function ProfilePage() {
               title="Investment summary"
               tone="quiet"
             />
-            <div className="prof-summary-empty">
-              <div className="prof-summary-empty__copy">
-                <p className="body-sm ct-text-muted m-0">
-                  Your investment summary starts after your first active position.
-                </p>
-                <p className="body-xs ct-text-faint m-0">
-                  Once a deposit is confirmed, deployed capital and subscription
-                  history appear here.
-                </p>
-              </div>
-              <Button variant="secondary" size="md" asChild className="self-start">
+            <EmptySurface
+              variant="inline"
+              className="h-full"
+              message="Your investment summary starts after your first active position."
+              detail="Once a deposit is confirmed, deployed capital and subscription history appear here."
+            >
+              <Button variant="secondary" size="md" asChild className="mt-2">
                 <Link href="/vaults" aria-label="Explore the vault">
                   Explore the vault
                 </Link>
               </Button>
-            </div>
+            </EmptySurface>
           </Card>
         )}
 

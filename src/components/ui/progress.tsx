@@ -3,7 +3,7 @@ import { cn } from "@/lib/cn";
 interface ProgressProps {
   value: number;
   max?: number;
-  /** `plain` — no shimmer, shadow-inner, or backdrop blur (dense admin lists). */
+  /** `plain` — no shimmer, inset shadow, or backdrop blur (dense admin lists). */
   variant?: "default" | "plain";
   /** Optional class applied to the fill bar (e.g. "bg-[var(--ct-status-danger)]"). */
   fillClassName?: string;
@@ -33,7 +33,7 @@ export function Progress({
     <div
       className={cn(
         "h-1.5 w-full overflow-hidden rounded-full ct-surface-2",
-        !isPlain && "shadow-inner backdrop-blur-sm",
+        !isPlain && "shadow-[var(--ct-shadow-inset)] backdrop-blur-sm",
         className,
       )}
       role="progressbar"
