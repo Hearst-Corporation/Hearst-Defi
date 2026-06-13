@@ -630,21 +630,44 @@
   margin-bottom: 0;
 }
 
-/* Merged Trust panel — internal subsections separated by light dividers
-   (one panel, three sections — no nested card borders). */
+/* Merged Trust panel — ONE card, three subsections laid out as internal COLUMNS
+   (Risk wider · Proof · Security), split by vertical hairline spines. Columns
+   keep each row narrow so a "Label … Pending" line never stretches the full
+   panel width with a dead gap. Collapses to a stacked single column on narrow. */
+.pf-trust-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 0.95fr;
+  gap: var(--ct-space-5);
+  flex: 1;
+  min-width: 0;
+}
+
 .pf-trust-section {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-2);
-  border-top: 1px solid var(--ct-border-soft);
-  padding-top: var(--ct-space-3);
-  margin-top: var(--ct-space-3);
+  min-width: 0;
 }
 
-.pf-trust-section:first-child {
-  border-top: 0;
-  padding-top: 0;
-  margin-top: 0;
+/* Vertical spine between columns */
+.pf-trust-grid > .pf-trust-section + .pf-trust-section {
+  border-left: 1px solid var(--ct-graphite-border-nested);
+  padding-left: var(--ct-space-5);
+}
+
+@container pf-panel (max-width: 52rem) {
+  .pf-trust-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  /* Stacked: spines become horizontal dividers between sections */
+  .pf-trust-grid > .pf-trust-section + .pf-trust-section {
+    border-left: 0;
+    padding-left: 0;
+    border-top: 1px solid var(--ct-border-soft);
+    padding-top: var(--ct-space-3);
+    margin-top: var(--ct-space-3);
+  }
 }
 
 .pf-checklist-list {

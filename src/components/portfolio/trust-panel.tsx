@@ -141,6 +141,7 @@ export function TrustPanel({ risk, proof, previewZeros = false }: TrustPanelProp
     <PfCockpitPanel variant="wide" aria-label="Trust & proof">
       <PfCockpitPanelHeader title="Trust & proof" provenance={headerProvenance} />
 
+      <div className="pf-trust-grid">
       {/* ── 1. Risk pulse ───────────────────────────────────────────────────── */}
       <section className="pf-trust-section" aria-label="Risk pulse">
         <PfCockpitSubhead
@@ -328,6 +329,7 @@ export function TrustPanel({ risk, proof, previewZeros = false }: TrustPanelProp
           </p>
         ) : null}
       </section>
+      </div>
     </PfCockpitPanel>
   );
 }
