@@ -93,7 +93,7 @@ export function TimelockCountdown({
   return (
     <div
       className={cn(
-        "rounded-lg ct-border-soft ct-surface-1 p-4 space-y-3",
+        "rounded-lg ct-border-soft ct-surface-1 p-4 flex flex-col gap-3",
       )}
       data-proposal-id={proposalId}
       aria-label={`Governance proposal #${proposalId} timelock countdown`}

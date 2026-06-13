@@ -33,6 +33,7 @@ export function MemoToolbar({
         <Button
           type="button"
           variant="primary"
+          size="sm"
           onClick={onGenerate}
           disabled={isPending || isPdfPending}
         >
@@ -47,6 +48,7 @@ export function MemoToolbar({
           <Button
             type="button"
             variant="secondary"
+            size="sm"
             onClick={onDownload}
             disabled={isPending || isPdfPending}
           >
@@ -57,6 +59,7 @@ export function MemoToolbar({
         <Button
           type="button"
           variant="secondary"
+          size="sm"
           onClick={onDownloadPdf}
           disabled={!hasMemo || isPending || isPdfPending}
         >

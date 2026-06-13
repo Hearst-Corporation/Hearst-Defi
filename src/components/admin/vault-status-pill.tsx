@@ -34,11 +34,10 @@ export function VaultStatusPill({ status, className }: VaultStatusPillProps) {
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center body-xs",
+        "inline-flex shrink-0 items-center gap-1.5 font-medium body-xs",
         tone,
         className,
       )}
-      style={{ gap: "var(--ct-space-1_5)", fontWeight: "var(--ct-font-medium)" }}
     >
       <span aria-hidden className="ct-dot bg-current" />
       {config.label}

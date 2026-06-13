@@ -566,7 +566,7 @@ export default async function ProductWorkspacePage({
               </div>
               <p className="body-xs ct-text-strong">{spec.metric}</p>
               <p className="body-sm ct-text-muted">{spec.series}</p>
-              <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight" style={{paddingTop: "var(--ct-space-3)"}}>
+              <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight pt-3">
                 <p className="body-xs ct-text-muted">{spec.note}</p>
                 <p className="body-xs ct-text-faint">
                   Generated from methodology assumptions; attach external evidence before review.

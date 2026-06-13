@@ -52,7 +52,7 @@ export function ScenarioTabBar({ active, onChange }: ScenarioTabBarProps) {
             aria-selected={isActive}
             tabIndex={isActive ? 0 : -1}
             variant="ghost"
-            size="lg"
+            size="sm"
             onClick={() => onChange(tab)}
             data-active={isActive}
             className={cn(

@@ -243,9 +243,9 @@ export function RebalanceCard({
         <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
           <div className="admin-doc-stack admin-doc-stack--compact">
             <div className="admin-doc-inline-row">
-              <span className="ct-pill accent mono body-xs">
+              <Badge variant="accent" className="mono body-xs">
                 {event.ruleId}
-              </span>
+              </Badge>
               <Badge variant={statusVariant(event.status)}>
                 {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
               </Badge>
@@ -319,6 +319,7 @@ export function RebalanceCard({
                   <>
                     <Button
                       variant="primary"
+                      size="sm"
                       onClick={handleApprove}
                       disabled={isPending}
                     >
@@ -326,6 +327,7 @@ export function RebalanceCard({
                     </Button>
                     <Button
                       variant="ghost"
+                      size="sm"
                       onClick={() => setConfirmingAction(null)}
                       disabled={isPending}
                     >
@@ -336,6 +338,7 @@ export function RebalanceCard({
                   <>
                     <Button
                       variant="primary"
+                      size="sm"
                       onClick={handleApprove}
                       disabled={isPending}
                     >
@@ -343,6 +346,7 @@ export function RebalanceCard({
                     </Button>
                     <Button
                       variant="ghost"
+                      size="sm"
                       onClick={() => {
                         setShowRejectForm((v) => !v);
                         setError(null);
@@ -366,6 +370,7 @@ export function RebalanceCard({
                   />
                   <Button
                     variant="secondary"
+                    size="sm"
                     onClick={handleReject}
                     disabled={isPending || !rejectReason.trim()}
                   >
@@ -382,15 +387,15 @@ export function RebalanceCard({
             <div className="admin-doc-inline-row">
               {confirmingAction === "execute" ? (
                 <>
-                  <Button variant="primary" onClick={handleExecute} disabled={isPending}>
+                  <Button variant="primary" size="sm" onClick={handleExecute} disabled={isPending}>
                     {isPending ? "Executing…" : "Confirm execute"}
                   </Button>
-                  <Button variant="ghost" onClick={() => setConfirmingAction(null)} disabled={isPending}>
+                  <Button variant="ghost" size="sm" onClick={() => setConfirmingAction(null)} disabled={isPending}>
                     Cancel
                   </Button>
                 </>
               ) : (
-                <Button variant="primary" onClick={handleExecute} disabled={isPending}>
+                <Button variant="primary" size="sm" onClick={handleExecute} disabled={isPending}>
                   Execute (off-chain)
                 </Button>
               )}

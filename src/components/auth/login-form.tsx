@@ -39,9 +39,9 @@ export function LoginForm() {
   }
 
   return (
-    <form action={onSubmit} className="space-y-4" aria-label="Sign in">
-      <label className="block" htmlFor="login-email">
-        <span className="stat-label mb-1 block">Email</span>
+    <form action={onSubmit} className="flex flex-col gap-4" aria-label="Sign in">
+      <label className="flex flex-col gap-1" htmlFor="login-email">
+        <span className="stat-label">Email</span>
         <input
           id="login-email"
           name="email"
@@ -57,8 +57,8 @@ export function LoginForm() {
         />
       </label>
 
-      <label className="block" htmlFor="login-password">
-        <span className="stat-label mb-1 block">Password</span>
+      <label className="flex flex-col gap-1" htmlFor="login-password">
+        <span className="stat-label">Password</span>
         <input
           id="login-password"
           name="password"
@@ -83,7 +83,7 @@ export function LoginForm() {
         <Button
           type="submit"
           variant="primary"
-          size="md"
+          size="lg"
           className="w-full max-w-48 shadow-none hover:shadow-none"
           disabled={isPending}
           aria-busy={isPending}

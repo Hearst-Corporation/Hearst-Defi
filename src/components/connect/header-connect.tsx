@@ -3,6 +3,7 @@
 import { usePrivy, useWallets, useLogin } from "@privy-io/react-auth";
 import { useRouter } from "next/navigation";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { isPrivyConfigured } from "@/lib/auth/is-privy-configured";
 import { safeFrom } from "@/lib/safe-redirect";
@@ -52,13 +53,13 @@ function HeaderConnectAuthed() {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="ct-pill">
+      <Badge variant="default" className="gap-1.5">
         <span
           className="ct-status-dot-success w-1.5 h-1.5 shrink-0 rounded-full"
           aria-hidden="true"
         />
         <span className="tabular">{displayAddress}</span>
-      </span>
+      </Badge>
 
       <Button
         variant="ghost"

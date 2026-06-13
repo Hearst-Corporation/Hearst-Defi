@@ -1,7 +1,7 @@
 "use client";
 
 // RejectDeploymentButton — modal + textarea reason form for the admin
-// hard-reject action. Uses <Modal> (existing primitive) + <Button> only.
+// hard-reject action. Uses <Modal> (existing primitive) + Button component only.
 // No new primitive, no new token, no new .ct-* class.
 
 import { useId, useState, useTransition } from "react";
@@ -94,7 +94,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
         {error && (
           <div
             role="alert"
-            className="ct-status-danger-bg body-xs mt-3 rounded-sm px-3 py-2"
+            className="ct-status-danger-bg ct-alert-danger"
           >
             {error}
           </div>

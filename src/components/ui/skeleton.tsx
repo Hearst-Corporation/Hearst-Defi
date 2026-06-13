@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { Card } from "@/components/ui/card";
 
 /**
  * Reusable skeleton placeholder for loading states.
@@ -35,14 +36,14 @@ export function Skeleton({ className, variant = "rect" }: SkeletonProps) {
  */
 export function SkeletonCard() {
   return (
-    <div className="space-y-4 p-6 rounded-xl border border-(--ct-border-soft) ct-surface-0">
+    <Card hoverOverlay={false} className="flex flex-col gap-4">
       <Skeleton className="h-6 w-1/3" />
       <Skeleton className="h-24 w-full" />
       <div className="flex gap-3">
         <Skeleton className="h-10 w-24" />
         <Skeleton className="h-10 w-24" />
       </div>
-    </div>
+    </Card>
   );
 }
 

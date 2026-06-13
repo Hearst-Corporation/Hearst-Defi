@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 
+import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
+
 // Privy (via styled-components) evaluates React hooks at module level,
 // which crashes Next.js 16 SSR prerender of special pages (/_not-found, /_global-error).
 // Dynamic import with ssr:false ensures the Privy module only loads in the browser.
@@ -14,13 +16,10 @@ const PrivyNoSSR = dynamic(
   { ssr: false }
 );
 
-/** Mirrors --ct-accent / --ct-product-connect (Privy requires a hex literal). */
-const BRAND_ACCENT = "#A7FB90" as `#${string}`;
-
 const PRIVY_CONFIG = {
   appearance: {
     theme: "dark" as const,
-    accentColor: BRAND_ACCENT,
+    accentColor: CONNECT_ACCENT_HEX,
     logo: "/logos/hearst-connect.svg",
   },
   loginMethods: ["email", "wallet"] as ["email", "wallet"],

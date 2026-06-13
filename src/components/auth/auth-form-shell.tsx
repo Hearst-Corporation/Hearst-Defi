@@ -20,8 +20,8 @@ export function AuthFormShell({
 }) {
   return (
     <div className="product-doc flex min-h-dvh items-center justify-center bg-[var(--ct-bg-deep)]">
-      <Card className="w-full max-w-sm space-y-6 p-8" hoverOverlay={false}>
-        <div className="space-y-1">
+      <Card className="w-full max-w-sm flex flex-col gap-6 p-8" hoverOverlay={false}>
+        <div className="flex flex-col gap-1">
           <h1 className="h1">{title}</h1>
           {description ? (
             <div className="body-xs ct-text-muted">{description}</div>

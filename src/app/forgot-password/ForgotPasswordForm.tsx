@@ -29,9 +29,9 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form action={onSubmit} className="space-y-4" aria-label="Forgot password">
-      <label className="block" htmlFor="fp-email">
-        <span className="stat-label mb-1 block">Email address</span>
+    <form action={onSubmit} className="flex flex-col gap-4" aria-label="Forgot password">
+      <label className="flex flex-col gap-1" htmlFor="fp-email">
+        <span className="stat-label">Email address</span>
         <input
           id="fp-email"
           name="email"

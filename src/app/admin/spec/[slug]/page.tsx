@@ -53,10 +53,9 @@ export default async function SpecPage({
         </nav>
       </aside>
 
-      <article className="min-w-0">
+      <article className="min-w-0 flex flex-col gap-6">
         <AdminPageHeader
           title={doc.title}
-          className="mb-6"
         />
         <Markdown content={doc.content} demoteH1 />
       </article>

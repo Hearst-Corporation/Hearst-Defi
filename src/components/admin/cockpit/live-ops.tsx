@@ -164,8 +164,7 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
     >
       <span
         aria-hidden
-        className="shrink-0 ct-text-muted body-xs"
-        style={{ width: "var(--ct-space-4)", textAlign: "center", marginTop: "var(--ct-space-0_5)" }}
+        className="shrink-0 ct-text-muted body-xs w-4 text-center mt-0.5"
       >
         {icon}
       </span>

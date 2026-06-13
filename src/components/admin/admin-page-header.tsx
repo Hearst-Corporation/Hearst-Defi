@@ -35,7 +35,7 @@ export function AdminPageHeader({
           {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
           <h1 className="h1 shrink-0">{title}</h1>
           {description ? (
-            <div className="body-md mt-1 ct-prose-md ct-text-muted">{description}</div>
+            <div className="body-md ct-prose-md ct-text-muted">{description}</div>
           ) : null}
         </div>
         {actions ? (

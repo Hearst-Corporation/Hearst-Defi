@@ -17,6 +17,19 @@ const violations = [];
 const SKIP_DIR = new Set(["node_modules", ".next", "coverage"]);
 const SKIP_FILE = /\.(test|spec)\.(tsx?|jsx?)$/;
 
+const warnings = [];
+
+const CT_PILL_ALLOWLIST = new Set([
+  "src/app/admin/signals/page.tsx",
+  "src/app/admin/vaults/page.tsx",
+  "src/app/admin/vaults/_vault-form.tsx",
+  "src/app/admin/governance/page.tsx",
+  "src/app/admin/projection/studio.tsx",
+  "src/components/proof/proof-filter.tsx",
+  "src/components/admin/governance/allowlist-board.tsx",
+  "src/components/scenario/central-task-runner.tsx"
+]);
+
 const BANNED_CLASS_TOKENS = ["ct-table-surface", "ct-hover-surface"];
 
 /** Only Card primitive may bind `.ct-card` directly. */
@@ -77,11 +90,50 @@ function scanDirectCtCard(rel, content) {
   }
 }
 
+function scanStaticCtPill(rel, content) {
+  if (CT_PILL_ALLOWLIST.has(rel)) return;
+  const re = /\bct-pill\b/g;
+  let match;
+  while ((match = re.exec(content)) !== null) {
+    warnings.push({
+      file: rel,
+      line: lineNumberAt(content, match.index),
+      rule: "static-ct-pill",
+      detail: "Use <Badge> for static pills. ct-pill is only for interactive filters.",
+    });
+  }
+}
+
+function scanButtonNoSize(rel, content) {
+  const re = /<Button\b([\s\S]*?)>/g;
+  let match;
+  while ((match = re.exec(content)) !== null) {
+    if (!match[1].includes("size=")) {
+      warnings.push({
+        file: rel,
+        line: lineNumberAt(content, match.index),
+        rule: "button-no-size",
+        detail: "Button without explicit size= prop. Default is md, but should be explicit.",
+      });
+    }
+  }
+}
+
 for (const abs of walk(SRC)) {
   const rel = relative(ROOT, abs).replaceAll("\\", "/");
   const content = readFileSync(abs, "utf8");
   scanBannedClasses(rel, content);
   scanDirectCtCard(rel, content);
+  scanStaticCtPill(rel, content);
+  scanButtonNoSize(rel, content);
+}
+
+if (warnings.length > 0) {
+  console.warn("⚠️  ds-layout-audit — warnings found:\n");
+  for (const w of warnings) {
+    console.warn(`  ${w.file}:${w.line} [${w.rule}] ${w.detail}`);
+  }
+  console.warn(`\nTotal warnings: ${warnings.length}\n`);
 }
 
 if (violations.length === 0) {

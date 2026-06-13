@@ -55,7 +55,7 @@ export function ScenarioModeToggle({
             aria-selected={isActive}
             tabIndex={isActive ? 0 : -1}
             variant="ghost"
-            size="md"
+            size="sm"
             onClick={() => onChange(mode)}
             data-active={isActive}
             className={cn(

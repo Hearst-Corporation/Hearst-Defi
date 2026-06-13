@@ -230,6 +230,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
 
         <Button
           variant="secondary"
+          size="md"
           onClick={handleCompute}
           disabled={isPending || !period || !totalUsdc || !selectedVault}
         >
@@ -306,6 +307,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
                     <div className="admin-doc-inline-row">
                       <Button
                         variant="secondary"
+                        size="sm"
                         onClick={() => setAwaitingConfirm(false)}
                         disabled={isPending}
                       >
@@ -313,6 +315,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
                       </Button>
                       <Button
                         variant="primary"
+                        size="md"
                         onClick={handleConfirm}
                         disabled={isPending}
                         className="flex-1"
@@ -326,6 +329,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
                 ) : (
                   <Button
                     variant="primary"
+                    size="md"
                     onClick={handleReview}
                     disabled={isPending}
                   >
@@ -373,6 +377,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
               )}
               <Button
                 variant="primary"
+                size="md"
                 onClick={() =>
                   handleRetryFinisher(confirmResult.distributionId!)
                 }

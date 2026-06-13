@@ -452,8 +452,8 @@ export function VaultForm(props: VaultFormProps) {
               </label>
             </div>
 
-            <NestedPanel>
-              <span className="stat-label block mb-1">APY Range Preview</span>
+            <NestedPanel className="flex flex-col gap-1">
+              <span className="stat-label block">APY Range Preview</span>
               <ApyRange
                 low={form.targetApyLowBps / 100}
                 high={form.targetApyHighBps / 100}

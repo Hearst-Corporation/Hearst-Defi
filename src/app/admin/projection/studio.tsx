@@ -97,7 +97,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full accent-(--ct-accent) cursor-pointer" style={{height: "var(--ct-space-1_5)", borderRadius: "var(--ct-radius-full)"}}
+        className="w-full accent-(--ct-accent) cursor-pointer h-1.5 rounded-full"
         aria-label={label}
       />
       <div className="admin-doc-row-spread eyebrow ct-text-faint">
@@ -226,9 +226,8 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
               onClick={() => onSelect(cell.scenarioRunId)}
               aria-selected={isSelected}
               aria-label={`APY ${cell.apyLow.toFixed(1)}–${cell.apyHigh.toFixed(1)}%, risk ${cell.riskScore}. Cell ${idx + 1} of ${cells.length}.`}
-              style={{ padding: "var(--ct-space-2_5)", borderRadius: "var(--ct-radius-md)" }}
               className={cn(
-                "relative border text-left transition-[background-color,border-color] duration-(--ct-dur-base)",
+                "p-2.5 rounded-md relative border text-left transition-[background-color,border-color] duration-(--ct-dur-base)",
                 riskBgClass(cell.riskScore),
                 "border-(--ct-border-soft)",
                 isSelected && "ring-2 ring-offset-1 ring-offset-(--ct-bg-deep)",
@@ -529,6 +528,7 @@ export function ProjectionStudio() {
         {/* Run button */}
         <Button
           variant="primary"
+          size="md"
           className="w-full"
           onClick={handleRun}
           disabled={isPending}
@@ -561,7 +561,7 @@ export function ProjectionStudio() {
               <div className="scenario-lab-output-empty__icon" />
               <div>
                 <h3 className="h3 ct-text-strong">Projection scene ready</h3>
-                <p className="body-sm ct-text-muted" style={{marginTop: "var(--ct-space-2)"}}>
+                <p className="body-sm ct-text-muted mt-2">
                   Configure inputs and run a scenario or batch to populate APY range,
                   risk score and PTAI impact.
                 </p>
@@ -575,7 +575,7 @@ export function ProjectionStudio() {
             <div className="projection-studio-output-head">
               <div>
                 <p className="eyebrow ct-text-muted">Result scene</p>
-                <h3 className="h3 ct-text-strong" style={{marginTop: "var(--ct-space-1)"}}>Projection output</h3>
+                <h3 className="h3 ct-text-strong mt-1">Projection output</h3>
               </div>
               <div className="admin-doc-inline-row">
                 <Badge variant="default">
@@ -672,6 +672,7 @@ export function ProjectionStudio() {
             <div className="admin-doc-inline-row admin-doc-inline-row--actions">
               <Button
                 variant="primary"
+                size="md"
                 onClick={handlePromote}
                 disabled={isPromoting || !result}
                 aria-busy={isPromoting}

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/cn";
 import type { ScenarioOutput } from "@/lib/engine/types";
 
@@ -141,8 +142,8 @@ export function CentralTaskRunner({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <CardTitle>Task Console (central)</CardTitle>
           <div className="flex items-center gap-2">
-            {runId > 0 ? <span className="ct-pill mono body-xs">Run #{runId}</span> : null}
-            <span className={cn("ct-pill mono body-xs transition-colors duration-150", status.toneClass)}>
+            {runId > 0 ? <Badge variant="default" className="mono body-xs">Run #{runId}</Badge> : null}
+            <Badge variant="default" className={cn("mono body-xs transition-colors duration-150", status.toneClass)}>
               <span className="inline-flex items-center gap-2">
                 <span
                   className={cn(
@@ -154,12 +155,12 @@ export function CentralTaskRunner({
                 />
                 {status.label}
               </span>
-            </span>
+            </Badge>
           </div>
         </div>
       </CardHeader>
-      <div className="scenario-central-flow-console min-h-[220px] p-4 space-y-4">
-        <div className="ct-surface-1 rounded-md border border-(--ct-border-soft) p-3 transition-colors duration-150">
+      <div className="scenario-central-flow-console">
+        <div className="scenario-central-flow-terminal">
           <pre className="mono whitespace-pre-wrap body-sm ct-text-body m-0">
             {typed}
             {runId > 0 ? <span className="scenario-central-flow-caret">|</span> : null}
@@ -167,13 +168,13 @@ export function CentralTaskRunner({
         </div>
 
         {stepItems.length > 0 ? (
-          <ol className="space-y-2">
+          <ol className="flex flex-col gap-2">
             {stepItems.map((step) => (
               <li
                 key={step.key}
                 data-state={step.isActive ? "pending" : "done"}
                 className={cn(
-                  "scenario-central-flow-line group flex items-start gap-3 rounded-md border border-(--ct-border-soft) px-3 py-2 transition-colors duration-150",
+                  "scenario-central-flow-line group transition-colors duration-150",
                   step.isActive ? "ct-surface-2" : "ct-surface-1",
                 )}
               >

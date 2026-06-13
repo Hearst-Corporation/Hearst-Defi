@@ -86,7 +86,7 @@ export function SimulateDemoPanel() {
           ))}
         </div>
 
-        <div className="mt-4 admin-doc-stack admin-doc-stack--compact rounded-md border border-(--ct-border-soft) ct-surface-1 px-3 py-2.5">
+        <div className="mt-4 admin-doc-stack admin-doc-stack--compact ct-nested-callout">
           <p className="mono body-xs ct-text-muted">vault: {selectedProposal.vaultAddress}</p>
           <p className="mono body-xs ct-text-faint truncate">
             calldata: {selectedProposal.calldata}

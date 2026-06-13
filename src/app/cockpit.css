@@ -231,6 +231,7 @@
   --ct-scenario-central-shadow: var(--ct-shadow-soft);
   --ct-scenario-central-glow: color-mix(in srgb, var(--ct-accent) 28%, transparent);
   --ct-scenario-central-radius: var(--ct-radius-lg);
+  --ct-scenario-central-console-min-h: 13.75rem;
   --ct-scenario-central-dur-fast: var(--ct-dur-fast);
   --ct-scenario-central-dur-base: var(--ct-dur-base);
   --ct-scenario-central-ease: var(--ct-ease);
@@ -246,6 +247,12 @@
 .ct-status-warning-bg { background: var(--ct-status-warning-soft); border: 1px solid var(--ct-status-warning-border); color: var(--ct-status-warning); }
 .ct-status-danger-bg  { background: var(--ct-status-danger-soft);  border: 1px solid var(--ct-status-danger-border);  color: var(--ct-status-danger); }
 .ct-status-info-bg    { background: var(--ct-status-info-soft);    border: 1px solid var(--ct-status-info-border);    color: var(--ct-status-info); }
+
+.ct-alert-danger {
+  padding: var(--ct-space-2) var(--ct-space-3);
+  border-radius: var(--ct-radius-sm);
+  font-size: var(--ct-text-xs);
+}
 
 /* Base dot — use with ct-status-dot-* for color */
 .ct-dot {
@@ -940,11 +947,30 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 }
 
 .scenario-central-flow-console {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  min-height: var(--ct-scenario-central-console-min-h);
+  padding: var(--ct-space-4);
   border-top: 1px solid var(--ct-scenario-central-border);
   background: color-mix(in srgb, var(--ct-bg-deep) 62%, var(--ct-scenario-central-surface-strong));
 }
 
+.scenario-central-flow-terminal {
+  background: var(--ct-scenario-central-surface);
+  border: 1px solid var(--ct-scenario-central-border);
+  border-radius: var(--ct-radius-md);
+  padding: var(--ct-space-3);
+  transition: background-color var(--ct-scenario-central-dur-base) var(--ct-scenario-central-ease);
+}
+
 .scenario-central-flow-line {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ct-space-3);
+  border-radius: var(--ct-radius-md);
+  border: 1px solid var(--ct-border-soft);
+  padding: var(--ct-space-2) var(--ct-space-3);
   opacity: 1;
   animation: ct-scenario-central-flow-appear var(--ct-scenario-central-dur-base) var(--ct-scenario-central-ease);
   will-change: opacity, transform;
@@ -2103,6 +2129,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 .ct-tracking-wide { letter-spacing: var(--ct-tracking-wide); }
 .ct-tracking-wider { letter-spacing: var(--ct-tracking-wider); }
 .ct-text-micro-size { font-size: var(--ct-text-micro); }
+.ct-text-xs-size { font-size: var(--ct-text-xs); }
 .ct-overlay-surface0 { background-image: linear-gradient(to bottom right, var(--ct-surface-0), transparent); }
 .ct-overlay-accent5 { background-image: linear-gradient(to bottom right, color-mix(in srgb, var(--ct-accent) 5%, transparent), transparent); }
 .ct-bc-base { border-color: var(--ct-border); }

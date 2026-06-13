@@ -6,6 +6,7 @@ import type { PositionDetailTransaction } from "@/lib/data/portfolio";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { explorerTxUrl } from "@/lib/chain/client";
 import { cn } from "@/lib/cn";
+import { Badge } from "@/components/ui/badge";
 
 const usdSigned = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -82,12 +83,13 @@ export function PositionTransactions({
         aria-hidden="true"
       >
         {chips.map((c) => (
-          <span
+          <Badge
             key={c}
-            className="ct-pill body-xs cursor-default select-none"
+            variant="default"
+            className="body-xs select-none"
           >
             {TYPE_LABEL[c]}
-          </span>
+          </Badge>
         ))}
       </div>
 

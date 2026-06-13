@@ -31,8 +31,8 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
           <div className="min-w-0 product-doc-stack--tight">
             <h3 className="h3 ct-text-strong">{vault.name}</h3>
             <div className="product-doc-inline-row">
-              <span className="ct-pill">{strategyLabel}</span>
-              <span className="ct-pill accent mono">{vault.ticker}</span>
+              <Badge variant="default">{strategyLabel}</Badge>
+              <Badge variant="accent" className="mono">{vault.ticker}</Badge>
               <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
                 {vaultStatusLabel(vault.status)}
               </Badge>

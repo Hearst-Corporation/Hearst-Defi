@@ -21,6 +21,7 @@
  */
 
 import { cn } from "@/lib/cn";
+import { Card } from "@/components/ui/card";
 import type {
   SimulationResult,
   StateDiffEntry,
@@ -54,9 +55,10 @@ export function SimulationPanel({
   className,
 }: SimulationPanelProps) {
   return (
-    <section
+    <Card
+      hoverOverlay={false}
       className={cn(
-        "rounded-xl border border-[var(--ct-border-soft)] ct-surface-0 p-6 space-y-5",
+        "flex flex-col gap-5",
         className,
       )}
       aria-busy={loading ? "true" : "false"}
@@ -72,8 +74,8 @@ export function SimulationPanel({
             className={cn(
               "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 body-xs font-medium border",
               result.ok
-                ? "border-[var(--ct-status-success-border)] ct-status-success-bg ct-status-success"
-                : "border-[var(--ct-status-danger-border)] ct-status-danger-bg ct-status-danger",
+                ? "ct-bc-success ct-status-success-bg ct-status-success"
+                : "ct-bc-danger ct-status-danger-bg ct-status-danger",
             )}
           >
             {result.ok ? "Success" : "Reverts"}
@@ -89,7 +91,7 @@ export function SimulationPanel({
 
       {/* Results */}
       {!loading && !error && result && (
-        <div className="space-y-5">
+        <div className="flex flex-col gap-5">
           <GasRow
             gas={result.gasUsedEstimate}
             usd={result.gasCostUsdEstimate}
@@ -120,7 +122,7 @@ export function SimulationPanel({
 
       {/* Empty state */}
       {!loading && !error && !result && <EmptyState />}
-    </section>
+    </Card>
   );
 }
 
@@ -128,7 +130,7 @@ export function SimulationPanel({
 
 function Divider() {
   return (
-    <hr className="border-t border-[var(--ct-border-soft)]" aria-hidden="true" />
+    <hr className="border-t border-(--ct-border-soft)" aria-hidden="true" />
   );
 }
 
@@ -137,7 +139,7 @@ function LoadingState() {
     <div className="flex flex-col items-center gap-3 py-8">
       {/* Spinner */}
       <span
-        className="block h-8 w-8 rounded-full border-2 border-[var(--ct-border-soft)] border-t-[var(--ct-accent)] animate-spin"
+        className="block h-8 w-8 rounded-full border-2 border-(--ct-border-soft) border-t-(--ct-accent) animate-spin"
         aria-hidden="true"
       />
       <p className="body-sm ct-text-muted">
@@ -149,14 +151,11 @@ function LoadingState() {
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div
-      role="alert"
-      className="rounded-lg border border-[var(--ct-status-danger-border)] ct-status-danger-bg px-4 py-3"
-    >
+    <div role="alert" className="ct-nested-callout flex flex-col gap-1 ct-status-danger-bg">
       <p className="body-sm font-medium ct-status-danger">
         Simulation failed
       </p>
-      <p className="mt-1 body-xs ct-text-muted">
+      <p className="body-xs ct-text-muted">
         {message}
       </p>
     </div>
@@ -189,18 +188,18 @@ function GasRow({ gas, usd }: { gas: number; usd: number }) {
 
 function StateDiffSection({ entries }: { entries: StateDiffEntry[] }) {
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <SectionLabel>State diff</SectionLabel>
       {entries.length === 0 ? (
         <p className="body-xs ct-text-faint">
           No storage changes detected.
         </p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="flex flex-col gap-2">
           {entries.map((entry, i) => (
             <li
               key={i}
-              className="rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-3 py-2.5 space-y-1"
+              className="ct-nested-callout flex flex-col gap-1"
             >
               <p className="mono body-xs truncate">
                 {entry.contract}
@@ -238,21 +237,21 @@ function StateDiffSection({ entries }: { entries: StateDiffEntry[] }) {
 
 function BalanceDeltaSection({ entries }: { entries: BalanceDeltaEntry[] }) {
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <SectionLabel>Balance delta</SectionLabel>
       {entries.length === 0 ? (
         <p className="body-xs ct-text-faint">
           No balance changes.
         </p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="flex flex-col gap-2">
           {entries.map((entry, i) => {
             const delta = entry.after - entry.before;
             const isPositive = delta >= 0;
             return (
               <li
                 key={i}
-                className="flex items-center justify-between gap-4 rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-3 py-2"
+                className="ct-nested-panel flex items-center justify-between gap-4"
               >
                 <span className="mono body-xs truncate">
                   {entry.address.slice(0, 10)}…
@@ -281,22 +280,22 @@ function RevertsSection({ entries }: { entries: RevertEntry[] }) {
   return (
     <div
       role="alert"
-      className="space-y-2"
+      className="flex flex-col gap-2"
       aria-label="Simulation reverts detected"
     >
       <SectionLabel className="ct-status-danger">
         Reverts ({entries.length})
       </SectionLabel>
-      <ul className="space-y-2">
+      <ul className="flex flex-col gap-2">
         {entries.map((entry, i) => (
           <li
             key={i}
-            className="rounded-md border border-[var(--ct-status-danger-border)] ct-status-danger-bg px-3 py-2.5"
+            className="ct-nested-callout flex flex-col gap-0.5 ct-status-danger-bg"
           >
             <p className="body-xs font-medium ct-status-danger">
               {entry.reason}
             </p>
-            <p className="mt-0.5 mono body-xs ct-text-faint">
+            <p className="mono body-xs ct-text-faint">
               PC: {entry.pc}
             </p>
           </li>
@@ -308,23 +307,23 @@ function RevertsSection({ entries }: { entries: RevertEntry[] }) {
 
 function EventsSection({ entries }: { entries: EventEntry[] }) {
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <SectionLabel>Events</SectionLabel>
       {entries.length === 0 ? (
         <p className="body-xs ct-text-faint">
           No events emitted.
         </p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="flex flex-col gap-2">
           {entries.map((entry, i) => (
             <li
               key={i}
-              className="rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-3 py-2.5 space-y-1.5"
+              className="ct-nested-callout flex flex-col gap-1.5"
             >
               <p className="body-xs font-semibold ct-text-strong">
                 {entry.name}
               </p>
-              <ul className="space-y-0.5">
+              <ul className="flex flex-col gap-0.5">
                 {Object.entries(entry.args).map(([key, val]) => (
                   <li key={key} className="flex gap-2 items-start">
                     <span className="shrink-0 mono body-xs min-w-20">

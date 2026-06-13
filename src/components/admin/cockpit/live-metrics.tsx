@@ -79,13 +79,11 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
       aria-label={`Vault ${vault.vaultName} metrics`}
     >
       <div
-        className="dashboard-live-metrics__vault-head admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions min-w-0"
-        style={{ marginBottom: "var(--ct-space-2)" }}
+        className="dashboard-live-metrics__vault-head admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions min-w-0 mb-2"
       >
         <Link
           href={vault.href}
-          className="body-sm ct-text-strong min-w-0 truncate hover:ct-text-accent hover:underline"
-          style={{ fontWeight: "var(--ct-font-medium)" }}
+          className="body-sm ct-text-strong min-w-0 truncate hover:ct-text-accent hover:underline font-medium"
         >
           {vault.vaultName}
         </Link>
@@ -140,8 +138,7 @@ function MetricCell({
         {label}
       </span>
       <span
-        className={cn("body-xs tabular ct-text-strong", valueClassName)}
-        style={{ fontWeight: "var(--ct-font-semibold)" }}
+        className={cn("body-xs tabular ct-text-strong font-semibold", valueClassName)}
       >
         {value}
       </span>

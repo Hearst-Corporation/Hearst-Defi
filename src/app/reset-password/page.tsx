@@ -22,7 +22,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
       {token ? (
         <ResetPasswordForm token={token} />
       ) : (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <p className="body-xs ct-status-danger">
             This reset link is invalid or has expired.
           </p>

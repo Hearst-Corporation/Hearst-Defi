@@ -144,7 +144,7 @@ export function SingleMode({
                 value={objective}
                 onChange={(e) => setObjective(e.target.value)}
                 placeholder="Objective produit (seeded par le chat admin)"
-                className="mt-2 min-h-[72px] w-full resize-y rounded-md border border-(--ct-border-soft) bg-transparent p-3 body-sm ct-text-body"
+                className="ct-textarea mt-2 min-h-[4.5rem] w-full resize-y body-sm"
               />
             </Card>
           ) : null}

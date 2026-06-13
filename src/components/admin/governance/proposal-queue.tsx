@@ -31,7 +31,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
             <div className="admin-doc-inline-row admin-doc-inline-row--relaxed">
               <div className="min-w-0 flex-1">
                 <div className="mb-1 admin-doc-inline-row">
-                  <span className="ct-pill mono body-xs">{proposal.vaultTicker}</span>
+                  <Badge variant="accent" className="mono body-xs">{proposal.vaultTicker}</Badge>
                   <span className="body-md truncate font-semibold ct-text-strong">
                     {proposal.actionType}
                   </span>

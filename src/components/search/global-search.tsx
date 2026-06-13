@@ -398,13 +398,13 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
         <div className="max-h-[60vh] overflow-y-auto">
           {/* Empty state — recent searches + suggestions */}
           {showEmpty && (
-            <div className="p-4 space-y-4">
+            <div className="p-4 flex flex-col gap-4">
               {recent.length > 0 && (
                 <section aria-label="Recent searches">
                   <p className="body-xs font-semibold ct-text-body mb-2 block">
                     Recent
                   </p>
-                  <ul className="space-y-1">
+                  <ul className="flex flex-col gap-1">
                     {recent.map((entry) => (
                       <li key={entry.timestamp}>
                         <button
@@ -475,7 +475,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
               id={listboxId}
               role="listbox"
               aria-label="Search results"
-              className="p-2 space-y-4"
+              className="p-2 flex flex-col gap-4"
             >
               {Array.from(grouped.entries()).map(([entity, items]) => {
                 return (

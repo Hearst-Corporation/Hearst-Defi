@@ -231,9 +231,11 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
 - H1 page : `.h1` via `ProductPageHeader` / `AdminPageHeader` (classes `*-page-header*` dans `doc-flow.css`).
 - H2 section : `.h2` · module : `.h3` / `DashboardPanelHeader` / `WidgetPanelHeader` · KPI : `.stat-value` + `.stat-label`.
 - Shell page : `product-doc-shell` (`gap: var(--ct-space-8)`) ; admin `admin-doc-shell` (`gap: var(--ct-space-4)`, `--compact` → `space-3`). Zone `.ct-page-area` admin : `24px 20px 32px` (vs `32px 40px 80px` LP).
-- Layout stacks : `src/app/doc-flow.css` — scopes `.product-doc` / `.admin-doc` ; stacks `*-doc-stack*` / `*-doc-inline-row*` (pas de `gap-*` / `space-y-*` Tailwind ad hoc en admin).
+- Layout stacks : `src/app/doc-flow.css` — scopes `.product-doc` / `.admin-doc` ; stacks `*-doc-stack*` / `*-doc-inline-row*` (`flex flex-col gap-N` préféré à `space-y-N` Tailwind ad hoc en admin).
 - Spacing rule (admin **et** product) : classe base + modifier en JSX (`admin-doc-stack admin-doc-stack--actions`, `product-doc-stack product-doc-stack--tight`). Côté CSS product, chaque `product-doc-stack--*` / `product-doc-inline-row--*` est autonome (flex + gap), comme admin — un modifier seul reste layout-safe.
-- Surface par défaut : `Card` → `.ct-glass-panel` (produit **et** admin). Header canon : `DashboardPanelHeader` (`src/components/ui/dashboard-panel-header.tsx`). **Interdit** : listes flat (`admin-doc-flat-list`, `admin-vault-list-card`).
+- Surface par défaut : `Card` → `.ct-glass-panel` (produit **et** admin). Header canon : `DashboardPanelHeader` (`src/components/ui/dashboard-panel-header.tsx`). **Interdit** : listes flat (`admin-doc-flat-list`, `admin-vault-list-card`), className `ct-card` direct (utiliser composant `<Card>`).
+- Badges et Pills : `.ct-pill` est réservé aux filtres interactifs. Pour les états statiques, utiliser le composant `<Badge>`.
+- Boutons : `<Button>` doit toujours déclarer un `size=` explicite (md, sm, lg).
 - Formatters : `src/lib/vaults/product-display.ts`.
 - Vault detail parity admin/LP : faits partagés `src/lib/vaults/vault-detail-facts.ts` ; présentation `vault-admin-kpi-strip`, `vault-legal-proof-rows`, `vault-allocation-display` (admin = `Card`, LP = sections plates).
 - Shell compact : le rail chat droit (`.ct-rail-right`, 420px) est masqué sous `1200px` via `src/app/cockpit.css` pour préserver la largeur du contenu central ; seul le padding `.ct-page-area` se resserre sous `768px`.
@@ -256,6 +258,8 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
 ### Le verrou se contrôle avec
 
 ```bash
+pnpm ds:layout            # bloquant (règles de layout DS)
+pnpm ds:classes           # advisory (vérif des classes utilitaires)
 pnpm typecheck            # tsc strict
 pnpm lint                 # eslint, no-any en erreur
 pnpm test                 # vitest (inclut doc-flow-shells guardrail)

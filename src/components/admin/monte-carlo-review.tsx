@@ -10,6 +10,7 @@
 import { useMemo } from "react";
 
 import { cn } from "@/lib/cn";
+import { Badge } from "@/components/ui/badge";
 import { runMonteCarlo } from "@/lib/engine/monte-carlo";
 import { formatUsdcGrouped } from "@/lib/vaults/product-display";
 
@@ -161,12 +162,12 @@ export function MonteCarloReview({
           Monte Carlo — 1y horizon ({formatUsdcGrouped(result.paths)} paths,
           seed&nbsp;{result.seed})
         </p>
-        <span
-          className="body-xs ct-pill"
+        <Badge
+          variant="default"
           title="Methodology v2.0 — optional companion to the rule-based engine"
         >
           Estimated
-        </span>
+        </Badge>
       </div>
 
       {/* Percentile row — p5 · p50 · p95 */}

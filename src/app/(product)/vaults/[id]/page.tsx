@@ -74,7 +74,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       }
       actions={
         <>
-          <span className="ct-pill accent mono eyebrow">{vault.ticker}</span>
+          <Badge variant="accent" className="mono eyebrow">{vault.ticker}</Badge>
           <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
             {vaultStatusLabel(vault.status)}
           </Badge>

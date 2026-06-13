@@ -29,8 +29,8 @@ export function DashboardPanelHeader({
 
   return (
     <header className={cn("dashboard-card-header", className)}>
-      <div className="min-w-0">
-        {eyebrow ? <p className="eyebrow mb-1">{eyebrow}</p> : null}
+      <div className="min-w-0 flex flex-col gap-1">
+        {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
         <TitleTag
           className={cn(
             titleRoleClass,

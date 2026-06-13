@@ -171,7 +171,7 @@ interface CompositeHeaderProps {
 
 function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 rounded-xl bg-[var(--ct-bg-deep)]/50 border border-[var(--ct-border-soft)]/50 px-5 py-5 sm:flex-row sm:items-center sm:justify-between relative overflow-hidden group">
+    <Card hoverOverlay={false} className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between group">
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--ct-accent)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       <div className="flex items-baseline gap-3 relative z-10">
         <span className="stat-label">Composite</span>
@@ -189,7 +189,7 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
         </div>
         <Badge variant={BAND_VARIANT[band]} className="ct-tracking-wider">{bandLabel}</Badge>
       </div>
-    </div>
+    </Card>
   );
 }
 

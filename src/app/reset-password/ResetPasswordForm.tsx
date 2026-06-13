@@ -34,7 +34,7 @@ export function ResetPasswordForm({ token }: Props) {
 
   if (success) {
     return (
-      <div className="space-y-4 text-center">
+      <div className="flex flex-col gap-4 text-center">
         <p className="body-xs ct-text-accent">
           Your password has been updated. You can now sign in with your new password.
         </p>
@@ -49,9 +49,9 @@ export function ResetPasswordForm({ token }: Props) {
   }
 
   return (
-    <form action={onSubmit} className="space-y-4" aria-label="Set new password">
-      <label className="block" htmlFor="rp-password">
-        <span className="stat-label mb-1 block">New password</span>
+    <form action={onSubmit} className="flex flex-col gap-4" aria-label="Set new password">
+      <label className="flex flex-col gap-1" htmlFor="rp-password">
+        <span className="stat-label">New password</span>
         <input
           id="rp-password"
           name="password"

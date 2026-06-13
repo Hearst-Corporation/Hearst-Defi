@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { cn } from "@/lib/cn";
 import type { MonitoringStats } from "@/lib/data/monitoring";
 import { formatAdminDateTime } from "@/lib/vaults/product-display";
 
@@ -158,16 +158,16 @@ function MonitoringTable({
 }
 
 function RunStatusBadge({ status }: { status: string }) {
-  const tone: Record<string, string> = {
-    success: "ct-status-success-bg ct-status-success ct-bc-success",
-    failed: "ct-status-danger-bg ct-status-danger ct-bc-danger",
-    timeout: "ct-status-warning-bg ct-status-warning ct-bc-warning",
-    queued: "ct-status-info-bg ct-status-info border-[var(--ct-status-info-border)]",
+  const variantMap: Record<string, "success" | "danger" | "warning" | "default"> = {
+    success: "success",
+    failed: "danger",
+    timeout: "warning",
+    queued: "default",
   };
 
   return (
-    <span className={cn("ct-pill", tone[status] ?? "ct-surface-2 ct-text-muted")}>
+    <Badge variant={variantMap[status] ?? "default"}>
       {status}
-    </span>
+    </Badge>
   );
 }

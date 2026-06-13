@@ -160,6 +160,7 @@ function ConfirmDialogBody({
         className={cn(
           "relative w-full max-w-md rounded-xl border border-[var(--ct-border-strong)]",
           "ct-surface-2 p-6 shadow-[var(--ct-shadow-elevated)] z-[var(--ct-z-base)]",
+          "flex flex-col gap-4",
         )}
       >
         <h2 id={titleId} className="h2 shrink-0">
@@ -167,13 +168,13 @@ function ConfirmDialogBody({
         </h2>
 
         {description && (
-          <div id={descId} className="body-sm ct-text-muted mt-2">
+          <div id={descId} className="body-sm ct-text-muted">
             {description}
           </div>
         )}
 
         {requiresPhrase && (
-          <div className="mt-4 space-y-2">
+          <div className="flex flex-col gap-2">
             <label
               htmlFor={`${titleId}-phrase`}
               className="stat-label block"
@@ -202,13 +203,13 @@ function ConfirmDialogBody({
           <div
             id={errorId}
             role="alert"
-            className="ct-status-danger-bg body-xs mt-4 rounded-sm px-3 py-2"
+            className="ct-status-danger-bg ct-alert-danger"
           >
             {error}
           </div>
         )}
 
-        <div className="mt-6 flex items-center justify-end gap-3">
+        <div className="flex items-center justify-end gap-3">
           <Button
             variant="ghost"
             size="md"
