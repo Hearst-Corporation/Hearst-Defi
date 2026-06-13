@@ -44,32 +44,12 @@
 
   /* Dark graphite module surfaces — active card / nested / empty tiers.
      Chips & badges keep --ct-surface-* literals; large panels use these. */
-  /* Card surfaces — SAME STYLE as the chat rail (.ct-rail-right): a vertical
-     black gradient (--ct-bg-deep, translucent) so the spatial bg shows through
-     like frosted glass, not a flat fill. Independent from the chat (its own
-     gradient lives on .ct-rail-right) — these tokens just mirror its recipe.
-     Per-tier depth: active (primary card) = chat-exact 68→80 ; subtle (nested
-     panel) and nested progressively lighter so a panel inside a card still reads.
-     Only card/panel backgrounds use these; pills/tracks keep raw --ct-surface-*. */
-  --ct-graphite-active-bg: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-bg-deep) 68%, transparent) 0%,
-    color-mix(in srgb, var(--ct-bg-deep) 80%, transparent) 100%
-  );
-  --ct-graphite-subtle-bg: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-bg-deep) 60%, transparent) 0%,
-    color-mix(in srgb, var(--ct-bg-deep) 72%, transparent) 100%
-  );
-  --ct-graphite-nested-bg: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-bg-deep) 52%, transparent) 0%,
-    color-mix(in srgb, var(--ct-bg-deep) 64%, transparent) 100%
-  );
+  --ct-graphite-active-bg: var(--ct-surface-2);
+  --ct-graphite-subtle-bg: var(--ct-surface-1);
+  --ct-graphite-nested-bg: var(--ct-surface-0);
   --ct-graphite-border: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-border-soft));
   --ct-graphite-border-nested: color-mix(in srgb, var(--ct-text-strong) 4%, var(--ct-border-soft));
-  /* Frosted blur matched to the chat rail (28px). */
-  --ct-graphite-blur: blur(28px) saturate(100%);
+  --ct-graphite-blur: blur(20px) saturate(100%);
 
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
      Success = canonical accent green (#A7FB90) — single green across UI. */
@@ -186,9 +166,9 @@
        375px, plancher à la valeur min.
      Formule : fluid = (max_px − min_px) / (1440 − 375) × (100vw − 375px) + min_px,
      converti en `Xrem + Yvw`. */
-  --ct-text-micro: 0.6875rem;  /* 11px — reading-tier bump */
-  --ct-text-xs: 0.8125rem;    /* 13px — reading-tier bump (table/body) */
-  --ct-text-sm: 0.9375rem;    /* 15px — reading-tier bump */
+  --ct-text-micro: 0.65625rem; /* 10.5px — raised from 9px (table/label legibility) */
+  --ct-text-xs: 0.75rem;      /* 12px — raised from 10px (table body text was too small) */
+  --ct-text-sm: 0.875rem;     /* 14px — fix */
   --ct-text-base: 1rem;       /* 16px — fix */
   --ct-text-lg:      clamp(1rem,     0.956rem + 0.188vw, 1.125rem);  /* 16 → 18 */
   --ct-text-xl:      clamp(1.125rem, 1.081rem + 0.188vw, 1.25rem);   /* 18 → 20 */
@@ -373,7 +353,7 @@
   background: var(--ct-graphite-nested-bg);
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
-  padding: var(--ct-space-1) var(--ct-space-4);
+  padding: var(--ct-space-2) var(--ct-space-4);
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
 }
@@ -2906,8 +2886,8 @@ pre.ct-surface-1.rounded-md {
     ),
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 3%, transparent) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 12%, transparent) 100%
+      color-mix(in srgb, var(--ct-bg-deep) 8%, transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 22%, transparent) 100%
     );
   opacity: 1;
   mix-blend-mode: normal;
@@ -4061,11 +4041,11 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-xl);
+  border-radius: var(--ct-glass-radius);
   overflow: hidden;
-  background: var(--ct-surface-1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--ct-graphite-active-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
 }
 
 .admin-vaults-list__header {

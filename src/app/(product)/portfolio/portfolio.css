@@ -969,7 +969,7 @@
 }
 
 .product-doc .position-detail-shell .position-detail-transactions {
-  padding: var(--ct-space-4) var(--ct-space-5);
+  padding: var(--ct-space-4);
 }
 
 @container product-doc (max-width: 40rem) {

@@ -1393,7 +1393,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--ct-space-3);
-  border-radius: var(--ct-radius-lg);
+  border-radius: var(--ct-radius-xl);
   border: 1px solid var(--ct-border-soft);
   background: var(--ct-surface-1);
   padding: var(--ct-space-3) var(--ct-space-4);
@@ -1438,7 +1438,7 @@
   border-radius: var(--ct-radius-xl);
   border: 1px solid var(--ct-border-soft);
   background: var(--ct-surface-1);
-  padding: var(--ct-space-5) var(--ct-space-6);
+  padding: var(--ct-space-4);
 }
 
 .product-doc .position-detail-transactions__head {

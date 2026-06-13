@@ -59,15 +59,6 @@
   overflow: hidden;
 }
 
-.onboarding-chamber.ct-glass-panel {
-  border-radius: var(--ct-radius-lg);
-}
-
-@media (min-width: 640px) {
-  .onboarding-chamber.ct-glass-panel {
-    border-radius: var(--ct-radius-xl);
-  }
-}
 
 .onboarding-chamber__crown,
 .onboarding-chamber__body,
