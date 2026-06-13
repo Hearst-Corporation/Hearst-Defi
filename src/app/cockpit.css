@@ -1038,7 +1038,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 .projection-studio-input-card {
   display: flex;
   flex-direction: column;
-  max-height: 44rem;
+  max-height: 40rem;
 }
 
 .projection-studio-input-card > .relative {
@@ -1063,6 +1063,25 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   flex-direction: column;
   gap: var(--ct-space-5);
   padding: var(--ct-space-5) var(--ct-space-6);
+}
+
+/* Compact toolbar strip — replaces the full Card for the preset section. */
+.projection-studio-preset-strip {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  padding-bottom: var(--ct-space-4);
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.projection-studio-preset-strip__head {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ct-space-2) var(--ct-space-4);
 }
 
 .scenario-compare-shell {
@@ -1194,7 +1213,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 .projection-studio-output-stage {
   display: flex;
   flex-direction: column;
-  min-height: min(44rem, calc(100dvh - var(--ct-space-24)));
+  min-height: min(48rem, calc(100dvh - var(--ct-space-16)));
 }
 
 .projection-studio-output-stage > .relative {
@@ -1233,7 +1252,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 @container projection-shell (min-width: 42rem) {
   .projection-studio-workspace {
     align-items: stretch;
-    grid-template-columns: minmax(18rem, 0.74fr) minmax(0, 1.26fr);
+    grid-template-columns: minmax(17rem, 0.6fr) minmax(0, 1.4fr);
   }
 
   .projection-studio-output,
@@ -1250,7 +1269,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 
 @container projection-shell (max-width: 41.999rem) {
   .projection-studio-input-card {
-    max-height: 42rem;
+    max-height: 38rem;
   }
 
   .projection-studio-input-scroll {
@@ -1258,7 +1277,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   }
 
   .projection-studio-output-stage {
-    min-height: min(24rem, 55dvh);
+    min-height: min(28rem, 60dvh);
   }
 }
 
@@ -1268,8 +1287,9 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
     padding-bottom: var(--ct-space-3);
   }
 
-  .projection-studio-preset-rail {
-    padding: var(--ct-space-4);
+  .projection-studio-preset-rail,
+  .projection-studio-preset-strip {
+    padding: var(--ct-space-4) 0;
   }
 
   .scenario-preset-bar__head,

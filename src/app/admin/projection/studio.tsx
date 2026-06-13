@@ -375,15 +375,10 @@ export function ProjectionStudio() {
 
   return (
     <div className="projection-studio-shell">
-      <Card className="projection-studio-preset-rail">
-        <div className="projection-studio-preset-rail__head">
-          <div>
-            <p className="eyebrow ct-text-muted">Preset library</p>
-            <h3 className="h3 mt-1 ct-text-strong">Start from an institutional scenario</h3>
-          </div>
-          <span className="body-xs ct-text-faint">
-            Load assumptions, then tune inputs below.
-          </span>
+      <div className="projection-studio-preset-strip">
+        <div className="projection-studio-preset-strip__head">
+          <span className="eyebrow ct-text-muted">Presets</span>
+          <span className="body-xs ct-text-faint">Load assumptions, then tune inputs below.</span>
         </div>
         <div className="projection-studio-preset-rail__items">
           {PRESETS.map((p) => (
@@ -402,11 +397,11 @@ export function ProjectionStudio() {
             </Button>
           ))}
         </div>
-      </Card>
+      </div>
 
       <div className="projection-studio-workspace">
       {/* ── LEFT: INPUTS ── */}
-      <Card className="projection-studio-input-card">
+      <Card hoverOverlay={false} className="projection-studio-input-card">
         <div className="projection-studio-input-card__header">
           <div>
             <p className="eyebrow ct-text-muted">Control panel</p>
@@ -559,7 +554,7 @@ export function ProjectionStudio() {
 
       {/* ── RIGHT: OUTPUTS ── */}
       <div ref={outputRef} className="projection-studio-output">
-        <Card className={cn("projection-studio-output-stage", result && "projection-studio-output-stage--filled")}>
+        <Card hoverOverlay={false} className={cn("projection-studio-output-stage", result && "projection-studio-output-stage--filled")}>
           {!result && (
             <div className="projection-studio-empty">
               <div className="scenario-lab-output-empty__icon" />
@@ -615,7 +610,7 @@ export function ProjectionStudio() {
 
             {/* Batch: heatmap */}
             {result.runIds.length > 1 && (
-              <div className="admin-doc-stack admin-doc-stack--actions rounded-xl border border-(--ct-border-soft) ct-surface-0 p-4">
+              <div className="admin-doc-stack admin-doc-stack--actions rounded-xl border ct-bc-soft ct-surface-0 p-4">
                 <p className="eyebrow ct-text-muted">
                   Projection Heatmap — {result.runIds.length} cells
                 </p>
@@ -664,7 +659,7 @@ export function ProjectionStudio() {
             )}
 
             {/* "Not guaranteed" disclaimer — non-negotiable #10 */}
-            <p className="body-xs ct-text-faint border border-(--ct-border-soft) rounded-md px-3 py-2">
+            <p className="body-xs ct-text-faint border ct-bc-soft rounded-md px-3 py-2">
               <strong className="ct-text-muted">Disclaimer:</strong>{" "}
               Projections are conditional on stated assumptions and are not guaranteed.
               Rule-based engine — no Monte Carlo. Past performance does not predict future
