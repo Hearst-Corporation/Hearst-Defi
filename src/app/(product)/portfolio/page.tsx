@@ -198,20 +198,22 @@ export default async function PortfolioPage() {
           className="pf-yield-trust-section"
           data-section="yield-trust"
         >
-          <div className="dash-bento pf-secondary-grid">
-            <div data-testid="risk-pulse-widget" className="bento-col-4 pf-cockpit-slot">
+          <div className="dash-bento pf-secondary-grid pf-trust-grid">
+            <div data-testid="risk-pulse-widget" className="bento-col-6 pf-cockpit-slot">
               <RiskPulse {...riskPulseProps} previewZeros={previewZeros} />
             </div>
-            <div data-testid="proof-pulse-widget" className="bento-col-4 pf-cockpit-slot">
-              <ProofPulse
-                {...(previewZeros
-                  ? zeroProofPulseProps(previewAsOf)
-                  : proofPulseProps)}
-                previewZeros={previewZeros}
-              />
-            </div>
-            <div data-testid="security-pulse-widget" className="bento-col-4 pf-cockpit-slot">
-              <SecurityPulse previewZeros={previewZeros} />
+            <div className="bento-col-6 pf-trust-stack">
+              <div data-testid="proof-pulse-widget" className="pf-cockpit-slot">
+                <ProofPulse
+                  {...(previewZeros
+                    ? zeroProofPulseProps(previewAsOf)
+                    : proofPulseProps)}
+                  previewZeros={previewZeros}
+                />
+              </div>
+              <div data-testid="security-pulse-widget" className="pf-cockpit-slot">
+                <SecurityPulse previewZeros={previewZeros} />
+              </div>
             </div>
           </div>
         </ProductSection>
