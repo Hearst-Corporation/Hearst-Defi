@@ -61,7 +61,7 @@
   );
   --ct-graphite-border: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-border-soft));
   --ct-graphite-border-nested: color-mix(in srgb, var(--ct-text-strong) 4%, var(--ct-border-soft));
-  --ct-graphite-blur: blur(28px) saturate(100%);
+  --ct-graphite-blur: blur(28px);
 
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
      Success = canonical accent green (#A7FB90) — single green across UI. */
