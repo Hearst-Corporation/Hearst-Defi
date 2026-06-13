@@ -47,7 +47,9 @@ function eventDotClass(kind: EventKind): string {
   if (kind === "GuardrailBreach") return "bg-[var(--ct-status-danger)]";
   if (kind === "Distribution") return "bg-[var(--ct-status-success)]";
   if (kind === "TriggerArmed") return "bg-[var(--ct-status-warning)]";
-  return "bg-[var(--ct-accent)]";
+  if (kind === "AttestationPublished") return "bg-[var(--ct-status-success)]";
+  if (kind === "ModeChange") return "bg-[var(--ct-text-faint)]";
+  return "bg-[var(--ct-status-info)]";
 }
 
 function EventTimelineItem({

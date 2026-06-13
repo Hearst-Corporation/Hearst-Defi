@@ -914,9 +914,8 @@
   }
 }
 
-/* Mining cash-flow evidence — pending "calibration" rail (instrument awaiting
-   attestation). Dashed accent (the brand green is the only accent) softly
-   pulsing = "listening". Reuses the soft-pulse keyframe above. */
+/* Mining cash-flow evidence — pending calibration rail (awaiting attestation).
+   Warning-tinted dashes = pending listen, not brand accent or danger. */
 .mining-coverage-calibration {
   position: relative;
   height: var(--ct-space-1_5);
@@ -929,7 +928,7 @@
   inset: 0;
   background: repeating-linear-gradient(
     90deg,
-    color-mix(in srgb, var(--ct-accent) 50%, transparent) 0 6px,
+    color-mix(in srgb, var(--ct-status-warning) 32%, transparent) 0 6px,
     transparent 6px 12px
   );
   animation: ct-scenario-central-soft-pulse var(--ct-dur-pulse) ease-in-out infinite;
@@ -2308,14 +2307,13 @@ pre.ct-surface-1.rounded-md {
   color: var(--ct-text-primary);
 }
 
-/* .h2 → titres de sections (Level 2) — brand accent maroon, espace au-dessus.
-   L'accent de structure marque le début d'un bloc. */
+/* .h2 → titres de sections (Level 2) — strong white; maroon reserved for chrome. */
 .h2 {
   font-size: clamp(1.125rem, 1.081rem + 0.188vw, 1.25rem);  /* 18 → 20 */
   font-weight: var(--ct-font-bold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-accent);
+  color: var(--ct-text-primary);
 }
 
 /* .h3 → titres de modules / cards (Level 3) — blanc, sobre. */
@@ -2412,9 +2410,10 @@ pre.ct-surface-1.rounded-md {
 }
 
 .ct-pill.accent {
-  background: var(--ct-accent-soft);
-  border-color: var(--ct-border-accent);
-  color: var(--ct-text-primary);
+  background: color-mix(in srgb, var(--ct-surface-2) 85%, transparent);
+  border-color: color-mix(in srgb, var(--ct-accent) 42%, var(--ct-border));
+  color: var(--ct-text-strong);
+  box-shadow: inset 2px 0 0 var(--ct-accent);
 }
 
 /* Native buttons need UA reset before ct-pill / ct-seg-btn tokens apply. */
@@ -2731,8 +2730,8 @@ button.ct-seg-btn {
   background:
     radial-gradient(
       62% 44% at 40% 34%,
-      color-mix(in srgb, var(--ct-accent) 26%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 10%, transparent) 48%,
+      color-mix(in srgb, var(--ct-accent) 10%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 4%, transparent) 48%,
       transparent 82%
     ),
     radial-gradient(
@@ -2830,21 +2829,17 @@ button.ct-seg-btn {
 }
 
 .ct-rail-item-active {
-  color: var(--ct-accent-strong);
-  background: var(--ct-accent-soft);
-  border-color: var(--ct-border-accent);
-  box-shadow:
-    0 0 10px color-mix(in srgb, var(--ct-accent) 25%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--ct-accent) 15%, transparent);
+  color: var(--ct-text-primary);
+  background: color-mix(in srgb, var(--ct-surface-2) 75%, transparent);
+  border-color: color-mix(in srgb, var(--ct-accent) 38%, var(--ct-border));
+  box-shadow: inset 3px 0 0 var(--ct-accent);
 }
 
 .ct-rail-item-active:hover {
-  color: var(--ct-accent-strong);
-  background: color-mix(in srgb, var(--ct-accent-soft) 85%, var(--ct-surface-2));
-  border-color: var(--ct-border-accent);
-  box-shadow:
-    0 0 14px color-mix(in srgb, var(--ct-accent) 35%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--ct-accent) 20%, transparent);
+  color: var(--ct-text-strong);
+  background: color-mix(in srgb, var(--ct-surface-2) 90%, transparent);
+  border-color: color-mix(in srgb, var(--ct-accent) 48%, var(--ct-border));
+  box-shadow: inset 3px 0 0 var(--ct-accent);
 }
 
 /* Label statique sous l'icône — visible en permanence (style Oracle rail).
