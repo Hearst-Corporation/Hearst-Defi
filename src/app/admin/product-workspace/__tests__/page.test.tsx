@@ -11,7 +11,13 @@ vi.mock("@/lib/auth/require-admin", () => ({
 
 import ProductWorkspacePage from "../page";
 
-async function renderPage(searchParams: { autostart?: string; objective?: string }) {
+async function renderPage(searchParams: {
+  autostart?: string;
+  objective?: string;
+  intent?: string;
+  secondary?: string;
+  secondaryHint?: string;
+}) {
   const element = await ProductWorkspacePage({
     searchParams: Promise.resolve(searchParams),
   });
@@ -62,6 +68,24 @@ describe("ProductWorkspacePage", () => {
     expect(html).toContain("Scenario output requested");
     expect(html).toContain("use Scenario Lab as a supporting validation tool");
     expect(html).toContain("paste outputs back here");
+  });
+
+  it("renders a secondary Scenario Lab action for mixed agent intents", async () => {
+    const html = await renderPage({
+      autostart: "1",
+      objective: "Créer un produit Defensive puis simuler un stress test",
+      intent: "mixed_product_creation_simulation",
+      secondary: "scenario-lab",
+      secondaryHint: "Scenario Lab validation requested",
+    });
+
+    expect(html).toContain("Scenario validation queued");
+    expect(html).toContain("Secondary validation");
+    expect(html).toContain("Scenario Lab validation requested");
+    expect(html).toContain("Open Scenario Lab");
+    expect(html).toContain(
+      "/admin/scenario-lab?autostart=1&amp;objective=Cr%C3%A9er+un+produit+Defensive+puis+simuler+un+stress+test",
+    );
   });
 
   it("holds manual workspaces and rejects out-of-mandate objectives", async () => {

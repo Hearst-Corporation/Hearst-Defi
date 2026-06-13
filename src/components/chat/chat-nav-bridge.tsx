@@ -33,6 +33,10 @@ interface PendingNav {
   protected: boolean;
   objective?: string;
   autostart?: boolean;
+  intentKind?: string;
+  secondaryRoute?: string;
+  secondaryLabel?: string;
+  secondaryHint?: string;
 }
 
 export function ChatNavBridge() {
@@ -61,6 +65,10 @@ export function ChatNavBridge() {
           label?: string;
           objective?: string;
           autostart?: boolean;
+          intentKind?: string;
+          secondaryRoute?: string;
+          secondaryLabel?: string;
+          secondaryHint?: string;
         };
         if (cancelled || !data.route) return;
         const current = pathRef.current;
@@ -74,6 +82,13 @@ export function ChatNavBridge() {
                 if (data.objective && data.objective.trim().length > 0) {
                   params.set("objective", data.objective.trim());
                 }
+                if (data.intentKind) params.set("intent", data.intentKind);
+                if (data.secondaryRoute === "/admin/scenario-lab") {
+                  params.set("secondary", "scenario-lab");
+                }
+                if (data.secondaryHint && data.secondaryHint.trim().length > 0) {
+                  params.set("secondaryHint", data.secondaryHint.trim());
+                }
                 const query = params.toString();
                 return query.length > 0 ? `${data.route}?${query}` : data.route;
               })()
@@ -84,6 +99,10 @@ export function ChatNavBridge() {
           protected: isProtectedRoute(current),
           ...(data.objective ? { objective: data.objective } : {}),
           ...(data.autostart ? { autostart: true } : {}),
+          ...(data.intentKind ? { intentKind: data.intentKind } : {}),
+          ...(data.secondaryRoute ? { secondaryRoute: data.secondaryRoute } : {}),
+          ...(data.secondaryLabel ? { secondaryLabel: data.secondaryLabel } : {}),
+          ...(data.secondaryHint ? { secondaryHint: data.secondaryHint } : {}),
         });
       } catch {
         // network hiccup — ignore, try again next tick

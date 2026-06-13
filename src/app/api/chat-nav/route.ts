@@ -33,6 +33,10 @@ export async function GET(): Promise<Response> {
             label: dest.label,
             ...(dest.objective ? { objective: dest.objective } : {}),
             ...(dest.autostart ? { autostart: true } : {}),
+            ...(dest.intentKind ? { intentKind: dest.intentKind } : {}),
+            ...(dest.secondaryRoute ? { secondaryRoute: dest.secondaryRoute } : {}),
+            ...(dest.secondaryLabel ? { secondaryLabel: dest.secondaryLabel } : {}),
+            ...(dest.secondaryHint ? { secondaryHint: dest.secondaryHint } : {}),
           }
         : { route: null },
     );

@@ -138,6 +138,43 @@ describe("POST /api/cockpit-chat — master agent nav publish", () => {
         destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
         objective: "Créer un nouveau produit Defensive",
         autostart: true,
+        intentKind: "product_creation",
+      });
+    });
+  });
+
+  it("overrides model nav to Product Workspace even when model picks admin vaults", async () => {
+    mockMasterAgentTurn("admin-vaults");
+
+    const res = await POST(makeChatRequest("Créer un nouveau produit Defensive"));
+
+    expect(res.status).toBe(200);
+    await vi.waitFor(() => {
+      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+        destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
+        objective: "Créer un nouveau produit Defensive",
+        autostart: true,
+        intentKind: "product_creation",
+      });
+    });
+  });
+
+  it("keeps Scenario Lab as secondary metadata for mixed product plus simulation intents", async () => {
+    mockMasterAgentTurn("admin-scenario-lab");
+
+    const res = await POST(
+      makeChatRequest("Créer un produit Defensive puis simuler un stress test"),
+    );
+
+    expect(res.status).toBe(200);
+    await vi.waitFor(() => {
+      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+        destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
+        objective: "Créer un produit Defensive puis simuler un stress test",
+        autostart: true,
+        intentKind: "mixed_product_creation_simulation",
+        secondaryDestinationKey: "admin-scenario-lab",
+        secondaryHint: "Scenario Lab validation requested",
       });
     });
   });

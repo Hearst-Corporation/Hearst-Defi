@@ -12,8 +12,7 @@ import { getProductRoutes } from "@/lib/product-routes";
 import { getSpecIndex } from "@/lib/spec";
 import { ADMIN_NAV_DESTINATIONS } from "@/lib/llm/navigate-tool";
 import {
-  isExplicitSimulationIntent,
-  isProductWorkspaceIntent,
+  classifyProductWorkspaceIntent,
 } from "@/lib/llm/product-workspace-intent";
 import {
   createWriteConfirmation,
@@ -182,19 +181,35 @@ function orderDemoRoutesForObjective(
   objective: string,
 ): string[] {
   const uniqueRoutes = Array.from(new Set(routes));
-  if (isExplicitSimulationIntent(objective)) {
+  const classification = classifyProductWorkspaceIntent(objective);
+
+  if (
+    classification.shouldOpenProductWorkspace &&
+    uniqueRoutes.includes(PRODUCT_WORKSPACE_ROUTE)
+  ) {
+    const rest = uniqueRoutes.filter((route) => route !== PRODUCT_WORKSPACE_ROUTE);
+    if (
+      classification.shouldOpenScenarioLab &&
+      rest.includes(SCENARIO_LAB_ROUTE)
+    ) {
+      return [
+        PRODUCT_WORKSPACE_ROUTE,
+        SCENARIO_LAB_ROUTE,
+        ...rest.filter((route) => route !== SCENARIO_LAB_ROUTE),
+      ];
+    }
+    return [PRODUCT_WORKSPACE_ROUTE, ...rest];
+  }
+
+  if (classification.shouldOpenScenarioLab) {
     if (!uniqueRoutes.includes(SCENARIO_LAB_ROUTE)) return uniqueRoutes;
     return [
       SCENARIO_LAB_ROUTE,
       ...uniqueRoutes.filter((route) => route !== SCENARIO_LAB_ROUTE),
     ];
   }
-  if (!isProductWorkspaceIntent(objective)) return uniqueRoutes;
-  if (!uniqueRoutes.includes(PRODUCT_WORKSPACE_ROUTE)) return uniqueRoutes;
-  return [
-    PRODUCT_WORKSPACE_ROUTE,
-    ...uniqueRoutes.filter((route) => route !== PRODUCT_WORKSPACE_ROUTE),
-  ];
+
+  return uniqueRoutes;
 }
 
 function classifyAdminToolError(error: unknown): {

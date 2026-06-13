@@ -71,6 +71,12 @@ describe("COMMAND_REGISTRY", () => {
     expect(COMMAND_REGISTRY.filter((c) => c.section === "Navigate")).toHaveLength(11);
   });
 
+  it("Navigate includes Product Workspace and Scenarios as distinct destinations", () => {
+    const byId = new Map(COMMAND_REGISTRY.map((cmd) => [cmd.id, cmd]));
+    expect(byId.get("nav-product-workspace")?.href).toBe("/admin/product-workspace");
+    expect(byId.get("nav-scenarios")?.href).toBe("/admin/scenario-lab");
+  });
+
   it("has 10 Action commands", () => {
     expect(COMMAND_REGISTRY.filter((c) => c.section === "Action")).toHaveLength(10);
   });
@@ -128,6 +134,12 @@ describe("filterCommands", () => {
     const result = filterCommands(COMMAND_REGISTRY, "stress");
     const ids = result.map((c) => c.id);
     expect(ids).toContain("action-stress-scenario");
+  });
+
+  it("matches 'product' to Product Workspace navigation", () => {
+    const result = filterCommands(COMMAND_REGISTRY, "product");
+    const ids = result.map((c) => c.id);
+    expect(ids).toContain("nav-product-workspace");
   });
 });
 

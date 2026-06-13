@@ -1,15 +1,26 @@
+import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { VAULTS, VAULT_YIELD, type VaultDefinition } from "@/lib/engine/vaults";
-import { isExplicitSimulationIntent } from "@/lib/llm/product-workspace-intent";
+import {
+  isExplicitSimulationIntent,
+  type ProductWorkspaceIntentKind,
+} from "@/lib/llm/product-workspace-intent";
 
 export const dynamic = "force-dynamic";
 
 interface ProductWorkspacePageProps {
-  searchParams: Promise<{ autostart?: string; objective?: string }>;
+  searchParams: Promise<{
+    autostart?: string;
+    objective?: string;
+    intent?: string;
+    secondary?: string;
+    secondaryHint?: string;
+  }>;
 }
 
 const MAX_OBJECTIVE_LEN = 220;
@@ -80,6 +91,44 @@ const DECISION_LANES = [
 function sanitizeObjective(raw: string | undefined): string | undefined {
   const cleaned = raw?.replace(/[\x00-\x1F\x7F]/g, "").trim();
   return cleaned ? cleaned.slice(0, MAX_OBJECTIVE_LEN) : undefined;
+}
+
+function parseIntentKind(raw: string | undefined): ProductWorkspaceIntentKind | undefined {
+  switch (raw) {
+    case "product_creation":
+    case "product_framing":
+    case "explicit_simulation":
+    case "mixed_product_creation_simulation":
+    case "mixed_product_framing_simulation":
+      return raw;
+    default:
+      return undefined;
+  }
+}
+
+function sanitizeHint(raw: string | undefined): string | undefined {
+  const cleaned = raw?.replace(/[\x00-\x1F\x7F]/g, "").trim();
+  return cleaned ? cleaned.slice(0, 120) : undefined;
+}
+
+function buildScenarioLabHref(objective: string | undefined): string {
+  const params = new URLSearchParams();
+  params.set("autostart", "1");
+  if (objective) params.set("objective", objective);
+  return `/admin/scenario-lab?${params.toString()}`;
+}
+
+function hasScenarioSecondary(
+  objective: string | undefined,
+  intentKind: ProductWorkspaceIntentKind | undefined,
+  secondary: string | undefined,
+): boolean {
+  return (
+    secondary === "scenario-lab" ||
+    intentKind === "mixed_product_creation_simulation" ||
+    intentKind === "mixed_product_framing_simulation" ||
+    (objective ? isExplicitSimulationIntent(objective) : false)
+  );
 }
 
 function inferVault(objective: string | undefined): VaultDefinition {
@@ -159,6 +208,13 @@ export default async function ProductWorkspacePage({
   const params = await searchParams;
   const objective = sanitizeObjective(params.objective);
   const autostart = params.autostart === "1";
+  const intentKind = parseIntentKind(params.intent);
+  const secondaryHint = sanitizeHint(params.secondaryHint);
+  const scenarioSecondary = hasScenarioSecondary(
+    objective,
+    intentKind,
+    params.secondary,
+  );
   const inferredVault = inferVault(objective);
   const decision = decisionForObjective(objective, autostart);
   const graphSpecs = graphSpecsForVault(inferredVault);
@@ -175,6 +231,9 @@ export default async function ProductWorkspacePage({
             <Badge variant={autostart ? "success" : "default"}>
               {autostart ? "Seeded by agent" : "Manual"}
             </Badge>
+            {scenarioSecondary ? (
+              <Badge variant="warning">Scenario validation queued</Badge>
+            ) : null}
           </div>
         }
       />
@@ -223,6 +282,24 @@ export default async function ProductWorkspacePage({
               assumptions, chart specs, calculation notes, decision gate and next actions.
             </p>
           </div>
+
+          {scenarioSecondary ? (
+            <div className="border-t ct-bc-soft pt-4 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
+              <div className="admin-doc-stack admin-doc-stack--tight">
+                <span className="stat-label">Secondary validation</span>
+                <p className="body-sm ct-text-strong">
+                  {secondaryHint ?? "Scenario Lab validation requested"}
+                </p>
+                <p className="body-xs ct-text-muted">
+                  Keep this workspace as the product source of truth, then run Scenario
+                  Lab as supporting evidence.
+                </p>
+              </div>
+              <Button variant="secondary" size="sm" asChild>
+                <Link href={buildScenarioLabHref(objective)}>Open Scenario Lab</Link>
+              </Button>
+            </div>
+          ) : null}
 
           {/* Vault parameters — flat definition list */}
           <div className="border-t ct-bc-soft pt-4">

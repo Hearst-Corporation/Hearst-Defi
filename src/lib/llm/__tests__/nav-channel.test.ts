@@ -43,6 +43,27 @@ describe("nav-channel (in-memory fallback)", () => {
     });
   });
 
+  it("carries mixed-intent secondary Scenario Lab metadata", async () => {
+    await publishNav("user-product-mixed", {
+      destinationKey: "admin-product-workspace",
+      objective: "Créer un produit Defensive puis simuler un stress test",
+      autostart: true,
+      intentKind: "mixed_product_creation_simulation",
+      secondaryDestinationKey: "admin-scenario-lab",
+      secondaryHint: "Scenario Lab validation requested",
+    });
+    expect(await consumeNav("user-product-mixed")).toEqual({
+      route: "/admin/product-workspace",
+      label: "Admin Product Workspace",
+      objective: "Créer un produit Defensive puis simuler un stress test",
+      autostart: true,
+      intentKind: "mixed_product_creation_simulation",
+      secondaryRoute: "/admin/scenario-lab",
+      secondaryLabel: "Admin Scenario Lab",
+      secondaryHint: "Scenario Lab validation requested",
+    });
+  });
+
   it("isolates channels per user", async () => {
     await publishNav("user-A", "proof-center");
     expect(await consumeNav("user-B")).toBeNull();

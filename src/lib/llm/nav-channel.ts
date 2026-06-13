@@ -4,6 +4,7 @@ import { getRedis } from "@/lib/rate-limit";
 import {
   resolveNavDestination,
 } from "@/lib/llm/navigate-tool";
+import type { ProductWorkspaceIntentKind } from "@/lib/llm/product-workspace-intent";
 
 /**
  * Out-of-band navigation channel for the LP Master Agent.
@@ -30,6 +31,9 @@ interface StoredNavDirective {
   destinationKey: string;
   objective?: string;
   autostart?: boolean;
+  intentKind?: ProductWorkspaceIntentKind;
+  secondaryDestinationKey?: string;
+  secondaryHint?: string;
 }
 
 export interface ConsumedNavDirective {
@@ -37,9 +41,14 @@ export interface ConsumedNavDirective {
   label: string;
   objective?: string;
   autostart?: boolean;
+  intentKind?: ProductWorkspaceIntentKind;
+  secondaryRoute?: string;
+  secondaryLabel?: string;
+  secondaryHint?: string;
 }
 
 const MAX_OBJECTIVE_LEN = 220;
+const MAX_HINT_LEN = 120;
 const memNav = new Map<string, { payload: string; at: number }>();
 
 function sanitizeObjective(value: string | undefined): string | undefined {
@@ -47,6 +56,13 @@ function sanitizeObjective(value: string | undefined): string | undefined {
   const cleaned = value.replace(/[\x00-\x1F\x7F]/g, "").trim();
   if (!cleaned) return undefined;
   return cleaned.slice(0, MAX_OBJECTIVE_LEN);
+}
+
+function sanitizeHint(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const cleaned = value.replace(/[\x00-\x1F\x7F]/g, "").trim();
+  if (!cleaned) return undefined;
+  return cleaned.slice(0, MAX_HINT_LEN);
 }
 
 function normalizeDirective(
@@ -66,10 +82,22 @@ function normalizeDirective(
     ? sanitizeObjective(input.objective)
     : undefined;
   const autostart = supportsSeededObjective && input.autostart === true ? true : undefined;
+  const secondaryDestination =
+    input.secondaryDestinationKey && supportsSeededObjective
+      ? resolveNavDestination(input.secondaryDestinationKey)
+      : null;
+  const secondaryHint = secondaryDestination
+    ? sanitizeHint(input.secondaryHint)
+    : undefined;
   return {
     destinationKey: input.destinationKey,
     ...(objective ? { objective } : {}),
     ...(autostart ? { autostart } : {}),
+    ...(input.intentKind ? { intentKind: input.intentKind } : {}),
+    ...(secondaryDestination
+      ? { secondaryDestinationKey: secondaryDestination.key }
+      : {}),
+    ...(secondaryHint ? { secondaryHint } : {}),
   };
 }
 
@@ -121,11 +149,22 @@ export async function consumeNav(
     const parsed = JSON.parse(payload) as StoredNavDirective;
     const destination = resolveNavDestination(parsed.destinationKey);
     if (!destination) return null;
+    const secondaryDestination = parsed.secondaryDestinationKey
+      ? resolveNavDestination(parsed.secondaryDestinationKey)
+      : null;
     return {
       route: destination.route,
       label: destination.label,
       ...(parsed.objective ? { objective: parsed.objective } : {}),
       ...(parsed.autostart ? { autostart: true } : {}),
+      ...(parsed.intentKind ? { intentKind: parsed.intentKind } : {}),
+      ...(secondaryDestination
+        ? {
+            secondaryRoute: secondaryDestination.route,
+            secondaryLabel: secondaryDestination.label,
+          }
+        : {}),
+      ...(parsed.secondaryHint ? { secondaryHint: parsed.secondaryHint } : {}),
     };
   } catch {
     // Backward compatibility: older payloads stored only destination key.
