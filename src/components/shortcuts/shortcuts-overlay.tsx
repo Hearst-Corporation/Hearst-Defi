@@ -77,7 +77,7 @@ function SectionBlock({
   if (shortcuts.length === 0) return null;
   return (
     <div>
-      <span className="stat-label ct-text-muted block mb-2 px-1">
+      <span className="body-xs font-semibold ct-text-body block mb-2 px-1">
         {title}
       </span>
       <div className="divide-y divide-[var(--ct-border)]/40">

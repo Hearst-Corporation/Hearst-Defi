@@ -247,6 +247,15 @@
 .ct-status-danger-bg  { background: var(--ct-status-danger-soft);  border: 1px solid var(--ct-status-danger-border);  color: var(--ct-status-danger); }
 .ct-status-info-bg    { background: var(--ct-status-info-soft);    border: 1px solid var(--ct-status-info-border);    color: var(--ct-status-info); }
 
+/* Base dot — use with ct-status-dot-* for color */
+.ct-dot {
+  display: inline-block;
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
+  border-radius: var(--ct-radius-full);
+  flex-shrink: 0;
+}
+
 .ct-status-dot-success { background: var(--ct-status-success); box-shadow: 0 0 10px var(--ct-status-success-glow); }
 .ct-status-dot-warning { background: var(--ct-status-warning); box-shadow: 0 0 10px var(--ct-status-warning-glow); }
 .ct-status-dot-danger  { background: var(--ct-status-danger);  box-shadow: 0 0 10px var(--ct-status-danger-glow); }
@@ -1621,6 +1630,94 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   .dashboard-live-metrics__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* Live ops sections — padding replaces inline py-4 / mb-2 / m-0 hardcodes */
+.dashboard-live-ops-section {
+  padding-top: var(--ct-space-4);
+  padding-bottom: var(--ct-space-4);
+}
+.dashboard-live-ops-section:first-child { padding-top: 0; }
+.dashboard-live-ops-section:last-child  { padding-bottom: 0; }
+.dashboard-live-ops-section__title {
+  display: block;
+  margin: 0 0 var(--ct-space-2);
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-body);
+}
+
+/* Action queue rows — padding replaces py-3 first:pt-0 last:pb-0 */
+.dashboard-action-row {
+  padding-top: var(--ct-space-3);
+  padding-bottom: var(--ct-space-3);
+}
+.dashboard-action-row:first-child { padding-top: 0; }
+.dashboard-action-row:last-child  { padding-bottom: 0; }
+
+/* Inngest job row — padding replaces py-2 first:pt-0 last:pb-0 */
+.dashboard-inngest-row {
+  padding-top: var(--ct-space-2);
+  padding-bottom: var(--ct-space-2);
+}
+.dashboard-inngest-row:first-child { padding-top: 0; }
+.dashboard-inngest-row:last-child  { padding-bottom: 0; }
+
+/* On-chain event row — padding replaces py-1.5 first:pt-0 last:pb-0 */
+.dashboard-event-row {
+  padding-top: var(--ct-space-1_5);
+  padding-bottom: var(--ct-space-1_5);
+}
+.dashboard-event-row:first-child { padding-top: 0; }
+.dashboard-event-row:last-child  { padding-bottom: 0; }
+
+/* Inngest / generic status dot — replaces h-2 w-2 rounded-full */
+.dashboard-status-dot {
+  display: inline-block;
+  width: var(--ct-space-2);
+  height: var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  flex-shrink: 0;
+}
+
+/* Severity pill — replaces w-8 h-5 rounded-sm inline-flex items-center justify-center */
+.dashboard-severity-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--ct-space-8);
+  height: var(--ct-space-5);
+  border-radius: var(--ct-radius-sm);
+  border: 1px solid;
+}
+
+/* Action CTA — replaces rounded-sm px-3 py-1 body-xs font-medium border */
+.dashboard-action-cta {
+  flex-shrink: 0;
+  border-radius: var(--ct-radius-sm);
+  padding: var(--ct-space-1) var(--ct-space-3);
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-medium);
+  border: 1px solid;
+  transition: background-color var(--ct-dur-fast), border-color var(--ct-dur-fast), color var(--ct-dur-fast);
+}
+.dashboard-action-cta--danger {
+  border-color: var(--ct-status-danger-border);
+  color: var(--ct-status-danger);
+  background: var(--ct-status-danger-soft);
+}
+.dashboard-action-cta--danger:hover {
+  background: var(--ct-status-danger);
+  color: var(--ct-text-on-accent);
+}
+.dashboard-action-cta--neutral {
+  border-color: var(--ct-border);
+  color: var(--ct-text-muted);
+}
+.dashboard-action-cta--neutral:hover {
+  border-color: var(--ct-accent);
+  color: var(--ct-accent);
 }
 
 .dashboard-command-shortcuts {

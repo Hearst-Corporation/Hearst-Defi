@@ -125,7 +125,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
 
         {proposal.state === "TIMELOCK" && proposal.etaAt ? (
           <div className="mt-6 rounded-md border border-[var(--ct-border-soft)] ct-surface-1 px-4 py-3">
-            <p className="stat-label mb-1">Timelock countdown</p>
+            <p className="body-xs font-semibold ct-text-body mb-1">Timelock countdown</p>
             <p className="mono body-sm ct-text-strong">{timelockCountdown(proposal.etaAt)}</p>
           </div>
         ) : null}

@@ -401,7 +401,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
             <div className="p-4 space-y-4">
               {recent.length > 0 && (
                 <section aria-label="Recent searches">
-                  <p className="stat-label mb-2 block ct-text-muted">
+                  <p className="body-xs font-semibold ct-text-body mb-2 block">
                     Recent
                   </p>
                   <ul className="space-y-1">
@@ -438,7 +438,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
               )}
 
               <section aria-label="Suggestions">
-                <p className="stat-label mb-2 block ct-text-muted">
+                <p className="body-xs font-semibold ct-text-body mb-2 block">
                   Suggestions
                 </p>
                 <ul className="flex flex-wrap gap-2">
@@ -480,7 +480,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
               {Array.from(grouped.entries()).map(([entity, items]) => {
                 return (
                   <section key={entity} aria-label={ENTITY_META[entity].label}>
-                    <p className="stat-label mb-1 block px-3 ct-text-muted">
+                    <p className="body-xs font-semibold ct-text-body mb-1 block px-3">
                       {ENTITY_META[entity].label}
                     </p>
                     <ul>

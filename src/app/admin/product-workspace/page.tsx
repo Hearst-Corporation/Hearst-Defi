@@ -348,7 +348,7 @@ export default async function ProductWorkspacePage({
         <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--relaxed">
           <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
             <div className="admin-doc-stack admin-doc-stack--tight">
-              <span className="stat-label">Product brief</span>
+              <span className="eyebrow">Product brief</span>
               <h2 className="h2 ct-text-strong">
                 {objective ?? "New product objective pending"}
               </h2>
@@ -365,7 +365,7 @@ export default async function ProductWorkspacePage({
           {/* Agent decision — flat row, no nested card */}
           <div className="admin-doc-divider-section admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
             <div className="admin-doc-stack admin-doc-stack--tight">
-              <span className="stat-label">Agent decision</span>
+              <span className="eyebrow">Agent decision</span>
               <p className="body-sm ct-text-strong">
                 {decision.label}: {decision.status}
               </p>
@@ -376,13 +376,13 @@ export default async function ProductWorkspacePage({
 
           {/* Product thesis */}
           <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight">
-            <span className="stat-label">Product thesis</span>
+            <span className="eyebrow">Product thesis</span>
             <p className="body-sm ct-text-muted">{productThesis(inferredVault, objective)}</p>
           </div>
 
           {/* Generated artifact */}
           <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight">
-            <span className="stat-label">Generated product artifact</span>
+            <span className="eyebrow">Generated product artifact</span>
             <p className="body-sm ct-text-muted">
               Draft artifact: {inferredVault.ticker} product workspace with thesis,
               assumptions, chart specs, calculation notes, decision gate and next actions.
@@ -398,7 +398,7 @@ export default async function ProductWorkspacePage({
           {scenarioSecondary ? (
             <div className="admin-doc-divider-section admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
               <div className="admin-doc-stack admin-doc-stack--tight">
-                <span className="stat-label">Secondary validation</span>
+                <span className="eyebrow">Secondary validation</span>
                 <p className="body-sm ct-text-strong">
                   {secondaryHint ?? "Scenario Lab validation requested"}
                 </p>
@@ -415,7 +415,7 @@ export default async function ProductWorkspacePage({
 
           {/* Vault parameters — flat definition list */}
           <div className="admin-doc-divider-section">
-            <span className="stat-label admin-doc-divider-section__label">Vault parameters</span>
+            <span className="eyebrow admin-doc-divider-section__label">Vault parameters</span>
             <div className="admin-doc-stack admin-doc-stack--tight">
               <div className="admin-doc-inline-row admin-doc-inline-row--between">
                 <span className="body-sm ct-text-muted">Inferred vault</span>
@@ -443,14 +443,14 @@ export default async function ProductWorkspacePage({
 
           {/* Decision gate — flat list, no card per lane */}
           <div className="admin-doc-divider-section">
-            <span className="stat-label admin-doc-divider-section__label">Decision gate</span>
+            <span className="eyebrow admin-doc-divider-section__label">Decision gate</span>
             <div className="admin-doc-stack admin-doc-stack--tight">
               {DECISION_LANES.map((lane) => (
                 <div
                   key={lane.label}
                   className="admin-doc-inline-row admin-doc-inline-row--start"
                 >
-                  <span className="body-sm ct-text-strong shrink-0" style={{width: "4rem"}}>{lane.label}</span>
+                  <span className="body-sm ct-text-strong shrink-0 w-16">{lane.label}</span>
                   <span className="body-sm ct-text-muted">
                     {lane.status} — {lane.detail}
                   </span>
@@ -527,7 +527,7 @@ export default async function ProductWorkspacePage({
       <section className="admin-doc-section">
         <div className="admin-doc-section__head">
           <div>
-            <p className="stat-label">Agent graph specs</p>
+            <p className="eyebrow">Agent graph specs</p>
             <h2 className="h2 ct-text-strong">Visuals to attach before review</h2>
           </div>
           <Badge variant="default">Runtime charts</Badge>
@@ -542,7 +542,7 @@ export default async function ProductWorkspacePage({
             >
               <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
                 <div>
-                  <p className="stat-label">{spec.chart}</p>
+                  <p className="eyebrow">{spec.chart}</p>
                   <CardTitle>{spec.title}</CardTitle>
                 </div>
                 <ProvenanceBadge kind="estimated" compact />

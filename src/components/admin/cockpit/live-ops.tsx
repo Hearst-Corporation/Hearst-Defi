@@ -32,8 +32,8 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
       <DashboardPanelHeader title="Live ops" tone="quiet" />
 
       <div className="dashboard-command-divide-stack">
-        <div className="py-4 first:pt-0">
-          <p className="stat-label mb-2 m-0">Inngest jobs</p>
+        <div className="dashboard-live-ops-section">
+          <span className="dashboard-live-ops-section__title">Inngest jobs</span>
           <div className="dashboard-command-divide-stack">
             {inngestJobs.map((job) => (
               <InngestRow key={job.id} job={job} />
@@ -41,8 +41,8 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
           </div>
         </div>
 
-        <div className="py-4">
-          <p className="stat-label mb-2 m-0">Sentry 24h</p>
+        <div className="dashboard-live-ops-section">
+          <span className="dashboard-live-ops-section__title">Sentry 24h</span>
           <div className="admin-doc-inline-row admin-doc-inline-row--relaxed admin-doc-inline-row--actions">
             <SentryCounter
               label="Errors"
@@ -57,8 +57,8 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
           </div>
         </div>
 
-        <div className="py-4 last:pb-0">
-          <p className="stat-label mb-2 m-0">On-chain feed</p>
+        <div className="dashboard-live-ops-section">
+          <span className="dashboard-live-ops-section__title">On-chain feed</span>
           {onChainEvents.length === 0 ? (
             <PanelStatus message="No recent on-chain events." />
           ) : (
@@ -84,15 +84,12 @@ function InngestRow({ job }: { job: InngestJob }) {
 
   return (
     <div
-      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions py-2 first:pt-0 last:pb-0"
+      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions dashboard-inngest-row"
       aria-label={`${job.name}: ${label}`}
     >
       <span className="body-xs ct-text-body truncate">{job.name}</span>
       <div className="admin-doc-inline-row admin-doc-inline-row--dense shrink-0">
-        <span
-          aria-hidden
-          className={cn("inline-block h-2 w-2 rounded-full", dot)}
-        />
+        <span aria-hidden className={cn("dashboard-status-dot", dot)} />
         <span
           className={cn(
             "body-xs font-medium",
@@ -137,10 +134,8 @@ function SentryCounter({
     <div className="admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--dense">
       <span
         className={cn(
-          "stat-value tabular leading-tight",
-          alert && count > 0
-            ? "ct-status-danger"
-            : "ct-text-strong",
+          "stat-value tabular",
+          alert && count > 0 ? "ct-status-danger" : "ct-text-strong",
         )}
       >
         {count}
@@ -164,12 +159,13 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
 
   const inner = (
     <li
-      className="admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--actions py-1.5 first:pt-0 last:pb-0"
+      className="admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-event-row"
       aria-label={`${event.type}: ${event.label}`}
     >
       <span
         aria-hidden
-        className="shrink-0 w-4 text-center ct-text-muted body-xs mt-0.5"
+        className="shrink-0 ct-text-muted body-xs"
+        style={{ width: "var(--ct-space-4)", textAlign: "center", marginTop: "var(--ct-space-0_5)" }}
       >
         {icon}
       </span>

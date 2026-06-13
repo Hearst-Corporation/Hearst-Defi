@@ -9,7 +9,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ChatMessage, ChatPersistence } from "./types";
+import type { ChatChart, ChatMessage, ChatPersistence } from "./types";
 
 // ---------------------------------------------------------------------------
 // Types publics
@@ -100,6 +100,70 @@ function makeThinkStripper() {
     }
     buffer = "";
     return output;
+  };
+}
+
+const CHAT_EVENT_MARKER = "\x00HC_EVENT:";
+
+type ChatStreamEvent = { type: "product_chart"; chart: ChatChart };
+
+function isChatStreamEvent(value: unknown): value is ChatStreamEvent {
+  if (!value || typeof value !== "object") return false;
+  const event = value as Partial<ChatStreamEvent>;
+  return event.type === "product_chart" && typeof event.chart?.id === "string";
+}
+
+function appendOrReplaceChart(charts: ChatChart[] | undefined, chart: ChatChart): ChatChart[] {
+  const current = charts ?? [];
+  const index = current.findIndex((item) => item.id === chart.id);
+  if (index === -1) return [...current, chart];
+  return current.map((item, itemIndex) => (itemIndex === index ? chart : item));
+}
+
+function makeChatEventSplitter(onEvent: (event: ChatStreamEvent) => void) {
+  let buffer = "";
+
+  return {
+    feed(chunk: string): string {
+      buffer += chunk;
+      let text = "";
+
+      for (;;) {
+        const markerIndex = buffer.indexOf(CHAT_EVENT_MARKER);
+        if (markerIndex === -1) {
+          const hold = Math.min(buffer.length, CHAT_EVENT_MARKER.length - 1);
+          const emitLen = buffer.length - hold;
+          if (emitLen > 0) {
+            text += buffer.slice(0, emitLen);
+            buffer = buffer.slice(emitLen);
+          }
+          return text;
+        }
+
+        text += buffer.slice(0, markerIndex);
+        const eventStart = markerIndex + CHAT_EVENT_MARKER.length;
+        const newlineIndex = buffer.indexOf("\n", eventStart);
+        if (newlineIndex === -1) {
+          buffer = buffer.slice(markerIndex);
+          return text;
+        }
+
+        const rawEvent = buffer.slice(eventStart, newlineIndex);
+        buffer = buffer.slice(newlineIndex + 1);
+        try {
+          const parsed = JSON.parse(rawEvent) as unknown;
+          if (isChatStreamEvent(parsed)) onEvent(parsed);
+        } catch {
+          // Malformed app events are ignored; user-visible text keeps streaming.
+        }
+      }
+    },
+
+    flush(): string {
+      const tail = buffer;
+      buffer = "";
+      return tail.startsWith(CHAT_EVENT_MARKER) ? "" : tail;
+    },
   };
 }
 
@@ -292,6 +356,18 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
         const decoder = new TextDecoder();
         let assembled = "";
         let streamErrorDetected = false;
+        const eventSplitter = makeChatEventSplitter((event) => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId
+                ? {
+                    ...m,
+                    charts: appendOrReplaceChart(m.charts, event.chart),
+                  }
+                : m,
+            ),
+          );
+        });
 
         // Carry-over buffer pour détecter \x00ERROR: splitté entre chunks TCP.
         const ERROR_MARKER = "\x00ERROR:";
@@ -319,7 +395,8 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
           // Chunk propre = combined sans la partie réservée au carry.
           const chunk = combined.slice(0, combined.length - carryLen);
 
-          const filtered = stripThink(chunk);
+          const eventlessChunk = eventSplitter.feed(chunk);
+          const filtered = stripThink(eventlessChunk);
           if (filtered) {
             assembled += filtered;
             setMessages((prev) =>
@@ -338,7 +415,7 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
         // Flush final UTF-8 + filtre. Réémettre errorCarry (les ≤6 chars retenus
         // pour détecter un marker \x00ERROR: splitté) sinon la fin de chaque
         // réponse est tronquée — à `done`, le carry restant est du texte normal.
-        const tail = stripThink(errorCarry + decoder.decode());
+        const tail = stripThink(eventSplitter.feed(errorCarry + decoder.decode()) + eventSplitter.flush());
         if (tail) {
           assembled += tail;
           setMessages((prev) =>

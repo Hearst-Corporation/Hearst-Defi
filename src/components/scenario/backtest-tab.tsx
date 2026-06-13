@@ -53,7 +53,7 @@ export function BacktestTab() {
         className="scenario-preset-bar backtest-period-rail"
       >
         <div className="scenario-preset-bar__head">
-          <p className="stat-label m-0">Historical periods</p>
+          <p className="body-xs font-semibold ct-text-body m-0">Historical periods</p>
           <span className="body-xs ct-text-faint">Select a regime to simulate</span>
         </div>
         <div className="scenario-preset-bar__items">

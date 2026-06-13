@@ -61,17 +61,18 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
 
   return (
     <li
-      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions py-3 first:pt-0 last:pb-0"
+      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-action-row"
       aria-label={`${item.severity} — ${item.title}`}
     >
       <div className="min-w-0 admin-doc-stack admin-doc-stack--micro">
         <div className="admin-doc-inline-row admin-doc-inline-row--dense">
           <SeverityPill severity={item.severity} />
-          <span className="body-sm ct-text-strong font-medium truncate">
-            {item.title}
-          </span>
+          <span className="body-sm ct-text-strong truncate">{item.title}</span>
         </div>
-        <span className="body-xs ct-text-faint truncate pl-10">
+        <span
+          className="body-xs ct-text-faint truncate"
+          style={{ paddingLeft: "var(--ct-space-10)" }}
+        >
           {item.context}
         </span>
       </div>
@@ -80,11 +81,8 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
         <Link
           href={item.href}
           className={cn(
-            "shrink-0 rounded-sm px-3 py-1 body-xs font-medium",
-            "border transition-colors duration-(--ct-dur-fast)",
-            item.severity === "P0"
-              ? "border-(--ct-status-danger-border) ct-status-danger ct-status-danger-bg hover:bg-(--ct-status-danger) hover:ct-text-on-accent"
-              : "border-(--ct-border) ct-text-muted hover:border-(--ct-accent) hover:ct-text-accent",
+            "dashboard-action-cta",
+            item.severity === "P0" ? "dashboard-action-cta--danger" : "dashboard-action-cta--neutral",
           )}
           aria-label={`${actionLabel} — ${item.title}`}
         >
@@ -104,10 +102,7 @@ function SeverityPill({ severity }: { severity: ActionSeverity }) {
 
   return (
     <span
-      className={cn(
-        "stat-label inline-flex items-center justify-center shrink-0 w-8 h-5 rounded-sm border",
-        styles[severity],
-      )}
+      className={cn("stat-label dashboard-severity-pill", styles[severity])}
       aria-label={`Priority ${severity}`}
     >
       {severity}

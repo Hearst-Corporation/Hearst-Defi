@@ -74,7 +74,7 @@ export function DeltaRow({ a, b }: DeltaRowProps) {
       aria-label="Scenario B vs A delta metrics"
     >
       <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
-        <p className="stat-label m-0">B vs A — Delta</p>
+        <p className="body-xs font-semibold ct-text-body m-0">B vs A — Delta</p>
         <ProvenanceBadge kind="estimated" />
       </div>
 

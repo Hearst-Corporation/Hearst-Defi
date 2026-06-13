@@ -11,6 +11,36 @@ export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   createdAt: number;
+  charts?: ChatChart[];
+}
+
+export type ChatChartKind = "allocation_stack" | "distribution_range" | "stress_corridor";
+export type ChatChartStatus = "building" | "ready";
+
+export interface ChatChartSegment {
+  label: string;
+  value: number;
+  color: string;
+}
+
+export interface ChatChartPoint {
+  label: string;
+  value?: number;
+  low?: number;
+  high?: number;
+}
+
+export interface ChatChart {
+  id: string;
+  kind: ChatChartKind;
+  status: ChatChartStatus;
+  title: string;
+  metric: string;
+  note: string;
+  provenance: "Estimated";
+  progress: number;
+  segments?: ChatChartSegment[];
+  points?: ChatChartPoint[];
 }
 
 /**

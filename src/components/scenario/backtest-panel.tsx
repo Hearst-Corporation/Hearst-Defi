@@ -108,7 +108,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
       <Card>
         <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
           <div>
-            <p className="stat-label mb-1">Rule Engine</p>
+            <p className="body-xs font-semibold ct-text-body mb-1">Rule Engine</p>
             <p className="body-xs ct-text-muted">
               Rule-based rebalancing enabled
             </p>

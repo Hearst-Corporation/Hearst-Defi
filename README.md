@@ -66,6 +66,12 @@ peuvent pas auto-appeler ces outils admin. Toute tentative modèle d'auto-exécu
 un write-tool est bloquée côté serveur (warning non sensible en logs), puis
 reformulée en proposition structurée sans effet de bord.
 
+Product Workspace copilot : quand un admin demande au chat de créer/cadrer un
+produit, `/api/cockpit-chat` garde le texte en streaming et ajoute des événements
+runtime `HC_EVENT` pour construire progressivement les graphiques dans la bulle
+assistant (allocation stack, distribution range, stress corridor). Ces événements
+sont consommés par `@hearst/cockpit-shell` et ne sont jamais affichés comme texte.
+
 Intégration app/chat active via `POST /api/admin/chat-tools` (admin-only) :
 - `GET` liste les outils admin autorisés (read + write metadata)
 - `POST { action: "execute_read", input? }` exécute un read tool directement et

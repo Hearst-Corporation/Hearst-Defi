@@ -29,7 +29,7 @@ import {
 } from "../stores/activeChatStore";
 import { useCockpit } from "../shell/context";
 import { HearstMark } from "../shell/HearstMark";
-import type { ChatMessage } from "./types";
+import type { ChatChart, ChatMessage } from "./types";
 import { isChatMarkdownEnabled, subscribeChatMarkdown } from "./prefs";
 import { useChat } from "./useChat";
 
@@ -190,7 +190,11 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         {messages.map((msg) => {
           // Cache la bulle assistant vide en attente de stream — on affiche
           // uniquement le logo H (ct-chat-thinking) à la place.
-          if (msg.role === "assistant" && msg.content === "") return null;
+          if (
+            msg.role === "assistant" &&
+            msg.content === "" &&
+            (msg.charts?.length ?? 0) === 0
+          ) return null;
           return (
             <MessageBubble
               key={msg.id}
@@ -294,7 +298,7 @@ function MessageBubble({ msg, isStreamingThis }: MessageBubbleProps) {
     () => true,
   );
   const isUser = msg.role === "user";
-  const isEmpty = msg.content === "";
+  const isEmpty = msg.content === "" && (msg.charts?.length ?? 0) === 0;
 
   return (
     <div className={`ct-chat-msg ${isUser ? "user" : "assistant"}`}>
@@ -308,26 +312,152 @@ function MessageBubble({ msg, isStreamingThis }: MessageBubbleProps) {
         <p className="ct-chat-msg-plain">{msg.content}</p>
       ) : markdown ? (
         <>
-          <div
-            className="ct-chat-msg-md"
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized via DOMPurify
-            dangerouslySetInnerHTML={{
-              __html: sanitizeHtml(renderMarkdown(msg.content)),
-            }}
-          />
+          {msg.content ? (
+            <div
+              className="ct-chat-msg-md"
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized via DOMPurify
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHtml(renderMarkdown(msg.content)),
+              }}
+            />
+          ) : null}
+          <ChatCharts charts={msg.charts} />
           {isStreamingThis && (
             <span className="ct-chat-cursor ct-chat-cursor--accent" />
           )}
         </>
       ) : (
         <>
-          <p className="ct-chat-msg-plain">{msg.content}</p>
+          {msg.content ? <p className="ct-chat-msg-plain">{msg.content}</p> : null}
+          <ChatCharts charts={msg.charts} />
           {isStreamingThis && (
             <span className="ct-chat-cursor ct-chat-cursor--accent" />
           )}
         </>
       )}
     </div>
+  );
+}
+
+function ChatCharts({ charts }: { charts: ChatChart[] | undefined }) {
+  if (!charts || charts.length === 0) return null;
+  return (
+    <div className="ct-chat-charts" aria-label="Graphiques générés par le chat">
+      {charts.map((chart) => (
+        <ChatChartCard key={chart.id} chart={chart} />
+      ))}
+    </div>
+  );
+}
+
+function ChatChartCard({ chart }: { chart: ChatChart }) {
+  return (
+    <article className={`ct-chat-chart ct-chat-chart--${chart.status}`}>
+      <div className="ct-chat-chart-head">
+        <div>
+          <div className="ct-chat-chart-title">{chart.title}</div>
+          <div className="ct-chat-chart-metric">{chart.metric}</div>
+        </div>
+        <span className="ct-chat-chart-badge">{chart.provenance}</span>
+      </div>
+      <ChartVisual chart={chart} />
+      <div className="ct-chat-chart-foot">
+        <span>{chart.status === "ready" ? "Ready" : "Building"}</span>
+        <span>{Math.round(chart.progress)}%</span>
+      </div>
+      <div className="ct-chat-chart-progress" aria-hidden="true">
+        <span style={{ width: `${Math.max(4, Math.min(100, chart.progress))}%` }} />
+      </div>
+      <p className="ct-chat-chart-note">{chart.note}</p>
+    </article>
+  );
+}
+
+function ChartVisual({ chart }: { chart: ChatChart }) {
+  if (chart.kind === "allocation_stack") {
+    return <AllocationStack chart={chart} />;
+  }
+  if (chart.kind === "distribution_range") {
+    return <DistributionRange chart={chart} />;
+  }
+  return <StressCorridor chart={chart} />;
+}
+
+function AllocationStack({ chart }: { chart: ChatChart }) {
+  if (!chart.segments || chart.segments.length === 0) {
+    return <div className="ct-chat-chart-skeleton" />;
+  }
+  let x = 0;
+  return (
+    <svg className="ct-chat-chart-svg" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
+      <rect x="0" y="20" width="260" height="18" rx="9" className="ct-chat-chart-base" />
+      {chart.segments.map((segment) => {
+        const width = (segment.value / 100) * 260;
+        const currentX = x;
+        x += width;
+        return (
+          <g key={segment.label}>
+            <rect
+              x={currentX}
+              y="20"
+              width={width}
+              height="18"
+              rx="9"
+              fill={segment.color}
+              opacity="0.9"
+            />
+            <text x={currentX + 4} y="56" className="ct-chat-chart-text">
+              {segment.value}%
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function DistributionRange({ chart }: { chart: ChatChart }) {
+  if (!chart.points || chart.points.length === 0) {
+    return <div className="ct-chat-chart-skeleton" />;
+  }
+  const lows = chart.points
+    .map((point, index) => `${18 + index * 44},${56 - (point.low ?? 0) * 1.3}`)
+    .join(" ");
+  const highs = chart.points
+    .map((point, index) => `${18 + index * 44},${56 - (point.high ?? 0) * 1.3}`)
+    .join(" ");
+  return (
+    <svg className="ct-chat-chart-svg" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
+      <polyline points={highs} fill="none" className="ct-chat-chart-line-accent" />
+      <polyline points={lows} fill="none" className="ct-chat-chart-line-info" />
+      <line x1="18" y1="58" x2="238" y2="58" className="ct-chat-chart-axis" />
+      <text x="18" y="70" className="ct-chat-chart-text">M1</text>
+      <text x="222" y="70" className="ct-chat-chart-text">M12</text>
+    </svg>
+  );
+}
+
+function StressCorridor({ chart }: { chart: ChatChart }) {
+  if (!chart.points || chart.points.length === 0) {
+    return <div className="ct-chat-chart-skeleton" />;
+  }
+  const points = chart.points
+    .map((point, index) => `${20 + index * 70},${70 - (point.value ?? 0) * 0.7}`)
+    .join(" ");
+  return (
+    <svg className="ct-chat-chart-svg" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
+      <polyline points={points} fill="none" className="ct-chat-chart-line-warning" />
+      <line x1="20" y1="58" x2="232" y2="58" className="ct-chat-chart-axis" />
+      {chart.points.map((point, index) => (
+        <circle
+          key={point.label}
+          cx={20 + index * 70}
+          cy={70 - (point.value ?? 0) * 0.7}
+          r="3.5"
+          className="ct-chat-chart-dot"
+        />
+      ))}
+    </svg>
   );
 }
 

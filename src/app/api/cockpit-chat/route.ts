@@ -39,6 +39,7 @@ import {
   PRODUCT_WORKSPACE_DESTINATION_KEY,
   resolveMasterAgentNavPublish,
 } from "@/lib/llm/product-workspace-intent";
+import { withProductChatStreamEvents } from "@/lib/llm/product-chat-stream";
 
 const REVIEW_FACILITATOR_PROMPT = buildFacilitatorPrompt({ productContext: PRODUCT_CONTEXT });
 // NOTE: the LlmRun trace no longer stores a BASE-prompt hash. PR-3 #2 hashes the
@@ -398,6 +399,11 @@ async function runMasterAgentTurn(args: {
       userId,
     },
   );
+  const responseStream = withProductChatStreamEvents({
+    stream,
+    message,
+    navProfile,
+  });
 
   // Persist the assistant answer once the turn completes (compliant only).
   const persistChatId = chatId;
@@ -453,7 +459,7 @@ async function runMasterAgentTurn(args: {
       /* tracing must never break the response */
     });
 
-  return new Response(stream, {
+  return new Response(responseStream, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "no-cache",

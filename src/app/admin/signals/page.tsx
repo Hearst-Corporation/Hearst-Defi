@@ -131,7 +131,7 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
         />
       ) : (
         <section className="admin-doc-stack admin-doc-stack--relaxed">
-          <p className="stat-label">
+          <p className="body-xs font-semibold ct-text-body">
             {events.length} signal{events.length !== 1 ? "s" : ""}
           </p>
           <div className="admin-doc-stack admin-doc-stack--relaxed">
