@@ -126,6 +126,7 @@ export default async function PortfolioPage() {
 
       <ProductSection
         title="Performance & Liquidity"
+        eyebrow="Portfolio"
         provenance={portfolioProvenance}
         showProvenance={hasPositions}
         variant={sectionVariant}
@@ -185,6 +186,7 @@ export default async function PortfolioPage() {
 
         <ProductSection
           title="Yield & Trust Pulse"
+          eyebrow="Trust"
           provenance={portfolioProvenance}
           showProvenance={hasPositions}
           variant={sectionVariant}
@@ -215,6 +217,7 @@ export default async function PortfolioPage() {
       <div className="pf-section-stack">
         <ProductSection
           title="Activity & Payouts"
+          eyebrow="Activity"
           provenance={portfolioProvenance}
           showProvenance={hasPositions}
           variant={sectionVariant}

@@ -9,6 +9,8 @@ const PREVIEW_LEAD =
 
 export interface ProductSectionProps {
   title: string;
+  /** Contextual eyebrow above the section title (e.g. "PORTFOLIO", "TRUST"). Omit for no eyebrow. */
+  eyebrow?: string;
   provenance?: Provenance;
   /** When false, hides the “Verified data” label and header provenance badge. */
   showProvenance?: boolean;
@@ -29,6 +31,7 @@ export interface ProductSectionProps {
 /** Canonical multi-widget section shell (DS). */
 export function ProductSection({
   title,
+  eyebrow,
   provenance,
   showProvenance = true,
   variant = "active",
@@ -71,7 +74,7 @@ export function ProductSection({
       data-section={dataSection}
     >
       <DashboardPanelHeader
-        eyebrow="Section"
+        eyebrow={eyebrow}
         title={title}
         titleLevel="section"
         provenance={showProvenance ? provenance : undefined}

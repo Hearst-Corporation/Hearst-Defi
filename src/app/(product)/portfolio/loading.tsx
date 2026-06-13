@@ -19,6 +19,7 @@ export default function PortfolioLoading() {
 
       <ProductSection
         title="Performance & Liquidity"
+        eyebrow="Portfolio"
         showProvenance={false}
         className="pf-hero-section"
         data-section="hero-pulse"
@@ -45,6 +46,7 @@ export default function PortfolioLoading() {
 
         <ProductSection
           title="Yield & Trust Pulse"
+          eyebrow="Trust"
           showProvenance={false}
           className="pf-yield-trust-section"
           data-section="yield-trust"
@@ -66,6 +68,7 @@ export default function PortfolioLoading() {
       <div className="pf-section-stack">
         <ProductSection
           title="Activity & Payouts"
+          eyebrow="Activity"
           showProvenance={false}
           className="pf-activity-payouts-section"
           data-section="activity-payouts"
