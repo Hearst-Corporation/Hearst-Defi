@@ -2296,9 +2296,7 @@ pre.ct-surface-1.rounded-md {
   border-color: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-graphite-border-nested));
 }
 
-/* Échelle typo (DESIGN_SYSTEM §13.2) — écart modéré entre niveaux + accent vert
-   réservé aux titres de SECTION (H2), pour que la hiérarchie saute aux yeux :
-   H1 blanc fort 28→36 · H2 vert 20→22 · H3 blanc 16→18. */
+/* Échelle typo (DESIGN_SYSTEM §13.2) — H2 = brand accent maroon · H1/H3 blanc fort. */
 
 /* .h1 → titre de page (Level 1). 3xl (24→28), aligné sur la version doc-flow
    pour une seule taille de H1 dans toute l'app. */
@@ -2310,8 +2308,8 @@ pre.ct-surface-1.rounded-md {
   color: var(--ct-text-primary);
 }
 
-/* .h2 → titres de sections (Level 2) — accent vert, espace au-dessus.
-   Le vert est l'accent de structure : il marque le début d'un bloc. */
+/* .h2 → titres de sections (Level 2) — brand accent maroon, espace au-dessus.
+   L'accent de structure marque le début d'un bloc. */
 .h2 {
   font-size: clamp(1.125rem, 1.081rem + 0.188vw, 1.25rem);  /* 18 → 20 */
   font-weight: var(--ct-font-bold);

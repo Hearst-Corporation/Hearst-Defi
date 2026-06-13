@@ -19,10 +19,10 @@ interface ProofCardProps {
   proof: UnifiedProof;
 }
 
-/** Per-type accent colour (token-only). Mining = the single green; the rest
- *  use distinct non-green tokens — drives the card's left accent bar + dot. */
+/** Per-type accent colour (token-only). Mining = semantic success green;
+ *  other types use distinct non-brand tokens — left accent bar + dot. */
 const TYPE_ACCENT: Record<ProofType, string> = {
-  mining_attestation: "var(--ct-accent)",
+  mining_attestation: "var(--ct-status-success)",
   custody: "var(--ct-status-info)",
   audit: "var(--ct-status-warning)",
   methodology: "var(--ct-text-faint)",

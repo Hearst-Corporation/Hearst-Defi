@@ -139,7 +139,7 @@ function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
               className={
                 "stat-label flex h-6 w-6 shrink-0 items-center justify-center rounded-full tabular-nums " +
                 (action.armed
-                  ? "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]"
+                  ? "bg-[var(--ct-accent)] ct-text-on-accent"
                   : "ct-surface-3 ct-text-muted")
               }
               aria-hidden

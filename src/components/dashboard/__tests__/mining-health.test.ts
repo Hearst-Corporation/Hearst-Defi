@@ -82,13 +82,13 @@ describe("cellFill", () => {
 
   it("score 70 (60–80) → accent fill, opacity 0.5", () => {
     const { fill, opacity } = cellFill(70);
-    expect(fill).toContain("ct-accent");
+    expect(fill).toContain("ct-status-success");
     expect(opacity).toBe(0.5);
   });
 
   it("score 85 (>80) → accent fill, opacity 0.9", () => {
     const { fill, opacity } = cellFill(85);
-    expect(fill).toContain("ct-accent");
+    expect(fill).toContain("ct-status-success");
     expect(opacity).toBe(0.9);
   });
 
@@ -99,13 +99,13 @@ describe("cellFill", () => {
 
   it("boundary: score 60 → accent 0.5 (≥60, <80)", () => {
     const { fill, opacity } = cellFill(60);
-    expect(fill).toContain("ct-accent");
+    expect(fill).toContain("ct-status-success");
     expect(opacity).toBe(0.5);
   });
 
   it("boundary: score 80 → accent 0.9 (≥80)", () => {
     const { fill, opacity } = cellFill(80);
-    expect(fill).toContain("ct-accent");
+    expect(fill).toContain("ct-status-success");
     expect(opacity).toBe(0.9);
   });
 });

@@ -59,6 +59,7 @@ docs/audit/*.md
 
 # Playwright MCP screenshots / snapshots
 .playwright-mcp/
+.density-validation-screenshots/
 advanced-metrics-fixed.png
 .vercel
 
