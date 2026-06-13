@@ -49,7 +49,7 @@ describe("ProductWorkspacePage", () => {
     expect(html).toContain("Proceed — Draft ready");
     expect(html).toContain("Hearst Defensive Vault");
     expect(html).toContain("5-8%");
-    expect(html).toContain("Calculation Notes");
+    expect(html).toContain("Calculation notes");
     expect(html).toContain("Charts to attach");
     expect(html).toContain("Estimated visuals");
     expect(html).toContain("Saved draft");
@@ -102,7 +102,6 @@ describe("ProductWorkspacePage", () => {
     });
 
     expect(html).toContain("Scenario validation queued");
-    expect(html).toContain("Scenario validation");
     expect(html).toContain("Scenario Lab validation requested");
     expect(html).toContain("Open Scenario Lab");
     expect(html).toContain(
