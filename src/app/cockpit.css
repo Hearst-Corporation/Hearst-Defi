@@ -2812,9 +2812,20 @@ button.ct-seg-btn {
   pointer-events: auto;
 }
 
-/* Rail investor : peu d'items → centrage vertical. */
+/* Rail investor : peu d'items → centrage vertical + items compacts. */
 .ct-rail-intra[data-rail="investor"] {
   justify-content: center;
+  gap: var(--ct-space-1);
+}
+
+.ct-rail-intra[data-rail="investor"] .ct-rail-item {
+  padding: var(--ct-space-1) var(--ct-space-1);
+  gap: 2px;
+}
+
+.ct-rail-intra[data-rail="investor"] .ct-rail-item svg {
+  width: 20px;
+  height: 20px;
 }
 
 /* Bouton nav : icône au-dessus + label dessous, visibles en permanence. */
