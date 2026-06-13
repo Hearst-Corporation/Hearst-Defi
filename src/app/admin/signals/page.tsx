@@ -96,35 +96,29 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
         }
       />
 
-      <div className="ct-seg-scroll">
-        <nav
-          className="admin-doc-seg-track ct-seg-track"
-          aria-label="Signal status filter"
-        >
-          {TABS.map((tab) => {
-            const count = tab.value === "all"
-              ? Object.values(countMap).reduce((a, b) => a + b, 0)
-              : (countMap[tab.value] ?? 0);
+      <div className="admin-doc-inline-row" role="tablist" aria-label="Signal status filter">
+        {TABS.map((tab) => {
+          const count = tab.value === "all"
+            ? Object.values(countMap).reduce((a, b) => a + b, 0)
+            : (countMap[tab.value] ?? 0);
 
-            return (
-              <Link
-                key={tab.value}
-                href={withAdminVaultQuery("/admin/signals", vaultQuery, {
-                  status: tab.value,
-                })}
-                className={cn(
-                  "ct-seg-btn",
-                  activeStatus === tab.value && "active",
-                )}
-              >
-                {tab.label}
-                {count > 0 && (
-                  <span className="ml-1.5 ct-pill body-xs">{count}</span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
+          return (
+            <Link
+              key={tab.value}
+              href={withAdminVaultQuery("/admin/signals", vaultQuery, {
+                status: tab.value,
+              })}
+              role="tab"
+              aria-selected={activeStatus === tab.value}
+              className={cn("ct-pill", activeStatus === tab.value && "accent")}
+            >
+              {tab.label}
+              {count > 0 && (
+                <span className="tabular">{count}</span>
+              )}
+            </Link>
+          );
+        })}
       </div>
 
       {/* Event list */}

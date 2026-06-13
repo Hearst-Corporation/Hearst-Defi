@@ -7,7 +7,6 @@ import {
   parseFilter,
   type FilterValue,
 } from "@/components/proof/proof-filter-types";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 
 const OPTIONS: ReadonlyArray<{ value: FilterValue; label: string }> = [
@@ -45,25 +44,21 @@ export function ProofFilter() {
   }
 
   return (
-    <nav aria-label="Proof type filter" className="product-doc-inline-row">
+    <nav aria-label="Proof type filter" className="admin-doc-inline-row" role="tablist">
       {OPTIONS.map((opt) => {
         const isActive = current === opt.value;
         return (
-          <Button
+          <button
             key={opt.value}
             type="button"
-            variant={isActive ? "primary" : "secondary"}
-            size="sm"
+            role="tab"
+            aria-selected={isActive}
             disabled={isPending}
             onClick={() => select(opt.value)}
-            aria-pressed={isActive}
-            className={cn(
-              "px-4",
-              !isActive && "ct-border-strong bg-transparent ct-text-body hover:ct-text-primary",
-            )}
+            className={cn("ct-pill", isActive && "accent")}
           >
             {opt.label}
-          </Button>
+          </button>
         );
       })}
     </nav>
