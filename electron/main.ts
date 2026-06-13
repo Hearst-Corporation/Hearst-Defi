@@ -83,7 +83,7 @@ function createMainWindow(env: "local" | "prod"): void {
     minWidth: 1024,
     minHeight: 720,
     titleBarStyle: "hiddenInset",
-    backgroundColor: "#1A050B",
+    backgroundColor: "#000000",
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
       contextIsolation: true,

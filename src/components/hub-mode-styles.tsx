@@ -12,7 +12,7 @@ import { useHubMode } from "@hearst/hub-sdk";
 // backdrop-filter:blur, -webkit-backdrop-filter, ni mask-image correctement →
 // zones noires/vides. On neutralise .ct-glass-panel qui porte ces propriétés.
 //
-// Accent Connect : --ct-accent (#A7FB90) in cockpit.css
+// Accent Connect : --ct-accent (#9E1B2E) in cockpit.css
 // ---------------------------------------------------------------------------
 
 export function HubModeStyles() {

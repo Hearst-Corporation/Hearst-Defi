@@ -119,7 +119,7 @@
 
 /* Ink color for content on accent/status fills. */
 @utility ct-text-on-accent {
-  color: var(--ct-bg-deep);
+  color: var(--ct-text-on-accent);
 }
 
 :root {

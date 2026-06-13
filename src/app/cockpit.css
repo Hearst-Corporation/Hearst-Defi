@@ -13,11 +13,14 @@
   /* Fond global — noir pur iOS dark (remplace le noir verdâtre #050A05) */
   --ct-bg-deep: #000000;
 
-  /* Accent système — vert logo Hearst (#A7FB90).
+  /* Brand accent — Hearst institutional maroon (#9E1B2E).
      !important pour écraser le ThemeAccent du package gardé en cache Next.js. */
-  --ct-accent: #A7FB90 !important;
+  --ct-accent: #9E1B2E !important;
 
-  /* Dérivés d'accent — recalés sur le bleu iOS, plus vifs et lumineux */
+  /* Ink on brand accent fills (primary buttons, chat chips on maroon). */
+  --ct-text-on-accent: #ffffff;
+
+  /* Dérivés d'accent — dérivés du maroon canonique */
   --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 82%, #ffffff);
   --ct-accent-soft: color-mix(in srgb, var(--ct-accent) 18%, transparent);
   --ct-border-accent: color-mix(in srgb, var(--ct-accent) 55%, transparent);
@@ -64,12 +67,12 @@
   --ct-graphite-blur: blur(28px);
 
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
-     Success = canonical accent green (#A7FB90) — single green across UI. */
+     Success/live/positive = semantic green — decoupled from brand maroon. */
   --ct-product-connect: var(--ct-accent);
-  --ct-status-success: var(--ct-accent);
-  --ct-status-success-soft: color-mix(in srgb, var(--ct-accent) 10%, transparent);
-  --ct-status-success-border: color-mix(in srgb, var(--ct-accent) 20%, transparent);
-  --ct-status-success-glow: color-mix(in srgb, var(--ct-accent) 50%, transparent);
+  --ct-status-success: #16A34A;
+  --ct-status-success-soft: color-mix(in srgb, var(--ct-status-success) 10%, transparent);
+  --ct-status-success-border: color-mix(in srgb, var(--ct-status-success) 20%, transparent);
+  --ct-status-success-glow: color-mix(in srgb, var(--ct-status-success) 50%, transparent);
 
   --ct-status-warning: #fbbf24;
   --ct-status-warning-soft: rgba(251, 191, 36, 0.10);
@@ -1973,6 +1976,7 @@
    Visual-neutral: each class resolves to the exact token the arbitrary used. ── */
 .ct-bg-deep { background-color: var(--ct-bg-deep); }
 .ct-bg-accent { background-color: var(--ct-accent); }
+.ct-bg-accent.ct-text-deep { color: var(--ct-text-on-accent); }
 .ct-bg-accent-strong-hover:hover { background-color: var(--ct-accent-strong); }
 .ct-text-deep { color: var(--ct-bg-deep); }
 .ct-glow-accent { box-shadow: 0 0 1rem color-mix(in srgb, var(--ct-accent) 25%, transparent); }

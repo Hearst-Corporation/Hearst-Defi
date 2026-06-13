@@ -110,9 +110,8 @@ reste sans tools.
 - ❌ Un nouveau bouton/classe utilitaire Tailwind arbitraire (`p-[37px]`,
   `bg-[#aabbcc]`, etc.) — toujours passer par un token ou une classe
   `.ct-*` du shell.
-- ❌ Tout vert autre que `--ct-accent` (#A7FB90). Pas de `green-400` Tailwind,
-  pas de `#4ade80`, pas de `accent-soft` utilisé comme « couleur de catégorie
-  alternative ». Pour différencier dans un chart, prendre `--ct-status-info`
+- ❌ Tout vert hors sémantique success/live (`--ct-status-success` #16A34A). Brand accent = `--ct-accent` (#9E1B2E maroon). Pas de `green-400` Tailwind,
+  pas de `#4ade80` / `#A7FB90` comme accent produit. Pour différencier dans un chart, prendre `--ct-status-info`
   (bleu), `--ct-status-warning` (orange), `--ct-text-faint` (gris). Le drift
   PDF (`#16a34a` print on white) est documenté et testé.
 - ❌ Le modifier Tailwind `dark:` (dark-mode-only au MVP).
@@ -182,7 +181,10 @@ uppercase → `.stat-label` (pas `ct-text-micro-size font-bold`) ; en-têtes tab
 **Densité globale (calibration 2026-06)** : rails (`--ct-rail-left` 112px, `--ct-rail-right` 380px),
 header shell (`--ct-shell-header-h` 4rem), échelle spacing layout (`--ct-space-5`…`--ct-space-32`),
 typo headlines (`--ct-text-lg`…`display`), `.ct-page-area` / `.ct-card` / chat rail — source
-`cockpit.css` `:root` + overrides composants. Accent couleur inchangé (Phase 1 rouge = futur).
+`cockpit.css` `:root` + overrides composants.
+
+**Accent brand (Phase 1, 2026-06)** : `--ct-accent` #9E1B2E (maroon institutionnel) ;
+success/live découplé → `--ct-status-success` #16A34A. `CONNECT_ACCENT_HEX` aligné pour Privy/shell.
 
 **Un seul design system en runtime** : Cockpit (`--ct-*` via `@hearst/cockpit-shell`).
 Le package orphelin `packages/ds` (`@ds/core`, namespace `--ds-*`) a été retiré du repo.
@@ -321,7 +323,7 @@ pnpm ds:classes  # ct-* allowlist + DEPRECATED ADR-013 — warnings only, jamais
 
 - Initiative visuelle encouragée (Glassmorphism, lueurs, gradients) pour l'aspect premium.
 - Réversibilité : pas de `git add/commit/push/reset` sans demande explicite.
-- Accent = vert `#A7FB90` (fond noir `--ct-bg-deep`). Les textures et effets de profondeur sont autorisés.
+- Accent brand = maroon `#9E1B2E` (`--ct-accent`). Success/live = green `#16A34A` (`--ct-status-success`). Fond noir `--ct-bg-deep`. Les textures et effets de profondeur sont autorisés.
 
 ---
 

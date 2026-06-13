@@ -16,7 +16,7 @@ const HUB_FALLBACK: CockpitProduct = {
   id: "hub",
   name: "Hearst Corporation",
   short: "HC",
-  color: "#8A1538",
+  color: "#9E1B2E",
 };
 
 export const CockpitContext = createContext<CockpitContextValue>({
