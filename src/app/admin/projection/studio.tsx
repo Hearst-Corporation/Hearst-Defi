@@ -394,7 +394,6 @@ export function ProjectionStudio() {
               onClick={() => loadPreset(p.id)}
               disabled={isPending}
               aria-pressed={selectedPreset === p.id}
-              title={p.description}
               className="projection-studio-preset-button"
             >
               <span className="projection-studio-preset-button__label">{p.label}</span>

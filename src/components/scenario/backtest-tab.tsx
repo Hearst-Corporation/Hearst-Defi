@@ -63,7 +63,6 @@ export function BacktestTab() {
                 disabled={pending}
                 onClick={() => select(p.key)}
                 aria-pressed={isActive}
-                title={p.description}
                 className={cn(
                   "scenario-preset-bar__button",
                   isActive && "scenario-preset-bar__button--active",
