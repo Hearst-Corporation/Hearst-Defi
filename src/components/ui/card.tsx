@@ -14,16 +14,21 @@ export function Card({
   className,
   hoverOverlay = true,
   density = "default",
+  material = "glass",
   children,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
   hoverOverlay?: boolean;
   density?: "default" | "compact";
+  /** `glass` (default) = graphite module surface; `flat` = opaque, no frost —
+   *  for dense lists/tables where glass-on-glass would cage-in-cage. */
+  material?: "glass" | "flat";
 }) {
   return (
     <div
       className={cn(
         "ct-card ct-glass-panel relative overflow-hidden",
+        material === "flat" && "ct-glass-panel--flat",
         density === "compact" && "ct-card--compact",
         hoverOverlay && "group",
         className,

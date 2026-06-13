@@ -2280,10 +2280,20 @@ pre.ct-surface-1.rounded-md {
 
 .ct-glass-panel {
   border-radius: var(--ct-radius-xl);
+  /* Neutralize the package .ct-card drop-shadow leak — graphite glass has no
+     drop (depth = border + bg only). margin-bottom left to existing resets. */
+  box-shadow: none;
 }
 
 .ct-glass-panel:hover {
   border-color: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-graphite-border-nested));
+}
+
+/* material="flat" — opaque, no frost; for dense lists/tables (anti cage-in-cage). */
+.ct-glass-panel--flat {
+  background: var(--ct-surface-2);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* Échelle typo (DESIGN_SYSTEM §13.2) — H2 = strong white · H1/H3 blanc fort (brand green reserved for chrome). */
