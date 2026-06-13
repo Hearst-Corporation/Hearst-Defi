@@ -22,11 +22,8 @@
 }
 
 .dash-cell {
-  /* Investor bento — unified on the graphite-subtle surface family (ct-glass-panel). */
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
-  border: 1px solid var(--ct-graphite-border-nested);
+  /* Material (graphite-subtle + border + blur) from the canonical rule in
+     cockpit.css; this block is layout-only. */
   border-radius: var(--ct-radius-xl);
   padding: var(--ct-space-2) var(--ct-space-3);
   display: flex;
@@ -51,10 +48,7 @@
 /* === KPI cell — compact metric card for KPI grids (not bento panels) ===
  * Lighter padding, no min-height, height fits content only. */
 .kpi-cell {
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
-  border: 1px solid var(--ct-graphite-border-nested);
+  /* Material from the canonical graphite rule in cockpit.css; layout only here. */
   border-radius: var(--ct-radius-xl);
   padding: var(--ct-space-2) var(--ct-space-3);
   display: flex;

@@ -572,6 +572,8 @@
    reading as "different apps". --wide stays 16px+, --compact tightens nested rows
    (not the panel pad). */
 .pf-cockpit-panel {
+  /* Material (graphite-subtle + border + blur) from the canonical rule in
+     cockpit.css; this block is layout-only. */
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -579,10 +581,6 @@
   gap: var(--ct-space-2);
   padding: var(--ct-space-4);
   border-radius: var(--ct-radius-xl);
-  border: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
   transition: border-color var(--ct-dur-base) var(--ct-ease);
   container-type: inline-size;
   container-name: pf-panel;

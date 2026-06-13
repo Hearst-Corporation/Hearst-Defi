@@ -2191,11 +2191,7 @@
   flex-direction: column;
   gap: var(--ct-space-6);
   padding: var(--ct-space-6);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  border-radius: var(--ct-radius-lg);  /* quieter than the xl module default; material from canonical rule */
 }
 
 .ct-product-section {
@@ -2265,27 +2261,25 @@ pre.ct-surface-1.rounded-md {
   border-color: var(--ct-graphite-border-nested);
 }
 
-/* ── CANONICAL PREMIUM GLASS (quiet) ──
-   Composed entirely from the --ct-glass-* tokens above. Apply SPARINGLY — only
-   to a dominant premium surface (e.g. the portfolio Next Action card), never to
-   every card (that turns depth into noise).
+/* ── CANONICAL GRAPHITE SURFACE — single material for every module ─────────────
+   ONE recipe (graphite-subtle bg + nested border + blur) for all module
+   surfaces: product / profile / admin / portfolio / investor bento. Declared
+   once here; each consumer keeps only its own radius / padding / layout / state.
+   Do NOT re-declare bg+border+blur on a new class — add its selector to this
+   list. (radius stays per-consumer: xl default, section-preview = lg quieter.) */
+.ct-glass-panel,
+.ct-section-preview,
+.dash-cell,
+.kpi-cell,
+.pf-cockpit-panel {
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+}
 
-   Quiet finish: there is NO diagonal sheen/reflection. Depth comes from a gentle
-   blur, a thin border, a faint top rim and a soft drop shadow only.
-
-   Readability: an OPAQUE surface-2 base (+ a 3% wash) sits under it so the card
-   never dissolves into the dark background — this preserves the prior contrast
-   pass.
-
-/* Canonical surface — unified on the portfolio pf-cockpit-panel graphite family
-   so product / profile / admin / portfolio all read as one app (no glass-vs-flat
-   split). radius-xl + graphite-subtle + graphite-blur, no premium rim/drop. */
 .ct-glass-panel {
   border-radius: var(--ct-radius-xl);
-  border: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-subtle-bg);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
-  backdrop-filter: var(--ct-graphite-blur);
 }
 
 .ct-glass-panel:hover {
