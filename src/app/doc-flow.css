@@ -323,6 +323,44 @@
   gap: var(--ct-space-1_5);
 }
 
+/* Card grid — 1 col → 3 cols at 48rem (content cards, not form fields) */
+.admin-doc .admin-doc-card-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--ct-space-4);
+}
+
+@container admin-doc (min-width: 48rem) {
+  .admin-doc .admin-doc-card-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Inset callout box — tonal surface inside a Card (chart wrapper, disclaimer…) */
+.admin-doc-callout {
+  border-radius: var(--ct-radius-xl);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  padding: var(--ct-space-3) var(--ct-space-4);
+}
+
+.admin-doc-callout--warning {
+  border-color: var(--ct-status-warning-border);
+  background: var(--ct-status-warning-soft);
+}
+
+/* Divider section — border-top + top padding, for flat sub-sections inside a Card */
+.admin-doc-divider-section {
+  border-top: 1px solid var(--ct-border-soft);
+  padding-top: var(--ct-space-4);
+}
+
+/* Label + content block inside a divider section */
+.admin-doc-divider-section__label {
+  display: block;
+  margin-bottom: var(--ct-space-3);
+}
+
 .admin-doc .admin-doc-spec-loading {
   display: flex;
   gap: var(--ct-space-6);

@@ -97,7 +97,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full accent-(--ct-accent) h-1.5 rounded-full cursor-pointer"
+        className="w-full accent-(--ct-accent) cursor-pointer" style={{height: "var(--ct-space-1_5)", borderRadius: "var(--ct-radius-full)"}}
         aria-label={label}
       />
       <div className="admin-doc-row-spread eyebrow ct-text-faint">
@@ -153,7 +153,7 @@ function AllocSliders({
         <span className="eyebrow ct-text-muted">Allocations</span>
         <span
           className={cn(
-            "mono tabular body-xs px-1.5 py-0.5 rounded",
+            "ct-pill mono tabular",
             sumOk
               ? "ct-status-success-bg"
               : "ct-status-danger-bg",
@@ -226,8 +226,9 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
               onClick={() => onSelect(cell.scenarioRunId)}
               aria-selected={isSelected}
               aria-label={`APY ${cell.apyLow.toFixed(1)}–${cell.apyHigh.toFixed(1)}%, risk ${cell.riskScore}. Cell ${idx + 1} of ${cells.length}.`}
+              style={{ padding: "var(--ct-space-2_5)", borderRadius: "var(--ct-radius-md)" }}
               className={cn(
-                "relative p-2.5 rounded-md border text-left transition-[background-color,border-color] duration-(--ct-dur-base)",
+                "relative border text-left transition-[background-color,border-color] duration-(--ct-dur-base)",
                 riskBgClass(cell.riskScore),
                 "border-(--ct-border-soft)",
                 isSelected && "ring-2 ring-offset-1 ring-offset-(--ct-bg-deep)",
@@ -545,7 +546,7 @@ export function ProjectionStudio() {
         </Button>
 
         {error && (
-          <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-md">
+          <p className="body-xs admin-doc-callout admin-doc-callout--warning">
             {error}
           </p>
         )}
@@ -560,7 +561,7 @@ export function ProjectionStudio() {
               <div className="scenario-lab-output-empty__icon" />
               <div>
                 <h3 className="h3 ct-text-strong">Projection scene ready</h3>
-                <p className="body-sm mt-2 ct-text-muted">
+                <p className="body-sm ct-text-muted" style={{marginTop: "var(--ct-space-2)"}}>
                   Configure inputs and run a scenario or batch to populate APY range,
                   risk score and PTAI impact.
                 </p>
@@ -574,7 +575,7 @@ export function ProjectionStudio() {
             <div className="projection-studio-output-head">
               <div>
                 <p className="eyebrow ct-text-muted">Result scene</p>
-                <h3 className="h3 mt-1 ct-text-strong">Projection output</h3>
+                <h3 className="h3 ct-text-strong" style={{marginTop: "var(--ct-space-1)"}}>Projection output</h3>
               </div>
               <div className="admin-doc-inline-row">
                 <Badge variant="default">
@@ -610,7 +611,7 @@ export function ProjectionStudio() {
 
             {/* Batch: heatmap */}
             {result.runIds.length > 1 && (
-              <div className="admin-doc-stack admin-doc-stack--actions rounded-xl border ct-bc-soft ct-surface-0 p-4">
+              <div className="admin-doc-stack admin-doc-stack--actions admin-doc-callout">
                 <p className="eyebrow ct-text-muted">
                   Projection Heatmap — {result.runIds.length} cells
                 </p>
@@ -659,7 +660,7 @@ export function ProjectionStudio() {
             )}
 
             {/* "Not guaranteed" disclaimer — non-negotiable #10 */}
-            <p className="body-xs ct-text-faint border ct-bc-soft rounded-md px-3 py-2">
+            <p className="body-xs ct-text-faint admin-doc-callout">
               <strong className="ct-text-muted">Disclaimer:</strong>{" "}
               Projections are conditional on stated assumptions and are not guaranteed.
               Rule-based engine — no Monte Carlo. Past performance does not predict future

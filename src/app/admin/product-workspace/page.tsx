@@ -363,7 +363,7 @@ export default async function ProductWorkspacePage({
           </p>
 
           {/* Agent decision — flat row, no nested card */}
-          <div className="border-t ct-bc-soft pt-4 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
+          <div className="admin-doc-divider-section admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
             <div className="admin-doc-stack admin-doc-stack--tight">
               <span className="stat-label">Agent decision</span>
               <p className="body-sm ct-text-strong">
@@ -375,13 +375,13 @@ export default async function ProductWorkspacePage({
           </div>
 
           {/* Product thesis */}
-          <div className="border-t ct-bc-soft pt-4 admin-doc-stack admin-doc-stack--tight">
+          <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight">
             <span className="stat-label">Product thesis</span>
             <p className="body-sm ct-text-muted">{productThesis(inferredVault, objective)}</p>
           </div>
 
           {/* Generated artifact */}
-          <div className="border-t ct-bc-soft pt-4 admin-doc-stack admin-doc-stack--tight">
+          <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight">
             <span className="stat-label">Generated product artifact</span>
             <p className="body-sm ct-text-muted">
               Draft artifact: {inferredVault.ticker} product workspace with thesis,
@@ -396,7 +396,7 @@ export default async function ProductWorkspacePage({
           </div>
 
           {scenarioSecondary ? (
-            <div className="border-t ct-bc-soft pt-4 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
+            <div className="admin-doc-divider-section admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
               <div className="admin-doc-stack admin-doc-stack--tight">
                 <span className="stat-label">Secondary validation</span>
                 <p className="body-sm ct-text-strong">
@@ -414,8 +414,8 @@ export default async function ProductWorkspacePage({
           ) : null}
 
           {/* Vault parameters — flat definition list */}
-          <div className="border-t ct-bc-soft pt-4">
-            <span className="stat-label mb-3 block">Vault parameters</span>
+          <div className="admin-doc-divider-section">
+            <span className="stat-label admin-doc-divider-section__label">Vault parameters</span>
             <div className="admin-doc-stack admin-doc-stack--tight">
               <div className="admin-doc-inline-row admin-doc-inline-row--between">
                 <span className="body-sm ct-text-muted">Inferred vault</span>
@@ -442,15 +442,15 @@ export default async function ProductWorkspacePage({
           </div>
 
           {/* Decision gate — flat list, no card per lane */}
-          <div className="border-t ct-bc-soft pt-4">
-            <span className="stat-label mb-3 block">Decision gate</span>
+          <div className="admin-doc-divider-section">
+            <span className="stat-label admin-doc-divider-section__label">Decision gate</span>
             <div className="admin-doc-stack admin-doc-stack--tight">
               {DECISION_LANES.map((lane) => (
                 <div
                   key={lane.label}
                   className="admin-doc-inline-row admin-doc-inline-row--start"
                 >
-                  <span className="body-sm ct-text-strong w-16 shrink-0">{lane.label}</span>
+                  <span className="body-sm ct-text-strong shrink-0" style={{width: "4rem"}}>{lane.label}</span>
                   <span className="body-sm ct-text-muted">
                     {lane.status} — {lane.detail}
                   </span>
@@ -467,15 +467,17 @@ export default async function ProductWorkspacePage({
               <li key={note} className="admin-doc-inline-row admin-doc-inline-row--start">
                 <span
                   aria-hidden
-                  className="mt-2 h-1.5 w-1.5 rounded-full bg-(--ct-accent)"
+                  className="shrink-0 h-1.5 w-1.5 rounded-full bg-(--ct-accent)"
+                  style={{marginTop: "0.375rem"}}
                 />
                 <span className="body-sm ct-text-muted">{note}</span>
               </li>
             ))}
           </ul>
-          <div className="rounded-2xl border ct-bc-warning ct-status-warning-bg px-4 py-3">
+          <div className="admin-doc-callout admin-doc-callout--warning">
             <p className="stat-label ct-status-warning">Required disclaimer</p>
-            <p className="mt-1 body-xs ct-text-muted">
+            <p className="body-xs ct-text-muted" style={{marginTop: "var(--ct-space-1)"}}>
+
               Projection conditionnelle aux hypothèses présentées, sans engagement de
               résultat. Souscription réservée aux investisseurs professionnels/qualifiés.
             </p>
@@ -483,7 +485,7 @@ export default async function ProductWorkspacePage({
         </Card>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      <section className="admin-doc-card-grid-3">
         <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
           <CardTitle>Assumptions</CardTitle>
           <ul className="admin-doc-stack admin-doc-stack--tight">
@@ -531,7 +533,7 @@ export default async function ProductWorkspacePage({
           <Badge variant="default">Runtime charts</Badge>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="admin-doc-card-grid-3">
           {graphSpecs.map((spec) => (
             <Card
               key={spec.title}
@@ -545,12 +547,12 @@ export default async function ProductWorkspacePage({
                 </div>
                 <ProvenanceBadge kind="estimated" compact />
               </div>
-              <div className="rounded-2xl border ct-bc-soft ct-surface-1 p-3">
+              <div className="admin-doc-callout">
                 {spec.visual}
               </div>
               <p className="body-xs ct-text-strong">{spec.metric}</p>
               <p className="body-sm ct-text-muted">{spec.series}</p>
-              <div className="border-t ct-bc-soft pt-3 admin-doc-stack admin-doc-stack--tight">
+              <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight" style={{paddingTop: "var(--ct-space-3)"}}>
                 <p className="body-xs ct-text-muted">{spec.note}</p>
                 <p className="body-xs ct-text-faint">
                   Generated from methodology assumptions; attach external evidence before review.
