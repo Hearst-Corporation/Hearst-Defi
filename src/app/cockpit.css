@@ -186,9 +186,9 @@
        375px, plancher à la valeur min.
      Formule : fluid = (max_px − min_px) / (1440 − 375) × (100vw − 375px) + min_px,
      converti en `Xrem + Yvw`. */
-  --ct-text-micro: 0.65625rem; /* 10.5px — raised from 9px (table/label legibility) */
-  --ct-text-xs: 0.75rem;      /* 12px — raised from 10px (table body text was too small) */
-  --ct-text-sm: 0.875rem;     /* 14px — fix */
+  --ct-text-micro: 0.6875rem;  /* 11px — reading-tier bump */
+  --ct-text-xs: 0.8125rem;    /* 13px — reading-tier bump (table/body) */
+  --ct-text-sm: 0.9375rem;    /* 15px — reading-tier bump */
   --ct-text-base: 1rem;       /* 16px — fix */
   --ct-text-lg:      clamp(1rem,     0.956rem + 0.188vw, 1.125rem);  /* 16 → 18 */
   --ct-text-xl:      clamp(1.125rem, 1.081rem + 0.188vw, 1.25rem);   /* 18 → 20 */
