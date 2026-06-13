@@ -368,6 +368,12 @@
   .pf-container [data-section="hero-pulse"] .bento-col-4 {
     grid-column: span 12;
   }
+
+  /* Welded hero stacks → seam moves from left edge to top edge */
+  .pf-container [data-section="hero-pulse"] .pf-hero-sidebar {
+    border-left: none;
+    border-top: 1px solid var(--ct-graphite-border-nested);
+  }
 }
 
 /* === KPI chips & progress (portfolio scope) === */
@@ -711,9 +717,19 @@
   padding: 0;
 }
 
-/* Hero row — chart + rail sidebar share row height when side-by-side */
-.pf-container [data-section="hero-pulse"] .dash-bento {
+/* Hero row — chart + rail sidebar WELDED into one full-width surface.
+   The grid itself carries the border/background/radius; the chart and the
+   sidebar become internal zones split by a single vertical divider — no two
+   separate card frames. */
+.pf-container [data-section="hero-pulse"] .pf-hero-grid {
   align-items: stretch;
+  gap: 0;
+  border-radius: var(--ct-radius-xl);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  overflow: hidden;
 }
 
 .pf-container [data-section="hero-pulse"] .pf-main-chart-wrapper,
@@ -723,8 +739,23 @@
   min-height: 100%;
 }
 
+/* Vertical seam between chart zone and KPI zone */
+.pf-container [data-section="hero-pulse"] .pf-hero-sidebar {
+  border-left: 1px solid var(--ct-graphite-border-nested);
+}
+
 .pf-container [data-section="hero-pulse"] .pf-main-chart-wrapper .pf-value-chart {
   flex: 1;
+}
+
+/* Chart zone: drop its own frame — the welded grid owns the chrome now. */
+.pf-container [data-section="hero-pulse"] .pf-main-chart-wrapper .ct-card.pf-value-chart {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background-image: var(--pf-chart-dots);
 }
 
 .pf-hero-sidebar {
@@ -733,12 +764,6 @@
   gap: 0;
   min-width: 0;
   padding: var(--ct-space-4);
-  border-radius: var(--ct-radius-xl);
-  border: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
-  box-shadow: none;
 }
 
 .pf-hero-rail-group {
