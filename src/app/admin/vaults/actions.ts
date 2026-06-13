@@ -215,6 +215,15 @@ export async function createDraftVault(
         signersWhitelist: JSON.stringify(d.signersWhitelist),
         requiredSigners: d.requiredSigners,
         createdBy: admin.walletAddress ?? admin.userId,
+        shareClasses: {
+          create: [{
+            code: d.shareClass,
+            minTicket: d.minTicketUsdc,
+            lockupDays: d.softLockupDays,
+            mgmtFeeBps: d.mgmtFeeBps,
+            perfFeeBps: d.perfFeeBps,
+          }],
+        },
       },
     });
 
@@ -305,6 +314,26 @@ export async function updateDraftVault(
       entityId: id,
       before: { status: existing.status, ticker: existing.ticker },
       after: { status: vault.status, ticker: vault.ticker },
+    });
+
+    // Keep ShareClass row in sync with the draft terms (upsert in case the
+    // class code changed between edits, or the row was never seeded).
+    await prisma.shareClass.upsert({
+      where: { vaultId_code: { vaultId: id, code: d.shareClass } },
+      create: {
+        vaultId: id,
+        code: d.shareClass,
+        minTicket: d.minTicketUsdc,
+        lockupDays: d.softLockupDays,
+        mgmtFeeBps: d.mgmtFeeBps,
+        perfFeeBps: d.perfFeeBps,
+      },
+      update: {
+        minTicket: d.minTicketUsdc,
+        lockupDays: d.softLockupDays,
+        mgmtFeeBps: d.mgmtFeeBps,
+        perfFeeBps: d.perfFeeBps,
+      },
     });
 
     revalidatePath("/admin/vaults");
@@ -554,9 +583,19 @@ export async function markAsLive(id: string): Promise<void> {
   assertTransition(vault.status, "live");
 
   try {
+    // Set contractAddress so isPlaceholderVault() passes and the vault shows
+    // on the investor-facing /vaults page. Use env for the on-chain address;
+    // fall back to the Base Sepolia testnet deployment for local development.
+    const defaultContractAddress =
+      process.env.NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS ||
+      "0x2bd14d52518a04f4c12949c51df03a161a9e329e";
+
     await prisma.vaultDeployment.update({
       where: { id },
-      data: { status: "live" },
+      data: {
+        status: "live",
+        contractAddress: vault.contractAddress || defaultContractAddress,
+      },
     });
 
     await recordAdminAudit({

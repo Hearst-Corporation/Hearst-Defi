@@ -10,6 +10,29 @@ import {
   type RawCustodyAccount,
 } from "@/lib/data/custody-aggregate";
 
+/**
+ * Resolve the Fireblocks PEM secret key.
+ *
+ * Priority:
+ *   1. FIREBLOCKS_SECRET_KEY — inline PEM content. Required for Vercel/serverless
+ *      where a file path is not deployable.
+ *   2. FIREBLOCKS_SECRET_KEY_PATH — local file path. Works in development but
+ *      cannot be used on Vercel. Kept for backwards compat.
+ *
+ * Returns null when neither is configured.
+ */
+function resolveFireblocksSecretKey(): string | null {
+  if (env.FIREBLOCKS_SECRET_KEY) return env.FIREBLOCKS_SECRET_KEY;
+  if (env.FIREBLOCKS_SECRET_KEY_PATH) {
+    try {
+      return readFileSync(env.FIREBLOCKS_SECRET_KEY_PATH, "utf8");
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export interface CustodySnapshot {
   provenance: CustodyProvenance;
   /** True when FIREBLOCKS_VAULT_ACCOUNT_IDS pins the reserve scope. */
@@ -42,9 +65,9 @@ function manualFallback(): CustodySnapshot {
  */
 export async function loadCustody(): Promise<CustodySnapshot> {
   const apiKey = env.FIREBLOCKS_API_KEY;
-  const secretPath = env.FIREBLOCKS_SECRET_KEY_PATH;
   const basePath = env.FIREBLOCKS_BASE_URL;
-  if (!apiKey || !secretPath || !basePath) return manualFallback();
+  const secretKey = resolveFireblocksSecretKey();
+  if (!apiKey || !secretKey || !basePath) return manualFallback();
 
   try {
     // Dynamic import: @fireblocks/ts-sdk@19 has a static `require('uuid')`
@@ -52,7 +75,6 @@ export async function loadCustody(): Promise<CustodySnapshot> {
     // Loading lazily inside the try/catch lets the failure degrade to the
     // manual fallback instead of crashing the route at module-eval time.
     const { Fireblocks } = await import("@fireblocks/ts-sdk");
-    const secretKey = readFileSync(secretPath, "utf8");
     const fb = new Fireblocks({ apiKey, secretKey, basePath });
     const res = await fb.vaults.getPagedVaultAccounts({ limit: 200 });
 

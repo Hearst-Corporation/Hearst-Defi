@@ -179,7 +179,38 @@ export async function subscribe(
       });
     });
 
+    // Create Subscription row — links the position to a ShareClass for
+    // distribution targeting and admin ledger completeness. Non-fatal:
+    // fixture vaults (no VaultDeployment row) have no ShareClass rows,
+    // and a missing Subscription must never block a confirmed deposit.
+    if (deployment) {
+      try {
+        const shareClassRow = await prisma.shareClass.findUnique({
+          where: { vaultId_code: { vaultId: deployment.id, code: classCode } },
+        });
+        if (shareClassRow) {
+          const lockupUntil = new Date(
+            Date.now() + shareClassRow.lockupDays * 86_400_000,
+          );
+          await prisma.subscription.create({
+            data: {
+              userId: investor.userId,
+              vaultId: deployment.id,
+              shareClassId: shareClassRow.id,
+              amount: amountUsdc,
+              lockupUntil,
+              status: "confirmed",
+            },
+          });
+        }
+      } catch {
+        // Non-fatal — Position is the source of truth
+      }
+    }
+
     revalidatePath("/portfolio");
+    revalidatePath("/admin/customers");
+    if (deployment) revalidatePath(`/admin/vaults/${deployment.id}`);
     return { ok: true, positionId: position.id };
   } catch (err) {
     if (err instanceof CapacityError) {

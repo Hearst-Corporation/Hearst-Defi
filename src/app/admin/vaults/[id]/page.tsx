@@ -47,13 +47,47 @@ export default async function VaultDetailPage({ params }: PageProps) {
     where: { OR: [{ id }, { ticker: id.toUpperCase() }] },
     include: {
       approvals: { orderBy: { signedAt: "asc" } },
-      positions: { where: { status: "active" }, select: { principalUsdc: true } },
+      positions: {
+        where: { status: "active" },
+        select: {
+          id: true,
+          principalUsdc: true,
+          subscribedAt: true,
+          vaultKey: true,
+          investor: {
+            select: {
+              id: true,
+              user: { select: { email: true } },
+            },
+          },
+        },
+        orderBy: { subscribedAt: "desc" },
+      },
     },
   });
 
   if (!vault) notFound();
 
   const aumUsdc = vault.positions.reduce((sum, p) => sum + Number(p.principalUsdc), 0);
+
+  const usdFull = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+
+  const defaultShareClass = vault.shareClass;
+  const defaultSoftLockupDays = vault.softLockupDays;
+
+  function classFromVaultKey(vaultKey: string): string {
+    return /class-([A-Z]+)$/.exec(vaultKey)?.[1] ?? defaultShareClass;
+  }
+
+  function lockupDaysForClass(classCode: string): number {
+    if (classCode === "B") return 90;
+    return defaultSoftLockupDays;
+  }
   const kpiFacts = toVaultKpiFacts({
     targetApyLowBps: vault.targetApyLowBps,
     targetApyHighBps: vault.targetApyHighBps,
@@ -314,6 +348,65 @@ export default async function VaultDetailPage({ params }: PageProps) {
                     </td>
                   </tr>
                 ))}
+              </tbody>
+            </table>
+          </Card>
+        )}
+      </section>
+
+      {/* Subscribers — visible once vault has at least one active position */}
+      <section className="admin-doc-stack admin-doc-stack--compact" aria-label="Subscribers">
+        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline admin-doc-inline-row--relaxed">
+          <DashboardPanelHeader title="Subscribers" className="mb-0" />
+          <span className="mono tabular body-sm ct-text-muted">
+            {vault.positions.length} active · {usdFull.format(aumUsdc)}
+          </span>
+        </div>
+
+        {vault.positions.length === 0 ? (
+          <PanelStatus message="No active subscriptions yet." />
+        ) : (
+          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
+            <table className="w-full table-fixed text-left body-sm">
+              <thead>
+                <tr>
+                  <th className="w-[30%] ct-table-header stat-label text-left">Investor</th>
+                  <th className="w-[12%] ct-table-header stat-label text-left">Class</th>
+                  <th className="w-[22%] ct-table-header stat-label text-right">Principal</th>
+                  <th className="w-[18%] ct-table-header stat-label text-left">Subscribed</th>
+                  <th className="w-[18%] ct-table-header stat-label text-left">Lock-up ends</th>
+                </tr>
+              </thead>
+              <tbody>
+                {vault.positions.map((pos) => {
+                  const classCode = classFromVaultKey(pos.vaultKey);
+                  const lockupEnd = new Date(
+                    pos.subscribedAt.getTime() +
+                      lockupDaysForClass(classCode) * 86_400_000,
+                  );
+                  return (
+                    <tr
+                      key={pos.id}
+                      className="border-b border-[var(--ct-border-soft)] last:border-0"
+                    >
+                      <td className="ct-table-cell truncate ct-text-body">
+                        {pos.investor.user.email}
+                      </td>
+                      <td className="ct-table-cell mono ct-text-muted">
+                        {classCode}
+                      </td>
+                      <td className="ct-table-cell text-right tabular-nums ct-text-strong">
+                        {usdFull.format(Number(pos.principalUsdc))}
+                      </td>
+                      <td className="ct-table-cell body-xs ct-text-muted whitespace-nowrap">
+                        {pos.subscribedAt.toISOString().slice(0, 10)}
+                      </td>
+                      <td className="ct-table-cell body-xs ct-text-muted whitespace-nowrap">
+                        {lockupEnd.toISOString().slice(0, 10)}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </Card>

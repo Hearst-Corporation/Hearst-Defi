@@ -80,6 +80,11 @@ const serverEnvSchema = z.object({
   // Fireblocks custody (Proof-of-Reserves). Optional — when absent, custody data
   // falls back to mock with a `Manual` provenance badge instead of `Live`.
   FIREBLOCKS_API_KEY: z.string().optional(),
+  // Preferred in serverless/Vercel: inline PEM content (export the key as a
+  // multi-line env var). Takes precedence over FIREBLOCKS_SECRET_KEY_PATH.
+  FIREBLOCKS_SECRET_KEY: z.string().optional(),
+  // Legacy: absolute path to PEM file. Works locally but is unusable on
+  // Vercel/serverless — use FIREBLOCKS_SECRET_KEY instead.
   FIREBLOCKS_SECRET_KEY_PATH: z.string().optional(),
   FIREBLOCKS_BASE_URL: z.string().url().optional(),
   // Comma-separated Fireblocks vault account IDs that constitute the vault's

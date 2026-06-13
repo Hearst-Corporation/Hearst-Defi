@@ -225,6 +225,13 @@ export default async function ProfilePage() {
           eligibility depends on accreditation, KYC approval, and jurisdictional
           restrictions.
         </p>
+        <nav className="prof-legal-links" aria-label="Legal">
+          <Link href="/legal/disclaimer" className="body-xs ct-text-faint prof-legal-link">Disclaimer</Link>
+          <span className="ct-text-faint" aria-hidden="true">·</span>
+          <Link href="/legal/privacy" className="body-xs ct-text-faint prof-legal-link">Privacy Policy</Link>
+          <span className="ct-text-faint" aria-hidden="true">·</span>
+          <Link href="/legal/terms" className="body-xs ct-text-faint prof-legal-link">Terms of Use</Link>
+        </nav>
       </footer>
     </div>
   );

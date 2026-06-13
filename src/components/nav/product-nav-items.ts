@@ -140,6 +140,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       { id: "roadmap", label: "Roadmap", href: "/admin/roadmap", icon: "FileText" },
       { id: "spec", label: "Spec", href: "/admin/spec", icon: "FileCheck" },
       { id: "investor-memo", label: "Investor Memo", href: "/admin/investor-memo", icon: "FileText" },
+      { id: "audit", label: "Audit Log", href: "/admin/audit", icon: "FileCheck" },
     ],
   },
 ];
