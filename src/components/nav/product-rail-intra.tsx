@@ -276,6 +276,7 @@ export function AdminRailIntra() {
           }}
           pathname={pathname}
           active={isSectionActive(section, pathname)}
+          iconSize={20}
         />
       ))}
       <RailSeparator />
@@ -289,6 +290,7 @@ export function AdminRailIntra() {
         }}
         pathname={pathname}
         active={false}
+        iconSize={20}
       />
     </nav>
   );
