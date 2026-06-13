@@ -46,6 +46,11 @@
   border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-border-soft));
 }
 
+.dash-cell:focus-visible {
+  outline: none;
+  box-shadow: var(--ct-shadow-focus-ring);
+}
+
 /* === KPI cell — compact metric card for KPI grids (not bento panels) ===
  * Lighter padding, no min-height, height fits content only. */
 .kpi-cell {
@@ -116,6 +121,20 @@
   .dash-bento > .bento-col-8,
   .dash-bento > .bento-col-12 {
     grid-column: span 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .dash-bento {
+    gap: var(--ct-space-2);
+  }
+
+  .dash-cell {
+    padding: var(--ct-space-1_5) var(--ct-space-2);
+  }
+
+  .kpi-cell {
+    padding: var(--ct-space-1_5) var(--ct-space-2);
   }
 }
 

@@ -216,6 +216,13 @@
   --ct-step-dot-size: 1.75rem;     /* wizard step circle diameter */
   --ct-chart-empty-h: 8.75rem;     /* empty-state chart placeholder height */
 
+  /* Icon size scale — use these for w/h on <svg> and icon primitives. */
+  --ct-icon-xs:  0.75rem;  /* 12px — inline status dot */
+  --ct-icon-sm:  1rem;     /* 16px — inline icon, label companion */
+  --ct-icon-md:  1.25rem;  /* 20px — button icon, nav item */
+  --ct-icon-lg:  1.5rem;   /* 24px — section header icon */
+  --ct-icon-xl:  2rem;     /* 32px — hero / empty-state icon */
+
   /* Scenario central flow — token aliases (Cockpit-only values). */
   --ct-scenario-central-surface: var(--ct-surface-1);
   --ct-scenario-central-surface-strong: var(--ct-surface-2);
@@ -845,6 +852,11 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 .scenario-lab-tab[data-active="true"] {
   background: var(--ct-accent);
   color: var(--ct-bg-deep);
+}
+
+.scenario-lab-tab:focus-visible {
+  outline: none;
+  box-shadow: var(--ct-shadow-focus-ring);
 }
 
 .scenario-lab-workspace,
@@ -2400,6 +2412,7 @@ pre.ct-surface-1.rounded-md {
   background: var(--ct-surface-2);
   border: 1px solid var(--ct-border);
   color: var(--ct-text-body);
+  white-space: nowrap;
 }
 
 .ct-pill.accent {

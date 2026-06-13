@@ -33,12 +33,12 @@ export async function LoginSplit() {
                 Real-World Asset Yield
               </span>
 
-              <h2 className="h1 login-split__title-wrap m-0">
+              <h1 className="h1 login-split__title-wrap m-0">
                 Institutional yield, backed by{" "}
                 <span className="login-split__title-accent">
                   Bitcoin mining
                 </span>
-              </h2>
+              </h1>
 
               {apyRange != null && (
                 <div className="login-split__apy-chip">
