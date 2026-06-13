@@ -105,10 +105,10 @@ export function InputsPanel({ inputs, onChange, disabled }: InputsPanelProps) {
         return (
           <div
             key={field.key}
-            className="py-5 first:pt-0 last:pb-0"
+            className="py-(--ct-space-5) first:pt-0 last:pb-0"
           >
             {/* Label row — eyebrow left, value right */}
-            <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
+            <div className="mb-(--ct-space-3) admin-doc-inline-row admin-doc-inline-row--between items-baseline">
               <label
                 htmlFor={`slider-${field.key}`}
                 className={cn(
@@ -156,7 +156,7 @@ export function InputsPanel({ inputs, onChange, disabled }: InputsPanelProps) {
             />
 
             {/* Min / max labels */}
-            <div className="mt-1.5 admin-doc-row-spread">
+            <div className="mt-(--ct-space-1_5) admin-doc-row-spread">
               <span className="body-xs ct-text-muted">
                 {field.key === "btc_price_change_pct"
                   ? "−60%"

@@ -141,10 +141,10 @@ export function CentralTaskRunner({
       data-state={pending ? "active" : undefined}
     >
       <div className="scenario-lab-input-card__header">
-        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline w-full min-w-0">
+        <div className="admin-doc-inline-row admin-doc-inline-row--between items-baseline w-full min-w-0">
           <div className="min-w-0">
             <p className="eyebrow ct-text-muted m-0">Central flow</p>
-            <h4 className="h4 mt-0.5">Task console</h4>
+            <h4 className="h4 mt-(--ct-space-0_5)">Task console</h4>
           </div>
           <div className="admin-doc-inline-row admin-doc-inline-row--dense shrink-0">
             {liveBtcPrice ? (
@@ -160,12 +160,12 @@ export function CentralTaskRunner({
             ) : null}
             <Badge
               variant="default"
-              className={cn("mono body-xs transition-colors duration-150", status.toneClass)}
+              className={cn("mono body-xs transition-colors duration-(--ct-dur-fast)", status.toneClass)}
             >
-              <span className="inline-flex items-center gap-2">
+              <span className="inline-flex items-center gap-(--ct-space-2)">
                 <span
                   className={cn(
-                    "h-1.5 w-1.5 rounded-full",
+                    "h-(--ct-space-1_5) w-(--ct-space-1_5) rounded-full",
                     status.dotClass,
                     pending ? "animate-pulse" : "",
                   )}
@@ -187,19 +187,19 @@ export function CentralTaskRunner({
         </div>
 
         {stepItems.length > 0 ? (
-          <ol className="flex flex-col gap-2">
+          <ol className="flex flex-col gap-(--ct-space-2)">
             {stepItems.map((step) => (
               <li
                 key={step.key}
                 data-state={step.isActive ? "pending" : "done"}
                 className={cn(
-                  "scenario-central-flow-line group transition-colors duration-150",
+                  "scenario-central-flow-line group transition-colors duration-(--ct-dur-fast)",
                   step.isActive ? "ct-surface-2" : "ct-surface-1",
                 )}
               >
                 <span
                   className={cn(
-                    "mono body-xs mt-0.5 inline-flex h-5 min-w-8 items-center justify-center rounded-sm px-1.5",
+                    "mono body-xs mt-(--ct-space-0_5) inline-flex h-5 min-w-(--ct-space-8) items-center justify-center rounded-sm px-(--ct-space-1_5)",
                     step.isActive ? "ct-status-warning-bg ct-bc-warning animate-pulse" : "ct-pill",
                   )}
                 >
@@ -207,7 +207,7 @@ export function CentralTaskRunner({
                 </span>
                 <span
                   className={cn(
-                    "body-sm leading-relaxed transition-colors duration-150",
+                    "body-sm leading-relaxed transition-colors duration-(--ct-dur-fast)",
                     step.isActive
                       ? "scenario-central-flow-pending ct-text-strong"
                       : "ct-text-body",

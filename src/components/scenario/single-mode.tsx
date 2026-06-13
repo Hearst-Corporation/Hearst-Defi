@@ -64,7 +64,7 @@ export function SingleMode({
       {error ? (
         <p
           role="alert"
-          className="rounded-full border border-(--ct-status-danger) ct-status-danger-bg px-4 py-2.5 body-sm ct-status-danger"
+          className="rounded-full ct-status-danger-bg px-4 py-2.5 body-sm ct-status-danger"
         >
           {error}
         </p>
