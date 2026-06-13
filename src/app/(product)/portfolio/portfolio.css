@@ -858,7 +858,7 @@
 }
 
 .pf-container--zero {
-  gap: var(--ct-space-8);
+  gap: var(--ct-space-6);
 }
 
 .pf-container--zero .pf-section-stack {

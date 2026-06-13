@@ -17,7 +17,7 @@ export async function LoginSplit() {
       </div>
 
       <div className="login-split__grid grid grid-cols-1 lg:grid-cols-2">
-        <section className="login-split__brand relative flex items-start justify-center px-12 lg:px-20">
+        <section className="login-split__brand relative px-12 lg:px-20">
           <div className="login-split__brand-inner flex flex-col items-center">
             <Image
               src="/logos/hearst-connect-dark.svg"
@@ -54,7 +54,7 @@ export async function LoginSplit() {
           </div>
         </section>
 
-        <section className="login-split__signin flex items-start justify-center px-8 sm:px-12">
+        <section className="login-split__signin px-8 sm:px-12">
           <div className="flex w-full justify-center">
             <LoginPanel />
           </div>
