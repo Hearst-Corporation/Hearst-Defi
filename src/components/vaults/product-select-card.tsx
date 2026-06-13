@@ -25,7 +25,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
   const strategyLabel = STRATEGY_LABELS[vault.strategy] ?? vault.strategy;
 
   return (
-    <Card aria-label={`${vault.name} — ${strategyLabel}`}>
+    <Card density="compact" aria-label={`${vault.name} — ${strategyLabel}`}>
       <div className="vault-select-card">
         <div className="vault-select-card__main">
           <div className="min-w-0 product-doc-stack--tight">

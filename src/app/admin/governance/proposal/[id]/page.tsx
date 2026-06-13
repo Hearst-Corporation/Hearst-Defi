@@ -132,7 +132,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
       </Card>
 
       {ptai ? (
-        <Card>
+        <Card density="compact">
           <DashboardPanelHeader
             title="Projection · Trigger · Action · Impact"
             tone="quiet"
@@ -150,13 +150,13 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         </Card>
       ) : null}
 
-      <Card>
+      <Card density="compact">
         <DashboardPanelHeader title="Justification" tone="quiet" className="mb-4" />
         <p className="body-md whitespace-pre-wrap ct-text-primary">{proposal.justification}</p>
       </Card>
 
       {proposal.calldata ? (
-        <Card>
+        <Card density="compact">
           <DashboardPanelHeader title="Calldata" tone="quiet" className="mb-4" />
           <pre className="mono overflow-x-auto whitespace-pre-wrap rounded-md ct-surface-1 p-4 body-xs ct-text-muted">
             {formatProposalCalldata(proposal.calldata)}
@@ -164,7 +164,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         </Card>
       ) : null}
 
-      <Card>
+      <Card density="compact">
         <DashboardPanelHeader
           title={`Signatures (${proposal.approvalCount}/${proposal.requiredSigners} approved${
             proposal.rejectionCount > 0 ? `, ${proposal.rejectionCount} rejected` : ""

@@ -3110,6 +3110,22 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-kpi-card                               { padding: 20px 24px; }
 .ct-card                                   { padding: 20px 24px; }
 
+/* Compact card density — smaller data/list surfaces (audit D1/D2). */
+/* Does not override .ct-glass-panel globally; only adds a tighter size tier. */
+.ct-card--compact.ct-glass-panel                  { border-radius: var(--ct-radius-xl); }
+.ct-card--compact,
+.admin-doc .ct-card--compact:not(.p-0)            { padding: var(--ct-space-3) var(--ct-space-4); }
+
+/* Vault selector card — tighten gaps when rendered inside a compact card. */
+.ct-card--compact .vault-select-card               { gap: var(--ct-space-4); }
+.ct-card--compact .vault-select-card__main         { gap: var(--ct-space-3); }
+.ct-card--compact .vault-select-card__meta         { gap: var(--ct-space-3); }
+
+@container product-doc (min-width: 40rem) {
+  .ct-card--compact .vault-select-card             { gap: var(--ct-space-4); }
+  .ct-card--compact .vault-select-card__meta       { min-width: 16rem; width: 16rem; }
+}
+
 /* Cockpit chat rail */
 .ct-chat-actionbar                         { padding-bottom: 8px; }
 .ct-chat-newbtn                            { padding: 4px 10px; }
@@ -3239,8 +3255,11 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 }
 
 .login-split__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 100%;
-  padding-top: calc(50dvh - 15rem);
+  padding-block: var(--ct-space-16);
   background-image: radial-gradient(
     circle,
     color-mix(in srgb, var(--ct-accent) 18%, transparent) 1px,
@@ -3304,9 +3323,12 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 }
 
 .login-split__signin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-left: 1px solid var(--ct-border-soft);
   height: 100%;
-  padding-top: calc(50dvh - 15rem);
+  padding-block: var(--ct-space-16);
 }
 
 /* Admin dashboard ambient orbs (replaces inline glow styles) */

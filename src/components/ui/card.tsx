@@ -3,13 +3,18 @@ import { cn } from "@/lib/cn";
 export function Card({
   className,
   hoverOverlay = true,
+  density = "default",
   children,
   ...props
-}: React.HTMLAttributes<HTMLDivElement> & { hoverOverlay?: boolean }) {
+}: React.HTMLAttributes<HTMLDivElement> & {
+  hoverOverlay?: boolean;
+  density?: "default" | "compact";
+}) {
   return (
     <div
       className={cn(
         "ct-card ct-glass-panel relative overflow-hidden",
+        density === "compact" && "ct-card--compact",
         hoverOverlay && "group",
         className,
       )}

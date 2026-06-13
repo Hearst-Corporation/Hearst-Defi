@@ -148,9 +148,10 @@ export default async function VaultsPage({ searchParams }: PageProps) {
             return (
               <Card
                 key={vault.id}
+                density="compact"
                 aria-label={`${vault.ticker} deployment`}
               >
-                <div className="admin-doc-stack admin-doc-stack--relaxed">
+                <div className="admin-doc-stack admin-doc-stack--actions">
                   <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
                     <div className="admin-doc-stack admin-doc-stack--dense min-w-0">
                       <div className="admin-doc-inline-row admin-doc-inline-row--loose">
