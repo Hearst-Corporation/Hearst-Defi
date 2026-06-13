@@ -11,7 +11,7 @@ import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { STRATEGY_LABELS } from "@/lib/constants/vault";
-import { formatUsdFull } from "@/lib/vaults/product-display";
+import { formatUsdCompact } from "@/lib/vaults/product-display";
 
 import { pauseVault, resumeVault } from "./actions";
 
@@ -104,10 +104,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
               href={tab.key === "all" ? "/admin/vaults" : `/admin/vaults?filter=${tab.key}`}
               role="tab"
               aria-selected={isActive}
-              className={cn(
-                "ct-pill",
-                isActive && "accent",
-              )}
+              className={cn("ct-pill", isActive && "accent")}
             >
               {tab.label}
             </Link>
@@ -133,7 +130,16 @@ export default async function VaultsPage({ searchParams }: PageProps) {
           </EmptySurface>
         </Card>
       ) : (
-        <section aria-label="Vault deployments" className="admin-doc-stack admin-doc-stack--list">
+        <section aria-label="Vault deployments" className="admin-vaults-list">
+          {/* Column headers */}
+          <div className="admin-vaults-list__header" aria-hidden>
+            <span className="stat-label">Vault</span>
+            <span className="stat-label">Status</span>
+            <span className="stat-label">AUM vs Capacity</span>
+            <span className="stat-label">Target APY</span>
+            <span className="stat-label sr-only">Actions</span>
+          </div>
+
           {vaults.map((vault) => {
             const aumUsdc = vault.positions.reduce(
               (sum, p) => sum + Number(p.principalUsdc),
@@ -146,113 +152,98 @@ export default async function VaultsPage({ searchParams }: PageProps) {
             const statusDisplay = vaultStatusDisplay(vault.status);
 
             return (
-              <Card
+              <div
                 key={vault.id}
-                density="compact"
+                className="admin-vaults-list__row"
                 aria-label={`${vault.ticker} deployment`}
               >
-                <div className="admin-doc-stack admin-doc-stack--compact">
-                  <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
-                    <div className="admin-doc-stack admin-doc-stack--dense min-w-0">
-                      <div className="admin-doc-inline-row admin-doc-inline-row--loose">
-                        <span className="mono tabular body-sm font-semibold ct-text-strong">
-                          {vault.ticker}
-                        </span>
-                        <span className="admin-doc-inline-row admin-doc-inline-row--actions shrink-0">
-                          <span
-                            role="img"
-                            aria-label={statusDisplay.label}
-                            className={cn(
-                              "inline-block h-2 w-2 shrink-0 rounded-full",
-                              statusDisplay.dotClass,
-                            )}
-                          />
-                          <span className="body-xs ct-text-muted">
-                            {statusDisplay.label}
-                          </span>
-                        </span>
-                      </div>
-                      <p className="body-sm ct-text-muted truncate max-w-xs">
-                        {vault.name}
-                      </p>
-                      <p className="body-xs ct-text-faint">
-                        {STRATEGY_LABELS[vault.strategy] ?? vault.strategy}
-                      </p>
-                    </div>
+                {/* Identity */}
+                <div className="admin-vaults-list__identity">
+                  <span className="mono tabular body-sm font-semibold ct-text-strong">
+                    {vault.ticker}
+                  </span>
+                  <span className="body-xs ct-text-muted truncate">
+                    {vault.name}
+                  </span>
+                  <span className="body-xs ct-text-faint">
+                    {STRATEGY_LABELS[vault.strategy] ?? vault.strategy}
+                  </span>
+                </div>
 
-                    <div className="admin-doc-inline-row admin-doc-inline-row--actions shrink-0">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/admin/vaults/${vault.id}`}>View</Link>
-                      </Button>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link
-                          href={`/admin/vaults/new?cloneFrom=${encodeURIComponent(vault.ticker)}`}
-                        >
-                          Clone
-                        </Link>
-                      </Button>
-                    </div>
+                {/* Status */}
+                <div className="admin-vaults-list__status">
+                  <span
+                    role="img"
+                    aria-label={statusDisplay.label}
+                    className={cn(
+                      "inline-block h-1.5 w-1.5 shrink-0 rounded-full",
+                      statusDisplay.dotClass,
+                    )}
+                  />
+                  <span className="body-xs ct-text-muted">{statusDisplay.label}</span>
+                </div>
+
+                {/* AUM vs Capacity */}
+                <div className="admin-vaults-list__metrics">
+                  <div className="flex items-center gap-2">
+                    <Progress
+                      value={aumPct}
+                      label={`AUM vs capacity for ${vault.ticker}`}
+                      variant="plain"
+                      className="h-1 flex-1"
+                    />
+                    <ProvenanceBadge
+                      kind={aumUsdc > 0 ? "live" : "estimated"}
+                      variant="strip"
+                    />
                   </div>
+                  <span className="mono tabular body-xs ct-text-muted">
+                    {formatUsdCompact(aumUsdc)} / {formatUsdCompact(capacityUsdc)}
+                  </span>
+                </div>
 
-                  <div className="admin-doc-kpi-grid-2">
-                    <div className="admin-doc-stack admin-doc-stack--compact min-w-0">
-                      <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                        <span className="stat-label">AUM vs Capacity</span>
-                        <ProvenanceBadge
-                          kind={aumUsdc > 0 ? "live" : "estimated"}
-                          variant="strip"
-                        />
-                      </div>
-                      <Progress
-                        value={aumPct}
-                        label="AUM vs capacity"
-                        variant="plain"
-                        className="h-1"
-                      />
-                      <span className="mono tabular body-xs ct-text-muted">
-                        {formatUsdFull(aumUsdc)} / {formatUsdFull(capacityUsdc)}
-                      </span>
-                    </div>
+                {/* Target APY */}
+                <div className="admin-vaults-list__apy">
+                  <ApyRange low={apyLow} high={apyHigh} precision={1} />
+                  <ProvenanceBadge kind="estimated" variant="strip" />
+                </div>
 
-                    <div className="admin-doc-stack admin-doc-stack--compact min-w-0">
-                      <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                        <span className="stat-label">Target APY</span>
-                        <ProvenanceBadge kind="estimated" variant="strip" />
-                      </div>
-                      <ApyRange low={apyLow} high={apyHigh} precision={1} />
-                    </div>
-                  </div>
-
-                  {(vault.status === "live" || vault.status === "paused") && (
-                    <div className="admin-doc-inline-row admin-doc-inline-row--end">
-                      {vault.status === "live" && (
-                        <form
-                          action={async () => {
-                            "use server";
-                            await pauseVault(vault.id);
-                          }}
-                        >
-                          <Button variant="secondary" size="sm" type="submit">
-                            Pause
-                          </Button>
-                        </form>
-                      )}
-                      {vault.status === "paused" && (
-                        <form
-                          action={async () => {
-                            "use server";
-                            await resumeVault(vault.id);
-                          }}
-                        >
-                          <Button variant="secondary" size="sm" type="submit">
-                            Resume
-                          </Button>
-                        </form>
-                      )}
-                    </div>
+                {/* Actions */}
+                <div className="admin-vaults-list__actions">
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href={`/admin/vaults/${vault.id}`}>View</Link>
+                  </Button>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href={`/admin/vaults/new?cloneFrom=${encodeURIComponent(vault.ticker)}`}>
+                      Clone
+                    </Link>
+                  </Button>
+                  {vault.status === "live" && (
+                    <form
+                      action={async () => {
+                        "use server";
+                        await pauseVault(vault.id);
+                      }}
+                    >
+                      <Button variant="secondary" size="sm" type="submit">
+                        Pause
+                      </Button>
+                    </form>
+                  )}
+                  {vault.status === "paused" && (
+                    <form
+                      action={async () => {
+                        "use server";
+                        await resumeVault(vault.id);
+                      }}
+                    >
+                      <Button variant="secondary" size="sm" type="submit">
+                        Resume
+                      </Button>
+                    </form>
                   )}
                 </div>
-              </Card>
+              </div>
             );
           })}
         </section>

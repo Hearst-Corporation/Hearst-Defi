@@ -3885,3 +3885,95 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-table-surface tbody tr:last-child {
   border-bottom: none;
 }
+
+/* ─── Admin Vaults — dense deployment list ──────────────────────────────── */
+
+.admin-vaults-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-xl);
+  overflow: hidden;
+  background: var(--ct-surface-1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.admin-vaults-list__header {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) 6rem minmax(0, 1.5fr) 7rem 6rem;
+  gap: var(--ct-space-4);
+  align-items: center;
+  padding: var(--ct-space-2) var(--ct-space-5);
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.admin-vaults-list__row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) 6rem minmax(0, 1.5fr) 7rem 6rem;
+  gap: var(--ct-space-4);
+  align-items: center;
+  padding: var(--ct-space-3) var(--ct-space-5);
+  min-width: 0;
+  transition: background var(--ct-dur-fast) var(--ct-ease);
+}
+
+.admin-vaults-list__row + .admin-vaults-list__row {
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+.admin-vaults-list__row:hover {
+  background: var(--ct-surface-0);
+}
+
+.admin-vaults-list__identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+  min-width: 0;
+}
+
+.admin-vaults-list__status {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-1_5);
+}
+
+.admin-vaults-list__metrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  min-width: 0;
+}
+
+.admin-vaults-list__apy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+}
+
+.admin-vaults-list__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ct-space-1_5);
+  flex-wrap: nowrap;
+}
+
+/* Mobile: stack each row */
+@media (max-width: 640px) {
+  .admin-vaults-list__header {
+    display: none;
+  }
+
+  .admin-vaults-list__row {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: var(--ct-space-2_5);
+    padding: var(--ct-space-4) var(--ct-space-4);
+  }
+
+  .admin-vaults-list__actions {
+    justify-content: flex-start;
+  }
+}
