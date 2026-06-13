@@ -651,10 +651,16 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 
 .scenario-lab-workspace--viewport .scenario-lab-output-card {
   min-height: 0;
+  align-self: stretch;
+  overflow: hidden;
+}
+
+.scenario-lab-workspace--viewport .scenario-lab-output-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  align-self: stretch;
 }
 
 /* Compare / Backtest tabs: scroll the whole panel (no split workspace). */
@@ -915,6 +921,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow: hidden;
 }
 
 .scenario-lab-input-card {
@@ -980,6 +987,25 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   min-height: 0;
   overflow-y: auto;
   padding: var(--ct-space-4) var(--ct-space-5);
+}
+
+.scenario-lab-output-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--ct-space-4) var(--ct-space-5);
+}
+
+.scenario-lab-output-idle {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ct-space-3);
+  min-height: 12rem;
+  padding: var(--ct-space-8) var(--ct-space-5);
+  text-align: center;
 }
 
 .scenario-lab-input-footer {
@@ -2219,14 +2245,6 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 :is(.pf-cockpit-panel, .ct-card, .module-chrome)
   :is(.ct-empty-surface, .ct-empty-surface--widget).h-full:not(.ct-empty-surface--round) {
   justify-content: center;
-}
-
-/* Scenario Lab output slot — inline empty centred inside module Card. */
-.scenario-lab-output-card .ct-empty-surface--inline.h-full {
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: var(--ct-space-8) var(--ct-space-5);
 }
 
 /* Table empty row — typography only, no nested box. */

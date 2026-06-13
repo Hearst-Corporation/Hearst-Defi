@@ -9,7 +9,6 @@ import { Spinner } from "@/components/scenario/scenario-spinner";
 import { CentralTaskRunner } from "@/components/scenario/central-task-runner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
 import { useScenario } from "@/hooks/use-scenario";
 import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
@@ -152,48 +151,42 @@ export function SingleMode({
             liveBtcPrice={liveBtcPrice}
           />
 
-          <div className="min-h-0 flex flex-col gap-2">
-            <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline px-1">
-              <span className="stat-label">Output assets</span>
-              <span className="body-xs ct-text-muted">Projection & narrative</span>
+          <Card
+            className={cn(
+              "scenario-lab-output-card scenario-lab-input-card min-h-0 p-0",
+              !state.output && "transition-opacity duration-(--ct-dur-fast)",
+              !state.output && pending && "opacity-50",
+            )}
+            hoverOverlay={false}
+          >
+            <div className="scenario-lab-input-card__header">
+              <h4 className="h4">Output assets</h4>
+              <p className="mt-0.5 body-xs ct-text-muted">Projection & narrative</p>
             </div>
 
             {state.output ? (
-              <div ref={outputRef} className="scenario-lab-output-card min-h-0">
-                <Card className="h-full" hoverOverlay={false}>
-                  <OutputPanel
-                    output={state.output}
-                    isPending={pending}
-                    narrative={state.narrative}
-                  />
-                </Card>
+              <div ref={outputRef} className="scenario-lab-output-scroll">
+                <OutputPanel
+                  output={state.output}
+                  isPending={pending}
+                  narrative={state.narrative}
+                />
               </div>
             ) : (
-              <div className="scenario-lab-output-card min-h-0">
-                <Card
-                  className={cn(
-                    "h-full min-h-48 transition-opacity duration-(--ct-dur-fast)",
-                    pending && "opacity-50",
-                  )}
-                  hoverOverlay={false}
-                >
-                  <EmptySurface
-                    variant="inline"
-                    className="h-full min-h-48"
-                    message={
-                      pending
-                        ? "Computing…"
-                        : "Select a preset or adjust sliders, then press Run scenario to see projections."
-                    }
-                    ariaLabel="Scenario output — awaiting first run"
-                    role="status"
-                  >
-                    {pending ? <Spinner className="ct-text-strong" /> : null}
-                  </EmptySurface>
-                </Card>
+              <div
+                className="scenario-lab-output-idle"
+                role="status"
+                aria-label="Scenario output — awaiting first run"
+              >
+                {pending ? <Spinner className="ct-text-strong" /> : null}
+                <p className="body-sm ct-text-muted m-0">
+                  {pending
+                    ? "Computing…"
+                    : "Select a preset or adjust sliders, then press Run scenario to see projections."}
+                </p>
               </div>
             )}
-          </div>
+          </Card>
         </section>
       </div>
     </div>

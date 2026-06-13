@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 import { BacktestChart } from "@/components/scenario/backtest-chart";
 import { SingleMode } from "@/components/scenario/single-mode";
 
-function assertEmptyDesignContract(html: string, message: string): void {
+function assertChartEmptyContract(html: string, message: string): void {
   expect(html).toContain(message);
   expect(html).toContain("ct-empty-surface");
   expect(html).not.toContain("scenario-lab-output-empty");
@@ -18,23 +18,22 @@ function assertEmptyDesignContract(html: string, message: string): void {
 }
 
 describe("Scenario Lab empty states — design contract", () => {
-  it("SingleMode output slot: EmptySurface inline in output card", () => {
-    const html = renderToStaticMarkup(
-      <SingleMode vaultId="yield" />,
-    );
-    assertEmptyDesignContract(
-      html,
+  it("SingleMode output slot: idle copy on module card without EmptySurface nesting", () => {
+    const html = renderToStaticMarkup(<SingleMode vaultId="yield" />);
+    expect(html).toContain(
       "Select a preset or adjust sliders, then press Run scenario to see projections.",
     );
-    expect(html).toMatch(
-      /scenario-lab-output-card[\s\S]*ct-empty-surface--inline/,
+    expect(html).toContain("scenario-lab-output-card");
+    expect(html).toContain("scenario-lab-output-idle");
+    expect(html).not.toContain("ct-empty-surface");
+    expect(html).not.toMatch(
+      /scenario-lab-output-card[\s\S]*ct-card[\s\S]*ct-empty-surface/,
     );
-    expect(html).not.toContain("ct-empty-surface--widget");
   });
 
   it("BacktestChart: chart slot uses ct-empty-surface--chart without SVG", () => {
     const html = renderToStaticMarkup(<BacktestChart series={[]} />);
-    assertEmptyDesignContract(html, "Insufficient data — preview only");
+    assertChartEmptyContract(html, "Insufficient data — preview only");
     expect(html).toContain("ct-empty-surface--chart");
     expect(html).not.toContain("<svg");
   });
