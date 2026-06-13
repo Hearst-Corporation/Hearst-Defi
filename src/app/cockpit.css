@@ -1062,6 +1062,30 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   }
 }
 
+/* Mining cash-flow evidence — pending "calibration" rail (instrument awaiting
+   attestation). Dashed accent (the brand green is the only accent) softly
+   pulsing = "listening". Reuses the soft-pulse keyframe above. */
+.mining-coverage-calibration {
+  position: relative;
+  height: var(--ct-space-1_5);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-surface-2);
+  overflow: hidden;
+}
+.mining-coverage-calibration__bar {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ct-accent) 50%, transparent) 0 6px,
+    transparent 6px 12px
+  );
+  animation: ct-scenario-central-soft-pulse var(--ct-dur-pulse) ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mining-coverage-calibration__bar { animation: none; }
+}
+
 /* Legacy projection studio empty — migrate to EmptySurface when studio is next touched */
 .projection-studio-empty {
   display: flex;
