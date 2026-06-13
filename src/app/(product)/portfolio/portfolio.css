@@ -768,7 +768,7 @@
 }
 
 /* Chart zone: drop its own frame — the welded grid owns the chrome now. */
-.pf-container [data-section="hero-pulse"] .pf-main-chart-wrapper .ct-card.pf-value-chart {
+.pf-container [data-section="hero-pulse"] .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
   border: none;
   border-radius: 0;
   background: transparent;
@@ -864,7 +864,7 @@
 }
 
 /* Value chart — local graphite surface */
-.pf-container .pf-main-chart-wrapper .ct-card.pf-value-chart {
+.pf-container .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
   --pf-chart-dots: radial-gradient(
     circle,
     color-mix(in srgb, var(--ct-accent) 2%, transparent) 1px,
@@ -883,7 +883,7 @@
   transition: border-color var(--ct-dur-base) var(--ct-ease);
 }
 
-.pf-container .pf-main-chart-wrapper .ct-card.pf-value-chart:hover {
+.pf-container .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart:hover {
   border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-graphite-border-nested));
 }
 
@@ -892,7 +892,7 @@
 }
 
 @container pf (max-width: 880px) {
-  .pf-container .pf-main-chart-wrapper .ct-card.pf-value-chart {
+  .pf-container .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
     min-height: 18rem;
     padding: var(--ct-space-3) var(--ct-space-4);
   }
@@ -937,7 +937,7 @@
   padding: var(--ct-space-4) var(--ct-space-5);
 }
 
-.pf-container--zero .pf-main-chart-wrapper .ct-card.pf-value-chart {
+.pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
   min-height: 18rem;
 }
 
@@ -1037,8 +1037,23 @@
   height: clamp(8.5rem, 34cqw, 12rem);
   margin-inline: auto;
   margin-top: 0;
+  /* Top-align with the ledger column instead of centring in the (taller) row,
+     so the gauge doesn't sink to the bottom of its cell. */
+  align-self: start;
   /* Override dash-chart-container fixed height so donut-center stays centred */
   --ct-donut-size: clamp(8.5rem, 34cqw, 12rem);
+}
+
+/* Pending donut centre — calm centred message, no placeholder dash, no harsh
+   tracked caps. Sized to wrap cleanly inside the donut hole. */
+.donut-pending-label {
+  max-width: 7em;
+  text-align: center;
+  text-wrap: balance;
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-medium);
+  line-height: var(--ct-leading-snug);
+  color: var(--ct-text-faint);
 }
 
 /* SVG fills the square donut box so the gauge + donut-center share one centre. */
