@@ -157,12 +157,14 @@ export function CapitalYield({
             )}
           </svg>
           <div className="donut-center">
-            <span className="donut-val">
-              {showZeroShell ? "—" : formatUsdCompact(totalValueUsdc)}
-            </span>
-            <span className="donut-lbl">
-              {showZeroShell ? "Awaiting snapshot" : "Capital"}
-            </span>
+            {showZeroShell ? (
+              <span className="donut-pending-label">Awaiting snapshot</span>
+            ) : (
+              <>
+                <span className="donut-val">{formatUsdCompact(totalValueUsdc)}</span>
+                <span className="donut-lbl">Capital</span>
+              </>
+            )}
           </div>
         </div>
 
