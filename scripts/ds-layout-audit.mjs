@@ -49,7 +49,6 @@ const RAW_SEG_RE = /\bct-seg-(?:btn|track)\b/g;
 const SEG_ALLOWLIST = new Set([
   "src/components/ui/segmented-control.tsx", // the primitive
   // consumers not yet migrated (Phase-3 control consolidation):
-  "src/components/scenario/scenario-tab-bar.tsx",
   "src/components/ui/chart-time-selector.tsx",
 ]);
 
