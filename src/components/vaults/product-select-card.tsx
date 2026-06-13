@@ -30,7 +30,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
     <Card density="compact" aria-label={`${vault.name} — ${strategyLabel}`} hoverOverlay={false}>
       <div className="vault-select-card">
         <div className="vault-select-card__main">
-          <div className="min-w-0 product-doc-stack--tight">
+          <div className="min-w-0 product-doc-stack product-doc-stack--tight">
             <div className="product-doc-inline-row product-doc-inline-row--between">
               <h3 className="h3 ct-text-strong min-w-0">
                 {vault.name}{" "}
@@ -43,10 +43,10 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
             <span className="stat-label">{strategyLabel}</span>
           </div>
 
-          <div className="product-doc-stack--compact">
-            <div className="product-doc-inline-row">
+          <div className="product-doc-stack product-doc-stack--compact">
+            <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--start">
               <span className="stat-label">Target APY range</span>
-              <ProvenanceBadge kind="estimated" />
+              <ProvenanceBadge kind="estimated" compact />
             </div>
             <ApyRange
               low={vault.apyLow}
@@ -102,7 +102,7 @@ function VaultTermRow({
 }) {
   return (
     <div className="vault-select-card__term-row">
-      <dt className="body-sm ct-text-muted">{label}</dt>
+      <dt className="stat-label">{label}</dt>
       <dd
         className={`tabular mono ${muted ? "body-sm ct-text-muted font-normal" : "body-sm ct-text-strong font-semibold"}`}
       >

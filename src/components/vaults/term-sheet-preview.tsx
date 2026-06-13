@@ -34,9 +34,9 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
         {/* Primary column — strategy signal */}
         <div className="invest-flow-detail__primary">
           {/* Strategy context — floats on workspace background, not a card */}
-          <div>
+          <div className="product-doc-stack product-doc-stack--tight">
             <p className="body-sm ct-text-muted">{MODEL_B_ONELINER}</p>
-            <div className="product-doc-inline-row mt-2">
+            <div className="product-doc-inline-row">
               <Badge variant="brand">Mining-backed</Badge>
               <Badge variant="default">Rule-based rebalancing</Badge>
               <Badge variant="default">Monthly USDC distributions</Badge>
@@ -75,8 +75,10 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
             </MetricGrid>
             <div className="body-xs ct-text-faint mt-3 product-doc-inline-row product-doc-inline-row--dense">
               <span>Metrics:</span>
-              <ProvenanceBadge kind="estimated" />
-              {vault.currentAumUsdc > 0 ? <ProvenanceBadge kind={aumProvenance} /> : null}
+              <ProvenanceBadge kind="estimated" variant="compact" />
+              {vault.currentAumUsdc > 0 ? (
+                <ProvenanceBadge kind={aumProvenance} variant="compact" />
+              ) : null}
             </div>
           </Card>
 

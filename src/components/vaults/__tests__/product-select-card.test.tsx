@@ -34,7 +34,7 @@ describe("ProductSelectCard — DS layout + provenance", () => {
     const html = renderToStaticMarkup(<ProductSelectCard vault={VAULT} />);
 
     expect(html).toContain("Mining Yield");
-    expect(html).toContain(">Estimated</span>");
+    expect(html).toContain('aria-label="Estimated"');
     expect(html).toContain(">Live</span>");
   });
 
