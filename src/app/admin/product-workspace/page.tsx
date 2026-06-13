@@ -509,8 +509,8 @@ export default async function ProductWorkspacePage({
           <div className="admin-doc-callout admin-doc-callout--warning admin-doc-stack admin-doc-stack--tight">
             <p className="stat-label ct-status-warning">Required disclaimer</p>
             <p className="body-xs ct-text-muted">
-              Projection conditionnelle aux hypothèses présentées, sans engagement de
-              résultat. Souscription réservée aux investisseurs professionnels/qualifiés.
+              Conditional projection — not a committed outcome. Subscription
+              reserved for professional / qualified investors.
             </p>
           </div>
         </Card>
