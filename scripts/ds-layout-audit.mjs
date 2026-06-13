@@ -47,9 +47,7 @@ const RAW_SHADOW_RE = /\bshadow-(?:sm|md|lg|xl|2xl|inner)\b/g;
 /** Selection controls go through <SegmentedControl> / <Tab>, not raw ct-seg-* classes. */
 const RAW_SEG_RE = /\bct-seg-(?:btn|track)\b/g;
 const SEG_ALLOWLIST = new Set([
-  "src/components/ui/segmented-control.tsx", // the primitive
-  // consumers not yet migrated (Phase-3 control consolidation):
-  "src/components/ui/chart-time-selector.tsx",
+  "src/components/ui/segmented-control.tsx", // the primitive — owns ct-seg-* classes
 ]);
 
 /** Only Card primitive may bind `.ct-card` directly. */
