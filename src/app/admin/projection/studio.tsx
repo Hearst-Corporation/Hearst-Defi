@@ -399,7 +399,7 @@ export function ProjectionStudio() {
         </div>
       </div>
 
-      <div className="projection-studio-workspace">
+      <div className={cn("projection-studio-workspace", result ? "projection-studio-workspace--filled" : "projection-studio-workspace--empty")}>
       {/* ── LEFT: INPUTS ── */}
       <Card hoverOverlay={false} className="projection-studio-input-card">
         <div className="projection-studio-input-card__header">

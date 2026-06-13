@@ -149,7 +149,7 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
 - **Hover states** : Bento (`.dash-cell`) et Card (`.ct-glass-panel`) — bordure
   légèrement renforcée au survol (graphite calme, pas de lift ni wash radial).
 - **Tooltips** : Composant `Tooltip` (via `framer-motion`) intégré aux `ProvenanceBadge` et `Metric`.
-- **Transitions** : Composant `MotionViewport` pour les animations d'entrée de section (fade-in + slide-up).
+- **Transitions** : animations CSS/Tailwind locales, sans wrapper global inutilisé.
 - **Portfolio** : Page complète avec bento analytics, gestion KYC/KYB
   institutionnelle. Sections multi-widgets : `ProductSection` (`Card` actif /
   `ct-section-preview` en layout preview) + `SectionEmbedProvider` — widgets via

@@ -1038,7 +1038,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 .projection-studio-input-card {
   display: flex;
   flex-direction: column;
-  max-height: 40rem;
+  max-height: clamp(28rem, 70dvh, 36rem);
 }
 
 .projection-studio-input-card > .relative {
@@ -1213,6 +1213,10 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 .projection-studio-output-stage {
   display: flex;
   flex-direction: column;
+  min-height: min(20rem, 50dvh);
+}
+
+.projection-studio-output-stage.projection-studio-output-stage--filled {
   min-height: min(48rem, calc(100dvh - var(--ct-space-16)));
 }
 
@@ -1251,12 +1255,17 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 
 @container projection-shell (min-width: 42rem) {
   .projection-studio-workspace {
-    align-items: stretch;
-    grid-template-columns: minmax(17rem, 0.6fr) minmax(0, 1.4fr);
+    align-items: start;
+    grid-template-columns: minmax(17rem, 1fr) minmax(0, 1fr);
   }
 
-  .projection-studio-output,
-  .projection-studio-output-stage {
+  .projection-studio-workspace--filled {
+    align-items: stretch;
+    grid-template-columns: minmax(17rem, 0.5fr) minmax(0, 1.5fr);
+  }
+
+  .projection-studio-workspace--filled .projection-studio-output,
+  .projection-studio-workspace--filled .projection-studio-output-stage {
     min-height: 100%;
   }
 }
@@ -1269,7 +1278,7 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
 
 @container projection-shell (max-width: 41.999rem) {
   .projection-studio-input-card {
-    max-height: 38rem;
+    max-height: clamp(24rem, 65dvh, 32rem);
   }
 
   .projection-studio-input-scroll {
@@ -1277,6 +1286,10 @@ main#main-content:has(.scenario-lab-page--viewport) .admin-doc-sub-nav {
   }
 
   .projection-studio-output-stage {
+    min-height: min(16rem, 45dvh);
+  }
+
+  .projection-studio-output-stage.projection-studio-output-stage--filled {
     min-height: min(28rem, 60dvh);
   }
 }

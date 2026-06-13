@@ -71,23 +71,6 @@ export function ProofRow(props: RowProps) {
   return <Row {...props} />;
 }
 
-/** Status callout inside a parent card or dash-cell (alerts, pending states). */
-export function NestedCallout({
-  children,
-  className,
-  role = "status",
-}: {
-  children: React.ReactNode;
-  className?: string;
-  role?: React.AriaRole;
-}) {
-  return (
-    <div className={cn("ct-nested-callout", className)} role={role}>
-      {children}
-    </div>
-  );
-}
-
 type MetricGridProps = {
   children: React.ReactNode;
   className?: string;
@@ -114,9 +97,3 @@ export function MetricGrid({
   );
 }
 
-/**
- * Backwards-compatible alias. Prefer MetricGrid for new semantic metric grids.
- */
-export function NestedKpiGrid(props: MetricGridProps) {
-  return <MetricGrid {...props} />;
-}

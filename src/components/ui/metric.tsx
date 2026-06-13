@@ -17,7 +17,7 @@ interface MetricProps {
    * Visual tier. Default "premium" keeps the existing look exactly (dot pattern,
    * hover glow overlay, accent value glow). "plain" opts out of decorative
    * premium chrome. "nested" — calm label/value inside a parent Card or
-   * dash-cell (use with NestedKpiGrid from nested-panel.tsx).
+   * dash-cell (use with MetricGrid from nested-panel.tsx).
    */
   variant?: "premium" | "plain" | "nested";
 }
@@ -37,7 +37,7 @@ export function Metric({
 
   const labelContent = tooltip ? (
     <Tooltip content={tooltip}>
-      <span className="stat-label ct-text-muted cursor-help border-b border-dotted border-[var(--ct-border-soft)]">
+      <span className="stat-label ct-text-muted cursor-help border-b border-dotted border-(--ct-border-soft)">
         {label}
       </span>
     </Tooltip>
@@ -78,7 +78,7 @@ export function Metric({
       <div className="flex items-center justify-between gap-2 relative z-10">
         {tooltip ? (
           <Tooltip content={tooltip}>
-            <span className="stat-label ct-text-muted group-hover:ct-text-body transition-colors cursor-help border-b border-dotted border-[var(--ct-border-soft)]">
+            <span className="stat-label ct-text-muted group-hover:ct-text-body transition-colors cursor-help border-b border-dotted border-(--ct-border-soft)">
               {label}
             </span>
           </Tooltip>

@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
-import { NestedKpiGrid, ProofRow } from "@/components/ui/nested-panel";
+import { MetricGrid, ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
@@ -111,7 +111,7 @@ export default async function ProfilePage() {
               <ProvenanceBadge kind="live" />
             </div>
 
-            <NestedKpiGrid columns={2}>
+            <MetricGrid columns={2}>
               <Metric variant="nested" label="Active positions" value={positions.length} />
               <Metric
                 variant="nested"
@@ -125,7 +125,7 @@ export default async function ProfilePage() {
                   firstSubAt ? formatProfileDate(firstSubAt) : "Awaiting subscription"
                 }
               />
-            </NestedKpiGrid>
+            </MetricGrid>
           </Card>
         ) : (
           <div className="bento-col-6">
