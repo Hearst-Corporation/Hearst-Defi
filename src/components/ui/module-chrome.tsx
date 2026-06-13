@@ -9,20 +9,23 @@ import { cn } from "@/lib/cn";
 /**
  * Active module shell — Card + premium dot grid when standalone;
  * plain flex wrapper when embedded in ProductSection.
+ *
+ * @deprecated for portfolio widgets — use PfCockpitPanel (graphite) instead.
+ * Retained for future non-portfolio ProductSection modules.
  */
 export function ModuleChrome({
   "aria-label": ariaLabel,
   adornment,
   children,
   className,
-  hoverOverlay = true,
+  hoverOverlay = false,
 }: {
   "aria-label": string;
   /** Optional chrome (e.g. chart provenance corner) hidden when embedded. */
   adornment?: ReactNode;
   children: ReactNode;
   className?: string;
-  /** Card hover wash — off for portfolio pf-value-chart (graphite surface). */
+  /** Card hover wash — opt-in, only when the whole module is clickable. */
   hoverOverlay?: boolean;
 }) {
   const embedded = useSectionEmbed();

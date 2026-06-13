@@ -1,8 +1,19 @@
 import { cn } from "@/lib/cn";
 
+/**
+ * Card — canonical L3 module surface (graphite family, see DESIGN_SYSTEM
+ * §UI-Hierarchy / Surface taxonomy). Shares background/border/radius/blur with
+ * `pf-cockpit-panel`.
+ *
+ * `hoverOverlay` is **opt-in** (default `false`). A static container must not
+ * shimmer on hover — pass `hoverOverlay` only when the whole Card is genuinely
+ * clickable (wraps a link / carries onClick). Audited 2026-06-13: no Card in
+ * the app was relying on the overlay for affordance, so the prior `true`
+ * default only added decorative noise to static cards.
+ */
 export function Card({
   className,
-  hoverOverlay = true,
+  hoverOverlay = false,
   density = "default",
   children,
   ...props

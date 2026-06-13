@@ -1,4 +1,4 @@
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { listVaults } from "@/lib/data/vaults";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { ProductSelectCard } from "@/components/vaults/product-select-card";
@@ -27,11 +27,10 @@ export default async function VaultsPage() {
         </p>
       }
     >
-      <section aria-labelledby="vaults-heading">
-        <h2 id="vaults-heading" className="h2 mb-4">
-          Available products
-        </h2>
-
+      {/* The InvestFlowShell h1 ("Select a product") IS this region's Level-1
+          heading — see DESIGN_SYSTEM §UI-Hierarchy. No redundant section h2:
+          the product list is the section body directly under the page thesis. */}
+      <section aria-label="Available products">
         {vaults.length === 0 ? (
           <AwaitingMetricState
             message="No vault is currently deployed with a verified on-chain contract."

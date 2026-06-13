@@ -370,8 +370,85 @@ Do not rename in a future batch without updating all call-sites and the selector
 
 ---
 
+## 13. UI Hierarchy Calibration (contract — 2026-06-13)
+
+System-level contract for visual priority, typography dominance, surface weight,
+KPI attention, scroll and responsive rhythm. Complements §4 (typo tokens), §9
+(portfolio surfaces), §10 (glass tiers) and §12 (invest flow). The interface must
+never give visual dominance to the wrong object: **one Level-1 object per route.**
+
+### 13.1 Four hierarchy levels
+
+| Level | Object | Heading | Surface |
+|-------|--------|---------|---------|
+| **L1** | Page thesis / primary decision object | the one `<h1>` (or h1 + a KPI block *fused into the same panel*) | page header (transparent) **or** one hero panel — never a generic card |
+| **L2** | Section | `<h2>` / `.h2` | unstyled labelled region |
+| **L3** | Module / card / widget | `<h3>` / `.h3` (= `CardTitle`) | `ct-card` / `pf-cockpit-panel` (graphite) |
+| **L4** | Row / metric / detail | `.stat-label` / `.eyebrow` (never a heading tag) | row + divider, or `Metric` cell — **not** a nested card |
+
+Rules:
+1. **Exactly one visible `<h1>` per route.** It is the page title or the thesis,
+   never a card title. Page headers (`AdminPageHeader`, `ProductPageHeader`,
+   `InvestFlowShell`) own the h1 — a page must **not** add a second near-duplicate
+   section h2 restating the thesis (fixed on `/vaults` 2026-06-13).
+2. `CardTitle` is always `<h3>` (enforced in `card.tsx`).
+3. L4 items never get heading tags.
+4. No skipped levels *inside* one module.
+5. KPI values may not visually outrank the L1 thesis unless structurally fused
+   into it (§13.4).
+
+### 13.2 Typographic dominance (usage, tokens unchanged — see §4)
+
+| Role | Class / token | Allowed | Forbidden |
+|------|---------------|---------|-----------|
+| h1 | `.h1` / `--ct-text-3xl` | one per route | card titles, repeated items |
+| h2 | `.h2` / `--ct-text-xl` | section titles | page title, card titles |
+| h3 | `.h3` = `CardTitle` / `--ct-text-lg` | module titles | section titles, row labels |
+| stat-value | `.stat-value` / `--ct-text-2xl` | KPI value **inside** an L3 module | first viewport when it would beat the page h1 → demote to `--ct-text-xl` (portfolio hero pattern) |
+| stat-label / eyebrow | `--ct-text-micro` uppercase | labels, kickers | as headings or body |
+| body-md/sm/xs | `--ct-text-sm`/`xs` | prose, metadata | KPI values, headlines |
+
+### 13.3 Surface taxonomy — one language, two names
+
+`ct-card` (LP/admin doc) and `pf-cockpit-panel` (portfolio cockpit) stay distinct
+semantic primitives but **share identical background / border / radius / blur**
+(graphite family — unified in `cockpit.css` ~L2484). The only legitimate axes of
+difference are **padding tier** and **interactivity**.
+
+| Slot | Bg | Border | Radius | Padding | Hover | Primitive |
+|------|----|--------|--------|---------|-------|-----------|
+| L1 hero panel | graphite-subtle | graphite-nested | `--ct-radius-xl` | display (24) | none | `Card` / `pf-cockpit-panel--wide` |
+| Standard module (L3) | graphite-subtle | graphite-nested | `--ct-radius-xl` | default | overlay **only if clickable** | `ct-card` / `pf-cockpit-panel` |
+| Compact / data | same | same | `--ct-radius-xl` | `--ct-space-3/4` | none | `ct-card--compact` / `pf-cockpit-panel--compact` |
+| Row (L4) | transparent | `--ct-border-soft` divider | 0 | `--ct-space-2/3 × 3/5` | tint only if row links | `admin-vaults-list__row`, `pf-positions-row`, `ct-divide-soft` |
+| Inline callout | status-soft | status-border | `--ct-radius-lg` | `--ct-space-3 × 4` | none | `ct-panel-status` |
+
+**`hoverOverlay` is opt-in** (`Card` default `false` since 2026-06-13). A static
+container never shimmers; pass `hoverOverlay` only when the whole Card is clickable.
+
+### 13.4 KPI attention
+
+- KPIs may be large **only** when the KPI block *is* the L1 object.
+- Animation: at most one hero viz, first-load only (portfolio donut). **No
+  count-up on stat-values.** Forbidden when KPIs share a viewport with a thesis.
+- When a thesis exists, KPI cards are subordinated (`.stat-value` capped
+  `--ct-text-xl`) or **fused** into the thesis panel (h1/prose + shared KPI strip)
+  — the `vault-detail-kpis` strip-below-stepper is the canonical fused pattern.
+- Never render the same metric as both a hero stat and a card.
+
+### 13.5 Scroll / responsive
+
+- Page headers are **static, not sticky.** Sticky is for in-panel toolbars only.
+- Page scroll preferred; internal `overflow-y` only on a bounded sub-panel
+  (projection input `max-height: clamp(28rem,70dvh,36rem)` is the sanctioned case).
+- Container-query-first. Mobile < 40rem: single column; KPI grids 2-up → 1-up;
+  product cards flip row→column (`vault-select-card`); admin rows reflow stacked
+  (`admin-vaults-list`). Every flex/grid child carries `min-width:0`; widths use
+  `minmax(0, …fr)`. **No horizontal overflow.**
+
 ## 11. Working log / audit summary
 
 | Date | Commit | Note |
 |------|--------|------|
 | 2026-06-13 | `66b528f` (pushed `main`) | **Mixed checkpoint — accepted as-is.** DS row taxonomy (`DataRow` / `LegalMetadataRow` / `ProofRow`) and `MetricGrid` / `NestedKpiGrid` aliases shipped in `nested-panel.tsx` + §6/§9 doc updates. Same commit also contains scenario task-flow polish (`cockpit.css`, `central-task-runner.tsx`, `single-mode.tsx`). **No history rewrite** — commit already on `origin/main`; do not reopen or split `66b528f`. Next DS family: **fresh branch + isolated commit only.**
+| 2026-06-13 | Batch A (this change) | **UI hierarchy contract (§13) + `Card`/`ModuleChrome` `hoverOverlay` default `true`→`false`** (audited: no Card relied on the overlay for affordance) + `/vaults` thesis de-duplicated (removed redundant section h2 under the shell h1). |
