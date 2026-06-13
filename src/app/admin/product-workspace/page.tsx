@@ -401,7 +401,7 @@ export default async function ProductWorkspacePage({
         className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]"
       >
         <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--relaxed">
-          <h2 id="pw-brief-heading" className="h2 ct-text-strong">
+          <h2 id="pw-brief-heading" className="h2">
             Brief &amp; decision
           </h2>
           <p className="body-sm ct-text-muted ct-prose-lg">
@@ -539,7 +539,7 @@ export default async function ProductWorkspacePage({
         <div className="admin-doc-section__head">
           <div>
             <p className="eyebrow">Methodology context</p>
-            <h2 id="pw-notes-heading" className="h2 ct-text-strong">
+            <h2 id="pw-notes-heading" className="h2">
               Reference notes
             </h2>
           </div>
@@ -586,7 +586,7 @@ export default async function ProductWorkspacePage({
         <div className="admin-doc-section__head">
           <div>
             <p className="eyebrow">Agent graph specs</p>
-            <h2 id="pw-graphs-heading" className="h2 ct-text-strong">
+            <h2 id="pw-graphs-heading" className="h2">
               Visuals to attach before review
             </h2>
           </div>

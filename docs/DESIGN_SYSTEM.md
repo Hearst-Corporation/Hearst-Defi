@@ -397,16 +397,27 @@ Rules:
 5. KPI values may not visually outrank the L1 thesis unless structurally fused
    into it (§13.4).
 
-### 13.2 Typographic dominance (usage, tokens unchanged — see §4)
+### 13.2 Typographic scale + dominance
 
-| Role | Class / token | Allowed | Forbidden |
-|------|---------------|---------|-----------|
-| h1 | `.h1` / `--ct-text-3xl` | one per route | card titles, repeated items |
-| h2 | `.h2` / `--ct-text-xl` | section titles | page title, card titles |
-| h3 | `.h3` = `CardTitle` / `--ct-text-lg` | module titles | section titles, row labels |
-| stat-value | `.stat-value` / `--ct-text-2xl` | KPI value **inside** an L3 module | first viewport when it would beat the page h1 → demote to `--ct-text-xl` (portfolio hero pattern) |
-| stat-label / eyebrow | `--ct-text-micro` uppercase | labels, kickers | as headings or body |
-| body-md/sm/xs | `--ct-text-sm`/`xs` | prose, metadata | KPI values, headlines |
+Modéré spacing between levels, **green accent reserved for section titles (H2)**
+so the structure reads at a glance. The authoritative scale for doc pages lives
+in `doc-flow-typography.css` (`:is(.product-doc, .admin-doc)`, which overrides
+the base `.h1/.h2/.h3` in `cockpit.css` by specificity); the base classes are
+aligned to the same values so non-doc surfaces match.
+
+| Role | Class | Size | Weight | Color | Allowed | Forbidden |
+|------|-------|------|--------|-------|---------|-----------|
+| h1 | `.h1` | 24→28 (`3xl`) | 800 | white-strong (`--ct-text-primary`) | one per route — page title | card titles, repeated items |
+| h2 | `.h2` | 20→22 | 700 | **green (`--ct-accent`)** | section titles | page title, card titles |
+| h3 | `.h3` = `CardTitle` | 16→18 (`lg`) | 700 | white-strong | module/card titles | section titles, row labels |
+| stat-value | `.stat-value` | `--ct-text-2xl` | 800 | — | KPI inside an L3 module | first viewport when it would beat the page h1 → demote to `--ct-text-xl` |
+| stat-label / eyebrow | — | `--ct-text-micro` uppercase | — | muted | labels, kickers | as headings or body |
+| body-md/sm/xs | `.body-*` | `--ct-text-sm`/`xs` | — | body/muted | prose, metadata | KPI values, headlines |
+
+**H2 = green** is the single structural accent: a section title is the only text
+that carries `--ct-accent`. Do not put `ct-text-strong`/`ct-text-primary` on a
+`.h2` (it would override the green). Modal/dialog titles are an exception — they
+use `.h2` for size but stay white (not a page section).
 
 ### 13.3 Surface taxonomy — one language, two names
 
@@ -454,3 +465,4 @@ not a global flip, until every site is classified.)
 |------|--------|------|
 | 2026-06-13 | `66b528f` (pushed `main`) | **Mixed checkpoint — accepted as-is.** DS row taxonomy (`DataRow` / `LegalMetadataRow` / `ProofRow`) and `MetricGrid` / `NestedKpiGrid` aliases shipped in `nested-panel.tsx` + §6/§9 doc updates. Same commit also contains scenario task-flow polish (`cockpit.css`, `central-task-runner.tsx`, `single-mode.tsx`). **No history rewrite** — commit already on `origin/main`; do not reopen or split `66b528f`. Next DS family: **fresh branch + isolated commit only.**
 | 2026-06-13 | Batch A | **UI hierarchy contract (§13)** + `/vaults` thesis de-duplicated (removed redundant section h2 under the shell h1). `Card` default kept `true`; `hoverOverlay` cleanup is **per-call-site** (static cards opt out, clickable cards keep it) — no global default flip yet. |
+| 2026-06-13 | Typo scale | **Typo hierarchy reworked (§13.2)** in `doc-flow-typography.css` (+ base in `cockpit.css`): modéré size steps (H1 24→28 white, H2 20→22 **green**, H3 16→18 white) so the hierarchy reads at a glance. Green is now the structural accent reserved for section titles. Was: flat doc scale (H1 20→24, H2 16→18 grey, H3 16 grey) → "tout jeté, pas de titre, pas d'accent vert". Applies to every `.product-doc`/`.admin-doc` page. |

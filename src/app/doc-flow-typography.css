@@ -1,22 +1,35 @@
 /**
- * Shared document-flow typography — calmer than portfolio / dashboard hero KPIs.
- * Scoped to `.product-doc` and `.admin-doc` layout roots.
+ * Shared document-flow typography (DESIGN_SYSTEM §13.2). Scoped to
+ * `.product-doc` and `.admin-doc` layout roots — this is the AUTHORITATIVE typo
+ * scale for doc pages (it overrides the base `.h1/.h2/.h3` in cockpit.css by
+ * specificity). Calibrated for a clear, modérée hierarchy with the green accent
+ * reserved for SECTION titles (H2):
+ *   H1 white-strong 24→28 · H2 green 20→22 + space above · H3 white 16→18.
  */
 :is(.product-doc, .admin-doc) .h1 {
-  font-size: var(--ct-text-2xl);
-  font-weight: var(--ct-font-bold);
+  font-size: var(--ct-text-3xl);            /* 24 → 28 (était 2xl 20→24) */
+  font-weight: var(--ct-font-extrabold);
+  letter-spacing: var(--ct-tracking-tight);
+  line-height: var(--ct-leading-tight);
+  color: var(--ct-text-primary);
 }
 
+/* Section title — green accent of structure + breathing room above. */
 :is(.product-doc, .admin-doc) .h2 {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-body);
+  font-size: clamp(1.25rem, 1.206rem + 0.188vw, 1.375rem);  /* 20 → 22 */
+  font-weight: var(--ct-font-bold);
+  letter-spacing: var(--ct-tracking-tight);
+  line-height: var(--ct-leading-tight);
+  color: var(--ct-accent);
 }
 
+/* Module / card title — white, sober (clearly below the green section title). */
 :is(.product-doc, .admin-doc) .h3 {
-  font-size: var(--ct-text-base);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-body);
+  font-size: var(--ct-text-lg);             /* 16 → 18 (était base 16) */
+  font-weight: var(--ct-font-bold);
+  letter-spacing: var(--ct-tracking-tight);
+  line-height: var(--ct-leading-tight);
+  color: var(--ct-text-primary);
 }
 
 :is(.product-doc, .admin-doc) .stat-value {
