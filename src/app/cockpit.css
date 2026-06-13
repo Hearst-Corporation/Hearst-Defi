@@ -2821,6 +2821,30 @@ button.ct-seg-btn {
 .ct-rail-intra[data-rail="investor"] .ct-rail-item {
   padding: var(--ct-space-1) var(--ct-space-1);
   gap: 2px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.ct-rail-intra[data-rail="investor"] .ct-rail-item:hover {
+  background: transparent;
+  border-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.ct-rail-intra[data-rail="investor"] .ct-rail-item-active {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--ct-accent);
+}
+
+.ct-rail-intra[data-rail="investor"] .ct-rail-item-active:hover {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--ct-accent);
 }
 
 
