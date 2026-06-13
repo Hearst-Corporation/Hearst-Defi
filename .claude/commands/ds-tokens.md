@@ -20,7 +20,7 @@ rg -n '#[0-9a-fA-F]{3,8}\b' src/app src/components | grep -v cockpit-tokens | gr
 ### 2. Tokens de couleur autorisés
 Vérifier que seuls ces tokens sont utilisés :
 - **Fond** : `--ct-bg-deep`
-- **Accent** : `--ct-accent`, `--ct-accent-maroon`, `--ct-accent-strong`, `--ct-accent-soft`, `--ct-border-accent`
+- **Accent** : `--ct-accent`, `--ct-accent-deep`, `--ct-accent-strong`, `--ct-accent-soft`, `--ct-border-accent`
 - **Surfaces** : `--ct-surface-0`, `--ct-surface-1`, `--ct-surface-2`, `--ct-surface-3`
 - **Texte** : `--ct-text-strong`, `--ct-text-primary`, `--ct-text-body`, `--ct-text-muted`, `--ct-text-faint`
 - **Bordures** : `--ct-border-soft`, `--ct-border`, `--ct-border-strong`

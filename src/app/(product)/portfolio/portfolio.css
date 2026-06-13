@@ -1090,9 +1090,9 @@
   filter: drop-shadow(var(--ct-glow-subtle));
 }
 
-/* Pending — one dashed warning calibration arc, slow rotation ("listening") */
+/* Pending — one dashed brand-accent calibration arc, slow rotation ("listening") */
 .cy-donut-pending {
-  stroke: var(--ct-status-warning);
+  stroke: var(--ct-accent);
   stroke-dasharray: 2 4; /* dash geometry, not colour */
   opacity: 0.35;
   transform-origin: center;

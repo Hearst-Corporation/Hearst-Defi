@@ -13,14 +13,15 @@
   /* Fond global — noir pur iOS dark (remplace le noir verdâtre #050A05) */
   --ct-bg-deep: #000000;
 
-  /* Brand accent — Hearst institutional maroon (#9E1B2E).
+  /* Brand accent — Hearst product green (#A7FB90), canonical product identity.
      !important pour écraser le ThemeAccent du package gardé en cache Next.js. */
-  --ct-accent: #9E1B2E !important;
+  --ct-accent: #A7FB90 !important;
 
-  /* Ink on brand accent fills (primary buttons, chat chips on maroon). */
-  --ct-text-on-accent: #ffffff;
+  /* Ink on brand accent fills (primary buttons, chat chips) — dark ink for
+     legibility on the light green accent. */
+  --ct-text-on-accent: #06140A;
 
-  /* Dérivés d'accent — dérivés du maroon canonique */
+  /* Dérivés d'accent — dérivés du vert canonique */
   --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 82%, #ffffff);
   --ct-accent-soft: color-mix(in srgb, var(--ct-accent) 18%, transparent);
   --ct-border-accent: color-mix(in srgb, var(--ct-accent) 28%, transparent);
@@ -67,7 +68,8 @@
   --ct-graphite-blur: blur(28px);
 
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
-     Success/live/positive = semantic green — decoupled from brand maroon. */
+     Success/live/positive = semantic green (#16A34A) — kept distinct from the
+     brand accent green (#A7FB90) so status ≠ identity. */
   --ct-product-connect: var(--ct-accent);
   --ct-status-success: #16A34A;
   --ct-status-success-soft: color-mix(in srgb, var(--ct-status-success) 10%, transparent);
@@ -2303,7 +2305,7 @@ pre.ct-surface-1.rounded-md {
   border-color: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-graphite-border-nested));
 }
 
-/* Échelle typo (DESIGN_SYSTEM §13.2) — H2 = brand accent maroon · H1/H3 blanc fort. */
+/* Échelle typo (DESIGN_SYSTEM §13.2) — H2 = strong white · H1/H3 blanc fort (brand green reserved for chrome). */
 
 /* .h1 → titre de page (Level 1). 3xl (24→28), aligné sur la version doc-flow
    pour une seule taille de H1 dans toute l'app. */
@@ -2315,7 +2317,7 @@ pre.ct-surface-1.rounded-md {
   color: var(--ct-text-primary);
 }
 
-/* .h2 → titres de sections (Level 2) — strong white; maroon reserved for chrome. */
+/* .h2 → titres de sections (Level 2) — strong white; brand green reserved for chrome. */
 .h2 {
   font-size: clamp(1.125rem, 1.081rem + 0.188vw, 1.25rem);  /* 18 → 20 */
   font-weight: var(--ct-font-bold);
@@ -2929,7 +2931,7 @@ html[data-rail-mode="collapsed"] .ct-rail-top-name {
 /* ── RAIL COLLAPSIBLE — déplié, logo officiel HearstConnect ──
    En mode déplié, on remplace le H + nom par le wordmark complet
    « HEARST Connect » officiel (SVG /logos/hearst-connect-blackbg.svg —
-   HEARST blanc, H + Connect en maroon #9E1B2E). Le SVG d'origine a un viewBox 1920×1080 avec
+   HEARST blanc, H + Connect en vert #A7FB90). Le SVG d'origine a un viewBox 1920×1080 avec
    beaucoup d'espace vide autour du logo ; on utilise `background-size: cover`
    pour zoomer sur la zone centrale utile (le wordmark). */
 html[data-rail-mode="expanded"] .ct-rail-top-badge,
@@ -3073,7 +3075,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-avatar                                 { margin: 0 auto; }
 
 /* Rail gauche — nav */
-/* Logo bouton rail — H blanc (wordmark garde le maroon sur « Connect »). */
+/* Logo bouton rail — H blanc (wordmark garde le vert sur « Connect »). */
 .ct-rail-top-badge,
 .ct-rail-top-badge svg {
   color: var(--ct-text-strong) !important;

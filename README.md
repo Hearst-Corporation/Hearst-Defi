@@ -110,8 +110,8 @@ reste sans tools.
 - ❌ Un nouveau bouton/classe utilitaire Tailwind arbitraire (`p-[37px]`,
   `bg-[#aabbcc]`, etc.) — toujours passer par un token ou une classe
   `.ct-*` du shell.
-- ❌ Tout vert hors sémantique success/live (`--ct-status-success` #16A34A). Brand accent = `--ct-accent` (#9E1B2E maroon). Pas de `green-400` Tailwind,
-  pas de `#4ade80` / `#A7FB90` comme accent produit. Pour différencier dans un chart, prendre `--ct-status-info`
+- ❌ Tout vert ad hoc hors des deux tokens. Brand accent produit = `--ct-accent` (#A7FB90, vert) ; semantic success/live = `--ct-status-success` (#16A34A, distinct). Pas de `green-400` Tailwind,
+  pas de `#4ade80` hardcodé. Pour différencier dans un chart, prendre `--ct-status-info`
   (bleu), `--ct-status-warning` (orange), `--ct-text-faint` (gris). Le drift
   PDF (`#16a34a` print on white) est documenté et testé.
 - ❌ Le modifier Tailwind `dark:` (dark-mode-only au MVP).
@@ -183,10 +183,10 @@ header shell (`--ct-shell-header-h` 4rem), échelle spacing layout (`--ct-space-
 typo headlines (`--ct-text-lg`…`display`), `.ct-page-area` / `.ct-card` / chat rail — source
 `cockpit.css` `:root` + overrides composants.
 
-**Accent brand (Phase 1, 2026-06)** : `--ct-accent` #9E1B2E (maroon institutionnel) ;
+**Accent brand** : `--ct-accent` #A7FB90 (vert produit canonique) ;
 success/live découplé → `--ct-status-success` #16A34A. `CONNECT_ACCENT_HEX` aligné pour Privy/shell.
 **Portée accent** : CTA primaires, focus rings, sélection inset fine (2px rail gauche sur pills/rail/presets) — pas titres, data bars,
-charts, mining/status ni wash de fond. Liens génériques = texte fort + souligné neutre (maroon au hover seulement).
+charts, mining/status ni wash de fond. Liens génériques = texte fort + souligné neutre (accent au hover seulement).
 
 **Un seul design system en runtime** : Cockpit (`--ct-*` via `@hearst/cockpit-shell`).
 Le package orphelin `packages/ds` (`@ds/core`, namespace `--ds-*`) a été retiré du repo.
@@ -325,7 +325,7 @@ pnpm ds:classes  # ct-* allowlist + DEPRECATED ADR-013 — warnings only, jamais
 
 - Initiative visuelle encouragée (Glassmorphism, lueurs, gradients) pour l'aspect premium.
 - Réversibilité : pas de `git add/commit/push/reset` sans demande explicite.
-- Accent brand = maroon `#9E1B2E` (`--ct-accent`). Success/live = green `#16A34A` (`--ct-status-success`). Fond noir `--ct-bg-deep`. Les textures et effets de profondeur sont autorisés.
+- Accent brand = vert `#A7FB90` (`--ct-accent`). Success/live = green `#16A34A` (`--ct-status-success`, distinct). Fond noir `--ct-bg-deep`. Les textures et effets de profondeur sont autorisés.
 
 ---
 

@@ -10,8 +10,8 @@
   --ct-bg-deep: #000000;
   /* --ct-accent = couleur du produit actif (pilotée par ThemeAccent).
      Les autres accents en dérivent → tout le chrome se recolore d'un coup. */
-  --ct-accent: #9E1B2E;
-  --ct-accent-maroon: color-mix(in srgb, var(--ct-accent) 70%, #000000);
+  --ct-accent: #A7FB90;
+  --ct-accent-deep: color-mix(in srgb, var(--ct-accent) 70%, #000000);
   --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 78%, #ffffff);
   --ct-accent-soft: color-mix(in srgb, var(--ct-accent) 18%, transparent);
   --ct-border-accent: color-mix(in srgb, var(--ct-accent) 55%, transparent);
@@ -89,7 +89,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
   z-index: 0;
   pointer-events: none;
   opacity: 0.6;
-  background: radial-gradient(ellipse 80% 60% at 50% 30%, var(--ct-accent-maroon) 0%, transparent 70%);
+  background: radial-gradient(ellipse 80% 60% at 50% 30%, var(--ct-accent-deep) 0%, transparent 70%);
 }
 
 /* ── LAYOUT ── */

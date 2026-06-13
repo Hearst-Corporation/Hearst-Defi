@@ -92,14 +92,14 @@ function polyline(pts: Array<{ x: number; y: number }>): string {
 interface AreaChartProps {
   series: Array<{ label: string; value: number; isDistribution: boolean }>;
   ariaLabel: string;
-  /** Preview / flat $0 series — neutral stroke, not brand or success. */
+  /** Preview / flat $0 series — brand-accent stroke for the awaiting state. */
   muted?: boolean;
 }
 
 function AreaChart({ series, ariaLabel: _ariaLabel, muted = false }: AreaChartProps) {
-  const seriesColor = muted ? "var(--ct-text-faint)" : "var(--ct-status-success)";
+  const seriesColor = muted ? "var(--ct-accent)" : "var(--ct-status-success)";
   const markerFill = muted
-    ? "color-mix(in srgb, var(--ct-text-faint) 35%, transparent)"
+    ? "color-mix(in srgb, var(--ct-accent) 35%, transparent)"
     : "color-mix(in srgb, var(--ct-status-success) 28%, transparent)";
   const values = series.map((d) => d.value);
   const min = Math.min(...values);

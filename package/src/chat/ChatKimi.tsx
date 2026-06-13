@@ -160,7 +160,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
     sendMessage(lastUser.content);
   }, [messages, sendMessage]);
 
-  const accent = productColor ?? "var(--ct-accent, #9E1B2E)";
+  const accent = productColor ?? "var(--ct-accent, #A7FB90)";
 
   return (
     <div className="ct-chat-root">

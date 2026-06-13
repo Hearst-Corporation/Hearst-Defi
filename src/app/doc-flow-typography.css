@@ -2,7 +2,7 @@
  * Shared document-flow typography (DESIGN_SYSTEM §13.2). Scoped to
  * `.product-doc` and `.admin-doc` layout roots — AUTHORITATIVE typo scale for
  * doc pages (overrides base `.h1/.h2/.h3` in cockpit.css by specificity).
- * Section titles = strong white; brand maroon reserved for small UI chrome.
+ * Section titles = strong white; brand green reserved for small UI chrome.
  */
 :is(.product-doc, .admin-doc) .h1 {
   font-size: var(--ct-text-3xl);            /* 24 → 28 (était 2xl 20→24) */
@@ -12,7 +12,7 @@
   color: var(--ct-text-primary);
 }
 
-/* Section title — strong white; brand maroon reserved for chrome, not headings. */
+/* Section title — strong white; brand green reserved for chrome, not headings. */
 :is(.product-doc, .admin-doc) .h2 {
   font-size: clamp(1.25rem, 1.206rem + 0.188vw, 1.375rem);  /* 20 → 22 */
   font-weight: var(--ct-font-bold);
