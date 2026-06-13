@@ -74,7 +74,7 @@ function ProofCardHeader({
 }) {
   return (
     <header className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--start gap-3">
-      <h4 className="h4 text-balance m-0 min-w-0">{title}</h4>
+      <h3 className="h3 text-balance m-0 min-w-0">{title}</h3>
       <div className="product-doc-inline-row shrink-0">{trailing}</div>
     </header>
   );

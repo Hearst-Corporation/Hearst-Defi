@@ -151,7 +151,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                 density="compact"
                 aria-label={`${vault.ticker} deployment`}
               >
-                <div className="admin-doc-stack admin-doc-stack--actions">
+                <div className="admin-doc-stack admin-doc-stack--compact">
                   <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
                     <div className="admin-doc-stack admin-doc-stack--dense min-w-0">
                       <div className="admin-doc-inline-row admin-doc-inline-row--loose">
@@ -181,43 +181,16 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                     </div>
 
                     <div className="admin-doc-inline-row admin-doc-inline-row--actions shrink-0">
-                      <Button variant="ghost" size="md" asChild>
+                      <Button variant="ghost" size="sm" asChild>
                         <Link href={`/admin/vaults/${vault.id}`}>View</Link>
                       </Button>
-
-                      <Button variant="ghost" size="md" asChild>
+                      <Button variant="ghost" size="sm" asChild>
                         <Link
                           href={`/admin/vaults/new?cloneFrom=${encodeURIComponent(vault.ticker)}`}
                         >
                           Clone
                         </Link>
                       </Button>
-
-                      {vault.status === "live" && (
-                        <form
-                          action={async () => {
-                            "use server";
-                            await pauseVault(vault.id);
-                          }}
-                        >
-                          <Button variant="secondary" size="md" type="submit">
-                            Pause
-                          </Button>
-                        </form>
-                      )}
-
-                      {vault.status === "paused" && (
-                        <form
-                          action={async () => {
-                            "use server";
-                            await resumeVault(vault.id);
-                          }}
-                        >
-                          <Button variant="secondary" size="md" type="submit">
-                            Resume
-                          </Button>
-                        </form>
-                      )}
                     </div>
                   </div>
 
@@ -247,9 +220,37 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                         <ProvenanceBadge kind="estimated" variant="strip" />
                       </div>
                       <ApyRange low={apyLow} high={apyHigh} precision={1} />
-                      <span className="body-xs ct-text-faint">Not guaranteed</span>
                     </div>
                   </div>
+
+                  {(vault.status === "live" || vault.status === "paused") && (
+                    <div className="admin-doc-inline-row admin-doc-inline-row--end">
+                      {vault.status === "live" && (
+                        <form
+                          action={async () => {
+                            "use server";
+                            await pauseVault(vault.id);
+                          }}
+                        >
+                          <Button variant="secondary" size="sm" type="submit">
+                            Pause
+                          </Button>
+                        </form>
+                      )}
+                      {vault.status === "paused" && (
+                        <form
+                          action={async () => {
+                            "use server";
+                            await resumeVault(vault.id);
+                          }}
+                        >
+                          <Button variant="secondary" size="sm" type="submit">
+                            Resume
+                          </Button>
+                        </form>
+                      )}
+                    </div>
+                  )}
                 </div>
               </Card>
             );

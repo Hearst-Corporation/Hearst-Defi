@@ -29,7 +29,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
       <div className="vault-select-card">
         <div className="vault-select-card__main">
           <div className="min-w-0 product-doc-stack--tight">
-            <p className="h4 ct-text-strong">{vault.name}</p>
+            <h3 className="h3 ct-text-strong">{vault.name}</h3>
             <div className="product-doc-inline-row">
               <span className="ct-pill">{strategyLabel}</span>
               <span className="ct-pill accent mono">{vault.ticker}</span>
