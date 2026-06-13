@@ -10,6 +10,10 @@ import {
   isExplicitSimulationIntent,
   type ProductWorkspaceIntentKind,
 } from "@/lib/llm/product-workspace-intent";
+import {
+  loadProductWorkspaceDraft,
+  upsertProductWorkspaceDraft,
+} from "@/lib/product-workspace/draft";
 
 export const dynamic = "force-dynamic";
 
@@ -30,9 +34,11 @@ interface ProductGraphSpec {
   chart: string;
   series: string;
   note: string;
+  metric: string;
+  visual: React.ReactNode;
 }
 
-const GRAPH_SPECS: readonly ProductGraphSpec[] = [
+const BASE_GRAPH_SPECS = [
   {
     title: "Capital Stack",
     chart: "Stacked allocation bar",
@@ -51,7 +57,7 @@ const GRAPH_SPECS: readonly ProductGraphSpec[] = [
     series: "BTC shock, hashprice compression, stable depeg, liquidity buffer",
     note: "PTAI trigger candidates must map to documented rule IDs.",
   },
-];
+] as const;
 
 const BUCKET_LABELS: Record<keyof VaultDefinition["allocationTargets"], string> = {
   mining: "Mining",
@@ -165,19 +171,102 @@ function graphSpecsForVault(vault: VaultDefinition): ProductGraphSpec[] {
         `${BUCKET_LABELS[bucket as keyof VaultDefinition["allocationTargets"]]} ${weight}%`,
     )
     .join(", ");
-  return GRAPH_SPECS.map((spec) =>
-    spec.title === "Capital Stack"
-      ? {
-          ...spec,
-          series: allocationSeries,
-          note: `${vault.ticker} target mix from methodology ${vault.methodologyVersion}; validate hard bounds before any vault draft.`,
-        }
-      : spec.title === "Distribution Path"
-        ? {
-            ...spec,
-            series: `${vault.apyTarget.low}-${vault.apyTarget.high}% target APY range; P25/P75 monthly USDC distributions`,
-          }
-        : spec,
+  return BASE_GRAPH_SPECS.map((spec) => {
+    if (spec.title === "Capital Stack") {
+      return {
+        ...spec,
+        series: allocationSeries,
+        note: `${vault.ticker} target mix from methodology ${vault.methodologyVersion}; validate hard bounds before any vault draft.`,
+        metric: "Target weights",
+        visual: <AllocationStackChart vault={vault} />,
+      };
+    }
+    if (spec.title === "Distribution Path") {
+      return {
+        ...spec,
+        series: `${vault.apyTarget.low}-${vault.apyTarget.high}% target APY range; P25/P75 monthly USDC distributions`,
+        metric: `${vault.apyTarget.low}-${vault.apyTarget.high}% APY range`,
+        visual: <DistributionRangeChart vault={vault} />,
+      };
+    }
+    return {
+      ...spec,
+      metric: "PTAI stress corridor",
+      visual: <StressCorridorChart vault={vault} />,
+    };
+  });
+}
+
+function AllocationStackChart({ vault }: { vault: VaultDefinition }) {
+  const colors = ["#A7FB90", "#7DD3FC", "#FDE68A", "#C4B5FD"];
+  let x = 0;
+  return (
+    <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} allocation stack`}>
+      <rect x="0" y="24" width="320" height="18" rx="9" className="fill-(--ct-surface-2)" />
+      {Object.entries(vault.allocationTargets).map(([bucket, weight], index) => {
+        const width = (weight / 100) * 320;
+        const currentX = x;
+        x += width;
+        return (
+          <g key={bucket}>
+            <rect
+              x={currentX}
+              y="24"
+              width={width}
+              height="18"
+              rx="9"
+              fill={colors[index] ?? "#A7FB90"}
+              opacity="0.9"
+            />
+            <text x={currentX + 4} y="58" className="fill-(--ct-text-muted) text-[9px]">
+              {weight}%
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function DistributionRangeChart({ vault }: { vault: VaultDefinition }) {
+  const months = Array.from({ length: 12 }, (_, index) => index);
+  const low = vault.apyTarget.low;
+  const high = vault.apyTarget.high;
+  const pointsLow = months
+    .map((month) => `${24 + month * 24},${52 - (low + month * 0.12) * 1.2}`)
+    .join(" ");
+  const pointsHigh = months
+    .map((month) => `${24 + month * 24},${52 - (high + month * 0.16) * 1.2}`)
+    .join(" ");
+  return (
+    <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} distribution range`}>
+      <polyline points={pointsHigh} fill="none" stroke="#A7FB90" strokeWidth="2" />
+      <polyline points={pointsLow} fill="none" stroke="#7DD3FC" strokeWidth="2" />
+      <line x1="24" y1="56" x2="288" y2="56" className="stroke-(--ct-border-soft)" />
+      <text x="24" y="68" className="fill-(--ct-text-muted) text-[9px]">M1</text>
+      <text x="266" y="68" className="fill-(--ct-text-muted) text-[9px]">M12</text>
+    </svg>
+  );
+}
+
+function StressCorridorChart({ vault }: { vault: VaultDefinition }) {
+  const reserve = vault.allocationTargets.stable_reserve;
+  const mining = vault.allocationTargets.mining;
+  const corridor = [
+    `24,${34 + mining * 0.18}`,
+    `88,${30 + reserve * 0.08}`,
+    `152,${40 - reserve * 0.12}`,
+    `216,${34 - reserve * 0.08}`,
+    `288,${28 - reserve * 0.05}`,
+  ].join(" ");
+  return (
+    <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} stress corridor`}>
+      <polyline points={corridor} fill="none" stroke="#FDE68A" strokeWidth="2.5" />
+      <line x1="24" y1="54" x2="288" y2="54" className="stroke-(--ct-border-soft)" />
+      <circle cx="152" cy={40 - reserve * 0.12} r="4" fill="#A7FB90" />
+      <text x="24" y="68" className="fill-(--ct-text-muted) text-[9px]">Shock</text>
+      <text x="232" y="68" className="fill-(--ct-text-muted) text-[9px]">Recovery</text>
+    </svg>
   );
 }
 
@@ -204,7 +293,7 @@ function scenarioOutputs(objective: string | undefined): string[] {
 export default async function ProductWorkspacePage({
   searchParams,
 }: ProductWorkspacePageProps) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const params = await searchParams;
   const objective = sanitizeObjective(params.objective);
   const autostart = params.autostart === "1";
@@ -219,6 +308,17 @@ export default async function ProductWorkspacePage({
   const decision = decisionForObjective(objective, autostart);
   const graphSpecs = graphSpecsForVault(inferredVault);
   const scenarioOutputNotes = scenarioOutputs(objective);
+  const persistedDraft =
+    objective && autostart
+      ? await upsertProductWorkspaceDraft({
+          userId: admin.userId,
+          objective,
+          vaultTicker: inferredVault.ticker,
+          vaultLabel: inferredVault.label,
+          ...(intentKind ? { intentKind } : {}),
+          scenarioValidationQueued: scenarioSecondary,
+        })
+      : await loadProductWorkspaceDraft(admin.userId);
 
   return (
     <div className="admin-doc-shell">
@@ -281,6 +381,12 @@ export default async function ProductWorkspacePage({
               Draft artifact: {inferredVault.ticker} product workspace with thesis,
               assumptions, chart specs, calculation notes, decision gate and next actions.
             </p>
+            {persistedDraft ? (
+              <p className="body-xs ct-text-faint">
+                Persisted draft: {persistedDraft.vaultTicker} · updated{" "}
+                {persistedDraft.updatedAtIso}
+              </p>
+            ) : null}
           </div>
 
           {scenarioSecondary ? (
@@ -416,7 +522,7 @@ export default async function ProductWorkspacePage({
             <p className="stat-label">Agent graph specs</p>
             <h2 className="h2 ct-text-strong">Visuals to attach before review</h2>
           </div>
-          <Badge variant="default">Draft specs</Badge>
+          <Badge variant="default">Runtime charts</Badge>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-3">
@@ -433,10 +539,16 @@ export default async function ProductWorkspacePage({
                 </div>
                 <ProvenanceBadge kind="estimated" compact />
               </div>
+              <div className="rounded-2xl border ct-bc-soft ct-surface-1 p-3">
+                {spec.visual}
+              </div>
+              <p className="body-xs ct-text-strong">{spec.metric}</p>
               <p className="body-sm ct-text-muted">{spec.series}</p>
               <div className="border-t ct-bc-soft pt-3 admin-doc-stack admin-doc-stack--tight">
                 <p className="body-xs ct-text-muted">{spec.note}</p>
-                <p className="body-xs ct-text-faint">Pending — attach chart before review.</p>
+                <p className="body-xs ct-text-faint">
+                  Generated from methodology assumptions; attach external evidence before review.
+                </p>
               </div>
             </Card>
           ))}

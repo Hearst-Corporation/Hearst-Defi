@@ -9,7 +9,19 @@ vi.mock("@/lib/auth/require-admin", () => ({
   }),
 }));
 
+vi.mock("@/lib/product-workspace/draft", () => ({
+  loadProductWorkspaceDraft: vi.fn().mockResolvedValue(null),
+  upsertProductWorkspaceDraft: vi.fn().mockResolvedValue({
+    objective: "Créer une offre Defensive avec notes de calcul",
+    vaultTicker: "HDV",
+    vaultLabel: "Hearst Defensive Vault",
+    scenarioValidationQueued: false,
+    updatedAtIso: "2026-06-13T01:02:03.000Z",
+  }),
+}));
+
 import ProductWorkspacePage from "../page";
+import { upsertProductWorkspaceDraft } from "@/lib/product-workspace/draft";
 
 async function renderPage(searchParams: {
   autostart?: string;
@@ -39,11 +51,20 @@ describe("ProductWorkspacePage", () => {
     expect(html).toContain("5-8%");
     expect(html).toContain("Calculation Notes");
     expect(html).toContain("Agent graph specs");
+    expect(html).toContain("Runtime charts");
+    expect(html).toContain("Persisted draft: HDV");
     expect(html).toContain("Assumptions");
     expect(html).toContain("Scenario Outputs");
     expect(html).toContain("Next Actions");
     expect(html).toContain("Projection conditionnelle");
     expect(html).toContain("Scenario Lab is only used later");
+    expect(upsertProductWorkspaceDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "admin-user",
+        objective: "Créer une offre Defensive avec notes de calcul",
+        vaultTicker: "HDV",
+      }),
+    );
   });
 
   it("infers BTC Plus and adapts chart/calculation artifacts", async () => {
@@ -57,6 +78,8 @@ describe("ProductWorkspacePage", () => {
     expect(html).toContain("BTC tactical 45%");
     expect(html).toContain("HBP target mix");
     expect(html).toContain("Generated product artifact");
+    expect(html).toContain("Target weights");
+    expect(html).toContain("10-20% APY range");
   });
 
   it("keeps Scenario Lab as supporting evidence when scenario outputs are requested", async () => {
