@@ -32,7 +32,11 @@ const VAULT: VaultProduct = {
   targetStableReserveBps: 1000,
 };
 
+// `html` = non-workspace document layout (preserved for other flows).
+// `htmlWorkspace` = the surface actually served at /vaults/[id] (LP term sheet).
+// The truthful-claims guards must hold on the surface LPs really see.
 const html = renderToStaticMarkup(<TermSheetPreview vault={VAULT} />);
+const htmlWorkspace = renderToStaticMarkup(<TermSheetPreview vault={VAULT} workspace />);
 
 describe("TermSheetPreview — truthful institutional claims", () => {
   it("A5 — does NOT assert 'Fireblocks MPC' custody as a verified fact", () => {
@@ -98,5 +102,43 @@ describe("TermSheetPreview — truthful institutional claims", () => {
         throw new Error(`Orphan product-doc-stack--tight in class="${match[1]}"`);
       }
     }
+  });
+});
+
+// The guards above run on the non-workspace layout, but /vaults/[id] renders the
+// `workspace` branch. Re-assert the layout-independent truthful claims there so a
+// regression on the surface LPs actually see cannot pass unnoticed.
+describe("TermSheetPreview — workspace surface (served at /vaults/[id])", () => {
+  it("A5 — custody is 'pending', never an unverified 'Fireblocks MPC' claim", () => {
+    expect(htmlWorkspace).not.toContain("Fireblocks MPC");
+    expect(htmlWorkspace).toContain("Custody configuration pending");
+  });
+
+  it("A7 — multisig is gated wording, not a hardcoded '3 of 5'", () => {
+    expect(htmlWorkspace).not.toContain("3 of 5");
+    expect(htmlWorkspace).toContain("Multisig approval required");
+  });
+
+  it("uses vault.fees for management / performance (not share-class fallback)", () => {
+    expect(htmlWorkspace).toContain("2.00% · 10%");
+    expect(htmlWorkspace).not.toContain("1.00% · 10%");
+  });
+
+  it("C-13 — displays the Model B one-liner verbatim on the LP surface", () => {
+    expect(htmlWorkspace).toContain(
+      "Principal held in a USDC cash reserve — not deployed on-chain; yield is a monthly mining-revenue-share distribution.",
+    );
+  });
+
+  it("renders regime scenarios without ct-table-surface wrapper", () => {
+    expect(htmlWorkspace).toContain("regime-scenario-table");
+    expect(htmlWorkspace).not.toContain("ct-table-surface");
+    expect(htmlWorkspace).not.toContain("overflow-x-auto");
+  });
+
+  it("carries the not-guaranteed APY disclaimer suffix", () => {
+    expect(htmlWorkspace).toContain(
+      "APY ranges are target projections — not guaranteed.",
+    );
   });
 });

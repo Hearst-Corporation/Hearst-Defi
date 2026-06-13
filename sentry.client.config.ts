@@ -2,17 +2,15 @@ import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  enabled: !!(process.env.NEXT_PUBLIC_SENTRY_DSN && process.env.NEXT_PUBLIC_SENTRY_DSN.length > 0),
+  // Prod-only: keeps dev events out of the Sentry project and silences the
+  // CSP-blocked ingest errors in the local console.
+  enabled:
+    process.env.NODE_ENV === "production" &&
+    !!process.env.NEXT_PUBLIC_SENTRY_DSN,
   environment: process.env.NODE_ENV,
   tracesSampleRate: 0.1,
-  replaysSessionSampleRate: 0,
-  replaysOnErrorSampleRate: 1.0,
-  integrations: [
-    Sentry.replayIntegration({
-      maskAllText: true,
-      blockAllMedia: true,
-    }),
-  ],
+  // Error reporting only — Session Replay is disabled: its blob: worker is not
+  // allowed by the app CSP and error capture does not need it.
   beforeSend(event) {
     // Filter non-actionable client-side noise
     if (event.exception) {

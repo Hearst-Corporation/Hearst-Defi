@@ -160,8 +160,19 @@ const nextConfig: NextConfig = {
                 return "https://sepolia.base.org";
               }
             })();
+            // Sentry ingest origin (browser error reporting) derived from the
+            // public DSN so the CSP never hardcodes a project-specific host.
+            const sentryOrigin = (() => {
+              try {
+                const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+                return dsn ? new URL(dsn).origin : null;
+              } catch {
+                return null;
+              }
+            })();
             // connect-src hosts: self + Privy + the public Base Sepolia RPC
-            // fallback + the configured RPC origin (deduped) + Persona KYC API.
+            // fallback + the configured RPC origin (deduped) + Persona KYC API
+            // + the Sentry ingest origin (when a DSN is configured).
             const connectHosts = [
               "'self'",
               "https://auth.privy.io",
@@ -170,6 +181,7 @@ const nextConfig: NextConfig = {
               ...(rpcOrigin === "https://sepolia.base.org" ? [] : [rpcOrigin]),
               "https://*.withpersona.com",
               "wss://auth.privy.io",
+              ...(sentryOrigin ? [sentryOrigin] : []),
             ].join(" ");
             return {
               key: "Content-Security-Policy",

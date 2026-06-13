@@ -1121,7 +1121,7 @@
 .product-doc .invest-flow-detail__secondary {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-5);
   min-width: 0;
 }
 

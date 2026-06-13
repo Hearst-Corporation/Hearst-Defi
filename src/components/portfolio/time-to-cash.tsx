@@ -139,10 +139,10 @@ export function TimeToCash({
 
         {/* Day counter label */}
         <div className="flex items-center justify-between">
-          <span className="body-xs tabular mono ct-text-muted ct-tabular-nums">
+          <span className="body-xs tabular mono ct-text-muted">
             {showZeroShell ? "Cycle pending" : `Day ${daysElapsed} of ${cycleDays}`}
           </span>
-          <span className="body-xs tabular mono ct-text-muted ct-tabular-nums">
+          <span className="body-xs tabular mono ct-text-muted">
             {displayedProgressLabel}
           </span>
         </div>

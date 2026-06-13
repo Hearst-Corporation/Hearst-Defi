@@ -56,7 +56,7 @@ describe("ProductWorkspacePage", () => {
     expect(html).toContain("Assumptions");
     expect(html).toContain("Scenario Outputs");
     expect(html).toContain("Next Actions");
-    expect(html).toContain("Projection conditionnelle");
+    expect(html).toContain("Conditional projection — not a committed outcome");
     expect(html).toContain("Scenario Lab is only used later");
     expect(upsertProductWorkspaceDraft).toHaveBeenCalledWith(
       expect.objectContaining({

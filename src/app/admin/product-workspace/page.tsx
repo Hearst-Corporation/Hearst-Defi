@@ -74,6 +74,12 @@ const CALC_NOTES = [
   "Scenario Lab becomes a downstream validation step, not the product creation surface.",
 ] as const;
 
+const NEXT_ACTIONS = [
+  "Attach provenance evidence for every metric before publication.",
+  "If simulation is required, run Scenario Lab and paste outputs back here.",
+  "Capture the final human decision in governance or review notes.",
+] as const;
+
 const OUT_OF_MANDATE_RE =
   /\b(retail|public offer|auto.?execute|autonomous execution|no kyc|without kyc|bypass approval|bypass approvals|single point yield|fixed yield)\b/i;
 
@@ -542,15 +548,11 @@ export default async function ProductWorkspacePage({
         <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
           <CardTitle>Next Actions</CardTitle>
           <ol className="admin-doc-stack admin-doc-stack--tight">
-            <li className="body-sm ct-text-muted">
-              Attach provenance evidence for every metric before publication.
-            </li>
-            <li className="body-sm ct-text-muted">
-              If simulation is required, run Scenario Lab and paste outputs back here.
-            </li>
-            <li className="body-sm ct-text-muted">
-              Capture the final human decision in governance or review notes.
-            </li>
+            {NEXT_ACTIONS.map((action) => (
+              <li key={action} className="body-sm ct-text-muted">
+                {action}
+              </li>
+            ))}
           </ol>
         </Card>
       </section>

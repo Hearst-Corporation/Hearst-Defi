@@ -262,10 +262,19 @@ export function AdminChatControls() {
     setError(next.error);
   }, []);
 
-  // Resolve admin status + current mode in one call. The route is
-  // requireAdmin-gated: 200 → admin (use the returned mode); anything else
+  // Anchor into the chat settings panel; null while the settings view is closed.
+  const target = useChatSettingsAnchor();
+
+  // Resolve admin status + current mode the FIRST time the chat settings panel
+  // is opened — never at page load. This component mounts globally on every
+  // product surface, so a fire-at-mount GET would hit the requireAdmin-gated
+  // route for every visitor on every page: a guaranteed 403 in the console for
+  // the LP majority, who never see this control. Gating on `target` ties the
+  // probe to a deliberate "open settings" action. The route stays the
+  // authoritative gate: 200 → admin (use the returned mode); anything else
   // (403 non-admin, 401 logged-out) → stay null → render nothing.
   useEffect(() => {
+    if (!target || mode !== null) return;
     let cancelled = false;
     void (async () => {
       try {
@@ -288,10 +297,7 @@ export function AdminChatControls() {
     return () => {
       cancelled = true;
     };
-  }, []);
-
-  // Anchor into the chat settings panel; null while the settings view is closed.
-  const target = useChatSettingsAnchor();
+  }, [target, mode]);
 
   const switchMode = useCallback(
     async (next: Mode) => {

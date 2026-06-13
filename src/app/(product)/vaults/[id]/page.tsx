@@ -94,7 +94,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
                 low={vault.apyLow}
                 high={vault.apyHigh}
                 precision={1}
-                className="stat-value mono ct-tabular-nums ct-text-strong"
+                className="stat-value tabular mono ct-text-strong"
               />
             </dd>
           </div>
