@@ -621,18 +621,26 @@
   cursor: not-allowed;
 }
 
-.scenario-lab-shell .scenario-preset-bar__button:hover:not(:disabled) {
+.scenario-preset-bar__button:hover:not(:disabled):not([aria-checked="true"]) {
   background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
-  border-color: var(--ct-border-soft);
   color: var(--ct-text-primary);
 }
 
-.scenario-preset-bar__button--active,
-.scenario-lab-shell .scenario-preset-bar__button[aria-pressed="true"] {
+.scenario-preset-bar__button[aria-checked="true"] {
   background: color-mix(in srgb, var(--ct-surface-1) 60%, transparent);
-  border-color: var(--ct-border);
+  border-color: var(--ct-accent);
   color: var(--ct-text-strong);
-  box-shadow: inset 2px 0 0 var(--ct-accent);
+  box-shadow: inset 3px 0 0 var(--ct-accent);
+}
+
+.scenario-preset-bar__button:focus-visible {
+  outline: none;
+  box-shadow: var(--ct-shadow-focus-ring);
+}
+
+.scenario-preset-bar__button[aria-checked="true"]:focus-visible {
+  outline: none;
+  box-shadow: var(--ct-shadow-focus-ring), inset 3px 0 0 var(--ct-accent);
 }
 
 .scenario-preset-bar__label {
@@ -649,14 +657,10 @@
   -webkit-line-clamp: 2;
   white-space: normal;
   text-overflow: unset;
-  color: var(--ct-text-muted);
+  color: var(--ct-text-body);
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-medium);
   line-height: var(--ct-leading-tight);
-}
-
-.scenario-preset-bar__button[aria-pressed="true"] .scenario-preset-bar__description {
-  color: var(--ct-text-body);
 }
 
 @container admin-doc (min-width: 40rem) {

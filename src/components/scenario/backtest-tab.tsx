@@ -4,11 +4,12 @@
 // Extracted from lab-shell.tsx. Owns its own state via useBacktest. Behaviour
 // preserved (period cards, description fallback, error/loading/results).
 
+import { useRef } from "react";
+
 import { BacktestPanel } from "@/components/scenario/backtest-panel";
 import { Spinner } from "@/components/scenario/scenario-spinner";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { cn } from "@/lib/cn";
 import { useBacktest } from "@/hooks/use-backtest";
 import type { BacktestKey } from "@/lib/engine/types";
 
@@ -45,36 +46,62 @@ const BACKTEST_PERIODS: BacktestMeta[] = [
 
 export function BacktestTab() {
   const { state, pending, error, select } = useBacktest();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const selectedIdx = state.selectedKey !== null
+    ? BACKTEST_PERIODS.findIndex((p) => p.key === state.selectedKey)
+    : -1;
+  const rovingIndex = selectedIdx >= 0 ? selectedIdx : 0;
+
+  function handleKeyDown(e: React.KeyboardEvent, index: number) {
+    if (pending) return;
+    const total = BACKTEST_PERIODS.length;
+    let next = -1;
+    if (e.key === "ArrowRight") { next = (index + 1) % total; e.preventDefault(); }
+    else if (e.key === "ArrowLeft") { next = (index - 1 + total) % total; e.preventDefault(); }
+    else if (e.key === "Home") { next = 0; e.preventDefault(); }
+    else if (e.key === "End") { next = total - 1; e.preventDefault(); }
+    if (next < 0) return;
+    const buttons = containerRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]');
+    const nextButton = buttons?.[next];
+    const nextPeriod = BACKTEST_PERIODS[next];
+    if (nextButton && nextPeriod) {
+      nextButton.focus();
+      select(nextPeriod.key);
+    }
+  }
 
   return (
     <div className="backtest-tab">
-      <nav aria-label="Backtest periods" className="scenario-preset-bar backtest-period-rail">
+      <div className="scenario-preset-bar backtest-period-rail">
         <div className="scenario-preset-bar__head">
           <span className="eyebrow ct-text-muted">Historical periods</span>
-          <span className="body-xs ct-text-faint">Select a regime to simulate</span>
+          <span className="body-xs ct-text-muted">Select a regime to simulate</span>
         </div>
-        <div className="scenario-preset-bar__items">
-          {BACKTEST_PERIODS.map((p) => {
-            const isActive = state.selectedKey === p.key;
-            return (
-              <button
-                key={p.key}
-                type="button"
-                disabled={pending}
-                onClick={() => select(p.key)}
-                aria-pressed={isActive}
-                className={cn(
-                  "scenario-preset-bar__button",
-                  isActive && "scenario-preset-bar__button--active",
-                )}
-              >
-                <span className="scenario-preset-bar__label">{p.label}</span>
-                <span className="scenario-preset-bar__description">{p.subtitle}</span>
-              </button>
-            );
-          })}
+        <div
+          ref={containerRef}
+          role="radiogroup"
+          aria-label="Historical periods"
+          className="scenario-preset-bar__items"
+        >
+          {BACKTEST_PERIODS.map((p, index) => (
+            <button
+              key={p.key}
+              type="button"
+              role="radio"
+              disabled={pending}
+              onClick={() => select(p.key)}
+              onKeyDown={(e) => handleKeyDown(e, index)}
+              aria-checked={state.selectedKey === p.key}
+              tabIndex={index === rovingIndex ? 0 : -1}
+              className="scenario-preset-bar__button"
+            >
+              <span className="scenario-preset-bar__label">{p.label}</span>
+              <span className="scenario-preset-bar__description">{p.subtitle}</span>
+            </button>
+          ))}
         </div>
-      </nav>
+      </div>
 
       {/* Period descriptions — idle state before first selection */}
       {!state.output && !pending && state.selectedKey === null ? (
