@@ -1,8 +1,10 @@
 import { type Provenance } from "@/components/ui/provenance-badge";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
-import { ModuleChrome } from "@/components/ui/module-chrome";
-import { PfCockpitPanelHeader } from "@/components/portfolio/pf-cockpit-panel";
+import {
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { cn } from "@/lib/cn";
@@ -199,14 +201,12 @@ export function ValueChart({
     : buildMonthSeries(positions, totalValueUsdc, asOf);
 
   return (
-    <ModuleChrome
+    <PfCockpitPanel
+      variant="wide"
       aria-label="Portfolio value — 12-month trend"
       className="relative pf-value-chart"
-      hoverOverlay={false}
-      adornment={
-        provenance ? <ChartProvenanceCorner kind={provenance} /> : null
-      }
     >
+      {provenance ? <ChartProvenanceCorner kind={provenance} /> : null}
       <PfCockpitPanelHeader
         title="Portfolio value"
         subtitle="Indicative 12-month path"
@@ -252,6 +252,6 @@ export function ValueChart({
           Past performance does not predict future results. Not guaranteed.
         </p>
       ) : null}
-    </ModuleChrome>
+    </PfCockpitPanel>
   );
 }

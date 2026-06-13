@@ -5,7 +5,6 @@
  *
  * Three modules previously coexisted with subtly different formulas
  * (cf. `docs/audit/coherence-2026-05-26/10-portfolio-lp-metrics.md` § P0-2):
- *   - `src/lib/portfolio/returns.ts`        → NAV-only (TWR pur, biais à la baisse)
  *   - `src/lib/data/advanced-metrics.ts`    → NAV + distribution add-back (correct)
  *   - `src/lib/engine/lp-pnl.ts`            → simple annualisation linéaire
  *
@@ -35,9 +34,7 @@ export interface MonthlyReturnInputs {
    * data — in that mode the formula degrades to a pure NAV ratio (TWR-only).
    *
    * NOTE: defaulting to 0 is acceptable for callers that genuinely have no
-   * distribution series (e.g. `getVaultReturns` reading raw `VaultSnapshot`
-   * rows that do not carry monthly distribution totals). Once a distribution
-   * series is available those callers should pass it in.
+   * distribution series (e.g. raw `VaultSnapshot` rows without monthly totals).
    */
   distribution?: number;
 }

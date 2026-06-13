@@ -15,6 +15,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { NestedPanel } from "@/components/ui/nested-panel";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 
@@ -90,8 +91,8 @@ export function TimelockCountdown({
   const pct = progressPct(etaMs, totalMs, nowMs);
 
   return (
-    <div
-      className="ct-nested-panel flex flex-col gap-3"
+    <NestedPanel
+      className="flex flex-col gap-3"
       data-proposal-id={proposalId}
       aria-label={`Governance proposal #${proposalId} timelock countdown`}
     >
@@ -148,6 +149,6 @@ export function TimelockCountdown({
           </time>
         </p>
       )}
-    </div>
+    </NestedPanel>
   );
 }

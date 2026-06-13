@@ -3,7 +3,7 @@
 // Non-negotiable #1: projected USDC shown as estimate (no guarantee).
 // Non-negotiable #2: dual ProvenanceBadge Live (cycle) + Estimate (projected USDC).
 
-import { ModuleChrome } from "@/components/ui/module-chrome";
+import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { ApyRange } from "@/components/ui/apy-range";
 import { cn } from "@/lib/cn";
@@ -91,7 +91,11 @@ export function TimeToCash({
           : `~${formatUsdcGrouped(projectedUsdc)} USDC in ${daysRemaining}d ${hoursRemaining}h`;
 
   return (
-    <ModuleChrome aria-label="Time to next distribution" className="pf-module-chrome">
+    <PfCockpitPanel
+      variant="compact"
+      aria-label="Time to next distribution"
+      className="pf-module-chrome"
+    >
       <WidgetPanelHeader
         title="Time to cash"
         provenance={widgetProvenance}
@@ -169,6 +173,6 @@ export function TimeToCash({
         </span>
         <span className="body-xs ct-text-faint">Notifications after first payout</span>
       </div>
-    </ModuleChrome>
+    </PfCockpitPanel>
   );
 }

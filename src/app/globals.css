@@ -248,72 +248,43 @@ code,
   border: none;
 }
 
+/* Global legal footer — rendered by AppChrome on every authenticated surface.
+   Quiet, hairline-topped, faint links; mirrors the profile footer's legal row. */
+.app-footer {
+  margin-top: var(--ct-space-8);
+  padding-top: var(--ct-space-4);
+  padding-bottom: var(--ct-space-6);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+.app-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
+.app-footer__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
+.app-footer__link {
+  text-decoration: none;
+  transition: color var(--ct-dur-base) var(--ct-ease);
+}
+
+.app-footer__link:hover {
+  color: var(--ct-text-muted);
+}
+
 /* Glass panel utility — definitive version lives in cockpit.css against
    --ct-… tokens. Kept here only as a no-op safety net for legacy bundles. */
 
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
-}
-
-/* ── AMBIENT LIGHTS (Cockpit halos) ── */
-.ct-ambient-lights {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.ct-ambient-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.15;
-  background: var(--ct-accent-soft);
-  animation: ambient-drift 20s infinite alternate ease-in-out;
-}
-
-.ct-ambient-blob.blob-1 {
-  width: 40vw;
-  height: 40vw;
-  top: -10vw;
-  left: -10vw;
-  animation-duration: 25s;
-}
-
-.ct-ambient-blob.blob-2 {
-  width: 35vw;
-  height: 35vw;
-  bottom: -5vw;
-  right: -5vw;
-  animation-duration: 22s;
-  animation-delay: -5s;
-}
-
-.ct-ambient-blob.blob-3 {
-  width: 30vw;
-  height: 30vw;
-  top: 40%;
-  left: 30%;
-  animation-duration: 28s;
-  animation-delay: -10s;
-  opacity: 0.1;
-}
-
-@keyframes ambient-drift {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(3vw, -5vw) scale(1.05);
-  }
-  66% {
-    transform: translate(-2vw, 4vw) scale(0.95);
-  }
-  100% {
-    transform: translate(4vw, 2vw) scale(1.1);
-  }
 }
 
 /* a11y — respecte la préférence système de mouvement réduit */

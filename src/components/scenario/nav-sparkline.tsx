@@ -14,7 +14,7 @@ import type { ScenarioOutput } from "@/lib/engine/types";
 const INITIAL_NAV = 1_000_000; // illustrative $1M notional
 const MONTHS = 12;
 
-// ViewBox constants — compact 100×40 grid, matching timeseries-section.tsx.
+// ViewBox constants — compact 100×40 grid.
 const VB_W = 100;
 const VB_H = 40;
 const PAD = 2;

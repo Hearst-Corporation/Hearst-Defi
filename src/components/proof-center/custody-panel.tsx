@@ -1,4 +1,4 @@
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { Metric } from "@/components/ui/metric";

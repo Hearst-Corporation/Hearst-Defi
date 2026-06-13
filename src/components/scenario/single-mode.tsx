@@ -149,14 +149,12 @@ export function SingleMode({
             </Card>
           ) : null}
 
-          <div className="rounded-xl border border-(--ct-border-soft)/70 bg-(--ct-surface-2)/40 p-1">
-            <CentralTaskRunner
-              runId={activeRunId}
-              objective={objective}
-              pending={pending}
-              output={state.output}
-            />
-          </div>
+          <CentralTaskRunner
+            runId={activeRunId}
+            objective={objective}
+            pending={pending}
+            output={state.output}
+          />
 
           <div className="min-h-0 flex flex-col gap-2">
             <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline px-1">
@@ -166,7 +164,7 @@ export function SingleMode({
 
             {state.output ? (
               <div ref={outputRef} className="scenario-lab-output-card min-h-0">
-                <Card className="h-full p-5" hoverOverlay={false}>
+                <Card className="h-full" hoverOverlay={false}>
                   <OutputPanel
                     output={state.output}
                     isPending={pending}

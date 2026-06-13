@@ -7,7 +7,6 @@ import { describe, expect, it } from "vitest";
 
 import { ProductSection } from "@/components/ui/product-section";
 import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
-import { LayoutPreviewBanner } from "@/components/portfolio/layout-preview-banner";
 import { SectionEmbedProvider } from "@/components/ui/section-embed";
 import { TimeToCash } from "@/components/portfolio/time-to-cash";
 import { LockMeter } from "@/components/portfolio/lock-meter";
@@ -77,12 +76,6 @@ describe("Portfolio zero-position — cockpit shell always visible", () => {
 });
 
 describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
-  it("banner states not guaranteed", () => {
-    const html = renderToStaticMarkup(<LayoutPreviewBanner />);
-    expect(html).toContain("Layout preview");
-    expect(html).toContain("not guaranteed");
-  });
-
   it("TimeToCash previewZeros: progress bar shell at zero, no awaiting surface", () => {
     const html = renderToStaticMarkup(
       <SectionEmbedProvider>

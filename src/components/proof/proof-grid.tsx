@@ -1,4 +1,4 @@
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { ProofCard } from "@/components/proof/proof-card";
 import {
   filteredProofsEmpty,

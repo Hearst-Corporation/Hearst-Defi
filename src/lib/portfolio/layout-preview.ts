@@ -11,15 +11,6 @@ export function isLayoutPreview(hasPositions: boolean): boolean {
   return !hasPositions;
 }
 
-/** Surface tier for portfolio sections — active when positions exist, else preview. */
-export type PortfolioSurfaceState = "active" | "preview";
-
-export function resolvePortfolioSurfaceState(
-  hasActivePosition: boolean,
-): PortfolioSurfaceState {
-  return hasActivePosition ? "active" : "preview";
-}
-
 const MONTH_LABELS = [
   "Jan",
   "Feb",

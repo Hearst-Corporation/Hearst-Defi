@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { GOVERNANCE_QUEUE_EMPTY } from "@/components/admin/governance/empty-messages";
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import {

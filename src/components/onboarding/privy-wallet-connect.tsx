@@ -18,7 +18,7 @@ import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { cn } from "@/lib/cn";
 import { abbreviateAddress } from "@/lib/onchain";
 import { bindWallet } from "@/lib/onboarding/actions";

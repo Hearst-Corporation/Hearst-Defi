@@ -7,20 +7,10 @@ import { cn } from "@/lib/cn";
 export function NestedPanel({
   children,
   className,
-  role,
-  "aria-label": ariaLabel,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  role?: React.AriaRole;
-  "aria-label"?: string;
-}) {
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={cn("ct-nested-panel", className)}
-      role={role}
-      aria-label={ariaLabel}
-    >
+    <div className={cn("ct-nested-panel", className)} {...props}>
       {children}
     </div>
   );

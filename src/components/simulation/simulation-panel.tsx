@@ -22,6 +22,7 @@
 
 import { cn } from "@/lib/cn";
 import { Card } from "@/components/ui/card";
+import { NestedPanel } from "@/components/ui/nested-panel";
 import type {
   SimulationResult,
   StateDiffEntry,
@@ -249,24 +250,23 @@ function BalanceDeltaSection({ entries }: { entries: BalanceDeltaEntry[] }) {
             const delta = entry.after - entry.before;
             const isPositive = delta >= 0;
             return (
-              <li
-                key={i}
-                className="ct-nested-panel flex items-center justify-between gap-4"
-              >
-                <span className="mono body-xs truncate">
-                  {entry.address.slice(0, 10)}…
-                </span>
-                <span
-                  className={cn(
-                    "mono tabular-nums body-xs",
-                    isPositive
-                      ? "ct-text-accent"
-                      : "ct-status-danger",
-                  )}
-                >
-                  {isPositive ? "+" : ""}
-                  {delta.toLocaleString("en-US")} wei
-                </span>
+              <li key={i}>
+                <NestedPanel className="flex items-center justify-between gap-4">
+                  <span className="mono body-xs truncate">
+                    {entry.address.slice(0, 10)}…
+                  </span>
+                  <span
+                    className={cn(
+                      "mono tabular-nums body-xs",
+                      isPositive
+                        ? "ct-text-accent"
+                        : "ct-status-danger",
+                    )}
+                  >
+                    {isPositive ? "+" : ""}
+                    {delta.toLocaleString("en-US")} wei
+                  </span>
+                </NestedPanel>
               </li>
             );
           })}

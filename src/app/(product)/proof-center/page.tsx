@@ -8,7 +8,7 @@ import { TriangleAlert } from "lucide-react";
 
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { PLATFORM_PROOFS_EMPTY } from "@/components/proof/empty-messages";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
 import { ProofFilter } from "@/components/proof/proof-filter";

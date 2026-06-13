@@ -2,7 +2,7 @@
  * Step 3 — Wallet binding (optional). Persists via bindWallet.
  */
 
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { WalletChamber } from "@/components/onboarding/privy-wallet-connect";
 import { Card } from "@/components/ui/card";
 import { getInvestor } from "@/lib/auth/session";

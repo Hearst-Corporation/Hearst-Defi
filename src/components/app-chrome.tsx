@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { ConnectShell } from "@/components/ConnectShell";
+import { AppFooter } from "@/components/app-footer";
 import { AdminChatControls } from "@/components/admin/admin-chat-controls";
 import { ChatNavBridge } from "@/components/chat/chat-nav-bridge";
 
@@ -69,6 +70,9 @@ export function AppChrome({
   return (
     <ConnectShell enableChat={chatEnabled}>
       {children}
+      {/* Global legal footer — keeps Disclaimer / Privacy / Terms reachable on
+          every authenticated surface (bare auth/legal routes returned above). */}
+      <AppFooter />
       {/* Chat mode selector (Conversation / Review). Self-gates to admins via
           the requireAdmin-protected /api/admin/review-mode route; renders
           nothing for everyone else. Mounted here so it's available on every

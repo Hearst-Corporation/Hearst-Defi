@@ -2,7 +2,7 @@
 // Server Component (pure — no I/O, no side effects).
 // Non-negotiable #2: ProvenanceBadge kind="live" (CLAUDE.md).
 
-import { ModuleChrome } from "@/components/ui/module-chrome";
+import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -125,7 +125,11 @@ export function LockMeter({
   }`;
 
   return (
-    <ModuleChrome aria-label="Lock and liquidity status" className="pf-module-chrome">
+    <PfCockpitPanel
+      variant="compact"
+      aria-label="Lock and liquidity status"
+      className="pf-module-chrome"
+    >
       <WidgetPanelHeader
         title={
           <Tooltip content="Progress towards your 60-day soft lockup period">
@@ -221,6 +225,6 @@ export function LockMeter({
           </div>
         )}
       </dl>
-    </ModuleChrome>
+    </PfCockpitPanel>
   );
 }

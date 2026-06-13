@@ -3,19 +3,22 @@ import type { ReactNode } from "react";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 
-export {
-  PanelStatus,
-  PanelStatusAccent,
-  PanelStatusSection,
-  type PanelStatusProps,
-  type PanelStatusTone,
-} from "@/components/ui/panel-status";
+export { PanelStatus } from "@/components/ui/panel-status";
 
 export type PfCockpitPanelVariant = "wide" | "compact" | "table";
 
 export type PfCockpitTitleVariant = "rail" | "primary";
 
-/** Flat graphite panel — same surface family as the hero rail sidebar. */
+/** Flat graphite panel — same surface family as the hero rail sidebar.
+ *
+ * Portfolio widget shell tiers (cockpit /portfolio):
+ *   L1 — PfCockpitPanel: all LP widgets (graphite, not glass Card)
+ *   L2 — NestedPanel: inset rows inside a cockpit panel (proof, risk, trust)
+ *   L3 — ProductSection: multi-widget section chrome (header + welded bento grid)
+ *
+ * ModuleChrome (glass Card) is reserved for non-portfolio modules embedded in
+ * ProductSection elsewhere; portfolio widgets must use PfCockpitPanel only.
+ */
 export function PfCockpitPanel({
   variant = "wide",
   "aria-label": ariaLabel,

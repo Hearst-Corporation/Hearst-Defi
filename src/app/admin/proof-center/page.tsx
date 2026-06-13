@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { AwaitingMetricState } from "@/components/portfolio/awaiting-metric-state";
+import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { PLATFORM_PROOFS_EMPTY } from "@/components/proof/empty-messages";
 import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
 import { EventTimeline } from "@/components/proof-center/event-timeline";

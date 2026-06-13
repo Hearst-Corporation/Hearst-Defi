@@ -9,9 +9,6 @@
  *
  * Projectif charts (disclaimer present):
  *   BacktestChart, NavSparkline, ValueChart, TimeToTargetChart
- *
- * Historical / non-projectif charts (no disclaimer):
- *   AllocationDonut, TimeseriesSection
  */
 
 import { renderToStaticMarkup } from "react-dom/server";
@@ -54,58 +51,5 @@ describe("BacktestChart — overlay integration", () => {
   it("renders ChartDisclaimerUnderlay (projectif)", () => {
     const html = render(<BacktestChart series={MONTHLY_SERIES} />);
     expect(hasDisclaimerUnderlay(html)).toBe(true);
-  });
-});
-
-// ── 2. AllocationDonut — historique / non-projectif ───────────────────────────
-
-import { AllocationDonut } from "@/components/dashboard/dashboard-charts";
-import type { AllocationSegment } from "@/components/dashboard/dashboard-charts";
-
-const FLAT_SEGMENTS: AllocationSegment[] = [
-  { bucket: "mining", pct: 62 },
-  { bucket: "btc_tactical", pct: 18 },
-  { bucket: "usdc_base", pct: 12 },
-  { bucket: "stable_reserve", pct: 8 },
-];
-
-describe("AllocationDonut — overlay integration", () => {
-  it("renders ChartProvenanceCorner", () => {
-    const html = render(
-      <AllocationDonut segments={FLAT_SEGMENTS} ariaLabel="test donut" />,
-    );
-    expect(hasProvenanceCorner(html)).toBe(true);
-  });
-
-  it("does NOT render ChartDisclaimerUnderlay (non-projectif)", () => {
-    const html = render(
-      <AllocationDonut segments={FLAT_SEGMENTS} ariaLabel="test donut" />,
-    );
-    expect(hasDisclaimerUnderlay(html)).toBe(false);
-  });
-});
-
-// ── 3. TimeseriesSection — historique ────────────────────────────────────────
-
-import { TimeseriesSection } from "@/components/dashboard/timeseries-section";
-import type { DashboardTimeseries } from "@/lib/data/dashboard";
-
-const TIMESERIES_DATA: DashboardTimeseries = {
-  source: "db",
-  nav30d: Array.from({ length: 10 }, (_, i) => ({
-    date: `2026-05-${String(i + 1).padStart(2, "0")}`,
-    aum_usdc: 24_500_000 + i * 100_000,
-  })),
-  apy30d: Array.from({ length: 10 }, (_, i) => ({
-    date: `2026-05-${String(i + 1).padStart(2, "0")}`,
-    apy_low: 8.5,
-    apy_high: 12.8,
-  })),
-};
-
-describe("TimeseriesSection — overlay integration", () => {
-  it("renders ChartProvenanceCorner", () => {
-    const html = render(<TimeseriesSection data={TIMESERIES_DATA} />);
-    expect(hasProvenanceCorner(html)).toBe(true);
   });
 });
