@@ -5,7 +5,7 @@ import { LoginForm } from "@/components/auth/login-form";
  *
  * Pendant symétrique du MarketingPanel (à gauche) :
  *   - même eyebrow (.eyebrow accent)
- *   - H1 unique (.h1 cockpit) — le panneau marketing utilise un titre visuel `.h1` sur `<p>`
+ *   - H1 unique côté brand (login-split) ; ce panneau utilise h2 section
  *   - même sous-titre body-sm
  *   - même disclaimer body-xs
  *   - même rythme vertical (gap entre blocs)
@@ -18,7 +18,7 @@ export function LoginPanel() {
     <div className="flex w-full max-w-sm flex-col items-center gap-8 text-center">
       <header className="flex flex-col items-center gap-3">
         <span className="eyebrow ct-text-accent">Investor access</span>
-        <h1 className="h1 m-0">Sign in</h1>
+        <h2 className="h2 m-0">Sign in</h2>
         <p className="body-sm ct-text-muted">
           Access your vaults and portfolio
         </p>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
@@ -34,7 +35,7 @@ interface ProductGraphSpec {
   chart: string;
   series: string;
   note: string;
-  metric: string;
+  metric: React.ReactNode;
   visual: React.ReactNode;
 }
 
@@ -185,7 +186,17 @@ function graphSpecsForVault(vault: VaultDefinition): ProductGraphSpec[] {
       return {
         ...spec,
         series: `${vault.apyTarget.low}-${vault.apyTarget.high}% target APY range; P25/P75 monthly USDC distributions`,
-        metric: `${vault.apyTarget.low}-${vault.apyTarget.high}% APY range`,
+        metric: (
+          <>
+            <ApyRange
+              low={vault.apyTarget.low}
+              high={vault.apyTarget.high}
+              precision={1}
+              className="body-xs ct-text-strong"
+            />
+            {" APY range"}
+          </>
+        ),
         visual: <DistributionRangeChart vault={vault} />,
       };
     }
@@ -224,7 +235,7 @@ function AllocationStackChart({ vault }: { vault: VaultDefinition }) {
               fill={ALLOC_COLORS[index] ?? "var(--ct-accent)"}
               opacity="0.9"
             />
-            <text x={currentX + 4} y="58" className="fill-(--ct-text-muted) text-[9px]">
+            <text x={currentX + 4} y="58" className="fill-(--ct-text-muted) text-micro">
               {weight}%
             </text>
           </g>
@@ -249,8 +260,8 @@ function DistributionRangeChart({ vault }: { vault: VaultDefinition }) {
       <polyline points={pointsHigh} fill="none" stroke="var(--ct-accent)" strokeWidth="2" />
       <polyline points={pointsLow} fill="none" stroke="var(--ct-status-info)" strokeWidth="2" />
       <line x1="24" y1="56" x2="288" y2="56" className="stroke-(--ct-border-soft)" />
-      <text x="24" y="68" className="fill-(--ct-text-muted) text-[9px]">M1</text>
-      <text x="266" y="68" className="fill-(--ct-text-muted) text-[9px]">M12</text>
+      <text x="24" y="68" className="fill-(--ct-text-muted) text-micro">M1</text>
+      <text x="266" y="68" className="fill-(--ct-text-muted) text-micro">M12</text>
     </svg>
   );
 }
@@ -270,8 +281,8 @@ function StressCorridorChart({ vault }: { vault: VaultDefinition }) {
       <polyline points={corridor} fill="none" stroke="var(--ct-status-warning)" strokeWidth="2.5" />
       <line x1="24" y1="54" x2="288" y2="54" className="stroke-(--ct-border-soft)" />
       <circle cx="152" cy={40 - reserve * 0.12} r="4" fill="var(--ct-accent)" />
-      <text x="24" y="68" className="fill-(--ct-text-muted) text-[9px]">Shock</text>
-      <text x="232" y="68" className="fill-(--ct-text-muted) text-[9px]">Recovery</text>
+      <text x="24" y="68" className="fill-(--ct-text-muted) text-micro">Shock</text>
+      <text x="232" y="68" className="fill-(--ct-text-muted) text-micro">Recovery</text>
     </svg>
   );
 }
@@ -429,9 +440,14 @@ export default async function ProductWorkspacePage({
               </div>
               <div className="admin-doc-inline-row admin-doc-inline-row--between">
                 <span className="body-sm ct-text-muted">APY range</span>
-                <span className="body-sm ct-text-strong">
-                  {inferredVault.apyTarget.low}–{inferredVault.apyTarget.high}%
-                  <span className="body-xs ct-text-muted ml-2">Estimated · range only</span>
+                <span className="body-sm ct-text-strong inline-flex flex-wrap items-baseline justify-end gap-x-2">
+                  <ApyRange
+                    low={inferredVault.apyTarget.low}
+                    high={inferredVault.apyTarget.high}
+                    precision={1}
+                    className="body-sm ct-text-strong"
+                  />
+                  <span className="body-xs ct-text-muted">Estimated · range only</span>
                 </span>
               </div>
               <div className="admin-doc-inline-row admin-doc-inline-row--between">
@@ -467,17 +483,15 @@ export default async function ProductWorkspacePage({
               <li key={note} className="admin-doc-inline-row admin-doc-inline-row--start">
                 <span
                   aria-hidden
-                  className="shrink-0 h-1.5 w-1.5 rounded-full bg-(--ct-accent)"
-                  style={{marginTop: "0.375rem"}}
+                  className="shrink-0 h-1.5 w-1.5 rounded-full bg-(--ct-accent) mt-1.5"
                 />
                 <span className="body-sm ct-text-muted">{note}</span>
               </li>
             ))}
           </ul>
-          <div className="admin-doc-callout admin-doc-callout--warning">
+          <div className="admin-doc-callout admin-doc-callout--warning admin-doc-stack admin-doc-stack--tight">
             <p className="stat-label ct-status-warning">Required disclaimer</p>
-            <p className="body-xs ct-text-muted" style={{marginTop: "var(--ct-space-1)"}}>
-
+            <p className="body-xs ct-text-muted">
               Projection conditionnelle aux hypothèses présentées, sans engagement de
               résultat. Souscription réservée aux investisseurs professionnels/qualifiés.
             </p>
