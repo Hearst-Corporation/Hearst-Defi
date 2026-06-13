@@ -11,6 +11,7 @@ export function DashboardPanelHeader({
   trustLabel,
   tone = "quiet",
   titleLevel = "widget",
+  id,
   className,
 }: {
   title: string;
@@ -22,6 +23,8 @@ export function DashboardPanelHeader({
   tone?: "primary" | "quiet";
   /** section = h2 (.h2) for portfolio/product sections; widget = h3 (.h3) default */
   titleLevel?: "section" | "widget";
+  /** Applied to the title element for aria-labelledby on parent surfaces. */
+  id?: string;
   className?: string;
 }) {
   const TitleTag = titleLevel === "section" ? "h2" : "h3";
@@ -32,6 +35,7 @@ export function DashboardPanelHeader({
       <div className="min-w-0 flex flex-col gap-1">
         {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
         <TitleTag
+          id={id}
           className={cn(
             titleRoleClass,
             "min-w-0 break-words",

@@ -15,10 +15,14 @@ import { formatProfileDate } from "@/lib/profile/format-date";
 import { kycBadgeVariant, kycLabel } from "@/lib/profile/kyc-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { Metric } from "@/components/ui/metric";
-import { MetricGrid, ProofRow } from "@/components/ui/nested-panel";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import {
+  DataRow,
+  LegalMetadataRow,
+  MetricGrid,
+} from "@/components/ui/nested-panel";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
@@ -78,38 +82,46 @@ export default async function ProfilePage() {
 
       <div className="dash-bento">
         <Card className="bento-col-6" aria-labelledby="prof-account-label">
-          <CardTitle id="prof-account-label">Identity</CardTitle>
+          <DashboardPanelHeader
+            id="prof-account-label"
+            title="Identity"
+            tone="quiet"
+          />
 
-          <ProofRow label="Member since">
-            {investor ? formatProfileDate(investor.createdAt) : "—"}
-          </ProofRow>
-          <ProofRow label="Wallet">
-            {session.walletAddress
-              ? abbreviateAddress(session.walletAddress)
-              : <span className="prof-empty">Not connected</span>}
-          </ProofRow>
-          <ProofRow label="KYC status">
-            {investor ? (
-              <Badge variant={kycBadgeVariant(investor.kycStatus)}>
-                {kycLabel(investor.kycStatus)}
-              </Badge>
-            ) : "—"}
-          </ProofRow>
-          <ProofRow label="Accreditation">
-            {investor?.accreditationAttestedAt ? (
-              <>Attested {formatProfileDate(investor.accreditationAttestedAt)}</>
-            ) : (
-              <span className="prof-empty">Not attested</span>
-            )}
-          </ProofRow>
+          <div>
+            <DataRow label="Member since">
+              {investor ? formatProfileDate(investor.createdAt) : "—"}
+            </DataRow>
+            <DataRow label="Wallet">
+              {session.walletAddress
+                ? abbreviateAddress(session.walletAddress)
+                : <span className="ct-text-faint italic">Not connected</span>}
+            </DataRow>
+            <LegalMetadataRow label="KYC status">
+              {investor ? (
+                <Badge variant={kycBadgeVariant(investor.kycStatus)}>
+                  {kycLabel(investor.kycStatus)}
+                </Badge>
+              ) : "—"}
+            </LegalMetadataRow>
+            <LegalMetadataRow label="Accreditation">
+              {investor?.accreditationAttestedAt ? (
+                <>Attested {formatProfileDate(investor.accreditationAttestedAt)}</>
+              ) : (
+                <span className="ct-text-faint italic">Not attested</span>
+              )}
+            </LegalMetadataRow>
+          </div>
         </Card>
 
         {hasPositions ? (
           <Card className="bento-col-6" aria-labelledby="prof-summary-label">
-            <div className="prof-card-header">
-              <CardTitle id="prof-summary-label">Investment summary</CardTitle>
-              <ProvenanceBadge kind="live" />
-            </div>
+            <DashboardPanelHeader
+              id="prof-summary-label"
+              title="Investment summary"
+              provenance="live"
+              tone="primary"
+            />
 
             <MetricGrid columns={2}>
               <Metric variant="nested" label="Active positions" value={positions.length} />
@@ -142,9 +154,13 @@ export default async function ProfilePage() {
         )}
 
         <Card className="bento-col-12" aria-labelledby="prof-security-label">
-          <CardTitle id="prof-security-label">Security</CardTitle>
+          <DashboardPanelHeader
+            id="prof-security-label"
+            title="Security"
+            tone="quiet"
+          />
 
-          <ul className="prof-security-list">
+          <div className="ct-divide-soft" role="list">
             <ProfileSecurityRow
               status="ok"
               title="Email / password"
@@ -195,7 +211,7 @@ export default async function ProfilePage() {
                 )
               }
             />
-          </ul>
+          </div>
 
           <div className="prof-signout">
             <SignOutButton />

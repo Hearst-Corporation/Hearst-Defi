@@ -79,7 +79,7 @@ describe("ProductWorkspacePage", () => {
     expect(html).toContain("HBP target mix");
     expect(html).toContain("Generated product artifact");
     expect(html).toContain("Target weights");
-    expect(html).toContain("10-20% APY range");
+    expect(html).toContain("10-20% target APY range");
   });
 
   it("keeps Scenario Lab as supporting evidence when scenario outputs are requested", async () => {

@@ -95,7 +95,7 @@ export function PfCockpitSubhead({
   meta,
   className,
 }: {
-  title: string;
+  title: ReactNode;
   meta?: ReactNode;
   className?: string;
 }) {

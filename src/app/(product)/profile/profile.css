@@ -1,7 +1,7 @@
 @import "../product-bento.css";
 
 /*
- * Profile — space-y-8 + dash-bento. Card material: ct-glass-panel graphite
+ * Profile — dash-bento layout. Card material: ct-glass-panel graphite
  * (cockpit.css). Empty investment summary: ct-empty-surface (DS §9).
  *
  * Responsive: container queries on .prof-shell (centre panel width), aligned with
@@ -35,23 +35,6 @@
   }
 }
 
-.prof-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-2);
-  margin-bottom: var(--ct-space-4);
-  min-width: 0;
-}
-
-.prof-card-header .h3 {
-  margin: 0;
-}
-
-[data-testid="profile-page"] .ct-card > .relative.ct-z-base > .h3:not(:last-child) {
-  margin-bottom: var(--ct-space-4);
-}
-
 .prof-disclaimer {
   margin: 0;
   font-style: italic;
@@ -73,73 +56,17 @@
   letter-spacing: var(--ct-tracking-tight);
 }
 
-.prof-empty {
-  color: var(--ct-text-faint);
-  font-style: italic;
-}
-
-/* Security rows — même rythme que ct-proof-row, avec dot + action */
-.prof-security-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.prof-security-row {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--ct-space-4);
-  padding: var(--ct-space-2_5) 0;
-  border-bottom: var(--ct-space-px) solid var(--ct-border-soft);
-}
-
-.prof-security-row:last-child {
-  border-bottom: none;
-}
-
-.prof-security-dot {
-  width: var(--ct-space-2);
-  height: var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  flex-shrink: 0;
-  margin-top: var(--ct-space-1_5);
-}
-
-.prof-security-dot--off {
-  background: var(--ct-text-faint);
-  box-shadow: none;
-}
-
-.prof-security-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-  flex: 1;
-  min-width: 0;
-}
-
-.prof-security-title {
-  font-weight: var(--ct-font-medium);
-}
-
-.prof-security-action {
-  flex-shrink: 0;
+.prof-signout {
+  margin-top: var(--ct-space-4);
 }
 
 @container product-doc (max-width: 40rem) {
-  .prof-security-row {
+  [data-testid="profile-page"] .pf-inline-row--between {
     flex-wrap: wrap;
-    gap: var(--ct-space-2) var(--ct-space-4);
   }
 
-  .prof-security-action {
+  [data-testid="profile-page"] .pf-inline-row--between > .shrink-0 {
     width: 100%;
     padding-left: calc(var(--ct-space-2) + var(--ct-space-4));
   }
-}
-
-.prof-signout {
-  margin-top: var(--ct-space-4);
 }

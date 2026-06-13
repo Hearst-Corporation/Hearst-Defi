@@ -476,7 +476,7 @@ describe("Widget placement in sections", () => {
     positions: [],
     "hero-pulse": [],
     "yield-allocation": ["yield-stack-widget", "allocation-donut-widget"],
-    "yield-trust": ["risk-pulse-widget", "proof-pulse-widget", "security-pulse-widget"],
+    "yield-trust": ["trust-panel-widget"],
     "activity-payouts": ["distrib-calendar-widget", "recent-activity-widget"],
   };
 
@@ -493,16 +493,8 @@ describe("Widget placement in sections", () => {
     expect(SECTION_WIDGETS["yield-allocation"]).toContain("allocation-donut-widget");
   });
 
-  it("yield-trust hosts risk-pulse-widget", () => {
-    expect(SECTION_WIDGETS["yield-trust"]).toContain("risk-pulse-widget");
-  });
-
-  it("yield-trust hosts proof-pulse-widget", () => {
-    expect(SECTION_WIDGETS["yield-trust"]).toContain("proof-pulse-widget");
-  });
-
-  it("yield-trust hosts security-pulse-widget", () => {
-    expect(SECTION_WIDGETS["yield-trust"]).toContain("security-pulse-widget");
+  it("yield-trust hosts the merged trust-panel-widget", () => {
+    expect(SECTION_WIDGETS["yield-trust"]).toContain("trust-panel-widget");
   });
 
   it("activity-payouts hosts distrib-calendar-widget", () => {

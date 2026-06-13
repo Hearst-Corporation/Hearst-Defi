@@ -1098,7 +1098,7 @@
 .product-doc .invest-flow-detail__panel-label {
   font-size: var(--ct-text-xs);
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--ct-tracking-wider);
   text-transform: uppercase;
   color: var(--ct-text-muted);
   margin-bottom: var(--ct-space-2);
@@ -1330,7 +1330,7 @@
 }
 
 .product-doc .regime-scenario-table tbody tr {
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
+  border-bottom: 1px solid var(--ct-border-ghost);
 }
 
 .product-doc .regime-scenario-table tbody tr:last-child {

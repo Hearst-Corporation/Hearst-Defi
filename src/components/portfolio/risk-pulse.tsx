@@ -182,7 +182,7 @@ interface ScoreRowProps {
   unavailable?: boolean;
 }
 
-function ScoreRow({ item, unavailable = false }: ScoreRowProps) {
+export function ScoreRow({ item, unavailable = false }: ScoreRowProps) {
   const label = DIMENSION_LABEL[item.dimension];
   const rowId = `risk-pulse-row-${item.dimension}`;
 
@@ -262,7 +262,7 @@ function CompositePendingRow() {
   );
 }
 
-function CompositeSection({
+export function CompositeSection({
   composite,
   compositeLabel,
   trend,

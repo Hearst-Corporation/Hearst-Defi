@@ -80,7 +80,7 @@ export function attestationState(
 
 // ── Formatting helpers ────────────────────────────────────────────────────────
 
-function formatDateHuman(date: Date): string {
+export function formatDateHuman(date: Date): string {
   return date.toLocaleDateString("en-US", {
     day: "numeric",
     month: "short",
@@ -88,7 +88,7 @@ function formatDateHuman(date: Date): string {
   });
 }
 
-function formatTimeUtc(date: Date): string {
+export function formatTimeUtc(date: Date): string {
   return date
     .toLocaleTimeString("en-US", {
       hour: "2-digit",
@@ -99,7 +99,7 @@ function formatTimeUtc(date: Date): string {
     .concat(" UTC");
 }
 
-function formatIso(date: Date): string {
+export function formatIso(date: Date): string {
   return date.toISOString();
 }
 

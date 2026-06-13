@@ -38,13 +38,17 @@ export function AllocationDonut({
   // dashArray = `${pct} ${100 - pct}`, dashOffset = -running cumulative.
   // Each arc starts where the previous ended. The allocation `pct` is the vault
   // mix; the $ value shown is that mix applied to THIS investor's holding
-  // (totalValueUsdc), not the vault-wide bucket value.
-  let cumulative = 0;
-  const segments = buckets.map((slice) => {
-    const investorValueUsdc = (totalValueUsdc * slice.pct) / 100;
-    const segment = { ...slice, investorValueUsdc, dashOffset: -cumulative };
-    cumulative += slice.pct;
-    return segment;
+  // (totalValueUsdc), not the vault-wide bucket value. dashOffset derived from
+  // the prefix sum so the reduce stays pure (no mutated outer accumulator).
+  const segments = buckets.map((slice, i) => {
+    const priorPct = buckets
+      .slice(0, i)
+      .reduce((sum, b) => sum + b.pct, 0);
+    return {
+      ...slice,
+      investorValueUsdc: (totalValueUsdc * slice.pct) / 100,
+      dashOffset: -priorPct,
+    };
   });
 
   const hasAllocation = !isPreviewShell && segments.length > 0;

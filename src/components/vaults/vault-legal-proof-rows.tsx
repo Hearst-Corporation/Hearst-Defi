@@ -5,6 +5,9 @@ import {
   SPV_LABELS,
   SPV_LABELS_LONG,
   STRATEGY_LABELS,
+  VAULT_AUDIT_LABEL,
+  VAULT_CUSTODY_LABEL,
+  VAULT_MULTISIG_LABEL,
 } from "@/lib/constants/vault";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import type { VaultLegalFacts } from "@/lib/vaults/vault-detail-facts";
@@ -44,9 +47,9 @@ export function VaultLegalProofRows({ facts, variant }: VaultLegalProofRowsProps
       <LegalMetadataRow label="Regulatory exemption">
         {REG_LABELS_LONG[facts.regExemption] ?? facts.regExemption}
       </LegalMetadataRow>
-      <LegalMetadataRow label="Custodian">Custody configuration pending</LegalMetadataRow>
-      <LegalMetadataRow label="Multisig threshold">Multisig approval required</LegalMetadataRow>
-      <LegalMetadataRow label="Audit">Spearbit · scheduled</LegalMetadataRow>
+      <LegalMetadataRow label="Custodian">{VAULT_CUSTODY_LABEL}</LegalMetadataRow>
+      <LegalMetadataRow label="Multisig threshold">{VAULT_MULTISIG_LABEL}</LegalMetadataRow>
+      <LegalMetadataRow label="Audit">{VAULT_AUDIT_LABEL}</LegalMetadataRow>
     </>
   );
 }

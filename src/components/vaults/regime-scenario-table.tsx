@@ -1,45 +1,6 @@
 import { ApyRange } from "@/components/ui/apy-range";
 import { cn } from "@/lib/cn";
-
-interface StressRegime {
-  id: string;
-  label: string;
-  scenario: string;
-  apyLow: number;
-  apyHigh: number;
-  miningPct: number;
-  btcTacticalPct: number;
-  usdcBasePct: number;
-  stableReservePct: number;
-  tone: "success" | "danger";
-}
-
-const STRESS_REGIMES: StressRegime[] = [
-  {
-    id: "bull",
-    label: "Bull",
-    scenario: "BTC rally > +20% QoQ",
-    apyLow: 12.8,
-    apyHigh: 15.2,
-    miningPct: 45,
-    btcTacticalPct: 35,
-    usdcBasePct: 12,
-    stableReservePct: 8,
-    tone: "success",
-  },
-  {
-    id: "bear",
-    label: "Bear",
-    scenario: "BTC drawdown > −30% QoQ",
-    apyLow: 5.2,
-    apyHigh: 8.4,
-    miningPct: 70,
-    btcTacticalPct: 5,
-    usdcBasePct: 15,
-    stableReservePct: 10,
-    tone: "danger",
-  },
-];
+import { METHODOLOGY_V1_STRESS_REGIMES, type StressRegime } from "@/lib/constants/vault";
 
 const TONE_TEXT: Record<StressRegime["tone"], string> = {
   success: "ct-status-success",
@@ -89,7 +50,7 @@ export function RegimeScenarioTable() {
           </tr>
         </thead>
         <tbody>
-          {STRESS_REGIMES.map((row) => (
+          {METHODOLOGY_V1_STRESS_REGIMES.map((row) => (
             <tr key={row.id}>
               <td className="ct-table-cell align-top">
                 <span className={cn("body-sm font-semibold", TONE_TEXT[row.tone])}>

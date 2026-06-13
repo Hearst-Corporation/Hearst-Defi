@@ -9,7 +9,7 @@ import {
   VaultFlowSection,
   VaultKpiCell,
 } from "@/components/vaults/vault-flow-primitives";
-import { MODEL_B_ONELINER } from "@/lib/constants/vault";
+import { APY_DISCLAIMER_SUFFIX, MODEL_B_ONELINER } from "@/lib/constants/vault";
 import type { VaultProduct } from "@/lib/data/vaults";
 import { formatFeeLine, formatUsdCompact } from "@/lib/vaults/product-display";
 import {
@@ -90,7 +90,7 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
 
           {/* Quiet disclaimer — secondary support, not a card */}
           <p className="body-xs ct-text-faint ct-leading-relaxed">
-            {vault.disclaimers} APY ranges are target projections — not guaranteed.
+            {vault.disclaimers} {APY_DISCLAIMER_SUFFIX}
           </p>
         </div>
       </div>

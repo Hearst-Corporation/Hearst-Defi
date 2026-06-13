@@ -336,14 +336,7 @@
 
   /* Stacked rows — content height only (no cross-row stretch) */
   .pf-container [data-section="yield-allocation"] .bento-col-8,
-  .pf-container [data-section="yield-allocation"] .bento-col-4,
-  .pf-container [data-section="yield-trust"] .bento-col-6 {
-    min-height: auto;
-  }
-
-  /* Stacked trust column unwinds to natural height when reflowed */
-  .pf-container [data-section="yield-trust"] .pf-trust-stack,
-  .pf-container [data-section="yield-trust"] .pf-trust-stack > .pf-cockpit-slot {
+  .pf-container [data-section="yield-allocation"] .bento-col-4 {
     min-height: auto;
   }
 
@@ -582,19 +575,6 @@
   min-height: 100%;
 }
 
-/* Trust row — Risk (6) | stacked Proof+Security (6). The right column splits
-   its height between the two short trust signals so the row fills evenly
-   beside the dense Risk Pulse, instead of three uneven half-empty panels. */
-.pf-trust-stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  min-height: 100%;
-}
-
-.pf-trust-stack > .pf-cockpit-slot {
-  flex: 1;
-}
 
 .pf-cockpit-panel {
   display: flex;
@@ -645,6 +625,23 @@
   margin-top: auto;
   padding-top: var(--ct-space-2);
   margin-bottom: 0;
+}
+
+/* Merged Trust panel — internal subsections separated by light dividers
+   (one panel, three sections — no nested card borders). */
+.pf-trust-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  border-top: 1px solid var(--ct-border-soft);
+  padding-top: var(--ct-space-3);
+  margin-top: var(--ct-space-3);
+}
+
+.pf-trust-section:first-child {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .pf-checklist-list {
@@ -909,19 +906,6 @@
   display: flex;
   flex-direction: column;
   min-height: 100%;
-}
-
-/* Trust row — Risk (6) and the stacked Proof+Security column (6) stretch to a
-   shared height so the row fills evenly (no half-empty panels). */
-.pf-container [data-section="yield-trust"] .bento-col-6 {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-  align-self: stretch;
-}
-
-.pf-container [data-section="yield-trust"] .pf-trust-stack > .pf-cockpit-slot {
-  min-height: 0;
 }
 
 /* Activity — content-sized columns (no cross-column stretch) */

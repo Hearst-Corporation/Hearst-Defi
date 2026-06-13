@@ -51,18 +51,8 @@ export default function PortfolioLoading() {
           className="pf-yield-trust-section"
           data-section="yield-trust"
         >
-          <div className="dash-bento pf-secondary-grid pf-trust-grid">
-            <div className="bento-col-6 pf-cockpit-slot pf-skeleton-widget--md">
-              <Skeleton className="pf-cockpit-panel h-full w-full" />
-            </div>
-            <div className="bento-col-6 pf-trust-stack">
-              <div className="pf-cockpit-slot pf-skeleton-widget--sm">
-                <Skeleton className="pf-cockpit-panel h-full w-full" />
-              </div>
-              <div className="pf-cockpit-slot pf-skeleton-widget--sm">
-                <Skeleton className="pf-cockpit-panel h-full w-full" />
-              </div>
-            </div>
+          <div className="pf-cockpit-slot pf-skeleton-widget">
+            <Skeleton className="pf-cockpit-panel h-full w-full" />
           </div>
         </ProductSection>
       </div>

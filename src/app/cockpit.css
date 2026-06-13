@@ -21,6 +21,7 @@
   --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 82%, #ffffff);
   --ct-accent-soft: color-mix(in srgb, var(--ct-accent) 18%, transparent);
   --ct-border-accent: color-mix(in srgb, var(--ct-accent) 55%, transparent);
+  --ct-border-ghost: color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
 
   /* Readability pass — secondary text tokens were too dim on the pure-black
      background (muted 0.48 / faint 0.40 from the package). Lifted so labels and

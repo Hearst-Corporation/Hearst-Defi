@@ -70,3 +70,52 @@ export function vaultStatusLabel(status: VaultProduct["status"]): string {
 /** C-13 — verbatim Model B one-liner for LP surfaces. */
 export const MODEL_B_ONELINER =
   "Principal held in a USDC cash reserve — not deployed on-chain; yield is a monthly mining-revenue-share distribution.";
+
+/** Static institutional status labels for the investor term sheet (vault-legal-proof-rows). */
+export const VAULT_CUSTODY_LABEL = "Custody configuration pending";
+export const VAULT_MULTISIG_LABEL = "Multisig approval required";
+export const VAULT_AUDIT_LABEL = "Spearbit · scheduled";
+
+/** Appended after vault.disclaimers on the LP term sheet. */
+export const APY_DISCLAIMER_SUFFIX = "APY ranges are target projections — not guaranteed.";
+
+/** Methodology v1.0 stress regime data — Bull / Bear postures. */
+export interface StressRegime {
+  id: string;
+  label: string;
+  scenario: string;
+  apyLow: number;
+  apyHigh: number;
+  miningPct: number;
+  btcTacticalPct: number;
+  usdcBasePct: number;
+  stableReservePct: number;
+  tone: "success" | "danger";
+}
+
+export const METHODOLOGY_V1_STRESS_REGIMES: StressRegime[] = [
+  {
+    id: "bull",
+    label: "Bull",
+    scenario: "BTC rally > +20% QoQ",
+    apyLow: 12.8,
+    apyHigh: 15.2,
+    miningPct: 45,
+    btcTacticalPct: 35,
+    usdcBasePct: 12,
+    stableReservePct: 8,
+    tone: "success",
+  },
+  {
+    id: "bear",
+    label: "Bear",
+    scenario: "BTC drawdown > −30% QoQ",
+    apyLow: 5.2,
+    apyHigh: 8.4,
+    miningPct: 70,
+    btcTacticalPct: 5,
+    usdcBasePct: 15,
+    stableReservePct: 10,
+    tone: "danger",
+  },
+];

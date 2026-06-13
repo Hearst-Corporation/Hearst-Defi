@@ -22,14 +22,12 @@ import { AllocationDonut } from "@/components/portfolio/allocation-donut";
 import { ValueChart } from "@/components/portfolio/value-chart";
 import { PositionsList } from "@/components/portfolio/positions-list";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
-import { RiskPulse } from "@/components/portfolio/risk-pulse";
+import { TrustPanel } from "@/components/portfolio/trust-panel";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
-import { ProofPulse } from "@/components/portfolio/proof-pulse";
 import { YieldStack } from "@/components/portfolio/yield-stack";
 import { LayoutPreviewBanner } from "@/components/portfolio/layout-preview-banner";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
-import { SecurityPulse } from "@/components/portfolio/security-pulse";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
 import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
@@ -198,23 +196,15 @@ export default async function PortfolioPage() {
           className="pf-yield-trust-section"
           data-section="yield-trust"
         >
-          <div className="dash-bento pf-secondary-grid pf-trust-grid">
-            <div data-testid="risk-pulse-widget" className="bento-col-6 pf-cockpit-slot">
-              <RiskPulse {...riskPulseProps} previewZeros={previewZeros} />
-            </div>
-            <div className="bento-col-6 pf-trust-stack">
-              <div data-testid="proof-pulse-widget" className="pf-cockpit-slot">
-                <ProofPulse
-                  {...(previewZeros
-                    ? zeroProofPulseProps(previewAsOf)
-                    : proofPulseProps)}
-                  previewZeros={previewZeros}
-                />
-              </div>
-              <div data-testid="security-pulse-widget" className="pf-cockpit-slot">
-                <SecurityPulse previewZeros={previewZeros} />
-              </div>
-            </div>
+          <div
+            data-testid="trust-panel-widget"
+            className="pf-cockpit-slot"
+          >
+            <TrustPanel
+              risk={riskPulseProps}
+              proof={previewZeros ? zeroProofPulseProps(previewAsOf) : proofPulseProps}
+              previewZeros={previewZeros}
+            />
           </div>
         </ProductSection>
       </div>
