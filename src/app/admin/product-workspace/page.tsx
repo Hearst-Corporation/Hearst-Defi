@@ -68,16 +68,16 @@ const BUCKET_LABELS: Record<keyof VaultDefinition["allocationTargets"], string> 
 };
 
 const CALC_NOTES = [
-  "APY headline stays a range and must carry provenance before publication.",
-  "Mining contribution is treated as estimated until partner attestation is attached.",
-  "Monthly distribution notes must include assumptions and a conditional-projection disclaimer.",
-  "Scenario Lab becomes a downstream validation step, not the product creation surface.",
+  "Headline APY stays a range; attach provenance before any publication.",
+  "Mining yield remains estimated until partner attestation is on file.",
+  "Distribution copy must state assumptions and a conditional-projection disclaimer.",
+  "Scenario Lab stress-tests an already framed product — it does not create one here.",
 ] as const;
 
 const NEXT_ACTIONS = [
-  "Attach provenance evidence for every metric before publication.",
-  "If simulation is required, run Scenario Lab and paste outputs back here.",
-  "Capture the final human decision in governance or review notes.",
+  "Attach provenance for every published metric.",
+  "If stress validation is needed, run Scenario Lab and record outputs in this workspace.",
+  "Log the final human decision in governance or review notes.",
 ] as const;
 
 const OUT_OF_MANDATE_RE =
@@ -86,18 +86,18 @@ const OUT_OF_MANDATE_RE =
 const DECISION_LANES = [
   {
     label: "Proceed",
-    status: "Draft workspace ready",
-    detail: "Use once objective, allocation bounds and compliance posture are explicit.",
+    status: "Draft ready",
+    detail: "Objective, allocation bounds, and compliance posture are documented.",
   },
   {
     label: "Hold",
-    status: "Evidence missing",
-    detail: "Pause if provenance, legal wrapper or partner attestation is incomplete.",
+    status: "Evidence gap",
+    detail: "Pause when provenance, legal wrapper, or partner attestation is incomplete.",
   },
   {
     label: "Reject",
     status: "Out of mandate",
-    detail: "Reject if product needs autonomous execution, single-point yield, or retail access.",
+    detail: "Autonomous execution, single-point yield, or retail access is required.",
   },
 ] as const;
 
@@ -310,23 +310,16 @@ function StressCorridorChart({ vault }: { vault: VaultDefinition }) {
   );
 }
 
-function productThesis(vault: VaultDefinition, objective: string | undefined): string {
-  if (objective) {
-    return `Frame ${vault.ticker} around the admin objective: ${objective}`;
-  }
-  return `Frame ${vault.ticker} as an independent product workspace before any vault draft or simulation run.`;
-}
-
 function scenarioOutputs(objective: string | undefined): string[] {
   if (objective && isExplicitSimulationIntent(objective)) {
     return [
-      "Scenario output requested: use Scenario Lab as a supporting validation tool.",
-      "Bring back APY range, drawdown estimate, monthly distribution range and PTAI notes into this workspace.",
+      "Scenario validation requested — Scenario Lab is supporting evidence only.",
+      "Return APY range, drawdown estimate, monthly distribution range, and PTAI notes to this workspace.",
     ];
   }
   return [
     "No scenario output requested yet.",
-    "If needed, run Scenario Lab later and attach results here as supporting evidence.",
+    "Run Scenario Lab later if needed; paste results here as supporting evidence.",
   ];
 }
 
@@ -366,12 +359,12 @@ export default async function ProductWorkspacePage({
           The thesis is the dominant first-viewport object; no in-card h2 restates it. */}
       <AdminPageHeader
         title="Product Workspace"
-        eyebrow="Agent-created product surface"
-        description="Independent workspace for new product framing. It captures the agent objective, chart specs, calculation notes and decision gates before any Scenario Lab validation."
+        eyebrow="Strategy"
+        description="Document product framing before vault deployment. Every vault action, allocation, and publication stays human-approved."
         actions={
           <div className="admin-doc-inline-row admin-doc-inline-row--dense">
             <Badge variant={autostart ? "success" : "default"}>
-              {autostart ? "Seeded by agent" : "Manual"}
+              {autostart ? "Seeded by agent" : "Manual entry"}
             </Badge>
             {scenarioSecondary ? (
               <Badge variant="warning">Scenario validation queued</Badge>
@@ -380,94 +373,90 @@ export default async function ProductWorkspacePage({
         }
       >
         <div className="pw-hero admin-doc-divider-section">
-          <span className="eyebrow">Product objective</span>
+          <span className="eyebrow">Objective</span>
           <div className="pw-hero__row">
             <p className="pw-hero__thesis">
-              {objective ?? "New product objective pending"}
+              {objective ??
+                "No objective loaded. Seed via cockpit agent or add an objective query parameter."}
             </p>
             <div className="pw-hero__aside">
               <Badge variant="accent">Human-in-the-loop</Badge>
               <span className="body-xs ct-text-muted text-right">
-                {decision.label} · {decision.status}
+                {decision.label} — {decision.status}
               </span>
+              <p className="body-xs ct-text-faint text-right ct-prose-md">
+                {decision.detail}
+              </p>
             </div>
           </div>
         </div>
       </AdminPageHeader>
 
-      {/* L2 — Product brief & decision. Flat L4 sub-rows inside one L3 card. */}
-      <section
-        aria-labelledby="pw-brief-heading"
-        className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]"
-      >
-        <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--relaxed">
-          <h2 id="pw-brief-heading" className="h2">
-            Brief &amp; decision
-          </h2>
-          <p className="body-sm ct-text-muted ct-prose-lg">
-            The agent can frame, visualize and document the product workspace, but it
-            cannot create a vault, execute allocations, publish a memo or bypass approvals.
-            This page is the decision room; Scenario Lab is only used later for stress
-            validation.
-          </p>
+      {/* L2 — Mandate, inference, and calculation guardrails. */}
+      <section aria-labelledby="pw-brief-heading" className="admin-doc-section">
+        <div className="admin-doc-section__head">
+          <div>
+            <p className="eyebrow">Operator brief</p>
+            <h2 id="pw-brief-heading" className="h2">
+              Mandate &amp; inference
+            </h2>
+          </div>
+        </div>
 
-          {/* Agent decision — flat row, no nested card */}
-          <div className="admin-doc-divider-section admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
+        <div className="admin-doc-split-grid admin-doc-split-grid--brief">
+          <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--relaxed">
             <div className="admin-doc-stack admin-doc-stack--tight">
-              <span className="eyebrow">Agent decision</span>
-              <p className="body-sm ct-text-strong">
-                {decision.label}: {decision.status}
+              <span className="eyebrow">What this surface does</span>
+              <p className="body-sm ct-text-muted ct-prose-lg">
+                The agent may frame, visualize, and document a product workspace. It
+                cannot create a vault, move allocations, publish a memo, or bypass
+                approvals. Scenario Lab runs later for stress validation only.
               </p>
-              <p className="body-xs ct-text-muted">{decision.detail}</p>
             </div>
-            <ProvenanceBadge kind="manual" />
-          </div>
 
-          {/* Product thesis */}
-          <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight">
-            <span className="eyebrow">Product thesis</span>
-            <p className="body-sm ct-text-muted">{productThesis(inferredVault, objective)}</p>
-          </div>
-
-          {/* Generated artifact */}
-          <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight">
-            <span className="eyebrow">Generated product artifact</span>
-            <p className="body-sm ct-text-muted">
-              Draft artifact: {inferredVault.ticker} product workspace with thesis,
-              assumptions, chart specs, calculation notes, decision gate and next actions.
-            </p>
-            {persistedDraft ? (
-              <p className="body-xs ct-text-faint">
-                Persisted draft: {persistedDraft.vaultTicker} · updated{" "}
-                {persistedDraft.updatedAtIso}
-              </p>
-            ) : null}
-          </div>
-
-          {scenarioSecondary ? (
             <div className="admin-doc-divider-section admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
               <div className="admin-doc-stack admin-doc-stack--tight">
-                <span className="eyebrow">Secondary validation</span>
+                <span className="eyebrow">Current gate</span>
                 <p className="body-sm ct-text-strong">
-                  {secondaryHint ?? "Scenario Lab validation requested"}
-                </p>
-                <p className="body-xs ct-text-muted">
-                  Keep this workspace as the product source of truth, then run Scenario
-                  Lab as supporting evidence.
+                  {decision.label} — {decision.status}
                 </p>
               </div>
-              <Button variant="secondary" size="sm" asChild>
-                <Link href={buildScenarioLabHref(objective)}>Open Scenario Lab</Link>
-              </Button>
+              <ProvenanceBadge kind="manual" />
             </div>
-          ) : null}
 
-          {/* Vault parameters — flat definition list */}
-          <div className="admin-doc-divider-section">
-            <span className="eyebrow admin-doc-divider-section__label">Vault parameters</span>
+            {persistedDraft ? (
+              <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight">
+                <span className="eyebrow">Saved draft</span>
+                <p className="body-sm ct-text-muted">
+                  {persistedDraft.vaultTicker} workspace · last updated{" "}
+                  {persistedDraft.updatedAtIso}
+                </p>
+              </div>
+            ) : null}
+
+            {scenarioSecondary ? (
+              <div className="admin-doc-divider-section admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
+                <div className="admin-doc-stack admin-doc-stack--tight">
+                  <span className="eyebrow">Scenario validation</span>
+                  <p className="body-sm ct-text-strong">
+                    {secondaryHint ?? "Scenario Lab run requested"}
+                  </p>
+                  <p className="body-xs ct-text-muted">
+                    Keep this workspace as source of truth. Scenario Lab supplies
+                    supporting evidence only.
+                  </p>
+                </div>
+                <Button variant="secondary" size="sm" asChild>
+                  <Link href={buildScenarioLabHref(objective)}>Open Scenario Lab</Link>
+                </Button>
+              </div>
+            ) : null}
+
+            <div className="admin-doc-divider-section">
+              <span className="eyebrow admin-doc-divider-section__label">Inferred vault</span>
             <div className="admin-doc-stack admin-doc-stack--tight">
               <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                <span className="body-sm ct-text-muted">Inferred vault</span>
+                <span className="body-sm ct-text-muted">Product line</span>
                 <span className="body-sm ct-text-strong">
                   {inferredVault.label} · {inferredVault.ticker}
                 </span>
@@ -495,16 +484,16 @@ export default async function ProductWorkspacePage({
             </div>
           </div>
 
-          {/* Decision gate — flat list, no card per lane */}
+          {/* Decision gate — reference lanes */}
           <div className="admin-doc-divider-section">
-            <span className="eyebrow admin-doc-divider-section__label">Decision gate</span>
+            <span className="eyebrow admin-doc-divider-section__label">Gate reference</span>
             <div className="admin-doc-stack admin-doc-stack--tight">
               {DECISION_LANES.map((lane) => (
                 <div
                   key={lane.label}
                   className="admin-doc-inline-row admin-doc-inline-row--start"
                 >
-                  <span className="body-sm ct-text-strong shrink-0 w-16">{lane.label}</span>
+                  <span className="body-sm ct-text-strong admin-doc-lane-label">{lane.label}</span>
                   <span className="body-sm ct-text-muted">
                     {lane.status} — {lane.detail}
                   </span>
@@ -512,35 +501,36 @@ export default async function ProductWorkspacePage({
               ))}
             </div>
           </div>
-        </Card>
+          </Card>
 
-        <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
-          <CardTitle>Calculation Notes</CardTitle>
-          <ul className="admin-doc-stack admin-doc-stack--tight">
-            {CALC_NOTES.map((note) => (
-              <li key={note} className="admin-doc-inline-row admin-doc-inline-row--start">
-                <span aria-hidden className="pw-bullet" />
-                <span className="body-sm ct-text-muted">{note}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="admin-doc-callout admin-doc-callout--warning admin-doc-stack admin-doc-stack--tight">
-            <p className="stat-label ct-status-warning">Required disclaimer</p>
-            <p className="body-xs ct-text-muted">
-              Conditional projection — not a committed outcome. Subscription
-              reserved for professional / qualified investors.
-            </p>
-          </div>
-        </Card>
+          <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
+            <CardTitle>Calculation Notes</CardTitle>
+            <ul className="admin-doc-stack admin-doc-stack--tight">
+              {CALC_NOTES.map((note) => (
+                <li key={note} className="admin-doc-inline-row admin-doc-inline-row--start">
+                  <span aria-hidden className="pw-bullet" />
+                  <span className="body-sm ct-text-muted">{note}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="admin-doc-callout admin-doc-stack admin-doc-stack--tight">
+              <p className="stat-label ct-status-warning">Required disclaimer</p>
+              <p className="body-xs ct-text-muted">
+                Conditional projection — not a committed outcome. For professional /
+                qualified investors only.
+              </p>
+            </div>
+          </Card>
+        </div>
       </section>
 
-      {/* L2 — Reference notes (three L3 modules). */}
+      {/* L2 — Supporting evidence */}
       <section aria-labelledby="pw-notes-heading" className="admin-doc-section">
         <div className="admin-doc-section__head">
           <div>
-            <p className="eyebrow">Methodology context</p>
+            <p className="eyebrow">Evidence</p>
             <h2 id="pw-notes-heading" className="h2">
-              Reference notes
+              Supporting material
             </h2>
           </div>
         </div>
@@ -581,16 +571,16 @@ export default async function ProductWorkspacePage({
         </div>
       </section>
 
-      {/* L2 — Agent graph specs. */}
+      {/* L2 — Chart pack for review */}
       <section aria-labelledby="pw-graphs-heading" className="admin-doc-section">
         <div className="admin-doc-section__head">
           <div>
-            <p className="eyebrow">Agent graph specs</p>
+            <p className="eyebrow">Review pack</p>
             <h2 id="pw-graphs-heading" className="h2">
-              Visuals to attach before review
+              Charts to attach
             </h2>
           </div>
-          <Badge variant="default">Runtime charts</Badge>
+          <Badge variant="default">Estimated visuals</Badge>
         </div>
 
         <div className="admin-doc-card-grid-3">
@@ -607,7 +597,7 @@ export default async function ProductWorkspacePage({
                 </div>
                 <ProvenanceBadge kind="estimated" compact />
               </div>
-              <div className="admin-doc-callout">
+              <div className="admin-doc-inset">
                 {spec.visual}
               </div>
               <p className="body-xs ct-text-strong">{spec.metric}</p>
@@ -615,7 +605,8 @@ export default async function ProductWorkspacePage({
               <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight">
                 <p className="body-xs ct-text-muted">{spec.note}</p>
                 <p className="body-xs ct-text-faint">
-                  Generated from methodology assumptions; attach external evidence before review.
+                  Illustrative from methodology assumptions. Attach external evidence
+                  before review.
                 </p>
               </div>
             </Card>

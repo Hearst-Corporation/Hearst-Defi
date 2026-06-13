@@ -46,18 +46,18 @@ describe("ProductWorkspacePage", () => {
     expect(html).toContain("Product Workspace");
     expect(html).toContain("Seeded by agent");
     expect(html).toContain("Créer une offre Defensive avec notes de calcul");
-    expect(html).toContain("Proceed: Draft workspace ready");
+    expect(html).toContain("Proceed — Draft ready");
     expect(html).toContain("Hearst Defensive Vault");
     expect(html).toContain("5-8%");
     expect(html).toContain("Calculation Notes");
-    expect(html).toContain("Agent graph specs");
-    expect(html).toContain("Runtime charts");
-    expect(html).toContain("Persisted draft: HDV");
+    expect(html).toContain("Charts to attach");
+    expect(html).toContain("Estimated visuals");
+    expect(html).toContain("Saved draft");
     expect(html).toContain("Assumptions");
     expect(html).toContain("Scenario Outputs");
     expect(html).toContain("Next Actions");
     expect(html).toContain("Conditional projection — not a committed outcome");
-    expect(html).toContain("Scenario Lab is only used later");
+    expect(html).toContain("Scenario Lab stress-tests");
     expect(upsertProductWorkspaceDraft).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "admin-user",
@@ -77,7 +77,6 @@ describe("ProductWorkspacePage", () => {
     expect(html).toContain("10-20%");
     expect(html).toContain("BTC tactical 45%");
     expect(html).toContain("HBP target mix");
-    expect(html).toContain("Generated product artifact");
     expect(html).toContain("Target weights");
     expect(html).toContain("10-20% target APY range");
   });
@@ -88,9 +87,9 @@ describe("ProductWorkspacePage", () => {
       objective: "Créer un produit Defensive puis simuler un stress test",
     });
 
-    expect(html).toContain("Scenario output requested");
-    expect(html).toContain("use Scenario Lab as a supporting validation tool");
-    expect(html).toContain("paste outputs back here");
+    expect(html).toContain("Scenario validation requested");
+    expect(html).toContain("supporting evidence only");
+    expect(html).toContain("Return APY range");
   });
 
   it("renders a secondary Scenario Lab action for mixed agent intents", async () => {
@@ -103,7 +102,7 @@ describe("ProductWorkspacePage", () => {
     });
 
     expect(html).toContain("Scenario validation queued");
-    expect(html).toContain("Secondary validation");
+    expect(html).toContain("Scenario validation");
     expect(html).toContain("Scenario Lab validation requested");
     expect(html).toContain("Open Scenario Lab");
     expect(html).toContain(
@@ -113,13 +112,13 @@ describe("ProductWorkspacePage", () => {
 
   it("holds manual workspaces and rejects out-of-mandate objectives", async () => {
     const manualHtml = await renderPage({});
-    expect(manualHtml).toContain("Manual");
-    expect(manualHtml).toContain("Hold: Evidence missing");
+    expect(manualHtml).toContain("Manual entry");
+    expect(manualHtml).toContain("Hold — Evidence gap");
 
     const rejectHtml = await renderPage({
       autostart: "1",
       objective: "Create a retail product with no KYC and fixed yield",
     });
-    expect(rejectHtml).toContain("Reject: Out of mandate");
+    expect(rejectHtml).toContain("Reject — Out of mandate");
   });
 });

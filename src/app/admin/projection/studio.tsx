@@ -551,7 +551,7 @@ export function ProjectionStudio() {
         </Button>
 
         {error && (
-          <p className="body-xs admin-doc-callout admin-doc-callout--warning">
+          <p className="body-xs admin-doc-callout">
             {error}
           </p>
         )}
@@ -616,7 +616,7 @@ export function ProjectionStudio() {
 
             {/* Batch: heatmap */}
             {result.runIds.length > 1 && (
-              <div className="admin-doc-stack admin-doc-stack--actions admin-doc-callout">
+              <div className="admin-doc-stack admin-doc-stack--actions admin-doc-inset">
                 <p className="eyebrow ct-text-muted">
                   Projection Heatmap — {result.runIds.length} cells
                 </p>
@@ -665,7 +665,7 @@ export function ProjectionStudio() {
             )}
 
             {/* "Not guaranteed" disclaimer — non-negotiable #10 */}
-            <p className="body-xs ct-text-faint admin-doc-callout">
+            <p className="body-xs ct-text-faint admin-doc-inset">
               <strong className="ct-text-muted">Disclaimer:</strong>{" "}
               Projections are conditional on stated assumptions and are not guaranteed.
               Rule-based engine — no Monte Carlo. Past performance does not predict future

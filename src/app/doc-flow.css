@@ -296,12 +296,17 @@
 .admin-doc .admin-doc-split-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--ct-space-6);
+  gap: var(--ct-space-4);
 }
 
 @container admin-doc (min-width: 48rem) {
   .admin-doc .admin-doc-split-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Product workspace brief — main column + calculation-notes sidebar. */
+  .admin-doc .admin-doc-split-grid--brief {
+    grid-template-columns: minmax(0, 1.4fr) minmax(20rem, 0.8fr);
   }
 }
 
@@ -336,17 +341,18 @@
   }
 }
 
-/* Inset callout box — tonal surface inside a Card (chart wrapper, disclaimer…) */
-.admin-doc-callout {
+/* Inset surface inside a Card (chart wrapper, heatmap stage, disclaimer box…) */
+.admin-doc-inset {
   border-radius: var(--ct-radius-xl);
   border: 1px solid var(--ct-border-soft);
   background: var(--ct-surface-1);
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 
-.admin-doc-callout--warning {
-  border-color: var(--ct-status-warning-border);
-  background: var(--ct-status-warning-soft);
+/* Decision-gate lane label column (Proceed / Hold / Reject). */
+.admin-doc .admin-doc-lane-label {
+  flex-shrink: 0;
+  width: var(--ct-space-16);
 }
 
 /* Product-workspace L1 hero (DESIGN_SYSTEM §13.4 — thesis fused with the page
