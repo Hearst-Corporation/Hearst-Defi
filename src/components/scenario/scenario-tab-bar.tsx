@@ -1,7 +1,7 @@
 "use client";
 
 // ScenarioTabBar — top-level tab toggle (Scenario / Backtest).
-// Uses the same admin filter tab primitive as /admin/vaults (admin-doc-inline-row + ct-pill).
+// Uses admin segmented control (ct-seg-track + ct-seg-btn) — same contract as doc-flow.
 
 import { cn } from "@/lib/cn";
 
@@ -30,27 +30,29 @@ export function ScenarioTabBar({ active, onChange }: ScenarioTabBarProps) {
       role="tablist"
       aria-label="Scenario Lab tabs"
       aria-orientation="horizontal"
-      className="admin-doc-inline-row"
+      className="ct-seg-scroll min-w-0"
       onKeyDown={handleKeyDown}
     >
-      {(["scenario", "backtest"] as LabTab[]).map((tab) => {
-        const isActive = active === tab;
-        return (
-          <button
-            key={tab}
-            type="button"
-            role="tab"
-            id={`tab-${tab}`}
-            aria-controls={`tabpanel-${tab}`}
-            aria-selected={isActive}
-            tabIndex={isActive ? 0 : -1}
-            onClick={() => onChange(tab)}
-            className={cn("ct-pill capitalize", isActive && "accent")}
-          >
-            {tab === "scenario" ? "Scenario" : "Backtest"}
-          </button>
-        );
-      })}
+      <div className="admin-doc-seg-track ct-seg-track">
+        {(["scenario", "backtest"] as LabTab[]).map((tab) => {
+          const isActive = active === tab;
+          return (
+            <button
+              key={tab}
+              type="button"
+              role="tab"
+              id={`tab-${tab}`}
+              aria-controls={`tabpanel-${tab}`}
+              aria-selected={isActive}
+              tabIndex={isActive ? 0 : -1}
+              onClick={() => onChange(tab)}
+              className={cn("ct-seg-btn capitalize", isActive && "active")}
+            >
+              {tab === "scenario" ? "Scenario" : "Backtest"}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

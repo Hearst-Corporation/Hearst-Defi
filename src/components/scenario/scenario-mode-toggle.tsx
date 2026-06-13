@@ -1,7 +1,6 @@
 "use client";
 
 // ScenarioModeToggle — Single / Compare sub-tab toggle.
-// Same filter-tab primitive as admin vaults / governance pages.
 
 import { cn } from "@/lib/cn";
 
@@ -33,30 +32,32 @@ export function ScenarioModeToggle({
       role="tablist"
       aria-label="Scenario mode"
       aria-orientation="horizontal"
-      className="admin-doc-inline-row"
+      className="ct-seg-scroll shrink-0"
       onKeyDown={handleKeyDown}
     >
-      {(["single", "compare"] as ScenarioMode[]).map((mode) => {
-        const isActive = active === mode;
-        return (
-          <button
-            key={mode}
-            type="button"
-            role="tab"
-            id={`tab-mode-${mode}`}
-            aria-controls={`tabpanel-mode-${mode}`}
-            aria-selected={isActive}
-            tabIndex={isActive ? 0 : -1}
-            onClick={() => onChange(mode)}
-            className={cn(
-              "ct-pill uppercase body-xs font-semibold tracking-wide",
-              isActive && "accent",
-            )}
-          >
-            {mode}
-          </button>
-        );
-      })}
+      <div className="admin-doc-seg-track ct-seg-track">
+        {(["single", "compare"] as ScenarioMode[]).map((mode) => {
+          const isActive = active === mode;
+          return (
+            <button
+              key={mode}
+              type="button"
+              role="tab"
+              id={`tab-mode-${mode}`}
+              aria-controls={`tabpanel-mode-${mode}`}
+              aria-selected={isActive}
+              tabIndex={isActive ? 0 : -1}
+              onClick={() => onChange(mode)}
+              className={cn(
+                "ct-seg-btn uppercase body-xs font-semibold tracking-wide",
+                isActive && "active",
+              )}
+            >
+              {mode}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

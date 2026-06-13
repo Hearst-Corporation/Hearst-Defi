@@ -553,22 +553,12 @@
 
 /* Toolbar row: Scenario/Backtest (left) · Single/Compare (right, scenario tab). */
 .scenario-lab-toolbar {
-  display: grid;
+  display: flex;
   min-width: 0;
-  grid-template-columns: minmax(0, 1fr) auto;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: var(--ct-space-3);
-}
-
-@container lab-shell (max-width: 35.999rem) {
-  .scenario-lab-toolbar {
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: stretch;
-  }
-
-  .scenario-lab-toolbar > :last-child {
-    justify-self: start;
-  }
 }
 
 .scenario-preset-bar {
@@ -603,6 +593,8 @@
 .scenario-preset-bar__button {
   display: inline-flex;
   flex: 0 0 auto;
+  appearance: none;
+  -webkit-appearance: none;
   min-width: 9rem;
   height: auto;
   flex-direction: column;
@@ -667,7 +659,7 @@
   color: var(--ct-text-body);
 }
 
-@container lab-shell (min-width: 36rem) {
+@container admin-doc (min-width: 40rem) {
   .scenario-preset-bar .scenario-preset-bar__items {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -696,7 +688,7 @@
   gap: var(--ct-space-3);
 }
 
-@container lab-shell (min-width: 28rem) {
+@container admin-doc (min-width: 32rem) {
   .backtest-period-rail .scenario-preset-bar__items {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -742,8 +734,8 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
-/* Desktop: input column + central flow column. */
-@container lab-shell (min-width: 42rem) {
+/* Desktop: input column + central flow column (admin-doc width, not nested shell). */
+@container admin-doc (min-width: 48rem) {
   .scenario-lab-workspace {
     grid-template-columns: minmax(18rem, 32fr) minmax(0, 68fr);
     gap: var(--ct-space-5);
@@ -751,7 +743,7 @@
   }
 }
 
-@container lab-shell (max-width: 41.999rem) {
+@container admin-doc (max-width: 47.999rem) {
   .scenario-lab-input-card {
     max-height: clamp(24rem, 65dvh, 32rem);
   }
@@ -1027,7 +1019,7 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
-@container lab-shell (min-width: 42rem) {
+@container admin-doc (min-width: 48rem) {
   .scenario-compare-shell__selectors,
   .scenario-compare-shell__panels {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1041,7 +1033,7 @@
   gap: var(--ct-space-4);
 }
 
-@container lab-shell (max-width: 35.999rem) {
+@container admin-doc (max-width: 35.999rem) {
   .scenario-compare-delta__grid {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--ct-space-3);
@@ -2419,6 +2411,15 @@ pre.ct-surface-1.rounded-md {
   background: var(--ct-accent-soft);
   border-color: var(--ct-border-accent);
   color: var(--ct-text-primary);
+}
+
+/* Native buttons need UA reset before ct-pill / ct-seg-btn tokens apply. */
+button.ct-pill,
+button.ct-seg-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 /* ── FORM INPUTS — ct-input / ct-select / ct-textarea ── */
