@@ -1,18 +1,18 @@
 export const POR_ATTESTATION_EMPTY = {
   message: "No on-chain Proof of Reserves attestation yet.",
   detail:
-    "Contracts are live on Base Sepolia — the publisher will post the first attestation after the initial vault period closes.",
+    "Contracts are live on Base Sepolia (testnet) — the publisher will post the first attestation after the initial vault period closes.",
 } as const;
 
 export const EVENT_TIMELINE_EMPTY = {
   message: "No on-chain events yet.",
-  detail: "Contracts are live on Base Sepolia — events appear here as the vault operates.",
+  detail: "Contracts are live on Base Sepolia (testnet) — events appear here as the vault operates.",
 } as const;
 
 export const PLATFORM_PROOFS_EMPTY = {
   message: "No proofs published yet",
   detail:
-    "Off-chain attestations, custody snapshots, and audits will appear here once posted. On-chain entries are read live from Base Sepolia.",
+    "Off-chain attestations, custody snapshots, and audits will appear here once posted. On-chain entries are read live from Base Sepolia (testnet).",
 } as const;
 
 export function filteredProofsEmpty(filter: string): { message: string; detail: string } {
