@@ -177,7 +177,7 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
         <span className="stat-label">Composite</span>
         <span className={cn("stat-value tabular-nums", BAND_TEXT[band])}>
           {composite}
-          <span className="dash-unit opacity-50 ml-1">/ 100</span>
+          <span className="body-xs ct-text-muted opacity-50 ml-1">/ 100</span>
         </span>
       </div>
       <div className="flex items-center gap-4 sm:min-w-60 relative z-10">

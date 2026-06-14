@@ -48,7 +48,7 @@ export function HeroKpiTable({
                 ? fmt.format(totalValueUsdc)
                 : "—"}
             </span>
-            <span className="dash-unit">USDC</span>
+            <span className="pf-kpi-unit">USDC</span>
           </dd>
         </div>
 
@@ -60,7 +60,7 @@ export function HeroKpiTable({
                 ? formatUsdCompact(totalYieldYtdUsdc)
                 : "—"}
             </span>
-            <span className="dash-unit">USDC</span>
+            <span className="pf-kpi-unit">USDC</span>
           </dd>
         </div>
 
