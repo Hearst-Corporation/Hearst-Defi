@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -219,28 +220,40 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                     </Link>
                   </Button>
                   {vault.status === "live" && (
-                    <form
+                    <VaultActionButton
+                      label="Pause"
+                      variant="secondary"
+                      size="sm"
+                      confirm={{
+                        title: "Pause this vault?",
+                        description:
+                          "New activity for this vault will be paused. Existing investor records remain unchanged.",
+                        confirmLabel: "Pause vault",
+                        confirmVariant: "danger",
+                      }}
                       action={async () => {
                         "use server";
                         await pauseVault(vault.id);
                       }}
-                    >
-                      <Button variant="secondary" size="sm" type="submit">
-                        Pause
-                      </Button>
-                    </form>
+                    />
                   )}
                   {vault.status === "paused" && (
-                    <form
+                    <VaultActionButton
+                      label="Resume"
+                      variant="secondary"
+                      size="sm"
+                      confirm={{
+                        title: "Resume this vault?",
+                        description:
+                          "This will make the vault available again according to its configured status and permissions.",
+                        confirmLabel: "Resume vault",
+                        confirmVariant: "primary",
+                      }}
                       action={async () => {
                         "use server";
                         await resumeVault(vault.id);
                       }}
-                    >
-                      <Button variant="secondary" size="sm" type="submit">
-                        Resume
-                      </Button>
-                    </form>
+                    />
                   )}
                 </div>
               </div>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -60,9 +61,26 @@ export default async function ProposalDetailPage({ params }: PageProps) {
   const canExecute = proposal.state === "EXECUTABLE" || proposal.state === "TIMELOCK";
   const ptai = extractPtaiFromCalldata(proposal.calldata);
 
-  const approveAction = handleSign.bind(null, proposal.id, "approve");
-  const rejectAction = handleSign.bind(null, proposal.id, "reject");
-  const cancelAction = handleSign.bind(null, proposal.id, "cancel");
+  // Argless server-action closures (no FormData crosses the confirm dialog);
+  // each supplies the same empty-reason payload handleSign read from the form.
+  const approveAction = async () => {
+    "use server";
+    const fd = new FormData();
+    fd.set("reason", "");
+    await handleSign(proposal.id, "approve", fd);
+  };
+  const rejectAction = async () => {
+    "use server";
+    const fd = new FormData();
+    fd.set("reason", "");
+    await handleSign(proposal.id, "reject", fd);
+  };
+  const cancelAction = async () => {
+    "use server";
+    const fd = new FormData();
+    fd.set("reason", "");
+    await handleSign(proposal.id, "cancel", fd);
+  };
   const executeAction = handleExecute.bind(null, proposal.id);
 
   return (
@@ -215,34 +233,63 @@ export default async function ProposalDetailPage({ params }: PageProps) {
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             {canSign ? (
               <>
-                <form action={approveAction}>
-                  <input type="hidden" name="reason" value="" />
-                  <Button variant="primary" size="lg" type="submit">
-                    Approve
-                  </Button>
-                </form>
-                <form action={rejectAction}>
-                  <input type="hidden" name="reason" value="" />
-                  <Button variant="danger" size="lg" type="submit">
-                    Reject
-                  </Button>
-                </form>
+                <VaultActionButton
+                  label="Approve"
+                  variant="primary"
+                  size="lg"
+                  confirm={{
+                    title: "Approve this proposal?",
+                    description:
+                      "This records your approval for this governance proposal.",
+                    confirmLabel: "Approve",
+                    confirmVariant: "primary",
+                  }}
+                  action={approveAction}
+                />
+                <VaultActionButton
+                  label="Reject"
+                  variant="danger"
+                  size="lg"
+                  confirm={{
+                    title: "Reject this proposal?",
+                    description:
+                      "This records a rejection for this governance proposal.",
+                    confirmLabel: "Reject",
+                    confirmVariant: "danger",
+                  }}
+                  action={rejectAction}
+                />
               </>
             ) : null}
             {canCancel ? (
-              <form action={cancelAction}>
-                <input type="hidden" name="reason" value="" />
-                <Button variant="danger" size="lg" type="submit">
-                  Cancel (quorum)
-                </Button>
-              </form>
+              <VaultActionButton
+                label="Cancel (quorum)"
+                variant="danger"
+                size="lg"
+                confirm={{
+                  title: "Cancel this proposal?",
+                  description:
+                    "This will cancel the proposal and prevent further progress.",
+                  confirmLabel: "Cancel proposal",
+                  confirmVariant: "danger",
+                }}
+                action={cancelAction}
+              />
             ) : null}
             {canExecute ? (
-              <form action={executeAction}>
-                <Button variant="primary" size="lg" type="submit">
-                  Execute
-                </Button>
-              </form>
+              <VaultActionButton
+                label="Execute"
+                variant="primary"
+                size="lg"
+                confirm={{
+                  title: "Execute this proposal?",
+                  description:
+                    "This will execute the approved governance action. Confirm that all review requirements are complete.",
+                  confirmLabel: "Execute",
+                  confirmVariant: "primary",
+                }}
+                action={executeAction}
+              />
             ) : null}
           </div>
           <p className="body-xs mt-3 ct-text-muted">

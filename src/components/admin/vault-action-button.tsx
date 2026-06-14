@@ -11,6 +11,7 @@ type ConfirmVariant = "primary" | "danger";
 export interface VaultActionButtonProps {
   label: string;
   variant: ButtonVariant;
+  size?: "sm" | "md" | "lg";
   confirm: {
     title: string;
     description?: ReactNode;
@@ -26,6 +27,7 @@ export interface VaultActionButtonProps {
 export function VaultActionButton({
   label,
   variant,
+  size = "md",
   confirm,
   action,
 }: VaultActionButtonProps) {
@@ -33,7 +35,7 @@ export function VaultActionButton({
 
   return (
     <>
-      <Button variant={variant} size="md" onClick={() => setOpen(true)}>
+      <Button variant={variant} size={size} onClick={() => setOpen(true)}>
         {label}
       </Button>
       <ConfirmDialog
