@@ -4,7 +4,6 @@ import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
-import { NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -241,7 +240,7 @@ function AllocationStackChart({ vault }: { vault: VaultDefinition }) {
   let x = 0;
   return (
     <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} allocation stack`}>
-      <rect x="0" y="24" width="320" height="18" rx="9" className="fill-(--ct-surface-2)" />
+      <rect x="0" y="24" width="320" height="18" rx="9" className="fill-(--ct-surface-1)" />
       {Object.entries(vault.allocationTargets).map(([bucket, weight], index) => {
         const width = round2((weight / 100) * CHART_BAR_WIDTH);
         const currentX = round2(x);
@@ -420,7 +419,7 @@ export default async function ProductWorkspacePage({
         <div className="admin-doc-split-grid admin-doc-split-grid--brief">
           <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--relaxed">
             <CardTitle>Inferred product line</CardTitle>
-            <NestedPanel className="admin-doc-stack admin-doc-stack--tight">
+            <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight">
               <div className="admin-doc-inline-row admin-doc-inline-row--between">
                 <span className="body-xs ct-text-muted">Vault</span>
                 <span className="body-sm ct-text-strong">
@@ -447,7 +446,7 @@ export default async function ProductWorkspacePage({
                 <span className="body-xs ct-text-muted">Methodology</span>
                 <span className="body-sm ct-text-body">{inferredVault.methodologyVersion}</span>
               </div>
-            </NestedPanel>
+            </div>
 
             {persistedDraft ? (
               <p className="body-xs ct-text-faint">
