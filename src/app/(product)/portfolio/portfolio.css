@@ -745,6 +745,7 @@
 
 /* Positions table — zero-state row under column headers (preview shell) */
 .pf-positions-empty-row.pf-table-empty-row {
+  grid-column: 1 / -1;
   padding: var(--ct-space-4) var(--ct-space-1);
   border-bottom: 1px solid var(--ct-border-soft);
   min-width: 34rem;
