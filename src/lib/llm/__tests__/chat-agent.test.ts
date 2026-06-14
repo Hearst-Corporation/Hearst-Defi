@@ -301,6 +301,38 @@ describe("runChatAgent", () => {
     );
   });
 
+  it("coerces non-object tool arguments to {} before the tool runs (P1-001 hardening)", async () => {
+    mockGetAllowedAdminReadTools.mockReturnValue([
+      {
+        id: "read_runtime_capabilities",
+        description: "caps",
+        parameters: { type: "object", properties: {}, additionalProperties: false },
+      },
+    ]);
+    mockExecuteAdminReadTool.mockResolvedValue({
+      id: "read_runtime_capabilities",
+      format: "multiline_text_block",
+      title: "CAPS",
+      lines: ["ok"],
+    });
+    const client = fakeClient([
+      // The model emits a JSON ARRAY as the arguments — must never reach the tool.
+      toolChunk(0, { name: "read_runtime_capabilities", arguments: '["not","object"]' }, "call_bad"),
+      textChunk("ok"),
+    ]);
+    const { stream } = runChatAgent(client, "gpt-4.1", MSGS, {
+      navProfile: "admin",
+      chatMode: "admin",
+    });
+    await readAll(stream);
+    expect(mockExecuteAdminReadTool).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "read_runtime_capabilities" }),
+      { chatMode: "admin", profile: "admin" },
+      {},
+      { userId: undefined },
+    );
+  });
+
   it("normal mode does not execute admin read tools", async () => {
     mockGetAllowedAdminReadTools.mockReturnValue([
       {

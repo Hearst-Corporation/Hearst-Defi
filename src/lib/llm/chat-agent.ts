@@ -237,6 +237,29 @@ async function consumeCompletion(params: {
   return { text, usage, toolCalls: mapToolCalls(toolCallsByIndex) };
 }
 
+/**
+ * Defensively normalize model-supplied tool-call arguments to a plain object.
+ *
+ * The `arguments` string is produced by the model, so it can be malformed JSON
+ * or a non-object (array / primitive). Each tool's own Zod schema validates the
+ * shape, but those schemas expect an object — so anything that is not a JSON
+ * object collapses to `{}` here, giving every tool a predictable input type
+ * instead of a surprise. This is a thin defensive layer in front of the
+ * per-tool `safeParse`, not a replacement for it (contre-audit P1-001 → P2).
+ */
+function parseToolArgsObject(raw: string): Record<string, unknown> {
+  if (raw.trim().length === 0) return {};
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+  } catch {
+    /* malformed JSON — fall through to the empty object */
+  }
+  return {};
+}
+
 async function executeAdminReadCalls(
   toolCalls: AggregatedToolCall[],
   userId?: string,
@@ -258,14 +281,7 @@ async function executeAdminReadCalls(
 
     const readTool = readToolById.get(calledName);
     if (readTool) {
-      let parsedInput: unknown = undefined;
-      if (toolCall.args.trim().length > 0) {
-        try {
-          parsedInput = JSON.parse(toolCall.args);
-        } catch {
-          parsedInput = {};
-        }
-      }
+      const parsedInput = parseToolArgsObject(toolCall.args);
       try {
         const result = await executeAdminReadTool(readTool, context, parsedInput, {
           userId,
