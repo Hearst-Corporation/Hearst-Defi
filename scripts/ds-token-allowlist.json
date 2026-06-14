@@ -1,0 +1,83 @@
+{
+  "_comment": "Temporary allowlist — package @hearst/cockpit-shell v0.2.1 (vendored tarball) contains a stale maroon theme. cockpit.css is the effective runtime source of truth until the tarball is rebuilt. See ADR-014.",
+  "allowedDivergences": [
+    {
+      "token": "--ct-accent",
+      "pkgValue": "#8a1538",
+      "cockpitValue": "#a7fb90",
+      "reason": "Package stale (maroon). cockpit.css overrides to brand green #A7FB90 via !important."
+    },
+    {
+      "token": "--ct-bg-deep",
+      "pkgValue": "#1a050b",
+      "cockpitValue": "#000000",
+      "reason": "Package uses maroon-tinted near-black. cockpit.css uses pure black #000000 for iOS dark mode."
+    },
+    {
+      "token": "--ct-accent-strong",
+      "pkgValue": "color-mix(in srgb, var(--ct-accent) 78%, #ffffff)",
+      "cockpitValue": "color-mix(in srgb, var(--ct-accent) 82%, #ffffff)",
+      "reason": "Intentional density tweak — 82% mix gives better legibility on the green accent."
+    },
+    {
+      "token": "--ct-border-accent",
+      "pkgValue": "color-mix(in srgb, var(--ct-accent) 55%, transparent)",
+      "cockpitValue": "color-mix(in srgb, var(--ct-accent) 28%, transparent)",
+      "reason": "Intentional calibration — 28% is more subtle on the bright green accent; 55% is too loud."
+    },
+    {
+      "token": "--ct-rail-left",
+      "pkgValue": "88px",
+      "cockpitValue": "5.75rem",
+      "reason": "Intentional layout calibration (92px). Unit migrated to rem for scaling consistency."
+    },
+    {
+      "token": "--ct-rail-right",
+      "pkgValue": "420px",
+      "cockpitValue": "23.75rem",
+      "reason": "Intentional layout calibration (380px). Chat rail narrowed for density. Unit migrated to rem."
+    },
+    {
+      "token": "--ct-surface-0",
+      "pkgValue": "rgba(255,255,255,0.02)",
+      "cockpitValue": "rgba(255, 255, 255, 0.04)",
+      "reason": "Intentional lift — 0.02 is imperceptible on pure black. Raised to 0.04 for card readability."
+    },
+    {
+      "token": "--ct-surface-1",
+      "pkgValue": "rgba(255,255,255,0.04)",
+      "cockpitValue": "rgba(255, 255, 255, 0.07)",
+      "reason": "Intentional lift — surfaces lifted ~3pp to be distinguishable on #000000 background."
+    },
+    {
+      "token": "--ct-surface-2",
+      "pkgValue": "rgba(255,255,255,0.06)",
+      "cockpitValue": "rgba(255, 255, 255, 0.10)",
+      "reason": "Intentional lift — same rationale as surface-1."
+    },
+    {
+      "token": "--ct-surface-3",
+      "pkgValue": "rgba(255,255,255,0.09)",
+      "cockpitValue": "rgba(255, 255, 255, 0.14)",
+      "reason": "Intentional lift — same rationale as surface-1."
+    },
+    {
+      "token": "--ct-text-muted",
+      "pkgValue": "rgba(245,245,245,0.48)",
+      "cockpitValue": "rgba(245, 245, 245, 0.70)",
+      "reason": "Intentional readability lift — 0.48 fails WCAG AA on #000000. Raised to 0.70."
+    },
+    {
+      "token": "--ct-shadow-depth",
+      "pkgValue": "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.45), 0 20px 60px -24px rgba(0,0,0,0.65)",
+      "cockpitValue": "0 8px 32px -8px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.10)",
+      "reason": "Intentional redesign — package shadow was too heavy (20px blur, -24px spread). Replaced with a flatter, quieter drop shadow."
+    },
+    {
+      "token": "--ct-dur-base",
+      "pkgValue": "180ms",
+      "cockpitValue": "220ms",
+      "reason": "Intentional calibration — 220ms feels less snappy and more premium on glass surfaces."
+    }
+  ]
+}
