@@ -63,16 +63,17 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
       <section>
         <DashboardPanelHeader title="Recent Runs" tone="quiet" className="mb-4" />
         <MonitoringTable
-          colSpan={6}
+          colSpan={7}
           isEmpty={stats.recentRuns.length === 0}
           colgroup={
             <colgroup>
-              <col style={{ width: "22%" }} />
-              <col style={{ width: "14%" }} />
+              <col style={{ width: "20%" }} />
               <col style={{ width: "12%" }} />
+              <col style={{ width: "16%" }} />
               <col style={{ width: "12%" }} />
-              <col style={{ width: "12%" }} />
-              <col style={{ width: "28%" }} />
+              <col style={{ width: "11%" }} />
+              <col style={{ width: "11%" }} />
+              <col style={{ width: "18%" }} />
             </colgroup>
           }
           header={
@@ -80,6 +81,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
               <th className="stat-label ct-table-header px-4 py-3 text-left">Agent</th>
               <th className="stat-label ct-table-header px-4 py-3 text-left">Model</th>
               <th className="stat-label ct-table-header px-4 py-3 text-left">Status</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-right">Tokens (in/out)</th>
               <th className="stat-label ct-table-header px-4 py-3 text-right">Latency</th>
               <th className="stat-label ct-table-header px-4 py-3 text-right">Cost</th>
               <th className="stat-label ct-table-header px-4 py-3 text-right">Time</th>
@@ -92,6 +94,14 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
               <td className="ct-table-cell px-4">{run.model}</td>
               <td className="ct-table-cell px-4">
                 <RunStatusBadge status={run.status} />
+                {run.errorType ? (
+                  <span className="ct-text-muted ml-2">{run.errorType}</span>
+                ) : null}
+              </td>
+              <td className="ct-table-cell px-4 text-right tabular">
+                {run.inputTokens === null && run.outputTokens === null
+                  ? "—"
+                  : `${run.inputTokens ?? "—"} / ${run.outputTokens ?? "—"}`}
               </td>
               <td className="ct-table-cell px-4 text-right tabular">
                 {run.latencyMs ? `${run.latencyMs}ms` : "—"}
@@ -99,6 +109,89 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
               <td className="ct-table-cell px-4 text-right tabular">
                 {run.costUsd ? `$${run.costUsd.toFixed(4)}` : "—"}
               </td>
+              <td className="ct-table-cell px-4 text-right ct-text-muted">
+                {formatAdminDateTime(run.createdAt)}
+              </td>
+            </tr>
+          ))}
+        </MonitoringTable>
+      </section>
+
+      <section>
+        <DashboardPanelHeader title="Navigate Traces" tone="quiet" className="mb-4" />
+        <MonitoringTable
+          colSpan={6}
+          isEmpty={stats.recentNavTraces.length === 0}
+          colgroup={
+            <colgroup>
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "14%" }} />
+              <col style={{ width: "24%" }} />
+              <col style={{ width: "14%" }} />
+              <col style={{ width: "18%" }} />
+              <col style={{ width: "18%" }} />
+            </colgroup>
+          }
+          header={
+            <>
+              <th className="stat-label ct-table-header px-4 py-3 text-left">Profile</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left">Mode</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left">Destination</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left">Status</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left">Reason</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-right">Time</th>
+            </>
+          }
+        >
+          {stats.recentNavTraces.map((trace) => (
+            <tr key={trace.id}>
+              <td className="ct-table-cell px-4">{trace.profile}</td>
+              <td className="ct-table-cell px-4">{trace.mode}</td>
+              <td className="ct-table-cell px-4">{trace.destinationKey ?? "—"}</td>
+              <td className="ct-table-cell px-4">
+                <RunStatusBadge status={trace.status} />
+              </td>
+              <td className="ct-table-cell px-4 ct-text-muted">{trace.reason ?? "—"}</td>
+              <td className="ct-table-cell px-4 text-right ct-text-muted">
+                {formatAdminDateTime(trace.createdAt)}
+              </td>
+            </tr>
+          ))}
+        </MonitoringTable>
+      </section>
+
+      <section>
+        <DashboardPanelHeader title="Admin Tool Runs" tone="quiet" className="mb-4" />
+        <MonitoringTable
+          colSpan={5}
+          isEmpty={stats.recentToolRuns.length === 0}
+          colgroup={
+            <colgroup>
+              <col style={{ width: "30%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "16%" }} />
+              <col style={{ width: "24%" }} />
+              <col style={{ width: "18%" }} />
+            </colgroup>
+          }
+          header={
+            <>
+              <th className="stat-label ct-table-header px-4 py-3 text-left">Tool</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left">Kind</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left">Status</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left">Error</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-right">Time</th>
+            </>
+          }
+        >
+          {stats.recentToolRuns.map((run) => (
+            <tr key={run.id}>
+              <td className="ct-table-cell px-4">{run.toolId}</td>
+              <td className="ct-table-cell px-4">{run.toolKind}</td>
+              <td className="ct-table-cell px-4">
+                <RunStatusBadge status={run.status} />
+              </td>
+              <td className="ct-table-cell px-4 ct-text-muted">{run.errorMessage ?? "—"}</td>
               <td className="ct-table-cell px-4 text-right ct-text-muted">
                 {formatAdminDateTime(run.createdAt)}
               </td>
@@ -160,9 +253,12 @@ function MonitoringTable({
 function RunStatusBadge({ status }: { status: string }) {
   const variantMap: Record<string, "success" | "danger" | "warning" | "default"> = {
     success: "success",
+    published: "success",
     failed: "danger",
     timeout: "warning",
+    blocked: "warning",
     queued: "default",
+    confirmation_required: "default",
   };
 
   return (

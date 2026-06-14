@@ -14,8 +14,31 @@ export interface MonitoringStats {
     agentName: string;
     model: string;
     status: string;
+    errorType: string | null;
+    inputTokens: number | null;
+    outputTokens: number | null;
     latencyMs: number | null;
     costUsd: number | null;
+    createdAt: Date;
+  }>;
+  // OBS-06: navigate decisions of the Master Agent (published | blocked).
+  recentNavTraces: Array<{
+    id: string;
+    profile: string;
+    mode: string;
+    destinationKey: string | null;
+    status: string;
+    reason: string | null;
+    createdAt: Date;
+  }>;
+  // OBS-06: admin read/write tool executions (success | blocked | failed).
+  recentToolRuns: Array<{
+    id: string;
+    toolId: string;
+    toolKind: string;
+    status: string;
+    latencyMs: number | null;
+    errorMessage: string | null;
     createdAt: Date;
   }>;
 }
@@ -29,6 +52,8 @@ export async function getMonitoringStats(): Promise<MonitoringStats> {
     avgLatency,
     runsByAgent,
     recentRuns,
+    recentNavTraces,
+    recentToolRuns,
   ] = await Promise.all([
     prisma.llmRun.count(),
     prisma.llmRun.count({ where: { status: "success" } }),
@@ -48,8 +73,37 @@ export async function getMonitoringStats(): Promise<MonitoringStats> {
         agentName: true,
         model: true,
         status: true,
+        errorType: true,
+        inputTokens: true,
+        outputTokens: true,
         latencyMs: true,
         costUsd: true,
+        createdAt: true,
+      },
+    }),
+    prisma.navTrace.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      select: {
+        id: true,
+        profile: true,
+        mode: true,
+        destinationKey: true,
+        status: true,
+        reason: true,
+        createdAt: true,
+      },
+    }),
+    prisma.adminToolRun.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      select: {
+        id: true,
+        toolId: true,
+        toolKind: true,
+        status: true,
+        latencyMs: true,
+        errorMessage: true,
         createdAt: true,
       },
     }),
@@ -67,5 +121,7 @@ export async function getMonitoringStats(): Promise<MonitoringStats> {
       costUsd: r._sum.costUsd ?? 0,
     })),
     recentRuns,
+    recentNavTraces,
+    recentToolRuns,
   };
 }

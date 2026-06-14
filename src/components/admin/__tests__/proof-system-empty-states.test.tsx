@@ -25,6 +25,8 @@ describe("Proof & System empty states", () => {
           avgLatencyMs: 0,
           runsByAgent: [],
           recentRuns: [],
+          recentNavTraces: [],
+          recentToolRuns: [],
         }}
       />,
     );
