@@ -14,7 +14,12 @@ import { getRequestContext } from "@/lib/request-context";
  */
 const OPENAI_INPUT_PER_MTOK = 2.0;
 const OPENAI_OUTPUT_PER_MTOK = 8.0;
-function estimateOpenAiCostUsd(usage: {
+/**
+ * Cost of an OpenAI turn from its token usage, at GPT-4.1 list pricing (ADR-011).
+ * Exported so the streaming chat path can persist the same `costUsd` as the
+ * batch path instead of duplicating the rate constants.
+ */
+export function estimateOpenAiCostUsd(usage: {
   prompt_tokens: number;
   completion_tokens: number;
 }): number {

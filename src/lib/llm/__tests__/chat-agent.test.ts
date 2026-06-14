@@ -29,10 +29,24 @@ type Chunk = {
       }>;
     };
   }>;
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens?: number;
+  } | null;
 };
 
 function textChunk(content: string): Chunk {
   return { choices: [{ delta: { content } }] };
+}
+
+/** Terminal usage chunk (stream_options.include_usage): empty choices + usage. */
+function usageChunk(usage: {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens?: number;
+}): Chunk {
+  return { choices: [], usage };
 }
 
 function toolChunk(
@@ -94,6 +108,45 @@ describe("runChatAgent", () => {
     const text = await readAll(stream);
     expect(text).toBe("Target 8 à 15 % annualisé, distributions mensuelles.");
     expect(await nav).toBeNull();
+  });
+
+  it("captures token usage from the terminal usage chunk and reports success (OBS-03)", async () => {
+    const client = fakeClient([
+      textChunk("Bonjour. "),
+      usageChunk({ prompt_tokens: 12, completion_tokens: 3, total_tokens: 15 }),
+    ]);
+    const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS);
+    await readAll(stream);
+    const result = await final;
+    expect(result.status).toBe("success");
+    expect(result.errorType).toBeNull();
+    expect(result.usage).toEqual({
+      prompt_tokens: 12,
+      completion_tokens: 3,
+      total_tokens: 15,
+    });
+  });
+
+  it("reports a failed status with null usage when create() throws (OBS-01)", async () => {
+    const client = fakeClient([], { throwOnCreate: true });
+    const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS);
+    await readAll(stream);
+    const result = await final;
+    expect(result.status).toBe("failed");
+    expect(result.errorType).toBe("llm_create");
+    expect(result.usage).toBeNull();
+  });
+
+  it("surfaces the proposed nav key on final even though LP nav is read-only (OBS-02)", async () => {
+    const client = fakeClient([
+      textChunk("Voici votre portefeuille. "),
+      toolChunk(0, { name: "navigate", arguments: '{"destination":"portfolio"}' }),
+    ]);
+    const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS);
+    await readAll(stream);
+    const result = await final;
+    expect(result.navProposedKey).toBe("portfolio");
+    expect(result.navBlocked).toBe(false);
   });
 
   it("captures a navigate tool call (fragmented args) and resolves the destination", async () => {
@@ -441,13 +494,18 @@ describe("runChatAgent", () => {
     const client = fakeClient([textChunk("Réponse compliant.")]);
     const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS);
     await readAll(stream);
-    expect(await final).toEqual({ text: "Réponse compliant.", blocked: false });
+    expect(await final).toMatchObject({
+      text: "Réponse compliant.",
+      blocked: false,
+      status: "success",
+    });
   });
 
   it("resolves `final` blocked=true with empty text on a non-compliant answer", async () => {
     const client = fakeClient([textChunk("Le rendement est garanti.")]);
     const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS);
     await readAll(stream);
-    expect(await final).toEqual({ text: "", blocked: true });
+    // A blocked answer is still a successful model turn — the guard blocked it.
+    expect(await final).toMatchObject({ text: "", blocked: true, status: "success" });
   });
 });

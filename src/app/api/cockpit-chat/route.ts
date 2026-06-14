@@ -30,8 +30,10 @@ import { buildAdminContextBlock } from "@/lib/llm/admin-context";
 import {
   runChatAgent,
   type ChatAgentMessage,
+  type ChatTurnFinal,
   type StreamingChatClient,
 } from "@/lib/llm/chat-agent";
+import { estimateOpenAiCostUsd } from "@/lib/llm/client";
 import { publishNav } from "@/lib/llm/nav-channel";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { ADMIN_NAV_DESTINATIONS } from "@/lib/llm/navigate-tool";
@@ -310,6 +312,56 @@ function createUserScopedPersistence(
 }
 
 /**
+ * Persist an honest LlmRun for one Master Agent turn, off the response path.
+ *
+ * Replaces the previous hard-coded `status: "success"` row: the status, token
+ * usage, cost and latency now reflect what actually happened (OBS-01 / OBS-03).
+ * When the provider did not report usage (streaming without a usage chunk), the
+ * token/cost columns are left explicitly NULL — never a fabricated value.
+ *
+ * `errorMessage` is intentionally left NULL: the raw provider error can leak
+ * model ids / quota detail and is already logged server-side. The machine code
+ * lives in `errorType`; the prompt is never persisted here.
+ */
+async function persistChatLlmRun(args: {
+  result: ChatTurnFinal;
+  startedAt: number;
+  userId: string;
+  systemPromptHash: string;
+}): Promise<void> {
+  const { result, startedAt, userId, systemPromptHash } = args;
+  const usage = result.usage;
+  // A compliance-blocked answer is NOT an LLM failure — the model turn
+  // succeeded, the output guard blocked it. Keep status "success" but flag it
+  // via errorType so it stays visible without inflating the failure rate.
+  const errorType =
+    result.errorType ?? (result.blocked ? "compliance_blocked" : null);
+  await prisma.llmRun
+    .create({
+      data: {
+        agentName: "cockpit-chat",
+        model: LLM_MODEL,
+        status: result.status,
+        errorType,
+        latencyMs: Date.now() - startedAt,
+        inputTokens: usage?.prompt_tokens ?? null,
+        outputTokens: usage?.completion_tokens ?? null,
+        costUsd: usage
+          ? estimateOpenAiCostUsd({
+              prompt_tokens: usage.prompt_tokens,
+              completion_tokens: usage.completion_tokens,
+            })
+          : null,
+        userId,
+        systemPromptHash,
+      },
+    })
+    .catch(() => {
+      /* tracing must never break the response */
+    });
+}
+
+/**
  * Master Agent turn (flag-gated). Runs the app-side tool-capable engine:
  * streams the guarded answer to the client, persists the user + assistant
  * messages (the cockpit-shell handler did this itself), and publishes the
@@ -405,20 +457,32 @@ async function runMasterAgentTurn(args: {
     navProfile,
   });
 
-  // Persist the assistant answer once the turn completes (compliant only).
+  // Persist the assistant answer + an honest LlmRun trace once the turn
+  // completes. Both run off the response path and never throw.
   const persistChatId = chatId;
   void final
-    .then(async ({ text, blocked }) => {
-      if (blocked || !text || !persistChatId) return;
-      await persistence.saveMessage(persistChatId, {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: text,
-        createdAt: Date.now(),
+    .then(async (result) => {
+      if (!result.blocked && result.text && persistChatId) {
+        await persistence
+          .saveMessage(persistChatId, {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: result.text,
+            createdAt: Date.now(),
+          })
+          .catch(() => {
+            /* best-effort persistence */
+          });
+      }
+      await persistChatLlmRun({
+        result,
+        startedAt,
+        userId,
+        systemPromptHash: sha256Hex(systemPrompt),
       });
     })
     .catch(() => {
-      /* best-effort persistence */
+      /* tracing/persistence must never break the response */
     });
 
   // Publish the chosen navigation destination for the client bridge.
@@ -438,25 +502,6 @@ async function runMasterAgentTurn(args: {
     })
     .catch(() => {
       /* best-effort nav publish */
-    });
-
-  // Best-effort LlmRun trace (latency is wall-clock to response start, as in the
-  // cockpit-shell path — the stream completes after the Response is returned).
-  void prisma.llmRun
-    .create({
-      data: {
-        agentName: "cockpit-chat",
-        model: LLM_MODEL,
-        status: "success",
-        latencyMs: Date.now() - startedAt,
-        userId,
-        // PR-3 #2: hash the prompt ACTUALLY sent (role + user-context + live
-        // data), not the base prompt — so the trace reflects what the model saw.
-        systemPromptHash: sha256Hex(systemPrompt),
-      },
-    })
-    .catch(() => {
-      /* tracing must never break the response */
     });
 
   return new Response(responseStream, {

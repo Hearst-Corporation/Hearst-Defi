@@ -71,7 +71,7 @@ vi.mock("@/lib/llm/nav-channel", () => ({
 import { POST } from "@/app/api/cockpit-chat/route";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { prisma } from "@/lib/db";
-import { runChatAgent } from "@/lib/llm/chat-agent";
+import { runChatAgent, type ChatTurnFinal } from "@/lib/llm/chat-agent";
 import { publishNav } from "@/lib/llm/nav-channel";
 import { PRODUCT_WORKSPACE_DESTINATION_KEY } from "@/lib/llm/product-workspace-intent";
 
@@ -93,7 +93,10 @@ function makeChatRequest(message: string): NextRequest {
   }) as NextRequest;
 }
 
-function mockMasterAgentTurn(modelDestinationKey: string) {
+function mockMasterAgentTurn(
+  modelDestinationKey: string,
+  finalOverride?: Partial<ChatTurnFinal>,
+) {
   mockRunChatAgent.mockReturnValue({
     stream: new ReadableStream({
       start(controller) {
@@ -108,7 +111,16 @@ function mockMasterAgentTurn(modelDestinationKey: string) {
       label: "Scenario Lab",
       description: "Simulation surface",
     }),
-    final: Promise.resolve({ text: "ok", blocked: false }),
+    final: Promise.resolve({
+      text: "ok",
+      blocked: false,
+      status: "success",
+      errorType: null,
+      usage: null,
+      navProposedKey: modelDestinationKey,
+      navBlocked: false,
+      ...finalOverride,
+    }),
   });
 }
 
@@ -188,6 +200,93 @@ describe("POST /api/cockpit-chat — master agent nav publish", () => {
     await vi.waitFor(() => {
       expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
         destinationKey: "admin-scenario-lab",
+      });
+    });
+  });
+});
+
+describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRequireAuth.mockResolvedValue({ userId: USER_ID });
+    mockAdminChatModeFindUnique.mockResolvedValue({
+      mode: "normal",
+      userId: USER_ID,
+      updatedAt: new Date(),
+    });
+    mockCockpitChatCreate.mockResolvedValue({ id: "chat-1", userId: USER_ID } as never);
+    mockCockpitMessageCreate.mockResolvedValue({} as never);
+    mockLlmRunCreate.mockResolvedValue({} as never);
+    mockPublishNav.mockResolvedValue(undefined);
+  });
+
+  it("records a real success run with captured token usage and cost", async () => {
+    mockMasterAgentTurn("portfolio", {
+      navProposedKey: null,
+      usage: { prompt_tokens: 1000, completion_tokens: 500, total_tokens: 1500 },
+    });
+
+    const res = await POST(makeChatRequest("Quel est mon portefeuille ?"));
+    expect(res.status).toBe(200);
+
+    await vi.waitFor(() => {
+      expect(mockLlmRunCreate).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          agentName: "cockpit-chat",
+          status: "success",
+          errorType: null,
+          inputTokens: 1000,
+          outputTokens: 500,
+          costUsd: expect.closeTo(0.006, 6),
+        }),
+      });
+    });
+  });
+
+  it("records a failed run (no fake success) with null tokens when the turn errors", async () => {
+    mockMasterAgentTurn("portfolio", {
+      text: "",
+      status: "failed",
+      errorType: "llm_create",
+      usage: null,
+      navProposedKey: null,
+    });
+
+    const res = await POST(makeChatRequest("déclenche une erreur"));
+    expect(res.status).toBe(200);
+
+    await vi.waitFor(() => {
+      expect(mockLlmRunCreate).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          status: "failed",
+          errorType: "llm_create",
+          inputTokens: null,
+          outputTokens: null,
+          costUsd: null,
+        }),
+      });
+    });
+  });
+
+  it("flags a compliance-blocked turn as success+compliance_blocked, not a fake plain success", async () => {
+    mockMasterAgentTurn("portfolio", {
+      text: "",
+      blocked: true,
+      status: "success",
+      errorType: null,
+      navProposedKey: null,
+      usage: { prompt_tokens: 800, completion_tokens: 0, total_tokens: 800 },
+    });
+
+    const res = await POST(makeChatRequest("garantis-moi 12% de rendement"));
+    expect(res.status).toBe(200);
+
+    await vi.waitFor(() => {
+      expect(mockLlmRunCreate).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          status: "success",
+          errorType: "compliance_blocked",
+        }),
       });
     });
   });

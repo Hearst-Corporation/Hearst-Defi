@@ -39,10 +39,20 @@ interface ToolCallDelta {
   id?: string;
   function?: { name?: string; arguments?: string };
 }
+/** Token usage reported by the provider on the final streaming chunk (only
+ *  emitted when `stream_options.include_usage` is requested). */
+export interface ChatTurnUsage {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens?: number;
+}
+
 interface StreamChunk {
   choices?: Array<{
     delta?: { content?: string | null; tool_calls?: ToolCallDelta[] };
   }>;
+  /** Present only on the terminal usage chunk (choices is then empty). */
+  usage?: ChatTurnUsage | null;
 }
 export interface StreamingChatClient {
   chat: {
@@ -54,11 +64,37 @@ export interface StreamingChatClient {
           messages: unknown[];
           tools?: unknown[];
           tool_choice?: "auto" | "none";
+          /** Ask the provider to emit a terminal usage chunk so token counts
+           *  can be traced without a second (non-streaming) call. */
+          stream_options?: { include_usage: boolean };
         },
         options?: { signal?: AbortSignal },
       ): Promise<AsyncIterable<StreamChunk>>;
     };
   };
+}
+
+/** Outcome of a single model turn, independent of compliance. `timeout` is the
+ *  internal turn budget firing; `failed` is any other upstream/stream error. */
+export type ChatTurnStatus = "success" | "failed" | "timeout";
+
+/** Result surfaced by the `final` promise. Carries the real turn outcome so the
+ *  caller can persist an honest LlmRun (no hard-coded "success") and trace the
+ *  navigation decision. Never rejects. */
+export interface ChatTurnFinal {
+  text: string;
+  blocked: boolean;
+  status: ChatTurnStatus;
+  /** Short, non-sensitive code for failed/timeout turns; null otherwise. */
+  errorType: string | null;
+  /** Token usage when the provider reported it; null when unavailable. */
+  usage: ChatTurnUsage | null;
+  /** Whitelisted destination key the model proposed (even if later blocked),
+   *  or null when the model proposed no navigation. */
+  navProposedKey: string | null;
+  /** True when a proposed navigation was dropped because the answer was not
+   *  compliant (so the directive was never published). */
+  navBlocked: boolean;
 }
 
 export interface ChatAgentMessage {
@@ -75,11 +111,12 @@ export interface ChatAgentResult {
    */
   nav: Promise<NavDestination | null>;
   /**
-   * Resolves AFTER the turn with the final answer text (for persistence) and
-   * whether it was compliance-blocked. When `blocked` is true the caller MUST
-   * NOT persist `text` (it never reached the user either). Never rejects.
+   * Resolves AFTER the turn with the final answer text (for persistence),
+   * whether it was compliance-blocked, and the real turn telemetry (status,
+   * usage, navigation decision). When `blocked` is true the caller MUST NOT
+   * persist `text` (it never reached the user either). Never rejects.
    */
-  final: Promise<{ text: string; blocked: boolean }>;
+  final: Promise<ChatTurnFinal>;
 }
 
 interface AggregatedToolCall {
@@ -96,6 +133,7 @@ interface AdminReadToolRun {
 
 interface ConsumeResult {
   text: string;
+  usage: ChatTurnUsage | null;
   toolCalls: AggregatedToolCall[];
 }
 
@@ -152,6 +190,7 @@ async function consumeCompletion(params: {
 }): Promise<ConsumeResult> {
   const { completion, signal, enqueueText } = params;
   let text = "";
+  let usage: ChatTurnUsage | null = null;
   const toolCallsByIndex = new Map<number, AggregatedToolCall>();
   const iterator = completion[Symbol.asyncIterator]();
 
@@ -169,6 +208,9 @@ async function consumeCompletion(params: {
 
     const { done, value } = await Promise.race([iterator.next(), abortPromise]);
     if (done) break;
+    // The terminal usage chunk (stream_options.include_usage) carries `usage`
+    // and an empty `choices` array — capture it before the delta short-circuit.
+    if (value.usage) usage = value.usage;
     const delta = value.choices?.[0]?.delta;
     if (!delta) continue;
 
@@ -192,7 +234,7 @@ async function consumeCompletion(params: {
     }
   }
 
-  return { text, toolCalls: mapToolCalls(toolCallsByIndex) };
+  return { text, usage, toolCalls: mapToolCalls(toolCallsByIndex) };
 }
 
 async function executeAdminReadCalls(
@@ -346,15 +388,29 @@ export function runChatAgent(
     resolveNav(d);
   };
 
-  let resolveFinal: (r: { text: string; blocked: boolean }) => void = () => {};
-  const final = new Promise<{ text: string; blocked: boolean }>((r) => {
+  let resolveFinal: (r: ChatTurnFinal) => void = () => {};
+  const final = new Promise<ChatTurnFinal>((r) => {
     resolveFinal = r;
   });
   let finalSettled = false;
-  const finishFinal = (r: { text: string; blocked: boolean }): void => {
+  const finishFinal = (r: ChatTurnFinal): void => {
     if (finalSettled) return;
     finalSettled = true;
     resolveFinal(r);
+  };
+  /** Builds the `final` payload for an aborted/errored turn (no usable answer).
+   *  `timeout` is distinguished from a generic failure so monitoring can tell
+   *  the internal turn budget apart from upstream errors. */
+  const finishFailed = (errorType: string): void => {
+    finishFinal({
+      text: "",
+      blocked: false,
+      status: timeoutSignal.aborted ? "timeout" : "failed",
+      errorType,
+      usage: null,
+      navProposedKey: null,
+      navBlocked: false,
+    });
   };
 
   const raw = new ReadableStream<Uint8Array>({
@@ -397,6 +453,7 @@ export function runChatAgent(
             messages,
             tools: declaredTools,
             tool_choice: "auto",
+            stream_options: { include_usage: true },
           },
           { signal },
         );
@@ -423,11 +480,12 @@ export function runChatAgent(
             /* already closed */
           }
           finishNav(null);
-          finishFinal({ text: "", blocked: false });
+          finishFailed("llm_stream");
           return;
         }
 
         let effectiveText = firstPass.text;
+        let effectiveUsage = firstPass.usage;
         let finalToolCalls = firstPass.toolCalls;
 
         if (isAdminMode) {
@@ -454,6 +512,7 @@ export function runChatAgent(
                   messages: followupMessages,
                   tools: declaredTools,
                   tool_choice: "auto",
+                  stream_options: { include_usage: true },
                 },
                 { signal },
               );
@@ -463,6 +522,7 @@ export function runChatAgent(
                 enqueueText: safeEnqueue,
               });
               effectiveText = secondPass.text;
+              effectiveUsage = secondPass.usage ?? effectiveUsage;
               finalToolCalls = secondPass.toolCalls;
             } catch (err) {
               logger.warn(
@@ -477,7 +537,7 @@ export function runChatAgent(
                 /* already closed */
               }
               finishNav(null);
-              finishFinal({ text: "", blocked: false });
+              finishFailed("admin_second_pass");
               return;
             }
           } else if (effectiveText.length > 0) {
@@ -488,10 +548,15 @@ export function runChatAgent(
         // Navigate only when the model picked a whitelisted destination AND the
         // answer is compliant — never off the back of a blocked answer.
         const blocked = chatOutputViolation(effectiveText, true) !== null;
-        let dest = destinationFromToolCalls(
+        // The key the model proposed, BEFORE the compliance gate — kept for the
+        // nav trace so a blocked navigation is still observable.
+        const proposed = destinationFromToolCalls(
           finalToolCalls.length > 0 ? finalToolCalls : firstPass.toolCalls,
           navProfile,
         );
+        const navProposedKey = proposed?.key ?? null;
+        const navBlocked = proposed !== null && blocked;
+        let dest = proposed;
         if (dest && blocked) {
           dest = null;
         }
@@ -518,7 +583,15 @@ export function runChatAgent(
 
         finishNav(dest);
         // Persist only a compliant answer — a blocked one never reached the user.
-        finishFinal({ text: blocked ? "" : persistText, blocked });
+        finishFinal({
+          text: blocked ? "" : persistText,
+          blocked,
+          status: "success",
+          errorType: null,
+          usage: effectiveUsage,
+          navProposedKey,
+          navBlocked,
+        });
         return;
       } catch (err) {
         // Never surface the raw upstream/LLM error message to the user — it can
@@ -537,7 +610,7 @@ export function runChatAgent(
           /* already closed */
         }
         finishNav(null);
-        finishFinal({ text: "", blocked: false });
+        finishFailed("llm_create");
         return;
       }
 
@@ -545,7 +618,17 @@ export function runChatAgent(
 
     cancel() {
       finishNav(null);
-      finishFinal({ text: "", blocked: false });
+      // Consumer (client) went away mid-stream — not an upstream error, but the
+      // turn did not complete. Mark it distinctly so monitoring isn't polluted.
+      finishFinal({
+        text: "",
+        blocked: false,
+        status: "failed",
+        errorType: "client_cancelled",
+        usage: null,
+        navProposedKey: null,
+        navBlocked: false,
+      });
     },
   });
 
