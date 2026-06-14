@@ -6,7 +6,6 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
-import { NestedPanel } from "@/components/ui/nested-panel";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { Progress } from "@/components/ui/progress";
 import { MonteCarloReview } from "@/components/admin/monte-carlo-review";
@@ -452,14 +451,14 @@ export function VaultForm(props: VaultFormProps) {
               </label>
             </div>
 
-            <NestedPanel className="flex flex-col gap-1">
+            <div className="admin-doc-inset flex flex-col gap-1">
               <span className="stat-label block">APY Range Preview</span>
               <ApyRange
                 low={form.targetApyLowBps / 100}
                 high={form.targetApyHighBps / 100}
                 precision={1}
               />
-            </NestedPanel>
+            </div>
           </div>
         )}
 
@@ -667,7 +666,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="admin-doc-stack">
             <CardTitle>Review &amp; Simulate</CardTitle>
 
-            <NestedPanel className="admin-confirm-panel divide-y divide-border-subtle">
+            <div className="admin-doc-inset admin-confirm-panel divide-y divide-border-subtle">
               <div className="admin-confirm-panel__rows pb-3">
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">Ticker</span>
@@ -776,7 +775,7 @@ export function VaultForm(props: VaultFormProps) {
                   </span>
                 </div>
               </div>
-            </NestedPanel>
+            </div>
 
             {/* Monte Carlo inline projection (ADR-006, methodology v2.0 ratified 2026-05-22) */}
             <MonteCarloReview
@@ -804,7 +803,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="admin-doc-stack">
             <CardTitle>Sign &amp; Deploy</CardTitle>
 
-            <NestedPanel className="admin-doc-stack admin-doc-stack--actions">
+            <div className="admin-doc-inset admin-doc-stack admin-doc-stack--actions">
               <p className="body-sm ct-text-muted">
                 This vault draft will be submitted to the multisig review queue. Once submitted,
                 it requires the configured quorum of signers to approve before deployment.
@@ -824,7 +823,7 @@ export function VaultForm(props: VaultFormProps) {
                   </span>
                 </div>
               </div>
-            </NestedPanel>
+            </div>
 
             <p className="body-xs ct-text-faint">
               Target APY range: {pct(form.targetApyLowBps)}%–{pct(form.targetApyHighBps)}%.
