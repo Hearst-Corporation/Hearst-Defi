@@ -63,32 +63,37 @@ export function PositionsList({
         }
       />
 
-      <div className="pf-stack--tight overflow-x-auto min-w-0">
+      <div className="flex flex-col overflow-x-auto min-w-0">
+        <div className={cn("pf-positions-table", showZeroShell && "pf-positions-table--zero")}>
           {/* Header row */}
-          <div className={cn("stat-label", "pf-positions-row-grid")}>
+          <div className={cn("stat-label", "pf-positions-row-grid", "items-baseline")}>
             <div className="pf-position-vault-cell pf-position-vault-cell--header">
               Vault
             </div>
-            <span className="text-right">Principal</span>
-            <span className="text-right">Value</span>
-            <span className="text-right">Target APY</span>
-            <span className="text-right">Since</span>
+            <div className="text-right">Principal</div>
+            <div className="text-right">Value</div>
+            <div className="text-right">Target APY</div>
+            <div className="text-right">Since</div>
           </div>
 
           {showZeroShell ? (
-            <PanelStatus
-              className="pf-positions-empty-row pf-table-empty-row"
-              message={
-                previewZeros
-                  ? "No open positions yet"
-                  : "No active positions yet"
-              }
-              detail={
-                previewZeros
-                  ? "Your first confirmed deposit will appear here."
-                  : "Your first deposit will appear here once confirmed on-chain."
-              }
-            />
+            <div className={cn("pf-positions-row-grid", "pf-positions-row-grid--empty")}>
+              <div className="pf-positions-empty-cell">
+                <PanelStatus
+                  className="pf-positions-empty-row"
+                  message={
+                    previewZeros
+                      ? "No open positions yet"
+                      : "No active positions yet"
+                  }
+                  detail={
+                    previewZeros
+                      ? "Your first confirmed deposit will appear here."
+                      : "Your first deposit will appear here once confirmed on-chain."
+                  }
+                />
+              </div>
+            </div>
           ) : null}
 
           {positions.map((p) => (
@@ -115,14 +120,14 @@ export function PositionsList({
               </div>
 
               {/* Principal */}
-              <span className="tabular body-md text-right ct-text-body">
+              <div className="tabular body-md text-right ct-text-body">
                 {formatUsdCompact(p.principalUsdc)}
-              </span>
+              </div>
 
               {/* Current value */}
-              <span className="tabular body-md ct-text-strong font-semibold text-right">
+              <div className="tabular body-md ct-text-strong font-semibold text-right">
                 {formatUsdCompact(p.valueUsdc)}
-              </span>
+              </div>
 
               {/* APY range — non-negotiable #1 */}
               <div className="text-right">
@@ -139,12 +144,13 @@ export function PositionsList({
               </div>
 
               {/* Subscribed date */}
-              <span className="body-xs tabular ct-text-muted text-right">
+              <div className="body-xs tabular ct-text-muted text-right">
                 {dateFmt.format(p.subscribedAt)}
-              </span>
+              </div>
             </div>
           ))}
         </div>
+      </div>
     </PfCockpitPanel>
   );
 }

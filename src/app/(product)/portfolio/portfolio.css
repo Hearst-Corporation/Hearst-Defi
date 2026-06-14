@@ -335,9 +335,20 @@
   }
 }
 
-/* ── Reflow: hero + activity grids stack below 880px ── */
+/* ── Reflow: hero grid stacks earlier when the right chat rail compresses center. ── */
+@container pf (max-width: 64rem) {
+  .pf-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-hero-sidebar {
+    border-left: none;
+    border-top: 1px solid var(--ct-graphite-border-nested);
+  }
+}
+
+/* ── Reflow: secondary activity grid stacks below 880px ── */
 @container pf (max-width: 880px) {
-  .pf-hero-grid,
   .pf-activity-grid {
     grid-template-columns: 1fr;
   }
@@ -708,20 +719,44 @@
   min-height: 12rem;
 }
 
+/* Shared table width floor for header, body rows, and empty status row. */
+.pf-positions-table {
+  min-width: max(100%, 30rem);
+}
+
+/* Empty state: allow table to shrink so the empty cell centers correctly
+   on the visible width when the chat rail compresses the center panel. */
+.pf-positions-table--zero {
+  min-width: unset;
+}
+
+/* Empty table: simplify grid to single row that can shrink naturally below
+   the normal 5-column minimum (~440px). Header row becomes a simple flex
+   row that wraps gracefully when compressed. */
+.pf-positions-table--zero .pf-positions-row-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--ct-space-2) var(--ct-space-4);
+}
+
+.pf-positions-table--zero .pf-positions-row-grid--empty {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
 /* Positions table grid — column rhythm in CSS, not arbitrary Tailwind minmax */
 .pf-positions-row-grid {
   display: grid;
   grid-template-columns:
-    minmax(0, 1.5fr)
-    minmax(5rem, 1fr)
-    minmax(5rem, 1fr)
-    minmax(6rem, 1fr)
-    minmax(6rem, 1fr);
+    minmax(8rem, 1.5fr)
+    minmax(4.5rem, 1fr)
+    minmax(4.5rem, 1fr)
+    minmax(5.5rem, 1fr)
+    minmax(5.5rem, 1fr);
   gap: var(--ct-space-3);
   padding-bottom: var(--ct-space-2);
   border-bottom: 1px solid var(--ct-border-soft);
-  /* floor prevents columns from compressing into each other on narrow panels */
-  min-width: 34rem;
 }
 
 .pf-positions-row-grid:last-child {
@@ -743,12 +778,30 @@
   align-items: center;
 }
 
-/* Positions table — zero-state row under column headers (preview shell) */
-.pf-positions-empty-row.pf-table-empty-row {
-  grid-column: 1 / -1;
-  padding: var(--ct-space-4) var(--ct-space-1);
+/* Empty state uses the same grid track and spans all columns. */
+.pf-positions-row-grid--empty {
   border-bottom: 1px solid var(--ct-border-soft);
-  min-width: 34rem;
+}
+
+/* Empty cell owns the grid span so PanelStatus can keep its global semantics. */
+.pf-positions-empty-cell {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: var(--ct-space-8) var(--ct-space-3);
+}
+
+/* Positions table — zero-state row under column headers (preview shell) */
+.pf-positions-empty-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  text-align: center;
 }
 
 /* Preview sections — content only (banner carries preview context) */

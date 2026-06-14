@@ -96,6 +96,10 @@ export default async function PortfolioPage() {
 
   const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
   const sectionVariant = previewZeros ? "preview" : "active";
+  
+  // Dashboard modules render only when investor has active positions.
+  // previewZeros is a styling flag (show $0 placeholders), not a render gate.
+  const shouldRenderDashboard = hasPositions;
 
   return (
     <div
@@ -119,128 +123,122 @@ export default async function PortfolioPage() {
         />
       </div>
 
-      {hasPositions ? (
+      {shouldRenderDashboard ? (
         <>
           <ProductSection
-            title="Performance & Liquidity"
-            eyebrow="Portfolio"
-            provenance={portfolioProvenance}
-            showProvenance={hasPositions}
-            variant={sectionVariant}
-            previewLead={previewZeros ? false : undefined}
-            showPreviewHead={!previewZeros}
-            className="pf-hero-section"
-            data-section="hero-pulse"
-          >
-            <div className="pf-hero-grid">
-              <div className="pf-main-chart-wrapper">
-                <ValueChart
-                  positions={data.positions}
-                  totalValueUsdc={data.totalValueUsdc}
-                  source={data.source}
-                  updatedAt={data.updatedAt}
-                  previewZeros={previewZeros}
-                />
-              </div>
-              <aside className="pf-hero-sidebar">
-                <HeroKpiTable
-                  totalValueUsdc={data.totalValueUsdc}
-                  totalYieldYtdUsdc={data.totalYieldYtdUsdc}
-                  nextDistributionAt={data.nextDistributionAt}
-                  hasPositions={hasPositions}
-                  previewZeros={previewZeros}
-                />
-                <HeroPayoutRail
-                  {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
-                  previewZeros={previewZeros}
-                />
-                <HeroLiquidityRail
-                  {...(previewZeros ? zeroLockMeterProps(previewAsOf) : lockMeterProps)}
-                  previewZeros={previewZeros}
-                />
-              </aside>
-            </div>
-          </ProductSection>
+        title="Performance & Liquidity"
+        eyebrow="Portfolio"
+        provenance={portfolioProvenance}
+        showProvenance={hasPositions}
+        variant={sectionVariant}
+        previewLead={previewZeros ? false : undefined}
+        showPreviewHead={!previewZeros}
+        className="pf-hero-section"
+        data-section="hero-pulse"
+      >
+        <div className="pf-hero-grid">
+          <div className="pf-main-chart-wrapper">
+            <ValueChart
+              positions={data.positions}
+              totalValueUsdc={data.totalValueUsdc}
+              source={data.source}
+              updatedAt={data.updatedAt}
+              previewZeros={previewZeros}
+            />
+          </div>
+          <aside className="pf-hero-sidebar">
+            <HeroKpiTable
+              totalValueUsdc={data.totalValueUsdc}
+              totalYieldYtdUsdc={data.totalYieldYtdUsdc}
+              nextDistributionAt={data.nextDistributionAt}
+              hasPositions={hasPositions}
+              previewZeros={previewZeros}
+            />
+            <HeroPayoutRail
+              {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
+              previewZeros={previewZeros}
+            />
+            <HeroLiquidityRail
+              {...(previewZeros ? zeroLockMeterProps(previewAsOf) : lockMeterProps)}
+              previewZeros={previewZeros}
+            />
+          </aside>
+        </div>
+      </ProductSection>
 
-          <div className="pf-section-stack">
-            <div
-              data-section="yield-allocation"
-              data-testid="capital-yield-widget"
-            >
-              <CapitalYield
-                {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
-                buckets={allocationDonutProps.buckets}
-                totalValueUsdc={data.totalValueUsdc}
+      <div className="pf-section-stack">
+        <div
+          data-section="yield-allocation"
+          data-testid="capital-yield-widget"
+        >
+          <CapitalYield
+            {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
+            buckets={allocationDonutProps.buckets}
+            totalValueUsdc={data.totalValueUsdc}
+            previewZeros={previewZeros}
+          />
+        </div>
+
+        <ProductSection
+          title="Yield & Trust Pulse"
+          eyebrow="Trust"
+          provenance={portfolioProvenance}
+          showProvenance={hasPositions}
+          variant={sectionVariant}
+          previewLead={previewZeros ? false : undefined}
+          showPreviewHead={!previewZeros}
+          className="pf-yield-trust-section"
+          data-section="yield-trust"
+        >
+          <div data-testid="trust-panel-widget">
+            <TrustPanel
+              risk={riskPulseProps}
+              proof={previewZeros ? zeroProofPulseProps(previewAsOf) : proofPulseProps}
+              previewZeros={previewZeros}
+            />
+          </div>
+        </ProductSection>
+      </div>
+
+      <div className="pf-section-stack">
+        <ProductSection
+          title="Activity & Payouts"
+          eyebrow="Activity"
+          provenance={portfolioProvenance}
+          showProvenance={hasPositions}
+          variant={sectionVariant}
+          previewLead={previewZeros ? false : undefined}
+          showPreviewHead={!previewZeros}
+          className="pf-activity-payouts-section"
+          data-section="activity-payouts"
+        >
+          <div className="pf-activity-grid">
+            <div data-testid="recent-activity-widget">
+              <RecentActivity
+                transactions={data.recentTransactions}
+                source={data.source}
+                updatedAt={data.updatedAt}
                 previewZeros={previewZeros}
               />
             </div>
-
-            <ProductSection
-              title="Yield & Trust Pulse"
-              eyebrow="Trust"
-              provenance={portfolioProvenance}
-              showProvenance={hasPositions}
-              variant={sectionVariant}
-              previewLead={previewZeros ? false : undefined}
-              showPreviewHead={!previewZeros}
-              className="pf-yield-trust-section"
-              data-section="yield-trust"
-            >
-              <div data-testid="trust-panel-widget">
-                <TrustPanel
-                  risk={riskPulseProps}
-                  proof={previewZeros ? zeroProofPulseProps(previewAsOf) : proofPulseProps}
-                  previewZeros={previewZeros}
-                />
-              </div>
-            </ProductSection>
+            <div data-testid="distrib-calendar-widget">
+              <DistribCalendar
+                {...distribCalendarProps}
+                entries={
+                  previewZeros && distribCalendarProps.entries.length === 0
+                    ? buildZeroDistribEntries(previewAsOf.getUTCFullYear())
+                    : distribCalendarProps.entries
+                }
+                previewZeros={
+                  previewZeros && distribCalendarProps.entries.length === 0
+                }
+              />
+            </div>
           </div>
-
-          <div className="pf-section-stack">
-            <ProductSection
-              title="Activity & Payouts"
-              eyebrow="Activity"
-              provenance={portfolioProvenance}
-              showProvenance={hasPositions}
-              variant={sectionVariant}
-              previewLead={previewZeros ? false : undefined}
-              showPreviewHead={!previewZeros}
-              className="pf-activity-payouts-section"
-              data-section="activity-payouts"
-            >
-              <div className="pf-activity-grid">
-                <div data-testid="recent-activity-widget">
-                  <RecentActivity
-                    transactions={data.recentTransactions}
-                    source={data.source}
-                    updatedAt={data.updatedAt}
-                    previewZeros={previewZeros}
-                  />
-                </div>
-                <div data-testid="distrib-calendar-widget">
-                  <DistribCalendar
-                    {...distribCalendarProps}
-                    entries={
-                      previewZeros && distribCalendarProps.entries.length === 0
-                        ? buildZeroDistribEntries(previewAsOf.getUTCFullYear())
-                        : distribCalendarProps.entries
-                    }
-                    previewZeros={
-                      previewZeros && distribCalendarProps.entries.length === 0
-                    }
-                  />
-                </div>
-              </div>
-            </ProductSection>
-          </div>
+        </ProductSection>
+      </div>
         </>
-      ) : (
-        <div className="pf-cockpit-panel pf-cockpit-panel--compact">
-          <p className="body-sm ct-text-muted m-0 text-center py-6 text-balance">
-            Once your first deposit is confirmed, portfolio value, yield allocation, risk pulse and payout calendar will appear here.
-          </p>
-        </div>
-      )}
+      ) : null}
 
       <footer className="pf-footer">
         <p className="pf-footer-disclaimer body-xs ct-text-muted ct-prose-xl">
