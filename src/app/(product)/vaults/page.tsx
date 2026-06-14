@@ -1,5 +1,10 @@
 import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { listVaults } from "@/lib/data/vaults";
+import { getInvestor } from "@/lib/auth/session";
+import { isDemoInvestor } from "@/lib/demo/provider";
+import { buildDemoVaults } from "@/lib/demo/builders";
+import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
+import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { ProductSelectCard } from "@/components/vaults/product-select-card";
 
@@ -10,7 +15,9 @@ export const metadata = {
 };
 
 export default async function VaultsPage() {
-  const vaults = await listVaults();
+  const investor = await getInvestor();
+  const demo = isDemoInvestor(investor);
+  const vaults = demo ? buildDemoVaults() : await listVaults();
 
   return (
     <InvestFlowShell
@@ -31,6 +38,9 @@ export default async function VaultsPage() {
           heading — see DESIGN_SYSTEM §UI-Hierarchy. No redundant section h2:
           the product list is the section body directly under the page thesis. */}
       <section aria-label="Available products">
+        {demo ? (
+          <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-4" />
+        ) : null}
         {vaults.length === 0 ? (
           <AwaitingMetricState
             message="No vault is currently deployed with a verified on-chain contract."

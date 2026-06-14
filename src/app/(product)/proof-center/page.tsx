@@ -33,6 +33,10 @@ import { isAttestorAllowlisted } from "@/lib/attestation/stored";
 import { loadCustody } from "@/lib/data/custody";
 import { getProofs } from "@/lib/data/proofs";
 import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
+import { getInvestor } from "@/lib/auth/session";
+import { isDemoInvestor } from "@/lib/demo/provider";
+import { buildDemoProofs } from "@/lib/demo/builders";
+import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { prisma } from "@/lib/db";
 import { TIMELOCK_DELAY_HOURS } from "@/lib/governance/state-machine";
 
@@ -48,11 +52,21 @@ export default async function ProductProofCenterPage({
   const filter = parseFilter(raw);
 
   const chainConfigured = isChainConfigured();
+
+  // Demo provider (guard-gated → never production): the recognized demo
+  // identity sees synthetic demo proofs in the grid instead of the DB rows.
+  // The on-chain sections (events / attestations / custody / coverage) are
+  // untouched and keep their normal testnet/empty states.
+  const investor = await getInvestor();
+  const demo = isDemoInvestor(investor);
+
   const [onChainEvents, onChainAttestations, paper, custody, timelockProposals, showDemoBanner] =
     await Promise.all([
       fetchOnChainEvents({ limit: 20 }),
       fetchOnChainAttestations({ limit: 12 }),
-      getProofs().then((r) => r.data),
+      demo
+        ? Promise.resolve(buildDemoProofs())
+        : getProofs().then((r) => r.data),
       loadCustody(),
       prisma.governanceProposal.findMany({
         where: { state: "TIMELOCK" },
@@ -135,7 +149,11 @@ export default async function ProductProofCenterPage({
         }
       />
 
-      {showDemoBanner ? <DemoDataBanner /> : null}
+      {demo ? (
+        <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} />
+      ) : showDemoBanner ? (
+        <DemoDataBanner />
+      ) : null}
 
       {/* ── Proof of Reserves summary ───────────────────────── */}
       <section aria-labelledby="por-heading">

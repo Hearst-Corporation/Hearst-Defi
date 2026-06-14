@@ -2,6 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 
 import { getVault } from "@/lib/data/vaults";
+import { getInvestor } from "@/lib/auth/session";
+import { isDemoInvestor } from "@/lib/demo/provider";
+import { buildDemoVaultDetail } from "@/lib/demo/builders";
+import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
+import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,7 +50,9 @@ function InvestCta({
 
 export default async function VaultDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const vault = await getVault(id);
+  const investor = await getInvestor();
+  const demo = isDemoInvestor(investor);
+  const vault = demo ? buildDemoVaultDetail(id) : await getVault(id);
 
   if (!vault) notFound();
 
@@ -114,6 +121,9 @@ export default async function VaultDetailPage({ params }: PageProps) {
         </dl>
       }
     >
+      {demo ? (
+        <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-4" />
+      ) : null}
       <TermSheetPreview vault={vault} workspace />
     </InvestFlowShell>
   );

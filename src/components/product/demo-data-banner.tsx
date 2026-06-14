@@ -5,9 +5,15 @@ const DEMO_BANNER_COPY =
 
 interface DemoDataBannerProps {
   className?: string;
+  /**
+   * Optional override copy. When provided, it replaces the default banner text
+   * (used by the Demo Provider to surface DEMO_SANDBOX_DISCLAIMER). Existing
+   * callers omit it and keep the default copy unchanged.
+   */
+  message?: string;
 }
 
-export function DemoDataBanner({ className }: DemoDataBannerProps) {
+export function DemoDataBanner({ className, message }: DemoDataBannerProps) {
   return (
     <div
       role="note"
@@ -17,7 +23,9 @@ export function DemoDataBanner({ className }: DemoDataBannerProps) {
         className,
       )}
     >
-      <p className="body-sm m-0 ct-status-warning font-medium">{DEMO_BANNER_COPY}</p>
+      <p className="body-sm m-0 ct-status-warning font-medium">
+        {message ?? DEMO_BANNER_COPY}
+      </p>
     </div>
   );
 }

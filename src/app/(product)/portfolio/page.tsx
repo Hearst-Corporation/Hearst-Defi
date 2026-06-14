@@ -26,6 +26,9 @@ import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
+import { isDemoInvestor } from "@/lib/demo/provider";
+import { buildDemoPortfolio } from "@/lib/demo/builders";
+import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
 import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
@@ -59,7 +62,16 @@ function displayName(
 }
 
 export default async function PortfolioPage() {
-  const [investor, data] = await Promise.all([getInvestor(), loadPortfolio()]);
+  const [investor, liveData] = await Promise.all([
+    getInvestor(),
+    loadPortfolio(),
+  ]);
+
+  // Demo provider (guard-gated → never production): the recognized demo
+  // identity sees the synthetic demo portfolio instead of the live loader
+  // result. Non-demo path is byte-identical to before (liveData == data).
+  const demo = isDemoInvestor(investor);
+  const data = demo ? buildDemoPortfolio() : liveData;
 
   const hasPositions = data.positions.length > 0;
   const previewZeros = isLayoutPreview(hasPositions);
@@ -106,7 +118,11 @@ export default async function PortfolioPage() {
       className={cn("pf-container", previewZeros && "pf-container--zero")}
       data-testid="portfolio-page"
     >
-      {showDemoBanner ? <DemoDataBanner /> : null}
+      {demo ? (
+        <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} />
+      ) : showDemoBanner ? (
+        <DemoDataBanner />
+      ) : null}
 
       <PortfolioGreeting name={displayName(investor)} data={data} />
 
