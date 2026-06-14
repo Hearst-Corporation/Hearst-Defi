@@ -46,7 +46,7 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
    provenance — no vault reuses another's numbers silently.
 10. Every projection must show its **assumptions** and a **"not guaranteed"** disclaimer.
 11. **HARD RULE — no cross-project imports.** It is **forbidden** to copy, move, or import any
-    component, file, asset, snippet, type, style, or dependency from `/Users/adrienbeyondcrypto/Dev/hearst-connect`
+    component, file, asset, snippet, type, style, or dependency from `/Users/adrienbeyondcrypto/Dev/Projects/hearst-connect`
     (or any other sibling repo) into this codebase. That project is **read-only reference material**:
     you may open it to study patterns/structure, but every line shipped here must be **recoded
     from scratch** using this project's locked design system (Cockpit tokens) and conventions.
