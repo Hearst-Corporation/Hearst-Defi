@@ -24,6 +24,10 @@ import {
 import { monthsToTarget } from "@/lib/projection-chart";
 import { subscribe } from "@/app/actions/subscribe";
 import { isPrivyConfigured } from "@/lib/auth/is-privy-configured";
+import {
+  DEMO_INVEST_CTA_LABEL,
+  DEMO_SANDBOX_DISCLAIMER,
+} from "@/lib/demo/markers";
 import type { VaultProduct } from "@/lib/data/vaults";
 import {
   formatUsdAmount,
@@ -40,7 +44,7 @@ type CtaState =
   | "confirming"
   | "ready";
 
-function ctaLabel(state: CtaState, amount: number): string {
+function ctaLabel(state: CtaState, amount: number, demo: boolean): string {
   switch (state) {
     case "no_wallet":
       return "Connect a wallet to continue";
@@ -55,6 +59,7 @@ function ctaLabel(state: CtaState, amount: number): string {
     case "confirming":
       return "Confirming…";
     case "ready":
+      if (demo) return DEMO_INVEST_CTA_LABEL;
       return amount > 0
         ? `Review deposit · ${formatUsdAmount(amount)} →`
         : "Review deposit →";
@@ -93,10 +98,19 @@ function buildPtai(
 
 interface InvestFormProps {
   vault: VaultProduct;
+  /**
+   * Demo sandbox path (guard-gated demo identity only, never prod). When true,
+   * the form bypasses the wallet/allowance/epoch pre-flight gating and the
+   * confirm path performs NO on-chain deposit and NO real subscribe — it
+   * redirects straight to the confirmed page. Defaults to false so the live
+   * institutional flow is completely unchanged.
+   */
+  demo?: boolean;
 }
 
-export function InvestForm({ vault }: InvestFormProps) {
-  if (!isPrivyConfigured()) {
+export function InvestForm({ vault, demo = false }: InvestFormProps) {
+  // Demo path does not require Privy: it never connects a wallet or signs.
+  if (!demo && !isPrivyConfigured()) {
     return (
       <PanelStatus
         message="Wallet connection is being configured."
@@ -104,10 +118,10 @@ export function InvestForm({ vault }: InvestFormProps) {
       />
     );
   }
-  return <InvestFormLive vault={vault} />;
+  return <InvestFormLive vault={vault} demo={demo} />;
 }
 
-function InvestFormLive({ vault }: InvestFormProps) {
+function InvestFormLive({ vault, demo = false }: InvestFormProps) {
   const router = useRouter();
   const { ready } = usePrivy();
   const { wallets } = useWallets();
@@ -136,6 +150,14 @@ function InvestFormLive({ vault }: InvestFormProps) {
 
   function ctaState(): CtaState {
     if (depositing) return "confirming";
+    // Demo path: no wallet, no vault config, no on-chain pre-flight. Only the
+    // input-validity (amount) and term-sheet acceptance gates remain so the
+    // form still validates user input before the simulated deposit.
+    if (demo) {
+      if (!amountValid) return "enter_amount";
+      if (!agreedToTermSheet) return "accept_terms";
+      return "ready";
+    }
     if (!ready || walletAddress === null) return "no_wallet";
     if (!VAULT_ADDRESS) return "no_vault_config";
     if (!amountValid) return "enter_amount";
@@ -181,6 +203,18 @@ function InvestFormLive({ vault }: InvestFormProps) {
     if (!ctaEnabled || depositing) {
       setAwaitingConfirm(false);
       setDepositError(null);
+      return;
+    }
+
+    // Demo sandbox path — sits ABOVE every real effect. NO wallet provider, NO
+    // depositToVault (no chain write / signature), NO real subscribe (no DB
+    // write). Redirect straight to the confirmed page with the amount only: no
+    // `tx=` (we never present a fake-real hash) and no `positionId`. The
+    // confirmed page detects demo via getInvestor server-side, not a searchparam.
+    if (demo) {
+      router.push(
+        `/vaults/${vault.id}/invest/confirmed?amount=${amount}`,
+      );
       return;
     }
 
@@ -242,7 +276,7 @@ function InvestFormLive({ vault }: InvestFormProps) {
       setDepositing(false);
       setAwaitingConfirm(false);
     }
-  }, [ctaEnabled, depositing, privyWallet, amount, vault, router]);
+  }, [ctaEnabled, depositing, demo, privyWallet, amount, vault, router]);
 
   const handleCancelConfirm = useCallback(() => {
     setAwaitingConfirm(false);
@@ -401,10 +435,14 @@ function InvestFormLive({ vault }: InvestFormProps) {
                     !ctaEnabled && "opacity-60 cursor-not-allowed",
                   )}
                 >
-                  {ctaLabel(currentCtaState, amount)}
+                  {ctaLabel(currentCtaState, amount, demo)}
                 </Button>
               </div>
             )}
+
+            {demo ? (
+              <p className="body-xs ct-text-muted">{DEMO_SANDBOX_DISCLAIMER}</p>
+            ) : null}
           </div>
         </div>
 

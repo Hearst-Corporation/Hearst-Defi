@@ -19,6 +19,14 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, it, expect, vi } from "vitest";
 
+// The confirmed page resolves the investor server-side (to detect the demo
+// sandbox identity). Mock it to a NON-demo result so these structural tests
+// exercise the existing live-confirmation branch (unchanged) without a request
+// scope. The demo branch is covered by the demo provider tests.
+vi.mock("@/lib/auth/session", () => ({
+  getInvestor: vi.fn().mockResolvedValue(null),
+}));
+
 import ConfirmedPage from "@/app/(product)/vaults/[id]/invest/confirmed/page";
 
 /** Build a fake resolved Promise. */

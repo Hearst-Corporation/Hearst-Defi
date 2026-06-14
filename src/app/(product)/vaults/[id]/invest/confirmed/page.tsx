@@ -6,6 +6,10 @@
 
 import Link from "next/link";
 
+import { getInvestor } from "@/lib/auth/session";
+import { isDemoInvestor } from "@/lib/demo/provider";
+import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
+import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { Button } from "@/components/ui/button";
 import { NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -50,12 +54,69 @@ const VAULT_CONTRACT =
   null;
 
 export default async function ConfirmedPage({ params, searchParams }: PageProps) {
-  const [{ id }, sp] = await Promise.all([params, searchParams]);
+  const [{ id }, sp, investor] = await Promise.all([
+    params,
+    searchParams,
+    getInvestor(),
+  ]);
+
+  // Demo status is resolved server-side from the identity (guard-gated → never
+  // prod), NEVER from a searchparam (which would be spoofable).
+  const demo = isDemoInvestor(investor);
 
   const txHash = sp.tx ?? null;
   const amount = formatUsdcFromParam(sp.amount);
   const positionId = sp.positionId ?? null;
   const email = sp.email ?? null;
+
+  if (demo) {
+    return (
+      <InvestFlowShell
+        width="narrow"
+        step="confirmed"
+        align="center"
+        lead={<DepositSuccessIcon />}
+        title="Demo deposit simulated"
+        description="No real subscription was created. This sandbox flow is for visual QA only."
+        footer={
+          <p className="body-xs ct-text-faint text-center text-pretty">
+            APY ranges are target projections based on stated assumptions — not a
+            commitment of future returns. Subject to vault conditions and
+            Methodology v1.0.{" "}
+            <span className="tabular mono ct-text-muted">Vault {id}</span>
+          </p>
+        }
+      >
+        <div className="product-doc-stack">
+          <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} />
+
+          <NestedPanel className="py-0">
+            <VaultPanelHeader
+              title="Simulated position"
+              trailing={<ProvenanceBadge kind="estimated" />}
+            />
+            <div className="vault-panel-body">
+              {amount !== "—" ? (
+                <VaultDetailRow label="Amount" value={`${amount} USDC`} />
+              ) : null}
+              <VaultDetailRow label="NAV at entry" value="1.0000 USDC / share" />
+              {/* No transaction row, no contract address, no explorer link:
+                  the demo never presents an on-chain settlement. */}
+            </div>
+          </NestedPanel>
+
+          <div className="product-doc-stack--actions">
+            <Button variant="primary" size="lg" asChild className="w-full">
+              <Link href="/portfolio">Back to portfolio</Link>
+            </Button>
+            <Button variant="ghost" size="md" asChild className="w-full">
+              <Link href="/vaults">View other products</Link>
+            </Button>
+          </div>
+        </div>
+      </InvestFlowShell>
+    );
+  }
 
   const hasHash = txHash !== null && txHash.length > 6;
   const baseScanHref = hasHash

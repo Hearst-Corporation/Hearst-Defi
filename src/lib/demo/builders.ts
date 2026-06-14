@@ -28,6 +28,8 @@ import type { PortfolioData } from "@/lib/data/portfolio";
 import type { VaultProduct } from "@/lib/data/vaults";
 import type { ProofItem } from "@/lib/proof-center-types";
 
+import { DEMO_SENTINEL_HASH } from "./markers";
+
 export { DEMO_INVESTOR_EMAIL, DEMO_YIELD_VAULT_ID };
 
 // ---------------------------------------------------------------------------
@@ -44,13 +46,8 @@ const DEMO_APY_HIGH = 12.8 as const;
 /** Period stamped on the demo proofs — must match the position's vault. */
 const DEMO_PROOF_PERIOD = "2026-05" as const;
 
-/**
- * Sentinel hash for demo proofs. Clearly NOT a real settled transaction — it
- * spells "demo" and is padded with zeros, so nothing here can be mistaken for
- * on-chain settlement.
- */
-const DEMO_SENTINEL_HASH =
-  "0xde00000000000000000000000000000000000000000000000000000000000000" as const;
+// DEMO_SENTINEL_HASH (the 0xde…0 non-real digest used on demo proofs) now lives
+// in ./markers as the single source of truth and is imported above.
 
 /** Stable "now" anchor is supplied by the caller-free helpers via `new Date()`
  *  only where a relative date is needed (position subscribedAt). The builders

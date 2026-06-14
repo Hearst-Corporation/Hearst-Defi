@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { DEMO_YIELD_VAULT_ID } from "@/lib/dev/investor-demo";
+import { DEMO_SENTINEL_HASH } from "../markers";
 import {
   buildDemoPortfolio,
   buildDemoProofs,
@@ -163,6 +164,25 @@ describe("buildDemoProofs", () => {
       expect(typeof pr.uri).toBe("string");
       expect(typeof pr.postedAt).toBe("string");
       expect(typeof pr.postedBy).toBe("string");
+    }
+  });
+});
+
+describe("DEMO_SENTINEL_HASH — clearly a sentinel, never a settled tx", () => {
+  it("is the fixed, clearly-sentinel 0xde…0 value", () => {
+    expect(DEMO_SENTINEL_HASH.startsWith("0xde")).toBe(true);
+    expect(DEMO_SENTINEL_HASH).toBe(
+      "0xde00000000000000000000000000000000000000000000000000000000000000",
+    );
+  });
+
+  it("appears ONLY as a document digest (proof.hash), NEVER as a settled tx", () => {
+    // Honesty rule: the demo never claims an on-chain settlement. The sentinel
+    // is a document digest on proof.hash; every proof's txHash stays null, so
+    // nothing here is presented as a real settled transaction.
+    for (const pr of buildDemoProofs()) {
+      expect(pr.hash).toBe(DEMO_SENTINEL_HASH);
+      expect(pr.txHash).toBeNull();
     }
   });
 });
