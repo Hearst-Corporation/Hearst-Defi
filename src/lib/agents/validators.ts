@@ -13,6 +13,7 @@ import {
   containsForbidden,
   FORBIDDEN_WORDS as CANONICAL_FORBIDDEN_WORDS,
 } from "./forbidden-words";
+import { hasSinglePointApy } from "./apy-range";
 
 // Re-export so existing call-sites (`import { FORBIDDEN_WORDS } from
 // "@/lib/agents/validators"`) keep working without churn.
@@ -40,6 +41,26 @@ export function assertNoForbiddenWords(text: string): void {
       `Hearst agents must not use unconditional language. ` +
       `Rewrite the offending sentence.`,
   );
+}
+
+/**
+ * Throws if `text` presents an APY as a single point (non-negotiable #1: APY is
+ * always a range, e.g. "9.4-12.8%", never "11%"). Uses the SAME conservative
+ * detector as the LP chat output guard (`@/lib/agents/apy-range`), so the four
+ * batch agents and the chat enforce identical logic. Batch output is buffered
+ * and complete, so the end of text is a sentence boundary (`final = true`).
+ *
+ * Closes the gap where #1 was guaranteed for agent outputs by the prompt alone,
+ * with no output-side linter (contre-audit AGENT-04 → fixed).
+ */
+export function assertApyAlwaysRange(text: string): void {
+  if (hasSinglePointApy(text, true)) {
+    throw new Error(
+      "Single-point APY detected in agent output. Hearst non-negotiable #1: APY " +
+        'must always be expressed as a range (e.g. "9.4-12.8%"), never a single ' +
+        "point. Rewrite the offending sentence as a fourchette.",
+    );
+  }
 }
 
 /**

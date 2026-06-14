@@ -18,7 +18,11 @@ import {
   DISCLAIMER_NOT_GUARANTEED,
   DISCLAIMER_PROJECTION,
 } from "@/lib/agents/system-prompts/disclaimers";
-import { assertCitesAssumption, assertNoForbiddenWords } from "@/lib/agents/validators";
+import {
+  assertApyAlwaysRange,
+  assertCitesAssumption,
+  assertNoForbiddenWords,
+} from "@/lib/agents/validators";
 
 /**
  * Default model id for the Mining Health Agent.
@@ -206,6 +210,8 @@ export async function runMiningHealth(
 
   assertNoForbiddenWords(validated.summary);
   assertNoForbiddenWords(validated.recommendation);
+  assertApyAlwaysRange(validated.summary);
+  assertApyAlwaysRange(validated.recommendation);
   assertCitesAssumption(validated.summary);
 
   return validated;

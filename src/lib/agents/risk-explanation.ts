@@ -19,7 +19,11 @@ import {
   DISCLAIMER_NOT_GUARANTEED,
   DISCLAIMER_PROJECTION,
 } from "@/lib/agents/system-prompts/disclaimers";
-import { assertCitesAssumption, assertNoForbiddenWords } from "@/lib/agents/validators";
+import {
+  assertApyAlwaysRange,
+  assertCitesAssumption,
+  assertNoForbiddenWords,
+} from "@/lib/agents/validators";
 
 /**
  * Default model id for the Risk Explanation Agent.
@@ -218,9 +222,12 @@ export async function runRiskExplanation(
   for (const risk of validated.top_risks) {
     assertNoForbiddenWords(risk.explanation);
     assertNoForbiddenWords(risk.suggested_guardrail);
+    assertApyAlwaysRange(risk.explanation);
+    assertApyAlwaysRange(risk.suggested_guardrail);
     assertCitesAssumption(risk.explanation);
   }
   assertNoForbiddenWords(validated.overall_summary);
+  assertApyAlwaysRange(validated.overall_summary);
 
   // Every summary must cite at least one assumption
   assertCitesAssumption(validated.overall_summary);

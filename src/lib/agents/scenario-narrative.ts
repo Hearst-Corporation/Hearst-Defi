@@ -18,7 +18,11 @@ import {
   DISCLAIMER_NOT_GUARANTEED,
   DISCLAIMER_PROJECTION,
 } from "@/lib/agents/system-prompts/disclaimers";
-import { assertCitesAssumption, assertNoForbiddenWords } from "@/lib/agents/validators";
+import {
+  assertApyAlwaysRange,
+  assertCitesAssumption,
+  assertNoForbiddenWords,
+} from "@/lib/agents/validators";
 import {
   loadUserAgentProfile,
   loadUserMemory,
@@ -284,6 +288,13 @@ export async function runScenarioNarrative(
   assertNoForbiddenWords(validated.ptai.trigger);
   assertNoForbiddenWords(validated.ptai.action);
   assertNoForbiddenWords(validated.ptai.impact);
+  // #1 (APY always a range) applies to the headline/projected APY. `ptai.impact`
+  // is deliberately EXEMPT: it reports a single stressed-scenario outcome (e.g.
+  // "Stressed APY 6.4%"), a point result of one adverse scenario — not a headline
+  // projection — and the codebase models it that way across all PTAI fixtures.
+  assertApyAlwaysRange(validated.narrative_md);
+  assertApyAlwaysRange(validated.risk_warning);
+  assertApyAlwaysRange(validated.ptai.projection);
   assertCitesAssumption(validated.narrative_md);
 
   if (validated.confidence === "low" && !/low confidence/i.test(validated.narrative_md)) {

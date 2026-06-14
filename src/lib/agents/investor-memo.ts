@@ -18,7 +18,11 @@ import {
   DISCLAIMER_NOT_GUARANTEED,
   DISCLAIMER_PROJECTION,
 } from "@/lib/agents/system-prompts/disclaimers";
-import { assertNoForbiddenWords, assertCitesAssumption } from "@/lib/agents/validators";
+import {
+  assertApyAlwaysRange,
+  assertNoForbiddenWords,
+  assertCitesAssumption,
+} from "@/lib/agents/validators";
 import {
   loadUserAgentProfile,
   loadUserMemory,
@@ -357,6 +361,17 @@ export async function runInvestorMemo(
   assertNoForbiddenWords(validated.performance_section);
   assertNoForbiddenWords(validated.methodology_note);
   assertNoForbiddenWords(validated.disclaimer);
+
+  // Non-negotiable #1: no section may quote a single-point APY (the disclaimer
+  // is a verbatim legal template with no APY figure, so it is exempt — same as
+  // the assumption check below).
+  assertApyAlwaysRange(validated.executive_summary);
+  assertApyAlwaysRange(validated.vault_structure);
+  assertApyAlwaysRange(validated.scenario_analysis);
+  assertApyAlwaysRange(validated.risk_section);
+  assertApyAlwaysRange(validated.mining_section);
+  assertApyAlwaysRange(validated.performance_section);
+  assertApyAlwaysRange(validated.methodology_note);
 
   // Assumption citation checks: every narrative section must cite >=1
   // assumption (spec/09-agents.mdx: "Every section must reference at least

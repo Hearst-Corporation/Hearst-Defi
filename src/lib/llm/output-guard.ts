@@ -28,6 +28,9 @@
  */
 
 import { containsForbiddenChat } from "@/lib/agents/forbidden-words";
+// Single source of truth for the APY-always-a-range rule (#1), shared with the
+// batch-agent validator so chat and agents enforce identical logic.
+import { hasSinglePointApy } from "@/lib/agents/apy-range";
 
 /**
  * Sentinel the cockpit-shell client parses to surface a stream error. The
@@ -41,76 +44,6 @@ export const BLOCK_SENTINEL =
  *  chunk boundary is caught before any of it is streamed. Must exceed the
  *  longest needle + a short trailing window. */
 const SETTLE = 64;
-
-/** Non-global so `.test()` is stateless across sentences (no `lastIndex` carry). */
-const PERCENT_RE = /\d+(?:[.,]\d+)?\s?%/;
-
-/**
- * A genuine PERCENTAGE range construct: two numbers joined by a range connector
- * where the construct itself carries a `%`. Requiring the `%` INSIDE the range
- * is what stops an incidental numeric range elsewhere in the sentence ("sur 8 à
- * 15 fermes", "entre 2024 et 2026", "3-4 fois le livret A") from excusing a
- * single-point APY percentage (P1). An APY fourchette is ALWAYS quoted in % —
- * "8 à 15 %", "9.4-12.8%", "8 % et 15 %" — so the genuine range always has a %
- * within it, while a bare "<num> à <num>" of farms/years/multiples does not.
- *
- *   <num>[ digits / sep ] <connector> <num>[ digits / sep ] %
- *   <num>[ digits / sep ] % <connector> <num>[ digits / sep ] %
- *
- * Connectors: "à", "to", "et", or a dash (- – —).
- */
-const PERCENT_RANGE_RE =
-  /\d[\d.,\s]*%?\s*(?:à|to|et|[-–—])\s*\d[\d.,\s]*%/i;
-
-/**
- * "entre <num>[%] ... et <num> %" — the canonical French range phrasing. The
- * `%` must attach to the SECOND operand directly (only digits/decimal/space
- * between the number after "et" and the `%`), so an incidental "entre 2024 et
- * 2026" followed later by a lone "11 %" does NOT match (P1): there, the number
- * right after "et" is 2026, which carries no `%`.
- */
-const ENTRE_RANGE_RE =
-  /\bentre\b[^.!?\n]*?\d[^.!?\n]*?\bet\b[^\d.!?\n]*?\d[\d.,\s]*%/i;
-
-/** Explicit range vocabulary that always denotes a fourchette. */
-const RANGE_WORD_RE = /\b(?:fourchette|range)\b/i;
-
-/** True when the sentence contains a genuine PERCENTAGE range construct (a
- *  range that itself carries a `%`), or explicit fourchette/range vocabulary.
- *  A bare numeric range with no `%` in it (farms, years, multiples) does NOT
- *  count — it must not excuse a single-point APY percentage (P1). */
-function hasNumericRange(sentence: string): boolean {
-  return (
-    PERCENT_RANGE_RE.test(sentence) ||
-    ENTRE_RANGE_RE.test(sentence) ||
-    RANGE_WORD_RE.test(sentence)
-  );
-}
-
-/** Split into sentences. When `final` is false, the trailing fragment (not yet
- *  terminated by . ! ? or newline) is dropped — it may still be growing and a
- *  range could complete in a later chunk. */
-function completedSentences(text: string, final: boolean): string[] {
-  const parts = text.split(/(?<=[.!?\n])\s+/);
-  if (!final && !/[.!?\n]\s*$/.test(text)) {
-    parts.pop();
-  }
-  return parts.filter((s) => s.trim().length > 0);
-}
-
-/** True when a completed sentence presents an APY as a single point: it names
- *  APY, quotes at least one percentage, and carries NO genuine numeric range
- *  construct. A bare "à" or stray hyphen no longer excuses it; only a number
- *  actually bracketed by a range connector (or explicit range vocabulary) does. */
-function hasSinglePointApy(text: string, final: boolean): boolean {
-  for (const sentence of completedSentences(text, final)) {
-    if (!/\bAPY\b/i.test(sentence)) continue;
-    if (!PERCENT_RE.test(sentence)) continue; // no percentage → nothing quoted
-    if (hasNumericRange(sentence)) continue; // genuine fourchette → compliant
-    return true;
-  }
-  return false;
-}
 
 /**
  * Returns a violation reason for `text`, or `null` when compliant.
