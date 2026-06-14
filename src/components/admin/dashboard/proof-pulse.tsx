@@ -19,7 +19,14 @@ export function ProofPulse({
   proofFresh: boolean;
   custodyUsdc: number;
 }) {
-  const provenance: Provenance = resolveProofProvenance(proofFresh, proof);
+  const custodyReady = proof.custodyConfigured && custodyUsdc > 0;
+  const miningProvenance = resolveProofProvenance(proofFresh, proof);
+  // The single header badge covers the whole panel. Don't let a fresh mining
+  // attestation claim panel-wide "Attested" while custody is "Not configured":
+  // downgrade to "partial" (some sources complete, some missing). The custody
+  // footer still shows "Not configured" — this only tempers the header.
+  const provenance: Provenance =
+    miningProvenance === "attested" && !custodyReady ? "partial" : miningProvenance;
 
   return (
     <>

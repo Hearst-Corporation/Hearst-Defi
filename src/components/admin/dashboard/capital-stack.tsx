@@ -1,4 +1,5 @@
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import type { Provenance } from "@/components/ui/provenance-badge";
 import { allocationLabelFor, allocationStrokeFor } from "@/lib/allocation-colors";
 import type { DashboardAllocation } from "@/lib/data/dashboard";
 
@@ -8,9 +9,11 @@ import { usdCompact } from "./formatters";
 export function CapitalStack({
   live,
   allocations,
+  provenance,
 }: {
   live: boolean;
   allocations: DashboardAllocation[];
+  provenance: Provenance;
 }) {
   return (
     <DashboardCommandCell
@@ -18,7 +21,7 @@ export function CapitalStack({
       emptyMessage="Capital stack appears once the first snapshot books real allocations."
       emptyAriaLabel="Capital stack awaiting first snapshot"
     >
-      <DashboardPanelHeader title="Capital stack" provenance="live" tone="primary" />
+      <DashboardPanelHeader title="Capital stack" provenance={provenance} tone="primary" />
       <div className="dashboard-assets-stack">
         {allocations.map((item) => (
           <AllocationStackRow key={item.bucket} item={item} />

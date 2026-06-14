@@ -114,7 +114,11 @@ export function DashboardAssetsBoard({
       </div>
 
       <div className="dashboard-command-row-b">
-        <CapitalStack live={allocationLive} allocations={allocation} />
+        <CapitalStack
+          live={allocationLive}
+          allocations={allocation}
+          provenance={capitalProvenance}
+        />
         <RiskLens risk={risk} riskProvenance={riskProvenance} />
 
         <DashboardCommandCell

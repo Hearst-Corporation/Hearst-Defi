@@ -14,11 +14,14 @@ export function DistributionPanel({
 }: {
   distribution: NonNullable<DashboardData["latestDistribution"]>;
 }) {
+  // A non-paid distribution is a real, committed DB record awaiting settlement —
+  // not admin-typed data. "manual" would misread it; "stale" (awaiting update
+  // from source) is the honest neutral badge. The Status row shows "Scheduled".
   const provenance: Provenance = distribution.synthesized
     ? "estimated"
     : distribution.status === "paid"
       ? "live"
-      : "manual";
+      : "stale";
 
   return (
     <>
