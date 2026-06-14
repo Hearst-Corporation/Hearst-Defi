@@ -1,3 +1,4 @@
+// deferred: no notification backend or read/unread model in schema; wire when notifications persistence is added
 "use client";
 
 import { cn } from "@/lib/cn";

@@ -1,3 +1,4 @@
+// deferred: shell keyboard handler needed in layout.tsx / app-chrome.tsx which is off-limits per rules; wire when shell gate is lifted
 "use client";
 
 import { useCallback, useEffect, useId, useRef } from "react";

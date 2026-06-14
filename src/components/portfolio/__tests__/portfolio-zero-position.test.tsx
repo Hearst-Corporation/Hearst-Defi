@@ -147,7 +147,7 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
       <PositionsList positions={[]} source="fallback" previewZeros />,
     );
     expect(html).toContain("Principal");
-    expect(html).toContain("Target APY");
+    expect(html).toContain("APY range");
     expect(html).toContain('role="status"');
     expect(html).toContain("No open positions yet");
     expect(html).toContain("Your first confirmed deposit will appear here.");

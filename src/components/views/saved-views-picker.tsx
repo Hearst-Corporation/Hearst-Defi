@@ -1,3 +1,4 @@
+// deferred: SavedView model exists in schema but no table/list UI has a toolbar slot yet; wire alongside first admin list view
 "use client";
 
 /**

@@ -34,17 +34,11 @@ function InvestCta({
   size?: "md" | "lg";
   className?: string;
 }) {
-  if (isLive) {
-    return (
-      <Button variant="primary" size={size} asChild className={className}>
-        <Link href={investHref}>Continue to deposit</Link>
-      </Button>
-    );
-  }
+  if (!isLive) return null;
 
   return (
-    <Button variant="secondary" size={size} disabled aria-disabled className={className}>
-      Coming soon
+    <Button variant="primary" size={size} asChild className={className}>
+      <Link href={investHref}>Continue to deposit</Link>
     </Button>
   );
 }
@@ -88,7 +82,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       headerBelowStepper={
         <dl className="vault-detail-kpis">
           <div>
-            <dt className="stat-label">Target APY</dt>
+            <dt className="stat-label">APY range</dt>
             <dd className="mt-0.5">
               <ApyRange
                 low={vault.apyLow}

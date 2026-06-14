@@ -45,7 +45,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
 
           <div className="product-doc-stack product-doc-stack--compact">
             <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--start">
-              <span className="stat-label">Target APY range</span>
+              <span className="stat-label">APY range</span>
               <ProvenanceBadge kind="estimated" compact />
             </div>
             <ApyRange
@@ -79,11 +79,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
                 View details
               </Link>
             </Button>
-          ) : (
-            <Button variant="secondary" size="md" disabled aria-disabled className="mt-auto w-full">
-              Coming soon
-            </Button>
-          )}
+          ) : null}
         </div>
       </div>
     </Card>

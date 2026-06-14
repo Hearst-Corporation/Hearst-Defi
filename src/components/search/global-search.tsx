@@ -1,3 +1,4 @@
+// deferred: shell mount point (layout.tsx / app-chrome.tsx) is off-limits per rules; wire when shell gate is lifted
 "use client";
 
 /**

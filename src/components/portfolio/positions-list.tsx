@@ -72,7 +72,7 @@ export function PositionsList({
             </div>
             <div className="text-right">Principal</div>
             <div className="text-right">Value</div>
-            <div className="text-right">Target APY</div>
+            <div className="text-right">APY range</div>
             <div className="text-right">Since</div>
           </div>
 

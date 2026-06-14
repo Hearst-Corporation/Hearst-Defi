@@ -94,7 +94,7 @@ export function PositionKpis({ position }: PositionKpisProps) {
       {/* 4 — Realised APY range — non-negotiable #1 */}
       <Metric
         variant="plain"
-        label="Target APY"
+        label="APY range"
         value={
           apyRange ? (
             <ApyRange

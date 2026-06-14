@@ -1,3 +1,4 @@
+// deferred: ValueChart uses a fixed 12-month server-derived series; no time-range data layer exists yet; wire when chart data supports multiple ranges
 "use client";
 
 import { cn } from "@/lib/cn";

@@ -44,12 +44,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 activeVaultId={data.vaultMeta.id}
                 resolveHref={adminDashboardVaultHref}
               />
-              {overview.totalActionRequired > 0 ? (
-                <span className="body-xs ct-text-muted tabular">
-                  {overview.totalActionRequired} tracked action
-                  {overview.totalActionRequired === 1 ? "" : "s"}
-                </span>
-              ) : null}
             </>
           }
         />
