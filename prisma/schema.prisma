@@ -715,6 +715,26 @@ model LlmRun {
   @@index([systemPromptHash])
 }
 
+// Master Agent navigation traces (OBS-02). The LP `navigate` tool is read-only
+// and applied best-effort client-side, so it left no server record. One row per
+// turn where the model proposed a whitelisted destination — no message content,
+// only the decision and its compliance disposition.
+model NavTrace {
+  id             String   @id @default(cuid())
+  createdAt      DateTime @default(now())
+  userId         String?
+  chatId         String?
+  profile        String // lp | admin
+  mode           String // normal | admin | review
+  destinationKey String? // whitelisted key the model proposed
+  status         String // published | blocked
+  reason         String? // short machine code, e.g. "non_compliant_answer"
+
+  @@index([createdAt])
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}
+
 // =============================================================================
 // SAVED VIEWS — Linear-style per-user filter/sort/column presets per table
 // =============================================================================

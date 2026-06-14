@@ -362,6 +362,40 @@ async function persistChatLlmRun(args: {
 }
 
 /**
+ * Persist a navigation trace for one Master Agent turn (OBS-02), off the
+ * response path. One row only when the model actually proposed a whitelisted
+ * destination. `published` = a compliant nav directive was emitted (the server
+ * cannot observe the client-side router.push, which is best-effort); `blocked`
+ * = the destination was dropped because the answer was not compliant. No
+ * message content is stored — only the decision and its disposition.
+ */
+async function persistNavTrace(args: {
+  result: ChatTurnFinal;
+  userId: string;
+  chatId: string | null;
+  profile: "lp" | "admin";
+  mode: ChatMode;
+}): Promise<void> {
+  const { result, userId, chatId, profile, mode } = args;
+  if (!result.navProposedKey) return;
+  await prisma.navTrace
+    .create({
+      data: {
+        userId,
+        chatId,
+        profile,
+        mode,
+        destinationKey: result.navProposedKey,
+        status: result.navBlocked ? "blocked" : "published",
+        reason: result.navBlocked ? "non_compliant_answer" : null,
+      },
+    })
+    .catch(() => {
+      /* tracing must never break the response */
+    });
+}
+
+/**
  * Master Agent turn (flag-gated). Runs the app-side tool-capable engine:
  * streams the guarded answer to the client, persists the user + assistant
  * messages (the cockpit-shell handler did this itself), and publishes the
@@ -479,6 +513,13 @@ async function runMasterAgentTurn(args: {
         startedAt,
         userId,
         systemPromptHash: sha256Hex(systemPrompt),
+      });
+      await persistNavTrace({
+        result,
+        userId,
+        chatId: persistChatId,
+        profile: navProfile,
+        mode: chatMode,
       });
     })
     .catch(() => {

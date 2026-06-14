@@ -43,6 +43,7 @@ vi.mock("@/lib/db", () => ({
       findMany: vi.fn(),
     },
     llmRun: { create: vi.fn() },
+    navTrace: { create: vi.fn() },
   },
 }));
 
@@ -80,6 +81,7 @@ const mockAdminChatModeFindUnique = vi.mocked(prisma.adminChatMode.findUnique);
 const mockCockpitChatCreate = vi.mocked(prisma.cockpitChat.create);
 const mockCockpitMessageCreate = vi.mocked(prisma.cockpitMessage.create);
 const mockLlmRunCreate = vi.mocked(prisma.llmRun.create);
+const mockNavTraceCreate = vi.mocked(prisma.navTrace.create);
 const mockRunChatAgent = vi.mocked(runChatAgent);
 const mockPublishNav = vi.mocked(publishNav);
 
@@ -217,6 +219,7 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
     mockCockpitChatCreate.mockResolvedValue({ id: "chat-1", userId: USER_ID } as never);
     mockCockpitMessageCreate.mockResolvedValue({} as never);
     mockLlmRunCreate.mockResolvedValue({} as never);
+    mockNavTraceCreate.mockResolvedValue({} as never);
     mockPublishNav.mockResolvedValue(undefined);
   });
 
@@ -289,5 +292,75 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
         }),
       });
     });
+  });
+});
+
+describe("POST /api/cockpit-chat — navigate tracing (OBS-02)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRequireAuth.mockResolvedValue({ userId: USER_ID });
+    mockAdminChatModeFindUnique.mockResolvedValue({
+      mode: "normal",
+      userId: USER_ID,
+      updatedAt: new Date(),
+    });
+    mockCockpitChatCreate.mockResolvedValue({ id: "chat-1", userId: USER_ID } as never);
+    mockCockpitMessageCreate.mockResolvedValue({} as never);
+    mockLlmRunCreate.mockResolvedValue({} as never);
+    mockNavTraceCreate.mockResolvedValue({} as never);
+    mockPublishNav.mockResolvedValue(undefined);
+  });
+
+  it("traces a proposed+compliant navigation as published", async () => {
+    mockMasterAgentTurn("portfolio", { navProposedKey: "portfolio", navBlocked: false });
+
+    const res = await POST(makeChatRequest("montre mon portefeuille"));
+    expect(res.status).toBe(200);
+
+    await vi.waitFor(() => {
+      expect(mockNavTraceCreate).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          userId: USER_ID,
+          profile: "lp",
+          mode: "normal",
+          destinationKey: "portfolio",
+          status: "published",
+          reason: null,
+        }),
+      });
+    });
+  });
+
+  it("traces a navigation dropped by the compliance guard as blocked", async () => {
+    mockMasterAgentTurn("portfolio", {
+      text: "",
+      blocked: true,
+      navProposedKey: "portfolio",
+      navBlocked: true,
+    });
+
+    const res = await POST(makeChatRequest("emmène-moi quelque part"));
+    expect(res.status).toBe(200);
+
+    await vi.waitFor(() => {
+      expect(mockNavTraceCreate).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          destinationKey: "portfolio",
+          status: "blocked",
+          reason: "non_compliant_answer",
+        }),
+      });
+    });
+  });
+
+  it("writes no nav trace when the model proposed no navigation", async () => {
+    mockMasterAgentTurn("portfolio", { navProposedKey: null });
+
+    const res = await POST(makeChatRequest("juste une question"));
+    expect(res.status).toBe(200);
+
+    // Let the off-path persistence settle, then assert no nav trace was written.
+    await vi.waitFor(() => expect(mockLlmRunCreate).toHaveBeenCalled());
+    expect(mockNavTraceCreate).not.toHaveBeenCalled();
   });
 });
