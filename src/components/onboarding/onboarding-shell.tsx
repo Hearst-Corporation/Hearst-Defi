@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 import {
   OnboardingShellProvider,
 } from "@/components/onboarding/onboarding-chamber";
-import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
 import type { IrContact } from "@/lib/ir-contact";
 import type { OnboardingState, OnboardingStepId } from "@/lib/onboarding/state";
 
@@ -16,14 +15,11 @@ interface OnboardingShellProps {
 }
 
 export function OnboardingShell({
-  activeStep,
+  activeStep: _activeStep,
   state,
   irContact,
   children,
 }: OnboardingShellProps) {
-  const showStepper =
-    activeStep !== "accreditation" && activeStep !== "identity";
-
   return (
     <OnboardingShellProvider
       checklist={state.checklist}
@@ -43,11 +39,6 @@ export function OnboardingShell({
           </header>
 
           <div className="onboarding-shell__stage product-doc product-doc-shell">
-            {showStepper ? (
-              <div className="onboarding-shell__stepper">
-                <StepProgressBar active={activeStep} />
-              </div>
-            ) : null}
             {children}
           </div>
         </div>

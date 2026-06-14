@@ -1,7 +1,7 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { FeedbackForm } from "@/components/admin/feedback-form";
 import { FeedbackList } from "@/components/admin/feedback-list";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 
@@ -20,12 +20,12 @@ export default async function FeedbackPage() {
         title="Feedback"
       />
 
-      <Card hoverOverlay={false}>
-        <CardHeader>
-          <CardTitle>Post new</CardTitle>
-        </CardHeader>
-        <FeedbackForm />
-      </Card>
+      <section className="admin-doc-stack admin-doc-stack--actions">
+        <h2 className="h2">Post new</h2>
+        <Card hoverOverlay={false}>
+          <FeedbackForm />
+        </Card>
+      </section>
 
       <section className="admin-doc-stack admin-doc-stack--actions">
         <h2 className="h2">Latest ({items.length})</h2>
