@@ -66,7 +66,9 @@ export function PositionsList({
       <div className="pf-stack--tight overflow-x-auto min-w-0">
           {/* Header row */}
           <div className={cn("stat-label", "pf-positions-row-grid")}>
-            <span>Vault</span>
+            <div className="pf-position-vault-cell pf-position-vault-cell--header">
+              Vault
+            </div>
             <span className="text-right">Principal</span>
             <span className="text-right">Value</span>
             <span className="text-right">Target APY</span>
@@ -95,7 +97,7 @@ export function PositionsList({
               className={cn("pf-positions-row-grid", "pf-positions-row-grid--body")}
             >
               {/* Vault name + status */}
-              <div className="pf-inline-row min-w-0">
+              <div className="pf-position-vault-cell">
                 <span
                   className={cn(
                     "pf-status-dot",

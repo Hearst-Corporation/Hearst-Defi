@@ -712,20 +712,31 @@
 .pf-positions-row-grid {
   display: grid;
   grid-template-columns:
-    minmax(0, 1fr)
-    minmax(4.5rem, auto)
-    minmax(4.5rem, auto)
-    minmax(5rem, auto)
-    minmax(5.5rem, auto);
+    minmax(0, 1.5fr)
+    minmax(5rem, 1fr)
+    minmax(5rem, 1fr)
+    minmax(6rem, 1fr)
+    minmax(6rem, 1fr);
   gap: var(--ct-space-3);
   padding-bottom: var(--ct-space-2);
   border-bottom: 1px solid var(--ct-border-soft);
   /* floor prevents columns from compressing into each other on narrow panels */
-  min-width: 28rem;
+  min-width: 34rem;
 }
 
 .pf-positions-row-grid:last-child {
   border-bottom: none;
+}
+
+.pf-position-vault-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+
+.pf-position-vault-cell--header {
+  padding-left: calc(var(--ct-space-1_5) + var(--ct-space-2));
 }
 
 .pf-positions-row-grid--body {
@@ -736,6 +747,7 @@
 .pf-positions-empty-row.pf-table-empty-row {
   padding: var(--ct-space-4) var(--ct-space-1);
   border-bottom: 1px solid var(--ct-border-soft);
+  min-width: 34rem;
 }
 
 /* Preview sections — content only (banner carries preview context) */
