@@ -74,7 +74,7 @@ export default async function PortfolioPage() {
   const data = demo ? buildDemoPortfolio() : liveData;
 
   const hasPositions = data.positions.length > 0;
-  const previewZeros = isLayoutPreview(hasPositions);
+  const previewZeros = demo ? true : isLayoutPreview(hasPositions);
   const previewAsOf = new Date();
 
   const [

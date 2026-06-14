@@ -30,6 +30,13 @@ export const DEMO_SENTINEL_HASH =
 /** CTA label shown on the demo invest form (no wallet/chain effect behind it). */
 export const DEMO_INVEST_CTA_LABEL = "Simulate deposit →" as const;
 
+/** Title for the demo confirmed page (no real subscription was created). */
+export const DEMO_CONFIRMED_TITLE = "Demo deposit simulated" as const;
+
+/** Description for the demo confirmed page (sandbox / visual QA only). */
+export const DEMO_CONFIRMED_DESCRIPTION =
+  "No real subscription was created. This sandbox flow is for visual QA only." as const;
+
 /**
  * Sentinel position id returned by the subscribe action's demo safety-net. It
  * is NOT a real DB row id — no `prisma.position.create` ran for it. Distinct

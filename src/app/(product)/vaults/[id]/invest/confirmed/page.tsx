@@ -8,7 +8,11 @@ import Link from "next/link";
 
 import { getInvestor } from "@/lib/auth/session";
 import { isDemoInvestor } from "@/lib/demo/provider";
-import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
+import {
+  DEMO_CONFIRMED_DESCRIPTION,
+  DEMO_CONFIRMED_TITLE,
+  DEMO_SANDBOX_DISCLAIMER,
+} from "@/lib/demo/markers";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { Button } from "@/components/ui/button";
 import { NestedPanel } from "@/components/ui/nested-panel";
@@ -76,8 +80,8 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
         step="confirmed"
         align="center"
         lead={<DepositSuccessIcon />}
-        title="Demo deposit simulated"
-        description="No real subscription was created. This sandbox flow is for visual QA only."
+        title={DEMO_CONFIRMED_TITLE}
+        description={DEMO_CONFIRMED_DESCRIPTION}
         footer={
           <p className="body-xs ct-text-faint text-center text-pretty">
             APY ranges are target projections based on stated assumptions — not a

@@ -122,7 +122,13 @@ export default async function VaultDetailPage({ params }: PageProps) {
       }
     >
       {demo ? (
-        <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-4" />
+        <>
+          <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-4" />
+          <p className="body-xs ct-text-muted mb-4">
+            Simulated — not a live vault. The status above reflects the demo
+            sandbox flow, not a production deployment.
+          </p>
+        </>
       ) : null}
       <TermSheetPreview vault={vault} workspace />
     </InvestFlowShell>

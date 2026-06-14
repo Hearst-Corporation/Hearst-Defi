@@ -372,9 +372,11 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
             {awaitingConfirm ? (
               <div
                 className="vault-confirm-panel border-t border-[var(--ct-border-soft)] pt-4"
-                aria-label="Confirm your deposit"
+                aria-label={demo ? "Confirm your simulated deposit" : "Confirm your deposit"}
               >
-                <p className="eyebrow">Confirm your deposit</p>
+                <p className="eyebrow">
+                  {demo ? "Confirm your simulated deposit" : "Confirm your deposit"}
+                </p>
                 <div className="vault-confirm-panel__rows">
                   <div className="vault-confirm-panel__row body-sm">
                     <span className="ct-text-muted">Vault</span>
@@ -388,7 +390,9 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
                   </div>
                   <div className="vault-confirm-panel__row body-sm">
                     <span className="ct-text-muted">Action</span>
-                    <span className="ct-text-body">Deposit</span>
+                    <span className="ct-text-body">
+                      {demo ? "Simulated deposit" : "Deposit"}
+                    </span>
                   </div>
                 </div>
                 <p className="body-xs ct-text-muted">
@@ -414,7 +418,9 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
                   >
                     {depositing
                       ? "Confirming…"
-                      : `Confirm ${formatUsdAmount(amount)} deposit`}
+                      : demo
+                        ? "Confirm simulated deposit"
+                        : `Confirm ${formatUsdAmount(amount)} deposit`}
                   </Button>
                 </div>
               </div>

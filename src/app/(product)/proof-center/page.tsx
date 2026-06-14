@@ -193,6 +193,12 @@ export default async function ProductProofCenterPage({
           </h2>
           {proofs.length > 0 ? <ProofFilter /> : null}
         </div>
+        {demo ? (
+          <p className="body-xs ct-text-muted mb-3">
+            Simulated proof set — no live attestation. These demo proofs are not
+            backed by the on-chain or testnet sections above.
+          </p>
+        ) : null}
         {proofs.length === 0 ? (
           <AwaitingMetricState {...PLATFORM_PROOFS_EMPTY} />
         ) : (
