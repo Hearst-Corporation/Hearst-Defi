@@ -2,11 +2,7 @@
  * Portfolio zero-position render gate — dashboard modules must NOT render.
  */
 
-import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-
-// Mock the layout functions to simulate zero-position state
-import PortfolioPage from "../page";
 
 describe("Portfolio zero-position render gate", () => {
   it("zero-position investor: dashboard modules NOT in DOM", async () => {
