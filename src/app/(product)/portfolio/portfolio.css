@@ -114,6 +114,34 @@
   border: 1px solid var(--ct-border-soft);
 }
 
+/* ── KPI row grid (3 equal cards) ── */
+.pf-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--ct-space-3);
+}
+
+@container pf (max-width: 520px) {
+  .pf-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* KPI value row inside a card (replaces dash-value-group / dash-unit) */
+.pf-kpi-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ct-space-2);
+  margin-top: auto;
+}
+
+.pf-kpi-unit {
+  font-family: var(--font-sans);
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-muted);
+  font-weight: var(--ct-font-normal);
+}
+
 .pf-section-stack {
   display: flex;
   flex-direction: column;
@@ -950,8 +978,7 @@
 
 /* ── Position detail: align doc-flow cards with portfolio Cockpit surfaces ── */
 .product-doc .position-detail-shell .position-detail-value-card,
-.product-doc .position-detail-shell .position-detail-transactions,
-.product-doc .position-detail-shell .position-detail-kpis .kpi-cell {
+.product-doc .position-detail-shell .position-detail-transactions {
   border-color: var(--ct-graphite-border-nested);
   background: var(--ct-graphite-subtle-bg);
   backdrop-filter: var(--ct-graphite-blur);

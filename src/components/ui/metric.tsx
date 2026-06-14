@@ -2,6 +2,7 @@ import {
   ProvenanceBadge,
   type Provenance,
 } from "@/components/ui/provenance-badge";
+import { Card } from "@/components/ui/card";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 
@@ -17,7 +18,7 @@ interface MetricProps {
    * Visual tier. Default "premium" keeps the existing look exactly (dot pattern,
    * hover glow overlay, accent value glow). "plain" opts out of decorative
    * premium chrome. "nested" — calm label/value inside a parent Card or
-   * dash-cell (use with MetricGrid from nested-panel.tsx).
+   * card (use with MetricGrid from nested-panel.tsx).
    */
   variant?: "premium" | "plain" | "nested";
 }
@@ -64,10 +65,11 @@ export function Metric({
   }
 
   return (
-    <div
+    <Card
+      hoverOverlay={false}
       className={cn(
-        "kpi-cell flex flex-col gap-2 relative overflow-hidden group",
-        premium && "kpi-cell-premium",
+        "flex flex-col gap-2",
+        premium && "card-premium group",
         className,
       )}
     >
@@ -123,6 +125,6 @@ export function Metric({
           ) : null}
         </div>
       )}
-    </div>
+    </Card>
   );
 }

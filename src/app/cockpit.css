@@ -28,17 +28,18 @@
   --ct-border-ghost: color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
 
   /* Readability pass — secondary text tokens were too dim on the pure-black
-     background (muted 0.48 / faint 0.40 from the package). Lifted so labels and
-     captions read without squinting, while staying clearly secondary to body
-     (0.72) and primary (0.92). Global override → benefits every surface. */
-  --ct-text-muted: rgba(245, 245, 245, 0.62);
-  --ct-text-faint: rgba(245, 245, 245, 0.52);
+     background (muted 0.48 / faint 0.40 from the package). Lifted twice so labels
+     and captions read without squinting over the brighter ambient background,
+     while staying clearly secondary to body (0.72) and primary (0.92). Global
+     override → benefits every surface. */
+  --ct-text-muted: rgba(245, 245, 245, 0.70);
+  --ct-text-faint: rgba(245, 245, 245, 0.60);
 
   /* ── FONDS DE CARDS — lift "plus blanc" (demande Adrien 2026-06-10) ──
      Le package tokens.css plafonne les surfaces à 2/4/6/9% de blanc, ce qui
      rend les cards quasi indistinctes du noir pur. Remontées pour que TOUS les
-     fonds de boxe (dash-cell→surface-2, ct-card→surface-1, ct-glass-panel→
-     surface-1/2) lisent clairement comme des surfaces translucides plus claires.
+     fonds de boxe (ct-card→surface-1, ct-glass-panel→surface-1/2) lisent
+     clairement comme des surfaces translucides plus claires.
      cockpit.css est non-layered → bat le layer(cockpit) du package sans !important.
      Réversible : supprimer ce bloc restaure les valeurs du package. */
   --ct-surface-0: rgba(255, 255, 255, 0.04);
@@ -1450,7 +1451,7 @@
 }
 
 /* Dense panels — quiet provenance compact (dot + sr-only label, no glass pill). */
-:is(.pf-cockpit-panel, .dash-cell, .ct-card)
+:is(.pf-cockpit-panel, .ct-card)
   .dashboard-provenance-badge--compact {
   padding: 0;
   border: none;
@@ -2190,9 +2191,8 @@
    Permet aux ~30 composants métier d'afficher le look Cockpit
    sans modifier leurs className. */
 
-/* Premium dot grid — primary investor/admin modules (alias: .dash-cell-premium) */
-.card-premium,
-.dash-cell-premium {
+/* Premium dot grid — primary investor/admin modules */
+.card-premium {
   background-image: radial-gradient(
     circle,
     color-mix(in srgb, var(--ct-accent) 3%, transparent) 1px,
@@ -2279,14 +2279,12 @@ pre.ct-surface-1.rounded-md {
 
 /* ── CANONICAL GRAPHITE SURFACE — single material for every module ─────────────
    ONE recipe (graphite-subtle bg + nested border + blur) for all module
-   surfaces: product / profile / admin / portfolio / investor bento. Declared
-   once here; each consumer keeps only its own radius / padding / layout / state.
+   surfaces: product / profile / admin. Declared once here; each consumer keeps
+   only its own radius / padding / layout / state.
    Do NOT re-declare bg+border+blur on a new class — add its selector to this
    list. (radius stays per-consumer: xl default, section-preview = lg quieter.) */
 .ct-glass-panel,
 .ct-section-preview,
-.dash-cell,
-.kpi-cell,
 .pf-cockpit-panel {
   background: var(--ct-graphite-subtle-bg);
   border: 1px solid var(--ct-graphite-border-nested);

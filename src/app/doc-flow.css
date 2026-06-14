@@ -1689,7 +1689,7 @@
   align-items: start;
 }
 
-.product-doc .position-detail-kpis .kpi-cell {
+.product-doc .position-detail-kpis .ct-card {
   background: var(--ct-surface-1);
   border-color: var(--ct-border-soft);
   box-shadow: none;

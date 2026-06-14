@@ -1,4 +1,5 @@
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
+import { Card } from "@/components/ui/card";
 import type { PortfolioData } from "@/lib/data/portfolio";
 import { cn } from "@/lib/cn";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
@@ -28,18 +29,18 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
   const hasPositions = data.positions.length > 0;
 
   return (
-    <div className="pf-kpi-grid">
+    <div className="pf-kpi-grid" role="list">
       {/* Portfolio Value */}
-      <article className="dash-cell dash-cell-premium" aria-label="Portfolio value">
+      <Card className="card-premium" role="listitem" aria-label="Portfolio value">
         <div className="pf-widget-header">
           <h3 className="h3">Portfolio Value</h3>
           <ProvenanceBadge kind={valueProvenance} variant="strip" />
         </div>
-        <div className="dash-value-group">
+        <div className="pf-kpi-value-row">
           <span className="stat-value">
             {hasPositions ? formatUsdCompact(data.totalValueUsdc) : "—"}
           </span>
-          <span className="dash-unit">USDC</span>
+          <span className="pf-kpi-unit">USDC</span>
         </div>
         {hasPositions && data.pnl ? (
           <p
@@ -54,32 +55,32 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
             {data.pnl.netReturnPct.toFixed(1)}% net return
           </p>
         ) : null}
-      </article>
+      </Card>
 
       {/* Yield YTD */}
-      <article className="dash-cell dash-cell-premium" aria-label="Yield year to date">
+      <Card className="card-premium" role="listitem" aria-label="Yield year to date">
         <div className="pf-widget-header">
           <h3 className="h3">Yield YTD</h3>
           <ProvenanceBadge kind={yieldProvenance} variant="strip" />
         </div>
-        <div className="dash-value-group">
+        <div className="pf-kpi-value-row">
           <span className="stat-value">
             {hasPositions ? formatUsdCompact(data.totalYieldYtdUsdc) : "—"}
           </span>
-          <span className="dash-unit">USDC</span>
+          <span className="pf-kpi-unit">USDC</span>
         </div>
         <p className="body-xs ct-text-muted mt-2 italic">
           Accrued + distributed. Not projected forward.
         </p>
-      </article>
+      </Card>
 
       {/* Next Distribution */}
-      <article className="dash-cell dash-cell-premium" aria-label="Next distribution date">
+      <Card className="card-premium" role="listitem" aria-label="Next distribution date">
         <div className="pf-widget-header">
           <h3 className="h3">Next Distribution</h3>
           <ProvenanceBadge kind={distProvenance} variant="strip" />
         </div>
-        <div className="dash-value-group">
+        <div className="pf-kpi-value-row">
           <span className="stat-value tabular">
             {monthDayFmt.format(data.nextDistributionAt)}
           </span>
@@ -87,7 +88,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
         <p className="body-xs ct-text-muted mt-2">
           Monthly cadence · Day 1, T+5
         </p>
-      </article>
+      </Card>
     </div>
   );
 }
