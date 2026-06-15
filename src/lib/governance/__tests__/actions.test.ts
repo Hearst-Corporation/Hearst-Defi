@@ -30,6 +30,12 @@ vi.mock("@/lib/db", () => ({
     vaultDeployment: {
       findUnique: vi.fn(),
     },
+    // D3: signProposal now wraps the signature.create + proposal.update in a
+    // $transaction (array form). The mock resolves the array of promises so the
+    // individual mocked writes still run and their assertions hold unchanged.
+    $transaction: vi.fn((arg: unknown) =>
+      Array.isArray(arg) ? Promise.all(arg) : (arg as (tx: unknown) => unknown)({}),
+    ),
   },
 }));
 

@@ -232,6 +232,9 @@ async function seedDemoInvestorPosition(investorId: string): Promise<void> {
   const position = buildDemoPosition(investorId, subscribedAt);
   await prisma.position.create({ data: position });
 
+  // D4: demo transactions carry NO tx hash — they are not real on-chain txs, so
+  // a fabricated hash would render a dead BaseScan link. occurredAt (date) is
+  // what the portfolio/calendar loaders use to mark a payment as settled.
   await prisma.investorTransaction.create({
     data: {
       id: "demo-tx-deposit",
@@ -239,15 +242,15 @@ async function seedDemoInvestorPosition(investorId: string): Promise<void> {
       positionId: DEMO_POSITION_ID,
       type: "deposit",
       amountUsdc: position.principalUsdc,
-      txHash: DEMO_TX_HASHES.deposit,
+      txHash: null,
       occurredAt: subscribedAt,
     },
   });
 
   const distributions = [
-    { id: "demo-tx-dist-1", monthsBack: 3, amount: 4_200, hash: DEMO_TX_HASHES.distribution1 },
-    { id: "demo-tx-dist-2", monthsBack: 2, amount: 5_800, hash: DEMO_TX_HASHES.distribution2 },
-    { id: "demo-tx-dist-3", monthsBack: 1, amount: 8_000, hash: DEMO_TX_HASHES.distribution3 },
+    { id: "demo-tx-dist-1", monthsBack: 3, amount: 4_200 },
+    { id: "demo-tx-dist-2", monthsBack: 2, amount: 5_800 },
+    { id: "demo-tx-dist-3", monthsBack: 1, amount: 8_000 },
   ] as const;
 
   for (const d of distributions) {
@@ -258,7 +261,7 @@ async function seedDemoInvestorPosition(investorId: string): Promise<void> {
         positionId: DEMO_POSITION_ID,
         type: "distribution",
         amountUsdc: d.amount,
-        txHash: d.hash,
+        txHash: null,
         occurredAt: monthsAgo(d.monthsBack, now),
       },
     });

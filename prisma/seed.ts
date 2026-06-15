@@ -198,26 +198,31 @@ interface DistributionFixture {
 }
 
 // 4 monthly distributions: Feb, Mar, Apr paid; May scheduled.
+// D8: the "paid" rows carry a recognisable SEED SENTINEL hash (0x5eed…), not a
+// plausible-looking fabricated hash. The admin distribution loader derives
+// status from a non-null txHash (paid), so "paid" is preserved — but the
+// sentinel is detected by isPlaceholderTxHash() so no UI renders a dead BaseScan
+// link to a transaction that does not exist on-chain.
 const DISTRIBUTION_FIXTURES: DistributionFixture[] = [
   {
     distributedAt: shifted(new Date("2026-03-01T09:00:00Z")),
     period: "2026-02",
     amountUsdc: 68_000,
-    txHash: "0xd1a2c4b5e6f7081f2c34a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f00",
+    txHash: "0x5eed00000000000000000000000000000000000000000000000000000000f002",
     recipientsCount: 12,
   },
   {
     distributedAt: shifted(new Date("2026-04-02T10:00:00Z")),
     period: "2026-03",
     amountUsdc: 86_400,
-    txHash: "0xd2b3c4d5e6f7081f2c34a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f11",
+    txHash: "0x5eed00000000000000000000000000000000000000000000000000000000f003",
     recipientsCount: 18,
   },
   {
     distributedAt: shifted(new Date("2026-05-01T09:00:00Z")),
     period: "2026-04",
     amountUsdc: 102_800,
-    txHash: "0xd3c4d5e6f7081f2c34a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f1100",
+    txHash: "0x5eed00000000000000000000000000000000000000000000000000000000f004",
     recipientsCount: 24,
   },
   {

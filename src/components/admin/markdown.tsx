@@ -64,7 +64,7 @@ export function Markdown({
             );
           },
           pre: ({ children }) => (
-            <pre className="my-4 overflow-x-auto rounded-md border border-(--ct-border) ct-surface-1 p-4 body-xs">
+            <pre className="my-4 overflow-x-auto rounded-md border border-(--ct-border-soft) bg-transparent p-4 body-xs">
               {children}
             </pre>
           ),

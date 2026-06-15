@@ -5,7 +5,7 @@ import { z } from "zod";
 import { runInvestorMemo } from "@/lib/agents/investor-memo";
 import { loadMemoInput } from "@/lib/agents/loaders/vault";
 import type { InvestorMemoOutput } from "@/lib/agents/schemas";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { logger } from "@/lib/logger";
 import { assertRateLimit } from "@/lib/rate-limit";
 
@@ -24,7 +24,7 @@ const VaultIdSchema = z.enum(["yield", "defensive", "btc-plus"] as const);
 export async function generateMemoAction(
   vaultId?: string,
 ): Promise<InvestorMemoOutput> {
-  const { userId } = await requireAuth();
+  const { userId } = await requireAdmin();
   try {
     await assertRateLimit(`generate-memo:${userId}`, 5, 60_000);
     const resolvedVaultId =

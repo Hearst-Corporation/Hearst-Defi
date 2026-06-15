@@ -4,6 +4,7 @@ import {
   getEventLoggerAddress,
   getPoRRegistryAddress,
   isChainConfigured,
+  isPlaceholderTxHash,
 } from "@/lib/chain/client";
 
 const ORIG_EVENT = process.env.NEXT_PUBLIC_EVENT_LOGGER_ADDRESS;
@@ -71,5 +72,42 @@ describe("chain client address resolution", () => {
     delete process.env.NEXT_PUBLIC_POR_REGISTRY_ADDRESS;
 
     expect(isChainConfigured()).toBe(false);
+  });
+});
+
+describe("isPlaceholderTxHash — D4/D8 no dead BaseScan links", () => {
+  it("flags null/empty as placeholder (no link)", () => {
+    expect(isPlaceholderTxHash(null)).toBe(true);
+    expect(isPlaceholderTxHash(undefined)).toBe(true);
+    expect(isPlaceholderTxHash("")).toBe(true);
+  });
+
+  it("flags fabricated demo (0xfeed…) and seed (0x5eed…) sentinels", () => {
+    expect(
+      isPlaceholderTxHash("0xfeed000000000000000000000000000000000000000000000000000000000001"),
+    ).toBe(true);
+    expect(
+      isPlaceholderTxHash("0x5eed00000000000000000000000000000000000000000000000000000000f002"),
+    ).toBe(true);
+    // case-insensitive
+    expect(
+      isPlaceholderTxHash("0xFEED000000000000000000000000000000000000000000000000000000000001"),
+    ).toBe(true);
+  });
+
+  it("flags fabricated mock-attestation (0xmock…) sentinels (B4 convention)", () => {
+    expect(
+      isPlaceholderTxHash("0xMOCK_abc0000000000000000000000000000000000000000000000000000001"),
+    ).toBe(true);
+    // lowercase variant
+    expect(
+      isPlaceholderTxHash("0xmock_abc0000000000000000000000000000000000000000000000000000001"),
+    ).toBe(true);
+  });
+
+  it("does NOT flag a real-looking tx hash", () => {
+    expect(
+      isPlaceholderTxHash("0x9f8e7d6c5b4a39281706f5e4d3c2b1a0099887766554433221100ffeeddccbb"),
+    ).toBe(false);
   });
 });

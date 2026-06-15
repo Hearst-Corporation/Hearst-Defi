@@ -152,7 +152,7 @@ function LoadingState() {
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div role="alert" className="ct-nested-callout flex flex-col gap-1 ct-status-danger-bg">
+    <div role="alert" className="ct-nested-callout flex flex-col gap-1 border border-(--ct-border-soft)">
       <p className="body-sm font-medium ct-status-danger">
         Simulation failed
       </p>
@@ -290,7 +290,7 @@ function RevertsSection({ entries }: { entries: RevertEntry[] }) {
         {entries.map((entry, i) => (
           <li
             key={i}
-            className="ct-nested-callout flex flex-col gap-0.5 ct-status-danger-bg"
+            className="ct-nested-callout flex flex-col gap-0.5 border border-(--ct-border-soft)"
           >
             <p className="body-xs font-medium ct-status-danger">
               {entry.reason}

@@ -21,6 +21,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "pilot:e2e": "tsx scripts/pilot-e2e.ts",
     "db:generate": "node scripts/prisma-provider.mjs && prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",

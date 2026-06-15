@@ -22,6 +22,11 @@ export const DEMO_WALLET = "0x1111111111111111111111111111111111111111" as const
 
 export const DEMO_VAULT_KEY = "hearst-yield-vault:class-A";
 
+/**
+ * Legacy fabricated tx hashes from older demo seeds. Demo rows are now created
+ * with `txHash: null` (no fake explorer links — D4), so these are retained ONLY
+ * to purge historical 0xfeed… fixtures via deleteMany in the seed script.
+ */
 export const DEMO_TX_HASHES = {
   deposit: "0xfeed000000000000000000000000000000000000000000000000000000000001",
   distribution1: "0xfeed000000000000000000000000000000000000000000000000000000000002",
@@ -46,7 +51,7 @@ export interface DemoPositionRow {
   accruedYieldUsdc: number;
   distributedUsdc: number;
   subscribedAt: Date;
-  txHashOpen: string;
+  txHashOpen: string | null;
 }
 
 export function buildDemoPosition(
@@ -62,7 +67,9 @@ export function buildDemoPosition(
     accruedYieldUsdc: 42_000,
     distributedUsdc: 18_000,
     subscribedAt,
-    txHashOpen: DEMO_TX_HASHES.deposit,
+    // D4: no fabricated tx hash — a null open hash renders the position without
+    // a dead BaseScan link (the explorer anchor is gated on a truthy hash).
+    txHashOpen: null,
   };
 }
 

@@ -49,7 +49,7 @@ function ctaLabel(state: CtaState, amount: number, demo: boolean): string {
     case "no_wallet":
       return "Connect a wallet to continue";
     case "no_vault_config":
-      return "Configuration en attente";
+      return "Vault configuration pending";
     case "enter_amount":
       return "Enter amount to confirm";
     case "accept_terms":

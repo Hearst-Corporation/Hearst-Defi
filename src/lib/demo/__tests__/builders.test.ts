@@ -4,10 +4,12 @@ import { DEMO_YIELD_VAULT_ID } from "@/lib/dev/investor-demo";
 import { DEMO_SENTINEL_HASH } from "../markers";
 import {
   buildDemoPortfolio,
+  buildDemoPositionDetail,
   buildDemoProofs,
   buildDemoVaultDetail,
   buildDemoVaults,
 } from "../builders";
+import { DEMO_POSITION_ID } from "@/lib/dev/investor-demo";
 
 const DEMO_VAULT_NAME = "Hearst Yield Vault";
 const DEMO_VAULT_TICKER = "HYV-A";
@@ -116,6 +118,35 @@ describe("buildDemoPortfolio", () => {
       .filter((t) => t.type === "distribution")
       .reduce((sum, t) => sum + t.amountUsdc, 0);
     expect(distributedFromTxs).toBe(pos.distributedUsdc);
+  });
+});
+
+describe("buildDemoPositionDetail (D6 — detail view does not 404)", () => {
+  it("is built from the SAME figures as the list position (no list/detail disagreement)", () => {
+    const listPos = buildDemoPortfolio().positions[0]!;
+    const detail = buildDemoPositionDetail();
+    expect(detail.id).toBe(DEMO_POSITION_ID);
+    expect(detail.principalUsdc).toBe(listPos.principalUsdc);
+    expect(detail.accruedYieldUsdc).toBe(listPos.accruedYieldUsdc);
+    expect(detail.distributedUsdc).toBe(listPos.distributedUsdc);
+    expect(detail.realizedApyLow).toBe(listPos.apyLow);
+    expect(detail.realizedApyHigh).toBe(listPos.apyHigh);
+  });
+
+  it("never claims a settled tx hash and stays source='fallback'", () => {
+    const detail = buildDemoPositionDetail();
+    expect(detail.source).toBe("fallback");
+    expect(detail.txHashOpen).toBeNull();
+    expect(detail.transactions.every((t) => t.txHash === null)).toBe(true);
+  });
+
+  it("orders transactions newest-first (mirrors the live loader)", () => {
+    const txs = buildDemoPositionDetail().transactions;
+    for (let i = 1; i < txs.length; i++) {
+      expect(txs[i - 1]!.occurredAt.getTime()).toBeGreaterThanOrEqual(
+        txs[i]!.occurredAt.getTime(),
+      );
+    }
   });
 
   it("presents no settled tx hash (honesty rule)", () => {

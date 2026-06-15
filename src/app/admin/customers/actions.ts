@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { recordAdminAudit } from "@/lib/admin/audit";
 import { revalidatePath } from "next/cache";
 
 /**
@@ -21,7 +22,7 @@ const Input = z.object({
 });
 
 export async function setInvestorKyc(formData: FormData): Promise<void> {
-  await requireAdmin();
+  const admin = await requireAdmin();
 
   const parsed = Input.safeParse({
     investorId: formData.get("investorId"),
@@ -31,9 +32,28 @@ export async function setInvestorKyc(formData: FormData): Promise<void> {
     throw new Error("setInvestorKyc: invalid input");
   }
 
+  // Snapshot the prior KYC status before the override so the audit log captures
+  // the exact compliance transition (before → after).
+  const existing = await prisma.investor.findUnique({
+    where: { id: parsed.data.investorId },
+    select: { kycStatus: true },
+  });
+  if (!existing) {
+    throw new Error("setInvestorKyc: investor not found");
+  }
+
   await prisma.investor.update({
     where: { id: parsed.data.investorId },
     data: { kycStatus: parsed.data.status },
+  });
+
+  await recordAdminAudit({
+    actorWallet: admin.walletAddress ?? admin.userId,
+    action: "investor.setKyc",
+    entityType: "Investor",
+    entityId: parsed.data.investorId,
+    before: { kycStatus: existing.kycStatus },
+    after: { kycStatus: parsed.data.status },
   });
 
   revalidatePath("/admin/customers");

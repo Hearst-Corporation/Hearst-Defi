@@ -305,7 +305,7 @@ export function RebalanceCard({
 
         {/* Error display */}
         {error && (
-          <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-lg">
+          <p className="body-xs ct-status-danger border border-(--ct-border-soft) px-3 py-2 rounded-lg">
             {error}
           </p>
         )}

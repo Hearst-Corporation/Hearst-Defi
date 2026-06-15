@@ -74,7 +74,12 @@ export default async function PortfolioPage() {
   const data = demo ? buildDemoPortfolio() : liveData;
 
   const hasPositions = data.positions.length > 0;
-  const previewZeros = demo ? true : isLayoutPreview(hasPositions);
+  // previewZeros is purely a layout-preview flag for the EMPTY (zero-position)
+  // real investor — it must NOT be forced on for the demo identity, whose
+  // buildDemoPortfolio() returns a populated $500k position. Driving the demo
+  // through previewZeros would blank the hero KPIs above a populated list (D5).
+  // The demo honesty signal is the DemoDataBanner, not previewZeros.
+  const previewZeros = isLayoutPreview(hasPositions);
   const previewAsOf = new Date();
 
   const [

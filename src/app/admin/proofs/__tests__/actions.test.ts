@@ -24,8 +24,17 @@ vi.mock("@/lib/db", () => ({
     proof: {
       create: vi.fn(),
       delete: vi.fn(),
+      // D2: ingestProof/deleteProof now snapshot + audit. findUnique is used by
+      // deleteProof to capture the row before deletion.
+      findUnique: vi.fn(),
     },
   },
+}));
+
+// D2: actions now write an admin-audit row. Mock the audit module (mirrors the
+// vaults/governance suites) so the audit call is a no-op and needs no DB mock.
+vi.mock("@/lib/admin/audit", () => ({
+  recordAdminAudit: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({
@@ -50,6 +59,7 @@ vi.mock("@/lib/logger", () => ({
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { recordAdminAudit } from "@/lib/admin/audit";
 import { ingestProof, deleteProof } from "../actions";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -101,6 +111,15 @@ describe("ingestProof", () => {
     });
     expect(revalidatePath).toHaveBeenCalledWith("/admin/proofs");
     expect(revalidatePath).toHaveBeenCalledWith("/admin/proof-center");
+    // D2: a proof.ingest audit row is written after a successful create.
+    expect(recordAdminAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "proof.ingest",
+        entityType: "Proof",
+        entityId: "proof_cuid_001",
+        after: expect.objectContaining({ proofType: "mining_attestation", hash: VALID_INPUT.hash }),
+      }),
+    );
   });
 
   it("Case A² — admin + valid input with notes → notes persisted on the row", async () => {
@@ -182,6 +201,12 @@ describe("deleteProof", () => {
 
   it("Case D — admin valid id → row deleted, { ok: true }", async () => {
     vi.mocked(requireAdmin).mockResolvedValue(MOCK_ADMIN);
+    // D2: deleteProof snapshots the row via findUnique before deleting.
+    vi.mocked(prisma.proof.findUnique).mockResolvedValue({
+      proofType: "custody",
+      period: "2026-05",
+      hash: VALID_INPUT.hash,
+    } as never);
     vi.mocked(prisma.proof.delete).mockResolvedValue({} as never);
 
     const result = await deleteProof("proof_cuid_001");
@@ -193,6 +218,15 @@ describe("deleteProof", () => {
     });
     expect(revalidatePath).toHaveBeenCalledWith("/admin/proofs");
     expect(revalidatePath).toHaveBeenCalledWith("/admin/proof-center");
+    // D2: a proof.delete audit row preserves the deleted row's snapshot.
+    expect(recordAdminAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "proof.delete",
+        entityType: "Proof",
+        entityId: "proof_cuid_001",
+        before: expect.objectContaining({ proofType: "custody", hash: VALID_INPUT.hash }),
+      }),
+    );
   });
 
   it("Case C² — non-admin on delete → requireAdmin throws, propagated", async () => {

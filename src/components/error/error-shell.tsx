@@ -69,7 +69,7 @@ export function ErrorShellLayout({
             "mono",
             "rounded-md",
             "border border-[var(--ct-border)]",
-            "ct-surface-1",
+            "bg-transparent",
             "ct-text-primary",
             "overflow-auto",
             "whitespace-pre-wrap break-words",
