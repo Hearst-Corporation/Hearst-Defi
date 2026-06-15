@@ -252,7 +252,7 @@ if (IS_RUNTIME_PRODUCTION && parsed.success) {
   }
   // On-chain vault address: at least one of the two accepted names must be set
   // in production, otherwise the deposit/redeem flow is dead on arrival (the
-  // invest form shows "Configuration en attente" and blocks every transaction).
+  // invest form shows "Configuration pending" and blocks every transaction).
   // Both are format-validated above; here we only assert presence so a missing
   // address is a loud boot failure, not a silent degraded UI.
   if (

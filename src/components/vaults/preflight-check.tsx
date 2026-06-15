@@ -161,7 +161,7 @@ export function PreFlightCheck({
   ) : !vaultConfigured ? (
     <div className="product-doc-stack--tight py-4">
       <Badge variant="warning" className="self-start">
-        Configuration en attente
+        Configuration pending
       </Badge>
       <p className="body-xs ct-text-muted">
         Set{" "}
