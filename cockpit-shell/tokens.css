@@ -7,39 +7,48 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  /* ── SUPERSEDED par src/app/cockpit.css ────────────────────────────────────
+     11 valeurs de base ci-dessous sont OVERRIDÉES au runtime par le :root
+     non-layered de cockpit.css (qui gagne sur ce @layer). Ces valeurs ne sont
+     donc PAS celles rendues à l'écran — voir cockpit.css pour la valeur live.
+     Marquées « superseded » : --ct-accent-strong, --ct-border-accent,
+     --ct-rail-left, --ct-rail-right, --ct-surface-0..3, --ct-text-muted,
+     --ct-shadow-depth, --ct-dur-base. (bg-deep / accent / accent-soft / ease
+     sont au contraire la source UNIQUE — cockpit.css ne les redéfinit plus.) */
   --ct-bg-deep: #000000;
   /* --ct-accent = couleur du produit actif (pilotée par ThemeAccent).
      Les autres accents en dérivent → tout le chrome se recolore d'un coup. */
   --ct-accent: #A7FB90;
   --ct-accent-ambient: color-mix(in srgb, var(--ct-accent) 70%, #000000);
-  --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 78%, #ffffff);
+  --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 78%, #ffffff); /* superseded → 82% (cockpit.css) */
   --ct-accent-soft: color-mix(in srgb, var(--ct-accent) 18%, transparent);
-  --ct-border-accent: color-mix(in srgb, var(--ct-accent) 55%, transparent);
+  --ct-border-accent: color-mix(in srgb, var(--ct-accent) 55%, transparent); /* superseded → 28% (cockpit.css) */
 
-  --ct-rail-left: 88px;
-  --ct-rail-right: 420px;
+  --ct-rail-left: 88px;   /* superseded → 5.75rem/92px (cockpit.css) */
+  --ct-rail-right: 420px; /* superseded → 23.75rem/380px (cockpit.css) */
 
-  --ct-surface-0: rgba(255,255,255,0.02);
-  --ct-surface-1: rgba(255,255,255,0.04);
-  --ct-surface-2: rgba(255,255,255,0.06);
-  --ct-surface-3: rgba(255,255,255,0.09);
+  --ct-surface-0: rgba(255,255,255,0.02); /* superseded → 0.04 (cockpit.css) */
+  --ct-surface-1: rgba(255,255,255,0.04); /* superseded → 0.07 (cockpit.css) */
+  --ct-surface-2: rgba(255,255,255,0.06); /* superseded → 0.10 (cockpit.css) */
+  --ct-surface-3: rgba(255,255,255,0.09); /* superseded → 0.14 (cockpit.css) */
 
   --ct-text-strong: #ffffff;
   --ct-text-primary: rgba(245,245,245,0.92);
   --ct-text-body: rgba(245,245,245,0.72);
-  --ct-text-muted: rgba(245,245,245,0.48);
+  --ct-text-muted: rgba(245,245,245,0.48); /* superseded → 0.70 (cockpit.css) */
 
   --ct-border-soft: rgba(255,255,255,0.06);
   --ct-border: rgba(255,255,255,0.10);
   --ct-border-strong: rgba(255,255,255,0.16);
 
+  /* superseded → recette single-drop (cockpit.css) */
   --ct-shadow-depth:
     inset 0 1px 0 rgba(255,255,255,0.18),
     inset 0 -1px 0 rgba(0,0,0,0.45),
     0 20px 60px -24px rgba(0,0,0,0.65);
 
   --ct-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --ct-dur-base: 180ms;
+  --ct-dur-base: 180ms; /* superseded → 220ms (cockpit.css) */
 
   /* ── Opacity scale ── tokenise toute opacité non triviale (0 / 1 exclus).
      Échelle 1:1 des valeurs réellement utilisées → zéro régression visuelle.
@@ -50,6 +59,7 @@
   --ct-opacity-12: 0.12;
   --ct-opacity-15: 0.15;
   --ct-opacity-18: 0.18;
+  --ct-opacity-20: 0.2;
   --ct-opacity-22: 0.22;
   --ct-opacity-25: 0.25;
   --ct-opacity-40: 0.4;

@@ -5,26 +5,29 @@
    RÈGLES :
    - Aucune couleur hex en dur (var(--ct-…) uniquement)
    - Aucun spacing en px hors transitions/borders (rem ou tokens)
-   - Ne redéfinit PAS les tokens --ct-* ni les classes .ct-* du package
+   - Étend tokens.css : AJOUTE les tokens manquants (status / radius / z /
+     shadow / glow / glass / blur / space / type / leading / tracking / icon /
+     layout) ET OVERRIDE SCIEMMENT 11 tokens de base — ce :root est non-layered,
+     il gagne donc sur le @layer(cockpit) de tokens.css. Voir la section
+     « OVERRIDES base tokens » ci-dessous pour la liste assumée.
    ============================================================ */
 
-/* ── TOKENS COMPLÉMENTAIRES manquants dans tokens.css du package ── */
+/* ── TOKENS COMPLÉMENTAIRES manquants dans tokens.css du package
+      + OVERRIDES base tokens (gagnent sur tokens.css, valeurs tunées live) ──
+   Les 11 overrides assumés : --ct-surface-0..3, --ct-text-muted, --ct-dur-base,
+   --ct-border-accent, --ct-accent-strong, --ct-shadow-depth, --ct-rail-left,
+   --ct-rail-right. (Les ex-doublons strictement identiques bg-deep/accent/
+   accent-soft/ease ont été retirés : tokens.css en est la seule source.) ── */
 :root {
-  /* Fond global — noir pur iOS dark (remplace le noir verdâtre #050A05) */
-  --ct-bg-deep: #000000;
-
-  /* Brand accent — Hearst product green (#A7FB90), canonical product identity.
-     Le canon (cockpit-shell/tokens.css) est vert lui aussi depuis le dé-vendoring ;
-     cockpit.css reste non-layered et gagne la cascade sans !important. */
-  --ct-accent: #A7FB90;
-
   /* Ink on brand accent fills (primary buttons, chat chips) — dark ink for
      legibility on the light green accent. */
   --ct-text-on-accent: #06140A;
 
-  /* Dérivés d'accent — dérivés du vert canonique */
+  /* Dérivés d'accent — dérivés du vert canonique.
+     NB: --ct-bg-deep / --ct-accent / --ct-accent-soft / --ct-ease ne sont PLUS
+     redéfinis ici (valeurs strictement identiques à tokens.css → source unique
+     tokens.css). var(--ct-accent) ci-dessous résout depuis tokens.css. */
   --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 82%, #ffffff);
-  --ct-accent-soft: color-mix(in srgb, var(--ct-accent) 18%, transparent);
   --ct-border-accent: color-mix(in srgb, var(--ct-accent) 28%, transparent);
   --ct-border-ghost: color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
 
@@ -166,7 +169,7 @@
   --ct-dur-slower: 500ms; /* page/skeleton fade-in (loading.tsx) — pure ms for duration-* utility */
   --ct-dur-pulse: 2s;     /* dash-pulse animation cycle (dashboard status dot) */
   --ct-dur-shimmer: 2s;   /* shimmer sweep (progress bars, skeletons) */
-  --ct-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* --ct-ease : source unique tokens.css (valeur identique, non redéfinie ici). */
   --ct-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* symmetric — loops (pulse/shimmer), reversible toggles */
 
   /* Blur scale — backdrop-filter & decorative ambient glows. Single source so
