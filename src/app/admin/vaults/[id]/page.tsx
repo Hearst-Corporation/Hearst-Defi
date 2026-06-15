@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { cn } from "@/lib/cn";
 import { prisma } from "@/lib/db";
 import {
@@ -108,7 +109,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
   let whitelist: string[];
   try {
-    whitelist = JSON.parse(vault.signersWhitelist ?? "[]") as string[];
+    whitelist = parseStringArray(vault.signersWhitelist, "signer whitelist");
   } catch {
     whitelist = [];
   }

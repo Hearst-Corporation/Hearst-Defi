@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
+
 import { prisma } from "@/lib/db";
 import { markKycComplete } from "@/lib/onboarding/kyc-complete";
 
@@ -129,10 +131,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
-  // 3. Parse payload
+  // 3. Parse payload. Parse the JSON ONCE here: `rawJson` (a validated JSON
+  // object) is archived verbatim in KycEvent.payload, while `parsed` is the
+  // Zod-narrowed view used for logic. This removes the two later
+  // `JSON.parse(rawBody) as <Prisma type>` casts that re-parsed the body and
+  // trusted its shape blindly.
+  let rawJson: Prisma.InputJsonObject;
   let parsed: PersonaWebhookPayload;
   try {
-    parsed = PersonaWebhookSchema.parse(JSON.parse(rawBody));
+    const json: unknown = JSON.parse(rawBody);
+    if (typeof json !== "object" || json === null || Array.isArray(json)) {
+      throw new Error("payload is not a JSON object");
+    }
+    rawJson = json as Prisma.InputJsonObject;
+    parsed = PersonaWebhookSchema.parse(json);
   } catch (err) {
     console.warn("[persona/webhook] Unexpected payload shape:", err);
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
@@ -169,7 +181,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           userId: "unclaimed", // sentinel — never a real User.id
           inquiryId,
           status,
-          payload: JSON.parse(rawBody) as Parameters<typeof prisma.kycEvent.create>[0]["data"]["payload"],
+          payload: rawJson,
           receivedAt: new Date(),
         },
       });
@@ -200,9 +212,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         userId,
         inquiryId,
         status,
-        // Prisma Json accepts `object` directly; we parse then cast via
-        // the intermediate `unknown` path to satisfy strict no-any.
-        payload: JSON.parse(rawBody) as Parameters<typeof prisma.kycEvent.create>[0]["data"]["payload"],
+        payload: rawJson,
         receivedAt: new Date(),
       },
     });

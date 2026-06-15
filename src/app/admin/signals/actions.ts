@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { recordAdminAudit } from "@/lib/admin/audit";
+import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { prisma } from "@/lib/db";
 import { writeRebalanceEvent } from "@/lib/chain/event-logger";
 import { logger } from "@/lib/logger";
@@ -109,12 +110,7 @@ export async function approveRebalance(eventId: string): Promise<void> {
       }
 
       // Step B: parse current signers.
-      let currentSigners: string[];
-      try {
-        currentSigners = JSON.parse(event.approvedBy ?? "[]") as string[];
-      } catch {
-        throw new Error("Invalid approvedBy format");
-      }
+      const currentSigners = parseStringArray(event.approvedBy, "approvedBy");
 
       // Idempotent: if this admin already signed, nothing to do.
       if (currentSigners.includes(signerKey)) {

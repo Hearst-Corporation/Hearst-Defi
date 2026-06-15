@@ -474,6 +474,12 @@ async function runMasterAgentTurn(args: {
   ];
 
   const startedAt = Date.now();
+  // StreamingChatClient is a deliberately minimal structural contract (a subset
+  // of the OpenAI SDK shape, with our own StreamChunk type) so chat-agent stays
+  // testable with a fake client. The real `openai` instance satisfies it
+  // structurally, but the SDK's ChatCompletionChunk ≠ our StreamChunk so TS
+  // can't prove it. The cast is the seam, not a type hole — widening the
+  // interface to the full SDK type would couple the agent to the SDK.
   const { stream, nav, final } = runChatAgent(
     openai as unknown as StreamingChatClient,
     model,

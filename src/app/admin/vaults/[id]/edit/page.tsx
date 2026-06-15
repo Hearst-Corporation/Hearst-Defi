@@ -5,6 +5,7 @@ import { VaultForm, type FormState } from "@/app/admin/vaults/_vault-form";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +31,7 @@ export default async function EditVaultPage({ params }: PageProps) {
   // Map DB row → FormState for pre-population
   let stored: string[];
   try {
-    stored = JSON.parse(vault.signersWhitelist ?? "[]") as string[];
+    stored = parseStringArray(vault.signersWhitelist, "signer whitelist");
   } catch {
     stored = [];
   }

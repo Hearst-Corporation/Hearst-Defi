@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { recordAdminAudit } from "@/lib/admin/audit";
+import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { assertRateLimit } from "@/lib/rate-limit";
@@ -430,12 +431,7 @@ export async function signApproval(
   }
 
   // Check signer is in the whitelist
-  let whitelist: string[];
-  try {
-    whitelist = JSON.parse(vault.signersWhitelist ?? "[]") as string[];
-  } catch {
-    throw new Error("Invalid signer whitelist format");
-  }
+  const whitelist = parseStringArray(vault.signersWhitelist, "signer whitelist");
   if (!whitelist.includes(actorWallet)) {
     throw new Error("Signer not in the whitelist");
   }
@@ -519,12 +515,7 @@ export async function rejectDeployment(id: string, reason: string): Promise<void
 
   // P0-C — Sécurité : seul un signer whitelisté peut hard-reject (cohérent multisig).
   // Sans ce check, n'importe quel admin pouvait annuler un quorum en cours via POST direct.
-  let whitelist: string[];
-  try {
-    whitelist = JSON.parse(vault.signersWhitelist ?? "[]") as string[];
-  } catch {
-    throw new Error("Invalid signer whitelist format");
-  }
+  const whitelist = parseStringArray(vault.signersWhitelist, "signer whitelist");
   if (!whitelist.includes(actorWallet)) {
     throw new Error("Only whitelisted signers can hard-reject a deployment");
   }
