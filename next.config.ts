@@ -50,8 +50,6 @@ const nextConfig: NextConfig = {
       "lucide-react",
     ],
   },
-  // standalone only for Docker/self-host packaging; omitted for Vercel (breaks serverless function routing)
-  ...(process.env.STANDALONE_BUILD ? { output: "standalone" as const } : {}),
   reactStrictMode: true,
   devIndicators: false,
   typescript: {

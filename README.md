@@ -95,6 +95,16 @@ admin dédiée (`/admin/product-workspace`, `/admin/scenario-lab`, `/admin/dashb
 `/admin/governance`, `/admin/roadmap`, `/admin/projection`). Le mode `review`
 reste sans tools.
 
+**Admin dashboard (`/admin/dashboard`)** — deux plans de données : KPIs vault
+(capital, APY, NAV, mining) = timeline per-vault ; action queue, proof,
+distributions, audit = signaux platform-wide. Bannière `DashboardDataNotice`
+au-dessus du command board quand seul le second plan est alimenté (ou vault
+fixture HDV/HBP en preview Phase 3). Fixtures HYV/HDV/HBP = metadata engine ;
+snapshot DB encore scoped Yield jusqu'à Phase 3. Surfaces vault-scoped :
+`DashboardCommandCell` + `EmptySurface` quand `hasLiveKpis` est faux — pas de
+données platform (distribution, proof, risk bars, orbit cible) injectées dans les
+modules vault. Ops platform = KPI strip + section cockpit (`row-c`).
+
 ---
 
 ## Design system — guidelines (tokens & primitives)
@@ -160,6 +170,8 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
 - **Sharpening typo** : `.stat-value` → `--ct-tracking-tighter` ; `.stat-label` /
   `.eyebrow` → `--ct-tracking-wider`. Padding LP `.ct-card` = `--ct-space-5/6` ;
   admin override dense via `.admin-doc .ct-card`.
+- **Glass calmer** : `--ct-graphite-blur` 16px, fond spatial lumineux (image + blooms),
+  cartes graphite semi-translucides — pas de blur 28px « aquarium ».
 - **Tooltips** : Composant `Tooltip` (via `framer-motion`) intégré aux `ProvenanceBadge` et `Metric`.
 - **Transitions** : animations CSS/Tailwind locales, sans wrapper global inutilisé.
 - **Portfolio** : Page complète avec bento analytics, gestion KYC/KYB
@@ -394,11 +406,14 @@ staging smoke): `ALLOW_INVESTOR_DEMO_SEED=true pnpm seed:investor-demo`.
 ## Go-live (staging / testnet pilot)
 
 **Before any production deploy** : run `pnpm preflight` (must exit `0`). It
-fails on P0 issues — e.g. a SQLite `DATABASE_URL` instead of Postgres. The CI
-deploy workflow (`.github/workflows/deploy.yml`) runs the same `preflight` gate
-as a **blocking** job before deploying.
+fails on P0 issues — e.g. a SQLite `DATABASE_URL` instead of Postgres. This is
+a **manual** pre-merge check (`scripts/preflight-prod.mjs`) — not a blocking CI
+job. Production deploys via the **Vercel Git integration** on push/merge to
+`main`; there is no automated deploy gate in CI. `ci.yml` runs
+lint/typecheck/tests on PRs only (and only blocks the Vercel deploy if GitHub
+branch protection is configured to require it).
 
-**Required Railway production secrets (P0)** — see [`.env.example`](.env.example)
+**Required Vercel production secrets (P0)** — see [`.env.example`](.env.example)
 for the full annotated list :
 
 - `DATABASE_URL` — Postgres (not SQLite ; preflight rejects `file:` URLs).

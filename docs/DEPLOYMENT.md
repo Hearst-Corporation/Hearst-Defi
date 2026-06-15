@@ -150,15 +150,18 @@ migration inverse.
 
 ## Healthcheck
 
-**Aucun endpoint health HTTP public n'est actuellement exposé.** L'ancienne doc
-référençait `GET /api/health` pour le healthcheck Railway, mais cet endpoint
-**n'existe pas dans le code** (`src/app/api/health` est absent ; `curl
-/api/health` renvoie 404). Vercel n'a pas besoin d'un healthcheck applicatif pour
-servir le déploiement.
+`GET /api/health` — sonde de liveness légère (`src/app/api/health/route.ts`).
+Retourne HTTP 200 `{ "status": "ok" }`. Aucune requête DB, aucune auth, aucun
+appel externe — confirme uniquement que le serveur Next.js répond. Rendu
+`force-dynamic` pour éviter toute réponse mise en cache.
 
-> **TODO (P2)** : si un health endpoint est souhaité (monitoring uptime externe,
-> readiness), créer `src/app/api/health/route.ts` retournant un 200 léger. Non
-> bloquant pour la prod actuelle.
+```bash
+curl https://connect.hearst.app/api/health
+# → {"status":"ok"}
+```
+
+Compatible monitoring uptime externe (UptimeRobot, Checkly, etc.) en ciblant
+cette URL avec une assertion HTTP 200.
 
 ## Observabilité (Sentry)
 
@@ -215,19 +218,19 @@ appliquer ; ils doivent être **vérifiés manuellement** dans les UI.
 
 ---
 
-## Héritage Railway (supprimé / orphelin)
+## Héritage Railway (décommissionné)
 
-La production n'a jamais tourné sur Railway en pratique. Artefacts Railway encore
-présents dans le repo, **désormais orphelins** (plus aucun pipeline ne les utilise
-après la suppression de `deploy.yml`) :
+La production n'a jamais tourné sur Railway en pratique. Les artefacts Railway/Docker
+ont été **définitivement supprimés** du repo :
 
-- `railway.toml`
-- `Dockerfile` (build Next standalone, consommé uniquement par l'ancien `deploy.yml`)
-- l'option `output: "standalone"` de `next.config.ts` (activée seulement via
-  `STANDALONE_BUILD`, qui n'était posé que dans `deploy.yml`)
+- `railway.toml` — supprimé
+- `Dockerfile` — supprimé
+- `docker-compose.yml` — supprimé
+- l'option conditionnelle `output: "standalone"` de `next.config.ts` (pilotée par
+  `STANDALONE_BUILD`) — supprimée
 
-Leur suppression est une décision séparée (hors périmètre de cette passe doc/CD).
-Ils sont inertes : laissés en place, ils ne déploient ni n'exécutent rien.
+Le seul chemin de déploiement est **Vercel** (intégration Git, auto-deploy à chaque
+push sur `main`). Aucun artefact Railway ou Docker ne subsiste dans le repo.
 
 ## E2E — user de test seedé
 
