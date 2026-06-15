@@ -5,5 +5,5 @@ export default function ProofCenterLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="product-doc w-full min-w-0">{children}</div>;
+  return <div className="product-doc product-doc-shell w-full min-w-0">{children}</div>;
 }

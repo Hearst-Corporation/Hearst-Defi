@@ -811,6 +811,11 @@
  * Typography overrides: doc-flow-typography.css (shared with admin-doc).
  */
 
+.product-doc {
+  container-type: inline-size;
+  container-name: product-doc;
+}
+
 /* ── Shared layout primitives ─────────────────────────────────────────────── */
 
 .product-doc .product-doc-shell {
