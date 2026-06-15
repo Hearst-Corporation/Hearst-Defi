@@ -2,4 +2,4 @@
    declared in globals.css. Goal: keep the `* { padding: 0 }` reset shipped in
    tokens.css from beating Tailwind's `p-*` utilities (which live in @layer
    utilities). Layer order is declared in globals.css. */
-@import "@hearst/cockpit-shell/tokens.css" layer(cockpit);
+@import "../../cockpit-shell/tokens.css" layer(cockpit);

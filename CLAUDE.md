@@ -15,7 +15,7 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 - **Methodology**: `/docs/methodology/v1.0.md` — immutable once published, bump version if change needed
 - **Roadmap**: `/docs/roadmap.json` + `/admin/roadmap` UI — every PR must reference a roadmap item
 - **Decisions**: `/docs/decisions/ADR-*.md` — Architecture Decision Records, append-only
-- **Design system** (source unique) : cascade `@hearst/cockpit-shell/tokens.css` → `src/app/cockpit.css` → `src/app/globals.css`. Doc : `/docs/DESIGN_SYSTEM.md` + guidelines dans `README.md` § Design system. Préférer tokens/primitives existants. Le package `packages/ds` (`@ds/core`) a été retiré — ne pas réintroduire un second namespace `--ds-*`.
+- **Design system** (copie locale éditable) : le DS Cockpit est dé-vendoré dans `cockpit-shell/` (composants + `tokens.css`) — cascade `cockpit-shell/tokens.css` → `src/app/cockpit.css` → `src/app/globals.css`. Éditable librement ici (tokens `--ct-*`, CSS, composants) : pas de package figé, pas de source centrale, pas de resync. Doc : `/docs/DESIGN_SYSTEM.md` + guidelines dans `README.md` § Design system. Préférer tokens/primitives existants. Le package `packages/ds` (`@ds/core`) a été retiré — ne pas réintroduire un second namespace `--ds-*`. Un seul vert : `--ct-accent` #A7FB90.
 - **Plan source**: `/Users/adrienbeyondcrypto/.claude/plans/tu-es-claude-opus-functional-eich.md`
 
 ## Non-negotiables (CI enforces most)

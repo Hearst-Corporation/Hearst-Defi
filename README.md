@@ -134,12 +134,14 @@ Section **Activity & Payouts** : `bento-col-8` activity + `bento-col-4` calendar
 (compact timeline ~48px de haut — tient en sidebar ; stack `@container pf` ≤880px).
 Titres panels : `.pf-panel-title` (alias de `.pf-hero-rail-title` hors hero).
 
-### Source de vérité du design system
+### Design system — copie locale éditable
 
-Cascade CSS (du plus amont au plus aval) :
+Le DS Cockpit est **dé-vendoré** : il vit dans `cockpit-shell/` (composants + `tokens.css`)
+et s'édite **librement** ici (tokens `--ct-*`, CSS, composants) — pas de package figé, pas
+de source centrale, pas de resync. Cascade CSS (du plus amont au plus aval) :
 
 ```
-node_modules/@hearst/cockpit-shell/tokens.css   (package canon, ne pas modifier)
+cockpit-shell/tokens.css                        (copie locale ÉDITABLE — dé-vendorée)
   ↓
 src/app/cockpit.css                             (extensions projet : status,
                                                  radius, z-index, durées)
@@ -167,7 +169,7 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
 
 PDF react-pdf : palette hex locale [`src/lib/pdf/pdf-palette.ts`](src/lib/pdf/pdf-palette.ts)
 (ink-on-white, distincte des `--ct-status-*` web). Source runtime = CSS (`cockpit.css` +
-`@hearst/cockpit-shell/tokens.css`).
+`cockpit-shell/tokens.css`).
 
 Doc DS complète + tableau des tokens autorisés : [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).
 
@@ -188,7 +190,7 @@ success/live = `--ct-status-success` qui **résout vers `var(--ct-accent)`** (un
 **Portée accent** : CTA primaires, focus rings, sélection inset fine (2px rail gauche sur pills/rail/presets) — pas titres, data bars,
 charts, mining/status ni wash de fond. Liens génériques = texte fort + souligné neutre (accent au hover seulement).
 
-**Un seul design system en runtime** : Cockpit (`--ct-*` via `@hearst/cockpit-shell`).
+**Un seul design system en runtime** : Cockpit (`--ct-*` via `cockpit-shell/` local).
 Le package orphelin `packages/ds` (`@ds/core`, namespace `--ds-*`) a été retiré du repo.
 Admin et user partagent le **même** design system : mêmes tokens, mêmes surfaces,
 mêmes rôles typo. L'admin n'est qu'une variante de densité/layout portée par

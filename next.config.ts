@@ -2,7 +2,6 @@ import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@hearst/cockpit-shell"],
   turbopack: {
     resolveAlias: {
       // Privy optional peer deps (Solana ecosystem) — not installed, stub out

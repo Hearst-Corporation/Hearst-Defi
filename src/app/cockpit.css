@@ -14,8 +14,9 @@
   --ct-bg-deep: #000000;
 
   /* Brand accent — Hearst product green (#A7FB90), canonical product identity.
-     !important pour écraser le ThemeAccent du package gardé en cache Next.js. */
-  --ct-accent: #A7FB90 !important;
+     Le canon (cockpit-shell/tokens.css) est vert lui aussi depuis le dé-vendoring ;
+     cockpit.css reste non-layered et gagne la cascade sans !important. */
+  --ct-accent: #A7FB90;
 
   /* Ink on brand accent fills (primary buttons, chat chips) — dark ink for
      legibility on the light green accent. */
@@ -1518,8 +1519,21 @@
   min-width: 0;
 }
 
-.dashboard-command-cell--awaiting .ct-empty-surface--inline {
-  padding: 0;
+/* Awaiting (no-data) cell: fill the Card so empty modules align symmetrically
+   with populated ones — centered "No data yet" headline + descriptive detail.
+   Overrides the command-board's left-aligned widget flattening for this state
+   only; no chrome is added (the Card already owns it). */
+.dashboard-command-cell--awaiting {
+  display: flex;
+}
+.dashboard-command-board
+  .dashboard-command-cell--awaiting
+  .ct-empty-surface--widget {
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100%;
 }
 
 /* Live metrics — reflow metric grid from card width, not viewport. */
