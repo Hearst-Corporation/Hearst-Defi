@@ -21,12 +21,18 @@ export function DashboardCommandCell({
   children,
 }: DashboardCommandCellProps) {
   if (!ready) {
+    // Symmetry: the empty cell fills the same Card chrome as a populated one,
+    // with a short centered "No data yet" headline and the descriptive text as
+    // detail. `widget` (vs `inline`) centers the content so vide and plein
+    // modules align on the same grid. No data is fabricated — this is purely the
+    // awaiting-state presentation; the `ready` (populated) branch is unchanged.
     return (
       <Card className={cn(CELL, "dashboard-command-cell--awaiting")}>
         <EmptySurface
-          variant="inline"
-          message={emptyMessage}
-          ariaLabel={emptyAriaLabel}
+          variant="widget"
+          message="No data yet"
+          detail={emptyMessage}
+          ariaLabel={emptyAriaLabel ?? emptyMessage}
         />
       </Card>
     );
