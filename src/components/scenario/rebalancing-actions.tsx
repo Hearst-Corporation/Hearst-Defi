@@ -134,7 +134,7 @@ function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
           key={action.ruleId}
           className="ct-nested-callout"
         >
-          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+          <div className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap">
             <span
               className={
                 "stat-label flex h-6 w-6 shrink-0 items-center justify-center rounded-full tabular-nums " +
@@ -146,15 +146,19 @@ function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
             >
               {idx + 1}
             </span>
-            <span className="body-sm font-semibold ct-text-primary">
-              {action.label}
-            </span>
-            <Badge variant={action.variant} className="ml-auto">
-              {action.ruleId}
-            </Badge>
+            <div className="admin-doc-stack admin-doc-stack--tight flex-1 min-w-0">
+              <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                <span className="body-sm font-semibold ct-text-primary">
+                  {action.label}
+                </span>
+                <Badge variant={action.variant} className="ml-auto">
+                  {action.ruleId}
+                </Badge>
+              </div>
+              <p className="mt-2 body-xs ct-text-muted">{action.trigger}</p>
+              <p className="mt-1 body-sm ct-text-body">{action.action}</p>
+            </div>
           </div>
-          <p className="mt-2 body-xs ct-text-muted">{action.trigger}</p>
-          <p className="mt-1 body-sm ct-text-body">{action.action}</p>
         </li>
       ))}
     </ol>

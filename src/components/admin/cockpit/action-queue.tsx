@@ -64,17 +64,14 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
       className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-action-row"
       aria-label={`${item.severity} — ${item.title}`}
     >
-      <div className="min-w-0 admin-doc-stack admin-doc-stack--micro">
-        <div className="admin-doc-inline-row admin-doc-inline-row--dense">
-          <SeverityPill severity={item.severity} />
+      <div className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap min-w-0 flex-1">
+        <SeverityPill severity={item.severity} />
+        <div className="admin-doc-stack admin-doc-stack--micro flex-1 min-w-0">
           <span className="body-sm ct-text-strong truncate">{item.title}</span>
+          <span className="body-xs ct-text-faint truncate">
+            {item.context}
+          </span>
         </div>
-        <span
-          className="body-xs ct-text-faint truncate"
-          style={{ paddingLeft: "var(--ct-space-10)" }}
-        >
-          {item.context}
-        </span>
       </div>
 
       {item.href ? (

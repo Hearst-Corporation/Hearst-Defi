@@ -319,14 +319,16 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
           {armedTriggers.length > 0 ? (
             <ul className="mt-3 admin-doc-stack--dense">
               {armedTriggers.map((t) => (
-                <li key={t.id} className="admin-doc-inline-row admin-doc-inline-row--start body-sm">
+                <li key={t.id} className="admin-doc-inline-row admin-doc-inline-row--start body-sm flex-nowrap">
                   <span
                     className="mt-0.5 shrink-0 body-xs ct-status-warning"
                     aria-hidden
                   >
                     ▸
                   </span>
-                  <span className="ct-text-body">{t.condition}</span>
+                  <div className="admin-doc-stack admin-doc-stack--tight flex-1 min-w-0">
+                    <span className="ct-text-body">{t.condition}</span>
+                  </div>
                 </li>
               ))}
             </ul>

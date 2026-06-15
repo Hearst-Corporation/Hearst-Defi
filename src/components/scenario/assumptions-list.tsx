@@ -29,24 +29,26 @@ export function AssumptionsList({ assumptions }: AssumptionsListProps) {
         {visible.map((line, i) => {
           const { key, value } = parseAssumption(line);
           return (
-            <li key={i} className="admin-doc-inline-row admin-doc-inline-row--start body-sm">
+            <li key={i} className="admin-doc-inline-row admin-doc-inline-row--start body-sm flex-nowrap">
               <span
                 className="mt-0.5 shrink-0 ct-text-micro-size ct-text-strong"
                 aria-hidden
               >
                 ▸
               </span>
-              {key !== null ? (
-                <span>
-                  <span className="font-semibold capitalize ct-text-body">
-                    {key}
+              <div className="admin-doc-stack admin-doc-stack--tight flex-1 min-w-0">
+                {key !== null ? (
+                  <span>
+                    <span className="font-semibold capitalize ct-text-body">
+                      {key}
+                    </span>
+                    <span className="ct-text-muted">: </span>
+                    <span className="mono ct-text-body">{value}</span>
                   </span>
-                  <span className="ct-text-muted">: </span>
-                  <span className="mono ct-text-body">{value}</span>
-                </span>
-              ) : (
-                <span className="ct-text-body">{value}</span>
-              )}
+                ) : (
+                  <span className="ct-text-body">{value}</span>
+                )}
+              </div>
             </li>
           );
         })}

@@ -471,9 +471,11 @@ export default async function ProductWorkspacePage({
             <CardTitle>Calculation notes</CardTitle>
             <ul className="admin-doc-stack admin-doc-stack--tight">
               {CALC_NOTES.map((note) => (
-                <li key={note} className="admin-doc-inline-row admin-doc-inline-row--start">
+                <li key={note} className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap">
                   <span aria-hidden className="pw-bullet" />
-                  <span className="body-sm ct-text-muted">{note}</span>
+                  <div className="admin-doc-stack admin-doc-stack--tight flex-1 min-w-0">
+                    <span className="body-sm ct-text-muted">{note}</span>
+                  </div>
                 </li>
               ))}
             </ul>
