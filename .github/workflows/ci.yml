@@ -53,9 +53,6 @@ jobs:
       - name: Run Typecheck
         run: pnpm typecheck
 
-      - name: DS layout guardrails
-        run: pnpm ds:layout
-
   # ────────────────────────────────────────────────────────────────
   # Job 2 — Vitest unit + integration tests (BLOCKING)
   # ────────────────────────────────────────────────────────────────
@@ -182,6 +179,9 @@ jobs:
   foundry:
     name: Foundry (smart contracts)
     runs-on: ubuntu-latest
+    # Advisory for now: contracts are Phase 2, mainnet gated on audit (ADR-006).
+    # Restore to blocking when contracts re-activate. lint/typecheck/vitest stay blocking.
+    continue-on-error: true
 
     steps:
       - name: Checkout

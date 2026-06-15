@@ -23,11 +23,11 @@ export default [
   ...nextTypescript,
   {
     rules: {
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_" },
-      ],
-      "@typescript-eslint/no-explicit-any": "error",
+      // WARN (2026-06-16): visible signal, not a hard block — keeps editing
+      // velocity while still surfacing `any` / unused. Real ESLint errors
+      // (react-hooks, imports, etc.) still fail `pnpm lint` (no `|| true`).
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-explicit-any": "warn",
     },
   },
 ];

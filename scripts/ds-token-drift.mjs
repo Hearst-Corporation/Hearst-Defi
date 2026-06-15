@@ -31,6 +31,11 @@ const ALLOWLIST_PATH = join(ROOT, "scripts/ds-token-allowlist.json");
  */
 function extractTokens(content) {
   const tokens = new Map();
+  // Strip CSS comments first — a token name mentioned inside /* ... */ is NOT a
+  // definition. After the P0 single-source cleanup (4b88a4a), cockpit.css carries
+  // notes like "/* --ct-ease : source unique tokens.css ... */"; without this the
+  // regex would parse the commented name as a bogus (drifting) definition.
+  content = content.replace(/\/\*[\s\S]*?\*\//g, "");
   // Match:  --ct-<name>: <value>[!important];
   const re = /--ct-([\w-]+)\s*:\s*([^;!]+?)(?:\s*!important)?\s*;/g;
   let m;
@@ -138,22 +143,31 @@ if (divergences.length === 0) {
   );
 }
 
-// ── STEP 3: Brand assertion — --ct-accent must be green in cockpit.css ────────
+// ── STEP 3: Brand assertion — --ct-accent must resolve to the brand green ─────
+// After the P0 single-source cleanup (4b88a4a), the 4 strictly-identical tokens
+// (bg-deep / accent / accent-soft / ease) live ONLY in cockpit-shell/tokens.css —
+// cockpit.css no longer redefines them. So resolve --ct-accent from cockpit.css
+// when it overrides, else from tokens.css, and assert the brand green either way.
 const BRAND_GREEN_RE = /^#a7fb90$/i;
-const cockpitAccent = cockpitTokens.get("--ct-accent");
+const accentSource = cockpitTokens.has("--ct-accent")
+  ? "src/app/cockpit.css"
+  : "cockpit-shell/tokens.css";
+const resolvedAccent = cockpitTokens.get("--ct-accent") ?? pkgTokens.get("--ct-accent");
 
 console.log("\n── BRAND ASSERTION ───────────────────────────────────────────────────────\n");
-if (!cockpitAccent) {
-  console.error("BRAND REGRESSION: --ct-accent is not defined in src/app/cockpit.css");
-  process.exit(1);
-}
-if (!BRAND_GREEN_RE.test(cockpitAccent)) {
+if (!resolvedAccent) {
   console.error(
-    `BRAND REGRESSION: --ct-accent is "${cockpitAccent}" in cockpit.css — expected #A7FB90`
+    "BRAND REGRESSION: --ct-accent is defined in NEITHER src/app/cockpit.css NOR cockpit-shell/tokens.css"
   );
   process.exit(1);
 }
-console.log(`OK: --ct-accent in cockpit.css = ${cockpitAccent} (green confirmed)`);
+if (!BRAND_GREEN_RE.test(resolvedAccent)) {
+  console.error(
+    `BRAND REGRESSION: --ct-accent is "${resolvedAccent}" (${accentSource}) — expected #A7FB90`
+  );
+  process.exit(1);
+}
+console.log(`OK: --ct-accent = ${resolvedAccent} (green confirmed, source: ${accentSource})`);
 
 // ── Final exit ────────────────────────────────────────────────────────────────
 console.log("\n─────────────────────────────────────────────────────────────────────────\n");

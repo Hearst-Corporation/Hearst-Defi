@@ -283,30 +283,35 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
 4. Si validé : ajouter dans `src/app/cockpit.css` (+ `pdf-palette.ts` si surface
    PDF) + mettre à jour `docs/DESIGN_SYSTEM.md` + ADR si non-trivial.
 
-### Le verrou se contrôle avec
+### Garde-fous — DS audit advisory, qualité bloquante (2026-06-16)
+
+Le **DS audit n'est plus un gate bloquant** : le design system s'édite sans qu'un
+script DS échoue le build. Mais ce n'est **pas** un désarmement définitif des garde-fous —
+**lint / typecheck / vitest restent bloquants** (en local et en CI). Le réarmement du
+DS gate en bloquant ne se fait que sur **décision explicite future**.
+
+État courant :
+
+- **`pnpm lint` = `eslint src`** (bloquant sur les vraies erreurs ESLint ; **pas** de
+  `|| true`). `no-explicit-any` et `no-unused-vars` sont en **`warn`** (signal visible,
+  pas blocage). `ds-layout-audit` **n'est pas** dans `lint`.
+- **`pnpm typecheck`** (tsc strict) et **`pnpm test`** (vitest) restent **bloquants** en CI.
+- **DS audit = diagnostic manuel/advisory** — les scripts existent et se lancent à la
+  main, jamais en CI :
 
 ```bash
-pnpm ds:layout            # bloquant (règles de layout DS)
-pnpm ds:classes           # advisory (vérif des classes utilitaires)
-pnpm typecheck            # tsc strict
-pnpm lint                 # eslint, no-any en erreur
-pnpm test                 # vitest (inclut doc-flow-shells guardrail)
-pnpm ds:layout            # bloquant — ct-table-surface, ct-hover-surface, ct-card direct
+pnpm lint                 # eslint src — BLOQUANT (erreurs réelles)
+pnpm typecheck            # tsc strict — BLOQUANT
+pnpm test                 # vitest — BLOQUANT
+pnpm ds:layout            # DS layout/brand invariants — MANUEL (advisory)
+pnpm ds:classes           # audit classes .ct-* — MANUEL (advisory)
+pnpm ds:token-drift       # divergence tokens.css ↔ cockpit.css — MANUEL (advisory)
 ```
 
-Journal DS / résumé d'audit : [`docs/DESIGN_SYSTEM.md §11`](docs/DESIGN_SYSTEM.md) (working log — checkpoints, commits mixtes acceptés, prochaine famille DS sur branche fraîche).
+CI (`​.github/workflows/ci.yml`) : `lint-typecheck` + `vitest` **bloquants** ;
+`foundry` advisory pour l'instant (contrats Phase 2, mainnet gated audit — ADR-006).
 
-Hub d'audit DS **local, advisory** (n'échoue pas la CI — `exit 0` toujours) :
-
-```
-pnpm ds:classes  # ct-* allowlist + DEPRECATED ADR-013 — warnings only, jamais bloquant
-/ds-tokens     # hex / rgba magiques hors fichiers tokens
-/ds-typo       # font-mono interdit, font-family hors cockpit
-/ds-layout     # px magiques Tailwind, dimensions arbitraires
-/ds-motion     # transitions/durations hardcodées
-/ds-primitives # duplications de boutons/cards/etc.
-/ds-full       # tout en un
-```
+Journal DS : [`docs/DESIGN_SYSTEM.md §11`](docs/DESIGN_SYSTEM.md).
 
 ---
 
