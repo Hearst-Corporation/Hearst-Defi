@@ -149,8 +149,7 @@ export function MonteCarloReview({
   return (
     <div
       className={cn(
-        "rounded-lg border border-(--ct-border-soft)",
-        "ct-surface-2 p-4 admin-doc-stack admin-doc-stack--relaxed",
+        "ct-glass-panel p-4 admin-doc-stack admin-doc-stack--relaxed",
         className,
       )}
       role="region"

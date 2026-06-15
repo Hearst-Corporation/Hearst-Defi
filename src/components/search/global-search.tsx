@@ -315,7 +315,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
         aria-hidden="true"
         tabIndex={-1}
         onClick={onClose}
-        className="absolute inset-0 cursor-default bg-[var(--ct-bg-deep)]/75 backdrop-blur-sm"
+        className="absolute inset-0 cursor-default bg-[var(--ct-bg-deep)]/75"
       />
 
       {/* Panel */}

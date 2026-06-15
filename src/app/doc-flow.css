@@ -210,8 +210,10 @@
   align-items: flex-start;
   gap: var(--ct-space-3);
   border-radius: var(--ct-radius-md);
-  border: 1px solid var(--ct-status-warning-border);
-  background: var(--ct-status-warning-soft);
+  /* Uniform graphite — no amber fill. Shares the card's surface; a hairline
+     border delineates. Semantic hint kept only on the label text. */
+  border: 1px solid var(--ct-border-soft);
+  background: transparent;
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 
@@ -334,11 +336,14 @@
   }
 }
 
-/* Inset surface inside a Card (chart wrapper, heatmap stage, disclaimer box…) */
+/* Inset surface inside a Card (chart wrapper, heatmap stage, disclaimer box…).
+   NO own fill — the inset shares the card's graphite so there is ZERO surface
+   layering (uniform black, no lighter/darker rectangle). A hairline border
+   alone delineates the grouped content / chart frame. */
 .admin-doc-inset {
   border-radius: var(--ct-radius-xl);
   border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
+  background: transparent;
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 
@@ -348,10 +353,12 @@
   width: var(--ct-space-16);
 }
 
-/* Product-workspace L1 hero panel (§13.3 display tier — graphite + accent wash). */
+/* Product-workspace L1 hero panel (§13.3 display tier — graphite, no white wash).
+   Same graphite surface as every other module card so the hero is not a lighter
+   translucent outlier — black like the rest of the system. */
 .admin-doc .pw-hero-panel {
   border-color: var(--ct-graphite-border-nested);
-  background: var(--ct-surface-1);
+  background: var(--ct-graphite-subtle-bg);
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, var(--ct-text-strong) 6%, transparent);
 }
@@ -740,15 +747,16 @@
   gap: var(--ct-space-5);
 }
 
-/* Callout — warning surface, identical in both scopes */
+/* Callout — uniform graphite (no amber fill), identical in both scopes.
+   Shares the card surface + hairline border; semantic hint on label text only. */
 :is(.admin-doc, .product-doc) .doc-callout,
 :is(.admin-doc, .product-doc) :is(.admin-doc-callout, .product-doc-callout) {
   display: flex;
   align-items: flex-start;
   gap: var(--ct-space-3);
   border-radius: var(--ct-radius-md);
-  border: 1px solid var(--ct-status-warning-border);
-  background: var(--ct-status-warning-soft);
+  border: 1px solid var(--ct-border-soft);
+  background: transparent;
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 

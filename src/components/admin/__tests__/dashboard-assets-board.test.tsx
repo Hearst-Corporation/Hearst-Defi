@@ -111,6 +111,8 @@ function makeData(overrides: Partial<DashboardData>): DashboardData {
     timeseries: { nav30d: [], apy30d: [], source: "fallback" },
     source: "fallback",
     hasTimelineSnapshot: false,
+    latestSnapshotSource: null,
+    hasLiveTimelineSnapshot: false,
   };
   return { ...base, ...overrides };
 }

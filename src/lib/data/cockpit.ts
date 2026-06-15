@@ -54,8 +54,11 @@ export interface HeroKpi {
   value: string;
   sublabel: string;
   provenance: "live" | "oracle" | "attested" | "estimated" | "manual" | "stale";
-  /** true when value represents an alert / degraded state */
+  /** true when value represents an alert / degraded state (danger red) */
   alert?: boolean;
+  /** true for a positive-attention highlight (brand green accent) — e.g. an
+   *  action queue that needs attention but is NOT a danger/degraded state. */
+  accent?: boolean;
 }
 
 // ---------------------------------------------------------------------------

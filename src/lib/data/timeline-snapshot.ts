@@ -17,6 +17,30 @@ export const TIMELINE_SNAPSHOT_SOURCES = [
 
 export type TimelineSnapshotSource = (typeof TIMELINE_SNAPSHOT_SOURCES)[number];
 
+/**
+ * Sources that indicate genuine production data — as opposed to seed/staging
+ * data that happens to share the same table. Used to gate "Live" KPI signals.
+ *
+ * `daily-seed` is valid timeline data for charts/history but MUST NOT trigger
+ * Live/Attested provenance badges on the admin dashboard.
+ */
+const LIVE_TIMELINE_SOURCES: ReadonlySet<TimelineSnapshotSource> = new Set([
+  "live",
+  "oracle",
+  "attested",
+]);
+
+/**
+ * Returns true when `source` represents real production data (not seed /
+ * staging). Unknown or nullish sources are conservative (false).
+ */
+export function isLiveTimelineSource(
+  source: TimelineSnapshotSource | string | null | undefined,
+): boolean {
+  if (source == null) return false;
+  return LIVE_TIMELINE_SOURCES.has(source as TimelineSnapshotSource);
+}
+
 export function timelineSnapshotWhere(): { source: { in: TimelineSnapshotSource[] } } {
   return { source: { in: [...TIMELINE_SNAPSHOT_SOURCES] } };
 }

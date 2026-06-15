@@ -290,3 +290,17 @@ describe("loadDashboardForRef — deployment ref", () => {
     expect(data.vault.apyRange).toBeDefined();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Seed honesty — hasLiveTimelineSnapshot / latestSnapshotSource contract
+// ---------------------------------------------------------------------------
+
+describe("seed honesty — DashboardData contract (no DB rows)", () => {
+  it("hasLiveTimelineSnapshot is false when no snapshot exists", async () => {
+    const data = await loadDashboardData("yield");
+    // DB mock returns null snapshot — must be conservative.
+    expect(data.hasTimelineSnapshot).toBe(false);
+    expect(data.hasLiveTimelineSnapshot).toBe(false);
+    expect(data.latestSnapshotSource).toBeNull();
+  });
+});

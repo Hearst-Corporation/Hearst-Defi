@@ -65,7 +65,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       />
 
       {page.preview ? (
-        <Card className="relative z-10 border-(--ct-status-warning-border) ct-status-warning-bg/20">
+        <Card className="relative z-10 border-(--ct-status-warning-border) bg-transparent">
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             <span className="stat-label ct-status-warning">
               Per-vault live snapshot pending
@@ -77,6 +77,22 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             multi-vault schema. Capital and yield below are the {data.vaultMeta.name}
             methodology preset — the action queue and proof status remain live and
             platform-wide.
+          </p>
+        </Card>
+      ) : null}
+
+      {!page.preview && data.hasTimelineSnapshot && !data.hasLiveTimelineSnapshot ? (
+        <Card className="relative z-10 border-(--ct-status-info-border) bg-transparent">
+          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+            <span className="stat-label ct-text-muted">
+              Local seed data · Staging signals — not production
+            </span>
+            <ProvenanceBadge kind="manual" />
+          </div>
+          <p className="mt-3 body-sm ct-text-muted max-w-3xl">
+            KPIs are sourced from <code className="font-mono">{data.latestSnapshotSource}</code> snapshots.
+            Run <code className="font-mono">db:seed</code> with live oracle data or ingest a real snapshot
+            to activate production provenance badges.
           </p>
         </Card>
       ) : null}

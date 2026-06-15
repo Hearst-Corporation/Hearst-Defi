@@ -47,7 +47,10 @@ export function resolveDashboardPageInputs(
   overview: AdminOverview,
 ) {
   const preview = data.vaultMeta.livePreview;
-  const hasLiveKpis = data.hasTimelineSnapshot && !preview;
+  // Gate on `hasLiveTimelineSnapshot`, not the weaker `hasTimelineSnapshot`.
+  // A `daily-seed` row sets `hasTimelineSnapshot = true` but must never
+  // activate Live/Attested provenance badges on the admin dashboard.
+  const hasLiveKpis = data.hasLiveTimelineSnapshot && !preview;
   const headlineApy = resolveHeadlineApy(
     data.vault.apyRange,
     data.vaultMeta.apyTarget,
@@ -70,8 +73,14 @@ export function resolveDashboardPageInputs(
     hasLiveKpis,
     capitalUsdc,
   );
+  // Proof freshness is only meaningful when the dashboard is running on real
+  // production data. In seed/staging contexts (hasLiveTimelineSnapshot = false)
+  // we suppress proofFresh so that recent-but-mock Proof rows don't trigger
+  // an "Attested" badge on the admin dashboard.
   const proofFresh =
-    overview.proof.miningFreshness === "live" && overview.proof.attestationsCount > 0;
+    hasLiveKpis &&
+    overview.proof.miningFreshness === "live" &&
+    overview.proof.attestationsCount > 0;
 
   return {
     data: {

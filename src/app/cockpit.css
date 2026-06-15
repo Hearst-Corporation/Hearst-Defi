@@ -818,7 +818,7 @@
   min-height: var(--ct-scenario-central-console-min-h);
   padding: var(--ct-space-4) var(--ct-space-5);
   border-top: 1px solid var(--ct-border-soft);
-  background: color-mix(in srgb, var(--ct-bg-deep) 48%, var(--ct-surface-2));
+  background: var(--ct-graphite-subtle-bg);
 }
 
 .scenario-central-flow-terminal {
@@ -892,9 +892,7 @@
   flex: none;
   padding: var(--ct-space-4) var(--ct-space-5);
   border-top: 1px solid var(--ct-border-soft);
-  background: color-mix(in srgb, var(--ct-bg-deep) 48%, var(--ct-surface-2));
-  backdrop-filter: var(--ct-blur-lg);
-  -webkit-backdrop-filter: var(--ct-blur-lg);
+  background: var(--ct-graphite-subtle-bg);
 }
 
 @keyframes ct-scenario-central-flow-appear {
@@ -1276,6 +1274,14 @@
   padding-inline: var(--ct-space-2);
   border-radius: var(--ct-radius-md);
   background: color-mix(in srgb, var(--ct-status-danger) 8%, transparent);
+}
+
+/* Positive-attention highlight (brand green) — e.g. action queue with pending
+   items. Distinct from --alert (danger red) so genuine degraded states keep red. */
+.dashboard-kpi-strip__cell--accent {
+  padding-inline: var(--ct-space-2);
+  border-radius: var(--ct-radius-md);
+  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
 }
 
 .dashboard-kpi-strip__label-row {
@@ -4004,10 +4010,22 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   display: grid;
   /* Actions sized for the worst case (View + Clone + Pause); apy fits the
      widest range (e.g. 24.2—35.7%) so columns never overflow before stacking. */
-  grid-template-columns: minmax(0, 2fr) 6rem minmax(0, 1.4fr) 7.5rem 8.5rem;
+  /* VAULT identity = `auto` → exactly its text width (longest ticker / name),
+     so no empty band trails the vault name. The AUM bar takes ALL remaining
+     flexible width (1fr) and fills the row. Fixed columns keep their sizing. */
+  grid-template-columns: minmax(8rem, auto) max-content minmax(0, 1fr) max-content max-content;
   gap: var(--ct-space-4);
-  align-items: center;
+  /* Top-align: the identity column is 3 lines (ticker / name / category) while
+     the others are 1; centering floated the short columns to the middle line.
+     Aligning to the first line lets ticker · status · APY · AUM share one row. */
+  align-items: start;
   min-width: 0;
+}
+
+/* Actions stay vertically centered — the buttons read as a balanced affordance
+   rather than pinned to the top edge of the tall identity column. */
+.admin-vaults-list__actions {
+  align-self: center;
 }
 
 .admin-vaults-list__header {
@@ -4039,6 +4057,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   display: flex;
   align-items: center;
   gap: var(--ct-space-1_5);
+  white-space: nowrap;
 }
 
 .admin-vaults-list__metrics {
@@ -4046,12 +4065,14 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   flex-direction: column;
   gap: var(--ct-space-1);
   min-width: 0;
+  overflow: hidden;
 }
 
 .admin-vaults-list__apy {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-0_5);
+  white-space: nowrap;
 }
 
 .admin-vaults-list__actions {

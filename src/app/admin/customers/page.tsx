@@ -76,22 +76,22 @@ export default async function CustomersPage({
               <table className="w-full table-fixed text-left body-sm">
                 <thead>
                   <tr>
-                    <th className="w-[30%] stat-label ct-table-header">
+                    <th className="w-[30%] stat-label ct-table-header whitespace-nowrap">
                       Email
                     </th>
-                    <th className="hidden w-[18%] stat-label ct-table-header lg:table-cell">
+                    <th className="hidden w-[18%] stat-label ct-table-header whitespace-nowrap lg:table-cell">
                       Wallet
                     </th>
-                    <th className="w-[24%] stat-label ct-table-header md:w-[18%]">
+                    <th className="w-[24%] stat-label ct-table-header whitespace-nowrap md:w-[18%]">
                       KYC
                     </th>
-                    <th className="hidden w-[14%] stat-label ct-table-header text-right md:table-cell">
+                    <th className="hidden w-[14%] stat-label ct-table-header whitespace-nowrap text-right md:table-cell">
                       Active positions
                     </th>
-                    <th className="w-[24%] stat-label ct-table-header text-right">
+                    <th className="w-[24%] stat-label ct-table-header whitespace-nowrap text-right">
                       Total principal
                     </th>
-                    <th className="hidden w-[14%] stat-label ct-table-header lg:table-cell">
+                    <th className="hidden w-[14%] stat-label ct-table-header whitespace-nowrap lg:table-cell">
                       Joined
                     </th>
                   </tr>

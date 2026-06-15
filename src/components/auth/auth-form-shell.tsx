@@ -19,7 +19,7 @@ export function AuthFormShell({
   children: ReactNode;
 }) {
   return (
-    <div className="product-doc flex min-h-dvh items-center justify-center bg-[var(--ct-bg-deep)]">
+    <div className="product-doc flex min-h-dvh items-center justify-center bg-(--ct-bg-deep)">
       <Card className="w-full max-w-sm flex flex-col gap-6 p-8" hoverOverlay={false}>
         <div className="flex flex-col gap-1">
           <h1 className="h1">{title}</h1>

@@ -239,7 +239,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
 
         {/* Error */}
         {error && (
-          <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-[var(--ct-radius-md)]">
+          <p className="body-xs ct-status-danger px-3 py-2 rounded-(--ct-radius-md) border border-(--ct-border-soft) bg-transparent">
             {error}
           </p>
         )}
@@ -262,7 +262,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
                 </p>
 
                 {confirmResult && !confirmResult.confirmed && (
-                  <p className="body-xs ct-status-info-bg px-3 py-2 rounded-[var(--ct-radius-md)]">
+                  <p className="body-xs ct-status-info px-3 py-2 rounded-(--ct-radius-md) border border-(--ct-border-soft) bg-transparent">
                     Signature {confirmResult.signersCount}/{confirmResult.required}{" "}
                     recorded. Awaiting{" "}
                     {confirmResult.required - confirmResult.signersCount} more
@@ -343,7 +343,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
 
         {/* Confirmed — finaliser succeeded */}
         {confirmResult?.confirmed && confirmResult.finisher !== "failed" && (
-          <div className="ct-status-success-bg px-4 py-3 rounded-[var(--ct-radius-lg)] admin-doc-stack admin-doc-stack--compact">
+          <div className="px-4 py-3 rounded-(--ct-radius-lg) border border-(--ct-border-soft) bg-transparent admin-doc-stack admin-doc-stack--compact">
             <p className="body-sm ct-status-success">
               Distribution confirmed for period {period}.
             </p>
@@ -358,7 +358,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
         {confirmResult?.confirmed &&
           confirmResult.finisher === "failed" &&
           confirmResult.distributionId && (
-            <div className="ct-status-warning-bg px-4 py-3 rounded-[var(--ct-radius-lg)] admin-doc-stack admin-doc-stack--actions">
+            <div className="px-4 py-3 rounded-(--ct-radius-lg) border border-(--ct-border-soft) bg-transparent admin-doc-stack admin-doc-stack--actions">
               <div className="admin-doc-stack admin-doc-stack--compact">
                 <p className="body-sm ct-status-warning">
                   Confirmed, but finalisation (ledger / PCAP / emails) failed —
@@ -371,7 +371,7 @@ export function DistributionForm({ vaultOptions }: DistributionFormProps) {
                 </p>
               </div>
               {retryError && (
-                <p className="body-xs ct-status-danger-bg px-3 py-2 rounded-[var(--ct-radius-md)]">
+                <p className="body-xs ct-status-danger px-3 py-2 rounded-(--ct-radius-md) border border-(--ct-border-soft) bg-transparent">
                   {retryError}
                 </p>
               )}

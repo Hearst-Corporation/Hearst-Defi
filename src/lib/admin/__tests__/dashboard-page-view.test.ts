@@ -8,6 +8,7 @@ import {
 } from "@/lib/admin/dashboard-page-view";
 import type { AdminOverview } from "@/lib/data/admin-overview";
 import type { DashboardData } from "@/lib/data/dashboard";
+import { isLiveTimelineSource } from "@/lib/data/timeline-snapshot";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 
 const RISK: RiskFrameworkData = {
@@ -77,6 +78,8 @@ function makeData(overrides: Partial<DashboardData> = {}): DashboardData {
     timeseries: { nav30d: [], apy30d: [], source: "fallback" },
     source: "db",
     hasTimelineSnapshot: true,
+    latestSnapshotSource: "live",
+    hasLiveTimelineSnapshot: true,
     ...overrides,
   };
 }
@@ -178,5 +181,186 @@ describe("resolveDashboardPageInputs", () => {
     expect(page.proofFresh).toBe(true);
     expect(page.hasLiveKpis).toBe(true);
     expect(page.capitalProvenance).toBe("live");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Seed honesty — daily-seed must not trigger Live KPI signals
+// ---------------------------------------------------------------------------
+
+describe("proofFresh gate — seed context", () => {
+  const FRESH_PROOF_OVERVIEW: AdminOverview = {
+    ...OVERVIEW,
+    proof: {
+      ...OVERVIEW.proof,
+      miningFreshness: "live",
+      attestationsCount: 3,
+      proofsTotal: 3,
+    },
+  };
+
+  it("seed context with recent proof rows does not produce proofFresh=true", () => {
+    // daily-seed snapshot + fresh proof rows → must NOT activate Attested
+    const page = resolveDashboardPageInputs(
+      makeData({
+        hasTimelineSnapshot: true,
+        latestSnapshotSource: "daily-seed",
+        hasLiveTimelineSnapshot: false,
+      }),
+      RISK,
+      FRESH_PROOF_OVERVIEW,
+    );
+    expect(page.proofFresh).toBe(false);
+    expect(page.hasLiveKpis).toBe(false);
+  });
+
+  it("null snapshot context with recent proof rows does not produce proofFresh=true", () => {
+    const page = resolveDashboardPageInputs(
+      makeData({
+        hasTimelineSnapshot: false,
+        latestSnapshotSource: null,
+        hasLiveTimelineSnapshot: false,
+      }),
+      RISK,
+      FRESH_PROOF_OVERVIEW,
+    );
+    expect(page.proofFresh).toBe(false);
+  });
+
+  it("live snapshot context with recent proof rows preserves proofFresh=true", () => {
+    // Real production data → Attested must still fire
+    const page = resolveDashboardPageInputs(
+      makeData({
+        hasTimelineSnapshot: true,
+        latestSnapshotSource: "live",
+        hasLiveTimelineSnapshot: true,
+      }),
+      RISK,
+      FRESH_PROOF_OVERVIEW,
+    );
+    expect(page.proofFresh).toBe(true);
+    expect(page.hasLiveKpis).toBe(true);
+  });
+
+  it("attested snapshot context with recent proof rows preserves proofFresh=true", () => {
+    const page = resolveDashboardPageInputs(
+      makeData({
+        hasTimelineSnapshot: true,
+        latestSnapshotSource: "attested",
+        hasLiveTimelineSnapshot: true,
+      }),
+      RISK,
+      FRESH_PROOF_OVERVIEW,
+    );
+    expect(page.proofFresh).toBe(true);
+  });
+});
+
+describe("seed honesty gate", () => {
+  it("daily-seed snapshot does not activate hasLiveKpis", () => {
+    const page = resolveDashboardPageInputs(
+      makeData({
+        hasTimelineSnapshot: true,
+        latestSnapshotSource: "daily-seed",
+        hasLiveTimelineSnapshot: false,
+      }),
+      RISK,
+      OVERVIEW,
+    );
+    expect(page.hasLiveKpis).toBe(false);
+  });
+
+  it("daily-seed snapshot keeps capital provenance as manual", () => {
+    const page = resolveDashboardPageInputs(
+      makeData({
+        hasTimelineSnapshot: true,
+        latestSnapshotSource: "daily-seed",
+        hasLiveTimelineSnapshot: false,
+        vault: {
+          aumUsdc: 800_000,
+          delta30dUsdc: 0,
+          apyRange: { low: 9.4, high: 12.8 },
+          stressedApy: 5.2,
+          stressedApyRange: { low: 4.4, high: 6.0 },
+          riskScore: 47,
+          miningMarginScore: 60,
+          mode: "balanced",
+          asOf: new Date("2026-06-01T00:00:00Z"),
+        },
+      }),
+      RISK,
+      OVERVIEW,
+    );
+    expect(page.capitalProvenance).toBe("manual");
+  });
+
+  it("source 'live' activates hasLiveKpis", () => {
+    const page = resolveDashboardPageInputs(
+      makeData({
+        hasTimelineSnapshot: true,
+        latestSnapshotSource: "live",
+        hasLiveTimelineSnapshot: true,
+      }),
+      RISK,
+      OVERVIEW,
+    );
+    expect(page.hasLiveKpis).toBe(true);
+  });
+
+  it("source 'oracle' activates hasLiveKpis", () => {
+    const page = resolveDashboardPageInputs(
+      makeData({
+        hasTimelineSnapshot: true,
+        latestSnapshotSource: "oracle",
+        hasLiveTimelineSnapshot: true,
+      }),
+      RISK,
+      OVERVIEW,
+    );
+    expect(page.hasLiveKpis).toBe(true);
+  });
+
+  it("source 'attested' activates hasLiveKpis", () => {
+    const page = resolveDashboardPageInputs(
+      makeData({
+        hasTimelineSnapshot: true,
+        latestSnapshotSource: "attested",
+        hasLiveTimelineSnapshot: true,
+      }),
+      RISK,
+      OVERVIEW,
+    );
+    expect(page.hasLiveKpis).toBe(true);
+  });
+
+  it("null snapshot source is conservative (non-live)", () => {
+    const page = resolveDashboardPageInputs(
+      makeData({
+        hasTimelineSnapshot: false,
+        latestSnapshotSource: null,
+        hasLiveTimelineSnapshot: false,
+      }),
+      RISK,
+      OVERVIEW,
+    );
+    expect(page.hasLiveKpis).toBe(false);
+  });
+});
+
+describe("isLiveTimelineSource", () => {
+  it("returns false for daily-seed", () => {
+    expect(isLiveTimelineSource("daily-seed")).toBe(false);
+  });
+
+  it("returns true for live / oracle / attested", () => {
+    expect(isLiveTimelineSource("live")).toBe(true);
+    expect(isLiveTimelineSource("oracle")).toBe(true);
+    expect(isLiveTimelineSource("attested")).toBe(true);
+  });
+
+  it("returns false for null / undefined / unknown string", () => {
+    expect(isLiveTimelineSource(null)).toBe(false);
+    expect(isLiveTimelineSource(undefined)).toBe(false);
+    expect(isLiveTimelineSource("computed")).toBe(false);
   });
 });

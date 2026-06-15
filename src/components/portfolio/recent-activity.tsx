@@ -103,7 +103,7 @@ export function RecentActivity({
               <TxIcon type={tx.type} />
 
               <div className="pf-recent-activity-row__main">
-                <div className="body-sm ct-text-primary font-semibold truncate">
+                <div className="body-sm ct-text-primary font-semibold truncate whitespace-nowrap">
                   {TYPE_LABELS[tx.type] ?? tx.type}
                   {tx.positionVaultName && (
                     <span className="ct-text-muted font-normal">

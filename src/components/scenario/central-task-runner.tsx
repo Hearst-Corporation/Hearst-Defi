@@ -194,7 +194,7 @@ export function CentralTaskRunner({
                 data-state={step.isActive ? "pending" : "done"}
                 className={cn(
                   "scenario-central-flow-line group transition-colors duration-(--ct-dur-fast)",
-                  step.isActive ? "ct-surface-2" : "ct-surface-1",
+                  "bg-transparent border border-[var(--ct-border-soft)]",
                 )}
               >
                 <span

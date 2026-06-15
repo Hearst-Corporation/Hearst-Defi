@@ -100,7 +100,7 @@ export function buildDashboardHeroKpis(input: {
             ? "Stale"
             : "Pending"
         : input.proof.attestationsCount > 0
-          ? "Attested"
+          ? "On file"
           : "Pending",
       sublabel: proofSubtitle(input.proof),
       provenance: heroProvenance(input.proofProvenance),
@@ -110,7 +110,9 @@ export function buildDashboardHeroKpis(input: {
       value: String(input.totalActionRequired),
       sublabel: input.totalActionRequired === 1 ? "tracked action" : "tracked actions",
       provenance: "manual",
-      alert: input.totalActionRequired > 0,
+      // Pending actions are an attention cue, not a danger/degraded state —
+      // highlight in brand green (accent), not danger red.
+      accent: input.totalActionRequired > 0,
     },
   ];
 }

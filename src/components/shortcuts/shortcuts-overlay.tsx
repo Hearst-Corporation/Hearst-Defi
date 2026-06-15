@@ -175,7 +175,7 @@ function ShortcutsOverlayBody({ onClose }: { onClose: () => void }) {
         aria-hidden="true"
         tabIndex={-1}
         onClick={onClose}
-        className="absolute inset-0 cursor-default bg-[var(--ct-bg-deep)]/75 backdrop-blur-sm"
+        className="absolute inset-0 cursor-default bg-[var(--ct-bg-deep)]/75"
       />
 
       {/* Panel */}
@@ -187,7 +187,7 @@ function ShortcutsOverlayBody({ onClose }: { onClose: () => void }) {
         className={cn(
           "relative w-full max-w-2xl max-h-[85vh]",
           "rounded-xl border border-[var(--ct-border-strong)]",
-          "ct-surface-1/95 backdrop-blur-xl",
+          "ct-surface-1",
           "shadow-[var(--ct-shadow-elevated)]",
           "flex flex-col overflow-hidden",
           "z-[var(--ct-z-base)]",
@@ -199,7 +199,7 @@ function ShortcutsOverlayBody({ onClose }: { onClose: () => void }) {
             "flex items-center justify-between",
             "px-6 py-4",
             "border-b border-[var(--ct-border)]",
-            "ct-surface-2/50",
+            "ct-surface-2",
           )}
         >
           <h2 id={titleId} className="h2 shrink-0">
@@ -253,7 +253,7 @@ function ShortcutsOverlayBody({ onClose }: { onClose: () => void }) {
             "flex items-center justify-center gap-2",
             "px-6 py-3",
             "border-t border-[var(--ct-border)]",
-            "ct-surface-2/50",
+            "ct-surface-2",
           )}
         >
           <span className="stat-label ct-text-muted">Close</span>

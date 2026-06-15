@@ -501,7 +501,7 @@ export function VaultForm(props: VaultFormProps) {
                   step={50}
                   value={form[key]}
                   onChange={(e) => setAllocationBps(key, e.target.value)}
-                  className="w-full accent-accent"
+                  className="w-full accent-(--ct-accent)"
                   aria-label={`${label} allocation`}
                 />
                 <Progress value={form[key]} max={10000} label={`${label} allocation`} />

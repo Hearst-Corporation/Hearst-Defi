@@ -27,7 +27,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
       aria-busy={isPending}
     >
       {isPending && (
-        <div className="pointer-events-none absolute inset-0 z-[var(--ct-z-overlay)] flex items-center justify-center rounded-lg ct-surface-2/60 backdrop-blur-sm">
+        <div className="pointer-events-none absolute inset-0 z-[var(--ct-z-overlay)] flex items-center justify-center rounded-lg bg-transparent border border-[var(--ct-border-soft)]">
           <span className="body-sm ct-text-body">Computing backtest…</span>
         </div>
       )}

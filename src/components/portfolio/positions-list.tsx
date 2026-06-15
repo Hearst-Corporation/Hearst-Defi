@@ -67,13 +67,13 @@ export function PositionsList({
         <div className={cn("pf-positions-table", showZeroShell && "pf-positions-table--zero")}>
           {/* Header row */}
           <div className={cn("stat-label", "pf-positions-row-grid", "items-baseline")}>
-            <div className="pf-position-vault-cell pf-position-vault-cell--header">
+            <div className="pf-position-vault-cell pf-position-vault-cell--header whitespace-nowrap">
               Vault
             </div>
-            <div className="text-right">Principal</div>
-            <div className="text-right">Value</div>
-            <div className="text-right">APY range</div>
-            <div className="text-right">Since</div>
+            <div className="text-right whitespace-nowrap">Principal</div>
+            <div className="text-right whitespace-nowrap">Value</div>
+            <div className="text-right whitespace-nowrap">APY range</div>
+            <div className="text-right whitespace-nowrap">Since</div>
           </div>
 
           {showZeroShell ? (
@@ -120,17 +120,17 @@ export function PositionsList({
               </div>
 
               {/* Principal */}
-              <div className="tabular body-md text-right ct-text-body">
+              <div className="tabular body-md text-right ct-text-body whitespace-nowrap">
                 {formatUsdCompact(p.principalUsdc)}
               </div>
 
               {/* Current value */}
-              <div className="tabular body-md ct-text-strong font-semibold text-right">
+              <div className="tabular body-md ct-text-strong font-semibold text-right whitespace-nowrap">
                 {formatUsdCompact(p.valueUsdc)}
               </div>
 
               {/* APY range — non-negotiable #1 */}
-              <div className="text-right">
+              <div className="text-right whitespace-nowrap">
                 {p.apyLow !== null && p.apyHigh !== null ? (
                   <ApyRange
                     low={p.apyLow}
@@ -144,7 +144,7 @@ export function PositionsList({
               </div>
 
               {/* Subscribed date */}
-              <div className="body-xs tabular ct-text-muted text-right">
+              <div className="body-xs tabular ct-text-muted text-right whitespace-nowrap">
                 {dateFmt.format(p.subscribedAt)}
               </div>
             </div>

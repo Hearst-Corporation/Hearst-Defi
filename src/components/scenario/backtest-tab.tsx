@@ -118,7 +118,7 @@ export function BacktestTab() {
 
       {/* Error banner */}
       {error && (
-        <p className="rounded-full border border-[var(--ct-status-danger)] ct-status-danger-bg px-4 py-2.5 body-sm ct-status-danger">
+        <p className="rounded-full border border-[var(--ct-status-danger)] bg-transparent px-4 py-2.5 body-sm ct-status-danger">
           {error}
         </p>
       )}

@@ -38,6 +38,7 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
       className={cn(
         "dashboard-kpi-strip__cell",
         kpi.alert && "dashboard-kpi-strip__cell--alert",
+        kpi.accent && "dashboard-kpi-strip__cell--accent",
       )}
       aria-label={`${kpi.label}: ${kpi.value}`}
     >
@@ -48,7 +49,7 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
       <span
         className={cn(
           "stat-value",
-          kpi.alert ? "ct-status-danger" : "ct-text-strong",
+          kpi.alert ? "ct-status-danger" : kpi.accent ? "ct-status-success" : "ct-text-strong",
         )}
       >
         {kpi.value}

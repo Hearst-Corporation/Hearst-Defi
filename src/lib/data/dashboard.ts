@@ -14,8 +14,10 @@ import {
 import { loadVaultMonthlyHistory, type VaultMonthlyRow } from "@/lib/agents/loaders/vault";
 import { fetchBtcPrice, type BtcPriceData } from "@/lib/data/btc-price";
 import {
+  isLiveTimelineSource,
   loadLatestTimelineSnapshot,
   timelineSnapshotWhere,
+  type TimelineSnapshotSource,
 } from "@/lib/data/timeline-snapshot";
 import { prisma } from "@/lib/db";
 import type { VaultMode, VaultId } from "@/lib/engine/types";
@@ -165,6 +167,20 @@ export interface DashboardData {
   source: "db" | "partial" | "fallback";
   /** True when a timeline snapshot row exists for the Yield vault series. */
   hasTimelineSnapshot: boolean;
+  /**
+   * The `source` field of the latest timeline snapshot, or null when none
+   * exists. Consumers that need to gate Live/Attested signals (e.g. the admin
+   * dashboard KPI strip) must check this via `isLiveTimelineSource()` rather
+   * than relying on `hasTimelineSnapshot` alone, since `"daily-seed"` rows are
+   * valid timeline data but must NOT activate production provenance badges.
+   */
+  latestSnapshotSource: TimelineSnapshotSource | null;
+  /**
+   * True only when a timeline snapshot exists AND its source is a genuine
+   * production source (live / oracle / attested). Seed and staging rows are
+   * excluded. Use this — not `hasTimelineSnapshot` — to gate Live KPI signals.
+   */
+  hasLiveTimelineSnapshot: boolean;
 }
 
 // Mode vérité live: with no DB row, report honest zeros — never the old
@@ -354,6 +370,9 @@ async function buildDashboardFromSnapshot(
       ? "partial"
       : "db";
 
+  const latestSnapshotSource =
+    (latestSnapshot?.source as TimelineSnapshotSource | null | undefined) ?? null;
+
   return {
     vault,
     vaultMeta,
@@ -368,6 +387,8 @@ async function buildDashboardFromSnapshot(
     timeseries,
     source,
     hasTimelineSnapshot: latestSnapshot !== null,
+    latestSnapshotSource,
+    hasLiveTimelineSnapshot: isLiveTimelineSource(latestSnapshotSource),
   };
 }
 

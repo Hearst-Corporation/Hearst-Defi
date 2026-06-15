@@ -80,9 +80,9 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
             <>
               <th className="stat-label ct-table-header px-4 py-3 text-left">Agent</th>
               <th className="stat-label ct-table-header px-4 py-3 text-left">Model</th>
-              <th className="stat-label ct-table-header px-4 py-3 text-left">Status</th>
-              <th className="stat-label ct-table-header px-4 py-3 text-right">Tokens (in/out)</th>
-              <th className="stat-label ct-table-header px-4 py-3 text-right">Latency</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left whitespace-nowrap">Status</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-right whitespace-nowrap">Tokens (in/out)</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-right whitespace-nowrap">Latency</th>
               <th className="stat-label ct-table-header px-4 py-3 text-right">Cost</th>
               <th className="stat-label ct-table-header px-4 py-3 text-right">Time</th>
             </>
@@ -92,13 +92,13 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
             <tr key={run.id}>
               <td className="ct-table-cell px-4">{run.agentName}</td>
               <td className="ct-table-cell px-4">{run.model}</td>
-              <td className="ct-table-cell px-4">
+              <td className="ct-table-cell px-4 whitespace-nowrap">
                 <RunStatusBadge status={run.status} />
                 {run.errorType ? (
                   <span className="ct-text-muted ml-2">{run.errorType}</span>
                 ) : null}
               </td>
-              <td className="ct-table-cell px-4 text-right tabular">
+              <td className="ct-table-cell px-4 text-right tabular whitespace-nowrap">
                 {run.inputTokens === null && run.outputTokens === null
                   ? "—"
                   : `${run.inputTokens ?? "—"} / ${run.outputTokens ?? "—"}`}
@@ -134,10 +134,10 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
           }
           header={
             <>
-              <th className="stat-label ct-table-header px-4 py-3 text-left">Profile</th>
-              <th className="stat-label ct-table-header px-4 py-3 text-left">Mode</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left whitespace-nowrap">Profile</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left whitespace-nowrap">Mode</th>
               <th className="stat-label ct-table-header px-4 py-3 text-left">Destination</th>
-              <th className="stat-label ct-table-header px-4 py-3 text-left">Status</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left whitespace-nowrap">Status</th>
               <th className="stat-label ct-table-header px-4 py-3 text-left">Reason</th>
               <th className="stat-label ct-table-header px-4 py-3 text-right">Time</th>
             </>
@@ -145,10 +145,10 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
         >
           {stats.recentNavTraces.map((trace) => (
             <tr key={trace.id}>
-              <td className="ct-table-cell px-4">{trace.profile}</td>
-              <td className="ct-table-cell px-4">{trace.mode}</td>
+              <td className="ct-table-cell px-4 whitespace-nowrap">{trace.profile}</td>
+              <td className="ct-table-cell px-4 whitespace-nowrap">{trace.mode}</td>
               <td className="ct-table-cell px-4">{trace.destinationKey ?? "—"}</td>
-              <td className="ct-table-cell px-4">
+              <td className="ct-table-cell px-4 whitespace-nowrap">
                 <RunStatusBadge status={trace.status} />
               </td>
               <td className="ct-table-cell px-4 ct-text-muted">{trace.reason ?? "—"}</td>
@@ -177,8 +177,8 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
           header={
             <>
               <th className="stat-label ct-table-header px-4 py-3 text-left">Tool</th>
-              <th className="stat-label ct-table-header px-4 py-3 text-left">Kind</th>
-              <th className="stat-label ct-table-header px-4 py-3 text-left">Status</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left whitespace-nowrap">Kind</th>
+              <th className="stat-label ct-table-header px-4 py-3 text-left whitespace-nowrap">Status</th>
               <th className="stat-label ct-table-header px-4 py-3 text-left">Error</th>
               <th className="stat-label ct-table-header px-4 py-3 text-right">Time</th>
             </>
@@ -187,8 +187,8 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
           {stats.recentToolRuns.map((run) => (
             <tr key={run.id}>
               <td className="ct-table-cell px-4">{run.toolId}</td>
-              <td className="ct-table-cell px-4">{run.toolKind}</td>
-              <td className="ct-table-cell px-4">
+              <td className="ct-table-cell px-4 whitespace-nowrap">{run.toolKind}</td>
+              <td className="ct-table-cell px-4 whitespace-nowrap">
                 <RunStatusBadge status={run.status} />
               </td>
               <td className="ct-table-cell px-4 ct-text-muted">{run.errorMessage ?? "—"}</td>
