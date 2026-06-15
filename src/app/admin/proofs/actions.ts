@@ -107,26 +107,39 @@ export async function ingestProof(
   const { proofType, period, hash, uri, txHash, notes } = parsed.data;
 
   try {
-    const proof = await prisma.proof.create({
-      data: {
-        proofType,
-        period: period ?? null,
-        hash,
-        uri,
-        txHash: txHash ?? null,
-        notes: notes ?? null,
-        // postedBy uses the admin's walletAddress when available, else userId
-        postedBy: admin.walletAddress ?? admin.userId,
-        // postedAt is defaulted to now() in the Prisma schema
-      },
-    });
+    // Atomic: the Proof row and its audit entry commit together. The audit
+    // insert mirrors recordAdminAudit()'s exact fields/shape on the tx client.
+    const proof = await prisma.$transaction(async (tx) => {
+      const created = await tx.proof.create({
+        data: {
+          proofType,
+          period: period ?? null,
+          hash,
+          uri,
+          txHash: txHash ?? null,
+          notes: notes ?? null,
+          // postedBy uses the admin's walletAddress when available, else userId
+          postedBy: admin.walletAddress ?? admin.userId,
+          // postedAt is defaulted to now() in the Prisma schema
+        },
+      });
 
-    await recordAdminAudit({
-      actorWallet: admin.walletAddress ?? admin.userId,
-      action: "proof.ingest",
-      entityType: "Proof",
-      entityId: proof.id,
-      after: { proofType, period: period ?? null, hash },
+      await tx.adminAudit.create({
+        data: {
+          actorWallet: admin.walletAddress ?? admin.userId,
+          action: "proof.ingest",
+          entityType: "Proof",
+          entityId: created.id,
+          diff: JSON.stringify({
+            before: null,
+            after: { proofType, period: period ?? null, hash },
+          }),
+          ip: null,
+          userAgent: null,
+        },
+      });
+
+      return created;
     });
 
     revalidatePath("/admin/proofs");
@@ -271,16 +284,28 @@ export async function deleteProof(id: string): Promise<{ ok: true }> {
   });
 
   try {
-    await prisma.proof.delete({ where: { id } });
+    // Atomic: the delete and its audit row commit together. A P2025 race (the
+    // row was already deleted) still surfaces from $transaction into the catch
+    // below. The audit insert mirrors recordAdminAudit()'s exact fields/shape.
+    await prisma.$transaction(async (tx) => {
+      await tx.proof.delete({ where: { id } });
 
-    await recordAdminAudit({
-      actorWallet: admin.walletAddress ?? admin.userId,
-      action: "proof.delete",
-      entityType: "Proof",
-      entityId: id,
-      before: existing
-        ? { proofType: existing.proofType, period: existing.period, hash: existing.hash }
-        : null,
+      await tx.adminAudit.create({
+        data: {
+          actorWallet: admin.walletAddress ?? admin.userId,
+          action: "proof.delete",
+          entityType: "Proof",
+          entityId: id,
+          diff: JSON.stringify({
+            before: existing
+              ? { proofType: existing.proofType, period: existing.period, hash: existing.hash }
+              : null,
+            after: null,
+          }),
+          ip: null,
+          userAgent: null,
+        },
+      });
     });
 
     revalidatePath("/admin/proofs");

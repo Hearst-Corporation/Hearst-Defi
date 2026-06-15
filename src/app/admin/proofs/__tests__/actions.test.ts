@@ -19,8 +19,8 @@ vi.mock("@/lib/auth/require-admin", () => ({
   requireAdmin: vi.fn(),
 }));
 
-vi.mock("@/lib/db", () => ({
-  prisma: {
+vi.mock("@/lib/db", () => {
+  const prisma = {
     proof: {
       create: vi.fn(),
       delete: vi.fn(),
@@ -28,11 +28,19 @@ vi.mock("@/lib/db", () => ({
       // deleteProof to capture the row before deletion.
       findUnique: vi.fn(),
     },
-  },
-}));
+    // ATOM: ingestProof/deleteProof now inline the audit insert inside a
+    // prisma.$transaction. The mock runs the callback with the same prisma
+    // object as the tx client, so tx.proof.* and tx.adminAudit.create reuse
+    // these vi.fn()s. Errors thrown in the callback still propagate (P2025).
+    adminAudit: { create: vi.fn() },
+    $transaction: vi.fn(async (fn: (tx: unknown) => unknown) => fn(prisma)),
+  };
+  return { prisma };
+});
 
-// D2: actions now write an admin-audit row. Mock the audit module (mirrors the
-// vaults/governance suites) so the audit call is a no-op and needs no DB mock.
+// publishProofOnChain (out of scope) still calls recordAdminAudit. Mock the
+// audit module so that path stays a no-op. The ATOM-touched functions
+// (ingestProof/deleteProof) now insert the audit row directly on the tx client.
 vi.mock("@/lib/admin/audit", () => ({
   recordAdminAudit: vi.fn(),
 }));
@@ -59,7 +67,6 @@ vi.mock("@/lib/logger", () => ({
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { recordAdminAudit } from "@/lib/admin/audit";
 import { ingestProof, deleteProof } from "../actions";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -111,15 +118,20 @@ describe("ingestProof", () => {
     });
     expect(revalidatePath).toHaveBeenCalledWith("/admin/proofs");
     expect(revalidatePath).toHaveBeenCalledWith("/admin/proof-center");
-    // D2: a proof.ingest audit row is written after a successful create.
-    expect(recordAdminAudit).toHaveBeenCalledWith(
-      expect.objectContaining({
+    // ATOM: the proof.ingest audit row is now inserted on the tx client inside
+    // prisma.$transaction (atomic with proof.create), not via recordAdminAudit.
+    // after lives in the JSON `diff` field.
+    expect(prisma.adminAudit.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
         action: "proof.ingest",
         entityType: "Proof",
         entityId: "proof_cuid_001",
-        after: expect.objectContaining({ proofType: "mining_attestation", hash: VALID_INPUT.hash }),
+        diff: JSON.stringify({
+          before: null,
+          after: { proofType: "mining_attestation", period: VALID_INPUT.period ?? null, hash: VALID_INPUT.hash },
+        }),
       }),
-    );
+    });
   });
 
   it("Case A² — admin + valid input with notes → notes persisted on the row", async () => {
@@ -218,15 +230,20 @@ describe("deleteProof", () => {
     });
     expect(revalidatePath).toHaveBeenCalledWith("/admin/proofs");
     expect(revalidatePath).toHaveBeenCalledWith("/admin/proof-center");
-    // D2: a proof.delete audit row preserves the deleted row's snapshot.
-    expect(recordAdminAudit).toHaveBeenCalledWith(
-      expect.objectContaining({
+    // ATOM: the proof.delete audit row is now inserted on the tx client inside
+    // prisma.$transaction (atomic with proof.delete), not via recordAdminAudit.
+    // The deleted row's snapshot lives in the JSON `diff.before` field.
+    expect(prisma.adminAudit.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
         action: "proof.delete",
         entityType: "Proof",
         entityId: "proof_cuid_001",
-        before: expect.objectContaining({ proofType: "custody", hash: VALID_INPUT.hash }),
+        diff: JSON.stringify({
+          before: { proofType: "custody", period: "2026-05", hash: VALID_INPUT.hash },
+          after: null,
+        }),
       }),
-    );
+    });
   });
 
   it("Case C² — non-admin on delete → requireAdmin throws, propagated", async () => {

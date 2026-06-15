@@ -4,7 +4,6 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
-import { recordAdminAudit } from "@/lib/admin/audit";
 import { revalidatePath } from "next/cache";
 
 /**
@@ -42,18 +41,29 @@ export async function setInvestorKyc(formData: FormData): Promise<void> {
     throw new Error("setInvestorKyc: investor not found");
   }
 
-  await prisma.investor.update({
-    where: { id: parsed.data.investorId },
-    data: { kycStatus: parsed.data.status },
-  });
+  // Atomic: the KYC override and its audit row commit together, so the trail can
+  // never disagree with the actual mutation. The audit insert mirrors
+  // recordAdminAudit()'s exact fields/shape, run on the transaction client.
+  await prisma.$transaction(async (tx) => {
+    await tx.investor.update({
+      where: { id: parsed.data.investorId },
+      data: { kycStatus: parsed.data.status },
+    });
 
-  await recordAdminAudit({
-    actorWallet: admin.walletAddress ?? admin.userId,
-    action: "investor.setKyc",
-    entityType: "Investor",
-    entityId: parsed.data.investorId,
-    before: { kycStatus: existing.kycStatus },
-    after: { kycStatus: parsed.data.status },
+    await tx.adminAudit.create({
+      data: {
+        actorWallet: admin.walletAddress ?? admin.userId,
+        action: "investor.setKyc",
+        entityType: "Investor",
+        entityId: parsed.data.investorId,
+        diff: JSON.stringify({
+          before: { kycStatus: existing.kycStatus },
+          after: { kycStatus: parsed.data.status },
+        }),
+        ip: null,
+        userAgent: null,
+      },
+    });
   });
 
   revalidatePath("/admin/customers");

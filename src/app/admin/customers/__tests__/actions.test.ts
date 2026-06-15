@@ -17,14 +17,20 @@ vi.mock("@/lib/auth/require-admin", () => ({
   requireAdmin: vi.fn(),
 }));
 
-vi.mock("@/lib/db", () => ({
-  prisma: {
+vi.mock("@/lib/db", () => {
+  const prisma = {
     investor: {
       findUnique: vi.fn(),
       update: vi.fn(),
     },
-  },
-}));
+    // ATOM: setInvestorKyc now inlines the audit insert inside a
+    // prisma.$transaction. The mock runs the callback with the same prisma
+    // object as tx, so tx.investor.update and tx.adminAudit.create reuse these.
+    adminAudit: { create: vi.fn() },
+    $transaction: vi.fn(async (fn: (tx: unknown) => unknown) => fn(prisma)),
+  };
+  return { prisma };
+});
 
 vi.mock("@/lib/admin/audit", () => ({
   recordAdminAudit: vi.fn(),
@@ -64,16 +70,21 @@ describe("setInvestorKyc", () => {
       where: { id: "inv_1" },
       data: { kycStatus: "approved" },
     });
-    expect(recordAdminAudit).toHaveBeenCalledWith(
-      expect.objectContaining({
+    // ATOM: the audit row is now inserted directly on the tx client inside
+    // prisma.$transaction (atomic with the investor.update), not via
+    // recordAdminAudit. before/after live in the JSON `diff` field.
+    expect(prisma.adminAudit.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
         action: "investor.setKyc",
         entityType: "Investor",
         entityId: "inv_1",
-        before: { kycStatus: "pending" },
-        after: { kycStatus: "approved" },
         actorWallet: MOCK_ADMIN.walletAddress,
+        diff: JSON.stringify({
+          before: { kycStatus: "pending" },
+          after: { kycStatus: "approved" },
+        }),
       }),
-    );
+    });
     expect(revalidatePath).toHaveBeenCalledWith("/admin/customers");
   });
 
