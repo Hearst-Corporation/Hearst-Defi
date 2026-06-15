@@ -5,7 +5,10 @@ import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { AdminActionItem } from "@/lib/data/admin-overview";
 
 export function OperatorShortcuts({ actions }: { actions: AdminActionItem[] }) {
-  const tracked = actions.filter((action) => action.tracked && action.href);
+  const tracked = actions.filter(
+    (action): action is AdminActionItem & { href: string } =>
+      action.tracked && action.href !== null,
+  );
   if (tracked.length === 0) return null;
 
   return (
@@ -13,14 +16,14 @@ export function OperatorShortcuts({ actions }: { actions: AdminActionItem[] }) {
       <div className="flex items-center justify-between mb-4">
         <DashboardPanelHeader title="Operator queues" tone="quiet" className="mb-0" />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="dashboard-command-shortcuts__grid">
         {tracked.map((action) => (
           <Card
             key={action.key}
             hoverOverlay={false}
             className="group p-0 transition-colors hover:border-(--ct-border-strong)"
           >
-            <Link href={action.href!} className="flex items-center gap-4 p-5">
+            <Link href={action.href} className="flex items-center gap-4 p-5">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--ct-surface-1) text-(--ct-text-strong) group-hover:bg-(--ct-accent) group-hover:text-(--ct-bg-deep) transition-colors font-bold">
                 {action.count}
               </div>

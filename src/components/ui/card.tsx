@@ -7,7 +7,8 @@ import { cn } from "@/lib/cn";
  *
  * `hoverOverlay` default stays `true` for now. Per-call-site cleanup is in
  * progress: clearly **static informational** cards opt out with
- * `hoverOverlay={false}`; **clickable / selectable** cards keep the overlay.
+ * `hoverOverlay={false}`; **clickable** cards may also opt out when they ship
+ * custom hover chrome (border/accent) instead of the default glass overlay.
  * A global default flip is deferred until every call-site is classified.
  */
 export function Card({

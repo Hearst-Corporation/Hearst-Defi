@@ -640,6 +640,11 @@ function buildTimeseries(
     .sort((a, b) => (a[0] < b[0] ? -1 : 1))
     .slice(-30);
 
+  if (ordered.length < 2) {
+    markFallback();
+    return { nav30d: [], apy30d: [], source: "fallback" };
+  }
+
   const nav30d: NavPoint[] = ordered.map(([date, r]) => ({
     date,
     aum_usdc: r.aumUsdc,

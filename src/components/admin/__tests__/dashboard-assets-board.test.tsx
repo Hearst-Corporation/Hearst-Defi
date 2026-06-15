@@ -167,7 +167,7 @@ describe("DashboardAssetsBoard — Admin Honesty", () => {
   it("no NAV series → no '+0.0% NAV', shows pending instead", () => {
     const html = render(makeData({ source: "fallback" }), 0);
     expect(html).not.toContain("% NAV");
-    expect(html).toContain("NAV trend appears after seven days");
+    expect(html).toContain("NAV trend appears after seven booked snapshots");
     expect(html).not.toContain("NAV trend pending");
     expect(html).not.toContain("dashboard-nav-bars__bar");
   });

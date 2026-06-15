@@ -22,11 +22,11 @@ export function NavSlot({
 }) {
   if (!navLive) {
     return (
-      <Card className="dashboard-command-slot dashboard-command-slot--nav dashboard-command-cell--awaiting bg-transparent border-dashed border-[var(--ct-border-soft)]">
+      <Card className="dashboard-command-slot dashboard-command-slot--nav dashboard-command-cell--awaiting">
         <EmptySurface
           variant="inline"
           className="dashboard-command-nav-empty"
-          message="NAV trend appears after seven days of booked snapshots."
+          message="NAV trend appears after seven booked snapshots across at least two days."
         />
       </Card>
     );
