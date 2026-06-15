@@ -1,92 +1,81 @@
 # Hearst Connect — Déploiement & Rollback
 
+> **Vérité runtime (vérifiée 2026-06-15).** La production est servie par **Vercel**,
+> pas Railway. Les en-têtes HTTP de `https://connect.hearst.app` renvoient
+> `server: Vercel` / `x-vercel-id`, et `.vercel/project.json` lie le repo au projet
+> Vercel `hearst-connect`. Toute la documentation Railway/Docker antérieure était
+> obsolète et a été retirée. Voir « Héritage Railway » en bas.
+
 ## Plateforme cible
 
-**Railway** (build via `Dockerfile` multi-stage, exécution sur conteneur Docker).
+**Vercel** (projet `hearst-connect`). Le repo est lié via `.vercel/project.json`
+(`projectId` + `orgId`, sans valeur sensible versionnée).
 
-Le fichier `railway.toml` configure Railway pour utiliser le `Dockerfile` à la racine du projet et expose un healthcheck sur `/api/health`.
+## Source de déploiement
 
-## Prérequis
+**Intégration Git Vercel.** Vercel observe le repo GitHub et déploie automatiquement :
 
-- **Node.js** ≥ 22 (voir `engines` dans `package.json`)
-- **pnpm** ≥ 10
-- **Railway CLI** (optionnel, pour déploiement manuel) :
-  ```bash
-  npm install -g @railway/cli
-  ```
+- **Production** : tout `push`/`merge` sur **`main`** → déploiement production sur
+  `https://connect.hearst.app`.
+- **Preview** : tout push sur une autre branche / PR → déploiement Preview jeté
+  (URL `*.vercel.app` éphémère).
 
-## Déploiement automatique (CD)
+Il n'y a **pas** de workflow GitHub Actions qui déploie. Le déploiement est piloté
+de bout en bout par l'intégration Git de Vercel. (L'ancien `deploy.yml` qui
+prétendait déployer sur Railway était un workflow zombie — 0 succès / 100 runs —
+et a été **supprimé** le 2026-06-15.)
 
-Le workflow `.github/workflows/deploy.yml` se déclenche à chaque `push` sur la branche `main` :
+> ⚠️ **Conséquence importante.** Le déploiement Vercel n'est PAS bloqué par la CI
+> GitHub depuis le repo seul. Pour qu'un merge sur `main` n'expédie pas du code
+> non validé en production, la **branch protection GitHub** doit exiger `ci.yml`
+> avant merge (voir « Required external settings »). C'est un réglage console, pas
+> un fichier du repo.
 
-1. Lint + Typecheck
-2. Tests (Vitest)
-3. Build production (`pnpm run build`)
-4. Déploiement sur Railway (`railway up`)
+## Validation attendue avant merge sur `main`
 
-## Déploiement manuel
+La CI GitHub `.github/workflows/ci.yml` est le gate de qualité. Jobs :
 
-Si vous préférez déployer depuis votre machine locale (déjà liée au projet Railway) :
+1. **Lint & Typecheck** (bloquant) — `pnpm lint` (eslint + DS layout gate) + `pnpm typecheck`.
+2. **Vitest** (bloquant) — `pnpm test` (unit + integration sur SQLite éphémère).
+3. **Playwright E2E** (non bloquant) — `continue-on-error: true`.
+4. **Foundry** (bloquant quand `contracts/` est touché) — `forge build` + `forge test`.
 
-```bash
-# Assurez-vous d'être sur main et à jour
-git checkout main && git pull origin main
-
-# Déployer le répertoire courant sur Railway
-railway up
-```
-
-Pour cibler un service ou un projet spécifique :
+Avant d'ouvrir une PR vers `main`, faire tourner en local :
 
 ```bash
-railway up --project <PROJECT_ID> --service <SERVICE_NAME> --ci
+pnpm typecheck && pnpm lint && pnpm test
+pnpm build        # build production (Next standalone non requis sur Vercel)
 ```
 
-## Procédure de rollback
+## Preflight prod-readiness
 
-Railway ne fournit pas de commande CLI native `rollback`. Voici les méthodes possibles :
+`pnpm preflight` (`scripts/preflight-prod.mjs`) vérifie les secrets P0/P1 attendus
+en production et signale :
 
-### 1. Rollback via le Dashboard (recommandé)
+- `DATABASE_URL` pointant sur une DB locale (doit être Postgres en prod),
+- secrets P1 manquants (voir « Required external settings »).
 
-1. Ouvrez le projet sur [railway.app](https://railway.app).
-2. Naviguez vers l'onglet **Deployments** du service.
-3. Cliquez sur les trois points (`…`) à droite du déploiement souhaité.
-4. Sélectionnez **Rollback**.
+Le preflight **n'est plus dans un pipeline de déploiement** (il était câblé dans le
+`deploy.yml` supprimé). C'est désormais un outil de **vérification manuelle de
+prod-readiness** à lancer avant un merge sensible. Il sort en code 1 si un P0
+manque — utile en pre-merge check local, pas un gate automatique.
 
-> Le rollback restaure à la fois l'image Docker et les variables d'environnement du déploiement cible.
+## Variables d'environnement de production
 
-### 2. Rollback via Git (recommandé en cas d'erreur de code)
+Les variables de production sont configurées dans **Vercel → projet `hearst-connect`
+→ Settings → Environment Variables** (scope `Production`). Aucune valeur sensible
+n'est versionnée dans le repo.
 
-```bash
-# Identifiez le commit à restaurer
-git log --oneline
+### Obligatoires (P0 — le preflight échoue sans elles)
 
-# Revert le commit problématique
-git revert <COMMIT_HASH>
-
-# Poussez sur main — le workflow CD déclenchera un nouveau déploiement
-git push origin main
-```
-
-### 3. Suppression du dernier déploiement (urgence)
-
-```bash
-# Supprime le déploiement le plus récent (arrête le service)
-railway down
-```
-
-> **Attention** : `railway down` ne fait pas un "rollback" vers un état précédent — il supprime simplement le dernier déploiement. Le service reste arrêté jusqu'au prochain `railway up`.
-
-## Variables d'environnement requises en production
-
-Les variables suivantes **doivent être configurées** dans le dashboard Railway (Settings → Variables). Aucune valeur sensible ne doit être versionnée.
-
-### Obligatoires
-
-- `DATABASE_URL`
+- `DATABASE_URL` (Postgres prod)
 - `UPSTASH_REDIS_REST_URL`
 - `UPSTASH_REDIS_REST_TOKEN`
 - `INNGEST_SIGNING_KEY`
+- `PERSONA_WEBHOOK_SECRET`
+- `NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS`
+- `RESEND_API_KEY`
+- `OPENAI_API_KEY`
 
 ### Build-time (inline par Next.js)
 
@@ -96,177 +85,160 @@ Les variables suivantes **doivent être configurées** dans le dashboard Railway
 - `NEXT_PUBLIC_POR_REGISTRY_ADDRESS`
 - `NEXT_PUBLIC_SENTRY_DSN`
 
-### Observabilité (Sentry)
+### Recommandées (P1 — feature fail-closed sans elles)
 
-- `SENTRY_DSN`
-- `SENTRY_AUTH_TOKEN`
-- `SENTRY_ORG`
-- `SENTRY_PROJECT`
+- `DOCUSIGN_WEBHOOK_SECRET` — le webhook DocuSign fail-closed au runtime tant qu'absent.
+- `ATTESTATION_ALLOWED_SIGNERS` — la vérification d'attestation renvoie `no_allowlist_configured`.
+- `AUTH_TOTP_KEY` — le login admin TOTP échoue tant qu'absent.
 
-### Intégrations tierces
+### Intégrations tierces & admin
 
 - `PRIVY_APP_SECRET`
-- `HYPERCLI_API_KEY`
-- `FIREBLOCKS_API_KEY`
-- `FIREBLOCKS_SECRET_KEY_PATH`
-- `FIREBLOCKS_BASE_URL`
-- `FIREBLOCKS_VAULT_ACCOUNT_IDS`
-- `INNGEST_EVENT_KEY`
+- `FIREBLOCKS_API_KEY`, `FIREBLOCKS_BASE_URL`, `FIREBLOCKS_VAULT_ACCOUNT_IDS`, `FIREBLOCKS_SECRET_KEY_PATH`
+- `ADMIN_EMAILS`, `ADMIN_INITIAL_PASSWORD`, `ADMIN_ADDRESSES`, `HEARST_PUBLISHER`
+- `SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN`
+- `LOG_LEVEL`, `DEMO_MODE_DEFAULT`
 
-### Administration & provisioning
+## Rollback
 
-- `ADMIN_EMAILS`
-- `ADMIN_INITIAL_PASSWORD`
-- `ADMIN_ADDRESSES`
-- `HEARST_PUBLISHER`
+Le déploiement étant piloté par Git → Vercel, le rollback se fait par Git ou par
+le dashboard Vercel.
 
-### LLM / Hypercli
+### 1. Rollback via Git (recommandé en cas d'erreur de code)
 
-- `HYPERCLI_BASE_URL`
-- `HYPERCLI_DEFAULT_MODEL`
-- `HYPERCLI_ORG_ID`
+```bash
+# Identifier le commit fautif
+git log --oneline
 
-### Divers
+# Revert et pousser sur main — Vercel redéploie automatiquement la version revertée
+git revert <COMMIT_HASH>
+git push origin main      # (via PR si la branch protection l'exige)
+```
 
-- `LOG_LEVEL`
-- `DEMO_MODE_DEFAULT`
+### 2. Rollback instantané via Vercel (urgence)
+
+1. Vercel → projet `hearst-connect` → onglet **Deployments**.
+2. Sélectionner un déploiement production **antérieur** réussi.
+3. **… → Promote to Production** (ou « Rollback »). Restaure l'image servie sans
+   nouveau build.
+
+> Le rollback Vercel ne touche pas la base de données. Pour un rollback DB, voir
+> « Base de données » ci-dessous.
+
+## Base de données
+
+Le schéma est appliqué via `prisma db push` (state-driven, pas de migrations
+versionnées). Conséquence : **pas d'historique de migration en production** — le
+rollback DB se fait par restauration d'un backup du provider Postgres, pas par
+migration inverse.
+
+- **Snapshot manuel avant un `db push` à risque** (drop colonne, type change) :
+
+  ```bash
+  pg_dump "$DATABASE_URL_PROD" --no-owner --no-acl > backup-$(date +%Y%m%d-%H%M%S).sql
+  ```
+
+  Stocker hors-repo (S3, Drive). **Ne jamais versionner un dump SQL.**
+
+- Les backups/PITR dépendent du provider Postgres utilisé (Supabase en prod selon
+  CLAUDE.md). Vérifier la rétention et le PITR dans la console du provider.
+
+- **Évolution recommandée** vers une vraie traçabilité : générer un set de
+  migrations Postgres (`prisma migrate dev`), basculer `migration_lock.toml` en
+  `postgresql`, et remplacer `db push` par `migrate deploy` dans le process de
+  release.
 
 ## Healthcheck
 
-```
-GET /api/health
-```
+**Aucun endpoint health HTTP public n'est actuellement exposé.** L'ancienne doc
+référençait `GET /api/health` pour le healthcheck Railway, mais cet endpoint
+**n'existe pas dans le code** (`src/app/api/health` est absent ; `curl
+/api/health` renvoie 404). Vercel n'a pas besoin d'un healthcheck applicatif pour
+servir le déploiement.
 
-Railway utilise cet endpoint pour valider que le conteneur est prêt à recevoir du trafic. Le timeout est configuré à **30 secondes** dans `railway.toml`.
+> **TODO (P2)** : si un health endpoint est souhaité (monitoring uptime externe,
+> readiness), créer `src/app/api/health/route.ts` retournant un 200 léger. Non
+> bloquant pour la prod actuelle.
 
----
+## Observabilité (Sentry)
 
-## Backups & PITR (Point-In-Time Recovery)
+Sentry capte les exceptions runtime (client + serveur + edge). Configuration
+volontairement **error-only et prod-only** (Replay retiré, ingestion désactivée en
+dev — voir mémoire projet / réglage 2026-06-13). Le `connect-src` CSP dérive
+l'ingest du DSN.
 
-### Railway Postgres
+Pour les alertes : Sentry → projet `hearst-connect` → **Alerts**. Le script
+`scripts/setup-sentry-alerts.sh` POSTe un set de règles via l'API (idempotent ;
+nécessite un token scope `alerts:write`).
 
-Railway active **les backups quotidiens automatiques** sur les instances Postgres managées (rétention 7 jours sur le plan Hobby, jusqu'à 30 jours sur Pro). À vérifier dans le dashboard :
+## Crons & webhooks (couche « manage »)
 
-1. Railway → projet → service Postgres → onglet **Settings** → section **Backups**.
-2. Confirmer que **Daily backup** est ON.
-3. Sur plan Pro, activer **Point-In-Time Recovery (PITR)** pour rollback granulaire (toute timestamp jusqu'à 7 jours).
+Ces surfaces tournent en continu côté serveur, indépendamment du déploiement :
 
-### Procédure de restauration DB
+- **Inngest** — route serve exposée à `/api/inngest`. Crons : `mining-health-daily`,
+  `risk-daily`, `investor-memo-monthly` ; chaînes événementielles
+  `risk.daily.completed → rebalancing-signal`, `distribution.executed`. Nécessite
+  `INNGEST_SIGNING_KEY` (validé au boot en prod).
+- **Webhooks entrants** — `/api/docusign/webhook` (HMAC-SHA256), `/api/persona/webhook`
+  (HMAC-SHA256 + fraîcheur timestamp). Voir secrets P1 ci-dessus.
 
-1. Dashboard Railway → service Postgres → **Backups** → sélectionner le backup cible.
-2. **Restore** crée une nouvelle instance Postgres (ne remplace pas l'actuelle).
-3. Mettre à jour `DATABASE_URL` du service applicatif pour pointer vers la nouvelle instance.
-4. Redéployer (`railway up`) ou attendre le prochain healthcheck.
-
-### Snapshot manuel avant changement schema
-
-Avant tout `db push` à risque (drop colonne, type change), faire un snapshot manuel :
-
-```bash
-# Depuis votre machine, avec psql installé
-pg_dump "$DATABASE_URL_PROD" --no-owner --no-acl > backup-$(date +%Y%m%d-%H%M%S).sql
-```
-
-Stocker hors-repo (S3, Drive, etc.). **Ne jamais versionner un dump SQL.**
-
-### Migrations vs `db push` — implications rollback
-
-Le pipeline utilise `prisma db push` (state-driven, voir `.github/workflows/deploy.yml` commentaire) plutôt que `prisma migrate deploy`. Conséquence : **pas d'historique versionné des changements de schema en production**. Le rollback DB se fait donc par restauration backup, pas par migration inverse.
-
-Pour une vraie traçabilité, l'évolution future est de :
-
-1. Générer un set de migrations Postgres dédié (`prisma migrate dev` contre une DB locale Postgres).
-2. Switcher `migration_lock.toml` vers `postgresql`.
-3. Remplacer `db push` par `migrate deploy` dans `deploy.yml`.
-
----
-
-## Alerting (Sentry)
-
-Sentry capte les exceptions runtime côté client + serveur + edge (`sentry.{client,server,edge}.config.ts`). Pour transformer ces captures en notifications :
-
-1. Sentry dashboard → projet `hearst-connect` → **Alerts** → **Create Alert Rule**.
-2. Règles recommandées (minimum viable) :
-
-   | Nom | Condition | Action |
-   |---|---|---|
-   | High error rate | `count > 10 in 5 min` | Webhook Discord/Slack |
-   | New issue | `is:new` | Email on-call |
-   | Latency p95 spike | `transaction.duration > 3s for 5 min` | Webhook |
-   | Rate-limit breach | `tag:rate_limit count > 5 in 1 min` | Webhook |
-
-3. Pour PagerDuty/Opsgenie : Sentry → **Settings** → **Integrations** → connecter le provider, puis assigner aux rules ci-dessus.
-
-4. **Sourcemap upload** : déjà géré au build CI (`SENTRY_AUTH_TOKEN` + `SENTRY_ORG` + `SENTRY_PROJECT` dans `deploy.yml`). Vérifier les uploads dans Sentry → **Settings** → **Source Maps**.
-
-### Provisionnement automatique via API (option)
-
-Le script `scripts/setup-sentry-alerts.sh` POSTe directement les 4 règles ci-dessus via l'API Sentry. Idempotent — re-runs sont des no-ops si la règle de même nom existe déjà.
-
-```bash
-bash scripts/setup-sentry-alerts.sh
-```
-
-**Pré-requis token** : `SENTRY_AUTH_TOKEN` doit inclure le scope `alerts:write` (le token utilisé pour le sourcemap upload n'a que `project:releases` et reçoit `403 You do not have permission`). Générer un token dédié sur **Sentry → Settings → Account → Auth Tokens** avec scope `alerts:write` ; sourcer une fois avant exécution :
-
-```bash
-SENTRY_AUTH_TOKEN="<token-with-alerts-write>" bash scripts/setup-sentry-alerts.sh
-```
-
----
-
-## Manual approval gate (production)
-
-Le job `deploy` du workflow `.github/workflows/deploy.yml` est rattaché à l'environnement GitHub **`production`**. Pour activer le gate manuel :
-
-1. Repo GitHub → **Settings** → **Environments** → **New environment** → nommer `production`.
-2. Cocher **Required reviewers** et lister les approbateurs (ex: `adrien-debug`).
-3. (Optionnel) **Wait timer** : 5 min de cooling-off entre approval et démarrage du job.
-4. (Optionnel) **Deployment branches** : restreindre à `main` uniquement.
-
-Sans environment `production` créé côté GitHub, le job s'exécute sans gate (comportement identique à avant l'ajout).
-
----
-
-## Pre-deploy checklist (avant `git push origin main`)
+## Pre-deploy checklist (avant merge sur `main`)
 
 - [ ] Tests locaux verts : `pnpm typecheck && pnpm lint && pnpm test`
 - [ ] Build local OK : `pnpm build`
-- [ ] (Optionnel) E2E réel : `pnpm seed:test && pnpm test:e2e` (voir section E2E ci-dessous).
-- [ ] Migrations Prisma : si schema modifié, snapshot DB prod via `pg_dump` (voir Backups & PITR).
-- [ ] Secrets Railway à jour (Settings → Variables) — checklist au-dessus.
-- [ ] Secret GitHub `DATABASE_URL` provisionné (sinon job `Apply database schema` exit 1).
-- [ ] Sentry alert rules actives (voir Alerting).
-- [ ] Approbateur disponible pour le gate `production` (si configuré).
+- [ ] Preflight prod-readiness : `pnpm preflight` (DB locale + secrets P1 attendus signalés)
+- [ ] (Optionnel) E2E réel : `pnpm seed:test && pnpm test:e2e`
+- [ ] Si schéma Prisma modifié : snapshot DB prod via `pg_dump`
+- [ ] Secrets Vercel à jour (Settings → Environment Variables → Production)
+- [ ] Sentry alert rules actives
+- [ ] CI `ci.yml` verte sur la PR avant merge
+
+## Required external settings (NON garantis par le repo seul)
+
+Ces réglages vivent dans les consoles GitHub / Vercel. Le diff repo ne peut PAS les
+appliquer ; ils doivent être **vérifiés manuellement** dans les UI.
+
+1. **GitHub → Settings → Branches → Branch protection sur `main`**
+   - Exiger les status checks `ci.yml` (Lint & Typecheck, Vitest, Foundry) **avant merge**.
+   - Exiger une PR (pas de push direct sur `main`) + au moins 1 review si la capacité du repo le permet.
+   - Objectif : garantir qu'aucun code non validé par CI ne parte en production Vercel.
+
+2. **Vercel → projet `hearst-connect` → Settings → Git**
+   - Production Branch = **`main`** (et seulement `main`).
+   - Vérifier que les autres branches ne produisent que des Preview deployments.
+
+3. **Secrets prod manquants à provisionner** (signalés par `pnpm preflight`,
+   sinon features fail-closed en prod) :
+   - `DOCUSIGN_WEBHOOK_SECRET`
+   - `ATTESTATION_ALLOWED_SIGNERS`
+   - `AUTH_TOTP_KEY`
 
 ---
 
+## Héritage Railway (supprimé / orphelin)
+
+La production n'a jamais tourné sur Railway en pratique. Artefacts Railway encore
+présents dans le repo, **désormais orphelins** (plus aucun pipeline ne les utilise
+après la suppression de `deploy.yml`) :
+
+- `railway.toml`
+- `Dockerfile` (build Next standalone, consommé uniquement par l'ancien `deploy.yml`)
+- l'option `output: "standalone"` de `next.config.ts` (activée seulement via
+  `STANDALONE_BUILD`, qui n'était posé que dans `deploy.yml`)
+
+Leur suppression est une décision séparée (hors périmètre de cette passe doc/CD).
+Ils sont inertes : laissés en place, ils ne déploient ni n'exécutent rien.
+
 ## E2E — user de test seedé
 
-Le spec `e2e/login-flow.spec.ts` exerce le vrai chemin d'authentification
-(login form → `login` server action → `verifyPassword` argon2id → création
-de `Session` DB → cookie `hc_session`). Il a besoin d'un user en base
-avant le run :
+Le spec `e2e/login-flow.spec.ts` exerce le vrai chemin d'authentification (login
+form → server action → argon2id → `Session` DB → cookie `hc_session`). Il a besoin
+d'un user seedé :
 
 ```bash
-# 1. Seed idempotent — crée/maj test@hearst.local en DB locale (sqlite par défaut)
-pnpm seed:test
-
-# 2. (optionnel) Nettoyer le cache Turbopack si le webServer plante au boot
-rm -rf .next
-
-# 3. Lancer le spec login-flow uniquement
-pnpm test:e2e login-flow
-
-# ou tous les specs
-pnpm test:e2e
+pnpm seed:test            # crée/maj test@hearst.local (refuse NODE_ENV=production)
+pnpm test:e2e login-flow  # ou tous les specs : pnpm test:e2e
 ```
-
-Le seed (`scripts/seed-test-user.ts`) **refuse explicitement de tourner
-en NODE_ENV=production** — l'account `test@hearst.local` ne doit JAMAIS
-exister dans la base de production.
-
-Constantes (en lockstep dans le script et dans le spec) :
 
 | Constante | Valeur |
 |---|---|
@@ -274,31 +246,3 @@ Constantes (en lockstep dans le script et dans le spec) :
 | `TEST_USER_PASSWORD` | `TestPassword123!` |
 | Rôle | `investor` |
 | KYC | `approved` |
-
----
-
-## Provisioning des secrets GitHub Actions
-
-Secrets requis dans `Settings → Secrets and variables → Actions` :
-
-```bash
-# Via gh CLI (depuis votre poste avec gh authentifié)
-gh secret set DATABASE_URL --body "postgresql://user:pass@host:5432/dbname"
-gh secret set RAILWAY_TOKEN --body "..."
-gh secret set RAILWAY_PROJECT_ID --body "..."
-gh secret set RAILWAY_SERVICE_NAME --body "..."
-
-# Build-time NEXT_PUBLIC_*
-gh secret set NEXT_PUBLIC_PRIVY_APP_ID --body "..."
-gh secret set NEXT_PUBLIC_CHAIN_RPC_URL --body "..."
-gh secret set NEXT_PUBLIC_EVENT_LOGGER_ADDRESS --body "..."
-gh secret set NEXT_PUBLIC_POR_REGISTRY_ADDRESS --body "..."
-gh secret set NEXT_PUBLIC_SENTRY_DSN --body "..."
-
-# Sentry sourcemap upload
-gh secret set SENTRY_ORG --body "..."
-gh secret set SENTRY_PROJECT --body "..."
-gh secret set SENTRY_AUTH_TOKEN --body "..."
-```
-
-Les secrets sont scopés au repo ; pour multi-environnements, utiliser les **Environment secrets** (au lieu de Repository secrets) et rattacher au `environment: production` du job `deploy`.
