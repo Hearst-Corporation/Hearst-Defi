@@ -1,36 +1,24 @@
 #!/usr/bin/env node
 /**
- * ds-token-drift.mjs — Token divergence audit between the vendored
- * @hearst/cockpit-shell package and cockpit.css (effective runtime source).
+ * ds-token-drift.mjs — Token divergence audit between cockpit-shell/tokens.css
+ * (local editable DS copy) and cockpit.css (project runtime overrides).
  *
  * Usage: node scripts/ds-token-drift.mjs
  * Exit 0: all divergences are allowlisted OR no divergences.
  * Exit 1: unexpected drift detected OR brand regression detected.
  */
-import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(fileURLToPath(new URL(".", import.meta.url)), "..");
 
-// ── Resolve the real package tokens.css ──────────────────────────────────────
-// Try the direct @hearst symlink first (pnpm creates it), then search .pnpm.
-function findPackageTokens() {
-  const direct = join(ROOT, "node_modules/@hearst/cockpit-shell/tokens.css");
-  if (existsSync(direct)) return direct;
-
-  // Fallback: scan .pnpm for any cockpit-shell version
-  const pnpmDir = join(ROOT, "node_modules/.pnpm");
-  if (!existsSync(pnpmDir)) return null;
-  const dirs = readdirSync(pnpmDir).filter(d => d.startsWith("@hearst+cockpit-shell@")).sort().reverse();
-  for (const d of dirs) {
-    const candidate = join(pnpmDir, d, "node_modules/@hearst/cockpit-shell/tokens.css");
-    if (existsSync(candidate)) return candidate;
-  }
-  return null;
+// ── Resolve cockpit-shell tokens.css (local editable DS copy) ────────────────
+function findShellTokens() {
+  return join(ROOT, "cockpit-shell/tokens.css");
 }
 
-const PKG_TOKENS_PATH = findPackageTokens();
+const PKG_TOKENS_PATH = findShellTokens();
 const COCKPIT_CSS_PATH = join(ROOT, "src/app/cockpit.css");
 const ALLOWLIST_PATH = join(ROOT, "scripts/ds-token-allowlist.json");
 
@@ -67,11 +55,9 @@ function loadAllowlist() {
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 
-if (!PKG_TOKENS_PATH) {
-  console.error("WARNING: @hearst/cockpit-shell/tokens.css not found in node_modules.");
-  console.error("  Run: pnpm install");
-  console.error("  Skipping token drift check.");
-  process.exit(0);
+if (!existsSync(PKG_TOKENS_PATH)) {
+  console.error("FAIL: cockpit-shell/tokens.css not found — local DS copy is required.");
+  process.exit(1);
 }
 
 const pkgContent = readFileSync(PKG_TOKENS_PATH, "utf8");
@@ -104,7 +90,7 @@ if (maroonMatches.length > 0) {
   console.warn(
     `  These are OVERRIDDEN at runtime by cockpit.css. They do NOT affect the product.`
   );
-  console.warn(`  Action required: rebuild @hearst/cockpit-shell with green tokens.\n`);
+  console.warn(`  Action required: remove maroon values from cockpit-shell/tokens.css.\n`);
 }
 
 // ── STEP 2: Token divergence report ──────────────────────────────────────────
@@ -119,7 +105,7 @@ for (const [name, pkgVal] of pkgTokens.entries()) {
 let unexpectedDrift = false;
 
 console.log("\n── TOKEN DRIFT REPORT ────────────────────────────────────────────────────\n");
-console.log(`Package:    ${PKG_TOKENS_PATH.replace(ROOT + "/", "")}`);
+console.log(`Shell base: ${PKG_TOKENS_PATH.replace(ROOT + "/", "")}`);
 console.log(`cockpit.css: src/app/cockpit.css`);
 console.log(`Allowlist:   scripts/ds-token-allowlist.json\n`);
 
@@ -179,7 +165,7 @@ if (unexpectedDrift) {
 
 if (divergences.length > 0) {
   console.log(
-    `PASS: ds-token-drift — ${divergences.length} divergence(s), all allowlisted. Package is stale; cockpit.css is runtime source of truth.`
+    `PASS: ds-token-drift — ${divergences.length} divergence(s), all allowlisted. cockpit.css is the runtime override layer.`
   );
 } else {
   console.log("PASS: ds-token-drift — no unexpected drift.");

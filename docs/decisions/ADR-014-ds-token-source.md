@@ -1,57 +1,55 @@
 # ADR-014: Design System Token Source of Truth
 
-**Status:** Accepted  
+**Status:** Accepted (amended 2026-06-15)  
 **Date:** 2026-06-14
 
 ## Context
 
-`@hearst/cockpit-shell` v0.2.1 is vendored as a local tarball (`file:./hearst-cockpit-shell-0.2.1.tgz`). The package was built from a maroon-era codebase and contains stale tokens including:
+`@hearst/cockpit-shell` was originally vendored as a local tarball with a maroon-era
+token set. Commit `1049eee` **dé-vendored** the shell into `cockpit-shell/` (editable
+local copy, green canon `#A7FB90` / `#000000`). Imports resolve via `tsconfig` paths
+and `vitest` aliases — there is no runtime dependency on `node_modules/@hearst/cockpit-shell`.
 
-- `--ct-accent: #8A1538` (maroon brand, WRONG)
-- `--ct-bg-deep: #1A050B` (maroon-tinted near-black, WRONG)
-- `--ct-rail-left: 88px`, `--ct-rail-right: 420px` (stale layout)
-- `--ct-surface-0/1/2/3` at 0.02/0.04/0.06/0.09 opacity (too dim on pure black)
-- `--ct-text-muted: rgba(245,245,245,0.48)` (fails WCAG AA on #000000)
-- `--ct-dur-base: 180ms` (stale)
-- `--ct-shadow-depth` (stale recipe)
+`src/app/cockpit.css` still overrides **11** tokens from the shell base for product-specific
+calibration (surfaces, rails, muted text, shadow, duration). These are documented in
+`scripts/ds-token-allowlist.json` and enforced by `scripts/ds-token-drift.mjs`.
 
-`src/app/cockpit.css` overrides 13 of these tokens via unlayered `:root` rules. The `--ct-accent` override specifically uses `!important` to guarantee it wins over any ThemeAccent injection from the package.
-
-A token drift audit (`scripts/ds-token-drift.mjs`) confirmed 13 divergences, all intentional and documented in `scripts/ds-token-allowlist.json`.
-
-The CI gate (`scripts/ds-layout-audit.mjs`) previously scanned a `package/tokens.css` path that does not exist in the installed tree, creating a silent blind spot for maroon detection in the actual package. This has been corrected to scan `node_modules/@hearst/cockpit-shell/tokens.css` (the real resolved path).
+`scripts/ds-layout-audit.mjs` scans `cockpit-shell/` for maroon re-entry and layout
+anti-patterns. Maroon in the local DS copy is a **violation**, not an excused stale package.
 
 ## Decision
 
-**`src/app/cockpit.css` is the effective runtime source of truth for all `--ct-*` tokens** until the tarball is rebuilt with green-era values.
+**Two-layer token model:**
+
+1. **`cockpit-shell/tokens.css`** — editable DS base (green brand, shell layout primitives).
+2. **`src/app/cockpit.css`** — project runtime overrides for the 11 allowlisted divergences.
 
 Consequences:
 
-1. The overrides in `cockpit.css` MUST NOT be removed without a verified tarball rebuild.
-2. Removing `--ct-accent: #A7FB90 !important` without a tarball update is a P0 brand regression (reverts to maroon `#8A1538`).
-3. All 13 divergences in `scripts/ds-token-allowlist.json` are the canonical record of known stale-vs-runtime mismatches.
-4. New tokens (anything not in the package) should be added to `cockpit.css` only.
+1. Edit shell tokens in `cockpit-shell/tokens.css`; edit product overrides in `cockpit.css`.
+2. New divergences must be added to `ds-token-allowlist.json` or CI fails.
+3. The duplicate `package/` tree (old shell build artifact) is **removed** — do not reintroduce.
+4. `--ct-accent` in `cockpit-shell/tokens.css` must stay `#A7FB90`; maroon is P0 regression.
 
 ## Risk
 
 | Risk | Severity | Mitigation |
 |---|---|---|
-| Removing any `!important` in cockpit.css without tarball rebuild | P0 — brand reverts to maroon | Never remove without rebuild; ADR-014 is the gate |
-| Agent adds a token to cockpit.css that conflicts with a future package update | Low | `ds-token-drift.mjs` will flag it as unexpected-drift |
-| Package maroon tokens bypassing cockpit.css (e.g. server-rendered CSS-in-JS) | Medium | `ds-layout-audit.mjs` now scans the real package path and warns |
+| Maroon re-entering `cockpit-shell/` | P0 | `ds-layout-audit.mjs` maroon guard on `cockpit-shell/` |
+| Unallowlisted drift between shell and cockpit.css | Medium | `ds-token-drift.mjs` in lint pipeline |
+| Re-vendoring a tarball alongside `cockpit-shell/` | Medium | ADR-014 + README; single source in repo |
 
 ## Next Steps
 
-1. Rebuild `@hearst/cockpit-shell` with green tokens (replace `#8A1538` → `#A7FB90`, `#1A050B` → `#000000`, update all derivatives).
-2. After verifying the new tarball resolves correctly, systematically remove each allowlisted override from `cockpit.css`.
-3. Remove entries from `ds-token-allowlist.json` as each override is eliminated.
-4. Target: reduce the `!important` count in `cockpit.css` from ~49 to 0.
+1. Gradually eliminate allowlisted overrides by aligning `cockpit-shell/tokens.css` with runtime needs.
+2. Remove entries from `ds-token-allowlist.json` as each override is retired.
+3. Target: reduce `!important` usage in `cockpit.css` as overrides shrink.
 
 ## References
 
-- `scripts/ds-token-drift.mjs` — token divergence reporter
-- `scripts/ds-token-allowlist.json` — canonical allowlist of expected overrides
-- `scripts/ds-layout-audit.mjs` — CI gate (includes maroon guard on real package path)
-- `src/app/cockpit.css` — effective runtime token source
-- `node_modules/@hearst/cockpit-shell/tokens.css` — stale package (maroon era)
+- `cockpit-shell/tokens.css` — editable DS base
+- `src/app/cockpit.css` — runtime override layer
+- `scripts/ds-token-drift.mjs` — divergence reporter
+- `scripts/ds-token-allowlist.json` — canonical allowlist
+- `scripts/ds-layout-audit.mjs` — CI gate (maroon + layout)
 - ADR-013 — design system canon (glass panels)

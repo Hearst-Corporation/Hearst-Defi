@@ -12,6 +12,7 @@ import { cn } from "@/lib/cn";
  */
 export function Card({
   className,
+  contentClassName,
   hoverOverlay = true,
   density = "default",
   material = "glass",
@@ -19,6 +20,9 @@ export function Card({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
   hoverOverlay?: boolean;
+  /** Layout/spacing on the inner content shell (`.ct-z-base`). Use when stacking
+   *  CardTitle + body — flex/grid on the outer `.ct-card` does not reach children. */
+  contentClassName?: string;
   density?: "default" | "compact";
   /** `glass` (default) = graphite module surface; `flat` = opaque, no frost —
    *  for dense lists/tables where glass-on-glass would cage-in-cage. */
@@ -38,7 +42,7 @@ export function Card({
       {hoverOverlay ? (
         <div className="absolute inset-0 ct-overlay-surface0 opacity-0 group-hover:opacity-100 ct-transition-opacity-slow pointer-events-none" />
       ) : null}
-      <div className="relative ct-z-base">{children}</div>
+      <div className={cn("relative ct-z-base", contentClassName)}>{children}</div>
     </div>
   );
 }

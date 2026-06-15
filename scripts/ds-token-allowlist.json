@@ -1,18 +1,6 @@
 {
-  "_comment": "Temporary allowlist — package @hearst/cockpit-shell v0.2.1 (vendored tarball) contains a stale maroon theme. cockpit.css is the effective runtime source of truth until the tarball is rebuilt. See ADR-014.",
+  "_comment": "cockpit.css overrides on top of cockpit-shell/tokens.css (local editable DS). Entries document intentional runtime divergences. See ADR-014.",
   "allowedDivergences": [
-    {
-      "token": "--ct-accent",
-      "pkgValue": "#8a1538",
-      "cockpitValue": "#a7fb90",
-      "reason": "Package stale (maroon). cockpit.css overrides to brand green #A7FB90 via !important."
-    },
-    {
-      "token": "--ct-bg-deep",
-      "pkgValue": "#1a050b",
-      "cockpitValue": "#000000",
-      "reason": "Package uses maroon-tinted near-black. cockpit.css uses pure black #000000 for iOS dark mode."
-    },
     {
       "token": "--ct-accent-strong",
       "pkgValue": "color-mix(in srgb, var(--ct-accent) 78%, #ffffff)",
@@ -71,7 +59,7 @@
       "token": "--ct-shadow-depth",
       "pkgValue": "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.45), 0 20px 60px -24px rgba(0,0,0,0.65)",
       "cockpitValue": "0 8px 32px -8px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.10)",
-      "reason": "Intentional redesign — package shadow was too heavy (20px blur, -24px spread). Replaced with a flatter, quieter drop shadow."
+      "reason": "Intentional redesign — shell shadow was too heavy. Replaced with a flatter, quieter drop shadow."
     },
     {
       "token": "--ct-dur-base",

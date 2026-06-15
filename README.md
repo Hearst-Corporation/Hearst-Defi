@@ -14,7 +14,7 @@ model for all 4 agents + cockpit chat. No Anthropic SDK. See **ADR-011**
 
 Cockpit chat modes : `normal` (conversation produit/LP), `review` (facilitateur
 admin générant un document de revue), `admin` (copilote interne architecture /
-allocations / runbooks). Réglages rail (`@hearst/cockpit-shell` ≥ 0.2.1) :
+allocations / runbooks). Réglages rail (`cockpit-shell/` local, alias `@hearst/cockpit-shell`) :
 infra LLM **serveur uniquement** (`OPENAI_API_KEY` / `OPENAI_MODEL`, pas de clé
 client) ; toggle Markdown local branché ; clés legacy Hypercli purgées au mount.
 Pas de RAG vectoriel câblé aujourd'hui : contexte via
@@ -138,7 +138,8 @@ Titres panels : `.pf-panel-title` (alias de `.pf-hero-rail-title` hors hero).
 
 Le DS Cockpit est **dé-vendoré** : il vit dans `cockpit-shell/` (composants + `tokens.css`)
 et s'édite **librement** ici (tokens `--ct-*`, CSS, composants) — pas de package figé, pas
-de source centrale, pas de resync. Cascade CSS (du plus amont au plus aval) :
+de source centrale, pas de resync. L'ancien doublon `package/` (build artifact) a été retiré.
+Cascade CSS (du plus amont au plus aval) :
 
 ```
 cockpit-shell/tokens.css                        (copie locale ÉDITABLE — dé-vendorée)

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * Mirrors `package/src/chat/prefs.ts` (cockpit-shell) — guards legacy key cleanup
+ * Mirrors `cockpit-shell/src/chat/prefs.ts` — guards legacy key cleanup
  * and markdown toggle semantics without importing the private shell module.
  */
 const LS_MARKDOWN = "cockpit:chat-markdown";

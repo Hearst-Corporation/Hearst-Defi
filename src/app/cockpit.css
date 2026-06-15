@@ -1663,37 +1663,6 @@
   min-width: 0;
 }
 
-.dashboard-command-queue-link {
-  display: grid;
-  gap: var(--ct-space-3);
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  padding: var(--ct-space-3) 0;
-  transition: color var(--ct-dur-base) var(--ct-ease);
-}
-
-.dashboard-command-queue-link:hover {
-  color: var(--ct-text-primary);
-}
-
-.dashboard-command-queue-link:hover strong {
-  color: var(--ct-text-strong);
-}
-
-.dashboard-command-queue-link__count {
-  display: inline-flex;
-  min-width: var(--ct-space-10);
-  align-items: center;
-  justify-content: center;
-  padding: var(--ct-space-2) var(--ct-space-3);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-full);
-  color: var(--ct-text-strong);
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-bold);
-  line-height: var(--ct-leading-none);
-}
-
 /* CSS conic-gradient allocation orbit (~160px). */
 .dashboard-orbit {
   display: flex;

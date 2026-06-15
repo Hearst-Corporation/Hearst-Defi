@@ -22,7 +22,7 @@ export function NavSlot({
 }) {
   if (!navLive) {
     return (
-      <Card className="dashboard-command-slot dashboard-command-slot--nav dashboard-command-cell--awaiting">
+      <Card className="dashboard-command-slot dashboard-command-slot--nav dashboard-command-cell--awaiting bg-transparent border-dashed border-[var(--ct-border-soft)]">
         <EmptySurface
           variant="inline"
           className="dashboard-command-nav-empty"
