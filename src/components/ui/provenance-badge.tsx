@@ -39,16 +39,16 @@ const descriptions: Record<Provenance, string> = {
 // warning/danger colour — demo data is benign, just not real.
 const variants: Record<
   Provenance,
-  "success" | "brand" | "default" | "warning" | "danger"
+  "success" | "brand" | "default" | "warning" | "danger" | "flat"
 > = {
   live: "success",
   oracle: "brand",
   attested: "brand",
-  estimated: "default",
-  partial: "default",
-  manual: "default",
-  stale: "default",
-  simulated: "default",
+  estimated: "flat",
+  partial: "flat",
+  manual: "flat",
+  stale: "flat",
+  simulated: "flat",
 };
 
 const stripDotTone: Record<Provenance, string> = {

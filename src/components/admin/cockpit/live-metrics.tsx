@@ -27,8 +27,8 @@ const usdCompact = new Intl.NumberFormat("en-US", {
 export function LiveMetrics({ vaults }: LiveMetricsProps) {
   if (vaults.length === 0) {
     return (
-      <Card className="dashboard-command-cell dashboard-command-cell--awaiting">
-        <DashboardPanelHeader title="Live metrics" tone="quiet" />
+      <Card className="dashboard-command-cell dashboard-command-cell--awaiting p-6 sm:p-8">
+        <DashboardPanelHeader title="Live metrics" tone="quiet" className="mb-6" />
         <EmptySurface
           variant="inline"
           message="No vault telemetry yet."
@@ -39,9 +39,9 @@ export function LiveMetrics({ vaults }: LiveMetricsProps) {
   }
 
   return (
-    <Card aria-label="Live metrics" className="dashboard-command-cell dashboard-live-metrics">
-      <DashboardPanelHeader title="Live metrics" tone="quiet" />
-      <div className="dashboard-command-divide-stack">
+    <Card aria-label="Live metrics" className="dashboard-command-cell dashboard-live-metrics p-6 sm:p-8">
+      <DashboardPanelHeader title="Live metrics" tone="quiet" className="mb-6" />
+      <div className="space-y-6">
         {vaults.map((vault) => (
           <VaultMetricRow key={vault.vaultId} vault={vault} />
         ))}
