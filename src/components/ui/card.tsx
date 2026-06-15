@@ -33,6 +33,14 @@ export function Card({
     <div
       className={cn(
         "ct-card ct-glass-panel relative overflow-hidden",
+        /* SHELL STABILISATION (2026-06-15): the inline `backdrop-blur` added by the
+           glass pass put a backdrop-filter on EVERY glass Card across the app —
+           backdrop-filter creates a stacking context + containing block per Card,
+           which let content/rails slip under the panels (overlay regression).
+           Removed: .ct-glass-panel already provides the surface via tokens, with no
+           backdrop-filter. This reverts the Card primitive to its committed (stable)
+           behaviour. Re-introduce frost only on single-level surfaces, never on the
+           shared Card primitive. */
         material === "flat" && "ct-glass-panel--flat",
         density === "compact" && "ct-card--compact",
         hoverOverlay && "group",
