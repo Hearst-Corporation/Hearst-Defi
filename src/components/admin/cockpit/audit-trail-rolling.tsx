@@ -28,8 +28,8 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   }
 
   return (
-    <Card aria-label="Recent admin activity" hoverOverlay={false} className="p-6 sm:p-8">
-      <DashboardPanelHeader title="Recent admin activity" tone="quiet" className="mb-6" />
+    <Card aria-label="Recent admin activity" hoverOverlay={false}>
+      <DashboardPanelHeader title="Recent admin activity" tone="quiet" />
       <div className="overflow-hidden">
         <table className="w-full table-fixed body-sm" aria-label="Recent admin activity">
           <thead>

@@ -65,7 +65,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       />
 
       {page.preview ? (
-        <Card className="relative z-10 border-(--ct-status-warning-border) bg-transparent p-6 sm:p-8">
+        <Card className="relative z-10 border-(--ct-status-warning-border) bg-transparent">
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             <span className="stat-label ct-status-warning">
               Per-vault live snapshot pending
@@ -82,7 +82,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       ) : null}
 
       {!page.preview && data.hasTimelineSnapshot && !data.hasLiveTimelineSnapshot ? (
-        <Card className="relative z-10 border-(--ct-status-info-border) bg-transparent p-6 sm:p-8">
+        <Card className="relative z-10 border-(--ct-status-info-border) bg-transparent">
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             <span className="stat-label ct-text-muted">
               Local seed data · Staging signals — not production

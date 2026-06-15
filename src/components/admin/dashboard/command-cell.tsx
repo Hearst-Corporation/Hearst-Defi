@@ -27,7 +27,7 @@ export function DashboardCommandCell({
     // modules align on the same grid. No data is fabricated — this is purely the
     // awaiting-state presentation; the `ready` (populated) branch is unchanged.
     return (
-      <Card className={cn(CELL, "dashboard-command-cell--awaiting p-6 sm:p-8")}>
+      <Card className={cn(CELL, "dashboard-command-cell--awaiting")}>
         <EmptySurface
           variant="widget"
           message="No data yet"
@@ -38,5 +38,5 @@ export function DashboardCommandCell({
     );
   }
 
-  return <Card className={cn(CELL, "p-6 sm:p-8")}>{children}</Card>;
+  return <Card className={CELL}>{children}</Card>;
 }

@@ -22,7 +22,7 @@ export function NavSlot({
 }) {
   if (!navLive) {
     return (
-      <Card className="dashboard-command-slot dashboard-command-slot--nav dashboard-command-cell--awaiting p-6 sm:p-8">
+      <Card className="dashboard-command-slot dashboard-command-slot--nav dashboard-command-cell--awaiting">
         <EmptySurface
           variant="inline"
           className="dashboard-command-nav-empty"
@@ -33,7 +33,7 @@ export function NavSlot({
   }
 
   return (
-    <Card className="dashboard-command-slot dashboard-command-slot--nav p-6 sm:p-8">
+    <Card className="dashboard-command-slot dashboard-command-slot--nav">
       <div className="dashboard-command-performance">
         <header className="dashboard-card-header dashboard-command-performance__header">
           <div className="min-w-0">

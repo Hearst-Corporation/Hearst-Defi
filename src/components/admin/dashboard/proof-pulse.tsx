@@ -30,7 +30,7 @@ export function ProofPulse({
 
   return (
     <>
-      <DashboardPanelHeader title="Proof & custody" provenance={provenance} tone="quiet" className="mb-6" />
+      <DashboardPanelHeader title="Proof & custody" provenance={provenance} tone="quiet" />
       <ul className="admin-doc-stack admin-doc-stack--dense body-xs" role="list">
         <li>
           <Link href={adminNavLinks.proofCenter()} className="ct-text-accent hover:underline">

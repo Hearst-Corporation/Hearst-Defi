@@ -39,10 +39,7 @@ export function DashboardPanelHeader({
           className={cn(
             titleRoleClass,
             "min-w-0 break-words",
-            "text-[var(--ct-accent)]",
-            tone === "quiet"
-              ? "opacity-[var(--ct-opacity-80)] drop-shadow-[0_0_8px_var(--color-accent-dim)]"
-              : "drop-shadow-[0_0_12px_var(--color-accent-subtle)]"
+            tone === "quiet" ? "ct-text-muted" : "ct-text-accent"
           )}
         >
           {title}

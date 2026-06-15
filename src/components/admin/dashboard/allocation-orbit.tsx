@@ -34,7 +34,7 @@ export function AllocationOrbit({
 }) {
   if (!live) {
     return (
-      <Card className="dashboard-command-cell dashboard-command-cell--awaiting p-6 sm:p-8">
+      <Card className="dashboard-command-cell dashboard-command-cell--awaiting">
         <EmptySurface
           variant="inline"
           className="dashboard-orbit-empty"
@@ -47,7 +47,7 @@ export function AllocationOrbit({
   const gradient = conicGradientFromAllocations(allocations);
 
   return (
-    <Card className="dashboard-command-cell p-6 sm:p-8" aria-label="Vault allocation map">
+    <Card className="dashboard-command-cell" aria-label="Vault allocation map">
       <div className="dashboard-orbit">
         <div className="dashboard-orbit__visual">
           <div className="dashboard-orbit__track" aria-hidden />

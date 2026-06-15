@@ -33,8 +33,8 @@ const ACTION_LABELS: Record<string, string> = {
 export function ActionQueue({ items }: ActionQueueProps) {
   if (items.length === 0) {
     return (
-      <Card className="dashboard-command-cell dashboard-command-cell--awaiting p-6 sm:p-8">
-        <DashboardPanelHeader title="Action queue" tone="quiet" className="mb-6" />
+      <Card className="dashboard-command-cell dashboard-command-cell--awaiting">
+        <DashboardPanelHeader title="Action queue" tone="quiet" />
         <EmptySurface
           variant="inline"
           message="All clear — no pending actions."
@@ -45,9 +45,9 @@ export function ActionQueue({ items }: ActionQueueProps) {
   }
 
   return (
-    <Card aria-label="Action queue" className="dashboard-command-cell p-6 sm:p-8">
-      <DashboardPanelHeader title="Action queue" tone="quiet" className="mb-6" />
-      <ul className="space-y-4" role="list">
+    <Card aria-label="Action queue" className="dashboard-command-cell">
+      <DashboardPanelHeader title="Action queue" tone="quiet" />
+      <ul className="dashboard-command-divide-stack" role="list">
         {items.map((item) => (
           <ActionRow key={item.id} item={item} />
         ))}

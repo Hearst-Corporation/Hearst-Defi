@@ -28,13 +28,13 @@ interface LiveOpsProps {
  */
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
-    <Card aria-label="Live ops" className="dashboard-command-cell p-6 sm:p-8">
-      <DashboardPanelHeader title="Live ops" tone="quiet" className="mb-6" />
+    <Card aria-label="Live ops" className="dashboard-command-cell">
+      <DashboardPanelHeader title="Live ops" tone="quiet" />
 
-      <div className="space-y-8">
+      <div className="dashboard-command-divide-stack">
         <div className="dashboard-live-ops-section">
-          <span className="dashboard-live-ops-section__title mb-4 block">Inngest jobs</span>
-          <div className="space-y-3">
+          <span className="dashboard-live-ops-section__title">Inngest jobs</span>
+          <div className="dashboard-command-divide-stack">
             {inngestJobs.map((job) => (
               <InngestRow key={job.id} job={job} />
             ))}
@@ -42,7 +42,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
         </div>
 
         <div className="dashboard-live-ops-section">
-          <span className="dashboard-live-ops-section__title mb-4 block">Sentry 24h</span>
+          <span className="dashboard-live-ops-section__title">Sentry 24h</span>
           <div className="admin-doc-inline-row admin-doc-inline-row--relaxed admin-doc-inline-row--actions">
             <SentryCounter
               label="Errors"
@@ -58,11 +58,11 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
         </div>
 
         <div className="dashboard-live-ops-section">
-          <span className="dashboard-live-ops-section__title mb-4 block">On-chain feed</span>
+          <span className="dashboard-live-ops-section__title">On-chain feed</span>
           {onChainEvents.length === 0 ? (
             <PanelStatus message="No recent on-chain events." />
           ) : (
-            <ul className="space-y-4" role="list">
+            <ul className="dashboard-command-divide-stack" role="list">
               {onChainEvents.map((ev) => (
                 <OnChainEventRow key={ev.id} event={ev} />
               ))}

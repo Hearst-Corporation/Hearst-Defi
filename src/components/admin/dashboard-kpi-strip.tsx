@@ -22,7 +22,7 @@ export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
   }
 
   return (
-    <Card aria-label="Vault KPIs" className="dashboard-kpi-strip-card p-6 sm:p-8">
+    <Card aria-label="Vault KPIs" className="dashboard-kpi-strip-card">
       <div className="dashboard-kpi-strip">
         {kpis.map((kpi) => (
           <DashboardKpiCell key={kpi.label} kpi={kpi} />
