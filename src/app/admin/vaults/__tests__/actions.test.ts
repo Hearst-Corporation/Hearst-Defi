@@ -22,8 +22,8 @@ vi.mock("@/lib/auth/require-admin", () => ({
   requireAdmin: vi.fn(),
 }));
 
-vi.mock("@/lib/db", () => ({
-  prisma: {
+vi.mock("@/lib/db", () => {
+  const prisma: Record<string, unknown> = {
     vaultDeployment: {
       findUnique: vi.fn(),
       update: vi.fn(),
@@ -32,10 +32,22 @@ vi.mock("@/lib/db", () => ({
     vaultDeploymentApproval: {
       deleteMany: vi.fn(),
     },
-    // $transaction([op1, op2]) — execute Promises in order (matches Prisma's array form)
-    $transaction: vi.fn(async (ops: Promise<unknown>[]) => Promise.all(ops)),
-  },
-}));
+    // D3: updateDraftVault now upserts the ShareClass inside the $transaction.
+    shareClass: {
+      upsert: vi.fn(),
+    },
+  };
+  // $transaction supports BOTH forms used in this module:
+  //   • array form  ($transaction([op1, op2])) — rejectDeployment
+  //   • callback form ($transaction(async (tx) => …)) — updateDraftVault,
+  //     where `tx` is the same mocked prisma so tx.vaultDeployment / tx.shareClass resolve.
+  prisma["$transaction"] = vi.fn((arg: unknown) =>
+    Array.isArray(arg)
+      ? Promise.all(arg)
+      : (arg as (tx: unknown) => unknown)(prisma),
+  );
+  return { prisma };
+});
 
 vi.mock("@/lib/admin/audit", () => ({
   recordAdminAudit: vi.fn(),

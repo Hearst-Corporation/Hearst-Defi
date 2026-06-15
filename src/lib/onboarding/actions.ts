@@ -6,6 +6,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getInvestor } from "@/lib/auth/session";
 import { requireInvestor } from "@/lib/auth/require-investor";
+import { markKycComplete } from "@/lib/onboarding/kyc-complete";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -96,65 +97,10 @@ export async function claimKycInquiry(
   return { ok: true };
 }
 
-// =============================================================================
-// markKycComplete — C1 Persona KYC
-// =============================================================================
-
-/**
- * markKycComplete
- *
- * Server Action called by the Persona webhook when an inquiry reaches a
- * terminal "completed" or "approved" status.
- *
- * Resolves the userId AUTHORITATIVELY from KycInquiry (created by
- * claimKycInquiry() before the webhook arrives — P0-4 defence).
- * Falls back to KycEvent.findFirst for legacy inquiries started before
- * the KycInquiry table existed (pre-migration safety net).
- *
- * Idempotent: calling multiple times for the same inquiryId is safe.
- */
-export async function markKycComplete(inquiryId: string): Promise<void> {
-  if (!inquiryId || inquiryId.trim() === "") {
-    throw new Error("markKycComplete: inquiryId must be a non-empty string");
-  }
-
-  // --- Authoritative resolution via KycInquiry (P0-4) ---
-  const claim = await prisma.kycInquiry.findUnique({ where: { inquiryId } });
-
-  let userId: string | undefined;
-
-  if (claim) {
-    userId = claim.userId;
-  } else {
-    // Legacy fallback: resolve from KycEvent for inquiries that pre-date the
-    // KycInquiry table. Log a warning so ops can track the tail.
-    console.warn(
-      `[markKycComplete] no KycInquiry claim, falling back to KycEvent (legacy) for inquiryId=${inquiryId}`,
-    );
-    const event = await prisma.kycEvent.findFirst({
-      where: { inquiryId },
-      orderBy: { receivedAt: "desc" },
-    });
-    userId = event?.userId;
-  }
-
-  if (!userId || userId === "unknown" || userId === "unclaimed") {
-    console.warn(
-      `[markKycComplete] inquiryId=${inquiryId} has no resolvable userId — skipping Investor update`,
-    );
-    return;
-  }
-
-  // P0-5: only pending→approved. A rejected investor is terminal and must
-  // never be silently re-approved by a replayed/late webhook.
-  await prisma.investor.updateMany({
-    where: {
-      user: { id: userId },
-      kycStatus: "pending",
-    },
-    data: { kycStatus: "approved" },
-  });
-}
+// markKycComplete moved to "@/lib/onboarding/kyc-complete" (D1 fix):
+// it is an internal server-only function, NOT a Server Action, so it can never
+// be invoked as an RPC by a logged-in client to force-approve KYC. It is
+// imported above and used by claimKycInquiry() (B1 replay) + the Persona webhook.
 
 // =============================================================================
 // bindWallet — persist distribution wallet on Investor

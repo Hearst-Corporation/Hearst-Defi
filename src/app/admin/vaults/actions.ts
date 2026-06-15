@@ -279,32 +279,60 @@ export async function updateDraftVault(
   }
 
   try {
-    const vault = await prisma.vaultDeployment.update({
-      where: { id },
-      data: {
-        ticker: d.ticker,
-        name: d.name,
-        description: d.description ?? null,
-        strategy: d.strategy,
-        colorTag: d.colorTag ?? "accent",
-        minTicketUsdc: d.minTicketUsdc,
-        capacityUsdc: d.capacityUsdc,
-        mgmtFeeBps: d.mgmtFeeBps,
-        perfFeeBps: d.perfFeeBps,
-        softLockupDays: d.softLockupDays,
-        targetApyLowBps: d.targetApyLowBps,
-        targetApyHighBps: d.targetApyHighBps,
-        spvJurisdiction: d.spvJurisdiction,
-        shareClass: d.shareClass,
-        regExemption: d.regExemption,
-        disclaimers: d.disclaimers,
-        targetMiningBps: d.targetMiningBps,
-        targetBtcTacticalBps: d.targetBtcTacticalBps,
-        targetUsdcBaseBps: d.targetUsdcBaseBps,
-        targetStableReserveBps: d.targetStableReserveBps,
-        signersWhitelist: JSON.stringify(d.signersWhitelist),
-        requiredSigners: d.requiredSigners,
-      },
+    // D3: the deployment update and the ShareClass sync must commit together —
+    // a partial write would leave the vault terms and its share class out of
+    // sync. Wrap both in an interactive $transaction; audit + revalidate run
+    // only after the transaction commits (pattern: rejectDeployment).
+    const vault = await prisma.$transaction(async (tx) => {
+      const updated = await tx.vaultDeployment.update({
+        where: { id },
+        data: {
+          ticker: d.ticker,
+          name: d.name,
+          description: d.description ?? null,
+          strategy: d.strategy,
+          colorTag: d.colorTag ?? "accent",
+          minTicketUsdc: d.minTicketUsdc,
+          capacityUsdc: d.capacityUsdc,
+          mgmtFeeBps: d.mgmtFeeBps,
+          perfFeeBps: d.perfFeeBps,
+          softLockupDays: d.softLockupDays,
+          targetApyLowBps: d.targetApyLowBps,
+          targetApyHighBps: d.targetApyHighBps,
+          spvJurisdiction: d.spvJurisdiction,
+          shareClass: d.shareClass,
+          regExemption: d.regExemption,
+          disclaimers: d.disclaimers,
+          targetMiningBps: d.targetMiningBps,
+          targetBtcTacticalBps: d.targetBtcTacticalBps,
+          targetUsdcBaseBps: d.targetUsdcBaseBps,
+          targetStableReserveBps: d.targetStableReserveBps,
+          signersWhitelist: JSON.stringify(d.signersWhitelist),
+          requiredSigners: d.requiredSigners,
+        },
+      });
+
+      // Keep ShareClass row in sync with the draft terms (upsert in case the
+      // class code changed between edits, or the row was never seeded).
+      await tx.shareClass.upsert({
+        where: { vaultId_code: { vaultId: id, code: d.shareClass } },
+        create: {
+          vaultId: id,
+          code: d.shareClass,
+          minTicket: d.minTicketUsdc,
+          lockupDays: d.softLockupDays,
+          mgmtFeeBps: d.mgmtFeeBps,
+          perfFeeBps: d.perfFeeBps,
+        },
+        update: {
+          minTicket: d.minTicketUsdc,
+          lockupDays: d.softLockupDays,
+          mgmtFeeBps: d.mgmtFeeBps,
+          perfFeeBps: d.perfFeeBps,
+        },
+      });
+
+      return updated;
     });
 
     await recordAdminAudit({
@@ -314,26 +342,6 @@ export async function updateDraftVault(
       entityId: id,
       before: { status: existing.status, ticker: existing.ticker },
       after: { status: vault.status, ticker: vault.ticker },
-    });
-
-    // Keep ShareClass row in sync with the draft terms (upsert in case the
-    // class code changed between edits, or the row was never seeded).
-    await prisma.shareClass.upsert({
-      where: { vaultId_code: { vaultId: id, code: d.shareClass } },
-      create: {
-        vaultId: id,
-        code: d.shareClass,
-        minTicket: d.minTicketUsdc,
-        lockupDays: d.softLockupDays,
-        mgmtFeeBps: d.mgmtFeeBps,
-        perfFeeBps: d.perfFeeBps,
-      },
-      update: {
-        minTicket: d.minTicketUsdc,
-        lockupDays: d.softLockupDays,
-        mgmtFeeBps: d.mgmtFeeBps,
-        perfFeeBps: d.perfFeeBps,
-      },
     });
 
     revalidatePath("/admin/vaults");

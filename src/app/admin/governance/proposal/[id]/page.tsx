@@ -176,7 +176,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
       {proposal.calldata ? (
         <Card density="compact" hoverOverlay={false}>
           <DashboardPanelHeader title="Calldata" tone="quiet" className="mb-4" />
-          <pre className="mono overflow-x-auto whitespace-pre-wrap rounded-md ct-surface-1 p-4 body-xs ct-text-muted">
+          <pre className="mono overflow-x-auto whitespace-pre-wrap rounded-md border border-[var(--ct-border-soft)] p-4 body-xs ct-text-muted">
             {formatProposalCalldata(proposal.calldata)}
           </pre>
         </Card>

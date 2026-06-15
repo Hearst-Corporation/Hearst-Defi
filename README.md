@@ -384,6 +384,39 @@ staging smoke): `ALLOW_INVESTOR_DEMO_SEED=true pnpm seed:investor-demo`.
 
 ---
 
+## Go-live (staging / testnet pilot)
+
+**Before any production deploy** : run `pnpm preflight` (must exit `0`). It
+fails on P0 issues — e.g. a SQLite `DATABASE_URL` instead of Postgres. The CI
+deploy workflow (`.github/workflows/deploy.yml`) runs the same `preflight` gate
+as a **blocking** job before deploying.
+
+**Required Railway production secrets (P0)** — see [`.env.example`](.env.example)
+for the full annotated list :
+
+- `DATABASE_URL` — Postgres (not SQLite ; preflight rejects `file:` URLs).
+- `INNGEST_SIGNING_KEY` — `signkey-prod-*`.
+- `PERSONA_WEBHOOK_SECRET` — KYC/KYB webhook signature.
+- `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` — rate limiting / nonces.
+- `NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS` — vault address for invest/redeem.
+- `RESEND_API_KEY` — **P1, not P0** : if unset, investors are still paid but
+  never emailed (distribution emails skip silently). Set it before any pilot
+  where payout notifications matter.
+
+**Testnet pilot verification** :
+
+- `pnpm test:e2e` — Playwright UI smoke (front-end happy paths).
+- `pnpm pilot:e2e` (`scripts/pilot-e2e.ts`) — on-chain rail :
+  approve / deposit / redeem against the vault on **Base Sepolia**. Needs a
+  throwaway `PILOT` key (never a real-money key) plus faucet USDC.
+
+**HARD GATE** : the mainnet (real-money) deploy stays **blocked** on a completed
+Spearbit audit + remediation ([ADR-006](docs/decisions/ADR-006-lift-mvp-lock-v1-v2.md)).
+Everything above is for **testnet pilot only** — lifting the MVP lock does not
+authorize unaudited mainnet code.
+
+---
+
 ## Source documents
 
 - [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) — Tokens, primitives, charts SVG canon.

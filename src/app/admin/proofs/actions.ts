@@ -121,6 +121,14 @@ export async function ingestProof(
       },
     });
 
+    await recordAdminAudit({
+      actorWallet: admin.walletAddress ?? admin.userId,
+      action: "proof.ingest",
+      entityType: "Proof",
+      entityId: proof.id,
+      after: { proofType, period: period ?? null, hash },
+    });
+
     revalidatePath("/admin/proofs");
     revalidatePath("/admin/proof-center");
 
@@ -255,8 +263,26 @@ export async function deleteProof(id: string): Promise<{ ok: true }> {
     throw new Error("Too many requests");
   }
 
+  // Snapshot the proof before deletion so the audit log preserves what was
+  // removed (the row is gone after delete and cannot be reconstructed).
+  const existing = await prisma.proof.findUnique({
+    where: { id },
+    select: { proofType: true, period: true, hash: true },
+  });
+
   try {
     await prisma.proof.delete({ where: { id } });
+
+    await recordAdminAudit({
+      actorWallet: admin.walletAddress ?? admin.userId,
+      action: "proof.delete",
+      entityType: "Proof",
+      entityId: id,
+      before: existing
+        ? { proofType: existing.proofType, period: existing.period, hash: existing.hash }
+        : null,
+    });
+
     revalidatePath("/admin/proofs");
     revalidatePath("/admin/proof-center");
     logger.info("proof deleted", { proofId: id });

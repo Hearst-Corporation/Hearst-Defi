@@ -5,7 +5,7 @@ import { z } from "zod";
 import type { InvestorMemoOutput } from "@/lib/agents/schemas";
 import { loadMemoInput } from "@/lib/agents/loaders/vault";
 import { loadMemoPdfExtras, periodFromIso } from "@/lib/pdf/memo-data";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { assertRateLimit } from "@/lib/rate-limit";
 
 const VaultIdSchema = z.enum(["yield", "defensive", "btc-plus"] as const);
@@ -28,7 +28,7 @@ export async function generateMemoPdfAction(
   memo: InvestorMemoOutput | null,
   vaultId?: string,
 ): Promise<{ bytes: Uint8Array; filename: string }> {
-  const { userId } = await requireAuth();
+  const { userId } = await requireAdmin();
   await assertRateLimit(`generate-pdf:${userId}`, 3, 60_000);
   const { renderToBuffer } = await import("@react-pdf/renderer");
   const { MemoDocument } = await import("@/lib/pdf/memo-template");

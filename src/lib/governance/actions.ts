@@ -232,17 +232,9 @@ export async function signProposal(
     throw new Error(`You have already submitted a '${parsed.decision}' decision on this proposal`);
   }
 
-  // Record the new signature
-  await prisma.proposalSignature.create({
-    data: {
-      proposalId: proposal.id,
-      signerAddress: admin.userId,
-      decision: parsed.decision,
-      reason: parsed.reason ?? null,
-    },
-  });
-
-  // Re-fetch all signatures to compute quorum
+  // Compute quorum BEFORE any write. nextStateAfterSignature adds the new
+  // signature to `allSigs` in-memory, so the transition decision does not
+  // depend on the signature row being persisted first.
   const allSigs: SignatureCore[] = [
     ...proposal.signatures.map((s) => ({ decision: toDecision(s.decision) })),
     { decision: parsed.decision },
@@ -260,6 +252,13 @@ export async function signProposal(
 
   const nextState = nextStateAfterSignature(proposalCore, allSigs);
 
+  const signatureCreate = {
+    proposalId: proposal.id,
+    signerAddress: admin.userId,
+    decision: parsed.decision,
+    reason: parsed.reason ?? null,
+  };
+
   if (nextState !== currentState && canTransition(currentState, nextState)) {
     const now = new Date();
     const updateData: Record<string, unknown> = { state: nextState };
@@ -275,10 +274,17 @@ export async function signProposal(
       updateData["cancelledAt"] = now;
     }
 
-    await prisma.governanceProposal.update({
-      where: { id: proposal.id },
-      data: updateData,
-    });
+    // D3: the new signature and the state advance must commit together — a
+    // partial write (signature without the transition, or vice versa) would
+    // corrupt the quorum computation on the next call. Audit + revalidate run
+    // only after the transaction commits.
+    await prisma.$transaction([
+      prisma.proposalSignature.create({ data: signatureCreate }),
+      prisma.governanceProposal.update({
+        where: { id: proposal.id },
+        data: updateData,
+      }),
+    ]);
 
     const finalState = toProposalState(
       nextState === "QUEUED" ? "TIMELOCK" : nextState,
@@ -299,6 +305,9 @@ export async function signProposal(
 
     return finalState;
   }
+
+  // No state transition: only the signature is recorded (single write).
+  await prisma.proposalSignature.create({ data: signatureCreate });
 
   await recordAdminAudit({
     actorWallet: admin.userId,

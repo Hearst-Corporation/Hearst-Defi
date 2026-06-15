@@ -160,12 +160,53 @@ jobs:
         run: pnpm build
 
   # ────────────────────────────────────────────────────────────────
-  # Job 4 — Deploy to Railway (BLOCKING)
+  # Job 4 — Production preflight gate (BLOCKING)
+  # ────────────────────────────────────────────────────────────────
+  preflight:
+    name: Production Preflight
+    runs-on: ubuntu-latest
+    needs: build
+
+    env:
+      # P0 secrets validated by scripts/preflight-prod.mjs — preflight exits 1
+      # on any missing/invalid value, which gates the deploy job below.
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      INNGEST_SIGNING_KEY: ${{ secrets.INNGEST_SIGNING_KEY }}
+      PERSONA_WEBHOOK_SECRET: ${{ secrets.PERSONA_WEBHOOK_SECRET }}
+      UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+      NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS: ${{ secrets.NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run production preflight
+        run: pnpm preflight
+
+  # ────────────────────────────────────────────────────────────────
+  # Job 5 — Deploy to Railway (BLOCKING)
   # ────────────────────────────────────────────────────────────────
   deploy:
     name: Deploy to Railway
     runs-on: ubuntu-latest
-    needs: build
+    needs: preflight
     # Manual gate: requires a reviewer to approve before the step runs.
     # Configure required reviewers in repo Settings → Environments → production.
     environment:

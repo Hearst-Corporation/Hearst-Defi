@@ -23,8 +23,12 @@ import {
   DEMO_POSITION_ID,
   DEMO_YIELD_VAULT_ID,
 } from "@/lib/dev/investor-demo";
-import { aggregateLpPnl, daysHeldSince } from "@/lib/engine/lp-pnl";
-import type { PortfolioData } from "@/lib/data/portfolio";
+import { aggregateLpPnl, computeLpPnl, daysHeldSince } from "@/lib/engine/lp-pnl";
+import type {
+  PortfolioData,
+  PositionDetail,
+  PositionDetailTransaction,
+} from "@/lib/data/portfolio";
 import type { VaultProduct } from "@/lib/data/vaults";
 import type { ProofItem } from "@/lib/proof-center-types";
 
@@ -131,14 +135,34 @@ export function buildDemoVaultDetail(id: string): VaultProduct | null {
  * same APY range and a holding period consistent with `demoSubscribedAt`.
  * `source` stays "fallback" (union unchanged); the demo signal is the banner.
  */
-export function buildDemoPortfolio(): PortfolioData {
-  const now = new Date();
+/**
+ * The single position's figures + activity, shared by buildDemoPortfolio (list
+ * view) and buildDemoPositionDetail (detail view) so the two never disagree.
+ * Pure: takes `now`, returns plain numbers/dates. No tx hash is ever real (null).
+ */
+function demoPositionFigures(now: Date) {
   const subscribedAt = demoSubscribedAt(now);
-
   const principalUsdc = 500_000;
   const accruedYieldUsdc = 42_000;
   const distributedUsdc = 18_000;
   const valueUsdc = principalUsdc + accruedYieldUsdc;
+  const monthMs = 30 * 86_400_000;
+
+  // Opening deposit + three monthly distributions. No settled tx hash (null).
+  const activity = [
+    { id: "demo-tx-deposit", type: "deposit" as const, amountUsdc: principalUsdc, occurredAt: subscribedAt },
+    { id: "demo-tx-distribution-1", type: "distribution" as const, amountUsdc: 6_000, occurredAt: new Date(subscribedAt.getTime() + monthMs) },
+    { id: "demo-tx-distribution-2", type: "distribution" as const, amountUsdc: 6_000, occurredAt: new Date(subscribedAt.getTime() + 2 * monthMs) },
+    { id: "demo-tx-distribution-3", type: "distribution" as const, amountUsdc: 6_000, occurredAt: new Date(subscribedAt.getTime() + 3 * monthMs) },
+  ];
+
+  return { subscribedAt, principalUsdc, accruedYieldUsdc, distributedUsdc, valueUsdc, activity };
+}
+
+export function buildDemoPortfolio(): PortfolioData {
+  const now = new Date();
+  const figures = demoPositionFigures(now);
+  const { subscribedAt, principalUsdc, accruedYieldUsdc, distributedUsdc, valueUsdc } = figures;
 
   const position = {
     id: DEMO_POSITION_ID,
@@ -153,44 +177,13 @@ export function buildDemoPortfolio(): PortfolioData {
     subscribedAt,
   };
 
-  // Coherent recent activity: opening deposit + three monthly distributions
-  // that sum to the position's distributed total. No settled tx hash claimed
-  // (null) — the demo never presents an on-chain settlement.
-  const monthMs = 30 * 86_400_000;
-  const recentTransactions = [
-    {
-      id: "demo-tx-deposit",
-      type: "deposit" as const,
-      amountUsdc: principalUsdc,
-      occurredAt: subscribedAt,
-      txHash: null,
-      positionVaultName: DEMO_VAULT_NAME,
-    },
-    {
-      id: "demo-tx-distribution-1",
-      type: "distribution" as const,
-      amountUsdc: 6_000,
-      occurredAt: new Date(subscribedAt.getTime() + monthMs),
-      txHash: null,
-      positionVaultName: DEMO_VAULT_NAME,
-    },
-    {
-      id: "demo-tx-distribution-2",
-      type: "distribution" as const,
-      amountUsdc: 6_000,
-      occurredAt: new Date(subscribedAt.getTime() + 2 * monthMs),
-      txHash: null,
-      positionVaultName: DEMO_VAULT_NAME,
-    },
-    {
-      id: "demo-tx-distribution-3",
-      type: "distribution" as const,
-      amountUsdc: 6_000,
-      occurredAt: new Date(subscribedAt.getTime() + 3 * monthMs),
-      txHash: null,
-      positionVaultName: DEMO_VAULT_NAME,
-    },
-  ];
+  // Coherent recent activity, shared with the detail view via demoPositionFigures.
+  // No settled tx hash claimed (null) — the demo never presents an on-chain settlement.
+  const recentTransactions = figures.activity.map((t) => ({
+    ...t,
+    txHash: null,
+    positionVaultName: DEMO_VAULT_NAME,
+  }));
 
   const pnl = aggregateLpPnl([
     {
@@ -214,6 +207,48 @@ export function buildDemoPortfolio(): PortfolioData {
     pnl,
     source: "fallback", // union NOT extended; banner carries the demo signal
     updatedAt: now,
+  };
+}
+
+/**
+ * The single demo position rendered at /portfolio/[positionId]. Built from the
+ * SAME figures as buildDemoPortfolio so the list and the detail never disagree.
+ * `source: "fallback"` (never "live"), `txHashOpen: null` (no on-chain claim);
+ * the page banner carries the demo signal. Returned only for DEMO_POSITION_ID.
+ */
+export function buildDemoPositionDetail(): PositionDetail {
+  const now = new Date();
+  const { subscribedAt, principalUsdc, accruedYieldUsdc, distributedUsdc, activity } =
+    demoPositionFigures(now);
+
+  // Newest-first, mirroring the live loader's orderBy occurredAt desc.
+  const transactions: PositionDetailTransaction[] = activity
+    .map((t) => ({ id: t.id, type: t.type, amountUsdc: t.amountUsdc, occurredAt: t.occurredAt, txHash: null }))
+    .sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime());
+
+  const pnl = computeLpPnl({
+    contributedUsdc: principalUsdc,
+    distributedUsdc,
+    accruedYieldUsdc,
+    daysHeld: daysHeldSince(subscribedAt, now),
+  });
+
+  return {
+    id: DEMO_POSITION_ID,
+    vaultName: DEMO_VAULT_NAME,
+    vaultTicker: DEMO_VAULT_TICKER,
+    status: "active",
+    principalUsdc,
+    accruedYieldUsdc,
+    distributedUsdc,
+    realizedApyLow: DEMO_APY_LOW,
+    realizedApyHigh: DEMO_APY_HIGH,
+    subscribedAt,
+    maturedAt: null,
+    txHashOpen: null,
+    transactions,
+    pnl,
+    source: "fallback",
   };
 }
 

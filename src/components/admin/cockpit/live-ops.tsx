@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { cn } from "@/lib/cn";
-import { explorerTxUrl } from "@/lib/chain/client";
+import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import type {
   InngestJob,
   InngestJobStatus,
@@ -175,7 +175,7 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
     </li>
   );
 
-  if (event.txHash) {
+  if (event.txHash && !isPlaceholderTxHash(event.txHash)) {
     return (
       <Link
         href={explorerTxUrl(event.txHash)}

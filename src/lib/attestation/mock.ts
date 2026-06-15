@@ -9,7 +9,9 @@ export const MOCK_ATTESTOR_ADDRESS = attestorAddress(MOCK_ATTESTOR_PRIVATE_KEY);
 
 const PARTNER = "Cathedra Mining (Texas)";
 const DAYS_PER_PERIOD = 30;
-const BASE_AUM_USD = 42_500_000; // anchors the dashboard's $42.5M AUM
+// Base figure used only to derive this mock attestation's own payload numbers.
+// It does NOT drive the dashboard AUM (that comes from VaultSnapshot.aumUsdc).
+const BASE_AUM_USD = 42_500_000;
 
 /** Deterministic month index for a `"YYYY-MM"` period. */
 function monthSeed(period: string): number {

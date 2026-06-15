@@ -11,7 +11,7 @@ import type {
   ScenarioOutput,
   VaultId,
 } from "@/lib/engine/types";
-import { requireAuth } from "@/lib/auth/require-auth";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { logger } from "@/lib/logger";
 import { assertRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/db";
@@ -72,7 +72,8 @@ function assertBounds(inputs: ScenarioInputs): void {
  * agent.
  *
  * Flow:
- *   1. requireAuth() — DB-backed session (hc_session) → userId (throws on failure)
+ *   1. requireAdmin() — admin-gated DB-backed session (hc_session) → userId
+ *      (throws on non-admin / no session)
  *   2. assertRateLimit by userId — 10/min (LLM-aware threshold; was 30/min
  *      before the narrative agent was wired in)
  *   3. assertBounds(inputs) — slider bounds (throws on out-of-range)
@@ -100,7 +101,7 @@ export async function runScenarioAction(
     narrative: ScenarioNarrativeOutput | null;
   }
 > {
-  const { userId } = await requireAuth();
+  const { userId } = await requireAdmin();
   try {
     await assertRateLimit(`run-scenario:${userId}`, 10, 60_000);
     assertBounds(inputs);
@@ -184,7 +185,7 @@ export async function runScenarioAction(
 export async function getPresetInputsAction(
   preset: Preset,
 ): Promise<ScenarioInputs> {
-  const { userId } = await requireAuth();
+  const { userId } = await requireAdmin();
   try {
     PresetSchema.parse(preset);
     return getPresetInputs(preset);
@@ -198,7 +199,7 @@ export async function runComparisonAction(
   presets: [Preset, Preset],
   vaultId?: string,
 ): Promise<[ScenarioOutput, ScenarioOutput]> {
-  const { userId } = await requireAuth();
+  const { userId } = await requireAdmin();
   try {
     await assertRateLimit(`run-comparison:${userId}`, 15, 60_000);
     PresetSchema.parse(presets[0]);
@@ -217,7 +218,7 @@ export async function runComparisonAction(
 export async function runBacktestAction(
   key: BacktestKey,
 ): Promise<BacktestOutput & { runId: string | null }> {
-  const { userId } = await requireAuth();
+  const { userId } = await requireAdmin();
   try {
     await assertRateLimit(`run-backtest:${userId}`, 10, 60_000);
     BacktestKeySchema.parse(key);

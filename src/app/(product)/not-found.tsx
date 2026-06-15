@@ -3,10 +3,10 @@ import { SegmentNotFound } from "@/components/error/segment-not-found";
 export default function ProductNotFound() {
   return (
     <SegmentNotFound
-      scope="Produit · 404"
-      message="La page que vous cherchez n'existe pas ou a été déplacée. Vérifiez l'URL ou revenez à votre portfolio."
+      scope="Product · 404"
+      message="The page you're looking for doesn't exist or has moved. Check the URL or head back to your portfolio."
       homeHref="/portfolio"
-      homeLabel="Aller au portfolio"
+      homeLabel="Go to portfolio"
     />
   );
 }

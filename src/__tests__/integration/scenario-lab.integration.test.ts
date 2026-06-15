@@ -53,10 +53,11 @@ describe("Scenario Lab integration", () => {
 /* runScenarioAction Server Action — integration                              */
 /* -------------------------------------------------------------------------- */
 
-// requireAuth is mocked per-test to control the auth-failure path.
-const requireAuthMock = vi.fn();
-vi.mock("@/lib/auth/require-auth", () => ({
-  requireAuth: () => requireAuthMock(),
+// requireAdmin is mocked per-test to control the auth-failure path (the action
+// is admin-gated at the RPC surface — defense in depth, D7).
+const requireAdminMock = vi.fn();
+vi.mock("@/lib/auth/require-admin", () => ({
+  requireAdmin: () => requireAdminMock(),
 }));
 
 // assertRateLimit is mocked to a no-op so the bucket doesn't leak across tests.
@@ -109,7 +110,7 @@ const NARRATIVE_FIXTURE = {
 
 describe("runScenarioAction Server Action", () => {
   beforeEach(() => {
-    requireAuthMock.mockReset();
+    requireAdminMock.mockReset();
     runScenarioNarrativeMock.mockReset();
     createMock.mockReset();
     updateMock.mockReset();
@@ -119,7 +120,10 @@ describe("runScenarioAction Server Action", () => {
   });
 
   it("A. valid input → ok, ScenarioRun persisted, narrative present", async () => {
-    requireAuthMock.mockResolvedValue({ userId: "user_a" });
+    requireAdminMock.mockResolvedValue({
+      userId: "user_a",
+      walletAddress: "0xadmin",
+    });
     runScenarioNarrativeMock.mockResolvedValue(NARRATIVE_FIXTURE);
 
     const { runScenarioAction } = await import(
@@ -154,7 +158,10 @@ describe("runScenarioAction Server Action", () => {
   });
 
   it("B. invalid input (slider out of bounds) → throws, no DB or agent call", async () => {
-    requireAuthMock.mockResolvedValue({ userId: "user_b" });
+    requireAdminMock.mockResolvedValue({
+      userId: "user_b",
+      walletAddress: "0xadmin",
+    });
 
     const { runScenarioAction } = await import(
       "@/app/admin/scenario-lab/actions"
@@ -170,7 +177,7 @@ describe("runScenarioAction Server Action", () => {
   });
 
   it("C. unauthenticated request → throws, no engine or DB call", async () => {
-    requireAuthMock.mockRejectedValue(
+    requireAdminMock.mockRejectedValue(
       new Error("Authentication required. Please log in."),
     );
 
@@ -185,8 +192,25 @@ describe("runScenarioAction Server Action", () => {
     expect(runScenarioNarrativeMock).not.toHaveBeenCalled();
   });
 
+  it("C2. non-admin request → throws (admin gate), no engine or DB call", async () => {
+    requireAdminMock.mockRejectedValue(new Error("Admin access required."));
+
+    const { runScenarioAction } = await import(
+      "@/app/admin/scenario-lab/actions"
+    );
+
+    await expect(runScenarioAction(VALID_INPUTS)).rejects.toThrow(
+      /Admin access required/,
+    );
+    expect(createMock).not.toHaveBeenCalled();
+    expect(runScenarioNarrativeMock).not.toHaveBeenCalled();
+  });
+
   it("E. high vol_index (85, 0-100 scale) → reduce_size trigger armed, vol guardrail breached, confidence low", async () => {
-    requireAuthMock.mockResolvedValue({ userId: "user_e" });
+    requireAdminMock.mockResolvedValue({
+      userId: "user_e",
+      walletAddress: "0xadmin",
+    });
     runScenarioNarrativeMock.mockResolvedValue(NARRATIVE_FIXTURE);
 
     const { runScenarioAction } = await import(
@@ -216,7 +240,10 @@ describe("runScenarioAction Server Action", () => {
   });
 
   it("D. narrative agent failure → ok with narrative=null (graceful degradation)", async () => {
-    requireAuthMock.mockResolvedValue({ userId: "user_d" });
+    requireAdminMock.mockResolvedValue({
+      userId: "user_d",
+      walletAddress: "0xadmin",
+    });
     runScenarioNarrativeMock.mockRejectedValue(
       new Error("anthropic timeout"),
     );

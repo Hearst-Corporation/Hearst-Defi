@@ -15,7 +15,7 @@ import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
-import { explorerTxUrl } from "@/lib/chain/client";
+import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { formatUsdcAmount } from "@/lib/vaults/product-display";
 
@@ -273,8 +273,9 @@ function BarChart({
               [Estimate]
             </text>
           </g>
-        ) : entry.txHash ? (
-          // Paid with tx hash — wrap in anchor
+        ) : entry.txHash && !isPlaceholderTxHash(entry.txHash) ? (
+          // Paid with a real tx hash — wrap in anchor. Fabricated seed/demo
+          // hashes fall through to the no-link "paid" bar below (dead BaseScan).
           <a
             key={i}
             href={explorerTxUrl(entry.txHash)}

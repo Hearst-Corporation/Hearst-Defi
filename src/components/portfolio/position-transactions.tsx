@@ -4,7 +4,7 @@
 
 import type { PositionDetailTransaction } from "@/lib/data/portfolio";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { explorerTxUrl } from "@/lib/chain/client";
+import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { cn } from "@/lib/cn";
 import { Badge } from "@/components/ui/badge";
 
@@ -149,9 +149,9 @@ export function PositionTransactions({
                       {usdSigned.format(tx.amountUsdc)}
                     </td>
 
-                    {/* Tx hash */}
+                    {/* Tx hash — never link a fabricated seed/demo hash (dead BaseScan). */}
                     <td className="py-2 text-right whitespace-nowrap">
-                      {tx.txHash ? (
+                      {tx.txHash && !isPlaceholderTxHash(tx.txHash) ? (
                         <a
                           href={explorerTxUrl(tx.txHash)}
                           target="_blank"
