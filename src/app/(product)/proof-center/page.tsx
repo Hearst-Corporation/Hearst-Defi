@@ -164,6 +164,7 @@ export default async function ProductProofCenterPage({
           attestation={latestAttestation}
           custody={custody}
           verified={latestAttestationVerified}
+          demo={demo}
         />
       </section>
 
@@ -193,16 +194,10 @@ export default async function ProductProofCenterPage({
           </h2>
           {proofs.length > 0 ? <ProofFilter /> : null}
         </div>
-        {demo ? (
-          <p className="body-xs ct-text-muted mb-3">
-            Simulated proof set — no live attestation. These demo proofs are not
-            backed by the on-chain or testnet sections above.
-          </p>
-        ) : null}
         {proofs.length === 0 ? (
           <AwaitingMetricState {...PLATFORM_PROOFS_EMPTY} />
         ) : (
-          <ProofGrid proofs={proofs} filter={filter} />
+          <ProofGrid proofs={proofs} filter={filter} demo={demo} />
         )}
       </section>
 
@@ -240,7 +235,7 @@ export default async function ProductProofCenterPage({
         <p className="body-xs ct-prose-md ct-text-muted">
           {chainConfigured ? (
             <>
-              On-chain entries are read directly from Base Sepolia via the
+              On-chain entries are read directly from Base Sepolia (Testnet) via the
               EventLogger (
               <span className="mono">
                 {eventLoggerAddr ? abbreviateAddress(eventLoggerAddr) : "not configured"}

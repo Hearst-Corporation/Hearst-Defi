@@ -11,12 +11,15 @@ import type { ProofType } from "@/lib/proof-center-types";
 import { ipfsGatewayUrl } from "@/lib/ipfs-gateway";
 import { safeUrl } from "@/lib/safe-url";
 import { abbreviateAddress } from "@/lib/onchain";
+import { proofProvenance } from "@/lib/demo/markers";
 import { cn } from "@/lib/cn";
 
 import type { UnifiedProof } from "./proof-types";
 
 interface ProofCardProps {
   proof: UnifiedProof;
+  /** Demo sandbox — paper proofs render "Simulated" provenance. */
+  demo?: boolean;
 }
 
 /** Per-type accent colour (token-only). Mining = semantic success green;
@@ -154,9 +157,9 @@ function VerificationChip({
   return null;
 }
 
-export function ProofCard({ proof }: ProofCardProps) {
+export function ProofCard({ proof, demo = false }: ProofCardProps) {
   if (proof.source === "paper") {
-    return <PaperProofCard proof={proof} />;
+    return <PaperProofCard proof={proof} demo={demo} />;
   }
   if (proof.kind === "event") {
     return <OnChainEventCard proof={proof.data} />;
@@ -166,17 +169,25 @@ export function ProofCard({ proof }: ProofCardProps) {
 
 function PaperProofCard({
   proof,
+  demo = false,
 }: {
   proof: Extract<UnifiedProof, { source: "paper" }>;
+  demo?: boolean;
 }) {
   const postedAt = new Date(proof.postedAt);
   const hashTruncated = abbreviateAddress(proof.hash);
 
   const verification = proof.attestationVerified;
-  const provenance: Provenance = verification === true ? "attested" : "manual";
+  const liveKind: Provenance = verification === true ? "attested" : "manual";
+  const provenance: Provenance = proofProvenance(demo, proof.source, liveKind);
 
   const accent = TYPE_ACCENT[proof.proofType];
-  const provenanceLabel = provenance === "attested" ? "Attested" : "Manual";
+  const provenanceLabel =
+    provenance === "simulated"
+      ? "Simulated"
+      : provenance === "attested"
+        ? "Attested"
+        : "Manual";
 
   return (
     <ProofCardShell accent={accent}>
@@ -219,7 +230,7 @@ function PaperProofCard({
               target="_blank"
               rel="noreferrer noopener"
             >
-              TX on Base
+              TX on Base (Testnet)
             </a>
           </Button>
         ) : (
@@ -287,7 +298,7 @@ function OnChainEventCard({
             target="_blank"
             rel="noreferrer noopener"
           >
-            TX on Base
+            TX on Base (Testnet)
           </a>
         </Button>
       </ProofCardActions>
@@ -360,7 +371,7 @@ function OnChainAttestationCard({
             target="_blank"
             rel="noreferrer noopener"
           >
-            TX on Base
+            TX on Base (Testnet)
           </a>
         </Button>
       </ProofCardActions>

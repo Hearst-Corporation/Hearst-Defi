@@ -12,6 +12,7 @@ import {
   DEMO_CONFIRMED_DESCRIPTION,
   DEMO_CONFIRMED_TITLE,
   DEMO_SANDBOX_DISCLAIMER,
+  demoProvenance,
 } from "@/lib/demo/markers";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { Button } from "@/components/ui/button";
@@ -97,7 +98,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
           <NestedPanel className="py-0">
             <VaultPanelHeader
               title="Simulated position"
-              trailing={<ProvenanceBadge kind="estimated" />}
+              trailing={<ProvenanceBadge kind={demoProvenance(true, "estimated")} />}
             />
             <div className="vault-panel-body">
               {amount !== "—" ? (

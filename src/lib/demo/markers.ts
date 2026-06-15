@@ -1,14 +1,41 @@
 // Centralized demo provider markers + copy.
 //
-// Not wired to any UI or loader in this lot — these are the single source of
-// truth for when the provider is branched later.
-//
-// NOTE: DEMO_SOURCE is a DATA-SOURCE marker stamped on demo payloads. It is NOT
-// a ProvenanceBadge `Provenance` value (the badge union does not include
-// "demo"). Mapping demo payloads to a visible provenance badge is a Lot 2
-// decision and may require extending the Provenance union.
+// Single source of truth for the demo provider's markers, copy, and the
+// demo→provenance mapping. Type-only import of `Provenance` keeps this module
+// client-safe (no runtime pulled in by invest-form.tsx and friends).
+
+import type { Provenance } from "@/components/ui/provenance-badge";
 
 export const DEMO_SOURCE = "demo" as const;
+
+/**
+ * Provenance shown for a demo value. In the demo sandbox EVERY value is
+ * "simulated" (a neutral sandbox marker, not an alarm) regardless of what the
+ * live loader would have resolved. Outside demo mode, the live provenance is
+ * returned unchanged — so the live institutional flow is byte-identical.
+ *
+ * This is the single chokepoint for demo provenance: callers pass `isDemo` and
+ * the provenance they would otherwise show, and never branch on demo inline.
+ */
+export function demoProvenance(isDemo: boolean, liveKind: Provenance): Provenance {
+  return isDemo ? "simulated" : liveKind;
+}
+
+/**
+ * Provenance for a PROOF in the demo sandbox. Demo proofs are "paper" (no real
+ * on-chain attestation): in demo mode they render "simulated"; outside demo
+ * mode the real resolved provenance (`liveKind`, typically "attested" |
+ * "manual" | "stale") is returned unchanged. `proofSource` lets a future caller
+ * special-case non-paper proof kinds without re-touching this signature.
+ */
+export function proofProvenance(
+  isDemo: boolean,
+  proofSource: string,
+  liveKind: Provenance,
+): Provenance {
+  if (isDemo) return "simulated";
+  return liveKind;
+}
 
 export const DEMO_SANDBOX_LABEL = "Demo Sandbox" as const;
 

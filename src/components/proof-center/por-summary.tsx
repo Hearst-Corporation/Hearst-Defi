@@ -31,12 +31,15 @@ interface PorSummaryProps {
   custody?: CustodySnapshot | null;
   /** A4 — fail-closed unless signer is verified and allowlisted. */
   verified?: boolean;
+  /** Demo sandbox — renders "Simulated" provenance instead of attested/stale. */
+  demo?: boolean;
 }
 
 export function PorSummary({
   attestation,
   custody = null,
   verified = false,
+  demo = false,
 }: PorSummaryProps) {
   if (attestation === null) {
     return (
@@ -55,7 +58,7 @@ export function PorSummary({
   }
 
   const stale = isOlderThan24h(attestation.timestamp);
-  const provenance = resolveAttestationProvenance(attestation.timestamp, verified);
+  const provenance = resolveAttestationProvenance(attestation.timestamp, verified, demo);
   const attestedAt = formatNestedTimestamp(attestation.timestamp);
 
   return (
@@ -106,7 +109,7 @@ export function PorSummary({
             target="_blank"
             rel="noreferrer noopener"
           >
-            View attestation tx on Base Sepolia
+            View attestation tx on Base Sepolia (Testnet)
           </a>
         </Button>
         {(() => {

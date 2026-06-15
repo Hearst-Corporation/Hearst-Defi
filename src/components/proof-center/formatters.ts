@@ -46,7 +46,9 @@ export function isOlderThan24h(ts: Date): boolean {
 export function resolveAttestationProvenance(
   timestamp: Date,
   verified: boolean,
-): "attested" | "stale" {
+  isDemo = false,
+): "attested" | "stale" | "simulated" {
+  if (isDemo) return "simulated";
   return !isOlderThan24h(timestamp) && verified ? "attested" : "stale";
 }
 

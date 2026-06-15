@@ -8,11 +8,14 @@ import { monthsToTarget, buildProjectionSeries } from "@/lib/projection-chart";
 import type { VaultProduct } from "@/lib/data/vaults";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
+import { demoProvenance } from "@/lib/demo/markers";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 
 interface TimeToTargetChartProps {
   amount: number; // USDC
   vault: VaultProduct;
+  /** Demo sandbox path — chart provenance corner renders "simulated". */
+  demo?: boolean;
 }
 
 const CHART_MONTHS = 24;
@@ -59,7 +62,7 @@ function areaPath(xs: number[], ys: number[]): string {
   return `${line} L${lastX},${baselineY} L${firstX},${baselineY} Z`;
 }
 
-export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
+export function TimeToTargetChart({ amount, vault, demo = false }: TimeToTargetChartProps) {
   const midApy = (vault.apyLow + vault.apyHigh) / 2;
   const months10pct = monthsToTarget(midApy, TARGET_CUMULATIVE_PCT, CHART_MONTHS);
 
@@ -142,7 +145,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
       <div
         className="ct-chart-box-160"
       >
-        <ChartProvenanceCorner kind="estimated" />
+        <ChartProvenanceCorner kind={demoProvenance(demo, "estimated")} />
         <ChartDisclaimerUnderlay />
         <svg
           viewBox={`0 0 ${VB_W} ${VB_H}`}

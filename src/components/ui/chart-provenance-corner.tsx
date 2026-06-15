@@ -24,6 +24,7 @@ const sourceLabels: Record<Provenance, string> = {
   partial: "partial data",
   manual: "manual input",
   stale: "cached / stale",
+  simulated: "simulated data",
 };
 
 export interface ChartProvenanceCornerProps {

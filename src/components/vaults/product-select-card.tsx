@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { demoProvenance } from "@/lib/demo/markers";
 import type { VaultProduct } from "@/lib/data/vaults";
 import {
   RISK_LABELS,
@@ -16,9 +17,11 @@ import { formatUsdCompact } from "@/lib/vaults/product-display";
 
 interface ProductSelectCardProps {
   vault: VaultProduct;
+  /** Demo sandbox path — forces provenance to "simulated" and flags live cards. */
+  demo?: boolean;
 }
 
-export function ProductSelectCard({ vault }: ProductSelectCardProps) {
+export function ProductSelectCard({ vault, demo = false }: ProductSelectCardProps) {
   const isLive = vault.status === "live";
   const href = `/vaults/${vault.ticker.toLowerCase()}`;
   const strategyLabel = STRATEGY_LABELS[vault.strategy] ?? vault.strategy;
@@ -36,9 +39,12 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
                 {vault.name}{" "}
                 <span className="mono ct-text-faint font-normal">{vault.ticker}</span>
               </h3>
-              <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
-                {vaultStatusLabel(vault.status)}
-              </Badge>
+              <div className="flex shrink-0 items-center gap-1.5">
+                {demo && isLive ? <ProvenanceBadge kind="simulated" compact /> : null}
+                <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
+                  {vaultStatusLabel(vault.status)}
+                </Badge>
+              </div>
             </div>
             <span className="stat-label">{strategyLabel}</span>
           </div>
@@ -46,7 +52,7 @@ export function ProductSelectCard({ vault }: ProductSelectCardProps) {
           <div className="product-doc-stack product-doc-stack--compact">
             <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--start">
               <span className="stat-label">APY range</span>
-              <ProvenanceBadge kind="estimated" compact />
+              <ProvenanceBadge kind={demoProvenance(demo, "estimated")} compact />
             </div>
             <ApyRange
               low={vault.apyLow}

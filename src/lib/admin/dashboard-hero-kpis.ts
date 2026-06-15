@@ -13,7 +13,10 @@ const usdCompact = new Intl.NumberFormat("en-US", {
 });
 
 function heroProvenance(kind: Provenance): HeroKpi["provenance"] {
-  return kind === "partial" ? "estimated" : kind;
+  // The admin dashboard has no demo mode, so "simulated" never reaches here in
+  // practice; map it (like "partial") into the narrower HeroKpi provenance type.
+  if (kind === "partial" || kind === "simulated") return "estimated";
+  return kind;
 }
 
 function hashpriceLabel(data: DashboardData, hasLiveKpis: boolean): string {

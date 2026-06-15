@@ -95,7 +95,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
                 low={vault.apyLow}
                 high={vault.apyHigh}
                 precision={1}
-                className="stat-value tabular mono ct-text-strong"
+                className="stat-value text-3xl tabular mono ct-text-strong"
               />
             </dd>
           </div>
@@ -122,13 +122,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       }
     >
       {demo ? (
-        <>
-          <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-4" />
-          <p className="body-xs ct-text-muted mb-4">
-            Simulated — not a live vault. The status above reflects the demo
-            sandbox flow, not a production deployment.
-          </p>
-        </>
+        <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-4" />
       ) : null}
       <TermSheetPreview vault={vault} workspace />
     </InvestFlowShell>

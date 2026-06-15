@@ -81,6 +81,8 @@ function qualifierLabel(p: Provenance): string {
       return "partiel";
     case "stale":
       return "stale";
+    case "simulated":
+      return "simulated";
   }
 }
 

@@ -16,6 +16,8 @@ import {
 interface ProofGridProps {
   proofs: ReadonlyArray<UnifiedProof>;
   filter: FilterValue;
+  /** Demo sandbox — paper proofs render "Simulated" provenance. */
+  demo?: boolean;
 }
 
 function keyOf(proof: UnifiedProof): string {
@@ -24,7 +26,7 @@ function keyOf(proof: UnifiedProof): string {
   return onChainAttestationKey(proof.data);
 }
 
-export function ProofGrid({ proofs, filter }: ProofGridProps) {
+export function ProofGrid({ proofs, filter, demo = false }: ProofGridProps) {
   const filtered =
     filter === "all" ? proofs : proofs.filter((p) => unifiedProofType(p) === filter);
 
@@ -37,7 +39,7 @@ export function ProofGrid({ proofs, filter }: ProofGridProps) {
     <ul className="ct-proof-grid">
       {filtered.map((proof) => (
         <li key={keyOf(proof)} className="contents">
-          <ProofCard proof={proof} />
+          <ProofCard proof={proof} demo={demo} />
         </li>
       ))}
     </ul>

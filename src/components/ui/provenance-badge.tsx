@@ -9,7 +9,8 @@ export type Provenance =
   | "estimated"
   | "partial"
   | "manual"
-  | "stale";
+  | "stale"
+  | "simulated";
 
 const labels: Record<Provenance, string> = {
   live: "Live",
@@ -19,6 +20,7 @@ const labels: Record<Provenance, string> = {
   partial: "Partial",
   manual: "Manual",
   stale: "Stale",
+  simulated: "Simulated",
 };
 
 const descriptions: Record<Provenance, string> = {
@@ -29,8 +31,12 @@ const descriptions: Record<Provenance, string> = {
   partial: "Incomplete data from some sources",
   manual: "Data manually entered by administrators",
   stale: "Data awaiting update from source",
+  simulated: "Demo sandbox data — not a production record",
 };
 
+// "simulated" is a sandbox marker, NOT an alarm. It renders with the same
+// neutral "default" chrome as estimated/manual (a quiet dot + label), never a
+// warning/danger colour — demo data is benign, just not real.
 const variants: Record<
   Provenance,
   "success" | "brand" | "default" | "warning" | "danger"
@@ -42,6 +48,7 @@ const variants: Record<
   partial: "default",
   manual: "default",
   stale: "default",
+  simulated: "default",
 };
 
 const stripDotTone: Record<Provenance, string> = {
@@ -52,6 +59,7 @@ const stripDotTone: Record<Provenance, string> = {
   partial: "ct-text-muted",
   manual: "ct-text-muted",
   stale: "ct-text-muted opacity-60",
+  simulated: "ct-text-muted",
 };
 
 const compactDotTone: Record<Provenance, string> = stripDotTone;

@@ -456,7 +456,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
           <div className="vault-flow-flat-section">
             <VaultPanelHeader title="Projected NAV — 24 month horizon" />
             <div className="vault-panel-body">
-              <TimeToTargetChart amount={deferredAmount} vault={vault} />
+              <TimeToTargetChart amount={deferredAmount} vault={vault} demo={demo} />
             </div>
           </div>
         )}
@@ -475,7 +475,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
       </div>
 
       <div className="vault-invest-grid__rail">
-        <DepositSummary vault={vault} amount={amount} />
+        <DepositSummary vault={vault} amount={amount} demo={demo} />
         <PreFlightCheck
           walletAddress={walletAddress}
           amount={amount}

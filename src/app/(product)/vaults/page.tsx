@@ -39,12 +39,7 @@ export default async function VaultsPage() {
           the product list is the section body directly under the page thesis. */}
       <section aria-label="Available products">
         {demo ? (
-          <>
-            <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-4" />
-            <p className="body-xs ct-text-muted mb-4">
-              Simulated — not a live vault.
-            </p>
-          </>
+          <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-4" />
         ) : null}
         {vaults.length === 0 ? (
           <AwaitingMetricState
@@ -54,7 +49,7 @@ export default async function VaultsPage() {
         ) : (
           <div className="product-doc-stack">
             {vaults.map((vault) => (
-              <ProductSelectCard key={vault.id} vault={vault} />
+              <ProductSelectCard key={vault.id} vault={vault} demo={demo} />
             ))}
           </div>
         )}
