@@ -402,6 +402,15 @@
   -webkit-backdrop-filter: var(--ct-graphite-blur);
 }
 
+/* Flattened variant — single-level surfaces where the default glass chrome
+   reads as a box-in-a-box. Transparent fill, soft border, no backdrop blur. */
+.ct-nested-panel--borderless {
+  background: transparent;
+  border-color: var(--ct-border-soft);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 .ct-proof-row {
   display: flex;
   align-items: baseline;
@@ -2410,7 +2419,10 @@ pre.ct-surface-1.rounded-md {
 }
 .ct-table-header {
   padding: var(--ct-space-2) var(--ct-space-3);
+  color: var(--ct-text-muted);
   font-weight: var(--ct-font-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide);
 }
 
 

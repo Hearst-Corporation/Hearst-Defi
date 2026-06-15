@@ -25,7 +25,7 @@ export function DepositSummary({ vault, amount, demo = false }: DepositSummaryPr
   const hurdleFee = vault.fees.hurdleBps > 0 ? vault.fees.hurdleBps / 100 : null;
 
   return (
-    <NestedPanel className="py-0">
+    <NestedPanel variant="borderless" className="py-0">
       <VaultPanelHeader
         title="Deposit summary"
         trailing={<ProvenanceBadge kind={demoProvenance(demo, "estimated")} />}

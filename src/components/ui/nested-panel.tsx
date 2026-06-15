@@ -3,14 +3,30 @@ import { cn } from "@/lib/cn";
 /**
  * Calm inset panel inside a parent Card or dash-cell. Replaces ad-hoc
  * `ct-panel-inset rounded-lg border px-* py-*` copies. Parent owns provenance.
+ *
+ * `variant="borderless"` flattens the panel (transparent background, soft
+ * border, no backdrop-filter) for single-level surfaces where the default
+ * glass chrome reads as a redundant box-in-a-box.
  */
+interface NestedPanelProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "default" | "borderless";
+}
+
 export function NestedPanel({
   children,
   className,
+  variant = "default",
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: NestedPanelProps) {
   return (
-    <div className={cn("ct-nested-panel", className)} {...props}>
+    <div
+      className={cn(
+        "ct-nested-panel",
+        variant === "borderless" && "ct-nested-panel--borderless",
+        className,
+      )}
+      {...props}
+    >
       {children}
     </div>
   );
