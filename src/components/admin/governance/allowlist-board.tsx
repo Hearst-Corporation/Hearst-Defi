@@ -187,7 +187,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                         className={cn(
                           entry.active
                             ? "ct-text-body"
-                            : "opacity-55",
+                            : "opacity-[var(--ct-opacity-55)]",
                         )}
                       >
                         <td className="ct-table-cell">

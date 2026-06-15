@@ -41,6 +41,28 @@
   --ct-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --ct-dur-base: 180ms;
 
+  /* ── Opacity scale ── tokenise toute opacité non triviale (0 / 1 exclus).
+     Échelle 1:1 des valeurs réellement utilisées → zéro régression visuelle.
+     Le gate ds-layout-audit bannit les opacités nues hors de cette échelle. */
+  --ct-opacity-2: 0.02;
+  --ct-opacity-7: 0.07;
+  --ct-opacity-8: 0.08;
+  --ct-opacity-12: 0.12;
+  --ct-opacity-15: 0.15;
+  --ct-opacity-18: 0.18;
+  --ct-opacity-22: 0.22;
+  --ct-opacity-25: 0.25;
+  --ct-opacity-40: 0.4;
+  --ct-opacity-45: 0.45;
+  --ct-opacity-50: 0.5;
+  --ct-opacity-55: 0.55;
+  --ct-opacity-60: 0.6;
+  --ct-opacity-70: 0.7;
+  --ct-opacity-75: 0.75;
+  --ct-opacity-80: 0.8;
+  --ct-opacity-85: 0.85;
+  --ct-opacity-90: 0.9;
+
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }

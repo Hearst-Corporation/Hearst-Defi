@@ -119,7 +119,7 @@ export function Metric({
             </span>
           ) : null}
           {sublabel ? (
-            <span className="truncate opacity-70 stat-label mono">
+            <span className="truncate opacity-[var(--ct-opacity-70)] stat-label mono">
               {sublabel}
             </span>
           ) : null}

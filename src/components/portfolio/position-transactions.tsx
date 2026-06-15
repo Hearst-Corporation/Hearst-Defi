@@ -156,7 +156,7 @@ export function PositionTransactions({
                           href={explorerTxUrl(tx.txHash)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="tabular body-xs mono text-[var(--ct-accent-strong)] no-underline transition-opacity duration-[var(--ct-dur-fast)] hover:opacity-80"
+                          className="tabular body-xs mono text-[var(--ct-accent-strong)] no-underline transition-opacity duration-[var(--ct-dur-fast)] hover:opacity-[var(--ct-opacity-80)]"
                           title={tx.txHash}
                         >
                           {tx.txHash.slice(0, 6)}&hellip;{tx.txHash.slice(-4)} ↗

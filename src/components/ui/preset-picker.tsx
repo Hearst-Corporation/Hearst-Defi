@@ -124,7 +124,7 @@ export function PresetPicker<T extends string>({
           "border-l-4",
           sideAccent,
           "px-4 py-3 text-left",
-          "disabled:cursor-not-allowed disabled:opacity-40",
+          "disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-40)]",
           "transition-colors duration-[var(--ct-dur-fast)]",
           "hover:ct-surface-1",
           "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
@@ -190,7 +190,7 @@ export function PresetPicker<T extends string>({
                       ? "ct-surface-1 ct-text-primary"
                       : "ct-text-body hover:ct-surface-3 hover:ct-text-primary",
                     isExcluded &&
-                      "cursor-not-allowed opacity-40 hover:bg-transparent",
+                      "cursor-not-allowed opacity-[var(--ct-opacity-40)] hover:bg-transparent",
                   )}
                 >
                   <span className="h4">{o.label}</span>

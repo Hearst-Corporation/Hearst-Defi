@@ -644,7 +644,7 @@ export function VaultForm(props: VaultFormProps) {
                           active
                             ? "ct-pill accent"
                             : disabled
-                              ? "ct-pill opacity-40 cursor-not-allowed"
+                              ? "ct-pill opacity-[var(--ct-opacity-40)] cursor-not-allowed"
                               : "ct-pill"
                         }
                       >

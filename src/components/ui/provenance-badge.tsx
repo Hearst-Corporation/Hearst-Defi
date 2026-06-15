@@ -58,7 +58,7 @@ const stripDotTone: Record<Provenance, string> = {
   estimated: "ct-text-muted",
   partial: "ct-text-muted",
   manual: "ct-text-muted",
-  stale: "ct-text-muted opacity-60",
+  stale: "ct-text-muted opacity-[var(--ct-opacity-60)]",
   simulated: "ct-text-muted",
 };
 
@@ -116,10 +116,10 @@ export function ProvenanceBadge({
             ? cn(
                 "dashboard-provenance-badge--compact",
                 compactDotTone[kind],
-                muted && "opacity-60",
+                muted && "opacity-[var(--ct-opacity-60)]",
               )
             : muted
-              ? "shrink-0 whitespace-nowrap opacity-60"
+              ? "shrink-0 whitespace-nowrap opacity-[var(--ct-opacity-60)]"
               : "shrink-0 whitespace-nowrap"
         }
       >

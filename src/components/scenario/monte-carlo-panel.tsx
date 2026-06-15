@@ -141,7 +141,7 @@ function FanChart({ series }: FanChartProps) {
       <polygon
         points={bandPoly}
         fill="var(--ct-status-success-soft)"
-        opacity="0.22"
+        style={{ opacity: "var(--ct-opacity-22)" }}
       />
       {/* p5 edge */}
       <polyline
@@ -149,7 +149,7 @@ function FanChart({ series }: FanChartProps) {
         fill="none"
         stroke="var(--ct-status-success)"
         strokeWidth="0.4"
-        strokeOpacity="0.45"
+        style={{ strokeOpacity: "var(--ct-opacity-45)" }}
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
@@ -160,7 +160,7 @@ function FanChart({ series }: FanChartProps) {
         fill="none"
         stroke="var(--ct-status-success)"
         strokeWidth="0.4"
-        strokeOpacity="0.45"
+        style={{ strokeOpacity: "var(--ct-opacity-45)" }}
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
@@ -243,7 +243,7 @@ function SimParams({
             "w-24 rounded-base border border-[var(--ct-border-soft)]",
             "ct-surface-1 px-2 py-1 body-xs mono ct-text-strong",
             "focus:border-[var(--ct-accent)] focus:outline-none",
-            "disabled:opacity-40",
+            "disabled:opacity-[var(--ct-opacity-40)]",
           )}
           aria-label="PRNG seed for Monte Carlo simulation"
         />
@@ -265,7 +265,7 @@ function SimParams({
             "w-28 rounded-base border border-[var(--ct-border-soft)]",
             "ct-surface-1 px-2 py-1 body-xs mono ct-text-strong",
             "focus:border-[var(--ct-accent)] focus:outline-none",
-            "disabled:opacity-40",
+            "disabled:opacity-[var(--ct-opacity-40)]",
           )}
           aria-label="Number of Monte Carlo simulation paths"
         />
@@ -356,7 +356,7 @@ export function MonteCarloPanel() {
               Median (p50)
             </span>
             <span className="admin-doc-inline-row admin-doc-inline-row--dense">
-              <span className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-status-success-soft)] opacity-22" />
+              <span className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-status-success-soft)] opacity-[var(--ct-opacity-22)]" />
               p5–p95
             </span>
           </div>

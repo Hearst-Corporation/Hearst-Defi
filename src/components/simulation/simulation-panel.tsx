@@ -352,7 +352,7 @@ function TraceLink() {
       <button
         type="button"
         disabled
-        className="body-xs ct-text-muted underline underline-offset-2 opacity-50 cursor-not-allowed"
+        className="body-xs ct-text-muted underline underline-offset-2 opacity-[var(--ct-opacity-50)] cursor-not-allowed"
         title="Full Tenderly trace — available in Phase 2 (requires Tenderly account)"
       >
         ▶ View full trace

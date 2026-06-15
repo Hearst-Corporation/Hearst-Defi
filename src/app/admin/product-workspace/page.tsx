@@ -254,7 +254,7 @@ function AllocationStackChart({ vault }: { vault: VaultDefinition }) {
               height="18"
               rx="9"
               fill={ALLOC_COLORS[index] ?? "var(--ct-accent)"}
-              opacity="0.9"
+              style={{ opacity: "var(--ct-opacity-90)" }}
             />
             <text x={currentX + 4} y="58" className="fill-(--ct-text-muted) text-micro">
               {weight}%

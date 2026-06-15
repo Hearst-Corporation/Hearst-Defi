@@ -249,14 +249,14 @@ export function BacktestChart({ series }: BacktestChartProps) {
         <polygon
           points={ddAreaPts}
           fill="var(--ct-status-danger)"
-          opacity="0.15"
+          style={{ opacity: "var(--ct-opacity-15)" }}
         />
 
         {/* ── NAV area fill ── */}
         <polygon
           points={navAreaPts}
           fill="var(--ct-status-success)"
-          opacity="0.08"
+          style={{ opacity: "var(--ct-opacity-8)" }}
         />
 
         {/* ── NAV line ── */}
@@ -278,7 +278,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
             cy={pt.y}
             r={2}
             fill="var(--ct-status-success-soft)"
-            opacity="0.8"
+            style={{ opacity: "var(--ct-opacity-80)" }}
             aria-label="Distribution event"
           />
         ))}

@@ -37,7 +37,7 @@ function Placeholder({ side, pending }: PlaceholderProps) {
       variant="widget"
       className={cn(
         "min-h-48 transition-opacity duration-[var(--ct-dur-fast)]",
-        pending && "opacity-50",
+        pending && "opacity-[var(--ct-opacity-50)]",
       )}
       message={
         pending ? "Computing…" : `Pick a preset to compare — Scenario ${side}`

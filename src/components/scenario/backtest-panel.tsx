@@ -22,7 +22,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
     <div
       className={cn(
         "relative admin-doc-stack--relaxed transition-opacity duration-[var(--ct-dur-fast)]",
-        isPending && "pointer-events-none opacity-50",
+        isPending && "pointer-events-none opacity-[var(--ct-opacity-50)]",
       )}
       aria-busy={isPending}
     >

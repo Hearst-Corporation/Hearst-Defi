@@ -132,8 +132,8 @@ function AreaChart({ series, ariaLabel: _ariaLabel, muted = false }: AreaChartPr
 
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={seriesColor} stopOpacity={muted ? "0.12" : "0.22"} />
-          <stop offset="100%" stopColor={seriesColor} stopOpacity="0.02" />
+          <stop offset="0%" stopColor={seriesColor} style={{ stopOpacity: muted ? "var(--ct-opacity-12)" : "var(--ct-opacity-22)" }} />
+          <stop offset="100%" stopColor={seriesColor} style={{ stopOpacity: "var(--ct-opacity-2)" }} />
         </linearGradient>
       </defs>
 

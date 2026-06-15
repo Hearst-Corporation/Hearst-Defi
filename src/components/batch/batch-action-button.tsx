@@ -39,7 +39,7 @@ export function BatchActionButton({
         "px-3 py-1 body-xs font-medium",
         "transition-[background-color,border-color,color,opacity]",
         "duration-[var(--ct-dur-base)]",
-        "disabled:opacity-40 disabled:cursor-not-allowed",
+        "disabled:opacity-[var(--ct-opacity-40)] disabled:cursor-not-allowed",
         "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
         "active:scale-[0.97]",
         // Variants

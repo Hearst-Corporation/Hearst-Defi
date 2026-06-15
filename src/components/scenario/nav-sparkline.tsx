@@ -139,14 +139,14 @@ function FanChart({ series, ariaLabel: _ariaLabel }: FanChartProps) {
       <polygon
         points={outerBand}
         fill="var(--ct-status-success-soft)"
-        opacity="0.18"
+        style={{ opacity: "var(--ct-opacity-18)" }}
       />
 
       {/* Inner band p25-p75 */}
       <polygon
         points={innerBand}
         fill="var(--ct-status-success-soft)"
-        opacity="0.45"
+        style={{ opacity: "var(--ct-opacity-45)" }}
       />
 
       {/* High-band edge (p95) */}
@@ -155,7 +155,7 @@ function FanChart({ series, ariaLabel: _ariaLabel }: FanChartProps) {
         fill="none"
         stroke="var(--ct-status-success)"
         strokeWidth="0.4"
-        strokeOpacity="0.4"
+        style={{ strokeOpacity: "var(--ct-opacity-40)" }}
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
@@ -167,7 +167,7 @@ function FanChart({ series, ariaLabel: _ariaLabel }: FanChartProps) {
         fill="none"
         stroke="var(--ct-status-success)"
         strokeWidth="0.4"
-        strokeOpacity="0.4"
+        style={{ strokeOpacity: "var(--ct-opacity-40)" }}
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
@@ -193,7 +193,7 @@ function FanChart({ series, ariaLabel: _ariaLabel }: FanChartProps) {
         stroke="var(--ct-status-warning)"
         strokeWidth="0.5"
         strokeDasharray="2 1.5"
-        strokeOpacity="0.55"
+        style={{ strokeOpacity: "var(--ct-opacity-55)" }}
         vectorEffect="non-scaling-stroke"
       />
     </svg>
@@ -266,13 +266,13 @@ export function NavSparkline({ output }: NavSparklineProps) {
         </span>
         <span className="admin-doc-inline-row admin-doc-inline-row--dense">
           <span
-            className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-status-success-soft)] opacity-45"
+            className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-status-success-soft)] opacity-[var(--ct-opacity-45)]"
           />
           p25–p75
         </span>
         <span className="admin-doc-inline-row admin-doc-inline-row--dense">
           <span
-            className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-status-success-soft)] opacity-18"
+            className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-status-success-soft)] opacity-[var(--ct-opacity-18)]"
           />
           p5–p95
         </span>

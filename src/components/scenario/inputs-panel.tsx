@@ -113,7 +113,7 @@ export function InputsPanel({ inputs, onChange, disabled }: InputsPanelProps) {
                 htmlFor={`slider-${field.key}`}
                 className={cn(
                   "stat-label",
-                  disabled && "opacity-50",
+                  disabled && "opacity-[var(--ct-opacity-50)]",
                 )}
               >
                 {field.label}
@@ -122,7 +122,7 @@ export function InputsPanel({ inputs, onChange, disabled }: InputsPanelProps) {
                 <span
                   className={cn(
                     "mono stat-value tabular-nums ct-text-primary",
-                    disabled && "opacity-50",
+                    disabled && "opacity-[var(--ct-opacity-50)]",
                   )}
                 >
                   {field.format(value)}
@@ -151,7 +151,7 @@ export function InputsPanel({ inputs, onChange, disabled }: InputsPanelProps) {
               }
               aria-valuetext={field.format(value)}
               onChange={(e) => handleChange(field.key, e.target.value)}
-              className="slider-track w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+              className="slider-track w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-40)]"
               style={{ "--slider-pct": `${pct}%` } as React.CSSProperties}
             />
 

@@ -111,7 +111,7 @@ const STATUS_DOT: Record<InngestJobStatus, string> = {
   ok: "bg-(--ct-status-success)",
   err: "bg-(--ct-status-danger)",
   pending: "bg-(--ct-status-warning) animate-pulse",
-  unknown: "bg-(--ct-border) opacity-60",
+  unknown: "bg-(--ct-border) opacity-[var(--ct-opacity-60)]",
 };
 
 const STATUS_LABEL: Record<InngestJobStatus, string> = {
@@ -181,7 +181,7 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
         href={explorerTxUrl(event.txHash)}
         target="_blank"
         rel="noopener noreferrer"
-        className="hover:opacity-80 transition-opacity"
+        className="hover:opacity-[var(--ct-opacity-80)] transition-opacity"
       >
         {inner}
       </Link>

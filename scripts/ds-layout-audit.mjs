@@ -86,6 +86,8 @@ function stripComments(line, inBlockRef) {
       continue;
     }
     if (line[i] === "/" && line[i + 1] === "*") { inBlock = true; i++; continue; }
+    // `//` line comment (TSX/TS) — drop the rest; guard `://` so URLs survive.
+    if (line[i] === "/" && line[i + 1] === "/" && out[out.length - 1] !== ":") break;
     out += line[i];
   }
   inBlockRef.v = inBlock;
@@ -290,6 +292,37 @@ function scanRawHexCss(rel, content) {
   }
 }
 
+// ── Opacity invariant ── every non-trivial opacity goes through the
+//    --ct-opacity-* scale (cockpit-shell/tokens.css). Bare Tailwind opacity-NN
+//    (≠ 0/100) and literal opacity/stroke|fill|stopOpacity values are how the
+//    scale drifts; block them in TSX/TS. 0 and 1 stay free (fade/animation). ──
+const OPACITY_ALLOWLIST = new Set([
+  // dataviz: opacity encodes the margin-score intensity — pure, exported, tested.
+  "src/components/dashboard/mining-health.tsx",
+]);
+const RAW_OPACITY_CLASS_RE = /\bopacity-(\d{1,3})\b/;
+const RAW_OPACITY_VALUE_RE = /\b(?:stroke|fill|stop)?[Oo]pacity\s*[=:][^;,"'`\n]*?(0?\.\d+)\b/;
+function scanRawOpacity(rel, content) {
+  if (OPACITY_ALLOWLIST.has(rel)) return;
+  const lines = content.split("\n");
+  const block = { v: false };
+  for (let i = 0; i < lines.length; i++) {
+    let code = stripComments(lines[i], block);
+    code = code.replace(/var\(--ct-opacity-\d+\)/g, ""); // tokenised usage — not a drift
+    const mc = RAW_OPACITY_CLASS_RE.exec(code);
+    if (mc && mc[1] !== "0" && mc[1] !== "100") {
+      violations.push({ file: rel, line: i + 1, rule: "raw-opacity",
+        detail: `Bare "opacity-${mc[1]}" — use opacity-[var(--ct-opacity-${mc[1]})].` });
+      continue;
+    }
+    const mv = RAW_OPACITY_VALUE_RE.exec(code);
+    if (mv) {
+      violations.push({ file: rel, line: i + 1, rule: "raw-opacity",
+        detail: `Literal opacity "${mv[1]}" — use var(--ct-opacity-*).` });
+    }
+  }
+}
+
 for (const abs of walk(SRC)) {
   const rel = relative(ROOT, abs).replaceAll("\\", "/");
   const content = readFileSync(abs, "utf8");
@@ -314,6 +347,8 @@ for (const abs of walk(SRC)) {
   scanSecondGreen(rel, content);
   scanRawShadow(rel, content);
   scanRawSeg(rel, content);
+  scanRawHexCss(rel, content);   // hex literals forbidden in TSX/TS too (var(--ct-*) only)
+  scanRawOpacity(rel, content);  // opacity must route through --ct-opacity-*
 }
 
 // ── Cockpit DS is now a LOCAL, editable copy (dé-vendoré from @hearst/cockpit-shell).

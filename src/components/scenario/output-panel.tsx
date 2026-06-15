@@ -445,7 +445,7 @@ function CompactPanel({
           ? "border-l-[var(--ct-border-strong)]"
           : "border-l-[var(--ct-text-strong)]",
         "transition-opacity duration-[var(--ct-dur-fast)]",
-        isPending && "pointer-events-none opacity-50",
+        isPending && "pointer-events-none opacity-[var(--ct-opacity-50)]",
       )}
       hoverOverlay={false}
       aria-busy={isPending}
@@ -489,7 +489,7 @@ export function OutputPanel(props: OutputPanelProps) {
     <div
       className={cn(
         "relative admin-doc-stack--roomy transition-opacity duration-[var(--ct-dur-fast)]",
-        isPending && "pointer-events-none opacity-50",
+        isPending && "pointer-events-none opacity-[var(--ct-opacity-50)]",
       )}
       aria-busy={isPending}
     >

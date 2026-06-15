@@ -47,7 +47,7 @@ export function PositionHeader({ position }: PositionHeaderProps) {
       {/* Back link */}
       <Link
         href="/portfolio"
-        className="body-sm ct-text-muted product-doc-inline-row product-doc-inline-row--tight no-underline transition-opacity duration-[var(--ct-dur-base)] hover:opacity-80"
+        className="body-sm ct-text-muted product-doc-inline-row product-doc-inline-row--tight no-underline transition-opacity duration-[var(--ct-dur-base)] hover:opacity-[var(--ct-opacity-80)]"
       >
         ← Portfolio
       </Link>

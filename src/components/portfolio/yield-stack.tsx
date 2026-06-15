@@ -178,7 +178,7 @@ export function YieldStack({
                   style={{
                     width: `${widthPct.toFixed(1)}%`,
                     background: color,
-                    opacity: isNegative ? 0.6 : 1,
+                    opacity: isNegative ? "var(--ct-opacity-60)" : 1,
                   }}
                 />
               </div>
@@ -213,7 +213,7 @@ export function YieldStack({
           {/* Stressed bear scenario — range per CLAUDE.md #1, never single point. */}
           <div className="flex items-baseline justify-between">
             <dt className="body-xs min-w-0 truncate ct-text-muted">
-              Stressed (bear) <span className="body-xs opacity-70">(proxy)</span>
+              Stressed (bear) <span className="body-xs opacity-[var(--ct-opacity-70)]">(proxy)</span>
             </dt>
             <dd
               className={cn(

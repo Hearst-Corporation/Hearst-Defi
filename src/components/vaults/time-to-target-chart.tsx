@@ -182,7 +182,7 @@ export function TimeToTargetChart({ amount, vault, demo = false }: TimeToTargetC
           <path
             d={bandArea}
             fill="var(--ct-accent)"
-            opacity="0.07"
+            style={{ opacity: "var(--ct-opacity-7)" }}
             aria-hidden="true"
           />
 
@@ -190,7 +190,7 @@ export function TimeToTargetChart({ amount, vault, demo = false }: TimeToTargetC
           <path
             d={midArea}
             fill="var(--ct-accent)"
-            opacity="0.18"
+            style={{ opacity: "var(--ct-opacity-18)" }}
             aria-hidden="true"
           />
 
@@ -200,7 +200,7 @@ export function TimeToTargetChart({ amount, vault, demo = false }: TimeToTargetC
             fill="none"
             stroke="var(--ct-accent)"
             strokeWidth="0.5"
-            strokeOpacity="0.45"
+            style={{ strokeOpacity: "var(--ct-opacity-45)" }}
             strokeLinejoin="round"
             strokeLinecap="round"
             vectorEffect="non-scaling-stroke"

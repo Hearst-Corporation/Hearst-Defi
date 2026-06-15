@@ -180,7 +180,7 @@ function BarChart({
                 height={4}
                 rx={1}
                 fill={isCurrent ? "var(--ct-accent)" : "var(--ct-border-soft)"}
-                fillOpacity={isCurrent ? 0.8 : 0.4}
+                style={{ fillOpacity: isCurrent ? "var(--ct-opacity-80)" : "var(--ct-opacity-40)" }}
               />
               {isQuarter ? (
                 <text
@@ -231,7 +231,7 @@ function BarChart({
             y2="6"
             stroke="var(--ct-status-warning)"
             strokeWidth="2"
-            strokeOpacity="0.5"
+            style={{ strokeOpacity: "var(--ct-opacity-50)" }}
           />
         </pattern>
       </defs>
@@ -258,7 +258,7 @@ function BarChart({
               stroke="var(--ct-status-warning)"
               strokeWidth="1"
               strokeDasharray="4 2"
-              opacity="0.7"
+              style={{ opacity: "var(--ct-opacity-70)" }}
               rx="1"
             />
             {/* [Estimate] badge text above bar */}
@@ -290,7 +290,7 @@ function BarChart({
               width={BAR_W}
               height={bh}
               fill="var(--ct-accent)"
-              opacity="0.6"
+              style={{ opacity: "var(--ct-opacity-60)" }}
               rx="1"
             />
           </a>
@@ -303,7 +303,7 @@ function BarChart({
             width={BAR_W}
             height={bh}
             fill="var(--ct-accent)"
-            opacity="0.6"
+            style={{ opacity: "var(--ct-opacity-60)" }}
             rx="1"
             aria-label={`${periodLabel} distribution ${amountLabel}`}
           />

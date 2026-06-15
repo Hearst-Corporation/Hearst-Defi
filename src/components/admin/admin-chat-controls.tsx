@@ -1112,16 +1112,16 @@ export function AdminChatControls() {
                         aria-label="Export pack summary"
                       >
                         <span>
-                          <span className="opacity-70">tool</span>:{" "}
+                          <span className="opacity-[var(--ct-opacity-70)]">tool</span>:{" "}
                           {readUtilitySummary.toolId}
                         </span>
                         <span>
-                          <span className="opacity-70">generatedAt</span>:{" "}
+                          <span className="opacity-[var(--ct-opacity-70)]">generatedAt</span>:{" "}
                           {formattedGeneratedAt}
                         </span>
                         {readUtilitySummary.counts.length > 0 ? (
                           <span>
-                            <span className="opacity-70">counts</span>:{" "}
+                            <span className="opacity-[var(--ct-opacity-70)]">counts</span>:{" "}
                             {readUtilitySummary.counts
                               .map((entry) => `${entry.label} ${entry.value}`)
                               .join(" · ")}

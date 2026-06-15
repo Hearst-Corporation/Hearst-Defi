@@ -264,7 +264,7 @@ export function CapitalYield({
             </div>
             <div className="flex items-baseline justify-between">
               <dt className="body-xs min-w-0 truncate ct-text-muted">
-                Stressed (bear) <span className="body-xs opacity-70">(proxy)</span>
+                Stressed (bear) <span className="body-xs opacity-[var(--ct-opacity-70)]">(proxy)</span>
               </dt>
               <dd
                 className={cn(

@@ -148,7 +148,7 @@ export function RiskFrameworkSection({
         )}
 
         <p
-          className="mt-auto pt-6 body-xs ct-text-faint italic leading-[var(--ct-leading-relaxed)] opacity-70"
+          className="mt-auto pt-6 body-xs ct-text-faint italic leading-[var(--ct-leading-relaxed)] opacity-[var(--ct-opacity-70)]"
           title="Uses pre-audit baseline assumptions"
         >
           Composite score is the weighted sum of the five dimensions defined in
@@ -177,7 +177,7 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
         <span className="stat-label">Composite</span>
         <span className={cn("stat-value tabular-nums", BAND_TEXT[band])}>
           {composite}
-          <span className="body-xs ct-text-muted opacity-50 ml-1">/ 100</span>
+          <span className="body-xs ct-text-muted opacity-[var(--ct-opacity-50)] ml-1">/ 100</span>
         </span>
       </div>
       <div className="flex items-center gap-4 sm:min-w-60 relative z-10">
@@ -391,7 +391,7 @@ function WaterfallChart({ data }: WaterfallChartProps) {
                 height={barH}
                 fill={step.fill}
                 rx="1"
-                opacity="0.85"
+                style={{ opacity: "var(--ct-opacity-85)" }}
               />
 
               {/* Hover overlay for tooltip target (transparent, full column height) */}
@@ -501,7 +501,7 @@ function LegendDot({ color, label }: LegendDotProps) {
       <span
         aria-hidden
         style={{ background: color }}
-        className="inline-block h-2 w-2 rounded-sm shrink-0 opacity-85"
+        className="inline-block h-2 w-2 rounded-sm shrink-0 opacity-[var(--ct-opacity-85)]"
       />
       <span className="body-xs ct-text-muted">{label}</span>
     </div>

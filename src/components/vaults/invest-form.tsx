@@ -438,7 +438,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
                   aria-disabled={!ctaEnabled}
                   className={cn(
                     "vault-form-actions__primary",
-                    !ctaEnabled && "opacity-60 cursor-not-allowed",
+                    !ctaEnabled && "opacity-[var(--ct-opacity-60)] cursor-not-allowed",
                   )}
                 >
                   {ctaLabel(currentCtaState, amount, demo)}
