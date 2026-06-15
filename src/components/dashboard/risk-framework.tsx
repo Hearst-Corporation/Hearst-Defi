@@ -172,7 +172,7 @@ interface CompositeHeaderProps {
 function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
   return (
     <Card hoverOverlay={false} className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between group">
-      <div className="absolute inset-0 bg-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      <div className="absolute inset-0 bg-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--ct-dur-slower)] pointer-events-none" />
       <div className="flex items-baseline gap-3 relative z-10">
         <span className="stat-label">Composite</span>
         <span className={cn("stat-value tabular-nums", BAND_TEXT[band])}>
@@ -182,8 +182,9 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
       </div>
       <div className="flex items-center gap-4 sm:min-w-60 relative z-10">
         <div className="flex-1 h-1.5 bg-[var(--ct-surface-0)] rounded-full overflow-hidden border border-[var(--ct-border-soft)]">
-          <div 
-            className={cn("h-full transition-all duration-1000 ease-out ct-score-bar-glow", BAND_BAR[band])}
+          {/* no --ct-dur token for 1s; left raw pending a scale extension */}
+          <div
+            className={cn("h-full transition-all duration-1000 ease-[var(--ct-ease)] ct-score-bar-glow", BAND_BAR[band])}
             style={{ width: `${composite}%` }}
           />
         </div>

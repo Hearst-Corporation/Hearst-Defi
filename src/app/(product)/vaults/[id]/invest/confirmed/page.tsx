@@ -217,7 +217,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
                 className="ct-lock-track"
               >
                 <div
-                  className="h-full rounded-full ct-bg-accent transition-[width] duration-200 ease-in-out"
+                  className="h-full rounded-full ct-bg-accent transition-[width] duration-[var(--ct-dur-base)] ease-[var(--ct-ease)]"
                   style={{
                     width: `${Math.round((currentDay / LOCK_DAYS) * 100)}%`,
                     minWidth: currentDay > 0 ? "var(--ct-space-1)" : "0",

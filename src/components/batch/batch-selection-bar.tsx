@@ -101,7 +101,7 @@ export function BatchSelectionBar({
         "px-4 py-2",
         "shadow-[var(--ct-shadow-elevated)]",
         // Animation.
-        "animate-in slide-in-from-bottom-3 fade-in duration-200",
+        "animate-in slide-in-from-bottom-3 fade-in duration-[var(--ct-dur-base)]",
         className,
       )}
     >
@@ -160,7 +160,7 @@ export function BatchSelectionBar({
                 "ct-surface-2",
                 "border border-[var(--ct-border-soft)]",
                 "py-1 shadow-[var(--ct-shadow-elevated)]",
-                "animate-in slide-in-from-bottom-1 fade-in duration-150",
+                "animate-in slide-in-from-bottom-1 fade-in duration-[var(--ct-dur-fast)]",
               )}
             >
               {overflowActions.map((action) => (
