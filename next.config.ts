@@ -4,9 +4,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   turbopack: {
     resolveAlias: {
-      // Privy optional peer deps (Solana ecosystem) — not installed, stub out
-      // NOTE: empty-module.ts was removed — these peer deps are optional.
-      // If any are actually imported, install the real package or restore the stub.
+      // Privy optional peer deps (Solana ecosystem + x402) — not installed.
+      // empty-module.ts is an intentional stub kept in src/lib/; all entries
+      // below point at it so Turbopack can resolve these absent peer deps.
       "x402": { browser: "./src/lib/empty-module.ts", default: "./src/lib/empty-module.ts" },
       "@solana-program/system": { browser: "./src/lib/empty-module.ts", default: "./src/lib/empty-module.ts" },
       "@solana-program/token": { browser: "./src/lib/empty-module.ts", default: "./src/lib/empty-module.ts" },
