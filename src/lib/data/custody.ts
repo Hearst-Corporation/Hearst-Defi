@@ -2,6 +2,8 @@ import "server-only";
 
 import { readFileSync } from "node:fs";
 
+import { canRunDemoProvider } from "@/lib/demo/guard";
+import { buildDemoCustody } from "@/lib/demo/admin/proof-center";
 import { env } from "@/lib/env";
 import {
   aggregateCustody,
@@ -62,8 +64,13 @@ function manualFallback(): CustodySnapshot {
  * The reserve scope is pinned by `FIREBLOCKS_VAULT_ACCOUNT_IDS` (comma-separated
  * vault account ids). When unset, every account is returned with
  * `configured: false` so the consumer can flag the scope as not yet pinned.
+ *
+ * In demo mode (canRunDemoProvider()) returns a simulated snapshot with
+ * provenance "manual" and the dashboard capital anchor (25 M USDC).
  */
 export async function loadCustody(): Promise<CustodySnapshot> {
+  if (canRunDemoProvider()) return buildDemoCustody();
+
   const apiKey = env.FIREBLOCKS_API_KEY;
   const basePath = env.FIREBLOCKS_BASE_URL;
   const secretKey = resolveFireblocksSecretKey();

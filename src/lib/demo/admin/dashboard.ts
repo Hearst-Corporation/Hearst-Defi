@@ -274,5 +274,8 @@ export function buildDemoDashboardData(vaultId?: string): DashboardData {
     hasTimelineSnapshot: false,
     latestSnapshotSource: null,
     hasLiveTimelineSnapshot: false,
+    // Signal to downstream resolvers: KPIs fill with demo values, badges read
+    // "simulated" — never "live" or "attested".
+    simulated: true,
   };
 }

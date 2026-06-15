@@ -91,6 +91,6 @@ export function buildDemoRiskFramework(): RiskFrameworkData {
     band: DEMO_BAND,
     bandLabel: DEMO_BAND_LABEL,
     dimensions,
-    source: "fallback",
+    source: "db",
   };
 }

@@ -7,6 +7,8 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadProposalQueue } from "@/lib/governance/actions";
 import type { ProposalState } from "@/lib/governance/state-machine";
 import { cn } from "@/lib/cn";
+import { canRunDemoProvider } from "@/lib/demo/guard";
+import { buildDemoGovernanceQueue } from "@/lib/demo/admin/governance";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +49,11 @@ export default async function GovernancePage({ searchParams }: PageProps) {
   const params = await searchParams;
   const rawTab = params["tab"];
   const activeTab: TabKey = isTabKey(rawTab) ? rawTab : "all";
-  const filtered = filterProposals(await loadProposalQueue(), activeTab);
+
+  const queue = canRunDemoProvider()
+    ? buildDemoGovernanceQueue()
+    : await loadProposalQueue();
+  const filtered = filterProposals(queue, activeTab);
 
   return (
     <div className="admin-doc-shell">

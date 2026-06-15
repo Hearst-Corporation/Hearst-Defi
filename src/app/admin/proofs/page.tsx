@@ -2,16 +2,20 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { ProofList } from "@/components/admin/proof-list";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
+import { canRunDemoProvider } from "@/lib/demo/guard";
+import { buildDemoProofRows } from "@/lib/demo/admin/proofs";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProofsPage() {
   await requireAdmin();
 
-  const items = await prisma.proof.findMany({
-    orderBy: { postedAt: "desc" },
-    take: 200,
-  });
+  const items = canRunDemoProvider()
+    ? buildDemoProofRows()
+    : await prisma.proof.findMany({
+        orderBy: { postedAt: "desc" },
+        take: 200,
+      });
 
   return (
     <div className="admin-doc-shell">

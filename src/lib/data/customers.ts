@@ -7,6 +7,8 @@ import {
   toPaginatedResult,
   type PaginatedResult,
 } from "@/lib/pagination";
+import { canRunDemoProvider } from "@/lib/demo/guard";
+import { buildDemoCustomers } from "@/lib/demo/admin/customers";
 
 // ---------------------------------------------------------------------------
 // Customers supervision contract.
@@ -52,6 +54,8 @@ export async function loadCustomers(
   page: number = 1,
   pageSize: number = 50,
 ): Promise<PaginatedResult<CustomerRow>> {
+  if (canRunDemoProvider()) return buildDemoCustomers(page, pageSize);
+
   const ps = clampPageSize(pageSize);
 
   // Resolve the set of Investor.userId values that point to an existing User

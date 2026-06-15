@@ -2,6 +2,8 @@ import "server-only";
 
 import { keccak256, toBytes } from "viem";
 
+import { canRunDemoProvider } from "@/lib/demo/guard";
+import { buildDemoOnChainEvents } from "@/lib/demo/admin/proof-center";
 import { env } from "@/lib/env";
 
 import { EVENT_KIND_LABELS, EVENT_LOGGER_ABI, EVENT_LOGGER_WRITE_ABI, type EventKind } from "./abis";
@@ -50,10 +52,14 @@ export interface FetchEventsOptions {
  * Never throws: if the contract address is not configured or the RPC call
  * fails, returns an empty list so the Proof Center can fall back to off-chain
  * mocks.
+ *
+ * In demo mode (canRunDemoProvider()) returns simulated events — no RPC call.
  */
 export async function fetchOnChainEvents(
   opts: FetchEventsOptions = {},
 ): Promise<OnChainEvent[]> {
+  if (canRunDemoProvider()) return buildDemoOnChainEvents();
+
   const addr = getEventLoggerAddress();
   if (!addr) return [];
 

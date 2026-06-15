@@ -183,6 +183,12 @@ export interface DashboardData {
    * excluded. Use this — not `hasTimelineSnapshot` — to gate Live KPI signals.
    */
   hasLiveTimelineSnapshot: boolean;
+  /**
+   * True when this payload was produced by the demo builder (no DB, no live
+   * fetch). KPI cells FILL with demo values but provenance badges must read
+   * "simulated" — never "live" or "attested". Absent (undefined) on real data.
+   */
+  simulated?: boolean;
 }
 
 // Mode vérité live: with no DB row, report honest zeros — never the old

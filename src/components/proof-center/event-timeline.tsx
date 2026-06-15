@@ -11,6 +11,7 @@ import { ipfsGatewayUrl } from "@/lib/ipfs-gateway";
 import { abbreviateAddress } from "@/lib/onchain";
 import { explorerLinkClass } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/cn";
+import { canRunDemoProvider } from "@/lib/demo/guard";
 
 interface EventTimelineProps {
   events: ReadonlyArray<OnChainEvent>;
@@ -139,12 +140,14 @@ export function EventTimeline({ events }: EventTimelineProps) {
     return <AwaitingMetricState {...EVENT_TIMELINE_EMPTY} />;
   }
 
+  const eventsProvenance = canRunDemoProvider() ? "simulated" : "live";
+
   return (
     <Card>
       <DashboardPanelHeader
         eyebrow="On-chain event log"
         title={`EventLogger — last ${events.length} events`}
-        provenance="live"
+        provenance={eventsProvenance}
         tone="primary"
       />
 

@@ -19,7 +19,6 @@
 //     extended with "demo"); the demo *signal* is carried by the page banner.
 
 import {
-  DEMO_INVESTOR_EMAIL,
   DEMO_POSITION_ID,
   DEMO_YIELD_VAULT_ID,
 } from "@/lib/dev/investor-demo";
@@ -33,8 +32,6 @@ import type { VaultProduct } from "@/lib/data/vaults";
 import type { ProofItem } from "@/lib/proof-center-types";
 
 import { DEMO_SENTINEL_HASH } from "./markers";
-
-export { DEMO_INVESTOR_EMAIL, DEMO_YIELD_VAULT_ID };
 
 // ---------------------------------------------------------------------------
 // Shared demo constants — single source of truth for the whole dataset.
