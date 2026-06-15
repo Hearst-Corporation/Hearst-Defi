@@ -5,7 +5,7 @@ import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
-type ButtonVariant = "primary" | "secondary" | "danger";
+type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 type ConfirmVariant = "primary" | "danger";
 
 export interface VaultActionButtonProps {

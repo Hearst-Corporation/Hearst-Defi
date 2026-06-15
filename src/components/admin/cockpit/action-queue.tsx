@@ -68,7 +68,7 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
         <SeverityPill severity={item.severity} />
         <div className="admin-doc-stack admin-doc-stack--micro flex-1 min-w-0">
           <span className="body-sm ct-text-strong truncate">{item.title}</span>
-          <span className="body-xs ct-text-faint truncate">
+          <span className="body-xs ct-text-muted truncate">
             {item.context}
           </span>
         </div>

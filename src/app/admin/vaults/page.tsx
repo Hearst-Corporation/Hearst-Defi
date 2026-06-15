@@ -205,16 +205,18 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
                 {/* Target APY */}
                 <div className="admin-vaults-list__apy">
-                  <ApyRange low={apyLow} high={apyHigh} precision={1} />
-                  <ProvenanceBadge kind="estimated" variant="strip" />
+                  <div className="flex items-center gap-1.5">
+                    <ApyRange low={apyLow} high={apyHigh} precision={1} />
+                    <ProvenanceBadge kind="estimated" variant="strip" />
+                  </div>
                 </div>
 
                 {/* Actions */}
                 <div className="admin-vaults-list__actions">
-                  <Button variant="ghost" size="sm" asChild>
+                  <Button variant="ghost" size="md" asChild>
                     <Link href={`/admin/vaults/${vault.id}`}>View</Link>
                   </Button>
-                  <Button variant="ghost" size="sm" asChild>
+                  <Button variant="ghost" size="md" asChild>
                     <Link href={`/admin/vaults/new?cloneFrom=${encodeURIComponent(vault.ticker)}`}>
                       Clone
                     </Link>
@@ -222,8 +224,8 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                   {vault.status === "live" && (
                     <VaultActionButton
                       label="Pause"
-                      variant="secondary"
-                      size="sm"
+                      variant="ghost"
+                      size="md"
                       confirm={{
                         title: "Pause this vault?",
                         description:
@@ -240,8 +242,8 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                   {vault.status === "paused" && (
                     <VaultActionButton
                       label="Resume"
-                      variant="secondary"
-                      size="sm"
+                      variant="ghost"
+                      size="md"
                       confirm={{
                         title: "Resume this vault?",
                         description:

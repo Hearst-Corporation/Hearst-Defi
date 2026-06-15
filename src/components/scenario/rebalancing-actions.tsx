@@ -132,7 +132,7 @@ function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
       {actions.map((action, idx) => (
         <li
           key={action.ruleId}
-          className="ct-nested-callout"
+          className="border-l-2 border-[var(--ct-border-soft)] pl-5 py-1"
         >
           <div className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap">
             <span

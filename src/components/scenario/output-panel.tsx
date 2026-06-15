@@ -21,7 +21,6 @@ import {
 import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { NestedPanel } from "@/components/ui/nested-panel";
 import { PanelStatusAccent } from "@/components/ui/panel-status";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -121,7 +120,7 @@ function ScoreCell({
   caption: string;
 }) {
   return (
-    <NestedPanel className="admin-doc-stack--tight p-4">
+    <div className="admin-doc-stack--tight">
       <span className="stat-label">{label}</span>
       <div className="admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--tight">
         <span className="mono stat-value tabular-nums ct-text-primary">
@@ -131,7 +130,7 @@ function ScoreCell({
       </div>
       <Progress value={value} fillClassName={fillClassName} />
       <span className="body-xs ct-text-muted">{caption}</span>
-    </NestedPanel>
+    </div>
   );
 }
 
@@ -192,14 +191,14 @@ function DecisionPanel({
       </div>
 
       {/* Stat strip: stressed floor · risk · mining */}
-      <div className="mt-5 admin-doc-form-grid-2 sm:grid-cols-3">
-        <NestedPanel className="admin-doc-stack--tight p-4">
+      <div className="mt-8 admin-doc-form-grid-2 sm:grid-cols-3">
+        <div className="admin-doc-stack--tight">
           <span className="stat-label">Stressed floor</span>
           <span className="mono stat-value tabular-nums ct-text-primary">
             {output.stressed_apy.toFixed(1)}%
           </span>
           <span className="body-xs ct-text-muted">Bear scenario floor</span>
-        </NestedPanel>
+        </div>
         <ScoreCell
           label="Risk score"
           value={output.risk_score}
@@ -215,7 +214,7 @@ function DecisionPanel({
       </div>
 
       {/* Recommended action */}
-      <div className="mt-5">
+      <div className="mt-8">
         <span className="stat-label">Recommended action</span>
         <PanelStatusAccent
           className={cn("mt-2 admin-doc-inline-row admin-doc-inline-row--actions", tone.border)}
@@ -236,32 +235,30 @@ function DecisionPanel({
       </div>
 
       {/* PTAI — calm nested panel inside the decision */}
-      <div className="mt-5">
+      <div className="mt-8">
         <span className="stat-label">Projection · Trigger · Action · Impact</span>
-        <PtaiBlock output={output} className="mt-2" />
+        <PtaiBlock output={output} className="mt-3" />
       </div>
 
       {/* AI narrative — discreet, never a broken-looking standalone card */}
       {narrative === null ? (
-        <p className="mt-4 border-t border-[var(--ct-border-soft)] pt-3 body-xs ct-text-muted">
+        <p className="mt-8 body-xs ct-text-muted">
           AI narrative unavailable — deterministic engine output shown.
         </p>
       ) : narrative ? (
-        <div className="mt-4 border-t border-[var(--ct-border-soft)] pt-4">
+        <div className="mt-8">
           <span className="stat-label">AI narrative</span>
-          <div className="mt-2">
+          <div className="mt-3">
             <Markdown content={narrative.narrative_md} />
           </div>
           {narrative.risk_warning ? (
-            <PanelStatusAccent
-              className="mt-3 items-start border-l-[var(--ct-status-warning)]"
+            <div
+              className="mt-5 border-l-2 border-[var(--ct-status-warning)] pl-4 admin-doc-stack--micro"
               role="note"
             >
-              <div className="ct-panel-status">
-                <p className="stat-label m-0 ct-status-warning">Risk warning</p>
-                <p className="body-sm ct-text-body m-0">{narrative.risk_warning}</p>
-              </div>
-            </PanelStatusAccent>
+              <p className="stat-label m-0 ct-status-warning">Risk warning</p>
+              <p className="body-sm ct-text-body m-0">{narrative.risk_warning}</p>
+            </div>
           ) : null}
         </div>
       ) : null}
@@ -303,7 +300,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
 
       {/* Tactical guardrails */}
       {hasGuardrails ? (
-        <div className="mt-5 border-t border-[var(--ct-border-soft)] pt-5">
+        <div className="mt-8">
           <span className="stat-label">Guardrails</span>
           <div className="mt-2 admin-doc-inline-row">
             {output.btc_tactical.guardrails.map((g) => (
@@ -337,8 +334,8 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
       ) : null}
 
       {/* Rebalancing actions (PTAI list) */}
-      <div className="mt-5 border-t border-[var(--ct-border-soft)] pt-5">
-        <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
+      <div className="mt-8">
+        <div className="mb-4 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
           <span className="stat-label">Rebalancing actions</span>
           <span className="eyebrow">Max 4 · Rule-based · PTAI</span>
         </div>
@@ -374,7 +371,7 @@ function AssumptionsPanel({ assumptions }: { assumptions: string[] }) {
         </span>
       </button>
       {open ? (
-        <div className="mt-4 border-t border-[var(--ct-border-soft)] pt-4">
+        <div className="mt-6">
           <AssumptionsList assumptions={assumptions} />
         </div>
       ) : null}
@@ -442,7 +439,7 @@ function CompactPanel({
   return (
     <Card
       className={cn(
-        "p-5 border-l-4",
+        "p-6 border-l-4",
         side === "A"
           ? "border-l-[var(--ct-border-strong)]"
           : "border-l-[var(--ct-text-strong)]",
@@ -453,16 +450,16 @@ function CompactPanel({
       aria-busy={isPending}
       aria-label={`Scenario ${side}: ${presetLabel}`}
     >
-      <div className="divide-y divide-[var(--ct-border-soft)]">
+      <div className="flex flex-col gap-8">
         <ApyHero output={output} variant="compact" delta={apyDelta} />
         <ScoreGrid output={output} variant="compact" riskFooter={riskFooter} />
         <VaultMode output={output} variant="compact" />
         <AllocationSection output={output} variant="compact" />
-        <div className="py-4">
+        <div>
           <span className="stat-label">
             Projection · Trigger · Action · Impact
           </span>
-          <PtaiBlock output={output} variant="flat" className="mt-2" />
+          <PtaiBlock output={output} variant="flat" className="mt-3" />
         </div>
       </div>
     </Card>

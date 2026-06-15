@@ -239,7 +239,7 @@ const STRESS_TROUGH_X = 152;
 function AllocationStackChart({ vault }: { vault: VaultDefinition }) {
   let x = 0;
   return (
-    <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} allocation stack`}>
+    <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} allocation stack`} width="100%" style={{ height: "auto" }}>
       <rect x="0" y="24" width="320" height="18" rx="9" className="fill-(--ct-surface-1)" />
       {Object.entries(vault.allocationTargets).map(([bucket, weight], index) => {
         const width = round2((weight / 100) * CHART_BAR_WIDTH);
@@ -278,7 +278,7 @@ function DistributionRangeChart({ vault }: { vault: VaultDefinition }) {
       )
       .join(" ");
   return (
-    <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} distribution range`}>
+    <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} distribution range`} width="100%" style={{ height: "auto" }}>
       <polyline points={series(vault.apyTarget.high, DIST_DRIFT_HIGH)} fill="none" stroke="var(--ct-accent)" strokeWidth="2" />
       <polyline points={series(vault.apyTarget.low, DIST_DRIFT_LOW)} fill="none" stroke="var(--ct-status-info)" strokeWidth="2" />
       <line x1="24" y1="56" x2="288" y2="56" className="stroke-(--ct-border-soft)" />
@@ -301,7 +301,7 @@ function StressCorridorChart({ vault }: { vault: VaultDefinition }) {
     `288,${round2(28 - reserve * 0.05)}`,
   ].join(" ");
   return (
-    <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} stress corridor`}>
+    <svg viewBox="0 0 320 72" role="img" aria-label={`${vault.ticker} stress corridor`} width="100%" style={{ height: "auto" }}>
       <polyline points={corridor} fill="none" stroke="var(--ct-status-warning)" strokeWidth="2.5" />
       <line x1="24" y1="54" x2="288" y2="54" className="stroke-(--ct-border-soft)" />
       <circle cx={STRESS_TROUGH_X} cy={troughY} r="4" fill="var(--ct-accent)" />
@@ -385,7 +385,7 @@ export default async function ProductWorkspacePage({
         }
       />
 
-      <Card hoverOverlay={false} className="pw-hero-panel">
+      <Card hoverOverlay={false} className="pw-hero-panel p-6 sm:p-8">
         <div className="pw-hero__row">
           <div className="pw-hero__main">
             <p className="eyebrow">Objective</p>
@@ -417,74 +417,78 @@ export default async function ProductWorkspacePage({
         </h2>
 
         <div className="admin-doc-split-grid admin-doc-split-grid--brief">
-          <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--relaxed">
-            <CardTitle>Inferred product line</CardTitle>
-            <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight">
-              <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                <span className="body-xs ct-text-muted">Vault</span>
-                <span className="body-sm ct-text-strong">
-                  {inferredVault.label} · {inferredVault.ticker}
-                </span>
+          <Card hoverOverlay={false} className="p-6 sm:p-8">
+            <div className="flex flex-col gap-6">
+              <CardTitle>Inferred product line</CardTitle>
+              <div className="admin-doc-stack admin-doc-stack--tight max-w-md">
+                <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                  <span className="body-xs ct-text-muted">Vault</span>
+                  <span className="body-sm ct-text-strong">
+                    {inferredVault.label} · {inferredVault.ticker}
+                  </span>
+                </div>
+                <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                  <span className="body-xs ct-text-muted">Base mode</span>
+                  <span className="body-sm ct-text-body">{inferredVault.baseMode}</span>
+                </div>
+                <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                  <span className="body-xs ct-text-muted">APY range</span>
+                  <span className="body-sm ct-text-strong inline-flex flex-wrap items-baseline justify-end gap-x-2">
+                    <ApyRange
+                      low={inferredVault.apyTarget.low}
+                      high={inferredVault.apyTarget.high}
+                      precision={1}
+                      className="body-sm ct-text-strong"
+                    />
+                    <span className="body-xs ct-text-muted">Estimated</span>
+                  </span>
+                </div>
+                <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                  <span className="body-xs ct-text-muted">Methodology</span>
+                  <span className="body-sm ct-text-body">{inferredVault.methodologyVersion}</span>
+                </div>
               </div>
-              <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                <span className="body-xs ct-text-muted">Base mode</span>
-                <span className="body-sm ct-text-body">{inferredVault.baseMode}</span>
-              </div>
-              <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                <span className="body-xs ct-text-muted">APY range</span>
-                <span className="body-sm ct-text-strong inline-flex flex-wrap items-baseline justify-end gap-x-2">
-                  <ApyRange
-                    low={inferredVault.apyTarget.low}
-                    high={inferredVault.apyTarget.high}
-                    precision={1}
-                    className="body-sm ct-text-strong"
-                  />
-                  <span className="body-xs ct-text-muted">Estimated</span>
-                </span>
-              </div>
-              <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                <span className="body-xs ct-text-muted">Methodology</span>
-                <span className="body-sm ct-text-body">{inferredVault.methodologyVersion}</span>
-              </div>
-            </div>
 
-            {persistedDraft ? (
-              <p className="body-xs ct-text-faint">
-                Saved draft · {persistedDraft.vaultTicker} · {persistedDraft.updatedAtIso}
-              </p>
-            ) : null}
-
-            {scenarioSecondary ? (
-              <div className="admin-doc-inline-row admin-doc-inline-row--between items-start">
-                <p className="body-xs ct-text-muted ct-prose-md">
-                  {secondaryHint ?? "Scenario Lab validation requested"} — supporting
-                  evidence only.
+              {persistedDraft ? (
+                <p className="body-xs ct-text-faint">
+                  Saved draft · {persistedDraft.vaultTicker} · {persistedDraft.updatedAtIso}
                 </p>
-                <Button variant="secondary" size="sm" asChild>
-                  <Link href={buildScenarioLabHref(objective)}>Open Scenario Lab</Link>
-                </Button>
-              </div>
-            ) : null}
+              ) : null}
+
+              {scenarioSecondary ? (
+                <div className="admin-doc-inline-row admin-doc-inline-row--between items-start">
+                  <p className="body-xs ct-text-muted ct-prose-md">
+                    {secondaryHint ?? "Scenario Lab validation requested"} — supporting
+                    evidence only.
+                  </p>
+                  <Button variant="secondary" size="sm" asChild>
+                    <Link href={buildScenarioLabHref(objective)}>Open Scenario Lab</Link>
+                  </Button>
+                </div>
+              ) : null}
+            </div>
           </Card>
 
-          <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
-            <CardTitle>Calculation notes</CardTitle>
-            <ul className="admin-doc-stack admin-doc-stack--tight">
-              {CALC_NOTES.map((note) => (
-                <li key={note} className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap">
-                  <span aria-hidden className="pw-bullet" />
-                  <div className="admin-doc-stack admin-doc-stack--tight flex-1 min-w-0">
-                    <span className="body-sm ct-text-muted">{note}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <div className="admin-doc-callout admin-doc-stack admin-doc-stack--tight">
-              <p className="stat-label ct-status-warning">Required disclaimer</p>
-              <p className="body-xs ct-text-muted">
-                Conditional projection — not a committed outcome. For professional /
-                qualified investors only.
-              </p>
+          <Card hoverOverlay={false} className="p-6 sm:p-8">
+            <div className="flex flex-col gap-6">
+              <CardTitle>Calculation notes</CardTitle>
+              <ul className="admin-doc-stack admin-doc-stack--tight">
+                {CALC_NOTES.map((note) => (
+                  <li key={note} className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap">
+                    <span aria-hidden className="pw-bullet" />
+                    <div className="admin-doc-stack admin-doc-stack--tight flex-1 min-w-0">
+                      <span className="body-sm ct-text-muted">{note}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="border-l-2 border-[var(--ct-status-warning)] pl-4 admin-doc-stack admin-doc-stack--micro mt-2">
+                <p className="stat-label ct-status-warning">Required disclaimer</p>
+                <p className="body-xs ct-text-muted">
+                  Conditional projection — not a committed outcome. For professional /
+                  qualified investors only.
+                </p>
+              </div>
             </div>
           </Card>
         </div>
@@ -496,37 +500,52 @@ export default async function ProductWorkspacePage({
         </h2>
 
         <div className="admin-doc-card-grid-3">
-          <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
-            <CardTitle>Assumptions</CardTitle>
-            <ul className="admin-doc-stack admin-doc-stack--tight">
-              {inferredVault.assumptions.map((assumption) => (
-                <li key={assumption} className="body-sm ct-text-muted">
-                  {assumption}
-                </li>
-              ))}
-            </ul>
+          <Card hoverOverlay={false} className="p-6">
+            <div className="flex flex-col gap-6">
+              <CardTitle>Assumptions</CardTitle>
+              <ul className="admin-doc-stack admin-doc-stack--tight">
+                {inferredVault.assumptions.map((assumption) => (
+                  <li key={assumption} className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap">
+                    <span aria-hidden className="pw-bullet" />
+                    <div className="admin-doc-stack admin-doc-stack--tight flex-1 min-w-0">
+                      <span className="body-sm ct-text-body">{assumption}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </Card>
 
-          <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
-            <CardTitle>Scenario Outputs</CardTitle>
-            <ul className="admin-doc-stack admin-doc-stack--tight">
-              {scenarioOutputNotes.map((note) => (
-                <li key={note} className="body-sm ct-text-muted">
-                  {note}
-                </li>
-              ))}
-            </ul>
+          <Card hoverOverlay={false} className="p-6">
+            <div className="flex flex-col gap-6">
+              <CardTitle>Scenario Outputs</CardTitle>
+              <ul className="admin-doc-stack admin-doc-stack--tight">
+                {scenarioOutputNotes.map((note) => (
+                  <li key={note} className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap">
+                    <span aria-hidden className="pw-bullet" />
+                    <div className="admin-doc-stack admin-doc-stack--tight flex-1 min-w-0">
+                      <span className="body-sm ct-text-body">{note}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </Card>
 
-          <Card hoverOverlay={false} className="admin-doc-stack admin-doc-stack--actions">
-            <CardTitle>Next Actions</CardTitle>
-            <ol className="admin-doc-stack admin-doc-stack--tight">
-              {NEXT_ACTIONS.map((action) => (
-                <li key={action} className="body-sm ct-text-muted">
-                  {action}
-                </li>
-              ))}
-            </ol>
+          <Card hoverOverlay={false} className="p-6">
+            <div className="flex flex-col gap-6">
+              <CardTitle>Next Actions</CardTitle>
+              <ol className="admin-doc-stack admin-doc-stack--tight">
+                {NEXT_ACTIONS.map((action) => (
+                  <li key={action} className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap">
+                    <span aria-hidden className="pw-bullet" />
+                    <div className="admin-doc-stack admin-doc-stack--tight flex-1 min-w-0">
+                      <span className="body-sm ct-text-body">{action}</span>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
           </Card>
         </div>
       </section>
@@ -545,26 +564,30 @@ export default async function ProductWorkspacePage({
             <Card
               key={spec.title}
               hoverOverlay={false}
-              className="admin-doc-stack admin-doc-stack--actions"
+              className="p-6"
             >
-              <div className="admin-doc-inline-row admin-doc-inline-row--between items-start">
-                <div>
-                  <p className="eyebrow">{spec.chart}</p>
-                  <CardTitle>{spec.title}</CardTitle>
+              <div className="flex flex-col gap-5">
+                <div className="admin-doc-inline-row admin-doc-inline-row--between items-start">
+                  <div className="flex flex-col gap-1">
+                    <p className="eyebrow">{spec.chart}</p>
+                    <CardTitle>{spec.title}</CardTitle>
+                  </div>
+                  <ProvenanceBadge kind="estimated" compact />
                 </div>
-                <ProvenanceBadge kind="estimated" compact />
-              </div>
-              <div className="admin-doc-inset">
-                {spec.visual}
-              </div>
-              <p className="body-xs ct-text-strong">{spec.metric}</p>
-              <p className="body-sm ct-text-muted">{spec.series}</p>
-              <div className="admin-doc-divider-section admin-doc-stack admin-doc-stack--tight">
-                <p className="body-xs ct-text-muted">{spec.note}</p>
-                <p className="body-xs ct-text-faint">
-                  Illustrative from methodology assumptions. Attach external evidence
-                  before review.
-                </p>
+                <div className="admin-doc-inset">
+                  {spec.visual}
+                </div>
+                <div className="flex flex-col gap-1">
+                  <p className="body-xs ct-text-strong">{spec.metric}</p>
+                  <p className="body-sm ct-text-muted">{spec.series}</p>
+                </div>
+                <div className="admin-doc-divider-section flex flex-col gap-2">
+                  <p className="body-xs ct-text-muted">{spec.note}</p>
+                  <p className="body-xs ct-text-faint">
+                    Illustrative from methodology assumptions. Attach external evidence
+                    before review.
+                  </p>
+                </div>
               </div>
             </Card>
           ))}

@@ -4036,14 +4036,10 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   display: grid;
   /* Actions sized for the worst case (View + Clone + Pause); apy fits the
      widest range (e.g. 24.2—35.7%) so columns never overflow before stacking. */
-  /* VAULT identity = `auto` → exactly its text width (longest ticker / name),
-     so no empty band trails the vault name. The AUM bar takes ALL remaining
-     flexible width (1fr) and fills the row. Fixed columns keep their sizing. */
-  grid-template-columns: minmax(8rem, auto) max-content minmax(0, 1fr) max-content max-content;
+  /* Replaced max-content with fixed rem values so rows align independently of their 
+     individual contents (e.g. 2 vs 3 buttons in the actions column). */
+  grid-template-columns: 14rem 4.5rem minmax(0, 1fr) 7.5rem 15rem;
   gap: var(--ct-space-4);
-  /* Top-align: the identity column is 3 lines (ticker / name / category) while
-     the others are 1; centering floated the short columns to the middle line.
-     Aligning to the first line lets ticker · status · APY · AUM share one row. */
   align-items: start;
   min-width: 0;
 }
