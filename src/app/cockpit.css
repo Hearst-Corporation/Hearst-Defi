@@ -68,6 +68,9 @@
   --ct-graphite-border: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-border-soft));
   --ct-graphite-border-nested: color-mix(in srgb, var(--ct-text-strong) 4%, var(--ct-border-soft));
   --ct-graphite-blur: blur(28px);
+  /* Inner top highlight — machined glass bevel (ADR-013; no outer drop shadow). */
+  --ct-glass-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  --ct-glass-bevel-hover: inset 0 1px 0 rgba(255, 255, 255, 0.15);
 
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
      Success/live/positive = the single brand green. The semantic token NAME
@@ -401,6 +404,7 @@
   padding: var(--ct-space-2) var(--ct-space-4);
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
+  box-shadow: var(--ct-glass-bevel);
 }
 
 /* Flattened variant — single-level surfaces where the default glass chrome
@@ -410,6 +414,7 @@
   border-color: var(--ct-border-soft);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+  box-shadow: none;
 }
 
 .ct-proof-row {
@@ -1255,7 +1260,7 @@
   container-name: dash-board;
 }
 
-/* Admin cards — operator density (LP product keeps global .ct-card 20/24). */
+/* Admin cards — denser padding tier; global .ct-card uses space-5/6 for LP surfaces. */
 .admin-doc .ct-card:not(.p-0) {
   padding: var(--ct-space-5);
 }
@@ -1783,7 +1788,7 @@
   grid-template-columns: repeat(var(--dashboard-nav-bar-count), minmax(var(--ct-space-0_5), 1fr));
   gap: var(--ct-space-0_5);
   align-items: end;
-  height: var(--ct-space-16);
+  height: var(--ct-space-24);
   padding: var(--ct-space-3);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-lg);
@@ -1801,7 +1806,7 @@
 
 .dashboard-nav-bars__bar {
   width: 100%;
-  min-height: var(--ct-space-1);
+  min-height: var(--ct-space-px);
   border-radius: var(--ct-radius-sm) var(--ct-radius-sm) 0 0;
   background: linear-gradient(
     180deg,
@@ -1809,6 +1814,11 @@
     color-mix(in srgb, var(--ct-accent) 45%, transparent)
   );
   box-shadow: var(--ct-glow-dot);
+}
+
+.dashboard-nav-bars__bar:focus-visible {
+  outline: 2px solid var(--ct-accent);
+  outline-offset: var(--ct-space-px);
 }
 
 .dashboard-assets-stack,
@@ -2307,17 +2317,24 @@ pre.ct-surface-1.rounded-md {
   border: 1px solid var(--ct-graphite-border-nested);
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
+  box-shadow: var(--ct-glass-bevel);
 }
 
 .ct-glass-panel {
   border-radius: var(--ct-radius-xl);
   /* Neutralize the package .ct-card drop-shadow leak — graphite glass has no
-     drop (depth = border + bg only). margin-bottom left to existing resets. */
-  box-shadow: none;
+     drop (depth = border + bg only + inner bevel). margin-bottom left to existing resets. */
+  box-shadow: var(--ct-glass-bevel);
 }
 
-.ct-glass-panel:hover {
+:is(.ct-glass-panel:not(.ct-glass-panel--flat), .ct-section-preview, .pf-cockpit-panel):hover {
   border-color: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-graphite-border-nested));
+  box-shadow: var(--ct-glass-bevel-hover);
+}
+
+:is(.ct-glass-panel:not(.ct-glass-panel--flat), .ct-section-preview, .pf-cockpit-panel):focus-visible {
+  outline: none;
+  box-shadow: var(--ct-glass-bevel), var(--ct-shadow-focus-ring);
 }
 
 /* material="flat" — opaque, no frost; for dense lists/tables (anti cage-in-cage). */
@@ -2325,6 +2342,7 @@ pre.ct-surface-1.rounded-md {
   background: var(--ct-surface-2);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+  box-shadow: none;
 }
 
 /* Échelle typo (DESIGN_SYSTEM §13.2) — H2 = strong white · H1/H3 blanc fort (brand green reserved for chrome). */
@@ -2369,7 +2387,7 @@ pre.ct-surface-1.rounded-md {
 .eyebrow {
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-extrabold);
-  letter-spacing: var(--ct-tracking-wide);
+  letter-spacing: var(--ct-tracking-wider);
   text-transform: uppercase;
   color: var(--ct-text-muted);
 }
@@ -2378,7 +2396,7 @@ pre.ct-surface-1.rounded-md {
 .stat-value {
   font-size: var(--ct-text-2xl);
   font-weight: var(--ct-font-extrabold);
-  letter-spacing: var(--ct-tracking-tight);
+  letter-spacing: var(--ct-tracking-tighter);
   line-height: var(--ct-leading-tight);
   font-variant-numeric: tabular-nums;
   color: var(--ct-text-primary);
@@ -2388,7 +2406,7 @@ pre.ct-surface-1.rounded-md {
 .stat-label {
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-bold);
-  letter-spacing: var(--ct-tracking-wide);
+  letter-spacing: var(--ct-tracking-wider);
   text-transform: uppercase;
   color: var(--ct-text-muted);
 }
@@ -3223,8 +3241,8 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-rail-right-body                        { padding: var(--ct-space-3) var(--ct-space-4) var(--ct-space-4); }
 
 /* Page composants */
-.ct-kpi-card                               { padding: var(--ct-space-4) var(--ct-space-5); }
-.ct-card                                   { padding: var(--ct-space-4) var(--ct-space-5); }
+.ct-kpi-card                               { padding: var(--ct-space-5) var(--ct-space-6); }
+.ct-card                                   { padding: var(--ct-space-5) var(--ct-space-6); }
 
 /* Compact card density — smaller data/list surfaces (audit D1/D2).
    Radius already radius-xl on the unified base; only the padding tier differs. */

@@ -615,15 +615,6 @@
   gap: var(--ct-space-3);
 }
 
-.pf-cockpit-panel:hover {
-  border-color: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-graphite-border-nested));
-}
-
-.pf-cockpit-panel:focus-visible {
-  outline: none;
-  box-shadow: var(--ct-shadow-focus-ring);
-}
-
 .pf-cockpit-panel__header {
   display: flex;
   align-items: flex-start;

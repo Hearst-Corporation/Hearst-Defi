@@ -823,7 +823,7 @@
   width: 100%;
   min-width: 0;
   flex-direction: column;
-  gap: var(--ct-space-6);
+  gap: var(--ct-space-8);
   container-type: inline-size;
   container-name: product-doc;
 }
@@ -840,7 +840,7 @@
 .product-doc .product-doc-stack {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-6);
+  gap: var(--ct-space-8);
 }
 
 /* Stack modifiers — self-contained (mirrors .admin-doc .admin-doc-stack--*) */
@@ -984,15 +984,8 @@
   background: var(--ct-border-soft);
 }
 
-.product-doc .product-doc-callout {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--ct-space-3);
-  border-radius: var(--ct-radius-md);
-  border: 1px solid var(--ct-status-warning-border);
-  background: var(--ct-status-warning-soft);
-  padding: var(--ct-space-3) var(--ct-space-4);
-}
+/* .product-doc-callout — graphite shell via shared :is(.admin-doc, .product-doc)
+   rule above; semantic colour on icon/label inside the callout only. */
 
 .product-doc .product-doc-bullet-list {
   margin: 0;
@@ -1747,6 +1740,13 @@
 .product-doc .position-detail-disclaimer {
   margin: 0;
   max-width: var(--ct-prose-xl);
+  color: var(--ct-text-muted);
+  text-wrap: pretty;
+}
+
+.product-doc .prof-disclaimer {
+  color: var(--ct-text-muted);
+  text-wrap: pretty;
 }
 
 /* ── Proof Center ────────────────────────────────────────────────────────── */

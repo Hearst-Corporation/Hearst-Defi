@@ -1,6 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
+import {
+  computeNavBarHeights,
+  navBarChartAriaLabel,
+} from "@/lib/admin/nav-bar-chart";
 import { cn } from "@/lib/cn";
 import type { NavPoint } from "@/lib/data/dashboard";
 
@@ -39,7 +43,7 @@ export function NavSlot({
           <div className="min-w-0">
             <h3 className="h3 ct-text-body m-0">NAV · 30d</h3>
             <p className="stat-value tabular" style={{ marginTop: "var(--ct-space-1)" }}>
-              {lastNav !== null && lastNav > 0 ? usdCompact.format(lastNav) : "—"}
+              {lastNav !== null ? usdCompact.format(lastNav) : "—"}
             </p>
           </div>
           <ProvenanceBadge kind={navProvenance} variant="strip" />
@@ -66,27 +70,25 @@ export function NavSlot({
 }
 
 function NavBarChart({ points }: { points: NavPoint[] }) {
-  const values = points.map((point) => point.aum_usdc);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const span = max - min || max || 1;
+  const slices = computeNavBarHeights(points);
 
   return (
     <div
       className="dashboard-nav-bars"
       style={{ "--dashboard-nav-bar-count": String(points.length) } as React.CSSProperties}
-      role="img"
-      aria-label="NAV trend over 30 days"
+      role="list"
+      aria-label={navBarChartAriaLabel(points)}
     >
-      {points.map((point) => {
-        const normalized = max === min ? 1 : (point.aum_usdc - min) / span;
-        const heightPct = Math.max(10, Math.round(normalized * 100));
+      {slices.map((slice) => {
+        const label = `${slice.date}: ${usdFull.format(slice.aum_usdc)}`;
         return (
-          <div key={point.date} className="dashboard-nav-bars__cell">
+          <div key={slice.date} className="dashboard-nav-bars__cell" role="listitem">
             <div
               className="dashboard-nav-bars__bar"
-              style={{ height: `${heightPct}%` }}
-              title={`${point.date}: ${usdFull.format(point.aum_usdc)}`}
+              style={{ height: `${slice.heightPct}%` }}
+              tabIndex={0}
+              aria-label={label}
+              title={label}
             />
           </div>
         );

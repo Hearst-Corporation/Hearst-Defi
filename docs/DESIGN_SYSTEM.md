@@ -65,9 +65,10 @@ Sans/mono = **Satoshi** (`--font-sans`/`--font-mono`). Échelle cockpit
 `--ct-text-micro` 9px (`.5625rem`) · `--ct-text-xs` 10px · `--ct-text-sm` 14px ·
 `--ct-text-base` 16px · `--ct-text-lg`…`--ct-text-display` (clamp responsive).
 Poids `400/500/600/700/800`. Chiffres : `tabular-nums` obligatoire (`.mono`/`.tabular`).
-Tracking titres : `--ct-tracking-tight` (`-0.03em`). Labels KPI :
-`.stat-label` / `.eyebrow` → `uppercase` + `--ct-tracking-wide` (`0.04em`) +
-`--ct-text-muted`. Micro utilitaire Tailwind : `text-micro` = `ct-text-micro-size`
+Tracking titres : `--ct-tracking-tight` (`-0.03em`). KPI values :
+`.stat-value` → `--ct-tracking-tighter` (`-0.05em`) pour les grands chiffres.
+Labels KPI : `.stat-label` / `.eyebrow` → `uppercase` + `--ct-tracking-wider`
+(`0.08em`) + `--ct-text-muted`. Micro utilitaire Tailwind : `text-micro` = `ct-text-micro-size`
 (9px) — préférer la classe cockpit ou les rôles `.body-xs`/`.stat-label`.
 
 ## 5. Charts SVG — convention canonique (RÈGLE)
@@ -181,7 +182,10 @@ Source de vérité : [`docs/decisions/ADR-013-design-system-canon-full-glass.md`
 `Card` (`src/components/ui/card.tsx`) est le JSX canonical qui l'applique.
 
 Recette définie **une seule fois** dans `src/app/cockpit.css` (`--ct-graphite-*` +
-`--ct-surface-*`). Aucun fichier de page ne peut redéfinir une recette graphite localement.
+`--ct-surface-*` + `--ct-glass-bevel`). Bordure `1px` graphite + **bevel interne**
+(`inset 0 1px 0`, tokens `--ct-glass-bevel` / `--ct-glass-bevel-hover`) — pas de
+drop shadow externe. `.ct-glass-panel--flat` et `.ct-nested-panel--borderless`
+restent sans bevel. Aucun fichier de page ne peut redéfinir une recette graphite localement.
 
 ### 10.2 Tier DEPRECATED — Flat / SystemPanel
 
@@ -410,8 +414,8 @@ aligned to the same values so non-doc surfaces match.
 | h1 | `.h1` | 24→28 (`3xl`) | 800 | white-strong (`--ct-text-primary`) | one per route — page title | card titles, repeated items |
 | h2 | `.h2` | 20→22 | 700 | **green (`--ct-accent`)** | section titles | page title, card titles |
 | h3 | `.h3` = `CardTitle` | 16→18 (`lg`) | 700 | white-strong | module/card titles | section titles, row labels |
-| stat-value | `.stat-value` | `--ct-text-2xl` | 800 | — | KPI inside an L3 module | first viewport when it would beat the page h1 → demote to `--ct-text-xl` |
-| stat-label / eyebrow | — | `--ct-text-micro` uppercase | — | muted | labels, kickers | as headings or body |
+| stat-value | `.stat-value` | `--ct-text-2xl` | 800 | — | KPI inside an L3 module; tracking `--ct-tracking-tighter` | first viewport when it would beat the page h1 → demote to `--ct-text-xl` |
+| stat-label / eyebrow | — | `--ct-text-micro` uppercase | — | muted; tracking `--ct-tracking-wider` | labels, kickers | as headings or body |
 | body-md/sm/xs | `.body-*` | `--ct-text-sm`/`xs` | — | body/muted | prose, metadata | KPI values, headlines |
 
 **H2 = green** is the single structural accent: a section title is the only text

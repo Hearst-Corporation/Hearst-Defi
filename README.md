@@ -154,8 +154,12 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
 ```
 
 **Interactivité & Animations (Agent 3)** :
-- **Hover states** : Bento (`.dash-cell`) et Card (`.ct-glass-panel`) — bordure
-  légèrement renforcée au survol (graphite calme, pas de lift ni wash radial).
+- **Hover states** : Bento (`.dash-cell`) et surfaces graphite (`.ct-glass-panel`,
+  `.pf-cockpit-panel`) — bordure renforcée + bevel interne (`--ct-glass-bevel-hover`) ;
+  focus garde bevel + `--ct-shadow-focus-ring`. Pas de lift ni wash radial.
+- **Sharpening typo** : `.stat-value` → `--ct-tracking-tighter` ; `.stat-label` /
+  `.eyebrow` → `--ct-tracking-wider`. Padding LP `.ct-card` = `--ct-space-5/6` ;
+  admin override dense via `.admin-doc .ct-card`.
 - **Tooltips** : Composant `Tooltip` (via `framer-motion`) intégré aux `ProvenanceBadge` et `Metric`.
 - **Transitions** : animations CSS/Tailwind locales, sans wrapper global inutilisé.
 - **Portfolio** : Page complète avec bento analytics, gestion KYC/KYB
