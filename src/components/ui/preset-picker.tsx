@@ -193,7 +193,7 @@ export function PresetPicker<T extends string>({
                       "cursor-not-allowed opacity-[var(--ct-opacity-40)] hover:bg-transparent",
                   )}
                 >
-                  <span className="h4">{o.label}</span>
+                  <span className="body-sm font-medium">{o.label}</span>
                   <span className="body-xs">
                     {isExcluded ? PRESET_PICKER_STRINGS.alreadySelectedOtherSide : o.description}
                   </span>

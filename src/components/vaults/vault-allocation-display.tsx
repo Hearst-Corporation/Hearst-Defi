@@ -36,7 +36,7 @@ function AllocationInvestorRow({
             {ALLOCATION_DESCRIPTIONS[bucket]}
           </p>
         </div>
-        <span className="h4 tabular mono ct-text-strong shrink-0">
+        <span className="body-sm font-semibold tabular mono ct-text-strong shrink-0">
           {bpsToPercent(bps, 0)}%
         </span>
       </div>
