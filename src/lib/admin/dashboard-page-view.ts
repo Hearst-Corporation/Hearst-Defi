@@ -75,10 +75,10 @@ export function resolveYieldPosture(
 export function resolveHeadlineApy(
   vaultApy: { low: number; high: number },
   apyTarget: { low: number; high: number },
-  hasLiveKpis: boolean,
+  fillKpis: boolean,
   livePreview: boolean,
 ): { low: number; high: number } | null {
-  if (hasLiveKpis) return vaultApy;
+  if (fillKpis) return vaultApy;
   if (livePreview) return apyTarget;
   return null;
 }
@@ -102,14 +102,19 @@ export function resolveDashboardPageInputs(
   overview: AdminOverview,
 ) {
   const preview = data.vaultMeta.livePreview;
+  // `simulated` = demo builder payload: KPIs fill but provenance stays honest.
+  const simulated = data.simulated === true;
   // Gate on `hasLiveTimelineSnapshot`, not the weaker `hasTimelineSnapshot`.
   // A `daily-seed` row sets `hasTimelineSnapshot = true` but must never
   // activate Live/Attested provenance badges on the admin dashboard.
   const hasLiveKpis = data.hasLiveTimelineSnapshot && !preview;
+  // KPIs fill when we have genuine live data OR when we are in simulated mode.
+  // hasLiveKpis is kept UNCHANGED so proof-fresh / Attested logic is unaffected.
+  const fillKpis = hasLiveKpis || simulated;
   const headlineApy = resolveHeadlineApy(
     data.vault.apyRange,
     data.vaultMeta.apyTarget,
-    hasLiveKpis,
+    fillKpis,
     preview,
   );
   const yieldPosture = resolveYieldPosture(
@@ -143,6 +148,7 @@ export function resolveDashboardPageInputs(
       vault: { ...data.vault, riskScore: risk.composite },
     },
     hasLiveKpis,
+    simulated,
     headlineApy,
     yieldPosture,
     capitalUsdc,

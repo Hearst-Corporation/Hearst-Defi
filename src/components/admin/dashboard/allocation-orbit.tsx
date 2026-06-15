@@ -40,7 +40,7 @@ export function AllocationOrbit({
   return (
     <Card
       hoverOverlay={false}
-      className={`dashboard-command-cell ${live ? "" : "dashboard-command-cell--awaiting"}`}
+      className={`dashboard-command-cell dashboard-orbit-card${live ? "" : " dashboard-orbit-card--awaiting"}`}
       aria-label={live ? "Vault allocation map" : "Vault allocation map awaiting first snapshot"}
     >
       <div className={`dashboard-orbit ${live ? "" : "dashboard-orbit--target"}`}>

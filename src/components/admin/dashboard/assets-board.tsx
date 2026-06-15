@@ -35,6 +35,8 @@ export interface DashboardAssetsBoardProps {
   headlineApy: { low: number; high: number } | null;
   yieldPosture: string;
   hasLiveKpis: boolean;
+  /** True when the payload comes from the demo builder — badges read "simulated". */
+  simulated?: boolean;
   proofFresh: boolean;
   cockpit: CockpitPayload;
 }
@@ -50,6 +52,7 @@ export function DashboardAssetsBoard({
   headlineApy,
   yieldPosture,
   hasLiveKpis,
+  simulated,
   proofFresh,
   cockpit,
 }: DashboardAssetsBoardProps) {
@@ -62,9 +65,9 @@ export function DashboardAssetsBoard({
   const lastNav = navLive ? (navPoints.at(-1)?.aum_usdc ?? 0) : null;
   const firstNav = navLive ? (navPoints[0]?.aum_usdc ?? 0) : null;
 
-  const riskProvenance = resolveRiskProvenance(hasLiveKpis, risk);
-  const apyProvenance = resolveApyProvenance(hasLiveKpis, data.vaultMeta.livePreview);
-  const miningProvenance: Provenance = hasLiveKpis ? "live" : "manual";
+  const riskProvenance = resolveRiskProvenance(hasLiveKpis, risk, simulated);
+  const apyProvenance = resolveApyProvenance(hasLiveKpis, data.vaultMeta.livePreview, simulated);
+  const miningProvenance: Provenance = simulated ? "simulated" : hasLiveKpis ? "live" : "manual";
   const proofProvenance = resolveProofProvenance(proofFresh, proof);
 
   const heroKpis = buildDashboardHeroKpis({
@@ -79,6 +82,7 @@ export function DashboardAssetsBoard({
     miningMarginScore: data.vault.miningMarginScore,
     miningProvenance,
     hasLiveKpis,
+    simulated: simulated ?? false,
     proofFresh,
     proofProvenance,
     proof,

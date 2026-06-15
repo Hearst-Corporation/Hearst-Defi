@@ -1389,6 +1389,27 @@
     var(--ct-shadow-focus-ring);
 }
 
+.fixture-vault-pills__ticker {
+  font-weight: var(--ct-font-bold);
+}
+
+.fixture-vault-pills__name {
+  display: none;
+  color: var(--ct-text-faint);
+  font-weight: var(--ct-font-medium);
+}
+
+@media (min-width: 48rem) {
+  .fixture-vault-pills__name {
+    display: inline;
+  }
+}
+
+/* Major dashboard zones — breathing room between KPI / charts / queues / cockpit. */
+.dashboard-command-board.admin-doc-stack--relaxed {
+  gap: var(--ct-space-6);
+}
+
 .dashboard-command-row-a {
   display: grid;
   gap: var(--ct-space-3);
@@ -1417,10 +1438,29 @@
 .dashboard-command-slot--allocation {
   display: flex;
   justify-content: center;
+  min-width: 0;
 }
 
 .dashboard-command-slot--allocation > .ct-card {
-  padding-inline: 0;
+  width: 100%;
+  max-width: 14rem;
+  padding: var(--ct-space-5) var(--ct-space-4);
+}
+
+.dashboard-command-slot--allocation .dashboard-orbit-card {
+  min-width: 11.5rem;
+}
+
+.dashboard-orbit-card--awaiting.ct-card {
+  /* Awaiting orbit — verre fumé léger, calme mais premium (PAS une plaque plate).
+     Surface graphite translucide conservée + frost réduit (blur-md, plus léger
+     que le glass live) + bevel subtil ; liseré fin. Pas de glow, pas de gradient
+     décoratif, pas de fond opaque, pas de PNG (le dashboard est déjà noir via H7). */
+  background: var(--ct-graphite-subtle-bg);
+  border-color: var(--ct-graphite-border-nested);
+  backdrop-filter: var(--ct-blur-md);
+  -webkit-backdrop-filter: var(--ct-blur-md);
+  box-shadow: var(--ct-glass-bevel);
 }
 
 /* ADR-013 exception — empty placeholders only; active modules use Card / ct-glass-panel. */
@@ -1518,6 +1558,7 @@
   gap: var(--ct-space-3);
   grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
+  margin-top: var(--ct-space-1);
 }
 
 .dashboard-command-cell {
@@ -1681,6 +1722,11 @@
 
 .dashboard-command-shortcuts {
   min-width: 0;
+  padding-block: var(--ct-space-1);
+}
+
+.dashboard-command-shortcuts .dashboard-card-header {
+  margin-bottom: var(--ct-space-4);
 }
 
 .dashboard-command-shortcuts__grid {
@@ -1799,6 +1845,22 @@
   box-shadow: var(--ct-glow-dot);
 }
 
+/* Awaiting instrument — dashed track, muted ring (not the flex empty-cell chrome). */
+.dashboard-orbit--target .dashboard-orbit__track {
+  border-style: dashed;
+  opacity: 0.5;
+}
+
+.dashboard-orbit--target .dashboard-orbit__ring {
+  opacity: 0.45;
+  filter: none;
+}
+
+.dashboard-orbit--target .dashboard-orbit__legend-dot {
+  opacity: 0.55;
+  box-shadow: none;
+}
+
 /* CSS bar chart for NAV series. */
 .dashboard-nav-bars {
   --dashboard-nav-bar-count: 30;
@@ -1891,10 +1953,10 @@
   }
 }
 
-/* Orbit | NAV side-by-side from tablet width — independent of live/awaiting state. */
+/* Orbit | NAV side-by-side — orbit column never shrinks below donut width. */
 @container dash-board (min-width: 42rem) {
   .dashboard-command-row-a {
-    grid-template-columns: minmax(0, 0.34fr) minmax(0, 1fr);
+    grid-template-columns: minmax(11.5rem, 0.36fr) minmax(11rem, 1fr);
     align-items: stretch;
   }
 
@@ -2728,6 +2790,19 @@ button.ct-seg-btn {
   pointer-events: none;
   background: rgba(0, 0, 0, 0.5);
 }
+
+/* ── Dashboard admin : GRAND NOIR calme, verre transparent CONSERVÉ ──────────────
+   Le shell produit (.ct-panels-row) peint un PNG + vignette radiale + voile noir
+   derrière TOUTES les surfaces authentifiées, admin compris. Sous le dashboard on
+   neutralise ce décor pour que le verre translucide se pose sur un noir uniforme
+   (figure/fond net) — SANS opacifier les cards. Scopé via :has(.dashboard-command-board)
+   → pages produit et reste de l'admin INCHANGÉS. Réversible : supprimer ce bloc. (Adrien 2026-06-15) */
+.ct-panels-row:has(.dashboard-command-board) {
+  background-image: none;
+  background-color: var(--ct-bg-deep);
+}
+.ct-panels-row:has(.dashboard-command-board)::before { background-image: none; }
+.ct-panels-row:has(.dashboard-command-board)::after { background: none; }
 
 /* Centre transparent → laisse voir le fond spatial du parent. La zone de contenu
    ne reporte plus d'image ni de fond opaque ; le voile de lisibilité est déjà

@@ -72,6 +72,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           capitalProvenance={page.capitalProvenance}
           headlineApy={page.headlineApy}
           hasLiveKpis={page.hasLiveKpis}
+          simulated={page.simulated}
           yieldPosture={page.yieldPosture}
           proofFresh={page.proofFresh}
           cockpit={cockpit}

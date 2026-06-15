@@ -5,7 +5,9 @@ import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 export function resolveRiskProvenance(
   hasLiveKpis: boolean,
   risk: RiskFrameworkData,
+  simulated?: boolean,
 ): Provenance {
+  if (simulated) return "simulated";
   if (!hasLiveKpis) return "manual";
   if (risk.source === "db") return "live";
   if (risk.source === "partial") return "partial";
@@ -15,7 +17,9 @@ export function resolveRiskProvenance(
 export function resolveApyProvenance(
   hasLiveKpis: boolean,
   livePreview: boolean,
+  simulated?: boolean,
 ): Provenance {
+  if (simulated) return "simulated";
   if (hasLiveKpis) return "live";
   if (livePreview) return "estimated";
   return "manual";

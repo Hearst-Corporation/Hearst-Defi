@@ -55,12 +55,18 @@ export function buildDashboardHeroKpis(input: {
   miningMarginScore: number;
   miningProvenance: Provenance;
   hasLiveKpis: boolean;
+  /** True for demo-builder payloads — Risk/Mining values fill, provenance stays "simulated". */
+  simulated: boolean;
   proofFresh: boolean;
   proofProvenance: Provenance;
   proof: AdminProofStatus;
   totalActionRequired: number;
   data: DashboardData;
 }): HeroKpi[] {
+  // KPI values fill on genuine live data OR in simulated/demo mode.
+  // `hasLiveKpis` alone stays the gate for Live/Attested provenance upstream;
+  // here we only decide whether the numeric value renders vs. "—".
+  const fillKpis = input.hasLiveKpis || input.simulated;
   const riskTone =
     input.risk.band === "high" ? "danger" : input.risk.band === "medium" ? "warning" : "success";
   const apyValue =
@@ -84,25 +90,25 @@ export function buildDashboardHeroKpis(input: {
     {
       label: "Risk",
       value:
-        input.hasLiveKpis && input.risk.composite > 0
+        fillKpis && input.risk.composite > 0
           ? `${input.risk.composite}/100`
           : "—",
       sublabel:
-        input.hasLiveKpis && input.risk.composite > 0
+        fillKpis && input.risk.composite > 0
           ? input.risk.bandLabel
           : "awaiting snapshot",
       provenance: heroProvenance(input.riskProvenance),
-      alert: input.hasLiveKpis && riskTone === "danger",
+      alert: fillKpis && riskTone === "danger",
     },
     {
       label: "Mining",
       value:
-        input.hasLiveKpis && input.miningMarginScore > 0
+        fillKpis && input.miningMarginScore > 0
           ? `${input.miningMarginScore}/100`
           : "—",
       sublabel: hashpriceLabel(input.data, input.hasLiveKpis),
       provenance: heroProvenance(input.miningProvenance),
-      alert: input.hasLiveKpis && input.miningMarginScore > 0 && input.miningMarginScore < 15,
+      alert: fillKpis && input.miningMarginScore > 0 && input.miningMarginScore < 15,
     },
     {
       label: "Proof",

@@ -56,6 +56,9 @@ function buildKpis(opts: {
   hasLiveKpis: boolean;
   proofFresh: boolean;
   proof: AdminProofStatus;
+  simulated?: boolean;
+  risk?: RiskFrameworkData;
+  miningMarginScore?: number;
 }) {
   return buildDashboardHeroKpis({
     capitalUsdc: 0,
@@ -64,11 +67,12 @@ function buildKpis(opts: {
     headlineApy: null,
     yieldPosture: "awaiting first snapshot",
     apyProvenance: "manual",
-    risk: RISK,
-    riskProvenance: "manual",
-    miningMarginScore: 0,
-    miningProvenance: "manual",
+    risk: opts.risk ?? RISK,
+    riskProvenance: opts.simulated ? "simulated" : "manual",
+    miningMarginScore: opts.miningMarginScore ?? 0,
+    miningProvenance: opts.simulated ? "simulated" : "manual",
     hasLiveKpis: opts.hasLiveKpis,
+    simulated: opts.simulated ?? false,
     proofFresh: opts.proofFresh,
     proofProvenance: opts.proofFresh ? "attested" : opts.proof.attestationsCount > 0 ? "stale" : "manual",
     proof: opts.proof,
@@ -108,5 +112,64 @@ describe("Proof KPI value — seed honesty", () => {
   it('live context + no proof shows "Pending"', () => {
     const kpis = buildKpis({ hasLiveKpis: true, proofFresh: false, proof: PROOF_EMPTY });
     expect(proofKpi(kpis).value).toBe("Pending");
+  });
+});
+
+function riskKpi(kpis: ReturnType<typeof buildKpis>) {
+  return kpis.find((k) => k.label === "Risk")!;
+}
+
+function miningKpi(kpis: ReturnType<typeof buildKpis>) {
+  return kpis.find((k) => k.label === "Mining")!;
+}
+
+const RISK_SIM: RiskFrameworkData = {
+  composite: 38,
+  band: "low",
+  bandLabel: "Low",
+  dimensions: [],
+  source: "partial",
+};
+
+describe("Risk / Mining KPI values — demo (simulated) fill", () => {
+  it("seed context (not live, not simulated) keeps Risk/Mining empty", () => {
+    const kpis = buildKpis({
+      hasLiveKpis: false,
+      proofFresh: false,
+      proof: PROOF_EMPTY,
+      risk: RISK_SIM,
+      miningMarginScore: 64,
+    });
+    expect(riskKpi(kpis).value).toBe("—");
+    expect(miningKpi(kpis).value).toBe("—");
+  });
+
+  it("simulated context fills Risk (composite) and Mining (margin) values", () => {
+    const kpis = buildKpis({
+      hasLiveKpis: false,
+      proofFresh: false,
+      proof: PROOF_EMPTY,
+      simulated: true,
+      risk: RISK_SIM,
+      miningMarginScore: 64,
+    });
+    expect(riskKpi(kpis).value).toBe("38/100");
+    expect(miningKpi(kpis).value).toBe("64/100");
+  });
+
+  it("simulated provenance stays honest — never live/attested", () => {
+    const kpis = buildKpis({
+      hasLiveKpis: false,
+      proofFresh: false,
+      proof: PROOF_EMPTY,
+      simulated: true,
+      risk: RISK_SIM,
+      miningMarginScore: 64,
+    });
+    // heroProvenance maps "simulated" → "estimated" for the badge.
+    expect(riskKpi(kpis).provenance).toBe("estimated");
+    expect(miningKpi(kpis).provenance).toBe("estimated");
+    expect(riskKpi(kpis).provenance).not.toBe("live");
+    expect(miningKpi(kpis).provenance).not.toBe("attested");
   });
 });

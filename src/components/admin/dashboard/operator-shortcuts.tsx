@@ -13,7 +13,7 @@ export function OperatorShortcuts({ actions }: { actions: AdminActionItem[] }) {
 
   return (
     <section aria-label="Operator shortcuts" className="dashboard-command-shortcuts">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between">
         <DashboardPanelHeader title="Operator queues" tone="quiet" className="mb-0" />
       </div>
       <div className="dashboard-command-shortcuts__grid">
@@ -24,7 +24,7 @@ export function OperatorShortcuts({ actions }: { actions: AdminActionItem[] }) {
             className="group p-0 transition-colors hover:border-(--ct-border-strong)"
           >
             <Link href={action.href} className="flex items-center gap-4 p-5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--ct-border-accent) bg-(--ct-accent) text-(--ct-bg-deep) shadow-[0_0_18px_color-mix(in_srgb,var(--ct-accent)_20%,transparent)] transition-colors font-bold">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--ct-border-accent) bg-(--ct-accent) text-(--ct-bg-deep) transition-colors font-bold">
                 {action.count}
               </div>
               <div className="min-w-0 flex-1">
