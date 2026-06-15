@@ -1,9 +1,10 @@
 import { Card } from "@/components/ui/card";
-import { EmptySurface } from "@/components/ui/empty-surface";
 import { allocationLabelFor, allocationStrokeFor } from "@/lib/allocation-colors";
+import { dashboardUsdCompact } from "@/lib/admin/dashboard-formatters";
+import {
+  DASHBOARD_ZERO_ALLOCATIONS,
+} from "@/lib/admin/dashboard-vault-signals";
 import type { DashboardAllocation } from "@/lib/data/dashboard";
-
-import { usdCompact } from "./formatters";
 
 function conicGradientFromAllocations(allocations: DashboardAllocation[]): string {
   let cumul = 0;
@@ -32,23 +33,17 @@ export function AllocationOrbit({
   capitalUsdc: number;
   allocationTotal: number;
 }) {
-  if (!live) {
-    return (
-      <Card className="dashboard-command-cell dashboard-command-cell--awaiting">
-        <EmptySurface
-          variant="inline"
-          className="dashboard-orbit-empty"
-          message="Allocation map appears after the first vault snapshot."
-        />
-      </Card>
-    );
-  }
-
-  const gradient = conicGradientFromAllocations(allocations);
+  const displayAllocations = live ? allocations : DASHBOARD_ZERO_ALLOCATIONS;
+  const gradient = conicGradientFromAllocations(displayAllocations);
+  const mappedPct = live ? allocationTotal : 0;
 
   return (
-    <Card className="dashboard-command-cell" aria-label="Vault allocation map">
-      <div className="dashboard-orbit">
+    <Card
+      hoverOverlay={false}
+      className={`dashboard-command-cell ${live ? "" : "dashboard-command-cell--awaiting"}`}
+      aria-label={live ? "Vault allocation map" : "Vault allocation map awaiting first snapshot"}
+    >
+      <div className={`dashboard-orbit ${live ? "" : "dashboard-orbit--target"}`}>
         <div className="dashboard-orbit__visual">
           <div className="dashboard-orbit__track" aria-hidden />
           <div
@@ -58,12 +53,12 @@ export function AllocationOrbit({
           />
           <div className="dashboard-orbit__core">
             <span>AUM</span>
-            <strong className="tabular">{usdCompact.format(capitalUsdc)}</strong>
-            <small>{allocationTotal.toFixed(0)}% mapped</small>
+            <strong className="tabular">{dashboardUsdCompact.format(live ? capitalUsdc : 0)}</strong>
+            <small>{mappedPct.toFixed(0)}% mapped</small>
           </div>
         </div>
         <ul className="dashboard-orbit__legend" aria-label="Allocation legend">
-          {allocations.map((item) => (
+          {displayAllocations.map((item) => (
             <li key={item.bucket}>
               <span
                 className="dashboard-orbit__legend-dot"
@@ -75,6 +70,9 @@ export function AllocationOrbit({
             </li>
           ))}
         </ul>
+        {!live ? (
+          <p className="dashboard-instrument-note">Awaiting first live snapshot.</p>
+        ) : null}
       </div>
     </Card>
   );

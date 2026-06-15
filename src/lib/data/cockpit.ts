@@ -5,6 +5,8 @@ import { loadLatestTimelineSnapshot } from "@/lib/data/timeline-snapshot";
 import { adminDashboardVaultHref } from "@/lib/vaults/dashboard-scope";
 import { listAllVaults } from "@/lib/vaults/resolver";
 import { vaultLabel, vaultSlug } from "@/lib/vaults/slug";
+import { canRunDemoProvider } from "@/lib/demo/guard";
+import { buildDemoCockpitPayload } from "@/lib/demo/admin/cockpit";
 
 // =============================================================================
 // Cockpit Admin Dashboard — data loaders.
@@ -543,6 +545,8 @@ async function buildAuditTrail(): Promise<AuditTrailEntry[]> {
 // ---------------------------------------------------------------------------
 
 export async function loadCockpitPayload(): Promise<CockpitPayload> {
+  if (canRunDemoProvider()) return buildDemoCockpitPayload();
+
   const [actionQueue, vaultMetrics, inngestJobs, sentryStats, onChainEvents, auditTrail] =
     await Promise.all([
       buildActionQueue(),

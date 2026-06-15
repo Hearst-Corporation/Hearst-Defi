@@ -30,6 +30,10 @@ export function FixtureVaultPills({
       {DASHBOARD_FIXTURE_VAULTS.map((vault) => {
         const href = resolveHref(vault.id);
         const active = activeFixture === vault.id;
+        const shortName = vault.label
+          .replace(/^Hearst\s+/i, "")
+          .replace(/\s+Vault$/i, "");
+
         return (
           <Link
             key={vault.id}
@@ -41,7 +45,10 @@ export function FixtureVaultPills({
             )}
             title={vault.label}
           >
-            {vault.ticker}
+            <span className="fixture-vault-pills__ticker">{vault.ticker}</span>
+            <span className="fixture-vault-pills__name" aria-hidden>
+              · {shortName}
+            </span>
           </Link>
         );
       })}

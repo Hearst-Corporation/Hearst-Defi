@@ -85,13 +85,13 @@
   --weight-black: 800;
 
   /* Letter spacing — mirror cockpit.css --ct-tracking-* (source of truth) */
-  --tracking-tight: -0.03em; /* was -0.02em — aligned on --ct-tracking-tight */
-  --tracking-normal: 0;
-  --tracking-uppercase: 0.08em;
+  --tracking-tight: -0.04em; /* Tightened for Swiss design feel */
+  --tracking-normal: -0.01em;
+  --tracking-uppercase: 0.12em; /* More spaced for eyebrows */
   --tracking-loose: 0.05em;
-  --tracking-wide: 0.04em; /* mirror --ct-tracking-wide */
-  --tracking-wider: 0.08em; /* mirror --ct-tracking-wider */
-  --tracking-display: 0.2em;
+  --tracking-wide: 0.06em;
+  --tracking-wider: 0.1em;
+  --tracking-display: 0.25em;
 
   /* Line heights — mirror cockpit.css --ct-leading-* (source of truth) */
   --leading-display: 1.1;

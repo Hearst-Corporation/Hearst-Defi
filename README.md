@@ -95,15 +95,13 @@ admin dédiée (`/admin/product-workspace`, `/admin/scenario-lab`, `/admin/dashb
 `/admin/governance`, `/admin/roadmap`, `/admin/projection`). Le mode `review`
 reste sans tools.
 
-**Admin dashboard (`/admin/dashboard`)** — deux plans de données : KPIs vault
-(capital, APY, NAV, mining) = timeline per-vault ; action queue, proof,
-distributions, audit = signaux platform-wide. Bannière `DashboardDataNotice`
-au-dessus du command board quand seul le second plan est alimenté (ou vault
-fixture HDV/HBP en preview Phase 3). Fixtures HYV/HDV/HBP = metadata engine ;
-snapshot DB encore scoped Yield jusqu'à Phase 3. Surfaces vault-scoped :
-`DashboardCommandCell` + `EmptySurface` quand `hasLiveKpis` est faux — pas de
-données platform (distribution, proof, risk bars, orbit cible) injectées dans les
-modules vault. Ops platform = KPI strip + section cockpit (`row-c`).
+**Admin dashboard (`/admin/dashboard`)** — layout command-center :
+KPI strip (vault) → charts vault (allocation orbit + NAV, gated `hasLiveKpis`
+via `src/lib/admin/dashboard-vault-signals.ts`) → operator queues → cockpit
+ops (action queue, live metrics, live ops) → audit trail. Bannière
+`DashboardDataNotice` quand KPIs vault et signaux platform divergent.
+Risk / proof / distribution = KPI strip + liens operator shortcuts, pas de
+panels détail sur cette page. Barrel : `@/components/admin/dashboard`.
 
 ---
 

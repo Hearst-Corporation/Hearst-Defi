@@ -1,9 +1,14 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { DashboardAssetsBoard } from "@/components/admin/dashboard-assets-board";
+import {
+  DashboardAssetsBoard,
+  DashboardDataNotice,
+} from "@/components/admin/dashboard";
+import { VaultTransition } from "@/components/admin/dashboard/vault-transition";
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
-import { Card } from "@/components/ui/card";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { resolveDashboardPageInputs } from "@/lib/admin/dashboard-page-view";
+import {
+  resolveDashboardDataNotice,
+  resolveDashboardPageInputs,
+} from "@/lib/admin/dashboard-page-view";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadAdminOverview } from "@/lib/data/admin-overview";
 import { loadCockpitPayload } from "@/lib/data/cockpit";
@@ -30,6 +35,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   ]);
 
   const page = resolveDashboardPageInputs(data, risk, overview);
+  const dataNotice = resolveDashboardDataNotice(
+    data,
+    overview,
+    cockpit,
+    page.hasLiveKpis,
+    page.preview,
+  );
 
   return (
     <div className="admin-doc-shell admin-doc-shell--compact">
@@ -39,63 +51,32 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           eyebrow={`${data.vaultMeta.name} · as of ${formatAdminDate(data.vault.asOf)}`}
           actionsLayout="stack"
           actions={
-            <>
-              <FixtureVaultPills
-                activeVaultId={data.vaultMeta.id}
-                resolveHref={adminDashboardVaultHref}
-              />
-            </>
+            <FixtureVaultPills
+              activeVaultId={data.vaultMeta.id}
+              resolveHref={adminDashboardVaultHref}
+            />
           }
         />
       </div>
 
-      <DashboardAssetsBoard
-        data={page.data}
-        risk={risk}
-        proof={overview.proof}
-        actions={overview.actions}
-        totalActionRequired={overview.totalActionRequired}
-        capitalUsdc={page.capitalUsdc}
-        capitalProvenance={page.capitalProvenance}
-        headlineApy={page.headlineApy}
-        hasLiveKpis={page.hasLiveKpis}
-        yieldPosture={page.yieldPosture}
-        proofFresh={page.proofFresh}
-        cockpit={cockpit}
-      />
+      {dataNotice ? <DashboardDataNotice notice={dataNotice} /> : null}
 
-      {page.preview ? (
-        <Card className="relative z-10 border-(--ct-status-warning-border) bg-transparent">
-          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
-            <span className="stat-label ct-status-warning">
-              Per-vault live snapshot pending
-            </span>
-            <ProvenanceBadge kind="estimated" />
-          </div>
-          <p className="mt-3 body-sm ct-text-muted max-w-3xl">
-            {data.vaultMeta.name} live KPIs (capital, risk, yield) land with the Phase 3
-            multi-vault schema. Capital and yield below are the {data.vaultMeta.name}
-            methodology preset — the action queue and proof status remain live and
-            platform-wide.
-          </p>
-        </Card>
-      ) : null}
-
-      {!page.preview && data.hasTimelineSnapshot && !data.hasLiveTimelineSnapshot ? (
-        <Card className="relative z-10 border-(--ct-status-info-border) bg-transparent">
-          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
-            <span className="stat-label ct-text-muted">
-              Local seed data · Staging signals — not production
-            </span>
-            <ProvenanceBadge kind="manual" />
-          </div>
-          <p className="mt-3 body-sm ct-text-muted max-w-3xl">
-            KPIs are sourced from <code className="font-mono">{data.latestSnapshotSource}</code> snapshots.
-            Run <code className="font-mono">db:seed</code> with live oracle data or ingest a real snapshot
-            to activate production provenance badges.
-          </p>
-        </Card>
-      ) : null}
+      <VaultTransition vaultId={data.vaultMeta.id}>
+        <DashboardAssetsBoard
+          data={page.data}
+          risk={risk}
+          proof={overview.proof}
+          actions={overview.actions}
+          totalActionRequired={overview.totalActionRequired}
+          capitalUsdc={page.capitalUsdc}
+          capitalProvenance={page.capitalProvenance}
+          headlineApy={page.headlineApy}
+          hasLiveKpis={page.hasLiveKpis}
+          yieldPosture={page.yieldPosture}
+          proofFresh={page.proofFresh}
+          cockpit={cockpit}
+        />
+      </VaultTransition>
     </div>
   );
 }

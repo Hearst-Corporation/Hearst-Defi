@@ -70,19 +70,19 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
 
   return (
     <tr className="border-b border-(--ct-border-soft)">
-      <td className="ct-table-cell tabular body-xs ct-text-muted">
+      <td className="ct-table-cell tabular body-xs ct-text-muted text-left">
         {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
       </td>
-      <td className="ct-table-cell ct-text-muted mono body-xs">
+      <td className="ct-table-cell ct-text-muted mono body-xs text-left">
         {wallet}
       </td>
-      <td className="ct-table-cell ct-text-body truncate">
+      <td className="ct-table-cell ct-text-body truncate text-left">
         {entry.action}
       </td>
-      <td className="hidden ct-table-cell ct-text-muted md:table-cell">
+      <td className="hidden ct-table-cell ct-text-muted text-left md:table-cell">
         {entry.entityType}
       </td>
-      <td className="hidden ct-table-cell ct-text-muted mono body-xs lg:table-cell">
+      <td className="hidden ct-table-cell ct-text-muted mono body-xs text-left lg:table-cell">
         {entityId}
       </td>
     </tr>

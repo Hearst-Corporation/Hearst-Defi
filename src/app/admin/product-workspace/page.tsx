@@ -385,172 +385,184 @@ export default async function ProductWorkspacePage({
         }
       />
 
-      <Card hoverOverlay={false} className="pw-hero-panel p-6 sm:p-8">
-        <div className="pw-hero__row">
-          <div className="pw-hero__main">
+      <Card hoverOverlay={false} className="p-5 sm:p-7">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_240px] gap-6 lg:gap-10">
+          <div className="flex flex-col gap-3">
             <p className="eyebrow">Objective</p>
             <p
               className={cn(
-                "pw-hero__thesis",
-                !objective && "pw-hero__thesis--empty",
+                "h2 ct-text-strong text-balance",
+                !objective && "ct-text-muted italic"
               )}
             >
               {objective ?? "Awaiting objective from cockpit agent"}
             </p>
-            <p className="pw-hero__mandate">
-              Frame and document only — no vault creation, allocations, or approvals
-              from this surface.
+            <p className="body-sm ct-text-body mt-1">
+              Frame and document only — no vault creation, allocations, or approvals from this surface.
             </p>
           </div>
-          <div className="pw-hero__aside">
-            <Badge variant="accent">Human-in-the-loop</Badge>
-            <Badge variant={decisionBadgeVariant(decision)}>
-              {decision.label} — {decision.status}
-            </Badge>
+          <div className="flex flex-col gap-3 lg:border-l lg:border-(--ct-border-soft) lg:pl-7">
+            <div className="flex flex-col gap-2">
+              <p className="stat-label">Execution Mandate</p>
+              <Badge variant="accent" className="w-fit">Human-in-the-loop</Badge>
+            </div>
+            <div className="flex flex-col gap-2">
+              <p className="stat-label">Decision Status</p>
+              <Badge variant={decisionBadgeVariant(decision)} className="w-fit">
+                {decision.label} — {decision.status}
+              </Badge>
+            </div>
           </div>
         </div>
       </Card>
 
       <section aria-labelledby="pw-brief-heading" className="admin-doc-section">
-        <h2 id="pw-brief-heading" className="h2">
-          Product inference
-        </h2>
+        <Card hoverOverlay={false} contentClassName="flex flex-col">
+          {/* Header intégré */}
+          <div className="flex items-center justify-between border-b ct-bc-soft px-6 py-5 sm:px-8">
+            <div className="flex items-center gap-3">
+              <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
+              <h2 id="pw-brief-heading" className="h2">Product inference</h2>
+            </div>
+          </div>
 
-        <div className="admin-doc-split-grid admin-doc-split-grid--brief">
-          <Card hoverOverlay={false} className="p-6 sm:p-8" contentClassName="flex flex-col gap-6">
-            <CardTitle>Inferred product line</CardTitle>
-            <div className="admin-doc-stack admin-doc-stack--tight max-w-md">
-              <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                <span className="body-xs ct-text-muted">Vault</span>
-                <span className="body-sm ct-text-strong">
-                  {inferredVault.label} · {inferredVault.ticker}
-                </span>
+          <div className="grid grid-cols-1 lg:grid-cols-2">
+            {/* Colonne 1: Inferred product line */}
+            <div className="flex flex-col gap-6 p-6 sm:p-8 lg:border-r lg:border-(--ct-border-soft)">
+              <div className="admin-doc-stack admin-doc-stack--tight">
+                <div className="admin-doc-inline-row admin-doc-inline-row--between py-2 border-b border-(--ct-border-soft)">
+                  <span className="body-xs ct-text-muted">Vault</span>
+                  <span className="body-sm ct-text-strong">
+                    {inferredVault.label} · {inferredVault.ticker}
+                  </span>
+                </div>
+                <div className="admin-doc-inline-row admin-doc-inline-row--between py-2 border-b border-(--ct-border-soft)">
+                  <span className="body-xs ct-text-muted">Base mode</span>
+                  <span className="body-sm ct-text-strong">{inferredVault.baseMode}</span>
+                </div>
+                <div className="admin-doc-inline-row admin-doc-inline-row--between py-2 border-b border-(--ct-border-soft)">
+                  <span className="body-xs ct-text-muted">APY range</span>
+                  <span className="body-sm ct-text-strong inline-flex items-baseline gap-x-2">
+                    <ApyRange
+                      low={inferredVault.apyTarget.low}
+                      high={inferredVault.apyTarget.high}
+                      precision={1}
+                      className="body-sm ct-text-strong"
+                    />
+                  </span>
+                </div>
+                <div className="admin-doc-inline-row admin-doc-inline-row--between py-2 border-b border-(--ct-border-soft)">
+                  <span className="body-xs ct-text-muted">Methodology</span>
+                  <span className="body-sm ct-text-strong">{inferredVault.methodologyVersion}</span>
+                </div>
               </div>
-              <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                <span className="body-xs ct-text-muted">Base mode</span>
-                <span className="body-sm ct-text-body">{inferredVault.baseMode}</span>
-              </div>
-              <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                <span className="body-xs ct-text-muted">APY range</span>
-                <span className="body-sm ct-text-strong inline-flex flex-wrap items-baseline justify-end gap-x-2">
-                  <ApyRange
-                    low={inferredVault.apyTarget.low}
-                    high={inferredVault.apyTarget.high}
-                    precision={1}
-                    className="body-sm ct-text-strong"
-                  />
-                  <span className="body-xs ct-text-muted">Estimated</span>
-                </span>
-              </div>
-              <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                <span className="body-xs ct-text-muted">Methodology</span>
-                <span className="body-sm ct-text-body">{inferredVault.methodologyVersion}</span>
-              </div>
+
+              {persistedDraft ? (
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-(--ct-status-info)" />
+                  <p className="body-xs ct-text-faint">
+                    Saved draft · {persistedDraft.vaultTicker} · {persistedDraft.updatedAtIso}
+                  </p>
+                </div>
+              ) : null}
+
+              {scenarioSecondary ? (
+                <div className="mt-auto pt-4 flex flex-col items-start gap-3">
+                  <p className="body-xs ct-text-muted">
+                    {secondaryHint ?? "Scenario Lab validation requested"} — supporting evidence only.
+                  </p>
+                  <Button variant="secondary" size="sm" asChild>
+                    <Link href={buildScenarioLabHref(objective)}>Open Scenario Lab</Link>
+                  </Button>
+                </div>
+              ) : null}
             </div>
 
-            {persistedDraft ? (
-              <p className="body-xs ct-text-faint">
-                Saved draft · {persistedDraft.vaultTicker} · {persistedDraft.updatedAtIso}
-              </p>
-            ) : null}
-
-            {scenarioSecondary ? (
-              <div className="admin-doc-inline-row admin-doc-inline-row--between items-start">
-                <p className="body-xs ct-text-muted ct-prose-md">
-                  {secondaryHint ?? "Scenario Lab validation requested"} — supporting
-                  evidence only.
-                </p>
-                <Button variant="secondary" size="sm" asChild>
-                  <Link href={buildScenarioLabHref(objective)}>Open Scenario Lab</Link>
-                </Button>
-              </div>
-            ) : null}
-          </Card>
-
-          <Card hoverOverlay={false} className="p-6 sm:p-8" contentClassName="flex flex-col gap-6">
-            <CardTitle>Calculation notes</CardTitle>
-            <ul className="admin-doc-stack admin-doc-stack--tight">
-              {CALC_NOTES.map((note) => (
-                <li key={note} className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap">
-                  <span aria-hidden className="pw-bullet" />
-                  <div className="admin-doc-stack admin-doc-stack--tight flex-1 min-w-0">
-                    <span className="body-sm ct-text-muted">{note}</span>
+            {/* Colonne 2: Calculation notes */}
+            <div className="flex flex-col gap-6 p-6 sm:p-8">
+              <p className="eyebrow">Calculation notes</p>
+              <div className="admin-doc-stack admin-doc-stack--tight">
+                {CALC_NOTES.map((note, idx) => (
+                  <div key={note} className="flex gap-3 py-1">
+                    <span className="body-xs ct-text-faint mono mt-0.5">{String(idx + 1).padStart(2, "0")}</span>
+                    <span className="body-sm ct-text-body">{note}</span>
                   </div>
-                </li>
-              ))}
-            </ul>
-            <div className="border-l-2 border-(--ct-status-warning) pl-4 admin-doc-stack admin-doc-stack--micro mt-2">
-              <p className="stat-label ct-status-warning">Required disclaimer</p>
-              <p className="body-xs ct-text-muted">
-                Conditional projection — not a committed outcome. For professional /
-                qualified investors only.
-              </p>
+                ))}
+              </div>
+              <div className="mt-auto border-l-2 border-(--ct-status-warning) pl-4 py-2">
+                <p className="stat-label ct-status-warning mb-1">Required disclaimer</p>
+                <p className="body-xs ct-text-muted">
+                  Conditional projection — not a committed outcome. For professional / qualified investors only.
+                </p>
+              </div>
             </div>
-          </Card>
-        </div>
+          </div>
+        </Card>
       </section>
 
       <section aria-labelledby="pw-notes-heading" className="admin-doc-section">
-        <h2 id="pw-notes-heading" className="h2">
-          Supporting material
-        </h2>
+        <Card hoverOverlay={false} contentClassName="flex flex-col">
+          <div className="flex items-center justify-between border-b ct-bc-soft px-6 py-5 sm:px-8">
+            <div className="flex items-center gap-3">
+              <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
+              <h2 id="pw-notes-heading" className="h2">Supporting material</h2>
+            </div>
+          </div>
 
-        <div className="admin-doc-card-grid-3">
-          <Card hoverOverlay={false} className="p-6" contentClassName="flex flex-col gap-6">
-            <CardTitle>Assumptions</CardTitle>
-            <ul className="admin-doc-stack admin-doc-stack--tight">
-              {inferredVault.assumptions.map((assumption) => (
-                <li key={assumption} className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap">
-                  <span aria-hidden className="pw-bullet" />
-                  <div className="admin-doc-stack admin-doc-stack--tight flex-1 min-w-0">
+          <div className="grid grid-cols-1 lg:grid-cols-3">
+            {/* Col 1 */}
+            <div className="flex flex-col gap-5 p-6 sm:p-8 lg:border-r lg:border-(--ct-border-soft)">
+              <p className="eyebrow">Assumptions</p>
+              <div className="admin-doc-stack admin-doc-stack--tight">
+                {inferredVault.assumptions.map((assumption, idx) => (
+                  <div key={assumption} className="flex gap-3 py-2 border-b border-(--ct-border-soft) last:border-0">
+                    <span className="body-xs ct-text-faint mono mt-0.5">{idx + 1}.</span>
                     <span className="body-sm ct-text-body">{assumption}</span>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </Card>
+                ))}
+              </div>
+            </div>
 
-          <Card hoverOverlay={false} className="p-6" contentClassName="flex flex-col gap-6">
-            <CardTitle>Scenario Outputs</CardTitle>
-            <ul className="admin-doc-stack admin-doc-stack--tight">
-              {scenarioOutputNotes.map((note) => (
-                <li key={note} className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap">
-                  <span aria-hidden className="pw-bullet" />
-                  <div className="admin-doc-stack admin-doc-stack--tight flex-1 min-w-0">
+            {/* Col 2 */}
+            <div className="flex flex-col gap-5 p-6 sm:p-8 lg:border-r lg:border-(--ct-border-soft)">
+              <p className="eyebrow">Scenario Outputs</p>
+              <div className="admin-doc-stack admin-doc-stack--tight">
+                {scenarioOutputNotes.map((note, idx) => (
+                  <div key={note} className="flex gap-3 py-2 border-b border-(--ct-border-soft) last:border-0">
+                    <span className="body-xs ct-text-faint mono mt-0.5">{idx + 1}.</span>
                     <span className="body-sm ct-text-body">{note}</span>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </Card>
+                ))}
+              </div>
+            </div>
 
-          <Card hoverOverlay={false} className="p-6" contentClassName="flex flex-col gap-6">
-            <CardTitle>Next Actions</CardTitle>
-            <ol className="admin-doc-stack admin-doc-stack--tight">
-              {NEXT_ACTIONS.map((action, idx) => (
-                <li key={action} className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap">
-                  <span
-                    className="stat-label flex h-6 w-6 shrink-0 items-center justify-center rounded-full tabular-nums ct-surface-3 ct-text-strong"
-                    aria-hidden
-                  >
-                    {idx + 1}
-                  </span>
-                  <div className="admin-doc-stack admin-doc-stack--tight flex-1 min-w-0">
+            {/* Col 3 */}
+            <div className="flex flex-col gap-5 p-6 sm:p-8">
+              <p className="eyebrow">Next Actions</p>
+              <div className="admin-doc-stack admin-doc-stack--tight">
+                {NEXT_ACTIONS.map((action, idx) => (
+                  <div key={action} className="flex items-start gap-3 py-1">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm ct-surface-2 body-xs mono ct-text-strong mt-0.5">
+                      {idx + 1}
+                    </span>
                     <span className="body-sm ct-text-body">{action}</span>
                   </div>
-                </li>
-              ))}
-            </ol>
-          </Card>
-        </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Card>
       </section>
 
       {/* L2 — Chart pack for review */}
       <section aria-labelledby="pw-graphs-heading" className="admin-doc-section">
         <div className="admin-doc-section__head">
-          <h2 id="pw-graphs-heading" className="h2">
-            Charts to attach
-          </h2>
+          <div className="flex items-center gap-3">
+            <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
+            <h2 id="pw-graphs-heading" className="h2">
+              Charts to attach
+            </h2>
+          </div>
           <Badge variant="default">Estimated visuals</Badge>
         </div>
 

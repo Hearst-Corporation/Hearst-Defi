@@ -3,6 +3,8 @@ import "server-only";
 import { prisma } from "@/lib/db";
 import { loadCustody } from "@/lib/data/custody";
 import { evaluateFreshness, type FreshnessKind } from "@/lib/data/freshness";
+import { canRunDemoProvider } from "@/lib/demo/guard";
+import { buildDemoAdminOverview } from "@/lib/demo/admin/overview";
 
 // ---------------------------------------------------------------------------
 // Admin command-center overview contract.
@@ -85,6 +87,8 @@ export interface AdminOverview {
  * inside the dashboard's parallel `Promise.all`.
  */
 export async function loadAdminOverview(): Promise<AdminOverview> {
+  if (canRunDemoProvider()) return buildDemoAdminOverview();
+
   const [
     kycPending,
     distributionsPending,

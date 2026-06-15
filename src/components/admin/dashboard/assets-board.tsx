@@ -2,29 +2,27 @@ import { ActionQueue } from "@/components/admin/cockpit/action-queue";
 import { AuditTrailRolling } from "@/components/admin/cockpit/audit-trail-rolling";
 import { LiveMetrics } from "@/components/admin/cockpit/live-metrics";
 import { LiveOps } from "@/components/admin/cockpit/live-ops";
-import { DashboardKpiStrip } from "@/components/admin/dashboard-kpi-strip";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import {
   computeNavDelta,
-  isProofSlotEmpty,
   resolveApyProvenance,
   resolveProofProvenance,
   resolveRiskProvenance,
 } from "@/lib/admin/dashboard-board-view";
 import { buildDashboardHeroKpis } from "@/lib/admin/dashboard-hero-kpis";
+import {
+  resolveAllocationChartLive,
+  resolveNavChartLive,
+} from "@/lib/admin/dashboard-vault-signals";
 import type { CockpitPayload } from "@/lib/data/cockpit";
 import type { AdminActionItem, AdminProofStatus } from "@/lib/data/admin-overview";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 
 import { AllocationOrbit } from "./allocation-orbit";
-import { CapitalStack } from "./capital-stack";
-import { DashboardCommandCell } from "./command-cell";
-import { DistributionPanel } from "./distribution-panel";
+import { DashboardKpiStrip } from "./kpi-strip";
 import { NavSlot } from "./nav-slot";
 import { OperatorShortcuts } from "./operator-shortcuts";
-import { ProofPulse } from "./proof-pulse";
-import { RiskLens } from "./risk-lens";
 
 export interface DashboardAssetsBoardProps {
   data: DashboardData;
@@ -57,11 +55,10 @@ export function DashboardAssetsBoard({
 }: DashboardAssetsBoardProps) {
   const allocation = data.allocations;
   const allocationTotal = allocation.reduce((sum, item) => sum + item.pct, 0);
-  const allocationLive =
-    data.source === "db" && capitalUsdc > 0 && allocation.length > 0;
+  const allocationLive = resolveAllocationChartLive(hasLiveKpis, data, capitalUsdc);
 
   const navPoints = data.timeseries.nav30d;
-  const navLive = data.timeseries.source === "db" && navPoints.length >= 2;
+  const navLive = resolveNavChartLive(hasLiveKpis, data.timeseries);
   const lastNav = navLive ? (navPoints.at(-1)?.aum_usdc ?? 0) : null;
   const firstNav = navLive ? (navPoints[0]?.aum_usdc ?? 0) : null;
 
@@ -111,37 +108,6 @@ export function DashboardAssetsBoard({
           navDelta={computeNavDelta(lastNav, firstNav)}
           navProvenance={navLive ? "live" : "estimated"}
         />
-      </div>
-
-      <div className="dashboard-command-row-b">
-        <CapitalStack
-          live={allocationLive}
-          allocations={allocation}
-          provenance={capitalProvenance}
-        />
-        <RiskLens risk={risk} riskProvenance={riskProvenance} />
-
-        <DashboardCommandCell
-          ready={data.latestDistribution !== null}
-          emptyMessage="No distribution on file yet."
-          emptyAriaLabel="Distribution awaiting first record"
-        >
-          {data.latestDistribution ? (
-            <DistributionPanel distribution={data.latestDistribution} />
-          ) : null}
-        </DashboardCommandCell>
-
-        <DashboardCommandCell
-          ready={!isProofSlotEmpty(proof)}
-          emptyMessage="Proof and custody records appear after the first attestation or reserve snapshot."
-          emptyAriaLabel="Proof and custody awaiting first record"
-        >
-          <ProofPulse
-            proof={proof}
-            proofFresh={proofFresh}
-            custodyUsdc={proof.custodyReservesUsdc}
-          />
-        </DashboardCommandCell>
       </div>
 
       <OperatorShortcuts actions={actions} />

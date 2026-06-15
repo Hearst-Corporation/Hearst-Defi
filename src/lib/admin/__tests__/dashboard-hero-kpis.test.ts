@@ -82,10 +82,11 @@ function proofKpi(kpis: ReturnType<typeof buildKpis>) {
 }
 
 describe("Proof KPI value — seed honesty", () => {
-  it('seed context with attestation rows shows "On file", not "Attested"', () => {
+  it('seed context with attestation rows shows "Stale" with attestation sublabel', () => {
     const kpis = buildKpis({ hasLiveKpis: false, proofFresh: false, proof: PROOF_WITH_ATTESTATION });
-    expect(proofKpi(kpis).value).toBe("On file");
+    expect(proofKpi(kpis).value).toBe("Stale");
     expect(proofKpi(kpis).provenance).toBe("stale");
+    expect(proofKpi(kpis).sublabel).toContain("Attestation on file");
   });
 
   it('seed context with no attestation shows "Pending"', () => {

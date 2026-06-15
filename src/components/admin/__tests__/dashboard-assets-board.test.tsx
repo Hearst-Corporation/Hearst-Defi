@@ -1,11 +1,11 @@
 /**
- * DashboardAssetsBoard — Admin Honesty contract.
+ * DashboardAssetsBoard — Admin command-center layout contract.
  */
 
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { DashboardAssetsBoard } from "@/components/admin/dashboard-assets-board";
+import { DashboardAssetsBoard } from "@/components/admin/dashboard";
 import type { AdminActionItem, AdminProofStatus } from "@/lib/data/admin-overview";
 import type { CockpitPayload } from "@/lib/data/cockpit";
 import type { DashboardData } from "@/lib/data/dashboard";
@@ -37,12 +37,20 @@ const PROOF: AdminProofStatus = {
 
 const ACTIONS: AdminActionItem[] = [
   {
-    key: "deployments" as AdminActionItem["key"],
-    label: "Deployments",
+    key: "kyc",
+    label: "KYC reviews",
+    count: 2,
+    href: "/admin/customers",
+    tracked: true,
+    hint: "2 investors awaiting verification",
+  },
+  {
+    key: "distributions",
+    label: "Distributions",
     count: 0,
-    href: null,
-    tracked: false,
-    hint: "",
+    href: "/admin/distributions",
+    tracked: true,
+    hint: "No distribution pending approval",
   },
 ];
 
@@ -117,19 +125,11 @@ function makeData(overrides: Partial<DashboardData>): DashboardData {
   return { ...base, ...overrides };
 }
 
-function allocationCard(html: string): string {
-  const marker = "Capital stack appears once";
-  const start = html.indexOf(marker);
-  if (start === -1) return html;
-  const rest = html.slice(start - 200);
-  const end = rest.indexOf("Risk lens");
-  return end === -1 ? rest : rest.slice(0, end);
-}
-
 function render(
   data: DashboardData,
   capitalUsdc: number,
   proof: AdminProofStatus = PROOF,
+  hasLiveKpis = false,
 ) {
   return renderToStaticMarkup(
     <DashboardAssetsBoard
@@ -137,84 +137,80 @@ function render(
       risk={RISK}
       proof={proof}
       actions={ACTIONS}
-      totalActionRequired={0}
+      totalActionRequired={2}
       capitalUsdc={capitalUsdc}
       capitalProvenance="estimated"
       headlineApy={null}
       yieldPosture="awaiting first snapshot"
-      hasLiveKpis={false}
+      hasLiveKpis={hasLiveKpis}
       proofFresh={false}
       cockpit={COCKPIT}
     />,
   );
 }
 
-describe("DashboardAssetsBoard — Admin Honesty", () => {
-  it("fallback source + $0 AUM does NOT render a live CSS orbit ring", () => {
-    const html = render(makeData({ source: "fallback" }), 0);
-    expect(html).toContain("dashboard-orbit-empty");
-    expect(html).not.toContain("dashboard-orbit__ring");
-    expect(html).not.toContain("% mapped");
-  });
-
-  it("fallback source does NOT badge the capital stack as Live", () => {
-    const card = allocationCard(render(makeData({ source: "fallback" }), 0));
-    expect(card).not.toContain(">Live<");
-    expect(card).not.toContain(">Capital stack<");
-    expect(card).toContain("Capital stack appears once the first snapshot");
-  });
-
-  it("no NAV series → no '+0.0% NAV', shows pending instead", () => {
-    const html = render(makeData({ source: "fallback" }), 0);
-    expect(html).not.toContain("% NAV");
-    expect(html).toContain("NAV trend appears after seven booked snapshots");
-    expect(html).not.toContain("NAV trend pending");
-    expect(html).not.toContain("dashboard-nav-bars__bar");
-  });
-
-  it("db source WITH capital renders the live orbit + capital stack", () => {
-    const data = makeData({
+function makeLiveData(overrides: Partial<DashboardData> = {}): DashboardData {
+  return makeData({
+    source: "db",
+    hasTimelineSnapshot: true,
+    latestSnapshotSource: "live",
+    hasLiveTimelineSnapshot: true,
+    allocations: [
+      { bucket: "mining", pct: 40, valueUsdc: 200_000, yieldContributionBps: 0 },
+      { bucket: "usdc_base", pct: 60, valueUsdc: 300_000, yieldContributionBps: 0 },
+    ],
+    timeseries: {
       source: "db",
-      hasTimelineSnapshot: true,
-      allocations: [
-        { bucket: "mining", pct: 40, valueUsdc: 200_000, yieldContributionBps: 0 },
-        { bucket: "usdc_base", pct: 60, valueUsdc: 300_000, yieldContributionBps: 0 },
+      nav30d: [
+        { date: "2026-05-01", aum_usdc: 400_000 },
+        { date: "2026-05-15", aum_usdc: 500_000 },
       ],
-      timeseries: {
-        source: "db",
-        nav30d: [
-          { date: "2026-05-01", aum_usdc: 400_000 },
-          { date: "2026-05-15", aum_usdc: 500_000 },
-        ],
-        apy30d: [],
-      },
-    });
-    const html = renderToStaticMarkup(
-      <DashboardAssetsBoard
-        data={data}
-        risk={RISK}
-        proof={PROOF}
-        actions={ACTIONS}
-        totalActionRequired={0}
-        capitalUsdc={500_000}
-        capitalProvenance="live"
-        headlineApy={{ low: 9.4, high: 12.8 }}
-        yieldPosture="within target band"
-        hasLiveKpis
-        proofFresh={false}
-        cockpit={COCKPIT}
-      />,
-    );
-    expect(html).toContain("dashboard-orbit__ring");
-    expect(html).toContain("% mapped");
-    expect(html).toContain("dashboard-nav-bars__bar");
-    const card = allocationCard(html);
-    expect(card).toContain(">Capital stack<");
-    expect(card).toContain(">Live<");
-    expect(card).not.toContain("Capital stack appears once the first snapshot");
+      apy30d: [],
+    },
+    ...overrides,
+  });
+}
+
+describe("DashboardAssetsBoard — command-center layout", () => {
+  it("prioritizes KPI strip, vault signal charts, operator queues, cockpit operations, then audit trail", () => {
+    const html = render(makeData({ source: "fallback" }), 0);
+
+    const kpis = html.indexOf('aria-label="Vault KPIs"');
+    const vaultSignal = html.indexOf("dashboard-command-row-a");
+    const operatorQueues = html.indexOf('aria-label="Operator shortcuts"');
+    const cockpitOps = html.indexOf('aria-label="Cockpit operations"');
+    const activity = html.indexOf('aria-label="Recent admin activity"');
+
+    expect(kpis).toBeGreaterThan(-1);
+    expect(vaultSignal).toBeGreaterThan(kpis);
+    expect(operatorQueues).toBeGreaterThan(vaultSignal);
+    expect(cockpitOps).toBeGreaterThan(operatorQueues);
+    expect(activity).toBeGreaterThan(cockpitOps);
   });
 
-  it("renders wired admin routes for proof and distributions", () => {
+  it("removes secondary capital, risk, distribution and proof panels from the main dashboard", () => {
+    const html = render(makeData({ source: "fallback" }), 0);
+
+    expect(html).not.toContain(">Capital stack<");
+    expect(html).not.toContain(">Risk lens<");
+    expect(html).not.toContain(">Distribution<");
+    expect(html).not.toContain(">Proof &amp; custody<");
+    expect(html).not.toContain("dashboard-command-row-b");
+    expect(html).not.toContain("dashboard-assets-stack__row");
+    expect(html).not.toContain("dashboard-assets-risk__row");
+  });
+
+  it("keeps operator queues as the business action surface, including KYC", () => {
+    const html = render(makeData({ source: "fallback" }), 0);
+
+    expect(html).toContain(">Operator queues<");
+    expect(html).toContain(">KYC reviews<");
+    expect(html).toContain("2 investors awaiting verification");
+    expect(html).toContain('href="/admin/customers"');
+    expect(html).toContain('href="/admin/distributions"');
+  });
+
+  it("keeps risk, proof and admin queue information in the KPI strip without rendering detail panels", () => {
     const proofWithRecords: AdminProofStatus = {
       ...PROOF,
       proofsTotal: 2,
@@ -224,42 +220,77 @@ describe("DashboardAssetsBoard — Admin Honesty", () => {
       custodyProvenance: "live",
     };
     const html = render(makeData({ source: "fallback" }), 0, proofWithRecords);
-    expect(html).toContain('href="/admin/proof-center"');
-    expect(html).toContain('href="/admin/proofs"');
-    expect(html).toContain('href="/admin/distributions"');
-  });
 
-  it("empty proof slot uses chart placeholder, not active proof panel", () => {
-    const html = render(makeData({ source: "fallback" }), 0);
-    expect(html).toContain("Proof and custody records appear after");
     expect(html).not.toContain('href="/admin/proof-center"');
+    expect(html).not.toContain('href="/admin/proofs"');
+    expect(html).toContain(">Risk<");
+    expect(html).toContain(">Proof<");
+    expect(html).toContain(">Admin queues<");
+    expect(html).toContain(">Stale<");
+    expect(html).toContain("Attestation on file");
+    expect(html).toContain(">2<");
   });
 
-  it("empty cockpit modules use EmptySurface, not panel shells (DS §9)", () => {
+  it("renders empty cockpit modules honestly after the vault signal section", () => {
     const html = render(makeData({ source: "fallback" }), 0);
+    const cockpitOps = html.indexOf('aria-label="Cockpit operations"');
+    const vaultSignal = html.indexOf("dashboard-command-row-a");
+
+    expect(cockpitOps).toBeGreaterThan(-1);
+    expect(cockpitOps).toBeGreaterThan(vaultSignal);
     expect(html).toContain("All clear — no pending actions.");
     expect(html).toContain("No vault telemetry yet.");
     expect(html).toContain("No admin activity recorded yet.");
-    expect(html).not.toContain(">Action Queue<");
-    expect(html).not.toContain(">Live Metrics<");
-    expect(html).not.toContain(">Recent admin activity<");
   });
 
-  it("live command board renders populated cockpit modules", () => {
+  it("renders a zero-state vault signal without claiming live NAV delta", () => {
+    const html = render(makeData({ source: "fallback" }), 0);
+
+    expect(html).toContain("dashboard-orbit--target");
+    expect(html).toContain("Awaiting first live snapshot.");
+    expect(html).toContain("2+ booked snapshots");
+    expect(html).not.toContain("% NAV");
+  });
+
+  it("daily-seed DB rows do not activate live orbit or NAV charts without hasLiveKpis", () => {
+    const html = render(
+      makeData({
+        source: "db",
+        hasTimelineSnapshot: true,
+        latestSnapshotSource: "daily-seed",
+        hasLiveTimelineSnapshot: false,
+        allocations: [
+          { bucket: "mining", pct: 40, valueUsdc: 200_000, yieldContributionBps: 0 },
+          { bucket: "usdc_base", pct: 60, valueUsdc: 300_000, yieldContributionBps: 0 },
+        ],
+        timeseries: {
+          source: "db",
+          nav30d: [
+            { date: "2026-05-01", aum_usdc: 400_000 },
+            { date: "2026-05-15", aum_usdc: 500_000 },
+          ],
+          apy30d: [],
+        },
+      }),
+      500_000,
+    );
+
+    expect(html).toContain("dashboard-orbit--target");
+    expect(html).toContain("Awaiting first live snapshot.");
+    expect(html).toContain("dashboard-nav-bars--muted");
+    expect(html).not.toContain("% NAV");
+    expect(html).not.toContain("40%");
+    expect(html).not.toContain("60%");
+  });
+
+  it("renders live vault signal and populated cockpit modules without restoring removed panels", () => {
     const html = renderToStaticMarkup(
       <DashboardAssetsBoard
-        data={makeData({
-          source: "db",
-          hasTimelineSnapshot: true,
-          allocations: [
-            { bucket: "mining", pct: 40, valueUsdc: 200_000, yieldContributionBps: 0 },
-            { bucket: "usdc_base", pct: 60, valueUsdc: 300_000, yieldContributionBps: 0 },
-          ],
-        })}
+        data={makeLiveData()}
         risk={RISK}
         proof={PROOF}
         actions={ACTIONS}
-        totalActionRequired={0}
+        totalActionRequired={2}
         capitalUsdc={500_000}
         capitalProvenance="live"
         headlineApy={{ low: 9.4, high: 12.8 }}
@@ -315,8 +346,15 @@ describe("DashboardAssetsBoard — Admin Honesty", () => {
         }}
       />,
     );
+
     expect(html).toContain(">Action queue<");
     expect(html).toContain(">Live metrics<");
+    expect(html).toContain(">Live ops<");
     expect(html).toContain(">Recent admin activity<");
+    expect(html).toContain("dashboard-orbit__ring");
+    expect(html).toContain("% mapped");
+    expect(html).toContain("dashboard-nav-bars__bar");
+    expect(html).not.toContain(">Capital stack<");
+    expect(html).not.toContain(">Risk lens<");
   });
 });

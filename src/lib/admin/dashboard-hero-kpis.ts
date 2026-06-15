@@ -1,20 +1,12 @@
 import type { Provenance } from "@/components/ui/provenance-badge";
 import type { AdminProofStatus } from "@/lib/data/admin-overview";
+import { dashboardUsdCompact } from "@/lib/admin/dashboard-formatters";
 import type { HeroKpi } from "@/lib/data/cockpit";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 import { formatAdminMonthDay } from "@/lib/vaults/product-display";
 
-const usdCompact = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-
 function heroProvenance(kind: Provenance): HeroKpi["provenance"] {
-  // The admin dashboard has no demo mode, so "simulated" never reaches here in
-  // practice; map it (like "partial") into the narrower HeroKpi provenance type.
   if (kind === "partial" || kind === "simulated") return "estimated";
   return kind;
 }
@@ -26,11 +18,29 @@ function hashpriceLabel(data: DashboardData, hasLiveKpis: boolean): string {
   return `$${hashprice.usd_per_th_day.toFixed(3)} / TH / day`;
 }
 
-function proofSubtitle(proof: AdminProofStatus): string {
+function proofSubtitle(proof: AdminProofStatus, hasLiveKpis: boolean): string {
+  if (!hasLiveKpis && proof.attestationsCount > 0) {
+    const date = proof.lastMiningAttestationAt
+      ? formatAdminMonthDay(proof.lastMiningAttestationAt)
+      : null;
+    return date ? `Attestation on file · ${date}` : "Attestation on file";
+  }
   if (proof.lastMiningAttestationAt) {
     return `Last ${formatAdminMonthDay(proof.lastMiningAttestationAt)}`;
   }
   return proof.proofsTotal > 0 ? `${proof.proofsTotal} proofs on file` : "No attestation yet";
+}
+
+function proofValue(
+  hasLiveKpis: boolean,
+  proofFresh: boolean,
+  attestationsCount: number,
+): string {
+  if (hasLiveKpis) {
+    if (proofFresh) return "Current";
+    return attestationsCount > 0 ? "Stale" : "Pending";
+  }
+  return attestationsCount > 0 ? "Stale" : "Pending";
 }
 
 export function buildDashboardHeroKpis(input: {
@@ -61,7 +71,7 @@ export function buildDashboardHeroKpis(input: {
   return [
     {
       label: "Capital",
-      value: input.capitalUsdc > 0 ? usdCompact.format(input.capitalUsdc) : "—",
+      value: input.capitalUsdc > 0 ? dashboardUsdCompact.format(input.capitalUsdc) : "—",
       sublabel: input.vaultName,
       provenance: heroProvenance(input.capitalProvenance),
     },
@@ -82,7 +92,7 @@ export function buildDashboardHeroKpis(input: {
           ? input.risk.bandLabel
           : "awaiting snapshot",
       provenance: heroProvenance(input.riskProvenance),
-      alert: riskTone === "danger",
+      alert: input.hasLiveKpis && riskTone === "danger",
     },
     {
       label: "Mining",
@@ -96,25 +106,18 @@ export function buildDashboardHeroKpis(input: {
     },
     {
       label: "Proof",
-      value: input.hasLiveKpis
-        ? input.proofFresh
-          ? "Current"
-          : input.proof.attestationsCount > 0
-            ? "Stale"
-            : "Pending"
-        : input.proof.attestationsCount > 0
-          ? "On file"
-          : "Pending",
-      sublabel: proofSubtitle(input.proof),
+      value: proofValue(input.hasLiveKpis, input.proofFresh, input.proof.attestationsCount),
+      sublabel: proofSubtitle(input.proof, input.hasLiveKpis),
       provenance: heroProvenance(input.proofProvenance),
     },
     {
-      label: "Queues",
+      label: "Admin queues",
       value: String(input.totalActionRequired),
-      sublabel: input.totalActionRequired === 1 ? "tracked action" : "tracked actions",
+      sublabel:
+        input.totalActionRequired === 1
+          ? "governance-tracked action"
+          : "governance-tracked actions",
       provenance: "manual",
-      // Pending actions are an attention cue, not a danger/degraded state —
-      // highlight in brand green (accent), not danger red.
       accent: input.totalActionRequired > 0,
     },
   ];

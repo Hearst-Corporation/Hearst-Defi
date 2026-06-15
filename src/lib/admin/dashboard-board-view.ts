@@ -21,14 +21,6 @@ export function resolveApyProvenance(
   return "manual";
 }
 
-export function isProofSlotEmpty(proof: AdminProofStatus): boolean {
-  return (
-    proof.proofsTotal === 0 &&
-    proof.attestationsCount === 0 &&
-    (!proof.custodyConfigured || proof.custodyReservesUsdc <= 0)
-  );
-}
-
 export function resolveProofProvenance(
   proofFresh: boolean,
   proof: AdminProofStatus,
@@ -36,14 +28,6 @@ export function resolveProofProvenance(
   if (proofFresh) return "attested";
   if (proof.attestationsCount > 0) return "stale";
   return "manual";
-}
-
-export function riskSeverityTone(
-  severity: string,
-): "success" | "warning" | "danger" {
-  if (severity === "high") return "danger";
-  if (severity === "medium") return "warning";
-  return "success";
 }
 
 export function computeNavDelta(

@@ -1,5 +1,8 @@
 import type { NavPoint } from "@/lib/data/dashboard";
 
+/** Minimum NAV points before the bar chart renders (matches `nav-slot` placeholder). */
+export const MIN_NAV_CHART_POINTS = 2;
+
 export interface NavBarSlice {
   date: string;
   aum_usdc: number;

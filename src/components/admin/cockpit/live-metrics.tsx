@@ -87,7 +87,11 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
         >
           {vault.vaultName}
         </Link>
-        <VaultStatusPill status={vault.status} className="shrink-0" />
+        {vault.hasTimelineData ? (
+          <VaultStatusPill status={vault.status} className="shrink-0" />
+        ) : (
+          <span className="shrink-0 body-xs ct-text-faint font-medium">No telemetry</span>
+        )}
       </div>
 
       <div className="dashboard-live-metrics__grid">

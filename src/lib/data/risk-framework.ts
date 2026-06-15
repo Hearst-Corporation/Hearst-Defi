@@ -5,6 +5,8 @@ import { fetchBtcPrice } from "@/lib/data/btc-price";
 import { loadLatestTimelineSnapshot } from "@/lib/data/timeline-snapshot";
 import { computeRiskBreakdown } from "@/lib/engine/risk";
 import type { ScenarioInputs } from "@/lib/engine/types";
+import { canRunDemoProvider } from "@/lib/demo/guard";
+import { buildDemoRiskFramework } from "@/lib/demo/admin/risk";
 
 // ---------------------------------------------------------------------------
 // Dashboard Risk Framework loader.
@@ -187,6 +189,8 @@ function compositeBand(score: number): { band: RiskBand; label: string } {
 // ---------------------------------------------------------------------------
 
 export async function loadRiskFramework(): Promise<RiskFrameworkData> {
+  if (canRunDemoProvider()) return buildDemoRiskFramework();
+
   const [latestSnapshot, latestMining, btcPrice] = await Promise.all([
     loadLatestTimelineSnapshot({ includeAllocations: true }),
     prisma.miningMetric.findFirst({

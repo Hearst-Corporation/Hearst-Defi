@@ -24,11 +24,11 @@ export function OperatorShortcuts({ actions }: { actions: AdminActionItem[] }) {
             className="group p-0 transition-colors hover:border-(--ct-border-strong)"
           >
             <Link href={action.href} className="flex items-center gap-4 p-5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--ct-surface-1) text-(--ct-text-strong) group-hover:bg-(--ct-accent) group-hover:text-(--ct-bg-deep) transition-colors font-bold">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--ct-border-accent) bg-(--ct-accent) text-(--ct-bg-deep) shadow-[0_0_18px_color-mix(in_srgb,var(--ct-accent)_20%,transparent)] transition-colors font-bold">
                 {action.count}
               </div>
               <div className="min-w-0 flex-1">
-                <strong className="block truncate text-(--ct-text-strong) group-hover:text-(--ct-accent) transition-colors">{action.label}</strong>
+                <strong className="block truncate text-(--ct-accent) transition-colors">{action.label}</strong>
                 <span className="block truncate body-xs ct-text-muted">{action.hint}</span>
               </div>
             </Link>

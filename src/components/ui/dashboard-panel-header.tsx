@@ -38,8 +38,8 @@ export function DashboardPanelHeader({
           id={id}
           className={cn(
             titleRoleClass,
-            "min-w-0 break-words",
-            tone === "quiet" ? "ct-text-muted" : "ct-text-accent"
+            "dashboard-panel-title dashboard-panel-title--accent min-w-0 wrap-break-word uppercase tracking-wider",
+            tone === "primary" && "ct-text-accent",
           )}
         >
           {title}

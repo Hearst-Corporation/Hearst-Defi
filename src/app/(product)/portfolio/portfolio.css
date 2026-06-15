@@ -707,7 +707,7 @@
 }
 
 .pf-cockpit-panel--table {
-  min-height: 12rem;
+  min-height: 11rem;
 }
 
 /* Shared table width floor for header, body rows, and empty status row. */
@@ -747,7 +747,7 @@
     minmax(5.5rem, 1fr);
   gap: var(--ct-space-3);
   padding-bottom: var(--ct-space-2);
-  border-bottom: 1px solid var(--ct-border-soft);
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 130%, transparent);
 }
 
 .pf-positions-row-grid:last-child {
@@ -782,7 +782,7 @@
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  padding: var(--ct-space-8) var(--ct-space-3);
+  padding: var(--ct-space-6) var(--ct-space-3);
 }
 
 /* Positions table — zero-state row under column headers (preview shell) */

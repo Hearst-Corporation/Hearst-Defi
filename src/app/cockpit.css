@@ -57,13 +57,13 @@
   );
   --ct-graphite-subtle-bg: linear-gradient(
     135deg,
-    rgba(0, 0, 0, 0.60) 0%,
-    rgba(0, 0, 0, 0.72) 100%
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.01) 100%
   );
   --ct-graphite-nested-bg: linear-gradient(
     135deg,
-    rgba(0, 0, 0, 0.52) 0%,
-    rgba(0, 0, 0, 0.64) 100%
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.02) 100%
   );
   --ct-graphite-border: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-border-soft));
   --ct-graphite-border-nested: color-mix(in srgb, var(--ct-text-strong) 4%, var(--ct-border-soft));
@@ -1307,6 +1307,12 @@
   gap: var(--ct-space-1);
 }
 
+.dashboard-kpi-strip__label {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 /* Dot-only provenance in dense admin surfaces — label in tooltip + aria-label. */
 .dashboard-provenance-badge--compact {
   min-width: 0;
@@ -1397,32 +1403,21 @@
   flex-direction: column;
 }
 
+.dashboard-command-slot--nav.ct-card,
+.dashboard-command-slot--allocation > .ct-card {
+  background: var(--ct-graphite-subtle-bg);
+  border-color: var(--ct-graphite-border-nested);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+}
+
 .dashboard-command-slot--allocation {
   display: flex;
   justify-content: center;
 }
 
-.dashboard-command-nav-empty,
-.dashboard-orbit-empty {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-}
-
-.dashboard-command-nav-empty {
-  padding-block: var(--ct-space-2);
-}
-
-.dashboard-command-nav-empty span {
-  display: block;
-  max-width: 100%;
-  text-wrap: balance;
-}
-
-.dashboard-orbit-empty {
-  width: min(100%, 8rem);
-  max-width: 100%;
-  justify-self: start;
+.dashboard-command-slot--allocation > .ct-card {
+  padding-inline: 0;
 }
 
 /* ADR-013 exception — empty placeholders only; active modules use Card / ct-glass-panel. */
@@ -1496,6 +1491,8 @@
   min-width: 0;
   flex-direction: column;
   gap: var(--ct-space-3);
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .dashboard-command-performance__header,
@@ -1506,11 +1503,11 @@
   gap: var(--ct-space-3);
 }
 
-.dashboard-command-row-b {
-  display: grid;
-  gap: var(--ct-space-3);
-  grid-template-columns: minmax(0, 1fr);
-  align-items: stretch;
+.dashboard-instrument-note {
+  margin: 0;
+  text-align: center;
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-faint);
 }
 
 .dashboard-command-row-c {
@@ -1530,6 +1527,21 @@
    only; no chrome is added (the Card already owns it). */
 .dashboard-command-cell--awaiting {
   display: flex;
+}
+
+.dashboard-command-cell--awaiting > .ct-z-base {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.dashboard-command-board .dashboard-command-cell--awaiting.ct-card {
+  background: var(--ct-graphite-subtle-bg);
+  border-color: var(--ct-graphite-border-nested);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
 }
 .dashboard-command-board
   .dashboard-command-cell--awaiting
@@ -1702,6 +1714,7 @@
   position: relative;
   width: 10rem;
   height: 10rem;
+  flex-shrink: 0;
 }
 
 .dashboard-orbit__track {
@@ -1719,7 +1732,8 @@
   background: var(--dashboard-orbit-gradient, conic-gradient(var(--ct-surface-3) 0% 100%));
   mask: radial-gradient(circle at center, transparent 58%, black 59%);
   -webkit-mask: radial-gradient(circle at center, transparent 58%, black 59%);
-  filter: drop-shadow(var(--ct-glow-dot));
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--ct-accent) 40%, transparent));
+  transform: translateZ(0);
 }
 
 .dashboard-orbit__core {
@@ -1732,9 +1746,10 @@
   gap: var(--ct-space-0_5);
   border: 1px solid color-mix(in srgb, var(--ct-accent) 24%, var(--ct-border-soft));
   border-radius: var(--ct-radius-full);
-  background: color-mix(in srgb, var(--ct-bg-deep) 72%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-2) 50%, transparent);
   text-align: center;
   backdrop-filter: var(--ct-glass-blur);
+  -webkit-backdrop-filter: var(--ct-glass-blur);
 }
 
 .dashboard-orbit__core span,
@@ -1792,9 +1807,8 @@
   padding: var(--ct-space-3);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-lg);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--ct-text-strong) 4%, transparent), transparent),
-    var(--ct-bg-deep);
+  background: transparent;
+  margin-top: auto;
 }
 
 .dashboard-nav-bars__cell {
@@ -1806,124 +1820,39 @@
 
 .dashboard-nav-bars__bar {
   width: 100%;
-  min-height: var(--ct-space-px);
-  border-radius: var(--ct-radius-sm) var(--ct-radius-sm) 0 0;
+  min-height: 2px;
+  border-radius: 1px 1px 0 0;
+  border-top: 1px solid var(--ct-accent);
   background: linear-gradient(
     180deg,
-    var(--ct-accent-strong),
-    color-mix(in srgb, var(--ct-accent) 45%, transparent)
+    var(--ct-accent),
+    color-mix(in srgb, var(--ct-accent) 20%, transparent)
   );
-  box-shadow: var(--ct-glow-dot);
+  transition: all var(--ct-dur-fast) ease;
 }
 
-.dashboard-nav-bars__bar:focus-visible {
-  outline: 2px solid var(--ct-accent);
-  outline-offset: var(--ct-space-px);
+.dashboard-nav-bars:hover .dashboard-nav-bars__bar {
+  opacity: 0.4;
+  filter: saturate(0.5);
 }
 
-.dashboard-assets-stack,
-.dashboard-assets-risk {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-}
-
-.dashboard-assets-stack__row {
-  display: grid;
-  gap: var(--ct-space-2);
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  padding-block: var(--ct-space-2);
-}
-
-.dashboard-assets-stack__row > div:first-child {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: var(--ct-space-2);
-  color: var(--ct-text-body);
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-medium);
-}
-
-.dashboard-assets-stack__row > div:first-child span:last-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dashboard-assets-stack__dot {
-  width: var(--ct-space-2);
-  height: var(--ct-space-2);
-  flex: none;
-  border-radius: var(--ct-radius-full);
-  box-shadow: var(--ct-glow-dot);
-}
-
-.dashboard-assets-stack__bar {
-  grid-column: 1 / -1;
+.dashboard-nav-bars--muted .dashboard-nav-bars__bar {
+  /* Placeholder bars rest flat at the floor — a ghost baseline, no fake reading. */
   height: var(--ct-space-1);
-  overflow: hidden;
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-2);
+  border-top-color: color-mix(in srgb, var(--ct-text-muted) 30%, transparent);
+  background: color-mix(in srgb, var(--ct-text-muted) 16%, transparent);
 }
 
-.dashboard-assets-stack__bar span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  filter: drop-shadow(var(--ct-glow-dot));
+.dashboard-nav-bars--muted:hover .dashboard-nav-bars__bar {
+  opacity: 1;
+  filter: none;
 }
 
-.dashboard-assets-stack__row strong {
-  color: var(--ct-text-strong);
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-bold);
-}
-
-.dashboard-assets-stack__row small {
-  color: var(--ct-text-faint);
-  font-size: var(--ct-text-xs);
-  grid-column: 1 / -1;
-}
-
-.dashboard-assets-risk__row {
-  display: grid;
-  gap: var(--ct-space-2);
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-}
-
-.dashboard-assets-risk__row > span {
-  overflow: hidden;
-  color: var(--ct-text-body);
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-medium);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dashboard-assets-risk__row strong {
-  color: var(--ct-text-strong);
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-bold);
-}
-
-.dashboard-assets-risk__track {
-  grid-column: 1 / -1;
-  height: var(--ct-space-1_5);
-  overflow: hidden;
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-0);
-}
-
-.dashboard-assets-risk__fill {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: currentColor;
-  box-shadow: var(--ct-glow-dot);
+.dashboard-nav-bars__bar:hover,
+.dashboard-nav-bars__bar:focus-visible {
+  opacity: 1 !important;
+  filter: saturate(1.5) brightness(1.2) !important;
+  outline: none;
 }
 
 @container dash-board (min-width: 18rem) {
@@ -1954,36 +1883,24 @@
 }
 
 @container dash-board (min-width: 30rem) {
-  .dashboard-command-row-b {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .dashboard-command-row-c {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@container dash-board (min-width: 48rem) {
-  .dashboard-command-row-b {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-/* Orbit | NAV side-by-side only when both slots have live data (not awaiting). */
-@container dash-board (min-width: 34rem) {
-  .dashboard-command-row-a:has(
-      .dashboard-command-slot--nav.ct-card:not(.dashboard-command-cell--awaiting)
-    ):has(.dashboard-command-slot--allocation > .ct-card:not(.dashboard-command-cell--awaiting)) {
-    grid-template-columns: minmax(7rem, 0.32fr) minmax(11rem, 1fr);
+/* Orbit | NAV side-by-side from tablet width — independent of live/awaiting state. */
+@container dash-board (min-width: 42rem) {
+  .dashboard-command-row-a {
+    grid-template-columns: minmax(0, 0.34fr) minmax(0, 1fr);
     align-items: stretch;
   }
 
   .dashboard-command-slot--allocation {
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   .dashboard-orbit {
-    justify-self: start;
+    justify-self: center;
   }
 }
 
@@ -2796,7 +2713,8 @@ button.ct-seg-btn {
   background-size: cover;
   background-position: center left;
   background-repeat: no-repeat;
-  filter: brightness(0.95) var(--ct-blur-xs);
+  filter: brightness(0.5) saturate(0.3) var(--ct-blur-xs);
+  opacity: 0.6;
 }
 
 .ct-panels-row::after {
@@ -2805,26 +2723,7 @@ button.ct-seg-btn {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background:
-    radial-gradient(
-      62% 44% at 40% 34%,
-      color-mix(in srgb, var(--ct-accent) 10%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 4%, transparent) 48%,
-      transparent 82%
-    ),
-    radial-gradient(
-      74% 56% at 32% 54%,
-      color-mix(in srgb, var(--ct-text-strong) 22%, transparent) 0%,
-      color-mix(in srgb, var(--ct-text-strong) 9%, transparent) 46%,
-      transparent 80%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 8%, transparent) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 22%, transparent) 100%
-    );
-  opacity: 1;
-  mix-blend-mode: normal;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 /* Centre transparent → laisse voir le fond spatial du parent. La zone de contenu
