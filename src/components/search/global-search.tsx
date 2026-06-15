@@ -143,7 +143,7 @@ function ResultItem({
     >
       <EntityBadge entity={result.entity} />
       <span className="min-w-0 flex-1">
-        <span className="h4 block truncate">
+        <span className="body-sm font-medium block truncate">
           {result.title}
         </span>
         {result.subtitle && (
