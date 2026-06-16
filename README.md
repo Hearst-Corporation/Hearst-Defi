@@ -98,8 +98,7 @@ reste sans tools.
 **Admin dashboard (`/admin/dashboard`)** — layout command-center :
 KPI strip (vault) → charts vault (allocation orbit + NAV, gated `hasLiveKpis`
 via `src/lib/admin/dashboard-vault-signals.ts`) → operator queues → cockpit
-ops (action queue, live metrics, live ops) → audit trail. Bannière
-`DashboardDataNotice` quand KPIs vault et signaux platform divergent.
+ops (action queue, live metrics, live ops) → audit trail.
 Risk / proof / distribution = KPI strip + liens operator shortcuts, pas de
 panels détail sur cette page. Barrel : `@/components/admin/dashboard`.
 
