@@ -147,7 +147,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
                   value=""
                   placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
                   aria-describedby="amt-helper-disabled"
-                  className="ct-input tabular w-full pl-8 pr-4 py-3 mono body-lg opacity-[var(--ct-opacity-60)]"
+                  className="ct-input tabular w-full pl-8 pr-4 py-3 mono body-lg opacity-(--ct-opacity-60)"
                 />
               </div>
               <p id="amt-helper-disabled" className="body-xs mt-1.5 ct-text-muted">
@@ -156,7 +156,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
               </p>
             </section>
 
-            <Checkbox checked={false} onChange={() => {}} className="pointer-events-none opacity-[var(--ct-opacity-60)]">
+            <Checkbox checked={false} onChange={() => {}} className="pointer-events-none opacity-(--ct-opacity-60)">
               I have reviewed and accept the term sheet for {vault.name}.
             </Checkbox>
 
@@ -463,7 +463,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
 
             {awaitingConfirm ? (
               <div
-                className="vault-confirm-panel border-t border-[var(--ct-border-soft)] pt-4"
+                className="vault-confirm-panel border-t border-(--ct-border-soft) pt-4"
                 aria-label={demo ? "Confirm your simulated deposit" : "Confirm your deposit"}
               >
                 <p className="eyebrow">
@@ -530,7 +530,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
                   aria-disabled={!ctaEnabled}
                   className={cn(
                     "vault-form-actions__primary",
-                    !ctaEnabled && "opacity-[var(--ct-opacity-60)] cursor-not-allowed",
+                    !ctaEnabled && "opacity-(--ct-opacity-60) cursor-not-allowed",
                   )}
                 >
                   {ctaLabel(currentCtaState, amount, demo)}
@@ -544,14 +544,12 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
           </div>
         </div>
 
-        {deferredAmount > 0 && (
-          <div className="vault-flow-flat-section">
-            <VaultPanelHeader title="Projected NAV — 24 month horizon" />
-            <div className="vault-panel-body">
-              <TimeToTargetChart amount={deferredAmount} vault={vault} demo={demo} />
-            </div>
+        <div className="vault-flow-flat-section">
+          <VaultPanelHeader title="Projected NAV — 24 month horizon" />
+          <div className="vault-panel-body">
+            <TimeToTargetChart amount={deferredAmount} vault={vault} demo={demo} />
           </div>
-        )}
+        </div>
 
         <div className="vault-flow-flat-section">
           <VaultPanelHeader title="Projection (PTAI)" />

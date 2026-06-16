@@ -8,6 +8,7 @@ import { monthsToTarget, buildProjectionSeries } from "@/lib/projection-chart";
 import type { VaultProduct } from "@/lib/data/vaults";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { demoProvenance } from "@/lib/demo/markers";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 
@@ -63,6 +64,26 @@ function areaPath(xs: number[], ys: number[]): string {
 }
 
 export function TimeToTargetChart({ amount, vault, demo = false }: TimeToTargetChartProps) {
+  if (amount <= 0) {
+    return (
+      <div className="vault-chart-stack">
+        <div className="ct-chart-box-160" role="img" aria-label="Projected NAV chart awaiting deposit amount">
+          <ChartProvenanceCorner kind={demoProvenance(demo, "estimated")} />
+          <ChartDisclaimerUnderlay />
+          <EmptySurface
+            variant="chart"
+            message="Enter a deposit amount to populate the projected NAV horizon."
+            detail="The chart frame stays fixed so review mode and deposit mode share the same layout."
+            className="h-full justify-center"
+          />
+        </div>
+        <p className="body-xs ct-text-faint text-center">
+          Conditional projection — not a projection of future returns. Methodology v1.0.
+        </p>
+      </div>
+    );
+  }
+
   const midApy = (vault.apyLow + vault.apyHigh) / 2;
   const months10pct = monthsToTarget(midApy, TARGET_CUMULATIVE_PCT, CHART_MONTHS);
 
@@ -79,12 +100,15 @@ export function TimeToTargetChart({ amount, vault, demo = false }: TimeToTargetC
   if (!hasData) {
     return (
       <div className="vault-chart-stack">
-        <div
-          className="ct-chart-empty-box"
-          role="img"
-          aria-label="No projection data available"
-        >
-          <p className="body-xs ct-text-muted">No projection data.</p>
+        <div className="ct-chart-box-160" role="img" aria-label="No projection data available">
+          <ChartProvenanceCorner kind={demoProvenance(demo, "estimated")} />
+          <ChartDisclaimerUnderlay />
+          <EmptySurface
+            variant="chart"
+            message="Projection inputs are incomplete."
+            detail="This chart slot remains visible and will populate once the horizon series is available."
+            className="h-full justify-center"
+          />
         </div>
         <p className="body-xs ct-text-faint text-center">
           Conditional projection — not a projection of future returns. Methodology v1.0.
