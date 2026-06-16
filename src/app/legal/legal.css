@@ -1,8 +1,15 @@
 .legal-shell {
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
   max-width: var(--ct-legal-shell-max);
   margin: 0 auto;
   padding: clamp(var(--ct-space-8), 4vw, var(--ct-space-12)) var(--ct-space-6);
   color: var(--ct-text-body);
+}
+
+.legal-body {
+  flex: 1 0 auto;
 }
 
 .legal-header {
@@ -98,7 +105,7 @@
 }
 
 .legal-footer {
-  margin-top: var(--ct-space-12);
+  margin-top: auto;
   padding-top: var(--ct-space-6);
   border-top: 1px solid var(--ct-border-soft);
 }

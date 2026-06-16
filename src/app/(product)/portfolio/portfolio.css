@@ -149,6 +149,7 @@
 }
 
 .pf-footer {
+  margin-top: auto;
   padding-top: var(--ct-space-8);
   padding-bottom: var(--ct-space-16);
   border-top: 1px solid var(--ct-border-soft);
@@ -321,8 +322,10 @@
   position: relative;
   isolation: isolate;
   display: flex;
+  flex: 1 0 auto;
   flex-direction: column;
   gap: var(--ct-space-4);
+  min-height: 100%;
   max-width: 90rem; /* desktop reference width (cockpit fluid scale cap) */
   margin-inline: auto;
   container-type: inline-size;

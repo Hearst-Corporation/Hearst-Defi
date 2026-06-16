@@ -251,7 +251,7 @@ code,
 /* Global legal footer — rendered by AppChrome on every authenticated surface.
    Quiet, hairline-topped, faint links; mirrors the profile footer's legal row. */
 .app-footer {
-  margin-top: var(--ct-space-8);
+  margin-top: auto;
   padding-top: var(--ct-space-4);
   padding-bottom: var(--ct-space-6);
   border-top: 1px solid var(--ct-border-soft);
