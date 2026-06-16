@@ -13,7 +13,7 @@ import { formatAdminDate } from "@/lib/vaults/product-display";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Customers — Hearst Connect",
+  title: "Investors — Hearst Connect",
 };
 
 const usdFull = new Intl.NumberFormat("en-US", {
@@ -57,10 +57,10 @@ export default async function CustomersPage({
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Customers"
+        title="Investors"
       />
 
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Customers">
+      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Investors">
         <h2 className="h2">Directory ({total})</h2>
 
         {customers.length === 0 ? (

@@ -116,14 +116,7 @@ export function CapitalYield({
               stroke="var(--ct-surface-3)"
               strokeDasharray="100 0"
             />
-            {showZeroShell ? (
-              <circle
-                className="dash-chart-circle cy-donut-pending"
-                cx="21"
-                cy="21"
-                r="15.9155"
-              />
-            ) : (
+            {showZeroShell ? null : (
               <>
                 {segments
                   .filter((s) => s.bucket === "mining")
@@ -264,7 +257,7 @@ export function CapitalYield({
             </div>
             <div className="flex items-baseline justify-between">
               <dt className="body-xs min-w-0 truncate ct-text-muted">
-                Stressed (bear) <span className="body-xs opacity-[var(--ct-opacity-70)]">(proxy)</span>
+                Stressed (bear) <span className="body-xs opacity-(--ct-opacity-70)">(proxy)</span>
               </dt>
               <dd
                 className={cn(

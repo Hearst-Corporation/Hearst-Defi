@@ -36,8 +36,13 @@ function HeaderConnectGuest() {
   });
 
   return (
-    <Button variant="primary" size="sm" onClick={() => login()}>
-      Connect Wallet
+    <Button
+      variant="secondary"
+      size="sm"
+      onClick={() => login()}
+      className="connect-rail-identity__button"
+    >
+      Wallet
     </Button>
   );
 }
@@ -52,10 +57,10 @@ function HeaderConnectAuthed() {
     : (user?.email?.address ?? user?.id?.slice(0, 12) ?? "—");
 
   return (
-    <div className="flex items-center gap-2">
-      <Badge variant="default" className="gap-1.5">
+    <div className="connect-rail-identity__wallet">
+      <Badge variant="flat" className="connect-rail-identity__badge">
         <span
-          className="ct-status-dot-success w-1.5 h-1.5 shrink-0 rounded-full"
+          className="connect-rail-identity__dot"
           aria-hidden="true"
         />
         <span className="tabular">{displayAddress}</span>
@@ -66,6 +71,7 @@ function HeaderConnectAuthed() {
         size="sm"
         onClick={() => void logout()}
         aria-label="Disconnect wallet"
+        className="connect-rail-identity__button connect-rail-identity__button--ghost"
       >
         Disconnect
       </Button>

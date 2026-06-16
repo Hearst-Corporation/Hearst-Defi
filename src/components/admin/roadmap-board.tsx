@@ -20,7 +20,7 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
   const mvpPhase = phases.find((phase) => phase.id === "mvp");
 
   return (
-    <div className="admin-doc-stack">
+    <div className="admin-doc-stack admin-doc-stack--relaxed">
       {mvpPhase ? (
         <Card className="max-w-xl" aria-label="MVP progress" hoverOverlay={false}>
           <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--loose">
@@ -48,7 +48,7 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
         phases.map((phase) => (
           <section
             key={phase.id}
-            className="admin-doc-stack"
+            className="admin-doc-stack admin-doc-stack--relaxed"
             aria-label={phase.label}
           >
             <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline admin-doc-inline-row--loose border-b border-(--ct-border-soft) pb-3">
@@ -64,7 +64,7 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
                 className="min-h-24"
               />
             ) : (
-              <div className="admin-doc-stack">
+              <div className="admin-doc-stack admin-doc-stack--relaxed">
                 {phase.weeks.map((week) => (
                   <RoadmapWeekCard key={week.id} week={week} />
                 ))}

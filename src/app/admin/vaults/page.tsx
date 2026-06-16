@@ -4,7 +4,6 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -115,21 +114,20 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
       {/* List */}
       {vaults.length === 0 ? (
-        <Card aria-label="No vault deployments" hoverOverlay={false}>
-          <EmptySurface
-            variant="inline"
-            message="No deployments found."
-            detail="Vault deployments will appear here once created."
-            className="min-h-32"
+        <EmptySurface
+          variant="widget"
+          message="No deployments found."
+          detail="Vault deployments will appear here once created."
+          className="min-h-32"
+          ariaLabel="Vault deployments awaiting creation"
+        >
+          <Link
+            href="/admin/vaults/new"
+            className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-(--ct-border) mt-1"
           >
-            <Link
-              href="/admin/vaults/new"
-              className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-(--ct-border) mt-1"
-            >
-              Create the first one
-            </Link>
-          </EmptySurface>
-        </Card>
+            Create the first one
+          </Link>
+        </EmptySurface>
       ) : (
         <section aria-label="Vault deployments" className="admin-vaults-list">
           {/* Column headers */}

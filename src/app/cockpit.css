@@ -341,14 +341,14 @@
   flex-shrink: 0;
 }
 
-.ct-status-dot-success { background: var(--ct-status-success); box-shadow: 0 0 10px var(--ct-status-success-glow); }
-.ct-status-dot-warning { background: var(--ct-status-warning); box-shadow: 0 0 10px var(--ct-status-warning-glow); }
-.ct-status-dot-danger  { background: var(--ct-status-danger);  box-shadow: 0 0 10px var(--ct-status-danger-glow); }
-.ct-status-dot-info    { background: var(--ct-status-info);    box-shadow: 0 0 10px color-mix(in srgb, var(--ct-status-info) 50%, transparent); }
+.ct-status-dot-success { background: var(--ct-status-success); box-shadow: none; }
+.ct-status-dot-warning { background: var(--ct-status-warning); box-shadow: none; }
+.ct-status-dot-danger  { background: var(--ct-status-danger);  box-shadow: none; }
+.ct-status-dot-info    { background: var(--ct-status-info);    box-shadow: none; }
 
-.ct-status-glow-success { color: var(--ct-status-success); filter: drop-shadow(0 0 8px var(--ct-status-success-glow)); }
-.ct-status-glow-warning { color: var(--ct-status-warning); filter: drop-shadow(0 0 8px var(--ct-status-warning-glow)); }
-.ct-status-glow-danger  { color: var(--ct-status-danger);  filter: drop-shadow(0 0 8px var(--ct-status-danger-glow)); }
+.ct-status-glow-success { color: var(--ct-status-success); filter: none; }
+.ct-status-glow-warning { color: var(--ct-status-warning); filter: none; }
+.ct-status-glow-danger  { color: var(--ct-status-danger);  filter: none; }
 
 /* ── HELPERS texte/surface (utilitaires Cockpit pour purge tokens) ── */
 .ct-text-primary { color: var(--ct-text-primary); }
@@ -2187,7 +2187,7 @@
 .ct-bg-accent.ct-text-deep { color: var(--ct-text-on-accent); }
 .ct-bg-accent-strong-hover:hover { background-color: var(--ct-accent-strong); }
 .ct-text-deep { color: var(--ct-bg-deep); }
-.ct-glow-accent { box-shadow: 0 0 1rem color-mix(in srgb, var(--ct-accent) 25%, transparent); }
+.ct-glow-accent { box-shadow: none; }
 .ct-focus-ring:focus-visible { box-shadow: var(--ct-shadow-focus-ring); }
 .ct-press:active { transform: scale(0.98); }
 .ct-transition-base {
@@ -2338,7 +2338,7 @@
 /* Flat list row inside a week Card — no nested graphite shell */
 .ct-roadmap-item-row {
   min-width: 0;
-  padding: var(--ct-space-2) 0;
+  padding: var(--ct-space-4) 0;
 }
 
 /* Accent rail (border-l only) — highlighted inline row inside a parent card */
@@ -3324,15 +3324,62 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   display: flex;
   justify-content: center;
 }
-.connect-rail-identity .ct-pill,
 .connect-rail-identity button {
   max-width: 100%;
   font-size: var(--ct-text-micro);
+  /* Rail étroit (~72px de contenu) : label sur une seule ligne, jamais de wrap
+     ni de débordement de la pilule (ex. « Connect Wallet » qui cassait en 2). */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.connect-rail-identity .ct-pill .tabular {
+
+.connect-rail-identity__wallet {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ct-space-1);
+}
+
+.connect-rail-identity__badge {
+  width: 100%;
+  justify-content: center;
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-sm);
+  background: var(--ct-surface-0);
+  padding: var(--ct-space-1) var(--ct-space-1_5);
+  color: var(--ct-text-body);
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-tight);
+}
+
+.connect-rail-identity__badge .tabular {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 100%;
+}
+
+.connect-rail-identity__dot {
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
+  flex-shrink: 0;
+  border-radius: var(--ct-radius-full);
+  background: currentColor;
+  opacity: var(--ct-opacity-60);
+}
+
+.connect-rail-identity__button {
+  width: 100%;
+  min-height: var(--ct-space-6);
+  justify-content: center;
+  border-radius: var(--ct-radius-sm);
+}
+
+.connect-rail-identity__button--ghost {
+  color: var(--ct-text-faint);
 }
 
 /* ── Shell padding overrides — restore tokens.css values that get reset to 0
@@ -3587,7 +3634,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   transform: translate(-50%, -60%);
   background: var(--ct-text-strong);
   filter: var(--ct-blur-glow-xl);
-  opacity: 0.025;
+  opacity: 0.012;
 }
 
 .login-split__grid {

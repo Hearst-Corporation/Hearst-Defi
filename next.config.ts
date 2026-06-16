@@ -172,12 +172,27 @@ const nextConfig: NextConfig = {
             // + the Sentry ingest origin (when a DSN is configured).
             const connectHosts = [
               "'self'",
+              // Privy v3 (Reown/WalletConnect) — the SDK fetches more than
+              // auth.privy.io at mount (embedded-wallet RPC on privy.systems,
+              // WalletConnect/Reown relays). Missing these = "Failed to fetch".
               "https://auth.privy.io",
               "https://telemetry.privy.io",
+              "https://*.privy.io",
+              "wss://auth.privy.io",
+              "wss://*.privy.io",
+              "https://*.rpc.privy.systems",
+              // WalletConnect / Reown (external wallet connect)
+              "https://explorer-api.walletconnect.com",
+              "https://*.walletconnect.com",
+              "wss://*.walletconnect.com",
+              "https://*.walletconnect.org",
+              "wss://*.walletconnect.org",
+              "https://pulse.walletconnect.org",
+              "https://api.web3modal.org",
+              "https://*.reown.com",
               "https://sepolia.base.org",
               ...(rpcOrigin === "https://sepolia.base.org" ? [] : [rpcOrigin]),
               "https://*.withpersona.com",
-              "wss://auth.privy.io",
               ...(sentryOrigin ? [sentryOrigin] : []),
             ].join(" ");
             return {
@@ -186,13 +201,13 @@ const nextConfig: NextConfig = {
                 "default-src 'self'",
                 // 'unsafe-eval' is required by Next.js 16 Turbopack runtime; cannot be removed without nonce-based CSP.
                 // cdn.withpersona.com loads the Persona KYC SDK (persona-embed.tsx).
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://auth.privy.io https://telemetry.privy.io https://cdn.withpersona.com",
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://auth.privy.io https://telemetry.privy.io https://*.privy.io https://cdn.withpersona.com",
                 "style-src 'self' 'unsafe-inline'",
                 "img-src 'self' data: blob: https:",
                 `connect-src ${connectHosts}`,
                 // frame-src: Privy auth + Persona inquiry iframe + DocuSign signing
                 // (invest/subscribe flows via lib/docusign) + Calendly ops scheduling.
-                "frame-src https://auth.privy.io https://*.withpersona.com https://*.docusign.net https://*.docusign.com https://calendly.com",
+                "frame-src https://auth.privy.io https://*.privy.io https://verify.walletconnect.com https://verify.walletconnect.org https://secure.walletconnect.org https://*.withpersona.com https://*.docusign.net https://*.docusign.com https://calendly.com",
                 process.env.NODE_ENV === "production"
                   ? "frame-ancestors 'self'"
                   : "frame-ancestors 'self' http://localhost:4200 http://localhost:4201",

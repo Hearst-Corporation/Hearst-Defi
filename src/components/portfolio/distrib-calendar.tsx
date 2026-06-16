@@ -98,8 +98,9 @@ export function shouldShowCompactPeriodLabel(index: number): boolean {
 
 /** Compact zero-state canvas — cropped to axis + quarter labels only (not VB_H). */
 const COMPACT_VB_H = 64;
-const COMPACT_AXIS_Y = 36;
+const COMPACT_AXIS_Y = 40;
 const COMPACT_LABEL_Y = 54;
+const COMPACT_BAR_H = 14;
 
 // ── SVG component ─────────────────────────────────────────────────────────────
 
@@ -175,12 +176,12 @@ function BarChart({
             <g key={i} aria-hidden="true">
               <rect
                 x={cbx}
-                y={COMPACT_AXIS_Y - 4}
+                y={COMPACT_AXIS_Y - COMPACT_BAR_H}
                 width={COMPACT_BAR_W}
-                height={4}
+                height={COMPACT_BAR_H}
                 rx={1}
                 fill={isCurrent ? "var(--ct-accent)" : "var(--ct-border-soft)"}
-                style={{ fillOpacity: isCurrent ? "var(--ct-opacity-80)" : "var(--ct-opacity-40)" }}
+                style={{ fillOpacity: isCurrent ? "var(--ct-opacity-80)" : "var(--ct-opacity-32)" }}
               />
               {isQuarter ? (
                 <text

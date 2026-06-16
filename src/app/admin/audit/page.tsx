@@ -16,7 +16,7 @@ import { formatAdminAuditTimestamp } from "@/lib/vaults/product-display";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Admin Activity Log — Hearst Connect",
+  title: "Audit Log — Hearst Connect",
 };
 
 /**
@@ -64,13 +64,13 @@ export default async function AuditLogPage({
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Admin activity log"
+        title="Audit Log"
         description="Immutable record of admin actions — approvals, pauses, distributions, and state transitions."
       />
 
       {/* Filter bar — plain GET form, zero client JS */}
-      <Card>
-        <form method="get" className="admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions">
+      <Card hoverOverlay={false}>
+        <form method="get" className="admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions admin-doc-inline-row--relaxed">
           <label className="admin-doc-field">
             <span className="stat-label ct-text-muted">Entity type</span>
             <input
@@ -149,19 +149,19 @@ export default async function AuditLogPage({
               <table className="w-full table-fixed text-left body-sm">
                 <thead>
                   <tr>
-                    <th className="w-[18%] ct-table-header stat-label">
+                    <th className="w-[18%] ct-table-header stat-label py-3">
                       When
                     </th>
-                    <th className="w-[18%] ct-table-header stat-label">
+                    <th className="w-[18%] ct-table-header stat-label py-3">
                       Actor
                     </th>
-                    <th className="w-[18%] ct-table-header stat-label">
+                    <th className="w-[18%] ct-table-header stat-label py-3">
                       Action
                     </th>
-                    <th className="hidden w-[18%] ct-table-header stat-label lg:table-cell">
+                    <th className="hidden w-[18%] ct-table-header stat-label py-3 lg:table-cell">
                       Entity
                     </th>
-                    <th className="w-[46%] ct-table-header stat-label lg:w-[28%]">
+                    <th className="w-[46%] ct-table-header stat-label py-3 lg:w-[28%]">
                       Details
                     </th>
                   </tr>
@@ -173,12 +173,12 @@ export default async function AuditLogPage({
                       className="border-b border-(--ct-border-soft) last:border-0 align-top"
                     >
                       {/* When */}
-                      <td className="ct-table-cell mono body-xs ct-text-muted">
+                      <td className="ct-table-cell py-3 mono body-xs ct-text-muted">
                         {formatAdminAuditTimestamp(entry.occurredAt)}
                       </td>
 
                       {/* Actor */}
-                      <td className="ct-table-cell">
+                      <td className="ct-table-cell py-3">
                         <span
                           className="mono body-xs ct-text-body"
                           title={entry.actorWallet}
@@ -193,14 +193,14 @@ export default async function AuditLogPage({
                       </td>
 
                       {/* Action */}
-                      <td className="ct-table-cell">
+                      <td className="ct-table-cell py-3">
                         <Badge variant={actionVariant(entry.action)}>
                           {entry.action}
                         </Badge>
                       </td>
 
                       {/* Entity */}
-                      <td className="hidden ct-table-cell lg:table-cell">
+                      <td className="hidden ct-table-cell py-3 lg:table-cell">
                         <span className="block body-xs ct-text-strong">
                           {entry.entityType}
                         </span>
@@ -210,7 +210,7 @@ export default async function AuditLogPage({
                       </td>
 
                       {/* Details — before/after diff in a native <details> */}
-                      <td className="ct-table-cell">
+                      <td className="ct-table-cell py-3">
                         <details className="group">
                           <summary className="cursor-pointer list-none body-xs ct-text-muted hover:ct-text-body select-none">
                             <span className="group-open:hidden">Show diff</span>

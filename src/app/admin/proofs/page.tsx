@@ -7,6 +7,10 @@ import { buildDemoProofRows } from "@/lib/demo/admin/proofs";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Proofs — Hearst Connect",
+};
+
 export default async function ProofsPage() {
   await requireAdmin();
 
@@ -20,8 +24,8 @@ export default async function ProofsPage() {
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Off-chain proofs"
-        description="Paper attestations ingested off-chain. New records enter via the ingestProof() Server Action, while live on-chain proofs are tracked separately in Proof Center."
+        title="Proofs"
+        description="Paper attestations ingested off-chain. Live on-chain proofs remain tracked separately in Proof Center."
       />
 
       <section className="admin-doc-stack admin-doc-stack--actions">
