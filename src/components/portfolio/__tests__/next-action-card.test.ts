@@ -115,6 +115,10 @@ describe("resolveNextStep — single next action by priority", () => {
     ).toBe(true);
   });
 
+  it("shows the card when investor is fully ready but still unfunded", () => {
+    expect(shouldShowNextActionCard({ ...base, positionCount: 0 })).toBe(true);
+  });
+
   it("never uses forbidden words across any state", () => {
     const forbidden = ["guarantee", "promise", "certain", "will deliver", "risk-free"];
     const states = [

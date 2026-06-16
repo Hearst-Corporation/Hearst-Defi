@@ -32,6 +32,7 @@ import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
 import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
+import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import {
   ZERO_YIELD_STACK,
   buildZeroDistribEntries,
@@ -126,6 +127,25 @@ export default async function PortfolioPage() {
       ) : null}
 
       <PortfolioGreeting name={displayName(investor)} data={data} />
+
+      {previewZeros ? (
+        <section
+          className="pf-zero-banner ct-glass-panel"
+          aria-label="Portfolio preview state"
+        >
+          <div className="pf-zero-banner__head">
+            <PreviewModeChip />
+            <span className="stat-label ct-text-faint">
+              No funded position yet
+            </span>
+          </div>
+          <p className="body-sm ct-text-muted m-0">
+            The full portfolio shell stays visible so you can review the
+            investor experience before your first confirmed deposit. No live or
+            verified portfolio data is shown below.
+          </p>
+        </section>
+      ) : null}
 
       {shouldShowNextActionCard(actionFlags) ? (
         <NextActionCard {...actionFlags} />
@@ -253,15 +273,18 @@ export default async function PortfolioPage() {
         </ProductSection>
       </div>
 
-      <footer className="pf-footer">
-        <p className="pf-footer-disclaimer body-xs ct-text-muted ct-prose-xl">
-          Projections and estimated yields are conditional on stated assumptions
-          and are <strong>not guaranteed</strong>. Past performance is not
-          indicative of future results. All data is subject to methodology v1.0
-          {previewZeros
-            ? " and future Proof of Reserves attestations."
-            : " and the latest Proof of Reserves attestation."}
-        </p>
+      <footer className="pf-footer" role="contentinfo">
+        <div className="pf-footer__stack">
+          <p className="pf-footer-disclaimer body-sm ct-text-muted">
+            {previewZeros
+              ? "Preview state only. Portfolio metrics, payouts and proofs populate after your first funded position."
+              : "Portfolio metrics and payout history are provided for monitoring and verification."}
+          </p>
+          <p className="pf-footer-disclaimer body-xs ct-text-faint">
+            Yield ranges are conditional projections based on current
+            methodology and are not guaranteed.
+          </p>
+        </div>
       </footer>
     </div>
   );

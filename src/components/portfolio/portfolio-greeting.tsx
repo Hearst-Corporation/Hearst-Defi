@@ -36,7 +36,7 @@ export function PortfolioGreeting({ name, data }: PortfolioGreetingProps) {
 
   const recap =
     count === 0
-      ? "No active positions yet."
+      ? "Preview mode · no active positions yet."
       : `${count} active position${count > 1 ? "s" : ""} · ${formatUsdCompact(
           data.totalValueUsdc,
         )} deployed${last ? ` · last activity ${relativeTime(last.occurredAt, asOf)}` : ""}`;

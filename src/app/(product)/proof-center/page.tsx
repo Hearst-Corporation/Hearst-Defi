@@ -241,30 +241,37 @@ export default async function ProductProofCenterPage({
 
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="proof-center-footer">
-        <p className="body-xs ct-prose-md ct-text-muted">
-          {chainConfigured ? (
-            <>
-              On-chain entries are read directly from Base Sepolia (Testnet) via the
-              EventLogger (
-              <span className="mono">
-                {eventLoggerAddr ? abbreviateAddress(eventLoggerAddr) : "not configured"}
-              </span>
-              ) and PoRRegistry (
-              <span className="mono">
-                {porRegistryAddr ? abbreviateAddress(porRegistryAddr) : "not configured"}
-              </span>
-              ) contracts.
-              Off-chain entries are pinned to IPFS or signed HTTPS endpoints.
-              On-chain data and vault state are fetched fresh on every request.
-            </>
-          ) : (
-            <>
-              Off-chain entries are pinned to IPFS or signed HTTPS endpoints.
-              On-chain attestation will be enabled following mainnet deployment.
-              Vault state is fetched fresh on every request.
-            </>
-          )}
-        </p>
+        <Card hoverOverlay={false}>
+          <DashboardPanelHeader
+            eyebrow="Read path"
+            title="Data provenance"
+            titleLevel="section"
+            tone="quiet"
+          />
+          <p className="body-xs ct-prose-md ct-text-muted">
+            {chainConfigured ? (
+              <>
+                On-chain entries are read directly from Base Sepolia (testnet) via the
+                EventLogger (
+                <span className="mono">
+                  {eventLoggerAddr ? abbreviateAddress(eventLoggerAddr) : "not configured"}
+                </span>
+                ) and PoRRegistry (
+                <span className="mono">
+                  {porRegistryAddr ? abbreviateAddress(porRegistryAddr) : "not configured"}
+                </span>
+                ) contracts. Off-chain entries are pinned to IPFS or signed HTTPS endpoints.
+                On-chain data and vault state are fetched fresh on every request.
+              </>
+            ) : (
+              <>
+                Off-chain entries are pinned to IPFS or signed HTTPS endpoints. On-chain
+                attestation will be enabled following mainnet deployment. Vault state is
+                fetched fresh on every request.
+              </>
+            )}
+          </p>
+        </Card>
       </footer>
     </div>
   );

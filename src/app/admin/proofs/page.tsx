@@ -21,7 +21,7 @@ export default async function ProofsPage() {
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Off-chain proofs"
-        description="Paper attestations ingested off-chain. Live on-chain proofs are in Proof Center."
+        description="Paper attestations ingested off-chain. New records enter via the ingestProof() Server Action, while live on-chain proofs are tracked separately in Proof Center."
       />
 
       <section className="admin-doc-stack admin-doc-stack--actions">
@@ -30,12 +30,6 @@ export default async function ProofsPage() {
         ) : null}
         <ProofList items={items} />
       </section>
-
-      <p className="body-sm ct-text-muted">
-        New attestations are ingested via the{" "}
-        <code className="mono ct-text-body">ingestProof()</code> Server Action.
-        On-chain submission UI is available in Phase 2.
-      </p>
     </div>
   );
 }

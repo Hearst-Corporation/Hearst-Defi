@@ -26,15 +26,6 @@ export default async function InvestorMemoPage({
       <AdminPageHeader title="Investor Memo" />
 
       <MemoShell vaultId={vaultId} vaultName={vault.label} />
-
-      <footer className="border-t ct-border-soft pt-6">
-        <p className="body-xs">
-          Generated on demand from live vault data. Every export is logged with
-          its methodology version. Projections are conditional on the stated
-          assumptions and not guaranteed. Past performance does not predict
-          future results.
-        </p>
-      </footer>
     </div>
   );
 }

@@ -58,95 +58,99 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
 
   return (
     <div className="ct-roadmap-item-row" aria-label={item.label}>
-      <div className="admin-doc-inline-row admin-doc-inline-row--relaxed">
-        <span
-          role="img"
-          aria-label={statusLabel(item.status)}
-          className={cn(
-            "inline-block h-2.5 w-2.5 shrink-0 rounded-full",
-            statusDotClass(item.status),
-          )}
-          title={statusLabel(item.status)}
-        />
-        <div className="min-w-0 flex-1">
-          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+      <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="admin-doc-inline-row admin-doc-inline-row--relaxed items-start min-w-0 flex-1">
+          <span
+            role="img"
+            aria-label={statusLabel(item.status)}
+            className={cn(
+              "mt-1 inline-block h-2.5 w-2.5 shrink-0 rounded-full",
+              statusDotClass(item.status),
+            )}
+            title={statusLabel(item.status)}
+          />
+          <div className="min-w-0 flex-1 admin-doc-stack admin-doc-stack--tight">
             <span className="body-sm font-medium ct-text-primary">
               {item.label}
             </span>
-            <Badge variant="default">{item.owner}</Badge>
-            {item.evidenceUrl ? (
-              <a
-                href={safeUrl(item.evidenceUrl)}
-                target="_blank"
-                rel="noreferrer"
-                className="body-sm font-medium ct-text-accent underline-offset-2 hover:underline"
-              >
-                Evidence ↗
-              </a>
-            ) : null}
-            {item.blockers ? <Badge variant="danger">Blocker</Badge> : null}
-          </div>
-          <div className="mt-2 admin-doc-inline-row body-xs ct-text-muted">
-            <span className="mono">{item.id}</span>
-            {item.spec_ref ? (
-              <span className="mono ct-text-faint">· {item.spec_ref}</span>
-            ) : null}
-            {item.validatedBy ? (
-              <span>
-                · Validated by {item.validatedBy}
-                {item.validatedAt
-                  ? ` on ${item.validatedAt.toISOString().slice(0, 10)}`
-                  : ""}
-              </span>
-            ) : null}
+            <div className="admin-doc-inline-row admin-doc-inline-row--tight body-xs">
+              <Badge variant="default">{item.owner}</Badge>
+              {item.evidenceUrl ? (
+                <a
+                  href={safeUrl(item.evidenceUrl)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium ct-text-accent underline-offset-2 hover:underline"
+                >
+                  Evidence ↗
+                </a>
+              ) : null}
+              {item.blockers ? <Badge variant="danger">Blocker</Badge> : null}
+            </div>
+            <div className="admin-doc-inline-row body-xs ct-text-muted">
+              <span className="mono">{item.id}</span>
+              {item.spec_ref ? (
+                <span className="mono ct-text-faint">· {item.spec_ref}</span>
+              ) : null}
+              {item.validatedBy ? (
+                <span>
+                  · Validated by {item.validatedBy}
+                  {item.validatedAt
+                    ? ` on ${item.validatedAt.toISOString().slice(0, 10)}`
+                    : ""}
+                </span>
+              ) : null}
+            </div>
           </div>
         </div>
 
-        <div className="hidden admin-doc-inline-row admin-doc-inline-row--tight sm:flex">
-          {STATUSES.map((s) => (
-            <Button
-              key={s}
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setStatus(s)}
-              disabled={isPending || item.status === s}
-              className={cn(
-                "rounded-md px-2.5 py-1.5 disabled:cursor-default",
-                item.status === s
-                  ? "ct-surface-2 ct-text-primary"
-                  : "ct-text-muted hover:bg-(--ct-surface-2) hover:ct-text-primary",
-              )}
-              title={statusLabel(s)}
-              aria-label={`Set status to ${statusLabel(s)}`}
-            >
-              <span
-                aria-hidden
+        <div className="admin-doc-inline-row admin-doc-inline-row--tight items-start self-end lg:self-start">
+          <div className="hidden admin-doc-inline-row admin-doc-inline-row--tight sm:flex">
+            {STATUSES.map((s) => (
+              <Button
+                key={s}
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setStatus(s)}
+                disabled={isPending || item.status === s}
                 className={cn(
-                  "inline-block h-2 w-2 rounded-full",
-                  statusDotClass(s),
+                  "rounded-md px-2.5 py-1.5 disabled:cursor-default",
+                  item.status === s
+                    ? "ct-surface-2 ct-text-primary"
+                    : "ct-text-muted hover:bg-(--ct-surface-2) hover:ct-text-primary",
                 )}
-              />
-            </Button>
-          ))}
-        </div>
+                title={statusLabel(s)}
+                aria-label={`Set status to ${statusLabel(s)}`}
+              >
+                <span
+                  aria-hidden
+                  className={cn(
+                    "inline-block h-2 w-2 rounded-full",
+                    statusDotClass(s),
+                  )}
+                />
+              </Button>
+            ))}
+          </div>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setOpen((current) => !current)}
-          aria-expanded={open}
-          aria-controls={formId}
-        >
-          {open ? "Close" : "Details"}
-        </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setOpen((current) => !current)}
+            aria-expanded={open}
+            aria-controls={formId}
+          >
+            {open ? "Close" : "Details"}
+          </Button>
+        </div>
       </div>
 
       {open ? (
         <form
           id={formId}
           action={onSubmit}
-          className="admin-doc-stack admin-doc-stack--actions border-t border-(--ct-border-soft) pt-4"
+          className="admin-doc-stack admin-doc-stack--actions border-t border-(--ct-border-soft) pt-5"
           aria-label={`Edit ${item.label}`}
         >
           <input type="hidden" name="itemId" value={item.id} />

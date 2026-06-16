@@ -191,14 +191,18 @@ export default async function DistributionsPage({
             </div>
           </Card>
         )}
-      </section>
 
-      {/* Disclaimer */}
-      <p className="body-xs ct-text-faint max-w-2xl">
-        Distributions shown above are historical records only. They are not a
-        commitment to any future distribution. Past distributions are not a
-        reliable indicator of future performance or yield.
-      </p>
+        <Card hoverOverlay={false}>
+          <div className="admin-doc-stack admin-doc-stack--tight">
+            <h3 className="eyebrow ct-text-muted">Historical record</h3>
+            <p className="body-xs ct-text-faint ct-prose-xl">
+              Distributions shown above are historical records only. They are not a
+              commitment to any future distribution. Past distributions are not a
+              reliable indicator of future performance or yield.
+            </p>
+          </div>
+        </Card>
+      </section>
     </div>
   );
 }

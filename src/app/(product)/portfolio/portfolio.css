@@ -94,6 +94,14 @@
 
 .pf-next-action-card__cta {
   flex-shrink: 0;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.pf-next-action-card__button {
+  max-width: 100%;
+  white-space: nowrap;
 }
 
 @container pf (min-width: 36rem) {
@@ -102,6 +110,11 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--ct-space-4);
+  }
+
+  .pf-next-action-card__cta {
+    width: auto;
+    justify-content: flex-end;
   }
 }
 
@@ -155,11 +168,31 @@
   border-top: 1px solid var(--ct-border-soft);
 }
 
+.pf-footer__stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
 .pf-footer-disclaimer {
   margin: 0;
   /* Anti-orphan: don't strand a lone word on the last line / split a phrase
      awkwardly when the column narrows (chat open). */
   text-wrap: pretty;
+}
+
+.pf-zero-banner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-4) var(--ct-space-5);
+}
+
+.pf-zero-banner__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ct-space-2);
 }
 
 /* Loading skeleton heights — mirror live widget min-heights */
@@ -995,6 +1028,19 @@
   gap: var(--ct-space-6);
 }
 
+.pf-container--zero .pf-activity-grid > * .pf-cockpit-panel {
+  min-height: 14rem;
+}
+
+.pf-container--zero [data-testid="trust-panel-widget"] .pf-cockpit-panel {
+  min-height: 15rem;
+}
+
+.pf-container--zero [data-testid="recent-activity-widget"] .pf-cockpit-panel,
+.pf-container--zero [data-testid="distrib-calendar-widget"] .pf-cockpit-panel {
+  justify-content: space-between;
+}
+
 .pf-container--zero .ct-section-preview--compact {
   gap: var(--ct-space-4);
   padding: var(--ct-space-4) var(--ct-space-5);
@@ -1002,10 +1048,32 @@
 
 .pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
   min-height: 18rem;
+  background-image: none;
 }
 
 .pf-container--zero .pf-main-chart-wrapper .pf-value-chart [class*="flex-1"] {
   min-height: 11rem;
+}
+
+.pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart:hover {
+  border-color: var(--ct-graphite-border-nested);
+}
+
+.pf-container--zero .pf-main-chart-wrapper .pf-value-chart svg,
+.pf-container--zero .cy-donut .dash-chart-svg,
+.pf-container--zero .pf-distrib-chart--compact {
+  opacity: var(--ct-opacity-70);
+}
+
+.pf-container--zero .cy-track,
+.pf-container--zero .cy-spine,
+.pf-container--zero .pf-hero-grid,
+.pf-container--zero .pf-hero-sidebar {
+  border-color: color-mix(
+    in srgb,
+    var(--ct-graphite-border-nested) 82%,
+    transparent
+  );
 }
 
 /* Activity — content-sized columns (no cross-column stretch) */
@@ -1091,14 +1159,12 @@
   height: clamp(8.5rem, 34cqw, 12rem);
   margin-inline: auto;
   margin-top: 0;
-  /* Top-align with the ledger column instead of centring in the (taller) row,
-     so the gauge doesn't sink to the bottom of its cell. */
-  align-self: start;
+  align-self: center;
   /* Override dash-chart-container fixed height so donut-center stays centred */
   --ct-donut-size: clamp(8.5rem, 34cqw, 12rem);
 }
 
-/* Pending donut centre — calm centred message, no placeholder dash, no harsh
+/* Pending donut centre — calm centred message, no placeholder chart activity,
    tracked caps. Sized to wrap cleanly inside the donut hole. */
 .donut-pending-label {
   max-width: 7em;
@@ -1131,20 +1197,6 @@
 
 .cy-donut-arc {
   transition: stroke-dashoffset var(--ct-dur-slow) var(--ct-ease);
-}
-
-.cy-panel:hover .cy-donut-arc.cy-arc-mining {
-  filter: drop-shadow(var(--ct-glow-subtle));
-}
-
-/* Pending — one dashed brand-accent calibration arc, slow rotation ("listening") */
-.cy-donut-pending {
-  stroke: var(--ct-accent);
-  stroke-dasharray: 2 4; /* dash geometry, not colour */
-  opacity: 0.35;
-  transform-origin: center;
-  transform-box: fill-box;
-  animation: cy-await-sweep calc(var(--ct-dur-pulse) * 6) linear infinite;
 }
 
 /* ── Zone 3 — yield ledger (these rows ARE the donut legend) ── */
@@ -1181,10 +1233,6 @@
   font-variant-numeric: tabular-nums;
   color: var(--ct-text-strong);
   text-align: right;
-}
-
-.cy-row-mining .cy-val {
-  text-shadow: 0 0 10px color-mix(in srgb, var(--ct-status-success) 35%, transparent); /* glow px */
 }
 
 /* Precision track: ghost rail + ticks + gradient fill + end-cap needle + shimmer */
@@ -1235,11 +1283,7 @@
   transform: translate(40%, -50%);
   border-radius: var(--ct-radius-full);
   background: var(--cy-bucket);
-  box-shadow: 0 0 6px color-mix(in srgb, var(--cy-bucket) 70%, transparent); /* glow px */
-}
-
-.cy-row-mining .cy-fill::after {
-  box-shadow: var(--ct-glow-subtle);
+  box-shadow: none;
 }
 
 /* Staggered shimmer sweep */
@@ -1267,15 +1311,6 @@
 }
 
 /* Pending ghost-track shimmer */
-.cy-track--pending::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, var(--ct-surface-3), transparent);
-  transform: translateX(-120%);
-  animation: cy-shimmer var(--ct-dur-shimmer) var(--ct-ease-in-out) infinite;
-}
-
 .cy-row--pending .cy-dot { opacity: 0.4; }
 
 .cy-ledger-rule {
@@ -1292,14 +1327,6 @@
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
 }
-@keyframes cy-halo-breathe {
-  0%, 100% { opacity: 0.45; }
-  50% { opacity: 0.7; }
-}
-@keyframes cy-await-sweep {
-  to { transform: rotate(360deg); }
-}
-
 /* Responsive collapse (panel container-name: pf-panel) */
 @container pf-panel (max-width: 34rem) {
   .cy-panel .cy-body { grid-template-columns: 1fr; gap: var(--ct-space-4); }
@@ -1310,13 +1337,10 @@
 @media (prefers-reduced-motion: reduce) {
   .cy-fill,
   .cy-fill::before,
-  .cy-track--pending::before,
   .cy-donut-halo,
-  .cy-donut-pending,
   .cy-donut-arc {
     animation: none;
     transition: none;
   }
   .cy-fill { transform: none; }
-  .cy-donut-halo { opacity: 0.55; }
 }

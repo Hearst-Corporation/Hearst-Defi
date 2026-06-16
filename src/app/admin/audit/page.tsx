@@ -262,16 +262,18 @@ export default async function AuditLogPage({
                 </tbody>
               </table>
             </div>
+            <div className="admin-doc-stack admin-doc-stack--tight border-t border-(--ct-border-soft) px-5 py-4">
+              <p className="stat-label m-0">Audit retention</p>
+              <p className="body-xs ct-text-muted m-0">
+                Showing up to 200 entries per query. Entries written by{" "}
+                <code className="mono ct-text-body">recordAdminAudit()</code>{" "}
+                are append-only; export directly from the database for formal
+                compliance reporting.
+              </p>
+            </div>
           </Card>
         )}
       </section>
-
-      <p className="body-sm ct-text-muted">
-        Showing up to 200 entries per query. Entries are written by{" "}
-        <code className="mono ct-text-body">recordAdminAudit()</code> and are
-        never edited or deleted. Results are not a complete ledger for auditors
-        — export from the database directly for formal compliance reporting.
-      </p>
     </div>
   );
 }

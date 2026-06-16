@@ -95,10 +95,10 @@ export function resolveNextStep(props: NextActionCardProps): Step {
   }
 
   return {
-    eyebrow: "You're ready",
+    eyebrow: "Ready to fund",
     headline: "Make your first investment.",
-    detail: "Review the term sheet and confirm before depositing.",
-    cta: { label: "Explore the vault", href: "/vaults" },
+    detail: "Review the term sheet and confirm your first deposit when ready.",
+    cta: { label: "Review vault & invest", href: "/vaults" },
   };
 }
 
@@ -112,17 +112,18 @@ export function resolveNextStep(props: NextActionCardProps): Step {
  * hide the card whenever there are positions, regardless of the session flags
  * (which can lag behind the real on-chain/DB state).
  *
- * It stays visible only for genuinely pre-position investors who still have a
- * step to take, or whose KYC was rejected (handled first in resolveNextStep).
+ * It stays visible for genuinely pre-position investors, including the
+ * fully-ready "make your first investment" state, or whose KYC was rejected
+ * (handled first in resolveNextStep).
  */
 export function shouldShowNextActionCard(props: NextActionCardProps): boolean {
-  const { kycStatus, accreditationAttested, hasWallet, positionCount } = props;
+  const { kycStatus, positionCount } = props;
   // Rejected KYC always needs attention, even mid-portfolio.
   if (kycStatus === "rejected") return true;
   // Any position ⇒ onboarding is done ⇒ no get-started card.
   if (positionCount > 0) return false;
-  // Pre-position: show until accreditation + KYC + wallet are all in place.
-  return !(accreditationAttested && kycStatus === "approved" && hasWallet);
+  // Pre-position investors always need one clear top-of-page direction.
+  return true;
 }
 
 export function NextActionCard(props: NextActionCardProps) {
@@ -144,7 +145,7 @@ export function NextActionCard(props: NextActionCardProps) {
         </div>
         {step.cta ? (
           <div className="pf-next-action-card__cta">
-            <Button variant="primary" size="lg" asChild>
+            <Button variant="primary" size="md" asChild className="pf-next-action-card__button">
               <Link href={step.cta.href}>{step.cta.label}</Link>
             </Button>
           </div>

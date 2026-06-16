@@ -112,6 +112,14 @@ export default async function ProfilePage() {
               )}
             </LegalMetadataRow>
           </div>
+
+          <div className="product-doc-footer-rule">
+            <p className="body-xs ct-text-faint ct-prose-xl prof-disclaimer">
+              Profile information reflects your investor account status. Product
+              eligibility depends on accreditation, KYC approval, and jurisdictional
+              restrictions.
+            </p>
+          </div>
         </Card>
 
         {hasPositions ? (
@@ -227,13 +235,6 @@ export default async function ProfilePage() {
         </Card>
       </div>
 
-      <footer className="product-doc-footer-rule">
-        <p className="body-xs ct-text-faint ct-prose-xl prof-disclaimer">
-          Profile information reflects your investor account status. Product
-          eligibility depends on accreditation, KYC approval, and jurisdictional
-          restrictions.
-        </p>
-      </footer>
     </div>
   );
 }

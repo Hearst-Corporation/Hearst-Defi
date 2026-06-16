@@ -21,9 +21,10 @@ export type NavItem = {
 };
 
 /**
- * Investor-facing navigation. A signed-in user only sees their own space:
- * their portfolio, the vaults they can invest in, their profile, and the
- * public proof center. Operator/analyst surfaces live in the admin rail.
+ * Investor-facing navigation. A signed-in user sees the main cockpit routes:
+ * portfolio, invest, and proof center. Profile/settings stay behind the user
+ * badge instead of duplicating a top-level rail entry. Operator/analyst
+ * surfaces live in the admin rail.
  */
 export const PRODUCT_NAV: NavItem[] = [
   {
@@ -37,12 +38,6 @@ export const PRODUCT_NAV: NavItem[] = [
     label: "Invest",
     href: "/vaults",
     icon: "Vault",
-  },
-  {
-    id: "profile",
-    label: "Profile",
-    href: "/profile",
-    icon: "User",
   },
   {
     id: "proof-center",
@@ -81,7 +76,8 @@ export type AdminSection = {
  *     (Roadmap · Spec · Investor Memo), so they are reachable from the rail.
  *
  * Sub-nav contract: the section's `href` must equal its FIRST tab's href, so
- * landing on the section route lights up the leading tab in <AdminSubNav>.
+ * landing on the section route lights up the leading "Overview" tab in
+ * <AdminSubNav> whenever the section has multiple sibling views.
  */
 export const ADMIN_SECTIONS: AdminSection[] = [
   {
@@ -123,7 +119,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     icon: "ShieldCheck",
     href: "/admin/proof-center",
     tabs: [
-      { id: "proof-center", label: "Proof Center", href: "/admin/proof-center", icon: "ShieldCheck" },
+      { id: "proof-system-overview", label: "Overview", href: "/admin/proof-center", icon: "ShieldCheck" },
       { id: "proofs", label: "Proofs", href: "/admin/proofs", icon: "FileCheck" },
       { id: "monitoring", label: "Monitoring", href: "/admin/monitoring", icon: "Settings2" },
       { id: "security", label: "Security", href: "/admin/security", icon: "ShieldCheck" },
@@ -137,7 +133,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     icon: "FileText",
     href: "/admin/roadmap",
     tabs: [
-      { id: "roadmap", label: "Roadmap", href: "/admin/roadmap", icon: "FileText" },
+      { id: "operations-overview", label: "Overview", href: "/admin/roadmap", icon: "FileText" },
       { id: "spec", label: "Spec", href: "/admin/spec", icon: "FileCheck" },
       { id: "investor-memo", label: "Investor Memo", href: "/admin/investor-memo", icon: "FileText" },
       { id: "audit", label: "Audit Log", href: "/admin/audit", icon: "FileCheck" },

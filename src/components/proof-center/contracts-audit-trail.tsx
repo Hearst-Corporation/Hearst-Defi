@@ -175,7 +175,7 @@ export function ContractsAuditTrail() {
           tone="quiet"
         />
 
-        <ul className="divide-y divide-[var(--ct-border-soft)]">
+        <ul className="divide-y divide-(--ct-border-soft)">
           {AUDIT_ENTRIES.map((entry) => (
             <li
               key={entry.label}
@@ -199,11 +199,14 @@ export function ContractsAuditTrail() {
           ))}
         </ul>
 
-        <p className="body-xs mt-4 border-t border-[var(--ct-border-soft)] pt-4">
-          Phase 3 will require a Spearbit audit pass before any ERC-4626 vault
-          deployment. Methodology is immutable at v1.0; a version bump requires
-          an ADR and LP notification.
-        </p>
+        <div className="admin-doc-stack admin-doc-stack--tight mt-5 border-t border-(--ct-border-soft) pt-4">
+          <p className="stat-label m-0">Release gate</p>
+          <p className="body-xs ct-text-muted m-0">
+            Phase 3 requires a Spearbit audit pass before any ERC-4626 vault
+            deployment. Methodology stays locked at v1.0 unless an ADR and LP
+            notification approve a version bump.
+          </p>
+        </div>
       </Card>
     </div>
   );

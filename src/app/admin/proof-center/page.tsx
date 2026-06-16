@@ -17,8 +17,6 @@ import type { UnifiedProof } from "@/components/proof/proof-types";
 import { isAttestorAllowlisted } from "@/lib/attestation/stored";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import {
-  getEventLoggerAddress,
-  getPoRRegistryAddress,
   isChainConfigured,
 } from "@/lib/chain/client";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
@@ -26,7 +24,6 @@ import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
 import { loadCustody } from "@/lib/data/custody";
 import { getProofs } from "@/lib/data/proofs";
 import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
-import { abbreviateAddress } from "@/lib/onchain";
 
 interface AdminProofCenterPageProps {
   searchParams: Promise<{ type?: string | string[]; vault?: string }>;
@@ -65,9 +62,6 @@ export default async function AdminProofCenterPage({
   const latestAttestationVerified =
     latestAttestation !== null &&
     isAttestorAllowlisted(latestAttestation.attestor);
-
-  const eventLoggerAddr = getEventLoggerAddress();
-  const porRegistryAddr = getPoRRegistryAddress();
 
   const proofs: UnifiedProof[] = [
     ...onChainAttestations.map(
@@ -132,24 +126,6 @@ export default async function AdminProofCenterPage({
         </h2>
         <ContractsAuditTrail />
       </section>
-
-      <footer className="border-t border-(--ct-border-soft) pt-6">
-        <p className="body-xs">
-          On-chain entries are read directly from Base Sepolia via the
-          EventLogger (
-          <span className="mono">
-            {eventLoggerAddr ? abbreviateAddress(eventLoggerAddr) : "not configured"}
-          </span>
-          ) and PoRRegistry (
-          <span className="mono">
-            {porRegistryAddr ? abbreviateAddress(porRegistryAddr) : "not configured"}
-          </span>
-          ) contracts.
-          Off-chain entries are pinned to IPFS or signed HTTPS endpoints; Phase
-          2 mirrors each new entry on-chain and surfaces the tx hash here.
-          On-chain data and vault state are fetched fresh on every request.
-        </p>
-      </footer>
     </div>
   );
 }

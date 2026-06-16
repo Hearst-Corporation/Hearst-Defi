@@ -15,13 +15,11 @@ function matches(pathname: string, href: string): boolean {
 /**
  * Horizontal sub-navigation for the admin area. Derives the active section from
  * the current path and renders that section's sibling pages as underlined tabs.
- * Sections with ≤1 tab (e.g. Dashboard) render nothing.
+ * Sections with ≤1 tab render nothing.
  *
  * Active tab uses the longest matching href so /admin/vaults/[id] still lights
  * up "Overview" rather than falling through.
  */
-const SECTIONS_WITH_VISIBLE_ROOT_TAB = new Set(["dashboard", "strategy"]);
-
 export function AdminSubNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -32,15 +30,7 @@ export function AdminSubNav() {
   );
 
   if (!section) return null;
-
-  // Dashboard and Strategy keep their root tab visible so the section landing
-  // page has an explicit active state and a stable "back to overview" affordance.
-  // Other sections still hide the root tab to avoid duplicating the page H1.
-  const visibleTabs = SECTIONS_WITH_VISIBLE_ROOT_TAB.has(section.id)
-    ? section.tabs
-    : section.tabs.filter((t) => t.href !== section.href);
-
-  if (visibleTabs.length <= 1) return null;
+  if (section.tabs.length <= 1) return null;
 
   // Longest matching href wins (so nested routes pick the most specific tab).
   const activeHref = section.tabs
@@ -52,7 +42,7 @@ export function AdminSubNav() {
       aria-label={`${section.label} sections`}
       className="admin-doc-sub-nav"
     >
-      {visibleTabs.map((tab) => {
+      {section.tabs.map((tab) => {
         const isActive = tab.href === activeHref;
         return (
           <Link

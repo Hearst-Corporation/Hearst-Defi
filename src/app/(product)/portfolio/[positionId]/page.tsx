@@ -13,6 +13,7 @@ import { PositionHeader } from "@/components/portfolio/position-header";
 import { PositionKpis } from "@/components/portfolio/position-kpis";
 import { PositionActions } from "@/components/portfolio/position-actions";
 import { PositionTransactions } from "@/components/portfolio/position-transactions";
+import { Card } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
@@ -42,12 +43,21 @@ export default async function PositionDetailPage({ params }: PageProps) {
 
       {/* Disclaimer — non-negotiable #10 */}
       <footer className="product-doc-footer-rule">
-        <p className="position-detail-disclaimer body-xs ct-text-faint">
-          APY ranges are target projections based on stated assumptions — they are
-          not a commitment of future returns. Accrued yield figures are indicative
-          and subject to change based on vault conditions and Methodology v1.0.
-          Past performance does not predict future results.
-        </p>
+        <section aria-labelledby="position-methodology-note">
+          <Card hoverOverlay={false}>
+            <div className="pf-stack pf-stack--tight">
+              <h2 id="position-methodology-note" className="eyebrow ct-text-muted">
+                Return assumptions
+              </h2>
+              <p className="position-detail-disclaimer body-xs ct-text-faint">
+                APY ranges are target projections based on stated assumptions. They are
+                not a commitment of future returns. Accrued yield figures are indicative
+                and subject to change based on vault conditions and Methodology v1.0.
+                Past performance does not predict future results.
+              </p>
+            </div>
+          </Card>
+        </section>
       </footer>
     </div>
   );
