@@ -58,15 +58,19 @@
     rgba(0, 0, 0, 0.68) 0%,
     rgba(0, 0, 0, 0.80) 100%
   );
+  /* Noir fumé d'origine (a8d4c4f) restauré — le chantier dashboard les avait
+     passés en blanc translucide (pour aller avec le fond noir uniforme H7, retiré).
+     Sur le fond lumineux restauré, les boxes doivent être du noir fumé sinon elles
+     lavent/grisent. */
   --ct-graphite-subtle-bg: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.04) 0%,
-    rgba(255, 255, 255, 0.01) 100%
+    rgba(0, 0, 0, 0.60) 0%,
+    rgba(0, 0, 0, 0.72) 100%
   );
   --ct-graphite-nested-bg: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.06) 0%,
-    rgba(255, 255, 255, 0.02) 100%
+    rgba(0, 0, 0, 0.52) 0%,
+    rgba(0, 0, 0, 0.64) 100%
   );
   --ct-graphite-border: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-border-soft));
   --ct-graphite-border-nested: color-mix(in srgb, var(--ct-text-strong) 4%, var(--ct-border-soft));
@@ -1956,7 +1960,10 @@
 /* Orbit | NAV side-by-side — orbit column never shrinks below donut width. */
 @container dash-board (min-width: 42rem) {
   .dashboard-command-row-a {
-    grid-template-columns: minmax(11.5rem, 0.36fr) minmax(11rem, 1fr);
+    /* Orbit column HUGS son contenu (card bridée à 14rem) au lieu d'une colonne
+       large 0.36fr qui laissait d'énormes marges autour de la card. NAV prend tout
+       le reste → centre plus large, plus de marge morte. */
+    grid-template-columns: auto minmax(0, 1fr);
     align-items: stretch;
   }
 
@@ -2741,17 +2748,15 @@ button.ct-seg-btn {
   position: relative;
   background-color: var(--ct-bg-deep);
   background-image:
-    /* 1. grain ultra-fin — tue le banding */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E"),
-    /* 2. vignette noire — assombrit les bords, pousse le centre au fond (profondeur).
-          PLUS AUCUN halo vert injecté : l'image porte seule le visuel. */
+    /* 1. vignette noire — assombrit les bords, pousse le centre au fond (profondeur).
+          (Grain feTurbulence retiré 2026-06-16 : il pixellisait le fond.) */
     radial-gradient(
       135% 125% at 50% 44%,
       transparent 26%,
       color-mix(in srgb, var(--ct-bg-deep) 38%, transparent) 64%,
       color-mix(in srgb, var(--ct-bg-deep) 70%, transparent) 100%
     ),
-    /* 3. base verticale noire (haut sombre → bas profond) */
+    /* 2. base verticale noire (haut sombre → bas profond) */
     linear-gradient(
       180deg,
       color-mix(in srgb, var(--ct-bg-deep) 24%, transparent) 0%,
@@ -2760,9 +2765,9 @@ button.ct-seg-btn {
     );
   /* bg-deep n'est plus opaque : l'image (::before) doit transparaître. */
   background-color: transparent;
-  background-size: 140px 140px, cover, cover;
-  background-position: 0 0, center, center;
-  background-repeat: repeat, no-repeat, no-repeat;
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
 }
 
 /* IMAGE SPATIALE — couche la plus profonde, sur son propre pseudo-élément pour
@@ -2778,8 +2783,9 @@ button.ct-seg-btn {
   background-size: cover;
   background-position: center left;
   background-repeat: no-repeat;
-  filter: brightness(0.5) saturate(0.3) var(--ct-blur-xs);
-  opacity: 0.6;
+  /* Lumière de fond cinématographique — valeurs d'origine (a8d4c4f) restaurées :
+     PNG à pleine présence, juste un fade brightness léger + blur diffus. */
+  filter: brightness(0.95) var(--ct-blur-xs);
 }
 
 .ct-panels-row::after {
@@ -2788,21 +2794,36 @@ button.ct-seg-btn {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: rgba(0, 0, 0, 0.5);
+  /* Nappes lumineuses d'origine (a8d4c4f) — halo vert diffus + voile blanc
+     cinématographique + base verticale douce. C'est ce qui donnait la
+     respiration premium ; le drap noir plat l'avait tuée. */
+  background:
+    radial-gradient(
+      62% 44% at 40% 34%,
+      color-mix(in srgb, var(--ct-accent) 10%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 4%, transparent) 48%,
+      transparent 82%
+    ),
+    radial-gradient(
+      74% 56% at 32% 54%,
+      color-mix(in srgb, var(--ct-text-strong) 22%, transparent) 0%,
+      color-mix(in srgb, var(--ct-text-strong) 9%, transparent) 46%,
+      transparent 80%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-bg-deep) 8%, transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 22%, transparent) 100%
+    );
+  opacity: 1;
+  mix-blend-mode: normal;
 }
 
-/* ── Dashboard admin : GRAND NOIR calme, verre transparent CONSERVÉ ──────────────
-   Le shell produit (.ct-panels-row) peint un PNG + vignette radiale + voile noir
-   derrière TOUTES les surfaces authentifiées, admin compris. Sous le dashboard on
-   neutralise ce décor pour que le verre translucide se pose sur un noir uniforme
-   (figure/fond net) — SANS opacifier les cards. Scopé via :has(.dashboard-command-board)
-   → pages produit et reste de l'admin INCHANGÉS. Réversible : supprimer ce bloc. (Adrien 2026-06-15) */
-.ct-panels-row:has(.dashboard-command-board) {
-  background-image: none;
-  background-color: var(--ct-bg-deep);
-}
-.ct-panels-row:has(.dashboard-command-board)::before { background-image: none; }
-.ct-panels-row:has(.dashboard-command-board)::after { background: none; }
+/* Le dashboard reçoit la MÊME lumière de fond que les pages produit (PNG +
+   nappes vertes/blanches). L'ancien scope :has(.dashboard-command-board) qui
+   l'éteignait en noir uniforme a été retiré (Adrien 2026-06-16) — on veut la
+   lumière partout, comme à l'origine. Le verre translucide des cards reste
+   sombre/lisible par-dessus. */
 
 /* Centre transparent → laisse voir le fond spatial du parent. La zone de contenu
    ne reporte plus d'image ni de fond opaque ; le voile de lisibilité est déjà
@@ -2840,7 +2861,7 @@ button.ct-seg-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-3);
   padding: var(--ct-space-2) 0;
   justify-content: center;
   overflow-y: auto;
@@ -2848,15 +2869,16 @@ button.ct-seg-btn {
   pointer-events: auto;
 }
 
-/* Rail investor : peu d'items → centrage vertical + items compacts. */
+/* Rail investor : centrage vertical. L'espacement (gap inter-items, padding +
+   gap icône/label des items) hérite des règles de base .ct-rail-intra /
+   .ct-rail-item — IDENTIQUE au rail admin, pas de version resserrée (sinon les
+   items se rétrécissent en passant admin → user). Seul le style frameless
+   (pas de bordure/fond/ombre) reste propre à l'investor. */
 .ct-rail-intra[data-rail="investor"] {
   justify-content: center;
-  gap: var(--ct-space-1);
 }
 
 .ct-rail-intra[data-rail="investor"] .ct-rail-item {
-  padding: var(--ct-space-1) var(--ct-space-1);
-  gap: 2px;
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -2893,7 +2915,7 @@ button.ct-seg-btn {
   justify-content: center;
   gap: var(--ct-space-1);
   width: calc(var(--ct-rail-left) - var(--ct-space-2));
-  padding: var(--ct-space-1) var(--ct-space-1);
+  padding: var(--ct-space-2) var(--ct-space-1);
   border-radius: var(--ct-radius-md);
   color: var(--ct-text-muted);
   background: transparent;
@@ -3167,15 +3189,27 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   border: 0;
   border-radius: 0;
   box-shadow: none;
+  /* Le nom « Connect » est masqué en mode collapsed → le badge seul doit se
+     centrer dans le rail (sinon il reste collé à gauche via justify-content par
+     défaut du flex-row). */
+  justify-content: center;
+  /* Un peu d'air au-dessus du logo (était collé à ~14px du bord haut). */
+  margin-top: var(--ct-space-2);
 }
 .ct-rail-left.launcher .ct-rail-top-badge {
-  width: 30px;
-  height: 30px;
+  width: 38px;
+  height: 38px;
   padding: 0;
   background: transparent;
   border: 0;
   border-radius: 0;
   box-shadow: none;
+}
+/* Glyphe H mis à l'échelle (était 24×26 → trop petit vs l'avatar bas 40px).
+   height pilote, width auto conserve le ratio du viewBox. */
+.ct-rail-left.launcher .ct-rail-top-badge svg {
+  width: auto;
+  height: 32px;
 }
 
 /* Launcher verrouillé en position repliée — un seul produit (Connect), le
