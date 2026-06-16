@@ -1,5 +1,4 @@
 import { Card } from "@/components/ui/card";
-import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type { HeroKpi } from "@/lib/data/cockpit";
@@ -8,16 +7,40 @@ interface DashboardKpiStripProps {
   kpis: HeroKpi[];
 }
 
+const AWAITING_KPI_PLACEHOLDERS: readonly { label: string; sublabel: string }[] = [
+  { label: "Capital", sublabel: "awaiting snapshot" },
+  { label: "Target APY", sublabel: "range pending" },
+  { label: "Risk posture", sublabel: "framework pending" },
+  { label: "Proof freshness", sublabel: "no attestation yet" },
+] as const;
+
 /** Compact per-vault KPI row for `/admin/dashboard` (container-query grid). */
 export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
   if (kpis.length === 0) {
     return (
-      <EmptySurface
-        variant="widget"
-        message="No vault KPIs available."
-        ariaLabel="Vault KPIs — no data"
-        className="min-h-0 py-4"
-      />
+      <Card className="dashboard-kpi-strip-card" hoverOverlay={false}>
+        <div className="dashboard-kpi-strip">
+          {AWAITING_KPI_PLACEHOLDERS.map((slot) => (
+            <div
+              key={slot.label}
+              className="dashboard-kpi-strip__cell relative overflow-hidden border-x border-transparent first:border-l-0 last:border-r-0 md:border-(--ct-border-soft)"
+              aria-label={`${slot.label}: awaiting`}
+            >
+              <div className="absolute inset-0 bg-linear-to-b from-transparent via-(--ct-surface-0) to-transparent opacity-[var(--ct-opacity-20)] pointer-events-none" />
+              <div className="dashboard-kpi-strip__label-row px-3 relative z-10">
+                <span className="dashboard-kpi-strip__label stat-label uppercase tracking-wide text-(--ct-text-faint)">
+                  {slot.label}
+                </span>
+                <ProvenanceBadge kind="manual" variant="strip" />
+              </div>
+              <span className="stat-value px-3 tabular relative z-10 ct-text-strong">—</span>
+              <span className="body-xs ct-text-faint truncate px-3 relative z-10">
+                {slot.sublabel}
+              </span>
+            </div>
+          ))}
+        </div>
+      </Card>
     );
   }
 

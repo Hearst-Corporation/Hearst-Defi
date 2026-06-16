@@ -113,7 +113,7 @@ export default async function PortfolioPage() {
 
   const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
   const sectionVariant = previewZeros ? "preview" : "active";
-  
+
   // Dashboard modules render only when investor has active positions.
   // previewZeros is a styling flag (show $0 placeholders), not a render gate.
   const shouldRenderDashboard = hasPositions;
@@ -146,7 +146,7 @@ export default async function PortfolioPage() {
 
       {shouldRenderDashboard ? (
         <>
-          <ProductSection
+      <ProductSection
         title="Performance & Liquidity"
         eyebrow="Portfolio"
         provenance={portfolioProvenance}

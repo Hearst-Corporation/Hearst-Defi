@@ -19,11 +19,31 @@ interface AuditTrailRollingProps {
 export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   if (entries.length === 0) {
     return (
-      <EmptySurface
-        variant="widget"
-        message="No admin activity recorded yet."
-        ariaLabel="Recent admin activity"
-      />
+      <Card aria-label="Recent admin activity" hoverOverlay={false} className="dashboard-command-cell dashboard-command-cell--awaiting">
+        <DashboardPanelHeader title="Recent admin activity" tone="quiet" />
+        <div className="overflow-hidden">
+          <table className="w-full table-fixed body-sm" aria-label="Recent admin activity">
+            <thead>
+              <tr className="border-b border-(--ct-border-soft)">
+                <th className="w-[20%] text-left ct-table-header stat-label">Time</th>
+                <th className="w-[18%] text-left ct-table-header stat-label">Actor</th>
+                <th className="w-[24%] text-left ct-table-header stat-label">Action</th>
+                <th className="hidden w-[18%] text-left ct-table-header stat-label md:table-cell">
+                  Entity
+                </th>
+                <th className="hidden w-[20%] text-left ct-table-header stat-label lg:table-cell">
+                  Entity ID
+                </th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <EmptySurface
+          variant="inline"
+          message="No admin activity recorded yet."
+          ariaLabel="Recent admin activity"
+        />
+      </Card>
     );
   }
 

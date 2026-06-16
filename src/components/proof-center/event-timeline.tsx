@@ -137,7 +137,16 @@ function EventTimelineItem({
 
 export function EventTimeline({ events }: EventTimelineProps) {
   if (events.length === 0) {
-    return <AwaitingMetricState {...EVENT_TIMELINE_EMPTY} />;
+    return (
+      <Card hoverOverlay={false}>
+        <DashboardPanelHeader
+          eyebrow="On-chain event log"
+          title="EventLogger — awaiting first events"
+          tone="quiet"
+        />
+        <AwaitingMetricState {...EVENT_TIMELINE_EMPTY} />
+      </Card>
+    );
   }
 
   const eventsProvenance = canRunDemoProvider() ? "simulated" : "live";

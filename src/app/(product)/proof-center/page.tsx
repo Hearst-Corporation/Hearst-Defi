@@ -9,6 +9,8 @@ import { TriangleAlert } from "lucide-react";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { Card } from "@/components/ui/card";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { PLATFORM_PROOFS_EMPTY } from "@/components/proof/empty-messages";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
 import { ProofFilter } from "@/components/proof/proof-filter";
@@ -188,17 +190,24 @@ export default async function ProductProofCenterPage({
 
       {/* ── Full proof grid (filtered) ──────────────────────── */}
       <section aria-labelledby="proof-grid-heading">
-        <div className="proof-center-section__toolbar">
-          <h2 id="proof-grid-heading" className="h2 min-w-0">
-            Platform-wide proofs
-          </h2>
-          {proofs.length > 0 ? <ProofFilter /> : null}
-        </div>
-        {proofs.length === 0 ? (
-          <AwaitingMetricState {...PLATFORM_PROOFS_EMPTY} />
-        ) : (
-          <ProofGrid proofs={proofs} filter={filter} demo={demo} />
-        )}
+        <Card hoverOverlay={false}>
+          <div className="proof-center-section__toolbar">
+            <DashboardPanelHeader
+              id="proof-grid-heading"
+              eyebrow="Proof catalog"
+              title="Platform-wide proofs"
+              titleLevel="section"
+              tone="quiet"
+              className="min-w-0 flex-1"
+            />
+            {proofs.length > 0 ? <ProofFilter /> : null}
+          </div>
+          {proofs.length === 0 ? (
+            <AwaitingMetricState {...PLATFORM_PROOFS_EMPTY} />
+          ) : (
+            <ProofGrid proofs={proofs} filter={filter} demo={demo} />
+          )}
+        </Card>
       </section>
 
       {/* ── Deployed contracts + audit trail (only when chain is configured) ── */}

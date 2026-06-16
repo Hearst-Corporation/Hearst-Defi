@@ -4,6 +4,17 @@ import { describe, expect, it } from "vitest";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 
 describe("InvestFlowShell width", () => {
+  it("uses Invest eyebrow without duplicating step index (stepper owns progress)", () => {
+    const html = renderToStaticMarkup(
+      <InvestFlowShell step="product" title="Test">
+        <p>body</p>
+      </InvestFlowShell>,
+    );
+    expect(html).toContain('<p class="eyebrow">Invest</p>');
+    expect(html).not.toContain("Invest · Step");
+    expect(html).toContain("wizard-step-progress");
+  });
+
   it("defaults to cap max-width", () => {
     const html = renderToStaticMarkup(
       <InvestFlowShell step="select" title="Test">

@@ -40,7 +40,7 @@ export function AllocationOrbit({
   return (
     <Card
       hoverOverlay={false}
-      className={`dashboard-command-cell dashboard-orbit-card${live ? "" : " dashboard-orbit-card--awaiting"}`}
+      className={`dashboard-command-cell dashboard-orbit-card${live ? "" : " dashboard-orbit-card--awaiting dashboard-command-cell--awaiting"}`}
       aria-label={live ? "Vault allocation map" : "Vault allocation map awaiting first snapshot"}
     >
       <div className={`dashboard-orbit ${live ? "" : "dashboard-orbit--target"}`}>
@@ -53,7 +53,9 @@ export function AllocationOrbit({
           />
           <div className="dashboard-orbit__core">
             <span>AUM</span>
-            <strong className="tabular">{dashboardUsdCompact.format(live ? capitalUsdc : 0)}</strong>
+            <strong className="tabular">
+              {live ? dashboardUsdCompact.format(capitalUsdc) : "—"}
+            </strong>
             <small>{mappedPct.toFixed(0)}% mapped</small>
           </div>
         </div>

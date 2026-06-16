@@ -1852,12 +1852,20 @@
 /* Awaiting instrument — dashed track, muted ring (not the flex empty-cell chrome). */
 .dashboard-orbit--target .dashboard-orbit__track {
   border-style: dashed;
-  opacity: 0.5;
+  border-color: color-mix(in srgb, var(--ct-accent) 18%, var(--ct-surface-3));
+  opacity: 0.65;
 }
 
 .dashboard-orbit--target .dashboard-orbit__ring {
-  opacity: 0.45;
+  opacity: 0.55;
   filter: none;
+  background: conic-gradient(
+    from -90deg,
+    color-mix(in srgb, var(--ct-status-success) 35%, var(--ct-surface-3)) 0% 25%,
+    color-mix(in srgb, var(--ct-status-info) 35%, var(--ct-surface-3)) 25% 50%,
+    color-mix(in srgb, var(--ct-status-warning) 35%, var(--ct-surface-3)) 50% 75%,
+    color-mix(in srgb, var(--ct-text-faint) 35%, var(--ct-surface-3)) 75% 100%
+  );
 }
 
 .dashboard-orbit--target .dashboard-orbit__legend-dot {
@@ -1960,14 +1968,23 @@
 /* Orbit | NAV side-by-side — orbit column never shrinks below donut width. */
 @container dash-board (min-width: 42rem) {
   .dashboard-command-row-a {
-    /* Orbit column HUGS son contenu (card bridée à 14rem) au lieu d'une colonne
-       large 0.36fr qui laissait d'énormes marges autour de la card. NAV prend tout
-       le reste → centre plus large, plus de marge morte. */
-    grid-template-columns: auto minmax(0, 1fr);
+    /* minmax(14rem) = card cap; max-content hugs the donut without the old 0.36fr dead zone.
+       Bare `auto` + min-width:0 on the slot let the orbit column collapse → clipped card. */
+    grid-template-columns: minmax(14rem, max-content) minmax(0, 1fr);
     align-items: stretch;
   }
 
   .dashboard-command-slot--allocation {
+    justify-content: center;
+    min-width: 14rem;
+  }
+
+  .dashboard-command-slot--allocation > .ct-card {
+    height: 100%;
+  }
+
+  .dashboard-orbit-card--awaiting .dashboard-orbit {
+    flex: 1 1 auto;
     justify-content: center;
   }
 

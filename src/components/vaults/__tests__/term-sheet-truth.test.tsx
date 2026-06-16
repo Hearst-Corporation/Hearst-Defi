@@ -124,12 +124,6 @@ describe("TermSheetPreview — workspace surface (served at /vaults/[id])", () =
     expect(htmlWorkspace).not.toContain("1.00% · 10%");
   });
 
-  it("C-13 — displays the Model B one-liner verbatim on the LP surface", () => {
-    expect(htmlWorkspace).toContain(
-      "Principal held in a USDC cash reserve — not deployed on-chain; yield is a monthly mining-revenue-share distribution.",
-    );
-  });
-
   it("renders regime scenarios without ct-table-surface wrapper", () => {
     expect(htmlWorkspace).toContain("regime-scenario-table");
     expect(htmlWorkspace).not.toContain("ct-table-surface");
@@ -140,5 +134,22 @@ describe("TermSheetPreview — workspace surface (served at /vaults/[id])", () =
     expect(htmlWorkspace).toContain(
       "APY ranges are target projections — not guaranteed.",
     );
+  });
+
+  it("C-13 — displays the Model B one-liner verbatim on the LP surface", () => {
+    expect(htmlWorkspace).toContain(
+      "Principal held in a USDC cash reserve — not deployed on-chain; yield is a monthly mining-revenue-share distribution.",
+    );
+  });
+
+  it("uses CardTitle (h3) module headers in workspace cards, not quiet panel labels", () => {
+    expect(htmlWorkspace).toContain('class="h3 ct-text-strong ct-drop-glow-subtle"');
+    expect(htmlWorkspace).toContain("Target allocation");
+    expect(htmlWorkspace).not.toContain("invest-flow-detail__panel-label");
+  });
+
+  it("does not repeat step index in eyebrow or a redundant Metrics label in workspace", () => {
+    expect(htmlWorkspace).not.toContain("Metrics:");
+    expect(htmlWorkspace).not.toMatch(/Invest · Step [0-9] of 4/);
   });
 });

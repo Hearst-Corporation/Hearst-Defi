@@ -145,7 +145,9 @@ describe("S9 ConfirmedPage — all required elements present", () => {
 
   it("uses InvestFlowShell step 4 layout with product-doc stacks and vault panel primitives", async () => {
     const html = await getHtml();
-    expect(html).toContain("Step 4 of 4");
+    expect(html).toContain("Invest");
+    expect(html).toContain('aria-valuetext="Step 4 of 4: Confirmed"');
+    expect(html).not.toMatch(/eyebrow[^>]*>Invest · Step/);
     expect(html).toContain("product-doc-shell--narrow");
     expect(html).not.toContain("product-doc-shell--cap");
     expect(html).toContain("product-doc-stack");

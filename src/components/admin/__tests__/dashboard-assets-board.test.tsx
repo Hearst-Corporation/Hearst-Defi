@@ -247,7 +247,10 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     const html = render(makeData({ source: "fallback" }), 0);
 
     expect(html).toContain("dashboard-orbit--target");
+    expect(html).toContain("dashboard-command-cell--awaiting");
     expect(html).toContain("Awaiting first live snapshot.");
+    expect(html).toContain(">—<");
+    expect(html).not.toContain("$0.0");
     expect(html).toContain("2+ booked snapshots");
     expect(html).not.toContain("% NAV");
   });

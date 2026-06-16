@@ -1284,15 +1284,24 @@
   display: inline-flex;
 }
 
-/* Quiet panel label — replaces H2/H3 section headings inside workspace grid.
-   Reads as context, not document structure. */
-.product-doc .invest-flow-detail__panel-label {
-  font-size: var(--ct-text-xs);
-  font-weight: 600;
-  letter-spacing: var(--ct-tracking-wider);
-  text-transform: uppercase;
-  color: var(--ct-text-muted);
-  margin-bottom: var(--ct-space-2);
+/* Module header inside workspace Cards — L3 title (CardTitle / .h3) with a quiet
+   accent rail + divider so panel titles read above stat-label KPI rows.
+   Scoped to invest-flow grid only; non-workspace doc layout unchanged. */
+.product-doc .invest-flow-detail__grid .invest-flow-card-header {
+  margin-bottom: var(--ct-space-4);
+  padding-bottom: var(--ct-space-3);
+  padding-left: var(--ct-space-3);
+  border-bottom: 1px solid var(--ct-border-soft);
+  border-left: 2px solid var(--ct-accent);
+}
+
+/* KPI values inside workspace modules — stronger than doc-flow stat-value
+   demotion (lg/body) without changing global .stat-value or non-workspace pages. */
+.product-doc .invest-flow-detail__grid .ct-card .ct-metric-nested__value {
+  font-size: var(--ct-text-xl);
+  font-weight: var(--ct-font-extrabold);
+  color: var(--ct-text-strong);
+  letter-spacing: var(--ct-tracking-tighter);
 }
 
 .product-doc .invest-flow-detail__grid {

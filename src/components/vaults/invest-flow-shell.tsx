@@ -5,12 +5,8 @@ import type { ReactNode } from "react";
 
 type InvestStepId = "select" | "product" | "deposit" | "confirmed";
 
-const STEP_EYEBROW: Record<InvestStepId, string> = {
-  select: "Invest · Step 1 of 4",
-  product: "Invest · Step 2 of 4",
-  deposit: "Invest · Step 3 of 4",
-  confirmed: "Invest · Step 4 of 4",
-};
+/** Product lane only — step index lives in `StepProgress`, not duplicated in eyebrow. */
+const INVEST_EYEBROW = "Invest";
 
 type InvestFlowWidth = "cap" | "narrow" | "full";
 
@@ -62,7 +58,7 @@ export function InvestFlowShell({
       <ProductPageHeader
         lead={lead}
         media={media}
-        eyebrow={STEP_EYEBROW[step]}
+        eyebrow={INVEST_EYEBROW}
         title={title}
         description={description}
         actions={actions}

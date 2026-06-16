@@ -67,7 +67,7 @@ export function vaultStatusLabel(status: VaultProduct["status"]): string {
   return VAULT_STATUS_LABEL[status] ?? status;
 }
 
-/** C-13 — verbatim Model B one-liner for LP surfaces. */
+/** C-13 — Model B legal one-liner (LP term sheet, compliance-mandatory). */
 export const MODEL_B_ONELINER =
   "Principal held in a USDC cash reserve — not deployed on-chain; yield is a monthly mining-revenue-share distribution.";
 

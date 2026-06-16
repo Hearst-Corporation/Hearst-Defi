@@ -8,6 +8,7 @@ import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { cn } from "@/lib/cn";
 import { Ptai } from "@/components/ui/ptai";
 import { Button } from "@/components/ui/button";
+import { DataRow, NestedPanel } from "@/components/ui/nested-panel";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { DepositSummary } from "@/components/vaults/deposit-summary";
@@ -111,14 +112,105 @@ interface InvestFormProps {
 export function InvestForm({ vault, demo = false }: InvestFormProps) {
   // Demo path does not require Privy: it never connects a wallet or signs.
   if (!demo && !isPrivyConfigured()) {
-    return (
-      <PanelStatus
-        message="Wallet connection is being configured."
-        detail="Set NEXT_PUBLIC_PRIVY_APP_ID to enable deposits from this environment."
-      />
-    );
+    return <InvestFormUnconfigured vault={vault} />;
   }
   return <InvestFormLive vault={vault} demo={demo} />;
+}
+
+/** Full Step-3 grid with honest placeholders — wallet lane not configured yet. */
+function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
+  const maxAmount = vault.capacityUsdc - vault.currentAumUsdc;
+  const ptai = buildPtai(0, vault);
+
+  return (
+    <div className="vault-invest-grid">
+      <div className="vault-invest-form-main">
+        <div className="vault-flow-flat-section">
+          <VaultPanelHeader eyebrow="Configuration pending" title="Deposit amount" />
+          <div className="vault-panel-body vault-panel-body--stack">
+            <section>
+              <label htmlFor="amt-input-disabled" className="sr-only">
+                Amount (USDC)
+              </label>
+              <div className="relative">
+                <span
+                  aria-hidden
+                  className="absolute left-4 top-1/2 -translate-y-1/2 mono font-semibold ct-text-muted select-none"
+                >
+                  $
+                </span>
+                <input
+                  id="amt-input-disabled"
+                  type="text"
+                  disabled
+                  readOnly
+                  value=""
+                  placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
+                  aria-describedby="amt-helper-disabled"
+                  className="ct-input tabular w-full pl-8 pr-4 py-3 mono body-lg opacity-[var(--ct-opacity-60)]"
+                />
+              </div>
+              <p id="amt-helper-disabled" className="body-xs mt-1.5 ct-text-muted">
+                Minimum {formatUsdAmount(vault.minTicketUsdc, true)} · Capacity remaining:{" "}
+                {formatUsdAmount(maxAmount, true)}
+              </p>
+            </section>
+
+            <Checkbox checked={false} onChange={() => {}} className="pointer-events-none opacity-[var(--ct-opacity-60)]">
+              I have reviewed and accept the term sheet for {vault.name}.
+            </Checkbox>
+
+            <PanelStatus
+              message="Wallet connection is being configured."
+              detail="Set NEXT_PUBLIC_PRIVY_APP_ID to enable deposits from this environment."
+            />
+
+            <div className="vault-form-actions">
+              <Button variant="secondary" size="md" asChild>
+                <Link href={`/vaults/${vault.id}`}>← Back</Link>
+              </Button>
+              <Button variant="primary" size="md" disabled className="vault-form-actions__primary">
+                Connect a wallet to continue
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="vault-flow-flat-section">
+          <VaultPanelHeader title="Projection (PTAI)" />
+          <div className="vault-panel-body">
+            <Ptai
+              projection={ptai.projection}
+              trigger={ptai.trigger}
+              action={ptai.action}
+              impact={ptai.impact}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="vault-invest-grid__rail">
+        <DepositSummary vault={vault} amount={0} />
+        <NestedPanel className="ct-divide-soft py-0">
+          <VaultPanelHeader title="Pre-flight check" />
+          <div className="vault-panel-body">
+            <DataRow label="Wallet">
+              <span className="ct-text-muted">Not configured</span>
+            </DataRow>
+            <DataRow label="Network">
+              <span className="ct-text-muted">Base Sepolia</span>
+            </DataRow>
+            <DataRow label="Allowance">
+              <span className="ct-text-muted">Pending wallet setup</span>
+            </DataRow>
+            <DataRow label="Epoch">
+              <span className="ct-text-muted">Active · closes in 18d · indicative</span>
+            </DataRow>
+          </div>
+        </NestedPanel>
+      </div>
+    </div>
+  );
 }
 
 function InvestFormLive({ vault, demo = false }: InvestFormProps) {
