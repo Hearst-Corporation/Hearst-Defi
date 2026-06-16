@@ -2,6 +2,7 @@ import { ActionQueue } from "@/components/admin/cockpit/action-queue";
 import { AuditTrailRolling } from "@/components/admin/cockpit/audit-trail-rolling";
 import { LiveMetrics } from "@/components/admin/cockpit/live-metrics";
 import { LiveOps } from "@/components/admin/cockpit/live-ops";
+import { Card } from "@/components/ui/card";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import {
   computeNavDelta,
@@ -22,7 +23,6 @@ import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 import { AllocationOrbit } from "./allocation-orbit";
 import { DashboardKpiStrip } from "./kpi-strip";
 import { NavSlot } from "./nav-slot";
-import { OperatorShortcuts } from "./operator-shortcuts";
 
 export interface DashboardAssetsBoardProps {
   data: DashboardData;
@@ -45,7 +45,7 @@ export function DashboardAssetsBoard({
   data,
   risk,
   proof,
-  actions,
+  actions: _actions,
   totalActionRequired,
   capitalUsdc,
   capitalProvenance,
@@ -92,38 +92,50 @@ export function DashboardAssetsBoard({
 
   return (
     <div className="dashboard-command-board relative z-10 admin-doc-stack admin-doc-stack--relaxed">
-      <section aria-label="Vault KPIs">
-        <DashboardKpiStrip kpis={heroKpis} />
-      </section>
+      <Card
+        aria-label="Vault KPIs and charts"
+        hoverOverlay={false}
+        className="dashboard-merged-card dashboard-hero-card"
+        contentClassName="dashboard-hero-card__content"
+      >
+        <section aria-label="Vault KPIs" className="dashboard-hero-card__kpis">
+          <DashboardKpiStrip kpis={heroKpis} />
+        </section>
 
-      <div className="dashboard-command-row-a">
-        <div className="dashboard-command-slot dashboard-command-slot--allocation">
-          <AllocationOrbit
-            live={allocationLive}
-            allocations={allocation}
-            capitalUsdc={capitalUsdc}
-            allocationTotal={allocationTotal}
+        <div className="dashboard-command-row-a dashboard-command-row-a--hero">
+          <div className="dashboard-hero-card__slot dashboard-hero-card__slot--allocation dashboard-command-slot dashboard-command-slot--allocation">
+            <AllocationOrbit
+              allocations={allocation}
+              capitalUsdc={capitalUsdc}
+              allocationTotal={allocationTotal}
+              provenance={simulated ? "simulated" : allocationLive ? "live" : "manual"}
+            />
+          </div>
+          <div className="dashboard-hero-card__slot dashboard-hero-card__slot--nav">
+            <NavSlot
+              navPoints={navPoints}
+              lastNav={lastNav}
+              navDelta={computeNavDelta(lastNav, firstNav)}
+              navProvenance={navLive ? "live" : "estimated"}
+            />
+          </div>
+        </div>
+      </Card>
+
+      <section aria-label="Cockpit operations" className="dashboard-command-row-c ct-card--etched ct-glass-panel dashboard-merged-card gap-0!">
+        <div className="p-4 lg:p-5">
+          <ActionQueue items={cockpit.actionQueue} />
+        </div>
+        <div className="p-4 lg:p-5 border-t lg:border-t-0 lg:border-l border-(--ct-border-soft)">
+          <LiveMetrics vaults={cockpit.vaultMetrics} />
+        </div>
+        <div className="p-4 lg:p-5 border-t lg:border-t-0 lg:border-l border-(--ct-border-soft)">
+          <LiveOps
+            inngestJobs={cockpit.inngestJobs}
+            sentryStats={cockpit.sentryStats}
+            onChainEvents={cockpit.onChainEvents}
           />
         </div>
-        <NavSlot
-          navLive={navLive}
-          navPoints={navPoints}
-          lastNav={lastNav}
-          navDelta={computeNavDelta(lastNav, firstNav)}
-          navProvenance={navLive ? "live" : "estimated"}
-        />
-      </div>
-
-      <OperatorShortcuts actions={actions} />
-
-      <section aria-label="Cockpit operations" className="dashboard-command-row-c">
-        <ActionQueue items={cockpit.actionQueue} />
-        <LiveMetrics vaults={cockpit.vaultMetrics} />
-        <LiveOps
-          inngestJobs={cockpit.inngestJobs}
-          sentryStats={cockpit.sentryStats}
-          onChainEvents={cockpit.onChainEvents}
-        />
       </section>
 
       <section aria-label="Recent admin activity">

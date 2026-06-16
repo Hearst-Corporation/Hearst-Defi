@@ -287,6 +287,33 @@
   --ct-scenario-central-dur-base: var(--ct-dur-base);
   --ct-scenario-central-ease: var(--ct-ease);
 }
+.dashboard-merged-card {
+  border-radius: var(--ct-radius-lg);
+  overflow: hidden;
+}
+
+.dashboard-hero-card {
+  min-width: 0;
+  background: var(--ct-graphite-active-bg);
+}
+
+.dashboard-hero-card > .ct-z-base {
+  min-width: 0;
+}
+
+.dashboard-hero-card__content {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.dashboard-merged-card>* {
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
 
 /* ── HELPERS sémantiques status (utilitaires Cockpit) ── */
 .ct-status-success { color: var(--ct-status-success); }
@@ -1293,17 +1320,13 @@
 }
 
 .dashboard-kpi-strip__cell--alert {
-  padding-inline: var(--ct-space-2);
-  border-radius: var(--ct-radius-md);
-  background: color-mix(in srgb, var(--ct-status-danger) 8%, transparent);
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ct-status-danger) 55%, transparent);
 }
 
 /* Positive-attention highlight (brand green) — e.g. action queue with pending
    items. Distinct from --alert (danger red) so genuine degraded states keep red. */
 .dashboard-kpi-strip__cell--accent {
-  padding-inline: var(--ct-space-2);
-  border-radius: var(--ct-radius-md);
-  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
+  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
 }
 
 .dashboard-kpi-strip__label-row {
@@ -1421,6 +1444,48 @@
   align-items: stretch;
 }
 
+.dashboard-command-row-a--hero {
+  position: relative;
+  gap: 0;
+  min-height: 15rem;
+}
+
+.dashboard-hero-card__kpis {
+  position: relative;
+  border-bottom: 1px solid var(--ct-border-soft);
+  padding: var(--ct-space-4);
+}
+
+.dashboard-hero-card__slot {
+  min-width: 0;
+  padding: var(--ct-space-4);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.dashboard-hero-card__slot--nav {
+  flex: 1 1 auto;
+}
+
+.dashboard-hero-card__slot--nav .dashboard-command-slot--nav,
+.dashboard-hero-card__slot--nav .dashboard-nav-slot {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.dashboard-hero-card__slot--nav .dashboard-nav-bars {
+  flex: 1 1 auto;
+  min-height: 10rem;
+  height: auto;
+  margin-top: 0;
+}
+
+.dashboard-hero-card__slot--allocation {
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
 .dashboard-command-slot {
   min-width: 0;
 }
@@ -1447,12 +1512,36 @@
 
 .dashboard-command-slot--allocation > .ct-card {
   width: 100%;
-  max-width: 14rem;
+  max-width: 15rem;
   padding: var(--ct-space-5) var(--ct-space-4);
 }
 
 .dashboard-command-slot--allocation .dashboard-orbit-card {
-  min-width: 11.5rem;
+  min-width: 13rem;
+}
+
+.dashboard-nav-slot__value {
+  margin-top: var(--ct-space-1);
+}
+
+.dashboard-nav-slot {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.dashboard-nav-slot__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+}
+
+.dashboard-nav-slot__delta {
+  flex-shrink: 0;
 }
 
 .dashboard-orbit-card--awaiting.ct-card {
@@ -1533,23 +1622,6 @@
   border-top: 1px solid var(--ct-border-soft);
 }
 
-.dashboard-command-performance {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  flex: 1 1 auto;
-  min-height: 0;
-}
-
-.dashboard-command-performance__header,
-.dashboard-command-performance__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
-}
-
 .dashboard-instrument-note {
   margin: 0;
   text-align: center;
@@ -1563,6 +1635,10 @@
   grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
   margin-top: var(--ct-space-1);
+}
+
+.dashboard-command-row-c.ct-glass-panel {
+  background: var(--ct-graphite-active-bg);
 }
 
 .dashboard-command-cell {
@@ -1655,9 +1731,27 @@
 .dashboard-action-row {
   padding-top: var(--ct-space-4);
   padding-bottom: var(--ct-space-4);
+  gap: var(--ct-space-4);
 }
 .dashboard-action-row:first-child { padding-top: 0; }
 .dashboard-action-row:last-child  { padding-bottom: 0; }
+
+.dashboard-action-row--critical {
+  border-left: 1px solid color-mix(in srgb, var(--ct-status-danger) 42%, transparent);
+  padding-left: var(--ct-space-3);
+}
+
+.dashboard-action-copy {
+  gap: var(--ct-space-3);
+}
+
+.dashboard-action-title {
+  letter-spacing: var(--ct-tracking-tight);
+}
+
+.dashboard-action-context {
+  max-width: 24ch;
+}
 
 /* Inngest job row — padding replaces py-2 first:pt-0 last:pb-0 */
 .dashboard-inngest-row {
@@ -1704,16 +1798,17 @@
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-medium);
   border: 1px solid;
+  background: transparent;
   transition: background-color var(--ct-dur-fast), border-color var(--ct-dur-fast), color var(--ct-dur-fast);
 }
 .dashboard-action-cta--danger {
   border-color: var(--ct-status-danger-border);
   color: var(--ct-status-danger);
-  background: var(--ct-status-danger-soft);
 }
 .dashboard-action-cta--danger:hover {
-  background: var(--ct-status-danger);
-  color: var(--ct-text-on-accent);
+  border-color: color-mix(in srgb, var(--ct-status-danger) 58%, transparent);
+  background: color-mix(in srgb, var(--ct-status-danger) 10%, transparent);
+  color: color-mix(in srgb, var(--ct-status-danger) 82%, var(--ct-text-strong));
 }
 .dashboard-action-cta--neutral {
   border-color: var(--ct-border);
@@ -1752,57 +1847,60 @@
   }
 }
 
-/* CSS conic-gradient allocation orbit (~160px). */
+/* CSS conic-gradient allocation orbit. */
 .dashboard-orbit {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--ct-space-3);
   width: 100%;
-  max-width: 11.5rem;
+  max-width: 12rem;
   justify-self: center;
 }
 
 .dashboard-orbit__visual {
   position: relative;
-  width: 10rem;
-  height: 10rem;
+  width: 11rem;
+  height: 11rem;
   flex-shrink: 0;
 }
 
 .dashboard-orbit__track {
   position: absolute;
   inset: 0;
-  border: 2px solid var(--ct-surface-3);
+  border: 2px solid color-mix(in srgb, var(--ct-accent) 35%, transparent);
   border-radius: var(--ct-radius-full);
-  opacity: 0.35;
+  opacity: 0.55;
 }
 
 .dashboard-orbit__ring {
   position: absolute;
-  inset: 0.375rem;
+  inset: 0.25rem;
   border-radius: var(--ct-radius-full);
   background: var(--dashboard-orbit-gradient, conic-gradient(var(--ct-surface-3) 0% 100%));
-  mask: radial-gradient(circle at center, transparent 58%, black 59%);
-  -webkit-mask: radial-gradient(circle at center, transparent 58%, black 59%);
-  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--ct-accent) 40%, transparent));
+  /* Donut band: inner 54% hole, ring 54–70%, outer clip */
+  mask: radial-gradient(circle at center, transparent 54%, black 70%, transparent 71%);
+  -webkit-mask: radial-gradient(circle at center, transparent 54%, black 70%, transparent 71%);
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--ct-accent) 18%, transparent));
   transform: translateZ(0);
+}
+
+/* Idle / zero allocation — awaiting shell, not an active allocation view. */
+.dashboard-orbit__ring--idle {
+  background: color-mix(in srgb, var(--ct-accent) 36%, var(--ct-surface-3));
+  filter: none;
 }
 
 .dashboard-orbit__core {
   position: absolute;
-  inset: 28%;
+  inset: 26%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--ct-space-0_5);
-  border: 1px solid color-mix(in srgb, var(--ct-accent) 24%, var(--ct-border-soft));
-  border-radius: var(--ct-radius-full);
-  background: color-mix(in srgb, var(--ct-surface-2) 50%, transparent);
   text-align: center;
-  backdrop-filter: var(--ct-glass-blur);
-  -webkit-backdrop-filter: var(--ct-glass-blur);
+  z-index: 10;
 }
 
 .dashboard-orbit__core span,
@@ -1846,46 +1944,57 @@
   width: var(--ct-space-2);
   height: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
+  background: currentColor;
   box-shadow: var(--ct-glow-dot);
 }
 
-/* Awaiting instrument — dashed track, muted ring (not the flex empty-cell chrome). */
-.dashboard-orbit--target .dashboard-orbit__track {
-  border-style: dashed;
-  border-color: color-mix(in srgb, var(--ct-accent) 18%, var(--ct-surface-3));
-  opacity: 0.65;
+.dashboard-orbit__legend li > :nth-child(2) {
+  min-width: 0;
 }
 
-.dashboard-orbit--target .dashboard-orbit__ring {
-  opacity: 0.55;
-  filter: none;
-  background: conic-gradient(
-    from -90deg,
-    color-mix(in srgb, var(--ct-status-success) 35%, var(--ct-surface-3)) 0% 25%,
-    color-mix(in srgb, var(--ct-status-info) 35%, var(--ct-surface-3)) 25% 50%,
-    color-mix(in srgb, var(--ct-status-warning) 35%, var(--ct-surface-3)) 50% 75%,
-    color-mix(in srgb, var(--ct-text-faint) 35%, var(--ct-surface-3)) 75% 100%
-  );
-}
-
-.dashboard-orbit--target .dashboard-orbit__legend-dot {
-  opacity: 0.55;
-  box-shadow: none;
+.dashboard-orbit__legend li > :last-child {
+  color: var(--ct-text-strong);
 }
 
 /* CSS bar chart for NAV series. */
 .dashboard-nav-bars {
   --dashboard-nav-bar-count: 30;
-  display: grid;
-  grid-template-columns: repeat(var(--dashboard-nav-bar-count), minmax(var(--ct-space-0_5), 1fr));
-  gap: var(--ct-space-0_5);
-  align-items: end;
-  height: var(--ct-space-24);
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: var(--ct-space-24);
+  gap: var(--ct-space-2);
   padding: var(--ct-space-3);
-  border: 1px solid var(--ct-border-soft);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 58%, transparent);
   border-radius: var(--ct-radius-lg);
-  background: transparent;
-  margin-top: auto;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-surface-0) 18%, transparent),
+    transparent 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-nav-bars__plot {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 8rem;
+  flex-direction: column;
+}
+
+.dashboard-nav-bars__bars {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(var(--dashboard-nav-bar-count), minmax(0, 1fr));
+  gap: var(--ct-space-1);
+  align-items: end;
+  min-height: 0;
+}
+
+.dashboard-nav-bars--monthly .dashboard-nav-bars__bars {
+  gap: var(--ct-space-2);
 }
 
 .dashboard-nav-bars__cell {
@@ -1893,19 +2002,50 @@
   height: 100%;
   min-width: 0;
   align-items: flex-end;
+  position: relative;
+  z-index: 1;
 }
 
 .dashboard-nav-bars__bar {
   width: 100%;
   min-height: 2px;
   border-radius: 1px 1px 0 0;
-  border-top: 1px solid var(--ct-accent);
+  border-top: 1px solid color-mix(in srgb, var(--ct-accent) 50%, transparent);
   background: linear-gradient(
     180deg,
-    var(--ct-accent),
-    color-mix(in srgb, var(--ct-accent) 20%, transparent)
+    color-mix(in srgb, var(--ct-accent) 68%, transparent),
+    color-mix(in srgb, var(--ct-accent) 14%, transparent)
   );
   transition: all var(--ct-dur-fast) ease;
+}
+
+.dashboard-nav-bars__grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: space-between;
+  pointer-events: none;
+}
+
+.dashboard-nav-bars__grid > span {
+  display: block;
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 42%, transparent);
+}
+
+.dashboard-nav-bars__months {
+  display: grid;
+  flex-shrink: 0;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--ct-space-2);
+  pointer-events: none;
+}
+
+.dashboard-nav-bars__months > span {
+  color: var(--ct-text-faint);
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-wide);
+  text-transform: uppercase;
 }
 
 .dashboard-nav-bars:hover .dashboard-nav-bars__bar {
@@ -1914,10 +2054,12 @@
 }
 
 .dashboard-nav-bars--muted .dashboard-nav-bars__bar {
-  /* Placeholder bars rest flat at the floor — a ghost baseline, no fake reading. */
-  height: var(--ct-space-1);
-  border-top-color: color-mix(in srgb, var(--ct-text-muted) 30%, transparent);
-  background: color-mix(in srgb, var(--ct-text-muted) 16%, transparent);
+  border-top-color: color-mix(in srgb, var(--ct-text-muted) 48%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-text-muted) 36%, transparent),
+    color-mix(in srgb, var(--ct-text-muted) 14%, transparent)
+  );
 }
 
 .dashboard-nav-bars--muted:hover .dashboard-nav-bars__bar {
@@ -1970,13 +2112,13 @@
   .dashboard-command-row-a {
     /* minmax(14rem) = card cap; max-content hugs the donut without the old 0.36fr dead zone.
        Bare `auto` + min-width:0 on the slot let the orbit column collapse → clipped card. */
-    grid-template-columns: minmax(14rem, max-content) minmax(0, 1fr);
+    grid-template-columns: minmax(15rem, max-content) minmax(0, 1fr);
     align-items: stretch;
   }
 
   .dashboard-command-slot--allocation {
     justify-content: center;
-    min-width: 14rem;
+    min-width: 15rem;
   }
 
   .dashboard-command-slot--allocation > .ct-card {
@@ -1996,6 +2138,26 @@
 @container dash-board (min-width: 44rem) {
   .dashboard-command-row-c {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .dashboard-hero-card__kpis,
+  .dashboard-hero-card__slot {
+    padding: var(--ct-space-5);
+  }
+
+  .dashboard-command-row-a--hero {
+    min-height: 17rem;
+  }
+
+  .dashboard-hero-card__slot--nav .dashboard-nav-bars {
+    min-height: 12rem;
+  }
+
+  .dashboard-hero-card__slot--allocation {
+    border-right: 1px solid var(--ct-border-soft);
+    border-bottom: 0;
   }
 }
 

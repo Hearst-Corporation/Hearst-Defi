@@ -11,20 +11,13 @@ function heroProvenance(kind: Provenance): HeroKpi["provenance"] {
   return kind;
 }
 
-function hashpriceLabel(data: DashboardData, hasLiveKpis: boolean): string {
-  if (!hasLiveKpis) return "awaiting snapshot";
+function hashpriceLabel(data: DashboardData): string {
   const hashprice = data.miningOps.hashprice;
   if (!hashprice) return "Hashprice pending";
   return `$${hashprice.usd_per_th_day.toFixed(3)} / TH / day`;
 }
 
-function proofSubtitle(proof: AdminProofStatus, hasLiveKpis: boolean): string {
-  if (!hasLiveKpis && proof.attestationsCount > 0) {
-    const date = proof.lastMiningAttestationAt
-      ? formatAdminMonthDay(proof.lastMiningAttestationAt)
-      : null;
-    return date ? `Attestation on file · ${date}` : "Attestation on file";
-  }
+function proofSubtitle(proof: AdminProofStatus): string {
   if (proof.lastMiningAttestationAt) {
     return `Last ${formatAdminMonthDay(proof.lastMiningAttestationAt)}`;
   }
@@ -32,14 +25,10 @@ function proofSubtitle(proof: AdminProofStatus, hasLiveKpis: boolean): string {
 }
 
 function proofValue(
-  hasLiveKpis: boolean,
   proofFresh: boolean,
   attestationsCount: number,
 ): string {
-  if (hasLiveKpis) {
-    if (proofFresh) return "Current";
-    return attestationsCount > 0 ? "Stale" : "Pending";
-  }
+  if (proofFresh) return "Current";
   return attestationsCount > 0 ? "Stale" : "Pending";
 }
 
@@ -63,10 +52,6 @@ export function buildDashboardHeroKpis(input: {
   totalActionRequired: number;
   data: DashboardData;
 }): HeroKpi[] {
-  // KPI values fill on genuine live data OR in simulated/demo mode.
-  // `hasLiveKpis` alone stays the gate for Live/Attested provenance upstream;
-  // here we only decide whether the numeric value renders vs. "—".
-  const fillKpis = input.hasLiveKpis || input.simulated;
   const riskTone =
     input.risk.band === "high" ? "danger" : input.risk.band === "medium" ? "warning" : "success";
   const apyValue =
@@ -90,30 +75,30 @@ export function buildDashboardHeroKpis(input: {
     {
       label: "Risk",
       value:
-        fillKpis && input.risk.composite > 0
+        input.risk.composite > 0
           ? `${input.risk.composite}/100`
           : "—",
       sublabel:
-        fillKpis && input.risk.composite > 0
+        input.risk.composite > 0
           ? input.risk.bandLabel
-          : "awaiting snapshot",
+          : "—",
       provenance: heroProvenance(input.riskProvenance),
-      alert: fillKpis && riskTone === "danger",
+      alert: riskTone === "danger",
     },
     {
       label: "Mining",
       value:
-        fillKpis && input.miningMarginScore > 0
+        input.miningMarginScore > 0
           ? `${input.miningMarginScore}/100`
           : "—",
-      sublabel: hashpriceLabel(input.data, input.hasLiveKpis),
+      sublabel: hashpriceLabel(input.data),
       provenance: heroProvenance(input.miningProvenance),
-      alert: fillKpis && input.miningMarginScore > 0 && input.miningMarginScore < 15,
+      alert: input.miningMarginScore > 0 && input.miningMarginScore < 15,
     },
     {
       label: "Proof",
-      value: proofValue(input.hasLiveKpis, input.proofFresh, input.proof.attestationsCount),
-      sublabel: proofSubtitle(input.proof, input.hasLiveKpis),
+      value: proofValue(input.proofFresh, input.proof.attestationsCount),
+      sublabel: proofSubtitle(input.proof),
       provenance: heroProvenance(input.proofProvenance),
     },
     {

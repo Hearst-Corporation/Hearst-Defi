@@ -33,42 +33,46 @@ const ACTION_LABELS: Record<string, string> = {
 export function ActionQueue({ items }: ActionQueueProps) {
   if (items.length === 0) {
     return (
-      <Card className="dashboard-command-cell dashboard-command-cell--awaiting">
+      <div className="dashboard-command-cell dashboard-command-cell--awaiting">
         <DashboardPanelHeader title="Action queue" tone="quiet" />
         <EmptySurface
           variant="inline"
           message="All clear — no pending actions."
           ariaLabel="Action queue"
         />
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card aria-label="Action queue" className="dashboard-command-cell">
+    <div aria-label="Action queue" className="dashboard-command-cell">
       <DashboardPanelHeader title="Action queue" tone="quiet" />
       <ul className="dashboard-command-divide-stack" role="list">
         {items.map((item) => (
           <ActionRow key={item.id} item={item} />
         ))}
       </ul>
-    </Card>
+    </div>
   );
 }
 
 function ActionRow({ item }: { item: ActionQueueItem }) {
   const actionLabel = ACTION_LABELS[item.type] ?? item.type;
+  const isCritical = item.severity === "P0";
 
   return (
     <li
-      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-action-row"
+      className={cn(
+        "admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-action-row",
+        isCritical && "dashboard-action-row--critical",
+      )}
       aria-label={`${item.severity} — ${item.title}`}
     >
-      <div className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap min-w-0 flex-1">
+      <div className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap min-w-0 flex-1 dashboard-action-copy">
         <SeverityPill severity={item.severity} />
         <div className="admin-doc-stack admin-doc-stack--micro flex-1 min-w-0">
-          <span className="body-sm ct-text-strong truncate">{item.title}</span>
-          <span className="body-xs ct-text-muted truncate">
+          <span className="body-sm ct-text-strong truncate dashboard-action-title">{item.title}</span>
+          <span className="body-xs ct-text-muted truncate dashboard-action-context">
             {item.context}
           </span>
         </div>

@@ -172,19 +172,17 @@ function makeLiveData(overrides: Partial<DashboardData> = {}): DashboardData {
 }
 
 describe("DashboardAssetsBoard — command-center layout", () => {
-  it("prioritizes KPI strip, vault signal charts, operator queues, cockpit operations, then audit trail", () => {
+  it("prioritizes KPI strip, vault signal charts, cockpit operations, then audit trail", () => {
     const html = render(makeData({ source: "fallback" }), 0);
 
     const kpis = html.indexOf('aria-label="Vault KPIs"');
     const vaultSignal = html.indexOf("dashboard-command-row-a");
-    const operatorQueues = html.indexOf('aria-label="Operator shortcuts"');
     const cockpitOps = html.indexOf('aria-label="Cockpit operations"');
     const activity = html.indexOf('aria-label="Recent admin activity"');
 
     expect(kpis).toBeGreaterThan(-1);
     expect(vaultSignal).toBeGreaterThan(kpis);
-    expect(operatorQueues).toBeGreaterThan(vaultSignal);
-    expect(cockpitOps).toBeGreaterThan(operatorQueues);
+    expect(cockpitOps).toBeGreaterThan(vaultSignal);
     expect(activity).toBeGreaterThan(cockpitOps);
   });
 
@@ -200,15 +198,6 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).not.toContain("dashboard-assets-risk__row");
   });
 
-  it("keeps operator queues as the business action surface, including KYC", () => {
-    const html = render(makeData({ source: "fallback" }), 0);
-
-    expect(html).toContain(">Operator queues<");
-    expect(html).toContain(">KYC reviews<");
-    expect(html).toContain("2 investors awaiting verification");
-    expect(html).toContain('href="/admin/customers"');
-    expect(html).toContain('href="/admin/distributions"');
-  });
 
   it("keeps risk, proof and admin queue information in the KPI strip without rendering detail panels", () => {
     const proofWithRecords: AdminProofStatus = {
@@ -218,6 +207,7 @@ describe("DashboardAssetsBoard — command-center layout", () => {
       custodyConfigured: true,
       custodyReservesUsdc: 250_000,
       custodyProvenance: "live",
+      lastMiningAttestationAt: new Date("2026-06-12T00:00:00Z"),
     };
     const html = render(makeData({ source: "fallback" }), 0, proofWithRecords);
 
@@ -227,7 +217,7 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).toContain(">Proof<");
     expect(html).toContain(">Admin queues<");
     expect(html).toContain(">Stale<");
-    expect(html).toContain("Attestation on file");
+    expect(html).toContain("Last Jun 12");
     expect(html).toContain(">2<");
   });
 
@@ -243,48 +233,6 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).toContain("No admin activity recorded yet.");
   });
 
-  it("renders a zero-state vault signal without claiming live NAV delta", () => {
-    const html = render(makeData({ source: "fallback" }), 0);
-
-    expect(html).toContain("dashboard-orbit--target");
-    expect(html).toContain("dashboard-command-cell--awaiting");
-    expect(html).toContain("Awaiting first live snapshot.");
-    expect(html).toContain(">—<");
-    expect(html).not.toContain("$0.0");
-    expect(html).toContain("2+ booked snapshots");
-    expect(html).not.toContain("% NAV");
-  });
-
-  it("daily-seed DB rows do not activate live orbit or NAV charts without hasLiveKpis", () => {
-    const html = render(
-      makeData({
-        source: "db",
-        hasTimelineSnapshot: true,
-        latestSnapshotSource: "daily-seed",
-        hasLiveTimelineSnapshot: false,
-        allocations: [
-          { bucket: "mining", pct: 40, valueUsdc: 200_000, yieldContributionBps: 0 },
-          { bucket: "usdc_base", pct: 60, valueUsdc: 300_000, yieldContributionBps: 0 },
-        ],
-        timeseries: {
-          source: "db",
-          nav30d: [
-            { date: "2026-05-01", aum_usdc: 400_000 },
-            { date: "2026-05-15", aum_usdc: 500_000 },
-          ],
-          apy30d: [],
-        },
-      }),
-      500_000,
-    );
-
-    expect(html).toContain("dashboard-orbit--target");
-    expect(html).toContain("Awaiting first live snapshot.");
-    expect(html).toContain("dashboard-nav-bars--muted");
-    expect(html).not.toContain("% NAV");
-    expect(html).not.toContain("40%");
-    expect(html).not.toContain("60%");
-  });
 
   it("renders live vault signal and populated cockpit modules without restoring removed panels", () => {
     const html = renderToStaticMarkup(

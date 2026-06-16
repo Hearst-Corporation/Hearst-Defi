@@ -1,14 +1,8 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import {
-  DashboardAssetsBoard,
-  DashboardDataNotice,
-} from "@/components/admin/dashboard";
+import { DashboardAssetsBoard } from "@/components/admin/dashboard";
 import { VaultTransition } from "@/components/admin/dashboard/vault-transition";
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
-import {
-  resolveDashboardDataNotice,
-  resolveDashboardPageInputs,
-} from "@/lib/admin/dashboard-page-view";
+import { resolveDashboardPageInputs } from "@/lib/admin/dashboard-page-view";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadAdminOverview } from "@/lib/data/admin-overview";
 import { loadCockpitPayload } from "@/lib/data/cockpit";
@@ -35,13 +29,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   ]);
 
   const page = resolveDashboardPageInputs(data, risk, overview);
-  const dataNotice = resolveDashboardDataNotice(
-    data,
-    overview,
-    cockpit,
-    page.hasLiveKpis,
-    page.preview,
-  );
 
   return (
     <div className="admin-doc-shell admin-doc-shell--compact">
@@ -58,8 +45,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           }
         />
       </div>
-
-      {dataNotice ? <DashboardDataNotice notice={dataNotice} /> : null}
 
       <VaultTransition vaultId={data.vaultMeta.id}>
         <DashboardAssetsBoard

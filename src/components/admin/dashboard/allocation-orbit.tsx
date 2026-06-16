@@ -1,9 +1,7 @@
-import { Card } from "@/components/ui/card";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import type { Provenance } from "@/components/ui/provenance-badge";
 import { allocationLabelFor, allocationStrokeFor } from "@/lib/allocation-colors";
 import { dashboardUsdCompact } from "@/lib/admin/dashboard-formatters";
-import {
-  DASHBOARD_ZERO_ALLOCATIONS,
-} from "@/lib/admin/dashboard-vault-signals";
 import type { DashboardAllocation } from "@/lib/data/dashboard";
 
 function conicGradientFromAllocations(allocations: DashboardAllocation[]): string {
@@ -23,48 +21,52 @@ function conicGradientFromAllocations(allocations: DashboardAllocation[]): strin
 
 /** CSS conic-gradient orbit — no SVG. */
 export function AllocationOrbit({
-  live,
   allocations,
   capitalUsdc,
   allocationTotal,
+  provenance,
 }: {
-  live: boolean;
   allocations: DashboardAllocation[];
   capitalUsdc: number;
   allocationTotal: number;
+  provenance: Provenance;
 }) {
-  const displayAllocations = live ? allocations : DASHBOARD_ZERO_ALLOCATIONS;
-  const gradient = conicGradientFromAllocations(displayAllocations);
-  const mappedPct = live ? allocationTotal : 0;
+  const gradient = conicGradientFromAllocations(allocations);
+  const isEmpty = allocationTotal <= 0;
+  const ringStyle = isEmpty
+    ? undefined
+    : ({
+        "--dashboard-orbit-gradient": gradient,
+      } as React.CSSProperties);
 
   return (
-    <Card
-      hoverOverlay={false}
-      className={`dashboard-command-cell dashboard-orbit-card${live ? "" : " dashboard-orbit-card--awaiting dashboard-command-cell--awaiting"}`}
-      aria-label={live ? "Vault allocation map" : "Vault allocation map awaiting first snapshot"}
+    <div
+      className="dashboard-command-cell dashboard-orbit-card"
+      aria-label="Vault allocation map"
     >
-      <div className={`dashboard-orbit ${live ? "" : "dashboard-orbit--target"}`}>
+      <DashboardPanelHeader title="Allocation" tone="quiet" provenance={provenance} />
+      <div className="dashboard-orbit">
         <div className="dashboard-orbit__visual">
           <div className="dashboard-orbit__track" aria-hidden />
           <div
-            className="dashboard-orbit__ring"
-            style={{ "--dashboard-orbit-gradient": gradient } as React.CSSProperties}
+            className={isEmpty ? "dashboard-orbit__ring dashboard-orbit__ring--idle" : "dashboard-orbit__ring"}
+            style={ringStyle}
             aria-hidden
           />
           <div className="dashboard-orbit__core">
             <span>AUM</span>
             <strong className="tabular">
-              {live ? dashboardUsdCompact.format(capitalUsdc) : "—"}
+              {dashboardUsdCompact.format(capitalUsdc)}
             </strong>
-            <small>{mappedPct.toFixed(0)}% mapped</small>
+            <small>{allocationTotal.toFixed(0)}% mapped</small>
           </div>
         </div>
         <ul className="dashboard-orbit__legend" aria-label="Allocation legend">
-          {displayAllocations.map((item) => (
+          {allocations.map((item) => (
             <li key={item.bucket}>
               <span
                 className="dashboard-orbit__legend-dot"
-                style={{ background: allocationStrokeFor(item.bucket) }}
+                style={{ color: allocationStrokeFor(item.bucket) }}
                 aria-hidden
               />
               <span>{allocationLabelFor(item.bucket)}</span>
@@ -72,10 +74,7 @@ export function AllocationOrbit({
             </li>
           ))}
         </ul>
-        {!live ? (
-          <p className="dashboard-instrument-note">Awaiting first live snapshot.</p>
-        ) : null}
       </div>
-    </Card>
+    </div>
   );
 }

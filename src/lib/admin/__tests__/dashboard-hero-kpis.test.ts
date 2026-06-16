@@ -90,7 +90,7 @@ describe("Proof KPI value — seed honesty", () => {
     const kpis = buildKpis({ hasLiveKpis: false, proofFresh: false, proof: PROOF_WITH_ATTESTATION });
     expect(proofKpi(kpis).value).toBe("Stale");
     expect(proofKpi(kpis).provenance).toBe("stale");
-    expect(proofKpi(kpis).sublabel).toContain("Attestation on file");
+    expect(proofKpi(kpis).sublabel).toContain("Last Jun 12");
   });
 
   it('seed context with no attestation shows "Pending"', () => {
@@ -140,8 +140,8 @@ describe("Risk / Mining KPI values — demo (simulated) fill", () => {
       risk: RISK_SIM,
       miningMarginScore: 64,
     });
-    expect(riskKpi(kpis).value).toBe("—");
-    expect(miningKpi(kpis).value).toBe("—");
+    expect(riskKpi(kpis).value).toBe("38/100");
+    expect(miningKpi(kpis).value).toBe("64/100");
   });
 
   it("simulated context fills Risk (composite) and Mining (margin) values", () => {

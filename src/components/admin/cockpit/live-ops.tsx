@@ -28,7 +28,7 @@ interface LiveOpsProps {
  */
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
-    <Card aria-label="Live ops" className="dashboard-command-cell">
+    <div aria-label="Live ops" className="dashboard-command-cell">
       <DashboardPanelHeader title="Live ops" tone="quiet" />
 
       <div className="dashboard-command-divide-stack">
@@ -70,7 +70,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
           )}
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
