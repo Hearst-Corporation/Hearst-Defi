@@ -20,6 +20,8 @@ function matches(pathname: string, href: string): boolean {
  * Active tab uses the longest matching href so /admin/vaults/[id] still lights
  * up "Overview" rather than falling through.
  */
+const SECTIONS_WITH_VISIBLE_ROOT_TAB = new Set(["dashboard", "strategy"]);
+
 export function AdminSubNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -31,12 +33,12 @@ export function AdminSubNav() {
 
   if (!section) return null;
 
-  // Dashboard section keeps the Overview tab so `/admin/dashboard` has an active
-  // sub-nav state. Other sections hide the root tab (duplicates the page H1).
-  const visibleTabs =
-    section.id === "dashboard"
-      ? section.tabs
-      : section.tabs.filter((t) => t.href !== section.href);
+  // Dashboard and Strategy keep their root tab visible so the section landing
+  // page has an explicit active state and a stable "back to overview" affordance.
+  // Other sections still hide the root tab to avoid duplicating the page H1.
+  const visibleTabs = SECTIONS_WITH_VISIBLE_ROOT_TAB.has(section.id)
+    ? section.tabs
+    : section.tabs.filter((t) => t.href !== section.href);
 
   if (visibleTabs.length <= 1) return null;
 
@@ -60,7 +62,7 @@ export function AdminSubNav() {
             className={cn(
               "relative -mb-px border-b-2 px-3 py-2.5 body-sm font-medium transition-colors",
               isActive
-                ? "border-[var(--ct-text-strong)] ct-text-primary"
+                ? "border-(--ct-accent) ct-text-accent"
                 : "border-transparent ct-text-muted hover:ct-text-primary",
             )}
           >
