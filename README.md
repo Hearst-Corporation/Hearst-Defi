@@ -102,6 +102,11 @@ ops (action queue, live metrics, live ops) → audit trail.
 Risk / proof / distribution = KPI strip + liens operator shortcuts, pas de
 panels détail sur cette page. Barrel : `@/components/admin/dashboard`.
 
+**Proof Center (`/proof-center`, `/admin/proof-center`)** — PoR summary,
+mining cash-flow coverage, latest distributions (6), rebalancing events avec
+modal PTAI (5), event timeline on-chain, catalog off-chain (paper proofs),
+adresses vault/manager/custody + contracts Phase 2 + audit trail.
+
 **Admin agents & investors** — persona ops :
 - `/admin/agents` — bibliothèque `AgentTemplate` (create / edit / archive, compteur d'usage).
 - `/admin/customers` — directory + **New investor** (provisionne `User` + `Investor`, lie un profil Typeform orphelin par email si présent).

@@ -18,6 +18,10 @@ interface ProofGridProps {
   filter: FilterValue;
   /** Demo sandbox — paper proofs render "Simulated" provenance. */
   demo?: boolean;
+  /** On-chain event/attestation cards — Live vs Simulated (demo provider). */
+  onChainProvenance?: "live" | "simulated";
+  /** Fail-closed allowlist check for on-chain PoR attestation cards. */
+  verifyAttestor?: (attestor: string) => boolean;
 }
 
 function keyOf(proof: UnifiedProof): string {
@@ -26,7 +30,13 @@ function keyOf(proof: UnifiedProof): string {
   return onChainAttestationKey(proof.data);
 }
 
-export function ProofGrid({ proofs, filter, demo = false }: ProofGridProps) {
+export function ProofGrid({
+  proofs,
+  filter,
+  demo = false,
+  onChainProvenance = "live",
+  verifyAttestor,
+}: ProofGridProps) {
   const filtered =
     filter === "all" ? proofs : proofs.filter((p) => unifiedProofType(p) === filter);
 
@@ -39,7 +49,12 @@ export function ProofGrid({ proofs, filter, demo = false }: ProofGridProps) {
     <ul className="ct-proof-grid">
       {filtered.map((proof) => (
         <li key={keyOf(proof)} className="contents">
-          <ProofCard proof={proof} demo={demo} />
+          <ProofCard
+            proof={proof}
+            demo={demo}
+            onChainProvenance={onChainProvenance}
+            verifyAttestor={verifyAttestor}
+          />
         </li>
       ))}
     </ul>

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProofRow } from "@/components/ui/nested-panel";
-import { type Provenance } from "@/components/ui/provenance-badge";
+import { type Provenance, ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { EXPLORER_ADDRESS_BASE, EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { ProofType } from "@/lib/proof-center-types";
 
@@ -13,6 +13,9 @@ import { safeUrl } from "@/lib/safe-url";
 import { abbreviateAddress } from "@/lib/onchain";
 import { proofProvenance } from "@/lib/demo/markers";
 import { cn } from "@/lib/cn";
+import {
+  resolveAttestationProvenance,
+} from "@/components/proof-center/formatters";
 
 import type { UnifiedProof } from "./proof-types";
 
@@ -20,6 +23,8 @@ interface ProofCardProps {
   proof: UnifiedProof;
   /** Demo sandbox — paper proofs render "Simulated" provenance. */
   demo?: boolean;
+  onChainProvenance?: "live" | "simulated";
+  verifyAttestor?: (attestor: string) => boolean;
 }
 
 /** Per-type accent colour (token-only). Mining = semantic success green;
@@ -157,14 +162,25 @@ function VerificationChip({
   return null;
 }
 
-export function ProofCard({ proof, demo = false }: ProofCardProps) {
+export function ProofCard({
+  proof,
+  demo = false,
+  onChainProvenance = "live",
+  verifyAttestor,
+}: ProofCardProps) {
   if (proof.source === "paper") {
     return <PaperProofCard proof={proof} demo={demo} />;
   }
   if (proof.kind === "event") {
-    return <OnChainEventCard proof={proof.data} />;
+    return <OnChainEventCard proof={proof.data} provenance={onChainProvenance} />;
   }
-  return <OnChainAttestationCard proof={proof.data} />;
+  return (
+    <OnChainAttestationCard
+      proof={proof.data}
+      demo={demo}
+      verifyAttestor={verifyAttestor}
+    />
+  );
 }
 
 function PaperProofCard({
@@ -243,18 +259,17 @@ function PaperProofCard({
 
 function OnChainEventCard({
   proof,
+  provenance,
 }: {
   proof: import("@/lib/chain/event-logger").OnChainEvent;
+  provenance: "live" | "simulated";
 }) {
   return (
     <ProofCardShell>
       <ProofCardHeader
         title={`Hearst event #${proof.eventId.toString()} — ${proof.kind}`}
-        trailing={
-          <Badge variant="success" title="Read directly from Base Sepolia">
-            On-chain
-          </Badge>
-        }
+        eyebrow={`On-chain · ${provenance === "simulated" ? "Simulated" : "Live"}`}
+        trailing={<ProvenanceBadge variant="strip" kind={provenance} />}
       />
 
       <ProofFieldList>
@@ -314,17 +329,34 @@ function formatPeriod(period: bigint): string {
 
 function OnChainAttestationCard({
   proof,
+  demo = false,
+  verifyAttestor,
 }: {
   proof: import("@/lib/chain/por-registry").OnChainAttestation;
+  demo?: boolean;
+  verifyAttestor?: (attestor: string) => boolean;
 }) {
+  const verified = verifyAttestor?.(proof.attestor) ?? false;
+  const provenance = resolveAttestationProvenance(proof.timestamp, verified, demo);
+  const provenanceLabel =
+    provenance === "simulated"
+      ? "Simulated"
+      : provenance === "attested"
+        ? "Attested"
+        : "Stale";
+
   return (
     <ProofCardShell>
       <ProofCardHeader
         title={`PoR #${proof.attestationId.toString()} — ${formatPeriod(proof.period)}`}
+        eyebrow={`On-chain · ${provenanceLabel}`}
         trailing={
-          <Badge variant="brand" title="Proof-of-reserves period">
-            {formatPeriod(proof.period)}
-          </Badge>
+          <div className="product-doc-inline-row">
+            <Badge variant="brand" title="Proof-of-reserves period">
+              {formatPeriod(proof.period)}
+            </Badge>
+            <ProvenanceBadge variant="strip" kind={provenance} />
+          </div>
         }
       />
 

@@ -34,6 +34,18 @@ export const OFF_CHAIN_PROOFS_EMPTY = {
   detail: "Mining attestations and custody snapshots appear here once posted via the ingest CLI.",
 } as const;
 
+export const RECENT_DISTRIBUTIONS_EMPTY = {
+  message: "No distributions recorded yet.",
+  detail:
+    "Monthly USDC distributions will appear here after the first vault period closes and multisig approval completes.",
+} as const;
+
+export const REBALANCING_EVENTS_EMPTY = {
+  message: "No rebalancing events yet.",
+  detail:
+    "Rule-triggered rebalancing signals (PTAI format) will appear here once the vault operates.",
+} as const;
+
 export const MINING_CASHFLOW_COPY = {
   live: "Coverage calculated from complete mining cash-flow inputs.",
   estimated: "Estimated from available (demo/staging) mining inputs. Not attested.",

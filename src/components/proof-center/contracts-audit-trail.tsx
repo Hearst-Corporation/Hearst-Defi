@@ -14,6 +14,21 @@ import { abbreviateAddress } from "@/lib/onchain";
 import { explorerLinkClass, sectionDividerClass } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/cn";
 
+export interface PlatformAddressEntry {
+  label: string;
+  address: string | null;
+  description: string;
+  /** When unset, no explorer link is rendered. */
+  href?: string | null;
+  /** ProofRow label — defaults to "Address". */
+  rowLabel?: string;
+}
+
+interface ContractsAuditTrailProps {
+  /** Vault, manager, custody scope — supplied by the page loader. */
+  platformAddresses?: ReadonlyArray<PlatformAddressEntry>;
+}
+
 interface DeployedContract {
   name: string;
   address: `0x${string}`;
@@ -84,6 +99,40 @@ function auditBadgeLabel(entry: AuditEntry): string {
   return "Pending";
 }
 
+function PlatformAddressRow({
+  entry,
+  separated,
+}: {
+  entry: PlatformAddressEntry;
+  separated: boolean;
+}) {
+  return (
+    <article className={cn(separated && cn(sectionDividerClass, "pt-6"))}>
+      <h4 className="h4 mb-2">{entry.label}</h4>
+      <p className="body-sm mb-4">{entry.description}</p>
+      <ProofRow label={entry.rowLabel ?? "Address"}>
+        {entry.address ? (
+          entry.href ? (
+            <a
+              href={entry.href}
+              target="_blank"
+              rel="noreferrer noopener"
+              className={explorerLinkClass}
+              title={entry.address}
+            >
+              {abbreviateAddress(entry.address)}
+            </a>
+          ) : (
+            <span title={entry.address}>{abbreviateAddress(entry.address)}</span>
+          )
+        ) : (
+          <span className="ct-text-muted">Not configured</span>
+        )}
+      </ProofRow>
+    </article>
+  );
+}
+
 function DeployedContractCard({
   contract,
   separated,
@@ -150,11 +199,31 @@ function DeployedContractCard({
   );
 }
 
-export function ContractsAuditTrail() {
+export function ContractsAuditTrail({
+  platformAddresses = [],
+}: ContractsAuditTrailProps) {
   const deploymentsVerified = DEPLOYED_CONTRACTS.every((c) => c.sourceVerified);
 
   return (
     <div className="product-doc-stack">
+      {platformAddresses.length > 0 ? (
+        <Card>
+          <DashboardPanelHeader
+            eyebrow="On-chain addresses"
+            title="Vault, manager & custody scope"
+            provenance="manual"
+            tone="primary"
+          />
+          {platformAddresses.map((entry, idx) => (
+            <PlatformAddressRow
+              key={entry.label}
+              entry={entry}
+              separated={idx > 0}
+            />
+          ))}
+        </Card>
+      ) : null}
+
       <Card>
         <DashboardPanelHeader
           eyebrow="Phase 2 contracts · Base Sepolia"

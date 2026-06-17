@@ -22,6 +22,8 @@ import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-t
 import { EventTimeline } from "@/components/proof-center/event-timeline";
 import { PorSummary } from "@/components/proof-center/por-summary";
 import { MiningCashFlowEvidence } from "@/components/proof-center/mining-cashflow-evidence";
+import { RecentDistributions } from "@/components/proof-center/recent-distributions";
+import { RebalancingEventsPanel } from "@/components/proof-center/rebalancing-events-panel";
 import { loadCoverageForVault } from "@/lib/agents/loaders/coverage";
 import { TimelockCountdown } from "@/components/governance/timelock-countdown";
 import {
@@ -31,12 +33,18 @@ import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
 import { isAttestorAllowlisted } from "@/lib/attestation/stored";
 import { loadCustody } from "@/lib/data/custody";
+import {
+  loadRecentDistributions,
+  loadRecentRebalances,
+  PROOF_CENTER_VAULT_REF,
+} from "@/lib/data/proof-center";
 import { getProofs } from "@/lib/data/proofs";
 import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
 import { getInvestor } from "@/lib/auth/session";
 import { isDemoInvestor } from "@/lib/demo/provider";
 import { buildDemoProofs } from "@/lib/demo/builders";
 import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
+import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
 import { prisma } from "@/lib/db";
 import { TIMELOCK_DELAY_HOURS } from "@/lib/governance/state-machine";
 
@@ -60,20 +68,34 @@ export default async function ProductProofCenterPage({
   const investor = await getInvestor();
   const demo = isDemoInvestor(investor);
 
-  const [onChainEvents, onChainAttestations, paper, custody, timelockProposals, showDemoBanner] =
-    await Promise.all([
-      fetchOnChainEvents({ limit: 20 }),
-      fetchOnChainAttestations({ limit: 12 }),
-      demo
-        ? Promise.resolve(buildDemoProofs())
-        : getProofs().then((r) => r.data),
-      loadCustody(),
-      prisma.governanceProposal.findMany({
-        where: { state: "TIMELOCK" },
-        orderBy: { queuedAt: "asc" },
-      }),
-      databaseHasDemoProofs(),
-    ]);
+  const coveragePeriod = new Date().toISOString().slice(0, 7); // YYYY-MM
+
+  const [
+    onChainEvents,
+    onChainAttestations,
+    paper,
+    custody,
+    timelockProposals,
+    showDemoBanner,
+    coverage,
+    recentDistributions,
+    recentRebalances,
+  ] = await Promise.all([
+    fetchOnChainEvents({ limit: 20 }),
+    fetchOnChainAttestations({ limit: 12 }),
+    demo
+      ? Promise.resolve(buildDemoProofs())
+      : getProofs().then((r) => r.data),
+    loadCustody(),
+    prisma.governanceProposal.findMany({
+      where: { state: "TIMELOCK" },
+      orderBy: { queuedAt: "asc" },
+    }),
+    databaseHasDemoProofs(),
+    loadCoverageForVault(PROOF_CENTER_VAULT_REF, coveragePeriod),
+    loadRecentDistributions(PROOF_CENTER_VAULT_REF, 6),
+    loadRecentRebalances(PROOF_CENTER_VAULT_REF, 5),
+  ]);
 
   const latestAttestation = onChainAttestations[0] ?? null;
   // A4 — "Attested" badge requires a fresh attestation AND an allowlisted signer.
@@ -84,26 +106,12 @@ export default async function ProductProofCenterPage({
     isAttestorAllowlisted(latestAttestation.attestor);
 
   // P1 — live distribution coverage for the Yield vault, current calendar month.
-  const coveragePeriod = new Date().toISOString().slice(0, 7); // YYYY-MM
-  const coverage = await loadCoverageForVault("hearst-yield-vault", coveragePeriod);
+  const platformAddresses = buildPlatformAddresses(custody);
 
-  const proofs: UnifiedProof[] = [
-    ...onChainAttestations.map(
-      (data): UnifiedProof => ({
-        source: "on-chain",
-        kind: "attestation",
-        data,
-      }),
-    ),
-    ...onChainEvents.map(
-      (data): UnifiedProof => ({
-        source: "on-chain",
-        kind: "event",
-        data,
-      }),
-    ),
-    ...paper.map((p): UnifiedProof => ({ ...p, source: "paper" })),
-  ];
+  // Proof catalog — off-chain documents only
+  const proofs: UnifiedProof[] = paper.map(
+    (p): UnifiedProof => ({ ...p, source: "paper" }),
+  );
 
   return (
     <div className="proof-center-shell">
@@ -173,6 +181,22 @@ export default async function ProductProofCenterPage({
         <MiningCashFlowEvidence coverage={coverage} />
       </section>
 
+      {/* ── Latest distributions ─────────────────────────────── */}
+      <section aria-labelledby="distributions-heading">
+        <h2 id="distributions-heading" className="sr-only">
+          Latest distributions
+        </h2>
+        <RecentDistributions distributions={recentDistributions} />
+      </section>
+
+      {/* ── Rebalancing events (PTAI) ──────────────────────── */}
+      <section aria-labelledby="rebalance-heading">
+        <h2 id="rebalance-heading" className="sr-only">
+          Rebalancing events
+        </h2>
+        <RebalancingEventsPanel events={recentRebalances} />
+      </section>
+
       {/* ── On-chain event timeline ── */}
       <section aria-labelledby="event-timeline-heading">
         <h2 id="event-timeline-heading" className="sr-only">
@@ -188,7 +212,7 @@ export default async function ProductProofCenterPage({
             <DashboardPanelHeader
               id="proof-grid-heading"
               eyebrow="Proof catalog"
-              title="Proof catalog"
+              title="Off-chain proofs & documents"
               titleLevel="section"
               tone="quiet"
               className="min-w-0 flex-1"
@@ -208,7 +232,7 @@ export default async function ProductProofCenterPage({
         <h2 id="contracts-heading" className="h2 mb-4">
           Contracts &amp; review trail
         </h2>
-        <ContractsAuditTrail />
+        <ContractsAuditTrail platformAddresses={platformAddresses} />
       </section>
 
       {/* ── Governance timelocks ───────────────────────────── */}
