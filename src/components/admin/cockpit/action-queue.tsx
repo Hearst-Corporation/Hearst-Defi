@@ -33,7 +33,12 @@ export function ActionQueue({ items }: ActionQueueProps) {
   if (items.length === 0) {
     return (
       <div className="dashboard-command-cell dashboard-command-cell--awaiting">
-        <DashboardPanelHeader title="Operator queue" tone="quiet" />
+        <DashboardPanelHeader
+          title="Operator queue"
+          eyebrow="Operate"
+          tone="quiet"
+          className="dashboard-command-panel-header"
+        />
         <EmptySurface
           variant="inline"
           message="All clear — no operator actions queued."
@@ -45,7 +50,12 @@ export function ActionQueue({ items }: ActionQueueProps) {
 
   return (
     <div aria-label="Operator queue" className="dashboard-command-cell">
-      <DashboardPanelHeader title="Operator queue" tone="quiet" />
+      <DashboardPanelHeader
+        title="Operator queue"
+        eyebrow="Operate"
+        tone="quiet"
+        className="dashboard-command-panel-header"
+      />
       <ul className="dashboard-command-divide-stack" role="list">
         {items.map((item) => (
           <ActionRow key={item.id} item={item} />
@@ -62,7 +72,7 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
   return (
     <li
       className={cn(
-        "admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-action-row",
+        "admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-action-row hover:bg-(--ct-surface-1) transition-colors rounded-md px-2 -mx-2 cursor-default",
         isCritical && "dashboard-action-row--critical",
       )}
       aria-label={`${item.severity} — ${item.title}`}

@@ -163,11 +163,9 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
           <p className="body-xs font-semibold ct-text-body">
             {events.length} signal{events.length !== 1 ? "s" : ""}
           </p>
-          <div className="admin-doc-stack admin-doc-stack--relaxed">
-            {events.map((event) => (
-              <RebalanceCard key={event.id} event={event} requiredSigners={2} />
-            ))}
-          </div>
+          {events.map((event) => (
+            <RebalanceCard key={event.id} event={event} requiredSigners={2} />
+          ))}
         </section>
       )}
     </div>

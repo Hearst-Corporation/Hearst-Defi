@@ -110,6 +110,20 @@ const serverEnvSchema = z.object({
   // production guard below warns loudly when it is missing so a standard deploy
   // doesn't ship with notifications quietly off.
   RESEND_API_KEY: z.string().optional(),
+  // Supabase Storage — durable file store for generated artifacts (investor
+  // memo PDFs, review documents, attestations). The runtime DB connection goes
+  // through DATABASE_URL/Prisma; these vars are ONLY for the Storage REST API.
+  //
+  // NEXT_PUBLIC_SUPABASE_URL is the project URL (also used by any browser
+  // client). SUPABASE_SERVICE_ROLE_KEY is server-only — it bypasses RLS to
+  // upload into the private `reports` bucket, so it must NEVER appear in a
+  // NEXT_PUBLIC_* var or reach the client bundle. All three optional: when
+  // unset, PDF generation still streams the file to the browser for download
+  // but skips the durable upload (pdfUrl stays null) instead of crashing.
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  // Bucket name for durable report storage. Defaults to "reports".
+  SUPABASE_STORAGE_BUCKET: z.string().default("reports"),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).optional(),
   // LLM provider — OpenAI GPT-4.1 (via the `openai` SDK) is the single backend
   // for all four agents AND the cockpit chat. ADR-011 (supersedes ADR-007).
@@ -306,6 +320,7 @@ function resolveEnv(): ServerEnv {
         OPENAI_MODEL: lenient.data.OPENAI_MODEL ?? "gpt-4.1",
         DOCUSIGN_BASE_URL: lenient.data.DOCUSIGN_BASE_URL ?? "https://demo.docusign.net/restapi",
         FEAR_GREED_BASE_URL: lenient.data.FEAR_GREED_BASE_URL ?? "https://api.alternative.me",
+        SUPABASE_STORAGE_BUCKET: lenient.data.SUPABASE_STORAGE_BUCKET ?? "reports",
       };
       return data;
     }

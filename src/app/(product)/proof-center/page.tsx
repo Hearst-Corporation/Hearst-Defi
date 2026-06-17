@@ -206,13 +206,11 @@ export default async function ProductProofCenterPage({
         title="Off-chain proofs & documents"
         actions={proofs.length > 0 ? <ProofFilter /> : null}
       >
-        <Card hoverOverlay={false}>
-          {proofs.length === 0 ? (
-            <AwaitingMetricState {...PLATFORM_PROOFS_EMPTY} />
-          ) : (
-            <ProofGrid proofs={proofs} filter={filter} demo={demo} />
-          )}
-        </Card>
+        {proofs.length === 0 ? (
+          <AwaitingMetricState {...PLATFORM_PROOFS_EMPTY} />
+        ) : (
+          <ProofGrid proofs={proofs} filter={filter} demo={demo} />
+        )}
       </ProofCenterSection>
 
       <ProofCenterSection
@@ -255,30 +253,28 @@ export default async function ProductProofCenterPage({
 
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="proof-center-footer">
-        <Card hoverOverlay={false}>
-          <DashboardPanelHeader
-            eyebrow="Read path"
-            title="Data provenance"
-            tone="quiet"
-          />
-          <p className="body-xs ct-prose-md ct-text-muted">
-            {chainConfigured ? (
-              <>
-                On-chain entries are read from a test network — not production
-                mainnet. Contract addresses, tx links, and attestation context
-                are exposed in the modules above. Off-chain entries are pinned
-                to IPFS or signed HTTPS endpoints. On-chain data and vault state
-                are fetched fresh on every request.
-              </>
-            ) : (
-              <>
-                Off-chain entries are pinned to IPFS or signed HTTPS endpoints. On-chain
-                attestation will be enabled following mainnet deployment. Vault state is
-                fetched fresh on every request.
-              </>
-            )}
-          </p>
-        </Card>
+        <DashboardPanelHeader
+          eyebrow="Read path"
+          title="Data provenance"
+          tone="quiet"
+        />
+        <p className="body-xs ct-prose-md ct-text-muted">
+          {chainConfigured ? (
+            <>
+              On-chain entries are read from a test network — not production
+              mainnet. Contract addresses, tx links, and attestation context
+              are exposed in the modules above. Off-chain entries are pinned
+              to IPFS or signed HTTPS endpoints. On-chain data and vault state
+              are fetched fresh on every request.
+            </>
+          ) : (
+            <>
+              Off-chain entries are pinned to IPFS or signed HTTPS endpoints. On-chain
+              attestation will be enabled following mainnet deployment. Vault state is
+              fetched fresh on every request.
+            </>
+          )}
+        </p>
       </footer>
     </div>
   );

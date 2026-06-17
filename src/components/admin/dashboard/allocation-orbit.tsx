@@ -4,22 +4,68 @@ import { allocationLabelFor, allocationStrokeFor } from "@/lib/allocation-colors
 import { dashboardUsdCompact } from "@/lib/admin/dashboard-formatters";
 import type { DashboardAllocation } from "@/lib/data/dashboard";
 
-function conicGradientFromAllocations(allocations: DashboardAllocation[]): string {
-  let cumul = 0;
-  const stops = allocations
-    .filter((item) => item.pct > 0)
-    .map((item) => {
-      const start = cumul;
-      cumul += item.pct;
-      return `${allocationStrokeFor(item.bucket)} ${start}% ${cumul}%`;
-    });
-  if (stops.length === 0) {
-    return "conic-gradient(var(--ct-surface-3) 0% 100%)";
-  }
-  return `conic-gradient(from -90deg, ${stops.join(", ")})`;
+/**
+ * Premium SVG Donut Chart for Capital Allocation.
+ * Uses a 100-unit circumference circle (r=15.9155) for easy percentage mapping.
+ */
+function SvgDonut({ allocations }: { allocations: DashboardAllocation[] }) {
+  const radius = 15.915494309189533;
+  const circumference = 100;
+  let currentOffset = 100; // SVG is rotated -90deg, so 100 offset starts at top
+
+  return (
+    <svg viewBox="0 0 42 42" className="dashboard-orbit__svg" aria-hidden="true">
+      <defs>
+        <filter id="mining-glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="1.5" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      </defs>
+      
+      {/* Background track */}
+      <circle
+        cx="21"
+        cy="21"
+        r={radius}
+        fill="none"
+        stroke="color-mix(in srgb, var(--ct-accent) 15%, transparent)"
+        strokeWidth="1.5"
+      />
+      
+      {/* Segments */}
+      {allocations
+        .filter((item) => item.pct > 0)
+        .map((item) => {
+          const strokeDasharray = `${item.pct} ${circumference - item.pct}`;
+          const strokeDashoffset = currentOffset;
+          currentOffset -= item.pct; // Move offset backwards to draw clockwise
+          
+          const isMining = item.bucket === "mining";
+          
+          return (
+            <circle
+              key={item.bucket}
+              cx="21"
+              cy="21"
+              r={radius}
+              fill="none"
+              stroke={allocationStrokeFor(item.bucket)}
+              strokeWidth={isMining ? "2.5" : "2"}
+              strokeDasharray={strokeDasharray}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              filter={isMining ? "url(#mining-glow)" : undefined}
+              style={{
+                transition: "stroke-dasharray 1s ease-out, stroke-dashoffset 1s ease-out",
+                transformOrigin: "center",
+              }}
+            />
+          );
+        })}
+    </svg>
+  );
 }
 
-/** CSS conic-gradient orbit — no SVG. */
 export function AllocationOrbit({
   allocations,
   capitalUsdc,
@@ -31,28 +77,26 @@ export function AllocationOrbit({
   allocationTotal: number;
   provenance: Provenance;
 }) {
-  const gradient = conicGradientFromAllocations(allocations);
   const isEmpty = allocationTotal <= 0;
-  const ringStyle = isEmpty
-    ? undefined
-    : ({
-        "--dashboard-orbit-gradient": gradient,
-      } as React.CSSProperties);
 
   return (
     <div
       className="dashboard-command-cell dashboard-orbit-card"
       aria-label="Vault allocation map"
     >
-      <DashboardPanelHeader title="Capital allocation" tone="quiet" provenance={provenance} />
+      <DashboardPanelHeader
+        title="Capital allocation"
+        eyebrow="Balance sheet"
+        tone="quiet"
+        provenance={!isEmpty ? provenance : undefined}
+      />
       <div className="dashboard-orbit">
         <div className="dashboard-orbit__visual">
-          <div className="dashboard-orbit__track" aria-hidden />
-          <div
-            className={isEmpty ? "dashboard-orbit__ring dashboard-orbit__ring--idle" : "dashboard-orbit__ring"}
-            style={ringStyle}
-            aria-hidden
-          />
+          {isEmpty ? (
+            <div className="dashboard-orbit__ring dashboard-orbit__ring--idle" aria-hidden />
+          ) : (
+            <SvgDonut allocations={allocations} />
+          )}
           <div className="dashboard-orbit__core">
             <span>AUM</span>
             <strong className="tabular">

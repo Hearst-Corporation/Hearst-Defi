@@ -40,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-rail-mode="collapsed" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
         {/* Skip-link — MUST be the first focusable element in the DOM so the
             very first Tab reaches it (a11y / QA P2). Hoisted OUT of <AppChrome>:

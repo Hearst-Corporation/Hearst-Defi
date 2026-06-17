@@ -34,9 +34,7 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
         {/* Primary column — strategy signal */}
         <div className="invest-flow-detail__primary">
           {/* C-13 — Model B legal one-liner (compliance-mandatory). */}
-          <div className="product-doc-stack product-doc-stack--tight">
-            <p className="body-sm ct-text-muted">{MODEL_B_ONELINER}</p>
-          </div>
+          <p className="body-sm ct-text-muted">{MODEL_B_ONELINER}</p>
 
           {/* Target allocation — DS module */}
           <Card hoverOverlay={false}>

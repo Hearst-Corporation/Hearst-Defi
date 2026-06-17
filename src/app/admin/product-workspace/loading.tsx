@@ -2,7 +2,7 @@ import { Skeleton, SkeletonCard } from "@/components/ui/skeleton";
 
 export default function ProductWorkspaceLoading() {
   return (
-    <div className="admin-doc-shell admin-doc-shell--roomy animate-in fade-in duration-[var(--ct-dur-slower)]">
+    <div className="admin-doc-shell admin-doc-shell--roomy animate-in fade-in duration-(--ct-dur-slower)">
       <div className="admin-doc-stack--tight">
         <Skeleton className="h-3 w-40" />
         <Skeleton className="h-10 w-64" />
@@ -19,7 +19,7 @@ export default function ProductWorkspaceLoading() {
         <SkeletonCard />
       </div>
 
-      <div className="admin-doc-section">
+      <div className="admin-doc-stack admin-doc-stack--tight">
         <Skeleton className="h-8 w-48" />
         <div className="admin-doc-card-grid-3">
           <SkeletonCard />

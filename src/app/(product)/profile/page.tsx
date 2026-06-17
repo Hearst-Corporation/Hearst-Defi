@@ -122,52 +122,54 @@ export default async function ProfilePage() {
           </div>
         </Card>
 
-        {hasPositions ? (
-          <Card aria-labelledby="prof-summary-label" hoverOverlay={false}>
-            <DashboardPanelHeader
-              id="prof-summary-label"
-              title="Investment summary"
-              provenance="live"
-              tone="primary"
-            />
+        <Card aria-labelledby="prof-summary-label" hoverOverlay={false}>
+          {hasPositions ? (
+            <>
+              <DashboardPanelHeader
+                id="prof-summary-label"
+                title="Investment summary"
+                provenance="live"
+                tone="primary"
+              />
 
-            <MetricGrid columns={2}>
-              <Metric variant="nested" label="Active positions" value={positions.length} />
-              <Metric
-                variant="nested"
-                label="Total deployed"
-                value={formatUsdCompact(totalDeployed)}
+              <MetricGrid columns={2}>
+                <Metric variant="nested" label="Active positions" value={positions.length} />
+                <Metric
+                  variant="nested"
+                  label="Total deployed"
+                  value={formatUsdCompact(totalDeployed)}
+                />
+                <Metric
+                  variant="nested"
+                  label="First subscription"
+                  value={
+                    firstSubAt ? formatProfileDate(firstSubAt) : "Awaiting subscription"
+                  }
+                />
+              </MetricGrid>
+            </>
+          ) : (
+            <>
+              <DashboardPanelHeader
+                id="prof-summary-label"
+                title="Investment summary"
+                tone="quiet"
               />
-              <Metric
-                variant="nested"
-                label="First subscription"
-                value={
-                  firstSubAt ? formatProfileDate(firstSubAt) : "Awaiting subscription"
-                }
-              />
-            </MetricGrid>
-          </Card>
-        ) : (
-          <Card aria-labelledby="prof-summary-label" hoverOverlay={false}>
-            <DashboardPanelHeader
-              id="prof-summary-label"
-              title="Investment summary"
-              tone="quiet"
-            />
-            <EmptySurface
-              variant="inline"
-              className="h-full"
-              message="Your investment summary starts after your first active position."
-              detail="Once a deposit is confirmed, deployed capital and subscription history appear here."
-            >
-              <Button variant="secondary" size="md" asChild className="mt-2">
-                <Link href="/vaults" aria-label="Explore the vault">
-                  Explore the vault
-                </Link>
-              </Button>
-            </EmptySurface>
-          </Card>
-        )}
+              <EmptySurface
+                variant="inline"
+                className="h-full"
+                message="Your investment summary starts after your first active position."
+                detail="Once a deposit is confirmed, deployed capital and subscription history appear here."
+              >
+                <Button variant="secondary" size="md" asChild className="mt-2">
+                  <Link href="/vaults" aria-label="Explore the vault">
+                    Explore the vault
+                  </Link>
+                </Button>
+              </EmptySurface>
+            </>
+          )}
+        </Card>
 
         <Card className="prof-security-card" aria-labelledby="prof-security-label" hoverOverlay={false}>
           <DashboardPanelHeader

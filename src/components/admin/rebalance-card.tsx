@@ -237,8 +237,7 @@ export function RebalanceCard({
   }
 
   return (
-    <Card>
-      <div className="admin-doc-stack admin-doc-stack--roomy">
+    <Card contentClassName="admin-doc-stack admin-doc-stack--roomy">
         {/* Header */}
         <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
           <div className="admin-doc-stack admin-doc-stack--compact">
@@ -424,7 +423,6 @@ export function RebalanceCard({
             </p>
           )}
         </div>
-      </div>
     </Card>
   );
 }

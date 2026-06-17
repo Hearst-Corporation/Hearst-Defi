@@ -4,9 +4,17 @@ import { z } from "zod";
 
 import type { InvestorMemoOutput } from "@/lib/agents/schemas";
 import { loadMemoInput } from "@/lib/agents/loaders/vault";
+import { METHODOLOGY_VERSION } from "@/lib/agents/system-prompts/methodology";
 import { loadMemoPdfExtras, periodFromIso } from "@/lib/pdf/memo-data";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { assertRateLimit } from "@/lib/rate-limit";
+import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
+import {
+  isStorageConfigured,
+  uploadReport,
+  signedReportUrl,
+} from "@/lib/storage/supabase-storage";
 
 const VaultIdSchema = z.enum(["yield", "defensive", "btc-plus"] as const);
 
@@ -65,5 +73,34 @@ export async function generateMemoPdfAction(
   const stamp = generatedAt.slice(0, 7); // YYYY-MM
   const slug = (input.vault.id ?? "yield-vault").replace(/[^a-z0-9-]/gi, "-");
   const filename = `hearst-${slug}-memo_${stamp}.pdf`;
+
+  // Durable archive: upload to Supabase Storage and record a ReportExport row
+  // with a signed URL. Best-effort — a storage outage must not block the
+  // admin's download, so we swallow errors and still return the bytes. When
+  // storage is unconfigured (local dev), this is a no-op.
+  if (isStorageConfigured()) {
+    try {
+      const path = `memos/${slug}/${stamp}.pdf`;
+      const uploaded = await uploadReport(path, bytes, "application/pdf");
+      if (uploaded) {
+        const url = await signedReportUrl(uploaded.path, 60 * 60 * 24 * 7);
+        await prisma.reportExport.create({
+          data: {
+            generatedBy: userId,
+            clientName: input.vault.name ?? slug,
+            scenariosIncluded: "[]",
+            backtestsIncluded: "[]",
+            methodologyVersion: METHODOLOGY_VERSION,
+            pdfUrl: url,
+            content: memo ? JSON.stringify(memo) : null,
+            userId,
+          },
+        });
+      }
+    } catch (err) {
+      logger.error("memo pdf archive failed (download still served)", { userId }, err);
+    }
+  }
+
   return { bytes, filename };
 }

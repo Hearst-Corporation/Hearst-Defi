@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { truncateWallet } from "@/lib/wallet-display";
@@ -19,8 +18,8 @@ interface AuditTrailRollingProps {
 export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   if (entries.length === 0) {
     return (
-      <Card aria-label="Audit trail" hoverOverlay={false} className="dashboard-command-cell dashboard-command-cell--awaiting">
-        <DashboardPanelHeader title="Audit trail" tone="quiet" />
+      <div aria-label="Audit trail" className="dashboard-command-cell dashboard-command-cell--awaiting">
+        <DashboardPanelHeader title="Audit trail" eyebrow="Review" tone="quiet" />
         <div className="overflow-hidden">
           <table className="w-full table-fixed body-sm" aria-label="Audit trail">
             <thead>
@@ -43,13 +42,13 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
           message="No admin activity recorded yet."
           ariaLabel="Audit trail"
         />
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card aria-label="Audit trail" hoverOverlay={false}>
-      <DashboardPanelHeader title="Audit trail" tone="quiet" />
+    <div aria-label="Audit trail">
+      <DashboardPanelHeader title="Audit trail" eyebrow="Review" tone="quiet" />
       <div className="overflow-hidden">
         <table className="w-full table-fixed body-sm" aria-label="Audit trail">
           <thead>
@@ -78,7 +77,7 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
           </tbody>
         </table>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -89,7 +88,7 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
     : entry.entityId;
 
   return (
-    <tr className="border-b border-(--ct-border-soft)">
+    <tr className="border-b border-(--ct-border-soft) hover:bg-(--ct-surface-1) transition-colors cursor-default">
       <td className="ct-table-cell tabular body-xs ct-text-muted text-left">
         {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
       </td>

@@ -28,7 +28,12 @@ interface LiveOpsProps {
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
     <div aria-label="Platform status" className="dashboard-command-cell">
-      <DashboardPanelHeader title="Platform status" tone="quiet" />
+      <DashboardPanelHeader
+        title="Platform status"
+        eyebrow="Platform"
+        tone="quiet"
+        className="dashboard-command-panel-header"
+      />
 
       <div className="dashboard-command-divide-stack">
         <div className="dashboard-live-ops-section">
@@ -86,12 +91,12 @@ function InngestRow({ job }: { job: InngestJob }) {
       className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions dashboard-inngest-row"
       aria-label={`${job.name}: ${label}`}
     >
-      <span className="body-xs ct-text-body truncate">{job.name}</span>
+      <span className="body-sm ct-text-strong truncate">{job.name}</span>
       <div className="admin-doc-inline-row admin-doc-inline-row--dense shrink-0">
         <span aria-hidden className={cn("dashboard-status-dot", dot)} />
         <span
           className={cn(
-            "body-xs font-medium",
+            "body-sm font-medium",
             job.status === "ok"
               ? "ct-status-success"
               : job.status === "err"
@@ -130,16 +135,16 @@ function SentryCounter({
   alert: boolean;
 }) {
   return (
-    <div className="admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--dense">
+    <div className="admin-doc-stack admin-doc-stack--micro">
+      <span className="stat-label ct-text-faint">{label}</span>
       <span
         className={cn(
-          "stat-value tabular",
+          "body-sm tabular font-semibold",
           alert && count > 0 ? "ct-status-danger" : "ct-text-strong",
         )}
       >
         {count}
       </span>
-      <span className="body-xs ct-text-muted">{label}</span>
     </div>
   );
 }
@@ -163,12 +168,12 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
     >
       <span
         aria-hidden
-        className="shrink-0 ct-text-muted body-xs w-4 text-center mt-0.5"
+        className="shrink-0 ct-text-muted body-sm w-4 text-center mt-0.5"
       >
         {icon}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="body-xs ct-text-body truncate block">{event.label}</span>
+        <span className="body-sm ct-text-strong truncate block">{event.label}</span>
         <span className="body-xs ct-text-muted">{ago}</span>
       </span>
     </li>

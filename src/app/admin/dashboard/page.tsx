@@ -33,22 +33,20 @@ function DashboardDataNoticeBanner({
 }) {
   if (notice.kind === "staging") {
     return (
-      <Card hoverOverlay={false}>
-        <PanelStatusAccent
-          className="items-stretch border-l-(--ct-status-warning)"
-          role="note"
-        >
-          <div className="admin-doc-stack admin-doc-stack--tight">
-            <p className="body-sm ct-text-strong m-0">
-              Dashboard is showing seeded vault KPIs.
-            </p>
-            <p className="body-xs ct-text-faint m-0">
-              Source: {notice.snapshotSource}. Platform activity may be present,
-              but vault-level numbers on this page are not yet live.
-            </p>
-          </div>
-        </PanelStatusAccent>
-      </Card>
+      <PanelStatusAccent
+        className="items-stretch border-l-(--ct-status-warning) mb-4"
+        role="note"
+      >
+        <div className="admin-doc-stack admin-doc-stack--tight">
+          <p className="body-sm ct-text-strong m-0">
+            Dashboard is showing seeded vault KPIs.
+          </p>
+          <p className="body-xs ct-text-faint m-0">
+            Source: {notice.snapshotSource}. Platform activity may be present,
+            but vault-level numbers on this page are not yet live.
+          </p>
+        </div>
+      </PanelStatusAccent>
     );
   }
 
@@ -58,33 +56,19 @@ function DashboardDataNoticeBanner({
       : `Platform signals are ahead of ${notice.vaultName} KPI coverage.`;
   const detail =
     notice.kind === "preview"
-      ? "This shell is intentional: methodology defaults are visible so the final dashboard layout stays reviewable before live snapshots land."
+      ? "Methodology defaults are visible so the final dashboard layout stays reviewable before live snapshots land."
       : "Proof, operations, or audit signals are already populated, but vault KPI telemetry is still partial on this page.";
 
   return (
-    <Card hoverOverlay={false}>
-      <PanelStatusAccent
-        className="items-stretch border-l-(--ct-status-warning)"
-        role="note"
-      >
-        <div className="admin-doc-stack admin-doc-stack--tight">
-          <p className="body-sm ct-text-strong m-0">{title}</p>
-          <p className="body-xs ct-text-faint m-0">{detail}</p>
-          {notice.assumptions.length > 0 ? (
-            <PanelStatusSection
-              label="Current assumptions"
-              aria-label="Dashboard preview assumptions"
-            >
-              <ul className="admin-doc-stack admin-doc-stack--micro m-0 pl-4 body-xs ct-text-faint">
-                {notice.assumptions.map((assumption) => (
-                  <li key={assumption}>{assumption}</li>
-                ))}
-              </ul>
-            </PanelStatusSection>
-          ) : null}
-        </div>
-      </PanelStatusAccent>
-    </Card>
+    <PanelStatusAccent
+      className="items-stretch border-l-(--ct-status-warning) mb-4"
+      role="note"
+    >
+      <div className="admin-doc-stack admin-doc-stack--tight">
+        <p className="body-sm ct-text-strong m-0">{title}</p>
+        <p className="body-xs ct-text-faint m-0">{detail}</p>
+      </div>
+    </PanelStatusAccent>
   );
 }
 
@@ -109,23 +93,24 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   );
 
   return (
-    <div className="admin-doc-shell admin-doc-shell--compact">
-      <div>
-        <AdminPageHeader
-          title="Dashboard"
-          eyebrow={`${data.vaultMeta.name} · as of ${formatAdminDate(data.vault.asOf)}`}
-          description="Operator view of vault condition, pending actions, and platform health."
-          actionsLayout="stack"
-          actions={
-            <FixtureVaultPills
-              activeVaultId={data.vaultMeta.id}
-              resolveHref={adminDashboardVaultHref}
-            />
-          }
-        />
-      </div>
+    <div className="admin-doc-shell admin-doc-shell--compact admin-doc-stack admin-doc-stack--relaxed">
+      <AdminPageHeader
+        title="Dashboard"
+        eyebrow={`${data.vaultMeta.name} · as of ${formatAdminDate(data.vault.asOf)}`}
+        description="Operator view of vault condition, pending actions, and platform health."
+        className="dashboard-page-header"
+        actionsLayout="stack"
+        actions={
+          <FixtureVaultPills
+            activeVaultId={data.vaultMeta.id}
+            resolveHref={adminDashboardVaultHref}
+          />
+        }
+      />
 
-      {notice ? <DashboardDataNoticeBanner notice={notice} /> : null}
+      {notice ? (
+        <DashboardDataNoticeBanner notice={notice} />
+      ) : null}
 
       <VaultTransition vaultId={data.vaultMeta.id}>
         <DashboardAssetsBoard

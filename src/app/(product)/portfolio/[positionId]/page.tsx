@@ -43,18 +43,20 @@ export default async function PositionDetailPage({ params }: PageProps) {
 
       {/* Disclaimer — non-negotiable #10 */}
       <footer className="product-doc-footer-rule">
-        <Card hoverOverlay={false} aria-labelledby="position-methodology-note">
-          <div className="pf-stack pf-stack--tight">
-            <h2 id="position-methodology-note" className="eyebrow ct-text-muted">
-              Return assumptions
-            </h2>
-            <p className="position-detail-disclaimer body-xs ct-text-faint">
-              APY ranges are target projections based on stated assumptions. They are
-              not a commitment of future returns. Accrued yield figures are indicative
-              and subject to change based on vault conditions and Methodology v1.0.
-              Past performance does not predict future results.
-            </p>
-          </div>
+        <Card
+          hoverOverlay={false}
+          aria-labelledby="position-methodology-note"
+          contentClassName="pf-stack pf-stack--tight"
+        >
+          <h2 id="position-methodology-note" className="eyebrow ct-text-muted">
+            Return assumptions
+          </h2>
+          <p className="position-detail-disclaimer body-xs ct-text-faint">
+            APY ranges are target projections based on stated assumptions. They are not
+            a commitment of future returns. Accrued yield figures are indicative and
+            subject to change based on vault conditions and Methodology v1.0. Past
+            performance does not predict future results.
+          </p>
         </Card>
       </footer>
     </div>

@@ -1434,6 +1434,46 @@
   container-name: dash-board;
 }
 
+.dashboard-page-shell {
+  gap: var(--ct-space-7);
+}
+
+.dashboard-page-stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.dashboard-page-stage__header {
+  min-width: 0;
+  margin-bottom: var(--ct-space-2);
+}
+
+.dashboard-page-header .admin-page-header__main {
+  max-width: 42rem;
+}
+
+.dashboard-page-stage__notice {
+  min-width: 0;
+}
+
+.dashboard-page-stage__notice .ct-card,
+.dashboard-page-notice-card {
+  padding: var(--ct-space-4) var(--ct-space-5);
+}
+
+.dashboard-page-notice {
+  min-height: 100%;
+}
+
+.dashboard-page-notice .ct-panel-status-section {
+  margin-top: var(--ct-space-2);
+}
+
+.dashboard-page-board {
+  min-width: 0;
+}
+
 /* Admin cards — denser padding tier; global .ct-card uses space-5/6 for LP surfaces. */
 .admin-doc .ct-card:not(.p-0) {
   padding: var(--ct-space-5);
@@ -1444,13 +1484,19 @@
 
 /* KPI strip — dense grid inside Card / ct-glass-panel (ADR-013 canon). */
 .dashboard-kpi-strip-card.ct-card {
-  padding: var(--ct-space-5);
+  padding: var(--ct-space-4);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-surface-1) 32%, transparent) 0%,
+      transparent 100%
+    );
 }
 
 .dashboard-kpi-strip {
   display: grid;
-  gap: var(--ct-space-3);
-  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   min-width: 0;
 }
 
@@ -1458,8 +1504,9 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: var(--ct-space-1);
-  padding: var(--ct-space-1) 0;
+  gap: var(--ct-space-1_5);
+  min-height: 7.25rem;
+  padding: var(--ct-space-4) var(--ct-space-2);
 }
 
 .dashboard-kpi-strip__cell--alert {
@@ -1470,6 +1517,7 @@
    items. Distinct from --alert (danger red) so genuine degraded states keep red. */
 .dashboard-kpi-strip__cell--accent {
   box-shadow: inset 1px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
+  background: color-mix(in srgb, var(--ct-accent) 7%, transparent);
 }
 
 .dashboard-kpi-strip__label-row {
@@ -1477,13 +1525,22 @@
   min-width: 0;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ct-space-1);
+  gap: var(--ct-space-2);
 }
 
 .dashboard-kpi-strip__label {
   min-width: 0;
   white-space: normal;
   overflow-wrap: anywhere;
+}
+
+.dashboard-kpi-strip__value {
+  margin-top: var(--ct-space-1);
+  letter-spacing: var(--ct-tracking-tight);
+}
+
+.dashboard-kpi-strip__meta {
+  margin-top: auto;
 }
 
 /* Dot-only provenance in dense admin surfaces — label in tooltip + aria-label. */
@@ -1503,6 +1560,20 @@
   margin-bottom: var(--ct-space-4);
 }
 
+.dashboard-command-panel-header {
+  margin-bottom: var(--ct-space-5);
+}
+
+.dashboard-command-panel-header .eyebrow {
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-extrabold);
+  letter-spacing: var(--ct-tracking-wider);
+  text-transform: uppercase;
+  color: var(--ct-text-faint);
+}
+
+/* Removed .dashboard-command-panel-header .dashboard-panel-title override so all panel titles use the standard .h3 hierarchy */
+
 /* Hero KPI strip — dot-only provenance (no glass pill on --ct-bg-deep). */
 .provenance-badge--strip {
   display: inline-flex;
@@ -1520,12 +1591,13 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--ct-space-2);
+  justify-content: flex-end;
 }
 
 .fixture-vault-pills__pill {
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-full);
-  padding: var(--ct-space-1) var(--ct-space-3);
+  padding: var(--ct-space-1_5) var(--ct-space-3);
   color: var(--ct-text-muted);
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
@@ -1574,7 +1646,7 @@
 
 /* Major dashboard zones — breathing room between KPI / charts / queues / cockpit. */
 .dashboard-command-board.admin-doc-stack--relaxed {
-  gap: var(--ct-space-6);
+  gap: var(--ct-space-7);
 }
 
 .dashboard-command-row-a {
@@ -1587,18 +1659,35 @@
 .dashboard-command-row-a--hero {
   position: relative;
   gap: 0;
-  min-height: 15rem;
+  min-height: 16rem;
 }
 
 .dashboard-hero-card__kpis {
   position: relative;
   border-bottom: 1px solid var(--ct-border-soft);
-  padding: var(--ct-space-4);
+  padding: var(--ct-space-4) var(--ct-space-5);
+}
+
+.dashboard-hero-card--signature {
+  border-color: color-mix(in srgb, var(--ct-border-soft) 85%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ct-accent) 14%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--ct-text-strong) 4%, transparent),
+    0 24px 56px -48px color-mix(in srgb, var(--ct-bg-deep) 96%, transparent);
+}
+
+.dashboard-hero-card__analytics {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-surface-1) 32%, transparent) 0%,
+      transparent 100%
+    );
 }
 
 .dashboard-hero-card__slot {
   min-width: 0;
-  padding: var(--ct-space-4);
+  padding: var(--ct-space-4) var(--ct-space-5) var(--ct-space-5);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -1652,8 +1741,8 @@
 
 .dashboard-command-slot--allocation > .ct-card {
   width: 100%;
-  max-width: 15rem;
-  padding: var(--ct-space-5) var(--ct-space-4);
+  max-width: 16rem;
+  padding: var(--ct-space-5);
 }
 
 .dashboard-command-slot--allocation .dashboard-orbit-card {
@@ -1668,16 +1757,14 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4);
   flex: 1 1 auto;
   min-height: 0;
 }
 
-.dashboard-nav-slot__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
+.dashboard-nav-slot__value-container {
+  margin-top: calc(var(--ct-space-2) * -1);
+  margin-bottom: var(--ct-space-2);
 }
 
 .dashboard-nav-slot__delta {
@@ -1771,14 +1858,40 @@
 
 .dashboard-command-row-c {
   display: grid;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-8);
   grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
-  margin-top: var(--ct-space-1);
+  margin-top: var(--ct-space-6);
 }
 
-.dashboard-command-row-c.ct-glass-panel {
-  background: var(--ct-graphite-active-bg);
+.dashboard-command-panel-card {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.dashboard-command-panel-card__content {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 100%;
+  flex-direction: column;
+}
+
+@media (min-width: 64rem) {
+  .dashboard-command-panel-card__content {
+    /* Removed padding */
+  }
+}
+
+.dashboard-audit-zone {
+  margin-top: var(--ct-space-8);
+}
+
+.dashboard-audit-zone .ct-card {
+  border-color: color-mix(in srgb, var(--ct-border-soft) 82%, transparent);
 }
 
 .dashboard-command-cell {
@@ -1826,7 +1939,7 @@
 
 .dashboard-live-metrics__grid {
   display: grid;
-  gap: var(--ct-space-1);
+  gap: var(--ct-space-2);
   grid-template-columns: repeat(5, minmax(0, 1fr));
   min-width: 0;
 }
@@ -1855,22 +1968,24 @@
 /* Live ops sections — padding replaces inline py-4 / mb-2 / m-0 hardcodes */
 .dashboard-live-ops-section {
   padding-top: var(--ct-space-4);
-  padding-bottom: var(--ct-space-4);
+  padding-bottom: var(--ct-space-5);
 }
 .dashboard-live-ops-section:first-child { padding-top: 0; }
 .dashboard-live-ops-section:last-child  { padding-bottom: 0; }
 .dashboard-live-ops-section__title {
   display: block;
-  margin: 0 0 var(--ct-space-2);
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-body);
+  margin: 0 0 var(--ct-space-3);
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-extrabold);
+  color: var(--ct-text-faint);
+  letter-spacing: var(--ct-tracking-wider);
+  text-transform: uppercase;
 }
 
 /* Action queue rows — padding replaces py-3 first:pt-0 last:pb-0 */
 .dashboard-action-row {
   padding-top: var(--ct-space-4);
-  padding-bottom: var(--ct-space-4);
+  padding-bottom: var(--ct-space-5);
   gap: var(--ct-space-4);
 }
 .dashboard-action-row:first-child { padding-top: 0; }
@@ -1890,13 +2005,14 @@
 }
 
 .dashboard-action-context {
-  max-width: 24ch;
+  max-width: 28ch;
 }
 
 /* Inngest job row — padding replaces py-2 first:pt-0 last:pb-0 */
 .dashboard-inngest-row {
   padding-top: var(--ct-space-3);
   padding-bottom: var(--ct-space-3);
+  gap: var(--ct-space-3);
 }
 .dashboard-inngest-row:first-child { padding-top: 0; }
 .dashboard-inngest-row:last-child  { padding-bottom: 0; }
@@ -1905,6 +2021,7 @@
 .dashboard-event-row {
   padding-top: var(--ct-space-2);
   padding-bottom: var(--ct-space-2);
+  gap: var(--ct-space-3);
 }
 .dashboard-event-row:first-child { padding-top: 0; }
 .dashboard-event-row:last-child  { padding-bottom: 0; }
@@ -1951,12 +2068,14 @@
   color: color-mix(in srgb, var(--ct-status-danger) 82%, var(--ct-text-strong));
 }
 .dashboard-action-cta--neutral {
-  border-color: var(--ct-border);
-  color: var(--ct-text-muted);
+  border-color: color-mix(in srgb, var(--ct-border-accent) 54%, var(--ct-border-soft));
+  background: color-mix(in srgb, var(--ct-accent) 5%, transparent);
+  color: color-mix(in srgb, var(--ct-accent) 86%, var(--ct-text-primary));
 }
 .dashboard-action-cta--neutral:hover {
-  border-color: var(--ct-border-strong);
-  color: var(--ct-text-primary);
+  border-color: var(--ct-border-accent);
+  background: color-mix(in srgb, var(--ct-accent) 9%, transparent);
+  color: var(--ct-accent);
 }
 
 .dashboard-command-shortcuts {
@@ -1975,6 +2094,11 @@
   min-width: 0;
 }
 
+/* Removed 2-column grid for .dashboard-page-stage to fix alignments and remove the "trou noir" */
+@media (min-width: 72rem) {
+  /* Keep other media queries if any */
+}
+
 @container dash-board (min-width: 26rem) {
   .dashboard-command-shortcuts__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1982,6 +2106,23 @@
 }
 
 @container dash-board (min-width: 48rem) {
+  .dashboard-kpi-strip {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .dashboard-command-row-a--hero {
+    grid-template-columns: minmax(16rem, 0.8fr) minmax(0, 1.35fr);
+  }
+
+  .dashboard-hero-card__slot--allocation {
+    border-right: 1px solid var(--ct-border-soft);
+    border-bottom: 0;
+  }
+
+  .dashboard-command-row-c--ops {
+    grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.95fr) minmax(0, 0.95fr);
+  }
+
   .dashboard-command-shortcuts__grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -1992,48 +2133,36 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4);
   width: 100%;
-  max-width: 12rem;
+  max-width: 13rem;
   justify-self: center;
 }
 
 .dashboard-orbit__visual {
   position: relative;
-  width: 11rem;
-  height: 11rem;
+  width: 11.75rem;
+  height: 11.75rem;
   flex-shrink: 0;
 }
 
-.dashboard-orbit__track {
+.dashboard-orbit__svg {
   position: absolute;
   inset: 0;
-  border: 2px solid color-mix(in srgb, var(--ct-accent) 35%, transparent);
-  border-radius: var(--ct-radius-full);
-  opacity: 0.55;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg); /* Start at 12 o'clock */
+  overflow: visible;
 }
 
-.dashboard-orbit__ring {
+/* Idle / zero allocation — neutral awaiting shell. */
+.dashboard-orbit__ring--idle {
   position: absolute;
   inset: 0.25rem;
   border-radius: var(--ct-radius-full);
-  background: var(--dashboard-orbit-gradient, conic-gradient(var(--ct-surface-3) 0% 100%));
-  /* Donut band: inner 54% hole, ring 54–70%, outer clip */
+  background: conic-gradient(var(--ct-surface-3) 0% 100%);
   mask: radial-gradient(circle at center, transparent 54%, black 70%, transparent 71%);
   -webkit-mask: radial-gradient(circle at center, transparent 54%, black 70%, transparent 71%);
-  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--ct-accent) 18%, transparent));
-  transform: translateZ(0);
-}
-
-/* Idle / zero allocation — neutral awaiting shell, not an active green arc. */
-.dashboard-orbit__ring--idle {
-  background: conic-gradient(var(--ct-surface-3) 0% 100%);
-  filter: none;
-}
-
-.dashboard-orbit__visual:has(.dashboard-orbit__ring--idle) .dashboard-orbit__track {
-  border-color: color-mix(in srgb, var(--ct-border-soft) 90%, transparent);
-  opacity: 0.85;
 }
 
 .dashboard-orbit__core {
@@ -2109,12 +2238,12 @@
   flex: 1 1 auto;
   min-height: var(--ct-space-24);
   gap: var(--ct-space-2);
-  padding: var(--ct-space-3);
+  padding: var(--ct-space-4);
   border: 1px solid color-mix(in srgb, var(--ct-border-soft) 58%, transparent);
   border-radius: var(--ct-radius-lg);
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--ct-surface-0) 18%, transparent),
+    color-mix(in srgb, var(--ct-surface-0) 22%, transparent),
     transparent 100%
   );
   position: relative;
@@ -2219,11 +2348,7 @@
   outline: none;
 }
 
-@container dash-board (min-width: 18rem) {
-  .dashboard-kpi-strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+/* Removed 18rem container query since 2 columns is now default */
 
 @container dash-board (min-width: 26rem) {
   .dashboard-kpi-strip {
@@ -2233,14 +2358,35 @@
 
 @container dash-board (min-width: 42rem) {
   .dashboard-kpi-strip {
-    gap: 0;
     grid-template-columns: repeat(6, minmax(0, 1fr));
   }
+}
 
-  .dashboard-kpi-strip__cell {
-    padding: var(--ct-space-1) var(--ct-space-3);
+/* Borders for KPI strip cells */
+.dashboard-kpi-strip__cell {
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+/* 2 columns */
+@container dash-board (max-width: 25.99rem) {
+  .dashboard-kpi-strip__cell:nth-child(odd) {
+    border-right: 1px solid var(--ct-border-soft);
   }
+}
 
+/* 3 columns */
+@container dash-board (min-width: 26rem) and (max-width: 41.99rem) {
+  .dashboard-kpi-strip__cell:not(:nth-child(3n)) {
+    border-right: 1px solid var(--ct-border-soft);
+  }
+}
+
+/* 6 columns */
+@container dash-board (min-width: 42rem) {
+  .dashboard-kpi-strip__cell {
+    border-bottom: none;
+    padding: var(--ct-space-3) var(--ct-space-4);
+  }
   .dashboard-kpi-strip__cell:not(:last-child) {
     border-right: 1px solid var(--ct-border-soft);
   }
@@ -2255,9 +2401,7 @@
 /* Orbit | NAV side-by-side — orbit column never shrinks below donut width. */
 @container dash-board (min-width: 42rem) {
   .dashboard-command-row-a {
-    /* minmax(14rem) = card cap; max-content hugs the donut without the old 0.36fr dead zone.
-       Bare `auto` + min-width:0 on the slot let the orbit column collapse → clipped card. */
-    grid-template-columns: minmax(15rem, max-content) minmax(0, 1fr);
+    grid-template-columns: minmax(15rem, 16rem) minmax(0, 1fr);
     align-items: stretch;
   }
 
@@ -2728,6 +2872,16 @@ pre.ct-surface-1.rounded-md {
   color: var(--ct-text-muted);
 }
 
+.dashboard-hero-card .eyebrow,
+.dashboard-command-panel-card .eyebrow,
+.dashboard-nav-slot__header .eyebrow {
+  /* Removed color: var(--ct-accent) to keep eyebrows calm and structural */
+}
+
+.dashboard-command-panel-card .dashboard-panel-title {
+  color: var(--ct-text-primary);
+}
+
 /* .stat-value → ct-kpi-value style */
 .stat-value {
   font-size: var(--ct-text-2xl);
@@ -3189,18 +3343,32 @@ button.ct-seg-btn {
   left: 0;
   /* Bottom clearance mirrors the user avatar dock in the shell rail, so the nav
      never visually collides with the lower identity area even on shorter viewports. */
-  top: calc(var(--ct-shell-header-h) + var(--ct-space-2));
+  top: calc(var(--ct-shell-header-h) + var(--ct-space-1));
   bottom: var(--ct-rail-bottom-clearance);
   width: var(--ct-rail-left);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--ct-space-2_5);
-  padding: var(--ct-space-3) var(--ct-space-1_5) var(--ct-space-4);
-  justify-content: flex-start;
-  overflow-y: auto;
+  /* Horizontal padding mirrors .ct-rail-left.launcher so icons share the logo H axis. */
+  padding: 0 clamp(8px, 0.6vw, 12px);
+  justify-content: stretch;
+  overflow: hidden;
   z-index: 1001; /* Au-dessus du shell cockpit */
   pointer-events: auto;
+}
+
+/* Vertical centre of the menu block between logo header and bottom identity dock. */
+.ct-rail-intra__stack {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--ct-space-2);
+  padding-block: var(--ct-space-2) var(--ct-space-4);
+  overflow-y: auto;
 }
 
 /* Rail investor : même géométrie que l'admin. Seul le chrome reste plus léger. */
@@ -3233,7 +3401,8 @@ button.ct-seg-btn {
 }
 
 
-/* Bouton nav : icône au-dessus + label dessous, visibles en permanence. */
+/* Bouton nav : icône au-dessus + label dessous, visibles en permanence.
+   Centré sur le même axe que le badge H (38×38) du launcher. */
 .ct-rail-item {
   position: relative;
   display: grid;
@@ -3241,8 +3410,9 @@ button.ct-seg-btn {
   align-items: start;
   gap: var(--ct-space-1_5);
   width: 100%;
+  margin-inline: auto;
   min-height: 4.5rem;
-  padding: var(--ct-space-2) var(--ct-space-1_5) var(--ct-space-2_5);
+  padding: var(--ct-space-2) 0 var(--ct-space-2_5);
   border-radius: var(--ct-radius-md);
   color: var(--ct-text-muted);
   background: transparent;
@@ -3307,116 +3477,9 @@ button.ct-seg-btn {
   pointer-events: none;
 }
 
-/* ── RAIL COLLAPSIBLE — déplié (html[data-rail-mode="expanded"]) ──
-   On élargit la colonne réservée du shell (.ct-rail-left) ET le rail intra
-   ensemble : la zone de contenu suit le flux et est POUSSÉE, jamais recouverte.
-   Le span tooltip se transforme en label inline (plus de popover au hover). */
-.ct-rail-left,
-.ct-rail-intra {
-  transition: width var(--ct-dur-base) var(--ct-ease);
-}
-
-html[data-rail-mode="expanded"] .ct-rail-left,
-html[data-rail-mode="expanded"] .ct-rail-left.launcher {
-  width: 13.5rem !important;
-  min-width: 13.5rem !important;
-  max-width: 13.5rem !important;
-}
-
-html[data-rail-mode="expanded"] .ct-rail-intra {
-  width: 13.5rem !important;
-  min-width: 13.5rem;
-  max-width: 13.5rem;
-  align-items: stretch;
-  gap: var(--ct-space-2);
-  padding-left: var(--ct-space-3);
-  padding-right: var(--ct-space-3);
-}
-
-/* Item = ligne icône + label sur toute la largeur. */
-html[data-rail-mode="expanded"] .ct-rail-item {
-  width: 100%;
-  min-height: 2.75rem;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: var(--ct-space-3);
-  padding-inline: var(--ct-space-3);
-}
-
-/* Le label repasse en ligne unique alignée à gauche en mode déplié. */
-html[data-rail-mode="expanded"] .ct-rail-item-tooltip {
-  display: block;
-  min-height: 0;
-  -webkit-line-clamp: none;
-  text-align: left;
-  text-wrap: nowrap;
-  color: inherit;
-  font-size: var(--ct-text-sm);
-}
-
-/* Séparateur pleine largeur en mode déplié. */
-html[data-rail-mode="expanded"] .ct-rail-sep {
-  width: 100%;
-}
-
-/* ── RAIL COLLAPSIBLE — replié (html[data-rail-mode="collapsed"]) ──
-   En mode replié, on ne garde que le mark H dans le header du rail (le badge
-   .ct-rail-top-badge fourni par le package @hearst/cockpit-shell). Le nom du
-   produit (`.ct-rail-top-name` = « Connect ») est masqué — il revient quand
-   l'utilisateur déplie le rail. */
-html[data-rail-mode="collapsed"] .ct-rail-top-name {
+/* Rail fixe — seul le mark H reste visible dans le header (nom produit masqué). */
+.ct-rail-left.launcher .ct-rail-top-name {
   display: none;
-}
-
-/* ── RAIL COLLAPSIBLE — déplié, logo officiel HearstConnect ──
-   En mode déplié, on remplace le H + nom par le wordmark complet
-   « HEARST Connect » officiel (SVG /logos/hearst-connect-blackbg.svg —
-   HEARST blanc, H + Connect en vert #A7FB90). Le SVG d'origine a un viewBox 1920×1080 avec
-   beaucoup d'espace vide autour du logo ; on utilise `background-size: cover`
-   pour zoomer sur la zone centrale utile (le wordmark). */
-html[data-rail-mode="expanded"] .ct-rail-top-badge,
-html[data-rail-mode="expanded"] .ct-rail-top-name {
-  display: none;
-}
-html[data-rail-mode="expanded"] .ct-rail-top {
-  flex-direction: row;
-  justify-content: center;
-  padding: 0;
-  min-height: 72px;
-  background:
-    url("/logos/hearst-connect-blackbg.svg") no-repeat center / cover;
-  border-radius: var(--ct-radius-md);
-  overflow: hidden;
-}
-
-/* Toggle repli/dépli — petite flèche discrète, mais proportionnée au rythme des
-   items qu'elle précède. */
-.ct-rail-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  margin-bottom: var(--ct-space-1);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--ct-text-muted);
-  cursor: pointer;
-  border-radius: var(--ct-radius-sm);
-  flex-shrink: 0;
-  transition: color var(--ct-dur-fast) var(--ct-ease);
-}
-
-.ct-rail-toggle:hover {
-  color: var(--ct-text-primary);
-}
-
-/* En mode déplié, la flèche s'aligne à droite de la colonne élargie. */
-html[data-rail-mode="expanded"] .ct-rail-toggle {
-  align-self: flex-end;
 }
 
 /* Hub-mode : masque le rail intra (le hub fournit sa propre nav) */
@@ -3546,11 +3609,6 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   color: var(--ct-text-faint);
 }
 
-html[data-rail-mode="expanded"] .connect-rail-identity {
-  width: 13.5rem;
-  padding-inline: var(--ct-space-3);
-}
-
 /* ── Shell padding overrides — restore tokens.css values that get reset to 0
    because tokens.css now lives in a cascade layer (see src/app/tokens-layer.css
    + globals.css). Each rule mirrors verbatim the spec in
@@ -3636,7 +3694,7 @@ html[data-rail-mode="expanded"] .connect-rail-identity {
   flex: 1 1 auto;
   min-height: 100%;
   flex-direction: column;
-  padding: var(--ct-space-5) var(--ct-space-6) var(--ct-space-10);
+  padding: var(--ct-space-6) var(--ct-space-7) var(--ct-space-12);
 }
 
 .ct-page-area > main#main-content {
@@ -3649,13 +3707,14 @@ html[data-rail-mode="expanded"] .connect-rail-identity {
 
 /* Admin operator surfaces — denser inset (rails + chat compress centre vs LP). */
 .ct-page-area:has(.admin-doc) {
-  padding: var(--ct-space-4) var(--ct-space-4) var(--ct-space-6);
+  padding: var(--ct-space-5) var(--ct-space-5) var(--ct-space-8);
 }
 
 /* Product investor surfaces — no sub-nav; extra top inset aligns rhythm with admin. */
 .ct-page-area:has(.product-doc) {
-  padding-top: var(--ct-space-8);
-  padding-inline: var(--ct-space-4);
+  padding-top: var(--ct-space-9);
+  padding-inline: var(--ct-space-5);
+  padding-bottom: var(--ct-space-12);
 }
 .ct-embed-overlay                          { padding: var(--ct-space-6); }
 .ct-embed-sub code                         { padding: 1px 6px; }

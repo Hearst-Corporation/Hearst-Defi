@@ -91,18 +91,18 @@ export function DashboardAssetsBoard({
   });
 
   return (
-    <div className="dashboard-command-board relative z-10 admin-doc-stack admin-doc-stack--relaxed">
+    <div className="admin-doc-stack admin-doc-stack--relaxed">
       <Card
         aria-label="Vault KPIs and charts"
         hoverOverlay={false}
-        className="dashboard-merged-card dashboard-hero-card"
-        contentClassName="dashboard-hero-card__content"
+        contentClassName="flex flex-col"
+        className="dashboard-merged-card"
       >
-        <section aria-label="Vault KPIs" className="dashboard-hero-card__kpis">
+        <section aria-label="Vault KPIs">
           <DashboardKpiStrip kpis={heroKpis} />
         </section>
 
-        <div className="dashboard-command-row-a dashboard-command-row-a--hero">
+        <div className="dashboard-command-row-a dashboard-command-row-a--hero dashboard-hero-card__analytics">
           <div className="dashboard-hero-card__slot dashboard-hero-card__slot--allocation dashboard-command-slot dashboard-command-slot--allocation">
             <AllocationOrbit
               allocations={allocation}
@@ -111,7 +111,7 @@ export function DashboardAssetsBoard({
               provenance={simulated ? "simulated" : allocationLive ? "live" : "manual"}
             />
           </div>
-          <div className="dashboard-hero-card__slot dashboard-hero-card__slot--nav">
+          <div className="dashboard-hero-card__slot dashboard-hero-card__slot--nav border-t md:border-t-0 md:border-l border-(--ct-border-soft)">
             <NavSlot
               navPoints={navPoints}
               lastNav={lastNav}
@@ -122,14 +122,14 @@ export function DashboardAssetsBoard({
         </div>
       </Card>
 
-      <section aria-label="Cockpit operations" className="dashboard-command-row-c ct-card--etched ct-glass-panel dashboard-merged-card gap-0!">
-        <div className="p-4 lg:p-5">
+      <section aria-label="Cockpit operations" className="dashboard-command-row-c dashboard-command-row-c--ops">
+        <div className="dashboard-command-panel-card">
           <ActionQueue items={cockpit.actionQueue} />
         </div>
-        <div className="p-4 lg:p-5 border-t lg:border-t-0 lg:border-l border-(--ct-border-soft)">
+        <div className="dashboard-command-panel-card">
           <LiveMetrics vaults={cockpit.vaultMetrics} />
         </div>
-        <div className="p-4 lg:p-5 border-t lg:border-t-0 lg:border-l border-(--ct-border-soft)">
+        <div className="dashboard-command-panel-card">
           <LiveOps
             inngestJobs={cockpit.inngestJobs}
             sentryStats={cockpit.sentryStats}
@@ -138,8 +138,10 @@ export function DashboardAssetsBoard({
         </div>
       </section>
 
-      <section aria-label="Recent admin activity">
-        <AuditTrailRolling entries={cockpit.auditTrail} />
+      <section aria-label="Recent admin activity" className="dashboard-audit-zone">
+        <div className="dashboard-command-panel-card">
+          <AuditTrailRolling entries={cockpit.auditTrail.slice(0, 5)} />
+        </div>
       </section>
     </div>
   );

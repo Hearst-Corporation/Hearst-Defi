@@ -3,13 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import {
   Wallet,
   Vault,
-  ChevronLeft,
-  ChevronRight,
   ArrowLeft,
   Bot,
   ClipboardCheck,
@@ -113,72 +111,6 @@ function RailSeparator() {
   );
 }
 
-// External store backing the rail-expanded state. Memory-only — the rail
-// always starts collapsed on every page load (no localStorage persistence).
-// The toggle changes the in-memory state for the current page session; a hard
-// reload resets it.
-let railExpandedState = false;
-const railListeners = new Set<() => void>();
-
-function readRailExpanded(): boolean {
-  return railExpandedState;
-}
-
-function writeRailExpanded(next: boolean): void {
-  railExpandedState = next;
-  railListeners.forEach((cb) => cb());
-}
-
-function subscribeRail(cb: () => void): () => void {
-  railListeners.add(cb);
-  return () => {
-    railListeners.delete(cb);
-  };
-}
-
-/**
- * Collapsible rail state. Always starts collapsed on every page load. The
- * toggle changes the state for the current session only — no persistence.
- * Reflected onto <html data-rail-mode> so the shell's reserved column
- * (.ct-rail-left) widens in lockstep and pushes the content, instead of the
- * rail overlaying it.
- */
-function useRailExpanded(): { expanded: boolean; toggle: () => void } {
-  const expanded = useSyncExternalStore(subscribeRail, readRailExpanded, () => false);
-
-  useEffect(() => {
-    document.documentElement.dataset.railMode = expanded ? "expanded" : "collapsed";
-  }, [expanded]);
-
-  const toggle = useCallback(() => {
-    writeRailExpanded(!readRailExpanded());
-  }, []);
-
-  return { expanded, toggle };
-}
-
-function RailToggle({
-  expanded,
-  onToggle,
-}: {
-  expanded: boolean;
-  onToggle: () => void;
-}) {
-  const Icon = expanded ? ChevronLeft : ChevronRight;
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-label={expanded ? "Collapse navigation" : "Expand navigation"}
-      aria-expanded={expanded}
-      title={expanded ? "Collapse" : "Expand"}
-      className="ct-rail-toggle"
-    >
-      <Icon size={16} strokeWidth={2} />
-    </button>
-  );
-}
-
 interface RailItemProps {
   item: NavItem;
   pathname: string;
@@ -224,7 +156,6 @@ function RailIntraShell({
   children: ReactNode;
 }) {
   const { container, mounted } = useBodyPortal();
-  const { expanded, toggle } = useRailExpanded();
 
   const nav = (
     <nav
@@ -233,8 +164,7 @@ function RailIntraShell({
       data-testid={testId}
       {...(dataRail ? { "data-rail": dataRail } : {})}
     >
-      <RailToggle expanded={expanded} onToggle={toggle} />
-      {children}
+      <div className="ct-rail-intra__stack">{children}</div>
     </nav>
   );
 

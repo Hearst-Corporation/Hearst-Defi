@@ -27,7 +27,12 @@ export function LiveMetrics({ vaults }: LiveMetricsProps) {
   if (vaults.length === 0) {
     return (
       <div className="dashboard-command-cell dashboard-command-cell--awaiting">
-        <DashboardPanelHeader title="Vault health" tone="quiet" />
+        <DashboardPanelHeader
+          title="Vault health"
+          eyebrow="Observe"
+          tone="quiet"
+          className="dashboard-command-panel-header"
+        />
         <EmptySurface
           variant="inline"
           message="No vault telemetry yet."
@@ -39,7 +44,12 @@ export function LiveMetrics({ vaults }: LiveMetricsProps) {
 
   return (
     <div aria-label="Vault health" className="dashboard-command-cell dashboard-live-metrics">
-      <DashboardPanelHeader title="Vault health" tone="quiet" />
+      <DashboardPanelHeader
+        title="Vault health"
+        eyebrow="Observe"
+        tone="quiet"
+        className="dashboard-command-panel-header"
+      />
       <div className="dashboard-command-divide-stack">
         {vaults.map((vault) => (
           <VaultMetricRow key={vault.vaultId} vault={vault} />
@@ -74,7 +84,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
 
   return (
     <div
-      className="dashboard-action-row"
+      className="dashboard-action-row hover:bg-(--ct-surface-1) transition-colors rounded-md px-2 -mx-2 cursor-default"
       aria-label={`Vault ${vault.vaultName} metrics`}
     >
       <div
@@ -141,7 +151,7 @@ function MetricCell({
         {label}
       </span>
       <span
-        className={cn("body-xs tabular ct-text-strong font-semibold", valueClassName)}
+        className={cn("body-sm tabular ct-text-strong font-semibold", valueClassName)}
       >
         {value}
       </span>

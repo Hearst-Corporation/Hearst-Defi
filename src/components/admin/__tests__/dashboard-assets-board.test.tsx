@@ -302,7 +302,7 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).toContain(">Vault health<");
     expect(html).toContain(">Platform status<");
     expect(html).toContain('aria-label="Recent admin activity"');
-    expect(html).toContain("dashboard-orbit__ring");
+    expect(html).toContain("dashboard-orbit__svg");
     expect(html).toContain("% mapped");
     expect(html).toContain("dashboard-nav-bars__bar");
     expect(html).not.toContain(">Capital stack<");

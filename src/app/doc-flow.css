@@ -22,7 +22,7 @@
   min-width: 0;
   min-height: 100%;
   flex-direction: column;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-5);
   container-type: inline-size;
   container-name: admin-doc;
 }
@@ -48,14 +48,14 @@
 }
 
 .admin-doc .admin-doc-shell--roomy {
-  gap: var(--ct-space-6);
-  padding-bottom: var(--ct-space-8);
+  gap: var(--ct-space-7);
+  padding-bottom: var(--ct-space-10);
 }
 
 .admin-doc .admin-doc-stack {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-6);
+  gap: var(--ct-space-7);
 }
 
 .admin-doc .admin-doc-stack--tight {
@@ -550,7 +550,7 @@
 .admin-doc .admin-page-header {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-5);
 }
 
 .admin-doc .admin-page-header__row {
@@ -641,7 +641,7 @@
   display: flex;
   align-items: center;
   gap: var(--ct-space-1);
-  margin-bottom: var(--ct-space-6);
+  margin-bottom: var(--ct-space-7);
   border-bottom: 1px solid var(--ct-border-soft);
 }
 
@@ -865,7 +865,7 @@
   min-width: 0;
   min-height: 100%;
   flex-direction: column;
-  gap: var(--ct-space-8);
+  gap: var(--ct-space-7);
   container-type: inline-size;
   container-name: product-doc;
 }
@@ -882,7 +882,7 @@
 .product-doc .product-doc-stack {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-8);
+  gap: var(--ct-space-7);
 }
 
 /* Stack modifiers — self-contained (mirrors .admin-doc .admin-doc-stack--*) */
@@ -1041,7 +1041,7 @@
 .product-doc .product-doc-section {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-5);
 }
 
 .product-doc .product-doc-section__head {
@@ -1071,7 +1071,7 @@
 .product-doc .product-page-header {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-5);
 }
 
 .product-doc .product-page-header--center {
@@ -1845,8 +1845,6 @@
 }
 
 .product-doc .proof-center-shell {
-  display: flex;
-  flex-direction: column;
   gap: var(--ct-space-8);
 }
 

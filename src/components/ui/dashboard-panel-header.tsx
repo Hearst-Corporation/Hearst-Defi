@@ -32,13 +32,13 @@ export function DashboardPanelHeader({
 
   return (
     <header className={cn("dashboard-card-header", className)}>
-      <div className="min-w-0 flex flex-col gap-2">
+      <div className="min-w-0 flex flex-col gap-1">
         {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
         <TitleTag
           id={id}
           className={cn(
             titleRoleClass,
-            "dashboard-panel-title dashboard-panel-title--accent min-w-0 wrap-break-word",
+            "dashboard-panel-title min-w-0 wrap-break-word",
             tone === "primary" && "ct-text-accent",
           )}
         >
