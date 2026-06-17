@@ -32,7 +32,6 @@ import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
 import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
-import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
 import {
   ZERO_YIELD_STACK,
   buildZeroDistribEntries,
@@ -128,26 +127,7 @@ export default async function PortfolioPage() {
 
       <PortfolioGreeting name={displayName(investor)} data={data} />
 
-      {previewZeros ? (
-        <section
-          className="pf-zero-banner ct-glass-panel"
-          aria-label="Portfolio preview state"
-        >
-          <div className="pf-zero-banner__head">
-            <PreviewModeChip />
-            <span className="stat-label ct-text-faint">
-              No funded position yet
-            </span>
-          </div>
-          <p className="body-sm ct-text-muted m-0">
-            The full portfolio shell stays visible so you can review the
-            investor experience before your first confirmed deposit. No live or
-            verified portfolio data is shown below.
-          </p>
-        </section>
-      ) : null}
-
-      {shouldShowNextActionCard(actionFlags) ? (
+      {shouldShowNextActionCard(actionFlags) && !previewZeros ? (
         <NextActionCard {...actionFlags} />
       ) : null}
 
@@ -170,6 +150,11 @@ export default async function PortfolioPage() {
               source={data.source}
               updatedAt={data.updatedAt}
               previewZeros={previewZeros}
+              nextAction={
+                previewZeros && shouldShowNextActionCard(actionFlags)
+                  ? actionFlags
+                  : undefined
+              }
             />
           </div>
           <aside className="pf-hero-sidebar">

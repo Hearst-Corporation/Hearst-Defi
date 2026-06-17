@@ -104,6 +104,18 @@
   white-space: nowrap;
 }
 
+.pf-value-chart__next-action {
+  padding-top: var(--ct-space-1);
+}
+
+.pf-value-chart__next-action .pf-next-action-card__layout {
+  gap: var(--ct-space-4);
+}
+
+.pf-value-chart__chart--embedded {
+  opacity: var(--ct-opacity-70);
+}
+
 @container pf (min-width: 36rem) {
   .pf-next-action-card__layout {
     flex-direction: row;
@@ -179,20 +191,6 @@
   /* Anti-orphan: don't strand a lone word on the last line / split a phrase
      awkwardly when the column narrows (chat open). */
   text-wrap: pretty;
-}
-
-.pf-zero-banner {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-4) var(--ct-space-5);
-}
-
-.pf-zero-banner__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ct-space-2);
 }
 
 /* Loading skeleton heights — mirror live widget min-heights */

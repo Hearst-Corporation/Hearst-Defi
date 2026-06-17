@@ -127,30 +127,37 @@ export function shouldShowNextActionCard(props: NextActionCardProps): boolean {
 }
 
 export function NextActionCard(props: NextActionCardProps) {
-  const step = resolveNextStep(props);
-
   return (
     <PfCockpitPanel
       variant="wide"
       aria-label="Next step"
       className="pf-next-action-card"
     >
-      <div className="pf-next-action-card__layout">
-        <div className="pf-next-action-card__copy">
-          <span className="pf-panel-title">{step.eyebrow}</span>
-          <h2 className="pf-cockpit-panel__title--primary m-0">{step.headline}</h2>
-          {step.detail ? (
-            <p className="body-sm ct-text-muted m-0">{step.detail}</p>
-          ) : null}
-        </div>
-        {step.cta ? (
-          <div className="pf-next-action-card__cta">
-            <Button variant="primary" size="md" asChild className="pf-next-action-card__button">
-              <Link href={step.cta.href}>{step.cta.label}</Link>
-            </Button>
-          </div>
+      <NextActionContent {...props} />
+    </PfCockpitPanel>
+  );
+}
+
+/** Copy + CTA block — reusable inside ValueChart or the standalone card. */
+export function NextActionContent(props: NextActionCardProps) {
+  const step = resolveNextStep(props);
+
+  return (
+    <div className="pf-next-action-card__layout">
+      <div className="pf-next-action-card__copy">
+        <span className="pf-panel-title">{step.eyebrow}</span>
+        <h2 className="pf-cockpit-panel__title--primary m-0">{step.headline}</h2>
+        {step.detail ? (
+          <p className="body-sm ct-text-muted m-0">{step.detail}</p>
         ) : null}
       </div>
-    </PfCockpitPanel>
+      {step.cta ? (
+        <div className="pf-next-action-card__cta">
+          <Button variant="primary" size="md" asChild className="pf-next-action-card__button">
+            <Link href={step.cta.href}>{step.cta.label}</Link>
+          </Button>
+        </div>
+      ) : null}
+    </div>
   );
 }

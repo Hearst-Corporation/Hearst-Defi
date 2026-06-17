@@ -108,9 +108,9 @@
 | `src/components/portfolio/hero-payout-rail.tsx` | HeroPayoutRail | 1 |
 | `src/components/portfolio/hero-rail-shell.tsx` | HeroRailGroup | 3 |
 | `src/components/portfolio/kpi-row.tsx` | PortfolioKpiRow | 1 |
-| `src/components/portfolio/layout-preview-banner.tsx` | PreviewModeChip | 3 |
+| `src/components/portfolio/layout-preview-banner.tsx` | PreviewModeChip | 2 |
 | `src/components/portfolio/lock-meter.tsx` | LockMeter | 3 |
-| `src/components/portfolio/next-action-card.tsx` | NextActionCard | 2 |
+| `src/components/portfolio/next-action-card.tsx` | NextActionCard, NextActionContent | 3 |
 | `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 24 |
 | `src/components/portfolio/portfolio-greeting.tsx` | PortfolioGreeting | 2 |
 | `src/components/portfolio/position-actions.tsx` | PositionActions | 1 |
@@ -123,7 +123,7 @@
 | `src/components/portfolio/risk-pulse.tsx` | ScoreRow, CompositeSection, RiskPulse | 3 |
 | `src/components/portfolio/time-to-cash.tsx` | TimeToCash | 3 |
 | `src/components/portfolio/trust-panel.tsx` | TrustPanel | 1 |
-| `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
+| `src/components/portfolio/value-chart.tsx` | ValueChart | 4 |
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
 | `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 7 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |

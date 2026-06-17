@@ -5,6 +5,10 @@ import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
+import {
+  NextActionContent,
+  type NextActionCardProps,
+} from "@/components/portfolio/next-action-card";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { cn } from "@/lib/cn";
@@ -183,6 +187,8 @@ interface ValueChartProps {
   updatedAt?: Date;
   /** Render full chart shell with a flat $0 series (layout preview, no position). */
   previewZeros?: boolean;
+  /** Pre-position onboarding CTA — embedded in the chart panel when empty. */
+  nextAction?: NextActionCardProps;
 }
 
 export function ValueChart({
@@ -191,10 +197,12 @@ export function ValueChart({
   source,
   updatedAt,
   previewZeros = false,
+  nextAction,
 }: ValueChartProps) {
   const asOf = new Date(); // rendered server-side; consistent within a request
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
   const showZeroShell = previewZeros || isEmpty;
+  const showEmbeddedNextAction = showZeroShell && nextAction != null;
   const provenance: Provenance | undefined = showZeroShell
     ? undefined
     : resolveProvenance(source, updatedAt, "estimated");
@@ -221,7 +229,11 @@ export function ValueChart({
         }
       />
 
-      {showZeroShell ? (
+      {showEmbeddedNextAction ? (
+        <div className="pf-value-chart__next-action" aria-label="Next step">
+          <NextActionContent {...nextAction} />
+        </div>
+      ) : showZeroShell ? (
         <p className="body-xs ct-text-faint text-center py-[var(--ct-space-3)]" aria-live="polite">
           No portfolio value recorded yet
         </p>
@@ -230,7 +242,11 @@ export function ValueChart({
       <div
         className={cn(
           "relative mt-[var(--ct-space-3)] block w-full flex-1 overflow-hidden rounded-md z-10",
-          showZeroShell ? "min-h-28" : "min-h-20",
+          showZeroShell
+            ? showEmbeddedNextAction
+              ? "min-h-16 pf-value-chart__chart--embedded"
+              : "min-h-28"
+            : "min-h-20",
         )}
       >
         {showZeroShell ? (

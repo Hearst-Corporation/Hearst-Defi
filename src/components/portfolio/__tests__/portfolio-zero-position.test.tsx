@@ -104,6 +104,31 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     expect(html).not.toContain("Stale");
   });
 
+  it("ValueChart previewZeros + nextAction: embeds get-started CTA inside chart panel", () => {
+    const html = renderToStaticMarkup(
+      <SectionEmbedProvider>
+        <ValueChart
+          positions={[]}
+          totalValueUsdc={0}
+          source="fallback"
+          previewZeros
+          nextAction={{
+            kycStatus: "pending",
+            accreditationAttested: false,
+            hasWallet: false,
+            positionCount: 0,
+          }}
+        />
+      </SectionEmbedProvider>,
+    );
+    expect(html).toContain("Get started");
+    expect(html).toContain("Confirm your eligibility");
+    expect(html).toContain("Start onboarding");
+    expect(html).toContain("/onboarding/accreditation");
+    expect(html).not.toContain("No portfolio value recorded yet");
+    expect(html).toContain("<svg");
+  });
+
   it("LockMeter previewZeros: progress bar at 0%, not awaiting surface", () => {
     const html = renderToStaticMarkup(
       <SectionEmbedProvider>
