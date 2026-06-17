@@ -2,7 +2,6 @@ import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ProofRow } from "@/components/ui/nested-panel";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { REBALANCING_EVENTS_EMPTY } from "@/components/proof/empty-messages";
 import { RebalancePtaiModalTrigger } from "@/components/proof-center/rebalance-ptai-modal-trigger";
@@ -10,6 +9,8 @@ import { EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { ProofCenterRebalanceRow } from "@/lib/data/proof-center";
 import { abbreviateAddress } from "@/lib/onchain";
 import { explorerLinkClass } from "@/lib/ui/surface-classes";
+
+import { ProofCenterCardHeader } from "./proof-center-card-header";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
@@ -64,13 +65,18 @@ function weakestRebalanceProvenance(
 
 interface RebalancingEventsPanelProps {
   events: ReadonlyArray<ProofCenterRebalanceRow>;
+  sectionLed?: boolean;
 }
 
-export function RebalancingEventsPanel({ events }: RebalancingEventsPanelProps) {
+export function RebalancingEventsPanel({
+  events,
+  sectionLed = false,
+}: RebalancingEventsPanelProps) {
   if (events.length === 0) {
     return (
       <Card hoverOverlay={false}>
-        <DashboardPanelHeader
+        <ProofCenterCardHeader
+          sectionLed={sectionLed}
           eyebrow="Rebalancing events"
           title="Awaiting first rebalance"
           tone="quiet"
@@ -86,7 +92,8 @@ export function RebalancingEventsPanel({ events }: RebalancingEventsPanelProps) 
 
   return (
     <Card>
-      <DashboardPanelHeader
+      <ProofCenterCardHeader
+        sectionLed={sectionLed}
         eyebrow="Rebalancing events"
         title={`Last ${events.length} rule-triggered events (PTAI)`}
         provenance={panelProvenance}

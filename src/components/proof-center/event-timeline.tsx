@@ -3,7 +3,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProofRow } from "@/components/ui/nested-panel";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { EVENT_TIMELINE_EMPTY } from "@/components/proof/empty-messages";
 import { EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { EventKind, OnChainEvent } from "@/lib/chain/event-logger";
@@ -12,6 +11,8 @@ import { abbreviateAddress } from "@/lib/onchain";
 import { explorerLinkClass } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/cn";
 import { canRunDemoProvider } from "@/lib/demo/guard";
+
+import { ProofCenterCardHeader } from "./proof-center-card-header";
 
 interface EventTimelineProps {
   events: ReadonlyArray<OnChainEvent>;
@@ -135,13 +136,21 @@ function EventTimelineItem({
   );
 }
 
-export function EventTimeline({ events }: EventTimelineProps) {
+export function EventTimeline({
+  events,
+  sectionLed = false,
+}: EventTimelineProps & { sectionLed?: boolean }) {
   if (events.length === 0) {
     return (
       <Card hoverOverlay={false}>
-        <DashboardPanelHeader
+        <ProofCenterCardHeader
+          sectionLed={sectionLed}
           eyebrow="On-chain event log"
-          title="On-chain event log — awaiting first events"
+          title={
+            sectionLed
+              ? "Awaiting first events"
+              : "On-chain event log — awaiting first events"
+          }
           tone="quiet"
         />
         <AwaitingMetricState {...EVENT_TIMELINE_EMPTY} />
@@ -153,9 +162,14 @@ export function EventTimeline({ events }: EventTimelineProps) {
 
   return (
     <Card>
-      <DashboardPanelHeader
+      <ProofCenterCardHeader
+        sectionLed={sectionLed}
         eyebrow="On-chain event log"
-        title={`On-chain event log — last ${events.length} events`}
+        title={
+          sectionLed
+            ? `Last ${events.length} events`
+            : `On-chain event log — last ${events.length} events`
+        }
         provenance={eventsProvenance}
         tone="primary"
       />

@@ -1,7 +1,6 @@
 import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { Card } from "@/components/ui/card";
 import { ProofRow } from "@/components/ui/nested-panel";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { RECENT_DISTRIBUTIONS_EMPTY } from "@/components/proof/empty-messages";
 import { EXPLORER_TX_BASE } from "@/lib/chain/client";
@@ -11,6 +10,8 @@ import { formatUsdCompact } from "@/lib/format/usd-compact";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import { abbreviateAddress } from "@/lib/onchain";
 import { explorerLinkClass } from "@/lib/ui/surface-classes";
+
+import { ProofCenterCardHeader } from "./proof-center-card-header";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
@@ -37,13 +38,18 @@ function weakestProvenance(kinds: readonly Provenance[]): Provenance {
 
 interface RecentDistributionsProps {
   distributions: ReadonlyArray<ProofCenterDistributionRow>;
+  sectionLed?: boolean;
 }
 
-export function RecentDistributions({ distributions }: RecentDistributionsProps) {
+export function RecentDistributions({
+  distributions,
+  sectionLed = false,
+}: RecentDistributionsProps) {
   if (distributions.length === 0) {
     return (
       <Card hoverOverlay={false}>
-        <DashboardPanelHeader
+        <ProofCenterCardHeader
+          sectionLed={sectionLed}
           eyebrow="Latest distributions"
           title="Awaiting first distribution"
           tone="quiet"
@@ -59,7 +65,8 @@ export function RecentDistributions({ distributions }: RecentDistributionsProps)
 
   return (
     <Card>
-      <DashboardPanelHeader
+      <ProofCenterCardHeader
+        sectionLed={sectionLed}
         eyebrow="Latest distributions"
         title={`Last ${distributions.length} USDC distributions`}
         provenance={panelProvenance}

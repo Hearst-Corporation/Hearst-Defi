@@ -58,7 +58,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
 
   return (
     <div className="ct-roadmap-item-row" aria-label={item.label}>
-      <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex min-w-0 flex-col gap-(--ct-space-4) lg:flex-row lg:items-start lg:justify-between">
         <div className="admin-doc-inline-row admin-doc-inline-row--relaxed items-start min-w-0 flex-1">
           <span
             role="img"

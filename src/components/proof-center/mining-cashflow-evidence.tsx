@@ -2,8 +2,9 @@ import { MINING_CASHFLOW_COPY } from "@/components/proof/empty-messages";
 import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
 import { MetricGrid } from "@/components/ui/nested-panel";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { CoverageView } from "@/lib/engine/coverage-view";
+
+import { ProofCenterCardHeader } from "./proof-center-card-header";
 
 const BADGE: Record<CoverageView["provenance"], "live" | "estimated" | "manual" | "stale"> = {
   live: "live",
@@ -19,8 +20,10 @@ const HEADER = {
 
 export function MiningCashFlowEvidence({
   coverage,
+  sectionLed = false,
 }: {
   coverage?: CoverageView | null;
+  sectionLed?: boolean;
 }) {
   const provenance = coverage?.provenance ?? "pending";
 
@@ -32,7 +35,8 @@ export function MiningCashFlowEvidence({
     const stateLabel = provenance === "invalid" ? "Invalid" : "Pending";
     return (
       <Card aria-label="Mining cash-flow evidence — awaiting attestation">
-        <DashboardPanelHeader
+        <ProofCenterCardHeader
+          sectionLed={sectionLed}
           eyebrow={HEADER.eyebrow}
           title={HEADER.title}
           provenance={BADGE[provenance]}
@@ -87,7 +91,8 @@ export function MiningCashFlowEvidence({
 
   return (
     <Card>
-      <DashboardPanelHeader
+      <ProofCenterCardHeader
+        sectionLed={sectionLed}
         eyebrow={HEADER.eyebrow}
         title={HEADER.title}
         provenance={BADGE[provenance]}

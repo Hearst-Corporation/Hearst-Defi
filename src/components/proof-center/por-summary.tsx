@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
 import { MetricGrid, ProofRow } from "@/components/ui/nested-panel";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { POR_ATTESTATION_EMPTY } from "@/components/proof/empty-messages";
 import {
   EXPLORER_ADDRESS_BASE,
@@ -17,6 +16,7 @@ import { explorerLinkClass, sectionDividerClass } from "@/lib/ui/surface-classes
 import { cn } from "@/lib/cn";
 
 import { CustodySection } from "./custody-panel";
+import { ProofCenterCardHeader } from "./proof-center-card-header";
 import {
   formatBtc,
   formatNestedTimestamp,
@@ -33,6 +33,8 @@ interface PorSummaryProps {
   verified?: boolean;
   /** Demo sandbox — renders "Simulated" provenance instead of attested/stale. */
   demo?: boolean;
+  /** Parent renders visible section `<h2>` — omit duplicate eyebrow on the card. */
+  sectionLed?: boolean;
 }
 
 export function PorSummary({
@@ -40,12 +42,14 @@ export function PorSummary({
   custody = null,
   verified = false,
   demo = false,
+  sectionLed = false,
 }: PorSummaryProps) {
   if (attestation === null) {
     return (
       <div className="product-doc-stack">
         <Card hoverOverlay={false}>
-          <DashboardPanelHeader
+          <ProofCenterCardHeader
+            sectionLed={sectionLed}
             eyebrow="Proof of Reserves"
             title="Awaiting first attestation"
             provenance="manual"
@@ -70,7 +74,8 @@ export function PorSummary({
 
   return (
     <Card>
-      <DashboardPanelHeader
+      <ProofCenterCardHeader
+        sectionLed={sectionLed}
         eyebrow="Proof of Reserves"
         title={`Period ${formatPorPeriod(attestation.period)} — Attestation #${attestation.attestationId.toString()}`}
         provenance={provenance}

@@ -171,8 +171,11 @@ export default async function ProductProofCenterPage({
       />
 
       {/* ── Proof of Reserves summary ───────────────────────── */}
-      <section aria-labelledby="por-heading">
-        <h2 id="por-heading" className="sr-only">
+      <section
+        aria-labelledby="por-heading"
+        className="product-doc-section"
+      >
+        <h2 id="por-heading" className="h2 m-0">
           Proof of Reserves
         </h2>
         <PorSummary
@@ -180,55 +183,66 @@ export default async function ProductProofCenterPage({
           custody={custody}
           verified={latestAttestationVerified}
           demo={demo}
+          sectionLed
         />
       </section>
 
       {/* ── Mining cash-flow evidence (yield source) ───────────── */}
-      <section aria-labelledby="cashflow-heading">
-        <h2 id="cashflow-heading" className="sr-only">
+      <section
+        aria-labelledby="cashflow-heading"
+        className="product-doc-section"
+      >
+        <h2 id="cashflow-heading" className="h2 m-0">
           Mining cash-flow evidence
         </h2>
-        <MiningCashFlowEvidence coverage={coverage} />
+        <MiningCashFlowEvidence coverage={coverage} sectionLed />
       </section>
 
       {/* ── Latest distributions ─────────────────────────────── */}
-      <section aria-labelledby="distributions-heading">
-        <h2 id="distributions-heading" className="sr-only">
+      <section
+        aria-labelledby="distributions-heading"
+        className="product-doc-section"
+      >
+        <h2 id="distributions-heading" className="h2 m-0">
           Latest distributions
         </h2>
-        <RecentDistributions distributions={recentDistributions} />
+        <RecentDistributions distributions={recentDistributions} sectionLed />
       </section>
 
       {/* ── Rebalancing events (PTAI) ──────────────────────── */}
-      <section aria-labelledby="rebalance-heading">
-        <h2 id="rebalance-heading" className="sr-only">
+      <section
+        aria-labelledby="rebalance-heading"
+        className="product-doc-section"
+      >
+        <h2 id="rebalance-heading" className="h2 m-0">
           Rebalancing events
         </h2>
-        <RebalancingEventsPanel events={recentRebalances} />
+        <RebalancingEventsPanel events={recentRebalances} sectionLed />
       </section>
 
       {/* ── On-chain event timeline ── */}
-      <section aria-labelledby="event-timeline-heading">
-        <h2 id="event-timeline-heading" className="sr-only">
+      <section
+        aria-labelledby="event-timeline-heading"
+        className="product-doc-section"
+      >
+        <h2 id="event-timeline-heading" className="h2 m-0">
           On-chain event log
         </h2>
-        <EventTimeline events={onChainEvents} />
+        <EventTimeline events={onChainEvents} sectionLed />
       </section>
 
       {/* ── Full proof grid (filtered) ──────────────────────── */}
-      <section aria-labelledby="proof-grid-heading">
+      <section
+        aria-labelledby="proof-grid-heading"
+        className="product-doc-section"
+      >
+        <div className="product-doc-section__head">
+          <h2 id="proof-grid-heading" className="h2 m-0">
+            Off-chain proofs &amp; documents
+          </h2>
+          {proofs.length > 0 ? <ProofFilter /> : null}
+        </div>
         <Card hoverOverlay={false}>
-          <div className="proof-center-section__toolbar">
-            <DashboardPanelHeader
-              id="proof-grid-heading"
-              eyebrow="Proof catalog"
-              title="Off-chain proofs & documents"
-              titleLevel="section"
-              tone="quiet"
-              className="min-w-0 flex-1"
-            />
-            {proofs.length > 0 ? <ProofFilter /> : null}
-          </div>
           {proofs.length === 0 ? (
             <AwaitingMetricState {...PLATFORM_PROOFS_EMPTY} />
           ) : (
