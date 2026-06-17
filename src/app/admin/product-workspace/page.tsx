@@ -393,6 +393,7 @@ export default async function ProductWorkspacePage({
       >
         <div className="flex flex-col gap-[var(--ct-space-3)]">
           <p className="eyebrow">Objective</p>
+          {/* display value — intentionally p.h2, not a document heading */}
           <p
             className={cn(
               "h2 ct-text-strong text-balance",

@@ -6,7 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { DashboardAssetsBoard } from "@/components/admin/dashboard";
-import type { AdminActionItem, AdminProofStatus } from "@/lib/data/admin-overview";
+import type { AdminProofStatus } from "@/lib/data/admin-overview";
 import type { CockpitPayload } from "@/lib/data/cockpit";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
@@ -34,25 +34,6 @@ const PROOF: AdminProofStatus = {
   custodyProvenance: "manual",
   custodyReservesUsdc: 0,
 };
-
-const ACTIONS: AdminActionItem[] = [
-  {
-    key: "kyc",
-    label: "KYC reviews",
-    count: 2,
-    href: "/admin/customers",
-    tracked: true,
-    hint: "2 investors awaiting verification",
-  },
-  {
-    key: "distributions",
-    label: "Distributions",
-    count: 0,
-    href: "/admin/distributions",
-    tracked: true,
-    hint: "No distribution pending approval",
-  },
-];
 
 const COCKPIT: CockpitPayload = {
   actionQueue: [],
@@ -136,7 +117,6 @@ function render(
       data={data}
       risk={RISK}
       proof={proof}
-      actions={ACTIONS}
       totalActionRequired={2}
       capitalUsdc={capitalUsdc}
       capitalProvenance="estimated"
@@ -172,6 +152,17 @@ function makeLiveData(overrides: Partial<DashboardData> = {}): DashboardData {
 }
 
 describe("DashboardAssetsBoard — command-center layout", () => {
+  it("roots the board in dashboard-command-board for dash-board container queries", () => {
+    const html = render(makeData({ source: "fallback" }), 0);
+    expect(html).toContain("dashboard-command-board");
+  });
+
+  it("does not duplicate KPI rows in a secondary vitals column", () => {
+    const html = render(makeData({ source: "fallback" }), 0);
+    expect(html).not.toContain("dashboard-vitals-hero__stats");
+    expect(html).not.toContain("dashboard-vitals-stat-row");
+  });
+
   it("prioritizes KPI strip, vault signal charts, cockpit operations, then audit trail", () => {
     const html = render(makeData({ source: "fallback" }), 0);
 
@@ -241,7 +232,6 @@ describe("DashboardAssetsBoard — command-center layout", () => {
         data={makeLiveData()}
         risk={RISK}
         proof={PROOF}
-        actions={ACTIONS}
         totalActionRequired={2}
         capitalUsdc={500_000}
         capitalProvenance="live"

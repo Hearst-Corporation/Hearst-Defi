@@ -18,7 +18,7 @@ import {
   resolveNavChartLive,
 } from "@/lib/admin/dashboard-vault-signals";
 import type { CockpitPayload } from "@/lib/data/cockpit";
-import type { AdminActionItem, AdminProofStatus } from "@/lib/data/admin-overview";
+import type { AdminProofStatus } from "@/lib/data/admin-overview";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 
@@ -31,7 +31,6 @@ export interface DashboardAssetsBoardProps {
   data: DashboardData;
   risk: RiskFrameworkData;
   proof: AdminProofStatus;
-  actions: AdminActionItem[];
   totalActionRequired: number;
   capitalUsdc: number;
   capitalProvenance: Provenance;
@@ -48,7 +47,6 @@ export function DashboardAssetsBoard({
   data,
   risk,
   proof,
-  actions: _actions,
   totalActionRequired,
   capitalUsdc,
   capitalProvenance,
@@ -101,8 +99,8 @@ export function DashboardAssetsBoard({
   );
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--relaxed">
-      {/* ── Hero card: KPI strip + 2-col vitals grid + allocation/nav banding ── */}
+    <div className="dashboard-command-board admin-doc-stack admin-doc-stack--relaxed">
+      {/* ADR-013 exception: dense command-board merged card (strip + separators, not nested glass). */}
       <Card
         aria-label="Vault KPIs and charts"
         hoverOverlay={false}
@@ -114,47 +112,19 @@ export function DashboardAssetsBoard({
           <DashboardKpiStrip kpis={supportKpis} />
         </section>
 
-        {/* 2-col hero grid: VaultVitalsRing (left) + support KPIs (right) */}
-        <div className="dashboard-vitals-hero">
-          {/* Left: health ring — Capital at core, Composite risk as caption */}
-          <div className="dashboard-vitals-hero__ring">
-            <VaultVitalsRing
-              composite={risk.composite}
-              band={risk.band}
-              bandLabel={risk.bandLabel}
-              capitalUsdc={capitalUsdc}
-              provenance={capitalProvenance}
-              hasLiveKpis={hasLiveKpis}
-            />
-          </div>
-
-          {/* Right: support stat-rows (APY, Mining, Proof, Admin queues) */}
-          <div className="dashboard-vitals-hero__stats border-t md:border-t-0 md:border-l border-(--ct-border-soft)">
-            {supportKpis.map((kpi) => (
-              <div
-                key={kpi.label}
-                className="dashboard-vitals-stat-row border-b border-(--ct-border-soft) last:border-b-0"
-              >
-                <span className="stat-label uppercase tracking-wide text-(--ct-text-faint) text-[length:var(--ct-text-xs)]">
-                  {kpi.label}
-                </span>
-                <span
-                  className={[
-                    "tabular font-[var(--ct-font-semibold)] text-[length:var(--ct-text-base)]",
-                    kpi.alert
-                      ? "ct-status-danger"
-                      : kpi.accent
-                        ? "ct-status-success"
-                        : "ct-text-strong",
-                  ].join(" ")}
-                >
-                  {kpi.value}
-                </span>
-                <span className="body-xs ct-text-faint truncate">{kpi.sublabel}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <section
+          aria-label="Vault health"
+          className="dashboard-vitals-hero__ring border-b border-(--ct-border-soft)"
+        >
+          <VaultVitalsRing
+            composite={risk.composite}
+            band={risk.band}
+            bandLabel={risk.bandLabel}
+            capitalUsdc={capitalUsdc}
+            provenance={capitalProvenance}
+            hasLiveKpis={hasLiveKpis}
+          />
+        </section>
 
         {/* Bottom band: Allocation orbit + NAV slot */}
         <div className="dashboard-command-row-a dashboard-command-row-a--hero dashboard-hero-card__analytics">

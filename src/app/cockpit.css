@@ -326,21 +326,6 @@
   overflow: hidden;
 }
 
-.dashboard-hero-card {
-  min-width: 0;
-  background: var(--ct-graphite-active-bg);
-}
-
-.dashboard-hero-card > .ct-z-base {
-  min-width: 0;
-}
-
-.dashboard-hero-card__content {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-}
-
 .dashboard-merged-card>* {
   border-radius: 0 !important;
   border: none !important;
@@ -1441,44 +1426,8 @@
   container-name: dash-board;
 }
 
-.dashboard-page-shell {
-  gap: var(--ct-doc-flow-gap);
-}
-
-.dashboard-page-stage {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-doc-flow-inner-gap);
-}
-
-.dashboard-page-stage__header {
-  min-width: 0;
-  margin-bottom: var(--ct-space-2);
-}
-
 .dashboard-page-header .admin-page-header__main {
   max-width: 42rem;
-}
-
-.dashboard-page-stage__notice {
-  min-width: 0;
-}
-
-.dashboard-page-stage__notice .ct-card,
-.dashboard-page-notice-card {
-  padding: var(--ct-space-4) var(--ct-space-5);
-}
-
-.dashboard-page-notice {
-  min-height: 100%;
-}
-
-.dashboard-page-notice .ct-panel-status-section {
-  margin-top: var(--ct-space-2);
-}
-
-.dashboard-page-board {
-  min-width: 0;
 }
 
 /* Admin cards — denser padding tier; global .ct-card uses space-5/6 for LP surfaces. */
@@ -1487,17 +1436,6 @@
   transition:
     border-color var(--ct-dur-fast),
     box-shadow var(--ct-dur-fast);
-}
-
-/* KPI strip — dense grid inside Card / ct-glass-panel (ADR-013 canon). */
-.dashboard-kpi-strip-card.ct-card {
-  padding: var(--ct-space-4);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-surface-1) 32%, transparent) 0%,
-      transparent 100%
-    );
 }
 
 .dashboard-kpi-strip {
@@ -1667,20 +1605,6 @@
   position: relative;
   gap: 0;
   min-height: 16rem;
-}
-
-.dashboard-hero-card__kpis {
-  position: relative;
-  border-bottom: 1px solid var(--ct-border-soft);
-  padding: var(--ct-space-4) var(--ct-space-5);
-}
-
-.dashboard-hero-card--signature {
-  border-color: color-mix(in srgb, var(--ct-border-soft) 85%, transparent);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--ct-accent) 14%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--ct-text-strong) 4%, transparent),
-    0 24px 56px -48px color-mix(in srgb, var(--ct-bg-deep) 96%, transparent);
 }
 
 .dashboard-hero-card__analytics {
@@ -1854,13 +1778,6 @@
 
 .dashboard-command-divide-stack > * + * {
   border-top: 1px solid var(--ct-border-soft);
-}
-
-.dashboard-instrument-note {
-  margin: 0;
-  text-align: center;
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-faint);
 }
 
 .dashboard-command-row-c {
@@ -2089,38 +2006,7 @@
   color: var(--ct-accent);
 }
 
-.dashboard-command-shortcuts {
-  min-width: 0;
-  padding-block: var(--ct-space-1);
-}
-
-.dashboard-command-shortcuts .dashboard-card-header {
-  margin-bottom: var(--ct-space-4);
-}
-
-.dashboard-command-shortcuts__grid {
-  display: grid;
-  gap: var(--ct-space-4);
-  grid-template-columns: minmax(0, 1fr);
-  min-width: 0;
-}
-
-/* Removed 2-column grid for .dashboard-page-stage to fix alignments and remove the "trou noir" */
-@media (min-width: 72rem) {
-  /* Keep other media queries if any */
-}
-
-@container dash-board (min-width: 26rem) {
-  .dashboard-command-shortcuts__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @container dash-board (min-width: 48rem) {
-  .dashboard-kpi-strip {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
   .dashboard-command-row-a--hero {
     grid-template-columns: minmax(16rem, 0.8fr) minmax(0, 1.35fr);
   }
@@ -2128,10 +2014,6 @@
   .dashboard-hero-card__slot--allocation {
     border-right: 1px solid var(--ct-border-soft);
     border-bottom: 0;
-  }
-
-  .dashboard-command-shortcuts__grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -2237,64 +2119,12 @@
   color: var(--ct-text-strong);
 }
 
-/* ── Vault Vitals hero 2-col layout ────────────────────────────────────────── */
-.dashboard-vitals-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0;
-  border-bottom: 1px solid var(--ct-border-soft);
-}
-
-@container dash-board (min-width: 48rem) {
-  .dashboard-vitals-hero {
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  }
-}
-
+/* ── Vault Vitals ring (capital + composite risk) ─────────────────────────── */
 .dashboard-vitals-hero__ring {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--ct-space-7) var(--ct-space-6);
-  border-bottom: 1px solid var(--ct-border-soft);
-}
-
-@container dash-board (min-width: 48rem) {
-  .dashboard-vitals-hero__ring {
-    border-bottom: 0;
-    border-right: 1px solid var(--ct-border-soft);
-  }
-}
-
-.dashboard-vitals-hero__stats {
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-}
-
-.dashboard-vitals-stat-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto auto;
-  align-items: baseline;
-  gap: var(--ct-space-1) var(--ct-space-4);
-  padding: var(--ct-space-4) var(--ct-space-5);
-}
-
-.dashboard-vitals-stat-row > :nth-child(1) {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.dashboard-vitals-stat-row > :nth-child(2) {
-  grid-column: 2;
-  grid-row: 1;
-  text-align: right;
-}
-
-.dashboard-vitals-stat-row > :nth-child(3) {
-  grid-column: 1 / -1;
-  grid-row: 2;
 }
 
 /* ── VaultVitalsRing component ─────────────────────────────────────────────── */
@@ -2542,7 +2372,7 @@
 
 @container dash-board (min-width: 42rem) {
   .dashboard-kpi-strip {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -2565,7 +2395,7 @@
   }
 }
 
-/* 6 columns */
+/* 4 columns */
 @container dash-board (min-width: 42rem) {
   .dashboard-kpi-strip__cell {
     border-bottom: none;
@@ -2621,7 +2451,6 @@
 }
 
 @media (min-width: 64rem) {
-  .dashboard-hero-card__kpis,
   .dashboard-hero-card__slot {
     padding: var(--ct-space-5);
   }
@@ -3062,7 +2891,6 @@ pre.ct-surface-1.rounded-md {
   color: var(--ct-text-muted);
 }
 
-.dashboard-hero-card .eyebrow,
 .dashboard-command-panel-card .eyebrow,
 .dashboard-nav-slot__header .eyebrow {
   /* Removed color: var(--ct-accent) to keep eyebrows calm and structural */

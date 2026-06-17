@@ -37,7 +37,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
 
       <div className="dashboard-command-divide-stack">
         <div className="dashboard-live-ops-section">
-          <span className="dashboard-live-ops-section__title">Job runs</span>
+          <h3 className="dashboard-live-ops-section__title">Job runs</h3>
           <div className="dashboard-command-divide-stack">
             {inngestJobs.map((job) => (
               <InngestRow key={job.id} job={job} />
@@ -46,7 +46,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
         </div>
 
         <div className="dashboard-live-ops-section">
-          <span className="dashboard-live-ops-section__title">Error monitor · 24h</span>
+          <h3 className="dashboard-live-ops-section__title">Error monitor · 24h</h3>
           <div className="admin-doc-inline-row admin-doc-inline-row--relaxed admin-doc-inline-row--actions">
             <SentryCounter
               label="Errors"
@@ -62,7 +62,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
         </div>
 
         <div className="dashboard-live-ops-section">
-          <span className="dashboard-live-ops-section__title">Chain activity</span>
+          <h3 className="dashboard-live-ops-section__title">Chain activity</h3>
           {onChainEvents.length === 0 ? (
             <PanelStatus message="No recent on-chain events." />
           ) : (

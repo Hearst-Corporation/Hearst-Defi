@@ -75,7 +75,7 @@ describe("doc-flow spacing tokens", () => {
       /\.projection-studio-shell[\s\S]*?gap: var\(--ct-doc-flow-gap\)/,
     );
     expect(cockpitCss).toMatch(
-      /\.dashboard-page-shell[\s\S]*?gap: var\(--ct-doc-flow-gap\)/,
+      /\.dashboard-command-board[\s\S]*?container-name: dash-board/,
     );
   });
 
