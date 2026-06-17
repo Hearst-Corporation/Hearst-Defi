@@ -38,6 +38,20 @@ export default function PortfolioLoading() {
         </div>
 
         <ProductSection
+          title="Recent Activity"
+          eyebrow="Activity"
+          showProvenance={false}
+          className="pf-activity-payouts-section"
+          data-section="activity-payouts"
+        >
+          <div className="pf-activity-grid pf-activity-grid--lead-only">
+            <div className="pf-skeleton-widget--md">
+              <Skeleton className="pf-cockpit-panel w-full" />
+            </div>
+          </div>
+        </ProductSection>
+
+        <ProductSection
           title="Yield & Trust Pulse"
           eyebrow="Trust"
           showProvenance={false}
@@ -48,25 +62,10 @@ export default function PortfolioLoading() {
             <Skeleton className="pf-cockpit-panel h-full w-full" />
           </div>
         </ProductSection>
-      </div>
 
-      <div className="pf-section-stack">
-        <ProductSection
-          title="Activity & Payouts"
-          eyebrow="Activity"
-          showProvenance={false}
-          className="pf-activity-payouts-section"
-          data-section="activity-payouts"
-        >
-          <div className="pf-activity-grid">
-            <div className="pf-skeleton-widget--md">
-              <Skeleton className="pf-cockpit-panel w-full" />
-            </div>
-            <div className="pf-skeleton-widget--sm">
-              <Skeleton className="pf-cockpit-panel w-full" />
-            </div>
-          </div>
-        </ProductSection>
+        <div className="pf-skeleton-widget--sm" data-section="payout-calendar">
+          <Skeleton className="pf-cockpit-panel w-full" />
+        </div>
       </div>
     </div>
   );

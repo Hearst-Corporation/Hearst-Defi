@@ -647,6 +647,16 @@
   align-items: start;
 }
 
+/* Recent Activity alone — keep 2/3 width, reserve right column for layout balance */
+.pf-activity-grid--lead-only {
+  grid-template-columns: 2fr 1fr;
+}
+
+.pf-activity-grid--lead-only > [data-testid="recent-activity-widget"] {
+  grid-column: 1;
+  min-width: 0;
+}
+
 
 /* Surface taxonomy (DESIGN_SYSTEM §13.3): pf-cockpit-panel shares the graphite
    background/border/radius/blur with ct-card — the only legitimate difference is

@@ -477,7 +477,8 @@ describe("Widget placement in sections", () => {
     "hero-pulse": [],
     "yield-allocation": ["capital-yield-widget"],
     "yield-trust": ["trust-panel-widget"],
-    "activity-payouts": ["distrib-calendar-widget", "recent-activity-widget"],
+    "activity-payouts": ["recent-activity-widget"],
+    "payout-calendar": ["distrib-calendar-widget"],
   };
 
   it("positions section exists (PositionsList — no widget test-id)", () => {
@@ -493,12 +494,12 @@ describe("Widget placement in sections", () => {
     expect(SECTION_WIDGETS["yield-trust"]).toContain("trust-panel-widget");
   });
 
-  it("activity-payouts hosts distrib-calendar-widget", () => {
-    expect(SECTION_WIDGETS["activity-payouts"]).toContain("distrib-calendar-widget");
-  });
-
   it("activity-payouts hosts recent-activity-widget", () => {
     expect(SECTION_WIDGETS["activity-payouts"]).toContain("recent-activity-widget");
+  });
+
+  it("payout-calendar hosts distrib-calendar-widget", () => {
+    expect(SECTION_WIDGETS["payout-calendar"]).toContain("distrib-calendar-widget");
   });
 });
 

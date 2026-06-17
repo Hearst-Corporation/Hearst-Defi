@@ -196,7 +196,7 @@ export default async function PortfolioPage() {
         </div>
 
         <ProductSection
-          title="Activity & Payouts"
+          title="Recent Activity"
           eyebrow="Activity"
           provenance={portfolioProvenance}
           showProvenance={hasPositions}
@@ -206,26 +206,13 @@ export default async function PortfolioPage() {
           className="pf-activity-payouts-section"
           data-section="activity-payouts"
         >
-          <div className="pf-activity-grid">
+          <div className="pf-activity-grid pf-activity-grid--lead-only">
             <div data-testid="recent-activity-widget">
               <RecentActivity
                 transactions={data.recentTransactions}
                 source={data.source}
                 updatedAt={data.updatedAt}
                 previewZeros={previewZeros}
-              />
-            </div>
-            <div data-testid="distrib-calendar-widget">
-              <DistribCalendar
-                {...distribCalendarProps}
-                entries={
-                  previewZeros && distribCalendarProps.entries.length === 0
-                    ? buildZeroDistribEntries(previewAsOf.getUTCFullYear())
-                    : distribCalendarProps.entries
-                }
-                previewZeros={
-                  previewZeros && distribCalendarProps.entries.length === 0
-                }
               />
             </div>
           </div>
@@ -250,6 +237,20 @@ export default async function PortfolioPage() {
             />
           </div>
         </ProductSection>
+
+        <div data-section="payout-calendar" data-testid="distrib-calendar-widget">
+          <DistribCalendar
+            {...distribCalendarProps}
+            entries={
+              previewZeros && distribCalendarProps.entries.length === 0
+                ? buildZeroDistribEntries(previewAsOf.getUTCFullYear())
+                : distribCalendarProps.entries
+            }
+            previewZeros={
+              previewZeros && distribCalendarProps.entries.length === 0
+            }
+          />
+        </div>
       </div>
     </div>
   );
