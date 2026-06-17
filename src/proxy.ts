@@ -33,15 +33,17 @@ import { isDevAuthBypass } from "@/lib/dev-bypass";
 
 const SESSION_COOKIE = "hc_session";
 
-// Route prefixes that require an authenticated session.
-const PROTECTED_PREFIXES = [
-  "/admin",
-  "/debug",
-  "/onboarding",
-  "/portfolio",
-  "/profile",
-  "/proof-center",
-  "/vaults",
+// Routes accessible WITHOUT a session. Everything else requires auth.
+// "/" matches exactly (the login/home page); all others match as prefix + sub-paths.
+const PUBLIC_PREFIXES = [
+  "/",               // login / home (exact)
+  "/login",
+  "/apply",          // self-serve qualification form (public prospect page)
+  "/forgot-password",
+  "/reset-password",
+  "/totp-challenge",
+  "/legal",
+  "/api",            // webhooks + API routes (auth handled per-route)
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -55,10 +57,11 @@ function generateRequestId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-function isProtected(pathname: string): boolean {
-  return PROTECTED_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
-  );
+function isPublic(pathname: string): boolean {
+  return PUBLIC_PREFIXES.some((prefix) => {
+    if (prefix === "/") return pathname === "/";
+    return pathname === prefix || pathname.startsWith(`${prefix}/`);
+  });
 }
 
 /**
@@ -103,38 +106,26 @@ export default async function proxy(
     return next();
   }
 
-  if (isProtected(pathname)) {
+  // Default-deny: redirect to login unless the route is explicitly public.
+  // Cookie presence is the only check possible at the edge (no DB access).
+  // Server-side session validation + role enforcement happen inside each route.
+  if (!isPublic(pathname)) {
     const hasSession = Boolean(request.cookies.get(SESSION_COOKIE)?.value);
     if (!hasSession) {
       return loginRedirect(request);
     }
-    // Cookie present → let it through. The server-side session lookup
-    // (getSession / requireAdmin) is the authoritative check; /admin role
-    // enforcement lives in the /admin layout, not here.
   }
 
   return next();
 }
 
 // ---------------------------------------------------------------------------
-// Route matcher — protected sections (exact path + sub-paths), excluding API,
-// Next internals, static assets, and common public files.
+// Route matcher — run on every request except Next.js internals and static
+// assets. The proxy now enforces default-deny (whitelist model), so it must
+// see ALL page requests, not just a hardcoded list of protected prefixes.
 // ---------------------------------------------------------------------------
 export const config = {
   matcher: [
-    "/admin",
-    "/admin/:path*",
-    "/debug",
-    "/debug/:path*",
-    "/onboarding",
-    "/onboarding/:path*",
-    "/portfolio",
-    "/portfolio/:path*",
-    "/profile",
-    "/profile/:path*",
-    "/proof-center",
-    "/proof-center/:path*",
-    "/vaults",
-    "/vaults/:path*",
+    "/((?!_next/static|_next/image|favicon\\.ico|icon\\.svg|.*\\.(?:png|jpg|jpeg|gif|webp|ico|woff2?|ttf|eot)).*)",
   ],
 };
