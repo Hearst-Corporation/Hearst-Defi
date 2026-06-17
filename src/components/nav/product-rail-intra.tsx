@@ -17,6 +17,8 @@ import {
   MessageSquare,
   Zap,
   Scale,
+  Bot,
+  ClipboardCheck,
   ChevronLeft,
   ChevronRight,
   ArrowLeft,
@@ -84,6 +86,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
   MessageSquare,
   Zap,
   Scale,
+  Bot,
+  ClipboardCheck,
   ArrowLeft,
 };
 
