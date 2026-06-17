@@ -18,7 +18,7 @@
 | `src/components/admin/admin-chat-controls.tsx` | AdminChatControls | 1 |
 | `src/components/admin/admin-page-header.tsx` | AdminPageHeader | 35 |
 | `src/components/admin/agent-template-form.tsx` | AgentTemplateForm | 2 |
-| `src/components/admin/agents/agent-dice-canvas.tsx` | AgentDiceCanvas | 1 |
+| `src/components/admin/agents/agent-graph-canvas.tsx` | AgentGraphCanvas | 1 |
 | `src/components/admin/archive-template-button.tsx` | ArchiveTemplateButton | 1 |
 | `src/components/admin/cockpit/action-queue.tsx` | ActionQueue | 1 |
 | `src/components/admin/cockpit/audit-trail-rolling.tsx` | AuditTrailRolling | 1 |

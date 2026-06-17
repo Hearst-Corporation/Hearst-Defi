@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { AgentDiceCanvas } from "@/components/admin/agents/agent-dice-canvas";
-import { loadAgentPulses } from "@/lib/data/agent-pulse";
+import { AgentGraphCanvas } from "@/components/admin/agents/agent-graph-canvas";
+import { loadAgentGraph } from "@/lib/data/agent-graph";
 import { loadAgentTemplates } from "@/lib/data/agent-templates";
 import { ArchiveTemplateButton } from "@/components/admin/archive-template-button";
 import { groupCatalogByScope } from "@/lib/agents/agent-catalog";
@@ -25,9 +25,9 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Agents — Hearst Connect" };
 
 export default async function AgentsPage() {
-  const [templates, agentPulses] = await Promise.all([
+  const [templates, agentGraph] = await Promise.all([
     loadAgentTemplates(),
-    loadAgentPulses(),
+    loadAgentGraph(),
   ]);
   const catalogGroups = groupCatalogByScope();
 
@@ -43,9 +43,9 @@ export default async function AgentsPage() {
         }
       />
 
-      <section className="admin-doc-stack" aria-label="Agent activity">
+      <section className="admin-doc-stack" aria-label="Agent orchestration">
         <div className="flex flex-wrap items-center justify-between gap-[var(--ct-space-3)]">
-          <h2 className="h2">Agent activity</h2>
+          <h2 className="h2">Agent orchestration</h2>
           <div className="flex flex-wrap items-center gap-[var(--ct-space-3)] body-xs ct-text-muted">
             <span className="inline-flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-(--ct-accent)" aria-hidden />
@@ -62,11 +62,12 @@ export default async function AgentsPage() {
           </div>
         </div>
         <p className="body-xs ct-text-muted">
-          Live pulse of each base agent — derived from its most recent run.
-          Brighter, faster dice mean recent activity; idle agents drift quietly.
+          Live wiring of the agents — data sources feed the LLM agents, which
+          feed the outputs. Particles flow on edges that just ran; nodes pulse by
+          live state (last run). Auto-refreshes; click a node for its runtime.
         </p>
         <Card hoverOverlay={false} className="overflow-hidden p-[var(--ct-space-4)] sm:p-[var(--ct-space-5)]">
-          <AgentDiceCanvas pulses={agentPulses} />
+          <AgentGraphCanvas initialGraph={agentGraph} />
         </Card>
       </section>
 
