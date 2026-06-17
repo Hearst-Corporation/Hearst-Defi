@@ -64,7 +64,7 @@ const MOCK_PORTFOLIO_DATA = {
 // ── 1. 3 sections defined ────────────────────────────────────────────────────
 
 describe("Portfolio page — 3 sections contract", () => {
-  const EXPECTED_SECTIONS = ["hero-pulse", "yield-trust", "activity-payouts"] as const;
+  const EXPECTED_SECTIONS = ["hero-pulse", "activity-payouts", "yield-trust"] as const;
 
   it("defines exactly 3 distinct section identifiers", () => {
     expect(EXPECTED_SECTIONS).toHaveLength(3);
@@ -79,12 +79,12 @@ describe("Portfolio page — 3 sections contract", () => {
     expect(EXPECTED_SECTIONS[0]).toBe("hero-pulse");
   });
 
-  it("Section 2 identifier is 'yield-trust'", () => {
-    expect(EXPECTED_SECTIONS[1]).toBe("yield-trust");
+  it("Section 2 identifier is 'activity-payouts'", () => {
+    expect(EXPECTED_SECTIONS[1]).toBe("activity-payouts");
   });
 
-  it("Section 3 identifier is 'activity-payouts'", () => {
-    expect(EXPECTED_SECTIONS[2]).toBe("activity-payouts");
+  it("Section 3 identifier is 'yield-trust'", () => {
+    expect(EXPECTED_SECTIONS[2]).toBe("yield-trust");
   });
 });
 

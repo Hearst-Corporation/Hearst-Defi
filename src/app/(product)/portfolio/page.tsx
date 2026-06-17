@@ -196,28 +196,6 @@ export default async function PortfolioPage() {
         </div>
 
         <ProductSection
-          title="Yield & Trust Pulse"
-          eyebrow="Trust"
-          provenance={portfolioProvenance}
-          showProvenance={hasPositions}
-          variant={sectionVariant}
-          previewLead={previewZeros ? false : undefined}
-          showPreviewHead={!previewZeros}
-          className="pf-yield-trust-section"
-          data-section="yield-trust"
-        >
-          <div data-testid="trust-panel-widget">
-            <TrustPanel
-              risk={riskPulseProps}
-              proof={previewZeros ? zeroProofPulseProps(previewAsOf) : proofPulseProps}
-              previewZeros={previewZeros}
-            />
-          </div>
-        </ProductSection>
-      </div>
-
-      <div className="pf-section-stack">
-        <ProductSection
           title="Activity & Payouts"
           eyebrow="Activity"
           provenance={portfolioProvenance}
@@ -250,6 +228,26 @@ export default async function PortfolioPage() {
                 }
               />
             </div>
+          </div>
+        </ProductSection>
+
+        <ProductSection
+          title="Yield & Trust Pulse"
+          eyebrow="Trust"
+          provenance={portfolioProvenance}
+          showProvenance={hasPositions}
+          variant={sectionVariant}
+          previewLead={previewZeros ? false : undefined}
+          showPreviewHead={!previewZeros}
+          className="pf-yield-trust-section"
+          data-section="yield-trust"
+        >
+          <div data-testid="trust-panel-widget">
+            <TrustPanel
+              risk={riskPulseProps}
+              proof={previewZeros ? zeroProofPulseProps(previewAsOf) : proofPulseProps}
+              previewZeros={previewZeros}
+            />
           </div>
         </ProductSection>
       </div>
