@@ -228,7 +228,7 @@ describe("DashboardAssetsBoard — command-center layout", () => {
 
     expect(cockpitOps).toBeGreaterThan(-1);
     expect(cockpitOps).toBeGreaterThan(vaultSignal);
-    expect(html).toContain("All clear — no pending actions.");
+    expect(html).toContain("All clear — no operator actions queued.");
     expect(html).toContain("No vault telemetry yet.");
     expect(html).toContain("No admin activity recorded yet.");
   });
@@ -298,10 +298,10 @@ describe("DashboardAssetsBoard — command-center layout", () => {
       />,
     );
 
-    expect(html).toContain(">Action queue<");
-    expect(html).toContain(">Live metrics<");
-    expect(html).toContain(">Live ops<");
-    expect(html).toContain(">Recent admin activity<");
+    expect(html).toContain(">Operator queue<");
+    expect(html).toContain(">Vault health<");
+    expect(html).toContain(">Platform status<");
+    expect(html).toContain('aria-label="Recent admin activity"');
     expect(html).toContain("dashboard-orbit__ring");
     expect(html).toContain("% mapped");
     expect(html).toContain("dashboard-nav-bars__bar");
