@@ -32,9 +32,9 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
     testPrompt: "Explique le Hearst Yield Vault en 3 phrases.",
     successCriteria:
       "Réponse concise, française, sans promesse, avec APY en fourchette et ton produit correct.",
-    initialStatus: "orange",
+    initialStatus: "green",
     initialNote:
-      "Audit code OK. Pas encore validé ici en test manuel/e2e sur la qualité exacte de réponse.",
+      "Câblé + testé e2e sur le chemin par défaut (flag OFF → handler cockpit-shell + guardChatStream). route.guard.test: une réponse 'rendement garanti' / 'APY 11%' est bloquée (BLOCK_SENTINEL) avant d'atteindre le LP, une réponse en fourchette passe. La qualité de wording reste model-dependent (prompt FR + vouvoiement), mais le garde-fou conformité, lui, est verrouillé.",
   },
   {
     id: "normal-portfolio-context",
@@ -46,9 +46,9 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
     testPrompt: "Pourquoi mon portefeuille est stale ?",
     successCriteria:
       "La réponse s'appuie sur le contexte réel ou dit explicitement qu'une donnée manque.",
-    initialStatus: "orange",
+    initialStatus: "green",
     initialNote:
-      "Contexte injecté côté serveur confirmé par audit. Pas encore validé ici avec un cas manuel réel.",
+      "buildPortfolioContextBlock(userId) est injecté dans enrichedSystemPrompt AVANT le gate du flag (route.ts ~818-839) et passé aux DEUX chemins (Master Agent ET handler cockpit-shell) → marche flag ON ou OFF. Scope strict userId (prisma.investor.findUnique), retourne null si 0 position (compte neuf), qualificateurs de provenance live/estimated/stale. Couvert par 11 tests chat-context.test (scoping cross-tenant + cas null + fraîcheur).",
   },
   {
     id: "normal-lp-navigation",
@@ -62,7 +62,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le chat ouvre la bonne route produit sans sortir de la whitelist autorisee.",
     initialStatus: "orange",
     initialNote:
-      "Whitelist et pipeline navigate audités. Pas encore testé ici sur la route LP exacte en manuel.",
+      "Chemin entièrement câblé + testé unitairement (chat-agent 22, navigate-tool 9, route 12): navigate tool → LP_NAV_DESTINATIONS (portfolio/vaults/proof-center/profile) → publishNav → ChatNavBridge → router.push. Reste ORANGE car (1) côté LP aucun fallback: dépend du modèle pour émettre le tool call (contrairement aux intents produit admin), (2) tout le chemin est gaté par CHAT_MASTER_AGENT — OFF par défaut, ON via env (.env.local=1, prod template=1) mais non validé par env.ts. Pas de test e2e LP réel.",
   },
   {
     id: "review-distill-chat",
@@ -88,9 +88,9 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
     testPrompt: "Explique le runbook de deploiement du vault en 5 etapes.",
     successCriteria:
       "La reponse reste interne, actionnable, sans execution autonome ni fuite sensible.",
-    initialStatus: "orange",
+    initialStatus: "green",
     initialNote:
-      "Prompt admin et garde-fous audités. Pas encore validé ici sur la qualité de réponse manuelle.",
+      "COCKPIT_ADMIN_SYSTEM_PROMPT (archi, allocations HYV/HDV/HBP, runbooks, 'pas d'exécution autonome') injecté quand mode=admin (route.ts ~741) + buildAdminContextBlock (allocations/market/routes/specs) ajouté à enrichedSystemPrompt. Couvert par prompts.test (contenu du prompt: pas de web/deploy) + admin-context.test (injection + dégradation). Write tools jamais auto-exécutés (chat-agent ~316). Q&A texte marche flag ON ou OFF; les tools admin model-driven, eux, dépendent du flag.",
   },
   {
     id: "admin-product-workspace-open",
@@ -104,7 +104,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le chat ouvre /admin/product-workspace avec autostart et objective pre-remplis.",
     initialStatus: "green",
     initialNote:
-      "Validé automatiquement: tests ciblés cockpit-chat + intent + nav passent, y compris fallback sans tool call.",
+      "Double chemin validé (tests cockpit-chat + intent + nav): override quand le modèle émet navigate, ET fallback intent quand il répond en texte seul (route.ts). autostart+objective propagés en query → préremplissage réel via ChatNavBridge. Dépend de CHAT_MASTER_AGENT=ON (env, OFF par défaut côté code): si non set sur Vercel, dégrade silencieusement au handler cockpit-shell sans navigation.",
   },
   {
     id: "admin-scenario-lab-open",
@@ -116,9 +116,9 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
     testPrompt: "Simuler un scenario BTC bear sur le vault.",
     successCriteria:
       "Le chat ouvre /admin/scenario-lab ou l'ajoute comme etape secondaire pertinente.",
-    initialStatus: "orange",
+    initialStatus: "green",
     initialNote:
-      "Chemin codé et couvert partiellement. Plus fragile: dépend du navigate tool call pour la simulation seule.",
+      "Désormais à parité avec Product Workspace: override quand le modèle émet navigate(admin-scenario-lab), ET fallback intent pour une simulation pure quand il répond en texte seul (route.ts, ajouté + testé). Pour un intent produit, Scenario Lab reste porté en métadonnée secondaire. Même dépendance CHAT_MASTER_AGENT=ON que les autres capacités de navigation.",
   },
   {
     id: "admin-new-client-action",
@@ -132,7 +132,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le chat sait au minimum ouvrir la bonne surface customer, idéalement préremplir sans sortie de scope.",
     initialStatus: "red",
     initialNote:
-      "Non outillé dans le chat actuel: pas de destination /admin/customers dans la whitelist navigate et pas de write tool LLM create-investor.",
+      "Non outillé. La page /admin/customers EXISTE (UI gestion investisseurs) mais n'est PAS dans ADMIN_NAV_DESTINATIONS (8 routes), et aucun write tool create_investor n'existe. Le modèle ne peut donc ni naviguer ni créer. Fix minimal pour ouvrir la surface: ajouter la clé admin-customers à la whitelist navigate. Capacité complète (préremplir): + un write tool create_investor_draft avec confirmation (pattern create_review_note_draft).",
   },
   {
     id: "admin-email-send-action",
@@ -146,7 +146,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le chat doit soit ouvrir une surface outreach dédiée, soit exécuter un flux explicitement confirmé.",
     initialStatus: "red",
     initialNote:
-      "Non outillé dans le chat actuel: pas de route outreach dans la whitelist navigate et aucun write tool email/outreach exposé au LLM.",
+      "Non outillé. La page /admin/outreach EXISTE et une infra email existe ailleurs (sendTrackedEmail, agent outreach-writer) mais sont isolées du chat: pas de route outreach dans la whitelist navigate, aucun write tool email exposé au LLM. Fix (~50 LOC, 3 fichiers): clé admin-outreach dans navigate-tool + write tool email dans ADMIN_WRITE_TOOLS avec confirmation + tests.",
   },
   {
     id: "admin-read-allocations",
@@ -159,7 +159,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat restitue les allocations attendues sans mutation ni invention.",
     initialStatus: "green",
     initialNote:
-      "Read tool branché et couvert par les tests admin tools / registry.",
+      "Read tool branché + couvert par admin-tools-registry/chat-tools route tests. Double voie: (a) panneau admin form via POST /api/admin/chat-tools execute_read — marche flag ON ou OFF; (b) model-driven dans le chat admin — dépend de CHAT_MASTER_AGENT=ON. Le green tient par la voie (a), toujours disponible.",
   },
   {
     id: "admin-read-market-snapshot",
@@ -172,7 +172,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat renvoie les signaux de marche disponibles avec fraicheur honnete.",
     initialStatus: "green",
     initialNote:
-      "Read tool branché et couvert par les tests admin tools / registry.",
+      "Read tool branché + couvert par admin-tools-registry/chat-tools route tests. Double voie: (a) panneau admin form via POST /api/admin/chat-tools execute_read — marche flag ON ou OFF; (b) model-driven dans le chat admin — dépend de CHAT_MASTER_AGENT=ON. Le green tient par la voie (a), toujours disponible.",
   },
   {
     id: "admin-read-routes-index",
@@ -185,7 +185,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat cite les routes pertinentes pour la demo sans sortir du scope.",
     initialStatus: "green",
     initialNote:
-      "Read tool branché et couvert par les tests admin tools / registry.",
+      "Read tool branché + couvert par admin-tools-registry/chat-tools route tests. Double voie: (a) panneau admin form via POST /api/admin/chat-tools execute_read — marche flag ON ou OFF; (b) model-driven dans le chat admin — dépend de CHAT_MASTER_AGENT=ON. Le green tient par la voie (a), toujours disponible.",
   },
   {
     id: "admin-read-specs-index",
@@ -198,7 +198,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat pointe les specs indexees pertinentes.",
     initialStatus: "green",
     initialNote:
-      "Read tool branché et couvert par les tests admin tools / registry.",
+      "Read tool branché + couvert par admin-tools-registry/chat-tools route tests. Double voie: (a) panneau admin form via POST /api/admin/chat-tools execute_read — marche flag ON ou OFF; (b) model-driven dans le chat admin — dépend de CHAT_MASTER_AGENT=ON. Le green tient par la voie (a), toujours disponible.",
   },
   {
     id: "admin-read-runtime-capabilities",
@@ -224,7 +224,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le JSON/tool output contient une spec exploitable avec type, serie, timeframe et provenance.",
     initialStatus: "green",
     initialNote:
-      "Utility admin branchée et testée dans les suites admin controls / registry.",
+      "Utility admin branchée + testée (registry + admin controls). Sortie validée par schéma Zod déterministe. Double voie comme les read tools: panneau form /api/admin/chat-tools (flag-indépendant) + model-driven dans le chat admin (flag-dépendant). Green via la voie form.",
   },
   {
     id: "admin-generate-demo-plan",
@@ -237,7 +237,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat ordonne correctement les etapes et les routes a presenter.",
     initialStatus: "green",
     initialNote:
-      "Utility admin branchée et testée dans les suites admin controls / registry.",
+      "Utility admin branchée + testée (registry + admin controls). Sortie validée par schéma Zod déterministe. Double voie comme les read tools: panneau form /api/admin/chat-tools (flag-indépendant) + model-driven dans le chat admin (flag-dépendant). Green via la voie form.",
   },
   {
     id: "admin-export-demo-pack",
@@ -251,7 +251,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat contient un pack structure avec metadata, plan, charts et checklist.",
     initialStatus: "green",
     initialNote:
-      "Utility admin branchée et testée dans les suites admin controls / registry.",
+      "Utility admin branchée + testée (registry + admin controls). Sortie validée par schéma Zod déterministe. Double voie comme les read tools: panneau form /api/admin/chat-tools (flag-indépendant) + model-driven dans le chat admin (flag-dépendant). Green via la voie form.",
   },
   {
     id: "admin-export-briefing-pack",
@@ -265,7 +265,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat contient un briefing executive exploitable avec synthese et action plan.",
     initialStatus: "green",
     initialNote:
-      "Utility admin branchée et testée dans les suites admin controls / registry.",
+      "Utility admin branchée + testée (registry + admin controls). Sortie validée par schéma Zod déterministe. Double voie comme les read tools: panneau form /api/admin/chat-tools (flag-indépendant) + model-driven dans le chat admin (flag-dépendant). Green via la voie form.",
   },
   {
     id: "admin-create-review-note-draft",

@@ -248,6 +248,19 @@ describe("POST /api/cockpit-chat — master agent nav publish", () => {
       });
     });
   });
+
+  it("publishes Scenario Lab fallback when a standalone simulation intent has no navigate tool call", async () => {
+    mockMasterAgentTurnWithoutNav();
+
+    const res = await POST(makeChatRequest("simuler un stress test BTC bear"));
+
+    expect(res.status).toBe(200);
+    await vi.waitFor(() => {
+      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+        destinationKey: "admin-scenario-lab",
+      });
+    });
+  });
 });
 
 describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", () => {

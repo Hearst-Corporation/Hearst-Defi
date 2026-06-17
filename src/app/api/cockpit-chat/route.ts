@@ -43,6 +43,7 @@ import { ADMIN_NAV_DESTINATIONS } from "@/lib/llm/navigate-tool";
 import {
   classifyProductWorkspaceIntent,
   PRODUCT_WORKSPACE_DESTINATION_KEY,
+  SCENARIO_LAB_DESTINATION_KEY,
   resolveMasterAgentNavPublish,
 } from "@/lib/llm/product-workspace-intent";
 import { withProductChatStreamEvents } from "@/lib/llm/product-chat-stream";
@@ -592,6 +593,34 @@ async function runMasterAgentTurn(args: {
             navProfile,
             message,
             modelDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
+            productWorkspaceNavEnabled,
+          }),
+        );
+        return;
+      }
+
+      // Fallback: for a STANDALONE simulation intent ("simuler un scénario…")
+      // open Scenario Lab even when the model answered in plain text and never
+      // emitted a `navigate` tool call. Scoped to admin + a pure simulation
+      // (not a product intent — those already open the workspace above, with
+      // Scenario Lab carried as secondary metadata), so it mirrors the
+      // product-workspace fallback instead of leaving simulation nav dependent
+      // on the model emitting a tool call.
+      const scenarioLabNavEnabled = ADMIN_NAV_DESTINATIONS.some(
+        (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
+      );
+      if (
+        navProfile === "admin" &&
+        scenarioLabNavEnabled &&
+        productWorkspaceIntent.shouldOpenScenarioLab &&
+        !productWorkspaceIntent.shouldOpenProductWorkspace
+      ) {
+        await publishNav(
+          userId,
+          resolveMasterAgentNavPublish({
+            navProfile,
+            message,
+            modelDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
             productWorkspaceNavEnabled,
           }),
         );
