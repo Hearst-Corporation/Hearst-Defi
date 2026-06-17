@@ -23,7 +23,10 @@ export default async function InvestorMemoPage({
 
   return (
     <div className="admin-doc-shell">
-      <AdminPageHeader title="Investor Memo" />
+      <AdminPageHeader
+        title="Investor Memo"
+        description="Generate a structured investor-facing memo from the selected vault assumptions and current operating posture."
+      />
 
       <MemoShell vaultId={vaultId} vaultName={vault.label} />
     </div>

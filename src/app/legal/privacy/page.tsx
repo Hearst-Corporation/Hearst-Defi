@@ -13,15 +13,15 @@ export default function PrivacyPage() {
   return (
     <>
       <LegalPageHeader title="Privacy Policy" />
-      <p className="legal-meta body-xs ct-text-faint">Draft — pending formal legal review.</p>
+      <p className="legal-meta body-xs ct-text-faint">Current working version for investor review.</p>
 
       <div className="legal-stub">
-        <strong>Engineering draft</strong>
+        <strong>Current review draft</strong>
         <p>
           The structure below reflects the data Hearst Connect actually
           processes (session, KYC, analytics, on-chain transactions). The legal
           language must be reviewed and finalized by qualified counsel before
-          this page is exposed to live investors.
+          this page becomes the final issued privacy notice.
         </p>
       </div>
 

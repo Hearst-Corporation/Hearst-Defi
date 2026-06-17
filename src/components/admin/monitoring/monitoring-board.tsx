@@ -9,8 +9,8 @@ import type { MonitoringStats } from "@/lib/data/monitoring";
 import { formatAdminDateTime } from "@/lib/vaults/product-display";
 
 const EMPTY_COPY = {
-  message: "No agent runs recorded yet.",
-  detail: "LLM agent invocations will appear here after the first run.",
+  message: "No monitoring activity recorded yet.",
+  detail: "Agent runs, traces, and admin-tool activity will appear here after the first execution.",
 } as const;
 
 export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
@@ -31,7 +31,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
       </div>
 
       <section>
-        <DashboardPanelHeader title="Runs by Agent" tone="quiet" className="mb-4" />
+        <DashboardPanelHeader title="Run volume by agent" tone="quiet" className="mb-4" />
         <MonitoringTable
           colSpan={3}
           isEmpty={stats.runsByAgent.length === 0}
@@ -61,7 +61,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
       </section>
 
       <section>
-        <DashboardPanelHeader title="Recent Runs" tone="quiet" className="mb-4" />
+        <DashboardPanelHeader title="Recent agent runs" tone="quiet" className="mb-4" />
         <MonitoringTable
           colSpan={7}
           isEmpty={stats.recentRuns.length === 0}
@@ -118,7 +118,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
       </section>
 
       <section>
-        <DashboardPanelHeader title="Navigate Traces" tone="quiet" className="mb-4" />
+        <DashboardPanelHeader title="Navigation traces" tone="quiet" className="mb-4" />
         <MonitoringTable
           colSpan={6}
           isEmpty={stats.recentNavTraces.length === 0}
@@ -161,7 +161,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
       </section>
 
       <section>
-        <DashboardPanelHeader title="Admin Tool Runs" tone="quiet" className="mb-4" />
+        <DashboardPanelHeader title="Admin tool activity" tone="quiet" className="mb-4" />
         <MonitoringTable
           colSpan={5}
           isEmpty={stats.recentToolRuns.length === 0}

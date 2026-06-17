@@ -20,7 +20,7 @@ export function LoginPanel() {
         <span className="eyebrow ct-text-muted">Investor access</span>
         <h2 className="h2 m-0">Sign in</h2>
         <p className="body-sm ct-text-muted">
-          Access your vaults and portfolio
+          Secure access to your portfolio, proofs, and vault activity
         </p>
       </header>
 

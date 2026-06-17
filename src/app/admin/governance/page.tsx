@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 const TABS = [
   { key: "all", label: "All" },
-  { key: "signing", label: "Awaiting my sig" },
+  { key: "signing", label: "Awaiting my signature" },
   { key: "timelock", label: "Timelock" },
   { key: "executable", label: "Executable" },
 ] as const;
@@ -59,6 +59,7 @@ export default async function GovernancePage({ searchParams }: PageProps) {
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Governance"
+        description="Review operator proposals, signature status, and timelock readiness before execution."
         actions={
           <Button variant="primary" asChild size="md">
             <Link href="/admin/governance/propose">+ New proposal</Link>

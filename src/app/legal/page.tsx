@@ -15,12 +15,13 @@ export default function LegalIndexPage() {
   return (
     <>
       <LegalPageHeader title="Legal" />
-      <p className="legal-meta body-xs ct-text-faint">Effective date — to be finalized.</p>
+      <p className="legal-meta body-xs ct-text-faint">Current reference set for investor review.</p>
       <p>
         Hearst Connect is operated as a Cayman Islands SPV (Hearst Yield Vault).
         The documents below cover privacy, terms of service, and risk
-        disclosures for prospective and existing investors. Each document is a
-        draft engineering version pending formal legal review.
+        disclosures for prospective and existing investors. Final executed
+        versions are issued through the subscription process and formal legal
+        notices.
       </p>
       <nav className="legal-index" aria-label="Legal documents">
         <Link href="/legal/privacy">

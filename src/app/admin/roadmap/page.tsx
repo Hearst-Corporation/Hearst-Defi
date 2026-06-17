@@ -18,6 +18,7 @@ export default async function RoadmapPage() {
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Roadmap"
+        description="Track delivery status, evidence, and blockers against the product roadmap."
         actions={<Badge variant="default">v {version}</Badge>}
       />
       <RoadmapBoard phases={phases} />

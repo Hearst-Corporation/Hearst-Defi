@@ -67,7 +67,7 @@ export default async function ProfilePage() {
       <ProductPageHeader
         eyebrow="Investor profile"
         title={profileDisplayName(session.email)}
-        description={session.email}
+        description="Identity, eligibility status, wallet linkage, and account access settings."
         actions={
           <Badge variant={session.role === "admin" ? "default" : "accent"}>
             {session.role === "admin" ? "Admin" : "Investor"}

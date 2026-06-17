@@ -11,7 +11,10 @@ export default async function MonitoringPage() {
 
   return (
     <div className="admin-doc-shell">
-      <AdminPageHeader title="Monitoring" />
+      <AdminPageHeader
+        title="Monitoring"
+        description="Agent runs, navigation traces, admin tools, and system health in one operator view."
+      />
       <MonitoringBoard stats={stats} />
     </div>
   );

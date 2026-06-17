@@ -188,7 +188,7 @@ export default async function ProductProofCenterPage({
             <DashboardPanelHeader
               id="proof-grid-heading"
               eyebrow="Proof catalog"
-              title="Platform-wide proofs"
+              title="Proof catalog"
               titleLevel="section"
               tone="quiet"
               className="min-w-0 flex-1"
@@ -206,7 +206,7 @@ export default async function ProductProofCenterPage({
       {/* ── Deployed contracts + audit trail ── */}
       <section aria-labelledby="contracts-heading">
         <h2 id="contracts-heading" className="h2 mb-4">
-          Deployments &amp; contract audit trail
+          Contracts &amp; review trail
         </h2>
         <ContractsAuditTrail />
       </section>

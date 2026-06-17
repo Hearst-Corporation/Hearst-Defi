@@ -24,7 +24,7 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
       {mvpPhase ? (
         <Card className="max-w-xl" aria-label="MVP progress" hoverOverlay={false}>
           <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--loose">
-            <span className="stat-label">MVP progress</span>
+            <span className="stat-label">MVP delivery progress</span>
             <span className="mono tabular body-lg ct-text-primary">
               {mvpPhase.doneCount} / {mvpPhase.total} (
               {progressPct(mvpPhase.doneCount, mvpPhase.total)}%)

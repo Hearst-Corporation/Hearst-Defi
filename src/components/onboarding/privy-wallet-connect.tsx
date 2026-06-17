@@ -129,8 +129,8 @@ export function PrivyWalletConnect({ appId, boundAddress = null }: PrivyWalletCo
   if (!appId) {
     return (
       <AwaitingMetricState
-        message="Wallet connection not configured"
-        detail="Set NEXT_PUBLIC_PRIVY_APP_ID to enable Privy wallet binding."
+        message="Wallet connection is not available in this workspace yet"
+        detail="You can continue onboarding now and link a wallet later from Profile once wallet access is enabled."
       />
     );
   }

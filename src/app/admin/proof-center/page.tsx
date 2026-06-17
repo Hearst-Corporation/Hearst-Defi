@@ -77,6 +77,7 @@ export default async function AdminProofCenterPage({
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Proof Center"
+        description="Reserve attestations, on-chain events, and proof documents for operator review."
         actions={
           <ChainStatusBadge
             configured={chainConfigured}
@@ -109,7 +110,7 @@ export default async function AdminProofCenterPage({
       <section aria-labelledby="proof-grid-heading">
         <div className="mb-6 admin-doc-section__head">
           <h2 id="proof-grid-heading" className="h2">
-            Platform-wide proofs
+            Proof catalog
           </h2>
           {proofs.length > 0 ? <ProofFilter /> : null}
         </div>
@@ -122,7 +123,7 @@ export default async function AdminProofCenterPage({
 
       <section aria-labelledby="contracts-heading">
         <h2 id="contracts-heading" className="h2 mb-6">
-          Deployments &amp; contract audit trail
+          Contracts &amp; review trail
         </h2>
         <ContractsAuditTrail />
       </section>

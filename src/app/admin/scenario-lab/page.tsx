@@ -60,6 +60,7 @@ export default async function ScenarioLabPage({
       <AdminPageHeader
         title="Scenario Lab"
         eyebrow={`${vault.label} · ${vault.ticker}`}
+        description="Stress-test the current vault posture and compare scenario outcomes before drafting operator decisions."
         actions={
           <FixtureVaultPills
             activeVaultId={vaultId}

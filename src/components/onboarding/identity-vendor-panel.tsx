@@ -13,15 +13,15 @@ export function IdentityVendorPanel({ isProduction }: { isProduction: boolean })
     >
       <AwaitingMetricState
         variant="inline"
-        message="Identity verification not configured"
+        message="Identity verification is not available in this workspace yet"
         detail={
           isProduction
-            ? "KYC is not available in this environment yet. Contact Investor Relations for assistance."
-            : "Set NEXT_PUBLIC_PERSONA_TEMPLATE_ID to enable the Persona embed in local development."
+            ? "Contact Investor Relations to complete identity review manually."
+            : "Review mode is active until the embedded identity flow is enabled for this workspace."
         }
       />
       {!isProduction ? (
-        <Badge variant="warning">Vendor not configured — dev only</Badge>
+        <Badge variant="warning">Review mode</Badge>
       ) : null}
     </div>
   );

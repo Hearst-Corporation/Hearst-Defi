@@ -50,7 +50,7 @@ function ctaLabel(state: CtaState, amount: number, demo: boolean): string {
     case "no_wallet":
       return "Connect a wallet to continue";
     case "no_vault_config":
-      return "Vault configuration pending";
+      return "Wallet access pending";
     case "enter_amount":
       return "Enter amount to confirm";
     case "accept_terms":
@@ -161,8 +161,8 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
             </Checkbox>
 
             <PanelStatus
-              message="Wallet connection is being configured."
-              detail="Set NEXT_PUBLIC_PRIVY_APP_ID to enable deposits from this environment."
+              message="Wallet connection is not available in this workspace yet."
+              detail="You can review the subscription flow now and continue once wallet access is enabled."
             />
 
             <div className="vault-form-actions">
@@ -195,13 +195,13 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
           <VaultPanelHeader title="Pre-flight check" />
           <div className="vault-panel-body">
             <DataRow label="Wallet">
-              <span className="ct-text-muted">Not configured</span>
+              <span className="ct-text-muted">Not connected yet</span>
             </DataRow>
             <DataRow label="Network">
-              <span className="ct-text-muted">Base Sepolia</span>
+              <span className="ct-text-muted">Available once wallet access is enabled</span>
             </DataRow>
             <DataRow label="Allowance">
-              <span className="ct-text-muted">Pending wallet setup</span>
+              <span className="ct-text-muted">Available after wallet connection</span>
             </DataRow>
             <DataRow label="Epoch">
               <span className="ct-text-muted">Active · closes in 18d · indicative</span>
@@ -317,7 +317,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
     }
 
     if (!VAULT_ADDRESS) {
-      setDepositError("Vault address not configured. Contact support.");
+      setDepositError("Vault access is not available right now. Contact support.");
       setAwaitingConfirm(false);
       return;
     }

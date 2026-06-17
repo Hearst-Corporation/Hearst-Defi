@@ -87,6 +87,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Vaults"
+        description="Review deployment status, capacity usage, target yield ranges, and operator actions across vaults."
         actions={
           <Button variant="primary" asChild size="md">
             <Link href="/admin/vaults/new">+ New deployment</Link>

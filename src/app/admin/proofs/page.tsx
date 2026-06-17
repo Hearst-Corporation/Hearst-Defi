@@ -25,12 +25,12 @@ export default async function ProofsPage() {
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Proofs"
-        description="Paper attestations ingested off-chain. Live on-chain proofs remain tracked separately in Proof Center."
+        description="Off-chain evidence library for paper attestations and documents. On-chain records stay tracked separately in Proof Center."
       />
 
       <section className="admin-doc-stack admin-doc-stack--actions">
         {items.length > 0 ? (
-          <h2 className="h2">Published proofs ({items.length})</h2>
+          <h2 className="h2">Published evidence ({items.length})</h2>
         ) : null}
         <ProofList items={items} />
       </section>

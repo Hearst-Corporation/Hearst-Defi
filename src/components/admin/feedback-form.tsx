@@ -80,13 +80,13 @@ export function FeedbackForm() {
           aria-describedby="feedback-hint"
         />
         <span id="feedback-hint" className="mt-1 block ct-text-muted">
-          Your feedback helps us improve the platform.
+          Capture what changed, what feels off, and what should happen next.
         </span>
       </label>
 
       <div className="flex justify-end">
         <Button type="submit" variant="primary" disabled={isPending} size="sm" aria-busy={isPending}>
-          {isPending ? "Sending…" : "Post feedback"}
+          {isPending ? "Sending…" : "Log feedback"}
         </Button>
       </div>
     </form>

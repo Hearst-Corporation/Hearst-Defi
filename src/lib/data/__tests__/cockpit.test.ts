@@ -218,7 +218,7 @@ describe("buildActionQueue — vault.paused producer", () => {
     expect(first?.severity).toBe("P0");
     expect(first?.href).toBe("/admin/vaults/vd-001");
     expect(first?.title).toContain("Hearst Yield Vault");
-    expect(first?.context).toBe("HYV-A");
+    expect(first?.context).toBe("HYV-A · operator review required");
   });
 
   it("emits no vault.paused items when no paused vaults exist", async () => {

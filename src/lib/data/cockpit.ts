@@ -243,7 +243,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         type: "mining.margin.red",
         severity: "P0",
         title: "Mining margin critical",
-        context: `Margin score ${latestSnapshot.miningMarginScore}/100 — below 15 threshold`,
+        context: `Margin score ${latestSnapshot.miningMarginScore}/100 · below 15 threshold`,
         href: "/admin/dashboard",
         createdAt: latestSnapshot.takenAt.toISOString(),
       });
@@ -261,8 +261,8 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         severity: "P0",
         title: "Oracle feed stale",
         context: latestMetric
-          ? `Last update ${Math.round((now.getTime() - latestMetric.takenAt.getTime()) / 3_600_000)}h ago`
-          : "No oracle data on record",
+          ? `Last market sync ${Math.round((now.getTime() - latestMetric.takenAt.getTime()) / 3_600_000)}h ago`
+          : "No oracle update recorded",
         href: "/admin/monitoring",
         createdAt: latestMetric?.takenAt.toISOString() ?? now.toISOString(),
       });
@@ -285,7 +285,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         type: "rebalance.signal",
         severity: "P1",
         title: "Rebalance signal awaiting action",
-        context: pendingRebalance.triggerText ?? "Engine-proposed rebalancing",
+        context: pendingRebalance.triggerText ?? "Engine trigger armed for operator review",
         href: pendingRebalance.vaultRef
           ? adminSignalsVaultHref(pendingRebalance.vaultRef)
           : "/admin/signals",
@@ -308,7 +308,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         type: "attestation.overdue",
         severity: "P1",
         title: "Attestation overdue",
-        context: `${overdueProof.proofType} proof last posted ${Math.round((now.getTime() - overdueProof.postedAt.getTime()) / 86_400_000)}d ago`,
+        context: `Last mining attestation posted ${Math.round((now.getTime() - overdueProof.postedAt.getTime()) / 86_400_000)}d ago`,
         href: "/admin/proofs",
         createdAt: overdueProof.postedAt.toISOString(),
       });
@@ -332,7 +332,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         type: "multisig.sign",
         severity: "P0",
         title: `Governance proposal requires signatures`,
-        context: `${approvedCount} of ${proposal.requiredSigners} signatures — ${proposal.actionType}`,
+        context: `${approvedCount} of ${proposal.requiredSigners} approvals · ${proposal.actionType}`,
         href: `/admin/governance/proposal/${proposal.id}`,
         createdAt: proposal.createdAt.toISOString(),
       });
@@ -350,7 +350,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         type: "vault.paused",
         severity: "P0",
         title: `Vault paused: ${vault.name}`,
-        context: vault.ticker,
+        context: `${vault.ticker} · operator review required`,
         href: `/admin/vaults/${vault.id}`,
         createdAt: (vault.pausedAt ?? vault.createdAt).toISOString(),
       });
@@ -372,7 +372,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
           type: "distribution.approve",
           severity: "P1",
           title: `Distribution approval pending: ${group.period}`,
-          context: `${count} of ${DISTRIBUTION_REQUIRED_SIGNERS} signers confirmed`,
+          context: `${count} of ${DISTRIBUTION_REQUIRED_SIGNERS} approvals recorded`,
           href: "/admin/distributions",
           createdAt: now.toISOString(),
         });
@@ -403,7 +403,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         type: "kyc.review",
         severity: "P1",
         title: "KYC inquiry needs review",
-        context: `Inquiry ${inquiry.inquiryId}`,
+        context: `Inquiry ${inquiry.inquiryId} · awaiting manual review`,
         href: `/admin/customers`,
         createdAt: inquiry.createdAt.toISOString(),
       });

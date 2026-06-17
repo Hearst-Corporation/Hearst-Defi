@@ -14,15 +14,15 @@ export default function DisclaimerPage() {
   return (
     <>
       <LegalPageHeader title="Risk Disclaimer" />
-      <p className="legal-meta body-xs ct-text-faint">Draft — pending formal legal review.</p>
+      <p className="legal-meta body-xs ct-text-faint">Current working version for investor review.</p>
 
       <div className="legal-stub">
-        <strong>Engineering draft</strong>
+        <strong>Current review draft</strong>
         <p>
           The risk factors below reflect the actual architecture of the product
           (mining-backed yield, USDC distributions, Cayman SPV, custody
           provider, smart contracts on Base). The legal language must be
-          reviewed and finalized by qualified counsel.
+          be finalized by qualified counsel before formal issuance.
         </p>
       </div>
 

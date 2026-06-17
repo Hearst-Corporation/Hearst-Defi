@@ -59,7 +59,10 @@ export default async function CustomersPage({
 
   return (
     <div className="admin-doc-shell">
-      <AdminPageHeader title="Investors" />
+      <AdminPageHeader
+        title="Investors"
+        description="Directory of investor accounts, KYC posture, wallet linkage, and deployed principal."
+      />
 
       <div className="admin-doc-toolbar">
         <div className="admin-doc-inline-row admin-doc-inline-row--actions">
@@ -68,13 +71,13 @@ export default async function CustomersPage({
       </div>
 
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Investors">
-        <h2 className="h2">Directory ({total})</h2>
+        <h2 className="h2">Investor directory ({total})</h2>
 
         {customers.length === 0 ? (
           <EmptySurface
             variant="widget"
             message="No investors yet."
-            detail="Provision an account with the New investor button (top right) — creates a User + Investor profile. Login stays disabled until the person completes password reset."
+            detail="Provision an account with the New investor button — it creates the User and Investor records. Sign-in stays disabled until the password reset flow is completed."
             className="min-h-32"
           >
             <div className="mt-4">

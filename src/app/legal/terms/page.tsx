@@ -15,15 +15,15 @@ export default function TermsPage() {
   return (
     <>
       <LegalPageHeader title="Terms of Service" />
-      <p className="legal-meta body-xs ct-text-faint">Draft — pending formal legal review.</p>
+      <p className="legal-meta body-xs ct-text-faint">Current working version for investor review.</p>
 
       <div className="legal-stub">
-        <strong>Engineering draft</strong>
+        <strong>Current review draft</strong>
         <p>
           The structure below reflects the product mechanics actually
           implemented (Cayman SPV vault, $250k minimum ticket, 60-day soft
           lock-up, monthly USDC distributions). The legal language must be
-          reviewed and finalized by qualified counsel before binding investors.
+          finalized by qualified counsel before becoming the binding execution version.
         </p>
       </div>
 

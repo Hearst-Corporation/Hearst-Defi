@@ -34,7 +34,7 @@ export function CreateInvestorButton() {
   return (
     <form action={onSubmit} className="admin-doc-inset admin-doc-stack admin-doc-stack--actions" aria-label="Create investor">
       <div className="admin-doc-stack admin-doc-stack--tight">
-        <p className="eyebrow">Create investor</p>
+        <p className="eyebrow">Provision investor account</p>
         <div className="admin-doc-form-grid-3">
           <label className="admin-doc-field">
             <span className="stat-label">Email</span>

@@ -41,7 +41,7 @@ export default async function InvestPage({ params }: PageProps) {
       title="Deposit"
       description={
         <span className="body-sm ct-text-muted">
-          {vault.name} · {vault.ticker}
+          {vault.name} · {vault.ticker} · review amount, pre-flight checks, and final confirmation
         </span>
       }
       footer={

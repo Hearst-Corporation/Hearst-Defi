@@ -12,7 +12,10 @@ export default async function SpecIndexPage() {
   }
   return (
     <div className="admin-doc-shell">
-      <AdminPageHeader title="Spec" />
+      <AdminPageHeader
+        title="Spec"
+        description="Browse product and operating specifications that anchor implementation and review."
+      />
       <EmptySurface
         variant="widget"
         message="No spec files found."

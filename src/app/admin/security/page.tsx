@@ -19,13 +19,13 @@ export default async function AdminSecurityPage() {
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Security"
-        description="Manage two-factor authentication and session security."
+        title="Account security"
+        description="Manage administrator sign-in protection and strengthen access control."
       />
 
       <Card className="max-w-lg">
         <DashboardPanelHeader
-          title="Two-factor authentication (TOTP)"
+          title="Two-factor sign-in (TOTP)"
           tone="quiet"
         />
         <p className="body-xs ct-text-muted mb-4">

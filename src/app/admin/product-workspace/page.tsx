@@ -372,6 +372,7 @@ export default async function ProductWorkspacePage({
       <AdminPageHeader
         title="Product Workspace"
         eyebrow="Strategy"
+        description="Frame a vault concept, record assumptions, and prepare supporting material before scenario validation."
         actions={
           <div className="admin-doc-inline-row admin-doc-inline-row--dense">
             <Badge variant={autostart ? "success" : "default"}>
