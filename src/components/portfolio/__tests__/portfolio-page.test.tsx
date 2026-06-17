@@ -466,9 +466,19 @@ describe("YieldStack props — loadYieldStackProps shape", () => {
 // ── Section placement of widgets ─────────────────────────────────────────────
 
 describe("Widget placement in sections", () => {
-  // Section → expected widgets mapping (canonical, mirrors page.tsx structure)
+  // Section → expected widgets mapping (canonical).
+  //
+  // No-scroll dashboard: the top level (/portfolio) renders only the hero-pulse
+  // section + a row of "view more" teaser tiles. Each heavy widget now lives on
+  // its dedicated leaf page, but the data-section + data-testid markers are kept
+  // verbatim so this mapping still holds across the portfolio surface:
+  //   positions        → /portfolio/positions
+  //   yield-allocation  → /portfolio/yield        (capital-yield-widget)
+  //   yield-trust       → /portfolio/activity     (trust-panel-widget)
+  //   activity-payouts  → /portfolio/activity     (recent-activity-widget)
+  //   payout-calendar   → /portfolio/distributions (distrib-calendar-widget)
   const SECTION_WIDGETS: Record<string, string[]> = {
-    // PositionsList — no data-testid; section follows capital-yield in DOM order
+    // PositionsList — no data-testid; lives on /portfolio/positions leaf
     positions: [],
     "hero-pulse": [],
     "yield-allocation": ["capital-yield-widget"],
@@ -504,10 +514,15 @@ describe("Widget placement in sections", () => {
 describe("Forbidden words — section / widget labels must not contain banned terms", () => {
   const FORBIDDEN = ["guarantee", "promise", "certain", "will deliver", "risk-free"];
 
+  // Real UI labels in use: the dashboard hero section, the activity leaf
+  // section, and the four "view more" teaser tile labels.
   const SECTION_LABELS = [
     "Performance & Liquidity",
-    "Yield & Trust Pulse",
-    "Activity & Payouts",
+    "Activity & trust",
+    "Positions",
+    "Yield & allocation",
+    "Distributions",
+    "Activity",
   ];
 
   for (const label of SECTION_LABELS) {

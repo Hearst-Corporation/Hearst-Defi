@@ -8,21 +8,14 @@ import {
   shouldShowNextActionCard,
 } from "@/components/portfolio/next-action-card";
 import { ValueChart } from "@/components/portfolio/value-chart";
-import { PositionsList } from "@/components/portfolio/positions-list";
-import { RecentActivity } from "@/components/portfolio/recent-activity";
-import { TrustProofCompact } from "@/components/portfolio/trust-panel";
-import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
-import { CapitalYield } from "@/components/portfolio/capital-yield";
+import { PortfolioTeaserTile } from "@/components/portfolio/portfolio-teaser-tile";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
 import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
 import {
-  ZERO_YIELD_STACK,
-  buildZeroDistribEntries,
   zeroLockMeterProps,
-  zeroProofPulseProps,
   zeroTimeToCashProps,
 } from "@/lib/portfolio/layout-preview";
 import { cn } from "@/lib/cn";
@@ -33,6 +26,17 @@ export const metadata = {
   title: "Portfolio",
   description: "Your positions and distributions",
 };
+
+const usd0 = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+const monthDay = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  timeZone: "UTC",
+});
 
 function displayName(
   investor: { email: string | null; walletAddress: string | null } | null,
@@ -59,20 +63,29 @@ export default async function PortfolioPage() {
     previewAsOf,
     lockMeterProps,
     timeToCashProps,
-    riskPulseProps,
-    distribCalendarProps,
-    proofPulseProps,
     yieldStackProps,
-    allocationDonutProps,
+    distribCalendarProps,
     showDemoBanner,
     actionFlags,
     portfolioProvenance,
     sectionVariant,
   } = await loadPortfolioView();
 
+  // No-scroll dashboard: the heavy blocks live on the /portfolio/<x> leaf
+  // pages; the top level surfaces an honest one-figure teaser per leaf. Calm
+  // copy when there is no live data — never a fabricated value.
+  const positionCount = data.positions.length;
+  const yieldLive =
+    yieldStackProps.source === "live" && yieldStackProps.blendedHigh > 0;
+  const txCount = data.recentTransactions.length;
+
   return (
     <div
-      className={cn("pf-container", previewZeros && "pf-container--zero")}
+      className={cn(
+        "pf-container",
+        "pf-container--fit",
+        previewZeros && "pf-container--zero",
+      )}
       data-testid="portfolio-page"
     >
       {demo ? (
@@ -129,79 +142,49 @@ export default async function PortfolioPage() {
         </div>
       </ProductSection>
 
-      <div className="pf-section-stack">
-        <div
-          data-section="yield-allocation"
-          data-testid="capital-yield-widget"
-        >
-          <CapitalYield
-            {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
-            buckets={allocationDonutProps.buckets}
-            totalValueUsdc={data.totalValueUsdc}
-            previewZeros={previewZeros}
-          />
-        </div>
-
-        <div data-section="positions">
-          <PositionsList
-            positions={data.positions}
-            source={data.source}
-            updatedAt={data.updatedAt}
-            previewZeros={previewZeros}
-          />
-        </div>
-
-        <ProductSection
-          title="Activity & trust"
-          eyebrow="Activity"
-          provenance={portfolioProvenance}
-          showProvenance={hasPositions}
-          variant={sectionVariant}
-          previewLead={previewZeros ? false : undefined}
-          showPreviewHead={!previewZeros}
-          className="pf-activity-payouts-section"
-          data-section="activity-payouts"
-        >
-          <div className="pf-activity-grid">
-            <div className="pf-activity-grid__cell" data-testid="recent-activity-widget">
-              <RecentActivity
-                transactions={data.recentTransactions}
-                source={data.source}
-                updatedAt={data.updatedAt}
-                previewZeros={previewZeros}
-              />
-            </div>
-            <div
-              className="pf-activity-grid__cell"
-              data-section="yield-trust"
-              data-testid="trust-panel-widget"
-            >
-              <TrustProofCompact
-                risk={riskPulseProps}
-                proof={previewZeros ? zeroProofPulseProps(previewAsOf) : proofPulseProps}
-                previewZeros={previewZeros}
-              />
-            </div>
-          </div>
-        </ProductSection>
-
-        <div
-          className="pf-payout-calendar-slot"
-          data-section="payout-calendar"
-          data-testid="distrib-calendar-widget"
-        >
-          <DistribCalendar
-            {...distribCalendarProps}
-            entries={
-              previewZeros && distribCalendarProps.entries.length === 0
-                ? buildZeroDistribEntries(previewAsOf.getUTCFullYear())
-                : distribCalendarProps.entries
-            }
-            previewZeros={
-              previewZeros && distribCalendarProps.entries.length === 0
-            }
-          />
-        </div>
+      <div className="pf-teaser-grid">
+        <PortfolioTeaserTile
+          href="/portfolio/positions"
+          label="Positions"
+          moreLabel="View all"
+          value={
+            hasPositions
+              ? `${positionCount} ${positionCount === 1 ? "position" : "positions"}`
+              : "No open positions"
+          }
+          meta={
+            hasPositions
+              ? `${usd0.format(data.totalValueUsdc)} total value`
+              : "Start investing"
+          }
+        />
+        <PortfolioTeaserTile
+          href="/portfolio/yield"
+          label="Yield & allocation"
+          moreLabel="Detail"
+          value={
+            yieldLive
+              ? `${yieldStackProps.blendedLow}–${yieldStackProps.blendedHigh}%`
+              : "Pending"
+          }
+          meta={yieldLive ? "Blended APY range" : "Awaiting allocation"}
+        />
+        <PortfolioTeaserTile
+          href="/portfolio/distributions"
+          label="Distributions"
+          moreLabel="Calendar"
+          value={`Next ${monthDay.format(data.nextDistributionAt)}`}
+          meta={distribCalendarProps.cadence ?? "Monthly distributions"}
+        />
+        <PortfolioTeaserTile
+          href="/portfolio/activity"
+          label="Activity"
+          moreLabel="View all"
+          value={txCount > 0 ? `${txCount} recent` : "No activity yet"}
+          meta={
+            txCount > 0 ? "Deposits & distributions" : "Your timeline appears here"
+          }
+        />
       </div>
     </div>
   );
