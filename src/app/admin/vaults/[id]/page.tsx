@@ -25,6 +25,7 @@ import {
   closeVault,
   markAsLive,
   pauseVault,
+  reconcileDeployment,
   rejectDeployment,
   resumeVault,
   signApproval,
@@ -116,6 +117,12 @@ export default async function VaultDetailPage({ params }: PageProps) {
   const actorWallet = admin.walletAddress ?? admin.userId;
   const alreadySigned = vault.approvals.some((a) => a.signerWallet === actorWallet);
   const approveCount = vault.approvals.filter((a) => a.decision === "approve").length;
+  // Distinct approvers — matches reconcileDeployment / signApproval quorum rule.
+  const distinctApproveCount = new Set(
+    vault.approvals.filter((a) => a.decision === "approve").map((a) => a.signerWallet),
+  ).size;
+  const canReconcile =
+    vault.status === "review" && distinctApproveCount >= vault.requiredSigners;
 
   const submitForReviewAction = async () => {
     "use server";
@@ -148,6 +155,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
   const rejectDeploymentAction = async (reason: string) => {
     "use server";
     await rejectDeployment(id, reason);
+  };
+  const reconcileAction = async () => {
+    "use server";
+    await reconcileDeployment(id);
   };
 
   return (
@@ -208,6 +219,26 @@ export default async function VaultDetailPage({ params }: PageProps) {
                 )}
                 {whitelist.includes(actorWallet) && (
                   <RejectDeploymentButton action={rejectDeploymentAction} />
+                )}
+                {canReconcile && (
+                  <VaultActionButton
+                    label="Force reconcile"
+                    variant="secondary"
+                    action={reconcileAction}
+                    confirm={{
+                      title: "Forcer le déploiement ?",
+                      description: (
+                        <>
+                          Le quorum est atteint ({distinctApproveCount}/
+                          {vault.requiredSigners} signataires distincts) mais le
+                          vault est resté en « review ». Cette action le passera
+                          en « deployed ».
+                        </>
+                      ),
+                      confirmLabel: "Forcer le déploiement",
+                      confirmVariant: "primary",
+                    }}
+                  />
                 )}
               </>
             )}
@@ -309,6 +340,28 @@ export default async function VaultDetailPage({ params }: PageProps) {
             {approveCount} / {vault.requiredSigners} required
           </span>
         </div>
+
+        {vault.status === "review" && (
+          <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight">
+            <span className="body-xs ct-text-muted">
+              Votre identifiant de signer (doit figurer dans la whitelist pour
+              que « Sign Approval » apparaisse) :
+            </span>
+            <div className="admin-doc-inline-row admin-doc-inline-row--between">
+              <code className="mono body-xs ct-text-strong break-all">{actorWallet}</code>
+              <span
+                className={cn(
+                  "body-xs font-semibold",
+                  whitelist.includes(actorWallet)
+                    ? "ct-status-success"
+                    : "ct-status-danger",
+                )}
+              >
+                {whitelist.includes(actorWallet) ? "whitelisted" : "not whitelisted"}
+              </span>
+            </div>
+          </div>
+        )}
 
         {vault.approvals.length === 0 ? (
           <PanelStatus message="No signatures yet." />

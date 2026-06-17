@@ -6,8 +6,10 @@ import Link from "next/link";
 
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { ManualSignalTrigger } from "@/components/admin/manual-signal-trigger";
 import { RebalanceCard } from "@/components/admin/rebalance-card";
 import { EmptySurface } from "@/components/ui/empty-surface";
+import { requestManualSignal } from "./actions";
 import { cn } from "@/lib/cn";
 import {
   adminSignalsVaultHref,
@@ -84,15 +86,30 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
     counts.map((c) => [c.status, c._count.id]),
   );
 
+  const isDev = process.env.NODE_ENV === "development";
+
+  const manualSignalAction = async (ruleId: string, scopeVaultId?: string): Promise<string> => {
+    "use server";
+    return requestManualSignal(ruleId, scopeVaultId);
+  };
+
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Rebalancing"
         actions={
-          <FixtureVaultPills
-            activeVaultId={vaultId}
-            resolveHref={adminSignalsVaultHref}
-          />
+          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+            <FixtureVaultPills
+              activeVaultId={vaultId}
+              resolveHref={adminSignalsVaultHref}
+            />
+            {isDev && (
+              <ManualSignalTrigger
+                action={manualSignalAction}
+                vaultId={vaultQuery ?? undefined}
+              />
+            )}
+          </div>
         }
       />
 

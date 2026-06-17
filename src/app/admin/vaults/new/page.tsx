@@ -43,7 +43,8 @@ interface NewVaultPageProps {
 }
 
 export default async function NewVaultPage({ searchParams }: NewVaultPageProps) {
-  await requireAdmin();
+  const admin = await requireAdmin();
+  const adminId = admin.walletAddress ?? admin.userId;
 
   const [draft, params] = await Promise.all([
     loadWizardDraft(),
@@ -118,6 +119,7 @@ export default async function NewVaultPage({ searchParams }: NewVaultPageProps) 
           resumeStep={applyResume}
           resumeForm={applyResumeForm}
           cloneValues={cloneValues}
+          adminId={adminId}
         />
       )}
     </div>

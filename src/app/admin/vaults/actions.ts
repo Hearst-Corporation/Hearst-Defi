@@ -493,6 +493,78 @@ export async function signApproval(
 }
 
 // ---------------------------------------------------------------------------
+// reconcileDeployment (force-promote review → deployed when quorum is met)
+//
+// Safety net for the auto-promotion in signApproval: that path only flips to
+// `deployed` when the LAST approval arrives through the Server Action. If a
+// signer was added out-of-band, or the SA was replayed out of sequence, the
+// vault can stay stuck in `review` despite already having enough distinct
+// `approve` votes. This action re-counts the persisted approvals and promotes
+// if (and only if) the quorum is genuinely satisfied — no votes are fabricated.
+// ---------------------------------------------------------------------------
+
+export async function reconcileDeployment(id: string): Promise<void> {
+  const admin = await requireAdmin();
+
+  try {
+    await assertRateLimit(
+      `admin:vaults:${admin.userId}`,
+      VAULT_RATE_MAX,
+      VAULT_RATE_WINDOW_MS,
+    );
+  } catch {
+    throw new Error("Too many requests");
+  }
+  const actorWallet = admin.walletAddress ?? admin.userId;
+
+  const vault = await prisma.vaultDeployment.findUnique({ where: { id } });
+  if (!vault) throw new Error("Not found");
+  if (vault.status !== "review") {
+    throw new Error(
+      `Cannot reconcile this deployment: status is "${vault.status}" (expected "review").`,
+    );
+  }
+
+  // Count DISTINCT approvers with an `approve` decision — same quorum rule as
+  // signApproval's auto-promotion (Set over signerWallet).
+  const approvals = await prisma.vaultDeploymentApproval.findMany({
+    where: { deploymentId: id, decision: "approve" },
+  });
+  const approveCount = new Set(approvals.map((a) => a.signerWallet)).size;
+
+  if (approveCount < vault.requiredSigners) {
+    throw new Error(
+      `Quorum not met: ${approveCount}/${vault.requiredSigners} distinct approvals. Cannot deploy.`,
+    );
+  }
+
+  try {
+    assertTransition(vault.status, "deployed");
+
+    await prisma.vaultDeployment.update({
+      where: { id },
+      data: { status: "deployed", deployedAt: new Date() },
+    });
+
+    await recordAdminAudit({
+      actorWallet,
+      action: "vault.reconcile",
+      entityType: "VaultDeployment",
+      entityId: id,
+      before: { status: "review" },
+      after: { status: "deployed", approveCount, required: vault.requiredSigners },
+    });
+
+    revalidatePath("/admin/vaults");
+    revalidatePath(`/admin/vaults/${id}`);
+    logger.info("vault deployment reconciled", { vaultId: id, approveCount });
+  } catch (err) {
+    logger.error("reconcileDeployment failed", { id }, err);
+    throw err;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // rejectDeployment (admin hard-reject, pushes back to draft)
 // ---------------------------------------------------------------------------
 

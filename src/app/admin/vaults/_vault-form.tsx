@@ -79,9 +79,15 @@ const FORM_INITIAL: FormState = {
 // Props — discriminated union for create vs edit mode
 // ---------------------------------------------------------------------------
 
-export type VaultFormProps =
+export type VaultFormProps = (
   | { mode: "create"; resumeStep?: Step; resumeForm?: Partial<FormState> }
-  | { mode: "edit"; vaultId: string; initial: FormState };
+  | { mode: "edit"; vaultId: string; initial: FormState }
+) & {
+  /** Authenticated admin's signer identity (walletAddress ?? userId). Surfaced
+   *  in the Governance step so the admin knows what to whitelist to be able to
+   *  sign the deployment later (cf. signApproval actorWallet derivation). */
+  adminId?: string;
+};
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -89,6 +95,19 @@ export type VaultFormProps =
 
 function pct(bps: number) {
   return (bps / 100).toFixed(1);
+}
+
+/**
+ * A signer identity is valid if it is a 0x… Ethereum address OR a 25-char admin
+ * cuid. Mirrors the server-side accepted shapes (cf. GAP 1). An empty value is
+ * "not invalid" (it's just an unfilled slot) so the per-row error only fires on
+ * a genuinely malformed entry; the submit-gate separately requires enough
+ * NON-empty valid entries.
+ */
+function isValidSigner(raw: string): boolean {
+  const v = raw.trim();
+  if (v.length === 0) return true;
+  return /^0x[0-9a-fA-F]{40}$/.test(v) || /^[a-z0-9]{25}$/.test(v);
 }
 
 function inputClass(extra?: string) {
@@ -176,6 +195,26 @@ export function VaultForm(props: VaultFormProps) {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Signer-whitelist validation (drives the Sign & Deploy gate + recap)
+  // ---------------------------------------------------------------------------
+
+  // Non-empty entries only — the persisted payload also strips blanks.
+  const filledSigners = form.signersWhitelist.filter((s) => s.trim().length > 0);
+  const validFilledSigners = filledSigners.filter((s) => isValidSigner(s));
+  const hasMalformedSigner = filledSigners.some((s) => !isValidSigner(s));
+  const distinctValidSignerCount = new Set(
+    validFilledSigners.map((s) => s.trim()),
+  ).size;
+  const adminInWhitelist =
+    props.adminId !== undefined &&
+    filledSigners.some((s) => s.trim() === props.adminId);
+  // Submit is allowed only when every filled entry is well-formed AND there are
+  // at least `requiredSigners` distinct valid signers (mirrors the server Zod
+  // refine: requiredSigners ≤ signersWhitelist.length, min 2 signers).
+  const signersOk =
+    !hasMalformedSigner && distinctValidSignerCount >= form.requiredSigners;
+
   function handleBlur() {
     scheduleAutosave(step, form);
   }
@@ -227,6 +266,25 @@ export function VaultForm(props: VaultFormProps) {
 
   function handleSubmit() {
     setError(null);
+
+    // Client-side gate (the server re-validates): block submission of a
+    // malformed or under-quorum whitelist before round-tripping, with a clear
+    // message instead of the raw Zod issue list.
+    if (hasMalformedSigner) {
+      setError(
+        "One or more signers is malformed. Each must be a 0x… Ethereum address or a 25-char admin id.",
+      );
+      setStep("governance");
+      return;
+    }
+    if (distinctValidSignerCount < form.requiredSigners) {
+      setError(
+        `Need at least ${form.requiredSigners} distinct valid signers — only ${distinctValidSignerCount} provided. Add signers in the Governance step.`,
+      );
+      setStep("governance");
+      return;
+    }
+
     startTransition(async () => {
       const input = buildInput();
 
@@ -583,35 +641,46 @@ export function VaultForm(props: VaultFormProps) {
             <CardTitle>Governance</CardTitle>
 
             <div className="admin-doc-stack admin-doc-stack--actions">
-              <span className="stat-label block">Signers Whitelist (2–5 wallet addresses) *</span>
-              {form.signersWhitelist.map((s, i) => (
-                <div key={i} className="admin-doc-inline-row">
-                  <input
-                    className={inputClass("flex-1")}
-                    value={s}
-                    onChange={(e) => {
-                      const next = [...form.signersWhitelist];
-                      next[i] = e.target.value;
-                      set("signersWhitelist", next);
-                    }}
-                    placeholder={`0x… signer ${i + 1}`}
-                  />
-                  {form.signersWhitelist.length > 2 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      type="button"
-                      onClick={() => {
-                        const next = form.signersWhitelist.filter((_, j) => j !== i);
-                        set("signersWhitelist", next);
-                      }}
-                      aria-label="Remove signer"
-                    >
-                      ✕
-                    </Button>
-                  )}
-                </div>
-              ))}
+              <span className="stat-label block">Signers Whitelist (2–5 signer identities) *</span>
+              {form.signersWhitelist.map((s, i) => {
+                const isValid = isValidSigner(s);
+                return (
+                  <div key={i} className="admin-doc-stack admin-doc-stack--tight">
+                    <div className="admin-doc-inline-row">
+                      <input
+                        className={inputClass("flex-1")}
+                        value={s}
+                        onChange={(e) => {
+                          const next = [...form.signersWhitelist];
+                          next[i] = e.target.value;
+                          set("signersWhitelist", next);
+                        }}
+                        placeholder={`0x… or admin id — signer ${i + 1}`}
+                        aria-invalid={!isValid}
+                      />
+                      {form.signersWhitelist.length > 2 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          type="button"
+                          onClick={() => {
+                            const next = form.signersWhitelist.filter((_, j) => j !== i);
+                            set("signersWhitelist", next);
+                          }}
+                          aria-label="Remove signer"
+                        >
+                          ✕
+                        </Button>
+                      )}
+                    </div>
+                    {!isValid && (
+                      <span className="body-xs ct-status-danger">
+                        Must be a 0x… Ethereum address or a 25-char admin id.
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
               {form.signersWhitelist.length < 5 && (
                 <Button
                   variant="ghost"
@@ -621,6 +690,41 @@ export function VaultForm(props: VaultFormProps) {
                 >
                   + Add signer
                 </Button>
+              )}
+
+              {/* Admin identity helper — what to whitelist so THIS admin can sign.
+                  signApproval derives actorWallet = walletAddress ?? userId; admins
+                  have no walletAddress, so the userId below is the value to add. */}
+              {props.adminId && (
+                <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight">
+                  <span className="body-xs ct-text-muted">
+                    Votre identifiant admin (à whitelister pour pouvoir signer) :
+                  </span>
+                  <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                    <code className="mono body-xs ct-text-strong break-all">{props.adminId}</code>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      type="button"
+                      onClick={() => {
+                        const list = form.signersWhitelist;
+                        if (list.some((s) => s.trim() === props.adminId)) return;
+                        const slot = list.findIndex((s) => s.trim().length === 0);
+                        const next = [...list];
+                        if (slot >= 0) {
+                          next[slot] = props.adminId!;
+                        } else if (next.length < 5) {
+                          next.push(props.adminId!);
+                        } else {
+                          return;
+                        }
+                        set("signersWhitelist", next);
+                      }}
+                    >
+                      Add me
+                    </Button>
+                  </div>
+                </div>
               )}
 
               {/* Required signers — multisig threshold M-of-N */}
@@ -819,11 +923,66 @@ export function VaultForm(props: VaultFormProps) {
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">Required signers</span>
                   <span className="mono tabular body-sm">
-                    {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
+                    {form.requiredSigners} of {filledSigners.length}
                   </span>
                 </div>
               </div>
             </div>
+
+            {/* Signer whitelist recap — surfaces malformed entries and whether
+                THIS admin can sign later (cf. signApproval actorWallet). */}
+            <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight">
+              <span className="stat-label block">Signers whitelist</span>
+              {filledSigners.length === 0 ? (
+                <span className="body-xs ct-status-danger">
+                  No signers added — add at least {form.requiredSigners} in the
+                  Governance step.
+                </span>
+              ) : (
+                <ul className="admin-doc-stack admin-doc-stack--tight">
+                  {filledSigners.map((s, i) => {
+                    const valid = isValidSigner(s);
+                    const isMe =
+                      props.adminId !== undefined && s.trim() === props.adminId;
+                    return (
+                      <li
+                        key={`${s}-${i}`}
+                        className="admin-doc-inline-row admin-doc-inline-row--between"
+                      >
+                        <code className="mono body-xs ct-text-muted break-all">
+                          {s.trim()}
+                          {isMe && (
+                            <span className="ct-text-faint"> (vous)</span>
+                          )}
+                        </code>
+                        {!valid && (
+                          <span className="body-xs ct-status-danger">malformed</span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+
+              {props.adminId !== undefined && !adminInWhitelist && (
+                <p className="body-xs ct-status-danger pt-1">
+                  Votre identifiant ({props.adminId}) n'est pas dans la whitelist —
+                  vous ne pourrez pas signer cette déploiement vous-même.
+                </p>
+              )}
+            </div>
+
+            {!signersOk && (
+              <PanelStatus
+                tone="danger"
+                role="status"
+                message={
+                  hasMalformedSigner
+                    ? "Fix the malformed signer(s) in the Governance step before submitting."
+                    : `Add at least ${form.requiredSigners} distinct valid signers in the Governance step before submitting.`
+                }
+              />
+            )}
 
             <p className="body-xs ct-text-faint">
               Target APY range: {pct(form.targetApyLowBps)}%–{pct(form.targetApyHighBps)}%.
@@ -859,7 +1018,7 @@ export function VaultForm(props: VaultFormProps) {
                 size="md"
                 type="button"
                 onClick={handleSubmit}
-                disabled={isPending || allocTotal() !== 10000}
+                disabled={isPending || allocTotal() !== 10000 || !signersOk}
               >
                 {submitLabel}
               </Button>

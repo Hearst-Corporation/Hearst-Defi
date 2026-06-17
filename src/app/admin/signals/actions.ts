@@ -32,6 +32,24 @@ const ExecuteSchema = z.object({
   eventId: z.string().min(1),
 });
 
+/** Rule ids accepted by the manual/dev signal trigger (mirrors the engine rule
+ *  catalog: R1/R2 generic, R-BTC-1…R-BTC-6 BTC-tactical). */
+const MANUAL_RULE_IDS = [
+  "R1",
+  "R2",
+  "R-BTC-1",
+  "R-BTC-2",
+  "R-BTC-3",
+  "R-BTC-4",
+  "R-BTC-5",
+  "R-BTC-6",
+] as const;
+
+const ManualSignalSchema = z.object({
+  ruleId: z.enum(MANUAL_RULE_IDS),
+  vaultId: z.string().min(1).optional(),
+});
+
 // ---------------------------------------------------------------------------
 // Multisig threshold — default 2 distinct signers required
 // ---------------------------------------------------------------------------
@@ -342,6 +360,78 @@ export async function executeRebalance(eventId: string): Promise<void> {
     revalidatePath("/admin/proof-center");
   } catch (err) {
     logger.error("executeRebalance failed", { eventId }, err);
+    throw err;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// requestManualSignal (dev/demo only)
+//
+// In dev/demo the Inngest Dev Server runs separately; if it is not up, the
+// `risk.daily.completed` cron never fires and the signals queue stays empty.
+// This action seeds a `pending` RebalanceEvent by hand so the approve/reject
+// PTAI flow can be exercised without Inngest. Server-side guarded to dev so a
+// production POST can never fabricate a signal.
+// ---------------------------------------------------------------------------
+
+export async function requestManualSignal(
+  ruleId: string,
+  vaultId?: string,
+): Promise<string> {
+  const admin = await requireAdmin();
+
+  if (process.env.NODE_ENV !== "development") {
+    throw new Error("Manual signal trigger is only available in development.");
+  }
+
+  try {
+    await assertRateLimit(
+      `admin:signals:${admin.userId}`,
+      SIGNAL_RATE_MAX,
+      SIGNAL_RATE_WINDOW_MS,
+    );
+  } catch {
+    throw new Error("Too many requests");
+  }
+
+  const parsed = ManualSignalSchema.safeParse({ ruleId, vaultId });
+  if (!parsed.success) {
+    throw new Error(`Invalid input: ${parsed.error.message}`);
+  }
+  const { ruleId: rule, vaultId: vault } = parsed.data;
+
+  try {
+    const vaultSuffix = vault ? ` for vault ${vault}` : "";
+    const event = await prisma.rebalanceEvent.create({
+      data: {
+        ruleId: rule,
+        status: "pending",
+        sourceEventName: "manual.admin",
+        projection: `[manual] Rule ${rule} would shift the target allocation${vaultSuffix}.`,
+        triggerText: `[manual] Test trigger for rule ${rule}${vaultSuffix} (dev-seeded signal).`,
+        actionText: `[manual] Proposed action: rebalance toward the rule ${rule} target weights.`,
+        impactText: `[manual] Estimated impact: placeholder figures — review before approving.`,
+        fromAllocation: JSON.stringify({}),
+        toAllocation: JSON.stringify({}),
+        approvedBy: "[]",
+      },
+    });
+
+    await recordAdminAudit({
+      actorWallet: admin.walletAddress ?? admin.userId,
+      action: "rebalance.manual_trigger",
+      entityType: "RebalanceEvent",
+      entityId: event.id,
+      before: null,
+      after: { status: "pending", ruleId: rule, vaultId: vault ?? null },
+    });
+
+    logger.info("[signals] manual trigger", { eventId: event.id, ruleId: rule });
+
+    revalidatePath("/admin/signals");
+    return event.id;
+  } catch (err) {
+    logger.error("requestManualSignal failed", { ruleId: rule }, err);
     throw err;
   }
 }

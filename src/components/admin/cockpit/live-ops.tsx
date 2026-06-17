@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { cn } from "@/lib/cn";

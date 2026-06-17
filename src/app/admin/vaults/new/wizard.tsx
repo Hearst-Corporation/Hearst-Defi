@@ -20,13 +20,15 @@ interface VaultWizardProps {
   /** Pre-fill values derived from a ?cloneFrom= query param. Applied after
    *  resumeForm so a persisted draft (explicit resume) takes precedence. */
   cloneValues?: Partial<FormState>;
+  /** Authenticated admin's signer identity, surfaced in the Governance step. */
+  adminId?: string;
 }
 
 /**
  * VaultWizard — thin wrapper kept for backward-compat with new/page.tsx.
  * All form logic lives in `../_vault-form.tsx`.
  */
-export function VaultWizard({ resumeStep, resumeForm, cloneValues }: VaultWizardProps) {
+export function VaultWizard({ resumeStep, resumeForm, cloneValues, adminId }: VaultWizardProps) {
   const router = useRouter();
 
   // P0-04 — pin `?resume=1` into the URL once the wizard is mounted and active.
@@ -53,5 +55,12 @@ export function VaultWizard({ resumeStep, resumeForm, cloneValues }: VaultWizard
       ? { ...cloneValues, ...resumeForm }
       : undefined;
 
-  return <VaultForm mode="create" resumeStep={resumeStep} resumeForm={mergedResume} />;
+  return (
+    <VaultForm
+      mode="create"
+      resumeStep={resumeStep}
+      resumeForm={mergedResume}
+      adminId={adminId}
+    />
+  );
 }

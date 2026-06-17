@@ -17,8 +17,9 @@ interface PageProps {
 }
 
 export default async function EditVaultPage({ params }: PageProps) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const { id } = await params;
+  const adminId = admin.walletAddress ?? admin.userId;
 
   const vault = await prisma.vaultDeployment.findUnique({ where: { id } });
 
@@ -74,7 +75,7 @@ export default async function EditVaultPage({ params }: PageProps) {
         title="Edit Vault Draft"
       />
 
-      <VaultForm mode="edit" vaultId={id} initial={initial} />
+      <VaultForm mode="edit" vaultId={id} initial={initial} adminId={adminId} />
     </div>
   );
 }
