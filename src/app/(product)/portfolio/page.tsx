@@ -173,15 +173,6 @@ export default async function PortfolioPage() {
         </div>
       </ProductSection>
 
-      <div data-section="positions">
-        <PositionsList
-          positions={data.positions}
-          source={data.source}
-          updatedAt={data.updatedAt}
-          previewZeros={previewZeros}
-        />
-      </div>
-
       <div className="pf-section-stack">
         <div
           data-section="yield-allocation"
@@ -191,6 +182,15 @@ export default async function PortfolioPage() {
             {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
             buckets={allocationDonutProps.buckets}
             totalValueUsdc={data.totalValueUsdc}
+            previewZeros={previewZeros}
+          />
+        </div>
+
+        <div data-section="positions">
+          <PositionsList
+            positions={data.positions}
+            source={data.source}
+            updatedAt={data.updatedAt}
             previewZeros={previewZeros}
           />
         </div>

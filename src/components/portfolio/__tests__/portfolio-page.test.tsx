@@ -472,7 +472,7 @@ describe("YieldStack props — loadYieldStackProps shape", () => {
 describe("Widget placement in sections", () => {
   // Section → expected widgets mapping (canonical, mirrors page.tsx structure)
   const SECTION_WIDGETS: Record<string, string[]> = {
-    // PositionsList — no data-testid; section precedes hero in DOM order
+    // PositionsList — no data-testid; section follows capital-yield in DOM order
     positions: [],
     "hero-pulse": [],
     "yield-allocation": ["capital-yield-widget"],
