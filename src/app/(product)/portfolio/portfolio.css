@@ -644,17 +644,37 @@
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: var(--ct-space-3);
-  align-items: start;
+  align-items: stretch;
 }
 
-/* Recent Activity alone — keep 2/3 width, reserve right column for layout balance */
-.pf-activity-grid--lead-only {
-  grid-template-columns: 2fr 1fr;
+.pf-trust-compact {
+  min-height: 100%;
 }
 
-.pf-activity-grid--lead-only > [data-testid="recent-activity-widget"] {
-  grid-column: 1;
+.pf-trust-compact-kpis {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  flex: 1;
+  margin: 0;
+}
+
+.pf-trust-compact-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
   min-width: 0;
+}
+
+.pf-trust-compact-kpi__value {
+  margin: 0;
+  font-size: var(--ct-text-xl);
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-tight);
+}
+
+.pf-trust-compact__see-more {
+  margin-top: auto;
 }
 
 

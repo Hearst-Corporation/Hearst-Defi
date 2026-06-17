@@ -38,28 +38,19 @@ export default function PortfolioLoading() {
         </div>
 
         <ProductSection
-          title="Recent Activity"
+          title="Activity & trust"
           eyebrow="Activity"
           showProvenance={false}
           className="pf-activity-payouts-section"
           data-section="activity-payouts"
         >
-          <div className="pf-activity-grid pf-activity-grid--lead-only">
+          <div className="pf-activity-grid">
             <div className="pf-skeleton-widget--md">
               <Skeleton className="pf-cockpit-panel w-full" />
             </div>
-          </div>
-        </ProductSection>
-
-        <ProductSection
-          title="Yield & Trust Pulse"
-          eyebrow="Trust"
-          showProvenance={false}
-          className="pf-yield-trust-section"
-          data-section="yield-trust"
-        >
-          <div className="pf-skeleton-widget">
-            <Skeleton className="pf-cockpit-panel h-full w-full" />
+            <div className="pf-skeleton-widget--sm" data-section="yield-trust">
+              <Skeleton className="pf-cockpit-panel w-full h-full" />
+            </div>
           </div>
         </ProductSection>
 

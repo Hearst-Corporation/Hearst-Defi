@@ -21,7 +21,7 @@ import {
 import { ValueChart } from "@/components/portfolio/value-chart";
 import { PositionsList } from "@/components/portfolio/positions-list";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
-import { TrustPanel } from "@/components/portfolio/trust-panel";
+import { TrustProofCompact } from "@/components/portfolio/trust-panel";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
@@ -196,7 +196,7 @@ export default async function PortfolioPage() {
         </div>
 
         <ProductSection
-          title="Recent Activity"
+          title="Activity & trust"
           eyebrow="Activity"
           provenance={portfolioProvenance}
           showProvenance={hasPositions}
@@ -206,7 +206,7 @@ export default async function PortfolioPage() {
           className="pf-activity-payouts-section"
           data-section="activity-payouts"
         >
-          <div className="pf-activity-grid pf-activity-grid--lead-only">
+          <div className="pf-activity-grid">
             <div data-testid="recent-activity-widget">
               <RecentActivity
                 transactions={data.recentTransactions}
@@ -215,26 +215,13 @@ export default async function PortfolioPage() {
                 previewZeros={previewZeros}
               />
             </div>
-          </div>
-        </ProductSection>
-
-        <ProductSection
-          title="Yield & Trust Pulse"
-          eyebrow="Trust"
-          provenance={portfolioProvenance}
-          showProvenance={hasPositions}
-          variant={sectionVariant}
-          previewLead={previewZeros ? false : undefined}
-          showPreviewHead={!previewZeros}
-          className="pf-yield-trust-section"
-          data-section="yield-trust"
-        >
-          <div data-testid="trust-panel-widget">
-            <TrustPanel
-              risk={riskPulseProps}
-              proof={previewZeros ? zeroProofPulseProps(previewAsOf) : proofPulseProps}
-              previewZeros={previewZeros}
-            />
+            <div data-section="yield-trust" data-testid="trust-panel-widget">
+              <TrustProofCompact
+                risk={riskPulseProps}
+                proof={previewZeros ? zeroProofPulseProps(previewAsOf) : proofPulseProps}
+                previewZeros={previewZeros}
+              />
+            </div>
           </div>
         </ProductSection>
 

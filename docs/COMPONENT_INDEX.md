@@ -122,7 +122,7 @@
 | `src/components/portfolio/recent-activity.tsx` | RecentActivity | 2 |
 | `src/components/portfolio/risk-pulse.tsx` | ScoreRow, CompositeSection, RiskPulse | 3 |
 | `src/components/portfolio/time-to-cash.tsx` | TimeToCash | 3 |
-| `src/components/portfolio/trust-panel.tsx` | TrustPanel | 1 |
+| `src/components/portfolio/trust-panel.tsx` | TrustProofCompact, TrustPanel | 1 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 4 |
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
 | `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 7 |
@@ -166,7 +166,7 @@
 | `src/components/ui/apy-range.tsx` | ApyRange | 18 |
 | `src/components/ui/awaiting-metric-state.tsx` | AwaitingMetricState | 13 |
 | `src/components/ui/badge.tsx` | Badge | 51 |
-| `src/components/ui/button.tsx` | Button | 80 |
+| `src/components/ui/button.tsx` | Button | 81 |
 | `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 73 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
