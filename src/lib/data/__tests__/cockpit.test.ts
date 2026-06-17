@@ -16,6 +16,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
+vi.mock("next/cache", () => ({
+  unstable_cache: <T extends (...args: never[]) => unknown>(fn: T) => fn,
+}));
+
 // ---------------------------------------------------------------------------
 // Create the mock via vi.hoisted so it is available inside vi.mock factories.
 // ---------------------------------------------------------------------------

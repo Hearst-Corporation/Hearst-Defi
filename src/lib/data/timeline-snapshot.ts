@@ -1,7 +1,10 @@
 import "server-only";
 
 import type { Prisma } from "@prisma/client";
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
+import { ADMIN_DASHBOARD_REVALIDATE_SEC } from "@/lib/data/admin-dashboard-cache";
 import { prisma } from "@/lib/db";
 
 /**
@@ -52,9 +55,56 @@ type TimelineSnapshotFindArgs = {
   select?: Prisma.VaultSnapshotSelect;
 };
 
+async function queryLatestTimelineSnapshot(
+  includeAllocations: boolean,
+  where?: Prisma.VaultSnapshotWhereInput,
+  orderBy?: Prisma.VaultSnapshotOrderByWithRelationInput,
+): Promise<Prisma.VaultSnapshotGetPayload<object> | null> {
+  const baseWhere = { ...timelineSnapshotWhere(), ...where };
+  const baseOrder = orderBy ?? { takenAt: "desc" as const };
+
+  if (includeAllocations) {
+    return prisma.vaultSnapshot.findFirst({
+      where: baseWhere,
+      orderBy: baseOrder,
+      include: { allocations: true },
+    });
+  }
+
+  return prisma.vaultSnapshot.findFirst({
+    where: baseWhere,
+    orderBy: baseOrder,
+  });
+}
+
+const fetchTimelineWithAllocations = unstable_cache(
+  () => queryLatestTimelineSnapshot(true),
+  ["admin-timeline-snapshot", "with-allocations"],
+  {
+    revalidate: ADMIN_DASHBOARD_REVALIDATE_SEC,
+    tags: ["admin-vault-timeline"],
+  },
+);
+
+const fetchTimelineBare = unstable_cache(
+  () => queryLatestTimelineSnapshot(false),
+  ["admin-timeline-snapshot", "bare"],
+  {
+    revalidate: ADMIN_DASHBOARD_REVALIDATE_SEC,
+    tags: ["admin-vault-timeline"],
+  },
+);
+
+/** Request-scoped dedup on top of cross-request timeline cache. */
+const loadLatestTimelineSnapshotCached = cache((includeAllocations: boolean) =>
+  includeAllocations ? fetchTimelineWithAllocations() : fetchTimelineBare(),
+);
+
 /**
  * Latest vault snapshot on the real timeline — shared by dashboard, cockpit,
  * and risk loaders so KPIs never disagree across admin surfaces.
+ *
+ * Default calls are deduplicated per request via `React.cache`.
  */
 export async function loadLatestTimelineSnapshot(
   args: TimelineSnapshotFindArgs & { includeAllocations: true },
@@ -77,16 +127,9 @@ export async function loadLatestTimelineSnapshot(
     });
   }
 
-  if (includeAllocations) {
-    return prisma.vaultSnapshot.findFirst({
-      where: { ...timelineSnapshotWhere(), ...where },
-      orderBy: orderBy ?? { takenAt: "desc" },
-      include: { allocations: true },
-    });
+  if (where || orderBy) {
+    return queryLatestTimelineSnapshot(includeAllocations === true, where, orderBy);
   }
 
-  return prisma.vaultSnapshot.findFirst({
-    where: { ...timelineSnapshotWhere(), ...where },
-    orderBy: orderBy ?? { takenAt: "desc" },
-  });
+  return loadLatestTimelineSnapshotCached(includeAllocations === true);
 }

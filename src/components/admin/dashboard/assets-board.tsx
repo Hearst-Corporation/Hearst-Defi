@@ -26,6 +26,13 @@ import { DashboardKpiStrip } from "./kpi-strip";
 import { NavSlot } from "./nav-slot";
 import { DashboardRiskSummaryCard } from "./risk-summary-card";
 
+/**
+ * Layout scope:
+ * - Vault-scoped (active pill): KPI strip, allocation orbit, NAV, risk summary.
+ * - Platform-wide (not filtered by pill): operator queue, platform status, audit trail.
+ *   LiveMetrics is filtered to `data.vaultMeta.id` only.
+ */
+
 interface DashboardAssetsBoardProps {
   data: DashboardData;
   risk: RiskFrameworkData;
@@ -81,6 +88,8 @@ export function DashboardAssetsBoard({
     operatorQueueProvenance: resolveOperatorQueueProvenance(
       cockpit.actionQueue.length,
       simulated,
+      hasLiveKpis,
+      data.vaultMeta.livePreview,
     ),
     data,
   });

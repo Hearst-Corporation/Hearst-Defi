@@ -82,9 +82,11 @@ describe("dashboard-board-view", () => {
     });
   });
 
-  it("resolveOperatorQueueProvenance reflects Prisma queue vs demo", () => {
+  it("resolveOperatorQueueProvenance never badges platform queue as vault-live", () => {
     expect(resolveOperatorQueueProvenance(0)).toBe("manual");
-    expect(resolveOperatorQueueProvenance(2)).toBe("live");
+    expect(resolveOperatorQueueProvenance(2)).toBe("partial");
+    expect(resolveOperatorQueueProvenance(2, false, true, false)).toBe("partial");
+    expect(resolveOperatorQueueProvenance(2, false, false, true)).toBe("manual");
     expect(resolveOperatorQueueProvenance(2, true)).toBe("simulated");
   });
 

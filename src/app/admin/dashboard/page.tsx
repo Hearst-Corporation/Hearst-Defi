@@ -9,7 +9,8 @@ import { loadDashboardData } from "@/lib/data/dashboard";
 import { loadRiskFramework } from "@/lib/data/risk-framework";
 import { adminDashboardVaultHref } from "@/lib/vaults/dashboard-scope";
 
-export const dynamic = "force-dynamic";
+/** Soft TTL — cross-request caches in loaders revalidate silently in the background. */
+export const revalidate = 30;
 
 interface DashboardPageProps {
   searchParams: Promise<{ vault?: string }>;

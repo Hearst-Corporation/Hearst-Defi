@@ -1,9 +1,12 @@
 import "server-only";
 
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { createPublicClient, http, type Address } from "viem";
 import { mainnet } from "viem/chains";
 
 import { evaluateFreshness, STALE_THRESHOLDS } from "@/lib/data/freshness";
+import { ADMIN_DASHBOARD_REVALIDATE_SEC } from "@/lib/data/admin-dashboard-cache";
 import { captureMessage } from "@/lib/error-tracking";
 
 /**
@@ -163,7 +166,7 @@ async function fetchCoinGecko(): Promise<CoinGeckoResult | null> {
   }
 }
 
-export async function fetchBtcPrice(): Promise<BtcPriceData> {
+async function fetchBtcPriceUncached(): Promise<BtcPriceData> {
   const fetched_at = new Date();
 
   // 1) Try Chainlink first (primary per methodology v1.0).
@@ -234,3 +237,14 @@ export async function fetchBtcPrice(): Promise<BtcPriceData> {
     provenance: "stale",
   };
 }
+
+/** Cross-request cache with per-request dedup on top. */
+const fetchBtcPriceCrossRequest = unstable_cache(
+  fetchBtcPriceUncached,
+  ["admin-btc-price"],
+  { revalidate: ADMIN_DASHBOARD_REVALIDATE_SEC, tags: ["admin-btc-price"] },
+);
+
+export const fetchBtcPrice = cache(
+  async (): Promise<BtcPriceData> => fetchBtcPriceCrossRequest(),
+);

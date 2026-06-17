@@ -15,6 +15,7 @@ import {
 } from "@/lib/agents/loaders/distribution";
 import { loadVaultMonthlyHistory, type VaultMonthlyRow } from "@/lib/agents/loaders/vault";
 import { fetchBtcPrice, type BtcPriceData } from "@/lib/data/btc-price";
+import { loadLatestMiningMetricRow } from "@/lib/data/mining-metric-row";
 import {
   isLiveTimelineSource,
   loadLatestTimelineSnapshot,
@@ -554,13 +555,7 @@ async function safeLoadLatestMining(): Promise<{
   try {
     const [m, row] = await Promise.all([
       loadLatestMiningMetrics(),
-      // `loadLatestMiningMetrics` returns the agent-shaped input; we need the
-      // raw row's `hashpriceTrendPct` + `operationalConfidence`. Pull the row
-      // directly to keep the two values aligned with the latest record.
-      prisma.miningMetric.findFirst({
-        orderBy: { takenAt: "desc" },
-        select: { hashpriceTrendPct: true, operationalConfidence: true },
-      }),
+      loadLatestMiningMetricRow(),
     ]);
     if (row === null) {
       // `loadLatestMiningMetrics` would have thrown, but guard for type safety.

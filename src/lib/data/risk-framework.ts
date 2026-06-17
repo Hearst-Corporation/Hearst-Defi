@@ -1,7 +1,7 @@
 import "server-only";
 
-import { prisma } from "@/lib/db";
 import { fetchBtcPrice } from "@/lib/data/btc-price";
+import { loadLatestMiningMetricRow } from "@/lib/data/mining-metric-row";
 import { loadLatestTimelineSnapshot } from "@/lib/data/timeline-snapshot";
 import { computeRiskBreakdown } from "@/lib/engine/risk";
 import type { ScenarioInputs } from "@/lib/engine/types";
@@ -211,9 +211,7 @@ export async function loadRiskFramework(
 
   const [latestSnapshot, latestMining, btcPrice] = await Promise.all([
     loadLatestTimelineSnapshot({ includeAllocations: true }),
-    prisma.miningMetric.findFirst({
-      orderBy: { takenAt: "desc" },
-    }),
+    loadLatestMiningMetricRow(),
     fetchBtcPrice(),
   ]);
 
@@ -250,7 +248,7 @@ export async function loadRiskFramework(
       : STABLE_APY_PROXY_PCT;
   const usedStableApyProxy = !(usdcBaseAlloc && usdcBasePct > 0);
   // Realised-vol feed is out of MVP scope — vol_index is always a proxy today.
-  const usesMvpInputProxies = usedStableApyProxy || true;
+  const usesVolIndexProxy = true;
 
   if (latestMining === null) {
     return {
@@ -327,7 +325,7 @@ export async function loadRiskFramework(
         ? "partial"
         : "db";
 
-  if (source === "db" && usesMvpInputProxies) {
+  if (source === "db" && (usedStableApyProxy || usesVolIndexProxy)) {
     source = "partial";
   }
 

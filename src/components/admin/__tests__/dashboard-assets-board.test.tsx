@@ -245,6 +245,54 @@ describe("DashboardAssetsBoard — command-center layout", () => {
 
     expect(html).toContain('aria-label="Operator queue: 2"');
     expect(html).not.toContain("All clear — no operator actions queued.");
+    expect(html).not.toContain('Data provenance: Live');
+  });
+
+  it("defensive pill with populated operator queue does not badge queue as Live", () => {
+    const html = renderToStaticMarkup(
+      <DashboardAssetsBoard
+        data={makeData({
+          vaultMeta: {
+            id: "defensive",
+            name: "Hearst Defensive Vault",
+            apyTarget: { low: 6, high: 10 },
+            allocationTargets: {
+              mining: 20,
+              btc_tactical: 0,
+              usdc_base: 50,
+              stable_reserve: 30,
+            },
+            assumptions: [],
+            livePreview: true,
+          },
+        })}
+        risk={RISK}
+        proof={PROOF}
+        capitalUsdc={0}
+        headlineApy={{ low: 6, high: 10 }}
+        yieldPosture="within target band"
+        hasLiveKpis={false}
+        proofFresh={false}
+        cockpit={{
+          ...COCKPIT,
+          actionQueue: [
+            {
+              id: "aq-def-1",
+              type: "oracle.stale",
+              severity: "P0",
+              title: "Oracle feed stale",
+              context: "7h ago",
+              href: "/admin/monitoring",
+              createdAt: "2026-06-01T12:00:00.000Z",
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(html).toContain('aria-label="Operator queue: 1"');
+    expect(html).not.toContain('Data provenance: Live');
+    expect(html).toContain('Data provenance: Manual');
   });
 
   it("renders empty cockpit modules honestly after the vault signal section", () => {

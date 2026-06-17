@@ -1,5 +1,11 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+
+import {
+  ADMIN_DASHBOARD_REVALIDATE_SEC,
+  coerceCachedDate,
+} from "@/lib/data/admin-dashboard-cache";
 import { prisma } from "@/lib/db";
 import { loadCustody } from "@/lib/data/custody";
 import { evaluateFreshness, type FreshnessKind } from "@/lib/data/freshness";
@@ -43,13 +49,7 @@ export interface AdminOverview {
   proof: AdminProofStatus;
 }
 
-/**
- * Loads proof + custody status for the admin dashboard. Never throws on empty
- * data — counts degrade to 0, custody degrades to a manual snapshot.
- */
-export async function loadAdminOverview(): Promise<AdminOverview> {
-  if (canRunDemoProvider()) return buildDemoAdminOverview();
-
+async function loadAdminOverviewFromDb(): Promise<AdminOverview> {
   const [
     latestMiningAttestation,
     attestationsCount,
@@ -79,4 +79,33 @@ export async function loadAdminOverview(): Promise<AdminOverview> {
   };
 
   return { proof };
+}
+
+function hydrateAdminOverview(overview: AdminOverview): AdminOverview {
+  const postedAt = coerceCachedDate(overview.proof.lastMiningAttestationAt);
+  return {
+    proof: {
+      ...overview.proof,
+      lastMiningAttestationAt: postedAt,
+      miningFreshness: evaluateFreshness(postedAt, ATTESTATION_FRESH_MS),
+    },
+  };
+}
+
+const fetchAdminOverviewCached = unstable_cache(
+  loadAdminOverviewFromDb,
+  ["admin-overview"],
+  {
+    revalidate: ADMIN_DASHBOARD_REVALIDATE_SEC,
+    tags: ["admin-overview"],
+  },
+);
+
+/**
+ * Loads proof + custody status for the admin dashboard. Never throws on empty
+ * data — counts degrade to 0, custody degrades to a manual snapshot.
+ */
+export async function loadAdminOverview(): Promise<AdminOverview> {
+  if (canRunDemoProvider()) return buildDemoAdminOverview();
+  return hydrateAdminOverview(await fetchAdminOverviewCached());
 }

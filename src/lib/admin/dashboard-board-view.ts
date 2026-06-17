@@ -45,14 +45,22 @@ export function resolveProofProvenance(
   return "manual";
 }
 
-/** Operator queue KPI — count is always from `cockpit.actionQueue` (Prisma-derived when not demo). */
+/**
+ * Operator queue KPI — count is always from `cockpit.actionQueue` (platform-wide,
+ * Prisma-derived when not demo). Never badge as vault-scoped `live`: the queue is
+ * not filtered by the active vault pill.
+ */
 export function resolveOperatorQueueProvenance(
   count: number,
   simulated?: boolean,
+  hasLiveKpis = false,
+  livePreview = false,
 ): Provenance {
   if (simulated) return "simulated";
   if (count === 0) return "manual";
-  return "live";
+  if (livePreview) return "manual";
+  // Platform-wide queue — not vault-scoped (`hasLiveKpis` gates other KPIs only).
+  return "partial";
 }
 
 export function computeNavDelta(

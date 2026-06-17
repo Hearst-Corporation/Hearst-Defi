@@ -140,7 +140,7 @@ export async function setSessionCookie(
  * verifies it has not expired. Returns null when absent / unknown / expired.
  * Expired sessions are deleted opportunistically.
  */
-export async function getSession(): Promise<SessionUser | null> {
+async function resolveSession(): Promise<SessionUser | null> {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value;
   if (!token) {
@@ -180,6 +180,9 @@ export async function getSession(): Promise<SessionUser | null> {
     walletAddress: session.user.investor?.walletAddress ?? null,
   };
 }
+
+/** Request-scoped dedup — admin layout + page gates share one session read. */
+export const getSession = cache(resolveSession);
 
 /**
  * Destroys the current session: deletes the DB row (if present) and clears the

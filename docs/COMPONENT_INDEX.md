@@ -189,7 +189,7 @@
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/section-embed.tsx` | SectionEmbedProvider | 1 |
 | `src/components/ui/segmented-control.tsx` | SegmentedControl | 2 |
-| `src/components/ui/skeleton.tsx` | Skeleton, SkeletonCard | 31 |
+| `src/components/ui/skeleton.tsx` | Skeleton, SkeletonCard | 30 |
 | `src/components/ui/toaster.tsx` | Toaster | 1 |
 | `src/components/ui/tooltip.tsx` | Tooltip | 5 |
 | `src/components/ui/widget-panel-header.tsx` | WidgetPanelHeader | 2 |

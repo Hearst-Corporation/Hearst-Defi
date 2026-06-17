@@ -1,6 +1,10 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+
+import { ADMIN_DASHBOARD_REVALIDATE_SEC } from "@/lib/data/admin-dashboard-cache";
 import { prisma } from "@/lib/db";
+import { loadLatestMiningMetricRow } from "@/lib/data/mining-metric-row";
 import { loadLatestTimelineSnapshot } from "@/lib/data/timeline-snapshot";
 import {
   adminDashboardVaultHref,
@@ -235,10 +239,75 @@ async function inferSentryStats(): Promise<SentryStats> {
 async function buildActionQueue(): Promise<ActionQueueItem[]> {
   const items: ActionQueueItem[] = [];
   const now = new Date();
+  const staleCutoff6h = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+  const stale30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const DISTRIBUTION_REQUIRED_SIGNERS = 2;
 
   try {
-    // ── P0: Mining margin red (latest snapshot miningMarginScore < 15) ──────
-    const latestSnapshot = await loadLatestTimelineSnapshot();
+    const [
+      latestSnapshot,
+      latestMetric,
+      pendingRebalance,
+      overdueProof,
+      signingProposals,
+      pausedVaults,
+      pendingApprovalGroups,
+      approvedInvestorUserIds,
+    ] = await Promise.all([
+      loadLatestTimelineSnapshot(),
+      loadLatestMiningMetricRow(),
+      prisma.rebalanceEvent.findFirst({
+        where: { status: "pending" },
+        orderBy: { triggeredAt: "desc" },
+        select: {
+          id: true,
+          triggeredAt: true,
+          triggerText: true,
+          vaultRef: true,
+        },
+      }),
+      prisma.proof.findFirst({
+        where: {
+          proofType: "mining_attestation",
+          postedAt: { lt: stale30d },
+        },
+        orderBy: { postedAt: "asc" },
+      }),
+      prisma.governanceProposal.findMany({
+        where: { state: "SIGNING" },
+        include: {
+          signatures: {
+            where: { decision: "approve" },
+            select: { signerAddress: true },
+          },
+        },
+        orderBy: { createdAt: "asc" },
+      }),
+      prisma.vaultDeployment.findMany({
+        where: { status: "paused" },
+        orderBy: { pausedAt: "asc" },
+        select: { id: true, name: true, ticker: true, pausedAt: true, createdAt: true },
+      }),
+      prisma.distributionApproval.groupBy({
+        by: ["period"],
+        _count: { signerWallet: true },
+      }),
+      prisma.investor.findMany({
+        where: { kycStatus: "approved" },
+        select: { userId: true },
+      }),
+    ]);
+
+    const pendingKyc = await prisma.kycInquiry.findMany({
+      where: {
+        userId: {
+          notIn: approvedInvestorUserIds.map((row) => row.userId),
+        },
+      },
+      orderBy: { createdAt: "asc" },
+      take: 20,
+    });
+
     if (latestSnapshot && latestSnapshot.miningMarginScore < 15) {
       items.push({
         id: "mining-margin-red",
@@ -251,11 +320,6 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
       });
     }
 
-    // ── P0: Oracle stale (latest MiningMetric > 6h old) ─────────────────────
-    const latestMetric = await prisma.miningMetric.findFirst({
-      orderBy: { takenAt: "desc" },
-    });
-    const staleCutoff6h = new Date(now.getTime() - 6 * 60 * 60 * 1000);
     if (!latestMetric || latestMetric.takenAt < staleCutoff6h) {
       items.push({
         id: "oracle-stale",
@@ -270,17 +334,6 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
       });
     }
 
-    // ── P1: Rebalance signal awaiting action (status = "pending") ────────────
-    const pendingRebalance = await prisma.rebalanceEvent.findFirst({
-      where: { status: "pending" },
-      orderBy: { triggeredAt: "desc" },
-      select: {
-        id: true,
-        triggeredAt: true,
-        triggerText: true,
-        vaultRef: true,
-      },
-    });
     if (pendingRebalance) {
       items.push({
         id: `rebalance-${pendingRebalance.id}`,
@@ -295,15 +348,6 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
       });
     }
 
-    // ── P1: Attestation overdue (most recent mining proof > 30d old) ─────────
-    const stale30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    const overdueProof = await prisma.proof.findFirst({
-      where: {
-        proofType: "mining_attestation",
-        postedAt: { lt: stale30d },
-      },
-      orderBy: { postedAt: "asc" },
-    });
     if (overdueProof) {
       items.push({
         id: `attestation-overdue-${overdueProof.id}`,
@@ -316,17 +360,6 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
       });
     }
 
-    // ── P0: Multisig proposals in SIGNING state (awaiting required signatures) ──
-    const signingProposals = await prisma.governanceProposal.findMany({
-      where: { state: "SIGNING" },
-      include: {
-        signatures: {
-          where: { decision: "approve" },
-          select: { signerAddress: true },
-        },
-      },
-      orderBy: { createdAt: "asc" },
-    });
     for (const proposal of signingProposals) {
       const approvedCount = proposal.signatures.length;
       items.push({
@@ -340,12 +373,6 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
       });
     }
 
-    // ── P0: Vault deployments with status "paused" ───────────────────────────
-    const pausedVaults = await prisma.vaultDeployment.findMany({
-      where: { status: "paused" },
-      orderBy: { pausedAt: "asc" },
-      select: { id: true, name: true, ticker: true, pausedAt: true, createdAt: true },
-    });
     for (const vault of pausedVaults) {
       items.push({
         id: `vault-paused-${vault.id}`,
@@ -358,14 +385,6 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
       });
     }
 
-    // ── P1: Distribution periods with approvals started but below threshold ──
-    // Mirror of distributions/actions.ts: REQUIRED_SIGNERS = 2.
-    // A period is actionable when at least one approval exists but count < threshold.
-    const DISTRIBUTION_REQUIRED_SIGNERS = 2;
-    const pendingApprovalGroups = await prisma.distributionApproval.groupBy({
-      by: ["period"],
-      _count: { signerWallet: true },
-    });
     for (const group of pendingApprovalGroups) {
       const count = group._count.signerWallet;
       if (count < DISTRIBUTION_REQUIRED_SIGNERS) {
@@ -381,24 +400,6 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
       }
     }
 
-    // ── P1: KYC inquiries that need admin review ─────────────────────────────
-    // KycInquiry rows represent server-claimed inquiry links (created before the
-    // webhook arrives). Rows with no matching approved KycEvent are flagged for
-    // review. We proxy this by looking for KycInquiry rows whose userId does not
-    // map to an Investor with kycStatus "approved".
-    const pendingKyc = await prisma.kycInquiry.findMany({
-      where: {
-        userId: {
-          // Exclude investors already fully approved
-          notIn: await prisma.investor.findMany({
-            where: { kycStatus: "approved" },
-            select: { userId: true },
-          }).then((rows) => rows.map((r) => r.userId)),
-        },
-      },
-      orderBy: { createdAt: "asc" },
-      take: 20,
-    });
     for (const inquiry of pendingKyc) {
       items.push({
         id: `kyc-review-${inquiry.inquiryId}`,
@@ -435,7 +436,7 @@ async function buildVaultMetrics(): Promise<VaultLiveMetric[]> {
     const [vaultRefs, latestSnapshot, latestMetric] = await Promise.all([
       listAllVaults({ status: "live-or-paused" }),
       loadLatestTimelineSnapshot(),
-      prisma.miningMetric.findFirst({ orderBy: { takenAt: "desc" } }),
+      loadLatestMiningMetricRow(),
     ]);
 
     const oracleDelayMs = latestMetric
@@ -557,9 +558,7 @@ async function buildAuditTrail(): Promise<AuditTrailEntry[]> {
 // Main entry — load everything in parallel
 // ---------------------------------------------------------------------------
 
-export async function loadCockpitPayload(): Promise<CockpitPayload> {
-  if (canRunDemoProvider()) return buildDemoCockpitPayload();
-
+async function loadCockpitPayloadFromDb(): Promise<CockpitPayload> {
   const [actionQueue, vaultMetrics, inngestJobs, sentryStats, onChainEvents, auditTrail] =
     await Promise.all([
       buildActionQueue(),
@@ -578,4 +577,18 @@ export async function loadCockpitPayload(): Promise<CockpitPayload> {
     onChainEvents,
     auditTrail,
   };
+}
+
+const fetchCockpitPayloadCached = unstable_cache(
+  loadCockpitPayloadFromDb,
+  ["admin-cockpit-payload"],
+  {
+    revalidate: ADMIN_DASHBOARD_REVALIDATE_SEC,
+    tags: ["admin-cockpit"],
+  },
+);
+
+export async function loadCockpitPayload(): Promise<CockpitPayload> {
+  if (canRunDemoProvider()) return buildDemoCockpitPayload();
+  return fetchCockpitPayloadCached();
 }

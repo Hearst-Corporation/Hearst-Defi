@@ -1,6 +1,6 @@
-// No skeleton — the dashboard is force-dynamic and loads all data in one pass.
-// A skeleton here blocks the render when the SSR Suspense boundary times out
-// in dev (Turbopack), leaving the loading state permanently visible.
+// Keep the previous dashboard paint during soft navigations (vault pills, return
+// from another admin route). Data still refreshes via unstable_cache in the
+// loaders — no skeleton swap that unmounts the live board.
 export default function DashboardLoading() {
   return null;
 }
