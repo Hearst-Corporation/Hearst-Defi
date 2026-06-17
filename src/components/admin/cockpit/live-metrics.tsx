@@ -27,19 +27,19 @@ export function LiveMetrics({ vaults }: LiveMetricsProps) {
   if (vaults.length === 0) {
     return (
       <div className="dashboard-command-cell dashboard-command-cell--awaiting">
-        <DashboardPanelHeader title="Live metrics" tone="quiet" />
+        <DashboardPanelHeader title="Vault health" tone="quiet" />
         <EmptySurface
           variant="inline"
           message="No vault telemetry yet."
-          ariaLabel="Live metrics"
+          ariaLabel="Vault health"
         />
       </div>
     );
   }
 
   return (
-    <div aria-label="Live metrics" className="dashboard-command-cell dashboard-live-metrics">
-      <DashboardPanelHeader title="Live metrics" tone="quiet" />
+    <div aria-label="Vault health" className="dashboard-command-cell dashboard-live-metrics">
+      <DashboardPanelHeader title="Vault health" tone="quiet" />
       <div className="dashboard-command-divide-stack">
         {vaults.map((vault) => (
           <VaultMetricRow key={vault.vaultId} vault={vault} />

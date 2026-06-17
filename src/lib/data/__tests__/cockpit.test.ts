@@ -148,6 +148,40 @@ describe("buildActionQueue — multisig.sign producer", () => {
   });
 });
 
+describe("buildActionQueue — rebalance.signal producer", () => {
+  beforeEach(resetAllMocks);
+
+  it("scopes the signals href to the pending rebalance vault when available", async () => {
+    prismaMock.rebalanceEvent.findFirst.mockResolvedValue({
+      id: "reb-001",
+      triggeredAt: new Date("2026-06-01T10:00:00Z"),
+      triggerText: "Defensive posture breached threshold",
+      vaultRef: "defensive",
+    });
+
+    const { actionQueue } = await loadCockpitPayload();
+    const item = actionQueue.find((i) => i.type === "rebalance.signal");
+
+    expect(item).toBeDefined();
+    expect(item?.href).toBe("/admin/signals?vault=defensive");
+  });
+
+  it("falls back to the base signals route when vault scope is absent", async () => {
+    prismaMock.rebalanceEvent.findFirst.mockResolvedValue({
+      id: "reb-002",
+      triggeredAt: new Date("2026-06-01T10:00:00Z"),
+      triggerText: "Legacy pending signal",
+      vaultRef: null,
+    });
+
+    const { actionQueue } = await loadCockpitPayload();
+    const item = actionQueue.find((i) => i.type === "rebalance.signal");
+
+    expect(item).toBeDefined();
+    expect(item?.href).toBe("/admin/signals");
+  });
+});
+
 // ---------------------------------------------------------------------------
 // 2. vault.paused — VaultDeployment with status "paused"
 // ---------------------------------------------------------------------------

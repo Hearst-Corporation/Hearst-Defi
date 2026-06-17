@@ -40,6 +40,8 @@ import type { ScenarioInputs, VaultMode } from "./types";
 // ---------------------------------------------------------------------------
 
 export interface VaultStateForSignal {
+  /** Optional vault scope persisted on the resulting RebalanceEvent row. */
+  vaultRef?: string | null;
   /** Inputs in the engine's pure shape. */
   scenarioInputs: ScenarioInputs;
   /** Resolved vault mode (defensive | balanced | opportunistic). */

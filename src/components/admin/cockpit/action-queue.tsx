@@ -14,12 +14,12 @@ const ACTION_LABELS: Record<string, string> = {
   "oracle.stale": "Refresh oracle",
   "vault.paused": "Vault paused",
   "distribution.approve": "Approve distribution",
-  "kyc.review": "KYC review",
-  "lp.redemption": "LP redemption",
-  "rebalance.signal": "Rebalance",
+  "kyc.review": "Review KYC",
+  "lp.redemption": "Review redemption",
+  "rebalance.signal": "Review signal",
   "memo.publish": "Publish memo",
-  "mining.margin.red": "Mining margin",
-  "attestation.overdue": "Attestation",
+  "mining.margin.red": "Review margin",
+  "attestation.overdue": "Review proof",
 };
 
 /**
@@ -33,19 +33,19 @@ export function ActionQueue({ items }: ActionQueueProps) {
   if (items.length === 0) {
     return (
       <div className="dashboard-command-cell dashboard-command-cell--awaiting">
-        <DashboardPanelHeader title="Action queue" tone="quiet" />
+        <DashboardPanelHeader title="Operator queue" tone="quiet" />
         <EmptySurface
           variant="inline"
-          message="All clear — no pending actions."
-          ariaLabel="Action queue"
+          message="All clear — no operator actions queued."
+          ariaLabel="Operator queue"
         />
       </div>
     );
   }
 
   return (
-    <div aria-label="Action queue" className="dashboard-command-cell">
-      <DashboardPanelHeader title="Action queue" tone="quiet" />
+    <div aria-label="Operator queue" className="dashboard-command-cell">
+      <DashboardPanelHeader title="Operator queue" tone="quiet" />
       <ul className="dashboard-command-divide-stack" role="list">
         {items.map((item) => (
           <ActionRow key={item.id} item={item} />

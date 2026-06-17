@@ -52,6 +52,14 @@ const TABS: { label: string; value: StatusFilter }[] = [
   { label: "All", value: "all" },
 ];
 
+function signalVaultScopeWhere(vaultId: string): Prisma.RebalanceEventWhereInput {
+  return vaultId === "yield"
+    ? {
+        OR: [{ vaultRef: "yield" }, { vaultRef: null }],
+      }
+    : { vaultRef: vaultId };
+}
+
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
@@ -67,9 +75,12 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
   const activeStatus = toFilter(params.status);
   const vaultId = resolveFixtureVaultId(params.vault);
   const vaultQuery = params.vault ?? null;
+  const vaultScope = signalVaultScopeWhere(vaultId);
 
-  const where: Prisma.RebalanceEventWhereInput =
-    activeStatus === "all" ? {} : { status: activeStatus };
+  const where: Prisma.RebalanceEventWhereInput = {
+    ...vaultScope,
+    ...(activeStatus === "all" ? {} : { status: activeStatus }),
+  };
 
   const events = await prisma.rebalanceEvent.findMany({
     where,
@@ -79,6 +90,7 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
 
   // Count badges per status
   const counts = await prisma.rebalanceEvent.groupBy({
+    where: vaultScope,
     by: ["status"],
     _count: { id: true },
   });
@@ -106,7 +118,7 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
             {isDev && (
               <ManualSignalTrigger
                 action={manualSignalAction}
-                vaultId={vaultQuery ?? undefined}
+                vaultId={vaultId}
               />
             )}
           </div>
@@ -143,7 +155,7 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
         <EmptySurface
           variant="widget"
           message={`No rebalance signals with status "${activeStatus}".`}
-          detail="Signals are created automatically by the Inngest rebalancing-signal function when engine rules fire."
+          detail="Signals for the selected vault are created automatically by the Inngest rebalancing-signal function when engine rules fire."
           className="min-h-32"
         />
       ) : (

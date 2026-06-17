@@ -2,7 +2,10 @@ import "server-only";
 
 import { prisma } from "@/lib/db";
 import { loadLatestTimelineSnapshot } from "@/lib/data/timeline-snapshot";
-import { adminDashboardVaultHref } from "@/lib/vaults/dashboard-scope";
+import {
+  adminDashboardVaultHref,
+  adminSignalsVaultHref,
+} from "@/lib/vaults/dashboard-scope";
 import { listAllVaults } from "@/lib/vaults/resolver";
 import { vaultLabel, vaultSlug } from "@/lib/vaults/slug";
 import { canRunDemoProvider } from "@/lib/demo/guard";
@@ -269,6 +272,12 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
     const pendingRebalance = await prisma.rebalanceEvent.findFirst({
       where: { status: "pending" },
       orderBy: { triggeredAt: "desc" },
+      select: {
+        id: true,
+        triggeredAt: true,
+        triggerText: true,
+        vaultRef: true,
+      },
     });
     if (pendingRebalance) {
       items.push({
@@ -277,7 +286,9 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         severity: "P1",
         title: "Rebalance signal awaiting action",
         context: pendingRebalance.triggerText ?? "Engine-proposed rebalancing",
-        href: "/admin/signals",
+        href: pendingRebalance.vaultRef
+          ? adminSignalsVaultHref(pendingRebalance.vaultRef)
+          : "/admin/signals",
         createdAt: pendingRebalance.triggeredAt.toISOString(),
       });
     }

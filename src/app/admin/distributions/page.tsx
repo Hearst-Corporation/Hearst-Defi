@@ -27,6 +27,16 @@ const LEGACY_VAULT_LABELS: Record<string, string> = {
   "hearst-yield-vault": "Hearst Yield Vault",
 };
 
+function matchesDistributionVaultScope(
+  entryVaultRef: string | null,
+  activeVaultId: string,
+): boolean {
+  if (activeVaultId === "yield") {
+    return entryVaultRef === "yield" || entryVaultRef === "hearst-yield-vault";
+  }
+  return entryVaultRef === activeVaultId;
+}
+
 export default async function DistributionsPage({
   searchParams,
 }: DistributionsPageProps) {
@@ -35,10 +45,11 @@ export default async function DistributionsPage({
   const params = await searchParams;
   const vaultId = resolveFixtureVaultId(params.vault);
 
-  const [history, allVaults] = await Promise.all([
+  const [rawHistory, allVaults] = await Promise.all([
     canRunDemoProvider()
       ? Promise.resolve(buildDemoDistributions())
       : prisma.distribution.findMany({
+          where: { vaultRef: vaultId },
           orderBy: { distributedAt: "desc" },
           take: 6,
         }),
@@ -55,6 +66,10 @@ export default async function DistributionsPage({
   const vaultLabelBySlug = new Map<string, string>(
     vaultOptions.map((o) => [o.value, o.label]),
   );
+  const history = rawHistory.filter((entry) =>
+    matchesDistributionVaultScope(entry.vaultRef, vaultId),
+  );
+  const activeVaultLabel = vaultLabelBySlug.get(vaultId) ?? vaultId;
 
   return (
     <div className="admin-doc-shell">
@@ -69,17 +84,17 @@ export default async function DistributionsPage({
       />
 
       {/* Compute + confirm form (client) */}
-      <DistributionForm vaultOptions={vaultOptions} />
+      <DistributionForm vaultOptions={vaultOptions} initialVault={vaultId} />
 
       {/* Distribution history */}
       <section className="admin-doc-stack admin-doc-stack--actions">
-        <h2 className="h2">History (last 6)</h2>
+        <h2 className="h2">History ({activeVaultLabel})</h2>
 
         {history.length === 0 ? (
           <EmptySurface
             variant="widget"
-            message="No distributions yet."
-            detail="Confirmed distributions will appear here after multisig approval."
+            message={`No distributions yet for ${activeVaultLabel}.`}
+            detail="Confirmed distributions for this vault will appear here after multisig approval."
             className="min-h-32"
           />
         ) : (

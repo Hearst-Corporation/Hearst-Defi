@@ -36,18 +36,27 @@ export interface VaultOption {
 export interface DistributionFormProps {
   /** Vault list built on the server via listAllVaults({ status: "live-or-paused" }). */
   vaultOptions: VaultOption[];
+  /** Optional preselected vault slug from the current admin scope. */
+  initialVault?: string;
 }
 
 // ---------------------------------------------------------------------------
 // DistributionForm
 // ---------------------------------------------------------------------------
 
-export function DistributionForm({ vaultOptions }: DistributionFormProps) {
+export function DistributionForm({
+  vaultOptions,
+  initialVault,
+}: DistributionFormProps) {
   const [isPending, startTransition] = useTransition();
   const [period, setPeriod] = useState(getCurrentPeriod);
   const [totalUsdc, setTotalUsdc] = useState("");
+  const defaultVault =
+    initialVault && vaultOptions.some((option) => option.value === initialVault)
+      ? initialVault
+      : (vaultOptions[0]?.value ?? "");
   const [selectedVault, setSelectedVault] = useState(
-    vaultOptions[0]?.value ?? "",
+    defaultVault,
   );
   const [preview, setPreview] = useState<ComputeDistributionResult | null>(
     null,

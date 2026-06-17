@@ -26,7 +26,7 @@ export function NavSlot({
     <div className="dashboard-command-slot dashboard-command-slot--nav dashboard-nav-slot">
       <header className="dashboard-nav-slot__header">
         <div className="min-w-0">
-          <h3 className="h3 ct-text-body m-0">NAV · 30d</h3>
+          <h3 className="h3 ct-text-body m-0">NAV trend · 30d</h3>
           <p className="dashboard-nav-slot__value stat-value tabular">
             {lastNav !== null ? dashboardUsdCompact.format(lastNav) : "—"}
           </p>

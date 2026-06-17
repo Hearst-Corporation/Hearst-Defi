@@ -136,6 +136,10 @@ model RebalanceEvent {
   id              String   @id @default(cuid())
   executedAt      DateTime @default(now())
   ruleId          String // e.g. "R2", "R-BTC-3"
+  // Vault reference — engine fixture id (`yield`, `defensive`, `btc-plus`) or
+  // future deployment slug. Optional for backward compatibility with historical
+  // rows created before the per-vault scope was persisted.
+  vaultRef        String?
   triggerText     String // plain English — PTAI Trigger
   actionText      String // PTAI Action
   impactText      String // PTAI Impact
@@ -151,6 +155,7 @@ model RebalanceEvent {
 
   @@index([executedAt])
   @@index([status, triggeredAt])
+  @@index([vaultRef])
 }
 
 model Distribution {

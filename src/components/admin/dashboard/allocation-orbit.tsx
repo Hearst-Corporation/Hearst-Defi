@@ -44,7 +44,7 @@ export function AllocationOrbit({
       className="dashboard-command-cell dashboard-orbit-card"
       aria-label="Vault allocation map"
     >
-      <DashboardPanelHeader title="Allocation" tone="quiet" provenance={provenance} />
+      <DashboardPanelHeader title="Capital allocation" tone="quiet" provenance={provenance} />
       <div className="dashboard-orbit">
         <div className="dashboard-orbit__visual">
           <div className="dashboard-orbit__track" aria-hidden />

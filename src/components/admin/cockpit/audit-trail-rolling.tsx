@@ -19,10 +19,10 @@ interface AuditTrailRollingProps {
 export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   if (entries.length === 0) {
     return (
-      <Card aria-label="Recent admin activity" hoverOverlay={false} className="dashboard-command-cell dashboard-command-cell--awaiting">
-        <DashboardPanelHeader title="Recent admin activity" tone="quiet" />
+      <Card aria-label="Audit trail" hoverOverlay={false} className="dashboard-command-cell dashboard-command-cell--awaiting">
+        <DashboardPanelHeader title="Audit trail" tone="quiet" />
         <div className="overflow-hidden">
-          <table className="w-full table-fixed body-sm" aria-label="Recent admin activity">
+          <table className="w-full table-fixed body-sm" aria-label="Audit trail">
             <thead>
               <tr className="border-b border-(--ct-border-soft)">
                 <th className="w-[20%] text-left ct-table-header stat-label">Time</th>
@@ -41,17 +41,17 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
         <EmptySurface
           variant="inline"
           message="No admin activity recorded yet."
-          ariaLabel="Recent admin activity"
+          ariaLabel="Audit trail"
         />
       </Card>
     );
   }
 
   return (
-    <Card aria-label="Recent admin activity" hoverOverlay={false}>
-      <DashboardPanelHeader title="Recent admin activity" tone="quiet" />
+    <Card aria-label="Audit trail" hoverOverlay={false}>
+      <DashboardPanelHeader title="Audit trail" tone="quiet" />
       <div className="overflow-hidden">
-        <table className="w-full table-fixed body-sm" aria-label="Recent admin activity">
+        <table className="w-full table-fixed body-sm" aria-label="Audit trail">
           <thead>
             <tr className="border-b border-(--ct-border-soft)">
               <th className="w-[20%] text-left ct-table-header stat-label">

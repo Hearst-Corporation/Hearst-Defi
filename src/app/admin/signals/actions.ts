@@ -50,6 +50,10 @@ const ManualSignalSchema = z.object({
   vaultId: z.string().min(1).optional(),
 });
 
+function normalizeSignalVaultRef(vaultId: string | undefined): string {
+  return vaultId && vaultId.trim().length > 0 ? vaultId : "yield";
+}
+
 // ---------------------------------------------------------------------------
 // Multisig threshold — default 2 distinct signers required
 // ---------------------------------------------------------------------------
@@ -399,12 +403,14 @@ export async function requestManualSignal(
     throw new Error(`Invalid input: ${parsed.error.message}`);
   }
   const { ruleId: rule, vaultId: vault } = parsed.data;
+  const vaultRef = normalizeSignalVaultRef(vault);
 
   try {
     const vaultSuffix = vault ? ` for vault ${vault}` : "";
     const event = await prisma.rebalanceEvent.create({
       data: {
         ruleId: rule,
+        vaultRef,
         status: "pending",
         sourceEventName: "manual.admin",
         projection: `[manual] Rule ${rule} would shift the target allocation${vaultSuffix}.`,
@@ -423,10 +429,14 @@ export async function requestManualSignal(
       entityType: "RebalanceEvent",
       entityId: event.id,
       before: null,
-      after: { status: "pending", ruleId: rule, vaultId: vault ?? null },
+      after: { status: "pending", ruleId: rule, vaultRef },
     });
 
-    logger.info("[signals] manual trigger", { eventId: event.id, ruleId: rule });
+    logger.info("[signals] manual trigger", {
+      eventId: event.id,
+      ruleId: rule,
+      vaultRef,
+    });
 
     revalidatePath("/admin/signals");
     return event.id;

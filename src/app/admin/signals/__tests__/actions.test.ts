@@ -100,6 +100,7 @@ function baseEvent(overrides: Partial<RebalanceEventRow> = {}): RebalanceEventRo
   return {
     id: EVENT_ID,
     ruleId: "R2",
+    vaultRef: "yield",
     triggerText: "BTC drawdown breached -15%",
     projection: "",
     status: "pending",

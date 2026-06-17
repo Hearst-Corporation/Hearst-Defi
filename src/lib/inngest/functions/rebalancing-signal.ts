@@ -181,6 +181,7 @@ export async function loadVaultStateForSignal(): Promise<VaultStateForSignal> {
     : 0;
 
   return {
+    vaultRef: "yield",
     scenarioInputs,
     mode,
     riskScore,
@@ -220,12 +221,23 @@ export function evaluateRules(state: VaultStateForSignal): RebalanceSignal[] {
 // Idempotency — 1h window per ruleId, scoped to RebalanceEvent.
 // ---------------------------------------------------------------------------
 
-async function hasRecentSignal(ruleId: string, now: Date): Promise<boolean> {
+function rebalanceVaultScopeWhere(vaultRef: string) {
+  return vaultRef === "yield"
+    ? { OR: [{ vaultRef: "yield" }, { vaultRef: null }] }
+    : { vaultRef };
+}
+
+async function hasRecentSignal(
+  ruleId: string,
+  now: Date,
+  vaultRef: string,
+): Promise<boolean> {
   const since = new Date(now.getTime() - IDEMPOTENCY_WINDOW_MS);
   const existing = await prisma.rebalanceEvent.findFirst({
     where: {
       ruleId,
       executedAt: { gte: since },
+      ...rebalanceVaultScopeWhere(vaultRef),
     },
     orderBy: { executedAt: "desc" },
   });
@@ -281,12 +293,14 @@ export async function rebalancingSignalHandler({
   // ---- Step 3: persist each (with per-ruleId idempotency) -----------------
   const persistedIds: string[] = [];
   const persistedRuleIds: string[] = [];
+  const vaultRef = state.vaultRef ?? "yield";
 
   for (const signal of signals) {
     const result = await step.run(`persist-event-${signal.ruleId}`, async () => {
-      if (await hasRecentSignal(signal.ruleId, now)) {
+      if (await hasRecentSignal(signal.ruleId, now, vaultRef)) {
         logger.info("[rebalancing-signal] idempotency hit", {
           ruleId: signal.ruleId,
+          vaultRef,
           windowMs: IDEMPOTENCY_WINDOW_MS,
         });
         return null;
@@ -294,6 +308,7 @@ export async function rebalancingSignalHandler({
       const created = await prisma.rebalanceEvent.create({
         data: {
           ruleId: signal.ruleId,
+          vaultRef,
           triggerText: signal.trigger,
           actionText: signal.action,
           impactText: signal.impact,
@@ -322,6 +337,7 @@ export async function rebalancingSignalHandler({
       logger.info("[rebalancing-signal] persisted", {
         id: created.id,
         ruleId: signal.ruleId,
+        vaultRef,
         sourceEventName,
         sourceEventId,
       });

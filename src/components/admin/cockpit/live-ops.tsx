@@ -27,12 +27,12 @@ interface LiveOpsProps {
  */
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
-    <div aria-label="Live ops" className="dashboard-command-cell">
-      <DashboardPanelHeader title="Live ops" tone="quiet" />
+    <div aria-label="Platform status" className="dashboard-command-cell">
+      <DashboardPanelHeader title="Platform status" tone="quiet" />
 
       <div className="dashboard-command-divide-stack">
         <div className="dashboard-live-ops-section">
-          <span className="dashboard-live-ops-section__title">Inngest jobs</span>
+          <span className="dashboard-live-ops-section__title">Job runs</span>
           <div className="dashboard-command-divide-stack">
             {inngestJobs.map((job) => (
               <InngestRow key={job.id} job={job} />
@@ -41,7 +41,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
         </div>
 
         <div className="dashboard-live-ops-section">
-          <span className="dashboard-live-ops-section__title">Sentry 24h</span>
+          <span className="dashboard-live-ops-section__title">Error monitor · 24h</span>
           <div className="admin-doc-inline-row admin-doc-inline-row--relaxed admin-doc-inline-row--actions">
             <SentryCounter
               label="Errors"
@@ -57,7 +57,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
         </div>
 
         <div className="dashboard-live-ops-section">
-          <span className="dashboard-live-ops-section__title">On-chain feed</span>
+          <span className="dashboard-live-ops-section__title">Chain activity</span>
           {onChainEvents.length === 0 ? (
             <PanelStatus message="No recent on-chain events." />
           ) : (
@@ -180,7 +180,7 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
         href={explorerTxUrl(event.txHash)}
         target="_blank"
         rel="noopener noreferrer"
-        className="hover:opacity-[var(--ct-opacity-80)] transition-opacity"
+        className="hover:opacity-(--ct-opacity-80) transition-opacity"
       >
         {inner}
       </Link>

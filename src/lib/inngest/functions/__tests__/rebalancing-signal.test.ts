@@ -13,6 +13,7 @@ import type {
  * Loader mock — we drive the loader output per-test by mutating `loaderState`.
  */
 const buildHealthyState = (): VaultStateForSignal => ({
+  vaultRef: "yield",
   scenarioInputs: {
     btc_price_change_pct: 4,
     hashprice_usd_th_day: 0.082,
@@ -62,6 +63,7 @@ vi.mock("@/lib/data/hashprice", () => ({
 type RebalanceEventRow = {
   id: string;
   ruleId: string;
+  vaultRef: string | null;
   executedAt: Date;
   triggerText: string;
   actionText: string;
@@ -223,6 +225,7 @@ describe("rebalancingSignal Inngest function", () => {
     );
     expect(r1Create).toBeDefined();
     const r1Data = (r1Create?.[0] as { data: RebalanceEventRow }).data;
+    expect(r1Data.vaultRef).toBe("yield");
     // Projection is now persisted as its own column (no more "| PROJECTION:"
     // embedded delimiter inside triggerText).
     expect(r1Data.triggerText).not.toContain("PROJECTION");
@@ -339,6 +342,7 @@ describe("rebalancingSignal Inngest function", () => {
     rebalanceEventFindFirstMock.mockResolvedValueOnce({
       id: "existing-R1",
       ruleId: "R1",
+      vaultRef: "yield",
       executedAt: new Date(),
       triggerText: "",
       actionText: "",
