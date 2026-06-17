@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
-import { ADMIN_SECTIONS, visibleSubNavTabs } from "@/components/nav/product-nav-items";
+import {
+  ADMIN_SECTIONS,
+  matchesNavPath,
+  visibleSubNavTabs,
+} from "@/components/nav/product-nav-items";
 import { cn } from "@/lib/cn";
 import { withAdminVaultQuery } from "@/lib/vaults/dashboard-scope";
-
-/** Is `pathname` inside `href` (exact or nested route)? */
-function matches(pathname: string, href: string): boolean {
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
 
 /**
  * Horizontal sub-navigation for the admin area. Derives the active section from
@@ -26,7 +25,9 @@ export function AdminSubNav() {
   const vaultScope = searchParams.get("vault");
 
   const section = ADMIN_SECTIONS.find(
-    (s) => s.tabs.some((t) => matches(pathname, t.href)) || matches(pathname, s.href),
+    (s) =>
+      s.tabs.some((t) => matchesNavPath(pathname, t.href)) ||
+      matchesNavPath(pathname, s.href),
   );
 
   if (!section) return null;
@@ -36,7 +37,7 @@ export function AdminSubNav() {
 
   // Longest matching href wins (so nested routes pick the most specific tab).
   const activeHref = tabs
-    .filter((t) => matches(pathname, t.href))
+    .filter((t) => matchesNavPath(pathname, t.href))
     .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
   return (
@@ -52,10 +53,8 @@ export function AdminSubNav() {
             href={withAdminVaultQuery(tab.href, vaultScope)}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "relative -mb-px border-b-2 px-3 py-2.5 body-sm font-medium transition-colors",
-              isActive
-                ? "border-(--ct-accent) ct-text-accent"
-                : "border-transparent ct-text-muted hover:ct-text-primary",
+              "admin-doc-sub-nav__link",
+              isActive && "admin-doc-sub-nav__link--active",
             )}
           >
             {tab.label}

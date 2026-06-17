@@ -183,8 +183,11 @@
   /* Chat rail width — override du package (420px). Calibré densité globale. */
   --ct-rail-right: 22rem; /* 352px */
 
-  /* Left nav rail — icon + label permanent. Calibré densité globale (était 128px, puis 112px). */
-  --ct-rail-left: 5.75rem; /* 92px */
+  /* Left nav rail — icon + label permanent. Slightly widened so the collapsed
+     menu can hold long investor/admin labels without breaking the vertical
+     rhythm. */
+  --ct-rail-left: 6.5rem; /* 104px */
+  --ct-rail-bottom-clearance: calc(var(--ct-space-5) + 2.5rem + var(--ct-space-3));
 
   /* Transitions — déclarées explicitement ici car le package tokens.css
      ne les expose pas (--ct-dur-base était référencé partout sans valeur).
@@ -2805,6 +2808,14 @@ pre.ct-surface-1.rounded-md {
   box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
 }
 
+[role="tablist"] .ct-pill.accent[aria-selected="true"],
+[role="tablist"] .ct-pill.accent[aria-pressed="true"],
+[role="tablist"] .ct-pill.accent[aria-current="page"] {
+  color: var(--ct-accent);
+  border-color: var(--ct-border-accent);
+  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
+}
+
 /* Focus ring only fires on focusable pills (button/link/tabindex); static badge
    pills never match :focus-visible, so this is safe for the heritage badge use. */
 .ct-pill:focus-visible {
@@ -3173,55 +3184,43 @@ button.ct-seg-btn {
 /* ── RAIL INTRA-APP — nav verticale dans la zone .ct-rail-left ──
    Position fixed, superposée au rail du shell @hearst/cockpit-shell
    (qui ne supporte pas de slot nav intra-app en v0.1.0).
-   Largeur : 88px fixe (verrouillé dans .ct-rail-left ci-dessus).
-   Démarre sous le launcher header, pousse les items vers le bas. */
+   Largeur : `--ct-rail-left` (verrouillé dans .ct-rail-left ci-dessus).
+   Démarre sous le launcher header et s'ancre haut dans la colonne. */
 .ct-rail-intra {
   position: fixed;
   left: 0;
-  /* Le rail démarre sous le logo (header shell) et descend jusqu'au-dessus du
-     slot identity (docké à bottom:88px). justify-content:center centre les
-     icônes verticalement. overflow-y:auto + padding-block évitent le débordement
-     sur le slot identity quand le viewport est court (ex: 10 items admin). */
-  top: var(--ct-shell-header-h);
-  bottom: 4.5rem;
+  /* Bottom clearance mirrors the user avatar dock in the shell rail, so the nav
+     never visually collides with the lower identity area even on shorter viewports. */
+  top: calc(var(--ct-shell-header-h) + var(--ct-space-2));
+  bottom: var(--ct-rail-bottom-clearance);
   width: var(--ct-rail-left);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-2) 0;
-  justify-content: center;
+  gap: var(--ct-space-2_5);
+  padding: var(--ct-space-3) var(--ct-space-1_5) var(--ct-space-4);
+  justify-content: flex-start;
   overflow-y: auto;
   z-index: 1001; /* Au-dessus du shell cockpit */
   pointer-events: auto;
 }
 
-/* Rail investor : centrage vertical. L'espacement (gap inter-items, padding +
-   gap icône/label des items) hérite des règles de base .ct-rail-intra /
-   .ct-rail-item — IDENTIQUE au rail admin, pas de version resserrée (sinon les
-   items se rétrécissent en passant admin → user). Seul le style frameless
-   (pas de bordure/fond/ombre) reste propre à l'investor. */
-.ct-rail-intra[data-rail="investor"] {
-  justify-content: center;
-}
-
+/* Rail investor : même géométrie que l'admin. Seul le chrome reste plus léger. */
 .ct-rail-intra[data-rail="investor"] .ct-rail-item {
-  border: 0;
-  background: transparent;
   box-shadow: none;
 }
 
 .ct-rail-intra[data-rail="investor"] .ct-rail-item:hover {
-  background: transparent;
-  border-color: transparent;
+  background: color-mix(in srgb, var(--ct-surface-1) 36%, transparent);
+  border-color: color-mix(in srgb, var(--ct-border-soft) 78%, transparent);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
 
 .ct-rail-intra[data-rail="investor"] .ct-rail-item-active {
   color: var(--ct-accent);
-  background: transparent;
-  border-color: transparent;
+  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
+  border-color: color-mix(in srgb, var(--ct-accent) 18%, transparent);
   box-shadow: none;
 }
 
@@ -3239,13 +3238,13 @@ button.ct-seg-btn {
 /* Bouton nav : icône au-dessus + label dessous, visibles en permanence. */
 .ct-rail-item {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ct-space-1);
-  width: calc(var(--ct-rail-left) - var(--ct-space-2));
-  padding: var(--ct-space-2) var(--ct-space-1);
+  display: grid;
+  justify-items: center;
+  align-items: start;
+  gap: var(--ct-space-1_5);
+  width: 100%;
+  min-height: 4.5rem;
+  padding: var(--ct-space-2) var(--ct-space-1_5) var(--ct-space-2_5);
   border-radius: var(--ct-radius-md);
   color: var(--ct-text-muted);
   background: transparent;
@@ -3292,9 +3291,11 @@ button.ct-seg-btn {
   box-shadow: none;
 }
 
-/* Label statique sous l'icône — visible en permanence (style Oracle rail).
-   Wrap 2 lignes max pour un libellé long ("Proofs & Documents"). */
+/* Permanent rail label under the icon. Reserve the same two-line block for all
+   items so short labels do not shrink while longer labels wrap. */
 .ct-rail-item-tooltip {
+  min-height: 2rem;
+  display: -webkit-box;
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
@@ -3303,9 +3304,7 @@ button.ct-seg-btn {
   text-align: center;
   text-wrap: balance;
   max-width: 100%;
-  display: -webkit-box;
   -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
   overflow: hidden;
   pointer-events: none;
 }
@@ -3327,8 +3326,11 @@ html[data-rail-mode="expanded"] .ct-rail-left.launcher {
 }
 
 html[data-rail-mode="expanded"] .ct-rail-intra {
-  width: 13.5rem;
+  width: 13.5rem !important;
+  min-width: 13.5rem;
+  max-width: 13.5rem;
   align-items: stretch;
+  gap: var(--ct-space-2);
   padding-left: var(--ct-space-3);
   padding-right: var(--ct-space-3);
 }
@@ -3336,7 +3338,10 @@ html[data-rail-mode="expanded"] .ct-rail-intra {
 /* Item = ligne icône + label sur toute la largeur. */
 html[data-rail-mode="expanded"] .ct-rail-item {
   width: 100%;
+  min-height: 2.75rem;
+  display: flex;
   flex-direction: row;
+  align-items: center;
   justify-content: flex-start;
   gap: var(--ct-space-3);
   padding-inline: var(--ct-space-3);
@@ -3345,6 +3350,7 @@ html[data-rail-mode="expanded"] .ct-rail-item {
 /* Le label repasse en ligne unique alignée à gauche en mode déplié. */
 html[data-rail-mode="expanded"] .ct-rail-item-tooltip {
   display: block;
+  min-height: 0;
   -webkit-line-clamp: none;
   text-align: left;
   text-wrap: nowrap;
@@ -3387,16 +3393,15 @@ html[data-rail-mode="expanded"] .ct-rail-top {
   overflow: hidden;
 }
 
-/* Bouton repli/dépli — même gabarit qu'un item. */
-/* Toggle repli/dépli — petite flèche discrète, PAS un bouton de menu.
-   Pas de box/bordure : juste un chevron en couleur muette qui s'éclaircit au survol. */
+/* Toggle repli/dépli — petite flèche discrète, mais proportionnée au rythme des
+   items qu'elle précède. */
 .ct-rail-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  margin-bottom: var(--ct-space-2);
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: var(--ct-space-1);
   padding: 0;
   border: 0;
   background: transparent;
@@ -3424,10 +3429,10 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 
 /* Section separator — thin rule between nav groups in the rail. */
 .ct-rail-sep {
-  width: 2rem;
+  width: calc(100% - var(--ct-space-4));
   border: none;
   border-top: 1px solid var(--ct-border-soft);
-  margin: var(--ct-space-1_5) 0;
+  margin: var(--ct-space-1) 0;
   flex-shrink: 0;
 }
 
@@ -3463,24 +3468,23 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
    HeaderConnect (wallet pill / Connect button) + demo toggle, moved out of the
    former top-right floating slot — which overlapped the chat header controls in
    Section 3 — into the bottom of the rail, just above the user badge (.ct-avatar).
-   Anchored fixed to the rail column (width = collapsed rail), stacked vertically
-   and centred. Sits above the avatar: rail bottom padding 32px + avatar 40px +
-   gap → bottom ≈ 88px. */
+   Anchored fixed to the rail column (width = `--ct-rail-left`), stacked vertically
+   and centred. Mirrors the same bottom clearance used by `.ct-rail-intra`. */
 .connect-rail-identity {
   position: fixed;
-  bottom: 88px;
+  bottom: var(--ct-rail-bottom-clearance);
   left: 0;
-  width: 88px;
-  z-index: var(--ct-z-rail);
+  width: var(--ct-rail-left);
+  z-index: 1002;
 
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 0 8px;
+  gap: var(--ct-space-2);
+  padding: 0 var(--ct-space-1_5);
 }
 /* The wallet pill / connect button are full-width in the narrow rail and shrink
-   their type so the truncated address still fits the 88px column. */
+   their type so the truncated address still fits the collapsed column. */
 .connect-rail-identity > * {
   width: 100%;
   display: flex;
@@ -3489,7 +3493,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .connect-rail-identity button {
   max-width: 100%;
   font-size: var(--ct-text-micro);
-  /* Rail étroit (~72px de contenu) : label sur une seule ligne, jamais de wrap
+  /* Rail étroit (~content width inside `--ct-rail-left`) : label sur une seule ligne, jamais de wrap
      ni de débordement de la pilule (ex. « Connect Wallet » qui cassait en 2). */
   white-space: nowrap;
   overflow: hidden;
@@ -3544,6 +3548,11 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   color: var(--ct-text-faint);
 }
 
+html[data-rail-mode="expanded"] .connect-rail-identity {
+  width: 13.5rem;
+  padding-inline: var(--ct-space-3);
+}
+
 /* ── Shell padding overrides — restore tokens.css values that get reset to 0
    because tokens.css now lives in a cascade layer (see src/app/tokens-layer.css
    + globals.css). Each rule mirrors verbatim the spec in
@@ -3555,7 +3564,7 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 .ct-rail-left                              { padding: var(--ct-space-5) 0; align-items: center; }
 .ct-rail-left.launcher                     { padding: clamp(12px, 1.4vh, 18px) clamp(8px, 0.6vw, 12px); }
 
-/* Badge user recentré sur l'axe du rail (88px) — sans override il dérive de
+/* Badge user recentré sur l'axe du rail (`--ct-rail-left`) — sans override il dérive de
    ~10px vers la gauche dans la largeur réduite. */
 .ct-avatar                                 { margin: 0 auto; }
 

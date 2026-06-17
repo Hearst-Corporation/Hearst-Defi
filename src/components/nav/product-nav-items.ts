@@ -146,6 +146,37 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   },
 ];
 
+/** Exact route or nested route match for left rail / sub-nav highlighting. */
+export function matchesNavPath(pathname: string, href: string): boolean {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/** Shared shape for rail entries derived from the admin section catalog. */
+export function adminSectionToNavItem(
+  section: AdminSection,
+  labelOverride?: string,
+): NavItem {
+  return {
+    id: section.id,
+    label: labelOverride ?? section.label,
+    href: section.href,
+    icon: section.icon,
+  };
+}
+
+const dashboardSection = ADMIN_SECTIONS.find((section) => section.id === "dashboard");
+
+export const ADMIN_JUMP_NAV = dashboardSection
+  ? adminSectionToNavItem(dashboardSection, "Admin")
+  : null;
+
+export const INVESTOR_VIEW_NAV: NavItem = {
+  id: "back-to-app",
+  label: "Investor view",
+  href: "/portfolio",
+  icon: "ArrowLeft",
+};
+
 /** Tabs shown in <AdminSubNav> (operator-only routes may stay out of the strip). */
 export function visibleSubNavTabs(tabs: NavItem[]): NavItem[] {
   return tabs.filter((tab) => !tab.hideFromSubNav);

@@ -2,33 +2,41 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import {
-  LayoutDashboard,
-  FlaskConical,
-  ShieldCheck,
-  FileCheck,
-  FileText,
-  Settings2,
   Wallet,
   Vault,
-  Users,
-  MessageSquare,
-  Zap,
-  Scale,
-  Bot,
-  ClipboardCheck,
-  Send,
   ChevronLeft,
   ChevronRight,
   ArrowLeft,
+  Bot,
+  ClipboardCheck,
+  FileCheck,
+  FileText,
+  FlaskConical,
+  LayoutDashboard,
   LucideIcon,
+  MessageSquare,
+  Scale,
+  Send,
+  Settings2,
+  ShieldCheck,
+  Users,
+  Zap,
 } from "lucide-react";
 
 import { cn } from "@/lib/cn";
-import type { NavItem, AdminSection } from "./product-nav-items";
-import { PRODUCT_NAV, ADMIN_SECTIONS } from "./product-nav-items";
+import type { AdminSection, NavItem } from "./product-nav-items";
+import {
+  ADMIN_JUMP_NAV,
+  ADMIN_SECTIONS,
+  INVESTOR_VIEW_NAV,
+  PRODUCT_NAV,
+  adminSectionToNavItem,
+  matchesNavPath,
+} from "./product-nav-items";
 
 /** Render `false` on the server and on the first client render, then `true`
  * after hydration — so a client-only portal never causes an SSR mismatch
@@ -92,6 +100,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Send,
   ArrowLeft,
 };
+
+const RAIL_ICON_SIZE = 20;
 
 // Thin horizontal rule between nav sections.
 function RailSeparator() {
@@ -180,8 +190,7 @@ interface RailItemProps {
 
 function RailItem({ item, pathname, active, iconSize = 26 }: RailItemProps) {
   const Icon = ICON_MAP[item.icon];
-  const isActive =
-    active ?? (pathname === item.href || pathname.startsWith(`${item.href}/`));
+  const isActive = active ?? matchesNavPath(pathname, item.href);
 
   return (
     <Link
@@ -200,7 +209,37 @@ function RailItem({ item, pathname, active, iconSize = 26 }: RailItemProps) {
 /** A section's rail item is active on any of its pages (its href or any tab). */
 function isSectionActive(section: AdminSection, pathname: string): boolean {
   const hrefs = [section.href, ...section.tabs.map((t) => t.href)];
-  return hrefs.some((h) => pathname === h || pathname.startsWith(`${h}/`));
+  return hrefs.some((href) => matchesNavPath(pathname, href));
+}
+
+function RailIntraShell({
+  ariaLabel,
+  testId,
+  dataRail,
+  children,
+}: {
+  ariaLabel: string;
+  testId: string;
+  dataRail?: "investor";
+  children: ReactNode;
+}) {
+  const { container, mounted } = useBodyPortal();
+  const { expanded, toggle } = useRailExpanded();
+
+  const nav = (
+    <nav
+      className="ct-rail-intra"
+      aria-label={ariaLabel}
+      data-testid={testId}
+      {...(dataRail ? { "data-rail": dataRail } : {})}
+    >
+      <RailToggle expanded={expanded} onToggle={toggle} />
+      {children}
+    </nav>
+  );
+
+  if (!mounted || !container) return null;
+  return createPortal(nav, container);
 }
 
 /**
@@ -211,45 +250,32 @@ function isSectionActive(section: AdminSection, pathname: string): boolean {
  */
 export function InvestorRailIntra({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
-  const { container, mounted } = useBodyPortal();
-  const { expanded, toggle } = useRailExpanded();
-
-  const adminSection = ADMIN_SECTIONS.find((s) => s.id === "dashboard");
-  const adminEntry: NavItem | undefined = adminSection
-    ? {
-        id: adminSection.id,
-        // Label is "Admin" (not the section's own "Dashboard") so an admin
-        // reviewing the investor surfaces sees an unambiguous jump-to-admin
-        // entry, distinct from any in-zone "Dashboard" concept. Route, id and
-        // icon stay derived from the section — only the rail label is overridden.
-        label: "Admin",
-        href: adminSection.href,
-        icon: adminSection.icon,
-      }
-    : undefined;
-
-  const nav = (
-    <nav
-      className="ct-rail-intra"
-      aria-label="Investor navigation"
-      data-testid="investor-rail-intra"
-      data-rail="investor"
+  return (
+    <RailIntraShell
+      ariaLabel="Investor navigation"
+      testId="investor-rail-intra"
+      dataRail="investor"
     >
-      <RailToggle expanded={expanded} onToggle={toggle} />
       {PRODUCT_NAV.map((item) => (
-        <RailItem key={item.id} item={item} pathname={pathname} iconSize={20} />
+        <RailItem
+          key={item.id}
+          item={item}
+          pathname={pathname}
+          iconSize={RAIL_ICON_SIZE}
+        />
       ))}
-      {isAdmin && adminEntry ? (
+      {isAdmin && ADMIN_JUMP_NAV ? (
         <>
           <RailSeparator />
-          <RailItem item={adminEntry} pathname={pathname} iconSize={20} />
+          <RailItem
+            item={ADMIN_JUMP_NAV}
+            pathname={pathname}
+            iconSize={RAIL_ICON_SIZE}
+          />
         </>
       ) : null}
-    </nav>
+    </RailIntraShell>
   );
-
-  if (!mounted || !container) return null;
-  return createPortal(nav, container);
 }
 
 /**
@@ -259,46 +285,25 @@ export function InvestorRailIntra({ isAdmin = false }: { isAdmin?: boolean }) {
  */
 export function AdminRailIntra() {
   const pathname = usePathname();
-  const { container, mounted } = useBodyPortal();
-  const { expanded, toggle } = useRailExpanded();
-
-  const nav = (
-    <nav
-      className="ct-rail-intra"
-      aria-label="Admin navigation"
-      data-testid="admin-rail-intra"
-    >
-      <RailToggle expanded={expanded} onToggle={toggle} />
+  return (
+    <RailIntraShell ariaLabel="Admin navigation" testId="admin-rail-intra">
       {ADMIN_SECTIONS.map((section) => (
         <RailItem
           key={section.id}
-          item={{
-            id: section.id,
-            label: section.label,
-            href: section.href,
-            icon: section.icon,
-          }}
+          item={adminSectionToNavItem(section)}
           pathname={pathname}
           active={isSectionActive(section, pathname)}
-          iconSize={20}
+          iconSize={RAIL_ICON_SIZE}
         />
       ))}
       <RailSeparator />
       {/* Return to the investor cockpit. Never active (non-admin route). */}
       <RailItem
-        item={{
-          id: "back-to-app",
-          label: "Investor view",
-          href: "/portfolio",
-          icon: "ArrowLeft",
-        }}
+        item={INVESTOR_VIEW_NAV}
         pathname={pathname}
         active={false}
-        iconSize={20}
+        iconSize={RAIL_ICON_SIZE}
       />
-    </nav>
+    </RailIntraShell>
   );
-
-  if (!mounted || !container) return null;
-  return createPortal(nav, container);
 }
