@@ -19,6 +19,7 @@ import {
   Scale,
   Bot,
   ClipboardCheck,
+  Send,
   ChevronLeft,
   ChevronRight,
   ArrowLeft,
@@ -88,6 +89,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Scale,
   Bot,
   ClipboardCheck,
+  Send,
   ArrowLeft,
 };
 

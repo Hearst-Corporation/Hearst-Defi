@@ -4,7 +4,6 @@ export const dynamic = "force-dynamic";
 import { headers } from "next/headers";
 
 import { HubModeStyles } from "@/components/hub-mode-styles";
-import { HeaderConnect } from "@/components/connect/header-connect";
 import { InvestorRailIntra } from "@/components/nav/product-rail-intra";
 import { requireInvestor } from "@/lib/auth/require-investor";
 
@@ -34,9 +33,6 @@ export default async function ProductLayout({
     <>
       <HubModeStyles />
       <InvestorRailIntra isAdmin={session.role === "admin"} />
-      <div className="connect-rail-identity">
-        <HeaderConnect />
-      </div>
       {children}
     </>
   );

@@ -6,7 +6,7 @@
  *   - loadUserAgentProfile(userId, agentName)         → UserAgentProfile (unique by pair)
  *   - loadUserMemory(userId, "scenario-narrative")    → ScenarioRun  (where userId)
  *   - loadUserMemory(userId, "investor-memo")         → ScenarioRun + BacktestRun (where userId)
- *   - loadUserMemory(userId, "cockpit-chat")          → CockpitChat (where userId)
+ *   - loadUserMemory(userId, "cockpit-chat")          → AgentMemory + CockpitChat (where userId)
  *
  * ReportExport / Feedback / LlmRun are written with a userId column but, at
  * MVP, are NOT exposed through any per-user READ loader in src/lib/** — they
@@ -25,6 +25,7 @@ vi.mock("@/lib/db", () => ({
     userAgentProfile: { findUnique: vi.fn() },
     scenarioRun: { findMany: vi.fn() },
     backtestRun: { findMany: vi.fn() },
+    agentMemory: { findMany: vi.fn() },
     cockpitChat: { findMany: vi.fn() },
   },
 }));
@@ -38,6 +39,7 @@ import {
 const mockProfileFind = vi.mocked(prisma.userAgentProfile.findUnique);
 const mockScenarioFind = vi.mocked(prisma.scenarioRun.findMany);
 const mockBacktestFind = vi.mocked(prisma.backtestRun.findMany);
+const mockMemoryFind = vi.mocked(prisma.agentMemory.findMany);
 const mockChatFind = vi.mocked(prisma.cockpitChat.findMany);
 
 const USER_A = "user_a";
@@ -63,6 +65,25 @@ const scenarioRuns = [
 const backtestRuns = [
   { userId: USER_A, backtestKey: "bear_2022_A", ranAt: new Date("2026-05-19") },
   { userId: USER_B, backtestKey: "etf_halving_2024_B", ranAt: new Date("2026-05-18") },
+];
+
+const agentMemories = [
+  {
+    userId: USER_A,
+    agentName: "cockpit-chat",
+    active: true,
+    kind: "fact",
+    content: "Fact A",
+    updatedAt: new Date("2026-05-22"),
+  },
+  {
+    userId: USER_B,
+    agentName: "cockpit-chat",
+    active: true,
+    kind: "fact",
+    content: "Fact B",
+    updatedAt: new Date("2026-05-22"),
+  },
 ];
 
 const cockpitChats = [
@@ -101,6 +122,19 @@ beforeEach(() => {
     where?: { userId?: string };
   }) => scopeByUser(backtestRuns, args) as never) as never);
 
+  mockMemoryFind.mockImplementation((async (args: {
+    where?: { userId?: string; agentName?: string; active?: boolean };
+  }) => {
+    const wanted = args.where?.userId;
+    return agentMemories.filter(
+      (r) =>
+        r.userId === wanted &&
+        (args.where?.agentName === undefined ||
+          r.agentName === args.where.agentName) &&
+        (args.where?.active === undefined || r.active === args.where.active),
+    ) as never;
+  }) as never);
+
   mockChatFind.mockImplementation((async (args: {
     where?: { userId?: string };
   }) => scopeByUser(cockpitChats, args) as never) as never);
@@ -115,6 +149,7 @@ describe("isolation — loadUserAgentProfile (UserAgentProfile)", () => {
     await loadUserAgentProfile(USER_A, "scenario-narrative");
     expect(mockProfileFind).toHaveBeenCalledWith({
       where: { userId_agentName: { userId: USER_A, agentName: "scenario-narrative" } },
+      include: { template: true },
     });
   });
 
@@ -181,22 +216,29 @@ describe("isolation — ScenarioRun + BacktestRun (loadUserMemory:investor-memo)
 // CockpitChat (via cockpit-chat memory)
 // ---------------------------------------------------------------------------
 
-describe("isolation — CockpitChat (loadUserMemory:cockpit-chat)", () => {
-  it("scopes the findMany by userId", async () => {
+describe("isolation — CockpitChat + AgentMemory (loadUserMemory:cockpit-chat)", () => {
+  it("scopes both findMany calls by userId", async () => {
     await loadUserMemory(USER_A, "cockpit-chat");
+    expect(mockMemoryFind).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { userId: USER_A, agentName: "cockpit-chat", active: true } }),
+    );
     expect(mockChatFind).toHaveBeenCalledWith(
       expect.objectContaining({ where: { userId: USER_A } }),
     );
   });
 
-  it("A only sees 'Chat A', B only sees 'Chat B'", async () => {
+  it("A only sees 'Chat A' / 'Fact A', B only sees 'Chat B' / 'Fact B'", async () => {
     const memA = await loadUserMemory(USER_A, "cockpit-chat");
     expect(memA).toContain("Chat A");
+    expect(memA).toContain("Fact A");
     expect(memA).not.toContain("Chat B");
+    expect(memA).not.toContain("Fact B");
 
     const memB = await loadUserMemory(USER_B, "cockpit-chat");
     expect(memB).toContain("Chat B");
+    expect(memB).toContain("Fact B");
     expect(memB).not.toContain("Chat A");
+    expect(memB).not.toContain("Fact A");
   });
 });
 

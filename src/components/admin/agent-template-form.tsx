@@ -11,18 +11,11 @@ import {
 import type { AgentTemplate } from "@prisma/client";
 import {
   BASE_AGENTS,
+  BASE_AGENT_LABELS,
   TONES,
   LANGUAGES,
   VERBOSITIES,
 } from "@/lib/agents/agent-template-constants";
-
-const BASE_AGENT_LABELS: Record<string, string> = {
-  "cockpit-chat": "Cockpit chat (Master Agent)",
-  "scenario-narrative": "Scenario Narrative",
-  "investor-memo": "Investor Memo",
-  "mining-health": "Mining Health",
-  "risk-explanation": "Risk Explanation",
-};
 
 /** Create + edit form for an AgentTemplate (the reusable persona library). */
 export function AgentTemplateForm({ template }: { template?: AgentTemplate }) {

@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { loadAgentTemplates } from "@/lib/data/agent-templates";
 import { ArchiveTemplateButton } from "@/components/admin/archive-template-button";
+import { groupCatalogByScope } from "@/lib/agents/agent-catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ export const metadata = { title: "Agents — Hearst Connect" };
 
 export default async function AgentsPage() {
   const templates = await loadAgentTemplates();
+  const catalogGroups = groupCatalogByScope();
 
   return (
     <div className="admin-doc-shell">
@@ -28,6 +30,46 @@ export default async function AgentsPage() {
           </Button>
         }
       />
+
+      <section className="admin-doc-stack" aria-label="Agent catalog">
+        <h2 className="h2">Agent catalog</h2>
+        <p className="body-xs ct-text-muted">
+          The base code agents, classified by where they run. Read-only — these
+          are wired in code; personas below layer on top of them.
+        </p>
+
+        <div className="admin-doc-form-grid-2">
+          {catalogGroups.map((group) => (
+            <Card key={group.scope} hoverOverlay={false}>
+              <div className="admin-doc-inline-row mb-3">
+                <h3 className="h3">{group.scopeLabel}</h3>
+                <Badge variant={group.scope === "platform" ? "accent" : "default"}>
+                  {group.entries.length}
+                </Badge>
+              </div>
+              <ul className="flex flex-col gap-3">
+                {group.entries.map((entry) => (
+                  <li
+                    key={entry.baseAgent}
+                    className="flex flex-col gap-1 border-b border-(--ct-border-soft) pb-3 last:border-0 last:pb-0"
+                  >
+                    <div className="admin-doc-inline-row">
+                      <span className="body-sm ct-text-strong">{entry.label}</span>
+                      <Badge
+                        variant={entry.scope === "platform" ? "accent" : "default"}
+                      >
+                        {entry.scopeLabel}
+                      </Badge>
+                    </div>
+                    <span className="body-xs ct-text-muted">{entry.surface}</span>
+                    <span className="body-xs ct-text-muted">{entry.description}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          ))}
+        </div>
+      </section>
 
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Agent templates">
         <h2 className="h2">Persona library ({templates.length})</h2>

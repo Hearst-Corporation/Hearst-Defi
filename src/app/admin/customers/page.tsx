@@ -59,10 +59,13 @@ export default async function CustomersPage({
 
   return (
     <div className="admin-doc-shell">
-      <AdminPageHeader
-        title="Investors"
-        actions={<CreateInvestorButton />}
-      />
+      <AdminPageHeader title="Investors" />
+
+      <div className="admin-doc-toolbar">
+        <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+          <CreateInvestorButton />
+        </div>
+      </div>
 
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Investors">
         <h2 className="h2">Directory ({total})</h2>
@@ -119,11 +122,13 @@ export default async function CustomersPage({
                         {truncateWallet(c.walletAddress)}
                       </td>
                       <td className="ct-table-cell">
-                        <div className="admin-doc-inline-row">
+                        <div className="admin-doc-stack admin-doc-stack--micro">
                           <Badge variant={KYC_VARIANT[c.kycStatus]}>
                             {KYC_LABEL[c.kycStatus]}
                           </Badge>
-                          <KycAction investorId={c.id} status={c.kycStatus} />
+                          <div className="admin-doc-inline-row admin-doc-inline-row--tight">
+                            <KycAction investorId={c.id} status={c.kycStatus} />
+                          </div>
                         </div>
                       </td>
                       <td className="hidden ct-table-cell text-right tabular-nums ct-text-body md:table-cell">
@@ -145,7 +150,7 @@ export default async function CustomersPage({
 
         {/* Pagination controls */}
         {total > 0 && (
-          <div className="admin-doc-row-spread pt-2">
+          <div className="admin-doc-row-spread border-t border-(--ct-border-soft) pt-4">
             <p className="body-xs ct-text-muted">
               Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, total)} of {total}
             </p>

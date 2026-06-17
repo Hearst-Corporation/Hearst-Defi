@@ -11,6 +11,7 @@ import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { Card } from "@/components/ui/card";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import { PanelStatus } from "@/components/ui/panel-status";
 import { PLATFORM_PROOFS_EMPTY } from "@/components/proof/empty-messages";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
 import { ProofFilter } from "@/components/proof/proof-filter";
@@ -24,11 +25,8 @@ import { MiningCashFlowEvidence } from "@/components/proof-center/mining-cashflo
 import { loadCoverageForVault } from "@/lib/agents/loaders/coverage";
 import { TimelockCountdown } from "@/components/governance/timelock-countdown";
 import {
-  getEventLoggerAddress,
-  getPoRRegistryAddress,
   isChainConfigured,
 } from "@/lib/chain/client";
-import { abbreviateAddress } from "@/lib/onchain";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
 import { isAttestorAllowlisted } from "@/lib/attestation/stored";
@@ -89,9 +87,6 @@ export default async function ProductProofCenterPage({
   const coveragePeriod = new Date().toISOString().slice(0, 7); // YYYY-MM
   const coverage = await loadCoverageForVault("hearst-yield-vault", coveragePeriod);
 
-  const eventLoggerAddr = getEventLoggerAddress();
-  const porRegistryAddr = getPoRRegistryAddress();
-
   const proofs: UnifiedProof[] = [
     ...onChainAttestations.map(
       (data): UnifiedProof => ({
@@ -111,7 +106,7 @@ export default async function ProductProofCenterPage({
   ];
 
   return (
-    <div className="proof-center-shell product-doc-shell">
+    <div className="proof-center-shell">
       {/* ── Testnet notice ─────────────────────────────────── */}
       {chainConfigured && (
         <div
@@ -178,15 +173,13 @@ export default async function ProductProofCenterPage({
         <MiningCashFlowEvidence coverage={coverage} />
       </section>
 
-      {/* ── On-chain event timeline (only when chain is configured) ── */}
-      {chainConfigured && (
-        <section aria-labelledby="event-timeline-heading">
-          <h2 id="event-timeline-heading" className="sr-only">
-            On-chain event log
-          </h2>
-          <EventTimeline events={onChainEvents} />
-        </section>
-      )}
+      {/* ── On-chain event timeline ── */}
+      <section aria-labelledby="event-timeline-heading">
+        <h2 id="event-timeline-heading" className="sr-only">
+          On-chain event log
+        </h2>
+        <EventTimeline events={onChainEvents} />
+      </section>
 
       {/* ── Full proof grid (filtered) ──────────────────────── */}
       <section aria-labelledby="proof-grid-heading">
@@ -210,22 +203,20 @@ export default async function ProductProofCenterPage({
         </Card>
       </section>
 
-      {/* ── Deployed contracts + audit trail (only when chain is configured) ── */}
-      {chainConfigured && (
-        <section aria-labelledby="contracts-heading">
-          <h2 id="contracts-heading" className="h2 mb-4">
-            Deployments &amp; contract audit trail
-          </h2>
-          <ContractsAuditTrail />
-        </section>
-      )}
+      {/* ── Deployed contracts + audit trail ── */}
+      <section aria-labelledby="contracts-heading">
+        <h2 id="contracts-heading" className="h2 mb-4">
+          Deployments &amp; contract audit trail
+        </h2>
+        <ContractsAuditTrail />
+      </section>
 
       {/* ── Governance timelocks ───────────────────────────── */}
-      {timelockProposals.length > 0 && (
-        <section aria-labelledby="timelock-heading">
-          <h2 id="timelock-heading" className="h2 mb-4">
-            Pending governance timelocks
-          </h2>
+      <section aria-labelledby="timelock-heading">
+        <h2 id="timelock-heading" className="h2 mb-4">
+          Pending governance timelocks
+        </h2>
+        {timelockProposals.length > 0 ? (
           <div className="product-doc-stack--relaxed">
             {timelockProposals.map((proposal) => (
               <TimelockCountdown
@@ -236,8 +227,20 @@ export default async function ProductProofCenterPage({
               />
             ))}
           </div>
-        </section>
-      )}
+        ) : (
+          <Card hoverOverlay={false}>
+            <DashboardPanelHeader
+              eyebrow="Governance queue"
+              title="No pending timelocks"
+              tone="quiet"
+            />
+            <PanelStatus
+              message="No proposals are currently waiting on a timelock."
+              detail="Queued governance actions will appear here before execution."
+            />
+          </Card>
+        )}
+      </section>
 
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="proof-center-footer">
@@ -251,17 +254,11 @@ export default async function ProductProofCenterPage({
           <p className="body-xs ct-prose-md ct-text-muted">
             {chainConfigured ? (
               <>
-                On-chain entries are read directly from Base Sepolia (testnet) via the
-                EventLogger (
-                <span className="mono">
-                  {eventLoggerAddr ? abbreviateAddress(eventLoggerAddr) : "not configured"}
-                </span>
-                ) and PoRRegistry (
-                <span className="mono">
-                  {porRegistryAddr ? abbreviateAddress(porRegistryAddr) : "not configured"}
-                </span>
-                ) contracts. Off-chain entries are pinned to IPFS or signed HTTPS endpoints.
-                On-chain data and vault state are fetched fresh on every request.
+                On-chain entries are read from Base Sepolia (testnet). Contract
+                addresses, tx links, and attestation context are exposed in the
+                modules above. Off-chain entries are pinned to IPFS or signed
+                HTTPS endpoints. On-chain data and vault state are fetched fresh
+                on every request.
               </>
             ) : (
               <>

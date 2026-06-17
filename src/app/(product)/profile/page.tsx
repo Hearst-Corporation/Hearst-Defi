@@ -196,7 +196,7 @@ export default async function ProfilePage() {
                   <Badge variant="success">Connected</Badge>
                 ) : (
                   <Button variant="secondary" size="md" asChild>
-                    <Link href="/onboarding/wallet">Connect</Link>
+                    <Link href="/onboarding/wallet">Open wallet setup</Link>
                   </Button>
                 )
               }

@@ -60,13 +60,13 @@ describe("resolveNextStep — single next action by priority", () => {
     expect(step.headline.toLowerCase()).toContain("progress");
   });
 
-  it("approved but no wallet → connect wallet", () => {
+  it("approved but no wallet → profile wallet setup", () => {
     const step = resolveNextStep({
       ...base,
       hasWallet: false,
       positionCount: 0,
     });
-    expect(step.cta?.href).toBe("/onboarding/wallet");
+    expect(step.cta?.href).toBe("/profile");
   });
 
   it("ready to invest, no positions → explore the vault", () => {

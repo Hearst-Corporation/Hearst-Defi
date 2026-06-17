@@ -40,22 +40,6 @@
   font-style: italic;
 }
 
-.prof-legal-links {
-  display: flex;
-  gap: var(--ct-space-2);
-  align-items: center;
-  margin-top: var(--ct-space-2);
-}
-
-.prof-legal-link {
-  text-decoration: none;
-  transition: color var(--ct-dur-fast) var(--ct-ease);
-}
-
-.prof-legal-link:hover {
-  color: var(--ct-text-muted);
-}
-
 .prof-avatar {
   width: var(--ct-space-16);
   height: var(--ct-space-16);

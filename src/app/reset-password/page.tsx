@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AuthFormShell } from "@/components/auth/auth-form-shell";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { ResetPasswordForm } from "./ResetPasswordForm";
 
 export const metadata = {
@@ -22,17 +23,20 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
       {token ? (
         <ResetPasswordForm token={token} />
       ) : (
-        <div className="flex flex-col gap-4">
-          <p className="body-xs ct-status-danger">
-            This reset link is invalid or has expired.
-          </p>
+        <EmptySurface
+          variant="widget"
+          message="This reset link is invalid or has expired."
+          detail="Request a fresh link to continue resetting your password."
+          className="min-h-32"
+          ariaLabel="Reset link unavailable"
+        >
           <Link
             href="/forgot-password"
-            className="body-xs ct-text-primary underline underline-offset-2"
+            className="body-xs ct-text-primary underline underline-offset-2 mt-1"
           >
             Request a new link
           </Link>
-        </div>
+        </EmptySurface>
       )}
     </AuthFormShell>
   );

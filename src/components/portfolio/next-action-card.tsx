@@ -87,10 +87,10 @@ export function resolveNextStep(props: NextActionCardProps): Step {
   if (!hasWallet) {
     return {
       eyebrow: "One step left",
-      headline: "Connect your wallet to invest.",
+      headline: "Finish wallet setup in your profile.",
       detail:
         "Your wallet is used to fund and receive payouts. You'll confirm every transaction yourself.",
-      cta: { label: "Connect wallet", href: "/onboarding/wallet" },
+      cta: { label: "Open profile", href: "/profile" },
     };
   }
 

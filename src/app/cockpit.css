@@ -2958,13 +2958,11 @@ button.ct-seg-btn {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: url("/backgrounds/hearst-vision-mirror.png");
+  background-image: url("/backgrounds/hearst-vision-institutional.png");
   background-size: cover;
-  background-position: center left;
+  background-position: center bottom;
   background-repeat: no-repeat;
-  /* Keep the background image crisp and subdued so it supports the surfaces
-     without becoming a blurry content layer on short pages. */
-  filter: brightness(0.88);
+  filter: brightness(0.75);
 }
 
 .ct-panels-row::after {
@@ -2978,15 +2976,15 @@ button.ct-seg-btn {
      respiration premium ; le drap noir plat l'avait tuée. */
   background:
     radial-gradient(
-      62% 44% at 40% 34%,
-      color-mix(in srgb, var(--ct-accent) 6%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 2%, transparent) 48%,
-      transparent 82%
+      70% 50% at 50% 75%,
+      color-mix(in srgb, var(--ct-accent) 10%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 3%, transparent) 55%,
+      transparent 80%
     ),
     radial-gradient(
-      74% 56% at 32% 54%,
-      color-mix(in srgb, var(--ct-text-strong) 12%, transparent) 0%,
-      color-mix(in srgb, var(--ct-text-strong) 4%, transparent) 46%,
+      80% 60% at 50% 42%,
+      color-mix(in srgb, white 8%, transparent) 0%,
+      color-mix(in srgb, white 2%, transparent) 55%,
       transparent 80%
     ),
     linear-gradient(

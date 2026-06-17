@@ -102,6 +102,13 @@ ops (action queue, live metrics, live ops) → audit trail.
 Risk / proof / distribution = KPI strip + liens operator shortcuts, pas de
 panels détail sur cette page. Barrel : `@/components/admin/dashboard`.
 
+**Admin agents & investors** — persona ops :
+- `/admin/agents` — bibliothèque `AgentTemplate` (create / edit / archive, compteur d'usage).
+- `/admin/customers` — directory + **New investor** (provisionne `User` + `Investor`, lie un profil Typeform orphelin par email si présent).
+- `/admin/customers/[id]` — questionnaire Typeform (éditable), calibration (suggérée vs appliquée), assignation template, mémoire agent (`AgentMemory`), conversations récentes.
+- Webhook `POST /api/typeform/webhook` — HMAC (`TYPEFORM_WEBHOOK_SECRET`), upsert `QualificationProfile`, calibration auto si email connu.
+- Mémoire chat — distillation best-effort tous les 6 messages (`memory-distill.ts`, `after()`), réinjectée via `loadUserMemory` → `buildUserContextSystemBlock`.
+
 ---
 
 ## Design system — guidelines (tokens & primitives)
@@ -365,6 +372,8 @@ pnpm db:migrate           # prisma migrate dev (named migration)
 pnpm db:studio            # Prisma Studio GUI
 pnpm db:seed              # Admin fixture timeline (snapshots, proofs, mining)
 pnpm seed:test            # E2E login user (test@hearst.local)
+pnpm tsx scripts/create-lp-user.ts  # LP démo (lp.demo@hearstcorporation.io, env LP_EMAIL/LP_PASSWORD)
+pnpm tsx scripts/create-agent-template.ts  # 1er AgentTemplate + assign au LP démo
 pnpm seed:investor-demo   # Local visual QA — demo position + vault + profile
 pnpm seed:investor-demo:reset  # Wipe fixture rows (positions, proofs, snapshots…)
 ```

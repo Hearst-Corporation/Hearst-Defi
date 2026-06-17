@@ -5,6 +5,7 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { proposeAction } from "@/lib/governance/actions";
@@ -71,12 +72,16 @@ export default async function ProposePage() {
               Vault *
             </label>
             {vaults.length === 0 ? (
-              <p className="body-sm ct-text-muted">
-                No vaults available.{" "}
+              <EmptySurface
+                variant="inline"
+                message="No vaults available yet."
+                detail="Create a vault deployment before drafting a governance proposal."
+                ariaLabel="Governance proposals awaiting vaults"
+              >
                 <Link href="/admin/vaults/new" className="ct-text-primary underline underline-offset-2">
                   Create a vault first.
                 </Link>
-              </p>
+              </EmptySurface>
             ) : (
               <select id="vaultId" name="vaultId" required className={adminFormField}>
                 <option value="">Select a vault…</option>

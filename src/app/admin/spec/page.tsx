@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { getSpecIndex } from "@/lib/spec";
 
 export default async function SpecIndexPage() {
@@ -12,9 +13,13 @@ export default async function SpecIndexPage() {
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader title="Spec" />
-      <p className="body-sm ct-text-body">
-        No spec files found in <code>/docs/spec/</code>.
-      </p>
+      <EmptySurface
+        variant="widget"
+        message="No spec files found."
+        detail="Add documents under /docs/spec/ to populate the specification library."
+        className="min-h-32"
+        ariaLabel="Specification library awaiting documents"
+      />
     </div>
   );
 }
