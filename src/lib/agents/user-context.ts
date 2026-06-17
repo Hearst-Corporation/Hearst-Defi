@@ -1,9 +1,10 @@
 import "server-only";
 
-import type { UserAgentProfile } from "@prisma/client";
+import type { UserAgentProfile, AgentTemplate } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
 import { assertNoForbiddenWords } from "@/lib/agents/validators";
+import { renderAgentMemoryBlock } from "@/lib/agents/memory";
 
 export type { UserAgentProfile };
 
@@ -40,17 +41,47 @@ const MAX_CUSTOM_INSTRUCTIONS_LEN = 2_000;
 // loadUserAgentProfile
 // ---------------------------------------------------------------------------
 
+type ProfileWithTemplate = UserAgentProfile & { template: AgentTemplate | null };
+
+/**
+ * Merges a per-user profile with its inherited AgentTemplate. Instance fields
+ * override template defaults when non-null (schema contract).
+ */
+export function mergeProfileWithTemplate(
+  profile: ProfileWithTemplate,
+): UserAgentProfile {
+  const { template: t, ...base } = profile;
+  if (!t) return base;
+
+  const mergedInstructions =
+    base.customInstructions !== null ? base.customInstructions : t.systemAdditions;
+
+  return {
+    ...base,
+    tone: base.tone ?? t.tone,
+    language: base.language ?? t.language,
+    verbosity: base.verbosity ?? t.verbosity,
+    customInstructions: mergedInstructions,
+  };
+}
+
 /**
  * Fetches the persona profile for a given (userId, agentName) pair, or null
  * if none exists yet (first-visit / default experience).
+ *
+ * When `templateId` is set, template defaults are merged in — instance fields
+ * win when non-null.
  */
 export async function loadUserAgentProfile(
   userId: string,
   agentName: string,
 ): Promise<UserAgentProfile | null> {
-  return prisma.userAgentProfile.findUnique({
+  const row = await prisma.userAgentProfile.findUnique({
     where: { userId_agentName: { userId, agentName } },
+    include: { template: true },
   });
+  if (!row) return null;
+  return mergeProfileWithTemplate(row);
 }
 
 // ---------------------------------------------------------------------------
@@ -146,22 +177,32 @@ async function loadInvestorMemoMemory(userId: string, limit: number): Promise<st
 }
 
 async function loadCockpitChatMemory(userId: string, limit: number): Promise<string> {
-  const chats = await prisma.cockpitChat.findMany({
-    where: { userId },
-    orderBy: { updatedAt: "desc" },
-    take: limit,
-    select: { title: true, updatedAt: true },
-  });
+  // Durable, accumulating facts distilled from past conversations take
+  // precedence — they are the agent's actual "upgraded memory". The recent
+  // conversation list is appended underneath as lighter context.
+  const [durable, chats] = await Promise.all([
+    renderAgentMemoryBlock(userId, "cockpit-chat"),
+    prisma.cockpitChat.findMany({
+      where: { userId },
+      orderBy: { updatedAt: "desc" },
+      take: limit,
+      select: { title: true, updatedAt: true },
+    }),
+  ]);
 
-  if (chats.length === 0) return "";
+  const parts: string[] = [];
+  if (durable.trim().length > 0) parts.push(durable.trim());
 
-  const lines = chats.map((c) => {
-    const date = c.updatedAt.toISOString().slice(0, 10);
-    const title = c.title ?? "(sans titre)";
-    return `- ${date} · ${title}`;
-  });
+  if (chats.length > 0) {
+    const lines = chats.map((c) => {
+      const date = c.updatedAt.toISOString().slice(0, 10);
+      const title = c.title ?? "(sans titre)";
+      return `- ${date} · ${title}`;
+    });
+    parts.push(`Conversations récentes (${chats.length}) :\n${lines.join("\n")}`);
+  }
 
-  return `Conversations récentes (${chats.length}) :\n${lines.join("\n")}`;
+  return parts.join("\n\n");
 }
 
 // ---------------------------------------------------------------------------

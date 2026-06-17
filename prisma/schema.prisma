@@ -529,11 +529,108 @@ model UserAgentProfile {
   language           String? // ex: "fr" | "en"
   verbosity          String? // ex: "low" | "medium" | "high"
   customInstructions String? // texte libre, validé forbidden-words avant injection
+  // Per-customer instance may inherit a reusable AgentTemplate (the library).
+  // Instance fields above OVERRIDE the template when non-null; the template
+  // supplies the defaults. SetNull keeps the profile if its template is deleted.
+  templateId         String?
+  template           AgentTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
   @@unique([userId, agentName])
   @@index([userId])
+  @@index([templateId])
+}
+
+// =============================================================================
+// AGENT TEMPLATES — reusable agent personas (library) reused across customers
+// =============================================================================
+//
+// A template is a named, reusable persona ("LP institutionnel FR", "Prospect
+// exchange", …) that specialises ONE of the code agents (baseAgent). A
+// per-customer UserAgentProfile may point at a template and inherit its
+// tone/language/verbosity/systemAdditions, overriding any field locally. The
+// 5 code agents stay the immutable substrate; templates only tune register.
+
+model AgentTemplate {
+  id              String   @id @default(cuid())
+  slug            String   @unique // kebab-case id, e.g. "lp-institutional-fr"
+  label           String // human label
+  description     String?
+  baseAgent       String   @default("cockpit-chat") // one of AgentName
+  tone            String? // concise | detailed | technical
+  language        String? // fr | en
+  verbosity       String? // low | medium | high
+  systemAdditions String? // template-level custom instructions (forbidden-words checked on use)
+  archived        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  profiles UserAgentProfile[]
+
+  @@index([archived])
+}
+
+// =============================================================================
+// QUALIFICATION — onboarding questionnaire (Typeform) answers per customer
+// =============================================================================
+//
+// Stores the structured answers of the lead-qualification Typeform. Ingested
+// by the Typeform webhook (source="typeform") OR entered/edited by an admin
+// (source="manual"). Drives agent calibration (see lib/agents/calibration.ts).
+// userId is null until the submission is matched to a User account (the form
+// can be filled before the account exists); email is the matching key.
+
+model QualificationProfile {
+  id           String   @id @default(cuid())
+  userId       String?  @unique // null until matched to a User
+  email        String? // contact email captured by the form (match key)
+  source       String   @default("typeform") // typeform | manual
+  // --- questionnaire answers (nullable: "Not sure" / partial submissions) ---
+  platformType String? // crypto | exchange | wealth | custody
+  aum          String? // lt_10m | 10_50m | 50_250m | 250m_plus | unsure
+  fundsUsage   String? // idle | mix | earning
+  yieldStatus  String? // live | in_progress | not_yet
+  yieldType    String? // low_risk | balanced | growth | unsure
+  vaultSize    String? // 100_500k | 500k_1m | 1_5m | 5m_plus | unsure
+  timeline     String? // asap | 1_3m | 3_6m | exploring
+  // --- contact ---
+  firstName    String?
+  lastName     String?
+  phone        String?
+  website      String?
+  rawPayload   Json? // full Typeform submission envelope (audit / re-parse)
+  submittedAt  DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([email])
+}
+
+// =============================================================================
+// AGENT MEMORY — accumulating, writable per-user memory distilled from chats
+// =============================================================================
+//
+// Unlike loadUserMemory() (a read-only summary derived from activity rows),
+// these are durable facts written back from conversations: the cockpit chat
+// route distils each finished exchange into short facts (source="chat-distill")
+// or an admin curates them (source="manual"). Injected into the system prompt
+// by buildUserContextSystemBlock via loadUserMemory. Forbidden-words checked
+// before any row is written.
+
+model AgentMemory {
+  id           String   @id @default(cuid())
+  userId       String
+  agentName    String   @default("cockpit-chat")
+  kind         String   @default("fact") // fact | preference | goal | constraint
+  content      String // one durable fact (bounded, forbidden-words checked)
+  source       String   @default("chat-distill") // chat-distill | manual
+  sourceChatId String?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId, agentName, active])
+  @@index([sourceChatId])
 }
 
 // =============================================================================
@@ -911,4 +1008,23 @@ model SubscriptionEnvelope {
   @@index([userId, createdAt])
   @@index([envelopeId])
   @@index([status])
+}
+
+// =============================================================================
+// HUBSPOT SYNC — idempotency audit log for HubSpot outbound calls
+// =============================================================================
+//
+// Tracks every contact upsert and note creation so re-deliveries (Typeform
+// retries, duplicate distillation triggers) are detected and skipped.
+// Kept minimal: no FK to User so orphan rows don't block deletes.
+
+model HubSpotSync {
+  id              String   @id @default(cuid())
+  userId          String // Hearst User.id (informational, no FK)
+  kind            String // contact_upsert | note_created
+  hubspotObjectId String? // HubSpot contact id or note id
+  sourceId        String? // qualificationProfile.id or cockpitChat.id
+  syncedAt        DateTime @default(now())
+
+  @@index([userId, kind, sourceId])
 }

@@ -3,6 +3,7 @@ import {
   type CockpitChatHandlerConfig,
 } from "@hearst/cockpit-shell/handler";
 import type { NextRequest } from "next/server";
+import { after } from "next/server";
 import { z } from "zod";
 import { openai, LLM_MODEL } from "@/lib/llm/openai";
 import { env } from "@/lib/env";
@@ -34,6 +35,8 @@ import {
   type StreamingChatClient,
 } from "@/lib/llm/chat-agent";
 import { estimateOpenAiCostUsd } from "@/lib/llm/client";
+import { distillChatToMemory } from "@/lib/agents/memory-distill";
+import { syncMemoryToHubSpot } from "@/lib/hubspot/sync-memory";
 import { publishNav } from "@/lib/llm/nav-channel";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { ADMIN_NAV_DESTINATIONS } from "@/lib/llm/navigate-tool";
@@ -307,9 +310,32 @@ function createUserScopedPersistence(
           data: { updatedAt: new Date() },
         });
       }
+
+      // Auto-distil the conversation into durable AgentMemory so the agent's
+      // memory "upgrades" from what the customer discussed. Cost-bounded: only
+      // on assistant turns of the default investor chat, and only every
+      // DISTILL_EVERY messages (one OpenAI call per trigger, ADR-011). Runs via
+      // after() so it never blocks the streamed response, and is best-effort
+      // (distillChatToMemory swallows its own errors).
+      if (role === "assistant" && chatMode === "normal") {
+        const count = await prisma.cockpitMessage.count({ where: { chatId } });
+        if (count > 0 && count % DISTILL_EVERY === 0) {
+          after(async () => {
+            const facts = await distillChatToMemory({ userId, chatId });
+            if (facts.length > 0) {
+              await syncMemoryToHubSpot(userId, facts).catch((err) =>
+                console.error("[cockpit-chat] hubspot memory sync failed", err),
+              );
+            }
+          });
+        }
+      }
     },
   };
 }
+
+/** Distil chat → memory every N persisted messages (bounds OpenAI cost). */
+const DISTILL_EVERY = 6;
 
 /**
  * Persist an honest LlmRun for one Master Agent turn, off the response path.

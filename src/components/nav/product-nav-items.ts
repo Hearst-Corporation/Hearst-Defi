@@ -88,6 +88,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     tabs: [
       { id: "dashboard-overview", label: "Overview", href: "/admin/dashboard", icon: "LayoutDashboard" },
       { id: "customers", label: "Investors", href: "/admin/customers", icon: "Users" },
+      { id: "agents", label: "Agents", href: "/admin/agents", icon: "Bot" },
       { id: "feedback", label: "Feedback", href: "/admin/feedback", icon: "MessageSquare" },
     ],
   },

@@ -11,6 +11,7 @@ import { marketDataHourly } from "@/lib/inngest/functions/market-data-hourly";
 import { miningHealthDaily } from "@/lib/inngest/functions/mining-health-daily";
 import { rebalancingSignal } from "@/lib/inngest/functions/rebalancing-signal";
 import { riskDaily } from "@/lib/inngest/functions/risk-daily";
+import { hubspotReverseSync } from "@/lib/inngest/functions/hubspot-reverse-sync";
 
 /**
  * Inngest webhook endpoint.
@@ -26,6 +27,7 @@ import { riskDaily } from "@/lib/inngest/functions/risk-daily";
  *   - investor-memo-monthly  (1st of month 09:00 UTC)
  *   - rebalancing-signal     (event-driven: risk.daily.completed, rebalance.signal.requested)
  *   - distribution-executed  (event-driven: distribution.executed)
+ *   - hubspot-reverse-sync   (every 15 min: HubSpot → QualificationProfile)
  *
  * Security — request signature verification (P0):
  *
@@ -70,6 +72,7 @@ export const { GET, POST, PUT } = serve({
     investorMemoMonthly,
     rebalancingSignal,
     distributionExecuted,
+    hubspotReverseSync,
   ],
   // Pass the validated signing key explicitly to `serve()`. inngest@4 would
   // otherwise fall back to reading INNGEST_SIGNING_KEY itself, but wiring it

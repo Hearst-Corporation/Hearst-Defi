@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { CircuitBreaker } from "@/lib/circuit-breaker";
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/env";
+export { LLM_MODEL } from "@/lib/llm/openai";
 import { openai, LLM_MODEL } from "@/lib/llm/openai";
 import { getRequestContext } from "@/lib/request-context";
 

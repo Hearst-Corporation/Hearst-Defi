@@ -1,10 +1,17 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { hashPassword } from "@/lib/auth/password";
+import {
+  linkQualificationByEmail,
+  applyCalibrationToUser,
+} from "@/lib/agents/qualification";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 /**
  * Admin KYC override. Lets a compliance officer (admin) set an investor's
@@ -67,4 +74,87 @@ export async function setInvestorKyc(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/admin/customers");
+}
+
+// ---------------------------------------------------------------------------
+// Create investor (admin-provisioned account)
+// ---------------------------------------------------------------------------
+
+const CreateInvestorInput = z.object({
+  email: z.string().trim().email().max(200),
+  role: z.enum(["investor", "admin"]).default("investor"),
+  kycStatus: z.enum(["pending", "approved", "rejected"]).default("pending"),
+});
+
+/**
+ * Admin-provisions a new account: a User + its Investor profile. No password is
+ * set by the admin — a random unusable hash is stored so the account exists
+ * (for qualification / agent calibration) but cannot be logged into until the
+ * person completes a password reset. Redirects to the new customer's detail.
+ *
+ * Admin-only: Server Actions are a public RPC surface, so requireAdmin() is
+ * re-asserted here, not just relied on from the /admin layout.
+ */
+export async function createInvestor(formData: FormData): Promise<void> {
+  const admin = await requireAdmin();
+
+  const parsed = CreateInvestorInput.safeParse({
+    email: formData.get("email"),
+    role: formData.get("role") ?? "investor",
+    kycStatus: formData.get("kycStatus") ?? "pending",
+  });
+  if (!parsed.success) throw new Error("createInvestor: invalid input");
+
+  const existing = await prisma.user.findUnique({
+    where: { email: parsed.data.email },
+    select: { id: true },
+  });
+  if (existing) throw new Error("An account with this email already exists");
+
+  // Random, unusable password hash — login stays disabled until reset.
+  const passwordHash = await hashPassword(randomBytes(24).toString("hex"));
+
+  const user = await prisma.user.create({
+    data: {
+      email: parsed.data.email.trim().toLowerCase(),
+      passwordHash,
+      role: parsed.data.role,
+      investor: {
+        create: {
+          email: parsed.data.email.trim().toLowerCase(),
+          kycStatus: parsed.data.kycStatus,
+        },
+      },
+    },
+    include: { investor: true },
+  });
+
+  // Orphan Typeform submission filled before account existed → link + calibrate.
+  try {
+    const linked = await linkQualificationByEmail(user.id, user.email);
+    if (linked) await applyCalibrationToUser(user.id);
+  } catch {
+    /* best-effort — account creation must not fail */
+  }
+
+  await prisma.adminAudit.create({
+    data: {
+      actorWallet: admin.walletAddress ?? admin.userId,
+      action: "investor.create",
+      entityType: "Investor",
+      entityId: user.investor?.id ?? user.id,
+      diff: JSON.stringify({
+        before: null,
+        after: { email: parsed.data.email, role: parsed.data.role, kycStatus: parsed.data.kycStatus },
+      }),
+      ip: null,
+      userAgent: null,
+    },
+  });
+
+  revalidatePath("/admin/customers");
+  if (user.investor) {
+    redirect(`/admin/customers/${user.investor.id}`);
+  }
+  redirect("/admin/customers");
 }

@@ -2,11 +2,14 @@
 // Server Component — inherits the /admin layout's requireAdmin() gate, so no
 // redundant auth check here. Reads via the server-only loadCustomers() loader.
 
+import Link from "next/link";
+
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
+import { CreateInvestorButton } from "@/components/admin/customer/create-investor-button";
 import { loadCustomers, type KycStatus } from "@/lib/data/customers";
 import { formatAdminDate } from "@/lib/vaults/product-display";
 
@@ -58,6 +61,7 @@ export default async function CustomersPage({
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Investors"
+        actions={<CreateInvestorButton />}
       />
 
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Investors">
@@ -67,9 +71,13 @@ export default async function CustomersPage({
           <EmptySurface
             variant="widget"
             message="No investors yet."
-            detail="Investor rows appear here once an account is provisioned with an Investor profile."
+            detail="Provision an account with the New investor button (top right) — creates a User + Investor profile. Login stays disabled until the person completes password reset."
             className="min-h-32"
-          />
+          >
+            <div className="mt-4">
+              <CreateInvestorButton />
+            </div>
+          </EmptySurface>
         ) : (
           <Card className="p-0 overflow-hidden" hoverOverlay={false}>
             <div className="overflow-x-auto">
@@ -103,7 +111,9 @@ export default async function CustomersPage({
                       className="border-b border-(--ct-border-soft) last:border-0"
                     >
                       <td className="ct-table-cell truncate ct-text-strong">
-                        {c.email}
+                        <Link href={`/admin/customers/${c.id}`} className="hover:underline">
+                          {c.email}
+                        </Link>
                       </td>
                       <td className="hidden ct-table-cell mono ct-text-muted lg:table-cell">
                         {truncateWallet(c.walletAddress)}
