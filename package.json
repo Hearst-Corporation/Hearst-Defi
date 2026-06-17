@@ -17,7 +17,7 @@
     "quality:dup:report": "jscpd src --reporters html --output .jscpd-report && echo 'open .jscpd-report/html/index.html'",
     "quality:dead:report": "knip",
     "commit:check": "node scripts/staged-scope-check.mjs",
-    "predev": "node scripts/free-port.mjs",
+    "predev": "node scripts/free-port.mjs && node scripts/prisma-provider.mjs && prisma generate",
     "dev": "NODE_OPTIONS=--max-http-header-size=65536 next dev -p 4105",
     "build": "node scripts/prisma-provider.mjs && prisma generate && NODE_ENV=production next build",
     "start": "next start -H 0.0.0.0 -p ${PORT:-4105}",

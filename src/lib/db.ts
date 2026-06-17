@@ -4,6 +4,8 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { Pool } from "pg";
 
+import { resolvePrismaProvider } from "@/lib/prisma-provider-resolve";
+
 /**
  * Prisma 7 + Next.js dev singleton.
  *
@@ -38,7 +40,7 @@ const globalForDb = globalThis as unknown as {
 };
 
 function makeAdapter() {
-  const provider = process.env.PRISMA_PROVIDER?.trim() ?? "sqlite";
+  const provider = resolvePrismaProvider();
   const databaseUrl =
     process.env.DATABASE_URL?.trim() ?? "file:./prisma/dev.db";
 

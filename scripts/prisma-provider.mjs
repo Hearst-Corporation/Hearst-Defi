@@ -27,19 +27,26 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { loadProjectEnv } from "./lib/load-env.mjs";
+
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const SCHEMA_PATH = resolve(__dirname, "../prisma/schema.prisma");
 
 const ALLOWED = new Set(["sqlite", "postgresql"]);
 
-// Trim defensively — `vercel env add` via `echo "x"` stores a trailing newline,
-// which would fail the strict membership check below.
-const target = process.env.PRISMA_PROVIDER?.trim();
+loadProjectEnv(resolve(__dirname, ".."));
 
-if (!target) {
-  console.log("[prisma-provider] PRISMA_PROVIDER not set — keeping current provider (no-op)");
-  process.exit(0);
+function resolvePrismaProvider() {
+  const explicit = process.env.PRISMA_PROVIDER?.trim();
+  if (explicit === "sqlite" || explicit === "postgresql") return explicit;
+  const url = process.env.DATABASE_URL?.trim() ?? "file:./prisma/dev.db";
+  if (url.startsWith("postgres://") || url.startsWith("postgresql://")) {
+    return "postgresql";
+  }
+  return "sqlite";
 }
+
+const target = resolvePrismaProvider();
 
 if (!ALLOWED.has(target)) {
   console.error(

@@ -7,7 +7,7 @@ alwaysApply: true
 
 À **chaque fin de passe** (lot UI/backend terminé) — dans cet ordre, sans exception :
 
-1. **Commit** — staging chirurgical (`git add <chemins exacts>`), message clair. Si l'utilisateur a demandé push ou des commits ont été faits dans la passe → **push**.
+1. **Commit + push** — staging chirurgical (`git add <chemins exacts>`), message clair, puis `git push origin main` (ou la branche de travail). **Chaque lot terminé = commit + push**, sans attendre qu'on te le redemande.
 2. **Kill** — `node scripts/free-port.mjs` (port 4105). Si `EADDRINUSE` : `lsof -ti :4105 | xargs kill -9` puis free-port.
 3. **Restart** — `pnpm dev` en background.
 
