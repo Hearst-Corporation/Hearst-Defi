@@ -215,7 +215,7 @@ export function ValueChart({
     <PfCockpitPanel
       variant="wide"
       aria-label="Portfolio value — 12-month trend"
-      className="relative pf-value-chart"
+      className={cn("relative pf-value-chart", showEmbeddedNextAction && "pf-value-chart--cta-only")}
     >
       {provenance ? <ChartProvenanceCorner kind={provenance} /> : null}
       <PfCockpitPanelHeader
@@ -239,37 +239,37 @@ export function ValueChart({
         </p>
       ) : null}
 
-      <div
-        className={cn(
-          "relative mt-[var(--ct-space-3)] block w-full flex-1 overflow-hidden rounded-md z-10",
-          showZeroShell
-            ? showEmbeddedNextAction
-              ? "min-h-16 pf-value-chart__chart--embedded"
-              : "min-h-28"
-            : "min-h-20",
-        )}
-      >
-        {showZeroShell ? (
+      {!showEmbeddedNextAction ? (
+        <>
           <div
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-6 border-t border-[var(--ct-border-soft)]"
-          />
-        ) : (
-          <ChartDisclaimerUnderlay />
-        )}
-        <AreaChart
-          series={series}
-          muted={showZeroShell}
-        />
-      </div>
+            className={cn(
+              "relative mt-[var(--ct-space-3)] block w-full flex-1 overflow-hidden rounded-md z-10",
+              showZeroShell ? "min-h-28" : "min-h-20",
+            )}
+          >
+            {showZeroShell ? (
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 bottom-6 border-t border-[var(--ct-border-soft)]"
+              />
+            ) : (
+              <ChartDisclaimerUnderlay />
+            )}
+            <AreaChart
+              series={series}
+              muted={showZeroShell}
+            />
+          </div>
 
-      <div className="stat-label ct-text-muted flex justify-between mt-[var(--ct-space-2)] mono relative z-10">
-        {series
-          .filter((_, i) => i % 3 === 0 || i === series.length - 1)
-          .map((s, i) => (
-            <span key={i}>{s.label}</span>
-          ))}
-      </div>
+          <div className="stat-label ct-text-muted flex justify-between mt-[var(--ct-space-2)] mono relative z-10">
+            {series
+              .filter((_, i) => i % 3 === 0 || i === series.length - 1)
+              .map((s, i) => (
+                <span key={i}>{s.label}</span>
+              ))}
+          </div>
+        </>
+      ) : null}
 
       {!showZeroShell ? (
         <p className="body-xs ct-text-muted mt-[var(--ct-space-2)] italic relative z-10">

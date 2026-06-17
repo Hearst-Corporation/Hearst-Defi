@@ -126,7 +126,7 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     expect(html).toContain("Start onboarding");
     expect(html).toContain("/onboarding/accreditation");
     expect(html).not.toContain("No portfolio value recorded yet");
-    expect(html).toContain("<svg");
+    expect(html).not.toContain("<svg");
   });
 
   it("LockMeter previewZeros: progress bar at 0%, not awaiting surface", () => {

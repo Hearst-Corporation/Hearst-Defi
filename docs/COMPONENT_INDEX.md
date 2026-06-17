@@ -19,7 +19,7 @@
 | `src/components/admin/admin-page-header.tsx` | AdminPageHeader | 35 |
 | `src/components/admin/agent-template-form.tsx` | AgentTemplateForm | 2 |
 | `src/components/admin/archive-template-button.tsx` | ArchiveTemplateButton | 1 |
-| `src/components/admin/cockpit/action-queue.tsx` | ActionQueue | 2 |
+| `src/components/admin/cockpit/action-queue.tsx` | ActionQueue | 1 |
 | `src/components/admin/cockpit/audit-trail-rolling.tsx` | AuditTrailRolling | 1 |
 | `src/components/admin/cockpit/live-metrics.tsx` | LiveMetrics | 1 |
 | `src/components/admin/cockpit/live-ops.tsx` | LiveOps | 1 |
@@ -184,7 +184,7 @@
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 5 |
 | `src/components/ui/progress.tsx` | Progress | 14 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 53 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 52 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/section-embed.tsx` | SectionEmbedProvider | 1 |

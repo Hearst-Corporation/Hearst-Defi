@@ -105,15 +105,37 @@
 }
 
 .pf-value-chart__next-action {
-  padding-top: var(--ct-space-1);
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ct-space-6) var(--ct-space-4);
+  min-height: 11rem;
 }
 
 .pf-value-chart__next-action .pf-next-action-card__layout {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   gap: var(--ct-space-4);
+  width: 100%;
+  max-width: var(--ct-prose-md);
+  margin-inline: auto;
 }
 
-.pf-value-chart__chart--embedded {
-  opacity: var(--ct-opacity-70);
+.pf-value-chart__next-action .pf-next-action-card__copy {
+  align-items: center;
+  max-width: none;
+}
+
+.pf-value-chart__next-action .pf-next-action-card__cta {
+  justify-content: center;
+  width: 100%;
+}
+
+.pf-value-chart--cta-only {
+  justify-content: center;
 }
 
 @container pf (min-width: 36rem) {
@@ -127,6 +149,17 @@
   .pf-next-action-card__cta {
     width: auto;
     justify-content: flex-end;
+  }
+
+  /* Embedded CTA in value chart — always stacked + centered, not side-by-side */
+  .pf-value-chart__next-action .pf-next-action-card__layout {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pf-value-chart__next-action .pf-next-action-card__cta {
+    width: 100%;
+    justify-content: center;
   }
 }
 
