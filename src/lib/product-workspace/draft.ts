@@ -10,10 +10,16 @@ export interface ProductWorkspaceDraft {
   vaultLabel: string;
   intentKind?: ProductWorkspaceIntentKind;
   scenarioValidationQueued: boolean;
+  /** Framing brief authored by the cockpit agent for THIS objective. The chat
+   *  bubble stays a short fixed acknowledgement; the agent's full reasoning is
+   *  routed here and rendered in the workspace instead of the conversation. */
+  agentBrief?: string;
   updatedAtIso: string;
 }
 
 const FORM_STATE_KEY = "productWorkspace";
+/** Hard cap on the persisted brief — bounds the JSON blob in vaultDraft.formState. */
+const MAX_AGENT_BRIEF_LEN = 6_000;
 
 function parseFormState(raw: string | null | undefined): Record<string, unknown> {
   if (!raw) return {};
@@ -40,6 +46,9 @@ function parseStoredDraft(value: unknown): ProductWorkspaceDraft | null {
     ...(typeof raw.intentKind === "string"
       ? { intentKind: raw.intentKind as ProductWorkspaceIntentKind }
       : {}),
+    ...(typeof raw.agentBrief === "string" && raw.agentBrief.trim().length > 0
+      ? { agentBrief: raw.agentBrief }
+      : {}),
     scenarioValidationQueued: raw.scenarioValidationQueued === true,
     updatedAtIso:
       typeof raw.updatedAtIso === "string"
@@ -55,23 +64,48 @@ export async function upsertProductWorkspaceDraft(args: {
   vaultLabel: string;
   intentKind?: ProductWorkspaceIntentKind;
   scenarioValidationQueued: boolean;
+  /** Agent framing brief. When omitted, a brief already persisted for the same
+   *  objective is PRESERVED — the page seeds the draft on arrival (no brief yet,
+   *  the route writes it after the turn), and a later page render must not wipe
+   *  a brief the route added in between. A different objective drops the stale
+   *  brief so it never leaks across products. */
+  agentBrief?: string;
   now?: Date;
 }): Promise<ProductWorkspaceDraft | null> {
-  const draft: ProductWorkspaceDraft = {
-    ...(args.objective ? { objective: args.objective } : {}),
-    vaultTicker: args.vaultTicker,
-    vaultLabel: args.vaultLabel,
-    ...(args.intentKind ? { intentKind: args.intentKind } : {}),
-    scenarioValidationQueued: args.scenarioValidationQueued,
-    updatedAtIso: (args.now ?? new Date()).toISOString(),
-  };
-
   try {
     const existing = await prisma.vaultDraft.findUnique({
       where: { userId: args.userId },
     });
+    const existingState = parseFormState(existing?.formState);
+    const existingDraft = parseStoredDraft(existingState[FORM_STATE_KEY]);
+
+    // Preserve a previously-stored brief only when this upsert is for the SAME
+    // objective and doesn't supply a new one. Otherwise the brief follows the
+    // new objective (or is replaced).
+    const sameObjective =
+      existingDraft?.objective !== undefined &&
+      existingDraft.objective === args.objective;
+    const resolvedBrief =
+      args.agentBrief !== undefined
+        ? args.agentBrief.trim().slice(0, MAX_AGENT_BRIEF_LEN)
+        : sameObjective
+          ? existingDraft?.agentBrief
+          : undefined;
+
+    const draft: ProductWorkspaceDraft = {
+      ...(args.objective ? { objective: args.objective } : {}),
+      vaultTicker: args.vaultTicker,
+      vaultLabel: args.vaultLabel,
+      ...(args.intentKind ? { intentKind: args.intentKind } : {}),
+      ...(resolvedBrief && resolvedBrief.length > 0
+        ? { agentBrief: resolvedBrief }
+        : {}),
+      scenarioValidationQueued: args.scenarioValidationQueued,
+      updatedAtIso: (args.now ?? new Date()).toISOString(),
+    };
+
     const merged = {
-      ...parseFormState(existing?.formState),
+      ...existingState,
       [FORM_STATE_KEY]: draft,
     };
 

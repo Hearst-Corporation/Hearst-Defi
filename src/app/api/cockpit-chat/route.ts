@@ -46,7 +46,11 @@ import {
   SCENARIO_LAB_DESTINATION_KEY,
   resolveMasterAgentNavPublish,
 } from "@/lib/llm/product-workspace-intent";
-import { withProductChatStreamEvents } from "@/lib/llm/product-chat-stream";
+import {
+  withProductChatStreamEvents,
+  inferVault,
+} from "@/lib/llm/product-chat-stream";
+import { upsertProductWorkspaceDraft } from "@/lib/product-workspace/draft";
 
 const REVIEW_FACILITATOR_PROMPT = buildFacilitatorPrompt({ productContext: PRODUCT_CONTEXT });
 // NOTE: the LlmRun trace no longer stores a BASE-prompt hash. PR-3 #2 hashes the
@@ -424,12 +428,39 @@ async function persistNavTrace(args: {
 }
 
 /**
+ * Short, fixed chat-bubble acknowledgement emitted (instead of the model's
+ * prose) when an ADMIN turn carries a product creation/framing intent. The
+ * full framing brief the model authors is routed to the Product Workspace
+ * draft and rendered there — the conversation never carries the long content.
+ * Kept compliant (no APY, no forbidden words) so the output guard never blocks
+ * it. The `→` hints at the workspace the bridge is opening in parallel.
+ */
+const PRODUCT_WORKSPACE_CHAT_ACK =
+  "Je cadre ça dans le Product Workspace → tout le détail (vault inféré, hypothèses, garde-fous) s'écrit là-bas, pas ici.";
+
+/** A one-shot text/plain stream carrying a single fixed message — used to keep
+ *  the chat bubble short when the model's prose is diverted to the workspace. */
+function ackStream(text: string): ReadableStream<Uint8Array> {
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode(text));
+      controller.close();
+    },
+  });
+}
+
+/**
  * Master Agent turn (flag-gated). Runs the app-side tool-capable engine:
  * streams the guarded answer to the client, persists the user + assistant
  * messages (the cockpit-shell handler did this itself), and publishes the
  * chosen navigation destination to the out-of-band channel for the client
  * bridge. Persistence + nav publish happen AFTER the turn, off the response
  * path, so the stream is returned immediately.
+ *
+ * Product-intent carve-out (admin): the chat bubble stays conversational — it
+ * shows only PRODUCT_WORKSPACE_CHAT_ACK — while the model's full framing prose
+ * is diverted into the Product Workspace draft (the "central chamber"), so the
+ * conversation never balloons into a product write-up.
  */
 async function runMasterAgentTurn(args: {
   req: NextRequest;
@@ -508,6 +539,12 @@ async function runMasterAgentTurn(args: {
   // structurally, but the SDK's ChatCompletionChunk ≠ our StreamChunk so TS
   // can't prove it. The cast is the seam, not a type hole — widening the
   // interface to the full SDK type would couple the agent to the SDK.
+  // Admin product creation/framing intent → the chat bubble stays short (a
+  // fixed ack) and the model's prose is diverted to the Product Workspace.
+  const productWorkspaceIntent = classifyProductWorkspaceIntent(message);
+  const divertToWorkspace =
+    navProfile === "admin" && productWorkspaceIntent.shouldOpenProductWorkspace;
+
   const { stream, nav, final } = runChatAgent(
     openai as unknown as StreamingChatClient,
     model,
@@ -519,18 +556,58 @@ async function runMasterAgentTurn(args: {
       userId,
     },
   );
-  const responseStream = withProductChatStreamEvents({
-    stream,
-    message,
-    navProfile,
-  });
+  // When diverting, the client bubble receives ONLY the short ack — the model's
+  // stream is consumed (drained via `final`) for the workspace brief, never
+  // shown in the conversation. Otherwise stream the answer normally (with the
+  // product-chart side-events for non-diverted product talk, if any).
+  const responseStream = divertToWorkspace
+    ? ackStream(PRODUCT_WORKSPACE_CHAT_ACK)
+    : withProductChatStreamEvents({
+        stream,
+        message,
+        navProfile,
+      });
 
   // Persist the assistant answer + an honest LlmRun trace once the turn
   // completes. Both run off the response path and never throw.
   const persistChatId = chatId;
   void final
     .then(async (result) => {
-      if (!result.blocked && result.text && persistChatId) {
+      if (!result.blocked && result.text && divertToWorkspace) {
+        // Diverted: the model's prose is the Product Workspace framing brief,
+        // NOT a chat message. Seed/refresh the draft with it (inferring the
+        // vault from the objective, same as the page), and persist ONLY the
+        // short ack as the assistant turn so the conversation stays short and
+        // the next turn's history never re-loads the long write-up.
+        const inferred = inferVault(productWorkspaceIntent.objective);
+        await upsertProductWorkspaceDraft({
+          userId,
+          ...(productWorkspaceIntent.objective
+            ? { objective: productWorkspaceIntent.objective }
+            : {}),
+          vaultTicker: inferred.ticker,
+          vaultLabel: inferred.label,
+          ...(productWorkspaceIntent.kind
+            ? { intentKind: productWorkspaceIntent.kind }
+            : {}),
+          scenarioValidationQueued: productWorkspaceIntent.shouldOpenScenarioLab,
+          agentBrief: result.text,
+        }).catch(() => {
+          /* best-effort: a failed brief write must not break the response */
+        });
+        if (persistChatId) {
+          await persistence
+            .saveMessage(persistChatId, {
+              id: crypto.randomUUID(),
+              role: "assistant",
+              content: PRODUCT_WORKSPACE_CHAT_ACK,
+              createdAt: Date.now(),
+            })
+            .catch(() => {
+              /* best-effort persistence */
+            });
+        }
+      } else if (!result.blocked && result.text && persistChatId) {
         await persistence
           .saveMessage(persistChatId, {
             id: crypto.randomUUID(),

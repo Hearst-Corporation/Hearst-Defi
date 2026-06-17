@@ -74,11 +74,16 @@ vi.mock("@/lib/llm/nav-channel", () => ({
   publishNav: vi.fn(),
 }));
 
+vi.mock("@/lib/product-workspace/draft", () => ({
+  upsertProductWorkspaceDraft: vi.fn().mockResolvedValue(null),
+}));
+
 import { POST } from "@/app/api/cockpit-chat/route";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { prisma } from "@/lib/db";
 import { runChatAgent, type ChatTurnFinal } from "@/lib/llm/chat-agent";
 import { publishNav } from "@/lib/llm/nav-channel";
+import { upsertProductWorkspaceDraft } from "@/lib/product-workspace/draft";
 import { PRODUCT_WORKSPACE_DESTINATION_KEY } from "@/lib/llm/product-workspace-intent";
 
 const mockRequireAuth = vi.mocked(requireAuth);
@@ -89,6 +94,20 @@ const mockLlmRunCreate = vi.mocked(prisma.llmRun.create);
 const mockNavTraceCreate = vi.mocked(prisma.navTrace.create);
 const mockRunChatAgent = vi.mocked(runChatAgent);
 const mockPublishNav = vi.mocked(publishNav);
+const mockUpsertDraft = vi.mocked(upsertProductWorkspaceDraft);
+
+async function readStreamText(res: Response): Promise<string> {
+  if (!res.body) return "";
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let out = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    out += dec.decode(value, { stream: true });
+  }
+  return out + dec.decode();
+}
 
 const USER_ID = "admin-user-nav-test";
 
@@ -260,6 +279,46 @@ describe("POST /api/cockpit-chat — master agent nav publish", () => {
         destinationKey: "admin-scenario-lab",
       });
     });
+  });
+
+  it("diverts a product framing brief to the workspace and keeps the chat bubble short", async () => {
+    const longBrief =
+      "Objectif: vault Defensive à dominante stable. Vault inféré HDV. " +
+      "Hypothèses: mining 20 %, USDC base 35 %, réserve 35 %. Rendement cible 8 à 12 %. " +
+      "Garde-fous: bornes hard, human-in-the-loop. Prochaine étape: validation Scenario Lab.";
+    mockMasterAgentTurn("admin-product-workspace", { text: longBrief });
+
+    const res = await POST(makeChatRequest("Créer un nouveau vault Defensive"));
+    expect(res.status).toBe(200);
+
+    // The chat bubble shows ONLY the short fixed ack — never the long brief.
+    const body = await readStreamText(res);
+    expect(body).toContain("Product Workspace");
+    expect(body).not.toContain("Hypothèses: mining");
+
+    // The model's full prose is routed into the workspace draft as agentBrief.
+    await vi.waitFor(() => {
+      expect(mockUpsertDraft).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: USER_ID,
+          objective: "Créer un nouveau vault Defensive",
+          agentBrief: longBrief,
+          intentKind: "product_creation",
+        }),
+      );
+    });
+  });
+
+  it("does NOT divert a plain admin question — normal answer streams to the bubble", async () => {
+    mockMasterAgentTurnWithoutNav({ text: "Le runbook a 5 étapes." });
+
+    const res = await POST(makeChatRequest("explique le runbook de déploiement"));
+    expect(res.status).toBe(200);
+
+    const body = await readStreamText(res);
+    expect(body).toContain("ok"); // the mocked stream chunk, streamed normally
+    await vi.waitFor(() => expect(mockLlmRunCreate).toHaveBeenCalled());
+    expect(mockUpsertDraft).not.toHaveBeenCalled();
   });
 });
 

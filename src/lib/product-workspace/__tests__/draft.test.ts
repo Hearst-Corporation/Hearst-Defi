@@ -97,4 +97,77 @@ describe("product workspace draft persistence", () => {
       updatedAtIso: "2026-06-13T01:02:03.000Z",
     });
   });
+
+  it("stores agentBrief when supplied to upsert", async () => {
+    mockFindUnique.mockResolvedValue(null as never);
+    mockUpsert.mockResolvedValue({} as never);
+
+    const result = await upsertProductWorkspaceDraft({
+      userId: "admin-1",
+      objective: "Créer un vault Defensive",
+      vaultTicker: "HDV",
+      vaultLabel: "Hearst Defensive Vault",
+      scenarioValidationQueued: false,
+      agentBrief: "Brief de cadrage complet.",
+      now: new Date("2026-06-17T00:00:00.000Z"),
+    });
+
+    expect(result?.agentBrief).toBe("Brief de cadrage complet.");
+  });
+
+  it("preserves an existing agentBrief on the SAME objective when none is supplied", async () => {
+    mockFindUnique.mockResolvedValue({
+      formState: JSON.stringify({
+        productWorkspace: {
+          objective: "Créer un vault Defensive",
+          vaultTicker: "HDV",
+          vaultLabel: "Hearst Defensive Vault",
+          agentBrief: "Brief écrit par l'agent.",
+          scenarioValidationQueued: false,
+          updatedAtIso: "2026-06-17T00:00:00.000Z",
+        },
+      }),
+    } as never);
+    mockUpsert.mockResolvedValue({} as never);
+
+    // The page re-seeds the same objective on render WITHOUT a brief — it must
+    // not wipe the brief the route attached in between.
+    const result = await upsertProductWorkspaceDraft({
+      userId: "admin-1",
+      objective: "Créer un vault Defensive",
+      vaultTicker: "HDV",
+      vaultLabel: "Hearst Defensive Vault",
+      scenarioValidationQueued: false,
+      now: new Date("2026-06-17T01:00:00.000Z"),
+    });
+
+    expect(result?.agentBrief).toBe("Brief écrit par l'agent.");
+  });
+
+  it("drops a stale agentBrief when the objective changes", async () => {
+    mockFindUnique.mockResolvedValue({
+      formState: JSON.stringify({
+        productWorkspace: {
+          objective: "Ancien produit",
+          vaultTicker: "HYV",
+          vaultLabel: "Hearst Yield Vault",
+          agentBrief: "Brief de l'ancien produit.",
+          scenarioValidationQueued: false,
+          updatedAtIso: "2026-06-17T00:00:00.000Z",
+        },
+      }),
+    } as never);
+    mockUpsert.mockResolvedValue({} as never);
+
+    const result = await upsertProductWorkspaceDraft({
+      userId: "admin-1",
+      objective: "Nouveau produit BTC Plus",
+      vaultTicker: "HBP",
+      vaultLabel: "Hearst BTC Plus Vault",
+      scenarioValidationQueued: false,
+      now: new Date("2026-06-17T02:00:00.000Z"),
+    });
+
+    expect(result?.agentBrief).toBeUndefined();
+  });
 });

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { Markdown } from "@/components/admin/markdown";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -419,6 +420,26 @@ export default async function ProductWorkspacePage({
           </div>
         </div>
       </Card>
+
+      {persistedDraft?.agentBrief ? (
+        <section aria-labelledby="pw-agent-brief-heading" className="admin-doc-section">
+          <div className="flex items-center gap-[var(--ct-space-3)]">
+            <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
+            <h2 id="pw-agent-brief-heading" className="h2">Agent framing brief</h2>
+          </div>
+          <Card hoverOverlay={false} className="p-[var(--ct-space-6)] sm:p-7">
+            <div className="admin-doc-stack admin-doc-stack--tight">
+              <div className="admin-doc-inline-row admin-doc-inline-row--dense">
+                <Badge variant="accent" className="w-fit">Seeded by cockpit agent</Badge>
+                <ProvenanceBadge kind="estimated" compact />
+              </div>
+              {/* The cockpit agent's full framing prose, diverted here from the
+                  chat bubble so the conversation stays short. */}
+              <Markdown content={persistedDraft.agentBrief} />
+            </div>
+          </Card>
+        </section>
+      ) : null}
 
       <section aria-labelledby="pw-brief-heading" className="admin-doc-section">
         <div className="flex items-center gap-[var(--ct-space-3)]">

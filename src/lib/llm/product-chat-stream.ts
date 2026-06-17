@@ -53,7 +53,7 @@ const ALLOC_COLORS = [
   "var(--ct-text-faint)",
 ] as const;
 
-function inferVault(objective: string | undefined): VaultDefinition {
+export function inferVault(objective: string | undefined): VaultDefinition {
   const lowered = objective?.toLowerCase() ?? "";
   if (/\b(defensive|defensif|défensif|capital preservation|preservation)\b/.test(lowered)) {
     return VAULTS.defensive;
