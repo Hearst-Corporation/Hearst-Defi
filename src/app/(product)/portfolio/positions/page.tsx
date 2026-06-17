@@ -1,15 +1,8 @@
 import "../portfolio.css";
 
-import { loadPortfolio } from "@/lib/data/portfolio";
-import { getInvestor } from "@/lib/auth/session";
+import { loadPortfolioView } from "@/lib/data/portfolio-view";
+import { PortfolioLeafShell } from "@/components/portfolio/portfolio-leaf-shell";
 import { PositionsList } from "@/components/portfolio/positions-list";
-import { DemoDataBanner } from "@/components/product/demo-data-banner";
-import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
-import { isDemoInvestor } from "@/lib/demo/provider";
-import { buildDemoPortfolio } from "@/lib/demo/builders";
-import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
-import { isLayoutPreview } from "@/lib/portfolio/layout-preview";
-import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
 
@@ -19,33 +12,21 @@ export const metadata = {
 };
 
 /**
- * Positions — the "view more" leaf reached from the portfolio dashboard
- * Positions teaser tile. Reuses <PositionsList> verbatim; demo + previewZeros
- * wiring mirrors the dashboard so honesty/state behaviour is identical. Scroll
- * is allowed inside this leaf (it is NOT the no-scroll top level).
+ * Positions — the "view more" leaf reached from the dashboard Positions tile.
+ * Reuses <PositionsList> verbatim; state/honesty wiring comes from the shared
+ * loadPortfolioView(). Scroll is allowed inside this leaf (not the top level).
  */
 export default async function PositionsPage() {
-  const [investor, liveData] = await Promise.all([getInvestor(), loadPortfolio()]);
-
-  const demo = isDemoInvestor(investor);
-  const data = demo ? buildDemoPortfolio() : liveData;
-  const hasPositions = data.positions.length > 0;
-  const previewZeros = isLayoutPreview(hasPositions);
-
-  const showDemoBanner =
-    investor?.id != null ? await investorHasDemoPosition(investor.id) : false;
+  const { demo, data, previewZeros, showDemoBanner } =
+    await loadPortfolioView();
 
   return (
-    <div
-      className={cn("pf-container", previewZeros && "pf-container--zero")}
-      data-testid="portfolio-positions-page"
+    <PortfolioLeafShell
+      demo={demo}
+      showDemoBanner={showDemoBanner}
+      previewZeros={previewZeros}
+      testId="portfolio-positions-page"
     >
-      {demo ? (
-        <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} />
-      ) : showDemoBanner ? (
-        <DemoDataBanner />
-      ) : null}
-
       <div data-section="positions">
         <PositionsList
           positions={data.positions}
@@ -54,6 +35,6 @@ export default async function PositionsPage() {
           previewZeros={previewZeros}
         />
       </div>
-    </div>
+    </PortfolioLeafShell>
   );
 }
