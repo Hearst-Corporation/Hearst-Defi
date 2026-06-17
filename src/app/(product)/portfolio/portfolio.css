@@ -1298,6 +1298,8 @@
 .cy-ledger-head {
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-wider);
+  /* Headroom above the label so bar rows optically align with the donut centre. */
+  padding-top: var(--ct-space-3);
 }
 
 .cy-row {
