@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PortfolioLoading() {
   return (
-    <div className="pf-container pf-container--fit animate-in fade-in duration-[var(--ct-dur-slower)]">
+    <div className="pf-container animate-in fade-in duration-[var(--ct-dur-slower)]">
       <div className="pf-greeting">
         <Skeleton className="pf-skeleton-greeting-title" />
         <Skeleton className="pf-skeleton-greeting-recap" />
