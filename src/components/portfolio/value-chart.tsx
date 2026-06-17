@@ -220,12 +220,14 @@ export function ValueChart({
       {provenance ? <ChartProvenanceCorner kind={provenance} /> : null}
       <PfCockpitPanelHeader
         title="Portfolio value"
-        subtitle="Indicative 12-month path"
+        subtitle={showEmbeddedNextAction ? undefined : "Indicative 12-month path"}
         titleVariant="primary"
         trailing={
-          <span className="pf-hero-kpi-value tabular-nums ct-text-muted">
-            {showZeroShell ? "—" : formatUsdCompact(chartValue)}
-          </span>
+          showEmbeddedNextAction ? undefined : (
+            <span className="pf-hero-kpi-value tabular-nums ct-text-muted">
+              {showZeroShell ? "—" : formatUsdCompact(chartValue)}
+            </span>
+          )
         }
       />
 
@@ -239,26 +241,11 @@ export function ValueChart({
         </p>
       ) : null}
 
-      {!showEmbeddedNextAction ? (
+      {!showZeroShell ? (
         <>
-          <div
-            className={cn(
-              "relative mt-[var(--ct-space-3)] block w-full flex-1 overflow-hidden rounded-md z-10",
-              showZeroShell ? "min-h-28" : "min-h-20",
-            )}
-          >
-            {showZeroShell ? (
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 bottom-6 border-t border-[var(--ct-border-soft)]"
-              />
-            ) : (
-              <ChartDisclaimerUnderlay />
-            )}
-            <AreaChart
-              series={series}
-              muted={showZeroShell}
-            />
+          <div className="relative mt-[var(--ct-space-3)] block w-full flex-1 overflow-hidden rounded-md z-10 min-h-20">
+            <ChartDisclaimerUnderlay />
+            <AreaChart series={series} />
           </div>
 
           <div className="stat-label ct-text-muted flex justify-between mt-[var(--ct-space-2)] mono relative z-10">
@@ -268,14 +255,12 @@ export function ValueChart({
                 <span key={i}>{s.label}</span>
               ))}
           </div>
-        </>
-      ) : null}
 
-      {!showZeroShell ? (
-        <p className="body-xs ct-text-muted mt-[var(--ct-space-2)] italic relative z-10">
-          Indicative path derived from subscribed principal and current value.
-          Past performance does not predict future results. Not guaranteed.
-        </p>
+          <p className="body-xs ct-text-muted mt-[var(--ct-space-2)] italic relative z-10">
+            Indicative path derived from subscribed principal and current value.
+            Past performance does not predict future results. Not guaranteed.
+          </p>
+        </>
       ) : null}
     </PfCockpitPanel>
   );

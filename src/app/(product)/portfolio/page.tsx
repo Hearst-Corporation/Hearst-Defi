@@ -150,11 +150,7 @@ export default async function PortfolioPage() {
               source={data.source}
               updatedAt={data.updatedAt}
               previewZeros={previewZeros}
-              nextAction={
-                previewZeros && shouldShowNextActionCard(actionFlags)
-                  ? actionFlags
-                  : undefined
-              }
+              nextAction={previewZeros ? actionFlags : undefined}
             />
           </div>
           <aside className="pf-hero-sidebar">

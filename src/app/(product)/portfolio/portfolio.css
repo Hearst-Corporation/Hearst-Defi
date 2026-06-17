@@ -138,6 +138,19 @@
   justify-content: center;
 }
 
+.pf-value-chart--cta-only .pf-cockpit-panel__header {
+  justify-content: center;
+  text-align: center;
+}
+
+.pf-value-chart--cta-only .pf-cockpit-panel__header > .min-w-0 {
+  width: 100%;
+}
+
+.pf-value-chart--cta-only svg {
+  display: none;
+}
+
 @container pf (min-width: 36rem) {
   .pf-next-action-card__layout {
     flex-direction: row;

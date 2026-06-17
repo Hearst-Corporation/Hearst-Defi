@@ -87,7 +87,7 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     expect(html).not.toContain("ct-empty-surface--widget");
   });
 
-  it("ValueChart previewZeros: flat $0 area chart, not empty surface", () => {
+  it("ValueChart previewZeros: no green preview chart line", () => {
     const html = renderToStaticMarkup(
       <SectionEmbedProvider>
         <ValueChart
@@ -98,10 +98,9 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
         />
       </SectionEmbedProvider>,
     );
-    expect(html).toContain("<svg");
-    expect(html).not.toContain("ct-empty-surface--chart");
-    expect(html).not.toContain("Indicative path at zero");
-    expect(html).not.toContain("Stale");
+    expect(html).not.toContain("<svg");
+    expect(html).toContain("No portfolio value recorded yet");
+    expect(html).toContain("Indicative 12-month path");
   });
 
   it("ValueChart previewZeros + nextAction: embeds get-started CTA inside chart panel", () => {
