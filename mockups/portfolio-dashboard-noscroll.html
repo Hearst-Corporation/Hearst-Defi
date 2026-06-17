@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Portfolio Dashboard — no-scroll mockup</title>
+<style>
+  /* ===== Cockpit tokens (mirrored from cockpit-shell/tokens.css + cockpit.css) ===== */
+  :root{
+    --bg:#000000;
+    --accent:#A7FB90;
+    --accent-ambient:color-mix(in srgb, var(--accent) 70%, #000);
+    --accent-strong:color-mix(in srgb, var(--accent) 82%, #fff);
+    --accent-soft:color-mix(in srgb, var(--accent) 18%, transparent);
+    --text-strong:#ffffff;
+    --text-primary:rgba(245,245,245,0.92);
+    --text-body:rgba(245,245,245,0.72);
+    --text-muted:rgba(245,245,245,0.55);
+    --text-faint:rgba(245,245,245,0.38);
+    --graphite-bg:rgba(20,22,20,0.62);
+    --graphite-bg-2:rgba(14,16,14,0.78);
+    --border-nested:rgba(255,255,255,0.09);
+    --border-soft:rgba(255,255,255,0.06);
+    --surface-1:rgba(255,255,255,0.05);
+    --surface-2:rgba(255,255,255,0.09);
+    --success:var(--accent);
+    --info:#7FB5FF;
+    --warning:#F5C451;
+    --btc:#F2A35E;
+    --usdc:#6FA8FF;
+    --reserve:#9AA0A6;
+    --radius:18px;
+    --radius-sm:11px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
+    --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--font);color:var(--text-primary);-webkit-font-smoothing:antialiased}
+
+  /* ambient green light (dashboard-light-direction: light everywhere, dark glass over it) */
+  .ambient{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 22%, var(--accent-ambient) 0%, transparent 62%),
+      radial-gradient(ellipse 50% 45% at 85% 90%, color-mix(in srgb,var(--accent) 30%, #000) 0%, transparent 60%),
+      radial-gradient(circle, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size:auto,auto,26px 26px;opacity:1}
+
+  /* ===== fixed cockpit frame — never scrolls ===== */
+  .root{position:relative;z-index:1;display:flex;height:100dvh;overflow:hidden}
+
+  /* section 1 — left icon rail (context only) */
+  .rail{flex:0 0 64px;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 0;
+    border-right:1px solid var(--border-soft);background:rgba(0,0,0,0.35);backdrop-filter:blur(14px)}
+  .rail .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(140deg,var(--accent),color-mix(in srgb,var(--accent) 40%,#000));box-shadow:0 0 18px color-mix(in srgb,var(--accent) 55%,transparent)}
+  .rail .ico{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;color:var(--text-faint);font-size:15px}
+  .rail .ico.on{background:var(--surface-2);color:var(--accent-strong);box-shadow:inset 0 0 0 1px var(--border-nested)}
+  .rail .spacer{flex:1}
+
+  /* center page area — the dashboard. NO overflow → fit to height */
+  .page{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px;padding:22px 26px;overflow:hidden}
+
+  /* ---- top line ---- */
+  .top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex:0 0 auto}
+  .greet h1{font-size:21px;font-weight:650;letter-spacing:-0.02em;color:var(--text-strong)}
+  .greet h1 b{color:var(--accent-strong)}
+  .greet p{font-size:12.5px;color:var(--text-body);margin-top:3px}
+  .top-right{display:flex;align-items:center;gap:8px}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:11px;font-weight:600;
+    border:1px solid var(--border-nested);background:var(--surface-1);color:var(--text-body)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+
+  /* provenance badge */
+  .prov{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 7px;border-radius:6px;border:1px solid var(--border-nested);color:var(--text-muted);background:rgba(255,255,255,0.03)}
+  .prov b{width:5px;height:5px;border-radius:50%;background:var(--text-muted)}
+  .prov.live{color:var(--accent-strong);border-color:color-mix(in srgb,var(--accent) 30%,transparent)} .prov.live b{background:var(--accent)}
+  .prov.attested{color:var(--info)} .prov.attested b{background:var(--info)}
+  .prov.est{color:var(--warning)} .prov.est b{background:var(--warning)}
+
+  /* glass card */
+  .card{background:var(--graphite-bg);border:1px solid var(--border-nested);border-radius:var(--radius);
+    backdrop-filter:blur(22px) saturate(1.1);-webkit-backdrop-filter:blur(22px) saturate(1.1)}
+  .label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)}
+
+  /* ---- HERO band ---- */
+  .hero{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:1.95fr 1fr;gap:0;overflow:hidden}
+  .hero{border-radius:var(--radius);border:1px solid var(--border-nested);background:var(--graphite-bg);
+    backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+  .chartzone{position:relative;display:flex;flex-direction:column;padding:18px 22px;min-width:0;
+    background-image:radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);background-size:26px 26px}
+  .chartzone .head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .chartzone .big{font-family:var(--mono);font-size:38px;font-weight:750;letter-spacing:-0.02em;color:var(--text-strong);line-height:1.05;font-variant-numeric:tabular-nums}
+  .chartzone .sub{font-size:12px;color:var(--text-body);margin-top:4px}
+  .chartzone .delta{color:var(--accent-strong);font-weight:650}
+  .svgwrap{flex:1;min-height:0;margin-top:6px}
+  svg{display:block;width:100%;height:100%}
+
+  /* KPI rail (welded right) */
+  .rail2{display:flex;flex-direction:column;border-left:1px solid var(--border-nested);padding:16px 18px;gap:0;justify-content:center}
+  .kpi{padding:13px 0}
+  .kpi + .kpi{border-top:1px solid var(--border-soft)}
+  .kpi .label{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .kpi .v{font-family:var(--mono);font-size:23px;font-weight:700;color:var(--text-strong);margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:-0.01em}
+  .kpi .v small{font-size:13px;color:var(--text-muted);font-weight:500}
+  .kpi .m{font-size:11px;color:var(--text-muted);margin-top:3px}
+  .track{height:6px;border-radius:999px;background:var(--surface-1);overflow:hidden;margin-top:9px;border:1px solid var(--border-soft)}
+  .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 55%,transparent),var(--accent))}
+
+  /* ---- TEASER row → view-more pages ---- */
+  .teasers{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;height:220px}
+  .tz{padding:15px 16px;display:flex;flex-direction:column;gap:10px;min-width:0;position:relative;transition:border-color .2s, transform .2s}
+  .tz:hover{border-color:color-mix(in srgb,var(--accent) 32%,transparent);transform:translateY(-2px)}
+  .tz .tzhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .more{font-size:11px;font-weight:650;color:var(--accent-strong);display:inline-flex;align-items:center;gap:4px;text-decoration:none;
+    padding:3px 8px;border-radius:7px;border:1px solid color-mix(in srgb,var(--accent) 22%,transparent);background:var(--accent-soft)}
+  .tz .body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:8px}
+
+  /* positions teaser */
+  .posrow{display:flex;align-items:center;gap:10px}
+  .posrow .tk{width:30px;height:30px;border-radius:8px;background:linear-gradient(140deg,var(--accent),color-mix(in srgb,var(--accent) 35%,#000));
+    display:grid;place-items:center;font-size:10px;font-weight:800;color:#06210a}
+  .posname{font-size:13px;font-weight:600;color:var(--text-strong)}
+  .posmeta{font-size:11px;color:var(--text-muted)}
+  .posval{margin-left:auto;text-align:right}
+  .posval .v{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--text-strong)}
+  .apy{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent-strong);
+    padding:2px 7px;border-radius:6px;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 22%,transparent)}
+
+  /* allocation mini donut */
+  .alloc{display:flex;align-items:center;gap:14px}
+  .legend{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
+  .lg{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text-body)}
+  .lg .sw{width:9px;height:9px;border-radius:3px;flex:0 0 auto}
+  .lg b{margin-left:auto;font-family:var(--mono);color:var(--text-strong);font-weight:700}
+
+  /* distributions mini bars */
+  .bars{display:flex;align-items:flex-end;gap:7px;height:54px}
+  .bar{flex:1;background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 30%,transparent));border-radius:5px 5px 2px 2px;min-height:8px}
+  .bar.next{background:repeating-linear-gradient(135deg,var(--accent-soft) 0 5px,transparent 5px 9px);border:1px dashed color-mix(in srgb,var(--accent) 40%,transparent)}
+  .barx{display:flex;gap:7px;margin-top:6px}
+  .barx span{flex:1;text-align:center;font-size:9px;color:var(--text-faint);font-family:var(--mono)}
+
+  /* activity mini list */
+  .acts{display:flex;flex-direction:column;gap:0}
+  .act{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border-soft);font-size:11.5px}
+  .act:last-child{border-bottom:none}
+  .act .ai{width:8px;height:8px;border-radius:3px;flex:0 0 auto}
+  .act .at{color:var(--text-body)}
+  .act .av{margin-left:auto;font-family:var(--mono);font-weight:700;color:var(--text-strong)}
+  .act .ad{color:var(--text-faint);font-size:10px;font-family:var(--mono)}
+
+  .disc{flex:0 0 auto;font-size:10.5px;color:var(--text-faint);text-align:center}
+  .bignum{font-family:var(--mono)}
+</style>
+</head>
+<body>
+  <div class="ambient"></div>
+  <div class="root">
+
+    <!-- Section 1 — left rail (context) -->
+    <nav class="rail">
+      <div class="logo"></div>
+      <div class="ico on">▦</div>
+      <div class="ico">◆</div>
+      <div class="ico">✓</div>
+      <div class="spacer"></div>
+      <div class="ico">☰</div>
+    </nav>
+
+    <!-- Section 2 — the dashboard (fits one screen, zero scroll) -->
+    <main class="page">
+
+      <!-- top line -->
+      <div class="top">
+        <div class="greet">
+          <h1>Welcome back, <b>Adrien</b></h1>
+          <p>Your capital is working across <b style="color:var(--text-strong)">1 position</b> · Hearst Yield Vault · next distribution in 11 days</p>
+        </div>
+        <div class="top-right">
+          <span class="prov live"><b></b>Live</span>
+          <span class="chip"><span class="dot"></span>As of today · 14:20 UTC</span>
+        </div>
+      </div>
+
+      <!-- HERO -->
+      <section class="hero">
+        <div class="chartzone">
+          <div class="head">
+            <div>
+              <div class="label">Portfolio value</div>
+              <div class="big">$542,000</div>
+              <div class="sub"><span class="delta">▲ $42,000 (+8.4%)</span> total yield since inception · principal $500,000</div>
+            </div>
+            <span class="prov live"><b></b>Live</span>
+          </div>
+          <div class="svgwrap">
+            <svg viewBox="0 0 600 200" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#A7FB90" stop-opacity="0.42"/>
+                  <stop offset="100%" stop-color="#A7FB90" stop-opacity="0"/>
+                </linearGradient>
+                <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              </defs>
+              <!-- gridlines -->
+              <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+                <line x1="0" y1="50" x2="600" y2="50"/><line x1="0" y1="100" x2="600" y2="100"/><line x1="0" y1="150" x2="600" y2="150"/>
+              </g>
+              <path d="M0,165 C60,160 90,150 140,148 C200,145 230,120 290,118 C350,116 380,95 440,82 C500,70 540,52 600,40 L600,200 L0,200 Z" fill="url(#area)"/>
+              <path d="M0,165 C60,160 90,150 140,148 C200,145 230,120 290,118 C350,116 380,95 440,82 C500,70 540,52 600,40" fill="none" stroke="#A7FB90" stroke-width="2.4" filter="url(#glow)"/>
+              <circle cx="600" cy="40" r="4.5" fill="#A7FB90" filter="url(#glow)"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- KPI rail -->
+        <aside class="rail2">
+          <div class="kpi">
+            <div class="label">Yield YTD <span class="prov live"><b></b>Live</span></div>
+            <div class="v">$42,000</div>
+            <div class="m">blended APY <b style="color:var(--accent-strong)">9.4–12.8%</b> · monthly USDC</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Next distribution <span class="prov est"><b></b>Est</span></div>
+            <div class="v">~$6,000 <small>· Jun 30</small></div>
+            <div class="m">monthly · T+5 settlement</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Liquidity / lock <span class="prov live"><b></b>Live</span></div>
+            <div class="v">38 <small>/ 60 days</small></div>
+            <div class="track"><div class="fill" style="width:63%"></div></div>
+            <div class="m">soft lock-up · 22 days to free exit</div>
+          </div>
+        </aside>
+      </section>
+
+      <!-- TEASERS → view-more pages -->
+      <section class="teasers">
+
+        <!-- Positions -->
+        <div class="card tz">
+          <div class="tzhead"><div class="label">Positions</div><a class="more" href="#">View all →</a></div>
+          <div class="body">
+            <div class="posrow">
+              <div class="tk">HYV</div>
+              <div style="min-width:0">
+                <div class="posname">Hearst Yield Vault</div>
+                <div class="posmeta">HYV-A · Active</div>
+              </div>
+              <div class="posval"><div class="v">$542,000</div><span class="apy">9.4–12.8%</span></div>
+            </div>
+            <div class="posmeta" style="margin-top:2px">Principal $500,000 · accrued $42,000 · distributed $18,000</div>
+          </div>
+        </div>
+
+        <!-- Yield & allocation -->
+        <div class="card tz">
+          <div class="tzhead"><div class="label">Yield & allocation <span class="prov attested"><b></b>Attested</span></div><a class="more" href="#">Detail →</a></div>
+          <div class="body">
+            <div class="alloc">
+              <svg width="74" height="74" viewBox="0 0 42 42">
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+                <!-- mining 35 / btc 15 / usdc 40 / reserve 10 -->
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="#A7FB90" stroke-width="5" stroke-dasharray="35 65" stroke-dashoffset="25" transform="rotate(-90 21 21)"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="#F2A35E" stroke-width="5" stroke-dasharray="15 85" stroke-dashoffset="-10" transform="rotate(-90 21 21)"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="#6FA8FF" stroke-width="5" stroke-dasharray="40 60" stroke-dashoffset="-25" transform="rotate(-90 21 21)"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="#9AA0A6" stroke-width="5" stroke-dasharray="10 90" stroke-dashoffset="-65" transform="rotate(-90 21 21)"/>
+              </svg>
+              <div class="legend">
+                <div class="lg"><span class="sw" style="background:#A7FB90"></span>Mining <b>35%</b></div>
+                <div class="lg"><span class="sw" style="background:#6FA8FF"></span>USDC base <b>40%</b></div>
+                <div class="lg"><span class="sw" style="background:#F2A35E"></span>BTC tactical <b>15%</b></div>
+                <div class="lg"><span class="sw" style="background:#9AA0A6"></span>Stable reserve <b>10%</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distributions -->
+        <div class="card tz">
+          <div class="tzhead"><div class="label">Distributions</div><a class="more" href="#">Calendar →</a></div>
+          <div class="body">
+            <div class="bars">
+              <div class="bar" style="height:60%"></div>
+              <div class="bar" style="height:64%"></div>
+              <div class="bar" style="height:62%"></div>
+              <div class="bar" style="height:70%"></div>
+              <div class="bar next" style="height:74%"></div>
+            </div>
+            <div class="barx"><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul*</span></div>
+            <div class="posmeta">3 paid · $18,000 total · next ~$6,000 <span style="color:var(--warning)">(est)</span></div>
+          </div>
+        </div>
+
+        <!-- Activity -->
+        <div class="card tz">
+          <div class="tzhead"><div class="label">Recent activity</div><a class="more" href="#">View all →</a></div>
+          <div class="body">
+            <div class="acts">
+              <div class="act"><span class="ai" style="background:var(--accent)"></span><span class="at">Distribution</span><span class="av">+$6,000</span><span class="ad">May 05</span></div>
+              <div class="act"><span class="ai" style="background:var(--accent)"></span><span class="at">Distribution</span><span class="av">+$6,000</span><span class="ad">Apr 05</span></div>
+              <div class="act"><span class="ai" style="background:var(--info)"></span><span class="at">Deposit</span><span class="av">$500,000</span><span class="ad">Feb 12</span></div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <div class="disc">Projections are estimates based on current methodology v1.0 assumptions — not guaranteed. APY shown as a range.</div>
+    </main>
+  </div>
+</body>
+</html>
