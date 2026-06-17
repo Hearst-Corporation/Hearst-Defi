@@ -2,7 +2,11 @@ import "server-only";
 
 import { unstable_cache } from "next/cache";
 
-import { ADMIN_DASHBOARD_REVALIDATE_SEC } from "@/lib/data/admin-dashboard-cache";
+import {
+  ADMIN_DASHBOARD_REVALIDATE_SEC,
+  coerceCachedDate,
+  readPrismaDecimal,
+} from "@/lib/data/admin-dashboard-cache";
 import { prisma } from "@/lib/db";
 import { loadLatestMiningMetricRow } from "@/lib/data/mining-metric-row";
 import { loadLatestTimelineSnapshot } from "@/lib/data/timeline-snapshot";
@@ -316,7 +320,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         title: "Mining margin critical",
         context: `Margin score ${latestSnapshot.miningMarginScore}/100 · below 15 threshold`,
         href: "/admin/dashboard",
-        createdAt: latestSnapshot.takenAt.toISOString(),
+        createdAt: (coerceCachedDate(latestSnapshot.takenAt) ?? latestSnapshot.takenAt).toISOString(),
       });
     }
 
@@ -330,7 +334,9 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
           ? `Last market sync ${Math.round((now.getTime() - latestMetric.takenAt.getTime()) / 3_600_000)}h ago`
           : "No oracle update recorded",
         href: "/admin/monitoring",
-        createdAt: latestMetric?.takenAt.toISOString() ?? now.toISOString(),
+        createdAt: latestMetric
+          ? (coerceCachedDate(latestMetric.takenAt) ?? latestMetric.takenAt).toISOString()
+          : now.toISOString(),
       });
     }
 
@@ -440,7 +446,7 @@ async function buildVaultMetrics(): Promise<VaultLiveMetric[]> {
     ]);
 
     const oracleDelayMs = latestMetric
-      ? Date.now() - latestMetric.takenAt.getTime()
+      ? Date.now() - (coerceCachedDate(latestMetric.takenAt) ?? latestMetric.takenAt).getTime()
       : null;
 
     return vaultRefs.map((ref) => {
@@ -463,7 +469,7 @@ async function buildVaultMetrics(): Promise<VaultLiveMetric[]> {
         vaultId:
           ref.kind === "fixture" ? ref.fixture.id : ref.deployment.id,
         vaultName: name,
-        tvlUsdc: hasTimelineData ? (latestSnapshot.aumUsdc.toNumber() ?? 0) : 0,
+        tvlUsdc: hasTimelineData ? readPrismaDecimal(latestSnapshot.aumUsdc) : 0,
         miningMarginScore: hasTimelineData ? latestSnapshot.miningMarginScore : 0,
         riskScore: hasTimelineData ? latestSnapshot.riskScore : 0,
         oracleDelayMs,

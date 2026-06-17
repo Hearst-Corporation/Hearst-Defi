@@ -15,6 +15,10 @@ import {
 } from "@/lib/agents/loaders/distribution";
 import { loadVaultMonthlyHistory, type VaultMonthlyRow } from "@/lib/agents/loaders/vault";
 import { fetchBtcPrice, type BtcPriceData } from "@/lib/data/btc-price";
+import {
+  coerceCachedDate,
+  readPrismaDecimal,
+} from "@/lib/data/admin-dashboard-cache";
 import { loadLatestMiningMetricRow } from "@/lib/data/mining-metric-row";
 import {
   isLiveTimelineSource,
@@ -437,11 +441,11 @@ function toVaultSnapshotWithAllocations(row: {
 }): VaultSnapshotWithAllocations {
   return {
     id: row.id,
-    takenAt: row.takenAt,
-    aumUsdc: row.aumUsdc.toNumber(),
-    currentApyLow: row.currentApyLow.toNumber(),
-    currentApyHigh: row.currentApyHigh.toNumber(),
-    stressedApy: row.stressedApy.toNumber(),
+    takenAt: coerceCachedDate(row.takenAt) ?? row.takenAt,
+    aumUsdc: readPrismaDecimal(row.aumUsdc),
+    currentApyLow: readPrismaDecimal(row.currentApyLow),
+    currentApyHigh: readPrismaDecimal(row.currentApyHigh),
+    stressedApy: readPrismaDecimal(row.stressedApy),
     riskScore: row.riskScore,
     miningMarginScore: row.miningMarginScore,
     mode: row.mode,
@@ -487,7 +491,9 @@ async function buildVault(
   const oldestFallback = prior ?? oldest;
 
   // Decimal → number at the read boundary before arithmetic.
-  const oldestAum = oldestFallback ? oldestFallback.aumUsdc.toNumber() : null;
+  const oldestAum = oldestFallback
+    ? readPrismaDecimal(oldestFallback.aumUsdc)
+    : null;
   const delta30dUsdc =
     oldestAum !== null && oldestAum !== snapshot.aumUsdc
       ? Math.round(snapshot.aumUsdc - oldestAum)
@@ -525,9 +531,9 @@ function toAllocationRow(row: {
 }): AllocationRow {
   return {
     bucket: row.bucket,
-    pct: row.pct.toNumber(),
-    valueUsdc: row.valueUsdc.toNumber(),
-    yieldContributionBps: row.yieldContributionBps.toNumber(),
+    pct: readPrismaDecimal(row.pct),
+    valueUsdc: readPrismaDecimal(row.valueUsdc),
+    yieldContributionBps: readPrismaDecimal(row.yieldContributionBps),
   };
 }
 
@@ -563,7 +569,7 @@ async function safeLoadLatestMining(): Promise<{
     }
     return {
       // Decimal → number at the read boundary.
-      hashpriceTrendPct: row.hashpriceTrendPct.toNumber(),
+      hashpriceTrendPct: readPrismaDecimal(row.hashpriceTrendPct),
       operationalConfidence: row.operationalConfidence,
     };
   } catch {
@@ -612,10 +618,10 @@ function toTrailingSnapshotRow(row: {
   currentApyHigh: Prisma.Decimal;
 }): TrailingSnapshotRow {
   return {
-    takenAt: row.takenAt,
-    aumUsdc: row.aumUsdc.toNumber(),
-    currentApyLow: row.currentApyLow.toNumber(),
-    currentApyHigh: row.currentApyHigh.toNumber(),
+    takenAt: coerceCachedDate(row.takenAt) ?? row.takenAt,
+    aumUsdc: readPrismaDecimal(row.aumUsdc),
+    currentApyLow: readPrismaDecimal(row.currentApyLow),
+    currentApyHigh: readPrismaDecimal(row.currentApyHigh),
   };
 }
 

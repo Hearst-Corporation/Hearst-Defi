@@ -1,6 +1,7 @@
 import "server-only";
 
 import { fetchBtcPrice } from "@/lib/data/btc-price";
+import { readPrismaDecimal } from "@/lib/data/admin-dashboard-cache";
 import { loadLatestMiningMetricRow } from "@/lib/data/mining-metric-row";
 import { loadLatestTimelineSnapshot } from "@/lib/data/timeline-snapshot";
 import { computeRiskBreakdown } from "@/lib/engine/risk";
@@ -237,8 +238,8 @@ export async function loadRiskFramework(
     (a) => a.bucket === "usdc_base",
   );
   // Decimal → number at the read boundary before any arithmetic / engine call.
-  const usdcBasePct = usdcBaseAlloc?.pct.toNumber() ?? 0;
-  const usdcBaseBps = usdcBaseAlloc?.yieldContributionBps.toNumber() ?? 0;
+  const usdcBasePct = readPrismaDecimal(usdcBaseAlloc?.pct);
+  const usdcBaseBps = readPrismaDecimal(usdcBaseAlloc?.yieldContributionBps);
   // Allocation stores `yieldContributionBps` as a contribution at the sleeve's
   // pct, not the sleeve's own APY. Recover the sleeve APY (%) by undoing the
   // weight; fall back to the proxy when bps or pct are missing.
@@ -262,8 +263,8 @@ export async function loadRiskFramework(
 
   const inputs: ScenarioInputs = {
     btc_price_change_pct: btcPrice.usd === 0 ? 0 : btcPrice.usd_24h_change,
-    hashprice_usd_th_day: latestMining.hashprice.toNumber(),
-    energy_cost_kwh: latestMining.energyCost.toNumber(),
+    hashprice_usd_th_day: readPrismaDecimal(latestMining.hashprice),
+    energy_cost_kwh: readPrismaDecimal(latestMining.energyCost),
     stable_apy_pct: stableApyPct,
     vol_index: VOL_INDEX_PROXY,
   };
