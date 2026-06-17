@@ -118,16 +118,42 @@ function fail(name, reason) {
   }
 }
 
-// PERSONA_WEBHOOK_SECRET — required; without it KYC webhooks accept unauthenticated events
+// SUMSUB_WEBHOOK_SECRET — required; without it KYC webhooks accept unauthenticated events
 {
-  const val = get("PERSONA_WEBHOOK_SECRET");
+  const val = get("SUMSUB_WEBHOOK_SECRET");
   if (!val) {
     fail(
-      "PERSONA_WEBHOOK_SECRET",
-      "missing — Persona KYC webhook accepts unauthenticated events, attacker can spoof KYC completions and bypass investor onboarding checks"
+      "SUMSUB_WEBHOOK_SECRET",
+      "missing — Sumsub KYC webhook accepts unauthenticated events, attacker can spoof KYC completions and bypass investor onboarding checks"
     );
   } else {
-    ok("PERSONA_WEBHOOK_SECRET", "present");
+    ok("SUMSUB_WEBHOOK_SECRET", "present");
+  }
+}
+
+// SUMSUB_APP_TOKEN — required; Sumsub REST API auth — every KYC call fails without it
+{
+  const val = get("SUMSUB_APP_TOKEN");
+  if (!val) {
+    fail(
+      "SUMSUB_APP_TOKEN",
+      "missing — Sumsub REST API cannot authenticate; KYC onboarding dies at applicant creation"
+    );
+  } else {
+    ok("SUMSUB_APP_TOKEN", "present");
+  }
+}
+
+// SUMSUB_SECRET_KEY — required; signs Sumsub API requests (HMAC) — same blast radius as APP_TOKEN
+{
+  const val = get("SUMSUB_SECRET_KEY");
+  if (!val) {
+    fail(
+      "SUMSUB_SECRET_KEY",
+      "missing — Sumsub HMAC signing fails on every API call; entire KYC flow is broken"
+    );
+  } else {
+    ok("SUMSUB_SECRET_KEY", "present");
   }
 }
 
