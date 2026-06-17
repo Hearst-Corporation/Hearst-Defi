@@ -25,7 +25,6 @@ describe("Portfolio zero-position render gate", () => {
     // Expected: zero-position DOM should contain:
     const requiredSelectors = [
       'data-section="positions"',
-      'class="pf-footer"',
     ];
 
     // This is a documentation test — the actual assertion requires a full

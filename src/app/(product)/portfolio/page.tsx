@@ -253,20 +253,6 @@ export default async function PortfolioPage() {
           </div>
         </ProductSection>
       </div>
-
-      <footer className="pf-footer" role="contentinfo">
-        <div className="pf-footer__stack">
-          <p className="pf-footer-disclaimer body-sm ct-text-muted">
-            {previewZeros
-              ? "Preview state only. Portfolio metrics, payouts and proofs populate after your first funded position."
-              : "Portfolio metrics and payout history are provided for monitoring and verification."}
-          </p>
-          <p className="pf-footer-disclaimer body-xs ct-text-faint">
-            Yield ranges are conditional projections based on current
-            methodology and are not guaranteed.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

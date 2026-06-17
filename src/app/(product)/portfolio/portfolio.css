@@ -219,26 +219,6 @@
   gap: var(--ct-doc-flow-stack-gap);
 }
 
-.pf-footer {
-  margin-top: auto;
-  padding-top: var(--ct-space-8);
-  padding-bottom: var(--ct-space-16);
-  border-top: 1px solid var(--ct-border-soft);
-}
-
-.pf-footer__stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-
-.pf-footer-disclaimer {
-  margin: 0;
-  /* Anti-orphan: don't strand a lone word on the last line / split a phrase
-     awkwardly when the column narrows (chat open). */
-  text-wrap: pretty;
-}
-
 /* Loading skeleton heights — mirror live widget min-heights */
 .pf-skeleton-chart {
   min-height: 22rem;
