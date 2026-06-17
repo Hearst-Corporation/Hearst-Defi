@@ -65,6 +65,7 @@ const EXPECTED_ROUTES = [
   "/onboarding/wallet",
   "/portfolio",
   "/portfolio/[positionId]",
+  "/portfolio/positions",
   "/profile",
   "/proof-center",
   "/reset-password",

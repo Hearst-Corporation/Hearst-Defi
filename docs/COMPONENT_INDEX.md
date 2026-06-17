@@ -118,7 +118,7 @@
 | `src/components/portfolio/position-header.tsx` | PositionHeader | 1 |
 | `src/components/portfolio/position-kpis.tsx` | PositionKpis | 1 |
 | `src/components/portfolio/position-transactions.tsx` | PositionTransactions | 1 |
-| `src/components/portfolio/positions-list.tsx` | PositionsList | 2 |
+| `src/components/portfolio/positions-list.tsx` | PositionsList | 3 |
 | `src/components/portfolio/proof-pulse.tsx` | ProofPulse | 3 |
 | `src/components/portfolio/recent-activity.tsx` | RecentActivity | 2 |
 | `src/components/portfolio/risk-pulse.tsx` | ScoreRow, CompositeSection, RiskPulse | 3 |
@@ -126,7 +126,7 @@
 | `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 1 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 4 |
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
-| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 7 |
+| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 8 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
 | `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 3 |
 | `src/components/proof-center/custody-panel.tsx` | CustodySection | 1 |
