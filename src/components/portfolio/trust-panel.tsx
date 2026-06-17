@@ -190,7 +190,8 @@ const AUDIT_ROWS = [
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function TrustPanel({ risk, proof, previewZeros = false }: TrustPanelProps) {
+/** Full trust detail shell — kept for the future See more view; not routed yet. */
+function TrustPanelDetail({ risk, proof, previewZeros = false }: TrustPanelProps) {
   // ── Risk pulse logic (mirrors RiskPulse) ────────────────────────────────────
   const {
     scores,

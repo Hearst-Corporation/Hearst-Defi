@@ -122,7 +122,7 @@
 | `src/components/portfolio/recent-activity.tsx` | RecentActivity | 2 |
 | `src/components/portfolio/risk-pulse.tsx` | ScoreRow, CompositeSection, RiskPulse | 3 |
 | `src/components/portfolio/time-to-cash.tsx` | TimeToCash | 3 |
-| `src/components/portfolio/trust-panel.tsx` | TrustProofCompact, TrustPanel | 1 |
+| `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 1 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 4 |
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
 | `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 7 |
