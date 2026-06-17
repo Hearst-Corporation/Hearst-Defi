@@ -12,19 +12,28 @@ import {
 } from "@/lib/agents/qualification";
 import { sendWelcomeEmail } from "@/lib/auth/send-welcome-email";
 import { upsertHubSpotContact } from "@/lib/hubspot/sync-qualification";
+import {
+  AUM_VALUES,
+  FUNDS_USAGE_VALUES,
+  PLATFORM_TYPE_VALUES,
+  TIMELINE_VALUES,
+  VAULT_SIZE_VALUES,
+  YIELD_STATUS_VALUES,
+  YIELD_TYPE_VALUES,
+} from "@/lib/qualification/options";
 
 const Input = z.object({
   email: z.string().trim().email().max(200),
   firstName: z.string().trim().max(100).optional(),
   lastName: z.string().trim().max(100).optional(),
   phone: z.string().trim().max(40).optional(),
-  platformType: z.enum(["crypto", "exchange", "wealth", "custody"]).optional(),
-  aum: z.enum(["lt_10m", "10_50m", "50_250m", "250m_plus", "unsure"]).optional(),
-  fundsUsage: z.enum(["idle", "mix", "earning"]).optional(),
-  yieldStatus: z.enum(["live", "in_progress", "not_yet"]).optional(),
-  yieldType: z.enum(["low_risk", "balanced", "growth", "unsure"]).optional(),
-  vaultSize: z.enum(["100_500k", "500k_1m", "1_5m", "5m_plus", "unsure"]).optional(),
-  timeline: z.enum(["asap", "1_3m", "3_6m", "exploring"]).optional(),
+  platformType: z.enum(PLATFORM_TYPE_VALUES).optional(),
+  aum: z.enum(AUM_VALUES).optional(),
+  fundsUsage: z.enum(FUNDS_USAGE_VALUES).optional(),
+  yieldStatus: z.enum(YIELD_STATUS_VALUES).optional(),
+  yieldType: z.enum(YIELD_TYPE_VALUES).optional(),
+  vaultSize: z.enum(VAULT_SIZE_VALUES).optional(),
+  timeline: z.enum(TIMELINE_VALUES).optional(),
 });
 
 export type ApplyResult =

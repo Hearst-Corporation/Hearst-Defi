@@ -91,12 +91,83 @@ export interface ChatKimiProps {
   productColor?: string;
 }
 
+type ApplyAssistantStep = "about" | "platform" | "sizing" | "confirmed";
+
+const APPLY_ASSISTANT_CONTENT: Record<
+  ApplyAssistantStep,
+  {
+    intro: string;
+    description: string;
+    suggestions: readonly string[];
+  }
+> = {
+  about: {
+    intro: "I'm your Hearst Connect assistant.",
+    description:
+      "I can help you with this step, the information we need, and what comes next.",
+    suggestions: [
+      "What information is required here?",
+      "Who is eligible to apply?",
+      "How is my information used?",
+      "What comes after I submit?",
+    ],
+  },
+  platform: {
+    intro: "I can help frame the platform questions.",
+    description:
+      "Ask about qualification criteria, platform categories, or how we interpret the answers.",
+    suggestions: [
+      "What qualifies as a wealth platform here?",
+      "How should I think about AUM ranges?",
+      "What if our funds usage is mixed?",
+      "Why do you ask about live yield products?",
+    ],
+  },
+  sizing: {
+    intro: "I can help calibrate sizing and launch timing.",
+    description:
+      "Ask about first allocation size, timeline expectations, or how the process works after qualification.",
+    suggestions: [
+      "What vault size is typical for a first allocation?",
+      "Can we apply if timing is still exploratory?",
+      "How quickly can onboarding start after qualification?",
+      "What happens after we choose a timeline?",
+    ],
+  },
+  confirmed: {
+    intro: "Your application has been received.",
+    description:
+      "I can explain what happens next, expected timing, and what your team should prepare.",
+    suggestions: [
+      "What are the next steps after submission?",
+      "How long does review usually take?",
+      "What should we prepare before access is granted?",
+      "Who can we contact if timing is urgent?",
+    ],
+  },
+};
+
+function readApplyAssistantStep(): ApplyAssistantStep {
+  if (typeof window === "undefined") return "about";
+  if (window.location.pathname.startsWith("/apply/confirmed")) return "confirmed";
+
+  const progress = document.querySelector('[role="progressbar"]');
+  const ariaValueText = progress?.getAttribute("aria-valuetext")?.toLowerCase() ?? "";
+
+  if (ariaValueText.includes("platform")) return "platform";
+  if (ariaValueText.includes("sizing")) return "sizing";
+  return "about";
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
   const [input, setInput] = useState<string>("");
+  const [applyStep, setApplyStep] = useState<ApplyAssistantStep>(() =>
+    readApplyAssistantStep(),
+  );
 
   const chatListRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -168,9 +239,36 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
   }, [messages, sendMessage]);
 
   const accent = productColor ?? "var(--ct-accent, #A7FB90)";
+  const isApplyAssistant =
+    typeof window !== "undefined" && window.location.pathname.startsWith("/apply");
+  const hasUserMessages = messages.some((message) => message.role === "user");
+  const showApplyHelper = isApplyAssistant && !hasUserMessages && !streaming;
+
+  useEffect(() => {
+    if (!isApplyAssistant) return;
+
+    const resolve = () => {
+      setApplyStep((prev) => {
+        const next = readApplyAssistantStep();
+        return prev === next ? prev : next;
+      });
+    };
+
+    resolve();
+    const observer = new MutationObserver(resolve);
+    observer.observe(document.body, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+      attributeFilter: ["aria-valuetext"],
+    });
+    return () => observer.disconnect();
+  }, [isApplyAssistant]);
+
+  const applyAssistantCopy = APPLY_ASSISTANT_CONTENT[applyStep];
 
   return (
-    <div className="ct-chat-root">
+    <div className={`ct-chat-root${isApplyAssistant ? " ct-chat-root--apply" : ""}`}>
       {/* Action bar */}
       <div className="ct-chat-actionbar">
         <button
@@ -185,7 +283,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
 
       {/* Messages */}
       <div ref={chatListRef} className="ct-chat-list">
-        {messages.length === 0 && !streaming && (
+        {messages.length === 0 && !streaming && !isApplyAssistant && (
           <p className="ct-placeholder">
             Assistant Hearst
             {productName ? ` — contexte ${productName}.` : "."}
@@ -194,7 +292,39 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           </p>
         )}
 
-        {messages.map((msg) => {
+        {showApplyHelper ? (
+          <div className="ct-chat-apply">
+            <section className="ct-chat-apply-intro">
+              <div className="ct-chat-apply-mark">
+                <HearstMark size={16} />
+              </div>
+              <div className="ct-chat-apply-copy">
+                <p className="ct-chat-apply-title">{applyAssistantCopy.intro}</p>
+                <p className="ct-chat-apply-body">{applyAssistantCopy.description}</p>
+              </div>
+            </section>
+
+            <section className="ct-chat-apply-group">
+              <p className="ct-chat-apply-kicker">Suggested for this step</p>
+              <div className="ct-chat-apply-suggestions">
+                {applyAssistantCopy.suggestions.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    className="ct-chat-apply-suggestion"
+                    onClick={() => handleSend(suggestion)}
+                  >
+                    <span className="ct-chat-apply-suggestion-icon">↗</span>
+                    <span>{suggestion}</span>
+                    <span className="ct-chat-apply-suggestion-arrow">›</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          </div>
+        ) : null}
+
+        {!showApplyHelper && messages.map((msg) => {
           // Cache la bulle assistant vide en attente de stream — on affiche
           // uniquement le logo H (ct-chat-thinking) à la place.
           if (
@@ -250,7 +380,9 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           ref={textareaRef}
           className="ct-chat-input"
           rows={2}
-          placeholder="Message the assistant…"
+          placeholder={
+            isApplyAssistant ? "Ask me anything about this step…" : "Message the assistant…"
+          }
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}

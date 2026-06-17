@@ -49,5 +49,11 @@ export {
   getSnapshot as getActiveProduct,
   setActive as setActiveProduct,
 } from "./stores/activeProductStore";
-export { subscribe as subscribeRailRight, forceOpen as forceOpenRailRight } from "./stores/railOpenStore";
+export {
+  subscribe as subscribeRailRight,
+  getSnapshot as getRailRightOpen,
+  getServerSnapshot as getRailRightOpenServer,
+  forceOpen as forceOpenRailRight,
+  toggle as toggleRailRight,
+} from "./stores/railOpenStore";
 export { subscribe as subscribeLauncher } from "./stores/launcherStore";

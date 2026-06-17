@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+
+import {
+  OnboardingChamber,
+  OnboardingChamberSole,
+} from "@/components/onboarding/onboarding-chamber";
 
 export const metadata: Metadata = {
   title: "Application received — Hearst Connect",
@@ -8,69 +12,45 @@ export const metadata: Metadata = {
 
 export default function ConfirmedPage() {
   return (
-    <div
-      style={{
-        minHeight: "100dvh",
-        background: "var(--ct-bg-deep, #0a0a0a)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "2rem 1.25rem",
-        textAlign: "center",
-      }}
-    >
-      <div
-        style={{
-          width: "3rem",
-          height: "3rem",
-          borderRadius: "50%",
-          background: "rgba(167,251,144,0.12)",
-          border: "1.5px solid var(--ct-accent, #A7FB90)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: "1.5rem",
-          fontSize: "1.25rem",
-        }}
-      >
-        ✓
-      </div>
-
-      <h1
-        style={{
-          fontSize: "1.25rem",
-          fontWeight: 600,
-          color: "var(--ct-text-strong, #f5f5f5)",
-          marginBottom: "0.75rem",
-        }}
-      >
-        Application received
-      </h1>
-
-      <p
-        style={{
-          fontSize: "0.9375rem",
-          color: "var(--ct-text-muted, #888)",
-          maxWidth: "360px",
-          lineHeight: 1.6,
-          marginBottom: "2rem",
-        }}
-      >
-        Thank you. Our team will review your profile and send a login link to access
-        your investor cockpit within 1–2 business days.
-      </p>
-
-      <p
-        style={{
-          fontSize: "0.6875rem",
-          color: "rgba(255,255,255,0.20)",
-          fontFamily: "var(--ct-font-mono, monospace)",
-          letterSpacing: "0.04em",
-        }}
-      >
-        Hearst Connect · Institutional USDC yield
-      </p>
+    <div className="product-doc flex min-h-full flex-1 justify-center">
+      <section className="ml-auto flex w-full max-w-216 flex-1 flex-col pt-[clamp(2rem,8vh,4rem)] pb-(--ct-space-10)">
+        <OnboardingChamber
+          crown={
+            <div className="product-doc-stack onboarding-shell__stepper">
+              <span className="eyebrow ct-text-accent">Hearst Connect</span>
+              <div className="product-doc-stack--compact">
+                <h1 className="h1 m-0">Application received</h1>
+                <p className="body-md ct-text-muted m-0 max-w-152">
+                  Thank you. Our team will review your profile and send a login link to
+                  access your investor cockpit within 1-2 business days.
+                </p>
+              </div>
+            </div>
+          }
+          body={
+            <div className="product-doc-stack--relaxed">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-(--ct-accent) ct-status-success-bg ct-text-accent body-sm font-semibold">
+                ✓
+              </div>
+              <div className="product-doc-stack--tight">
+                <h2 className="h2 m-0">Next steps</h2>
+                <p className="body-sm ct-text-muted m-0">
+                  We will confirm fit, complete internal review, and follow up directly
+                  if we need anything else before provisioning access.
+                </p>
+              </div>
+            </div>
+          }
+          sole={
+            <OnboardingChamberSole
+              irContact={null}
+              compliance={
+                <>Institutional USDC yield. For qualified investors only. Cayman SPV structure.</>
+              }
+            />
+          }
+        />
+      </section>
     </div>
   );
 }

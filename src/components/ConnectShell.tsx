@@ -17,15 +17,18 @@ const CHAT_CONFIG: ChatConfig = {
 export function ConnectShell({
   children,
   enableChat = false,
+  layout = "default",
 }: {
   children: ReactNode;
   enableChat?: boolean;
+  layout?: "default" | "chatOnly";
 }) {
   return (
     <CockpitShell
       products={CONNECT_PRODUCTS}
       appId="connect"
       chatConfig={enableChat ? CHAT_CONFIG : undefined}
+      shellVariant={layout}
     >
       {children}
     </CockpitShell>

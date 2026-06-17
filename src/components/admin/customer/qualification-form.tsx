@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { saveQualification } from "@/app/admin/customers/[id]/actions";
 import type { QualificationProfile } from "@prisma/client";
+import { QUALIFICATION_FIELD_DEFINITIONS } from "@/lib/qualification/options";
 
 interface SelectDef {
   name: keyof QualificationProfile & string;
@@ -13,78 +14,11 @@ interface SelectDef {
   options: ReadonlyArray<[value: string, label: string]>;
 }
 
-const FIELDS: SelectDef[] = [
-  {
-    name: "platformType",
-    label: "Platform",
-    options: [
-      ["crypto", "Crypto company"],
-      ["exchange", "Exchange"],
-      ["wealth", "Wealth platform"],
-      ["custody", "Custody / Infra"],
-    ],
-  },
-  {
-    name: "aum",
-    label: "AUM",
-    options: [
-      ["lt_10m", "< $10M"],
-      ["10_50m", "$10M–$50M"],
-      ["50_250m", "$50M–$250M"],
-      ["250m_plus", "$250M+"],
-      ["unsure", "Not sure"],
-    ],
-  },
-  {
-    name: "fundsUsage",
-    label: "Funds usage",
-    options: [
-      ["idle", "Mostly idle"],
-      ["mix", "A mix"],
-      ["earning", "Mostly earning"],
-    ],
-  },
-  {
-    name: "yieldStatus",
-    label: "Yield product",
-    options: [
-      ["live", "Live"],
-      ["in_progress", "In progress"],
-      ["not_yet", "Not yet"],
-    ],
-  },
-  {
-    name: "yieldType",
-    label: "Yield interest",
-    options: [
-      ["low_risk", "Low-risk"],
-      ["balanced", "Balanced"],
-      ["growth", "Growth"],
-      ["unsure", "Not sure"],
-    ],
-  },
-  {
-    name: "vaultSize",
-    label: "Vault size",
-    options: [
-      ["100_500k", "$100K–$500K"],
-      ["500k_1m", "$500K–$1M"],
-      ["1_5m", "$1M–$5M"],
-      ["5m_plus", "$5M+"],
-      ["unsure", "Not sure"],
-    ],
-  },
-  {
-    name: "timeline",
-    label: "Timeline",
-    options: [
-      ["asap", "ASAP"],
-      ["1_3m", "1–3 months"],
-      ["3_6m", "3–6 months"],
-      ["exploring", "Exploring"],
-    ],
-  },
-];
+const FIELDS: SelectDef[] = QUALIFICATION_FIELD_DEFINITIONS.map((field) => ({
+  name: field.name,
+  label: field.shortLabel,
+  options: field.options.map((option) => [option.value, option.label]),
+}));
 
 /**
  * Manual editor for a customer's qualification (Typeform) answers. Saving

@@ -2,67 +2,48 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+
+import { Button } from "@/components/ui/button";
+import {
+  WizardStepProgress,
+  type WizardStep,
+} from "@/components/ui/wizard-step-progress";
+import { cn } from "@/lib/cn";
+import {
+  AUM_OPTIONS,
+  FUNDS_USAGE_OPTIONS,
+  PLATFORM_TYPE_OPTIONS,
+  TIMELINE_OPTIONS,
+  VAULT_SIZE_OPTIONS,
+  YIELD_STATUS_OPTIONS,
+  YIELD_TYPE_OPTIONS,
+} from "@/lib/qualification/options";
+
 import { submitApplication } from "./actions";
 
-type Step = 0 | 1 | 2;
+type Step = "about" | "platform" | "sizing";
 
-const TOTAL_STEPS = 3;
-
-// Q1
-const PLATFORM_OPTIONS = [
-  { value: "wealth", label: "Wealth manager / family office" },
-  { value: "crypto", label: "Crypto-native / DeFi" },
-  { value: "exchange", label: "Crypto exchange / OTC desk" },
-  { value: "custody", label: "Custodian / infrastructure" },
+const STEP_ORDER = ["about", "platform", "sizing"] as const satisfies readonly Step[];
+const STEPS: readonly WizardStep<Step>[] = [
+  { id: "about", label: "About you", index: 1 },
+  { id: "platform", label: "Platform", index: 2 },
+  { id: "sizing", label: "Sizing", index: 3 },
 ] as const;
 
-// Q2
-const AUM_OPTIONS = [
-  { value: "lt_10m", label: "< $10M" },
-  { value: "10_50m", label: "$10M – $50M" },
-  { value: "50_250m", label: "$50M – $250M" },
-  { value: "250m_plus", label: "$250M+" },
-  { value: "unsure", label: "Prefer not to say" },
-] as const;
-
-// Q3
-const FUNDS_OPTIONS = [
-  { value: "idle", label: "Mostly sitting unused / idle" },
-  { value: "mix", label: "A mix of both" },
-  { value: "earning", label: "Mostly earning yield already" },
-] as const;
-
-// Q4
-const YIELD_STATUS_OPTIONS = [
-  { value: "not_yet", label: "Not yet" },
-  { value: "in_progress", label: "In progress / building" },
-  { value: "live", label: "Yes, we're live" },
-] as const;
-
-// Q5
-const YIELD_TYPE_OPTIONS = [
-  { value: "low_risk", label: "Low-risk / capital preservation" },
-  { value: "balanced", label: "Balanced risk / return" },
-  { value: "growth", label: "Growth / higher return" },
-  { value: "unsure", label: "Not sure yet" },
-] as const;
-
-// Q6
-const VAULT_SIZE_OPTIONS = [
-  { value: "100_500k", label: "$100K – $500K" },
-  { value: "500k_1m", label: "$500K – $1M" },
-  { value: "1_5m", label: "$1M – $5M" },
-  { value: "5m_plus", label: "$5M+" },
-  { value: "unsure", label: "Not sure yet" },
-] as const;
-
-// Q7
-const TIMELINE_OPTIONS = [
-  { value: "asap", label: "ASAP" },
-  { value: "1_3m", label: "1 – 3 months" },
-  { value: "3_6m", label: "3 – 6 months" },
-  { value: "exploring", label: "Just exploring" },
-] as const;
+function StepHeading({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex flex-col gap-(--ct-space-2)">
+      <h2 className="h2 m-0">{title}</h2>
+      <p className="body-sm ct-text-muted m-0">{description}</p>
+    </div>
+  );
+}
 
 function ChoiceCard({
   label,
@@ -77,34 +58,24 @@ function ChoiceCard({
     <button
       type="button"
       onClick={onClick}
-      className="w-full text-left px-4 py-3 rounded-lg border transition-all"
-      style={{
-        background: selected
-          ? "rgba(167,251,144,0.08)"
-          : "rgba(255,255,255,0.03)",
-        borderColor: selected ? "var(--ct-accent)" : "rgba(255,255,255,0.10)",
-        color: selected ? "var(--ct-accent)" : "var(--ct-text-muted)",
-        fontFamily: "var(--ct-font-mono, monospace)",
-        fontSize: "0.875rem",
-        cursor: "pointer",
-      }}
+      aria-pressed={selected}
+      className={cn(
+        "flex w-full items-start gap-(--ct-space-3) rounded-(--ct-radius-xl) border px-(--ct-space-4) py-(--ct-space-4) text-left body-sm ct-transition-base ct-focus-ring",
+        selected
+          ? "ct-surface-1 border-(--ct-accent) ct-text-strong"
+          : "ct-surface-0 border-(--ct-border-soft) ct-text-body hover:ct-surface-1 hover:border-(--ct-border) hover:ct-text-primary",
+      )}
     >
       <span
-        style={{
-          display: "inline-block",
-          width: "1rem",
-          height: "1rem",
-          borderRadius: "50%",
-          border: selected
-            ? "2px solid var(--ct-accent)"
-            : "2px solid rgba(255,255,255,0.25)",
-          background: selected ? "var(--ct-accent)" : "transparent",
-          marginRight: "0.75rem",
-          verticalAlign: "middle",
-          flexShrink: 0,
-        }}
+        aria-hidden="true"
+        className={cn(
+          "mt-[2px] inline-flex h-4 w-4 shrink-0 rounded-full border-2",
+          selected
+            ? "border-(--ct-accent) bg-(--ct-accent)"
+            : "border-(--ct-border-strong) bg-transparent",
+        )}
       />
-      {label}
+      <span className={selected ? "ct-text-accent" : undefined}>{label}</span>
     </button>
   );
 }
@@ -112,7 +83,7 @@ function ChoiceCard({
 export function ApplyForm() {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [step, setStep] = useState<Step>(0);
+  const [step, setStep] = useState<Step>("about");
   const [error, setError] = useState<string | null>(null);
 
   // Identity
@@ -130,22 +101,25 @@ export function ApplyForm() {
   const [vaultSize, setVaultSize] = useState("");
   const [timeline, setTimeline] = useState("");
 
-  const progress = ((step + 1) / TOTAL_STEPS) * 100;
+  const stepIndex = STEP_ORDER.indexOf(step);
+  const totalSteps = STEP_ORDER.length;
 
   function goNext() {
-    if (step === 0) {
+    if (step === "about") {
       if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
         setError("Please enter a valid email address.");
         return;
       }
     }
     setError(null);
-    setStep((s) => (s + 1) as Step);
+    const next = STEP_ORDER[stepIndex + 1];
+    if (next) setStep(next);
   }
 
   function goBack() {
     setError(null);
-    setStep((s) => (s - 1) as Step);
+    const previous = STEP_ORDER[stepIndex - 1];
+    if (previous) setStep(previous);
   }
 
   function handleSubmit() {
@@ -172,137 +146,96 @@ export function ApplyForm() {
     });
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(255,255,255,0.12)",
-    borderRadius: "0.5rem",
-    padding: "0.75rem 1rem",
-    color: "var(--ct-text-strong, #f5f5f5)",
-    fontSize: "0.9375rem",
-    outline: "none",
-    fontFamily: "inherit",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: "block",
-    fontSize: "0.75rem",
-    fontFamily: "var(--ct-font-mono, monospace)",
-    color: "var(--ct-text-muted, #888)",
-    textTransform: "uppercase",
-    letterSpacing: "0.07em",
-    marginBottom: "0.375rem",
-  };
-
   return (
-    <div style={{ width: "100%", maxWidth: "480px", margin: "0 auto" }}>
-      {/* Progress bar */}
-      <div
-        style={{
-          height: "2px",
-          background: "rgba(255,255,255,0.08)",
-          borderRadius: "1px",
-          marginBottom: "2.5rem",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            height: "100%",
-            width: `${progress}%`,
-            background: "var(--ct-accent, #A7FB90)",
-            borderRadius: "1px",
-            transition: "width 0.3s ease",
-          }}
-        />
-      </div>
+    <div className="flex w-full flex-col gap-(--ct-space-6)">
+      <WizardStepProgress
+        steps={STEPS}
+        active={step}
+        ariaLabel="Qualification progress"
+        hideLabelsBelow="sm"
+      />
 
       {/* Step 0 — Identity */}
-      {step === 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <div>
-            <h2
-              style={{
-                fontSize: "1.375rem",
-                fontWeight: 600,
-                color: "var(--ct-text-strong, #f5f5f5)",
-                marginBottom: "0.5rem",
-              }}
-            >
-              Tell us about yourself
-            </h2>
-            <p style={{ fontSize: "0.875rem", color: "var(--ct-text-muted, #888)" }}>
-              Takes 2 minutes. We'll reach out to discuss fit.
-            </p>
-          </div>
+      {step === "about" && (
+        <div className="flex flex-col gap-(--ct-space-5)">
+          <StepHeading
+            title="Tell us about yourself"
+            description="Takes about two minutes. We'll review fit and follow up directly."
+          />
 
-          <div>
-            <label style={labelStyle}>Email *</label>
+          <div className="flex flex-col gap-(--ct-space-2)">
+            <label className="eyebrow ct-text-muted" htmlFor="apply-email">
+              Email *
+            </label>
             <input
+              id="apply-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@fund.io"
-              style={inputStyle}
               autoFocus
+              className="ct-input ct-input-bare rounded-(--ct-radius-xl) px-(--ct-space-4) py-(--ct-space-4) body-sm ct-text-strong"
             />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-            <div>
-              <label style={labelStyle}>First name</label>
+          <div className="grid gap-(--ct-space-3) sm:grid-cols-2">
+            <div className="flex flex-col gap-(--ct-space-2)">
+              <label className="eyebrow ct-text-muted" htmlFor="apply-first-name">
+                First name
+              </label>
               <input
+                id="apply-first-name"
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="Alice"
-                style={inputStyle}
+                className="ct-input ct-input-bare rounded-(--ct-radius-xl) px-(--ct-space-4) py-(--ct-space-4) body-sm ct-text-strong"
               />
             </div>
-            <div>
-              <label style={labelStyle}>Last name</label>
+            <div className="flex flex-col gap-(--ct-space-2)">
+              <label className="eyebrow ct-text-muted" htmlFor="apply-last-name">
+                Last name
+              </label>
               <input
+                id="apply-last-name"
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Dupont"
-                style={inputStyle}
+                className="ct-input ct-input-bare rounded-(--ct-radius-xl) px-(--ct-space-4) py-(--ct-space-4) body-sm ct-text-strong"
               />
             </div>
           </div>
 
-          <div>
-            <label style={labelStyle}>Phone (optional)</label>
+          <div className="flex flex-col gap-(--ct-space-2)">
+            <label className="eyebrow ct-text-muted" htmlFor="apply-phone">
+              Phone (optional)
+            </label>
             <input
+              id="apply-phone"
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+33 6 00 00 00 00"
-              style={inputStyle}
+              className="ct-input ct-input-bare rounded-(--ct-radius-xl) px-(--ct-space-4) py-(--ct-space-4) body-sm ct-text-strong"
             />
           </div>
         </div>
       )}
 
       {/* Step 1 — Q1-Q4 */}
-      {step === 1 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-          <div>
-            <h2
-              style={{
-                fontSize: "1.375rem",
-                fontWeight: 600,
-                color: "var(--ct-text-strong, #f5f5f5)",
-                marginBottom: "0.25rem",
-              }}
-            >
-              About your platform
-            </h2>
-          </div>
+      {step === "platform" && (
+        <div className="flex flex-col gap-(--ct-space-6)">
+          <StepHeading
+            title="About your platform"
+            description="Help us understand your investor profile, assets, and existing yield posture."
+          />
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={labelStyle}>What best describes your platform?</label>
-            {PLATFORM_OPTIONS.map((o) => (
+          <div className="flex flex-col gap-(--ct-space-3)">
+            <label className="eyebrow ct-text-muted">
+              What best describes your platform?
+            </label>
+            {PLATFORM_TYPE_OPTIONS.map((o) => (
               <ChoiceCard
                 key={o.value}
                 label={o.label}
@@ -312,8 +245,8 @@ export function ApplyForm() {
             ))}
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={labelStyle}>Assets under management?</label>
+          <div className="flex flex-col gap-(--ct-space-3)">
+            <label className="eyebrow ct-text-muted">Assets under management?</label>
             {AUM_OPTIONS.map((o) => (
               <ChoiceCard
                 key={o.value}
@@ -324,9 +257,11 @@ export function ApplyForm() {
             ))}
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={labelStyle}>How are client funds currently deployed?</label>
-            {FUNDS_OPTIONS.map((o) => (
+          <div className="flex flex-col gap-(--ct-space-3)">
+            <label className="eyebrow ct-text-muted">
+              How are client funds currently deployed?
+            </label>
+            {FUNDS_USAGE_OPTIONS.map((o) => (
               <ChoiceCard
                 key={o.value}
                 label={o.label}
@@ -336,8 +271,10 @@ export function ApplyForm() {
             ))}
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={labelStyle}>Do you offer yield or reward products?</label>
+          <div className="flex flex-col gap-(--ct-space-3)">
+            <label className="eyebrow ct-text-muted">
+              Do you offer yield or reward products?
+            </label>
             {YIELD_STATUS_OPTIONS.map((o) => (
               <ChoiceCard
                 key={o.value}
@@ -351,23 +288,17 @@ export function ApplyForm() {
       )}
 
       {/* Step 2 — Q5-Q7 */}
-      {step === 2 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-          <div>
-            <h2
-              style={{
-                fontSize: "1.375rem",
-                fontWeight: 600,
-                color: "var(--ct-text-strong, #f5f5f5)",
-                marginBottom: "0.25rem",
-              }}
-            >
-              Sizing &amp; timing
-            </h2>
-          </div>
+      {step === "sizing" && (
+        <div className="flex flex-col gap-(--ct-space-6)">
+          <StepHeading
+            title="Sizing & timing"
+            description="Share the expected mandate and timing for a first conversation or allocation."
+          />
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={labelStyle}>What type of yield product suits your clients?</label>
+          <div className="flex flex-col gap-(--ct-space-3)">
+            <label className="eyebrow ct-text-muted">
+              What type of yield product suits your clients?
+            </label>
             {YIELD_TYPE_OPTIONS.map((o) => (
               <ChoiceCard
                 key={o.value}
@@ -378,8 +309,10 @@ export function ApplyForm() {
             ))}
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={labelStyle}>Vault size for a first allocation?</label>
+          <div className="flex flex-col gap-(--ct-space-3)">
+            <label className="eyebrow ct-text-muted">
+              Vault size for a first allocation?
+            </label>
             {VAULT_SIZE_OPTIONS.map((o) => (
               <ChoiceCard
                 key={o.value}
@@ -390,8 +323,8 @@ export function ApplyForm() {
             ))}
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={labelStyle}>What is your launch timeline?</label>
+          <div className="flex flex-col gap-(--ct-space-3)">
+            <label className="eyebrow ct-text-muted">What is your launch timeline?</label>
             {TIMELINE_OPTIONS.map((o) => (
               <ChoiceCard
                 key={o.value}
@@ -406,98 +339,57 @@ export function ApplyForm() {
 
       {/* Error */}
       {error && (
-        <p
-          style={{
-            marginTop: "1rem",
-            fontSize: "0.8125rem",
-            color: "var(--ct-status-danger, #f87171)",
-            fontFamily: "var(--ct-font-mono, monospace)",
-          }}
-        >
+        <p className="body-xs ct-status-danger m-0">
           {error}
         </p>
       )}
 
       {/* Navigation */}
       <div
-        style={{
-          display: "flex",
-          justifyContent: step === 0 ? "flex-end" : "space-between",
-          marginTop: "2rem",
-          gap: "0.75rem",
-        }}
+        className={cn(
+          "flex items-center gap-(--ct-space-3) pt-(--ct-space-2)",
+          step === "about" ? "justify-end" : "justify-between",
+        )}
       >
-        {step > 0 && (
-          <button
+        {step !== "about" && (
+          <Button
             type="button"
             onClick={goBack}
             disabled={pending}
-            style={{
-              padding: "0.625rem 1.25rem",
-              borderRadius: "0.5rem",
-              border: "1px solid rgba(255,255,255,0.15)",
-              background: "transparent",
-              color: "var(--ct-text-muted, #888)",
-              fontSize: "0.875rem",
-              cursor: "pointer",
-              fontFamily: "inherit",
-            }}
+            variant="secondary"
+            size="lg"
+            className="rounded-(--ct-radius-xl)"
           >
             ← Back
-          </button>
+          </Button>
         )}
 
-        {step < 2 ? (
-          <button
+        {step !== "sizing" ? (
+          <Button
             type="button"
             onClick={goNext}
-            style={{
-              padding: "0.625rem 1.5rem",
-              borderRadius: "0.5rem",
-              border: "none",
-              background: "var(--ct-accent, #A7FB90)",
-              color: "#0a0a0a",
-              fontSize: "0.875rem",
-              fontWeight: 600,
-              cursor: "pointer",
-              fontFamily: "inherit",
-            }}
+            variant="primary"
+            size="lg"
+            className="rounded-(--ct-radius-xl)"
           >
             Continue →
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             type="button"
             onClick={handleSubmit}
             disabled={pending}
-            style={{
-              padding: "0.625rem 1.5rem",
-              borderRadius: "0.5rem",
-              border: "none",
-              background: pending ? "rgba(167,251,144,0.4)" : "var(--ct-accent, #A7FB90)",
-              color: "#0a0a0a",
-              fontSize: "0.875rem",
-              fontWeight: 600,
-              cursor: pending ? "default" : "pointer",
-              fontFamily: "inherit",
-            }}
+            variant="primary"
+            size="lg"
+            className="rounded-(--ct-radius-xl)"
           >
             {pending ? "Submitting…" : "Submit application"}
-          </button>
+          </Button>
         )}
       </div>
 
-      {/* Step counter */}
-      <p
-        style={{
-          textAlign: "center",
-          marginTop: "1.5rem",
-          fontSize: "0.75rem",
-          color: "rgba(255,255,255,0.25)",
-          fontFamily: "var(--ct-font-mono, monospace)",
-        }}
-      >
-        {step + 1} / {TOTAL_STEPS}
+      <p className="body-xs ct-text-muted m-0 text-center">
+        Step {stepIndex + 1} of {totalSteps}
       </p>
     </div>
   );

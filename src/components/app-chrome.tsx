@@ -1,8 +1,16 @@
 "use client";
 
+import {
+  forceOpenRailRight,
+  getRailRightOpen,
+  getRailRightOpenServer,
+  subscribeRailRight,
+  toggleRailRight,
+} from "@hearst/cockpit-shell";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useState, useSyncExternalStore, type ReactNode } from "react";
 
+import { Button } from "@/components/ui/button";
 import { ConnectShell } from "@/components/ConnectShell";
 import { AppFooter } from "@/components/app-footer";
 import { AdminChatControls } from "@/components/admin/admin-chat-controls";
@@ -24,6 +32,59 @@ const BARE_PREFIXES = ["/legal"] as const;
 function isBareRoute(pathname: string): boolean {
   if (BARE_EXACT.has(pathname)) return true;
   return BARE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+// Public prospect funnel with the assistant rail, but without the launcher / hub
+// chrome. This keeps /apply focused while still exposing the conversational
+// guide in the shared Cockpit rail.
+const CHAT_ONLY_PREFIXES = ["/apply"] as const;
+
+function isChatOnlyRoute(pathname: string): boolean {
+  return CHAT_ONLY_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+}
+
+function ChatOnlyShell({ children }: { children: ReactNode }) {
+  const [armed, setArmed] = useState(false);
+  const railOpen = useSyncExternalStore(
+    subscribeRailRight,
+    getRailRightOpen,
+    getRailRightOpenServer,
+  );
+
+  return (
+    <div className={armed ? "ct-chatonly-armed" : undefined}>
+      <ConnectShell enableChat layout="chatOnly">
+        {children}
+      </ConnectShell>
+      {armed && railOpen ? (
+        <button
+          type="button"
+          aria-label="Close assistant"
+          className="ct-chatonly-backdrop min-[1200px]:hidden"
+          onClick={() => {
+            toggleRailRight();
+            setArmed(false);
+          }}
+        />
+      ) : null}
+      {armed && railOpen ? null : (
+        <Button
+          type="button"
+          variant="primary"
+          size="lg"
+          onClick={() => {
+            setArmed(true);
+            forceOpenRailRight();
+          }}
+          className="fixed right-4 bottom-4 z-(--ct-z-overlay) rounded-full shadow-(--ct-shadow-elevated) min-[1200px]:hidden"
+        >
+          Assistant
+        </Button>
+      )}
+    </div>
+  );
 }
 
 // Authenticated surfaces that keep the shell but must NOT show the chat rail:
@@ -55,9 +116,14 @@ export function AppChrome({
 }) {
   const pathname = usePathname();
   const bare = isBareRoute(pathname);
+  const chatOnly = isChatOnlyRoute(pathname);
 
   if (bare) {
-    return <div className="min-h-dvh bg-[var(--ct-bg-deep)]">{children}</div>;
+    return <div className="min-h-dvh bg-(--ct-bg-deep)">{children}</div>;
+  }
+
+  if (chatOnly) {
+    return <ChatOnlyShell>{children}</ChatOnlyShell>;
   }
 
   // The conversational Master Agent is available on every authenticated product

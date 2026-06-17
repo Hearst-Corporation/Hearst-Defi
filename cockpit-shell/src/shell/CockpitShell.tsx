@@ -28,6 +28,7 @@ export function CockpitShell({
   products,
   appId,
   chatConfig,
+  shellVariant = "default",
   renderActiveProduct,
 }: CockpitShellProps) {
   // Fixe le défaut du store actif sur l'appId courante (avant le 1er render).
@@ -65,16 +66,19 @@ export function CockpitShell({
   }, [products, appId, chatConfig]);
 
   const inProduct = active !== appId;
+  const chatOnly = shellVariant === "chatOnly";
 
   return (
     <CockpitContext.Provider value={ctx}>
-      <div className={`ct-root${isElectron ? " ct-electron" : " ct-web"}`}>
+      <div
+        className={`ct-root${isElectron ? " ct-electron" : " ct-web"}${chatOnly ? " ct-shell-chat-only" : ""}`}
+      >
         <ThemeAccent />
         {isElectron && <div className="ct-drag" />}
         <div className="ct-ambient-deep" />
         <div className="ct-ambient-glow" />
         <div className={`ct-panels-row${inProduct ? " ct-immersif" : ""}`}>
-          <RailLeft />
+          {chatOnly ? null : <RailLeft />}
           <CenterPanel {...(renderActiveProduct !== undefined ? { renderProduct: renderActiveProduct } : {})}>
             {children}
           </CenterPanel>
@@ -90,7 +94,7 @@ export function CockpitShell({
             Master
           </button>
         )}
-        <HubBottomBar />
+        {chatOnly ? null : <HubBottomBar />}
       </div>
     </CockpitContext.Provider>
   );

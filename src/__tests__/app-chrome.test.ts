@@ -11,12 +11,25 @@
 import { describe, it, expect } from "vitest";
 
 // ── Replicated from src/components/app-chrome.tsx (private helper) ────────────
-const BARE_EXACT = new Set<string>(["/", "/login"]);
+const BARE_EXACT = new Set<string>([
+  "/",
+  "/login",
+  "/forgot-password",
+  "/reset-password",
+  "/totp-challenge",
+]);
 const BARE_PREFIXES = ["/legal"] as const;
+const CHAT_ONLY_PREFIXES = ["/apply"] as const;
 
 function isBareRoute(pathname: string): boolean {
   if (BARE_EXACT.has(pathname)) return true;
   return BARE_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+}
+
+function isChatOnlyRoute(pathname: string): boolean {
+  return CHAT_ONLY_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
 }
@@ -26,6 +39,9 @@ describe("isBareRoute — routes that render WITHOUT the Cockpit shell", () => {
   it.each([
     "/",          // login/home screen
     "/login",     // sign-in form
+    "/forgot-password",
+    "/reset-password",
+    "/totp-challenge",
     "/legal",     // legal index — exact match
     "/legal/privacy",
     "/legal/terms",
@@ -40,6 +56,8 @@ describe("isBareRoute — routes that render WITH the Cockpit shell", () => {
     "/portfolio",
     "/portfolio/abc",
     "/admin/dashboard",
+    "/apply",
+    "/apply/confirmed",
     "/vaults",
     "/vaults/eth-yield",
     "/profile",
@@ -47,6 +65,27 @@ describe("isBareRoute — routes that render WITH the Cockpit shell", () => {
     "/debug/module-layout",
   ])("renders with shell for %s", (path) => {
     expect(isBareRoute(path)).toBe(false);
+  });
+});
+
+describe("isChatOnlyRoute — routes that keep assistant without launcher", () => {
+  it.each([
+    "/apply",
+    "/apply/confirmed",
+    "/apply/anything/else",
+  ])("is chat-only for %s", (path) => {
+    expect(isChatOnlyRoute(path)).toBe(true);
+    expect(isBareRoute(path)).toBe(false);
+  });
+
+  it.each([
+    "/",
+    "/login",
+    "/legal/privacy",
+    "/portfolio",
+    "/apply-other",
+  ])("is NOT chat-only for %s", (path) => {
+    expect(isChatOnlyRoute(path)).toBe(false);
   });
 });
 

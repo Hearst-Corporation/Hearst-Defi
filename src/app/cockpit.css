@@ -1879,6 +1879,10 @@
   padding: 0;
 }
 
+.dashboard-command-panel-card--risk {
+  min-height: 100%;
+}
+
 .dashboard-command-panel-card__content {
   display: flex;
   flex: 1 1 auto;
@@ -2126,7 +2130,7 @@
   }
 
   .dashboard-command-row-c--ops {
-    grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.95fr) minmax(0, 0.95fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .dashboard-command-shortcuts__grid {
@@ -2432,7 +2436,7 @@
 
 @container dash-board (min-width: 44rem) {
   .dashboard-command-row-c {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -3503,6 +3507,26 @@ button.ct-seg-btn {
   flex-shrink: 0;
 }
 
+.ct-rail-investor-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--ct-space-2) 0;
+  opacity: 0.18;
+  transition: opacity 0.2s;
+}
+.ct-rail-investor-dot:hover {
+  opacity: 0.55;
+}
+.ct-rail-investor-dot span {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ct-text-faint);
+}
+
 /* ──────────────────────────────────────────────────────────────
    Page wrappers (.ct-section utilisé par /admin/roadmap,
    /admin/spec/[slug], /scenario-lab et leur loading.tsx).
@@ -3761,6 +3785,113 @@ button.ct-seg-btn {
 .ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-2); }
 .ct-chat-msg                               { padding: var(--ct-space-2) var(--ct-space-2_5); font-size: var(--ct-text-xs); border-radius: var(--ct-radius-md); }
 .ct-chat-msg.assistant code                { padding: 1px 4px; font-size: var(--ct-text-micro); }
+
+.ct-chat-root--apply .ct-chat-list {
+  gap: var(--ct-space-4);
+}
+
+.ct-chat-apply {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+}
+
+.ct-chat-apply-intro {
+  display: flex;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-4);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-surface-1) 70%, transparent);
+}
+
+.ct-chat-apply-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  color: var(--ct-accent);
+  background: color-mix(in srgb, var(--ct-accent) 16%, transparent);
+}
+
+.ct-chat-apply-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+
+.ct-chat-apply-title {
+  margin: 0;
+  color: var(--ct-text-strong);
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-semibold);
+}
+
+.ct-chat-apply-body {
+  margin: 0;
+  color: var(--ct-text-body);
+  font-size: var(--ct-text-xs);
+  line-height: 1.6;
+}
+
+.ct-chat-apply-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+
+.ct-chat-apply-kicker {
+  margin: 0;
+  color: var(--ct-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide);
+  font-size: var(--ct-text-micro);
+}
+
+.ct-chat-apply-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.ct-chat-apply-suggestion {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--ct-space-3);
+  width: 100%;
+  padding: var(--ct-space-3) var(--ct-space-3_5);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-bg-deep) 34%, transparent);
+  color: var(--ct-text-primary);
+  font-size: var(--ct-text-xs);
+  text-align: left;
+  transition:
+    border-color var(--ct-dur-base) var(--ct-ease),
+    background var(--ct-dur-base) var(--ct-ease),
+    color var(--ct-dur-base) var(--ct-ease);
+}
+
+.ct-chat-apply-suggestion:hover {
+  border-color: var(--ct-border);
+  background: color-mix(in srgb, var(--ct-surface-1) 80%, transparent);
+  color: var(--ct-text-strong);
+}
+
+.ct-chat-apply-suggestion-icon {
+  color: var(--ct-accent);
+  font-size: var(--ct-text-xs);
+}
+
+.ct-chat-apply-suggestion-arrow {
+  color: var(--ct-text-faint);
+  font-size: var(--ct-text-sm);
+}
 
 /* Formulaire de chat - on enlève la lourdeur du package */
 .ct-chat-form {
@@ -4057,12 +4188,78 @@ button.ct-seg-btn {
    plus haut près de .ct-center-panel ; ce n'est plus une surcharge mobile.)
    Aucun nouveau token/classe : surcharge responsive de classes shell existantes,
    même pattern que le reste de ce fichier. */
+.ct-root.ct-shell-chat-only .ct-panels-row {
+  align-items: flex-start;
+}
+
+.ct-root.ct-shell-chat-only .ct-page-area {
+  padding-top: clamp(2rem, 8vh, 4rem);
+}
+
+.ct-root.ct-shell-chat-only .ct-rail-right {
+  align-self: flex-start;
+  position: sticky;
+  top: clamp(2rem, 8vh, 4rem);
+  margin-top: clamp(2rem, 8vh, 4rem);
+  margin-right: var(--ct-space-6);
+  height: min(calc(100dvh - clamp(4rem, 16vh, 8rem)), 44rem);
+  max-height: 44rem;
+  border-radius: var(--ct-radius-xl);
+  overflow: hidden;
+  box-shadow: var(--ct-shadow-elevated);
+}
+
+.ct-chatonly-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--ct-z-overlay) - 1);
+  border: 0;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-bg-deep) 22%, transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 74%, transparent) 100%
+    );
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
 @media (max-width: 1199px) {
   .ct-rail-right { display: none !important; }
+
+  .ct-chatonly-armed .ct-root.ct-shell-chat-only .ct-rail-right:not(.collapsed) {
+    display: flex !important;
+    position: fixed;
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    width: min(22rem, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    height: min(68dvh, 36rem);
+    z-index: var(--ct-z-overlay);
+    border-radius: var(--ct-radius-xl);
+    overflow: hidden;
+    box-shadow: var(--ct-shadow-elevated);
+    margin-top: 0;
+    top: auto;
+  }
+
+  .ct-chatonly-armed .ct-root.ct-shell-chat-only .ct-rail-right:not(.collapsed) .ct-rail-right-body {
+    min-height: 0;
+  }
 }
 
 @media (max-width: 767px) {
   .ct-page-area    { padding-left: 16px; padding-right: 16px; }
+
+  .ct-chatonly-armed .ct-root.ct-shell-chat-only .ct-rail-right:not(.collapsed) {
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-width: none;
+    height: min(64dvh, 34rem);
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    border-radius: calc(var(--ct-radius-xl) + 2px);
+  }
 }
 
 /* ── DEBUG / PORTFOLIO FULL — KPI card glass pattern ────────────────────────

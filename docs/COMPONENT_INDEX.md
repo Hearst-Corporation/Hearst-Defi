@@ -93,7 +93,7 @@
 | `src/components/onboarding/identity-chamber.tsx` | IdentityChamber | 1 |
 | `src/components/onboarding/identity-step.tsx` | IdentityStep | 1 |
 | `src/components/onboarding/identity-vendor-panel.tsx` | IdentityVendorPanel | 1 |
-| `src/components/onboarding/kyc-document-form.tsx` | KycDocumentForm | 1 |
+| `src/components/onboarding/kyc-document-form.tsx` | KycDocumentForm | 2 |
 | `src/components/onboarding/onboarding-chamber-loading.tsx` | OnboardingChamberLoading | 3 |
 | `src/components/onboarding/onboarding-chamber.tsx` | OnboardingShellProvider, OnboardingChamber, OnboardingRequirementsList, OnboardingChamberSole | 8 |
 | `src/components/onboarding/onboarding-shell.tsx` | OnboardingShell | 1 |

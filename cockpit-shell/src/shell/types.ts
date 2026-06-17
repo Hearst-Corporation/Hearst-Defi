@@ -47,6 +47,11 @@ export interface CockpitShellProps {
   /** Config du chat — endpoint, persistance, contexte produit. */
   chatConfig?: ChatConfig;
   /**
+   * Optional shell chrome variant. `chatOnly` keeps the right assistant rail
+   * while omitting the left launcher and hub bottom bar for focused funnels.
+   */
+  shellVariant?: "default" | "chatOnly";
+  /**
    * Render-prop optionnel : invoqué dans le CenterPanel quand un autre produit
    * que l'app hôte est actif. Utilisé exclusivement par le hub pour embedder
    * les 12 produits en `<webview>` Electron. Les apps produit standalone
