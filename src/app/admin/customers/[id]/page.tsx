@@ -54,6 +54,7 @@ export default async function CustomerDetailPage({
       <AdminPageHeader
         title={detail.email}
         eyebrow={`investor · ${detail.userId}`}
+        description="Investor record spanning identity, qualification posture, assigned agent profile, retained memory, and recent chat activity."
         lead={
           <Link href="/admin/customers" className="body-xs ct-text-muted hover:ct-text-strong">
             ← Investors
@@ -71,7 +72,7 @@ export default async function CustomerDetailPage({
 
       {/* Identity + positions */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Identity">
-        <h2 className="h2">Identity</h2>
+        <h2 className="h2">Investor profile</h2>
         <Card className="p-5" hoverOverlay={false}>
           <dl className="admin-doc-form-grid-2 body-sm">
             <div>
@@ -93,9 +94,14 @@ export default async function CustomerDetailPage({
           </dl>
         </Card>
 
-        <h3 className="h3">Positions ({detail.positions.length})</h3>
+        <h3 className="h3">Vault positions ({detail.positions.length})</h3>
         {detail.positions.length === 0 ? (
-          <EmptySurface variant="widget" message="No positions." className="min-h-20" />
+          <EmptySurface
+            variant="widget"
+            message="No positions on record."
+            detail="This investor has not yet subscribed to a vault position."
+            className="min-h-20"
+          />
         ) : (
           <Card className="p-0 overflow-hidden" hoverOverlay={false}>
             <table className="w-full text-left body-sm">
@@ -128,11 +134,11 @@ export default async function CustomerDetailPage({
 
       {/* Qualification (Typeform) */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Qualification">
-        <h2 className="h2">Onboarding questionnaire</h2>
+        <h2 className="h2">Qualification profile</h2>
         <p className="body-xs ct-text-muted">
           {detail.qualification
             ? `Source: ${detail.qualification.source} · updated ${formatAdminDate(detail.qualification.updatedAt)}`
-            : "No questionnaire on file — fill it in to calibrate the agent."}
+            : "No qualification profile on file yet. Complete the intake to calibrate the assigned agent profile."}
         </p>
         <Card className="p-5" hoverOverlay={false}>
           <QualificationForm
@@ -145,11 +151,11 @@ export default async function CustomerDetailPage({
 
       {/* Agent calibration */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Agent">
-        <h2 className="h2">Agent calibration</h2>
+        <h2 className="h2">Agent profile</h2>
 
         {persona && (
           <Card className="p-5" hoverOverlay={false}>
-            <h3 className="h3">Suggested persona (from questionnaire)</h3>
+            <h3 className="h3">Suggested profile</h3>
             <div className="admin-doc-inline-row flex-wrap gap-2 mt-2">
               {persona.segments.map((s) => (
                 <Badge key={s} variant="accent">{s}</Badge>
@@ -164,7 +170,7 @@ export default async function CustomerDetailPage({
         )}
 
         <Card className="p-5" hoverOverlay={false}>
-          <h3 className="h3">Applied persona</h3>
+          <h3 className="h3">Active profile</h3>
           {applied ? (
             <div className="admin-doc-inline-row flex-wrap gap-2 mt-2">
               {applied.template && <Badge variant="brand">template: {applied.template.label}</Badge>}
@@ -174,7 +180,7 @@ export default async function CustomerDetailPage({
             </div>
           ) : (
             <p className="body-sm ct-text-muted mt-2">
-              No persona applied yet. Recalibrate from the questionnaire or assign a template.
+              No profile is applied yet. Recalibrate from the intake answers or assign a reusable template.
             </p>
           )}
           {applied?.customInstructions && (
@@ -195,10 +201,10 @@ export default async function CustomerDetailPage({
 
       {/* Memory */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Memory">
-        <h2 className="h2">Agent memory</h2>
+        <h2 className="h2">Retained memory</h2>
         <p className="body-xs ct-text-muted">
-          Durable facts the agent carries between sessions — auto-distilled from
-          conversations or curated here.
+          Durable investor context the agent carries across sessions, distilled
+          from conversations or curated directly here.
         </p>
         <Card className="p-5" hoverOverlay={false}>
           <MemoryManager
@@ -211,9 +217,14 @@ export default async function CustomerDetailPage({
 
       {/* Recent conversations */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Conversations">
-        <h2 className="h2">Recent conversations ({detail.chats.length})</h2>
+        <h2 className="h2">Recent chat activity ({detail.chats.length})</h2>
         {detail.chats.length === 0 ? (
-          <EmptySurface variant="widget" message="No conversations yet." className="min-h-20" />
+          <EmptySurface
+            variant="widget"
+            message="No chat activity yet."
+            detail="Investor conversations will appear here once a session has been opened."
+            className="min-h-20"
+          />
         ) : (
           <Card className="p-0 overflow-hidden" hoverOverlay={false}>
             <table className="w-full text-left body-sm">

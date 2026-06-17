@@ -27,6 +27,7 @@ export default async function EditAgentTemplatePage({
       <AdminPageHeader
         title={template.label}
         eyebrow={`agent template · ${template.slug}`}
+        description="Review and refine the reusable profile applied to investor-facing agent experiences."
         lead={
           <Link href="/admin/agents" className="body-xs ct-text-muted hover:ct-text-strong">
             ← Agents

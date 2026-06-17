@@ -1,6 +1,6 @@
 /**
  * Tiny helper shared by every CLI script that needs a PrismaClient outside
- * the Next.js server runtime (seed.ts, backfill.ts, scripts/backfill.ts,
+ * the Next.js server runtime (seed.ts, prisma/backfill.ts,
  * scripts/seed-vaults-prod.ts, …).
  *
  * Prisma 7 requires the client to be constructed with a driver adapter — we

@@ -43,6 +43,7 @@ export default async function CampaignDetailPage({
       <AdminPageHeader
         title={detail.name}
         eyebrow={`campaign · ${detail.kind}`}
+        description="Review the campaign mandate, generate tailored drafts, and clear each recipient email before release."
         lead={
           <Link
             href="/admin/outreach"
@@ -60,7 +61,10 @@ export default async function CampaignDetailPage({
 
       {/* Meta */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Campaign">
-        <h2 className="h2">Brief</h2>
+        <h2 className="h2">Campaign brief</h2>
+        <p className="body-xs ct-text-muted">
+          Approved campaign inputs and sender context used across the drafting run.
+        </p>
         <Card className="p-5" hoverOverlay={false}>
           <dl className="admin-doc-form-grid-2 body-sm">
             <div>
@@ -95,12 +99,11 @@ export default async function CampaignDetailPage({
 
       {/* Draft via agent */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Draft">
-        <h2 className="h2">Agent draft</h2>
+        <h2 className="h2">Draft generation</h2>
         <p className="body-xs ct-text-muted">
-          The agent writes one tailored email per recipient as a draft, using the
-          base brief and (when enabled) each prospect&apos;s qualification. Drafts
-          land below for your review — nothing is sent until you approve each
-          email.
+          Generate one tailored draft per recipient from the approved brief and,
+          when enabled, prospect qualification context. Output lands below in the
+          review queue and remains unsent until an operator approves each email.
         </p>
         <div className="admin-doc-toolbar">
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
@@ -111,12 +114,12 @@ export default async function CampaignDetailPage({
 
       {/* Emails */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Emails">
-        <h2 className="h2">Emails ({detail.emails.length})</h2>
+        <h2 className="h2">Recipient review queue ({detail.emails.length})</h2>
         {detail.emails.length === 0 ? (
           <EmptySurface
             variant="widget"
-            message="No emails drafted yet."
-            detail="Use “Draft with agent” to generate one email per recipient."
+            message="No recipient drafts available yet."
+            detail="Use “Draft with agent” to generate the first reviewable email set for this campaign."
             className="min-h-20"
           />
         ) : (

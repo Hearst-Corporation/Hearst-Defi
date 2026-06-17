@@ -61,7 +61,11 @@ export default async function OutreachPage() {
 
   return (
     <div className="admin-doc-shell">
-      <AdminPageHeader title="Outreach" eyebrow="platform · email agent" />
+      <AdminPageHeader
+        title="Outreach"
+        eyebrow="platform · outreach operations"
+        description="Operator workspace for prospect coverage, campaign setup, and pre-send review of agent-prepared outreach."
+      />
 
       {/* Stats row */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Outreach stats">
@@ -70,7 +74,11 @@ export default async function OutreachPage() {
 
       {/* Prospects */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Prospects">
-        <h2 className="h2">Prospects ({prospects.total})</h2>
+        <h2 className="h2">Prospect directory ({prospects.total})</h2>
+        <p className="body-xs ct-text-muted">
+          Maintain the reviewed contact universe used to scope campaign drafting and
+          follow-up.
+        </p>
 
         <div className="admin-doc-toolbar">
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
@@ -82,8 +90,8 @@ export default async function OutreachPage() {
         {prospects.rows.length === 0 ? (
           <EmptySurface
             variant="widget"
-            message="No prospects yet."
-            detail="Add a prospect one at a time, or paste a list of emails to import in bulk. Prospects feed cold campaigns; the agent drafts a tailored email per recipient for your review before anything is sent."
+            message="No prospects loaded yet."
+            detail="Add a prospect manually or import a batch list to establish the recipient set for campaign drafting. Agent output remains in review until an operator approves each email."
             className="min-h-32"
           />
         ) : (
@@ -143,7 +151,11 @@ export default async function OutreachPage() {
 
       {/* Campaigns */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Campaigns">
-        <h2 className="h2">Campaigns ({campaigns.length})</h2>
+        <h2 className="h2">Campaign queue ({campaigns.length})</h2>
+        <p className="body-xs ct-text-muted">
+          Define campaign mandates, monitor drafting status, and open each workflow
+          for recipient-level review.
+        </p>
 
         <div className="admin-doc-toolbar">
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
@@ -154,8 +166,8 @@ export default async function OutreachPage() {
         {campaigns.length === 0 ? (
           <EmptySurface
             variant="widget"
-            message="No campaigns yet."
-            detail="Create a campaign to brief the email agent. It drafts one tailored email per recipient as a draft — nothing is sent until you approve each email."
+            message="No campaigns configured yet."
+            detail="Create a campaign to issue the operator brief for agent drafting. Nothing is sent automatically; each recipient draft stays in review until approval."
             className="min-h-32"
           />
         ) : (

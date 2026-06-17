@@ -21,7 +21,8 @@ export default function OnboardingTestPage() {
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Onboarding test"
-        eyebrow="dev · manual Typeform simulator"
+        eyebrow="operations · manual intake simulator"
+        description="Run a controlled onboarding submission through the production intake path before exposing it to investors."
         lead={
           <Link href="/admin/customers" className="body-xs ct-text-muted hover:ct-text-strong">
             ← Investors
@@ -37,11 +38,12 @@ export default function OnboardingTestPage() {
       />
 
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Simulator">
+        <h2 className="h2">Manual intake run</h2>
         <p className="body-sm ct-text-muted">
-          Fill the questionnaire by hand and submit — this runs the exact same
-          flow as the live Typeform webhook: it creates the User + Investor,
-          stores the answers, calibrates the cockpit-chat agent, and (optionally)
-          sends the welcome email and creates the HubSpot contact.
+          Submit a controlled questionnaire to exercise the live intake path: it
+          provisions the User and Investor records, stores the qualification
+          profile, calibrates the assigned agent, and can optionally send the
+          welcome email and create the HubSpot contact.
         </p>
 
         <Card className="p-5" hoverOverlay={false}>

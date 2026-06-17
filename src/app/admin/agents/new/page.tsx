@@ -15,6 +15,7 @@ export default function NewAgentTemplatePage() {
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="New agent template"
+        description="Define a reusable operator profile for investor-facing agent behavior, language, and register."
         lead={
           <Link href="/admin/agents" className="body-xs ct-text-muted hover:ct-text-strong">
             ← Agents

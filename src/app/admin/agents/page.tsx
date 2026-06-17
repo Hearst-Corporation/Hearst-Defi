@@ -24,6 +24,7 @@ export default async function AgentsPage() {
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Agents"
+        description="Govern reusable agent templates and review the base execution surfaces they can inherit."
         actions={
           <Button asChild variant="primary">
             <Link href="/admin/agents/new">New template</Link>
@@ -32,10 +33,10 @@ export default async function AgentsPage() {
       />
 
       <section className="admin-doc-stack" aria-label="Agent catalog">
-        <h2 className="h2">Agent catalog</h2>
+        <h2 className="h2">Base agent catalog</h2>
         <p className="body-xs ct-text-muted">
-          The base code agents, classified by where they run. Read-only — these
-          are wired in code; personas below layer on top of them.
+          Core execution surfaces, grouped by operating scope. These stay wired
+          in code; templates below shape tone and behavior on top of them.
         </p>
 
         <div className="admin-doc-form-grid-2">
@@ -72,17 +73,17 @@ export default async function AgentsPage() {
       </section>
 
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Agent templates">
-        <h2 className="h2">Persona library ({templates.length})</h2>
+        <h2 className="h2">Template library ({templates.length})</h2>
         <p className="body-xs ct-text-muted">
-          Reusable personas layered on the 5 code agents. A customer&apos;s agent
-          can inherit a template; per-customer overrides still win.
+          Reusable operator profiles that can be assigned across investor
+          accounts. Customer-level overrides still take precedence when set.
         </p>
 
         {templates.length === 0 ? (
           <EmptySurface
             variant="widget"
-            message="No agent templates yet."
-            detail="Create a template to reuse a persona (tone, language, register) across customers."
+            message="No templates configured yet."
+            detail="Create a reusable profile to standardize tone, language, and register across assigned accounts."
             className="min-h-32"
           />
         ) : (

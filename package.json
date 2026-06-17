@@ -11,7 +11,7 @@
     "predev": "node scripts/free-port.mjs",
     "dev": "NODE_OPTIONS=--max-http-header-size=65536 next dev -p 4105",
     "build": "node scripts/prisma-provider.mjs && prisma generate && NODE_ENV=production next build",
-    "start": "next start -p 4105",
+    "start": "next start -H 0.0.0.0 -p ${PORT:-4105}",
     "preflight": "node scripts/preflight-prod.mjs",
     "lint": "eslint src",
     "ds:layout": "node scripts/ds-layout-audit.mjs",
