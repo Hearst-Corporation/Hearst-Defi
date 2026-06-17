@@ -1227,7 +1227,7 @@
   display: grid;
   grid-template-columns: minmax(13rem, 0.85fr) var(--ct-space-px) 1fr;
   gap: var(--ct-space-5);
-  align-items: center;
+  align-items: stretch;
   min-width: 0;
   flex: 1;
 }
@@ -1289,8 +1289,10 @@
 .cy-ledger {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: var(--ct-space-2);
   min-width: 0;
+  align-self: stretch;
 }
 
 .cy-ledger-head {
