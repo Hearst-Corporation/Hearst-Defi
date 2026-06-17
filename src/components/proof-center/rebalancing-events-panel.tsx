@@ -66,7 +66,7 @@ export function RebalancingEventsPanel({ events }: RebalancingEventsPanelProps) 
     <Card>
       <DashboardPanelHeader
         eyebrow="Rebalancing events"
-        title={`Last ${events.length} rule-triggered events`}
+        title={`Last ${events.length} rule-triggered events (PTAI)`}
         provenance="live"
         tone="primary"
       />

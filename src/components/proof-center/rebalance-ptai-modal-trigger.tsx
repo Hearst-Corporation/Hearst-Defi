@@ -32,7 +32,7 @@ export function RebalancePtaiModalTrigger({
       <Modal
         isOpen={open}
         onClose={() => setOpen(false)}
-        title={`Rebalance ${event.ruleId} — PTAI`}
+        title={`Rebalance ${event.ruleId} — PTAI detail`}
         className="max-w-2xl"
       >
         <div className="product-doc-stack product-doc-stack--relaxed">
