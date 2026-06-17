@@ -196,6 +196,22 @@ Ces surfaces tournent en continu côté serveur, indépendamment du déploiement
 - [ ] Sentry alert rules actives
 - [ ] CI `ci.yml` verte sur la PR avant merge
 
+## Post-deploy smoke (production)
+
+Après push sur `main`, Vercel redéploie automatiquement sur **https://connect.hearst.app**.
+
+```bash
+curl -sf https://connect.hearst.app/api/health   # HTTP 200 {"status":"ok"}
+```
+
+Vérifications manuelles (session investor ou admin requise) :
+
+- `/proof-center` — PoR, mining cash-flow, distributions, rebalancing PTAI, catalog off-chain
+- `/admin/proof-center` — surface opérateur alignée
+
+Vérifier le SHA déployé : GitHub → **Deployments** (environment `Production`) ou
+Vercel → projet `hearst-connect` → **Deployments** (doit matcher `main`).
+
 ## Required external settings (NON garantis par le repo seul)
 
 Ces réglages vivent dans les consoles GitHub / Vercel. Le diff repo ne peut PAS les

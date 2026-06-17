@@ -428,9 +428,24 @@ staging smoke): `ALLOW_INVESTOR_DEMO_SEED=true pnpm seed:investor-demo`.
 fails on P0 issues — e.g. a SQLite `DATABASE_URL` instead of Postgres. This is
 a **manual** pre-merge check (`scripts/preflight-prod.mjs`) — not a blocking CI
 job. Production deploys via the **Vercel Git integration** on push/merge to
-`main`; there is no automated deploy gate in CI. `ci.yml` runs
-lint/typecheck/tests on PRs only (and only blocks the Vercel deploy if GitHub
-branch protection is configured to require it).
+`main` → **https://connect.hearst.app** (projet Vercel `hearst-connect`). There
+is no automated deploy gate in CI. `ci.yml` runs lint/typecheck/tests on PRs
+only (and only blocks the Vercel deploy if GitHub branch protection is
+configured to require it). `pnpm start` binds `0.0.0.0:${PORT:-4105}` — Vercel
+injecte `PORT` automatiquement.
+
+**Post-deploy smoke (prod)** :
+
+```bash
+curl -sf https://connect.hearst.app/api/health   # → {"status":"ok"}
+# puis connecté (investor ou admin) :
+#   /proof-center        — distributions, rebalancing PTAI, adresses vault
+#   /admin/proof-center  — même surface opérateur
+```
+
+Si le schéma Prisma a changé : snapshot `pg_dump` puis `DATABASE_URL=<prod> pnpm db:push`
+(depuis une machine de confiance, jamais depuis SQLite dev). Voir
+[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 **Required Vercel production secrets (P0)** — see [`.env.example`](.env.example)
 for the full annotated list :
