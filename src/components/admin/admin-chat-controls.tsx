@@ -443,13 +443,13 @@ export function AdminChatControls() {
           // cap; surface a specific, non-alarming message for it.
           setError(
             res.status === 429
-              ? "Trop de requêtes — réessayez dans un instant."
-              : "Impossible d'enregistrer le mode.",
+              ? "Too many requests — try again in a moment."
+              : "Could not save the mode.",
           );
           setMode(previous);
         }
       } catch {
-        setError("Impossible d'enregistrer le mode.");
+        setError("Could not save the mode.");
         setMode(previous);
       } finally {
         setSavingMode(false);
@@ -479,7 +479,7 @@ export function AdminChatControls() {
       });
 
       if (res.headers.get("content-type")?.includes("text/event-stream")) {
-        if (!res.body) throw new Error("Réponse de stream vide");
+        if (!res.body) throw new Error("Empty stream response");
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
@@ -509,7 +509,7 @@ export function AdminChatControls() {
               } else if (payload.type === "done") {
                 finalMd = payload.contentMd ?? null;
               } else if (payload.type === "error") {
-                throw new Error(payload.message ?? "Erreur de génération");
+                throw new Error(payload.message ?? "Generation error");
               }
             } catch (parseErr) {
               if (parseErr instanceof Error && parseErr.name !== "SyntaxError") {
@@ -520,7 +520,7 @@ export function AdminChatControls() {
           }
         }
 
-        if (!finalMd) throw new Error("Stream terminé sans document final");
+        if (!finalMd) throw new Error("Stream ended without a final document");
         setDoc(finalMd);
         setPanelOpen(true);
       } else {
@@ -529,7 +529,7 @@ export function AdminChatControls() {
           | { document?: { contentMd: string }; error?: string }
           | null;
         if (!res.ok || !data?.document) {
-          throw new Error(data?.error ?? "Échec de la génération.");
+          throw new Error(data?.error ?? "Generation failed.");
         }
         setDoc(data.document.contentMd);
         setPanelOpen(true);
@@ -549,10 +549,10 @@ export function AdminChatControls() {
     } catch (err) {
       // Distinguish user-initiated abort from a real failure.
       if (err instanceof Error && err.name === "AbortError") {
-        setError("Génération annulée.");
+        setError("Generation cancelled.");
       } else {
         setError(
-          err instanceof Error ? err.message : "Échec de la génération.",
+          err instanceof Error ? err.message : "Generation failed.",
         );
       }
     } finally {
@@ -565,7 +565,7 @@ export function AdminChatControls() {
   const buildWriteInput = useCallback((): Record<string, unknown> | null => {
     if (adminActionTool === "create_review_note_draft") {
       if (reviewTitle.trim().length === 0 || reviewBody.trim().length === 0) {
-        setError("Titre et contenu sont requis.");
+        setError("Title and body are required.");
         return null;
       }
       return {
@@ -584,7 +584,7 @@ export function AdminChatControls() {
       !Number.isInteger(requiredSignersNum) ||
       requiredSignersNum <= 0
     ) {
-      setError("Champs gouvernance invalides (justification >= 20 chars).");
+      setError("Invalid governance fields (justification >= 20 chars).");
       return null;
     }
     return {
@@ -638,7 +638,7 @@ export function AdminChatControls() {
           }
         | null;
       if (!res.ok || data?.status !== "confirmation_required" || !data.confirmation) {
-        throw new Error(data?.error ?? "Impossible de demander la confirmation.");
+        throw new Error(data?.error ?? "Could not request confirmation.");
       }
       applyActionFlowState(
         toConfirmationRequestedState(getActionFlowState(), {
@@ -650,7 +650,7 @@ export function AdminChatControls() {
         }),
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur de confirmation.");
+      setError(err instanceof Error ? err.message : "Confirmation error.");
     } finally {
       writeActionInFlightRef.current = false;
       setActionBusy(false);
@@ -696,7 +696,7 @@ export function AdminChatControls() {
       if (!res.ok || data?.status !== "executed") {
         throw new Error(
           data?.error ??
-            (data?.code ? `Confirmation rejetee: ${data.code}` : "Execution refusee."),
+            (data?.code ? `Confirmation rejected: ${data.code}` : "Execution refused."),
         );
       }
       applyActionFlowState(
@@ -706,7 +706,7 @@ export function AdminChatControls() {
         ),
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur d'execution.");
+      setError(err instanceof Error ? err.message : "Execution error.");
     } finally {
       writeActionInFlightRef.current = false;
       setActionBusy(false);
@@ -731,7 +731,7 @@ export function AdminChatControls() {
       demoPackIncludeChecklist,
     });
     if (readUtilityTool === "generate_chart_spec" && chartIntent.trim().length === 0) {
-      setError("Intent requis pour le chart spec.");
+      setError("Intent required for the chart spec.");
       return;
     }
     if (
@@ -740,7 +740,7 @@ export function AdminChatControls() {
         readUtilityTool === "export_briefing_pack") &&
       (demoObjective.trim().length === 0 || demoAudience.trim().length === 0)
     ) {
-      setError("Champs read utility manquants.");
+      setError("Missing read utility fields.");
       return;
     }
     readUtilityInFlightRef.current = true;
@@ -785,7 +785,7 @@ export function AdminChatControls() {
         ),
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur read tool.");
+      setError(err instanceof Error ? err.message : "Read tool error.");
     } finally {
       readUtilityInFlightRef.current = false;
       setReadUtilityBusy(false);
@@ -887,14 +887,14 @@ export function AdminChatControls() {
     ? createPortal(
         <section
           className="ct-chat-settings-section"
-          aria-label="Mode du chat"
+          aria-label="Chat mode"
         >
-          <div className="ct-chat-settings-label">Mode du chat</div>
+          <div className="ct-chat-settings-label">Chat mode</div>
 
           <div
             className="ct-chat-settings-row"
             role="radiogroup"
-            aria-label="Mode du chat"
+            aria-label="Chat mode"
           >
             <button
               type="button"
@@ -935,11 +935,11 @@ export function AdminChatControls() {
               className="w-full"
               onClick={() => setCapabilityPanelOpen(true)}
             >
-              Ouvrir la matrice agent
+              Open agent matrix
             </Button>
           </div>
           <div className="ct-chat-settings-hint">
-            Compétences testables, prompt de test, statut manuel et notes.
+            Testable capabilities, test prompt, manual status and notes.
           </div>
 
           {mode === "review" ? (
@@ -954,9 +954,9 @@ export function AdminChatControls() {
                 >
                   {generating
                     ? streamingCharCount > 0
-                      ? `Génération… (${streamingCharCount} chars)`
-                      : "Génération…"
-                    : "Générer le document"}
+                      ? `Generating… (${streamingCharCount} chars)`
+                      : "Generating…"
+                    : "Generate document"}
                 </Button>
               </div>
               {generating ? (
@@ -966,9 +966,9 @@ export function AdminChatControls() {
                     size="lg"
                     className="w-full"
                     onClick={cancelGeneration}
-                    aria-label="Annuler la génération en cours"
+                    aria-label="Cancel the ongoing generation"
                   >
-                    Annuler
+                    Cancel
                   </Button>
                 </div>
               ) : null}
@@ -980,21 +980,21 @@ export function AdminChatControls() {
                     className="w-full"
                     onClick={() => setPanelOpen(true)}
                   >
-                    Voir le document
+                    View document
                   </Button>
                 </div>
               ) : null}
               <div className="ct-chat-settings-hint">
-                Distille la conversation en plan de modifications structuré.
+                Distills the conversation into a structured change plan.
               </div>
             </>
           ) : mode === "admin" ? (
             <>
               <div className="ct-chat-settings-hint">
-                Copilote interne : architecture, allocations, marche disponible,
-                deploiements et runbooks. Pas d'execution autonome.
+                Internal copilot: architecture, allocations, available market,
+                deployments and runbooks. No autonomous execution.
               </div>
-              <div className="ct-chat-settings-label mt-(--ct-space-2)">Actions admin</div>
+              <div className="ct-chat-settings-label mt-(--ct-space-2)">Admin actions</div>
               <div className="ct-chat-settings-row">
                 <select
                   className={adminInputClassName}
@@ -1334,7 +1334,7 @@ export function AdminChatControls() {
             </>
           ) : (
             <div className="ct-chat-settings-hint">
-              Assistant conversationnel produit/LP avec garde-fous compliance.
+              Conversational product/LP assistant with compliance guardrails.
             </div>
           )}
 
@@ -1361,7 +1361,7 @@ export function AdminChatControls() {
       <Modal
         isOpen={capabilityPanelOpen}
         onClose={() => setCapabilityPanelOpen(false)}
-        title="Matrice de test agent"
+        title="Agent test matrix"
         className="max-w-screen-2xl"
         headerActions={
           <div className="flex flex-wrap items-center gap-2">
@@ -1381,8 +1381,8 @@ export function AdminChatControls() {
       >
         <div className="admin-doc-stack admin-doc-stack--tight">
           <p className="body-sm ct-text-muted m-0">
-            On teste chaque capacité manuellement depuis le chat. Rouge = cassé,
-            orange = proche, vert = validé.
+            Each capability is tested manually from the chat. Red = broken,
+            orange = close, green = validated.
           </p>
           <div className="admin-doc-stack admin-doc-stack--tight rounded-lg border border-(--ct-border-soft) p-3">
             <div className="grid gap-3 xl:grid-cols-2">
@@ -1408,14 +1408,14 @@ export function AdminChatControls() {
       <Modal
         isOpen={panelOpen && doc !== null}
         onClose={() => setPanelOpen(false)}
-        title="Plan de modifications suggérées"
+        title="Suggested changes plan"
         headerActions={
           <>
             <Button variant="ghost" size="sm" onClick={copyDoc}>
-              Copier
+              Copy
             </Button>
             <Button variant="secondary" size="sm" onClick={downloadDoc}>
-              Télécharger .md
+              Download .md
             </Button>
           </>
         }
@@ -1485,7 +1485,7 @@ function AgentCapabilityRow({
         <div className="grid gap-3 xl:grid-cols-2">
           <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
             <div className="body-[10px] uppercase tracking-wide ct-text-faint">
-              Prompt de test
+              Test prompt
             </div>
             <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1 px-3 py-2 body-xs ct-text-primary whitespace-pre-wrap wrap-break-word">
               {capability.testPrompt}
@@ -1493,7 +1493,7 @@ function AgentCapabilityRow({
           </div>
           <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
             <div className="body-[10px] uppercase tracking-wide ct-text-faint">
-              Critère de succès
+              Success criterion
             </div>
             <div className="rounded-lg border border-(--ct-border-soft) bg-white/2 px-3 py-2 body-xs ct-text-muted">
               {capability.successCriteria}
@@ -1504,7 +1504,7 @@ function AgentCapabilityRow({
         <div className="grid gap-3 xl:grid-cols-[minmax(14rem,auto)_minmax(0,1fr)]">
           <div className="admin-doc-stack admin-doc-stack--tight">
             <div className="body-[10px] uppercase tracking-wide ct-text-faint">
-              Statut
+              Status
             </div>
             <div className="flex min-w-48 flex-wrap gap-2">
               {(["red", "orange", "green", "untested"] as const).map((candidate) => (
@@ -1534,8 +1534,8 @@ function AgentCapabilityRow({
             onChange={(event) => onNoteChange(capability.id, event.target.value)}
             rows={3}
             className="min-h-20 w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-(--ct-space-2) py-1 body-xs"
-            placeholder="Observations de test manuel"
-            aria-label={`Notes pour ${capability.label}`}
+            placeholder="Manual test observations"
+            aria-label={`Notes for ${capability.label}`}
           />
           </div>
         </div>

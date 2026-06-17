@@ -95,7 +95,7 @@ export function ChatNavBridge() {
             : data.route;
         setPending({
           route: routeWithParams,
-          label: data.label ?? "la page",
+          label: data.label ?? "the page",
           protected: isProtectedRoute(current),
           ...(data.objective ? { objective: data.objective } : {}),
           ...(data.autostart ? { autostart: true } : {}),
@@ -159,9 +159,9 @@ export function ChatNavBridge() {
     >
       <span className="body-sm">
         {pending.protected ? (
-          <>Aller à <strong>{pending.label}</strong> ?</>
+          <>Go to <strong>{pending.label}</strong> ?</>
         ) : (
-          <>Ouverture de <strong>{pending.label}</strong>…</>
+          <>Opening <strong>{pending.label}</strong>…</>
         )}
       </span>
       <button
@@ -169,14 +169,14 @@ export function ChatNavBridge() {
         onClick={goNow}
         className="rounded-full bg-(--ct-accent) px-[var(--ct-space-3)] py-1 body-xs font-medium ct-text-on-accent"
       >
-        {pending.protected ? "Ouvrir" : "Maintenant"}
+        {pending.protected ? "Open" : "Now"}
       </button>
       <button
         type="button"
         onClick={cancel}
         className="rounded-full px-[var(--ct-space-2)] py-1 body-xs ct-text-muted hover:ct-text-strong"
       >
-        Annuler
+        Cancel
       </button>
     </div>
   );

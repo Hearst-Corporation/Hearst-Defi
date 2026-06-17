@@ -45,7 +45,7 @@ export async function GET(): Promise<NextResponse<{ mode: ChatMode } | { error: 
     await rateLimit(userId, "read");
   } catch {
     return NextResponse.json(
-      { error: "Trop de requêtes — réessayez dans un instant." },
+      { error: "Too many requests — try again in a moment." },
       { status: 429 },
     );
   }
@@ -82,7 +82,7 @@ export async function POST(
     await rateLimit(userId, "write");
   } catch {
     return NextResponse.json(
-      { error: "Trop de requêtes — réessayez dans un instant." },
+      { error: "Too many requests — try again in a moment." },
       { status: 429 },
     );
   }

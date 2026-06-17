@@ -187,10 +187,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
                   variant="primary"
                   action={submitForReviewAction}
                   confirm={{
-                    title: "Soumettre pour revue ?",
+                    title: "Submit for review?",
                     description:
-                      "Le vault passera en statut « review » et sera soumis aux signataires.",
-                    confirmLabel: "Soumettre",
+                      "The vault will move to \"review\" status and be submitted to the signers.",
+                    confirmLabel: "Submit",
                     confirmVariant: "primary",
                   }}
                 />
@@ -206,10 +206,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
                       variant="primary"
                       action={approveAction}
                       confirm={{
-                        title: "Signer l'approbation ?",
+                        title: "Sign approval?",
                         description:
-                          "Votre signature d'approbation sera enregistrée de façon permanente.",
-                        confirmLabel: "Signer",
+                          "Your approval signature will be recorded permanently.",
+                        confirmLabel: "Sign",
                         confirmVariant: "primary",
                       }}
                     />
@@ -218,10 +218,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
                       variant="danger"
                       action={rejectAction}
                       confirm={{
-                        title: "Signer le rejet ?",
+                        title: "Sign rejection?",
                         description:
-                          "Votre signature de rejet sera enregistrée de façon permanente.",
-                        confirmLabel: "Rejeter",
+                          "Your rejection signature will be recorded permanently.",
+                        confirmLabel: "Reject",
                         confirmVariant: "danger",
                       }}
                     />
@@ -236,16 +236,16 @@ export default async function VaultDetailPage({ params }: PageProps) {
                     variant="secondary"
                     action={reconcileAction}
                     confirm={{
-                      title: "Forcer le déploiement ?",
+                      title: "Force deployment?",
                       description: (
                         <>
-                          Le quorum est atteint ({distinctApproveCount}/
-                          {vault.requiredSigners} signataires distincts) mais le
-                          vault est resté en « review ». Cette action le passera
-                          en « deployed ».
+                          Quorum is met ({distinctApproveCount}/
+                          {vault.requiredSigners} distinct signers) but the
+                          vault stayed in &quot;review&quot;. This action will move it
+                          to &quot;deployed&quot;.
                         </>
                       ),
-                      confirmLabel: "Forcer le déploiement",
+                      confirmLabel: "Force deployment",
                       confirmVariant: "primary",
                     }}
                   />
@@ -259,10 +259,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
                 variant="primary"
                 action={markAsLiveAction}
                 confirm={{
-                  title: "Passer le vault en live ?",
+                  title: "Set the vault live?",
                   description:
-                    "Le vault deviendra actif et ouvert aux souscriptions.",
-                  confirmLabel: "Mettre en live",
+                    "The vault will become active and open to subscriptions.",
+                  confirmLabel: "Set live",
                   confirmVariant: "primary",
                 }}
               />
@@ -274,9 +274,9 @@ export default async function VaultDetailPage({ params }: PageProps) {
                 variant="secondary"
                 action={pauseAction}
                 confirm={{
-                  title: "Mettre en pause ?",
+                  title: "Pause?",
                   description:
-                    "Les souscriptions et l'activité du vault seront suspendues.",
+                    "Subscriptions and vault activity will be suspended.",
                   confirmLabel: "Pause",
                   confirmVariant: "primary",
                 }}
@@ -290,9 +290,9 @@ export default async function VaultDetailPage({ params }: PageProps) {
                   variant="primary"
                   action={resumeAction}
                   confirm={{
-                    title: "Reprendre l'activité ?",
-                    description: "Le vault repassera en statut « live ».",
-                    confirmLabel: "Reprendre",
+                    title: "Resume activity?",
+                    description: "The vault will return to \"live\" status.",
+                    confirmLabel: "Resume",
                     confirmVariant: "primary",
                   }}
                 />
@@ -301,18 +301,18 @@ export default async function VaultDetailPage({ params }: PageProps) {
                   variant="danger"
                   action={closeAction}
                   confirm={{
-                    title: "Clôturer le vault ?",
+                    title: "Close vault?",
                     description: (
                       <>
-                        Cette action est{" "}
+                        This action is{" "}
                         <strong className="ct-status-danger">
-                          irréversible
+                          irreversible
                         </strong>
-                        . Une fois clôturé, le vault ne pourra plus jamais être
-                        réactivé. Aucune transition d'état ne sera possible.
+                        . Once closed, the vault can never be reactivated. No
+                        state transition will be possible.
                       </>
                     ),
-                    confirmLabel: "Clôturer définitivement",
+                    confirmLabel: "Close permanently",
                     confirmVariant: "danger",
                     confirmPhrase: vault.ticker,
                   }}
@@ -354,8 +354,8 @@ export default async function VaultDetailPage({ params }: PageProps) {
         {vault.status === "review" && (
           <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight">
             <span className="body-xs ct-text-muted">
-              Votre identifiant de signer (doit figurer dans la whitelist pour
-              que « Sign Approval » apparaisse) :
+              Your signer identity (must be in the whitelist for &quot;Sign
+              Approval&quot; to appear):
             </span>
             <div className="admin-doc-inline-row admin-doc-inline-row--between">
               <code className="mono body-xs ct-text-strong break-all">{actorWallet}</code>

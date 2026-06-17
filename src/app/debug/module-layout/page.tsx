@@ -30,7 +30,7 @@ export default function ModuleLayoutDebugPage() {
             type="button"
             className="pf-demo-btn body-sm"
           >
-            Démo
+            Demo
           </button>
         </div>
 

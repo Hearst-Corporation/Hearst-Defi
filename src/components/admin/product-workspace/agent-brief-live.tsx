@@ -70,11 +70,11 @@ export function AgentBriefLive({
       acc += dec.decode();
       setText(acc);
       setPhase(acc.trim().length > 0 ? "done" : "error");
-      if (acc.trim().length === 0) setError("Cadrage vide — réessaie.");
+      if (acc.trim().length === 0) setError("Empty brief — try again.");
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") return;
       setPhase("error");
-      setError("La génération du cadrage a échoué — réessaie.");
+      setError("Brief generation failed — try again.");
     } finally {
       if (abortRef.current === controller) abortRef.current = null;
     }
@@ -96,7 +96,7 @@ export function AgentBriefLive({
   if (!objective) {
     return (
       <p className="body-sm ct-text-muted italic">
-        En attente d&apos;un objectif depuis l&apos;assistant cockpit.
+        Waiting for an objective from the cockpit assistant.
       </p>
     );
   }
@@ -109,7 +109,7 @@ export function AgentBriefLive({
             aria-hidden
             className="h-1.5 w-1.5 rounded-full bg-(--ct-accent) animate-pulse"
           />
-          <p className="body-xs ct-text-muted">L&apos;agent rédige le cadrage…</p>
+          <p className="body-xs ct-text-muted">The agent is writing the brief…</p>
         </div>
       ) : null}
 
@@ -128,10 +128,10 @@ export function AgentBriefLive({
       {phase === "error" ? (
         <div className="admin-doc-stack admin-doc-stack--tight">
           <p className={cn("body-sm", "ct-status-danger")} role="alert">
-            {error ?? "Erreur."}
+            {error ?? "Error."}
           </p>
           <Button variant="secondary" size="sm" onClick={() => void generate()}>
-            Réessayer
+            Retry
           </Button>
         </div>
       ) : null}
@@ -139,10 +139,10 @@ export function AgentBriefLive({
       {phase === "idle" ? (
         <div className="admin-doc-stack admin-doc-stack--tight">
           <p className="body-sm ct-text-muted">
-            Lance la rédaction du cadrage pour cet objectif.
+            Start writing the brief for this objective.
           </p>
           <Button variant="primary" size="sm" onClick={() => void generate()}>
-            Rédiger le cadrage
+            Write the brief
           </Button>
         </div>
       ) : null}

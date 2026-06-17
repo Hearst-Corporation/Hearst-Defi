@@ -49,7 +49,7 @@ export async function POST(req: NextRequest): Promise<Response> {
     );
   } catch {
     return new Response(
-      JSON.stringify({ error: "Trop de requêtes — réessayez dans un instant." }),
+      JSON.stringify({ error: "Too many requests — try again in a moment." }),
       { status: 429, headers: { "Content-Type": "application/json" } },
     );
   }

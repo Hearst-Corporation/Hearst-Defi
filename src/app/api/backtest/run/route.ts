@@ -102,7 +102,7 @@ export async function POST(req: NextRequest): Promise<Response> {
   } catch (err) {
     logger.warn("backtest.run rate-limited", { userId }, err instanceof Error ? err : undefined);
     return jsonError(
-      { error: "Trop de requêtes — réessaie dans quelques instants." },
+      { error: "Too many requests — try again in a few moments." },
       429,
       { "Retry-After": String(Math.ceil(BACKTEST_RATE_WINDOW_MS / 1000)) },
     );

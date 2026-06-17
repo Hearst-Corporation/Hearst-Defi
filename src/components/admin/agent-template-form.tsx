@@ -123,7 +123,7 @@ export function AgentTemplateForm({
             minLength={2}
             maxLength={80}
             defaultValue={template?.label ?? ""}
-            placeholder="LP institutionnel FR"
+            placeholder="Institutional LP"
             className="ct-input"
           />
           <span className="mt-[var(--ct-space-1)] block body-xs ct-text-muted">
@@ -141,7 +141,7 @@ export function AgentTemplateForm({
             type="text"
             maxLength={2000}
             defaultValue={template?.description ?? ""}
-            placeholder="Investisseur institutionnel, registre feutré, FR"
+            placeholder="Institutional investor, muted register"
             className="ct-input"
           />
         </label>
@@ -264,7 +264,7 @@ export function AgentTemplateForm({
             maxLength={SYSTEM_ADDITIONS_MAX}
             defaultValue={template?.systemAdditions ?? ""}
             onChange={(e) => setSystemLen(e.target.value.length)}
-            placeholder="Mets en avant la structure Cayman SPV et la conformité ; registre feutré."
+            placeholder="Highlight the Cayman SPV structure and compliance; muted register."
             className="ct-input"
           />
           <span

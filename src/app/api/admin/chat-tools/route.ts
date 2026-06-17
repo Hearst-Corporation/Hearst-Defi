@@ -247,7 +247,7 @@ export async function POST(
     } catch {
       logger.warn("admin chat read tool rate limited", { userId });
       return NextResponse.json(
-        { error: "Trop de requêtes — réessayez dans un instant." },
+        { error: "Too many requests — try again in a moment." },
         { status: 429 },
       );
     }
@@ -297,7 +297,7 @@ export async function POST(
   } catch {
     logger.warn("admin chat write tool rate limited", { userId });
     return NextResponse.json(
-      { error: "Trop de requêtes — réessayez dans un instant." },
+      { error: "Too many requests — try again in a moment." },
       { status: 429 },
     );
   }

@@ -22,13 +22,13 @@ export function SegmentNotFound({
   scope,
   message,
   homeHref = "/",
-  homeLabel = "Retour à l'accueil",
+  homeLabel = "Back to home",
 }: SegmentNotFoundProps) {
   return (
     <ErrorShellLayout
       tone="warning"
       scope={scope}
-      title="Page introuvable"
+      title="Page not found"
       message={message}
       actions={
         <Button variant="secondary" size="sm" asChild>

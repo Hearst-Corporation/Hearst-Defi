@@ -719,7 +719,7 @@ export function VaultForm(props: VaultFormProps) {
               {props.adminId && (
                 <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight">
                   <span className="body-xs ct-text-muted">
-                    Votre identifiant admin (à whitelister pour pouvoir signer) :
+                    Your admin identity (whitelist it to be able to sign):
                   </span>
                   <div className="admin-doc-inline-row admin-doc-inline-row--between">
                     <code className="mono body-xs ct-text-strong break-all">{props.adminId}</code>
@@ -974,7 +974,7 @@ export function VaultForm(props: VaultFormProps) {
                         <code className="mono body-xs ct-text-muted break-all">
                           {s.trim()}
                           {isMe && (
-                            <span className="ct-text-faint"> (vous)</span>
+                            <span className="ct-text-faint"> (you)</span>
                           )}
                         </code>
                         {!valid && (
@@ -988,8 +988,8 @@ export function VaultForm(props: VaultFormProps) {
 
               {props.adminId !== undefined && !adminInWhitelist && (
                 <p className="body-xs ct-status-danger pt-1">
-                  Votre identifiant ({props.adminId}) n'est pas dans la whitelist —
-                  vous ne pourrez pas signer cette déploiement vous-même.
+                  Your identity ({props.adminId}) is not in the whitelist — you
+                  will not be able to sign this deployment yourself.
                 </p>
               )}
             </div>

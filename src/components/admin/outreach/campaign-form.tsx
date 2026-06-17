@@ -89,7 +89,7 @@ export function CampaignForm() {
             id="campaign-body"
             name="bodyTemplate"
             rows={5}
-            placeholder="Introduce the Hearst Yield Vault: mining-backed structured yield, monthly USDC distributions, target APY range, Cayman SPV. Feutré, institutional register."
+            placeholder="Introduce the Hearst Yield Vault: mining-backed structured yield, monthly USDC distributions, target APY range, Cayman SPV. Muted, institutional register."
             className="ct-input"
           />
         </label>

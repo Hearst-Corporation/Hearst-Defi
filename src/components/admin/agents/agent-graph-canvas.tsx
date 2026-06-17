@@ -237,8 +237,7 @@ function RuntimePanel({
   if (!node) {
     return (
       <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1 p-[var(--ct-space-4)] body-xs ct-text-muted">
-        Clique un nœud pour voir son runtime (derniers runs, latence, coût,
-        erreurs).
+        Click a node to see its runtime (recent runs, latency, cost, errors).
       </div>
     );
   }
@@ -263,7 +262,7 @@ function RuntimePanel({
       <div className="body-xs ct-text-muted">
         {node.agentName
           ? `${node.recentRuns} run(s) · 24 h`
-          : "Surface non-LLM (orchestration / sortie)"}
+          : "Non-LLM surface (orchestration / output)"}
       </div>
       {node.samples.length > 0 ? (
         <div className="admin-doc-stack admin-doc-stack--tight">
@@ -292,7 +291,7 @@ function RuntimePanel({
           ))}
         </div>
       ) : (
-        <p className="body-xs ct-text-faint">Aucun run récent.</p>
+        <p className="body-xs ct-text-faint">No recent runs.</p>
       )}
     </div>
   );
