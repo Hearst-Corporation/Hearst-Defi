@@ -419,7 +419,7 @@ export default async function ProductWorkspacePage({
         </div>
       </Card>
 
-      <section aria-labelledby="pw-brief-heading" className="admin-doc-stack admin-doc-stack--tight">
+      <section aria-labelledby="pw-brief-heading" className="admin-doc-section">
         <div className="flex items-center gap-3">
           <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
           <h2 id="pw-brief-heading" className="h2">Product inference</h2>
@@ -497,7 +497,7 @@ export default async function ProductWorkspacePage({
         </Card>
       </section>
 
-      <section aria-labelledby="pw-notes-heading" className="admin-doc-stack admin-doc-stack--tight">
+      <section aria-labelledby="pw-notes-heading" className="admin-doc-section">
         <div className="flex items-center gap-3">
           <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
           <h2 id="pw-notes-heading" className="h2">Supporting material</h2>
@@ -547,7 +547,7 @@ export default async function ProductWorkspacePage({
       </section>
 
       {/* L2 — Chart pack for review */}
-      <section aria-labelledby="pw-graphs-heading" className="admin-doc-stack admin-doc-stack--tight">
+      <section aria-labelledby="pw-graphs-heading" className="admin-doc-section">
         <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
           <div className="flex items-center gap-3">
             <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />

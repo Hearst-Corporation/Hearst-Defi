@@ -63,7 +63,7 @@ export function InvestFlowLoadingShell({
         ) : null}
       </header>
 
-      <div className={workspace ? "invest-flow-shell__body" : undefined}>
+      <div className="invest-flow-shell__body">
         <div className="product-doc-stack">
           {Array.from({ length: bodyCards }).map((_, index) => (
             <SkeletonCard key={index} />

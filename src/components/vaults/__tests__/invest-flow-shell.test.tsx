@@ -44,5 +44,6 @@ describe("InvestFlowShell width", () => {
     expect(html).not.toContain("product-doc-shell--cap");
     expect(html).not.toContain("product-doc-shell--narrow");
     expect(html).toContain("invest-flow-shell");
+    expect(html).toContain("invest-flow-shell__body");
   });
 });

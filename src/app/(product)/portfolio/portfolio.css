@@ -158,7 +158,7 @@
 .pf-section-stack {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-doc-flow-stack-gap);
 }
 
 .pf-footer {
@@ -357,7 +357,7 @@
   display: flex;
   flex: 1 0 auto;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-doc-flow-inner-gap);
   min-height: 100%;
   max-width: 90rem; /* desktop reference width (cockpit fluid scale cap) */
   margin-inline: auto;
@@ -367,7 +367,7 @@
 
 @media (min-width: 768px) {
   .pf-container {
-    gap: var(--ct-space-6);
+    gap: var(--ct-doc-flow-stack-gap);
   }
 }
 

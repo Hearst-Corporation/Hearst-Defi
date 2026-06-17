@@ -33,12 +33,20 @@ et a été **supprimé** le 2026-06-15.)
 
 ## Validation attendue avant merge sur `main`
 
-La CI GitHub `.github/workflows/ci.yml` est le gate de qualité. Jobs :
+La CI GitHub `.github/workflows/ci.yml` est le gate de qualité. Le **nom exact d'un job**
+(champ `name:`) est le nom à cocher comme *required status check* côté GitHub. Jobs :
 
-1. **Lint & Typecheck** (bloquant) — `pnpm lint` (eslint + DS layout gate) + `pnpm typecheck`.
-2. **Vitest** (bloquant) — `pnpm test` (unit + integration sur SQLite éphémère).
-3. **Playwright E2E** (non bloquant) — `continue-on-error: true`.
-4. **Foundry** (bloquant quand `contracts/` est touché) — `forge build` + `forge test`.
+1. **`Lint & Typecheck`** (**bloquant**) — `pnpm lint` (eslint, advisory) + `pnpm typecheck`.
+2. **`Vitest`** (**bloquant**, `needs: lint-typecheck`) — `pnpm test` (unit + integration sur SQLite éphémère).
+3. **`Playwright E2E`** (**non bloquant** — `continue-on-error: true`).
+4. **`Foundry (smart contracts)`** (**non bloquant aujourd'hui** — `continue-on-error: true` ;
+   Phase 2, mainnet gated ADR-006).
+
+> ⚠️ Tant que `continue-on-error: true` est présent, un job rapporte **toujours vert** quoi
+> qu'il arrive. **Ne jamais mettre `Playwright E2E` ni `Foundry (smart contracts)` en required
+> check** : ce serait un *faux gate*. `Foundry` ne redevient un required check légitime que
+> lorsque `contracts/` est réactivé **et** que `continue-on-error: true` est retiré de la CI.
+> Les seuls checks à requérir aujourd'hui sont **`Lint & Typecheck`** et **`Vitest`**.
 
 Avant d'ouvrir une PR vers `main`, faire tourner en local :
 
@@ -214,23 +222,55 @@ Vercel → projet `hearst-connect` → **Deployments** (doit matcher `main`).
 
 ## Required external settings (NON garantis par le repo seul)
 
-Ces réglages vivent dans les consoles GitHub / Vercel. Le diff repo ne peut PAS les
-appliquer ; ils doivent être **vérifiés manuellement** dans les UI.
+> **Le diff repo ne peut PAS appliquer ces réglages.** Ils vivent dans les consoles
+> GitHub / Vercel et doivent être **appliqués/vérifiés manuellement**. Une CI verte ne
+> prouve PAS que la branch protection est active : c'est un état console à confirmer à la
+> main. Ce runbook documente le réglage ; il ne l'exécute pas.
 
-1. **GitHub → Settings → Branches → Branch protection sur `main`**
-   - Exiger les status checks `ci.yml` (Lint & Typecheck, Vitest, Foundry) **avant merge**.
-   - Exiger une PR (pas de push direct sur `main`) + au moins 1 review si la capacité du repo le permet.
-   - Objectif : garantir qu'aucun code non validé par CI ne parte en production Vercel.
+### 1. GitHub — branch protection sur `main` (le gate réel recommandé)
 
-2. **Vercel → projet `hearst-connect` → Settings → Git**
-   - Production Branch = **`main`** (et seulement `main`).
-   - Vérifier que les autres branches ne produisent que des Preview deployments.
+`Settings → Branches → Add branch protection rule` (ou `Settings → Rules → Rulesets`, équivalent moderne).
 
-3. **Secrets prod manquants à provisionner** (signalés par `pnpm preflight`,
-   sinon features fail-closed en prod) :
-   - `DOCUSIGN_WEBHOOK_SECRET`
-   - `ATTESTATION_ALLOWED_SIGNERS`
-   - `AUTH_TOTP_KEY`
+- **Branch name pattern :** `main`
+- ☑ **Require a pull request before merging**
+  - Required approvals : **0** (solo, pragmatique) — ou **1** si une politique de review stricte est décidée plus tard.
+- ☑ **Require status checks to pass before merging**
+  - ☑ **Require branches to be up to date before merging**
+  - Cocher **exactement ces deux checks (et eux seuls)** :
+    - `Lint & Typecheck`
+    - `Vitest`
+  - ❌ **Ne PAS cocher** `Playwright E2E` ni `Foundry (smart contracts)` (`continue-on-error: true` → toujours verts → faux gate).
+  - Si un nom n'apparaît pas dans la liste : ouvrir d'abord une PR triviale pour que GitHub enregistre le check, puis revenir le cocher.
+- ☑ **Do not allow force pushes** · ☑ **Do not allow deletions**
+- **Bypass admin** : par défaut, laisser le bypass admin **possible mais réservé à l'urgence**,
+  avec justification obligatoire dans le message de commit. Pour une politique stricte,
+  cocher « Do not allow bypassing the above settings » (au prix de la capacité de hotfix solo).
+- **Effet** : plus aucun code non validé par CI n'atterrit sur `main`, donc plus aucun
+  déploiement Vercel non gaté — **sans toucher la config Vercel**.
+
+> ⚠️ Conséquence workflow : exiger les status checks bloque en pratique le **push direct**
+> sur `main` → le passage par une PR (même solo, auto-mergée) devient obligatoire.
+
+### 2. Vercel — projet `hearst-connect` → Settings → Git
+
+- **Production Branch = `main`** (et seulement `main`).
+- **Garder l'auto-deploy Git actif** (Option A) — on ne bascule PAS en deploy-from-CI.
+- Vérifier que les autres branches ne produisent que des **Preview deployments**.
+
+### 3. Vérification post-setup (à faire une fois la protection activée)
+
+1. Ouvrir une PR test vers `main`.
+2. Pendant que la CI tourne → bouton **Merge grisé** (« Required statuses must pass »).
+3. Introduire un échec volontaire (erreur TS) → PR **non mergeable** ; corriger → checks verts → Merge réactivé.
+4. `git push origin main` direct → **rejeté** par la protection.
+5. Après merge → Vercel déploie le **SHA mergé** (GitHub → Deployments `Production`, ou Vercel → Deployments matche `main`).
+
+### 4. Secrets prod manquants à provisionner
+
+(signalés par `pnpm preflight`, sinon features fail-closed en prod) :
+- `DOCUSIGN_WEBHOOK_SECRET`
+- `ATTESTATION_ALLOWED_SIGNERS`
+- `AUTH_TOTP_KEY`
 
 ---
 

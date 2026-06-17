@@ -71,7 +71,7 @@ export function InvestFlowShell({
         </div>
       </ProductPageHeader>
 
-      <div className={workspace ? "invest-flow-shell__body" : undefined}>
+      <div className="invest-flow-shell__body">
         {children}
 
         {footer ? (
