@@ -1068,7 +1068,7 @@ model OutreachProspect {
 model OutreachCampaign {
   id              String   @id @default(cuid())
   name            String
-  kind            String   @default("cold") // cold | newsletter
+  kind            String   @default("cold") // cold | newsletter | direct
   status          String   @default("draft") // draft | review | sending | sent
   fromEmail       String? // override; default = OUTREACH_FROM env
   subjectTemplate String?

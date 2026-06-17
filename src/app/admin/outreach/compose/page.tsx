@@ -30,7 +30,7 @@ export default function ComposeEmailPage() {
           configured ? (
             <Badge variant="success">Email configured</Badge>
           ) : (
-            <Badge variant="warning">RESEND_API_KEY not set</Badge>
+            <Badge variant="warning">Email not configured</Badge>
           )
         }
       />

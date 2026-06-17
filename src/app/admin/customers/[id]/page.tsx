@@ -64,9 +64,9 @@ export default async function CustomerDetailPage({
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Investor account"
-        eyebrow={detail.email}
-        description="Investor account — identity, qualification, assistant settings, saved notes, and recent activity."
+        title={detail.email}
+        eyebrow={`investor · ${detail.userId}`}
+        description="Identity, qualification, assistant settings, saved notes, and recent activity."
         lead={
           <Link href="/admin/customers" className="body-xs ct-text-muted hover:ct-text-strong">
             ← Investors

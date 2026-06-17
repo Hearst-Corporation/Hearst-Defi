@@ -2949,29 +2949,6 @@ button.ct-seg-btn {
   background-repeat: no-repeat, no-repeat;
 }
 
-/* IMAGE SPATIALE — couche la plus profonde, sur son propre pseudo-élément pour
-   pouvoir baisser SA luminosité (brightness) indépendamment des gradients verts
-   qui restent à pleine intensité au-dessus (.ct-panels-row). */
-.ct-panels-row::before {
-  content: "";
-  position: absolute;
-  inset: -10%; /* Débordement pour animation */
-  z-index: -1;
-  pointer-events: none;
-  /* background-image retiré en attendant la vraie image runway-bg-5-data-center-grid.png */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: brightness(0.6) blur(5px);
-  animation: vision-float-row 40s ease-in-out infinite alternate;
-}
-
-@keyframes vision-float-row {
-  0% { transform: scale(1) translate(0, 0); }
-  50% { transform: scale(1.05) translate(1%, 2%); }
-  100% { transform: scale(1) translate(-1%, -1%); }
-}
-
 .ct-panels-row::after {
   content: "";
   position: absolute;
