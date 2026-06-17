@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**197 components** · 0 possible orphans · 2 intentionally unwired.
+**198 components** · 0 possible orphans · 2 intentionally unwired.
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -18,6 +18,7 @@
 | `src/components/admin/admin-chat-controls.tsx` | AdminChatControls | 1 |
 | `src/components/admin/admin-page-header.tsx` | AdminPageHeader | 35 |
 | `src/components/admin/agent-template-form.tsx` | AgentTemplateForm | 2 |
+| `src/components/admin/agents/agent-dice-canvas.tsx` | AgentDiceCanvas | 1 |
 | `src/components/admin/archive-template-button.tsx` | ArchiveTemplateButton | 1 |
 | `src/components/admin/cockpit/action-queue.tsx` | ActionQueue | 1 |
 | `src/components/admin/cockpit/audit-trail-rolling.tsx` | AuditTrailRolling | 1 |
