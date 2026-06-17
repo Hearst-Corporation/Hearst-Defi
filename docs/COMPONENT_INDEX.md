@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**198 components** · 0 possible orphans · 2 intentionally unwired.
+**199 components** · 0 possible orphans · 2 intentionally unwired.
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -115,6 +115,7 @@
 | `src/components/portfolio/next-action-card.tsx` | NextActionCard, NextActionContent | 3 |
 | `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 24 |
 | `src/components/portfolio/portfolio-greeting.tsx` | PortfolioGreeting | 2 |
+| `src/components/portfolio/portfolio-layout-debug-probe.tsx` | PortfolioLayoutDebugProbe | 2 |
 | `src/components/portfolio/portfolio-leaf-shell.tsx` | PortfolioLeafShell | 4 |
 | `src/components/portfolio/portfolio-teaser-tile.tsx` | PortfolioTeaserTile | 1 |
 | `src/components/portfolio/position-actions.tsx` | PositionActions | 1 |
