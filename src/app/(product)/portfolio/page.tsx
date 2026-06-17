@@ -1,17 +1,6 @@
 import "./portfolio.css";
 
-import { loadPortfolio } from "@/lib/data/portfolio";
-import { getInvestor } from "@/lib/auth/session";
-import {
-  loadLockMeterProps,
-  loadRiskPulseProps,
-  loadDistribCalendarProps,
-  loadProofPulseProps,
-  loadYieldStackProps,
-  loadAllocationDonutProps,
-  loadTimeToCashProps,
-  resolveProvenance,
-} from "@/lib/data/portfolio";
+import { loadPortfolioView } from "@/lib/data/portfolio-view";
 import { ProductSection } from "@/components/ui/product-section";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
 import {
@@ -25,9 +14,6 @@ import { TrustProofCompact } from "@/components/portfolio/trust-panel";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
-import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
-import { isDemoInvestor } from "@/lib/demo/provider";
-import { buildDemoPortfolio } from "@/lib/demo/builders";
 import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
@@ -35,7 +21,6 @@ import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
 import {
   ZERO_YIELD_STACK,
   buildZeroDistribEntries,
-  isLayoutPreview,
   zeroLockMeterProps,
   zeroProofPulseProps,
   zeroTimeToCashProps,
@@ -62,27 +47,16 @@ function displayName(
 }
 
 export default async function PortfolioPage() {
-  const [investor, liveData] = await Promise.all([
-    getInvestor(),
-    loadPortfolio(),
-  ]);
-
-  // Demo provider (guard-gated → never production): the recognized demo
-  // identity sees the synthetic demo portfolio instead of the live loader
-  // result. Non-demo path is byte-identical to before (liveData == data).
-  const demo = isDemoInvestor(investor);
-  const data = demo ? buildDemoPortfolio() : liveData;
-
-  const hasPositions = data.positions.length > 0;
-  // previewZeros is purely a layout-preview flag for the EMPTY (zero-position)
-  // real investor — it must NOT be forced on for the demo identity, whose
-  // buildDemoPortfolio() returns a populated $500k position. Driving the demo
-  // through previewZeros would blank the hero KPIs above a populated list (D5).
-  // The demo honesty signal is the DemoDataBanner, not previewZeros.
-  const previewZeros = isLayoutPreview(hasPositions);
-  const previewAsOf = new Date();
-
-  const [
+  // All demo + previewZeros + provenance + widget-props wiring lives in the
+  // shared view-model loader (one source of truth across the dashboard and the
+  // "view more" leaf pages). Honesty invariants are preserved there verbatim.
+  const {
+    investor,
+    demo,
+    data,
+    hasPositions,
+    previewZeros,
+    previewAsOf,
     lockMeterProps,
     timeToCashProps,
     riskPulseProps,
@@ -91,28 +65,10 @@ export default async function PortfolioPage() {
     yieldStackProps,
     allocationDonutProps,
     showDemoBanner,
-  ] = await Promise.all([
-    loadLockMeterProps(),
-    loadTimeToCashProps(),
-    loadRiskPulseProps(),
-    loadDistribCalendarProps(),
-    loadProofPulseProps(),
-    loadYieldStackProps(hasPositions),
-    loadAllocationDonutProps(hasPositions),
-    investor?.id != null
-      ? investorHasDemoPosition(investor.id)
-      : Promise.resolve(false),
-  ]);
-
-  const actionFlags = {
-    kycStatus: investor?.kycStatus ?? "pending",
-    accreditationAttested: investor?.accreditationAttestedAt != null,
-    hasWallet: investor?.walletAddress != null,
-    positionCount: data.positions.length,
-  };
-
-  const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
-  const sectionVariant = previewZeros ? "preview" : "active";
+    actionFlags,
+    portfolioProvenance,
+    sectionVariant,
+  } = await loadPortfolioView();
 
   return (
     <div

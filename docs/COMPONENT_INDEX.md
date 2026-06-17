@@ -126,7 +126,7 @@
 | `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 1 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 4 |
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
-| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 8 |
+| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 9 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
 | `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 3 |
 | `src/components/proof-center/custody-panel.tsx` | CustodySection | 1 |
