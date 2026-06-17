@@ -229,7 +229,11 @@ export default async function PortfolioPage() {
           </div>
         </ProductSection>
 
-        <div data-section="payout-calendar" data-testid="distrib-calendar-widget">
+        <div
+          className="pf-payout-calendar-slot"
+          data-section="payout-calendar"
+          data-testid="distrib-calendar-widget"
+        >
           <DistribCalendar
             {...distribCalendarProps}
             entries={

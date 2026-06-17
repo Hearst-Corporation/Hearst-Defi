@@ -57,8 +57,8 @@ export default function PortfolioLoading() {
           </div>
         </ProductSection>
 
-        <div className="pf-skeleton-widget--sm" data-section="payout-calendar">
-          <Skeleton className="pf-cockpit-panel w-full" />
+        <div className="pf-payout-calendar-slot pf-skeleton-widget" data-section="payout-calendar">
+          <Skeleton className="pf-cockpit-panel pf-payout-calendar-panel w-full min-h-[14rem]" />
         </div>
       </div>
     </div>

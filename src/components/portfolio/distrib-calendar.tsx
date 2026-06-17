@@ -121,11 +121,10 @@ function BarChart({
   const n = entries.length;
   if (n === 0) return null;
 
-  // Bar geometry
+  // Bar geometry — use full viewBox width (no cap) so bars scale with the panel.
   const GAP = 4;
   const totalGaps = (n - 1) * GAP;
-  // Cap bar width to avoid "shaft" look when there are few entries or wide container
-  const BAR_W = Math.min(Math.floor((VB_W - totalGaps) / n), 40);
+  const BAR_W = Math.floor((VB_W - totalGaps) / n);
   // Unique IDs for SVG defs (static — RSC renders once per request)
   const forecastPatternId = "dc-forecast-hatch";
   const titleId = "dc-title";
@@ -144,8 +143,8 @@ function BarChart({
     return (
       <svg
         viewBox={`0 0 ${VB_W} ${COMPACT_VB_H}`}
-        preserveAspectRatio="xMidYMin meet"
-        className="pf-distrib-chart pf-distrib-chart--compact block w-full max-h-16"
+        preserveAspectRatio="xMidYMax meet"
+        className="pf-distrib-chart pf-distrib-chart--compact block h-full w-full min-h-[8rem]"
         role="img"
         aria-label={compactTitle}
       >
@@ -168,16 +167,16 @@ function BarChart({
           const isQuarter = shouldShowCompactPeriodLabel(i);
           const periodLabel = formatPeriod(entry.period, refYear);
 
-          // Fixed width for zero-state bars to avoid "shaft" look when stretched
-          const COMPACT_BAR_W = 12;
-          const cbx = cx - COMPACT_BAR_W / 2;
+          // Full-width zero-state bars (same geometry as populated chart).
+          const cbx = bx;
+          const barWidth = BAR_W;
 
           return (
             <g key={i} aria-hidden="true">
               <rect
                 x={cbx}
                 y={COMPACT_AXIS_Y - COMPACT_BAR_H}
-                width={COMPACT_BAR_W}
+                width={barWidth}
                 height={COMPACT_BAR_H}
                 rx={1}
                 fill={isCurrent ? "var(--ct-accent)" : "var(--ct-border-soft)"}
@@ -206,8 +205,8 @@ function BarChart({
   return (
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
-      preserveAspectRatio="xMidYMid meet"
-      className="pf-distrib-chart w-full max-h-28"
+      preserveAspectRatio="xMidYMax meet"
+      className="pf-distrib-chart block h-full w-full min-h-[10rem]"
       role="img"
       aria-labelledby={titleId}
     >
@@ -386,7 +385,7 @@ export function DistribCalendar({
       : resolveProvenance(source, updatedAt, "estimated");
 
   return (
-    <PfCockpitPanel variant="compact" aria-label="Payout calendar">
+    <PfCockpitPanel variant="wide" aria-label="Payout calendar" className="pf-payout-calendar-panel">
       <PfCockpitPanelHeader
         title="Payout calendar"
         subtitle={
@@ -397,7 +396,7 @@ export function DistribCalendar({
         provenance={badgeKind}
       />
 
-      <div className="w-full overflow-hidden rounded-md">
+      <div className="pf-distrib-chart-shell">
         <BarChart
           entries={displayEntries}
           refYear={refYear}
