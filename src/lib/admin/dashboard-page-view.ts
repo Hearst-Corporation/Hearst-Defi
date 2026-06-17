@@ -2,6 +2,38 @@ import type { AdminOverview } from "@/lib/data/admin-overview";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 
+/** Strip Yield-only snapshot fields when another fixture vault is in preview scope. */
+function vaultScopedDisplayData(
+  data: DashboardData,
+  risk: RiskFrameworkData,
+  preview: boolean,
+): DashboardData {
+  if (!preview) {
+    return { ...data, vault: { ...data.vault, riskScore: risk.composite } };
+  }
+
+  return {
+    ...data,
+    vault: {
+      ...data.vault,
+      aumUsdc: 0,
+      delta30dUsdc: 0,
+      apyRange: { low: 0, high: 0 },
+      stressedApy: 0,
+      stressedApyRange: { low: 0, high: 0 },
+      riskScore: 0,
+      miningMarginScore: 0,
+    },
+    allocations: [],
+    timeseries: { nav30d: [], apy30d: [], source: "fallback" },
+    miningOps: {
+      ...data.miningOps,
+      hashprice: null,
+      is_fallback: true,
+    },
+  };
+}
+
 export function resolveYieldPosture(
   headlineApy: { low: number; high: number } | null,
   apyTarget: { low: number; high: number },
@@ -55,8 +87,12 @@ export function resolveDashboardPageInputs(
   );
 
   const { custodyConfigured, custodyReservesUsdc } = overview.proof;
-  const useCustody = custodyConfigured && custodyReservesUsdc > 0;
-  const capitalUsdc = useCustody ? custodyReservesUsdc : data.vault.aumUsdc;
+  const useCustody = !preview && custodyConfigured && custodyReservesUsdc > 0;
+  const capitalUsdc = preview
+    ? 0
+    : useCustody
+      ? custodyReservesUsdc
+      : data.vault.aumUsdc;
   // Proof freshness is only meaningful when the dashboard is running on real
   // production data. In seed/staging contexts (hasLiveTimelineSnapshot = false)
   // we suppress proofFresh so that recent-but-mock Proof rows don't trigger
@@ -67,10 +103,7 @@ export function resolveDashboardPageInputs(
     overview.proof.attestationsCount > 0;
 
   return {
-    data: {
-      ...data,
-      vault: { ...data.vault, riskScore: risk.composite },
-    },
+    data: vaultScopedDisplayData(data, risk, preview),
     hasLiveKpis,
     simulated,
     headlineApy,

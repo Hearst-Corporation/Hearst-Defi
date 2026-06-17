@@ -5,8 +5,10 @@ import { fetchBtcPrice } from "@/lib/data/btc-price";
 import { loadLatestTimelineSnapshot } from "@/lib/data/timeline-snapshot";
 import { computeRiskBreakdown } from "@/lib/engine/risk";
 import type { ScenarioInputs } from "@/lib/engine/types";
+import { VAULT_YIELD } from "@/lib/engine/vaults";
 import { canRunDemoProvider } from "@/lib/demo/guard";
 import { buildDemoRiskFramework } from "@/lib/demo/admin/risk";
+import { resolveFixtureVaultId } from "@/lib/vaults/dashboard-scope";
 
 // ---------------------------------------------------------------------------
 // Dashboard Risk Framework loader.
@@ -188,8 +190,24 @@ function compositeBand(score: number): { band: RiskBand; label: string } {
 // Public loader
 // ---------------------------------------------------------------------------
 
-export async function loadRiskFramework(): Promise<RiskFrameworkData> {
+/** Yield-only until per-vault `VaultSnapshot` lands (Phase 3). */
+export const AWAITING_VAULT_RISK_SNAPSHOT: RiskFrameworkData = {
+  composite: 0,
+  band: "low",
+  bandLabel: "Awaiting vault snapshot",
+  dimensions: [],
+  source: "fallback",
+};
+
+export async function loadRiskFramework(
+  vaultId?: string,
+): Promise<RiskFrameworkData> {
   if (canRunDemoProvider()) return buildDemoRiskFramework();
+
+  const resolvedVaultId = resolveFixtureVaultId(vaultId);
+  if (resolvedVaultId !== VAULT_YIELD.id) {
+    return AWAITING_VAULT_RISK_SNAPSHOT;
+  }
 
   const [latestSnapshot, latestMining, btcPrice] = await Promise.all([
     loadLatestTimelineSnapshot({ includeAllocations: true }),
@@ -230,6 +248,9 @@ export async function loadRiskFramework(): Promise<RiskFrameworkData> {
     usdcBaseAlloc && usdcBasePct > 0
       ? (usdcBaseBps / usdcBasePct) / 100
       : STABLE_APY_PROXY_PCT;
+  const usedStableApyProxy = !(usdcBaseAlloc && usdcBasePct > 0);
+  // Realised-vol feed is out of MVP scope — vol_index is always a proxy today.
+  const usesMvpInputProxies = usedStableApyProxy || true;
 
   if (latestMining === null) {
     return {
@@ -299,12 +320,16 @@ export async function loadRiskFramework(): Promise<RiskFrameworkData> {
 
   const { band, label: bandLabel } = compositeBand(composite);
 
-  const source: RiskFrameworkData["source"] =
+  let source: RiskFrameworkData["source"] =
     latestSnapshot === null && latestMining === null
       ? "fallback"
       : usedFallback
         ? "partial"
         : "db";
+
+  if (source === "db" && usesMvpInputProxies) {
+    source = "partial";
+  }
 
   return {
     composite,

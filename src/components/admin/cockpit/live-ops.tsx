@@ -46,7 +46,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
         </div>
 
         <div className="dashboard-live-ops-section">
-          <h3 className="dashboard-live-ops-section__title">Error monitor · 24h</h3>
+          <h3 className="dashboard-live-ops-section__title">LLM run failures · 24h</h3>
           <div className="admin-doc-inline-row admin-doc-inline-row--relaxed admin-doc-inline-row--actions">
             <SentryCounter
               label="Errors"

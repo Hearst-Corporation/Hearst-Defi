@@ -21,7 +21,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const [data, risk, overview, cockpit] = await Promise.all([
     loadDashboardData(params.vault),
-    loadRiskFramework(),
+    loadRiskFramework(params.vault),
     loadAdminOverview(),
     loadCockpitPayload(),
   ]);

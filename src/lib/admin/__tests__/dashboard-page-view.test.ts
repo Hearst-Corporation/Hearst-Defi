@@ -148,6 +148,61 @@ describe("resolveDashboardPageInputs", () => {
     expect(page.yieldPosture).toBe("within target band");
   });
 
+  it("preview fixture strips Yield snapshot overlay from display data", () => {
+    const page = resolveDashboardPageInputs(
+      makeData({
+        vault: {
+          aumUsdc: 800_000,
+          delta30dUsdc: 12_000,
+          apyRange: { low: 9.4, high: 12.8 },
+          stressedApy: 5.2,
+          stressedApyRange: { low: 4.4, high: 6.0 },
+          riskScore: 47,
+          miningMarginScore: 60,
+          mode: "balanced",
+          asOf: new Date("2026-06-01T00:00:00Z"),
+        },
+        allocations: [
+          { bucket: "mining", pct: 40, valueUsdc: 320_000, yieldContributionBps: 0 },
+        ],
+        timeseries: {
+          source: "db",
+          nav30d: [{ date: "2026-06-01", aum_usdc: 800_000 }],
+          apy30d: [],
+        },
+        vaultMeta: {
+          id: "defensive",
+          name: "Hearst Defensive Vault",
+          apyTarget: { low: 6, high: 10 },
+          allocationTargets: {
+            mining: 20,
+            btc_tactical: 0,
+            usdc_base: 50,
+            stable_reserve: 30,
+          },
+          assumptions: [],
+          livePreview: true,
+        },
+      }),
+      RISK,
+      {
+        ...OVERVIEW,
+        proof: {
+          ...OVERVIEW.proof,
+          custodyConfigured: true,
+          custodyReservesUsdc: 1_000_000,
+        },
+      },
+    );
+
+    expect(page.preview).toBe(true);
+    expect(page.capitalUsdc).toBe(0);
+    expect(page.data.allocations).toEqual([]);
+    expect(page.data.timeseries.source).toBe("fallback");
+    expect(page.data.vault.aumUsdc).toBe(0);
+    expect(page.data.vault.miningMarginScore).toBe(0);
+  });
+
   it("marks proof fresh when mining attestation is live", () => {
     const page = resolveDashboardPageInputs(
       makeData(),

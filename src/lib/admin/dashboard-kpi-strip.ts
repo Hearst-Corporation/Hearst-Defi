@@ -39,6 +39,7 @@ export function buildDashboardKpiStrip(input: {
   proofProvenance: Provenance;
   proof: AdminProofStatus;
   operatorQueueCount: number;
+  operatorQueueProvenance: Provenance;
   data: DashboardData;
 }): HeroKpi[] {
   const riskTone =
@@ -91,7 +92,7 @@ export function buildDashboardKpiStrip(input: {
         input.operatorQueueCount === 1
           ? "pending operator action"
           : "pending operator actions",
-      provenance: "manual",
+      provenance: input.operatorQueueProvenance,
       accent: input.operatorQueueCount > 0,
     },
   ];

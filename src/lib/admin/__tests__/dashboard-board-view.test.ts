@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   computeNavDelta,
   resolveChartProvenance,
+  resolveOperatorQueueProvenance,
   resolveProofProvenance,
   resolveRiskProvenance,
   resolveVaultSignalProvenance,
@@ -79,6 +80,12 @@ describe("dashboard-board-view", () => {
       expect(resolveRiskProvenance(hasLiveKpis, RISK_DB)).toBe("live");
       expect(resolveChartProvenance(false, true)).toBe("live");
     });
+  });
+
+  it("resolveOperatorQueueProvenance reflects Prisma queue vs demo", () => {
+    expect(resolveOperatorQueueProvenance(0)).toBe("manual");
+    expect(resolveOperatorQueueProvenance(2)).toBe("live");
+    expect(resolveOperatorQueueProvenance(2, true)).toBe("simulated");
   });
 
   it("resolveProofProvenance maps freshness to attested / stale / manual", () => {

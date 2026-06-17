@@ -71,6 +71,7 @@ function buildKpis(opts: {
     proofProvenance: opts.proofFresh ? "attested" : opts.proof.attestationsCount > 0 ? "stale" : "manual",
     proof: opts.proof,
     operatorQueueCount: 0,
+    operatorQueueProvenance: "manual",
     data: DATA_STUB as DashboardData,
   });
 }

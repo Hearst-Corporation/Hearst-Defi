@@ -103,12 +103,13 @@ admin dédiée (`/admin/product-workspace`, `/admin/scenario-lab`, `/admin/dashb
 `/admin/governance`, `/admin/roadmap`, `/admin/projection`). Le mode `review`
 reste sans tools.
 
-**Admin dashboard (`/admin/dashboard`)** — layout command-center :
+| **Admin dashboard (`/admin/dashboard`)** — layout command-center :
 KPI strip (5 cols @ container 42rem — APY/Risk/Mining/Proof/Operator queue ; capital in donut) → allocation orbit + NAV
-(gated `hasLiveKpis` via `src/lib/admin/dashboard-vault-signals.ts`) → cockpit
-ops (operator queue, vault health scoped au pill actif, live ops) → risk
-posture card → audit trail. Provenance : `src/lib/admin/dashboard-board-view.ts` ;
-KPI rows : `src/lib/admin/dashboard-kpi-strip.ts`. Barrel : `@/components/admin/dashboard`.
+(gated `hasLiveKpis` + `livePreview` strips Yield snapshot on non-yield pills) → cockpit
+ops (operator queue provenance live when Prisma-backed, LLM run failures · 24h — not Sentry) → risk
+posture (`loadRiskFramework(?vault)` yield-only; MVP vol/stable proxies → `partial`) → audit trail.
+Provenance : `src/lib/admin/dashboard-board-view.ts` ; KPI rows : `src/lib/admin/dashboard-kpi-strip.ts`.
+Barrel : `@/components/admin/dashboard`.
 
 **Proof Center (`/proof-center`, `/admin/proof-center`)** — PoR summary,
 mining cash-flow coverage, latest distributions (6), rebalancing events avec

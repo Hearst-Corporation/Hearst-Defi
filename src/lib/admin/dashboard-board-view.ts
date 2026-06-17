@@ -45,6 +45,16 @@ export function resolveProofProvenance(
   return "manual";
 }
 
+/** Operator queue KPI — count is always from `cockpit.actionQueue` (Prisma-derived when not demo). */
+export function resolveOperatorQueueProvenance(
+  count: number,
+  simulated?: boolean,
+): Provenance {
+  if (simulated) return "simulated";
+  if (count === 0) return "manual";
+  return "live";
+}
+
 export function computeNavDelta(
   lastNav: number | null,
   firstNav: number | null,

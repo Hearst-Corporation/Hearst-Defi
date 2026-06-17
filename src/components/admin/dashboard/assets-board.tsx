@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import {
   computeNavDelta,
   resolveChartProvenance,
+  resolveOperatorQueueProvenance,
   resolveProofProvenance,
   resolveRiskProvenance,
   resolveVaultSignalProvenance,
@@ -77,6 +78,10 @@ export function DashboardAssetsBoard({
     proofProvenance: resolveProofProvenance(proofFresh, proof),
     proof,
     operatorQueueCount: cockpit.actionQueue.length,
+    operatorQueueProvenance: resolveOperatorQueueProvenance(
+      cockpit.actionQueue.length,
+      simulated,
+    ),
     data,
   });
 
