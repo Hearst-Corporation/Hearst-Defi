@@ -13,6 +13,7 @@ import { rebalancingSignal } from "@/lib/inngest/functions/rebalancing-signal";
 import { riskDaily } from "@/lib/inngest/functions/risk-daily";
 import { hubspotReverseSync } from "@/lib/inngest/functions/hubspot-reverse-sync";
 import { outreachSend } from "@/lib/inngest/functions/outreach-send";
+import { custodySnapshotHourly } from "@/lib/inngest/functions/custody-snapshot-hourly";
 
 /**
  * Inngest webhook endpoint.
@@ -29,7 +30,8 @@ import { outreachSend } from "@/lib/inngest/functions/outreach-send";
  *   - rebalancing-signal     (event-driven: risk.daily.completed, rebalance.signal.requested)
  *   - distribution-executed  (event-driven: distribution.executed)
  *   - hubspot-reverse-sync   (every 15 min: HubSpot → QualificationProfile)
- *   - outreach-send          (event-driven: outreach.campaign.send)
+ *   - outreach-send               (event-driven: outreach.campaign.send)
+ *   - custody-snapshot-hourly    (every hour at minute 5)
  *
  * Security — request signature verification (P0):
  *
@@ -76,6 +78,7 @@ export const { GET, POST, PUT } = serve({
     distributionExecuted,
     hubspotReverseSync,
     outreachSend,
+    custodySnapshotHourly,
   ],
   // Pass the validated signing key explicitly to `serve()`. inngest@4 would
   // otherwise fall back to reading INNGEST_SIGNING_KEY itself, but wiring it

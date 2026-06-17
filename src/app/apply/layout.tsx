@@ -8,7 +8,7 @@ export default function ApplyLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="onboarding-shell" data-testid="apply-shell">
+    <div className="onboarding-shell onboarding-shell--wide" data-testid="apply-shell">
       <div className="onboarding-shell__frame">
         <header className="onboarding-shell__header">
           <Image

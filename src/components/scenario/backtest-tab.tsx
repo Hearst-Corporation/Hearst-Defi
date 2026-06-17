@@ -7,8 +7,9 @@
 import { useRef } from "react";
 
 import { BacktestPanel } from "@/components/scenario/backtest-panel";
+import { ScenarioErrorBanner } from "@/components/scenario/scenario-feedback";
 import { Spinner } from "@/components/scenario/scenario-spinner";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { useBacktest } from "@/hooks/use-backtest";
 import type { BacktestKey } from "@/lib/engine/types";
@@ -72,12 +73,15 @@ export function BacktestTab() {
   }
 
   return (
-    <div className="backtest-tab">
-      <div className="scenario-preset-bar backtest-period-rail">
-        <div className="scenario-preset-bar__head">
-          <span className="eyebrow ct-text-muted">Historical periods</span>
-          <span className="body-xs ct-text-muted">Select a regime to simulate</span>
-        </div>
+    <div className="backtest-tab admin-doc-stack admin-doc-stack--roomy">
+      <Card className="backtest-period-rail p-(--ct-space-4)" hoverOverlay={false}>
+        <CardHeader className="mb-(--ct-space-4)">
+          <div className="min-w-0">
+            <CardTitle>Historical periods</CardTitle>
+            <p className="mt-0.5 body-xs ct-text-muted">Select a regime to simulate.</p>
+          </div>
+        </CardHeader>
+
         <div
           ref={containerRef}
           role="radiogroup"
@@ -101,27 +105,23 @@ export function BacktestTab() {
             </button>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* Period descriptions — idle state before first selection */}
       {!state.output && !pending && state.selectedKey === null ? (
         <div className="backtest-period-details">
           {BACKTEST_PERIODS.map((p) => (
-            <Card key={p.key} className="px-[var(--ct-space-6)] py-[var(--ct-space-4)]" hoverOverlay={false}>
+            <Card key={p.key} className="px-(--ct-space-6) py-(--ct-space-4)" hoverOverlay={false}>
               <p className="scenario-preset-bar__label">{p.label}</p>
               <p className="mt-1 body-xs ct-text-muted">{p.subtitle}</p>
-              <p className="mt-[var(--ct-space-2)] body-sm ct-text-body">{p.description}</p>
+              <p className="mt-(--ct-space-2) body-sm ct-text-body">{p.description}</p>
             </Card>
           ))}
         </div>
       ) : null}
 
       {/* Error banner */}
-      {error && (
-        <p className="rounded-full border border-[var(--ct-status-danger)] bg-transparent px-[var(--ct-space-4)] py-2.5 body-sm ct-status-danger">
-          {error}
-        </p>
-      )}
+      {error ? <ScenarioErrorBanner message={error} /> : null}
 
       {/* Loading state */}
       {pending ? (

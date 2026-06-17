@@ -13,6 +13,8 @@ import { prisma } from "@/lib/db";
 import { STRATEGY_LABELS } from "@/lib/constants/vault";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 
+import { VaultStatusPill } from "@/components/admin/vault-status-pill";
+
 import { pauseVault, resumeVault } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -27,35 +29,6 @@ const FILTER_TABS = [
 ] as const;
 
 type FilterKey = (typeof FILTER_TABS)[number]["key"];
-
-type VaultStatus =
-  | "draft"
-  | "review"
-  | "deployed"
-  | "live"
-  | "paused"
-  | "closed";
-
-const VAULT_STATUS_DISPLAY: Record<
-  VaultStatus,
-  { label: string; dotClass: string }
-> = {
-  draft: { label: "Draft", dotClass: "bg-(--ct-text-muted)" },
-  review: { label: "Review", dotClass: "ct-status-dot-warning" },
-  deployed: { label: "Deployed", dotClass: "bg-(--ct-text-strong)" },
-  live: { label: "Live", dotClass: "ct-status-dot-success" },
-  paused: { label: "Paused", dotClass: "ct-status-dot-warning" },
-  closed: { label: "Closed", dotClass: "ct-status-dot-danger" },
-};
-
-function vaultStatusDisplay(status: string) {
-  return (
-    VAULT_STATUS_DISPLAY[status as VaultStatus] ?? {
-      label: status,
-      dotClass: "bg-(--ct-text-muted)",
-    }
-  );
-}
 
 function isFilterKey(v: unknown): v is FilterKey {
   return FILTER_TABS.some((t) => t.key === v);
@@ -133,11 +106,11 @@ export default async function VaultsPage({ searchParams }: PageProps) {
         <section aria-label="Vault deployments" className="admin-vaults-list">
           {/* Column headers */}
           <div className="admin-vaults-list__header" aria-hidden>
-            <span className="stat-label">Vault</span>
-            <span className="stat-label">Status</span>
-            <span className="stat-label">Principal vs Capacity</span>
-            <span className="stat-label">Target APY</span>
-            <span className="stat-label sr-only">Actions</span>
+            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider">Vault</span>
+            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider">Status</span>
+            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider">Principal vs Capacity</span>
+            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider">Target APY</span>
+            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider sr-only">Actions</span>
           </div>
 
           {vaults.map((vault) => {
@@ -149,8 +122,6 @@ export default async function VaultsPage({ searchParams }: PageProps) {
             const aumPct = capacityUsdc > 0 ? (aumUsdc / capacityUsdc) * 100 : 0;
             const apyLow = Number(vault.targetApyLowBps) / 100;
             const apyHigh = Number(vault.targetApyHighBps) / 100;
-            const statusDisplay = vaultStatusDisplay(vault.status);
-
             return (
               <div
                 key={vault.id}
@@ -172,20 +143,12 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
                 {/* Status */}
                 <div className="admin-vaults-list__status">
-                  <span
-                    role="img"
-                    aria-label={statusDisplay.label}
-                    className={cn(
-                      "inline-block h-1.5 w-1.5 shrink-0 rounded-full",
-                      statusDisplay.dotClass,
-                    )}
-                  />
-                  <span className="body-xs ct-text-muted">{statusDisplay.label}</span>
+                  <VaultStatusPill status={vault.status} />
                 </div>
 
                 {/* Principal vs Capacity — positions-sum; may differ from LP-visible Reported AUM (VaultSnapshot) */}
                 <div className="admin-vaults-list__metrics">
-                  <div className="flex items-center gap-[var(--ct-space-2)]">
+                  <div className="flex items-center gap-(--ct-space-2)">
                     <Progress
                       value={aumPct}
                       label={`Deployed principal vs capacity for ${vault.ticker}`}
@@ -204,7 +167,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
                 {/* Target APY */}
                 <div className="admin-vaults-list__apy">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-(--ct-space-1_5)">
                     <ApyRange low={apyLow} high={apyHigh} precision={1} />
                     <ProvenanceBadge kind="estimated" variant="strip" />
                   </div>

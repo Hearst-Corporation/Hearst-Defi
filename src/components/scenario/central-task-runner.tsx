@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 import type { ScenarioOutput } from "@/lib/engine/types";
 
@@ -134,11 +134,11 @@ export function CentralTaskRunner({
       hoverOverlay={false}
       data-state={pending ? "active" : undefined}
     >
-      <div className="scenario-lab-input-card__header">
+      <CardHeader className="scenario-lab-input-card__header">
         <div className="admin-doc-inline-row admin-doc-inline-row--between items-baseline w-full min-w-0">
           <div className="min-w-0">
             <p className="eyebrow ct-text-muted m-0">Central flow</p>
-            <h4 className="h4 mt-(--ct-space-0_5)">Task console</h4>
+            <CardTitle className="mt-(--ct-space-0_5)">Task console</CardTitle>
           </div>
           <div className="admin-doc-inline-row admin-doc-inline-row--dense shrink-0">
             {liveBtcPrice ? (
@@ -170,7 +170,7 @@ export function CentralTaskRunner({
             </Badge>
           </div>
         </div>
-      </div>
+      </CardHeader>
 
       <div className="scenario-central-flow-console">
         <div className="scenario-central-flow-terminal">

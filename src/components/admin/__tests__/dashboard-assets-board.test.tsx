@@ -199,7 +199,7 @@ describe("DashboardAssetsBoard — command-center layout", () => {
   });
 
 
-  it("keeps risk, proof and admin queue information in the KPI strip without rendering detail panels", () => {
+  it("keeps proof and admin queue information in the KPI strip; risk is surfaced only in the vault ring", () => {
     const proofWithRecords: AdminProofStatus = {
       ...PROOF,
       proofsTotal: 2,
@@ -213,7 +213,8 @@ describe("DashboardAssetsBoard — command-center layout", () => {
 
     expect(html).not.toContain('href="/admin/proof-center"');
     expect(html).not.toContain('href="/admin/proofs"');
-    expect(html).toContain(">Risk<");
+    // Risk is now carried exclusively by the VaultVitalsRing caption — not as a KPI strip cell.
+    expect(html).not.toContain('aria-label="Risk:');
     expect(html).toContain(">Proof<");
     expect(html).toContain(">Admin queues<");
     expect(html).toContain(">Stale<");
@@ -305,6 +306,11 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).toContain("dashboard-orbit__svg");
     expect(html).toContain("% mapped");
     expect(html).toContain("dashboard-nav-bars__bar");
+    // Waterfall risk zone is now rendered below ops (full-width)
+    expect(html).toContain("ct-waterfall-svg");
+    // The composite header is suppressed in the risk zone (surfaced in the hero ring instead)
+    expect(html).not.toContain('stat-label">Composite');
+    expect(html).toContain(">Risk Framework<");
     expect(html).not.toContain(">Capital stack<");
     expect(html).not.toContain(">Risk lens<");
   });

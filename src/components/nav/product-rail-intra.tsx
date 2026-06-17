@@ -226,14 +226,15 @@ export function AdminRailIntra() {
           iconSize={RAIL_ICON_SIZE}
         />
       ))}
-      <RailSeparator />
-      {/* Return to the investor cockpit. Never active (non-admin route). */}
-      <RailItem
-        item={INVESTOR_VIEW_NAV}
-        pathname={pathname}
-        active={false}
-        iconSize={RAIL_ICON_SIZE}
-      />
+      {/* Return to the investor cockpit — intentionally invisible, just a tiny dot. */}
+      <Link
+        href={INVESTOR_VIEW_NAV.href}
+        aria-label={INVESTOR_VIEW_NAV.label}
+        title={INVESTOR_VIEW_NAV.label}
+        className="ct-rail-investor-dot"
+      >
+        <span />
+      </Link>
     </RailIntraShell>
   );
 }

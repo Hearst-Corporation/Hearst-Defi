@@ -2,6 +2,7 @@
 // Server Component — inherits the /admin layout's requireAdmin() gate.
 
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,7 @@ import { EmptySurface } from "@/components/ui/empty-surface";
 import { loadAgentTemplates } from "@/lib/data/agent-templates";
 import { ArchiveTemplateButton } from "@/components/admin/archive-template-button";
 import { groupCatalogByScope } from "@/lib/agents/agent-catalog";
+import { AGENT_ICONS } from "@/lib/agents/agent-icons";
 import {
   BASE_AGENT_LABELS,
   type BaseAgent,
@@ -36,58 +38,89 @@ export default async function AgentsPage() {
         }
       />
 
-      <section className="admin-doc-stack" aria-label="Agent catalog">
-        <h2 className="h2">Base agent catalog</h2>
+      <section className="admin-doc-stack" aria-label="Base agents">
+        <h2 className="h2">Base agents</h2>
         <p className="body-xs ct-text-muted">
-          Base configurations managed in code. Templates below layer tone and
-          behavior on top of them.
+          The code agents running across the platform. Pick one to start a new
+          persona template on top of it — without changing the agent itself.
         </p>
 
-        <div className="admin-doc-form-grid-2">
-          {catalogGroups.map((group) => (
-            <Card key={group.scope} hoverOverlay={false}>
-              <div className="admin-doc-inline-row mb-[var(--ct-space-3)]">
-                <h3 className="h3">{group.scopeLabel}</h3>
-                <Badge variant={group.scope === "platform" ? "accent" : "default"}>
-                  {group.entries.length}
-                </Badge>
-              </div>
-              <ul className="flex flex-col gap-[var(--ct-space-3)]">
-                {group.entries.map((entry) => (
-                  <li
+        {catalogGroups.map((group) => (
+          <div key={group.scope} className="admin-doc-stack admin-doc-stack--actions">
+            <div className="admin-doc-inline-row admin-doc-inline-row--start">
+              <span className="stat-label ct-text-muted">{group.scopeLabel}</span>
+              <span className="stat-label ct-text-faint tabular-nums">
+                {group.entries.length}
+              </span>
+            </div>
+
+            <div className="admin-doc-card-grid-3">
+              {group.entries.map((entry) => {
+                const Icon = AGENT_ICONS[entry.icon];
+                return (
+                  <Link
                     key={entry.baseAgent}
-                    className="flex flex-col gap-1 border-b border-(--ct-border-soft) pb-[var(--ct-space-3)] last:border-0 last:pb-0"
+                    href={`/admin/agents/new?base=${entry.baseAgent}`}
+                    aria-label={`New persona template from ${entry.label}`}
+                    className="block h-full"
                   >
-                    <div className="admin-doc-inline-row">
-                      <span className="body-sm ct-text-strong">{entry.label}</span>
-                      <Badge
-                        variant={entry.scope === "platform" ? "accent" : "default"}
-                      >
-                        {entry.scopeLabel}
-                      </Badge>
-                    </div>
-                    <span className="body-xs ct-text-muted">{entry.surface}</span>
-                    <span className="body-xs ct-text-muted">{entry.description}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          ))}
-        </div>
+                    <Card
+                      className="h-full min-h-[13rem] cursor-pointer ct-transition-base group-hover:border-(--ct-border-accent)"
+                      contentClassName="flex h-full flex-col gap-[var(--ct-space-4)]"
+                    >
+                      {/* Header row: accent icon tile + scope badge */}
+                      <div className="admin-doc-inline-row admin-doc-inline-row--start">
+                        <span
+                          aria-hidden
+                          className="flex size-12 shrink-0 items-center justify-center rounded-[var(--ct-radius-md)] border border-(--ct-border-accent) bg-(--ct-accent-soft) ct-text-accent"
+                        >
+                          <Icon className="size-6" strokeWidth={2} />
+                        </span>
+                        <span className="flex-1" />
+                        <Badge variant={entry.scope === "platform" ? "accent" : "default"}>
+                          {entry.scopeLabel}
+                        </Badge>
+                      </div>
+
+                      {/* Title + surface */}
+                      <div className="flex flex-col gap-[var(--ct-space-1)]">
+                        <h4 className="h4 ct-text-strong m-0">{entry.label}</h4>
+                        <span className="stat-label ct-text-muted">{entry.surface}</span>
+                      </div>
+
+                      <p className="body-xs ct-text-muted grow">{entry.description}</p>
+
+                      {/* Footer affordance — quiet at rest, lights up on hover */}
+                      <span className="admin-doc-inline-row admin-doc-inline-row--start body-xs font-semibold ct-text-faint ct-transition-base group-hover:ct-text-accent">
+                        New template
+                        <ArrowRight
+                          className="size-4 ct-transition-base group-hover:translate-x-[var(--ct-space-1)]"
+                          aria-hidden
+                          strokeWidth={2.25}
+                        />
+                      </span>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </section>
 
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Agent templates">
-        <h2 className="h2">Template library ({templates.length})</h2>
+      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Persona templates">
+        <h2 className="h2">Persona templates ({templates.length})</h2>
         <p className="body-xs ct-text-muted">
-          Reusable operator profiles that can be assigned across investor
-          accounts. Customer-level overrides still take precedence when set.
+          Reusable persona profiles layered on top of a base agent — assignable
+          across investor accounts. Customer-level overrides still take
+          precedence when set.
         </p>
 
         {templates.length === 0 ? (
           <EmptySurface
             variant="widget"
-            message="No templates created yet."
-            detail="Create a reusable profile to standardize tone, language, and register across assigned accounts."
+            message="No persona templates yet."
+            detail="Pick a base agent above to create your first reusable persona — tone, language, and register."
             className="min-h-32"
           />
         ) : (

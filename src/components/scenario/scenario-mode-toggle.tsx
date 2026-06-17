@@ -19,13 +19,13 @@ interface ScenarioModeToggleProps {
 const MODES: ReadonlyArray<SegmentedItem<ScenarioMode>> = [
   {
     value: "single",
-    label: "single",
+    label: "Single",
     id: "tab-mode-single",
     controls: "tabpanel-mode-single",
   },
   {
     value: "compare",
-    label: "compare",
+    label: "Compare",
     id: "tab-mode-compare",
     controls: "tabpanel-mode-compare",
   },

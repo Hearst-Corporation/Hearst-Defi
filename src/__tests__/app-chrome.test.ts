@@ -18,18 +18,14 @@ const BARE_EXACT = new Set<string>([
   "/reset-password",
   "/totp-challenge",
 ]);
-const BARE_PREFIXES = ["/legal"] as const;
-const CHAT_ONLY_PREFIXES = ["/apply"] as const;
+// /apply renders standalone: the qualification chamber carries its own inline
+// assistant panel (ApplyAssistantPanel), so it must NOT get the Cockpit chat
+// rail. /legal/* uses its own LegalLayout.
+const BARE_PREFIXES = ["/legal", "/apply"] as const;
 
 function isBareRoute(pathname: string): boolean {
   if (BARE_EXACT.has(pathname)) return true;
   return BARE_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`),
-  );
-}
-
-function isChatOnlyRoute(pathname: string): boolean {
-  return CHAT_ONLY_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
 }
@@ -46,6 +42,9 @@ describe("isBareRoute — routes that render WITHOUT the Cockpit shell", () => {
     "/legal/privacy",
     "/legal/terms",
     "/legal/disclaimer",
+    "/apply",             // qualification funnel — standalone, own assistant panel
+    "/apply/confirmed",
+    "/apply/anything/else",
   ])("renders bare for %s", (path) => {
     expect(isBareRoute(path)).toBe(true);
   });
@@ -56,8 +55,6 @@ describe("isBareRoute — routes that render WITH the Cockpit shell", () => {
     "/portfolio",
     "/portfolio/abc",
     "/admin/dashboard",
-    "/apply",
-    "/apply/confirmed",
     "/vaults",
     "/vaults/eth-yield",
     "/profile",
@@ -68,27 +65,6 @@ describe("isBareRoute — routes that render WITH the Cockpit shell", () => {
   });
 });
 
-describe("isChatOnlyRoute — routes that keep assistant without launcher", () => {
-  it.each([
-    "/apply",
-    "/apply/confirmed",
-    "/apply/anything/else",
-  ])("is chat-only for %s", (path) => {
-    expect(isChatOnlyRoute(path)).toBe(true);
-    expect(isBareRoute(path)).toBe(false);
-  });
-
-  it.each([
-    "/",
-    "/login",
-    "/legal/privacy",
-    "/portfolio",
-    "/apply-other",
-  ])("is NOT chat-only for %s", (path) => {
-    expect(isChatOnlyRoute(path)).toBe(false);
-  });
-});
-
 describe("isBareRoute — near-miss paths must NOT be bare", () => {
   it.each([
     "/legal-other",         // not a /legal/* sub-path
@@ -96,6 +72,7 @@ describe("isBareRoute — near-miss paths must NOT be bare", () => {
     "/login-redirect",      // starts with 'login' but is NOT '/login' exactly
     "/loginn",              // not '/login' exactly
     "//",                   // double-slash is not '/'
+    "/apply-other",         // not a /apply/* sub-path
   ])("is NOT bare for %s", (path) => {
     expect(isBareRoute(path)).toBe(false);
   });
@@ -112,5 +89,19 @@ describe("isBareRoute — exact vs sub-path semantics for /legal", () => {
 
   it("does NOT treat /legal-other as bare (not a sub-path)", () => {
     expect(isBareRoute("/legal-other")).toBe(false);
+  });
+});
+
+describe("isBareRoute — exact vs sub-path semantics for /apply", () => {
+  it("treats /apply exactly as bare", () => {
+    expect(isBareRoute("/apply")).toBe(true);
+  });
+
+  it("treats /apply/anything as bare", () => {
+    expect(isBareRoute("/apply/confirmed")).toBe(true);
+  });
+
+  it("does NOT treat /apply-other as bare (not a sub-path)", () => {
+    expect(isBareRoute("/apply-other")).toBe(false);
   });
 });

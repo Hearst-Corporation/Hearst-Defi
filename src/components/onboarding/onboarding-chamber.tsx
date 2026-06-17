@@ -44,6 +44,12 @@ interface OnboardingChamberProps {
   crown: ReactNode;
   body: ReactNode;
   sole: ReactNode;
+  /**
+   * Optional companion column rendered beside the crown/body/sole stack (used
+   * by /apply for the inline assistant). When omitted, the chamber keeps its
+   * single-column crown · body · sole layout — every other surface is unchanged.
+   */
+  aside?: ReactNode;
   className?: string;
   testId?: string;
 }
@@ -60,17 +66,35 @@ export function OnboardingChamber({
   crown,
   body,
   sole,
+  aside,
   className,
   testId,
 }: OnboardingChamberProps) {
-  return (
-    <article
-      className={cn("onboarding-chamber ct-glass-panel", className)}
-      data-testid={testId}
-    >
+  const stack = (
+    <>
       <header className="onboarding-chamber__crown">{crown}</header>
       <div className="onboarding-chamber__body">{body}</div>
       <footer className="onboarding-chamber__sole">{sole}</footer>
+    </>
+  );
+
+  return (
+    <article
+      className={cn(
+        "onboarding-chamber ct-glass-panel",
+        aside && "onboarding-chamber--split",
+        className,
+      )}
+      data-testid={testId}
+    >
+      {aside ? (
+        <>
+          <div className="onboarding-chamber__main">{stack}</div>
+          <div className="onboarding-chamber__aside">{aside}</div>
+        </>
+      ) : (
+        stack
+      )}
     </article>
   );
 }

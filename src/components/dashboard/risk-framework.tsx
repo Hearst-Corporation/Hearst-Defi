@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { Progress } from "@/components/ui/progress";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type {
   RiskBand,
@@ -18,6 +18,12 @@ interface RiskFrameworkSectionProps {
   data: RiskFrameworkData;
   /** @default "waterfall" */
   view?: RiskFrameworkView;
+  /**
+   * When false, the CompositeHeader is suppressed in waterfall view.
+   * Use when the composite score is already surfaced in the hero ring.
+   * Has no effect in view="bars". @default true
+   */
+  showComposite?: boolean;
 }
 
 // ── Severity / band maps ─────────────────────────────────────────────────────
@@ -96,6 +102,7 @@ function provenanceFromSource(
 export function RiskFrameworkSection({
   data,
   view = "waterfall",
+  showComposite = true,
 }: RiskFrameworkSectionProps) {
   // Honesty rule: when zero real inputs reached the loader (no VaultSnapshot,
   // no MiningMetric), the engine still produces a number from baked fallback
@@ -104,10 +111,12 @@ export function RiskFrameworkSection({
   if (data.source === "fallback") {
     return (
       <Card className="h-full flex flex-col">
-        <div className="pf-widget-header relative z-10">
-          <h3 className="h3">Risk Framework</h3>
-          <ProvenanceBadge kind={provenanceFromSource(data.source)} />
-        </div>
+        <DashboardPanelHeader
+          title="Risk Framework"
+          provenance={provenanceFromSource(data.source)}
+          tone="quiet"
+          className="relative z-10"
+        />
         <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center py-12 relative z-10">
           <p className="body-sm ct-text-muted">
             No risk inputs yet
@@ -123,17 +132,21 @@ export function RiskFrameworkSection({
 
   return (
     <Card className="h-full flex flex-col">
-      <div className="pf-widget-header relative z-10">
-        <h3 className="h3">Risk Framework</h3>
-        <ProvenanceBadge kind={provenanceFromSource(data.source)} />
-      </div>
+      <DashboardPanelHeader
+        title="Risk Framework"
+        provenance={provenanceFromSource(data.source)}
+        tone="quiet"
+        className="relative z-10"
+      />
 
       <div className="flex-1 flex flex-col mt-[var(--ct-space-8)] relative z-10">
-        <CompositeHeader
-          composite={data.composite}
-          band={data.band}
-          bandLabel={data.bandLabel}
-        />
+        {view === "waterfall" && showComposite ? (
+          <CompositeHeader
+            composite={data.composite}
+            band={data.band}
+            bandLabel={data.bandLabel}
+          />
+        ) : null}
 
         {view === "waterfall" ? (
           <WaterfallChart data={data} />
@@ -171,16 +184,15 @@ interface CompositeHeaderProps {
 
 function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
   return (
-    <Card hoverOverlay={false} className="flex flex-col gap-[var(--ct-space-4)] sm:flex-row sm:items-center sm:justify-between group">
-      <div className="absolute inset-0 bg-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--ct-dur-slower)] pointer-events-none" />
-      <div className="flex items-baseline gap-[var(--ct-space-3)] relative z-10">
+    <div className="flex flex-col gap-[var(--ct-space-4)] sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-baseline gap-[var(--ct-space-3)]">
         <span className="stat-label">Composite</span>
         <span className={cn("stat-value tabular-nums", BAND_TEXT[band])}>
           {composite}
           <span className="body-xs ct-text-muted opacity-[var(--ct-opacity-50)] ml-1">/ 100</span>
         </span>
       </div>
-      <div className="flex items-center gap-[var(--ct-space-4)] sm:min-w-60 relative z-10">
+      <div className="flex items-center gap-[var(--ct-space-4)] sm:min-w-60">
         <div className="flex-1 h-1.5 bg-[var(--ct-surface-0)] rounded-full overflow-hidden border border-[var(--ct-border-soft)]">
           {/* no --ct-dur token for 1s; left raw pending a scale extension */}
           <div
@@ -190,7 +202,7 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
         </div>
         <Badge variant={BAND_VARIANT[band]} className="ct-tracking-wider">{bandLabel}</Badge>
       </div>
-    </Card>
+    </div>
   );
 }
 

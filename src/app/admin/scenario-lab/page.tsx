@@ -56,7 +56,7 @@ export default async function ScenarioLabPage({
   }
 
   return (
-    <div className="admin-doc-shell scenario-lab-page">
+    <div className="admin-doc admin-doc-shell admin-doc-shell--roomy scenario-lab-page">
       <AdminPageHeader
         title="Scenario Lab"
         eyebrow={`${vault.label} · ${vault.ticker}`}
@@ -69,15 +69,17 @@ export default async function ScenarioLabPage({
         }
       />
 
-      <LabShell
-        vaultId={vaultId}
-        initialInputs={liveInputs}
-        initialObjective={objective}
-        autostart={autostart}
-        liveBtcPrice={liveBtcPrice}
-      />
+      <div className="admin-doc-stack admin-doc-stack--roomy">
+        <LabShell
+          vaultId={vaultId}
+          initialInputs={liveInputs}
+          initialObjective={objective}
+          autostart={autostart}
+          liveBtcPrice={liveBtcPrice}
+        />
 
-      {FEATURE_FLAGS.ENABLE_MONTE_CARLO ? <MonteCarloPanel /> : null}
+        {FEATURE_FLAGS.ENABLE_MONTE_CARLO ? <MonteCarloPanel /> : null}
+      </div>
     </div>
   );
 }

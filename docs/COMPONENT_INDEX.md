@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**194 components** · 0 possible orphans · 2 intentionally unwired.
+**195 components** · 0 possible orphans · 2 intentionally unwired.
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -33,6 +33,7 @@
 | `src/components/admin/dashboard/kpi-strip.tsx` | DashboardKpiStrip | 1 |
 | `src/components/admin/dashboard/nav-slot.tsx` | NavSlot | 1 |
 | `src/components/admin/dashboard/vault-transition.tsx` | VaultTransition | 1 |
+| `src/components/admin/dashboard/vault-vitals-ring.tsx` | VaultVitalsRing | 1 |
 | `src/components/admin/distribution-preview.tsx` | DistributionPreview | 1 |
 | `src/components/admin/feedback-form.tsx` | FeedbackForm | 1 |
 | `src/components/admin/feedback-list.tsx` | FeedbackList | 1 |
@@ -62,7 +63,7 @@
 | `src/components/admin/roadmap-board.tsx` | RoadmapBoard | 1 |
 | `src/components/admin/roadmap-item-row.tsx` | RoadmapItemRow | 1 |
 | `src/components/admin/vault-action-button.tsx` | VaultActionButton | 3 |
-| `src/components/admin/vault-status-pill.tsx` | VaultStatusPill | 1 |
+| `src/components/admin/vault-status-pill.tsx` | VaultStatusPill | 2 |
 | `src/components/analytics.tsx` | Analytics | 3 |
 | `src/components/app-chrome.tsx` | AppChrome | 2 |
 | `src/components/app-footer.tsx` | AppFooter | 1 |
@@ -165,8 +166,8 @@
 | `src/components/simulation/simulation-panel.tsx` | SimulationPanel | 1 |
 | `src/components/ui/apy-range.tsx` | ApyRange | 18 |
 | `src/components/ui/awaiting-metric-state.tsx` | AwaitingMetricState | 13 |
-| `src/components/ui/badge.tsx` | Badge | 49 |
-| `src/components/ui/button.tsx` | Button | 81 |
+| `src/components/ui/badge.tsx` | Badge | 50 |
+| `src/components/ui/button.tsx` | Button | 80 |
 | `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 72 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
@@ -184,7 +185,7 @@
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 5 |
 | `src/components/ui/progress.tsx` | Progress | 13 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 53 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 54 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/section-embed.tsx` | SectionEmbedProvider | 1 |

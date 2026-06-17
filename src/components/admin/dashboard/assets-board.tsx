@@ -25,6 +25,7 @@ import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 import { AllocationOrbit } from "./allocation-orbit";
 import { DashboardKpiStrip } from "./kpi-strip";
 import { NavSlot } from "./nav-slot";
+import { VaultVitalsRing } from "./vault-vitals-ring";
 
 export interface DashboardAssetsBoardProps {
   data: DashboardData;
@@ -92,18 +93,70 @@ export function DashboardAssetsBoard({
     data,
   });
 
+  // Capital and Risk are both carried by the VaultVitalsRing (Capital at core,
+  // Risk composite as caption) — filter them out of the support strip to avoid
+  // showing each exactly once.
+  const supportKpis = heroKpis.filter(
+    (k) => k.label !== "Capital" && k.label !== "Risk",
+  );
+
   return (
     <div className="admin-doc-stack admin-doc-stack--relaxed">
+      {/* ── Hero card: KPI strip + 2-col vitals grid + allocation/nav banding ── */}
       <Card
         aria-label="Vault KPIs and charts"
         hoverOverlay={false}
         contentClassName="flex flex-col"
         className="dashboard-merged-card"
       >
+        {/* KPI strip — APY, Mining, Proof, Admin queues (Capital + Risk live in the ring) */}
         <section aria-label="Vault KPIs">
-          <DashboardKpiStrip kpis={heroKpis} />
+          <DashboardKpiStrip kpis={supportKpis} />
         </section>
 
+        {/* 2-col hero grid: VaultVitalsRing (left) + support KPIs (right) */}
+        <div className="dashboard-vitals-hero">
+          {/* Left: health ring — Capital at core, Composite risk as caption */}
+          <div className="dashboard-vitals-hero__ring">
+            <VaultVitalsRing
+              composite={risk.composite}
+              band={risk.band}
+              bandLabel={risk.bandLabel}
+              capitalUsdc={capitalUsdc}
+              provenance={capitalProvenance}
+              hasLiveKpis={hasLiveKpis}
+            />
+          </div>
+
+          {/* Right: support stat-rows (APY, Mining, Proof, Admin queues) */}
+          <div className="dashboard-vitals-hero__stats border-t md:border-t-0 md:border-l border-(--ct-border-soft)">
+            {supportKpis.map((kpi) => (
+              <div
+                key={kpi.label}
+                className="dashboard-vitals-stat-row border-b border-(--ct-border-soft) last:border-b-0"
+              >
+                <span className="stat-label uppercase tracking-wide text-(--ct-text-faint) text-[length:var(--ct-text-xs)]">
+                  {kpi.label}
+                </span>
+                <span
+                  className={[
+                    "tabular font-[var(--ct-font-semibold)] text-[length:var(--ct-text-base)]",
+                    kpi.alert
+                      ? "ct-status-danger"
+                      : kpi.accent
+                        ? "ct-status-success"
+                        : "ct-text-strong",
+                  ].join(" ")}
+                >
+                  {kpi.value}
+                </span>
+                <span className="body-xs ct-text-faint truncate">{kpi.sublabel}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom band: Allocation orbit + NAV slot */}
         <div className="dashboard-command-row-a dashboard-command-row-a--hero dashboard-hero-card__analytics">
           <div className="dashboard-hero-card__slot dashboard-hero-card__slot--allocation dashboard-command-slot dashboard-command-slot--allocation">
             <AllocationOrbit
@@ -124,6 +177,7 @@ export function DashboardAssetsBoard({
         </div>
       </Card>
 
+      {/* ── Ops: 3 cards ── */}
       <section aria-label="Cockpit operations" className="dashboard-command-row-c dashboard-command-row-c--ops">
         <div className="dashboard-command-panel-card">
           <ActionQueue items={cockpit.actionQueue} />
@@ -140,12 +194,14 @@ export function DashboardAssetsBoard({
         </div>
       </section>
 
+      {/* ── Risk framework full-width waterfall ── */}
       <section aria-label="Risk framework" className="dashboard-risk-zone">
         <ErrorBoundary>
-          <RiskFrameworkSection data={risk} />
+          <RiskFrameworkSection data={risk} view="waterfall" showComposite={false} />
         </ErrorBoundary>
       </section>
 
+      {/* ── Audit trail ── */}
       <section aria-label="Recent admin activity" className="dashboard-audit-zone">
         <div className="dashboard-command-panel-card">
           <AuditTrailRolling entries={cockpit.auditTrail.slice(0, 5)} />

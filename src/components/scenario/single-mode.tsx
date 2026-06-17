@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from "react";
 
 import { InputsPanel } from "@/components/scenario/inputs-panel";
 import { OutputPanel } from "@/components/scenario/output-panel";
+import { ScenarioErrorBanner } from "@/components/scenario/scenario-feedback";
 import { PresetBar } from "@/components/scenario/preset-bar";
 import { Spinner } from "@/components/scenario/scenario-spinner";
 import { CentralTaskRunner } from "@/components/scenario/central-task-runner";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScenePlaceholderMetrics } from "@/components/ui/scene-placeholder-metrics";
 import { cn } from "@/lib/cn";
 import { useScenario } from "@/hooks/use-scenario";
@@ -55,30 +56,25 @@ export function SingleMode({
   }, [state.output]);
 
   return (
-    <div className="scenario-lab-single">
+    <div className="scenario-lab-single admin-doc-stack admin-doc-stack--roomy">
       <PresetBar
         selected={state.selectedPreset}
         onSelect={selectPreset}
         disabled={pending}
       />
 
-      {error ? (
-        <p
-          role="alert"
-          className="rounded-full border border-(--ct-status-danger) bg-transparent px-[var(--ct-space-4)] py-2.5 body-sm ct-status-danger"
-        >
-          {error}
-        </p>
-      ) : null}
+      {error ? <ScenarioErrorBanner message={error} /> : null}
 
       <div className="scenario-lab-workspace">
         <Card className="scenario-lab-input-card p-0" hoverOverlay={false}>
-          <div className="scenario-lab-input-card__header">
-            <h4 className="h4">Inputs</h4>
-            <p className="mt-0.5 body-xs ct-text-muted">
-              Adjust sliders or select a preset above
-            </p>
-          </div>
+          <CardHeader className="scenario-lab-input-card__header">
+            <div className="min-w-0">
+              <CardTitle>Inputs</CardTitle>
+              <p className="mt-0.5 body-xs ct-text-muted">
+                Adjust sliders or select a preset above.
+              </p>
+            </div>
+          </CardHeader>
 
           <div
             className={cn(
@@ -120,7 +116,7 @@ export function SingleMode({
         </Card>
 
         <section
-          className="min-h-0 flex flex-col gap-[var(--ct-space-4)]"
+          className="min-h-0 flex flex-col gap-(--ct-space-4)"
           aria-labelledby="single-mode-central-flow-title"
         >
           <h3 id="single-mode-central-flow-title" className="sr-only">
@@ -128,8 +124,8 @@ export function SingleMode({
           </h3>
 
           {objective.trim().length > 0 ? (
-            <Card className="scenario-lab-input-card p-[var(--ct-space-4)]" hoverOverlay={false}>
-              <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
+            <Card className="scenario-lab-input-card p-(--ct-space-4)" hoverOverlay={false}>
+              <div className="admin-doc-stack admin-doc-stack--tight">
                 <label htmlFor={briefInputId} className="stat-label">
                   Central brief
                 </label>
@@ -139,7 +135,7 @@ export function SingleMode({
                 value={objective}
                 onChange={(e) => setObjective(e.target.value)}
                 placeholder="Objective produit (seeded par le chat admin)"
-                className="ct-textarea mt-[var(--ct-space-2)] min-h-18 w-full resize-y body-sm"
+                className="ct-textarea mt-(--ct-space-2) min-h-18 w-full resize-y body-sm"
               />
             </Card>
           ) : null}
@@ -160,10 +156,12 @@ export function SingleMode({
             )}
             hoverOverlay={false}
           >
-            <div className="scenario-lab-input-card__header">
-              <h4 className="h4">Output assets</h4>
-              <p className="mt-0.5 body-xs ct-text-muted">Projection & narrative</p>
-            </div>
+            <CardHeader className="scenario-lab-input-card__header">
+              <div className="min-w-0">
+                <CardTitle>Output assets</CardTitle>
+                <p className="mt-0.5 body-xs ct-text-muted">Projection &amp; narrative.</p>
+              </div>
+            </CardHeader>
 
             {state.output ? (
               <div ref={outputRef} className="scenario-lab-output-scroll">

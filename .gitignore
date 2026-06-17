@@ -93,3 +93,6 @@ tri-audit-*.html
 /dev.db
 /audit_profile.py
 /portfolio_body.html
+
+# jscpd duplication report (audit artifact)
+.jscpd-report/

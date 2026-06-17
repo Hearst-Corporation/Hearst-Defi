@@ -13,6 +13,7 @@ import {
   type ScenarioMode,
 } from "@/components/scenario/scenario-mode-toggle";
 import { SingleMode } from "@/components/scenario/single-mode";
+import { Card } from "@/components/ui/card";
 import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
 
 export interface LabShellProps {
@@ -39,19 +40,20 @@ export function LabShell({
   const [scenarioMode, setScenarioMode] = useState<ScenarioMode>("single");
 
   return (
-    <div className="scenario-lab-shell">
-      <div className="scenario-lab-toolbar">
+    <div className="scenario-lab-shell admin-doc-stack admin-doc-stack--roomy">
+      <Card className="scenario-lab-toolbar p-(--ct-space-4)" hoverOverlay={false}>
         <ScenarioTabBar active={activeTab} onChange={setActiveTab} />
         {activeTab === "scenario" ? (
           <ScenarioModeToggle active={scenarioMode} onChange={setScenarioMode} />
         ) : null}
-      </div>
+      </Card>
 
       <div
         role="tabpanel"
         id="tabpanel-scenario"
         aria-labelledby="tab-scenario"
         hidden={activeTab !== "scenario"}
+        className="admin-doc-stack admin-doc-stack--roomy"
       >
         <div
           role="tabpanel"
@@ -87,6 +89,7 @@ export function LabShell({
         aria-labelledby="tab-backtest"
         hidden={activeTab !== "backtest"}
         tabIndex={0}
+        className="admin-doc-stack admin-doc-stack--roomy"
       >
         {activeTab === "backtest" ? <BacktestTab /> : null}
       </div>

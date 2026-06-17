@@ -161,11 +161,8 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
   const icon = EVENT_TYPE_ICON[event.type];
   const ago = formatAgo(new Date(event.occurredAt));
 
-  const inner = (
-    <li
-      className="admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-event-row"
-      aria-label={`${event.type}: ${event.label}`}
-    >
+  const content = (
+    <>
       <span
         aria-hidden
         className="shrink-0 ct-text-muted body-sm w-4 text-center mt-0.5"
@@ -176,23 +173,36 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
         <span className="body-sm ct-text-strong truncate block">{event.label}</span>
         <span className="body-xs ct-text-muted">{ago}</span>
       </span>
-    </li>
+    </>
   );
 
-  if (event.txHash && !isPlaceholderTxHash(event.txHash)) {
-    return (
+  const rowClassName =
+    "admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-event-row";
+
+  const interactiveContent =
+    event.txHash && !isPlaceholderTxHash(event.txHash) ? (
       <Link
         href={explorerTxUrl(event.txHash)}
         target="_blank"
         rel="noopener noreferrer"
-        className="hover:opacity-(--ct-opacity-80) transition-opacity"
+        className={cn(
+          rowClassName,
+          "hover:opacity-(--ct-opacity-80) transition-opacity",
+        )}
       >
-        {inner}
+        {content}
       </Link>
+    ) : (
+      <div className={rowClassName}>{content}</div>
+    );
+
+  if (event.txHash && !isPlaceholderTxHash(event.txHash)) {
+    return (
+      <li aria-label={`${event.type}: ${event.label}`}>{interactiveContent}</li>
     );
   }
 
-  return inner;
+  return <li aria-label={`${event.type}: ${event.label}`}>{interactiveContent}</li>;
 }
 
 // ---------------------------------------------------------------------------

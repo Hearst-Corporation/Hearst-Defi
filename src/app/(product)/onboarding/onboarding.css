@@ -9,10 +9,18 @@
   background: transparent;
 }
 
-/* /apply chat-only — keep the chamber centered in the page band at every breakpoint */
-.ct-root.ct-shell-chat-only .onboarding-shell {
-  flex: 1;
-  margin-inline: auto;
+/* /apply renders on a bare route (no shell) — centre the chamber both axes in
+   the viewport so the surrounding margins stay symmetric top/bottom/left/right
+   and scale with the Chrome window. min-height + justify-center handles tall
+   windows; the frame's own symmetric padding keeps breathing room when the
+   content is taller than the viewport (page scrolls instead of clipping). */
+.onboarding-shell--wide {
+  min-height: 100dvh;
+  justify-content: center;
+}
+
+.onboarding-shell--wide .onboarding-shell__frame {
+  padding-block: clamp(var(--ct-space-6), 5vh, var(--ct-space-12));
 }
 
 .onboarding-shell__frame {
@@ -74,6 +82,17 @@
   z-index: var(--ct-z-base);
 }
 
+/* Cap the funnel content to a comfortable reading measure and pin it to the
+   column's LEFT edge — the form, its headings and the CTA all share one left
+   axis (matches the mockup; no centered float in a left-aligned column). */
+.onboarding-chamber--split .onboarding-chamber__crown > *,
+.onboarding-chamber--split .onboarding-chamber__body > *,
+.onboarding-chamber--split .onboarding-chamber__sole > * {
+  width: 100%;
+  max-width: var(--ct-prose-sm);
+  margin-inline: 0;
+}
+
 .onboarding-chamber__crown {
   display: flex;
   flex-direction: column;
@@ -115,4 +134,214 @@
 
 .onboarding-chamber__status {
   min-height: var(--ct-space-5);
+}
+
+/* ── /apply split — funnel + inline assistant in one chamber ── */
+
+/* Wider frame so the two-column chamber breathes — only when the split chamber
+   is actually present (the confirmed screen keeps the narrow prose cap). */
+.onboarding-shell--wide .onboarding-shell__frame:has(.onboarding-chamber--split) {
+  width: min(100%, var(--ct-invest-flow-max-w));
+}
+
+.onboarding-chamber--split {
+  flex-direction: column;
+}
+
+/* Below the split breakpoint the assistant stacks under the funnel; the
+   crown/body/sole stack keeps its existing single-column rhythm. */
+.onboarding-chamber__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.onboarding-chamber__aside {
+  display: flex;
+  min-width: 0;
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+@media (min-width: 880px) {
+  .onboarding-chamber--split {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .onboarding-chamber__main {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .onboarding-chamber__aside {
+    flex: 0 0 var(--ct-rail-right);
+    border-top: 0;
+    border-left: 1px solid var(--ct-border-soft);
+  }
+}
+
+/* ── Inline assistant panel ── */
+
+.ct-apply-assistant {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  width: 100%;
+  padding: var(--ct-space-5);
+}
+
+@media (min-width: 880px) {
+  .ct-apply-assistant {
+    padding: var(--ct-space-8) var(--ct-space-6);
+  }
+}
+
+.ct-apply-assistant-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+}
+
+.ct-apply-assistant-head-left {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+
+.ct-apply-assistant-status-dot {
+  width: var(--ct-space-2);
+  height: var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-accent);
+  flex-shrink: 0;
+}
+
+.ct-apply-assistant-chevron {
+  color: var(--ct-text-faint);
+  flex-shrink: 0;
+}
+
+.ct-apply-assistant-intro {
+  display: flex;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-4);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-surface-1) 60%, transparent);
+}
+
+.ct-apply-assistant-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ct-step-dot-size);
+  height: var(--ct-step-dot-size);
+  flex-shrink: 0;
+  border-radius: var(--ct-radius-full);
+  color: var(--ct-text-strong);
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-bold);
+  background: color-mix(in srgb, var(--ct-accent) 14%, transparent);
+  border: 1px solid var(--ct-border-accent);
+}
+
+.ct-apply-assistant-intro-body {
+  color: var(--ct-text-body);
+  font-size: var(--ct-text-sm);
+  line-height: var(--ct-leading-relaxed);
+}
+
+.ct-apply-assistant-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+
+.ct-apply-assistant-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.ct-apply-assistant-suggestion {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--ct-space-3);
+  width: 100%;
+  padding: var(--ct-space-3) var(--ct-space-4);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
+  color: var(--ct-text-primary);
+  font-size: var(--ct-text-sm);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--ct-dur-base) var(--ct-ease),
+    background var(--ct-dur-base) var(--ct-ease),
+    color var(--ct-dur-base) var(--ct-ease);
+}
+
+.ct-apply-assistant-suggestion:disabled {
+  cursor: default;
+}
+
+.ct-apply-assistant-suggestion:hover:not(:disabled) {
+  border-color: var(--ct-border);
+  background: color-mix(in srgb, var(--ct-surface-1) 80%, transparent);
+  color: var(--ct-text-strong);
+}
+
+.ct-apply-assistant-suggestion-icon {
+  color: var(--ct-text-muted);
+}
+
+.ct-apply-assistant-suggestion:hover:not(:disabled) .ct-apply-assistant-suggestion-icon {
+  color: var(--ct-accent);
+}
+
+.ct-apply-assistant-suggestion-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ct-apply-assistant-foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  margin-top: auto;
+}
+
+.ct-apply-assistant-prompt {
+  color: var(--ct-text-muted);
+  font-size: var(--ct-text-sm);
+}
+
+.ct-apply-assistant-field {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-3) var(--ct-space-3) var(--ct-space-3) var(--ct-space-4);
+  border-radius: var(--ct-radius-xl);
+  border: 1px solid var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-surface-1) 50%, transparent);
+}
+
+.ct-apply-assistant-field-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--ct-text-faint);
+  font-size: var(--ct-text-sm);
+}
+
+.ct-apply-assistant-send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ct-text-muted);
+  flex-shrink: 0;
 }

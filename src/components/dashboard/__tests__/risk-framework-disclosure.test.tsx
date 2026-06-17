@@ -22,4 +22,30 @@ describe("RiskFrameworkSection — baseline disclosure (B2)", () => {
     expect(html).toContain("pre-audit baseline assumptions");
     expect(html).toContain("volatility input is a fixed");
   });
+
+  it("uses the canonical dashboard panel header", () => {
+    const html = renderToStaticMarkup(
+      <RiskFrameworkSection data={DATA} view="bars" />,
+    );
+    expect(html).toContain("dashboard-card-header");
+    expect(html).not.toContain("pf-widget-header");
+  });
+});
+
+describe("RiskFrameworkSection — CompositeHeader visibility", () => {
+  it('hides CompositeHeader in view="bars" (no duplicate with KPI strip)', () => {
+    const html = renderToStaticMarkup(
+      <RiskFrameworkSection data={DATA} view="bars" />,
+    );
+    // The header renders: <span class="stat-label">Composite</span>
+    // The disclosure footnote never contains that exact markup.
+    expect(html).not.toContain('stat-label">Composite');
+  });
+
+  it('shows CompositeHeader in view="waterfall"', () => {
+    const html = renderToStaticMarkup(
+      <RiskFrameworkSection data={DATA} view="waterfall" />,
+    );
+    expect(html).toContain('stat-label">Composite');
+  });
 });

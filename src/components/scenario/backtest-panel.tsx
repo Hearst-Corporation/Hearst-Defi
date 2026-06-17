@@ -2,6 +2,7 @@
 
 import { AssumptionsList } from "@/components/scenario/assumptions-list";
 import { BacktestChart } from "@/components/scenario/backtest-chart";
+import { ScenarioPendingOverlay } from "@/components/scenario/scenario-feedback";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -26,11 +27,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
       )}
       aria-busy={isPending}
     >
-      {isPending && (
-        <div className="pointer-events-none absolute inset-0 z-[var(--ct-z-overlay)] flex items-center justify-center rounded-lg bg-transparent border border-[var(--ct-border-soft)]">
-          <span className="body-sm ct-text-body">Computing backtest…</span>
-        </div>
-      )}
+      {isPending ? <ScenarioPendingOverlay message="Computing backtest…" /> : null}
 
       {/* ── Section 1: KPIs 2×2 grid ────────────────────────────────────── */}
       <div className="admin-doc-kpi-grid-2">

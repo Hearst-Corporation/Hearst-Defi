@@ -18,6 +18,7 @@ import {
   RebalancingActions,
   type RebalancingAction,
 } from "@/components/scenario/rebalancing-actions";
+import { ScenarioPendingOverlay } from "@/components/scenario/scenario-feedback";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -492,11 +493,7 @@ export function OutputPanel(props: OutputPanelProps) {
       )}
       aria-busy={isPending}
     >
-      {isPending && (
-        <div className="pointer-events-none absolute inset-0 z-[var(--ct-z-overlay)] flex items-center justify-center rounded-lg bg-transparent border border-[var(--ct-border-soft)]">
-          <span className="body-sm ct-text-body">Computing…</span>
-        </div>
-      )}
+      {isPending ? <ScenarioPendingOverlay message="Computing…" /> : null}
 
       {/* 1 — Scenario decision (the answer) */}
       <DecisionPanel output={output} narrative={narrative} />

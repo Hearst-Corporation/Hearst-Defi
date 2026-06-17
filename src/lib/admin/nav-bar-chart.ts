@@ -10,6 +10,11 @@ export interface NavBarSlice {
   heightPct: number;
 }
 
+const NAV_MONTH_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  timeZone: "UTC",
+});
+
 /** Neutral mid-line when NAV is flat across the window. */
 const FLAT_HEIGHT_PCT = 50;
 
@@ -81,4 +86,22 @@ export function navBarChartAriaLabel(points: NavPoint[]): string {
   const first = points[0]!.date;
   const last = points[points.length - 1]!.date;
   return `NAV trend, ${points.length} days from ${first} to ${last}`;
+}
+
+/**
+ * Axis month labels for the NAV bars.
+ * Returns one label per point when the series is dense enough to justify an axis.
+ */
+export function resolveNavMonthLabels(points: NavPoint[]): string[] | null {
+  if (points.length < MIN_NAV_CHART_POINTS) return null;
+
+  const labels = points.map((point) => {
+    const date = new Date(`${point.date}T00:00:00Z`);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+    return NAV_MONTH_LABEL_FORMATTER.format(date);
+  });
+
+  return labels.every((label): label is string => label !== null) ? labels : null;
 }

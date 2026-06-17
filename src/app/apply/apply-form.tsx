@@ -23,6 +23,7 @@ import {
   YIELD_TYPE_OPTIONS,
 } from "@/lib/qualification/options";
 
+import { ApplyAssistantPanel } from "./apply-assistant-panel";
 import { submitApplication } from "./actions";
 
 type Step = "about" | "platform" | "sizing";
@@ -42,9 +43,9 @@ function StepHeading({
   description: string;
 }) {
   return (
-    <div className="flex flex-col gap-(--ct-space-2)">
+    <div className="flex flex-col gap-(--ct-space-2) text-left">
       <h2 className="h2 m-0">{title}</h2>
-      <p className="body-sm ct-text-muted m-0">{description}</p>
+      <p className="body-sm ct-text-body m-0">{description}</p>
     </div>
   );
 }
@@ -73,7 +74,7 @@ function ChoiceCard({
       <span
         aria-hidden="true"
         className={cn(
-          "mt-[2px] inline-flex h-4 w-4 shrink-0 rounded-full border-2",
+          "mt-(--ct-space-0_5) inline-flex h-4 w-4 shrink-0 rounded-full border-2",
           selected
             ? "border-(--ct-accent) bg-(--ct-accent)"
             : "border-(--ct-border-strong) bg-transparent",
@@ -153,26 +154,27 @@ export function ApplyForm() {
   return (
     <OnboardingChamber
       testId="apply-qualification"
+      aside={<ApplyAssistantPanel step={step} />}
       crown={
-        <div className="product-doc-stack onboarding-shell__stepper">
+        <div className="product-doc-stack onboarding-shell__stepper text-left">
           <div className="product-doc-stack--tight">
             <span className="eyebrow ct-text-accent">Hearst Connect</span>
             <div className="product-doc-stack--compact">
               <h1 className="h1 m-0 text-pretty">Qualification for institutional access</h1>
-              <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
+              <p className="body-md ct-text-body m-0 text-pretty ct-prose-lg">
                 Three steps to assess fit for Hearst Connect&apos;s institutional
                 USDC yield program. No commitment required.
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2 body-xs ct-text-muted">
-            <span className="rounded-full border border-(--ct-border-soft) px-3 py-1">
+          <div className="flex flex-wrap items-center justify-start gap-(--ct-space-2) body-xs ct-text-muted">
+            <span className="rounded-full border border-(--ct-border-soft) px-(--ct-space-3) py-(--ct-space-1)">
               3 steps
             </span>
-            <span className="rounded-full border border-(--ct-border-soft) px-3 py-1">
+            <span className="rounded-full border border-(--ct-border-soft) px-(--ct-space-3) py-(--ct-space-1)">
               About 2 minutes
             </span>
-            <span className="rounded-full border border-(--ct-border-soft) px-3 py-1">
+            <span className="rounded-full border border-(--ct-border-soft) px-(--ct-space-3) py-(--ct-space-1)">
               For qualified investors only
             </span>
           </div>
@@ -195,7 +197,7 @@ export function ApplyForm() {
               />
 
               <div className="flex flex-col gap-(--ct-space-2)">
-                <label className="eyebrow ct-text-muted" htmlFor="apply-email">
+                <label className="body-sm font-semibold ct-text-strong" htmlFor="apply-email">
                   Email *
                 </label>
                 <input
@@ -211,7 +213,7 @@ export function ApplyForm() {
 
               <div className="grid gap-(--ct-space-3) sm:grid-cols-2">
                 <div className="flex flex-col gap-(--ct-space-2)">
-                  <label className="eyebrow ct-text-muted" htmlFor="apply-first-name">
+                  <label className="body-sm font-semibold ct-text-strong" htmlFor="apply-first-name">
                     First name
                   </label>
                   <input
@@ -224,7 +226,7 @@ export function ApplyForm() {
                   />
                 </div>
                 <div className="flex flex-col gap-(--ct-space-2)">
-                  <label className="eyebrow ct-text-muted" htmlFor="apply-last-name">
+                  <label className="body-sm font-semibold ct-text-strong" htmlFor="apply-last-name">
                     Last name
                   </label>
                   <input
@@ -239,7 +241,7 @@ export function ApplyForm() {
               </div>
 
               <div className="flex flex-col gap-(--ct-space-2)">
-                <label className="eyebrow ct-text-muted" htmlFor="apply-phone">
+                <label className="body-sm font-semibold ct-text-strong" htmlFor="apply-phone">
                   Phone (optional)
                 </label>
                 <input
@@ -262,7 +264,7 @@ export function ApplyForm() {
               />
 
               <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="eyebrow ct-text-muted">
+                <label className="body-sm font-semibold ct-text-strong">
                   What best describes your platform?
                 </label>
                 {PLATFORM_TYPE_OPTIONS.map((o) => (
@@ -276,7 +278,7 @@ export function ApplyForm() {
               </div>
 
               <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="eyebrow ct-text-muted">Assets under management?</label>
+                <label className="body-sm font-semibold ct-text-strong">Assets under management?</label>
                 {AUM_OPTIONS.map((o) => (
                   <ChoiceCard
                     key={o.value}
@@ -288,7 +290,7 @@ export function ApplyForm() {
               </div>
 
               <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="eyebrow ct-text-muted">
+                <label className="body-sm font-semibold ct-text-strong">
                   How are client funds currently deployed?
                 </label>
                 {FUNDS_USAGE_OPTIONS.map((o) => (
@@ -302,7 +304,7 @@ export function ApplyForm() {
               </div>
 
               <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="eyebrow ct-text-muted">
+                <label className="body-sm font-semibold ct-text-strong">
                   Do you offer yield or reward products?
                 </label>
                 {YIELD_STATUS_OPTIONS.map((o) => (
@@ -325,7 +327,7 @@ export function ApplyForm() {
               />
 
               <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="eyebrow ct-text-muted">
+                <label className="body-sm font-semibold ct-text-strong">
                   What type of yield product suits your clients?
                 </label>
                 {YIELD_TYPE_OPTIONS.map((o) => (
@@ -339,7 +341,7 @@ export function ApplyForm() {
               </div>
 
               <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="eyebrow ct-text-muted">
+                <label className="body-sm font-semibold ct-text-strong">
                   Vault size for a first allocation?
                 </label>
                 {VAULT_SIZE_OPTIONS.map((o) => (
@@ -353,7 +355,7 @@ export function ApplyForm() {
               </div>
 
               <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="eyebrow ct-text-muted">What is your launch timeline?</label>
+                <label className="body-sm font-semibold ct-text-strong">What is your launch timeline?</label>
                 {TIMELINE_OPTIONS.map((o) => (
                   <ChoiceCard
                     key={o.value}
@@ -388,15 +390,16 @@ export function ApplyForm() {
           }
           actions={
             step === "about" ? (
-              <Button
-                type="button"
-                onClick={goNext}
-                variant="primary"
-                size="lg"
-                className="w-full rounded-(--ct-radius-xl)"
-              >
-                Continue →
-              </Button>
+              <div className="flex w-full justify-end">
+                <Button
+                  type="button"
+                  onClick={goNext}
+                  variant="primary"
+                  size="lg"
+                >
+                  Continue →
+                </Button>
+              </div>
             ) : (
               <div className="flex w-full items-center gap-(--ct-space-3)">
                 <Button
@@ -405,7 +408,7 @@ export function ApplyForm() {
                   disabled={pending}
                   variant="secondary"
                   size="lg"
-                  className="flex-1 rounded-(--ct-radius-xl)"
+                  className="flex-1"
                 >
                   ← Back
                 </Button>
@@ -415,7 +418,7 @@ export function ApplyForm() {
                     onClick={goNext}
                     variant="primary"
                     size="lg"
-                    className="flex-1 rounded-(--ct-radius-xl)"
+                    className="flex-1"
                   >
                     Continue →
                   </Button>
@@ -426,7 +429,7 @@ export function ApplyForm() {
                     disabled={pending}
                     variant="primary"
                     size="lg"
-                    className="flex-1 rounded-(--ct-radius-xl)"
+                    className="flex-1"
                   >
                     {pending ? "Submitting…" : "Submit application"}
                   </Button>

@@ -6,7 +6,9 @@ import { runComparisonAction } from "@/app/admin/scenario-lab/actions";
 import { DeltaRow } from "@/components/scenario/delta-row";
 import { OutputPanel } from "@/components/scenario/output-panel";
 import { PRESETS } from "@/components/scenario/preset-bar";
+import { ScenarioErrorBanner } from "@/components/scenario/scenario-feedback";
 import { Spinner } from "@/components/scenario/scenario-spinner";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { PresetPicker } from "@/components/ui/preset-picker";
 import { cn } from "@/lib/cn";
@@ -136,35 +138,38 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
   const showOutputs = outputs.a !== null && outputs.b !== null;
 
   return (
-    <div className="scenario-compare-shell">
-      {/* Selectors row */}
-      <div className="scenario-compare-shell__selectors">
-        <PresetPicker
-          side="A"
-          value={presetA}
-          options={PRESET_OPTIONS}
-          excluded={presetB}
-          disabled={pending}
-          onChange={handleSelectA}
-        />
-        <PresetPicker
-          side="B"
-          value={presetB}
-          options={PRESET_OPTIONS}
-          excluded={presetA}
-          disabled={pending}
-          onChange={handleSelectB}
-        />
-      </div>
+    <div className="scenario-compare-shell admin-doc-stack admin-doc-stack--roomy">
+      <Card className="p-(--ct-space-4)" hoverOverlay={false}>
+        <CardHeader className="mb-(--ct-space-4)">
+          <div className="min-w-0">
+            <CardTitle>Scenario comparison</CardTitle>
+            <p className="mt-0.5 body-xs ct-text-muted">
+              Compare two presets on the same vault scope.
+            </p>
+          </div>
+        </CardHeader>
 
-      {error && (
-        <p
-          role="alert"
-          className="rounded-full border border-(--ct-status-danger) bg-transparent px-[var(--ct-space-4)] py-2.5 body-sm ct-status-danger"
-        >
-          {error}
-        </p>
-      )}
+        <div className="scenario-compare-shell__selectors">
+          <PresetPicker
+            side="A"
+            value={presetA}
+            options={PRESET_OPTIONS}
+            excluded={presetB}
+            disabled={pending}
+            onChange={handleSelectA}
+          />
+          <PresetPicker
+            side="B"
+            value={presetB}
+            options={PRESET_OPTIONS}
+            excluded={presetA}
+            disabled={pending}
+            onChange={handleSelectB}
+          />
+        </div>
+      </Card>
+
+      {error ? <ScenarioErrorBanner message={error} /> : null}
 
       {/* Panels row */}
       <div className="scenario-compare-shell__panels">
@@ -200,7 +205,7 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
       )}
 
       {/* Shared disclaimer */}
-      <p className="border-t border-(--ct-border-soft) pt-[var(--ct-space-4)] body-xs italic ct-text-muted">
+      <p className="border-t border-(--ct-border-soft) pt-(--ct-space-4) body-xs italic ct-text-muted">
         <span className="font-semibold not-italic ct-text-body">
           Not guaranteed.
         </span>{" "}

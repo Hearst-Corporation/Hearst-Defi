@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   computeNavBarHeights,
   navBarChartAriaLabel,
+  resolveNavMonthLabels,
 } from "@/lib/admin/nav-bar-chart";
 import type { NavPoint } from "@/lib/data/dashboard";
 
@@ -83,5 +84,24 @@ describe("navBarChartAriaLabel", () => {
         ["2026-05-15", 500_000],
       ])),
     ).toBe("NAV trend, 2 days from 2026-05-01 to 2026-05-15");
+  });
+});
+
+describe("resolveNavMonthLabels", () => {
+  it("derives axis labels from the actual point dates", () => {
+    expect(
+      resolveNavMonthLabels(pts([
+        ["2026-02-01", 100],
+        ["2026-03-01", 110],
+        ["2026-04-01", 120],
+        ["2026-05-01", 130],
+        ["2026-06-01", 140],
+        ["2026-07-01", 150],
+      ])),
+    ).toEqual(["Feb", "Mar", "Apr", "May", "Jun", "Jul"]);
+  });
+
+  it("returns null when there are not enough points for an axis", () => {
+    expect(resolveNavMonthLabels(pts([["2026-05-01", 1]]))).toBeNull();
   });
 });

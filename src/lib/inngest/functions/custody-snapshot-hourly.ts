@@ -1,0 +1,149 @@
+import "server-only";
+
+import { inngest } from "@/lib/inngest/client";
+import { loadCustody } from "@/lib/data/custody";
+import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
+import { isDuplicate, markComplete } from "@/lib/idempotency";
+
+/**
+ * Custody Snapshot — hourly cron (minute 5, offset from market-data-hourly at :00).
+ *
+ * Reads the real Fireblocks vault balance via loadCustody(). If and only if the
+ * vault contains real funds (provenance "live", configured, reserves > 0), writes
+ * a new VaultSnapshot with source="live", upgrading the dashboard from "seeded" to
+ * "live" state.
+ *
+ * HARD GUARD: if the vault is empty or unconfigured the job writes NOTHING —
+ * no VaultSnapshot row, no fake AUM. This is the honesty contract: an empty
+ * vault must never produce a "live" snapshot.
+ *
+ * Inherited fields (APY range, risk scores, mode, allocations) come from the
+ * most recent existing VaultSnapshot so we never invent financial parameters
+ * that belong to the engine/agent layer. When no prior snapshot exists, neutral
+ * zeros are used and allocations are omitted.
+ */
+export const CUSTODY_SNAPSHOT_HOURLY_ID = "custody-snapshot-hourly" as const;
+export const CUSTODY_SNAPSHOT_HOURLY_CRON = "5 * * * *" as const;
+
+export interface CustodySnapshotHourlyStep {
+  run<T>(name: string, fn: () => T | Promise<T>): Promise<T>;
+}
+
+export async function custodySnapshotHourlyHandler({
+  step,
+}: {
+  step: CustodySnapshotHourlyStep;
+}): Promise<
+  | { aumUsdc: number; source: "live"; snapshotId: string }
+  | { skipped: true; reason: string }
+> {
+  const now = new Date();
+
+  if (await isDuplicate(CUSTODY_SNAPSHOT_HOURLY_ID, now)) {
+    return { skipped: true, reason: "already_run_this_hour" };
+  }
+
+  // ─── Step 1: load real Fireblocks custody balance ─────────────────────────
+  const custody = await step.run("load-custody", () => loadCustody());
+
+  // ─── HARD GUARD ───────────────────────────────────────────────────────────
+  // An empty vault, unconfigured scope, or non-live provenance must NEVER
+  // produce a snapshot row. This is the single point that enforces honesty.
+  // The vault is currently empty (0 USDC) so this branch will be taken on
+  // every run until Fireblocks account 86 holds real funds.
+  if (
+    !custody.configured ||
+    custody.provenance !== "live" ||
+    custody.totalUsdcReserves <= 0
+  ) {
+    logger.info("[custody-snapshot-hourly] vault empty or unconfigured — skipping write", {
+      provenance: custody.provenance,
+      configured: custody.configured,
+      totalUsdcReserves: custody.totalUsdcReserves,
+    });
+    await markComplete(CUSTODY_SNAPSHOT_HOURLY_ID, now);
+    return { skipped: true, reason: "vault_empty_or_unconfigured" };
+  }
+
+  // ─── Step 2: load latest snapshot to inherit engine-derived fields ─────────
+  // APY range, risk scores, mode, and allocations come from the previous
+  // VaultSnapshot — they are owned by the engine/agent layer and must not be
+  // invented here. If no prior snapshot exists, neutral zeros are used.
+  const previous = await step.run("load-latest-snapshot", () =>
+    prisma.vaultSnapshot.findFirst({
+      orderBy: { takenAt: "desc" },
+      include: { allocations: true },
+    }),
+  );
+
+  const inheritedApyLow    = previous?.currentApyLow    ?? 0;
+  const inheritedApyHigh   = previous?.currentApyHigh   ?? 0;
+  const inheritedStressed  = previous?.stressedApy      ?? 0;
+  const inheritedRisk      = previous?.riskScore        ?? 0;
+  const inheritedMining    = previous?.miningMarginScore ?? 0;
+  const inheritedMode      = previous?.mode             ?? "balanced";
+
+  // ─── Step 3: persist live snapshot ────────────────────────────────────────
+  const snapshotId = await step.run("persist-snapshot", async () => {
+    const liveAum = custody.totalUsdcReserves;
+
+    const snapshot = await prisma.vaultSnapshot.create({
+      data: {
+        takenAt:           now,
+        aumUsdc:           liveAum,        // <── real Fireblocks balance, NOT a hardcode
+        currentApyLow:     inheritedApyLow,
+        currentApyHigh:    inheritedApyHigh,
+        stressedApy:       inheritedStressed,
+        riskScore:         inheritedRisk,
+        miningMarginScore: inheritedMining,
+        mode:              inheritedMode,
+        source:            "live",
+      },
+    });
+
+    // Inherit allocations from the previous snapshot if any exist.
+    // valueUsdc is recalculated at the new AUM:
+    //   valueUsdc = liveAum × (pct / 100)
+    // This keeps allocation percentages stable while reflecting the real balance.
+    // yieldContributionBps is copied verbatim — it is an engine output, not
+    // something we can recompute here without running the full engine.
+    if (previous?.allocations && previous.allocations.length > 0) {
+      await prisma.allocation.createMany({
+        data: previous.allocations.map((a) => ({
+          snapshotId:           snapshot.id,
+          bucket:               a.bucket,
+          pct:                  a.pct,
+          valueUsdc:            Number(a.pct) / 100 * liveAum,
+          yieldContributionBps: a.yieldContributionBps,
+        })),
+      });
+    }
+
+    logger.info("[custody-snapshot-hourly] persisted live snapshot", {
+      snapshotId: snapshot.id,
+      aumUsdc:    liveAum,
+      mode:       inheritedMode,
+      allocationsCount: previous?.allocations?.length ?? 0,
+    });
+
+    return snapshot.id;
+  });
+
+  await markComplete(CUSTODY_SNAPSHOT_HOURLY_ID, now);
+
+  return {
+    aumUsdc:    custody.totalUsdcReserves,
+    source:     "live",
+    snapshotId,
+  };
+}
+
+export const custodySnapshotHourly = inngest.createFunction(
+  {
+    id:          CUSTODY_SNAPSHOT_HOURLY_ID,
+    concurrency: { limit: 1 },
+    triggers:    [{ cron: CUSTODY_SNAPSHOT_HOURLY_CRON }],
+  },
+  custodySnapshotHourlyHandler,
+);
