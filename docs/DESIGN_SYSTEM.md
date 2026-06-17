@@ -7,6 +7,11 @@
 >
 > Guidelines tokens/primitives : [`README.md`](../README.md) § Design system.
 > **Source runtime** : Cockpit (`--ct-*`) — pas de second design system (`@ds/core` retiré).
+>
+> Note chantier : ce document fixe les invariants de langage visuel et
+> d'honnêteté produit, mais les calibrations actives de spacing, layout, nav,
+> shell et doc-flow peuvent encore évoluer directement tant qu'elles ne
+> réintroduisent ni faux live ni second design system.
 
 ## 1. Principe
 
@@ -223,7 +228,7 @@ Ordre d'import : après `cockpit.css`, avant `globals.css`.
 ## 12. Invest Flow DS taxonomy (closure — 2026-06-13)
 
 Established after the final DS closure audit and Batch 1–2 fixes.
-These rules govern the invest flow surface hierarchy and must not be reopened without a new ADR.
+These rules govern the invest flow surface hierarchy as the current default. Reopen them only when a materially better layout or readability outcome clearly requires it.
 
 ### 12.1 Three-level surface hierarchy (invest flow)
 

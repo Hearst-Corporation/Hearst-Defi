@@ -98,6 +98,7 @@ export interface ChatKimiProps {
 export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
   const [input, setInput] = useState<string>("");
 
+  const chatListRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -121,10 +122,16 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
     onChatId: (id) => setActiveChat(id),
   });
 
-  // Auto-scroll
+  // Keep scrolling local to the chat list. `scrollIntoView()` can bubble up to a
+  // larger ancestor and visually yank the whole center panel when a message lands.
   // biome-ignore lint/correctness/useExhaustiveDependencies: scroll on messages update
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const list = chatListRef.current;
+    if (!list) return;
+    list.scrollTo({
+      top: list.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages]);
 
   const newConversation = useCallback(() => {
@@ -177,7 +184,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       </div>
 
       {/* Messages */}
-      <div className="ct-chat-list">
+      <div ref={chatListRef} className="ct-chat-list">
         {messages.length === 0 && !streaming && (
           <p className="ct-placeholder">
             Assistant Hearst

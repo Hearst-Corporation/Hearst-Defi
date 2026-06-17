@@ -13,7 +13,7 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 
 - **Product spec**: `/docs/spec/*.mdx` — read the relevant spec file before coding
 - **Methodology**: `/docs/methodology/v1.0.md` — immutable once published, bump version if change needed
-- **Roadmap**: `/docs/roadmap.json` + `/admin/roadmap` UI — every PR must reference a roadmap item
+- **Roadmap**: `/docs/roadmap.json` + `/admin/roadmap` UI — use as planning context for major feature work, not as a blocker for active UI calibration / fix-forward passes
 - **Decisions**: `/docs/decisions/ADR-*.md` — Architecture Decision Records, append-only
 - **Design system** (copie locale éditable) : le DS Cockpit est dé-vendoré dans `cockpit-shell/` (composants + `tokens.css`) — cascade `cockpit-shell/tokens.css` → `src/app/cockpit.css` → `src/app/globals.css`. Éditable librement ici (tokens `--ct-*`, CSS, composants) : pas de package figé, pas de source centrale, pas de resync. Doc : `/docs/DESIGN_SYSTEM.md` + guidelines dans `README.md` § Design system. Préférer tokens/primitives existants. Le package `packages/ds` (`@ds/core`) a été retiré — ne pas réintroduire un second namespace `--ds-*`. Un seul vert : `--ct-accent` #A7FB90.
 - **Plan source**: `/Users/adrienbeyondcrypto/.claude/plans/tu-es-claude-opus-functional-eich.md`
@@ -61,6 +61,10 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 - **Portfolio cockpit preview** — voir `docs/DESIGN_SYSTEM.md` §9. Sans position
   active : cockpit complet visible (`previewZeros`) avec `PreviewModeChip` — pas
   de badge `Live`/`Verified` faux. Messages inline optionnels dans le shell.
+- **Phase chantier UI :** spacing, marges, hiérarchie de page, wording, nav et
+  layout shell/doc-flow peuvent être itérés directement dans `cockpit.css`,
+  `doc-flow.css` et les composants concernés sans étape roadmap/ADR préalable,
+  tant que les non-négociables produit et l'honnêteté des états restent intacts.
 
 ## Stack
 
@@ -179,13 +183,13 @@ The repo ships four specialist agents under `.claude/agents/` (invoke via `Agent
 Use them whenever the task is squarely inside one of those scopes; their constraints are stricter
 than this file and act as the local source of truth for those directories.
 
-## Before any feature work
+## Before major feature work
 
 1. Read the related `/docs/spec/*.mdx`
-2. Check `/admin/roadmap` for the item status
+2. Check `/admin/roadmap` if the work is roadmap-driven
 3. Code
-4. Update roadmap status (via UI) + paste evidence URL in the item
-5. Add a line to the ADR if a non-trivial decision was made
+4. Update roadmap status only when the change is actually tied to a roadmap item
+5. Add / update an ADR only for non-trivial product or architecture decisions, not for micro UI calibration
 
 ## When in doubt
 

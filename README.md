@@ -125,7 +125,9 @@ adresses vault/manager/custody + contracts Phase 2 + audit trail.
 - ❌ Un hex ou rgba/hsl hors des fichiers tokens (exceptions : palette PDF
   [`src/lib/pdf/pdf-palette.ts`](src/lib/pdf/pdf-palette.ts) pour react-pdf ;
   hex SDK tiers — Privy / CockpitShell — alignés sur `--ct-accent` en commentaire).
-- ❌ Un nouveau token CSS (`--ct-*`) sans validation explicite d'Adrien.
+- ❌ Un nouveau token CSS (`--ct-*`) sans besoin clair et répété. En phase chantier,
+  préférer d'abord recalibrer layout / spacing / hiérarchie avec les primitives
+  et tokens existants.
 - ❌ Une nouvelle primitive UI (`src/components/ui/*`) si elle duplique
   une primitive existante. Avant de créer, **lire** `src/components/ui/` et
   réutiliser.
@@ -145,7 +147,9 @@ adresses vault/manager/custody + contracts Phase 2 + audit trail.
 - ❌ Des inline `rgba(0,0,0,X)` pour overlays/scrims — utiliser
   `color-mix(in srgb, var(--ct-bg-deep) X%, transparent)`.
 
-Documenter dans un ADR toute exception token/primitive nouvelle.
+Documenter dans un ADR toute exception token/primitive nouvelle si elle change
+le langage système ou la logique produit. Les calibrations UI locales n'ont pas
+besoin d'ADR à elles seules.
 
 **Grille investisseur (`product-bento.css`)** : `.dash-bento` / `.bento-col-*` ;
 material via `Card`, `ProductSection`, `ModuleChrome`. `portfolio.css` = layout
@@ -275,13 +279,13 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
 - Shell page : `product-doc-shell` (`gap: var(--ct-space-8)`) ; admin `admin-doc-shell` (`gap: var(--ct-space-4)`, `--compact` → `space-3`). Zone `.ct-page-area` admin : `24px 20px 32px` (vs `32px 40px 80px` LP).
 - Layout stacks : `src/app/doc-flow.css` — scopes `.product-doc` / `.admin-doc` ; stacks `*-doc-stack*` / `*-doc-inline-row*` (`flex flex-col gap-N` préféré à `space-y-N` Tailwind ad hoc en admin).
 - Spacing rule (admin **et** product) : classe base + modifier en JSX (`admin-doc-stack admin-doc-stack--actions`, `product-doc-stack product-doc-stack--tight`). Côté CSS product, chaque `product-doc-stack--*` / `product-doc-inline-row--*` est autonome (flex + gap), comme admin — un modifier seul reste layout-safe.
-- Surface par défaut : `Card` → `.ct-glass-panel` (produit **et** admin). Header canon : `DashboardPanelHeader` (`src/components/ui/dashboard-panel-header.tsx`). **Interdit** : listes flat (`admin-doc-flat-list`, `admin-vault-list-card`), className `ct-card` direct (utiliser composant `<Card>`).
+- Surface par défaut : `Card` → `.ct-glass-panel` (produit **et** admin). Header canon : `DashboardPanelHeader` (`src/components/ui/dashboard-panel-header.tsx`). Éviter les listes flat ad hoc (`admin-doc-flat-list`, `admin-vault-list-card`) et l'usage direct de `ct-card` quand le composant `<Card>` suffit.
 - Badges et Pills : `.ct-pill` est réservé aux filtres interactifs. Pour les états statiques, utiliser le composant `<Badge>`.
 - Boutons : `<Button>` doit toujours déclarer un `size=` explicite (md, sm, lg).
 - Formatters : `src/lib/vaults/product-display.ts`.
 - Vault detail parity admin/LP : faits partagés `src/lib/vaults/vault-detail-facts.ts` ; présentation `vault-admin-kpi-strip`, `vault-legal-proof-rows`, `vault-allocation-display` (admin = `Card`, LP = sections plates).
 - Shell compact : le rail chat droit (`.ct-rail-right`, 420px) est masqué sous `1200px` via `src/app/cockpit.css` pour préserver la largeur du contenu central ; seul le padding `.ct-page-area` se resserre sous `768px`.
-- Exceptions non-glass **seules autorisées** (commentaire `/* ADR-013 exception */` requis) : `.scenario-preset-bar`, `Ptai variant="flat"` en compare, `EmptySurface` seul — voir ADR-013 §10.3. Dashboard command board + KPI strip : `Card` / `.ct-glass-panel`.
+- Exceptions non-glass à privilégier aujourd'hui : `.scenario-preset-bar`, `Ptai variant="flat"` en compare, `EmptySurface` seul — voir ADR-013 §10.3. Dashboard command board + KPI strip : `Card` / `.ct-glass-panel`.
 - Migration ADR-013 : **Lots 1+4 done** (surfaces JSX, `SystemPanel` supprimé, aliases CSS retirés, scenario-lab sur `Card`). Reste : token syntax legacy admin (shorthand `(-ct-TOKEN)` → canon bracket form).
 
 ### Process pour ajouter un token (rare, validé Adrien uniquement)
@@ -293,9 +297,9 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
    - **Pourquoi l'existant ne suffit pas** : prouver qu'aucun token actuel
      ne couvre le besoin.
    - **Alternative** : la solution color-mix / dérivation possible.
-3. Attendre validation Adrien.
-4. Si validé : ajouter dans `src/app/cockpit.css` (+ `pdf-palette.ts` si surface
-   PDF) + mettre à jour `docs/DESIGN_SYSTEM.md` + ADR si non-trivial.
+3. Si le besoin reste réel : ajouter dans `src/app/cockpit.css` (+ `pdf-palette.ts`
+   si surface PDF) et mettre à jour `docs/DESIGN_SYSTEM.md`.
+4. Ajouter un ADR seulement si le changement modifie réellement le système ou un invariant produit.
 
 ### Garde-fous — DS audit advisory, qualité bloquante (2026-06-16)
 
@@ -362,6 +366,9 @@ Journal DS : [`docs/DESIGN_SYSTEM.md §11`](docs/DESIGN_SYSTEM.md).
 - Initiative visuelle encouragée (Glassmorphism, lueurs, gradients) pour l'aspect premium.
 - Réversibilité : pas de `git add/commit/push/reset` sans demande explicite.
 - Accent brand = vert `#A7FB90` (`--ct-accent`). Success/live = **même vert** via `--ct-status-success` → `var(--ct-accent)` (un seul vert runtime ; PDF garde son `#16a34a` print). Fond noir `--ct-bg-deep`. Les textures et effets de profondeur sont autorisés.
+- Phase chantier UI : spacing, marges, hiérarchie, nav, doc-flow et shell peuvent
+  être recalibrés directement dans les fichiers partagés tant que les garde-fous
+  produit (APY range, provenance, no fake-live, disclaimers) restent respectés.
 
 ---
 
