@@ -10,6 +10,7 @@ import {
 import { projectAdminReadResultForExternal } from "@/lib/llm/tools/redaction";
 import { getAllowedAdminReadTools, executeAdminReadTool } from "@/lib/llm/tools/registry";
 import { ADMIN_WRITE_TOOL_IDS } from "@/lib/llm/tools/types";
+import { nextOrAbort, createSafeEnqueue } from "@/lib/llm/stream-utils";
 import { logger } from "@/lib/logger";
 
 /**
@@ -195,18 +196,7 @@ async function consumeCompletion(params: {
   const iterator = completion[Symbol.asyncIterator]();
 
   for (;;) {
-    const abortPromise = new Promise<never>((_, reject) => {
-      if (signal.aborted) {
-        reject(signal.reason ?? new Error("aborted"));
-        return;
-      }
-      signal.addEventListener("abort", () => reject(signal.reason ?? new Error("aborted")), {
-        once: true,
-      });
-    });
-    abortPromise.catch(() => {});
-
-    const { done, value } = await Promise.race([iterator.next(), abortPromise]);
+    const { done, value } = await nextOrAbort(iterator, signal);
     if (done) break;
     // The terminal usage chunk (stream_options.include_usage) carries `usage`
     // and an empty `choices` array — capture it before the delta short-circuit.
@@ -431,15 +421,7 @@ export function runChatAgent(
 
   const raw = new ReadableStream<Uint8Array>({
     async start(controller) {
-      let consumerGone = false;
-      const safeEnqueue = (s: string): void => {
-        if (consumerGone || s.length === 0) return;
-        try {
-          controller.enqueue(enc.encode(s));
-        } catch {
-          consumerGone = true; // downstream guard terminated / client aborted
-        }
-      };
+      const safeEnqueue = createSafeEnqueue(controller, enc);
 
       let completion: AsyncIterable<StreamChunk>;
       try {

@@ -74,16 +74,11 @@ vi.mock("@/lib/llm/nav-channel", () => ({
   publishNav: vi.fn(),
 }));
 
-vi.mock("@/lib/product-workspace/draft", () => ({
-  upsertProductWorkspaceDraft: vi.fn().mockResolvedValue(null),
-}));
-
 import { POST } from "@/app/api/cockpit-chat/route";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { prisma } from "@/lib/db";
 import { runChatAgent, type ChatTurnFinal } from "@/lib/llm/chat-agent";
 import { publishNav } from "@/lib/llm/nav-channel";
-import { upsertProductWorkspaceDraft } from "@/lib/product-workspace/draft";
 import { PRODUCT_WORKSPACE_DESTINATION_KEY } from "@/lib/llm/product-workspace-intent";
 
 const mockRequireAuth = vi.mocked(requireAuth);
@@ -94,7 +89,6 @@ const mockLlmRunCreate = vi.mocked(prisma.llmRun.create);
 const mockNavTraceCreate = vi.mocked(prisma.navTrace.create);
 const mockRunChatAgent = vi.mocked(runChatAgent);
 const mockPublishNav = vi.mocked(publishNav);
-const mockUpsertDraft = vi.mocked(upsertProductWorkspaceDraft);
 
 async function readStreamText(res: Response): Promise<string> {
   if (!res.body) return "";
@@ -281,35 +275,32 @@ describe("POST /api/cockpit-chat — master agent nav publish", () => {
     });
   });
 
-  it("diverts a product framing brief to the workspace and keeps the chat bubble short", async () => {
-    const longBrief =
-      "Objectif: vault Defensive à dominante stable. Vault inféré HDV. " +
-      "Hypothèses: mining 20 %, USDC base 35 %, réserve 35 %. Rendement cible 8 à 12 %. " +
-      "Garde-fous: bornes hard, human-in-the-loop. Prochaine étape: validation Scenario Lab.";
-    mockMasterAgentTurn("admin-product-workspace", { text: longBrief });
-
+  it("short-circuits a product intent: bubble shows the ack, nav opens the workspace, no chat LLM call", async () => {
+    // The chat must NOT run the model on a product intent — the workspace
+    // generates the brief itself. If runChatAgent is called the test fails.
     const res = await POST(makeChatRequest("Créer un nouveau vault Defensive"));
     expect(res.status).toBe(200);
 
-    // The chat bubble shows ONLY the short fixed ack — never the long brief.
+    // The bubble shows ONLY the short fixed ack.
     const body = await readStreamText(res);
     expect(body).toContain("Product Workspace");
-    expect(body).not.toContain("Hypothèses: mining");
+    expect(body).not.toContain("Hypothèses");
 
-    // The model's full prose is routed into the workspace draft as agentBrief.
+    // No chat-side LLM turn ran on this path.
+    expect(mockRunChatAgent).not.toHaveBeenCalled();
+
+    // The workspace nav directive is published so the bridge opens the chamber.
     await vi.waitFor(() => {
-      expect(mockUpsertDraft).toHaveBeenCalledWith(
-        expect.objectContaining({
-          userId: USER_ID,
-          objective: "Créer un nouveau vault Defensive",
-          agentBrief: longBrief,
-          intentKind: "product_creation",
-        }),
-      );
+      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+        destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
+        objective: "Créer un nouveau vault Defensive",
+        autostart: true,
+        intentKind: "product_creation",
+      });
     });
   });
 
-  it("does NOT divert a plain admin question — normal answer streams to the bubble", async () => {
+  it("does NOT short-circuit a plain admin question — normal answer streams to the bubble", async () => {
     mockMasterAgentTurnWithoutNav({ text: "Le runbook a 5 étapes." });
 
     const res = await POST(makeChatRequest("explique le runbook de déploiement"));
@@ -317,8 +308,8 @@ describe("POST /api/cockpit-chat — master agent nav publish", () => {
 
     const body = await readStreamText(res);
     expect(body).toContain("ok"); // the mocked stream chunk, streamed normally
+    expect(mockRunChatAgent).toHaveBeenCalled();
     await vi.waitFor(() => expect(mockLlmRunCreate).toHaveBeenCalled());
-    expect(mockUpsertDraft).not.toHaveBeenCalled();
   });
 });
 

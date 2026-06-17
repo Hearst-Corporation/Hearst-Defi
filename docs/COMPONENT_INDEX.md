@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**194 components** · 0 possible orphans · 2 intentionally unwired.
+**195 components** · 0 possible orphans · 2 intentionally unwired.
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -54,6 +54,7 @@
 | `src/components/admin/outreach/prospect-import-form.tsx` | ProspectImportForm | 1 |
 | `src/components/admin/outreach/send-campaign-button.tsx` | SendCampaignButton | 1 |
 | `src/components/admin/outreach/stats-cards.tsx` | OutreachStatsCards | 1 |
+| `src/components/admin/product-workspace/agent-brief-live.tsx` | AgentBriefLive | 1 |
 | `src/components/admin/projection-footer.tsx` | ProjectionFooter | 1 |
 | `src/components/admin/proof-list.tsx` | ProofList | 1 |
 | `src/components/admin/publish-on-chain-button.tsx` | PublishOnChainButton | 1 |
@@ -163,7 +164,7 @@
 | `src/components/scenario/scenario-tab-bar.tsx` | ScenarioTabBar | 1 |
 | `src/components/scenario/single-mode.tsx` | SingleMode | 1 |
 | `src/components/simulation/simulation-panel.tsx` | SimulationPanel | 1 |
-| `src/components/ui/apy-range.tsx` | ApyRange | 17 |
+| `src/components/ui/apy-range.tsx` | ApyRange | 16 |
 | `src/components/ui/awaiting-metric-state.tsx` | AwaitingMetricState | 13 |
 | `src/components/ui/badge.tsx` | Badge | 51 |
 | `src/components/ui/button.tsx` | Button | 81 |

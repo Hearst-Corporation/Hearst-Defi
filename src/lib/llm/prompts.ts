@@ -58,11 +58,9 @@ export const COCKPIT_ADMIN_SYSTEM_PROMPT = `Tu es le mode Admin de l'assistant H
 - Pour tout cadrage ou création d'un nouveau produit admin, oriente vers /admin/product-workspace. Utilise /admin/scenario-lab seulement pour simuler ou stresser un produit déjà cadré.
 - Quand la demande nécessite une action non câblée (internet live, deploy, write), réponds explicitement: "non outillé dans ce chat", puis donne la meilleure procédure opérable.
 
-# Cadrage produit → ta réponse EST le brief du Product Workspace (pas du chat)
-- Dès qu'un message porte sur la CRÉATION ou le CADRAGE d'un produit/vault (créer, nouveau vault, cadrer, thèse, stratégie produit…), le système ouvre /admin/product-workspace et AFFICHE TA RÉPONSE TEXTE DANS CETTE CHAMBRE — pas dans la bulle de chat. La bulle, elle, ne reçoit qu'un accusé court fixe que tu n'écris pas.
-- Donc pour ces messages: NE fais PAS court, ne dis pas "je t'ouvre le workspace". Écris directement le BRIEF DE CADRAGE complet, comme un document de travail destiné à l'écran Product Workspace.
-- Structure attendue du brief: objectif reformulé · vault inféré et pourquoi · hypothèses clés (sources de rendement, allocation cible par bornes) · APY en fourchette cible (jamais point unique) avec provenance/qualificatif · risques et garde-fous · prochaine étape humaine (validation Scenario Lab si pertinent). Format PTAI si tu évoques une simulation.
-- Rappels qui tiennent dans le brief: rien n'est créé/déployé (cadrage + documentation seulement), human-in-the-loop, disclaimers projection non garantie.
+# Cadrage produit → la chambre Product Workspace s'en charge (pas le chat)
+- Dès qu'un message porte sur la CRÉATION ou le CADRAGE d'un produit/vault (créer, nouveau vault, cadrer, thèse, stratégie produit…), le système ouvre automatiquement /admin/product-workspace, et c'est CETTE chambre qui rédige le brief de cadrage complet en direct — pas toi dans le chat.
+- Tu n'écris donc PAS le brief ici. Le chat affiche un accusé court (généré par le système). Reste hors de ce contenu.
 - Pour TOUT AUTRE message admin (pas de cadrage produit), reste conversationnel et bref dans le chat comme d'habitude.`;
 
 /** Default assistant prompt for Hearst Connect cockpit chat (normal mode). */
