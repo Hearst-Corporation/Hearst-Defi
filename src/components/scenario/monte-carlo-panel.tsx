@@ -14,6 +14,7 @@ import { useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
@@ -240,10 +241,10 @@ function SimParams({
             if (!isNaN(v) && v >= 0) onSeedChange(v);
           }}
           className={cn(
-            "w-24 rounded-base border border-[var(--ct-border-soft)]",
+            "w-24 rounded-base border border-(--ct-border-soft)",
             "ct-surface-1 px-2 py-1 body-xs mono ct-text-strong",
-            "focus:border-[var(--ct-accent)] focus:outline-none",
-            "disabled:opacity-[var(--ct-opacity-40)]",
+            "focus:border-(--ct-accent) focus:outline-none",
+            "disabled:opacity-(--ct-opacity-40)",
           )}
           aria-label="PRNG seed for Monte Carlo simulation"
         />
@@ -262,10 +263,10 @@ function SimParams({
             if (!isNaN(v) && v >= 100) onRunsChange(v);
           }}
           className={cn(
-            "w-28 rounded-base border border-[var(--ct-border-soft)]",
+            "w-28 rounded-base border border-(--ct-border-soft)",
             "ct-surface-1 px-2 py-1 body-xs mono ct-text-strong",
-            "focus:border-[var(--ct-accent)] focus:outline-none",
-            "disabled:opacity-[var(--ct-opacity-40)]",
+            "focus:border-(--ct-accent) focus:outline-none",
+            "disabled:opacity-(--ct-opacity-40)",
           )}
           aria-label="Number of Monte Carlo simulation paths"
         />
@@ -302,7 +303,7 @@ export function MonteCarloPanel() {
   const headlineHigh = output ? (output.headlineRange.high * 100).toFixed(1) : null;
 
   return (
-    <Card>
+    <Card hoverOverlay={false}>
       <CardHeader className="mb-4">
         <CardTitle>Monte Carlo Simulation</CardTitle>
         <ProvenanceBadge kind="estimated" />
@@ -352,11 +353,11 @@ export function MonteCarloPanel() {
           {/* Legend */}
           <div className="admin-doc-inline-row admin-doc-inline-row--relaxed body-xs ct-text-muted">
             <span className="admin-doc-inline-row admin-doc-inline-row--dense">
-              <span className="inline-block h-0.5 w-4 rounded-full bg-[var(--ct-status-success)]" />
+              <span className="inline-block h-0.5 w-4 rounded-full bg-(--ct-status-success)" />
               Median (p50)
             </span>
             <span className="admin-doc-inline-row admin-doc-inline-row--dense">
-              <span className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-status-success-soft)] opacity-[var(--ct-opacity-22)]" />
+              <span className="inline-block h-2 w-4 rounded-sm bg-(--ct-status-success-soft) opacity-(--ct-opacity-22)" />
               p5–p95
             </span>
           </div>
@@ -371,7 +372,7 @@ export function MonteCarloPanel() {
           </div>
 
           {/* Prob below floor */}
-          <div className="rounded-base border border-[var(--ct-border-soft)] px-4 py-3 body-sm">
+          <div className="rounded-base border border-(--ct-border-soft) px-4 py-3 body-sm">
             <span className="stat-label">P(APY &lt; 8% floor): </span>
             <span className="mono body-sm ct-text-body">
               {(output.probBelowFloor * 100).toFixed(1)}%
@@ -379,13 +380,15 @@ export function MonteCarloPanel() {
           </div>
         </div>
       ) : (
-        <div className="flex h-24 items-center justify-center body-sm ct-text-muted">
-          Run the simulation to see results.
-        </div>
+        <EmptySurface
+          variant="widget"
+          message="Run the simulation to populate the fan chart."
+          detail="The workspace will render the headline APY range, percentiles, and downside probability once a run completes."
+        />
       )}
 
       {/* Disclaimer */}
-      <p className="mt-6 border-t border-[var(--ct-border-soft)] pt-4 body-xs italic ct-text-muted">
+      <p className="mt-6 border-t border-(--ct-border-soft) pt-4 body-xs italic ct-text-muted">
         <span className="not-italic ct-text-body">
           Monte Carlo — methodology v2.0. Not guaranteed.
         </span>{" "}

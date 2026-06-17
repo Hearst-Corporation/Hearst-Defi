@@ -13,8 +13,9 @@ import { cn } from "@/lib/cn";
 import { canRunDemoProvider } from "@/lib/demo/guard";
 
 import { ProofCenterCardHeader } from "./proof-center-card-header";
+import type { ProofCenterSectionLedProps } from "./proof-center-types";
 
-interface EventTimelineProps {
+interface EventTimelineProps extends ProofCenterSectionLedProps {
   events: ReadonlyArray<OnChainEvent>;
 }
 
@@ -44,6 +45,20 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
   timeStyle: "short",
   timeZone: "UTC",
 });
+
+function eventTimelineCardTitle(
+  eventCount: number,
+  sectionLed: boolean,
+): string {
+  if (eventCount === 0) {
+    return sectionLed
+      ? "Awaiting first events"
+      : "On-chain event log — awaiting first events";
+  }
+  return sectionLed
+    ? `Last ${eventCount} events`
+    : `On-chain event log — last ${eventCount} events`;
+}
 
 function eventDotClass(kind: EventKind): string {
   if (kind === "GuardrailBreach") return "bg-[var(--ct-status-danger)]";
@@ -139,18 +154,14 @@ function EventTimelineItem({
 export function EventTimeline({
   events,
   sectionLed = false,
-}: EventTimelineProps & { sectionLed?: boolean }) {
+}: EventTimelineProps) {
   if (events.length === 0) {
     return (
       <Card hoverOverlay={false}>
         <ProofCenterCardHeader
           sectionLed={sectionLed}
           eyebrow="On-chain event log"
-          title={
-            sectionLed
-              ? "Awaiting first events"
-              : "On-chain event log — awaiting first events"
-          }
+          title={eventTimelineCardTitle(0, sectionLed)}
           tone="quiet"
         />
         <AwaitingMetricState {...EVENT_TIMELINE_EMPTY} />
@@ -165,11 +176,7 @@ export function EventTimeline({
       <ProofCenterCardHeader
         sectionLed={sectionLed}
         eyebrow="On-chain event log"
-        title={
-          sectionLed
-            ? `Last ${events.length} events`
-            : `On-chain event log — last ${events.length} events`
-        }
+        title={eventTimelineCardTitle(events.length, sectionLed)}
         provenance={eventsProvenance}
         tone="primary"
       />

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { EventTimeline } from "@/components/proof-center/event-timeline";
 import { MiningCashFlowEvidence } from "@/components/proof-center/mining-cashflow-evidence";
+import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
 import { ProofCenterCardHeader } from "@/components/proof-center/proof-center-card-header";
 
 import { freshEvent } from "./fixtures";
@@ -40,5 +41,18 @@ describe("Proof Center — section heading contract", () => {
 
     expect(html).toContain("Last 1 events");
     expect(html).not.toContain("On-chain event log — last");
+  });
+
+  it("ProofCenterSection renders visible h2 for aria-labelledby", () => {
+    const html = renderToStaticMarkup(
+      <ProofCenterSection id="por-heading" title="Proof of Reserves">
+        <p>Body</p>
+      </ProofCenterSection>,
+    );
+
+    expect(html).toContain('id="por-heading"');
+    expect(html).toContain('class="h2 ');
+    expect(html).toContain("Proof of Reserves");
+    expect(html).not.toContain("sr-only");
   });
 });

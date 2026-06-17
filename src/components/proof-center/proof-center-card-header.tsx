@@ -1,7 +1,10 @@
-import {
-  DashboardPanelHeader,
-  type DashboardPanelHeaderProps,
-} from "@/components/ui/dashboard-panel-header";
+import type { ComponentProps } from "react";
+
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+
+import type { ProofCenterSectionLedProps } from "./proof-center-types";
+
+type DashboardPanelHeaderProps = ComponentProps<typeof DashboardPanelHeader>;
 
 /**
  * Proof Center card header — when `sectionLed`, the visible page `<h2>` owns the
@@ -12,7 +15,7 @@ export function ProofCenterCardHeader({
   eyebrow,
   titleLevel,
   ...props
-}: DashboardPanelHeaderProps & { sectionLed?: boolean }) {
+}: DashboardPanelHeaderProps & ProofCenterSectionLedProps) {
   return (
     <DashboardPanelHeader
       {...props}

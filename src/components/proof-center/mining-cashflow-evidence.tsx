@@ -5,6 +5,7 @@ import { MetricGrid } from "@/components/ui/nested-panel";
 import type { CoverageView } from "@/lib/engine/coverage-view";
 
 import { ProofCenterCardHeader } from "./proof-center-card-header";
+import type { ProofCenterSectionLedProps } from "./proof-center-types";
 
 const BADGE: Record<CoverageView["provenance"], "live" | "estimated" | "manual" | "stale"> = {
   live: "live",
@@ -23,8 +24,7 @@ export function MiningCashFlowEvidence({
   sectionLed = false,
 }: {
   coverage?: CoverageView | null;
-  sectionLed?: boolean;
-}) {
+} & ProofCenterSectionLedProps) {
   const provenance = coverage?.provenance ?? "pending";
 
   // Pending / invalid — render the FULL instrument shell (header + provenance +

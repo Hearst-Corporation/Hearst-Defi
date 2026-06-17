@@ -20,6 +20,8 @@ import type { UnifiedProof } from "@/components/proof/proof-types";
 import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
 import { EventTimeline } from "@/components/proof-center/event-timeline";
 import { PorSummary } from "@/components/proof-center/por-summary";
+import { ProofCenterCardHeader } from "@/components/proof-center/proof-center-card-header";
+import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
 import { MiningCashFlowEvidence } from "@/components/proof-center/mining-cashflow-evidence";
 import { RecentDistributions } from "@/components/proof-center/recent-distributions";
 import { RebalancingEventsPanel } from "@/components/proof-center/rebalancing-events-panel";
@@ -170,14 +172,7 @@ export default async function ProductProofCenterPage({
         }
       />
 
-      {/* ── Proof of Reserves summary ───────────────────────── */}
-      <section
-        aria-labelledby="por-heading"
-        className="product-doc-section"
-      >
-        <h2 id="por-heading" className="h2 m-0">
-          Proof of Reserves
-        </h2>
+      <ProofCenterSection id="por-heading" title="Proof of Reserves">
         <PorSummary
           attestation={latestAttestation}
           custody={custody}
@@ -185,63 +180,32 @@ export default async function ProductProofCenterPage({
           demo={demo}
           sectionLed
         />
-      </section>
+      </ProofCenterSection>
 
-      {/* ── Mining cash-flow evidence (yield source) ───────────── */}
-      <section
-        aria-labelledby="cashflow-heading"
-        className="product-doc-section"
+      <ProofCenterSection
+        id="cashflow-heading"
+        title="Mining cash-flow evidence"
       >
-        <h2 id="cashflow-heading" className="h2 m-0">
-          Mining cash-flow evidence
-        </h2>
         <MiningCashFlowEvidence coverage={coverage} sectionLed />
-      </section>
+      </ProofCenterSection>
 
-      {/* ── Latest distributions ─────────────────────────────── */}
-      <section
-        aria-labelledby="distributions-heading"
-        className="product-doc-section"
-      >
-        <h2 id="distributions-heading" className="h2 m-0">
-          Latest distributions
-        </h2>
+      <ProofCenterSection id="distributions-heading" title="Latest distributions">
         <RecentDistributions distributions={recentDistributions} sectionLed />
-      </section>
+      </ProofCenterSection>
 
-      {/* ── Rebalancing events (PTAI) ──────────────────────── */}
-      <section
-        aria-labelledby="rebalance-heading"
-        className="product-doc-section"
-      >
-        <h2 id="rebalance-heading" className="h2 m-0">
-          Rebalancing events
-        </h2>
+      <ProofCenterSection id="rebalance-heading" title="Rebalancing events">
         <RebalancingEventsPanel events={recentRebalances} sectionLed />
-      </section>
+      </ProofCenterSection>
 
-      {/* ── On-chain event timeline ── */}
-      <section
-        aria-labelledby="event-timeline-heading"
-        className="product-doc-section"
-      >
-        <h2 id="event-timeline-heading" className="h2 m-0">
-          On-chain event log
-        </h2>
+      <ProofCenterSection id="event-timeline-heading" title="On-chain event log">
         <EventTimeline events={onChainEvents} sectionLed />
-      </section>
+      </ProofCenterSection>
 
-      {/* ── Full proof grid (filtered) ──────────────────────── */}
-      <section
-        aria-labelledby="proof-grid-heading"
-        className="product-doc-section"
+      <ProofCenterSection
+        id="proof-grid-heading"
+        title="Off-chain proofs & documents"
+        actions={proofs.length > 0 ? <ProofFilter /> : null}
       >
-        <div className="product-doc-section__head">
-          <h2 id="proof-grid-heading" className="h2 m-0">
-            Off-chain proofs &amp; documents
-          </h2>
-          {proofs.length > 0 ? <ProofFilter /> : null}
-        </div>
         <Card hoverOverlay={false}>
           {proofs.length === 0 ? (
             <AwaitingMetricState {...PLATFORM_PROOFS_EMPTY} />
@@ -249,21 +213,19 @@ export default async function ProductProofCenterPage({
             <ProofGrid proofs={proofs} filter={filter} demo={demo} />
           )}
         </Card>
-      </section>
+      </ProofCenterSection>
 
-      {/* ── Deployed contracts + audit trail ── */}
-      <section aria-labelledby="contracts-heading" className="product-doc-section">
-        <h2 id="contracts-heading" className="h2 m-0">
-          Contracts &amp; review trail
-        </h2>
+      <ProofCenterSection
+        id="contracts-heading"
+        title="Contracts & review trail"
+      >
         <ContractsAuditTrail platformAddresses={platformAddresses} />
-      </section>
+      </ProofCenterSection>
 
-      {/* ── Governance timelocks ───────────────────────────── */}
-      <section aria-labelledby="timelock-heading" className="product-doc-section">
-        <h2 id="timelock-heading" className="h2 m-0">
-          Pending governance timelocks
-        </h2>
+      <ProofCenterSection
+        id="timelock-heading"
+        title="Pending governance timelocks"
+      >
         {timelockProposals.length > 0 ? (
           <div className="product-doc-stack--relaxed">
             {timelockProposals.map((proposal) => (
@@ -277,7 +239,8 @@ export default async function ProductProofCenterPage({
           </div>
         ) : (
           <Card hoverOverlay={false}>
-            <DashboardPanelHeader
+            <ProofCenterCardHeader
+              sectionLed
               eyebrow="Governance queue"
               title="No pending timelocks"
               tone="quiet"
@@ -288,7 +251,7 @@ export default async function ProductProofCenterPage({
             />
           </Card>
         )}
-      </section>
+      </ProofCenterSection>
 
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="proof-center-footer">
@@ -296,7 +259,6 @@ export default async function ProductProofCenterPage({
           <DashboardPanelHeader
             eyebrow="Read path"
             title="Data provenance"
-            titleLevel="section"
             tone="quiet"
           />
           <p className="body-xs ct-prose-md ct-text-muted">

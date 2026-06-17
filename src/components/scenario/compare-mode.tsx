@@ -36,11 +36,16 @@ function Placeholder({ side, pending }: PlaceholderProps) {
     <EmptySurface
       variant="widget"
       className={cn(
-        "min-h-48 transition-opacity duration-[var(--ct-dur-fast)]",
-        pending && "opacity-[var(--ct-opacity-50)]",
+        "min-h-48 transition-opacity duration-(--ct-dur-fast)",
+        pending && "opacity-(--ct-opacity-50)",
       )}
       message={
-        pending ? "Computing…" : `Pick a preset to compare — Scenario ${side}`
+        pending ? "Computing comparison…" : `Pick a preset to compare — Scenario ${side}`
+      }
+      detail={
+        pending
+          ? "Running both scenarios and refreshing the comparison outputs."
+          : "Select two presets to compare APY range, drawdown, and PTAI deltas."
       }
       ariaLabel={`Scenario ${side} — awaiting preset selection`}
       role="status"
@@ -155,7 +160,7 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
       {error && (
         <p
           role="alert"
-          className="rounded-full border border-[var(--ct-status-danger)] bg-transparent px-4 py-2.5 body-sm ct-status-danger"
+          className="rounded-full border border-(--ct-status-danger) bg-transparent px-4 py-2.5 body-sm ct-status-danger"
         >
           {error}
         </p>
@@ -195,7 +200,7 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
       )}
 
       {/* Shared disclaimer */}
-      <p className="border-t border-[var(--ct-border-soft)] pt-4 body-xs italic ct-text-muted">
+      <p className="border-t border-(--ct-border-soft) pt-4 body-xs italic ct-text-muted">
         <span className="font-semibold not-italic ct-text-body">
           Not guaranteed.
         </span>{" "}

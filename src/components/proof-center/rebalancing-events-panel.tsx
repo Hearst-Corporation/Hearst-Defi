@@ -11,6 +11,7 @@ import { abbreviateAddress } from "@/lib/onchain";
 import { explorerLinkClass } from "@/lib/ui/surface-classes";
 
 import { ProofCenterCardHeader } from "./proof-center-card-header";
+import type { ProofCenterSectionLedProps } from "./proof-center-types";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
@@ -63,9 +64,8 @@ function weakestRebalanceProvenance(
   );
 }
 
-interface RebalancingEventsPanelProps {
+interface RebalancingEventsPanelProps extends ProofCenterSectionLedProps {
   events: ReadonlyArray<ProofCenterRebalanceRow>;
-  sectionLed?: boolean;
 }
 
 export function RebalancingEventsPanel({

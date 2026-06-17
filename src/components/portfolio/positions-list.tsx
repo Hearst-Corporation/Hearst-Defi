@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 import {
-  PanelStatus,
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { ApyRange } from "@/components/ui/apy-range";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
@@ -79,7 +79,8 @@ export function PositionsList({
           {showZeroShell ? (
             <div className={cn("pf-positions-row-grid", "pf-positions-row-grid--empty")}>
               <div className="pf-positions-empty-cell">
-                <PanelStatus
+                <EmptySurface
+                  variant="inline"
                   className="pf-positions-empty-row"
                   message={
                     previewZeros
@@ -91,6 +92,7 @@ export function PositionsList({
                       ? "Your first confirmed deposit will appear here."
                       : "Your first deposit will appear here once confirmed on-chain."
                   }
+                  role="status"
                 />
               </div>
             </div>

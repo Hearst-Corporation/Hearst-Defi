@@ -418,15 +418,13 @@ export default async function ProductWorkspacePage({
       </Card>
 
       <section aria-labelledby="pw-brief-heading" className="admin-doc-section">
-        <Card hoverOverlay={false} contentClassName="flex flex-col">
-          {/* Header intégré */}
-          <div className="flex items-center justify-between border-b ct-bc-soft px-6 py-5 sm:px-8">
-            <div className="flex items-center gap-3">
-              <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
-              <h2 id="pw-brief-heading" className="h2">Product inference</h2>
-            </div>
+        <div className="admin-doc-section__head">
+          <div className="flex items-center gap-3">
+            <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
+            <h2 id="pw-brief-heading" className="h2">Product inference</h2>
           </div>
-
+        </div>
+        <Card hoverOverlay={false} contentClassName="flex flex-col">
           <div className="grid grid-cols-1 lg:grid-cols-2">
             {/* Colonne 1: Inferred product line */}
             <div className="flex flex-col gap-6 p-6 sm:p-8 lg:border-r lg:border-(--ct-border-soft)">
@@ -502,14 +500,13 @@ export default async function ProductWorkspacePage({
       </section>
 
       <section aria-labelledby="pw-notes-heading" className="admin-doc-section">
-        <Card hoverOverlay={false} contentClassName="flex flex-col">
-          <div className="flex items-center justify-between border-b ct-bc-soft px-6 py-5 sm:px-8">
-            <div className="flex items-center gap-3">
-              <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
-              <h2 id="pw-notes-heading" className="h2">Supporting material</h2>
-            </div>
+        <div className="admin-doc-section__head">
+          <div className="flex items-center gap-3">
+            <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
+            <h2 id="pw-notes-heading" className="h2">Supporting material</h2>
           </div>
-
+        </div>
+        <Card hoverOverlay={false} contentClassName="flex flex-col">
           <div className="grid grid-cols-1 lg:grid-cols-3">
             {/* Col 1 */}
             <div className="flex flex-col gap-5 p-6 sm:p-8 lg:border-r lg:border-(--ct-border-soft)">

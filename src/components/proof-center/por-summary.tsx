@@ -17,6 +17,7 @@ import { cn } from "@/lib/cn";
 
 import { CustodySection } from "./custody-panel";
 import { ProofCenterCardHeader } from "./proof-center-card-header";
+import type { ProofCenterSectionLedProps } from "./proof-center-types";
 import {
   formatBtc,
   formatNestedTimestamp,
@@ -33,8 +34,6 @@ interface PorSummaryProps {
   verified?: boolean;
   /** Demo sandbox — renders "Simulated" provenance instead of attested/stale. */
   demo?: boolean;
-  /** Parent renders visible section `<h2>` — omit duplicate eyebrow on the card. */
-  sectionLed?: boolean;
 }
 
 export function PorSummary({
@@ -43,7 +42,7 @@ export function PorSummary({
   verified = false,
   demo = false,
   sectionLed = false,
-}: PorSummaryProps) {
+}: PorSummaryProps & ProofCenterSectionLedProps) {
   if (attestation === null) {
     return (
       <div className="product-doc-stack">

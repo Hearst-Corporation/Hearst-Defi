@@ -139,9 +139,9 @@
   --ct-scrollbar-size: 6px;
 
   /* Ambient shell overlay (`.ct-panels-row::after`) — calibration knobs only. */
-  --ct-ambient-glow-opacity: 0.82;
-  --ct-ambient-glow-mix-primary: 16%;
-  --ct-ambient-glow-mix-secondary: 12%;
+  --ct-ambient-glow-opacity: 0.72;
+  --ct-ambient-glow-mix-primary: 13%;
+  --ct-ambient-glow-mix-secondary: 10%;
   --ct-ambient-glow-mix-fade-a: 6%;
   --ct-ambient-glow-mix-fade-b: 4%;
   --ct-ambient-glow-bg-top: 12%;
@@ -181,7 +181,7 @@
   --ct-shell-header-h: 4rem;
 
   /* Chat rail width — override du package (420px). Calibré densité globale. */
-  --ct-rail-right: 23.75rem; /* 380px */
+  --ct-rail-right: 22rem; /* 352px */
 
   /* Left nav rail — icon + label permanent. Calibré densité globale (était 128px, puis 112px). */
   --ct-rail-left: 5.75rem; /* 92px */
@@ -819,16 +819,60 @@
 
 /* Projection Studio keeps its original single-line ellipsis (unchanged). */
 .projection-studio-preset-button__description {
-  display: block;
-  max-width: 18ch;
+  display: -webkit-box;
+  max-width: none;
   overflow: hidden;
-  color: currentColor;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--ct-text-body);
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-medium);
   line-height: var(--ct-leading-tight);
   opacity: 0.68;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-overflow: unset;
+  white-space: normal;
+}
+
+.projection-studio-range {
+  width: 100%;
+  height: var(--ct-space-2);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: var(--ct-radius-full);
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--ct-accent) 78%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 42%, var(--ct-surface-1)) 100%
+    );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ct-border-soft) 78%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--ct-bg-deep) 45%, transparent);
+}
+
+.projection-studio-range::-webkit-slider-thumb {
+  width: var(--ct-space-4);
+  height: var(--ct-space-4);
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: var(--ct-radius-full);
+  border: 1px solid color-mix(in srgb, var(--ct-text-strong) 24%, transparent);
+  background: color-mix(in srgb, var(--ct-text-strong) 92%, var(--ct-accent) 8%);
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--ct-bg-deep) 72%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--ct-accent) 35%, transparent);
+}
+
+.projection-studio-range::-moz-range-thumb {
+  width: var(--ct-space-4);
+  height: var(--ct-space-4);
+  border: 1px solid color-mix(in srgb, var(--ct-text-strong) 24%, transparent);
+  border-radius: var(--ct-radius-full);
+  background: color-mix(in srgb, var(--ct-text-strong) 92%, var(--ct-accent) 8%);
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--ct-bg-deep) 72%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--ct-accent) 35%, transparent);
 }
 
 .scenario-lab-workspace,
@@ -993,6 +1037,7 @@
   padding: var(--ct-space-4) var(--ct-space-5);
   border-top: 1px solid var(--ct-border-soft);
   background: var(--ct-graphite-subtle-bg);
+  box-shadow: 0 -12px 24px color-mix(in srgb, var(--ct-bg-deep) 28%, transparent);
 }
 
 @keyframes ct-scenario-central-flow-appear {
@@ -1237,6 +1282,7 @@
   background: color-mix(in srgb, var(--ct-bg-deep) 48%, var(--ct-surface-2));
   backdrop-filter: var(--ct-blur-lg);
   -webkit-backdrop-filter: var(--ct-blur-lg);
+  box-shadow: 0 -12px 24px color-mix(in srgb, var(--ct-bg-deep) 32%, transparent);
 }
 
 .projection-studio-output {
@@ -1316,7 +1362,7 @@
   padding: var(--ct-space-5);
 }
 
-@container projection-shell (min-width: 42rem) {
+@container projection-shell (min-width: 48rem) {
   .projection-studio-workspace {
     align-items: start;
     grid-template-columns: minmax(17rem, 1fr) minmax(0, 1fr);
@@ -1333,7 +1379,7 @@
   }
 }
 
-@container projection-shell (max-width: 41.999rem) {
+@container projection-shell (max-width: 47.999rem) {
   .projection-studio-input-card {
     max-height: clamp(24rem, 65dvh, 32rem);
   }
@@ -3596,13 +3642,13 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 
 /* Admin operator surfaces — denser inset (rails + chat compress centre vs LP). */
 .ct-page-area:has(.admin-doc) {
-  padding: var(--ct-space-4) var(--ct-space-5) var(--ct-space-6);
+  padding: var(--ct-space-4) var(--ct-space-4) var(--ct-space-6);
 }
 
 /* Product investor surfaces — no sub-nav; extra top inset aligns rhythm with admin. */
 .ct-page-area:has(.product-doc) {
   padding-top: var(--ct-space-8);
-  padding-inline: var(--ct-space-5);
+  padding-inline: var(--ct-space-4);
 }
 .ct-embed-overlay                          { padding: var(--ct-space-6); }
 .ct-embed-sub code                         { padding: 1px 6px; }
@@ -3840,6 +3886,51 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
   border-left: 1px solid var(--ct-border-soft);
   height: 100%;
   padding-block: var(--ct-space-16);
+}
+
+@media (max-width: 63.999rem) {
+  .login-split__brand {
+    min-height: auto;
+    padding-block: var(--ct-space-12) var(--ct-space-10);
+  }
+
+  .login-split__brand-inner {
+    gap: var(--ct-space-8);
+  }
+
+  .login-split__logo {
+    width: min(100%, 20rem);
+  }
+
+  .login-split__signin {
+    border-left: none;
+    border-top: 1px solid var(--ct-border-soft);
+    padding-block: var(--ct-space-10);
+  }
+}
+
+@media (max-width: 47.999rem) {
+  .login-split__brand {
+    padding-inline: var(--ct-space-6);
+  }
+
+  .login-split__brand-inner {
+    gap: var(--ct-space-6);
+  }
+
+  .login-split__logo {
+    width: min(100%, 16rem);
+  }
+
+  .login-split__signin {
+    padding-inline: var(--ct-space-4);
+    padding-block: var(--ct-space-8);
+  }
+
+  .login-split__apy-chip {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 
 /* Login form column — subordinate to brand H1; keep compact H2 (18→20), not doc-flow 20→22. */

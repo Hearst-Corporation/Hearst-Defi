@@ -151,15 +151,6 @@ export default async function PortfolioPage() {
         <NextActionCard {...actionFlags} />
       ) : null}
 
-      <div data-section="positions">
-        <PositionsList
-          positions={data.positions}
-          source={data.source}
-          updatedAt={data.updatedAt}
-          previewZeros={previewZeros}
-        />
-      </div>
-
       <ProductSection
         title="Performance & Liquidity"
         eyebrow="Portfolio"
@@ -200,6 +191,15 @@ export default async function PortfolioPage() {
           </aside>
         </div>
       </ProductSection>
+
+      <div data-section="positions">
+        <PositionsList
+          positions={data.positions}
+          source={data.source}
+          updatedAt={data.updatedAt}
+          previewZeros={previewZeros}
+        />
+      </div>
 
       <div className="pf-section-stack">
         <div

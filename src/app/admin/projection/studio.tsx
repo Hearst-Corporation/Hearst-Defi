@@ -103,7 +103,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full accent-(--ct-accent) cursor-pointer h-1.5 rounded-full"
+        className="projection-studio-range"
         aria-label={label}
       />
       <div className="admin-doc-row-spread eyebrow ct-text-faint">
@@ -544,7 +544,7 @@ export function ProjectionStudio() {
               ? "Running…"
               : "Running batch…"
             : batchMode === "none"
-              ? "Run Scenario"
+              ? "Run projection"
               : batchMode === "1d"
                 ? "Run 1D Batch (5 runs)"
                 : "Run 2D Batch (9 runs)"}
@@ -575,8 +575,8 @@ export function ProjectionStudio() {
               </div>
               <ScenePlaceholderMetrics />
               <p className="body-xs ct-text-faint m-0 px-5">
-                Configure inputs and run a scenario or batch to populate APY
-                range, risk score, and PTAI impact.
+                Set assumptions, then run a projection or batch to populate the
+                APY range, risk score, and PTAI impact.
               </p>
             </div>
           )}

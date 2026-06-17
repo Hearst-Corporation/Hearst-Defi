@@ -38,6 +38,7 @@ export default async function InvestPage({ params }: PageProps) {
   return (
     <InvestFlowShell
       step="deposit"
+      width="full"
       title="Deposit"
       description={
         <span className="body-sm ct-text-muted">

@@ -12,6 +12,7 @@ import { abbreviateAddress } from "@/lib/onchain";
 import { explorerLinkClass } from "@/lib/ui/surface-classes";
 
 import { ProofCenterCardHeader } from "./proof-center-card-header";
+import type { ProofCenterSectionLedProps } from "./proof-center-types";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
@@ -36,9 +37,8 @@ function weakestProvenance(kinds: readonly Provenance[]): Provenance {
   );
 }
 
-interface RecentDistributionsProps {
+interface RecentDistributionsProps extends ProofCenterSectionLedProps {
   distributions: ReadonlyArray<ProofCenterDistributionRow>;
-  sectionLed?: boolean;
 }
 
 export function RecentDistributions({

@@ -65,7 +65,7 @@ export function SingleMode({
       {error ? (
         <p
           role="alert"
-          className="rounded-full border border-[var(--ct-status-danger)] bg-transparent px-4 py-2.5 body-sm ct-status-danger"
+          className="rounded-full border border-(--ct-status-danger) bg-transparent px-4 py-2.5 body-sm ct-status-danger"
         >
           {error}
         </p>
@@ -83,7 +83,7 @@ export function SingleMode({
           <div
             className={cn(
               "scenario-lab-input-scroll",
-              pending && "pointer-events-none opacity-[var(--ct-opacity-50)]",
+              pending && "pointer-events-none opacity-(--ct-opacity-50)",
             )}
           >
             <InputsPanel
@@ -139,7 +139,7 @@ export function SingleMode({
                 value={objective}
                 onChange={(e) => setObjective(e.target.value)}
                 placeholder="Objective produit (seeded par le chat admin)"
-                className="ct-textarea mt-2 min-h-[4.5rem] w-full resize-y body-sm"
+                className="ct-textarea mt-2 min-h-18 w-full resize-y body-sm"
               />
             </Card>
           ) : null}
@@ -156,7 +156,7 @@ export function SingleMode({
             className={cn(
               "scenario-lab-output-card scenario-lab-input-card min-h-0 p-0",
               !state.output && "transition-opacity duration-(--ct-dur-fast)",
-              !state.output && pending && "opacity-[var(--ct-opacity-50)]",
+              !state.output && pending && "opacity-(--ct-opacity-50)",
             )}
             hoverOverlay={false}
           >

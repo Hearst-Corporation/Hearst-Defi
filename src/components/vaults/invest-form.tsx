@@ -126,7 +126,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
     <div className="vault-invest-grid">
       <div className="vault-invest-form-main">
         <div className="vault-flow-flat-section">
-          <VaultPanelHeader eyebrow="Configuration pending" title="Deposit amount" />
+          <VaultPanelHeader eyebrow="Review-only mode" title="Deposit amount" />
           <div className="vault-panel-body vault-panel-body--stack">
             <section>
               <label htmlFor="amt-input-disabled" className="sr-only">
@@ -161,8 +161,8 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
             </Checkbox>
 
             <PanelStatus
-              message="Wallet connection is not yet available for your account."
-              detail="You can review the subscription flow now and continue once wallet connection becomes available."
+              message="Wallet connection will be enabled for your account before deposit signing."
+              detail="You can review the subscription path, assumptions, and checks now, then continue once wallet access is provisioned."
             />
 
             <div className="vault-form-actions">
@@ -194,6 +194,11 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
         <NestedPanel className="ct-divide-soft py-0">
           <VaultPanelHeader title="Pre-flight check" />
           <div className="vault-panel-body">
+            <PanelStatus
+              className="mb-4"
+              message="Pre-flight is shown in review mode until wallet access is enabled."
+              detail="Network, allowance, and signing checks become actionable once your wallet is connected."
+            />
             <DataRow label="Wallet">
               <span className="ct-text-muted">Not connected yet</span>
             </DataRow>
