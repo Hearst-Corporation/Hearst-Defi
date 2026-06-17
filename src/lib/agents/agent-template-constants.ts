@@ -15,6 +15,8 @@ export const BASE_AGENTS = [
   "mining-health",
   "risk-explanation",
   "email-outreach",
+  "memory-distill",
+  "product-review",
 ] as const;
 
 export type BaseAgent = (typeof BASE_AGENTS)[number];
@@ -30,6 +32,8 @@ export const BASE_AGENT_LABELS: Record<BaseAgent, string> = {
   "mining-health": "Mining Health",
   "risk-explanation": "Risk Explanation",
   "email-outreach": "Email Outreach",
+  "memory-distill": "Memory Distillation",
+  "product-review": "Product Review (Facilitator)",
 };
 
 /**
@@ -48,6 +52,8 @@ export const BASE_AGENT_SCOPE: Record<BaseAgent, AgentScope> = {
   "mining-health": "batch",
   "risk-explanation": "batch",
   "email-outreach": "platform",
+  "memory-distill": "platform",
+  "product-review": "platform",
 };
 
 export const SCOPE_LABELS: Record<AgentScope, string> = {

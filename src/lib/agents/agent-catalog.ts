@@ -63,6 +63,16 @@ const AGENT_DETAILS: Record<BaseAgent, { description: string; surface: string }>
       "Drafts cold-outreach and newsletter emails — Typeform qualification CTA and memory-based personalisation.",
     surface: "Admin outreach platform",
   },
+  "memory-distill": {
+    description:
+      "Distills LP cockpit conversations into durable memory notes (OpenAI) used for per-account personalisation.",
+    surface: "Admin customer ops",
+  },
+  "product-review": {
+    description:
+      "Facilitates the internal product-review chat and generates the structured review document (Markdown + JSON).",
+    surface: "Admin review mode",
+  },
 };
 
 /** Every base agent, classified by scope, label, surface and description. */
