@@ -114,6 +114,8 @@ adresses vault/manager/custody + contracts Phase 2 + audit trail.
 - `/admin/outreach` — prospects, campagnes cold/newsletter, stats open/click/bounce ; `/admin/outreach/[campaignId]` — review drafts agent + envoi tracké (Resend + Svix).
 - `/admin/onboarding-test` — simulateur Typeform manuel (direct URL ; masqué de la sub-nav admin).
 - Roadmap (`/admin/roadmap`) — rows aérées ; IDs/spec refs visibles uniquement dans **Details** ; en-têtes de phase sticky au scroll.
+- Typo doc-flow (Lot 2) — headers admin/produit alignés (`.eyebrow` canon, gaps `space-2`), sections `space-4`, panel titles dashboard en casse normale (plus en faux `stat-label`).
+- Tokens calibration UI — `--ct-ambient-glow-*`, `--ct-rail-active-*`, `--ct-page-header-actions-offset-*`, skeleton placeholder sizes via `scene-placeholder-metrics__skeleton--*` (zéro Tailwind arbitrary sur le lot audit).
 - Webhook `POST /api/typeform/webhook` — HMAC (`TYPEFORM_WEBHOOK_SECRET`), upsert `QualificationProfile`, calibration auto si email connu.
 - HubSpot (portal EU1) — sync sortant contacts + notes mémoire ; reverse-sync entrant cron Inngest 15 min (`hubspot-reverse-sync`).
 - Mémoire chat — distillation best-effort tous les 6 messages (`memory-distill.ts`, `after()`), réinjectée via `loadUserMemory` → `buildUserContextSystemBlock`.

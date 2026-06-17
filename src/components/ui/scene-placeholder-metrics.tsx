@@ -19,8 +19,14 @@ export function ScenePlaceholderMetrics({ className }: { className?: string }) {
     >
       {PLACEHOLDER_SLOTS.map((label) => (
         <div key={label} className="scene-placeholder-metrics__cell">
-          <Skeleton className="h-3 w-20" variant="text" />
-          <Skeleton className="mt-2 h-9 w-full max-w-28" />
+          <Skeleton
+            className="scene-placeholder-metrics__skeleton--label"
+            variant="rect"
+          />
+          <Skeleton
+            className="scene-placeholder-metrics__skeleton--value"
+            variant="rect"
+          />
           <span className="sr-only">{label}</span>
         </div>
       ))}

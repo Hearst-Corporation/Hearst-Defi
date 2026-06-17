@@ -15,6 +15,12 @@ interface CentralTaskRunnerProps {
   liveBtcPrice?: { usd: number; stale: boolean };
 }
 
+const BOOT_LINES = [
+  "[01] Booting central workspace…",
+  "[02] Loading assumptions and risk bounds…",
+  "[03] Preparing projection assets (APY, drawdown, allocation)…",
+] as const;
+
 function appendLine(setter: React.Dispatch<React.SetStateAction<string[]>>, line: string): void {
   setter((prev) => (prev.at(-1) === line ? prev : [...prev, line]));
 }
@@ -26,15 +32,7 @@ export function CentralTaskRunner({
   output,
   liveBtcPrice,
 }: CentralTaskRunnerProps) {
-  const [lines, setLines] = useState<string[]>(
-    runId > 0
-      ? [
-          "[01] Initialisation du workspace central…",
-          "[02] Préparation des hypothèses et bornes de risque…",
-          "[03] Préparation des assets projetables (APY, drawdown, allocation)…",
-        ]
-      : [],
-  );
+  const [lines, setLines] = useState<string[]>(runId > 0 ? [...BOOT_LINES] : []);
   const [typed, setTyped] = useState(runId > 0 ? "" : "");
   const pendingLoggedForRun = useRef<number>(0);
   const outputLoggedForRun = useRef<number>(0);
@@ -43,8 +41,8 @@ export function CentralTaskRunner({
   const introLine = useMemo(() => {
     const cleaned = objective.trim();
     return cleaned.length > 0
-      ? `Agent central > Nouvelle tâche: ${cleaned}`
-      : "Agent central > Nouvelle tâche scenario.";
+      ? `Central agent > New task: ${cleaned}`
+      : "Central agent > New scenario task.";
   }, [objective]);
 
   const status = useMemo(() => {
@@ -96,11 +94,7 @@ export function CentralTaskRunner({
       initializedRunRef.current = runId;
       pendingLoggedForRun.current = 0;
       outputLoggedForRun.current = 0;
-      setLines([
-        "[01] Initialisation du workspace central…",
-        "[02] Préparation des hypothèses et bornes de risque…",
-        "[03] Préparation des assets projetables (APY, drawdown, allocation)…",
-      ]);
+      setLines([...BOOT_LINES]);
       setTyped("");
     }
 
@@ -117,7 +111,7 @@ export function CentralTaskRunner({
   useEffect(() => {
     if (runId <= 0 || !pending || pendingLoggedForRun.current === runId) return;
     pendingLoggedForRun.current = runId;
-    appendLine(setLines, "[04] Calcul en cours: projections et stress tests…");
+    appendLine(setLines, "[04] Computing projections and stress tests…");
   }, [pending, runId]);
 
   useEffect(() => {
@@ -125,13 +119,13 @@ export function CentralTaskRunner({
     outputLoggedForRun.current = runId;
     appendLine(
       setLines,
-      `[05] Projection prête: APY ${output.apy_range.low.toFixed(1)}% -> ${output.apy_range.high.toFixed(1)}%`,
+      `[05] Projection ready: APY ${output.apy_range.low.toFixed(1)}% -> ${output.apy_range.high.toFixed(1)}%`,
     );
     appendLine(
       setLines,
       `[06] Scores: risk=${output.risk_score.toFixed(0)} / mining=${output.mining_margin_score.toFixed(0)}`,
     );
-    appendLine(setLines, "[07] Assets centraux rendus: graphique NAV + panel allocation.");
+    appendLine(setLines, "[07] Central assets rendered: NAV chart + allocation panel.");
   }, [output, runId]);
 
   return (
@@ -187,19 +181,16 @@ export function CentralTaskRunner({
         </div>
 
         {stepItems.length > 0 ? (
-          <ol className="flex flex-col gap-(--ct-space-2)">
+          <ol className="scenario-central-flow-console__steps">
             {stepItems.map((step) => (
               <li
                 key={step.key}
                 data-state={step.isActive ? "pending" : "done"}
-                className={cn(
-                  "scenario-central-flow-line group transition-colors duration-(--ct-dur-fast)",
-                  "bg-transparent border border-[var(--ct-border-soft)]",
-                )}
+                className="scenario-central-flow-line"
               >
                 <span
                   className={cn(
-                    "mono body-xs mt-(--ct-space-0_5) inline-flex h-5 min-w-(--ct-space-8) items-center justify-center rounded-sm px-(--ct-space-1_5)",
+                    "mono body-xs scenario-central-flow-step-index",
                     step.isActive ? "ct-status-warning-bg ct-bc-warning animate-pulse" : "ct-pill",
                   )}
                 >
@@ -207,7 +198,7 @@ export function CentralTaskRunner({
                 </span>
                 <span
                   className={cn(
-                    "body-sm leading-relaxed transition-colors duration-(--ct-dur-fast)",
+                    "body-sm leading-relaxed",
                     step.isActive
                       ? "scenario-central-flow-pending ct-text-strong"
                       : "ct-text-body",

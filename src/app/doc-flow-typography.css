@@ -36,8 +36,15 @@
   color: var(--ct-text-body);
 }
 
-:is(.product-doc, .admin-doc) .stat-label {
+:is(.admin-doc, .product-doc) .stat-label {
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
   letter-spacing: var(--ct-tracking-wide);
+}
+
+/* Page header lead copy — sits below eyebrow/title with consistent inset */
+:is(.product-doc, .admin-doc)
+  :is(.admin-page-header, .product-page-header)
+  .body-md {
+  margin-top: var(--ct-space-1);
 }

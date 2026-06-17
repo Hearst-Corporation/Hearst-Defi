@@ -222,7 +222,7 @@
 .admin-doc .admin-doc-section {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4);
 }
 
 .admin-doc .admin-doc-section__head {
@@ -564,7 +564,7 @@
   min-width: 0;
   flex: 1;
   flex-direction: column;
-  gap: var(--ct-space-1);
+  gap: var(--ct-space-2);
 }
 
 .admin-doc .admin-page-header__actions {
@@ -577,7 +577,7 @@
 
 /* Pin action cluster to the H1 row when an eyebrow sits above the title */
 .admin-doc .admin-page-header__main:has(> .eyebrow) ~ .admin-page-header__actions {
-  margin-top: calc(var(--ct-space-2) + var(--ct-text-xs));
+  margin-top: var(--ct-page-header-actions-offset-eyebrow);
 }
 
 .admin-doc .admin-page-header__main:not(:has(> .eyebrow)) ~ .admin-page-header__actions {
@@ -1011,7 +1011,7 @@
 .product-doc .product-doc-section {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4);
 }
 
 .product-doc .product-doc-section__head {
@@ -1081,7 +1081,7 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: var(--ct-space-1);
+  gap: var(--ct-space-2);
 }
 
 .product-doc .product-page-header__title-stack--center {
@@ -1107,7 +1107,7 @@
     .product-page-header__title-stack > :first-child:not(.eyebrow)
   )
   ~ .product-page-header__actions {
-  margin-top: calc(var(--ct-space-8) + var(--ct-space-2) + var(--ct-space-1) + var(--ct-text-xs));
+  margin-top: var(--ct-page-header-actions-offset-lead);
 }
 
 .product-doc
@@ -1115,7 +1115,7 @@
     :has(.product-page-header__title-stack > :first-child:not(.eyebrow))
   )
   ~ .product-page-header__actions {
-  margin-top: calc(var(--ct-space-2) + var(--ct-text-xs));
+  margin-top: var(--ct-page-header-actions-offset-eyebrow);
 }
 
 /* 40rem = --ct-invest-flow-narrow — literal required for @container support */

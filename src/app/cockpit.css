@@ -138,6 +138,28 @@
   --ct-shadow-focus-ring: 0 0 0 3px color-mix(in srgb, var(--ct-accent) 28%, transparent);
   --ct-scrollbar-size: 6px;
 
+  /* Ambient shell overlay (`.ct-panels-row::after`) — calibration knobs only. */
+  --ct-ambient-glow-opacity: 0.82;
+  --ct-ambient-glow-mix-primary: 16%;
+  --ct-ambient-glow-mix-secondary: 12%;
+  --ct-ambient-glow-mix-fade-a: 6%;
+  --ct-ambient-glow-mix-fade-b: 4%;
+  --ct-ambient-glow-bg-top: 12%;
+  --ct-ambient-glow-bg-bottom: 28%;
+
+  /* Left rail — active item accent bar. */
+  --ct-rail-active-inset-y: 18%;
+  --ct-rail-active-bar-w: var(--ct-space-0_5);
+
+  /* Doc-flow page headers — action cluster vertical offset. */
+  --ct-page-header-actions-offset-eyebrow: calc(var(--ct-space-2) + var(--ct-text-micro));
+  --ct-page-header-actions-offset-lead: calc(
+    var(--ct-space-8) + var(--ct-space-2) + var(--ct-space-1) + var(--ct-text-micro)
+  );
+
+  /* Sticky roadmap phase band — frosted header over scroll. */
+  --ct-roadmap-phase-header-bg-mix: 88%;
+
   /* ── GLASS — canonical premium recipe (source of truth) ──
      One token set drives the `.ct-glass-panel` utility below; that class is the
      ONLY recipe new premium surfaces should use. Inline backdrop recipes in
@@ -208,10 +230,12 @@
   --ct-space-5: 1.125rem;   /* 18px */
   --ct-space-6: 1.25rem;    /* 20px */
   --ct-space-8: 1.5rem;     /* 24px */
+  --ct-space-9: 2.25rem;    /* 36px — mirrors Tailwind 9 */
   --ct-space-10: 2rem;      /* 32px */
   --ct-space-12: 2.5rem;    /* 40px */
   --ct-space-14: 3rem;      /* 48px */
   --ct-space-16: 3.5rem;    /* 56px */
+  --ct-space-20: 5rem;      /* 80px — mirrors Tailwind 20 */
   --ct-space-24: 4rem;      /* 64px */
   --ct-space-32: 7rem;      /* 112px — aligné --ct-rail-left */
 
@@ -905,6 +929,26 @@
   animation: ct-scenario-central-soft-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 
+.scenario-central-flow-step-index {
+  margin-top: var(--ct-space-0_5);
+  display: inline-flex;
+  height: var(--ct-space-6);
+  min-width: var(--ct-space-8);
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ct-radius-sm);
+  padding-inline: var(--ct-space-1_5);
+}
+
+.scenario-central-flow-console__steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
 .scenario-lab-input-card__header {
   flex: none;
   padding: var(--ct-space-4) var(--ct-space-5);
@@ -1241,6 +1285,18 @@
   min-width: 0;
 }
 
+.scene-placeholder-metrics__skeleton--label {
+  height: var(--ct-space-3);
+  width: var(--ct-space-20);
+}
+
+.scene-placeholder-metrics__skeleton--value {
+  margin-top: var(--ct-space-2);
+  height: var(--ct-space-9);
+  width: 100%;
+  max-width: var(--ct-space-32);
+}
+
 @container projection-shell (max-width: 41.999rem) {
   .scene-placeholder-metrics {
     grid-template-columns: 1fr;
@@ -1395,7 +1451,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--ct-space-2);
-  margin-bottom: var(--ct-space-5);
+  margin-bottom: var(--ct-space-4);
 }
 
 /* Hero KPI strip — dot-only provenance (no glass pill on --ct-bg-deep). */
@@ -2253,6 +2309,17 @@
 .ct-tracking-wider { letter-spacing: var(--ct-tracking-wider); }
 .ct-text-micro-size { font-size: var(--ct-text-micro); }
 .ct-text-xs-size { font-size: var(--ct-text-xs); }
+
+/* Icon size utilities — pair with Lucide / inline SVG. */
+.ct-icon-sm {
+  width: var(--ct-icon-sm);
+  height: var(--ct-icon-sm);
+  flex-shrink: 0;
+}
+
+.ct-icon-sm--offset-top {
+  margin-top: var(--ct-space-0_5);
+}
 .ct-overlay-surface0 { background-image: linear-gradient(to bottom right, var(--ct-surface-0), transparent); }
 .ct-overlay-accent5 { background-image: linear-gradient(to bottom right, color-mix(in srgb, var(--ct-accent) 5%, transparent), transparent); }
 .ct-bc-base { border-color: var(--ct-border); }
@@ -2391,7 +2458,7 @@
   z-index: var(--ct-z-raised);
   margin-bottom: var(--ct-space-1);
   padding: var(--ct-space-2) 0 var(--ct-space-3);
-  background: color-mix(in srgb, var(--ct-bg-deep) 88%, transparent);
+  background: color-mix(in srgb, var(--ct-bg-deep) var(--ct-roadmap-phase-header-bg-mix), transparent);
   backdrop-filter: var(--ct-blur-lg);
   -webkit-backdrop-filter: var(--ct-blur-lg);
 }
@@ -3014,22 +3081,22 @@ button.ct-seg-btn {
   background:
     radial-gradient(
       80% 60% at 50% 60%,
-      color-mix(in srgb, var(--ct-accent) 16%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 6%, transparent) 45%,
+      color-mix(in srgb, var(--ct-accent) var(--ct-ambient-glow-mix-primary), transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) var(--ct-ambient-glow-mix-fade-a), transparent) 45%,
       transparent 80%
     ),
     radial-gradient(
       120% 80% at 80% 20%,
-      color-mix(in srgb, var(--ct-accent) 12%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 4%, transparent) 55%,
+      color-mix(in srgb, var(--ct-accent) var(--ct-ambient-glow-mix-secondary), transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) var(--ct-ambient-glow-mix-fade-b), transparent) 55%,
       transparent 80%
     ),
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 12%, transparent) 0%,
-      color-mix(in srgb, var(--ct-bg-deep) 28%, transparent) 100%
+      color-mix(in srgb, var(--ct-bg-deep) var(--ct-ambient-glow-bg-top), transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) var(--ct-ambient-glow-bg-bottom), transparent) 100%
     );
-  opacity: 0.82;
+  opacity: var(--ct-ambient-glow-opacity);
   mix-blend-mode: soft-light;
 }
 
@@ -3165,9 +3232,9 @@ button.ct-seg-btn {
   content: "";
   position: absolute;
   left: 0;
-  top: 18%;
-  bottom: 18%;
-  width: 2px;
+  top: var(--ct-rail-active-inset-y);
+  bottom: var(--ct-rail-active-inset-y);
+  width: var(--ct-rail-active-bar-w);
   border-radius: var(--ct-radius-full);
   background: var(--ct-accent);
 }

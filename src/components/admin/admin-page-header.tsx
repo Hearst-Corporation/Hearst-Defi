@@ -32,8 +32,8 @@ export function AdminPageHeader({
       <div className="admin-page-header__row">
         <div className="admin-page-header__main">
           {lead}
-          {eyebrow ? <p className="eyebrow uppercase tracking-widest text-(--ct-text-faint)">{eyebrow}</p> : null}
-          <h1 className="h1 shrink-0 tracking-tight">{title}</h1>
+          {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
+          <h1 className="h1 shrink-0">{title}</h1>
           {description ? (
             <div className="body-md ct-prose-md ct-text-muted">{description}</div>
           ) : null}

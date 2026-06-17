@@ -63,7 +63,7 @@ export function ProductPageHeader({
             {description ? (
               <div
                 className={cn(
-                  "body-md mt-1 ct-prose-md ct-text-muted",
+                  "body-md ct-prose-md ct-text-muted",
                   centered && "mx-auto",
                 )}
               >

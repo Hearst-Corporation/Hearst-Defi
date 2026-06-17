@@ -129,7 +129,7 @@ export default async function ProductProofCenterPage({
         >
           {chainConfigured ? (
             <TriangleAlert
-              className="mt-0.5 h-4 w-4 shrink-0 ct-status-warning"
+              className="ct-icon-sm ct-icon-sm--offset-top ct-status-warning"
               aria-hidden
             />
           ) : null}
@@ -238,16 +238,16 @@ export default async function ProductProofCenterPage({
       </section>
 
       {/* ── Deployed contracts + audit trail ── */}
-      <section aria-labelledby="contracts-heading">
-        <h2 id="contracts-heading" className="h2 mb-4">
+      <section aria-labelledby="contracts-heading" className="product-doc-section">
+        <h2 id="contracts-heading" className="h2 m-0">
           Contracts &amp; review trail
         </h2>
         <ContractsAuditTrail platformAddresses={platformAddresses} />
       </section>
 
       {/* ── Governance timelocks ───────────────────────────── */}
-      <section aria-labelledby="timelock-heading">
-        <h2 id="timelock-heading" className="h2 mb-4">
+      <section aria-labelledby="timelock-heading" className="product-doc-section">
+        <h2 id="timelock-heading" className="h2 m-0">
           Pending governance timelocks
         </h2>
         {timelockProposals.length > 0 ? (
