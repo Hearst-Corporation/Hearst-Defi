@@ -466,10 +466,15 @@ async function runMasterAgentTurn(args: {
   userId: string;
   chatMode: ChatMode;
   navProfile: "lp" | "admin";
+  /** True when the authenticated user has the admin role — gates the product
+   *  workspace detection independently of the chat mode, so an admin in plain
+   *  Conversation mode still gets a product intent diverted to the workspace
+   *  (a LP never does). */
+  isAdmin: boolean;
   model: string;
   systemPrompt: string;
 }): Promise<Response> {
-  const { req, userId, chatMode, navProfile, model, systemPrompt } = args;
+  const { req, userId, chatMode, navProfile, isAdmin, model, systemPrompt } = args;
 
   let body: {
     chatId?: string | null;
@@ -552,8 +557,11 @@ async function runMasterAgentTurn(args: {
   const productWorkspaceNavEnabled = ADMIN_NAV_DESTINATIONS.some(
     (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
   );
+  // Gate on the admin ROLE, not the chat mode: an admin gets a product intent
+  // diverted to the workspace even from plain Conversation mode. A LP never
+  // reaches here for the workspace (the surface is admin-only).
   const productIntent =
-    navProfile === "admin" && productWorkspaceNavEnabled
+    isAdmin && productWorkspaceNavEnabled
       ? await classifyProductIntentLlm(
           openai as unknown as ClassifyClient,
           model,
@@ -565,7 +573,12 @@ async function runMasterAgentTurn(args: {
     const scenarioLabNavEnabled = ADMIN_NAV_DESTINATIONS.some(
       (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
     );
-    void publishNav(userId, {
+    // AWAIT the publish (do NOT fire-and-forget): the client bridge starts
+    // polling /api/chat-nav the moment it sees the answer, so the directive
+    // MUST be in the channel before we return the response — otherwise the
+    // first poll races ahead of the write and the page never opens. publishNav
+    // is best-effort internally (never throws), so awaiting it is safe.
+    await publishNav(userId, {
       destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
       ...(productIntent.objective ? { objective: productIntent.objective } : {}),
       autostart: true,
@@ -958,11 +971,22 @@ export async function POST(req: NextRequest): Promise<Response> {
     (chatMode === "normal" || chatMode === "admin")
   ) {
     const navProfile = chatMode === "admin" ? "admin" : "lp";
+    // Resolve the admin ROLE (not the chat mode) so an admin gets product-intent
+    // detection even from plain Conversation mode. getSession() is React-cache
+    // deduped (requireAuth already called it) → no extra DB round-trip.
+    let isAdmin = false;
+    try {
+      const session = await getSession();
+      isAdmin = session?.role === "admin";
+    } catch {
+      isAdmin = false; // safe default: no workspace divert
+    }
     return runMasterAgentTurn({
       req: sanitizedReq,
       userId,
       chatMode,
       navProfile,
+      isAdmin,
       model: resolveModel(requestedModel),
       systemPrompt: enrichedSystemPrompt,
     });

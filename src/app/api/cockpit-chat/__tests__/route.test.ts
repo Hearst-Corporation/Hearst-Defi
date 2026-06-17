@@ -82,6 +82,7 @@ vi.mock("@/lib/llm/classify-product-intent", () => ({
 
 import { POST } from "@/app/api/cockpit-chat/route";
 import { requireAuth } from "@/lib/auth/require-auth";
+import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { runChatAgent, type ChatTurnFinal } from "@/lib/llm/chat-agent";
 import { publishNav } from "@/lib/llm/nav-channel";
@@ -97,6 +98,7 @@ const mockNavTraceCreate = vi.mocked(prisma.navTrace.create);
 const mockRunChatAgent = vi.mocked(runChatAgent);
 const mockPublishNav = vi.mocked(publishNav);
 const mockClassify = vi.mocked(classifyProductIntentLlm);
+const mockGetSession = vi.mocked(getSession);
 
 /** Default: not a product intent (so most tests exercise the normal chat path). */
 function classifyNotProduct() {
@@ -187,6 +189,8 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
   beforeEach(() => {
     vi.clearAllMocks();
     classifyNotProduct();
+    // Product detection now gates on the admin ROLE, not the chat mode.
+    mockGetSession.mockResolvedValue({ role: "admin" } as never);
     mockRequireAuth.mockResolvedValue({ userId: USER_ID });
     mockAdminChatModeFindUnique.mockResolvedValue({
       mode: "admin",
