@@ -74,11 +74,18 @@ vi.mock("@/lib/llm/nav-channel", () => ({
   publishNav: vi.fn(),
 }));
 
+// Product-intent classification is now an LLM call; mock it so tests choose the
+// verdict deterministically (default: not a product intent → no short-circuit).
+vi.mock("@/lib/llm/classify-product-intent", () => ({
+  classifyProductIntentLlm: vi.fn(),
+}));
+
 import { POST } from "@/app/api/cockpit-chat/route";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { prisma } from "@/lib/db";
 import { runChatAgent, type ChatTurnFinal } from "@/lib/llm/chat-agent";
 import { publishNav } from "@/lib/llm/nav-channel";
+import { classifyProductIntentLlm } from "@/lib/llm/classify-product-intent";
 import { PRODUCT_WORKSPACE_DESTINATION_KEY } from "@/lib/llm/product-workspace-intent";
 
 const mockRequireAuth = vi.mocked(requireAuth);
@@ -89,6 +96,16 @@ const mockLlmRunCreate = vi.mocked(prisma.llmRun.create);
 const mockNavTraceCreate = vi.mocked(prisma.navTrace.create);
 const mockRunChatAgent = vi.mocked(runChatAgent);
 const mockPublishNav = vi.mocked(publishNav);
+const mockClassify = vi.mocked(classifyProductIntentLlm);
+
+/** Default: not a product intent (so most tests exercise the normal chat path). */
+function classifyNotProduct() {
+  mockClassify.mockResolvedValue({
+    isProductIntent: false,
+    kind: "none",
+    wantsSimulation: false,
+  });
+}
 
 async function readStreamText(res: Response): Promise<string> {
   if (!res.body) return "";
@@ -166,9 +183,10 @@ function mockMasterAgentTurnWithoutNav(finalOverride?: Partial<ChatTurnFinal>) {
   });
 }
 
-describe("POST /api/cockpit-chat — master agent nav publish", () => {
+describe("POST /api/cockpit-chat — admin product-intent classification + nav", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    classifyNotProduct();
     mockRequireAuth.mockResolvedValue({ userId: USER_ID });
     mockAdminChatModeFindUnique.mockResolvedValue({
       mode: "admin",
@@ -181,50 +199,46 @@ describe("POST /api/cockpit-chat — master agent nav publish", () => {
     mockPublishNav.mockResolvedValue(undefined);
   });
 
-  it("overrides model nav to Product Workspace on admin product creation intent", async () => {
-    mockMasterAgentTurn("admin-scenario-lab");
+  it("short-circuits when the LLM classifies a product intent: ack bubble, workspace nav, NO chat LLM call", async () => {
+    mockClassify.mockResolvedValue({
+      isProductIntent: true,
+      kind: "product_creation",
+      objective: "Monter un véhicule défensif",
+      wantsSimulation: false,
+    });
 
-    const res = await POST(makeChatRequest("Créer un nouveau produit Defensive"));
-
+    const res = await POST(makeChatRequest("monte-moi un truc défensif"));
     expect(res.status).toBe(200);
+
+    // Bubble shows ONLY the short fixed ack — the chat model never runs.
+    const body = await readStreamText(res);
+    expect(body).toContain("Product Workspace");
+    expect(mockRunChatAgent).not.toHaveBeenCalled();
+
     await vi.waitFor(() => {
       expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
         destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-        objective: "Créer un nouveau produit Defensive",
+        objective: "Monter un véhicule défensif",
         autostart: true,
         intentKind: "product_creation",
       });
     });
   });
 
-  it("overrides model nav to Product Workspace even when model picks admin vaults", async () => {
-    mockMasterAgentTurn("admin-vaults");
-
-    const res = await POST(makeChatRequest("Créer un nouveau produit Defensive"));
-
-    expect(res.status).toBe(200);
-    await vi.waitFor(() => {
-      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
-        destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-        objective: "Créer un nouveau produit Defensive",
-        autostart: true,
-        intentKind: "product_creation",
-      });
+  it("carries Scenario Lab as secondary metadata when the product intent also wants simulation", async () => {
+    mockClassify.mockResolvedValue({
+      isProductIntent: true,
+      kind: "mixed_product_creation_simulation",
+      objective: "Créer un vault BTC Plus et le stresser",
+      wantsSimulation: true,
     });
-  });
 
-  it("keeps Scenario Lab as secondary metadata for mixed product plus simulation intents", async () => {
-    mockMasterAgentTurn("admin-scenario-lab");
-
-    const res = await POST(
-      makeChatRequest("Créer un produit Defensive puis simuler un stress test"),
-    );
-
+    const res = await POST(makeChatRequest("fais un vault BTC plus et stress-teste-le"));
     expect(res.status).toBe(200);
     await vi.waitFor(() => {
       expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
         destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-        objective: "Créer un produit Defensive puis simuler un stress test",
+        objective: "Créer un vault BTC Plus et le stresser",
         autostart: true,
         intentKind: "mixed_product_creation_simulation",
         secondaryDestinationKey: "admin-scenario-lab",
@@ -233,74 +247,8 @@ describe("POST /api/cockpit-chat — master agent nav publish", () => {
     });
   });
 
-  it("publishes Product Workspace fallback when admin creation intent has no navigate tool call", async () => {
-    mockMasterAgentTurnWithoutNav();
-
-    const res = await POST(makeChatRequest("Créer un nouveau vault Defensive"));
-
-    expect(res.status).toBe(200);
-    await vi.waitFor(() => {
-      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
-        destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-        objective: "Créer un nouveau vault Defensive",
-        autostart: true,
-        intentKind: "product_creation",
-      });
-    });
-  });
-
-  it("publishes model destination for explicit simulation requests", async () => {
-    mockMasterAgentTurn("admin-scenario-lab");
-
-    const res = await POST(makeChatRequest("simuler un scénario BTC bear"));
-
-    expect(res.status).toBe(200);
-    await vi.waitFor(() => {
-      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
-        destinationKey: "admin-scenario-lab",
-      });
-    });
-  });
-
-  it("publishes Scenario Lab fallback when a standalone simulation intent has no navigate tool call", async () => {
-    mockMasterAgentTurnWithoutNav();
-
-    const res = await POST(makeChatRequest("simuler un stress test BTC bear"));
-
-    expect(res.status).toBe(200);
-    await vi.waitFor(() => {
-      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
-        destinationKey: "admin-scenario-lab",
-      });
-    });
-  });
-
-  it("short-circuits a product intent: bubble shows the ack, nav opens the workspace, no chat LLM call", async () => {
-    // The chat must NOT run the model on a product intent — the workspace
-    // generates the brief itself. If runChatAgent is called the test fails.
-    const res = await POST(makeChatRequest("Créer un nouveau vault Defensive"));
-    expect(res.status).toBe(200);
-
-    // The bubble shows ONLY the short fixed ack.
-    const body = await readStreamText(res);
-    expect(body).toContain("Product Workspace");
-    expect(body).not.toContain("Hypothèses");
-
-    // No chat-side LLM turn ran on this path.
-    expect(mockRunChatAgent).not.toHaveBeenCalled();
-
-    // The workspace nav directive is published so the bridge opens the chamber.
-    await vi.waitFor(() => {
-      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
-        destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-        objective: "Créer un nouveau vault Defensive",
-        autostart: true,
-        intentKind: "product_creation",
-      });
-    });
-  });
-
-  it("does NOT short-circuit a plain admin question — normal answer streams to the bubble", async () => {
+  it("does NOT short-circuit when the LLM says it is not a product intent — normal chat answer", async () => {
+    classifyNotProduct();
     mockMasterAgentTurnWithoutNav({ text: "Le runbook a 5 étapes." });
 
     const res = await POST(makeChatRequest("explique le runbook de déploiement"));
@@ -311,11 +259,38 @@ describe("POST /api/cockpit-chat — master agent nav publish", () => {
     expect(mockRunChatAgent).toHaveBeenCalled();
     await vi.waitFor(() => expect(mockLlmRunCreate).toHaveBeenCalled());
   });
+
+  it("publishes the model's own destination on a non-product navigation", async () => {
+    classifyNotProduct();
+    mockMasterAgentTurn("admin-dashboard");
+
+    const res = await POST(makeChatRequest("montre le dashboard admin"));
+    expect(res.status).toBe(200);
+    await vi.waitFor(() => {
+      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+        destinationKey: "admin-dashboard",
+      });
+    });
+  });
+
+  it("falls back to Scenario Lab for a standalone simulation answered in plain text", async () => {
+    classifyNotProduct();
+    mockMasterAgentTurnWithoutNav();
+
+    const res = await POST(makeChatRequest("simuler un stress test BTC bear"));
+    expect(res.status).toBe(200);
+    await vi.waitFor(() => {
+      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+        destinationKey: "admin-scenario-lab",
+      });
+    });
+  });
 });
 
 describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    classifyNotProduct();
     mockRequireAuth.mockResolvedValue({ userId: USER_ID });
     mockAdminChatModeFindUnique.mockResolvedValue({
       mode: "normal",
@@ -404,6 +379,7 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
 describe("POST /api/cockpit-chat — navigate tracing (OBS-02)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    classifyNotProduct();
     mockRequireAuth.mockResolvedValue({ userId: USER_ID });
     mockAdminChatModeFindUnique.mockResolvedValue({
       mode: "normal",

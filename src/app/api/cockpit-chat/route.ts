@@ -41,11 +41,14 @@ import { publishNav } from "@/lib/llm/nav-channel";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { ADMIN_NAV_DESTINATIONS } from "@/lib/llm/navigate-tool";
 import {
-  classifyProductWorkspaceIntent,
+  isExplicitSimulationIntent,
   PRODUCT_WORKSPACE_DESTINATION_KEY,
   SCENARIO_LAB_DESTINATION_KEY,
-  resolveMasterAgentNavPublish,
 } from "@/lib/llm/product-workspace-intent";
+import {
+  classifyProductIntentLlm,
+  type ClassifyClient,
+} from "@/lib/llm/classify-product-intent";
 import { withProductChatStreamEvents } from "@/lib/llm/product-chat-stream";
 
 const REVIEW_FACILITATOR_PROMPT = buildFacilitatorPrompt({ productContext: PRODUCT_CONTEXT });
@@ -537,32 +540,47 @@ async function runMasterAgentTurn(args: {
   // interface to the full SDK type would couple the agent to the SDK.
 
   // Admin product creation/framing intent → SHORT-CIRCUIT the chat LLM entirely.
-  // The chat bubble shows only a fixed ack, the bridge opens the Product
-  // Workspace, and the workspace itself generates + streams the framing brief
-  // live (POST /api/admin/product-workspace/brief). Generating a brief here too
-  // would be a wasted second LLM call, so we don't run runChatAgent at all on
-  // this path — we just publish the nav directive and persist the ack.
-  const productWorkspaceIntent = classifyProductWorkspaceIntent(message);
-  const divertToWorkspace =
-    navProfile === "admin" && productWorkspaceIntent.shouldOpenProductWorkspace;
-
-  if (divertToWorkspace) {
-    const productWorkspaceNavEnabled = ADMIN_NAV_DESTINATIONS.some(
-      (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
-    );
-    if (productWorkspaceNavEnabled) {
-      void publishNav(
-        userId,
-        resolveMasterAgentNavPublish({
-          navProfile,
+  // The bubble shows only a fixed ack, the bridge opens the Product Workspace,
+  // and the workspace itself generates + streams the framing brief live (POST
+  // /api/admin/product-workspace/brief).
+  //
+  // Intent detection is an LLM classification (not a keyword regex): any phrasing
+  // of "create/frame a product" — even indirect — is recognized. It is FAIL-SAFE
+  // (a classifier error returns not-a-product-intent), so a hiccup degrades to a
+  // normal conversational answer rather than breaking the chat. Admin-only: the
+  // workspace is an admin surface, so we never spend a classification call on LP.
+  const productWorkspaceNavEnabled = ADMIN_NAV_DESTINATIONS.some(
+    (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
+  );
+  const productIntent =
+    navProfile === "admin" && productWorkspaceNavEnabled
+      ? await classifyProductIntentLlm(
+          openai as unknown as ClassifyClient,
+          model,
           message,
-          modelDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-          productWorkspaceNavEnabled,
-        }),
-      ).catch(() => {
-        /* best-effort nav publish */
-      });
-    }
+        )
+      : null;
+
+  if (productIntent?.isProductIntent) {
+    const scenarioLabNavEnabled = ADMIN_NAV_DESTINATIONS.some(
+      (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
+    );
+    void publishNav(userId, {
+      destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
+      ...(productIntent.objective ? { objective: productIntent.objective } : {}),
+      autostart: true,
+      intentKind: productIntent.kind,
+      // Carry Scenario Lab as secondary metadata when the same message also
+      // asked to simulate, so the workspace can surface that next step.
+      ...(productIntent.wantsSimulation && scenarioLabNavEnabled
+        ? {
+            secondaryDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
+            secondaryHint: "Scenario Lab validation requested",
+          }
+        : {}),
+    }).catch(() => {
+      /* best-effort nav publish */
+    });
     if (chatId) {
       void persistence
         .saveMessage(chatId, {
@@ -636,70 +654,31 @@ async function runMasterAgentTurn(args: {
       /* tracing/persistence must never break the response */
     });
 
-  // Publish the chosen navigation destination for the client bridge.
+  // Publish the chosen navigation destination for the client bridge. NOTE: a
+  // PRODUCT intent never reaches here — it was classified (LLM) and
+  // short-circuited above. So this path only publishes the model's own chosen
+  // destination, plus a fallback to Scenario Lab for a standalone simulation
+  // intent the model answered in plain text without a navigate tool call.
   void nav
     .then(async (dest) => {
-      const productWorkspaceNavEnabled = ADMIN_NAV_DESTINATIONS.some(
-        (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
-      );
-      const productWorkspaceIntent = classifyProductWorkspaceIntent(message);
-
       if (dest) {
-        const directive = resolveMasterAgentNavPublish({
-          navProfile,
-          message,
-          modelDestinationKey: dest.key,
-          productWorkspaceNavEnabled,
-        });
-        await publishNav(userId, directive);
+        await publishNav(userId, { destinationKey: dest.key });
         return;
       }
 
-      // Fallback: for admin product-creation/framing intents, still open the
-      // Product Workspace even if the model answered in plain text and never
-      // emitted a `navigate` tool call.
-      if (
-        navProfile === "admin" &&
-        productWorkspaceNavEnabled &&
-        productWorkspaceIntent.shouldOpenProductWorkspace
-      ) {
-        await publishNav(
-          userId,
-          resolveMasterAgentNavPublish({
-            navProfile,
-            message,
-            modelDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-            productWorkspaceNavEnabled,
-          }),
-        );
-        return;
-      }
-
-      // Fallback: for a STANDALONE simulation intent ("simuler un scénario…")
-      // open Scenario Lab even when the model answered in plain text and never
-      // emitted a `navigate` tool call. Scoped to admin + a pure simulation
-      // (not a product intent — those already open the workspace above, with
-      // Scenario Lab carried as secondary metadata), so it mirrors the
-      // product-workspace fallback instead of leaving simulation nav dependent
-      // on the model emitting a tool call.
+      // Fallback: a standalone simulation intent ("simuler un scénario…") opens
+      // Scenario Lab even when the model answered in plain text and emitted no
+      // navigate tool call. Simulation detection stays a lightweight keyword
+      // match (unchanged) — only the PRODUCT intent moved to LLM classification.
       const scenarioLabNavEnabled = ADMIN_NAV_DESTINATIONS.some(
         (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
       );
       if (
         navProfile === "admin" &&
         scenarioLabNavEnabled &&
-        productWorkspaceIntent.shouldOpenScenarioLab &&
-        !productWorkspaceIntent.shouldOpenProductWorkspace
+        isExplicitSimulationIntent(message)
       ) {
-        await publishNav(
-          userId,
-          resolveMasterAgentNavPublish({
-            navProfile,
-            message,
-            modelDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
-            productWorkspaceNavEnabled,
-          }),
-        );
+        await publishNav(userId, { destinationKey: SCENARIO_LAB_DESTINATION_KEY });
       }
     })
     .catch(() => {
