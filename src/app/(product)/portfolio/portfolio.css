@@ -688,6 +688,9 @@
 
 .pf-trust-compact__see-more {
   margin-top: auto;
+  align-self: flex-end;
+  width: auto;
+  flex-shrink: 0;
 }
 
 

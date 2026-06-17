@@ -170,7 +170,7 @@ export function TrustProofCompact(props: TrustPanelProps) {
         variant="secondary"
         size="sm"
         disabled
-        className="pf-trust-compact__see-more w-full"
+        className="pf-trust-compact__see-more"
         aria-label="Full trust detail — coming soon"
         title="Detailed trust view coming soon"
       >
