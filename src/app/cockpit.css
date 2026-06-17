@@ -2925,22 +2925,22 @@ button.ct-seg-btn {
    intégré pour garder cartes / texte / KPI au-dessus du fond. */
 .ct-panels-row {
   position: relative;
-  background-color: var(--ct-bg-deep);
+  background-color: transparent; /* Élimine le fond opaque à la base */
   background-image:
     /* 1. vignette noire — assombrit les bords, pousse le centre au fond (profondeur).
           (Grain feTurbulence retiré 2026-06-16 : il pixellisait le fond.) */
     radial-gradient(
       135% 125% at 50% 44%,
       transparent 26%,
-      color-mix(in srgb, var(--ct-bg-deep) 38%, transparent) 64%,
-      color-mix(in srgb, var(--ct-bg-deep) 70%, transparent) 100%
+      color-mix(in srgb, var(--ct-bg-deep) 20%, transparent) 64%,
+      color-mix(in srgb, var(--ct-bg-deep) 50%, transparent) 100%
     ),
     /* 2. base verticale noire (haut sombre → bas profond) */
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 24%, transparent) 0%,
+      color-mix(in srgb, var(--ct-bg-deep) 10%, transparent) 0%,
       transparent 42%,
-      color-mix(in srgb, var(--ct-bg-deep) 30%, transparent) 100%
+      color-mix(in srgb, var(--ct-bg-deep) 20%, transparent) 100%
     );
   /* bg-deep n'est plus opaque : l'image (::before) doit transparaître. */
   background-color: transparent;
@@ -2955,14 +2955,21 @@ button.ct-seg-btn {
 .ct-panels-row::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -10%; /* Débordement pour animation */
   z-index: -1;
   pointer-events: none;
-  background-image: url("/backgrounds/hearst-vision-institutional.png");
+  /* background-image retiré en attendant la vraie image runway-bg-5-data-center-grid.png */
   background-size: cover;
-  background-position: center bottom;
+  background-position: center;
   background-repeat: no-repeat;
-  filter: brightness(0.75);
+  filter: brightness(0.6) blur(5px);
+  animation: vision-float-row 40s ease-in-out infinite alternate;
+}
+
+@keyframes vision-float-row {
+  0% { transform: scale(1) translate(0, 0); }
+  50% { transform: scale(1.05) translate(1%, 2%); }
+  100% { transform: scale(1) translate(-1%, -1%); }
 }
 
 .ct-panels-row::after {
@@ -2971,20 +2978,18 @@ button.ct-seg-btn {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  /* Nappes lumineuses d'origine (a8d4c4f) — halo vert diffus + voile blanc
-     cinématographique + base verticale douce. C'est ce qui donnait la
-     respiration premium ; le drap noir plat l'avait tuée. */
+  /* Effets de lueurs ambiantes vertes plus intenses (Spatial Computing glow) */
   background:
     radial-gradient(
-      70% 50% at 50% 75%,
-      color-mix(in srgb, var(--ct-accent) 10%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 3%, transparent) 55%,
+      80% 60% at 50% 60%,
+      color-mix(in srgb, var(--ct-accent) 20%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 8%, transparent) 45%,
       transparent 80%
     ),
     radial-gradient(
-      80% 60% at 50% 42%,
-      color-mix(in srgb, white 8%, transparent) 0%,
-      color-mix(in srgb, white 2%, transparent) 55%,
+      120% 80% at 80% 20%,
+      color-mix(in srgb, var(--ct-accent) 15%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 5%, transparent) 55%,
       transparent 80%
     ),
     linear-gradient(
@@ -2992,8 +2997,8 @@ button.ct-seg-btn {
       color-mix(in srgb, var(--ct-bg-deep) 12%, transparent) 0%,
       color-mix(in srgb, var(--ct-bg-deep) 28%, transparent) 100%
     );
-  opacity: 0.72;
-  mix-blend-mode: normal;
+  opacity: 1; /* Transparence retirée pour faire ressortir le vert */
+  mix-blend-mode: screen; /* Fait exploser les couleurs claires (glow) par-dessus l'image de fond */
 }
 
 /* Le dashboard reçoit la MÊME lumière de fond que les pages produit (PNG +
