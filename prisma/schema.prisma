@@ -1028,3 +1028,91 @@ model HubSpotSync {
 
   @@index([userId, kind, sourceId])
 }
+
+// =============================================================================
+// OUTREACH — cold prospects, campaigns, tracked emails, newsletters
+// =============================================================================
+//
+// Admin-driven outreach: prospects entered by hand (single or pasted list),
+// campaigns whose emails are drafted by the email-outreach agent and approved
+// by an admin (no autonomous send — ADR-012), sent via Resend with open/click/
+// bounce tracking ingested from Resend webhooks.
+
+model OutreachProspect {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  firstName        String?
+  lastName         String?
+  company          String?
+  title            String?
+  source           String   @default("manual") // manual | csv | import
+  status           String   @default("new") // new | contacted | opened | replied | qualified | converted | opted_out | bounced
+  tags             String? // JSON array of strings
+  notes            String?
+  hubspotContactId String?
+  createdBy        String // admin User.id
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  emails OutreachEmail[]
+
+  @@index([status])
+  @@index([email])
+}
+
+model OutreachCampaign {
+  id              String   @id @default(cuid())
+  name            String
+  kind            String   @default("cold") // cold | newsletter
+  status          String   @default("draft") // draft | review | sending | sent
+  fromEmail       String? // override; default = OUTREACH_FROM env
+  subjectTemplate String?
+  bodyTemplate    String? // base brief handed to the agent
+  includeTypeform Boolean  @default(true)
+  createdBy       String
+  createdAt       DateTime @default(now())
+  sentAt          DateTime?
+
+  emails OutreachEmail[]
+
+  @@index([status])
+  @@index([kind])
+}
+
+// One row per (campaign, recipient). Recipient is a prospect (cold) OR a User
+// (newsletter). resendEmailId correlates Resend webhook events back to the row.
+model OutreachEmail {
+  id             String   @id @default(cuid())
+  campaignId     String
+  campaign       OutreachCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  prospectId     String? // cold path
+  prospect       OutreachProspect? @relation(fields: [prospectId], references: [id], onDelete: SetNull)
+  userId         String? // newsletter path (existing User.id)
+  toEmail        String
+  subject        String
+  body           String
+  status         String   @default("draft") // draft | approved | sent | delivered | opened | clicked | bounced | failed
+  resendEmailId  String?  @unique // Resend email id for webhook correlation
+  draftedByAgent Boolean  @default(false)
+  approvedAt     DateTime?
+  sentAt         DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  events OutreachEmailEvent[]
+
+  @@index([campaignId, status])
+  @@index([toEmail])
+}
+
+model OutreachEmailEvent {
+  id         String   @id @default(cuid())
+  emailId    String
+  email      OutreachEmail @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  type       String // delivered | opened | clicked | bounced | complained
+  url        String? // for clicked
+  occurredAt DateTime @default(now())
+  raw        Json?
+
+  @@index([emailId, type])
+}

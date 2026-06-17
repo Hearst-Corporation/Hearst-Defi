@@ -145,6 +145,7 @@ function makeProfile(
     language: "fr",
     verbosity: null,
     customInstructions: null,
+    templateId: null,
     createdAt: new Date("2026-05-21T00:00:00Z"),
     updatedAt: new Date("2026-05-21T00:00:00Z"),
     ...overrides,

@@ -27,8 +27,8 @@ vi.mock("@/lib/db", () => ({
   prisma: {},
 }));
 
-import { buildUserContextSystemBlock } from "@/lib/agents/user-context";
-import type { UserAgentProfile } from "@prisma/client";
+import { buildUserContextSystemBlock, mergeProfileWithTemplate } from "@/lib/agents/user-context";
+import type { AgentTemplate, UserAgentProfile } from "@prisma/client";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -43,6 +43,25 @@ function makeProfile(overrides: Partial<UserAgentProfile> = {}): UserAgentProfil
     language: null,
     verbosity: null,
     customInstructions: null,
+    templateId: null,
+    createdAt: new Date("2026-05-21T00:00:00Z"),
+    updatedAt: new Date("2026-05-21T00:00:00Z"),
+    ...overrides,
+  };
+}
+
+function makeTemplate(overrides: Partial<AgentTemplate> = {}): AgentTemplate {
+  return {
+    id: "tpl-1",
+    slug: "lp-fr",
+    label: "LP FR",
+    description: null,
+    baseAgent: "cockpit-chat",
+    tone: "detailed",
+    language: "fr",
+    verbosity: "high",
+    systemAdditions: "Registre institutionnel feutré.",
+    archived: false,
     createdAt: new Date("2026-05-21T00:00:00Z"),
     updatedAt: new Date("2026-05-21T00:00:00Z"),
     ...overrides,
@@ -196,6 +215,33 @@ describe("buildUserContextSystemBlock", () => {
       customInstructions: "Focus on APY range details and mining metrics.",
     });
     expect(() => buildUserContextSystemBlock({ profile, memory: "" })).not.toThrow();
+  });
+
+  it("inherits template defaults when instance fields are null", () => {
+    const merged = mergeProfileWithTemplate({
+      ...makeProfile({
+        templateId: "tpl-1",
+      }),
+      template: makeTemplate(),
+    });
+    expect(merged.tone).toBe("detailed");
+    expect(merged.language).toBe("fr");
+    expect(merged.customInstructions).toBe("Registre institutionnel feutré.");
+  });
+
+  it("instance overrides win over template defaults", () => {
+    const merged = mergeProfileWithTemplate({
+      ...makeProfile({
+        tone: "concise",
+        language: "en",
+        customInstructions: "Override tone only.",
+        templateId: "tpl-1",
+      }),
+      template: makeTemplate({ systemAdditions: "Template instructions." }),
+    });
+    expect(merged.tone).toBe("concise");
+    expect(merged.language).toBe("en");
+    expect(merged.customInstructions).toBe("Override tone only.");
   });
 
   // ---------------------------------------------------------------------------
