@@ -1431,7 +1431,6 @@
   --dashboard-hero-min-height-wide: 14.5rem;
   --dashboard-orbit-stroke-track: 1.5;
   --dashboard-orbit-stroke-segment: 2;
-  --dashboard-orbit-stroke-mining: 2.5;
 }
 
 .dashboard-page-header .admin-page-header__main {
@@ -2071,20 +2070,6 @@
     stroke-dashoffset var(--ct-dur-slow) var(--ct-ease);
 }
 
-.dashboard-orbit__svg .dashboard-orbit__segment--mining {
-  stroke-width: var(--dashboard-orbit-stroke-mining);
-}
-
-/* Idle / zero allocation — neutral awaiting shell. */
-.dashboard-orbit__ring--idle {
-  position: absolute;
-  inset: 0.25rem;
-  border-radius: var(--ct-radius-full);
-  background: conic-gradient(var(--ct-surface-3) 0% 100%);
-  mask: radial-gradient(circle at center, transparent 54%, black 70%, transparent 71%);
-  -webkit-mask: radial-gradient(circle at center, transparent 54%, black 70%, transparent 71%);
-}
-
 .dashboard-orbit__core {
   position: absolute;
   inset: 26%;
@@ -2139,7 +2124,6 @@
   height: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
   background: currentColor;
-  box-shadow: var(--ct-glow-dot);
 }
 
 .dashboard-orbit__legend li > :nth-child(2) {
@@ -2290,6 +2274,18 @@
   flex: 1 1 auto;
   min-height: 8rem;
   flex-direction: column;
+}
+
+.dashboard-nav-bars__caption {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  pointer-events: none;
+  text-align: center;
 }
 
 .dashboard-nav-bars__bars {

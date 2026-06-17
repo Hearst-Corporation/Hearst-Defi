@@ -3,6 +3,12 @@ import type { NavPoint } from "@/lib/data/dashboard";
 /** Minimum NAV points before the bar chart renders (matches `nav-slot` placeholder). */
 export const MIN_NAV_CHART_POINTS = 2;
 
+/** Bar count for the muted NAV shell (matches `--dashboard-nav-bar-count`). */
+export const NAV_CHART_SHELL_BAR_COUNT = 30;
+
+/** Axis placeholders shown under the muted NAV shell. */
+export const NAV_PLACEHOLDER_MONTH_LABELS = ["—", "—", "—", "—", "—", "—"] as const;
+
 export interface NavBarSlice {
   date: string;
   aum_usdc: number;
@@ -17,6 +23,22 @@ const NAV_MONTH_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
 
 /** Neutral mid-line when NAV is flat across the window. */
 const FLAT_HEIGHT_PCT = 50;
+
+/**
+ * Deterministic ghost bar heights for the muted NAV shell.
+ * Not tied to real NAV — only preserves chart architecture when data is absent.
+ */
+export function navPlaceholderBarHeights(
+  count: number = NAV_CHART_SHELL_BAR_COUNT,
+): number[] {
+  if (count < 1) return [];
+  if (count === 1) return [40];
+
+  return Array.from({ length: count }, (_, index) => {
+    const t = index / (count - 1);
+    return Math.round(24 + Math.sin(t * Math.PI * 1.6) * 14 + t * 22);
+  });
+}
 
 /**
  * Maps NAV points to bar heights. Heights are scaled from **change vs period

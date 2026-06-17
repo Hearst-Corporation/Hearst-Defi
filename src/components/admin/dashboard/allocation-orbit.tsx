@@ -1,4 +1,3 @@
-import { useId } from "react";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import { allocationLabelFor, allocationStrokeFor } from "@/lib/allocation-colors";
@@ -9,13 +8,7 @@ import type { DashboardAllocation } from "@/lib/data/dashboard";
  * Premium SVG Donut Chart for Capital Allocation.
  * Uses a 100-unit circumference circle (r=15.9155) for easy percentage mapping.
  */
-function SvgDonut({
-  allocations,
-  glowFilterId,
-}: {
-  allocations: DashboardAllocation[];
-  glowFilterId: string;
-}) {
+function SvgDonut({ allocations }: { allocations: DashboardAllocation[] }) {
   const radius = 15.915494309189533;
   const circumference = 100;
 
@@ -31,13 +24,6 @@ function SvgDonut({
 
   return (
     <svg viewBox="0 0 42 42" className="dashboard-orbit__svg" aria-hidden="true">
-      <defs>
-        <filter id={glowFilterId} x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="1.5" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-      </defs>
-
       {/* Background track */}
       <circle
         className="dashboard-orbit__track"
@@ -51,16 +37,11 @@ function SvgDonut({
       {/* Segments */}
       {segments.map(({ item, strokeDashoffset }) => {
         const strokeDasharray = `${item.pct} ${circumference - item.pct}`;
-        const isMining = item.bucket === "mining";
 
         return (
           <circle
             key={item.bucket}
-            className={
-              isMining
-                ? "dashboard-orbit__segment dashboard-orbit__segment--mining"
-                : "dashboard-orbit__segment"
-            }
+            className="dashboard-orbit__segment"
             cx="21"
             cy="21"
             r={radius}
@@ -69,7 +50,6 @@ function SvgDonut({
             strokeDasharray={strokeDasharray}
             strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
-            filter={isMining ? `url(#${glowFilterId})` : undefined}
             style={{ transformOrigin: "center" }}
           />
         );
@@ -90,7 +70,6 @@ export function AllocationOrbit({
   provenance: Provenance;
 }) {
   const isEmpty = allocationTotal <= 0;
-  const miningGlowId = useId().replace(/:/g, "");
 
   return (
     <div
@@ -105,11 +84,7 @@ export function AllocationOrbit({
       />
       <div className="dashboard-orbit">
         <div className="dashboard-orbit__visual">
-          {isEmpty ? (
-            <div className="dashboard-orbit__ring dashboard-orbit__ring--idle" aria-hidden />
-          ) : (
-            <SvgDonut allocations={allocations} glowFilterId={`mining-glow-${miningGlowId}`} />
-          )}
+          <SvgDonut allocations={allocations} />
           <div className="dashboard-orbit__core">
             <span>AUM</span>
             <strong className="tabular">

@@ -4,7 +4,10 @@ import { dashboardUsdCompact, dashboardUsdFull } from "@/lib/admin/dashboard-for
 import {
   computeNavBarHeights,
   MIN_NAV_CHART_POINTS,
+  NAV_CHART_SHELL_BAR_COUNT,
+  NAV_PLACEHOLDER_MONTH_LABELS,
   navBarChartAriaLabel,
+  navPlaceholderBarHeights,
   resolveNavMonthLabels,
 } from "@/lib/admin/nav-bar-chart";
 import { cn } from "@/lib/cn";
@@ -58,16 +61,90 @@ export function NavSlot({
   );
 }
 
+interface NavBarSliceView {
+  key: string;
+  heightPct: number;
+  label?: string;
+}
+
+function NavBarChartShell({
+  barCount,
+  slices,
+  monthLabels,
+  muted,
+  ariaLabel,
+  caption,
+}: {
+  barCount: number;
+  slices: NavBarSliceView[];
+  monthLabels: readonly string[] | null;
+  muted: boolean;
+  ariaLabel: string;
+  caption?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "dashboard-nav-bars",
+        monthLabels && "dashboard-nav-bars--monthly",
+        muted && "dashboard-nav-bars--muted",
+      )}
+      style={{ "--dashboard-nav-bar-count": String(barCount) } as React.CSSProperties}
+      role="img"
+      aria-label={ariaLabel}
+    >
+      <div className="dashboard-nav-bars__plot">
+        <div className="dashboard-nav-bars__grid" aria-hidden>
+          <span />
+          <span />
+          <span />
+        </div>
+        <div className="dashboard-nav-bars__bars" role="list">
+          {slices.map((slice) => (
+            <div key={slice.key} className="dashboard-nav-bars__cell" role="listitem">
+              <div
+                className="dashboard-nav-bars__bar"
+                style={{ height: `${slice.heightPct}%` }}
+                tabIndex={slice.label ? 0 : undefined}
+                aria-label={slice.label}
+                title={slice.label}
+                aria-hidden={slice.label ? undefined : true}
+              />
+            </div>
+          ))}
+        </div>
+        {caption ? (
+          <p className="dashboard-nav-bars__caption body-sm ct-text-faint m-0">{caption}</p>
+        ) : null}
+      </div>
+      {monthLabels ? (
+        <div className="dashboard-nav-bars__months" aria-hidden>
+          {monthLabels.map((label, index) => (
+            <span key={`${label}-${index}`}>{label}</span>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function NavBarChart({ points, muted = false }: { points: NavPoint[]; muted?: boolean }) {
   if (muted) {
+    const placeholderHeights = navPlaceholderBarHeights(NAV_CHART_SHELL_BAR_COUNT);
+    const slices = placeholderHeights.map((heightPct, index) => ({
+      key: `placeholder-${index}`,
+      heightPct,
+    }));
+
     return (
-      <div
-        className="dashboard-nav-bars dashboard-nav-bars--muted flex items-center justify-center"
-        role="img"
-        aria-label="NAV trend — awaiting data"
-      >
-        <span className="body-sm ct-text-faint">No trend data available</span>
-      </div>
+      <NavBarChartShell
+        barCount={NAV_CHART_SHELL_BAR_COUNT}
+        slices={slices}
+        monthLabels={NAV_PLACEHOLDER_MONTH_LABELS}
+        muted
+        ariaLabel="NAV trend — awaiting data"
+        caption="No trend data available"
+      />
     );
   }
 
@@ -80,42 +157,12 @@ function NavBarChart({ points, muted = false }: { points: NavPoint[]; muted?: bo
   const monthLabels = resolveNavMonthLabels(points);
 
   return (
-    <div
-      className={cn(
-        "dashboard-nav-bars",
-        monthLabels && "dashboard-nav-bars--monthly",
-      )}
-      style={{ "--dashboard-nav-bar-count": String(activeSlices.length) } as React.CSSProperties}
-      role="img"
-      aria-label={navBarChartAriaLabel(points)}
-    >
-      <div className="dashboard-nav-bars__plot">
-        <div className="dashboard-nav-bars__grid" aria-hidden>
-          <span />
-          <span />
-          <span />
-        </div>
-        <div className="dashboard-nav-bars__bars" role="list">
-          {activeSlices.map((slice) => (
-            <div key={slice.key} className="dashboard-nav-bars__cell" role="listitem">
-              <div
-                className="dashboard-nav-bars__bar"
-                style={{ height: `${slice.heightPct}%` }}
-                tabIndex={0}
-                aria-label={slice.label}
-                title={slice.label}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-      {monthLabels ? (
-        <div className="dashboard-nav-bars__months" aria-hidden>
-          {monthLabels.map((label, index) => (
-            <span key={`${label}-${index}`}>{label}</span>
-          ))}
-        </div>
-      ) : null}
-    </div>
+    <NavBarChartShell
+      barCount={activeSlices.length}
+      slices={activeSlices}
+      monthLabels={monthLabels}
+      muted={false}
+      ariaLabel={navBarChartAriaLabel(points)}
+    />
   );
 }

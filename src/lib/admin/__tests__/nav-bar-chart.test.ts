@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   computeNavBarHeights,
   navBarChartAriaLabel,
+  navPlaceholderBarHeights,
+  NAV_CHART_SHELL_BAR_COUNT,
   resolveNavMonthLabels,
 } from "@/lib/admin/nav-bar-chart";
 import type { NavPoint } from "@/lib/data/dashboard";
@@ -103,5 +105,14 @@ describe("resolveNavMonthLabels", () => {
 
   it("returns null when there are not enough points for an axis", () => {
     expect(resolveNavMonthLabels(pts([["2026-05-01", 1]]))).toBeNull();
+  });
+});
+
+describe("navPlaceholderBarHeights", () => {
+  it("returns the default shell bar count with deterministic heights", () => {
+    const heights = navPlaceholderBarHeights();
+    expect(heights).toHaveLength(NAV_CHART_SHELL_BAR_COUNT);
+    expect(heights.every((height) => height >= 10 && height <= 100)).toBe(true);
+    expect(navPlaceholderBarHeights()).toEqual(heights);
   });
 });

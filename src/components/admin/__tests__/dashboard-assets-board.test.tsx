@@ -257,6 +257,8 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).toContain("All clear — no operator actions queued.");
     expect(html).toContain("No vault telemetry yet.");
     expect(html).toContain("No admin activity recorded yet.");
+    expect(html).toContain("No trend data available");
+    expect(html).toContain("dashboard-nav-bars__grid");
   });
 
 
