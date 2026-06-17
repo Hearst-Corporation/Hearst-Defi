@@ -2,13 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   resolveCapitalProvenance,
-  resolveDashboardDataNotice,
   resolveDashboardPageInputs,
   resolveHeadlineApy,
   resolveYieldPosture,
 } from "@/lib/admin/dashboard-page-view";
 import type { AdminOverview } from "@/lib/data/admin-overview";
-import type { CockpitPayload } from "@/lib/data/cockpit";
 import type { DashboardData } from "@/lib/data/dashboard";
 import { isLiveTimelineSource } from "@/lib/data/timeline-snapshot";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
@@ -22,8 +20,6 @@ const RISK: RiskFrameworkData = {
 };
 
 const OVERVIEW: AdminOverview = {
-  actions: [],
-  totalActionRequired: 0,
   proof: {
     lastMiningAttestationAt: null,
     miningFreshness: "stale",
@@ -85,99 +81,6 @@ function makeData(overrides: Partial<DashboardData> = {}): DashboardData {
     ...overrides,
   };
 }
-
-const COCKPIT_EMPTY: CockpitPayload = {
-  actionQueue: [],
-  vaultMetrics: [],
-  inngestJobs: [],
-  sentryStats: { errors24h: 0, warnings24h: 0 },
-  onChainEvents: [],
-  auditTrail: [],
-};
-
-describe("resolveDashboardDataNotice", () => {
-  it("returns preview notice for livePreview vaults", () => {
-    expect(
-      resolveDashboardDataNotice(
-        makeData({
-          vaultMeta: {
-            id: "defensive",
-            name: "Hearst Defensive Vault",
-            apyTarget: { low: 5, high: 8 },
-            allocationTargets: {
-              mining: 20,
-              btc_tactical: 10,
-              usdc_base: 35,
-              stable_reserve: 35,
-            },
-            assumptions: ["Not guaranteed."],
-            livePreview: true,
-          },
-        }),
-        OVERVIEW,
-        COCKPIT_EMPTY,
-        false,
-        true,
-      ),
-    ).toEqual({
-      kind: "preview",
-      vaultName: "Hearst Defensive Vault",
-    });
-  });
-
-  it("returns staging notice for daily-seed snapshots", () => {
-    expect(
-      resolveDashboardDataNotice(
-        makeData({
-          hasTimelineSnapshot: true,
-          latestSnapshotSource: "daily-seed",
-          hasLiveTimelineSnapshot: false,
-        }),
-        OVERVIEW,
-        COCKPIT_EMPTY,
-        false,
-        false,
-      ),
-    ).toEqual({
-      kind: "staging",
-      snapshotSource: "daily-seed",
-    });
-  });
-
-  it("returns mixed-platform notice when ops data exists without live vault KPIs", () => {
-    expect(
-      resolveDashboardDataNotice(
-        makeData({
-          hasTimelineSnapshot: false,
-          latestSnapshotSource: null,
-          hasLiveTimelineSnapshot: false,
-        }),
-        {
-          ...OVERVIEW,
-          proof: { ...OVERVIEW.proof, attestationsCount: 1 },
-        },
-        COCKPIT_EMPTY,
-        false,
-        false,
-      ),
-    ).toMatchObject({
-      kind: "mixed-platform",
-      vaultName: "Hearst Yield Vault",
-    });
-  });
-
-  it("returns null when live KPIs are active", () => {
-    expect(
-      resolveDashboardDataNotice(
-        makeData({ hasLiveTimelineSnapshot: true }),
-        OVERVIEW,
-        COCKPIT_EMPTY,
-        true,
-        false,
-      ),
-    ).toBeNull();
-  });
-});
 
 describe("resolveHeadlineApy", () => {
   const vaultApy = { low: 9.4, high: 12.8 };

@@ -1,60 +1,7 @@
 import type { Provenance } from "@/components/ui/provenance-badge";
 import type { AdminOverview } from "@/lib/data/admin-overview";
-import type { CockpitPayload } from "@/lib/data/cockpit";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
-
-export type DashboardDataNotice =
-  | { kind: "preview"; vaultName: string }
-  | { kind: "staging"; snapshotSource: string }
-  | { kind: "mixed-platform"; vaultName: string };
-
-function hasPlatformWideSignals(
-  data: DashboardData,
-  overview: AdminOverview,
-  cockpit: CockpitPayload,
-): boolean {
-  return (
-    overview.proof.attestationsCount > 0 ||
-    overview.proof.proofsTotal > 0 ||
-    data.latestDistribution !== null ||
-    cockpit.actionQueue.length > 0 ||
-    overview.totalActionRequired > 0 ||
-    cockpit.auditTrail.length > 0
-  );
-}
-
-/** Page-level honesty banner — shown above the command board when data planes diverge. */
-export function resolveDashboardDataNotice(
-  data: DashboardData,
-  overview: AdminOverview,
-  cockpit: CockpitPayload,
-  hasLiveKpis: boolean,
-  preview: boolean,
-): DashboardDataNotice | null {
-  if (preview) {
-    return {
-      kind: "preview",
-      vaultName: data.vaultMeta.name,
-    };
-  }
-
-  if (data.hasTimelineSnapshot && !data.hasLiveTimelineSnapshot) {
-    return {
-      kind: "staging",
-      snapshotSource: data.latestSnapshotSource ?? "unknown",
-    };
-  }
-
-  if (!hasLiveKpis && hasPlatformWideSignals(data, overview, cockpit)) {
-    return {
-      kind: "mixed-platform",
-      vaultName: data.vaultMeta.name,
-    };
-  }
-
-  return null;
-}
 
 export function resolveYieldPosture(
   headlineApy: { low: number; high: number } | null,
