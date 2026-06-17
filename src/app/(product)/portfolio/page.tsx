@@ -81,7 +81,11 @@ export default async function PortfolioPage() {
 
   return (
     <div
-      className={cn("pf-container", previewZeros && "pf-container--zero")}
+      className={cn(
+        "pf-container",
+        "pf-container--fit",
+        previewZeros && "pf-container--zero",
+      )}
       data-testid="portfolio-page"
     >
       {demo ? (
