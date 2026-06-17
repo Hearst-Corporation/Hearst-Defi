@@ -78,10 +78,10 @@ export function RecentActivity({
   const asOf = new Date();
 
   return (
-    <PfCockpitPanel variant="wide" aria-label="Recent account activity">
+    <PfCockpitPanel variant="wide" aria-label="Recent account activity" className="h-full">
       <PfCockpitPanelHeader title="Recent activity" provenance={provenance} />
 
-      <div className="pf-recent-activity-list">
+      <div className="pf-recent-activity-list flex-1">
           {displayed.length === 0 ? (
             <PanelStatus
               className="pf-recent-activity-empty"

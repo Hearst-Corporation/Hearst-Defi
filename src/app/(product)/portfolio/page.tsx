@@ -207,7 +207,7 @@ export default async function PortfolioPage() {
           data-section="activity-payouts"
         >
           <div className="pf-activity-grid">
-            <div data-testid="recent-activity-widget">
+            <div className="pf-activity-grid__cell" data-testid="recent-activity-widget">
               <RecentActivity
                 transactions={data.recentTransactions}
                 source={data.source}
@@ -215,7 +215,11 @@ export default async function PortfolioPage() {
                 previewZeros={previewZeros}
               />
             </div>
-            <div data-section="yield-trust" data-testid="trust-panel-widget">
+            <div
+              className="pf-activity-grid__cell"
+              data-section="yield-trust"
+              data-testid="trust-panel-widget"
+            >
               <TrustProofCompact
                 risk={riskPulseProps}
                 proof={previewZeros ? zeroProofPulseProps(previewAsOf) : proofPulseProps}

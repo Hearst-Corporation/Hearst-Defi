@@ -45,10 +45,13 @@ export default function PortfolioLoading() {
           data-section="activity-payouts"
         >
           <div className="pf-activity-grid">
-            <div className="pf-skeleton-widget--md">
-              <Skeleton className="pf-cockpit-panel w-full" />
+            <div className="pf-activity-grid__cell pf-skeleton-widget--md">
+              <Skeleton className="pf-cockpit-panel w-full h-full" />
             </div>
-            <div className="pf-skeleton-widget--sm" data-section="yield-trust">
+            <div
+              className="pf-activity-grid__cell pf-skeleton-widget--sm"
+              data-section="yield-trust"
+            >
               <Skeleton className="pf-cockpit-panel w-full h-full" />
             </div>
           </div>

@@ -39,6 +39,7 @@ describe("TrustProofCompact", () => {
     expect(html).toContain("Trust &amp; proof");
     expect(html).toContain("Risk composite");
     expect(html).toContain("Proof status");
+    expect(html).toContain("pf-trust-compact-kpis");
     expect(html).toContain("See more");
     expect(html).toContain("disabled");
     expect(html).not.toContain("Security audit");

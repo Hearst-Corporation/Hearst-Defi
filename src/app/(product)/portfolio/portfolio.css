@@ -647,16 +647,29 @@
   align-items: stretch;
 }
 
+.pf-activity-grid__cell {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  align-self: stretch;
+}
+
+.pf-activity-grid__cell > .pf-cockpit-panel {
+  flex: 1;
+  min-height: 100%;
+}
+
 .pf-trust-compact {
   min-height: 100%;
 }
 
 .pf-trust-compact-kpis {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ct-space-3);
   flex: 1;
   margin: 0;
+  align-content: start;
 }
 
 .pf-trust-compact-kpi {
@@ -1087,10 +1100,6 @@
   min-height: 14rem;
 }
 
-.pf-container--zero [data-testid="trust-panel-widget"] .pf-cockpit-panel {
-  min-height: 15rem;
-}
-
 .pf-container--zero [data-testid="recent-activity-widget"] .pf-cockpit-panel,
 .pf-container--zero [data-testid="distrib-calendar-widget"] .pf-cockpit-panel {
   justify-content: space-between;
@@ -1129,12 +1138,6 @@
     var(--ct-graphite-border-nested) 82%,
     transparent
   );
-}
-
-/* Activity — content-sized columns (no cross-column stretch) */
-.pf-activity-grid > * {
-  min-height: auto;
-  align-self: start;
 }
 
 .pf-container [data-testid="distrib-calendar-widget"] .pf-cockpit-panel {
