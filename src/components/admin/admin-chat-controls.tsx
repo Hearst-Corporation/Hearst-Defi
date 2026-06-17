@@ -71,27 +71,50 @@ const AGENT_CAPABILITY_STORAGE_KEY = "cockpit:agent-capability-tests";
 
 const AGENT_STATUS_META: Record<
   AgentCapabilityTestStatus,
-  { label: string; chipClassName: string; buttonClassName: string }
+  {
+    label: string;
+    chipClassName: string;
+    buttonClassName: string;
+    cardClassName: string;
+    dotClassName: string;
+  }
 > = {
   untested: {
     label: "Untested",
-    chipClassName: "border-(--ct-border-soft) ct-text-muted",
-    buttonClassName: "border-(--ct-border-soft) ct-text-muted",
+    chipClassName: "border-(--ct-border-soft) bg-white/3 ct-text-muted",
+    buttonClassName: "border-(--ct-border-soft) bg-white/3 ct-text-muted",
+    cardClassName: "border-(--ct-border-soft) bg-white/2",
+    dotClassName: "bg-(--ct-border-soft)",
   },
   red: {
     label: "Red",
-    chipClassName: "border-(--ct-status-danger) ct-status-danger",
-    buttonClassName: "border-(--ct-status-danger) ct-status-danger",
+    chipClassName:
+      "border-(--ct-status-danger) bg-[color:color-mix(in_srgb,var(--ct-status-danger)_14%,transparent)] ct-status-danger",
+    buttonClassName:
+      "border-(--ct-status-danger) bg-[color:color-mix(in_srgb,var(--ct-status-danger)_12%,transparent)] ct-status-danger",
+    cardClassName:
+      "border-(--ct-status-danger) bg-[color:color-mix(in_srgb,var(--ct-status-danger)_8%,transparent)]",
+    dotClassName: "bg-(--ct-status-danger)",
   },
   orange: {
     label: "Orange",
-    chipClassName: "border-(--ct-status-warning) text-[color:var(--ct-status-warning)]",
-    buttonClassName: "border-(--ct-status-warning) text-[color:var(--ct-status-warning)]",
+    chipClassName:
+      "border-(--ct-status-warning) bg-[color:color-mix(in_srgb,var(--ct-status-warning)_14%,transparent)] text-[color:var(--ct-status-warning)]",
+    buttonClassName:
+      "border-(--ct-status-warning) bg-[color:color-mix(in_srgb,var(--ct-status-warning)_10%,transparent)] text-[color:var(--ct-status-warning)]",
+    cardClassName:
+      "border-(--ct-status-warning) bg-[color:color-mix(in_srgb,var(--ct-status-warning)_7%,transparent)]",
+    dotClassName: "bg-(--ct-status-warning)",
   },
   green: {
     label: "Green",
-    chipClassName: "border-(--ct-accent) ct-status-success",
-    buttonClassName: "border-(--ct-accent) ct-status-success",
+    chipClassName:
+      "border-(--ct-accent) bg-[color:color-mix(in_srgb,var(--ct-accent)_12%,transparent)] ct-status-success",
+    buttonClassName:
+      "border-(--ct-accent) bg-[color:color-mix(in_srgb,var(--ct-accent)_10%,transparent)] ct-status-success",
+    cardClassName:
+      "border-(--ct-accent) bg-[color:color-mix(in_srgb,var(--ct-accent)_6%,transparent)]",
+    dotClassName: "bg-(--ct-accent)",
   },
 };
 
@@ -1362,16 +1385,7 @@ export function AdminChatControls() {
             orange = proche, vert = validé.
           </p>
           <div className="admin-doc-stack admin-doc-stack--tight rounded-lg border border-(--ct-border-soft) p-3">
-            <div className="grid grid-cols-[minmax(0,2.2fr)_7rem_8rem_minmax(0,1.5fr)_minmax(0,1.6fr)_minmax(13rem,1fr)_minmax(14rem,1.1fr)] gap-3 px-3 py-2 body-xs ct-text-faint max-xl:hidden">
-              <div>Capacité</div>
-              <div>Mode</div>
-              <div>Type</div>
-              <div>Prompt de test</div>
-              <div>Critère de succès</div>
-              <div>Statut</div>
-              <div>Notes</div>
-            </div>
-            <div className="admin-doc-stack admin-doc-stack--tight">
+            <div className="grid gap-3 xl:grid-cols-2">
               {AGENT_CAPABILITY_DEFINITIONS.map((capability) => {
                 const entry = capabilityState[capability.id];
                 const status = entry?.status ?? "untested";
@@ -1425,66 +1439,96 @@ function AgentCapabilityRow({
   onStatusChange: (capabilityId: string, status: AgentCapabilityTestStatus) => void;
   onNoteChange: (capabilityId: string, note: string) => void;
 }) {
+  const statusMeta = AGENT_STATUS_META[status];
   return (
-    <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1/40 px-3 py-3">
-      <div className="grid gap-3 xl:grid-cols-[minmax(0,2.2fr)_7rem_8rem_minmax(0,1.5fr)_minmax(0,1.6fr)_minmax(13rem,1fr)_minmax(14rem,1.1fr)]">
-        <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
-          <div className="body-sm ct-text-strong">{capability.label}</div>
-          <div className="body-xs ct-text-muted">{capability.description}</div>
-        </div>
-        <div className="admin-doc-stack admin-doc-stack--tight">
-          <div className="body-[10px] uppercase tracking-wide ct-text-faint xl:hidden">
-            Mode
-          </div>
-          <div className="body-xs ct-text-strong uppercase">{capability.mode}</div>
-        </div>
-        <div className="admin-doc-stack admin-doc-stack--tight">
-          <div className="body-[10px] uppercase tracking-wide ct-text-faint xl:hidden">
-            Type
-          </div>
-          <div className="body-xs ct-text-muted uppercase">{capability.kind}</div>
-        </div>
-        <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
-          <div className="body-[10px] uppercase tracking-wide ct-text-faint xl:hidden">
-            Prompt de test
-          </div>
-          <div className="rounded-md ct-surface-1 px-2 py-2 body-xs ct-text-primary whitespace-pre-wrap wrap-break-word">
-            {capability.testPrompt}
-          </div>
-        </div>
-        <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
-          <div className="body-[10px] uppercase tracking-wide ct-text-faint xl:hidden">
-            Critère de succès
-          </div>
-          <div className="body-xs ct-text-muted">{capability.successCriteria}</div>
-        </div>
-        <div className="admin-doc-stack admin-doc-stack--tight">
-          <div className="body-[10px] uppercase tracking-wide ct-text-faint xl:hidden">
-            Statut
-          </div>
-          <div className="flex min-w-48 flex-wrap gap-2">
-            {(["red", "orange", "green", "untested"] as const).map((candidate) => (
-              <button
-                key={candidate}
-                type="button"
-                onClick={() => onStatusChange(capability.id, candidate)}
+    <section
+      className={cn(
+        "rounded-xl border px-4 py-4 shadow-(--ct-shadow-inner-soft)",
+        "transition-colors",
+        statusMeta.cardClassName,
+      )}
+      aria-label={capability.label}
+    >
+      <div className="admin-doc-stack admin-doc-stack--tight">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
+            <div className="flex items-center gap-2">
+              <span
                 className={cn(
-                  "rounded-full border px-2 py-1 body-xs transition-colors",
-                  AGENT_STATUS_META[candidate].buttonClassName,
-                  status === candidate
-                    ? "ct-surface-1 shadow-(--ct-shadow-inner-soft)"
-                    : "opacity-(--ct-opacity-70) hover:opacity-100",
+                  "inline-block h-2.5 w-2.5 rounded-full",
+                  statusMeta.dotClassName,
                 )}
-              >
-                {AGENT_STATUS_META[candidate].label}
-              </button>
-            ))}
+                aria-hidden="true"
+              />
+              <h3 className="body-sm ct-text-strong m-0">{capability.label}</h3>
+            </div>
+            <p className="body-xs ct-text-muted m-0">{capability.description}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-(--ct-border-soft) bg-white/3 px-2 py-1 body-xs uppercase ct-text-faint">
+              {capability.mode}
+            </span>
+            <span className="rounded-full border border-(--ct-border-soft) bg-white/3 px-2 py-1 body-xs uppercase ct-text-faint">
+              {capability.kind}
+            </span>
+            <span
+              className={cn(
+                "rounded-full border px-2 py-1 body-xs",
+                statusMeta.chipClassName,
+              )}
+            >
+              {statusMeta.label}
+            </span>
           </div>
         </div>
-        <div className="admin-doc-stack admin-doc-stack--tight">
-          <div className="body-[10px] uppercase tracking-wide ct-text-faint xl:hidden">
-            Notes
+
+        <div className="grid gap-3 xl:grid-cols-2">
+          <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
+            <div className="body-[10px] uppercase tracking-wide ct-text-faint">
+              Prompt de test
+            </div>
+            <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1 px-3 py-2 body-xs ct-text-primary whitespace-pre-wrap wrap-break-word">
+              {capability.testPrompt}
+            </div>
           </div>
+          <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
+            <div className="body-[10px] uppercase tracking-wide ct-text-faint">
+              Critère de succès
+            </div>
+            <div className="rounded-lg border border-(--ct-border-soft) bg-white/2 px-3 py-2 body-xs ct-text-muted">
+              {capability.successCriteria}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-3 xl:grid-cols-[minmax(14rem,auto)_minmax(0,1fr)]">
+          <div className="admin-doc-stack admin-doc-stack--tight">
+            <div className="body-[10px] uppercase tracking-wide ct-text-faint">
+              Statut
+            </div>
+            <div className="flex min-w-48 flex-wrap gap-2">
+              {(["red", "orange", "green", "untested"] as const).map((candidate) => (
+                <button
+                  key={candidate}
+                  type="button"
+                  onClick={() => onStatusChange(capability.id, candidate)}
+                  className={cn(
+                    "rounded-full border px-2 py-1 body-xs transition-colors",
+                    AGENT_STATUS_META[candidate].buttonClassName,
+                    status === candidate
+                      ? "ring-1 ring-white/18 shadow-(--ct-shadow-inner-soft)"
+                      : "opacity-(--ct-opacity-70) hover:opacity-100",
+                  )}
+                >
+                  {AGENT_STATUS_META[candidate].label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="admin-doc-stack admin-doc-stack--tight">
+            <div className="body-[10px] uppercase tracking-wide ct-text-faint">
+              Notes
+            </div>
           <textarea
             value={note}
             onChange={(event) => onNoteChange(capability.id, event.target.value)}
@@ -1493,8 +1537,9 @@ function AgentCapabilityRow({
             placeholder="Observations de test manuel"
             aria-label={`Notes pour ${capability.label}`}
           />
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
