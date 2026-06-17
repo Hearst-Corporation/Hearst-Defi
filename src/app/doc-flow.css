@@ -1296,7 +1296,7 @@
 /* Remove the outer visual surface — keep layout only.
    Override --cap max-width: the cockpit center panel constrains width already.
    Centered narrow box inside a padded area reads as a framed document. */
-.product-doc .invest-flow-shell--workspace.product-doc-shell {
+.product-doc .invest-flow-shell--workspace {
   gap: 0;
   max-width: none;
   margin-inline: 0;

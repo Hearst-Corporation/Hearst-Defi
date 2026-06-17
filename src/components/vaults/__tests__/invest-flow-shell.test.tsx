@@ -41,8 +41,8 @@ describe("InvestFlowShell width", () => {
         <p>body</p>
       </InvestFlowShell>,
     );
-    expect(html).toContain("product-doc-shell");
     expect(html).not.toContain("product-doc-shell--cap");
     expect(html).not.toContain("product-doc-shell--narrow");
+    expect(html).toContain("invest-flow-shell");
   });
 });

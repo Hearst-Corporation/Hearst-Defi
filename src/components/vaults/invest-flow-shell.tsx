@@ -48,7 +48,7 @@ export function InvestFlowShell({
   return (
     <div
       className={cn(
-        "invest-flow-shell product-doc-shell",
+        "invest-flow-shell",
         width === "cap" && "product-doc-shell--cap",
         width === "narrow" && "product-doc-shell--narrow",
         workspace && "invest-flow-shell--workspace",

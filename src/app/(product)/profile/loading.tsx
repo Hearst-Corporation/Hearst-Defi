@@ -5,7 +5,7 @@ import { Skeleton, SkeletonCard } from "@/components/ui/skeleton";
 export default function ProfileLoading() {
   return (
     <div
-      className="prof-shell product-doc-shell animate-in fade-in duration-[var(--ct-dur-slower)]"
+      className="prof-shell animate-in fade-in duration-(--ct-dur-slower)"
       aria-busy="true"
       aria-label="Loading profile"
     >

@@ -2,8 +2,8 @@
  * Profile — standard grid layout. Card material: ct-glass-panel graphite
  * (cockpit.css). Empty investment summary: ct-empty-surface (DS §9).
  *
- * Responsive: container queries on .prof-shell (centre panel width), aligned with
- * product-doc invest-flow + portfolio pf-container — not ad-hoc viewport caps.
+ * Responsive: container queries on the surrounding `.product-doc` layout scope,
+ * aligned with invest-flow and `pf-container` instead of ad-hoc viewport caps.
  */
 
 /* ── Profile grid: 2 cards top row, security card full-width ── */
