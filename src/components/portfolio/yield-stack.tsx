@@ -187,7 +187,7 @@ export function YieldStack({
         })}
       </div>
 
-      <hr className="my-2 border-0 border-t border-[var(--ct-border-soft)]" aria-hidden />
+      <hr className="my-[var(--ct-space-2)] border-0 border-t border-[var(--ct-border-soft)]" aria-hidden />
 
       <dl className="pf-stack--dense">
           {/* Blended forward range */}

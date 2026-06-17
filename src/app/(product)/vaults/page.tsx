@@ -39,7 +39,7 @@ export default async function VaultsPage() {
           the product list is the section body directly under the page thesis. */}
       <section aria-label="Available products">
         {demo ? (
-          <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-4" />
+          <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-[var(--ct-space-4)]" />
         ) : null}
         {vaults.length === 0 ? (
           <AwaitingMetricState

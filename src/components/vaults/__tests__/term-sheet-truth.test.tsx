@@ -54,8 +54,8 @@ describe("TermSheetPreview — truthful institutional claims", () => {
     expect(html).toContain("Indicative");
   });
 
-  it("C-13 — displays the Model B one-liner verbatim on the LP surface", () => {
-    expect(html).toContain(
+  it("does not surface the Model B one-liner above the allocation grid (legal footer carries disclosure)", () => {
+    expect(html).not.toContain(
       "Principal held in a USDC cash reserve — not deployed on-chain; yield is a monthly mining-revenue-share distribution.",
     );
   });
@@ -136,8 +136,8 @@ describe("TermSheetPreview — workspace surface (served at /vaults/[id])", () =
     );
   });
 
-  it("C-13 — displays the Model B one-liner verbatim on the LP surface", () => {
-    expect(htmlWorkspace).toContain(
+  it("does not surface the Model B one-liner above the allocation grid (legal footer carries disclosure)", () => {
+    expect(htmlWorkspace).not.toContain(
       "Principal held in a USDC cash reserve — not deployed on-chain; yield is a monthly mining-revenue-share distribution.",
     );
   });

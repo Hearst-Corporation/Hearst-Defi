@@ -24,8 +24,10 @@ les agents interdits ne committent pas dans ce périmètre. Respecter le **STOP*
   jamais se reposer sur le layout parent.
 - **Source unique de l'identité signer admin** : toujours dérivée serveur via `admin.walletAddress ?? admin.userId`
   (cf. `src/app/admin/customers/actions.ts`, `src/app/admin/signals/actions.ts`) — **jamais** fournie par le client.
+- **Staging chirurgical only.** `git add <chemins exacts>` du lot ; jamais `-A`/`-u`/`.`.
+  `pnpm commit:check` doit montrer un index **mono-domaine** avant tout commit (cf. `docs/DO_NOT_TOUCH.md`).
 
-## 7 règles d'escalade
+## 8 règles d'escalade
 
 1. **DO_NOT_TOUCH** atteint → **STOP dur**, signaler, ne pas contourner.
 2. **Édition deux-owners** (page + actions, ou `cockpit.css` + CSS de page, ou engine + output-guard) →
@@ -36,6 +38,8 @@ les agents interdits ne committent pas dans ce périmètre. Respecter le **STOP*
 5. **Build / CSP / migration** → **étape discrète Build-Steward**, isolée, jamais en passager.
 6. **Contracts / mainnet** → **hors-scope** (gate audit Spearbit, ADR-006) — testnet Base Sepolia uniquement.
 7. **Doc périmée / gap connu** → **reporter, ne pas agir**.
+8. **Fichier d'un autre owner / zone sensible dans l'index** → **STOP**, `git restore --staged`,
+   ne jamais committer le travail d'autrui « au passage » (staging chirurgical, cf. DO_NOT_TOUCH).
 
 ## Validation par domaine
 

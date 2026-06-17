@@ -185,6 +185,25 @@ const serverEnvSchema = z.object({
   // regardless of allowlist membership (used by the seed + integration tests
   // that sign with the mock Anvil key).
   ATTESTATION_DEV_ACCEPT_ANY: z.string().optional(),
+  // Typeform — HMAC secret for webhook signature verification (X-Hub-Signature).
+  // Required at runtime when the Typeform webhook endpoint is active.
+  TYPEFORM_WEBHOOK_SECRET: z.string().optional(),
+  // HubSpot — HMAC secret for inbound webhook signature verification.
+  // Required at runtime when the HubSpot webhook endpoint is active.
+  HUBSPOT_WEBHOOK_SECRET: z.string().optional(),
+  // Resend — HMAC secret for inbound webhook signature verification (delivery
+  // events, bounces, complaints). Distinct from RESEND_API_KEY (send-side).
+  RESEND_WEBHOOK_SECRET: z.string().optional(),
+  // On-chain publisher private key — 0x-prefixed 64-hex (32 bytes, secp256k1).
+  // Used server-side to sign attestations / publish on-chain events.
+  // Never expose in NEXT_PUBLIC_* vars or the client bundle.
+  HEARST_PUBLISHER_PRIVATE_KEY: z
+    .string()
+    .regex(
+      /^0x[0-9a-fA-F]{64}$/,
+      "HEARST_PUBLISHER_PRIVATE_KEY must be a 0x-prefixed 64-hex secp256k1 private key",
+    )
+    .optional(),
 });
 
 type ServerEnv = z.infer<typeof serverEnvSchema>;

@@ -10,6 +10,7 @@ import { isDuplicate, markComplete } from "@/lib/idempotency";
 import { writeHearstEvent } from "@/lib/chain/event-logger";
 import { DISTRIBUTION_EVENTS } from "@/lib/distribution/events";
 import type { DistributionExecutedPayload } from "@/lib/distribution/events";
+import { buildEmailWrapper } from "@/lib/email/html-shell";
 
 // ---------------------------------------------------------------------------
 // JOB-6: Zod schema for DistributionExecutedPayload — validates at handler
@@ -71,19 +72,19 @@ async function sendDistributionEmail(
     to: [to],
     subject: `Hearst Connect — Distribution for ${data.period}`,
     html: `
-      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#0a0a0a;color:#e5e7eb;border-radius:12px;">
-        <h2 style="color:var(--ct-accent);font-size:20px;margin:0 0 16px;">Distribution processed</h2>
+      ${buildEmailWrapper(`
+        <h2 style="color:#A7FB90;font-size:20px;margin:0 0 16px;">Distribution processed</h2>
         <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#9ca3af;">
           Your distribution for period <strong style="color:#e5e7eb;">${data.period}</strong> has been processed.
         </p>
         <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#9ca3af;">
-          Amount: <strong style="color:var(--ct-accent);">$${formattedAmount} USDC</strong>
+          Amount: <strong style="color:#A7FB90;">$${formattedAmount} USDC</strong>
         </p>
         <p style="margin:0;font-size:12px;color:#6b7280;">
           This is a notification only. Past distributions are not indicative of future results.
           Outputs are not guaranteed.
         </p>
-      </div>
+      `)}
     `,
   });
 

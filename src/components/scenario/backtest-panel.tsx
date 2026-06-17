@@ -36,7 +36,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
       <div className="admin-doc-kpi-grid-2">
         {/* Total Return */}
         <Card>
-          <div className="mb-2 admin-doc-inline-row admin-doc-inline-row--between">
+          <div className="mb-[var(--ct-space-2)] admin-doc-inline-row admin-doc-inline-row--between">
             <p className="stat-label">Total Return</p>
             <ProvenanceBadge kind="estimated" />
           </div>
@@ -56,7 +56,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
 
         {/* Max Drawdown */}
         <Card>
-          <div className="mb-2 admin-doc-inline-row admin-doc-inline-row--between">
+          <div className="mb-[var(--ct-space-2)] admin-doc-inline-row admin-doc-inline-row--between">
             <p className="stat-label">Max Drawdown</p>
             <ProvenanceBadge kind="estimated" />
           </div>
@@ -68,7 +68,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
 
         {/* Worst Month */}
         <Card>
-          <div className="mb-2 admin-doc-inline-row admin-doc-inline-row--between">
+          <div className="mb-[var(--ct-space-2)] admin-doc-inline-row admin-doc-inline-row--between">
             <p className="stat-label">Worst Month</p>
             <ProvenanceBadge kind="estimated" />
           </div>
@@ -82,7 +82,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
 
         {/* Rebalances */}
         <Card>
-          <div className="mb-2 admin-doc-inline-row admin-doc-inline-row--between">
+          <div className="mb-[var(--ct-space-2)] admin-doc-inline-row admin-doc-inline-row--between">
             <p className="stat-label">Rebalances</p>
             <ProvenanceBadge kind="estimated" />
           </div>
@@ -97,7 +97,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
 
       {/* ── Section 2: Monthly chart ─────────────────────────────────────── */}
       <Card>
-        <CardHeader className="mb-4">
+        <CardHeader className="mb-[var(--ct-space-4)]">
           <CardTitle>Monthly Vault Value</CardTitle>
           <span className="stat-label">USDC</span>
         </CardHeader>
@@ -121,14 +121,14 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
 
       {/* ── Section 4: Assumptions ───────────────────────────────────────── */}
       <Card>
-        <CardHeader className="mb-4">
+        <CardHeader className="mb-[var(--ct-space-4)]">
           <CardTitle>Assumptions</CardTitle>
         </CardHeader>
         <AssumptionsList assumptions={output.assumptions} />
       </Card>
 
       {/* ── Disclaimer ───────────────────────────────────────────────────── */}
-      <p className="border-t border-[var(--ct-border-soft)] pt-4 body-xs italic ct-text-muted">
+      <p className="border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-4)] body-xs italic ct-text-muted">
         <span className="font-semibold not-italic ct-text-body">
           Not guaranteed.
         </span>{" "}

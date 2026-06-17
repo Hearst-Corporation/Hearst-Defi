@@ -151,7 +151,7 @@ export function ChatNavBridge() {
       aria-live="polite"
       className={cn(
         "fixed bottom-4 left-1/2 z-50 -translate-x-1/2",
-        "flex items-center gap-3 rounded-full px-4 py-2",
+        "flex items-center gap-[var(--ct-space-3)] rounded-full px-[var(--ct-space-4)] py-[var(--ct-space-2)]",
         "ct-surface-1 ct-text-primary",
         "shadow-(--ct-shadow-elevated)",
         "border border-(--ct-border)",
@@ -167,14 +167,14 @@ export function ChatNavBridge() {
       <button
         type="button"
         onClick={goNow}
-        className="rounded-full bg-(--ct-accent) px-3 py-1 body-xs font-medium ct-text-on-accent"
+        className="rounded-full bg-(--ct-accent) px-[var(--ct-space-3)] py-1 body-xs font-medium ct-text-on-accent"
       >
         {pending.protected ? "Ouvrir" : "Maintenant"}
       </button>
       <button
         type="button"
         onClick={cancel}
-        className="rounded-full px-2 py-1 body-xs ct-text-muted hover:ct-text-strong"
+        className="rounded-full px-[var(--ct-space-2)] py-1 body-xs ct-text-muted hover:ct-text-strong"
       >
         Annuler
       </button>

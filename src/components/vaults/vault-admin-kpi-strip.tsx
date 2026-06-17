@@ -57,7 +57,7 @@ export function VaultAdminKpiStrip({
           <span className="stat-value mono tabular">
             {formatUsdFull(facts.currentAumUsdc)}
           </span>
-          <div className="mt-2">
+          <div className="mt-[var(--ct-space-2)]">
             <Progress value={aumPct} label="AUM vs capacity" />
           </div>
           <p className="body-xs ct-text-faint mt-1">

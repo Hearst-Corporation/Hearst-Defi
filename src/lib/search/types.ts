@@ -26,7 +26,7 @@ export interface SearchResult {
 }
 
 /** Labelling + icon metadata for display in the search modal. */
-export const ENTITY_META: Record<
+const ENTITY_META: Record<
   Entity,
   { label: string; color: string }
 > = {

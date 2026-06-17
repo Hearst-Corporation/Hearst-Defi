@@ -26,7 +26,14 @@
 import "server-only";
 
 import type { AllowlistEntry } from "./allowlist";
-import { findAllowlistEntryByAddress } from "./allowlist";
+import { findAllowlistEntryByAddress } from "./allowlist-queries";
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+/** Threshold (in USDC) below which the medium 3/5 routing path applies. */
+const SMALL_AMOUNT_THRESHOLD_USDC = 100_000;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -112,7 +119,6 @@ export function computeRoutingDecision(input: {
   }
 
   // Rule 3 — small amount (< $100k): medium path
-  const SMALL_AMOUNT_THRESHOLD_USDC = 100_000;
   if (
     estimatedAmountUsdc !== undefined &&
     estimatedAmountUsdc < SMALL_AMOUNT_THRESHOLD_USDC

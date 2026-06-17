@@ -4,6 +4,8 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { getSpecIndex } from "@/lib/spec";
 
+export const dynamic = "force-dynamic";
+
 export default async function SpecIndexPage() {
   const entries = await getSpecIndex();
   const first = entries[0];

@@ -62,7 +62,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
         title="Reject this deployment?"
         className="max-w-md"
       >
-        <p className="body-sm ct-text-muted mb-4">
+        <p className="body-sm ct-text-muted mb-[var(--ct-space-4)]">
           Pushes the vault back to draft. Requires a written reason for the
           audit log.
         </p>
@@ -100,7 +100,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
           </div>
         )}
 
-        <div className="mt-6 admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions justify-end">
+        <div className="mt-[var(--ct-space-8)] admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions justify-end">
           <Button variant="ghost" size="md" onClick={handleClose} disabled={isPending}>
             Cancel
           </Button>

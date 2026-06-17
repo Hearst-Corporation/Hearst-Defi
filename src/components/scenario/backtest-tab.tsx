@@ -107,10 +107,10 @@ export function BacktestTab() {
       {!state.output && !pending && state.selectedKey === null ? (
         <div className="backtest-period-details">
           {BACKTEST_PERIODS.map((p) => (
-            <Card key={p.key} className="px-5 py-4" hoverOverlay={false}>
+            <Card key={p.key} className="px-[var(--ct-space-6)] py-[var(--ct-space-4)]" hoverOverlay={false}>
               <p className="scenario-preset-bar__label">{p.label}</p>
               <p className="mt-1 body-xs ct-text-muted">{p.subtitle}</p>
-              <p className="mt-2 body-sm ct-text-body">{p.description}</p>
+              <p className="mt-[var(--ct-space-2)] body-sm ct-text-body">{p.description}</p>
             </Card>
           ))}
         </div>
@@ -118,7 +118,7 @@ export function BacktestTab() {
 
       {/* Error banner */}
       {error && (
-        <p className="rounded-full border border-[var(--ct-status-danger)] bg-transparent px-4 py-2.5 body-sm ct-status-danger">
+        <p className="rounded-full border border-[var(--ct-status-danger)] bg-transparent px-[var(--ct-space-4)] py-2.5 body-sm ct-status-danger">
           {error}
         </p>
       )}

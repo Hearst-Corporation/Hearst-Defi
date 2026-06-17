@@ -132,7 +132,7 @@ export function LockMeter({
     >
       <WidgetPanelHeader
         title={
-          <Tooltip content="Progress towards your 60-day soft lockup period">
+          <Tooltip content={`Progress towards your ${softLockupDays}-day soft lockup period`}>
             <h3 className="h3 ct-text-strong cursor-help border-b border-dotted border-[var(--ct-border-soft)]">
               Lock · liquidity
             </h3>

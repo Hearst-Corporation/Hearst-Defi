@@ -28,5 +28,12 @@ S'arrêter et demander **avant** de modifier l'une de ces zones. Raisons incluse
   positifs d'audit accessibilité, ne pas "réparer".
 
 ## STOP global (jamais sans demande explicite)
-`git add/commit/push/reset`, force-push, raccourcir README/CLAUDE, refactor de composant,
+`git commit/push/reset/amend/rebase`, force-push, raccourcir README/CLAUDE, refactor de composant,
 appel API Anthropic (crédits), contournement d'une permission refusée.
+
+## Staging — interdits durs (jamais, même avec demande de commit)
+- **`git add -A`, `git add -u`, `git add .`, staging implicite IDE → INTERDITS.** Toujours
+  `git add <chemins exacts>`. Un staging large absorbe le travail concurrent (incident 2026-06-17 :
+  `docs/DEPLOYMENT.md` avalé dans `42bd18d feat(ui)`).
+- Avant tout commit : `git diff --cached --name-only` = QUE le scope du lot (`pnpm commit:check`).
+  Fichier hors-scope → `git restore --staged` ou STOP. Permission refusée → STOP, pas de `--no-verify`.

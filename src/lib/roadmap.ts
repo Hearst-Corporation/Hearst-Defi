@@ -47,8 +47,16 @@ const ROADMAP_PATH = path.join(process.cwd(), "docs", "roadmap.json");
 const DONE_LIKE: RoadmapStatus[] = ["done", "validated"];
 
 async function loadRoadmapFromDisk(): Promise<RoadmapDocument> {
-  const raw = await fs.readFile(ROADMAP_PATH, "utf8");
-  return roadmapSchema.parse(JSON.parse(raw));
+  try {
+    const raw = await fs.readFile(ROADMAP_PATH, "utf8");
+    return roadmapSchema.parse(JSON.parse(raw));
+  } catch (err) {
+    // File absent, unreadable, or structurally invalid — return a typed empty
+    // document so /admin/roadmap renders an honest empty state rather than
+    // hitting the error boundary.
+    console.warn("[roadmap] failed to load docs/roadmap.json, serving empty:", err);
+    return { version: "0.0.0", phases: [] };
+  }
 }
 
 export async function getRoadmap(): Promise<{

@@ -293,7 +293,7 @@ export function TrustPanel({ risk, proof, previewZeros = false }: TrustPanelProp
           </div>
         ) : null}
 
-        <div className="pt-2 flex justify-end">
+        <div className="pt-[var(--ct-space-2)] flex justify-end">
           <Link
             href={proofCenterHref}
             className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-[var(--ct-border)]"

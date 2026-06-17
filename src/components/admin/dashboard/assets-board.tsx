@@ -2,7 +2,9 @@ import { ActionQueue } from "@/components/admin/cockpit/action-queue";
 import { AuditTrailRolling } from "@/components/admin/cockpit/audit-trail-rolling";
 import { LiveMetrics } from "@/components/admin/cockpit/live-metrics";
 import { LiveOps } from "@/components/admin/cockpit/live-ops";
+import { RiskFrameworkSection } from "@/components/dashboard/risk-framework";
 import { Card } from "@/components/ui/card";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import {
   computeNavDelta,
@@ -136,6 +138,12 @@ export function DashboardAssetsBoard({
             onChainEvents={cockpit.onChainEvents}
           />
         </div>
+      </section>
+
+      <section aria-label="Risk framework" className="dashboard-risk-zone">
+        <ErrorBoundary>
+          <RiskFrameworkSection data={risk} />
+        </ErrorBoundary>
       </section>
 
       <section aria-label="Recent admin activity" className="dashboard-audit-zone">

@@ -50,7 +50,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
                 </span>{" "}
                 approved
                 {proposal.rejectionCount > 0 ? (
-                  <span className="ml-2 ct-status-danger">
+                  <span className="ml-[var(--ct-space-2)] ct-status-danger">
                     {proposal.rejectionCount} rejected
                   </span>
                 ) : null}
@@ -62,7 +62,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
             </div>
 
             {proposal.state === "TIMELOCK" && proposal.etaAt ? (
-              <div className="mt-3 border-t border-(--ct-border-soft) pt-3 body-xs ct-text-muted">
+              <div className="mt-[var(--ct-space-3)] border-t border-(--ct-border-soft) pt-[var(--ct-space-3)] body-xs ct-text-muted">
                 Timelock ETA:{" "}
                 <span className="mono ct-text-primary">
                   {formatGovernanceTimestamp(proposal.etaAt)}

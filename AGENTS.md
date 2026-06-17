@@ -40,6 +40,23 @@ Ces règles ne sont pas que du discours, elles **bloquent le commit/push** (cliq
 - **pre-push** → `knip` refuse tout push qui laisse du code mort (baseline 22 findings).
 - Inspecter : `pnpm quality` (tout), `pnpm quality:dup:report` / `pnpm quality:dead:report`. Baseline : `scripts/quality-baseline.json` (abaisser via `pnpm quality:update` après nettoyage). Bypass délibéré seulement : `--no-verify`.
 
+## Discipline de commit — staging chirurgical (OBLIGATOIRE)
+
+Plusieurs agents éditent `main` en parallèle. Un staging large a déjà **absorbé** le travail
+d'un autre scope dans le mauvais commit (incident 2026-06-17 : `docs/DEPLOYMENT.md` avalé dans
+`42bd18d feat(ui)`). Donc :
+- **JAMAIS `git add -A` / `git add -u` / `git add .` ni le staging implicite de l'IDE.**
+  Toujours `git add <chemin1> <chemin2>` — les chemins exacts de TON lot, listés.
+- **Un commit = un lot = un owner = un scope.** Avant commit : `git diff --cached --name-only`
+  ne contient QUE tes fichiers. Vérifier : `pnpm commit:check`.
+- **Hors-scope dans l'index → `git restore --staged <path>` ou STOP.** Jamais committer pour autrui.
+- **Permission refusée (commit/push/outil) → STOP immédiat.** Pas de retry, pas de `--no-verify` de contournement.
+- **Workstream concurrent détecté** (`git status` montre un autre scope) → ne stage que tes chemins ;
+  doute → rapport avant commit, pas de commit.
+- Jamais `reset`/`amend`/`rebase`/force-push sans GO explicite.
+- **Isolation** : un agent = un worktree/branche (jamais deux agents sur le même tree). Commit
+  libre dans sa branche, **jamais de push `main`**. `main` = intégration gatée (CI branch protection).
+
 ## STOP conditions (s'arrêter et demander)
 - Il faut toucher `next.config.ts`, auth/wallet/CSP, `src/proxy.ts`, l'engine, ou data/provenance.
 - Une permission/outil est refusé → ne pas contourner, signaler.

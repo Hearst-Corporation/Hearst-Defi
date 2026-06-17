@@ -4,15 +4,12 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**196 components** · 0 possible orphans · 5 intentionally unwired.
+**193 components** · 0 possible orphans · 2 intentionally unwired.
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
 - `src/components/notifications/notifications-bell.tsx` — NotificationsBell
-- `src/components/search/global-search.tsx` — GlobalSearch
-- `src/components/shortcuts/shortcuts-overlay.tsx` — ShortcutsOverlay
 - `src/components/ui/chart-time-selector.tsx` — ChartTimeSelector
-- `src/components/views/saved-views-picker.tsx` — SavedViewsPicker
 
 ## All components
 
@@ -28,6 +25,7 @@
 | `src/components/admin/cockpit/live-ops.tsx` | LiveOps | 1 |
 | `src/components/admin/customer/agent-assign-form.tsx` | AgentAssignForm | 1 |
 | `src/components/admin/customer/create-investor-button.tsx` | CreateInvestorButton | 1 |
+| `src/components/admin/customer/deploy-position-form.tsx` | DeployPositionForm | 1 |
 | `src/components/admin/customer/memory-manager.tsx` | MemoryManager | 1 |
 | `src/components/admin/customer/qualification-form.tsx` | QualificationForm | 1 |
 | `src/components/admin/dashboard/allocation-orbit.tsx` | AllocationOrbit | 1 |
@@ -54,6 +52,7 @@
 | `src/components/admin/outreach/email-review-card.tsx` | EmailReviewCard | 1 |
 | `src/components/admin/outreach/prospect-add-form.tsx` | ProspectAddForm | 1 |
 | `src/components/admin/outreach/prospect-import-form.tsx` | ProspectImportForm | 1 |
+| `src/components/admin/outreach/send-campaign-button.tsx` | SendCampaignButton | 1 |
 | `src/components/admin/outreach/stats-cards.tsx` | OutreachStatsCards | 1 |
 | `src/components/admin/projection-footer.tsx` | ProjectionFooter | 1 |
 | `src/components/admin/proof-list.tsx` | ProofList | 1 |
@@ -73,15 +72,12 @@
 | `src/components/auth/login-split.tsx` | — | 2 |
 | `src/components/auth/privy-provider.tsx` | PrivyProvider | 4 |
 | `src/components/auth/sign-out-button.tsx` | SignOutButton | 2 |
-| `src/components/batch/batch-action-button.tsx` | BatchActionButton | 1 |
-| `src/components/batch/batch-selection-bar.tsx` | BatchSelectionBar | 1 |
 | `src/components/chat/chat-nav-bridge.tsx` | ChatNavBridge | 3 |
 | `src/components/connect/header-connect.tsx` | HeaderConnect | 1 |
 | `src/components/connect/product-page-header.tsx` | ProductPageHeader | 5 |
 | `src/components/ConnectShell.tsx` | ConnectShell | 1 |
-| `src/components/dashboard/mining-health.tsx` | LEGEND_SWATCHES | 3 |
 | `src/components/dashboard/risk-framework.tsx` | RiskFrameworkSection | 9 |
-| `src/components/error/error-shell.tsx` | ErrorShellLayout | 6 |
+| `src/components/error/error-shell.tsx` | ErrorShellLayout | 7 |
 | `src/components/error/segment-error.tsx` | SegmentError | 8 |
 | `src/components/error/segment-not-found.tsx` | SegmentNotFound | 1 |
 | `src/components/governance/timelock-countdown.tsx` | TimelockCountdown | 2 |
@@ -165,35 +161,34 @@
 | `src/components/scenario/scenario-spinner.tsx` | Spinner | 4 |
 | `src/components/scenario/scenario-tab-bar.tsx` | ScenarioTabBar | 1 |
 | `src/components/scenario/single-mode.tsx` | SingleMode | 1 |
-| `src/components/search/global-search.tsx` 🔌 | GlobalSearch | 0 |
-| `src/components/shortcuts/shortcuts-overlay.tsx` 🔌 | ShortcutsOverlay | 0 |
 | `src/components/simulation/simulation-panel.tsx` | SimulationPanel | 1 |
 | `src/components/ui/apy-range.tsx` | ApyRange | 18 |
 | `src/components/ui/awaiting-metric-state.tsx` | AwaitingMetricState | 13 |
 | `src/components/ui/badge.tsx` | Badge | 49 |
-| `src/components/ui/button.tsx` | Button | 76 |
+| `src/components/ui/button.tsx` | Button | 79 |
 | `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 71 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
 | `src/components/ui/chart-time-selector.tsx` 🔌 | ChartTimeSelector | 0 |
 | `src/components/ui/checkbox.tsx` | Checkbox | 2 |
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
-| `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 3 |
+| `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
 | `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 19 |
 | `src/components/ui/empty-surface.tsx` | EmptySurface | 30 |
+| `src/components/ui/error-boundary.tsx` | ErrorBoundary | 2 |
 | `src/components/ui/metric.tsx` | Metric | 8 |
-| `src/components/ui/modal.tsx` | Modal | 4 |
+| `src/components/ui/modal.tsx` | Modal | 5 |
 | `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 24 |
 | `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 20 |
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 5 |
-| `src/components/ui/progress.tsx` | Progress | 13 |
+| `src/components/ui/progress.tsx` | Progress | 14 |
 | `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 53 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/section-embed.tsx` | SectionEmbedProvider | 1 |
 | `src/components/ui/segmented-control.tsx` | SegmentedControl | 2 |
-| `src/components/ui/skeleton.tsx` | Skeleton, SkeletonCard | 29 |
+| `src/components/ui/skeleton.tsx` | Skeleton, SkeletonCard | 30 |
 | `src/components/ui/toaster.tsx` | Toaster | 1 |
 | `src/components/ui/tooltip.tsx` | Tooltip | 5 |
 | `src/components/ui/widget-panel-header.tsx` | WidgetPanelHeader | 2 |
@@ -213,6 +208,5 @@
 | `src/components/vaults/vault-allocation-display.tsx` | VaultAllocationAdminRows, VaultAllocationInvestorList | 2 |
 | `src/components/vaults/vault-flow-primitives.tsx` | VaultFlowSection, VaultPanelHeader, VaultKpiCell, VaultDetailRow, VaultPanelLink, VaultPanelInsetBlock | 5 |
 | `src/components/vaults/vault-legal-proof-rows.tsx` | VaultLegalProofRows | 2 |
-| `src/components/views/saved-views-picker.tsx` 🔌 | SavedViewsPicker | 0 |
 
 Legend: ⚠️ possible orphan · 🔌 intentionally unwired.

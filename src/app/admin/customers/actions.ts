@@ -12,6 +12,9 @@ import {
 } from "@/lib/agents/qualification";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { SHARE_CLASS_A, SHARE_CLASS_B } from "@/lib/engine/share-class";
+import { getVault } from "@/lib/data/vaults";
+import { isDemoInvestor } from "@/lib/demo/provider";
 
 /**
  * Admin KYC override. Lets a compliance officer (admin) set an investor's
@@ -157,4 +160,228 @@ export async function createInvestor(formData: FormData): Promise<void> {
     redirect(`/admin/customers/${user.investor.id}`);
   }
   redirect("/admin/customers");
+}
+
+// ---------------------------------------------------------------------------
+// Deploy position (admin-created off-chain position for a target investor)
+// ---------------------------------------------------------------------------
+
+/** Hard ceiling on a single admin-deployed position (mirrors subscribe's MAX_SUBSCRIBE_USDC). */
+const MAX_DEPLOY_USDC = 1_000_000_000;
+
+const DeployPositionInput = z.object({
+  investorId: z.string().min(1),
+  amountUsdc: z.coerce.number().positive().finite(),
+  classCode: z.enum(["A", "B"]),
+});
+
+export type DeployPositionResult =
+  | { ok: true; positionId: string }
+  | { ok: false; error: string };
+
+/**
+ * Admin path to open an off-chain position for a specific investor — the
+ * "deploy" action that lets a demo or pilot investor see a filled cockpit
+ * without requiring a real on-chain deposit.
+ *
+ * Mirrors subscribe()'s core position-creation logic (capacity check,
+ * share-class minimum, $transaction + nested InvestorTransaction) but operates
+ * on an arbitrary investorId chosen by the admin rather than the current
+ * session investor.
+ *
+ * Guards:
+ *  - requireAdmin() — re-asserted here; /admin layout is not sufficient for a
+ *    public Server Action RPC surface.
+ *  - KYC must be "approved" — we do NOT auto-approve; the admin must set KYC
+ *    first via setInvestorKyc().
+ *  - Share-class minimum ticket enforced (Class A: $250k, Class B: $1M).
+ *    In non-production with DEMO_MIN_TICKET_USDC set, the minimum is
+ *    overridden to that value so a small demo position is allowed in dev/staging.
+ *  - Vault capacity check runs inside the transaction (same as subscribe()).
+ *  - txHashOpen is null (off-chain path; SQL allows multiple NULLs as distinct).
+ */
+export async function deployPosition(
+  formData: FormData,
+): Promise<DeployPositionResult> {
+  const admin = await requireAdmin();
+
+  const parsed = DeployPositionInput.safeParse({
+    investorId: formData.get("investorId"),
+    amountUsdc: formData.get("amountUsdc"),
+    classCode: formData.get("classCode"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "deployPosition: invalid input" };
+  }
+  const { investorId, amountUsdc, classCode } = parsed.data;
+
+  // Hard ceiling check (Zod already rejects NaN/Infinity/negatives via .positive().finite()).
+  if (amountUsdc > MAX_DEPLOY_USDC) {
+    return { ok: false, error: "Amount too large." };
+  }
+
+  // Resolve the target investor — must exist, be KYC-approved, and accredited.
+  // Gap 3: select accreditationAttestedAt to enforce the attestation gate.
+  // Gap 4: select user.email to detect the demo identity before any DB write.
+  const investor = await prisma.investor.findUnique({
+    where: { id: investorId },
+    select: {
+      id: true,
+      kycStatus: true,
+      accreditationAttestedAt: true,
+      user: { select: { email: true } },
+    },
+  });
+  if (!investor) {
+    return { ok: false, error: "Investor not found." };
+  }
+  if (investor.kycStatus !== "approved") {
+    return {
+      ok: false,
+      error:
+        "KYC approval required. Approve the investor's KYC first, then deploy the position.",
+    };
+  }
+
+  // Gap 3 — accreditation gate (mirrors subscribe line 75-77).
+  if (!investor.accreditationAttestedAt) {
+    return {
+      ok: false,
+      error: "Investor has not attested accreditation yet.",
+    };
+  }
+
+  // Gap 4 — demo-investor short-circuit (mirrors subscribe lines 71-73).
+  // Never write a real Position onto the demo sandbox identity.
+  if (isDemoInvestor({ email: investor.user?.email ?? null })) {
+    return {
+      ok: false,
+      error: "Cannot deploy a position on the demo investor identity.",
+    };
+  }
+
+  // Share-class minimum ticket check.
+  // In development only with DEMO_MIN_TICKET_USDC set, override to that value so
+  // a small demo amount clears the gate (mirrors subscribe()'s demo override path).
+  // Never prod (canonical minimums) and never test (suite asserts the real gates).
+  const classTerms = classCode === "B" ? SHARE_CLASS_B : SHARE_CLASS_A;
+  const demoOverride =
+    process.env.NODE_ENV === "development" &&
+    process.env.DEMO_MIN_TICKET_USDC !== undefined
+      ? Number(process.env.DEMO_MIN_TICKET_USDC)
+      : null;
+  const effectiveMin =
+    demoOverride !== null && Number.isFinite(demoOverride) && demoOverride > 0
+      ? demoOverride
+      : classTerms.minTicketUsdc;
+  if (amountUsdc < effectiveMin) {
+    // P2 cosmetic fix: 3-tier label so "$0k" never appears for sub-$1k demo mins
+    // (mirrors subscribe.ts lines 117-122).
+    const minLabel =
+      effectiveMin < 1_000
+        ? `$${effectiveMin.toLocaleString("en-US", { maximumFractionDigits: 2 })}`
+        : effectiveMin < 1_000_000
+          ? `$${(effectiveMin / 1_000).toFixed(0)}k`
+          : `$${(effectiveMin / 1_000_000).toFixed(0)}M`;
+    return {
+      ok: false,
+      error: `Below minimum ticket of ${minLabel} for Class ${classCode}.`,
+    };
+  }
+
+  // Gap 2 — vault-status gate (mirrors subscribe lines 88-94).
+  // Resolve the vault product via getVault so we can check its status.
+  // The fixture id "hearst-yield-vault" may not have a VaultDeployment DB row;
+  // getVault returns null in that case → skip the live gate but keep the
+  // existing VaultDeployment fallback below for capacity.
+  const VAULT_ID = "hearst-yield-vault";
+  const vault = await getVault(VAULT_ID);
+  if (vault !== null && vault.status !== "live") {
+    return { ok: false, error: "This vault is not open for subscription." };
+  }
+
+  // Capacity check + position write in one atomic transaction.
+  // Re-derive consumed capacity from live active principal (not a stale cache)
+  // so concurrent admin deploys cannot both pass a stale `remaining` value.
+  try {
+    const deployment = await prisma.vaultDeployment.findUnique({
+      where: { id: VAULT_ID },
+      select: { id: true, capacityUsdc: true },
+    });
+
+    // For capacity ceiling: use the VaultDeployment row when it exists, otherwise
+    // fall back to a generous ceiling so the fixture path never hard-blocks a demo.
+    const capacityUsdc =
+      deployment?.capacityUsdc?.toNumber() ?? 1_000_000_000;
+
+    const position = await prisma.$transaction(async (tx) => {
+      // Re-check capacity inside the transaction.
+      const agg = await tx.position.aggregate({
+        where: {
+          status: "active",
+          ...(deployment
+            ? { vaultDeploymentId: deployment.id }
+            : { vaultKey: { startsWith: `${VAULT_ID}:` } }),
+        },
+        _sum: { principalUsdc: true },
+      });
+      const consumed = agg._sum.principalUsdc?.toNumber() ?? 0;
+      const remaining = capacityUsdc - consumed;
+      if (amountUsdc > remaining) {
+        throw new Error("CAPACITY_EXCEEDED");
+      }
+
+      const created = await tx.position.create({
+        data: {
+          investorId,
+          vaultDeploymentId: deployment?.id ?? null,
+          vaultKey: `${VAULT_ID}:class-${classCode}`,
+          principalUsdc: amountUsdc,
+          status: "active",
+          txHashOpen: null, // off-chain pilot path — null is valid per schema comment
+          transactions: {
+            create: {
+              investorId,
+              type: "deposit",
+              amountUsdc,
+              txHash: null,
+            },
+          },
+        },
+      });
+
+      await tx.adminAudit.create({
+        data: {
+          actorWallet: admin.walletAddress ?? admin.userId,
+          action: "investor.deployPosition",
+          entityType: "Investor",
+          entityId: investorId,
+          diff: JSON.stringify({
+            before: null,
+            after: {
+              positionId: created.id,
+              vaultKey: `${VAULT_ID}:class-${classCode}`,
+              amountUsdc,
+              classCode,
+              offChain: true,
+            },
+          }),
+          ip: null,
+          userAgent: null,
+        },
+      });
+
+      return created;
+    });
+
+    revalidatePath("/portfolio");
+    revalidatePath("/admin/customers");
+    revalidatePath(`/admin/customers/${investorId}`);
+    return { ok: true, positionId: position.id };
+  } catch (err) {
+    if (err instanceof Error && err.message === "CAPACITY_EXCEEDED") {
+      return { ok: false, error: "Amount exceeds remaining vault capacity." };
+    }
+    throw err;
+  }
 }

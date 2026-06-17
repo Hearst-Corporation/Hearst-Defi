@@ -70,10 +70,10 @@ export function DeltaRow({ a, b }: DeltaRowProps) {
 
   return (
     <div
-      className="border-t border-[var(--ct-border-soft)] pt-5"
+      className="border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-6)]"
       aria-label="Scenario B vs A delta metrics"
     >
-      <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
+      <div className="mb-[var(--ct-space-3)] admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
         <p className="body-xs font-semibold ct-text-body m-0">B vs A — Delta</p>
         <ProvenanceBadge kind="estimated" />
       </div>
@@ -97,7 +97,7 @@ export function DeltaRow({ a, b }: DeltaRowProps) {
         ))}
       </div>
 
-      <p className="mt-3 body-xs">
+      <p className="mt-[var(--ct-space-3)] body-xs">
         Green = Scenario B is better. Red = Scenario B is worse. All deltas are midpoint estimates.
         <span className="ml-1 font-medium ct-text-body">
           Not guaranteed.

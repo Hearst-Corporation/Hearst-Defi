@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { abbreviateAddress } from "@/lib/onchain";
 import { explorerLinkClass } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/cn";
+import { explorerTxUrlFromRegistry } from "@/lib/chain/deployments";
 
 interface Props {
   proofId: string;
@@ -55,7 +56,7 @@ export function PublishOnChainButton({ proofId }: Props) {
           <span>
             Attestation anchored.{" "}
             <a
-              href={`https://sepolia.basescan.org/tx/${result.txHash}`}
+              href={explorerTxUrlFromRegistry(result.txHash)}
               target="_blank"
               rel="noopener noreferrer"
               className={cn(explorerLinkClass, "underline underline-offset-2")}

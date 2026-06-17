@@ -61,7 +61,7 @@ function FeedbackRow({ item }: { item: FeedbackItem }) {
     <Card className={cn(item.resolved && "opacity-(--ct-opacity-60)")} hoverOverlay={false}>
       <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions">
         <div className="min-w-0 flex-1">
-          <div className="mb-2 admin-doc-inline-row body-xs ct-text-muted">
+          <div className="mb-[var(--ct-space-2)] admin-doc-inline-row body-xs ct-text-muted">
             <time>{item.createdAt.toISOString().slice(0, 16).replace("T", " ")}</time>
             {item.author ? <span>· {item.author}</span> : null}
             {item.itemId ? (

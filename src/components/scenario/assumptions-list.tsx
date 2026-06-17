@@ -59,7 +59,7 @@ export function AssumptionsList({ assumptions }: AssumptionsListProps) {
           variant="ghost"
           size="sm"
           onClick={() => setExpanded((x) => !x)}
-          className="mt-3 ct-text-strong hover:ct-text-strong"
+          className="mt-[var(--ct-space-3)] ct-text-strong hover:ct-text-strong"
         >
           {expanded
             ? "Show less"

@@ -237,7 +237,7 @@ export interface UpsertQualificationInput
     Partial<Pick<ParsedQualification, "firstName" | "lastName" | "phone" | "website">> {
   userId?: string | null;
   email?: string | null;
-  source?: "typeform" | "manual";
+  source?: "typeform" | "manual" | "self";
   rawPayload?: unknown;
 }
 

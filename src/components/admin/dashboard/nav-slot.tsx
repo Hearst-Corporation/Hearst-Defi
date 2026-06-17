@@ -1,12 +1,10 @@
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
+import { type Provenance } from "@/components/ui/provenance-badge";
 import { dashboardUsdCompact, dashboardUsdFull } from "@/lib/admin/dashboard-formatters";
 import { computeNavBarHeights, MIN_NAV_CHART_POINTS, navBarChartAriaLabel } from "@/lib/admin/nav-bar-chart";
 import { cn } from "@/lib/cn";
 import type { NavPoint } from "@/lib/data/dashboard";
 
-/** Placeholder — 6 monthly bars, aligned with axis labels. */
-const NAV_PLACEHOLDER_HEIGHTS = [34, 48, 42, 56, 50, 62] as const;
 const NAV_MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"] as const;
 
 /** NAV slot — muted shell when no live series; bar chart fills the hero cell. */
@@ -78,8 +76,7 @@ function NavBarChart({ points, muted = false }: { points: NavPoint[]; muted?: bo
     heightPct: slice.heightPct,
     label: `${slice.date}: ${dashboardUsdFull.format(slice.aum_usdc)}`,
   }));
-  const renderedSlices = activeSlices;
-  const showMonthAxis = renderedSlices.length === NAV_MONTH_LABELS.length;
+  const showMonthAxis = activeSlices.length === NAV_MONTH_LABELS.length;
 
   return (
     <div
@@ -87,7 +84,7 @@ function NavBarChart({ points, muted = false }: { points: NavPoint[]; muted?: bo
         "dashboard-nav-bars",
         showMonthAxis && "dashboard-nav-bars--monthly",
       )}
-      style={{ "--dashboard-nav-bar-count": String(renderedSlices.length) } as React.CSSProperties}
+      style={{ "--dashboard-nav-bar-count": String(activeSlices.length) } as React.CSSProperties}
       role="img"
       aria-label={navBarChartAriaLabel(points)}
     >
@@ -98,7 +95,7 @@ function NavBarChart({ points, muted = false }: { points: NavPoint[]; muted?: bo
           <span />
         </div>
         <div className="dashboard-nav-bars__bars" role="list">
-          {renderedSlices.map((slice) => (
+          {activeSlices.map((slice) => (
             <div key={slice.key} className="dashboard-nav-bars__cell" role="listitem">
               <div
                 className="dashboard-nav-bars__bar"

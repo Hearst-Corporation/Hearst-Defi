@@ -149,7 +149,7 @@ export function MonteCarloReview({
   return (
     <div
       className={cn(
-        "ct-glass-panel p-4 admin-doc-stack admin-doc-stack--relaxed",
+        "ct-glass-panel p-[var(--ct-space-4)] admin-doc-stack admin-doc-stack--relaxed",
         className,
       )}
       role="region"
@@ -204,7 +204,7 @@ export function MonteCarloReview({
       </p>
 
       {/* Mandatory disclaimer — CLAUDE.md #10 */}
-      <p className="body-xs ct-text-faint border-t border-(--ct-border-soft) pt-3">
+      <p className="body-xs ct-text-faint border-t border-(--ct-border-soft) pt-[var(--ct-space-3)]">
         Projections — not guaranteed. Methodology v2.0. Simulated paths
         assume BTC GBM (μ&nbsp;=&nbsp;10%/yr, σ&nbsp;=&nbsp;60%/yr) and a
         mean-reverting network difficulty model. Assumptions and results are

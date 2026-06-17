@@ -19,32 +19,32 @@ export function Markdown({
         components={{
           h1: ({ children }) =>
             demoteH1 ? (
-              <h2 className="mt-6 mb-3 h2 first:mt-0">{children}</h2>
+              <h2 className="mt-[var(--ct-space-8)] mb-[var(--ct-space-3)] h2 first:mt-0">{children}</h2>
             ) : (
-              <h1 className="mt-8 mb-4 h1 first:mt-0">{children}</h1>
+              <h1 className="mt-[var(--ct-space-10)] mb-[var(--ct-space-4)] h1 first:mt-0">{children}</h1>
             ),
           h2: ({ children }) => (
-            <h2 className="mt-6 mb-3 h2">
+            <h2 className="mt-[var(--ct-space-8)] mb-[var(--ct-space-3)] h2">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="mt-5 mb-2 h3">
+            <h3 className="mt-[var(--ct-space-6)] mb-[var(--ct-space-2)] h3">
               {children}
             </h3>
           ),
           p: ({ children }) => (
-            <p className="my-3 body-sm leading-[var(--ct-leading-relaxed)] ct-text-body">
+            <p className="my-[var(--ct-space-3)] body-sm leading-[var(--ct-leading-relaxed)] ct-text-body">
               {children}
             </p>
           ),
           ul: ({ children }) => (
-            <ul className="my-3 admin-doc-list admin-doc-list--disc body-sm ct-text-body">
+            <ul className="my-[var(--ct-space-3)] admin-doc-list admin-doc-list--disc body-sm ct-text-body">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="my-3 admin-doc-list admin-doc-list--decimal body-sm ct-text-body">
+            <ol className="my-[var(--ct-space-3)] admin-doc-list admin-doc-list--decimal body-sm ct-text-body">
               {children}
             </ol>
           ),
@@ -64,12 +64,12 @@ export function Markdown({
             );
           },
           pre: ({ children }) => (
-            <pre className="my-4 overflow-x-auto rounded-md border border-(--ct-border-soft) bg-transparent p-4 body-xs">
+            <pre className="my-[var(--ct-space-4)] overflow-x-auto rounded-md border border-(--ct-border-soft) bg-transparent p-[var(--ct-space-4)] body-xs">
               {children}
             </pre>
           ),
           table: ({ children }) => (
-            <div className="my-4 overflow-x-auto">
+            <div className="my-[var(--ct-space-4)] overflow-x-auto">
               <table className="w-full border-collapse body-xs">
                 {children}
               </table>
@@ -99,12 +99,12 @@ export function Markdown({
             );
           },
           blockquote: ({ children }) => (
-            <blockquote className="my-4 border-l-2 border-(--ct-text-strong) pl-4 body-sm italic ct-text-body">
+            <blockquote className="my-[var(--ct-space-4)] border-l-2 border-(--ct-text-strong) pl-[var(--ct-space-4)] body-sm italic ct-text-body">
               {children}
             </blockquote>
           ),
           hr: () => (
-            <hr className="my-6 border-t border-(--ct-border)" />
+            <hr className="my-[var(--ct-space-8)] border-t border-(--ct-border)" />
           ),
           strong: ({ children }) => (
             <strong className="ct-text-primary">

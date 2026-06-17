@@ -59,6 +59,8 @@ export interface PositionDetail {
   id: string;
   vaultName: string | null;
   vaultTicker: string;
+  /** Soft-lockup days from the vault's share-class terms (0 when unknown). */
+  softLockupDays: number;
   status: "active" | "matured" | "exited";
   principalUsdc: number;
   accruedYieldUsdc: number;
@@ -759,82 +761,6 @@ export const loadTimeToCashProps = cache(async (): Promise<TimeToCashProps & { s
 });
 
 // ---------------------------------------------------------------------------
-// loadTaxPreview — wires `getTaxPreview` to real YTD distribution data
-// ---------------------------------------------------------------------------
-
-/**
- * Build a TaxPreview backed by the investor's real positions and YTD
- * distributions.
- *
- * Why this exists: `getTaxPreview` is a pure stub that needs the caller to
- * pass real numbers via its `overrides` param. Without this loader, the LP
- * sees deterministic placeholder amounts (cf. P0-5 in
- * `docs/audit/coherence-2026-05-26/10-portfolio-lp-metrics.md`).
- *
- * Returns null when no investor is logged in so the caller can hide the
- * drawer entirely. Returns a `TaxPreview` even for investors with zero
- * positions — the drawer renders $0 values in that case, which is the
- * correct preview for a brand-new account.
- */
-export async function loadTaxPreview(
-  year: number = new Date().getUTCFullYear(),
-): Promise<TaxPreview | null> {
-  const investor = await getInvestor();
-  if (!investor) return null;
-
-  // YTD distributions (interest income for 1099-INT and CRS gross interest).
-  const ytdStart = new Date(Date.UTC(year, 0, 1));
-  const [positions, ytdDistribs] = await Promise.all([
-    prisma.position.findMany({
-      where: { investorId: investor.id },
-      orderBy: { subscribedAt: "asc" },
-    }),
-    prisma.investorTransaction.findMany({
-      where: {
-        investorId: investor.id,
-        type: { in: ["claim", "distribution"] },
-        occurredAt: { gte: ytdStart },
-      },
-      select: { amountUsdc: true },
-    }),
-  ]);
-
-  const actualInterestIncomeUsd = ytdDistribs.reduce(
-    (sum, t) => sum + toNumber(t.amountUsdc),
-    0,
-  );
-  const actualPrincipalUsd = positions.reduce(
-    (sum, p) => sum + toNumber(p.principalUsdc),
-    0,
-  );
-  const actualAccruedYieldUsd = positions.reduce(
-    (sum, p) => sum + toNumber(p.accruedYieldUsdc),
-    0,
-  );
-  // Days-held: contribution-weighted average across positions, same as the
-  // engine's aggregateLpPnl logic.
-  const now = new Date();
-  let weightedDays = 0;
-  let weightedBase = 0;
-  for (const p of positions) {
-    const contributed = toNumber(p.principalUsdc);
-    if (contributed <= 0) continue;
-    const d = daysHeldSince(p.subscribedAt, now);
-    weightedDays += contributed * d;
-    weightedBase += contributed;
-  }
-  const actualDaysHeld =
-    weightedBase > 0 ? Math.floor(weightedDays / weightedBase) : 0;
-
-  return getTaxPreview(investor.id, year, {
-    actualInterestIncomeUsd,
-    actualPrincipalUsd,
-    actualAccruedYieldUsd,
-    actualDaysHeld,
-  });
-}
-
-// ---------------------------------------------------------------------------
 // loadPosition — single position detail for /portfolio/[positionId]
 // ---------------------------------------------------------------------------
 
@@ -873,7 +799,8 @@ export async function loadPosition(
   const apyLowBps = raw.vaultDeployment?.targetApyLowBps ?? null;
   const apyHighBps = raw.vaultDeployment?.targetApyHighBps ?? null;
   const vaultName = raw.vaultDeployment?.name ?? null;
-  const vaultTicker = "HYV-A";
+  const vaultTicker = raw.vaultDeployment?.ticker ?? "HYV-A";
+  const softLockupDays = raw.vaultDeployment?.softLockupDays ?? 0;
 
   const transactions: PositionDetailTransaction[] = rawTxs.map((t) => ({
     id: t.id,
@@ -897,6 +824,7 @@ export async function loadPosition(
     id: raw.id,
     vaultName,
     vaultTicker,
+    softLockupDays,
     status: raw.status as "active" | "matured" | "exited",
     principalUsdc: principal,
     accruedYieldUsdc: accrued,

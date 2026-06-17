@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { EmailReviewCard } from "@/components/admin/outreach/email-review-card";
 import { DraftCampaignButton } from "@/components/admin/outreach/draft-campaign-button";
+import { SendCampaignButton } from "@/components/admin/outreach/send-campaign-button";
 import { loadCampaignDetail } from "@/lib/data/outreach";
 import { formatAdminDate } from "@/lib/vaults/product-display";
 
@@ -29,6 +30,22 @@ const CAMPAIGN_VARIANT: Record<
   sent: "success",
 };
 
+/** Returns a tidy funnel summary string, e.g. "12 sent · 9 delivered · 4 opened · 1 bounced". */
+function buildDeliverySummary(statusCounts: Record<string, number>): string | null {
+  const parts: string[] = [];
+  const add = (key: string, label: string) => {
+    const n = statusCounts[key] ?? 0;
+    if (n > 0) parts.push(`${n} ${label}`);
+  };
+  add("sent", "sent");
+  add("delivered", "delivered");
+  add("opened", "opened");
+  add("clicked", "clicked");
+  add("bounced", "bounced");
+  add("failed", "failed");
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
 export default async function CampaignDetailPage({
   params,
 }: {
@@ -37,6 +54,11 @@ export default async function CampaignDetailPage({
   const { campaignId } = await params;
   const detail = await loadCampaignDetail(campaignId);
   if (!detail) notFound();
+
+  const approvedCount = detail.statusCounts["approved"] ?? 0;
+  const canRelease =
+    (detail.status === "draft" || detail.status === "review") && approvedCount > 0;
+  const deliverySummary = buildDeliverySummary(detail.statusCounts);
 
   return (
     <div className="admin-doc-shell">
@@ -65,7 +87,7 @@ export default async function CampaignDetailPage({
         <p className="body-xs ct-text-muted">
           Approved campaign inputs and sender context used across the drafting run.
         </p>
-        <Card className="p-5" hoverOverlay={false}>
+        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
           <dl className="admin-doc-form-grid-2 body-sm">
             <div>
               <dt className="ct-form-label">Kind</dt>
@@ -112,6 +134,36 @@ export default async function CampaignDetailPage({
         </div>
       </section>
 
+      {/* Delivery summary — visible once emails start being dispatched */}
+      {deliverySummary && (
+        <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Delivery summary">
+          <h2 className="h2">Delivery</h2>
+          <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
+            <p className="body-sm ct-text-muted mono">{deliverySummary}</p>
+          </Card>
+        </section>
+      )}
+
+      {/* Release — shown only when campaign is sendable (draft|review + ≥1 approved email) */}
+      {canRelease && (
+        <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Release">
+          <h2 className="h2">Release</h2>
+          <p className="body-xs ct-text-muted">
+            Dispatch all approved emails. The campaign switches to{" "}
+            <span className="mono">sending</span> and Inngest fans out delivery
+            over each approved recipient.
+          </p>
+          <div className="admin-doc-toolbar">
+            <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+              <SendCampaignButton
+                campaignId={detail.id}
+                approvedCount={approvedCount}
+              />
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Emails */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Emails">
         <h2 className="h2">Recipient review queue ({detail.emails.length})</h2>
@@ -119,13 +171,25 @@ export default async function CampaignDetailPage({
           <EmptySurface
             variant="widget"
             message="No recipient drafts available yet."
-            detail="Use “Draft with agent” to generate the first reviewable email set for this campaign."
+            detail={'Use “Draft with agent” to generate the first reviewable email set for this campaign.'}
             className="min-h-20"
           />
         ) : (
           <div className="admin-doc-stack admin-doc-stack--actions">
             {detail.emails.map((email) => (
-              <EmailReviewCard key={email.id} email={email} />
+              <EmailReviewCard
+                key={email.id}
+                email={{
+                  id: email.id,
+                  toEmail: email.toEmail,
+                  subject: email.subject,
+                  body: email.body,
+                  status: email.status,
+                  draftedByAgent: email.draftedByAgent,
+                  latestEventType: email.latestEventType,
+                  latestEventAt: email.latestEventAt,
+                }}
+              />
             ))}
           </div>
         )}

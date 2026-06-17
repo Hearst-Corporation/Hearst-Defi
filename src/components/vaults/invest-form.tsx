@@ -135,7 +135,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
               <div className="relative">
                 <span
                   aria-hidden
-                  className="absolute left-4 top-1/2 -translate-y-1/2 mono font-semibold ct-text-muted select-none"
+                  className="absolute left-[var(--ct-space-4)] top-1/2 -translate-y-1/2 mono font-semibold ct-text-muted select-none"
                 >
                   $
                 </span>
@@ -147,7 +147,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
                   value=""
                   placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
                   aria-describedby="amt-helper-disabled"
-                  className="ct-input tabular w-full pl-8 pr-4 py-3 mono body-lg opacity-(--ct-opacity-60)"
+                  className="ct-input tabular w-full pl-[var(--ct-space-10)] pr-[var(--ct-space-4)] py-[var(--ct-space-3)] mono body-lg opacity-(--ct-opacity-60)"
                 />
               </div>
               <p id="amt-helper-disabled" className="body-xs mt-1.5 ct-text-muted">
@@ -195,7 +195,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
           <VaultPanelHeader title="Pre-flight check" />
           <div className="vault-panel-body">
             <PanelStatus
-              className="mb-4"
+              className="mb-[var(--ct-space-4)]"
               message="Pre-flight is shown in review mode until wallet access is enabled."
               detail="Network, allowance, and signing checks become actionable once your wallet is connected."
             />
@@ -396,7 +396,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
               <div className="relative">
                 <span
                   aria-hidden
-                  className="absolute left-4 top-1/2 -translate-y-1/2 mono font-semibold ct-text-muted select-none"
+                  className="absolute left-[var(--ct-space-4)] top-1/2 -translate-y-1/2 mono font-semibold ct-text-muted select-none"
                 >
                   $
                 </span>
@@ -416,7 +416,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
                   aria-describedby="amt-helper"
                   aria-invalid={amount > 0 && !amountValid}
                   className={cn(
-                    "ct-input tabular w-full pl-8 pr-4 py-3 mono body-lg",
+                    "ct-input tabular w-full pl-[var(--ct-space-10)] pr-[var(--ct-space-4)] py-[var(--ct-space-3)] mono body-lg",
                     amount > 0 && !amountValid
                       ? "ct-bc-warning ct-ring-warning"
                       : "",
@@ -468,7 +468,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
 
             {awaitingConfirm ? (
               <div
-                className="vault-confirm-panel border-t border-(--ct-border-soft) pt-4"
+                className="vault-confirm-panel border-t border-(--ct-border-soft) pt-[var(--ct-space-4)]"
                 aria-label={demo ? "Confirm your simulated deposit" : "Confirm your deposit"}
               >
                 <p className="eyebrow">

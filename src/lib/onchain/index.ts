@@ -11,11 +11,6 @@
 
 export type EpochStatus = "ACTIVE" | "ENDING" | "SYNC";
 
-export interface EpochInfo {
-  status: EpochStatus;
-  endsInDays: number;
-}
-
 // ---------------------------------------------------------------------------
 // Display utilities
 // ---------------------------------------------------------------------------

@@ -96,7 +96,7 @@ function ModalBody({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center p-4 z-[var(--ct-z-modal)]"
+      className="fixed inset-0 flex items-center justify-center p-[var(--ct-space-4)] z-[var(--ct-z-modal)]"
       role="presentation"
     >
       {/* Backdrop */}
@@ -121,7 +121,7 @@ function ModalBody({
           className ?? "max-w-3xl",
         )}
       >
-        <div className="flex items-center justify-between gap-2 border-b border-[var(--ct-border-soft)] px-5 py-3">
+        <div className="flex items-center justify-between gap-2 border-b border-[var(--ct-border-soft)] px-[var(--ct-space-6)] py-[var(--ct-space-3)]">
           <h2
             id={titleId}
             className="h2 ct-text-strong"
@@ -140,7 +140,7 @@ function ModalBody({
             </Button>
           </div>
         </div>
-        <div className="overflow-y-auto px-5 py-4">{children}</div>
+        <div className="overflow-y-auto px-[var(--ct-space-6)] py-[var(--ct-space-4)]">{children}</div>
       </div>
     </div>
   );

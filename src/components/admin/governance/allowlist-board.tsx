@@ -56,7 +56,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
   return (
     <>
       <Card>
-        <DashboardPanelHeader title="Anchorage quorum routing" tone="quiet" className="mb-3" />
+        <DashboardPanelHeader title="Anchorage quorum routing" tone="quiet" className="mb-[var(--ct-space-3)]" />
         <p className="body-sm ct-text-muted">
           Addresses on this list use the <span className="font-semibold ct-text-primary">fast path</span> (2/3 sigs · 0h timelock · no board notification).
           Unknown addresses route through the <span className="font-semibold ct-text-primary">medium path</span> (&lt;$100k → 3/5 · 12h) or{" "}
@@ -70,7 +70,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
           <h2 id="allowlist-add-heading" className="sr-only">
             Add entry
           </h2>
-          <DashboardPanelHeader title="Add entry" tone="quiet" className="mb-4" />
+          <DashboardPanelHeader title="Add entry" tone="quiet" className="mb-[var(--ct-space-4)]" />
           <form action={addAllowlistEntryAction} className="admin-doc-stack admin-doc-stack--relaxed">
             <div className="admin-doc-form-grid-2">
               <div className="admin-doc-stack admin-doc-stack--dense sm:col-span-2">
@@ -166,7 +166,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
             <DashboardPanelHeader
               title={`${entries.length} ${entries.length === 1 ? "entry" : "entries"}`}
               tone="quiet"
-              className="mb-4"
+              className="mb-[var(--ct-space-4)]"
             />
             <Card className="overflow-hidden p-0" hoverOverlay={false}>
               <div className="overflow-x-auto">
@@ -234,7 +234,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                               <span className="group-open:hidden">Edit ▾</span>
                               <span className="hidden group-open:inline">Close ▴</span>
                             </summary>
-                            <form action={updateAllowlistEntryAction} className="mt-3 admin-doc-stack admin-doc-stack--tight">
+                            <form action={updateAllowlistEntryAction} className="mt-[var(--ct-space-3)] admin-doc-stack admin-doc-stack--tight">
                               <input type="hidden" name="id" value={entry.id} />
                               <div className="admin-doc-stack admin-doc-stack--compact">
                                 <label htmlFor={`edit-label-${entry.id}`} className="stat-label block">

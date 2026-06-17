@@ -36,7 +36,7 @@ export default async function EditAgentTemplatePage({
         actions={template.archived ? <Badge variant="warning">Archived</Badge> : undefined}
       />
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Edit template">
-        <Card className="p-5" hoverOverlay={false}>
+        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
           <AgentTemplateForm template={template} />
         </Card>
       </section>

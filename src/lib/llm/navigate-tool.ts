@@ -175,9 +175,6 @@ export function createNavigateTool(profile: NavProfile) {
   } as const;
 }
 
-/** Backward-compatible LP tool export. */
-export const navigateTool = createNavigateTool("lp");
-
 /** Maps a model-supplied key back to its destination, or null when unknown. */
 export function resolveNavDestination(
   key: string | null | undefined,

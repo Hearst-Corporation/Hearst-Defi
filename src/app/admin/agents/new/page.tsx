@@ -23,7 +23,7 @@ export default function NewAgentTemplatePage() {
         }
       />
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="New template">
-        <Card className="p-5" hoverOverlay={false}>
+        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
           <AgentTemplateForm />
         </Card>
       </section>

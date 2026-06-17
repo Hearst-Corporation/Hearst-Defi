@@ -153,7 +153,7 @@ export function explorerTxUrl(txHash: string): string {
 }
 
 /** Block-explorer URL for an address on the active chain. */
-export function explorerAddressUrl(address: string): string {
+function explorerAddressUrl(address: string): string {
   return `${explorerOrigin(ACTIVE_CHAIN_ID)}/address/${address}`;
 }
 

@@ -65,7 +65,7 @@ export function SimulateDemoPanel() {
   return (
     <>
       <Card>
-        <DashboardPanelHeader title="Mock proposal" tone="quiet" className="mb-4" />
+        <DashboardPanelHeader title="Mock proposal" tone="quiet" className="mb-[var(--ct-space-4)]" />
 
         <div className="admin-doc-stack admin-doc-stack--tight">
           {MOCK_PROPOSALS.map((proposal, index) => (
@@ -86,7 +86,7 @@ export function SimulateDemoPanel() {
           ))}
         </div>
 
-        <div className="mt-4 admin-doc-stack admin-doc-stack--compact ct-nested-callout">
+        <div className="mt-[var(--ct-space-4)] admin-doc-stack admin-doc-stack--compact ct-nested-callout">
           <p className="mono body-xs ct-text-muted">vault: {selectedProposal.vaultAddress}</p>
           <p className="mono body-xs ct-text-faint truncate">
             calldata: {selectedProposal.calldata}
@@ -94,7 +94,7 @@ export function SimulateDemoPanel() {
           <p className="mono body-xs ct-text-faint">actionType: {selectedProposal.actionType}</p>
         </div>
 
-        <div className="mt-4 admin-doc-inline-row admin-doc-inline-row--actions">
+        <div className="mt-[var(--ct-space-4)] admin-doc-inline-row admin-doc-inline-row--actions">
           <Button type="button" variant="primary" size="md" onClick={handleSimulate} disabled={loading}>
             {loading ? "Simulating…" : "Simulate"}
           </Button>

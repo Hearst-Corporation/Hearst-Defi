@@ -128,7 +128,7 @@ export function RiskFrameworkSection({
         <ProvenanceBadge kind={provenanceFromSource(data.source)} />
       </div>
 
-      <div className="flex-1 flex flex-col mt-6 relative z-10">
+      <div className="flex-1 flex flex-col mt-[var(--ct-space-8)] relative z-10">
         <CompositeHeader
           composite={data.composite}
           band={data.band}
@@ -138,7 +138,7 @@ export function RiskFrameworkSection({
         {view === "waterfall" ? (
           <WaterfallChart data={data} />
         ) : (
-          <ul className="mt-6 ct-divide-soft">
+          <ul className="mt-[var(--ct-space-8)] ct-divide-soft">
             {data.dimensions.map((d) => (
               <li key={d.id}>
                 <RiskRow dimension={d} />
@@ -148,7 +148,7 @@ export function RiskFrameworkSection({
         )}
 
         <p
-          className="mt-auto pt-6 body-xs ct-text-faint italic leading-[var(--ct-leading-relaxed)] opacity-[var(--ct-opacity-70)]"
+          className="mt-auto pt-[var(--ct-space-8)] body-xs ct-text-faint italic leading-[var(--ct-leading-relaxed)] opacity-[var(--ct-opacity-70)]"
           title="Uses pre-audit baseline assumptions"
         >
           Composite score is the weighted sum of the five dimensions defined in
@@ -171,16 +171,16 @@ interface CompositeHeaderProps {
 
 function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
   return (
-    <Card hoverOverlay={false} className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between group">
+    <Card hoverOverlay={false} className="flex flex-col gap-[var(--ct-space-4)] sm:flex-row sm:items-center sm:justify-between group">
       <div className="absolute inset-0 bg-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--ct-dur-slower)] pointer-events-none" />
-      <div className="flex items-baseline gap-3 relative z-10">
+      <div className="flex items-baseline gap-[var(--ct-space-3)] relative z-10">
         <span className="stat-label">Composite</span>
         <span className={cn("stat-value tabular-nums", BAND_TEXT[band])}>
           {composite}
           <span className="body-xs ct-text-muted opacity-[var(--ct-opacity-50)] ml-1">/ 100</span>
         </span>
       </div>
-      <div className="flex items-center gap-4 sm:min-w-60 relative z-10">
+      <div className="flex items-center gap-[var(--ct-space-4)] sm:min-w-60 relative z-10">
         <div className="flex-1 h-1.5 bg-[var(--ct-surface-0)] rounded-full overflow-hidden border border-[var(--ct-border-soft)]">
           {/* no --ct-dur token for 1s; left raw pending a scale extension */}
           <div
@@ -333,7 +333,7 @@ function WaterfallChart({ data }: WaterfallChartProps) {
   const yGridLines = [0, 20, 40, 60, 80, 100];
 
   return (
-    <div className="mt-6 overflow-x-auto">
+    <div className="mt-[var(--ct-space-8)] overflow-x-auto">
       <svg
         viewBox={`0 0 ${VB_W} ${VB_H}`}
         className="w-full ct-waterfall-svg"
@@ -469,7 +469,7 @@ function WaterfallChart({ data }: WaterfallChartProps) {
       </svg>
 
       {/* Legend */}
-      <div className="mt-3 flex flex-wrap items-center gap-4 px-1">
+      <div className="mt-[var(--ct-space-3)] flex flex-wrap items-center gap-[var(--ct-space-4)] px-1">
         <LegendDot
           color="var(--ct-surface-3)"
           label="Baseline (100)"
@@ -518,8 +518,8 @@ interface RiskRowProps {
 function RiskRow({ dimension }: RiskRowProps) {
   const { label, status, score, severity, detail } = dimension;
   return (
-    <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:gap-4 group">
-      <div className="flex min-w-0 flex-1 items-start gap-3">
+    <div className="flex flex-col gap-[var(--ct-space-3)] py-4 sm:flex-row sm:items-center sm:gap-[var(--ct-space-4)] group">
+      <div className="flex min-w-0 flex-1 items-start gap-[var(--ct-space-3)]">
         <span
           aria-hidden
           className={cn(
@@ -528,7 +528,7 @@ function RiskRow({ dimension }: RiskRowProps) {
           )}
         />
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-[var(--ct-space-2)]">
             <span className="body-sm font-medium ct-text-primary group-hover:ct-text-body transition-colors">
               {label}
             </span>
@@ -540,7 +540,7 @@ function RiskRow({ dimension }: RiskRowProps) {
         </div>
       </div>
       {/* sm:w-[11.25rem] conservé — 11.25rem = 180px, pas de step natif Tailwind (w-44=176px trop étroit, w-48=192px trop large) */}
-      <div className="flex items-center gap-4 sm:w-[11.25rem] sm:justify-end">
+      <div className="flex items-center gap-[var(--ct-space-4)] sm:w-[11.25rem] sm:justify-end">
         <span
           className={cn(
             "mono body-sm font-semibold leading-tight w-9 text-right tabular-nums",

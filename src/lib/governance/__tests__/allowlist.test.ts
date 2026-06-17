@@ -49,9 +49,11 @@ import {
   updateAllowlistEntry,
   deactivateAllowlistEntry,
   getAllAllowlistEntries,
+} from "../allowlist";
+import {
   getActiveAllowlistEntries,
   findAllowlistEntryByAddress,
-} from "../allowlist";
+} from "../allowlist-queries";
 
 // ── Typed mock accessors ───────────────────────────────────────────────────
 

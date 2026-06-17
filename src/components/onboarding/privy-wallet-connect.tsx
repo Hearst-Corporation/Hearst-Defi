@@ -83,7 +83,7 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
         <p
           className={cn(
             "mono tabular body-sm ct-text-strong m-0",
-            "rounded-md ct-border-soft px-4 py-2",
+            "rounded-md ct-border-soft px-[var(--ct-space-4)] py-[var(--ct-space-2)]",
           )}
         >
           {abbreviateAddress(address)}

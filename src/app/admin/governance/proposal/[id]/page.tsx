@@ -95,7 +95,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
       />
 
       <Card hoverOverlay={false}>
-        <div className="mb-6 admin-doc-inline-row admin-doc-inline-row--actions">
+        <div className="mb-[var(--ct-space-8)] admin-doc-inline-row admin-doc-inline-row--actions">
           <Badge variant="accent" className="mono body-xs">{proposal.vaultTicker}</Badge>
           <Badge variant={proposalStateVariant(proposal.state)}>
             {proposalStateLabel(proposal.state)}
@@ -142,7 +142,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         </dl>
 
         {proposal.state === "TIMELOCK" && proposal.etaAt ? (
-          <div className="mt-6 ct-nested-callout flex flex-col gap-1">
+          <div className="mt-[var(--ct-space-8)] ct-nested-callout flex flex-col gap-1">
             <p className="body-xs font-semibold ct-text-body">Timelock countdown</p>
             <p className="mono body-sm ct-text-strong">{timelockCountdown(proposal.etaAt)}</p>
           </div>
@@ -154,7 +154,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
           <DashboardPanelHeader
             title="Projection · Trigger · Action · Impact"
             tone="quiet"
-            className="mb-4"
+            className="mb-[var(--ct-space-4)]"
           />
           <Ptai
             projection={ptai.projection}
@@ -162,21 +162,21 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             action={ptai.action}
             impact={ptai.impact}
           />
-          <p className="body-xs mt-3 italic leading-[var(--ct-leading-relaxed)] ct-text-faint">
+          <p className="body-xs mt-[var(--ct-space-3)] italic leading-[var(--ct-leading-relaxed)] ct-text-faint">
             Conditional projection — not guaranteed. Methodology v1.0.
           </p>
         </Card>
       ) : null}
 
       <Card density="compact" hoverOverlay={false}>
-        <DashboardPanelHeader title="Justification" tone="quiet" className="mb-4" />
+        <DashboardPanelHeader title="Justification" tone="quiet" className="mb-[var(--ct-space-4)]" />
         <p className="body-md whitespace-pre-wrap ct-text-primary">{proposal.justification}</p>
       </Card>
 
       {proposal.calldata ? (
         <Card density="compact" hoverOverlay={false}>
-          <DashboardPanelHeader title="Calldata" tone="quiet" className="mb-4" />
-          <pre className="mono overflow-x-auto whitespace-pre-wrap rounded-md border border-[var(--ct-border-soft)] p-4 body-xs ct-text-muted">
+          <DashboardPanelHeader title="Calldata" tone="quiet" className="mb-[var(--ct-space-4)]" />
+          <pre className="mono overflow-x-auto whitespace-pre-wrap rounded-md border border-[var(--ct-border-soft)] p-[var(--ct-space-4)] body-xs ct-text-muted">
             {formatProposalCalldata(proposal.calldata)}
           </pre>
         </Card>
@@ -188,7 +188,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             proposal.rejectionCount > 0 ? `, ${proposal.rejectionCount} rejected` : ""
           }${proposal.cancelCount > 0 ? `, ${proposal.cancelCount} cancel` : ""})`}
           tone="quiet"
-          className="mb-4"
+          className="mb-[var(--ct-space-4)]"
         />
 
         {proposal.signatures.length === 0 ? (
@@ -198,7 +198,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             {proposal.signatures.map((sig) => (
               <div
                 key={sig.id}
-                className="admin-doc-inline-row admin-doc-inline-row--actions border-b border-[var(--ct-border-soft)] py-2 last:border-0"
+                className="admin-doc-inline-row admin-doc-inline-row--actions border-b border-[var(--ct-border-soft)] py-[var(--ct-space-2)] last:border-0"
               >
                 <div
                   className={cn(
@@ -229,7 +229,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
 
       {!isTerminal ? (
         <Card hoverOverlay={false}>
-          <DashboardPanelHeader title="Actions" tone="quiet" className="mb-4" />
+          <DashboardPanelHeader title="Actions" tone="quiet" className="mb-[var(--ct-space-4)]" />
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             {canSign ? (
               <>
@@ -292,7 +292,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
               />
             ) : null}
           </div>
-          <p className="body-xs mt-3 ct-text-muted">
+          <p className="body-xs mt-[var(--ct-space-3)] ct-text-muted">
             Actions are recorded on-chain mock only — no Solidity calls at this stage.
           </p>
         </Card>

@@ -60,7 +60,7 @@ export function PorSummary({
             <Metric variant="nested" label="Attested at" value="—" sublabel="awaiting first close" />
             <Metric variant="nested" label="Signer" value="—" />
           </MetricGrid>
-          <AwaitingMetricState {...POR_ATTESTATION_EMPTY} className="mt-4" />
+          <AwaitingMetricState {...POR_ATTESTATION_EMPTY} className="mt-[var(--ct-space-4)]" />
         </Card>
         {custody ? <CustodySection custody={custody} /> : null}
       </div>
@@ -93,7 +93,7 @@ export function PorSummary({
         <Metric variant="nested" label="Period" value={formatPorPeriod(attestation.period)} />
       </MetricGrid>
 
-      <div className={cn(sectionDividerClass, "pt-2")}>
+      <div className={cn(sectionDividerClass, "pt-[var(--ct-space-2)]")}>
         <ProofRow label="Attestor address">
           <a
             href={`${EXPLORER_ADDRESS_BASE}${attestation.attestor}`}
@@ -113,7 +113,7 @@ export function PorSummary({
         <ProofRow label="Block">{attestation.blockNumber.toString()}</ProofRow>
       </div>
 
-      <div className="mt-4 product-doc-inline-row">
+      <div className="mt-[var(--ct-space-4)] product-doc-inline-row">
         <Button asChild variant="secondary" size="md">
           <a
             href={`${EXPLORER_TX_BASE}${attestation.txHash}`}
@@ -138,12 +138,12 @@ export function PorSummary({
       </div>
 
       {stale ? (
-        <p className="mt-3 body-xs ct-status-warning">
+        <p className="mt-[var(--ct-space-3)] body-xs ct-status-warning">
           Last attestation is older than 24h — badge shows Stale. A fresh
           attestation is expected each period close.
         </p>
       ) : !verified ? (
-        <p className="mt-3 body-xs ct-status-warning">
+        <p className="mt-[var(--ct-space-3)] body-xs ct-status-warning">
           Attestation signer is not yet verified against the allowlist — badge
           shows Stale until the signature is confirmed.
         </p>

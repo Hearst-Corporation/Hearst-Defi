@@ -49,6 +49,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
     where: { OR: [{ id }, { ticker: id.toUpperCase() }] },
     include: {
       approvals: { orderBy: { signedAt: "asc" } },
+      shareClasses: {
+        where: { active: true },
+        select: { code: true, lockupDays: true },
+      },
       positions: {
         where: { status: "active" },
         select: {
@@ -82,13 +86,19 @@ export default async function VaultDetailPage({ params }: PageProps) {
   const defaultShareClass = vault.shareClass;
   const defaultSoftLockupDays = vault.softLockupDays;
 
+  // Build a lookup from share-class code → lockupDays using the rows loaded
+  // above. Falls back to vault.softLockupDays when no matching ShareClass row
+  // exists (e.g. legacy positions created before ShareClass rows were seeded).
+  const shareClassLockupMap = new Map<string, number>(
+    vault.shareClasses.map((sc) => [sc.code, sc.lockupDays]),
+  );
+
   function classFromVaultKey(vaultKey: string): string {
     return /class-([A-Z]+)$/.exec(vaultKey)?.[1] ?? defaultShareClass;
   }
 
   function lockupDaysForClass(classCode: string): number {
-    if (classCode === "B") return 90;
-    return defaultSoftLockupDays;
+    return shareClassLockupMap.get(classCode) ?? defaultSoftLockupDays;
   }
   const kpiFacts = toVaultKpiFacts({
     targetApyLowBps: vault.targetApyLowBps,

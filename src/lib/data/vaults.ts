@@ -68,11 +68,16 @@ function normaliseStrategy(
 }
 
 function riskLevelFromBps(
-  minTicket: number,
+  apyHighBps: number,
   miningBps: number,
+  btcTacticalBps: number,
 ): VaultProduct["riskLevel"] {
-  if (miningBps >= 7500) return "moderate";
-  if (miningBps >= 5000) return "low-moderate";
+  // High: opportunistic/high-APY vaults (e.g. BTC-Plus targeting >12%)
+  if (apyHighBps > 1200 && btcTacticalBps >= 3000) return "high";
+  // Moderate: heavy mining exposure (>= 75%) or very high APY ceiling
+  if (miningBps >= 7500 || apyHighBps > 1800) return "moderate";
+  // Low-moderate: meaningful mining or BTC tactical exposure
+  if (miningBps >= 5000 || btcTacticalBps >= 2000) return "low-moderate";
   return "low";
 }
 
@@ -96,7 +101,7 @@ function toVaultProduct(row: VaultDeployment, aumUsdc: number): VaultProduct {
       perfBps: row.perfFeeBps,
       hurdleBps: row.hurdleBps,
     },
-    riskLevel: riskLevelFromBps(row.minTicketUsdc.toNumber(), miningBps),
+    riskLevel: riskLevelFromBps(row.targetApyHighBps, miningBps, row.targetBtcTacticalBps),
     spvJurisdiction: row.spvJurisdiction,
     shareClass: row.shareClass,
     regExemption: row.regExemption,

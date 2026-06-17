@@ -31,12 +31,8 @@
   "project": ["src/**/*.{ts,tsx}"],
   "ignore": [
     "**/*.d.ts",
-    "src/components/search/global-search.tsx",
-    "src/components/shortcuts/shortcuts-overlay.tsx",
-    "src/components/notifications/notifications-bell.tsx",
-    "src/components/views/saved-views-picker.tsx",
-    "src/components/ui/chart-time-selector.tsx",
-    "**/timeseries*.tsx"
+    "**/timeseries*.tsx",
+    "src/lib/empty-module.ts"
   ],
   "ignoreExportsUsedInFile": true,
   "ignoreDependencies": [],

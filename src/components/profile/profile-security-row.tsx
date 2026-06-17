@@ -27,7 +27,7 @@ export function ProfileSecurityRow({
           status === "off" && "bg-(--ct-text-faint)",
         )}
       />
-      <div className="pf-inline-row pf-inline-row--between min-w-0 flex-1 gap-3">
+      <div className="pf-inline-row pf-inline-row--between min-w-0 flex-1 gap-[var(--ct-space-3)]">
         <div className="min-w-0 flex flex-col gap-0.5">
           <span className="body-sm font-medium ct-text-primary">{title}</span>
           <span className="body-xs ct-text-muted">{description}</span>

@@ -12,6 +12,7 @@ import { MonteCarloReview } from "@/components/admin/monte-carlo-review";
 import { ProjectionFooter } from "@/components/admin/projection-footer";
 import { ForbiddenWordsInput } from "@/components/admin/forbidden-words-input";
 import { formatUsdFull } from "@/lib/vaults/product-display";
+import { SHARE_CLASS_A } from "@/lib/engine/share-class";
 import {
   createDraftVault,
   updateDraftVault,
@@ -49,17 +50,20 @@ const STEPS: { key: Step; label: string }[] = [
 
 export type FormState = CreateDraftInput & { colorTag: string };
 
+// #6 — derive fee defaults from SHARE_CLASS_A so form and engine stay in sync.
+// #5 — hurdleBps added to form state with default 0.
 const FORM_INITIAL: FormState = {
   ticker: "",
   name: "",
   description: "",
   strategy: "mining_yield",
   colorTag: "accent",
-  minTicketUsdc: 250000,
+  minTicketUsdc: SHARE_CLASS_A.minTicketUsdc,
   capacityUsdc: 10000000,
-  mgmtFeeBps: 200,
-  perfFeeBps: 2000,
-  softLockupDays: 60,
+  mgmtFeeBps: SHARE_CLASS_A.mgmtFeeBps,
+  perfFeeBps: SHARE_CLASS_A.perfFeeBps,
+  hurdleBps: SHARE_CLASS_A.hurdleBps,
+  softLockupDays: SHARE_CLASS_A.softLockupDays,
   targetApyLowBps: 800,
   targetApyHighBps: 1500,
   spvJurisdiction: "cayman",
@@ -244,6 +248,7 @@ export function VaultForm(props: VaultFormProps) {
       capacityUsdc: form.capacityUsdc,
       mgmtFeeBps: form.mgmtFeeBps,
       perfFeeBps: form.perfFeeBps,
+      hurdleBps: form.hurdleBps,
       softLockupDays: form.softLockupDays,
       targetApyLowBps: form.targetApyLowBps,
       targetApyHighBps: form.targetApyHighBps,
@@ -312,7 +317,7 @@ export function VaultForm(props: VaultFormProps) {
         : "Save Changes";
 
   return (
-    <div className="admin-doc-stack admin-doc-narrow pb-8" onBlur={handleBlur}>
+    <div className="admin-doc-stack admin-doc-narrow pb-[var(--ct-space-10)]" onBlur={handleBlur}>
       {/* Progress bar */}
       <div className="admin-doc-stack admin-doc-stack--actions">
         <div className="admin-doc-row-spread">
@@ -470,6 +475,22 @@ export function VaultForm(props: VaultFormProps) {
                 </span>
               </label>
             </div>
+
+            {/* #5 — Hurdle rate (bps): annual hurdle before carry applies */}
+            <label className="admin-doc-field block">
+              <span className="stat-label">Hurdle (bps)</span>
+              <input
+                type="number"
+                className={inputClass()}
+                value={form.hurdleBps}
+                onChange={(e) => setNumber("hurdleBps", e.target.value)}
+                min={0}
+                max={2000}
+              />
+              <span className="body-xs ct-text-faint">
+                {pct(form.hurdleBps)}% annual hurdle — carry applies only above this rate. Default 0 (no hurdle).
+              </span>
+            </label>
 
             <label className="admin-doc-field block">
               <span className="stat-label">Soft Lock-up (days) *</span>
@@ -771,7 +792,7 @@ export function VaultForm(props: VaultFormProps) {
             <CardTitle>Review &amp; Simulate</CardTitle>
 
             <div className="admin-doc-inset admin-confirm-panel divide-y divide-border-subtle">
-              <div className="admin-confirm-panel__rows pb-3">
+              <div className="admin-confirm-panel__rows pb-[var(--ct-space-3)]">
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">Ticker</span>
                   <span className="mono tabular body-sm ct-text-strong">{form.ticker}</span>
@@ -790,7 +811,7 @@ export function VaultForm(props: VaultFormProps) {
                 </div>
               </div>
 
-              <div className="admin-confirm-panel__rows py-3">
+              <div className="admin-confirm-panel__rows py-[var(--ct-space-3)]">
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">Min Ticket</span>
                   <span className="mono tabular body-sm">{formatUsdFull(form.minTicketUsdc)}</span>
@@ -803,6 +824,7 @@ export function VaultForm(props: VaultFormProps) {
                   <span className="stat-label">Fees</span>
                   <span className="mono tabular body-sm">
                     {pct(form.mgmtFeeBps)}% mgmt / {pct(form.perfFeeBps)}% perf
+                    {form.hurdleBps > 0 ? ` / ${pct(form.hurdleBps)}% hurdle` : ""}
                   </span>
                 </div>
                 <div className="admin-confirm-panel__row">
@@ -819,7 +841,7 @@ export function VaultForm(props: VaultFormProps) {
                 </div>
               </div>
 
-              <div className="admin-confirm-panel__rows py-3">
+              <div className="admin-confirm-panel__rows py-[var(--ct-space-3)]">
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">SPV</span>
                   <span className="body-sm ct-text-primary">{form.spvJurisdiction}</span>
@@ -834,7 +856,7 @@ export function VaultForm(props: VaultFormProps) {
                 </div>
               </div>
 
-              <div className="admin-confirm-panel__rows py-3">
+              <div className="admin-confirm-panel__rows py-[var(--ct-space-3)]">
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">Mining</span>
                   <span className="mono tabular body-sm">{pct(form.targetMiningBps)}%</span>
@@ -865,7 +887,7 @@ export function VaultForm(props: VaultFormProps) {
                 </div>
               </div>
 
-              <div className="admin-confirm-panel__rows py-3">
+              <div className="admin-confirm-panel__rows py-[var(--ct-space-3)]">
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">Signers</span>
                   <span className="body-sm ct-text-primary">
@@ -915,7 +937,7 @@ export function VaultForm(props: VaultFormProps) {
               <p className="body-sm ct-text-primary">
                 Click <strong>Submit for Review</strong> below to enter the multisig queue.
               </p>
-              <div className="admin-confirm-panel__rows pt-2">
+              <div className="admin-confirm-panel__rows pt-[var(--ct-space-2)]">
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">Vault</span>
                   <span className="mono tabular body-sm ct-text-strong">{form.ticker || "—"}</span>
@@ -993,10 +1015,10 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Navigation */}
         {error ? (
-          <PanelStatus tone="danger" role="alert" message={error} className="mt-4" />
+          <PanelStatus tone="danger" role="alert" message={error} className="mt-[var(--ct-space-4)]" />
         ) : null}
 
-        <div className="mt-8 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions">
+        <div className="mt-[var(--ct-space-10)] admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions">
           <Button
             variant="ghost"
             size="sm"

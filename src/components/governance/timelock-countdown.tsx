@@ -92,17 +92,17 @@ export function TimelockCountdown({
 
   return (
     <NestedPanel
-      className="flex flex-col gap-3"
+      className="flex flex-col gap-[var(--ct-space-3)]"
       data-proposal-id={proposalId}
       aria-label={`Governance proposal #${proposalId} timelock countdown`}
     >
       {/* ── Header row ──────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-[var(--ct-space-2)]">
         <span className="body-sm font-medium ct-text-strong">
           Proposal #{proposalId}
         </span>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-[var(--ct-space-2)]">
           <ProvenanceBadge kind="live" />
 
           {isExecutable ? (

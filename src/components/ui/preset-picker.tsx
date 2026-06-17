@@ -123,7 +123,7 @@ export function PresetPicker<T extends string>({
           "rounded-md border border-[var(--ct-border-soft)] bg-transparent",
           "border-l-4",
           sideAccent,
-          "px-4 py-3 text-left",
+          "px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left",
           "disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-40)]",
           "transition-colors duration-[var(--ct-dur-fast)]",
           "hover:ct-surface-1",
@@ -183,7 +183,7 @@ export function PresetPicker<T extends string>({
                   }}
                   title={o.description}
                   className={cn(
-                    "flex w-full flex-col items-start gap-0.5 px-4 py-3 text-left",
+                    "flex w-full flex-col items-start gap-0.5 px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left",
                     "transition-colors duration-[var(--ct-dur-fast)]",
                     "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                     isSelected

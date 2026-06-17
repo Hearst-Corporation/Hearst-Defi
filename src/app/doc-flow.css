@@ -1158,6 +1158,7 @@
   flex-direction: column;
   gap: var(--ct-space-5);
   padding-top: var(--ct-space-3);
+  margin-bottom: var(--ct-space-2);
 }
 
 .product-doc .invest-flow-shell__header-cta {
@@ -1331,8 +1332,8 @@
    accent rail + divider so panel titles read above stat-label KPI rows.
    Scoped to invest-flow grid only; non-workspace doc layout unchanged. */
 .product-doc .invest-flow-detail__grid .invest-flow-card-header {
-  margin-bottom: var(--ct-space-4);
-  padding-bottom: var(--ct-space-3);
+  margin-bottom: var(--ct-space-3);
+  padding-bottom: var(--ct-space-2_5);
   padding-left: var(--ct-space-3);
   border-bottom: 1px solid var(--ct-border-soft);
   border-left: 2px solid var(--ct-accent);
@@ -1350,14 +1351,14 @@
 .product-doc .invest-flow-detail__grid {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  gap: var(--ct-doc-flow-stack-gap);
   min-height: 0;
 }
 
 .product-doc .invest-flow-detail__primary {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  gap: var(--ct-doc-flow-stack-gap);
   min-width: 0;
   container-type: inline-size;
   container-name: invest-flow-primary;
@@ -1366,7 +1367,7 @@
 .product-doc .invest-flow-detail__secondary {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  gap: var(--ct-doc-flow-stack-gap);
   min-width: 0;
   container-type: inline-size;
   container-name: invest-flow-secondary;
@@ -1377,7 +1378,7 @@
   .product-doc .invest-flow-detail__grid {
     display: grid;
     grid-template-columns: 3fr 2fr;
-    gap: var(--ct-space-6);
+    gap: var(--ct-doc-flow-gap);
     align-items: start;
     min-height: 0;
   }
@@ -1554,7 +1555,7 @@
   .product-doc .vault-detail-kpis {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--ct-space-3) var(--ct-space-8);
+    gap: var(--ct-space-4) var(--ct-space-10);
   }
 
   .product-doc .vault-detail-kpis__mobile-cta {

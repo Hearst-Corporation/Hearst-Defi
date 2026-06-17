@@ -23,6 +23,7 @@ import {
   type VaultDefinition,
 } from "../src/lib/engine/vaults";
 import { SHARE_CLASS_A, SHARE_CLASS_B } from "../src/lib/engine/share-class";
+import { getDeployment } from "../src/lib/chain/deployments";
 
 const prisma = makePrismaClient();
 
@@ -665,11 +666,32 @@ const VAULT_DEPLOYMENT_FIXTURES: VaultDeploymentFixture[] = [
 ];
 
 async function seedVaultDeployments(): Promise<number> {
+  // Resolve the Yield Vault on-chain address from the committed deployment
+  // registry so the row is never filtered out by isPlaceholderVault() after a
+  // clean seed. The helper reads config/deployments.base-sepolia.json — no env
+  // required. Other vaults stay without contractAddress (paper-phase, review
+  // status) and are intentionally hidden from the investor surface.
+  const yieldVaultDeployment = getDeployment("vault");
+  const YIELD_VAULT_CONTRACT_ADDRESS = yieldVaultDeployment.address;
+  const YIELD_VAULT_NETWORK = String(yieldVaultDeployment.chainId); // "84532"
+
   let count = 0;
   for (const f of VAULT_DEPLOYMENT_FIXTURES) {
     const d = f.definition;
     const a = d.allocationTargets;
     const classA = d.shareClasses[0];
+
+    // Only the Yield vault has a real on-chain deployment. The defensive and
+    // BTC-plus vaults are paper-phase (review status) — leave contractAddress
+    // unset so isPlaceholderVault() correctly hides them from the investor UI.
+    const onChainFields =
+      f.id === "hearst-yield-vault"
+        ? {
+            contractAddress: YIELD_VAULT_CONTRACT_ADDRESS,
+            network: YIELD_VAULT_NETWORK,
+          }
+        : {};
+
     const data = {
       ticker: `${d.ticker}-A`,
       name: d.label,
@@ -679,8 +701,8 @@ async function seedVaultDeployments(): Promise<number> {
       status: f.status,
       minTicketUsdc: classA?.minTicketUsdc ?? 250_000,
       capacityUsdc: 100_000_000,
-      mgmtFeeBps: classA?.mgmtFeeBps ?? 200,
-      perfFeeBps: classA?.perfFeeBps ?? 1000,
+      mgmtFeeBps: classA?.mgmtFeeBps ?? SHARE_CLASS_A.mgmtFeeBps,
+      perfFeeBps: classA?.perfFeeBps ?? SHARE_CLASS_A.perfFeeBps,
       hurdleBps: classA?.hurdleBps ?? 0,
       softLockupDays: classA?.softLockupDays ?? 60,
       targetApyLowBps: Math.round(d.apyTarget.low * 100),
@@ -698,6 +720,7 @@ async function seedVaultDeployments(): Promise<number> {
       requiredSigners: 2,
       signersWhitelist: JSON.stringify(["multisig:0xAAA", "multisig:0xBBB"]),
       createdBy: "seed-user",
+      ...onChainFields,
     };
     await prisma.vaultDeployment.upsert({
       where: { id: f.id },

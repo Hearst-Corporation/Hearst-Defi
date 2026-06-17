@@ -41,14 +41,6 @@ export const METHODOLOGY_V2_MD: string = readFileSync(METHODOLOGY_V2_PATH, "utf8
 export const METHODOLOGY_VERSION: MethodologyVersion = "v1.0";
 
 /**
- * Back-compat export. `METHODOLOGY_MD` was historically the v1.0 markdown body
- * inlined in every agent system prompt. Keep the alias so non-agent consumers
- * (PDF fallbacks, mock data) that import it keep working until they migrate to
- * `getMethodologyMd(version)`.
- */
-export const METHODOLOGY_MD: string = METHODOLOGY_V1_MD;
-
-/**
  * Returns the markdown body matching the requested methodology version.
  * Used by agents to inline the correct source into their system prompt.
  */

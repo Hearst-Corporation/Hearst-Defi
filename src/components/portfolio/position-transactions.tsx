@@ -94,7 +94,7 @@ export function PositionTransactions({
       </div>
 
       {transactions.length === 0 ? (
-        <p className="body-sm ct-text-muted mt-2">
+        <p className="body-sm ct-text-muted mt-[var(--ct-space-2)]">
           No transactions recorded yet.
         </p>
       ) : (
@@ -121,12 +121,12 @@ export function PositionTransactions({
                     className="border-b border-[var(--ct-border-soft)]"
                   >
                     {/* Date */}
-                    <td className="tabular body-xs ct-text-muted py-2 pr-4 mono whitespace-nowrap">
+                    <td className="tabular body-xs ct-text-muted py-[var(--ct-space-2)] pr-[var(--ct-space-4)] mono whitespace-nowrap">
                       {dateFmt.format(tx.occurredAt)}
                     </td>
 
                     {/* Type + icon */}
-                    <td className="py-2 pr-4">
+                    <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-4)]">
                       <span className="body-xs ct-text-body pf-inline-row pf-inline-row--dense">
                         <span
                           aria-hidden="true"
@@ -141,7 +141,7 @@ export function PositionTransactions({
                     {/* Amount — green for incoming (deposit), muted for outgoing */}
                     <td
                       className={cn(
-                        "tabular body-md py-2 pr-4 text-right mono font-semibold whitespace-nowrap",
+                        "tabular body-md py-[var(--ct-space-2)] pr-[var(--ct-space-4)] text-right mono font-semibold whitespace-nowrap",
                         incoming ? "ct-status-success" : "ct-text-primary",
                       )}
                     >
@@ -150,7 +150,7 @@ export function PositionTransactions({
                     </td>
 
                     {/* Tx hash — never link a fabricated seed/demo hash (dead BaseScan). */}
-                    <td className="py-2 text-right whitespace-nowrap">
+                    <td className="py-[var(--ct-space-2)] text-right whitespace-nowrap">
                       {tx.txHash && !isPlaceholderTxHash(tx.txHash) ? (
                         <a
                           href={explorerTxUrl(tx.txHash)}

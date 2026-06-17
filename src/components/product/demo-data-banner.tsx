@@ -19,7 +19,7 @@ export function DemoDataBanner({ className, message }: DemoDataBannerProps) {
       role="note"
       aria-label="Demo data notice"
       className={cn(
-        "rounded-md border border-[var(--ct-status-warning-border)] ct-border-soft bg-transparent px-4 py-2.5",
+        "rounded-md border border-[var(--ct-status-warning-border)] ct-border-soft bg-transparent px-[var(--ct-space-4)] py-2.5",
         className,
       )}
     >

@@ -17,9 +17,6 @@ export const DISTRIBUTION_EVENTS = {
   EXECUTED: "distribution.executed",
 } as const;
 
-export type DistributionEventName =
-  (typeof DISTRIBUTION_EVENTS)[keyof typeof DISTRIBUTION_EVENTS];
-
 // ---------------------------------------------------------------------------
 // Payload shapes
 // ---------------------------------------------------------------------------
@@ -39,11 +36,4 @@ export interface DistributionExecutedPayload {
   executedAt: string;
 }
 
-// ---------------------------------------------------------------------------
-// Typed event union (for Inngest EventSchemas if added later)
-// ---------------------------------------------------------------------------
 
-export type DistributionEvent = {
-  name: typeof DISTRIBUTION_EVENTS.EXECUTED;
-  data: DistributionExecutedPayload;
-};

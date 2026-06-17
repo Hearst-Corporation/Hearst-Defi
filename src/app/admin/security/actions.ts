@@ -8,12 +8,6 @@ import {
 } from "@/lib/auth/totp";
 import { revalidatePath } from "next/cache";
 
-export type EnrolmentState =
-  | { step: "idle"; totpEnabled: boolean }
-  | { step: "pending"; payload: TotpEnrolmentPayload }
-  | { step: "confirmed" }
-  | { step: "error"; error: string };
-
 /**
  * Start TOTP enrolment: generates a new secret + QR and returns it to the UI.
  * Nothing is persisted yet — confirmation happens in `confirmEnrolment`.

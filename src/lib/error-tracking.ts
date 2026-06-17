@@ -30,7 +30,4 @@ export function captureMessage(
   Sentry.captureMessage(msg, { extra: context });
 }
 
-export function setUserContext(userId: string): void {
-  if (!isEnabled()) return;
-  Sentry.setUser({ id: userId });
-}
+

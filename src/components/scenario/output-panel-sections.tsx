@@ -24,7 +24,7 @@ import type { ScenarioOutput } from "@/lib/engine/types";
 export type OutputVariant = "full" | "compact";
 
 function CompactSection({ children }: { children: React.ReactNode }) {
-  return <div className="py-4">{children}</div>;
+  return <div className="py-[var(--ct-space-4)]">{children}</div>;
 }
 
 // ── APY hero ────────────────────────────────────────────────────────────────
@@ -71,7 +71,7 @@ export function ApyHero({
   if (variant === "full") {
     return (
       <Card>
-        <CardHeader className="mb-4">
+        <CardHeader className="mb-[var(--ct-space-4)]">
           <CardTitle>Projected APY Range</CardTitle>
           <ProvenanceBadge kind="estimated" />
         </CardHeader>
@@ -81,15 +81,15 @@ export function ApyHero({
           {confidence}
         </div>
 
-        <div className="mt-4 border-t border-[var(--ct-border-soft)] pt-4">
-          <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between">
+        <div className="mt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-4)]">
+          <div className="mb-[var(--ct-space-3)] admin-doc-inline-row admin-doc-inline-row--between">
             <span className="stat-label">Stressed APY</span>
             <ProvenanceBadge kind="estimated" />
           </div>
           <span className="mono stat-value tabular-nums ct-text-primary">
             {output.stressed_apy.toFixed(1)}%
           </span>
-          <span className="ml-2 body-xs ct-text-muted">
+          <span className="ml-[var(--ct-space-2)] body-xs ct-text-muted">
             bear scenario floor
           </span>
         </div>
@@ -99,7 +99,7 @@ export function ApyHero({
 
   return (
     <CompactSection>
-      <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
+      <div className="mb-[var(--ct-space-3)] admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
         <h4 className="h4 ct-text-strong">Projected APY</h4>
         <ProvenanceBadge kind="estimated" />
       </div>
@@ -143,7 +143,7 @@ function ScoreCard({
       <div
         className={cn(
           "admin-doc-inline-row admin-doc-inline-row--between",
-          variant === "full" ? "mb-3" : "mb-2",
+          variant === "full" ? "mb-[var(--ct-space-3)]" : "mb-[var(--ct-space-2)]",
         )}
       >
         <span className={labelCls}>{label}</span>
@@ -156,15 +156,15 @@ function ScoreCard({
       <Progress
         value={value}
         fillClassName={fillClassName}
-        className={variant === "full" ? "mt-2" : "mt-1.5"}
+        className={variant === "full" ? "mt-[var(--ct-space-2)]" : "mt-1.5"}
       />
       {footer}
       {caption && (
         <p
           className={cn(
             variant === "full"
-              ? "mt-2 body-xs ct-text-muted"
-              : "mt-2 body-xs ct-text-faint",
+              ? "mt-[var(--ct-space-2)] body-xs ct-text-muted"
+              : "mt-[var(--ct-space-2)] body-xs ct-text-faint",
           )}
         >
           {caption}
@@ -197,7 +197,7 @@ export function ScoreGrid({
     <div
       className={cn(
         "grid sm:grid-cols-2",
-        variant === "full" ? "admin-doc-stack--relaxed" : "gap-4",
+        variant === "full" ? "admin-doc-stack--relaxed" : "gap-[var(--ct-space-4)]",
       )}
     >
       <ScoreCard
@@ -254,7 +254,7 @@ export function VaultMode({
       <Badge
         variant={MODE_VARIANT[output.mode]}
         className={
-          variant === "full" ? "px-4 py-2 body-sm" : "px-3 py-1.5 body-xs"
+          variant === "full" ? "px-[var(--ct-space-4)] py-[var(--ct-space-2)] body-sm" : "px-[var(--ct-space-3)] py-1.5 body-xs"
         }
       >
         {MODE_LABEL[output.mode]}
@@ -297,11 +297,11 @@ function AllocationTable({
   const yieldHeader = variant === "full" ? "Yield contribution" : "Yield";
 
   return (
-    <div className={variant === "full" ? "mt-4" : "mt-3"}>
+    <div className={variant === "full" ? "mt-[var(--ct-space-4)]" : "mt-[var(--ct-space-3)]"}>
       <div
         className={cn(
           "grid grid-cols-[1fr_auto_auto]",
-          variant === "full" ? "mb-2 admin-doc-inline-row--relaxed" : "mb-1.5 admin-doc-inline-row--actions",
+          variant === "full" ? "mb-[var(--ct-space-2)] admin-doc-inline-row--relaxed" : "mb-1.5 admin-doc-inline-row--actions",
         )}
       >
         <span className="stat-label">Bucket</span>
@@ -376,7 +376,7 @@ export function AllocationSection({
   if (variant === "full") {
     return (
       <Card>
-        <CardHeader className="mb-4">
+        <CardHeader className="mb-[var(--ct-space-4)]">
           <CardTitle>Allocation</CardTitle>
           <ProvenanceBadge kind="estimated" />
         </CardHeader>
@@ -387,7 +387,7 @@ export function AllocationSection({
 
   return (
     <CompactSection>
-      <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
+      <div className="mb-[var(--ct-space-3)] admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
         <h4 className="h4 ct-text-strong">Allocation</h4>
         <ProvenanceBadge kind="estimated" />
       </div>

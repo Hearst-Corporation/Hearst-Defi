@@ -86,8 +86,9 @@ export function ProvenanceBadge({
     return (
       <Tooltip content={descriptions[kind]}>
         <span
+          role="status"
           className={cn("provenance-badge--strip shrink-0", stripDotTone[kind])}
-          aria-label={labels[kind]}
+          aria-label={`Data provenance: ${labels[kind]}`}
         >
           <span
             aria-hidden
@@ -110,7 +111,8 @@ export function ProvenanceBadge({
     <Tooltip content={descriptions[kind]}>
       <Badge
         variant={chromed ? variants[kind] : "flat"}
-        aria-label={labels[kind]}
+        role="status"
+        aria-label={`Data provenance: ${labels[kind]}`}
         className={
           resolved === "compact"
             ? cn(

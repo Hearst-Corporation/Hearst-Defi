@@ -104,7 +104,7 @@ export function RebalancingEventsPanel({
         {events.map((event) => (
           <li
             key={event.id}
-            className="product-doc-section__head py-4 first:pt-0 last:pb-0"
+            className="product-doc-section__head py-[var(--ct-space-4)] first:pt-0 last:pb-0"
           >
             <div className="min-w-0 flex-1 product-doc-stack product-doc-stack--compact">
               <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--wrap">
@@ -122,7 +122,7 @@ export function RebalancingEventsPanel({
                 />
               </div>
 
-              <div className="mt-2 min-w-0">
+              <div className="mt-[var(--ct-space-2)] min-w-0">
                 <ProofRow label="Triggered">
                   {dateFmt.format(event.triggeredAt)} UTC
                 </ProofRow>
@@ -151,7 +151,7 @@ export function RebalancingEventsPanel({
                 ) : null}
               </div>
 
-              <div className="mt-3">
+              <div className="mt-[var(--ct-space-3)]">
                 <RebalancePtaiModalTrigger event={event} />
               </div>
             </div>

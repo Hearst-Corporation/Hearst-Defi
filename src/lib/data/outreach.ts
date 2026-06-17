@@ -103,7 +103,7 @@ export async function loadProspects(opts?: {
 // ---------------------------------------------------------------------------
 
 /** Per-campaign email funnel counts derived from OutreachEmail.status. */
-export interface CampaignFunnelCounts {
+interface CampaignFunnelCounts {
   total: number;
   sent: number;
   opened: number;
@@ -212,7 +212,6 @@ export interface CampaignDetail {
   emails: CampaignEmailRow[];
   /** Count of emails per OutreachEmail.status within this campaign. */
   statusCounts: Record<string, number>;
-  funnel: CampaignFunnelCounts;
 }
 
 /**
@@ -274,7 +273,6 @@ export async function loadCampaignDetail(
     sentAt: campaign.sentAt,
     emails,
     statusCounts,
-    funnel: tallyFunnel(emails.map((e) => e.status)),
   };
 }
 

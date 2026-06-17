@@ -65,7 +65,7 @@ export default async function ProposePage() {
       />
 
       <Card>
-        <DashboardPanelHeader title="Proposal details" tone="quiet" className="mb-6" />
+        <DashboardPanelHeader title="Proposal details" tone="quiet" className="mb-[var(--ct-space-8)]" />
         <form action={handlePropose} className="admin-doc-stack">
           <div className="admin-doc-stack admin-doc-stack--dense">
             <label htmlFor="vaultId" className="stat-label block">
@@ -137,7 +137,7 @@ export default async function ProposePage() {
             />
           </div>
 
-          <div className="admin-doc-inline-row admin-doc-inline-row--actions pt-2">
+          <div className="admin-doc-inline-row admin-doc-inline-row--actions pt-[var(--ct-space-2)]">
             <Button type="submit" variant="primary" size="lg" disabled={vaults.length === 0}>
               Submit proposal
             </Button>

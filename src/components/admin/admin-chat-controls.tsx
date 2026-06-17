@@ -712,7 +712,7 @@ export function AdminChatControls() {
       ? new Date(readUtilitySummary.generatedAt).toLocaleString()
       : readUtilitySummary?.generatedAt ?? "n/a";
   const adminInputClassName =
-    "w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-2 py-1 body-xs";
+    "w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-[var(--ct-space-2)] py-1 body-xs";
   // Hidden until hydrated and admin status confirmed. The settings-panel
   // section only renders when the réglages view is open (target present), but
   // the error toast + Modal must stay mountable regardless.
@@ -815,7 +815,7 @@ export function AdminChatControls() {
                 Copilote interne : architecture, allocations, marche disponible,
                 deploiements et runbooks. Pas d'execution autonome.
               </div>
-              <div className="ct-chat-settings-label mt-2">Actions admin</div>
+              <div className="ct-chat-settings-label mt-[var(--ct-space-2)]">Actions admin</div>
               <div className="ct-chat-settings-row">
                 <select
                   className={adminInputClassName}
@@ -962,7 +962,7 @@ export function AdminChatControls() {
               {actionResult ? (
                 <div className="ct-chat-settings-hint">{actionResult}</div>
               ) : null}
-              <div className="ct-chat-settings-label mt-2">Read utilities</div>
+              <div className="ct-chat-settings-label mt-[var(--ct-space-2)]">Read utilities</div>
               <div className="ct-chat-settings-row">
                 <select
                   className={adminInputClassName}
@@ -1059,7 +1059,7 @@ export function AdminChatControls() {
                     />
                   </div>
                   <div className="ct-chat-settings-row">
-                    <label className="body-xs inline-flex items-center gap-2">
+                    <label className="body-xs inline-flex items-center gap-[var(--ct-space-2)]">
                       <input
                         type="checkbox"
                         checked={demoPackIncludeCharts}
@@ -1073,7 +1073,7 @@ export function AdminChatControls() {
                   </div>
                   {readUtilityTool === "export_demo_pack" ? (
                     <div className="ct-chat-settings-row">
-                      <label className="body-xs inline-flex items-center gap-2">
+                      <label className="body-xs inline-flex items-center gap-[var(--ct-space-2)]">
                         <input
                           type="checkbox"
                           checked={demoPackIncludeChecklist}
@@ -1106,7 +1106,7 @@ export function AdminChatControls() {
                       <div
                         className={cn(
                           "w-full rounded-md border border-(--ct-border-soft)",
-                          "ct-surface-1 px-2 py-1 body-xs",
+                          "ct-surface-1 px-[var(--ct-space-2)] py-1 body-xs",
                           "flex flex-wrap items-center gap-x-3 gap-y-1",
                         )}
                         aria-label="Export pack summary"
@@ -1144,7 +1144,7 @@ export function AdminChatControls() {
                     <pre
                       className={cn(
                         "w-full max-h-56 overflow-auto rounded-md border border-(--ct-border-soft)",
-                        "ct-surface-1 p-2 body-xs",
+                        "ct-surface-1 p-[var(--ct-space-2)] body-xs",
                       )}
                     >
                       {readUtilityResult}

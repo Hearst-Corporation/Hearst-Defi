@@ -163,6 +163,22 @@ const ERC4626_ABI = [
     inputs: [{ name: "shares", type: "uint256" }],
     outputs: [{ name: "assets", type: "uint256" }],
   },
+  {
+    // totalAssets() → total USDC (6-decimal) managed by the vault.
+    name: "totalAssets",
+    type: "function" as const,
+    stateMutability: "view" as const,
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    // convertToAssets(shares) → USDC assets for 1e18 shares — used to derive NAV per share.
+    name: "convertToAssets",
+    type: "function" as const,
+    stateMutability: "view" as const,
+    inputs: [{ name: "shares", type: "uint256" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -362,21 +378,6 @@ export async function depositToVault(
 // ---------------------------------------------------------------------------
 
 /**
- * Raw vault share balance (18-decimal share token) held by `owner`.
- * Returns 0n if the vault address is not configured.
- */
-export async function readVaultShares(owner: Address): Promise<bigint> {
-  if (!VAULT_ADDRESS) return 0n;
-  const publicClient = getBrowserPublicClient();
-  return publicClient.readContract({
-    address: VAULT_ADDRESS,
-    abi: ERC4626_ABI,
-    functionName: "balanceOf",
-    args: [owner],
-  });
-}
-
-/**
  * Max shares `owner` can redeem right now (0 when paused, capped by balance).
  * Returns 0n if the vault address is not configured.
  */
@@ -466,4 +467,68 @@ export async function redeemFromVault(
   await publicClient.waitForTransactionReceipt({ hash: txHash });
 
   return { txHash, assetsUsdc };
+}
+
+// ---------------------------------------------------------------------------
+// Read-only NAV helpers — caller supplies a ReadContractClient so these work
+// in BOTH server components (pass getPublicClient() from src/lib/chain/client.ts)
+// AND browser components (pass getBrowserPublicClient()).
+//
+// We use a structural interface rather than viem's `PublicClient` to avoid the
+// dual-viem-version collision that surfaces when @walletconnect/utils pins an
+// older viem alongside ours. Both createPublicClient instances satisfy this shape.
+// ---------------------------------------------------------------------------
+
+/** Minimal structural type for a viem client that can call readContract. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ReadContractClient = { readContract: (params: any) => Promise<any> };
+
+/** 1e18 share units — ERC-4626 shares use 18 decimals. */
+const ONE_SHARE = BigInt(10 ** 18);
+
+/**
+ * Total USDC assets under management in the vault (6-decimal raw value).
+ * Returns null when the vault address is not configured.
+ *
+ * @param client - A viem PublicClient. From a Server Component pass
+ *   `getPublicClient()` (src/lib/chain/client.ts); from a browser context
+ *   pass `getBrowserPublicClient()`.
+ */
+async function readTotalAssets(client: ReadContractClient): Promise<bigint | null> {
+  if (!VAULT_ADDRESS) return null;
+  return client.readContract({
+    address: VAULT_ADDRESS,
+    abi: ERC4626_ABI,
+    functionName: "totalAssets",
+    args: [],
+  }) as Promise<bigint>;
+}
+
+/**
+ * NAV per share, expressed as a 6-decimal USDC raw value (e.g. 1_000_000n = 1.000000 USDC).
+ * Derived from `convertToAssets(1e18)` — the canonical ERC-4626 way to get price-per-share.
+ * Returns null when the vault address is not configured.
+ *
+ * @param client - A viem PublicClient. From a Server Component pass
+ *   `getPublicClient()` (src/lib/chain/client.ts); from a browser context
+ *   pass `getBrowserPublicClient()`.
+ */
+export async function readNavPerShare(client: ReadContractClient): Promise<bigint | null> {
+  if (!VAULT_ADDRESS) return null;
+  return client.readContract({
+    address: VAULT_ADDRESS,
+    abi: ERC4626_ABI,
+    functionName: "convertToAssets",
+    args: [ONE_SHARE],
+  }) as Promise<bigint>;
+}
+
+/**
+ * Format a raw 6-decimal USDC NAV value (from readNavPerShare) as a display
+ * string, e.g. 1_000_000n → "1.0000".
+ */
+export function formatNavPerShare(raw: bigint): string {
+  const whole = raw / BigInt(10 ** USDC_DECIMALS);
+  const frac = raw % BigInt(10 ** USDC_DECIMALS);
+  return `${whole.toString()}.${frac.toString().padStart(USDC_DECIMALS, "0").slice(0, 4)}`;
 }

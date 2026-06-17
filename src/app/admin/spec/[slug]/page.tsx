@@ -54,7 +54,7 @@ export default async function SpecPage({
           </nav>
         </aside>
 
-        <article className="min-w-0 flex flex-col gap-6">
+        <article className="min-w-0 flex flex-col gap-[var(--ct-space-8)]">
           <div className="admin-doc-prose-shell">
             <AdminPageHeader
               title={doc.title}

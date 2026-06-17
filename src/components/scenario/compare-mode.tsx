@@ -160,7 +160,7 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
       {error && (
         <p
           role="alert"
-          className="rounded-full border border-(--ct-status-danger) bg-transparent px-4 py-2.5 body-sm ct-status-danger"
+          className="rounded-full border border-(--ct-status-danger) bg-transparent px-[var(--ct-space-4)] py-2.5 body-sm ct-status-danger"
         >
           {error}
         </p>
@@ -200,7 +200,7 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
       )}
 
       {/* Shared disclaimer */}
-      <p className="border-t border-(--ct-border-soft) pt-4 body-xs italic ct-text-muted">
+      <p className="border-t border-(--ct-border-soft) pt-[var(--ct-space-4)] body-xs italic ct-text-muted">
         <span className="font-semibold not-italic ct-text-body">
           Not guaranteed.
         </span>{" "}

@@ -574,7 +574,7 @@ export function ProjectionStudio() {
                 </div>
               </div>
               <ScenePlaceholderMetrics />
-              <p className="body-xs ct-text-faint m-0 px-5">
+              <p className="body-xs ct-text-faint m-0 px-[var(--ct-space-6)]">
                 Set assumptions, then run a projection or batch to populate the
                 APY range, risk score, and PTAI impact.
               </p>

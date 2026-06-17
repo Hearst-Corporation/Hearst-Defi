@@ -50,7 +50,7 @@ export function HeroLiquidityRail({
   const metaText = showZeroShell
     ? termsUnknown
       ? "Terms pending"
-      : "60-day soft lock shown after deposit"
+      : `${softLockupDays}-day soft lock shown after deposit`
     : termsUnknown
       ? "Terms pending"
       : isUnlocked

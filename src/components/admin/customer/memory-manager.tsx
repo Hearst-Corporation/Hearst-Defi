@@ -51,7 +51,7 @@ export function MemoryManager({
 
   return (
     <div className="admin-doc-stack admin-doc-stack--actions">
-      <form action={onAdd} className="admin-doc-inline-row flex-wrap gap-2" aria-label="Add memory">
+      <form action={onAdd} className="admin-doc-inline-row flex-wrap gap-[var(--ct-space-2)]" aria-label="Add memory">
         <input type="hidden" name="userId" value={userId} />
         <input
           name="content"
@@ -84,7 +84,7 @@ export function MemoryManager({
           {memory.map((m) => (
             <li
               key={m.id}
-              className="admin-doc-row-spread border-b border-(--ct-border-soft) pb-2 last:border-0"
+              className="admin-doc-row-spread border-b border-(--ct-border-soft) pb-[var(--ct-space-2)] last:border-0"
             >
               <div className="min-w-0">
                 <div className="admin-doc-inline-row">

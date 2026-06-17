@@ -49,17 +49,17 @@ export function DepositSummary({ vault, amount, demo = false }: DepositSummaryPr
           />
         </DataRow>
 
-        <DataRow label="Est. yearly yield">
+        <DataRow label="Est. gross yield (p.a.)">
           {yearlyYield !== null ? (
             <span className="mono">
-              {formatUsdFull(yearlyYield)} USDC
+              ~{formatUsdFull(yearlyYield)} USDC
             </span>
           ) : (
             <span className="ct-text-muted">—</span>
           )}
         </DataRow>
 
-        <DataRow label="At soft close">
+        <DataRow label="At soft close (gross)">
           {totalAtClose !== null ? (
             <span className="mono">
               ~{formatUsdFull(totalAtClose)} USDC
@@ -77,8 +77,9 @@ export function DepositSummary({ vault, amount, demo = false }: DepositSummaryPr
         </DataRow>
 
         <p className="body-xs ct-text-faint vault-disclaimer-inset ct-leading-relaxed">
-          Yield figures use the midpoint of the APY range — not a commitment of
-          future returns. Methodology v1.0.
+          Figures shown are gross (before fees). Net yield after management and performance
+          fees will be lower. Uses APY range midpoint — not a commitment of future returns.
+          Methodology v1.0.
         </p>
       </div>
     </NestedPanel>

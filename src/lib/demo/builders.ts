@@ -234,6 +234,7 @@ export function buildDemoPositionDetail(): PositionDetail {
     id: DEMO_POSITION_ID,
     vaultName: DEMO_VAULT_NAME,
     vaultTicker: DEMO_VAULT_TICKER,
+    softLockupDays: 60,
     status: "active",
     principalUsdc,
     accruedYieldUsdc,

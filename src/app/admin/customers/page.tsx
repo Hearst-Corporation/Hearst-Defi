@@ -80,7 +80,7 @@ export default async function CustomersPage({
             detail="Provision an account with the New investor button — it creates the User and Investor records. Sign-in stays disabled until the password reset flow is completed."
             className="min-h-32"
           >
-            <div className="mt-4">
+            <div className="mt-[var(--ct-space-4)]">
               <CreateInvestorButton />
             </div>
           </EmptySurface>
@@ -153,7 +153,7 @@ export default async function CustomersPage({
 
         {/* Pagination controls */}
         {total > 0 && (
-          <div className="admin-doc-row-spread border-t border-(--ct-border-soft) pt-4">
+          <div className="admin-doc-row-spread border-t border-(--ct-border-soft) pt-[var(--ct-space-4)]">
             <p className="body-xs ct-text-muted">
               Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, total)} of {total}
             </p>
@@ -161,7 +161,7 @@ export default async function CustomersPage({
               {page > 1 && (
                 <a
                   href={`/admin/customers?page=${page - 1}&pageSize=${pageSize}`}
-                  className="rounded-md border border-(--ct-border-soft) px-3 py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors"
+                  className="rounded-md border border-(--ct-border-soft) px-[var(--ct-space-3)] py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors"
                 >
                   Previous
                 </a>
@@ -169,7 +169,7 @@ export default async function CustomersPage({
               {hasMore && (
                 <a
                   href={`/admin/customers?page=${page + 1}&pageSize=${pageSize}`}
-                  className="rounded-md border border-(--ct-border-soft) px-3 py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors"
+                  className="rounded-md border border-(--ct-border-soft) px-[var(--ct-space-3)] py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors"
                 >
                   Next
                 </a>

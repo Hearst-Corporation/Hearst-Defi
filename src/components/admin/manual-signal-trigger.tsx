@@ -73,7 +73,7 @@ export function ManualSignalTrigger({ action, vaultId }: ManualSignalTriggerProp
         title="Trigger a test signal"
         className="max-w-md"
       >
-        <p className="body-sm ct-text-muted mb-4">
+        <p className="body-sm ct-text-muted mb-[var(--ct-space-4)]">
           Dev only. Seeds a pending rebalance signal with placeholder PTAI text
           so the approve / reject flow can be exercised without the Inngest Dev
           Server.
@@ -105,7 +105,7 @@ export function ManualSignalTrigger({ action, vaultId }: ManualSignalTriggerProp
           </div>
         )}
 
-        <div className="mt-6 admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions justify-end">
+        <div className="mt-[var(--ct-space-8)] admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions justify-end">
           <Button variant="ghost" size="md" onClick={handleClose} disabled={isPending}>
             Cancel
           </Button>

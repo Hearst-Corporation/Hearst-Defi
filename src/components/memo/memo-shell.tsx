@@ -61,7 +61,7 @@ function downloadMarkdown(memo: InvestorMemoOutput, vaultName: string): void {
 function SkeletonSection() {
   return (
     <Card hoverOverlay={false}>
-      <div className="mb-4 h-5 w-1/3 animate-pulse rounded ct-surface-1" />
+      <div className="mb-[var(--ct-space-4)] h-5 w-1/3 animate-pulse rounded ct-surface-1" />
       <div className="admin-doc-stack--tight">
         <div className="h-3 w-full animate-pulse rounded ct-surface-1" />
         <div className="h-3 w-11/12 animate-pulse rounded ct-surface-1" />
@@ -175,7 +175,7 @@ export function MemoShell({
       />
 
       {error ? (
-        <div className="rounded-md border border-[var(--ct-status-danger)] bg-transparent px-4 py-3">
+        <div className="rounded-md border border-[var(--ct-status-danger)] bg-transparent px-[var(--ct-space-4)] py-[var(--ct-space-3)]">
           <p className="stat-label ct-status-danger">Generation failed</p>
           <p className="mt-1 mono body-xs ct-status-danger break-words">
             {error}

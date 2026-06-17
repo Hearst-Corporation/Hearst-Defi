@@ -144,12 +144,12 @@ export function OnboardingForm() {
         </div>
 
         {/* Side-effects toggles */}
-        <div className="admin-doc-inline-row flex-wrap gap-4">
-          <label className="inline-flex items-center body-xs gap-2">
+        <div className="admin-doc-inline-row flex-wrap gap-[var(--ct-space-4)]">
+          <label className="inline-flex items-center body-xs gap-[var(--ct-space-2)]">
             <input type="checkbox" name="syncHubspot" defaultChecked />
             <span>Create HubSpot contact</span>
           </label>
-          <label className="inline-flex items-center body-xs gap-2">
+          <label className="inline-flex items-center body-xs gap-[var(--ct-space-2)]">
             <input type="checkbox" name="sendEmail" />
             <span>Send welcome email</span>
           </label>
@@ -165,7 +165,7 @@ export function OnboardingForm() {
       {/* Result */}
       {result && (
         <div className="admin-doc-stack admin-doc-stack--actions">
-          <div className="admin-doc-inline-row flex-wrap gap-2">
+          <div className="admin-doc-inline-row flex-wrap gap-[var(--ct-space-2)]">
             {result.ok ? (
               <Badge variant="success">{result.created ? "Account created" : "Account ready"}</Badge>
             ) : (

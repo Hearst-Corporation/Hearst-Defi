@@ -59,14 +59,14 @@ export function SimulationPanel({
     <Card
       hoverOverlay={false}
       className={cn(
-        "flex flex-col gap-5",
+        "flex flex-col gap-[var(--ct-space-5)]",
         className,
       )}
       aria-busy={loading ? "true" : "false"}
       aria-label="Pre-execution simulation panel"
     >
       {/* Header */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-[var(--ct-space-3)]">
         <h3 className="h3">
           Simulation Preview
         </h3>
@@ -92,7 +92,7 @@ export function SimulationPanel({
 
       {/* Results */}
       {!loading && !error && result && (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-[var(--ct-space-6)]">
           <GasRow
             gas={result.gasUsedEstimate}
             usd={result.gasCostUsdEstimate}
@@ -137,7 +137,7 @@ function Divider() {
 
 function LoadingState() {
   return (
-    <div className="flex flex-col items-center gap-3 py-8">
+    <div className="flex flex-col items-center gap-[var(--ct-space-3)] py-[var(--ct-space-10)]">
       {/* Spinner */}
       <span
         className="block h-8 w-8 rounded-full border-2 border-(--ct-border-soft) border-t-(--ct-accent) animate-spin"
@@ -165,7 +165,7 @@ function ErrorState({ message }: { message: string }) {
 
 function EmptyState() {
   return (
-    <p className="body-sm ct-text-faint text-center py-6">
+    <p className="body-sm ct-text-faint text-center py-[var(--ct-space-8)]">
       No simulation run yet. Click <strong className="ct-text-muted">Simulate</strong> to preview execution.
     </p>
   );
@@ -173,7 +173,7 @@ function EmptyState() {
 
 function GasRow({ gas, usd }: { gas: number; usd: number }) {
   return (
-    <div className="flex items-baseline justify-between gap-4">
+    <div className="flex items-baseline justify-between gap-[var(--ct-space-4)]">
       <span className="stat-label">
         Gas estimate
       </span>
@@ -189,14 +189,14 @@ function GasRow({ gas, usd }: { gas: number; usd: number }) {
 
 function StateDiffSection({ entries }: { entries: StateDiffEntry[] }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-[var(--ct-space-2)]">
       <SectionLabel>State diff</SectionLabel>
       {entries.length === 0 ? (
         <p className="body-xs ct-text-faint">
           No storage changes detected.
         </p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-[var(--ct-space-2)]">
           {entries.map((entry, i) => (
             <li
               key={i}
@@ -208,7 +208,7 @@ function StateDiffSection({ entries }: { entries: StateDiffEntry[] }) {
               <p className="mono body-xs ct-text-faint truncate">
                 slot {entry.slot.slice(0, 18)}…
               </p>
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-[var(--ct-space-2)] flex-wrap">
                 <span
                   className="mono body-xs ct-text-faint"
                   title={entry.before}
@@ -238,20 +238,20 @@ function StateDiffSection({ entries }: { entries: StateDiffEntry[] }) {
 
 function BalanceDeltaSection({ entries }: { entries: BalanceDeltaEntry[] }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-[var(--ct-space-2)]">
       <SectionLabel>Balance delta</SectionLabel>
       {entries.length === 0 ? (
         <p className="body-xs ct-text-faint">
           No balance changes.
         </p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-[var(--ct-space-2)]">
           {entries.map((entry, i) => {
             const delta = entry.after - entry.before;
             const isPositive = delta >= 0;
             return (
               <li key={i}>
-                <NestedPanel className="flex items-center justify-between gap-4">
+                <NestedPanel className="flex items-center justify-between gap-[var(--ct-space-4)]">
                   <span className="mono body-xs truncate">
                     {entry.address.slice(0, 10)}…
                   </span>
@@ -280,13 +280,13 @@ function RevertsSection({ entries }: { entries: RevertEntry[] }) {
   return (
     <div
       role="alert"
-      className="flex flex-col gap-2"
+      className="flex flex-col gap-[var(--ct-space-2)]"
       aria-label="Simulation reverts detected"
     >
       <SectionLabel className="ct-status-danger">
         Reverts ({entries.length})
       </SectionLabel>
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-[var(--ct-space-2)]">
         {entries.map((entry, i) => (
           <li
             key={i}
@@ -307,14 +307,14 @@ function RevertsSection({ entries }: { entries: RevertEntry[] }) {
 
 function EventsSection({ entries }: { entries: EventEntry[] }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-[var(--ct-space-2)]">
       <SectionLabel>Events</SectionLabel>
       {entries.length === 0 ? (
         <p className="body-xs ct-text-faint">
           No events emitted.
         </p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-[var(--ct-space-2)]">
           {entries.map((entry, i) => (
             <li
               key={i}
@@ -325,7 +325,7 @@ function EventsSection({ entries }: { entries: EventEntry[] }) {
               </p>
               <ul className="flex flex-col gap-0.5">
                 {Object.entries(entry.args).map(([key, val]) => (
-                  <li key={key} className="flex gap-2 items-start">
+                  <li key={key} className="flex gap-[var(--ct-space-2)] items-start">
                     <span className="shrink-0 mono body-xs min-w-20">
                       {key}
                     </span>
@@ -357,7 +357,7 @@ function TraceLink() {
       >
         ▶ View full trace
       </button>
-      <span className="ml-2 body-xs ct-text-faint">
+      <span className="ml-[var(--ct-space-2)] body-xs ct-text-faint">
         (P2 — stub only)
       </span>
     </div>

@@ -9,7 +9,7 @@ import {
   VaultFlowSection,
   VaultKpiCell,
 } from "@/components/vaults/vault-flow-primitives";
-import { APY_DISCLAIMER_SUFFIX, MODEL_B_ONELINER } from "@/lib/constants/vault";
+import { APY_DISCLAIMER_SUFFIX } from "@/lib/constants/vault";
 import type { VaultProduct } from "@/lib/data/vaults";
 import { formatFeeLine, formatUsdCompact } from "@/lib/vaults/product-display";
 import {
@@ -33,9 +33,6 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
       <div className="invest-flow-detail__grid">
         {/* Primary column — strategy signal */}
         <div className="invest-flow-detail__primary">
-          {/* C-13 — Model B legal one-liner (compliance-mandatory). */}
-          <p className="body-sm ct-text-muted">{MODEL_B_ONELINER}</p>
-
           {/* Target allocation — DS module */}
           <Card hoverOverlay={false}>
             <CardHeader className="invest-flow-card-header mb-0">
@@ -49,8 +46,8 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
             <CardHeader className="invest-flow-card-header mb-0">
               <CardTitle>Regime scenarios</CardTitle>
             </CardHeader>
-            <RegimeScenarioTable />
-            <p className="body-xs ct-text-faint mt-3">
+            <RegimeScenarioTable vault={vault} />
+            <p className="body-xs ct-text-faint mt-[var(--ct-space-3)]">
               Conditional stress postures — not a projection of future returns · Methodology v1.0
             </p>
           </Card>
@@ -130,7 +127,7 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
                 : "Pending snapshot"}
             </VaultKpiCell>
           </MetricGrid>
-          <p className="body-xs ct-text-faint border-t ct-bc-soft pt-4">
+          <p className="body-xs ct-text-faint border-t ct-bc-soft pt-[var(--ct-space-4)]">
             Distribution coverage pending first attested mining period ·
             Indicative cadence (monthly, T+5) · Methodology v1.0 active
           </p>
@@ -150,31 +147,28 @@ export function TermSheetPreview({ vault, workspace = false }: TermSheetPreviewP
         }
       >
         <div className="product-doc-stack">
-          <div className="product-doc-section">
-            <p className="body-sm ct-text-muted">{MODEL_B_ONELINER}</p>
-            <div className="product-doc-inline-row">
-              <Badge variant="brand">Mining-backed</Badge>
-              <Badge variant="default">Rule-based rebalancing</Badge>
-              <Badge variant="default">Monthly USDC distributions</Badge>
-            </div>
+          <div className="product-doc-inline-row">
+            <Badge variant="brand">Mining-backed</Badge>
+            <Badge variant="default">Rule-based rebalancing</Badge>
+            <Badge variant="default">Monthly USDC distributions</Badge>
           </div>
 
           <div>
-            <h3 className="h3 mb-2">Target allocation</h3>
+            <h3 className="h3 mb-[var(--ct-space-2)]">Target allocation</h3>
             <VaultAllocationInvestorList facts={allocationFacts} />
           </div>
 
           <div>
-            <h3 className="h3 mb-2">Regime scenarios</h3>
-            <p className="body-xs ct-text-muted mb-3 ct-prose-lg">
+            <h3 className="h3 mb-[var(--ct-space-2)]">Regime scenarios</h3>
+            <p className="body-xs ct-text-muted mb-[var(--ct-space-3)] ct-prose-lg">
               Stress postures from Methodology v1.0 (Bull / Bear). Base case =
               target allocation above. Conditional — not a projection of future
               returns.
             </p>
-            <RegimeScenarioTable />
+            <RegimeScenarioTable vault={vault} />
           </div>
 
-          <p className="body-xs ct-text-faint border-t ct-bc-soft pt-2">
+          <p className="body-xs ct-text-faint border-t ct-bc-soft pt-[var(--ct-space-2)]">
             Projections follow Methodology{" "}
             <span className="mono">v1.0</span> — weighted buckets with ±10–30%
             assumption risk factors. APY is always shown as a range, never a

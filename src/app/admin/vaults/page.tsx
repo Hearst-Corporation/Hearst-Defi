@@ -135,7 +135,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
           <div className="admin-vaults-list__header" aria-hidden>
             <span className="stat-label">Vault</span>
             <span className="stat-label">Status</span>
-            <span className="stat-label">AUM vs Capacity</span>
+            <span className="stat-label">Principal vs Capacity</span>
             <span className="stat-label">Target APY</span>
             <span className="stat-label sr-only">Actions</span>
           </div>
@@ -183,17 +183,17 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                   <span className="body-xs ct-text-muted">{statusDisplay.label}</span>
                 </div>
 
-                {/* AUM vs Capacity */}
+                {/* Principal vs Capacity — positions-sum; may differ from LP-visible Reported AUM (VaultSnapshot) */}
                 <div className="admin-vaults-list__metrics">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-[var(--ct-space-2)]">
                     <Progress
                       value={aumPct}
-                      label={`AUM vs capacity for ${vault.ticker}`}
+                      label={`Deployed principal vs capacity for ${vault.ticker}`}
                       variant="plain"
                       className="h-1 flex-1"
                     />
                     <ProvenanceBadge
-                      kind={aumUsdc > 0 ? "live" : "estimated"}
+                      kind="manual"
                       variant="strip"
                     />
                   </div>

@@ -43,7 +43,7 @@ export default function ComposeEmailPage() {
           leaves until you click <strong>Send now</strong>.
         </p>
 
-        <Card className="p-5" hoverOverlay={false}>
+        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
           <DirectSendForm />
         </Card>
       </section>

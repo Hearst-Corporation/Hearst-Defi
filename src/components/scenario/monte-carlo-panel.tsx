@@ -242,7 +242,7 @@ function SimParams({
           }}
           className={cn(
             "w-24 rounded-base border border-(--ct-border-soft)",
-            "ct-surface-1 px-2 py-1 body-xs mono ct-text-strong",
+            "ct-surface-1 px-[var(--ct-space-2)] py-1 body-xs mono ct-text-strong",
             "focus:border-(--ct-accent) focus:outline-none",
             "disabled:opacity-(--ct-opacity-40)",
           )}
@@ -264,7 +264,7 @@ function SimParams({
           }}
           className={cn(
             "w-28 rounded-base border border-(--ct-border-soft)",
-            "ct-surface-1 px-2 py-1 body-xs mono ct-text-strong",
+            "ct-surface-1 px-[var(--ct-space-2)] py-1 body-xs mono ct-text-strong",
             "focus:border-(--ct-accent) focus:outline-none",
             "disabled:opacity-(--ct-opacity-40)",
           )}
@@ -304,13 +304,13 @@ export function MonteCarloPanel() {
 
   return (
     <Card hoverOverlay={false}>
-      <CardHeader className="mb-4">
+      <CardHeader className="mb-[var(--ct-space-4)]">
         <CardTitle>Monte Carlo Simulation</CardTitle>
         <ProvenanceBadge kind="estimated" />
       </CardHeader>
 
       {/* Params + Run button */}
-      <div className="mb-6 admin-doc-toolbar sm:items-end">
+      <div className="mb-[var(--ct-space-8)] admin-doc-toolbar sm:items-end">
         <SimParams
           seed={seed}
           runs={runs}
@@ -372,7 +372,7 @@ export function MonteCarloPanel() {
           </div>
 
           {/* Prob below floor */}
-          <div className="rounded-base border border-(--ct-border-soft) px-4 py-3 body-sm">
+          <div className="rounded-base border border-(--ct-border-soft) px-[var(--ct-space-4)] py-[var(--ct-space-3)] body-sm">
             <span className="stat-label">P(APY &lt; 8% floor): </span>
             <span className="mono body-sm ct-text-body">
               {(output.probBelowFloor * 100).toFixed(1)}%
@@ -388,7 +388,7 @@ export function MonteCarloPanel() {
       )}
 
       {/* Disclaimer */}
-      <p className="mt-6 border-t border-(--ct-border-soft) pt-4 body-xs italic ct-text-muted">
+      <p className="mt-[var(--ct-space-8)] border-t border-(--ct-border-soft) pt-[var(--ct-space-4)] body-xs italic ct-text-muted">
         <span className="not-italic ct-text-body">
           Monte Carlo — methodology v2.0. Not guaranteed.
         </span>{" "}

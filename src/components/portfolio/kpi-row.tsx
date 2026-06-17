@@ -1,4 +1,5 @@
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import type { PortfolioData } from "@/lib/data/portfolio";
 import { cn } from "@/lib/cn";
@@ -12,13 +13,28 @@ const monthDayFmt = new Intl.DateTimeFormat("en-US", {
 
 interface KpiRowProps {
   data: PortfolioData;
+  loading?: boolean;
 }
 
 /**
  * Three KPI cards: Portfolio Value · Yield YTD · Next Distribution.
  * ProvenanceBadge on each metric (CLAUDE.md non-negotiable #2).
  */
-export function PortfolioKpiRow({ data }: KpiRowProps) {
+export function PortfolioKpiRow({ data, loading = false }: KpiRowProps) {
+  if (loading) {
+    return (
+      <div className="pf-kpi-grid" role="list" aria-busy="true">
+        {[0, 1, 2].map((i) => (
+          <Card key={i} className="card-premium" role="listitem">
+            <Skeleton variant="text" className="w-1/3 h-3 mb-[var(--ct-space-3)]" />
+            <Skeleton variant="rect" className="w-1/2 h-8 mb-[var(--ct-space-2)]" />
+            <Skeleton variant="text" className="w-2/3 h-3" />
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
   const valueProvenance: Provenance =
     data.source === "fallback" ? "stale" : "live";
   const yieldProvenance: Provenance =
@@ -45,7 +61,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
         {hasPositions && data.pnl ? (
           <p
             className={cn(
-              "body-xs mt-2 tabular",
+              "body-xs mt-[var(--ct-space-2)] tabular",
               data.pnl.netReturnPct >= 0
                 ? "ct-status-success"
                 : "ct-status-danger",
@@ -69,7 +85,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
           </span>
           <span className="pf-kpi-unit">USDC</span>
         </div>
-        <p className="body-xs ct-text-muted mt-2 italic">
+        <p className="body-xs ct-text-muted mt-[var(--ct-space-2)] italic">
           Accrued + distributed. Not projected forward.
         </p>
       </Card>
@@ -85,7 +101,7 @@ export function PortfolioKpiRow({ data }: KpiRowProps) {
             {monthDayFmt.format(data.nextDistributionAt)}
           </span>
         </div>
-        <p className="body-xs ct-text-muted mt-2">
+        <p className="body-xs ct-text-muted mt-[var(--ct-space-2)]">
           Monthly cadence · Day 1, T+5
         </p>
       </Card>

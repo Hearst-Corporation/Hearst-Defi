@@ -1,5 +1,7 @@
 import "server-only";
 
+import { buildEmailHtmlShell } from "@/lib/email/html-shell";
+
 /**
  * Shared tracked-email sender.
  *
@@ -123,15 +125,5 @@ export async function sendTrackedEmail(
  * substitutes the per-recipient unsubscribe URL before send).
  */
 export function renderPlainHtml(body: string): string {
-  return `
-        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#0a0a0a;color:#e5e7eb;border-radius:12px;">
-          <h2 style="color:#A7FB90;font-size:20px;margin:0 0 16px;">Hearst Connect</h2>
-          <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#9ca3af;">
-            ${body}
-          </p>
-          <p style="margin:24px 0 0;font-size:12px;color:#6b7280;">
-            {{unsubscribe}}
-          </p>
-        </div>
-      `;
+  return buildEmailHtmlShell(body);
 }

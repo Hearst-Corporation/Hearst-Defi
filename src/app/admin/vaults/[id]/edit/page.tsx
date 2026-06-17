@@ -49,6 +49,7 @@ export default async function EditVaultPage({ params }: PageProps) {
     capacityUsdc: Number(vault.capacityUsdc),
     mgmtFeeBps: vault.mgmtFeeBps,
     perfFeeBps: vault.perfFeeBps,
+    hurdleBps: vault.hurdleBps,
     softLockupDays: vault.softLockupDays,
     targetApyLowBps: vault.targetApyLowBps,
     targetApyHighBps: vault.targetApyHighBps,

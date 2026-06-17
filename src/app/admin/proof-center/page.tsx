@@ -145,7 +145,7 @@ export default async function AdminProofCenterPage({
       </section>
 
       <section aria-labelledby="proof-grid-heading">
-        <div className="mb-6 admin-doc-section__head">
+        <div className="mb-[var(--ct-space-8)] admin-doc-section__head">
           <h2 id="proof-grid-heading" className="h2">
             Off-chain proofs &amp; documents
           </h2>
@@ -159,7 +159,7 @@ export default async function AdminProofCenterPage({
       </section>
 
       <section aria-labelledby="contracts-heading">
-        <h2 id="contracts-heading" className="h2 mb-6">
+        <h2 id="contracts-heading" className="h2 mb-[var(--ct-space-8)]">
           Contracts &amp; review trail
         </h2>
         <ContractsAuditTrail platformAddresses={platformAddresses} />

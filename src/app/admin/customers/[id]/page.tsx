@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
+import { DeployPositionForm } from "@/components/admin/customer/deploy-position-form";
 import { QualificationForm } from "@/components/admin/customer/qualification-form";
 import { AgentAssignForm } from "@/components/admin/customer/agent-assign-form";
 import { MemoryManager } from "@/components/admin/customer/memory-manager";
@@ -85,7 +86,7 @@ export default async function CustomerDetailPage({
       {/* Identity + positions */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Identity">
         <h2 className="h2">Investor profile</h2>
-        <Card className="p-5" hoverOverlay={false}>
+        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
           <dl className="admin-doc-form-grid-2 body-sm">
             <div>
               <dt className="ct-form-label">Email</dt>
@@ -146,6 +147,21 @@ export default async function CustomerDetailPage({
         )}
       </section>
 
+      {/* Deploy position */}
+      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Deploy position">
+        <h3 className="h3">Deploy position</h3>
+        <p className="body-xs ct-text-muted">
+          Open an off-chain position for this investor — fills the cockpit for demo or
+          pilot use without requiring a real on-chain deposit. KYC must be approved first.
+        </p>
+        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
+          <DeployPositionForm
+            investorId={detail.investorId}
+            kycStatus={detail.kycStatus as "pending" | "approved" | "rejected"}
+          />
+        </Card>
+      </section>
+
       {/* Qualification (Typeform) */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Qualification">
         <h2 className="h2">Investor qualification</h2>
@@ -154,7 +170,7 @@ export default async function CustomerDetailPage({
             ? `Source: ${detail.qualification.source} · updated ${formatAdminDate(detail.qualification.updatedAt)}`
             : "No qualification profile on file yet. Complete the intake questionnaire to tailor the assistant for this investor."}
         </p>
-        <Card className="p-5" hoverOverlay={false}>
+        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
           <QualificationForm
             investorId={detail.investorId}
             userId={detail.userId}
@@ -168,9 +184,9 @@ export default async function CustomerDetailPage({
         <h2 className="h2">Assistant settings</h2>
 
         {persona && (
-          <Card className="p-5" hoverOverlay={false}>
+          <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
             <h3 className="h3">Recommended</h3>
-            <div className="admin-doc-inline-row flex-wrap gap-2 mt-2">
+            <div className="admin-doc-inline-row flex-wrap gap-[var(--ct-space-2)] mt-[var(--ct-space-2)]">
               {persona.segments.map((s) => (
                 <Badge key={s} variant="accent">{s}</Badge>
               ))}
@@ -179,28 +195,28 @@ export default async function CustomerDetailPage({
               <Badge variant="default">Detail: {persona.verbosity}</Badge>
               <Badge variant="success">vault: {persona.suggestedVault}</Badge>
             </div>
-            <p className="body-sm ct-text-muted mt-3">{persona.customInstructions}</p>
+            <p className="body-sm ct-text-muted mt-[var(--ct-space-3)]">{persona.customInstructions}</p>
           </Card>
         )}
 
-        <Card className="p-5" hoverOverlay={false}>
+        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
           <h3 className="h3">Current</h3>
           {applied ? (
-            <div className="admin-doc-inline-row flex-wrap gap-2 mt-2">
+            <div className="admin-doc-inline-row flex-wrap gap-[var(--ct-space-2)] mt-[var(--ct-space-2)]">
               {applied.template && <Badge variant="brand">Preset: {applied.template.label}</Badge>}
               <Badge variant="default">Style: {applied.tone ?? "—"}</Badge>
               <Badge variant="default">Language: {applied.language ?? "—"}</Badge>
               <Badge variant="default">Detail: {applied.verbosity ?? "—"}</Badge>
             </div>
           ) : (
-            <p className="body-sm ct-text-muted mt-2">
+            <p className="body-sm ct-text-muted mt-[var(--ct-space-2)]">
               No profile is applied yet. Refresh from intake answers or assign a reusable template.
             </p>
           )}
           {applied?.customInstructions && (
-            <p className="body-sm ct-text-muted mt-3">{applied.customInstructions}</p>
+            <p className="body-sm ct-text-muted mt-[var(--ct-space-3)]">{applied.customInstructions}</p>
           )}
-          <div className="mt-4">
+          <div className="mt-[var(--ct-space-4)]">
             <AgentAssignForm
               investorId={detail.investorId}
               userId={detail.userId}
@@ -219,7 +235,7 @@ export default async function CustomerDetailPage({
         <p className="body-xs ct-text-muted">
           Persistent context and notes for this investor.
         </p>
-        <Card className="p-5" hoverOverlay={false}>
+        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
           <MemoryManager
             investorId={detail.investorId}
             userId={detail.userId}

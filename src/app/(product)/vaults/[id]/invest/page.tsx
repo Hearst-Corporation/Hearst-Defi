@@ -57,7 +57,7 @@ export default async function InvestPage({ params }: PageProps) {
       }
     >
       {demo ? (
-        <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-4" />
+        <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-[var(--ct-space-4)]" />
       ) : null}
       <InvestForm vault={vault} demo={demo} />
     </InvestFlowShell>

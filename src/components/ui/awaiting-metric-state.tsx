@@ -26,21 +26,24 @@ export function AwaitingMetricState({
   className,
 }: AwaitingMetricStateProps) {
   return (
-    <EmptySurface
-      message={message}
-      detail={detail}
-      variant={variant}
-      className={cn(variant === "widget" && "h-full", className)}
-    >
-      {link ? (
-        <Link
-          href={link.href}
-          aria-label={link.ariaLabel ?? link.label}
-          className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-[var(--ct-border)] mt-1"
-        >
-          {link.label}
-        </Link>
-      ) : null}
-    </EmptySurface>
+    <div role="status" aria-live="polite" aria-atomic="true">
+      <EmptySurface
+        message={message}
+        detail={detail}
+        variant={variant}
+        role="note"
+        className={cn(variant === "widget" && "h-full", className)}
+      >
+        {link ? (
+          <Link
+            href={link.href}
+            aria-label={link.ariaLabel ?? link.label}
+            className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-[var(--ct-border)] mt-1"
+          >
+            {link.label}
+          </Link>
+        ) : null}
+      </EmptySurface>
+    </div>
   );
 }

@@ -157,7 +157,7 @@ function DecisionPanel({
 
   return (
     <Card>
-      <CardHeader className="mb-5">
+      <CardHeader className="mb-[var(--ct-space-6)]">
         <div className="min-w-0">
           <CardTitle>Scenario decision</CardTitle>
           <p className="mt-0.5 body-xs ct-text-muted">
@@ -191,7 +191,7 @@ function DecisionPanel({
       </div>
 
       {/* Stat strip: stressed floor · risk · mining */}
-      <div className="mt-8 admin-doc-form-grid-2 sm:grid-cols-3">
+      <div className="mt-[var(--ct-space-10)] admin-doc-form-grid-2 sm:grid-cols-3">
         <div className="admin-doc-stack--tight">
           <span className="stat-label">Stressed floor</span>
           <span className="mono stat-value tabular-nums ct-text-primary">
@@ -214,10 +214,10 @@ function DecisionPanel({
       </div>
 
       {/* Recommended action */}
-      <div className="mt-8">
+      <div className="mt-[var(--ct-space-10)]">
         <span className="stat-label">Recommended action</span>
         <PanelStatusAccent
-          className={cn("mt-2 admin-doc-inline-row admin-doc-inline-row--actions", tone.border)}
+          className={cn("mt-[var(--ct-space-2)] admin-doc-inline-row admin-doc-inline-row--actions", tone.border)}
         >
           <span
             className={cn("inline-block h-2 w-2 shrink-0 rounded-full", tone.dot)}
@@ -235,25 +235,25 @@ function DecisionPanel({
       </div>
 
       {/* PTAI — calm nested panel inside the decision */}
-      <div className="mt-8">
+      <div className="mt-[var(--ct-space-10)]">
         <span className="stat-label">Projection · Trigger · Action · Impact</span>
-        <PtaiBlock output={output} className="mt-3" />
+        <PtaiBlock output={output} className="mt-[var(--ct-space-3)]" />
       </div>
 
       {/* AI narrative — discreet, never a broken-looking standalone card */}
       {narrative === null ? (
-        <p className="mt-8 body-xs ct-text-muted">
+        <p className="mt-[var(--ct-space-10)] body-xs ct-text-muted">
           AI narrative unavailable — deterministic engine output shown.
         </p>
       ) : narrative ? (
-        <div className="mt-8">
+        <div className="mt-[var(--ct-space-10)]">
           <span className="stat-label">AI narrative</span>
-          <div className="mt-3">
+          <div className="mt-[var(--ct-space-3)]">
             <Markdown content={narrative.narrative_md} />
           </div>
           {narrative.risk_warning ? (
             <div
-              className="mt-5 border-l-2 border-[var(--ct-status-warning)] pl-4 admin-doc-stack--micro"
+              className="mt-[var(--ct-space-6)] border-l-2 border-[var(--ct-status-warning)] pl-[var(--ct-space-4)] admin-doc-stack--micro"
               role="note"
             >
               <p className="stat-label m-0 ct-status-warning">Risk warning</p>
@@ -279,7 +279,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
 
   return (
     <Card>
-      <CardHeader className="mb-5">
+      <CardHeader className="mb-[var(--ct-space-6)]">
         <div className="min-w-0">
           <CardTitle>Allocation &amp; rebalancing</CardTitle>
           <p className="mt-0.5 body-xs ct-text-muted">
@@ -290,7 +290,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
       </CardHeader>
 
       {/* Target allocation */}
-      <div className="mb-2 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
+      <div className="mb-[var(--ct-space-2)] admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
         <span className="stat-label">Target allocation</span>
         <span className="body-xs ct-text-muted">
           BTC tactical target {output.btc_tactical.targetExposurePct.toFixed(0)}%
@@ -300,9 +300,9 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
 
       {/* Tactical guardrails */}
       {hasGuardrails ? (
-        <div className="mt-8">
+        <div className="mt-[var(--ct-space-10)]">
           <span className="stat-label">Guardrails</span>
-          <div className="mt-2 admin-doc-inline-row">
+          <div className="mt-[var(--ct-space-2)] admin-doc-inline-row">
             {output.btc_tactical.guardrails.map((g) => (
               <Badge
                 key={g.id}
@@ -314,7 +314,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
             ))}
           </div>
           {armedTriggers.length > 0 ? (
-            <ul className="mt-3 admin-doc-stack--dense">
+            <ul className="mt-[var(--ct-space-3)] admin-doc-stack--dense">
               {armedTriggers.map((t) => (
                 <li key={t.id} className="admin-doc-inline-row admin-doc-inline-row--start body-sm flex-nowrap">
                   <span
@@ -334,8 +334,8 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
       ) : null}
 
       {/* Rebalancing actions (PTAI list) */}
-      <div className="mt-8">
-        <div className="mb-4 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
+      <div className="mt-[var(--ct-space-10)]">
+        <div className="mb-[var(--ct-space-4)] admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
           <span className="stat-label">Rebalancing actions</span>
           <span className="eyebrow">Max 4 · Rule-based · PTAI</span>
         </div>
@@ -371,7 +371,7 @@ function AssumptionsPanel({ assumptions }: { assumptions: string[] }) {
         </span>
       </button>
       {open ? (
-        <div className="mt-6">
+        <div className="mt-[var(--ct-space-8)]">
           <AssumptionsList assumptions={assumptions} />
         </div>
       ) : null}
@@ -408,7 +408,7 @@ function CompactPanel({
     apyDeltaValue !== null ? (
       <p
         className={cn(
-          "mt-3 mono body-xs font-semibold tabular-nums",
+          "mt-[var(--ct-space-3)] mono body-xs font-semibold tabular-nums",
           apyDeltaToneClass,
         )}
         aria-label={`APY midpoint delta vs Scenario A: ${apyDeltaValue.toFixed(2)} percentage points`}
@@ -424,7 +424,7 @@ function CompactPanel({
     riskDeltaValue !== null ? (
       <p
         className={cn(
-          "mt-2 mono body-xs font-semibold tabular-nums ct-text-body",
+          "mt-[var(--ct-space-2)] mono body-xs font-semibold tabular-nums ct-text-body",
           riskDeltaToneClass,
         )}
         aria-label={`Risk score delta vs Scenario A: ${Math.round(riskDeltaValue)}`}
@@ -439,7 +439,7 @@ function CompactPanel({
   return (
     <Card
       className={cn(
-        "p-6 border-l-4",
+        "p-[var(--ct-space-8)] border-l-4",
         side === "A"
           ? "border-l-[var(--ct-border-strong)]"
           : "border-l-[var(--ct-text-strong)]",
@@ -450,7 +450,7 @@ function CompactPanel({
       aria-busy={isPending}
       aria-label={`Scenario ${side}: ${presetLabel}`}
     >
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-[var(--ct-space-10)]">
         <ApyHero output={output} variant="compact" delta={apyDelta} />
         <ScoreGrid output={output} variant="compact" riskFooter={riskFooter} />
         <VaultMode output={output} variant="compact" />
@@ -459,7 +459,7 @@ function CompactPanel({
           <span className="stat-label">
             Projection · Trigger · Action · Impact
           </span>
-          <PtaiBlock output={output} variant="flat" className="mt-3" />
+          <PtaiBlock output={output} variant="flat" className="mt-[var(--ct-space-3)]" />
         </div>
       </div>
     </Card>
@@ -511,7 +511,7 @@ export function OutputPanel(props: OutputPanelProps) {
       <AssumptionsPanel assumptions={output.assumptions} />
 
       {/* Disclaimer */}
-      <p className="border-t border-[var(--ct-border-soft)] pt-4 body-xs italic ct-text-muted">
+      <p className="border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-4)] body-xs italic ct-text-muted">
         <span className="font-semibold not-italic ct-text-body">
           Not guaranteed.
         </span>{" "}

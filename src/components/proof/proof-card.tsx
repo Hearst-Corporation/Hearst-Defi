@@ -130,7 +130,7 @@ function ProofFieldList({ children }: { children: ReactNode }) {
 
 function ProofCardActions({ children }: { children: ReactNode }) {
   return (
-    <div className="mt-auto product-doc-inline-row product-doc-inline-row--tight border-t ct-bc-soft pt-3">
+    <div className="mt-auto product-doc-inline-row product-doc-inline-row--tight border-t ct-bc-soft pt-[var(--ct-space-3)]">
       {children}
     </div>
   );

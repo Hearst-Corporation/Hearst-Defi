@@ -213,11 +213,11 @@ export function NavSparkline({ output }: NavSparklineProps) {
   return (
     <Card className="relative">
       <ChartProvenanceCorner kind="estimated" />
-      <CardHeader className="mb-3">
+      <CardHeader className="mb-[var(--ct-space-3)]">
         <CardTitle>12-Month NAV Projection</CardTitle>
       </CardHeader>
 
-      <div className="mb-3 admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--end admin-doc-inline-row--spacious flex-wrap body-sm">
+      <div className="mb-[var(--ct-space-3)] admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--end admin-doc-inline-row--spacious flex-wrap body-sm">
         <div className="admin-doc-stack--micro">
           <span className="stat-label">Low band</span>
           <span className="mono body-sm ct-text-body tabular-nums">
@@ -257,7 +257,7 @@ export function NavSparkline({ output }: NavSparklineProps) {
         )}
       </div>
 
-      <div className="mt-3 admin-doc-inline-row admin-doc-inline-row--relaxed body-xs">
+      <div className="mt-[var(--ct-space-3)] admin-doc-inline-row admin-doc-inline-row--relaxed body-xs">
         <span className="admin-doc-inline-row admin-doc-inline-row--dense">
           <span
             className="inline-block h-0.5 w-4 rounded-full bg-[var(--ct-status-success)]"

@@ -303,11 +303,13 @@ export function RebalanceCard({
         )}
 
         {/* Error display */}
-        {error && (
-          <p className="body-xs ct-status-danger border border-(--ct-border-soft) px-3 py-2 rounded-lg">
-            {error}
-          </p>
-        )}
+        <div aria-live="polite">
+          {error && (
+            <p className="body-xs ct-status-danger border border-(--ct-border-soft) px-[var(--ct-space-3)] py-[var(--ct-space-2)] rounded-lg">
+              {error}
+            </p>
+          )}
+        </div>
 
         {/* Actions */}
         <div className="admin-doc-stack admin-doc-stack--actions">
@@ -321,6 +323,7 @@ export function RebalanceCard({
                       size="sm"
                       onClick={handleApprove}
                       disabled={isPending}
+                      aria-busy={isPending}
                     >
                       {isPending ? "Processing…" : "Confirm approve"}
                     </Button>
@@ -340,6 +343,7 @@ export function RebalanceCard({
                       size="sm"
                       onClick={handleApprove}
                       disabled={isPending}
+                      aria-busy={isPending}
                     >
                       {`Approve (${signerCount}/${requiredSigners} sigs)`}
                     </Button>
@@ -386,7 +390,7 @@ export function RebalanceCard({
             <div className="admin-doc-inline-row">
               {confirmingAction === "execute" ? (
                 <>
-                  <Button variant="primary" size="sm" onClick={handleExecute} disabled={isPending}>
+                  <Button variant="primary" size="sm" onClick={handleExecute} disabled={isPending} aria-busy={isPending}>
                     {isPending ? "Executing…" : "Confirm execute"}
                   </Button>
                   <Button variant="ghost" size="sm" onClick={() => setConfirmingAction(null)} disabled={isPending}>
@@ -394,7 +398,7 @@ export function RebalanceCard({
                   </Button>
                 </>
               ) : (
-                <Button variant="primary" size="sm" onClick={handleExecute} disabled={isPending}>
+                <Button variant="primary" size="sm" onClick={handleExecute} disabled={isPending} aria-busy={isPending}>
                   Execute (off-chain)
                 </Button>
               )}

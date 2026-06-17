@@ -2,8 +2,9 @@
  * allowlist.ts — CRUD helpers for the AddressAllowlist table.
  *
  * All mutations are "use server" actions (called from admin UI or Server
- * Actions wrappers). Pure query helpers are also exported for use in
- * routeForTransaction() (server-side, no "use server" needed there).
+ * Actions wrappers). Read-only query helpers used by internal server-side
+ * callers (e.g. routeForTransaction) live in allowlist-queries.ts — a separate
+ * non-"use server" module — so they are NOT callable Server Actions.
  *
  * No "any", no cross-project imports. Server-only (touches prisma).
  */
@@ -19,6 +20,7 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { recordAdminAudit } from "@/lib/admin/audit";
 import { logger } from "@/lib/logger";
 import { revalidatePath } from "next/cache";
+import { mapRow } from "./allowlist-queries";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -66,41 +68,8 @@ const UpdateSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Admin-gated query
 // ---------------------------------------------------------------------------
-
-function mapRow(row: {
-  id: string;
-  address: string;
-  label: string;
-  category: string;
-  addedBy: string;
-  addedAt: Date;
-  notes: string | null;
-  riskScore: number;
-  active: boolean;
-}): AllowlistEntry {
-  return {
-    ...row,
-    category: row.category as AllowlistCategory,
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Queries (no "use server" individually — file-level directive covers them)
-// ---------------------------------------------------------------------------
-
-/**
- * Returns all active allowlist entries (for routing decisions).
- * Safe to call from server-side non-action code (e.g. routeForTransaction).
- */
-export async function getActiveAllowlistEntries(): Promise<AllowlistEntry[]> {
-  const rows = await prisma.addressAllowlist.findMany({
-    where: { active: true },
-    orderBy: [{ category: "asc" }, { label: "asc" }],
-  });
-  return rows.map(mapRow);
-}
 
 /**
  * Returns all allowlist entries (active + inactive) for the admin UI.
@@ -112,20 +81,6 @@ export async function getAllAllowlistEntries(): Promise<AllowlistEntry[]> {
     orderBy: [{ active: "desc" }, { category: "asc" }, { label: "asc" }],
   });
   return rows.map(mapRow);
-}
-
-/**
- * Looks up a single entry by address. Both the lookup key and stored values
- * are normalised to lowercase, so checksummed / mixed-case EVM addresses
- * match regardless of how the caller formats them.
- */
-export async function findAllowlistEntryByAddress(
-  address: string,
-): Promise<AllowlistEntry | null> {
-  const row = await prisma.addressAllowlist.findFirst({
-    where: { address: address.toLowerCase(), active: true },
-  });
-  return row ? mapRow(row) : null;
 }
 
 // ---------------------------------------------------------------------------

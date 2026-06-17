@@ -51,9 +51,8 @@ function buildMonthSeries(
     // Smooth monotone curve with a small oscillation for visual depth.
     const wave = Math.sin(i * 0.9) * (endValue - startValue) * 0.04;
     const value = Math.round(startValue + (endValue - startValue) * t + wave);
-    // Monthly distributions happen every 30 days — mark every month as a potential
-    // distribution point (the real cadence is monthly per the product spec).
-    const isDistribution = i > 0 && i % 1 === 0;
+    // Monthly distributions: mark every month after the first as a distribution point.
+    const isDistribution = i > 0;
     result.push({
       label: MONTHS[d.getUTCMonth() % 12] ?? "",
       value,
@@ -91,12 +90,11 @@ function polyline(pts: Array<{ x: number; y: number }>): string {
 
 interface AreaChartProps {
   series: Array<{ label: string; value: number; isDistribution: boolean }>;
-  ariaLabel: string;
   /** Preview / flat $0 series — brand-accent stroke for the awaiting state. */
   muted?: boolean;
 }
 
-function AreaChart({ series, ariaLabel: _ariaLabel, muted = false }: AreaChartProps) {
+function AreaChart({ series, muted = false }: AreaChartProps) {
   const seriesColor = muted ? "var(--ct-accent)" : "var(--ct-status-success)";
   const markerFill = muted
     ? "color-mix(in srgb, var(--ct-accent) 35%, transparent)"
@@ -223,9 +221,15 @@ export function ValueChart({
         }
       />
 
+      {showZeroShell ? (
+        <p className="body-xs ct-text-faint text-center py-[var(--ct-space-3)]" aria-live="polite">
+          No portfolio value recorded yet
+        </p>
+      ) : null}
+
       <div
         className={cn(
-          "relative mt-3 block w-full flex-1 overflow-hidden rounded-md z-10",
+          "relative mt-[var(--ct-space-3)] block w-full flex-1 overflow-hidden rounded-md z-10",
           showZeroShell ? "min-h-28" : "min-h-20",
         )}
       >
@@ -240,11 +244,10 @@ export function ValueChart({
         <AreaChart
           series={series}
           muted={showZeroShell}
-          ariaLabel={`Portfolio value area chart, 12 months, current value ${formatUsdCompact(chartValue)}`}
         />
       </div>
 
-      <div className="stat-label ct-text-muted flex justify-between mt-2 mono relative z-10">
+      <div className="stat-label ct-text-muted flex justify-between mt-[var(--ct-space-2)] mono relative z-10">
         {series
           .filter((_, i) => i % 3 === 0 || i === series.length - 1)
           .map((s, i) => (
@@ -253,7 +256,7 @@ export function ValueChart({
       </div>
 
       {!showZeroShell ? (
-        <p className="body-xs ct-text-muted mt-2 italic relative z-10">
+        <p className="body-xs ct-text-muted mt-[var(--ct-space-2)] italic relative z-10">
           Indicative path derived from subscribed principal and current value.
           Past performance does not predict future results. Not guaranteed.
         </p>

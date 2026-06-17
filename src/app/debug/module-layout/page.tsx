@@ -10,6 +10,7 @@ import { PortfolioKpiRow } from "@/components/portfolio/kpi-row";
 import { PositionsList } from "@/components/portfolio/positions-list";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
 import { ValueChart } from "@/components/portfolio/value-chart";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 
 import { MOCK_PORTFOLIO } from "./mock-data";
 
@@ -34,7 +35,9 @@ export default function ModuleLayoutDebugPage() {
         </div>
 
         <div className="pf-fixed-kpis">
-          <PortfolioKpiRow data={data} />
+          <ErrorBoundary>
+            <PortfolioKpiRow data={data} />
+          </ErrorBoundary>
         </div>
 
         <div className="pf-fixed-body">

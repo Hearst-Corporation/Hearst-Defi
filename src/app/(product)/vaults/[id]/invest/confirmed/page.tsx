@@ -36,6 +36,9 @@ import {
 } from "@/lib/vaults/product-display";
 import { CopyAddressButton } from "./copy-address-button";
 import { abbreviateAddress } from "@/lib/onchain";
+import { getPublicClient, explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
+import { readNavPerShare, formatNavPerShare, isVaultStale } from "@/lib/onchain/vault";
+import { getVault } from "@/lib/data/vaults";
 
 export const dynamic = "force-dynamic";
 
@@ -123,12 +126,29 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
     );
   }
 
-  const hasHash = txHash !== null && txHash.length > 6;
-  const baseScanHref = hasHash
-    ? `https://sepolia.basescan.org/tx/${txHash}`
-    : "https://sepolia.basescan.org";
+  const hasHash = txHash !== null && !isPlaceholderTxHash(txHash);
+  const baseScanHref = hasHash ? explorerTxUrl(txHash) : null;
 
-  const LOCK_DAYS = 60;
+  // Read NAV per share on-chain if the vault has a real (non-placeholder)
+  // contract address. Degrades gracefully — never crashes the page on RPC failure.
+  let navDisplay = "1.0000 USDC / share";
+  let navProvenance: "live" | "estimated" = "estimated";
+
+  if (VAULT_CONTRACT && !isVaultStale()) {
+    try {
+      const rawNav = await readNavPerShare(getPublicClient());
+      if (rawNav !== null) {
+        navDisplay = `${formatNavPerShare(rawNav)} USDC / share`;
+        navProvenance = "live";
+      }
+    } catch {
+      // RPC failure — fall back to estimated, no crash.
+    }
+  }
+
+  // Soft-lock days from the vault (Class A=60, Class B=90) — never hardcoded.
+  const vaultForLock = await getVault(id);
+  const LOCK_DAYS = vaultForLock?.softLockupDays ?? 60;
   const currentDay = 0;
   const unlockDate = daysFromNow(LOCK_DAYS);
 
@@ -174,7 +194,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
               label="Transaction"
               value={hasHash ? abbreviateAddress(txHash) : "Pending confirmation"}
               action={
-                hasHash ? (
+                baseScanHref ? (
                   <VaultPanelLink
                     href={baseScanHref}
                     target="_blank"
@@ -195,7 +215,13 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
               />
             ) : null}
 
-            <VaultDetailRow label="NAV at entry" value="1.0000 USDC / share" />
+            <VaultDetailRow
+              label="NAV at entry"
+              value={navDisplay}
+              action={
+                <ProvenanceBadge kind={navProvenance} />
+              }
+            />
 
             {positionId ? (
               <VaultDetailRow label="Position ID" value={positionId} />

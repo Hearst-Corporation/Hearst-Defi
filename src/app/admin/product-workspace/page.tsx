@@ -388,10 +388,10 @@ export default async function ProductWorkspacePage({
 
       <Card
         hoverOverlay={false}
-        className="p-5 sm:p-7"
-        contentClassName="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_240px] lg:gap-10"
+        className="p-[var(--ct-space-6)] sm:p-7"
+        contentClassName="grid grid-cols-1 gap-[var(--ct-space-8)] lg:grid-cols-[1fr_240px] lg:gap-[var(--ct-space-12)]"
       >
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-[var(--ct-space-3)]">
           <p className="eyebrow">Objective</p>
           <p
             className={cn(
@@ -405,12 +405,12 @@ export default async function ProductWorkspacePage({
             Frame and document only — no vault creation, allocations, or approvals from this surface.
           </p>
         </div>
-        <div className="flex flex-col gap-3 lg:border-l lg:border-(--ct-border-soft) lg:pl-7">
-          <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-[var(--ct-space-3)] lg:border-l lg:border-(--ct-border-soft) lg:pl-7">
+          <div className="flex flex-col gap-[var(--ct-space-2)]">
             <p className="stat-label">Execution Mandate</p>
             <Badge variant="accent" className="w-fit">Human-in-the-loop</Badge>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-[var(--ct-space-2)]">
             <p className="stat-label">Decision Status</p>
             <Badge variant={decisionBadgeVariant(decision)} className="w-fit">
               {decision.label} — {decision.status}
@@ -420,13 +420,13 @@ export default async function ProductWorkspacePage({
       </Card>
 
       <section aria-labelledby="pw-brief-heading" className="admin-doc-section">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-[var(--ct-space-3)]">
           <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
           <h2 id="pw-brief-heading" className="h2">Product inference</h2>
         </div>
         <Card hoverOverlay={false} contentClassName="grid grid-cols-1 lg:grid-cols-2">
           {/* Colonne 1: Inferred product line */}
-          <div className="flex flex-col gap-6 p-6 sm:p-8 lg:border-r lg:border-(--ct-border-soft)">
+          <div className="flex flex-col gap-[var(--ct-space-8)] p-[var(--ct-space-8)] sm:p-[var(--ct-space-10)] lg:border-r lg:border-(--ct-border-soft)">
             <div className="admin-doc-stack admin-doc-stack--tight">
               <div className="admin-doc-inline-row admin-doc-inline-row--between py-2 border-b border-(--ct-border-soft)">
                 <span className="body-xs ct-text-muted">Vault</span>
@@ -465,7 +465,7 @@ export default async function ProductWorkspacePage({
             ) : null}
 
             {scenarioSecondary ? (
-              <div className="mt-auto pt-4 flex flex-col items-start gap-3">
+              <div className="mt-auto pt-[var(--ct-space-4)] flex flex-col items-start gap-[var(--ct-space-3)]">
                 <p className="body-xs ct-text-muted">
                   {secondaryHint ?? "Scenario Lab validation requested"} — supporting evidence only.
                 </p>
@@ -477,11 +477,11 @@ export default async function ProductWorkspacePage({
           </div>
 
           {/* Colonne 2: Calculation notes */}
-          <div className="flex flex-col gap-6 p-6 sm:p-8">
+          <div className="flex flex-col gap-[var(--ct-space-8)] p-[var(--ct-space-8)] sm:p-[var(--ct-space-10)]">
             <p className="eyebrow">Calculation notes</p>
             <div className="admin-doc-stack admin-doc-stack--tight">
               {CALC_NOTES.map((note, idx) => (
-                <div key={note} className="flex gap-3 py-1">
+                <div key={note} className="flex gap-[var(--ct-space-3)] py-1">
                   <span className="body-xs ct-text-faint mono mt-0.5">{String(idx + 1).padStart(2, "0")}</span>
                   <span className="body-sm ct-text-body">{note}</span>
                 </div>
@@ -498,17 +498,17 @@ export default async function ProductWorkspacePage({
       </section>
 
       <section aria-labelledby="pw-notes-heading" className="admin-doc-section">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-[var(--ct-space-3)]">
           <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
           <h2 id="pw-notes-heading" className="h2">Supporting material</h2>
         </div>
         <Card hoverOverlay={false} contentClassName="grid grid-cols-1 lg:grid-cols-3">
           {/* Col 1 */}
-          <div className="flex flex-col gap-5 p-6 sm:p-8 lg:border-r lg:border-(--ct-border-soft)">
+          <div className="flex flex-col gap-[var(--ct-space-5)] p-[var(--ct-space-8)] sm:p-[var(--ct-space-10)] lg:border-r lg:border-(--ct-border-soft)">
             <p className="eyebrow">Assumptions</p>
             <div className="admin-doc-stack admin-doc-stack--tight">
               {inferredVault.assumptions.map((assumption, idx) => (
-                <div key={assumption} className="flex gap-3 py-2 border-b border-(--ct-border-soft) last:border-0">
+                <div key={assumption} className="flex gap-[var(--ct-space-3)] py-2 border-b border-(--ct-border-soft) last:border-0">
                   <span className="body-xs ct-text-faint mono mt-0.5">{idx + 1}.</span>
                   <span className="body-sm ct-text-body">{assumption}</span>
                 </div>
@@ -517,11 +517,11 @@ export default async function ProductWorkspacePage({
           </div>
 
           {/* Col 2 */}
-          <div className="flex flex-col gap-5 p-6 sm:p-8 lg:border-r lg:border-(--ct-border-soft)">
+          <div className="flex flex-col gap-[var(--ct-space-5)] p-[var(--ct-space-8)] sm:p-[var(--ct-space-10)] lg:border-r lg:border-(--ct-border-soft)">
             <p className="eyebrow">Scenario Outputs</p>
             <div className="admin-doc-stack admin-doc-stack--tight">
               {scenarioOutputNotes.map((note, idx) => (
-                <div key={note} className="flex gap-3 py-2 border-b border-(--ct-border-soft) last:border-0">
+                <div key={note} className="flex gap-[var(--ct-space-3)] py-2 border-b border-(--ct-border-soft) last:border-0">
                   <span className="body-xs ct-text-faint mono mt-0.5">{idx + 1}.</span>
                   <span className="body-sm ct-text-body">{note}</span>
                 </div>
@@ -530,11 +530,11 @@ export default async function ProductWorkspacePage({
           </div>
 
           {/* Col 3 */}
-          <div className="flex flex-col gap-5 p-6 sm:p-8">
+          <div className="flex flex-col gap-[var(--ct-space-5)] p-[var(--ct-space-8)] sm:p-[var(--ct-space-10)]">
             <p className="eyebrow">Next Actions</p>
             <div className="admin-doc-stack admin-doc-stack--tight">
               {NEXT_ACTIONS.map((action, idx) => (
-                <div key={action} className="flex items-start gap-3 py-1">
+                <div key={action} className="flex items-start gap-[var(--ct-space-3)] py-1">
                   <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm ct-surface-2 body-xs mono ct-text-strong mt-0.5">
                     {idx + 1}
                   </span>
@@ -549,7 +549,7 @@ export default async function ProductWorkspacePage({
       {/* L2 — Chart pack for review */}
       <section aria-labelledby="pw-graphs-heading" className="admin-doc-section">
         <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-[var(--ct-space-3)]">
             <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
             <h2 id="pw-graphs-heading" className="h2">
               Charts to attach
@@ -563,8 +563,8 @@ export default async function ProductWorkspacePage({
             <Card
               key={spec.title}
               hoverOverlay={false}
-              className="p-6"
-              contentClassName="flex flex-col gap-5"
+              className="p-[var(--ct-space-8)]"
+              contentClassName="flex flex-col gap-[var(--ct-space-5)]"
             >
               <div className="admin-doc-inline-row admin-doc-inline-row--between items-start">
                 <div className="flex flex-col gap-1">
@@ -578,7 +578,7 @@ export default async function ProductWorkspacePage({
                 <p className="body-xs ct-text-strong">{spec.metric}</p>
                 <p className="body-sm ct-text-muted">{spec.series}</p>
               </div>
-              <div className="admin-doc-divider-section flex flex-col gap-2">
+              <div className="admin-doc-divider-section flex flex-col gap-[var(--ct-space-2)]">
                 <p className="body-xs ct-text-muted">{spec.note}</p>
                 <p className="body-xs ct-text-faint">
                   Illustrative from methodology assumptions. Attach external evidence

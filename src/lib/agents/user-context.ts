@@ -13,7 +13,7 @@ export type { UserAgentProfile };
 // module decoupled from the agent implementations).
 // ---------------------------------------------------------------------------
 
-export type AgentName =
+type AgentName =
   | "scenario-narrative"
   | "investor-memo"
   | "mining-health"

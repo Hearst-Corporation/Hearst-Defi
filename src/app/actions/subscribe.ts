@@ -98,11 +98,33 @@ export async function subscribe(
   }
 
   // Validate against the selected share class minimum ticket.
+  // DEMO override: DEMO_MIN_TICKET_USDC lowers the floor for testnet demos so a
+  // small real on-chain deposit (e.g. a few faucet USDC) can open a position.
+  // Never set in production — the canonical class terms ($250k/$1M) stay intact.
   const classTerms = resolveClassTerms(classCode);
-  if (amountUsdc < classTerms.minTicketUsdc) {
+  const demoMinRaw = process.env.DEMO_MIN_TICKET_USDC;
+  // development only — never prod (canonical minimums) and never test (keeps the
+  // suite asserting the real $250k/$1M gates, not the demo floor).
+  const demoMin =
+    process.env.NODE_ENV === "development" && demoMinRaw
+      ? Number(demoMinRaw)
+      : null;
+  const effectiveMin =
+    demoMin !== null && Number.isFinite(demoMin) && demoMin > 0
+      ? demoMin
+      : classTerms.minTicketUsdc;
+  if (amountUsdc < effectiveMin) {
+    // Format: show raw dollar amount when < $1,000 (avoids "$0k" for small demo mins),
+    // otherwise use the canonical "Nk" or "NM" format for institutional ticket sizes.
+    const minLabel =
+      effectiveMin < 1_000
+        ? `$${effectiveMin.toLocaleString("en-US", { maximumFractionDigits: 2 })}`
+        : effectiveMin < 1_000_000
+          ? `$${(effectiveMin / 1_000).toFixed(0)}k`
+          : `$${(effectiveMin / 1_000_000).toFixed(0)}M`;
     return {
       ok: false,
-      error: `Below minimum ticket of $${(classTerms.minTicketUsdc / 1_000).toFixed(0)}k for Class ${classCode}.`,
+      error: `Below minimum ticket of ${minLabel} for Class ${classCode}.`,
     };
   }
 

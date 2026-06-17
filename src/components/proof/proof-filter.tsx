@@ -44,14 +44,13 @@ export function ProofFilter() {
   }
 
   return (
-    <nav aria-label="Proof type filter" className="doc-flow-tablist" role="tablist">
+    <nav aria-label="Proof type filter" className="doc-flow-tablist" aria-busy={isPending}>
       {OPTIONS.map((opt) => {
         const isActive = current === opt.value;
         return (
           <button
             key={opt.value}
             type="button"
-            role="tab"
             aria-selected={isActive}
             disabled={isPending}
             onClick={() => select(opt.value)}

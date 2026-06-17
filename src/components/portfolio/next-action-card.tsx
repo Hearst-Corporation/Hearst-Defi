@@ -138,7 +138,7 @@ export function NextActionCard(props: NextActionCardProps) {
       <div className="pf-next-action-card__layout">
         <div className="pf-next-action-card__copy">
           <span className="pf-panel-title">{step.eyebrow}</span>
-          <p className="pf-cockpit-panel__title--primary m-0">{step.headline}</p>
+          <h2 className="pf-cockpit-panel__title--primary m-0">{step.headline}</h2>
           {step.detail ? (
             <p className="body-sm ct-text-muted m-0">{step.detail}</p>
           ) : null}

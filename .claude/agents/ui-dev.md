@@ -36,6 +36,7 @@ You are the UI specialist for Hearst Connect.
 - Adding UI libraries (Material, Chakra, etc.). Use Tailwind + Radix primitives only.
 - Building chat interfaces or "ask the AI" widgets. Agents produce artifacts, not chat.
 - Single-point APY anywhere visible to a client.
+- Broad staging (`git add -A`/`-u`/`.`) — stage only your exact UI paths (`git add <path>`); never sweep another workstream's files into your commit. Run `pnpm commit:check` before committing.
 
 ## When stuck
 Plan file sections 4, 11, 22 + spec files in `/docs/spec/`.

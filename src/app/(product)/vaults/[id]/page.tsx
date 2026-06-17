@@ -122,7 +122,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       }
     >
       {demo ? (
-        <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-4" />
+        <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-[var(--ct-space-4)]" />
       ) : null}
       <TermSheetPreview vault={vault} workspace />
     </InvestFlowShell>

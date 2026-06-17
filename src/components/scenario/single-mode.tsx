@@ -65,7 +65,7 @@ export function SingleMode({
       {error ? (
         <p
           role="alert"
-          className="rounded-full border border-(--ct-status-danger) bg-transparent px-4 py-2.5 body-sm ct-status-danger"
+          className="rounded-full border border-(--ct-status-danger) bg-transparent px-[var(--ct-space-4)] py-2.5 body-sm ct-status-danger"
         >
           {error}
         </p>
@@ -120,7 +120,7 @@ export function SingleMode({
         </Card>
 
         <section
-          className="min-h-0 flex flex-col gap-4"
+          className="min-h-0 flex flex-col gap-[var(--ct-space-4)]"
           aria-labelledby="single-mode-central-flow-title"
         >
           <h3 id="single-mode-central-flow-title" className="sr-only">
@@ -128,7 +128,7 @@ export function SingleMode({
           </h3>
 
           {objective.trim().length > 0 ? (
-            <Card className="scenario-lab-input-card p-4" hoverOverlay={false}>
+            <Card className="scenario-lab-input-card p-[var(--ct-space-4)]" hoverOverlay={false}>
               <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline">
                 <label htmlFor={briefInputId} className="stat-label">
                   Central brief
@@ -139,7 +139,7 @@ export function SingleMode({
                 value={objective}
                 onChange={(e) => setObjective(e.target.value)}
                 placeholder="Objective produit (seeded par le chat admin)"
-                className="ct-textarea mt-2 min-h-18 w-full resize-y body-sm"
+                className="ct-textarea mt-[var(--ct-space-2)] min-h-18 w-full resize-y body-sm"
               />
             </Card>
           ) : null}

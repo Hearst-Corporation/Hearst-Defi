@@ -11,7 +11,16 @@ import type { DashboardAllocation } from "@/lib/data/dashboard";
 function SvgDonut({ allocations }: { allocations: DashboardAllocation[] }) {
   const radius = 15.915494309189533;
   const circumference = 100;
-  let currentOffset = 100; // SVG is rotated -90deg, so 100 offset starts at top
+
+  // Precompute cumulative offsets so no `let` is mutated during render.
+  // Each segment starts where the previous one ended (clockwise = subtract pct).
+  const visibleItems = allocations.filter((item) => item.pct > 0);
+  const segments = visibleItems.reduce<
+    { item: DashboardAllocation; strokeDashoffset: number }[]
+  >((acc, item) => {
+    const prevOffset = acc.length === 0 ? 100 : (acc[acc.length - 1]!.strokeDashoffset - acc[acc.length - 1]!.item.pct);
+    return [...acc, { item, strokeDashoffset: prevOffset }];
+  }, []);
 
   return (
     <svg viewBox="0 0 42 42" className="dashboard-orbit__svg" aria-hidden="true">
@@ -21,7 +30,7 @@ function SvgDonut({ allocations }: { allocations: DashboardAllocation[] }) {
           <feComposite in="SourceGraphic" in2="blur" operator="over" />
         </filter>
       </defs>
-      
+
       {/* Background track */}
       <circle
         cx="21"
@@ -31,37 +40,32 @@ function SvgDonut({ allocations }: { allocations: DashboardAllocation[] }) {
         stroke="color-mix(in srgb, var(--ct-accent) 15%, transparent)"
         strokeWidth="1.5"
       />
-      
+
       {/* Segments */}
-      {allocations
-        .filter((item) => item.pct > 0)
-        .map((item) => {
-          const strokeDasharray = `${item.pct} ${circumference - item.pct}`;
-          const strokeDashoffset = currentOffset;
-          currentOffset -= item.pct; // Move offset backwards to draw clockwise
-          
-          const isMining = item.bucket === "mining";
-          
-          return (
-            <circle
-              key={item.bucket}
-              cx="21"
-              cy="21"
-              r={radius}
-              fill="none"
-              stroke={allocationStrokeFor(item.bucket)}
-              strokeWidth={isMining ? "2.5" : "2"}
-              strokeDasharray={strokeDasharray}
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
-              filter={isMining ? "url(#mining-glow)" : undefined}
-              style={{
-                transition: "stroke-dasharray 1s ease-out, stroke-dashoffset 1s ease-out",
-                transformOrigin: "center",
-              }}
-            />
-          );
-        })}
+      {segments.map(({ item, strokeDashoffset }) => {
+        const strokeDasharray = `${item.pct} ${circumference - item.pct}`;
+        const isMining = item.bucket === "mining";
+
+        return (
+          <circle
+            key={item.bucket}
+            cx="21"
+            cy="21"
+            r={radius}
+            fill="none"
+            stroke={allocationStrokeFor(item.bucket)}
+            strokeWidth={isMining ? "2.5" : "2"}
+            strokeDasharray={strokeDasharray}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            filter={isMining ? "url(#mining-glow)" : undefined}
+            style={{
+              transition: "stroke-dasharray 1s ease-out, stroke-dashoffset 1s ease-out",
+              transformOrigin: "center",
+            }}
+          />
+        );
+      })}
     </svg>
   );
 }

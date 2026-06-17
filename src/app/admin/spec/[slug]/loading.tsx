@@ -10,7 +10,7 @@ export default function Loading() {
             />
           ))}
         </aside>
-        <article className="min-w-0 flex flex-col gap-6">
+        <article className="min-w-0 flex flex-col gap-[var(--ct-space-8)]">
           <div className="admin-doc-prose-shell admin-doc-stack admin-doc-stack--actions">
             <div className="h-3 w-24 animate-pulse rounded ct-surface-1" />
             <div className="h-12 w-2/3 animate-pulse rounded ct-surface-1" />

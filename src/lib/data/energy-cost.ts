@@ -59,11 +59,3 @@ export function getEnergyCostUsdPerKwh(): EnergyCostData {
   };
   return cached;
 }
-
-/**
- * Test-only escape hatch — resets the module-level cache so a vi.stubEnv
- * applied late still takes effect. Never call from production code.
- */
-export function __resetEnergyCostCacheForTests(): void {
-  cached = null;
-}

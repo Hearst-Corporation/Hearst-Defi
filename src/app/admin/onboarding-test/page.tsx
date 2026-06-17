@@ -45,7 +45,7 @@ export default function OnboardingTestPage() {
           optionally send the welcome email and create the HubSpot contact.
         </p>
 
-        <Card className="p-5" hoverOverlay={false}>
+        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
           <OnboardingForm />
         </Card>
       </section>

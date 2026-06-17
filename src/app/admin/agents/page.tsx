@@ -46,17 +46,17 @@ export default async function AgentsPage() {
         <div className="admin-doc-form-grid-2">
           {catalogGroups.map((group) => (
             <Card key={group.scope} hoverOverlay={false}>
-              <div className="admin-doc-inline-row mb-3">
+              <div className="admin-doc-inline-row mb-[var(--ct-space-3)]">
                 <h3 className="h3">{group.scopeLabel}</h3>
                 <Badge variant={group.scope === "platform" ? "accent" : "default"}>
                   {group.entries.length}
                 </Badge>
               </div>
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-[var(--ct-space-3)]">
                 {group.entries.map((entry) => (
                   <li
                     key={entry.baseAgent}
-                    className="flex flex-col gap-1 border-b border-(--ct-border-soft) pb-3 last:border-0 last:pb-0"
+                    className="flex flex-col gap-1 border-b border-(--ct-border-soft) pb-[var(--ct-space-3)] last:border-0 last:pb-0"
                   >
                     <div className="admin-doc-inline-row">
                       <span className="body-sm ct-text-strong">{entry.label}</span>

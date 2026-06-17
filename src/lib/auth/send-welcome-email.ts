@@ -2,6 +2,7 @@ import "server-only";
 
 import { createHash, randomBytes } from "node:crypto";
 import { prisma } from "@/lib/db";
+import { buildEmailWrapper } from "@/lib/email/html-shell";
 
 /**
  * Welcome email sent to a newly-provisioned investor (Typeform auto-create or
@@ -40,7 +41,7 @@ async function sendEmail(
       to: [to],
       subject: "Bienvenue sur Hearst Connect — Activez votre accès",
       html: `
-        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#0a0a0a;color:#e5e7eb;border-radius:12px;">
+        ${buildEmailWrapper(`
           <h2 style="color:#A7FB90;font-size:20px;margin:0 0 16px;">Bienvenue sur Hearst Connect</h2>
           <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#9ca3af;">
             ${greeting}<br/>
@@ -56,7 +57,7 @@ async function sendEmail(
           <p style="margin:24px 0 0;font-size:12px;color:#6b7280;">
             Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.
           </p>
-        </div>
+        `)}
       `,
     }),
   });

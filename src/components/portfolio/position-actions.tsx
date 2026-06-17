@@ -36,6 +36,7 @@ import {
   type RedeemFromVaultResult,
 } from "@/lib/onchain/vault";
 import { redeem } from "@/app/actions/redeem";
+import { explorerTxUrlFromRegistry } from "@/lib/chain/deployments";
 import type { PositionDetail } from "@/lib/data/portfolio";
 
 interface PositionActionsProps {
@@ -222,7 +223,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
           position is now closed.
         </p>
         <a
-          href={`https://sepolia.basescan.org/tx/${result.txHash}`}
+          href={explorerTxUrlFromRegistry(result.txHash)}
           target="_blank"
           rel="noreferrer noopener"
           className="body-xs text-[var(--ct-accent-strong)] no-underline hover:underline font-medium"
@@ -271,7 +272,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
           </div>
           <p className="body-xs ct-text-muted">
             You are withdrawing your full position from the vault, subject to the
-            60-day soft lock-up. You&rsquo;ll be asked to confirm this transaction
+            {position.softLockupDays}-day soft lock-up. You&rsquo;ll be asked to confirm this transaction
             in your wallet. Past performance does not predict future results.
           </p>
           <div className="vault-form-actions">
@@ -313,7 +314,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
   return (
     <section aria-label="Position actions" className="product-doc-section">
       <p className="body-xs ct-text-muted">
-        Withdraw returns your full position as USDC, subject to the 60-day soft
+        Withdraw returns your full position as USDC, subject to the {position.softLockupDays}-day soft
         lock-up. Past performance does not predict future results.
       </p>
       <Button

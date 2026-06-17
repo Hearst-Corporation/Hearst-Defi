@@ -1,6 +1,7 @@
 import { ApyRange } from "@/components/ui/apy-range";
 import { cn } from "@/lib/cn";
-import { METHODOLOGY_V1_STRESS_REGIMES, type StressRegime } from "@/lib/constants/vault";
+import { deriveStressRegimes, type StressRegime } from "@/lib/constants/vault";
+import type { VaultProduct } from "@/lib/data/vaults";
 
 const TONE_TEXT: Record<StressRegime["tone"], string> = {
   success: "ct-status-success",
@@ -11,7 +12,13 @@ function pctCell(value: number) {
   return <span className="tabular mono body-sm ct-text-body">{value}%</span>;
 }
 
-export function RegimeScenarioTable() {
+interface RegimeScenarioTableProps {
+  /** Vault whose APY range and sleeve mix drive the stress-regime rows. */
+  vault: VaultProduct;
+}
+
+export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
+  const regimes = deriveStressRegimes(vault);
   return (
     <div className="regime-scenario-table">
       <table>
@@ -50,7 +57,7 @@ export function RegimeScenarioTable() {
           </tr>
         </thead>
         <tbody>
-          {METHODOLOGY_V1_STRESS_REGIMES.map((row) => (
+          {regimes.map((row) => (
             <tr key={row.id}>
               <td className="ct-table-cell align-top">
                 <span className={cn("body-sm font-semibold", TONE_TEXT[row.tone])}>

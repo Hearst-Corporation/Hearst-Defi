@@ -78,7 +78,7 @@ export default async function AuditLogPage({
               defaultValue={entityType ?? ""}
               placeholder="e.g. VaultDeployment"
               className={cn(
-                "h-8 rounded-md border px-3 body-sm ct-bc-soft ct-surface-0 ct-text-body",
+                "h-8 rounded-md border px-[var(--ct-space-3)] body-sm ct-bc-soft ct-surface-0 ct-text-body",
                 "placeholder:ct-text-muted focus:outline-none focus:ct-bc-strong",
               )}
             />
@@ -91,7 +91,7 @@ export default async function AuditLogPage({
               defaultValue={actor ?? ""}
               placeholder="0x…"
               className={cn(
-                "h-8 rounded-md border px-3 body-sm mono ct-bc-soft ct-surface-0 ct-text-body",
+                "h-8 rounded-md border px-[var(--ct-space-3)] body-sm mono ct-bc-soft ct-surface-0 ct-text-body",
                 "placeholder:ct-text-muted focus:outline-none focus:ct-bc-strong",
               )}
             />
@@ -104,7 +104,7 @@ export default async function AuditLogPage({
               defaultValue={action ?? ""}
               placeholder="e.g. vault.approve"
               className={cn(
-                "h-8 rounded-md border px-3 body-sm ct-bc-soft ct-surface-0 ct-text-body",
+                "h-8 rounded-md border px-[var(--ct-space-3)] body-sm ct-bc-soft ct-surface-0 ct-text-body",
                 "placeholder:ct-text-muted focus:outline-none focus:ct-bc-strong",
               )}
             />
@@ -149,19 +149,19 @@ export default async function AuditLogPage({
               <table className="w-full table-fixed text-left body-sm">
                 <thead>
                   <tr>
-                    <th className="w-[18%] ct-table-header stat-label py-3">
+                    <th className="w-[18%] ct-table-header stat-label py-[var(--ct-space-3)]">
                       When
                     </th>
-                    <th className="w-[18%] ct-table-header stat-label py-3">
+                    <th className="w-[18%] ct-table-header stat-label py-[var(--ct-space-3)]">
                       Actor
                     </th>
-                    <th className="w-[18%] ct-table-header stat-label py-3">
+                    <th className="w-[18%] ct-table-header stat-label py-[var(--ct-space-3)]">
                       Action
                     </th>
-                    <th className="hidden w-[18%] ct-table-header stat-label py-3 lg:table-cell">
+                    <th className="hidden w-[18%] ct-table-header stat-label py-[var(--ct-space-3)] lg:table-cell">
                       Entity
                     </th>
-                    <th className="w-[46%] ct-table-header stat-label py-3 lg:w-[28%]">
+                    <th className="w-[46%] ct-table-header stat-label py-[var(--ct-space-3)] lg:w-[28%]">
                       Details
                     </th>
                   </tr>
@@ -173,12 +173,12 @@ export default async function AuditLogPage({
                       className="border-b border-(--ct-border-soft) last:border-0 align-top"
                     >
                       {/* When */}
-                      <td className="ct-table-cell py-3 mono body-xs ct-text-muted">
+                      <td className="ct-table-cell py-[var(--ct-space-3)] mono body-xs ct-text-muted">
                         {formatAdminAuditTimestamp(entry.occurredAt)}
                       </td>
 
                       {/* Actor */}
-                      <td className="ct-table-cell py-3">
+                      <td className="ct-table-cell py-[var(--ct-space-3)]">
                         <span
                           className="mono body-xs ct-text-body"
                           title={entry.actorWallet}
@@ -193,14 +193,14 @@ export default async function AuditLogPage({
                       </td>
 
                       {/* Action */}
-                      <td className="ct-table-cell py-3">
+                      <td className="ct-table-cell py-[var(--ct-space-3)]">
                         <Badge variant={actionVariant(entry.action)}>
                           {entry.action}
                         </Badge>
                       </td>
 
                       {/* Entity */}
-                      <td className="hidden ct-table-cell py-3 lg:table-cell">
+                      <td className="hidden ct-table-cell py-[var(--ct-space-3)] lg:table-cell">
                         <span className="block body-xs ct-text-strong">
                           {entry.entityType}
                         </span>
@@ -210,7 +210,7 @@ export default async function AuditLogPage({
                       </td>
 
                       {/* Details — before/after diff in a native <details> */}
-                      <td className="ct-table-cell py-3">
+                      <td className="ct-table-cell py-[var(--ct-space-3)]">
                         <details className="group">
                           <summary className="cursor-pointer list-none body-xs ct-text-muted hover:ct-text-body select-none">
                             <span className="group-open:hidden">Show diff</span>
@@ -218,14 +218,14 @@ export default async function AuditLogPage({
                               Hide diff
                             </span>
                           </summary>
-                          <div className="mt-2 admin-doc-stack admin-doc-stack--tight">
+                          <div className="mt-[var(--ct-space-2)] admin-doc-stack admin-doc-stack--tight">
                             <div>
                               <p className="stat-label mb-0.5 ct-text-muted">
                                 Before
                               </p>
                               <pre
                                 className={cn(
-                                  "mono body-xs max-h-40 overflow-auto rounded border p-2 leading-relaxed whitespace-pre-wrap break-all",
+                                  "mono body-xs max-h-40 overflow-auto rounded border p-[var(--ct-space-2)] leading-relaxed whitespace-pre-wrap break-all",
                                   "ct-bc-soft ct-surface-0 ct-text-muted",
                                 )}
                               >
@@ -240,7 +240,7 @@ export default async function AuditLogPage({
                               </p>
                               <pre
                                 className={cn(
-                                  "mono body-xs max-h-40 overflow-auto rounded border p-2 leading-relaxed whitespace-pre-wrap break-all",
+                                  "mono body-xs max-h-40 overflow-auto rounded border p-[var(--ct-space-2)] leading-relaxed whitespace-pre-wrap break-all",
                                   "ct-bc-soft ct-surface-0 ct-text-body",
                                 )}
                               >
@@ -262,7 +262,7 @@ export default async function AuditLogPage({
                 </tbody>
               </table>
             </div>
-            <div className="admin-doc-stack admin-doc-stack--tight border-t border-(--ct-border-soft) px-5 py-4">
+            <div className="admin-doc-stack admin-doc-stack--tight border-t border-(--ct-border-soft) px-[var(--ct-space-6)] py-[var(--ct-space-4)]">
               <p className="stat-label m-0">Audit retention</p>
               <p className="body-xs ct-text-muted m-0">
                 Showing up to 200 entries per query. Entries written by{" "}

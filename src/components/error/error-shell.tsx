@@ -47,7 +47,7 @@ export function ErrorShellLayout({
 
   return (
     <Card
-      className={cn("error-shell", "mx-auto my-10 max-w-2xl p-8")}
+      className={cn("error-shell", "mx-auto my-[var(--ct-space-10)] max-w-2xl p-[var(--ct-space-10)]")}
       hoverOverlay={false}
       role={tone === "danger" ? "alert" : "status"}
       aria-live={tone === "danger" ? "assertive" : "polite"}
@@ -73,7 +73,7 @@ export function ErrorShellLayout({
             "ct-text-primary",
             "overflow-auto",
             "whitespace-pre-wrap break-words",
-            "max-h-64 px-4 py-4 body-xs leading-normal",
+            "max-h-64 px-[var(--ct-space-4)] py-[var(--ct-space-4)] body-xs leading-normal",
           )}
         >
           {errorMessage}

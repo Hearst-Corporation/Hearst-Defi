@@ -159,8 +159,8 @@ function ConfirmDialogBody({
         aria-describedby={description ? descId : undefined}
         className={cn(
           "relative w-full max-w-md rounded-xl border border-[var(--ct-border-strong)]",
-          "ct-surface-2 p-6 shadow-[var(--ct-shadow-elevated)] z-[var(--ct-z-base)]",
-          "flex flex-col gap-4",
+          "ct-surface-2 p-[var(--ct-space-8)] shadow-[var(--ct-shadow-elevated)] z-[var(--ct-z-base)]",
+          "flex flex-col gap-[var(--ct-space-4)]",
         )}
       >
         <h2 id={titleId} className="h2 shrink-0">
@@ -209,7 +209,7 @@ function ConfirmDialogBody({
           </div>
         )}
 
-        <div className="flex items-center justify-end gap-3">
+        <div className="flex items-center justify-end gap-[var(--ct-space-3)]">
           <Button
             variant="ghost"
             size="md"
@@ -223,6 +223,7 @@ function ConfirmDialogBody({
             size="md"
             onClick={handleConfirm}
             disabled={isPending || !phraseMatches}
+            aria-busy={isPending}
             aria-describedby={error ? errorId : undefined}
           >
             {isPending ? "…" : confirmLabel}

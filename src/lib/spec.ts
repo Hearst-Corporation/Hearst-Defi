@@ -29,11 +29,6 @@ function parseFrontmatter(data: unknown): { title?: string; order?: number } {
   return result.success ? result.data : {};
 }
 
-export interface SpecFrontmatter {
-  title: string;
-  order: number;
-}
-
 export interface SpecDoc {
   slug: string;
   title: string;

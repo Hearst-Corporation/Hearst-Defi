@@ -46,7 +46,7 @@ export function DashboardPanelHeader({
         </TitleTag>
       </div>
       {provenance || trustLabel ? (
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-[var(--ct-space-3)] shrink-0">
           {trustLabel ? (
             <span className="body-xs ct-text-faint italic hidden sm:inline">
               {trustLabel}

@@ -2,11 +2,7 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DashboardAssetsBoard } from "@/components/admin/dashboard";
 import { VaultTransition } from "@/components/admin/dashboard/vault-transition";
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
-import { Card } from "@/components/ui/card";
-import {
-  PanelStatusAccent,
-  PanelStatusSection,
-} from "@/components/ui/panel-status";
+import { PanelStatusAccent } from "@/components/ui/panel-status";
 import {
   resolveDashboardDataNotice,
   resolveDashboardPageInputs,
@@ -34,7 +30,7 @@ function DashboardDataNoticeBanner({
   if (notice.kind === "staging") {
     return (
       <PanelStatusAccent
-        className="items-stretch border-l-(--ct-status-warning) mb-4"
+        className="items-stretch border-l-(--ct-status-warning) mb-[var(--ct-space-4)]"
         role="note"
       >
         <div className="admin-doc-stack admin-doc-stack--tight">
@@ -61,7 +57,7 @@ function DashboardDataNoticeBanner({
 
   return (
     <PanelStatusAccent
-      className="items-stretch border-l-(--ct-status-warning) mb-4"
+      className="items-stretch border-l-(--ct-status-warning) mb-[var(--ct-space-4)]"
       role="note"
     >
       <div className="admin-doc-stack admin-doc-stack--tight">

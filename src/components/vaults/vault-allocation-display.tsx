@@ -50,7 +50,7 @@ export function VaultAllocationAdminRows({
   facts: VaultAllocationFacts;
 }) {
   return (
-    <div className="mt-4 admin-doc-stack admin-doc-stack--relaxed">
+    <div className="mt-[var(--ct-space-4)] admin-doc-stack admin-doc-stack--relaxed">
       {ALLOCATION_BUCKETS.map((bucket) => {
         const bps = allocationBps(facts, bucket);
         const label = ALLOCATION_ADMIN_LABELS[bucket];

@@ -76,3 +76,42 @@ export function getDeployment(name: DeploymentName): DeploymentView {
     meta: computeStaleness(entry),
   };
 }
+
+// ---------------------------------------------------------------------------
+// Block-explorer helpers — chain-aware, safe for both client and server bundles.
+//
+// NOTE: src/lib/chain/client.ts also exports `explorerTxUrl` / `explorerAddressUrl`
+// but that module is `server-only`. Import from HERE in "use client" components.
+// ---------------------------------------------------------------------------
+
+const BASE_MAINNET_CHAIN_ID = 8453;
+const BASE_SEPOLIA_CHAIN_ID_DEPLOYMENTS = 84532;
+
+function explorerOriginFromChainId(chainId: number): string {
+  return chainId === BASE_MAINNET_CHAIN_ID
+    ? "https://basescan.org"
+    : "https://sepolia.basescan.org"; // default: Base Sepolia (testnet)
+}
+
+/** Active chain id derived from the committed deployment registry. */
+function activeChainId(): number {
+  return getDeploymentRegistry().chainId ?? BASE_SEPOLIA_CHAIN_ID_DEPLOYMENTS;
+}
+
+/**
+ * Block-explorer URL for a transaction hash on the active chain.
+ * Safe for "use client" components (no server-only dependency).
+ * Guard the link with `isPlaceholderTxHash` (src/lib/chain/client.ts) before
+ * rendering — placeholder hashes resolve to 404 on BaseScan.
+ */
+export function explorerTxUrlFromRegistry(txHash: string): string {
+  return `${explorerOriginFromChainId(activeChainId())}/tx/${txHash}`;
+}
+
+/**
+ * Block-explorer URL for a contract/wallet address on the active chain.
+ * Safe for "use client" components.
+ */
+function explorerAddressUrlFromRegistry(address: string): string {
+  return `${explorerOriginFromChainId(activeChainId())}/address/${address}`;
+}

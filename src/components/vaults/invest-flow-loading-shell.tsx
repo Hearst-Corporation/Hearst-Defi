@@ -22,7 +22,7 @@ export function InvestFlowLoadingShell({
   return (
     <div
       className={cn(
-        "invest-flow-shell animate-in fade-in duration-(--ct-dur-slower)",
+        "invest-flow-shell animate-in fade-in duration-[var(--ct-dur-slower)]",
         width === "cap" && "product-doc-shell--cap",
         width === "narrow" && "product-doc-shell--narrow",
         workspace && "invest-flow-shell--workspace",

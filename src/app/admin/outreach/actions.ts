@@ -29,8 +29,9 @@ import { OUTREACH_EVENTS } from "@/lib/outreach/events";
 
 const REVALIDATE_PATH = "/admin/outreach";
 const TYPEFORM_URL =
+  process.env.NEXT_PUBLIC_QUALIFICATION_FORM_URL ??
   process.env.NEXT_PUBLIC_TYPEFORM_URL ??
-  "https://form.typeform.com/to/NXUw7yzJ";
+  `${process.env.NEXT_PUBLIC_APP_URL ?? "https://connect.hearst.app"}/apply`;
 
 /** Records an admin audit row using the canonical field shape. */
 async function recordAudit(
@@ -287,7 +288,7 @@ const CommaIdList = z
   )
   .pipe(z.array(z.string().min(1)).min(1));
 
-export async function draftCampaignEmails(formData: FormData): Promise<void> {
+async function draftCampaignEmails(formData: FormData): Promise<void> {
   const admin = await requireAdmin();
 
   const campaignId = formData.get("campaignId");
@@ -630,7 +631,7 @@ export async function draftAllCampaignEmails(
 // convertProspect — mark a prospect as converted
 // ---------------------------------------------------------------------------
 
-export async function convertProspect(formData: FormData): Promise<void> {
+async function convertProspect(formData: FormData): Promise<void> {
   const admin = await requireAdmin();
 
   const prospectId = formData.get("prospectId");

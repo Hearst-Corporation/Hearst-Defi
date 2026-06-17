@@ -248,7 +248,7 @@ export function DistributionForm({
 
         {/* Error */}
         {error && (
-          <p className="body-xs ct-status-danger px-3 py-2 rounded-(--ct-radius-md) border border-(--ct-border-soft) bg-transparent">
+          <p className="body-xs ct-status-danger px-[var(--ct-space-3)] py-[var(--ct-space-2)] rounded-(--ct-radius-md) border border-(--ct-border-soft) bg-transparent">
             {error}
           </p>
         )}
@@ -271,7 +271,7 @@ export function DistributionForm({
                 </p>
 
                 {confirmResult && !confirmResult.confirmed && (
-                  <p className="body-xs ct-status-info px-3 py-2 rounded-(--ct-radius-md) border border-(--ct-border-soft) bg-transparent">
+                  <p className="body-xs ct-status-info px-[var(--ct-space-3)] py-[var(--ct-space-2)] rounded-(--ct-radius-md) border border-(--ct-border-soft) bg-transparent">
                     Signature {confirmResult.signersCount}/{confirmResult.required}{" "}
                     recorded. Awaiting{" "}
                     {confirmResult.required - confirmResult.signersCount} more
@@ -352,7 +352,7 @@ export function DistributionForm({
 
         {/* Confirmed — finaliser succeeded */}
         {confirmResult?.confirmed && confirmResult.finisher !== "failed" && (
-          <div className="px-4 py-3 rounded-(--ct-radius-lg) border border-(--ct-border-soft) bg-transparent admin-doc-stack admin-doc-stack--compact">
+          <div className="px-[var(--ct-space-4)] py-[var(--ct-space-3)] rounded-(--ct-radius-lg) border border-(--ct-border-soft) bg-transparent admin-doc-stack admin-doc-stack--compact">
             <p className="body-sm ct-status-success">
               Distribution confirmed for period {period}.
             </p>
@@ -367,7 +367,7 @@ export function DistributionForm({
         {confirmResult?.confirmed &&
           confirmResult.finisher === "failed" &&
           confirmResult.distributionId && (
-            <div className="px-4 py-3 rounded-(--ct-radius-lg) border border-(--ct-border-soft) bg-transparent admin-doc-stack admin-doc-stack--actions">
+            <div className="px-[var(--ct-space-4)] py-[var(--ct-space-3)] rounded-(--ct-radius-lg) border border-(--ct-border-soft) bg-transparent admin-doc-stack admin-doc-stack--actions">
               <div className="admin-doc-stack admin-doc-stack--compact">
                 <p className="body-sm ct-status-warning">
                   Confirmed, but finalisation (ledger / PCAP / emails) failed —
@@ -380,7 +380,7 @@ export function DistributionForm({
                 </p>
               </div>
               {retryError && (
-                <p className="body-xs ct-status-danger px-3 py-2 rounded-(--ct-radius-md) border border-(--ct-border-soft) bg-transparent">
+                <p className="body-xs ct-status-danger px-[var(--ct-space-3)] py-[var(--ct-space-2)] rounded-(--ct-radius-md) border border-(--ct-border-soft) bg-transparent">
                   {retryError}
                 </p>
               )}

@@ -217,6 +217,7 @@ function validDraftInput(): CreateDraftInput {
     capacityUsdc: 10_000_000,
     mgmtFeeBps: 100,
     perfFeeBps: 1_000,
+    hurdleBps: 0,
     softLockupDays: 60,
     targetApyLowBps: 800,
     targetApyHighBps: 1_500,

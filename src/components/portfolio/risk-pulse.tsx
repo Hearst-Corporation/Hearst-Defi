@@ -393,7 +393,7 @@ export function RiskPulse({
       />
 
       {!showZeroShell ? (
-        <p className="mt-auto pt-2 body-xs ct-text-faint m-0">
+        <p className="mt-auto pt-[var(--ct-space-2)] body-xs ct-text-faint m-0">
           0–100 scale · conditional — not guaranteed
         </p>
       ) : null}

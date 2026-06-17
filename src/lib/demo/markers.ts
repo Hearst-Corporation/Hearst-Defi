@@ -6,8 +6,6 @@
 
 import type { Provenance } from "@/components/ui/provenance-badge";
 
-export const DEMO_SOURCE = "demo" as const;
-
 /**
  * Provenance shown for a demo value. In the demo sandbox EVERY value is
  * "simulated" (a neutral sandbox marker, not an alarm) regardless of what the
@@ -36,8 +34,6 @@ export function proofProvenance(
   if (isDemo) return "simulated";
   return liveKind;
 }
-
-export const DEMO_SANDBOX_LABEL = "Demo Sandbox" as const;
 
 export const DEMO_SANDBOX_DISCLAIMER =
   "Demo data. Not live. No real subscription." as const;

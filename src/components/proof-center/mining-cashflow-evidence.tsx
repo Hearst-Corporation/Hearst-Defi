@@ -43,9 +43,9 @@ export function MiningCashFlowEvidence({
           tone="primary"
         />
 
-        <p className="body-sm mb-4">{MINING_CASHFLOW_COPY[provenance]}</p>
+        <p className="body-sm mb-[var(--ct-space-4)]">{MINING_CASHFLOW_COPY[provenance]}</p>
 
-        <div className="mining-coverage-calibration mb-4" role="status">
+        <div className="mining-coverage-calibration mb-[var(--ct-space-4)]" role="status">
           <span className="mining-coverage-calibration__bar" aria-hidden />
           <span className="sr-only">
             {provenance === "invalid"
@@ -99,7 +99,7 @@ export function MiningCashFlowEvidence({
         tone="primary"
       />
 
-      <p className="body-sm mb-4">{MINING_CASHFLOW_COPY[provenance]}</p>
+      <p className="body-sm mb-[var(--ct-space-4)]">{MINING_CASHFLOW_COPY[provenance]}</p>
 
       <MetricGrid columns={4}>
         <Metric

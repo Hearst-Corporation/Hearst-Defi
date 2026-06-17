@@ -164,7 +164,8 @@ describe("subscribe — Class B wiring (E2)", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.error).toMatch(/1000k.*class b/i);
+      // 3-tier min-ticket label renders $1M (not "1000k") for the Class B floor.
+      expect(result.error).toMatch(/\$1M.*class b/i);
     }
 
     // No position should have been created

@@ -10,13 +10,15 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
-vi.mock("@/lib/governance/allowlist", () => ({
+vi.mock("@/lib/governance/allowlist-queries", () => ({
   findAllowlistEntryByAddress: vi.fn(),
+  getActiveAllowlistEntries: vi.fn(),
+  mapRow: vi.fn(),
 }));
 
 // ── Imports ────────────────────────────────────────────────────────────────
 
-import { findAllowlistEntryByAddress } from "@/lib/governance/allowlist";
+import { findAllowlistEntryByAddress } from "@/lib/governance/allowlist-queries";
 import { computeRoutingDecision, routeForTransaction } from "../routing";
 import type { AllowlistEntry } from "@/lib/governance/allowlist";
 import type { ProposalActionType } from "../routing";
