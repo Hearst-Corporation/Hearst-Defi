@@ -1,0 +1,22 @@
+---
+description: Email / outreach — drafts, templates, send services (no real sends)
+globs: src/app/admin/outreach/**,src/lib/email/**,src/lib/outreach/**
+alwaysApply: false
+---
+
+# Email rule
+
+Lire d'abord : `docs/EMAIL_CONTEXT.md`.
+À lire ensuite : `src/app/admin/outreach/actions.ts` + `src/lib/email/send.ts` + le template ciblé.
+À éviter : UI dashboard, agents orchestration, engine, data portfolio/vaults.
+
+Règles :
+- **Aucun envoi réel pendant un audit / une tâche non explicitement « envoyer ».** Rester en
+  preview / draft. L'envoi (Resend) est une action externe → confirmation explicite obligatoire.
+- Approval flow : draft → preview → (humain) → send. Ne pas court-circuiter.
+- Pas de secret en dur — toujours `process.env` (`RESEND_API_KEY`).
+- Webhooks signés (`src/lib/email/resend-signature.ts`) : ne pas désactiver la vérification.
+
+Validation : `pnpm test src/lib/email` (+ tests outreach si présents).
+
+STOP : tout déclenchement d'envoi, toute campagne réelle → s'arrêter et demander.

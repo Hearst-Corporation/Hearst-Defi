@@ -1,0 +1,27 @@
+---
+description: LLM agents, cockpit chat, tools registry, action queue
+globs: src/lib/llm/**,src/lib/agents/**,src/app/api/cockpit-chat/**,src/app/api/chat-nav/**,src/app/api/admin/chat-tools/**
+alwaysApply: false
+---
+
+# Agents rule
+
+Lire d'abord : `docs/AGENTS_CONTEXT.md`.
+Points d'entrée : `src/lib/llm/chat-agent.ts`, `src/lib/llm/tools/registry.ts`,
+`src/lib/llm/navigate-tool.ts`, `src/lib/agents/` (4 agents batch).
+À éviter : CSS, data portfolio/vaults, composants de présentation.
+
+Règles :
+- Provider unique = **OpenAI GPT-4.1** (ADR-011). Pas de SDK Anthropic dans ce repo. Les exports
+  nommés `kimi`/`KIMI_*` pointent OpenAI — ne pas « réparer » le nom.
+- Sorties structurées only, Zod-validées. **Mots interdits** : guarantee, promise, certain,
+  will deliver, risk-free. APY toujours en range.
+- Le chat (Master Agent / review-mode) navigue en **read-only** (whitelist de routes), **aucun**
+  outil write/financier/admin. Human-in-the-loop (ADR-012). System prompt côté serveur, non
+  surchargeable client. Output-guard compliance actif.
+- Logique métier → backend-first (server action / engine), pas dans le tool/agent.
+
+Validation : `pnpm test src/lib/llm` (et `src/lib/agents/__tests__` si touché).
+
+STOP : ne pas ajouter d'outil write/exécution, ne pas appeler l'API Anthropic (crédits),
+ne pas ouvrir la whitelist de navigation sans accord.

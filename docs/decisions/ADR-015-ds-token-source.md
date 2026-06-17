@@ -1,7 +1,8 @@
-# ADR-014: Design System Token Source of Truth
+# ADR-015: Design System Token Source of Truth
 
 **Status:** Accepted (amended 2026-06-15)  
-**Date:** 2026-06-14
+**Date:** 2026-06-14  
+**Note:** Renumbered 2026-06-17 from a duplicate ADR-014 (the go-live preflight ADR, dated 2026-06-12, keeps 014 as the chronologically earlier record).
 
 ## Context
 

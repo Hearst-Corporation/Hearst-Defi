@@ -1,0 +1,43 @@
+---
+description: DeFi — pure engine, multi-vault presets, deposit/withdraw, projections. APY-always-range, Model-B integrity.
+globs: src/lib/engine/**,src/lib/onchain/**,src/components/vaults/**,src/components/portfolio/**,src/app/actions/subscribe.ts,src/app/actions/redeem.ts,src/lib/projection-chart.ts
+alwaysApply: false
+---
+
+# DeFi vaults rule
+
+> `.cursor/rules/do-not-touch.mdc` (`alwaysApply`) is the floor under this rule — its STOP
+> list always wins. This rule adds DeFi-specific guardrails on top.
+
+## Read first
+- `docs/DEFI_CONTEXT.md`
+- `docs/methodology/v1.0.md` (immutable once published — bump version, never edit in place)
+
+## Must avoid
+- Any I/O, `Date.now()`, `Math.random()`, `process.env`, `fetch`, or `prisma` inside
+  `src/lib/engine/**`. The engine is a pure deterministic function — seed any PRNG, inject the clock.
+- Leaking `apyMedianInternal` to **any** LP-facing surface. It is an internal diagnostic
+  (`src/lib/engine/types.ts:123,135`) — never render it, never put it in a term sheet/chart label.
+- Single-point APY anywhere. Always a range string (e.g. `"9.4-12.8%"`), never `"11%"`.
+- Touching `contracts/**` — mainnet deploy is gated on a completed Spearbit audit + remediation.
+
+## Validate before done
+- `pnpm test src/lib/engine/__tests__` — must stay green, **including** `apy-spread-disclosure.test.ts`
+  and `coverage.test.ts`.
+- `pnpm typecheck`.
+- USDC **6-decimal** vs share **18-decimal** discipline in `src/lib/onchain/vault.ts` — never mix
+  units; convert explicitly at the boundary.
+
+## STOP and ask before
+- Tuning coverage thresholds in `src/lib/engine/coverage.ts` (healthy `1.25` / adequate `1.0` / floor `0.8`).
+- Removing or narrowing the `MIN_APY_SPREAD_BPS` (50 bps) widening in `src/lib/engine/scenario.ts`
+  (or `MIN_APY_SPREAD_V2`) — it guarantees a visible range.
+- Editing `contracts/src/HearstYieldVault.sol` or `docs/audit/spearbit-prep-2026-05-26/abi-freeze.json`
+  (ABI is frozen for audit).
+- One vault inheriting another's AUM / assumptions / share-class numbers — vault id is a first-class
+  key, no silent reuse (Model-B integrity).
+- The "Results are not projected" copy bug (`src/components/vaults/invest-form.tsx:95-96,492`,
+  `term-sheet-preview.tsx:183`, `distribution-form.tsx:314`) — confirm intent before fixing.
+
+## Priority
+P1

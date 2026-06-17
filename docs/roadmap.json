@@ -236,7 +236,7 @@
             },
             {
               "id": "agent-scenario-narrative",
-              "label": "Scenario Narrative Agent (Kimi K2.6 via Hypercli)",
+              "label": "Scenario Narrative Agent (OpenAI GPT-4.1)",
               "owner": "eng",
               "spec_ref": "/docs/spec/09-agents.mdx",
               "status": "validated"
@@ -312,7 +312,7 @@
             },
             {
               "id": "agent-investor-memo",
-              "label": "Investor Memo Agent (Kimi K2.6, structured Markdown)",
+              "label": "Investor Memo Agent (OpenAI GPT-4.1, structured Markdown)",
               "owner": "eng",
               "spec_ref": "/docs/spec/09-agents.mdx",
               "status": "validated"

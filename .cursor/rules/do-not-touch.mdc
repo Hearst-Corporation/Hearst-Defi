@@ -1,0 +1,23 @@
+---
+description: Locked zones — always applies. STOP before editing any of these.
+globs:
+alwaysApply: true
+---
+
+# Do-not-touch (toujours actif)
+
+S'arrêter et demander **avant** toute modification de :
+- `next.config.ts` (root Turbopack épinglé).
+- Auth / wallet / sessions : `src/proxy.ts` (gate Next 16 — PAS `middleware.ts`), `src/lib/auth/**`,
+  Privy config.
+- CSP / headers de sécurité.
+- Engine pur `src/lib/engine/**` (no I/O, déterministe).
+- Data / provenance / compliance (badges Live/Oracle/Attested/…, output-guard).
+- Migrations Prisma / schéma DB (`prisma/**`), mutations en prod.
+- Envoi email réel, création d'utilisateur, publication produit, déploiement Vercel.
+- `package.json` scripts.
+
+Jamais sans demande explicite : `git add/commit/push/reset`, force-push, raccourcir README/CLAUDE,
+refactor de composant, appel API Anthropic (crédits).
+
+Détail et raisons : `docs/DO_NOT_TOUCH.md`.

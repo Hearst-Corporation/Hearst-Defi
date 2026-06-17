@@ -116,7 +116,7 @@ non-carré déforme le cercle en ellipse.
 
 ## 7. Layout produit
 
-Rails `--ct-rail-left 88px` / `--ct-rail-right 420px` (chat Kimi, rail droit
+Rails `--ct-rail-left 88px` / `--ct-rail-right 420px` (chat GPT-4.1 Master Agent, rail droit
 unique — pas de chat embarqué ailleurs). Zone contenu = `.ct-page-area`
 (scrollable, padding `32px 40px 80px`). Halo central :
 `radial-gradient(ellipse 80% 70% at 50% 45%, accent-soft 45%+deep → deep 72%)`.

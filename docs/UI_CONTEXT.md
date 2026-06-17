@@ -1,0 +1,48 @@
+# UI_CONTEXT — travailler sur l'UI sans relire tout le repo
+
+Lire ce fichier + `docs/CSS_INDEX.md`. Charger ensuite **uniquement** la page + le composant + la
+section CSS ciblés.
+
+## Layout shell (vocabulaire)
+- **Section 1** = rail gauche (icônes nav verticale, `.ct-rail-left`).
+- **Section 2** = centre (contenu page).
+- **Section 3** = chat droit (rail verre translucide).
+- **Section menu** = barre flottante en bas (Portfolio / Vaults).
+CSS du shell, rails, fond spatial, nav, login → `cockpit.css` (voir CSS_INDEX plages 2957–3905).
+
+## cockpit.css vs doc-flow.css vs portfolio.css
+- **cockpit.css** = chrome global : shell, rails, nav, dashboard admin (command board), surfaces
+  canoniques (graphite), tokens compléments, login split.
+- **doc-flow.css** = pages "document" (admin + produit) : memo, vault wizard/invest flow, proof
+  center, scenario, titres de page partagés. Scopes `.admin-doc` et `.product-doc`.
+- **portfolio.css** = page `/portfolio` uniquement (KPI, donut gauge, yield ledger, hero grid, trust panel).
+
+## Layouts
+- **Admin** : layout sticky-header propre sous `src/app/admin/` ; pages denses (padding serré).
+- **Produit** : `(product)/` + `ConnectShell` (rails + chat). Header produit : `src/components/connect/product-page-header.tsx`.
+- Dashboard admin : lumière/nappes vertes derrière le verre VOULUES (figure/fond réglé en
+  assombrissant le verre, pas en retirant la lumière). Ne pas re-proposer le fond noir.
+
+## Tokens & design
+- Tokens `--ct-*` dans `cockpit-shell/tokens.css` + compléments en tête de `cockpit.css`.
+- **Un seul vert : `--ct-accent` `#A7FB90`** (maroon mort). `--ct-status-success` → `var(--ct-accent)`.
+- Dark mode only — pas de modifier `dark:`. Pas de hex en dur, pas de px magique → tokens d'espace.
+- Primitives : `src/components/ui/` (`Card`, `Metric`, `Badge`, `ProvenanceBadge`, `Button`, `Progress`).
+  Réutiliser avant de recréer. Headers existants : `admin-page-header`, `product-page-header`,
+  `legal-page-header`, `dashboard-panel-header`, `widget-panel-header` (canonisation = P1).
+- Glass `.ct-glass-panel` seulement sur surfaces à un seul niveau ; **panneaux denses = plats**
+  (anti cage-in-cage). Ne pas glasser un conteneur avec des sous-boxes.
+
+## Règles code
+- Server Components par défaut ; `"use client"` seulement si interactivité (107 fichiers déjà client).
+- `cn()` (`@/lib/cn`) pour les classes conditionnelles. Pas de `any`, pas de `useEffect` pour fetch.
+- Features UI volontairement non câblées (GlobalSearch ⌘K, ShortcutsOverlay, NotificationsBell,
+  SavedViewsPicker, ChartTimeSelector, TimeseriesSection) : à brancher plus tard, **pas du code mort**.
+
+## Validation UI
+`pnpm test <glob du composant>` (ex. `pnpm test portfolio`). Pas de `pnpm build` par réflexe.
+Audits DS = advisory : `pnpm ds:layout`, `ds:classes`, `ds:token-drift` (non bloquants).
+
+## STOP
+Ne pas toucher `next.config.ts`, le shell auth / `src/proxy.ts`, la CSP, ni la logique data/engine.
+Le gate DS a été volontairement retiré — édition libre du DS, mais ne pas ré-armer de garde-fou.

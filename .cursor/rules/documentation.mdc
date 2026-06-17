@@ -1,0 +1,33 @@
+---
+description: Documentation — garder les docs agents / ADR / methodology frais et peu coûteux en tokens, corriger la dette de migration provider
+globs: docs/**/*.md,docs/**/*.mdx,docs/roadmap.json,docs/decisions/ADR-*.md,AGENTS.md,CLAUDE.md,.cursor/rules/*.mdc,.claude/agents/*.md
+alwaysApply: false
+---
+
+# Documentation rule
+
+> Plancher : `.cursor/rules/do-not-touch.mdc` (alwaysApply) prime sur cette règle.
+
+Lire d'abord : `AGENTS.md` (keystone de routing) + `docs/decisions/ADR-011-llm-provider-openai-gpt41.md`
+(provider courant). Puis le doc ciblé seulement — ne JAMAIS charger README.md / CLAUDE.md en entier
+(coût tokens).
+
+À éviter :
+- Éditer `docs/methodology/v1.0.md` — **immuable**, bumper une nouvelle version au lieu de modifier.
+- Réécrire l'historique des ADR (append-only) ou renuméroter sans raison.
+- Présenter un snapshot daté (PROGRAM_MASTER, roadmap-status-*, SYSTEMIC_RISK_AUDIT-*) comme l'état courant.
+
+Valider avant done :
+- Les cross-refs ADR résolvent (le fichier cible existe).
+- Tout item cité dans `docs/roadmap.json` existe.
+- Les citations de numéros de ligne correspondent à la réalité du code.
+
+STOP / dette connue à corriger, pas à ignorer :
+- Provider : tout doc affirmant Anthropic SDK / Sonnet / Opus / « Kimi via Hypercli » comme courant est
+  **périmé** — le provider est OpenAI GPT-4.1 (ADR-011). Les exports `kimi`/`KIMI_*` = OpenAI (ne pas « réparer »).
+- Numérotation ADR : ne pas réintroduire de doublon (ex. l'ancien doublon ADR-014 ds-token-source/golive
+  a été résolu → ds-token-source = ADR-015, golive garde 014).
+- La couche d'enablement (`AGENTS.md`, `.cursor/`, `docs/*_CONTEXT.md`) est untracked en git :
+  committer AVANT tout `git clean`.
+
+Priorité : P2.

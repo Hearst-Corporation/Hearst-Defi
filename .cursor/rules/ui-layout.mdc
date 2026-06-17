@@ -1,0 +1,39 @@
+---
+description: UI & layout — product/admin pages, components, the two nav rails, the 3-column shell. NOT design-system CSS.
+globs: src/components/**/*.tsx,src/app/(product)/**/*.tsx,src/app/admin/**/*.tsx,src/components/nav/**/*.ts,src/components/nav/**/*.tsx,src/components/app-chrome.tsx,src/components/ConnectShell.tsx,cockpit-shell/src/shell/**/*.tsx
+alwaysApply: false
+---
+
+# UI & layout rule
+
+> Note : `.cursor/rules/do-not-touch.mdc` (alwaysApply) est le **plancher** au-dessus de
+> cette règle. En cas de conflit, le do-not-touch gagne. Cette règle = structure/layout,
+> **pas** les tokens CSS (voir `design-system.mdc`).
+
+## Read first
+- `docs/UI_CONTEXT.md` — shell, rails, zones, mapping pages.
+- `docs/DESIGN_SYSTEM.md` §9 — `previewZeros` / `PreviewModeChip` (cockpit sans position active).
+
+## Must avoid
+- Éditer des tokens CSS (`--ct-*`) → c'est `design-system.mdc`, pas ici.
+- Logique métier hors engine (data/llm/agents/server actions) — UI uniquement.
+- Toucher la structure de nav ailleurs que dans `src/components/nav/product-nav-items.ts`
+  (source unique des sections + onglets). Pas de liste de routes dupliquée dans un composant.
+
+## Validate before done
+- `pnpm typecheck`
+- `pnpm test` ciblé : nav (`src/components/nav/__tests__`) + `portfolio-zero-render`
+  (`src/app/(product)/portfolio/__tests__/portfolio-zero-render.test.tsx`).
+- Après un changement visuel : `browser_close` puis re-`browser_navigate` (sinon CSS en cache).
+- `/ds-layout` + `/ds-primitives` (read-only) pour vérifier rails/zones/primitives.
+
+## STOP and ask before
+- Ajouter une route aux listes `BARE_EXACT` / `NO_CHAT_PREFIXES` de `src/components/app-chrome.tsx`.
+- Casser l'invariant `section.href === premier onglet` (`product-nav-items.ts`).
+- Renommer une classe `.ct-*` du shell (casse `src/components/hub-mode-styles.tsx`).
+- Forcer une identité démo via `previewZeros` (cf. D5) — preview ≠ user réel.
+- Afficher un badge `Live`/`Verified` faux en mode preview (utiliser `PreviewModeChip`).
+- Remplacer le portal `useSyncExternalStore` des rails par un `useEffect`.
+
+## Priority
+P2 — lire après `do-not-touch.mdc` (plancher) et `design-system.mdc`.
