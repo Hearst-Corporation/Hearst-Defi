@@ -261,6 +261,69 @@ describe("DashboardAssetsBoard — command-center layout", () => {
   });
 
 
+  it("scopes vault health to the active fixture pill", () => {
+    const html = renderToStaticMarkup(
+      <DashboardAssetsBoard
+        data={makeData({
+          vaultMeta: {
+            id: "defensive",
+            name: "Hearst Defensive Vault",
+            apyTarget: { low: 6, high: 10 },
+            allocationTargets: {
+              mining: 20,
+              btc_tactical: 0,
+              usdc_base: 50,
+              stable_reserve: 30,
+            },
+            assumptions: [],
+            livePreview: true,
+          },
+        })}
+        risk={RISK}
+        proof={PROOF}
+        capitalUsdc={0}
+        capitalProvenance="estimated"
+        headlineApy={{ low: 6, high: 10 }}
+        yieldPosture="within target band"
+        hasLiveKpis={false}
+        proofFresh={false}
+        cockpit={{
+          ...COCKPIT,
+          vaultMetrics: [
+            {
+              vaultId: "yield",
+              vaultName: "Hearst Yield Vault",
+              href: "/admin/dashboard",
+              status: "active",
+              tvlUsdc: 500_000,
+              miningMarginScore: 60,
+              riskScore: 47,
+              oracleDelayMs: 120_000,
+              btcPosture: "neutral",
+              hasTimelineData: true,
+            },
+            {
+              vaultId: "defensive",
+              vaultName: "Hearst Defensive Vault",
+              href: "/admin/dashboard?vault=defensive",
+              status: "live",
+              tvlUsdc: 0,
+              miningMarginScore: 0,
+              riskScore: 0,
+              oracleDelayMs: 120_000,
+              btcPosture: "neutral",
+              hasTimelineData: false,
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(html).toContain('aria-label="Vault Hearst Defensive Vault metrics"');
+    expect(html).not.toContain('aria-label="Vault Hearst Yield Vault metrics"');
+    expect(html).toContain("No telemetry");
+  });
+
   it("renders live vault signal and populated cockpit modules without restoring removed panels", () => {
     const html = renderToStaticMarkup(
       <DashboardAssetsBoard

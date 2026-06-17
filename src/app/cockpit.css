@@ -2376,6 +2376,12 @@
   }
 }
 
+@container dash-board (min-width: 56rem) {
+  .dashboard-kpi-strip {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
 /* Borders for KPI strip cells */
 .dashboard-kpi-strip__cell {
   border-bottom: 1px solid var(--ct-border-soft);

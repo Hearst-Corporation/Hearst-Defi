@@ -100,6 +100,10 @@ export function DashboardAssetsBoard({
   // so the hero avoids stacking two circular widgets above the analytics row.
   const supportKpis = heroKpis.filter((k) => k.label !== "Capital");
 
+  const scopedVaultMetrics = cockpit.vaultMetrics.filter(
+    (vault) => vault.vaultId === data.vaultMeta.id,
+  );
+
   return (
     <div className="dashboard-command-board admin-doc-stack admin-doc-stack--relaxed">
       {/* ADR-013 exception: dense command-board merged card (strip + separators, not nested glass). */}
@@ -141,7 +145,7 @@ export function DashboardAssetsBoard({
           <ActionQueue items={cockpit.actionQueue} />
         </div>
         <div className="dashboard-command-panel-card">
-          <LiveMetrics vaults={cockpit.vaultMetrics} />
+          <LiveMetrics vaults={scopedVaultMetrics} />
         </div>
         <div className="dashboard-command-panel-card">
           <LiveOps

@@ -9,12 +9,7 @@ interface DashboardKpiStripProps {
 /** Compact per-vault KPI row for `/admin/dashboard` (container-query grid). */
 export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
   return (
-    <div
-      className="dashboard-kpi-strip"
-      style={{
-        gridTemplateColumns: `repeat(${Math.max(kpis.length, 1)}, minmax(0, 1fr))`,
-      }}
-    >
+    <div className="dashboard-kpi-strip">
       {kpis.map((kpi) => (
         <DashboardKpiCell key={kpi.label} kpi={kpi} />
       ))}
