@@ -97,9 +97,9 @@
 | `src/components/onboarding/onboarding-chamber.tsx` | OnboardingShellProvider, OnboardingChamber, OnboardingRequirementsList, OnboardingChamberSole | 6 |
 | `src/components/onboarding/onboarding-shell.tsx` | OnboardingShell | 1 |
 | `src/components/onboarding/OpsContactCard.tsx` | OpsContactCard | 1 |
-| `src/components/onboarding/persona-embed.tsx` | PersonaEmbed | 1 |
 | `src/components/onboarding/privy-wallet-connect.tsx` | PrivyWalletConnect, WalletChamber | 2 |
 | `src/components/onboarding/StepProgressBar.tsx` | StepProgressBar | 4 |
+| `src/components/onboarding/sumsub-embed.tsx` | SumsubEmbed | 1 |
 | `src/components/portfolio/allocation-donut.tsx` | AllocationDonut | 1 |
 | `src/components/portfolio/capital-yield.tsx` | CapitalYield | 1 |
 | `src/components/portfolio/distrib-calendar.tsx` | DistribCalendar | 3 |
