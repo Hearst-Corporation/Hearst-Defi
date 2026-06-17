@@ -1434,3 +1434,173 @@
   }
   .cy-fill { transform: none; }
 }
+
+/*
+   No-scroll dashboard variant — .pf-container--fit
+
+   Parallel viewport-fit chain modeled on the live invest-flow `--workspace`
+   recipe (doc-flow.css:1205-1319): the portfolio TOP LEVEL never scrolls. The
+   whole chain is gated on :has(.pf-container--fit), which exists nowhere until
+   the dashboard opts in, so this block is inert by itself and touches no other
+   surface. Heavy detail lives on the /portfolio/<x> leaves (which keep the
+   normal scrolling page-area). Base .pf-container, the cockpit.css page-area /
+   main rules, and the invest-flow chain are all left untouched — this is a
+   parallel chain, not a widening of theirs.
+*/
+.ct-panels-row:has(.pf-container--fit) {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+.ct-center-panel:has(.pf-container--fit) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ct-page-area:has(.pf-container--fit) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ct-page-area:has(.pf-container--fit) > main#main-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Layout wrapper (carries product-doc + product-doc-shell) → fill, no grow. */
+.product-doc:has(.pf-container--fit) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* The dashboard container itself fills the column and does NOT scroll. */
+.pf-container--fit {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  gap: var(--ct-space-4);
+}
+
+/* Hero stretches to take the room above the teaser row; its fixed min-heights
+   are relaxed so the chart + KPI rail + teasers fit one viewport. */
+.pf-container--fit .pf-hero-section {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.pf-container--fit .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
+  min-height: 0;
+}
+
+.pf-container--fit .pf-main-chart-wrapper .pf-value-chart [class*="flex-1"] {
+  min-height: 0;
+}
+
+/* Teaser row — fixed-height strip of 4 view-more tiles under the hero. */
+.pf-teaser-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--ct-space-3);
+  flex: 0 0 auto;
+}
+
+@container pf (max-width: 64rem) {
+  .pf-teaser-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@container pf (max-width: 30rem) {
+  .pf-teaser-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pf-teaser {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  min-width: 0;
+  padding: var(--ct-space-4);
+  text-decoration: none;
+  transition: border-color var(--ct-dur-base) var(--ct-ease),
+    transform var(--ct-dur-base) var(--ct-ease);
+}
+
+.pf-teaser:hover {
+  border-color: var(--ct-border-accent);
+  transform: translateY(-2px);
+}
+
+.pf-teaser__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+}
+
+.pf-teaser__more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1);
+  flex-shrink: 0;
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-accent-strong);
+}
+
+.pf-teaser__body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--ct-space-1);
+}
+
+.pf-teaser__value {
+  font-family: var(--font-sans);
+  font-size: var(--ct-text-xl);
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-tight);
+  color: var(--ct-text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-teaser__meta {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+}
+
+/* Mobile: release the no-scroll lock — natural document scroll returns
+   (mirrors the workspace recipe's mobile revert at doc-flow.css:1303-1319). */
+@media (max-width: 47.999rem) {
+  .ct-panels-row:has(.pf-container--fit),
+  .ct-center-panel:has(.pf-container--fit),
+  .ct-page-area:has(.pf-container--fit),
+  .ct-page-area:has(.pf-container--fit) > main#main-content,
+  .product-doc:has(.pf-container--fit),
+  .pf-container--fit {
+    height: auto;
+    max-height: none;
+    min-height: 0;
+    overflow: visible;
+  }
+}
