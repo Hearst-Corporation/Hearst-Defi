@@ -1,0 +1,14 @@
+---
+description: Fin de passe — commit (+ push), kill dev server, restart pnpm dev
+alwaysApply: true
+---
+
+# Fin de passe (OBLIGATOIRE)
+
+À **chaque fin de passe** (lot UI/backend terminé) — dans cet ordre, sans exception :
+
+1. **Commit** — staging chirurgical (`git add <chemins exacts>`), message clair. Si l'utilisateur a demandé push ou des commits ont été faits dans la passe → **push**.
+2. **Kill** — `node scripts/free-port.mjs` (port 4105). Si `EADDRINUSE` : `lsof -ti :4105 | xargs kill -9` puis free-port.
+3. **Restart** — `pnpm dev` en background.
+
+Ne pas clore une passe sans **commit (si changements) → kill → restart**. Pas de cache CSS stale (hard refresh / re-navigate après restart si check visuel).
