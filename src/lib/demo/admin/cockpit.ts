@@ -119,29 +119,21 @@ function buildDemoInngestJobs(): InngestJob[] {
       id: "rebalance",
       name: "Rebalance signal",
       status: "ok",
-      lastRunAt: "2026-06-14T05:55:00.000Z",
-      errorMsg: null,
     },
     {
       id: "distrib",
       name: "Distribution",
       status: "pending",
-      lastRunAt: "2026-06-13T22:00:00.000Z",
-      errorMsg: null,
     },
     {
       id: "oracle",
       name: "Oracle sync",
       status: "err",
-      lastRunAt: "2026-06-14T00:48:00.000Z",
-      errorMsg: "Simulated: upstream RPC timeout — retrying",
     },
     {
       id: "proof-sync",
       name: "Proof sync",
       status: "ok",
-      lastRunAt: "2026-06-14T04:00:00.000Z",
-      errorMsg: null,
     },
   ];
 }

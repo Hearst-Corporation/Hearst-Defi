@@ -90,25 +90,21 @@ describe("LiveOps — Inngest job status", () => {
     id,
     name: `Job ${id}`,
     status,
-    lastRunAt: null,
-    errorMsg: status === "err" ? "last run failed" : null,
   });
 
-  it("err status job has non-null errorMsg", () => {
+  it("err status remains distinct", () => {
     const job = makeJob("oracle", "err");
-    expect(job.errorMsg).not.toBeNull();
     expect(job.status).toBe("err");
   });
 
-  it("ok status job has null errorMsg", () => {
+  it("ok status remains distinct", () => {
     const job = makeJob("rebalance", "ok");
-    expect(job.errorMsg).toBeNull();
     expect(job.status).toBe("ok");
   });
 
-  it("unknown status job has null lastRunAt", () => {
+  it("unknown status remains distinct", () => {
     const job = makeJob("proof-sync", "unknown");
-    expect(job.lastRunAt).toBeNull();
+    expect(job.status).toBe("unknown");
   });
 
   it("pending status is distinct from err", () => {

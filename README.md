@@ -6,7 +6,15 @@ $250k min ticket, 60-day soft lock-up.
 
 Stack : Next.js 16 (App Router, Server Components by default) · TypeScript strict
 · Tailwind CSS v4 (`@theme` in `globals.css`, **no `tailwind.config.js`**) ·
-Prisma + Postgres (SQLite local) · Inngest · Foundry (smart contracts) · pnpm.
+Prisma + **Postgres (Supabase prod `xrwzxhsenwmlxbwqcftz`, eu-west-1)** — SQLite reste uniquement pour les tests CI locaux · Inngest · Foundry (smart contracts) · pnpm.
+
+> **⚠️ Base de données — VERROUILLÉ PROD** : depuis le 2026-06-17, la base active
+> est **Supabase Postgres** (`hearst-connect-prod`, ref `xrwzxhsenwmlxbwqcftz`,
+> `aws-0-eu-west-1`). Les 12 users de l'ancienne base SQLite locale ont été migrés.
+> **Ne jamais pointer `DATABASE_URL=file:./prisma/dev.db` en dehors d'un contexte
+> de test CI pur.** Le `preflight` (`pnpm preflight`) bloque tout deploy avec une
+> URL SQLite. Dev local : utiliser `.env.local` avec les vars Supabase prod (voir
+> `~/.claude/api-config/SERVICES.md` section *Hearst Connect PROD*).
 
 LLM provider : **OpenAI GPT-4.1** (`openai@6.x` SDK, `OPENAI_API_KEY`) — single
 model for all 4 agents + cockpit chat. No Anthropic SDK. See **ADR-011**

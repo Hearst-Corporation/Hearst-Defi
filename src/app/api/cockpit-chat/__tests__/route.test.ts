@@ -29,6 +29,11 @@ vi.mock("@/lib/feature-flags", () => ({
   FEATURE_FLAGS: { CHAT_MASTER_AGENT: true },
 }));
 
+vi.mock("@/lib/llm/openai", () => ({
+  openai: {},
+  LLM_MODEL: "gpt-4.1",
+}));
+
 vi.mock("@/lib/db", () => ({
   prisma: {
     adminChatMode: { findUnique: vi.fn() },
@@ -126,6 +131,28 @@ function mockMasterAgentTurn(
   });
 }
 
+function mockMasterAgentTurnWithoutNav(finalOverride?: Partial<ChatTurnFinal>) {
+  mockRunChatAgent.mockReturnValue({
+    stream: new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode("ok"));
+        controller.close();
+      },
+    }),
+    nav: Promise.resolve(null),
+    final: Promise.resolve({
+      text: "ok",
+      blocked: false,
+      status: "success",
+      errorType: null,
+      usage: null,
+      navProposedKey: null,
+      navBlocked: false,
+      ...finalOverride,
+    }),
+  });
+}
+
 describe("POST /api/cockpit-chat — master agent nav publish", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -189,6 +216,22 @@ describe("POST /api/cockpit-chat — master agent nav publish", () => {
         intentKind: "mixed_product_creation_simulation",
         secondaryDestinationKey: "admin-scenario-lab",
         secondaryHint: "Scenario Lab validation requested",
+      });
+    });
+  });
+
+  it("publishes Product Workspace fallback when admin creation intent has no navigate tool call", async () => {
+    mockMasterAgentTurnWithoutNav();
+
+    const res = await POST(makeChatRequest("Créer un nouveau vault Defensive"));
+
+    expect(res.status).toBe(200);
+    await vi.waitFor(() => {
+      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+        destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
+        objective: "Créer un nouveau vault Defensive",
+        autostart: true,
+        intentKind: "product_creation",
       });
     });
   });

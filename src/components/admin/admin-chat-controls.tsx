@@ -20,6 +20,11 @@ import {
   type AdminActionFlowState,
 } from "@/components/admin/admin-chat-actions-flow";
 import { cn } from "@/lib/cn";
+import {
+  AGENT_CAPABILITY_DEFINITIONS,
+  type AgentCapabilityTestStatus,
+  type AgentCapabilityDefinition,
+} from "@/lib/llm/agent-capabilities";
 import type { ChatMode } from "@/lib/llm/chat-modes";
 import type { AdminWriteToolId } from "@/lib/llm/tools/types";
 
@@ -54,6 +59,98 @@ const EXPORT_PACK_TOOL_IDS = new Set<ReadUtilitySummary["toolId"]>([
   "export_demo_pack",
   "export_briefing_pack",
 ]);
+
+interface AgentCapabilityTestStateEntry {
+  status: AgentCapabilityTestStatus;
+  note: string;
+}
+
+type AgentCapabilityTestState = Record<string, AgentCapabilityTestStateEntry>;
+
+const AGENT_CAPABILITY_STORAGE_KEY = "cockpit:agent-capability-tests";
+
+const AGENT_STATUS_META: Record<
+  AgentCapabilityTestStatus,
+  { label: string; chipClassName: string; buttonClassName: string }
+> = {
+  untested: {
+    label: "Untested",
+    chipClassName: "border-(--ct-border-soft) ct-text-muted",
+    buttonClassName: "border-(--ct-border-soft) ct-text-muted",
+  },
+  red: {
+    label: "Red",
+    chipClassName: "border-(--ct-status-danger) ct-status-danger",
+    buttonClassName: "border-(--ct-status-danger) ct-status-danger",
+  },
+  orange: {
+    label: "Orange",
+    chipClassName: "border-(--ct-status-warning) text-[color:var(--ct-status-warning)]",
+    buttonClassName: "border-(--ct-status-warning) text-[color:var(--ct-status-warning)]",
+  },
+  green: {
+    label: "Green",
+    chipClassName: "border-(--ct-accent) ct-status-success",
+    buttonClassName: "border-(--ct-accent) ct-status-success",
+  },
+};
+
+function normalizeCapabilityTestState(raw: unknown): AgentCapabilityTestState {
+  if (!isRecord(raw)) return {};
+  const normalized: AgentCapabilityTestState = {};
+  for (const capability of AGENT_CAPABILITY_DEFINITIONS) {
+    const entry = raw[capability.id];
+    if (!isRecord(entry)) continue;
+    const status =
+      entry.status === "red" ||
+      entry.status === "orange" ||
+      entry.status === "green" ||
+      entry.status === "untested"
+        ? entry.status
+        : "untested";
+    const note = typeof entry.note === "string" ? entry.note : "";
+    normalized[capability.id] = { status, note };
+  }
+  return normalized;
+}
+
+function buildDefaultCapabilityTestState(): AgentCapabilityTestState {
+  return Object.fromEntries(
+    AGENT_CAPABILITY_DEFINITIONS.map((capability) => [
+      capability.id,
+      {
+        status: capability.initialStatus ?? "untested",
+        note: capability.initialNote ?? "",
+      },
+    ]),
+  );
+}
+
+function loadAgentCapabilityTestState(): AgentCapabilityTestState {
+  const defaults = buildDefaultCapabilityTestState();
+  try {
+    const stored = normalizeCapabilityTestState(
+      JSON.parse(window.localStorage.getItem(AGENT_CAPABILITY_STORAGE_KEY) ?? "{}") as unknown,
+    );
+    const merged: AgentCapabilityTestState = { ...defaults };
+    for (const capability of AGENT_CAPABILITY_DEFINITIONS) {
+      const entry = stored[capability.id];
+      if (!entry) continue;
+      const shouldKeepManualOverride =
+        entry.status !== "untested" || entry.note.trim().length > 0;
+      if (shouldKeepManualOverride) {
+        merged[capability.id] = entry;
+      }
+    }
+    return merged;
+  } catch {
+    return defaults;
+  }
+}
+
+function saveAgentCapabilityTestState(state: AgentCapabilityTestState): void {
+  window.localStorage.setItem(AGENT_CAPABILITY_STORAGE_KEY, JSON.stringify(state));
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -246,6 +343,8 @@ export function AdminChatControls() {
   const [demoAudience, setDemoAudience] = useState("Internal stakeholders");
   const [demoPackIncludeCharts, setDemoPackIncludeCharts] = useState(true);
   const [demoPackIncludeChecklist, setDemoPackIncludeChecklist] = useState(true);
+  const [capabilityPanelOpen, setCapabilityPanelOpen] = useState(false);
+  const [capabilityState, setCapabilityState] = useState<AgentCapabilityTestState>({});
 
   const getActionFlowState = useCallback(
     (): AdminActionFlowState => ({
@@ -686,6 +785,18 @@ export function AdminChatControls() {
     };
   }, []);
 
+  const hydrated = useHydrated();
+
+  useEffect(() => {
+    if (!hydrated) return;
+    setCapabilityState(loadAgentCapabilityTestState());
+  }, [hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveAgentCapabilityTestState(capabilityState);
+  }, [capabilityState, hydrated]);
+
   const copyDoc = useCallback(() => {
     if (doc) void navigator.clipboard.writeText(doc);
   }, [doc]);
@@ -701,7 +812,6 @@ export function AdminChatControls() {
     URL.revokeObjectURL(url);
   }, [doc]);
 
-  const hydrated = useHydrated();
   const canConfirmPending = isValidPendingConfirmation(pendingConfirmation);
   const readUtilitySummary = readUtilityResult
     ? getReadUtilitySummary(readUtilityResult)
@@ -711,8 +821,40 @@ export function AdminChatControls() {
     !Number.isNaN(new Date(readUtilitySummary.generatedAt).getTime())
       ? new Date(readUtilitySummary.generatedAt).toLocaleString()
       : readUtilitySummary?.generatedAt ?? "n/a";
+  const capabilityCounts = AGENT_CAPABILITY_DEFINITIONS.reduce(
+    (acc, capability) => {
+      const status = capabilityState[capability.id]?.status ?? "untested";
+      acc[status] += 1;
+      return acc;
+    },
+    { untested: 0, red: 0, orange: 0, green: 0 } satisfies Record<
+      AgentCapabilityTestStatus,
+      number
+    >,
+  );
   const adminInputClassName =
-    "w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-[var(--ct-space-2)] py-1 body-xs";
+    "w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-(--ct-space-2) py-1 body-xs";
+  const updateCapabilityStatus = useCallback(
+    (capabilityId: string, status: AgentCapabilityTestStatus) => {
+      setCapabilityState((current) => ({
+        ...current,
+        [capabilityId]: {
+          status,
+          note: current[capabilityId]?.note ?? "",
+        },
+      }));
+    },
+    [],
+  );
+  const updateCapabilityNote = useCallback((capabilityId: string, note: string) => {
+    setCapabilityState((current) => ({
+      ...current,
+      [capabilityId]: {
+        status: current[capabilityId]?.status ?? "untested",
+        note,
+      },
+    }));
+  }, []);
   // Hidden until hydrated and admin status confirmed. The settings-panel
   // section only renders when the réglages view is open (target present), but
   // the error toast + Modal must stay mountable regardless.
@@ -761,6 +903,20 @@ export function AdminChatControls() {
             >
               Admin
             </button>
+          </div>
+
+          <div className="ct-chat-settings-row ct-chat-settings-row--stack">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="w-full"
+              onClick={() => setCapabilityPanelOpen(true)}
+            >
+              Ouvrir la matrice agent
+            </Button>
+          </div>
+          <div className="ct-chat-settings-hint">
+            Compétences testables, prompt de test, statut manuel et notes.
           </div>
 
           {mode === "review" ? (
@@ -815,7 +971,7 @@ export function AdminChatControls() {
                 Copilote interne : architecture, allocations, marche disponible,
                 deploiements et runbooks. Pas d'execution autonome.
               </div>
-              <div className="ct-chat-settings-label mt-[var(--ct-space-2)]">Actions admin</div>
+              <div className="ct-chat-settings-label mt-(--ct-space-2)">Actions admin</div>
               <div className="ct-chat-settings-row">
                 <select
                   className={adminInputClassName}
@@ -962,7 +1118,7 @@ export function AdminChatControls() {
               {actionResult ? (
                 <div className="ct-chat-settings-hint">{actionResult}</div>
               ) : null}
-              <div className="ct-chat-settings-label mt-[var(--ct-space-2)]">Read utilities</div>
+              <div className="ct-chat-settings-label mt-(--ct-space-2)">Read utilities</div>
               <div className="ct-chat-settings-row">
                 <select
                   className={adminInputClassName}
@@ -1059,7 +1215,7 @@ export function AdminChatControls() {
                     />
                   </div>
                   <div className="ct-chat-settings-row">
-                    <label className="body-xs inline-flex items-center gap-[var(--ct-space-2)]">
+                    <label className="body-xs inline-flex items-center gap-(--ct-space-2)">
                       <input
                         type="checkbox"
                         checked={demoPackIncludeCharts}
@@ -1073,7 +1229,7 @@ export function AdminChatControls() {
                   </div>
                   {readUtilityTool === "export_demo_pack" ? (
                     <div className="ct-chat-settings-row">
-                      <label className="body-xs inline-flex items-center gap-[var(--ct-space-2)]">
+                      <label className="body-xs inline-flex items-center gap-(--ct-space-2)">
                         <input
                           type="checkbox"
                           checked={demoPackIncludeChecklist}
@@ -1106,22 +1262,22 @@ export function AdminChatControls() {
                       <div
                         className={cn(
                           "w-full rounded-md border border-(--ct-border-soft)",
-                          "ct-surface-1 px-[var(--ct-space-2)] py-1 body-xs",
+                          "ct-surface-1 px-(--ct-space-2) py-1 body-xs",
                           "flex flex-wrap items-center gap-x-3 gap-y-1",
                         )}
                         aria-label="Export pack summary"
                       >
                         <span>
-                          <span className="opacity-[var(--ct-opacity-70)]">tool</span>:{" "}
+                          <span className="opacity-(--ct-opacity-70)">tool</span>:{" "}
                           {readUtilitySummary.toolId}
                         </span>
                         <span>
-                          <span className="opacity-[var(--ct-opacity-70)]">generatedAt</span>:{" "}
+                          <span className="opacity-(--ct-opacity-70)">generatedAt</span>:{" "}
                           {formattedGeneratedAt}
                         </span>
                         {readUtilitySummary.counts.length > 0 ? (
                           <span>
-                            <span className="opacity-[var(--ct-opacity-70)]">counts</span>:{" "}
+                            <span className="opacity-(--ct-opacity-70)">counts</span>:{" "}
                             {readUtilitySummary.counts
                               .map((entry) => `${entry.label} ${entry.value}`)
                               .join(" · ")}
@@ -1144,7 +1300,7 @@ export function AdminChatControls() {
                     <pre
                       className={cn(
                         "w-full max-h-56 overflow-auto rounded-md border border-(--ct-border-soft)",
-                        "ct-surface-1 p-[var(--ct-space-2)] body-xs",
+                        "ct-surface-1 p-(--ct-space-2) body-xs",
                       )}
                     >
                       {readUtilityResult}
@@ -1180,6 +1336,62 @@ export function AdminChatControls() {
       {settingsSection}
 
       <Modal
+        isOpen={capabilityPanelOpen}
+        onClose={() => setCapabilityPanelOpen(false)}
+        title="Matrice de test agent"
+        className="max-w-screen-2xl"
+        headerActions={
+          <div className="flex flex-wrap items-center gap-2">
+            {(["red", "orange", "green", "untested"] as const).map((status) => (
+              <span
+                key={status}
+                className={cn(
+                  "rounded-full border px-2 py-1 body-xs",
+                  AGENT_STATUS_META[status].chipClassName,
+                )}
+              >
+                {AGENT_STATUS_META[status].label}: {capabilityCounts[status]}
+              </span>
+            ))}
+          </div>
+        }
+      >
+        <div className="admin-doc-stack admin-doc-stack--tight">
+          <p className="body-sm ct-text-muted m-0">
+            On teste chaque capacité manuellement depuis le chat. Rouge = cassé,
+            orange = proche, vert = validé.
+          </p>
+          <div className="admin-doc-stack admin-doc-stack--tight rounded-lg border border-(--ct-border-soft) p-3">
+            <div className="grid grid-cols-[minmax(0,2.2fr)_7rem_8rem_minmax(0,1.5fr)_minmax(0,1.6fr)_minmax(13rem,1fr)_minmax(14rem,1.1fr)] gap-3 px-3 py-2 body-xs ct-text-faint max-xl:hidden">
+              <div>Capacité</div>
+              <div>Mode</div>
+              <div>Type</div>
+              <div>Prompt de test</div>
+              <div>Critère de succès</div>
+              <div>Statut</div>
+              <div>Notes</div>
+            </div>
+            <div className="admin-doc-stack admin-doc-stack--tight">
+              {AGENT_CAPABILITY_DEFINITIONS.map((capability) => {
+                const entry = capabilityState[capability.id];
+                const status = entry?.status ?? "untested";
+                return (
+                  <AgentCapabilityRow
+                    key={capability.id}
+                    capability={capability}
+                    status={status}
+                    note={entry?.note ?? ""}
+                    onStatusChange={updateCapabilityStatus}
+                    onNoteChange={updateCapabilityNote}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
         isOpen={panelOpen && doc !== null}
         onClose={() => setPanelOpen(false)}
         title="Plan de modifications suggérées"
@@ -1197,5 +1409,92 @@ export function AdminChatControls() {
         {doc && <Markdown content={doc} />}
       </Modal>
     </>
+  );
+}
+
+function AgentCapabilityRow({
+  capability,
+  status,
+  note,
+  onStatusChange,
+  onNoteChange,
+}: {
+  capability: AgentCapabilityDefinition;
+  status: AgentCapabilityTestStatus;
+  note: string;
+  onStatusChange: (capabilityId: string, status: AgentCapabilityTestStatus) => void;
+  onNoteChange: (capabilityId: string, note: string) => void;
+}) {
+  return (
+    <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1/40 px-3 py-3">
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,2.2fr)_7rem_8rem_minmax(0,1.5fr)_minmax(0,1.6fr)_minmax(13rem,1fr)_minmax(14rem,1.1fr)]">
+        <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
+          <div className="body-sm ct-text-strong">{capability.label}</div>
+          <div className="body-xs ct-text-muted">{capability.description}</div>
+        </div>
+        <div className="admin-doc-stack admin-doc-stack--tight">
+          <div className="body-[10px] uppercase tracking-wide ct-text-faint xl:hidden">
+            Mode
+          </div>
+          <div className="body-xs ct-text-strong uppercase">{capability.mode}</div>
+        </div>
+        <div className="admin-doc-stack admin-doc-stack--tight">
+          <div className="body-[10px] uppercase tracking-wide ct-text-faint xl:hidden">
+            Type
+          </div>
+          <div className="body-xs ct-text-muted uppercase">{capability.kind}</div>
+        </div>
+        <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
+          <div className="body-[10px] uppercase tracking-wide ct-text-faint xl:hidden">
+            Prompt de test
+          </div>
+          <div className="rounded-md ct-surface-1 px-2 py-2 body-xs ct-text-primary whitespace-pre-wrap wrap-break-word">
+            {capability.testPrompt}
+          </div>
+        </div>
+        <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
+          <div className="body-[10px] uppercase tracking-wide ct-text-faint xl:hidden">
+            Critère de succès
+          </div>
+          <div className="body-xs ct-text-muted">{capability.successCriteria}</div>
+        </div>
+        <div className="admin-doc-stack admin-doc-stack--tight">
+          <div className="body-[10px] uppercase tracking-wide ct-text-faint xl:hidden">
+            Statut
+          </div>
+          <div className="flex min-w-48 flex-wrap gap-2">
+            {(["red", "orange", "green", "untested"] as const).map((candidate) => (
+              <button
+                key={candidate}
+                type="button"
+                onClick={() => onStatusChange(capability.id, candidate)}
+                className={cn(
+                  "rounded-full border px-2 py-1 body-xs transition-colors",
+                  AGENT_STATUS_META[candidate].buttonClassName,
+                  status === candidate
+                    ? "ct-surface-1 shadow-(--ct-shadow-inner-soft)"
+                    : "opacity-(--ct-opacity-70) hover:opacity-100",
+                )}
+              >
+                {AGENT_STATUS_META[candidate].label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="admin-doc-stack admin-doc-stack--tight">
+          <div className="body-[10px] uppercase tracking-wide ct-text-faint xl:hidden">
+            Notes
+          </div>
+          <textarea
+            value={note}
+            onChange={(event) => onNoteChange(capability.id, event.target.value)}
+            rows={3}
+            className="min-h-20 w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-(--ct-space-2) py-1 body-xs"
+            placeholder="Observations de test manuel"
+            aria-label={`Notes pour ${capability.label}`}
+          />
+        </div>
+      </div>
+    </div>
   );
 }

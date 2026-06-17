@@ -41,6 +41,7 @@ import { publishNav } from "@/lib/llm/nav-channel";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { ADMIN_NAV_DESTINATIONS } from "@/lib/llm/navigate-tool";
 import {
+  classifyProductWorkspaceIntent,
   PRODUCT_WORKSPACE_DESTINATION_KEY,
   resolveMasterAgentNavPublish,
 } from "@/lib/llm/product-workspace-intent";
@@ -561,16 +562,39 @@ async function runMasterAgentTurn(args: {
   // Publish the chosen navigation destination for the client bridge.
   void nav
     .then(async (dest) => {
+      const productWorkspaceNavEnabled = ADMIN_NAV_DESTINATIONS.some(
+        (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
+      );
+      const productWorkspaceIntent = classifyProductWorkspaceIntent(message);
+
       if (dest) {
         const directive = resolveMasterAgentNavPublish({
           navProfile,
           message,
           modelDestinationKey: dest.key,
-          productWorkspaceNavEnabled: ADMIN_NAV_DESTINATIONS.some(
-            (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
-          ),
+          productWorkspaceNavEnabled,
         });
         await publishNav(userId, directive);
+        return;
+      }
+
+      // Fallback: for admin product-creation/framing intents, still open the
+      // Product Workspace even if the model answered in plain text and never
+      // emitted a `navigate` tool call.
+      if (
+        navProfile === "admin" &&
+        productWorkspaceNavEnabled &&
+        productWorkspaceIntent.shouldOpenProductWorkspace
+      ) {
+        await publishNav(
+          userId,
+          resolveMasterAgentNavPublish({
+            navProfile,
+            message,
+            modelDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
+            productWorkspaceNavEnabled,
+          }),
+        );
       }
     })
     .catch(() => {
