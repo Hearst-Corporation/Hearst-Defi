@@ -34,6 +34,18 @@ const KYC_VARIANT: Record<string, "success" | "warning" | "danger"> = {
   rejected: "danger",
 };
 
+const KYC_LABEL: Record<string, string> = {
+  approved: "Verified",
+  pending: "Verification pending",
+  rejected: "Verification failed",
+};
+
+const POSITION_STATUS_LABEL: Record<string, string> = {
+  active: "Active",
+  matured: "Matured",
+  exited: "Exited",
+};
+
 export default async function CustomerDetailPage({
   params,
 }: {
@@ -52,9 +64,9 @@ export default async function CustomerDetailPage({
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title={detail.email}
-        eyebrow={`investor · ${detail.userId}`}
-        description="Investor record spanning identity, qualification posture, assigned agent profile, retained memory, and recent chat activity."
+        title="Investor account"
+        eyebrow={detail.email}
+        description="Investor account — identity, qualification, assistant settings, saved notes, and recent activity."
         lead={
           <Link href="/admin/customers" className="body-xs ct-text-muted hover:ct-text-strong">
             ← Investors
@@ -63,7 +75,7 @@ export default async function CustomerDetailPage({
         actions={
           <div className="admin-doc-inline-row">
             <Badge variant={KYC_VARIANT[detail.kycStatus] ?? "warning"}>
-              KYC {detail.kycStatus}
+              KYC · {KYC_LABEL[detail.kycStatus] ?? detail.kycStatus}
             </Badge>
             <KycAction investorId={detail.investorId} status={detail.kycStatus as "pending" | "approved" | "rejected"} />
           </div>
@@ -117,7 +129,9 @@ export default async function CustomerDetailPage({
                 {detail.positions.map((p) => (
                   <tr key={p.id} className="border-b border-(--ct-border-soft) last:border-0">
                     <td className="ct-table-cell mono ct-text-body">{p.vaultKey}</td>
-                    <td className="ct-table-cell ct-text-muted">{p.status}</td>
+                    <td className="ct-table-cell ct-text-muted">
+                      {POSITION_STATUS_LABEL[p.status] ?? p.status}
+                    </td>
                     <td className="ct-table-cell text-right tabular-nums ct-text-strong">
                       {usdFull.format(p.principalUsdc)}
                     </td>
@@ -134,11 +148,11 @@ export default async function CustomerDetailPage({
 
       {/* Qualification (Typeform) */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Qualification">
-        <h2 className="h2">Qualification profile</h2>
+        <h2 className="h2">Investor qualification</h2>
         <p className="body-xs ct-text-muted">
           {detail.qualification
             ? `Source: ${detail.qualification.source} · updated ${formatAdminDate(detail.qualification.updatedAt)}`
-            : "No qualification profile on file yet. Complete the intake to calibrate the assigned agent profile."}
+            : "No qualification profile on file yet. Complete the intake questionnaire to tailor the assistant for this investor."}
         </p>
         <Card className="p-5" hoverOverlay={false}>
           <QualificationForm
@@ -151,18 +165,18 @@ export default async function CustomerDetailPage({
 
       {/* Agent calibration */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Agent">
-        <h2 className="h2">Agent profile</h2>
+        <h2 className="h2">Assistant settings</h2>
 
         {persona && (
           <Card className="p-5" hoverOverlay={false}>
-            <h3 className="h3">Suggested profile</h3>
+            <h3 className="h3">Recommended</h3>
             <div className="admin-doc-inline-row flex-wrap gap-2 mt-2">
               {persona.segments.map((s) => (
                 <Badge key={s} variant="accent">{s}</Badge>
               ))}
-              <Badge variant="default">tone: {persona.tone}</Badge>
-              <Badge variant="default">lang: {persona.language}</Badge>
-              <Badge variant="default">verbosity: {persona.verbosity}</Badge>
+              <Badge variant="default">Style: {persona.tone}</Badge>
+              <Badge variant="default">Language: {persona.language}</Badge>
+              <Badge variant="default">Detail: {persona.verbosity}</Badge>
               <Badge variant="success">vault: {persona.suggestedVault}</Badge>
             </div>
             <p className="body-sm ct-text-muted mt-3">{persona.customInstructions}</p>
@@ -170,17 +184,17 @@ export default async function CustomerDetailPage({
         )}
 
         <Card className="p-5" hoverOverlay={false}>
-          <h3 className="h3">Active profile</h3>
+          <h3 className="h3">Current</h3>
           {applied ? (
             <div className="admin-doc-inline-row flex-wrap gap-2 mt-2">
-              {applied.template && <Badge variant="brand">template: {applied.template.label}</Badge>}
-              <Badge variant="default">tone: {applied.tone ?? "—"}</Badge>
-              <Badge variant="default">lang: {applied.language ?? "—"}</Badge>
-              <Badge variant="default">verbosity: {applied.verbosity ?? "—"}</Badge>
+              {applied.template && <Badge variant="brand">Preset: {applied.template.label}</Badge>}
+              <Badge variant="default">Style: {applied.tone ?? "—"}</Badge>
+              <Badge variant="default">Language: {applied.language ?? "—"}</Badge>
+              <Badge variant="default">Detail: {applied.verbosity ?? "—"}</Badge>
             </div>
           ) : (
             <p className="body-sm ct-text-muted mt-2">
-              No profile is applied yet. Recalibrate from the intake answers or assign a reusable template.
+              No profile is applied yet. Refresh from intake answers or assign a reusable template.
             </p>
           )}
           {applied?.customInstructions && (
@@ -201,10 +215,9 @@ export default async function CustomerDetailPage({
 
       {/* Memory */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Memory">
-        <h2 className="h2">Retained memory</h2>
+        <h2 className="h2">Saved notes</h2>
         <p className="body-xs ct-text-muted">
-          Durable investor context the agent carries across sessions, distilled
-          from conversations or curated directly here.
+          Persistent context and notes for this investor.
         </p>
         <Card className="p-5" hoverOverlay={false}>
           <MemoryManager

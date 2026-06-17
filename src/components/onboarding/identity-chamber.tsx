@@ -85,7 +85,7 @@ export function IdentityChamber({
               ) : !isProduction ? (
                 <Button variant="secondary" size="lg" asChild className="w-full">
                   <Link href="/onboarding/wallet">
-                    Continue in review mode
+                    Continue
                   </Link>
                 </Button>
               ) : null}

@@ -141,7 +141,7 @@ export function EventTimeline({ events }: EventTimelineProps) {
       <Card hoverOverlay={false}>
         <DashboardPanelHeader
           eyebrow="On-chain event log"
-          title="EventLogger — awaiting first events"
+          title="On-chain event log — awaiting first events"
           tone="quiet"
         />
         <AwaitingMetricState {...EVENT_TIMELINE_EMPTY} />
@@ -155,7 +155,7 @@ export function EventTimeline({ events }: EventTimelineProps) {
     <Card>
       <DashboardPanelHeader
         eyebrow="On-chain event log"
-        title={`EventLogger — last ${events.length} events`}
+        title={`On-chain event log — last ${events.length} events`}
         provenance={eventsProvenance}
         tone="primary"
       />

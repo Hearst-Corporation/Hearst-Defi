@@ -73,7 +73,7 @@ export function TimeToTargetChart({ amount, vault, demo = false }: TimeToTargetC
           <EmptySurface
             variant="chart"
             message="Enter a deposit amount to populate the projected NAV horizon."
-            detail="The chart frame stays fixed so review mode and deposit mode share the same layout."
+            detail="The chart frame stays fixed so the preview and deposit views share the same layout."
             className="h-full justify-center"
           />
         </div>

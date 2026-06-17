@@ -38,10 +38,28 @@ function statusVariant(
   }
 }
 
-function rebalanceProvenance(status: string): "live" | "manual" | "stale" {
+type RebalanceProvenance = "live" | "manual" | "stale";
+
+function rebalanceProvenance(status: string): RebalanceProvenance {
   if (status === "executed") return "live";
   if (status === "pending" || status === "approved") return "manual";
   return "stale";
+}
+
+// Strongest → weakest. Panel badge takes the weakest event so a pending/approved/
+// cancelled event never lets the header show "Live".
+const REBALANCE_RANK: Record<RebalanceProvenance, number> = {
+  live: 0,
+  manual: 1,
+  stale: 2,
+};
+
+function weakestRebalanceProvenance(
+  kinds: readonly RebalanceProvenance[],
+): RebalanceProvenance {
+  return kinds.reduce((weakest, kind) =>
+    REBALANCE_RANK[kind] > REBALANCE_RANK[weakest] ? kind : weakest,
+  );
 }
 
 interface RebalancingEventsPanelProps {
@@ -62,12 +80,16 @@ export function RebalancingEventsPanel({ events }: RebalancingEventsPanelProps) 
     );
   }
 
+  const panelProvenance = weakestRebalanceProvenance(
+    events.map((event) => rebalanceProvenance(event.status)),
+  );
+
   return (
     <Card>
       <DashboardPanelHeader
         eyebrow="Rebalancing events"
         title={`Last ${events.length} rule-triggered events (PTAI)`}
-        provenance="live"
+        provenance={panelProvenance}
         tone="primary"
       />
 

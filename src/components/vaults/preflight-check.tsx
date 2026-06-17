@@ -113,7 +113,7 @@ export function PreFlightCheck({
     }
 
     if (!vaultConfigured) {
-      onApproveError?.("Vault address not configured. Contact support.");
+      onApproveError?.("Deposit access is being configured. Please try again shortly.");
       return;
     }
 
@@ -164,9 +164,8 @@ export function PreFlightCheck({
         Configuration pending
       </Badge>
       <p className="body-xs ct-text-muted">
-        Set{" "}
-        <code className="mono">NEXT_PUBLIC_HEARST_VAULT_ADDRESS</code> to
-        activate on-chain transactions.
+        On-chain configuration is being finalized. Please contact Investor
+        Relations.
       </p>
     </div>
   ) : (

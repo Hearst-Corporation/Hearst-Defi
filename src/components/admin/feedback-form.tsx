@@ -28,7 +28,7 @@ export function FeedbackForm() {
       <div className="admin-doc-form-grid-2">
         <label className="block body-xs" htmlFor="feedback-itemId">
           <span className="ct-form-label">
-            Roadmap item ID (optional)
+            Related item (optional)
           </span>
           <input
             id="feedback-itemId"
@@ -54,7 +54,7 @@ export function FeedbackForm() {
 
       <label className="block body-xs" htmlFor="feedback-pathname">
         <span className="ct-form-label">
-          Pathname or context (optional)
+          Page or context (optional)
         </span>
         <input
           id="feedback-pathname"

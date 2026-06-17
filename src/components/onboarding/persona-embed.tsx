@@ -87,14 +87,14 @@ export function PersonaEmbed({
     script.src = PERSONA_SDK_URL;
     script.async = true;
     script.onload = () => setSdkReady(true);
-    script.onerror = () => setError("Failed to load KYC verification SDK.");
+    script.onerror = () => setError("We could not load identity verification. Please refresh and try again.");
     document.head.appendChild(script);
     return undefined;
   }, []);
 
   function handleLaunch() {
     if (!window.Persona) {
-      setError("Verification SDK is not ready. Please refresh and try again.");
+      setError("Identity verification is still loading. Please refresh and try again.");
       return;
     }
 
@@ -117,9 +117,9 @@ export function PersonaEmbed({
         setLoading(false);
         onCancel?.();
       },
-      onError: (err) => {
+      onError: () => {
         setLoading(false);
-        setError(`Verification error: ${err.message}`);
+        setError("Identity verification ran into an issue. Please try again or contact Investor Relations.");
       },
     });
 

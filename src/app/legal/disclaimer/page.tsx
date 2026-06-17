@@ -14,7 +14,6 @@ export default function DisclaimerPage() {
   return (
     <>
       <LegalPageHeader title="Risk Disclaimer" />
-      <p className="legal-meta body-xs ct-text-faint">Current working version for investor review.</p>
 
       <div className="legal-stub">
         <strong>Current review draft</strong>

@@ -35,6 +35,7 @@ const EXPECTED_ROUTES = [
   "/admin/onboarding-test",
   "/admin/outreach",
   "/admin/outreach/[campaignId]",
+  "/admin/outreach/compose",
   "/admin/product-workspace",
   "/admin/projection",
   "/admin/proof-center",

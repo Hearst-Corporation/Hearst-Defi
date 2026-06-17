@@ -11,6 +11,10 @@ import { EmptySurface } from "@/components/ui/empty-surface";
 import { loadAgentTemplates } from "@/lib/data/agent-templates";
 import { ArchiveTemplateButton } from "@/components/admin/archive-template-button";
 import { groupCatalogByScope } from "@/lib/agents/agent-catalog";
+import {
+  BASE_AGENT_LABELS,
+  type BaseAgent,
+} from "@/lib/agents/agent-template-constants";
 
 export const dynamic = "force-dynamic";
 
@@ -35,8 +39,8 @@ export default async function AgentsPage() {
       <section className="admin-doc-stack" aria-label="Agent catalog">
         <h2 className="h2">Base agent catalog</h2>
         <p className="body-xs ct-text-muted">
-          Core execution surfaces, grouped by operating scope. These stay wired
-          in code; templates below shape tone and behavior on top of them.
+          Base configurations managed in code. Templates below layer tone and
+          behavior on top of them.
         </p>
 
         <div className="admin-doc-form-grid-2">
@@ -82,7 +86,7 @@ export default async function AgentsPage() {
         {templates.length === 0 ? (
           <EmptySurface
             variant="widget"
-            message="No templates configured yet."
+            message="No templates created yet."
             detail="Create a reusable profile to standardize tone, language, and register across assigned accounts."
             className="min-h-32"
           />
@@ -113,7 +117,9 @@ export default async function AgentsPage() {
                           <p className="body-xs ct-text-muted truncate">{t.description}</p>
                         )}
                       </td>
-                      <td className="hidden ct-table-cell mono ct-text-muted md:table-cell">{t.baseAgent}</td>
+                      <td className="hidden ct-table-cell ct-text-muted md:table-cell">
+                        {BASE_AGENT_LABELS[t.baseAgent as BaseAgent] ?? t.baseAgent}
+                      </td>
                       <td className="hidden ct-table-cell ct-text-body lg:table-cell">
                         {[t.tone, t.language, t.verbosity].filter(Boolean).join(" · ") || "—"}
                       </td>

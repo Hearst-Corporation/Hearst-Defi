@@ -97,7 +97,7 @@ export async function simulateTypeformSubmission(
     });
     if (existing) {
       userId = existing.id;
-      steps.push(`User already existed (${email}) → reusing`);
+      steps.push(`Account already existed (${email}) — reusing`);
     } else {
       const newUser = await createInvestorFromWebhook(email);
       if (!newUser) {
@@ -105,7 +105,7 @@ export async function simulateTypeformSubmission(
       }
       userId = newUser.userId;
       created = true;
-      steps.push(`✅ Created User + Investor (${email})`);
+      steps.push(`✅ Created account (${email})`);
     }
 
     // 2. Upsert the qualification profile with the answers.
@@ -125,14 +125,14 @@ export async function simulateTypeformSubmission(
       vaultSize: input.vaultSize ?? null,
       timeline: input.timeline ?? null,
     });
-    steps.push("✅ Saved QualificationProfile (answers)");
+    steps.push("✅ Saved qualification answers");
 
     // 3. Calibrate the agent persona from the answers.
     let calibrated = false;
     try {
       await applyCalibrationToUser(userId);
       calibrated = true;
-      steps.push("✅ Calibrated cockpit-chat agent from answers");
+      steps.push("✅ Assistant configured from answers");
     } catch {
       steps.push("⚠️ Calibration skipped (error)");
     }
@@ -150,7 +150,7 @@ export async function simulateTypeformSubmission(
         }).catch(() => {}),
       );
       emailSent = true;
-      steps.push("✅ Welcome email queued (Resend)");
+      steps.push("✅ Welcome email scheduled");
     }
 
     // 5. HubSpot contact sync (awaited here so the UI can show the result).
@@ -158,7 +158,7 @@ export async function simulateTypeformSubmission(
     let hubspotContactId: string | undefined;
     if (input.syncHubspot) {
       if (!process.env.HUBSPOT_API_KEY) {
-        steps.push("⚠️ HubSpot skipped — HUBSPOT_API_KEY not set");
+        steps.push("⚠️ HubSpot skipped — not connected");
       } else {
         try {
           await upsertHubSpotContact(userId, qualification);
@@ -170,7 +170,7 @@ export async function simulateTypeformSubmission(
           });
           hubspotContactId = sync?.hubspotObjectId ?? undefined;
           hubspotSynced = true;
-          steps.push("✅ HubSpot contact upserted");
+          steps.push("✅ HubSpot contact synced");
         } catch (err) {
           steps.push(
             `❌ HubSpot sync failed: ${err instanceof Error ? err.message : String(err)}`,

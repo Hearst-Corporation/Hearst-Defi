@@ -56,7 +56,7 @@ const DEPLOYED_CONTRACTS: ReadonlyArray<DeployedContract> = [
     deployTxHash: EVENT_LOGGER_DEPLOYMENT.deployTx as `0x${string}`,
     deployBlock: EVENT_LOGGER_DEPLOYMENT.deployBlock.toLocaleString(),
     description:
-      "Immutable on-chain journal. Logs rebalancing, distribution and state-change events. Publisher is the Hearst manager EOA (testnet) / multisig (Phase 3).",
+      "Permanent on-chain record of rebalancing, distribution, and state-change events. Published by the Hearst manager today, moving to a multisig at production deployment.",
     sourceVerified: EVENT_LOGGER_DEPLOYMENT.meta.provenanceVerified,
   },
   {
@@ -168,7 +168,7 @@ function DeployedContractCard({
         </a>
       </ProofRow>
       <ProofRow label="Deploy block">{contract.deployBlock}</ProofRow>
-      <ProofRow label="Network">Base Sepolia (chain id 84532)</ProofRow>
+      <ProofRow label="Network">Test network (chain id 84532)</ProofRow>
 
       <div className="mt-4 product-doc-inline-row">
         <Badge variant={contract.sourceVerified ? "success" : "warning"}>
@@ -226,7 +226,7 @@ export function ContractsAuditTrail({
 
       <Card>
         <DashboardPanelHeader
-          eyebrow="Phase 2 contracts · Base Sepolia"
+          eyebrow="Deployed contracts · test network"
           title="Configured deployment addresses"
           provenance={deploymentsVerified ? "attested" : "manual"}
           tone="primary"
@@ -271,9 +271,10 @@ export function ContractsAuditTrail({
         <div className="admin-doc-stack admin-doc-stack--tight mt-5 border-t border-(--ct-border-soft) pt-4">
           <p className="stat-label m-0">Release gate</p>
           <p className="body-xs ct-text-muted m-0">
-            Phase 3 requires a Spearbit audit pass before any ERC-4626 vault
-            deployment. Methodology stays locked at v1.0 unless an ADR and LP
-            notification approve a version bump.
+            Production (mainnet) deployment requires completion of an
+            independent third-party security audit. The methodology remains
+            fixed until a formal approval and investor notification process is
+            completed.
           </p>
         </div>
       </Card>

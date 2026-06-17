@@ -13,15 +13,15 @@ export function IdentityVendorPanel({ isProduction }: { isProduction: boolean })
     >
       <AwaitingMetricState
         variant="inline"
-        message="Identity verification is not available in this workspace yet"
+        message="Identity verification is not yet available for your account"
         detail={
           isProduction
             ? "Contact Investor Relations to complete identity review manually."
-            : "Review mode is active until the embedded identity flow is enabled for this workspace."
+            : "Identity verification will be available shortly. You can continue your onboarding now and complete verification at any time."
         }
       />
       {!isProduction ? (
-        <Badge variant="warning">Review mode</Badge>
+        <Badge variant="warning">Verification pending</Badge>
       ) : null}
     </div>
   );

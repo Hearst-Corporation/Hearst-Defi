@@ -137,9 +137,7 @@ export function AgentTemplateForm({ template }: { template?: AgentTemplate }) {
       </div>
 
       <label className="block body-xs" htmlFor="tpl-systemAdditions">
-        <span className="ct-form-label">
-          System additions (tone-only, forbidden words rejected)
-        </span>
+        <span className="ct-form-label">Tone & behavior notes</span>
         <textarea
           id="tpl-systemAdditions"
           name="systemAdditions"

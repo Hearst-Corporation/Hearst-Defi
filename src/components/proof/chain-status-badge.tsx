@@ -15,7 +15,7 @@ export function ChainStatusBadge({
     return (
       <Badge
         variant="warning"
-        title="No EventLogger/PoRRegistry address configured. Phase 2 contracts are not yet deployed. Showing paper attestations only."
+        title="No on-chain contracts configured yet. Showing paper attestations only."
       >
         Off-chain · paper attestations only
       </Badge>
@@ -27,9 +27,9 @@ export function ChainStatusBadge({
     return (
       <Badge
         variant="default"
-        title="Contracts are configured on Base Sepolia (testnet) but no events have been published yet."
+        title="Contracts are configured on a test network but no events have been published yet."
       >
-        Connected · Base Sepolia (testnet) · no on-chain events yet
+        Connected · test network · no on-chain events yet
       </Badge>
     );
   }
@@ -47,9 +47,9 @@ export function ChainStatusBadge({
   return (
     <Badge
       variant="success"
-      title="Reading EventLogger + PoRRegistry events directly from Base Sepolia (testnet)."
+      title="Reading on-chain events directly from a test network."
     >
-      Connected · Base Sepolia (testnet) · {parts.join(" + ")}
+      Connected · test network · {parts.join(" + ")}
     </Badge>
   );
 }

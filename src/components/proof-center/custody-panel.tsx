@@ -31,7 +31,7 @@ function CustodyStaleNote({ custody }: { custody: CustodySnapshot }) {
   return (
     <p className="mt-3 body-xs ct-status-warning">
       {custody.provenance === "live" && !custody.configured
-        ? "Reserve scope not pinned (FIREBLOCKS_VAULT_ACCOUNT_IDS unset) — badge shows Stale."
+        ? "Reserve scope is not yet configured by operations — badge shows Stale."
         : "Custody snapshot is unverified or older than 24h — badge shows Stale."}
     </p>
   );

@@ -21,8 +21,8 @@ export default function OnboardingTestPage() {
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Onboarding test"
-        eyebrow="operations · manual intake simulator"
-        description="Run a controlled onboarding submission through the production intake path before exposing it to investors."
+        eyebrow="operations · controlled intake"
+        description="Run a controlled onboarding submission through the production intake path before opening it to investors."
         lead={
           <Link href="/admin/customers" className="body-xs ct-text-muted hover:ct-text-strong">
             ← Investors
@@ -38,12 +38,11 @@ export default function OnboardingTestPage() {
       />
 
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Simulator">
-        <h2 className="h2">Manual intake run</h2>
+        <h2 className="h2">Test submission</h2>
         <p className="body-sm ct-text-muted">
-          Submit a controlled questionnaire to exercise the live intake path: it
-          provisions the User and Investor records, stores the qualification
-          profile, calibrates the assigned agent, and can optionally send the
-          welcome email and create the HubSpot contact.
+          Submit a controlled questionnaire to validate the onboarding flow. It
+          creates the investor account, applies assistant settings, and can
+          optionally send the welcome email and create the HubSpot contact.
         </p>
 
         <Card className="p-5" hoverOverlay={false}>

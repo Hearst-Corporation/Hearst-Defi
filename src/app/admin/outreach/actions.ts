@@ -9,6 +9,7 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { upsertProspectContact } from "@/lib/hubspot/sync-prospect";
 import { draftColdEmail, draftNewsletter } from "@/lib/agents/outreach-writer";
 import { assertNoForbiddenWords } from "@/lib/agents/validators";
+import { sendTrackedEmail, renderPlainHtml } from "@/lib/email/send";
 import { inngest } from "@/lib/inngest/client";
 import { OUTREACH_EVENTS } from "@/lib/outreach/events";
 
@@ -660,4 +661,168 @@ export async function convertProspect(formData: FormData): Promise<void> {
   );
 
   revalidatePath(REVALIDATE_PATH);
+}
+
+// ---------------------------------------------------------------------------
+// Direct one-off send — compose + send a single email independently of any
+// campaign. The email is still recorded as an OutreachEmail (under a reusable
+// "Direct sends" campaign) so it shows up in tracking + stats like the rest.
+// ---------------------------------------------------------------------------
+
+const DIRECT_CAMPAIGN_NAME = "Direct sends" as const;
+
+/** Returns the id of the shared "Direct sends" campaign, creating it once. */
+async function getDirectCampaignId(createdBy: string): Promise<string> {
+  const existing = await prisma.outreachCampaign.findFirst({
+    where: { name: DIRECT_CAMPAIGN_NAME, kind: "direct" },
+    select: { id: true },
+  });
+  if (existing) return existing.id;
+  const created = await prisma.outreachCampaign.create({
+    data: {
+      name: DIRECT_CAMPAIGN_NAME,
+      kind: "direct",
+      status: "sent",
+      includeTypeform: false,
+      createdBy,
+    },
+    select: { id: true },
+  });
+  return created.id;
+}
+
+const DirectDraftInput = z.object({
+  to: z.string().trim().email().max(200),
+  firstName: z.string().trim().max(100).optional(),
+  lastName: z.string().trim().max(100).optional(),
+  company: z.string().trim().max(160).optional(),
+  brief: z.string().trim().max(2000).optional(),
+});
+
+/**
+ * Drafts a one-off email with the agent (cold-email persona, Typeform CTA),
+ * WITHOUT sending. Returns { subject, body } for the operator to edit + send.
+ */
+export async function draftDirectEmail(
+  formData: FormData,
+): Promise<{ subject: string; body: string }> {
+  await requireAdmin();
+
+  const parsed = DirectDraftInput.safeParse({
+    to: formData.get("to"),
+    firstName: optText(formData.get("firstName")),
+    lastName: optText(formData.get("lastName")),
+    company: optText(formData.get("company")),
+    brief: optText(formData.get("brief")),
+  });
+  if (!parsed.success) throw new Error("draftDirectEmail: invalid input");
+
+  const { subject, body } = await draftColdEmail({
+    prospect: {
+      email: parsed.data.to,
+      firstName: parsed.data.firstName ?? null,
+      lastName: parsed.data.lastName ?? null,
+      company: parsed.data.company ?? null,
+    },
+    brief: parsed.data.brief ?? null,
+    typeformUrl: TYPEFORM_URL,
+  });
+  assertNoForbiddenWords(`${subject}\n${body}`);
+  return { subject, body };
+}
+
+const DirectSendInput = z.object({
+  to: z.string().trim().email().max(200),
+  subject: z.string().trim().min(1).max(300),
+  body: z.string().trim().min(1).max(20000),
+});
+
+export interface DirectSendResult {
+  ok: boolean;
+  resendEmailId?: string;
+  error?: string;
+}
+
+/**
+ * Sends a single email immediately (no campaign fan-out, no approval gate).
+ * The body is forbidden-words checked, sent via Resend with tracking tags, and
+ * recorded as an OutreachEmail under the shared "Direct sends" campaign so it
+ * appears in stats and receives Resend webhook events like everything else.
+ */
+export async function sendDirectEmail(
+  formData: FormData,
+): Promise<DirectSendResult> {
+  const admin = await requireAdmin();
+
+  const parsed = DirectSendInput.safeParse({
+    to: formData.get("to"),
+    subject: formData.get("subject"),
+    body: formData.get("body"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input — check recipient, subject, body." };
+  }
+
+  try {
+    assertNoForbiddenWords(`${parsed.data.subject}\n${parsed.data.body}`);
+  } catch {
+    return {
+      ok: false,
+      error: "Blocked: contains a forbidden word (guarantee/promise/risk-free…).",
+    };
+  }
+
+  const toEmail = parsed.data.to.toLowerCase();
+  const createdBy = admin.walletAddress ?? admin.userId;
+  const campaignId = await getDirectCampaignId(createdBy);
+
+  // Record the email first (status sent), then dispatch.
+  const email = await prisma.outreachEmail.create({
+    data: {
+      campaignId,
+      toEmail,
+      subject: parsed.data.subject,
+      body: parsed.data.body,
+      status: "sent",
+      draftedByAgent: false,
+      sentAt: new Date(),
+    },
+    select: { id: true },
+  });
+
+  let resendEmailId: string | undefined;
+  try {
+    const sent = await sendTrackedEmail({
+      to: toEmail,
+      subject: parsed.data.subject,
+      html: renderPlainHtml(parsed.data.body),
+      tags: { campaignId, emailId: email.id },
+    });
+    resendEmailId = sent.id;
+    await prisma.outreachEmail.update({
+      where: { id: email.id },
+      data: { resendEmailId: sent.id },
+    });
+  } catch (err) {
+    await prisma.outreachEmail.update({
+      where: { id: email.id },
+      data: { status: "failed" },
+    });
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Send failed",
+    };
+  }
+
+  await recordAudit(
+    createdBy,
+    "outreach.sendDirectEmail",
+    "OutreachEmail",
+    email.id,
+    null,
+    { to: toEmail, subject: parsed.data.subject },
+  );
+
+  revalidatePath(REVALIDATE_PATH);
+  return { ok: true, resendEmailId };
 }

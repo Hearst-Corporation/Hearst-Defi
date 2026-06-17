@@ -161,8 +161,8 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
             </Checkbox>
 
             <PanelStatus
-              message="Wallet connection is not available in this workspace yet."
-              detail="You can review the subscription flow now and continue once wallet access is enabled."
+              message="Wallet connection is not yet available for your account."
+              detail="You can review the subscription flow now and continue once wallet connection becomes available."
             />
 
             <div className="vault-form-actions">
@@ -311,13 +311,13 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
     }
 
     if (!privyWallet) {
-      setDepositError("No wallet connected. Connect a wallet first.");
+      setDepositError("Please connect your wallet to continue.");
       setAwaitingConfirm(false);
       return;
     }
 
     if (!VAULT_ADDRESS) {
-      setDepositError("Vault access is not available right now. Contact support.");
+      setDepositError("Deposit access is temporarily unavailable. Please contact Investor Relations.");
       setAwaitingConfirm(false);
       return;
     }
@@ -347,7 +347,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
       );
       if (!sub.ok) {
         setDepositError(
-          `Deposit confirmed on-chain (tx ${result.txHash.slice(0, 10)}…) but recording it failed: ${sub.error}. Contact support with this tx hash.`,
+          `Your deposit was confirmed on-chain (tx ${result.txHash.slice(0, 10)}…) but we could not record it. Please contact Investor Relations with this transaction reference.`,
         );
         setDepositing(false);
         setAwaitingConfirm(false);

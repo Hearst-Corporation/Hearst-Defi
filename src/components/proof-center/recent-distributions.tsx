@@ -8,6 +8,7 @@ import { EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { ProofCenterDistributionRow } from "@/lib/data/proof-center";
 import { distributionProvenance } from "@/lib/proof-center/distribution-provenance";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
+import type { Provenance } from "@/components/ui/provenance-badge";
 import { abbreviateAddress } from "@/lib/onchain";
 import { explorerLinkClass } from "@/lib/ui/surface-classes";
 
@@ -15,6 +16,24 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
   timeZone: "UTC",
 });
+
+// Strongest → weakest. Panel badge takes the weakest row so it never overstates.
+const PROVENANCE_RANK: Record<Provenance, number> = {
+  live: 0,
+  oracle: 1,
+  attested: 2,
+  estimated: 3,
+  partial: 4,
+  manual: 5,
+  stale: 6,
+  simulated: 7,
+};
+
+function weakestProvenance(kinds: readonly Provenance[]): Provenance {
+  return kinds.reduce((weakest, kind) =>
+    PROVENANCE_RANK[kind] > PROVENANCE_RANK[weakest] ? kind : weakest,
+  );
+}
 
 interface RecentDistributionsProps {
   distributions: ReadonlyArray<ProofCenterDistributionRow>;
@@ -34,12 +53,16 @@ export function RecentDistributions({ distributions }: RecentDistributionsProps)
     );
   }
 
+  const panelProvenance = weakestProvenance(
+    distributions.map((d) => distributionProvenance(d.txHash)),
+  );
+
   return (
     <Card>
       <DashboardPanelHeader
         eyebrow="Latest distributions"
         title={`Last ${distributions.length} USDC distributions`}
-        provenance="live"
+        provenance={panelProvenance}
         tone="primary"
       />
 

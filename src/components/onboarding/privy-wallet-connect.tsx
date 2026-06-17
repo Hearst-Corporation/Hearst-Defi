@@ -104,7 +104,7 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
     >
       <p className="body-sm ct-text-muted m-0 ct-prose-narrow">
         Link the wallet address that will receive your USDC distributions.
-        Supported: MetaMask, Ledger, WalletConnect, Coinbase Wallet.
+        Compatible with major wallets including MetaMask, Ledger, and Coinbase Wallet.
       </p>
 
       <Button
@@ -129,8 +129,8 @@ export function PrivyWalletConnect({ appId, boundAddress = null }: PrivyWalletCo
   if (!appId) {
     return (
       <AwaitingMetricState
-        message="Wallet connection is not available in this workspace yet"
-        detail="You can continue onboarding now and link a wallet later from Profile once wallet access is enabled."
+        message="Wallet connection is not yet available for your account"
+        detail="You can continue onboarding now and link a wallet later from Profile once it becomes available."
       />
     );
   }

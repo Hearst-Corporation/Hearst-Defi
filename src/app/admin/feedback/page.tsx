@@ -18,18 +18,19 @@ export default async function FeedbackPage() {
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Feedback"
+        eyebrow="operations · product feedback"
         description="Capture operator observations, triage product issues, and preserve resolved decisions for follow-through."
       />
 
       <section className="admin-doc-stack admin-doc-stack--actions">
-        <h2 className="h2">Capture feedback</h2>
+        <h2 className="h2">Submit feedback</h2>
         <Card hoverOverlay={false}>
           <FeedbackForm />
         </Card>
       </section>
 
       <section className="admin-doc-stack admin-doc-stack--actions">
-        <h2 className="h2">Review queue ({items.length})</h2>
+        <h2 className="h2">Feedback log ({items.length})</h2>
         <FeedbackList items={items} />
       </section>
     </div>

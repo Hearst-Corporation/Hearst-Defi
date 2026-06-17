@@ -127,10 +127,9 @@ export default async function ProductProofCenterPage({
             aria-hidden
           />
           <p className="body-sm ct-text-strong">
-            On-chain proofs are read from{" "}
-            <strong>Base Sepolia (testnet)</strong> — not production mainnet.
-            Addresses, balances, and attestations shown here are testnet
-            artefacts.
+            On-chain proofs are read from a{" "}
+            <strong>test network</strong> — not production mainnet. Addresses,
+            balances, and attestations shown here are test artefacts.
           </p>
         </div>
       )}
@@ -278,11 +277,11 @@ export default async function ProductProofCenterPage({
           <p className="body-xs ct-prose-md ct-text-muted">
             {chainConfigured ? (
               <>
-                On-chain entries are read from Base Sepolia (testnet). Contract
-                addresses, tx links, and attestation context are exposed in the
-                modules above. Off-chain entries are pinned to IPFS or signed
-                HTTPS endpoints. On-chain data and vault state are fetched fresh
-                on every request.
+                On-chain entries are read from a test network — not production
+                mainnet. Contract addresses, tx links, and attestation context
+                are exposed in the modules above. Off-chain entries are pinned
+                to IPFS or signed HTTPS endpoints. On-chain data and vault state
+                are fetched fresh on every request.
               </>
             ) : (
               <>

@@ -313,9 +313,8 @@ function PositionActionsLive({ position }: PositionActionsProps) {
   return (
     <section aria-label="Position actions" className="product-doc-section">
       <p className="body-xs ct-text-muted">
-        Withdraw returns your full position as USDC on Base Sepolia (testnet),
-        subject to the 60-day soft lock-up. Past performance does not predict
-        future results.
+        Withdraw returns your full position as USDC, subject to the 60-day soft
+        lock-up. Past performance does not predict future results.
       </p>
       <Button
         type="button"

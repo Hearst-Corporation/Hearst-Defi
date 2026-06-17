@@ -1,18 +1,18 @@
 export const POR_ATTESTATION_EMPTY = {
   message: "No on-chain Proof of Reserves attestation yet.",
   detail:
-    "Contracts are live on Base Sepolia (testnet) — the publisher will post the first attestation after the initial vault period closes.",
+    "Contracts are live on a test network — the publisher will post the first attestation after the initial vault period closes.",
 } as const;
 
 export const EVENT_TIMELINE_EMPTY = {
   message: "No on-chain events yet.",
-  detail: "Contracts are live on Base Sepolia (testnet) — events appear here as the vault operates.",
+  detail: "Contracts are live on a test network — events appear here as the vault operates.",
 } as const;
 
 export const PLATFORM_PROOFS_EMPTY = {
   message: "No proofs published yet",
   detail:
-    "Off-chain attestations, custody snapshots, and audits will appear here once posted. On-chain entries are read live from Base Sepolia (testnet).",
+    "Off-chain attestations, custody snapshots, and audits will appear here once posted. On-chain entries are read live from a test network.",
 } as const;
 
 export function filteredProofsEmpty(filter: string): { message: string; detail: string } {
@@ -31,7 +31,7 @@ export function unfilteredProofsEmpty(): { message: string; detail: string } {
 
 export const OFF_CHAIN_PROOFS_EMPTY = {
   message: "No off-chain proofs published yet.",
-  detail: "Mining attestations and custody snapshots appear here once posted via the ingest CLI.",
+  detail: "Mining attestations and custody snapshots appear here once posted by operations.",
 } as const;
 
 export const RECENT_DISTRIBUTIONS_EMPTY = {
@@ -43,7 +43,7 @@ export const RECENT_DISTRIBUTIONS_EMPTY = {
 export const REBALANCING_EVENTS_EMPTY = {
   message: "No rebalancing events yet.",
   detail:
-    "Rule-triggered rebalancing signals (PTAI format) will appear here once the vault operates.",
+    "Rule-triggered rebalancing signals will appear here once the first one executes.",
 } as const;
 
 export const MINING_CASHFLOW_COPY = {

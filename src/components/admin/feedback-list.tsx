@@ -26,6 +26,7 @@ export function FeedbackList({ items }: { items: FeedbackItem[] }) {
       <EmptySurface
         variant="widget"
         message="No feedback logged yet."
+        detail="Submit the first note using the form above."
         className="min-h-32"
       />
     );
@@ -64,7 +65,7 @@ function FeedbackRow({ item }: { item: FeedbackItem }) {
             <time>{item.createdAt.toISOString().slice(0, 16).replace("T", " ")}</time>
             {item.author ? <span>· {item.author}</span> : null}
             {item.itemId ? (
-              <Badge variant="default">item: {item.itemId}</Badge>
+              <Badge variant="default">Item {item.itemId}</Badge>
             ) : null}
             {item.pathname ? (
               <span className="mono">{item.pathname}</span>

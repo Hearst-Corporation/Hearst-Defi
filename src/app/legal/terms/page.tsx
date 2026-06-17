@@ -15,7 +15,6 @@ export default function TermsPage() {
   return (
     <>
       <LegalPageHeader title="Terms of Service" />
-      <p className="legal-meta body-xs ct-text-faint">Current working version for investor review.</p>
 
       <div className="legal-stub">
         <strong>Current review draft</strong>

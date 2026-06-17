@@ -132,7 +132,7 @@ export function OnboardingForm() {
             <label key={q.name} className="block body-xs" htmlFor={`ob-${q.name}`}>
               <span className="ct-form-label">{q.label}</span>
               <select id={`ob-${q.name}`} name={q.name} defaultValue="" className="ct-input">
-                <option value="">— skip —</option>
+                <option value="">Skip question</option>
                 {q.options.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
@@ -147,11 +147,11 @@ export function OnboardingForm() {
         <div className="admin-doc-inline-row flex-wrap gap-4">
           <label className="inline-flex items-center body-xs gap-2">
             <input type="checkbox" name="syncHubspot" defaultChecked />
-            <span>Sync contact to HubSpot</span>
+            <span>Create HubSpot contact</span>
           </label>
           <label className="inline-flex items-center body-xs gap-2">
             <input type="checkbox" name="sendEmail" />
-            <span>Send welcome email (Resend)</span>
+            <span>Send welcome email</span>
           </label>
         </div>
 
@@ -167,12 +167,12 @@ export function OnboardingForm() {
         <div className="admin-doc-stack admin-doc-stack--actions">
           <div className="admin-doc-inline-row flex-wrap gap-2">
             {result.ok ? (
-              <Badge variant="success">{result.created ? "User created" : "User reused"}</Badge>
+              <Badge variant="success">{result.created ? "Account created" : "Account ready"}</Badge>
             ) : (
               <Badge variant="danger">Failed</Badge>
             )}
-            {result.calibrated && <Badge variant="accent">Agent calibrated</Badge>}
-            {result.emailSent && <Badge variant="brand">Welcome email queued</Badge>}
+            {result.calibrated && <Badge variant="accent">Assistant configured</Badge>}
+            {result.emailSent && <Badge variant="brand">Welcome email scheduled</Badge>}
             {result.hubspotSynced && <Badge variant="success">HubSpot synced</Badge>}
           </div>
 
