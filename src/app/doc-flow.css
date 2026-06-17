@@ -488,14 +488,14 @@
 }
 
 .admin-doc .admin-doc-seg-track .ct-seg-btn:hover {
-  color: var(--ct-text-strong);
+  color: var(--ct-text-primary);
   background: var(--ct-surface-1);
 }
 
 .admin-doc .admin-doc-seg-track .ct-seg-btn.active {
-  color: var(--ct-text-strong);
-  background: var(--ct-surface-1);
-  border-color: var(--ct-border-soft);
+  color: var(--ct-accent);
+  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
+  border-color: var(--ct-border-accent);
   box-shadow: none;
 }
 

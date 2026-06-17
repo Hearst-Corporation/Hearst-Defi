@@ -1542,10 +1542,9 @@
 }
 
 .fixture-vault-pills__pill--active {
-  border-color: var(--ct-border-strong);
-  background: var(--ct-surface-2);
-  color: var(--ct-text-strong);
-  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--ct-accent) 55%, transparent);
+  border-color: var(--ct-border-accent);
+  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
+  color: var(--ct-accent);
 }
 
 .fixture-vault-pills__pill:focus-visible {
@@ -1554,9 +1553,7 @@
 }
 
 .fixture-vault-pills__pill--active:focus-visible {
-  box-shadow:
-    inset 0 -2px 0 color-mix(in srgb, var(--ct-accent) 55%, transparent),
-    var(--ct-shadow-focus-ring);
+  box-shadow: var(--ct-shadow-focus-ring);
 }
 
 .fixture-vault-pills__ticker {
@@ -2950,9 +2947,9 @@ button.ct-seg-btn {
 
 .ct-seg-btn {
   appearance: none;
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
-  color: var(--ct-text-primary);
+  color: var(--ct-text-muted);
   padding: 0.5rem 1rem;
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-medium);
@@ -2971,13 +2968,14 @@ button.ct-seg-btn {
 
 .ct-seg-btn:hover {
   background: var(--ct-surface-1);
+  color: var(--ct-text-primary);
 }
 
 .ct-seg-btn.active {
-  background: var(--ct-surface-1);
-  border: 1px solid var(--ct-border);
-  box-shadow: inset 0 1px 0 var(--ct-border-soft);
-  color: var(--ct-text-primary);
+  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
+  border-color: var(--ct-border-accent);
+  color: var(--ct-accent);
+  box-shadow: none;
 }
 
 /* Keyboard focus ring (WCAG 2.4.7) — selection stays quiet, focus is the only accent. */
@@ -2987,7 +2985,7 @@ button.ct-seg-btn {
 }
 
 .ct-seg-btn.active:focus-visible {
-  box-shadow: inset 0 1px 0 var(--ct-border-soft), var(--ct-shadow-focus-ring);
+  box-shadow: var(--ct-shadow-focus-ring);
 }
 
 .ct-seg-btn.primary {
