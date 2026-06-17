@@ -3,28 +3,19 @@
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 
-import { PersonaEmbed } from "@/components/onboarding/persona-embed";
+import { KycDocumentForm } from "@/components/onboarding/kyc-document-form";
 
-interface IdentityStepProps {
-  templateId: string;
-  environment: "sandbox" | "production";
-  referenceId?: string;
-}
-
-/** Client wrapper — navigates to wallet after Persona completes. */
-export function IdentityStep({ templateId, environment, referenceId }: IdentityStepProps) {
+/**
+ * Client wrapper — renders OUR native Cockpit KYC document form (no Sumsub
+ * WebSDK / iframe / CDN) and navigates to wallet binding once the document has
+ * been submitted for verification.
+ */
+export function IdentityStep() {
   const router = useRouter();
 
-  const handleComplete = useCallback(() => {
+  const handleSuccess = useCallback(() => {
     router.push("/onboarding/wallet");
   }, [router]);
 
-  return (
-    <PersonaEmbed
-      templateId={templateId}
-      environment={environment}
-      referenceId={referenceId}
-      onComplete={handleComplete}
-    />
-  );
+  return <KycDocumentForm onSuccess={handleSuccess} />;
 }

@@ -6,7 +6,7 @@ import { logger } from "@/lib/logger";
 /**
  * Wallet-step KYC gate outcomes (P0-09).
  *
- * - passed: user has a server-claimed KycInquiry row (started Persona flow).
+ * - passed: user has a server-claimed KycInquiry row (started Sumsub flow).
  * - requires_identity: table present, no inquiry — redirect to identity step.
  * - gate_skipped: KycInquiry table missing in non-production — do not enforce
  *   the gate and never mark KYC complete.
@@ -36,7 +36,7 @@ function isProductionRuntime(): boolean {
 }
 
 /**
- * Whether the investor has a server-claimed Persona inquiry row.
+ * Whether the investor has a server-claimed Sumsub applicant row.
  * Returns false (never throws) when the KycInquiry table is missing in dev.
  */
 export async function investorHasKycInquiry(userId: string): Promise<boolean> {
@@ -68,8 +68,8 @@ export async function investorHasKycInquiry(userId: string): Promise<boolean> {
 }
 
 /**
- * Resolves whether wallet binding may proceed when Persona is configured.
- * Caller must still skip this entirely when Persona is not configured.
+ * Resolves whether wallet binding may proceed when Sumsub is configured.
+ * Caller must still skip this entirely when Sumsub is not configured.
  */
 export async function resolveKycWalletGate(
   userId: string,

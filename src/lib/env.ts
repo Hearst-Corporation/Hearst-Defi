@@ -159,8 +159,9 @@ const serverEnvSchema = z.object({
   // NEXT_PUBLIC_*). SUMSUB_APP_TOKEN carries the `sbx:` prefix in sandbox.
   // SUMSUB_SECRET_KEY signs API requests; SUMSUB_WEBHOOK_SECRET verifies inbound
   // webhook digests (x-payload-digest). SUMSUB_LEVEL_NAME selects the verification
-  // level (defaults to "id-and-liveness"). The webhook secret may be absent in dev
-  // — the endpoint fails-closed (401/500) until configured.
+  // level (defaults to "id-only" — document-only, custom form, no WebSDK/iframe).
+  // The webhook secret may be absent in dev — the endpoint fails-closed (401/500)
+  // until configured.
   SUMSUB_APP_TOKEN: z.string().optional(),
   SUMSUB_SECRET_KEY: z.string().optional(),
   SUMSUB_WEBHOOK_SECRET: z.string().optional(),

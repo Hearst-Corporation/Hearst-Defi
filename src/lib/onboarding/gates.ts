@@ -3,7 +3,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 
 import { getInvestor, getSession } from "@/lib/auth/session";
-import { isPersonaConfigured } from "@/lib/onboarding/config";
+import { isSumsubConfigured } from "@/lib/onboarding/config";
 import { resolveKycWalletGate } from "@/lib/onboarding/kyc-gate";
 
 /**
@@ -19,14 +19,14 @@ export async function requireAccreditationAttested(
 }
 
 /**
- * Wallet step — accreditation + (when Persona is on) a claimed KycInquiry.
+ * Wallet step — accreditation + (when Sumsub is on) a claimed KycInquiry.
  */
 export async function requireWalletStepAccess(): Promise<
   "ok" | "db_unavailable"
 > {
   await requireAccreditationAttested();
 
-  if (!isPersonaConfigured()) {
+  if (!isSumsubConfigured()) {
     return "ok";
   }
 
@@ -50,7 +50,7 @@ export async function requireWalletStepAccess(): Promise<
  * True when the investor may leave the identity step for wallet binding.
  */
 export async function canProceedToWallet(userId: string): Promise<boolean> {
-  if (!isPersonaConfigured()) {
+  if (!isSumsubConfigured()) {
     return process.env.NODE_ENV !== "production";
   }
 

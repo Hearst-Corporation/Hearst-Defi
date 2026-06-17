@@ -2,7 +2,8 @@ import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { Badge } from "@/components/ui/badge";
 
 /**
- * Shown when Persona is not configured — honest empty state, no fake iframe.
+ * Shown when the KYC vendor (Sumsub) is not configured — honest empty state,
+ * no fake iframe.
  */
 export function IdentityVendorPanel({ isProduction }: { isProduction: boolean }) {
   return (

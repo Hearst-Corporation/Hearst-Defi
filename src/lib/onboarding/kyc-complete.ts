@@ -3,16 +3,16 @@ import "server-only";
 import { prisma } from "@/lib/db";
 
 // =============================================================================
-// markKycComplete — C1 Persona KYC (INTERNAL server-only function)
+// markKycComplete — Sumsub KYC (INTERNAL server-only function)
 // =============================================================================
 //
 // SECURITY (D1): this function transitions an investor's kycStatus pending→approved.
 // It MUST NOT be exposed as a Next.js Server Action — otherwise any logged-in
-// investor who learns a claimed inquiryId could invoke the action RPC and
-// force-approve KYC without Persona ever verifying them, bypassing the gate on
+// investor who learns a claimed applicantId could invoke the action RPC and
+// force-approve KYC without Sumsub ever verifying them, bypassing the gate on
 // subscribe(). It therefore lives in this plain `server-only` module (no
 // "use server" directive) and is imported only by trusted server callers:
-//   - src/app/api/persona/webhook/route.ts  (HMAC-verified Persona webhook)
+//   - src/app/api/sumsub/webhook/route.ts    (HMAC-verified Sumsub webhook)
 //   - claimKycInquiry()                      (session-authenticated, in actions.ts)
 //
 // `server-only` guarantees a build error if this module is ever pulled into a
@@ -21,15 +21,18 @@ import { prisma } from "@/lib/db";
 /**
  * markKycComplete
  *
- * Called by the Persona webhook when an inquiry reaches a terminal "completed"
- * or "approved" status (and replayed by claimKycInquiry on the B1 race).
+ * Called by the Sumsub webhook when an applicant reaches a terminal GREEN
+ * review (and replayed by claimKycInquiry on the B1 race).
  *
  * Resolves the userId AUTHORITATIVELY from KycInquiry (created by
  * claimKycInquiry() before the webhook arrives — P0-4 defence).
- * Falls back to KycEvent.findFirst for legacy inquiries started before
+ * Falls back to KycEvent.findFirst for legacy rows started before
  * the KycInquiry table existed (pre-migration safety net).
  *
- * Idempotent: calling multiple times for the same inquiryId is safe.
+ * The `inquiryId` parameter carries the Sumsub applicantId (the KycInquiry
+ * table key is kept vendor-agnostic).
+ *
+ * Idempotent: calling multiple times for the same applicantId is safe.
  */
 export async function markKycComplete(inquiryId: string): Promise<void> {
   if (!inquiryId || inquiryId.trim() === "") {

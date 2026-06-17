@@ -43,7 +43,7 @@
 | `src/components/admin/governance/simulate-demo-panel.tsx` | SimulateDemoPanel | 1 |
 | `src/components/admin/kyc-action.tsx` | KycAction | 2 |
 | `src/components/admin/manual-signal-trigger.tsx` | ManualSignalTrigger | 1 |
-| `src/components/admin/markdown.tsx` | Markdown | 8 |
+| `src/components/admin/markdown.tsx` | Markdown | 9 |
 | `src/components/admin/monitoring/monitoring-board.tsx` | MonitoringBoard | 1 |
 | `src/components/admin/monte-carlo-review.tsx` | MonteCarloReview | 1 |
 | `src/components/admin/outreach/campaign-form.tsx` | CampaignForm | 1 |

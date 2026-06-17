@@ -2,7 +2,7 @@ import "server-only";
 
 import type { Investor } from "@prisma/client";
 
-import { isPersonaConfigured } from "@/lib/onboarding/config";
+import { isSumsubConfigured } from "@/lib/onboarding/config";
 
 export type OnboardingStepId = "accreditation" | "identity" | "wallet";
 
@@ -18,7 +18,7 @@ export interface OnboardingState {
   kycApproved: boolean;
   kycPending: boolean;
   walletBound: boolean;
-  personaConfigured: boolean;
+  kycVendorConfigured: boolean;
   checklist: OnboardingChecklistItem[];
 }
 
@@ -31,9 +31,9 @@ export function resolveOnboardingState(
   const kycPending =
     investor?.kycStatus === "pending" && hasKycInquiry;
   const walletBound = (investor?.walletAddress ?? "").length > 0;
-  const personaConfigured = isPersonaConfigured();
+  const kycVendorConfigured = isSumsubConfigured();
 
-  const kycDone = personaConfigured
+  const kycDone = kycVendorConfigured
     ? kycApproved
     : accreditationAttested && process.env.NODE_ENV !== "production";
 
@@ -45,8 +45,8 @@ export function resolveOnboardingState(
     },
     {
       id: "kyc",
-      label: personaConfigured
-        ? "Government ID verification (Persona)"
+      label: kycVendorConfigured
+        ? "Government ID & liveness verification"
         : "Identity verification (not configured)",
       done: kycDone,
     },
@@ -63,7 +63,7 @@ export function resolveOnboardingState(
     kycApproved,
     kycPending,
     walletBound,
-    personaConfigured,
+    kycVendorConfigured,
     checklist,
   };
 }

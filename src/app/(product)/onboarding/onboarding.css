@@ -5,7 +5,14 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
+  min-width: 0;
   background: transparent;
+}
+
+/* /apply chat-only — keep the chamber centered in the page band at every breakpoint */
+.ct-root.ct-shell-chat-only .onboarding-shell {
+  flex: 1;
+  margin-inline: auto;
 }
 
 .onboarding-shell__frame {

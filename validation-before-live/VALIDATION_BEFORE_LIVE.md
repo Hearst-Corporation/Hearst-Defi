@@ -20,68 +20,159 @@
 
 | Brique | État | Preuve |
 |---|---|---|
-| KYC webhook Persona (HMAC) | ✅ prouvé | `pending → approved`, 3 gardes sécu |
+| KYC Sumsub custom UI (HMAC) | ✅ prouvé | `pending → approved`, 3 gardes sécu, 26 tests KYC |
 | Onboarding 3 steps (UI) | ✅ prouvé | Accreditation → Identity → Wallet → /portfolio |
 | Admin "Deploy position" | ✅ prouvé | action + form, 9 gardes parité, 6 tests |
 | Dépôt **on-chain réel** | ✅ prouvé | vraie tx Basescan, vault `totalAssets=1 USDC` |
 | Cockpit rempli | ✅ prouvé | position vérifiée affichée, liée au txHash |
-| Suite de tests | ✅ 152/152 | scope admin + actions + KYC + onboarding |
+| Suite de tests | ✅ 2378/2378 | scope global (typecheck + vitest) |
 | Typecheck | ✅ exit 0 | `pnpm typecheck` |
 
 **Tous les ajouts de session sont prod-safe** (gates `NODE_ENV`). Voir §6 garde-fous + §8 TODO go-live.
 
 ---
 
-## 1. KYC — webhook Persona (HMAC) → `pending → approved`
+## 1. KYC — Sumsub custom UI (HMAC) → `pending → approved`
+
+> **Migration 2026-06-17** : Persona entièrement supprimé. Provider = **Sumsub** (sandbox `sbx:`).
+> UI = form natif Cockpit 100% custom, zéro iframe, zéro SDK WebSDK, zéro asset Sumsub.
 
 ### Provider & câblage
-- **Provider** : Persona (sandbox). SDK embed `persona-v5.1.4.js` + webhook HMAC SHA-256.
-- **Env** (`.env.local`) : `NEXT_PUBLIC_PERSONA_TEMPLATE_ID`, `PERSONA_WEBHOOK_SECRET`,
-  `NEXT_PUBLIC_PERSONA_ENVIRONMENT=sandbox`.
+
+- **Provider** : Sumsub sandbox (`sbx:` prefix sur le token). Client `hearstcorporation.io`.
+- **Env** (`.env.local`) — noms de variables uniquement, jamais de valeur en clair :
+  | Variable | Usage |
+  |---|---|
+  | `SUMSUB_APP_TOKEN` | Token d'app Sumsub (sbx: en sandbox, prd: en prod) |
+  | `SUMSUB_SECRET_KEY` | Clé secrète pour signer les requêtes API |
+  | `SUMSUB_LEVEL_NAME` | Niveau de vérification : `id-only` (document seul, pas de selfie) |
+  | `SUMSUB_WEBHOOK_SECRET` | Secret HMAC pour valider la signature des webhooks |
 - **Fichiers clés** :
-  - `src/app/api/persona/webhook/route.ts` — vérif signature + résolution userId + transition
-  - `src/lib/onboarding/kyc-complete.ts` — `markKycComplete()` (server-only, pending→approved only)
-  - `src/lib/onboarding/actions.ts` — `claimKycInquiry()` (lie inquiryId→userId, P0-4)
-  - DB : `Investor.kycStatus`, `KycInquiry` (claim serveur), `KycEvent` (archive webhooks)
+  - `src/lib/onboarding/sumsub.ts` — `createApplicant`, `uploadIdDoc`, `requestApplicantCheck`,
+    `getApplicantIdByExternalUserId` (path matrix-param `/-;externalUserId=`), `verifyWebhookSignature`,
+    `signApiRequest` (X-App-Token + X-App-Access-Sig)
+  - `src/lib/onboarding/actions.ts` — `submitKycDocument` (server action), `claimKycInquiry` (P0-4)
+  - `src/components/onboarding/kyc-document-form.tsx` — form natif Cockpit (aucun asset Sumsub)
+  - `src/app/api/sumsub/webhook/route.ts` — HMAC SHA-256 + `applicantReviewed` GREEN → approved
+  - `src/lib/onboarding/kyc-complete.ts` — `markKycComplete()` (server-only, pending→approved seulement)
+  - DB : `Investor.kycStatus`, `KycInquiry` (claim serveur, clé = `applicantId`), `KycEvent` (archive)
 
-### Flow exact (ce qui se passe)
-1. UI onboarding lance le SDK Persona → `onReady(inquiryId)` → **`claimKycInquiry(inquiryId)`**
-   crée une row `KycInquiry { inquiryId, userId }` (le userId vient de la session authentifiée,
-   **jamais** du payload Persona — défense P0-4).
-2. Persona envoie un **webhook signé** (`Persona-Signature: t=<ts>,v1=<hmac>`) à
-   `POST /api/persona/webhook`. HMAC = `SHA256(secret, "<ts>.<rawBody>")`, freshness < 300s.
-3. Le handler résout le userId **depuis `KycInquiry`** (le claim), archive un `KycEvent`,
-   et si status ∈ {`completed`,`approved`} → `markKycComplete()` → `kycStatus: pending → approved`.
+### UI — form custom (zéro Sumsub visible)
 
-### Gardes de sécurité prouvées
-| Garde | Test | Résultat attendu |
+`src/components/onboarding/kyc-document-form.tsx` — composant `KycDocumentForm` :
+- **Select** type document : Passport / National ID card / Driver's license / Residence permit
+  (valeurs Sumsub : `PASSPORT` / `ID_CARD` / `DRIVERS` / `RESIDENCE_PERMIT`)
+- **Select** pays émetteur : liste ISO 3166-1 alpha-3 (GBR, USA, FRA, DEU, CHE, ARE, SGP, HKG…)
+- **Upload** fichier : JPEG, PNG, WebP, HEIC/HEIF, PDF · max 10 MB
+- **Bouton** "Submit for verification"
+- Aucun iframe, aucun CDN `static.sumsub.com`, aucun "Powered by Sumsub", aucun `persona-v5.1.4.js`.
+
+### Flow backend exact
+
+```
+submitKycDocument(formData)          ← server action, session.userId résolu côté serveur
+  │
+  ├─ 1. requireInvestor()            ← userId de la session Auth, jamais du form
+  ├─ 2. createApplicant(userId, "id-only")
+  │       POST /resources/applicants?levelName=id-only
+  │       { externalUserId: userId }
+  │       Idempotent: 409 → getApplicantIdByExternalUserId (matrix-param)
+  │
+  ├─ 3. claimKycInquiry(applicantId) ← P0-4 : lie applicantId→userId avant l'upload
+  │       crée KycInquiry { inquiryId: applicantId, userId }
+  │
+  ├─ 4. uploadIdDoc(applicantId, file)
+  │       POST /resources/applicants/{id}/info/idDoc  (multipart/form-data)
+  │       Parts: "metadata" { idDocType, country } + "content" (bytes bruts)
+  │       HMAC signé sur les BYTES EXACTS du multipart (binaire inclus)
+  │       Retourne X-Image-Id header
+  │
+  └─ 5. requestApplicantCheck(applicantId)  ← best-effort, non-bloquant
+          POST /resources/applicants/{id}/status/pending?reason=docs_sent
+```
+
+**Signature API Sumsub** (`signApiRequest`) :
+```
+X-App-Token       = SUMSUB_APP_TOKEN
+X-App-Access-Ts   = Unix seconds (ts)
+X-App-Access-Sig  = HMAC_SHA256(SUMSUB_SECRET_KEY, ts + METHOD + path + body)  hex
+```
+Pour le multipart, le corps signé = les bytes bruts exacts (image binaire incluse).
+
+**Bug corrigé** : `getApplicantIdByExternalUserId` utilisait `/-/{id}/one` (→ 404).
+Corrigé en `/-;externalUserId={id}/one` (matrix-param Sumsub).
+
+### Webhook — POST /api/sumsub/webhook
+
+```
+Sumsub → POST /api/sumsub/webhook
+  Headers:
+    x-payload-digest      = HMAC_SHA256(SUMSUB_WEBHOOK_SECRET, rawBody)  hex
+    x-payload-digest-alg  = HMAC_SHA256_HEX  (SHA-1/256/512 supportés)
+
+  Payload:
+    { type: "applicantReviewed", applicantId: "...", externalUserId: "...(UNTRUSTED)",
+      reviewResult: { reviewAnswer: "GREEN" | "RED" } }
+```
+
+**Logic** :
+1. `verifyWebhookSignature` (timing-safe) — 401 si invalide.
+2. Résolution userId depuis `KycInquiry.inquiryId = applicantId` (jamais depuis `externalUserId` — P0-4).
+3. Si aucun claim → 200 `unclaimed_inquiry` + `KycEvent` sentinelle (userId=`"unclaimed"`). Pas d'approbation.
+4. Archive `KycEvent` (userId authoritatif depuis le claim).
+5. `type=applicantReviewed` + `reviewAnswer=GREEN` → `markKycComplete()` → `kycStatus: pending → approved`.
+6. `reviewAnswer=RED` → archivé uniquement. Jamais auto-rejeté (admin only).
+
+### Gardes de sécurité prouvées (retest 2026-06-17)
+
+| Garde | Test | Résultat |
 |---|---|---|
-| Signature invalide | webhook avec mauvais `v1` | **HTTP 401** `{"error":"Invalid signature"}` |
-| Inquiry sans claim (P0-4) | webhook signé mais aucun `KycInquiry` | **200** `{"status":"unclaimed_inquiry"}`, **PAS d'approbation** |
-| Rejected terminal (P0-5) | investor `rejected` + webhook `completed` | reste **`rejected`** (jamais ré-approuvé) |
+| Signature invalide | webhook avec mauvais `x-payload-digest` | **HTTP 401** `{"error":"Invalid signature"}` ✅ |
+| Applicant sans claim (P0-4) | webhook signé, aucun `KycInquiry` | **200** `{"status":"unclaimed_inquiry"}`, PAS d'approbation ✅ |
+| Rejected terminal (P0-5) | investor `rejected` + webhook GREEN | reste **`rejected`** (jamais ré-approuvé) ✅ |
+| Upload réel | PASSPORT / GBR uploadé sur Sumsub sandbox | document reçu côté Sumsub dashboard ✅ |
+| webhook GREEN→approved | flow complet retesté | `kycStatus: pending → approved` ✅ |
 
-### Repro (script, serveur dev up sur :4105)
+### Niveaux de vérification disponibles
+
+| Level | Doc | Selfie | Note |
+|---|---|---|---|
+| `id-only` **(actif)** | ✅ | ✗ | Vérifie la pièce, pas la biométrie. Pas d'iframe. |
+| `id-and-liveness` | ✅ | ✅ | KYC fort anti-spoofing. Nécessite le WebSDK (iframe Sumsub). |
+| `idv-and-phone-verification` | ✅ | ✅ | + vérif téléphone. |
+
+Choix actuel = `id-only` (Adrien). Trade-off documenté : vérifie la pièce mais pas la biométrie.
+Passer à `id-and-liveness` = réintroduit le WebSDK / iframe Sumsub (à décider pour la prod).
+
+### Repro (serveur dev up sur :4105, SUMSUB_WEBHOOK_SECRET requis)
+
 ```bash
 # 1. reset état propre
 sqlite3 prisma/dev.db "UPDATE Investor SET kycStatus='pending' WHERE userId='<USERID>'; DELETE FROM KycInquiry; DELETE FROM KycEvent;"
 
-# 2. créer le claim (= ce que claimKycInquiry fait au onReady du SDK)
-INQ="inq_test$(date +%s)"
-sqlite3 prisma/dev.db "INSERT INTO KycInquiry (inquiryId,userId,createdAt) VALUES ('$INQ','<USERID>',datetime('now'));"
+# 2. créer le claim manuellement (= ce que submitKycDocument fait via claimKycInquiry)
+APPID="applicant_test_$(date +%s)"
+sqlite3 prisma/dev.db "INSERT INTO KycInquiry (inquiryId,userId,createdAt) VALUES ('$APPID','<USERID>',datetime('now'));"
 
-# 3. POST webhook signé HMAC (status=completed) — voir le script python complet ci-dessous
-#    secret = $PERSONA_WEBHOOK_SECRET, body = {"data":{"type":"inquiry","id":INQ,"attributes":{"status":"completed"}}}
-#    header Persona-Signature: t=<now>,v1=HMAC_SHA256(secret, "<now>.<rawBody>")
+# 3. POST webhook signé HMAC Sumsub — voir validation-before-live/scripts/kyc-webhook.py
+#    secret = $SUMSUB_WEBHOOK_SECRET
+#    header x-payload-digest = HMAC_SHA256(secret, rawBody) hex
+#    payload = {"type":"applicantReviewed","applicantId":"$APPID","reviewResult":{"reviewAnswer":"GREEN"}}
 
 # 4. vérifier
 sqlite3 prisma/dev.db "SELECT kycStatus FROM Investor WHERE userId='<USERID>';"   # → approved
 ```
-Script de signature : voir `validation-before-live/scripts/kyc-webhook.py` (régénérable, voir §9).
 
-### Tests outillés
+Script de signature Sumsub : voir `validation-before-live/scripts/kyc-webhook.py`
+(⚠️ le script d'origine ciblait l'ancien endpoint Persona — il a été mis à jour pour Sumsub, voir §9).
+
+### Tests outillés (26 tests KYC, 2378/2378 global)
+
 ```bash
-pnpm vitest run src/app/api/persona src/lib/onboarding
-# attendu : tous verts (webhook HMAC, claim, unclaimed, P0-5)
+pnpm vitest run src/app/api/sumsub src/lib/onboarding
+# attendu : 26 tests verts (webhook HMAC, createApplicant, uploadIdDoc,
+#           getApplicantIdByExternalUserId, claimKycInquiry, unclaimed, P0-5)
+pnpm typecheck   # exit 0
 ```
 
 ---
@@ -92,8 +183,8 @@ pnpm vitest run src/app/api/persona src/lib/onboarding
 1. **Accreditation** — `src/app/(product)/onboarding/accreditation/page.tsx` → 3 attestations
    cochées → server action `attestAccreditation()` (`src/app/actions/accreditation.ts`) écrit
    `Investor.accreditationAttestedAt = now()`.
-2. **Identity** — `src/app/(product)/onboarding/identity/page.tsx` → embed Persona
-   (`PersonaEmbed`) OU "Continue to wallet binding" si KYC déjà approved.
+2. **Identity** — `src/app/(product)/onboarding/identity/page.tsx` → form Cockpit custom
+   (`KycDocumentForm`) OU "Continue to wallet binding" si KYC déjà approved.
 3. **Wallet** — `src/app/(product)/onboarding/wallet/page.tsx` → Privy connect (optionnel)
    ou "Continue without wallet" → atterrit sur **`/portfolio`**.
 
@@ -264,19 +355,29 @@ Audit final indépendant (Opus) : **6/6 invariants PASS, 0 régression** (2026-0
 ## 8. TODO avant un VRAI go-live (à ne PAS oublier)
 
 1. **🔴 Remettre `minDeposit` on-chain à 250_000 USDC** — il est actuellement à **1 USDC**
-   (baissé pour la démo). Commande :
+   (abaissé pour la démo testnet). Commande sur Base Sepolia :
    ```bash
    cast send 0x2bd14d52518a04f4c12949c51df03a161a9e329e "setMinDeposit(uint256)" 250000000000 \
      --private-key $DEPLOYER_PRIVATE_KEY --rpc-url https://sepolia.base.org
    ```
-   ⚠️ Sur mainnet, l'owner est un multisig timelocké (pas l'EOA dev).
-2. **Retirer `DEMO_MIN_TICKET_USDC` et `DEV_AUTH_BYPASS`** des env de prod (déjà gated, mais
-   ne jamais les setter sur Vercel prod).
-3. **Mainnet reste gated sur audit Spearbit** (ADR-006) — ce qui précède est **testnet uniquement**.
-4. **Sécurité** : la clé privée du guardian `0x5530...` a transité par un chat de session
+   ⚠️ Sur mainnet, l'owner sera un multisig timelocké (pas l'EOA dev — ADR-006).
+
+2. **🔴 Retirer `DEV_AUTH_BYPASS` et `DEMO_MIN_TICKET_USDC`** des env de prod. Déjà
+   prod-gated (`NODE_ENV !== "production"`) — **ne jamais les setter sur Vercel prod**.
+
+3. **🔴 KYC Sumsub prod** :
+   - Webhook URL Vercel prod = `https://connect.hearst.app/api/sumsub/webhook`
+     (pas le tunnel trycloudflare temporaire utilisé en dev).
+   - `SUMSUB_WEBHOOK_SECRET` doit être setté en prod (`env.ts` hard-throw si absent).
+   - App Token prod = préfixe `prd:` au lieu de `sbx:` (variable `SUMSUB_APP_TOKEN`).
+   - Décider niveau de vérification : `id-only` (actuel, document seul, pas d'iframe)
+     vs `id-and-liveness` (biométrie forte, réintroduit le WebSDK/iframe Sumsub).
+
+4. **🔴 Mainnet contrats gated sur audit Spearbit** (ADR-006) — tout ce qui précède est
+   **Base Sepolia testnet uniquement**. Mainnet deploy = audit complété + remediation.
+
+5. **Sécurité** : la clé privée du guardian `0x5530...` a transité par un chat de session
    (testnet, valeur nulle) — la roter si ce wallet doit un jour gérer de la valeur réelle.
-5. **Persona prod** : configurer template + webhook secret de production + l'allowlist de
-   domaines (le sandbox bloque l'embed sur localhost si le domaine n'est pas dans le Domain Manager).
 
 ---
 
@@ -286,7 +387,8 @@ Audit final indépendant (Opus) : **6/6 invariants PASS, 0 régression** (2026-0
 cd "<repo>"
 # A. Tests (doit être vert)
 pnpm typecheck                                              # exit 0
-pnpm vitest run src/app/admin src/app/actions src/app/api/persona src/lib/onboarding  # tous verts
+pnpm vitest run                                            # suite complète : 2378/2378 (229 fichiers)
+pnpm vitest run src/app/api/sumsub src/lib/onboarding       # scope KYC ciblé : 26 tests
 
 # B. État on-chain (la preuve du dépôt réel — immuable)
 cast call 0x2bd14d52518a04f4c12949c51df03a161a9e329e "totalAssets()(uint256)" --rpc-url https://sepolia.base.org  # ≥ 1000000
@@ -302,4 +404,4 @@ Playwright connue (§3), PAS un bug — la logique est couverte par les tests un
 
 ---
 
-*Généré le 2026-06-17. Commit de réf : `42bd18d`. Validé en dev local + Base Sepolia testnet.*
+*Mis à jour le 2026-06-17. Commit de réf : `42bd18d` (KYC migré Persona → Sumsub custom UI). 2378/2378 tests verts. Validé en dev local + Base Sepolia testnet.*

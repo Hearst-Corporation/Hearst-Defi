@@ -1,23 +1,23 @@
 /**
- * Step 2 — Identity / KYC (Persona when configured).
+ * Step 2 — Identity / KYC.
+ *
+ * Document-only (id-only level) verification through OUR native Cockpit form —
+ * no Sumsub WebSDK, iframe, or CDN asset. The form's server action creates the
+ * Sumsub applicant, binds applicantId→userId server-side (P0-4), uploads the
+ * document over the REST API, and the GREEN/RED verdict lands on the webhook.
  */
 
 import { IdentityChamber } from "@/components/onboarding/identity-chamber";
 import { getSession } from "@/lib/auth/session";
-import {
-  isPersonaConfigured,
-  personaEnvironment,
-} from "@/lib/onboarding/config";
+import { isSumsubConfigured } from "@/lib/onboarding/config";
 import { canProceedToWallet } from "@/lib/onboarding/gates";
 
 export const dynamic = "force-dynamic";
 
 export default async function IdentityPage() {
   const session = await getSession();
-  const referenceId = session?.userId;
-  const personaReady = isPersonaConfigured();
-  const templateId = process.env.NEXT_PUBLIC_PERSONA_TEMPLATE_ID ?? "";
-  const environment = personaEnvironment();
+  const kycVendorReady = isSumsubConfigured();
+
   const mayContinue =
     session?.userId != null
       ? await canProceedToWallet(session.userId)
@@ -25,10 +25,7 @@ export default async function IdentityPage() {
 
   return (
     <IdentityChamber
-      personaReady={personaReady}
-      templateId={templateId}
-      environment={environment}
-      referenceId={referenceId}
+      kycVendorReady={kycVendorReady}
       mayContinue={mayContinue}
       isProduction={process.env.NODE_ENV === "production"}
     />

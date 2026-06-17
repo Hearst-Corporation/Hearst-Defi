@@ -7,8 +7,8 @@ Dossier de **validation pré-go-live** de Hearst Connect. Source de vérité pou
 
 | Fichier | Quoi |
 |---|---|
-| [VALIDATION_BEFORE_LIVE.md](VALIDATION_BEFORE_LIVE.md) | **Le doc principal** : tout ce qui a été testé et prouvé (KYC, onboarding, admin deploy, dépôt on-chain réel, cockpit), les flows exacts, les commandes de repro, les transactions Basescan, les garde-fous prod, et le TODO go-live. |
-| [scripts/kyc-webhook.py](scripts/kyc-webhook.py) | Script de repro du webhook Persona signé HMAC (preuve KYC pending→approved). |
+| [VALIDATION_BEFORE_LIVE.md](VALIDATION_BEFORE_LIVE.md) | **Le doc principal** : tout ce qui a été testé et prouvé (KYC Sumsub custom UI, onboarding, admin deploy, dépôt on-chain réel, cockpit), les flows exacts, les commandes de repro, les transactions Basescan, les garde-fous prod, et le TODO go-live. |
+| [scripts/kyc-webhook.py](scripts/kyc-webhook.py) | Script de repro du webhook **Sumsub** signé HMAC (`x-payload-digest`, `HMAC_SHA256_HEX`) vers `/api/sumsub/webhook`. Prouve KYC pending→approved. ⚠️ L'ancien script Persona est remplacé par ce fichier. |
 | VAULT_WIRING_AUDIT.md | (ajouté après l'audit de câblage vault) — où chaque donnée vault est affichée/calculée, admin + client + engine + on-chain. |
 
 ## Comment l'utiliser

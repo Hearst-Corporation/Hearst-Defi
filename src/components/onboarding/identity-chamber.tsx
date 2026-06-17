@@ -14,19 +14,13 @@ import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
 import { Button } from "@/components/ui/button";
 
 interface IdentityChamberProps {
-  personaReady: boolean;
-  templateId: string;
-  environment: "sandbox" | "production";
-  referenceId?: string;
+  kycVendorReady: boolean;
   mayContinue: boolean;
   isProduction: boolean;
 }
 
 export function IdentityChamber({
-  personaReady,
-  templateId,
-  environment,
-  referenceId,
+  kycVendorReady,
   mayContinue,
   isProduction,
 }: IdentityChamberProps) {
@@ -52,12 +46,8 @@ export function IdentityChamber({
       body={
         <>
           <OnboardingRequirementsList items={checklist} />
-          {personaReady ? (
-            <IdentityStep
-              templateId={templateId}
-              environment={environment}
-              referenceId={referenceId}
-            />
+          {kycVendorReady ? (
+            <IdentityStep />
           ) : (
             <IdentityVendorPanel isProduction={isProduction} />
           )}
@@ -78,7 +68,7 @@ export function IdentityChamber({
                 <Button variant="primary" size="lg" asChild className="w-full">
                   <Link href="/onboarding/wallet">Continue to wallet binding</Link>
                 </Button>
-              ) : personaReady ? (
+              ) : kycVendorReady ? (
                 <p className="body-xs ct-text-faint m-0 text-center" role="status">
                   Launch identity verification above to continue.
                 </p>

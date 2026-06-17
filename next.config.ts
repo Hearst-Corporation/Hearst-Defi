@@ -192,7 +192,9 @@ const nextConfig: NextConfig = {
               "https://*.reown.com",
               "https://sepolia.base.org",
               ...(rpcOrigin === "https://sepolia.base.org" ? [] : [rpcOrigin]),
-              "https://*.withpersona.com",
+              // Sumsub KYC WebSDK — API + applicant data fetches.
+              "https://*.sumsub.com",
+              "wss://*.sumsub.com",
               ...(sentryOrigin ? [sentryOrigin] : []),
             ].join(" ");
             return {
@@ -200,14 +202,14 @@ const nextConfig: NextConfig = {
               value: [
                 "default-src 'self'",
                 // 'unsafe-eval' is required by Next.js 16 Turbopack runtime; cannot be removed without nonce-based CSP.
-                // cdn.withpersona.com loads the Persona KYC SDK (persona-embed.tsx).
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://auth.privy.io https://telemetry.privy.io https://*.privy.io https://cdn.withpersona.com",
-                "style-src 'self' 'unsafe-inline'",
+                // static.sumsub.com loads the Sumsub KYC WebSDK (sumsub-embed.tsx).
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://auth.privy.io https://telemetry.privy.io https://*.privy.io https://static.sumsub.com https://*.sumsub.com",
+                "style-src 'self' 'unsafe-inline' https://*.sumsub.com",
                 "img-src 'self' data: blob: https:",
                 `connect-src ${connectHosts}`,
-                // frame-src: Privy auth + Persona inquiry iframe + DocuSign signing
+                // frame-src: Privy auth + Sumsub KYC iframe + DocuSign signing
                 // (invest/subscribe flows via lib/docusign) + Calendly ops scheduling.
-                "frame-src https://auth.privy.io https://*.privy.io https://verify.walletconnect.com https://verify.walletconnect.org https://secure.walletconnect.org https://*.withpersona.com https://*.docusign.net https://*.docusign.com https://calendly.com",
+                "frame-src https://auth.privy.io https://*.privy.io https://verify.walletconnect.com https://verify.walletconnect.org https://secure.walletconnect.org https://*.sumsub.com https://*.docusign.net https://*.docusign.com https://calendly.com",
                 process.env.NODE_ENV === "production"
                   ? "frame-ancestors 'self'"
                   : "frame-ancestors 'self' http://localhost:4200 http://localhost:4201",
