@@ -54,6 +54,8 @@ describe("Admin roadmap — design contract", () => {
     expect(html).not.toContain("ct-nested-panel");
     expect(html).not.toContain("ct-surface-1 rounded-xl");
     expect(html).not.toContain("border-dashed");
+    expect(html).not.toContain("test-item");
+    expect(html).not.toContain("01-dashboard");
   });
 
   it("empty phases: EmptySurface widget replaces phase list shell", () => {

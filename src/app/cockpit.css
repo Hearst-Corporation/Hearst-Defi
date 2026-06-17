@@ -929,12 +929,19 @@
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4);
   min-height: 12rem;
-  padding: var(--ct-space-8) var(--ct-space-5);
+  padding: var(--ct-space-6) var(--ct-space-5) var(--ct-space-8);
   text-align: center;
+}
+
+.scenario-lab-output-idle__status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-3);
 }
 
 .scenario-lab-input-footer {
@@ -1212,6 +1219,34 @@
   height: 100%;
 }
 
+.projection-studio-output-placeholder {
+  text-align: left;
+  justify-content: flex-start;
+  gap: var(--ct-space-5);
+  min-height: 0;
+  padding: 0 0 var(--ct-space-5);
+}
+
+.scene-placeholder-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ct-space-4);
+  padding-inline: var(--ct-space-5);
+}
+
+.scene-placeholder-metrics__cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  min-width: 0;
+}
+
+@container projection-shell (max-width: 41.999rem) {
+  .scene-placeholder-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
 .projection-studio-output-content {
   display: flex;
   min-height: 0;
@@ -1297,6 +1332,9 @@
 /* Admin cards — denser padding tier; global .ct-card uses space-5/6 for LP surfaces. */
 .admin-doc .ct-card:not(.p-0) {
   padding: var(--ct-space-5);
+  transition:
+    border-color var(--ct-dur-fast),
+    box-shadow var(--ct-dur-fast);
 }
 
 /* KPI strip — dense grid inside Card / ct-glass-panel (ADR-013 canon). */
@@ -1885,10 +1923,15 @@
   transform: translateZ(0);
 }
 
-/* Idle / zero allocation — awaiting shell, not an active allocation view. */
+/* Idle / zero allocation — neutral awaiting shell, not an active green arc. */
 .dashboard-orbit__ring--idle {
-  background: color-mix(in srgb, var(--ct-accent) 36%, var(--ct-surface-3));
+  background: conic-gradient(var(--ct-surface-3) 0% 100%);
   filter: none;
+}
+
+.dashboard-orbit__visual:has(.dashboard-orbit__ring--idle) .dashboard-orbit__track {
+  border-color: color-mix(in srgb, var(--ct-border-soft) 90%, transparent);
+  opacity: 0.85;
 }
 
 .dashboard-orbit__core {
@@ -2338,7 +2381,19 @@
 /* Flat list row inside a week Card — no nested graphite shell */
 .ct-roadmap-item-row {
   min-width: 0;
-  padding: var(--ct-space-4) 0;
+  padding: var(--ct-space-5) 0;
+}
+
+/* Sticky phase band — keeps sprint context while scrolling long roadmap */
+.ct-roadmap-phase-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--ct-z-raised);
+  margin-bottom: var(--ct-space-1);
+  padding: var(--ct-space-2) 0 var(--ct-space-3);
+  background: color-mix(in srgb, var(--ct-bg-deep) 88%, transparent);
+  backdrop-filter: var(--ct-blur-lg);
+  -webkit-backdrop-filter: var(--ct-blur-lg);
 }
 
 /* Accent rail (border-l only) — highlighted inline row inside a parent card */
@@ -2955,18 +3010,18 @@ button.ct-seg-btn {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  /* Effets de lueurs ambiantes vertes plus intenses (Spatial Computing glow) */
+  /* Ambient green blooms — toned down so panels stay primary. */
   background:
     radial-gradient(
       80% 60% at 50% 60%,
-      color-mix(in srgb, var(--ct-accent) 20%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 8%, transparent) 45%,
+      color-mix(in srgb, var(--ct-accent) 16%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 6%, transparent) 45%,
       transparent 80%
     ),
     radial-gradient(
       120% 80% at 80% 20%,
-      color-mix(in srgb, var(--ct-accent) 15%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 5%, transparent) 55%,
+      color-mix(in srgb, var(--ct-accent) 12%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 4%, transparent) 55%,
       transparent 80%
     ),
     linear-gradient(
@@ -2974,8 +3029,8 @@ button.ct-seg-btn {
       color-mix(in srgb, var(--ct-bg-deep) 12%, transparent) 0%,
       color-mix(in srgb, var(--ct-bg-deep) 28%, transparent) 100%
     );
-  opacity: 1; /* Transparence retirée pour faire ressortir le vert */
-  mix-blend-mode: screen; /* Fait exploser les couleurs claires (glow) par-dessus l'image de fond */
+  opacity: 0.82;
+  mix-blend-mode: soft-light;
 }
 
 /* Le dashboard reçoit la MÊME lumière de fond que les pages produit (PNG +
@@ -3051,17 +3106,20 @@ button.ct-seg-btn {
 }
 
 .ct-rail-intra[data-rail="investor"] .ct-rail-item-active {
+  color: var(--ct-accent);
   background: transparent;
   border-color: transparent;
   box-shadow: none;
-  color: var(--ct-accent);
+}
+
+.ct-rail-intra[data-rail="investor"] .ct-rail-item-active::before {
+  content: none;
 }
 
 .ct-rail-intra[data-rail="investor"] .ct-rail-item-active:hover {
+  color: var(--ct-accent);
   background: transparent;
   border-color: transparent;
-  box-shadow: none;
-  color: var(--ct-accent);
 }
 
 
@@ -3098,15 +3156,26 @@ button.ct-seg-btn {
 
 .ct-rail-item-active {
   color: var(--ct-accent);
-  background: transparent;
-  border-color: transparent;
+  background: color-mix(in srgb, var(--ct-accent) 9%, transparent);
+  border-color: color-mix(in srgb, var(--ct-accent) 24%, transparent);
   box-shadow: none;
+}
+
+.ct-rail-item-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 2px;
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-accent);
 }
 
 .ct-rail-item-active:hover {
   color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
-  border-color: transparent;
+  background: color-mix(in srgb, var(--ct-accent) 12%, transparent);
+  border-color: color-mix(in srgb, var(--ct-accent) 28%, transparent);
   box-shadow: none;
 }
 
@@ -3460,7 +3529,13 @@ html[data-rail-mode="expanded"] .ct-rail-toggle {
 
 /* Admin operator surfaces — denser inset (rails + chat compress centre vs LP). */
 .ct-page-area:has(.admin-doc) {
-  padding: var(--ct-space-4) var(--ct-space-4) var(--ct-space-6);
+  padding: var(--ct-space-4) var(--ct-space-5) var(--ct-space-6);
+}
+
+/* Product investor surfaces — no sub-nav; extra top inset aligns rhythm with admin. */
+.ct-page-area:has(.product-doc) {
+  padding-top: var(--ct-space-8);
+  padding-inline: var(--ct-space-5);
 }
 .ct-embed-overlay                          { padding: var(--ct-space-6); }
 .ct-embed-sub code                         { padding: 1px 6px; }

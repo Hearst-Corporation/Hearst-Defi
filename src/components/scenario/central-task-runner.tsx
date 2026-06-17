@@ -219,7 +219,7 @@ export function CentralTaskRunner({
             ))}
           </ol>
         ) : (
-          <p className="body-sm ct-text-muted m-0">Aucune execution en cours.</p>
+          <p className="body-sm ct-text-muted m-0">No execution in progress.</p>
         )}
       </div>
     </Card>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
-import { ADMIN_SECTIONS } from "@/components/nav/product-nav-items";
+import { ADMIN_SECTIONS, visibleSubNavTabs } from "@/components/nav/product-nav-items";
 import { cn } from "@/lib/cn";
 import { withAdminVaultQuery } from "@/lib/vaults/dashboard-scope";
 
@@ -30,10 +30,12 @@ export function AdminSubNav() {
   );
 
   if (!section) return null;
-  if (section.tabs.length <= 1) return null;
+
+  const tabs = visibleSubNavTabs(section.tabs);
+  if (tabs.length <= 1) return null;
 
   // Longest matching href wins (so nested routes pick the most specific tab).
-  const activeHref = section.tabs
+  const activeHref = tabs
     .filter((t) => matches(pathname, t.href))
     .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
@@ -42,7 +44,7 @@ export function AdminSubNav() {
       aria-label={`${section.label} sections`}
       className="admin-doc-sub-nav"
     >
-      {section.tabs.map((tab) => {
+      {tabs.map((tab) => {
         const isActive = tab.href === activeHref;
         return (
           <Link

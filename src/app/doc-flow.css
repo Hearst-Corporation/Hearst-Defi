@@ -49,6 +49,7 @@
 
 .admin-doc .admin-doc-shell--roomy {
   gap: var(--ct-space-6);
+  padding-bottom: var(--ct-space-8);
 }
 
 .admin-doc .admin-doc-stack {
@@ -574,6 +575,15 @@
   gap: var(--ct-space-2);
 }
 
+/* Pin action cluster to the H1 row when an eyebrow sits above the title */
+.admin-doc .admin-page-header__main:has(> .eyebrow) ~ .admin-page-header__actions {
+  margin-top: calc(var(--ct-space-2) + var(--ct-text-xs));
+}
+
+.admin-doc .admin-page-header__main:not(:has(> .eyebrow)) ~ .admin-page-header__actions {
+  margin-top: 0;
+}
+
 .admin-doc .admin-page-header__actions--stack {
   flex-direction: column;
   align-items: flex-end;
@@ -626,7 +636,7 @@
   display: flex;
   align-items: center;
   gap: var(--ct-space-1);
-  margin-bottom: var(--ct-space-4);
+  margin-bottom: var(--ct-space-6);
   border-bottom: 1px solid var(--ct-border-soft);
 }
 
@@ -1086,6 +1096,28 @@
   gap: var(--ct-space-2);
 }
 
+/* H1-row alignment (avatar headers keep vertical center on the media block) */
+.product-doc .product-page-header__main:has(> .shrink-0) ~ .product-page-header__actions {
+  align-self: center;
+  margin-top: 0;
+}
+
+.product-doc
+  .product-page-header__main:not(:has(> .shrink-0)):has(
+    .product-page-header__title-stack > :first-child:not(.eyebrow)
+  )
+  ~ .product-page-header__actions {
+  margin-top: calc(var(--ct-space-8) + var(--ct-space-2) + var(--ct-space-1) + var(--ct-text-xs));
+}
+
+.product-doc
+  .product-page-header__main:not(:has(> .shrink-0)):has(.eyebrow):not(
+    :has(.product-page-header__title-stack > :first-child:not(.eyebrow))
+  )
+  ~ .product-page-header__actions {
+  margin-top: calc(var(--ct-space-2) + var(--ct-text-xs));
+}
+
 /* 40rem = --ct-invest-flow-narrow — literal required for @container support */
 @container product-doc (max-width: 40rem) {
   .product-doc .product-page-header__row {
@@ -1096,6 +1128,7 @@
   .product-doc .product-page-header__actions {
     width: 100%;
     justify-content: flex-start;
+    margin-top: 0;
   }
 
   .product-doc .proof-center-section__toolbar {
@@ -1349,17 +1382,24 @@
 }
 
 /* Product select card */
+.product-doc .ct-card:has(.vault-select-card) {
+  display: flex;
+  flex-direction: column;
+}
+
 .product-doc .vault-select-card {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   align-items: stretch;
   gap: var(--ct-space-5);
+  min-height: 100%;
 }
 
 .product-doc .vault-select-card__main {
   display: flex;
   min-width: 0;
-  flex: 1;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: var(--ct-space-4);
 }

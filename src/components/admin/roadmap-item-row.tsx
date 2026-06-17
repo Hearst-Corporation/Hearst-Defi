@@ -87,20 +87,14 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
               ) : null}
               {item.blockers ? <Badge variant="danger">Blocker</Badge> : null}
             </div>
-            <div className="admin-doc-inline-row body-xs ct-text-muted">
-              <span className="mono">{item.id}</span>
-              {item.spec_ref ? (
-                <span className="mono ct-text-faint">· {item.spec_ref}</span>
-              ) : null}
-              {item.validatedBy ? (
-                <span>
-                  · Validated by {item.validatedBy}
-                  {item.validatedAt
-                    ? ` on ${item.validatedAt.toISOString().slice(0, 10)}`
-                    : ""}
-                </span>
-              ) : null}
-            </div>
+            {item.validatedBy && !open ? (
+              <p className="body-xs ct-text-faint m-0">
+                Validated by {item.validatedBy}
+                {item.validatedAt
+                  ? ` · ${item.validatedAt.toISOString().slice(0, 10)}`
+                  : ""}
+              </p>
+            ) : null}
           </div>
         </div>
 
@@ -154,6 +148,11 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
           aria-label={`Edit ${item.label}`}
         >
           <input type="hidden" name="itemId" value={item.id} />
+
+          <p className="body-xs ct-text-faint mono m-0">
+            {item.id}
+            {item.spec_ref ? ` · ${item.spec_ref}` : ""}
+          </p>
 
           <div className="admin-doc-form-grid-2">
             <label className="block body-xs" htmlFor={`${formId}-status`}>

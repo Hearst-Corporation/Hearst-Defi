@@ -18,6 +18,8 @@ export type NavItem = {
   href: string;
   /** Nom de l'icône Lucide React (string pour éviter l'import ici — data only). */
   icon: string;
+  /** Hide from horizontal sub-nav; route stays reachable (operator / dev tools). */
+  hideFromSubNav?: boolean;
 };
 
 /**
@@ -90,7 +92,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       { id: "customers", label: "Investors", href: "/admin/customers", icon: "Users" },
       { id: "agents", label: "Agents", href: "/admin/agents", icon: "Bot" },
       { id: "outreach", label: "Outreach", href: "/admin/outreach", icon: "Send" },
-      { id: "onboarding-test", label: "Onboarding test", href: "/admin/onboarding-test", icon: "ClipboardCheck" },
+      { id: "onboarding-test", label: "Onboarding test", href: "/admin/onboarding-test", icon: "ClipboardCheck", hideFromSubNav: true },
       { id: "feedback", label: "Feedback", href: "/admin/feedback", icon: "MessageSquare" },
     ],
   },
@@ -143,3 +145,8 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     ],
   },
 ];
+
+/** Tabs shown in <AdminSubNav> (operator-only routes may stay out of the strip). */
+export function visibleSubNavTabs(tabs: NavItem[]): NavItem[] {
+  return tabs.filter((tab) => !tab.hideFromSubNav);
+}

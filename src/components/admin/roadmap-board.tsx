@@ -51,7 +51,7 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
             className="admin-doc-stack admin-doc-stack--relaxed"
             aria-label={phase.label}
           >
-            <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline admin-doc-inline-row--loose border-b border-(--ct-border-soft) pb-3">
+            <div className="ct-roadmap-phase-header admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline admin-doc-inline-row--loose border-b border-(--ct-border-soft)">
               <h2 className="h2">{phase.label}</h2>
               <span className="mono tabular body-sm ct-text-muted">
                 {phase.doneCount} / {phase.total}

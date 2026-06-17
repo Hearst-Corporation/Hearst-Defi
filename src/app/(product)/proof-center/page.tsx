@@ -7,7 +7,6 @@ export const dynamic = "force-dynamic";
 import { TriangleAlert } from "lucide-react";
 
 import { ProductPageHeader } from "@/components/connect/product-page-header";
-import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
 import { Card } from "@/components/ui/card";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
@@ -113,26 +112,44 @@ export default async function ProductProofCenterPage({
     (p): UnifiedProof => ({ ...p, source: "paper" }),
   );
 
+  const demoNotice = demo
+    ? DEMO_SANDBOX_DISCLAIMER
+    : showDemoBanner
+      ? "Demo data · Local visual QA — not production"
+      : null;
+  const showNotices = chainConfigured || demoNotice !== null;
+
   return (
     <div className="proof-center-shell">
-      {/* ── Testnet notice ─────────────────────────────────── */}
-      {chainConfigured && (
+      {showNotices ? (
         <div
           role="note"
-          aria-label="Testnet data notice"
+          aria-label="Proof Center notices"
           className="product-doc-callout"
         >
-          <TriangleAlert
-            className="mt-0.5 h-4 w-4 shrink-0 ct-status-warning"
-            aria-hidden
-          />
-          <p className="body-sm ct-text-strong">
-            On-chain proofs are read from a{" "}
-            <strong>test network</strong> — not production mainnet. Addresses,
-            balances, and attestations shown here are test artefacts.
-          </p>
+          {chainConfigured ? (
+            <TriangleAlert
+              className="mt-0.5 h-4 w-4 shrink-0 ct-status-warning"
+              aria-hidden
+            />
+          ) : null}
+          <div className="product-doc-stack product-doc-stack--tight min-w-0">
+            {chainConfigured ? (
+              <p className="body-sm ct-text-strong m-0">
+                On-chain proofs are read from a{" "}
+                <strong>test network</strong> — not production mainnet.
+                Addresses, balances, and attestations shown here are test
+                artefacts.
+              </p>
+            ) : null}
+            {demoNotice ? (
+              <p className="body-sm ct-status-warning m-0 font-medium">
+                {demoNotice}
+              </p>
+            ) : null}
+          </div>
         </div>
-      )}
+      ) : null}
 
       <ProductPageHeader
         eyebrow="Hearst Yield Vault"
@@ -152,12 +169,6 @@ export default async function ProductProofCenterPage({
           />
         }
       />
-
-      {demo ? (
-        <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} />
-      ) : showDemoBanner ? (
-        <DemoDataBanner />
-      ) : null}
 
       {/* ── Proof of Reserves summary ───────────────────────── */}
       <section aria-labelledby="por-heading">

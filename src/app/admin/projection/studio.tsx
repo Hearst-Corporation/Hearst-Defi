@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
 import { Ptai } from "@/components/ui/ptai";
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { ScenePlaceholderMetrics } from "@/components/ui/scene-placeholder-metrics";
 import { cn } from "@/lib/cn";
 import {
   runProjectionStudy,
@@ -562,12 +562,23 @@ export function ProjectionStudio() {
       <div ref={outputRef} className="projection-studio-output">
         <Card hoverOverlay={false} className={cn("projection-studio-output-stage", result && "projection-studio-output-stage--filled")}>
           {!result && (
-            <AwaitingMetricState
-              variant="inline"
-              className="h-full"
-              message="Projection scene ready"
-              detail="Configure inputs and run a scenario or batch to populate APY range, risk score and PTAI impact."
-            />
+            <div
+              className="scenario-lab-output-idle projection-studio-output-placeholder"
+              role="status"
+              aria-label="Projection output — awaiting first run"
+            >
+              <div className="projection-studio-output-head">
+                <div>
+                  <p className="eyebrow ct-text-muted">Result scene</p>
+                  <h3 className="h3 ct-text-strong mt-1">Projection output</h3>
+                </div>
+              </div>
+              <ScenePlaceholderMetrics />
+              <p className="body-xs ct-text-faint m-0 px-5">
+                Configure inputs and run a scenario or batch to populate APY
+                range, risk score, and PTAI impact.
+              </p>
+            </div>
           )}
 
           {result && (

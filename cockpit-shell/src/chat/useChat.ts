@@ -174,7 +174,8 @@ function makeChatEventSplitter(onEvent: (event: ChatStreamEvent) => void) {
 const WELCOME_MSG: DisplayMessage = {
   id: "welcome",
   role: "assistant",
-  content: "Bonjour ! Je suis l'assistant Hearst Connect. Comment puis-je vous aider aujourd'hui ?",
+  content:
+    "Hearst Connect assistant — ask about portfolio, vaults, proofs, or navigation. I can guide you; I cannot execute transactions.",
   createdAt: 0,
 };
 

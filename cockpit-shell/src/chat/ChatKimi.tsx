@@ -250,7 +250,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           ref={textareaRef}
           className="ct-chat-input"
           rows={2}
-          placeholder="Message à l'assistant…"
+          placeholder="Message the assistant…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -260,7 +260,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           type="submit"
           className="ct-chat-send"
           disabled={!input.trim() || streaming}
-          aria-label="Envoyer"
+          aria-label="Send message"
           style={input.trim() && !streaming ? { background: accent } : undefined}
         >
           {streaming ? (

@@ -9,7 +9,7 @@
 }
 
 .legal-body {
-  flex: 1 0 auto;
+  flex: 0 1 auto;
 }
 
 .legal-header {
@@ -105,7 +105,7 @@
 }
 
 .legal-footer {
-  margin-top: auto;
+  margin-top: var(--ct-space-10);
   padding-top: var(--ct-space-6);
   border-top: 1px solid var(--ct-border-soft);
 }

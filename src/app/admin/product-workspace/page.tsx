@@ -598,6 +598,14 @@ export default async function ProductWorkspacePage({
           ))}
         </div>
       </section>
+
+      <footer className="admin-doc-footer-rule">
+        <p className="body-xs ct-text-faint ct-prose-xl m-0">
+          Documentation-only surface — no vault creation, allocations, or
+          approvals. Scenario validation belongs in Scenario Lab; paste outputs
+          here as supporting evidence.
+        </p>
+      </footer>
     </div>
   );
 }

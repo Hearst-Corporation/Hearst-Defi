@@ -10,7 +10,14 @@
 .prof-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  align-items: stretch;
   gap: var(--ct-space-4);
+}
+
+.prof-grid > * {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
 .prof-security-card {

@@ -25,6 +25,7 @@ describe("Scenario Lab empty states — design contract", () => {
     );
     expect(html).toContain("scenario-lab-output-card");
     expect(html).toContain("scenario-lab-output-idle");
+    expect(html).toContain("scene-placeholder-metrics");
     expect(html).not.toContain("ct-empty-surface");
     expect(html).not.toMatch(
       /scenario-lab-output-card[\s\S]*ct-card[\s\S]*ct-empty-surface/,

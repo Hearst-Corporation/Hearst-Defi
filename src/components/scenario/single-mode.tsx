@@ -9,6 +9,7 @@ import { Spinner } from "@/components/scenario/scenario-spinner";
 import { CentralTaskRunner } from "@/components/scenario/central-task-runner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ScenePlaceholderMetrics } from "@/components/ui/scene-placeholder-metrics";
 import { cn } from "@/lib/cn";
 import { useScenario } from "@/hooks/use-scenario";
 import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
@@ -178,12 +179,20 @@ export function SingleMode({
                 role="status"
                 aria-label="Scenario output — awaiting first run"
               >
-                {pending ? <Spinner className="ct-text-strong" /> : null}
-                <p className="body-sm ct-text-muted m-0">
-                  {pending
-                    ? "Computing…"
-                    : "Select a preset or adjust sliders, then press Run scenario to see projections."}
-                </p>
+                {pending ? (
+                  <div className="scenario-lab-output-idle__status">
+                    <Spinner className="ct-text-strong" />
+                    <p className="body-sm ct-text-muted m-0">Computing…</p>
+                  </div>
+                ) : (
+                  <>
+                    <ScenePlaceholderMetrics className="w-full" />
+                    <p className="body-sm ct-text-muted m-0">
+                      Select a preset or adjust sliders, then press Run scenario
+                      to see projections.
+                    </p>
+                  </>
+                )}
               </div>
             )}
           </Card>
