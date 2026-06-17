@@ -11,11 +11,13 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 
 ## Source of truth (read before any feature work)
 
+- **Agent routing**: `AGENTS.md` (keystone) → per-domain `docs/*_CONTEXT.md`, `docs/DO_NOT_TOUCH.md`,
+  `docs/OWNERSHIP_MATRIX.md`, `docs/COMMON_TASKS.md`, `docs/SYSTEM_MAP.md`. Scoped Cursor rules in `.cursor/rules/`.
 - **Product spec**: `/docs/spec/*.mdx` — read the relevant spec file before coding
 - **Methodology**: `/docs/methodology/v1.0.md` — immutable once published, bump version if change needed
-- **Roadmap**: `/docs/roadmap.json` + `/admin/roadmap` UI — use as planning context for major feature work, not as a blocker for active UI calibration / fix-forward passes
+- **Roadmap**: `/docs/roadmap.json` + `/admin/roadmap` UI — planning context for major feature work, not a blocker for active UI calibration / fix-forward passes
 - **Decisions**: `/docs/decisions/ADR-*.md` — Architecture Decision Records, append-only
-- **Design system** (copie locale éditable) : le DS Cockpit est dé-vendoré dans `cockpit-shell/` (composants + `tokens.css`) — cascade `cockpit-shell/tokens.css` → `src/app/cockpit.css` → `src/app/globals.css`. Éditable librement ici (tokens `--ct-*`, CSS, composants) : pas de package figé, pas de source centrale, pas de resync. Doc : `/docs/DESIGN_SYSTEM.md` + guidelines dans `README.md` § Design system. Préférer tokens/primitives existants. Le package `packages/ds` (`@ds/core`) a été retiré — ne pas réintroduire un second namespace `--ds-*`. Un seul vert : `--ct-accent` #A7FB90.
+- **Design system** (copie locale éditable) : DS Cockpit dé-vendoré dans `cockpit-shell/` (composants + `tokens.css`) — cascade `cockpit-shell/tokens.css` → `src/app/cockpit.css` → `src/app/globals.css`. Éditable librement (tokens `--ct-*`, CSS, composants) : pas de package figé, pas de source centrale. **Un seul vert : `--ct-accent` #A7FB90**, pas de namespace `--ds-*`. Docs : `docs/DESIGN_SYSTEM.md` + `docs/CSS_INDEX.md` (carte de la cascade).
 - **Plan source**: `/Users/adrienbeyondcrypto/.claude/plans/tu-es-claude-opus-functional-eich.md`
 
 ## Non-negotiables (CI enforces most)
@@ -73,19 +75,19 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 - Tailwind CSS v4 (no `tailwind.config.js`, theme in `globals.css` `@theme` block)
 - Prisma + Postgres (Supabase in production, SQLite for local dev — `DATABASE_URL=file:./prisma/dev.db`)
 - Inngest for jobs and crons (V1)
-- LLM provider: **OpenAI GPT-4.1** (`openai@6.x` SDK, `OPENAI_API_KEY`). Single model for all 4 agents + cockpit chat — **ADR-011** (decided 2026-06-11, supersedes ADR-007 / Kimi-via-Hypercli, retired). No Anthropic SDK in this codebase.
-- Foundry for smart contracts (Phase 2+)
-- Package manager: **pnpm** (workspace declared in `pnpm-workspace.yaml`)
-- Path alias: `@/*` → `./src/*`
+- LLM provider: **OpenAI GPT-4.1** (`openai` SDK, `OPENAI_API_KEY`). Single model for all 4 agents + cockpit chat — **ADR-011** (supersedes ADR-007 / Kimi-via-Hypercli, retired). No Anthropic SDK. Exports named `kimi`/`KIMI_*` are legacy aliases that resolve to OpenAI — do not "fix".
+- Foundry for smart contracts (Phase 2+, Base Sepolia testnet — mainnet gated on Spearbit)
+- Package manager: **pnpm** (workspace in `pnpm-workspace.yaml`)
+- Path alias: `@/*` → `./src/*`; shell alias `@hearst/cockpit-shell` → `./cockpit-shell/src` (tsconfig + vitest, not node_modules)
 
 ## Common commands
 
 ```bash
 pnpm dev                  # Next dev server (Turbopack root pinned in next.config.ts)
 pnpm build                # Production build
-pnpm start                # Run built app
-pnpm lint                 # next lint (eslint-config-next + TS rules; no-any is error)
-pnpm typecheck            # tsc --noEmit
+pnpm typecheck            # tsc --noEmit  (the real gate — lint is `eslint src || true`, advisory)
+pnpm test                 # vitest run  (~2400 tests under src/**/__tests__/)
+pnpm test:e2e             # Playwright
 
 pnpm db:generate          # prisma generate
 pnpm db:push              # prisma db push (schema → SQLite dev.db, no migration history)
@@ -93,99 +95,49 @@ pnpm db:migrate           # prisma migrate dev (create + apply named migration)
 pnpm db:studio            # Prisma Studio GUI
 ```
 
-**Test runner: Vitest 4 is wired.** `pnpm test` runs `vitest run`; config and setup live at the repo
-root. ~185 test files / ~2171 tests under `src/**/__tests__/`. End-to-end tests run via Playwright
-(`pnpm test:e2e`). Do not re-add or re-configure either runner.
+Test runner (Vitest 4) and Playwright are wired — do not re-add or re-configure either.
 
-## Architecture — big picture
+## Architecture
 
-The repo today is a Next.js 16 App Router project with one product page (`/`) and a working **admin
-console** (`/admin/*`). The product surfaces (Dashboard, Scenario Lab, Proof Center, Investor Memo)
-and the engine/agents/contracts described in the plan are not yet built — they live in
-`/docs/spec/*.mdx` and the roadmap.
+The product is built out, not a skeleton: investor cockpit (`src/app/(product)/*` — portfolio, vaults,
+proof-center, profile) + admin console (`src/app/admin/*`, ~20 sections) on the 3-column Cockpit shell;
+the pure engine (`src/lib/engine/*`), the 4 GPT-4.1 batch agents + LP Master Agent (`src/lib/agents/*`,
+`src/lib/llm/*`), Inngest jobs, and the Base Sepolia contracts (`contracts/*`) all exist. Prod DB =
+Supabase Postgres (~50 Prisma tables); file storage = Supabase Storage (`reports` bucket).
 
-### Layers that exist
-
-- **`src/app/`** — App Router routes. `layout.tsx` loads Geist fonts and `globals.css`; Server
-  Components are the default. `src/app/admin/` has its own sticky-header layout and three pages:
-  `roadmap`, `spec`, `feedback`.
-- **`src/lib/`** — server-side data access and shared types.
-  - `db.ts` — global Prisma client singleton (cached on `globalThis` in dev to survive HMR).
-  - `roadmap.ts` (server-only via `import "server-only"`) — reads `docs/roadmap.json` from disk,
-    joins it with `RoadmapValidation` rows from Prisma, returns a derived
-    `RoadmapPhaseWithState` tree with rollups.
-  - `roadmap-types.ts` — pure types + label/symbol/variant helpers. Safe to import from client
-    components; deliberately split from `roadmap.ts` to keep `server-only` out of client bundles.
-  - `spec.ts` — reads MDX from `docs/spec/`, parses frontmatter with `gray-matter`, exposes
-    `getSpecIndex()` / `getSpecDoc(slug)`.
-  - `cn.ts` — `clsx` + `tailwind-merge` helper. Use this for every conditional className.
-- **`src/components/ui/`** — atomic primitives (`Card`, `Metric`, `Badge`, `ProvenanceBadge`,
-  `Button`, `Progress`). Tailwind v4 styled via CSS vars in `globals.css`.
-- **`src/components/admin/`** — admin-specific composites (`RoadmapItemRow`, `FeedbackForm`,
-  `FeedbackList`, `Markdown`, `StatusPill`).
-- **`prisma/schema.prisma`** — 11 MVP tables grouped into: vault state (`VaultSnapshot`,
-  `Allocation`), mining (`MiningMetric`), scenarios/backtests, events (`RebalanceEvent`,
-  `Distribution`, `Proof`), reports, and admin (`RoadmapValidation`, `Feedback`). Provider is
-  `sqlite` locally; flip to Postgres in `schema.prisma` + `DATABASE_URL` for production.
-
-### How the admin roadmap flow works (canonical example of the patterns)
-
-1. `docs/roadmap.json` is the static catalog of items, owned by product.
-2. `RoadmapValidation` rows in Prisma hold per-item state (status, evidence URL, notes, blockers).
-3. `getRoadmap()` in `src/lib/roadmap.ts` joins the two and computes per-week/per-phase
-   `total`/`doneCount` rollups (a status is "done-like" if it's `done` or `validated`).
-4. Server Actions in `src/app/admin/roadmap/actions.ts` (`"use server"`) upsert the validation row
-   and call `revalidatePath("/admin/roadmap")`. There is no client-side fetching.
-5. Form data is validated inline (status enum + trimmed strings); no `any`, no `as unknown as`.
-
-Follow this shape — static doc → Prisma overlay → Server Component query → Server Action mutation —
-for any new admin surface.
-
-### Layers planned but not yet implemented
-
-- **`src/lib/engine/`** — pure-function scenario/backtest/risk engine. **Must not** import
-  `prisma`, `fetch`, `Date.now()`, `process.env`, or anything from `src/app/` or `src/components/`.
-  See `.claude/agents/engine-dev.md`.
-- **`src/lib/agents/`** — four LLM agents (Scenario Narrative, Mining Health, Risk
-  Explanation, Investor Memo), all on **OpenAI GPT-4.1** (ADR-011).
-  Structured outputs only, Zod-validated, forbidden-words linter.
-  See `.claude/agents/agent-dev.md` and `/docs/spec/09-agents.mdx`.
-- **`contracts/`** — Foundry project: Phase 2 `EventLogger.sol` + `PoRRegistry.sol` on Base
-  Sepolia, Phase 3 audited ERC-4626 vault. See `.claude/agents/sc-dev.md`.
+- **Mental model & where things live**: `docs/SYSTEM_MAP.md` (3 layers, auth model, data triad, nav systems).
+- **Who owns what / where to start / what not to touch**: `AGENTS.md` → `docs/OWNERSHIP_MATRIX.md`,
+  `docs/DO_NOT_TOUCH.md`, the per-domain `docs/*_CONTEXT.md`, and `docs/COMMON_TASKS.md` recipes.
+- **Canonical mutation pattern** (any admin surface): static doc/data → Prisma overlay → Server Component
+  query → Server Action (`requireAdmin` → rate-limit → Zod → mutate in `$transaction` → audit →
+  `revalidatePath`). There is no client-side data fetching. Detail in `docs/BACKEND_CONTEXT.md`.
 
 ## Conventions
 
-- **Server Components by default.** `"use client"` only when interactivity requires it.
-- **No `any`.** No `as unknown as`. If types fight you, fix the model. ESLint enforces this.
-- **No `useEffect` for data fetching** — use Server Components or Server Actions.
-- **Env vars validated by Zod at boot** (`src/lib/env.ts` — to be added).
-- **All routes typed.** Use `next/link` not `<a href>`.
-- **`server-only` import** at the top of any module that touches `fs`/`prisma` and could otherwise
-  leak into a client bundle (see `src/lib/roadmap.ts` for the pattern).
-- **Use `cn()` from `@/lib/cn`** for className merging — never raw template strings with conditional
-  classes.
-- **Dark mode only at MVP.** Colors come from CSS vars in `globals.css`; no `dark:` modifiers.
-- **Tailwind v4 theme** is the single source of design tokens. Don't reintroduce a `tailwind.config.js`.
+- **Server Components by default**; `"use client"` only when interactivity requires it. No `useEffect` for data fetching.
+- **No `any`, no `as unknown as`** — fix the model. **All routes typed**; `next/link`, never `<a href>`.
+- **`server-only`** at the top of any module touching `fs`/`prisma` (see `src/lib/roadmap.ts`).
+- **`cn()` from `@/lib/cn`** for conditional classes — never raw conditional template strings.
+- **Dark mode only.** Colors from `--ct-*` CSS vars (`cockpit.css` is the live value, `tokens.css` the base); no `dark:` modifiers; no `tailwind.config.js`.
+- **Env vars validated by Zod at boot** in `src/lib/env.ts`.
+
+Per-domain conventions and invariants live in the `docs/*_CONTEXT.md` bundles + `.cursor/rules/`.
 
 ## Sub-agents available
 
-The repo ships four specialist agents under `.claude/agents/` (invoke via `Agent` with the
-`subagent_type` matching the name). Each one carries its own scope, file ownership, and
-"forbidden" list:
+Four specialist agents under `.claude/agents/` (invoke via `Agent` with the matching `subagent_type`);
+each carries its own scope, file ownership, and "forbidden" list, stricter than this file:
 
 - **`engine-dev`** — owns `src/lib/engine/*`. Refuses UI work and any I/O inside engine code.
-- **`agent-dev`** — owns `src/lib/agents/*`. Enforces structured outputs, single-model pinning
-  (OpenAI GPT-4.1 — ADR-011). OpenAI applies automatic prompt caching for prompts >1024 tokens.
+- **`agent-dev`** — owns `src/lib/agents/*`. Structured outputs, single-model pinning (OpenAI GPT-4.1, ADR-011).
 - **`sc-dev`** — owns `contracts/*`. Foundry only, OpenZeppelin primitives, phased rollout.
-- **`ui-dev`** — owns `src/app/*` and `src/components/*`. Refuses business logic outside the
-  engine.
+- **`ui-dev`** — owns `src/app/*` and `src/components/*`. Refuses business logic outside the engine.
 
-Use them whenever the task is squarely inside one of those scopes; their constraints are stricter
-than this file and act as the local source of truth for those directories.
+For task→file routing and STOP conditions per role, see `AGENTS.md` and `.cursor/rules/*.mdc`.
 
 ## Before major feature work
 
-1. Read the related `/docs/spec/*.mdx`
+1. Read the related `/docs/spec/*.mdx` + the matching `docs/*_CONTEXT.md`
 2. Check `/admin/roadmap` if the work is roadmap-driven
 3. Code
 4. Update roadmap status only when the change is actually tied to a roadmap item
