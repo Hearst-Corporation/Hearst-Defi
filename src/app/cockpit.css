@@ -1604,7 +1604,7 @@
 .dashboard-command-row-a--hero {
   position: relative;
   gap: 0;
-  min-height: 16rem;
+  min-height: 13.5rem;
 }
 
 .dashboard-hero-card__analytics {
@@ -1637,7 +1637,7 @@
 
 .dashboard-hero-card__slot--nav .dashboard-nav-bars {
   flex: 1 1 auto;
-  min-height: 10rem;
+  min-height: 7.5rem;
   height: auto;
   margin-top: 0;
 }
@@ -2119,129 +2119,129 @@
   color: var(--ct-text-strong);
 }
 
-/* ── Vault Vitals ring (capital + composite risk) ─────────────────────────── */
-.dashboard-vitals-hero__ring {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--ct-space-7) var(--ct-space-6);
-}
-
-/* ── VaultVitalsRing component ─────────────────────────────────────────────── */
-.vault-vitals-ring {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--ct-space-3);
-  width: 100%;
-  max-width: 14rem;
-}
-
-.vault-vitals-ring__visual {
-  position: relative;
-  width: 12rem;
-  height: 12rem;
-  flex-shrink: 0;
-}
-
-.vault-vitals-ring__svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-  overflow: visible;
-}
-
-.vault-vitals-ring__core {
-  position: absolute;
-  inset: 24%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ct-space-0_5);
-  text-align: center;
-  z-index: 10;
-}
-
-.vault-vitals-ring__aum-label {
-  color: var(--ct-text-muted);
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-bold);
-  letter-spacing: var(--ct-tracking-wide);
-  line-height: var(--ct-leading-none);
-  text-transform: uppercase;
-}
-
-.vault-vitals-ring__aum {
-  color: var(--ct-text-strong);
-  font-size: var(--ct-text-xl);
-  font-weight: var(--ct-font-bold);
-  letter-spacing: var(--ct-tracking-tight);
-  line-height: var(--ct-leading-none);
-}
-
-.vault-vitals-ring__aum-sub {
-  color: var(--ct-text-muted);
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
-  letter-spacing: var(--ct-tracking-wide);
-  line-height: var(--ct-leading-none);
-  text-transform: uppercase;
-}
-
-.vault-vitals-ring__awaiting-icon {
-  color: var(--ct-text-faint);
-  font-size: var(--ct-text-xl);
-  font-weight: var(--ct-font-bold);
-  line-height: var(--ct-leading-none);
-}
-
-.vault-vitals-ring__awaiting-label {
-  color: var(--ct-text-faint);
-  font-size: var(--ct-text-micro);
-  letter-spacing: var(--ct-tracking-wide);
-  line-height: var(--ct-leading-tight);
-  text-transform: uppercase;
-  text-align: center;
-  max-width: 6rem;
-}
-
-.vault-vitals-ring__caption {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  text-align: center;
-  line-height: var(--ct-leading-snug);
-}
-
-.vault-vitals-ring__awaiting-caption {
-  color: var(--ct-text-faint);
-  font-size: var(--ct-text-xs);
-  font-style: italic;
-}
-
-.vault-vitals-ring__separator {
-  color: var(--ct-text-faint);
-}
-
-.vault-vitals-ring__meta {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-3);
-}
-
-.vault-vitals-ring__disclaimer {
-  color: var(--ct-text-faint);
-  font-size: var(--ct-text-micro);
-  font-style: italic;
-  letter-spacing: var(--ct-tracking-wide);
-  text-transform: uppercase;
-}
-
 /* ── Risk zone (full-width waterfall below ops) ─────────────────────────────── */
 .dashboard-risk-zone {
-  margin-top: var(--ct-space-8);
+  margin-top: var(--ct-space-6);
+}
+
+.dashboard-risk-summary {
+  min-width: 0;
+}
+
+.dashboard-risk-summary__body {
+  display: grid;
+  gap: var(--ct-space-5);
+}
+
+.dashboard-risk-summary__overview {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.dashboard-risk-summary__hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ct-space-4);
+  margin-bottom: var(--ct-space-5);
+}
+
+.dashboard-risk-summary__headline {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
+.dashboard-risk-summary__headline-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ct-space-2);
+}
+
+.dashboard-risk-summary__value {
+  letter-spacing: var(--ct-tracking-tight);
+}
+
+.dashboard-risk-summary__blurb {
+  max-width: 32rem;
+  line-height: var(--ct-leading-relaxed);
+}
+
+.dashboard-risk-summary__grid {
+  display: grid;
+  gap: var(--ct-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.dashboard-risk-summary__item {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-3_5);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-xl);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-surface-1) 20%, transparent) 0%,
+      transparent 100%
+    );
+}
+
+.dashboard-risk-summary__item-top {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+}
+
+.dashboard-risk-summary__item-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.dashboard-risk-summary__score {
+  flex-shrink: 0;
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-none);
+}
+
+.dashboard-risk-summary__progress {
+  height: var(--ct-space-2);
+}
+
+.dashboard-risk-summary__footnote {
+  max-width: 32rem;
+  padding-top: var(--ct-space-4);
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 72%, transparent);
+}
+
+.dashboard-risk-summary__empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-4) 0 var(--ct-space-2);
+}
+
+@container dash-board (min-width: 48rem) {
+  .dashboard-risk-summary__body {
+    grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .dashboard-risk-summary__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* CSS bar chart for NAV series. */
@@ -2456,7 +2456,7 @@
   }
 
   .dashboard-command-row-a--hero {
-    min-height: 17rem;
+    min-height: 14.5rem;
   }
 
   .dashboard-hero-card__slot--nav .dashboard-nav-bars {

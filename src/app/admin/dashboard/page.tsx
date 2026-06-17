@@ -1,6 +1,5 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DashboardAssetsBoard } from "@/components/admin/dashboard";
-import { VaultTransition } from "@/components/admin/dashboard/vault-transition";
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { PanelStatusAccent } from "@/components/ui/panel-status";
 import {
@@ -30,7 +29,7 @@ function DashboardDataNoticeBanner({
   if (notice.kind === "staging") {
     return (
       <PanelStatusAccent
-        className="items-stretch border-l-(--ct-status-warning) mb-[var(--ct-space-4)]"
+        className="items-stretch border-l-(--ct-status-warning) mb-(--ct-space-4)"
         role="note"
       >
         <div className="admin-doc-stack admin-doc-stack--tight">
@@ -57,7 +56,7 @@ function DashboardDataNoticeBanner({
 
   return (
     <PanelStatusAccent
-      className="items-stretch border-l-(--ct-status-warning) mb-[var(--ct-space-4)]"
+      className="items-stretch border-l-(--ct-status-warning) mb-(--ct-space-4)"
       role="note"
     >
       <div className="admin-doc-stack admin-doc-stack--tight">
@@ -108,22 +107,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <DashboardDataNoticeBanner notice={notice} />
       ) : null}
 
-      <VaultTransition vaultId={data.vaultMeta.id}>
-        <DashboardAssetsBoard
-          data={page.data}
-          risk={risk}
-          proof={overview.proof}
-          totalActionRequired={overview.totalActionRequired}
-          capitalUsdc={page.capitalUsdc}
-          capitalProvenance={page.capitalProvenance}
-          headlineApy={page.headlineApy}
-          hasLiveKpis={page.hasLiveKpis}
-          simulated={page.simulated}
-          yieldPosture={page.yieldPosture}
-          proofFresh={page.proofFresh}
-          cockpit={cockpit}
-        />
-      </VaultTransition>
+      <DashboardAssetsBoard
+        data={page.data}
+        risk={risk}
+        proof={overview.proof}
+        capitalUsdc={page.capitalUsdc}
+        capitalProvenance={page.capitalProvenance}
+        headlineApy={page.headlineApy}
+        hasLiveKpis={page.hasLiveKpis}
+        simulated={page.simulated}
+        yieldPosture={page.yieldPosture}
+        proofFresh={page.proofFresh}
+        cockpit={cockpit}
+      />
     </div>
   );
 }

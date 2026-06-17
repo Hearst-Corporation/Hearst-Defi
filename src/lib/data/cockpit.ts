@@ -58,7 +58,15 @@ export interface HeroKpi {
   label: string;
   value: string;
   sublabel: string;
-  provenance: "live" | "oracle" | "attested" | "estimated" | "manual" | "stale";
+  provenance:
+    | "live"
+    | "oracle"
+    | "attested"
+    | "estimated"
+    | "partial"
+    | "manual"
+    | "stale"
+    | "simulated";
   /** true when value represents an alert / degraded state (danger red) */
   alert?: boolean;
   /** true for a positive-attention highlight (brand green accent) — e.g. an
@@ -98,10 +106,6 @@ export interface InngestJob {
   id: string;
   name: string;
   status: InngestJobStatus;
-  /** last run ISO string or null */
-  lastRunAt: string | null;
-  /** error message if status === "err" */
-  errorMsg: string | null;
 }
 
 export interface SentryStats {
@@ -152,10 +156,10 @@ export interface CockpitPayload {
 // ---------------------------------------------------------------------------
 
 const INNGEST_JOB_STUBS: InngestJob[] = [
-  { id: "rebalance", name: "Rebalance signal", status: "unknown", lastRunAt: null, errorMsg: null },
-  { id: "distrib", name: "Distribution", status: "unknown", lastRunAt: null, errorMsg: null },
-  { id: "oracle", name: "Oracle sync", status: "unknown", lastRunAt: null, errorMsg: null },
-  { id: "proof-sync", name: "Proof sync", status: "unknown", lastRunAt: null, errorMsg: null },
+  { id: "rebalance", name: "Rebalance signal", status: "unknown" },
+  { id: "distrib", name: "Distribution", status: "unknown" },
+  { id: "oracle", name: "Oracle sync", status: "unknown" },
+  { id: "proof-sync", name: "Proof sync", status: "unknown" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -184,7 +188,7 @@ async function inferInngestJobs(): Promise<InngestJob[]> {
       "proof-sync": "proof-sync",
     };
 
-    const jobMap = new Map<string, { status: InngestJobStatus; lastRunAt: string; errorMsg: string | null }>();
+    const jobMap = new Map<string, { status: InngestJobStatus }>();
 
     for (const run of recentRuns) {
       const jobId = agentToJob[run.agentName] ?? null;
@@ -193,8 +197,6 @@ async function inferInngestJobs(): Promise<InngestJob[]> {
         run.status === "success" ? "ok" : run.status === "failed" ? "err" : "pending";
       jobMap.set(jobId, {
         status: s,
-        lastRunAt: run.createdAt.toISOString(),
-        errorMsg: run.status === "failed" ? `Last run failed (${run.agentName})` : null,
       });
     }
 

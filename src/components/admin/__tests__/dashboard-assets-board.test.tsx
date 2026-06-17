@@ -111,20 +111,20 @@ function render(
   capitalUsdc: number,
   proof: AdminProofStatus = PROOF,
   hasLiveKpis = false,
+  cockpit: CockpitPayload = COCKPIT,
 ) {
   return renderToStaticMarkup(
     <DashboardAssetsBoard
       data={data}
       risk={RISK}
       proof={proof}
-      totalActionRequired={2}
       capitalUsdc={capitalUsdc}
       capitalProvenance="estimated"
       headlineApy={null}
       yieldPosture="awaiting first snapshot"
       hasLiveKpis={hasLiveKpis}
       proofFresh={false}
-      cockpit={COCKPIT}
+      cockpit={cockpit}
     />,
   );
 }
@@ -190,7 +190,7 @@ describe("DashboardAssetsBoard — command-center layout", () => {
   });
 
 
-  it("keeps proof and admin queue information in the KPI strip; risk is surfaced only in the vault ring", () => {
+  it("keeps proof, risk, and operator queue KPI aligned with the ActionQueue panel", () => {
     const proofWithRecords: AdminProofStatus = {
       ...PROOF,
       proofsTotal: 2,
@@ -204,13 +204,48 @@ describe("DashboardAssetsBoard — command-center layout", () => {
 
     expect(html).not.toContain('href="/admin/proof-center"');
     expect(html).not.toContain('href="/admin/proofs"');
-    // Risk is now carried exclusively by the VaultVitalsRing caption — not as a KPI strip cell.
-    expect(html).not.toContain('aria-label="Risk:');
+    expect(html).toContain('aria-label="Risk:');
     expect(html).toContain(">Proof<");
-    expect(html).toContain(">Admin queues<");
+    expect(html).toContain(">Operator queue<");
+    expect(html).toContain('aria-label="Operator queue: 0"');
     expect(html).toContain(">Stale<");
     expect(html).toContain("Last Jun 12");
-    expect(html).toContain(">2<");
+    expect(html).toContain("All clear — no operator actions queued.");
+  });
+
+  it("operator queue KPI count matches cockpit.actionQueue length", () => {
+    const html = render(
+      makeData({ source: "fallback" }),
+      0,
+      PROOF,
+      false,
+      {
+        ...COCKPIT,
+        actionQueue: [
+          {
+            id: "aq-1",
+            type: "oracle.stale",
+            severity: "P0",
+            title: "Oracle feed stale",
+            context: "7h ago",
+            href: "/admin/monitoring",
+            createdAt: "2026-06-01T12:00:00.000Z",
+          },
+          {
+            id: "aq-2",
+            type: "kyc.review",
+            severity: "P1",
+            title: "KYC review",
+            context: "pending",
+            href: "/admin/customers",
+            createdAt: "2026-06-01T11:00:00.000Z",
+          },
+        ],
+      },
+    );
+
+    expect(html).toContain('aria-label="Operator queue: 2"');
+    expect(html).not.toContain("All clear — no operator actions queued.");
   });
 
   it("renders empty cockpit modules honestly after the vault signal section", () => {
@@ -232,7 +267,6 @@ describe("DashboardAssetsBoard — command-center layout", () => {
         data={makeLiveData()}
         risk={RISK}
         proof={PROOF}
-        totalActionRequired={2}
         capitalUsdc={500_000}
         capitalProvenance="live"
         headlineApy={{ low: 9.4, high: 12.8 }}
@@ -271,8 +305,6 @@ describe("DashboardAssetsBoard — command-center layout", () => {
               id: "job-1",
               name: "sync-oracle",
               status: "ok",
-              lastRunAt: "2026-06-01T12:00:00.000Z",
-              errorMsg: null,
             },
           ],
           auditTrail: [
@@ -289,6 +321,7 @@ describe("DashboardAssetsBoard — command-center layout", () => {
       />,
     );
 
+    expect(html).toContain('aria-label="Operator queue: 1"');
     expect(html).toContain(">Operator queue<");
     expect(html).toContain(">Vault health<");
     expect(html).toContain(">Platform status<");
@@ -296,11 +329,10 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).toContain("dashboard-orbit__svg");
     expect(html).toContain("% mapped");
     expect(html).toContain("dashboard-nav-bars__bar");
-    // Waterfall risk zone is now rendered below ops (full-width)
-    expect(html).toContain("ct-waterfall-svg");
-    // The composite header is suppressed in the risk zone (surfaced in the hero ring instead)
-    expect(html).not.toContain('stat-label">Composite');
-    expect(html).toContain(">Risk Framework<");
+    // Dashboard now uses a compact risk card instead of the broken waterfall SVG.
+    expect(html).not.toContain("ct-waterfall-svg");
+    expect(html).toContain(">Risk posture<");
+    expect(html).toContain(">Medium<");
     expect(html).not.toContain(">Capital stack<");
     expect(html).not.toContain(">Risk lens<");
   });

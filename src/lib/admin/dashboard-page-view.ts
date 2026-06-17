@@ -5,9 +5,9 @@ import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 
 export type DashboardDataNotice =
-  | { kind: "preview"; vaultName: string; assumptions: string[] }
+  | { kind: "preview"; vaultName: string }
   | { kind: "staging"; snapshotSource: string }
-  | { kind: "mixed-platform"; vaultName: string; assumptions: string[] };
+  | { kind: "mixed-platform"; vaultName: string };
 
 function hasPlatformWideSignals(
   data: DashboardData,
@@ -36,7 +36,6 @@ export function resolveDashboardDataNotice(
     return {
       kind: "preview",
       vaultName: data.vaultMeta.name,
-      assumptions: data.vaultMeta.assumptions,
     };
   }
 
@@ -51,7 +50,6 @@ export function resolveDashboardDataNotice(
     return {
       kind: "mixed-platform",
       vaultName: data.vaultMeta.name,
-      assumptions: data.vaultMeta.assumptions,
     };
   }
 

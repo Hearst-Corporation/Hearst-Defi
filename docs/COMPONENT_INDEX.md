@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**195 components** · 0 possible orphans · 2 intentionally unwired.
+**194 components** · 0 possible orphans · 2 intentionally unwired.
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -19,7 +19,7 @@
 | `src/components/admin/admin-page-header.tsx` | AdminPageHeader | 35 |
 | `src/components/admin/agent-template-form.tsx` | AgentTemplateForm | 2 |
 | `src/components/admin/archive-template-button.tsx` | ArchiveTemplateButton | 1 |
-| `src/components/admin/cockpit/action-queue.tsx` | ActionQueue | 1 |
+| `src/components/admin/cockpit/action-queue.tsx` | ActionQueue | 2 |
 | `src/components/admin/cockpit/audit-trail-rolling.tsx` | AuditTrailRolling | 1 |
 | `src/components/admin/cockpit/live-metrics.tsx` | LiveMetrics | 1 |
 | `src/components/admin/cockpit/live-ops.tsx` | LiveOps | 1 |
@@ -32,8 +32,7 @@
 | `src/components/admin/dashboard/assets-board.tsx` | DashboardAssetsBoard | 2 |
 | `src/components/admin/dashboard/kpi-strip.tsx` | DashboardKpiStrip | 1 |
 | `src/components/admin/dashboard/nav-slot.tsx` | NavSlot | 1 |
-| `src/components/admin/dashboard/vault-transition.tsx` | VaultTransition | 1 |
-| `src/components/admin/dashboard/vault-vitals-ring.tsx` | VaultVitalsRing | 1 |
+| `src/components/admin/dashboard/risk-summary-card.tsx` | DashboardRiskSummaryCard | 1 |
 | `src/components/admin/distribution-preview.tsx` | DistributionPreview | 1 |
 | `src/components/admin/feedback-form.tsx` | FeedbackForm | 1 |
 | `src/components/admin/feedback-list.tsx` | FeedbackList | 1 |
@@ -77,7 +76,7 @@
 | `src/components/connect/header-connect.tsx` | HeaderConnect | 1 |
 | `src/components/connect/product-page-header.tsx` | ProductPageHeader | 5 |
 | `src/components/ConnectShell.tsx` | ConnectShell | 1 |
-| `src/components/dashboard/risk-framework.tsx` | RiskFrameworkSection | 9 |
+| `src/components/dashboard/risk-framework.tsx` | RiskFrameworkSection | 10 |
 | `src/components/error/error-shell.tsx` | ErrorShellLayout | 7 |
 | `src/components/error/segment-error.tsx` | SegmentError | 8 |
 | `src/components/error/segment-not-found.tsx` | SegmentNotFound | 1 |
@@ -166,26 +165,26 @@
 | `src/components/simulation/simulation-panel.tsx` | SimulationPanel | 1 |
 | `src/components/ui/apy-range.tsx` | ApyRange | 18 |
 | `src/components/ui/awaiting-metric-state.tsx` | AwaitingMetricState | 13 |
-| `src/components/ui/badge.tsx` | Badge | 50 |
+| `src/components/ui/badge.tsx` | Badge | 51 |
 | `src/components/ui/button.tsx` | Button | 80 |
-| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 72 |
+| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 73 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
 | `src/components/ui/chart-time-selector.tsx` 🔌 | ChartTimeSelector | 0 |
 | `src/components/ui/checkbox.tsx` | Checkbox | 2 |
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
-| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 20 |
+| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 21 |
 | `src/components/ui/empty-surface.tsx` | EmptySurface | 30 |
-| `src/components/ui/error-boundary.tsx` | ErrorBoundary | 2 |
+| `src/components/ui/error-boundary.tsx` | ErrorBoundary | 1 |
 | `src/components/ui/metric.tsx` | Metric | 8 |
 | `src/components/ui/modal.tsx` | Modal | 5 |
 | `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 24 |
 | `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 20 |
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 5 |
-| `src/components/ui/progress.tsx` | Progress | 13 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 54 |
+| `src/components/ui/progress.tsx` | Progress | 14 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 53 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/section-embed.tsx` | SectionEmbedProvider | 1 |

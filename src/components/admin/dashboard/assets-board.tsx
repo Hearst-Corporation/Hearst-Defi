@@ -2,13 +2,15 @@ import { ActionQueue } from "@/components/admin/cockpit/action-queue";
 import { AuditTrailRolling } from "@/components/admin/cockpit/audit-trail-rolling";
 import { LiveMetrics } from "@/components/admin/cockpit/live-metrics";
 import { LiveOps } from "@/components/admin/cockpit/live-ops";
-import { RiskFrameworkSection } from "@/components/dashboard/risk-framework";
 import { Card } from "@/components/ui/card";
-import { ErrorBoundary } from "@/components/ui/error-boundary";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import {
   computeNavDelta,
+  resolveAllocationProvenance,
   resolveApyProvenance,
+  resolveMiningProvenance,
+  resolveNavProvenance,
+  resolveOperatorQueueCount,
   resolveProofProvenance,
   resolveRiskProvenance,
 } from "@/lib/admin/dashboard-board-view";
@@ -25,13 +27,12 @@ import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 import { AllocationOrbit } from "./allocation-orbit";
 import { DashboardKpiStrip } from "./kpi-strip";
 import { NavSlot } from "./nav-slot";
-import { VaultVitalsRing } from "./vault-vitals-ring";
+import { DashboardRiskSummaryCard } from "./risk-summary-card";
 
-export interface DashboardAssetsBoardProps {
+interface DashboardAssetsBoardProps {
   data: DashboardData;
   risk: RiskFrameworkData;
   proof: AdminProofStatus;
-  totalActionRequired: number;
   capitalUsdc: number;
   capitalProvenance: Provenance;
   headlineApy: { low: number; high: number } | null;
@@ -47,7 +48,6 @@ export function DashboardAssetsBoard({
   data,
   risk,
   proof,
-  totalActionRequired,
   capitalUsdc,
   capitalProvenance,
   headlineApy,
@@ -68,8 +68,13 @@ export function DashboardAssetsBoard({
 
   const riskProvenance = resolveRiskProvenance(hasLiveKpis, risk, simulated);
   const apyProvenance = resolveApyProvenance(hasLiveKpis, data.vaultMeta.livePreview, simulated);
-  const miningProvenance: Provenance = simulated ? "simulated" : hasLiveKpis ? "live" : "manual";
+  const miningProvenance = resolveMiningProvenance(
+    hasLiveKpis,
+    data.vaultMeta.livePreview,
+    simulated,
+  );
   const proofProvenance = resolveProofProvenance(proofFresh, proof);
+  const operatorQueueCount = resolveOperatorQueueCount(cockpit.actionQueue);
 
   const heroKpis = buildDashboardHeroKpis({
     capitalUsdc,
@@ -87,16 +92,13 @@ export function DashboardAssetsBoard({
     proofFresh,
     proofProvenance,
     proof,
-    totalActionRequired,
+    operatorQueueCount,
     data,
   });
 
-  // Capital and Risk are both carried by the VaultVitalsRing (Capital at core,
-  // Risk composite as caption) — filter them out of the support strip to avoid
-  // showing each exactly once.
-  const supportKpis = heroKpis.filter(
-    (k) => k.label !== "Capital" && k.label !== "Risk",
-  );
+  // Capital already lives in the allocation donut core; keep Risk in the strip
+  // so the hero avoids stacking two circular widgets above the analytics row.
+  const supportKpis = heroKpis.filter((k) => k.label !== "Capital");
 
   return (
     <div className="dashboard-command-board admin-doc-stack admin-doc-stack--relaxed">
@@ -107,23 +109,9 @@ export function DashboardAssetsBoard({
         contentClassName="flex flex-col"
         className="dashboard-merged-card"
       >
-        {/* KPI strip — APY, Mining, Proof, Admin queues (Capital + Risk live in the ring) */}
+        {/* KPI strip — keep risk visible here; capital stays in the allocation donut core. */}
         <section aria-label="Vault KPIs">
           <DashboardKpiStrip kpis={supportKpis} />
-        </section>
-
-        <section
-          aria-label="Vault health"
-          className="dashboard-vitals-hero__ring border-b border-(--ct-border-soft)"
-        >
-          <VaultVitalsRing
-            composite={risk.composite}
-            band={risk.band}
-            bandLabel={risk.bandLabel}
-            capitalUsdc={capitalUsdc}
-            provenance={capitalProvenance}
-            hasLiveKpis={hasLiveKpis}
-          />
         </section>
 
         {/* Bottom band: Allocation orbit + NAV slot */}
@@ -133,7 +121,7 @@ export function DashboardAssetsBoard({
               allocations={allocation}
               capitalUsdc={capitalUsdc}
               allocationTotal={allocationTotal}
-              provenance={simulated ? "simulated" : allocationLive ? "live" : "manual"}
+              provenance={resolveAllocationProvenance(simulated, allocationLive)}
             />
           </div>
           <div className="dashboard-hero-card__slot dashboard-hero-card__slot--nav border-t md:border-t-0 md:border-l border-(--ct-border-soft)">
@@ -141,7 +129,7 @@ export function DashboardAssetsBoard({
               navPoints={navPoints}
               lastNav={lastNav}
               navDelta={computeNavDelta(lastNav, firstNav)}
-              navProvenance={navLive ? "live" : "estimated"}
+              navProvenance={resolveNavProvenance(simulated, navLive)}
             />
           </div>
         </div>
@@ -164,11 +152,13 @@ export function DashboardAssetsBoard({
         </div>
       </section>
 
-      {/* ── Risk framework full-width waterfall ── */}
-      <section aria-label="Risk framework" className="dashboard-risk-zone">
-        <ErrorBoundary>
-          <RiskFrameworkSection data={risk} view="waterfall" showComposite={false} />
-        </ErrorBoundary>
+      {/* ── Risk posture summary — compact dashboard-specific replacement for the broken waterfall ── */}
+      <section aria-label="Risk posture" className="dashboard-risk-zone">
+        <DashboardRiskSummaryCard
+          data={risk}
+          hasLiveKpis={hasLiveKpis}
+          simulated={simulated}
+        />
       </section>
 
       {/* ── Audit trail ── */}

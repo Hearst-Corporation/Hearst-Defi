@@ -6,11 +6,6 @@ import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 import { formatAdminMonthDay } from "@/lib/vaults/product-display";
 
-function heroProvenance(kind: Provenance): HeroKpi["provenance"] {
-  if (kind === "partial" || kind === "simulated") return "estimated";
-  return kind;
-}
-
 function hashpriceLabel(data: DashboardData): string {
   const hashprice = data.miningOps.hashprice;
   if (!hashprice) return "Hashprice pending";
@@ -49,7 +44,8 @@ export function buildDashboardHeroKpis(input: {
   proofFresh: boolean;
   proofProvenance: Provenance;
   proof: AdminProofStatus;
-  totalActionRequired: number;
+  /** Mirrors `cockpit.actionQueue.length` — same source as the Operator queue panel. */
+  operatorQueueCount: number;
   data: DashboardData;
 }): HeroKpi[] {
   const riskTone =
@@ -64,13 +60,13 @@ export function buildDashboardHeroKpis(input: {
       label: "Capital",
       value: input.capitalUsdc > 0 ? dashboardUsdCompact.format(input.capitalUsdc) : "—",
       sublabel: input.vaultName,
-      provenance: heroProvenance(input.capitalProvenance),
+      provenance: input.capitalProvenance,
     },
     {
       label: "APY",
       value: apyValue,
       sublabel: input.yieldPosture,
-      provenance: heroProvenance(input.apyProvenance),
+      provenance: input.apyProvenance,
     },
     {
       label: "Risk",
@@ -82,7 +78,7 @@ export function buildDashboardHeroKpis(input: {
         input.risk.composite > 0
           ? input.risk.bandLabel
           : "—",
-      provenance: heroProvenance(input.riskProvenance),
+      provenance: input.riskProvenance,
       alert: riskTone === "danger",
     },
     {
@@ -92,24 +88,24 @@ export function buildDashboardHeroKpis(input: {
           ? `${input.miningMarginScore}/100`
           : "—",
       sublabel: hashpriceLabel(input.data),
-      provenance: heroProvenance(input.miningProvenance),
+      provenance: input.miningProvenance,
       alert: input.miningMarginScore > 0 && input.miningMarginScore < 15,
     },
     {
       label: "Proof",
       value: proofValue(input.proofFresh, input.proof.attestationsCount),
       sublabel: proofSubtitle(input.proof),
-      provenance: heroProvenance(input.proofProvenance),
+      provenance: input.proofProvenance,
     },
     {
-      label: "Admin queues",
-      value: String(input.totalActionRequired),
+      label: "Operator queue",
+      value: String(input.operatorQueueCount),
       sublabel:
-        input.totalActionRequired === 1
-          ? "governance-tracked action"
-          : "governance-tracked actions",
+        input.operatorQueueCount === 1
+          ? "pending operator action"
+          : "pending operator actions",
       provenance: "manual",
-      accent: input.totalActionRequired > 0,
+      accent: input.operatorQueueCount > 0,
     },
   ];
 }

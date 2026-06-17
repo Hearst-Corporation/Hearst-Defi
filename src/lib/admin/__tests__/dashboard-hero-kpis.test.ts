@@ -76,7 +76,7 @@ function buildKpis(opts: {
     proofFresh: opts.proofFresh,
     proofProvenance: opts.proofFresh ? "attested" : opts.proof.attestationsCount > 0 ? "stale" : "manual",
     proof: opts.proof,
-    totalActionRequired: 0,
+    operatorQueueCount: 0,
     data: DATA_STUB as DashboardData,
   });
 }
@@ -132,7 +132,7 @@ const RISK_SIM: RiskFrameworkData = {
 };
 
 describe("Risk / Mining KPI values — demo (simulated) fill", () => {
-  it("seed context (not live, not simulated) keeps Risk/Mining empty", () => {
+  it("seed context (not live, not simulated) still renders Risk/Mining values when scores exist", () => {
     const kpis = buildKpis({
       hasLiveKpis: false,
       proofFresh: false,
@@ -166,9 +166,8 @@ describe("Risk / Mining KPI values — demo (simulated) fill", () => {
       risk: RISK_SIM,
       miningMarginScore: 64,
     });
-    // heroProvenance maps "simulated" → "estimated" for the badge.
-    expect(riskKpi(kpis).provenance).toBe("estimated");
-    expect(miningKpi(kpis).provenance).toBe("estimated");
+    expect(riskKpi(kpis).provenance).toBe("simulated");
+    expect(miningKpi(kpis).provenance).toBe("simulated");
     expect(riskKpi(kpis).provenance).not.toBe("live");
     expect(miningKpi(kpis).provenance).not.toBe("attested");
   });

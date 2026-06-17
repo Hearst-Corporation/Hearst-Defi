@@ -122,7 +122,6 @@ describe("resolveDashboardDataNotice", () => {
     ).toEqual({
       kind: "preview",
       vaultName: "Hearst Defensive Vault",
-      assumptions: ["Not guaranteed."],
     });
   });
 
