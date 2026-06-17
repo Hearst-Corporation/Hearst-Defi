@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  DASHBOARD_ZERO_ALLOCATIONS,
   resolveAllocationChartLive,
   resolveNavChartLive,
 } from "@/lib/admin/dashboard-vault-signals";
@@ -11,13 +10,6 @@ const DB_ALLOCATIONS: DashboardData["allocations"] = [
   { bucket: "mining", pct: 40, valueUsdc: 200_000, yieldContributionBps: 0 },
   { bucket: "usdc_base", pct: 60, valueUsdc: 300_000, yieldContributionBps: 0 },
 ];
-
-describe("DASHBOARD_ZERO_ALLOCATIONS", () => {
-  it("covers all four allocation buckets at zero", () => {
-    expect(DASHBOARD_ZERO_ALLOCATIONS).toHaveLength(4);
-    expect(DASHBOARD_ZERO_ALLOCATIONS.every((row) => row.pct === 0)).toBe(true);
-  });
-});
 
 describe("resolveAllocationChartLive", () => {
   it("returns false without hasLiveKpis even when DB rows exist", () => {

@@ -1,6 +1,5 @@
 import type { Provenance } from "@/components/ui/provenance-badge";
 import type { AdminProofStatus } from "@/lib/data/admin-overview";
-import { dashboardUsdCompact } from "@/lib/admin/dashboard-formatters";
 import type { HeroKpi } from "@/lib/data/cockpit";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
@@ -27,10 +26,8 @@ function proofValue(
   return attestationsCount > 0 ? "Stale" : "Pending";
 }
 
-export function buildDashboardHeroKpis(input: {
-  capitalUsdc: number;
-  capitalProvenance: Provenance;
-  vaultName: string;
+/** Vault KPI strip rows (capital lives in the allocation donut core). */
+export function buildDashboardKpiStrip(input: {
   headlineApy: { low: number; high: number } | null;
   yieldPosture: string;
   apyProvenance: Provenance;
@@ -38,13 +35,9 @@ export function buildDashboardHeroKpis(input: {
   riskProvenance: Provenance;
   miningMarginScore: number;
   miningProvenance: Provenance;
-  hasLiveKpis: boolean;
-  /** True for demo-builder payloads — Risk/Mining values fill, provenance stays "simulated". */
-  simulated: boolean;
   proofFresh: boolean;
   proofProvenance: Provenance;
   proof: AdminProofStatus;
-  /** Mirrors `cockpit.actionQueue.length` — same source as the Operator queue panel. */
   operatorQueueCount: number;
   data: DashboardData;
 }): HeroKpi[] {
@@ -56,12 +49,6 @@ export function buildDashboardHeroKpis(input: {
       : "—";
 
   return [
-    {
-      label: "Capital",
-      value: input.capitalUsdc > 0 ? dashboardUsdCompact.format(input.capitalUsdc) : "—",
-      sublabel: input.vaultName,
-      provenance: input.capitalProvenance,
-    },
     {
       label: "APY",
       value: apyValue,

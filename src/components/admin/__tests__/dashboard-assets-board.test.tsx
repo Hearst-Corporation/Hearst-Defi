@@ -119,7 +119,6 @@ function render(
       risk={RISK}
       proof={proof}
       capitalUsdc={capitalUsdc}
-      capitalProvenance="estimated"
       headlineApy={null}
       yieldPosture="awaiting first snapshot"
       hasLiveKpis={hasLiveKpis}
@@ -167,7 +166,7 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     const html = render(makeData({ source: "fallback" }), 0);
 
     const kpis = html.indexOf('aria-label="Vault KPIs"');
-    const vaultSignal = html.indexOf("dashboard-command-row-a");
+    const vaultSignal = html.indexOf("dashboard-command-row-a--hero");
     const cockpitOps = html.indexOf('aria-label="Cockpit operations"');
     const activity = html.indexOf('aria-label="Recent admin activity"');
 
@@ -251,7 +250,7 @@ describe("DashboardAssetsBoard — command-center layout", () => {
   it("renders empty cockpit modules honestly after the vault signal section", () => {
     const html = render(makeData({ source: "fallback" }), 0);
     const cockpitOps = html.indexOf('aria-label="Cockpit operations"');
-    const vaultSignal = html.indexOf("dashboard-command-row-a");
+    const vaultSignal = html.indexOf("dashboard-command-row-a--hero");
 
     expect(cockpitOps).toBeGreaterThan(-1);
     expect(cockpitOps).toBeGreaterThan(vaultSignal);
@@ -282,7 +281,6 @@ describe("DashboardAssetsBoard — command-center layout", () => {
         risk={RISK}
         proof={PROOF}
         capitalUsdc={0}
-        capitalProvenance="estimated"
         headlineApy={{ low: 6, high: 10 }}
         yieldPosture="within target band"
         hasLiveKpis={false}
@@ -331,7 +329,6 @@ describe("DashboardAssetsBoard — command-center layout", () => {
         risk={RISK}
         proof={PROOF}
         capitalUsdc={500_000}
-        capitalProvenance="live"
         headlineApy={{ low: 9.4, high: 12.8 }}
         yieldPosture="within target band"
         hasLiveKpis

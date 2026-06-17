@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import { allocationLabelFor, allocationStrokeFor } from "@/lib/allocation-colors";
@@ -8,7 +9,13 @@ import type { DashboardAllocation } from "@/lib/data/dashboard";
  * Premium SVG Donut Chart for Capital Allocation.
  * Uses a 100-unit circumference circle (r=15.9155) for easy percentage mapping.
  */
-function SvgDonut({ allocations }: { allocations: DashboardAllocation[] }) {
+function SvgDonut({
+  allocations,
+  glowFilterId,
+}: {
+  allocations: DashboardAllocation[];
+  glowFilterId: string;
+}) {
   const radius = 15.915494309189533;
   const circumference = 100;
 
@@ -25,7 +32,7 @@ function SvgDonut({ allocations }: { allocations: DashboardAllocation[] }) {
   return (
     <svg viewBox="0 0 42 42" className="dashboard-orbit__svg" aria-hidden="true">
       <defs>
-        <filter id="mining-glow" x="-20%" y="-20%" width="140%" height="140%">
+        <filter id={glowFilterId} x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="1.5" result="blur" />
           <feComposite in="SourceGraphic" in2="blur" operator="over" />
         </filter>
@@ -33,12 +40,12 @@ function SvgDonut({ allocations }: { allocations: DashboardAllocation[] }) {
 
       {/* Background track */}
       <circle
+        className="dashboard-orbit__track"
         cx="21"
         cy="21"
         r={radius}
         fill="none"
         stroke="color-mix(in srgb, var(--ct-accent) 15%, transparent)"
-        strokeWidth="1.5"
       />
 
       {/* Segments */}
@@ -49,20 +56,21 @@ function SvgDonut({ allocations }: { allocations: DashboardAllocation[] }) {
         return (
           <circle
             key={item.bucket}
+            className={
+              isMining
+                ? "dashboard-orbit__segment dashboard-orbit__segment--mining"
+                : "dashboard-orbit__segment"
+            }
             cx="21"
             cy="21"
             r={radius}
             fill="none"
             stroke={allocationStrokeFor(item.bucket)}
-            strokeWidth={isMining ? "2.5" : "2"}
             strokeDasharray={strokeDasharray}
             strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
-            filter={isMining ? "url(#mining-glow)" : undefined}
-            style={{
-              transition: "stroke-dasharray 1s ease-out, stroke-dashoffset 1s ease-out",
-              transformOrigin: "center",
-            }}
+            filter={isMining ? `url(#${glowFilterId})` : undefined}
+            style={{ transformOrigin: "center" }}
           />
         );
       })}
@@ -82,6 +90,7 @@ export function AllocationOrbit({
   provenance: Provenance;
 }) {
   const isEmpty = allocationTotal <= 0;
+  const miningGlowId = useId().replace(/:/g, "");
 
   return (
     <div
@@ -99,7 +108,7 @@ export function AllocationOrbit({
           {isEmpty ? (
             <div className="dashboard-orbit__ring dashboard-orbit__ring--idle" aria-hidden />
           ) : (
-            <SvgDonut allocations={allocations} />
+            <SvgDonut allocations={allocations} glowFilterId={`mining-glow-${miningGlowId}`} />
           )}
           <div className="dashboard-orbit__core">
             <span>AUM</span>

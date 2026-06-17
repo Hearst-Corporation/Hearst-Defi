@@ -47,7 +47,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         risk={risk}
         proof={overview.proof}
         capitalUsdc={page.capitalUsdc}
-        capitalProvenance={page.capitalProvenance}
         headlineApy={page.headlineApy}
         hasLiveKpis={page.hasLiveKpis}
         simulated={page.simulated}

@@ -1424,6 +1424,14 @@
   /* Reflow from board width — admin rails eat ~500px of viewport. */
   container-type: inline-size;
   container-name: dash-board;
+  --dashboard-kpi-cell-min-height: 7.25rem;
+  --dashboard-orbit-size: 11.75rem;
+  --dashboard-orbit-max-width: 13rem;
+  --dashboard-hero-min-height: 13.5rem;
+  --dashboard-hero-min-height-wide: 14.5rem;
+  --dashboard-orbit-stroke-track: 1.5;
+  --dashboard-orbit-stroke-segment: 2;
+  --dashboard-orbit-stroke-mining: 2.5;
 }
 
 .dashboard-page-header .admin-page-header__main {
@@ -1450,8 +1458,8 @@
   min-width: 0;
   flex-direction: column;
   gap: var(--ct-space-1_5);
-  min-height: 7.25rem;
-  padding: var(--ct-space-4) var(--ct-space-2);
+  min-height: var(--dashboard-kpi-cell-min-height);
+  padding: var(--ct-space-4) var(--ct-space-3);
 }
 
 .dashboard-kpi-strip__cell--alert {
@@ -1594,17 +1602,13 @@
   gap: var(--ct-space-7);
 }
 
-.dashboard-command-row-a {
+.dashboard-command-row-a--hero {
   display: grid;
-  gap: var(--ct-space-3);
+  gap: 0;
   grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
-}
-
-.dashboard-command-row-a--hero {
   position: relative;
-  gap: 0;
-  min-height: 13.5rem;
+  min-height: var(--dashboard-hero-min-height);
 }
 
 .dashboard-hero-card__analytics {
@@ -1626,6 +1630,7 @@
 
 .dashboard-hero-card__slot--nav {
   flex: 1 1 auto;
+  border-top: 1px solid var(--ct-border-soft);
 }
 
 .dashboard-hero-card__slot--nav .dashboard-command-slot--nav,
@@ -1656,8 +1661,7 @@
   flex-direction: column;
 }
 
-.dashboard-command-slot--nav.ct-card,
-.dashboard-command-slot--allocation > .ct-card {
+.dashboard-command-slot--nav.ct-card {
   background: var(--ct-graphite-subtle-bg);
   border-color: var(--ct-graphite-border-nested);
   backdrop-filter: var(--ct-graphite-blur);
@@ -1670,14 +1674,10 @@
   min-width: 0;
 }
 
-.dashboard-command-slot--allocation > .ct-card {
+.dashboard-command-slot--allocation .dashboard-orbit-card {
   width: 100%;
   max-width: 16rem;
-  padding: var(--ct-space-5);
-}
-
-.dashboard-command-slot--allocation .dashboard-orbit-card {
-  min-width: 13rem;
+  min-width: var(--dashboard-orbit-max-width);
 }
 
 .dashboard-nav-slot__value {
@@ -1688,30 +1688,17 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-3);
   flex: 1 1 auto;
   min-height: 0;
 }
 
-.dashboard-nav-slot__value-container {
-  margin-top: calc(var(--ct-space-2) * -1);
+.dashboard-nav-slot__header.dashboard-card-header {
   margin-bottom: var(--ct-space-2);
 }
 
 .dashboard-nav-slot__delta {
   flex-shrink: 0;
-}
-
-.dashboard-orbit-card--awaiting.ct-card {
-  /* Awaiting orbit — verre fumé léger, calme mais premium (PAS une plaque plate).
-     Surface graphite translucide conservée + frost réduit (blur-md, plus léger
-     que le glass live) + bevel subtil ; liseré fin. Pas de glow, pas de gradient
-     décoratif, pas de fond opaque, pas de PNG (le dashboard est déjà noir via H7). */
-  background: var(--ct-graphite-subtle-bg);
-  border-color: var(--ct-graphite-border-nested);
-  backdrop-filter: var(--ct-blur-md);
-  -webkit-backdrop-filter: var(--ct-blur-md);
-  box-shadow: var(--ct-glass-bevel);
 }
 
 /* ADR-013 exception — empty placeholders only; active modules use Card / ct-glass-panel. */
@@ -2009,11 +1996,40 @@
 @container dash-board (min-width: 48rem) {
   .dashboard-command-row-a--hero {
     grid-template-columns: minmax(16rem, 0.8fr) minmax(0, 1.35fr);
+    align-items: stretch;
   }
 
   .dashboard-hero-card__slot--allocation {
     border-right: 1px solid var(--ct-border-soft);
     border-bottom: 0;
+    justify-content: center;
+    min-width: 16rem;
+  }
+
+  .dashboard-hero-card__slot--nav {
+    border-top: 0;
+    border-left: 1px solid var(--ct-border-soft);
+  }
+
+  .dashboard-hero-card__slot--nav .dashboard-nav-bars {
+    padding: var(--ct-space-3);
+  }
+
+  .dashboard-command-row-a--hero .dashboard-orbit {
+    justify-self: center;
+  }
+
+  .dashboard-risk-summary__body {
+    grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .dashboard-risk-summary__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-command-row-c--ops {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -2024,14 +2040,14 @@
   align-items: center;
   gap: var(--ct-space-4);
   width: 100%;
-  max-width: 13rem;
+  max-width: var(--dashboard-orbit-max-width);
   justify-self: center;
 }
 
 .dashboard-orbit__visual {
   position: relative;
-  width: 11.75rem;
-  height: 11.75rem;
+  width: var(--dashboard-orbit-size);
+  height: var(--dashboard-orbit-size);
   flex-shrink: 0;
 }
 
@@ -2042,6 +2058,21 @@
   height: 100%;
   transform: rotate(-90deg); /* Start at 12 o'clock */
   overflow: visible;
+}
+
+.dashboard-orbit__svg .dashboard-orbit__track {
+  stroke-width: var(--dashboard-orbit-stroke-track);
+}
+
+.dashboard-orbit__svg .dashboard-orbit__segment {
+  stroke-width: var(--dashboard-orbit-stroke-segment);
+  transition:
+    stroke-dasharray var(--ct-dur-slow) var(--ct-ease),
+    stroke-dashoffset var(--ct-dur-slow) var(--ct-ease);
+}
+
+.dashboard-orbit__svg .dashboard-orbit__segment--mining {
+  stroke-width: var(--dashboard-orbit-stroke-mining);
 }
 
 /* Idle / zero allocation — neutral awaiting shell. */
@@ -2233,17 +2264,6 @@
   padding: var(--ct-space-4) 0 var(--ct-space-2);
 }
 
-@container dash-board (min-width: 48rem) {
-  .dashboard-risk-summary__body {
-    grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
-    align-items: start;
-  }
-
-  .dashboard-risk-summary__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 /* CSS bar chart for NAV series. */
 .dashboard-nav-bars {
   --dashboard-nav-bar-count: 30;
@@ -2296,8 +2316,8 @@
 
 .dashboard-nav-bars__bar {
   width: 100%;
-  min-height: 2px;
-  border-radius: 1px 1px 0 0;
+  min-height: var(--ct-radius-xs);
+  border-radius: var(--ct-radius-xs) var(--ct-radius-xs) 0 0;
   border-top: 1px solid color-mix(in srgb, var(--ct-accent) 50%, transparent);
   background: linear-gradient(
     180deg,
@@ -2372,12 +2392,6 @@
 
 @container dash-board (min-width: 42rem) {
   .dashboard-kpi-strip {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@container dash-board (min-width: 56rem) {
-  .dashboard-kpi-strip {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
@@ -2401,11 +2415,11 @@
   }
 }
 
-/* 4 columns */
+/* 5 columns — one row for all vault KPIs */
 @container dash-board (min-width: 42rem) {
   .dashboard-kpi-strip__cell {
     border-bottom: none;
-    padding: var(--ct-space-3) var(--ct-space-4);
+    padding: var(--ct-space-4);
   }
   .dashboard-kpi-strip__cell:not(:last-child) {
     border-right: 1px solid var(--ct-border-soft);
@@ -2418,41 +2432,9 @@
   }
 }
 
-/* Orbit | NAV side-by-side — orbit column never shrinks below donut width. */
-@container dash-board (min-width: 42rem) {
-  .dashboard-command-row-a {
-    grid-template-columns: minmax(15rem, 16rem) minmax(0, 1fr);
-    align-items: stretch;
-  }
-
-  .dashboard-command-slot--allocation {
-    justify-content: center;
-    min-width: 15rem;
-  }
-
-  .dashboard-command-slot--allocation > .ct-card {
-    height: 100%;
-  }
-
-  .dashboard-orbit-card--awaiting .dashboard-orbit {
-    flex: 1 1 auto;
-    justify-content: center;
-  }
-
-  .dashboard-orbit {
-    justify-self: center;
-  }
-}
-
 @container dash-board (min-width: 44rem) {
   .dashboard-command-row-c {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@container dash-board (min-width: 48rem) {
-  .dashboard-command-row-c--ops {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -2462,16 +2444,11 @@
   }
 
   .dashboard-command-row-a--hero {
-    min-height: 14.5rem;
+    min-height: var(--dashboard-hero-min-height-wide);
   }
 
   .dashboard-hero-card__slot--nav .dashboard-nav-bars {
     min-height: 12rem;
-  }
-
-  .dashboard-hero-card__slot--allocation {
-    border-right: 1px solid var(--ct-border-soft);
-    border-bottom: 0;
   }
 }
 
@@ -2895,11 +2872,6 @@ pre.ct-surface-1.rounded-md {
   letter-spacing: var(--ct-tracking-wider);
   text-transform: uppercase;
   color: var(--ct-text-muted);
-}
-
-.dashboard-command-panel-card .eyebrow,
-.dashboard-nav-slot__header .eyebrow {
-  /* Removed color: var(--ct-accent) to keep eyebrows calm and structural */
 }
 
 .dashboard-command-panel-card .dashboard-panel-title {

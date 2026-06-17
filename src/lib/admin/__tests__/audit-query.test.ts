@@ -10,10 +10,13 @@
  *  6. Non-object JSON (string/number/array) → both default to null
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
-// parseAuditDiff is a pure helper — no server-only, no prisma, no I/O.
-// We import it directly without mocking any module.
+vi.mock("@/lib/db", () => ({
+  prisma: {},
+}));
+
+// parseAuditDiff is a pure helper — mock db so server-only audit module loads in vitest.
 import { parseAuditDiff } from "../audit";
 
 describe("parseAuditDiff", () => {

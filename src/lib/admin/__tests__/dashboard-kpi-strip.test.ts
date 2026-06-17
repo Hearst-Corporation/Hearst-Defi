@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildDashboardHeroKpis } from "@/lib/admin/dashboard-hero-kpis";
+import { buildDashboardKpiStrip } from "@/lib/admin/dashboard-kpi-strip";
 import type { AdminProofStatus } from "@/lib/data/admin-overview";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
@@ -53,26 +53,20 @@ const DATA_STUB: Pick<DashboardData, "miningOps" | "vaultMeta"> = {
 };
 
 function buildKpis(opts: {
-  hasLiveKpis: boolean;
   proofFresh: boolean;
   proof: AdminProofStatus;
   simulated?: boolean;
   risk?: RiskFrameworkData;
   miningMarginScore?: number;
 }) {
-  return buildDashboardHeroKpis({
-    capitalUsdc: 0,
-    capitalProvenance: "manual",
-    vaultName: DATA_STUB.vaultMeta.name,
+  return buildDashboardKpiStrip({
     headlineApy: null,
     yieldPosture: "awaiting first snapshot",
-    apyProvenance: "manual",
+    apyProvenance: opts.simulated ? "simulated" : "manual",
     risk: opts.risk ?? RISK,
     riskProvenance: opts.simulated ? "simulated" : "manual",
     miningMarginScore: opts.miningMarginScore ?? 0,
     miningProvenance: opts.simulated ? "simulated" : "manual",
-    hasLiveKpis: opts.hasLiveKpis,
-    simulated: opts.simulated ?? false,
     proofFresh: opts.proofFresh,
     proofProvenance: opts.proofFresh ? "attested" : opts.proof.attestationsCount > 0 ? "stale" : "manual",
     proof: opts.proof,
@@ -85,32 +79,45 @@ function proofKpi(kpis: ReturnType<typeof buildKpis>) {
   return kpis.find((k) => k.label === "Proof")!;
 }
 
+describe("buildDashboardKpiStrip", () => {
+  it("renders five strip rows without a capital cell", () => {
+    const kpis = buildKpis({ proofFresh: false, proof: PROOF_EMPTY });
+    expect(kpis.map((k) => k.label)).toEqual([
+      "APY",
+      "Risk",
+      "Mining",
+      "Proof",
+      "Operator queue",
+    ]);
+  });
+});
+
 describe("Proof KPI value — seed honesty", () => {
   it('seed context with attestation rows shows "Stale" with attestation sublabel', () => {
-    const kpis = buildKpis({ hasLiveKpis: false, proofFresh: false, proof: PROOF_WITH_ATTESTATION });
+    const kpis = buildKpis({ proofFresh: false, proof: PROOF_WITH_ATTESTATION });
     expect(proofKpi(kpis).value).toBe("Stale");
     expect(proofKpi(kpis).provenance).toBe("stale");
     expect(proofKpi(kpis).sublabel).toContain("Last Jun 12");
   });
 
   it('seed context with no attestation shows "Pending"', () => {
-    const kpis = buildKpis({ hasLiveKpis: false, proofFresh: false, proof: PROOF_EMPTY });
+    const kpis = buildKpis({ proofFresh: false, proof: PROOF_EMPTY });
     expect(proofKpi(kpis).value).toBe("Pending");
   });
 
   it('live context + fresh proof shows "Current"', () => {
-    const kpis = buildKpis({ hasLiveKpis: true, proofFresh: true, proof: PROOF_WITH_ATTESTATION });
+    const kpis = buildKpis({ proofFresh: true, proof: PROOF_WITH_ATTESTATION });
     expect(proofKpi(kpis).value).toBe("Current");
     expect(proofKpi(kpis).provenance).toBe("attested");
   });
 
   it('live context + stale proof shows "Stale"', () => {
-    const kpis = buildKpis({ hasLiveKpis: true, proofFresh: false, proof: PROOF_WITH_ATTESTATION });
+    const kpis = buildKpis({ proofFresh: false, proof: PROOF_WITH_ATTESTATION });
     expect(proofKpi(kpis).value).toBe("Stale");
   });
 
   it('live context + no proof shows "Pending"', () => {
-    const kpis = buildKpis({ hasLiveKpis: true, proofFresh: false, proof: PROOF_EMPTY });
+    const kpis = buildKpis({ proofFresh: false, proof: PROOF_EMPTY });
     expect(proofKpi(kpis).value).toBe("Pending");
   });
 });
@@ -132,9 +139,8 @@ const RISK_SIM: RiskFrameworkData = {
 };
 
 describe("Risk / Mining KPI values — demo (simulated) fill", () => {
-  it("seed context (not live, not simulated) still renders Risk/Mining values when scores exist", () => {
+  it("seed context still renders Risk/Mining values when scores exist", () => {
     const kpis = buildKpis({
-      hasLiveKpis: false,
       proofFresh: false,
       proof: PROOF_EMPTY,
       risk: RISK_SIM,
@@ -144,9 +150,8 @@ describe("Risk / Mining KPI values — demo (simulated) fill", () => {
     expect(miningKpi(kpis).value).toBe("64/100");
   });
 
-  it("simulated context fills Risk (composite) and Mining (margin) values", () => {
+  it("simulated context fills Risk and Mining values", () => {
     const kpis = buildKpis({
-      hasLiveKpis: false,
       proofFresh: false,
       proof: PROOF_EMPTY,
       simulated: true,
@@ -159,7 +164,6 @@ describe("Risk / Mining KPI values — demo (simulated) fill", () => {
 
   it("simulated provenance stays honest — never live/attested", () => {
     const kpis = buildKpis({
-      hasLiveKpis: false,
       proofFresh: false,
       proof: PROOF_EMPTY,
       simulated: true,

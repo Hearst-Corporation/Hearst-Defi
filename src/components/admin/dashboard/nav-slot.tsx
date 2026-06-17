@@ -33,15 +33,13 @@ export function NavSlot({
         provenance={!isMuted ? navProvenance : undefined}
         className="dashboard-nav-slot__header"
       />
-      <div className="dashboard-nav-slot__value-container">
-        <p className="dashboard-nav-slot__value stat-value tabular m-0">
+      <p className="dashboard-nav-slot__value stat-value tabular m-0">
           {lastNav !== null ? (
             dashboardUsdCompact.format(lastNav)
           ) : (
             <span className="body-md ct-text-faint font-medium tracking-normal">Awaiting data</span>
           )}
-        </p>
-      </div>
+      </p>
 
       <NavBarChart points={navPoints} muted={isMuted} />
 

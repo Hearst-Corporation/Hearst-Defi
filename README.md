@@ -104,11 +104,11 @@ admin dédiée (`/admin/product-workspace`, `/admin/scenario-lab`, `/admin/dashb
 reste sans tools.
 
 **Admin dashboard (`/admin/dashboard`)** — layout command-center :
-KPI strip (vault, sans capital — dans le donut) → allocation orbit + NAV
+KPI strip (5 cols @ container 42rem — APY/Risk/Mining/Proof/Operator queue ; capital in donut) → allocation orbit + NAV
 (gated `hasLiveKpis` via `src/lib/admin/dashboard-vault-signals.ts`) → cockpit
 ops (operator queue, vault health scoped au pill actif, live ops) → risk
-posture card → audit trail. Provenance helpers : `src/lib/admin/dashboard-board-view.ts`.
-Barrel : `@/components/admin/dashboard`.
+posture card → audit trail. Provenance : `src/lib/admin/dashboard-board-view.ts` ;
+KPI rows : `src/lib/admin/dashboard-kpi-strip.ts`. Barrel : `@/components/admin/dashboard`.
 
 **Proof Center (`/proof-center`, `/admin/proof-center`)** — PoR summary,
 mining cash-flow coverage, latest distributions (6), rebalancing events avec

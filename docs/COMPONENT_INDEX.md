@@ -72,7 +72,7 @@
 | `src/components/auth/login-split.tsx` | — | 2 |
 | `src/components/auth/privy-provider.tsx` | PrivyProvider | 4 |
 | `src/components/auth/sign-out-button.tsx` | SignOutButton | 2 |
-| `src/components/chat/chat-nav-bridge.tsx` | ChatNavBridge | 3 |
+| `src/components/chat/chat-nav-bridge.tsx` | ChatNavBridge | 4 |
 | `src/components/connect/header-connect.tsx` | HeaderConnect | 1 |
 | `src/components/connect/product-page-header.tsx` | ProductPageHeader | 5 |
 | `src/components/ConnectShell.tsx` | ConnectShell | 1 |
@@ -184,7 +184,7 @@
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 5 |
 | `src/components/ui/progress.tsx` | Progress | 14 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 52 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 51 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/section-embed.tsx` | SectionEmbedProvider | 1 |

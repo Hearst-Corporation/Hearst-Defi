@@ -1,4 +1,3 @@
-import type { Provenance } from "@/components/ui/provenance-badge";
 import type { AdminOverview } from "@/lib/data/admin-overview";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
@@ -28,19 +27,6 @@ export function resolveHeadlineApy(
   return null;
 }
 
-export function resolveCapitalProvenance(
-  preview: boolean,
-  useCustody: boolean,
-  custodyProvenance: Provenance,
-  hasLiveKpis: boolean,
-  aumNumeric: number,
-): Provenance {
-  if (preview) return "estimated";
-  if (useCustody) return custodyProvenance;
-  if (hasLiveKpis && aumNumeric > 0) return "live";
-  return "manual";
-}
-
 export function resolveDashboardPageInputs(
   data: DashboardData,
   risk: RiskFrameworkData,
@@ -68,16 +54,9 @@ export function resolveDashboardPageInputs(
     preview,
   );
 
-  const { custodyConfigured, custodyReservesUsdc, custodyProvenance } = overview.proof;
+  const { custodyConfigured, custodyReservesUsdc } = overview.proof;
   const useCustody = custodyConfigured && custodyReservesUsdc > 0;
   const capitalUsdc = useCustody ? custodyReservesUsdc : data.vault.aumUsdc;
-  const capitalProvenance = resolveCapitalProvenance(
-    preview,
-    useCustody,
-    custodyProvenance,
-    hasLiveKpis,
-    capitalUsdc,
-  );
   // Proof freshness is only meaningful when the dashboard is running on real
   // production data. In seed/staging contexts (hasLiveTimelineSnapshot = false)
   // we suppress proofFresh so that recent-but-mock Proof rows don't trigger
@@ -97,7 +76,6 @@ export function resolveDashboardPageInputs(
     headlineApy,
     yieldPosture,
     capitalUsdc,
-    capitalProvenance,
     proofFresh,
     preview,
   };

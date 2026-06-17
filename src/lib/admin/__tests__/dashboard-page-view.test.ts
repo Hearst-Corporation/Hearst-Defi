@@ -1,7 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/db", () => ({
+  prisma: {},
+}));
 
 import {
-  resolveCapitalProvenance,
   resolveDashboardPageInputs,
   resolveHeadlineApy,
   resolveYieldPosture,
@@ -117,22 +120,6 @@ describe("resolveYieldPosture", () => {
   });
 });
 
-describe("resolveCapitalProvenance", () => {
-  it("marks preview vault capital as estimated", () => {
-    expect(resolveCapitalProvenance(true, false, "live", true, 500_000)).toBe(
-      "estimated",
-    );
-  });
-
-  it("prefers custody provenance when reserves are configured", () => {
-    expect(resolveCapitalProvenance(false, true, "live", true, 250_000)).toBe("live");
-  });
-
-  it("falls back to manual when no live KPIs and zero AUM", () => {
-    expect(resolveCapitalProvenance(false, false, "manual", false, 0)).toBe("manual");
-  });
-});
-
 describe("resolveDashboardPageInputs", () => {
   it("sets preview + estimated capital for non-yield fixture vaults", () => {
     const page = resolveDashboardPageInputs(
@@ -158,7 +145,6 @@ describe("resolveDashboardPageInputs", () => {
     expect(page.preview).toBe(true);
     expect(page.hasLiveKpis).toBe(false);
     expect(page.headlineApy).toEqual({ low: 6, high: 10 });
-    expect(page.capitalProvenance).toBe("estimated");
     expect(page.yieldPosture).toBe("within target band");
   });
 
@@ -178,7 +164,6 @@ describe("resolveDashboardPageInputs", () => {
 
     expect(page.proofFresh).toBe(true);
     expect(page.hasLiveKpis).toBe(true);
-    expect(page.capitalProvenance).toBe("live");
   });
 });
 
@@ -289,7 +274,7 @@ describe("seed honesty gate", () => {
       RISK,
       OVERVIEW,
     );
-    expect(page.capitalProvenance).toBe("manual");
+    expect(page.hasLiveKpis).toBe(false);
   });
 
   it("source 'live' activates hasLiveKpis", () => {

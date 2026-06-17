@@ -28,7 +28,7 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
       aria-label={`${kpi.label}: ${kpi.value}`}
     >
       <div className="dashboard-kpi-strip__label-row">
-        <span className="dashboard-kpi-strip__label stat-label uppercase tracking-wide text-(--ct-text-faint)">
+        <span className="dashboard-kpi-strip__label stat-label">
           {kpi.label}
         </span>
         <ProvenanceBadge kind={kpi.provenance} variant="strip" />
