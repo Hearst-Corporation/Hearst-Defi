@@ -1,11 +1,14 @@
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { type Provenance } from "@/components/ui/provenance-badge";
 import { dashboardUsdCompact, dashboardUsdFull } from "@/lib/admin/dashboard-formatters";
-import { computeNavBarHeights, MIN_NAV_CHART_POINTS, navBarChartAriaLabel } from "@/lib/admin/nav-bar-chart";
+import {
+  computeNavBarHeights,
+  MIN_NAV_CHART_POINTS,
+  navBarChartAriaLabel,
+  resolveNavMonthLabels,
+} from "@/lib/admin/nav-bar-chart";
 import { cn } from "@/lib/cn";
 import type { NavPoint } from "@/lib/data/dashboard";
-
-const NAV_MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"] as const;
 
 /** NAV slot — muted shell when no live series; bar chart fills the hero cell. */
 export function NavSlot({
@@ -76,13 +79,13 @@ function NavBarChart({ points, muted = false }: { points: NavPoint[]; muted?: bo
     heightPct: slice.heightPct,
     label: `${slice.date}: ${dashboardUsdFull.format(slice.aum_usdc)}`,
   }));
-  const showMonthAxis = activeSlices.length === NAV_MONTH_LABELS.length;
+  const monthLabels = resolveNavMonthLabels(points);
 
   return (
     <div
       className={cn(
         "dashboard-nav-bars",
-        showMonthAxis && "dashboard-nav-bars--monthly",
+        monthLabels && "dashboard-nav-bars--monthly",
       )}
       style={{ "--dashboard-nav-bar-count": String(activeSlices.length) } as React.CSSProperties}
       role="img"
@@ -108,10 +111,10 @@ function NavBarChart({ points, muted = false }: { points: NavPoint[]; muted?: bo
           ))}
         </div>
       </div>
-      {showMonthAxis ? (
+      {monthLabels ? (
         <div className="dashboard-nav-bars__months" aria-hidden>
-          {NAV_MONTH_LABELS.map((label) => (
-            <span key={label}>{label}</span>
+          {monthLabels.map((label, index) => (
+            <span key={`${label}-${index}`}>{label}</span>
           ))}
         </div>
       ) : null}

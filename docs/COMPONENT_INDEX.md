@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**193 components** · 0 possible orphans · 2 intentionally unwired.
+**194 components** · 0 possible orphans · 2 intentionally unwired.
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -93,13 +93,13 @@
 | `src/components/onboarding/identity-chamber.tsx` | IdentityChamber | 1 |
 | `src/components/onboarding/identity-step.tsx` | IdentityStep | 1 |
 | `src/components/onboarding/identity-vendor-panel.tsx` | IdentityVendorPanel | 1 |
+| `src/components/onboarding/kyc-document-form.tsx` | KycDocumentForm | 1 |
 | `src/components/onboarding/onboarding-chamber-loading.tsx` | OnboardingChamberLoading | 3 |
-| `src/components/onboarding/onboarding-chamber.tsx` | OnboardingShellProvider, OnboardingChamber, OnboardingRequirementsList, OnboardingChamberSole | 6 |
+| `src/components/onboarding/onboarding-chamber.tsx` | OnboardingShellProvider, OnboardingChamber, OnboardingRequirementsList, OnboardingChamberSole | 8 |
 | `src/components/onboarding/onboarding-shell.tsx` | OnboardingShell | 1 |
 | `src/components/onboarding/OpsContactCard.tsx` | OpsContactCard | 1 |
 | `src/components/onboarding/privy-wallet-connect.tsx` | PrivyWalletConnect, WalletChamber | 2 |
 | `src/components/onboarding/StepProgressBar.tsx` | StepProgressBar | 4 |
-| `src/components/onboarding/sumsub-embed.tsx` | SumsubEmbed | 1 |
 | `src/components/portfolio/allocation-donut.tsx` | AllocationDonut | 1 |
 | `src/components/portfolio/capital-yield.tsx` | CapitalYield | 1 |
 | `src/components/portfolio/distrib-calendar.tsx` | DistribCalendar | 3 |
@@ -157,6 +157,7 @@
 | `src/components/scenario/preset-bar.tsx` | PresetBar, PRESETS | 3 |
 | `src/components/scenario/ptai-block.tsx` | PtaiBlock | 1 |
 | `src/components/scenario/rebalancing-actions.tsx` | RebalancingActions | 1 |
+| `src/components/scenario/scenario-feedback.tsx` | ScenarioErrorBanner, ScenarioPendingOverlay | 5 |
 | `src/components/scenario/scenario-mode-toggle.tsx` | ScenarioModeToggle | 1 |
 | `src/components/scenario/scenario-spinner.tsx` | Spinner | 4 |
 | `src/components/scenario/scenario-tab-bar.tsx` | ScenarioTabBar | 1 |
@@ -165,15 +166,15 @@
 | `src/components/ui/apy-range.tsx` | ApyRange | 18 |
 | `src/components/ui/awaiting-metric-state.tsx` | AwaitingMetricState | 13 |
 | `src/components/ui/badge.tsx` | Badge | 49 |
-| `src/components/ui/button.tsx` | Button | 79 |
-| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 71 |
+| `src/components/ui/button.tsx` | Button | 81 |
+| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 72 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
 | `src/components/ui/chart-time-selector.tsx` 🔌 | ChartTimeSelector | 0 |
 | `src/components/ui/checkbox.tsx` | Checkbox | 2 |
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
-| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 19 |
+| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 20 |
 | `src/components/ui/empty-surface.tsx` | EmptySurface | 30 |
 | `src/components/ui/error-boundary.tsx` | ErrorBoundary | 2 |
 | `src/components/ui/metric.tsx` | Metric | 8 |
@@ -182,7 +183,7 @@
 | `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 20 |
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 5 |
-| `src/components/ui/progress.tsx` | Progress | 14 |
+| `src/components/ui/progress.tsx` | Progress | 13 |
 | `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 53 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
@@ -192,7 +193,7 @@
 | `src/components/ui/toaster.tsx` | Toaster | 1 |
 | `src/components/ui/tooltip.tsx` | Tooltip | 5 |
 | `src/components/ui/widget-panel-header.tsx` | WidgetPanelHeader | 2 |
-| `src/components/ui/wizard-step-progress.tsx` | WizardStepProgress | 2 |
+| `src/components/ui/wizard-step-progress.tsx` | WizardStepProgress | 3 |
 | `src/components/vaults/deposit-success-icon.tsx` | DepositSuccessIcon | 1 |
 | `src/components/vaults/deposit-summary.tsx` | DepositSummary | 2 |
 | `src/components/vaults/invest-flow-loading-shell.tsx` | InvestFlowLoadingShell | 3 |

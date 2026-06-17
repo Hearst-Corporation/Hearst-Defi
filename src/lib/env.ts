@@ -155,9 +155,16 @@ const serverEnvSchema = z.object({
       "AUTH_TOTP_KEY must be exactly 64 hex characters (32 bytes)",
     )
     .optional(),
-  // Persona KYC — HMAC secret for webhook signature verification.
-  // Required at runtime when the persona webhook endpoint is active.
-  PERSONA_WEBHOOK_SECRET: z.string().optional(),
+  // Sumsub KYC — API credentials + webhook secret. Server-only (never expose in
+  // NEXT_PUBLIC_*). SUMSUB_APP_TOKEN carries the `sbx:` prefix in sandbox.
+  // SUMSUB_SECRET_KEY signs API requests; SUMSUB_WEBHOOK_SECRET verifies inbound
+  // webhook digests (x-payload-digest). SUMSUB_LEVEL_NAME selects the verification
+  // level (defaults to "id-and-liveness"). The webhook secret may be absent in dev
+  // — the endpoint fails-closed (401/500) until configured.
+  SUMSUB_APP_TOKEN: z.string().optional(),
+  SUMSUB_SECRET_KEY: z.string().optional(),
+  SUMSUB_WEBHOOK_SECRET: z.string().optional(),
+  SUMSUB_LEVEL_NAME: z.string().optional(),
   // DocuSign Connect — HMAC secret for webhook signature verification.
   DOCUSIGN_WEBHOOK_SECRET: z.string().optional(),
   // DocuSign API credentials (server-only — never expose in NEXT_PUBLIC_*).
@@ -169,9 +176,6 @@ const serverEnvSchema = z.object({
   // Crypto Fear & Greed Index — alternative.me base URL override.
   // Defaults to the official endpoint; override in tests or for a self-hosted proxy.
   FEAR_GREED_BASE_URL: z.string().url().default("https://api.alternative.me"),
-  // Persona KYC — server-side API key (optional, only needed if we call
-  // Persona's REST API to pre-create inquiries; the embed flow doesn't need it).
-  PERSONA_API_KEY: z.string().optional(),
   // Attestation signer allowlist — comma-separated 0x addresses of attestors
   // authorised to sign Proofs. `verifyStoredAttestation` rejects any signed
   // proof whose recovered signer is not in this list. In production, when
@@ -243,14 +247,14 @@ if (IS_RUNTIME_PRODUCTION && parsed.success) {
         "background jobs (mining health, investor memo) and rack up LLM costs.",
     );
   }
-  if (!d.PERSONA_WEBHOOK_SECRET) {
+  if (!d.SUMSUB_WEBHOOK_SECRET) {
     throw new Error(
-      "PERSONA_WEBHOOK_SECRET is required in production. " +
-        "Without it, the Persona KYC webhook accepts unauthenticated events — " +
+      "SUMSUB_WEBHOOK_SECRET is required in production. " +
+        "Without it, the Sumsub KYC webhook accepts unauthenticated events — " +
         "an attacker can spoof KYC completions and bypass investor onboarding checks.",
     );
   }
-  // DocuSign is warn-not-throw (unlike Persona KYC which is live): DocuSign may not
+  // DocuSign is warn-not-throw (unlike Sumsub KYC which is live): DocuSign may not
   // be provisioned yet in a given production environment. The webhook route already
   // fails-closed at runtime (401 when secret is absent), so a missing secret degrades
   // that endpoint only — not the whole app. A hard throw here would outage the entire
