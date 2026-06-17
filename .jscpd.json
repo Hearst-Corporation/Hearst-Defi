@@ -1,0 +1,13 @@
+{
+  "minTokens": 50,
+  "ignore": [
+    "**/__tests__/**",
+    "**/*.test.*",
+    "**/*.spec.*",
+    "**/*.d.ts",
+    "**/node_modules/**",
+    "**/.next/**"
+  ],
+  "gitignore": true,
+  "absolute": false
+}

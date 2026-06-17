@@ -1,0 +1,38 @@
+---
+description: Réutilisation obligatoire — jamais de double composant, jamais de code dupliqué, jamais de code mort. Gated (pre-commit jscpd + pre-push knip).
+alwaysApply: true
+---
+
+# Pas de double, pas de code mort (règle plancher, gated)
+
+Avant de créer **tout** composant / fonction / hook / module :
+
+1. **Cherche `docs/COMPONENT_INDEX.md`** (index généré de tous les composants) + grep le nom.
+   S'il existe déjà → **réutilise-le**. Ne crée pas un 2ᵉ exemplaire.
+2. Il existe mais est en mauvais état → **refactore-le EN PLACE** et garde le même fichier/export.
+   Ne forke pas `Foo` en `Foo2` / `FooNew` / `FooV2`.
+3. Tu remplaces un composant → **supprime l'ancien dans le même change**. Pas d'orphelin.
+
+## C'est gated — ça bloque, pas juste un conseil
+
+- **pre-commit** : `node scripts/quality-gate.mjs dup` (jscpd, cliquet **143 clones**) → tout commit
+  qui ajoute du code dupliqué est **refusé**. Le hook régénère aussi `docs/COMPONENT_INDEX.md`.
+- **pre-push** : `node scripts/quality-gate.mjs dead` (knip, cliquet **22 findings**) → tout push
+  qui laisse un export/fichier/type orphelin est **refusé**.
+- Le cliquet ne va **que vers le bas** : on ne peut pas relâcher le baseline sans `--force`.
+
+## Inspecter / réparer
+
+- `pnpm quality` — lance les deux gates.
+- `pnpm quality:dup:report` — rapport HTML des clones (où dupliques-tu ?).
+- `pnpm quality:dead:report` — liste knip du code mort (quel orphelin supprimer ?).
+- `pnpm quality:update` — abaisse le baseline après un vrai nettoyage (jamais pour le relâcher).
+
+## Limite
+
+jscpd attrape la duplication **textuelle/structurelle** (copier-coller, fork), pas la duplication
+**sémantique** (même logique réécrite autrement). D'où l'étape 1 obligatoire : consulter l'index
+AVANT de coder. En cas de doute « est-ce que ça existe déjà ? » → cherche, ne recode pas.
+
+Exceptions légitimes (ne pas « réparer ») : les composants marqués 🔌 *intentionally unwired* dans
+l'index (construits, testés, à brancher plus tard) — ils sont allowlistés, ne les supprime pas.

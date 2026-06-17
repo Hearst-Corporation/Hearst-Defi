@@ -1,0 +1,16 @@
+{
+  "dup": {
+    "clones": 143,
+    "percentage": 1.89873417721519
+  },
+  "dead": {
+    "total": 22,
+    "breakdown": {
+      "files": 0,
+      "exports": 14,
+      "duplicates": 2,
+      "types": 6
+    }
+  },
+  "updatedAt": "2026-06-17T07:39:42.104Z"
+}

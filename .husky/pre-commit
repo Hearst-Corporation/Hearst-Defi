@@ -1,0 +1,10 @@
+#!/bin/sh
+# Hard gate — runs on every commit. Blocks NEW duplication and keeps the
+# component index fresh. Fast (<2s). Bypass deliberately with `git commit --no-verify`.
+#
+# Enforces: "jamais de double composant" (jscpd ratchet) +
+#           "toujours réutiliser l'existant" (regenerated component index).
+# Dead-code (knip) runs in pre-push, where the slower full-graph scan belongs.
+
+node scripts/component-index.mjs --stage || exit 1
+node scripts/quality-gate.mjs dup || exit 1

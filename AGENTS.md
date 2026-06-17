@@ -28,6 +28,18 @@ contexte du domaine concerné, **pas** tout le README.
 - **Pas de cross-project import** depuis `Dev/Projects/hearst-connect` (réf. read-only) — tout recodé ici.
 - **Pas d'envoi email réel**, pas de mutation prod, pas de migration DB sans demande explicite.
 
+## Réutilisation obligatoire — jamais de double, jamais de code mort (GATE EXÉCUTABLE)
+
+Avant de créer **tout** composant / fonction / module :
+1. **Cherche d'abord** dans `docs/COMPONENT_INDEX.md` (index généré de tous les composants). S'il existe → **réutilise-le**.
+2. S'il existe mais est en mauvais état → **refactore-le EN PLACE et supprime l'ancien**. Jamais un 2ᵉ exemplaire.
+3. Tu remplaces un composant ? **Supprime l'ancien dans le même change** — un export orphelin bloque le push.
+
+Ces règles ne sont pas que du discours, elles **bloquent le commit/push** (cliquet, ne régresse jamais) :
+- **pre-commit** → `jscpd` refuse tout commit qui ajoute du code dupliqué (baseline 143 clones) + régénère l'index.
+- **pre-push** → `knip` refuse tout push qui laisse du code mort (baseline 22 findings).
+- Inspecter : `pnpm quality` (tout), `pnpm quality:dup:report` / `pnpm quality:dead:report`. Baseline : `scripts/quality-baseline.json` (abaisser via `pnpm quality:update` après nettoyage). Bypass délibéré seulement : `--no-verify`.
+
 ## STOP conditions (s'arrêter et demander)
 - Il faut toucher `next.config.ts`, auth/wallet/CSP, `src/proxy.ts`, l'engine, ou data/provenance.
 - Une permission/outil est refusé → ne pas contourner, signaler.

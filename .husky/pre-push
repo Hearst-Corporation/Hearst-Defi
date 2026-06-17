@@ -1,0 +1,10 @@
+#!/bin/sh
+# Hard gate — runs on every push (before anything reaches GitHub / Vercel).
+# Blocks NEW dead code via knip's full-graph scan (~15-20s, too slow for
+# per-commit, right for per-push).
+#
+# Enforces: "jamais de code mort" + "remplace ET nettoie l'ancien" — if you
+# replaced a component and left the old one, its orphaned export trips this.
+# Bypass deliberately with `git push --no-verify`.
+
+node scripts/quality-gate.mjs dead || exit 1
