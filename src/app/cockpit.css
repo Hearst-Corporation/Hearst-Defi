@@ -4188,25 +4188,49 @@ button.ct-seg-btn {
    plus haut près de .ct-center-panel ; ce n'est plus une surcharge mobile.)
    Aucun nouveau token/classe : surcharge responsive de classes shell existantes,
    même pattern que le reste de ce fichier. */
-.ct-root.ct-shell-chat-only .ct-panels-row {
-  align-items: flex-start;
-}
-
+/* /apply chat-only — form uses the full center band; assistant is overlay-on-demand
+   (FAB), never a sticky sibling box that steals width and breaks optical centering. */
 .ct-root.ct-shell-chat-only .ct-page-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding-top: clamp(2rem, 8vh, 4rem);
 }
 
 .ct-root.ct-shell-chat-only .ct-rail-right {
-  align-self: flex-start;
-  position: sticky;
-  top: clamp(2rem, 8vh, 4rem);
-  margin-top: clamp(2rem, 8vh, 4rem);
-  margin-right: var(--ct-space-6);
-  height: min(calc(100dvh - clamp(4rem, 16vh, 8rem)), 44rem);
-  max-height: 44rem;
+  display: none !important;
+}
+
+.ct-chatonly-armed .ct-root.ct-shell-chat-only .ct-rail-right:not(.collapsed) {
+  display: flex !important;
+  position: fixed;
+  z-index: var(--ct-z-overlay);
+  top: auto;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  width: min(24rem, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  height: min(68dvh, 40rem);
+  max-height: 40rem;
+  margin: 0;
+  align-self: auto;
   border-radius: var(--ct-radius-xl);
   overflow: hidden;
   box-shadow: var(--ct-shadow-elevated);
+}
+
+.ct-chatonly-armed .ct-root.ct-shell-chat-only .ct-rail-right:not(.collapsed) .ct-rail-right-body {
+  min-height: 0;
+}
+
+@media (min-width: 768px) {
+  .ct-chatonly-armed .ct-root.ct-shell-chat-only .ct-rail-right:not(.collapsed) {
+    right: 24px;
+    bottom: 24px;
+    width: min(26rem, calc(100vw - 48px));
+    height: min(72dvh, 44rem);
+    max-height: 44rem;
+  }
 }
 
 .ct-chatonly-backdrop {
@@ -4226,26 +4250,6 @@ button.ct-seg-btn {
 
 @media (max-width: 1199px) {
   .ct-rail-right { display: none !important; }
-
-  .ct-chatonly-armed .ct-root.ct-shell-chat-only .ct-rail-right:not(.collapsed) {
-    display: flex !important;
-    position: fixed;
-    right: 16px;
-    bottom: calc(16px + env(safe-area-inset-bottom));
-    width: min(22rem, calc(100vw - 32px));
-    max-width: calc(100vw - 32px);
-    height: min(68dvh, 36rem);
-    z-index: var(--ct-z-overlay);
-    border-radius: var(--ct-radius-xl);
-    overflow: hidden;
-    box-shadow: var(--ct-shadow-elevated);
-    margin-top: 0;
-    top: auto;
-  }
-
-  .ct-chatonly-armed .ct-root.ct-shell-chat-only .ct-rail-right:not(.collapsed) .ct-rail-right-body {
-    min-height: 0;
-  }
 }
 
 @media (max-width: 767px) {

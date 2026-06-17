@@ -62,7 +62,7 @@ function ChatOnlyShell({ children }: { children: ReactNode }) {
         <button
           type="button"
           aria-label="Close assistant"
-          className="ct-chatonly-backdrop min-[1200px]:hidden"
+          className="ct-chatonly-backdrop"
           onClick={() => {
             toggleRailRight();
             setArmed(false);
@@ -78,7 +78,7 @@ function ChatOnlyShell({ children }: { children: ReactNode }) {
             setArmed(true);
             forceOpenRailRight();
           }}
-          className="fixed right-4 bottom-4 z-(--ct-z-overlay) rounded-full shadow-(--ct-shadow-elevated) min-[1200px]:hidden"
+          className="fixed right-4 bottom-4 z-(--ct-z-overlay) rounded-full shadow-(--ct-shadow-elevated)"
         >
           Assistant
         </Button>
