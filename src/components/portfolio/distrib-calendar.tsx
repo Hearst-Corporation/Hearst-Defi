@@ -17,7 +17,7 @@ import {
 } from "@/components/portfolio/pf-cockpit-panel";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
-import { formatUsdcAmount } from "@/lib/vaults/product-display";
+import { formatUsdFull } from "@/lib/vaults/product-display";
 
 // ── Public types ──────────────────────────────────────────────────────────────
 
@@ -60,8 +60,8 @@ export function formatPeriod(period: string, refYear: number): string {
   return year !== refYear ? `${label}'${String(year).slice(2)}` : label;
 }
 
-/** @deprecated Import formatUsdcAmount from @/lib/vaults/product-display */
-export const formatUsdc = formatUsdcAmount;
+/** @deprecated Import formatUsdFull from @/lib/vaults/product-display */
+export const formatUsdc = formatUsdFull;
 
 // ── SVG constants ─────────────────────────────────────────────────────────────
 

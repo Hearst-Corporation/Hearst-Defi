@@ -14,6 +14,7 @@ import {
   vaultStatusLabel,
 } from "@/lib/constants/vault";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
+import { investProductPath } from "@/lib/vaults/invest-routes";
 
 interface ProductSelectCardProps {
   vault: VaultProduct;
@@ -23,7 +24,7 @@ interface ProductSelectCardProps {
 
 export function ProductSelectCard({ vault, demo = false }: ProductSelectCardProps) {
   const isLive = vault.status === "live";
-  const href = `/vaults/${vault.ticker.toLowerCase()}`;
+  const href = investProductPath(vault.ticker);
   const strategyLabel = STRATEGY_LABELS[vault.strategy] ?? vault.strategy;
 
   const aumDisplay =

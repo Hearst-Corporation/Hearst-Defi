@@ -1,32 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-export function VaultFlowSection({
-  id,
-  title,
-  provenance,
-  children,
-  className,
-}: {
-  id: string;
-  title: string;
-  provenance?: React.ReactNode;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <section aria-labelledby={id} className={cn("product-doc-section", className)}>
-      <div className="product-doc-section__head">
-        <h2 id={id} className="h2">
-          {title}
-        </h2>
-        {provenance}
-      </div>
-      {children}
-    </section>
-  );
-}
-
 export function VaultPanelHeader({
   title,
   eyebrow,

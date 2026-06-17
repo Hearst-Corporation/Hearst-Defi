@@ -1,9 +1,8 @@
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { StepProgress } from "@/components/vaults/step-progress";
 import { cn } from "@/lib/cn";
+import type { InvestStepId } from "@/lib/vaults/invest-routes";
 import type { ReactNode } from "react";
-
-type InvestStepId = "select" | "product" | "deposit" | "confirmed";
 
 /** Product lane only — step index lives in `StepProgress`, not duplicated in eyebrow. */
 const INVEST_EYEBROW = "Invest";

@@ -138,10 +138,6 @@ describe("S9 ConfirmedPage — all required elements present", () => {
     expect(html).toContain("investor@firm.com");
   });
 
-  it("shows the 'not guaranteed' disclaimer", async () => {
-    const html = await getHtml();
-    expect(html.toLowerCase()).toContain("not a commitment of future returns");
-  });
 
   it("uses InvestFlowShell step 4 layout with product-doc stacks and vault panel primitives", async () => {
     const html = await getHtml();

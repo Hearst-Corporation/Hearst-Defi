@@ -38,9 +38,6 @@ export function formatUsdDetailed(usdc: number): string {
   return USD_DETAILED.format(usdc);
 }
 
-/** Portfolio USDC labels — full currency ($358,000). */
-export const formatUsdcAmount = formatUsdFull;
-
 /** Grouped integer without currency symbol (time-to-cash widget). */
 export function formatUsdcGrouped(amount: number): string {
   return USDC_GROUPED.format(Math.round(amount));

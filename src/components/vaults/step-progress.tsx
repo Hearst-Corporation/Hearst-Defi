@@ -2,10 +2,9 @@ import {
   WizardStepProgress,
   type WizardStep,
 } from "@/components/ui/wizard-step-progress";
+import type { InvestStepId } from "@/lib/vaults/invest-routes";
 
-type StepId = "select" | "product" | "deposit" | "confirmed";
-
-const STEPS: readonly WizardStep<StepId>[] = [
+const STEPS: readonly WizardStep<InvestStepId>[] = [
   { id: "select", label: "Select", index: 1 },
   { id: "product", label: "Details", index: 2 },
   { id: "deposit", label: "Deposit", index: 3 },
@@ -13,7 +12,7 @@ const STEPS: readonly WizardStep<StepId>[] = [
 ] as const;
 
 interface StepProgressProps {
-  active: StepId;
+  active: InvestStepId;
 }
 
 /** 4-step wizard progress for the invest flow. */

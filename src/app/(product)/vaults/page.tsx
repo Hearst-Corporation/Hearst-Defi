@@ -25,18 +25,7 @@ export default async function VaultsPage() {
       width="full"
       title="Select a product"
       description="Professional-grade structured yield for qualified investors. Review the term sheet and confirm before depositing."
-      footer={
-        <p className="body-xs ct-text-faint ct-prose-xl">
-          Products listed are offered exclusively to professional and qualified
-          investors. Past performance does not indicate future results. APY
-          ranges are not a projection of returns. Subject to minimum
-          subscription, jurisdictional restrictions, and soft lock-up terms.
-        </p>
-      }
     >
-      {/* The InvestFlowShell h1 ("Select a product") IS this region's Level-1
-          heading — see DESIGN_SYSTEM §UI-Hierarchy. No redundant section h2:
-          the product list is the section body directly under the page thesis. */}
       <section aria-label="Available products">
         {demo ? (
           <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-[var(--ct-space-4)]" />

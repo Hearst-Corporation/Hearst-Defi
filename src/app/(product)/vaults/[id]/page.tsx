@@ -17,6 +17,7 @@ import {
   vaultStatusLabel,
 } from "@/lib/constants/vault";
 import { formatMinTicketUsdc } from "@/lib/vaults/product-display";
+import { investDepositPath, INVEST_SELECT_PATH } from "@/lib/vaults/invest-routes";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +58,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
   if (!vault) notFound();
 
   const isLive = vault.status === "live";
-  const investHref = `/vaults/${id}/invest`;
+  const investHref = investDepositPath(id);
 
   return (
     <InvestFlowShell
@@ -66,7 +67,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       title={vault.name}
       lead={
         <Link
-          href="/vaults"
+          href={INVEST_SELECT_PATH}
           className="body-sm ct-link-accent"
           aria-label="Back to product list"
         >
@@ -75,7 +76,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       }
       actions={
         <>
-          <Badge variant="accent" className="mono eyebrow">{vault.ticker}</Badge>
+          <Badge variant="accent" className="mono">{vault.ticker}</Badge>
           <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
             {vaultStatusLabel(vault.status)}
           </Badge>
@@ -124,7 +125,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       {demo ? (
         <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-[var(--ct-space-4)]" />
       ) : null}
-      <TermSheetPreview vault={vault} workspace />
+      <TermSheetPreview vault={vault} />
     </InvestFlowShell>
   );
 }

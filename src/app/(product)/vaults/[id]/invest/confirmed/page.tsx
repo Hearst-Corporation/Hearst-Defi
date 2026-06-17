@@ -39,6 +39,7 @@ import { abbreviateAddress } from "@/lib/onchain";
 import { getPublicClient, explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { readNavPerShare, formatNavPerShare, isVaultStale } from "@/lib/onchain/vault";
 import { getVault } from "@/lib/data/vaults";
+import { INVEST_SELECT_PATH } from "@/lib/vaults/invest-routes";
 
 export const dynamic = "force-dynamic";
 
@@ -86,14 +87,6 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
         lead={<DepositSuccessIcon />}
         title={DEMO_CONFIRMED_TITLE}
         description={DEMO_CONFIRMED_DESCRIPTION}
-        footer={
-          <p className="body-xs ct-text-faint text-center text-pretty">
-            APY ranges are target projections based on stated assumptions — not a
-            commitment of future returns. Subject to vault conditions and
-            Methodology v1.0.{" "}
-            <span className="tabular mono ct-text-muted">Vault {id}</span>
-          </p>
-        }
       >
         <div className="product-doc-stack">
           <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} />
@@ -118,7 +111,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
               <Link href="/portfolio">Back to portfolio</Link>
             </Button>
             <Button variant="ghost" size="md" asChild className="w-full">
-              <Link href="/vaults">View other products</Link>
+              <Link href={INVEST_SELECT_PATH}>View other products</Link>
             </Button>
           </div>
         </div>
@@ -171,14 +164,6 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
           ? "Your position has been recorded on-chain. Details below."
           : "Your subscription request is recorded. On-chain confirmation may still be pending."
       }
-      footer={
-        <p className="body-xs ct-text-faint text-center text-pretty">
-          APY ranges are target projections based on stated assumptions — not a
-          commitment of future returns. Subject to vault conditions and Methodology
-          v1.0.{" "}
-          <span className="tabular mono ct-text-muted">Vault {id}</span>
-        </p>
-      }
     >
       <div className="product-doc-stack">
         <NestedPanel className="py-0">
@@ -229,7 +214,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
 
             <VaultPanelInsetBlock>
               <div className="vault-panel-inset-block__meta">
-                <span className="eyebrow ct-text-muted">Soft-lock</span>
+                <span className="stat-label ct-text-muted">Soft-lock</span>
                 <span className="body-xs ct-text-muted">
                   Day {currentDay} of {LOCK_DAYS} · unlock {formatDateGb(unlockDate)}
                 </span>
@@ -269,7 +254,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
         </NestedPanel>
 
         <div className="product-doc-stack--tight">
-          <p className="eyebrow ct-text-muted">Next steps</p>
+          <p className="stat-label ct-text-muted">Next steps</p>
           <ul className="body-sm ct-text-body product-doc-bullet-list">
             <li>Track your position and distributions in Portfolio</li>
             <li>Review attestations in Proof Center</li>
@@ -293,7 +278,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
             </Link>
           </Button>
           <Button variant="ghost" size="md" asChild className="w-full">
-            <Link href="/vaults">View other products</Link>
+            <Link href={INVEST_SELECT_PATH}>View other products</Link>
           </Button>
         </div>
 

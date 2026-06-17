@@ -11,7 +11,7 @@ import {
   formatDateGb,
   formatUsdAmount,
   formatUsdDetailed,
-  formatUsdcAmount,
+  formatUsdFull,
   formatUsdcGrouped,
   formatUsdcFromParam,
 } from "@/lib/vaults/product-display";
@@ -35,10 +35,10 @@ describe("formatUsdDetailed", () => {
   });
 });
 
-describe("formatUsdcAmount", () => {
+describe("formatUsdFull", () => {
   it("matches full USD formatting", () => {
-    expect(formatUsdcAmount(358_000)).toBe("$358,000");
-    expect(formatUsdcAmount(2_310)).toBe("$2,310");
+    expect(formatUsdFull(358_000)).toBe("$358,000");
+    expect(formatUsdFull(2_310)).toBe("$2,310");
   });
 });
 

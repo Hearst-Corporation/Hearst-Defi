@@ -163,7 +163,7 @@
 | `src/components/scenario/scenario-tab-bar.tsx` | ScenarioTabBar | 1 |
 | `src/components/scenario/single-mode.tsx` | SingleMode | 1 |
 | `src/components/simulation/simulation-panel.tsx` | SimulationPanel | 1 |
-| `src/components/ui/apy-range.tsx` | ApyRange | 18 |
+| `src/components/ui/apy-range.tsx` | ApyRange | 17 |
 | `src/components/ui/awaiting-metric-state.tsx` | AwaitingMetricState | 13 |
 | `src/components/ui/badge.tsx` | Badge | 51 |
 | `src/components/ui/button.tsx` | Button | 81 |
@@ -195,7 +195,7 @@
 | `src/components/ui/widget-panel-header.tsx` | WidgetPanelHeader | 2 |
 | `src/components/ui/wizard-step-progress.tsx` | WizardStepProgress | 3 |
 | `src/components/vaults/deposit-success-icon.tsx` | DepositSuccessIcon | 1 |
-| `src/components/vaults/deposit-summary.tsx` | DepositSummary | 2 |
+| `src/components/vaults/deposit-summary.tsx` | DepositSummary | 1 |
 | `src/components/vaults/invest-flow-loading-shell.tsx` | InvestFlowLoadingShell | 3 |
 | `src/components/vaults/invest-flow-shell.tsx` | InvestFlowShell | 5 |
 | `src/components/vaults/invest-form.tsx` | InvestForm | 1 |
@@ -207,7 +207,7 @@
 | `src/components/vaults/time-to-target-chart.tsx` | TimeToTargetChart | 2 |
 | `src/components/vaults/vault-admin-kpi-strip.tsx` | VaultAdminKpiStrip | 1 |
 | `src/components/vaults/vault-allocation-display.tsx` | VaultAllocationAdminRows, VaultAllocationInvestorList | 2 |
-| `src/components/vaults/vault-flow-primitives.tsx` | VaultFlowSection, VaultPanelHeader, VaultKpiCell, VaultDetailRow, VaultPanelLink, VaultPanelInsetBlock | 5 |
+| `src/components/vaults/vault-flow-primitives.tsx` | VaultPanelHeader, VaultKpiCell, VaultDetailRow, VaultPanelLink, VaultPanelInsetBlock | 5 |
 | `src/components/vaults/vault-legal-proof-rows.tsx` | VaultLegalProofRows | 2 |
 
 Legend: ⚠️ possible orphan · 🔌 intentionally unwired.

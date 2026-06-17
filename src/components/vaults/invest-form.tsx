@@ -16,6 +16,10 @@ import { PreFlightCheck, isPreFlightReady } from "@/components/vaults/preflight-
 import { VaultPanelHeader } from "@/components/vaults/vault-flow-primitives";
 import { TimeToTargetChart } from "@/components/vaults/time-to-target-chart";
 import {
+  investConfirmedPath,
+  investProductPath,
+} from "@/lib/vaults/invest-routes";
+import {
   depositToVault,
   walletClientFromProvider,
   VAULT_ADDRESS,
@@ -126,7 +130,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
     <div className="vault-invest-grid">
       <div className="vault-invest-form-main">
         <div className="vault-flow-flat-section">
-          <VaultPanelHeader eyebrow="Review-only mode" title="Deposit amount" />
+          <VaultPanelHeader title="Deposit amount" />
           <div className="vault-panel-body vault-panel-body--stack">
             <section>
               <label htmlFor="amt-input-disabled" className="sr-only">
@@ -167,7 +171,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
 
             <div className="vault-form-actions">
               <Button variant="secondary" size="md" asChild>
-                <Link href={`/vaults/${vault.id}`}>← Back</Link>
+                <Link href={investProductPath(vault.id)}>← Back</Link>
               </Button>
               <Button variant="primary" size="md" disabled className="vault-form-actions__primary">
                 Connect a wallet to continue
@@ -309,9 +313,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
     // `tx=` (we never present a fake-real hash) and no `positionId`. The
     // confirmed page detects demo via getInvestor server-side, not a searchparam.
     if (demo) {
-      router.push(
-        `/vaults/${vault.id}/invest/confirmed?amount=${amount}`,
-      );
+      router.push(`${investConfirmedPath(vault.id)}?amount=${amount}`);
       return;
     }
 
@@ -360,7 +362,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
       }
 
       router.push(
-        `/vaults/${vault.id}/invest/confirmed?tx=${result.txHash}&amount=${amount}&positionId=${sub.positionId}`,
+        `${investConfirmedPath(vault.id)}?tx=${result.txHash}&amount=${amount}&positionId=${sub.positionId}`,
       );
     } catch (e) {
       let msg = "Deposit failed. Please try again.";
@@ -447,7 +449,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
             >
               I have reviewed and accept the{" "}
               <Link
-                href={`/vaults/${vault.id}`}
+                href={investProductPath(vault.id)}
                 className="underline ct-text-primary hover:ct-text-strong transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -471,7 +473,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
                 className="vault-confirm-panel border-t border-(--ct-border-soft) pt-[var(--ct-space-4)]"
                 aria-label={demo ? "Confirm your simulated deposit" : "Confirm your deposit"}
               >
-                <p className="eyebrow">
+                <p className="stat-label">
                   {demo ? "Confirm your simulated deposit" : "Confirm your deposit"}
                 </p>
                 <div className="vault-confirm-panel__rows">
@@ -524,7 +526,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
             ) : (
               <div className="vault-form-actions">
                 <Button variant="secondary" size="md" asChild>
-                  <Link href={`/vaults/${vault.id}`}>← Back</Link>
+                  <Link href={investProductPath(vault.id)}>← Back</Link>
                 </Button>
 
                 <Button
