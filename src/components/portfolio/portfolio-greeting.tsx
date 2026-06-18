@@ -1,15 +1,7 @@
+
 import type { PortfolioData } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
-
-/** Relative time string for the recap line ("today", "3 days ago", "1 month ago"). */
-function relativeTime(date: Date, asOf: Date): string {
-  const days = Math.floor((asOf.getTime() - date.getTime()) / 86_400_000);
-  if (days < 1) return "today";
-  if (days === 1) return "yesterday";
-  if (days < 30) return `${days} days ago`;
-  const months = Math.floor(days / 30);
-  return months === 1 ? "1 month ago" : `${months} months ago`;
-}
+import { relativeTime } from "@/lib/format/time";
 
 interface PortfolioGreetingProps {
   /** Display name — email local-part or shortened wallet. */

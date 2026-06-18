@@ -6,6 +6,8 @@ import {
 import { cn } from "@/lib/cn";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
+import { relativeTime } from "@/lib/format/time";
 
 const usdFmt = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -23,18 +25,6 @@ const TYPE_LABELS: Record<string, string> = {
   withdraw: "Withdrawal",
   distribution: "Payout",
 };
-
-/** Returns a relative time string like "3 days ago", "1 month ago". */
-function relativeTime(date: Date, asOf: Date): string {
-  const diffMs = asOf.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  if (diffDays < 1) return "today";
-  if (diffDays === 1) return "1 day ago";
-  if (diffDays < 30) return `${diffDays} days ago`;
-  const diffMonths = Math.floor(diffDays / 30);
-  if (diffMonths === 1) return "1 month ago";
-  return `${diffMonths} months ago`;
-}
 
 // Placeholder icon for each tx type
 function TxIcon({ type }: { type: string }) {
@@ -56,6 +46,8 @@ interface RecentActivityProps {
   updatedAt?: Date;
   /** Render activity shell with empty list (layout preview). */
   previewZeros?: boolean;
+  /** Hub-only link to the focused leaf page. */
+  leafHref?: string;
 }
 
 /**
@@ -67,6 +59,7 @@ export function RecentActivity({
   source,
   updatedAt,
   previewZeros = false,
+  leafHref,
 }: RecentActivityProps) {
   const displayed = transactions.slice(0, 5);
   const isEmpty = displayed.length === 0;
@@ -79,7 +72,11 @@ export function RecentActivity({
 
   return (
     <PfCockpitPanel variant="wide" aria-label="Recent account activity" className="h-full">
-      <PfCockpitPanelHeader title="Recent activity" provenance={provenance} />
+      <PfCockpitPanelHeader
+        title="Recent activity"
+        provenance={provenance}
+        trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
+      />
 
       <div className="pf-recent-activity-list flex-1">
           {displayed.length === 0 ? (
