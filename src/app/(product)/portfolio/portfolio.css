@@ -1760,6 +1760,30 @@
     min-height: 0;
     scrollbar-width: thin;
   }
+
+  /* No-data hero rail in viewport-fit: the three placeholder groups (Key metrics
+     / Projected payout / Liquidity) form a ~435px vertical ladder. The summary
+     row is height-capped (~254px → ~163px sidebar cell), so a 1-col rail clips
+     and shows an internal scrollbar with half the metrics hidden. Lay the three
+     groups as a single 3-column row (placeholders are short — Key metrics is the
+     only multi-line group) so the whole rail fits the capped cell WITHOUT any
+     internal scroll. Live (non-zero) rail keeps its vertical column + scroll. */
+  .pf-container--fit.pf-container--zero .pf-hero-sidebar {
+    overflow-y: visible;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--ct-space-2) var(--ct-space-5);
+    align-content: start;
+  }
+
+  .pf-container--fit.pf-container--zero
+    .pf-hero-sidebar
+    .pf-hero-rail-group
+    + .pf-hero-rail-group {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
 }
 
 /* Phone — force single-column trio. */
