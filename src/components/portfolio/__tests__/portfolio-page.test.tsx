@@ -2,8 +2,8 @@
  * Portfolio page — integration tests.
  *
  * Verifies:
- *   1. Page structure renders 3 distinct sections (data-section attributes)
- *   2. All 5 new widgets present (data-testid attributes)
+ *   1. Hub cockpit bento contract (all widgets composed on /portfolio)
+ *   2. Widget test-ids on hub + leaf pages
  *   3. Allocation donut and positions table preserved (aria-label)
  *   4. loadPortfolio mock data flows without regression
  *
@@ -61,32 +61,43 @@ const MOCK_PORTFOLIO_DATA = {
   source: "live" as const,
 };
 
-// ── 1. 3 sections defined ────────────────────────────────────────────────────
+// ── 1. Hub cockpit bento (/portfolio dashboard) ──────────────────────────────
 
-describe("Portfolio page — 3 sections contract", () => {
-  const EXPECTED_SECTIONS = ["hero-pulse", "activity-payouts"] as const;
+describe("Portfolio hub — cockpit bento contract", () => {
+  const HUB_SECTIONS = [
+    "positions",
+    "yield-allocation",
+    "payout-calendar",
+    "yield-trust",
+  ] as const;
 
-  it("defines exactly 2 distinct section identifiers", () => {
-    expect(EXPECTED_SECTIONS).toHaveLength(2);
+  const HUB_WIDGETS = [
+    "capital-yield-widget",
+    "trust-panel-widget",
+    "distrib-calendar-widget",
+    "recent-activity-widget",
+  ] as const;
+
+  it("defines 4 data-section markers on the hub", () => {
+    expect(HUB_SECTIONS).toHaveLength(4);
   });
 
-  it("section identifiers are unique strings", () => {
-    const unique = new Set(EXPECTED_SECTIONS);
-    expect(unique.size).toBe(2);
+  it("defines 4 widget test-ids on the hub", () => {
+    expect(HUB_WIDGETS).toHaveLength(4);
   });
 
-  it("Section 1 identifier is 'hero-pulse'", () => {
-    expect(EXPECTED_SECTIONS[0]).toBe("hero-pulse");
+  it("hub sections are unique", () => {
+    expect(new Set(HUB_SECTIONS).size).toBe(4);
   });
 
-  it("Section 2 identifier is 'activity-payouts'", () => {
-    expect(EXPECTED_SECTIONS[1]).toBe("activity-payouts");
+  it("hub widget test-ids are unique", () => {
+    expect(new Set(HUB_WIDGETS).size).toBe(4);
   });
 });
 
-// ── 2. 4 new widgets present (lock-meter has no page test-id) ────────────────
+// ── 2. Leaf widgets (focused pages — same test-ids as hub) ───────────────────
 
-describe("Portfolio page — 4 new widgets contract", () => {
+describe("Portfolio leaf — widget test-ids contract", () => {
   const WIDGET_TEST_IDS = [
     "capital-yield-widget",
     "trust-panel-widget",
@@ -468,19 +479,16 @@ describe("YieldStack props — loadYieldStackProps shape", () => {
 describe("Widget placement in sections", () => {
   // Section → expected widgets mapping (canonical).
   //
-  // No-scroll dashboard: the top level (/portfolio) renders only the hero-pulse
-  // section + a row of "view more" teaser tiles. Each heavy widget now lives on
-  // its dedicated leaf page, but the data-section + data-testid markers are kept
-  // verbatim so this mapping still holds across the portfolio surface:
+  // No-scroll dashboard: /portfolio composes widgets in mid (positions + yield)
+  // and trio (distributions, activity, trust) rows.
+  // Leaf pages keep the same data-section + data-testid markers for focused views:
   //   positions        → /portfolio/positions
   //   yield-allocation  → /portfolio/yield        (capital-yield-widget)
   //   yield-trust       → /portfolio/activity     (trust-panel-widget)
   //   activity-payouts  → /portfolio/activity     (recent-activity-widget)
   //   payout-calendar   → /portfolio/distributions (distrib-calendar-widget)
   const SECTION_WIDGETS: Record<string, string[]> = {
-    // PositionsList — no data-testid; lives on /portfolio/positions leaf
     positions: [],
-    "hero-pulse": [],
     "yield-allocation": ["capital-yield-widget"],
     "yield-trust": ["trust-panel-widget"],
     "activity-payouts": ["recent-activity-widget"],

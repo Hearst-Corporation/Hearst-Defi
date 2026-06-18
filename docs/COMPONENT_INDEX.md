@@ -190,7 +190,7 @@
 | `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 24 |
 | `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 19 |
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
-| `src/components/ui/product-section.tsx` | ProductSection | 5 |
+| `src/components/ui/product-section.tsx` | ProductSection | 4 |
 | `src/components/ui/progress.tsx` | Progress | 14 |
 | `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 51 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |

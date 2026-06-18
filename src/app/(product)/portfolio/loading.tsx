@@ -1,6 +1,5 @@
 import "./portfolio.css";
 
-import { ProductSection } from "@/components/ui/product-section";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PortfolioLoading() {
@@ -11,28 +10,38 @@ export default function PortfolioLoading() {
         <Skeleton className="pf-skeleton-greeting-recap" />
       </div>
 
-      <ProductSection
-        title="Performance & Liquidity"
-        eyebrow="Portfolio"
-        showProvenance={false}
-        className="pf-hero-section"
-        data-section="hero-pulse"
-      >
-        <div className="pf-hero-grid">
-          <div className="pf-main-chart-wrapper">
-            <Skeleton className="pf-skeleton-chart" />
+      <div className="pf-cockpit">
+        <div className="pf-cockpit-row pf-cockpit-row--summary">
+          <div className="pf-hero-grid pf-cockpit-cell">
+            <div className="pf-main-chart-wrapper">
+              <Skeleton className="pf-skeleton-chart" />
+            </div>
+            <aside className="pf-hero-sidebar">
+              <Skeleton className="pf-skeleton-sidebar" />
+            </aside>
           </div>
-          <aside className="pf-hero-sidebar">
-            <Skeleton className="pf-skeleton-sidebar" />
-          </aside>
         </div>
-      </ProductSection>
 
-      <div className="pf-teaser-grid">
-        <Skeleton className="pf-cockpit-panel pf-teaser" />
-        <Skeleton className="pf-cockpit-panel pf-teaser" />
-        <Skeleton className="pf-cockpit-panel pf-teaser" />
-        <Skeleton className="pf-cockpit-panel pf-teaser" />
+        <div className="pf-cockpit-row pf-cockpit-row--mid">
+          <div className="pf-cockpit-cell">
+            <Skeleton className="pf-cockpit-panel pf-skeleton-widget" />
+          </div>
+          <div className="pf-cockpit-cell">
+            <Skeleton className="pf-cockpit-panel pf-skeleton-widget" />
+          </div>
+        </div>
+
+        <div className="pf-cockpit-row pf-cockpit-row--trio">
+          <div className="pf-cockpit-cell">
+            <Skeleton className="pf-cockpit-panel" />
+          </div>
+          <div className="pf-cockpit-cell">
+            <Skeleton className="pf-cockpit-panel" />
+          </div>
+          <div className="pf-cockpit-cell">
+            <Skeleton className="pf-cockpit-panel" />
+          </div>
+        </div>
       </div>
     </div>
   );

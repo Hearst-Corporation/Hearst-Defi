@@ -13,8 +13,8 @@ export const metadata = {
 };
 
 /**
- * Yield & allocation — the "view more" leaf reached from the dashboard Yield
- * tile. Reuses <CapitalYield> verbatim, keeping data-testid='capital-yield-widget'
+ * Yield & allocation — focused leaf; same widget as the hub quad row.
+ * Reuses <CapitalYield> verbatim, keeping data-testid='capital-yield-widget'
  * alive. Preview/demo wiring from the shared loadPortfolioView().
  */
 export default async function YieldPage() {

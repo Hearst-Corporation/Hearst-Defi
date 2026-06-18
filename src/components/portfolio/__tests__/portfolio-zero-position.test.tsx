@@ -124,6 +124,7 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     expect(html).toContain("Confirm your eligibility");
     expect(html).toContain("Start onboarding");
     expect(html).toContain("/onboarding/accreditation");
+    expect(html).not.toMatch(/<h3[^>]*>Portfolio value<\/h3>/);
     expect(html).not.toContain("No portfolio value recorded yet");
     expect(html).not.toContain("<svg");
   });

@@ -15,8 +15,8 @@ export const metadata = {
 };
 
 /**
- * Activity & trust — the "view more" leaf reached from the dashboard Activity
- * tile. Reuses the dashboard's "Activity & trust" block verbatim, keeping
+ * Activity & trust — focused leaf; same widgets as the hub quad row.
+ * Reuses the dashboard's activity + trust block verbatim, keeping
  * data-testid='recent-activity-widget' and 'trust-panel-widget' alive.
  * Preview/demo wiring from the shared loadPortfolioView().
  */
@@ -49,7 +49,6 @@ export default async function ActivityPage() {
         variant={sectionVariant}
         previewLead={previewZeros ? false : undefined}
         showPreviewHead={!previewZeros}
-        className="pf-activity-payouts-section"
         data-section="activity-payouts"
       >
         <div className="pf-activity-grid">

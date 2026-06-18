@@ -84,7 +84,7 @@ describe("doc-flow spacing tokens", () => {
       /\.pf-container[\s\S]*?gap: var\(--ct-doc-flow-inner-gap\)/,
     );
     expect(portfolioCss).toMatch(
-      /\.pf-section-stack[\s\S]*?gap: var\(--ct-doc-flow-stack-gap\)/,
+      /@media \(min-width: 768px\)[\s\S]*?\.pf-container[\s\S]*?gap: var\(--ct-doc-flow-stack-gap\)/,
     );
     expect(onboardingCss).toMatch(
       /\.onboarding-shell__frame[\s\S]*?gap: var\(--ct-doc-flow-stack-gap\)/,

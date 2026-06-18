@@ -14,10 +14,10 @@
  *   Body           .body-sm / .body-xs
  *   Chart SVG      .pf-distrib-chart__*
  *
- * Responsive breakpoints:
- *   @media 768px     — pf-container gap
- *   @container pf 880px — hero+activity grids stack to single column
- *   @container pf-allocation-donut — donut size + donut-val clamp
+ * Responsive breakpoints (@container pf = content-slot width, not viewport).
+ *   Aliases on .pf-container: --pf-bp-* (single source; used in @container rules).
+ *   Hub hero 2-col ≥58rem · mid 2-col ≥52rem · trio 1→2→3 col · activity leaf 2-col ≥52rem.
+ *   Viewport-fit (no-scroll cockpit) only ≥90rem wide AND ≥52rem tall.
  */
 
 /* ── Portfolio typography roles ── */
@@ -160,16 +160,7 @@
 }
 
 .pf-value-chart--cta-only {
-  justify-content: center;
-}
-
-.pf-value-chart--cta-only .pf-cockpit-panel__header {
-  justify-content: center;
-  text-align: center;
-}
-
-.pf-value-chart--cta-only .pf-cockpit-panel__header > .min-w-0 {
-  width: 100%;
+  justify-content: flex-start;
 }
 
 .pf-value-chart--cta-only svg {
@@ -236,12 +227,6 @@
   font-size: var(--ct-text-sm);
   color: var(--ct-text-muted);
   font-weight: var(--ct-font-normal);
-}
-
-.pf-section-stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-doc-flow-stack-gap);
 }
 
 /* Loading skeleton heights — mirror live widget min-heights */
@@ -401,6 +386,15 @@
 }
 
 .pf-container {
+  /* Responsive calibration — content-slot @container pf (not viewport). */
+  --pf-bp-hero-2col: 58rem;
+  --pf-bp-teaser-2col: 30rem;
+  --pf-bp-teaser-3col: 42rem;
+  --pf-bp-teaser-4col: 72rem;
+  --pf-bp-activity-2col: 52rem;
+  --pf-bp-chart-compact: 36rem;
+  --pf-bp-sidebar-compact: 42rem;
+
   position: relative;
   isolation: isolate;
   display: flex;
@@ -414,40 +408,24 @@
   container-name: pf;
 }
 
+/* Leaf pages scroll naturally — do not stretch to fill the shell slot. */
+.pf-container:not(.pf-container--fit) {
+  flex: 0 1 auto;
+  min-height: 0;
+}
+
 @media (min-width: 768px) {
   .pf-container {
     gap: var(--ct-doc-flow-stack-gap);
   }
 }
 
-/* ── Reflow: hero grid stacks earlier when the right chat rail compresses center. ── */
-@container pf (max-width: 64rem) {
-  .pf-hero-grid {
-    grid-template-columns: 1fr;
-  }
+/* Hero responsive: mobile-first 1-col — see .pf-hero-grid below. */
 
-  .pf-hero-sidebar {
-    border-left: none;
-    border-top: 1px solid var(--ct-graphite-border-nested);
-  }
-}
-
-/* ── Reflow: secondary activity grid stacks below 880px ── */
-@container pf (max-width: 880px) {
-  .pf-activity-grid {
-    grid-template-columns: 1fr;
-  }
-
+/* --pf-bp-activity-2col: 52rem — panels drop fixed min-heights on narrow leaf slots. */
+@container pf (max-width: 52rem) {
   .pf-container .pf-cockpit-panel {
     min-height: auto;
-  }
-}
-
-@container pf (max-width: 520px) {
-  /* Welded hero stacks → seam moves from left edge to top edge */
-  .pf-hero-sidebar {
-    border-left: none;
-    border-top: 1px solid var(--ct-graphite-border-nested);
   }
 }
 
@@ -652,9 +630,12 @@
 .pf-tx-icon--default { background: var(--ct-text-muted); }
 
 /* ── Two-column grids (chart+sidebar, activity+calendar) ── */
+/* Mobile-first: 1 column (chart over KPI rail). The grid keys off the CONTENT
+   SLOT via @container pf, never the window — so it reflows by the real width
+   available beside the left rail + right chat, not the browser size. */
 .pf-hero-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0;
   align-items: stretch;
   border-radius: var(--ct-radius-xl);
@@ -662,14 +643,33 @@
   background: var(--ct-graphite-subtle-bg);
   backdrop-filter: var(--ct-graphite-blur);
   -webkit-backdrop-filter: var(--ct-graphite-blur);
-  overflow: hidden;
+  overflow: clip;
+}
+
+/* 2-col opt-in: only when the slot can hold a real KPI rail (≥16rem) beside the
+   chart without crushing it. Placed AFTER the base so it wins by source order
+   (no specificity trap) — this is what the old dead max-width rule never did.
+   58rem slot ≈ 1500px+ window with the chat open; 1280-window (780px slot) and
+   tablet stay 1-col. */
+/* --pf-bp-hero-2col: 58rem */
+@container pf (min-width: 58rem) {
+  .pf-hero-grid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(16rem, 1fr);
+  }
 }
 
 .pf-activity-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr;
   gap: var(--ct-space-3);
   align-items: stretch;
+}
+
+/* --pf-bp-activity-2col: 52rem */
+@container pf (min-width: 52rem) {
+  .pf-activity-grid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
 }
 
 .pf-activity-grid__cell {
@@ -740,9 +740,8 @@
   container-name: pf-panel;
 }
 
-/* --wide = display tier (hero rail): roomier than the 16px default. */
+/* --wide = roomier internal gap than default (padding matches base panel). */
 .pf-cockpit-panel--wide {
-  padding: var(--ct-space-4);
   gap: var(--ct-space-3);
 }
 
@@ -841,9 +840,11 @@
   min-height: 11rem;
 }
 
-/* Shared table width floor for header, body rows, and empty status row. */
+/* Positions table — scroll inside the panel when columns exceed the slot. */
 .pf-positions-table {
-  min-width: max(100%, 30rem);
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
 }
 
 /* Empty state: allow table to shrink so the empty cell centers correctly
@@ -941,40 +942,48 @@
   padding: 0;
 }
 
-/* Hero grid internals — chart + sidebar as welded zones */
+/* Hero grid internals — chart + sidebar as welded zones.
+   Stacked (1-col) by default → content-sized, no forced 100% height. */
 .pf-main-chart-wrapper,
 .pf-hero-sidebar {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
 }
 
-/* Vertical seam between chart zone and KPI zone */
 .pf-hero-sidebar {
-  border-left: 1px solid var(--ct-graphite-border-nested);
+  gap: 0;
+  min-width: 0;
+  justify-content: flex-start;
+  padding: var(--ct-space-4) var(--ct-space-5);
+  border-top: 1px solid var(--ct-graphite-border-nested);
+}
+
+/* --pf-bp-hero-2col: 58rem */
+@container pf (min-width: 58rem) {
+  .pf-main-chart-wrapper,
+  .pf-hero-sidebar {
+    min-height: 100%;
+  }
+
+  .pf-hero-sidebar {
+    border-top: none;
+    border-left: 1px solid var(--ct-graphite-border-nested);
+  }
+}
+
+/* --pf-bp-sidebar-compact: 42rem — KPI downscale on narrow slot */
+@container pf (max-width: 42rem) {
+  .pf-hero-sidebar {
+    padding: var(--ct-space-3) var(--ct-space-4);
+  }
+
+  .pf-hero-kpi-value {
+    font-size: var(--ct-text-2xl);
+  }
 }
 
 .pf-main-chart-wrapper .pf-value-chart {
   flex: 1;
-}
-
-/* Chart zone: drop its own frame — the welded grid owns the chrome */
-.pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background-image: var(--pf-chart-dots);
-}
-
-.pf-hero-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  min-width: 0;
-  justify-content: center;
-  padding: var(--ct-space-4) var(--ct-space-5);
 }
 
 .pf-hero-rail-group {
@@ -1055,37 +1064,50 @@
   line-height: var(--ct-leading-snug);
 }
 
-/* Value chart — local graphite surface */
+/* Hero welded chart — dot texture + rhythm; .pf-hero-grid owns border/blur chrome */
 .pf-container .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
   --pf-chart-dots: radial-gradient(
     circle,
     color-mix(in srgb, var(--ct-text-strong) 4%, transparent) 1px,
     transparent 1px
   );
-  min-height: 22rem;
+  min-height: 16rem;
   padding: var(--ct-space-4) var(--ct-space-5);
-  background: var(--ct-graphite-subtle-bg);
+  border: none;
+  border-radius: 0;
+  background: transparent;
   background-image: var(--pf-chart-dots);
   background-size: 28px 28px;
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-xl);
   box-shadow: none;
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
-  transition: border-color var(--ct-dur-base) var(--ct-ease);
-}
-
-.pf-container .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart:hover {
-  border-color: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-graphite-border-nested));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .pf-main-chart-wrapper .pf-value-chart [class*="flex-1"] {
-  min-height: 14rem;
+  min-height: 12rem;
 }
 
-@container pf (max-width: 880px) {
+/* --pf-bp-chart-compact: 36rem */
+@container pf (min-width: 36rem) {
   .pf-container .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
     min-height: 18rem;
+  }
+
+  .pf-main-chart-wrapper .pf-value-chart [class*="flex-1"] {
+    min-height: 14rem;
+  }
+}
+
+/* --pf-bp-hero-2col: 58rem */
+@container pf (min-width: 58rem) {
+  .pf-container .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
+    min-height: 20rem;
+  }
+}
+
+/* Compact padding on very narrow slots */
+@container pf (max-width: 36rem) {
+  .pf-container .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
     padding: var(--ct-space-3) var(--ct-space-4);
   }
 }
@@ -1099,6 +1121,12 @@
 
 .pf-container .ct-product-section {
   padding: var(--ct-space-4) var(--ct-space-5);
+}
+
+/* Hub hero — single horizontal inset (page-area only; section padding stripped). */
+.pf-container--fit [data-section="hero-pulse"].ct-product-section {
+  padding-inline: 0;
+  padding-block: var(--ct-space-4) 0;
 }
 
 /* Nested empties inside portfolio panels — flat (cockpit.css mirrors globally). */
@@ -1117,11 +1145,10 @@
 }
 
 .pf-container--zero {
-  gap: var(--ct-space-6);
-}
-
-.pf-container--zero .pf-section-stack {
-  gap: var(--ct-space-6);
+  /* Tiles stay close to the hero in no-data — the compact empty state must not
+     leave a wide trench between the CTA hero and the teaser row. Matches the
+     --fit dashboard gap (was space-6, which read as a gap once the hero shrank). */
+  gap: var(--ct-space-4);
 }
 
 .pf-container--zero .pf-activity-grid > * .pf-cockpit-panel {
@@ -1138,17 +1165,120 @@
   padding: var(--ct-space-4) var(--ct-space-5);
 }
 
+/* ── NO-DATA HERO COMPACTION (preview / no positions) ──────────────────────
+   Product rule: an empty state is NEVER inflated to mimic a filled one. In
+   --zero the "Portfolio value" card carries only an onboarding CTA — it must
+   be a compact action card, not a giant empty plate. The disease was the hero
+   grid's `align-items: stretch` welding the empty CTA column to the KPI rail's
+   real content height (~480px). Here we (1) cut that stretch so each hero
+   column is content-sized, (2) floor the CTA card at a modest height, (3) keep
+   the data/chart state (no --zero) on its generous min-heights untouched. */
+/* Hero columns stay welded (stretch), but the empty CTA card no longer drives a
+   tall floor: with the rail compacted (see below) the row height is modest, and
+   the CTA card stretches to it and centers its content — a balanced action card,
+   not a giant void. The KPI rail is content-sized on its own. */
+.pf-container--zero .pf-main-chart-wrapper {
+  min-height: 0;
+}
+
+.pf-container--zero .pf-hero-sidebar {
+  min-height: 0;
+  align-self: start;
+}
+
+/* Empty CTA card — drop the 18rem no-data chart floor; the row height comes from
+   the (now compact) KPI rail, and the CTA content centers within it. */
 .pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
-  min-height: 18rem;
+  min-height: 0;
   background-image: none;
 }
 
-.pf-container--zero .pf-main-chart-wrapper .pf-value-chart [class*="flex-1"] {
-  min-height: 11rem;
+.pf-container--zero .pf-value-chart--cta-only .pf-value-chart__next-action {
+  min-height: 0;
+  padding: var(--ct-space-5) var(--ct-space-4);
 }
 
-.pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart:hover {
-  border-color: var(--ct-graphite-border-nested);
+.pf-container--zero .pf-main-chart-wrapper .pf-value-chart [class*="flex-1"] {
+  min-height: 8rem;
+}
+
+/* KPI rail in no-data — sober but tight: the rows are placeholders ("—"), so
+   the generous inter-group separators that suit live values become dead air.
+   Tighten the rhythm so the rail reads as a compact key-metrics list, not a
+   stretched ladder. */
+.pf-container--zero .pf-hero-rail-group + .pf-hero-rail-group {
+  margin-top: var(--ct-space-3);
+  padding-top: var(--ct-space-3);
+}
+
+.pf-container--zero .pf-hero-rail-list {
+  gap: var(--ct-space-1_5);
+}
+
+.pf-container--zero .pf-hero-rail-row + .pf-hero-rail-row {
+  padding-top: var(--ct-space-1_5);
+}
+
+/* A placeholder "—" does not need the live 3xl value scale: that font height is
+   what made each empty row ~70px and the rail ~460px. Drop the no-data KPI
+   value to xl so the rail collapses to a compact key-metrics list. The live
+   (non-zero) rail keeps its 3xl headline scale. */
+.pf-container--zero .pf-hero-kpi-value {
+  font-size: var(--ct-text-xl);
+}
+
+/* ── No-data 1-col hero: the KPI rail is the height driver ──────────────────
+   When the hero stacks (slot < hero-2col), the no-data rail's three groups
+   (Key metrics / Projected payout / Liquidity) form a ~480px vertical ladder
+   that, stacked under the CTA card, blows past the viewport. Below the 2-col
+   threshold we lay the rail out as a compact 2-column grid so the three
+   placeholder groups read as a tidy metrics block (~half the height) instead of
+   a long column. Above the threshold (true 2-col hero) the rail stays a single
+   vertical column beside the chart — its natural form. */
+@container pf (max-width: 57.99rem) {
+  .pf-container--zero .pf-hero-sidebar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--ct-space-3) var(--ct-space-5);
+    align-content: start;
+  }
+
+  /* Stacked hero (1-col): the CTA card has no sibling forcing its height, so it
+     must NOT stretch — it is its own content height, sitting tight above the
+     compact rail grid. (In the 2-col hero it welds to the rail, handled above.)
+     This is the difference between a ~140px action card and a ~370px stretched
+     plate when the hero stacks. */
+  .pf-container--zero .pf-main-chart-wrapper .pf-value-chart--cta-only {
+    flex: 0 0 auto;
+  }
+
+  .pf-container--zero .pf-value-chart--cta-only .pf-value-chart__next-action {
+    padding-block: var(--ct-space-4);
+  }
+
+  /* Separators between groups are vertical-stack chrome; in the grid they make
+     no sense, so neutralize the top border/margin and let grid gap do the work. */
+  .pf-container--zero .pf-hero-sidebar .pf-hero-rail-group + .pf-hero-rail-group {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  /* Liquidity (3rd group) spans the full width under the first two. */
+  .pf-container--zero .pf-hero-sidebar .pf-hero-rail-group:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Very narrow slots (mobile / tablet portrait) — back to a single column so the
+   two-up grid never crushes the labels. */
+@container pf (max-width: 30rem) {
+  .pf-container--zero .pf-hero-sidebar {
+    grid-template-columns: 1fr;
+  }
+  .pf-container--zero .pf-hero-sidebar .pf-hero-rail-group:nth-child(3) {
+    grid-column: auto;
+  }
 }
 
 .pf-container--zero .pf-main-chart-wrapper .pf-value-chart svg,
@@ -1435,46 +1565,243 @@
   .cy-fill { transform: none; }
 }
 
-/*
-   No-scroll-fill dashboard variant — .pf-container--fit
+/* ═══════════════════════════════════════════════════════════════════════════
+   PORTFOLIO COCKPIT — viewport-fit, ZERO top-level scroll (wide + tall only).
+   Below 90rem viewport width OR 52rem height → natural document scroll so
+   panels keep content height (no crushed overlap). Mobile (<48rem) same revert.
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-   The recomposed dashboard is short (hero + 4 teaser tiles). Rather than pin
-   the whole shell to 100dvh + overflow:hidden (which collapsed the height to a
-   blank page), we keep the normal page-area and simply let the HERO grow to
-   absorb the vertical slack — so the content fills the viewport with no dead
-   space under the teasers, and gracefully falls back to natural scroll on a
-   too-short viewport. No ancestor height:100% / overflow:hidden chain, so no
-   collapse risk; base .pf-container and the shell are untouched.
-*/
-.pf-container--fit {
-  flex: 1 1 auto;
-  min-height: 100%;
-  gap: var(--ct-space-4);
+/* Wide + tall: pin shell chain to 100dvh, bento shares height among panels. */
+@media (min-width: 90rem) and (min-height: 52rem) {
+  .ct-panels-row:has(.pf-container--fit) {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .ct-center-panel:has(.pf-container--fit) {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .ct-page-area:has(.pf-container--fit) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .ct-page-area:has(.pf-container--fit) > main#main-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ct-page-area:has(.pf-container--fit) > .app-footer {
+    flex: 0 0 auto;
+    margin-top: var(--ct-space-1_5);
+  }
+
+  .product-doc:has(.pf-container--fit) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .pf-container--fit {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ct-space-3);
+    overflow: hidden;
+  }
+
+  .pf-cockpit {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ct-space-3);
+  }
+
+  .pf-cockpit-row--summary  { flex: 1.15 1 0; }
+  .pf-cockpit-row--mid      { flex: 1 1 0; }
+  .pf-cockpit-row--trio     { flex: 1.1 1 0; }
 }
 
-/* Hero absorbs the vertical slack above the teaser row so there is no void. */
-.pf-container--fit .pf-hero-section {
+/* Hub container — column stack; height lock only in wide+tall viewport-fit gate. */
+.pf-container--fit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+
+/* Below wide+tall gate — natural scroll, rows size to content. */
+@media not all and (min-width: 90rem) and (min-height: 52rem) {
+  .ct-panels-row:has(.pf-container--fit),
+  .ct-center-panel:has(.pf-container--fit),
+  .ct-page-area:has(.pf-container--fit),
+  .ct-page-area:has(.pf-container--fit) > main#main-content,
+  .product-doc:has(.pf-container--fit) {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .pf-container--fit {
+    height: auto;
+    overflow: visible;
+  }
+
+  .pf-cockpit-row--summary,
+  .pf-cockpit-row--mid,
+  .pf-cockpit-row--trio {
+    flex: 0 0 auto;
+  }
+}
+
+.pf-cockpit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+
+/* Each row is a flex item (shares height) AND a grid (its columns). min-height:0
+   lets it shrink below content so panels clip→scroll instead of pushing a
+   top-level scrollbar — only when viewport-fit is active (wide+tall). */
+.pf-cockpit-row {
+  min-height: 0;
+  min-width: 0;
+  display: grid;
+  gap: var(--ct-space-3);
+}
+
+.pf-cockpit-row--summary { grid-template-columns: 1fr; }
+.pf-cockpit-row--mid     { grid-template-columns: 1fr; }
+.pf-cockpit-row--trio    { grid-template-columns: 1fr; }
+
+/* Mid row: positions + capital/yield — 1→2 columns. */
+@container pf (min-width: 52rem) {
+  .pf-cockpit-row--mid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  }
+}
+
+/* Trio row: calendar · activity · trust — 1→2→3 columns. */
+@container pf (min-width: 36rem) {
+  .pf-cockpit-row--trio {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container pf (min-width: 58rem) {
+  .pf-cockpit-row--trio {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Trust spans full width when trio is 2-up (odd cell count). */
+@container pf (min-width: 36rem) and (max-width: 57.99rem) {
+  .pf-cockpit-row--trio > .pf-cockpit-cell:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Hero 2-col needs a wider slot in cockpit-fit — chart + KPI rail crush below 64rem. */
+@media (min-width: 90rem) and (min-height: 52rem) {
+  @container pf (max-width: 63.99rem) {
+    .pf-cockpit-row--summary .pf-hero-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pf-cockpit-row--summary .pf-hero-sidebar {
+      border-top: 1px solid var(--ct-graphite-border-nested);
+      border-left: none;
+    }
+  }
+}
+
+.pf-cockpit-cell {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+
+@media (min-width: 90rem) and (min-height: 52rem) {
+  .pf-cockpit-cell {
+    overflow: hidden;
+  }
+}
+
+/* The panel inside a cell fills it; its own inner scroll region handles overflow. */
+.pf-cockpit-cell > * {
   flex: 1 1 auto;
   min-height: 0;
 }
 
-/* Teaser row — fixed-height strip of 4 view-more tiles under the hero. */
+/* Long panels scroll inside their cell when viewport-fit is active. */
+@media (min-width: 90rem) and (min-height: 52rem) {
+  .pf-cockpit-cell .pf-positions-table,
+  .pf-cockpit-cell .pf-recent-activity-list,
+  .pf-cockpit-cell .pf-hero-sidebar,
+  .pf-cockpit-cell .cy-panel .cy-body {
+    overflow-y: auto;
+    min-height: 0;
+    scrollbar-width: thin;
+  }
+}
+
+/* Phone — force single-column trio. */
+@media (max-width: 47.999rem) {
+  .pf-cockpit-row--mid,
+  .pf-cockpit-row--trio {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-cockpit-row--trio > .pf-cockpit-cell:last-child {
+    grid-column: auto;
+  }
+}
+
+/* Teaser row — mobile-first 1→2→3→4 columns keyed on content-slot width.
+   --pf-bp-teaser-2col: 30rem / --pf-bp-teaser-3col: 42rem / --pf-bp-teaser-4col: 72rem */
 .pf-teaser-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 1fr;
   gap: var(--ct-space-3);
   flex: 0 0 auto;
 }
 
-@container pf (max-width: 64rem) {
+@container pf (min-width: 30rem) {
   .pf-teaser-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@container pf (max-width: 30rem) {
+@container pf (min-width: 42rem) {
   .pf-teaser-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 4-col at 64rem (≈1024px slot) not 72rem: with the chat OPEN at 1536 the slot
+   is ~1033px — just under the old 72rem(1152px) gate, which forced a 3+1 wrap.
+   64rem lets the four tiles sit on one row whenever the chat is open on a
+   standard laptop, which is the primary "4 tiles close to the hero" target. */
+@container pf (min-width: 64rem) {
+  .pf-teaser-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 

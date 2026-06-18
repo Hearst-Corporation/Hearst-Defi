@@ -13,8 +13,8 @@ export const metadata = {
 };
 
 /**
- * Distributions — the "view more" leaf reached from the dashboard Distributions
- * tile. Reuses <DistribCalendar> verbatim, keeping data-testid='distrib-calendar-widget'
+ * Distributions — focused leaf; same widget as the hub quad row.
+ * Reuses <DistribCalendar> verbatim, keeping data-testid='distrib-calendar-widget'
  * alive. The buildZeroDistribEntries-vs-real ternary is preserved verbatim from
  * the dashboard (honesty: never overwrite real entries with $0 bars).
  */

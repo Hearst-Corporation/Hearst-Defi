@@ -12,7 +12,7 @@ export const metadata = {
 };
 
 /**
- * Positions — the "view more" leaf reached from the dashboard Positions tile.
+ * Positions — focused leaf; same table as the hub positions row.
  * Reuses <PositionsList> verbatim; state/honesty wiring comes from the shared
  * loadPortfolioView(). Scroll is allowed inside this leaf (not the top level).
  */

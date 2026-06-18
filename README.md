@@ -202,10 +202,10 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
   cartes graphite semi-translucides — pas de blur 28px « aquarium ».
 - **Tooltips** : Composant `Tooltip` (via `framer-motion`) intégré aux `ProvenanceBadge` et `Metric`.
 - **Transitions** : animations CSS/Tailwind locales, sans wrapper global inutilisé.
-- **Portfolio** : Page complète avec bento analytics, gestion KYC/KYB
-  institutionnelle. Sections multi-widgets : `ProductSection` (`Card` actif /
-  `ct-section-preview` en layout preview) + `SectionEmbedProvider` — widgets via
-  `ModuleChrome` + `WidgetPanelHeader` (headers masqués automatiquement en embed).
+- **Portfolio** : Hub `/portfolio` = cockpit bento no-scroll (≥1440px wide + tall :
+  hero + KPI rail, positions + yield, trio distributions/activity/trust). En‑dessous
+  → scroll document naturel. Responsive `@container pf` — seuils `--pf-bp-*` dans
+  `portfolio.css`. Leaf pages gardent les mêmes `data-testid`.
   **Zero portfolio** (`previewZeros`) : cockpit complet toujours visible (charts,
   donuts, progress bars à $0) avec `PreviewModeChip` — pas de `Live` / `Stale` /
   `Verified data` sans donnée réelle. Messages inline dans le shell si besoin.

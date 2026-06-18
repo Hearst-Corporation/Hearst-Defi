@@ -214,22 +214,26 @@ export function ValueChart({
   return (
     <PfCockpitPanel
       variant="wide"
-      aria-label="Portfolio value — 12-month trend"
+      aria-label={
+        showEmbeddedNextAction
+          ? "Get started — next onboarding step"
+          : "Portfolio value — 12-month trend"
+      }
       className={cn("relative pf-value-chart", showEmbeddedNextAction && "pf-value-chart--cta-only")}
     >
       {provenance ? <ChartProvenanceCorner kind={provenance} /> : null}
-      <PfCockpitPanelHeader
-        title="Portfolio value"
-        subtitle={showEmbeddedNextAction ? undefined : "Indicative 12-month path"}
-        titleVariant="primary"
-        trailing={
-          showEmbeddedNextAction ? undefined : (
+      {!showEmbeddedNextAction ? (
+        <PfCockpitPanelHeader
+          title="Portfolio value"
+          subtitle="Indicative 12-month path"
+          titleVariant="primary"
+          trailing={
             <span className="pf-hero-kpi-value tabular-nums ct-text-muted">
               {showZeroShell ? "—" : formatUsdCompact(chartValue)}
             </span>
-          )
-        }
-      />
+          }
+        />
+      ) : null}
 
       {showEmbeddedNextAction ? (
         <div className="pf-value-chart__next-action" aria-label="Next step">
