@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 import { TriangleAlert } from "lucide-react";
 
 import { ProductPageHeader } from "@/components/connect/product-page-header";
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { Card } from "@/components/ui/card";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { PanelStatus } from "@/components/ui/panel-status";
@@ -207,7 +207,7 @@ export default async function ProductProofCenterPage({
         actions={proofs.length > 0 ? <ProofFilter /> : null}
       >
         {proofs.length === 0 ? (
-          <AwaitingMetricState {...PLATFORM_PROOFS_EMPTY} />
+          <EmptySurface live {...PLATFORM_PROOFS_EMPTY} />
         ) : (
           <ProofGrid proofs={proofs} filter={filter} demo={demo} />
         )}

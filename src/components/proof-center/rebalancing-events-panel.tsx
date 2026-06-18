@@ -1,4 +1,4 @@
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ProofRow } from "@/components/ui/nested-panel";
@@ -81,7 +81,7 @@ export function RebalancingEventsPanel({
           title="Awaiting first rebalance"
           tone="quiet"
         />
-        <AwaitingMetricState {...REBALANCING_EVENTS_EMPTY} />
+        <EmptySurface live {...REBALANCING_EVENTS_EMPTY} />
       </Card>
     );
   }

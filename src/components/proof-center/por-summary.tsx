@@ -1,4 +1,4 @@
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
@@ -60,7 +60,7 @@ export function PorSummary({
             <Metric variant="nested" label="Attested at" value="—" sublabel="awaiting first close" />
             <Metric variant="nested" label="Signer" value="—" />
           </MetricGrid>
-          <AwaitingMetricState {...POR_ATTESTATION_EMPTY} className="mt-[var(--ct-space-4)]" />
+          <EmptySurface live {...POR_ATTESTATION_EMPTY} className="mt-[var(--ct-space-4)]" />
         </Card>
         {custody ? <CustodySection custody={custody} /> : null}
       </div>

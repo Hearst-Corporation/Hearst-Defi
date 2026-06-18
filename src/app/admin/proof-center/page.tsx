@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { PLATFORM_PROOFS_EMPTY } from "@/components/proof/empty-messages";
 import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
 import { EventTimeline } from "@/components/proof-center/event-timeline";
@@ -152,7 +152,7 @@ export default async function AdminProofCenterPage({
           {proofs.length > 0 ? <ProofFilter /> : null}
         </div>
         {proofs.length === 0 ? (
-          <AwaitingMetricState {...PLATFORM_PROOFS_EMPTY} />
+          <EmptySurface live {...PLATFORM_PROOFS_EMPTY} />
         ) : (
           <ProofGrid proofs={proofs} filter={filter} />
         )}

@@ -1,4 +1,4 @@
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { Card } from "@/components/ui/card";
 import { ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -54,7 +54,7 @@ export function RecentDistributions({
           title="Awaiting first distribution"
           tone="quiet"
         />
-        <AwaitingMetricState {...RECENT_DISTRIBUTIONS_EMPTY} />
+        <EmptySurface live {...RECENT_DISTRIBUTIONS_EMPTY} />
       </Card>
     );
   }

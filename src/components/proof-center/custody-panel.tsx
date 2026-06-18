@@ -1,4 +1,4 @@
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { Metric } from "@/components/ui/metric";
@@ -111,5 +111,5 @@ export function CustodySection({
     );
   }
 
-  return <AwaitingMetricState {...CUSTODY_EMPTY} />;
+  return <EmptySurface live {...CUSTODY_EMPTY} />;
 }

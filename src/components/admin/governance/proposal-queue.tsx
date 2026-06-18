@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { GOVERNANCE_QUEUE_EMPTY } from "@/components/admin/governance/empty-messages";
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import {
@@ -16,7 +16,7 @@ type ProposalSummary = Awaited<ReturnType<typeof loadProposalQueue>>[number];
 
 export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
   if (proposals.length === 0) {
-    return <AwaitingMetricState {...GOVERNANCE_QUEUE_EMPTY} />;
+    return <EmptySurface live {...GOVERNANCE_QUEUE_EMPTY} />;
   }
 
   return (

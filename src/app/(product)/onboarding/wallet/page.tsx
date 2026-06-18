@@ -2,7 +2,7 @@
  * Step 3 — Wallet binding (optional). Persists via bindWallet.
  */
 
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { WalletChamber } from "@/components/onboarding/privy-wallet-connect";
 import { Card } from "@/components/ui/card";
 import { getInvestor } from "@/lib/auth/session";
@@ -28,7 +28,8 @@ export default async function WalletPage() {
             later or contact support.
           </p>
         </div>
-        <AwaitingMetricState
+        <EmptySurface
+          live
           variant="inline"
           message="Verification service unavailable"
           detail="The KYC gate cannot run until database migrations are applied."

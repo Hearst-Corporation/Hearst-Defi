@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**199 components** · 1 possible orphans · 2 intentionally unwired.
+**198 components** · 1 possible orphans · 2 intentionally unwired.
 
 ## ⚠️ Possible orphans (0 references — verify before keeping)
 
@@ -173,7 +173,6 @@
 | `src/components/scenario/single-mode.tsx` | SingleMode | 1 |
 | `src/components/simulation/simulation-panel.tsx` | SimulationPanel | 1 |
 | `src/components/ui/apy-range.tsx` | ApyRange | 17 |
-| `src/components/ui/awaiting-metric-state.tsx` | AwaitingMetricState | 13 |
 | `src/components/ui/badge.tsx` | Badge | 52 |
 | `src/components/ui/button.tsx` | Button | 80 |
 | `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 73 |
@@ -184,7 +183,7 @@
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
 | `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 21 |
-| `src/components/ui/empty-surface.tsx` | EmptySurface | 30 |
+| `src/components/ui/empty-surface.tsx` | EmptySurface | 42 |
 | `src/components/ui/error-boundary.tsx` | ErrorBoundary | 1 |
 | `src/components/ui/metric.tsx` | Metric | 8 |
 | `src/components/ui/modal.tsx` | Modal | 5 |

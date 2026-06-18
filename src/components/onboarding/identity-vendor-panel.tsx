@@ -1,4 +1,4 @@
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { Badge } from "@/components/ui/badge";
 
 /**
@@ -12,7 +12,8 @@ export function IdentityVendorPanel({ isProduction }: { isProduction: boolean })
       role="region"
       aria-label="Identity verification unavailable"
     >
-      <AwaitingMetricState
+      <EmptySurface
+        live
         variant="inline"
         message="Identity verification is not yet available for your account"
         detail={

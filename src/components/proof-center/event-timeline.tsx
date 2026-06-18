@@ -1,4 +1,4 @@
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -164,7 +164,7 @@ export function EventTimeline({
           title={eventTimelineCardTitle(0, sectionLed)}
           tone="quiet"
         />
-        <AwaitingMetricState {...EVENT_TIMELINE_EMPTY} />
+        <EmptySurface live {...EVENT_TIMELINE_EMPTY} />
       </Card>
     );
   }

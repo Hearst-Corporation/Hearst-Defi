@@ -1,4 +1,4 @@
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { listVaults } from "@/lib/data/vaults";
 import { getInvestor } from "@/lib/auth/session";
 import { isDemoInvestor } from "@/lib/demo/provider";
@@ -31,7 +31,8 @@ export default async function VaultsPage() {
           <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-[var(--ct-space-4)]" />
         ) : null}
         {vaults.length === 0 ? (
-          <AwaitingMetricState
+          <EmptySurface
+            live
             message="No vault is currently deployed with a verified on-chain contract."
             detail="Products appear here once a vault is live on Base Sepolia with a confirmed deployment address."
           />

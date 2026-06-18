@@ -18,7 +18,7 @@ import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
 import { abbreviateAddress } from "@/lib/onchain";
 import { bindWallet } from "@/lib/onboarding/actions";
@@ -59,7 +59,7 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
         aria-busy="true"
         aria-label="Loading wallet connection"
       >
-        <AwaitingMetricState variant="inline" message="Loading wallet connection…" />
+        <EmptySurface live variant="inline" message="Loading wallet connection…" />
       </Card>
     );
   }
@@ -128,7 +128,8 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
 export function PrivyWalletConnect({ appId, boundAddress = null }: PrivyWalletConnectProps) {
   if (!appId) {
     return (
-      <AwaitingMetricState
+      <EmptySurface
+        live
         message="Wallet connection is not yet available for your account"
         detail="You can continue onboarding now and link a wallet later from Profile once it becomes available."
       />

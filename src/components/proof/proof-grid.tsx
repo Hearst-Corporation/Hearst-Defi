@@ -1,4 +1,4 @@
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProofCard } from "@/components/proof/proof-card";
 import {
   filteredProofsEmpty,
@@ -42,7 +42,7 @@ export function ProofGrid({
 
   if (filtered.length === 0) {
     const copy = filter === "all" ? unfilteredProofsEmpty() : filteredProofsEmpty(filter);
-    return <AwaitingMetricState message={copy.message} detail={copy.detail} />;
+    return <EmptySurface live message={copy.message} detail={copy.detail} />;
   }
 
   return (

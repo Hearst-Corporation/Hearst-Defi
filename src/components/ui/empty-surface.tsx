@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import Link from "next/link";
+
 import { cn } from "@/lib/cn";
 
 export type EmptySurfaceVariant = "widget" | "chart" | "inline";
@@ -15,6 +17,14 @@ export interface EmptySurfaceProps {
   role?: "status" | "note";
   ariaLabel?: string;
   children?: ReactNode;
+  /**
+   * Async-data-awaiting semantics: wraps the surface in
+   * `<div role="status" aria-live="polite" aria-atomic="true">` (DS §9.3).
+   * Also forces `h-full` on the widget variant to fill its container.
+   */
+  live?: boolean;
+  /** Optional CTA link rendered after any children (DS §9.3). */
+  link?: { label: string; href: string; ariaLabel?: string };
 }
 
 /**
@@ -30,10 +40,12 @@ export function EmptySurface({
   role = variant === "chart" ? "note" : "status",
   ariaLabel,
   children,
+  live = false,
+  link,
 }: EmptySurfaceProps) {
-  return (
+  const surface = (
     <div
-      role={role}
+      role={live ? "note" : role}
       {...(ariaLabel ? { "aria-label": ariaLabel } : {})}
       className={cn(
         "ct-empty-surface",
@@ -41,6 +53,7 @@ export function EmptySurface({
         variant === "chart" && "ct-empty-surface--chart relative z-10",
         variant === "inline" && "ct-empty-surface--inline",
         round && "ct-empty-surface--round",
+        live && variant === "widget" && "h-full",
         className,
       )}
     >
@@ -64,6 +77,25 @@ export function EmptySurface({
         </p>
       ) : null}
       {children}
+      {link ? (
+        <Link
+          href={link.href}
+          aria-label={link.ariaLabel ?? link.label}
+          className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-[var(--ct-border)] mt-1"
+        >
+          {link.label}
+        </Link>
+      ) : null}
     </div>
   );
+
+  if (live) {
+    return (
+      <div role="status" aria-live="polite" aria-atomic="true">
+        {surface}
+      </div>
+    );
+  }
+
+  return surface;
 }

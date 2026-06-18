@@ -6,7 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { ProductSection } from "@/components/ui/product-section";
-import { AwaitingMetricState } from "@/components/ui/awaiting-metric-state";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { SectionEmbedProvider } from "@/components/ui/section-embed";
 import { TimeToCash } from "@/components/portfolio/time-to-cash";
 import { LockMeter } from "@/components/portfolio/lock-meter";
@@ -57,7 +57,7 @@ describe("Portfolio zero-position — cockpit shell always visible", () => {
   it("ProductSection with showProvenance=false hides Verified data label", () => {
     const html = renderToStaticMarkup(
       <ProductSection title="Test" provenance="stale" showProvenance={false}>
-        <AwaitingMetricState message="Section awaiting data." />
+        <EmptySurface live message="Section awaiting data." />
       </ProductSection>,
     );
     expect(html).not.toContain("Verified data");
@@ -66,7 +66,7 @@ describe("Portfolio zero-position — cockpit shell always visible", () => {
   it("ProductSection preview variant uses ct-section-preview, not glass-panel", () => {
     const html = renderToStaticMarkup(
       <ProductSection title="Performance" variant="preview" data-section="hero-pulse">
-        <AwaitingMetricState message="Awaiting first position." className="pf-zero-await" />
+        <EmptySurface live message="Awaiting first position." className="pf-zero-await" />
       </ProductSection>,
     );
     expect(html).toContain("ct-section-preview");
@@ -87,7 +87,7 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     expect(html).not.toContain("ct-empty-surface--widget");
   });
 
-  it("ValueChart previewZeros: renders onboarding CTA (no chart SVG)", () => {
+  it("ValueChart previewZeros: renders chart placeholder shell", () => {
     const html = renderToStaticMarkup(
       <SectionEmbedProvider>
         <ValueChart
@@ -98,13 +98,14 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
         />
       </SectionEmbedProvider>,
     );
-    expect(html).not.toContain("<polyline");
+    expect(html).toContain("<polyline");
     expect(html).not.toContain("No active positions yet");
-    expect(html).toContain("Get started");
-    expect(html).toContain("Subscribe to Hearst Yield Vault");
-    expect(html).toContain("8–15%");
-    expect(html).toContain("$250k");
-    expect(html).toContain("href=\"/vaults\"");
+    expect(html).not.toContain("pf-next-action-card__layout");
+    expect(html).not.toContain("Get started");
+    expect(html).not.toContain("Subscribe to Hearst Yield Vault");
+    expect(html).toContain("Portfolio value");
+    expect(html).toContain("Awaiting first position");
+    expect(html).toContain("Placeholder chart until your first confirmed position.");
   });
 
   it("LockMeter previewZeros: progress bar at 0%, not awaiting surface", () => {
