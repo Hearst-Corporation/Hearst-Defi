@@ -32,7 +32,6 @@ export function MiningCashFlowEvidence({
   // the panel reads as an instrument awaiting attestation, never broken-empty.
   // No fake Live/Verified: badge is Manual (pending) / Stale (invalid), values "—".
   if (provenance === "pending" || provenance === "invalid") {
-    const stateLabel = provenance === "invalid" ? "Invalid" : "Pending";
     return (
       <Card aria-label="Mining cash-flow evidence — awaiting attestation">
         <ProofCenterCardHeader
@@ -40,46 +39,11 @@ export function MiningCashFlowEvidence({
           eyebrow={HEADER.eyebrow}
           title={HEADER.title}
           provenance={BADGE[provenance]}
-          tone="primary"
+          tone="quiet"
         />
-
-        <p className="body-sm mb-[var(--ct-space-4)]">{MINING_CASHFLOW_COPY[provenance]}</p>
-
-        <div className="mining-coverage-calibration mb-[var(--ct-space-4)]" role="status">
-          <span className="mining-coverage-calibration__bar" aria-hidden />
-          <span className="sr-only">
-            {provenance === "invalid"
-              ? "Mining cash-flow coverage unavailable"
-              : "Mining cash-flow coverage pending — calibrating"}
-          </span>
-        </div>
-
-        <MetricGrid columns={4}>
-          <Metric
-            variant="nested"
-            label="Distribution coverage"
-            value="—"
-            sublabel="net mining cash ÷ target"
-          />
-          <Metric
-            variant="nested"
-            label="State"
-            value={stateLabel}
-            sublabel="awaiting inputs"
-          />
-          <Metric
-            variant="nested"
-            label="Latest revenue period"
-            value="—"
-            sublabel="awaiting first close"
-          />
-          <Metric
-            variant="nested"
-            label="Attestation status"
-            value="Pending"
-            sublabel="mining partner + pool"
-          />
-        </MetricGrid>
+        <p className="body-sm ct-text-muted m-0" role="status">
+          {MINING_CASHFLOW_COPY[provenance]}
+        </p>
       </Card>
     );
   }
