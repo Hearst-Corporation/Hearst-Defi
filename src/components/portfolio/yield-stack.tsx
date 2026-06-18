@@ -141,7 +141,7 @@ export function YieldStack({
           return (
             <div key={s.bucket} className="yield-stack-row">
               {/* Label row */}
-              <div className="pf-inline-row pf-inline-row--between mb-1">
+              <div className="pf-inline-row pf-inline-row--between mb-[var(--ct-space-1)]">
                 <span
                   className={cn(
                     "body-xs min-w-0 truncate",
@@ -170,7 +170,7 @@ export function YieldStack({
 
               {/* Bar track */}
               <div
-                className="relative h-1.5 rounded-full overflow-hidden ct-surface-2"
+                className="relative h-[var(--ct-space-1_5)] rounded-full overflow-hidden ct-surface-2"
                 aria-hidden="true"
               >
                 <div

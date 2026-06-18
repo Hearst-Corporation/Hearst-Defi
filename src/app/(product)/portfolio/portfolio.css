@@ -104,6 +104,8 @@
   display: flex;
   flex: 1;
   width: 100%;
+  max-width: 100%;
+    min-width: 0;
   /* chart-geometry */
   min-height: 12rem;
   overflow: hidden;
@@ -441,6 +443,8 @@
   min-height: 100%;
   max-width: none; /* full-width, responsive — no desktop cap (fluid at any size) */
   width: 100%;
+  min-width: 0;
+    overflow-x: clip;
   container-type: inline-size;
   container-name: pf;
 }
@@ -785,17 +789,34 @@
 
 .pf-cockpit-panel__header {
   display: flex;
-  align-items: flex-start;
+  align-items: baseline;
   justify-content: space-between;
-  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+    gap: var(--ct-space-1) var(--ct-space-2);
   margin: 0;
 }
 
+.pf-cockpit-panel__header-main {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
 .pf-cockpit-panel__header-trail {
   display: flex;
   align-items: center;
-  gap: var(--ct-space-1_5);
-  flex-shrink: 0;
+  flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--ct-space-1) var(--ct-space-1_5);
+    flex: 0 0 auto;
+    margin-left: auto;
+    max-width: 100%;
+  }
+  
+  @container pf (max-width: 30rem) {
+    .pf-cockpit-panel__header-trail {
+      width: 100%;
+      margin-left: 0;
+      justify-content: flex-start;
+    }
 }
 
 .pf-cockpit-panel__subtitle {
@@ -1078,6 +1099,16 @@
   flex-direction: column;
   gap: var(--ct-space-0_5);
   flex: none;
+  min-width: 0;
+  }
+  
+  .pf-hero-rail-row dt {
+    min-width: 0;
+  }
+  
+  .pf-hero-rail-row dt>span:first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .pf-hero-rail-row + .pf-hero-rail-row {
@@ -1091,11 +1122,13 @@
   align-items: baseline;
   gap: var(--ct-space-1);
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .pf-hero-rail-value--inline {
   align-items: center;
   justify-content: space-between;
+  gap: var(--ct-space-1) var(--ct-space-2);
 }
 
 .pf-hero-rail-meta {
@@ -1120,6 +1153,11 @@
   line-height: var(--ct-leading-snug);
 }
 
+.pf-container--zero .pf-hero-rail-note,
+.pf-container--fit.pf-container--zero .pf-hero-rail-note {
+  font-size: var(--ct-text-micro);
+  line-height: var(--ct-leading-tight);
+}
 /* Hero welded chart — dot texture + rhythm; .pf-hero-grid owns border/blur chrome */
 .pf-container .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
   --pf-chart-dots: radial-gradient(
@@ -1300,6 +1338,32 @@
   gap: var(--ct-space-1_5);
 }
 
+/* Key metrics in preview: label + value on one row (avoids a tall ladder and
+   fixes "—" alignment in the narrow viewport-fit / 2-up sidebar grids). */
+.pf-container--zero .pf-hero-rail-group:first-child .pf-hero-rail-list {
+  gap: var(--ct-space-1);
+}
+
+.pf-container--zero .pf-hero-rail-group:first-child .pf-hero-rail-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+}
+
+.pf-container--zero .pf-hero-rail-group:first-child .pf-hero-rail-row dt {
+  flex: 1 1 auto;
+}
+
+.pf-container--zero .pf-hero-rail-group:first-child .pf-hero-rail-row dd {
+  flex: 0 0 auto;
+  justify-content: flex-end;
+}
+
+.pf-container--zero .pf-hero-rail-group:first-child .pf-hero-rail-row+.pf-hero-rail-row {
+  padding-top: 0;
+  border-top: none;
+}
 .pf-container--zero .pf-hero-rail-row + .pf-hero-rail-row {
   padding-top: var(--ct-space-1_5);
 }
@@ -1312,6 +1376,10 @@
   font-size: var(--ct-text-xl);
 }
 
+.pf-container--zero .pf-hero-rail-group:first-child .pf-hero-kpi-value {
+  font-size: var(--ct-text-lg);
+  line-height: var(--ct-leading-snug);
+}
 /* ── No-data 1-col hero: the KPI rail is the height driver ──────────────────
    When the hero stacks (slot < hero-2col), the no-data rail's three groups
    (Key metrics / Projected payout / Liquidity) form a ~480px vertical ladder
@@ -1353,6 +1421,10 @@
   .pf-container--zero .pf-hero-sidebar .pf-hero-rail-group:nth-child(3) {
     grid-column: 1 / -1;
   }
+.pf-container--zero .pf-hero-rail-row dt.pf-inline-row--between {
+  flex-wrap: wrap;
+  row-gap: var(--ct-space-0_5);
+}
 }
 
 /* Very narrow slots (mobile / tablet portrait) — back to a single column so the
@@ -1449,6 +1521,16 @@
   flex: 1;
 }
 
+@container pf-panel (max-width: 40rem) {
+  .cy-panel .cy-body {
+    grid-template-columns: 1fr;
+    gap: var(--ct-space-3);
+  }
+
+  .cy-panel .cy-spine {
+    display: none;
+  }
+}
 .cy-spine {
   align-self: stretch;
   width: var(--ct-space-px);
@@ -1738,7 +1820,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: var(--ct-space-3);
+    gap: var(--ct-space-2);
     overflow: hidden;
   }
 
@@ -1747,12 +1829,20 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--ct-space-3);
+    gap: var(--ct-space-2);
   }
 
-  .pf-cockpit-row--summary  { flex: 1.15 1 0; }
-  .pf-cockpit-row--mid      { flex: 1 1 0; }
-  .pf-cockpit-row--trio     { flex: 1.1 1 0; }
+    .pf-cockpit-row--summary {
+      flex: 1.28 1 0;
+    }
+  
+    .pf-cockpit-row--mid {
+      flex: 1.08 1 0;
+    }
+  
+    .pf-cockpit-row--trio {
+      flex: 0.94 1 0;
+    }
 }
 
 /* Hub container — column stack; height lock only in wide+tall viewport-fit gate. */
@@ -1869,13 +1959,15 @@
 
 /* Long panels scroll inside their cell when viewport-fit is active. */
 @media (min-width: 90rem) and (min-height: 52rem) {
-  .pf-cockpit-cell .pf-positions-table,
+  .pf-cockpit-cell .pf-positions-table {
+      overflow-y: auto;
+      min-height: 0;
+      scrollbar-width: thin;
+    }
   .pf-cockpit-cell .pf-recent-activity-list,
   .pf-cockpit-cell .pf-hero-sidebar,
-  .pf-cockpit-cell .cy-panel .cy-body {
-    overflow-y: auto;
+    .pf-cockpit-cell .cy-panel .cy-body {
     min-height: 0;
-    scrollbar-width: thin;
   }
 
   /* No-data hero rail in viewport-fit: the three placeholder groups (Key metrics
@@ -1888,9 +1980,10 @@
   .pf-container--fit.pf-container--zero .pf-hero-sidebar {
     overflow-y: visible;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--ct-space-2) var(--ct-space-5);
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--ct-space-2) var(--ct-space-4);
     align-content: start;
+    padding: var(--ct-space-3) var(--ct-space-4);
   }
 
   .pf-container--fit.pf-container--zero
@@ -1902,6 +1995,10 @@
     border-top: none;
   }
 
+    .pf-container--fit.pf-container--zero .pf-hero-rail-row dt.pf-inline-row--between {
+      flex-wrap: wrap;
+      row-gap: var(--ct-space-0_5);
+    }
   /* No-data Capital & Yield in viewport-fit: the ghost donut (up to 12rem) + the
      full placeholder ledger overflow the height-capped mid-row cell and force an
      internal scrollbar. In --zero the donut is a calm placeholder, not a real
@@ -1996,6 +2093,38 @@
   color: var(--ct-accent-strong);
 }
 
+/* Hub panel “View full” — quieter than teaser tiles; trail stays compact. */
+.pf-panel-leaf-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-0_5);
+  flex-shrink: 0;
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-wide);
+  color: var(--ct-text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--ct-dur-base) var(--ct-ease);
+}
+
+.pf-panel-leaf-link__label {
+  min-width: 0;
+}
+
+.pf-panel-leaf-link__arrow {
+  flex-shrink: 0;
+}
+
+.pf-panel-leaf-link:hover {
+  color: var(--ct-accent-strong);
+}
+
+@container pf-panel (max-width: 24rem) {
+  .pf-panel-leaf-link__label {
+    display: none;
+  }
+}
 .pf-teaser__body {
   display: flex;
   flex: 1;

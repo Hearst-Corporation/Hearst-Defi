@@ -17,7 +17,13 @@ import {
 } from "@/components/portfolio/pf-cockpit-panel";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { formatUsdFull } from "@/lib/vaults/product-display";
+
+// ── Canonical reference component ─────────────────────────────────────────────
+// All CSS values use --ct-* tokens. SVG geometry (viewBox coordinates, BAR_W,
+// GAP, COMPACT_VB_H etc.) is the documented escape hatch — these are coordinate
+// system values, not CSS spacing. See "chart-geometry escape hatch" comments below.
 
 // ── Public types ──────────────────────────────────────────────────────────────
 
@@ -43,7 +49,8 @@ export interface DistribCalendarProps {
   updatedAt?: Date;
   /** Layout preview at zero — nested empty chart only (DS §9.3). */
   previewZeros?: boolean;
-  /** Inside ProductSection — parent supplies section label; no nested dash-cell. */
+  /** Hub-only link to the focused leaf page. */
+  leafHref?: string;
 }
 
 // ── Formatting helpers (exported for tests) ───────────────────────────────────
@@ -63,7 +70,10 @@ export function formatPeriod(period: string, refYear: number): string {
 /** @deprecated Import formatUsdFull from @/lib/vaults/product-display */
 export const formatUsdc = formatUsdFull;
 
-// ── SVG constants ─────────────────────────────────────────────────────────────
+// ── SVG constants — chart-geometry escape hatch ───────────────────────────────
+// These are viewBox coordinate values, not CSS spacing tokens.
+// VB_W/VB_H define the SVG coordinate system; BAR_AREA_* are layout zones
+// within that coordinate system. None of these map to --ct-space-* tokens.
 
 const VB_W = 560;
 const VB_H = 180;
@@ -96,6 +106,8 @@ export function shouldShowCompactPeriodLabel(index: number): boolean {
   return (COMPACT_LABEL_INDICES as readonly number[]).includes(index);
 }
 
+// Compact zero-state canvas — cropped coordinate system for the preview rail.
+// These pixel values are SVG viewBox units, not CSS px.
 /** Compact zero-state canvas — cropped to axis + quarter labels only (not VB_H). */
 const COMPACT_VB_H = 64;
 const COMPACT_AXIS_Y = 40;
@@ -121,7 +133,8 @@ function BarChart({
   const n = entries.length;
   if (n === 0) return null;
 
-  // Bar geometry — use full viewBox width (no cap) so bars scale with the panel.
+  // Bar geometry — SVG viewBox units. GAP=4 = 4 viewBox units between bars.
+  // Full viewBox width (no cap) so bars scale with the panel.
   const GAP = 4;
   const totalGaps = (n - 1) * GAP;
   const BAR_W = Math.floor((VB_W - totalGaps) / n);
@@ -144,7 +157,7 @@ function BarChart({
       <svg
         viewBox={`0 0 ${VB_W} ${COMPACT_VB_H}`}
         preserveAspectRatio="xMidYMax meet"
-        className="pf-distrib-chart pf-distrib-chart--compact block h-full w-full min-h-[8rem]"
+        className="pf-distrib-chart pf-distrib-chart--compact block h-full w-full"
         role="img"
         aria-label={compactTitle}
       >
@@ -180,7 +193,7 @@ function BarChart({
                 height={COMPACT_BAR_H}
                 rx={1}
                 fill={isCurrent ? "var(--ct-accent)" : "var(--ct-border-soft)"}
-                style={{ fillOpacity: isCurrent ? "var(--ct-opacity-80)" : "var(--ct-opacity-32)" }}
+                style={{ fillOpacity: isCurrent ? "var(--ct-opacity-80)" : "var(--ct-opacity-40)" }}
               />
               {isQuarter ? (
                 <text
@@ -206,7 +219,7 @@ function BarChart({
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
       preserveAspectRatio="xMidYMax meet"
-      className="pf-distrib-chart block h-full w-full min-h-[10rem]"
+      className="pf-distrib-chart block h-full w-full"
       role="img"
       aria-labelledby={titleId}
     >
@@ -249,6 +262,7 @@ function BarChart({
         const barEl = isForecast ? (
           // Forecast: dashed-border rect + hatch fill
           <g key={i} role="img" aria-label={`Forecast ${periodLabel} — ${amountLabel} (Estimated)`}>
+            {/* svg-render: dash pattern 4on/2off in viewBox units */}
             <rect
               x={bx}
               y={by}
@@ -366,6 +380,7 @@ export function DistribCalendar({
   source = "live",
   updatedAt,
   previewZeros = false,
+  leafHref,
 }: DistribCalendarProps) {
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
@@ -394,6 +409,7 @@ export function DistribCalendar({
             : `12m · USDC${hasForecast ? " · forecast" : ""}`
         }
         provenance={badgeKind}
+        trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
       />
 
       <div className="pf-distrib-chart-shell">
@@ -416,7 +432,7 @@ export function DistribCalendar({
       {/* Footer — share class + cadence. Rendered only when at least one is
           known, so an empty widget doesn't show a "— / —" stub. */}
       {(shareClass || cadence) && (
-        <dl className="flex flex-wrap gap-x-[var(--ct-space-4)] gap-y-1 border-t border-(--ct-border-soft) pt-[var(--ct-space-2)] mt-auto">
+        <dl className="flex flex-wrap gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-1)] border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-2)] mt-auto">
           {shareClass ? (
             <div className="pf-stack--compact min-w-0">
               <dt className="stat-label mono">

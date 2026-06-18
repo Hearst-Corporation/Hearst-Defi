@@ -55,8 +55,8 @@
      Chips & badges keep --ct-surface-* literals; large panels use these. */
   --ct-graphite-active-bg: linear-gradient(
     135deg,
-    rgba(0, 0, 0, 0.68) 0%,
-    rgba(0, 0, 0, 0.80) 100%
+    rgba(0, 0, 0, 0.72) 0%,
+    rgba(0, 0, 0, 0.84) 100%
   );
   /* Noir fumé d'origine (a8d4c4f) restauré — le chantier dashboard les avait
      passés en blanc translucide (pour aller avec le fond noir uniforme H7, retiré).
@@ -64,17 +64,17 @@
      lavent/grisent. */
   --ct-graphite-subtle-bg: linear-gradient(
     135deg,
-    rgba(0, 0, 0, 0.60) 0%,
-    rgba(0, 0, 0, 0.72) 100%
+    rgba(0, 0, 0, 0.64) 0%,
+    rgba(0, 0, 0, 0.76) 100%
   );
   --ct-graphite-nested-bg: linear-gradient(
     135deg,
-    rgba(0, 0, 0, 0.52) 0%,
-    rgba(0, 0, 0, 0.64) 100%
+    rgba(0, 0, 0, 0.56) 0%,
+    rgba(0, 0, 0, 0.68) 100%
   );
   --ct-graphite-border: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-border-soft));
   --ct-graphite-border-nested: color-mix(in srgb, var(--ct-text-strong) 4%, var(--ct-border-soft));
-  --ct-graphite-blur: blur(28px);
+  --ct-graphite-blur: blur(22px);
   /* Inner top highlight — machined glass bevel (ADR-013; no outer drop shadow). */
   --ct-glass-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.10);
   --ct-glass-bevel-hover: inset 0 1px 0 rgba(255, 255, 255, 0.15);
@@ -139,13 +139,13 @@
   --ct-scrollbar-size: 6px;
 
   /* Ambient shell overlay (`.ct-panels-row::after`) — calibration knobs only. */
-  --ct-ambient-glow-opacity: 0.72;
-  --ct-ambient-glow-mix-primary: 13%;
-  --ct-ambient-glow-mix-secondary: 10%;
-  --ct-ambient-glow-mix-fade-a: 6%;
-  --ct-ambient-glow-mix-fade-b: 4%;
-  --ct-ambient-glow-bg-top: 12%;
-  --ct-ambient-glow-bg-bottom: 28%;
+  --ct-ambient-glow-opacity: 0.62;
+  --ct-ambient-glow-mix-primary: 9%;
+  --ct-ambient-glow-mix-secondary: 7%;
+  --ct-ambient-glow-mix-fade-a: 3%;
+  --ct-ambient-glow-mix-fade-b: 2%;
+  --ct-ambient-glow-bg-top: 10%;
+  --ct-ambient-glow-bg-bottom: 24%;
 
   /* Left rail — active item accent bar. */
   --ct-rail-active-inset-y: 18%;
@@ -3250,7 +3250,14 @@ button.ct-seg-btn {
   position: relative;
   background-color: transparent; /* Élimine le fond opaque à la base */
   background-image:
-    /* 1. vignette noire — assombrit les bords, pousse le centre au fond (profondeur).
+    /* 1. lumière blanche contrôlée — effet gallery sans bloom flou massif. */
+    radial-gradient(
+      72% 58% at 50% 42%,
+      color-mix(in srgb, var(--ct-text-strong) 8%, transparent) 0%,
+      color-mix(in srgb, var(--ct-text-strong) 3%, transparent) 38%,
+      transparent 72%
+    ),
+    /* 2. vignette noire — assombrit les bords, pousse le centre au fond (profondeur).
           (Grain feTurbulence retiré 2026-06-16 : il pixellisait le fond.) */
     radial-gradient(
       135% 125% at 50% 44%,
@@ -3258,7 +3265,7 @@ button.ct-seg-btn {
       color-mix(in srgb, var(--ct-bg-deep) 20%, transparent) 64%,
       color-mix(in srgb, var(--ct-bg-deep) 50%, transparent) 100%
     ),
-    /* 2. base verticale noire (haut sombre → bas profond) */
+    /* 3. base verticale noire (haut sombre → bas profond) */
     linear-gradient(
       180deg,
       color-mix(in srgb, var(--ct-bg-deep) 10%, transparent) 0%,
@@ -3267,9 +3274,9 @@ button.ct-seg-btn {
     );
   /* bg-deep n'est plus opaque : l'image (::before) doit transparaître. */
   background-color: transparent;
-  background-size: cover, cover;
-  background-position: center, center;
-  background-repeat: no-repeat, no-repeat;
+  background-size: cover, cover, cover;
+  background-position: center, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat;
 }
 
 .ct-panels-row::after {

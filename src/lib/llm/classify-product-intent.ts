@@ -37,8 +37,11 @@ const NOT_PRODUCT: ProductIntentClassification = {
 };
 
 const MAX_OBJECTIVE_LEN = 220;
-const CLASSIFY_TIMEOUT_MS = 8_000;
+const CLASSIFY_TIMEOUT_MS = 5_000;
 const CLASSIFY_MAX_TOKENS = 200;
+// Use the fastest available model for this tiny JSON classification — the
+// main LLM_MODEL (gpt-4.1) adds 40+ seconds of latency for a 200-token call.
+const CLASSIFY_MODEL = "gpt-4.1-nano";
 
 const SYSTEM_PROMPT = [
   "Tu es un classificateur d'intention pour la console admin de Hearst Connect (plateforme DeFi institutionnelle, vaults USDC adossés au mining BTC).",
@@ -126,7 +129,7 @@ export async function classifyProductIntentLlm(
   try {
     const completion = await client.chat.completions.create(
       {
-        model,
+        model: CLASSIFY_MODEL,
         max_tokens: CLASSIFY_MAX_TOKENS,
         response_format: { type: "json_object" },
         messages: [

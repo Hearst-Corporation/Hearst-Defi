@@ -96,7 +96,9 @@ export function AgentBriefLive({
   if (!objective) {
     return (
       <p className="body-sm ct-text-muted italic">
-        Waiting for an objective from the cockpit assistant.
+        {autostart
+          ? "Objective not received — return to chat and retry."
+          : "Waiting for an objective from the cockpit assistant."}
       </p>
     );
   }

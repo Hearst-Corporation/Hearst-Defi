@@ -22,7 +22,7 @@ import type { ProductWorkspaceIntentKind } from "@/lib/llm/product-workspace-int
  */
 
 /** Seconds a published nav directive stays valid before it self-expires. */
-const NAV_TTL_SECONDS = 25;
+const NAV_TTL_SECONDS = 90;
 
 const navKey = (userId: string): string => `chatnav:${userId}`;
 

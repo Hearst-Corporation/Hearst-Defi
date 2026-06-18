@@ -1,5 +1,8 @@
+import { ApyRange } from "@/components/ui/apy-range";
 import { computeTimeToCash } from "@/lib/data/time-to-cash";
+import { resolveTimeToCashShell } from "@/lib/portfolio/hero-rail-state";
 import type { TimeToCashProps } from "@/components/portfolio/time-to-cash";
+
 import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
 
 const usdcFmt = new Intl.NumberFormat("en-US", {
@@ -22,12 +25,18 @@ export function HeroPayoutRail({
   aprHigh,
   asOf,
   source,
+  updatedAt,
   previewZeros = false,
 }: HeroPayoutRailProps) {
   const effectiveAsOf = asOf ?? new Date();
-  const isStale =
-    source === "stale" || projectedUsdc === 0 || aprLow + aprHigh === 0;
-  const showZeroShell = previewZeros || isStale;
+  const { showZeroShell, widgetProvenance } = resolveTimeToCashShell({
+    previewZeros,
+    source,
+    updatedAt,
+    projectedUsdc,
+    aprLow,
+    aprHigh,
+  });
 
   const { daysElapsed, daysRemaining, hoursRemaining, progressPct } =
     computeTimeToCash({ cycleStart, cycleDays, asOf: effectiveAsOf });
@@ -53,6 +62,7 @@ export function HeroPayoutRail({
       title="Projected payout"
       aria-label="Projected payout"
       payout
+      provenance={widgetProvenance}
     >
       <p className="pf-hero-rail-value pf-hero-kpi-value tabular-nums m-0">{valueText}</p>
 
@@ -71,6 +81,18 @@ export function HeroPayoutRail({
       </div>
 
       <p className="pf-hero-rail-meta tabular m-0">{metaText}</p>
+
+      <p className="pf-hero-rail-note m-0">
+        {showZeroShell ? (
+          <>Projection unlocks after the first active yield snapshot.</>
+        ) : (
+          <>
+            APY{" "}
+            <ApyRange low={aprLow} high={aprHigh} className="text-inherit font-inherit" suffix="%" />{" "}
+            · <span aria-label="Not guaranteed">Estimate only, not guaranteed.</span>
+          </>
+        )}
+      </p>
     </HeroRailGroup>
   );
 }

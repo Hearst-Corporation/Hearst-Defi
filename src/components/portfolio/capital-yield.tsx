@@ -12,6 +12,7 @@ import type { AllocationBucketSlice } from "@/lib/data/portfolio";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
 import { cn } from "@/lib/cn";
 
@@ -30,6 +31,7 @@ import { cn } from "@/lib/cn";
  * CLAUDE.md non-negotiables: APY always a range (#1), provenance badge (#2),
  * forbidden words absent (#5), "not guaranteed" disclaimer (#10).
  */
+
 export interface CapitalYieldProps {
   sources: YieldSource[];
   blendedLow: number;
@@ -42,6 +44,8 @@ export interface CapitalYieldProps {
   updatedAt?: Date;
   /** Render the full instrument shell at zero (layout preview / no snapshot). */
   previewZeros?: boolean;
+  /** Hub-only link to the focused leaf page. */
+  leafHref?: string;
 }
 
 export function CapitalYield({
@@ -55,6 +59,7 @@ export function CapitalYield({
   source = "estimated",
   updatedAt,
   previewZeros = false,
+  leafHref,
 }: CapitalYieldProps) {
   const maxAbsPct = sources.reduce(
     (acc, s) => Math.max(acc, Math.abs(s.contributionPct)),
@@ -93,11 +98,14 @@ export function CapitalYield({
         subtitle="Allocation · 12m forward yield"
         provenance={badgeKind}
         titleVariant="primary"
+        trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
       />
 
       <div className="cy-body">
         {/* ── Zone 1 — allocation gauge ── */}
         <div className="cy-donut dash-chart-container">
+          {/* svg-geometry: cx/cy/r/strokeDasharray/viewBox are raw numbers by SVG spec —
+               the sole escape hatch from the token system in this component. */}
           <svg
             className="dash-chart-svg"
             viewBox="0 0 42 42"
@@ -257,7 +265,7 @@ export function CapitalYield({
             </div>
             <div className="flex items-baseline justify-between">
               <dt className="body-xs min-w-0 truncate ct-text-muted">
-                Stressed (bear) <span className="body-xs opacity-(--ct-opacity-70)">(proxy)</span>
+                Stressed (bear) <span className="body-xs opacity-[var(--ct-opacity-70)]">(proxy)</span>
               </dt>
               <dd
                 className={cn(

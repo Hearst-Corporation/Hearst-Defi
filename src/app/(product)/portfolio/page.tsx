@@ -116,6 +116,8 @@ export default async function PortfolioPage() {
                 totalYieldYtdUsdc={data.totalYieldYtdUsdc}
                 nextDistributionAt={data.nextDistributionAt}
                 hasPositions={hasPositions}
+                source={data.source}
+                updatedAt={data.updatedAt}
                 previewZeros={previewZeros}
               />
               <HeroPayoutRail
@@ -139,6 +141,7 @@ export default async function PortfolioPage() {
               source={data.source}
               updatedAt={data.updatedAt}
               previewZeros={previewZeros}
+              leafHref="/portfolio/positions"
             />
           </div>
           <div
@@ -151,6 +154,7 @@ export default async function PortfolioPage() {
               buckets={allocationDonutProps.buckets}
               totalValueUsdc={data.totalValueUsdc}
               previewZeros={previewZeros}
+              leafHref="/portfolio/yield"
             />
           </div>
         </div>
@@ -172,6 +176,7 @@ export default async function PortfolioPage() {
               previewZeros={
                 previewZeros && distribCalendarProps.entries.length === 0
               }
+              leafHref="/portfolio/distributions"
             />
           </div>
           <div
@@ -184,6 +189,7 @@ export default async function PortfolioPage() {
               source={data.source}
               updatedAt={data.updatedAt}
               previewZeros={previewZeros}
+              leafHref="/portfolio/activity"
             />
           </div>
           <div

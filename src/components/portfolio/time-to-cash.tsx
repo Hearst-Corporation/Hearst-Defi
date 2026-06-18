@@ -9,7 +9,7 @@ import { ApyRange } from "@/components/ui/apy-range";
 import { cn } from "@/lib/cn";
 import { computeTimeToCash } from "@/lib/data/time-to-cash";
 import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
-import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { resolveTimeToCashShell } from "@/lib/portfolio/hero-rail-state";
 import { formatUsdcGrouped } from "@/lib/vaults/product-display";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -58,16 +58,14 @@ export function TimeToCash({
 }: TimeToCashProps) {
   const effectiveAsOf = asOf ?? new Date();
 
-  // No-data guard: stale source OR no projected payout OR flat 0 APR range.
-  // When triggered, both the cycle badge and the APY range provenance flip to
-  // "Stale" so we don't badge "Live" on top of meaningless zeroes.
-  const isStale =
-    source === "stale" || projectedUsdc === 0 || aprLow + aprHigh === 0;
-  const showZeroShell = previewZeros || isStale;
-
-  const widgetProvenance = showZeroShell
-    ? undefined
-    : resolveProvenance(source ?? "live", updatedAt, "estimated");
+  const { showZeroShell, widgetProvenance } = resolveTimeToCashShell({
+    previewZeros,
+    source,
+    updatedAt,
+    projectedUsdc,
+    aprLow,
+    aprHigh,
+  });
 
   const { daysElapsed, daysRemaining, hoursRemaining, progressPct } =
     computeTimeToCash({ cycleStart, cycleDays, asOf: effectiveAsOf });
@@ -107,7 +105,7 @@ export function TimeToCash({
       />
 
       {/* Next distribution row --------------------------------------------- */}
-      <div className="pf-stack--compact relative z-10 min-w-0">
+      <div className="pf-stack--compact relative z-[var(--ct-z-raised,10)] min-w-0">
         <span className="stat-label">Next distribution</span>
         <p
           className={cn(
@@ -126,7 +124,7 @@ export function TimeToCash({
       </div>
 
       {/* Progress bar ------------------------------------------------------ */}
-      <div className="pf-stack--dense relative z-10">
+      <div className="pf-stack--dense relative z-[var(--ct-z-raised,10)]">
         <div
           role="progressbar"
           aria-valuenow={progressRounded}
@@ -153,7 +151,7 @@ export function TimeToCash({
       </div>
 
       {/* Disclosure -------------------------------------------------------- */}
-      <p className="body-xs italic relative z-10 ct-text-faint">
+      <p className="body-xs italic relative z-[var(--ct-z-raised,10)] ct-text-faint">
         {showZeroShell ? (
           <>No payout projection until the first active position has current yield data.</>
         ) : (
@@ -165,7 +163,7 @@ export function TimeToCash({
       </p>
 
       {/* Settings CTA ------------------------------------------------------ */}
-      <div className="flex items-center justify-between border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-2)] mt-auto relative z-10">
+      <div className="flex items-center justify-between border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-2)] mt-auto relative z-[var(--ct-z-raised,10)]">
         <span className="body-xs ct-text-muted">
           {showZeroShell
             ? "Projection pending"

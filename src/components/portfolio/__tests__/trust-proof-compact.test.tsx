@@ -46,6 +46,30 @@ describe("TrustProofCompact", () => {
     expect(html).not.toContain("Open proof center");
   });
 
+  it("default hub: disabled See more (no dedicated trust leaf route)", () => {
+    const html = renderToStaticMarkup(
+      <TrustProofCompact risk={BASE_RISK} proof={BASE_PROOF} />,
+    );
+    expect(html).toContain("See more");
+    expect(html).toContain("disabled");
+    expect(html).not.toContain('href="/portfolio/activity"');
+  });
+
+  it("optional leafHref: renders View full when explicitly wired", () => {
+    const html = renderToStaticMarkup(
+      <TrustProofCompact
+        risk={BASE_RISK}
+        proof={BASE_PROOF}
+        leafHref="/portfolio/activity"
+      />,
+    );
+    expect(html).toContain('href="/portfolio/activity"');
+    expect(html).toContain("pf-panel-leaf-link__label");
+    expect(html).toContain("pf-panel-leaf-link__arrow");
+    expect(html).toContain("View full");
+    expect(html).not.toContain("disabled");
+  });
+
   it("previewZeros: pending KPI placeholders", () => {
     const kpis = deriveTrustSummaryKpis({
       risk: {

@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -36,6 +37,8 @@ export interface TrustPanelProps {
   proof: ProofPulseProps;
   /** Render the full Trust shell at zero (layout preview). */
   previewZeros?: boolean;
+  /** Hub-only link to the focused leaf page. */
+  leafHref?: string;
 }
 
 export interface TrustSummaryKpis {
@@ -132,8 +135,11 @@ export function deriveTrustSummaryKpis({
   };
 }
 
-/** Sidebar trust summary — KPI headers only; full detail page deferred. */
-export function TrustProofCompact(props: TrustPanelProps) {
+/** Sidebar trust summary — KPI headers only; full detail on leaf when linked. */
+export function TrustProofCompact({
+  leafHref,
+  ...props
+}: TrustPanelProps) {
   const kpis = deriveTrustSummaryKpis(props);
 
   return (
@@ -165,17 +171,24 @@ export function TrustProofCompact(props: TrustPanelProps) {
         </div>
       </dl>
 
-      <Button
-        type="button"
-        variant="secondary"
-        size="sm"
-        disabled
-        className="pf-trust-compact__see-more"
-        aria-label="Full trust detail — coming soon"
-        title="Detailed trust view coming soon"
-      >
-        See more
-      </Button>
+      {leafHref ? (
+        <PortfolioLeafLink
+          href={leafHref}
+          className="pf-trust-compact__see-more"
+        />
+      ) : (
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          disabled
+          className="pf-trust-compact__see-more"
+          aria-label="Full trust detail — coming soon"
+          title="Detailed trust view coming soon"
+        >
+          See more
+        </Button>
+      )}
     </PfCockpitPanel>
   );
 }

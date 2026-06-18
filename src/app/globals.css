@@ -249,12 +249,13 @@ code,
 }
 
 /* Global legal footer — rendered by AppChrome on every authenticated surface.
-   Quiet, hairline-topped, faint links; mirrors the profile footer's legal row. */
+   Quiet, ultra-compact, faint links over a thin accent hairline. */
 .app-footer {
   margin-top: auto;
-  padding-top: var(--ct-space-2);
-  padding-bottom: var(--ct-space-3);
-  border-top: 1px solid var(--ct-border-soft);
+  padding-top: var(--ct-space-1_5);
+  padding-bottom: var(--ct-space-1_5);
+  border-top: 1px solid
+    color-mix(in srgb, var(--ct-accent) 32%, transparent);
 }
 
 .app-footer__links {

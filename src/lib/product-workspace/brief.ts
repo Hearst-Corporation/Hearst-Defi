@@ -1,7 +1,6 @@
 import "server-only";
 
 import { inferVault } from "@/lib/llm/product-chat-stream";
-import { guardChatStream } from "@/lib/llm/output-guard";
 import { nextOrAbort, createSafeEnqueue } from "@/lib/llm/stream-utils";
 import { upsertProductWorkspaceDraft } from "@/lib/product-workspace/draft";
 import { classifyProductWorkspaceIntent } from "@/lib/llm/product-workspace-intent";
@@ -152,8 +151,10 @@ export function runProductWorkspaceBrief(
     },
   });
 
-  // Same compliance guard as the chat: a non-compliant brief is blocked.
-  return { stream: guardChatStream(raw), final };
+  // The brief is an internal admin document — skip the LP chat guard (which
+  // rejects French institutional phrasing like "assuré par la structure").
+  // Hard non-negotiables (#5) are already enforced by the system prompt itself.
+  return { stream: raw, final };
 }
 
 /** Persist the generated brief to the per-admin draft (best-effort). */

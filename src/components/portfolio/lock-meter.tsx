@@ -5,6 +5,7 @@
 import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
 import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
+import { resolveLockMeterShell } from "@/lib/portfolio/hero-rail-state";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 // ── Internal helpers (exported for unit tests) ────────────────────────────────
@@ -104,11 +105,11 @@ export function LockMeter({
 }: LockMeterProps) {
   const effectiveAsOf = asOf ?? new Date();
 
-  // When share-class terms are not wired, render a neutral "no data" state
-  // instead of a fabricated progress bar.
-  const termsUnknown = softLockupDays <= 0;
-
-  const showZeroShell = previewZeros || termsUnknown || source === "stale";
+  const { showZeroShell, widgetProvenance, termsUnknown } = resolveLockMeterShell({
+    previewZeros,
+    source,
+    softLockupDays,
+  });
 
   const { progressPct, unlockDate, daysRemaining, isUnlocked } =
     computeLockMeter(lockStart, softLockupDays, effectiveAsOf);
@@ -138,14 +139,14 @@ export function LockMeter({
             </h3>
           </Tooltip>
         }
-        provenance={showZeroShell ? undefined : "live"}
+        provenance={widgetProvenance}
         trailing={
           showZeroShell ? <PreviewModeChip label="Preview mode" /> : undefined
         }
       />
 
       {/* Progress bar ------------------------------------------------------ */}
-      <div className="pf-stack--dense relative z-10">
+      <div className="pf-stack--dense relative z-[var(--ct-z-raised,10)]">
         {/* Bar */}
         <div
           role="progressbar"
@@ -187,7 +188,7 @@ export function LockMeter({
       </div>
 
       {/* Metadata ---------------------------------------------------------- */}
-      <dl className="pf-stack--tight relative z-10 mt-auto">
+      <dl className="pf-stack--tight relative z-[var(--ct-z-raised,10)] mt-auto">
         {/* Unlock date */}
         <div className="pf-inline-row pf-inline-row--between">
           <dt className="body-xs ct-text-muted">

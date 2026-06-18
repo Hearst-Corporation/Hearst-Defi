@@ -10,6 +10,7 @@ import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { cn } from "@/lib/cn";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -30,6 +31,8 @@ interface PositionsListProps {
   updatedAt?: Date;
   /** Render table shell with zero row (layout preview). */
   previewZeros?: boolean;
+  /** Hub-only link to the focused leaf page. */
+  leafHref?: string;
 }
 
 /**
@@ -42,6 +45,7 @@ export function PositionsList({
   source,
   updatedAt,
   previewZeros = false,
+  leafHref,
 }: PositionsListProps) {
   const isEmpty = positions.length === 0;
   const showZeroShell = previewZeros || isEmpty;
@@ -55,7 +59,9 @@ export function PositionsList({
         title="Positions"
         provenance={provenance}
         trailing={
-          !showZeroShell ? (
+          leafHref ? (
+            <PortfolioLeafLink href={leafHref} />
+          ) : !showZeroShell ? (
             <span className="body-xs ct-text-faint tabular">
               {positions.length} position{positions.length !== 1 ? "s" : ""}
             </span>
@@ -63,10 +69,10 @@ export function PositionsList({
         }
       />
 
-      <div className="flex flex-col overflow-x-auto min-w-0">
+      <div className="pf-positions-scroll-wrap">
         <div className={cn("pf-positions-table", showZeroShell && "pf-positions-table--zero")}>
           {/* Header row */}
-          <div className={cn("stat-label", "pf-positions-row-grid", "items-baseline")}>
+          <div className={cn("stat-label", "pf-positions-row-grid", "pf-positions-row-grid--header")}>
             <div className="pf-position-vault-cell pf-position-vault-cell--header whitespace-nowrap">
               Vault
             </div>

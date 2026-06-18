@@ -578,9 +578,13 @@ async function runMasterAgentTurn(args: {
     // MUST be in the channel before we return the response — otherwise the
     // first poll races ahead of the write and the page never opens. publishNav
     // is best-effort internally (never throws), so awaiting it is safe.
+    // Fallback: if the classifier didn't extract an objective, use the raw
+    // message (truncated) so the workspace always has something to brief on.
+    const _rawFallback = message.replace(/[\x00-\x1F\x7F]/g, "").trim().slice(0, 220);
+    const workspaceObjective = productIntent.objective ?? (_rawFallback || undefined);
     await publishNav(userId, {
       destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-      ...(productIntent.objective ? { objective: productIntent.objective } : {}),
+      ...(workspaceObjective ? { objective: workspaceObjective } : {}),
       autostart: true,
       intentKind: productIntent.kind,
       // Carry Scenario Lab as secondary metadata when the same message also

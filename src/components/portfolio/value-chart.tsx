@@ -121,6 +121,7 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
   const descId  = "vc-desc";
 
   return (
+    // svg-geometry — strokeWidth, r, viewBox constants are the sole raw-value escape hatch.
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
       className="w-full h-full"
@@ -247,12 +248,12 @@ export function ValueChart({
 
       {!showZeroShell ? (
         <>
-          <div className="relative mt-[var(--ct-space-3)] block w-full flex-1 overflow-hidden rounded-md z-10 min-h-20">
+          <div className="pf-value-chart__chart-wrapper">
             <ChartDisclaimerUnderlay />
             <AreaChart series={series} />
           </div>
 
-          <div className="stat-label ct-text-muted flex justify-between mt-[var(--ct-space-2)] mono relative z-10">
+          <div className="stat-label ct-text-muted flex justify-between mono pf-value-chart__month-labels">
             {series
               .filter((_, i) => i % 3 === 0 || i === series.length - 1)
               .map((s, i) => (
@@ -260,7 +261,7 @@ export function ValueChart({
               ))}
           </div>
 
-          <p className="body-xs ct-text-muted mt-[var(--ct-space-2)] italic relative z-10">
+          <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
             Indicative path derived from subscribed principal and current value.
             Past performance does not predict future results. Not guaranteed.
           </p>

@@ -3,6 +3,7 @@ import {
   formatBps,
   type LockMeterProps,
 } from "@/components/portfolio/lock-meter";
+import { resolveLockMeterShell } from "@/lib/portfolio/hero-rail-state";
 import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
 import { cn } from "@/lib/cn";
 
@@ -26,8 +27,11 @@ export function HeroLiquidityRail({
   previewZeros = false,
 }: HeroLiquidityRailProps) {
   const effectiveAsOf = asOf ?? new Date();
-  const termsUnknown = softLockupDays <= 0;
-  const showZeroShell = previewZeros || termsUnknown || source === "stale";
+  const { showZeroShell, widgetProvenance, termsUnknown } = resolveLockMeterShell({
+    previewZeros,
+    source,
+    softLockupDays,
+  });
 
   const { progressPct, unlockDate, daysRemaining, isUnlocked } =
     computeLockMeter(lockStart, softLockupDays, effectiveAsOf);
@@ -58,7 +62,11 @@ export function HeroLiquidityRail({
         : `${daysRemaining}d left · Unlock ${unlockDateFmt.format(unlockDate)}`;
 
   return (
-    <HeroRailGroup title="Liquidity" aria-label="Liquidity status">
+    <HeroRailGroup
+      title="Liquidity"
+      aria-label="Liquidity status"
+      provenance={widgetProvenance}
+    >
       <div
         role="progressbar"
         aria-valuenow={progressRounded}

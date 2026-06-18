@@ -5,6 +5,7 @@ import { cn } from "@/lib/cn";
 
 export { PanelStatus } from "@/components/ui/panel-status";
 
+
 export type PfCockpitPanelVariant = "wide" | "compact" | "table";
 
 export type PfCockpitTitleVariant = "rail" | "primary";
@@ -70,7 +71,7 @@ export function PfCockpitPanelHeader({
 
   return (
     <header className="pf-cockpit-panel__header">
-      <div className="min-w-0">
+      <div className="pf-cockpit-panel__header-main min-w-0">
         {typeof title === "string" ? (
           <h3 className={titleClass}>{title}</h3>
         ) : (
