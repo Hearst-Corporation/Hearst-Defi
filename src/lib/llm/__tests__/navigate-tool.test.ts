@@ -31,6 +31,8 @@ describe("navigate-tool whitelist", () => {
       "/admin/scenario-lab",
       "/admin/dashboard",
       "/admin/vaults",
+      "/admin/customers",
+      "/admin/outreach",
       "/admin/proofs",
       "/admin/governance",
       "/admin/roadmap",

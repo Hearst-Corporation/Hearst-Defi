@@ -21,6 +21,7 @@ describe("Proof & System empty states", () => {
           totalRuns: 0,
           successfulRuns: 0,
           failedRuns: 0,
+          complianceBlockedRuns: 0,
           totalCostUsd: 0,
           avgLatencyMs: 0,
           runsByAgent: [],

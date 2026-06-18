@@ -130,9 +130,9 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
     testPrompt: "Crée un nouveau client et ouvre la fiche customer.",
     successCriteria:
       "Le chat sait au minimum ouvrir la bonne surface customer, idéalement préremplir sans sortie de scope.",
-    initialStatus: "red",
+    initialStatus: "orange",
     initialNote:
-      "Non outillé. La page /admin/customers EXISTE (UI gestion investisseurs) mais n'est PAS dans ADMIN_NAV_DESTINATIONS (8 routes), et aucun write tool create_investor n'existe. Le modèle ne peut donc ni naviguer ni créer. Fix minimal pour ouvrir la surface: ajouter la clé admin-customers à la whitelist navigate. Capacité complète (préremplir): + un write tool create_investor_draft avec confirmation (pattern create_review_note_draft).",
+      "Navigation admin-customers ajoutée à ADMIN_NAV_DESTINATIONS + fallback keyword (créer un client, fiche customer). Pas de write tool create_investor — ouverture surface seulement. Capacité complète (préremplir): write tool avec confirmation (pattern create_review_note_draft).",
   },
   {
     id: "admin-email-send-action",
@@ -144,9 +144,9 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
     testPrompt: "Prépare puis envoie un email de prospection à un nouveau client.",
     successCriteria:
       "Le chat doit soit ouvrir une surface outreach dédiée, soit exécuter un flux explicitement confirmé.",
-    initialStatus: "red",
+    initialStatus: "orange",
     initialNote:
-      "Non outillé. La page /admin/outreach EXISTE et une infra email existe ailleurs (sendTrackedEmail, agent outreach-writer) mais sont isolées du chat: pas de route outreach dans la whitelist navigate, aucun write tool email exposé au LLM. Fix (~50 LOC, 3 fichiers): clé admin-outreach dans navigate-tool + write tool email dans ADMIN_WRITE_TOOLS avec confirmation + tests.",
+      "Navigation admin-outreach ajoutée à ADMIN_NAV_DESTINATIONS + fallback keyword (outreach, email de prospection). Pas de write tool email exposé au LLM — ouverture surface seulement. Envoi réel reste human-in-the-loop sur /admin/outreach.",
   },
   {
     id: "admin-read-allocations",

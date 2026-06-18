@@ -143,5 +143,6 @@ The orchestrator updates CLAUDE.md #4 to reference this ADR.
   `src/lib/llm/nav-channel.ts`.
 - Guard: `src/lib/llm/output-guard.ts`, `src/lib/agents/forbidden-words.ts`.
 - Route + prompt: `src/app/api/cockpit-chat/route.ts`, `src/lib/llm/prompts.ts`.
+- Nav fallbacks: `src/lib/llm/nav-fallback-intent.ts`.
 - Commits (Master Agent 2.5a–2.5d + hardening): `5c8e59f`, `8cdfba1`, `b6826de`,
   `5e868d1`, `0c9badf`, `60fdc0e`, `9a7b741`, `516ba7e`.

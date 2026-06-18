@@ -289,6 +289,62 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
       });
     });
   });
+
+  it("falls back to Customers when admin asks to create a client in plain text", async () => {
+    classifyNotProduct();
+    mockMasterAgentTurnWithoutNav();
+
+    const res = await POST(makeChatRequest("créer un nouveau client"));
+    expect(res.status).toBe(200);
+    await vi.waitFor(() => {
+      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+        destinationKey: "admin-customers",
+      });
+    });
+  });
+
+  it("falls back to Outreach for an email prospection intent in plain text", async () => {
+    classifyNotProduct();
+    mockMasterAgentTurnWithoutNav();
+
+    const res = await POST(makeChatRequest("prépare un email de prospection"));
+    expect(res.status).toBe(200);
+    await vi.waitFor(() => {
+      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+        destinationKey: "admin-outreach",
+      });
+    });
+  });
+});
+
+describe("POST /api/cockpit-chat — LP nav fallback", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    classifyNotProduct();
+    mockGetSession.mockResolvedValue({ role: "investor" } as never);
+    mockRequireAuth.mockResolvedValue({ userId: USER_ID });
+    mockAdminChatModeFindUnique.mockResolvedValue({
+      mode: "normal",
+      userId: USER_ID,
+      updatedAt: new Date(),
+    });
+    mockCockpitChatCreate.mockResolvedValue({ id: "chat-1", userId: USER_ID } as never);
+    mockCockpitMessageCreate.mockResolvedValue({} as never);
+    mockLlmRunCreate.mockResolvedValue({} as never);
+    mockPublishNav.mockResolvedValue(undefined);
+  });
+
+  it("falls back to portfolio when LP asks to open portfolio in plain text", async () => {
+    mockMasterAgentTurnWithoutNav();
+
+    const res = await POST(makeChatRequest("ouvre mon portefeuille"));
+    expect(res.status).toBe(200);
+    await vi.waitFor(() => {
+      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+        destinationKey: "portfolio",
+      });
+    });
+  });
 });
 
 describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", () => {

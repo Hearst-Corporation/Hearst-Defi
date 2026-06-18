@@ -1,6 +1,44 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { prisma } from "@/lib/db";
+const { mockPrisma } = vi.hoisted(() => {
+  const rows = new Map<string, Record<string, unknown>>();
+  return {
+    mockPrisma: {
+      llmRun: {
+        create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => {
+          const id = crypto.randomUUID();
+          const row = { id, ...data };
+          rows.set(id, row);
+          return row;
+        }),
+        update: vi.fn(
+          async ({
+            where,
+            data,
+          }: {
+            where: { id: string };
+            data: Record<string, unknown>;
+          }) => {
+            const prev = rows.get(where.id) ?? { id: where.id };
+            const row = { ...prev, ...data, id: where.id };
+            rows.set(where.id, row);
+            return row;
+          },
+        ),
+        findUniqueOrThrow: vi.fn(async ({ where }: { where: { id: string } }) => {
+          const row = rows.get(where.id);
+          if (!row) throw new Error(`LlmRun ${where.id} not found`);
+          return row;
+        }),
+      },
+    },
+  };
+});
+
+vi.mock("@/lib/db", () => ({
+  prisma: mockPrisma,
+}));
+
 import { callLlm } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/openai";
 import { withRequestContext } from "@/lib/request-context";
@@ -146,7 +184,7 @@ describe("callLlm", () => {
         { client: mockClient },
       );
 
-      const row = await prisma.llmRun.findUniqueOrThrow({ where: { id: runId } });
+      const row = await mockPrisma.llmRun.findUniqueOrThrow({ where: { id: runId } });
       expect(row.systemPromptHash).toMatch(/^[a-f0-9]{64}$/);
       const expectedCost =
         (1000 * OPENAI_INPUT_PER_M + 200 * OPENAI_OUTPUT_PER_M) / 1_000_000;
@@ -179,7 +217,7 @@ describe("callLlm", () => {
           ),
       );
 
-      const row = await prisma.llmRun.findUniqueOrThrow({ where: { id: runId } });
+      const row = await mockPrisma.llmRun.findUniqueOrThrow({ where: { id: runId } });
       expect(row.userId).toBe("user_123");
     });
 
@@ -198,7 +236,7 @@ describe("callLlm", () => {
         { client: mockClient },
       );
 
-      const row = await prisma.llmRun.findUniqueOrThrow({ where: { id: runId } });
+      const row = await mockPrisma.llmRun.findUniqueOrThrow({ where: { id: runId } });
       expect(row.userId).toBeNull();
     });
   });

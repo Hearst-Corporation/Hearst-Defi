@@ -9,6 +9,13 @@
  * to the process CWD (NOT the schema file, as Prisma 5/6 did). Vitest runs
  * from the project root, so we point explicitly at `prisma/dev.db` to land
  * on the seeded fixture DB instead of creating an empty `./dev.db` orphan.
+ *
+ * Force sqlite for every test file — a developer `.env.local` may point at
+ * Supabase Postgres while the generated client still expects the adapter that
+ * matches PRISMA_PROVIDER; without this override, `pnpm test` fails with a
+ * driver-adapter mismatch.
  */
 
-process.env.DATABASE_URL = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
+process.env.PRISMA_PROVIDER = "sqlite";
+process.env.DATABASE_URL = "file:./prisma/dev.db";
+process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY ?? "vitest-test-openai-key";
