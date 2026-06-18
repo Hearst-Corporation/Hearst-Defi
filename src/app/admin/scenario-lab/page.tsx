@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
 
+import "./scenario-lab-fit.css";
+
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { LabShell } from "@/components/scenario/lab-shell";
@@ -56,7 +58,7 @@ export default async function ScenarioLabPage({
   }
 
   return (
-    <div className="admin-doc admin-doc-shell admin-doc-shell--roomy scenario-lab-page">
+    <div className="admin-doc admin-doc-shell admin-doc-shell--roomy scenario-lab-page scenario-lab-page--fit">
       <AdminPageHeader
         title="Scenario Lab"
         eyebrow={`${vault.label} · ${vault.ticker}`}

@@ -48,50 +48,53 @@ export function LabShell({
         ) : null}
       </Card>
 
-      <div
-        role="tabpanel"
-        id="tabpanel-scenario"
-        aria-labelledby="tab-scenario"
-        hidden={activeTab !== "scenario"}
-        className="admin-doc-stack admin-doc-stack--roomy"
-      >
+      {/* scenario-lab-body = internal scroll region in the fit gate */}
+      <div className="scenario-lab-body">
         <div
           role="tabpanel"
-          id="tabpanel-mode-single"
-          aria-labelledby="tab-mode-single"
-          hidden={scenarioMode !== "single"}
-          tabIndex={0}
+          id="tabpanel-scenario"
+          aria-labelledby="tab-scenario"
+          hidden={activeTab !== "scenario"}
+          className="admin-doc-stack admin-doc-stack--roomy"
         >
-          {scenarioMode === "single" ? (
-            <SingleMode
-              vaultId={vaultId}
-              initialInputs={initialInputs}
-              initialObjective={initialObjective}
-              autostart={autostart}
-              liveBtcPrice={liveBtcPrice}
-            />
-          ) : null}
+          <div
+            role="tabpanel"
+            id="tabpanel-mode-single"
+            aria-labelledby="tab-mode-single"
+            hidden={scenarioMode !== "single"}
+            tabIndex={0}
+          >
+            {scenarioMode === "single" ? (
+              <SingleMode
+                vaultId={vaultId}
+                initialInputs={initialInputs}
+                initialObjective={initialObjective}
+                autostart={autostart}
+                liveBtcPrice={liveBtcPrice}
+              />
+            ) : null}
+          </div>
+          <div
+            role="tabpanel"
+            id="tabpanel-mode-compare"
+            aria-labelledby="tab-mode-compare"
+            hidden={scenarioMode !== "compare"}
+            tabIndex={0}
+          >
+            <CompareMode active={scenarioMode === "compare"} vaultId={vaultId} />
+          </div>
         </div>
-        <div
-          role="tabpanel"
-          id="tabpanel-mode-compare"
-          aria-labelledby="tab-mode-compare"
-          hidden={scenarioMode !== "compare"}
-          tabIndex={0}
-        >
-          <CompareMode active={scenarioMode === "compare"} vaultId={vaultId} />
-        </div>
-      </div>
 
-      <div
-        role="tabpanel"
-        id="tabpanel-backtest"
-        aria-labelledby="tab-backtest"
-        hidden={activeTab !== "backtest"}
-        tabIndex={0}
-        className="admin-doc-stack admin-doc-stack--roomy"
-      >
-        {activeTab === "backtest" ? <BacktestTab /> : null}
+        <div
+          role="tabpanel"
+          id="tabpanel-backtest"
+          aria-labelledby="tab-backtest"
+          hidden={activeTab !== "backtest"}
+          tabIndex={0}
+          className="admin-doc-stack admin-doc-stack--roomy"
+        >
+          {activeTab === "backtest" ? <BacktestTab /> : null}
+        </div>
       </div>
     </div>
   );
