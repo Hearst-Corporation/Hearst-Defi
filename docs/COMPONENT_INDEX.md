@@ -20,7 +20,7 @@
 | Component file | Exports | Refs |
 |---|---|---|
 | `src/components/admin/admin-chat-controls.tsx` | AdminChatControls | 1 |
-| `src/components/admin/admin-page-header.tsx` | AdminPageHeader | 35 |
+| `src/components/admin/admin-page-header.tsx` | AdminPageHeader | 36 |
 | `src/components/admin/agent-template-form.tsx` | AgentTemplateForm | 2 |
 | `src/components/admin/agents/agent-graph-canvas.tsx` | AgentGraphCanvas | 1 |
 | `src/components/admin/archive-template-button.tsx` | ArchiveTemplateButton | 1 |
@@ -35,7 +35,7 @@
 | `src/components/admin/customer/qualification-form.tsx` | QualificationForm | 1 |
 | `src/components/admin/dashboard/allocation-orbit.tsx` | AllocationOrbit | 1 |
 | `src/components/admin/dashboard/assets-board.tsx` | DashboardAssetsBoard | 2 |
-| `src/components/admin/dashboard/cockpit-panel-header.tsx` | AdminCockpitPanelHeader, AdminLeafLink | 3 |
+| `src/components/admin/dashboard/cockpit-panel-header.tsx` | AdminCockpitPanelHeader, AdminLeafLink | 4 |
 | `src/components/admin/dashboard/kpi-strip.tsx` | DashboardKpiStrip | 1 |
 | `src/components/admin/dashboard/nav-slot.tsx` | NavSlot | 1 |
 | `src/components/admin/dashboard/risk-summary-card.tsx` | DashboardRiskSummaryCard | 1 |
@@ -137,7 +137,7 @@
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
 | `src/components/portfolio/widget-shell.tsx` | WidgetShell | 4 |
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
-| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 9 |
+| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 10 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
 | `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 4 |
 | `src/components/proof-center/custody-panel.tsx` | CustodySection | 1 |
@@ -150,7 +150,7 @@
 | `src/components/proof-center/rebalance-ptai-modal-trigger.tsx` | RebalancePtaiModalTrigger | 1 |
 | `src/components/proof-center/rebalancing-events-panel.tsx` | RebalancingEventsPanel | 2 |
 | `src/components/proof-center/recent-distributions.tsx` | RecentDistributions | 2 |
-| `src/components/proof/chain-status-badge.tsx` | ChainStatusBadge | 2 |
+| `src/components/proof/chain-status-badge.tsx` | ChainStatusBadge | 3 |
 | `src/components/proof/proof-card.tsx` | ProofCard | 2 |
 | `src/components/proof/proof-filter.tsx` | ProofFilter | 2 |
 | `src/components/proof/proof-grid.tsx` | ProofGrid | 2 |
@@ -186,8 +186,8 @@
 | `src/components/ui/checkbox.tsx` | Checkbox | 2 |
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
-| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 16 |
-| `src/components/ui/empty-surface.tsx` | EmptySurface | 43 |
+| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 17 |
+| `src/components/ui/empty-surface.tsx` | EmptySurface | 44 |
 | `src/components/ui/error-boundary.tsx` | ErrorBoundary | 1 |
 | `src/components/ui/metric.tsx` | Metric | 8 |
 | `src/components/ui/modal.tsx` | Modal | 5 |

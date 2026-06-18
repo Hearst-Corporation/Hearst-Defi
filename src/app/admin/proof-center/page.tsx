@@ -1,22 +1,19 @@
+// Admin Proof Center — Layer-1 fit cockpit hub.
+// Bounded summary widgets only; unbounded content (event log, proof grid,
+// contracts) lives in /admin/proof-center/full.
+// Mirrors the investor proof-center hub structure with admin auth + DemoDataBanner.
+
 export const dynamic = "force-dynamic";
 
-import { redirect } from "next/navigation";
-
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminCockpitPanelHeader, AdminLeafLink } from "@/components/admin/dashboard/cockpit-panel-header";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { PLATFORM_PROOFS_EMPTY } from "@/components/proof/empty-messages";
-import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
-import { EventTimeline } from "@/components/proof-center/event-timeline";
-import { MiningCashFlowEvidence } from "@/components/proof-center/mining-cashflow-evidence";
-import { PorSummary } from "@/components/proof-center/por-summary";
-import { RecentDistributions } from "@/components/proof-center/recent-distributions";
-import { RebalancingEventsPanel } from "@/components/proof-center/rebalancing-events-panel";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
-import { ProofFilter } from "@/components/proof/proof-filter";
-import { parseFilter } from "@/components/proof/proof-filter-types";
-import { ProofGrid } from "@/components/proof/proof-grid";
-import type { UnifiedProof } from "@/components/proof/proof-types";
+import { MiningCashFlowEvidence } from "@/components/proof-center/mining-cashflow-evidence";
+import { RecentDistributions } from "@/components/proof-center/recent-distributions";
+import { RebalancingEventsPanel } from "@/components/proof-center/rebalancing-events-panel";
+import { PorSummary } from "@/components/proof-center/por-summary";
 import { loadCoverageForVault } from "@/lib/agents/loaders/coverage";
 import { isAttestorAllowlisted } from "@/lib/attestation/stored";
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -29,39 +26,18 @@ import {
   loadRecentRebalances,
   PROOF_CENTER_VAULT_REF,
 } from "@/lib/data/proof-center";
-import { getProofs } from "@/lib/data/proofs";
 import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
-import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
+import { cn } from "@/lib/cn";
 
-interface AdminProofCenterPageProps {
-  searchParams: Promise<{ type?: string | string[]; vault?: string }>;
-}
-
-export default async function AdminProofCenterPage({
-  searchParams,
-}: AdminProofCenterPageProps) {
+export default async function AdminProofCenterPage() {
   await requireAdmin();
 
-  const params = await searchParams;
-  const vaultParam = Array.isArray(params.vault) ? params.vault[0] : params.vault;
-  if (vaultParam) {
-    const rawType = Array.isArray(params.type) ? params.type[0] : params.type;
-    const qs =
-      rawType != null && rawType !== ""
-        ? `?type=${encodeURIComponent(rawType)}`
-        : "";
-    redirect(`/admin/proof-center${qs}`);
-  }
-
-  const raw = Array.isArray(params.type) ? params.type[0] : params.type;
-  const filter = parseFilter(raw);
+  const chainConfigured = isChainConfigured();
   const coveragePeriod = new Date().toISOString().slice(0, 7);
 
-  const chainConfigured = isChainConfigured();
   const [
     onChainEvents,
     onChainAttestations,
-    paper,
     custody,
     showDemoBanner,
     coverage,
@@ -70,7 +46,6 @@ export default async function AdminProofCenterPage({
   ] = await Promise.all([
     fetchOnChainEvents({ limit: 20 }),
     fetchOnChainAttestations({ limit: 12 }),
-    getProofs().then((r) => r.data),
     loadCustody(),
     databaseHasDemoProofs(),
     loadCoverageForVault(PROOF_CENTER_VAULT_REF, coveragePeriod),
@@ -83,17 +58,11 @@ export default async function AdminProofCenterPage({
     latestAttestation !== null &&
     isAttestorAllowlisted(latestAttestation.attestor);
 
-  const platformAddresses = buildPlatformAddresses(custody);
-
-  const proofs: UnifiedProof[] = paper.map(
-    (p): UnifiedProof => ({ ...p, source: "paper" }),
-  );
-
   return (
-    <div className="admin-doc-shell">
+    <div className={cn("proof-cockpit", "proof-cockpit--fit")}>
       <AdminPageHeader
         title="Proof Center"
-        description="Reserve attestations, on-chain events, and proof documents for operator review."
+        description="Reserve attestations, cash-flow evidence, distributions and rebalancing — operator hub."
         actions={
           <ChainStatusBadge
             configured={chainConfigured}
@@ -105,65 +74,94 @@ export default async function AdminProofCenterPage({
 
       {showDemoBanner ? <DemoDataBanner /> : null}
 
-      <section aria-labelledby="por-heading">
-        <h2 id="por-heading" className="sr-only">
-          Proof of Reserves
-        </h2>
-        <PorSummary
-          attestation={latestAttestation}
-          custody={custody}
-          verified={latestAttestationVerified}
-        />
-      </section>
-
-      <section aria-labelledby="cashflow-heading">
-        <h2 id="cashflow-heading" className="sr-only">
-          Mining cash-flow evidence
-        </h2>
-        <MiningCashFlowEvidence coverage={coverage} />
-      </section>
-
-      <section aria-labelledby="distributions-heading">
-        <h2 id="distributions-heading" className="sr-only">
-          Latest distributions
-        </h2>
-        <RecentDistributions distributions={recentDistributions} />
-      </section>
-
-      <section aria-labelledby="rebalance-heading">
-        <h2 id="rebalance-heading" className="sr-only">
-          Rebalancing events
-        </h2>
-        <RebalancingEventsPanel events={recentRebalances} />
-      </section>
-
-      <section aria-labelledby="event-timeline-heading">
-        <h2 id="event-timeline-heading" className="sr-only">
-          On-chain event log
-        </h2>
-        <EventTimeline events={onChainEvents} />
-      </section>
-
-      <section aria-labelledby="proof-grid-heading">
-        <div className="mb-[var(--ct-space-8)] admin-doc-section__head">
-          <h2 id="proof-grid-heading" className="h2">
-            Off-chain proofs &amp; documents
-          </h2>
-          {proofs.length > 0 ? <ProofFilter /> : null}
+      {/* ── Row 1: PoR Summary (wider) | Mining Cash-Flow Evidence ── */}
+      <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-top">
+        {/* Panel A — Proof of Reserves */}
+        <div className="dashboard-cockpit-cell">
+          <div className="dashboard-cockpit-panel">
+            <AdminCockpitPanelHeader
+              title="Proof of Reserves"
+              trailing={
+                <AdminLeafLink
+                  href="/admin/proof-center/full"
+                  label="Full log →"
+                />
+              }
+            />
+            <div className="proof-panel-scroll">
+              <PorSummary
+                attestation={latestAttestation}
+                custody={custody}
+                verified={latestAttestationVerified}
+                sectionLed={false}
+              />
+            </div>
+          </div>
         </div>
-        {proofs.length === 0 ? (
-          <EmptySurface live {...PLATFORM_PROOFS_EMPTY} />
-        ) : (
-          <ProofGrid proofs={proofs} filter={filter} />
-        )}
-      </section>
 
-      <section aria-labelledby="contracts-heading">
-        <h2 id="contracts-heading" className="h2 mb-[var(--ct-space-8)]">
-          Contracts &amp; review trail
-        </h2>
-        <ContractsAuditTrail platformAddresses={platformAddresses} />
-      </section>
+        {/* Panel B — Mining Cash-Flow Evidence */}
+        <div className="dashboard-cockpit-cell">
+          <div className="dashboard-cockpit-panel">
+            <AdminCockpitPanelHeader title="Mining cash-flow evidence" />
+            <div className="proof-panel-scroll">
+              <MiningCashFlowEvidence coverage={coverage} sectionLed={false} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Row 2: Recent Distributions | Rebalancing Events ── */}
+      <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-bot">
+        {/* Panel C — Latest Distributions */}
+        <div className="dashboard-cockpit-cell">
+          <div className="dashboard-cockpit-panel">
+            <AdminCockpitPanelHeader
+              title="Latest distributions"
+              trailing={
+                <AdminLeafLink href="/admin/proof-center/full" label="View full" />
+              }
+            />
+            <div className="proof-panel-scroll">
+              {recentDistributions.length === 0 ? (
+                <EmptySurface
+                  message="No distributions yet"
+                  detail="USDC payouts will appear once the vault operates."
+                />
+              ) : (
+                <RecentDistributions
+                  distributions={recentDistributions}
+                  sectionLed={false}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Panel D — Rebalancing Events */}
+        <div className="dashboard-cockpit-cell">
+          <div className="dashboard-cockpit-panel">
+            <AdminCockpitPanelHeader
+              title="Rebalancing events"
+              trailing={
+                <AdminLeafLink href="/admin/proof-center/full" label="View full" />
+              }
+            />
+            <div className="proof-panel-scroll">
+              {recentRebalances.length === 0 ? (
+                <EmptySurface
+                  message="No rebalancing events yet"
+                  detail="Rebalancing activity will appear once the vault operates."
+                />
+              ) : (
+                <RebalancingEventsPanel
+                  events={recentRebalances}
+                  sectionLed={false}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
