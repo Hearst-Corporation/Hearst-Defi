@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**201 components** · 1 possible orphans · 2 intentionally unwired.
+**202 components** · 1 possible orphans · 2 intentionally unwired.
 
 ## ⚠️ Possible orphans (0 references — verify before keeping)
 
@@ -35,6 +35,7 @@
 | `src/components/admin/customer/qualification-form.tsx` | QualificationForm | 1 |
 | `src/components/admin/dashboard/allocation-orbit.tsx` | AllocationOrbit | 1 |
 | `src/components/admin/dashboard/assets-board.tsx` | DashboardAssetsBoard | 2 |
+| `src/components/admin/dashboard/cockpit-panel-header.tsx` | AdminCockpitPanelHeader, AdminLeafLink | 2 |
 | `src/components/admin/dashboard/kpi-strip.tsx` | DashboardKpiStrip | 1 |
 | `src/components/admin/dashboard/nav-slot.tsx` | NavSlot | 1 |
 | `src/components/admin/dashboard/risk-summary-card.tsx` | DashboardRiskSummaryCard | 1 |
@@ -116,9 +117,9 @@
 | `src/components/portfolio/kpi-row.tsx` | PortfolioKpiRow | 1 |
 | `src/components/portfolio/layout-preview-banner.tsx` | PreviewModeChip | 2 |
 | `src/components/portfolio/lock-meter.tsx` | LockMeter | 4 |
-| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 25 |
+| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 26 |
 | `src/components/portfolio/portfolio-greeting.tsx` | PortfolioGreeting | 2 |
-| `src/components/portfolio/portfolio-leaf-link.tsx` | PortfolioLeafLink | 5 |
+| `src/components/portfolio/portfolio-leaf-link.tsx` | PortfolioLeafLink | 6 |
 | `src/components/portfolio/portfolio-leaf-shell.tsx` | PortfolioLeafShell | 4 |
 | `src/components/portfolio/portfolio-onboarding-foot.tsx` | PortfolioOnboardingFoot | 1 |
 | `src/components/portfolio/portfolio-onboarding-hero.tsx` | PortfolioOnboardingHero | 1 |
@@ -178,14 +179,14 @@
 | `src/components/ui/apy-range.tsx` | ApyRange | 18 |
 | `src/components/ui/badge.tsx` | Badge | 52 |
 | `src/components/ui/button.tsx` | Button | 80 |
-| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 74 |
+| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 73 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
 | `src/components/ui/chart-time-selector.tsx` 🔌 | ChartTimeSelector | 0 |
 | `src/components/ui/checkbox.tsx` | Checkbox | 2 |
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
-| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 21 |
+| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 16 |
 | `src/components/ui/empty-surface.tsx` | EmptySurface | 42 |
 | `src/components/ui/error-boundary.tsx` | ErrorBoundary | 1 |
 | `src/components/ui/metric.tsx` | Metric | 8 |
@@ -195,7 +196,7 @@
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 3 |
 | `src/components/ui/progress.tsx` | Progress | 14 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 54 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 55 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/section-embed.tsx` | SectionEmbedProvider | 1 |

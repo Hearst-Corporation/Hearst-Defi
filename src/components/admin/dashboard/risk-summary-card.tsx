@@ -1,6 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { Progress } from "@/components/ui/progress";
 import { resolveRiskProvenance } from "@/lib/admin/dashboard-board-view";
 import { cn } from "@/lib/cn";
@@ -27,6 +25,10 @@ const SEVERITY_BADGE: Record<RiskSeverity, "success" | "warning" | "danger"> = {
   high: "danger",
 };
 
+/**
+ * Risk summary content — no panel wrapper (parent cell provides the surface).
+ * Provenance is returned so the caller can forward it to AdminCockpitPanelHeader.
+ */
 export function DashboardRiskSummaryCard({
   data,
   hasLiveKpis,
@@ -40,17 +42,7 @@ export function DashboardRiskSummaryCard({
 
   if (data.source === "fallback") {
     return (
-      <Card
-        className="dashboard-risk-summary"
-        hoverOverlay={false}
-        material="flat"
-      >
-        <DashboardPanelHeader
-          title="Risk posture"
-          eyebrow="Framework"
-          provenance={provenance}
-          tone="quiet"
-        />
+      <div className="dashboard-risk-summary" data-risk-provenance={provenance}>
         <div className="dashboard-risk-summary__empty">
           <p className="body-sm ct-text-muted m-0">No risk inputs yet.</p>
           <p className="body-xs ct-text-faint m-0">
@@ -58,22 +50,12 @@ export function DashboardRiskSummaryCard({
             metric are recorded.
           </p>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card
-      className="dashboard-risk-summary"
-      hoverOverlay={false}
-      material="flat"
-    >
-      <DashboardPanelHeader
-        title="Risk posture"
-        eyebrow="Framework"
-        provenance={provenance}
-        tone="quiet"
-      />
+    <div className="dashboard-risk-summary" data-risk-provenance={provenance}>
 
       <div className="dashboard-risk-summary__body">
         <div className="dashboard-risk-summary__overview">
@@ -162,6 +144,6 @@ export function DashboardRiskSummaryCard({
           ))}
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

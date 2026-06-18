@@ -30,7 +30,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const page = resolveDashboardPageInputs(data, risk, overview);
 
   return (
-    <div className="admin-doc-shell admin-doc-shell--compact admin-doc-stack admin-doc-stack--relaxed">
+    <div className="admin-doc-shell admin-doc-shell--compact admin-doc-stack admin-doc-stack--dense">
       <AdminPageHeader
         title="Dashboard"
         className="dashboard-page-header"

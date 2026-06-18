@@ -1,5 +1,4 @@
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { truncateWallet } from "@/lib/wallet-display";
 import { formatAdminRollingTimestamp } from "@/lib/vaults/product-display";
 import type { AuditTrailEntry } from "@/lib/data/cockpit";
@@ -10,6 +9,7 @@ interface AuditTrailRollingProps {
 
 /**
  * Cockpit Admin — Recent admin activity (rolling 20 AdminAudit rows).
+ * Content-only: no panel wrapper/header — provided by parent cell.
  *
  * Table rendering of AdminAudit rows: time, actor wallet (truncated),
  * action, entity type + id.
@@ -18,8 +18,7 @@ interface AuditTrailRollingProps {
 export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   if (entries.length === 0) {
     return (
-      <div aria-label="Audit trail" className="dashboard-command-cell dashboard-command-cell--awaiting">
-        <DashboardPanelHeader title="Audit trail" eyebrow="Review" tone="quiet" />
+      <>
         <div className="overflow-hidden">
           <table className="w-full table-fixed body-sm" aria-label="Audit trail">
             <thead>
@@ -42,13 +41,12 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
           message="No admin activity recorded yet."
           ariaLabel="Audit trail"
         />
-      </div>
+      </>
     );
   }
 
   return (
     <div aria-label="Audit trail">
-      <DashboardPanelHeader title="Audit trail" eyebrow="Review" tone="quiet" />
       <div className="overflow-hidden">
         <table className="w-full table-fixed body-sm" aria-label="Audit trail">
           <thead>

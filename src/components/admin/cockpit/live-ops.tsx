@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { PanelStatus } from "@/components/ui/panel-status";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import type {
@@ -18,7 +17,7 @@ interface LiveOpsProps {
 }
 
 /**
- * Cockpit Admin — Live Ops column.
+ * Cockpit Admin — Live Ops content (no panel wrapper/header — provided by parent cell).
  *
  * Sections:
  *  1. Inngest job status rows (ok/err/pending/unknown)
@@ -27,13 +26,7 @@ interface LiveOpsProps {
  */
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
-    <div aria-label="Platform status" className="dashboard-command-cell">
-      <DashboardPanelHeader
-        title="Platform status"
-        eyebrow="Platform"
-        tone="quiet"
-        className="dashboard-command-panel-header"
-      />
+    <div aria-label="Platform status">
 
       <div className="dashboard-command-divide-stack">
         <div className="dashboard-live-ops-section">

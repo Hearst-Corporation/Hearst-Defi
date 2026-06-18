@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { VaultStatusPill } from "@/components/admin/vault-status-pill";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { cn } from "@/lib/cn";
 import type { VaultLiveMetric } from "@/lib/data/cockpit";
 
@@ -18,7 +17,7 @@ const usdCompact = new Intl.NumberFormat("en-US", {
 });
 
 /**
- * Cockpit Admin — Live Metrics column.
+ * Cockpit Admin — Live Metrics content (no panel wrapper/header — provided by parent cell).
  *
  * Compact table rows per vault: TVL, mining margin, risk score,
  * oracle delay, BTC posture.
@@ -26,30 +25,16 @@ const usdCompact = new Intl.NumberFormat("en-US", {
 export function LiveMetrics({ vaults }: LiveMetricsProps) {
   if (vaults.length === 0) {
     return (
-      <div className="dashboard-command-cell dashboard-command-cell--awaiting">
-        <DashboardPanelHeader
-          title="Vault health"
-          eyebrow="Observe"
-          tone="quiet"
-          className="dashboard-command-panel-header"
-        />
-        <EmptySurface
-          variant="inline"
-          message="No vault telemetry yet."
-          ariaLabel="Vault health"
-        />
-      </div>
+      <EmptySurface
+        variant="inline"
+        message="No vault telemetry yet."
+        ariaLabel="Vault health"
+      />
     );
   }
 
   return (
-    <div aria-label="Vault health" className="dashboard-command-cell dashboard-live-metrics">
-      <DashboardPanelHeader
-        title="Vault health"
-        eyebrow="Observe"
-        tone="quiet"
-        className="dashboard-command-panel-header"
-      />
+    <div aria-label="Vault health" className="dashboard-live-metrics">
       <div className="dashboard-command-divide-stack">
         {vaults.map((vault) => (
           <VaultMetricRow key={vault.vaultId} vault={vault} />

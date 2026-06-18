@@ -2448,6 +2448,309 @@
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADMIN DASHBOARD COCKPIT — viewport-fit, ZERO top-level scroll (wide + tall).
+   Mirrors the portfolio pf-container--fit / pf-cockpit pattern, scoped to
+   admin class names so it NEVER bleeds into portfolio CSS.
+   Below 90rem width OR 52rem height → natural document scroll.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Base (all sizes): column stack, rows size to content. */
+.dashboard-cockpit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  min-width: 0;
+  container-type: inline-size;
+  container-name: dash-board;
+  --dashboard-kpi-cell-min-height: 7.25rem;
+  --dashboard-orbit-size: 11.75rem;
+  --dashboard-orbit-max-width: 13rem;
+  --dashboard-hero-min-height: 13.5rem;
+  --dashboard-hero-min-height-wide: 14.5rem;
+  --dashboard-orbit-stroke-track: 1.5;
+  --dashboard-orbit-stroke-segment: 2;
+}
+
+/* Each cockpit row = grid of cells side by side. min-height:0 lets it shrink
+   below content in the fit gate so cells clip→internal-scroll instead of
+   expanding the page. */
+.dashboard-cockpit-row {
+  display: grid;
+  gap: var(--ct-space-2);
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Row 1 (KPI + charts) — single column, wider panel. */
+.dashboard-cockpit-row--kpi    { grid-template-columns: 1fr; }
+
+/* Row 2 (ops trio: ActionQueue | LiveMetrics | LiveOps) — 1→3 col. */
+.dashboard-cockpit-row--ops    { grid-template-columns: 1fr; }
+
+/* Row 3 (risk + audit side by side) — 1→2 col. */
+.dashboard-cockpit-row--lower  { grid-template-columns: 1fr; }
+
+@container dash-board (min-width: 40rem) {
+  .dashboard-cockpit-row--lower {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+}
+
+@container dash-board (min-width: 44rem) {
+  .dashboard-cockpit-row--ops {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Cell: fills row height, flex column so children can flex-grow. */
+.dashboard-cockpit-cell {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+
+/* Children of a cell fill it vertically. */
+.dashboard-cockpit-cell > * {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* ── Wide + tall gate: pin shell, share height, no top-level scroll. ── */
+@media (min-width: 90rem) and (min-height: 52rem) {
+  /* Pin the admin-doc shell chain to the viewport. */
+  .ct-panels-row:has(.dashboard-cockpit--fit) {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .ct-center-panel:has(.dashboard-cockpit--fit) {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .ct-page-area:has(.dashboard-cockpit--fit) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    /* Override the padding-bottom so no ghost space appears below the board. */
+    padding-bottom: var(--ct-space-3);
+  }
+
+  .ct-page-area:has(.dashboard-cockpit--fit) > main#main-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* The admin-doc wrapper that wraps children must not block shrinking. */
+  .ct-page-area:has(.dashboard-cockpit--fit) .admin-doc {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* admin-doc-shell inside admin-doc must also stretch. */
+  .ct-page-area:has(.dashboard-cockpit--fit) .admin-doc-shell {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* The dashboard-cockpit--fit itself fills the remaining height. */
+  .dashboard-cockpit--fit {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Rows share height — flex shares calibrated to match content weight. */
+  .dashboard-cockpit--fit .dashboard-cockpit-row--kpi   { flex: 1.2 1 0; }
+  .dashboard-cockpit--fit .dashboard-cockpit-row--ops   { flex: 1.1 1 0; }
+  .dashboard-cockpit--fit .dashboard-cockpit-row--lower { flex: 0.9 1 0; }
+
+  /* No live charts → the KPI row is just the strip + a one-line note. Size it to
+     CONTENT (no flex grow) so it stops stretching into a giant empty void; the
+     freed viewport height redistributes to the dense ops/lower rows below. */
+  .dashboard-cockpit--fit .dashboard-cockpit-row--kpi-compact { flex: 0 0 auto; }
+
+  /* Cells clip in the fit gate so inner scroll works. */
+  .dashboard-cockpit--fit .dashboard-cockpit-cell {
+    overflow: hidden;
+  }
+
+  /* Long panels (audit trail, live-metrics) scroll INSIDE their cell. */
+  .dashboard-cockpit--fit .dashboard-cockpit-cell .dashboard-panel-table-scroll,
+  .dashboard-cockpit--fit .dashboard-cockpit-cell [class*="overflow-y-auto"],
+  .dashboard-cockpit--fit .dashboard-cockpit-cell .dashboard-live-metrics {
+    overflow-y: auto;
+    min-height: 0;
+    scrollbar-width: thin;
+  }
+
+  /* Hero charts must honour min-height:0 in the fit gate (aspect-ratio backstop
+     from individual chart rules keeps SVG readable). */
+  .dashboard-cockpit--fit .dashboard-command-row-a--hero,
+  .dashboard-cockpit--fit .dashboard-command-row-a--hero .dashboard-hero-card__slot {
+    min-height: 0;
+  }
+}
+
+/* ── Below wide+tall gate: natural scroll, rows size to content. ── */
+@media not all and (min-width: 90rem) and (min-height: 52rem) {
+  .ct-panels-row:has(.dashboard-cockpit--fit),
+  .ct-center-panel:has(.dashboard-cockpit--fit),
+  .ct-page-area:has(.dashboard-cockpit--fit),
+  .ct-page-area:has(.dashboard-cockpit--fit) > main#main-content {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .dashboard-cockpit--fit {
+    height: auto;
+    overflow: visible;
+  }
+
+  .dashboard-cockpit--fit .dashboard-cockpit-row--kpi,
+  .dashboard-cockpit--fit .dashboard-cockpit-row--ops,
+  .dashboard-cockpit--fit .dashboard-cockpit-row--lower {
+    flex: 0 0 auto;
+  }
+}
+
+/* ── Phone: single column on all rows. ── */
+@media (max-width: 47.999rem) {
+  .dashboard-cockpit-row--ops,
+  .dashboard-cockpit-row--lower {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Panel chrome shared with dashboard-command-board. ── */
+/* Reuse the same graphite/border/compact empty-surface flattening. */
+.dashboard-cockpit .ct-empty-surface,
+.dashboard-cockpit .ct-empty-surface--chart,
+.dashboard-cockpit .ct-empty-surface--widget {
+  align-items: flex-start;
+  min-height: unset;
+  padding: var(--ct-space-2) 0;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.dashboard-cockpit .ct-card table { background: transparent; }
+.dashboard-cockpit .ct-card thead tr { border-color: var(--ct-border-soft); }
+.dashboard-cockpit .ct-card tbody tr { border-color: color-mix(in srgb, var(--ct-border-soft) 65%, transparent); }
+.dashboard-cockpit .ct-card tbody tr:hover { background: var(--ct-surface-0); }
+
+/* ── "View full →" leaf link — admin-scoped, mirrors pf-panel-leaf-link. ── */
+/* Inline trail variant (lives in the header row, NOT absolute-corner). */
+.dashboard-cockpit-leaf-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-0_5);
+  flex-shrink: 0;
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-wide);
+  color: var(--ct-text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--ct-dur-base) var(--ct-ease);
+}
+
+.dashboard-cockpit-leaf-link:hover {
+  color: var(--ct-accent-strong);
+}
+
+/* ── Panel wrapper — graphite surface matching pf-cockpit-panel. ── */
+/* Material shared via the canonical rule:
+   background: var(--ct-graphite-subtle-bg)
+   border: 1px solid var(--ct-graphite-border-nested)
+   backdrop-filter: var(--ct-graphite-blur)
+   box-shadow: var(--ct-glass-bevel)
+   The rule that applies those properties to .pf-cockpit-panel in cockpit.css
+   is extended here so .dashboard-cockpit-panel gets the same graphite surface. */
+.dashboard-cockpit-panel {
+  /* Layout */
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: var(--ct-space-2);
+  /* Surface — identical to pf-cockpit-panel */
+  padding: var(--ct-space-4);
+  border-radius: var(--ct-radius-xl);
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  backdrop-filter: var(--ct-graphite-blur);
+  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  box-shadow: var(--ct-glass-bevel);
+  transition: border-color var(--ct-dur-base) var(--ct-ease);
+  container-type: inline-size;
+  container-name: dashboard-panel;
+}
+
+.dashboard-cockpit-panel:hover {
+  border-color: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-graphite-border-nested));
+  box-shadow: var(--ct-glass-bevel-hover);
+}
+
+/* ── Panel header — matches pf-cockpit-panel__header rhythm. ── */
+/* micro uppercase title (left) + trailing leaf link slot (right), baseline-aligned. */
+.dashboard-cockpit-panel__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--ct-space-1) var(--ct-space-2);
+  margin: 0 0 var(--ct-space-3);
+}
+
+.dashboard-cockpit-panel__header-main {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+
+.dashboard-cockpit-panel__header-trail {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--ct-space-1) var(--ct-space-1_5);
+  flex: 0 0 auto;
+  margin-left: auto;
+  max-width: 100%;
+}
+
+/* Micro uppercase title — identical to .pf-panel-title */
+.dashboard-panel-micro-title {
+  margin: 0;
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-wide);
+  text-transform: uppercase;
+  color: var(--ct-text-body);
+  overflow-wrap: anywhere;
+}
+
 .ct-surface-0    { background: var(--ct-surface-0); }
 .ct-surface-1    { background: var(--ct-surface-1); }
 .ct-surface-2    { background: var(--ct-surface-2); }
@@ -3248,32 +3551,27 @@ button.ct-seg-btn {
    intégré pour garder cartes / texte / KPI au-dessus du fond. */
 .ct-panels-row {
   position: relative;
-  background-color: transparent; /* Élimine le fond opaque à la base */
+  background-color: #ffffff;
   background-image:
-    /* 1. lumière blanche contrôlée — effet gallery sans bloom flou massif. */
+    /* 1. nappe verte douce au centre — accord avec l'accent brand */
     radial-gradient(
-      72% 58% at 50% 42%,
-      color-mix(in srgb, var(--ct-text-strong) 8%, transparent) 0%,
-      color-mix(in srgb, var(--ct-text-strong) 3%, transparent) 38%,
-      transparent 72%
+      80% 60% at 50% 40%,
+      color-mix(in srgb, var(--ct-accent) 12%, transparent) 0%,
+      color-mix(in srgb, var(--ct-accent) 4%, transparent) 50%,
+      transparent 80%
     ),
-    /* 2. vignette noire — assombrit les bords, pousse le centre au fond (profondeur).
-          (Grain feTurbulence retiré 2026-06-16 : il pixellisait le fond.) */
+    /* 2. lumière chaude haut-droite — profondeur et relief */
     radial-gradient(
-      135% 125% at 50% 44%,
-      transparent 26%,
-      color-mix(in srgb, var(--ct-bg-deep) 20%, transparent) 64%,
-      color-mix(in srgb, var(--ct-bg-deep) 50%, transparent) 100%
+      60% 50% at 85% 10%,
+      rgba(200,255,220,0.18) 0%,
+      transparent 70%
     ),
-    /* 3. base verticale noire (haut sombre → bas profond) */
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-bg-deep) 10%, transparent) 0%,
-      transparent 42%,
-      color-mix(in srgb, var(--ct-bg-deep) 20%, transparent) 100%
+    /* 3. légère vignette bords pour garder le focus centre */
+    radial-gradient(
+      130% 120% at 50% 50%,
+      transparent 40%,
+      rgba(0,0,0,0.06) 100%
     );
-  /* bg-deep n'est plus opaque : l'image (::before) doit transparaître. */
-  background-color: transparent;
   background-size: cover, cover, cover;
   background-position: center, center, center;
   background-repeat: no-repeat, no-repeat, no-repeat;
@@ -3304,8 +3602,8 @@ button.ct-seg-btn {
       color-mix(in srgb, var(--ct-bg-deep) var(--ct-ambient-glow-bg-top), transparent) 0%,
       color-mix(in srgb, var(--ct-bg-deep) var(--ct-ambient-glow-bg-bottom), transparent) 100%
     );
-  opacity: var(--ct-ambient-glow-opacity);
-  mix-blend-mode: soft-light;
+  opacity: 0.30;
+  mix-blend-mode: multiply;
 }
 
 /* Le dashboard reçoit la MÊME lumière de fond que les pages produit (PNG +

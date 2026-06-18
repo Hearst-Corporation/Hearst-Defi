@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { cn } from "@/lib/cn";
 import type { ActionQueueItem, ActionSeverity } from "@/lib/data/cockpit";
 
@@ -23,7 +22,7 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 /**
- * Cockpit Admin — Action Queue column.
+ * Cockpit Admin — Action Queue content (no panel wrapper/header — provided by parent cell).
  *
  * Lists pending operator actions sorted P0 → P1 → P2 with severity pills.
  * Each row has a CTA button linking to the relevant admin page.
@@ -32,36 +31,20 @@ const ACTION_LABELS: Record<string, string> = {
 export function ActionQueue({ items }: ActionQueueProps) {
   if (items.length === 0) {
     return (
-      <div className="dashboard-command-cell dashboard-command-cell--awaiting">
-        <DashboardPanelHeader
-          title="Operator queue"
-          eyebrow="Operate"
-          tone="quiet"
-          className="dashboard-command-panel-header"
-        />
-        <EmptySurface
-          variant="inline"
-          message="All clear — no operator actions queued."
-          ariaLabel="Operator queue"
-        />
-      </div>
+      <EmptySurface
+        variant="inline"
+        message="All clear — no operator actions queued."
+        ariaLabel="Operator queue"
+      />
     );
   }
 
   return (
-    <div aria-label="Operator queue" className="dashboard-command-cell">
-      <DashboardPanelHeader
-        title="Operator queue"
-        eyebrow="Operate"
-        tone="quiet"
-        className="dashboard-command-panel-header"
-      />
-      <ul className="dashboard-command-divide-stack" role="list">
-        {items.map((item) => (
-          <ActionRow key={item.id} item={item} />
-        ))}
-      </ul>
-    </div>
+    <ul className="dashboard-command-divide-stack" role="list" aria-label="Operator queue">
+      {items.map((item) => (
+        <ActionRow key={item.id} item={item} />
+      ))}
+    </ul>
   );
 }
 

@@ -151,9 +151,10 @@ function makeLiveData(overrides: Partial<DashboardData> = {}): DashboardData {
 }
 
 describe("DashboardAssetsBoard — command-center layout", () => {
-  it("roots the board in dashboard-command-board for dash-board container queries", () => {
+  it("roots the board in dashboard-cockpit for the fit cockpit layout", () => {
     const html = render(makeData({ source: "fallback" }), 0);
-    expect(html).toContain("dashboard-command-board");
+    expect(html).toContain("dashboard-cockpit");
+    expect(html).toContain("dashboard-cockpit--fit");
   });
 
   it("does not duplicate KPI rows in a secondary vitals column", () => {
@@ -162,13 +163,40 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).not.toContain("dashboard-vitals-stat-row");
   });
 
-  it("prioritizes KPI strip, vault signal charts, cockpit operations, then audit trail", () => {
+  it("prioritizes KPI strip, cockpit ops row, then lower row (risk + audit)", () => {
+    // No-live-kpis path: KPI card → awaiting placeholder → ops row → lower row.
     const html = render(makeData({ source: "fallback" }), 0);
 
     const kpis = html.indexOf('aria-label="Vault KPIs"');
+    const awaiting = html.indexOf("dashboard-awaiting-analytics");
+    const cockpitOps = html.indexOf("dashboard-cockpit-row--ops");
+    const activity = html.indexOf("dashboard-cockpit-row--lower");
+
+    expect(kpis).toBeGreaterThan(-1);
+    expect(awaiting).toBeGreaterThan(kpis);
+    expect(cockpitOps).toBeGreaterThan(awaiting);
+    expect(activity).toBeGreaterThan(cockpitOps);
+  });
+
+  it("live-kpis path: vault charts render before ops row", () => {
+    const html = renderToStaticMarkup(
+      <DashboardAssetsBoard
+        data={makeLiveData()}
+        risk={RISK}
+        proof={PROOF}
+        capitalUsdc={500_000}
+        headlineApy={{ low: 9.4, high: 12.8 }}
+        yieldPosture="within target band"
+        hasLiveKpis
+        proofFresh={false}
+        cockpit={COCKPIT}
+      />,
+    );
+
+    const kpis = html.indexOf('aria-label="Vault KPIs"');
     const vaultSignal = html.indexOf("dashboard-command-row-a--hero");
-    const cockpitOps = html.indexOf('aria-label="Cockpit operations"');
-    const activity = html.indexOf('aria-label="Recent admin activity"');
+    const cockpitOps = html.indexOf("dashboard-cockpit-row--ops");
+    const activity = html.indexOf("dashboard-cockpit-row--lower");
 
     expect(kpis).toBeGreaterThan(-1);
     expect(vaultSignal).toBeGreaterThan(kpis);
@@ -295,18 +323,18 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).toContain('Data provenance: Manual');
   });
 
-  it("renders empty cockpit modules honestly after the vault signal section", () => {
+  it("renders empty cockpit modules honestly: queue, metrics, audit all show empty state", () => {
     const html = render(makeData({ source: "fallback" }), 0);
-    const cockpitOps = html.indexOf('aria-label="Cockpit operations"');
-    const vaultSignal = html.indexOf("dashboard-command-row-a--hero");
+    const cockpitOps = html.indexOf("dashboard-cockpit-row--ops");
 
     expect(cockpitOps).toBeGreaterThan(-1);
-    expect(cockpitOps).toBeGreaterThan(vaultSignal);
+    // No-live-kpis: awaiting-analytics placeholder, not the hero chart.
+    expect(html).toContain("dashboard-awaiting-analytics");
+    expect(html).not.toContain("dashboard-command-row-a--hero");
+    // Each ops panel shows honest empty state.
     expect(html).toContain("All clear — no operator actions queued.");
     expect(html).toContain("No vault telemetry yet.");
     expect(html).toContain("No admin activity recorded yet.");
-    expect(html).toContain("No trend data available");
-    expect(html).toContain("dashboard-nav-bars__grid");
   });
 
 
@@ -435,7 +463,9 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).toContain(">Operator queue<");
     expect(html).toContain(">Vault health<");
     expect(html).toContain(">Platform status<");
-    expect(html).toContain('aria-label="Recent admin activity"');
+    // Audit trail is in the lower row (Row 3).
+    expect(html).toContain("dashboard-cockpit-row--lower");
+    expect(html).toContain(">Audit trail<");
     expect(html).toContain("dashboard-orbit__svg");
     expect(html).toContain("% mapped");
     expect(html).toContain("dashboard-nav-bars__bar");
