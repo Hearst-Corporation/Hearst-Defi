@@ -23,33 +23,32 @@
      legibility on the light green accent. */
   --ct-text-on-accent: #06140A;
 
-  /* Dérivés d'accent — dérivés du vert canonique.
-     NB: --ct-bg-deep / --ct-accent / --ct-accent-soft / --ct-ease ne sont PLUS
-     redéfinis ici (valeurs strictement identiques à tokens.css → source unique
-     tokens.css). var(--ct-accent) ci-dessous résout depuis tokens.css. */
+  /* Dérivés d'accent — dérivés du vert canonique. */
   --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 82%, #ffffff);
   --ct-border-accent: color-mix(in srgb, var(--ct-accent) 28%, transparent);
   --ct-border-ghost: color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
 
-  /* Readability pass — secondary text tokens were too dim on the pure-black
-     background (muted 0.48 / faint 0.40 from the package). Lifted twice so labels
-     and captions read without squinting over the brighter ambient background,
-     while staying clearly secondary to body (0.72) and primary (0.92). Global
-     override → benefits every surface. */
-  --ct-text-muted: rgba(245, 245, 245, 0.70);
-  --ct-text-faint: rgba(245, 245, 245, 0.60);
+  /* Texte DANS les cards noires → corps blanc, lisible.
+     La hiérarchie de titres (H1/H2/H3 verts) est portée par les classes
+     .h1/.h2/.h3 plus bas, PAS par ces tokens globaux. */
+  --ct-text-strong:  #ffffff;
+  --ct-text-primary: rgba(245, 245, 245, 0.92);
+  --ct-text-body:    rgba(245, 245, 245, 0.72);
+  --ct-text-muted:   rgba(245, 245, 245, 0.55);
+  --ct-text-faint:   rgba(245, 245, 245, 0.40);
 
-  /* ── FONDS DE CARDS — lift "plus blanc" (demande Adrien 2026-06-10) ──
-     Le package tokens.css plafonne les surfaces à 2/4/6/9% de blanc, ce qui
-     rend les cards quasi indistinctes du noir pur. Remontées pour que TOUS les
-     fonds de boxe (ct-card→surface-1, ct-glass-panel→surface-1/2) lisent
-     clairement comme des surfaces translucides plus claires.
-     cockpit.css est non-layered → bat le layer(cockpit) du package sans !important.
-     Réversible : supprimer ce bloc restaure les valeurs du package. */
-  --ct-surface-0: rgba(255, 255, 255, 0.04);
-  --ct-surface-1: rgba(255, 255, 255, 0.07);
-  --ct-surface-2: rgba(255, 255, 255, 0.10);
-  --ct-surface-3: rgba(255, 255, 255, 0.14);
+  /* Hiérarchie de titres en vert accent — 3 intensités décroissantes. */
+  --ct-title-1: var(--ct-accent);
+  --ct-title-2: color-mix(in srgb, var(--ct-accent) 80%, transparent);
+  --ct-title-3: color-mix(in srgb, var(--ct-accent) 65%, transparent);
+
+  /* ── FONDS DE CARDS — fond blanc → surfaces noires opaques ──
+     Sur fond blanc les rgba(255,255,255) sont invisibles.
+     Inversé en noir semi-transparent pour cards sombres sur fond clair. */
+  --ct-surface-0: #0a0a0a;
+  --ct-surface-1: #000000;
+  --ct-surface-2: #000000;
+  --ct-surface-3: #000000;
 
   /* Dark graphite module surfaces — active card / nested / empty tiers.
      Chips & badges keep --ct-surface-* literals; large panels use these. */
@@ -1512,20 +1511,6 @@
   margin-bottom: var(--ct-space-4);
 }
 
-.dashboard-command-panel-header {
-  margin-bottom: var(--ct-space-5);
-}
-
-.dashboard-command-panel-header .eyebrow {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-extrabold);
-  letter-spacing: var(--ct-tracking-wider);
-  text-transform: uppercase;
-  color: var(--ct-text-faint);
-}
-
-/* Removed .dashboard-command-panel-header .dashboard-panel-title override so all panel titles use the standard .h3 hierarchy */
-
 /* Hero KPI strip — dot-only provenance (no glass pill on --ct-bg-deep). */
 .provenance-badge--strip {
   display: inline-flex;
@@ -1774,32 +1759,6 @@
   margin-top: var(--ct-space-6);
 }
 
-.dashboard-command-panel-card {
-  position: relative;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding: 0;
-}
-
-.dashboard-command-panel-card--risk {
-  min-height: 100%;
-}
-
-.dashboard-command-panel-card__content {
-  display: flex;
-  flex: 1 1 auto;
-  min-height: 100%;
-  flex-direction: column;
-}
-
-@media (min-width: 64rem) {
-  .dashboard-command-panel-card__content {
-    /* Removed padding */
-  }
-}
-
 .dashboard-audit-zone {
   margin-top: var(--ct-space-8);
 }
@@ -1810,38 +1769,6 @@
 
 .dashboard-command-cell {
   min-width: 0;
-}
-
-/* Awaiting (no-data) cell: fill the Card so empty modules align symmetrically
-   with populated ones — centered "No data yet" headline + descriptive detail.
-   Overrides the command-board's left-aligned widget flattening for this state
-   only; no chrome is added (the Card already owns it). */
-.dashboard-command-cell--awaiting {
-  display: flex;
-}
-
-.dashboard-command-cell--awaiting > .ct-z-base {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-}
-
-.dashboard-command-board .dashboard-command-cell--awaiting.ct-card {
-  background: var(--ct-graphite-subtle-bg);
-  border-color: var(--ct-graphite-border-nested);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
-}
-.dashboard-command-board
-  .dashboard-command-cell--awaiting
-  .ct-empty-surface--widget {
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 100%;
 }
 
 /* Live metrics — reflow metric grid from card width, not viewport. */
@@ -3135,7 +3062,7 @@ pre.ct-surface-1.rounded-md {
   font-weight: var(--ct-font-extrabold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-text-primary);
+  color: var(--ct-title-1);
 }
 
 /* .h2 → titres de sections (Level 2) — canon doc-flow 20→22 (aligné doc-flow-typography.css). */
@@ -3144,16 +3071,16 @@ pre.ct-surface-1.rounded-md {
   font-weight: var(--ct-font-bold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-text-primary);
+  color: var(--ct-title-2);
 }
 
-/* .h3 → titres de modules / cards (Level 3) — blanc, sobre. */
+/* .h3 → titres de modules / cards (Level 3) — vert accent, tier 3. */
 .h3 {
   font-size: var(--ct-text-lg);             /* 16 → 18 */
   font-weight: var(--ct-font-bold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-text-primary);
+  color: var(--ct-title-3);
 }
 
 /* .h4 → card heading */
@@ -3171,10 +3098,6 @@ pre.ct-surface-1.rounded-md {
   letter-spacing: var(--ct-tracking-wider);
   text-transform: uppercase;
   color: var(--ct-text-muted);
-}
-
-.dashboard-command-panel-card .dashboard-panel-title {
-  color: var(--ct-text-primary);
 }
 
 /* .stat-value → ct-kpi-value style */
