@@ -74,6 +74,25 @@ export function CapitalYield({
   });
   const showZeroShell = view.mode === "zero";
 
+  if (previewZeros) {
+    return (
+      <PfCockpitPanel
+        variant="wide"
+        aria-label="Capital and yield — awaiting first position"
+        className="cy-panel cy-panel--onboarding-empty"
+      >
+        <PfCockpitPanelHeader
+          title="Capital & Yield"
+          subtitle="Allocation · 12m forward yield"
+          titleVariant="primary"
+        />
+        <p className="body-sm ct-text-muted m-0" role="status">
+          Yield allocation appears after your first confirmed position.
+        </p>
+      </PfCockpitPanel>
+    );
+  }
+
   const [rLow, rHigh] =
     blendedLow <= blendedHigh ? [blendedLow, blendedHigh] : [blendedHigh, blendedLow];
   const [sLow, sHigh] =

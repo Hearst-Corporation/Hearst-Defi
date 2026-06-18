@@ -1,205 +1,95 @@
-/**
- * Portfolio zero-position contracts — layout preview + default empty widgets.
- */
-
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { ProductSection } from "@/components/ui/product-section";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { SectionEmbedProvider } from "@/components/ui/section-embed";
-import { TimeToCash } from "@/components/portfolio/time-to-cash";
-import { LockMeter } from "@/components/portfolio/lock-meter";
-import { ValueChart } from "@/components/portfolio/value-chart";
-import { YieldStack } from "@/components/portfolio/yield-stack";
-import { AllocationDonut } from "@/components/portfolio/allocation-donut";
-import { PositionsList } from "@/components/portfolio/positions-list";
-import { RiskPulse } from "@/components/portfolio/risk-pulse";
-import {
-  ZERO_YIELD_STACK,
-  zeroLockMeterProps,
-  zeroTimeToCashProps,
-} from "@/lib/portfolio/layout-preview";
+import { CapitalYield } from "@/components/portfolio/capital-yield";
+import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
+import { PortfolioOnboardingFoot } from "@/components/portfolio/portfolio-onboarding-foot";
+import { PortfolioOnboardingHero } from "@/components/portfolio/portfolio-onboarding-hero";
+import { RecentActivity } from "@/components/portfolio/recent-activity";
+import { TrustProofCompact } from "@/components/portfolio/trust-panel";
+import { ZERO_YIELD_STACK, zeroProofPulseProps } from "@/lib/portfolio/layout-preview";
 
 const PREVIEW_AS_OF = new Date("2026-06-11T00:00:00Z");
 
-const STALE_TIME_TO_CASH_PROPS = {
-  cycleStart: new Date("2026-06-01T00:00:00Z"),
-  cycleDays: 30,
-  projectedUsdc: 0,
-  aprLow: 0,
-  aprHigh: 0,
-  source: "stale" as const,
-};
-
-describe("Portfolio zero-position — cockpit shell always visible", () => {
-  it("TimeToCash stale: progress shell at zero, not empty surface", () => {
-    const html = renderToStaticMarkup(<TimeToCash {...STALE_TIME_TO_CASH_PROPS} />);
-    expect(html).toContain("pf-progress-track");
-    expect(html).toContain("Preview mode");
-    expect(html).not.toContain("ct-empty-surface--widget");
+describe("Portfolio previewZeros — onboarding cockpit widgets", () => {
+  it("PortfolioOnboardingHero: CTA visible, no chart shell", () => {
+    const html = renderToStaticMarkup(<PortfolioOnboardingHero />);
+    expect(html).toContain("Get started");
+    expect(html).toContain("Subscribe to Hearst Yield Vault");
+    expect(html).toContain("Subscribe to vault");
+    expect(html).toContain("/vaults/hearst-yield-vault/invest");
+    expect(html).not.toContain("<polyline");
+    expect(html).not.toContain("Portfolio value");
+    expect(html).not.toContain("$0");
+    expect(html).not.toContain("Placeholder chart");
   });
 
-  it("LockMeter unknown terms: progress shell, not empty surface", () => {
+  it("PortfolioOnboardingFoot: compact secondary strip, proof link", () => {
+    const html = renderToStaticMarkup(<PortfolioOnboardingFoot />);
+    expect(html).toContain("What unlocks next");
+    expect(html).toContain("Capital &amp; yield");
+    expect(html).toContain("Payout calendar");
+    expect(html).toContain("/proof-center");
+    expect(html).not.toContain("pf-distrib-chart");
+    expect(html).not.toContain("dash-chart-svg");
+  });
+
+  it("CapitalYield previewZeros: compact empty copy, no donut", () => {
     const html = renderToStaticMarkup(
-      <LockMeter
-        lockStart={new Date("2026-01-01T00:00:00Z")}
-        softLockupDays={0}
-        earlyExitPenaltyBps={150}
-        source="stale"
-      />,
-    );
-    expect(html).toContain("pf-progress-track");
-    expect(html).toContain("Preview mode");
-    expect(html).not.toContain("ct-empty-surface--widget");
-  });
-
-  it("ProductSection with showProvenance=false hides Verified data label", () => {
-    const html = renderToStaticMarkup(
-      <ProductSection title="Test" provenance="stale" showProvenance={false}>
-        <EmptySurface live message="Section awaiting data." />
-      </ProductSection>,
-    );
-    expect(html).not.toContain("Verified data");
-  });
-
-  it("ProductSection preview variant uses ct-section-preview, not glass-panel", () => {
-    const html = renderToStaticMarkup(
-      <ProductSection title="Performance" variant="preview" data-section="hero-pulse">
-        <EmptySurface live message="Awaiting first position." className="pf-zero-await" />
-      </ProductSection>,
-    );
-    expect(html).toContain("ct-section-preview");
-    expect(html).toContain("Preview");
-    expect(html).not.toContain("Verified data");
-  });
-});
-
-describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
-  it("TimeToCash previewZeros: progress bar shell at zero, no awaiting surface", () => {
-    const html = renderToStaticMarkup(
-      <SectionEmbedProvider>
-        <TimeToCash {...zeroTimeToCashProps(PREVIEW_AS_OF)} previewZeros />
-      </SectionEmbedProvider>,
-    );
-    expect(html).toContain("pf-progress-track");
-    expect(html).toContain("$0 USDC projected");
-    expect(html).not.toContain("ct-empty-surface--widget");
-  });
-
-  it("ValueChart previewZeros: renders chart placeholder shell", () => {
-    const html = renderToStaticMarkup(
-      <SectionEmbedProvider>
-        <ValueChart
-          positions={[]}
-          totalValueUsdc={0}
-          source="fallback"
-          previewZeros
-        />
-      </SectionEmbedProvider>,
-    );
-    expect(html).toContain("<polyline");
-    expect(html).not.toContain("No active positions yet");
-    expect(html).not.toContain("pf-next-action-card__layout");
-    expect(html).not.toContain("Get started");
-    expect(html).not.toContain("Subscribe to Hearst Yield Vault");
-    expect(html).toContain("Portfolio value");
-    expect(html).toContain("Awaiting first position");
-    expect(html).toContain("Placeholder chart until your first confirmed position.");
-  });
-
-  it("LockMeter previewZeros: progress bar at 0%, not awaiting surface", () => {
-    const html = renderToStaticMarkup(
-      <SectionEmbedProvider>
-        <LockMeter {...zeroLockMeterProps(PREVIEW_AS_OF)} previewZeros />
-      </SectionEmbedProvider>,
-    );
-    expect(html).toContain("pf-progress-track");
-    expect(html).not.toContain("ct-empty-surface--widget");
-  });
-
-  it("RiskPulse previewZeros: pending dimensions, light composite row, no fake score", () => {
-    const html = renderToStaticMarkup(
-      <RiskPulse
-        scores={[
-          { dimension: "market", score: 0, delta30d: 0 },
-          { dimension: "mining", score: 0, delta30d: 0 },
-          { dimension: "liquidity", score: 0, delta30d: 0 },
-          { dimension: "smart_contract", score: 0, delta30d: 0 },
-          { dimension: "counterparty", score: 0, delta30d: 0 },
-        ]}
-        composite={0}
-        compositeLabel={undefined}
-        composite30dTrend="stable"
-        previewZeros
-      />,
-    );
-    expect(html).toContain("Snapshot pending");
-    expect(html).toContain("ct-panel-status");
-    expect(html).toContain("Pending");
-    expect(html).toContain("pf-risk-composite-pending");
-    expect(html).toContain("pf-risk-composite-value");
-    expect(html).not.toContain("pf-hero-kpi-value");
-    expect(html).not.toContain("Awaiting snapshot");
-    expect(html).not.toContain(">N/A<");
-    expect(html).not.toContain(">42<");
-    expect(html).not.toContain("ct-nested-panel pf-risk-composite");
-  });
-
-  it("PositionsList previewZeros: no table header, empty message + vaults link", () => {
-    const html = renderToStaticMarkup(
-      <PositionsList positions={[]} source="fallback" previewZeros />,
-    );
-    expect(html).not.toContain("Principal");
-    expect(html).not.toContain("APY range");
-    expect(html).toContain('role="status"');
-    expect(html).toContain("No active positions yet");
-    expect(html).toContain("href=\"/vaults\"");
-    expect(html).toContain("Explore available vaults");
-    expect(html).toContain("pf-positions-empty-row");
-    expect(html).not.toContain("pf-status-dot");
-  });
-
-  it("YieldStack previewZeros: bar shell without fake APY strings", () => {
-    const yieldHtml = renderToStaticMarkup(
-      <YieldStack {...ZERO_YIELD_STACK} previewZeros />,
-    );
-    expect(yieldHtml).toContain("pf-cockpit-panel");
-    expect(yieldHtml).toContain("yield-stack-row");
-    expect(yieldHtml).toContain("Mining cashflow");
-    expect(yieldHtml).toContain("USDC base yield");
-    expect(yieldHtml).toContain("BTC tactical");
-    expect(yieldHtml).toContain("Stable reserve");
-    expect(yieldHtml).not.toContain("0.0–0.0%");
-    expect(yieldHtml).not.toContain("+0.0%");
-    expect(yieldHtml).not.toContain("±0.0%");
-    expect(yieldHtml).not.toMatch(
-      /<div class="flex flex-col gap-2"[^>]*aria-hidden/,
-    );
-    expect(yieldHtml).not.toContain("not guaranteed");
-  });
-
-  it("YieldStack + AllocationDonut previewZeros: widget shells with zero graphics", () => {
-    const yieldHtml = renderToStaticMarkup(
-      <YieldStack {...ZERO_YIELD_STACK} previewZeros />,
-    );
-    const donutHtml = renderToStaticMarkup(
-      <AllocationDonut
+      <CapitalYield
+        {...ZERO_YIELD_STACK}
         buckets={[]}
         totalValueUsdc={0}
-        source="stale"
         previewZeros
       />,
     );
-    expect(yieldHtml).toContain("pf-cockpit-panel");
-    expect(yieldHtml).toContain("yield-stack-row");
-    expect(yieldHtml).not.toContain("card-premium");
-    expect(donutHtml).toContain("pf-cockpit-panel");
-    expect(donutHtml).not.toContain("card-premium");
-    expect(donutHtml).toContain("<svg");
-    expect(donutHtml).toContain("—");
-    expect(donutHtml).not.toContain("$0");
-    expect(donutHtml).not.toContain("dash-legend-row");
-    expect(donutHtml).toContain("no positions");
+    expect(html).toContain(
+      "Yield allocation appears after your first confirmed position.",
+    );
+    expect(html).not.toContain("Awaiting snapshot");
+    expect(html).not.toContain("dash-chart-svg");
+    expect(html).not.toContain("Mining cashflow");
+  });
+
+  it("DistribCalendar previewZeros: compact empty copy, no chart", () => {
+    const html = renderToStaticMarkup(
+      <DistribCalendar entries={[]} shareClass={null} cadence={null} previewZeros />,
+    );
+    expect(html).toContain(
+      "Payout schedule appears after your first confirmed position.",
+    );
+    expect(html).not.toContain("pf-distrib-chart");
+    expect(html).not.toContain("$0 forecast");
+  });
+
+  it("RecentActivity previewZeros: compact copy, no tall empty shell", () => {
+    const html = renderToStaticMarkup(
+      <RecentActivity transactions={[]} source="fallback" previewZeros />,
+    );
+    expect(html).toContain("Deposits, payouts and withdrawals will appear here");
+    expect(html).not.toContain("ct-panel-status");
+  });
+
+  it("TrustProofCompact previewZeros: compact proof system active", () => {
+    const html = renderToStaticMarkup(
+      <TrustProofCompact
+        risk={{
+          scores: [
+            { dimension: "market", score: 0, delta30d: 0 },
+            { dimension: "mining", score: 0, delta30d: 0 },
+            { dimension: "liquidity", score: 0, delta30d: 0 },
+            { dimension: "smart_contract", score: 0, delta30d: 0 },
+            { dimension: "counterparty", score: 0, delta30d: 0 },
+          ],
+          composite: 0,
+          compositeLabel: undefined,
+          composite30dTrend: "stable",
+        }}
+        proof={zeroProofPulseProps(PREVIEW_AS_OF)}
+        previewZeros
+      />,
+    );
+    expect(html).toContain("Proof system active");
+    expect(html).toContain("/proof-center");
   });
 });

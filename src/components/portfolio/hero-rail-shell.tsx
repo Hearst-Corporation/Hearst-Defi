@@ -10,6 +10,7 @@ export function HeroRailGroup({
   title,
   "aria-label": ariaLabel,
   payout,
+  slot,
   provenance,
   children,
 }: {
@@ -17,12 +18,18 @@ export function HeroRailGroup({
   "aria-label": string;
   /** Payout block uses a larger primary value line. */
   payout?: boolean;
+  /** Stable hook for layout-specific CSS without relying on DOM order. */
+  slot?: "metrics";
   provenance?: Provenance;
   children: ReactNode;
 }) {
   return (
     <section
-      className={cn("pf-hero-rail-group", payout && "pf-hero-rail-group--payout")}
+      className={cn(
+        "pf-hero-rail-group",
+        payout && "pf-hero-rail-group--payout",
+        slot && `pf-hero-rail-group--${slot}`,
+      )}
       aria-label={ariaLabel}
     >
       <div className="pf-inline-row pf-inline-row--between pf-inline-row--baseline">

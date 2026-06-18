@@ -49,13 +49,21 @@ the "No AI chat" non-negotiable.** The exception is narrow and explicit:
      cockpit-shell handler with no tools. When ON, it routes through
      `runChatAgent` (`src/lib/llm/chat-agent.ts`).
 
-2. **The ONLY tool is `navigate`** (`src/lib/llm/navigate-tool.ts`): a
-   client-side, **read-only** route change. The model never emits a free-form
-   URL — it picks a `key` from a **closed enum** (`NAV_DESTINATIONS`:
-   `portfolio`, `vaults`, `proof-center`, `profile`), which the server maps to a
-   real LP route. Detail pages with a dynamic `[id]` and all admin/debug routes
-   are excluded. **There is NO write, financial, deposit/withdraw, rebalancing,
-   custody, or admin tool — and none may be added without a new ADR.**
+2. **Tools are read-only and server-gated.**
+   - **LP (`navProfile = "lp"`)**: the ONLY tool is `navigate`
+     (`src/lib/llm/navigate-tool.ts`) — a client-side, **read-only** route change.
+     The model picks a `key` from a **closed enum** (`LP_NAV_DESTINATIONS`:
+     `portfolio`, `vaults`, `proof-center`, `profile`). Detail pages with a
+     dynamic `[id]` and all admin/debug routes are excluded.
+   - **Admin (`chatMode = "admin"`, flag ON)**: `navigate` (extended whitelist
+     including `admin-customers`, `admin-outreach`, Product Workspace, Scenario
+     Lab, etc.) **plus** bounded **read tools** from `src/lib/llm/tools/registry.ts`
+     (`read_allocations_canonical`, `read_market_snapshot`, …). These tools are
+     executed server-side in a second LLM pass; results are redacted before
+     injection. **Write tools are never auto-executed** — a model attempt is
+     blocked and answered with a structured proposal only.
+   - **There is NO write, financial, deposit/withdraw, rebalancing, custody
+     auto-exec on the chat path** — and none may be added without a new ADR.
 
 3. **Human-in-the-loop is preserved (#4 holds).** The chat explains and
    navigates; it never executes a financial or rebalancing action. Rebalancing
@@ -77,9 +85,10 @@ the "No AI chat" non-negotiable.** The exception is narrow and explicit:
   negation-aware — the canonical list in `src/lib/agents/forbidden-words.ts`)
   **plus** the **APY-always-a-range** rule (#1). A look-back buffer holds the
   tail un-emitted so an offending span is caught **before** it streams; on a
-  violation the stream emits the `content_blocked` sentinel and stops. The
+  violation the stream emits the block sentinel and stops. The
   Master Agent **navigates only on a compliant answer** — a blocked answer
-  produces no navigation and is never persisted.
+  produces no navigation and is never persisted. Blocked turns are traced on
+  `LlmRun.errorType = "compliance_blocked"` and surfaced in `/admin/monitoring`.
 - **Role-aware register** (`buildRoleDirective`). Default is the strict, safe LP
   case: vouvoiement, institutional register, **zero internal disclosure**
   (no architecture, env vars, DB schemas, file paths, or other agents' prompts),

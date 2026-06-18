@@ -127,11 +127,12 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
         </linearGradient>
       </defs>
 
-      {/* Area fill */}
-      <polygon
-        points={areaPts}
-        fill={`url(#${gradId})`}
-      />
+      {/* Area fill — skipped in the muted ghost ($0 flat) state: a filled polygon
+          on a flat line reads as a solid block, not a chart. Bare line + dots is
+          the clean "awaiting first position" placeholder. */}
+      {muted ? null : (
+        <polygon points={areaPts} fill={`url(#${gradId})`} />
+      )}
 
       {/* Line stroke */}
       <polyline

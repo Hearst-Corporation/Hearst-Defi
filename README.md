@@ -27,9 +27,12 @@ infra LLM **serveur uniquement** (`OPENAI_API_KEY` / `OPENAI_MODEL`, pas de clé
 client) ; toggle Markdown local branché ; clés legacy Hypercli purgées au mount.
 Pas de RAG vectoriel câblé aujourd'hui : contexte via
 profil/mémoire Prisma, portefeuille live si disponible, prompts statiques et
-index specs/routes pour la revue. Outil chat unique : `navigate`, seulement avec
-`CHAT_MASTER_AGENT=1`; aucun outil autonome d'écriture, marché, internet ou
-déploiement.
+index specs/routes pour la revue. Outil chat : `navigate` (whitelist LP + admin,
+dont customers/outreach), seulement avec `CHAT_MASTER_AGENT=1`; en mode admin,
+read tools bornés (pas d'auto-exec write). Le rail chat affiche un chip
+**Agent** (flag ON) ou **Texte seul** (flag OFF). Fallback keyword LP/admin
+si le modèle répond sans tool call. Aucun outil autonome d'écriture, marché,
+internet ou déploiement.
 
 Admin mode est maintenant enrichi côté serveur avec un bloc live interne :
 allocations canoniques (`HYV`/`HDV`/`HBP`), dernier `MiningMetric` (BTC/hashprice/

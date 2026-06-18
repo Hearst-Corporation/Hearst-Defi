@@ -13,11 +13,8 @@ import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
 import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
-import {
-  ZERO_YIELD_STACK,
-  buildZeroDistribEntries,
-  zeroProofPulseProps,
-} from "@/lib/portfolio/layout-preview";
+import { PortfolioOnboardingHero } from "@/components/portfolio/portfolio-onboarding-hero";
+import { PortfolioOnboardingFoot } from "@/components/portfolio/portfolio-onboarding-foot";
 import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
@@ -40,18 +37,12 @@ function displayName(
 }
 
 export default async function PortfolioPage() {
-  // One consolidated dashboard: the four "view more" leaf pages (Positions,
-  // Yield & allocation, Distributions, Activity & trust) are composed onto this
-  // single page from the shared view-model loader — no teaser placeholders. The
-  // leaf routes still exist as focused/full views; every block keeps its own
-  // honest empty/preview state (no fabricated Live data, APY as a range).
   const {
     investor,
     demo,
     data,
     hasPositions,
     previewZeros,
-    previewAsOf,
     state,
     heroWidgets,
     lockMeterProps,
@@ -68,8 +59,7 @@ export default async function PortfolioPage() {
     <div
       className={cn(
         "pf-container",
-        "pf-container--fit",
-        previewZeros && "pf-container--zero",
+        previewZeros ? "pf-container--zero pf-container--onboarding" : "pf-container--fit",
       )}
       data-testid="portfolio-page"
       data-portfolio-hub="true"
@@ -81,115 +71,115 @@ export default async function PortfolioPage() {
         <DemoDataBanner />
       ) : null}
 
-      <PortfolioGreeting name={displayName(investor)} data={data} />
+      <PortfolioGreeting
+        name={displayName(investor)}
+        data={data}
+        previewZeros={previewZeros}
+      />
 
-      {/* ── COCKPIT BENTO — no top-level scroll: every panel shares the viewport
-          height. The four leaf pages (Positions / Yield+allocation /
-          Distributions / Activity+trust) are composed as panels that FIT the
-          screen, not stack-and-scroll. Long panels (positions table) scroll
-          inside their own cell only. ── */}
       <div className="pf-cockpit">
         <div className="pf-cockpit-row pf-cockpit-row--summary">
-          <div className="pf-hero-grid pf-cockpit-cell">
+          <div
+            className={cn(
+              "pf-hero-grid pf-cockpit-cell",
+              previewZeros && "pf-hero-grid--onboarding",
+            )}
+          >
             <div className="pf-main-chart-wrapper">
-              <ValueChart
-                positions={data.positions}
-                totalValueUsdc={data.totalValueUsdc}
-                source={data.source}
-                updatedAt={data.updatedAt}
-                previewZeros={previewZeros}
-                mode={heroWidgets.value.mode}
-              />
+              {previewZeros ? (
+                <PortfolioOnboardingHero />
+              ) : (
+                <ValueChart
+                  positions={data.positions}
+                  totalValueUsdc={data.totalValueUsdc}
+                  source={data.source}
+                  updatedAt={data.updatedAt}
+                  mode={heroWidgets.value.mode}
+                />
+              )}
             </div>
-            <aside className={cn("pf-hero-sidebar", previewZeros && "pf-hero-sidebar--zero")}>
-              <HeroKpiTable
-                totalValueUsdc={data.totalValueUsdc}
-                totalYieldYtdUsdc={data.totalYieldYtdUsdc}
-                nextDistributionAt={data.nextDistributionAt}
-                hasPositions={hasPositions}
-                source={data.source}
-                updatedAt={data.updatedAt}
-                previewZeros={previewZeros}
-                mode={heroWidgets.metrics.mode}
-              />
-              <HeroPayoutRail {...timeToCashProps} previewZeros={previewZeros} />
-              <HeroLiquidityRail {...lockMeterProps} previewZeros={previewZeros} />
-            </aside>
+            {!previewZeros ? (
+              <aside className="pf-hero-sidebar">
+                <HeroKpiTable
+                  totalValueUsdc={data.totalValueUsdc}
+                  totalYieldYtdUsdc={data.totalYieldYtdUsdc}
+                  nextDistributionAt={data.nextDistributionAt}
+                  hasPositions={hasPositions}
+                  source={data.source}
+                  updatedAt={data.updatedAt}
+                  mode={heroWidgets.metrics.mode}
+                />
+                <HeroPayoutRail {...timeToCashProps} />
+                <HeroLiquidityRail {...lockMeterProps} />
+              </aside>
+            ) : null}
           </div>
         </div>
 
-        {/* Row 2 — positions table + capital & yield (wide cells: the donut +
-            ledger stays side-by-side instead of stacking tall) */}
-        <div className="pf-cockpit-row pf-cockpit-row--mid">
-          <div className="pf-cockpit-cell" data-section="positions">
-            <PositionsList
-              positions={data.positions}
-              source={data.source}
-              updatedAt={data.updatedAt}
-              previewZeros={previewZeros}
-              leafHref="/portfolio/positions"
-            />
+        {previewZeros ? (
+          <div className="pf-cockpit-row pf-cockpit-row--onboarding-foot">
+            <div className="pf-cockpit-cell">
+              <PortfolioOnboardingFoot />
+            </div>
           </div>
-          <div
-            className="pf-cockpit-cell"
-            data-section="yield-allocation"
-            data-testid="capital-yield-widget"
-          >
-            <CapitalYield
-              {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
-              buckets={allocationDonutProps.buckets}
-              totalValueUsdc={data.totalValueUsdc}
-              previewZeros={previewZeros}
-              leafHref="/portfolio/yield"
-            />
-          </div>
-        </div>
+        ) : (
+          <>
+            <div className="pf-cockpit-row pf-cockpit-row--mid">
+              <div className="pf-cockpit-cell" data-section="positions">
+                <PositionsList
+                  positions={data.positions}
+                  source={data.source}
+                  updatedAt={data.updatedAt}
+                  leafHref="/portfolio/positions"
+                />
+              </div>
+              <div
+                className="pf-cockpit-cell"
+                data-section="yield-allocation"
+                data-testid="capital-yield-widget"
+              >
+                <CapitalYield
+                  {...yieldStackProps}
+                  buckets={allocationDonutProps.buckets}
+                  totalValueUsdc={data.totalValueUsdc}
+                  leafHref="/portfolio/yield"
+                />
+              </div>
+            </div>
 
-        {/* Row 3 — distributions · activity · trust (3 compact panels) */}
-        <div className="pf-cockpit-row pf-cockpit-row--trio">
-          <div
-            className="pf-cockpit-cell pf-payout-calendar-slot"
-            data-section="payout-calendar"
-            data-testid="distrib-calendar-widget"
-          >
-            <DistribCalendar
-              {...distribCalendarProps}
-              entries={
-                previewZeros
-                  ? buildZeroDistribEntries(previewAsOf.getUTCFullYear())
-                  : distribCalendarProps.entries
-              }
-              previewZeros={previewZeros}
-              leafHref="/portfolio/distributions"
-            />
-          </div>
-          <div
-            className="pf-cockpit-cell"
-            data-section="activity-payouts"
-            data-testid="recent-activity-widget"
-          >
-            <RecentActivity
-              transactions={data.recentTransactions}
-              source={data.source}
-              updatedAt={data.updatedAt}
-              previewZeros={previewZeros}
-              leafHref="/portfolio/activity"
-            />
-          </div>
-          <div
-            className="pf-cockpit-cell"
-            data-section="yield-trust"
-            data-testid="trust-panel-widget"
-          >
-            <TrustProofCompact
-              risk={riskPulseProps}
-              proof={
-                previewZeros ? zeroProofPulseProps(previewAsOf) : proofPulseProps
-              }
-              previewZeros={previewZeros}
-            />
-          </div>
-        </div>
+            <div className="pf-cockpit-row pf-cockpit-row--trio">
+              <div
+                className="pf-cockpit-cell pf-payout-calendar-slot"
+                data-section="payout-calendar"
+                data-testid="distrib-calendar-widget"
+              >
+                <DistribCalendar
+                  {...distribCalendarProps}
+                  leafHref="/portfolio/distributions"
+                />
+              </div>
+              <div
+                className="pf-cockpit-cell"
+                data-section="activity-payouts"
+                data-testid="recent-activity-widget"
+              >
+                <RecentActivity
+                  transactions={data.recentTransactions}
+                  source={data.source}
+                  updatedAt={data.updatedAt}
+                  leafHref="/portfolio/activity"
+                />
+              </div>
+              <div
+                className="pf-cockpit-cell"
+                data-section="yield-trust"
+                data-testid="trust-panel-widget"
+              >
+                <TrustProofCompact risk={riskPulseProps} proof={proofPulseProps} />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

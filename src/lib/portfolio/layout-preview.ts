@@ -5,6 +5,14 @@ import type { RiskPulseProps } from "@/components/portfolio/risk-pulse";
 import type { TimeToCashProps } from "@/components/portfolio/time-to-cash";
 import type { YieldStackProps } from "@/components/portfolio/yield-stack";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
+import { SHARE_CLASS_A } from "@/lib/engine/share-class";
+import { DEMO_YIELD_VAULT_ID } from "@/lib/dev/investor-demo";
+
+/** Canonical onboarding copy + routes for previewZeros cockpit. */
+export const PORTFOLIO_ONBOARDING_APY = { low: 8, high: 15 } as const;
+export const PORTFOLIO_ONBOARDING_MIN_TICKET_USDC = SHARE_CLASS_A.minTicketUsdc;
+export const PORTFOLIO_ONBOARDING_LOCKUP_DAYS = SHARE_CLASS_A.softLockupDays;
+export const PORTFOLIO_ONBOARDING_INVEST_HREF = `/vaults/${DEMO_YIELD_VAULT_ID}/invest`;
 
 /** Portfolio renders preview/empty surfaces when the LP has no active position. */
 export function isLayoutPreview(hasPositions: boolean): boolean {

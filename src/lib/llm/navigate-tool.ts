@@ -102,6 +102,22 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
       "Gestion des vaults: création, édition, statut, paramètres et gouvernance.",
   },
   {
+    key: "admin-customers",
+    profile: "admin",
+    route: "/admin/customers",
+    label: "Admin Customers",
+    description:
+      "Gestion des investisseurs / clients: liste, fiches, KYC, positions et création de compte.",
+  },
+  {
+    key: "admin-outreach",
+    profile: "admin",
+    route: "/admin/outreach",
+    label: "Admin Outreach",
+    description:
+      "Campagnes email et prospection: brouillons, compose, envoi tracké (human-in-the-loop).",
+  },
+  {
     key: "admin-proofs",
     profile: "admin",
     route: "/admin/proofs",

@@ -71,7 +71,7 @@ export function AppChrome({
   const chatEnabled = !isNoChatRoute(pathname);
 
   return (
-    <ConnectShell enableChat={chatEnabled}>
+    <ConnectShell enableChat={chatEnabled} masterAgentEnabled={masterAgentEnabled}>
       {children}
       {/* Global legal footer — keeps Disclaimer / Privacy / Terms reachable on
           every authenticated surface (bare auth/legal routes returned above). */}

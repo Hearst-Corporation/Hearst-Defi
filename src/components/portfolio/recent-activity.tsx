@@ -1,4 +1,8 @@
-import { PanelStatus } from "@/components/portfolio/pf-cockpit-panel";
+import {
+  PanelStatus,
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
@@ -59,7 +63,24 @@ export function RecentActivity({
   previewZeros = false,
   leafHref,
 }: RecentActivityProps) {
-  const displayed = previewZeros ? [] : transactions.slice(0, 5);
+  if (previewZeros) {
+    return (
+      <PfCockpitPanel
+        variant="compact"
+        aria-label="Recent activity — awaiting first position"
+        className="pf-recent-activity-panel pf-recent-activity-panel--onboarding"
+        data-testid="recent-activity-widget"
+      >
+        <PfCockpitPanelHeader title="Recent activity" titleVariant="primary" />
+        <p className="body-sm ct-text-muted m-0" role="status">
+          Deposits, payouts and withdrawals will appear here after your first
+          confirmed position.
+        </p>
+      </PfCockpitPanel>
+    );
+  }
+
+  const displayed = transactions.slice(0, 5);
   const view = resolveWidgetView({
     previewZeros,
     hasData: displayed.length > 0,

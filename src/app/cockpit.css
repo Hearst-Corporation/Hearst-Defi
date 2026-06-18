@@ -3769,8 +3769,11 @@ button.ct-seg-btn {
 }
 
 /* Cockpit chat rail — density calibration */
-.ct-chat-actionbar                         { padding-bottom: var(--ct-space-1); }
-.ct-chat-newbtn                            { padding: 3px 8px; font-size: var(--ct-text-micro); }
+.ct-chat-actionbar                         { display: flex; align-items: center; gap: var(--ct-space-2); padding-bottom: var(--ct-space-1); }
+.ct-chat-mode-chip                         { padding: 2px 7px; font-size: var(--ct-text-micro); border-radius: var(--ct-radius-sm); letter-spacing: 0.02em; text-transform: uppercase; }
+.ct-chat-mode-chip--on                     { color: var(--ct-accent); border: 1px solid color-mix(in srgb, var(--ct-accent) 45%, transparent); background: color-mix(in srgb, var(--ct-accent) 8%, transparent); }
+.ct-chat-mode-chip--off                    { color: var(--ct-text-faint); border: 1px solid color-mix(in srgb, var(--ct-text-faint) 35%, transparent); }
+.ct-chat-newbtn                            { padding: 3px 8px; font-size: var(--ct-text-micro); margin-left: auto; }
 .ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-2); }
 .ct-chat-msg                               { padding: var(--ct-space-2) var(--ct-space-2_5); font-size: var(--ct-text-xs); border-radius: var(--ct-radius-md); }
 .ct-chat-msg.assistant code                { padding: 1px 4px; font-size: var(--ct-text-micro); }

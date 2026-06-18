@@ -6,6 +6,8 @@ export interface MonitoringStats {
   totalRuns: number;
   successfulRuns: number;
   failedRuns: number;
+  /** cockpit-chat turns blocked by output-guard (status success, errorType compliance_blocked). */
+  complianceBlockedRuns: number;
   totalCostUsd: number;
   avgLatencyMs: number;
   runsByAgent: Array<{ agentName: string; count: number; costUsd: number }>;
@@ -48,6 +50,7 @@ export async function getMonitoringStats(): Promise<MonitoringStats> {
     totalRuns,
     successfulRuns,
     failedRuns,
+    complianceBlockedRuns,
     totalCost,
     avgLatency,
     runsByAgent,
@@ -58,6 +61,9 @@ export async function getMonitoringStats(): Promise<MonitoringStats> {
     prisma.llmRun.count(),
     prisma.llmRun.count({ where: { status: "success" } }),
     prisma.llmRun.count({ where: { status: { in: ["failed", "timeout"] } } }),
+    prisma.llmRun.count({
+      where: { agentName: "cockpit-chat", errorType: "compliance_blocked" },
+    }),
     prisma.llmRun.aggregate({ _sum: { costUsd: true } }),
     prisma.llmRun.aggregate({ _avg: { latencyMs: true } }),
     prisma.llmRun.groupBy({
@@ -113,6 +119,7 @@ export async function getMonitoringStats(): Promise<MonitoringStats> {
     totalRuns,
     successfulRuns,
     failedRuns,
+    complianceBlockedRuns,
     totalCostUsd: totalCost._sum.costUsd ?? 0,
     avgLatencyMs: Math.round(avgLatency._avg.latencyMs ?? 0),
     runsByAgent: runsByAgent.map((r) => ({

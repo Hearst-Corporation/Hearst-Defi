@@ -60,9 +60,9 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
     testPrompt: "Ouvre mon portefeuille.",
     successCriteria:
       "Le chat ouvre la bonne route produit sans sortir de la whitelist autorisee.",
-    initialStatus: "orange",
+    initialStatus: "green",
     initialNote:
-      "Chemin entièrement câblé + testé unitairement (chat-agent 22, navigate-tool 9, route 12): navigate tool → LP_NAV_DESTINATIONS (portfolio/vaults/proof-center/profile) → publishNav → ChatNavBridge → router.push. Reste ORANGE car (1) côté LP aucun fallback: dépend du modèle pour émettre le tool call (contrairement aux intents produit admin), (2) tout le chemin est gaté par CHAT_MASTER_AGENT — OFF par défaut, ON via env (.env.local=1, prod template=1) mais non validé par env.ts. Pas de test e2e LP réel.",
+      "Chemin câblé + testé (chat-agent, navigate-tool, route): navigate tool OU fallback keyword LP (resolveLpNavDestinationKey) quand le modèle répond en texte seul — même pattern que Scenario Lab admin. Gated CHAT_MASTER_AGENT=ON; chip « Agent » / « Texte seul » dans le rail chat.",
   },
   {
     id: "review-distill-chat",

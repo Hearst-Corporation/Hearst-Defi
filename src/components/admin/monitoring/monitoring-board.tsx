@@ -28,6 +28,12 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
         />
         <KpiTile label="Total Cost" value={`$${stats.totalCostUsd.toFixed(4)}`} />
         <KpiTile label="Avg Latency" value={`${stats.avgLatencyMs}ms`} />
+        {stats.complianceBlockedRuns > 0 ? (
+          <KpiTile
+            label="Chat compliance blocked"
+            value={stats.complianceBlockedRuns.toString()}
+          />
+        ) : null}
       </div>
 
       <section>

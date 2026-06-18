@@ -111,24 +111,36 @@ export function DashboardAssetsBoard({
           <DashboardKpiStrip kpis={stripKpis} />
         </section>
 
-        <div className="dashboard-command-row-a--hero dashboard-hero-card__analytics">
-          <div className="dashboard-hero-card__slot dashboard-hero-card__slot--allocation dashboard-command-slot dashboard-command-slot--allocation">
-            <AllocationOrbit
-              allocations={allocation}
-              capitalUsdc={capitalUsdc}
-              allocationTotal={allocationTotal}
-              provenance={resolveChartProvenance(simulated, allocationLive)}
-            />
+        {hasLiveKpis ? (
+          <div className="dashboard-command-row-a--hero dashboard-hero-card__analytics">
+            <div className="dashboard-hero-card__slot dashboard-hero-card__slot--allocation dashboard-command-slot dashboard-command-slot--allocation">
+              <AllocationOrbit
+                allocations={allocation}
+                capitalUsdc={capitalUsdc}
+                allocationTotal={allocationTotal}
+                provenance={resolveChartProvenance(simulated, allocationLive)}
+              />
+            </div>
+            <div className="dashboard-hero-card__slot dashboard-hero-card__slot--nav">
+              <NavSlot
+                navPoints={navPoints}
+                lastNav={lastNav}
+                navDelta={computeNavDelta(lastNav, firstNav)}
+                navProvenance={resolveChartProvenance(simulated, navLive)}
+              />
+            </div>
           </div>
-          <div className="dashboard-hero-card__slot dashboard-hero-card__slot--nav">
-            <NavSlot
-              navPoints={navPoints}
-              lastNav={lastNav}
-              navDelta={computeNavDelta(lastNav, firstNav)}
-              navProvenance={resolveChartProvenance(simulated, navLive)}
-            />
-          </div>
-        </div>
+        ) : (
+          <section
+            aria-label="Vault analytics awaiting live data"
+            className="dashboard-awaiting-analytics px-4 pb-4"
+          >
+            <p className="body-sm ct-text-muted m-0" role="status">
+              Capital allocation and NAV trends appear once live vault data is
+              connected. KPI strip above shows honest placeholders until then.
+            </p>
+          </section>
+        )}
       </Card>
 
       <section aria-label="Cockpit operations" className="dashboard-command-row-c dashboard-command-row-c--ops">

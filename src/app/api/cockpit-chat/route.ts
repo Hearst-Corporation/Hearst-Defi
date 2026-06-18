@@ -39,9 +39,12 @@ import { distillChatToMemory } from "@/lib/agents/memory-distill";
 import { syncMemoryToHubSpot } from "@/lib/hubspot/sync-memory";
 import { publishNav } from "@/lib/llm/nav-channel";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
-import { ADMIN_NAV_DESTINATIONS } from "@/lib/llm/navigate-tool";
+import { resolveNavFallbackDestinationKey } from "@/lib/llm/nav-fallback-intent";
 import {
-  isExplicitSimulationIntent,
+  ADMIN_NAV_DESTINATIONS,
+  resolveNavDestinationForProfile,
+} from "@/lib/llm/navigate-tool";
+import {
   PRODUCT_WORKSPACE_DESTINATION_KEY,
   SCENARIO_LAB_DESTINATION_KEY,
 } from "@/lib/llm/product-workspace-intent";
@@ -683,19 +686,20 @@ async function runMasterAgentTurn(args: {
         return;
       }
 
-      // Fallback: a standalone simulation intent ("simuler un scénario…") opens
-      // Scenario Lab even when the model answered in plain text and emitted no
-      // navigate tool call. Simulation detection stays a lightweight keyword
-      // match (unchanged) — only the PRODUCT intent moved to LLM classification.
       const scenarioLabNavEnabled = ADMIN_NAV_DESTINATIONS.some(
         (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
       );
+      const fallbackKey = resolveNavFallbackDestinationKey({
+        navProfile,
+        message,
+        scenarioLabDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
+        scenarioLabNavEnabled,
+      });
       if (
-        navProfile === "admin" &&
-        scenarioLabNavEnabled &&
-        isExplicitSimulationIntent(message)
+        fallbackKey &&
+        resolveNavDestinationForProfile(fallbackKey, navProfile)
       ) {
-        await publishNav(userId, { destinationKey: SCENARIO_LAB_DESTINATION_KEY });
+        await publishNav(userId, { destinationKey: fallbackKey });
       }
     })
     .catch(() => {

@@ -65,4 +65,6 @@ export interface ChatConfig {
   apiEndpoint?: string;
   persistence?: ChatPersistence;
   productContext?: string;
+  /** When set, shows a chip in the chat rail: agent (navigation/tools) vs text-only fallback. */
+  masterAgentEnabled?: boolean;
 }

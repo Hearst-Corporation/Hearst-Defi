@@ -1,54 +1,29 @@
-import { test, expect, type Locator } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 /**
- * Portfolio zero-state — cockpit LAYOUT GEOMETRY guard.
+ * Portfolio previewZeros — onboarding cockpit layout guard.
  *
- * The SSR string-match unit tests (portfolio-zero-render / portfolio-zero-position)
- * cannot see the P1 viewport-fit bug: a fixed chart min-height (16→20rem) fighting
- * the height-capped summary row + overflow:hidden clips the chart disclaimer and the
- * 3rd hero rail. This spec MEASURES it: at the three reference sizes it asserts the
- * disclaimer + Liquidity rail are not clipped by the hero cell, and that viewport-fit
- * carries NO top-level scroll. See docs/PORTFOLIO_ZERO_CONTRACT.md.
- *
- * Reuses the seeded zero-position investor (scripts/seed-test-user.ts → no positions,
- * so /portfolio renders previewZeros). Run `pnpm seed:test` once first.
+ * Asserts CTA-led zero state (no ghost chart), compact empty panels, and no
+ * footer overlap / horizontal scroll at reference breakpoints.
  */
 
-// Mirrors e2e/dashboard.spec.ts + scripts/seed-test-user.ts.
 const TEST_EMAIL = "test@hearst.local";
 const TEST_PASSWORD = "TestPassword123!";
 
-// 90rem×52rem = 1440×832px viewport-fit gate.
 const VIEWPORTS = [
-  { name: "1280x800 scroll-mode", w: 1280, h: 800, fit: false },
-  { name: "1536x900 viewport-fit", w: 1536, h: 900, fit: true },
-  { name: "1600x850 viewport-fit (P1 case)", w: 1600, h: 850, fit: true },
+  { name: "390x844", w: 390, h: 844 },
+  { name: "768x1024", w: 768, h: 1024 },
+  { name: "1024x768", w: 1024, h: 768 },
+  { name: "1280x800", w: 1280, h: 800 },
+  { name: "1536x900", w: 1536, h: 900 },
 ] as const;
 
 const CLIP_TOLERANCE_PX = 4;
 
-/** Assert `el`'s bottom edge sits within `container`'s bottom (not overflow-clipped). */
-async function expectNotClipped(
-  el: Locator,
-  container: Locator,
-  label: string,
-): Promise<void> {
-  const elBox = await el.boundingBox();
-  const cBox = await container.boundingBox();
-  expect(elBox, `${label}: element has a box`).not.toBeNull();
-  expect(cBox, `${label}: hero cell has a box`).not.toBeNull();
-  if (!elBox || !cBox) return;
-  expect(
-    elBox.y + elBox.height,
-    `${label}: bottom must stay within the hero cell (clip = P1 regression)`,
-  ).toBeLessThanOrEqual(cBox.y + cBox.height + CLIP_TOLERANCE_PX);
-}
-
-test.describe("Portfolio zero-state — cockpit layout geometry", () => {
-  test("disclaimer + 3rd rail never clipped; no top-level scroll in viewport-fit", async ({
+test.describe("Portfolio previewZeros — onboarding cockpit layout", () => {
+  test("CTA visible, no fake chart, footer not overlapping panels", async ({
     page,
   }) => {
-    // Real DB sign-in (no dev bypass) — same path as dashboard.spec.ts.
     await page.goto("/login");
     await page.getByLabel(/^email$/i).fill(TEST_EMAIL);
     await page.getByLabel(/^password$/i).fill(TEST_PASSWORD);
@@ -58,49 +33,65 @@ test.describe("Portfolio zero-state — cockpit layout geometry", () => {
     for (const vp of VIEWPORTS) {
       await page.setViewportSize({ width: vp.w, height: vp.h });
       await page.goto("/portfolio");
-      await page.waitForLoadState("networkidle");
+      await expect(
+        page.getByRole("link", { name: /subscribe to vault/i }),
+      ).toBeVisible({ timeout: 15_000 });
 
-      // We are in the FROZEN zero-state (ghost chart, no CTA) — contract guard.
+      await expect(
+        page.getByRole("link", { name: /subscribe to vault/i }),
+        `${vp.name}: primary CTA visible`,
+      ).toBeVisible();
+      await expect(
+        page.getByText("Get started", { exact: true }),
+        `${vp.name}: onboarding hero title`,
+      ).toBeVisible();
+
       await expect(
         page.getByText("Awaiting first position"),
-        `${vp.name}: zero-state ghost chart present`,
-      ).toBeVisible();
+        `${vp.name}: no ghost chart subtitle`,
+      ).toHaveCount(0);
       await expect(
-        page.getByText(/Subscribe to Hearst Yield Vault|Get started/),
-        `${vp.name}: no CTA leaked back into zero-state`,
+        page.getByText("Placeholder chart until your first confirmed position."),
+        `${vp.name}: no chart disclaimer`,
+      ).toHaveCount(0);
+      await expect(
+        page.locator(".pf-value-chart"),
+        `${vp.name}: no value chart panel`,
       ).toHaveCount(0);
 
-      const heroCell = page
-        .locator(".pf-cockpit-row--summary .pf-cockpit-cell")
-        .first();
-      const disclaimer = page.getByText(
-        "Placeholder chart until your first confirmed position.",
-      );
-      const liquidityRail = page.locator('[aria-label="Liquidity status"]');
-
-      await expect(disclaimer, `${vp.name}: disclaimer visible`).toBeVisible();
       await expect(
-        liquidityRail,
-        `${vp.name}: liquidity (3rd) rail visible`,
+        page.getByText("Awaiting snapshot"),
+        `${vp.name}: no empty donut`,
+      ).toHaveCount(0);
+      await expect(
+        page.getByText("Product terms", { exact: true }),
+        `${vp.name}: no duplicate product terms rail`,
+      ).toHaveCount(0);
+      await expect(
+        page.getByTestId("portfolio-onboarding-foot"),
+        `${vp.name}: compact secondary foot`,
       ).toBeVisible();
 
-      await expectNotClipped(disclaimer, heroCell, `${vp.name} disclaimer`);
-      await expectNotClipped(liquidityRail, heroCell, `${vp.name} liquidity rail`);
-
-      if (vp.fit) {
-        const overflow = await page.evaluate(() => ({
-          v: document.documentElement.scrollHeight - window.innerHeight,
-          h: document.documentElement.scrollWidth - window.innerWidth,
-        }));
+      const footer = page.locator(".app-footer");
+      const cta = page.getByRole("link", { name: /subscribe to vault/i });
+      const footerBox = await footer.boundingBox();
+      const ctaBox = await cta.boundingBox();
+      expect(footerBox, `${vp.name}: footer has layout box`).not.toBeNull();
+      expect(ctaBox, `${vp.name}: CTA hero has layout box`).not.toBeNull();
+      if (footerBox && ctaBox) {
         expect(
-          overflow.v,
-          `${vp.name}: no vertical top-level scroll`,
-        ).toBeLessThanOrEqual(CLIP_TOLERANCE_PX);
-        expect(
-          overflow.h,
-          `${vp.name}: no horizontal top-level scroll`,
-        ).toBeLessThanOrEqual(CLIP_TOLERANCE_PX);
+          ctaBox.y + ctaBox.height,
+          `${vp.name}: CTA must sit above footer`,
+        ).toBeLessThanOrEqual(footerBox.y + CLIP_TOLERANCE_PX);
       }
+
+      const overflow = await page.evaluate(() => ({
+        h: document.documentElement.scrollWidth - window.innerWidth,
+      }));
+      expect(
+        overflow.h,
+        `${vp.name}: no horizontal scroll`,
+      ).toBeLessThanOrEqual(CLIP_TOLERANCE_PX);
     }
   });
 });

@@ -17,7 +17,11 @@ import { resolveWidgetView } from "@/lib/portfolio/view-state";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import { WidgetShell } from "@/components/portfolio/widget-shell";
-import { PanelStatus } from "@/components/portfolio/pf-cockpit-panel";
+import {
+  PanelStatus,
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
 
 // ── Canonical reference component ─────────────────────────────────────────────
 // All CSS values use --ct-* tokens. SVG geometry (viewBox coordinates, BAR_W,
@@ -381,6 +385,26 @@ export function DistribCalendar({
   previewZeros = false,
   leafHref,
 }: DistribCalendarProps) {
+  if (previewZeros) {
+    return (
+      <PfCockpitPanel
+        variant="compact"
+        aria-label="Payout calendar — awaiting first position"
+        className="pf-payout-calendar-panel pf-payout-calendar-panel--onboarding"
+        data-testid="distrib-calendar-widget"
+      >
+        <PfCockpitPanelHeader
+          title="Payout calendar"
+          subtitle="Monthly USDC distributions"
+          titleVariant="primary"
+        />
+        <p className="body-sm ct-text-muted m-0" role="status">
+          Payout schedule appears after your first confirmed position.
+        </p>
+      </PfCockpitPanel>
+    );
+  }
+
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
 

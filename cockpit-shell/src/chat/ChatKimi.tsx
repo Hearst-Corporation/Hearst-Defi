@@ -184,6 +184,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
     getActiveChatSSR,
   );
   const { chatConfig } = useCockpit();
+  const masterAgentEnabled = chatConfig.masterAgentEnabled;
 
   const { messages, streaming, error, sendMessage, reset } = useChat({
     apiEndpoint: chatConfig.apiEndpoint ?? "/api/cockpit-chat",
@@ -271,6 +272,18 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
     <div className={`ct-chat-root${isApplyAssistant ? " ct-chat-root--apply" : ""}`}>
       {/* Action bar */}
       <div className="ct-chat-actionbar">
+        {masterAgentEnabled !== undefined ? (
+          <span
+            className={`ct-chat-mode-chip${masterAgentEnabled ? " ct-chat-mode-chip--on" : " ct-chat-mode-chip--off"}`}
+            title={
+              masterAgentEnabled
+                ? "Master Agent actif — navigation et outils lecture admin"
+                : "Mode texte seul — CHAT_MASTER_AGENT désactivé côté serveur"
+            }
+          >
+            {masterAgentEnabled ? "Agent" : "Texte seul"}
+          </span>
+        ) : null}
         <button
           type="button"
           onClick={newConversation}
