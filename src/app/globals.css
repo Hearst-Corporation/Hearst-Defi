@@ -155,6 +155,7 @@
 
 html,
 body {
+  /* Dark cockpit — fond graphite profond, panels charcoal se détachent dessus. */
   background: var(--ct-bg-deep);
   color: var(--ct-text-primary);
   font-family: var(--font-sans);

@@ -2,38 +2,42 @@
  * Shared document-flow typography (DESIGN_SYSTEM §13.2). Scoped to
  * `.product-doc` and `.admin-doc` layout roots — AUTHORITATIVE typo scale for
  * doc pages (overrides base `.h1/.h2/.h3` in cockpit.css by specificity).
- * Section titles = strong white; brand green reserved for small UI chrome.
+ *
+ * Dark shell : TOUS les titres = vert accent (#A7FB90). Hiérarchie portée par
+ * taille + poids + une légère décroissance d'opacité (title-1/2/3). Le corps
+ * (stat-value, body) reste BLANC : seuls les titres sont verts.
  */
 :is(.product-doc, .admin-doc) .h1 {
   font-size: var(--ct-text-3xl);            /* 24 → 28 (était 2xl 20→24) */
   font-weight: var(--ct-font-extrabold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-text-primary);
+  color: var(--ct-title-1);
 }
 
-/* Section title — strong white; brand green reserved for chrome, not headings. */
+/* Section title — vert accent tier 2 (sous le H1). */
 :is(.product-doc, .admin-doc) .h2 {
   font-size: clamp(1.25rem, 1.206rem + 0.188vw, 1.375rem);  /* 20 → 22 */
   font-weight: var(--ct-font-bold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-text-primary);
+  color: var(--ct-title-2);
 }
 
-/* Module / card title — white, sober (clearly below the section title). */
+/* Module / card title — vert accent tier 3 (clairement sous la section). */
 :is(.product-doc, .admin-doc) .h3 {
   font-size: var(--ct-text-lg);             /* 16 → 18 (était base 16) */
   font-weight: var(--ct-font-bold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-text-primary);
+  color: var(--ct-title-3);
 }
 
 :is(.product-doc, .admin-doc) .stat-value {
   font-size: var(--ct-text-lg);
   font-weight: var(--ct-font-bold);
-  color: var(--ct-text-body);
+  /* Valeurs clés en vert accent (Figma Hearst Flow : les chiffres ressortent en vert). */
+  color: var(--ct-accent);
 }
 
 :is(.admin-doc, .product-doc) .stat-label {
@@ -47,4 +51,17 @@
   :is(.admin-page-header, .product-page-header)
   .body-md {
   margin-top: var(--ct-space-1);
+}
+
+/* Page-header (hors panel) : eyebrow + desc en gris désaturé lisible sur dark. */
+:is(.product-doc, .admin-doc)
+  :is(.admin-page-header, .product-page-header)
+  :is(.eyebrow, .ct-text-muted, .ct-text-faint) {
+  color: var(--ct-text-muted);
+}
+
+:is(.product-doc, .admin-doc)
+  :is(.admin-page-header, .product-page-header)
+  :is(.body-md, .body-sm, .body-lg, .ct-text-body) {
+  color: var(--ct-text-muted);
 }

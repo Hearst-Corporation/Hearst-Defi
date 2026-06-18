@@ -15,7 +15,7 @@
      --ct-rail-left, --ct-rail-right, --ct-surface-0..3, --ct-text-muted,
      --ct-shadow-depth, --ct-dur-base. (bg-deep / accent / accent-soft / ease
      sont au contraire la source UNIQUE — cockpit.css ne les redéfinit plus.) */
-  --ct-bg-deep: #000000;
+  --ct-bg-deep: #0E0F0F;
   /* --ct-accent = couleur du produit actif (pilotée par ThemeAccent).
      Les autres accents en dérivent → tout le chrome se recolore d'un coup. */
   --ct-accent: #A7FB90;

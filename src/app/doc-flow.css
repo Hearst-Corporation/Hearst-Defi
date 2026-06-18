@@ -632,7 +632,7 @@
 }
 
 .admin-doc .admin-doc-sub-nav__link:hover {
-  color: var(--ct-text-primary);
+  color: var(--ct-text-body);
 }
 
 .admin-doc .admin-doc-sub-nav__link--active {

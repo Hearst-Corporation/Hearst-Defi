@@ -81,9 +81,9 @@ const AGENT_STATUS_META: Record<
 > = {
   untested: {
     label: "Untested",
-    chipClassName: "border-(--ct-border-soft) bg-white/3 ct-text-muted",
-    buttonClassName: "border-(--ct-border-soft) bg-white/3 ct-text-muted",
-    cardClassName: "border-(--ct-border-soft) bg-white/2",
+    chipClassName: "border-(--ct-border-soft) ct-surface-1 ct-text-muted",
+    buttonClassName: "border-(--ct-border-soft) ct-surface-1 ct-text-muted",
+    cardClassName: "border-(--ct-border-soft) ct-surface-1",
     dotClassName: "bg-(--ct-border-soft)",
   },
   red: {
@@ -1465,10 +1465,10 @@ function AgentCapabilityRow({
             <p className="body-xs ct-text-muted m-0">{capability.description}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-(--ct-border-soft) bg-white/3 px-2 py-1 body-xs uppercase ct-text-faint">
+            <span className="rounded-full border border-(--ct-border-soft) ct-surface-2 px-2 py-1 body-xs uppercase ct-text-faint">
               {capability.mode}
             </span>
-            <span className="rounded-full border border-(--ct-border-soft) bg-white/3 px-2 py-1 body-xs uppercase ct-text-faint">
+            <span className="rounded-full border border-(--ct-border-soft) ct-surface-2 px-2 py-1 body-xs uppercase ct-text-faint">
               {capability.kind}
             </span>
             <span
@@ -1495,7 +1495,7 @@ function AgentCapabilityRow({
             <div className="body-[10px] uppercase tracking-wide ct-text-faint">
               Success criterion
             </div>
-            <div className="rounded-lg border border-(--ct-border-soft) bg-white/2 px-3 py-2 body-xs ct-text-muted">
+            <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1 px-3 py-2 body-xs ct-text-muted">
               {capability.successCriteria}
             </div>
           </div>

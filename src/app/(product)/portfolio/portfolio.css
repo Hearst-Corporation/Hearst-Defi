@@ -44,7 +44,7 @@
   font-weight: var(--ct-font-semibold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-snug);
-  color: var(--ct-text-strong);
+  color: var(--ct-title-3);
 }
 
 .pf-cockpit-panel__subhead {
@@ -63,7 +63,8 @@
   font-family: var(--font-sans);
   font-size: var(--ct-text-3xl);
   font-weight: var(--ct-font-extrabold);
-  color: var(--ct-text-primary);
+  /* Valeur KPI principale du hero en vert accent (Figma Flow). */
+  color: var(--ct-accent);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
   font-variant-numeric: tabular-nums;
@@ -287,14 +288,16 @@
   min-width: 0;
 }
 
+/* Dark shell : titre hero = vert accent (comme tous les titres) ; recap = corps
+   clair atténué sur le fond sombre. */
 .pf-greeting .h1 {
   line-height: var(--ct-leading-tight);
-  color: var(--ct-text-primary);
+  color: var(--ct-title-1);
 }
 
 .pf-greeting-name {
   font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-primary);
+  color: var(--ct-title-1);
 }
 
 .pf-greeting-recap {
@@ -1982,8 +1985,9 @@ a.pf-trust-compact__see-more:hover {
   .pf-cockpit-cell .pf-positions-table {
     overflow-y: auto;
     min-height: 0;
-    scrollbar-width: thin;
+    scrollbar-width: none; /* scrollbar masquée — scroll interne préservé */
   }
+  .pf-cockpit-cell .pf-positions-table::-webkit-scrollbar { width: 0; height: 0; }
   .pf-cockpit-cell .pf-recent-activity-list,
   .pf-cockpit-cell .pf-hero-sidebar,
   .pf-cockpit-cell .cy-panel .cy-body {
