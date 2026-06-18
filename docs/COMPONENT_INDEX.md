@@ -4,7 +4,11 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**199 components** · 0 possible orphans · 2 intentionally unwired.
+**198 components** · 1 possible orphans · 2 intentionally unwired.
+
+## ⚠️ Possible orphans (0 references — verify before keeping)
+
+- `src/components/portfolio/portfolio-teaser-tile.tsx` — PortfolioTeaserTile
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -103,8 +107,8 @@
 | `src/components/onboarding/privy-wallet-connect.tsx` | PrivyWalletConnect, WalletChamber | 2 |
 | `src/components/onboarding/StepProgressBar.tsx` | StepProgressBar | 4 |
 | `src/components/portfolio/allocation-donut.tsx` | AllocationDonut | 1 |
-| `src/components/portfolio/capital-yield.tsx` | CapitalYield | 1 |
-| `src/components/portfolio/distrib-calendar.tsx` | DistribCalendar | 3 |
+| `src/components/portfolio/capital-yield.tsx` | CapitalYield | 2 |
+| `src/components/portfolio/distrib-calendar.tsx` | DistribCalendar | 4 |
 | `src/components/portfolio/hero-kpi-table.tsx` | HeroKpiTable | 1 |
 | `src/components/portfolio/hero-liquidity-rail.tsx` | HeroLiquidityRail | 1 |
 | `src/components/portfolio/hero-payout-rail.tsx` | HeroPayoutRail | 1 |
@@ -115,19 +119,18 @@
 | `src/components/portfolio/next-action-card.tsx` | NextActionCard, NextActionContent | 3 |
 | `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 24 |
 | `src/components/portfolio/portfolio-greeting.tsx` | PortfolioGreeting | 2 |
-| `src/components/portfolio/portfolio-layout-debug-probe.tsx` | PortfolioLayoutDebugProbe | 2 |
 | `src/components/portfolio/portfolio-leaf-shell.tsx` | PortfolioLeafShell | 4 |
-| `src/components/portfolio/portfolio-teaser-tile.tsx` | PortfolioTeaserTile | 1 |
+| `src/components/portfolio/portfolio-teaser-tile.tsx` ⚠️ | PortfolioTeaserTile | 0 |
 | `src/components/portfolio/position-actions.tsx` | PositionActions | 1 |
 | `src/components/portfolio/position-header.tsx` | PositionHeader | 1 |
 | `src/components/portfolio/position-kpis.tsx` | PositionKpis | 1 |
 | `src/components/portfolio/position-transactions.tsx` | PositionTransactions | 1 |
-| `src/components/portfolio/positions-list.tsx` | PositionsList | 2 |
+| `src/components/portfolio/positions-list.tsx` | PositionsList | 3 |
 | `src/components/portfolio/proof-pulse.tsx` | ProofPulse | 3 |
-| `src/components/portfolio/recent-activity.tsx` | RecentActivity | 2 |
+| `src/components/portfolio/recent-activity.tsx` | RecentActivity | 3 |
 | `src/components/portfolio/risk-pulse.tsx` | ScoreRow, CompositeSection, RiskPulse | 3 |
 | `src/components/portfolio/time-to-cash.tsx` | TimeToCash | 3 |
-| `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 1 |
+| `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 2 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 4 |
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
 | `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 9 |
@@ -187,7 +190,7 @@
 | `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 24 |
 | `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 19 |
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
-| `src/components/ui/product-section.tsx` | ProductSection | 6 |
+| `src/components/ui/product-section.tsx` | ProductSection | 5 |
 | `src/components/ui/progress.tsx` | Progress | 14 |
 | `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 51 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
