@@ -27,12 +27,12 @@ const AFTER_SUBSCRIBE = [
 /** Single compact secondary strip for previewZeros — no four tall empty cards. */
 export function PortfolioOnboardingFoot() {
   return (
-    <PfCockpitPanel
-      variant="compact"
-      aria-label="Portfolio widgets after first position"
-      className="pf-onboarding-foot"
-      data-testid="portfolio-onboarding-foot"
-    >
+    <div data-testid="portfolio-onboarding-foot">
+      <PfCockpitPanel
+        variant="compact"
+        aria-label="Portfolio widgets after first position"
+        className="pf-onboarding-foot"
+      >
       <PfCockpitPanelHeader
         title="What unlocks next"
         subtitle="Live cockpit widgets after your first confirmed position"
@@ -49,6 +49,7 @@ export function PortfolioOnboardingFoot() {
       <Link href="/proof-center" className="pf-onboarding-foot__link body-sm">
         Explore proof center →
       </Link>
-    </PfCockpitPanel>
+      </PfCockpitPanel>
+    </div>
   );
 }

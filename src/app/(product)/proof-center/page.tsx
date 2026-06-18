@@ -20,6 +20,7 @@ import type { UnifiedProof } from "@/components/proof/proof-types";
 import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
 import { EventTimeline } from "@/components/proof-center/event-timeline";
 import { PorSummary } from "@/components/proof-center/por-summary";
+import { ProofCenterColdShell } from "@/components/proof-center/proof-center-cold-shell";
 import { ProofCenterCardHeader } from "@/components/proof-center/proof-center-card-header";
 import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
 import { MiningCashFlowEvidence } from "@/components/proof-center/mining-cashflow-evidence";
@@ -47,6 +48,7 @@ import { buildDemoProofs } from "@/lib/demo/builders";
 import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
 import { prisma } from "@/lib/db";
+import { isProofCenterColdEmpty } from "@/lib/proof-center/cold-empty";
 import { TIMELOCK_DELAY_HOURS } from "@/lib/governance/state-machine";
 
 interface ProofCenterPageProps {
@@ -121,6 +123,16 @@ export default async function ProductProofCenterPage({
       : null;
   const showNotices = chainConfigured || demoNotice !== null;
 
+  const coldEmpty = isProofCenterColdEmpty({
+    demo,
+    hasAttestation: latestAttestation !== null,
+    proofsCount: proofs.length,
+    onChainEventsCount: onChainEvents.length,
+    distributionsCount: recentDistributions.length,
+    rebalancesCount: recentRebalances.length,
+    timelockCount: timelockProposals.length,
+  });
+
   return (
     <div className="proof-center-shell">
       {showNotices ? (
@@ -172,6 +184,18 @@ export default async function ProductProofCenterPage({
         }
       />
 
+      {coldEmpty ? (
+        <>
+          <ProofCenterColdShell chainConfigured={chainConfigured} />
+          <ProofCenterSection
+            id="contracts-heading"
+            title="Contracts & review trail"
+          >
+            <ContractsAuditTrail platformAddresses={platformAddresses} />
+          </ProofCenterSection>
+        </>
+      ) : (
+        <>
       <ProofCenterSection id="por-heading" title="Proof of Reserves">
         <PorSummary
           attestation={latestAttestation}
@@ -250,6 +274,8 @@ export default async function ProductProofCenterPage({
           </Card>
         )}
       </ProofCenterSection>
+        </>
+      )}
 
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="proof-center-footer">

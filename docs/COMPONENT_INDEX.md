@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**200 components** · 1 possible orphans · 2 intentionally unwired.
+**201 components** · 1 possible orphans · 2 intentionally unwired.
 
 ## ⚠️ Possible orphans (0 references — verify before keeping)
 
@@ -144,6 +144,7 @@
 | `src/components/proof-center/mining-cashflow-evidence.tsx` | MiningCashFlowEvidence | 2 |
 | `src/components/proof-center/por-summary.tsx` | PorSummary | 2 |
 | `src/components/proof-center/proof-center-card-header.tsx` | ProofCenterCardHeader | 6 |
+| `src/components/proof-center/proof-center-cold-shell.tsx` | ProofCenterColdShell | 1 |
 | `src/components/proof-center/proof-center-section.tsx` | ProofCenterSection | 2 |
 | `src/components/proof-center/rebalance-ptai-modal-trigger.tsx` | RebalancePtaiModalTrigger | 1 |
 | `src/components/proof-center/rebalancing-events-panel.tsx` | RebalancingEventsPanel | 2 |
@@ -177,7 +178,7 @@
 | `src/components/ui/apy-range.tsx` | ApyRange | 18 |
 | `src/components/ui/badge.tsx` | Badge | 52 |
 | `src/components/ui/button.tsx` | Button | 80 |
-| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 73 |
+| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 74 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
 | `src/components/ui/chart-time-selector.tsx` 🔌 | ChartTimeSelector | 0 |

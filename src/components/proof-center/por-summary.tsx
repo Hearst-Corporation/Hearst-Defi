@@ -46,22 +46,7 @@ export function PorSummary({
   if (attestation === null) {
     return (
       <div className="product-doc-stack">
-        <Card hoverOverlay={false}>
-          <ProofCenterCardHeader
-            sectionLed={sectionLed}
-            eyebrow="Proof of Reserves"
-            title="Awaiting first attestation"
-            provenance="manual"
-            tone="quiet"
-          />
-          <MetricGrid columns={4}>
-            <Metric variant="nested" label="Total AUM" value="—" />
-            <Metric variant="nested" label="Mined (period)" value="—" />
-            <Metric variant="nested" label="Attested at" value="—" sublabel="awaiting first close" />
-            <Metric variant="nested" label="Signer" value="—" />
-          </MetricGrid>
-          <EmptySurface live {...POR_ATTESTATION_EMPTY} className="mt-[var(--ct-space-4)]" />
-        </Card>
+        <EmptySurface live {...POR_ATTESTATION_EMPTY} />
         {custody ? <CustodySection custody={custody} /> : null}
       </div>
     );
