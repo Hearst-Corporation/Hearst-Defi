@@ -116,7 +116,7 @@
 | `src/components/portfolio/kpi-row.tsx` | PortfolioKpiRow | 1 |
 | `src/components/portfolio/layout-preview-banner.tsx` | PreviewModeChip | 2 |
 | `src/components/portfolio/lock-meter.tsx` | LockMeter | 4 |
-| `src/components/portfolio/next-action-card.tsx` | NextActionCard, NextActionContent | 3 |
+| `src/components/portfolio/next-action-card.tsx` | NextActionCard, NextActionContent | 1 |
 | `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 24 |
 | `src/components/portfolio/portfolio-greeting.tsx` | PortfolioGreeting | 2 |
 | `src/components/portfolio/portfolio-leaf-link.tsx` | PortfolioLeafLink | 5 |
