@@ -135,69 +135,6 @@
   min-height: 10rem;
 }
 
-.pf-next-action-card {
-  gap: var(--ct-space-3);
-}
-
-.pf-next-action-card__layout {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-}
-
-.pf-next-action-card__copy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  max-width: var(--ct-prose-lg);
-  min-width: 0;
-}
-
-.pf-next-action-card__cta {
-  flex-shrink: 0;
-  width: 100%;
-  display: flex;
-  justify-content: flex-start;
-}
-
-.pf-next-action-card__button {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pf-value-chart__next-action {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  padding: var(--ct-space-5) var(--ct-space-5);
-  /* chart-geometry */
-  min-height: 8rem;
-}
-
-.pf-value-chart--cta-only {
-  justify-content: flex-start;
-}
-
-.pf-value-chart--cta-only svg {
-  display: none;
-}
-
-@container pf (min-width: 36rem) {
-  .pf-next-action-card__layout {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--ct-space-4);
-  }
-
-  .pf-next-action-card__cta {
-    width: auto;
-    justify-content: flex-end;
-  }
-}
-
 .pf-preview-mode-chip {
   display: inline-flex;
   align-items: center;
@@ -1310,14 +1247,9 @@ a.pf-trust-compact__see-more:hover {
   .pf-container .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
     padding: var(--ct-space-3) var(--ct-space-4);
   }
-
-  .pf-value-chart__next-action {
-    min-height: 8rem;
-  }
 }
 
 /* ── Product sections (portfolio rhythm) ── */
-.pf-container [data-section="hero-pulse"],
 .pf-container [data-section="yield-trust"],
 .pf-container [data-section="activity-payouts"] {
   min-height: unset;
@@ -1325,12 +1257,6 @@ a.pf-trust-compact__see-more:hover {
 
 .pf-container .ct-product-section {
   padding: var(--ct-space-4) var(--ct-space-5);
-}
-
-/* Hub hero — single horizontal inset (page-area only; section padding stripped). */
-.pf-container--fit [data-section="hero-pulse"].ct-product-section {
-  padding-inline: 0;
-  padding-block: var(--ct-space-4) 0;
 }
 
 /* Nested empties inside portfolio panels — flat (cockpit.css mirrors globally). */
