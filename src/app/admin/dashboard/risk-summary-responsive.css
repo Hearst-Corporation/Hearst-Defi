@@ -1,0 +1,46 @@
+/* Risk Posture responsive constraint — LAYOUT ONLY, no color.
+ *
+ * After the dashboard cockpit conversion the Risk Posture card lives in a
+ * HALF-width Row-3 cell, but its old 2-col layout was gated on `@container
+ * dash-board (min-width: 48rem)` — i.e. it measures the FULL board, not the
+ * cell. So the full-width 2-col (overview | 5-factor grid) + the `minmax(15rem)`
+ * factor floor overflowed the half-cell and visually overlapped Audit Trail.
+ *
+ * Fix: make the card its OWN inline-size container so the 5-factor grid reflows
+ * to the CARD width (never the board). Default single-column (never overflows);
+ * 2-col factors only when the card itself is wide enough. Higher specificity
+ * than the cockpit.css base rules so it wins; kept in a separate file so it does
+ * not touch the concurrently-edited cockpit.css.
+ */
+
+.dashboard-cockpit .dashboard-risk-summary {
+  container-type: inline-size;
+  container-name: risk-card;
+  min-width: 0;
+}
+
+/* Single column by default: overview stacked above the factor list, factors
+   shrink to fit the column (min(13rem,100%) → never forces an overflow floor). */
+.dashboard-cockpit .dashboard-risk-summary__body {
+  grid-template-columns: 1fr;
+}
+
+.dashboard-cockpit .dashboard-risk-summary__grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(13rem, 100%), 1fr));
+}
+
+.dashboard-cockpit .dashboard-risk-summary__item {
+  min-width: 0;
+}
+
+/* Progress bars never escape the card. */
+.dashboard-cockpit .dashboard-risk-summary__progress {
+  max-width: 100%;
+}
+
+/* Only when the CARD itself is roomy: two factor columns. */
+@container risk-card (min-width: 30rem) {
+  .dashboard-cockpit .dashboard-risk-summary__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

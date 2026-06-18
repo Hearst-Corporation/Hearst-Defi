@@ -1,3 +1,5 @@
+import "./risk-summary-responsive.css";
+
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DashboardAssetsBoard } from "@/components/admin/dashboard";
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";

@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**202 components** · 1 possible orphans · 2 intentionally unwired.
+**203 components** · 1 possible orphans · 2 intentionally unwired.
 
 ## ⚠️ Possible orphans (0 references — verify before keeping)
 
@@ -33,10 +33,11 @@
 | `src/components/admin/customer/deploy-position-form.tsx` | DeployPositionForm | 1 |
 | `src/components/admin/customer/memory-manager.tsx` | MemoryManager | 1 |
 | `src/components/admin/customer/qualification-form.tsx` | QualificationForm | 1 |
+| `src/components/admin/dashboard/admin-kpi-strip-panel.tsx` | AdminKpiStripPanel | 9 |
 | `src/components/admin/dashboard/allocation-orbit.tsx` | AllocationOrbit | 1 |
 | `src/components/admin/dashboard/assets-board.tsx` | DashboardAssetsBoard | 2 |
 | `src/components/admin/dashboard/cockpit-panel-header.tsx` | AdminCockpitPanelHeader, AdminLeafLink | 4 |
-| `src/components/admin/dashboard/kpi-strip.tsx` | DashboardKpiStrip | 10 |
+| `src/components/admin/dashboard/kpi-strip.tsx` | DashboardKpiStrip | 2 |
 | `src/components/admin/dashboard/nav-slot.tsx` | NavSlot | 1 |
 | `src/components/admin/dashboard/risk-summary-card.tsx` | DashboardRiskSummaryCard | 1 |
 | `src/components/admin/distribution-preview.tsx` | DistributionPreview | 1 |
@@ -179,7 +180,7 @@
 | `src/components/ui/apy-range.tsx` | ApyRange | 18 |
 | `src/components/ui/badge.tsx` | Badge | 52 |
 | `src/components/ui/button.tsx` | Button | 80 |
-| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 73 |
+| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 74 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
 | `src/components/ui/chart-time-selector.tsx` 🔌 | ChartTimeSelector | 0 |
