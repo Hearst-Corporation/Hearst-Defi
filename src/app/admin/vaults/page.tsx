@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
+import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
@@ -87,7 +87,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
       {/* Portfolio KPI summary — only shown when there are vaults */}
       {portfolioKpis.length > 0 && (
-        <DashboardKpiStrip kpis={portfolioKpis} />
+        <AdminKpiStripPanel kpis={portfolioKpis} />
       )}
 
       {/* Filter tabs */}

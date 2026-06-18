@@ -6,7 +6,7 @@ import Link from "next/link";
 
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
+import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { ManualSignalTrigger } from "@/components/admin/manual-signal-trigger";
 import { RebalanceCard } from "@/components/admin/rebalance-card";
 import { EmptySurface } from "@/components/ui/empty-surface";
@@ -134,7 +134,7 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
 
       {/* Signal KPI summary — suppressed when no signals exist */}
       {signalKpis.length > 0 && (
-        <DashboardKpiStrip kpis={signalKpis} />
+        <AdminKpiStripPanel kpis={signalKpis} />
       )}
 
       <div className="admin-doc-inline-row" role="tablist" aria-label="Signal status filter">

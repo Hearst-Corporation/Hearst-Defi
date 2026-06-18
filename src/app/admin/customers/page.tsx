@@ -5,7 +5,7 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
+import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
@@ -69,7 +69,7 @@ export default async function CustomersPage({
         description="Directory of investor accounts, KYC posture, wallet linkage, and deployed principal."
       />
 
-      {kpiCells.length > 0 && <DashboardKpiStrip kpis={kpiCells} />}
+      {kpiCells.length > 0 && <AdminKpiStripPanel kpis={kpiCells} />}
 
       <div className="admin-doc-toolbar">
         <div className="admin-doc-inline-row admin-doc-inline-row--actions">

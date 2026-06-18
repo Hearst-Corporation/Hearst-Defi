@@ -6,7 +6,7 @@ import { canRunDemoProvider } from "@/lib/demo/guard";
 import { buildDemoDistributions } from "@/lib/demo/admin/distributions";
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
+import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -89,7 +89,7 @@ export default async function DistributionsPage({
 
       {/* Distribution KPI summary — suppressed when no history */}
       {distributionKpis.length > 0 && (
-        <DashboardKpiStrip kpis={distributionKpis} />
+        <AdminKpiStripPanel kpis={distributionKpis} />
       )}
 
       {/* Compute + confirm form (client) */}

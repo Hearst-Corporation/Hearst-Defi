@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { AgentGraphCanvas } from "@/components/admin/agents/agent-graph-canvas";
-import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
+import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { loadAgentGraph } from "@/lib/data/agent-graph";
 import { loadAgentTemplates } from "@/lib/data/agent-templates";
 import { ArchiveTemplateButton } from "@/components/admin/archive-template-button";
@@ -50,7 +50,7 @@ export default async function AgentsPage() {
         }
       />
 
-      {kpiStrip.length > 0 && <DashboardKpiStrip kpis={kpiStrip} />}
+      {kpiStrip.length > 0 && <AdminKpiStripPanel kpis={kpiStrip} />}
 
       <section className="admin-doc-stack" aria-label="Agent orchestration">
         <div className="flex flex-wrap items-center justify-between gap-[var(--ct-space-3)]">

@@ -6,7 +6,7 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
+import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -78,7 +78,7 @@ export default async function OutreachPage() {
       />
 
       {/* Hub KPI strip — suppressed on empty workspace */}
-      {outreachKpis.length > 0 && <DashboardKpiStrip kpis={outreachKpis} />}
+      {outreachKpis.length > 0 && <AdminKpiStripPanel kpis={outreachKpis} />}
 
       {/* Stats row */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Outreach stats">

@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
+import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -73,7 +73,7 @@ export default async function AuditLogPage({
         eyebrow="Compliance"
       />
 
-      {kpiStrip.length > 0 && <DashboardKpiStrip kpis={kpiStrip} />}
+      {kpiStrip.length > 0 && <AdminKpiStripPanel kpis={kpiStrip} />}
 
       {/* Filter bar — plain GET form, zero client JS */}
       <Card hoverOverlay={false}>

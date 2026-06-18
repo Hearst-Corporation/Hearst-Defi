@@ -1,5 +1,5 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
+import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { MonitoringBoard } from "@/components/admin/monitoring/monitoring-board";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { getMonitoringStats } from "@/lib/data/monitoring";
@@ -31,7 +31,7 @@ export default async function MonitoringPage() {
 
       {/* Health KPI strip — suppressed when no runs recorded yet */}
       {monitoringKpis.length > 0 && (
-        <DashboardKpiStrip kpis={monitoringKpis} />
+        <AdminKpiStripPanel kpis={monitoringKpis} />
       )}
 
       <MonitoringBoard stats={stats} />
