@@ -4,11 +4,13 @@
 
 import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { getAdminAuditLog } from "@/lib/admin/audit";
+import { buildAuditKpiStrip } from "@/lib/admin/audit-kpi-strip";
 import { cn } from "@/lib/cn";
 import { truncateWallet } from "@/lib/wallet-display";
 import { formatAdminAuditTimestamp } from "@/lib/vaults/product-display";
@@ -61,12 +63,17 @@ export default async function AuditLogPage({
     Boolean(actor?.trim()) ||
     Boolean(action?.trim());
 
+  const kpiStrip = buildAuditKpiStrip(entries);
+
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Audit Log"
         description="Immutable record of admin actions — approvals, pauses, distributions, and state transitions."
+        eyebrow="Compliance"
       />
+
+      {kpiStrip.length > 0 && <DashboardKpiStrip kpis={kpiStrip} />}
 
       {/* Filter bar — plain GET form, zero client JS */}
       <Card hoverOverlay={false}>

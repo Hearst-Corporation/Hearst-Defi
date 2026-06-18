@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
 import { ManualSignalTrigger } from "@/components/admin/manual-signal-trigger";
 import { RebalanceCard } from "@/components/admin/rebalance-card";
 import { EmptySurface } from "@/components/ui/empty-surface";
@@ -16,6 +17,7 @@ import {
   resolveFixtureVaultId,
   withAdminVaultQuery,
 } from "@/lib/vaults/dashboard-scope";
+import { buildSignalsKpiStrip } from "@/lib/admin/signals-kpi-strip";
 
 export const dynamic = "force-dynamic";
 
@@ -98,6 +100,11 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
     counts.map((c) => [c.status, c._count.id]),
   );
 
+  const signalKpis = buildSignalsKpiStrip(
+    countMap,
+    events[0]?.triggeredAt ?? null,
+  );
+
   const isDev = process.env.NODE_ENV === "development";
 
   const manualSignalAction = async (ruleId: string, scopeVaultId?: string): Promise<string> => {
@@ -124,6 +131,11 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
           </div>
         }
       />
+
+      {/* Signal KPI summary — suppressed when no signals exist */}
+      {signalKpis.length > 0 && (
+        <DashboardKpiStrip kpis={signalKpis} />
+      )}
 
       <div className="admin-doc-inline-row" role="tablist" aria-label="Signal status filter">
         {TABS.map((tab) => {
