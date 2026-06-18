@@ -6,6 +6,7 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -19,6 +20,7 @@ import {
   loadProspects,
   loadCampaigns,
 } from "@/lib/data/outreach";
+import { buildOutreachKpiStrip } from "@/lib/admin/outreach-kpi-strip";
 import { formatAdminDate } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
@@ -60,6 +62,8 @@ export default async function OutreachPage() {
     loadCampaigns(),
   ]);
 
+  const outreachKpis = buildOutreachKpiStrip(stats, campaigns);
+
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
@@ -72,6 +76,9 @@ export default async function OutreachPage() {
           </Button>
         }
       />
+
+      {/* Hub KPI strip — suppressed on empty workspace */}
+      {outreachKpis.length > 0 && <DashboardKpiStrip kpis={outreachKpis} />}
 
       {/* Stats row */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Outreach stats">
