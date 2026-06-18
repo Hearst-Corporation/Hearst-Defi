@@ -73,8 +73,9 @@ describe("portfolio layout breakpoints", () => {
   it("loading skeleton mirrors the cockpit bento structure", () => {
     expect(portfolioLoading).toContain('className="pf-cockpit"');
     expect(portfolioLoading).toContain("pf-cockpit-row--summary");
-    expect(portfolioLoading).toContain("pf-cockpit-row--mid");
-    expect(portfolioLoading).toContain("pf-cockpit-row--trio");
+    // Onboarding (previewZeros) skeleton: a hero summary row + a compact
+    // secondary foot row — mirrors the CTA-led zero-state, not the live mid/trio.
+    expect(portfolioLoading).toContain("pf-cockpit-row--onboarding-foot");
     expect(portfolioLoading).not.toContain("pf-teaser-grid");
   });
 
