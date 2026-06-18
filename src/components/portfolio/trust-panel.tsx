@@ -438,10 +438,10 @@ function TrustPanelDetail({ risk, proof, previewZeros = false }: TrustPanelProps
           </div>
         ) : null}
 
-        <div className="pt-[var(--ct-space-2)] flex justify-end">
+        <div className="flex justify-end pt-[var(--ct-space-2)]">
           <Link
             href={proofCenterHref}
-            className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-[var(--ct-border)]"
+            className="body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-[var(--ct-border-soft)]"
             aria-label="Open proof center"
           >
             Open proof center
