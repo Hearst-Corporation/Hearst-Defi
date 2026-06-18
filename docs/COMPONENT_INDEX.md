@@ -116,7 +116,7 @@
 | `src/components/portfolio/kpi-row.tsx` | PortfolioKpiRow | 1 |
 | `src/components/portfolio/layout-preview-banner.tsx` | PreviewModeChip | 2 |
 | `src/components/portfolio/lock-meter.tsx` | LockMeter | 4 |
-| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 22 |
+| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 23 |
 | `src/components/portfolio/portfolio-greeting.tsx` | PortfolioGreeting | 2 |
 | `src/components/portfolio/portfolio-leaf-link.tsx` | PortfolioLeafLink | 5 |
 | `src/components/portfolio/portfolio-leaf-shell.tsx` | PortfolioLeafShell | 4 |
@@ -189,11 +189,11 @@
 | `src/components/ui/metric.tsx` | Metric | 8 |
 | `src/components/ui/modal.tsx` | Modal | 5 |
 | `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 23 |
-| `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 17 |
+| `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 18 |
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 3 |
 | `src/components/ui/progress.tsx` | Progress | 14 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 55 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 54 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/section-embed.tsx` | SectionEmbedProvider | 1 |

@@ -17,6 +17,7 @@ import { resolveWidgetView } from "@/lib/portfolio/view-state";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import { WidgetShell } from "@/components/portfolio/widget-shell";
+import { PanelStatus } from "@/components/portfolio/pf-cockpit-panel";
 
 // ── Canonical reference component ─────────────────────────────────────────────
 // All CSS values use --ct-* tokens. SVG geometry (viewBox coordinates, BAR_W,
@@ -436,6 +437,13 @@ export function DistribCalendar({
           compactPreview
         />
       </div>
+      {previewZeros ? (
+        <PanelStatus
+          role="note"
+          message="No payout history yet · $0 forecast"
+          detail="Current period marked"
+        />
+      ) : null}
       {calendarFooter}
     </>
   );

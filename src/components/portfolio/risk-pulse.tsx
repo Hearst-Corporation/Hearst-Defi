@@ -8,6 +8,7 @@ import {
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { resolveWidgetView } from "@/lib/portfolio/view-state";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -343,18 +344,12 @@ export function RiskPulse({
   // Per-dimension sub-scores are not yet persisted; a 0 means "not available",
   // not "low risk".
   const dimensionsAvailable = scores.some((s) => s.score > 0);
-  const compositeUnavailable =
-    previewZeros || noData || !dimensionsAvailable;
-
-  // Use centralized provenance resolver
-  const showZeroShell = compositeUnavailable;
-  const badgeKind = showZeroShell
-    ? undefined
-    : resolveProvenance(
-        source === "stale" ? "stale" : source,
-        updatedAt,
-        "estimated",
-      );
+  const view = resolveWidgetView({
+    previewZeros,
+    hasData: !noData && dimensionsAvailable,
+    provenance: resolveProvenance(source === "stale" ? "stale" : source, updatedAt, "estimated"),
+  });
+  const compositeUnavailable = view.mode === "zero";
 
   return (
     <PfCockpitPanel variant="compact" aria-label="Risk pulse">
@@ -366,7 +361,7 @@ export function RiskPulse({
             </span>
           </Tooltip>
         }
-        provenance={badgeKind}
+        provenance={view.provenance}
       />
 
       {compositeUnavailable ? (
@@ -393,7 +388,7 @@ export function RiskPulse({
         noData={compositeUnavailable}
       />
 
-      {!showZeroShell ? (
+      {!compositeUnavailable ? (
         <p className="mt-auto pt-[var(--ct-space-2)] body-xs ct-text-faint m-0">
           0–100 scale · conditional — not guaranteed
         </p>

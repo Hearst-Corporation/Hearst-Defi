@@ -9,9 +9,9 @@ import {
   type YieldSource,
 } from "@/components/portfolio/yield-stack";
 import type { AllocationBucketSlice } from "@/lib/data/portfolio";
-import type { Provenance } from "@/components/ui/provenance-badge";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { resolveWidgetView } from "@/lib/portfolio/view-state";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
 import { cn } from "@/lib/cn";
@@ -67,10 +67,12 @@ export function CapitalYield({
   );
   const hasData =
     sources.length > 0 && buckets.length > 0 && totalValueUsdc > 0;
-  const showZeroShell = previewZeros || !hasData || maxAbsPct === 0;
-  const badgeKind: Provenance | undefined = showZeroShell
-    ? undefined
-    : resolveProvenance(source, updatedAt, "estimated");
+  const view = resolveWidgetView({
+    previewZeros,
+    hasData: hasData && maxAbsPct !== 0,
+    provenance: resolveProvenance(source, updatedAt, "estimated"),
+  });
+  const showZeroShell = view.mode === "zero";
 
   const [rLow, rHigh] =
     blendedLow <= blendedHigh ? [blendedLow, blendedHigh] : [blendedHigh, blendedLow];
@@ -96,7 +98,7 @@ export function CapitalYield({
       <PfCockpitPanelHeader
         title="Capital & Yield"
         subtitle="Allocation · 12m forward yield"
-        provenance={badgeKind}
+        provenance={view.provenance}
         titleVariant="primary"
         trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
       />
