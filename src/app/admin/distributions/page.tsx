@@ -6,6 +6,7 @@ import { canRunDemoProvider } from "@/lib/demo/guard";
 import { buildDemoDistributions } from "@/lib/demo/admin/distributions";
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -15,6 +16,7 @@ import {
 } from "@/lib/vaults/dashboard-scope";
 import { formatAdminDate, formatUsdDetailed } from "@/lib/vaults/product-display";
 import { listAllVaults, vaultSlug, vaultLabel } from "@/lib/vaults/resolver";
+import { buildDistributionsKpiStrip } from "@/lib/admin/distributions-kpi-strip";
 import { DistributionForm } from "./distribution-form";
 
 export const dynamic = "force-dynamic";
@@ -70,11 +72,13 @@ export default async function DistributionsPage({
     matchesDistributionVaultScope(entry.vaultRef, vaultId),
   );
   const activeVaultLabel = vaultLabelBySlug.get(vaultId) ?? vaultId;
+  const distributionKpis = buildDistributionsKpiStrip(history);
 
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Distributions"
+        eyebrow="Distribution history"
         actions={
           <FixtureVaultPills
             activeVaultId={vaultId}
@@ -82,6 +86,11 @@ export default async function DistributionsPage({
           />
         }
       />
+
+      {/* Distribution KPI summary — suppressed when no history */}
+      {distributionKpis.length > 0 && (
+        <DashboardKpiStrip kpis={distributionKpis} />
+      )}
 
       {/* Compute + confirm form (client) */}
       <DistributionForm vaultOptions={vaultOptions} initialVault={vaultId} />

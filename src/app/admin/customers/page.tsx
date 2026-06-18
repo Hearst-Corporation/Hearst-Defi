@@ -5,12 +5,14 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
 import { CreateInvestorButton } from "@/components/admin/customer/create-investor-button";
 import { loadCustomers, type KycStatus } from "@/lib/data/customers";
+import { buildCustomersKpiStrip } from "@/lib/admin/customers-kpi-strip";
 import { formatAdminDate } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
@@ -57,12 +59,17 @@ export default async function CustomersPage({
   const result = await loadCustomers(page, pageSize);
   const { data: customers, total, hasMore } = result;
 
+  const kpiCells = buildCustomersKpiStrip(customers, total);
+
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Investors"
+        eyebrow="Investor base"
         description="Directory of investor accounts, KYC posture, wallet linkage, and deployed principal."
       />
+
+      {kpiCells.length > 0 && <DashboardKpiStrip kpis={kpiCells} />}
 
       <div className="admin-doc-toolbar">
         <div className="admin-doc-inline-row admin-doc-inline-row--actions">
