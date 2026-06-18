@@ -3,6 +3,7 @@ import "../portfolio.css";
 import { loadPortfolioView } from "@/lib/data/portfolio-view";
 import { PortfolioLeafShell } from "@/components/portfolio/portfolio-leaf-shell";
 import { PositionsList } from "@/components/portfolio/positions-list";
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,13 @@ export default async function PositionsPage() {
       showDemoBanner={showDemoBanner}
       previewZeros={previewZeros}
       testId="portfolio-positions-page"
+      header={
+        <ProductPageHeader
+          eyebrow="Portfolio"
+          title="Positions"
+          description="Your active vault positions and allocation."
+        />
+      }
     >
       <div data-section="positions">
         <PositionsList

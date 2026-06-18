@@ -17,12 +17,15 @@ export function PortfolioLeafShell({
   showDemoBanner,
   previewZeros,
   testId,
+  header,
   children,
 }: {
   demo: boolean;
   showDemoBanner: boolean;
   previewZeros: boolean;
   testId: string;
+  /** Optional ProductPageHeader (eyebrow + H1 + description) for this leaf. */
+  header?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -36,6 +39,7 @@ export function PortfolioLeafShell({
         <DemoDataBanner />
       ) : null}
 
+      {header}
       {children}
     </div>
   );

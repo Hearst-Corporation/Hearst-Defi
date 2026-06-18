@@ -2,6 +2,7 @@ import "../portfolio.css";
 
 import { loadPortfolioView } from "@/lib/data/portfolio-view";
 import { PortfolioLeafShell } from "@/components/portfolio/portfolio-leaf-shell";
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { ProductSection } from "@/components/ui/product-section";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
 import { TrustProofCompact } from "@/components/portfolio/trust-panel";
@@ -40,6 +41,13 @@ export default async function ActivityPage() {
       showDemoBanner={showDemoBanner}
       previewZeros={previewZeros}
       testId="portfolio-activity-page"
+      header={
+        <ProductPageHeader
+          eyebrow="Portfolio"
+          title="Activity & trust"
+          description="Recent deposits, payouts, and on-chain proof status."
+        />
+      }
     >
       <ProductSection
         title="Activity & trust"

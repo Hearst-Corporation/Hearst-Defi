@@ -4,6 +4,7 @@ import { loadPortfolioView } from "@/lib/data/portfolio-view";
 import { PortfolioLeafShell } from "@/components/portfolio/portfolio-leaf-shell";
 import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { ZERO_YIELD_STACK } from "@/lib/portfolio/layout-preview";
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,13 @@ export default async function YieldPage() {
       showDemoBanner={showDemoBanner}
       previewZeros={previewZeros}
       testId="portfolio-yield-page"
+      header={
+        <ProductPageHeader
+          eyebrow="Portfolio"
+          title="Yield & allocation"
+          description="Blended forward yield and vault allocation breakdown."
+        />
+      }
     >
       <div data-section="yield-allocation" data-testid="capital-yield-widget">
         <CapitalYield

@@ -80,7 +80,7 @@
 | `src/components/auth/sign-out-button.tsx` | SignOutButton | 2 |
 | `src/components/chat/chat-nav-bridge.tsx` | ChatNavBridge | 4 |
 | `src/components/connect/header-connect.tsx` | HeaderConnect | 1 |
-| `src/components/connect/product-page-header.tsx` | ProductPageHeader | 5 |
+| `src/components/connect/product-page-header.tsx` | ProductPageHeader | 10 |
 | `src/components/ConnectShell.tsx` | ConnectShell | 1 |
 | `src/components/dashboard/risk-framework.tsx` | RiskFrameworkSection | 10 |
 | `src/components/error/error-shell.tsx` | ErrorShellLayout | 7 |

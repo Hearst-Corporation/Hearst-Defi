@@ -4,6 +4,7 @@ import { loadPortfolioView } from "@/lib/data/portfolio-view";
 import { PortfolioLeafShell } from "@/components/portfolio/portfolio-leaf-shell";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { buildZeroDistribEntries } from "@/lib/portfolio/layout-preview";
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,13 @@ export default async function DistributionsPage() {
       showDemoBanner={showDemoBanner}
       previewZeros={previewZeros}
       testId="portfolio-distributions-page"
+      header={
+        <ProductPageHeader
+          eyebrow="Portfolio"
+          title="Distributions"
+          description="Monthly USDC distribution calendar and payout history."
+        />
+      }
     >
       <div
         className="pf-payout-calendar-slot"
