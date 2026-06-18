@@ -10,15 +10,17 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { AgentGraphCanvas } from "@/components/admin/agents/agent-graph-canvas";
+import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
 import { loadAgentGraph } from "@/lib/data/agent-graph";
 import { loadAgentTemplates } from "@/lib/data/agent-templates";
 import { ArchiveTemplateButton } from "@/components/admin/archive-template-button";
-import { groupCatalogByScope } from "@/lib/agents/agent-catalog";
+import { groupCatalogByScope, AGENT_CATALOG } from "@/lib/agents/agent-catalog";
 import { AGENT_ICONS } from "@/lib/agents/agent-icons";
 import {
   BASE_AGENT_LABELS,
   type BaseAgent,
 } from "@/lib/agents/agent-template-constants";
+import { buildAgentsKpiStrip } from "@/lib/admin/agents-kpi-strip";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +32,11 @@ export default async function AgentsPage() {
     loadAgentGraph(),
   ]);
   const catalogGroups = groupCatalogByScope();
+  const kpiStrip = buildAgentsKpiStrip({
+    templates,
+    nodes: agentGraph.nodes,
+    baseAgentCount: AGENT_CATALOG.length,
+  });
 
   return (
     <div className="admin-doc-shell">
@@ -42,6 +49,8 @@ export default async function AgentsPage() {
           </Button>
         }
       />
+
+      {kpiStrip.length > 0 && <DashboardKpiStrip kpis={kpiStrip} />}
 
       <section className="admin-doc-stack" aria-label="Agent orchestration">
         <div className="flex flex-wrap items-center justify-between gap-[var(--ct-space-3)]">
