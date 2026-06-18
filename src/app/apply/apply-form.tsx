@@ -8,11 +8,11 @@ import {
   OnboardingChamberSole,
 } from "@/components/onboarding/onboarding-chamber";
 import { Button } from "@/components/ui/button";
+import { ChoiceCard, ChoiceGroup } from "@/components/ui/choice-card";
 import {
   WizardStepProgress,
   type WizardStep,
 } from "@/components/ui/wizard-step-progress";
-import { cn } from "@/lib/cn";
 import {
   AUM_OPTIONS,
   FUNDS_USAGE_OPTIONS,
@@ -35,6 +35,12 @@ const STEPS: readonly WizardStep<Step>[] = [
   { id: "sizing", label: "Sizing", index: 3 },
 ] as const;
 
+const META_CHIPS = [
+  "3 steps",
+  "About 2 minutes",
+  "For qualified investors only",
+] as const;
+
 function StepHeading({
   title,
   description,
@@ -43,45 +49,10 @@ function StepHeading({
   description: string;
 }) {
   return (
-    <div className="flex flex-col gap-(--ct-space-2) text-left">
+    <div className="product-doc-stack--tight text-left">
       <h2 className="h2 m-0">{title}</h2>
-      <p className="body-sm ct-text-body m-0">{description}</p>
+      <p className="body-sm ct-text-muted m-0">{description}</p>
     </div>
-  );
-}
-
-function ChoiceCard({
-  label,
-  selected,
-  onClick,
-}: {
-  label: string;
-  selected: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={selected}
-      className={cn(
-        "flex w-full items-start gap-(--ct-space-3) rounded-(--ct-radius-xl) border px-(--ct-space-4) py-(--ct-space-4) text-left body-sm ct-transition-base ct-focus-ring",
-        selected
-          ? "ct-surface-1 border-(--ct-accent) ct-text-strong"
-          : "ct-surface-0 border-(--ct-border-soft) ct-text-body hover:ct-surface-1 hover:border-(--ct-border) hover:ct-text-primary",
-      )}
-    >
-      <span
-        aria-hidden="true"
-        className={cn(
-          "mt-(--ct-space-0_5) inline-flex h-4 w-4 shrink-0 rounded-full border-2",
-          selected
-            ? "border-(--ct-accent) bg-(--ct-accent)"
-            : "border-(--ct-border-strong) bg-transparent",
-        )}
-      />
-      <span className={selected ? "ct-text-accent" : undefined}>{label}</span>
-    </button>
   );
 }
 
@@ -91,13 +62,11 @@ export function ApplyForm() {
   const [step, setStep] = useState<Step>("about");
   const [error, setError] = useState<string | null>(null);
 
-  // Identity
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Answers
   const [platformType, setPlatformType] = useState("");
   const [aum, setAum] = useState("");
   const [fundsUsage, setFundsUsage] = useState("");
@@ -175,32 +144,26 @@ export function ApplyForm() {
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center justify-start gap-(--ct-space-2) body-xs ct-text-muted">
-            <span className="rounded-full border border-(--ct-border-soft) px-(--ct-space-3) py-(--ct-space-1)">
-              3 steps
-            </span>
-            <span className="rounded-full border border-(--ct-border-soft) px-(--ct-space-3) py-(--ct-space-1)">
-              About 2 minutes
-            </span>
-            <span className="rounded-full border border-(--ct-border-soft) px-(--ct-space-3) py-(--ct-space-1)">
-              For qualified investors only
-            </span>
+          <div className="product-doc-inline-row product-doc-inline-row--start">
+            {META_CHIPS.map((chip) => (
+              <span key={chip} className="ct-pill">
+                {chip}
+              </span>
+            ))}
           </div>
         </div>
       }
       body={
-        <div className="flex w-full flex-col gap-(--ct-space-6)">
+        <div className="product-doc-stack">
           {step === "about" && (
-            <div className="flex flex-col gap-(--ct-space-5)">
+            <div className="product-doc-stack--relaxed">
               <StepHeading
                 title="Tell us about yourself"
                 description="Takes about two minutes. We'll review fit and follow up directly."
               />
 
-              <div className="flex flex-col gap-(--ct-space-2)">
-                <label className="body-sm font-semibold ct-text-strong" htmlFor="apply-email">
-                  Email *
-                </label>
+              <label className="block" htmlFor="apply-email">
+                <span className="ct-form-label">Email *</span>
                 <input
                   id="apply-email"
                   type="email"
@@ -208,66 +171,57 @@ export function ApplyForm() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@fund.io"
                   autoFocus
-                  className="ct-input ct-input-bare rounded-(--ct-radius-xl) px-(--ct-space-4) py-(--ct-space-4) body-sm ct-text-strong"
+                  className="ct-input ct-input-bare"
                 />
-              </div>
+              </label>
 
               <div className="grid gap-(--ct-space-3) sm:grid-cols-2">
-                <div className="flex flex-col gap-(--ct-space-2)">
-                  <label className="body-sm font-semibold ct-text-strong" htmlFor="apply-first-name">
-                    First name
-                  </label>
+                <label className="block" htmlFor="apply-first-name">
+                  <span className="ct-form-label">First name</span>
                   <input
                     id="apply-first-name"
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Alice"
-                    className="ct-input ct-input-bare rounded-(--ct-radius-xl) px-(--ct-space-4) py-(--ct-space-4) body-sm ct-text-strong"
+                    className="ct-input ct-input-bare"
                   />
-                </div>
-                <div className="flex flex-col gap-(--ct-space-2)">
-                  <label className="body-sm font-semibold ct-text-strong" htmlFor="apply-last-name">
-                    Last name
-                  </label>
+                </label>
+                <label className="block" htmlFor="apply-last-name">
+                  <span className="ct-form-label">Last name</span>
                   <input
                     id="apply-last-name"
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Dupont"
-                    className="ct-input ct-input-bare rounded-(--ct-radius-xl) px-(--ct-space-4) py-(--ct-space-4) body-sm ct-text-strong"
+                    className="ct-input ct-input-bare"
                   />
-                </div>
+                </label>
               </div>
 
-              <div className="flex flex-col gap-(--ct-space-2)">
-                <label className="body-sm font-semibold ct-text-strong" htmlFor="apply-phone">
-                  Phone (optional)
-                </label>
+              <label className="block" htmlFor="apply-phone">
+                <span className="ct-form-label">Phone (optional)</span>
                 <input
                   id="apply-phone"
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+33 6 00 00 00 00"
-                  className="ct-input ct-input-bare rounded-(--ct-radius-xl) px-(--ct-space-4) py-(--ct-space-4) body-sm ct-text-strong"
+                  className="ct-input ct-input-bare"
                 />
-              </div>
+              </label>
             </div>
           )}
 
           {step === "platform" && (
-            <div className="flex flex-col gap-(--ct-space-6)">
+            <div className="product-doc-stack--relaxed">
               <StepHeading
                 title="About your platform"
                 description="Help us understand your investor profile, assets, and existing yield posture."
               />
 
-              <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="body-sm font-semibold ct-text-strong">
-                  What best describes your platform?
-                </label>
+              <ChoiceGroup legend="What best describes your platform?">
                 {PLATFORM_TYPE_OPTIONS.map((o) => (
                   <ChoiceCard
                     key={o.value}
@@ -276,10 +230,9 @@ export function ApplyForm() {
                     onClick={() => setPlatformType(o.value)}
                   />
                 ))}
-              </div>
+              </ChoiceGroup>
 
-              <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="body-sm font-semibold ct-text-strong">Assets under management?</label>
+              <ChoiceGroup legend="Assets under management?">
                 {AUM_OPTIONS.map((o) => (
                   <ChoiceCard
                     key={o.value}
@@ -288,12 +241,9 @@ export function ApplyForm() {
                     onClick={() => setAum(o.value)}
                   />
                 ))}
-              </div>
+              </ChoiceGroup>
 
-              <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="body-sm font-semibold ct-text-strong">
-                  How are client funds currently deployed?
-                </label>
+              <ChoiceGroup legend="How are client funds currently deployed?">
                 {FUNDS_USAGE_OPTIONS.map((o) => (
                   <ChoiceCard
                     key={o.value}
@@ -302,12 +252,9 @@ export function ApplyForm() {
                     onClick={() => setFundsUsage(o.value)}
                   />
                 ))}
-              </div>
+              </ChoiceGroup>
 
-              <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="body-sm font-semibold ct-text-strong">
-                  Do you offer yield or reward products?
-                </label>
+              <ChoiceGroup legend="Do you offer yield or reward products?">
                 {YIELD_STATUS_OPTIONS.map((o) => (
                   <ChoiceCard
                     key={o.value}
@@ -316,21 +263,18 @@ export function ApplyForm() {
                     onClick={() => setYieldStatus(o.value)}
                   />
                 ))}
-              </div>
+              </ChoiceGroup>
             </div>
           )}
 
           {step === "sizing" && (
-            <div className="flex flex-col gap-(--ct-space-6)">
+            <div className="product-doc-stack--relaxed">
               <StepHeading
                 title="Sizing & timing"
                 description="Share the expected mandate and timing for a first conversation or allocation."
               />
 
-              <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="body-sm font-semibold ct-text-strong">
-                  What type of yield product suits your clients?
-                </label>
+              <ChoiceGroup legend="What type of yield product suits your clients?">
                 {YIELD_TYPE_OPTIONS.map((o) => (
                   <ChoiceCard
                     key={o.value}
@@ -339,12 +283,9 @@ export function ApplyForm() {
                     onClick={() => setYieldType(o.value)}
                   />
                 ))}
-              </div>
+              </ChoiceGroup>
 
-              <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="body-sm font-semibold ct-text-strong">
-                  Vault size for a first allocation?
-                </label>
+              <ChoiceGroup legend="Vault size for a first allocation?">
                 {VAULT_SIZE_OPTIONS.map((o) => (
                   <ChoiceCard
                     key={o.value}
@@ -353,10 +294,9 @@ export function ApplyForm() {
                     onClick={() => setVaultSize(o.value)}
                   />
                 ))}
-              </div>
+              </ChoiceGroup>
 
-              <div className="flex flex-col gap-(--ct-space-3)">
-                <label className="body-sm font-semibold ct-text-strong">What is your launch timeline?</label>
+              <ChoiceGroup legend="What is your launch timeline?">
                 {TIMELINE_OPTIONS.map((o) => (
                   <ChoiceCard
                     key={o.value}
@@ -365,7 +305,7 @@ export function ApplyForm() {
                     onClick={() => setTimeline(o.value)}
                   />
                 ))}
-              </div>
+              </ChoiceGroup>
             </div>
           )}
 
@@ -386,53 +326,48 @@ export function ApplyForm() {
             </>
           }
           actions={
-            step === "about" ? (
-              <div className="flex w-full justify-end">
-                <Button
-                  type="button"
-                  onClick={goNext}
-                  variant="primary"
-                  size="lg"
-                >
+            <div className="product-doc-stack--actions">
+              {step === "about" ? (
+                <Button type="button" onClick={goNext} variant="primary" size="lg" className="w-full">
                   Continue →
                 </Button>
-              </div>
-            ) : (
-              <div className="flex w-full items-center gap-(--ct-space-3)">
-                <Button
-                  type="button"
-                  onClick={goBack}
-                  disabled={pending}
-                  variant="secondary"
-                  size="lg"
-                  className="flex-1"
-                >
-                  ← Back
-                </Button>
-                {step !== "sizing" ? (
+              ) : (
+                <div className="product-doc-inline-row product-doc-inline-row--actions w-full">
                   <Button
                     type="button"
-                    onClick={goNext}
-                    variant="primary"
-                    size="lg"
-                    className="flex-1"
-                  >
-                    Continue →
-                  </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    onClick={handleSubmit}
+                    onClick={goBack}
                     disabled={pending}
-                    variant="primary"
+                    variant="secondary"
                     size="lg"
-                    className="flex-1"
+                    className="min-w-0 flex-1"
                   >
-                    {pending ? "Submitting…" : "Submit application"}
+                    ← Back
                   </Button>
-                )}
-              </div>
-            )
+                  {step !== "sizing" ? (
+                    <Button
+                      type="button"
+                      onClick={goNext}
+                      variant="primary"
+                      size="lg"
+                      className="min-w-0 flex-1"
+                    >
+                      Continue →
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      onClick={handleSubmit}
+                      disabled={pending}
+                      variant="primary"
+                      size="lg"
+                      className="min-w-0 flex-1"
+                    >
+                      {pending ? "Submitting…" : "Submit application"}
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
           }
         />
       }

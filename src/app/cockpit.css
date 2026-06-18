@@ -3431,9 +3431,10 @@ pre.ct-surface-1.rounded-md {
   box-shadow: var(--ct-shadow-focus-ring);
 }
 
-/* Native buttons need UA reset before ct-pill / ct-seg-btn tokens apply. */
+/* Native buttons need UA reset before ct-pill / ct-seg-btn / ct-choice-card apply. */
 button.ct-pill,
-button.ct-seg-btn {
+button.ct-seg-btn,
+button.ct-choice-card {
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
@@ -3495,6 +3496,77 @@ button.ct-seg-btn {
   /* OTP digit separation — single canonical em value (not on fluid text scale) */
   letter-spacing: 0.25em;
   text-align: center;
+}
+
+/* Single-select option cards — qualification / onboarding flows */
+.ct-choice-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.ct-choice-group__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  margin-top: var(--ct-space-2);
+}
+
+.ct-choice-card {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-3) var(--ct-space-4);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
+  color: var(--ct-text-primary);
+  font-size: var(--ct-text-sm);
+  line-height: var(--ct-leading-relaxed);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--ct-dur-base) var(--ct-ease),
+    background var(--ct-dur-base) var(--ct-ease),
+    color var(--ct-dur-base) var(--ct-ease);
+}
+
+.ct-choice-card:hover {
+  border-color: var(--ct-border);
+  background: color-mix(in srgb, var(--ct-surface-1) 80%, transparent);
+  color: var(--ct-text-strong);
+}
+
+.ct-choice-card--selected {
+  border-color: var(--ct-accent);
+  background: color-mix(in srgb, var(--ct-surface-1) 80%, transparent);
+  color: var(--ct-text-strong);
+}
+
+.ct-choice-card__dot {
+  margin-top: var(--ct-space-0_5);
+  display: inline-flex;
+  width: var(--ct-space-4);
+  height: var(--ct-space-4);
+  flex-shrink: 0;
+  border-radius: var(--ct-radius-full);
+  border: 2px solid var(--ct-border-strong);
+  background: transparent;
+}
+
+.ct-choice-card__dot--selected {
+  border-color: var(--ct-accent);
+  background: var(--ct-accent);
+}
+
+.ct-choice-card__label {
+  min-width: 0;
+}
+
+.ct-choice-card__label--selected {
+  color: var(--ct-accent);
 }
 
 .ct-chart-disclaimer-text {

@@ -15,8 +15,23 @@
    windows; the frame's own symmetric padding keeps breathing room when the
    content is taller than the viewport (page scrolls instead of clipping). */
 .onboarding-shell--wide {
+  position: relative;
+  isolation: isolate;
   min-height: 100dvh;
   justify-content: center;
+}
+
+.onboarding-shell--wide::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 80% 70% at 50% 45%,
+    color-mix(in srgb, var(--ct-accent-soft) 45%, transparent),
+    var(--ct-bg-deep) 72%
+  );
 }
 
 .onboarding-shell--wide .onboarding-shell__frame {
@@ -82,14 +97,13 @@
   z-index: var(--ct-z-base);
 }
 
-/* Cap the funnel content to a comfortable reading measure and pin it to the
-   column's LEFT edge — the form, its headings and the CTA all share one left
-   axis (matches the mockup; no centered float in a left-aligned column). */
+/* Split funnel: crown/body/sole children use the full main column width so
+   there is no dead band between the form and the assistant rail. */
 .onboarding-chamber--split .onboarding-chamber__crown > *,
 .onboarding-chamber--split .onboarding-chamber__body > *,
 .onboarding-chamber--split .onboarding-chamber__sole > * {
   width: 100%;
-  max-width: var(--ct-prose-sm);
+  max-width: 100%;
   margin-inline: 0;
 }
 
@@ -126,6 +140,25 @@
   background: var(--ct-surface-0);
 }
 
+/* Split funnel: sole tracks the prose-sm column — no full-band footer that
+   fights the left-aligned form measure beside the assistant rail. */
+.onboarding-chamber--split .onboarding-chamber__sole {
+  background: transparent;
+  border-top: 0;
+  padding-top: 0;
+}
+
+.onboarding-chamber--split .onboarding-chamber__sole > * {
+  padding-top: var(--ct-space-5);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+@media (min-width: 640px) {
+  .onboarding-chamber--split .onboarding-chamber__sole > * {
+    padding-top: var(--ct-space-6);
+  }
+}
+
 @media (min-width: 640px) {
   .onboarding-chamber__sole {
     padding: var(--ct-space-6) var(--ct-space-8) var(--ct-space-8);
@@ -141,7 +174,9 @@
 /* Wider frame so the two-column chamber breathes — only when the split chamber
    is actually present (the confirmed screen keeps the narrow prose cap). */
 .onboarding-shell--wide .onboarding-shell__frame:has(.onboarding-chamber--split) {
-  width: min(100%, var(--ct-invest-flow-max-w));
+  width: 100%;
+  max-width: none;
+  padding-inline: clamp(var(--ct-space-4), 4vw, var(--ct-space-10));
 }
 
 .onboarding-chamber--split {
@@ -171,6 +206,12 @@
   .onboarding-chamber__main {
     flex: 1 1 0;
     min-width: 0;
+  }
+
+  .onboarding-chamber--split .onboarding-chamber__crown,
+  .onboarding-chamber--split .onboarding-chamber__body,
+  .onboarding-chamber--split .onboarding-chamber__sole {
+    padding-right: var(--ct-space-6);
   }
 
   .onboarding-chamber__aside {

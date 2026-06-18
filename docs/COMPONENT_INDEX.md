@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**203 components** · 1 possible orphans · 2 intentionally unwired.
+**204 components** · 1 possible orphans · 2 intentionally unwired.
 
 ## ⚠️ Possible orphans (0 references — verify before keeping)
 
@@ -185,6 +185,7 @@
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
 | `src/components/ui/chart-time-selector.tsx` 🔌 | ChartTimeSelector | 0 |
 | `src/components/ui/checkbox.tsx` | Checkbox | 2 |
+| `src/components/ui/choice-card.tsx` | ChoiceCard, ChoiceGroup | 1 |
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
 | `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 17 |

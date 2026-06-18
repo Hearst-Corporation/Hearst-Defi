@@ -15,14 +15,16 @@ export default function ConfirmedPage() {
     <OnboardingChamber
       testId="apply-confirmed"
       crown={
-        <div className="product-doc-stack onboarding-shell__stepper">
-          <span className="eyebrow ct-text-accent">Hearst Connect</span>
-          <div className="product-doc-stack--compact">
-            <h1 className="h1 m-0">Application received</h1>
-            <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
-              Thank you. Our team will review your profile and send a login link to
-              access your investor cockpit within 1-2 business days.
-            </p>
+        <div className="product-doc-stack onboarding-shell__stepper text-left">
+          <div className="product-doc-stack--tight">
+            <p className="eyebrow ct-text-muted m-0">Hearst Connect · Application received</p>
+            <div className="product-doc-stack--compact">
+              <h1 className="h1 m-0 text-pretty">Application received</h1>
+              <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
+                Thank you. Our team will review your profile and send a login link to
+                access your investor cockpit within 1-2 business days.
+              </p>
+            </div>
           </div>
         </div>
       }
