@@ -40,7 +40,7 @@
 /* ── Portfolio typography roles ── */
 .pf-cockpit-panel__title--primary {
   margin: 0;
-  font-size: var(--ct-text-sm);
+  font-size: var(--ct-text-base);
   font-weight: var(--ct-font-semibold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-snug);
@@ -112,6 +112,11 @@
   border-radius: var(--ct-radius-md);
 }
 
+.pf-payout-calendar-panel--zero .pf-distrib-chart-shell {
+  /* chart-geometry */
+  min-height: 8rem;
+}
+
 .pf-distrib-chart-shell .pf-distrib-chart {
   flex: 1;
   width: 100%;
@@ -166,30 +171,9 @@
   flex: 1;
   align-items: center;
   justify-content: center;
-  padding: var(--ct-space-6) var(--ct-space-4);
+  padding: var(--ct-space-5) var(--ct-space-5);
   /* chart-geometry */
-  min-height: 11rem;
-}
-
-.pf-value-chart__next-action .pf-next-action-card__layout {
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: var(--ct-space-4);
-  width: 100%;
-  max-width: var(--ct-prose-md);
-  margin-inline: auto;
-}
-
-.pf-value-chart__next-action .pf-next-action-card__copy {
-  align-items: center;
-  max-width: none;
-}
-
-.pf-value-chart__next-action .pf-next-action-card__cta {
-  justify-content: center;
-  width: 100%;
+  min-height: 8rem;
 }
 
 .pf-value-chart--cta-only {
@@ -211,17 +195,6 @@
   .pf-next-action-card__cta {
     width: auto;
     justify-content: flex-end;
-  }
-
-  /* Embedded CTA in value chart — always stacked + centered, not side-by-side */
-  .pf-value-chart__next-action .pf-next-action-card__layout {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .pf-value-chart__next-action .pf-next-action-card__cta {
-    width: 100%;
-    justify-content: center;
   }
 }
 
@@ -366,19 +339,24 @@
 .pf-greeting {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-0_5);
+  gap: var(--ct-space-1);
   flex: 0 0 auto;
   min-width: 0;
 }
 
+.pf-greeting .h1 {
+  line-height: var(--ct-leading-tight);
+  color: var(--ct-text-primary);
+}
+
 .pf-greeting-name {
   font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-strong);
+  color: var(--ct-text-primary);
 }
 
 .pf-greeting-recap {
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-body);
+  font-size: var(--ct-text-base);
+  color: var(--ct-text-muted);
   margin: 0;
   max-width: 42ch; /* one-glance recap line — ch not rem (≠ ct-prose-lg) */
   overflow: hidden;
@@ -813,6 +791,51 @@
   flex-shrink: 0;
 }
 
+a.pf-trust-compact__see-more {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--ct-border-soft);
+  transition: color var(--ct-dur-base);
+}
+
+a.pf-trust-compact__see-more:hover {
+  color: var(--ct-text-primary);
+}
+
+.pf-trust-compact__zero-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.pf-trust-compact__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1_5);
+}
+
+.pf-trust-compact__status-dot {
+  opacity: var(--ct-opacity-70);
+}
+
+.pf-positions-empty-link {
+  margin-top: var(--ct-space-1_5);
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--ct-border-soft);
+  transition: text-decoration-color var(--ct-dur-base);
+}
+
+.pf-positions-empty-link:hover {
+  text-decoration-color: var(--ct-accent);
+}
+
 /* Surface taxonomy (DESIGN_SYSTEM §13.3): pf-cockpit-panel shares the graphite
    background/border/radius/blur with ct-card — the only legitimate difference is
    the padding tier. Default padding raised space-3 (12px) → space-4 (16px) so a
@@ -1131,11 +1154,11 @@
 .pf-panel-title,
 .pf-hero-rail-title {
   margin: 0;
-  font-size: var(--ct-text-micro);
+  font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
   letter-spacing: var(--ct-tracking-wide);
   text-transform: uppercase;
-  color: var(--ct-text-muted);
+  color: var(--ct-text-body);
   overflow-wrap: anywhere;
 }
 
@@ -1247,6 +1270,10 @@
   z-index: var(--ct-z-base, 1);
   /* chart-geometry */
   min-height: 5rem;
+  /* chart-geometry — backstop: when min-height is overridden to 0 inside the
+     viewport-fit gate, aspect-ratio keeps the SVG from collapsing to 0px under
+     flex-famine (the chart still reads as a chart, just shorter). */
+  aspect-ratio: 16 / 5;
   margin-top: var(--ct-space-3);
 }
 
@@ -1325,160 +1352,38 @@
   /* Tiles stay close to the hero in no-data — the compact empty state must not
      leave a wide trench between the CTA hero and the teaser row. Matches the
      --fit dashboard gap (was space-6, which read as a gap once the hero shrank). */
-  gap: var(--ct-space-4);
-}
-
-.pf-container--zero .pf-activity-grid > * .pf-cockpit-panel {
-  /* chart-geometry */
-  min-height: 14rem;
-}
-
-.pf-container--zero [data-testid="recent-activity-widget"] .pf-cockpit-panel,
-.pf-container--zero [data-testid="distrib-calendar-widget"] .pf-cockpit-panel {
-  justify-content: space-between;
-}
-
-.pf-container--zero .ct-section-preview--compact {
-  gap: var(--ct-space-4);
-  padding: var(--ct-space-4) var(--ct-space-5);
-}
-
-/* ── NO-DATA HERO — ghost chart (preview / no positions) ───────────────────
-   The chart always renders (muted series). The hero grid stays 2-col when the
-   slot allows it; the KPI sidebar shrinks to content height on the right. */
-.pf-container--zero .pf-main-chart-wrapper {
-  min-height: 0;
-}
-
-.pf-container--zero .pf-hero-sidebar {
-  min-height: 0;
-  align-self: start;
-}
-
-/* Ghost chart keeps a readable floor so the panel doesn't collapse */
-.pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
-  /* chart-geometry */
-  min-height: 14rem;
-  background-image: none;
-}
-
-.pf-container--zero .pf-main-chart-wrapper .pf-value-chart .pf-value-chart__chart-wrapper {
-  /* chart-geometry */
-  min-height: 8rem;
-  opacity: var(--ct-opacity-40);
-}
-
-/* KPI rail in no-data — sober but tight: the rows are placeholders ("—"), so
-   the generous inter-group separators that suit live values become dead air.
-   Tighten the rhythm so the rail reads as a compact key-metrics list, not a
-   stretched ladder. */
-.pf-container--zero .pf-hero-rail-group + .pf-hero-rail-group {
-  margin-top: var(--ct-space-3);
-  padding-top: var(--ct-space-3);
-}
-
-.pf-container--zero .pf-hero-rail-list {
-  gap: var(--ct-space-1_5);
-}
-
-/* Key metrics in preview: label + value on one row (avoids a tall ladder and
-   fixes "—" alignment in the narrow viewport-fit / 2-up sidebar grids). */
-.pf-container--zero .pf-hero-rail-group--metrics .pf-hero-rail-list {
-  gap: var(--ct-space-1);
-}
-
-.pf-container--zero .pf-hero-rail-group--metrics .pf-hero-rail-row {
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
   gap: var(--ct-space-2);
 }
 
-.pf-container--zero .pf-hero-rail-group--metrics .pf-hero-rail-row dt {
-  flex: 1 1 auto;
+/* Zero-state cockpit cohesion — one rhythm across the full bento so sections
+   feel stitched together (less visual conflict between inherited gap rules). */
+.pf-container--zero .pf-cockpit {
+  gap: var(--ct-space-2);
 }
 
-.pf-container--zero .pf-hero-rail-group--metrics .pf-hero-rail-row dd {
-  flex: 0 0 auto;
-  justify-content: flex-end;
+.pf-container--zero .pf-cockpit-row {
+  gap: var(--ct-space-2);
 }
 
-.pf-container--zero .pf-hero-rail-group--metrics .pf-hero-rail-row + .pf-hero-rail-row {
-  padding-top: 0;
-  border-top: none;
-}
-.pf-container--zero .pf-hero-rail-row + .pf-hero-rail-row {
-  padding-top: var(--ct-space-1_5);
+.pf-container--zero .pf-hero-sidebar--zero {
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-3) var(--ct-space-4);
 }
 
-/* A placeholder "—" does not need the live 3xl value scale: that font height is
-   what made each empty row ~70px and the rail ~460px. Drop the no-data KPI
-   value to xl so the rail collapses to a compact key-metrics list. The live
-   (non-zero) rail keeps its 3xl headline scale. */
-.pf-container--zero .pf-hero-kpi-value {
-  font-size: var(--ct-text-lg);
+.pf-container--zero .pf-hero-sidebar--zero .pf-hero-rail-group + .pf-hero-rail-group {
+  margin-top: var(--ct-space-2);
+  padding-top: var(--ct-space-2);
 }
 
-.pf-container--zero .pf-hero-rail-group--metrics .pf-hero-kpi-value {
+.pf-container--zero .pf-hero-sidebar--zero .pf-hero-kpi-value {
   font-size: var(--ct-text-base);
   line-height: var(--ct-leading-snug);
 }
-/* ── No-data 1-col hero: the KPI rail is the height driver ──────────────────
-   When the hero stacks (slot < hero-2col), the no-data rail's three groups
-   (Key metrics / Projected payout / Liquidity) form a ~480px vertical ladder
-   that, stacked under the CTA card, blows past the viewport. Below the 2-col
-   threshold we lay the rail out as a compact 2-column grid so the three
-   placeholder groups read as a tidy metrics block (~half the height) instead of
-   a long column. Above the threshold (true 2-col hero) the rail stays a single
-   vertical column beside the chart — its natural form. */
-@container pf (max-width: 57.99rem) {
-  .pf-container--zero .pf-hero-sidebar {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--ct-space-2) var(--ct-space-3);
-    align-content: start;
-  }
 
-  .pf-container--zero .pf-hero-rail-group {
-    gap: var(--ct-space-1);
-  }
-
-  .pf-container--zero .pf-hero-rail-group + .pf-hero-rail-group {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: none;
-  }
-
-  /* Liquidity (3rd group) spans the full width under the first two. */
-  .pf-container--zero .pf-hero-sidebar .pf-hero-rail-group--liquidity {
-    grid-column: 1 / -1;
-  }
-  .pf-container--zero .pf-hero-rail-list {
-    gap: var(--ct-space-1);
-  }
-
-  .pf-container--zero .pf-hero-rail-row + .pf-hero-rail-row {
-    padding-top: var(--ct-space-1);
-  }
-
-  .pf-container--zero .pf-hero-rail-row dt.pf-inline-row--between {
-    flex-wrap: wrap;
-    row-gap: var(--ct-space-0_5);
-  }
+.pf-container--zero .pf-hero-sidebar--zero .pf-hero-rail-row + .pf-hero-rail-row {
+  padding-top: var(--ct-space-1_5);
 }
 
-/* Very narrow slots (mobile / tablet portrait) — back to a single column so the
-   two-up grid never crushes the labels. */
-@container pf (max-width: 30rem) {
-  .pf-container--zero .pf-hero-sidebar {
-    grid-template-columns: 1fr;
-  }
-  .pf-container--zero .pf-hero-sidebar .pf-hero-rail-group--liquidity {
-    grid-column: auto;
-  }
-}
-
-.pf-container--zero .pf-main-chart-wrapper .pf-value-chart svg,
 .pf-container--zero .cy-donut .dash-chart-svg,
 .pf-container--zero .pf-distrib-chart--compact {
   opacity: var(--ct-opacity-70);
@@ -1486,8 +1391,7 @@
 
 .pf-container--zero .cy-track,
 .pf-container--zero .cy-spine,
-.pf-container--zero .pf-hero-grid,
-.pf-container--zero .pf-hero-sidebar {
+.pf-container--zero .pf-hero-grid {
   /* opacity-mix — no token for color-mix ratios */
   border-color: color-mix(
     in srgb,
@@ -1845,25 +1749,6 @@
     margin-top: var(--ct-space-1_5);
   }
 
-  /* product-doc wrapper + shell must relay height through the flex chain */
-  .product-doc:has(.pf-container--fit) {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    min-height: 0;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  .product-doc:has(.pf-container--fit) > .product-doc-shell {
-    flex: 1 1 auto;
-    min-height: 0;
-    height: 100%;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
   .pf-container--fit {
     flex: 1 1 auto;
     min-height: 0;
@@ -1907,9 +1792,7 @@
   .ct-panels-row:has(.pf-container--fit),
   .ct-center-panel:has(.pf-container--fit),
   .ct-page-area:has(.pf-container--fit),
-  .ct-page-area:has(.pf-container--fit) > main#main-content,
-  .product-doc:has(.pf-container--fit),
-  .product-doc:has(.pf-container--fit) > .product-doc-shell {
+  .ct-page-area:has(.pf-container--fit) > main#main-content {
     height: auto;
     max-height: none;
     overflow: visible;
@@ -2021,35 +1904,18 @@
     min-height: 0;
   }
 
-  /* No-data hero rail in viewport-fit: the three placeholder groups (Key metrics
-     / Projected payout / Liquidity) form a ~435px vertical ladder. The summary
-     row is height-capped (~254px → ~163px sidebar cell), so a 1-col rail clips
-     and shows an internal scrollbar with half the metrics hidden. Lay the three
-     groups as a single 3-column row (placeholders are short — Key metrics is the
-     only multi-line group) so the whole rail fits the capped cell WITHOUT any
-     internal scroll. Live (non-zero) rail keeps its vertical column + scroll. */
-  .pf-container--fit.pf-container--zero .pf-hero-sidebar {
-    overflow-y: visible;
-    display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1fr);
-    gap: var(--ct-space-2) var(--ct-space-4);
-    align-content: start;
-    padding: var(--ct-space-3) var(--ct-space-4);
+  /* P1 FIX — viewport-fit chart floor vs flex cap.
+     The .pf-value-chart min-height ladder (16→20rem) is a SCROLL-MODE floor; in
+     the height-capped summary row (flex:1.28 + cell overflow:hidden) it resists
+     shrinking and clips the disclaimer + 3rd hero rail. Inside the fit gate the
+     chart MUST honour the min-height:0 contract like every other panel; the
+     aspect-ratio backstop (base rule below) keeps the SVG from collapsing to 0. */
+  .pf-cockpit-row--summary .pf-value-chart,
+  .pf-cockpit-row--summary .pf-value-chart [class*="flex-1"],
+  .pf-cockpit-row--summary .pf-value-chart .pf-value-chart__chart-wrapper {
+    min-height: 0;
   }
 
-  .pf-container--fit.pf-container--zero
-    .pf-hero-sidebar
-    .pf-hero-rail-group
-    + .pf-hero-rail-group {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: none;
-  }
-
-  .pf-container--fit.pf-container--zero .pf-hero-rail-row dt.pf-inline-row--between {
-    flex-wrap: wrap;
-    row-gap: var(--ct-space-0_5);
-  }
   /* No-data Capital & Yield in viewport-fit: the ghost donut (up to 12rem) + the
      full placeholder ledger overflow the height-capped mid-row cell and force an
      internal scrollbar. In --zero the donut is a calm placeholder, not a real
