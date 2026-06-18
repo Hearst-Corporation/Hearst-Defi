@@ -334,15 +334,45 @@ describe("POST /api/cockpit-chat — LP nav fallback", () => {
     mockPublishNav.mockResolvedValue(undefined);
   });
 
-  it("falls back to portfolio when LP asks to open portfolio in plain text", async () => {
-    mockMasterAgentTurnWithoutNav();
-
+  it("short-circuits with regex before LLM when LP asks to open portfolio", async () => {
     const res = await POST(makeChatRequest("ouvre mon portefeuille"));
     expect(res.status).toBe(200);
-    await vi.waitFor(() => {
-      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
-        destinationKey: "portfolio",
-      });
+
+    const body = await readStreamText(res);
+    expect(body).toBe("Je vous y emmène.");
+    expect(mockRunChatAgent).not.toHaveBeenCalled();
+    expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+      destinationKey: "portfolio",
+    });
+  });
+});
+
+describe("POST /api/cockpit-chat — admin nav regex shortcut", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    classifyNotProduct();
+    mockGetSession.mockResolvedValue({ role: "admin" } as never);
+    mockRequireAuth.mockResolvedValue({ userId: USER_ID });
+    mockAdminChatModeFindUnique.mockResolvedValue({
+      mode: "normal",
+      userId: USER_ID,
+      updatedAt: new Date(),
+    });
+    mockCockpitChatCreate.mockResolvedValue({ id: "chat-1", userId: USER_ID } as never);
+    mockCockpitMessageCreate.mockResolvedValue({} as never);
+    mockPublishNav.mockResolvedValue(undefined);
+  });
+
+  it("short-circuits user portfolio requests to admin customers without LLM", async () => {
+    const res = await POST(makeChatRequest("ouvre le portefeuille utilisateur"));
+    expect(res.status).toBe(200);
+
+    const body = await readStreamText(res);
+    expect(body).toBe("Je vous y emmène.");
+    expect(mockRunChatAgent).not.toHaveBeenCalled();
+    expect(mockClassify).not.toHaveBeenCalled();
+    expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+      destinationKey: "admin-customers",
     });
   });
 });
@@ -370,7 +400,7 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
       usage: { prompt_tokens: 1000, completion_tokens: 500, total_tokens: 1500 },
     });
 
-    const res = await POST(makeChatRequest("Quel est mon portefeuille ?"));
+    const res = await POST(makeChatRequest("quelle est la structure du vault HYV ?"));
     expect(res.status).toBe(200);
 
     await vi.waitFor(() => {
@@ -456,7 +486,7 @@ describe("POST /api/cockpit-chat — navigate tracing (OBS-02)", () => {
   it("traces a proposed+compliant navigation as published", async () => {
     mockMasterAgentTurn("portfolio", { navProposedKey: "portfolio", navBlocked: false });
 
-    const res = await POST(makeChatRequest("montre mon portefeuille"));
+    const res = await POST(makeChatRequest("quelle est la structure Cayman ?"));
     expect(res.status).toBe(200);
 
     await vi.waitFor(() => {

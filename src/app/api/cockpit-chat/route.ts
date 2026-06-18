@@ -39,7 +39,7 @@ import { distillChatToMemory } from "@/lib/agents/memory-distill";
 import { syncMemoryToHubSpot } from "@/lib/hubspot/sync-memory";
 import { publishNav } from "@/lib/llm/nav-channel";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
-import { resolveNavFallbackDestinationKey } from "@/lib/llm/nav-fallback-intent";
+import { resolveNavFallbackDestinationKey, NAV_SHORTCUT_ACK } from "@/lib/llm/nav-fallback-intent";
 import {
   ADMIN_NAV_DESTINATIONS,
   resolveNavDestinationForProfile,
@@ -540,6 +540,50 @@ async function runMasterAgentTurn(args: {
   ];
 
   const startedAt = Date.now();
+  const scenarioLabNavEnabled = ADMIN_NAV_DESTINATIONS.some(
+    (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
+  );
+
+  // Regex navigation shortcut — BEFORE any LLM call. Fixed ack + publishNav,
+  // same pattern as Product Workspace. Covers LP + admin surfaces (including
+  // admin in normal mode: "portefeuille utilisateur" → /admin/customers).
+  const navShortcutKey = resolveNavFallbackDestinationKey({
+    navProfile,
+    isAdmin,
+    message,
+    scenarioLabDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
+    scenarioLabNavEnabled,
+  });
+  const navShortcutProfile: "lp" | "admin" =
+    navShortcutKey?.startsWith("admin-") === true ? "admin" : "lp";
+  if (
+    navShortcutKey &&
+    resolveNavDestinationForProfile(navShortcutKey, navShortcutProfile)
+  ) {
+    await publishNav(userId, { destinationKey: navShortcutKey }).catch(() => {
+      /* best-effort nav publish */
+    });
+    if (chatId) {
+      void persistence
+        .saveMessage(chatId, {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: NAV_SHORTCUT_ACK,
+          createdAt: Date.now(),
+        })
+        .catch(() => {
+          /* best-effort persistence */
+        });
+    }
+    return new Response(ackStream(NAV_SHORTCUT_ACK), {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+        ...(chatId ? { "x-chat-id": chatId } : {}),
+      },
+    });
+  }
+
   // StreamingChatClient is a deliberately minimal structural contract (a subset
   // of the OpenAI SDK shape, with our own StreamChunk type) so chat-agent stays
   // testable with a fake client. The real `openai` instance satisfies it
@@ -686,18 +730,18 @@ async function runMasterAgentTurn(args: {
         return;
       }
 
-      const scenarioLabNavEnabled = ADMIN_NAV_DESTINATIONS.some(
-        (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
-      );
       const fallbackKey = resolveNavFallbackDestinationKey({
         navProfile,
+        isAdmin,
         message,
         scenarioLabDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
         scenarioLabNavEnabled,
       });
+      const fallbackProfile: "lp" | "admin" =
+        fallbackKey?.startsWith("admin-") === true ? "admin" : "lp";
       if (
         fallbackKey &&
-        resolveNavDestinationForProfile(fallbackKey, navProfile)
+        resolveNavDestinationForProfile(fallbackKey, fallbackProfile)
       ) {
         await publishNav(userId, { destinationKey: fallbackKey });
       }
