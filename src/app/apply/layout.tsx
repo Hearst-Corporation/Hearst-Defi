@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import "../(product)/onboarding/onboarding.css";
+import "../doc-flow.css";
 
 export default function ApplyLayout({
   children,

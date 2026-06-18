@@ -6,9 +6,8 @@
  * suggestions and message field are visual only. Logic (wiring to the Master
  * Agent) is plugged in a follow-up once the layout is validated.
  *
- * Replaces the old Cockpit chat rail (ct-chat-apply) that lived in the shell's
- * right rail — /apply is now a bare route, so this panel carries the assistant
- * affordance on its own.
+ * /apply is a bare route (no Cockpit shell) — this panel carries the assistant
+ * affordance inline beside the qualification funnel.
  */
 
 type Step = "about" | "platform" | "sizing";

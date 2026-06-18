@@ -157,11 +157,19 @@ export function ApplyForm() {
       aside={<ApplyAssistantPanel step={step} />}
       crown={
         <div className="product-doc-stack onboarding-shell__stepper text-left">
+          <WizardStepProgress
+            steps={STEPS}
+            active={step}
+            ariaLabel="Qualification progress"
+            hideLabelsBelow="sm"
+          />
           <div className="product-doc-stack--tight">
-            <span className="eyebrow ct-text-accent">Hearst Connect</span>
+            <p className="eyebrow ct-text-muted m-0">
+              Qualification · Step {stepIndex + 1} of {totalSteps}
+            </p>
             <div className="product-doc-stack--compact">
               <h1 className="h1 m-0 text-pretty">Qualification for institutional access</h1>
-              <p className="body-md ct-text-body m-0 text-pretty ct-prose-lg">
+              <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
                 Three steps to assess fit for Hearst Connect&apos;s institutional
                 USDC yield program. No commitment required.
               </p>
@@ -182,13 +190,6 @@ export function ApplyForm() {
       }
       body={
         <div className="flex w-full flex-col gap-(--ct-space-6)">
-          <WizardStepProgress
-            steps={STEPS}
-            active={step}
-            ariaLabel="Qualification progress"
-            hideLabelsBelow="sm"
-          />
-
           {step === "about" && (
             <div className="flex flex-col gap-(--ct-space-5)">
               <StepHeading
@@ -373,10 +374,6 @@ export function ApplyForm() {
               {error}
             </p>
           ) : null}
-
-          <p className="body-xs ct-text-muted m-0 text-center">
-            Step {stepIndex + 1} of {totalSteps}
-          </p>
         </div>
       }
       sole={

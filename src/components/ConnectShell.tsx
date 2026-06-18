@@ -17,12 +17,10 @@ const CHAT_CONFIG: ChatConfig = {
 export function ConnectShell({
   children,
   enableChat = false,
-  layout = "default",
   masterAgentEnabled,
 }: {
   children: ReactNode;
   enableChat?: boolean;
-  layout?: "default" | "chatOnly";
   masterAgentEnabled?: boolean;
 }) {
   return (
@@ -34,7 +32,6 @@ export function ConnectShell({
           ? { ...CHAT_CONFIG, masterAgentEnabled }
           : undefined
       }
-      shellVariant={layout}
     >
       {children}
     </CockpitShell>
