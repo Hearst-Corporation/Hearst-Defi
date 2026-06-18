@@ -36,7 +36,7 @@
 | `src/components/admin/dashboard/allocation-orbit.tsx` | AllocationOrbit | 1 |
 | `src/components/admin/dashboard/assets-board.tsx` | DashboardAssetsBoard | 2 |
 | `src/components/admin/dashboard/cockpit-panel-header.tsx` | AdminCockpitPanelHeader, AdminLeafLink | 4 |
-| `src/components/admin/dashboard/kpi-strip.tsx` | DashboardKpiStrip | 1 |
+| `src/components/admin/dashboard/kpi-strip.tsx` | DashboardKpiStrip | 2 |
 | `src/components/admin/dashboard/nav-slot.tsx` | NavSlot | 1 |
 | `src/components/admin/dashboard/risk-summary-card.tsx` | DashboardRiskSummaryCard | 1 |
 | `src/components/admin/distribution-preview.tsx` | DistributionPreview | 1 |

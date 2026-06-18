@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { STRATEGY_LABELS } from "@/lib/constants/vault";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
+import { buildVaultsKpiStrip } from "@/lib/admin/vaults-kpi-strip";
 
 import { VaultStatusPill } from "@/components/admin/vault-status-pill";
 
@@ -45,8 +47,9 @@ export default async function VaultsPage({ searchParams }: PageProps) {
   const rawFilter = params["filter"];
   const activeFilter: FilterKey = isFilterKey(rawFilter) ? rawFilter : "all";
 
-  const vaults = await prisma.vaultDeployment.findMany({
-    where: activeFilter === "all" ? {} : { status: activeFilter },
+  // Fetch all vaults (unfiltered) once — filter in JS so KPIs always reflect
+  // the full portfolio regardless of the active tab.
+  const allVaults = await prisma.vaultDeployment.findMany({
     orderBy: { updatedAt: "desc" },
     include: {
       positions: {
@@ -56,10 +59,24 @@ export default async function VaultsPage({ searchParams }: PageProps) {
     },
   });
 
+  const vaults =
+    activeFilter === "all"
+      ? allVaults
+      : allVaults.filter((v) => v.status === activeFilter);
+
+  // Derive KPIs from the full portfolio (not the filtered view).
+  const kpiInputs = allVaults.map((v) => ({
+    aumUsdc: v.positions.reduce((sum, p) => sum + Number(p.principalUsdc), 0),
+    capacityUsdc: Number(v.capacityUsdc),
+    status: v.status,
+  }));
+  const portfolioKpis = buildVaultsKpiStrip(kpiInputs);
+
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Vaults"
+        eyebrow="Vault portfolio"
         description="Review deployment status, capacity usage, target yield ranges, and operator actions across vaults."
         actions={
           <Button variant="primary" asChild size="md">
@@ -67,6 +84,11 @@ export default async function VaultsPage({ searchParams }: PageProps) {
           </Button>
         }
       />
+
+      {/* Portfolio KPI summary — only shown when there are vaults */}
+      {portfolioKpis.length > 0 && (
+        <DashboardKpiStrip kpis={portfolioKpis} />
+      )}
 
       {/* Filter tabs */}
       <div className="admin-doc-inline-row" role="tablist" aria-label="Filter vaults by status">
