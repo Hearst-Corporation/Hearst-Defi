@@ -2678,6 +2678,154 @@
   overflow-wrap: anywhere;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROOF-CENTER COCKPIT — viewport-fit bento hub (product-side).
+   Reuses all the dashboard-cockpit-panel / cell / row chrome (fully neutral).
+   Adds only the fit gate wired to the .product-doc shell chain
+   (dashboard-cockpit's fit gate targets .admin-doc and won't fire here).
+   Below 90rem width OR 52rem height → natural doc scroll.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Base container — column stack; container-query for responsive row grids. */
+.proof-cockpit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  min-width: 0;
+  container-type: inline-size;
+  container-name: proof-board;
+}
+
+/* ── Wide+tall gate: pin product-doc shell, share height, no top-level scroll. ── */
+@media (min-width: 90rem) and (min-height: 52rem) {
+  /* Pin the product-doc shell chain to the viewport. */
+  .ct-panels-row:has(.proof-cockpit--fit) {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .ct-center-panel:has(.proof-cockpit--fit) {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .ct-page-area:has(.proof-cockpit--fit) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    padding-bottom: var(--ct-space-3);
+  }
+
+  .ct-page-area:has(.proof-cockpit--fit) > main#main-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* product-doc wrapper must not block shrinking. */
+  .ct-page-area:has(.proof-cockpit--fit) .product-doc {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* product-doc-shell inside product-doc must also stretch. */
+  .ct-page-area:has(.proof-cockpit--fit) .product-doc-shell {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* proof-cockpit--fit fills the remaining height. */
+  .proof-cockpit--fit {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Rows share height — flex ratios calibrated to content weight. */
+  .proof-cockpit--fit .dashboard-cockpit-row--proof-top  { flex: 1.1 1 0; }
+  .proof-cockpit--fit .dashboard-cockpit-row--proof-bot  { flex: 0.9 1 0; }
+
+  /* Cells clip in the fit gate so inner scroll works. */
+  .proof-cockpit--fit .dashboard-cockpit-cell {
+    overflow: hidden;
+  }
+
+  /* Allow inner panel content to scroll vertically inside each cell. */
+  .proof-cockpit--fit .dashboard-cockpit-cell [class*="overflow-y-auto"],
+  .proof-cockpit--fit .dashboard-cockpit-cell .proof-panel-scroll {
+    overflow-y: auto;
+    min-height: 0;
+    scrollbar-width: thin;
+  }
+}
+
+/* ── Below wide+tall gate: natural scroll. ── */
+@media not all and (min-width: 90rem) and (min-height: 52rem) {
+  .ct-panels-row:has(.proof-cockpit--fit),
+  .ct-center-panel:has(.proof-cockpit--fit),
+  .ct-page-area:has(.proof-cockpit--fit),
+  .ct-page-area:has(.proof-cockpit--fit) > main#main-content {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .proof-cockpit--fit {
+    height: auto;
+    overflow: visible;
+  }
+
+  .proof-cockpit--fit .dashboard-cockpit-row--proof-top,
+  .proof-cockpit--fit .dashboard-cockpit-row--proof-bot {
+    flex: 0 0 auto;
+  }
+}
+
+/* Proof bento rows — 2-column layout above 40rem container width. */
+.dashboard-cockpit-row--proof-top,
+.dashboard-cockpit-row--proof-bot {
+  display: grid;
+  gap: var(--ct-space-2);
+  min-height: 0;
+  min-width: 0;
+  grid-template-columns: 1fr;
+}
+
+@container proof-board (min-width: 40rem) {
+  .dashboard-cockpit-row--proof-top {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+  .dashboard-cockpit-row--proof-bot {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Empty-surface flattening inside proof cockpit panels (mirrors dashboard). */
+.proof-cockpit .ct-empty-surface,
+.proof-cockpit .ct-empty-surface--chart,
+.proof-cockpit .ct-empty-surface--widget {
+  align-items: flex-start;
+  min-height: unset;
+  padding: var(--ct-space-2) 0;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 .ct-surface-0    { background: var(--ct-surface-0); }
 .ct-surface-1    { background: var(--ct-surface-1); }
 .ct-surface-2    { background: var(--ct-surface-2); }

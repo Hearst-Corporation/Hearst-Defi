@@ -35,7 +35,7 @@
 | `src/components/admin/customer/qualification-form.tsx` | QualificationForm | 1 |
 | `src/components/admin/dashboard/allocation-orbit.tsx` | AllocationOrbit | 1 |
 | `src/components/admin/dashboard/assets-board.tsx` | DashboardAssetsBoard | 2 |
-| `src/components/admin/dashboard/cockpit-panel-header.tsx` | AdminCockpitPanelHeader, AdminLeafLink | 2 |
+| `src/components/admin/dashboard/cockpit-panel-header.tsx` | AdminCockpitPanelHeader, AdminLeafLink | 3 |
 | `src/components/admin/dashboard/kpi-strip.tsx` | DashboardKpiStrip | 1 |
 | `src/components/admin/dashboard/nav-slot.tsx` | NavSlot | 1 |
 | `src/components/admin/dashboard/risk-summary-card.tsx` | DashboardRiskSummaryCard | 1 |
@@ -139,14 +139,14 @@
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
 | `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 9 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
-| `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 3 |
+| `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 4 |
 | `src/components/proof-center/custody-panel.tsx` | CustodySection | 1 |
 | `src/components/proof-center/event-timeline.tsx` | EventTimeline | 2 |
 | `src/components/proof-center/mining-cashflow-evidence.tsx` | MiningCashFlowEvidence | 2 |
 | `src/components/proof-center/por-summary.tsx` | PorSummary | 2 |
 | `src/components/proof-center/proof-center-card-header.tsx` | ProofCenterCardHeader | 6 |
 | `src/components/proof-center/proof-center-cold-shell.tsx` | ProofCenterColdShell | 1 |
-| `src/components/proof-center/proof-center-section.tsx` | ProofCenterSection | 2 |
+| `src/components/proof-center/proof-center-section.tsx` | ProofCenterSection | 3 |
 | `src/components/proof-center/rebalance-ptai-modal-trigger.tsx` | RebalancePtaiModalTrigger | 1 |
 | `src/components/proof-center/rebalancing-events-panel.tsx` | RebalancingEventsPanel | 2 |
 | `src/components/proof-center/recent-distributions.tsx` | RecentDistributions | 2 |
@@ -187,7 +187,7 @@
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
 | `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 16 |
-| `src/components/ui/empty-surface.tsx` | EmptySurface | 42 |
+| `src/components/ui/empty-surface.tsx` | EmptySurface | 43 |
 | `src/components/ui/error-boundary.tsx` | ErrorBoundary | 1 |
 | `src/components/ui/metric.tsx` | Metric | 8 |
 | `src/components/ui/modal.tsx` | Modal | 5 |
