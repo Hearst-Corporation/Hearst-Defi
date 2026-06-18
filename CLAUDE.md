@@ -63,6 +63,8 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 - **Portfolio cockpit preview** — voir `docs/DESIGN_SYSTEM.md` §9. Sans position
   active : cockpit complet visible (`previewZeros`) avec `PreviewModeChip` — pas
   de badge `Live`/`Verified` faux. Messages inline optionnels dans le shell.
+  **Le DOM zero-state du hero est FIGÉ — voir `docs/PORTFOLIO_ZERO_CONTRACT.md`
+  avant toute modif (ne pas re-litiger : ghost chart, pas de CTA).**
 - **Phase chantier UI :** spacing, marges, hiérarchie de page, wording, nav et
   layout shell/doc-flow peuvent être itérés directement dans `cockpit.css`,
   `doc-flow.css` et les composants concernés sans étape roadmap/ADR préalable,
