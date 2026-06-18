@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**198 components** · 1 possible orphans · 2 intentionally unwired.
+**199 components** · 1 possible orphans · 2 intentionally unwired.
 
 ## ⚠️ Possible orphans (0 references — verify before keeping)
 
@@ -116,7 +116,7 @@
 | `src/components/portfolio/kpi-row.tsx` | PortfolioKpiRow | 1 |
 | `src/components/portfolio/layout-preview-banner.tsx` | PreviewModeChip | 2 |
 | `src/components/portfolio/lock-meter.tsx` | LockMeter | 4 |
-| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 23 |
+| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 22 |
 | `src/components/portfolio/portfolio-greeting.tsx` | PortfolioGreeting | 2 |
 | `src/components/portfolio/portfolio-leaf-link.tsx` | PortfolioLeafLink | 5 |
 | `src/components/portfolio/portfolio-leaf-shell.tsx` | PortfolioLeafShell | 4 |
@@ -132,6 +132,7 @@
 | `src/components/portfolio/time-to-cash.tsx` | TimeToCash | 4 |
 | `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 2 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 4 |
+| `src/components/portfolio/widget-shell.tsx` | WidgetShell | 4 |
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
 | `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 9 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |

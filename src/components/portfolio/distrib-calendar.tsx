@@ -10,15 +10,13 @@
  * Layout: fixed 560×160 viewBox, bars left→right, labels below each bar.
  */
 
-import {
-  PanelStatus,
-  PfCockpitPanel,
-  PfCockpitPanelHeader,
-} from "@/components/portfolio/pf-cockpit-panel";
+import { cn } from "@/lib/cn";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { resolveWidgetView } from "@/lib/portfolio/view-state";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { formatUsdFull } from "@/lib/vaults/product-display";
+import { WidgetShell } from "@/components/portfolio/widget-shell";
 
 // ── Canonical reference component ─────────────────────────────────────────────
 // All CSS values use --ct-* tokens. SVG geometry (viewBox coordinates, BAR_W,
@@ -388,73 +386,93 @@ export function DistribCalendar({
   // Derive current month period string "YYYY-MM"
   const currentPeriod = `${refYear}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
 
-  const displayEntries = entries;
-  const hasEntries = displayEntries.length > 0;
-  const hasForecast = displayEntries.some((e) => e.paidAt === null);
+  const hasEntries = entries.length > 0;
+  const hasForecast = entries.some((e) => e.paidAt === null);
 
-  const showZeroShell = previewZeros || !hasEntries;
-  const badgeKind = showZeroShell
-    ? undefined
-    : hasEntries && source === "live"
+  // CRITICAL provenance rule — preserved verbatim from original:
+  // In zero mode (previewZeros || !hasEntries), provenance is undefined (no badge).
+  // In live mode with hasEntries: source==="live" → "attested"; otherwise resolveProvenance fallback.
+  // resolveWidgetView nulls provenance in zero mode (honesty contract, CLAUDE.md §2).
+  const liveProvenance =
+    hasEntries && source === "live"
       ? "attested"
       : resolveProvenance(source, updatedAt, "estimated");
+  const view = resolveWidgetView({
+    previewZeros,
+    hasData: hasEntries,
+    provenance: liveProvenance,
+  });
 
-  return (
-    <PfCockpitPanel variant="wide" aria-label="Payout calendar" className="pf-payout-calendar-panel">
-      <PfCockpitPanelHeader
-        title="Payout calendar"
-        subtitle={
-          previewZeros
-            ? "12m forecast · USDC"
-            : `12m · USDC${hasForecast ? " · forecast" : ""}`
-        }
-        provenance={badgeKind}
-        trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
-      />
+  // Footer — share class + cadence. Rendered only when at least one is
+  // known, so an empty widget doesn't show a "— / —" stub.
+  // Rendered in BOTH zero and live modes (not gated on data state).
+  const calendarFooter = (shareClass || cadence) ? (
+    <dl className="pf-calendar-footer">
+      {shareClass ? (
+        <div className="pf-calendar-footer__item">
+          <dt className="stat-label mono">Share class</dt>
+          <dd className="body-sm ct-text-body mono tabular">
+            Series {shareClass}
+          </dd>
+        </div>
+      ) : null}
+      {cadence ? (
+        <div className="pf-calendar-footer__item">
+          <dt className="stat-label mono">Cadence</dt>
+          <dd className="body-sm ct-text-body mono tabular">{cadence}</dd>
+        </div>
+      ) : null}
+    </dl>
+  ) : null;
 
+  // zeroSlot: compact bar chart + footer
+  const zeroSlot = (
+    <>
       <div className="pf-distrib-chart-shell">
         <BarChart
-          entries={displayEntries}
+          entries={entries}
           refYear={refYear}
           currentPeriod={currentPeriod}
-          compactPreview={previewZeros}
+          compactPreview
         />
       </div>
+      {calendarFooter}
+    </>
+  );
 
-      {previewZeros ? (
-        <PanelStatus
-          role="note"
-          message="No payout history yet · $0 forecast"
-          detail="Current period marked"
+  // liveContent: full bar chart + footer
+  const liveContent = (
+    <>
+      <div className="pf-distrib-chart-shell">
+        <BarChart
+          entries={entries}
+          refYear={refYear}
+          currentPeriod={currentPeriod}
         />
-      ) : null}
+      </div>
+      {calendarFooter}
+    </>
+  );
 
-      {/* Footer — share class + cadence. Rendered only when at least one is
-          known, so an empty widget doesn't show a "— / —" stub. */}
-      {(shareClass || cadence) && (
-        <dl className="flex flex-wrap gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-1)] border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-2)] mt-auto">
-          {shareClass ? (
-            <div className="pf-stack--compact min-w-0">
-              <dt className="stat-label mono">
-                Share class
-              </dt>
-              <dd className="body-sm ct-text-body mono tabular">
-                Series {shareClass}
-              </dd>
-            </div>
-          ) : null}
-          {cadence ? (
-            <div className="pf-stack--compact min-w-0">
-              <dt className="stat-label mono">
-                Cadence
-              </dt>
-              <dd className="body-sm ct-text-body mono tabular">
-                {cadence}
-              </dd>
-            </div>
-          ) : null}
-        </dl>
+  return (
+    <WidgetShell
+      variant="wide"
+      ariaLabel="Payout calendar"
+      title="Payout calendar"
+      subtitle={
+        previewZeros
+          ? "12m forecast"
+          : `12m · USDC${hasForecast ? " · forecast" : ""}`
+      }
+      view={view}
+      trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
+      zeroSlot={zeroSlot}
+      className={cn(
+        "pf-payout-calendar-panel",
+        view.mode === "zero" && "pf-payout-calendar-panel--zero",
       )}
-    </PfCockpitPanel>
+    >
+      {liveContent}
+    </WidgetShell>
   );
 }

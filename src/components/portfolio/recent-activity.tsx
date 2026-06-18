@@ -1,13 +1,11 @@
-import {
-  PanelStatus,
-  PfCockpitPanel,
-  PfCockpitPanelHeader,
-} from "@/components/portfolio/pf-cockpit-panel";
+import { PanelStatus } from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { resolveWidgetView } from "@/lib/portfolio/view-state";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { relativeTime } from "@/lib/format/time";
+import { WidgetShell } from "@/components/portfolio/widget-shell";
 
 const usdFmt = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -61,64 +59,70 @@ export function RecentActivity({
   previewZeros = false,
   leafHref,
 }: RecentActivityProps) {
-  const displayed = transactions.slice(0, 5);
-  const isEmpty = displayed.length === 0;
-  const showZeroShell = previewZeros || isEmpty;
-  const provenance = showZeroShell
-    ? undefined
-    : resolveProvenance(source, updatedAt);
+  const displayed = previewZeros ? [] : transactions.slice(0, 5);
+  const view = resolveWidgetView({
+    previewZeros,
+    hasData: displayed.length > 0,
+    provenance: resolveProvenance(source, updatedAt),
+  });
   // Server-rendered timestamp keeps relative labels current without client JS.
   const asOf = new Date();
 
-  return (
-    <PfCockpitPanel variant="wide" aria-label="Recent account activity" className="h-full">
-      <PfCockpitPanelHeader
-        title="Recent activity"
-        provenance={provenance}
-        trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
+  const trailing = leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined;
+
+  const zeroSlot = (
+    <div className="pf-recent-activity-list">
+      <PanelStatus
+        className="pf-recent-activity-empty"
+        message={previewZeros ? "No activity yet" : "No transactions yet"}
+        detail={
+          previewZeros
+            ? "Deposits, payouts and withdrawals will appear here."
+            : "Deposits and payouts will appear here."
+        }
       />
+    </div>
+  );
 
-      <div className="pf-recent-activity-list flex-1">
-          {displayed.length === 0 ? (
-            <PanelStatus
-              className="pf-recent-activity-empty"
-              message={
-                previewZeros ? "No activity yet" : "No transactions yet"
-              }
-              detail={
-                previewZeros
-                  ? "Deposits, payouts and withdrawals will appear here."
-                  : "Deposits and payouts will appear here."
-              }
-            />
-          ) : null}
-          {displayed.map((tx) => (
-            <div
-              key={tx.id}
-              className="pf-recent-activity-row"
-            >
-              <TxIcon type={tx.type} />
+  const liveContent = (
+    <div className="pf-recent-activity-list flex-1">
+      {displayed.map((tx) => (
+        <div key={tx.id} className="pf-recent-activity-row">
+          <TxIcon type={tx.type} />
 
-              <div className="pf-recent-activity-row__main">
-                <div className="body-sm ct-text-primary font-semibold truncate whitespace-nowrap">
-                  {TYPE_LABELS[tx.type] ?? tx.type}
-                  {tx.positionVaultName && (
-                    <span className="ct-text-muted font-normal">
-                      {" "}· {tx.positionVaultName}
-                    </span>
-                  )}
-                </div>
-                <div className="pf-recent-activity-row__time stat-label ct-text-muted mono truncate">
-                  {relativeTime(tx.occurredAt, asOf)}
-                </div>
-              </div>
-
-              <span className="tabular body-md ct-text-strong mono font-semibold shrink-0 whitespace-nowrap">
-                {usdFmt.format(tx.amountUsdc)}
-              </span>
+          <div className="pf-recent-activity-row__main">
+            <div className="body-sm ct-text-primary font-semibold truncate whitespace-nowrap">
+              {TYPE_LABELS[tx.type] ?? tx.type}
+              {tx.positionVaultName && (
+                <span className="ct-text-muted font-normal">
+                  {" "}· {tx.positionVaultName}
+                </span>
+              )}
             </div>
-          ))}
-      </div>
-    </PfCockpitPanel>
+            <div className="pf-recent-activity-row__time stat-label ct-text-muted mono truncate">
+              {relativeTime(tx.occurredAt, asOf)}
+            </div>
+          </div>
+
+          <span className="tabular body-md ct-text-strong mono font-semibold shrink-0 whitespace-nowrap">
+            {usdFmt.format(tx.amountUsdc)}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <WidgetShell
+      variant="wide"
+      ariaLabel="Recent account activity"
+      title="Recent activity"
+      view={view}
+      trailing={trailing}
+      zeroSlot={zeroSlot}
+      className="h-full"
+    >
+      {liveContent}
+    </WidgetShell>
   );
 }
