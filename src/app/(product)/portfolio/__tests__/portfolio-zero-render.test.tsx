@@ -46,13 +46,15 @@ describe("Portfolio no-scroll dashboard — top-level contract", () => {
     expect(portfolioPage).not.toContain('data-section="hero-pulse"');
   });
 
-  it("honesty at zero-position: preview wiring from shared loader, not fabricated live", () => {
+  it("honesty at zero-position: no fake rails, CTA wiring via previewZeros gate", () => {
     expect(portfolioPage).toContain('previewZeros && "pf-container--zero"');
+    // Yield stack + distributions still use zero-shells (compact empty, not fake data)
     expect(portfolioPage).toContain("ZERO_YIELD_STACK");
     expect(portfolioPage).toContain("zeroProofPulseProps");
-    expect(portfolioPage).toContain("zeroTimeToCashProps");
-    expect(portfolioPage).toContain("zeroLockMeterProps");
     expect(portfolioPage).toContain("buildZeroDistribEntries");
+    // Payout + liquidity rails are hidden entirely in previewZeros (not zero-shelled)
+    expect(portfolioPage).not.toContain("zeroTimeToCashProps");
+    expect(portfolioPage).not.toContain("zeroLockMeterProps");
     expect(portfolioPage).not.toContain("PortfolioTeaserTile");
   });
 });

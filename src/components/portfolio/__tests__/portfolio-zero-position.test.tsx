@@ -87,7 +87,7 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     expect(html).not.toContain("ct-empty-surface--widget");
   });
 
-  it("ValueChart previewZeros: no green preview chart line", () => {
+  it("ValueChart previewZeros: renders onboarding CTA (no chart SVG)", () => {
     const html = renderToStaticMarkup(
       <SectionEmbedProvider>
         <ValueChart
@@ -98,35 +98,13 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
         />
       </SectionEmbedProvider>,
     );
-    expect(html).not.toContain("<svg");
-    expect(html).toContain("No portfolio value recorded yet");
-    expect(html).toContain("Indicative 12-month path");
-  });
-
-  it("ValueChart previewZeros + nextAction: embeds get-started CTA inside chart panel", () => {
-    const html = renderToStaticMarkup(
-      <SectionEmbedProvider>
-        <ValueChart
-          positions={[]}
-          totalValueUsdc={0}
-          source="fallback"
-          previewZeros
-          nextAction={{
-            kycStatus: "pending",
-            accreditationAttested: false,
-            hasWallet: false,
-            positionCount: 0,
-          }}
-        />
-      </SectionEmbedProvider>,
-    );
+    expect(html).not.toContain("<polyline");
+    expect(html).not.toContain("No active positions yet");
     expect(html).toContain("Get started");
-    expect(html).toContain("Confirm your eligibility");
-    expect(html).toContain("Start onboarding");
-    expect(html).toContain("/onboarding/accreditation");
-    expect(html).not.toMatch(/<h3[^>]*>Portfolio value<\/h3>/);
-    expect(html).not.toContain("No portfolio value recorded yet");
-    expect(html).not.toContain("<svg");
+    expect(html).toContain("Subscribe to Hearst Yield Vault");
+    expect(html).toContain("8–15%");
+    expect(html).toContain("$250k");
+    expect(html).toContain("href=\"/vaults\"");
   });
 
   it("LockMeter previewZeros: progress bar at 0%, not awaiting surface", () => {
@@ -167,18 +145,18 @@ describe("Portfolio zero-position — layout preview (DS §9.3 tiers)", () => {
     expect(html).not.toContain("ct-nested-panel pf-risk-composite");
   });
 
-  it("PositionsList previewZeros: table header + clear empty row, no ghost dashes", () => {
+  it("PositionsList previewZeros: no table header, empty message + vaults link", () => {
     const html = renderToStaticMarkup(
       <PositionsList positions={[]} source="fallback" previewZeros />,
     );
-    expect(html).toContain("Principal");
-    expect(html).toContain("APY range");
+    expect(html).not.toContain("Principal");
+    expect(html).not.toContain("APY range");
     expect(html).toContain('role="status"');
-    expect(html).toContain("No open positions yet");
-    expect(html).toContain("Your first confirmed deposit will appear here.");
+    expect(html).toContain("No active positions yet");
+    expect(html).toContain("href=\"/vaults\"");
+    expect(html).toContain("Explore available vaults");
     expect(html).toContain("pf-positions-empty-row");
     expect(html).not.toContain("pf-status-dot");
-    expect(html).not.toContain('aria-hidden="true"');
   });
 
   it("YieldStack previewZeros: bar shell without fake APY strings", () => {

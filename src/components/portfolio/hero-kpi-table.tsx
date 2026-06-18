@@ -58,8 +58,18 @@ export function HeroKpiTable({
   const yieldProvenance = metricProvenance(showZeroShell, source, updatedAt, "estimated");
   const distProvenance = metricProvenance(showZeroShell, source, updatedAt, "estimated");
 
+  if (previewZeros) {
+    return (
+      <HeroRailGroup title="Portfolio metrics" aria-label="Portfolio metrics" slot="metrics">
+        <p className="body-xs ct-text-muted m-0">
+          No position yet — metrics appear after your first confirmed deposit.
+        </p>
+      </HeroRailGroup>
+    );
+  }
+
   return (
-    <HeroRailGroup title="Key metrics" aria-label="Key metrics summary">
+    <HeroRailGroup title="Key metrics" aria-label="Key metrics summary" slot="metrics">
       <dl className="pf-hero-rail-list">
         <div className="pf-hero-rail-row">
           <dt
@@ -75,13 +85,9 @@ export function HeroKpiTable({
           </dt>
           <dd className="pf-hero-rail-value m-0">
             <span className="pf-hero-kpi-value tabular-nums">
-              {showValues && !previewZeros
-                ? fmt.format(totalValueUsdc)
-                : "—"}
+              {fmt.format(totalValueUsdc)}
             </span>
-            {showValues && !previewZeros ? (
-              <span className="pf-kpi-unit">USDC</span>
-            ) : null}
+            <span className="pf-kpi-unit">USDC</span>
           </dd>
         </div>
 
@@ -99,13 +105,9 @@ export function HeroKpiTable({
           </dt>
           <dd className="pf-hero-rail-value m-0">
             <span className="pf-hero-kpi-value tabular-nums">
-              {showValues && !previewZeros
-                ? formatUsdCompact(totalYieldYtdUsdc)
-                : "—"}
+              {formatUsdCompact(totalYieldYtdUsdc)}
             </span>
-            {showValues && !previewZeros ? (
-              <span className="pf-kpi-unit">USDC</span>
-            ) : null}
+            <span className="pf-kpi-unit">USDC</span>
           </dd>
         </div>
 
@@ -128,9 +130,7 @@ export function HeroKpiTable({
             )}
           >
             <span className="pf-hero-kpi-value tabular-nums">
-              {showValues && !previewZeros
-                ? monthDayFmt.format(nextDistributionAt)
-                : "—"}
+              {monthDayFmt.format(nextDistributionAt)}
             </span>
             {hasPositions && diffDays > 0 ? (
               <span className="pf-chip-accent shrink-0">{diffDays}d left</span>

@@ -140,13 +140,48 @@ export function TrustProofCompact({
   leafHref,
   ...props
 }: TrustPanelProps) {
+  const { previewZeros = false } = props;
   const kpis = deriveTrustSummaryKpis(props);
+
+  if (previewZeros) {
+    return (
+      <PfCockpitPanel
+        variant="compact"
+        aria-label="Trust and proof summary"
+        className="pf-trust-compact"
+      >
+        <PfCockpitPanelHeader title="Trust & proof" />
+        <div className="pf-stack pf-stack--compact" style={{ flex: 1 }}>
+          <span
+            className="stat-label ct-text-muted"
+            style={{ display: "inline-flex", alignItems: "center", gap: "var(--ct-space-1_5)" }}
+          >
+            <span
+              className="pf-status-dot pf-status-dot--active"
+              aria-hidden
+              style={{ opacity: "var(--ct-opacity-70)" }}
+            />
+            Proof system active
+          </span>
+          <p className="body-xs ct-text-faint m-0">
+            On-chain attestation and risk snapshots will appear here once a position is confirmed.
+          </p>
+        </div>
+        <Link
+          href="/proof-center"
+          className="pf-trust-compact__see-more body-xs ct-text-muted hover:ct-text-primary transition-colors underline underline-offset-2 decoration-[var(--ct-border-soft)] mt-auto self-end"
+        >
+          Open proof center →
+        </Link>
+      </PfCockpitPanel>
+    );
+  }
 
   return (
     <PfCockpitPanel
       variant="compact"
       aria-label="Trust and proof summary"
-      className="pf-trust-compact h-full"
+      className="pf-trust-compact"
     >
       <PfCockpitPanelHeader
         title="Trust & proof"

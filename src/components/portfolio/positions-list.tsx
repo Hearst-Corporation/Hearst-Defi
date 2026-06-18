@@ -71,35 +71,37 @@ export function PositionsList({
 
       <div className="pf-positions-scroll-wrap">
         <div className={cn("pf-positions-table", showZeroShell && "pf-positions-table--zero")}>
-          {/* Header row */}
-          <div className={cn("stat-label", "pf-positions-row-grid", "pf-positions-row-grid--header")}>
-            <div className="pf-position-vault-cell pf-position-vault-cell--header whitespace-nowrap">
-              Vault
+          {/* Header row — hidden in zero/preview state (no table to head) */}
+          {!showZeroShell ? (
+            <div className={cn("stat-label", "pf-positions-row-grid", "pf-positions-row-grid--header")}>
+              <div className="pf-position-vault-cell pf-position-vault-cell--header pf-positions-cell--header">
+                Vault
+              </div>
+              <div className="pf-positions-cell--right">Principal</div>
+              <div className="pf-positions-cell--right">Value</div>
+              <div className="pf-positions-cell--right">APY range</div>
+              <div className="pf-positions-cell--right">Since</div>
             </div>
-            <div className="text-right whitespace-nowrap">Principal</div>
-            <div className="text-right whitespace-nowrap">Value</div>
-            <div className="text-right whitespace-nowrap">APY range</div>
-            <div className="text-right whitespace-nowrap">Since</div>
-          </div>
+          ) : null}
 
           {showZeroShell ? (
             <div className={cn("pf-positions-row-grid", "pf-positions-row-grid--empty")}>
               <div className="pf-positions-empty-cell">
-                <EmptySurface
-                  variant="inline"
-                  className="pf-positions-empty-row"
-                  message={
-                    previewZeros
-                      ? "No open positions yet"
-                      : "No active positions yet"
-                  }
-                  detail={
-                    previewZeros
-                      ? "Your first confirmed deposit will appear here."
-                      : "Your first deposit will appear here once confirmed on-chain."
-                  }
-                  role="status"
-                />
+                <div className="pf-positions-empty-row">
+                  <EmptySurface
+                    variant="inline"
+                    message="No active positions yet"
+                    detail="Your first deposit will appear here once confirmed on-chain."
+                    role="status"
+                  />
+                  <Link
+                    href="/vaults"
+                    className="body-xs ct-text-accent underline underline-offset-2 decoration-[var(--ct-border-soft)] hover:decoration-[var(--ct-accent)] transition-colors"
+                    style={{ marginTop: "var(--ct-space-1_5)" }}
+                  >
+                    Explore available vaults →
+                  </Link>
+                </div>
               </div>
             </div>
           ) : null}
@@ -128,17 +130,17 @@ export function PositionsList({
               </div>
 
               {/* Principal */}
-              <div className="tabular body-md text-right ct-text-body whitespace-nowrap">
+              <div className="tabular body-md pf-positions-cell--right ct-text-body">
                 {formatUsdCompact(p.principalUsdc)}
               </div>
 
               {/* Current value */}
-              <div className="tabular body-md ct-text-strong font-semibold text-right whitespace-nowrap">
+              <div className="tabular body-md ct-text-strong font-semibold pf-positions-cell--right">
                 {formatUsdCompact(p.valueUsdc)}
               </div>
 
               {/* APY range — non-negotiable #1 */}
-              <div className="text-right whitespace-nowrap">
+              <div className="pf-positions-cell--right">
                 {p.apyLow !== null && p.apyHigh !== null ? (
                   <ApyRange
                     low={p.apyLow}
@@ -152,7 +154,7 @@ export function PositionsList({
               </div>
 
               {/* Subscribed date */}
-              <div className="body-xs tabular ct-text-muted text-right whitespace-nowrap">
+              <div className="body-xs tabular ct-text-muted pf-positions-cell--right">
                 {dateFmt.format(p.subscribedAt)}
               </div>
             </div>

@@ -175,7 +175,7 @@
 | `src/components/ui/apy-range.tsx` | ApyRange | 17 |
 | `src/components/ui/awaiting-metric-state.tsx` | AwaitingMetricState | 13 |
 | `src/components/ui/badge.tsx` | Badge | 51 |
-| `src/components/ui/button.tsx` | Button | 81 |
+| `src/components/ui/button.tsx` | Button | 82 |
 | `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 73 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |

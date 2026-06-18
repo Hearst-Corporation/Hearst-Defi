@@ -2,10 +2,6 @@ import "./portfolio.css";
 
 import { loadPortfolioView } from "@/lib/data/portfolio-view";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
-import {
-  NextActionCard,
-  shouldShowNextActionCard,
-} from "@/components/portfolio/next-action-card";
 import { ValueChart } from "@/components/portfolio/value-chart";
 import { PositionsList } from "@/components/portfolio/positions-list";
 import { CapitalYield } from "@/components/portfolio/capital-yield";
@@ -18,8 +14,6 @@ import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
 import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
 import {
-  zeroLockMeterProps,
-  zeroTimeToCashProps,
   ZERO_YIELD_STACK,
   buildZeroDistribEntries,
   zeroProofPulseProps,
@@ -66,7 +60,6 @@ export default async function PortfolioPage() {
     riskPulseProps,
     proofPulseProps,
     showDemoBanner,
-    actionFlags,
   } = await loadPortfolioView();
 
   return (
@@ -87,10 +80,6 @@ export default async function PortfolioPage() {
 
       <PortfolioGreeting name={displayName(investor)} data={data} />
 
-      {shouldShowNextActionCard(actionFlags) && !previewZeros ? (
-        <NextActionCard {...actionFlags} />
-      ) : null}
-
       {/* ── COCKPIT BENTO — no top-level scroll: every panel shares the viewport
           height. The four leaf pages (Positions / Yield+allocation /
           Distributions / Activity+trust) are composed as panels that FIT the
@@ -107,7 +96,6 @@ export default async function PortfolioPage() {
                 source={data.source}
                 updatedAt={data.updatedAt}
                 previewZeros={previewZeros}
-                nextAction={previewZeros ? actionFlags : undefined}
               />
             </div>
             <aside className="pf-hero-sidebar">
@@ -120,14 +108,18 @@ export default async function PortfolioPage() {
                 updatedAt={data.updatedAt}
                 previewZeros={previewZeros}
               />
-              <HeroPayoutRail
-                {...(previewZeros ? zeroTimeToCashProps(previewAsOf) : timeToCashProps)}
-                previewZeros={previewZeros}
-              />
-              <HeroLiquidityRail
-                {...(previewZeros ? zeroLockMeterProps(previewAsOf) : lockMeterProps)}
-                previewZeros={previewZeros}
-              />
+              {!previewZeros && (
+                <>
+                  <HeroPayoutRail
+                    {...timeToCashProps}
+                    previewZeros={false}
+                  />
+                  <HeroLiquidityRail
+                    {...lockMeterProps}
+                    previewZeros={false}
+                  />
+                </>
+              )}
             </aside>
           </div>
         </div>
