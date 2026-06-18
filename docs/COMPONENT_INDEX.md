@@ -173,7 +173,7 @@
 | `src/components/simulation/simulation-panel.tsx` | SimulationPanel | 1 |
 | `src/components/ui/apy-range.tsx` | ApyRange | 17 |
 | `src/components/ui/awaiting-metric-state.tsx` | AwaitingMetricState | 13 |
-| `src/components/ui/badge.tsx` | Badge | 51 |
+| `src/components/ui/badge.tsx` | Badge | 52 |
 | `src/components/ui/button.tsx` | Button | 80 |
 | `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 73 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
@@ -192,7 +192,7 @@
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 3 |
 | `src/components/ui/progress.tsx` | Progress | 14 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 54 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 55 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/section-embed.tsx` | SectionEmbedProvider | 1 |

@@ -52,6 +52,8 @@ export default async function PortfolioPage() {
     hasPositions,
     previewZeros,
     previewAsOf,
+    state,
+    heroWidgets,
     lockMeterProps,
     timeToCashProps,
     yieldStackProps,
@@ -71,6 +73,7 @@ export default async function PortfolioPage() {
       )}
       data-testid="portfolio-page"
       data-portfolio-hub="true"
+      data-pf-state={state.kind}
     >
       {demo ? (
         <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} />
@@ -86,7 +89,6 @@ export default async function PortfolioPage() {
           screen, not stack-and-scroll. Long panels (positions table) scroll
           inside their own cell only. ── */}
       <div className="pf-cockpit">
-        {/* Row 1 — portfolio value + key metrics (welded summary) */}
         <div className="pf-cockpit-row pf-cockpit-row--summary">
           <div className="pf-hero-grid pf-cockpit-cell">
             <div className="pf-main-chart-wrapper">
@@ -96,9 +98,10 @@ export default async function PortfolioPage() {
                 source={data.source}
                 updatedAt={data.updatedAt}
                 previewZeros={previewZeros}
+                mode={heroWidgets.value.mode}
               />
             </div>
-            <aside className="pf-hero-sidebar">
+            <aside className={cn("pf-hero-sidebar", previewZeros && "pf-hero-sidebar--zero")}>
               <HeroKpiTable
                 totalValueUsdc={data.totalValueUsdc}
                 totalYieldYtdUsdc={data.totalYieldYtdUsdc}
@@ -107,19 +110,10 @@ export default async function PortfolioPage() {
                 source={data.source}
                 updatedAt={data.updatedAt}
                 previewZeros={previewZeros}
+                mode={heroWidgets.metrics.mode}
               />
-              {!previewZeros && (
-                <>
-                  <HeroPayoutRail
-                    {...timeToCashProps}
-                    previewZeros={false}
-                  />
-                  <HeroLiquidityRail
-                    {...lockMeterProps}
-                    previewZeros={false}
-                  />
-                </>
-              )}
+              <HeroPayoutRail {...timeToCashProps} previewZeros={previewZeros} />
+              <HeroLiquidityRail {...lockMeterProps} previewZeros={previewZeros} />
             </aside>
           </div>
         </div>
@@ -161,13 +155,11 @@ export default async function PortfolioPage() {
             <DistribCalendar
               {...distribCalendarProps}
               entries={
-                previewZeros && distribCalendarProps.entries.length === 0
+                previewZeros
                   ? buildZeroDistribEntries(previewAsOf.getUTCFullYear())
                   : distribCalendarProps.entries
               }
-              previewZeros={
-                previewZeros && distribCalendarProps.entries.length === 0
-              }
+              previewZeros={previewZeros}
               leafHref="/portfolio/distributions"
             />
           </div>

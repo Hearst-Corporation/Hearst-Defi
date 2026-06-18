@@ -2,6 +2,7 @@ import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-bad
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { cn } from "@/lib/cn";
+import type { WidgetMode } from "@/lib/portfolio/view-state";
 
 import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
 
@@ -13,6 +14,8 @@ export interface HeroKpiTableProps {
   source: "live" | "fallback";
   updatedAt?: Date;
   previewZeros?: boolean;
+  /** Loader-resolved mode (authoritative). Falls back to previewZeros/hasPositions. */
+  mode?: WidgetMode;
 }
 
 function metricProvenance(
@@ -33,6 +36,7 @@ export function HeroKpiTable({
   source,
   updatedAt,
   previewZeros = false,
+  mode,
 }: HeroKpiTableProps) {
   const fmt = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -52,13 +56,14 @@ export function HeroKpiTable({
       (1000 * 60 * 60 * 24),
   );
 
-  const showZeroShell = previewZeros || !hasPositions;
-  const showValues = hasPositions || previewZeros;
-  const valueProvenance = metricProvenance(showZeroShell, source, updatedAt, "live");
-  const yieldProvenance = metricProvenance(showZeroShell, source, updatedAt, "estimated");
-  const distProvenance = metricProvenance(showZeroShell, source, updatedAt, "estimated");
+  // Authoritative mode from the loader (Architecture A); falls back to the
+  // local previewZeros/hasPositions derivation for non-page call sites.
+  const isZero = mode ? mode === "zero" : previewZeros || !hasPositions;
+  const valueProvenance = metricProvenance(isZero, source, updatedAt, "live");
+  const yieldProvenance = metricProvenance(isZero, source, updatedAt, "estimated");
+  const distProvenance = metricProvenance(isZero, source, updatedAt, "estimated");
 
-  if (previewZeros) {
+  if (isZero) {
     return (
       <HeroRailGroup title="Portfolio metrics" aria-label="Portfolio metrics" slot="metrics">
         <p className="body-xs ct-text-muted m-0">

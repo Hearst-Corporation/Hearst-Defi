@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { type Provenance } from "@/components/ui/provenance-badge";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
@@ -7,10 +5,10 @@ import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
-import { Button } from "@/components/ui/button";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import type { WidgetMode } from "@/lib/portfolio/view-state";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -177,6 +175,8 @@ interface ValueChartProps {
   updatedAt?: Date;
   /** Render full chart shell with a flat $0 series (layout preview, no position). */
   previewZeros?: boolean;
+  /** Loader-resolved mode (authoritative). Falls back to previewZeros/isEmpty. */
+  mode?: WidgetMode;
 }
 
 export function ValueChart({
@@ -185,62 +185,51 @@ export function ValueChart({
   source,
   updatedAt,
   previewZeros = false,
+  mode,
 }: ValueChartProps) {
   const asOf = new Date(); // rendered server-side; consistent within a request
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
-  const showZeroShell = previewZeros || isEmpty;
+  const showZeroShell = mode ? mode === "zero" : previewZeros || isEmpty;
   const provenance: Provenance | undefined = showZeroShell
     ? undefined
     : resolveProvenance(source, updatedAt, "estimated");
   const chartValue = showZeroShell ? 0 : totalValueUsdc;
-  const series = showZeroShell
-    ? []
-    : buildMonthSeries(positions, totalValueUsdc, asOf);
+  const series = buildMonthSeries(positions, totalValueUsdc, asOf);
 
   if (showZeroShell) {
     return (
       <PfCockpitPanel
         variant="wide"
-        aria-label="Get started — subscribe to Hearst Yield Vault"
-        className="relative pf-value-chart pf-value-chart--cta-only"
+        aria-label="Portfolio value — awaiting first position"
+        className="relative pf-value-chart"
       >
-        <div className="pf-value-chart__next-action">
-          <div className="pf-next-action-card__layout">
-            <div className="pf-next-action-card__copy">
-              <p className="stat-label ct-text-muted m-0">Get started</p>
-              <p className="pf-cockpit-panel__title--primary m-0">
-                Subscribe to Hearst Yield Vault
-              </p>
-              <p className="body-xs ct-text-muted m-0">
-                Target private-credit yield with eligibility-first onboarding.
-              </p>
-              <dl className="pf-kpi-grid" style={{ marginTop: "var(--ct-space-3)" }}>
-                <div className="pf-trust-compact-kpi">
-                  <dt className="stat-label">Target APY</dt>
-                  <dd className="pf-hero-kpi-value tabular-nums m-0">8–15%</dd>
-                </div>
-                <div className="pf-trust-compact-kpi">
-                  <dt className="stat-label">Min ticket</dt>
-                  <dd className="pf-hero-kpi-value tabular-nums m-0">$250k</dd>
-                </div>
-                <div className="pf-trust-compact-kpi">
-                  <dt className="stat-label">Lock-up</dt>
-                  <dd className="pf-hero-kpi-value tabular-nums m-0">60 days</dd>
-                </div>
-              </dl>
-            </div>
-            <div className="pf-next-action-card__cta">
-              <Button
-                asChild
-                variant="primary"
-                size="md"
-                className="pf-next-action-card__button"
-              >
-                <Link href="/vaults">Subscribe to Hearst Yield Vault</Link>
-              </Button>
-            </div>
-          </div>
+        <PfCockpitPanelHeader
+          title="Portfolio value"
+          subtitle="Awaiting first position"
+          titleVariant="primary"
+          trailing={
+            <span className="pf-hero-kpi-value tabular-nums ct-text-muted">
+              {formatUsdCompact(chartValue)}
+            </span>
+          }
+        />
+
+        <div className="pf-value-chart__chart-wrapper">
+          <ChartDisclaimerUnderlay />
+          <AreaChart series={series} muted />
         </div>
+
+        <div className="stat-label ct-text-muted flex justify-between mono pf-value-chart__month-labels">
+          {series
+            .filter((_, i) => i % 3 === 0 || i === series.length - 1)
+            .map((s, i) => (
+              <span key={i}>{s.label}</span>
+            ))}
+        </div>
+
+        <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
+          Placeholder chart until your first confirmed position.
+        </p>
       </PfCockpitPanel>
     );
   }

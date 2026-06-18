@@ -15,6 +15,11 @@ import {
 import { isDemoInvestor } from "@/lib/demo/provider";
 import { buildDemoPortfolio } from "@/lib/demo/builders";
 import { isLayoutPreview } from "@/lib/portfolio/layout-preview";
+import {
+  resolvePortfolioViewState,
+  resolveWidgetView,
+  type WidgetView,
+} from "@/lib/portfolio/view-state";
 import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
 
 /**
@@ -85,6 +90,28 @@ export async function loadPortfolioView() {
     ? "preview"
     : "active";
 
+  // ── Single source of truth for preview/live (Architecture A) ───────────────
+  // The page-level discriminant + the hero widgets' {mode, provenance} resolved
+  // ONCE here, so the hero (the surface that flip-flopped) no longer re-derives
+  // `showZeroShell`. `mode` encodes both the preview gate and the widget's own
+  // honest-empty check; provenance keeps the widget's existing resolved badge.
+  // Data widgets (positions / activity / distributions / capital-yield / risk /
+  // proof) keep their internal honest-empty logic for now — their provenance
+  // rules are widget-specific and migrate under the Phase 3 WidgetShell.
+  const state = resolvePortfolioViewState(previewZeros);
+  const heroWidgets: { value: WidgetView; metrics: WidgetView } = {
+    value: resolveWidgetView({
+      previewZeros,
+      hasData: data.totalValueUsdc > 0 || data.positions.length > 0,
+      provenance: resolveProvenance(data.source, data.updatedAt, "estimated"),
+    }),
+    metrics: resolveWidgetView({
+      previewZeros,
+      hasData: hasPositions,
+      provenance: portfolioProvenance,
+    }),
+  };
+
   return {
     investor,
     demo,
@@ -92,6 +119,8 @@ export async function loadPortfolioView() {
     hasPositions,
     previewZeros,
     previewAsOf,
+    state,
+    heroWidgets,
     lockMeterProps,
     timeToCashProps,
     riskPulseProps,
