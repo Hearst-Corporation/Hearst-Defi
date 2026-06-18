@@ -1,5 +1,7 @@
 "use client";
 
+import { notFound } from "next/navigation";
+
 import "@/app/(product)/portfolio/portfolio.css";
 import "@/app/(product)/charts-shared.css";
 import "./module-layout.css";
@@ -19,6 +21,10 @@ import { MOCK_PORTFOLIO } from "./mock-data";
  * (left rail + chat). Mock data so the glass layout reads with real content.
  */
 export default function ModuleLayoutDebugPage() {
+  // Internal layout-repro page with MOCK data — must never ship to production
+  // (Vercel deploys main on every push). 404 it outside local dev.
+  if (process.env.NODE_ENV === "production") notFound();
+
   const data = MOCK_PORTFOLIO;
 
   return (
