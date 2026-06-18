@@ -4,10 +4,11 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**199 components** · 1 possible orphans · 2 intentionally unwired.
+**199 components** · 2 possible orphans · 2 intentionally unwired.
 
 ## ⚠️ Possible orphans (0 references — verify before keeping)
 
+- `src/components/portfolio/next-action-card.tsx` — NextActionCard, NextActionContent
 - `src/components/portfolio/portfolio-teaser-tile.tsx` — PortfolioTeaserTile
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
@@ -116,7 +117,7 @@
 | `src/components/portfolio/kpi-row.tsx` | PortfolioKpiRow | 1 |
 | `src/components/portfolio/layout-preview-banner.tsx` | PreviewModeChip | 2 |
 | `src/components/portfolio/lock-meter.tsx` | LockMeter | 4 |
-| `src/components/portfolio/next-action-card.tsx` | NextActionCard, NextActionContent | 1 |
+| `src/components/portfolio/next-action-card.tsx` ⚠️ | NextActionCard, NextActionContent | 0 |
 | `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 24 |
 | `src/components/portfolio/portfolio-greeting.tsx` | PortfolioGreeting | 2 |
 | `src/components/portfolio/portfolio-leaf-link.tsx` | PortfolioLeafLink | 5 |
@@ -132,7 +133,7 @@
 | `src/components/portfolio/risk-pulse.tsx` | ScoreRow, CompositeSection, RiskPulse | 3 |
 | `src/components/portfolio/time-to-cash.tsx` | TimeToCash | 4 |
 | `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 2 |
-| `src/components/portfolio/value-chart.tsx` | ValueChart | 4 |
+| `src/components/portfolio/value-chart.tsx` | ValueChart | 5 |
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
 | `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 9 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
@@ -175,7 +176,7 @@
 | `src/components/ui/apy-range.tsx` | ApyRange | 17 |
 | `src/components/ui/awaiting-metric-state.tsx` | AwaitingMetricState | 13 |
 | `src/components/ui/badge.tsx` | Badge | 51 |
-| `src/components/ui/button.tsx` | Button | 82 |
+| `src/components/ui/button.tsx` | Button | 81 |
 | `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 73 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
@@ -189,7 +190,7 @@
 | `src/components/ui/metric.tsx` | Metric | 8 |
 | `src/components/ui/modal.tsx` | Modal | 5 |
 | `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 24 |
-| `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 19 |
+| `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 18 |
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 3 |
 | `src/components/ui/progress.tsx` | Progress | 14 |

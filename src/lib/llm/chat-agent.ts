@@ -457,13 +457,23 @@ export function runChatAgent(
         );
 
         let firstPass: ConsumeResult;
+        // Stream the first pass directly even in admin mode. The previous
+        // behaviour held all first-pass text (enqueueText: () => {}) until both
+        // rounds finished — so an admin waited for TWO full gpt-4.1 rounds before
+        // seeing a single word, even on a plain question with no tool call (the
+        // common case). Streaming live: a no-tool answer appears immediately; a
+        // tool-call first pass emits ~no text anyway, so nothing visible is
+        // discarded when the second pass replaces it.
+        let firstPassStreamedText = false;
+        const firstPassEnqueue = (chunk: string): void => {
+          firstPassStreamedText = true;
+          safeEnqueue(chunk);
+        };
         try {
           firstPass = await consumeCompletion({
             completion,
             signal,
-            // In admin mode, hold first-pass text until we know if read tools were
-            // requested; otherwise stream directly.
-            enqueueText: isAdminMode ? () => {} : safeEnqueue,
+            enqueueText: firstPassEnqueue,
           });
         } catch (err) {
           logger.warn(
@@ -514,12 +524,19 @@ export function runChatAgent(
                 },
                 { signal },
               );
+              // If the first pass already streamed visible text (rare for a
+              // tool-call pass, but possible), suppress the second pass's text so
+              // the bubble doesn't show both. The first-pass text stays as the
+              // answer; the second pass still resolves usage/tool-calls. When the
+              // first pass was silent (the normal tool-call case), stream live.
               const secondPass = await consumeCompletion({
                 completion: completion2,
                 signal,
-                enqueueText: safeEnqueue,
+                enqueueText: firstPassStreamedText ? () => {} : safeEnqueue,
               });
-              effectiveText = secondPass.text;
+              if (!firstPassStreamedText) {
+                effectiveText = secondPass.text;
+              }
               effectiveUsage = secondPass.usage ?? effectiveUsage;
               finalToolCalls = secondPass.toolCalls;
             } catch (err) {
@@ -538,9 +555,9 @@ export function runChatAgent(
               finishFailed("admin_second_pass");
               return;
             }
-          } else if (effectiveText.length > 0) {
-            safeEnqueue(effectiveText);
           }
+          // No `else` re-emit needed: when there is no second pass, the first
+          // pass already streamed its text live above.
         }
 
         // Navigate only when the model picked a whitelisted destination AND the
