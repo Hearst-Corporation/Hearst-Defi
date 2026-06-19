@@ -83,7 +83,7 @@ describe("GET /api/search — C-15 admin gate", () => {
           entity: "investor",
           id: "inv_001",
           title: "lp@fund.io",
-          href: "/admin/investors/inv_001",
+          href: "/admin/customers/inv_001",
         },
       ],
       query: "lp",

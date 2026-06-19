@@ -134,7 +134,7 @@ describe("buildSearchIndex", () => {
     const response = await buildSearchIndex(address);
 
     expect(response.directJump).toBe(true);
-    expect(response.directHref).toContain(encodeURIComponent(address));
+    expect(response.directHref).toBe("/admin/customers");
     expect(response.results).toHaveLength(0);
     expect(prisma.vaultDeployment.findMany).not.toHaveBeenCalled();
   });
@@ -146,7 +146,7 @@ describe("buildSearchIndex", () => {
     const response = await buildSearchIndex(txHash);
 
     expect(response.directJump).toBe(true);
-    expect(response.directHref).toContain(encodeURIComponent(txHash));
+    expect(response.directHref).toBe("/admin/audit");
   });
 
   it("id prefix HYV- detected → directJump=true", async () => {
@@ -155,7 +155,7 @@ describe("buildSearchIndex", () => {
     const response = await buildSearchIndex("HYV-001");
 
     expect(response.directJump).toBe(true);
-    expect(response.directHref).toContain("HYV-001");
+    expect(response.directHref).toBe("/admin/vaults/HYV-001");
   });
 
   it("Prisma filtering: only rows matching query are returned", async () => {

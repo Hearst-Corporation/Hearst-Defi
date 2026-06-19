@@ -127,7 +127,7 @@ async function searchInvestors(q: string): Promise<SearchResult[]> {
         title,
         subtitle: displayEmail ?? undefined,
         badge: r.kycStatus,
-        href: `/admin/investors/${r.id}`,
+        href: `/admin/customers/${r.id}`,
         score: keep(title, displayEmail ?? undefined, q),
       };
     })
@@ -169,7 +169,7 @@ async function searchPositions(q: string): Promise<SearchResult[]> {
         title: `${r.vaultKey} — $${Number(r.principalUsdc).toLocaleString()}`,
         subtitle,
         badge: r.status,
-        href: `/admin/positions/${r.id}`,
+        href: "/admin/customers",
         score: keep(r.vaultKey, subtitle, q),
       };
     })
@@ -206,7 +206,7 @@ async function searchDistributions(q: string): Promise<SearchResult[]> {
       title: `Distribution ${r.period}`,
       subtitle: `$${Number(r.amountUsdc).toLocaleString()} USDC`,
       badge: r.vaultRef ?? undefined,
-      href: `/admin/distributions/${r.id}`,
+      href: "/admin/distributions",
       score: keep(`Distribution ${r.period}`, r.txHash ?? undefined, q),
     }))
     .filter((r) => r.score! >= SCORE_THRESHOLD)
@@ -243,7 +243,7 @@ async function searchProofs(q: string): Promise<SearchResult[]> {
       title: `${r.proofType}${r.period ? ` — ${r.period}` : ""}`,
       subtitle: `${r.hash.slice(0, 10)}…`,
       badge: r.proofType,
-      href: `/proof-center/${r.id}`,
+      href: "/proof-center",
       score: keep(r.proofType, r.period ?? undefined, q),
     }))
     .filter((r) => r.score! >= SCORE_THRESHOLD)
@@ -317,7 +317,7 @@ async function searchScenarios(q: string): Promise<SearchResult[]> {
       title: r.preset ?? `Scenario ${r.id.slice(0, 8)}`,
       subtitle: r.ranAt.toISOString().slice(0, 10),
       badge: r.status,
-      href: `/scenario/${r.id}`,
+      href: "/admin/scenario-lab?vault=yield",
       score: keep(r.preset ?? r.id, r.narrative ?? undefined, q),
     }))
     .filter((r) => r.score! >= SCORE_THRESHOLD)
@@ -352,7 +352,7 @@ async function searchBacktests(q: string): Promise<SearchResult[]> {
       title: r.backtestKey,
       subtitle: r.ranAt.toISOString().slice(0, 10),
       badge: r.rulesMode,
-      href: `/scenario/backtest/${r.id}`,
+      href: "/admin/scenario-lab?vault=yield",
       score: keep(r.backtestKey, r.rulesMode, q),
     }))
     .filter((r) => r.score! >= SCORE_THRESHOLD)
@@ -386,7 +386,7 @@ async function searchMemos(q: string): Promise<SearchResult[]> {
       title: `Memo — ${r.clientName}`,
       subtitle: r.generatedAt.toISOString().slice(0, 10),
       badge: r.methodologyVersion,
-      href: `/memo/${r.id}`,
+      href: "/admin/investor-memo?vault=yield",
       score: keep(r.clientName, r.methodologyVersion, q),
     }))
     .filter((r) => r.score! >= SCORE_THRESHOLD)
@@ -424,7 +424,7 @@ async function searchEvents(q: string): Promise<SearchResult[]> {
       title: `[${r.ruleId}] ${r.triggerText.slice(0, 60)}`,
       subtitle: r.executedAt.toISOString().slice(0, 10),
       badge: r.status,
-      href: `/admin/events/${r.id}`,
+      href: "/admin/audit",
       score: keep(r.ruleId + " " + r.triggerText, r.status, q),
     }))
     .filter((r) => r.score! >= SCORE_THRESHOLD)
@@ -444,14 +444,14 @@ function detectDirectJump(
   if (ADDRESS_RE.test(trimmed)) {
     return {
       directJump: true,
-      directHref: `/admin/investors?wallet=${encodeURIComponent(trimmed)}`,
+      directHref: "/admin/customers",
     };
   }
 
   if (TX_HASH_RE.test(trimmed)) {
     return {
       directJump: true,
-      directHref: `/admin/events?txHash=${encodeURIComponent(trimmed)}`,
+      directHref: "/admin/audit",
     };
   }
 
@@ -459,19 +459,24 @@ function detectDirectJump(
     if (trimmed.startsWith(prefix)) {
       const entityRouteMap: Record<Entity, string> = {
         vault: "/admin/vaults",
-        investor: "/admin/investors",
-        position: "/admin/positions",
+        investor: "/admin/customers",
+        position: "/admin/customers",
         distribution: "/admin/distributions",
         proof: "/proof-center",
         signature: "/admin/governance",
-        scenario: "/scenario",
-        backtest: "/scenario/backtest",
-        memo: "/memo",
-        event: "/admin/events",
+        scenario: "/admin/scenario-lab?vault=yield",
+        backtest: "/admin/scenario-lab?vault=yield",
+        memo: "/admin/investor-memo?vault=yield",
+        event: "/admin/audit",
       };
+      const base = entityRouteMap[entity];
+      const directHref =
+        entity === "distribution"
+          ? base
+          : `${base}/${encodeURIComponent(trimmed)}`;
       return {
         directJump: true,
-        directHref: `${entityRouteMap[entity]}/${encodeURIComponent(trimmed)}`,
+        directHref,
       };
     }
   }
