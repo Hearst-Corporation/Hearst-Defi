@@ -3,4 +3,4 @@ export const explorerLinkClass =
   "hover:ct-text-strong transition-colors duration-[var(--ct-dur-fast)]";
 
 /** Section divider inside an active card/panel. */
-export const sectionDividerClass = "mt-6 border-t border-[var(--ct-border-soft)]";
+export const sectionDividerClass = "mt-[var(--ct-space-8)] border-t border-[var(--ct-border-soft)]";

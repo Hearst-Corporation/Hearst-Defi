@@ -248,7 +248,7 @@ export function ContractsAuditTrail({
           {AUDIT_ENTRIES.map((entry) => (
             <li
               key={entry.label}
-              className="product-doc-section__head py-[var(--ct-space-3)] first:pt-0 last:pb-0"
+              className="product-doc-section__head py-[var(--ct-space-4)] first:pt-0 last:pb-0"
             >
               <div className="product-doc-stack--compact">
                 <span className="body-sm font-medium ct-text-primary">{entry.label}</span>

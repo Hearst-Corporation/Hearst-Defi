@@ -1836,8 +1836,9 @@
 }
 
 :is(.product-doc, .admin-doc) .proof-provenance-block {
-  margin-top: var(--ct-space-2);
+  margin-top: var(--ct-doc-flow-gap, var(--ct-space-9));
   padding-top: var(--ct-space-6);
+  padding-bottom: var(--ct-space-6);
   border-top: 1px solid var(--ct-border-soft);
 }
 
