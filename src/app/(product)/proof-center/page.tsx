@@ -5,6 +5,8 @@
 
 export const dynamic = "force-dynamic";
 
+import Link from "next/link";
+import type { ReactNode } from "react";
 import { TriangleAlert } from "lucide-react";
 
 import { ProductPageHeader } from "@/components/connect/product-page-header";
@@ -17,10 +19,6 @@ import { MiningCashFlowEvidence } from "@/components/proof-center/mining-cashflo
 import { RecentDistributions } from "@/components/proof-center/recent-distributions";
 import { RebalancingEventsPanel } from "@/components/proof-center/rebalancing-events-panel";
 import { PorSummary } from "@/components/proof-center/por-summary";
-import {
-  AdminCockpitPanelHeader,
-  AdminLeafLink,
-} from "@/components/admin/dashboard/cockpit-panel-header";
 import { loadCoverageForVault } from "@/lib/agents/loaders/coverage";
 import {
   isChainConfigured,
@@ -47,6 +45,35 @@ import { cn } from "@/lib/cn";
 
 interface ProofCenterPageProps {
   searchParams: Promise<{ type?: string | string[] }>;
+}
+
+/** Product proof cockpit panel chrome — same rhythm as dashboard-cockpit-panel, no admin import. */
+function ProofCockpitPanelHeader({
+  title,
+  trailing,
+}: {
+  title: string;
+  trailing?: ReactNode;
+}) {
+  return (
+    <header className="dashboard-cockpit-panel__header">
+      <div className="dashboard-cockpit-panel__header-main min-w-0">
+        <h3 className="dashboard-panel-micro-title">{title}</h3>
+      </div>
+      {trailing ? (
+        <div className="dashboard-cockpit-panel__header-trail">{trailing}</div>
+      ) : null}
+    </header>
+  );
+}
+
+function ProofLeafLink({ href, label = "View full" }: { href: string; label?: string }) {
+  return (
+    <Link href={href} className="dashboard-cockpit-leaf-link">
+      <span>{label}</span>
+      <span aria-hidden> →</span>
+    </Link>
+  );
 }
 
 export default async function ProductProofCenterPage({
@@ -167,7 +194,6 @@ export default async function ProductProofCenterPage({
       />
 
       {coldEmpty ? (
-        /* ── Cold state: compact honest shell + contracts (always visible) ── */
         <>
           <ProofCenterColdShell chainConfigured={chainConfigured} />
           <ProofCenterSection
@@ -178,16 +204,11 @@ export default async function ProductProofCenterPage({
           </ProofCenterSection>
         </>
       ) : (
-        /* ── Live state: 2-row × 2-col fit bento ── */
         <>
-          {/* Row 1: PoR Summary (wider) | Mining Cash-Flow Evidence */}
           <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-top">
-            {/* Panel A — Proof of Reserves */}
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
-                <AdminCockpitPanelHeader
-                  title="Proof of Reserves"
-                />
+                <ProofCockpitPanelHeader title="Proof of Reserves" />
                 <div className="proof-panel-scroll">
                   <PorSummary
                     attestation={latestAttestation}
@@ -200,12 +221,9 @@ export default async function ProductProofCenterPage({
               </div>
             </div>
 
-            {/* Panel B — Mining Cash-Flow Evidence */}
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
-                <AdminCockpitPanelHeader
-                  title="Mining cash-flow evidence"
-                />
+                <ProofCockpitPanelHeader title="Mining cash-flow evidence" />
                 <div className="proof-panel-scroll">
                   <MiningCashFlowEvidence coverage={coverage} sectionLed={false} />
                 </div>
@@ -213,14 +231,14 @@ export default async function ProductProofCenterPage({
             </div>
           </div>
 
-          {/* Row 2: Recent Distributions | Rebalancing Events */}
           <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-bot">
-            {/* Panel C — Latest Distributions */}
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
-                <AdminCockpitPanelHeader
+                <ProofCockpitPanelHeader
                   title="Latest distributions"
-                  trailing={<AdminLeafLink href="/proof-center/full" label="View full" />}
+                  trailing={
+                    <ProofLeafLink href="/proof-center/full" label="View full" />
+                  }
                 />
                 <div className="proof-panel-scroll">
                   {recentDistributions.length === 0 ? (
@@ -238,12 +256,13 @@ export default async function ProductProofCenterPage({
               </div>
             </div>
 
-            {/* Panel D — Rebalancing Events */}
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
-                <AdminCockpitPanelHeader
+                <ProofCockpitPanelHeader
                   title="Rebalancing events"
-                  trailing={<AdminLeafLink href="/proof-center/full" label="View full" />}
+                  trailing={
+                    <ProofLeafLink href="/proof-center/full" label="View full" />
+                  }
                 />
                 <div className="proof-panel-scroll">
                   {recentRebalances.length === 0 ? (

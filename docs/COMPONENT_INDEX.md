@@ -189,7 +189,7 @@
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
 | `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 17 |
-| `src/components/ui/empty-surface.tsx` | EmptySurface | 43 |
+| `src/components/ui/empty-surface.tsx` | EmptySurface | 44 |
 | `src/components/ui/error-boundary.tsx` | ErrorBoundary | 1 |
 | `src/components/ui/metric.tsx` | Metric | 8 |
 | `src/components/ui/modal.tsx` | Modal | 5 |
