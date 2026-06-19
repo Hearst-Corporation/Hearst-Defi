@@ -96,8 +96,16 @@ export default async function PortfolioPage() {
                 updatedAt={data.updatedAt}
                 mode={heroWidgets.metrics.mode}
               />
-              <HeroPayoutRail {...timeToCashProps} />
-              <HeroLiquidityRail {...lockMeterProps} />
+              <HeroPayoutRail
+                {...timeToCashProps}
+                mode={heroWidgets.payout.mode}
+                provenance={heroWidgets.payout.provenance}
+              />
+              <HeroLiquidityRail
+                {...lockMeterProps}
+                mode={heroWidgets.liquidity.mode}
+                provenance={heroWidgets.liquidity.provenance}
+              />
             </aside>
           </div>
         </div>

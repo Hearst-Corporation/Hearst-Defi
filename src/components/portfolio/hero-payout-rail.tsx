@@ -1,6 +1,8 @@
 import { ApyRange } from "@/components/ui/apy-range";
+import type { Provenance } from "@/components/ui/provenance-badge";
 import { computeTimeToCash } from "@/lib/data/time-to-cash";
 import { resolveTimeToCashShell } from "@/lib/portfolio/hero-rail-state";
+import type { WidgetMode } from "@/lib/portfolio/view-state";
 import type { TimeToCashProps } from "@/lib/data/time-to-cash";
 
 import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
@@ -13,6 +15,9 @@ const usdcFmt = new Intl.NumberFormat("en-US", {
 
 export type HeroPayoutRailProps = TimeToCashProps & {
   previewZeros?: boolean;
+  /** Loader-resolved mode (authoritative). Falls back to previewZeros/stale. */
+  mode?: WidgetMode;
+  provenance?: Provenance;
 };
 
 /**
@@ -30,9 +35,11 @@ export function HeroPayoutRail({
   source,
   updatedAt,
   previewZeros = false,
+  mode,
+  provenance,
 }: HeroPayoutRailProps) {
   const effectiveAsOf = asOf ?? new Date();
-  const { showZeroShell, widgetProvenance } = resolveTimeToCashShell({
+  const shell = resolveTimeToCashShell({
     previewZeros,
     source,
     updatedAt,
@@ -40,6 +47,12 @@ export function HeroPayoutRail({
     aprLow,
     aprHigh,
   });
+  const showZeroShell = mode ? mode === "zero" : shell.showZeroShell;
+  const widgetProvenance = mode
+    ? mode === "zero"
+      ? undefined
+      : provenance
+    : shell.widgetProvenance;
 
   const { daysElapsed, daysRemaining, hoursRemaining, progressPct } =
     computeTimeToCash({ cycleStart, cycleDays, asOf: effectiveAsOf });

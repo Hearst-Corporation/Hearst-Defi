@@ -57,5 +57,7 @@ describe("Portfolio dashboard — top-level contract", () => {
     // Hero sidebar (KPI + payout + liquidity) is no longer gated behind !previewZeros.
     expect(portfolioPage).toContain("<HeroKpiTable");
     expect(portfolioPage).toContain('"pf-hero-sidebar"');
+    expect(portfolioPage).toContain("heroWidgets.payout.mode");
+    expect(portfolioPage).toContain("heroWidgets.liquidity.mode");
   });
 });

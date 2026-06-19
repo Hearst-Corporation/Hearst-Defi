@@ -1,6 +1,7 @@
 import type { Provenance } from "@/components/ui/provenance-badge";
 
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { resolveWidgetView, type WidgetView } from "@/lib/portfolio/view-state";
 
 /** Shared zero-shell + provenance for TimeToCash and HeroPayoutRail. */
 export function resolveTimeToCashShell(input: {
@@ -43,4 +44,41 @@ export function resolveLockMeterShell(input: {
   const widgetProvenance = showZeroShell ? undefined : "live";
 
   return { showZeroShell, widgetProvenance, termsUnknown };
+}
+
+/** Loader-resolved {mode, provenance} for HeroPayoutRail (Architecture A). */
+export function resolvePayoutWidgetView(input: {
+  previewZeros: boolean;
+  source?: "live" | "stale";
+  updatedAt?: Date;
+  projectedUsdc: number;
+  aprLow: number;
+  aprHigh: number;
+}): WidgetView {
+  const { isStale, widgetProvenance } = resolveTimeToCashShell({
+    ...input,
+    previewZeros: false,
+  });
+  return resolveWidgetView({
+    previewZeros: input.previewZeros,
+    hasData: !isStale,
+    provenance: widgetProvenance,
+  });
+}
+
+/** Loader-resolved {mode, provenance} for HeroLiquidityRail (Architecture A). */
+export function resolveLiquidityWidgetView(input: {
+  previewZeros: boolean;
+  source?: "live" | "stale";
+  softLockupDays: number;
+}): WidgetView {
+  const { showZeroShell, widgetProvenance } = resolveLockMeterShell({
+    ...input,
+    previewZeros: false,
+  });
+  return resolveWidgetView({
+    previewZeros: input.previewZeros,
+    hasData: !showZeroShell,
+    provenance: widgetProvenance,
+  });
 }

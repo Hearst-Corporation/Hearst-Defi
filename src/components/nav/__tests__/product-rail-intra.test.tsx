@@ -82,12 +82,12 @@ describe("Product rail intra (fixed column)", () => {
 
   it("cockpit.css vertically centres the menu stack in the rail column", () => {
     const css = readFileSync(join(process.cwd(), "src/app/cockpit.css"), "utf8");
-    const start = css.indexOf(".ct-rail-intra__stack");
+    const start = css.indexOf(".ct-rail-intra__stack {", css.indexOf(".ct-rail-intra {"));
     expect(start).toBeGreaterThanOrEqual(0);
     const brace = css.indexOf("{", start);
     const end = css.indexOf("}", brace);
     const rule = css.slice(brace + 1, end);
-    expect(rule).toContain("justify-content: center");
+    expect(rule).toContain("justify-content: flex-start");
     expect(rule).toContain("flex: 1");
   });
 });

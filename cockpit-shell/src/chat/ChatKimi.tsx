@@ -46,18 +46,21 @@ function escapeHtml(str: string): string {
 }
 
 function renderMarkdown(text: string): string {
-  return (
-    text
+  // Replace newlines except those immediately following a closing block tag to avoid double spacing
+  let html = text
       .replace(
         /```(\w*)\n?([\s\S]*?)```/g,
         (_m, _lang: string, code: string) =>
-          `<pre style="background:rgba(0,0,0,0.4);padding:8px 10px;border-radius:6px;overflow-x:auto;font-size:12px;margin:6px 0;border:1px solid rgba(255,255,255,0.08)"><code>${escapeHtml(code.trimEnd())}</code></pre>`,
+          `<pre style="background:rgba(0,0,0,0.4);padding:8px 10px;border-radius:6px;overflow-x:auto;font-size:var(--ct-text-sm);margin:6px 0;border:1px solid rgba(255,255,255,0.08)"><code>${escapeHtml(code.trimEnd())}</code></pre>`,
       )
       .replace(
         /`([^`]+)`/g,
         (_m, c: string) =>
-          `<code style="background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;font-size:12px">${escapeHtml(c)}</code>`,
+          `<code style="background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;font-size:var(--ct-text-sm)">${escapeHtml(c)}</code>`,
       )
+      .replace(/^### (.*?)$/gm, '<h3 class="h3" style="margin-top: 12px; margin-bottom: 6px;">$1</h3>')
+      .replace(/^## (.*?)$/gm, '<h2 class="h2" style="margin-top: 14px; margin-bottom: 8px;">$1</h2>')
+      .replace(/^# (.*?)$/gm, '<h1 class="h1" style="margin-top: 16px; margin-bottom: 10px;">$1</h1>')
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/\*(.+?)\*/g, "<em>$1</em>")
       .replace(/((?:^[-*] .+$\n?)+)/gm, (block) => {
@@ -70,9 +73,11 @@ function renderMarkdown(text: string): string {
           )
           .join("");
         return `<ul style="padding-left:16px;margin:4px 0">${items}</ul>`;
-      })
-      .replace(/\n/g, "<br>")
-  );
+      });
+  
+  // Clean up trailing newlines after block elements to prevent excessive <br>
+  html = html.replace(/(<\/(?:h1|h2|h3|ul|pre)>)\n/g, "$1");
+  return html.replace(/\n/g, "<br>");
 }
 
 function sanitizeHtml(html: string): string {

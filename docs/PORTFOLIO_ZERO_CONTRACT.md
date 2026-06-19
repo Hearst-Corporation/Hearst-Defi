@@ -13,38 +13,40 @@
 
 ## DOM figé du hero zero (verrouillé par tests)
 
-### Colonne chart — `ValueChart` (`previewZeros`)
+### Colonne chart — `ValueChart` (`mode="zero"`)
 - Panel `.pf-value-chart` (PAS de classe `--cta-only` : il n'y a **plus** de CTA).
 - Titre **« Portfolio value »**, sous-titre **« Awaiting first position »**.
 - Ghost chart : `<AreaChart muted>` → un `<polyline>` accent atténué + month labels.
 - Disclaimer **« Placeholder chart until your first confirmed position. »**
 - **INTERDIT** : tout CTA (« Get started », « Subscribe to … », bouton onboarding),
-  toute string « No active positions yet », toute classe `pf-next-action-card*`.
+  toute string « No active positions yet » dans le **hero**, toute classe `pf-next-action-card*`.
 
 ### Colonne sidebar — `.pf-hero-sidebar.pf-hero-sidebar--zero`
-Trois groupes, tous en `previewZeros`, dans cet ordre :
+Trois groupes, tous en `mode="zero"`, dans cet ordre :
 1. `HeroKpiTable` → blurb « No position yet — metrics appear after your first confirmed deposit. »
-2. `HeroPayoutRail` → valeur « — », barre 0 %, méta « Cycle pending · Pending », note projection.
-3. `HeroLiquidityRail` → barre 0 %, méta « 60-day soft lock shown after deposit ».
+2. `HeroPayoutRail` → valeur « — », méta « Cycle pending » (**pas de barre 0 %** — compact).
+3. `HeroLiquidityRail` → méta « 60-day soft lock shown after deposit » (**pas de barre 0 %**).
 
 ### Autres widgets zero (honnêtes, pas de fausse data « Live »)
 `ZERO_YIELD_STACK`, `zeroProofPulseProps`, `buildZeroDistribEntries` ;
-`PreviewModeChip` ; provenance badges masqués (pas de « Live »/« Verified » faux).
+provenance badges masqués (pas de « Live »/« Verified » faux).
 
-## Contrat de hauteur (viewport-fit) — la classe de bug à NE PAS réintroduire
-En `@media (min-width:90rem) and (min-height:52rem)` le cockpit est **no top-level scroll** :
+## Contrat de hauteur (viewport-fit)
+En `@media (min-width:80rem) and (min-height:52rem)` le cockpit est **no top-level scroll** :
 les rangées sont cappées en flex, les cells ont `overflow:hidden`. **Tout panneau doit
-honorer `min-height:0` dans ce gate.** Un `min-height` fixe (ex. la ladder chart 16→20rem)
-est un plancher SCROLL-MODE uniquement — il DOIT être neutralisé à `min-height:0` dans le
-gate (cf. `.pf-cockpit-row--summary .pf-value-chart` dans `portfolio.css`). Backstop :
-`aspect-ratio` sur `.pf-value-chart__chart-wrapper` évite l'effondrement du SVG à 0px.
+honorer `min-height:0` dans ce gate.** Un `min-height` fixe est un plancher SCROLL-MODE
+uniquement — neutralisé à `min-height:0` dans le gate.
 
-> **Garde-fou exécutable** : `e2e/portfolio-zero-layout.spec.ts` mesure qu'à 1280×800 /
-> 1536×900 / **1600×850** le disclaimer + le 3e rail ne sont PAS rognés et qu'il n'y a
-> aucun scroll top-level. Les tests SSR (string-match) ne voient pas ce bug — ce spec, si.
+**1280×800 (50rem h)** : sous le gate → **scroll main autorisé** (homogène avec dashboard /
+proof / scenario lab — tous les hubs produit utilisent 52rem).
+
+> **Garde-fou exécutable** : `e2e/portfolio-zero-layout.spec.ts` — à **1536×900** et
+> **1600×850** (≥52rem) : pas de scroll top-level, disclaimer + 3e rail non rognés.
+> À **1280×800** : éléments zero visibles, pas de scroll horizontal.
 
 ## Architecture (où « le zero » est défini)
-Cible : **un seul discriminant** `PortfolioViewState` dans `portfolio-view.ts`
-(`{kind:'preview'} | {kind:'live', …}`) + une map `widgets.X = {mode, provenance, props}`
-résolue une fois. Les composants consomment `mode`, ne re-calculent PAS `showZeroShell`.
-(Migration A du refactor D→A→E — voir le plan d'architecture.)
+**Un seul discriminant** `PortfolioViewState` dans `portfolio-view.ts`
+(`{kind:'preview'} | {kind:'live'}`) + `heroWidgets.{value,metrics,payout,liquidity} = {mode, provenance}`
+résolu une fois. Les composants hero consomment `mode` (+ `provenance` pour les rails),
+ne re-calculent PAS `showZeroShell`. Les widgets mid/trio migrent sous le même pattern
+(Phase 3).

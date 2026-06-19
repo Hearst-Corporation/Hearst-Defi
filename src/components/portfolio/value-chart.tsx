@@ -103,6 +103,10 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
       </desc>
 
       <defs>
+        {/* Subtle grid pattern for instrument feel */}
+        <pattern id="vc-grid-dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+          <circle cx="1" cy="1" r="0.5" fill="var(--ct-border-soft)" opacity="0.3" />
+        </pattern>
         {/* Aurora area — green bloom fading to nothing. Derived from accent. */}
         <linearGradient id="vc-area" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="var(--ct-accent)" style={{ stopOpacity: muted ? "var(--ct-opacity-10)" : "var(--ct-opacity-28)" }} />
@@ -117,6 +121,7 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
       </defs>
 
       {/* Hairline baseline rhythm */}
+      <rect width="100%" height="100%" fill="url(#vc-grid-dots)" pointerEvents="none" />
       <g className="pf-vc-grid">
         {[0.25, 0.5, 0.75].map((f) => (
           <line key={f} x1="0" x2={VB_W} y1={(VB_H * f).toFixed(1)} y2={(VB_H * f).toFixed(1)} />
@@ -125,17 +130,28 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
 
       {muted ? null : <path d={areaPath} fill="url(#vc-area)" />}
 
-      {/* Glow underlay — same path, blurred, accent-derived bloom */}
+      {/* Glow underlay — multi-layered, accent-derived bloom */}
       {muted ? null : (
-        <path
-          className="pf-vc-line-glow"
-          d={linePath}
-          fill="none"
-          stroke="var(--ct-accent)"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-          vectorEffect="non-scaling-stroke"
-        />
+        <>
+          <path
+            className="pf-vc-line-glow"
+            d={linePath}
+            fill="none"
+            stroke="var(--ct-accent)"
+            strokeWidth="3"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+          <path
+            className="pf-vc-line-glow-core"
+            d={linePath}
+            fill="none"
+            stroke="var(--ct-accent)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        </>
       )}
 
       <path
@@ -231,10 +247,24 @@ export function ValueChart({
         <AreaChart series={series} muted={showZeroShell} />
       </div>
 
-      <div className="stat-label ct-text-muted flex justify-between mono pf-value-chart__month-labels">
-        {monthTicks.map((s, i) => (
-          <span key={i}>{s.label}</span>
-        ))}
+      <div className="stat-label ct-text-muted relative mono pf-value-chart__month-labels" style={{ height: "1.5em" }}>
+        {series.map((s, i) => {
+          if (i % 3 !== 0 && i !== series.length - 1) return null;
+          const pct = (i / (series.length - 1)) * 100;
+          let transform = "translateX(-50%)";
+          if (i === 0) transform = "none";
+          if (i === series.length - 1) transform = "translateX(-100%)";
+          
+          return (
+            <span
+              key={i}
+              className="absolute top-0"
+              style={{ left: `${pct}%`, transform }}
+            >
+              {s.label}
+            </span>
+          );
+        })}
       </div>
 
       <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">

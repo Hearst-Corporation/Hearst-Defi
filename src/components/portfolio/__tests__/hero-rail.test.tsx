@@ -42,6 +42,14 @@ describe("HeroKpiTable — provenance per metric", () => {
 });
 
 describe("Hero rail — native layout at zero", () => {
+  it("HeroPayoutRail zero via mode: compact rail (no 0% bar)", () => {
+    const html = renderToStaticMarkup(
+      <HeroPayoutRail {...zeroTimeToCashProps(PREVIEW_AS_OF)} mode="zero" />,
+    );
+    expect(html).not.toContain("pf-meter");
+    expect(html).toContain("Cycle pending");
+  });
+
   it("HeroPayoutRail zero: compact rail (no 0% bar, no note)", () => {
     const html = renderToStaticMarkup(
       <HeroPayoutRail {...zeroTimeToCashProps(PREVIEW_AS_OF)} previewZeros />,

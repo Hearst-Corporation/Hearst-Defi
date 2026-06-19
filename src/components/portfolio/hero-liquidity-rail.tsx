@@ -3,7 +3,9 @@ import {
   formatBps,
   type LockMeterProps,
 } from "@/components/portfolio/lock-meter";
+import type { Provenance } from "@/components/ui/provenance-badge";
 import { resolveLockMeterShell } from "@/lib/portfolio/hero-rail-state";
+import type { WidgetMode } from "@/lib/portfolio/view-state";
 import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
 
 const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
@@ -14,6 +16,9 @@ const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
 
 export type HeroLiquidityRailProps = LockMeterProps & {
   previewZeros?: boolean;
+  /** Loader-resolved mode (authoritative). Falls back to previewZeros/stale. */
+  mode?: WidgetMode;
+  provenance?: Provenance;
 };
 
 /**
@@ -28,13 +33,22 @@ export function HeroLiquidityRail({
   asOf,
   source = "live",
   previewZeros = false,
+  mode,
+  provenance,
 }: HeroLiquidityRailProps) {
   const effectiveAsOf = asOf ?? new Date();
-  const { showZeroShell, widgetProvenance, termsUnknown } = resolveLockMeterShell({
+  const shell = resolveLockMeterShell({
     previewZeros,
     source,
     softLockupDays,
   });
+  const showZeroShell = mode ? mode === "zero" : shell.showZeroShell;
+  const widgetProvenance = mode
+    ? mode === "zero"
+      ? undefined
+      : provenance
+    : shell.widgetProvenance;
+  const { termsUnknown } = shell;
 
   const { progressPct, unlockDate, daysRemaining, isUnlocked } = computeLockMeter(
     lockStart,

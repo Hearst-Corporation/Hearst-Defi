@@ -20,6 +20,10 @@ import {
   resolveWidgetView,
   type WidgetView,
 } from "@/lib/portfolio/view-state";
+import {
+  resolveLiquidityWidgetView,
+  resolvePayoutWidgetView,
+} from "@/lib/portfolio/hero-rail-state";
 import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
 
 /**
@@ -91,15 +95,15 @@ export async function loadPortfolioView() {
     : "active";
 
   // ── Single source of truth for preview/live (Architecture A) ───────────────
-  // The page-level discriminant + the hero widgets' {mode, provenance} resolved
-  // ONCE here, so the hero (the surface that flip-flopped) no longer re-derives
-  // `showZeroShell`. `mode` encodes both the preview gate and the widget's own
-  // honest-empty check; provenance keeps the widget's existing resolved badge.
-  // Data widgets (positions / activity / distributions / capital-yield / risk /
-  // proof) keep their internal honest-empty logic for now — their provenance
-  // rules are widget-specific and migrate under the Phase 3 WidgetShell.
+  // Page-level discriminant + hero widgets' {mode, provenance} resolved ONCE here.
+  // Hero rails (payout, liquidity) no longer re-derive showZeroShell in components.
   const state = resolvePortfolioViewState(previewZeros);
-  const heroWidgets: { value: WidgetView; metrics: WidgetView } = {
+  const heroWidgets: {
+    value: WidgetView;
+    metrics: WidgetView;
+    payout: WidgetView;
+    liquidity: WidgetView;
+  } = {
     value: resolveWidgetView({
       previewZeros,
       hasData: data.totalValueUsdc > 0 || data.positions.length > 0,
@@ -109,6 +113,19 @@ export async function loadPortfolioView() {
       previewZeros,
       hasData: hasPositions,
       provenance: portfolioProvenance,
+    }),
+    payout: resolvePayoutWidgetView({
+      previewZeros,
+      source: timeToCashProps.source,
+      updatedAt: timeToCashProps.updatedAt,
+      projectedUsdc: timeToCashProps.projectedUsdc,
+      aprLow: timeToCashProps.aprLow,
+      aprHigh: timeToCashProps.aprHigh,
+    }),
+    liquidity: resolveLiquidityWidgetView({
+      previewZeros,
+      source: lockMeterProps.source,
+      softLockupDays: lockMeterProps.softLockupDays,
     }),
   };
 

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   resolveLockMeterShell,
+  resolveLiquidityWidgetView,
+  resolvePayoutWidgetView,
   resolveTimeToCashShell,
 } from "@/lib/portfolio/hero-rail-state";
 
@@ -60,5 +62,53 @@ describe("resolveLockMeterShell", () => {
         softLockupDays: 60,
       }).widgetProvenance,
     ).toBe("live");
+  });
+});
+
+describe("resolvePayoutWidgetView", () => {
+  it("previewZeros forces zero mode", () => {
+    expect(
+      resolvePayoutWidgetView({
+        previewZeros: true,
+        source: "live",
+        projectedUsdc: 10_000,
+        aprLow: 9,
+        aprHigh: 12,
+      }),
+    ).toEqual({ mode: "zero", provenance: undefined });
+  });
+
+  it("stale payout forces zero mode", () => {
+    expect(
+      resolvePayoutWidgetView({
+        previewZeros: false,
+        source: "stale",
+        projectedUsdc: 0,
+        aprLow: 0,
+        aprHigh: 0,
+      }).mode,
+    ).toBe("zero");
+  });
+});
+
+describe("resolveLiquidityWidgetView", () => {
+  it("previewZeros forces zero mode", () => {
+    expect(
+      resolveLiquidityWidgetView({
+        previewZeros: true,
+        source: "live",
+        softLockupDays: 60,
+      }),
+    ).toEqual({ mode: "zero", provenance: undefined });
+  });
+
+  it("live lock with terms resolves to live", () => {
+    expect(
+      resolveLiquidityWidgetView({
+        previewZeros: false,
+        source: "live",
+        softLockupDays: 60,
+      }),
+    ).toEqual({ mode: "live", provenance: "live" });
   });
 });

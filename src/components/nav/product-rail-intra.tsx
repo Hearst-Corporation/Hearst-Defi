@@ -99,8 +99,6 @@ const ICON_MAP: Record<string, LucideIcon> = {
   ArrowLeft,
 };
 
-const RAIL_ICON_SIZE = 20;
-
 // Thin horizontal rule between nav sections.
 function RailSeparator() {
   return (
@@ -117,10 +115,9 @@ interface RailItemProps {
   /** Override the path-based active check (e.g. a section active on any of its
    *  sibling pages, not just its own href). */
   active?: boolean;
-  iconSize?: number;
 }
 
-function RailItem({ item, pathname, active, iconSize = 26 }: RailItemProps) {
+function RailItem({ item, pathname, active }: RailItemProps) {
   const Icon = ICON_MAP[item.icon];
   const isActive = active ?? matchesNavPath(pathname, item.href);
 
@@ -132,7 +129,7 @@ function RailItem({ item, pathname, active, iconSize = 26 }: RailItemProps) {
       title={item.label}
       className={cn("ct-rail-item", isActive && "ct-rail-item-active")}
     >
-      {Icon ? <Icon size={iconSize} strokeWidth={1.8} /> : null}
+      {Icon ? <Icon className="ct-rail-icon" strokeWidth={1.8} /> : null}
       <span className="ct-rail-item-tooltip">{item.label}</span>
     </Link>
   );
@@ -191,7 +188,6 @@ export function InvestorRailIntra({ isAdmin = false }: { isAdmin?: boolean }) {
           key={item.id}
           item={item}
           pathname={pathname}
-          iconSize={RAIL_ICON_SIZE}
         />
       ))}
       {isAdmin && ADMIN_JUMP_NAV ? (
@@ -200,7 +196,6 @@ export function InvestorRailIntra({ isAdmin = false }: { isAdmin?: boolean }) {
           <RailItem
             item={ADMIN_JUMP_NAV}
             pathname={pathname}
-            iconSize={RAIL_ICON_SIZE}
           />
         </>
       ) : null}
@@ -223,7 +218,6 @@ export function AdminRailIntra() {
           item={adminSectionToNavItem(section)}
           pathname={pathname}
           active={isSectionActive(section, pathname)}
-          iconSize={RAIL_ICON_SIZE}
         />
       ))}
       {/* Return to the investor cockpit — intentionally invisible, just a tiny dot. */}

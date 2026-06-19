@@ -45,11 +45,19 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .pf-hero-grid {
-  /* Aurora wash — radial green bloom behind the hero only, layered under the
-     graphite glass. Derived purely from --ct-accent. */
-  --pf-aurora-1: color-mix(in srgb, var(--ct-accent) 14%, transparent);
-  --pf-aurora-2: color-mix(in srgb, var(--ct-accent) 6%, transparent);
+  /* Aurora wash — multi-layered radial green bloom behind the hero.
+     Derived purely from --ct-accent. Added a subtle noise texture. */
+  --pf-aurora-1: color-mix(in srgb, var(--ct-accent) 18%, transparent);
+  --pf-aurora-2: color-mix(in srgb, var(--ct-accent) 8%, transparent);
+  --pf-aurora-3: color-mix(in srgb, var(--ct-accent) 4%, transparent);
   --pf-hero-line: color-mix(in srgb, var(--ct-accent) 90%, #ffffff);
+  
+  background: 
+    radial-gradient(circle at 30% 20%, var(--pf-aurora-1) 0%, transparent 50%),
+    radial-gradient(circle at 70% 60%, var(--pf-aurora-2) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, var(--pf-aurora-3) 0%, transparent 100%),
+    var(--ct-surface-2);
+  background-blend-mode: screen;
 }
 
 /* ── Premium value chart — aurora area, glowing line, lit end-cap ── */
@@ -58,8 +66,6 @@
   width: 100%;
   flex: 1;
   min-height: 0;
-  /* Center the SVG vertically in the plot area so a flat $0 ghost line sits
-     mid-panel instead of pinned to the bottom edge. */
   display: flex;
   align-items: center;
 }
@@ -70,16 +76,29 @@
   height: 100%;
 }
 
-/* Glow under the stroke — duplicate path blurred, accent-derived. */
+/* Multi-layered glow for a more "neon" instrument feel. */
 .pf-vc-line-glow {
-  filter: blur(2.5px);
-  opacity: var(--ct-opacity-55, 0.55);
+  filter: blur(4px);
+  opacity: var(--ct-opacity-40, 0.4);
+}
+
+.pf-vc-line-glow-core {
+  filter: blur(1.5px);
+  opacity: var(--ct-opacity-60, 0.6);
 }
 
 /* Lit travelling end-cap — the single bloom point on the latest value. */
 @keyframes pf-vc-pulse {
-  0%, 100% { opacity: var(--ct-opacity-90, 0.9); transform: scale(1); }
-  50% { opacity: var(--ct-opacity-50, 0.5); transform: scale(1.18); }
+  0%, 100% { 
+    opacity: var(--ct-opacity-90, 0.9); 
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px var(--ct-accent));
+  }
+  50% { 
+    opacity: var(--ct-opacity-60, 0.6); 
+    transform: scale(1.25);
+    filter: drop-shadow(0 0 6px var(--ct-accent));
+  }
 }
 .pf-vc-endcap {
   transform-box: fill-box;
@@ -98,8 +117,7 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* Local graphite hierarchy — same palette, slightly different luminance tiers so
-   the cockpit reads as a composed stack instead of a flat field of equal panels. */
+/* Local graphite hierarchy — refined with canonical glass bevels. */
 .pf-container {
   --pf-surface-base: color-mix(in srgb, var(--ct-surface-2) 82%, var(--ct-bg-deep));
   --pf-surface-elevated: color-mix(in srgb, var(--ct-surface-3) 54%, var(--ct-surface-2));
@@ -116,6 +134,10 @@
   );
   --pf-text-soft: 0.78;
   --pf-text-faint: 0.62;
+  
+  /* Canonical glass bevel (ADR-013) */
+  --pf-glass-bevel: inset 0 1px 0 color-mix(in srgb, var(--ct-surface-3) 48%, transparent);
+  --pf-glass-bevel-hover: inset 0 1px 0 color-mix(in srgb, var(--ct-surface-3) 82%, transparent);
 }
 
 /* ── All body text white (Adrien: "tous les textes en blanc / ffffff").
@@ -229,6 +251,8 @@
   line-height: var(--ct-leading-tight);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
+  /* Atmospheric glow for the hero KPI */
+  text-shadow: 0 0 12px color-mix(in srgb, var(--ct-accent) 25%, transparent);
 }
 
 /* Payout calendar SVG — token-sized labels (not raw fontSize 6–8) */
@@ -1052,12 +1076,20 @@ a.pf-trust-compact__see-more:hover {
   );
   border: 1px solid var(--pf-border-soft-muted);
   border-radius: var(--ct-radius-xl);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ct-surface-3) 48%, transparent);
+  box-shadow: var(--pf-glass-bevel);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   transition:
     border-color var(--ct-dur-base) var(--ct-ease),
-    background var(--ct-dur-base) var(--ct-ease);
+    background var(--ct-dur-base) var(--ct-ease),
+    box-shadow var(--ct-dur-base) var(--ct-ease);
   container-type: inline-size;
   container-name: pf-panel;
+}
+
+.pf-cockpit-panel:hover {
+  border-color: var(--ct-border-soft);
+  box-shadow: var(--pf-glass-bevel-hover);
 }
 
 /* --wide = roomier internal gap than default (padding matches base panel). */
@@ -1396,6 +1428,7 @@ a.pf-trust-compact__see-more:hover {
 .pf-hero-rail-group--payout .pf-hero-rail-kpi {
   font-size: var(--ct-text-xl);
   color: var(--ct-accent);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--ct-accent) 20%, transparent);
 }
 
 /* Thin precision meter — inset graphite groove + aurora fill + lit needle. */
@@ -1626,6 +1659,10 @@ a.pf-trust-compact__see-more:hover {
 
 /* Zero-state cockpit cohesion — one rhythm across the full bento so sections
    feel stitched together (less visual conflict between inherited gap rules). */
+.pf-container--zero {
+  --pf-zero-rail-sibling-gap: var(--ct-space-2);
+}
+
 .pf-container--zero .pf-cockpit {
   gap: var(--ct-space-2);
 }
@@ -1640,8 +1677,8 @@ a.pf-trust-compact__see-more:hover {
 }
 
 .pf-container--zero .pf-hero-sidebar--zero .pf-hero-rail-group + .pf-hero-rail-group {
-  margin-top: var(--ct-space-2);
-  padding-top: var(--ct-space-2);
+  margin-top: var(--pf-zero-rail-sibling-gap);
+  padding-top: var(--pf-zero-rail-sibling-gap);
 }
 
 .pf-container--zero .pf-hero-sidebar--zero .pf-hero-kpi-value {
@@ -1669,7 +1706,7 @@ a.pf-trust-compact__see-more:hover {
   );
 }
 
-.pf-container--zero .pf-cockpit-panel {
+.pf-container--zero .pf-cockpit-panel:not(.pf-value-chart) {
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--pf-surface-base) 96%, transparent),
@@ -2103,6 +2140,7 @@ a.pf-trust-compact__see-more:hover {
   .pf-container--fit.pf-container--zero {
     gap: var(--ct-space-4);
     padding-bottom: var(--ct-space-4);
+    --pf-zero-rail-sibling-gap: var(--ct-space-1_5);
   }
 
   .pf-cockpit {
@@ -2253,7 +2291,14 @@ a.pf-trust-compact__see-more:hover {
       grid-template-columns: 1fr;
     }
 
+    .pf-cockpit-row--summary .pf-main-chart-wrapper {
+      grid-column: 1;
+      grid-row: auto;
+    }
+
     .pf-cockpit-row--summary .pf-hero-sidebar {
+      grid-column: 1;
+      grid-row: auto;
       border-top: 1px solid var(--ct-graphite-border-nested);
       border-left: none;
     }
@@ -2367,11 +2412,6 @@ a.pf-trust-compact__see-more:hover {
     padding: var(--ct-space-2_5) var(--ct-space-3);
   }
 
-  .pf-container--fit.pf-container--zero .pf-hero-sidebar--zero .pf-hero-rail-group + .pf-hero-rail-group {
-    margin-top: var(--ct-space-1_5);
-    padding-top: var(--ct-space-1_5);
-  }
-
   .pf-container--fit.pf-container--zero .pf-value-chart {
     padding-inline: var(--ct-space-4);
     padding-block: var(--ct-space-3);
@@ -2398,15 +2438,11 @@ a.pf-trust-compact__see-more:hover {
     .pf-container--fit.pf-container--zero .pf-hero-sidebar--zero {
       gap: var(--ct-space-1);
       padding: var(--ct-space-1_5) var(--ct-space-2);
+      --pf-zero-rail-sibling-gap: var(--ct-space-1);
     }
 
     .pf-container--fit.pf-container--zero .pf-hero-sidebar--zero .pf-hero-rail-group {
       gap: var(--ct-space-1);
-    }
-
-    .pf-container--fit.pf-container--zero .pf-hero-sidebar--zero .pf-hero-rail-group + .pf-hero-rail-group {
-      margin-top: var(--ct-space-1);
-      padding-top: var(--ct-space-1);
     }
 
     .pf-container--fit.pf-container--zero .pf-hero-sidebar--zero .pf-hero-rail-title,

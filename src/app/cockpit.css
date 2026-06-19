@@ -190,8 +190,8 @@
        expanded 20rem (320px) … 27vw … 26.25rem (420px)
      Les tiers laptop/tablet resserrent encore le plancher plus bas (cf. blocs
      responsive en fin de fichier). 48px reste réservé au SEUL état .collapsed. */
-  --ct-rail-right: clamp(17rem, 22vw, 22rem); /* default open — fluid */
-  --ct-rail-right-expanded: clamp(20rem, 27vw, 26.25rem); /* user-expanded — fluid */
+  --ct-rail-right: clamp(17rem, 25vw, 28rem); /* default open — max 448px */
+  --ct-rail-right-expanded: clamp(20rem, 30vw, 36rem); /* user-expanded — max 576px */
 
   /* Left nav rail — icon + label permanent. Slightly widened so the collapsed
      menu can hold long investor/admin labels without breaking the vertical
@@ -2445,7 +2445,7 @@
    ADMIN DASHBOARD COCKPIT — viewport-fit, ZERO top-level scroll (wide + tall).
    Mirrors the portfolio pf-container--fit / pf-cockpit pattern, scoped to
    admin class names so it NEVER bleeds into portfolio CSS.
-   Below 80rem width OR 48rem height → bento rows size to content (main scroll).
+   Below 80rem width OR 52rem height → bento rows size to content (main scroll).
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Base (all sizes): column stack, rows size to content. */
@@ -2511,13 +2511,11 @@
   min-height: 0;
 }
 
-/* ── Wide + tall gate (≥80rem × ≥48rem): pin shell, share height, no main scroll.
-   Height floor lowered 52→48rem (832→768px) so a standard 1280×800 laptop (tab
-   bar + dock eats height) stays in the no-scroll cockpit instead of dropping to
-   content-sized + main scroll, which clipped the ops/lower rows below the fold.
-   Inner cells already clip→scroll (see overflow rules below), so the denser
-   budget redistributes safely. ── */
-@media (min-width: 80rem) and (min-height: 48rem) {
+/* ── Wide + tall gate (≥80rem × ≥52rem): pin shell, share height, no main scroll.
+   Aligned with portfolio pf-container--fit (52rem = 832px). A standard 1280×800
+   laptop (50rem content height after chrome) scrolls homogeneously across hubs
+   instead of mixing fit + scroll per surface. Inner cells clip→scroll safely. ── */
+@media (min-width: 80rem) and (min-height: 52rem) {
   /* Pin the admin-doc shell chain to the viewport. */
   .ct-panels-row:has(.dashboard-cockpit--fit) {
     height: 100dvh;
@@ -2627,10 +2625,8 @@
   }
 }
 
-/* ── Below fit gate: bento rows size to content; shell footer pin unchanged.
-   Height floor mirrors the gate above (48rem) so 48–52rem doesn't activate both
-   blocks at once. ── */
-@media not all and (min-width: 80rem) and (min-height: 48rem) {
+/* ── Below fit gate: bento rows size to content; shell footer pin unchanged. ── */
+@media not all and (min-width: 80rem) and (min-height: 52rem) {
   .dashboard-cockpit--fit {
     height: auto;
     overflow: visible;
@@ -2777,7 +2773,7 @@
    Reuses all the dashboard-cockpit-panel / cell / row chrome (fully neutral).
    Adds only the fit gate wired to the .product-doc shell chain
    (dashboard-cockpit's fit gate targets .admin-doc and won't fire here).
-   Below 80rem width OR 48rem height → bento rows size to content (main scroll).
+   Below 80rem width OR 52rem height → bento rows size to content (main scroll).
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Base container — column stack; container-query for responsive row grids. */
@@ -2792,14 +2788,12 @@
 
 /* scenario-lab-page--fit */
 /* ── Scenario Lab fit gate — LAYOUT ONLY, no color.
-   Mirrors .dashboard-cockpit--fit: pin the admin shell chain at ≥80rem×48rem so
+   Mirrors .dashboard-cockpit--fit: pin the admin shell chain at ≥80rem×52rem so
    the page carries no main scroll; the LabShell body (.scenario-lab-body)
    is the single internal scroll region. Natural scroll below the gate + phone.
-   Height floor aligned 52→48rem on the dashboard/proof gate so a standard
-   1280×800 laptop stays in the no-scroll cockpit instead of falling back to
-   main scroll (sub-nav + chrome eats ~80px). ── */
+   Height floor aligned with portfolio/dashboard/proof (52rem). ── */
 
-@media (min-width: 80rem) and (min-height: 48rem) {
+@media (min-width: 80rem) and (min-height: 52rem) {
   .ct-panels-row:has(.scenario-lab-page--fit) {
     height: 100dvh;
     max-height: 100dvh;
@@ -2881,7 +2875,7 @@
 }
 
 /* ── Below fit gate: lab shell sizes to content; shell footer pin unchanged. ── */
-@media not all and (min-width: 80rem) and (min-height: 48rem) {
+@media not all and (min-width: 80rem) and (min-height: 52rem) {
   .scenario-lab-page--fit {
     height: auto;
     overflow: visible;
@@ -2897,9 +2891,8 @@
 }
 
 /* ── Wide+tall gate: pin shell chains (product-doc AND admin-doc), share height, no top-level scroll.
-   Uses 48rem (768px) instead of 52rem so the bento activates inside admin at typical browser heights
-   (sub-nav + chrome eats ~80px; 52rem = 832px was too tall and caused bento to fall back to scroll). ── */
-@media (min-width: 80rem) and (min-height: 48rem) {
+   Uses 52rem (832px) — homogeneous with portfolio pf-container--fit; 1280×800 scrolls. ── */
+@media (min-width: 80rem) and (min-height: 52rem) {
   /* Pin the product-doc and admin-doc shell chains to the viewport. */
   .ct-panels-row:has(.proof-cockpit--fit) {
     height: 100dvh;
@@ -2993,7 +2986,7 @@
 }
 
 /* ── Below fit gate: proof rows size to content; shell footer pin unchanged. ── */
-@media not all and (min-width: 80rem) and (min-height: 48rem) {
+@media not all and (min-width: 80rem) and (min-height: 52rem) {
   .proof-cockpit--fit {
     height: auto;
     overflow: visible;
@@ -3983,7 +3976,7 @@ button.ct-choice-card {
 
 /* Footer pin — height chain (all authenticated pages, flex only).
    ct-root 100dvh → panels-row → center-panel → page-area → main scroll + .app-footer.
-   Fit hubs add an extra height lock inside the 80rem×48rem gate. */
+   Fit hubs add an extra height lock inside the 80rem×52rem gate. */
 .ct-center-panel > .ct-page-area {
   flex: 1 1 auto;
   min-height: 0;
@@ -4021,7 +4014,7 @@ button.ct-choice-card {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: var(--ct-space-2);
   padding-block: var(--ct-space-2) var(--ct-space-4);
@@ -4065,11 +4058,11 @@ button.ct-choice-card {
   display: grid;
   justify-items: center;
   align-items: start;
-  gap: var(--ct-space-1_5);
+  gap: clamp(0.375rem, 0.3rem + 0.25vw, 0.5rem); /* gap fluide: --ct-space-1_5 → --ct-space-2 */
   width: 100%;
   margin-inline: auto;
-  min-height: 4.5rem;
-  padding: var(--ct-space-2) 0 var(--ct-space-2_5);
+  min-height: clamp(4.5rem, 4.1rem + 1.5vw, 5.5rem); /* hauteur fluide */
+  padding: clamp(0.5rem, 0.4rem + 0.3vw, 0.75rem) clamp(0.25rem, 0.1rem + 0.25vw, 0.5rem) clamp(0.625rem, 0.5rem + 0.3vw, 0.875rem); /* paddings fluides */
   border-radius: var(--ct-radius-md);
   color: var(--ct-text-muted);
   background: transparent;
@@ -4081,6 +4074,11 @@ button.ct-choice-card {
     background var(--ct-dur-fast) var(--ct-ease),
     border-color var(--ct-dur-base) var(--ct-ease),
     box-shadow var(--ct-dur-base) var(--ct-ease);
+}
+
+.ct-rail-icon {
+  width: clamp(1.5rem, 1.4rem + 0.5vw, 1.75rem); /* 24px → 28px */
+  height: clamp(1.5rem, 1.4rem + 0.5vw, 1.75rem);
 }
 
 .ct-rail-item:hover {
@@ -4119,9 +4117,9 @@ button.ct-choice-card {
 /* Permanent rail label under the icon. Reserve the same two-line block for all
    items so short labels do not shrink while longer labels wrap. */
 .ct-rail-item-tooltip {
-  min-height: 2rem;
+  min-height: clamp(1.8rem, 1.6rem + 1vw, 2.5rem); /* 28px → 40px */
   display: -webkit-box;
-  font-size: var(--ct-text-xs);
+  font-size: clamp(0.7rem, 0.65rem + 0.25vw, 0.8125rem); /* 11px → 13px */
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
   letter-spacing: var(--ct-tracking-tight);
@@ -4299,7 +4297,12 @@ button.ct-choice-card {
 
 /* Badge user recentré sur l'axe du rail (`--ct-rail-left`) — sans override il dérive de
    ~10px vers la gauche dans la largeur réduite. */
-.ct-avatar                                 { margin: 0 auto; }
+.ct-avatar {
+  margin: 0 auto;
+  width: clamp(2.5rem, 2.2rem + 1.2vw, 3rem) !important; /* 40px → 48px */
+  height: clamp(2.5rem, 2.2rem + 1.2vw, 3rem) !important;
+  font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 0.875rem) !important; /* 13px → 14px */
+}
 
 /* Rail gauche — nav */
 /* Logo bouton rail — H blanc (wordmark garde le vert sur « Connect »). */
@@ -4339,7 +4342,7 @@ button.ct-choice-card {
    height pilote, width auto conserve le ratio du viewBox. */
 .ct-rail-left.launcher .ct-rail-top-badge svg {
   width: auto;
-  height: 32px;
+  height: clamp(1.5rem, 1.3rem + 1vw, 2rem); /* 24px → 32px */
 }
 
 /* Launcher verrouillé en position repliée — un seul produit (Connect), le
@@ -4498,13 +4501,13 @@ button.ct-choice-card {
 
 /* Cockpit chat rail — density calibration */
 .ct-chat-actionbar                         { display: flex; align-items: center; gap: var(--ct-space-2); padding-bottom: var(--ct-space-1); }
-.ct-chat-mode-chip                         { padding: 2px 7px; font-size: var(--ct-text-micro); border-radius: var(--ct-radius-sm); letter-spacing: 0.02em; text-transform: uppercase; }
+.ct-chat-mode-chip                         { padding: 2px 7px; font-size: clamp(0.625rem, 0.59rem + 0.18vw, 0.6875rem); /* 10px → 11px */ border-radius: var(--ct-radius-sm); letter-spacing: 0.02em; text-transform: uppercase; }
 .ct-chat-mode-chip--on                     { color: var(--ct-accent); border: 1px solid color-mix(in srgb, var(--ct-accent) 45%, transparent); background: color-mix(in srgb, var(--ct-accent) 8%, transparent); }
 .ct-chat-mode-chip--off                    { color: var(--ct-text-faint); border: 1px solid color-mix(in srgb, var(--ct-text-faint) 35%, transparent); }
-.ct-chat-newbtn                            { padding: 3px 8px; font-size: var(--ct-text-micro); margin-left: auto; }
+.ct-chat-newbtn                            { padding: 3px 8px; font-size: clamp(0.625rem, 0.59rem + 0.18vw, 0.6875rem); /* 10px → 11px */ margin-left: auto; }
 .ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-2); }
-.ct-chat-msg                               { padding: var(--ct-space-2) var(--ct-space-2_5); font-size: var(--ct-text-xs); border-radius: var(--ct-radius-md); }
-.ct-chat-msg.assistant code                { padding: 1px 4px; font-size: var(--ct-text-micro); }
+.ct-chat-msg                               { padding: var(--ct-space-2) var(--ct-space-2_5); font-size: clamp(0.8125rem, 0.76rem + 0.26vw, 0.9375rem); /* 13px → 15px */ border-radius: var(--ct-radius-md); }
+.ct-chat-msg.assistant code                { padding: 1px 4px; font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); }
 
 /* Formulaire de chat - on enlève la lourdeur du package */
 .ct-chat-form {
@@ -4809,8 +4812,8 @@ button.ct-choice-card {
 @media (max-width: 90rem) and (min-width: 75.0625rem) {
   .ct-root {
     --ct-rail-left: 5rem;                       /* 80px — icon rail, was 104px */
-    --ct-rail-right: clamp(15rem, 18vw, 18rem); /* open chat resserré : 240→288px */
-    --ct-rail-right-expanded: clamp(18rem, 22vw, 21rem); /* expanded resserré */
+    --ct-rail-right: clamp(15rem, 25vw, 24rem); /* open chat : fluid resserré */
+    --ct-rail-right-expanded: clamp(18rem, 28vw, 30rem); /* expanded : fluid resserré */
   }
 }
 
@@ -4819,8 +4822,8 @@ button.ct-choice-card {
 @media (max-width: 74.999rem) and (min-width: 64rem) {
   .ct-root {
     --ct-rail-left: 4.5rem;                     /* 72px */
-    --ct-rail-right: clamp(14rem, 22vw, 16rem); /* open chat : 224→256px */
-    --ct-rail-right-expanded: clamp(16rem, 26vw, 19rem);
+    --ct-rail-right: clamp(14rem, 22vw, 20rem); /* open chat : fluid fin */
+    --ct-rail-right-expanded: clamp(16rem, 25vw, 22rem);
   }
 }
 
@@ -5483,8 +5486,8 @@ button.ct-choice-card {
   .ct-rail-intra .ct-rail-sep { display: none !important; }
 
   .ct-rail-intra .ct-rail-item {
-    min-height: 44px !important;
-    padding: 4px 10px !important;
+    min-height: clamp(2.75rem, 2.5rem + 1vw, 3.5rem) !important;
+    padding: clamp(0.25rem, 0.2rem + 0.1vw, 0.375rem) clamp(0.625rem, 0.5rem + 0.5vw, 0.875rem) !important;
   }
 
   /* Reserve bottom intra rail + legal footer — page-area (not main) avoids ghost scroll. */
