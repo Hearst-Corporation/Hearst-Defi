@@ -911,6 +911,10 @@ export interface RunSourcingActionResult {
   skipped: number;
   isMock: boolean;
   byTier: { A: number; B: number; C: number };
+  /** Number of enrich calls that failed (quota / key issues). */
+  enrichFailed: number;
+  /** Candidates skipped pre-enrich because their apolloId was already in DB. */
+  dedupSkipped: number;
 }
 
 /**
@@ -926,20 +930,42 @@ export async function runSourcing(
   const admin = await requireAdmin();
   if (!icpId) throw new Error("runSourcing: missing icpId");
 
+  // P1-2: Refuse to run in production without a real Apollo key. The mock
+  // generates *.example addresses that would pollute the prod prospect table.
+  if (process.env.NODE_ENV === "production" && !process.env.APOLLO_API_KEY) {
+    throw new Error(
+      "runSourcing: APOLLO_API_KEY required in production — refusing to source mock leads",
+    );
+  }
+
   const icp = await prisma.outreachICP.findUnique({ where: { id: icpId } });
   if (!icp) throw new Error("runSourcing: ICP not found");
 
   const filters = parseIcpFilters(icp);
-  const { candidates, isMock } = await runSourcingForIcp(
+
+  // P1-1: Pre-enrich dedup hook — look up which apolloIds are already in DB
+  // BEFORE the credit-consuming enrich call happens.
+  const alreadyKnownApolloIds = async (ids: string[]): Promise<Set<string>> => {
+    const found = await prisma.outreachProspect.findMany({
+      where: { apolloId: { in: ids } },
+      select: { apolloId: true },
+    });
+    return new Set(found.map((r) => r.apolloId).filter((id): id is string => id !== null));
+  };
+
+  const { candidates, isMock, stats } = await runSourcingForIcp(
     icp.name,
     filters,
     { tierAMin: icp.tierAMin, tierBMin: icp.tierBMin, tierCMin: icp.tierCMin },
     Math.min(Math.max(count, 1), 50),
+    { alreadyKnownApolloIds },
   );
 
   const emails = candidates.map((c) => c.email.toLowerCase());
 
   // Dedupe: skip emails already in the directory or on the suppression list.
+  // (This second pass catches email collisions and suppression-list entries —
+  // the apolloId dedup above already handled re-runs of known leads.)
   const [existing, suppressed] = await Promise.all([
     prisma.outreachProspect.findMany({
       where: { email: { in: emails } },
@@ -983,7 +1009,13 @@ export async function runSourcing(
     "OutreachICP",
     icp.id,
     null,
-    { sourced: fresh.length, isMock, byTier },
+    {
+      sourced: fresh.length,
+      isMock,
+      byTier,
+      enrichFailed: stats.enrichFailed,
+      dedupSkipped: stats.dedupSkipped,
+    },
   );
 
   revalidatePath(REVALIDATE_PATH);
@@ -992,6 +1024,8 @@ export async function runSourcing(
     skipped: candidates.length - fresh.length,
     isMock,
     byTier,
+    enrichFailed: stats.enrichFailed,
+    dedupSkipped: stats.dedupSkipped,
   };
 }
 
