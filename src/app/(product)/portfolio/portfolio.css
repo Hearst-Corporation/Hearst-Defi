@@ -906,7 +906,11 @@
    available beside the left rail + right chat, not the browser size. */
 .pf-hero-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  /* minmax(0,1fr) not 1fr: a bare 1fr track is minmax(auto,1fr), whose auto
+     min lets the chart content force the single column wider than the slot.
+     minmax(0,…) lets the stacked chart shrink to the container width — no
+     hScroll in 1-col. The aside, also full-width here, follows the same track. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 0;
   align-items: stretch;
   border-radius: var(--ct-radius-xl);
@@ -1119,13 +1123,22 @@ a.pf-trust-compact__see-more:hover {
   );
 }
 
+/* Shared hero head band — the chart panel header (left column) and the first
+   rail group head (right column) sit on ONE horizontal band so their titles
+   share a baseline. --pf-hero-head-band is the min content height of that band
+   (the line-box of the text-base primary title); both heads opt in below. */
+.pf-hero-grid {
+  --pf-hero-head-band: calc(var(--ct-text-base) * var(--ct-leading-snug));
+}
+
 .pf-cockpit-panel__header {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--ct-space-1) var(--ct-space-2);
   margin: 0;
+  min-height: var(--pf-hero-head-band, auto);
   padding-bottom: var(--ct-space-1_5);
   border-bottom: 1px solid color-mix(in srgb, var(--pf-border-soft-strong) 74%, transparent);
 }
@@ -1344,11 +1357,27 @@ a.pf-trust-compact__see-more:hover {
 }
 
 /* Hero grid internals — chart + sidebar as welded zones.
-   Stacked (1-col) by default → content-sized, no forced 100% height. */
+   Stacked (1-col) by default → content-sized, no forced 100% height.
+   min-width:0 on BOTH zones: as grid items they default to min-width:auto,
+   which lets the chart's preserveAspectRatio="none" SVG + absolute month
+   labels push the track wider than the slot (the hScroll root-cause). With
+   min-width:0 the chart column shrinks cleanly and the aside floor is owned
+   by the grid track (minmax 16rem in 2-col, full-width in 1-col). */
 .pf-main-chart-wrapper,
 .pf-hero-sidebar {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+}
+
+/* The welded chart panel must also shrink with its wrapper and clip its own
+   paint box — the absolute month labels (left:%, last one translateX(-100%))
+   are out of flow and could bleed past the panel edge on a narrow slot. The
+   grid's overflow:clip is the outer net; this is the local guarantee so the
+   card never shows hScroll regardless of slot width. */
+.pf-main-chart-wrapper > .pf-value-chart {
+  min-width: 0;
+  overflow-x: clip;
 }
 
 .pf-hero-sidebar {
@@ -1418,6 +1447,17 @@ a.pf-trust-compact__see-more:hover {
   justify-content: space-between;
   gap: var(--ct-space-2);
   min-width: 0;
+}
+
+/* First rail group (metrics) head shares the chart-panel header band so the
+   "Portfolio value" h3 (left) and "Portfolio Metrics" / "Key Metrics" title
+   (right) land on the same horizontal line. Same min-height + bottom border +
+   bottom-aligned title as .pf-cockpit-panel__header → titles share a baseline. */
+.pf-hero-rail-group--metrics > .pf-hero-rail-head {
+  align-items: flex-end;
+  min-height: var(--pf-hero-head-band, auto);
+  padding-bottom: var(--ct-space-1_5);
+  border-bottom: 1px solid color-mix(in srgb, var(--pf-border-soft-strong) 74%, transparent);
 }
 
 /* ── Recoded hero rail — compact KPI rows + premium thin meter ── */
@@ -1642,6 +1682,15 @@ a.pf-trust-compact__see-more:hover {
     min-height: 18rem;
     --pf-chart-flex-min: 14rem;
   }
+
+  /* Zero override INSIDE the @container so it beats the live min-height/flex-min
+     at the same specificity by source-order. Without this, the live 18rem ladder
+     wins and the ghost line stretches with a vertical void. chart-geometry. */
+  .pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
+    /* chart-geometry */
+    min-height: 12rem;
+    --pf-chart-flex-min: 4rem;
+  }
 }
 
 /* --pf-bp-hero-2col: 58rem */
@@ -1650,14 +1699,48 @@ a.pf-trust-compact__see-more:hover {
     /* chart-geometry */
     min-height: 20rem;
   }
+
+  /* Zero override INSIDE the 58rem gate too — this is the 2-col slot where the
+     live 20rem floor was inflating the ghost hero to ~680px. chart-geometry. */
+  .pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
+    /* chart-geometry */
+    min-height: 12rem;
+    --pf-chart-flex-min: 4rem;
+  }
 }
 
 /* Zero-state hero chart — no real series to plot, so the placeholder floor is
    lowered (kills the vertical void under the ghost curve). Live state keeps the
-   16→20rem ladder above. chart-geometry — raw rem is the sanctioned escape. */
+   16→20rem ladder above. chart-geometry — raw rem is the sanctioned escape.
+   The flat ghost line + month labels + disclaimer fit a short ~12rem panel;
+   the plot/wrapper are pinned to a fixed short height below (no flex stretch). */
 .pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
   /* chart-geometry */
-  min-height: 14rem;
+  min-height: 12rem;
+  --pf-chart-flex-min: 4rem;
+}
+
+/* Zero-state: stop the plot + chart-wrapper from stretching to fill the card.
+   In live state .pf-value-chart__plot and __chart-wrapper are flex:1 so the real
+   series fills the panel; in zero we pin them to a short fixed height so the flat
+   ghost line stays compact and the panel collapses to ~12rem total. */
+.pf-container--zero .pf-value-chart__plot {
+  flex: 0 0 auto;
+}
+
+.pf-container--zero .pf-value-chart__chart-wrapper {
+  flex: 0 0 auto;
+  /* chart-geometry — short ghost-line strip, overrides live aspect-ratio/min-height */
+  aspect-ratio: auto;
+  min-height: 0;
+  height: 4rem;
+}
+
+/* Zero-state: the welded chart panel's own flex-min backstop (l.1628-1631) must
+   not re-inflate the plot. Pin it to the short value above. */
+.pf-container--zero .pf-main-chart-wrapper .pf-value-chart [class*="flex-1"] {
+  /* chart-geometry */
+  min-height: var(--pf-chart-flex-min);
 }
 
 /* Compact padding on very narrow slots */
@@ -2252,11 +2335,20 @@ a.pf-trust-compact__see-more:hover {
   flex-direction: column;
   gap: var(--ct-space-3);
   /* Bind to the shell slot instead of stretching past it (min-height:100% on the
-     base .pf-container was inflating the bento). Internal scroll stays clean and
-     scoped to the cockpit when content truly overflows a short viewport. */
+     base .pf-container was inflating the bento). Top-level cockpit = no visible
+     scrollbar (the page compacts to fit, full-screen, responsive). Scroll stays
+     functional in last resort but the bar is HIDDEN — ghost-scroll like the rest
+     of the cockpit (drill-down lives in dedicated "view more" leaf pages, which
+     are the surfaces allowed to scroll). */
   height: 100%;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: none; /* Firefox — ghost scroll, no bar glued to the cards */
+  -ms-overflow-style: none; /* legacy Edge */
+}
+.pf-container--fit::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 /* Below fit gate — bento rows size to content; shell footer pin unchanged. */
@@ -2289,9 +2381,12 @@ a.pf-trust-compact__see-more:hover {
   gap: var(--ct-space-4);
 }
 
-.pf-cockpit-row--summary { grid-template-columns: 1fr; }
-.pf-cockpit-row--mid     { grid-template-columns: 1fr; }
-.pf-cockpit-row--trio    { grid-template-columns: 1fr; }
+/* minmax(0,1fr): the single-col row track must let its cell shrink to the
+   slot. A bare 1fr (=minmax(auto,1fr)) inherits the cell content's auto min,
+   re-opening the hScroll path the cell-level min-width:0 just closed. */
+.pf-cockpit-row--summary { grid-template-columns: minmax(0, 1fr); }
+.pf-cockpit-row--mid     { grid-template-columns: minmax(0, 1fr); }
+.pf-cockpit-row--trio    { grid-template-columns: minmax(0, 1fr); }
 
 /* Section head — the single structural green accent per section (DS §13.2).
    Compact line; never steals row height in the no-scroll fit-gate (flex:0 0 auto,
@@ -2464,6 +2559,10 @@ a.pf-trust-compact__see-more:hover {
     justify-content: flex-start;
     gap: var(--ct-space-1_5);
     padding: var(--ct-space-2_5) var(--ct-space-3);
+    /* Match the chart panel's top inset so both hero heads start their band at
+       the same Y → the metrics title baseline lines up with "Portfolio value".
+       Only padding-top is pinned; bottom/inline stay compacted. */
+    padding-top: var(--ct-space-3);
   }
 
   .pf-container--fit.pf-container--zero .pf-value-chart {
@@ -2492,6 +2591,8 @@ a.pf-trust-compact__see-more:hover {
     .pf-container--fit.pf-container--zero .pf-hero-sidebar--zero {
       gap: var(--ct-space-1);
       padding: var(--ct-space-1_5) var(--ct-space-2);
+      /* Match chart panel top inset (space-2) at this breakpoint — heads align. */
+      padding-top: var(--ct-space-2);
       --pf-zero-rail-sibling-gap: var(--ct-space-1);
     }
 
