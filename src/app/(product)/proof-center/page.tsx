@@ -5,21 +5,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { ProductPageHeader } from "@/components/connect/product-page-header";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
-import { ProofCenterColdShell } from "@/components/proof-center/proof-center-cold-shell";
-import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
-import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
-import {
-  ProofCockpitPanelHeader,
-  ProofLeafLink,
-} from "@/components/proof-center/proof-cockpit-panel-header";
-import { ProofCenterTestnetNotice } from "@/components/proof-center/proof-center-testnet-notice";
-import { MiningCashFlowEvidence } from "@/components/proof-center/mining-cashflow-evidence";
-import { RecentDistributions } from "@/components/proof-center/recent-distributions";
-import { RebalancingEventsPanel } from "@/components/proof-center/rebalancing-events-panel";
-import { PorSummary } from "@/components/proof-center/por-summary";
+import { ProofCenterHub } from "@/components/proof-center/proof-center-hub";
 import { loadCoverageForVault } from "@/lib/agents/loaders/coverage";
 import { isChainConfigured } from "@/lib/chain/client";
 import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
@@ -40,7 +26,6 @@ import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { prisma } from "@/lib/db";
 import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
-import { cn } from "@/lib/cn";
 
 interface ProofCenterPageProps {
   searchParams: Promise<{ type?: string | string[] }>;
@@ -105,130 +90,21 @@ export default async function ProductProofCenterPage({
   });
 
   return (
-    <div
-      className={cn(
-        "proof-center-shell",
-        !coldEmpty && "proof-cockpit proof-cockpit--fit",
-      )}
-    >
-      <ProofCenterTestnetNotice
-        chainConfigured={chainConfigured}
-        demoNotice={demoNotice}
-      />
-
-      <ProductPageHeader
-        eyebrow="Hearst Yield Vault"
-        title="Proof Center"
-        description={
-          <>
-            Every data point that backs the vault — mining attestations, custody
-            snapshots, audits, and the methodology itself — hashed and posted
-            with its source URI.
-          </>
-        }
-        actions={
-          <ChainStatusBadge
-            configured={chainConfigured}
-            eventCount={onChainEvents.length}
-            attestationCount={onChainAttestations.length}
-          />
-        }
-      />
-
-      {coldEmpty ? (
-        <>
-          <ProofCenterColdShell chainConfigured={chainConfigured} />
-          <ProofCenterSection
-            id="contracts-heading"
-            title="Contracts & review trail"
-          >
-            <ContractsAuditTrail platformAddresses={platformAddresses} />
-          </ProofCenterSection>
-        </>
-      ) : (
-        <>
-          <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-top">
-            <div className="dashboard-cockpit-cell">
-              <div className="dashboard-cockpit-panel">
-                <ProofCockpitPanelHeader
-                  title="Proof of Reserves"
-                  trailing={
-                    <ProofLeafLink href="/proof-center/full" label="View full" />
-                  }
-                />
-                <div className="proof-panel-scroll">
-                  <PorSummary
-                    attestation={latestAttestation}
-                    custody={custody}
-                    verified={attestationVerified}
-                    demo={demo}
-                    sectionLed={false}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="dashboard-cockpit-cell">
-              <div className="dashboard-cockpit-panel">
-                <ProofCockpitPanelHeader title="Mining cash-flow evidence" />
-                <div className="proof-panel-scroll">
-                  <MiningCashFlowEvidence coverage={coverage} sectionLed={false} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-bot">
-            <div className="dashboard-cockpit-cell">
-              <div className="dashboard-cockpit-panel">
-                <ProofCockpitPanelHeader
-                  title="Latest distributions"
-                  trailing={
-                    <ProofLeafLink href="/proof-center/full" label="View full" />
-                  }
-                />
-                <div className="proof-panel-scroll">
-                  {recentDistributions.length === 0 ? (
-                    <EmptySurface
-                      message="No distributions yet"
-                      detail="USDC payouts will appear once the vault operates."
-                    />
-                  ) : (
-                    <RecentDistributions
-                      distributions={recentDistributions}
-                      sectionLed={false}
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="dashboard-cockpit-cell">
-              <div className="dashboard-cockpit-panel">
-                <ProofCockpitPanelHeader
-                  title="Rebalancing events"
-                  trailing={
-                    <ProofLeafLink href="/proof-center/full" label="View full" />
-                  }
-                />
-                <div className="proof-panel-scroll">
-                  {recentRebalances.length === 0 ? (
-                    <EmptySurface
-                      message="No rebalancing events yet"
-                      detail="Rebalancing activity will appear once the vault operates."
-                    />
-                  ) : (
-                    <RebalancingEventsPanel
-                      events={recentRebalances}
-                      sectionLed={false}
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+    <ProofCenterHub
+      variant="product"
+      chainConfigured={chainConfigured}
+      onChainEventsCount={onChainEvents.length}
+      onChainAttestationCount={onChainAttestations.length}
+      latestAttestation={latestAttestation}
+      attestationVerified={attestationVerified}
+      custody={custody}
+      coverage={coverage}
+      recentDistributions={recentDistributions}
+      recentRebalances={recentRebalances}
+      platformAddresses={platformAddresses}
+      coldEmpty={coldEmpty}
+      demo={demo}
+      demoNotice={demoNotice}
+    />
   );
 }
