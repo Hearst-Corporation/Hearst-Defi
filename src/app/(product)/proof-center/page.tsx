@@ -5,24 +5,23 @@
 
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
-import type { ReactNode } from "react";
-import { TriangleAlert } from "lucide-react";
-
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
 import { ProofCenterColdShell } from "@/components/proof-center/proof-center-cold-shell";
 import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
 import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
+import {
+  ProofCockpitPanelHeader,
+  ProofLeafLink,
+} from "@/components/proof-center/proof-cockpit-panel-header";
+import { ProofCenterTestnetNotice } from "@/components/proof-center/proof-center-testnet-notice";
 import { MiningCashFlowEvidence } from "@/components/proof-center/mining-cashflow-evidence";
 import { RecentDistributions } from "@/components/proof-center/recent-distributions";
 import { RebalancingEventsPanel } from "@/components/proof-center/rebalancing-events-panel";
 import { PorSummary } from "@/components/proof-center/por-summary";
 import { loadCoverageForVault } from "@/lib/agents/loaders/coverage";
-import {
-  isChainConfigured,
-} from "@/lib/chain/client";
+import { isChainConfigured } from "@/lib/chain/client";
 import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
 import { isAttestorAllowlisted } from "@/lib/attestation/stored";
 import { loadCustody } from "@/lib/data/custody";
@@ -47,35 +46,6 @@ interface ProofCenterPageProps {
   searchParams: Promise<{ type?: string | string[] }>;
 }
 
-/** Product proof cockpit panel chrome — same rhythm as dashboard-cockpit-panel, no admin import. */
-function ProofCockpitPanelHeader({
-  title,
-  trailing,
-}: {
-  title: string;
-  trailing?: ReactNode;
-}) {
-  return (
-    <header className="dashboard-cockpit-panel__header">
-      <div className="dashboard-cockpit-panel__header-main min-w-0">
-        <h3 className="dashboard-panel-micro-title">{title}</h3>
-      </div>
-      {trailing ? (
-        <div className="dashboard-cockpit-panel__header-trail">{trailing}</div>
-      ) : null}
-    </header>
-  );
-}
-
-function ProofLeafLink({ href, label = "View full" }: { href: string; label?: string }) {
-  return (
-    <Link href={href} className="dashboard-cockpit-leaf-link">
-      <span>{label}</span>
-      <span aria-hidden> →</span>
-    </Link>
-  );
-}
-
 export default async function ProductProofCenterPage({
   searchParams: _searchParams,
 }: ProofCenterPageProps) {
@@ -84,7 +54,7 @@ export default async function ProductProofCenterPage({
   const investor = await getInvestor();
   const demo = isDemoInvestor(investor);
 
-  const coveragePeriod = new Date().toISOString().slice(0, 7); // YYYY-MM
+  const coveragePeriod = new Date().toISOString().slice(0, 7);
 
   const [
     onChainEvents,
@@ -125,7 +95,6 @@ export default async function ProductProofCenterPage({
     : showDemoBanner
       ? "Demo data · Local visual QA — not production"
       : null;
-  const showNotices = chainConfigured || demoNotice !== null;
 
   const coldEmpty = isProofCenterColdEmpty({
     demo,
@@ -144,35 +113,10 @@ export default async function ProductProofCenterPage({
         !coldEmpty && "proof-cockpit proof-cockpit--fit",
       )}
     >
-      {showNotices ? (
-        <div
-          role="note"
-          aria-label="Proof Center notices"
-          className="product-doc-callout"
-        >
-          {chainConfigured ? (
-            <TriangleAlert
-              className="ct-icon-sm ct-icon-sm--offset-top ct-status-warning"
-              aria-hidden
-            />
-          ) : null}
-          <div className="product-doc-stack product-doc-stack--tight min-w-0">
-            {chainConfigured ? (
-              <p className="body-sm ct-text-strong m-0">
-                On-chain proofs are read from a{" "}
-                <strong>test network</strong> — not production mainnet.
-                Addresses, balances, and attestations shown here are test
-                artefacts.
-              </p>
-            ) : null}
-            {demoNotice ? (
-              <p className="body-sm ct-status-warning m-0 font-medium">
-                {demoNotice}
-              </p>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
+      <ProofCenterTestnetNotice
+        chainConfigured={chainConfigured}
+        demoNotice={demoNotice}
+      />
 
       <ProductPageHeader
         eyebrow="Hearst Yield Vault"
@@ -208,7 +152,12 @@ export default async function ProductProofCenterPage({
           <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-top">
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
-                <ProofCockpitPanelHeader title="Proof of Reserves" />
+                <ProofCockpitPanelHeader
+                  title="Proof of Reserves"
+                  trailing={
+                    <ProofLeafLink href="/proof-center/full" label="View full" />
+                  }
+                />
                 <div className="proof-panel-scroll">
                   <PorSummary
                     attestation={latestAttestation}

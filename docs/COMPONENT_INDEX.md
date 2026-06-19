@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**204 components** · 1 possible orphans · 2 intentionally unwired.
+**206 components** · 1 possible orphans · 2 intentionally unwired.
 
 ## ⚠️ Possible orphans (0 references — verify before keeping)
 
@@ -88,7 +88,7 @@
 | `src/components/error/error-shell.tsx` | ErrorShellLayout | 7 |
 | `src/components/error/segment-error.tsx` | SegmentError | 8 |
 | `src/components/error/segment-not-found.tsx` | SegmentNotFound | 1 |
-| `src/components/governance/timelock-countdown.tsx` | TimelockCountdown | 2 |
+| `src/components/governance/timelock-countdown.tsx` | TimelockCountdown | 3 |
 | `src/components/hub-mode-styles.tsx` | HubModeStyles | 1 |
 | `src/components/legal/legal-page-header.tsx` | LegalPageHeader | 4 |
 | `src/components/memo/memo-section.tsx` | MemoSection | 1 |
@@ -118,7 +118,7 @@
 | `src/components/portfolio/kpi-row.tsx` | PortfolioKpiRow | 1 |
 | `src/components/portfolio/layout-preview-banner.tsx` | PreviewModeChip | 2 |
 | `src/components/portfolio/lock-meter.tsx` | LockMeter | 4 |
-| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 26 |
+| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 27 |
 | `src/components/portfolio/portfolio-greeting.tsx` | PortfolioGreeting | 2 |
 | `src/components/portfolio/portfolio-leaf-link.tsx` | PortfolioLeafLink | 6 |
 | `src/components/portfolio/portfolio-leaf-shell.tsx` | PortfolioLeafShell | 4 |
@@ -140,14 +140,16 @@
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
 | `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 10 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
-| `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 4 |
+| `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 5 |
 | `src/components/proof-center/custody-panel.tsx` | CustodySection | 1 |
 | `src/components/proof-center/event-timeline.tsx` | EventTimeline | 2 |
 | `src/components/proof-center/mining-cashflow-evidence.tsx` | MiningCashFlowEvidence | 2 |
 | `src/components/proof-center/por-summary.tsx` | PorSummary | 2 |
-| `src/components/proof-center/proof-center-card-header.tsx` | ProofCenterCardHeader | 6 |
-| `src/components/proof-center/proof-center-cold-shell.tsx` | ProofCenterColdShell | 1 |
-| `src/components/proof-center/proof-center-section.tsx` | ProofCenterSection | 3 |
+| `src/components/proof-center/proof-center-card-header.tsx` | ProofCenterCardHeader | 7 |
+| `src/components/proof-center/proof-center-cold-shell.tsx` | ProofCenterColdShell | 2 |
+| `src/components/proof-center/proof-center-section.tsx` | ProofCenterSection | 5 |
+| `src/components/proof-center/proof-center-testnet-notice.tsx` | ProofCenterTestnetNotice | 4 |
+| `src/components/proof-center/proof-cockpit-panel-header.tsx` | ProofCockpitPanelHeader, ProofLeafLink | 1 |
 | `src/components/proof-center/rebalance-ptai-modal-trigger.tsx` | RebalancePtaiModalTrigger | 1 |
 | `src/components/proof-center/rebalancing-events-panel.tsx` | RebalancingEventsPanel | 2 |
 | `src/components/proof-center/recent-distributions.tsx` | RecentDistributions | 2 |
@@ -180,7 +182,7 @@
 | `src/components/ui/apy-range.tsx` | ApyRange | 18 |
 | `src/components/ui/badge.tsx` | Badge | 50 |
 | `src/components/ui/button.tsx` | Button | 82 |
-| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 74 |
+| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 75 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
 | `src/components/ui/chart-time-selector.tsx` 🔌 | ChartTimeSelector | 0 |
@@ -194,7 +196,7 @@
 | `src/components/ui/metric.tsx` | Metric | 8 |
 | `src/components/ui/modal.tsx` | Modal | 5 |
 | `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 23 |
-| `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 18 |
+| `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 19 |
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 3 |
 | `src/components/ui/progress.tsx` | Progress | 14 |

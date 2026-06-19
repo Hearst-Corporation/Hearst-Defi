@@ -14,6 +14,7 @@ import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { ProofCenterCardHeader } from "@/components/proof-center/proof-center-card-header";
 import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
+import { ProofCenterTestnetNotice } from "@/components/proof-center/proof-center-testnet-notice";
 import { EventTimeline } from "@/components/proof-center/event-timeline";
 import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
 import { ProofFilter } from "@/components/proof/proof-filter";
@@ -22,6 +23,7 @@ import { ProofGrid } from "@/components/proof/proof-grid";
 import { PLATFORM_PROOFS_EMPTY } from "@/components/proof/empty-messages";
 import type { UnifiedProof } from "@/components/proof/proof-types";
 import { TimelockCountdown } from "@/components/governance/timelock-countdown";
+import { isChainConfigured } from "@/lib/chain/client";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { loadCustody } from "@/lib/data/custody";
 import { getProofs } from "@/lib/data/proofs";
@@ -30,7 +32,9 @@ import { getInvestor } from "@/lib/auth/session";
 import { isDemoInvestor } from "@/lib/demo/provider";
 import { buildDemoProofs } from "@/lib/demo/builders";
 import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
+import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
 import { prisma } from "@/lib/db";
+import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { TIMELOCK_DELAY_HOURS } from "@/lib/governance/state-machine";
 
 export const metadata = {
@@ -45,6 +49,7 @@ interface ProofCenterFullPageProps {
 export default async function ProofCenterFullPage({
   searchParams,
 }: ProofCenterFullPageProps) {
+  const chainConfigured = isChainConfigured();
   const params = await searchParams;
   const raw = Array.isArray(params.type) ? params.type[0] : params.type;
   const filter = parseFilter(raw);
@@ -52,19 +57,27 @@ export default async function ProofCenterFullPage({
   const investor = await getInvestor();
   const demo = isDemoInvestor(investor);
 
-  const [onChainEvents, paper, custody, timelockProposals] = await Promise.all([
-    fetchOnChainEvents({ limit: 100 }),
-    demo
-      ? Promise.resolve(buildDemoProofs())
-      : getProofs().then((r) => r.data),
-    loadCustody(),
-    prisma.governanceProposal.findMany({
-      where: { state: "TIMELOCK" },
-      orderBy: { queuedAt: "asc" },
-    }),
-  ]);
+  const [onChainEvents, paper, custody, timelockProposals, showDemoBanner] =
+    await Promise.all([
+      fetchOnChainEvents({ limit: 100 }),
+      demo
+        ? Promise.resolve(buildDemoProofs())
+        : getProofs().then((r) => r.data),
+      loadCustody(),
+      prisma.governanceProposal.findMany({
+        where: { state: "TIMELOCK" },
+        orderBy: { queuedAt: "asc" },
+      }),
+      databaseHasDemoProofs(),
+    ]);
 
   const platformAddresses = buildPlatformAddresses(custody);
+
+  const demoNotice = demo
+    ? DEMO_SANDBOX_DISCLAIMER
+    : showDemoBanner
+      ? "Demo data · Local visual QA — not production"
+      : null;
 
   const proofs: UnifiedProof[] = paper.map(
     (p): UnifiedProof => ({ ...p, source: "paper" }),
@@ -72,7 +85,11 @@ export default async function ProofCenterFullPage({
 
   return (
     <div className="proof-center-shell">
-      {/* Back navigation */}
+      <ProofCenterTestnetNotice
+        chainConfigured={chainConfigured}
+        demoNotice={demoNotice}
+      />
+
       <Link
         href="/proof-center"
         className="inline-flex items-center gap-[var(--ct-space-1_5)] body-sm ct-text-muted no-underline hover:ct-text-primary ct-transition-base self-start"
@@ -139,7 +156,6 @@ export default async function ProofCenterFullPage({
         )}
       </ProofCenterSection>
 
-      {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="proof-center-footer">
         <DashboardPanelHeader
           eyebrow="Read path"
