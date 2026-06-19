@@ -178,7 +178,7 @@
 | `src/components/simulation/simulation-panel.tsx` | SimulationPanel | 1 |
 | `src/components/ui/apy-range.tsx` | ApyRange | 16 |
 | `src/components/ui/badge.tsx` | Badge | 49 |
-| `src/components/ui/button.tsx` | Button | 80 |
+| `src/components/ui/button.tsx` | Button | 79 |
 | `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 76 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |

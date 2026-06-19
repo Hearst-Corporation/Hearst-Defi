@@ -13,8 +13,6 @@ import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
 import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
-import { PortfolioOnboardingHero } from "@/components/portfolio/portfolio-onboarding-hero";
-import { PortfolioOnboardingFoot } from "@/components/portfolio/portfolio-onboarding-foot";
 import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +40,6 @@ export default async function PortfolioPage() {
     demo,
     data,
     hasPositions,
-    previewZeros,
     state,
     heroWidgets,
     lockMeterProps,
@@ -55,11 +52,15 @@ export default async function PortfolioPage() {
     showDemoBanner,
   } = await loadPortfolioView();
 
+  // Preview (zero-position) cockpit carries the --zero compaction class so the
+  // no-scroll fit-gate can tighten the placeholder hero/rail (audit root-cause #1).
+  const isPreview = state.kind === "preview";
+
   return (
     <div
       className={cn(
-        "pf-container",
-        previewZeros ? "pf-container--zero pf-container--onboarding" : "pf-container--fit",
+        "pf-container pf-container--fit",
+        isPreview && "pf-container--zero",
       )}
       data-testid="portfolio-page"
       data-portfolio-hub="true"
@@ -71,59 +72,36 @@ export default async function PortfolioPage() {
         <DemoDataBanner />
       ) : null}
 
-      <PortfolioGreeting
-        name={displayName(investor)}
-        data={data}
-        previewZeros={previewZeros}
-      />
+      <PortfolioGreeting name={displayName(investor)} />
 
       <div className="pf-cockpit">
         <div className="pf-cockpit-row pf-cockpit-row--summary">
-          <div
-            className={cn(
-              "pf-hero-grid pf-cockpit-cell",
-              previewZeros && "pf-hero-grid--onboarding",
-            )}
-          >
+          <div className="pf-hero-grid pf-cockpit-cell">
             <div className="pf-main-chart-wrapper">
-              {previewZeros ? (
-                <PortfolioOnboardingHero />
-              ) : (
-                <ValueChart
-                  positions={data.positions}
-                  totalValueUsdc={data.totalValueUsdc}
-                  source={data.source}
-                  updatedAt={data.updatedAt}
-                  mode={heroWidgets.value.mode}
-                />
-              )}
+              <ValueChart
+                positions={data.positions}
+                totalValueUsdc={data.totalValueUsdc}
+                source={data.source}
+                updatedAt={data.updatedAt}
+                mode={heroWidgets.value.mode}
+              />
             </div>
-            {!previewZeros ? (
-              <aside className="pf-hero-sidebar">
-                <HeroKpiTable
-                  totalValueUsdc={data.totalValueUsdc}
-                  totalYieldYtdUsdc={data.totalYieldYtdUsdc}
-                  nextDistributionAt={data.nextDistributionAt}
-                  hasPositions={hasPositions}
-                  source={data.source}
-                  updatedAt={data.updatedAt}
-                  mode={heroWidgets.metrics.mode}
-                />
-                <HeroPayoutRail {...timeToCashProps} />
-                <HeroLiquidityRail {...lockMeterProps} />
-              </aside>
-            ) : null}
+            <aside className={cn("pf-hero-sidebar", isPreview && "pf-hero-sidebar--zero")}>
+              <HeroKpiTable
+                totalValueUsdc={data.totalValueUsdc}
+                totalYieldYtdUsdc={data.totalYieldYtdUsdc}
+                nextDistributionAt={data.nextDistributionAt}
+                hasPositions={hasPositions}
+                source={data.source}
+                updatedAt={data.updatedAt}
+                mode={heroWidgets.metrics.mode}
+              />
+              <HeroPayoutRail {...timeToCashProps} />
+              <HeroLiquidityRail {...lockMeterProps} />
+            </aside>
           </div>
         </div>
 
-        {previewZeros ? (
-          <div className="pf-cockpit-row pf-cockpit-row--onboarding-foot">
-            <div className="pf-cockpit-cell">
-              <PortfolioOnboardingFoot />
-            </div>
-          </div>
-        ) : (
-          <>
             <h2 className="h2 pf-section-head">Positions &amp; allocation</h2>
             <div className="pf-cockpit-row pf-cockpit-row--mid">
               <div className="pf-cockpit-cell" data-section="positions">
@@ -180,8 +158,6 @@ export default async function PortfolioPage() {
                 <TrustProofCompact risk={riskPulseProps} proof={proofPulseProps} />
               </div>
             </div>
-          </>
-        )}
       </div>
     </div>
   );
