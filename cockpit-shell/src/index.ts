@@ -53,7 +53,11 @@ export {
   subscribe as subscribeRailRight,
   getSnapshot as getRailRightOpen,
   getServerSnapshot as getRailRightOpenServer,
+  getModeSnapshot as getRailRightMode,
+  getModeServerSnapshot as getRailRightModeServer,
   forceOpen as forceOpenRailRight,
   toggle as toggleRailRight,
+  toggleWidth as toggleRailRightWidth,
 } from "./stores/railOpenStore";
+export type { RailRightMode } from "./stores/railOpenStore";
 export { subscribe as subscribeLauncher } from "./stores/launcherStore";

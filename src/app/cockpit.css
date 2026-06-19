@@ -182,8 +182,9 @@
      Si une future v0.3.0 l'expose, retirer ce bloc et conserver le fallback. */
   --ct-shell-header-h: 4rem;
 
-  /* Chat rail width — override du package (420px). Calibré densité globale. */
-  --ct-rail-right: 22rem; /* 352px */
+  /* Chat rail width — override du package (420px default package). Calibré densité globale. */
+  --ct-rail-right: 22rem; /* 352px — default open */
+  --ct-rail-right-expanded: 26.25rem; /* 420px — user-expanded preset */
 
   /* Left nav rail — icon + label permanent. Slightly widened so the collapsed
      menu can hold long investor/admin labels without breaking the vertical
@@ -3759,6 +3760,15 @@ button.ct-choice-card {
      sous le fond global). Liseré clair pour le relief. */
   background: color-mix(in srgb, var(--ct-bg-deep) 55%, #000) !important;
   border-left: 1px solid var(--ct-border-on-dark);
+  flex-shrink: 0;
+}
+
+.ct-rail-right.collapsed {
+  width: 48px;
+}
+
+.ct-rail-right.expanded {
+  width: var(--ct-rail-right-expanded);
 }
 
 .ct-rail-right-header,
@@ -3774,6 +3784,12 @@ button.ct-choice-card {
 }
 .ct-rail-right-btn {
   border-color: var(--ct-border-on-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct-rail-right {
+    transition: none;
+  }
 }
 
 /* ── SUPPRESSION DES FONDS OPAQUES DU SHELL ──

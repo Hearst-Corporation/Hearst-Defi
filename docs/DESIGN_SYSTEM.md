@@ -123,12 +123,22 @@ Largeurs **live** (`src/app/cockpit.css` `:root`) :
 | Token | Valeur | Comportement |
 |-------|--------|--------------|
 | `--ct-rail-left` | `6.5rem` (104px) | Verrouillé `!important` sur `.ct-rail-left` — largeur fixe, ne scale pas avec le viewport |
-| `--ct-rail-right` | `22rem` (352px) | `flex-shrink: 0` ; replié à **48px** si `.ct-rail-right.collapsed` |
+| `--ct-rail-right` | `22rem` (352px) | `flex-shrink: 0` ; **modes utilisateur** (persistés `localStorage`) |
+| `--ct-rail-right-expanded` | `26.25rem` (420px) | Preset élargi (bouton header) |
+
+| Mode classe | Largeur | Contrôle |
+|-------------|---------|----------|
+| `.collapsed` | 48px | Toggle › / ‹ |
+| default (ouvert) | 352px | — |
+| `.expanded` | 420px | Bouton largeur (cycle default ↔ expanded) |
+
 | `.ct-center-panel` | `flex: 1` + `min-width: 0 !important` | Override package `min-width: 520px` — **seule colonne qui absorbe la largeur** |
 
-**Pourquoi rails et chat ne « grandissent » pas** : ce n'est pas un scaling proportionnel.
-Le centre prend toute la largeur utile restante (`flex: 1`, `min-width: 0`) ; les rails
-conservent une largeur en tokens rem. La typo du centre utilise `clamp()` sur
+**Pourquoi rails et chat ne « grandissent » pas avec le viewport** : ce n'est pas un scaling
+proportionnel au `vw`. Le **rail gauche** reste à 104px fixe. Le **chat** propose trois
+**presets** (48 / 352 / 420px) — le centre (`flex: 1`, `min-width: 0`) absorbe le reste.
+Persistance : `cockpit:rail-right-mode` (`collapsed` | `default` | `expanded`).
+La typo du centre utilise `clamp()` sur
 `--ct-text-lg`…`--ct-text-display` ; micro/xs/sm/base restent fixes pour la lisibilité.
 
 Le **chat** (`cockpit-shell/tokens.css`) utilise des tailles **px fixes** (9–15px) — hors

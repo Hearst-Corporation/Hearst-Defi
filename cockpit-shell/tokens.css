@@ -25,7 +25,8 @@
   --ct-border-accent: color-mix(in srgb, var(--ct-accent) 55%, transparent); /* superseded → 28% (cockpit.css) */
 
   --ct-rail-left: 88px;   /* superseded → 5.75rem/92px (cockpit.css) */
-  --ct-rail-right: 420px; /* superseded → 23.75rem/380px (cockpit.css) */
+  --ct-rail-right: 420px; /* superseded → 22rem/352px default (cockpit.css) */
+  --ct-rail-right-expanded: 26.25rem; /* 420px — live value in cockpit.css :root */
 
   --ct-surface-0: rgba(255,255,255,0.02); /* superseded → 0.04 (cockpit.css) */
   --ct-surface-1: rgba(255,255,255,0.04); /* superseded → 0.07 (cockpit.css) */
@@ -290,6 +291,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
 /* ── HUB BOTTOM BAR — visible uniquement sur le hub (jamais en mode produit) ── */
 .ct-root { --ct-rail-right-eff: var(--ct-rail-right); }
 .ct-root:has(.ct-rail-right.collapsed) { --ct-rail-right-eff: 48px; }
+.ct-root:has(.ct-rail-right.expanded) { --ct-rail-right-eff: var(--ct-rail-right-expanded); }
 .ct-hub-bar {
   position: absolute;
   bottom: 24px;
@@ -474,6 +476,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
     opacity var(--ct-dur-base) var(--ct-ease);
 }
 .ct-rail-right.collapsed { width: 48px; }
+.ct-rail-right.expanded { width: var(--ct-rail-right-expanded); }
 /* Corps du chat masqué en CSS quand replié — ChatKimi reste monté (zéro perte de conversation) */
 .ct-rail-right.collapsed .ct-rail-right-body { display: none; }
 .ct-rail-right-header {

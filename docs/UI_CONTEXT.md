@@ -17,15 +17,15 @@ Modèle asymétrique documenté dans `docs/DESIGN_SYSTEM.md` §7. Résumé :
 ```
 ┌──────────┬──────────────────────────────┬──────────────┐
 │ rail L   │   centre (.ct-page-area)     │  chat rail R │
-│ 104px    │   flex:1 · min-width:0       │  352px→48px  │
-│ largeur  │   typo clamp (lg→display)    │  typo px fixe│
+│ 104px    │   flex:1 · min-width:0       │ 352/420/48px │
+│ largeur  │   typo clamp (lg→display)    │ 3 width modes│
 │ fixe     │   seul scroll = main         │  flex-shrink │
 └──────────┴──────────────────────────────┴──────────────┘
   ≤900px : rail L masqué + bottom bar 56px     ≤1199px : chat masqué
 ```
 
 - `--ct-rail-left` **104px** — verrouillé, ne grandit pas avec le viewport.
-- `--ct-rail-right` **352px** — `flex-shrink: 0` ; `.collapsed` → 48px.
+- `--ct-rail-right` **352px** default · **420px** expanded · **48px** collapsed — `flex-shrink: 0` ; bouton largeur dans le header chat (cycle default ↔ expanded) ; toggle ›/‹ pour repli ; préférence `localStorage` `cockpit:rail-right-mode`.
 - `.ct-center-panel { min-width: 0 !important }` — override package 520px ; absorbe la largeur.
 - Pas de scaling proportionnel des rails : aux breakpoints, panneaux **masqués** ou remplacés (bottom bar), pas rétrécis en %.
 
