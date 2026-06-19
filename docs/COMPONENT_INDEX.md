@@ -131,7 +131,7 @@
 | `src/components/portfolio/recent-activity.tsx` | RecentActivity | 3 |
 | `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 3 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
-| `src/components/portfolio/widget-shell.tsx` | WidgetShell | 4 |
+| `src/components/portfolio/widget-shell.tsx` | WidgetShell | 3 |
 | `src/components/power/command-palette.tsx` | CommandPalette | 1 |
 | `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 12 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
@@ -197,7 +197,7 @@
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 3 |
 | `src/components/ui/progress.tsx` | Progress | 12 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 50 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 52 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/section-embed.tsx` | — | 1 |
