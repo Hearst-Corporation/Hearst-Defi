@@ -356,7 +356,7 @@ export function RiskPulse({
       <PfCockpitPanelHeader
         title={
           <Tooltip content="Composite risk score based on market, mining, liquidity, smart contract, and counterparty risks">
-            <span className="pf-panel-title cursor-help border-b border-dotted border-[var(--ct-border-soft)]">
+            <span className="pf-panel-title cursor-help border-b border-dotted ct-bc-soft">
               Risk pulse
             </span>
           </Tooltip>

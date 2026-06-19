@@ -226,7 +226,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
           href={explorerTxUrlFromRegistry(result.txHash)}
           target="_blank"
           rel="noreferrer noopener"
-          className="body-xs text-[var(--ct-accent-strong)] no-underline hover:underline font-medium"
+          className="body-xs ct-text-accent-strong no-underline hover:underline font-medium"
         >
           {shortHash(result.txHash)} — view on BaseScan (Sepolia) ↗
         </a>

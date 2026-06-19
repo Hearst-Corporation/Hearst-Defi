@@ -134,7 +134,7 @@ export function LockMeter({
       <WidgetPanelHeader
         title={
           <Tooltip content={`Progress towards your ${softLockupDays}-day soft lockup period`}>
-            <h3 className="h3 ct-text-strong cursor-help border-b border-dotted border-[var(--ct-border-soft)]">
+            <h3 className="h3 ct-text-strong cursor-help border-b border-dotted ct-bc-soft">
               Lock · liquidity
             </h3>
           </Tooltip>
@@ -212,7 +212,7 @@ export function LockMeter({
         {!isUnlocked && earlyExitPenaltyBps !== undefined && (
           <div className="pf-inline-row pf-inline-row--between">
             <Tooltip content="Early-exit penalty applied to withdrawals before the lockup period ends">
-              <dt className="body-xs ct-text-muted cursor-help border-b border-dotted border-[var(--ct-border-soft)]">Penalty</dt>
+              <dt className="body-xs ct-text-muted cursor-help border-b border-dotted ct-bc-soft">Penalty</dt>
             </Tooltip>
             <dd
               className={cn(
