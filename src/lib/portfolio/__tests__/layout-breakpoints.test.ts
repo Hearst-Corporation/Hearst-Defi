@@ -54,12 +54,12 @@ describe("portfolio layout breakpoints", () => {
     );
   });
 
-  it("viewport-fit locks height only on wide+tall screens (≥90rem × ≥52rem)", () => {
+  it("viewport-fit locks height only on wide+tall screens (≥80rem × ≥52rem)", () => {
     expect(portfolioCss).toMatch(
-      /@media \(min-width: 90rem\) and \(min-height: 52rem\)[\s\S]*?\.pf-container--fit[\s\S]*?overflow: hidden/,
+      /@media \(min-width: 80rem\) and \(min-height: 52rem\)[\s\S]*?\.pf-container--fit[\s\S]*?overflow: hidden/,
     );
     expect(portfolioCss).toMatch(
-      /@media not all and \(min-width: 90rem\) and \(min-height: 52rem\)[\s\S]*?\.pf-container--fit[\s\S]*?overflow: visible/,
+      /@media not all and \(min-width: 80rem\) and \(min-height: 52rem\)[\s\S]*?\.pf-container--fit[\s\S]*?overflow: visible/,
     );
   });
 

@@ -1,11 +1,11 @@
 /* ── Scenario Lab fit gate — LAYOUT ONLY, no color.
-   Mirrors .dashboard-cockpit--fit: pin the admin shell chain at ≥90rem×52rem so
-   the page carries no top-level scroll; the LabShell body (.scenario-lab-body)
+   Mirrors .dashboard-cockpit--fit: pin the admin shell chain at ≥80rem×52rem so
+   the page carries no main scroll; the LabShell body (.scenario-lab-body)
    is the single internal scroll region. Natural scroll below the gate + phone.
    Kept in its own file (not cockpit.css) so it commits independently of the
    concurrent light-mode DS edits. ── */
 
-@media (min-width: 90rem) and (min-height: 52rem) {
+@media (min-width: 80rem) and (min-height: 52rem) {
   .ct-panels-row:has(.scenario-lab-page--fit) {
     height: 100dvh;
     max-height: 100dvh;
@@ -27,7 +27,7 @@
     padding-bottom: var(--ct-space-3);
   }
 
-  .ct-page-area:has(.scenario-lab-page--fit) > main#main-content {
+  .ct-page-area:has(.scenario-lab-page--fit) main#main-content {
     flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
@@ -86,24 +86,15 @@
   }
 }
 
-/* ── Below wide+tall gate: natural scroll, no viewport pinning. ── */
-@media not all and (min-width: 90rem) and (min-height: 52rem) {
-  .ct-panels-row:has(.scenario-lab-page--fit),
-  .ct-center-panel:has(.scenario-lab-page--fit),
-  .ct-page-area:has(.scenario-lab-page--fit),
-  .ct-page-area:has(.scenario-lab-page--fit) > main#main-content {
-    height: auto;
-    max-height: none;
-    overflow: visible;
-  }
-
+/* ── Below fit gate: lab shell sizes to content; shell footer pin unchanged. ── */
+@media not all and (min-width: 80rem) and (min-height: 52rem) {
   .scenario-lab-page--fit {
     height: auto;
     overflow: visible;
   }
 }
 
-/* ── Phone: no fit gate, natural scroll. ── */
+/* ── Phone: no fit gate, natural scroll inside lab body only. ── */
 @media (max-width: 47.999rem) {
   .scenario-lab-page--fit {
     height: auto;

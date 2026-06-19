@@ -252,7 +252,8 @@ code,
 /* Global legal footer — rendered by AppChrome on every authenticated surface.
    Quiet, ultra-compact, faint links over a thin accent hairline. */
 .app-footer {
-  margin-top: auto;
+  flex: 0 0 auto;
+  margin-top: 0;
   padding-top: var(--ct-space-1_5);
   padding-bottom: var(--ct-space-1_5);
   border-top: 1px solid

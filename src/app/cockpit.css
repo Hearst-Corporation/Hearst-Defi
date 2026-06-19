@@ -2432,7 +2432,7 @@
    ADMIN DASHBOARD COCKPIT — viewport-fit, ZERO top-level scroll (wide + tall).
    Mirrors the portfolio pf-container--fit / pf-cockpit pattern, scoped to
    admin class names so it NEVER bleeds into portfolio CSS.
-   Below 90rem width OR 52rem height → natural document scroll.
+   Below 80rem width OR 52rem height → bento rows size to content (main scroll).
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Base (all sizes): column stack, rows size to content. */
@@ -2498,8 +2498,8 @@
   min-height: 0;
 }
 
-/* ── Wide + tall gate: pin shell, share height, no top-level scroll. ── */
-@media (min-width: 90rem) and (min-height: 52rem) {
+/* ── Wide + tall gate (≥80rem × ≥52rem): pin shell, share height, no main scroll. ── */
+@media (min-width: 80rem) and (min-height: 52rem) {
   /* Pin the admin-doc shell chain to the viewport. */
   .ct-panels-row:has(.dashboard-cockpit--fit) {
     height: 100dvh;
@@ -2523,7 +2523,7 @@
     padding-bottom: var(--ct-space-3);
   }
 
-  .ct-page-area:has(.dashboard-cockpit--fit) > main#main-content {
+  .ct-page-area:has(.dashboard-cockpit--fit) main#main-content {
     flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
@@ -2596,17 +2596,8 @@
   }
 }
 
-/* ── Below wide+tall gate: natural scroll, rows size to content. ── */
-@media not all and (min-width: 90rem) and (min-height: 52rem) {
-  .ct-panels-row:has(.dashboard-cockpit--fit),
-  .ct-center-panel:has(.dashboard-cockpit--fit),
-  .ct-page-area:has(.dashboard-cockpit--fit),
-  .ct-page-area:has(.dashboard-cockpit--fit) > main#main-content {
-    height: auto;
-    max-height: none;
-    overflow: visible;
-  }
-
+/* ── Below fit gate: bento rows size to content; shell footer pin unchanged. ── */
+@media not all and (min-width: 80rem) and (min-height: 52rem) {
   .dashboard-cockpit--fit {
     height: auto;
     overflow: visible;
@@ -2747,7 +2738,7 @@
    Reuses all the dashboard-cockpit-panel / cell / row chrome (fully neutral).
    Adds only the fit gate wired to the .product-doc shell chain
    (dashboard-cockpit's fit gate targets .admin-doc and won't fire here).
-   Below 90rem width OR 52rem height → natural doc scroll.
+   Below 80rem width OR 52rem height → bento rows size to content (main scroll).
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Base container — column stack; container-query for responsive row grids. */
@@ -2761,7 +2752,7 @@
 }
 
 /* ── Wide+tall gate: pin shell chains (product-doc AND admin-doc), share height, no top-level scroll. ── */
-@media (min-width: 90rem) and (min-height: 52rem) {
+@media (min-width: 80rem) and (min-height: 52rem) {
   /* Pin the product-doc and admin-doc shell chains to the viewport. */
   .ct-panels-row:has(.proof-cockpit--fit) {
     height: 100dvh;
@@ -2784,7 +2775,7 @@
     padding-bottom: var(--ct-space-3);
   }
 
-  .ct-page-area:has(.proof-cockpit--fit) > main#main-content {
+  .ct-page-area:has(.proof-cockpit--fit) main#main-content {
     flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
@@ -2854,17 +2845,8 @@
   }
 }
 
-/* ── Below wide+tall gate: natural scroll. ── */
-@media not all and (min-width: 90rem) and (min-height: 52rem) {
-  .ct-panels-row:has(.proof-cockpit--fit),
-  .ct-center-panel:has(.proof-cockpit--fit),
-  .ct-page-area:has(.proof-cockpit--fit),
-  .ct-page-area:has(.proof-cockpit--fit) > main#main-content {
-    height: auto;
-    max-height: none;
-    overflow: visible;
-  }
-
+/* ── Below fit gate: proof rows size to content; shell footer pin unchanged. ── */
+@media not all and (min-width: 80rem) and (min-height: 52rem) {
   .proof-cockpit--fit {
     height: auto;
     overflow: visible;
@@ -4212,33 +4194,89 @@ button.ct-choice-card {
 /* Master FAB */
 .ct-master-fab                             { padding: 10px 18px; }
 
-/* Centre — page area & embed (global density calibration) */
+/* Centre — page area & embed (global density calibration)
+   Contrat shell authentifié : colonne flex, main scroll, footer pin. */
 .ct-page-area {
   display: flex;
   flex: 1 1 auto;
-  min-height: 100%;
+  min-height: 0;
   flex-direction: column;
-  padding: var(--ct-space-6) var(--ct-space-7) var(--ct-space-12);
+  overflow: hidden;
+  padding: var(--ct-space-6) var(--ct-space-7) var(--ct-space-3);
 }
 
-.ct-page-area > main#main-content {
+/* Sonner, Privy iframe, analytics — hors budget flex (ne pas voler la hauteur). */
+.ct-page-area > :not(.app-footer):not(:has(> main#main-content)):not(main#main-content) {
+  flex: 0 0 auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+/* PrivyProvider wraps main — le wrapper porte le budget flex, main scroll. */
+.ct-page-area > :has(> main#main-content) {
   display: flex;
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   min-width: 0;
-  min-height: 100%;
+  min-height: 0;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.ct-page-area > main#main-content,
+.ct-page-area > :has(> main#main-content) > main#main-content {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ct-border) 40%, transparent) transparent;
+}
+
+.ct-page-area > .app-footer {
+  flex: 0 0 auto;
+  margin-top: 0;
+}
+
+/* Fit / workspace hubs — footer toujours pin (toutes tailles). */
+.ct-page-area:has(
+    :is(
+      .dashboard-cockpit--fit,
+      .proof-cockpit--fit,
+      .pf-container--fit,
+      .scenario-lab-page--fit,
+      .invest-flow-shell--workspace
+    )
+  )
+  > .app-footer {
+  flex: 0 0 auto;
+  margin-top: 0;
+}
+
+/* Admin sub-nav : chrome fixe au-dessus du shell fit. */
+.ct-page-area:has(
+    :is(
+      .dashboard-cockpit--fit,
+      .proof-cockpit--fit,
+      .scenario-lab-page--fit,
+      .pf-container--fit
+    )
+  )
+  .admin-doc-sub-nav {
+  flex: 0 0 auto;
 }
 
 /* Admin operator surfaces — denser inset (rails + chat compress centre vs LP). */
 .ct-page-area:has(.admin-doc) {
-  padding: var(--ct-space-5) var(--ct-space-5) var(--ct-space-8);
+  padding: var(--ct-space-5) var(--ct-space-5) var(--ct-space-3);
 }
 
 /* Product investor surfaces — no sub-nav; extra top inset aligns rhythm with admin. */
 .ct-page-area:has(.product-doc) {
   padding-top: var(--ct-space-9);
   padding-inline: var(--ct-space-5);
-  padding-bottom: var(--ct-space-12);
+  padding-bottom: var(--ct-space-3);
 }
 .ct-embed-overlay                          { padding: var(--ct-space-6); }
 .ct-embed-sub code                         { padding: 1px 6px; }
@@ -5233,6 +5271,9 @@ button.ct-choice-card {
     padding: 4px 10px !important;
   }
 
-  .ct-page-area { padding-bottom: 72px !important; }
+  /* Reserve bottom rail space on the scroll surface only — not page-area (ghost scroll). */
+  .ct-page-area main#main-content {
+    padding-bottom: 72px !important;
+  }
   .ct-center-panel { margin-left: 0 !important; }
 }

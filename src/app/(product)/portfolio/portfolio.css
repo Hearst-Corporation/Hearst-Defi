@@ -34,7 +34,7 @@
  * Responsive breakpoints (@container pf = content-slot width, not viewport).
  *   Aliases on .pf-container: --pf-bp-* (single source; used in @container rules).
  *   Hub hero 2-col ≥58rem · mid 2-col ≥52rem · trio 1→2→3 col · activity leaf 2-col ≥52rem.
- *   Viewport-fit (no-scroll cockpit) only ≥90rem wide AND ≥52rem tall.
+ *   Viewport-fit (no-scroll cockpit) only ≥80rem wide AND ≥52rem tall.
  */
 
 /* ── Portfolio typography roles ── */
@@ -1808,13 +1808,12 @@ a.pf-trust-compact__see-more:hover {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   PORTFOLIO COCKPIT — viewport-fit, ZERO top-level scroll (wide + tall only).
-   Below 90rem viewport width OR 52rem height → natural document scroll so
-   panels keep content height (no crushed overlap). Mobile (<48rem) same revert.
+   PORTFOLIO COCKPIT — viewport-fit, ZERO main scroll (≥80rem × ≥52rem).
+   Below gate → bento rows size to content; main scrolls; footer stays pin.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Wide + tall: pin shell chain to 100dvh, bento shares height among panels. */
-@media (min-width: 90rem) and (min-height: 52rem) {
+@media (min-width: 80rem) and (min-height: 52rem) {
   .ct-panels-row:has(.pf-container--fit) {
     height: 100dvh;
     max-height: 100dvh;
@@ -1835,17 +1834,12 @@ a.pf-trust-compact__see-more:hover {
     overflow: hidden;
   }
 
-  .ct-page-area:has(.pf-container--fit) > main#main-content {
+  .ct-page-area:has(.pf-container--fit) main#main-content {
     flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-  }
-
-  .ct-page-area:has(.pf-container--fit) > .app-footer {
-    flex: 0 0 auto;
-    margin-top: var(--ct-space-1_5);
   }
 
   .pf-container--fit {
@@ -1886,17 +1880,8 @@ a.pf-trust-compact__see-more:hover {
   gap: var(--ct-space-3);
 }
 
-/* Below wide+tall gate — natural scroll, rows size to content. */
-@media not all and (min-width: 90rem) and (min-height: 52rem) {
-  .ct-panels-row:has(.pf-container--fit),
-  .ct-center-panel:has(.pf-container--fit),
-  .ct-page-area:has(.pf-container--fit),
-  .ct-page-area:has(.pf-container--fit) > main#main-content {
-    height: auto;
-    max-height: none;
-    overflow: visible;
-  }
-
+/* Below fit gate — bento rows size to content; shell footer pin unchanged. */
+@media not all and (min-width: 80rem) and (min-height: 52rem) {
   .pf-container--fit {
     height: auto;
     overflow: visible;
@@ -1957,7 +1942,7 @@ a.pf-trust-compact__see-more:hover {
 }
 
 /* Hero 2-col needs a wider slot in cockpit-fit — chart + KPI rail crush below 64rem. */
-@media (min-width: 90rem) and (min-height: 52rem) {
+@media (min-width: 80rem) and (min-height: 52rem) {
   @container pf (max-width: 63.99rem) {
     .pf-cockpit-row--summary .pf-hero-grid {
       grid-template-columns: 1fr;
@@ -1978,7 +1963,7 @@ a.pf-trust-compact__see-more:hover {
   overflow: visible;
 }
 
-@media (min-width: 90rem) and (min-height: 52rem) {
+@media (min-width: 80rem) and (min-height: 52rem) {
   .pf-cockpit-cell {
     overflow: hidden;
   }
@@ -1991,7 +1976,7 @@ a.pf-trust-compact__see-more:hover {
 }
 
 /* Long panels scroll inside their cell when viewport-fit is active. */
-@media (min-width: 90rem) and (min-height: 52rem) {
+@media (min-width: 80rem) and (min-height: 52rem) {
   .pf-cockpit-cell .pf-positions-table {
     overflow-y: auto;
     min-height: 0;
