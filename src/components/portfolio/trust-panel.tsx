@@ -14,7 +14,6 @@ import {
   computeDeltaPct,
   type ProofPulseProps,
 } from "@/components/portfolio/proof-pulse";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
@@ -148,7 +147,7 @@ export function TrustProofCompact({
             />
             Proof system active
           </span>
-          <p className="body-xs ct-text-faint m-0">
+          <p className="pf-trust-compact__zero-hint body-xs ct-text-faint m-0">
             On-chain attestation and risk snapshots will appear here once a position is confirmed.
           </p>
         </div>
@@ -194,17 +193,14 @@ export function TrustProofCompact({
           className="pf-trust-compact__see-more"
         />
       ) : (
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          disabled
-          className="pf-trust-compact__see-more"
-          aria-label="Full trust detail — coming soon"
-          title="Detailed trust view coming soon"
-        >
-          See more
-        </Button>
+        // Hub live-zero (no leaf link) — était un bouton DÉSACTIVÉ "See more"
+        // placeholder "coming soon" : faux CTA mort (cursor:not-allowed, ne mène
+        // nulle part) qui poussait la hauteur du panel hors du fit-gate. Le proof
+        // center EXISTE déjà (cf. branche previewZeros ci-dessus) → on pointe
+        // dessus, comme partout ailleurs. Vrai lien, pas de placeholder mort.
+        <Link href="/proof-center" className="pf-trust-compact__see-more">
+          Open proof center →
+        </Link>
       )}
     </PfCockpitPanel>
   );

@@ -732,11 +732,20 @@
   margin-top: auto;
   align-self: flex-end;
   width: auto;
-  flex-shrink: 0;
+  /* Ne jamais déborder le panel quand il est compressé (chat ouvert / trio 3-col) :
+     le texte reste sur une ligne et ellipse au lieu de dépasser. */
+  max-width: 100%;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 a.pf-trust-compact__see-more {
-  font-size: var(--ct-text-xs);
+  /* Échelle micro (11px) — alignée sur les autres leaf-links (dashboard /
+     pf-panel-leaf-link). --ct-text-xs (13px) était trop gros et débordait. */
+  font-size: var(--ct-text-micro);
   color: var(--ct-text-muted);
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -1836,7 +1845,32 @@ a.pf-trust-compact__see-more:hover {
   .ct-page-area:has(.pf-container--fit) main#main-content {
     flex: 1 1 auto;
     min-height: 0;
-    overflow: hidden;
+    /* SCROLL DE SÉCURITÉ — quand le chat ouvert réduit la largeur du slot, les
+       panels du cockpit (Trust & proof, hero-sidebar, trio row) reflowent plus
+       HAUT que les 100dvh du fit-gate. Avec overflow:hidden ils étaient CLIPPÉS
+       (trio: 145px de contenu écrasé dans 104px → bouton "See more" coupé, KPIs
+       tronqués). On passe en overflow-y:auto : si tout tient, zéro scroll (no-op,
+       comportement no-scroll préservé) ; si ça déborde, le main scrolle en
+       interne au lieu de tronquer. Scrollbar masquée pour rester propre. */
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* legacy Edge */
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ct-page-area:has(.pf-container--fit) main#main-content::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  /* Portfolio layout wrapper (.product-doc-shell) sits between main and the
+     container — it must also stretch, or it collapses to content height (193px)
+     and starves the cockpit rows of height. */
+  main#main-content > .product-doc-shell:has(.pf-container--fit) {
+    flex: 1 1 auto;
+    min-height: 0;
     display: flex;
     flex-direction: column;
   }
@@ -1847,8 +1881,19 @@ a.pf-trust-compact__see-more:hover {
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: var(--ct-space-2);
-    overflow: hidden;
+    /* Generous gap between the greeting and the cockpit body. */
+    gap: var(--ct-space-5);
+    /* overflow visible (était hidden) : le débordement vertical éventuel remonte
+       au main#main-content qui scrolle (cf. règle ci-dessus). overflow-x clip
+       garde la protection latérale sans piéger le scroll vertical interne. */
+    overflow-x: clip;
+    /* Breathing room above the pinned footer — content must not kiss the edge. */
+    padding-bottom: var(--ct-space-8);
+  }
+
+  .pf-container--fit.pf-container--zero {
+    gap: var(--ct-space-4);
+    padding-bottom: var(--ct-space-4);
   }
 
   .pf-cockpit {

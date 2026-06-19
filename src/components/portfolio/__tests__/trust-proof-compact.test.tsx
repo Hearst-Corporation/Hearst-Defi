@@ -32,7 +32,7 @@ const BASE_PROOF = {
 };
 
 describe("TrustProofCompact", () => {
-  it("renders KPI headers and disabled See more", () => {
+  it("renders KPI headers and a live proof-center link (no dead placeholder)", () => {
     const html = renderToStaticMarkup(
       <TrustProofCompact risk={BASE_RISK} proof={BASE_PROOF} />,
     );
@@ -40,18 +40,20 @@ describe("TrustProofCompact", () => {
     expect(html).toContain("Risk composite");
     expect(html).toContain("Proof status");
     expect(html).toContain("pf-trust-compact-kpis");
-    expect(html).toContain("See more");
-    expect(html).toContain("disabled");
+    // Footer is now a REAL link to the proof center (was a disabled "See more"
+    // placeholder "coming soon" — a dead CTA that overflowed the fit-gate).
+    expect(html).toContain('href="/proof-center"');
+    expect(html).toContain("Open proof center");
+    expect(html).not.toContain("disabled");
     expect(html).not.toContain("Security audit");
-    expect(html).not.toContain("Open proof center");
   });
 
-  it("default hub: disabled See more (no dedicated trust leaf route)", () => {
+  it("default hub (no leaf route): footer links to the proof center, not a dead button", () => {
     const html = renderToStaticMarkup(
       <TrustProofCompact risk={BASE_RISK} proof={BASE_PROOF} />,
     );
-    expect(html).toContain("See more");
-    expect(html).toContain("disabled");
+    expect(html).toContain('href="/proof-center"');
+    expect(html).not.toContain("disabled");
     expect(html).not.toContain('href="/portfolio/activity"');
   });
 
