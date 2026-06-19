@@ -2762,7 +2762,7 @@
    Reuses all the dashboard-cockpit-panel / cell / row chrome (fully neutral).
    Adds only the fit gate wired to the .product-doc shell chain
    (dashboard-cockpit's fit gate targets .admin-doc and won't fire here).
-   Below 80rem width OR 52rem height → bento rows size to content (main scroll).
+   Below 80rem width OR 48rem height → bento rows size to content (main scroll).
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Base container — column stack; container-query for responsive row grids. */
@@ -2777,13 +2777,14 @@
 
 /* scenario-lab-page--fit */
 /* ── Scenario Lab fit gate — LAYOUT ONLY, no color.
-   Mirrors .dashboard-cockpit--fit: pin the admin shell chain at ≥80rem×52rem so
+   Mirrors .dashboard-cockpit--fit: pin the admin shell chain at ≥80rem×48rem so
    the page carries no main scroll; the LabShell body (.scenario-lab-body)
    is the single internal scroll region. Natural scroll below the gate + phone.
-   Kept in its own file (not cockpit.css) so it commits independently of the
-   concurrent light-mode DS edits. ── */
+   Height floor aligned 52→48rem on the dashboard/proof gate so a standard
+   1280×800 laptop stays in the no-scroll cockpit instead of falling back to
+   main scroll (sub-nav + chrome eats ~80px). ── */
 
-@media (min-width: 80rem) and (min-height: 52rem) {
+@media (min-width: 80rem) and (min-height: 48rem) {
   .ct-panels-row:has(.scenario-lab-page--fit) {
     height: 100dvh;
     max-height: 100dvh;
@@ -2865,7 +2866,7 @@
 }
 
 /* ── Below fit gate: lab shell sizes to content; shell footer pin unchanged. ── */
-@media not all and (min-width: 80rem) and (min-height: 52rem) {
+@media not all and (min-width: 80rem) and (min-height: 48rem) {
   .scenario-lab-page--fit {
     height: auto;
     overflow: visible;
@@ -3962,7 +3963,7 @@ button.ct-choice-card {
 
 /* Footer pin — height chain (all authenticated pages, flex only).
    ct-root 100dvh → panels-row → center-panel → page-area → main scroll + .app-footer.
-   Fit hubs add an extra height lock inside the 80rem×52rem gate. */
+   Fit hubs add an extra height lock inside the 80rem×48rem gate. */
 .ct-center-panel > .ct-page-area {
   flex: 1 1 auto;
   min-height: 0;
@@ -4380,8 +4381,17 @@ button.ct-choice-card {
   min-height: 0;
   flex-direction: column;
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--ct-border) 40%, transparent) transparent;
+  /* Ghost scrollbar — DS standard (cf. .proof-panel-scroll & co). Scroll
+     fonctionnel (molette/trackpad/touch), gouttière non réservée, pas de
+     layout-shift. Aligné sur les containers scroll nommés du cockpit. */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge */
+}
+
+.ct-page-area > main#main-content::-webkit-scrollbar,
+.ct-page-area > :has(> main#main-content) > main#main-content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .ct-page-area > .app-footer {
@@ -5569,20 +5579,17 @@ button.ct-choice-card {
   border-color: var(--ct-border-soft);
 }
 
-/* Results scroll area */
+/* Results scroll area — ghost scrollbar (DS standard, cf. .proof-panel-scroll). */
 .cp-results {
   flex: 1;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: var(--ct-space-2) 0;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge */
 }
 
-.cp-results::-webkit-scrollbar { width: 4px; }
-.cp-results::-webkit-scrollbar-track { background: transparent; }
-.cp-results::-webkit-scrollbar-thumb {
-  background: var(--ct-border-soft);
-  border-radius: 2px;
-}
+.cp-results::-webkit-scrollbar { width: 0; height: 0; }
 
 /* Section header */
 .cp-section {

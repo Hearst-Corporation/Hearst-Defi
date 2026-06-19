@@ -1804,12 +1804,15 @@ a.pf-trust-compact__see-more:hover {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   PORTFOLIO COCKPIT — viewport-fit, ZERO main scroll (≥80rem × ≥52rem).
+   PORTFOLIO COCKPIT — viewport-fit, ZERO main scroll (≥80rem × ≥48rem).
+   Height floor aligned 52→48rem on the dashboard/proof/scenario-lab gate so all
+   cockpit hubs activate the no-scroll mode at the same threshold (a standard
+   1280×800 laptop stays in the fit cockpit instead of dropping to main scroll).
    Below gate → bento rows size to content; main scrolls; footer stays pin.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Wide + tall: pin shell chain to 100dvh, bento shares height among panels. */
-@media (min-width: 80rem) and (min-height: 52rem) {
+@media (min-width: 80rem) and (min-height: 48rem) {
   .ct-panels-row:has(.pf-container--fit) {
     height: 100dvh;
     max-height: 100dvh;
@@ -1877,7 +1880,7 @@ a.pf-trust-compact__see-more:hover {
 }
 
 /* Below fit gate — bento rows size to content; shell footer pin unchanged. */
-@media not all and (min-width: 80rem) and (min-height: 52rem) {
+@media not all and (min-width: 80rem) and (min-height: 48rem) {
   .pf-container--fit {
     height: auto;
     overflow: visible;
