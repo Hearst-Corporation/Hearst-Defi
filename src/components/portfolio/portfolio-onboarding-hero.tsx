@@ -4,6 +4,7 @@ import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
+import { Button } from "@/components/ui/button";
 import { ApyRange } from "@/components/ui/apy-range";
 import {
   PORTFOLIO_ONBOARDING_APY,
@@ -57,13 +58,10 @@ export function PortfolioOnboardingHero() {
         </div>
       </dl>
 
-      <div className="pf-onboarding-hero__action">
-        <Link
-          href={PORTFOLIO_ONBOARDING_INVEST_HREF}
-          className="pf-onboarding-hero__cta font-bold ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover ct-glow-accent ct-transition-base ct-focus-ring ct-press rounded-full"
-        >
-          Subscribe to vault
-        </Link>
+      <div className="product-doc-stack--actions w-full max-w-full">
+        <Button variant="primary" size="lg" asChild className="w-full sm:w-auto">
+          <Link href={PORTFOLIO_ONBOARDING_INVEST_HREF}>Subscribe to vault</Link>
+        </Button>
         <p className="body-xs ct-text-faint m-0">
           APY shown as a range · not guaranteed
         </p>

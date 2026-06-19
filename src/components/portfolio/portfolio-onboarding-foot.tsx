@@ -4,6 +4,7 @@ import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
+import { Button } from "@/components/ui/button";
 
 const AFTER_SUBSCRIBE = [
   {
@@ -38,17 +39,19 @@ export function PortfolioOnboardingFoot() {
         subtitle="Live cockpit widgets after your first confirmed position"
         titleVariant="primary"
       />
-      <ul className="pf-onboarding-foot__list">
+      <ul className="pf-onboarding-foot__list m-0 p-0 list-none">
         {AFTER_SUBSCRIBE.map((item) => (
-          <li key={item.title} className="pf-onboarding-foot__item">
+          <li key={item.title} className="product-doc-stack--compact">
             <span className="stat-label">{item.title}</span>
-            <span className="body-xs ct-text-muted">{item.detail}</span>
+            <span className="body-sm ct-text-muted">{item.detail}</span>
           </li>
         ))}
       </ul>
-      <Link href="/proof-center" className="pf-onboarding-foot__link body-sm">
-        Explore proof center →
-      </Link>
+      <div className="product-doc-stack--actions">
+        <Button variant="ghost" size="md" asChild className="w-full sm:w-auto">
+          <Link href="/proof-center">Explore proof center →</Link>
+        </Button>
+      </div>
       </PfCockpitPanel>
     </div>
   );
