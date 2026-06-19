@@ -11,7 +11,12 @@
  * Callers are responsible for sanitising `safeBodyHtml` before passing it:
  *  - Server path (send.ts): body is trusted agent-generated content.
  *  - Client preview: body must be DOMPurify-sanitised by the caller.
+ *
+ * Email inline styles cannot use CSS vars (`--ct-accent`) — mail clients strip
+ * them — so the brand hex is interpolated from the single JS source of truth.
  */
+
+import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 
 /**
  * Wraps `innerHtml` in the shared Hearst email outer container `<div>`.
@@ -24,7 +29,7 @@ export function buildEmailWrapper(innerHtml: string): string {
 export function buildEmailHtmlShell(safeBodyHtml: string): string {
   return `
         ${buildEmailWrapper(`
-          <h2 style="color:#A7FB90;font-size:20px;margin:0 0 16px;">Hearst Connect</h2>
+          <h2 style="color:${CONNECT_ACCENT_HEX};font-size:20px;margin:0 0 16px;">Hearst Connect</h2>
           <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#9ca3af;">
             ${safeBodyHtml}
           </p>

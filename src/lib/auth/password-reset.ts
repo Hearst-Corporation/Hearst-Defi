@@ -1,5 +1,6 @@
 import "server-only";
 import { buildEmailWrapper } from "@/lib/email/html-shell";
+import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 
 /**
  * Password-reset token lifecycle.
@@ -51,13 +52,13 @@ async function sendResetEmail(to: string, resetUrl: string): Promise<void> {
     subject: "Reset your Hearst Connect password",
     html: `
       ${buildEmailWrapper(`
-        <h2 style="color:#A7FB90;font-size:20px;margin:0 0 16px;">Password reset request</h2>
+        <h2 style="color:${CONNECT_ACCENT_HEX};font-size:20px;margin:0 0 16px;">Password reset request</h2>
         <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#9ca3af;">
           You (or someone using your email) requested a password reset for your Hearst Connect account.
           This link expires in ${ttlLabel} and can only be used once.
         </p>
         <a href="${resetUrl}"
-           style="display:inline-block;padding:12px 24px;background:#A7FB90;color:#0a0a0a;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;">
+           style="display:inline-block;padding:12px 24px;background:${CONNECT_ACCENT_HEX};color:#0a0a0a;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;">
           Reset password
         </a>
         <p style="margin:24px 0 0;font-size:12px;color:#6b7280;">

@@ -89,7 +89,7 @@ function NavBarChartShell({
         monthLabels && "dashboard-nav-bars--monthly",
         muted && "dashboard-nav-bars--muted",
       )}
-      style={{ "--dashboard-nav-bar-count": String(barCount) } as React.CSSProperties}
+      style={{ "--ct-dashboard-nav-bar-count": String(barCount) } as React.CSSProperties}
       role="img"
       aria-label={ariaLabel}
     >

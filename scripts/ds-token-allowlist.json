@@ -22,32 +22,38 @@
     {
       "token": "--ct-rail-right",
       "pkgValue": "420px",
-      "cockpitValue": "23.75rem",
-      "reason": "Intentional layout calibration (380px). Chat rail narrowed for density. Unit migrated to rem."
+      "cockpitValue": "clamp(14rem, 22vw, 20rem)",
+      "reason": "fluid responsive chat rail — clamp() calibration (last @media breakpoint wins; rail fluidly resizes from default down to laptop/tablet)."
+    },
+    {
+      "token": "--ct-rail-right-expanded",
+      "pkgValue": "26.25rem",
+      "cockpitValue": "clamp(16rem, 25vw, 22rem)",
+      "reason": "fluid responsive chat rail — clamp() calibration (user-expanded width fluidly resizes per breakpoint; last @media value wins)."
     },
     {
       "token": "--ct-surface-0",
       "pkgValue": "rgba(255,255,255,0.02)",
-      "cockpitValue": "rgba(255, 255, 255, 0.04)",
-      "reason": "Intentional lift — 0.02 is imperceptible on pure black. Raised to 0.04 for card readability."
+      "cockpitValue": "#0E0F0F",
+      "reason": "opacity overlay migrated to fixed charcoal hex — surface-0 = global background level (#0E0F0F)."
     },
     {
       "token": "--ct-surface-1",
       "pkgValue": "rgba(255,255,255,0.04)",
-      "cockpitValue": "rgba(255, 255, 255, 0.07)",
-      "reason": "Intentional lift — surfaces lifted ~3pp to be distinguishable on #000000 background."
+      "cockpitValue": "#141416",
+      "reason": "opacity overlay migrated to fixed charcoal hex — staged opaque charcoal palette (Figma Hearst Flow)."
     },
     {
       "token": "--ct-surface-2",
       "pkgValue": "rgba(255,255,255,0.06)",
-      "cockpitValue": "rgba(255, 255, 255, 0.10)",
-      "reason": "Intentional lift — same rationale as surface-1."
+      "cockpitValue": "#1c1c1f",
+      "reason": "opacity overlay migrated to fixed charcoal hex — staged opaque charcoal palette (Figma Hearst Flow)."
     },
     {
       "token": "--ct-surface-3",
       "pkgValue": "rgba(255,255,255,0.09)",
-      "cockpitValue": "rgba(255, 255, 255, 0.14)",
-      "reason": "Intentional lift — same rationale as surface-1."
+      "cockpitValue": "#242428",
+      "reason": "opacity overlay migrated to fixed charcoal hex — staged opaque charcoal palette (Figma Hearst Flow)."
     },
     {
       "token": "--ct-text-muted",

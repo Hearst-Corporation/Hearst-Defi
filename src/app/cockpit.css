@@ -34,10 +34,11 @@
 
   /* Texte DANS les cards noires → corps blanc, lisible.
      La hiérarchie de titres (H1/H2/H3 verts) est portée par les classes
-     .h1/.h2/.h3 plus bas, PAS par ces tokens globaux. */
+     .h1/.h2/.h3 plus bas, PAS par ces tokens globaux.
+     --ct-text-primary / --ct-text-body : source unique cockpit-shell/tokens.css
+     (valeurs strictement identiques — ex-doublons miroir retirés pour tuer le
+     faux positif ds-token-drift, ils cascadent du shell). */
   --ct-text-strong:  #ffffff;
-  --ct-text-primary: rgba(245, 245, 245, 0.92);
-  --ct-text-body:    rgba(245, 245, 245, 0.72);
   --ct-text-muted:   rgba(245, 245, 245, 0.55);
   --ct-text-faint:   rgba(245, 245, 245, 0.40);
 
@@ -246,6 +247,7 @@
   --ct-space-8: 1.5rem;     /* 24px */
   --ct-space-9: 2.25rem;    /* 36px — mirrors Tailwind 9 */
   --ct-space-10: 2rem;      /* 32px */
+  --ct-space-11: 1.75rem;   /* 28px — floating bottom-menu inline padding (.ct-bottom-bar) */
   --ct-space-12: 2.5rem;    /* 40px */
   --ct-space-14: 3rem;      /* 48px */
   --ct-space-16: 3.5rem;    /* 56px */
@@ -1440,13 +1442,13 @@
   /* Reflow from board width — admin rails eat ~500px of viewport. */
   container-type: inline-size;
   container-name: dash-board;
-  --dashboard-kpi-cell-min-height: 7.25rem;
-  --dashboard-orbit-size: 11.75rem;
-  --dashboard-orbit-max-width: 13rem;
-  --dashboard-hero-min-height: 13.5rem;
-  --dashboard-hero-min-height-wide: 14.5rem;
-  --dashboard-orbit-stroke-track: 1.5;
-  --dashboard-orbit-stroke-segment: 2;
+  --ct-dashboard-kpi-cell-min-height: 7.25rem;
+  --ct-dashboard-orbit-size: 11.75rem;
+  --ct-dashboard-orbit-max-width: 13rem;
+  --ct-dashboard-hero-min-height: 13.5rem;
+  --ct-dashboard-hero-min-height-wide: 14.5rem;
+  --ct-dashboard-orbit-stroke-track: 1.5;
+  --ct-dashboard-orbit-stroke-segment: 2;
 }
 
 .dashboard-page-header .admin-page-header__main {
@@ -1473,7 +1475,7 @@
   min-width: 0;
   flex-direction: column;
   gap: var(--ct-space-1_5);
-  min-height: var(--dashboard-kpi-cell-min-height);
+  min-height: var(--ct-dashboard-kpi-cell-min-height);
   padding: var(--ct-space-4) var(--ct-space-3);
 }
 
@@ -1624,7 +1626,7 @@
   grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
   position: relative;
-  min-height: var(--dashboard-hero-min-height);
+  min-height: var(--ct-dashboard-hero-min-height);
 }
 
 .dashboard-hero-card__analytics {
@@ -1693,7 +1695,7 @@
 .dashboard-command-slot--allocation .dashboard-orbit-card {
   width: 100%;
   max-width: 16rem;
-  min-width: var(--dashboard-orbit-max-width);
+  min-width: var(--ct-dashboard-orbit-max-width);
 }
 
 .dashboard-nav-slot__value {
@@ -2032,14 +2034,14 @@
   align-items: center;
   gap: var(--ct-space-4);
   width: 100%;
-  max-width: var(--dashboard-orbit-max-width);
+  max-width: var(--ct-dashboard-orbit-max-width);
   justify-self: center;
 }
 
 .dashboard-orbit__visual {
   position: relative;
-  width: var(--dashboard-orbit-size);
-  height: var(--dashboard-orbit-size);
+  width: var(--ct-dashboard-orbit-size);
+  height: var(--ct-dashboard-orbit-size);
   flex-shrink: 0;
 }
 
@@ -2053,11 +2055,11 @@
 }
 
 .dashboard-orbit__svg .dashboard-orbit__track {
-  stroke-width: var(--dashboard-orbit-stroke-track);
+  stroke-width: var(--ct-dashboard-orbit-stroke-track);
 }
 
 .dashboard-orbit__svg .dashboard-orbit__segment {
-  stroke-width: var(--dashboard-orbit-stroke-segment);
+  stroke-width: var(--ct-dashboard-orbit-stroke-segment);
   transition:
     stroke-dasharray var(--ct-dur-slow) var(--ct-ease),
     stroke-dashoffset var(--ct-dur-slow) var(--ct-ease);
@@ -2072,7 +2074,7 @@
   justify-content: center;
   gap: var(--ct-space-0_5);
   text-align: center;
-  z-index: 10;
+  z-index: var(--ct-z-raised);
 }
 
 .dashboard-orbit__core span,
@@ -2243,7 +2245,7 @@
 
 /* CSS bar chart for NAV series. */
 .dashboard-nav-bars {
-  --dashboard-nav-bar-count: 30;
+  --ct-dashboard-nav-bar-count: 30;
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -2272,7 +2274,7 @@
 .dashboard-nav-bars__caption {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: calc(var(--ct-z-base) + 1); /* sits above the bar cells (--ct-z-base) */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2284,7 +2286,7 @@
 .dashboard-nav-bars__bars {
   display: grid;
   flex: 1 1 auto;
-  grid-template-columns: repeat(var(--dashboard-nav-bar-count), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--ct-dashboard-nav-bar-count), minmax(0, 1fr));
   gap: var(--ct-space-1);
   align-items: end;
   min-height: 0;
@@ -2300,7 +2302,7 @@
   min-width: 0;
   align-items: flex-end;
   position: relative;
-  z-index: 1;
+  z-index: var(--ct-z-base);
 }
 
 .dashboard-nav-bars__bar {
@@ -2433,7 +2435,7 @@
   }
 
   .dashboard-command-row-a--hero {
-    min-height: var(--dashboard-hero-min-height-wide);
+    min-height: var(--ct-dashboard-hero-min-height-wide);
   }
 
   .dashboard-hero-card__slot--nav .dashboard-nav-bars {
@@ -2456,13 +2458,13 @@
   min-width: 0;
   container-type: inline-size;
   container-name: dash-board;
-  --dashboard-kpi-cell-min-height: 7.25rem;
-  --dashboard-orbit-size: 11.75rem;
-  --dashboard-orbit-max-width: 13rem;
-  --dashboard-hero-min-height: 13.5rem;
-  --dashboard-hero-min-height-wide: 14.5rem;
-  --dashboard-orbit-stroke-track: 1.5;
-  --dashboard-orbit-stroke-segment: 2;
+  --ct-dashboard-kpi-cell-min-height: 7.25rem;
+  --ct-dashboard-orbit-size: 11.75rem;
+  --ct-dashboard-orbit-max-width: 13rem;
+  --ct-dashboard-hero-min-height: 13.5rem;
+  --ct-dashboard-hero-min-height-wide: 14.5rem;
+  --ct-dashboard-orbit-stroke-track: 1.5;
+  --ct-dashboard-orbit-stroke-segment: 2;
 }
 
 /* Each cockpit row = grid of cells side by side. min-height:0 lets it shrink
@@ -3709,7 +3711,7 @@ button.ct-choice-card {
   z-index: var(--ct-z-bottom-bar);
   width: max-content;
   max-width: calc(100% - 3rem);
-  padding: 0.75rem 1.75rem;
+  padding: var(--ct-space-3) var(--ct-space-11);
   border-radius: var(--ct-radius-full);
   /* Dark shell : footer/menu flottant = charcoal opaque (un cran plus clair
      pour se détacher du centre), liseré clair pour le relief sur le fond. */
@@ -3988,7 +3990,7 @@ button.ct-choice-card {
   padding: 0 clamp(8px, 0.6vw, 12px);
   justify-content: stretch;
   overflow: hidden;
-  z-index: 1001; /* Au-dessus du shell cockpit */
+  z-index: calc(var(--ct-z-modal) + 1); /* Au-dessus du shell cockpit */
   pointer-events: auto;
 }
 
@@ -4196,7 +4198,7 @@ button.ct-choice-card {
   bottom: var(--ct-rail-bottom-clearance);
   left: 0;
   width: var(--ct-rail-left);
-  z-index: 1002;
+  z-index: calc(var(--ct-z-modal) + 2); /* one tier above .ct-rail-intra */
 
   display: flex;
   flex-direction: column;
@@ -4344,11 +4346,11 @@ button.ct-choice-card {
 /* Logout hero */
 .ct-logout-hero                            { padding: var(--ct-space-5) var(--ct-space-4); }
 
-/* Hub bar */
-.ct-hub-bar                                { padding: 10px 16px; }
-.ct-hub-bar-label                          { padding-left: 4px; }
-.ct-hub-bar-track                          { padding: 3px; }
-.ct-hub-bar-seg                            { padding: 6px 14px; }
+/* Hub bar (currently display:none — nav lives in the left rail) */
+.ct-hub-bar                                { padding: var(--ct-space-2_5) var(--ct-space-4); }
+.ct-hub-bar-label                          { padding-left: var(--ct-space-1); }
+.ct-hub-bar-track                          { padding: var(--ct-space-1); }        /* was 3px → nearest scale token (4px) */
+.ct-hub-bar-seg                            { padding: var(--ct-space-1_5) var(--ct-space-4); } /* 14px → nearest scale token (16px) */
 
 /* Master FAB */
 .ct-master-fab                             { padding: 10px 18px; }
@@ -4484,7 +4486,10 @@ button.ct-choice-card {
   .ct-card--compact .vault-select-card__meta       { min-width: 15rem; width: 15rem; }
 }
 
-/* Cockpit chat rail — density calibration */
+/* Cockpit chat rail — density calibration.
+   escape: vendored chrome — the sub-token chat px below (2px/7px/3px/8px/1px/4px/
+   6px/14px chip + button + input density) are package-derived and sit deliberately
+   between scale steps for tight chat density; not accidental drift, do not snap to scale. */
 .ct-chat-actionbar                         { display: flex; align-items: center; gap: var(--ct-space-2); padding-bottom: var(--ct-space-1); }
 .ct-chat-mode-chip                         { padding: 2px 7px; font-size: clamp(0.625rem, 0.59rem + 0.18vw, 0.6875rem); /* 10px → 11px */ border-radius: var(--ct-radius-sm); letter-spacing: 0.02em; text-transform: uppercase; }
 .ct-chat-mode-chip--on                     { color: var(--ct-accent); border: 1px solid color-mix(in srgb, var(--ct-accent) 45%, transparent); background: color-mix(in srgb, var(--ct-accent) 8%, transparent); }
@@ -5455,7 +5460,7 @@ button.ct-choice-card {
     padding: 4px 8px !important;
     background: color-mix(in srgb, var(--ct-bg-deep) 92%, transparent) !important;
     border-top: 1px solid var(--ct-border-soft) !important;
-    z-index: 2147483646 !important; /* above everything */
+    z-index: 2147483646 !important; /* escape: vendored chrome — max-int "above everything" mobile nav, no scale tier */
   }
 
   .ct-rail-intra__stack {

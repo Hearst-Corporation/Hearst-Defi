@@ -3,7 +3,7 @@ import type { NavPoint } from "@/lib/data/dashboard";
 /** Minimum NAV points before the bar chart renders (matches `nav-slot` placeholder). */
 export const MIN_NAV_CHART_POINTS = 2;
 
-/** Bar count for the muted NAV shell (matches `--dashboard-nav-bar-count`). */
+/** Bar count for the muted NAV shell (matches `--ct-dashboard-nav-bar-count`). */
 export const NAV_CHART_SHELL_BAR_COUNT = 30;
 
 /** Axis placeholders shown under the muted NAV shell. */

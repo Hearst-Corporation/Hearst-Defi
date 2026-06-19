@@ -6,3 +6,6 @@
 # chat-agent). Re-add `node scripts/quality-gate.mjs dup` below to restore it.
 
 node scripts/component-index.mjs --stage || exit 1
+
+# DS token drift — fast guard (reads 3 CSS files), blocks brand/token regressions.
+pnpm ds:token-drift || exit 1

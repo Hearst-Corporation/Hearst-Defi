@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/lib/cn";
+import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 import type {
   AgentGraphNode,
   AgentGraphView,
@@ -25,8 +26,19 @@ import type {
  */
 
 interface RGB { r: number; g: number; b: number; }
+
+/** Parse a `#RRGGBB` hex into an RGB triple — canvas needs numeric channels. */
+function hexToRgb(hex: string): RGB {
+  const v = parseInt(hex.replace("#", ""), 16);
+  return { r: (v >> 16) & 0xff, g: (v >> 8) & 0xff, b: v & 0xff };
+}
+
+// Brand accent for "active" nodes — derived from the single JS source of truth
+// (canvas 2D draws to a bitmap and cannot read CSS vars like --ct-accent).
+const ACCENT_RGB = hexToRgb(CONNECT_ACCENT_HEX);
+
 const STATE_COLOR: Record<GraphNodeState, RGB> = {
-  active: { r: 167, g: 251, b: 144 }, // #A7FB90 accent
+  active: ACCENT_RGB,
   idle: { r: 122, g: 134, b: 154 },
   failed: { r: 232, g: 90, b: 90 },
   static: { r: 96, g: 110, b: 140 },

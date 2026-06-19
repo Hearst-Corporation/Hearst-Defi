@@ -3,6 +3,7 @@ import "server-only";
 import { createHash, randomBytes } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { buildEmailWrapper } from "@/lib/email/html-shell";
+import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 
 /**
  * Welcome email sent to a newly-provisioned investor (Typeform auto-create or
@@ -42,7 +43,7 @@ async function sendEmail(
       subject: "Bienvenue sur Hearst Connect — Activez votre accès",
       html: `
         ${buildEmailWrapper(`
-          <h2 style="color:#A7FB90;font-size:20px;margin:0 0 16px;">Bienvenue sur Hearst Connect</h2>
+          <h2 style="color:${CONNECT_ACCENT_HEX};font-size:20px;margin:0 0 16px;">Bienvenue sur Hearst Connect</h2>
           <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#9ca3af;">
             ${greeting}<br/>
             Votre accès à la plateforme Hearst Connect a été créé. Cliquez sur le bouton ci-dessous pour définir votre mot de passe et accéder à votre espace.
@@ -51,7 +52,7 @@ async function sendEmail(
             Ce lien est valable ${ttlDays} jours et ne peut être utilisé qu'une seule fois.
           </p>
           <a href="${resetUrl}"
-             style="display:inline-block;padding:12px 24px;background:#A7FB90;color:#0a0a0a;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;">
+             style="display:inline-block;padding:12px 24px;background:${CONNECT_ACCENT_HEX};color:#0a0a0a;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;">
             Activer mon accès
           </a>
           <p style="margin:24px 0 0;font-size:12px;color:#6b7280;">

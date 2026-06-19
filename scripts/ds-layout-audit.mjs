@@ -42,6 +42,19 @@ const GREEN_ALLOWLIST = new Set([
   "src/lib/pdf/pdf-palette.ts", // print on white — not web runtime
   "src/lib/brand-constants.ts", // CONNECT_SUCCESS_HEX print/SDK constant
 ]);
+/** The brand green (#A7FB90) must live in CSS as var(--ct-accent), never hardcoded
+ *  in TSX/TS — new literals are how the accent drifts out of the token system.
+ *  Sole sanctioned homes: the brand SDK constant, the agent-graph canvas (renders
+ *  to a <canvas> outside CSS), and the inline-styled transactional email HTML. */
+const BRAND_GREEN_HEX_RE = /#a7fb90\b/i;
+const BRAND_GREEN_ALLOWLIST = new Set([
+  "src/lib/brand-constants.ts", // CONNECT_ACCENT_HEX — JS SDK literal (Privy, etc.)
+  "src/components/admin/agents/agent-graph-canvas.tsx", // <canvas> RGB paint, outside CSS
+  "src/lib/auth/password-reset.ts", // inline-styled transactional email HTML
+  "src/lib/auth/send-welcome-email.ts", // inline-styled transactional email HTML
+  "src/lib/inngest/functions/distribution-executed.ts", // inline-styled transactional email HTML
+  "src/lib/email/html-shell.ts", // inline-styled transactional email HTML
+]);
 /** Use tokenized DS shadows (shadow-[var(--ct-shadow-*)]) — never raw Tailwind. */
 const RAW_SHADOW_RE = /\bshadow-(?:sm|md|lg|xl|2xl|inner)\b/g;
 /** Selection controls go through <SegmentedControl> / <Tab>, not raw ct-seg-* classes. */
@@ -212,6 +225,26 @@ function scanSecondGreen(rel, content) {
   }
 }
 
+function scanBrandGreenHardcode(rel, content) {
+  if (BRAND_GREEN_ALLOWLIST.has(rel)) return;
+  const lines = content.split("\n");
+  const block = { v: false };
+  for (let i = 0; i < lines.length; i++) {
+    const code = stripComments(lines[i], block); // comment mentions are fine
+    BRAND_GREEN_HEX_RE.lastIndex = 0;
+    const m = BRAND_GREEN_HEX_RE.exec(code);
+    if (m) {
+      violations.push({
+        file: rel,
+        line: i + 1,
+        rule: "hardcoded-brand-green",
+        detail:
+          `Hardcoded brand green "${m[0]}" — use var(--ct-accent) in CSS, not a literal in TSX/TS.`,
+      });
+    }
+  }
+}
+
 function scanRawShadow(rel, content) {
   RAW_SHADOW_RE.lastIndex = 0;
   let m;
@@ -345,6 +378,7 @@ for (const abs of walk(SRC)) {
   scanStaticCtPill(rel, content);
   scanButtonNoSize(rel, content);
   scanSecondGreen(rel, content);
+  scanBrandGreenHardcode(rel, content); // new #A7FB90 literals in TSX/TS → fail
   scanRawShadow(rel, content);
   scanRawSeg(rel, content);
   scanRawHexCss(rel, content);   // hex literals forbidden in TSX/TS too (var(--ct-*) only)

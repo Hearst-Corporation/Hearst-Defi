@@ -53,6 +53,12 @@ jobs:
       - name: Run Typecheck
         run: pnpm typecheck
 
+      - name: DS token drift
+        run: pnpm ds:token-drift
+
+      - name: DS layout audit
+        run: pnpm ds:layout
+
   # ────────────────────────────────────────────────────────────────
   # Job 2 — Vitest unit + integration tests (BLOCKING)
   # ────────────────────────────────────────────────────────────────

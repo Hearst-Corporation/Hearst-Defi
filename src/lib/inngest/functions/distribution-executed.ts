@@ -11,6 +11,7 @@ import { writeHearstEvent } from "@/lib/chain/event-logger";
 import { DISTRIBUTION_EVENTS } from "@/lib/distribution/events";
 import type { DistributionExecutedPayload } from "@/lib/distribution/events";
 import { buildEmailWrapper } from "@/lib/email/html-shell";
+import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 
 // ---------------------------------------------------------------------------
 // JOB-6: Zod schema for DistributionExecutedPayload — validates at handler
@@ -73,12 +74,12 @@ async function sendDistributionEmail(
     subject: `Hearst Connect — Distribution for ${data.period}`,
     html: `
       ${buildEmailWrapper(`
-        <h2 style="color:#A7FB90;font-size:20px;margin:0 0 16px;">Distribution processed</h2>
+        <h2 style="color:${CONNECT_ACCENT_HEX};font-size:20px;margin:0 0 16px;">Distribution processed</h2>
         <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#9ca3af;">
           Your distribution for period <strong style="color:#e5e7eb;">${data.period}</strong> has been processed.
         </p>
         <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#9ca3af;">
-          Amount: <strong style="color:#A7FB90;">$${formattedAmount} USDC</strong>
+          Amount: <strong style="color:${CONNECT_ACCENT_HEX};">$${formattedAmount} USDC</strong>
         </p>
         <p style="margin:0;font-size:12px;color:#6b7280;">
           This is a notification only. Past distributions are not indicative of future results.
