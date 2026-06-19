@@ -87,3 +87,20 @@ Concretely:
   wired here; the prompt + `extractJson` pipeline is unchanged. Adopting strict
   mode would guarantee 100 % schema validity and is a clean P2 follow-up.
 - `n=1` per agent in the A/B (indicative, not a variance study).
+
+## Rectification (2026-06-19) — append-only, body above unchanged
+
+The decision body above is the dated record as written on 2026-06-11 and is kept
+verbatim. Two implementation details have since changed and are corrected here so
+no reader (human or agent) looks for files that no longer exist:
+
+- **The shared client is now `src/lib/llm/openai.ts`** — there is no `src/lib/llm/kimi.ts`
+  anymore (points 1, 4, and the "Negative/risks" note above still name `kimi.ts`;
+  that file was migrated/renamed).
+- **The `kimi` / `KIMI_MODEL` legacy aliases were fully removed** (verified: zero
+  `kimi`/`KIMI_*` exports remain in `src/`). Import sites use the OpenAI client
+  directly. Any guidance saying "exports `kimi`/`KIMI_*` resolve to OpenAI — do not
+  fix" is obsolete: there is nothing named kimi left to preserve.
+
+Everything else in the decision (single-vendor OpenAI GPT-4.1, pricing, guardrails,
+non-decisions) remains accurate.

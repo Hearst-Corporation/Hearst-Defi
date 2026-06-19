@@ -35,6 +35,15 @@ vi.mock("@/lib/db", () => ({
 
 vi.mock("server-only", () => ({}));
 
+// next/cache's unstable_cache needs Next's incrementalCache, absent under vitest
+// ("Invariant: incrementalCache missing"). Make it transparent — return the wrapped
+// fn as-is — so timeline-snapshot.ts runs its real logic without the Next cache shell.
+vi.mock("next/cache", () => ({
+  unstable_cache: (fn: (...args: unknown[]) => unknown) => fn,
+  revalidateTag: vi.fn(),
+  revalidatePath: vi.fn(),
+}));
+
 // Stub the BTC price fetch so the loader does not hit the network.
 vi.mock("@/lib/data/btc-price", () => ({
   fetchBtcPrice: vi.fn().mockResolvedValue({

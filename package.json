@@ -27,6 +27,7 @@
     "ds:classes": "bash scripts/ds-classes-audit.sh",
     "ds:token-drift": "node scripts/ds-token-drift.mjs",
     "typecheck": "tsc --noEmit",
+    "pretest": "PRISMA_PROVIDER=sqlite node scripts/prisma-provider.mjs && PRISMA_PROVIDER=sqlite prisma generate",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",

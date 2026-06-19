@@ -197,7 +197,7 @@ describe("POST /api/admin/chat-tools", () => {
 
     expect(res.status).toBe(429);
     await expect(res.json()).resolves.toEqual({
-      error: "Trop de requêtes — réessayez dans un instant.",
+      error: "Too many requests — try again in a moment.",
     });
     expect(mockAssertRateLimit).toHaveBeenCalledWith(
       "admin-chat-tools:read:admin_1",
@@ -213,7 +213,7 @@ describe("POST /api/admin/chat-tools", () => {
 
     expect(res.status).toBe(429);
     await expect(res.json()).resolves.toEqual({
-      error: "Trop de requêtes — réessayez dans un instant.",
+      error: "Too many requests — try again in a moment.",
     });
     expect(mockAssertRateLimit).toHaveBeenCalledWith(
       "admin-chat-tools:write:admin_1",

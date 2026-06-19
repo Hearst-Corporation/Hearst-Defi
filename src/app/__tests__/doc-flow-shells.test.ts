@@ -34,6 +34,7 @@ const ADMIN_SHELL_MARKERS = [
   "admin-doc-shell",
   "admin-doc-spec-layout",
   "scenario-lab-page",
+  "ProofCenterHub", // admin proof-center = cockpit fit-gate hub (no-scroll)
 ] as const;
 
 const PRODUCT_SHELL_MARKERS = [
@@ -41,6 +42,9 @@ const PRODUCT_SHELL_MARKERS = [
   "InvestFlowShell",
   "pf-container",
   "proof-center-shell",
+  "ProofCenterHub", // product proof-center = cockpit fit-gate hub
+  "PortfolioLeafShell", // portfolio leaf pages (activity/distributions/positions/yield)
+  "portfolio-leaf-shell",
   "prof-shell",
   "position-detail-shell",
 ] as const;
