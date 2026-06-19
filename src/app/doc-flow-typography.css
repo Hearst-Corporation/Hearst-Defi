@@ -65,3 +65,22 @@
   :is(.body-md, .body-sm, .body-lg, .ct-text-body) {
   color: var(--ct-text-muted);
 }
+
+/* ── Desktop cockpit presence (viewport ≥ 1280px, chat-open lane).
+   Scoped to .ct-page-area hubs — onboarding/apply/auth sit outside this tree.
+   Body/labels stay on fixed tiers; only page titles gain slot-wide presence.
+   Fluid leg grows from 80rem → 120rem (1280–1920) then clamps. */
+@media (min-width: 80rem) {
+  .ct-page-area :is(.admin-doc, .product-doc, .pf-container) .h1,
+  .ct-page-area .invest-flow-shell .h1 {
+    font-size: clamp(1.75rem, 1.75rem + (100vw - 80rem) * 0.00625, 2rem); /* 28 → 32 */
+  }
+
+  .ct-page-area :is(.admin-doc, .product-doc, .pf-container, .proof-center-shell) .h2 {
+    font-size: clamp(1.375rem, 1.375rem + (100vw - 80rem) * 0.003125, 1.5rem); /* 22 → 24 */
+  }
+
+  .ct-page-area :is(.pf-panel-title, .dashboard-panel-micro-title) {
+    font-size: 0.875rem; /* 14px — panel chrome, stays sober */
+  }
+}

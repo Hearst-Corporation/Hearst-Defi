@@ -36,7 +36,7 @@
 | `src/components/admin/dashboard/admin-kpi-strip-panel.tsx` | AdminKpiStripPanel | 9 |
 | `src/components/admin/dashboard/allocation-orbit.tsx` | AllocationOrbit | 1 |
 | `src/components/admin/dashboard/assets-board.tsx` | DashboardAssetsBoard | 2 |
-| `src/components/admin/dashboard/cockpit-panel-header.tsx` | AdminCockpitPanelHeader, AdminLeafLink | 4 |
+| `src/components/admin/dashboard/cockpit-panel-header.tsx` | AdminCockpitPanelHeader, AdminLeafLink | 3 |
 | `src/components/admin/dashboard/kpi-strip.tsx` | DashboardKpiStrip | 2 |
 | `src/components/admin/dashboard/nav-slot.tsx` | NavSlot | 1 |
 | `src/components/admin/dashboard/risk-summary-card.tsx` | DashboardRiskSummaryCard | 1 |
@@ -178,8 +178,8 @@
 | `src/components/scenario/single-mode.tsx` | SingleMode | 1 |
 | `src/components/simulation/simulation-panel.tsx` | SimulationPanel | 1 |
 | `src/components/ui/apy-range.tsx` | ApyRange | 18 |
-| `src/components/ui/badge.tsx` | Badge | 52 |
-| `src/components/ui/button.tsx` | Button | 80 |
+| `src/components/ui/badge.tsx` | Badge | 50 |
+| `src/components/ui/button.tsx` | Button | 82 |
 | `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 74 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
@@ -189,7 +189,7 @@
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
 | `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 17 |
-| `src/components/ui/empty-surface.tsx` | EmptySurface | 44 |
+| `src/components/ui/empty-surface.tsx` | EmptySurface | 43 |
 | `src/components/ui/error-boundary.tsx` | ErrorBoundary | 1 |
 | `src/components/ui/metric.tsx` | Metric | 8 |
 | `src/components/ui/modal.tsx` | Modal | 5 |
