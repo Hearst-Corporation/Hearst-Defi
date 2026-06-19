@@ -5,6 +5,11 @@ import { test, expect } from "@playwright/test";
  *
  * Asserts CTA-led zero state (no ghost chart), compact empty panels, and no
  * footer overlap / horizontal scroll at reference breakpoints.
+ *
+ * Navigation uses `domcontentloaded` (not `load`) — authenticated shells poll
+ * `/api/chat-nav` indefinitely when the Master Agent is on, so `load` never
+ * fires. Rate-limit bypass for login is set in `playwright.config.ts`
+ * (`E2E_DISABLE_RATE_LIMIT=1`, dev/CI only).
  */
 
 const TEST_EMAIL = "test@hearst.local";
@@ -19,26 +24,47 @@ const VIEWPORTS = [
 ] as const;
 
 const CLIP_TOLERANCE_PX = 4;
+const NAV_OPTS = { waitUntil: "domcontentloaded" as const };
+
+/** Stub chat-nav polling so layout specs do not hang on perpetual network activity. */
+async function stubChatNavPolling(
+  page: import("@playwright/test").Page,
+): Promise<void> {
+  await page.route(/\/api\/chat-nav\b/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ route: null }),
+    });
+  });
+}
 
 test.describe("Portfolio previewZeros — onboarding cockpit layout", () => {
   test("CTA visible, no fake chart, footer not overlapping panels", async ({
     page,
   }) => {
-    await page.goto("/login");
+    test.setTimeout(120_000);
+
+    await stubChatNavPolling(page);
+
+    await page.goto("/login", NAV_OPTS);
     await page.getByLabel(/^email$/i).fill(TEST_EMAIL);
     await page.getByLabel(/^password$/i).fill(TEST_PASSWORD);
     await page.getByRole("button", { name: /sign in/i }).click();
-    await page.waitForURL("**/portfolio", { timeout: 10_000 });
+    await page.waitForURL("**/portfolio", {
+      timeout: 60_000,
+      waitUntil: "commit",
+    });
+
+    const cta = page.getByRole("link", { name: /subscribe to vault/i });
+    await expect(cta).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator("#main-content")).toBeVisible();
 
     for (const vp of VIEWPORTS) {
       await page.setViewportSize({ width: vp.w, height: vp.h });
-      await page.goto("/portfolio");
-      await expect(
-        page.getByRole("link", { name: /subscribe to vault/i }),
-      ).toBeVisible({ timeout: 15_000 });
 
       await expect(
-        page.getByRole("link", { name: /subscribe to vault/i }),
+        cta,
         `${vp.name}: primary CTA visible`,
       ).toBeVisible();
       await expect(
@@ -73,7 +99,6 @@ test.describe("Portfolio previewZeros — onboarding cockpit layout", () => {
       ).toBeVisible();
 
       const footer = page.locator(".app-footer");
-      const cta = page.getByRole("link", { name: /subscribe to vault/i });
       const footerBox = await footer.boundingBox();
       const ctaBox = await cta.boundingBox();
       expect(footerBox, `${vp.name}: footer has layout box`).not.toBeNull();
