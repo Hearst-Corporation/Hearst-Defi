@@ -2444,7 +2444,7 @@
 .dashboard-cockpit {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-2);
+  gap: var(--ct-doc-flow-inner-gap);
   min-width: 0;
   container-type: inline-size;
   container-name: dash-board;
@@ -2462,7 +2462,7 @@
    expanding the page. */
 .dashboard-cockpit-row {
   display: grid;
-  gap: var(--ct-space-2);
+  gap: var(--ct-doc-flow-inner-gap);
   min-height: 0;
   min-width: 0;
 }
@@ -2550,6 +2550,8 @@
     flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
+    /* Fit gate: compact header↔board gap preserves row budget (scroll mode uses doc-flow-gap). */
+    gap: var(--ct-space-3);
   }
 
   /* The dashboard-cockpit--fit itself fills the remaining height. */
@@ -2558,6 +2560,15 @@
     min-height: 0;
     height: 100%;
     overflow: hidden;
+    gap: var(--ct-space-2);
+  }
+
+  .dashboard-cockpit--fit .dashboard-cockpit-row {
+    gap: var(--ct-space-2);
+  }
+
+  .dashboard-cockpit--fit .dashboard-cockpit-panel {
+    gap: var(--ct-space-2);
   }
 
   /* Rows share height — flex shares calibrated to match content weight. */
@@ -2679,9 +2690,9 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
-  gap: var(--ct-space-2);
+  gap: var(--ct-doc-flow-inner-gap);
   /* Surface — identical to pf-cockpit-panel */
-  padding: var(--ct-space-4);
+  padding: var(--ct-space-4) var(--ct-space-5);
   border-radius: var(--ct-radius-xl);
   background: var(--ct-graphite-subtle-bg);
   border: 1px solid var(--ct-graphite-border-nested);
