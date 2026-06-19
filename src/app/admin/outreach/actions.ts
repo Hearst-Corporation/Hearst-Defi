@@ -23,6 +23,7 @@ import {
   runSourcingForIcp,
 } from "@/lib/outreach/icp";
 import { isTier } from "@/lib/outreach/tier";
+import { isSuppressed } from "@/lib/outreach/suppression";
 
 /**
  * Admin Server Actions for the cold-outreach + newsletter console
@@ -829,6 +830,16 @@ export async function sendDirectEmail(
   }
 
   const toEmail = parsed.data.to.toLowerCase();
+
+  // Compliance gate: never send to an opted-out / suppressed address, even on a
+  // one-off direct send.
+  if (await isSuppressed(toEmail)) {
+    return {
+      ok: false,
+      error: "Blocked: this address has unsubscribed / is on the suppression list.",
+    };
+  }
+
   const createdBy = admin.walletAddress ?? admin.userId;
   const campaignId = await getDirectCampaignId(createdBy);
 
@@ -851,7 +862,7 @@ export async function sendDirectEmail(
     const sent = await sendTrackedEmail({
       to: toEmail,
       subject: parsed.data.subject,
-      html: renderPlainHtml(parsed.data.body),
+      html: renderPlainHtml(parsed.data.body, toEmail),
       tags: { campaignId, emailId: email.id },
     });
     resendEmailId = sent.id;

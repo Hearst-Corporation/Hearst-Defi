@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { sendTrackedEmail, renderPlainHtml } from "@/lib/email/send";
 import { logEmailActivity } from "@/lib/hubspot/sync-prospect";
+import { isSuppressed } from "@/lib/outreach/suppression";
 import { OUTREACH_EVENTS } from "@/lib/outreach/events";
 import type { OutreachCampaignSendPayload } from "@/lib/outreach/events";
 
@@ -103,10 +104,24 @@ export async function outreachSendHandler({
     const email = approved[i]!;
     const outcome = await step.run(`send-email-${i}`, async () => {
       try {
+        // Compliance gate: a recipient may have opted out AFTER this email was
+        // approved. Never send to a suppressed address — skip it (not a failure).
+        if (await isSuppressed(email.toEmail)) {
+          await prisma.outreachEmail.update({
+            where: { id: email.id },
+            data: { status: "failed" },
+          });
+          logger.info("[outreach-send] skipped suppressed recipient", {
+            campaignId,
+            emailId: email.id,
+          });
+          return { ok: false as const, suppressed: true };
+        }
+
         const result = await sendTrackedEmail({
           to: email.toEmail,
           subject: email.subject,
-          html: renderPlainHtml(email.body),
+          html: renderPlainHtml(email.body, email.toEmail),
           tags: { campaignId, emailId: email.id },
         });
 

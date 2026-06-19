@@ -119,7 +119,7 @@
 | `src/components/portfolio/hero-rail-shell.tsx` | HeroRailGroup | 3 |
 | `src/components/portfolio/kpi-row.tsx` | PortfolioKpiRow | 1 |
 | `src/components/portfolio/lock-meter.tsx` | — | 3 |
-| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 20 |
+| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 19 |
 | `src/components/portfolio/portfolio-greeting.tsx` | PortfolioGreeting | 2 |
 | `src/components/portfolio/portfolio-leaf-link.tsx` | PortfolioLeafLink | 6 |
 | `src/components/portfolio/portfolio-leaf-shell.tsx` | PortfolioLeafShell | 4 |

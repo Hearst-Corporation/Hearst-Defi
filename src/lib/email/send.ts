@@ -1,6 +1,7 @@
 import "server-only";
 
 import { buildEmailHtmlShell } from "@/lib/email/html-shell";
+import { buildUnsubscribeUrl } from "@/lib/outreach/unsubscribe";
 
 /**
  * Shared tracked-email sender.
@@ -120,10 +121,13 @@ export async function sendTrackedEmail(
  * `body` is inserted as-is into the inner paragraph — callers may pass simple
  * inline HTML (e.g. `<br/>`). Sanitize untrusted input before passing it here.
  *
- * NOTE: outreach emails must include an unsubscribe link. Put the rendered
- * link where the `{{unsubscribe}}` placeholder lives below (Resend/the caller
- * substitutes the per-recipient unsubscribe URL before send).
+ * `recipientEmail` (optional) wires a working one-click unsubscribe link into
+ * the footer — REQUIRED for cold outreach (CAN-SPAM / GDPR). When omitted (e.g.
+ * transactional mail that is not marketing), no unsubscribe line is rendered.
  */
-export function renderPlainHtml(body: string): string {
-  return buildEmailHtmlShell(body);
+export function renderPlainHtml(body: string, recipientEmail?: string): string {
+  const unsubscribeUrl = recipientEmail
+    ? buildUnsubscribeUrl(recipientEmail)
+    : undefined;
+  return buildEmailHtmlShell(body, unsubscribeUrl);
 }
