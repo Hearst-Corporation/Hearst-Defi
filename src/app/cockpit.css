@@ -2438,7 +2438,7 @@
    ADMIN DASHBOARD COCKPIT — viewport-fit, ZERO top-level scroll (wide + tall).
    Mirrors the portfolio pf-container--fit / pf-cockpit pattern, scoped to
    admin class names so it NEVER bleeds into portfolio CSS.
-   Below 80rem width OR 52rem height → bento rows size to content (main scroll).
+   Below 80rem width OR 48rem height → bento rows size to content (main scroll).
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Base (all sizes): column stack, rows size to content. */
@@ -2504,8 +2504,13 @@
   min-height: 0;
 }
 
-/* ── Wide + tall gate (≥80rem × ≥52rem): pin shell, share height, no main scroll. ── */
-@media (min-width: 80rem) and (min-height: 52rem) {
+/* ── Wide + tall gate (≥80rem × ≥48rem): pin shell, share height, no main scroll.
+   Height floor lowered 52→48rem (832→768px) so a standard 1280×800 laptop (tab
+   bar + dock eats height) stays in the no-scroll cockpit instead of dropping to
+   content-sized + main scroll, which clipped the ops/lower rows below the fold.
+   Inner cells already clip→scroll (see overflow rules below), so the denser
+   budget redistributes safely. ── */
+@media (min-width: 80rem) and (min-height: 48rem) {
   /* Pin the admin-doc shell chain to the viewport. */
   .ct-panels-row:has(.dashboard-cockpit--fit) {
     height: 100dvh;
@@ -2613,8 +2618,10 @@
   }
 }
 
-/* ── Below fit gate: bento rows size to content; shell footer pin unchanged. ── */
-@media not all and (min-width: 80rem) and (min-height: 52rem) {
+/* ── Below fit gate: bento rows size to content; shell footer pin unchanged.
+   Height floor mirrors the gate above (48rem) so 48–52rem doesn't activate both
+   blocks at once. ── */
+@media not all and (min-width: 80rem) and (min-height: 48rem) {
   .dashboard-cockpit--fit {
     height: auto;
     overflow: visible;
@@ -2873,8 +2880,10 @@
   }
 }
 
-/* ── Wide+tall gate: pin shell chains (product-doc AND admin-doc), share height, no top-level scroll. ── */
-@media (min-width: 80rem) and (min-height: 52rem) {
+/* ── Wide+tall gate: pin shell chains (product-doc AND admin-doc), share height, no top-level scroll.
+   Uses 48rem (768px) instead of 52rem so the bento activates inside admin at typical browser heights
+   (sub-nav + chrome eats ~80px; 52rem = 832px was too tall and caused bento to fall back to scroll). ── */
+@media (min-width: 80rem) and (min-height: 48rem) {
   /* Pin the product-doc and admin-doc shell chains to the viewport. */
   .ct-panels-row:has(.proof-cockpit--fit) {
     height: 100dvh;
@@ -2968,7 +2977,7 @@
 }
 
 /* ── Below fit gate: proof rows size to content; shell footer pin unchanged. ── */
-@media not all and (min-width: 80rem) and (min-height: 52rem) {
+@media not all and (min-width: 80rem) and (min-height: 48rem) {
   .proof-cockpit--fit {
     height: auto;
     overflow: visible;
@@ -5426,4 +5435,287 @@ button.ct-choice-card {
     padding-bottom: 0 !important;
   }
   .ct-center-panel { margin-left: 0 !important; }
+}
+
+/* ── COMMAND PALETTE — admin global search ⌘K ──────────────────────────────
+   Only rendered inside /admin/* (AdminRailIntra + AdminLayout).
+   z-index above everything: --ct-z-modal-overlay (1300).
+───────────────────────────────────────────────────────────────────────────── */
+
+/* Trigger button embedded in the admin rail */
+.cp-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  width: 100%;
+  padding: var(--ct-space-2) var(--ct-space-3);
+  border-radius: var(--ct-radius-md);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ct-text-muted);
+  cursor: pointer;
+  font-size: var(--ct-text-xs);
+  transition: color var(--ct-dur-base), background var(--ct-dur-fast), border-color var(--ct-dur-base);
+}
+
+.cp-trigger:hover {
+  color: var(--ct-text-primary);
+  background: color-mix(in srgb, var(--ct-surface-2) 80%, transparent);
+  border-color: var(--ct-border-soft);
+}
+
+.cp-trigger__kbd {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: var(--ct-radius-sm);
+  border: 1px solid var(--ct-border-soft);
+  color: var(--ct-text-faint);
+  background: transparent;
+  font-family: inherit;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Backdrop */
+.cp-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: var(--ct-blur-md);
+  -webkit-backdrop-filter: var(--ct-blur-md);
+  z-index: calc(var(--ct-z-modal-overlay) - 1);
+}
+
+/* Dialog panel */
+.cp-dialog {
+  position: fixed;
+  top: 12vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(640px, calc(100vw - 2rem));
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-lg);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.04);
+  z-index: var(--ct-z-modal-overlay);
+  overflow: hidden;
+}
+
+/* Input row */
+.cp-input-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-4);
+  border-bottom: 1px solid var(--ct-border-soft);
+  flex-shrink: 0;
+}
+
+.cp-input-row__icon {
+  color: var(--ct-text-muted);
+  flex-shrink: 0;
+}
+
+.cp-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ct-text-primary);
+  font-size: var(--ct-text-sm);
+  font-family: inherit;
+  caret-color: var(--ct-accent);
+}
+
+.cp-input::placeholder {
+  color: var(--ct-text-faint);
+}
+
+/* Hide browser's native search clear button */
+.cp-input::-webkit-search-cancel-button { display: none; }
+
+.cp-input-row__loader {
+  color: var(--ct-text-muted);
+  flex-shrink: 0;
+  animation: cp-spin 0.8s linear infinite;
+}
+
+@keyframes cp-spin {
+  to { transform: rotate(360deg); }
+}
+
+.cp-input-row__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--ct-radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ct-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color var(--ct-dur-fast), background var(--ct-dur-fast);
+}
+
+.cp-input-row__close:hover {
+  color: var(--ct-text-primary);
+  background: color-mix(in srgb, var(--ct-surface-2) 80%, transparent);
+  border-color: var(--ct-border-soft);
+}
+
+/* Results scroll area */
+.cp-results {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--ct-space-2) 0;
+}
+
+.cp-results::-webkit-scrollbar { width: 4px; }
+.cp-results::-webkit-scrollbar-track { background: transparent; }
+.cp-results::-webkit-scrollbar-thumb {
+  background: var(--ct-border-soft);
+  border-radius: 2px;
+}
+
+/* Section header */
+.cp-section {
+  padding: var(--ct-space-1) 0;
+}
+
+.cp-section__label {
+  padding: var(--ct-space-1) var(--ct-space-4) var(--ct-space-1);
+  font-size: var(--ct-text-micro);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ct-text-faint);
+}
+
+/* Result / command row */
+.cp-result-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  width: 100%;
+  padding: var(--ct-space-2) var(--ct-space-4);
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--ct-text-body);
+  font-size: var(--ct-text-xs);
+  transition: background var(--ct-dur-fast), color var(--ct-dur-fast);
+}
+
+.cp-result-row:hover,
+.cp-result-row--active {
+  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
+  color: var(--ct-text-primary);
+}
+
+.cp-result-row__entity {
+  flex-shrink: 0;
+  min-width: 5rem;
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-faint);
+  text-align: right;
+}
+
+.cp-result-row__title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ct-text-primary);
+}
+
+.cp-result-row__subtitle {
+  flex-shrink: 0;
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ct-text-muted);
+  font-size: var(--ct-text-micro);
+}
+
+.cp-result-row__badge {
+  flex-shrink: 0;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--ct-radius-sm);
+  border: 1px solid var(--ct-border-soft);
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-muted);
+  background: transparent;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.cp-result-row__arrow {
+  flex-shrink: 0;
+  color: var(--ct-text-faint);
+  opacity: 0;
+  transition: opacity var(--ct-dur-fast);
+}
+
+.cp-result-row:hover .cp-result-row__arrow,
+.cp-result-row--active .cp-result-row__arrow {
+  opacity: 1;
+}
+
+.cp-result-row__kbd {
+  flex-shrink: 0;
+  margin-left: auto;
+  font-size: var(--ct-text-micro);
+  padding: 0.1rem 0.35rem;
+  border-radius: var(--ct-radius-sm);
+  border: 1px solid var(--ct-border-soft);
+  color: var(--ct-text-faint);
+  background: transparent;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+/* Empty / error states */
+.cp-empty,
+.cp-error {
+  padding: var(--ct-space-6) var(--ct-space-4);
+  text-align: center;
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+}
+
+.cp-error {
+  color: var(--ct-status-danger);
+}
+
+/* Footer */
+.cp-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-4);
+  padding: var(--ct-space-2) var(--ct-space-4);
+  border-top: 1px solid var(--ct-border-soft);
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-faint);
+  flex-shrink: 0;
+}
+
+.cp-footer kbd {
+  display: inline-block;
+  padding: 0.1rem 0.3rem;
+  border-radius: var(--ct-radius-sm);
+  border: 1px solid var(--ct-border-soft);
+  font-family: inherit;
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-muted);
+  background: transparent;
 }

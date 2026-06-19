@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { AdminRailIntra } from "@/components/nav/product-rail-intra";
 import { AdminSubNav } from "@/components/nav/admin-sub-nav";
+import { CommandPalette } from "@/components/power/command-palette";
 import { getSession } from "@/lib/auth/session";
 
 import "../doc-flow.css";
@@ -41,6 +42,7 @@ export default async function AdminLayout({
   return (
     <>
       <AdminRailIntra />
+      <CommandPalette />
       <div className="admin-doc w-full min-w-0">
         <Suspense fallback={null}>
           <AdminSubNav />

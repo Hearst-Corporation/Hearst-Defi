@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**207 components** · 0 possible orphans · 2 intentionally unwired.
+**208 components** · 0 possible orphans · 2 intentionally unwired.
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -134,6 +134,7 @@
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
 | `src/components/portfolio/widget-shell.tsx` | WidgetShell | 4 |
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
+| `src/components/power/command-palette.tsx` | CommandPalette | 1 |
 | `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 12 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
 | `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 4 |
