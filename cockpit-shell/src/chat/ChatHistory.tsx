@@ -34,7 +34,7 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
       const data = (await res.json()) as { chats: ChatSummary[] };
       setChats(data.chats);
     } catch {
-      setError("Impossible de charger l'historique.");
+      setError("Failed to load history.");
     } finally {
       setLoading(false);
     }
@@ -55,7 +55,7 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
   }
 
   async function deleteChat(id: string) {
-    if (!window.confirm("Supprimer cette conversation ?")) return;
+    if (!window.confirm("Delete this conversation?")) return;
     try {
       await fetch(`/api/cockpit-chats/${id}`, { method: "DELETE" });
       setChats((prev) => prev.filter((c) => c.id !== id));
@@ -65,7 +65,7 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
   }
 
   async function clearAll() {
-    if (!window.confirm("Tout supprimer ? Cette action est irréversible.")) return;
+    if (!window.confirm("Clear all conversations? This cannot be undone.")) return;
     try {
       await fetch("/api/cockpit-chats", { method: "DELETE" });
       setChats([]);
@@ -81,28 +81,28 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
           type="button"
           className="ct-chat-history-newbtn"
           onClick={newChat}
+          aria-label="Start new conversation"
           style={productColor ? { background: productColor } : undefined}
         >
-          + Nouvelle conversation
+          + New conversation
         </button>
         {chats.length > 0 && (
           <button
             type="button"
             className="ct-chat-history-clearbtn"
             onClick={clearAll}
-            title="Tout supprimer"
+            title="Clear all"
           >
-            Tout effacer
+            Clear all
           </button>
         )}
       </div>
 
-      {loading && <p className="ct-placeholder">Chargement…</p>}
+      {loading && <p className="ct-placeholder">Loading…</p>}
       {error && <p className="ct-chat-error">{error}</p>}
       {!loading && !error && chats.length === 0 && (
         <p className="ct-placeholder">
-          Aucune conversation pour l'instant — démarre un chat pour voir
-          apparaître ton historique ici.
+          No conversations yet — start a chat and your history will appear here.
         </p>
       )}
 
@@ -121,8 +121,8 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
               type="button"
               className="ct-chat-history-delete"
               onClick={() => deleteChat(c.id)}
-              aria-label="Supprimer"
-              title="Supprimer"
+              aria-label="Delete conversation"
+              title="Delete"
             >
               <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
                 <path d="M1.5 3h10M4.5 3V2a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v1M5.5 5.5v4M7.5 5.5v4M2.5 3l.5 8a.5.5 0 0 0 .5.5h6a.5.5 0 0 0 .5-.5l.5-8" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
@@ -140,11 +140,11 @@ function formatDate(iso: string): string {
   const now = Date.now();
   const diff = now - d.getTime();
   const min = Math.floor(diff / 60_000);
-  if (min < 1) return "à l'instant";
-  if (min < 60) return `il y a ${min} min`;
+  if (min < 1) return "just now";
+  if (min < 60) return `${min} min ago`;
   const h = Math.floor(min / 60);
-  if (h < 24) return `il y a ${h} h`;
+  if (h < 24) return `${h}h ago`;
   const days = Math.floor(h / 24);
-  if (days < 7) return `il y a ${days} j`;
-  return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  if (days < 7) return `${days}d ago`;
+  return d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
 }

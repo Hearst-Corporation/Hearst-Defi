@@ -51,28 +51,24 @@ function renderMarkdown(text: string): string {
       .replace(
         /```(\w*)\n?([\s\S]*?)```/g,
         (_m, _lang: string, code: string) =>
-          `<pre style="background:rgba(0,0,0,0.4);padding:8px 10px;border-radius:6px;overflow-x:auto;font-size:var(--ct-text-sm);margin:6px 0;border:1px solid rgba(255,255,255,0.08)"><code>${escapeHtml(code.trimEnd())}</code></pre>`,
+          `<pre><code>${escapeHtml(code.trimEnd())}</code></pre>`,
       )
       .replace(
         /`([^`]+)`/g,
-        (_m, c: string) =>
-          `<code style="background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;font-size:var(--ct-text-sm)">${escapeHtml(c)}</code>`,
+        (_m, c: string) => `<code>${escapeHtml(c)}</code>`,
       )
-      .replace(/^### (.*?)$/gm, '<h3 class="h3" style="margin-top: 12px; margin-bottom: 6px;">$1</h3>')
-      .replace(/^## (.*?)$/gm, '<h2 class="h2" style="margin-top: 14px; margin-bottom: 8px;">$1</h2>')
-      .replace(/^# (.*?)$/gm, '<h1 class="h1" style="margin-top: 16px; margin-bottom: 10px;">$1</h1>')
+      .replace(/^### (.*?)$/gm, '<h3 class="h3">$1</h3>')
+      .replace(/^## (.*?)$/gm, '<h2 class="h2">$1</h2>')
+      .replace(/^# (.*?)$/gm, '<h1 class="h1">$1</h1>')
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/\*(.+?)\*/g, "<em>$1</em>")
       .replace(/((?:^[-*] .+$\n?)+)/gm, (block) => {
         const items = block
           .split("\n")
           .filter(Boolean)
-          .map(
-            (line) =>
-              `<li style="margin:2px 0">${line.replace(/^[-*] /, "")}</li>`,
-          )
+          .map((line) => `<li>${line.replace(/^[-*] /, "")}</li>`)
           .join("");
-        return `<ul style="padding-left:16px;margin:4px 0">${items}</ul>`;
+        return `<ul>${items}</ul>`;
       });
   
   // Clean up trailing newlines after block elements to prevent excessive <br>
@@ -119,7 +115,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
   );
   const { chatConfig } = useCockpit();
 
-  const { messages, streaming, error, sendMessage, reset } = useChat({
+  const { messages, streaming, error, sendMessage, reset, queued } = useChat({
     apiEndpoint: chatConfig.apiEndpoint ?? "/api/cockpit-chat",
     persistence: chatConfig.persistence,
     productId: activeProduct,
@@ -147,13 +143,16 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
 
   const handleSend = useCallback(
     (text: string) => {
-      if (!text.trim() || streaming) return;
+      // NB: on N'interdit PLUS l'envoi pendant le streaming. sendMessage gère
+      // lui-même la règle à 2 niveaux (file d'attente sur submit isolé, FORCE
+      // sur double-submit rapide). Le textarea reste actif en permanence.
+      if (!text.trim()) return;
       setInput("");
       sendMessage(text);
       // Re-focus après envoi.
       requestAnimationFrame(() => textareaRef.current?.focus());
     },
-    [streaming, sendMessage],
+    [sendMessage],
   );
 
   const handleKeyDown = useCallback(
@@ -182,6 +181,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           type="button"
           onClick={newConversation}
           title="New chat"
+          aria-label="Start new conversation"
           className="ct-chat-newbtn"
         >
           + New
@@ -234,7 +234,12 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         {error && (
           <div className="ct-chat-error">
             <p>{error}</p>
-            <button type="button" onClick={retryLast} className="ct-chat-retry">
+            <button
+              type="button"
+              onClick={retryLast}
+              className="ct-chat-retry"
+              aria-label="Retry last message"
+            >
               ↻ Retry
             </button>
           </div>
@@ -242,6 +247,17 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
 
         <div ref={bottomRef} />
       </div>
+
+      {/* File d'attente : un prompt mis en file (1× Entrée pendant une réponse)
+          part automatiquement à la fin du tour courant. État honnête — il n'est
+          PAS encore envoyé. Double-Entrée rapide force l'envoi immédiat. */}
+      {queued ? (
+        <div className="ct-chat-queued" aria-live="polite">
+          <span className="ct-chat-queued-dot" aria-hidden="true" />
+          <span className="ct-chat-queued-text">Queued · {queued}</span>
+          <span className="ct-chat-queued-hint">sends after this reply — press Enter again to force</span>
+        </div>
+      ) : null}
 
       {/* Input */}
       <form
@@ -259,14 +275,15 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          disabled={streaming}
         />
         <button
           type="submit"
           className="ct-chat-send"
-          disabled={!input.trim() || streaming}
-          aria-label="Send message"
-          style={input.trim() && !streaming ? { background: accent } : undefined}
+          // Actif dès qu'il y a du texte — MÊME pendant le streaming, pour
+          // permettre la mise en file (1× clic) et le FORCE (double-clic rapide).
+          disabled={!input.trim()}
+          aria-label={streaming ? "Queue or send message" : "Send message"}
+          style={input.trim() ? { background: accent } : undefined}
         >
           {streaming ? (
             <span className="ct-chat-send-dots">
@@ -274,8 +291,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
             </span>
           ) : (
             <svg
-              width="16"
-              height="16"
+              className="ct-chat-icon"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -314,6 +330,13 @@ function MessageBubble({ msg, isStreamingThis }: MessageBubbleProps) {
 
   return (
     <div className={`ct-chat-msg ${isUser ? "user" : "assistant"}`}>
+      {!isEmpty ? (
+        <span
+          className={`ct-chat-badge ${isUser ? "ct-chat-badge--user" : "ct-chat-badge--agent"}`}
+        >
+          {isUser ? "You" : "Assistant"}
+        </span>
+      ) : null}
       {isEmpty ? (
         <div className="ct-chat-typing">
           <span />

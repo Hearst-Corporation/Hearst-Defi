@@ -32,7 +32,7 @@ const TITLES: Record<string, string> = {
 
 function WidthIcon({ expanded }: { expanded: boolean }) {
   return (
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+    <svg className="ct-chat-icon" viewBox="0 0 13 13" fill="none" aria-hidden="true">
       <path
         d="M2 6.5H11M2 6.5L3.5 5M2 6.5L3.5 8M11 6.5L9.5 5M11 6.5L9.5 8"
         stroke="currentColor"
@@ -83,7 +83,7 @@ export function RailRight() {
               aria-label={view === "history" ? "Back to chat" : "Chat history"}
               title={view === "history" ? "Back to chat" : "History"}
             >
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+              <svg className="ct-chat-icon" viewBox="0 0 13 13" fill="none" aria-hidden="true">
                 <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.2" />
                 <path d="M6.5 3.5V6.5L8.5 7.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -94,7 +94,7 @@ export function RailRight() {
               aria-label={view === "settings" ? "Back to chat" : "Chat settings"}
               title={view === "settings" ? "Back to chat" : "Settings"}
             >
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+              <svg className="ct-chat-icon" viewBox="0 0 13 13" fill="none" aria-hidden="true">
                 <circle cx="6.5" cy="6.5" r="1.75" stroke="currentColor" strokeWidth="1.2" />
                 <path d="M6.5 1v1.5M6.5 10.5V12M12 6.5h-1.5M2.5 6.5H1M10.3 2.7l-1.06 1.06M3.76 9.24l-1.06 1.06M10.3 10.3l-1.06-1.06M3.76 3.76 2.7 2.7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
               </svg>

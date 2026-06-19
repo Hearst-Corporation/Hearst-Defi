@@ -37,7 +37,13 @@ export interface UseChatReturn {
   error: string | null;
   sendMessage: (text: string) => void;
   reset: () => void;
+  /** Texte du prompt en file d'attente (1× Entrée pendant une réponse), sinon null. */
+  queued: string | null;
 }
+
+/** Fenêtre (ms) sous laquelle deux submits successifs comptent comme un
+ *  double-submit → FORCE (abort de la réponse en cours + envoi immédiat). */
+const DOUBLE_SUBMIT_MS = 500;
 
 // ---------------------------------------------------------------------------
 // Helpers locaux (repris de ChatKimi)
@@ -193,10 +199,19 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
   const [streaming, setStreaming] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [chatId, setChatId] = useState<string | null>(initialChatId ?? null);
+  /** Prompt en file d'attente (visible côté UI via `queued`). */
+  const [queued, setQueued] = useState<string | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
   /** Guard anti-race-condition : empêche un double-envoi concurrent. */
   const pendingRef = useRef<boolean>(false);
+  /** Timestamp du dernier submit — détecte le double-submit (< 500ms → FORCE). */
+  const lastSubmitAtRef = useRef<number>(0);
+  /** Un seul prompt en attente : remplacé si un nouveau arrive avant la fin. */
+  const queuedRef = useRef<string | null>(null);
+  /** Ref stable vers la fonction réseau (runTurn) — câblée plus bas, lue dans
+   *  le `finally` pour relancer le prompt en file sans dépendance circulaire. */
+  const runTurnRef = useRef<((text: string) => Promise<void>) | null>(null);
   /** Guard unmount : évite les setState après démontage. */
   const mountedRef = useRef<boolean>(true);
   /** Ref stable vers messages — évite de recréer sendMessage à chaque chunk. */
@@ -262,19 +277,25 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
   const reset = useCallback(() => {
     abortRef.current?.abort();
     pendingRef.current = false;
+    queuedRef.current = null;
+    setQueued(null);
     setMessages([WELCOME_MSG]);
     setError(null);
     setStreaming(false);
     setChatId(null);
   }, []);
 
-  const sendMessage = useCallback(
+  /**
+   * runTurn — exécute UN tour réseau (envoi + lecture du stream). Ne décide PAS
+   * de la mise en file / du force : c'est le rôle du `sendMessage` public.
+   * Au démarrage il consomme `pendingRef` ; dans le `finally`, si un prompt a
+   * été mis en file pendant ce tour, il le relance (drain de la queue).
+   */
+  const runTurn = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
       if (!trimmed) return;
 
-      // Guard race condition : si un envoi est déjà en cours, on ignore.
-      if (pendingRef.current) return;
       pendingRef.current = true;
 
       // Annuler le stream précédent.
@@ -329,19 +350,19 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
         // Fix stream error (P3) : status non-2xx.
         if (!resp.ok) {
           if (resp.status === 429) {
-            setError("Trop de requêtes — réessaie dans quelques secondes.");
+            setError("Too many requests — try again in a few seconds.");
           } else {
             const errData = (await resp
               .json()
               .catch(() => null)) as { error?: string } | null;
-            setError(errData?.error ?? "Erreur serveur — réessaie dans un instant.");
+            setError(errData?.error ?? "Server error — try again in a moment.");
           }
           setMessages((prev) => prev.filter((m) => m.id !== assistantId));
           return;
         }
 
         if (!resp.body) {
-          setError("Erreur serveur — réessaie dans un instant.");
+          setError("Server error — try again in a moment.");
           setMessages((prev) => prev.filter((m) => m.id !== assistantId));
           return;
         }
@@ -385,7 +406,7 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
           const errIdx = combined.indexOf(ERROR_MARKER);
           if (errIdx !== -1) {
             const errPart = combined.slice(errIdx + ERROR_MARKER.length);
-            const errMsg = errPart.split("\n")[0]?.trim() || "Erreur serveur — réessaie dans un instant.";
+            const errMsg = errPart.split("\n")[0]?.trim() || "Server error — try again in a moment.";
             setError(errMsg);
             streamErrorDetected = true;
             break;
@@ -433,16 +454,84 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
         // Retire le placeholder vide.
         setMessages((prev) => prev.filter((m) => m.id !== assistantId));
       } finally {
-        if (mountedRef.current) {
-          setStreaming(false);
+        // Identity guard : si un FORCE (double-submit) a déjà remplacé le
+        // contrôleur courant par un nouveau tour, CE tour-ci est obsolète et ne
+        // doit toucher NI pendingRef NI streaming NI la queue — sinon il
+        // écraserait l'état du tour forcé qui vient de démarrer.
+        if (abortRef.current !== controller) {
+          return;
         }
         abortRef.current = null;
         pendingRef.current = false;
+        // Drain de la queue : un prompt mis en attente (1× Entrée pendant la
+        // réponse) part automatiquement maintenant que le tour est terminé.
+        const next = queuedRef.current;
+        queuedRef.current = null;
+        if (mountedRef.current) {
+          setQueued(null);
+          if (next && next.trim()) {
+            // Enchaîne sans laisser `streaming` retomber à false entre les deux
+            // (l'UI reste en état "en cours"). On NE remet pas streaming=false.
+            void runTurnRef.current?.(next);
+          } else {
+            setStreaming(false);
+          }
+        }
       }
     },
     // messagesRef est stable — pas besoin de messages dans les deps.
     [apiEndpoint, chatId, productId, onChatId],
   );
 
-  return { messages, streaming, error, sendMessage, reset };
+  // Garde la ref runTurn à jour pour le drain de queue dans le `finally`.
+  runTurnRef.current = runTurn;
+
+  /**
+   * sendMessage — point d'entrée public. Applique la règle à 2 niveaux :
+   *
+   *  - Aucun tour en cours          → envoie immédiatement (runTurn).
+   *  - Tour en cours + submit isolé → MET EN FILE (un seul slot, remplacé si un
+   *    nouveau arrive). Part automatiquement à la fin du tour courant. La
+   *    réponse en cours n'est PAS annulée.
+   *  - Tour en cours + double-submit rapide (< 500ms depuis le dernier submit)
+   *    → FORCE : abort de la réponse en cours + envoi immédiat du nouveau prompt.
+   *
+   * Le 2e submit rapide remplace aussi tout prompt déjà en file (on ne veut pas
+   * un envoi fantôme en plus du forcé).
+   */
+  const sendMessage = useCallback(
+    (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+
+      const now = Date.now();
+      const sinceLast = now - lastSubmitAtRef.current;
+      lastSubmitAtRef.current = now;
+
+      // Aucun tour en cours → envoi direct.
+      if (!pendingRef.current) {
+        runTurn(trimmed);
+        return;
+      }
+
+      // Tour en cours. Double-submit rapide → FORCE.
+      if (sinceLast < DOUBLE_SUBMIT_MS) {
+        queuedRef.current = null;
+        setQueued(null);
+        // abort() déclenche le rejet AbortError du fetch en cours ; le `finally`
+        // de ce tour videra pendingRef. On relance immédiatement : runTurn
+        // re-pose pendingRef=true avant tout await, donc pas de double-envoi.
+        abortRef.current?.abort();
+        runTurn(trimmed);
+        return;
+      }
+
+      // Submit isolé pendant un tour → met en file (remplace l'éventuel précédent).
+      queuedRef.current = trimmed;
+      setQueued(trimmed);
+    },
+    [runTurn],
+  );
+
+  return { messages, streaming, error, sendMessage, reset, queued };
 }
