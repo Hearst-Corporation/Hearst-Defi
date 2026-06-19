@@ -80,19 +80,17 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
     [views, activeViewId],
   );
 
-  // Densest column drives the canvas height so a wide view (e.g. the 9 read
-  // instruments stacked in one column) gets enough vertical room to breathe.
-  const maxColumnRows = useMemo(() => {
-    const counts = new Map<number, number>();
-    for (const n of activeView?.nodes ?? []) {
-      counts.set(n.column, (counts.get(n.column) ?? 0) + 1);
+  // ONE fixed height for every tab — sized off the densest column across ALL
+  // views (the 9 read instruments). The box never resizes when switching tabs.
+  const canvasHeight = useMemo(() => {
+    let densest = 1;
+    for (const v of views) {
+      const counts = new Map<number, number>();
+      for (const n of v.nodes) counts.set(n.column, (counts.get(n.column) ?? 0) + 1);
+      densest = Math.max(densest, ...counts.values());
     }
-    return Math.max(1, ...counts.values());
-  }, [activeView]);
-  const canvasHeight = Math.min(
-    MAX_CANVAS_H,
-    Math.max(MIN_CANVAS_H, maxColumnRows * ROW_PX + 64),
-  );
+    return Math.min(MAX_CANVAS_H, Math.max(MIN_CANVAS_H, densest * ROW_PX + 64));
+  }, [views]);
 
   const viewRef = useRef<AgentGraphView | null>(activeView);
   viewRef.current = activeView;
