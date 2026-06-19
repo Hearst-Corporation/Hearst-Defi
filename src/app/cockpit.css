@@ -3867,6 +3867,9 @@ button.ct-choice-card {
   /* Open (default) chat = largeur FLUIDE (le package posait 22rem fixe). Le clamp
      fait rétrécir le chat au lieu d'écraser le centre quand le viewport baisse. */
   width: var(--ct-rail-right);
+  /* Garde-fou : à 1024px le rail (≈225px) est étroit ; rien (header, toggle) ne
+     doit déborder par-dessus la bordure gauche. Le header tronque déjà son titre. */
+  overflow: hidden;
 }
 
 .ct-rail-right.collapsed {
@@ -4408,7 +4411,12 @@ button.ct-choice-card {
 
 .ct-page-area > .app-footer {
   flex: 0 0 auto;
-  margin-top: 0;
+  /* margin-top:auto pousse le footer en BAS même quand le main est vide/absent
+     (reload : Privy ssr:false monte le wrapper avant que <main> n'y entre → le
+     sélecteur :has(> main) ne matche pas encore → le wrapper n'a pas flex:1 →
+     sans ce auto le footer remontait coller en haut "en header"). En flux
+     normal (main flex:1 remplit déjà), auto est neutre — footer reste collé bas. */
+  margin-top: auto;
 }
 
 /* Fit / workspace hubs — footer toujours pin (toutes tailles). */
@@ -4423,7 +4431,7 @@ button.ct-choice-card {
   )
   > .app-footer {
   flex: 0 0 auto;
-  margin-top: 0;
+  margin-top: auto; /* pin bottom even when the fit hub is empty (reload flash) */
 }
 
 /* Admin sub-nav : chrome fixe au-dessus du shell fit. */

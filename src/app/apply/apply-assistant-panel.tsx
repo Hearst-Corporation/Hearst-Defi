@@ -121,7 +121,13 @@ export function ApplyAssistantPanel({ step }: { step: Step }) {
         <p className="ct-apply-assistant-prompt m-0">
           Ask me anything about this step…
         </p>
-        <div className="ct-apply-assistant-field">
+        <button
+          type="button"
+          disabled
+          aria-disabled="true"
+          aria-label="Assistant input (coming soon)"
+          className="ct-apply-assistant-field ct-focus-ring"
+        >
           <span className="ct-apply-assistant-field-text">
             Message the assistant…
           </span>
@@ -136,7 +142,7 @@ export function ApplyAssistantPanel({ step }: { step: Step }) {
               />
             </svg>
           </span>
-        </div>
+        </button>
       </div>
     </aside>
   );

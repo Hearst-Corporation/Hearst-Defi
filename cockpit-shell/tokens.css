@@ -287,6 +287,9 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
 /* ── CHAT — contexte produit ── */
 .ct-rail-right-title {
   display: inline-flex; align-items: center; gap: 8px;
+  /* Yield space at narrow rails (≤1024px) so the round buttons — incl. the
+     collapse toggle — stay inside the rail instead of being pushed past its edge. */
+  min-width: 0; flex: 1 1 auto; overflow: hidden;
 }
 /* ── HUB BOTTOM BAR — visible uniquement sur le hub (jamais en mode produit) ── */
 .ct-root { --ct-rail-right-eff: var(--ct-rail-right); }
@@ -380,7 +383,8 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
 .ct-chat-ctx-name {
   color: var(--ct-text-muted); font-weight: 500;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  max-width: 220px;
+  /* Fluid cap: ellipsize within the shrunk title instead of forcing 220px. */
+  min-width: 0; max-width: 100%;
 }
 
 /* ── CENTRE ── */
@@ -481,6 +485,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
 .ct-rail-right.collapsed .ct-rail-right-body { display: none; }
 .ct-rail-right-header {
   display: flex; align-items: center; justify-content: space-between;
+  gap: 6px;
   padding: 20px 20px 12px;
   border-bottom: 1px solid var(--ct-border);
 }
@@ -497,6 +502,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
 }
 .ct-rail-right-btn {
   width: 28px; height: 28px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: var(--ct-surface-2);
   border: 1px solid var(--ct-border);

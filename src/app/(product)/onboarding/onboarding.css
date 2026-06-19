@@ -363,18 +363,26 @@
 
 .ct-apply-assistant-field {
   display: flex;
+  width: 100%;
   align-items: center;
   gap: var(--ct-space-2);
   padding: var(--ct-space-3) var(--ct-space-3) var(--ct-space-3) var(--ct-space-4);
   border-radius: var(--ct-radius-xl);
   border: 1px solid var(--ct-border-soft);
   background: color-mix(in srgb, var(--ct-surface-1) 50%, transparent);
+  text-align: left;
+  font: inherit;
+  cursor: default;
+}
+
+.ct-apply-assistant-field:disabled {
+  cursor: default;
 }
 
 .ct-apply-assistant-field-text {
   flex: 1 1 auto;
   min-width: 0;
-  color: var(--ct-text-faint);
+  color: var(--ct-text-muted);
   font-size: var(--ct-text-sm);
 }
 
