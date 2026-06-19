@@ -3,14 +3,12 @@ import { FeedbackForm } from "@/components/admin/feedback-form";
 import { FeedbackList } from "@/components/admin/feedback-list";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { Card } from "@/components/ui/card";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { buildFeedbackKpiStrip } from "@/lib/admin/feedback-kpi-strip";
 
 export const dynamic = "force-dynamic";
 
 export default async function FeedbackPage() {
-  await requireAdmin();
   const items = await prisma.feedback.findMany({
     orderBy: [{ resolved: "asc" }, { createdAt: "desc" }],
     take: 100,

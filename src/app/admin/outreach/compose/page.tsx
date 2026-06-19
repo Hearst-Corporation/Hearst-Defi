@@ -1,6 +1,6 @@
 // Admin · Outreach · Compose — send a single email independently of any
 // campaign. Optionally drafted by the agent; sent with open/click tracking.
-// Server Component — inherits the /admin layout's requireAdmin() gate.
+// Server Component — gated by admin layout (session.role).
 
 import Link from "next/link";
 

@@ -1,5 +1,4 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import { ProjectionStudio } from "./studio";
 
 export const dynamic = "force-dynamic";
@@ -9,8 +8,6 @@ export const metadata = {
 };
 
 export default async function ProjectionPage() {
-  await requireAdmin();
-
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader

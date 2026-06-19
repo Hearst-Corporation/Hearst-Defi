@@ -1,5 +1,5 @@
 // Admin · Customers supervision table.
-// Server Component — inherits the /admin layout's requireAdmin() gate, so no
+// Server Component — gated by admin layout (session.role), so no
 // redundant auth check here. Reads via the server-only loadCustomers() loader.
 
 import Link from "next/link";

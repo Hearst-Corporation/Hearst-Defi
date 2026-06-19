@@ -6,7 +6,6 @@ import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadProposalQueue } from "@/lib/governance/actions";
 import type { ProposalState } from "@/lib/governance/state-machine";
 import { canRunDemoProvider } from "@/lib/demo/guard";
@@ -46,8 +45,6 @@ interface PageProps {
 }
 
 export default async function GovernancePage({ searchParams }: PageProps) {
-  await requireAdmin();
-
   const params = await searchParams;
   const rawTab = params["tab"];
   const activeTab: TabKey = isTabKey(rawTab) ? rawTab : "all";

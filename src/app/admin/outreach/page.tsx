@@ -1,5 +1,5 @@
 // Admin · Outreach — email-agent control surface.
-// Server Component — inherits the /admin layout's requireAdmin() gate, so no
+// Server Component — gated by admin layout (session.role), so no
 // redundant auth check here. Reads via the server-only loaders in
 // @/lib/data/outreach; client islands (forms) below import the server actions.
 
@@ -71,7 +71,7 @@ export default async function OutreachPage() {
         eyebrow="platform · outreach operations"
         description="Operator workspace for prospect coverage, campaign setup, and pre-send review of agent-prepared outreach."
         actions={
-          <Button asChild variant="secondary">
+          <Button asChild variant="secondary" size="md">
             <Link href="/admin/outreach/compose">Compose email</Link>
           </Button>
         }

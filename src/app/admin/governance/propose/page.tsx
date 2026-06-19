@@ -45,8 +45,6 @@ async function handlePropose(formData: FormData) {
 }
 
 export default async function ProposePage() {
-  await requireAdmin();
-
   const vaults = await prisma.vaultDeployment.findMany({
     where: { status: { not: "closed" } },
     orderBy: { ticker: "asc" },

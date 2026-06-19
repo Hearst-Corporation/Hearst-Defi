@@ -1,7 +1,7 @@
 // Admin · Onboarding test — manually simulate a Typeform submission.
 // Creates a User + Investor + QualificationProfile, calibrates the agent,
 // optionally sends the welcome email and syncs the contact to HubSpot.
-// Server Component — inherits the /admin layout's requireAdmin() gate.
+// Server Component — gated by admin layout (session.role).
 
 import Link from "next/link";
 

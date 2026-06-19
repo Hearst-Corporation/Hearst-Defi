@@ -26,7 +26,6 @@ import { ProofCenterCardHeader } from "@/components/proof-center/proof-center-ca
 import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
 import { ProofCenterTestnetNotice } from "@/components/proof-center/proof-center-testnet-notice";
 import { TimelockCountdown } from "@/components/governance/timelock-countdown";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import { isChainConfigured } from "@/lib/chain/client";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
@@ -50,8 +49,6 @@ interface AdminProofCenterFullPageProps {
 export default async function AdminProofCenterFullPage({
   searchParams,
 }: AdminProofCenterFullPageProps) {
-  await requireAdmin();
-
   const chainConfigured = isChainConfigured();
   const params = await searchParams;
   const raw = Array.isArray(params.type) ? params.type[0] : params.type;

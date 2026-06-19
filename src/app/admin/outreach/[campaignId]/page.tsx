@@ -1,6 +1,6 @@
 // Admin · Campaign detail — meta, agent-draft trigger, and the per-recipient
-// emails awaiting review. Server Component — inherits the /admin layout's
-// requireAdmin() gate. Email cards are client islands (editable + approve).
+// emails awaiting review. Server Component — gated by admin layout (session.role).
+// Email cards are client islands (editable + approve).
 
 import Link from "next/link";
 import { notFound } from "next/navigation";

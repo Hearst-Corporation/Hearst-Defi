@@ -7,7 +7,6 @@ export const dynamic = "force-dynamic";
 
 import { ProofCenterHub } from "@/components/proof-center/proof-center-hub";
 import { loadCoverageForVault } from "@/lib/agents/loaders/coverage";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import { isChainConfigured } from "@/lib/chain/client";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
@@ -25,8 +24,6 @@ import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
 import { prisma } from "@/lib/db";
 
 export default async function AdminProofCenterPage() {
-  await requireAdmin();
-
   const chainConfigured = isChainConfigured();
   const coveragePeriod = new Date().toISOString().slice(0, 7);
 

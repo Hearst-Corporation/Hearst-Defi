@@ -9,7 +9,6 @@ import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { Ptai } from "@/components/ui/ptai";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import { executeProposal, loadProposalDetail, signProposal } from "@/lib/governance/actions";
 import {
   extractPtaiFromCalldata,
@@ -45,7 +44,6 @@ async function handleExecute(proposalId: string) {
 }
 
 export default async function ProposalDetailPage({ params }: PageProps) {
-  await requireAdmin();
   const { id } = await params;
 
   let proposal;

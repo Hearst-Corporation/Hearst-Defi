@@ -1,5 +1,5 @@
 // Admin · Audit log read surface.
-// Server Component — inherits the /admin layout's requireAdmin() gate.
+// Server Component — gated by admin layout (session.role).
 // Filterable via plain GET <form>; no client JS required.
 
 import Link from "next/link";

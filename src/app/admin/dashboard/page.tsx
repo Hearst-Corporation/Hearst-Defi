@@ -4,7 +4,6 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DashboardAssetsBoard } from "@/components/admin/dashboard";
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { resolveDashboardPageInputs } from "@/lib/admin/dashboard-page-view";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadAdminOverview } from "@/lib/data/admin-overview";
 import { loadCockpitPayload } from "@/lib/data/cockpit";
 import { loadDashboardData } from "@/lib/data/dashboard";
@@ -19,7 +18,6 @@ interface DashboardPageProps {
 }
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
-  await requireAdmin();
   const params = await searchParams;
 
   const [data, risk, overview, cockpit] = await Promise.all([

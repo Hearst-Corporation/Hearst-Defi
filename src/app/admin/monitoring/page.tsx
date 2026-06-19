@@ -1,14 +1,12 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { MonitoringBoard } from "@/components/admin/monitoring/monitoring-board";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import { getMonitoringStats } from "@/lib/data/monitoring";
 import { buildMonitoringKpiStrip } from "@/lib/admin/monitoring-kpi-strip";
 
 export const dynamic = "force-dynamic";
 
 export default async function MonitoringPage() {
-  await requireAdmin();
   const stats = await getMonitoringStats();
 
   const monitoringKpis = buildMonitoringKpiStrip({

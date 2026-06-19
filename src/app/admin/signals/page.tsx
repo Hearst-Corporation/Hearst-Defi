@@ -1,7 +1,6 @@
 import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import Link from "next/link";
 
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
@@ -71,8 +70,6 @@ interface SignalsPageProps {
 }
 
 export default async function SignalsPage({ searchParams }: SignalsPageProps) {
-  await requireAdmin();
-
   const params = await searchParams;
   const activeStatus = toFilter(params.status);
   const vaultId = resolveFixtureVaultId(params.vault);

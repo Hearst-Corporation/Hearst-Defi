@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import { canRunDemoProvider } from "@/lib/demo/guard";
 import { buildDemoDistributions } from "@/lib/demo/admin/distributions";
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
@@ -42,8 +41,6 @@ function matchesDistributionVaultScope(
 export default async function DistributionsPage({
   searchParams,
 }: DistributionsPageProps) {
-  await requireAdmin();
-
   const params = await searchParams;
   const vaultId = resolveFixtureVaultId(params.vault);
 

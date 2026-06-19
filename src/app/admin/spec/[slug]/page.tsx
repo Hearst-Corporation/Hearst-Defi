@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Markdown } from "@/components/admin/markdown";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import { cn } from "@/lib/cn";
 import { getSpecDoc, getSpecIndex } from "@/lib/spec";
 
@@ -19,7 +18,6 @@ export default async function SpecPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  await requireAdmin();
   const { slug } = await params;
   const [doc, index] = await Promise.all([getSpecDoc(slug), getSpecIndex()]);
   if (!doc) {

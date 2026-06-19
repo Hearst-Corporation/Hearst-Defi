@@ -1,6 +1,6 @@
 // Admin · Customer detail — identity, KYC, positions, qualification (Typeform),
 // agent calibration, accumulating memory, recent conversations.
-// Server Component — inherits the /admin layout's requireAdmin() gate.
+// Server Component — gated by admin layout (session.role).
 
 import Link from "next/link";
 import { notFound } from "next/navigation";

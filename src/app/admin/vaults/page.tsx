@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { STRATEGY_LABELS } from "@/lib/constants/vault";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
@@ -41,8 +40,6 @@ interface PageProps {
 }
 
 export default async function VaultsPage({ searchParams }: PageProps) {
-  await requireAdmin();
-
   const params = await searchParams;
   const rawFilter = params["filter"];
   const activeFilter: FilterKey = isFilterKey(rawFilter) ? rawFilter : "all";

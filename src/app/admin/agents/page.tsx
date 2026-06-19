@@ -1,5 +1,5 @@
 // Admin · Agents — reusable agent persona templates (the library).
-// Server Component — inherits the /admin layout's requireAdmin() gate.
+// Server Component — gated by admin layout (session.role).
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -44,7 +44,7 @@ export default async function AgentsPage() {
         title="Agents"
         description="Govern reusable agent templates and review the base execution surfaces they can inherit."
         actions={
-          <Button asChild variant="primary">
+          <Button asChild variant="primary" size="md">
             <Link href="/admin/agents/new">New template</Link>
           </Button>
         }

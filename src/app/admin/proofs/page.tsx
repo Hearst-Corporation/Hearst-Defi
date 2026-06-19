@@ -1,7 +1,6 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminLeafLink } from "@/components/admin/dashboard/cockpit-panel-header";
 import { ProofList } from "@/components/admin/proof-list";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { canRunDemoProvider } from "@/lib/demo/guard";
 import { buildDemoProofRows } from "@/lib/demo/admin/proofs";
@@ -13,8 +12,6 @@ export const metadata = {
 };
 
 export default async function ProofsPage() {
-  await requireAdmin();
-
   const items = canRunDemoProvider()
     ? buildDemoProofRows()
     : await prisma.proof.findMany({
