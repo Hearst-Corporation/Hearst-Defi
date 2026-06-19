@@ -5,7 +5,6 @@ import {
 } from "@/components/portfolio/lock-meter";
 import { resolveLockMeterShell } from "@/lib/portfolio/hero-rail-state";
 import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
-import { cn } from "@/lib/cn";
 
 const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -17,7 +16,11 @@ export type HeroLiquidityRailProps = LockMeterProps & {
   previewZeros?: boolean;
 };
 
-/** Hero-rail slice for lock / liquidity — same inputs as LockMeter. */
+/**
+ * Hero rail — liquidity / soft-lock. Recoded from scratch: a thin progress
+ * meter (lock elapsed) over a compact meta line, with an optional early-exit
+ * penalty note. Honest zero-state. Same inputs as LockMeter.
+ */
 export function HeroLiquidityRail({
   lockStart,
   softLockupDays,
@@ -33,33 +36,30 @@ export function HeroLiquidityRail({
     softLockupDays,
   });
 
-  const { progressPct, unlockDate, daysRemaining, isUnlocked } =
-    computeLockMeter(lockStart, softLockupDays, effectiveAsOf);
+  const { progressPct, unlockDate, daysRemaining, isUnlocked } = computeLockMeter(
+    lockStart,
+    softLockupDays,
+    effectiveAsOf,
+  );
 
   const progressRounded = showZeroShell ? 0 : Math.round(progressPct);
   const fillPct = showZeroShell ? 0 : progressPct;
 
-  const progressLabel = showZeroShell
-    ? termsUnknown
-      ? "Lock terms unavailable until share-class data is wired."
-      : "Liquidity terms pending until an active position is available."
-    : termsUnknown
-      ? "Lock terms unavailable until share-class data is wired."
-      : `Lockup progress: ${progressRounded}% — ${
-          isUnlocked
-            ? "fully unlocked"
-            : `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} remaining of ${softLockupDays}`
-        }`;
-
-  const metaText = showZeroShell
+  const meta = showZeroShell
     ? termsUnknown
       ? "Terms pending"
       : `${softLockupDays}-day soft lock shown after deposit`
     : termsUnknown
       ? "Terms pending"
       : isUnlocked
-        ? "Unlocked · Now"
-        : `${daysRemaining}d left · Unlock ${unlockDateFmt.format(unlockDate)}`;
+        ? "Unlocked · now"
+        : `${daysRemaining}d left · unlock ${unlockDateFmt.format(unlockDate)}`;
+
+  const showPenalty =
+    !showZeroShell &&
+    !termsUnknown &&
+    !isUnlocked &&
+    earlyExitPenaltyBps !== undefined;
 
   return (
     <HeroRailGroup
@@ -67,31 +67,31 @@ export function HeroLiquidityRail({
       aria-label="Liquidity status"
       provenance={widgetProvenance}
     >
-      <div
-        role="progressbar"
-        aria-valuenow={progressRounded}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label={progressLabel}
-        className="pf-progress-track"
-      >
+      {/* Zero-state: a 0% bar is noise — show only the terms meta line. */}
+      {showZeroShell ? null : (
         <div
-          className={cn(
-            "pf-progress-fill",
-            !showZeroShell && isUnlocked
-              ? "pf-progress-fill--success"
-              : "pf-progress-fill--accent",
-          )}
-          style={{ width: `${fillPct}%` }}
-        />
-      </div>
+          role="progressbar"
+          aria-valuenow={progressRounded}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Lockup progress: ${progressRounded}% — ${
+            isUnlocked
+              ? "fully unlocked"
+              : `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} remaining of ${softLockupDays}`
+          }`}
+          className="pf-meter"
+        >
+          <div
+            className="pf-meter__fill"
+            data-state={isUnlocked ? "done" : "active"}
+            style={{ width: `${fillPct}%` }}
+          />
+        </div>
+      )}
 
-      <p className="pf-hero-rail-meta tabular m-0">{metaText}</p>
+      <p className="pf-hero-rail-meta tabular m-0">{meta}</p>
 
-      {!isUnlocked &&
-      earlyExitPenaltyBps !== undefined &&
-      !termsUnknown &&
-      !showZeroShell ? (
+      {showPenalty ? (
         <p className="pf-hero-rail-note m-0">
           Early exit penalty {formatBps(earlyExitPenaltyBps)}
         </p>

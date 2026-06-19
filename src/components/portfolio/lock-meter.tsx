@@ -1,14 +1,5 @@
-// LockMeter — Lock / Liquidity progress widget for LP dashboard.
-// Server Component (pure — no I/O, no side effects).
-// Non-negotiable #2: ProvenanceBadge kind="live" (CLAUDE.md).
-
-import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
-import { WidgetPanelHeader } from "@/components/ui/widget-panel-header";
-import { PreviewModeChip } from "@/components/portfolio/layout-preview-banner";
-import { resolveLockMeterShell } from "@/lib/portfolio/hero-rail-state";
-import { Tooltip } from "@/components/ui/tooltip";
-import { cn } from "@/lib/cn";
-// ── Internal helpers (exported for unit tests) ────────────────────────────────
+// Lock meter — pure helpers + props for HeroLiquidityRail.
+// Server-safe: no I/O, no side effects.
 
 /** Clamp a value between min and max (inclusive). */
 export function clamp(value: number, min: number, max: number): number {
@@ -18,7 +9,6 @@ export function clamp(value: number, min: number, max: number): number {
 /** Format basis-points as a locale percentage string, e.g. 150 → "1.5%". */
 export function formatBps(bps: number): string {
   const pct = bps / 100;
-  // Avoid trailing zeros only when they are irrelevant (e.g. 200bps → "2%").
   const formatted = pct % 1 === 0 ? pct.toFixed(0) : pct.toFixed(1);
   return `${formatted}%`;
 }
@@ -31,38 +21,6 @@ export interface LockMeterCalc {
   daysRemaining: number;
   isUnlocked: boolean;
 }
-
-/** Pure calculation — no Date.now(), only the injected `asOf` param. */
-export function computeLockMeter(
-  lockStart: Date,
-  softLockupDays: number,
-  asOf: Date,
-): LockMeterCalc {
-  const MS_PER_DAY = 86_400_000;
-  const daysElapsed = Math.floor(
-    (asOf.getTime() - lockStart.getTime()) / MS_PER_DAY,
-  );
-  // softLockupDays <= 0 means the share class terms are not yet known (loader
-  // returns 0 when no `Position.shareClass` is wired). Surface a neutral state
-  // rather than dividing by zero and emitting NaN%.
-  if (softLockupDays <= 0) {
-    return {
-      daysElapsed,
-      progressPct: 0,
-      unlockDate: lockStart,
-      daysRemaining: 0,
-      isUnlocked: false,
-    };
-  }
-  const progressPct = clamp((daysElapsed / softLockupDays) * 100, 0, 100);
-  const unlockDate = new Date(lockStart.getTime() + softLockupDays * MS_PER_DAY);
-  const daysRemaining = Math.max(0, softLockupDays - daysElapsed);
-  const isUnlocked = daysRemaining === 0;
-
-  return { daysElapsed, progressPct, unlockDate, daysRemaining, isUnlocked };
-}
-
-// ── Component ─────────────────────────────────────────────────────────────────
 
 export interface LockMeterProps {
   /** Date the lockup started (typically tx confirmation). */
@@ -80,152 +38,29 @@ export interface LockMeterProps {
   previewZeros?: boolean;
 }
 
-const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  timeZone: "UTC",
-});
-
-/**
- * Lock · Liquidity meter widget.
- *
- * Displays the lockup progress for a vault position:
- *   - Progress bar with aria-progressbar semantics
- *   - Unlock date + days remaining
- *   - Early-exit penalty (when applicable)
- *   - ProvenanceBadge derived from loader state (CLAUDE.md non-negotiable #2)
- */
-export function LockMeter({
-  lockStart,
-  softLockupDays,
-  earlyExitPenaltyBps,
-  asOf,
-  source = "live",
-  previewZeros = false,
-}: LockMeterProps) {
-  const effectiveAsOf = asOf ?? new Date();
-
-  const { showZeroShell, widgetProvenance, termsUnknown } = resolveLockMeterShell({
-    previewZeros,
-    source,
-    softLockupDays,
-  });
-
-  const { progressPct, unlockDate, daysRemaining, isUnlocked } =
-    computeLockMeter(lockStart, softLockupDays, effectiveAsOf);
-
-
-  // Penalty text color: faint when more than 50% elapsed (less urgent),
-  // warning when less than 50% elapsed (early-exit risk is high).
-  const penaltyHalfPassed = progressPct >= 50;
-
-  const progressLabel = `Lockup progress: ${Math.floor(progressPct)}% — ${
-    isUnlocked
-      ? "fully unlocked"
-      : `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} remaining of ${softLockupDays}`
-  }`;
-
-  return (
-    <PfCockpitPanel
-      variant="compact"
-      aria-label="Lock and liquidity status"
-      className="pf-module-chrome"
-    >
-      <WidgetPanelHeader
-        title={
-          <Tooltip content={`Progress towards your ${softLockupDays}-day soft lockup period`}>
-            <h3 className="h3 ct-text-strong cursor-help border-b border-dotted ct-bc-soft">
-              Lock · liquidity
-            </h3>
-          </Tooltip>
-        }
-        provenance={widgetProvenance}
-        trailing={
-          showZeroShell ? <PreviewModeChip label="Preview mode" /> : undefined
-        }
-      />
-
-      {/* Progress bar ------------------------------------------------------ */}
-      <div className="pf-stack--dense relative z-[var(--ct-z-raised,10)]">
-        {/* Bar */}
-        <div
-          role="progressbar"
-          aria-valuenow={Math.round(progressPct)}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label={progressLabel}
-          className="pf-progress-track"
-        >
-          <div
-            className={cn(
-              "pf-progress-fill",
-              isUnlocked ? "pf-progress-fill--success" : "pf-progress-fill--accent",
-            )}
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
-
-        {/* Percentage label */}
-        <div className="flex items-center justify-between">
-          <span
-            className={cn(
-              "body-xs tabular mono",
-              termsUnknown
-                ? "ct-text-faint"
-                : isUnlocked
-                  ? "ct-status-success"
-                  : "ct-text-primary",
-            )}
-          >
-            {termsUnknown ? "—" : `${Math.round(progressPct)}%`}
-          </span>
-          {!termsUnknown && !isUnlocked && (
-            <span className="body-xs tabular mono ct-text-muted">
-              {daysRemaining}d left
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Metadata ---------------------------------------------------------- */}
-      <dl className="pf-stack--tight relative z-[var(--ct-z-raised,10)] mt-auto">
-        {/* Unlock date */}
-        <div className="pf-inline-row pf-inline-row--between">
-          <dt className="body-xs ct-text-muted">
-            {termsUnknown ? "Lock terms" : isUnlocked ? "Unlocked" : "Unlock"}
-          </dt>
-          <dd
-            className={cn(
-              "body-xs tabular mono m-0",
-              termsUnknown
-                ? "ct-text-faint"
-                : isUnlocked
-                  ? "ct-status-success"
-                  : "ct-text-primary",
-            )}
-          >
-            {termsUnknown ? "—" : isUnlocked ? "Now" : unlockDateFmt.format(unlockDate)}
-          </dd>
-        </div>
-
-        {/* Early-exit penalty (only shown when still locked) */}
-        {!isUnlocked && earlyExitPenaltyBps !== undefined && (
-          <div className="pf-inline-row pf-inline-row--between">
-            <Tooltip content="Early-exit penalty applied to withdrawals before the lockup period ends">
-              <dt className="body-xs ct-text-muted cursor-help border-b border-dotted ct-bc-soft">Penalty</dt>
-            </Tooltip>
-            <dd
-              className={cn(
-                "body-xs tabular mono m-0",
-                penaltyHalfPassed ? "ct-text-faint" : "ct-status-warning",
-              )}
-            >
-              {formatBps(earlyExitPenaltyBps)}{" "}
-              <span className="ct-text-faint">(early exit)</span>
-            </dd>
-          </div>
-        )}
-      </dl>
-    </PfCockpitPanel>
+/** Pure calculation — no Date.now(), only the injected `asOf` param. */
+export function computeLockMeter(
+  lockStart: Date,
+  softLockupDays: number,
+  asOf: Date,
+): LockMeterCalc {
+  const MS_PER_DAY = 86_400_000;
+  const daysElapsed = Math.floor(
+    (asOf.getTime() - lockStart.getTime()) / MS_PER_DAY,
   );
+  if (softLockupDays <= 0) {
+    return {
+      daysElapsed,
+      progressPct: 0,
+      unlockDate: lockStart,
+      daysRemaining: 0,
+      isUnlocked: false,
+    };
+  }
+  const progressPct = clamp((daysElapsed / softLockupDays) * 100, 0, 100);
+  const unlockDate = new Date(lockStart.getTime() + softLockupDays * MS_PER_DAY);
+  const daysRemaining = Math.max(0, softLockupDays - daysElapsed);
+  const isUnlocked = daysRemaining === 0;
+
+  return { daysElapsed, progressPct, unlockDate, daysRemaining, isUnlocked };
 }

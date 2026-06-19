@@ -41,7 +41,7 @@ import type { RiskPulseProps } from "@/components/portfolio/risk-pulse";
 import type { DistribCalendarProps, DistribEntry } from "@/components/portfolio/distrib-calendar";
 import type { ProofPulseProps } from "@/components/portfolio/proof-pulse";
 import type { YieldStackProps } from "@/components/portfolio/yield-stack";
-import type { TimeToCashProps } from "@/components/portfolio/time-to-cash";
+import type { TimeToCashProps } from "@/lib/data/time-to-cash";
 
 // ---------------------------------------------------------------------------
 // PositionDetail — extended view for the /portfolio/[positionId] page
@@ -123,18 +123,17 @@ export interface PortfolioData {
 // Helpers
 // ---------------------------------------------------------------------------
 
+/** UTC last instant of a calendar month (month is 0-based). */
+function utcEndOfMonth(year: number, month: number): Date {
+  return new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 0));
+}
+
 /** Next UTC end-of-month boundary from today. */
 function nextEndOfMonth(): Date {
   const now = new Date();
-  // Last day of the current UTC month.
-  const eom = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 0),
-  );
-  // If today IS the last day, roll to next month.
+  const eom = utcEndOfMonth(now.getUTCFullYear(), now.getUTCMonth());
   if (now.getUTCDate() === eom.getUTCDate()) {
-    return new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 2, 0, 23, 59, 59, 0),
-    );
+    return utcEndOfMonth(now.getUTCFullYear(), now.getUTCMonth() + 1);
   }
   return eom;
 }
@@ -151,6 +150,32 @@ function toNumber(v: unknown): number {
 
 function bpsToApyPct(bps: number): number {
   return Math.round((bps / 100) * 10) / 10;
+}
+
+const EMPTY_RISK_SCORES: RiskPulseProps["scores"] = [
+  { dimension: "market", score: 0, delta30d: 0 },
+  { dimension: "mining", score: 0, delta30d: 0 },
+  { dimension: "liquidity", score: 0, delta30d: 0 },
+  { dimension: "smart_contract", score: 0, delta30d: 0 },
+  { dimension: "counterparty", score: 0, delta30d: 0 },
+];
+
+type InvestorTxRow = {
+  id: string;
+  type: string;
+  amountUsdc: unknown;
+  occurredAt: Date;
+  txHash: string | null;
+};
+
+function mapInvestorTransactionRow(t: InvestorTxRow): PositionDetailTransaction {
+  return {
+    id: t.id,
+    type: t.type as PositionDetailTransaction["type"],
+    amountUsdc: toNumber(t.amountUsdc),
+    occurredAt: t.occurredAt,
+    txHash: t.txHash,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -310,11 +335,7 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
   );
 
   const recentTransactions: PortfolioTransaction[] = rawTxs.map((t) => ({
-    id: t.id,
-    type: t.type as "deposit" | "claim" | "withdraw" | "distribution",
-    amountUsdc: toNumber(t.amountUsdc),
-    occurredAt: t.occurredAt,
-    txHash: t.txHash,
+    ...mapInvestorTransactionRow(t),
     positionVaultName: t.positionId
       ? (positionVaultMap.get(t.positionId) ?? undefined)
       : undefined,
@@ -407,13 +428,7 @@ export const loadRiskPulseProps = cache(async (): Promise<RiskPulseProps & { sou
 
   if (!snapshot) {
     return {
-      scores: [
-        { dimension: "market",         score: 0, delta30d: 0 },
-        { dimension: "mining",         score: 0, delta30d: 0 },
-        { dimension: "liquidity",      score: 0, delta30d: 0 },
-        { dimension: "smart_contract", score: 0, delta30d: 0 },
-        { dimension: "counterparty",   score: 0, delta30d: 0 },
-      ],
+      scores: EMPTY_RISK_SCORES,
       composite: 0,
       compositeLabel: undefined,
       composite30dTrend: "stable",
@@ -421,13 +436,7 @@ export const loadRiskPulseProps = cache(async (): Promise<RiskPulseProps & { sou
     };
   }
 
-  const scores: RiskPulseProps["scores"] = [
-    { dimension: "market",         score: 0, delta30d: 0 },
-    { dimension: "mining",         score: 0, delta30d: 0 },
-    { dimension: "liquidity",      score: 0, delta30d: 0 },
-    { dimension: "smart_contract", score: 0, delta30d: 0 },
-    { dimension: "counterparty",   score: 0, delta30d: 0 },
-  ];
+  const scores = EMPTY_RISK_SCORES;
 
   // Per-dimension scores are not persisted yet — a headline composite without
   // dimension breakdown would read as a false positive (e.g. 42 / Low–Moderate
@@ -802,13 +811,7 @@ export async function loadPosition(
   const vaultTicker = raw.vaultDeployment?.ticker ?? "HYV-A";
   const softLockupDays = raw.vaultDeployment?.softLockupDays ?? 0;
 
-  const transactions: PositionDetailTransaction[] = rawTxs.map((t) => ({
-    id: t.id,
-    type: t.type as "deposit" | "claim" | "withdraw" | "distribution",
-    amountUsdc: toNumber(t.amountUsdc),
-    occurredAt: t.occurredAt,
-    txHash: t.txHash,
-  }));
+  const transactions: PositionDetailTransaction[] = rawTxs.map(mapInvestorTransactionRow);
 
   // txHashOpen: find the opening deposit transaction hash
   const openTx = rawTxs.find((t) => t.type === "deposit");

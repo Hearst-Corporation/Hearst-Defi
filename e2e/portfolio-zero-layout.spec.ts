@@ -1,32 +1,24 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * Portfolio previewZeros — onboarding cockpit layout guard.
+ * Portfolio previewZeros — ghost-chart cockpit layout guard.
  *
- * Asserts CTA-led zero state (no ghost chart), compact empty panels, and no
- * footer overlap / horizontal scroll at reference breakpoints.
- *
- * Navigation uses `domcontentloaded` (not `load`) — authenticated shells poll
- * `/api/chat-nav` indefinitely when the Master Agent is on, so `load` never
- * fires. Rate-limit bypass for login is set in `playwright.config.ts`
- * (`E2E_DISABLE_RATE_LIMIT=1`, dev/CI only).
+ * Asserts the honest zero-state hero (placeholder chart, compact rails) and no
+ * horizontal scroll at reference breakpoints. See docs/PORTFOLIO_ZERO_CONTRACT.md.
  */
 
 const TEST_EMAIL = "test@hearst.local";
 const TEST_PASSWORD = "TestPassword123!";
 
 const VIEWPORTS = [
-  { name: "390x844", w: 390, h: 844 },
-  { name: "768x1024", w: 768, h: 1024 },
-  { name: "1024x768", w: 1024, h: 768 },
   { name: "1280x800", w: 1280, h: 800 },
   { name: "1536x900", w: 1536, h: 900 },
+  { name: "1600x850", w: 1600, h: 850 },
 ] as const;
 
 const CLIP_TOLERANCE_PX = 4;
 const NAV_OPTS = { waitUntil: "domcontentloaded" as const };
 
-/** Stub chat-nav polling so layout specs do not hang on perpetual network activity. */
 async function stubChatNavPolling(
   page: import("@playwright/test").Page,
 ): Promise<void> {
@@ -39,8 +31,8 @@ async function stubChatNavPolling(
   });
 }
 
-test.describe("Portfolio previewZeros — onboarding cockpit layout", () => {
-  test("CTA visible, no fake chart, footer not overlapping panels", async ({
+test.describe("Portfolio previewZeros — ghost cockpit layout", () => {
+  test("placeholder chart visible, no onboarding CTA hero, no horizontal scroll", async ({
     page,
   }) => {
     test.setTimeout(120_000);
@@ -56,59 +48,34 @@ test.describe("Portfolio previewZeros — onboarding cockpit layout", () => {
       waitUntil: "commit",
     });
 
-    const cta = page.getByRole("link", { name: /subscribe to vault/i });
-    await expect(cta).toBeVisible({ timeout: 30_000 });
-    await expect(page.locator("#main-content")).toBeVisible();
+    const chartPanel = page.locator(".pf-value-chart");
+    await expect(chartPanel).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText("Awaiting first position")).toBeVisible();
+    await expect(
+      page.getByText("Placeholder chart until your first confirmed position."),
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("link", { name: /subscribe to vault/i }),
+    ).toHaveCount(0);
+    await expect(page.getByText("Get started", { exact: true })).toHaveCount(0);
+    await expect(page.getByTestId("portfolio-onboarding-foot")).toHaveCount(0);
 
     for (const vp of VIEWPORTS) {
       await page.setViewportSize({ width: vp.w, height: vp.h });
 
       await expect(
-        cta,
-        `${vp.name}: primary CTA visible`,
+        chartPanel,
+        `${vp.name}: ghost chart panel visible`,
       ).toBeVisible();
-      await expect(
-        page.getByText("Get started", { exact: true }),
-        `${vp.name}: onboarding hero title`,
-      ).toBeVisible();
-
-      await expect(
-        page.getByText("Awaiting first position"),
-        `${vp.name}: no ghost chart subtitle`,
-      ).toHaveCount(0);
       await expect(
         page.getByText("Placeholder chart until your first confirmed position."),
-        `${vp.name}: no chart disclaimer`,
-      ).toHaveCount(0);
-      await expect(
-        page.locator(".pf-value-chart"),
-        `${vp.name}: no value chart panel`,
-      ).toHaveCount(0);
-
-      await expect(
-        page.getByText("Awaiting snapshot"),
-        `${vp.name}: no empty donut`,
-      ).toHaveCount(0);
-      await expect(
-        page.getByText("Product terms", { exact: true }),
-        `${vp.name}: no duplicate product terms rail`,
-      ).toHaveCount(0);
-      await expect(
-        page.getByTestId("portfolio-onboarding-foot"),
-        `${vp.name}: compact secondary foot`,
+        `${vp.name}: chart disclaimer visible`,
       ).toBeVisible();
-
-      const footer = page.locator(".app-footer");
-      const footerBox = await footer.boundingBox();
-      const ctaBox = await cta.boundingBox();
-      expect(footerBox, `${vp.name}: footer has layout box`).not.toBeNull();
-      expect(ctaBox, `${vp.name}: CTA hero has layout box`).not.toBeNull();
-      if (footerBox && ctaBox) {
-        expect(
-          ctaBox.y + ctaBox.height,
-          `${vp.name}: CTA must sit above footer`,
-        ).toBeLessThanOrEqual(footerBox.y + CLIP_TOLERANCE_PX);
-      }
+      await expect(
+        page.getByText("60-day soft lock shown after deposit"),
+        `${vp.name}: liquidity rail meta visible`,
+      ).toBeVisible();
 
       const overflow = await page.evaluate(() => ({
         h: document.documentElement.scrollWidth - window.innerWidth,

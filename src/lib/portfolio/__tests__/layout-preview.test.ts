@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   ZERO_YIELD_STACK,
   buildZeroDistribEntries,
-  buildZeroValueChartSeries,
   isLayoutPreview,
   isProofPulseEmpty,
   isRiskCompositeUnavailable,
@@ -15,12 +14,6 @@ describe("layout-preview", () => {
   it("isLayoutPreview is true without positions", () => {
     expect(isLayoutPreview(false)).toBe(true);
     expect(isLayoutPreview(true)).toBe(false);
-  });
-
-  it("buildZeroValueChartSeries returns 12 points at zero", () => {
-    const series = buildZeroValueChartSeries(new Date("2026-06-11T00:00:00Z"));
-    expect(series).toHaveLength(12);
-    expect(series.every((p) => p.value === 0)).toBe(true);
   });
 
   it("buildZeroDistribEntries returns 12 monthly $0 entries", () => {

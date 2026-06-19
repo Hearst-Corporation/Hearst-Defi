@@ -3,37 +3,13 @@ import { describe, expect, it } from "vitest";
 
 import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
-import { PortfolioOnboardingFoot } from "@/components/portfolio/portfolio-onboarding-foot";
-import { PortfolioOnboardingHero } from "@/components/portfolio/portfolio-onboarding-hero";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
 import { TrustProofCompact } from "@/components/portfolio/trust-panel";
 import { ZERO_YIELD_STACK, zeroProofPulseProps } from "@/lib/portfolio/layout-preview";
 
 const PREVIEW_AS_OF = new Date("2026-06-11T00:00:00Z");
 
-describe("Portfolio previewZeros — onboarding cockpit widgets", () => {
-  it("PortfolioOnboardingHero: CTA visible, no chart shell", () => {
-    const html = renderToStaticMarkup(<PortfolioOnboardingHero />);
-    expect(html).toContain("Get started");
-    expect(html).toContain("Subscribe to Hearst Yield Vault");
-    expect(html).toContain("Subscribe to vault");
-    expect(html).toContain("/vaults/hearst-yield-vault/invest");
-    expect(html).not.toContain("<polyline");
-    expect(html).not.toContain("Portfolio value");
-    expect(html).not.toContain("$0");
-    expect(html).not.toContain("Placeholder chart");
-  });
-
-  it("PortfolioOnboardingFoot: compact secondary strip, proof link", () => {
-    const html = renderToStaticMarkup(<PortfolioOnboardingFoot />);
-    expect(html).toContain("What unlocks next");
-    expect(html).toContain("Capital &amp; yield");
-    expect(html).toContain("Payout calendar");
-    expect(html).toContain("/proof-center");
-    expect(html).not.toContain("pf-distrib-chart");
-    expect(html).not.toContain("dash-chart-svg");
-  });
-
+describe("Portfolio previewZeros — honest empty widgets", () => {
   it("CapitalYield previewZeros: compact empty copy, no donut", () => {
     const html = renderToStaticMarkup(
       <CapitalYield
@@ -66,7 +42,8 @@ describe("Portfolio previewZeros — onboarding cockpit widgets", () => {
     const html = renderToStaticMarkup(
       <RecentActivity transactions={[]} source="fallback" previewZeros />,
     );
-    expect(html).toContain("Deposits, payouts and withdrawals will appear here");
+    expect(html).toContain("No transactions yet");
+    expect(html).toContain("Deposits and payouts will appear here");
     expect(html).not.toContain("ct-panel-status");
   });
 
@@ -91,5 +68,6 @@ describe("Portfolio previewZeros — onboarding cockpit widgets", () => {
     );
     expect(html).toContain("Proof system active");
     expect(html).toContain("/proof-center");
+    expect(html).not.toContain("provenance-badge--strip");
   });
 });

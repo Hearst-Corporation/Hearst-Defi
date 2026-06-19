@@ -245,9 +245,9 @@ function BarChart({
             y1="0"
             x2="0"
             y2="6"
-            stroke="var(--ct-status-warning)"
+            stroke="var(--ct-accent)"
             strokeWidth="2"
-            style={{ strokeOpacity: "var(--ct-opacity-50)" }}
+            style={{ strokeOpacity: "var(--ct-opacity-40)" }}
           />
         </pattern>
       </defs>
@@ -272,10 +272,10 @@ function BarChart({
               width={BAR_W}
               height={bh}
               fill={`url(#${forecastPatternId})`}
-              stroke="var(--ct-status-warning)"
+              stroke="var(--ct-accent)"
               strokeWidth="1"
               strokeDasharray="4 2"
-              style={{ opacity: "var(--ct-opacity-70)" }}
+              style={{ opacity: "var(--ct-opacity-60)" }}
               rx="1"
             />
             {/* [Estimate] badge text above bar */}
@@ -283,7 +283,7 @@ function BarChart({
               x={cx}
               y={by - 4}
               textAnchor="middle"
-              fill="var(--ct-status-warning)"
+              fill="color-mix(in srgb, var(--ct-accent) 75%, var(--ct-text-faint))"
               className="pf-distrib-chart__estimate"
               aria-hidden="true"
             >
@@ -398,7 +398,7 @@ export function DistribCalendar({
           subtitle="Monthly USDC distributions"
           titleVariant="primary"
         />
-        <p className="body-sm ct-text-muted m-0" role="status">
+        <p className="pf-payout-calendar__empty-copy body-sm ct-text-muted m-0" role="status">
           Payout schedule appears after your first confirmed position.
         </p>
       </PfCockpitPanel>

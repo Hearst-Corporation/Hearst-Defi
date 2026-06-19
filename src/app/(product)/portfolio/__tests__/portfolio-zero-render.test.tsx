@@ -2,7 +2,7 @@
  * Portfolio no-scroll dashboard — top-level composition contract.
  *
  * Live dashboard: fixed, no-scroll cockpit bento with pf-container--fit.
- * previewZeros hub: onboarding cockpit (CTA hero, compact empties, natural scroll).
+ * previewZeros hub: ghost-chart cockpit with honest empty widgets.
  */
 
 import { readFileSync } from "node:fs";
@@ -31,7 +31,7 @@ describe("Portfolio dashboard — top-level contract", () => {
       "<ValueChart",
       "<HeroPayoutRail",
       "<HeroLiquidityRail",
-      '"pf-container--fit"',
+      "pf-container--fit",
     ];
 
     for (const marker of requiredMarkers) {
@@ -45,17 +45,17 @@ describe("Portfolio dashboard — top-level contract", () => {
     expect(portfolioPage).not.toContain('data-section="hero-pulse"');
   });
 
-  it("previewZeros hub uses onboarding cockpit, not fake chart dashboard", () => {
-    expect(portfolioPage).toContain(
-      'previewZeros ? "pf-container--zero pf-container--onboarding" : "pf-container--fit"',
-    );
-    expect(portfolioPage).toContain("<PortfolioOnboardingHero");
-    expect(portfolioPage).toContain("<PortfolioOnboardingFoot");
-    expect(portfolioPage).toContain("pf-hero-grid--onboarding");
-    expect(portfolioPage).not.toContain("PortfolioProductStats");
-    expect(portfolioPage).not.toContain("buildZeroDistribEntries");
-    expect(portfolioPage).not.toContain("zeroTimeToCashProps");
-    expect(portfolioPage).not.toContain("zeroLockMeterProps");
-    expect(portfolioPage).not.toContain("PortfolioTeaserTile");
+  it("cockpit + placeholders render unconditionally — no onboarding branch", () => {
+    // Placeholders are always visible: no previewZeros layout switch, container
+    // is always the fit cockpit, and the onboarding surfaces are gone.
+    expect(portfolioPage).toContain('"pf-container pf-container--fit"');
+    expect(portfolioPage).not.toContain("pf-container--onboarding");
+    expect(portfolioPage).not.toContain("PortfolioOnboardingHero");
+    expect(portfolioPage).not.toContain("PortfolioOnboardingFoot");
+    expect(portfolioPage).not.toContain("pf-hero-grid--onboarding");
+    expect(portfolioPage).not.toContain("pf-cockpit-row--onboarding-foot");
+    // Hero sidebar (KPI + payout + liquidity) is no longer gated behind !previewZeros.
+    expect(portfolioPage).toContain("<HeroKpiTable");
+    expect(portfolioPage).toContain('"pf-hero-sidebar"');
   });
 });

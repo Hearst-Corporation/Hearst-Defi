@@ -1,7 +1,6 @@
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
-import { cn } from "@/lib/cn";
 import type { WidgetMode } from "@/lib/portfolio/view-state";
 
 import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
@@ -18,16 +17,32 @@ export interface HeroKpiTableProps {
   mode?: WidgetMode;
 }
 
-function metricProvenance(
-  showZeroShell: boolean,
+const usdFmt = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+
+const dateFmt = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  timeZone: "UTC",
+});
+
+function prov(
+  isZero: boolean,
   source: "live" | "fallback",
   updatedAt: Date | undefined,
   preferred: Provenance,
 ): Provenance | undefined {
-  if (showZeroShell) return undefined;
-  return resolveProvenance(source, updatedAt, preferred);
+  return isZero ? undefined : resolveProvenance(source, updatedAt, preferred);
 }
 
+/**
+ * Hero rail — key metrics. Recoded from scratch: a tight 3-row stat list
+ * (position value · yield YTD · next distribution), each row a label + value
+ * with an inline provenance dot. Honest zero-state collapses to one line.
+ */
 export function HeroKpiTable({
   totalValueUsdc,
   totalYieldYtdUsdc,
@@ -38,110 +53,60 @@ export function HeroKpiTable({
   previewZeros = false,
   mode,
 }: HeroKpiTableProps) {
-  const fmt = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  });
-
-  const monthDayFmt = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
-
-  const now = new Date();
-  const diffDays = Math.ceil(
-    Math.max(0, nextDistributionAt.getTime() - now.getTime()) /
-      (1000 * 60 * 60 * 24),
-  );
-
-  // Authoritative mode from the loader (Architecture A); falls back to the
-  // local previewZeros/hasPositions derivation for non-page call sites.
   const isZero = mode ? mode === "zero" : previewZeros || !hasPositions;
-  const valueProvenance = metricProvenance(isZero, source, updatedAt, "live");
-  const yieldProvenance = metricProvenance(isZero, source, updatedAt, "estimated");
-  const distProvenance = metricProvenance(isZero, source, updatedAt, "estimated");
 
   if (isZero) {
     return (
       <HeroRailGroup title="Portfolio metrics" aria-label="Portfolio metrics" slot="metrics">
-        <p className="body-xs ct-text-muted m-0">
+        <p className="pf-hero-rail-blurb body-xs ct-text-muted m-0">
           No position yet — metrics appear after your first confirmed deposit.
         </p>
       </HeroRailGroup>
     );
   }
 
+  const now = new Date();
+  const diffDays = Math.ceil(
+    Math.max(0, nextDistributionAt.getTime() - now.getTime()) / 86_400_000,
+  );
+
+  const rows: Array<{ label: string; value: string; unit?: string; badge?: Provenance; chip?: string }> = [
+    {
+      label: "Position value",
+      value: usdFmt.format(totalValueUsdc),
+      unit: "USDC",
+      badge: prov(isZero, source, updatedAt, "live"),
+    },
+    {
+      label: "Yield YTD",
+      value: formatUsdCompact(totalYieldYtdUsdc),
+      unit: "USDC",
+      badge: prov(isZero, source, updatedAt, "estimated"),
+    },
+    {
+      label: "Next distribution",
+      value: dateFmt.format(nextDistributionAt),
+      badge: prov(isZero, source, updatedAt, "estimated"),
+      chip: diffDays > 0 ? `${diffDays}d` : undefined,
+    },
+  ];
+
   return (
     <HeroRailGroup title="Key metrics" aria-label="Key metrics summary" slot="metrics">
       <dl className="pf-hero-rail-list">
-        <div className="pf-hero-rail-row">
-          <dt
-            className={cn(
-              "stat-label",
-              "pf-inline-row pf-inline-row--between pf-inline-row--baseline",
-            )}
-          >
-            <span>Position value</span>
-            {valueProvenance ? (
-              <ProvenanceBadge kind={valueProvenance} variant="strip" compact />
-            ) : null}
-          </dt>
-          <dd className="pf-hero-rail-value m-0">
-            <span className="pf-hero-kpi-value tabular-nums">
-              {fmt.format(totalValueUsdc)}
-            </span>
-            <span className="pf-kpi-unit">USDC</span>
-          </dd>
-        </div>
-
-        <div className="pf-hero-rail-row">
-          <dt
-            className={cn(
-              "stat-label",
-              "pf-inline-row pf-inline-row--between pf-inline-row--baseline",
-            )}
-          >
-            <span>Yield YTD</span>
-            {yieldProvenance ? (
-              <ProvenanceBadge kind={yieldProvenance} variant="strip" compact />
-            ) : null}
-          </dt>
-          <dd className="pf-hero-rail-value m-0">
-            <span className="pf-hero-kpi-value tabular-nums">
-              {formatUsdCompact(totalYieldYtdUsdc)}
-            </span>
-            <span className="pf-kpi-unit">USDC</span>
-          </dd>
-        </div>
-
-        <div className="pf-hero-rail-row">
-          <dt
-            className={cn(
-              "stat-label",
-              "pf-inline-row pf-inline-row--between pf-inline-row--baseline",
-            )}
-          >
-            <span>Next distribution</span>
-            {distProvenance ? (
-              <ProvenanceBadge kind={distProvenance} variant="strip" compact />
-            ) : null}
-          </dt>
-          <dd
-            className={cn(
-              "pf-hero-rail-value m-0",
-              hasPositions && diffDays > 0 && "pf-hero-rail-value--inline",
-            )}
-          >
-            <span className="pf-hero-kpi-value tabular-nums">
-              {monthDayFmt.format(nextDistributionAt)}
-            </span>
-            {hasPositions && diffDays > 0 ? (
-              <span className="pf-chip-accent shrink-0">{diffDays}d left</span>
-            ) : null}
-          </dd>
-        </div>
+        {rows.map((r) => (
+          <div key={r.label} className="pf-hero-rail-row">
+            <dt className="pf-hero-rail-row__label stat-label">
+              <span>{r.label}</span>
+              {r.badge ? <ProvenanceBadge kind={r.badge} variant="strip" compact /> : null}
+            </dt>
+            <dd className="pf-hero-rail-row__value m-0">
+              <span className="pf-hero-rail-kpi tabular-nums">{r.value}</span>
+              {r.unit ? <span className="pf-kpi-unit">{r.unit}</span> : null}
+              {r.chip ? <span className="pf-chip-accent shrink-0">{r.chip}</span> : null}
+            </dd>
+          </div>
+        ))}
       </dl>
     </HeroRailGroup>
   );

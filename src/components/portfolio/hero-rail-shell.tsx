@@ -6,6 +6,12 @@ import {
 } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 
+/**
+ * Hero KPI rail group — one compact stat block in the hero sidebar.
+ * Recoded: a tight title row (micro uppercase + optional provenance dot) over
+ * the group body. Three of these stack in the sidebar (metrics · payout ·
+ * liquidity), evenly distributed so nothing clips in the no-scroll hero.
+ */
 export function HeroRailGroup({
   title,
   "aria-label": ariaLabel,
@@ -32,7 +38,7 @@ export function HeroRailGroup({
       )}
       aria-label={ariaLabel}
     >
-      <div className="pf-inline-row pf-inline-row--between pf-inline-row--baseline">
+      <div className="pf-hero-rail-head">
         <p className="pf-hero-rail-title m-0">{title}</p>
         {provenance ? (
           <ProvenanceBadge kind={provenance} variant="strip" compact />

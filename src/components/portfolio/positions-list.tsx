@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { EmptySurface } from "@/components/ui/empty-surface";
 import { ApyRange } from "@/components/ui/apy-range";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
@@ -17,7 +16,7 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
 });
 
-const STATUS_DOT_CLASS: Record<string, string> = {
+const STATUS_DOT: Record<string, string> = {
   active: "pf-status-dot--active",
   matured: "pf-status-dot--matured",
   exited: "pf-status-dot--exited",
@@ -27,16 +26,15 @@ interface PositionsListProps {
   positions: PortfolioPosition[];
   source: "live" | "fallback";
   updatedAt?: Date;
-  /** Render table shell with zero row (layout preview). */
   previewZeros?: boolean;
-  /** Hub-only link to the focused leaf page. */
   leafHref?: string;
 }
 
 /**
- * Positions table.
- * ApyRange is used on every APY display (CLAUDE.md non-negotiable #1).
- * ProvenanceBadge on the header metric (CLAUDE.md non-negotiable #2).
+ * Positions — recoded from scratch as a clean ledger table.
+ * Header row + one row per position: vault (status dot + link), principal,
+ * current value (bright), APY range (#1), since. Honest left-aligned zero-state.
+ * Provenance via WidgetShell header (#2).
  */
 export function PositionsList({
   positions,
@@ -60,95 +58,66 @@ export function PositionsList({
   ) : undefined;
 
   const zeroSlot = (
-    <div className="pf-positions-scroll-wrap">
-      <div className={cn("pf-positions-table", "pf-positions-table--zero")}>
-        <div className={cn("pf-positions-row-grid", "pf-positions-row-grid--empty")}>
-          <div className="pf-positions-empty-cell">
-            <div className="pf-positions-empty-row">
-              <EmptySurface
-                variant="inline"
-                message="No active positions yet"
-                detail="Your first deposit will appear here once confirmed on-chain."
-                role="status"
-              />
-              <Link href="/vaults" className="pf-positions-empty-link">
-                Explore available vaults →
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="pf-positions-empty">
+      <p className="pf-positions-empty__lead body-sm ct-text-muted m-0">
+        No active positions yet
+      </p>
+      <p className="pf-positions-empty__hint body-xs ct-text-faint m-0">
+        Your first deposit will appear here once confirmed on-chain.
+      </p>
+      <Link href="/vaults" className="pf-positions-empty-link">
+        Explore available vaults →
+      </Link>
     </div>
   );
 
   const liveContent = (
-    <div className="pf-positions-scroll-wrap">
-      <div className="pf-positions-table">
-        {/* Header row */}
-        <div className={cn("stat-label", "pf-positions-row-grid", "pf-positions-row-grid--header")}>
-          <div className="pf-position-vault-cell pf-position-vault-cell--header pf-positions-cell--header">
-            Vault
-          </div>
-          <div className="pf-positions-cell--right">Principal</div>
-          <div className="pf-positions-cell--right">Value</div>
-          <div className="pf-positions-cell--right">APY range</div>
-          <div className="pf-positions-cell--right">Since</div>
-        </div>
-
-        {positions.map((p) => (
-          <div
-            key={p.id}
-            className={cn("pf-positions-row-grid", "pf-positions-row-grid--body")}
-          >
-            {/* Vault name + status */}
-            <div className="pf-position-vault-cell">
-              <span
-                className={cn(
-                  "pf-status-dot",
-                  STATUS_DOT_CLASS[p.status] ?? "pf-status-dot--default",
-                )}
-                aria-hidden
-              />
-              <Link
-                href={`/portfolio/${p.id}`}
-                className="body-md ct-text-primary min-w-0 truncate underline-offset-4 hover:underline"
-                aria-label={`Open details for ${p.vaultName ?? "unassigned vault"}`}
-              >
-                {p.vaultName ?? "Unassigned vault"}
-              </Link>
-            </div>
-
-            {/* Principal */}
-            <div className="tabular body-md pf-positions-cell--right ct-text-body">
-              {formatUsdCompact(p.principalUsdc)}
-            </div>
-
-            {/* Current value */}
-            <div className="tabular body-md ct-text-strong font-semibold pf-positions-cell--right">
-              {formatUsdCompact(p.valueUsdc)}
-            </div>
-
-            {/* APY range — non-negotiable #1 */}
-            <div className="pf-positions-cell--right">
-              {p.apyLow !== null && p.apyHigh !== null ? (
-                <ApyRange
-                  low={p.apyLow}
-                  high={p.apyHigh}
-                  precision={1}
-                  className="body-sm font-semibold"
-                />
-              ) : (
-                <span className="body-xs ct-text-faint">Unavailable</span>
-              )}
-            </div>
-
-            {/* Subscribed date */}
-            <div className="body-xs tabular ct-text-muted pf-positions-cell--right">
-              {dateFmt.format(p.subscribedAt)}
-            </div>
-          </div>
-        ))}
+    <div className="pf-positions">
+      <div className="pf-positions__row pf-positions__row--head stat-label">
+        <span>Vault</span>
+        <span className="pf-positions__num">Principal</span>
+        <span className="pf-positions__num">Value</span>
+        <span className="pf-positions__num">APY range</span>
+        <span className="pf-positions__num">Since</span>
       </div>
+
+      {positions.map((p) => (
+        <div key={p.id} className="pf-positions__row pf-positions__row--body">
+          <span className="pf-positions__vault">
+            <span
+              className={cn("pf-status-dot", STATUS_DOT[p.status] ?? "pf-status-dot--default")}
+              aria-hidden
+            />
+            <Link
+              href={`/portfolio/${p.id}`}
+              className="body-md ct-text-primary min-w-0 truncate underline-offset-4 hover:underline"
+              aria-label={`Open details for ${p.vaultName ?? "unassigned vault"}`}
+            >
+              {p.vaultName ?? "Unassigned vault"}
+            </Link>
+          </span>
+
+          <span className="pf-positions__num tabular body-md ct-text-body">
+            {formatUsdCompact(p.principalUsdc)}
+          </span>
+
+          <span className="pf-positions__num tabular body-md ct-text-strong font-semibold">
+            {formatUsdCompact(p.valueUsdc)}
+          </span>
+
+          <span className="pf-positions__num">
+            {p.apyLow !== null && p.apyHigh !== null ? (
+              <ApyRange low={p.apyLow} high={p.apyHigh} precision={1} className="body-sm font-semibold" />
+            ) : (
+              <span className="body-xs ct-text-faint">Unavailable</span>
+            )}
+          </span>
+
+          <span className="pf-positions__num body-xs tabular ct-text-muted">
+            {dateFmt.format(p.subscribedAt)}
+          </span>
+        </div>
+      ))}
     </div>
   );
 

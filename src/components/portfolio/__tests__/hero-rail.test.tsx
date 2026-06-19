@@ -42,20 +42,20 @@ describe("HeroKpiTable — provenance per metric", () => {
 });
 
 describe("Hero rail — native layout at zero", () => {
-  it("HeroPayoutRail renders compact rail DOM with progress bar", () => {
+  it("HeroPayoutRail zero: compact rail (no 0% bar, no note)", () => {
     const html = renderToStaticMarkup(
       <HeroPayoutRail {...zeroTimeToCashProps(PREVIEW_AS_OF)} previewZeros />,
     );
     expect(html).toContain("pf-hero-rail-group--payout");
     expect(html).toContain("—");
     expect(html).not.toContain("$0 USDC");
-    expect(html).toContain("pf-progress-track");
-    expect(html).toContain("Cycle pending · Pending");
-    expect(html).toContain("Projection unlocks after the first active yield snapshot");
+    // Zero-state collapses to title + value + meta — no 0% meter, no projection note.
+    expect(html).not.toContain("pf-meter");
+    expect(html).toContain("Cycle pending");
+    expect(html).not.toContain("Projection unlocks after the first active yield snapshot");
     expect(html).not.toContain("provenance-badge--strip");
     expect(html).not.toContain("ModuleChrome");
     expect(html).not.toContain("Next distribution");
-    expect(html).not.toContain("Projection pending");
     expect(html).not.toContain("flex h-full");
   });
 
@@ -72,21 +72,21 @@ describe("Hero rail — native layout at zero", () => {
       />,
     );
     expect(html).toContain("provenance-badge--strip");
-    expect(html).toContain("Estimate only, not guaranteed.");
+    expect(html).toContain("estimate only, not guaranteed.");
     expect(html).toContain('aria-label="APY range 9.4 to 12.8 %"');
   });
 
-  it("HeroLiquidityRail renders compact rail DOM with progress bar", () => {
+  it("HeroLiquidityRail zero: compact rail (no 0% bar)", () => {
     const html = renderToStaticMarkup(
       <HeroLiquidityRail {...zeroLockMeterProps(PREVIEW_AS_OF)} previewZeros />,
     );
     expect(html).toContain("pf-hero-rail-group");
-    expect(html).toContain("pf-progress-track");
+    // Zero-state drops the 0% meter — only the terms meta line shows.
+    expect(html).not.toContain("pf-meter");
     expect(html).toContain("60-day soft lock shown after deposit");
     expect(html).not.toContain("provenance-badge--strip");
     expect(html).not.toContain("Unlock");
     expect(html).not.toContain("60d left");
-    expect(html).toContain('aria-valuenow="0"');
     expect(html).not.toContain("Early exit penalty");
     expect(html).not.toContain("flex h-full");
     expect(html).not.toContain("mt-auto");

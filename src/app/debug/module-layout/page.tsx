@@ -31,7 +31,7 @@ export default function ModuleLayoutDebugPage() {
     <div className="module-debug-container h-full min-h-0 relative">
       <div className="pf-fixed">
         <div className="pf-fixed-greeting">
-          <PortfolioGreeting name="Demo Investor" data={data} />
+          <PortfolioGreeting name="Demo Investor" />
           <button
             type="button"
             className="pf-demo-btn body-sm"

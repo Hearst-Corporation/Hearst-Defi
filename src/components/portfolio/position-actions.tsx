@@ -61,6 +61,36 @@ function shortHash(h: string): string {
   return h.length > 12 ? `${h.slice(0, 6)}…${h.slice(-4)}` : h;
 }
 
+function withdrawPrerequisiteError(
+  ready: boolean,
+  privyWallet: unknown,
+  walletAddress: string | null,
+): string | null {
+  if (!VAULT_ADDRESS) return "Vault address not configured.";
+  if (!ready || !privyWallet || walletAddress === null) {
+    return "Connect your wallet to withdraw.";
+  }
+  return null;
+}
+
+function applyWithdrawPrerequisiteFailure(
+  setError: (message: string | null) => void,
+  setPhase: (phase: Phase) => void,
+  ready: boolean,
+  privyWallet: unknown,
+  walletAddress: string | null,
+): boolean {
+  const prerequisiteError = withdrawPrerequisiteError(
+    ready,
+    privyWallet,
+    walletAddress,
+  );
+  if (!prerequisiteError) return false;
+  setError(prerequisiteError);
+  setPhase("error");
+  return true;
+}
+
 // ---------------------------------------------------------------------------
 // Pure phase-machine contract (exported for unit tests).
 //
@@ -129,14 +159,15 @@ function PositionActionsLive({ position }: PositionActionsProps) {
   // user is not invited to review something that cannot proceed.
   const handleReview = useCallback(() => {
     setError(null);
-    if (!VAULT_ADDRESS) {
-      setError("Vault address not configured.");
-      setPhase("error");
-      return;
-    }
-    if (!ready || !privyWallet || walletAddress === null) {
-      setError("Connect your wallet to withdraw.");
-      setPhase("error");
+    if (
+      applyWithdrawPrerequisiteFailure(
+        setError,
+        setPhase,
+        ready,
+        privyWallet,
+        walletAddress,
+      )
+    ) {
       return;
     }
     setPhase((p) => phaseAfterReviewClick(p));
@@ -156,16 +187,18 @@ function PositionActionsLive({ position }: PositionActionsProps) {
     if (!canRunOnChainWithdraw(phase)) return;
 
     setError(null);
-    if (!VAULT_ADDRESS) {
-      setError("Vault address not configured.");
-      setPhase("error");
+    if (
+      applyWithdrawPrerequisiteFailure(
+        setError,
+        setPhase,
+        ready,
+        privyWallet,
+        walletAddress,
+      )
+    ) {
       return;
     }
-    if (!ready || !privyWallet || walletAddress === null) {
-      setError("Connect your wallet to withdraw.");
-      setPhase("error");
-      return;
-    }
+    if (privyWallet === null || walletAddress === null) return;
 
     try {
       const owner = walletAddress as `0x${string}`;

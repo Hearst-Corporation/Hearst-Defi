@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hearst — Produits & Calculateur de rentabilité</title>
+<style>
+  :root{
+    --ct-bg-deep:#070809;
+    --ct-bg-panel:rgba(18,21,23,.72);
+    --ct-bg-panel-solid:#0e1113;
+    --ct-bc-soft:rgba(167,251,144,.12);
+    --ct-bc-hair:rgba(255,255,255,.07);
+    --ct-accent:#A7FB90;
+    --ct-text:#e7ebe6;
+    --ct-text-dim:#93a08f;
+    --ct-text-faint:#5e6b5d;
+    --ct-warn:#f3c969;
+    --ct-bad:#f08a7a;
+    --ct-good:var(--ct-accent);
+    --r:14px;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:
+      radial-gradient(1100px 620px at 78% -8%, rgba(167,251,144,.10), transparent 60%),
+      radial-gradient(900px 520px at 8% 108%, rgba(167,251,144,.05), transparent 55%),
+      var(--ct-bg-deep);
+    color:var(--ct-text);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    padding:32px clamp(16px,4vw,56px) 80px;
+    line-height:1.5;
+  }
+  h1,h2,h3{margin:0;font-weight:620;letter-spacing:-.01em}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .accent{color:var(--ct-accent)}
+  .dim{color:var(--ct-text-dim)}
+  .faint{color:var(--ct-text-faint)}
+
+  header.top{max-width:1240px;margin:0 auto 26px;display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:13px}
+  .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(150deg,var(--ct-accent),#5fae4d);display:grid;place-items:center;color:#06200c;font-weight:800;font-size:17px;box-shadow:0 0 24px rgba(167,251,144,.30)}
+  .brand small{display:block;color:var(--ct-text-dim);font-size:12.5px;margin-top:2px}
+  .legal{max-width:430px;font-size:11.5px;color:var(--ct-text-faint);text-align:right;line-height:1.45}
+
+  .wrap{max-width:1240px;margin:0 auto}
+  .grid{display:grid;gap:18px}
+  .panel{background:var(--ct-bg-panel);border:1px solid var(--ct-bc-hair);border-radius:var(--r);padding:20px 22px;backdrop-filter:blur(14px)}
+  .panel.tight{padding:16px 18px}
+  .panel-h{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .panel-h h2{font-size:15px}
+  .kicker{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ct-text-faint);font-weight:700}
+
+  /* ── product cards ── */
+  .products{grid-template-columns:repeat(3,1fr);margin-bottom:18px}
+  @media(max-width:920px){.products{grid-template-columns:1fr}}
+  .pcard{position:relative;overflow:hidden}
+  .pcard.live{border-color:var(--ct-bc-soft);box-shadow:0 0 0 1px rgba(167,251,144,.10), 0 18px 50px -28px rgba(167,251,144,.28)}
+  .pcard .ribbon{position:absolute;top:14px;right:-30px;transform:rotate(38deg);background:var(--ct-accent);color:#06200c;font-size:9.5px;font-weight:800;letter-spacing:.1em;padding:3px 36px}
+  .pcard h3{font-size:17px;margin-bottom:2px}
+  .ticker{font-family:var(--mono);font-size:11px;color:var(--ct-text-dim)}
+  .badge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.03em}
+  .badge.b-live{background:rgba(167,251,144,.14);color:var(--ct-accent);border:1px solid var(--ct-bc-soft)}
+  .badge.b-shell{background:rgba(255,255,255,.05);color:var(--ct-text-dim);border:1px solid var(--ct-bc-hair)}
+  .pcard .desc{font-size:12.5px;color:var(--ct-text-dim);margin:10px 0 14px;min-height:54px}
+  .alloc-bar{display:flex;height:9px;border-radius:6px;overflow:hidden;margin-bottom:7px;background:rgba(255,255,255,.04)}
+  .alloc-bar > span{display:block}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:10.5px;color:var(--ct-text-dim)}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .pmeta{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-top:14px;font-size:12px}
+  .pmeta div{display:flex;justify-content:space-between;border-bottom:1px dashed var(--ct-bc-hair);padding-bottom:5px}
+  .pmeta b{font-family:var(--mono);font-weight:600}
+
+  .seg-mining{background:#A7FB90}
+  .seg-base{background:#5b9bd5}
+  .seg-btc{background:#f3a96b}
+  .seg-reserve{background:#6b7280}
+
+  /* ── share classes ── */
+  .scls{grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){.scls{grid-template-columns:1fr}}
+  .scrow{display:flex;justify-content:space-between;font-size:12.5px;padding:6px 0;border-bottom:1px dashed var(--ct-bc-hair)}
+  .scrow b{font-family:var(--mono)}
+  .wire{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .wire.on{background:rgba(167,251,144,.14);color:var(--ct-accent)}
+  .wire.off{background:rgba(243,201,105,.13);color:var(--ct-warn)}
+
+  /* ── inputs ── */
+  .calc{grid-template-columns:340px 1fr;align-items:start}
+  @media(max-width:980px){.calc{grid-template-columns:1fr}}
+  .field{margin-bottom:16px}
+  .field label{display:flex;justify-content:space-between;font-size:12px;color:var(--ct-text-dim);margin-bottom:6px;font-weight:600}
+  .field label .v{font-family:var(--mono);color:var(--ct-accent);font-size:13px}
+  input[type=range]{width:100%;-webkit-appearance:none;height:4px;border-radius:4px;background:rgba(255,255,255,.10);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--ct-accent);box-shadow:0 0 12px rgba(167,251,144,.55);cursor:pointer;border:2px solid #07210c}
+  .seg-pill{display:inline-flex;gap:5px;color:var(--ct-text-dim);font-size:11px;margin-top:4px}
+  select,input[type=number]{font-family:var(--mono);background:var(--ct-bg-panel-solid);color:var(--ct-text);border:1px solid var(--ct-bc-hair);border-radius:9px;padding:9px 11px;font-size:13px;width:100%}
+  .regime-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+  .regime-tabs button{flex:1;min-width:96px;font-family:var(--sans);font-size:12px;font-weight:650;padding:9px 6px;border-radius:10px;border:1px solid var(--ct-bc-hair);background:transparent;color:var(--ct-text-dim);cursor:pointer;transition:.15s}
+  .regime-tabs button.active{background:rgba(167,251,144,.13);border-color:var(--ct-bc-soft);color:var(--ct-accent)}
+  .hint{font-size:11px;color:var(--ct-text-faint);margin-top:-6px;margin-bottom:14px}
+
+  /* ── results ── */
+  .headline{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:2px 0 6px}
+  .headline .big{font-family:var(--mono);font-size:46px;font-weight:600;letter-spacing:-.02em;line-height:1}
+  .headline .unit{font-size:18px;color:var(--ct-text-dim)}
+  .verdict{display:inline-flex;align-items:center;gap:8px;font-weight:750;font-size:13px;padding:6px 13px;border-radius:999px;margin-top:6px}
+  .v-healthy{background:rgba(167,251,144,.15);color:var(--ct-good);border:1px solid var(--ct-bc-soft)}
+  .v-adequate{background:rgba(167,251,144,.08);color:#cfe9c4;border:1px solid var(--ct-bc-hair)}
+  .v-stressed{background:rgba(243,201,105,.14);color:var(--ct-warn);border:1px solid rgba(243,201,105,.3)}
+  .v-suspended{background:rgba(240,138,122,.15);color:var(--ct-bad);border:1px solid rgba(240,138,122,.32)}
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+  @media(max-width:680px){.stat-row{grid-template-columns:1fr 1fr}}
+  .stat{background:var(--ct-bg-panel-solid);border:1px solid var(--ct-bc-hair);border-radius:11px;padding:12px 13px}
+  .stat .k{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ct-text-faint);font-weight:700}
+  .stat .val{font-family:var(--mono);font-size:21px;margin-top:5px;font-weight:600}
+  .stat .sub{font-size:10.5px;color:var(--ct-text-dim);margin-top:2px}
+
+  .breakdown{margin-top:18px;font-size:12.5px}
+  .breakdown table{width:100%;border-collapse:collapse}
+  .breakdown td{padding:7px 4px;border-bottom:1px solid var(--ct-bc-hair)}
+  .breakdown td:last-child{text-align:right;font-family:var(--mono)}
+  .breakdown tr.total td{font-weight:700;border-bottom:none;padding-top:11px}
+  .breakdown tr.total td:last-child{color:var(--ct-accent)}
+  .contrib{color:var(--ct-text-dim);font-family:var(--mono);font-size:11px}
+
+  /* ── PTAI / rebalancing ── */
+  .ptai{font-family:var(--mono);font-size:12px;background:var(--ct-bg-panel-solid);border:1px solid var(--ct-bc-hair);border-left:3px solid var(--ct-accent);border-radius:10px;padding:13px 15px;margin-bottom:11px}
+  .ptai.warn{border-left-color:var(--ct-warn)}
+  .ptai.bad{border-left-color:var(--ct-bad)}
+  .ptai .row{display:flex;gap:12px;padding:2px 0}
+  .ptai .tag{color:var(--ct-text-faint);min-width:90px;font-weight:700;letter-spacing:.05em;font-size:10.5px;padding-top:1px}
+  .ptai .body{color:var(--ct-text)}
+  .ptai .rid{color:var(--ct-accent);font-weight:700}
+  .ptai.warn .rid{color:var(--ct-warn)}
+  .ptai.bad .rid{color:var(--ct-bad)}
+  .no-fire{font-size:12.5px;color:var(--ct-text-dim);padding:10px 2px}
+  .agent-tag{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;color:var(--ct-text-faint);margin-top:2px}
+  .agent-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ct-accent);box-shadow:0 0 8px var(--ct-accent)}
+
+  .footnote{max-width:1240px;margin:26px auto 0;font-size:11px;color:var(--ct-text-faint);line-height:1.55}
+  .footnote code{font-family:var(--mono);color:var(--ct-text-dim)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <div class="logo">H</div>
+    <div>
+      <h1 style="font-size:19px">Hearst — Produits &amp; Rentabilité</h1>
+      <small>Single-vault institutional DeFi · calculateur d'APY + simulateur de rebalancing</small>
+    </div>
+  </div>
+  <p class="legal">
+    Outil interne de simulation. Projections conditionnelles aux hypothèses saisies — <b>non garanties</b>.
+    APY exprimé en <b>range</b> (jamais un point unique). Aucune donnée live : valeurs entrées à la main.
+  </p>
+</header>
+
+<div class="wrap">
+
+  <!-- ════════ PRODUITS ════════ -->
+  <div class="panel-h"><span class="kicker">01 — Produits</span></div>
+  <div class="grid products" id="products"></div>
+
+  <!-- ════════ SHARE CLASSES ════════ -->
+  <div class="panel" style="margin-bottom:18px">
+    <div class="panel-h"><span class="kicker">02 — Share classes</span><h2>Deux classes sur le <span class="accent">même</span> vault (ADR-008)</h2></div>
+    <div class="grid scls" id="shareclasses"></div>
+    <p class="hint" style="margin-top:12px;margin-bottom:0">Une share class n'est <b>pas</b> un produit séparé — même portefeuille sous-jacent, frais &amp; lock différents. Class B est modélisée + seedée mais <b>pas branchée</b> sur le invest-flow (BACKLOG #9).</p>
+  </div>
+
+  <!-- ════════ CALCULATEUR ════════ -->
+  <div class="grid calc">
+
+    <!-- INPUTS -->
+    <div class="panel">
+      <div class="panel-h"><span class="kicker">03 — Tes hypothèses</span></div>
+
+      <p class="hint">Régime = jeu de bornes d'allocation. L'agent de rebalancing peut le forcer (voir §05).</p>
+      <div class="regime-tabs" id="regimeTabs">
+        <button data-r="defensive">Defensive</button>
+        <button data-r="balanced" class="active">Balanced</button>
+        <button data-r="opportunistic">Opportunistic</button>
+      </div>
+
+      <div class="field">
+        <label>Yield Mining (net, annualisé) <span class="v"><span id="vMining">14.0</span>%</span></label>
+        <input type="range" id="iMining" min="-10" max="40" step="0.5" value="14">
+        <div class="seg-pill">revenue-share farms · attesté USDC mensuel</div>
+      </div>
+
+      <div class="field">
+        <label>Yield Stablecoin Base (T-bills + lending) <span class="v"><span id="vBase">6.5</span>%</span></label>
+        <input type="range" id="iBase" min="0" max="20" step="0.25" value="6.5">
+        <div class="seg-pill">Ondo (T-bills) + Maple / Aave</div>
+      </div>
+
+      <div class="field">
+        <label>Yield BTC Tactical (annualisé) <span class="v"><span id="vBtc">10.0</span>%</span></label>
+        <input type="range" id="iBtc" min="-40" max="80" step="1" value="10">
+        <div class="seg-pill">accumulation / prise de profit — règles R-BTC</div>
+      </div>
+
+      <div class="field">
+        <label>Yield Réserve Stable (idle) <span class="v"><span id="vReserve">4.0</span>%</span></label>
+        <input type="range" id="iReserve" min="0" max="8" step="0.25" value="4">
+        <div class="seg-pill">cash USDC en réserve (coussin coverage)</div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--ct-bc-hair);margin:16px 0">
+
+      <div class="field" style="margin-bottom:10px">
+        <label>Share class (frais appliqués)</label>
+        <select id="iClass">
+          <option value="A" selected>Class A — 1% mgmt + 10% perf · lock 60j</option>
+          <option value="B">Class B — 0.75% mgmt + 8% perf · lock 90j</option>
+        </select>
+      </div>
+
+      <p class="kicker" style="margin:16px 0 10px">Signaux rebalancing (déclencheurs R1–R8)</p>
+      <div class="field" style="margin-bottom:11px">
+        <label>BTC drawdown 30j <span class="v"><span id="vDD">0</span>%</span></label>
+        <input type="range" id="iDD" min="0" max="50" step="1" value="0">
+      </div>
+      <div class="field" style="margin-bottom:11px">
+        <label>Mining Margin Score (0–100) <span class="v"><span id="vMargin">68</span></span></label>
+        <input type="range" id="iMargin" min="0" max="100" step="1" value="68">
+      </div>
+      <div class="field" style="margin-bottom:11px">
+        <label>Hashprice 30j <span class="v"><span id="vHash">0</span>%</span></label>
+        <input type="range" id="iHash" min="-40" max="20" step="1" value="0">
+      </div>
+      <div class="field" style="margin-bottom:4px">
+        <label>Stablecoin depeg (bps, soutenu 24h) <span class="v"><span id="vDepeg">0</span> bps</span></label>
+        <input type="range" id="iDepeg" min="0" max="200" step="5" value="0">
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="grid" style="gap:18px">
+
+      <div class="panel">
+        <div class="panel-h"><span class="kicker">04 — APY net (range)</span><span class="agent-tag" id="vaultName">Hearst Yield Vault · Balanced</span></div>
+        <div class="headline">
+          <span class="big accent" id="apyRange">—</span>
+          <span class="unit">APY net annualisé</span>
+        </div>
+        <div id="verdict" class="verdict v-adequate">—</div>
+
+        <div class="stat-row">
+          <div class="stat"><div class="k">Brut pondéré</div><div class="val" id="gross">—</div><div class="sub">avant frais</div></div>
+          <div class="stat"><div class="k">Frais total</div><div class="val" id="fees">—</div><div class="sub" id="feesSub">mgmt + perf</div></div>
+          <div class="stat"><div class="k">Net point</div><div class="val accent" id="netPoint">—</div><div class="sub">médiane interne</div></div>
+          <div class="stat"><div class="k">Coverage</div><div class="val" id="coverage">—</div><div class="sub" id="coverageSub">mining vs distrib</div></div>
+        </div>
+
+        <div class="breakdown">
+          <table>
+            <tbody id="bd"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><span class="kicker">05 — Agents de rebalancing</span><h2>Notifications déclenchées</h2></div>
+        <p class="agent-tag" style="margin-bottom:14px">4 agents batch GPT-4.1 · sortie JSON structurée · format PTAI · multisig human-in-the-loop (aucune auto-exécution)</p>
+        <div id="ptai"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="footnote">
+    Bornes &amp; frais : <code>docs/spec/07-rebalancing-rules.mdx</code>, <code>00-vision.mdx</code>, <code>05-mining-model.mdx</code>, <code>ADR-008-share-classes.md</code>.
+    Coverage bands : <code>src/lib/engine/coverage.ts</code> (healthy ≥1.25 · adequate ≥1.0 · stressed ≥0.8 · suspended &lt;0.8).
+    Spread APY mini garanti pour rester une <b>range</b> : <code>MIN_APY_SPREAD = 50 bps</code> (<code>scenario.ts</code>).
+    Le mining est <b>advisory / off-chain</b> (Model B) — le vault détient du cash USDC ; le yield mining est exogène, injecté mensuellement.
+    Aucune valeur « guarantee / promise / certain / risk-free » : interdit dans les sorties agents.
+  </p>
+
+</div>
+
+<script>
+/* ─────────── DONNÉES PRODUITS (sourcées du repo) ─────────── */
+const REGIMES = {
+  defensive:    {label:"Defensive",     mining:.25, base:.55, btc:.05, reserve:.20},
+  balanced:     {label:"Balanced",      mining:.35, base:.40, btc:.15, reserve:.10},
+  opportunistic:{label:"Opportunistic", mining:.35, base:.30, btc:.25, reserve:.10},
+};
+const CLASSES = {
+  A:{label:"Class A", mgmt:0.01,  perf:0.10, min:"$250k", lock:"60j", wired:true},
+  B:{label:"Class B", mgmt:0.0075,perf:0.08, min:"$1M",   lock:"90j", wired:false},
+};
+const PRODUCTS = [
+  {id:"hearst-yield-vault", name:"Hearst Yield Vault", ticker:"HYV-A", live:true,
+   desc:"Coffre USDC ERC-4626 combinant 3 moteurs : mining cashflow, base stable (T-bills+lending), BTC tactique. Distributions USDC mensuelles.",
+   strategy:"mining_yield", apy:"9.4–12.8%", regime:"balanced"},
+  {id:"hearst-defensive", name:"Defensive Vault", ticker:"HDV", live:false,
+   desc:"Profil prudent : exposition mining/BTC réduite, poids majoritaire sur réserve + T-bills. Préset autorisé (ADR-006), jamais lancé — AUM 0.",
+   strategy:"stable_reserve", apy:"5–8%", regime:"defensive"},
+  {id:"hearst-btc-plus", name:"BTC Plus", ticker:"HBP", live:false,
+   desc:"Exposition BTC tactique majorée pour upside directionnel, coussin stable réduit. Préset autorisé (ADR-006), jamais lancé — AUM 0.",
+   strategy:"btc_tactical", apy:"variable", regime:"opportunistic"},
+];
+const SEG = [
+  {k:"mining",  label:"Mining",   cls:"seg-mining"},
+  {k:"base",    label:"Base USDC",cls:"seg-base"},
+  {k:"btc",     label:"BTC tact.",cls:"seg-btc"},
+  {k:"reserve", label:"Réserve",  cls:"seg-reserve"},
+];
+
+/* ─────────── RENDER PRODUITS ─────────── */
+function allocBar(r){
+  return `<div class="alloc-bar">${SEG.map(s=>`<span class="${s.cls}" style="width:${(r[s.k]*100).toFixed(0)}%"></span>`).join("")}</div>
+  <div class="legend">${SEG.map(s=>`<span><i class="${s.cls}"></i>${s.label} ${(r[s.k]*100).toFixed(0)}%</span>`).join("")}</div>`;
+}
+document.getElementById("products").innerHTML = PRODUCTS.map(p=>{
+  const r = REGIMES[p.regime];
+  return `<div class="panel pcard ${p.live?"live":""}">
+    ${p.live?'<div class="ribbon">LIVE</div>':''}
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><h3>${p.name}</h3><span class="ticker">${p.ticker} · ${p.strategy}</span></div>
+      <span class="badge ${p.live?"b-live":"b-shell"}">${p.live?"● AUM live":"○ shell · AUM 0"}</span>
+    </div>
+    <p class="desc">${p.desc}</p>
+    ${allocBar(r)}
+    <div class="pmeta">
+      <div><span class="dim">APY cible</span><b>${p.apy}</b></div>
+      <div><span class="dim">Régime</span><b>${r.label}</b></div>
+      <div><span class="dim">Distrib.</span><b>USDC / mois</b></div>
+      <div><span class="dim">Structure</span><b>Cayman ELP</b></div>
+    </div>
+  </div>`;
+}).join("");
+
+/* ─────────── RENDER SHARE CLASSES ─────────── */
+document.getElementById("shareclasses").innerHTML = Object.entries(CLASSES).map(([k,c])=>`
+  <div class="panel tight">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 style="font-size:15px">${c.label}</h3>
+      <span class="wire ${c.wired?"on":"off"}">${c.wired?"✓ branchée":"⚠ non branchée"}</span>
+    </div>
+    <div class="scrow"><span class="dim">Min ticket</span><b>${c.min}</b></div>
+    <div class="scrow"><span class="dim">Lock-up (soft)</span><b>${c.lock}</b></div>
+    <div class="scrow"><span class="dim">Mgmt fee</span><b>${(c.mgmt*100).toFixed(2)}%</b></div>
+    <div class="scrow" style="border-bottom:none"><span class="dim">Perf fee (HWM)</span><b>${(c.perf*100).toFixed(0)}%</b></div>
+  </div>`).join("");
+
+/* ─────────── CALCUL ─────────── */
+const $ = id => document.getElementById(id);
+let regime = "balanced";
+
+function compute(){
+  const r = REGIMES[regime];
+  const y = {
+    mining:  +$("iMining").value/100,
+    base:    +$("iBase").value/100,
+    btc:     +$("iBtc").value/100,
+    reserve: +$("iReserve").value/100,
+  };
+  // value displays
+  $("vMining").textContent = (+$("iMining").value).toFixed(1);
+  $("vBase").textContent   = (+$("iBase").value).toFixed(2);
+  $("vBtc").textContent    = (+$("iBtc").value).toFixed(1);
+  $("vReserve").textContent= (+$("iReserve").value).toFixed(2);
+  $("vDD").textContent     = $("iDD").value;
+  $("vMargin").textContent = $("iMargin").value;
+  $("vHash").textContent   = $("iHash").value;
+  $("vDepeg").textContent  = $("iDepeg").value;
+
+  // contribution pondérée par l'allocation du régime
+  const contrib = {
+    mining:  r.mining  * y.mining,
+    base:    r.base    * y.base,
+    btc:     r.btc     * y.btc,
+    reserve: r.reserve * y.reserve,
+  };
+  const gross = contrib.mining + contrib.base + contrib.btc + contrib.reserve;
+
+  // frais : mgmt prélevé sur AUM, perf sur le rendement positif
+  const cls = CLASSES[$("iClass").value];
+  const perfBase = Math.max(0, gross - cls.mgmt);
+  const feeMgmt = cls.mgmt;
+  const feePerf = perfBase * cls.perf;
+  const fees = feeMgmt + feePerf;
+  const net = gross - fees;
+
+  // range : net ± demi-spread, mini 50 bps de chaque côté (#1)
+  const MIN_HALF = 0.005;
+  const dispersion = (Math.abs(r.btc*y.btc)*0.45) + Math.abs(r.mining*y.mining)*0.20 + 0.004;
+  const half = Math.max(MIN_HALF, dispersion);
+  const lo = net - half, hi = net + half;
+
+  // coverage : mining cashflow couvre-t-il la distribution cible ?
+  const distribTarget = Math.max(0.001, net);
+  const miningCash = contrib.mining + contrib.reserve*0.5; // mining + part de réserve mobilisable
+  const coverage = miningCash / distribTarget;
+
+  // ── render APY
+  $("apyRange").textContent = `${(lo*100).toFixed(1)}–${(hi*100).toFixed(1)}%`;
+  $("gross").textContent = (gross*100).toFixed(2)+"%";
+  $("fees").textContent = (fees*100).toFixed(2)+"%";
+  $("feesSub").textContent = `${(feeMgmt*100).toFixed(2)}% mgmt + ${(feePerf*100).toFixed(2)}% perf`;
+  $("netPoint").textContent = (net*100).toFixed(2)+"%";
+  $("coverage").textContent = coverage.toFixed(2)+"×";
+  $("vaultName").textContent = `Hearst Yield Vault · ${r.label}`;
+
+  // breakdown
+  const rows = SEG.map(s=>{
+    const w = r[s.k], yld = y[s.k], c = contrib[s.k];
+    return `<tr><td>${s.label}<span class="contrib"> — ${(w*100).toFixed(0)}% × ${(yld*100).toFixed(2)}%</span></td><td>${(c*100>=0?"+":"")}${(c*100).toFixed(2)}%</td></tr>`;
+  }).join("");
+  $("bd").innerHTML = rows +
+    `<tr><td class="dim">− Frais (mgmt+perf)</td><td>−${(fees*100).toFixed(2)}%</td></tr>` +
+    `<tr class="total"><td>APY net (point médian interne)</td><td>${(net*100).toFixed(2)}%</td></tr>`;
+
+  // verdict coverage band
+  let band, cls2, txt;
+  if(coverage>=1.25){band="healthy";cls2="v-healthy";txt="🟢 RENTABLE · coverage saine (≥1.25×)";}
+  else if(coverage>=1.0){band="adequate";cls2="v-adequate";txt="🟢 Rentable · coverage adéquate (≥1.0×)";}
+  else if(coverage>=0.8){band="stressed";cls2="v-stressed";txt="🟠 STRESSÉ · mining ne couvre pas pleinement la distribution (0.8–1.0×)";}
+  else {band="suspended";cls2="v-suspended";txt="🔴 SUSPENDU · distribution non couverte — jamais payée par puisement réserve";}
+  if(net<=0){cls2="v-suspended";txt="🔴 NON RENTABLE · APY net ≤ 0 après frais";}
+  const v=$("verdict"); v.className="verdict "+cls2; v.textContent=txt;
+  $("coverageSub").textContent = band;
+
+  renderPTAI({r,y,contrib,gross,net,coverage,half,lo,hi});
+}
+
+/* ─────────── AGENTS REBALANCING (règles R1–R8 + mining-model) ─────────── */
+function renderPTAI(s){
+  const dd     = +$("iDD").value;
+  const margin = +$("iMargin").value;
+  const hash   = +$("iHash").value;
+  const depeg  = +$("iDepeg").value;
+  const rwaY   = +$("iBase").value/100;
+  const miningY= +$("iMining").value/100;
+  const fired = [];
+
+  const P = (sev, rid, proj, trig, act, imp)=>fired.push({sev,rid,proj,trig,act,imp});
+
+  // R1 — BTC drawdown > 25% → Defensive
+  if(dd>25) P("bad","R1",
+    `BTC en repli marqué sur 30j (−${dd}%), risque de contagion sur la sleeve tactique.`,
+    `BTC drawdown ${dd}% > 25% sur 30 jours.`,
+    `Bascule régime → Defensive. BTC tactique → 0–10%, réserve stable → 15–25%.`,
+    `APY range comprimée mais drawdown contenu ; protège la distribution mensuelle.`);
+
+  // R2 — Mining margin < 50 → ↓ mining 30%, ↑ reserve
+  if(margin<50) P("warn","R2",
+    `Marge mining sous le seuil critique (score ${margin}), cashflow distribuable menacé.`,
+    `Mining Margin Score ${margin} < 50.`,
+    `↓ allocation mining −30% ; ↑ réserve stable du delta libéré.`,
+    `Coverage protégée ; APY mining ↓ mais distribution sécurisée par la réserve.`);
+
+  // R3 — margin > 75 + BTC momentum → ↑ mining +10%
+  if(margin>75 && dd===0) P("ok","R3",
+    `Mining très profitable (score ${margin}) et BTC sans drawdown — fenêtre d'accumulation.`,
+    `Mining Margin Score ${margin} > 75 + momentum BTC positif.`,
+    `Maintien ou ↑ mining +10% (dans les bornes dures du régime).`,
+    `APY range relevée vers le haut de l'envelope ; coverage renforcée.`);
+
+  // R4 — Hashprice -20% / 30d → human review
+  if(hash<=-20) P("warn","R4",
+    `Hashprice en chute (${hash}% / 30j) — compression de marge mining probable.`,
+    `Hashprice ${hash}% ≤ −20% sur 30 jours.`,
+    `Déclenche revue humaine (pas d'action auto). Pré-positionnement scénario margin compression.`,
+    `Aucun mouvement tant que l'humain n'a pas validé (multisig).`);
+
+  // R5 — RWA yield > mining net (risk-adjusted) → rotation partielle
+  if(rwaY > miningY) P("ok","R5",
+    `Le yield RWA stable (${(rwaY*100).toFixed(2)}%) dépasse le mining net (${(miningY*100).toFixed(2)}%) à risque ajusté.`,
+    `RWA yield > mining net yield.`,
+    `Rotation partielle mining → RWA (T-bills/lending), dans les bornes.`,
+    `APY plus stable, moins de variance ; coverage moins dépendante du mining.`);
+
+  // R6 — depeg > 50bps 24h → pause allocations stable
+  if(depeg>50) P("bad","R6",
+    `Stablecoin sous le peg (${depeg} bps soutenu 24h) — risque sur la sleeve base.`,
+    `Depeg ${depeg} bps > 50 bps soutenu sur 24h.`,
+    `Pause des nouvelles allocations vers ce stable ; redirige vers réserve.`,
+    `Protège le capital ; APY base temporairement plafonnée.`);
+
+  // Hashprice < $0.04 review (mining-model) approximé via hash très bas
+  if(hash<=-30) P("warn","R4·HP",
+    `Hashprice proche du seuil plancher économique mining.`,
+    `Hashprice ${hash}% ≈ sous $0.04/TH/jour proxy.`,
+    `Revue humaine + scénario halving / margin compression.`,
+    `Décision différée à validation multisig.`);
+
+  const out = $("ptai");
+  if(!fired.length){
+    out.innerHTML = `<div class="no-fire">✓ Aucun déclencheur actif. Le portefeuille reste dans les bornes du régime <b>${REGIMES[regime].label}</b>. Les agents publient un snapshot « no action » au prochain cycle batch.</div>`;
+    return;
+  }
+  out.innerHTML = fired.map(f=>`
+    <div class="ptai ${f.sev==='bad'?'bad':f.sev==='warn'?'warn':''}">
+      <div class="row"><span class="tag">PROJECTION</span><span class="body">${f.proj}</span></div>
+      <div class="row"><span class="tag">TRIGGER</span><span class="body"><span class="rid">${f.rid}</span> — ${f.trig}</span></div>
+      <div class="row"><span class="tag">ACTION</span><span class="body">${f.act}</span></div>
+      <div class="row"><span class="tag">IMPACT</span><span class="body">${f.imp}</span></div>
+    </div>`).join("");
+}
+
+/* ─────────── EVENTS ─────────── */
+document.querySelectorAll("#regimeTabs button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll("#regimeTabs button").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active"); regime=b.dataset.r; compute();
+  });
+});
+["iMining","iBase","iBtc","iReserve","iDD","iMargin","iHash","iDepeg","iClass"]
+  .forEach(id=>$(id).addEventListener("input",compute));
+
+compute();
+</script>
+</body>
+</html>

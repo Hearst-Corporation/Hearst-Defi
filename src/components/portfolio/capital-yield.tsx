@@ -3,7 +3,6 @@ import {
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
 import {
-  BUCKET_COLOR,
   barWidthPct,
   formatContribution,
   type YieldSource,
@@ -31,6 +30,20 @@ import { cn } from "@/lib/cn";
  * CLAUDE.md non-negotiables: APY always a range (#1), provenance badge (#2),
  * forbidden words absent (#5), "not guaranteed" disclaimer (#10).
  */
+
+/**
+ * Monochrome-green bucket palette — LOCAL to the portfolio "Living Precision"
+ * panel (Adrien's premium direction: green + derivations only, no other hue).
+ * Four intensities of --ct-accent via color-mix; mining is the brightest (pure
+ * accent), the rest step down. Does NOT touch the shared allocation-colors.ts
+ * (dashboard / scenario / PDF keep their functional multi-hue palette).
+ */
+const CY_BUCKET_GREEN: Record<YieldSource["bucket"], string> = {
+  mining: "var(--ct-accent)",
+  usdc_base: "color-mix(in srgb, var(--ct-accent) 70%, var(--ct-text-faint))",
+  btc_tactical: "color-mix(in srgb, var(--ct-accent) 50%, var(--ct-text-faint))",
+  stable_reserve: "color-mix(in srgb, var(--ct-accent) 32%, var(--ct-text-faint))",
+};
 
 export interface CapitalYieldProps {
   sources: YieldSource[];
@@ -86,7 +99,7 @@ export function CapitalYield({
           subtitle="Allocation · 12m forward yield"
           titleVariant="primary"
         />
-        <p className="body-sm ct-text-muted m-0" role="status">
+        <p className="cy-panel__empty-copy body-sm ct-text-muted m-0" role="status">
           Yield allocation appears after your first confirmed position.
         </p>
       </PfCockpitPanel>
@@ -170,7 +183,7 @@ export function CapitalYield({
                     cx="21"
                     cy="21"
                     r="15.9155"
-                    stroke={BUCKET_COLOR[s.bucket]}
+                    stroke={CY_BUCKET_GREEN[s.bucket]}
                     strokeDasharray={`${(s.pct - 0.6).toFixed(2)} ${(100 - s.pct + 0.6).toFixed(2)}`}
                     strokeDashoffset={s.dashOffset.toFixed(2)}
                   />
@@ -213,7 +226,7 @@ export function CapitalYield({
                   s.bucket === "mining" && "cy-row-mining",
                   showZeroShell && "cy-row--pending",
                 )}
-                style={{ "--cy-bucket": BUCKET_COLOR[s.bucket] } as React.CSSProperties}
+                style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
               >
                 <span className="cy-dot" aria-hidden />
                 <span
@@ -221,9 +234,7 @@ export function CapitalYield({
                     "cy-label body-xs min-w-0 truncate",
                     showZeroShell
                       ? "ct-text-faint"
-                      : s.isVolatile
-                        ? "ct-status-warning"
-                        : "ct-text-body",
+                      : "ct-text-body",
                   )}
                 >
                   {s.label}
@@ -231,11 +242,7 @@ export function CapitalYield({
                 <span
                   className={cn(
                     "cy-val",
-                    showZeroShell
-                      ? "ct-text-faint"
-                      : isNeg
-                        ? "ct-status-danger"
-                        : undefined,
+                    showZeroShell ? "ct-text-faint" : undefined,
                   )}
                   aria-label={
                     showZeroShell ? `${s.label} pending` : `${s.label} ${val}`
@@ -291,7 +298,7 @@ export function CapitalYield({
               <dd
                 className={cn(
                   "tabular font-medium",
-                  showZeroShell ? "ct-text-faint" : "ct-status-warning",
+                  showZeroShell ? "ct-text-faint" : "ct-text-body",
                 )}
                 aria-label={
                   showZeroShell

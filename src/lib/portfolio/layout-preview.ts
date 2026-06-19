@@ -2,54 +2,17 @@ import type { DistribEntry } from "@/components/portfolio/distrib-calendar";
 import type { LockMeterProps } from "@/components/portfolio/lock-meter";
 import type { ProofPulseProps } from "@/components/portfolio/proof-pulse";
 import type { RiskPulseProps } from "@/components/portfolio/risk-pulse";
-import type { TimeToCashProps } from "@/components/portfolio/time-to-cash";
+import type { TimeToCashProps } from "@/lib/data/time-to-cash";
 import type { YieldStackProps } from "@/components/portfolio/yield-stack";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
-import { SHARE_CLASS_A } from "@/lib/engine/share-class";
 import { DEMO_YIELD_VAULT_ID } from "@/lib/dev/investor-demo";
 
-/** Canonical onboarding copy + routes for previewZeros cockpit. */
-export const PORTFOLIO_ONBOARDING_APY = { low: 8, high: 15 } as const;
-export const PORTFOLIO_ONBOARDING_MIN_TICKET_USDC = SHARE_CLASS_A.minTicketUsdc;
-export const PORTFOLIO_ONBOARDING_LOCKUP_DAYS = SHARE_CLASS_A.softLockupDays;
+/** Invest route used by cold-start surfaces (e.g. proof center). */
 export const PORTFOLIO_ONBOARDING_INVEST_HREF = `/vaults/${DEMO_YIELD_VAULT_ID}/invest`;
 
 /** Portfolio renders preview/empty surfaces when the LP has no active position. */
 export function isLayoutPreview(hasPositions: boolean): boolean {
   return !hasPositions;
-}
-
-const MONTH_LABELS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-] as const;
-
-/** Flat $0 chart series for the 12-month value chart (layout preview only). */
-export function buildZeroValueChartSeries(asOf: Date): Array<{
-  label: string;
-  value: number;
-  isDistribution: boolean;
-}> {
-  return Array.from({ length: 12 }, (_, i) => {
-    const d = new Date(
-      Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth() - (11 - i), 1),
-    );
-    return {
-      label: MONTH_LABELS[d.getUTCMonth() % 12] ?? "",
-      value: 0,
-      isDistribution: false,
-    };
-  });
 }
 
 /** Twelve $0 payout bars for the distribution calendar (layout preview only). */
