@@ -222,16 +222,16 @@ PDF react-pdf : palette hex locale [`src/lib/pdf/pdf-palette.ts`](src/lib/pdf/pd
 Doc DS complète + tableau des tokens autorisés : [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).
 
 **Typographie (échelle canonique)** : `cockpit.css` (`--ct-text-*`) → miroir
-`globals.css` `@theme` (`text-micro` = 9px, `text-xs` = 10px). Rôles sémantiques :
+`globals.css` `@theme` (`text-micro` = 11px, `text-xs` = 13px). Rôles sémantiques :
 `.h1`–`.body-xs`, `.stat-label`, `.stat-value`, `ct-text-micro-size`. Éviter
 Tailles Tailwind nues (`text-xs`…`text-4xl`) hors primitives (`Button`) — ESLint **error**
 sur `className` ; préférer `.body-*`, `.h1`–`.h4`, `.stat-value`, `.stat-label`. Labels micro
 uppercase → `.stat-label` (pas `ct-text-micro-size font-bold`) ; en-têtes table → `stat-label ct-table-header` ; KPI vault LP/admin → `stat-value`. Downscale doc partagé : `src/app/doc-flow-typography.css` (`:is(.product-doc, .admin-doc)`). Audit : `.claude/commands/ds-typo.md`.
 
-**Densité globale (calibration 2026-06)** : rails (`--ct-rail-left` 112px, `--ct-rail-right` 380px),
+**Densité globale (calibration 2026-06)** : rails (`--ct-rail-left` 104px, `--ct-rail-right` 352px),
 header shell (`--ct-shell-header-h` 4rem), échelle spacing layout (`--ct-space-5`…`--ct-space-32`),
-typo headlines (`--ct-text-lg`…`display`), `.ct-page-area` / `.ct-card` / chat rail — source
-`cockpit.css` `:root` + overrides composants.
+typo headlines (`--ct-text-lg`…`display` en `clamp()`), `.ct-page-area` / `.ct-card` / chat rail — source
+`cockpit.css` `:root` + overrides composants. Shell = centre fluide + chrome fixe (cf. `docs/DESIGN_SYSTEM.md` §7).
 
 **Accent brand** : `--ct-accent` #A7FB90 (vert produit canonique) ;
 success/live = `--ct-status-success` qui **résout vers `var(--ct-accent)`** (un seul vert runtime). `CONNECT_ACCENT_HEX` aligné pour Privy/shell.
@@ -299,7 +299,7 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
 - Boutons : `<Button>` doit toujours déclarer un `size=` explicite (md, sm, lg).
 - Formatters : `src/lib/vaults/product-display.ts`.
 - Vault detail parity admin/LP : faits partagés `src/lib/vaults/vault-detail-facts.ts` ; présentation `vault-admin-kpi-strip`, `vault-legal-proof-rows`, `vault-allocation-display` (admin = `Card`, LP = sections plates).
-- Shell compact : le rail chat droit (`.ct-rail-right`, 420px) est masqué sous `1200px` via `src/app/cockpit.css` pour préserver la largeur du contenu central ; seul le padding `.ct-page-area` se resserre sous `768px`.
+- Shell compact : le rail chat droit (`.ct-rail-right`, 352px) est masqué sous `1200px` via `src/app/cockpit.css` ; rail gauche masqué sous `900px` (bottom bar 56px). Padding `.ct-page-area` resserré sous `768px`.
 - Exceptions non-glass à privilégier aujourd'hui : `.scenario-preset-bar`, `Ptai variant="flat"` en compare, `EmptySurface` seul — voir ADR-013 §10.3. Dashboard command board + KPI strip : `Card` / `.ct-glass-panel`.
 - Migration ADR-013 : **Lots 1+4 done** (surfaces JSX, `SystemPanel` supprimé, aliases CSS retirés, scenario-lab sur `Card`). Reste : token syntax legacy admin (shorthand `(-ct-TOKEN)` → canon bracket form).
 

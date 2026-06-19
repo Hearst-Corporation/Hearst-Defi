@@ -8,7 +8,26 @@ section CSS ciblés.
 - **Section 2** = centre (contenu page).
 - **Section 3** = chat droit (rail verre translucide).
 - **Section menu** = barre flottante en bas (Portfolio / Vaults).
-CSS du shell, rails, fond spatial, nav, login → `cockpit.css` (voir CSS_INDEX plages 2957–3905).
+CSS du shell, rails, fond spatial, nav, login → `cockpit.css` (voir `docs/CSS_INDEX.md` — rails ~L3736, breakpoints ~L4615).
+
+## Shell 3 colonnes — chrome fixe, centre fluide
+
+Modèle asymétrique documenté dans `docs/DESIGN_SYSTEM.md` §7. Résumé :
+
+```
+┌──────────┬──────────────────────────────┬──────────────┐
+│ rail L   │   centre (.ct-page-area)     │  chat rail R │
+│ 104px    │   flex:1 · min-width:0       │  352px→48px  │
+│ largeur  │   typo clamp (lg→display)    │  typo px fixe│
+│ fixe     │   seul scroll = main         │  flex-shrink │
+└──────────┴──────────────────────────────┴──────────────┘
+  ≤900px : rail L masqué + bottom bar 56px     ≤1199px : chat masqué
+```
+
+- `--ct-rail-left` **104px** — verrouillé, ne grandit pas avec le viewport.
+- `--ct-rail-right` **352px** — `flex-shrink: 0` ; `.collapsed` → 48px.
+- `.ct-center-panel { min-width: 0 !important }` — override package 520px ; absorbe la largeur.
+- Pas de scaling proportionnel des rails : aux breakpoints, panneaux **masqués** ou remplacés (bottom bar), pas rétrécis en %.
 
 ## cockpit.css vs doc-flow.css vs portfolio.css
 - **cockpit.css** = chrome global : shell, rails, nav, dashboard admin (command board), surfaces

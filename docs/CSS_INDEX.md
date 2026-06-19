@@ -27,6 +27,9 @@ avec `grep -n "/\*"` si décalage.
 | 2957–3115 | Sonner toast, shell rails verre, fond spatial global, hygiène flexbox |
 | 3115–3500 | Rail intra-app, rail collapsible (déplié/replié/logo), hub bottom bar, identity slot |
 | 3501–3905 | Shell padding overrides, login split |
+| 3736–3836 | **Rails** — `.ct-rail-left` (104px verrouillé), `.ct-rail-right`, `.ct-center-panel` `min-width:0` |
+| 4612–4638 | **Breakpoints shell** — `≤1199px` chat masqué, `≤767px` padding centre |
+| 5250–5295 | **Breakpoints mobile** — `≤900px` rail gauche → bottom bar 56px, `main` padding-bottom 72px |
 | 3905–4396 | Debug/portfolio KPI glass, inline-style replacements |
 | 4396–fin | Admin Vaults — dense deployment list |
 

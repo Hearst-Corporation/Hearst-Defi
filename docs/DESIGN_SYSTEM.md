@@ -116,12 +116,43 @@ non-carré déforme le cercle en ellipse.
 
 ## 7. Layout produit
 
-Rails `--ct-rail-left 88px` / `--ct-rail-right 420px` (chat GPT-4.1 Master Agent, rail droit
-unique — pas de chat embarqué ailleurs). Zone contenu = `.ct-page-area`
-(scrollable, padding `32px 40px 80px`). Halo central :
+### Shell 3 colonnes — modèle asymétrique (« chrome fixe, centre fluide »)
+
+Largeurs **live** (`src/app/cockpit.css` `:root`) :
+
+| Token | Valeur | Comportement |
+|-------|--------|--------------|
+| `--ct-rail-left` | `6.5rem` (104px) | Verrouillé `!important` sur `.ct-rail-left` — largeur fixe, ne scale pas avec le viewport |
+| `--ct-rail-right` | `22rem` (352px) | `flex-shrink: 0` ; replié à **48px** si `.ct-rail-right.collapsed` |
+| `.ct-center-panel` | `flex: 1` + `min-width: 0 !important` | Override package `min-width: 520px` — **seule colonne qui absorbe la largeur** |
+
+**Pourquoi rails et chat ne « grandissent » pas** : ce n'est pas un scaling proportionnel.
+Le centre prend toute la largeur utile restante (`flex: 1`, `min-width: 0`) ; les rails
+conservent une largeur en tokens rem. La typo du centre utilise `clamp()` sur
+`--ct-text-lg`…`--ct-text-display` ; micro/xs/sm/base restent fixes pour la lisibilité.
+
+Le **chat** (`cockpit-shell/tokens.css`) utilise des tailles **px fixes** (9–15px) — hors
+échelle `--ct-text-*` fluide du centre, par design (densité rail, pas de reflow headline).
+
+**Breakpoints Connect** (`cockpit.css` ~L4615–5295) — masquage, pas resize proportionnel :
+
+| Breakpoint | Effet |
+|------------|-------|
+| `≤1199px` | Chat masqué (`.ct-rail-right { display: none }`) |
+| `≤900px` | Rail gauche masqué → bottom bar **56px** ; `main#main-content` `padding-bottom: 72px` |
+| `≤767px` | Padding horizontal `.ct-page-area` → 16px |
+
+Zone contenu = `.ct-page-area` (colonne flex, `main#main-content` = seul scroll, footer
+pin en bas viewport). Padding live : `var(--ct-space-6)` / `var(--ct-space-7)` / bas minimal.
+Halo central :
 `radial-gradient(ellipse 80% 70% at 50% 45%, accent-soft 45%+deep → deep 72%)`.
+
+Chat GPT-4.1 Master Agent = rail droit unique — pas de chat embarqué ailleurs.
+
 Bento dashboard : grille 12 col, gaps `1px` sur `--ct-border-soft`, cellules
 `--ct-bg-deep`, `border-radius: var(--ct-radius-lg)`.
+
+Détail agent : `docs/UI_CONTEXT.md` § Shell 3 colonnes · plages CSS : `docs/CSS_INDEX.md`.
 
 ## 8. Non-négociables (rappel, CI-enforced)
 
