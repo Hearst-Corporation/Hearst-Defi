@@ -73,6 +73,42 @@ function smoothPath(pts: Array<{ x: number; y: number }>): string {
   return d.join(" ");
 }
 
+/** Single source of truth for series → pts computation (avoids dot/curve desync). */
+function computeSeriesPts(series: Array<{ value: number }>): { values: number[]; min: number; max: number; pts: Array<{ x: number; y: number }> } {
+  const values = series.map((d) => d.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const pts = toXY(values, min, max);
+  return { values, min, max, pts };
+}
+
+/** Dot position in % coordinates for the HTML overlay. */
+interface DotPosition {
+  leftPct: number;
+  topPct: number;
+  isEndcap?: boolean;
+}
+
+/** Compute overlay dot positions from a series + pts array. Returns [] when muted. */
+function computeDotPositions(
+  series: Array<{ label: string; value: number; isDistribution: boolean }>,
+  pts: Array<{ x: number; y: number }>,
+  muted: boolean,
+): DotPosition[] {
+  if (muted) return [];
+  const dots: DotPosition[] = [];
+  pts.forEach((p, i) => {
+    if (series[i]?.isDistribution) {
+      dots.push({ leftPct: (p.x / VB_W) * 100, topPct: (p.y / VB_H) * 100 });
+    }
+  });
+  const last = pts[pts.length - 1];
+  if (last) {
+    dots.push({ leftPct: (last.x / VB_W) * 100, topPct: (last.y / VB_H) * 100, isEndcap: true });
+  }
+  return dots;
+}
+
 interface AreaChartProps {
   series: Array<{ label: string; value: number; isDistribution: boolean }>;
   /** Preview / flat $0 series — line + dots, no filled bloom. */
@@ -90,10 +126,7 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
   const areaId = `${uid}-area`;
   const strokeId = `${uid}-stroke`;
 
-  const values = series.map((d) => d.value);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const pts = toXY(values, min, max);
+  const { pts } = computeSeriesPts(series);
   const linePath = smoothPath(pts);
   const last = pts[pts.length - 1];
 
@@ -185,40 +218,9 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
         aria-hidden="true"
       />
 
-      {/* Distribution markers — decorative ringed dots; the curve already carries
-          the meaning and the SVG <desc> summarises the count. Grouped so they can
-          be dimmed/hidden in narrow slots via CSS (container query) without a JS
-          resize observer. */}
-      <g className="pf-vc-markers" aria-hidden="true">
-        {pts.map((p, i) =>
-          series[i]?.isDistribution ? (
-            <circle
-              key={i}
-              cx={p.x.toFixed(2)}
-              cy={p.y.toFixed(2)}
-              r="1.1"
-              fill="color-mix(in srgb, var(--ct-accent) 30%, transparent)"
-              stroke="var(--ct-accent)"
-              strokeWidth="0.35"
-              vectorEffect="non-scaling-stroke"
-            />
-          ) : null,
-        )}
-      </g>
-
-      {/* Lit pulsing end-cap on the latest value — the hero bloom point */}
-      {!muted && last ? (
-        <g aria-hidden="true">
-          <circle cx={last.x.toFixed(2)} cy={last.y.toFixed(2)} r="2.6" fill="color-mix(in srgb, var(--ct-accent) 22%, transparent)" />
-          <circle
-            className="pf-vc-endcap"
-            cx={last.x.toFixed(2)}
-            cy={last.y.toFixed(2)}
-            r="1.5"
-            fill="var(--pf-hero-line, var(--ct-accent))"
-          />
-        </g>
-      ) : null}
+      {/* Distribution markers and end-cap are rendered as HTML spans in an
+          absolute overlay (pf-vc-dots) — outside this SVG — so they remain
+          perfectly circular regardless of preserveAspectRatio="none" stretching. */}
     </svg>
   );
 }
@@ -248,7 +250,10 @@ export function ValueChart({
     : resolveProvenance(source, updatedAt, "estimated");
   const chartValue = showZeroShell ? 0 : totalValueUsdc;
   const series = buildMonthSeries(positions, totalValueUsdc, asOf);
-  const monthTicks = series.filter((_, i) => i % 3 === 0 || i === series.length - 1);
+
+  // Compute dot overlay positions (empty when muted/zero — no markers at $0).
+  const { pts } = computeSeriesPts(series);
+  const dots = computeDotPositions(series, pts, showZeroShell);
 
   return (
     <PfCockpitPanel
@@ -269,6 +274,17 @@ export function ValueChart({
       <div className="pf-value-chart__chart-wrapper pf-value-chart__plot">
         {!showZeroShell ? <ChartDisclaimerUnderlay /> : null}
         <AreaChart series={series} muted={showZeroShell} />
+        {dots.length > 0 ? (
+          <div className="pf-vc-dots" aria-hidden="true">
+            {dots.map((dot, i) => (
+              <span
+                key={i}
+                className={cn("pf-vc-dot", dot.isEndcap && "pf-vc-dot--endcap")}
+                style={{ left: `${dot.leftPct.toFixed(3)}%`, top: `${dot.topPct.toFixed(3)}%` }}
+              />
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div className="stat-label ct-text-muted relative mono pf-value-chart__month-labels" style={{ height: "1.5em" }}>

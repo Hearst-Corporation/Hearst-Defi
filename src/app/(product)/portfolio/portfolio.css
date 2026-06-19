@@ -92,25 +92,52 @@
 
 /* Lit travelling end-cap — the single bloom point on the latest value. */
 @keyframes pf-vc-pulse {
-  0%, 100% { 
-    opacity: var(--ct-opacity-90, 0.9); 
+  0%, 100% {
+    opacity: var(--ct-opacity-90, 0.9);
     transform: scale(1);
     filter: drop-shadow(0 0 2px var(--ct-accent));
   }
-  50% { 
-    opacity: var(--ct-opacity-60, 0.6); 
+  50% {
+    opacity: var(--ct-opacity-60, 0.6);
     transform: scale(1.25);
     filter: drop-shadow(0 0 6px var(--ct-accent));
   }
 }
-.pf-vc-endcap {
-  transform-box: fill-box;
+
+/* HTML overlay dots — position:absolute so they are out of flex flow.
+   Renders perfectly circular regardless of preserveAspectRatio="none" SVG stretch. */
+.pf-vc-dots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--ct-z-base, 1);
+}
+
+.pf-vc-dot {
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  /* centre the dot on its left/top anchor */
+  margin: -0.25rem 0 0 -0.25rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ct-accent) 30%, transparent);
+  border: 1px solid var(--ct-accent);
+  box-sizing: border-box;
+}
+
+.pf-vc-dot--endcap {
+  width: 0.7rem;
+  height: 0.7rem;
+  margin: -0.35rem 0 0 -0.35rem;
+  background: var(--pf-hero-line, var(--ct-accent));
+  border: none;
+  box-shadow: 0 0 0 0.25rem color-mix(in srgb, var(--ct-accent) 22%, transparent);
   transform-origin: center;
   animation: pf-vc-pulse var(--ct-dur-pulse) var(--ct-ease) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pf-vc-endcap { animation: none; }
+  .pf-vc-dot--endcap { animation: none; }
 }
 
 /* Baseline ticks under the area — hairline rhythm, very faint. */
@@ -1679,18 +1706,18 @@ a.pf-trust-compact__see-more:hover {
   margin-top: var(--ct-space-2);
 }
 
-/* Distribution markers are decorative (the curve + <desc> carry the meaning).
+/* Distribution dot overlays are decorative (the curve + <desc> carry the meaning).
    In narrow slots they crowd a short plot — fade them out below the 2-col gate
-   and drop them entirely on very tight widths. Pure CSS container query, no JS
-   resize observer. The line + end-cap always stay. */
+   and drop them entirely on very tight widths. The end-cap always stays.
+   Pure CSS container query, no JS resize observer. */
 @container pf (max-width: 57.99rem) {
-  .pf-vc-markers {
+  .pf-vc-dot:not(.pf-vc-dot--endcap) {
     opacity: var(--ct-opacity-50, 0.5);
   }
 }
 
 @container pf (max-width: 30rem) {
-  .pf-vc-markers {
+  .pf-vc-dot:not(.pf-vc-dot--endcap) {
     display: none;
   }
 }
