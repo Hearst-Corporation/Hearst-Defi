@@ -21,7 +21,9 @@ function parseEnvFile(path) {
     ) {
       value = value.slice(1, -1);
     }
-    process.env[key] = value;
+    // Don't override vars already set in the process env — lets the caller
+    // (e.g. Playwright webServer.env) take precedence over .env files.
+    if (!(key in process.env)) process.env[key] = value;
   }
 }
 

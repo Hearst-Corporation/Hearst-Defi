@@ -30,13 +30,23 @@ export default defineConfig({
   webServer: {
     command: "pnpm dev",
     url: "http://localhost:4105",
-    reuseExistingServer: !process.env.CI,
+    // Never reuse an existing server — it may be running with Postgres env vars
+    // (.env.local) while e2e needs SQLite. Playwright always starts a fresh
+    // process with the env block below, ensuring the right adapter is used.
+    reuseExistingServer: false,
     timeout: 120_000,
     // Force E2E to exercise the real auth path: no dev bypass, no UI shortcut.
     // The login-flow spec seeds a real user via `pnpm seed:test` and signs in
     // through the actual form + server action.
     env: {
-      DATABASE_URL: process.env.DATABASE_URL ?? "file:./prisma/dev.db",
+      // Absolute path avoids Turbopack CWD ambiguity — relative "file:./..." was
+      // resolved against the compiled chunk directory, not the project root.
+      DATABASE_URL:
+        process.env.DATABASE_URL ??
+        `file:${require("path").resolve(__dirname, "prisma/dev.db")}`,
+      // Pin provider to sqlite for e2e — overrides PRISMA_PROVIDER=postgresql
+      // in .env.local so the Better-SQLite3 adapter is used against dev.db.
+      PRISMA_PROVIDER: "sqlite",
       OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? "sk-e2e-local-placeholder",
       DEV_AUTH_BYPASS: "",
       // Hard-gated in src/lib/rate-limit.ts: refuses in production builds.
