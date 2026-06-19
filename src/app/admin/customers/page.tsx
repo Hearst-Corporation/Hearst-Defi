@@ -180,7 +180,7 @@ export default async function CustomersPage({
                 {page > 1 && (
                   <a
                     href={`/admin/customers?page=${page - 1}&pageSize=${pageSize}`}
-                    className="rounded-md border border-(--ct-border-soft) px-[var(--ct-space-3)] py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors"
+                    className="rounded-md border border-(--ct-border-soft) px-[var(--ct-space-3)] py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors ease-[var(--ct-ease)]"
                   >
                     Previous
                   </a>
@@ -188,7 +188,7 @@ export default async function CustomersPage({
                 {hasMore && (
                   <a
                     href={`/admin/customers?page=${page + 1}&pageSize=${pageSize}`}
-                    className="rounded-md border border-(--ct-border-soft) px-[var(--ct-space-3)] py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors"
+                    className="rounded-md border border-(--ct-border-soft) px-[var(--ct-space-3)] py-1.5 body-xs ct-text-muted hover:ct-text-strong transition-colors ease-[var(--ct-ease)]"
                   >
                     Next
                   </a>

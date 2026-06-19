@@ -154,7 +154,7 @@ export function CentralTaskRunner({
             ) : null}
             <Badge
               variant="default"
-              className={cn("mono body-xs transition-colors duration-(--ct-dur-fast)", status.toneClass)}
+              className={cn("mono body-xs transition-colors ease-[var(--ct-ease)] duration-(--ct-dur-fast)", status.toneClass)}
             >
               <span className="inline-flex items-center gap-(--ct-space-2)">
                 <span

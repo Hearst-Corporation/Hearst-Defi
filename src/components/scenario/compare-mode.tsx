@@ -38,7 +38,7 @@ function Placeholder({ side, pending }: PlaceholderProps) {
     <EmptySurface
       variant="widget"
       className={cn(
-        "min-h-48 transition-opacity duration-(--ct-dur-fast)",
+        "min-h-48 transition-opacity ease-[var(--ct-ease)] duration-(--ct-dur-fast)",
         pending && "opacity-(--ct-opacity-50)",
       )}
       message={

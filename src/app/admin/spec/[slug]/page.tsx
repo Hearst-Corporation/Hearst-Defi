@@ -36,7 +36,7 @@ export default async function SpecPage({
                   key={entry.slug}
                   href={`/admin/spec/${entry.slug}`}
                   className={cn(
-                    "block rounded-lg px-2 py-1.5 body-sm transition-colors",
+                    "block rounded-lg px-2 py-1.5 body-sm transition-colors ease-[var(--ct-ease)]",
                     active
                       ? "ct-surface-1 ct-text-primary"
                       : "ct-text-muted hover:ct-text-primary",

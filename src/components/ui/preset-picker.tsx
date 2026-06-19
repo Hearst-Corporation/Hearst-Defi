@@ -125,7 +125,7 @@ export function PresetPicker<T extends string>({
           sideAccent,
           "px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left",
           "disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-40)]",
-          "transition-colors duration-[var(--ct-dur-fast)]",
+          "transition-colors ease-[var(--ct-ease)] duration-[var(--ct-dur-fast)]",
           "hover:ct-surface-1",
           "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
         )}
@@ -145,7 +145,7 @@ export function PresetPicker<T extends string>({
         </span>
         <span
           className={cn(
-            "shrink-0 ct-text-body transition-transform duration-[var(--ct-dur-fast)]",
+            "shrink-0 ct-text-body transition-transform ease-[var(--ct-ease)] duration-[var(--ct-dur-fast)]",
             open && "rotate-180",
           )}
           aria-hidden
@@ -184,7 +184,7 @@ export function PresetPicker<T extends string>({
                   title={o.description}
                   className={cn(
                     "flex w-full flex-col items-start gap-0.5 px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left",
-                    "transition-colors duration-[var(--ct-dur-fast)]",
+                    "transition-colors ease-[var(--ct-ease)] duration-[var(--ct-dur-fast)]",
                     "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                     isSelected
                       ? "ct-surface-1 ct-text-primary"

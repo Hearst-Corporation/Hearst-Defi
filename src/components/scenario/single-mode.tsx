@@ -151,7 +151,7 @@ export function SingleMode({
           <Card
             className={cn(
               "scenario-lab-output-card scenario-lab-input-card min-h-0 p-0",
-              !state.output && "transition-opacity duration-(--ct-dur-fast)",
+              !state.output && "transition-opacity ease-[var(--ct-ease)] duration-(--ct-dur-fast)",
               !state.output && pending && "opacity-(--ct-opacity-50)",
             )}
             hoverOverlay={false}

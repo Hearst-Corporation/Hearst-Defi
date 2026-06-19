@@ -55,7 +55,7 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
   return (
     <li
       className={cn(
-        "admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-action-row hover:bg-(--ct-surface-1) transition-colors rounded-md px-[var(--ct-space-2)] -mx-2 cursor-default",
+        "admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-action-row hover:bg-(--ct-surface-1) transition-colors ease-[var(--ct-ease)] rounded-md px-[var(--ct-space-2)] -mx-2 cursor-default",
         isCritical && "dashboard-action-row--critical",
       )}
       aria-label={`${item.severity} — ${item.title}`}

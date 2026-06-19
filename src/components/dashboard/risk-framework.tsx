@@ -541,12 +541,12 @@ function RiskRow({ dimension }: RiskRowProps) {
         />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-[var(--ct-space-2)]">
-            <span className="body-sm font-medium ct-text-primary group-hover:ct-text-body transition-colors">
+            <span className="body-sm font-medium ct-text-primary group-hover:ct-text-body transition-colors ease-[var(--ct-ease)]">
               {label}
             </span>
             <Badge variant={SEVERITY_VARIANT[severity]}>{status}</Badge>
           </div>
-          <p className="mt-1 body-xs ct-text-muted group-hover:ct-text-body transition-colors">
+          <p className="mt-1 body-xs ct-text-muted group-hover:ct-text-body transition-colors ease-[var(--ct-ease)]">
             {detail}
           </p>
         </div>

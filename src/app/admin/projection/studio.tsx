@@ -233,7 +233,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
               aria-selected={isSelected}
               aria-label={`APY ${cell.apyLow.toFixed(1)}–${cell.apyHigh.toFixed(1)}%, risk ${cell.riskScore}. Cell ${idx + 1} of ${cells.length}.`}
               className={cn(
-                "p-2.5 rounded-md relative border text-left transition-[background-color,border-color] duration-(--ct-dur-base)",
+                "p-2.5 rounded-md relative border text-left transition-[background-color,border-color] ease-[var(--ct-ease)] duration-(--ct-dur-base)",
                 riskBgClass(cell.riskScore),
                 "border-(--ct-border-soft)",
                 isSelected && "ring-2 ring-offset-1 ring-offset-(--ct-bg-deep)",

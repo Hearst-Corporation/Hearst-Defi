@@ -29,7 +29,7 @@ export function NotificationsBell({
       className={cn(
         "relative flex h-8 w-8 items-center justify-center rounded-full",
         "ct-text-muted hover:ct-text-strong",
-        "hover:ct-surface-1 transition-colors duration-[var(--ct-dur-base)]",
+        "hover:ct-surface-1 transition-colors ease-[var(--ct-ease)] duration-[var(--ct-dur-base)]",
         "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
       )}
     >

@@ -218,7 +218,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                                   : `Reactivate ${entry.label}`
                               }
                               className={cn(
-                                "ct-pill cursor-pointer body-xs font-semibold transition-colors",
+                                "ct-pill cursor-pointer body-xs font-semibold transition-colors ease-[var(--ct-ease)]",
                                 entry.active
                                   ? "hover:border-(--ct-status-danger-border) hover:text-(--ct-status-danger)"
                                   : "hover:border-(--ct-status-success-border) hover:text-(--ct-status-success)",

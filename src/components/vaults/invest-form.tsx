@@ -450,7 +450,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
               I have reviewed and accept the{" "}
               <Link
                 href={investProductPath(vault.id)}
-                className="underline ct-text-primary hover:ct-text-strong transition-colors"
+                className="underline ct-text-primary hover:ct-text-strong transition-colors ease-[var(--ct-ease)]"
                 target="_blank"
                 rel="noopener noreferrer"
               >

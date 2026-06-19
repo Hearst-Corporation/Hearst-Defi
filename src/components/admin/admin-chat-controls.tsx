@@ -1444,7 +1444,7 @@ function AgentCapabilityRow({
     <section
       className={cn(
         "rounded-xl border px-4 py-4 shadow-(--ct-shadow-inner-soft)",
-        "transition-colors",
+        "transition-colors ease-[var(--ct-ease)]",
         statusMeta.cardClassName,
       )}
       aria-label={capability.label}
@@ -1513,7 +1513,7 @@ function AgentCapabilityRow({
                   type="button"
                   onClick={() => onStatusChange(capability.id, candidate)}
                   className={cn(
-                    "rounded-full border px-2 py-1 body-xs transition-colors",
+                    "rounded-full border px-2 py-1 body-xs transition-colors ease-[var(--ct-ease)]",
                     AGENT_STATUS_META[candidate].buttonClassName,
                     status === candidate
                       ? "ring-1 ring-white/18 shadow-(--ct-shadow-inner-soft)"

@@ -56,7 +56,7 @@ export function ChartTimeSelector({
             aria-checked={isActive}
             onClick={() => onChange(opt)}
             className={cn(
-              "h-6 rounded-sm px-1.5 transition-colors",
+              "h-6 rounded-sm px-1.5 transition-colors ease-[var(--ct-ease)]",
               isActive
                 ? [
                     "ct-text-primary",

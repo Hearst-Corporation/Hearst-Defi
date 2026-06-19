@@ -69,7 +69,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
 
   return (
     <div
-      className="dashboard-action-row hover:bg-(--ct-surface-1) transition-colors rounded-md px-[var(--ct-space-2)] -mx-2 cursor-default"
+      className="dashboard-action-row hover:bg-(--ct-surface-1) transition-colors ease-[var(--ct-ease)] rounded-md px-[var(--ct-space-2)] -mx-2 cursor-default"
       aria-label={`Vault ${vault.vaultName} metrics`}
     >
       <div
