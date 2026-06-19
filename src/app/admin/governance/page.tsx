@@ -2,13 +2,13 @@ import Link from "next/link";
 
 import { ProposalQueue } from "@/components/admin/governance/proposal-queue";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadProposalQueue } from "@/lib/governance/actions";
 import type { ProposalState } from "@/lib/governance/state-machine";
-import { cn } from "@/lib/cn";
 import { canRunDemoProvider } from "@/lib/demo/guard";
 import { buildDemoGovernanceQueue } from "@/lib/demo/admin/governance";
 
@@ -70,24 +70,16 @@ export default async function GovernancePage({ searchParams }: PageProps) {
       />
 
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Proposal queue">
-        <div className="admin-doc-inline-row" role="tablist" aria-label="Filter proposals by status">
-          {TABS.map((tab) => {
-            const isActive = tab.key === activeTab;
-            const href =
-              tab.key === "all" ? "/admin/governance" : `/admin/governance?tab=${tab.key}`;
-            return (
-              <Link
-                key={tab.key}
-                href={href}
-                role="tab"
-                aria-selected={isActive}
-                className={cn("ct-pill", isActive && "accent")}
-              >
-                {tab.label}
-              </Link>
-            );
-          })}
-        </div>
+        <AdminUrlTabFilter
+          ariaLabel="Filter proposals by status"
+          activeKey={activeTab}
+          tabs={TABS.map((tab) => ({
+            key: tab.key,
+            label: tab.label,
+            href:
+              tab.key === "all" ? "/admin/governance" : `/admin/governance?tab=${tab.key}`,
+          }))}
+        />
 
         <ProposalQueue proposals={filtered} />
       </section>

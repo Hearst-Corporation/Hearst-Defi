@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { ApyRange } from "@/components/ui/apy-range";
@@ -8,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { STRATEGY_LABELS } from "@/lib/constants/vault";
@@ -90,23 +90,16 @@ export default async function VaultsPage({ searchParams }: PageProps) {
         <AdminKpiStripPanel kpis={portfolioKpis} />
       )}
 
-      {/* Filter tabs */}
-      <div className="admin-doc-inline-row" role="tablist" aria-label="Filter vaults by status">
-        {FILTER_TABS.map((tab) => {
-          const isActive = tab.key === activeFilter;
-          return (
-            <Link
-              key={tab.key}
-              href={tab.key === "all" ? "/admin/vaults" : `/admin/vaults?filter=${tab.key}`}
-              role="tab"
-              aria-selected={isActive}
-              className={cn("ct-pill", isActive && "accent")}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
-      </div>
+      <AdminUrlTabFilter
+        ariaLabel="Filter vaults by status"
+        activeKey={activeFilter}
+        tabs={FILTER_TABS.map((tab) => ({
+          key: tab.key,
+          label: tab.label,
+          href:
+            tab.key === "all" ? "/admin/vaults" : `/admin/vaults?filter=${tab.key}`,
+        }))}
+      />
 
       {/* List */}
       {vaults.length === 0 ? (

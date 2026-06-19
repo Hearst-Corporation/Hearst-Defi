@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**206 components** · 1 possible orphans · 2 intentionally unwired.
+**208 components** · 1 possible orphans · 2 intentionally unwired.
 
 ## ⚠️ Possible orphans (0 references — verify before keeping)
 
@@ -21,6 +21,7 @@
 |---|---|---|
 | `src/components/admin/admin-chat-controls.tsx` | AdminChatControls | 1 |
 | `src/components/admin/admin-page-header.tsx` | AdminPageHeader | 36 |
+| `src/components/admin/admin-url-tab-filter.tsx` | AdminUrlTabFilter | 3 |
 | `src/components/admin/agent-template-form.tsx` | AgentTemplateForm | 2 |
 | `src/components/admin/agents/agent-graph-canvas.tsx` | AgentGraphCanvas | 1 |
 | `src/components/admin/archive-template-button.tsx` | ArchiveTemplateButton | 1 |
@@ -138,22 +139,23 @@
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
 | `src/components/portfolio/widget-shell.tsx` | WidgetShell | 4 |
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
-| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 10 |
+| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 11 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
-| `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 5 |
+| `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 4 |
 | `src/components/proof-center/custody-panel.tsx` | CustodySection | 1 |
 | `src/components/proof-center/event-timeline.tsx` | EventTimeline | 2 |
-| `src/components/proof-center/mining-cashflow-evidence.tsx` | MiningCashFlowEvidence | 2 |
-| `src/components/proof-center/por-summary.tsx` | PorSummary | 2 |
+| `src/components/proof-center/mining-cashflow-evidence.tsx` | MiningCashFlowEvidence | 1 |
+| `src/components/proof-center/por-summary.tsx` | PorSummary | 1 |
 | `src/components/proof-center/proof-center-card-header.tsx` | ProofCenterCardHeader | 7 |
-| `src/components/proof-center/proof-center-cold-shell.tsx` | ProofCenterColdShell | 2 |
-| `src/components/proof-center/proof-center-section.tsx` | ProofCenterSection | 5 |
-| `src/components/proof-center/proof-center-testnet-notice.tsx` | ProofCenterTestnetNotice | 4 |
+| `src/components/proof-center/proof-center-cold-shell.tsx` | ProofCenterColdShell | 1 |
+| `src/components/proof-center/proof-center-hub.tsx` | ProofCenterHub | 2 |
+| `src/components/proof-center/proof-center-section.tsx` | ProofCenterSection | 4 |
+| `src/components/proof-center/proof-center-testnet-notice.tsx` | ProofCenterTestnetNotice | 3 |
 | `src/components/proof-center/proof-cockpit-panel-header.tsx` | ProofCockpitPanelHeader, ProofLeafLink | 1 |
 | `src/components/proof-center/rebalance-ptai-modal-trigger.tsx` | RebalancePtaiModalTrigger | 1 |
-| `src/components/proof-center/rebalancing-events-panel.tsx` | RebalancingEventsPanel | 2 |
-| `src/components/proof-center/recent-distributions.tsx` | RecentDistributions | 2 |
-| `src/components/proof/chain-status-badge.tsx` | ChainStatusBadge | 3 |
+| `src/components/proof-center/rebalancing-events-panel.tsx` | RebalancingEventsPanel | 1 |
+| `src/components/proof-center/recent-distributions.tsx` | RecentDistributions | 1 |
+| `src/components/proof/chain-status-badge.tsx` | ChainStatusBadge | 2 |
 | `src/components/proof/proof-card.tsx` | ProofCard | 2 |
 | `src/components/proof/proof-filter.tsx` | ProofFilter | 2 |
 | `src/components/proof/proof-grid.tsx` | ProofGrid | 2 |
@@ -191,7 +193,7 @@
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
 | `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 18 |
-| `src/components/ui/empty-surface.tsx` | EmptySurface | 44 |
+| `src/components/ui/empty-surface.tsx` | EmptySurface | 43 |
 | `src/components/ui/error-boundary.tsx` | ErrorBoundary | 1 |
 | `src/components/ui/metric.tsx` | Metric | 8 |
 | `src/components/ui/modal.tsx` | Modal | 5 |

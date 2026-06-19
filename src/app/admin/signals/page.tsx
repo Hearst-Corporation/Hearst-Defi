@@ -6,12 +6,12 @@ import Link from "next/link";
 
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { ManualSignalTrigger } from "@/components/admin/manual-signal-trigger";
 import { RebalanceCard } from "@/components/admin/rebalance-card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { requestManualSignal } from "./actions";
-import { cn } from "@/lib/cn";
 import {
   adminSignalsVaultHref,
   resolveFixtureVaultId,
@@ -137,30 +137,29 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
         <AdminKpiStripPanel kpis={signalKpis} />
       )}
 
-      <div className="admin-doc-inline-row" role="tablist" aria-label="Signal status filter">
-        {TABS.map((tab) => {
-          const count = tab.value === "all"
-            ? Object.values(countMap).reduce((a, b) => a + b, 0)
-            : (countMap[tab.value] ?? 0);
+      <AdminUrlTabFilter
+        ariaLabel="Signal status filter"
+        activeKey={activeStatus}
+        tabs={TABS.map((tab) => {
+          const count =
+            tab.value === "all"
+              ? Object.values(countMap).reduce((a, b) => a + b, 0)
+              : (countMap[tab.value] ?? 0);
 
-          return (
-            <Link
-              key={tab.value}
-              href={withAdminVaultQuery("/admin/signals", vaultQuery, {
-                status: tab.value,
-              })}
-              role="tab"
-              aria-selected={activeStatus === tab.value}
-              className={cn("ct-pill", activeStatus === tab.value && "accent")}
-            >
-              {tab.label}
-              {count > 0 && (
-                <span className="tabular">{count}</span>
-              )}
-            </Link>
-          );
+          return {
+            key: tab.value,
+            label: (
+              <>
+                {tab.label}
+                {count > 0 ? <span className="tabular">{count}</span> : null}
+              </>
+            ),
+            href: withAdminVaultQuery("/admin/signals", vaultQuery, {
+              status: tab.value,
+            }),
+          };
         })}
-      </div>
+      />
 
       {/* Event list */}
       {events.length === 0 ? (

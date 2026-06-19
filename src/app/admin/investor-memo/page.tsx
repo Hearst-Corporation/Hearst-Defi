@@ -2,23 +2,18 @@ export const dynamic = "force-dynamic";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { MemoShell } from "@/components/memo/memo-shell";
-import { VAULTS, VAULT_YIELD } from "@/lib/engine/vaults";
-import type { VaultId } from "@/lib/engine/types";
+import { VAULTS } from "@/lib/engine/vaults";
+import { resolveAdminVaultId } from "@/lib/vaults/dashboard-scope";
 
 interface InvestorMemoPageProps {
   searchParams: Promise<{ vault?: string }>;
-}
-
-function resolveVaultId(raw: string | undefined): VaultId {
-  if (raw === "yield" || raw === "defensive" || raw === "btc-plus") return raw;
-  return VAULT_YIELD.id;
 }
 
 export default async function InvestorMemoPage({
   searchParams,
 }: InvestorMemoPageProps) {
   const params = await searchParams;
-  const vaultId = resolveVaultId(params.vault);
+  const vaultId = resolveAdminVaultId(params.vault);
   const vault = VAULTS[vaultId];
 
   return (

@@ -45,6 +45,9 @@ export function resolveFixtureVaultId(raw: string | undefined): VaultId {
   return "yield";
 }
 
+/** Admin pages — alias for `resolveFixtureVaultId` (scenario-lab, investor-memo, …). */
+export const resolveAdminVaultId = resolveFixtureVaultId;
+
 /**
  * Append `?vault=` (and optional extra params) to an admin path.
  * Used by section sub-nav and in-page filters so scope is not lost on navigation.

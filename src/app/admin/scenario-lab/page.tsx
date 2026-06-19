@@ -1,7 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import "./scenario-lab-fit.css";
-
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { LabShell } from "@/components/scenario/lab-shell";
@@ -9,24 +7,22 @@ import { MonteCarloPanel } from "@/components/scenario/monte-carlo-panel";
 import { prisma } from "@/lib/db";
 import { fetchBtcPrice } from "@/lib/data/btc-price";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
-import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
-import { VAULTS, VAULT_YIELD } from "@/lib/engine/vaults";
-import { adminScenarioLabVaultHref } from "@/lib/vaults/dashboard-scope";
+import type { ScenarioInputs } from "@/lib/engine/types";
+import { VAULTS } from "@/lib/engine/vaults";
+import {
+  adminScenarioLabVaultHref,
+  resolveAdminVaultId,
+} from "@/lib/vaults/dashboard-scope";
 
 interface ScenarioLabPageProps {
   searchParams: Promise<{ vault?: string; autostart?: string; objective?: string }>;
-}
-
-function resolveVaultId(raw: string | undefined): VaultId {
-  if (raw === "yield" || raw === "defensive" || raw === "btc-plus") return raw;
-  return VAULT_YIELD.id;
 }
 
 export default async function ScenarioLabPage({
   searchParams,
 }: ScenarioLabPageProps) {
   const params = await searchParams;
-  const vaultId = resolveVaultId(params.vault);
+  const vaultId = resolveAdminVaultId(params.vault);
   const vault = VAULTS[vaultId];
   const autostart = params.autostart === "1";
   const objective =
