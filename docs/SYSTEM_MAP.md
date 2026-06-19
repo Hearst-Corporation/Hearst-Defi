@@ -55,8 +55,9 @@ ChartTimeSelector, TimeseriesSection.
 
 ## LLM (provider unique)
 
-- **OpenAI GPT-4.1** uniquement (ADR-011, **aucun SDK Anthropic**). Exports nommés
-  `kimi`/`KIMI_*` pointent OpenAI — ne pas « réparer ».
+- **OpenAI GPT-4.1** uniquement (ADR-011, **aucun SDK Anthropic**). Client dans
+  `src/lib/llm/openai.ts` — pas de `kimi.ts`, plus aucun export `kimi`/`KIMI_*`
+  (alias legacy entièrement retirés).
 - Wrapper `callLlm` dans `src/lib/llm/client.ts` : circuit breaker (primary +
   `OPENAI_FALLBACK_MODEL`), observabilité `LlmRun` (coût/latence/erreur).
 - **4 agents batch** (sortie Zod, forbidden-words) sous `src/lib/agents/` :

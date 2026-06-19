@@ -23,8 +23,8 @@ Charger ce fichier + les points d'entrée ci-dessous. Ne pas charger CSS / data 
   un tool ni dans l'agent. Le tool appelle le backend ; il ne réimplémente pas la règle.
 
 ## Règles de sécurité
-- Provider unique = **OpenAI GPT-4.1** (ADR-011). Pas de SDK Anthropic ici. Exports `kimi`/`KIMI_*`
-  pointent OpenAI — ne pas renommer / "réparer".
+- Provider unique = **OpenAI GPT-4.1** (ADR-011). Pas de SDK Anthropic ici. Client =
+  `src/lib/llm/openai.ts` (pas de `kimi.ts`, plus aucun export `kimi`/`KIMI_*` — alias legacy retirés).
 - Sorties **structurées**, Zod-validées. **Mots interdits** : guarantee, promise, certain, will
   deliver, risk-free. APY toujours en range.
 - Chat = **read-only** : navigation sur whitelist de routes, **aucun** outil write/financier/admin.

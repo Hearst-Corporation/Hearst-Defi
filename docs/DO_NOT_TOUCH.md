@@ -20,7 +20,7 @@ S'arrêter et demander **avant** de modifier l'une de ces zones. Raisons incluse
 ## Conventions verrouillées
 - **Pas de cross-project import** depuis `Dev/Projects/hearst-connect` (réf. read-only) — tout recodé ici.
 - **Un seul vert** `--ct-accent` `#A7FB90` ; ne pas re-séparer brand/success ; maroon mort.
-- Provider LLM = OpenAI GPT-4.1 (ADR-011) ; pas de SDK Anthropic ; exports `kimi`/`KIMI_*` = OpenAI.
+- Provider LLM = OpenAI GPT-4.1 (ADR-011) ; pas de SDK Anthropic ; client = `src/lib/llm/openai.ts` (pas de `kimi.ts` / alias `kimi`/`KIMI_*` — retirés).
 - Garde-fous DS **volontairement retirés** (édition libre du DS) — ne pas ré-armer sans accord.
 - Features UI non câblées (⌘K search, shortcuts, notifications, saved views, chart time selector,
   timeseries) = à brancher plus tard, **pas du code mort** — exclure de tout `/tri`.

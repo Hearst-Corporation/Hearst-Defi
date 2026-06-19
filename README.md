@@ -228,7 +228,7 @@ Tailles Tailwind nues (`text-xs`…`text-4xl`) hors primitives (`Button`) — ES
 sur `className` ; préférer `.body-*`, `.h1`–`.h4`, `.stat-value`, `.stat-label`. Labels micro
 uppercase → `.stat-label` (pas `ct-text-micro-size font-bold`) ; en-têtes table → `stat-label ct-table-header` ; KPI vault LP/admin → `stat-value`. Downscale doc partagé : `src/app/doc-flow-typography.css` (`:is(.product-doc, .admin-doc)`). Audit : `.claude/commands/ds-typo.md`.
 
-**Densité globale (calibration 2026-06)** : rails (`--ct-rail-left` 104px, `--ct-rail-right` 352px),
+**Densité globale (calibration 2026-06)** : rails responsives (`--ct-rail-left` 104px desktop → 80/72/64px par tier ; `--ct-rail-right` FLUIDE `clamp(17rem, 22vw, 22rem)` ouvert, resserré par tier laptop/tablette, `48px` collapsed),
 header shell (`--ct-shell-header-h` 4rem), échelle spacing layout (`--ct-space-5`…`--ct-space-32`),
 typo headlines (`--ct-text-lg`…`display` en `clamp()`), `.ct-page-area` / `.ct-card` / chat rail — source
 `cockpit.css` `:root` + overrides composants. Shell = centre fluide + chrome fixe (cf. `docs/DESIGN_SYSTEM.md` §7).
@@ -299,7 +299,7 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
 - Boutons : `<Button>` doit toujours déclarer un `size=` explicite (md, sm, lg).
 - Formatters : `src/lib/vaults/product-display.ts`.
 - Vault detail parity admin/LP : faits partagés `src/lib/vaults/vault-detail-facts.ts` ; présentation `vault-admin-kpi-strip`, `vault-legal-proof-rows`, `vault-allocation-display` (admin = `Card`, LP = sections plates).
-- Shell compact : le rail chat droit (`.ct-rail-right`, 352px) est masqué sous `1200px` via `src/app/cockpit.css` ; rail gauche masqué sous `900px` (bottom bar 56px). Padding `.ct-page-area` resserré sous `768px`.
+- Shell responsive : le rail chat droit (`.ct-rail-right`) est FLUIDE (`clamp()`) et reste utilisable ouvert sur laptop (resserré par tier 1024–1440px) ; masqué sous `1024px` via `src/app/cockpit.css`. Rail gauche resserré par tier (80/72px) puis bottom bar sous `768px`. Padding `.ct-page-area` resserré sous `768px`.
 - Exceptions non-glass à privilégier aujourd'hui : `.scenario-preset-bar`, `Ptai variant="flat"` en compare, `EmptySurface` seul — voir ADR-013 §10.3. Dashboard command board + KPI strip : `Card` / `.ct-glass-panel`.
 - Migration ADR-013 : **Lots 1+4 done** (surfaces JSX, `SystemPanel` supprimé, aliases CSS retirés, scenario-lab sur `Card`). Reste : token syntax legacy admin (shorthand `(-ct-TOKEN)` → canon bracket form).
 
@@ -316,33 +316,35 @@ scopes `.product-doc` (pages LP) et `.admin-doc` (pages admin). `product-doc.css
    si surface PDF) et mettre à jour `docs/DESIGN_SYSTEM.md`.
 4. Ajouter un ADR seulement si le changement modifie réellement le système ou un invariant produit.
 
-### Garde-fous — DS audit advisory, qualité bloquante (2026-06-16)
+### Garde-fous — DS gate RÉARMÉ + bloquant (2026-06-19)
 
-Le **DS audit n'est plus un gate bloquant** : le design system s'édite sans qu'un
-script DS échoue le build. Mais ce n'est **pas** un désarmement définitif des garde-fous —
-**lint / typecheck / vitest restent bloquants** (en local et en CI). Le réarmement du
-DS gate en bloquant ne se fait que sur **décision explicite future**.
+Le **DS gate est de nouveau bloquant** (la « décision explicite future » a eu lieu) :
+le design system reste éditable librement, mais on ne peut plus introduire un hex brut,
+un vert non-canon (≠ `#A7FB90`), un px hors-échelle ou un token qui dérive sans que la
+CI vire au rouge. Une seule source décide (`tokens.css`) ; toutes les copies
+(`cockpit.css`, constante JS `CONNECT_ACCENT_HEX`, miroir Tailwind `globals.css @theme`)
+sont surveillées par le gate.
 
 État courant :
 
 - **`pnpm lint` = `eslint src`** (bloquant sur les vraies erreurs ESLint ; **pas** de
-  `|| true`). `no-explicit-any` et `no-unused-vars` sont en **`warn`** (signal visible,
-  pas blocage). `ds-layout-audit` **n'est pas** dans `lint`.
+  `|| true`). `no-explicit-any` et `no-unused-vars` sont en **`warn`**.
 - **`pnpm typecheck`** (tsc strict) et **`pnpm test`** (vitest) restent **bloquants** en CI.
-- **DS audit = diagnostic manuel/advisory** — les scripts existent et se lancent à la
-  main, jamais en CI :
+- **DS gate = bloquant** — `ds:token-drift` (+ surveillance du miroir Tailwind) et
+  `ds:layout` tournent en **CI** ET en **pre-commit** ; ils `exit 1` sur dérive :
 
 ```bash
 pnpm lint                 # eslint src — BLOQUANT (erreurs réelles)
 pnpm typecheck            # tsc strict — BLOQUANT
 pnpm test                 # vitest — BLOQUANT
-pnpm ds:layout            # DS layout/brand invariants — MANUEL (advisory)
+pnpm ds:token-drift       # tokens.css ↔ cockpit.css + miroir Tailwind — BLOQUANT (CI + pre-commit)
+pnpm ds:layout            # DS layout/brand invariants (hex/px/vert) — BLOQUANT (CI)
 pnpm ds:classes           # audit classes .ct-* — MANUEL (advisory)
-pnpm ds:token-drift       # divergence tokens.css ↔ cockpit.css — MANUEL (advisory)
 ```
 
-CI (`​.github/workflows/ci.yml`) : `lint-typecheck` + `vitest` **bloquants** ;
-`foundry` advisory pour l'instant (contrats Phase 2, mainnet gated audit — ADR-006).
+CI (`​.github/workflows/ci.yml`) : `lint-typecheck` + `ds:token-drift` + `ds:layout` +
+`vitest` **bloquants** ; `foundry` advisory pour l'instant (contrats Phase 2, mainnet
+gated audit — ADR-006).
 
 Journal DS : [`docs/DESIGN_SYSTEM.md §11`](docs/DESIGN_SYSTEM.md).
 

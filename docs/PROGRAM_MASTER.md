@@ -153,7 +153,7 @@ GOVERNANCE_SAFE ──publisher (immuable)──▶ EventLogger + PoRRegistry
 - **RR-SC-07** — Architecture = **Model B** (vault cash réserve, mining off-chain, yield injecté). Position : **modèle réserve V1, zéro code**, déploiement on-chain = V2. *(commit `7646e64`, `asset-lifecycle.md`)*
 - **B6 design** — Vault `Pausable` + **guardian séparé de l'owner timelocké** (« Pausable + GUARDIAN only » ; role split lourd différé post-audit). *(commit `79d0ef9`)*
 - **ADR-006** — Mainnet gaté sur audit Spearbit + remédiation (inchangé). Monte Carlo (V2) + multi-vault autorisés.
-- **ADR-007** — LLM = **Kimi K2.6 via Hypercli** (pas de SDK Anthropic).
+- **ADR-011** — LLM = **OpenAI GPT-4.1** (`openai` SDK, `OPENAI_API_KEY`), modèle unique pour les 4 agents + chat cockpit (pas de SDK Anthropic). *Supersede ADR-007 (Kimi K2.6 via Hypercli, retiré).*
 
 **Décisions exécutives (Launch Program v1) :**
 | # | Décision | Statut |

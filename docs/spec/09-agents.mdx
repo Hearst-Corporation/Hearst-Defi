@@ -106,7 +106,7 @@ See **ADR-012** and the "Conversational chat" section below.
 ## Stack
 
 - **OpenAI GPT-4.1** — single model for all 4 agents **and** the cockpit chat (ADR-011, 2026-06-11, supersedes ADR-007 / Kimi-via-Hypercli, retired)
-- `openai@6.x` SDK from `OPENAI_API_KEY` (optional `OPENAI_BASE_URL`, `OPENAI_ORG_ID`); model id `OPENAI_MODEL` (default `gpt-4.1`). The historical client export `kimi` / `KIMI_MODEL` are legacy aliases that now resolve to OpenAI (no Kimi, no Anthropic SDK in this codebase)
+- `openai@6.x` SDK from `OPENAI_API_KEY` (optional `OPENAI_BASE_URL`, `OPENAI_ORG_ID`); model id `OPENAI_MODEL` (default `gpt-4.1`). The client lives in `src/lib/llm/openai.ts` — no `kimi.ts`, no `kimi`/`KIMI_MODEL` exports remain (those legacy aliases were fully removed; no Kimi, no Anthropic SDK in this codebase)
 - `cache_control: "ephemeral"` is accepted but ignored by the wrapper; OpenAI applies **automatic prompt caching** for prompts > 1024 tokens, so the re-sent methodology block is partially cached at no code cost
 - All outputs validated via Zod `.strict()` schemas (`src/lib/agents/schemas.ts`)
 - Forbidden-words list is canonical in `src/lib/agents/forbidden-words.ts`; the agent guard (`assertNoForbiddenWords`, `assertCitesAssumption`) lives in `src/lib/agents/validators.ts`

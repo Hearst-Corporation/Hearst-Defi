@@ -77,7 +77,7 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 - Tailwind CSS v4 (no `tailwind.config.js`, theme in `globals.css` `@theme` block)
 - Prisma + Postgres (Supabase in production, SQLite for local dev — `DATABASE_URL=file:./prisma/dev.db`)
 - Inngest for jobs and crons (V1)
-- LLM provider: **OpenAI GPT-4.1** (`openai` SDK, `OPENAI_API_KEY`). Single model for all 4 agents + cockpit chat — **ADR-011** (supersedes ADR-007 / Kimi-via-Hypercli, retired). No Anthropic SDK. Exports named `kimi`/`KIMI_*` are legacy aliases that resolve to OpenAI — do not "fix".
+- LLM provider: **OpenAI GPT-4.1** (`openai` SDK, `OPENAI_API_KEY`). Single model for all 4 agents + cockpit chat — **ADR-011** (supersedes ADR-007 / Kimi-via-Hypercli, retired). No Anthropic SDK. The client lives in `src/lib/llm/openai.ts` — there is no `kimi.ts` and no `kimi`/`KIMI_*` exports left (those legacy aliases were fully removed; don't look for them).
 - Foundry for smart contracts (Phase 2+, Base Sepolia testnet — mainnet gated on Spearbit)
 - Package manager: **pnpm** (workspace in `pnpm-workspace.yaml`)
 - Path alias: `@/*` → `./src/*`; shell alias `@hearst/cockpit-shell` → `./cockpit-shell/src` (tsconfig + vitest, not node_modules)
