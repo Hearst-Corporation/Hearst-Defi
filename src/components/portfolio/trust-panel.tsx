@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
@@ -17,8 +15,6 @@ import {
 import { cn } from "@/lib/cn";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
-
-// ── Types ────────────────────────────────────────────────────────────────────
 
 export interface TrustPanelProps {
   risk: RiskPulseProps;
@@ -123,6 +119,14 @@ export function deriveTrustSummaryKpis({
   };
 }
 
+/** Header trailing — same slot as other hub widgets' "View full →". */
+function trustHeaderTrailing(leafHref?: string) {
+  if (leafHref) {
+    return <PortfolioLeafLink href={leafHref} />;
+  }
+  return <PortfolioLeafLink href="/proof-center" label="Proof center" />;
+}
+
 /** Sidebar trust summary — KPI headers only; full detail on leaf when linked. */
 export function TrustProofCompact({
   leafHref,
@@ -138,7 +142,10 @@ export function TrustProofCompact({
         aria-label="Trust and proof summary"
         className="pf-trust-compact"
       >
-        <PfCockpitPanelHeader title="Trust & Proof" />
+        <PfCockpitPanelHeader
+          title="Trust & Proof"
+          trailing={trustHeaderTrailing(leafHref)}
+        />
         <div className="pf-trust-compact__zero-body">
           <span className="pf-trust-compact__status stat-label ct-text-muted">
             <span
@@ -151,9 +158,6 @@ export function TrustProofCompact({
             On-chain attestation and risk snapshots will appear here once a position is confirmed.
           </p>
         </div>
-        <Link href="/proof-center" className="pf-trust-compact__see-more">
-          Open proof center →
-        </Link>
       </PfCockpitPanel>
     );
   }
@@ -167,6 +171,7 @@ export function TrustProofCompact({
       <PfCockpitPanelHeader
         title="Trust & Proof"
         provenance={kpis.headerProvenance}
+        trailing={trustHeaderTrailing(leafHref)}
       />
 
       <dl className="pf-trust-compact-kpis">
@@ -186,22 +191,6 @@ export function TrustProofCompact({
           <dd className="body-xs ct-text-muted m-0">{kpis.proofMeta}</dd>
         </div>
       </dl>
-
-      {leafHref ? (
-        <PortfolioLeafLink
-          href={leafHref}
-          className="pf-trust-compact__see-more"
-        />
-      ) : (
-        // Hub live-zero (no leaf link) — était un bouton DÉSACTIVÉ "See more"
-        // placeholder "coming soon" : faux CTA mort (cursor:not-allowed, ne mène
-        // nulle part) qui poussait la hauteur du panel hors du fit-gate. Le proof
-        // center EXISTE déjà (cf. branche previewZeros ci-dessus) → on pointe
-        // dessus, comme partout ailleurs. Vrai lien, pas de placeholder mort.
-        <Link href="/proof-center" className="pf-trust-compact__see-more">
-          Open proof center →
-        </Link>
-      )}
     </PfCockpitPanel>
   );
 }

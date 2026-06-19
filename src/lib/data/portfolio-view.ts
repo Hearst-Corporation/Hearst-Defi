@@ -82,13 +82,6 @@ export async function loadPortfolioView() {
       : Promise.resolve(false),
   ]);
 
-  const actionFlags = {
-    kycStatus: investor?.kycStatus ?? "pending",
-    accreditationAttested: investor?.accreditationAttestedAt != null,
-    hasWallet: investor?.walletAddress != null,
-    positionCount: data.positions.length,
-  };
-
   const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
   const sectionVariant: "preview" | "active" = previewZeros
     ? "preview"
@@ -146,7 +139,6 @@ export async function loadPortfolioView() {
     yieldStackProps,
     allocationDonutProps,
     showDemoBanner,
-    actionFlags,
     portfolioProvenance,
     sectionVariant,
   };

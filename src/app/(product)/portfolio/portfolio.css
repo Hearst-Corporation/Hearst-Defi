@@ -479,13 +479,34 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Zero-state — left-aligned stack, no centered float. */
+/* Zero-state — left-aligned in leaf/focus views; centred in hub zero cockpit
+   so the mid row pairs symmetrically with the capital-yield placeholder. */
 .pf-positions-empty {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--ct-space-2);
   padding-block: var(--ct-space-3);
+}
+
+.pf-container--zero .pf-positions-empty {
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-block: var(--ct-space-2);
+}
+
+.pf-container--zero .pf-positions-empty-link {
+  align-self: center;
+}
+
+.pf-container--zero .pf-activity--empty {
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-block: var(--ct-space-2);
 }
 
 /* Responsive — on a tight slot drop the two least-critical columns (principal,
@@ -869,67 +890,6 @@
   }
 }
 
-.pf-recent-activity-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-}
-
-.pf-recent-activity-row {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-3);
-  padding-block: var(--ct-space-2);
-  border-bottom: 1px solid var(--ct-border-soft);
-}
-
-.pf-recent-activity-row:last-child {
-  border-bottom: none;
-}
-
-.pf-recent-activity-empty {
-  padding-block: var(--ct-space-4);
-}
-
-.pf-recent-activity-row__main {
-  display: flex;
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  flex-direction: column;
-  gap: 0;
-}
-
-.pf-recent-activity-row__time {
-  margin-top: var(--ct-space-0_5);
-}
-
-@container pf-panel (min-width: 18rem) {
-  .pf-recent-activity-row__main {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    column-gap: var(--ct-space-4);
-  }
-
-  .pf-recent-activity-row__time {
-    margin-top: 0;
-  }
-}
-
-.pf-tx-icon {
-  display: inline-block;
-  width: var(--ct-space-4);
-  height: var(--ct-space-4);
-  flex-shrink: 0;
-  border-radius: var(--ct-radius-sm);
-}
-
-.pf-tx-icon--deposit { background: var(--ct-status-success); }
-.pf-tx-icon--distribution { background: var(--ct-status-success); }
-.pf-tx-icon--withdraw { background: var(--ct-status-danger); }
-.pf-tx-icon--default { background: var(--ct-text-muted); }
-
 /* ── Two-column grids (chart+sidebar, activity+calendar) ── */
 /* Mobile-first: 1 column (chart over KPI rail). The grid keys off the CONTENT
    SLOT via @container pf, never the window — so it reflows by the real width
@@ -1011,16 +971,6 @@
   min-width: 0;
 }
 
-/* Positions table — column header and cell alignment semantics */
-.pf-positions-cell--right {
-  text-align: right;
-  white-space: nowrap;
-}
-
-.pf-positions-cell--header {
-  white-space: nowrap;
-}
-
 .pf-trust-compact-kpis {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1042,35 +992,6 @@
   font-size: var(--ct-text-2xl);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
-}
-
-.pf-trust-compact__see-more {
-  margin-top: auto;
-  align-self: flex-end;
-  width: auto;
-  /* Ne jamais déborder le panel quand il est compressé (chat ouvert / trio 3-col) :
-     le texte reste sur une ligne et ellipse au lieu de dépasser. */
-  max-width: 100%;
-  flex-shrink: 1;
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-a.pf-trust-compact__see-more {
-  /* Échelle micro (11px) — alignée sur les autres leaf-links (dashboard /
-     pf-panel-leaf-link). --ct-text-xs (13px) était trop gros et débordait. */
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-muted);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  text-decoration-color: var(--ct-border-soft);
-  transition: color var(--ct-dur-base);
-}
-
-a.pf-trust-compact__see-more:hover {
-  color: var(--ct-text-primary);
 }
 
 .pf-trust-compact__zero-body {
@@ -1267,110 +1188,6 @@ a.pf-trust-compact__see-more:hover {
 .pf-cockpit-panel--table {
   /* chart-geometry */
   min-height: 11rem;
-}
-
-/* Scroll wrapper for the positions table — outer flex column container. */
-.pf-positions-scroll-wrap {
-  display: flex;
-  flex-direction: column;
-  overflow-x: auto;
-  min-width: 0;
-}
-
-/* Positions table — scroll inside the panel when columns exceed the slot. */
-.pf-positions-table {
-  width: 100%;
-  min-width: 0;
-  overflow-x: auto;
-}
-
-/* Empty state: allow table to shrink so the empty cell centers correctly
-   on the visible width when the chat rail compresses the center panel. */
-.pf-positions-table--zero {
-  min-width: unset;
-}
-
-/* Empty table: simplify grid to single row that can shrink naturally below
-   the normal 5-column minimum (~440px). Header row becomes a simple flex
-   row that wraps gracefully when compressed. */
-.pf-positions-table--zero .pf-positions-row-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--ct-space-2) var(--ct-space-4);
-}
-
-.pf-positions-table--zero .pf-positions-row-grid--empty {
-  display: grid;
-  grid-template-columns: 1fr;
-}
-
-/* Positions table grid — column rhythm in CSS, not arbitrary Tailwind minmax */
-.pf-positions-row-grid {
-  display: grid;
-  /* layout-constant — positions table: name / value / APY / status / date column minimums */
-  grid-template-columns:
-    minmax(8rem, 1.5fr)
-    minmax(4.5rem, 1fr)
-    minmax(4.5rem, 1fr)
-    minmax(5.5rem, 1fr)
-    minmax(5.5rem, 1fr);
-  gap: var(--ct-space-3);
-  padding-bottom: var(--ct-space-2);
-  /* opacity-mix — no token for color-mix ratios */
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 100%, transparent);
-}
-
-.pf-positions-row-grid:last-child {
-  border-bottom: none;
-}
-
-.pf-position-vault-cell {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  min-width: 0;
-}
-
-.pf-position-vault-cell--header {
-  padding-left: calc(var(--ct-space-1_5) + var(--ct-space-2));
-}
-
-.pf-positions-row-grid--header {
-  align-items: baseline;
-}
-
-.pf-positions-row-grid--body {
-  align-items: center;
-}
-
-/* Empty state uses the same grid track and spans all columns. */
-.pf-positions-row-grid--empty {
-  border-bottom: 1px solid var(--ct-border-soft);
-}
-
-/* Empty cell owns the grid span so PanelStatus can keep its global semantics. */
-.pf-positions-empty-cell {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: flex-start;
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  padding: var(--ct-space-4) var(--ct-space-1);
-}
-
-/* Positions table — zero-state row under column headers (preview shell).
-   Left-aligned stack: message over sub-copy over the CTA link — no centered
-   float, no dead gutter. */
-.pf-positions-empty-row {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--ct-space-2);
-  width: 100%;
-  min-width: 0;
-  text-align: left;
 }
 
 /* Preview sections — content only (banner carries preview context) */
@@ -2438,10 +2255,13 @@ a.pf-trust-compact__see-more:hover {
   padding-bottom: var(--ct-space-1);
 }
 
-/* Mid row: positions + capital/yield — 1→2 columns. */
+/* Mid row: positions + capital/yield — 1→2 columns.
+   At hero-2col width (58rem slot) the main|rail seam matches .pf-hero-grid
+   (1.6fr | minmax(16rem,1fr)) so vertical gutters align across summary+mid.
+   Between 52–58rem the hero may still be 1-col — equal 1fr|1fr until then. */
 @container pf (min-width: 52rem) {
   .pf-cockpit-row--mid {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
@@ -2453,8 +2273,13 @@ a.pf-trust-compact__see-more:hover {
 }
 
 @container pf (min-width: 58rem) {
+  .pf-cockpit-row--mid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(16rem, 1fr);
+  }
+
   .pf-cockpit-row--trio {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* Same 1.6 : 1 total as hero; rail zone splits evenly for activity + trust. */
+    grid-template-columns: minmax(0, 1.6fr) minmax(8rem, 0.5fr) minmax(8rem, 0.5fr);
   }
 }
 
@@ -2517,7 +2342,7 @@ a.pf-trust-compact__see-more:hover {
 
 /* Long panels scroll inside their cell when viewport-fit is active. */
 @media (min-width: 80rem) and (min-height: 52rem) {
-  .pf-cockpit-cell .pf-recent-activity-list,
+  .pf-cockpit-cell .pf-activity,
   .pf-cockpit-cell .pf-hero-sidebar,
   .pf-cockpit-cell .cy-panel .cy-body {
     min-height: 0;
@@ -3072,10 +2897,6 @@ a.pf-trust-compact__see-more:hover {
   .pf-trust-compact__zero-hint {
     font-size: var(--ct-text-micro);
     line-height: var(--ct-leading-tight);
-  }
-
-  .pf-trust-compact__see-more {
-    font-size: var(--ct-text-micro);
   }
 
   .pf-trust-compact__status {

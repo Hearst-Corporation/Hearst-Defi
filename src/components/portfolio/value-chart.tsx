@@ -73,13 +73,12 @@ function smoothPath(pts: Array<{ x: number; y: number }>): string {
   return d.join(" ");
 }
 
-/** Single source of truth for series → pts computation (avoids dot/curve desync). */
-function computeSeriesPts(series: Array<{ value: number }>): { values: number[]; min: number; max: number; pts: Array<{ x: number; y: number }> } {
+/** Series → SVG point coordinates (shared by curve + dot overlay). */
+function computeSeriesPts(series: Array<{ value: number }>): Array<{ x: number; y: number }> {
   const values = series.map((d) => d.value);
   const min = Math.min(...values);
   const max = Math.max(...values);
-  const pts = toXY(values, min, max);
-  return { values, min, max, pts };
+  return toXY(values, min, max);
 }
 
 /** Dot position in % coordinates for the HTML overlay. */
@@ -126,7 +125,7 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
   const areaId = `${uid}-area`;
   const strokeId = `${uid}-stroke`;
 
-  const { pts } = computeSeriesPts(series);
+  const pts = computeSeriesPts(series);
   const linePath = smoothPath(pts);
   const last = pts[pts.length - 1];
 
@@ -252,7 +251,7 @@ export function ValueChart({
   const series = buildMonthSeries(positions, totalValueUsdc, asOf);
 
   // Compute dot overlay positions (empty when muted/zero — no markers at $0).
-  const { pts } = computeSeriesPts(series);
+  const pts = computeSeriesPts(series);
   const dots = computeDotPositions(series, pts, showZeroShell);
 
   return (

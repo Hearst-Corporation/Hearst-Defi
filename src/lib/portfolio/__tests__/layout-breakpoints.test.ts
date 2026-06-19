@@ -39,6 +39,15 @@ describe("portfolio layout breakpoints", () => {
     );
   });
 
+  it("cockpit mid + trio rows align main|rail seam with hero at 58rem slot", () => {
+    expect(portfolioCss).toMatch(
+      /@container pf \(min-width: 58rem\)[\s\S]*?\.pf-cockpit-row--mid[\s\S]*?1\.6fr/,
+    );
+    expect(portfolioCss).toMatch(
+      /@container pf \(min-width: 58rem\)[\s\S]*?\.pf-cockpit-row--trio[\s\S]*?1\.6fr/,
+    );
+  });
+
   it("cockpit trio row tiers 1→2→3 columns by content-slot width", () => {
     expect(portfolioCss).toMatch(
       /\.pf-cockpit-row--trio[\s\S]*?grid-template-columns: 1fr/,

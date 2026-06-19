@@ -110,62 +110,62 @@ export default async function PortfolioPage() {
           </div>
         </div>
 
-            <h2 className="h2 pf-section-head">Positions &amp; allocation</h2>
-            <div className="pf-cockpit-row pf-cockpit-row--mid">
-              <div className="pf-cockpit-cell" data-section="positions">
-                <PositionsList
-                  positions={data.positions}
-                  source={data.source}
-                  updatedAt={data.updatedAt}
-                  leafHref="/portfolio/positions"
-                />
-              </div>
-              <div
-                className="pf-cockpit-cell"
-                data-section="yield-allocation"
-                data-testid="capital-yield-widget"
-              >
-                <CapitalYield
-                  {...yieldStackProps}
-                  buckets={allocationDonutProps.buckets}
-                  totalValueUsdc={data.totalValueUsdc}
-                  leafHref="/portfolio/yield"
-                />
-              </div>
-            </div>
+        <h2 className="h2 pf-section-head">Positions &amp; allocation</h2>
+        <div className="pf-cockpit-row pf-cockpit-row--mid">
+          <div className="pf-cockpit-cell" data-section="positions">
+            <PositionsList
+              positions={data.positions}
+              source={data.source}
+              updatedAt={data.updatedAt}
+              leafHref="/portfolio/positions"
+            />
+          </div>
+          <div
+            className="pf-cockpit-cell"
+            data-section="yield-allocation"
+            data-testid="capital-yield-widget"
+          >
+            <CapitalYield
+              {...yieldStackProps}
+              buckets={allocationDonutProps.buckets}
+              totalValueUsdc={data.totalValueUsdc}
+              leafHref="/portfolio/yield"
+            />
+          </div>
+        </div>
 
-            <h2 className="h2 pf-section-head">Distributions &amp; proof</h2>
-            <div className="pf-cockpit-row pf-cockpit-row--trio">
-              <div
-                className="pf-cockpit-cell pf-payout-calendar-slot"
-                data-section="payout-calendar"
-                data-testid="distrib-calendar-widget"
-              >
-                <DistribCalendar
-                  {...distribCalendarProps}
-                  leafHref="/portfolio/distributions"
-                />
-              </div>
-              <div
-                className="pf-cockpit-cell"
-                data-section="activity-payouts"
-                data-testid="recent-activity-widget"
-              >
-                <RecentActivity
-                  transactions={data.recentTransactions}
-                  source={data.source}
-                  updatedAt={data.updatedAt}
-                  leafHref="/portfolio/activity"
-                />
-              </div>
-              <div
-                className="pf-cockpit-cell"
-                data-section="yield-trust"
-                data-testid="trust-panel-widget"
-              >
-                <TrustProofCompact risk={riskPulseProps} proof={proofPulseProps} />
-              </div>
-            </div>
+        <h2 className="h2 pf-section-head">Distributions &amp; proof</h2>
+        <div className="pf-cockpit-row pf-cockpit-row--trio">
+          <div
+            className="pf-cockpit-cell pf-payout-calendar-slot"
+            data-section="payout-calendar"
+            data-testid="distrib-calendar-widget"
+          >
+            <DistribCalendar
+              {...distribCalendarProps}
+              leafHref="/portfolio/distributions"
+            />
+          </div>
+          <div
+            className="pf-cockpit-cell"
+            data-section="activity-payouts"
+            data-testid="recent-activity-widget"
+          >
+            <RecentActivity
+              transactions={data.recentTransactions}
+              source={data.source}
+              updatedAt={data.updatedAt}
+              leafHref="/portfolio/activity"
+            />
+          </div>
+          <div
+            className="pf-cockpit-cell"
+            data-section="yield-trust"
+            data-testid="trust-panel-widget"
+          >
+            <TrustProofCompact risk={riskPulseProps} proof={proofPulseProps} />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -2606,13 +2606,13 @@
   .dashboard-cockpit--fit .dashboard-cockpit-cell [class*="overflow-y-auto"],
   .dashboard-cockpit--fit .dashboard-cockpit-cell .dashboard-live-metrics,
   .dashboard-cockpit--fit .dashboard-cockpit-cell .proof-panel-scroll,
-  .pf-container--fit .pf-cockpit-cell .pf-positions-table {
+  .pf-container--fit .pf-cockpit-cell .pf-positions {
     overflow-y: auto;
     min-height: 0;
     scrollbar-width: none; /* scrollbar masquée — scroll interne préservé */
   }
   .dashboard-cockpit--fit .dashboard-cockpit-cell [class*="overflow-y-auto"]::-webkit-scrollbar,
-  .pf-container--fit .pf-cockpit-cell .pf-positions-table::-webkit-scrollbar {
+  .pf-container--fit .pf-cockpit-cell .pf-positions::-webkit-scrollbar {
     width: 0;
     height: 0;
   }

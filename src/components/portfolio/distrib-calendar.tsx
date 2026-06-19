@@ -18,7 +18,6 @@ import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import { WidgetShell } from "@/components/portfolio/widget-shell";
 import {
-  PanelStatus,
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
@@ -415,7 +414,7 @@ export function DistribCalendar({
   const hasForecast = entries.some((e) => e.paidAt === null);
 
   // CRITICAL provenance rule — preserved verbatim from original:
-  // In zero mode (previewZeros || !hasEntries), provenance is undefined (no badge).
+  // In zero mode (!hasEntries), provenance is undefined (no badge).
   // In live mode with hasEntries: source==="live" → "attested"; otherwise resolveProvenance fallback.
   // resolveWidgetView nulls provenance in zero mode (honesty contract, CLAUDE.md §2).
   const liveProvenance =
@@ -423,7 +422,7 @@ export function DistribCalendar({
       ? "attested"
       : resolveProvenance(source, updatedAt, "estimated");
   const view = resolveWidgetView({
-    previewZeros,
+    previewZeros: false,
     hasData: hasEntries,
     provenance: liveProvenance,
   });
@@ -461,13 +460,6 @@ export function DistribCalendar({
           compactPreview
         />
       </div>
-      {previewZeros ? (
-        <PanelStatus
-          role="note"
-          message="No payout history yet · $0 forecast"
-          detail="Current period marked"
-        />
-      ) : null}
       {calendarFooter}
     </>
   );
@@ -491,11 +483,7 @@ export function DistribCalendar({
       variant="wide"
       ariaLabel="Payout calendar"
       title="Payout Calendar"
-      subtitle={
-        previewZeros
-          ? "12m forecast"
-          : `12m · USDC${hasForecast ? " · forecast" : ""}`
-      }
+      subtitle={`12m · USDC${hasForecast ? " · forecast" : ""}`}
       view={view}
       trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
       zeroSlot={zeroSlot}

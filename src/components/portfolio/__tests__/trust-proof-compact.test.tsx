@@ -32,7 +32,7 @@ const BASE_PROOF = {
 };
 
 describe("TrustProofCompact", () => {
-  it("renders KPI headers and a live proof-center link (no dead placeholder)", () => {
+  it("renders KPI headers and a live proof-center link in the header (no dead placeholder)", () => {
     const html = renderToStaticMarkup(
       <TrustProofCompact risk={BASE_RISK} proof={BASE_PROOF} />,
     );
@@ -40,15 +40,15 @@ describe("TrustProofCompact", () => {
     expect(html).toContain("Risk composite");
     expect(html).toContain("Proof status");
     expect(html).toContain("pf-trust-compact-kpis");
-    // Footer is now a REAL link to the proof center (was a disabled "See more"
-    // placeholder "coming soon" — a dead CTA that overflowed the fit-gate).
     expect(html).toContain('href="/proof-center"');
-    expect(html).toContain("Open proof center");
+    expect(html).toContain("Proof center");
+    expect(html).toContain("pf-panel-leaf-link");
     expect(html).not.toContain("disabled");
     expect(html).not.toContain("Security audit");
+    expect(html).not.toContain("pf-trust-compact__see-more");
   });
 
-  it("default hub (no leaf route): footer links to the proof center, not a dead button", () => {
+  it("default hub (no leaf route): header links to the proof center, not a dead button", () => {
     const html = renderToStaticMarkup(
       <TrustProofCompact risk={BASE_RISK} proof={BASE_PROOF} />,
     );

@@ -1,21 +1,14 @@
 import type { Provenance } from "@/components/ui/provenance-badge";
 
 /**
- * Portfolio view-state contract — the SINGLE source of "is this widget zero or
- * live", resolved once in the loader (src/lib/data/portfolio-view.ts) instead of
- * being re-derived by each component as `previewZeros || <local data check>`.
+ * Portfolio view-state contract — typed zero/live discriminant for cockpit widgets.
  *
- * Why this exists: the zero-state hero was rewritten 3× because "the zero state"
- * had no single definition — every widget re-derived `showZeroShell` and the CSS
- * assumed a DOM shape each rewrite changed. This module collapses the state
- * derivation into one typed place. See docs/PORTFOLIO_ZERO_CONTRACT.md.
+ * Hero widgets resolve {mode, provenance} once in `portfolio-view.ts` (Architecture A).
+ * Mid/trio widgets call `resolveWidgetView` locally until Phase 3 centralises them.
+ * See docs/PORTFOLIO_ZERO_CONTRACT.md.
  *
- * Pure module (no server-only, no I/O) so it is unit-testable in isolation and
- * importable by both the loader and components.
+ * Pure module (no server-only, no I/O) — unit-testable in isolation.
  */
-
-/** Page-level discriminant. `preview` === real investor with zero positions. */
-type PortfolioViewKind = "preview" | "live";
 
 export type PortfolioViewState =
   | { kind: "preview" }
