@@ -4,11 +4,11 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**203 components** · 1 possible orphans · 2 intentionally unwired.
+**202 components** · 1 possible orphans · 2 intentionally unwired.
 
 ## ⚠️ Possible orphans (0 references — verify before keeping)
 
-- `src/components/ui/widget-panel-header.tsx` — WidgetPanelHeader
+- `src/components/ui/section-embed.tsx` — (no named export)
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -197,15 +197,14 @@
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 3 |
 | `src/components/ui/progress.tsx` | Progress | 12 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 52 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 51 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
-| `src/components/ui/section-embed.tsx` | — | 1 |
+| `src/components/ui/section-embed.tsx` ⚠️ | — | 0 |
 | `src/components/ui/segmented-control.tsx` | SegmentedControl | 2 |
 | `src/components/ui/skeleton.tsx` | Skeleton, SkeletonCard | 30 |
 | `src/components/ui/toaster.tsx` | Toaster | 1 |
 | `src/components/ui/tooltip.tsx` | Tooltip | 2 |
-| `src/components/ui/widget-panel-header.tsx` ⚠️ | WidgetPanelHeader | 0 |
 | `src/components/ui/wizard-step-progress.tsx` | WizardStepProgress | 3 |
 | `src/components/vaults/deposit-success-icon.tsx` | DepositSuccessIcon | 1 |
 | `src/components/vaults/deposit-summary.tsx` | DepositSummary | 1 |

@@ -131,7 +131,7 @@ export default async function AgentsPage() {
 
                       {/* Title + surface */}
                       <div className="flex flex-col gap-[var(--ct-space-1)]">
-                        <h4 className="h4 ct-text-strong m-0">{entry.label}</h4>
+                        <h3 className="h3 ct-text-strong m-0">{entry.label}</h3>
                         <span className="stat-label ct-text-muted">{entry.surface}</span>
                       </div>
 

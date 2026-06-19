@@ -54,7 +54,7 @@ export default async function ScenarioLabPage({
   }
 
   return (
-    <div className="admin-doc admin-doc-shell admin-doc-shell--roomy scenario-lab-page scenario-lab-page--fit">
+    <div className="admin-doc-shell admin-doc-shell--roomy scenario-lab-page scenario-lab-page--fit">
       <AdminPageHeader
         title="Scenario Lab"
         eyebrow={`${vault.label} · ${vault.ticker}`}

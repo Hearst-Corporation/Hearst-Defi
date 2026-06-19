@@ -76,7 +76,7 @@ export default async function CustomerDetailPage({
         }
         actions={
           <div className="admin-doc-inline-row">
-            <span className="inline-flex items-center gap-1.5 body-xs">
+            <span className="inline-flex items-center gap-[var(--ct-space-1_5)] body-xs">
               <span
                 aria-hidden
                 className={cn("ct-dot", KYC_DOT[detail.kycStatus] ?? "ct-status-dot-warning")}

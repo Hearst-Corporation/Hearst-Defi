@@ -96,6 +96,7 @@ export default async function AuditLogPage({
             method="get"
             className="admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions admin-doc-inline-row--relaxed"
           >
+          <fieldset className="contents"><legend className="sr-only">Filter audit log</legend>
           <label className="admin-doc-field">
             <span className="stat-label ct-text-muted">Entity type</span>
             <input
@@ -144,6 +145,7 @@ export default async function AuditLogPage({
               <Link href="/admin/audit">Clear</Link>
             </Button>
           )}
+          </fieldset>
           </form>
         </Card>
       </section>
