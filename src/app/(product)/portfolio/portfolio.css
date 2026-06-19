@@ -2300,32 +2300,16 @@ a.pf-trust-compact__see-more:hover {
     flex: 0.85 1 0;
   }
 
-  .pf-container--fit.pf-container--zero .pf-cockpit-row--summary {
-    flex: 2.35 1 0;
-  }
-
-  .pf-container--fit.pf-container--zero .pf-cockpit-row--mid {
-    flex: 0.82 1 0;
-  }
-
+  /* ZERO-STATE = HERO COMPACT (Adrien 2026-06-20). En zero il n'y a aucune
+     donnée à plotter : le hero ne doit PAS s'étirer pour remplir l'écran
+     (sinon chart écrasé en haut + carte géante vide en dessous). Les 3 rows
+     prennent leur hauteur de CONTENU ; le vide résiduel tombe en bas de page,
+     pas dans le hero. Le `flex: 2.35` ci-dessus ne vaut que pour l'état LIVE
+     (chart avec données, qui lui mérite la place). */
+  .pf-container--fit.pf-container--zero .pf-cockpit-row--summary,
+  .pf-container--fit.pf-container--zero .pf-cockpit-row--mid,
   .pf-container--fit.pf-container--zero .pf-cockpit-row--trio {
-    flex: 0.63 1 0;
-  }
-
-  /* Short-but-tall laptop (832–864px): hero still dominates — rebalance so the
-     trio row + footer are not the first victims of overflow:hidden clipping. */
-  @media (max-height: 54rem) {
-    .pf-container--fit.pf-container--zero .pf-cockpit-row--summary {
-      flex: 1.65 1 0;
-    }
-
-    .pf-container--fit.pf-container--zero .pf-cockpit-row--mid {
-      flex: 0.9 1 0;
-    }
-
-    .pf-container--fit.pf-container--zero .pf-cockpit-row--trio {
-      flex: 0.82 1 0;
-    }
+    flex: 0 0 auto;
   }
 }
 
