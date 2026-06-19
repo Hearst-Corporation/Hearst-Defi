@@ -56,7 +56,16 @@ interface Placed extends AgentGraphNode {
   x: number;
   y: number;
   r: number;
+  /** Draw the label to the right of the node (dense columns) instead of below. */
+  labelRight: boolean;
 }
+
+/** Vertical room reserved per node row when sizing the canvas height. */
+const ROW_PX = 58;
+const MIN_CANVAS_H = 300;
+const MAX_CANVAS_H = 640;
+/** Above this many nodes in a single column, labels move to the right. */
+const DENSE_COLUMN_ROWS = 5;
 
 export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphViews }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -69,6 +78,20 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
   const activeView = useMemo(
     () => views.find((v) => v.id === activeViewId) ?? views[0] ?? null,
     [views, activeViewId],
+  );
+
+  // Densest column drives the canvas height so a wide view (e.g. the 9 read
+  // instruments stacked in one column) gets enough vertical room to breathe.
+  const maxColumnRows = useMemo(() => {
+    const counts = new Map<number, number>();
+    for (const n of activeView?.nodes ?? []) {
+      counts.set(n.column, (counts.get(n.column) ?? 0) + 1);
+    }
+    return Math.max(1, ...counts.values());
+  }, [activeView]);
+  const canvasHeight = Math.min(
+    MAX_CANVAS_H,
+    Math.max(MIN_CANVAS_H, maxColumnRows * ROW_PX + 64),
   );
 
   const viewRef = useRef<AgentGraphView | null>(activeView);
@@ -136,6 +159,11 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
         arr.push(n);
         byCol.set(n.column, arr);
       }
+      // Uniform radius across the view, sized off the densest column so discs in
+      // a crowded column never overlap.
+      const densestRows = Math.max(1, ...[...byCol.values()].map((a) => a.length));
+      const minRowGap = (height - padY * 2) / densestRows;
+      const radius = Math.max(12, Math.min(24, Math.min(width / 42, minRowGap * 0.36)));
       placedRef.current = nodes.map((n) => {
         const colNodes = byCol.get(n.column) ?? [n];
         const idx = colNodes.indexOf(n);
@@ -143,7 +171,7 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
         const rowGap = (height - padY * 2) / Math.max(1, rows);
         const x = padX + n.column * colGap;
         const y = padY + rowGap * (idx + 0.5);
-        return { ...n, x, y, r: Math.max(13, Math.min(24, width / 42)) };
+        return { ...n, x, y, r: radius, labelRight: rows > DENSE_COLUMN_ROWS };
       });
     };
 
@@ -220,8 +248,16 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
 
         ctx.fillStyle = "rgba(255,255,255,0.78)";
         ctx.font = "500 10px ui-sans-serif, system-ui";
-        ctx.textBaseline = "top";
-        ctx.fillText(n.label, n.x, n.y + r + 5);
+        if (n.labelRight) {
+          // Dense column: label beside the node so stacked rows don't collide.
+          ctx.textAlign = "left";
+          ctx.textBaseline = "middle";
+          ctx.fillText(n.label, n.x + r + 8, n.y);
+        } else {
+          ctx.textAlign = "center";
+          ctx.textBaseline = "top";
+          ctx.fillText(n.label, n.x, n.y + r + 5);
+        }
       }
 
       raf = window.requestAnimationFrame(frame);
@@ -237,10 +273,11 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
     };
   }, [selected, activeViewId]);
 
-  // Re-layout when the active view or its node set changes (tab switch / poll).
+  // Re-layout when the active view, its node set, or the canvas height changes
+  // (tab switch / poll / adaptive height).
   useEffect(() => {
     window.dispatchEvent(new Event("resize"));
-  }, [activeViewId, activeView?.nodes.length]);
+  }, [activeViewId, activeView?.nodes.length, canvasHeight]);
 
   const onCanvasClick = useCallback((ev: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -294,7 +331,8 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
         <canvas
           ref={canvasRef}
           onClick={onCanvasClick}
-          className="block h-[clamp(300px,42vw,460px)] w-full cursor-pointer"
+          style={{ height: canvasHeight }}
+          className="block w-full cursor-pointer"
           role="img"
           aria-label={`${activeView?.label ?? "Agent"} graph — click a node for runtime detail`}
         />
