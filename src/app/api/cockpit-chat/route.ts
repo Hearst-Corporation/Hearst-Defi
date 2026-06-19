@@ -696,8 +696,12 @@ async function runMasterAgentTurn(args: {
             content: result.text,
             createdAt: Date.now(),
           })
-          .catch(() => {
-            /* best-effort persistence */
+          .catch((err: unknown) => {
+            logger.error(
+              "cockpit-chat: assistant message persistence failed",
+              { userId, chatId: persistChatId },
+              err instanceof Error ? err : undefined,
+            );
           });
       }
       await persistChatLlmRun({
@@ -812,6 +816,16 @@ export async function POST(req: NextRequest): Promise<Response> {
   let requestedModel: string | undefined;
   try {
     const raw: unknown = await req.json();
+    // Defensive assertion: log if a client attempts to send a `system` field.
+    // The Zod schema strips it silently — this surfaces bypass attempts.
+    if (
+      raw !== null &&
+      typeof raw === "object" &&
+      "system" in raw &&
+      (raw as Record<string, unknown>).system !== undefined
+    ) {
+      logger.warn("cockpit-chat: client attempted to inject system prompt — stripped", { userId });
+    }
     const parsed = ChatBodySchema.safeParse(raw);
     if (!parsed.success) {
       return new Response(

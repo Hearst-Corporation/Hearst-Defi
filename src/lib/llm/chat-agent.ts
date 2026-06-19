@@ -245,7 +245,9 @@ function parseToolArgsObject(raw: string): Record<string, unknown> {
       return parsed as Record<string, unknown>;
     }
   } catch {
-    /* malformed JSON — fall through to the empty object */
+    logger.warn("chat-agent: tool call arguments malformed JSON — collapsed to {}", {
+      rawLen: raw.length,
+    });
   }
   return {};
 }

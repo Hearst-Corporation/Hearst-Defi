@@ -42,7 +42,10 @@ export const BLOCK_SENTINEL =
 
 /** Chars held back from emission so a needle/sentence completing across a
  *  chunk boundary is caught before any of it is streamed. Must exceed the
- *  longest needle + a short trailing window. */
+ *  longest needle + a short trailing window.
+ *  Current longest CHAT_FORBIDDEN_WORDS needle: "sans aucun risque" (~17 chars).
+ *  64 >> 17 + 8 (trailing window) = 25 chars. Safe margin. Update this comment
+ *  if new multi-word needles longer than ~50 chars are ever added. */
 const SETTLE = 64;
 
 /**

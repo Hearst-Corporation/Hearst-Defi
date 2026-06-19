@@ -2,6 +2,7 @@ import "server-only";
 
 import { prisma } from "@/lib/db";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { chatOutputViolation } from "@/lib/llm/output-guard";
 import type { Provenance } from "@/components/ui/provenance-badge";
 
 /**
@@ -220,6 +221,9 @@ export async function buildPortfolioContextBlock(
     lines.push(`- Dernier snapshot vault : ${fmtDate(latestSnapshot.takenAt)}`);
   }
 
-  const block = lines.join("\n");
-  return block.slice(0, MAX_BLOCK_LEN);
+  const block = lines.join("\n").slice(0, MAX_BLOCK_LEN);
+  // Fail-safe: if DB data somehow contains a forbidden word, drop the block
+  // rather than injecting a compliance violation into the system prompt.
+  if (chatOutputViolation(block, true)) return null;
+  return block;
 }

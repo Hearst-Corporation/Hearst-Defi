@@ -39,8 +39,10 @@ const NOT_PRODUCT: ProductIntentClassification = {
 const MAX_OBJECTIVE_LEN = 220;
 const CLASSIFY_TIMEOUT_MS = 5_000;
 const CLASSIFY_MAX_TOKENS = 200;
-// Use the fastest available model for this tiny JSON classification — the
-// main LLM_MODEL (gpt-4.1) adds 40+ seconds of latency for a 200-token call.
+// Fastest available model for this tiny JSON classification — gpt-4.1 adds
+// 40+ seconds of latency for a 200-token call. Intentionally NOT validated
+// against the route's ALLOWED_MODELS allowlist (which is user-request-scoped);
+// this constant is internal and fail-safe: any error → NOT_PRODUCT (safe default).
 const CLASSIFY_MODEL = "gpt-4.1-nano";
 
 const SYSTEM_PROMPT = [

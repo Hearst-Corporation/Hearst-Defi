@@ -1109,6 +1109,19 @@ function parseGovernanceProposalInput(input: unknown): {
   return parsed.data;
 }
 
+/**
+ * Validate write tool input against its Zod schema BEFORE a confirmation token
+ * is created. This ensures that invalid inputs are rejected with a 400 (not a
+ * 500 after the token has already been consumed).
+ */
+function validateWriteToolInput(toolId: string, input: unknown): void {
+  if (toolId === "create_review_note_draft") {
+    parseReviewNoteInput(input);
+  } else if (toolId === "create_governance_proposal_draft") {
+    parseGovernanceProposalInput(input);
+  }
+}
+
 export function getAllowedAdminReadTools(
   context: AdminReadToolExecutionContext,
 ): AdminReadToolDefinition[] {
@@ -1190,6 +1203,9 @@ export async function executeAdminWriteTool(
   const ttlMs = options?.ttlMs ?? DEFAULT_WRITE_CONFIRMATION_TTL_MS;
 
   if (!request.confirmedToken) {
+    // Validate input BEFORE creating the confirmation token so an invalid
+    // payload is rejected with a clear error rather than a 500 post-consumption.
+    validateWriteToolInput(tool.id, request.input);
     const confirmation = await createWriteConfirmation({
       userId: options?.userId ?? "unknown",
       toolId: tool.id,

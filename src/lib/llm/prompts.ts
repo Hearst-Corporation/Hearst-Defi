@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Shared LLM base prompt constants.
  *
