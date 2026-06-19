@@ -174,9 +174,14 @@
 /* Wider frame so the two-column chamber breathes — only when the split chamber
    is actually present (the confirmed screen keeps the narrow prose cap). */
 .onboarding-shell--wide .onboarding-shell__frame:has(.onboarding-chamber--split) {
-  width: 100%;
-  max-width: none;
-  padding-inline: clamp(var(--ct-space-4), 4vw, var(--ct-space-10));
+  width: min(100%, var(--ct-invest-flow-max-w));
+  padding-inline: var(--ct-space-4);
+}
+
+@media (min-width: 640px) {
+  .onboarding-shell--wide .onboarding-shell__frame:has(.onboarding-chamber--split) {
+    padding-inline: var(--ct-space-8);
+  }
 }
 
 .onboarding-chamber--split {
@@ -206,12 +211,6 @@
   .onboarding-chamber__main {
     flex: 1 1 0;
     min-width: 0;
-  }
-
-  .onboarding-chamber--split .onboarding-chamber__crown,
-  .onboarding-chamber--split .onboarding-chamber__body,
-  .onboarding-chamber--split .onboarding-chamber__sole {
-    padding-right: var(--ct-space-6);
   }
 
   .onboarding-chamber__aside {
