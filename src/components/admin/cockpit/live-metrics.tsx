@@ -88,7 +88,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
         )}
       </div>
 
-      <div className="dashboard-live-metrics__grid !gap-1">
+      <div className="dashboard-live-metrics__grid">
         <MetricCell
           label="TVL"
           value={vault.tvlUsdc > 0 ? usdCompact.format(vault.tvlUsdc) : "—"}
@@ -132,11 +132,14 @@ function MetricCell({
 }) {
   return (
     <div className="admin-doc-stack admin-doc-stack--micro min-w-0">
-      <span className="stat-label ct-text-faint text-[10px] leading-none truncate">
+      <span className="stat-label ct-text-faint leading-none truncate">
         {label}
       </span>
       <span
-        className={cn("tabular ct-text-strong font-semibold text-[11px] leading-tight truncate", valueClassName)}
+        className={cn(
+          "ct-text-micro-size tabular ct-text-strong font-semibold leading-tight truncate",
+          valueClassName,
+        )}
       >
         {value}
       </span>

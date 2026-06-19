@@ -148,7 +148,7 @@ export function DashboardAssetsBoard({
             ) : (
               <section
                 aria-label="Vault analytics awaiting live data"
-                className="dashboard-awaiting-analytics px-4 pb-4"
+                className="dashboard-awaiting-analytics"
               >
                 <p className="body-sm ct-text-muted m-0" role="status">
                   Capital allocation and NAV trends appear once live vault data is

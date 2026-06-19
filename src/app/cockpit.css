@@ -1833,9 +1833,14 @@
 
 .dashboard-live-metrics__grid {
   display: grid;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-1);
   grid-template-columns: repeat(5, minmax(0, 1fr));
   min-width: 0;
+}
+
+.dashboard-awaiting-analytics {
+  padding-inline: var(--ct-space-4);
+  padding-bottom: var(--ct-space-4);
 }
 
 .dashboard-live-metrics__grid > * {
