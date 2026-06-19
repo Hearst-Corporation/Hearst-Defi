@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { AgentGraphCanvas } from "@/components/admin/agents/agent-graph-canvas";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
-import { loadAgentGraph } from "@/lib/data/agent-graph";
+import { loadAgentGraphViews } from "@/lib/data/agent-graph";
 import { loadAgentTemplates } from "@/lib/data/agent-templates";
 import { ArchiveTemplateButton } from "@/components/admin/archive-template-button";
 import { groupCatalogByScope, AGENT_CATALOG } from "@/lib/agents/agent-catalog";
@@ -27,14 +27,17 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Agents — Hearst Connect" };
 
 export default async function AgentsPage() {
-  const [templates, agentGraph] = await Promise.all([
+  const [templates, agentGraphViews] = await Promise.all([
     loadAgentTemplates(),
-    loadAgentGraph(),
+    loadAgentGraphViews(),
   ]);
   const catalogGroups = groupCatalogByScope();
+  // KPI strip derives from the orchestration view (LLM surfaces + their runs).
+  const orchestrationNodes =
+    agentGraphViews.views.find((v) => v.id === "orchestration")?.nodes ?? [];
   const kpiStrip = buildAgentsKpiStrip({
     templates,
-    nodes: agentGraph.nodes,
+    nodes: orchestrationNodes,
     baseAgentCount: AGENT_CATALOG.length,
   });
 
@@ -71,12 +74,14 @@ export default async function AgentsPage() {
           </div>
         </div>
         <p className="body-xs ct-text-muted">
-          Live wiring of the agents — data sources feed the LLM agents, which
-          feed the outputs. Particles flow on edges that just ran; nodes pulse by
-          live state (last run). Auto-refreshes; click a node for its runtime.
+          Live wiring of the agents across three views — orchestration, the
+          Master Agent chat pipeline, and every bounded instrument it can call.
+          Particles flow on edges that just ran; bound surfaces pulse by live
+          state (LlmRun + AdminToolRun) while static wiring stays neutral.
+          Auto-refreshes; click a node for its provenance + runtime.
         </p>
         <Card hoverOverlay={false} className="overflow-hidden p-[var(--ct-space-4)] sm:p-[var(--ct-space-5)]">
-          <AgentGraphCanvas initialGraph={agentGraph} />
+          <AgentGraphCanvas initialViews={agentGraphViews} />
         </Card>
       </section>
 
