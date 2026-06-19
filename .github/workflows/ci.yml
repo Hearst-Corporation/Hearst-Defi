@@ -60,6 +60,31 @@ jobs:
         run: pnpm ds:layout
 
   # ────────────────────────────────────────────────────────────────
+  # Job — SecDevOps gate (secret-leak scan + DS single-green invariant)
+  # ────────────────────────────────────────────────────────────────
+  secops:
+    name: SecDevOps gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Scanne fichiers suivis + arbre git. gitleaks/trufflehog absents sur le
+      # runner -> fallback regex curée (masquée). Exit!=0 sur fuite -> bloque.
+      - name: Secret-leak scan
+        run: bash scripts/secrets-scan.sh --all
+
+      # Invariant un-seul-vert (--ct-accent #A7FB90, pas de --ds-*, cascade OK).
+      - name: DS single-green invariant
+        run: bash scripts/ds-lock-check.sh
+
+  # ────────────────────────────────────────────────────────────────
   # Job 2 — Vitest unit + integration tests (BLOCKING)
   # ────────────────────────────────────────────────────────────────
   vitest:

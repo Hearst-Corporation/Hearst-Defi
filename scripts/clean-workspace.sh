@@ -153,9 +153,11 @@ echo
 # ============================================================================
 if [ "$PRUNE" -eq 1 ]; then
   echo "[b] Dossiers regenerables lourds :"
-  # Tous regenerables : build (next build), playwright (replay), release (electron-builder),
-  # jscpd/test-results/playwright-report (re-run), tmp/.tmp (scratch).
-  for d in .next .playwright-mcp release releases .jscpd-report test-results \
+  # Tous regenerables : build (next build), playwright (replay), release (electron-builder
+  # SCRATCH), jscpd/test-results/playwright-report (re-run), tmp/.tmp (scratch).
+  # NB: `releases/` (au pluriel) est VOLONTAIREMENT exclu — il contient les DMG
+  # shippes + un CREDENTIALS.md (artefacts curés, NON regenerables sans rebuild signé).
+  for d in .next .playwright-mcp release .jscpd-report test-results \
            playwright-report dist-electron build .tmp tmp; do
     prune_dir "$d"
   done
