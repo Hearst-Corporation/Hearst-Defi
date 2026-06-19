@@ -40,6 +40,16 @@ export type OutreachDraft = z.infer<typeof OutreachDraftSchema>;
 
 export type OutreachLanguage = "fr" | "en";
 
+/**
+ * Who the cold email addresses, which flips the whole pitch:
+ *  - `subscriber` — a qualified investor who would invest in the vault directly.
+ *  - `distributor` — a wealth manager / RIA / family office / IFA / platform who
+ *    would DISTRIBUTE the vault to THEIR OWN clients. The angle is a distribution
+ *    partnership (economics of placing a structured-yield product for their book),
+ *    never "invest your own money". Default: `subscriber` (back-compatible).
+ */
+export type OutreachAudience = "subscriber" | "distributor";
+
 export interface ColdEmailProspect {
   email: string;
   firstName?: string | null;
@@ -53,6 +63,8 @@ export interface DraftColdEmailInput {
   brief?: string | null;
   typeformUrl: string;
   language?: OutreachLanguage;
+  /** Pitch framing. Default `subscriber` keeps the original behaviour. */
+  audience?: OutreachAudience;
 }
 
 export interface DraftNewsletterInput {
@@ -96,16 +108,42 @@ const GUARDRAIL_BLOCK = `Hard rules — apply all, without exception:
 - Tone: warm but concise, institutional, factual. No hype, no superlatives, no emojis.
 - Keep the body tight: a short greeting, 2-3 short paragraphs, then the call to action.`;
 
-function buildColdEmailSystem(language: OutreachLanguage, typeformUrl: string): string {
+/**
+ * Audience-specific objective block. `subscriber` keeps the original "invite the
+ * prospect to qualify themselves" framing; `distributor` reframes the entire
+ * email as a distribution-partnership opener (the recipient places the vault for
+ * THEIR clients) — no "invest your own money", the form qualifies a partnership.
+ */
+function coldEmailObjective(
+  audience: OutreachAudience,
+  typeformUrl: string,
+): string {
+  if (audience === "distributor") {
+    return `Recipient is a DISTRIBUTOR — a wealth manager, RIA, family office, IFA, or platform who could offer the Hearst Yield Vault to THEIR OWN clients. This is a partnership opener, NOT a request for them to invest personally.
+
+Objective: open a credible first contact about a distribution partnership. Frame the value for THEIR book of business: a structured, mining-backed monthly-USDC-yield product they can offer qualified clients, with institutional structure (Cayman SPV) and a clear minimum. Acknowledge they vet products carefully; position this as worth a look for their mandate, not a hard sell. Do NOT imply they invest their own capital. The email MUST end with a single clear call to action linking to this short partnership-qualification form: ${typeformUrl}
+- Embed the URL verbatim (do not shorten, wrap, or alter it).
+- The CTA frames the form as a quick way to explore whether a distribution fit exists.`;
+  }
+  return `Recipient is a qualified INSTITUTIONAL INVESTOR who could allocate to the vault directly.
+
+Objective: open a warm, credible first contact and invite the prospect to qualify themselves via a short form. The email MUST end with a single clear call to action linking to this qualification form: ${typeformUrl}
+- Embed the URL verbatim (do not shorten, wrap, or alter it).
+- The CTA should frame the form as a quick way to see whether the vault fits their mandate — not a hard sell.`;
+}
+
+function buildColdEmailSystem(
+  language: OutreachLanguage,
+  typeformUrl: string,
+  audience: OutreachAudience,
+): string {
   return `You are the Email Outreach Agent for Hearst Connect. You write a single B2B cold-outreach email to a qualified institutional prospect.
 
 ${BRAND_BLOCK}
 
 ${languageRule(language)}
 
-Objective: open a warm, credible first contact and invite the prospect to qualify themselves via a short form. The email MUST end with a single clear call to action linking to this qualification form: ${typeformUrl}
-- Embed the URL verbatim (do not shorten, wrap, or alter it).
-- The CTA should frame the form as a quick way to see whether the vault fits their mandate — not a hard sell.
+${coldEmailObjective(audience, typeformUrl)}
 
 ${GUARDRAIL_BLOCK}
 - "subject" must be a single concise line (no newlines).
@@ -147,12 +185,19 @@ function prospectDisplayName(prospect: ColdEmailProspect): string {
 function buildColdEmailUserPrompt(input: DraftColdEmailInput): string {
   const { prospect } = input;
   const brief = (input.brief ?? "").trim();
+  const audience = input.audience ?? "subscriber";
+  const audienceLine =
+    audience === "distributor"
+      ? "Audience: DISTRIBUTOR — pitch a distribution partnership (they place the vault for their clients), never a personal investment."
+      : "Audience: direct institutional investor.";
   return [
     "Draft a cold-outreach email for this prospect:",
     `  name: ${prospectDisplayName(prospect)}`,
     `  email: ${prospect.email}`,
     `  company: ${(prospect.company ?? "").trim() || "(not provided)"}`,
     `  title: ${(prospect.title ?? "").trim() || "(not provided)"}`,
+    "",
+    audienceLine,
     "",
     "Brief / angle to use (may be empty — fall back to the standard Hearst pitch):",
     brief.length > 0 ? brief : "  (none — use the standard institutional Hearst pitch)",
@@ -237,6 +282,7 @@ export async function draftColdEmail(
   opts: OutreachWriterOptions = {},
 ): Promise<OutreachDraft> {
   const language: OutreachLanguage = input.language ?? "en";
+  const audience: OutreachAudience = input.audience ?? "subscriber";
   const model = opts.model ?? OUTREACH_WRITER_MODEL;
 
   const { response } = await callLlm(
@@ -244,7 +290,7 @@ export async function draftColdEmail(
     {
       model,
       max_tokens: 1024,
-      system: buildColdEmailSystem(language, input.typeformUrl),
+      system: buildColdEmailSystem(language, input.typeformUrl, audience),
       messages: [{ role: "user", content: buildColdEmailUserPrompt(input) }],
     },
     { client: opts.client, timeoutMs: opts.timeoutMs ?? DEFAULT_TIMEOUT_MS },

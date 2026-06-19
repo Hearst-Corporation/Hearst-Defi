@@ -7,7 +7,12 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { upsertProspectContact } from "@/lib/hubspot/sync-prospect";
-import { draftColdEmail, draftNewsletter } from "@/lib/agents/outreach-writer";
+import {
+  draftColdEmail,
+  draftNewsletter,
+  type OutreachAudience,
+  type OutreachLanguage,
+} from "@/lib/agents/outreach-writer";
 import { assertNoForbiddenWords } from "@/lib/agents/validators";
 import { sendTrackedEmail, renderPlainHtml } from "@/lib/email/send";
 import { inngest } from "@/lib/inngest/client";
@@ -355,9 +360,29 @@ async function draftCampaignEmails(formData: FormData): Promise<void> {
         lastName: true,
         company: true,
         title: true,
+        icpId: true,
       },
     });
+
+    // One grouped ICP query — not one per prospect.
+    const icpIds = [...new Set(
+      prospects.map((p) => p.icpId).filter((id): id is string => id !== null),
+    )];
+    const icpRows = icpIds.length > 0
+      ? await prisma.outreachICP.findMany({
+          where: { id: { in: icpIds } },
+          select: { id: true, persona: true, language: true },
+        })
+      : [];
+    const icpMap = new Map(icpRows.map((r) => [r.id, r]));
+
     for (const prospect of prospects) {
+      const icp = prospect.icpId !== null ? icpMap.get(prospect.icpId) : undefined;
+      const audience: OutreachAudience =
+        icp?.persona === "distributor" ? "distributor" : "subscriber";
+      const language: OutreachLanguage =
+        icp?.language === "fr" ? "fr" : "en";
+
       const { subject, body } = await draftColdEmail({
         prospect,
         brief: campaign.bodyTemplate,
@@ -365,6 +390,8 @@ async function draftCampaignEmails(formData: FormData): Promise<void> {
         // the agent input). `includeTypeform` is recorded on the campaign for
         // the audit trail; the canonical URL is always supplied here.
         typeformUrl: TYPEFORM_URL,
+        audience,
+        language,
       });
       assertNoForbiddenWords(`${subject}\n${body}`);
       await prisma.outreachEmail.create({
@@ -596,13 +623,35 @@ export async function draftAllCampaignEmails(
         lastName: true,
         company: true,
         title: true,
+        icpId: true,
       },
     });
+
+    // One grouped ICP query — not one per prospect.
+    const icpIds = [...new Set(
+      prospects.map((p) => p.icpId).filter((id): id is string => id !== null),
+    )];
+    const icpRows = icpIds.length > 0
+      ? await prisma.outreachICP.findMany({
+          where: { id: { in: icpIds } },
+          select: { id: true, persona: true, language: true },
+        })
+      : [];
+    const icpMap = new Map(icpRows.map((r) => [r.id, r]));
+
     for (const prospect of prospects) {
+      const icp = prospect.icpId !== null ? icpMap.get(prospect.icpId) : undefined;
+      const audience: OutreachAudience =
+        icp?.persona === "distributor" ? "distributor" : "subscriber";
+      const language: OutreachLanguage =
+        icp?.language === "fr" ? "fr" : "en";
+
       const { subject, body } = await draftColdEmail({
         prospect,
         brief: campaign.bodyTemplate,
         typeformUrl: TYPEFORM_URL,
+        audience,
+        language,
       });
       assertNoForbiddenWords(`${subject}\n${body}`);
       await prisma.outreachEmail.create({
