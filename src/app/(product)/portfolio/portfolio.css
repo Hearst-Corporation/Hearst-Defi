@@ -1913,6 +1913,16 @@ a.pf-trust-compact__see-more:hover {
 .pf-cockpit-row--mid     { grid-template-columns: 1fr; }
 .pf-cockpit-row--trio    { grid-template-columns: 1fr; }
 
+/* Section head — the single structural green accent per section (DS §13.2).
+   Compact line; never steals row height in the no-scroll fit-gate (flex:0 0 auto,
+   tight leading). The page h1 (greeting) stays the only L1 — these are L2. */
+.pf-section-head {
+  flex: 0 0 auto;
+  margin: 0;
+  padding-top: var(--ct-space-1);
+  line-height: var(--ct-leading-tight);
+}
+
 /* Mid row: positions + capital/yield — 1→2 columns. */
 @container pf (min-width: 52rem) {
   .pf-cockpit-row--mid {
