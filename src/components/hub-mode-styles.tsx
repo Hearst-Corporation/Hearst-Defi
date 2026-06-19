@@ -36,7 +36,12 @@ export function HubModeStyles() {
       .ct-page-area {
         margin-left: 0 !important;
         margin-right: 0 !important;
-        padding-bottom: 0 !important;
+        /* Hub has no bottom rail — reserve legal footer band only. */
+        padding-bottom: var(--app-footer-h, 2.5rem) !important;
+      }
+
+      .ct-page-area > .app-footer {
+        flex: 0 0 auto;
       }
 
       /* ── Main : padding-top compensatoire (header masqué, espace libéré) ── */
