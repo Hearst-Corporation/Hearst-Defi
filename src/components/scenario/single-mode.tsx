@@ -79,7 +79,7 @@ export function SingleMode({
           <div
             className={cn(
               "scenario-lab-input-scroll",
-              pending && "pointer-events-none opacity-(--ct-opacity-50)",
+              pending && "pointer-events-none opacity-[var(--ct-opacity-50)]",
             )}
           >
             <InputsPanel
@@ -152,7 +152,7 @@ export function SingleMode({
             className={cn(
               "scenario-lab-output-card scenario-lab-input-card min-h-0 p-0",
               !state.output && "transition-opacity ease-[var(--ct-ease)] duration-(--ct-dur-fast)",
-              !state.output && pending && "opacity-(--ct-opacity-50)",
+              !state.output && pending && "opacity-[var(--ct-opacity-50)]",
             )}
             hoverOverlay={false}
           >

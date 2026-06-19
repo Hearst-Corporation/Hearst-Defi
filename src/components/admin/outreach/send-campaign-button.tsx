@@ -50,6 +50,7 @@ export function SendCampaignButton({
       <Button
         type="button"
         variant="primary"
+        size="md"
         onClick={openDialog}
         disabled={isPending || approvedCount === 0}
         aria-busy={isPending}

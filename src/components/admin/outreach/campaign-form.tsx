@@ -30,7 +30,7 @@ export function CampaignForm() {
 
   if (!open) {
     return (
-      <Button variant="primary" onClick={() => setOpen(true)}>
+      <Button variant="primary" size="md" onClick={() => setOpen(true)}>
         New campaign
       </Button>
     );

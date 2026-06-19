@@ -1291,16 +1291,16 @@ export function AdminChatControls() {
                         aria-label="Export pack summary"
                       >
                         <span>
-                          <span className="opacity-(--ct-opacity-70)">tool</span>:{" "}
+                          <span className="opacity-[var(--ct-opacity-70)]">tool</span>:{" "}
                           {readUtilitySummary.toolId}
                         </span>
                         <span>
-                          <span className="opacity-(--ct-opacity-70)">generatedAt</span>:{" "}
+                          <span className="opacity-[var(--ct-opacity-70)]">generatedAt</span>:{" "}
                           {formattedGeneratedAt}
                         </span>
                         {readUtilitySummary.counts.length > 0 ? (
                           <span>
-                            <span className="opacity-(--ct-opacity-70)">counts</span>:{" "}
+                            <span className="opacity-[var(--ct-opacity-70)]">counts</span>:{" "}
                             {readUtilitySummary.counts
                               .map((entry) => `${entry.label} ${entry.value}`)
                               .join(" · ")}
@@ -1443,7 +1443,7 @@ function AgentCapabilityRow({
   return (
     <section
       className={cn(
-        "rounded-xl border px-4 py-4 shadow-(--ct-shadow-inner-soft)",
+        "rounded-xl border px-4 py-4 shadow-[var(--ct-shadow-inset)]",
         "transition-colors ease-[var(--ct-ease)]",
         statusMeta.cardClassName,
       )}
@@ -1516,8 +1516,8 @@ function AgentCapabilityRow({
                     "rounded-full border px-2 py-1 body-xs transition-colors ease-[var(--ct-ease)]",
                     AGENT_STATUS_META[candidate].buttonClassName,
                     status === candidate
-                      ? "ring-1 ring-white/18 shadow-(--ct-shadow-inner-soft)"
-                      : "opacity-(--ct-opacity-70) hover:opacity-100",
+                      ? "ring-1 ring-white/18 shadow-[var(--ct-shadow-inset)]"
+                      : "opacity-[var(--ct-opacity-70)] hover:opacity-100",
                   )}
                 >
                   {AGENT_STATUS_META[candidate].label}

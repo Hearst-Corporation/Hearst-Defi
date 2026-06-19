@@ -58,7 +58,7 @@ function FeedbackRow({ item }: { item: FeedbackItem }) {
   }
 
   return (
-    <Card className={cn(item.resolved && "opacity-(--ct-opacity-60)")} hoverOverlay={false}>
+    <Card className={cn(item.resolved && "opacity-[var(--ct-opacity-60)]")} hoverOverlay={false}>
       <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions">
         <div className="min-w-0 flex-1">
           <div className="mb-[var(--ct-space-2)] admin-doc-inline-row body-xs ct-text-muted">

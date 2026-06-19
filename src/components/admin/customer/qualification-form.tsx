@@ -74,7 +74,7 @@ export function QualificationForm({
         })}
       </div>
       <div className="admin-doc-inline-row">
-        <Button type="submit" variant="primary" disabled={isPending}>
+        <Button type="submit" variant="primary" size="md" disabled={isPending}>
           {isPending ? "Saving…" : "Save & recalibrate"}
         </Button>
       </div>

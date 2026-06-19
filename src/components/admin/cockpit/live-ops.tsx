@@ -180,7 +180,7 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
         rel="noopener noreferrer"
         className={cn(
           rowClassName,
-          "hover:opacity-(--ct-opacity-80) transition-opacity ease-[var(--ct-ease)]",
+          "hover:opacity-[var(--ct-opacity-80)] transition-opacity ease-[var(--ct-ease)]",
         )}
       >
         {content}

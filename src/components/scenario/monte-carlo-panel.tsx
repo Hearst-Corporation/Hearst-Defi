@@ -244,7 +244,7 @@ function SimParams({
             "w-24 rounded-base border border-(--ct-border-soft)",
             "ct-surface-1 px-[var(--ct-space-2)] py-1 body-xs mono ct-text-strong",
             "focus:border-(--ct-accent) focus:outline-none",
-            "disabled:opacity-(--ct-opacity-40)",
+            "disabled:opacity-[var(--ct-opacity-40)]",
           )}
           aria-label="PRNG seed for Monte Carlo simulation"
         />
@@ -266,7 +266,7 @@ function SimParams({
             "w-28 rounded-base border border-(--ct-border-soft)",
             "ct-surface-1 px-[var(--ct-space-2)] py-1 body-xs mono ct-text-strong",
             "focus:border-(--ct-accent) focus:outline-none",
-            "disabled:opacity-(--ct-opacity-40)",
+            "disabled:opacity-[var(--ct-opacity-40)]",
           )}
           aria-label="Number of Monte Carlo simulation paths"
         />
@@ -357,7 +357,7 @@ export function MonteCarloPanel() {
               Median (p50)
             </span>
             <span className="admin-doc-inline-row admin-doc-inline-row--dense">
-              <span className="inline-block h-2 w-4 rounded-sm bg-(--ct-status-success-soft) opacity-(--ct-opacity-22)" />
+              <span className="inline-block h-2 w-4 rounded-sm bg-(--ct-status-success-soft) opacity-[var(--ct-opacity-22)]" />
               p5–p95
             </span>
           </div>

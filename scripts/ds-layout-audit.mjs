@@ -85,6 +85,20 @@ const HEX_ALLOWLIST = new Set([
   "src/lib/brand-constants.ts",
   "src/lib/data/allocation-colors.ts",
 ]);
+/** Transactional-email HTML files. Inline mail styles cannot read CSS vars — mail
+ *  clients strip them — so neutral greys (#9ca3af / #6b7280 / #0a0a0a) and the
+ *  interpolated brand hex are intentional and unfixable. Raw-hex is skipped here.
+ *  NOTE: literal greens elsewhere stay flagged — second-green/#16a34a and the
+ *  brand-green/#a7fb90 scans run with their own allowlists, not this one. */
+const EMAIL_FILE_ALLOWLIST = new Set([
+  "src/lib/auth/send-welcome-email.ts",
+  "src/lib/auth/password-reset.ts",
+  "src/lib/inngest/functions/distribution-executed.ts",
+  "src/lib/email/html-shell.ts",
+]);
+/** #000 / #fff (and 6-digit forms) are idiomatic color-mix() bases and the
+ *  canonical pure black/white — never a design-token drift. Skip them in raw-hex. */
+const NEUTRAL_HEX_RE = /^#(?:000|fff|000000|ffffff)$/i;
 /** A line that DEFINES a --ct-* token may contain a literal value — that is the
  *  one sanctioned home for raw px/hex/blur. Detect "  --ct-...:" anywhere on line. */
 const TOKEN_DEF_LINE = /--ct-[a-z0-9_-]+\s*:/i;
@@ -173,6 +187,25 @@ function scanStaticCtPill(rel, content) {
   const re = /\bct-pill\b/g;
   let match;
   while ((match = re.exec(content)) !== null) {
+    // Skip mentions inside comments/JSDoc (the token name appears in prose, not
+    // as a className). Check the line: if it starts with * or // or contains /*,
+    // it's a comment, not code.
+    const lineStart = content.lastIndexOf("\n", match.index) + 1;
+    const lineHead = content.slice(lineStart, match.index).trimStart();
+    if (lineHead.startsWith("*") || lineHead.startsWith("//") || lineHead.startsWith("/*")) continue;
+    // ct-pill IS allowed on interactive elements (the rule's own exception).
+    // Skip when the enclosing element is a Link/button or carries an interactive
+    // ARIA role (role="tab", aria-selected, onClick) within the same JSX element
+    // — i.e. it's a real filter/tab, not a static label. We look back to the
+    // opening "<" of the element holding the className.
+    const elStart = content.lastIndexOf("<", match.index);
+    const ctx = elStart === -1 ? "" : content.slice(elStart, match.index + 200);
+    const interactive =
+      /<(Link|button|a)\b/i.test(ctx) ||
+      /\brole=["'](tab|button|link|menuitem)["']/.test(ctx) ||
+      /\baria-selected\b/.test(ctx) ||
+      /\bonClick\b/.test(ctx);
+    if (interactive) continue;
     warnings.push({
       file: rel,
       line: lineNumberAt(content, match.index),
@@ -307,14 +340,16 @@ function scanDsNamespace(rel, content) {
 
 function scanRawHexCss(rel, content) {
   if (HEX_ALLOWLIST.has(rel)) return;
+  if (EMAIL_FILE_ALLOWLIST.has(rel)) return; // inline mail HTML cannot read CSS vars
   const lines = content.split("\n");
   const block = { v: false };
   for (let i = 0; i < lines.length; i++) {
     const code = stripComments(lines[i], block);
     if (TOKEN_DEF_LINE.test(code)) continue; // token def may hold a literal hex
     RAW_HEX_RE.lastIndex = 0;
-    const m = RAW_HEX_RE.exec(code);
-    if (m) {
+    let m;
+    while ((m = RAW_HEX_RE.exec(code)) !== null) {
+      if (NEUTRAL_HEX_RE.test(m[0])) continue; // #000/#fff color-mix base — idiomatic
       violations.push({
         file: rel,
         line: i + 1,

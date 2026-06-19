@@ -7,6 +7,7 @@ import {
   OnboardingChamber,
   OnboardingChamberSole,
 } from "@/components/onboarding/onboarding-chamber";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChoiceCard, ChoiceGroup } from "@/components/ui/choice-card";
 import {
@@ -146,9 +147,9 @@ export function ApplyForm() {
           </div>
           <div className="product-doc-inline-row product-doc-inline-row--start">
             {META_CHIPS.map((chip) => (
-              <span key={chip} className="ct-pill">
+              <Badge key={chip} variant="default">
                 {chip}
-              </span>
+              </Badge>
             ))}
           </div>
         </div>

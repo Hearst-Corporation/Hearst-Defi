@@ -92,7 +92,7 @@ export function DirectSendForm() {
           />
         </label>
         <div className="admin-doc-inline-row">
-          <Button type="submit" variant="secondary" disabled={isDrafting}>
+          <Button type="submit" variant="secondary" size="md" disabled={isDrafting}>
             {isDrafting ? "Drafting…" : "Draft with agent"}
           </Button>
         </div>
@@ -128,7 +128,7 @@ export function DirectSendForm() {
           />
         </label>
         <div className="admin-doc-inline-row flex-wrap gap-[var(--ct-space-2)]">
-          <Button type="submit" variant="primary" disabled={isSending || !to || !subject || !body}>
+          <Button type="submit" variant="primary" size="md" disabled={isSending || !to || !subject || !body}>
             {isSending ? "Sending…" : "Send now"}
           </Button>
           {sentId && <Badge variant="success">Sent · tracked</Badge>}

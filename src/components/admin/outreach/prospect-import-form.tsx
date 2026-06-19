@@ -38,7 +38,7 @@ export function ProspectImportForm() {
 
   if (!open) {
     return (
-      <Button variant="secondary" onClick={() => setOpen(true)}>
+      <Button variant="secondary" size="md" onClick={() => setOpen(true)}>
         Import emails
       </Button>
     );

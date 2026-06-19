@@ -92,14 +92,14 @@ export function AgentAssignForm({
             ))}
           </select>
         </label>
-        <Button type="submit" variant="secondary" disabled={isPending}>
+        <Button type="submit" variant="secondary" size="md" disabled={isPending}>
           Assign
         </Button>
       </form>
 
       <form action={onRecalibrate} aria-label="Recalibrate from questionnaire">
         <input type="hidden" name="userId" value={userId} />
-        <Button type="submit" variant="primary" disabled={isPending || !canRecalibrate}>
+        <Button type="submit" variant="primary" size="md" disabled={isPending || !canRecalibrate}>
           Recalibrate from questionnaire
         </Button>
         {!canRecalibrate && (

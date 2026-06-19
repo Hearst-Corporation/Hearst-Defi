@@ -162,7 +162,7 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
-        opacity={muted ? "var(--ct-opacity-70, 0.7)" : undefined}
+        opacity={muted ? "var(--ct-opacity-70)" : undefined}
       />
 
       {/* Distribution markers — faint ringed dots on the curve */}

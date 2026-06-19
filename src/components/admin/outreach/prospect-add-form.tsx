@@ -32,7 +32,7 @@ export function ProspectAddForm() {
 
   if (!open) {
     return (
-      <Button variant="primary" onClick={() => setOpen(true)}>
+      <Button variant="primary" size="md" onClick={() => setOpen(true)}>
         Add prospect
       </Button>
     );

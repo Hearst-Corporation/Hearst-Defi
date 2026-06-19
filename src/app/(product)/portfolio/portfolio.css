@@ -78,12 +78,12 @@
 
 /* Multi-layered glow for a more "neon" instrument feel. */
 .pf-vc-line-glow {
-  filter: blur(4px);
+  filter: var(--ct-blur-xs);
   opacity: var(--ct-opacity-40, 0.4);
 }
 
 .pf-vc-line-glow-core {
-  filter: blur(1.5px);
+  filter: var(--ct-blur-xs);
   opacity: var(--ct-opacity-60, 0.6);
 }
 
@@ -103,7 +103,7 @@
 .pf-vc-endcap {
   transform-box: fill-box;
   transform-origin: center;
-  animation: pf-vc-pulse var(--ct-dur-pulse, 2600ms) var(--ct-ease) infinite;
+  animation: pf-vc-pulse var(--ct-dur-pulse) var(--ct-ease) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1077,8 +1077,8 @@ a.pf-trust-compact__see-more:hover {
   border: 1px solid var(--pf-border-soft-muted);
   border-radius: var(--ct-radius-xl);
   box-shadow: var(--pf-glass-bevel);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: var(--ct-blur-xl);
+  -webkit-backdrop-filter: var(--ct-blur-xl);
   transition:
     border-color var(--ct-dur-base) var(--ct-ease),
     background var(--ct-dur-base) var(--ct-ease),

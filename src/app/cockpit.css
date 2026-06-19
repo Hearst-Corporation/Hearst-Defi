@@ -53,6 +53,7 @@
      profondeur. surface-0 = niveau du fond (rails/chat), cards au-dessus. */
   --ct-surface-0: #0E0F0F;
   --ct-surface-1: #141416;
+  --ct-surface-1-hi: #161719; /* intermediate tier — subtle-bg gradient stop (between surface-1 and -2) */
   --ct-surface-2: #1c1c1f;
   --ct-surface-3: #242428;
 
@@ -60,20 +61,20 @@
      relief. Aligné sur l'échelle --ct-surface-* ci-dessus. */
   --ct-graphite-active-bg: linear-gradient(
     135deg,
-    #1c1c1f 0%,
-    #141416 100%
+    var(--ct-surface-2) 0%,
+    var(--ct-surface-1) 100%
   );
   /* Panel par défaut — un cran AU-DESSUS du centre (--ct-surface-1 #141416)
      pour se détacher : niveau surface-2. */
   --ct-graphite-subtle-bg: linear-gradient(
     135deg,
-    #1c1c1f 0%,
-    #161719 100%
+    var(--ct-surface-2) 0%,
+    var(--ct-surface-1-hi) 100%
   );
   --ct-graphite-nested-bg: linear-gradient(
     135deg,
-    #242428 0%,
-    #1c1c1f 100%
+    var(--ct-surface-3) 0%,
+    var(--ct-surface-2) 100%
   );
   --ct-graphite-border: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-border-soft));
   --ct-graphite-border-nested: color-mix(in srgb, var(--ct-text-strong) 4%, var(--ct-border-soft));
@@ -209,6 +210,7 @@
   --ct-dur-slower: 500ms; /* page/skeleton fade-in (loading.tsx) — pure ms for duration-* utility */
   --ct-dur-pulse: 2s;     /* dash-pulse animation cycle (dashboard status dot) */
   --ct-dur-shimmer: 2s;   /* shimmer sweep (progress bars, skeletons) */
+  --ct-dur-spin: 0.8s;    /* spinner rotation cycle (cp-spin loader) */
   /* --ct-ease : source unique tokens.css (valeur identique, non redéfinie ici). */
   --ct-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* symmetric — loops (pulse/shimmer), reversible toggles */
 
@@ -4146,7 +4148,7 @@ button.ct-choice-card {
   width: 100%;
   padding: var(--ct-space-2) 0;
   opacity: 0.18;
-  transition: opacity 0.2s;
+  transition: opacity var(--ct-dur-base);
 }
 .ct-rail-investor-dot:hover {
   opacity: 0.55;
@@ -5595,7 +5597,7 @@ button.ct-choice-card {
 .cp-input-row__loader {
   color: var(--ct-text-muted);
   flex-shrink: 0;
-  animation: cp-spin 0.8s linear infinite;
+  animation: cp-spin var(--ct-dur-spin) linear infinite;
 }
 
 @keyframes cp-spin {

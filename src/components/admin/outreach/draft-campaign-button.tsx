@@ -34,6 +34,7 @@ export function DraftCampaignButton({ campaignId }: { campaignId: string }) {
     <Button
       type="button"
       variant="primary"
+      size="md"
       onClick={onClick}
       disabled={isPending}
     >

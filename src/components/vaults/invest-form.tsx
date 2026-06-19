@@ -151,7 +151,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
                   value=""
                   placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
                   aria-describedby="amt-helper-disabled"
-                  className="ct-input tabular w-full pl-[var(--ct-space-10)] pr-[var(--ct-space-4)] py-[var(--ct-space-3)] mono body-lg opacity-(--ct-opacity-60)"
+                  className="ct-input tabular w-full pl-[var(--ct-space-10)] pr-[var(--ct-space-4)] py-[var(--ct-space-3)] mono body-lg opacity-[var(--ct-opacity-60)]"
                 />
               </div>
               <p id="amt-helper-disabled" className="body-xs mt-1.5 ct-text-muted">
@@ -160,7 +160,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
               </p>
             </section>
 
-            <Checkbox checked={false} onChange={() => {}} className="pointer-events-none opacity-(--ct-opacity-60)">
+            <Checkbox checked={false} onChange={() => {}} className="pointer-events-none opacity-[var(--ct-opacity-60)]">
               I have reviewed and accept the term sheet for {vault.name}.
             </Checkbox>
 
@@ -537,7 +537,7 @@ function InvestFormLive({ vault, demo = false }: InvestFormProps) {
                   aria-disabled={!ctaEnabled}
                   className={cn(
                     "vault-form-actions__primary",
-                    !ctaEnabled && "opacity-(--ct-opacity-60) cursor-not-allowed",
+                    !ctaEnabled && "opacity-[var(--ct-opacity-60)] cursor-not-allowed",
                   )}
                 >
                   {ctaLabel(currentCtaState, amount, demo)}

@@ -67,7 +67,7 @@ export function MemoryManager({
           <option value="goal">goal</option>
           <option value="constraint">constraint</option>
         </select>
-        <Button type="submit" variant="secondary" disabled={isPending}>
+        <Button type="submit" variant="secondary" size="md" disabled={isPending}>
           Add
         </Button>
       </form>
