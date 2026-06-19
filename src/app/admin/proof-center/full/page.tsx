@@ -31,7 +31,7 @@ import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
 import { loadCustody } from "@/lib/data/custody";
 import { getProofs } from "@/lib/data/proofs";
-import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
+import { resolveAdminDemoMode } from "@/lib/demo/admin-mode";
 import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
 import { prisma } from "@/lib/db";
 import { TIMELOCK_DELAY_HOURS } from "@/lib/governance/state-machine";
@@ -54,7 +54,9 @@ export default async function AdminProofCenterFullPage({
   const raw = Array.isArray(params.type) ? params.type[0] : params.type;
   const filter = parseFilter(raw);
 
-  const [onChainEvents, onChainAttestations, paper, custody, timelockProposals, showDemoBanner] =
+  const demoMode = await resolveAdminDemoMode();
+
+  const [onChainEvents, onChainAttestations, paper, custody, timelockProposals] =
     await Promise.all([
       fetchOnChainEvents({ limit: 100 }),
       fetchOnChainAttestations({ limit: 12 }),
@@ -64,7 +66,6 @@ export default async function AdminProofCenterFullPage({
         where: { state: "TIMELOCK" },
         orderBy: { queuedAt: "asc" },
       }),
-      databaseHasDemoProofs(),
     ]);
 
   const platformAddresses = buildPlatformAddresses(custody);
@@ -102,7 +103,7 @@ export default async function AdminProofCenterFullPage({
         }
       />
 
-      {showDemoBanner ? <DemoDataBanner /> : null}
+      {demoMode.showDemoBanner ? <DemoDataBanner /> : null}
 
       <ProofCenterSection
         id="event-timeline-heading"
@@ -119,7 +120,7 @@ export default async function AdminProofCenterFullPage({
         {proofs.length === 0 ? (
           <EmptySurface live {...PLATFORM_PROOFS_EMPTY} />
         ) : (
-          <ProofGrid proofs={proofs} filter={filter} demo={showDemoBanner} />
+          <ProofGrid proofs={proofs} filter={filter} demo={demoMode.demo} />
         )}
       </ProofCenterSection>
 

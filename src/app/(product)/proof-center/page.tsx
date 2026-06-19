@@ -18,13 +18,11 @@ import {
 import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
 import { latestAttestationVerified } from "@/lib/proof-center/attestation-truth";
 import { isProofCenterColdEmpty } from "@/lib/proof-center/cold-empty";
+import { loadProofHubColdCounts } from "@/lib/proof-center/hub-counts";
 import { getInvestor } from "@/lib/auth/session";
 import { isDemoInvestor } from "@/lib/demo/provider";
-import { buildDemoProofs } from "@/lib/demo/builders";
-import { getProofs } from "@/lib/data/proofs";
 import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
-import { prisma } from "@/lib/db";
 import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 
 interface ProofCenterPageProps {
@@ -44,28 +42,21 @@ export default async function ProductProofCenterPage({
   const [
     onChainEvents,
     onChainAttestations,
-    paper,
     custody,
-    timelockProposals,
     showDemoBanner,
     coverage,
     recentDistributions,
     recentRebalances,
+    coldCounts,
   ] = await Promise.all([
     fetchOnChainEvents({ limit: 20 }),
     fetchOnChainAttestations({ limit: 12 }),
-    demo
-      ? Promise.resolve(buildDemoProofs())
-      : getProofs().then((r) => r.data),
     loadCustody(),
-    prisma.governanceProposal.findMany({
-      where: { state: "TIMELOCK" },
-      orderBy: { queuedAt: "asc" },
-    }),
     databaseHasDemoProofs(),
     loadCoverageForVault(PROOF_CENTER_VAULT_REF, coveragePeriod),
     loadRecentDistributions(PROOF_CENTER_VAULT_REF, 6),
     loadRecentRebalances(PROOF_CENTER_VAULT_REF, 5),
+    loadProofHubColdCounts(demo),
   ]);
 
   const latestAttestation = onChainAttestations[0] ?? null;
@@ -82,11 +73,11 @@ export default async function ProductProofCenterPage({
   const coldEmpty = isProofCenterColdEmpty({
     demo,
     hasAttestation: latestAttestation !== null,
-    proofsCount: paper.length,
+    proofsCount: coldCounts.proofsCount,
     onChainEventsCount: onChainEvents.length,
     distributionsCount: recentDistributions.length,
     rebalancesCount: recentRebalances.length,
-    timelockCount: timelockProposals.length,
+    timelockCount: coldCounts.timelockCount,
   });
 
   return (

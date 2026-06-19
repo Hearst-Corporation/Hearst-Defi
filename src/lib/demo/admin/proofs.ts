@@ -1,5 +1,8 @@
 // Demo builder — off-chain proof rows for /admin/proofs in demo mode.
 //
+// LP investor grid: `buildDemoProofs()` in demo/builders.ts (ProofItem[]).
+// Admin proof-center paginated grid: `buildDemoProofs()` in demo/admin/proof-center.ts.
+//
 // Returns a handful of plausible mining_attestation / custody rows whose
 // shape is identical to what `prisma.proof.findMany` returns (ProofItem).
 // Key invariants:

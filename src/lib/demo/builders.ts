@@ -254,6 +254,18 @@ export function buildDemoPositionDetail(): PositionDetail {
 // Proofs
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Demo proofs — LP / investor surfaces (proof-center full, demo investor session)
+//
+// NOT the same export as:
+//   - `buildDemoProofRows()` in demo/admin/proofs.ts — CRUD library table rows
+//   - `buildDemoProofs()` in demo/admin/proof-center.ts — PaginatedResult for admin grid
+// Do not merge without renaming; shapes differ (ProofItem[] vs rows vs paginated).
+// ---------------------------------------------------------------------------
+
+/** Stable count for hub cold-empty checks without materialising demo proof rows. */
+export const DEMO_PROOF_ITEM_COUNT = 4;
+
 /**
  * Demo proof grid items (the off-chain "paper" rows). All reference the demo
  * vault's period; none claim a settled on-chain tx (txHash = null). Hashes use

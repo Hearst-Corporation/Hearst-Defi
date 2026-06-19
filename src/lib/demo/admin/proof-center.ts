@@ -194,6 +194,14 @@ export function buildDemoOnChainEvents(): OnChainEvent[] {
 // getProofs demo branch
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Paper proofs — admin proof-center grid (PaginatedResult)
+//
+// LP investor session uses `buildDemoProofs()` in demo/builders.ts (ProofItem[]).
+// Admin CRUD library uses `buildDemoProofRows()` in demo/admin/proofs.ts.
+// Same name, different shapes — do not import across surfaces without renaming.
+// ---------------------------------------------------------------------------
+
 /**
  * Returns simulated paper proof rows for the demo sandbox.
  *

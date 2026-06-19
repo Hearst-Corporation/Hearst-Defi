@@ -139,13 +139,13 @@
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
 | `src/components/portfolio/widget-shell.tsx` | WidgetShell | 4 |
 | `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
-| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 11 |
+| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 12 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
 | `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 4 |
 | `src/components/proof-center/custody-panel.tsx` | CustodySection | 1 |
 | `src/components/proof-center/event-timeline.tsx` | EventTimeline | 2 |
 | `src/components/proof-center/mining-cashflow-evidence.tsx` | MiningCashFlowEvidence | 1 |
-| `src/components/proof-center/por-summary.tsx` | PorSummary | 1 |
+| `src/components/proof-center/por-summary.tsx` | PorSummary | 2 |
 | `src/components/proof-center/proof-center-card-header.tsx` | ProofCenterCardHeader | 7 |
 | `src/components/proof-center/proof-center-cold-shell.tsx` | ProofCenterColdShell | 1 |
 | `src/components/proof-center/proof-center-hub.tsx` | ProofCenterHub | 2 |
@@ -158,7 +158,7 @@
 | `src/components/proof/chain-status-badge.tsx` | ChainStatusBadge | 2 |
 | `src/components/proof/proof-card.tsx` | ProofCard | 2 |
 | `src/components/proof/proof-filter.tsx` | ProofFilter | 2 |
-| `src/components/proof/proof-grid.tsx` | ProofGrid | 2 |
+| `src/components/proof/proof-grid.tsx` | ProofGrid | 3 |
 | `src/components/scenario/assumptions-list.tsx` | AssumptionsList | 2 |
 | `src/components/scenario/backtest-chart.tsx` | BacktestChart | 1 |
 | `src/components/scenario/backtest-panel.tsx` | BacktestPanel | 1 |
