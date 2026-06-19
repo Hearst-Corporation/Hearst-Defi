@@ -9,6 +9,7 @@ import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import type { WidgetMode } from "@/lib/portfolio/view-state";
+import { cn } from "@/lib/cn";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -238,12 +239,12 @@ export function ValueChart({
         subtitle={showZeroShell ? "Awaiting first position" : "Indicative 12-month path"}
         titleVariant="primary"
         trailing={
-          <span className="pf-hero-kpi-value tabular-nums">{formatUsdCompact(chartValue)}</span>
+          <span className={cn("pf-hero-kpi-value tabular-nums", showZeroShell && "pf-hero-kpi-value--muted")}>{formatUsdCompact(chartValue)}</span>
         }
       />
 
       <div className="pf-value-chart__chart-wrapper pf-value-chart__plot">
-        <ChartDisclaimerUnderlay />
+        {!showZeroShell ? <ChartDisclaimerUnderlay /> : null}
         <AreaChart series={series} muted={showZeroShell} />
       </div>
 

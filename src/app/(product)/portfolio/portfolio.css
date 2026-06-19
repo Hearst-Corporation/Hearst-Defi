@@ -255,6 +255,15 @@
   text-shadow: 0 0 12px color-mix(in srgb, var(--ct-accent) 25%, transparent);
 }
 
+/* Zero-state hero KPI ($0) — sized for a placeholder, not a real balance: smaller
+   and muted so it reads as "awaiting" rather than a giant headline number. */
+.pf-container .pf-hero-kpi-value--muted {
+  font-size: var(--ct-text-xl);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-muted);
+  text-shadow: none;
+}
+
 /* Payout calendar SVG — token-sized labels (not raw fontSize 6–8) */
 .pf-distrib-chart text.pf-distrib-chart__estimate,
 .pf-distrib-chart text.pf-distrib-chart__period {
@@ -1635,6 +1644,14 @@ a.pf-trust-compact__see-more:hover {
   }
 }
 
+/* Zero-state hero chart — no real series to plot, so the placeholder floor is
+   lowered (kills the vertical void under the ghost curve). Live state keeps the
+   16→20rem ladder above. chart-geometry — raw rem is the sanctioned escape. */
+.pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
+  /* chart-geometry */
+  min-height: 14rem;
+}
+
 /* Compact padding on very narrow slots */
 @container pf (max-width: 36rem) {
   .pf-container .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
@@ -2203,6 +2220,12 @@ a.pf-trust-compact__see-more:hover {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-3);
+  /* Bind to the shell slot instead of stretching past it (min-height:100% on the
+     base .pf-container was inflating the bento). Internal scroll stays clean and
+     scoped to the cockpit when content truly overflows a short viewport. */
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* Below fit gate — bento rows size to content; shell footer pin unchanged. */
