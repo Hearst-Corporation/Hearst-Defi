@@ -22,7 +22,6 @@ import { RecentDistributions } from "@/components/proof-center/recent-distributi
 import { RebalancingEventsPanel } from "@/components/proof-center/rebalancing-events-panel";
 import { PorSummary } from "@/components/proof-center/por-summary";
 import { loadCoverageForVault } from "@/lib/agents/loaders/coverage";
-import { isAttestorAllowlisted } from "@/lib/attestation/stored";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { isChainConfigured } from "@/lib/chain/client";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
@@ -35,6 +34,7 @@ import {
   PROOF_CENTER_VAULT_REF,
 } from "@/lib/data/proof-center";
 import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
+import { latestAttestationVerified } from "@/lib/proof-center/attestation-truth";
 import { isProofCenterColdEmpty } from "@/lib/proof-center/cold-empty";
 import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
 import { prisma } from "@/lib/db";
@@ -72,9 +72,7 @@ export default async function AdminProofCenterPage() {
   ]);
 
   const latestAttestation = onChainAttestations[0] ?? null;
-  const latestAttestationVerified =
-    latestAttestation !== null &&
-    isAttestorAllowlisted(latestAttestation.attestor);
+  const attestationVerified = latestAttestationVerified(onChainAttestations);
 
   const platformAddresses = buildPlatformAddresses(custody);
 
@@ -139,7 +137,7 @@ export default async function AdminProofCenterPage() {
                   <PorSummary
                     attestation={latestAttestation}
                     custody={custody}
-                    verified={latestAttestationVerified}
+                    verified={attestationVerified}
                     demo={showDemoBanner}
                     sectionLed={false}
                   />

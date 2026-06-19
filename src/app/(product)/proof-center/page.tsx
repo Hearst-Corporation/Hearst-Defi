@@ -23,7 +23,6 @@ import { PorSummary } from "@/components/proof-center/por-summary";
 import { loadCoverageForVault } from "@/lib/agents/loaders/coverage";
 import { isChainConfigured } from "@/lib/chain/client";
 import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
-import { isAttestorAllowlisted } from "@/lib/attestation/stored";
 import { loadCustody } from "@/lib/data/custody";
 import {
   loadRecentDistributions,
@@ -31,6 +30,7 @@ import {
   PROOF_CENTER_VAULT_REF,
 } from "@/lib/data/proof-center";
 import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
+import { latestAttestationVerified } from "@/lib/proof-center/attestation-truth";
 import { isProofCenterColdEmpty } from "@/lib/proof-center/cold-empty";
 import { getInvestor } from "@/lib/auth/session";
 import { isDemoInvestor } from "@/lib/demo/provider";
@@ -84,9 +84,7 @@ export default async function ProductProofCenterPage({
   ]);
 
   const latestAttestation = onChainAttestations[0] ?? null;
-  const latestAttestationVerified =
-    latestAttestation !== null &&
-    isAttestorAllowlisted(latestAttestation.attestor);
+  const attestationVerified = latestAttestationVerified(onChainAttestations);
 
   const platformAddresses = buildPlatformAddresses(custody);
 
@@ -162,7 +160,7 @@ export default async function ProductProofCenterPage({
                   <PorSummary
                     attestation={latestAttestation}
                     custody={custody}
-                    verified={latestAttestationVerified}
+                    verified={attestationVerified}
                     demo={demo}
                     sectionLed={false}
                   />
