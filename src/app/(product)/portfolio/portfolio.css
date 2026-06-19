@@ -65,9 +65,12 @@
   position: relative;
   width: 100%;
   flex: 1;
+  min-width: 0;
   min-height: 0;
   display: flex;
   align-items: center;
+  /* Responsive defense: the stretchable sparkline can never spill its slot. */
+  overflow: hidden;
 }
 
 .pf-value-chart__plot > svg {
@@ -1656,6 +1659,7 @@ a.pf-trust-compact__see-more:hover {
   display: block;
   width: 100%;
   flex: 1;
+  min-width: 0;
   overflow: hidden;
   border-radius: var(--ct-radius-md);
   z-index: var(--ct-z-base, 1);
@@ -1675,6 +1679,22 @@ a.pf-trust-compact__see-more:hover {
   margin-top: var(--ct-space-2);
 }
 
+/* Distribution markers are decorative (the curve + <desc> carry the meaning).
+   In narrow slots they crowd a short plot — fade them out below the 2-col gate
+   and drop them entirely on very tight widths. Pure CSS container query, no JS
+   resize observer. The line + end-cap always stay. */
+@container pf (max-width: 57.99rem) {
+  .pf-vc-markers {
+    opacity: var(--ct-opacity-50, 0.5);
+  }
+}
+
+@container pf (max-width: 30rem) {
+  .pf-vc-markers {
+    display: none;
+  }
+}
+
 /* --pf-bp-chart-compact: 36rem */
 @container pf (min-width: 36rem) {
   .pf-container .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
@@ -1688,8 +1708,8 @@ a.pf-trust-compact__see-more:hover {
      wins and the ghost line stretches with a vertical void. chart-geometry. */
   .pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
     /* chart-geometry */
-    min-height: 12rem;
-    --pf-chart-flex-min: 4rem;
+    min-height: 15rem;
+    --pf-chart-flex-min: 8rem;
   }
 }
 
@@ -1704,8 +1724,8 @@ a.pf-trust-compact__see-more:hover {
      live 20rem floor was inflating the ghost hero to ~680px. chart-geometry. */
   .pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
     /* chart-geometry */
-    min-height: 12rem;
-    --pf-chart-flex-min: 4rem;
+    min-height: 15rem;
+    --pf-chart-flex-min: 8rem;
   }
 }
 
@@ -1716,8 +1736,8 @@ a.pf-trust-compact__see-more:hover {
    the plot/wrapper are pinned to a fixed short height below (no flex stretch). */
 .pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
   /* chart-geometry */
-  min-height: 12rem;
-  --pf-chart-flex-min: 4rem;
+  min-height: 15rem;
+  --pf-chart-flex-min: 8rem;
 }
 
 /* Zero-state: stop the plot + chart-wrapper from stretching to fill the card.
@@ -1730,10 +1750,11 @@ a.pf-trust-compact__see-more:hover {
 
 .pf-container--zero .pf-value-chart__chart-wrapper {
   flex: 0 0 auto;
-  /* chart-geometry — short ghost-line strip, overrides live aspect-ratio/min-height */
+  /* chart-geometry — ghost-line plot given real height so the curve breathes
+     (was 4rem = crushed). Taller strip, still a calm placeholder. */
   aspect-ratio: auto;
   min-height: 0;
-  height: 4rem;
+  height: 8rem;
 }
 
 /* Zero-state: the welded chart panel's own flex-min backstop (l.1628-1631) must
@@ -2562,7 +2583,7 @@ a.pf-trust-compact__see-more:hover {
     }
 
     .pf-container--fit.pf-container--zero .pf-value-chart .pf-value-chart__chart-wrapper {
-      aspect-ratio: 16 / 2;
+      aspect-ratio: 16 / 4;
     }
 
     .pf-container--fit.pf-container--zero .pf-value-chart__month-labels,
@@ -2610,7 +2631,7 @@ a.pf-trust-compact__see-more:hover {
      summary keeps the placeholder chart short (workflow edit #2).
      chart-geometry — raw ratio is the sanctioned escape hatch. */
   .pf-cockpit-row--summary .pf-value-chart .pf-value-chart__chart-wrapper {
-    aspect-ratio: 16 / 3;
+    aspect-ratio: 16 / 6;
   }
 
   /* Tighten the footer rhythm under the placeholder plot (workflow edits #3-#4). */
