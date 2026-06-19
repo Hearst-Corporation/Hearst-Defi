@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-mcp.json",
+  "_comment": "MCP servers VERSIONNES pour ce projet. Aucun secret inline — les tokens viennent de l'environnement (.env.local / shell), jamais commités. Trio pertinent au repo : figma-dev-mode (lock DS), playwright (e2e/visual-review), supabase (DB, read-only). Le serveur perso 'cortex' reste dans ~/.claude.json (global), hors repo.",
+  "mcpServers": {
+    "figma-dev-mode": {
+      "type": "http",
+      "url": "http://127.0.0.1:3845/mcp"
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest", "--browser", "chrome"]
+    },
+    "supabase": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server-supabase@latest", "--read-only"],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
+      }
+    }
+  }
+}

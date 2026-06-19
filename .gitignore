@@ -78,6 +78,9 @@ electron/__tests__/results/
 # Tri / corbeille locale (videe manuellement)
 .tri-trash/
 
+# Corbeille / archive locale du clean-workspace (jamais versionnee) — voir scripts/clean-workspace.sh
+.scratch/
+
 # Captures de dev a la racine (non versionnees)
 /*.png
 /*.jpeg

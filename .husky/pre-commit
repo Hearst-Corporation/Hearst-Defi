@@ -9,3 +9,8 @@ node scripts/component-index.mjs --stage || exit 1
 
 # DS token drift — fast guard (reads 3 CSS files), blocks brand/token regressions.
 pnpm ds:token-drift || exit 1
+
+# Secret-leak guard — scans ONLY the staged diff (fast), masks any hit, never
+# prints the value. Blocks the commit on a positive match. Bypass once (e.g.
+# confirmed false positive) with `git commit --no-verify`.
+bash scripts/secrets-scan.sh --staged || exit 1
