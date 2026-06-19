@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { ProposalQueue } from "@/components/admin/governance/proposal-queue";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,6 +11,7 @@ import { loadProposalQueue } from "@/lib/governance/actions";
 import type { ProposalState } from "@/lib/governance/state-machine";
 import { canRunDemoProvider } from "@/lib/demo/guard";
 import { buildDemoGovernanceQueue } from "@/lib/demo/admin/governance";
+import { buildGovernanceKpiStrip } from "@/lib/admin/governance-kpi-strip";
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +55,7 @@ export default async function GovernancePage({ searchParams }: PageProps) {
     ? buildDemoGovernanceQueue()
     : await loadProposalQueue();
   const filtered = filterProposals(queue, activeTab);
+  const governanceKpis = buildGovernanceKpiStrip(queue);
 
   return (
     <div className="admin-doc-shell">
@@ -65,6 +68,10 @@ export default async function GovernancePage({ searchParams }: PageProps) {
           </Button>
         }
       />
+
+      {governanceKpis.length > 0 ? (
+        <AdminKpiStripPanel kpis={governanceKpis} />
+      ) : null}
 
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Proposal queue">
         <AdminUrlTabFilter
