@@ -32,7 +32,7 @@ export function TotpChallengeForm() {
       aria-label="Two-factor authentication"
     >
       <label className="flex flex-col gap-1" htmlFor="totp-challenge-code">
-        <span className="stat-label">Authenticator code</span>
+        <span className="ct-form-label">Authenticator code</span>
         <input
           id="totp-challenge-code"
           name="code"

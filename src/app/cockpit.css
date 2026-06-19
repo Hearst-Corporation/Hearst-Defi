@@ -4378,24 +4378,21 @@ button.ct-choice-card {
   background: var(--ct-bg-deep);
 }
 
+/* Bare-route halo — DESIGN_SYSTEM §7 / onboarding-shell--wide canon (login only). */
 .login-split__ambient {
   position: fixed;
   inset: 0;
   z-index: var(--ct-z-base);
   pointer-events: none;
+  background: radial-gradient(
+    ellipse 80% 70% at 50% 45%,
+    color-mix(in srgb, var(--ct-accent-soft) 45%, transparent),
+    var(--ct-bg-deep) 72%
+  );
 }
 
 .login-split__glow {
-  position: absolute;
-  border-radius: var(--ct-radius-full);
-  width: 70vw;
-  height: 70vw;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -60%);
-  background: var(--ct-text-strong);
-  filter: var(--ct-blur-glow-xl);
-  opacity: 0.012;
+  display: none;
 }
 
 .login-split__grid {

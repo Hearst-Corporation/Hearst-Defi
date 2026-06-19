@@ -51,7 +51,7 @@ export function ResetPasswordForm({ token }: Props) {
   return (
     <form action={onSubmit} className="flex flex-col gap-[var(--ct-space-4)]" aria-label="Set new password">
       <label className="flex flex-col gap-1" htmlFor="rp-password">
-        <span className="stat-label">New password</span>
+        <span className="ct-form-label">New password</span>
         <input
           id="rp-password"
           name="password"

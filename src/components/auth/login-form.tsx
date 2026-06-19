@@ -41,7 +41,7 @@ export function LoginForm() {
   return (
     <form action={onSubmit} className="flex flex-col gap-[var(--ct-space-4)]" aria-label="Sign in">
       <label className="flex flex-col gap-1" htmlFor="login-email">
-        <span className="stat-label">Email</span>
+        <span className="ct-form-label">Email</span>
         <input
           id="login-email"
           name="email"
@@ -58,7 +58,7 @@ export function LoginForm() {
       </label>
 
       <label className="flex flex-col gap-1" htmlFor="login-password">
-        <span className="stat-label">Password</span>
+        <span className="ct-form-label">Password</span>
         <input
           id="login-password"
           name="password"
