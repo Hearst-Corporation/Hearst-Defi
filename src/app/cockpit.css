@@ -5303,9 +5303,13 @@ button.ct-choice-card {
     padding: 4px 10px !important;
   }
 
-  /* Reserve bottom rail space on the scroll surface only — not page-area (ghost scroll). */
+  /* Reserve bottom intra rail + legal footer — page-area (not main) avoids ghost scroll. */
+  .ct-page-area {
+    padding-bottom: calc(72px + var(--app-footer-h, 2.5rem)) !important;
+  }
+
   .ct-page-area main#main-content {
-    padding-bottom: 72px !important;
+    padding-bottom: 0 !important;
   }
   .ct-center-panel { margin-left: 0 !important; }
 }
