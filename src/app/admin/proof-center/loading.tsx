@@ -3,7 +3,7 @@ import { Skeleton, SkeletonCard } from "@/components/ui/skeleton";
 export default function ProofCenterLoading() {
   return (
     <div
-      className="proof-center-shell proof-cockpit proof-cockpit--fit admin-doc-shell animate-in fade-in duration-[var(--ct-dur-slower)]"
+      className="proof-center-shell proof-cockpit proof-cockpit--fit admin-doc-shell animate-in fade-in duration-(--ct-dur-slower)"
       aria-busy="true"
       aria-label="Loading proof center"
     >

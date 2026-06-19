@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function GovernanceProposalLoading() {
   return (
-    <div className="admin-doc-shell animate-in fade-in duration-[var(--ct-dur-slower)]">
+    <div className="admin-doc-shell animate-in fade-in duration-(--ct-dur-slower)">
       <div className="admin-doc-stack--actions">
         <Skeleton className="h-3 w-32" variant="text" />
         <div className="admin-doc-inline-row">
