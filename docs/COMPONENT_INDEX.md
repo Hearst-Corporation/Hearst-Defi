@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**201 components** · 0 possible orphans · 2 intentionally unwired.
+**206 components** · 0 possible orphans · 2 intentionally unwired.
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -54,10 +54,15 @@
 | `src/components/admin/outreach/direct-send-form.tsx` | DirectSendForm | 1 |
 | `src/components/admin/outreach/draft-campaign-button.tsx` | DraftCampaignButton | 2 |
 | `src/components/admin/outreach/email-review-card.tsx` | EmailReviewCard | 1 |
+| `src/components/admin/outreach/icp-form.tsx` | IcpForm | 1 |
+| `src/components/admin/outreach/icp-list.tsx` | IcpList | 1 |
+| `src/components/admin/outreach/outreach-copilot.tsx` | OutreachCopilot | 1 |
 | `src/components/admin/outreach/prospect-add-form.tsx` | ProspectAddForm | 1 |
 | `src/components/admin/outreach/prospect-import-form.tsx` | ProspectImportForm | 1 |
 | `src/components/admin/outreach/send-campaign-button.tsx` | SendCampaignButton | 1 |
+| `src/components/admin/outreach/source-more-button.tsx` | SourceMoreButton | 1 |
 | `src/components/admin/outreach/stats-cards.tsx` | OutreachStatsCards | 1 |
+| `src/components/admin/outreach/tier-badge.tsx` | TierBadge | 1 |
 | `src/components/admin/product-workspace/agent-brief-live.tsx` | AgentBriefLive | 1 |
 | `src/components/admin/projection-footer.tsx` | ProjectionFooter | 1 |
 | `src/components/admin/proof-list.tsx` | ProofList | 1 |
@@ -173,9 +178,9 @@
 | `src/components/scenario/single-mode.tsx` | SingleMode | 1 |
 | `src/components/simulation/simulation-panel.tsx` | SimulationPanel | 1 |
 | `src/components/ui/apy-range.tsx` | ApyRange | 16 |
-| `src/components/ui/badge.tsx` | Badge | 50 |
-| `src/components/ui/button.tsx` | Button | 79 |
-| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 76 |
+| `src/components/ui/badge.tsx` | Badge | 53 |
+| `src/components/ui/button.tsx` | Button | 81 |
+| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 77 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
 | `src/components/ui/chart-time-selector.tsx` 🔌 | ChartTimeSelector | 0 |

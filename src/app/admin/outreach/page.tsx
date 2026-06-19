@@ -15,10 +15,15 @@ import { OutreachStatsCards } from "@/components/admin/outreach/stats-cards";
 import { ProspectAddForm } from "@/components/admin/outreach/prospect-add-form";
 import { ProspectImportForm } from "@/components/admin/outreach/prospect-import-form";
 import { CampaignForm } from "@/components/admin/outreach/campaign-form";
+import { IcpForm } from "@/components/admin/outreach/icp-form";
+import { IcpList } from "@/components/admin/outreach/icp-list";
+import { OutreachCopilot } from "@/components/admin/outreach/outreach-copilot";
+import { TierBadge } from "@/components/admin/outreach/tier-badge";
 import {
   computeOutreachStats,
   loadProspects,
   loadCampaigns,
+  loadIcps,
 } from "@/lib/data/outreach";
 import { buildOutreachKpiStrip } from "@/lib/admin/outreach-kpi-strip";
 import { formatAdminDate } from "@/lib/vaults/product-display";
@@ -56,10 +61,11 @@ const CAMPAIGN_VARIANT: Record<
 };
 
 export default async function OutreachPage() {
-  const [stats, prospects, campaigns] = await Promise.all([
+  const [stats, prospects, campaigns, icps] = await Promise.all([
     computeOutreachStats(),
     loadProspects(),
     loadCampaigns(),
+    loadIcps(),
   ]);
 
   const outreachKpis = buildOutreachKpiStrip(stats, campaigns);
@@ -79,6 +85,31 @@ export default async function OutreachPage() {
 
       {/* Hub KPI strip — suppressed on empty workspace */}
       {outreachKpis.length > 0 && <AdminKpiStripPanel kpis={outreachKpis} />}
+
+      {/* Lead engine — agentic sourcing (ICP → tiered prospects) + copilot.
+          Sourcing is MOCK until Apollo is wired (Palier 1); nothing is sent. */}
+      <section
+        className="admin-doc-stack admin-doc-stack--actions"
+        aria-label="Lead engine"
+      >
+        <h2 className="h2">Lead engine</h2>
+        <p className="body-xs ct-text-muted">
+          Define a distributor profile and let the engine source, score, and tier
+          prospects. The copilot drives it from natural language — it finds and
+          ranks leads but never sends; every email stays human-approved.
+        </p>
+        <div className="ct-outreach-engine-grid">
+          <div className="admin-doc-stack admin-doc-stack--actions">
+            <div className="admin-doc-toolbar">
+              <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+                <IcpForm />
+              </div>
+            </div>
+            <IcpList icps={icps} />
+          </div>
+          <OutreachCopilot />
+        </div>
+      </section>
 
       {/* Stats row */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Outreach stats">
@@ -122,7 +153,10 @@ export default async function OutreachPage() {
                     <th className="hidden w-[18%] stat-label ct-table-header whitespace-nowrap lg:table-cell">
                       Name
                     </th>
-                    <th className="w-[18%] stat-label ct-table-header whitespace-nowrap">
+                    <th className="w-[14%] stat-label ct-table-header whitespace-nowrap">
+                      Tier
+                    </th>
+                    <th className="w-[14%] stat-label ct-table-header whitespace-nowrap">
                       Status
                     </th>
                     <th className="hidden w-[12%] stat-label ct-table-header whitespace-nowrap lg:table-cell">
@@ -144,6 +178,9 @@ export default async function OutreachPage() {
                       </td>
                       <td className="hidden ct-table-cell truncate ct-text-muted lg:table-cell">
                         {[p.firstName, p.lastName].filter(Boolean).join(" ") || "—"}
+                      </td>
+                      <td className="ct-table-cell">
+                        <TierBadge prospectId={p.id} tier={p.tier} />
                       </td>
                       <td className="ct-table-cell">
                         <Badge variant={PROSPECT_VARIANT[p.status] ?? "default"}>

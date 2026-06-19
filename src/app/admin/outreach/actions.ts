@@ -12,6 +12,12 @@ import { assertNoForbiddenWords } from "@/lib/agents/validators";
 import { sendTrackedEmail, renderPlainHtml } from "@/lib/email/send";
 import { inngest } from "@/lib/inngest/client";
 import { OUTREACH_EVENTS } from "@/lib/outreach/events";
+import {
+  serializeList,
+  parseIcpFilters,
+  runSourcingForIcp,
+} from "@/lib/outreach/icp";
+import { isTier } from "@/lib/outreach/tier";
 
 /**
  * Admin Server Actions for the cold-outreach + newsletter console
@@ -826,4 +832,200 @@ export async function sendDirectEmail(
 
   revalidatePath(REVALIDATE_PATH);
   return { ok: true, resendEmailId };
+}
+
+// ===========================================================================
+// LEAD-GEN ENGINE — ICP definition, sourcing, tier control
+//
+// These power the agentic prospecting surface on /admin/outreach. Sourcing is
+// currently MOCK (no Apollo credit spent — see src/lib/outreach/icp.ts); the
+// Palier-1 Apollo pipeline plugs into runSourcingForIcp without changing these
+// actions. Nothing here sends an email — sourced leads land as `new` prospects
+// for review, tiered by the scorer.
+// ===========================================================================
+
+const CreateIcpInput = z.object({
+  name: z.string().trim().min(1).max(160),
+  persona: z.enum(["distributor", "subscriber", "treasury"]).default("distributor"),
+  titles: z.string().trim().max(2000).optional(),
+  locations: z.string().trim().max(2000).optional(),
+  industries: z.string().trim().max(2000).optional(),
+  language: z.enum(["en", "fr"]).default("en"),
+});
+
+/** Splits a comma/newline separated free-text field into a trimmed string[]. */
+function splitFreeText(raw: string | undefined): string[] {
+  if (!raw) return [];
+  return raw
+    .split(/[\n,;]+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
+/**
+ * Creates an Ideal Customer Profile — the persona definition the sourcer queries
+ * Apollo with. Tier thresholds default to the agreed 85/60/40 model. Returns the
+ * new ICP id so the caller can immediately trigger sourcing.
+ */
+export async function createIcp(formData: FormData): Promise<{ id: string }> {
+  const admin = await requireAdmin();
+
+  const parsed = CreateIcpInput.safeParse({
+    name: formData.get("name"),
+    persona: formData.get("persona") ?? "distributor",
+    titles: optText(formData.get("titles")),
+    locations: optText(formData.get("locations")),
+    industries: optText(formData.get("industries")),
+    language: formData.get("language") ?? "en",
+  });
+  if (!parsed.success) throw new Error("createIcp: invalid input");
+
+  const icp = await prisma.outreachICP.create({
+    data: {
+      name: parsed.data.name,
+      persona: parsed.data.persona,
+      titles: serializeList(splitFreeText(parsed.data.titles)),
+      locations: serializeList(splitFreeText(parsed.data.locations)),
+      industries: serializeList(splitFreeText(parsed.data.industries)),
+      language: parsed.data.language,
+      createdBy: admin.userId,
+    },
+    select: { id: true },
+  });
+
+  await recordAudit(
+    admin.walletAddress ?? admin.userId,
+    "outreach.createIcp",
+    "OutreachICP",
+    icp.id,
+    null,
+    { name: parsed.data.name, persona: parsed.data.persona },
+  );
+
+  revalidatePath(REVALIDATE_PATH);
+  return { id: icp.id };
+}
+
+export interface RunSourcingActionResult {
+  sourced: number;
+  skipped: number;
+  isMock: boolean;
+  byTier: { A: number; B: number; C: number };
+}
+
+/**
+ * Runs the sourcer for an ICP: finds candidates, scores them, assigns a tier,
+ * dedupes against existing prospects + the suppression list, and persists the
+ * survivors as `new` prospects (source `apollo`). MOCK today (no credit spent).
+ * Never sends — sourced leads await drafting/review.
+ */
+export async function runSourcing(
+  icpId: string,
+  count = 12,
+): Promise<RunSourcingActionResult> {
+  const admin = await requireAdmin();
+  if (!icpId) throw new Error("runSourcing: missing icpId");
+
+  const icp = await prisma.outreachICP.findUnique({ where: { id: icpId } });
+  if (!icp) throw new Error("runSourcing: ICP not found");
+
+  const filters = parseIcpFilters(icp);
+  const { candidates, isMock } = await runSourcingForIcp(
+    icp.name,
+    filters,
+    { tierAMin: icp.tierAMin, tierBMin: icp.tierBMin, tierCMin: icp.tierCMin },
+    Math.min(Math.max(count, 1), 50),
+  );
+
+  const emails = candidates.map((c) => c.email.toLowerCase());
+
+  // Dedupe: skip emails already in the directory or on the suppression list.
+  const [existing, suppressed] = await Promise.all([
+    prisma.outreachProspect.findMany({
+      where: { email: { in: emails } },
+      select: { email: true },
+    }),
+    prisma.outreachSuppression.findMany({
+      where: { email: { in: emails } },
+      select: { email: true },
+    }),
+  ]);
+  const blocked = new Set([
+    ...existing.map((e) => e.email),
+    ...suppressed.map((s) => s.email ?? ""),
+  ]);
+
+  const fresh = candidates.filter((c) => !blocked.has(c.email.toLowerCase()));
+  const byTier = { A: 0, B: 0, C: 0 };
+
+  for (const c of fresh) {
+    await prisma.outreachProspect.create({
+      data: {
+        email: c.email.toLowerCase(),
+        firstName: c.firstName,
+        lastName: c.lastName,
+        company: c.company,
+        title: c.title,
+        source: "apollo",
+        apolloId: c.apolloId,
+        qualScore: c.qualScore,
+        tier: c.tier,
+        icpId: icp.id,
+        createdBy: admin.userId,
+      },
+    });
+    if (c.tier) byTier[c.tier] += 1;
+  }
+
+  await recordAudit(
+    admin.walletAddress ?? admin.userId,
+    "outreach.runSourcing",
+    "OutreachICP",
+    icp.id,
+    null,
+    { sourced: fresh.length, isMock, byTier },
+  );
+
+  revalidatePath(REVALIDATE_PATH);
+  return {
+    sourced: fresh.length,
+    skipped: candidates.length - fresh.length,
+    isMock,
+    byTier,
+  };
+}
+
+/**
+ * Manually overrides a prospect's tier (operator judgement beats the score).
+ * e.g. bump a promising Cold lead to Prime so the agent never auto-sends it.
+ */
+export async function overrideTier(
+  prospectId: string,
+  tier: string,
+): Promise<void> {
+  const admin = await requireAdmin();
+  if (!prospectId) throw new Error("overrideTier: missing prospectId");
+  if (!isTier(tier)) throw new Error("overrideTier: invalid tier");
+
+  const existing = await prisma.outreachProspect.findUnique({
+    where: { id: prospectId },
+    select: { id: true, tier: true },
+  });
+  if (!existing) throw new Error("overrideTier: prospect not found");
+
+  await prisma.outreachProspect.update({
+    where: { id: prospectId },
+    data: { tier },
+  });
+
+  await recordAudit(
+    admin.walletAddress ?? admin.userId,
+    "outreach.overrideTier",
+    "OutreachProspect",
+    prospectId,
+    { tier: existing.tier },
+    { tier },
+  );
+
+  revalidatePath(REVALIDATE_PATH);
 }

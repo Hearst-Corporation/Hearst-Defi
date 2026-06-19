@@ -41,6 +41,9 @@ export interface OutreachProspectRow {
   source: string;
   status: string;
   hubspotContactId: string | null;
+  /** Lead-gen engine fields (null for manually-added prospects). */
+  tier: string | null;
+  qualScore: number | null;
   /** Total emails ever queued/sent to this prospect across all campaigns. */
   emailCount: number;
   createdAt: Date;
@@ -90,12 +93,85 @@ export async function loadProspects(opts?: {
     source: p.source,
     status: p.status,
     hubspotContactId: p.hubspotContactId,
+    tier: p.tier,
+    qualScore: p.qualScore,
     emailCount: p._count.emails,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
   }));
 
   return { rows, total, hasMore: page * pageSize < total };
+}
+
+// ---------------------------------------------------------------------------
+// ICP (Ideal Customer Profile)
+// ---------------------------------------------------------------------------
+
+export interface IcpRow {
+  id: string;
+  name: string;
+  persona: string;
+  language: string;
+  active: boolean;
+  /** Parsed filter summaries for display (titles / locations / industries). */
+  titles: string[];
+  locations: string[];
+  industries: string[];
+  tierAMin: number;
+  tierBMin: number;
+  tierCMin: number;
+  /** How many prospects have been sourced for this ICP so far. */
+  prospectCount: number;
+  createdAt: Date;
+}
+
+/** Parse a JSON string-array column; tolerate null/malformed → []. */
+function parseStringList(raw: string | null): string[] {
+  if (!raw) return [];
+  try {
+    const v: unknown = JSON.parse(raw);
+    return Array.isArray(v)
+      ? v.filter((x): x is string => typeof x === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * All ICPs (active first, then newest), each with parsed filter summaries and a
+ * count of prospects sourced under it. Never throws on empty data.
+ */
+export async function loadIcps(): Promise<IcpRow[]> {
+  const icps = await prisma.outreachICP.findMany({
+    orderBy: [{ active: "desc" }, { createdAt: "desc" }],
+  });
+
+  // One grouped count keyed by icpId rather than N per-ICP queries.
+  const counts = await prisma.outreachProspect.groupBy({
+    by: ["icpId"],
+    _count: { _all: true },
+  });
+  const countByIcp = new Map<string, number>();
+  for (const c of counts) {
+    if (c.icpId) countByIcp.set(c.icpId, c._count._all);
+  }
+
+  return icps.map((icp) => ({
+    id: icp.id,
+    name: icp.name,
+    persona: icp.persona,
+    language: icp.language,
+    active: icp.active,
+    titles: parseStringList(icp.titles),
+    locations: parseStringList(icp.locations),
+    industries: parseStringList(icp.industries),
+    tierAMin: icp.tierAMin,
+    tierBMin: icp.tierBMin,
+    tierCMin: icp.tierCMin,
+    prospectCount: countByIcp.get(icp.id) ?? 0,
+    createdAt: icp.createdAt,
+  }));
 }
 
 // ---------------------------------------------------------------------------
