@@ -10,7 +10,7 @@ avec `grep -n "/\*"` si décalage.
 - **Page Portfolio (`/portfolio`) : KPI, donut, ledger, hero grid, trust panel** → `portfolio.css`.
 - **Tokens `--ct-*`** → `cockpit-shell/tokens.css` (≈1001 l.) ; compléments en tête de `cockpit.css`.
 
-## src/app/cockpit.css (≈4513 l.) — shell + utilitaires + admin
+## src/app/cockpit.css (≈5438 l.) — shell + utilitaires + admin
 | Plage | Section |
 |---|---|
 | 1–340 | Tokens complémentaires (manquants dans tokens.css) |
@@ -27,11 +27,12 @@ avec `grep -n "/\*"` si décalage.
 | 2957–3115 | Sonner toast, shell rails verre, fond spatial global, hygiène flexbox |
 | 3115–3500 | Rail intra-app, rail collapsible (déplié/replié/logo), hub bottom bar, identity slot |
 | 3501–3905 | Shell padding overrides, login split |
-| 3736–3836 | **Rails** — `.ct-rail-left` (104px verrouillé), `.ct-rail-right`, `.ct-center-panel` `min-width:0` |
-| 4612–4638 | **Breakpoints shell** — `≤1199px` chat masqué, `≤767px` padding centre |
-| 5250–5295 | **Breakpoints mobile** — `≤900px` rail gauche → bottom bar 56px, `main` padding-bottom 72px |
+| 3837–3961 | **Rails** — `.ct-rail-left` (104px verrouillé), `.ct-rail-right`, `.ct-center-panel` `min-width:0` |
+| 3962–3994 | `.ct-rail-intra` — nav verticale fixe dans `.ct-rail-left` |
+| 4750–4777 | **Breakpoints shell** — L4771 `≤1199px` chat masqué ; L4775 `≤767px` padding centre |
+| 5389–5438 | **Breakpoints mobile** — L5394 `≤900px` rail gauche → bottom bar 56px, `padding-bottom: 72px` |
 | 3905–4396 | Debug/portfolio KPI glass, inline-style replacements |
-| 4396–fin | Admin Vaults — dense deployment list |
+| 4396–5280 | Admin Vaults — dense deployment list + `@container vaults-list` |
 
 ## src/app/doc-flow.css (≈1850 l.) — pages "document" (admin + produit)
 | Plage | Section |
