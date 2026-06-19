@@ -22,7 +22,9 @@ export default async function AllowlistPage() {
           </Button>
         }
       />
-      <AllowlistBoard entries={entries} />
+      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Allowlist">
+        <AllowlistBoard entries={entries} />
+      </section>
     </div>
   );
 }

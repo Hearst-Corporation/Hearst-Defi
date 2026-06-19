@@ -67,26 +67,28 @@ export default async function GovernancePage({ searchParams }: PageProps) {
         }
       />
 
-      <div className="admin-doc-inline-row" role="tablist" aria-label="Filter proposals by status">
-        {TABS.map((tab) => {
-          const isActive = tab.key === activeTab;
-          const href =
-            tab.key === "all" ? "/admin/governance" : `/admin/governance?tab=${tab.key}`;
-          return (
-            <Link
-              key={tab.key}
-              href={href}
-              role="tab"
-              aria-selected={isActive}
-              className={cn("ct-pill", isActive && "accent")}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
-      </div>
+      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Proposal queue">
+        <div className="admin-doc-inline-row" role="tablist" aria-label="Filter proposals by status">
+          {TABS.map((tab) => {
+            const isActive = tab.key === activeTab;
+            const href =
+              tab.key === "all" ? "/admin/governance" : `/admin/governance?tab=${tab.key}`;
+            return (
+              <Link
+                key={tab.key}
+                href={href}
+                role="tab"
+                aria-selected={isActive}
+                className={cn("ct-pill", isActive && "accent")}
+              >
+                {tab.label}
+              </Link>
+            );
+          })}
+        </div>
 
-      <ProposalQueue proposals={filtered} />
+        <ProposalQueue proposals={filtered} />
+      </section>
     </div>
   );
 }

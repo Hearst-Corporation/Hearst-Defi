@@ -5,7 +5,6 @@
 import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
@@ -21,24 +20,39 @@ export const metadata = {
   title: "Audit Log — Hearst Connect",
 };
 
-/**
- * Derive a Badge variant from an action string so compliance reviewers
- * can visually distinguish write vs. read-adjacent vs. destructive events.
- */
-function actionVariant(
-  action: string,
-): "default" | "success" | "warning" | "danger" {
-  if (
+/** Destructive / high-attention actions get a colored dot; routine events stay muted. */
+function actionIsAlert(action: string): boolean {
+  return (
     action.includes("pause") ||
     action.includes("reject") ||
     action.includes("delete")
-  )
-    return "danger";
-  if (action.includes("approve") || action.includes("attest"))
-    return "success";
-  if (action.includes("submit") || action.includes("update"))
-    return "warning";
-  return "default";
+  );
+}
+
+function AuditActionLabel({ action }: { action: string }) {
+  const alert = actionIsAlert(action);
+
+  return (
+    <span className="admin-doc-inline-row admin-doc-inline-row--dense min-w-0">
+      <span
+        aria-hidden
+        className={cn(
+          "ct-dot",
+          alert
+            ? "ct-status-dot-danger"
+            : "bg-(--ct-border) opacity-[var(--ct-opacity-60)]",
+        )}
+      />
+      <span
+        className={cn(
+          "mono body-xs truncate",
+          alert ? "ct-status-danger font-medium" : "ct-text-muted",
+        )}
+      >
+        {action}
+      </span>
+    </span>
+  );
 }
 
 export default async function AuditLogPage({
@@ -76,8 +90,12 @@ export default async function AuditLogPage({
       {kpiStrip.length > 0 && <AdminKpiStripPanel kpis={kpiStrip} />}
 
       {/* Filter bar — plain GET form, zero client JS */}
-      <Card hoverOverlay={false}>
-        <form method="get" className="admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions admin-doc-inline-row--relaxed">
+      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Filters">
+        <Card hoverOverlay={false}>
+          <form
+            method="get"
+            className="admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions admin-doc-inline-row--relaxed"
+          >
           <label className="admin-doc-field">
             <span className="stat-label ct-text-muted">Entity type</span>
             <input
@@ -126,8 +144,9 @@ export default async function AuditLogPage({
               <Link href="/admin/audit">Clear</Link>
             </Button>
           )}
-        </form>
-      </Card>
+          </form>
+        </Card>
+      </section>
 
       {/* Results */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Audit entries">
@@ -156,19 +175,13 @@ export default async function AuditLogPage({
               <table className="w-full table-fixed text-left body-sm">
                 <thead>
                   <tr>
-                    <th className="w-[18%] ct-table-header stat-label py-[var(--ct-space-3)]">
-                      When
-                    </th>
-                    <th className="w-[18%] ct-table-header stat-label py-[var(--ct-space-3)]">
-                      Actor
-                    </th>
-                    <th className="w-[18%] ct-table-header stat-label py-[var(--ct-space-3)]">
-                      Action
-                    </th>
-                    <th className="hidden w-[18%] ct-table-header stat-label py-[var(--ct-space-3)] lg:table-cell">
+                    <th className="w-[18%] ct-table-header stat-label">When</th>
+                    <th className="w-[18%] ct-table-header stat-label">Actor</th>
+                    <th className="w-[18%] ct-table-header stat-label">Action</th>
+                    <th className="hidden w-[18%] ct-table-header stat-label lg:table-cell">
                       Entity
                     </th>
-                    <th className="w-[46%] ct-table-header stat-label py-[var(--ct-space-3)] lg:w-[28%]">
+                    <th className="w-[46%] ct-table-header stat-label lg:w-[28%]">
                       Details
                     </th>
                   </tr>
@@ -180,88 +193,82 @@ export default async function AuditLogPage({
                       className="border-b border-(--ct-border-soft) last:border-0 align-top"
                     >
                       {/* When */}
-                      <td className="ct-table-cell py-[var(--ct-space-3)] mono body-xs ct-text-muted">
+                      <td className="ct-table-cell mono body-xs ct-text-muted align-top">
                         {formatAdminAuditTimestamp(entry.occurredAt)}
                       </td>
 
                       {/* Actor */}
-                      <td className="ct-table-cell py-[var(--ct-space-3)]">
-                        <span
-                          className="mono body-xs ct-text-body"
-                          title={entry.actorWallet}
-                        >
-                          {truncateWallet(entry.actorWallet)}
-                        </span>
-                        {entry.ip ? (
-                          <span className="block body-xs">
-                            {entry.ip}
+                      <td className="ct-table-cell align-top">
+                        <div className="admin-doc-stack admin-doc-stack--micro">
+                          <span
+                            className="mono body-xs ct-text-body"
+                            title={entry.actorWallet}
+                          >
+                            {truncateWallet(entry.actorWallet)}
                           </span>
-                        ) : null}
+                          {entry.ip ? (
+                            <span className="body-xs ct-text-muted">{entry.ip}</span>
+                          ) : null}
+                        </div>
                       </td>
 
                       {/* Action */}
-                      <td className="ct-table-cell py-[var(--ct-space-3)]">
-                        <Badge variant={actionVariant(entry.action)}>
-                          {entry.action}
-                        </Badge>
+                      <td className="ct-table-cell align-top">
+                        <AuditActionLabel action={entry.action} />
                       </td>
 
                       {/* Entity */}
-                      <td className="hidden ct-table-cell py-[var(--ct-space-3)] lg:table-cell">
-                        <span className="block body-xs ct-text-strong">
-                          {entry.entityType}
-                        </span>
-                        <span className="mono block body-xs">
-                          {entry.entityId}
-                        </span>
+                      <td className="hidden ct-table-cell lg:table-cell align-top">
+                        <div className="admin-doc-stack admin-doc-stack--micro">
+                          <span className="body-xs ct-text-strong">
+                            {entry.entityType}
+                          </span>
+                          <span className="mono body-xs ct-text-muted">
+                            {entry.entityId}
+                          </span>
+                        </div>
                       </td>
 
                       {/* Details — before/after diff in a native <details> */}
-                      <td className="ct-table-cell py-[var(--ct-space-3)]">
-                        <details className="group">
+                      <td className="ct-table-cell align-top">
+                        <details className="group admin-doc-stack admin-doc-stack--tight">
                           <summary className="cursor-pointer list-none body-xs ct-text-muted hover:ct-text-body select-none">
                             <span className="group-open:hidden">Show diff</span>
                             <span className="hidden group-open:inline">
                               Hide diff
                             </span>
                           </summary>
-                          <div className="mt-[var(--ct-space-2)] admin-doc-stack admin-doc-stack--tight">
-                            <div>
-                              <p className="stat-label mb-0.5 ct-text-muted">
-                                Before
-                              </p>
-                              <pre
-                                className={cn(
-                                  "mono body-xs max-h-40 overflow-auto rounded border p-[var(--ct-space-2)] leading-relaxed whitespace-pre-wrap break-all",
-                                  "ct-bc-soft ct-surface-0 ct-text-muted",
-                                )}
-                              >
-                                {entry.before === null
-                                  ? "null"
-                                  : JSON.stringify(entry.before, null, 2)}
-                              </pre>
-                            </div>
-                            <div>
-                              <p className="stat-label mb-0.5 ct-text-muted">
-                                After
-                              </p>
-                              <pre
-                                className={cn(
-                                  "mono body-xs max-h-40 overflow-auto rounded border p-[var(--ct-space-2)] leading-relaxed whitespace-pre-wrap break-all",
-                                  "ct-bc-soft ct-surface-0 ct-text-body",
-                                )}
-                              >
-                                {entry.after === null
-                                  ? "null"
-                                  : JSON.stringify(entry.after, null, 2)}
-                              </pre>
-                            </div>
-                            {entry.userAgent ? (
-                              <p className="body-xs truncate">
-                                UA: {entry.userAgent}
-                              </p>
-                            ) : null}
+                          <div className="admin-doc-stack admin-doc-stack--micro">
+                            <p className="stat-label ct-text-muted">Before</p>
+                            <pre
+                              className={cn(
+                                "mono body-xs max-h-40 overflow-auto rounded border p-[var(--ct-space-2)] leading-relaxed whitespace-pre-wrap break-all",
+                                "ct-bc-soft ct-surface-0 ct-text-muted",
+                              )}
+                            >
+                              {entry.before === null
+                                ? "null"
+                                : JSON.stringify(entry.before, null, 2)}
+                            </pre>
                           </div>
+                          <div className="admin-doc-stack admin-doc-stack--micro">
+                            <p className="stat-label ct-text-muted">After</p>
+                            <pre
+                              className={cn(
+                                "mono body-xs max-h-40 overflow-auto rounded border p-[var(--ct-space-2)] leading-relaxed whitespace-pre-wrap break-all",
+                                "ct-bc-soft ct-surface-0 ct-text-body",
+                              )}
+                            >
+                              {entry.after === null
+                                ? "null"
+                                : JSON.stringify(entry.after, null, 2)}
+                            </pre>
+                          </div>
+                          {entry.userAgent ? (
+                            <p className="body-xs truncate ct-text-muted">
+                              UA: {entry.userAgent}
+                            </p>
+                          ) : null}
                         </details>
                       </td>
                     </tr>
@@ -269,9 +276,9 @@ export default async function AuditLogPage({
                 </tbody>
               </table>
             </div>
-            <div className="admin-doc-stack admin-doc-stack--tight border-t border-(--ct-border-soft) px-[var(--ct-space-6)] py-[var(--ct-space-4)]">
-              <p className="stat-label m-0">Audit retention</p>
-              <p className="body-xs ct-text-muted m-0">
+            <div className="admin-doc-stack admin-doc-stack--micro border-t border-(--ct-border-soft) p-[var(--ct-space-4)]">
+              <p className="stat-label">Audit retention</p>
+              <p className="body-xs ct-text-muted">
                 Showing up to 200 entries per query. Entries written by{" "}
                 <code className="mono ct-text-body">recordAdminAudit()</code>{" "}
                 are append-only; export directly from the database for formal

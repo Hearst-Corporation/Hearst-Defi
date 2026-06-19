@@ -14,6 +14,7 @@ import { DeployPositionForm } from "@/components/admin/customer/deploy-position-
 import { QualificationForm } from "@/components/admin/customer/qualification-form";
 import { AgentAssignForm } from "@/components/admin/customer/agent-assign-form";
 import { MemoryManager } from "@/components/admin/customer/memory-manager";
+import { cn } from "@/lib/cn";
 import { loadCustomerDetail } from "@/lib/data/customer-detail";
 import { loadActiveTemplates } from "@/lib/data/agent-templates";
 import { formatAdminDate } from "@/lib/vaults/product-display";
@@ -29,10 +30,10 @@ const usdFull = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
-const KYC_VARIANT: Record<string, "success" | "warning" | "danger"> = {
-  approved: "success",
-  pending: "warning",
-  rejected: "danger",
+const KYC_DOT: Record<string, string> = {
+  approved: "ct-status-dot-success",
+  pending: "ct-status-dot-warning",
+  rejected: "ct-status-dot-danger",
 };
 
 const KYC_LABEL: Record<string, string> = {
@@ -75,9 +76,20 @@ export default async function CustomerDetailPage({
         }
         actions={
           <div className="admin-doc-inline-row">
-            <Badge variant={KYC_VARIANT[detail.kycStatus] ?? "warning"}>
-              KYC · {KYC_LABEL[detail.kycStatus] ?? detail.kycStatus}
-            </Badge>
+            <span className="inline-flex items-center gap-1.5 body-xs">
+              <span
+                aria-hidden
+                className={cn("ct-dot", KYC_DOT[detail.kycStatus] ?? "ct-status-dot-warning")}
+              />
+              <span
+                className={cn(
+                  "ct-text-muted",
+                  detail.kycStatus === "rejected" && "ct-status-danger",
+                )}
+              >
+                KYC · {KYC_LABEL[detail.kycStatus] ?? detail.kycStatus}
+              </span>
+            </span>
             <KycAction investorId={detail.investorId} status={detail.kycStatus as "pending" | "approved" | "rejected"} />
           </div>
         }
@@ -185,38 +197,40 @@ export default async function CustomerDetailPage({
 
         {persona && (
           <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
-            <h3 className="h3">Recommended</h3>
-            <div className="admin-doc-inline-row flex-wrap gap-[var(--ct-space-2)] mt-[var(--ct-space-2)]">
-              {persona.segments.map((s) => (
-                <Badge key={s} variant="accent">{s}</Badge>
-              ))}
-              <Badge variant="default">Style: {persona.tone}</Badge>
-              <Badge variant="default">Language: {persona.language}</Badge>
-              <Badge variant="default">Detail: {persona.verbosity}</Badge>
-              <Badge variant="success">vault: {persona.suggestedVault}</Badge>
+            <div className="admin-doc-stack admin-doc-stack--compact">
+              <h3 className="h3">Recommended</h3>
+              <div className="admin-doc-inline-row flex-wrap">
+                {persona.segments.map((s) => (
+                  <Badge key={s} variant="accent">{s}</Badge>
+                ))}
+                <Badge variant="flat">Style: {persona.tone}</Badge>
+                <Badge variant="flat">Language: {persona.language}</Badge>
+                <Badge variant="flat">Detail: {persona.verbosity}</Badge>
+                <Badge variant="flat">vault: {persona.suggestedVault}</Badge>
+              </div>
+              <p className="body-sm ct-text-muted">{persona.customInstructions}</p>
             </div>
-            <p className="body-sm ct-text-muted mt-[var(--ct-space-3)]">{persona.customInstructions}</p>
           </Card>
         )}
 
         <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
-          <h3 className="h3">Current</h3>
-          {applied ? (
-            <div className="admin-doc-inline-row flex-wrap gap-[var(--ct-space-2)] mt-[var(--ct-space-2)]">
-              {applied.template && <Badge variant="brand">Preset: {applied.template.label}</Badge>}
-              <Badge variant="default">Style: {applied.tone ?? "—"}</Badge>
-              <Badge variant="default">Language: {applied.language ?? "—"}</Badge>
-              <Badge variant="default">Detail: {applied.verbosity ?? "—"}</Badge>
-            </div>
-          ) : (
-            <p className="body-sm ct-text-muted mt-[var(--ct-space-2)]">
-              No profile is applied yet. Refresh from intake answers or assign a reusable template.
-            </p>
-          )}
-          {applied?.customInstructions && (
-            <p className="body-sm ct-text-muted mt-[var(--ct-space-3)]">{applied.customInstructions}</p>
-          )}
-          <div className="mt-[var(--ct-space-4)]">
+          <div className="admin-doc-stack admin-doc-stack--compact">
+            <h3 className="h3">Current</h3>
+            {applied ? (
+              <div className="admin-doc-inline-row flex-wrap">
+                {applied.template && <Badge variant="brand">Preset: {applied.template.label}</Badge>}
+                <Badge variant="flat">Style: {applied.tone ?? "—"}</Badge>
+                <Badge variant="flat">Language: {applied.language ?? "—"}</Badge>
+                <Badge variant="flat">Detail: {applied.verbosity ?? "—"}</Badge>
+              </div>
+            ) : (
+              <p className="body-sm ct-text-muted">
+                No profile is applied yet. Refresh from intake answers or assign a reusable template.
+              </p>
+            )}
+            {applied?.customInstructions && (
+              <p className="body-sm ct-text-muted">{applied.customInstructions}</p>
+            )}
             <AgentAssignForm
               investorId={detail.investorId}
               userId={detail.userId}

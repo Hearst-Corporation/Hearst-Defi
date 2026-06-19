@@ -64,94 +64,96 @@ export default async function ProposePage() {
         }
       />
 
-      <Card>
-        <DashboardPanelHeader title="Proposal details" tone="quiet" className="mb-[var(--ct-space-8)]" />
-        <form action={handlePropose} className="admin-doc-stack">
-          <div className="admin-doc-stack admin-doc-stack--dense">
-            <label htmlFor="vaultId" className="stat-label block">
-              Vault *
-            </label>
-            {vaults.length === 0 ? (
-              <EmptySurface
-                variant="inline"
-                message="No vaults available yet."
-                detail="Create a vault deployment before drafting a governance proposal."
-                ariaLabel="Governance proposals awaiting vaults"
-              >
-                <Link href="/admin/vaults/new" className="ct-text-primary underline underline-offset-2">
-                  Create a vault first.
-                </Link>
-              </EmptySurface>
-            ) : (
-              <select id="vaultId" name="vaultId" required className={adminFormField}>
-                <option value="">Select a vault…</option>
-                {vaults.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.ticker} — {v.name}
+      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Proposal form">
+        <Card hoverOverlay={false}>
+          <DashboardPanelHeader title="Proposal details" tone="quiet" />
+          <form action={handlePropose} className="admin-doc-stack">
+            <div className="admin-doc-stack admin-doc-stack--dense">
+              <label htmlFor="vaultId" className="stat-label block">
+                Vault *
+              </label>
+              {vaults.length === 0 ? (
+                <EmptySurface
+                  variant="inline"
+                  message="No vaults available yet."
+                  detail="Create a vault deployment before drafting a governance proposal."
+                  ariaLabel="Governance proposals awaiting vaults"
+                >
+                  <Link href="/admin/vaults/new" className="ct-text-primary underline underline-offset-2">
+                    Create a vault first.
+                  </Link>
+                </EmptySurface>
+              ) : (
+                <select id="vaultId" name="vaultId" required className={adminFormField}>
+                  <option value="">Select a vault…</option>
+                  {vaults.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.ticker} — {v.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <div className="admin-doc-stack admin-doc-stack--dense">
+              <label htmlFor="actionType" className="stat-label block">
+                Action type *
+              </label>
+              <select id="actionType" name="actionType" required className={adminFormField}>
+                <option value="">Select an action…</option>
+                {ACTION_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
                   </option>
                 ))}
               </select>
-            )}
-          </div>
+            </div>
 
-          <div className="admin-doc-stack admin-doc-stack--dense">
-            <label htmlFor="actionType" className="stat-label block">
-              Action type *
-            </label>
-            <select id="actionType" name="actionType" required className={adminFormField}>
-              <option value="">Select an action…</option>
-              {ACTION_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="admin-doc-stack admin-doc-stack--dense">
+              <label htmlFor="calldata" className="stat-label block">
+                Calldata (raw JSON — optional)
+              </label>
+              <textarea
+                id="calldata"
+                name="calldata"
+                rows={4}
+                placeholder='{"newFeeBps": 250}'
+                className={cn(adminFormField, "mono resize-y")}
+              />
+            </div>
 
-          <div className="admin-doc-stack admin-doc-stack--dense">
-            <label htmlFor="calldata" className="stat-label block">
-              Calldata (raw JSON — optional)
-            </label>
-            <textarea
-              id="calldata"
-              name="calldata"
-              rows={4}
-              placeholder='{"newFeeBps": 250}'
-              className={cn(adminFormField, "mono resize-y")}
-            />
-          </div>
+            <div className="admin-doc-stack admin-doc-stack--dense">
+              <label htmlFor="justification" className="stat-label block">
+                Justification *{" "}
+                <span className="normal-case tracking-normal ct-text-muted">(min 80 characters)</span>
+              </label>
+              <textarea
+                id="justification"
+                name="justification"
+                rows={5}
+                required
+                minLength={80}
+                placeholder="Explain why this action is necessary, what the expected impact is, and any risk mitigations applied…"
+                className={cn(adminFormField, "resize-y")}
+              />
+            </div>
 
-          <div className="admin-doc-stack admin-doc-stack--dense">
-            <label htmlFor="justification" className="stat-label block">
-              Justification *{" "}
-              <span className="normal-case tracking-normal ct-text-muted">(min 80 characters)</span>
-            </label>
-            <textarea
-              id="justification"
-              name="justification"
-              rows={5}
-              required
-              minLength={80}
-              placeholder="Explain why this action is necessary, what the expected impact is, and any risk mitigations applied…"
-              className={cn(adminFormField, "resize-y")}
-            />
-          </div>
+            <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+              <Button type="submit" variant="primary" size="lg" disabled={vaults.length === 0}>
+                Submit proposal
+              </Button>
+              <Button variant="secondary" size="lg" asChild>
+                <Link href="/admin/governance">Cancel</Link>
+              </Button>
+            </div>
 
-          <div className="admin-doc-inline-row admin-doc-inline-row--actions pt-[var(--ct-space-2)]">
-            <Button type="submit" variant="primary" size="lg" disabled={vaults.length === 0}>
-              Submit proposal
-            </Button>
-            <Button variant="secondary" size="lg" asChild>
-              <Link href="/admin/governance">Cancel</Link>
-            </Button>
-          </div>
-
-          <p className="body-xs ct-text-muted">
-            Submitting moves the proposal directly to SIGNING state. The proposer&apos;s own
-            approval is not automatically counted — sign explicitly in the detail view.
-          </p>
-        </form>
-      </Card>
+            <p className="body-xs ct-text-muted">
+              Submitting moves the proposal directly to SIGNING state. The proposer&apos;s own
+              approval is not automatically counted — sign explicitly in the detail view.
+            </p>
+          </form>
+        </Card>
+      </section>
     </div>
   );
 }
