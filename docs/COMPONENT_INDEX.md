@@ -34,7 +34,7 @@
 | `src/components/admin/customer/deploy-position-form.tsx` | DeployPositionForm | 1 |
 | `src/components/admin/customer/memory-manager.tsx` | MemoryManager | 1 |
 | `src/components/admin/customer/qualification-form.tsx` | QualificationForm | 1 |
-| `src/components/admin/dashboard/admin-kpi-strip-panel.tsx` | AdminKpiStripPanel | 9 |
+| `src/components/admin/dashboard/admin-kpi-strip-panel.tsx` | AdminKpiStripPanel | 10 |
 | `src/components/admin/dashboard/allocation-orbit.tsx` | AllocationOrbit | 1 |
 | `src/components/admin/dashboard/assets-board.tsx` | DashboardAssetsBoard | 2 |
 | `src/components/admin/dashboard/cockpit-panel-header.tsx` | AdminCockpitPanelHeader, AdminLeafLink | 5 |
@@ -87,7 +87,7 @@
 | `src/components/ConnectShell.tsx` | ConnectShell | 1 |
 | `src/components/dashboard/risk-framework.tsx` | RiskFrameworkSection | 10 |
 | `src/components/error/error-shell.tsx` | ErrorShellLayout | 7 |
-| `src/components/error/segment-error.tsx` | SegmentError | 8 |
+| `src/components/error/segment-error.tsx` | SegmentError | 12 |
 | `src/components/error/segment-not-found.tsx` | SegmentNotFound | 1 |
 | `src/components/governance/timelock-countdown.tsx` | TimelockCountdown | 3 |
 | `src/components/hub-mode-styles.tsx` | HubModeStyles | 1 |
@@ -197,7 +197,7 @@
 | `src/components/ui/error-boundary.tsx` | ErrorBoundary | 1 |
 | `src/components/ui/metric.tsx` | Metric | 8 |
 | `src/components/ui/modal.tsx` | Modal | 5 |
-| `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 23 |
+| `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 24 |
 | `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 19 |
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 3 |

@@ -7,6 +7,7 @@ import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
+import { MetricGrid } from "@/components/ui/nested-panel";
 import { Progress } from "@/components/ui/progress";
 import { MonteCarloReview } from "@/components/admin/monte-carlo-review";
 import { ProjectionFooter } from "@/components/admin/projection-footer";
@@ -420,7 +421,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="admin-doc-stack">
             <CardTitle>Economics</CardTitle>
 
-            <div className="admin-doc-kpi-grid-2">
+            <MetricGrid columns={2}>
               <label className="admin-doc-field block">
                 <span className="stat-label">Min Ticket (USDC) *</span>
                 <input
@@ -442,9 +443,9 @@ export function VaultForm(props: VaultFormProps) {
                   min={1000}
                 />
               </label>
-            </div>
+            </MetricGrid>
 
-            <div className="admin-doc-kpi-grid-2">
+            <MetricGrid columns={2}>
               <label className="admin-doc-field block">
                 <span className="stat-label">Mgmt Fee (bps) *</span>
                 <input
@@ -474,7 +475,7 @@ export function VaultForm(props: VaultFormProps) {
                   {pct(form.perfFeeBps)}% of profits
                 </span>
               </label>
-            </div>
+            </MetricGrid>
 
             {/* #5 — Hurdle rate (bps): annual hurdle before carry applies */}
             <label className="admin-doc-field block">
@@ -504,7 +505,7 @@ export function VaultForm(props: VaultFormProps) {
               />
             </label>
 
-            <div className="admin-doc-kpi-grid-2">
+            <MetricGrid columns={2}>
               <label className="admin-doc-field block">
                 <span className="stat-label">Target APY Low (bps) *</span>
                 <input
@@ -528,7 +529,7 @@ export function VaultForm(props: VaultFormProps) {
                 />
                 <span className="body-xs ct-text-faint">{pct(form.targetApyHighBps)}%</span>
               </label>
-            </div>
+            </MetricGrid>
 
             <div className="admin-doc-inset flex flex-col gap-1">
               <span className="stat-label block">APY Range Preview</span>
@@ -594,7 +595,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="admin-doc-stack">
             <CardTitle>Legal &amp; SPV</CardTitle>
 
-            <div className="admin-doc-kpi-grid-2">
+            <MetricGrid columns={2}>
               <label className="admin-doc-field block">
                 <span className="stat-label">SPV Jurisdiction *</span>
                 <select
@@ -621,7 +622,7 @@ export function VaultForm(props: VaultFormProps) {
                   maxLength={1}
                 />
               </label>
-            </div>
+            </MetricGrid>
 
             <label className="admin-doc-field block">
               <span className="stat-label">Regulatory Exemption *</span>
