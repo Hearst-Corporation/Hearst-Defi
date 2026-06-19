@@ -143,6 +143,51 @@ if (divergences.length === 0) {
   );
 }
 
+// ── STEP 2.5: Tailwind mirror sync — globals.css @theme must not lie ─────────
+// Tailwind generates utility classes AT BUILD and cannot read the runtime --ct-*
+// CSS vars, so globals.css @theme physically MIRRORS a subset of tokens (typo,
+// tracking, leading). That mirror is a COPY, not a second source of truth — this
+// check enforces that every mirrored value equals its --ct-* master (resolved
+// from cockpit.css, else tokens.css). A divergence here is the classic
+// "I change X and Y breaks" bug (CSS shows one value, Tailwind another).
+const GLOBALS_PATH = join(ROOT, "src/app/globals.css");
+const mirrorDrift = [];
+if (existsSync(GLOBALS_PATH)) {
+  const globalsContent = readFileSync(GLOBALS_PATH, "utf8");
+  // Extract bare --name: value; from globals @theme (NOT the var(--ct-*) refs —
+  // those already point at the master and cannot drift).
+  const themeRe = /--((?:text|tracking|leading)-[\w-]+)\s*:\s*([^;]+?)\s*;/g;
+  const norm = (v) => v.trim().replace(/\s+/g, " ").toLowerCase();
+  const resolveCt = (n) =>
+    cockpitTokens.get(`--ct-${n}`) ?? pkgTokens.get(`--ct-${n}`);
+  let tm;
+  while ((tm = themeRe.exec(globalsContent)) !== null) {
+    const mirrorName = tm[1];                 // e.g. "text-micro", "tracking-tight"
+    const mirrorVal = norm(tm[2]);
+    if (mirrorVal.startsWith("var(")) continue; // a ref, not a copy → can't drift
+    const masterVal = resolveCt(mirrorName);
+    // Only enforce mirrors that HAVE a --ct-* master. Tailwind-only utilities
+    // (tracking-uppercase/loose/display, text-md/4xl…) have no master → skip.
+    if (masterVal === undefined) continue;
+    if (norm(masterVal) !== mirrorVal) {
+      mirrorDrift.push({ name: mirrorName, mirror: mirrorVal, master: norm(masterVal) });
+    }
+  }
+}
+
+if (mirrorDrift.length > 0) {
+  console.log("\n── TAILWIND MIRROR DRIFT ─────────────────────────────────────────────────\n");
+  for (const { name, mirror, master } of mirrorDrift) {
+    console.log(`MIRROR:          --${name} (globals.css @theme)`);
+    console.log(`MIRROR_VALUE:    ${mirror}`);
+    console.log(`MASTER_VALUE:    --ct-${name} = ${master}`);
+    console.log(`STATUS:          unexpected-drift — mirror must equal master`);
+    console.log();
+  }
+  console.log(`Tailwind mirror drift: ${mirrorDrift.length} (globals.css @theme out of sync with --ct-*)`);
+  unexpectedDrift = true;
+}
+
 // ── STEP 3: Brand assertion — --ct-accent must resolve to the brand green ─────
 // After the P0 single-source cleanup (4b88a4a), the 4 strictly-identical tokens
 // (bg-deep / accent / accent-soft / ease) live ONLY in cockpit-shell/tokens.css —

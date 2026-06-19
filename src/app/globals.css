@@ -84,14 +84,17 @@
   --weight-bold: 700;
   --weight-black: 800;
 
-  /* Letter spacing — mirror cockpit.css --ct-tracking-* (source of truth) */
-  --tracking-tight: -0.04em; /* Tightened for Swiss design feel */
-  --tracking-normal: -0.01em;
-  --tracking-uppercase: 0.12em; /* More spaced for eyebrows */
-  --tracking-loose: 0.05em;
-  --tracking-wide: 0.06em;
-  --tracking-wider: 0.1em;
-  --tracking-display: 0.25em;
+  /* Letter spacing — mirror cockpit.css --ct-tracking-* (source of truth).
+     tight/normal/wide/wider are KEPT IN SYNC with --ct-tracking-* (gate-enforced
+     by ds:token-drift). uppercase/loose/display are Tailwind-only utilities with
+     no --ct-* master, so they are not mirrored. */
+  --tracking-tight: -0.03em;  /* = --ct-tracking-tight */
+  --tracking-normal: 0;       /* = --ct-tracking-normal */
+  --tracking-uppercase: 0.12em; /* Tailwind-only — eyebrows */
+  --tracking-loose: 0.05em;   /* Tailwind-only */
+  --tracking-wide: 0.04em;    /* = --ct-tracking-wide */
+  --tracking-wider: 0.08em;   /* = --ct-tracking-wider */
+  --tracking-display: 0.25em; /* Tailwind-only — display eyebrow */
 
   /* Line heights — mirror cockpit.css --ct-leading-* (source of truth) */
   --leading-display: 1.1;
