@@ -4,7 +4,11 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**209 components** · 0 possible orphans · 2 intentionally unwired.
+**203 components** · 1 possible orphans · 2 intentionally unwired.
+
+## ⚠️ Possible orphans (0 references — verify before keeping)
+
+- `src/components/ui/widget-panel-header.tsx` — WidgetPanelHeader
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -106,21 +110,18 @@
 | `src/components/onboarding/privy-wallet-connect.tsx` | PrivyWalletConnect, WalletChamber | 2 |
 | `src/components/onboarding/StepProgressBar.tsx` | StepProgressBar | 4 |
 | `src/components/portfolio/allocation-donut.tsx` | AllocationDonut | 1 |
-| `src/components/portfolio/capital-yield.tsx` | CapitalYield | 2 |
+| `src/components/portfolio/capital-yield.tsx` | CapitalYield | 3 |
 | `src/components/portfolio/distrib-calendar.tsx` | DistribCalendar | 4 |
 | `src/components/portfolio/hero-kpi-table.tsx` | HeroKpiTable | 1 |
-| `src/components/portfolio/hero-liquidity-rail.tsx` | HeroLiquidityRail | 2 |
-| `src/components/portfolio/hero-payout-rail.tsx` | HeroPayoutRail | 2 |
+| `src/components/portfolio/hero-liquidity-rail.tsx` | HeroLiquidityRail | 3 |
+| `src/components/portfolio/hero-payout-rail.tsx` | HeroPayoutRail | 3 |
 | `src/components/portfolio/hero-rail-shell.tsx` | HeroRailGroup | 3 |
 | `src/components/portfolio/kpi-row.tsx` | PortfolioKpiRow | 1 |
-| `src/components/portfolio/layout-preview-banner.tsx` | PreviewModeChip | 2 |
-| `src/components/portfolio/lock-meter.tsx` | LockMeter | 4 |
-| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 27 |
+| `src/components/portfolio/lock-meter.tsx` | — | 3 |
+| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 20 |
 | `src/components/portfolio/portfolio-greeting.tsx` | PortfolioGreeting | 2 |
 | `src/components/portfolio/portfolio-leaf-link.tsx` | PortfolioLeafLink | 6 |
 | `src/components/portfolio/portfolio-leaf-shell.tsx` | PortfolioLeafShell | 4 |
-| `src/components/portfolio/portfolio-onboarding-foot.tsx` | PortfolioOnboardingFoot | 1 |
-| `src/components/portfolio/portfolio-onboarding-hero.tsx` | PortfolioOnboardingHero | 1 |
 | `src/components/portfolio/position-actions.tsx` | PositionActions | 1 |
 | `src/components/portfolio/position-header.tsx` | PositionHeader | 1 |
 | `src/components/portfolio/position-kpis.tsx` | PositionKpis | 1 |
@@ -128,12 +129,9 @@
 | `src/components/portfolio/positions-list.tsx` | PositionsList | 3 |
 | `src/components/portfolio/proof-pulse.tsx` | ProofPulse | 3 |
 | `src/components/portfolio/recent-activity.tsx` | RecentActivity | 3 |
-| `src/components/portfolio/risk-pulse.tsx` | RiskPulse | 3 |
-| `src/components/portfolio/time-to-cash.tsx` | TimeToCash | 4 |
-| `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 2 |
+| `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 3 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
 | `src/components/portfolio/widget-shell.tsx` | WidgetShell | 4 |
-| `src/components/portfolio/yield-stack.tsx` | YieldStack, BUCKET_COLOR | 6 |
 | `src/components/power/command-palette.tsx` | CommandPalette | 1 |
 | `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 12 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
@@ -178,9 +176,9 @@
 | `src/components/scenario/scenario-tab-bar.tsx` | ScenarioTabBar | 1 |
 | `src/components/scenario/single-mode.tsx` | SingleMode | 1 |
 | `src/components/simulation/simulation-panel.tsx` | SimulationPanel | 1 |
-| `src/components/ui/apy-range.tsx` | ApyRange | 18 |
+| `src/components/ui/apy-range.tsx` | ApyRange | 16 |
 | `src/components/ui/badge.tsx` | Badge | 49 |
-| `src/components/ui/button.tsx` | Button | 82 |
+| `src/components/ui/button.tsx` | Button | 80 |
 | `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 76 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
@@ -190,24 +188,24 @@
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
 | `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 17 |
-| `src/components/ui/empty-surface.tsx` | EmptySurface | 43 |
+| `src/components/ui/empty-surface.tsx` | EmptySurface | 42 |
 | `src/components/ui/error-boundary.tsx` | ErrorBoundary | 1 |
 | `src/components/ui/metric.tsx` | Metric | 8 |
 | `src/components/ui/modal.tsx` | Modal | 5 |
-| `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 24 |
-| `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 19 |
+| `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 23 |
+| `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 17 |
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 3 |
-| `src/components/ui/progress.tsx` | Progress | 14 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 55 |
+| `src/components/ui/progress.tsx` | Progress | 12 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 50 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/section-embed.tsx` | — | 1 |
 | `src/components/ui/segmented-control.tsx` | SegmentedControl | 2 |
 | `src/components/ui/skeleton.tsx` | Skeleton, SkeletonCard | 30 |
 | `src/components/ui/toaster.tsx` | Toaster | 1 |
-| `src/components/ui/tooltip.tsx` | Tooltip | 4 |
-| `src/components/ui/widget-panel-header.tsx` | WidgetPanelHeader | 2 |
+| `src/components/ui/tooltip.tsx` | Tooltip | 2 |
+| `src/components/ui/widget-panel-header.tsx` ⚠️ | WidgetPanelHeader | 0 |
 | `src/components/ui/wizard-step-progress.tsx` | WizardStepProgress | 3 |
 | `src/components/vaults/deposit-success-icon.tsx` | DepositSuccessIcon | 1 |
 | `src/components/vaults/deposit-summary.tsx` | DepositSummary | 1 |

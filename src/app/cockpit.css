@@ -182,13 +182,20 @@
      Si une future v0.3.0 l'expose, retirer ce bloc et conserver le fallback. */
   --ct-shell-header-h: 4rem;
 
-  /* Chat rail width — override du package (420px default package). Calibré densité globale. */
-  --ct-rail-right: 22rem; /* 352px — default open */
-  --ct-rail-right-expanded: 26.25rem; /* 420px — user-expanded preset */
+  /* Chat rail width — FLUID. Le chat ouvert n'est plus une largeur fixe (352/420
+     qui écrasait le centre dès qu'un laptop ouvrait le chat) : il se calcule en
+     clamp(min, vw, max) → il rétrécit avec le viewport tout en restant utilisable,
+     et le centre garde toujours une largeur lisible. Bornes :
+       open     17rem (272px) … 22vw … 22rem (352px)
+       expanded 20rem (320px) … 27vw … 26.25rem (420px)
+     Les tiers laptop/tablet resserrent encore le plancher plus bas (cf. blocs
+     responsive en fin de fichier). 48px reste réservé au SEUL état .collapsed. */
+  --ct-rail-right: clamp(17rem, 22vw, 22rem); /* default open — fluid */
+  --ct-rail-right-expanded: clamp(20rem, 27vw, 26.25rem); /* user-expanded — fluid */
 
   /* Left nav rail — icon + label permanent. Slightly widened so the collapsed
      menu can hold long investor/admin labels without breaking the vertical
-     rhythm. */
+     rhythm. Fluide aux tiers intermédiaires (cf. blocs responsive). */
   --ct-rail-left: 6.5rem; /* 104px */
   --ct-rail-bottom-clearance: calc(var(--ct-space-5) + 2.5rem + var(--ct-space-3));
 
@@ -3867,10 +3874,15 @@ button.ct-choice-card {
   background: color-mix(in srgb, var(--ct-bg-deep) 55%, #000) !important;
   border-left: 1px solid var(--ct-border-on-dark);
   flex-shrink: 0;
+  /* Open (default) chat = largeur FLUIDE (le package posait 22rem fixe). Le clamp
+     fait rétrécir le chat au lieu d'écraser le centre quand le viewport baisse. */
+  width: var(--ct-rail-right);
 }
 
 .ct-rail-right.collapsed {
+  /* SEUL état où le chat devient une poignée — choix explicite de l'utilisateur. */
   width: 48px;
+  min-width: 48px;
 }
 
 .ct-rail-right.expanded {
@@ -4774,15 +4786,46 @@ button.ct-choice-card {
        recouvre exactement comme en desktop, donc le contenu démarre après les
        88px et ne passe jamais SOUS la nav ;
      • sous 768px seulement : gouttières horizontales resserrées (40px → 16px).
+   Entre 1200px et 1440px (laptop 13–14") : chat replié en poignée 48px (pas
+   352px fixes) et rail gauche resserré — le centre respire sans masquer le chat.
    (Le shrink du panneau central — min-width:0 — est désormais GLOBAL, défini
    plus haut près de .ct-center-panel ; ce n'est plus une surcharge mobile.)
    Aucun nouveau token/classe : surcharge responsive de classes shell existantes,
    même pattern que le reste de ce fichier. */
-@media (max-width: 1199px) {
+
+/* Laptop intermédiaire (1201–1440px) — le chat OUVERT reste utilisable, il
+   rétrécit (il ne se transforme PLUS en poignée 48px qui rendait le chat
+   impossible à ouvrir sur laptop). On resserre le plancher du clamp pour que le
+   centre garde une largeur lisible, et le rail gauche passe en 80px. La poignée
+   48px reste accessible via l'état .collapsed (choix explicite de l'utilisateur). */
+@media (max-width: 90rem) and (min-width: 75.0625rem) {
+  .ct-root {
+    --ct-rail-left: 5rem;                       /* 80px — icon rail, was 104px */
+    --ct-rail-right: clamp(15rem, 18vw, 18rem); /* open chat resserré : 240→288px */
+    --ct-rail-right-expanded: clamp(18rem, 22vw, 21rem); /* expanded resserré */
+  }
+}
+
+/* Petit laptop / grande tablette paysage (1024–1200px) — le chat ouvert se
+   resserre encore (centre prioritaire) mais reste utilisable. Rail gauche 72px. */
+@media (max-width: 74.999rem) and (min-width: 64rem) {
+  .ct-root {
+    --ct-rail-left: 4.5rem;                     /* 72px */
+    --ct-rail-right: clamp(14rem, 22vw, 16rem); /* open chat : 224→256px */
+    --ct-rail-right-expanded: clamp(16rem, 26vw, 19rem);
+  }
+}
+
+/* Tablette portrait & en-dessous (< 1024px) — pas de place pour 3 colonnes : le
+   chat passe en surcouche/masqué (le shell ne porte pas d'overlay drawer en
+   v0.2.0, donc on le masque proprement plutôt que d'écraser le centre). Le rail
+   gauche reste comme espaceur ; .ct-rail-intra (fixed) le recouvre. */
+@media (max-width: 63.999rem) {
   .ct-rail-right { display: none !important; }
 }
 
 @media (max-width: 767px) {
+  .ct-root { --ct-rail-left: 4rem; } /* 64px — icon-only rail compact */
   .ct-page-area    { padding-left: 16px; padding-right: 16px; }
 }
 
