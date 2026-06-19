@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ProposalQueue } from "@/components/admin/governance/proposal-queue";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadProposalQueue } from "@/lib/governance/actions";
 import type { ProposalState } from "@/lib/governance/state-machine";
@@ -89,6 +91,26 @@ export default async function GovernancePage({ searchParams }: PageProps) {
 
         <ProposalQueue proposals={filtered} />
       </section>
+
+      {canRunDemoProvider() ? (
+        <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Dev tools">
+          <h2 className="h2">Dev tools</h2>
+          <Card hoverOverlay={false}>
+            <DashboardPanelHeader
+              eyebrow="Local only"
+              title="Governance simulation"
+              tone="quiet"
+            />
+            <p className="body-sm ct-prose-md ct-text-muted">
+              Mock Tenderly-style proposal simulation — not wired to live execution.
+              Available when <code>DEMO_PROVIDER_ENABLED=1</code>.
+            </p>
+            <Button variant="secondary" asChild size="sm" className="self-start">
+              <Link href="/admin/governance/simulate-demo">Open simulation panel</Link>
+            </Button>
+          </Card>
+        </section>
+      ) : null}
     </div>
   );
 }

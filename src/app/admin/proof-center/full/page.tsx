@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminLeafLink } from "@/components/admin/dashboard/cockpit-panel-header";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
@@ -93,11 +94,14 @@ export default async function AdminProofCenterFullPage({
           </Link>
         }
         actions={
-          <ChainStatusBadge
-            configured={chainConfigured}
-            eventCount={onChainEvents.length}
-            attestationCount={onChainAttestations.length}
-          />
+          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+            <AdminLeafLink href="/admin/proofs" label="Gérer les publications" />
+            <ChainStatusBadge
+              configured={chainConfigured}
+              eventCount={onChainEvents.length}
+              attestationCount={onChainAttestations.length}
+            />
+          </div>
         }
       />
 

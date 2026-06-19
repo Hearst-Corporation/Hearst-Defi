@@ -1,4 +1,5 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminLeafLink } from "@/components/admin/dashboard/cockpit-panel-header";
 import { ProofList } from "@/components/admin/proof-list";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
@@ -25,7 +26,13 @@ export default async function ProofsPage() {
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Proofs"
-        description="Off-chain evidence library for paper attestations and documents. On-chain records stay tracked separately in Proof Center."
+        description="Bibliothèque CRUD pour publier et gérer les preuves off-chain (attestations papier, documents). Les enregistrements on-chain et la lecture investisseur restent dans Proof Center."
+        actions={
+          <AdminLeafLink
+            href="/admin/proof-center/full"
+            label="Voir dans Proof Center"
+          />
+        }
       />
 
       <section className="admin-doc-stack admin-doc-stack--actions">

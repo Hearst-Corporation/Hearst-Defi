@@ -36,6 +36,13 @@ Modèle asymétrique documenté dans `docs/DESIGN_SYSTEM.md` §7. Résumé :
   center, scenario, titres de page partagés. Scopes `.admin-doc` et `.product-doc`.
 - **portfolio.css** = page `/portfolio` uniquement (KPI, donut gauge, yield ledger, hero grid, trust panel).
 
+## Admin Proof Center vs Proofs library
+Deux surfaces complémentaires sous **Proof & System** — ne pas fusionner sans spec produit.
+**`/admin/proof-center`** (hub + `/full`) = lecture opérateur alignée LP : attestations on-chain,
+timeline, grille off-chain en lecture, contrats, timelocks — pas de CRUD publication.
+**`/admin/proofs`** = bibliothèque CRUD pour publier / éditer les preuves off-chain (paper, IPFS).
+Liens croisés : proofs → « Voir dans Proof Center » ; full → « Gérer les publications ».
+
 ## Layouts
 - **Admin** : layout sticky-header propre sous `src/app/admin/` ; pages denses (padding serré).
 - **Produit** : `(product)/` + `ConnectShell` (rails + chat). Header produit : `src/components/connect/product-page-header.tsx`.
