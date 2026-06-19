@@ -3849,7 +3849,20 @@ button.ct-choice-card {
    inchangé. Avant : levé uniquement sous 768px (cf. bloc mobile plus bas) → le desktop
    chat-ouvert restait cassé. Désormais global. Les cartes gèrent ensuite leur propre
    reflow via min-w-0/truncate/overflow-x interne. */
-.ct-center-panel { min-width: 0 !important; }
+.ct-center-panel {
+  min-width: 0 !important;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+/* Footer pin — height chain (all authenticated pages, flex only).
+   ct-root 100dvh → panels-row → center-panel → page-area → main scroll + .app-footer.
+   Fit hubs add an extra height lock inside the 80rem×52rem gate. */
+.ct-center-panel > .ct-page-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
 
 /* ── RAIL INTRA-APP — nav verticale dans la zone .ct-rail-left ──
    Position fixed, superposée au rail du shell @hearst/cockpit-shell
