@@ -74,7 +74,7 @@ export function InvestFlowShell({
         {children}
 
         {footer ? (
-          <footer className="product-doc-footer-rule">{footer}</footer>
+          <footer className="doc-page-disclaimer">{footer}</footer>
         ) : null}
       </div>
     </div>

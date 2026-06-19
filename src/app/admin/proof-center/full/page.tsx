@@ -164,7 +164,7 @@ export default async function AdminProofCenterFullPage({
         )}
       </ProofCenterSection>
 
-      <footer className="proof-center-footer">
+      <footer className="proof-provenance-block">
         <DashboardPanelHeader
           eyebrow="Read path"
           title="Data provenance"

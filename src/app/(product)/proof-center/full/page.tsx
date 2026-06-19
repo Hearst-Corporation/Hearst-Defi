@@ -156,7 +156,7 @@ export default async function ProofCenterFullPage({
         )}
       </ProofCenterSection>
 
-      <footer className="proof-center-footer">
+      <footer className="proof-provenance-block">
         <DashboardPanelHeader
           eyebrow="Read path"
           title="Data provenance"

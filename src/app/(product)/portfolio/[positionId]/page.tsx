@@ -42,7 +42,7 @@ export default async function PositionDetailPage({ params }: PageProps) {
       <PositionTransactions transactions={position.transactions} source={position.source} />
 
       {/* Disclaimer — non-negotiable #10 */}
-      <footer className="product-doc-footer-rule">
+      <footer className="doc-page-disclaimer">
         <Card
           hoverOverlay={false}
           aria-labelledby="position-methodology-note"
