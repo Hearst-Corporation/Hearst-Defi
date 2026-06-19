@@ -3357,24 +3357,15 @@ pre.ct-surface-1.rounded-md {
 .ct-glass-panel,
 .ct-section-preview,
 .pf-cockpit-panel {
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-2);
   border: 1px solid var(--ct-graphite-border-nested);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   box-shadow: var(--ct-glass-bevel);
 }
 
 .ct-glass-panel {
   border-radius: var(--ct-radius-xl);
-  /* Dark shell : panel = charcoal opaque, un cran au-dessus du centre
-     (--ct-surface-1) pour se détacher → niveau surface-2. Pas de frost.
-     Le composant peut surcharger via --ct-graphite-*-bg (même échelle). */
-  background: var(--ct-surface-2);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  /* Neutralize the package .ct-card drop-shadow leak — depth = border + bg
-     + inner bevel only. */
-  box-shadow: var(--ct-glass-bevel);
 }
 
 :is(.ct-glass-panel:not(.ct-glass-panel--flat), .ct-section-preview, .pf-cockpit-panel):hover {

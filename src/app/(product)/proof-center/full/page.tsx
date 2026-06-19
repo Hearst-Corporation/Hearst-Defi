@@ -27,7 +27,7 @@ import { isChainConfigured } from "@/lib/chain/client";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { loadCustody } from "@/lib/data/custody";
 import { getProofs } from "@/lib/data/proofs";
-import { PROOF_CENTER_VAULT_REF } from "@/lib/data/proof-center";
+
 import { getInvestor } from "@/lib/auth/session";
 import { isDemoInvestor } from "@/lib/demo/provider";
 import { buildDemoProofs } from "@/lib/demo/builders";

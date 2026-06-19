@@ -15,7 +15,7 @@ import type { Provenance } from "@/components/ui/provenance-badge";
  */
 
 /** Page-level discriminant. `preview` === real investor with zero positions. */
-export type PortfolioViewKind = "preview" | "live";
+type PortfolioViewKind = "preview" | "live";
 
 export type PortfolioViewState =
   | { kind: "preview" }

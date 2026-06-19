@@ -8,7 +8,7 @@
  */
 
 import type { NavProfile } from "@/lib/llm/navigate-tool";
-import { isExplicitSimulationIntent } from "@/lib/llm/product-workspace-intent";
+
 
 export const ADMIN_CUSTOMERS_DESTINATION_KEY = "admin-customers";
 export const ADMIN_OUTREACH_DESTINATION_KEY = "admin-outreach";

@@ -58,8 +58,8 @@ export function PortfolioOnboardingHero() {
         </div>
       </dl>
 
-      <div className="product-doc-stack--actions w-full max-w-full">
-        <Button variant="primary" size="lg" asChild className="w-full sm:w-auto">
+      <div className="product-doc-stack--actions">
+        <Button variant="primary" size="lg" asChild>
           <Link href={PORTFOLIO_ONBOARDING_INVEST_HREF}>Subscribe to vault</Link>
         </Button>
         <p className="body-xs ct-text-faint m-0">

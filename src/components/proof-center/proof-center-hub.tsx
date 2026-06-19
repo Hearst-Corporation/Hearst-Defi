@@ -164,7 +164,7 @@ export function ProofCenterHub({
                   variant={variant}
                   title="Proof of Reserves"
                   trailing={
-                    <HubLeafLink href={fullHref} label="View full" />
+                    <HubLeafLink variant={variant} href={fullHref} label="View full" />
                   }
                 />
                 <div className="proof-panel-scroll">
@@ -199,7 +199,7 @@ export function ProofCenterHub({
                   variant={variant}
                   title="Latest distributions"
                   trailing={
-                    <HubLeafLink href={fullHref} label="View full" />
+                    <HubLeafLink variant={variant} href={fullHref} label="View full" />
                   }
                 />
                 <div className="proof-panel-scroll">
@@ -224,7 +224,7 @@ export function ProofCenterHub({
                   variant={variant}
                   title="Rebalancing events"
                   trailing={
-                    <HubLeafLink href={fullHref} label="View full" />
+                    <HubLeafLink variant={variant} href={fullHref} label="View full" />
                   }
                 />
                 <div className="proof-panel-scroll">

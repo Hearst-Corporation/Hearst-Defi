@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricGrid } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";

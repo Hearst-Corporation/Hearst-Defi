@@ -4,11 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**208 components** · 1 possible orphans · 2 intentionally unwired.
-
-## ⚠️ Possible orphans (0 references — verify before keeping)
-
-- `src/components/portfolio/portfolio-teaser-tile.tsx` — PortfolioTeaserTile
+**207 components** · 0 possible orphans · 2 intentionally unwired.
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -125,7 +121,6 @@
 | `src/components/portfolio/portfolio-leaf-shell.tsx` | PortfolioLeafShell | 4 |
 | `src/components/portfolio/portfolio-onboarding-foot.tsx` | PortfolioOnboardingFoot | 1 |
 | `src/components/portfolio/portfolio-onboarding-hero.tsx` | PortfolioOnboardingHero | 1 |
-| `src/components/portfolio/portfolio-teaser-tile.tsx` ⚠️ | PortfolioTeaserTile | 0 |
 | `src/components/portfolio/position-actions.tsx` | PositionActions | 1 |
 | `src/components/portfolio/position-header.tsx` | PositionHeader | 1 |
 | `src/components/portfolio/position-kpis.tsx` | PositionKpis | 1 |
@@ -133,7 +128,7 @@
 | `src/components/portfolio/positions-list.tsx` | PositionsList | 3 |
 | `src/components/portfolio/proof-pulse.tsx` | ProofPulse | 3 |
 | `src/components/portfolio/recent-activity.tsx` | RecentActivity | 3 |
-| `src/components/portfolio/risk-pulse.tsx` | ScoreRow, CompositeSection, RiskPulse | 3 |
+| `src/components/portfolio/risk-pulse.tsx` | RiskPulse | 3 |
 | `src/components/portfolio/time-to-cash.tsx` | TimeToCash | 4 |
 | `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 2 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
@@ -182,7 +177,7 @@
 | `src/components/scenario/single-mode.tsx` | SingleMode | 1 |
 | `src/components/simulation/simulation-panel.tsx` | SimulationPanel | 1 |
 | `src/components/ui/apy-range.tsx` | ApyRange | 18 |
-| `src/components/ui/badge.tsx` | Badge | 50 |
+| `src/components/ui/badge.tsx` | Badge | 49 |
 | `src/components/ui/button.tsx` | Button | 82 |
 | `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 76 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
@@ -205,7 +200,7 @@
 | `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 55 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
-| `src/components/ui/section-embed.tsx` | SectionEmbedProvider | 1 |
+| `src/components/ui/section-embed.tsx` | — | 1 |
 | `src/components/ui/segmented-control.tsx` | SegmentedControl | 2 |
 | `src/components/ui/skeleton.tsx` | Skeleton, SkeletonCard | 30 |
 | `src/components/ui/toaster.tsx` | Toaster | 1 |

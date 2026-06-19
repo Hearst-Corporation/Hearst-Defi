@@ -68,6 +68,7 @@
 .admin-doc .admin-doc-stack--actions {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--ct-space-3);
 }
 
@@ -882,6 +883,7 @@
 .product-doc .product-doc-stack--actions {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--ct-space-3);
 }
 

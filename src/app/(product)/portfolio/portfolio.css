@@ -620,9 +620,7 @@
   align-items: stretch;
   border-radius: var(--ct-radius-xl);
   border: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  background: var(--ct-surface-2);
   overflow: clip;
 }
 
@@ -1525,9 +1523,7 @@ a.pf-trust-compact__see-more:hover {
 .product-doc .position-detail-shell .position-detail-value-card,
 .product-doc .position-detail-shell .position-detail-transactions {
   border-color: var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: var(--ct-graphite-blur);
-  -webkit-backdrop-filter: var(--ct-graphite-blur);
+  background: var(--ct-surface-2);
   box-shadow: none;
 }
 

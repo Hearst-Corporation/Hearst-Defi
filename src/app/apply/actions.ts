@@ -2,7 +2,6 @@
 
 import { after } from "next/server";
 import { z } from "zod";
-import { headers } from "next/headers";
 
 import { prisma } from "@/lib/db";
 import {
