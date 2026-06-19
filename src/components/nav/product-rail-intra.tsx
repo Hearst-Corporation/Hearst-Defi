@@ -130,7 +130,7 @@ function RailItem({ item, pathname, active }: RailItemProps) {
       className={cn("ct-rail-item", isActive && "ct-rail-item-active")}
     >
       {Icon ? <Icon className="ct-rail-icon" strokeWidth={1.8} /> : null}
-      <span className="ct-rail-item-tooltip">{item.label}</span>
+      <span className="ct-rail-item-tooltip">{item.railLabel ?? item.label}</span>
     </Link>
   );
 }

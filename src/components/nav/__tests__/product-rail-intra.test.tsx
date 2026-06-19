@@ -87,7 +87,7 @@ describe("Product rail intra (fixed column)", () => {
     const brace = css.indexOf("{", start);
     const end = css.indexOf("}", brace);
     const rule = css.slice(brace + 1, end);
-    expect(rule).toContain("justify-content: flex-start");
+    expect(rule).toContain("justify-content: center");
     expect(rule).toContain("flex: 1");
   });
 });

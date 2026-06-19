@@ -15,6 +15,9 @@
 export type NavItem = {
   id: string;
   label: string;
+  /** Short label for the narrow left rail (under the icon). Falls back to `label`.
+   *  Keeps multi-word page titles from wrapping to 2 lines in the rail. */
+  railLabel?: string;
   href: string;
   /** Nom de l'icône Lucide React (string pour éviter l'import ici — data only). */
   icon: string;
@@ -44,6 +47,7 @@ export const PRODUCT_NAV: NavItem[] = [
   {
     id: "proof-center",
     label: "Proofs & Documents",
+    railLabel: "Proofs",
     href: "/proof-center",
     icon: "ShieldCheck",
   },

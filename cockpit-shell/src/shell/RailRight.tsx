@@ -26,8 +26,8 @@ import { useCockpit } from "./context";
 
 const TITLES: Record<string, string> = {
   chat: "Assistant",
-  settings: "Réglages",
-  history: "Historique",
+  settings: "Settings",
+  history: "History",
 };
 
 function WidthIcon({ expanded }: { expanded: boolean }) {

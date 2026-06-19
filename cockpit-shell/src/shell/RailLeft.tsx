@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useSyncExternalStore, useEffect, useRef, useState } from "react";
 import {
   subscribe as subActive,
@@ -46,8 +47,8 @@ export function RailLeft() {
       <button
         type="button"
         className="ct-rail-top"
-        title={open ? "Réduire" : `${top.name} — ouvrir le lanceur`}
-        aria-label={open ? "Réduire le lanceur" : "Ouvrir le lanceur"}
+        title={open ? "Collapse" : `${top.name} — open launcher`}
+        aria-label={open ? "Collapse launcher" : "Open launcher"}
         onClick={() => {
           if (inProduct && !open) {
             setActive(appId);
@@ -58,7 +59,7 @@ export function RailLeft() {
         style={{ ["--p-color" as string]: top.color }}
       >
         <span className="ct-rail-top-badge">
-          <HearstMark size={26} />
+          <HearstMark size={34} />
         </span>
         <span className="ct-rail-top-name">{label(top.name)}</span>
       </button>
@@ -97,15 +98,33 @@ export function RailLeft() {
 
 /**
  * Badge utilisateur en bas du rail gauche.
- * - 1er clic : navigue vers /profile + s'arme (rouge + icône logout).
- * - 2e clic sur le badge armé : déconnexion Supabase + redirect /login.
- * - Clic ailleurs OU 5s sans interaction → désarme automatiquement.
+ * - 1er clic : navigue vers /profile (SPA, aucun reload/flicker) + révèle le
+ *   bouton sign-out (qui n'existe PAS tant qu'on n'a pas cliqué).
+ * - Clic sur le sign-out révélé : déconnexion.
+ * - Clic ailleurs OU 5s sans interaction → se referme.
  */
 function UserBadge({ appId }: { appId: string }) {
+  const router = useRouter();
   const [initials, setInitials] = useState<string>("");
   const [armed, setArmed] = useState<boolean>(false);
-  const armRef = useRef<HTMLButtonElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<number | null>(null);
+
+  // Quand révélé : timer 5s + clic extérieur pour refermer le sign-out.
+  useEffect(() => {
+    if (!armed) return;
+    timerRef.current = window.setTimeout(() => setArmed(false), 5000);
+    const onDocClick = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setArmed(false);
+      }
+    };
+    document.addEventListener("click", onDocClick);
+    return () => {
+      if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+      document.removeEventListener("click", onDocClick);
+    };
+  }, [armed]);
 
   useEffect(() => {
     // Récupère l'email pour les initiales. Import indirect (variable) pour ne
@@ -130,66 +149,52 @@ function UserBadge({ appId }: { appId: string }) {
     })();
   }, []);
 
-  // Quand armé : timer 5s + listener click document pour désarmer.
-  useEffect(() => {
-    if (!armed) return;
-
-    timerRef.current = window.setTimeout(() => setArmed(false), 5000);
-
-    const onDocClick = (e: MouseEvent) => {
-      if (armRef.current && !armRef.current.contains(e.target as Node)) {
-        setArmed(false);
-      }
-    };
-    document.addEventListener("click", onDocClick);
-
-    return () => {
-      if (timerRef.current !== null) window.clearTimeout(timerRef.current);
-      document.removeEventListener("click", onDocClick);
-    };
-  }, [armed]);
-
-  async function handleClick(e: React.MouseEvent) {
+  async function handleBadgeClick(e: React.MouseEvent) {
+    e.preventDefault();
     e.stopPropagation();
-
     if (armed) {
-      // 2e clic — déconnexion (import indirect : @supabase/ssr optionnel).
-      try {
-        const moduleName = "@supabase/ssr";
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const mod: any = await (Function("m", "return import(m)") as (m: string) => Promise<unknown>)(moduleName).catch(() => null);
-        const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-        if (mod?.createBrowserClient && url && key) {
-          const sb = mod.createBrowserClient(url, key);
-          await sb.auth.signOut();
-        }
-      } catch {
-        /* fallback */
-      }
-      window.location.href = "/login";
+      await handleSignOut(); // 2e clic sur le badge armé = déconnexion
       return;
     }
+    setArmed(true); // 1er clic : le badge passe en icône sign-out
+    router.push("/profile"); // navigation SPA, aucun reload
+  }
 
-    // 1er clic — armer + naviguer vers le profil si on n'y est pas déjà.
-    setArmed(true);
-    if (window.location.pathname !== "/profile") {
-      window.location.href = "/profile";
+  async function handleSignOut() {
+    // Déconnexion (import indirect : @supabase/ssr optionnel selon le projet).
+    try {
+      const moduleName = "@supabase/ssr";
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mod: any = await (Function("m", "return import(m)") as (m: string) => Promise<unknown>)(moduleName).catch(() => null);
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      if (mod?.createBrowserClient && url && key) {
+        const sb = mod.createBrowserClient(url, key);
+        await sb.auth.signOut();
+      }
+    } catch {
+      /* fallback */
     }
+    window.location.href = "/login";
   }
 
   const display = initials || (appId || "HC").slice(0, 2).toUpperCase();
 
   return (
-    <button
-      ref={armRef}
-      type="button"
-      className={`ct-avatar${armed ? " active" : ""}`}
-      title={armed ? "Cliquer pour se déconnecter" : "Profil & réglages"}
-      onClick={handleClick}
-    >
-      {armed ? <LogoutIcon /> : display}
-    </button>
+    <div className="ct-rail-identity-stack" ref={wrapRef}>
+      {/* Badge profil — 1er clic : va sur /profile (SPA) + bascule en icône
+          sign-out DANS le badge (aucun élément ajouté, aucun décalage).
+          2e clic sur le badge armé : déconnexion. */}
+      <button
+        type="button"
+        className={`ct-avatar${armed ? " active" : ""}`}
+        title={armed ? "Sign out" : "Profile & settings"}
+        aria-label={armed ? "Sign out" : "Profile & settings"}
+        onClick={handleBadgeClick}
+      >
+        {armed ? <LogoutIcon /> : display}
+      </button>
+    </div>
   );
 }
 
