@@ -10,11 +10,11 @@ import { ArrowLeft } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { ProofCenterCardHeader } from "@/components/proof-center/proof-center-card-header";
 import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
 import { ProofCenterTestnetNotice } from "@/components/proof-center/proof-center-testnet-notice";
+import { ProvenanceFooter } from "@/components/proof-center/provenance-footer";
 import { EventTimeline } from "@/components/proof-center/event-timeline";
 import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
 import { ProofFilter } from "@/components/proof/proof-filter";
@@ -156,18 +156,7 @@ export default async function ProofCenterFullPage({
         )}
       </ProofCenterSection>
 
-      <footer className="proof-provenance-block">
-        <DashboardPanelHeader
-          eyebrow="Read path"
-          title="Data provenance"
-          tone="quiet"
-        />
-        <p className="body-xs ct-prose-md ct-text-muted">
-          On-chain entries are read from the configured network (testnet until mainnet
-          deployment). Off-chain entries are pinned to IPFS or signed HTTPS endpoints.
-          Vault state is fetched fresh on every request.
-        </p>
-      </footer>
+      <ProvenanceFooter />
     </div>
   );
 }

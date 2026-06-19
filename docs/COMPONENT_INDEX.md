@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**208 components** · 0 possible orphans · 2 intentionally unwired.
+**209 components** · 0 possible orphans · 2 intentionally unwired.
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -148,6 +148,7 @@
 | `src/components/proof-center/proof-center-section.tsx` | ProofCenterSection | 4 |
 | `src/components/proof-center/proof-center-testnet-notice.tsx` | ProofCenterTestnetNotice | 3 |
 | `src/components/proof-center/proof-cockpit-panel-header.tsx` | ProofCockpitPanelHeader, ProofLeafLink | 1 |
+| `src/components/proof-center/provenance-footer.tsx` | ProvenanceFooter | 2 |
 | `src/components/proof-center/rebalance-ptai-modal-trigger.tsx` | RebalancePtaiModalTrigger | 1 |
 | `src/components/proof-center/rebalancing-events-panel.tsx` | RebalancingEventsPanel | 1 |
 | `src/components/proof-center/recent-distributions.tsx` | RecentDistributions | 1 |
@@ -188,7 +189,7 @@
 | `src/components/ui/choice-card.tsx` | ChoiceCard, ChoiceGroup | 1 |
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
-| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 18 |
+| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 17 |
 | `src/components/ui/empty-surface.tsx` | EmptySurface | 43 |
 | `src/components/ui/error-boundary.tsx` | ErrorBoundary | 1 |
 | `src/components/ui/metric.tsx` | Metric | 8 |
