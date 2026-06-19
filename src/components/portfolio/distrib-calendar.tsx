@@ -394,7 +394,7 @@ export function DistribCalendar({
         data-testid="distrib-calendar-widget"
       >
         <PfCockpitPanelHeader
-          title="Payout calendar"
+          title="Payout Calendar"
           subtitle="Monthly USDC distributions"
           titleVariant="primary"
         />
@@ -490,7 +490,7 @@ export function DistribCalendar({
     <WidgetShell
       variant="wide"
       ariaLabel="Payout calendar"
-      title="Payout calendar"
+      title="Payout Calendar"
       subtitle={
         previewZeros
           ? "12m forecast"

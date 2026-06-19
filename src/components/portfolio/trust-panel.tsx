@@ -138,7 +138,7 @@ export function TrustProofCompact({
         aria-label="Trust and proof summary"
         className="pf-trust-compact"
       >
-        <PfCockpitPanelHeader title="Trust & proof" />
+        <PfCockpitPanelHeader title="Trust & Proof" />
         <div className="pf-trust-compact__zero-body">
           <span className="pf-trust-compact__status stat-label ct-text-muted">
             <span
@@ -165,7 +165,7 @@ export function TrustProofCompact({
       className="pf-trust-compact"
     >
       <PfCockpitPanelHeader
-        title="Trust & proof"
+        title="Trust & Proof"
         provenance={kpis.headerProvenance}
       />
 

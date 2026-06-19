@@ -57,7 +57,7 @@ export function HeroKpiTable({
 
   if (isZero) {
     return (
-      <HeroRailGroup title="Portfolio metrics" aria-label="Portfolio metrics" slot="metrics">
+      <HeroRailGroup title="Portfolio Metrics" aria-label="Portfolio metrics" slot="metrics">
         <p className="pf-hero-rail-blurb body-xs ct-text-muted m-0">
           No position yet — metrics appear after your first confirmed deposit.
         </p>
@@ -92,7 +92,7 @@ export function HeroKpiTable({
   ];
 
   return (
-    <HeroRailGroup title="Key metrics" aria-label="Key metrics summary" slot="metrics">
+    <HeroRailGroup title="Key Metrics" aria-label="Key metrics summary" slot="metrics">
       <dl className="pf-hero-rail-list">
         {rows.map((r) => (
           <div key={r.label} className="pf-hero-rail-row">

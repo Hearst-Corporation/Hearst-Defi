@@ -219,6 +219,14 @@
   color: var(--ct-accent);
 }
 
+/* Portfolio panel/rail heads read Title Case (set in the components), not the
+   shared micro-uppercase. Scoped to .pf-container so the dashboard's own
+   .pf-panel-title / .dashboard-panel-micro-title heads keep their uppercase. */
+.pf-container :is(.pf-panel-title, .pf-hero-rail-title) {
+  text-transform: none;
+  letter-spacing: var(--ct-tracking-normal);
+}
+
 /* ── Portfolio typography roles ── */
 .pf-cockpit-panel__title--primary {
   margin: 0;
@@ -1677,7 +1685,7 @@ a.pf-trust-compact__see-more:hover {
 /* Zero-state cockpit cohesion — one rhythm across the full bento so sections
    feel stitched together (less visual conflict between inherited gap rules). */
 .pf-container--zero {
-  --pf-zero-rail-sibling-gap: var(--ct-space-2);
+  --pf-zero-rail-sibling-gap: var(--ct-space-1_5);
 }
 
 .pf-container--zero .pf-cockpit {
@@ -1689,7 +1697,7 @@ a.pf-trust-compact__see-more:hover {
 }
 
 .pf-container--zero .pf-hero-sidebar--zero {
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-1_5);
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 
@@ -1707,9 +1715,32 @@ a.pf-trust-compact__see-more:hover {
   padding-top: var(--ct-space-1_5);
 }
 
+/* Zero-state empty values read as muted placeholders, not live accent metrics.
+   The projected-payout "—" is an empty value (like the donut ledger dashes) —
+   harmonise it to muted so no zero placeholder looks brighter than another. */
+.pf-container--zero .pf-hero-sidebar--zero .pf-hero-rail-group--payout .pf-hero-rail-kpi {
+  color: var(--ct-text-muted);
+}
+
 .pf-container--zero .cy-donut .dash-chart-svg,
 .pf-container--zero .pf-distrib-chart--compact {
   opacity: var(--ct-opacity-70);
+}
+
+/* Zero-state donut placeholder: no live gauge to fill the 13rem column, so the
+   "Awaiting snapshot" ring floats with dead air on both sides. Collapse the
+   gauge column to content width and cap the placeholder so it reads as a
+   compact ledger marker, not a centred orphan in a wide card. */
+.pf-container--zero .cy-panel .cy-body {
+  grid-template-columns: max-content var(--ct-space-px) 1fr;
+}
+
+.pf-container--zero .cy-panel .cy-donut {
+  /* chart-geometry — tighter pending ring (no live arcs to justify the size) */
+  width: clamp(7rem, 24cqw, 9rem);
+  height: clamp(7rem, 24cqw, 9rem);
+  --ct-donut-size: clamp(7rem, 24cqw, 9rem);
+  margin-inline: 0;
 }
 
 .pf-container--zero .cy-track,

@@ -102,7 +102,7 @@ export function RecentActivity({
     <WidgetShell
       variant="wide"
       ariaLabel="Recent account activity"
-      title="Recent activity"
+      title="Recent Activity"
       view={view}
       trailing={trailing}
       zeroSlot={zeroSlot}

@@ -36,7 +36,7 @@ describe("TrustProofCompact", () => {
     const html = renderToStaticMarkup(
       <TrustProofCompact risk={BASE_RISK} proof={BASE_PROOF} />,
     );
-    expect(html).toContain("Trust &amp; proof");
+    expect(html).toContain("Trust &amp; Proof");
     expect(html).toContain("Risk composite");
     expect(html).toContain("Proof status");
     expect(html).toContain("pf-trust-compact-kpis");

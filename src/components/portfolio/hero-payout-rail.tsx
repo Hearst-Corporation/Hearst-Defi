@@ -71,7 +71,7 @@ export function HeroPayoutRail({
 
   return (
     <HeroRailGroup
-      title="Projected payout"
+      title="Projected Payout"
       aria-label="Projected payout"
       payout
       provenance={widgetProvenance}
