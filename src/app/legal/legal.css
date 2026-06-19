@@ -104,12 +104,6 @@
   font-weight: var(--ct-font-bold);
 }
 
-.legal-footer {
-  margin-top: var(--ct-space-10);
-  padding-top: var(--ct-space-6);
-  border-top: 1px solid var(--ct-border-soft);
-}
-
 .legal-index {
   display: grid;
   gap: var(--ct-space-4);

@@ -69,7 +69,7 @@
 | `src/components/admin/vault-action-button.tsx` | VaultActionButton | 3 |
 | `src/components/admin/vault-status-pill.tsx` | VaultStatusPill | 2 |
 | `src/components/analytics.tsx` | Analytics | 3 |
-| `src/components/app-chrome.tsx` | AppChrome | 2 |
+| `src/components/app-chrome.tsx` | AppChrome | 3 |
 | `src/components/app-footer.tsx` | AppFooter | 1 |
 | `src/components/auth/auth-form-shell.tsx` | AuthFormShell | 3 |
 | `src/components/auth/login-form.tsx` | LoginForm | 2 |
@@ -193,7 +193,7 @@
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 2 |
 | `src/components/ui/progress.tsx` | Progress | 12 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 51 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 52 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/segmented-control.tsx` | SegmentedControl | 2 |

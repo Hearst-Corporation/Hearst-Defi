@@ -29,6 +29,14 @@ function isBareRoute(pathname: string): boolean {
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
 }
+
+// Bare routes that still carry the full institutional footer (replicated from
+// src/components/app-chrome.tsx — private helper): home/login "/" + /legal/*.
+function isFooterBareRoute(pathname: string): boolean {
+  return (
+    pathname === "/" || pathname === "/legal" || pathname.startsWith("/legal/")
+  );
+}
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("isBareRoute — routes that render WITHOUT the Cockpit shell", () => {
@@ -103,5 +111,26 @@ describe("isBareRoute — exact vs sub-path semantics for /apply", () => {
 
   it("does NOT treat /apply-other as bare (not a sub-path)", () => {
     expect(isBareRoute("/apply-other")).toBe(false);
+  });
+});
+
+describe("isFooterBareRoute — bare routes that carry the full footer", () => {
+  it.each(["/", "/legal", "/legal/privacy", "/legal/terms", "/legal/disclaimer"])(
+    "shows the full footer on %s",
+    (path) => {
+      expect(isFooterBareRoute(path)).toBe(true);
+    },
+  );
+
+  it.each([
+    "/login",
+    "/forgot-password",
+    "/reset-password",
+    "/totp-challenge",
+    "/apply",
+    "/apply/confirmed",
+    "/legal-other",
+  ])("does NOT show the full footer on %s", (path) => {
+    expect(isFooterBareRoute(path)).toBe(false);
   });
 });

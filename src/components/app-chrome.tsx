@@ -29,6 +29,13 @@ function isBareRoute(pathname: string): boolean {
   return BARE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
+// Bare routes that still carry the full institutional footer (the public-facing
+// "socle plein"): the home/login screen ("/") and every legal page (/legal/*).
+// Auth funnels (/login, /apply, password/totp flows) stay footer-free.
+function isFooterBareRoute(pathname: string): boolean {
+  return pathname === "/" || pathname === "/legal" || pathname.startsWith("/legal/");
+}
+
 // Authenticated surfaces that keep the shell but must NOT show the chat rail:
 // the onboarding/KYC funnel has its own focused chrome (the chat would be a
 // double-chrome distraction mid-flow), and /debug is a dev-only scaffold.
@@ -60,7 +67,14 @@ export function AppChrome({
   const bare = isBareRoute(pathname);
 
   if (bare) {
-    return <div className="min-h-dvh bg-(--ct-bg-deep)">{children}</div>;
+    return (
+      <div className="min-h-dvh bg-(--ct-bg-deep)">
+        {children}
+        {/* Public surfaces ("/" and /legal/*) carry the full institutional
+            footer; auth funnels stay footer-free. */}
+        {isFooterBareRoute(pathname) ? <AppFooter variant="full" /> : null}
+      </div>
+    );
   }
 
   // The conversational Master Agent is available on every authenticated product
@@ -73,9 +87,10 @@ export function AppChrome({
   return (
     <ConnectShell enableChat={chatEnabled} masterAgentEnabled={masterAgentEnabled}>
       {children}
-      {/* Global legal footer — keeps Disclaimer / Privacy / Terms reachable on
-          every authenticated surface (bare auth/legal routes returned above). */}
-      <AppFooter />
+      {/* Global legal footer — compact single line; keeps Disclaimer / Privacy
+          / Terms reachable on every authenticated surface (bare auth/legal
+          routes returned above) without breaking the no-scroll layout. */}
+      <AppFooter variant="compact" />
       {/* Chat mode selector (Conversation / Review). Self-gates to admins via
           the requireAdmin-protected /api/admin/review-mode route; renders
           nothing for everyone else. Mounted here so it's available on every

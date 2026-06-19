@@ -29,13 +29,9 @@ export default function LegalLayout({
         </nav>
       </header>
       <article className="legal-body">{children}</article>
-      <footer className="legal-footer">
-        <p className="body-xs ct-text-faint">
-          Hearst Yield Vault — Cayman SPV. This documentation is provided for
-          informational purposes and does not constitute investment, legal, or
-          tax advice. APY ranges are target projections, not guarantees.
-        </p>
-      </footer>
+      {/* The institutional footer (AppChrome, variant="full") renders below this
+          layout on /legal/* — it carries the legal disclaimer and links, so no
+          local footer here. */}
     </div>
   );
 }
