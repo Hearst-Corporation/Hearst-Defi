@@ -22,22 +22,22 @@ const RISK_DB: RiskFrameworkData = {
 };
 
 describe("DashboardRiskSummaryCard — provenance honesty", () => {
-  it("shows Manual when db risk exists but live KPIs are off (seed/staging)", () => {
+  it("records manual provenance when db risk exists but live KPIs are off (seed/staging)", () => {
     const html = renderToStaticMarkup(
       <DashboardRiskSummaryCard data={RISK_DB} hasLiveKpis={false} />,
     );
-    expect(html).toContain("Manual");
-    expect(html).not.toContain(">Live<");
+    expect(html).toContain('data-risk-provenance="manual"');
+    expect(html).not.toContain('data-risk-provenance="live"');
   });
 
-  it("shows Live when live KPIs and db risk align", () => {
+  it("records live provenance when live KPIs and db risk align", () => {
     const html = renderToStaticMarkup(
       <DashboardRiskSummaryCard data={RISK_DB} hasLiveKpis />,
     );
-    expect(html).toContain(">Live<");
+    expect(html).toContain('data-risk-provenance="live"');
   });
 
-  it("shows Simulated in demo-builder context", () => {
+  it("records simulated provenance in demo-builder context", () => {
     const html = renderToStaticMarkup(
       <DashboardRiskSummaryCard
         data={RISK_DB}
@@ -45,6 +45,6 @@ describe("DashboardRiskSummaryCard — provenance honesty", () => {
         simulated
       />,
     );
-    expect(html).toContain("Simulated");
+    expect(html).toContain('data-risk-provenance="simulated"');
   });
 });
