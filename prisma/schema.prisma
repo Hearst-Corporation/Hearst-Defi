@@ -1050,7 +1050,7 @@ model OutreachProspect {
   lastName         String?
   company          String?
   title            String?
-  source           String   @default("manual") // manual | csv | import
+  source           String   @default("manual") // manual | csv | import | apollo
   status           String   @default("new") // new | contacted | opened | replied | qualified | converted | opted_out | bounced
   tags             String? // JSON array of strings
   notes            String?
@@ -1059,10 +1059,20 @@ model OutreachProspect {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
+  // ── Outreach engine (lead-gen) ──────────────────────────────────────────
+  apolloId        String? // Apollo person id when sourced via Apollo
+  qualScore       Int? //   LLM qualification score 0-100 (scorer agent)
+  tier            String? // autonomy tier: A (prime) | B (warm) | C (cold)
+  icpId           String? // the OutreachICP this prospect was sourced for
+  sequenceStep    Int       @default(0) // follow-up cadence position
+  lastContactedAt DateTime? // last time any email was sent to this prospect
+
   emails OutreachEmail[]
 
   @@index([status])
   @@index([email])
+  @@index([tier])
+  @@index([apolloId])
 }
 
 model OutreachCampaign {
@@ -1101,6 +1111,10 @@ model OutreachEmail {
   draftedByAgent Boolean  @default(false)
   approvedAt     DateTime?
   sentAt         DateTime?
+  // Audit: the prospect tier + system autonomy at the moment of send, so a
+  // sent email always records under which policy it left the building.
+  tierAtSend     String? // A | B | C
+  autonomyAtSend String? // SUGGEST | SEND | NURTURE | CLOSED
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -1120,4 +1134,54 @@ model OutreachEmailEvent {
   raw        Json?
 
   @@index([emailId, type])
+}
+
+// Ideal Customer Profile — the persona definition the sourcer queries Apollo
+// with, plus the score thresholds that route a sourced prospect into a tier.
+// V1 persona target: distributors (RIA / family office / wealth managers).
+model OutreachICP {
+  id          String   @id @default(cuid())
+  name        String // e.g. "US RIAs & family offices"
+  persona     String   @default("distributor") // distributor | subscriber | treasury
+  // Apollo search filters — stored as JSON string arrays (SQLite has no native
+  // array type; loaders parse these into string[]).
+  titles      String? // JSON: ["wealth manager","family office","RIA"]
+  seniorities String? // JSON: ["owner","partner","c_suite","director"]
+  locations   String? // JSON: ["United States","Switzerland","United Kingdom"]
+  industries  String? // JSON: ["financial services","wealth management"]
+  headcount   String? // JSON: ["11,50","51,200"] (Apollo range syntax)
+  keywords    String? // JSON: free-text org keywords
+  language    String   @default("en") // en | fr — drives the writer's language
+  // Tier thresholds (score >= → tier). Defaults match the agreed model:
+  //   >= tierAMin → A (prime, human writes/sends)
+  //   >= tierBMin → B (warm, agent sends first touch)
+  //   >= tierCMin → C (cold, closed loop); below tierCMin → rejected.
+  tierAMin    Int      @default(85)
+  tierBMin    Int      @default(60)
+  tierCMin    Int      @default(40)
+  active      Boolean  @default(true)
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([active])
+  @@index([persona])
+}
+
+// Do-not-contact list. An email (or whole domain) here is skipped by the sender
+// forever (opt-out / bounce / manual) or until `until` (transient: recent
+// contact throttle). Checked before every send and before creating a prospect.
+model OutreachSuppression {
+  id        String   @id @default(cuid())
+  // Exactly one of email / domain is set. email is normalised lowercase.
+  email     String?  @unique
+  domain    String? // suppress an entire sending domain, e.g. "competitor.com"
+  reason    String // opt_out | bounce | complaint | manual | recent_contact
+  until     DateTime? // null = permanent; set = transient (e.g. recent-contact throttle)
+  note      String?
+  createdBy String? // admin User.id when manual; null when system-generated
+  createdAt DateTime @default(now())
+
+  @@index([domain])
+  @@index([reason])
 }

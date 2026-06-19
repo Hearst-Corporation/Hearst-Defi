@@ -199,6 +199,27 @@ const serverEnvSchema = z.object({
   // Resend — HMAC secret for inbound webhook signature verification (delivery
   // events, bounces, complaints). Distinct from RESEND_API_KEY (send-side).
   RESEND_WEBHOOK_SECRET: z.string().optional(),
+  // ── Outreach engine (B2B lead-gen) ──────────────────────────────────────
+  // Apollo.io API key — lead discovery + email enrichment for the outreach
+  // sourcer/enricher. Optional: when unset, sourcing is disabled (the Apollo
+  // client throws at use-site) but the rest of the outreach module still works.
+  APOLLO_API_KEY: z.string().optional(),
+  // System-wide autonomy ceiling for the outreach engine. Caps how far the
+  // agentic pipeline may act on its own, ON TOP OF the per-lead tier (A/B/C):
+  //   SUGGEST — agent drafts only; a human approves every send (test mode).
+  //   SEND    — agent may send the first touch (Tier B+); humans own replies.
+  //   NURTURE — agent may send + run timed follow-up sequences.
+  //   CLOSED  — full closed loop: send, follow up, read replies, qualify.
+  // Defaults to SUGGEST: the safe mode. Raising it requires ADR-016 (autonomous
+  // sending) to be accepted first.
+  OUTREACH_AUTONOMY: z
+    .enum(["SUGGEST", "SEND", "NURTURE", "CLOSED"])
+    .default("SUGGEST"),
+  // Starting daily cold-send cap PER sending domain. Deliverability — not the
+  // Resend technical limit — is the real constraint, so the sender never exceeds
+  // this in a day. The warm-up curve ramps the effective cap above this floor
+  // over the first weeks; this is the day-1 value. Coerced from string env.
+  OUTREACH_DAILY_SEND_CAP: z.coerce.number().int().positive().default(30),
   // On-chain publisher private key — 0x-prefixed 64-hex (32 bytes, secp256k1).
   // Used server-side to sign attestations / publish on-chain events.
   // Never expose in NEXT_PUBLIC_* vars or the client bundle.
@@ -360,6 +381,8 @@ function resolveEnv(): ServerEnv {
         DOCUSIGN_BASE_URL: lenient.data.DOCUSIGN_BASE_URL ?? "https://demo.docusign.net/restapi",
         FEAR_GREED_BASE_URL: lenient.data.FEAR_GREED_BASE_URL ?? "https://api.alternative.me",
         SUPABASE_STORAGE_BUCKET: lenient.data.SUPABASE_STORAGE_BUCKET ?? "reports",
+        OUTREACH_AUTONOMY: lenient.data.OUTREACH_AUTONOMY ?? "SUGGEST",
+        OUTREACH_DAILY_SEND_CAP: lenient.data.OUTREACH_DAILY_SEND_CAP ?? 30,
       };
       return data;
     }
