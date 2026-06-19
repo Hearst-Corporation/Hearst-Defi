@@ -49,7 +49,8 @@
 
 .admin-doc .admin-doc-shell--roomy {
   gap: var(--ct-doc-flow-gap);
-  padding-bottom: var(--ct-space-10);
+  /* AppFooter + .ct-page-area padding own bottom inset — avoid ghost scroll. */
+  padding-bottom: 0;
 }
 
 .admin-doc .admin-doc-stack {
@@ -1141,7 +1142,7 @@
 }
 
 .product-doc .invest-flow-shell {
-  padding-bottom: var(--ct-space-10);
+  padding-bottom: 0;
 }
 
 /* Main content column — section(s) + optional footer (always, not only workspace).
