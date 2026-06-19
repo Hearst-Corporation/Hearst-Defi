@@ -4299,16 +4299,21 @@ button.ct-choice-card {
   flex: 0 0 auto;
 }
 
+/* Operator / investor doc shells — shared bottom inset (mobile override in § narrow). */
+.ct-page-area:has(:is(.admin-doc, .product-doc)) {
+  padding-bottom: var(--ct-space-3);
+}
+
 /* Admin operator surfaces — denser inset (rails + chat compress centre vs LP). */
 .ct-page-area:has(.admin-doc) {
-  padding: var(--ct-space-5) var(--ct-space-5) var(--ct-space-3);
+  padding-top: var(--ct-space-5);
+  padding-inline: var(--ct-space-5);
 }
 
 /* Product investor surfaces — no sub-nav; extra top inset aligns rhythm with admin. */
 .ct-page-area:has(.product-doc) {
   padding-top: var(--ct-space-9);
   padding-inline: var(--ct-space-5);
-  padding-bottom: var(--ct-space-3);
 }
 .ct-embed-overlay                          { padding: var(--ct-space-6); }
 .ct-embed-sub code                         { padding: 1px 6px; }
