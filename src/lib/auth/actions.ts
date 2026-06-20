@@ -107,21 +107,27 @@ export async function login(
     ? emailRaw.trim().toLowerCase()
     : "";
 
-  // Rate-limit by IP: 10 attempts / minute. Throttling here blunts both
-  // credential-stuffing and enumeration probing.
-  try {
-    await assertRateLimit(`login:${ip}`, 10, 60_000);
-  } catch {
-    return { ok: false, error: "Too many attempts. Please try again shortly." };
-  }
-
-  // Defence-in-depth: also rate-limit by email to prevent distributed
-  // attacks from bypassing the IP-based limit via proxy rotation.
-  if (emailKey) {
+  // Login throttling is DISABLED in development (no friction while building /
+  // testing). In production it stays on as a brute-force / enumeration guard,
+  // but with a roomier email window than before (operators were getting locked
+  // out on legitimate retries). The IP limit absorbs credential-stuffing; the
+  // per-email limit only backstops proxy-rotation attacks.
+  if (process.env.NODE_ENV === "production") {
+    // Rate-limit by IP: 20 attempts / minute.
     try {
-      await assertRateLimit(`login-email:${emailKey}`, 5, 900_000); // 5 per 15min
+      await assertRateLimit(`login:${ip}`, 20, 60_000);
     } catch {
       return { ok: false, error: "Too many attempts. Please try again shortly." };
+    }
+
+    // Defence-in-depth: also rate-limit by email (20 per 15 min — generous
+    // enough that a real user fat-fingering their password is never locked out).
+    if (emailKey) {
+      try {
+        await assertRateLimit(`login-email:${emailKey}`, 20, 900_000);
+      } catch {
+        return { ok: false, error: "Too many attempts. Please try again shortly." };
+      }
     }
   }
 
