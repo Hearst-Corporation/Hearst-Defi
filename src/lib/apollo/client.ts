@@ -6,7 +6,7 @@ import "server-only";
  * Apollo is the lead-discovery + enrichment source for the Outreach engine
  * (B2B distributor prospecting). Two capabilities are wrapped here:
  *
- *   1. `searchPeople`  — POST /v1/mixed_people/search
+ *   1. `searchPeople`  — POST /v1/mixed_people/api_search
  *      Query the ~275M-contact database by persona filters (titles, seniorities,
  *      industries, locations, employee headcount). Returns lightweight people
  *      records WITHOUT a revealed email — discovery is cheap, email reveal costs
@@ -185,10 +185,15 @@ export async function searchPeople(
   if (filters.organizationHeadcount?.length)
     body.organization_num_employees_ranges = filters.organizationHeadcount;
 
+  // Apollo deprecated `/v1/mixed_people/search` for API callers (returns 422
+  // with a redirect message). The current people-search endpoint is
+  // `/v1/mixed_people/api_search` — same body shape; it returns a lighter
+  // person record (no last_name / email_status / domain at this stage), which
+  // is by design: enrichPerson() reveals the full record + verified email.
   const data = await apollo<{
     people?: RawApolloPerson[];
     pagination?: { total_entries?: unknown; page?: unknown; per_page?: unknown };
-  }>("/v1/mixed_people/search", body, fetchImpl);
+  }>("/v1/mixed_people/api_search", body, fetchImpl);
 
   const people = (data.people ?? [])
     .map(normalizePerson)

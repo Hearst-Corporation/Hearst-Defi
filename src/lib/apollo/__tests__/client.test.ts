@@ -85,7 +85,7 @@ describe("searchPeople", () => {
 
     // Request shape: correct endpoint + the X-Api-Key header + mapped body keys.
     const req = calls[0]!;
-    expect(req.url).toContain("/v1/mixed_people/search");
+    expect(req.url).toContain("/v1/mixed_people/api_search");
     expect(req.headers.get("X-Api-Key")).toBe(KEY);
     const sentBody = JSON.parse(await req.text());
     expect(sentBody.person_titles).toEqual(["family office", "RIA"]);
