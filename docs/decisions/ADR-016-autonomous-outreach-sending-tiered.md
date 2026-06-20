@@ -37,21 +37,21 @@ daily volume ceiling. It is **OFF by default**.
 
 ### 1. One autonomy dial, server-side, off by default
 
-`OUTREACH_AUTONOMY` (env, validated in `src/lib/env.ts`, default `off`):
+`OUTREACH_AUTONOMY` (env, validated in `src/lib/env.ts`, default `SUGGEST`):
 
 | Level     | Tier A          | Tier B               | Tier C                          |
 |-----------|-----------------|----------------------|---------------------------------|
-| `off`     | draft only      | draft only           | draft only                      |
-| `suggest` | draft only      | draft only           | draft only                      |
-| `send`    | draft + alert   | **auto first touch** | **auto first touch**            |
-| `nurture` | draft + alert   | auto first touch     | auto first touch **+ follow-ups** |
-| `closed`  | draft + alert   | auto first touch     | first touch + follow-ups **+ reply-driven qualify** |
+| `SUGGEST` | draft only      | draft only           | draft only                      |
+| `SEND`    | draft + alert   | **auto first touch** | **auto first touch**            |
+| `NURTURE` | draft + alert   | auto first touch     | auto first touch **+ follow-ups** |
+| `CLOSED`  | draft + alert   | auto first touch     | first touch + follow-ups **+ reply-driven qualify** |
 
 - **Tier A is NEVER auto-sent at any level.** Prime leads are too valuable to
   spend on an unreviewed template — the agent drafts and raises a "Prime to
   review" alert; the human always sends.
-- `off`/`suggest` are behaviourally identical for sending (nothing auto-sends);
-  `suggest` exists as the explicit "engine is live, sending is human" posture.
+- `SUGGEST` is the default and the safe posture: the engine is live (sources,
+  scores, drafts, tracks) but **nothing auto-sends** — a human approves every
+  send via the existing `sendCampaign` path.
 - The level is read **server-side only**; there is no client override and no
   way to escalate autonomy from the browser.
 

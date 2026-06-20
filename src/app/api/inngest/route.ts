@@ -13,6 +13,8 @@ import { rebalancingSignal } from "@/lib/inngest/functions/rebalancing-signal";
 import { riskDaily } from "@/lib/inngest/functions/risk-daily";
 import { hubspotReverseSync } from "@/lib/inngest/functions/hubspot-reverse-sync";
 import { outreachSend } from "@/lib/inngest/functions/outreach-send";
+import { outreachAutoSend } from "@/lib/inngest/functions/outreach-auto-send";
+import { outreachFollowups } from "@/lib/inngest/functions/outreach-followups";
 import { custodySnapshotHourly } from "@/lib/inngest/functions/custody-snapshot-hourly";
 
 /**
@@ -78,6 +80,8 @@ export const { GET, POST, PUT } = serve({
     distributionExecuted,
     hubspotReverseSync,
     outreachSend,
+    outreachAutoSend,
+    outreachFollowups,
     custodySnapshotHourly,
   ],
   // Pass the validated signing key explicitly to `serve()`. inngest@4 would
