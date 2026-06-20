@@ -478,6 +478,8 @@
   /* min-height:0 on the WHOLE chain — neutralize every min-height floor. */
   .pf-container--fit .pf-cockpit-cell,
   .pf-container--fit .pf-cockpit-panel,
+  .pf-container--fit .pf-fused-surface,
+  .pf-container--fit .pf-fused-surface__pane,
     .pf-container--fit .pf-hero-grid,
   .pf-container--fit .pf-status-panel,
   .pf-container--fit .pf-status-list,
@@ -707,7 +709,7 @@
   display: grid;
   grid-template-columns: 1fr;
   min-width: 0;
-  min-height: 280px;
+  min-height: 280px; /* chart-geometry — scroll-mode height floor; neutralised to 0 inside the fit gate */
   height: 100%;
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
@@ -2162,10 +2164,8 @@
   .pf-cockpit-row--deck { grid-template-columns: 1.55fr 1fr; }
 }
 
-/* ---- MID: 1 → 2 columns, then weighted split ---- */
-@container pf (min-width: 52rem) {
-  .pf-cockpit-row--mid { grid-template-columns: 1fr; }
-}
+/* ---- MID: outer row stays 1fr at all sizes (the pf-fused-surface--mid handles
+        its own internal 2-column split). No @container override needed here. ---- */
 
 /* ---- HERO welded grid: split at 58rem inside the well ---- */
 @container pf (min-width: 58rem) {
@@ -2275,6 +2275,19 @@
 @keyframes pf-shimmer {
   0% { background-position: 200% 0; transform: translateX(-100%); }
   100% { background-position: -200% 0; transform: translateX(100%); }
+}
+
+/* Line-draw animation for ValueChart — strokeDashoffset from full-length to 0. */
+@keyframes pf-line-draw {
+  from { stroke-dashoffset: 1000; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* SVG path class — owns the draw animation (moved from inline style). */
+.pf-vc-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: pf-line-draw 1.6s var(--ct-ease) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

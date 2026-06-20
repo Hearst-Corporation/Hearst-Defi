@@ -10,6 +10,8 @@
  * Layout: fixed 560×160 viewBox, bars left→right, labels below each bar.
  */
 
+import { useId } from "react";
+
 import { cn } from "@/lib/cn";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
@@ -119,14 +121,17 @@ function BarChart({
   refYear,
   currentPeriod,
 }: BarChartProps) {
+  // ids uniques par instance — évite les collisions <defs>/aria-labelledby si
+  // plusieurs DistribCalendar coexistent sur le document (HTML invalide sinon).
+  const uid = useId();
   const n = entries.length;
   if (n === 0) return null;
 
   const GAP = 4;
   const totalGaps = (n - 1) * GAP;
   const BAR_W = Math.floor((VB_W - totalGaps) / n);
-  const forecastPatternId = "dc-forecast-hatch";
-  const titleId = "dc-title";
+  const forecastPatternId = `${uid}-forecast-hatch`;
+  const titleId = `${uid}-title`;
 
   const maxAmount = Math.max(...entries.map((e) => e.amountUsdc), 1);
 
@@ -307,6 +312,9 @@ export function DistribCalendar({
   secondaryLeafHref,
   secondaryLeafLabel,
 }: DistribCalendarProps) {
+  // id unique par instance — évite la collision de gradient <defs> si plusieurs
+  // calendriers en zero-state coexistent (duplicate id = HTML invalide).
+  const uid = useId();
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
 
@@ -317,6 +325,7 @@ export function DistribCalendar({
 
   // Zero-state: ghost bar chart preview (12 bars, varied heights, all muted)
   if (!hasEntries) {
+    const ghostGradId = `${uid}-ghost-grad`;
     const GHOST_HEIGHTS = [38, 55, 42, 68, 51, 74, 63, 80, 58, 72, 65, 90];
     const n = GHOST_HEIGHTS.length;
     const GAP = 4;
@@ -327,7 +336,6 @@ export function DistribCalendar({
         variant="wide"
         aria-label="Payout calendar — no distributions yet"
         className="pf-payout-calendar-panel pf-payout-calendar-panel--zero h-full"
-        data-testid="distrib-calendar-widget"
       >
         <PfCockpitPanelHeader
           title="Payout Calendar"
@@ -344,7 +352,7 @@ export function DistribCalendar({
               aria-hidden="true"
             >
               <defs>
-                <linearGradient id="dc-ghost-grad" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id={ghostGradId} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="var(--ct-figma-accent-area-top)" />
                   <stop offset="100%" stopColor="var(--ct-figma-accent-area-bottom)" />
                 </linearGradient>
@@ -360,7 +368,7 @@ export function DistribCalendar({
                     y={by}
                     width={BAR_W}
                     height={h}
-                    fill={isLast ? "url(#dc-ghost-grad)" : BAR_FILL}
+                    fill={isLast ? `url(#${ghostGradId})` : BAR_FILL}
                     opacity={isLast ? 1 : 1}
                     rx="2"
                     stroke={isLast ? "var(--ct-text-muted)" : BAR_STROKE}
@@ -395,7 +403,7 @@ export function DistribCalendar({
               />
             </svg>
           </div>
-          <p className="pf-payout-calendar__empty-copy body-xs ct-text-faint m-0" role="status">
+          <p className="pf-payout-calendar__empty-copy body-xs ct-text-tertiary m-0" role="status">
             First distribution appears after cycle close · Monthly USDC
           </p>
         </div>

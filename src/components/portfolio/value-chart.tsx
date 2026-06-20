@@ -170,9 +170,11 @@ interface PlotProps {
   series: PortfolioValuePoint[];
   /** Pas de fond/area — ligne seule (placeholder $0). */
   lineOnly?: boolean;
+  /** Courbe indicative preview (zero-state) — title/desc honnêtes pour l'a11y. */
+  preview?: boolean;
 }
 
-function Plot({ series, lineOnly = false }: PlotProps) {
+function Plot({ series, lineOnly = false, preview = false }: PlotProps) {
   // ids uniques par instance — SSR-safe (useId marche en RSC), évite les
   // collisions <defs> si plusieurs ValueChart coexistent sur le document.
   const uid = useId();
@@ -186,10 +188,12 @@ function Plot({ series, lineOnly = false }: PlotProps) {
   const last = pts[pts.length - 1];
 
   const distCount = series.filter((s) => s.isDistribution).length;
-  const summary =
-    series.length === 0
-      ? "Placeholder portfolio value chart — awaiting first position."
-      : `Portfolio value over the trailing window, ${distCount} monthly distribution markers.`;
+  // Preview/zero-state : ne JAMAIS décrire le preview comme de la vraie donnée
+  // pour les lecteurs d'écran (la chip visuelle "Preview" doit avoir son pendant a11y).
+  const title = preview ? "Indicative preview chart" : "Portfolio Value — trailing trend";
+  const summary = preview
+    ? "Indicative preview — not your data; activates after your first confirmed on-chain position."
+    : `Portfolio value over the trailing window, ${distCount} monthly distribution markers.`;
 
   return (
     <svg
@@ -199,7 +203,7 @@ function Plot({ series, lineOnly = false }: PlotProps) {
       role="img"
       aria-labelledby={`${titleId} ${descId}`}
     >
-      <title id={titleId}>Portfolio Value — trailing trend</title>
+      <title id={titleId}>{title}</title>
       <desc id={descId}>{summary}</desc>
 
       <defs>
@@ -243,6 +247,9 @@ function Plot({ series, lineOnly = false }: PlotProps) {
 
       {linePath ? (
         <path
+          /* anim (pf-line-draw + strokeDasharray/offset) + reduced-motion gérés
+             en CSS (.pf-vc-line) — orchestrateur */
+          className="pf-vc-line"
           d={linePath}
           fill="none"
           stroke="var(--ct-accent)"
@@ -252,11 +259,6 @@ function Plot({ series, lineOnly = false }: PlotProps) {
           vectorEffect="non-scaling-stroke"
           opacity={lineOnly ? "var(--ct-opacity-70)" : undefined}
           aria-hidden="true"
-          style={{
-            strokeDasharray: 1000,
-            strokeDashoffset: 1000,
-            animation: "pf-line-draw 1.6s var(--ct-ease) forwards",
-          }}
         />
       ) : null}
 
@@ -320,7 +322,7 @@ export function ValueChart({
       chrome={embedded ? "embedded" : "panel"}
       aria-label={
         isEmpty
-          ? "Portfolio value — awaiting first position"
+          ? "Portfolio value — awaiting first on-chain position"
           : "Portfolio value — trailing trend"
       }
       className={cn(
@@ -335,7 +337,7 @@ export function ValueChart({
           <div className="pf-cockpit-panel__header-main min-w-0">
             <h3 className="pf-cockpit-panel__title--primary">Portfolio value</h3>
             {isEmpty ? (
-              <p className="pf-cockpit-panel__subtitle body-xs ct-text-faint m-0 mono">
+              <p className="pf-cockpit-panel__subtitle body-xs ct-text-tertiary m-0 mono">
                 Preview · indicative curve
               </p>
             ) : (
@@ -371,28 +373,29 @@ export function ValueChart({
         />
       )}
 
-      <div className="pf-value-chart__chart-wrapper pf-value-chart__plot">
-        {isEmpty ? null : <ChartDisclaimerUnderlay />}
-        <Plot series={series} lineOnly={false} />
-        {dots.length > 0 ? (
-          <div className="pf-vc-dots" aria-hidden="true">
-            {dots.map((dot, i) => (
-              <span
-                key={i}
-                className={cn("pf-vc-dot", dot.isEndcap && "pf-vc-dot--endcap")}
-                style={{
-                  left: `${dot.leftPct.toFixed(3)}%`,
-                  top: `${dot.topPct.toFixed(3)}%`,
-                }}
-              />
-            ))}
-          </div>
-        ) : null}
+      <div className="pf-value-chart__chart-wrapper">
+        <div className="pf-value-chart__plot">
+          {isEmpty ? null : <ChartDisclaimerUnderlay />}
+          <Plot series={series} lineOnly={false} preview={mode === "preview"} />
+          {dots.length > 0 ? (
+            <div className="pf-vc-dots" aria-hidden="true">
+              {dots.map((dot, i) => (
+                <span
+                  key={i}
+                  className={cn("pf-vc-dot", dot.isEndcap && "pf-vc-dot--endcap")}
+                  style={{
+                    left: `${dot.leftPct.toFixed(3)}%`,
+                    top: `${dot.topPct.toFixed(3)}%`,
+                  }}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div
         className="stat-label ct-text-muted relative mono pf-value-chart__month-labels"
-        style={{ height: "1.5em" }}
       >
         {series.map((s, i) => {
           if (i % 3 !== 0 && i !== series.length - 1) return null;
@@ -416,7 +419,7 @@ export function ValueChart({
 
       {isEmpty ? (
         <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
-          Placeholder chart until your first confirmed position.
+          Placeholder chart until your first confirmed on-chain position.
         </p>
       ) : (
         <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
