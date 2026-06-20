@@ -1604,7 +1604,8 @@
 
 .pf-activity__row:hover {
   background: color-mix(in srgb, var(--ct-accent) 4%, transparent);
-  transform: translateX(3px);
+  /* Canonical hover-nudge distance (matches the leaf-link arrow) — was raw 3px. */
+  transform: translateX(var(--ct-space-0_5));
 }
 
 .pf-activity__row:last-child { border-bottom: 0; }
