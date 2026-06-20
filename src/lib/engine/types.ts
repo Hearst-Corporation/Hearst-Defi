@@ -81,6 +81,28 @@ export interface MiningRevenue {
 }
 
 export type BacktestKey = "bear_2022" | "etf_halving_2024" | "mining_crunch_2024";
+export type LabTab = "scenario" | "backtest" | "construction";
+
+export interface ConstructionInputs {
+  capacity_mw: number;
+  infra_cost_usd_mw: number;
+  asic_efficiency_j_th: number;
+  asic_cost_usd_th: number;
+  energy_cost_kwh: number;
+  hashprice_usd_th_day: number;
+}
+
+export interface ConstructionOutput {
+  total_capex_usd: number;
+  infra_capex_usd: number;
+  asic_capex_usd: number;
+  yearly_opex_usd: number;
+  yearly_revenue_usd: number;
+  yearly_net_profit_usd: number;
+  payback_months: number;
+  roi_5y_pct: number;
+  break_even_hashprice: number;
+}
 
 // ─── Scenario Engine v2 contract (ui-dev coding against this) ──────────────
 

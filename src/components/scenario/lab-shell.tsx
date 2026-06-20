@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { BacktestTab } from "@/components/scenario/backtest-tab";
+import { ConstructionTab } from "@/components/scenario/construction-tab";
 import { CompareMode } from "@/components/scenario/compare-mode";
 import {
   ScenarioTabBar,
@@ -82,6 +83,15 @@ export function LabShell({
             tabIndex={0}
           >
             <CompareMode active={scenarioMode === "compare"} vaultId={vaultId} />
+          </div>
+          <div
+            role="tabpanel"
+            id="tabpanel-mode-construction"
+            aria-labelledby="tab-mode-construction"
+            hidden={scenarioMode !== "construction"}
+            tabIndex={0}
+          >
+            {scenarioMode === "construction" ? <ConstructionTab /> : null}
           </div>
         </div>
 

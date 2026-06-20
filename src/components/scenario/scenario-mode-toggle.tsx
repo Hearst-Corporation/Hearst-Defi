@@ -9,7 +9,7 @@ import {
   type SegmentedItem,
 } from "@/components/ui/segmented-control";
 
-export type ScenarioMode = "single" | "compare";
+export type ScenarioMode = "single" | "compare" | "construction";
 
 interface ScenarioModeToggleProps {
   active: ScenarioMode;
@@ -28,6 +28,12 @@ const MODES: ReadonlyArray<SegmentedItem<ScenarioMode>> = [
     label: "Compare",
     id: "tab-mode-compare",
     controls: "tabpanel-mode-compare",
+  },
+  {
+    value: "construction",
+    label: "Construction",
+    id: "tab-mode-construction",
+    controls: "tabpanel-mode-construction",
   },
 ];
 
