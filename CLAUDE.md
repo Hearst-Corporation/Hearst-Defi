@@ -34,7 +34,8 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
    system prompt (no client override), output-side compliance guard (forbidden
    words + APY-range), role-aware register. Gated by `CHAT_MASTER_AGENT`.
    Second scoped exception (**ADR-016**): outreach **sending** may be agent-driven
-   for **Tier B/C** when `OUTREACH_AUTONOMY` is explicitly raised (off by default).
+   for **Tier B/C** when `OUTREACH_AUTONOMY` is raised to `SEND`+ (default `SUGGEST`
+   = nothing auto-sends).
    **Tier A is never auto-sent**; hard daily cap (`OUTREACH_DAILY_SEND_CAP`) +
    warm-up; suppression re-checked at send time; every send forbidden-words guarded,
    carries an unsubscribe link, and is audited. Not a financial/custodial action.
