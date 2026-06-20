@@ -53,14 +53,8 @@ jobs:
       - name: Run Typecheck
         run: pnpm typecheck
 
-      - name: DS token drift
-        run: pnpm ds:token-drift
-
-      - name: DS layout audit
-        run: pnpm ds:layout
-
   # ────────────────────────────────────────────────────────────────
-  # Job — SecDevOps gate (secret-leak scan + DS single-green invariant)
+  # Job — SecDevOps gate (secret-leak scan)
   # ────────────────────────────────────────────────────────────────
   secops:
     name: SecDevOps gate
@@ -79,10 +73,6 @@ jobs:
       # runner -> fallback regex curée (masquée). Exit!=0 sur fuite -> bloque.
       - name: Secret-leak scan
         run: bash scripts/secrets-scan.sh --all
-
-      # Invariant un-seul-vert (--ct-accent #A7FB90, pas de --ds-*, cascade OK).
-      - name: DS single-green invariant
-        run: bash scripts/ds-lock-check.sh
 
   # ────────────────────────────────────────────────────────────────
   # Job 2 — Vitest unit + integration tests (BLOCKING)

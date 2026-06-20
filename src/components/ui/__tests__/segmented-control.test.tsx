@@ -9,22 +9,6 @@ const ITEMS = [
 ] as const;
 
 describe("SegmentedControl", () => {
-  it("renders canonical ct-seg classes, never an accent fill", () => {
-    const html = renderToStaticMarkup(
-      <SegmentedControl
-        items={ITEMS}
-        value="a"
-        onChange={vi.fn()}
-        ariaLabel="Test group"
-      />,
-    );
-    expect(html).toContain("ct-seg-track");
-    expect(html).toContain("ct-seg-btn");
-    // selection stays quiet — accent fill is reserved for primary actions.
-    expect(html).not.toContain("ct-bg-accent");
-    expect(html).not.toContain("ct-glow-accent");
-  });
-
   it("tablist variant: role/aria + roving tabindex on the active item", () => {
     const html = renderToStaticMarkup(
       <SegmentedControl

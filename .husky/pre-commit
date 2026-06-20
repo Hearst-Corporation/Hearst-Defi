@@ -1,14 +1,9 @@
 #!/bin/sh
-# Keeps the component index fresh on every commit. Fast (<2s).
+# Pre-commit — MINIMAL. Front editing is unbraked (per Adrien 2026-06-20):
+# no DS token-drift, no DS layout audit, no component-index gate. Only the
+# secret-leak guard remains (non-negotiable safety).
 #
-# NOTE: the jscpd duplication ratchet was removed (per Adrien) — it blocked
-# legitimate shared patterns (e.g. the two-round agentic SDK calls in
-# chat-agent). Re-add `node scripts/quality-gate.mjs dup` below to restore it.
-
-node scripts/component-index.mjs --stage || exit 1
-
-# DS token drift — fast guard (reads 3 CSS files), blocks brand/token regressions.
-pnpm ds:token-drift || exit 1
+# To restore a gate, re-add its line here (e.g. `pnpm ds:token-drift || exit 1`).
 
 # Secret-leak guard — scans ONLY the staged diff (fast), masks any hit, never
 # prints the value. Blocks the commit on a positive match. Bypass once (e.g.
