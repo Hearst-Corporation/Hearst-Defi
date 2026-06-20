@@ -111,9 +111,11 @@ interface AreaChartProps {
   series: Array<{ label: string; value: number; isDistribution: boolean }>;
   /** Empty / $0 series — line + dots, no filled bloom. */
   muted?: boolean;
+  /** Zero-state preview — show curve + area at reduced opacity as a teaser. */
+  ghostMode?: boolean;
 }
 
-function AreaChart({ series, muted = false }: AreaChartProps) {
+function AreaChart({ series, muted = false, ghostMode = false }: AreaChartProps) {
   // Unique per-instance ids — SSR-safe (useId works in RSC). Prevents <defs>
   // collisions when more than one ValueChart is mounted on the same document.
   const uid = useId();
@@ -121,7 +123,6 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
   const descId = `${uid}-desc`;
   const gridId = `${uid}-grid-dots`;
   const areaId = `${uid}-area`;
-  const strokeId = `${uid}-stroke`;
 
   const pts = computeSeriesPts(series);
   const linePath = smoothPath(pts);
@@ -154,14 +155,8 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
         </pattern>
         {/* Aurora area — green bloom fading to nothing. Derived from accent. */}
         <linearGradient id={areaId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--ct-accent)" style={{ stopOpacity: muted ? "var(--ct-opacity-10)" : "var(--ct-opacity-28)" }} />
-          <stop offset="62%" stopColor="var(--ct-accent)" style={{ stopOpacity: "var(--ct-opacity-6)" }} />
+          <stop offset="0%" stopColor="var(--ct-accent)" style={{ stopOpacity: muted ? "var(--ct-opacity-8)" : "var(--ct-opacity-14)" }} />
           <stop offset="100%" stopColor="var(--ct-accent)" style={{ stopOpacity: "var(--ct-opacity-0, 0)" }} />
-        </linearGradient>
-        {/* Line gradient — left dim → right bright, the value "arrives" lit. */}
-        <linearGradient id={strokeId} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="color-mix(in srgb, var(--ct-accent) 55%, transparent)" />
-          <stop offset="100%" stopColor="var(--pf-hero-line, var(--ct-accent))" />
         </linearGradient>
       </defs>
 
@@ -173,41 +168,25 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
         ))}
       </g>
 
-      {muted ? null : <path d={areaPath} fill={`url(#${areaId})`} aria-hidden="true" />}
-
-      {/* Glow underlay — multi-layered, accent-derived bloom */}
+      {/* Area fill: live = full bloom, ghost = 40% opacity teaser, muted = hidden */}
       {muted ? null : (
-        <g aria-hidden="true">
-          <path
-            className="pf-vc-line-glow"
-            d={linePath}
-            fill="none"
-            stroke="var(--ct-accent)"
-            strokeWidth="3"
-            strokeLinecap="round"
-            vectorEffect="non-scaling-stroke"
-          />
-          <path
-            className="pf-vc-line-glow-core"
-            d={linePath}
-            fill="none"
-            stroke="var(--ct-accent)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            vectorEffect="non-scaling-stroke"
-          />
-        </g>
+        <path
+          d={areaPath}
+          fill={`url(#${areaId})`}
+          opacity={ghostMode ? "var(--ct-opacity-55)" : undefined}
+          aria-hidden="true"
+        />
       )}
 
       <path
         d={linePath}
         fill="none"
-        stroke={muted ? "var(--ct-accent)" : `url(#${strokeId})`}
+        stroke="var(--ct-accent)"
         strokeWidth="1"
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
-        opacity={muted ? "var(--ct-opacity-70)" : undefined}
+        opacity={muted ? "var(--ct-opacity-70)" : ghostMode ? "var(--ct-opacity-70)" : undefined}
         aria-hidden="true"
       />
     </svg>
@@ -219,6 +198,28 @@ interface ValueChartProps {
   totalValueUsdc: number;
   source: "live" | "fallback";
   updatedAt?: Date;
+}
+
+/** Ghost series for zero-state: indicative upward curve (250k → 277k),
+ *  matching the Hearst 9–13% APY range target. Pure preview — NOT real data. */
+function buildGhostSeries(): Array<{ label: string; value: number; isDistribution: boolean }> {
+  const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const base = 250_000;
+  const end = 277_500; // ~11% APY on 250k over 12 months
+  const now = new Date();
+  const result = [];
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11 + i, 1));
+    const t = i / 11;
+    const wave = Math.sin(i * 1.1) * 1_200;
+    result.push({
+      label: MONTHS_SHORT[d.getUTCMonth() % 12] ?? "",
+      value: Math.round(base + (end - base) * t + wave),
+      isDistribution: i > 0,
+    });
+  }
+  return result;
 }
 
 export function ValueChart({
@@ -233,9 +234,11 @@ export function ValueChart({
     ? undefined
     : resolveProvenance(source, updatedAt, "estimated");
   const chartValue = isEmpty ? 0 : totalValueUsdc;
-  const series = buildMonthSeries(positions, totalValueUsdc, asOf);
 
-  // Compute dot overlay positions (empty when muted/zero — no markers at $0).
+  // In zero-state, use a ghost series to show a visual preview curve
+  const series = isEmpty ? buildGhostSeries() : buildMonthSeries(positions, totalValueUsdc, asOf);
+
+  // Compute dot overlay positions (empty when muted/zero — no markers on ghost).
   const pts = computeSeriesPts(series);
   const dots = computeDotPositions(series, pts, isEmpty);
 
@@ -248,16 +251,21 @@ export function ValueChart({
       {provenance ? <ChartProvenanceCorner kind={provenance} /> : null}
       <PfCockpitPanelHeader
         title="Portfolio value"
-        subtitle={isEmpty ? "No position yet" : "Indicative 12-month path"}
+        subtitle={isEmpty ? "Preview · indicative curve" : "Indicative 12-month path"}
         titleVariant="primary"
         trailing={
-          <span className={cn("pf-hero-kpi-value tabular-nums", isEmpty && "pf-hero-kpi-value--muted")}>{formatUsdCompact(chartValue)}</span>
+          isEmpty
+            ? <span className="pf-chip-accent">Preview</span>
+            : <span className="pf-hero-kpi-value tabular-nums">{formatUsdCompact(chartValue)}</span>
         }
       />
 
       <div className="pf-value-chart__chart-wrapper pf-value-chart__plot">
         {!isEmpty ? <ChartDisclaimerUnderlay /> : null}
-        <AreaChart series={series} muted={isEmpty} />
+        {/* isEmpty: pass muted=false so the ghost curve renders full-brightness (no opacity:70%),
+            but the AreaChart still skips the area fill (muted branch hides it). Pass a prop
+            to signal "ghost" mode: full line + area with low opacity. */}
+        <AreaChart series={series} muted={false} ghostMode={isEmpty} />
         {dots.length > 0 ? (
           <div className="pf-vc-dots" aria-hidden="true">
             {dots.map((dot, i) => (

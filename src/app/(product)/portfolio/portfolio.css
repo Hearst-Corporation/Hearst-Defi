@@ -37,30 +37,10 @@
  *   Viewport-fit (no-scroll cockpit) only ≥80rem wide AND ≥52rem tall (832px).
  */
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   PREMIUM HERO SYSTEM — "Aurora hybride" (monochrome green, derived only).
-   Direction: instrument-grade density below, spectacular hero above.
-   All tints derive from var(--ct-accent) #A7FB90 via color-mix — no new hues.
-   Geometry/blur radii are the sole raw-value escape hatch (no token exists).
-   ═══════════════════════════════════════════════════════════════════════════ */
-
+/* ── Hero grid surface — flat instrument panel (no aurora / glow) ── */
 .pf-hero-grid {
-  /* Aurora wash — multi-layered radial green bloom behind the hero.
-     Derived purely from --ct-accent. Added a subtle noise texture. */
-  --pf-aurora-1: color-mix(in srgb, var(--ct-accent) 18%, transparent);
-  --pf-aurora-2: color-mix(in srgb, var(--ct-accent) 8%, transparent);
-  --pf-aurora-3: color-mix(in srgb, var(--ct-accent) 4%, transparent);
-  --pf-hero-line: color-mix(in srgb, var(--ct-accent) 90%, #ffffff);
-  
-  background: 
-    radial-gradient(circle at 30% 20%, var(--pf-aurora-1) 0%, transparent 50%),
-    radial-gradient(circle at 70% 60%, var(--pf-aurora-2) 0%, transparent 60%),
-    radial-gradient(circle at 50% 50%, var(--pf-aurora-3) 0%, transparent 100%),
-    var(--ct-surface-2);
-  background-blend-mode: screen;
+  --pf-hero-line: var(--ct-accent);
 }
-
-/* ── Premium value chart — aurora area, glowing line, lit end-cap ── */
 .pf-value-chart__plot {
   position: relative;
   width: 100%;
@@ -79,33 +59,7 @@
   height: 100%;
 }
 
-/* Multi-layered glow for a more "neon" instrument feel. */
-.pf-vc-line-glow {
-  filter: var(--ct-blur-xs);
-  opacity: var(--ct-opacity-40, 0.4);
-}
-
-.pf-vc-line-glow-core {
-  filter: var(--ct-blur-xs);
-  opacity: var(--ct-opacity-60, 0.6);
-}
-
-/* Lit travelling end-cap — the single bloom point on the latest value. */
-@keyframes pf-vc-pulse {
-  0%, 100% {
-    opacity: var(--ct-opacity-90, 0.9);
-    transform: scale(1);
-    filter: drop-shadow(0 0 2px var(--ct-accent));
-  }
-  50% {
-    opacity: var(--ct-opacity-60, 0.6);
-    transform: scale(1.25);
-    filter: drop-shadow(0 0 6px var(--ct-accent));
-  }
-}
-
-/* HTML overlay dots — position:absolute so they are out of flex flow.
-   Renders perfectly circular regardless of preserveAspectRatio="none" SVG stretch. */
+/* ── Value chart plot ── */
 .pf-vc-dots {
   position: absolute;
   inset: 0;
@@ -120,24 +74,16 @@
   /* centre the dot on its left/top anchor */
   margin: -0.25rem 0 0 -0.25rem;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--ct-accent) 30%, transparent);
   border: 1px solid var(--ct-accent);
   box-sizing: border-box;
 }
 
 .pf-vc-dot--endcap {
-  width: 0.7rem;
-  height: 0.7rem;
-  margin: -0.35rem 0 0 -0.35rem;
-  background: var(--pf-hero-line, var(--ct-accent));
+  width: 0.55rem;
+  height: 0.55rem;
+  margin: -0.275rem 0 0 -0.275rem;
+  background: var(--ct-accent);
   border: none;
-  box-shadow: 0 0 0 0.25rem color-mix(in srgb, var(--ct-accent) 22%, transparent);
-  transform-origin: center;
-  animation: pf-vc-pulse var(--ct-dur-pulse) var(--ct-ease) infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pf-vc-dot--endcap { animation: none; }
 }
 
 /* Baseline ticks under the area — hairline rhythm, very faint. */
@@ -671,6 +617,88 @@
   color: var(--ct-title-1);
 }
 
+/* Inline ticker — value, YTD, next dist, fwd APY */
+.pf-ticker-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--ct-space-1) var(--ct-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pf-ticker-inline dt {
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ct-text-faint);
+  margin: 0;
+}
+
+.pf-ticker-inline dd {
+  margin: 0;
+  color: var(--ct-text-strong);
+  font-weight: var(--ct-font-semibold);
+}
+
+.pf-ticker-inline__accent {
+  color: var(--ct-accent);
+}
+
+/* Radial instrument cluster — hero sidebar replacement */
+.pf-radial-cluster {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  justify-content: flex-start;
+  min-width: 0;
+  padding: var(--ct-space-3) var(--ct-space-4);
+  border-top: 1px solid var(--ct-graphite-border-nested);
+  background: color-mix(in srgb, var(--pf-surface-base) 96%, var(--ct-bg-deep));
+  container-type: inline-size;
+  container-name: pf-rail;
+}
+
+.pf-radial-ring {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
+  gap: var(--ct-space-2);
+  align-items: center;
+  min-width: 0;
+}
+
+.pf-radial-ring__svg {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+}
+
+.pf-radial-ring__title {
+  font-size: 0.58rem;
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ct-accent);
+}
+
+.pf-radial-ring__kpi {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-bold);
+  line-height: var(--ct-leading-tight);
+}
+
+.pf-radial-ring__meta {
+  line-height: var(--ct-leading-snug);
+}
+
+.pf-radial-cluster__footnote {
+  margin: 0;
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-faint);
+  line-height: var(--ct-leading-tight);
+}
+
 .pf-greeting-recap {
   font-size: var(--ct-text-base);
   color: var(--ct-text-muted);
@@ -907,6 +935,12 @@
   border: 1px solid var(--ct-graphite-border-nested);
   background: var(--ct-surface-2);
   overflow: clip;
+}
+
+/* Zero-state: sidebar has almost no content — let both columns size to their
+   own content height so the chart doesn't inflate to match the taller column. */
+.pf-container--zero .pf-hero-grid {
+  align-items: start;
 }
 
 /* 2-col opt-in: only when the slot can hold a real KPI rail (≥16rem) beside the
@@ -1258,7 +1292,8 @@
     min-height: 100%;
   }
 
-  .pf-hero-sidebar {
+  .pf-hero-sidebar,
+  .pf-radial-cluster {
     grid-column: 2;
     grid-row: 1;
     min-height: 100%;
@@ -1269,7 +1304,8 @@
 
 /* --pf-bp-sidebar-compact: 42rem — KPI downscale on narrow slot */
 @container pf (max-width: 42rem) {
-  .pf-hero-sidebar {
+  .pf-hero-sidebar,
+  .pf-radial-cluster {
     padding: var(--ct-space-3) var(--ct-space-4);
   }
 
@@ -1573,32 +1609,29 @@
   }
 }
 
-/* Zero-state hero chart — no real series to plot, so the placeholder floor is
-   lowered (kills the vertical void under the ghost curve). Live state keeps the
-   16→20rem ladder above. chart-geometry — raw rem is the sanctioned escape.
-   The flat ghost line + month labels + disclaimer fit a short ~12rem panel;
-   the plot/wrapper are pinned to a fixed short height below (no flex stretch). */
+/* Zero-state hero chart — ghost-line preview; sized for visual impact without
+   the vertical void the old 20rem+ floor created. chart-geometry. */
 .pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
-  /* chart-geometry — réduit (Adrien 2026-06-20 : "trop grand"). 15→11rem. */
-  min-height: 11rem;
-  --pf-chart-flex-min: 5rem;
+  /* chart-geometry — ghost chart: tall enough to read as a real chart, short
+     enough not to eat all the hero space (Adrien: "beaux graphiques"). */
+  min-height: 13rem;
+  --pf-chart-flex-min: 7rem;
 }
 
-/* Zero-state: stop the plot + chart-wrapper from stretching to fill the card.
-   In live state .pf-value-chart__plot and __chart-wrapper are flex:1 so the real
-   series fills the panel; in zero we pin them to a short fixed height so the flat
-   ghost line stays compact and the panel collapses to ~12rem total. */
+/* Zero-state: the chart plot still flexes but has a tighter min-height so
+   the ghost curve shows as a proper preview. */
 .pf-container--zero .pf-value-chart__plot {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
+  min-height: 5rem;
 }
 
 .pf-container--zero .pf-value-chart__chart-wrapper {
-  flex: 0 0 auto;
-  /* chart-geometry — ghost-line plot, calm placeholder. 8→5rem (Adrien
-     2026-06-20 : panneau trop grand), reste lisible sans écraser la courbe. */
-  aspect-ratio: auto;
-  min-height: 0;
-  height: 5rem;
+  flex: 1 1 auto;
+  /* chart-geometry — ghost line: 16/5 ratio reads as a financial chart,
+     not a collapsed line. */
+  aspect-ratio: 16 / 5;
+  min-height: 5rem;
+  height: auto;
 }
 
 /* Zero-state: the welded chart panel's own flex-min backstop (l.1628-1631) must
@@ -2161,7 +2194,8 @@
     flex: 1 1 0;
   }
 
-  .pf-cockpit-row--trio {
+  .pf-cockpit-row--deck,
+.pf-cockpit-row--trio {
     flex: 0.85 1 0;
   }
 
@@ -2173,7 +2207,8 @@
      (chart avec données, qui lui mérite la place). */
   .pf-container--fit.pf-container--zero .pf-cockpit-row--summary,
   .pf-container--fit.pf-container--zero .pf-cockpit-row--mid,
-  .pf-container--fit.pf-container--zero .pf-cockpit-row--trio {
+  .pf-container--fit.pf-container--zero .pf-cockpit-row--deck,
+.pf-cockpit-row--trio {
     flex: 0 0 auto;
   }
 }
@@ -2209,7 +2244,8 @@
 
   .pf-cockpit-row--summary,
   .pf-cockpit-row--mid,
-  .pf-cockpit-row--trio {
+  .pf-cockpit-row--deck,
+.pf-cockpit-row--trio {
     flex: 0 0 auto;
   }
 }
@@ -2235,6 +2271,7 @@
    re-opening the hScroll path the cell-level min-width:0 just closed. */
 .pf-cockpit-row--summary { grid-template-columns: minmax(0, 1fr); }
 .pf-cockpit-row--mid     { grid-template-columns: minmax(0, 1fr); }
+.pf-cockpit-row--deck,
 .pf-cockpit-row--trio    { grid-template-columns: minmax(0, 1fr); }
 
 /* Section head — the single structural green accent per section (DS §13.2).
@@ -2267,7 +2304,8 @@
 
 /* Trio row: calendar · activity · trust — 1→2→3 columns. */
 @container pf (min-width: 36rem) {
-  .pf-cockpit-row--trio {
+  .pf-cockpit-row--deck,
+.pf-cockpit-row--trio {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -2277,7 +2315,8 @@
     grid-template-columns: minmax(0, 1.6fr) minmax(16rem, 1fr);
   }
 
-  .pf-cockpit-row--trio {
+  .pf-cockpit-row--deck,
+.pf-cockpit-row--trio {
     /* Same 1.6 : 1 total as hero; rail zone splits evenly for activity + trust. */
     grid-template-columns: minmax(0, 1.6fr) minmax(8rem, 0.5fr) minmax(8rem, 0.5fr);
   }
@@ -2285,7 +2324,8 @@
 
 /* Trust spans full width when trio is 2-up (odd cell count). */
 @container pf (min-width: 36rem) and (max-width: 57.99rem) {
-  .pf-cockpit-row--trio > .pf-cockpit-cell:last-child {
+  .pf-cockpit-row--deck,
+.pf-cockpit-row--trio > .pf-cockpit-cell:last-child {
     grid-column: 1 / -1;
   }
 }
@@ -2325,7 +2365,7 @@
 .pf-hero-grid.pf-cockpit-cell {
   min-height: 0;
   min-width: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 
 @media (min-width: 80rem) and (min-height: 52rem) {
@@ -2343,6 +2383,7 @@
 /* Long panels scroll inside their cell when viewport-fit is active. */
 @media (min-width: 80rem) and (min-height: 52rem) {
   .pf-cockpit-cell .pf-activity,
+  .pf-cockpit-cell .pf-radial-cluster,
   .pf-cockpit-cell .pf-hero-sidebar,
   .pf-cockpit-cell .cy-panel .cy-body {
     min-height: 0;
@@ -2509,11 +2550,13 @@
 /* Phone — force single-column trio. */
 @media (max-width: 47.999rem) {
   .pf-cockpit-row--mid,
-  .pf-cockpit-row--trio {
+  .pf-cockpit-row--deck,
+.pf-cockpit-row--trio {
     grid-template-columns: 1fr;
   }
 
-  .pf-cockpit-row--trio > .pf-cockpit-cell:last-child {
+  .pf-cockpit-row--deck,
+.pf-cockpit-row--trio > .pf-cockpit-cell:last-child {
     grid-column: auto;
   }
 }
@@ -2653,7 +2696,8 @@
 
 /* ── Hero KPI rail (sidebar) ── */
 @container pf-rail (max-width: 22rem) {
-  .pf-hero-sidebar {
+  .pf-hero-sidebar,
+  .pf-radial-cluster {
     padding: var(--ct-space-3);
     gap: var(--ct-space-2);
   }
@@ -2694,7 +2738,8 @@
 }
 
 @container pf-rail (max-width: 17rem) {
-  .pf-hero-sidebar {
+  .pf-hero-sidebar,
+  .pf-radial-cluster {
     padding: var(--ct-space-2) var(--ct-space-2_5);
     gap: var(--ct-space-1_5);
   }

@@ -299,13 +299,18 @@ export function DistribCalendar({
   const hasEntries = entries.length > 0;
   const hasForecast = entries.some((e) => e.paidAt === null);
 
-  // Honest placeholder when no entries yet
+  // Zero-state: ghost bar chart preview (12 bars, varied heights, all muted)
   if (!hasEntries) {
+    const GHOST_HEIGHTS = [38, 55, 42, 68, 51, 74, 63, 80, 58, 72, 65, 90];
+    const n = GHOST_HEIGHTS.length;
+    const GAP = 4;
+    const totalGaps = (n - 1) * GAP;
+    const BAR_W = Math.floor((VB_W - totalGaps) / n);
     return (
       <PfCockpitPanel
-        variant="compact"
+        variant="wide"
         aria-label="Payout calendar — no distributions yet"
-        className="pf-payout-calendar-panel"
+        className="pf-payout-calendar-panel pf-payout-calendar-panel--zero h-full"
         data-testid="distrib-calendar-widget"
       >
         <PfCockpitPanelHeader
@@ -314,8 +319,46 @@ export function DistribCalendar({
           titleVariant="primary"
           trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
         />
-        <p className="pf-payout-calendar__empty-copy body-sm ct-text-muted m-0" role="status">
-          No distributions yet — payout history appears after the first cycle closes.
+        <div className="pf-distrib-chart-shell pf-distrib-chart-shell--ghost">
+          <svg
+            viewBox={`0 0 ${VB_W} ${VB_H}`}
+            preserveAspectRatio="xMidYMax meet"
+            className="pf-distrib-chart pf-distrib-chart--compact block h-full w-full"
+            aria-hidden="true"
+          >
+            <defs>
+              <linearGradient id="dc-ghost-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--ct-accent)" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="var(--ct-accent)" stopOpacity="0.04" />
+              </linearGradient>
+            </defs>
+            {GHOST_HEIGHTS.map((h, i) => {
+              const bx = barX(i, n, BAR_W, GAP);
+              const by = BAR_AREA_BOT - h;
+              const isLast = i === n - 1;
+              return (
+                <rect
+                  key={i}
+                  x={bx}
+                  y={by}
+                  width={BAR_W}
+                  height={h}
+                  fill={isLast ? "url(#dc-ghost-grad)" : "var(--ct-accent)"}
+                  opacity={isLast ? 1 : 0.12 + (i / n) * 0.1}
+                  rx="2"
+                  stroke={isLast ? "var(--ct-accent)" : "none"}
+                  strokeWidth={isLast ? "1" : "0"}
+                  strokeDasharray={isLast ? "4 2" : "none"}
+                />
+              );
+            })}
+            {/* Baseline */}
+            <line x1="0" y1={BAR_AREA_BOT + 1} x2={VB_W} y2={BAR_AREA_BOT + 1}
+              stroke="var(--ct-border-soft)" strokeWidth="0.5" />
+          </svg>
+        </div>
+        <p className="pf-payout-calendar__empty-copy body-xs ct-text-faint m-0" role="status">
+          First distribution appears after cycle close · Monthly USDC
         </p>
       </PfCockpitPanel>
     );
@@ -327,6 +370,15 @@ export function DistribCalendar({
     source === "live"
       ? ("attested" as const)
       : resolveProvenance(source, updatedAt, "estimated");
+
+  const header = (
+    <PfCockpitPanelHeader
+      title="Payout Calendar"
+      subtitle={`12m · USDC${hasForecast ? " · forecast" : ""}`}
+      provenance={liveProvenance}
+      trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
+    />
+  );
 
   // Footer — share class + cadence.
   const calendarFooter = (shareClass || cadence) ? (
@@ -352,14 +404,9 @@ export function DistribCalendar({
     <PfCockpitPanel
       variant="wide"
       aria-label="Payout calendar"
-      className="pf-payout-calendar-panel"
+      className="pf-payout-calendar-panel h-full"
     >
-      <PfCockpitPanelHeader
-        title="Payout Calendar"
-        subtitle={`12m · USDC${hasForecast ? " · forecast" : ""}`}
-        provenance={liveProvenance}
-        trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
-      />
+      {header}
       <div className="pf-distrib-chart-shell">
         <BarChart
           entries={entries}

@@ -8,9 +8,8 @@ import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
 import { TrustProofCompact } from "@/components/portfolio/trust-panel";
-import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
-import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
-import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
+import { PortfolioRadialCluster } from "@/components/portfolio/portfolio-radial-cluster";
+import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
 
@@ -47,11 +46,21 @@ export default async function PortfolioPage() {
 
   return (
     <div
-      className="pf-container pf-container--fit"
+      className={cn("pf-container pf-container--fit", !hasPositions && "pf-container--zero")}
       data-testid="portfolio-page"
       data-portfolio-hub="true"
     >
-      <PortfolioGreeting name={displayName(investor)} />
+      <PortfolioGreeting
+        name={displayName(investor)}
+        ticker={{
+          totalValueUsdc: data.totalValueUsdc,
+          totalYieldYtdUsdc: data.totalYieldYtdUsdc,
+          nextDistributionAt: data.nextDistributionAt,
+          blendedLow: yieldStackProps.blendedLow,
+          blendedHigh: yieldStackProps.blendedHigh,
+          hasPositions,
+        }}
+      />
 
       <div className="pf-cockpit">
         <div className="pf-cockpit-row pf-cockpit-row--summary">
@@ -64,18 +73,12 @@ export default async function PortfolioPage() {
                 updatedAt={data.updatedAt}
               />
             </div>
-            <aside className="pf-hero-sidebar">
-              <HeroKpiTable
-                totalValueUsdc={data.totalValueUsdc}
-                totalYieldYtdUsdc={data.totalYieldYtdUsdc}
-                nextDistributionAt={data.nextDistributionAt}
-                hasPositions={hasPositions}
-                source={data.source}
-                updatedAt={data.updatedAt}
-              />
-              <HeroPayoutRail {...timeToCashProps} />
-              <HeroLiquidityRail {...lockMeterProps} />
-            </aside>
+            <PortfolioRadialCluster
+              timeToCash={timeToCashProps}
+              lockMeter={lockMeterProps}
+              buckets={allocationDonutProps.buckets}
+              hasPositions={hasPositions}
+            />
           </div>
         </div>
 
@@ -102,9 +105,9 @@ export default async function PortfolioPage() {
           </div>
         </div>
 
-        <div className="pf-cockpit-row pf-cockpit-row--trio">
+        <div className="pf-cockpit-row pf-cockpit-row--deck">
           <div
-            className="pf-cockpit-cell pf-payout-calendar-slot"
+            className="pf-cockpit-cell"
             data-section="payout-calendar"
             data-testid="distrib-calendar-widget"
           >
