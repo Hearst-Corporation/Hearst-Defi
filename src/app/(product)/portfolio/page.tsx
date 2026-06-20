@@ -13,6 +13,11 @@ import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
 import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
+import {
+  ZERO_YIELD_STACK,
+  buildZeroDistribEntries,
+  zeroProofPulseProps,
+} from "@/lib/portfolio/layout-preview";
 import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
@@ -50,6 +55,8 @@ export default async function PortfolioPage() {
     riskPulseProps,
     proofPulseProps,
     showDemoBanner,
+    previewZeros,
+    previewAsOf,
   } = await loadPortfolioView();
 
   // Preview (zero-position) cockpit carries the --zero compaction class so the
@@ -117,6 +124,7 @@ export default async function PortfolioPage() {
               positions={data.positions}
               source={data.source}
               updatedAt={data.updatedAt}
+              previewZeros={previewZeros}
               leafHref="/portfolio/positions"
             />
           </div>
@@ -126,9 +134,10 @@ export default async function PortfolioPage() {
             data-testid="capital-yield-widget"
           >
             <CapitalYield
-              {...yieldStackProps}
+              {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
               buckets={allocationDonutProps.buckets}
               totalValueUsdc={data.totalValueUsdc}
+              previewZeros={previewZeros}
               leafHref="/portfolio/yield"
             />
           </div>
@@ -143,6 +152,14 @@ export default async function PortfolioPage() {
           >
             <DistribCalendar
               {...distribCalendarProps}
+              entries={
+                previewZeros && distribCalendarProps.entries.length === 0
+                  ? buildZeroDistribEntries(previewAsOf.getUTCFullYear())
+                  : distribCalendarProps.entries
+              }
+              previewZeros={
+                previewZeros && distribCalendarProps.entries.length === 0
+              }
               leafHref="/portfolio/distributions"
             />
           </div>
@@ -155,6 +172,7 @@ export default async function PortfolioPage() {
               transactions={data.recentTransactions}
               source={data.source}
               updatedAt={data.updatedAt}
+              previewZeros={previewZeros}
               leafHref="/portfolio/activity"
             />
           </div>
@@ -163,7 +181,13 @@ export default async function PortfolioPage() {
             data-section="yield-trust"
             data-testid="trust-panel-widget"
           >
-            <TrustProofCompact risk={riskPulseProps} proof={proofPulseProps} />
+            <TrustProofCompact
+              risk={riskPulseProps}
+              proof={
+                previewZeros ? zeroProofPulseProps(previewAsOf) : proofPulseProps
+              }
+              previewZeros={previewZeros}
+            />
           </div>
         </div>
       </div>

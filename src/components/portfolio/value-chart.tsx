@@ -305,12 +305,6 @@ export function ValueChart({
           );
         })}
       </div>
-
-      {showZeroShell ? null : (
-        <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
-          Indicative path derived from subscribed principal and current value. Past performance does not predict future results. Not guaranteed.
-        </p>
-      )}
     </PfCockpitPanel>
   );
 }

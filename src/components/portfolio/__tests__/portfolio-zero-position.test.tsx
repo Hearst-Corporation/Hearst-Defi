@@ -5,12 +5,16 @@ import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
 import { TrustProofCompact } from "@/components/portfolio/trust-panel";
-import { ZERO_YIELD_STACK, zeroProofPulseProps } from "@/lib/portfolio/layout-preview";
+import {
+  ZERO_YIELD_STACK,
+  buildZeroDistribEntries,
+  zeroProofPulseProps,
+} from "@/lib/portfolio/layout-preview";
 
 const PREVIEW_AS_OF = new Date("2026-06-11T00:00:00Z");
 
 describe("Portfolio previewZeros — honest empty widgets", () => {
-  it("CapitalYield previewZeros: compact empty copy, no donut", () => {
+  it("CapitalYield previewZeros: keeps the full instrument structure", () => {
     const html = renderToStaticMarkup(
       <CapitalYield
         {...ZERO_YIELD_STACK}
@@ -19,23 +23,26 @@ describe("Portfolio previewZeros — honest empty widgets", () => {
         previewZeros
       />,
     );
-    expect(html).toContain(
-      "Yield allocation appears after your first confirmed position.",
-    );
-    expect(html).not.toContain("Awaiting snapshot");
-    expect(html).not.toContain("dash-chart-svg");
-    expect(html).not.toContain("Mining cashflow");
+    expect(html).toContain("Awaiting snapshot");
+    expect(html).toContain("dash-chart-svg");
+    expect(html).toContain("Mining cashflow");
+    expect(html).toContain("Blended fwd range");
   });
 
-  it("DistribCalendar previewZeros: compact empty copy, no chart", () => {
+  it("DistribCalendar previewZeros: keeps the chart structure with zero bars", () => {
     const html = renderToStaticMarkup(
-      <DistribCalendar entries={[]} shareClass={null} cadence={null} previewZeros />,
+      <DistribCalendar
+        entries={buildZeroDistribEntries(2026)}
+        shareClass={null}
+        cadence={null}
+        previewZeros
+      />,
     );
-    expect(html).toContain(
+    expect(html).toContain("pf-distrib-chart");
+    expect(html).toContain("12m · USDC");
+    expect(html).not.toContain(
       "Payout schedule appears after your first confirmed position.",
     );
-    expect(html).not.toContain("pf-distrib-chart");
-    expect(html).not.toContain("$0 forecast");
   });
 
   it("RecentActivity previewZeros: compact copy, no tall empty shell", () => {
@@ -47,7 +54,7 @@ describe("Portfolio previewZeros — honest empty widgets", () => {
     expect(html).not.toContain("ct-panel-status");
   });
 
-  it("TrustProofCompact previewZeros: compact proof system active", () => {
+  it("TrustProofCompact previewZeros: keeps the KPI structure", () => {
     const html = renderToStaticMarkup(
       <TrustProofCompact
         risk={{
@@ -66,8 +73,11 @@ describe("Portfolio previewZeros — honest empty widgets", () => {
         previewZeros
       />,
     );
-    expect(html).toContain("Proof system active");
-    expect(html).toContain("/proof-center");
+    expect(html).toContain("Risk composite");
+    expect(html).toContain("Proof status");
+    expect(html).toContain("Snapshot pending");
+    expect(html).toContain("Preview");
+    expect(html).not.toContain("Proof system active");
     expect(html).not.toContain("provenance-badge--strip");
   });
 });

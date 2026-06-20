@@ -51,10 +51,9 @@ test.describe("Portfolio previewZeros — ghost cockpit layout", () => {
     const chartPanel = page.locator(".pf-value-chart");
     await expect(chartPanel).toBeVisible({ timeout: 30_000 });
     await expect(page.getByText("Awaiting first position")).toBeVisible();
-    const disclaimer = page.getByText(
-      "Placeholder chart until your first confirmed position.",
-    );
-    await expect(disclaimer).toBeVisible();
+    await expect(
+      page.getByText("Placeholder chart until your first confirmed position."),
+    ).toHaveCount(0);
     const liquidityMeta = page.getByText("60-day soft lock shown after deposit");
 
     await expect(
@@ -70,7 +69,6 @@ test.describe("Portfolio previewZeros — ghost cockpit layout", () => {
         chartPanel,
         `${vp.name}: ghost chart panel visible`,
       ).toBeVisible();
-      await expect(disclaimer, `${vp.name}: chart disclaimer visible`).toBeVisible();
       await expect(
         liquidityMeta,
         `${vp.name}: liquidity rail meta visible`,
@@ -102,11 +100,6 @@ test.describe("Portfolio previewZeros — ghost cockpit layout", () => {
         ).toBeLessThanOrEqual(CLIP_TOLERANCE_PX);
 
         const clipCheck = await page.evaluate((tolerance) => {
-          const disclaimerEl = [...document.querySelectorAll("p")].find((el) =>
-            el.textContent?.includes(
-              "Placeholder chart until your first confirmed position.",
-            ),
-          );
           const liquidityEl = [...document.querySelectorAll("p")].find((el) =>
             el.textContent?.includes("60-day soft lock shown after deposit"),
           );
@@ -116,17 +109,12 @@ test.describe("Portfolio previewZeros — ghost cockpit layout", () => {
             return el.getBoundingClientRect().bottom;
           };
           return {
-            disclaimerBottom: bottom(disclaimerEl),
             liquidityBottom: bottom(liquidityEl),
             vh,
             tolerance,
           };
         }, CLIP_TOLERANCE_PX);
 
-        expect(
-          clipCheck.disclaimerBottom,
-          `${vp.name}: disclaimer not clipped`,
-        ).toBeLessThanOrEqual(clipCheck.vh + clipCheck.tolerance);
         expect(
           clipCheck.liquidityBottom,
           `${vp.name}: liquidity rail not clipped`,

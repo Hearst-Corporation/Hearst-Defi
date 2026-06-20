@@ -87,25 +87,6 @@ export function CapitalYield({
   });
   const showZeroShell = view.mode === "zero";
 
-  if (previewZeros) {
-    return (
-      <PfCockpitPanel
-        variant="wide"
-        aria-label="Capital and yield — awaiting first position"
-        className="cy-panel cy-panel--onboarding-empty"
-      >
-        <PfCockpitPanelHeader
-          title="Capital & Yield"
-          subtitle="Allocation · 12m forward yield"
-          titleVariant="primary"
-        />
-        <p className="cy-panel__empty-copy body-sm ct-text-muted m-0" role="status">
-          Yield allocation appears after your first confirmed position.
-        </p>
-      </PfCockpitPanel>
-    );
-  }
-
   const [rLow, rHigh] =
     blendedLow <= blendedHigh ? [blendedLow, blendedHigh] : [blendedHigh, blendedLow];
   const [sLow, sHigh] =
@@ -293,7 +274,7 @@ export function CapitalYield({
             </div>
             <div className="flex items-baseline justify-between">
               <dt className="body-xs min-w-0 truncate ct-text-muted">
-                Stressed (bear) <span className="body-xs opacity-[var(--ct-opacity-70)]">(proxy)</span>
+                Stressed (bear) <span className="body-xs opacity-(--ct-opacity-70)">(proxy)</span>
               </dt>
               <dd
                 className={cn(
