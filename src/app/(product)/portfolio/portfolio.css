@@ -224,46 +224,15 @@
   display: grid;
   min-width: 0;
   min-height: 0;
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 62%, transparent);
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-surface-2) 82%, transparent),
-    color-mix(in srgb, var(--ct-surface-1) 96%, transparent)
-  );
+  background: var(--ct-graphite-subtle-bg);
   overflow: hidden;
   box-shadow: var(--ct-glass-bevel);
 }
 
-.pf-fused-surface::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in srgb, var(--ct-accent) 16%, transparent) 20%,
-    color-mix(in srgb, var(--ct-text-strong) 12%, transparent) 50%,
-    color-mix(in srgb, var(--ct-accent) 12%, transparent) 80%,
-    transparent
-  );
-  pointer-events: none;
-}
-
 .pf-fused-surface--mid {
   grid-template-columns: minmax(0, 1.8fr) minmax(21rem, 0.95fr);
-  background:
-    radial-gradient(
-      72% 120% at 84% 16%,
-      color-mix(in srgb, var(--ct-accent) 8%, transparent),
-      transparent 62%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-surface-2) 84%, transparent),
-      color-mix(in srgb, var(--ct-surface-1) 96%, transparent)
-    );
 }
 
 .pf-fused-surface--deck {
@@ -278,21 +247,11 @@
 }
 
 .pf-fused-surface__pane + .pf-fused-surface__pane {
-  border-left: 1px solid color-mix(in srgb, var(--ct-border-soft) 70%, transparent);
+  border-left: 1px solid var(--ct-graphite-border-nested);
 }
 
 .pf-fused-surface__pane--aside {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-text-strong) 2%, transparent),
-      transparent 24%
-    ),
-    radial-gradient(
-      88% 100% at 72% 10%,
-      color-mix(in srgb, var(--ct-accent) 7%, transparent),
-      transparent 72%
-    );
+  background: transparent;
 }
 
 .pf-fused-surface--mid .pf-cockpit-panel__header {
@@ -527,13 +486,9 @@
   height: 100%;
   gap: var(--ct-space-3);
   padding: var(--ct-space-4);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 82%, transparent);
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-surface-2) 88%, transparent),
-    color-mix(in srgb, var(--ct-surface-1) 96%, transparent)
-  );
+  background: var(--ct-graphite-subtle-bg);
   box-shadow: var(--ct-glass-bevel);
   overflow: hidden;
 }
@@ -554,15 +509,11 @@
   gap: var(--ct-space-2_5);
 }
 
-/* Secondary surfaces should read as sections in a shared deck, not isolated cards. */
+/* Mid/deck panels share the same flat graphite plate as the hero weld. */
 .pf-cockpit-row--mid .pf-cockpit-panel,
 .pf-cockpit-row--deck .pf-cockpit-panel {
-  border-color: color-mix(in srgb, var(--ct-border-soft) 58%, transparent);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-surface-2) 70%, transparent),
-    color-mix(in srgb, var(--ct-surface-1) 92%, transparent)
-  );
+  border-color: var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
 }
 
 .pf-fused-surface .pf-embedded-pane {
@@ -577,51 +528,13 @@
 .pf-fused-surface__pane[data-section="activity-payouts"] .pf-cockpit-panel,
 .pf-fused-surface__pane[data-section="yield-trust"] .pf-cockpit-panel {
   border-color: transparent;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-surface-2) 30%, transparent),
-    transparent 72%
-  );
+  background: transparent;
   box-shadow: none;
 }
 
 .pf-cockpit-cell[data-section="activity-payouts"],
 .pf-cockpit-cell[data-section="yield-trust"] {
   position: relative;
-}
-
-.pf-cockpit-cell[data-section="activity-payouts"]::before,
-.pf-cockpit-cell[data-section="yield-trust"]::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 1px;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    color-mix(in srgb, var(--ct-text-strong) 8%, transparent) 12%,
-    color-mix(in srgb, var(--ct-accent) 12%, transparent) 50%,
-    color-mix(in srgb, var(--ct-text-strong) 6%, transparent) 88%,
-    transparent
-  );
-  pointer-events: none;
-}
-
-.pf-cockpit-row--mid .pf-cockpit-panel::before,
-.pf-cockpit-row--deck .pf-cockpit-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in srgb, var(--ct-accent) 18%, transparent) 18%,
-    color-mix(in srgb, var(--ct-text-strong) 10%, transparent) 50%,
-    color-mix(in srgb, var(--ct-accent) 14%, transparent) 82%,
-    transparent
-  );
-  pointer-events: none;
 }
 
 .pf-fused-surface--mid .pf-cockpit-panel,
@@ -653,19 +566,8 @@
   flex: 0 0 auto;
 }
 
-.pf-cockpit-panel__title--primary,
-.pf-panel-title {
-  margin: 0;
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-semibold);
-  line-height: var(--ct-leading-snug);
-  letter-spacing: var(--ct-tracking-normal);
-  color: var(--ct-accent);
-}
-
-/* Hero weld — portfolio-premium.html panel titles (12px uppercase sage accent). */
-.pf-hero-grid .pf-cockpit-panel__title--primary,
-.pf-hero-grid .pf-panel-title {
+.pf-container .pf-cockpit-panel__title--primary,
+.pf-container .pf-panel-title {
   margin: 0 0 var(--ct-space-3);
   font-size: 0.75rem;
   font-weight: var(--ct-font-semibold);
@@ -1431,11 +1333,7 @@
 
 .pf-payout-calendar-panel {
   min-width: 0;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-surface-2) 82%, transparent),
-    color-mix(in srgb, var(--ct-surface-1) 96%, transparent)
-  );
+  background: var(--ct-graphite-subtle-bg);
 }
 
 .pf-payout-calendar-slot {
@@ -2196,7 +2094,7 @@
 
   .pf-fused-surface__pane + .pf-fused-surface__pane {
     border-left: 0;
-    border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 70%, transparent);
+    border-top: 1px solid var(--ct-graphite-border-nested);
   }
 }
 
