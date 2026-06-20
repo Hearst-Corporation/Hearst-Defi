@@ -250,8 +250,8 @@ export function ValueChart({
     >
       {provenance ? <ChartProvenanceCorner kind={provenance} /> : null}
       <PfCockpitPanelHeader
-        title="Portfolio value"
-        subtitle={isEmpty ? "Preview · indicative curve" : "Indicative 12-month path"}
+        title="Portfolio value over 12 months"
+        subtitle={isEmpty ? "Preview · indicative curve" : undefined}
         titleVariant="primary"
         trailing={
           isEmpty

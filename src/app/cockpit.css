@@ -192,8 +192,10 @@
        expanded 20rem (320px) … 27vw … 26.25rem (420px)
      Les tiers laptop/tablet resserrent encore le plancher plus bas (cf. blocs
      responsive en fin de fichier). 48px reste réservé au SEUL état .collapsed. */
-  --ct-rail-right: clamp(17rem, 25vw, 28rem); /* default open — max 448px */
-  --ct-rail-right-expanded: clamp(20rem, 30vw, 36rem); /* user-expanded — max 576px */
+  /* Rail rétréci (Adrien 2026-06-20 : "trop large") — plafond + facteur vw
+     baissés pour que le centre du cockpit respire davantage. */
+  --ct-rail-right: clamp(16rem, 20vw, 23rem); /* default open — max ~368px */
+  --ct-rail-right-expanded: clamp(19rem, 25vw, 30rem); /* user-expanded — max ~480px */
 
   /* Left nav rail — icon + label permanent. Slightly widened so the collapsed
      menu can hold long investor/admin labels without breaking the vertical
@@ -1478,7 +1480,7 @@
   flex-direction: column;
   gap: var(--ct-space-1_5);
   min-height: var(--ct-dashboard-kpi-cell-min-height);
-  padding: var(--ct-space-4) var(--ct-space-3);
+  padding: var(--ct-space-4);
 }
 
 .dashboard-kpi-strip__cell--alert {
@@ -1851,8 +1853,7 @@
 }
 
 .dashboard-awaiting-analytics {
-  padding-inline: var(--ct-space-4);
-  padding-bottom: var(--ct-space-4);
+  padding: var(--ct-space-3) var(--ct-space-4) var(--ct-space-4);
 }
 
 .dashboard-live-metrics__grid > * {
@@ -2412,7 +2413,6 @@
 @container dash-board (min-width: 42rem) {
   .dashboard-kpi-strip__cell {
     border-bottom: none;
-    padding: var(--ct-space-4);
   }
   .dashboard-kpi-strip__cell:not(:last-child) {
     border-right: 1px solid var(--ct-border-soft);
@@ -2467,6 +2467,7 @@
   --ct-dashboard-hero-min-height-wide: 14.5rem;
   --ct-dashboard-orbit-stroke-track: 1.5;
   --ct-dashboard-orbit-stroke-segment: 2;
+  --ct-dashboard-panel-gap: var(--ct-doc-flow-inner-gap);
 }
 
 /* Each cockpit row = grid of cells side by side. min-height:0 lets it shrink
@@ -2582,8 +2583,8 @@
     gap: var(--ct-space-2);
   }
 
-  .dashboard-cockpit--fit .dashboard-cockpit-panel {
-    gap: var(--ct-space-2);
+  .dashboard-cockpit--fit {
+    --ct-dashboard-panel-gap: var(--ct-space-2);
   }
 
   /* Rows share height — flex shares calibrated to match content weight. */
@@ -2706,7 +2707,7 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
-  gap: var(--ct-doc-flow-inner-gap);
+  gap: var(--ct-dashboard-panel-gap);
   /* Surface — identical to pf-cockpit-panel */
   padding: var(--ct-space-4) var(--ct-space-5);
   border-radius: var(--ct-radius-xl);

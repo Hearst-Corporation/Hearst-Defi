@@ -8,7 +8,7 @@ import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
 import { TrustProofCompact } from "@/components/portfolio/trust-panel";
-import { PortfolioRadialCluster } from "@/components/portfolio/portfolio-radial-cluster";
+import { PortfolioStatusPanel } from "@/components/portfolio/portfolio-status-panel";
 import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
@@ -18,31 +18,19 @@ export const metadata = {
   description: "Your positions and distributions",
 };
 
-function displayName(
-  investor: { email: string | null; walletAddress: string | null } | null,
-): string {
-  if (investor?.email) {
-    const local = investor.email.split("@")[0] ?? "";
-    if (local) return local.charAt(0).toUpperCase() + local.slice(1);
-  }
-  const w = investor?.walletAddress;
-  if (w) return `${w.slice(0, 6)}…${w.slice(-4)}`;
-  return "Investor";
-}
-
 export default async function PortfolioPage() {
   const {
-    investor,
     data,
     hasPositions,
-    lockMeterProps,
-    timeToCashProps,
     yieldStackProps,
     allocationDonutProps,
     distribCalendarProps,
     riskPulseProps,
     proofPulseProps,
   } = await loadPortfolioView();
+
+  const deployedUsdc = data.positions.reduce((s, p) => s + p.principalUsdc, 0);
+  const accruedYieldUsdc = data.positions.reduce((s, p) => s + p.accruedYieldUsdc, 0);
 
   return (
     <div
@@ -51,7 +39,7 @@ export default async function PortfolioPage() {
       data-portfolio-hub="true"
     >
       <PortfolioGreeting
-        name={displayName(investor)}
+        name="Investor"
         ticker={{
           totalValueUsdc: data.totalValueUsdc,
           totalYieldYtdUsdc: data.totalYieldYtdUsdc,
@@ -73,11 +61,15 @@ export default async function PortfolioPage() {
                 updatedAt={data.updatedAt}
               />
             </div>
-            <PortfolioRadialCluster
-              timeToCash={timeToCashProps}
-              lockMeter={lockMeterProps}
-              buckets={allocationDonutProps.buckets}
+            <PortfolioStatusPanel
               hasPositions={hasPositions}
+              positionsCount={data.positions.length}
+              deployedUsdc={deployedUsdc}
+              totalValueUsdc={data.totalValueUsdc}
+              accruedYieldUsdc={accruedYieldUsdc}
+              netDepositsUsdc={deployedUsdc}
+              source={data.source}
+              {...(data.updatedAt ? { updatedAt: data.updatedAt } : {})}
             />
           </div>
         </div>
