@@ -739,7 +739,7 @@
 }
 
 .scenario-preset-bar__button:disabled {
-  opacity: 0.5;
+  opacity: var(--ct-opacity-50);
   cursor: not-allowed;
 }
 
@@ -1079,7 +1079,7 @@
   }
   50%,
   100% {
-    opacity: 0.25;
+    opacity: var(--ct-opacity-25);
   }
 }
 
@@ -1089,7 +1089,7 @@
     opacity: 1;
   }
   50% {
-    opacity: 0.6;
+    opacity: var(--ct-opacity-60);
   }
 }
 
@@ -2356,7 +2356,7 @@
 }
 
 .dashboard-nav-bars:hover .dashboard-nav-bars__bar {
-  opacity: 0.4;
+  opacity: var(--ct-opacity-40);
   filter: saturate(0.5);
 }
 
@@ -3695,7 +3695,7 @@ button.ct-choice-card {
 .ct-chart-disclaimer-text {
   transform: rotate(-12deg);
   color: var(--ct-text-faint);
-  opacity: 0.08;
+  opacity: var(--ct-opacity-8);
   font-size: var(--ct-text-micro);
   letter-spacing: 0.15em;
   white-space: nowrap;
@@ -4215,11 +4215,11 @@ button.ct-choice-card {
   justify-content: center;
   width: 100%;
   padding: var(--ct-space-2) 0;
-  opacity: 0.18;
+  opacity: var(--ct-opacity-18);
   transition: opacity var(--ct-dur-base);
 }
 .ct-rail-investor-dot:hover {
-  opacity: 0.55;
+  opacity: var(--ct-opacity-55);
 }
 .ct-rail-investor-dot span {
   display: block;
@@ -4708,7 +4708,7 @@ button.ct-choice-card {
 /* Send — disabled feedback: subtle outline + opacity, not a flat grey fill.
    Keeps the circle (radius + aspect) — only the fill/border change. */
 .ct-chat-send:disabled {
-  opacity: 0.45;
+  opacity: var(--ct-opacity-45);
   background: transparent;
   border: 1px solid var(--ct-border-soft);
   color: var(--ct-text-muted);
@@ -4959,7 +4959,7 @@ button.ct-choice-card {
 
 .login-split__eyebrow-accent {
   color: var(--ct-accent);
-  opacity: 0.7;
+  opacity: var(--ct-opacity-70);
 }
 
 .login-split__title-accent {
@@ -5179,7 +5179,7 @@ button.ct-choice-card {
   height: 0.5rem;
   border-radius: var(--ct-radius-sm);
   flex-shrink: 0;
-  opacity: 0.85;
+  opacity: var(--ct-opacity-85);
 }
 
 /* Forbidden-words chip — danger tint */

@@ -89,7 +89,7 @@ export default async function AdminProofCenterFullPage({
         }
         actions={
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
-            <AdminLeafLink href="/admin/proofs" label="Gérer les publications" />
+            <AdminLeafLink href="/admin/proofs" label="Manage publications" />
             <ChainStatusBadge
               configured={chainConfigured}
               eventCount={onChainEvents.length}
