@@ -1,0 +1,320 @@
+/* System Readiness — full-width cockpit header module for /admin/dashboard.
+ *
+ * Material identical to .dashboard-cockpit-panel (graphite, fine border, glass
+ * bevel — NO glow, NO neon, NO colored shadow). Kept in its own file so it does
+ * not touch the concurrently-edited cockpit.css. Layout only + status colors via
+ * existing --ct-* tokens. Calm dots, tabular numerals, desktop-first.
+ */
+
+.dashboard-readiness {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  min-width: 0;
+  padding: var(--ct-space-4) var(--ct-space-5);
+  border-radius: var(--ct-radius-xl);
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  box-shadow: var(--ct-glass-bevel);
+}
+
+/* ── Head: posture + blurb (left), checks + run action (right) ── */
+.dashboard-readiness__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--ct-space-2) var(--ct-space-4);
+}
+
+.dashboard-readiness__head-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1_5);
+  flex: 1 1 18rem;
+}
+
+.dashboard-readiness__posture {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+}
+
+.dashboard-readiness__title {
+  margin: 0;
+  font-size: var(--ct-text-base);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-tight);
+  color: var(--ct-text-strong);
+}
+
+.dashboard-readiness__posture-label {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-wide);
+  text-transform: uppercase;
+}
+
+.dashboard-readiness__blurb {
+  max-width: 46ch;
+}
+
+.dashboard-readiness__head-trail {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--ct-space-2);
+  flex: 0 0 auto;
+}
+
+.dashboard-readiness__run {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1);
+  flex-shrink: 0;
+  border-radius: var(--ct-radius-sm);
+  padding: var(--ct-space-1) var(--ct-space-3);
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-medium);
+  white-space: nowrap;
+  color: var(--ct-text-body);
+  background: transparent;
+  border: 1px solid var(--ct-border-soft);
+  text-decoration: none;
+  transition:
+    color var(--ct-dur-base) var(--ct-ease),
+    border-color var(--ct-dur-base) var(--ct-ease),
+    background-color var(--ct-dur-base) var(--ct-ease);
+}
+
+.dashboard-readiness__run:hover {
+  color: var(--ct-text-strong);
+  border-color: var(--ct-border-strong);
+  background: var(--ct-surface-1);
+}
+
+/* ── Stats grid: vault mode / oracle freshness / last check / next check.
+   Intentionally NOT the strip's perf KPIs (APY/Risk/Mining/Proof/Queue). ── */
+.dashboard-readiness__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ct-space-2_5) var(--ct-space-4);
+}
+
+.dashboard-readiness__stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+  min-width: 0;
+  padding-left: var(--ct-space-3);
+  border-left: 1px solid var(--ct-border-ghost);
+}
+
+.dashboard-readiness__stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+
+.dashboard-readiness__stat-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-readiness__stat-value {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-tight);
+  letter-spacing: var(--ct-tracking-tight);
+}
+
+.dashboard-readiness__stat-detail {
+  min-width: 0;
+}
+
+/* ── Readiness matrix (5 factors) ── */
+.dashboard-readiness__matrix {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2_5);
+  padding-top: var(--ct-space-3);
+  border-top: 1px solid var(--ct-border-ghost);
+}
+
+.dashboard-readiness__matrix-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+}
+
+.dashboard-readiness__factors {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--ct-space-1_5);
+}
+
+.dashboard-readiness__factor {
+  display: grid;
+  grid-template-columns: auto minmax(5rem, 7rem) minmax(5rem, auto) 1fr;
+  align-items: center;
+  gap: var(--ct-space-2) var(--ct-space-3);
+  min-width: 0;
+  padding: var(--ct-space-1_5) var(--ct-space-2);
+  margin: 0 calc(var(--ct-space-2) * -1);
+  border-radius: var(--ct-radius-md);
+  transition: background-color var(--ct-dur-base) var(--ct-ease);
+}
+
+.dashboard-readiness__factor:hover {
+  background: var(--ct-surface-0);
+}
+
+.dashboard-readiness__factor-label {
+  min-width: 0;
+  font-weight: var(--ct-font-medium);
+}
+
+.dashboard-readiness__factor-status {
+  min-width: 0;
+  font-weight: var(--ct-font-medium);
+}
+
+.dashboard-readiness__factor-detail {
+  min-width: 0;
+  text-align: right;
+}
+
+/* ── Calm status dots — no glow, no box-shadow ── */
+.dashboard-readiness__dot {
+  display: inline-block;
+  width: var(--ct-space-2);
+  height: var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  flex-shrink: 0;
+  box-shadow: none;
+}
+
+.dashboard-readiness__dot--ok    { background: var(--ct-status-success); }
+.dashboard-readiness__dot--watch { background: var(--ct-status-warning); }
+.dashboard-readiness__dot--alert { background: var(--ct-status-danger); }
+.dashboard-readiness__dot--idle  {
+  background: color-mix(in srgb, var(--ct-text-faint) 70%, transparent);
+}
+
+/* ── Wide: stats on one 4-col row, matrix on one 5-col row of compact chips.
+   Both are short horizontal bands (not stacked lists) so the whole module stays
+   ~2 content rows tall and never crushes the dense ops/lower rows in the fit
+   gate. Driven by a media query (not `@container`): `.dashboard-readiness` is
+   always full board width, and an element can't `@container`-query itself. ── */
+@media (min-width: 64rem) {
+  .dashboard-readiness__stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .dashboard-readiness__factors {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--ct-space-1_5);
+  }
+
+  /* Each factor = compact 2-row chip so neither the label nor the (sometimes
+     long, e.g. "Awaiting snapshot") status truncates when 5 chips share the row:
+     dot + label on line 1, status on line 2. */
+  .dashboard-readiness__factor {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: var(--ct-space-1_5);
+    row-gap: var(--ct-space-0_5);
+    padding: var(--ct-space-1_5) var(--ct-space-2);
+    margin: 0;
+    background: var(--ct-surface-0);
+    border: 1px solid var(--ct-border-ghost);
+  }
+
+  .dashboard-readiness__factor:hover {
+    background: var(--ct-surface-1);
+  }
+
+  .dashboard-readiness__factor > .dashboard-readiness__dot {
+    grid-row: 1;
+    grid-column: 1;
+  }
+  .dashboard-readiness__factor-label {
+    grid-row: 1;
+    grid-column: 2;
+  }
+  .dashboard-readiness__factor-status {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    text-align: left;
+    font-size: var(--ct-text-xs);
+  }
+  .dashboard-readiness__factor-detail {
+    display: none;
+  }
+}
+
+/* ── Mid width: 2-col stats (4 cells → 2×2). ── */
+@media (min-width: 48rem) and (max-width: 63.999rem) {
+  .dashboard-readiness__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ── Fit gate: readiness shares the column height with the dense rows instead
+   of taking its full content height. Drop the per-factor detail line, tighten
+   gaps, and let the module clip→scroll inside its share so the ops/lower rows
+   below always keep a readable budget (they were collapsing to ~30px when this
+   row was `0 0 auto`). ── */
+@media (min-width: 80rem) and (min-height: 52rem) {
+  /* Module is content-sized (head + one stat row + one matrix row ≈ 225px) so
+     the ops/lower rows below keep their flex budget and never collapse. It
+     clips→scrolls internally only as a backstop on very short viewports. */
+  .dashboard-cockpit--fit .dashboard-cockpit-row--readiness {
+    flex: 0 0 auto;
+    min-height: 0;
+  }
+  .dashboard-cockpit--fit .dashboard-cockpit-row--readiness .dashboard-cockpit-cell {
+    overflow: hidden;
+  }
+  .dashboard-cockpit--fit .dashboard-readiness {
+    gap: var(--ct-space-1_5);
+    padding: var(--ct-space-2_5) var(--ct-space-4);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .dashboard-cockpit--fit .dashboard-readiness::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+  /* Single-line blurb → the module stays short. */
+  .dashboard-cockpit--fit .dashboard-readiness__blurb {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 60ch;
+  }
+  /* Tighter head + matrix header so the module clears ~2 content rows. */
+  .dashboard-cockpit--fit .dashboard-readiness__head {
+    gap: var(--ct-space-1) var(--ct-space-4);
+  }
+  .dashboard-cockpit--fit .dashboard-readiness__head-main {
+    gap: var(--ct-space-1);
+  }
+  .dashboard-cockpit--fit .dashboard-readiness__matrix {
+    gap: var(--ct-space-1_5);
+    padding-top: var(--ct-space-2);
+  }
+  .dashboard-cockpit--fit .dashboard-readiness__stat-value {
+    font-size: var(--ct-text-base);
+  }
+}

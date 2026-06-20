@@ -13,10 +13,12 @@ import {
   resolveVaultSignalProvenance,
 } from "@/lib/admin/dashboard-board-view";
 import { buildDashboardKpiStrip } from "@/lib/admin/dashboard-kpi-strip";
+import { resolveSystemReadiness } from "@/lib/admin/dashboard-readiness-view";
 import {
   resolveAllocationChartLive,
   resolveNavChartLive,
 } from "@/lib/admin/dashboard-vault-signals";
+import { ADMIN_DASHBOARD_REVALIDATE_SEC } from "@/lib/data/admin-dashboard-cache";
 import type { CockpitPayload } from "@/lib/data/cockpit";
 import type { AdminProofStatus } from "@/lib/data/admin-overview";
 import type { DashboardData } from "@/lib/data/dashboard";
@@ -27,6 +29,7 @@ import { AdminCockpitPanelHeader, AdminLeafLink } from "./cockpit-panel-header";
 import { DashboardKpiStrip } from "./kpi-strip";
 import { NavSlot } from "./nav-slot";
 import { DashboardRiskSummaryCard } from "./risk-summary-card";
+import { SystemReadinessModule } from "./system-readiness";
 
 /**
  * Layout scope:
@@ -102,8 +105,24 @@ export function DashboardAssetsBoard({
     (vault) => vault.vaultId === data.vaultMeta.id,
   );
 
+  const readiness = resolveSystemReadiness({
+    risk,
+    scopedVaultMetrics,
+    operatorQueueCount: cockpit.actionQueue.length,
+    data,
+    hasLiveKpis,
+    revalidateSec: ADMIN_DASHBOARD_REVALIDATE_SEC,
+  });
+
   return (
     <div className="dashboard-cockpit dashboard-cockpit--fit">
+
+      {/* ── Row 0: System readiness (full-width operator header) ── */}
+      <div className="dashboard-cockpit-row dashboard-cockpit-row--readiness">
+        <div className="dashboard-cockpit-cell">
+          <SystemReadinessModule view={readiness} />
+        </div>
+      </div>
 
       {/* ── Row 1: KPI strip + charts ── */}
       <div

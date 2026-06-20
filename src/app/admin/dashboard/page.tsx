@@ -1,4 +1,5 @@
 import "./risk-summary-responsive.css";
+import "./system-readiness.css";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DashboardAssetsBoard } from "@/components/admin/dashboard";
@@ -8,7 +9,10 @@ import { loadAdminOverview } from "@/lib/data/admin-overview";
 import { loadCockpitPayload } from "@/lib/data/cockpit";
 import { loadDashboardData } from "@/lib/data/dashboard";
 import { loadRiskFramework } from "@/lib/data/risk-framework";
-import { adminDashboardVaultHref } from "@/lib/vaults/dashboard-scope";
+import {
+  adminDashboardVaultHref,
+  DASHBOARD_FIXTURE_VAULTS,
+} from "@/lib/vaults/dashboard-scope";
 
 /** Soft TTL — cross-request caches in loaders revalidate silently in the background. */
 export const revalidate = 30;
@@ -29,10 +33,15 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const page = resolveDashboardPageInputs(data, risk, overview);
 
+  const activeTicker =
+    DASHBOARD_FIXTURE_VAULTS.find((v) => v.id === data.vaultMeta.id)?.ticker ??
+    "HYV";
+
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Dashboard"
+        title="Admin Command Center"
+        eyebrow={`${activeTicker} · Operator status · Live system overview`}
         className="dashboard-page-header"
         actionsLayout="stack"
         actions={
