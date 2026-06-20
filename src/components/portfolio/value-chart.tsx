@@ -87,8 +87,37 @@ function areaFromLine(linePath: string, pts: Pt[]): string {
 
 /* ──────────────────────────────────────────────────────────────────────────
  * Series resolution — ledger anchors si dispo, sinon courbe indicative linéaire.
+ * En zero-state (aucune position) : courbe PREVIEW ascendante, honnêtement
+ * étiquetée (pas de faux badge Live) — un panneau vivant plutôt qu'une ligne
+ * plate morte.
  * ────────────────────────────────────────────────────────────────────────── */
-type SeriesMode = "ledger" | "indicative";
+type SeriesMode = "ledger" | "indicative" | "preview";
+
+const PREVIEW_MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+] as const;
+
+/** Courbe indicative de démarrage (250k → ~277k, ~11% APY sur 12 mois).
+ *  Pur preview, JAMAIS de la vraie data — affichée sous chip "Preview". */
+function buildPreviewSeries(asOf: Date): PortfolioValuePoint[] {
+  const base = 250_000;
+  const end = 277_500;
+  const out: PortfolioValuePoint[] = [];
+  for (let i = 0; i < 12; i++) {
+    const m = new Date(
+      Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth() - 11 + i, 1),
+    );
+    const t = i / 11;
+    const wave = Math.sin(i * 1.1) * 1_200; // micro-ondulation premium
+    out.push({
+      label: PREVIEW_MONTHS[m.getUTCMonth() % 12] ?? "",
+      value: Math.round(base + (end - base) * t + wave),
+      isDistribution: false,
+    });
+  }
+  return out;
+}
 
 function resolveSeries(
   positions: PortfolioPosition[],
@@ -275,12 +304,10 @@ export function ValueChart({
   const asOf = updatedAt ?? new Date();
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
 
-  const { points: series, mode } = resolveSeries(
-    positions,
-    totalValueUsdc,
-    valueChartTransactions,
-    asOf,
-  );
+  // Zero-state → courbe PREVIEW (honnête, sous chip "Preview", pas de badge Live).
+  const { points: series, mode } = isEmpty
+    ? { points: buildPreviewSeries(asOf), mode: "preview" as const }
+    : resolveSeries(positions, totalValueUsdc, valueChartTransactions, asOf);
 
   const provenance: Provenance | undefined = isEmpty
     ? undefined
@@ -292,7 +319,8 @@ export function ValueChart({
 
   const chartValue = isEmpty ? 0 : totalValueUsdc;
   const pts = project(series.map((d) => d.value));
-  const dots = isEmpty ? [] : buildDots(series, pts);
+  // Pas de dots de distribution en preview ; juste l'endcap pour ancrer l'œil.
+  const dots = buildDots(series, pts);
 
   return (
     <PfCockpitPanel
@@ -316,7 +344,7 @@ export function ValueChart({
             <h3 className="pf-cockpit-panel__title--primary">Portfolio value</h3>
             {isEmpty ? (
               <p className="pf-cockpit-panel__subtitle body-xs ct-text-faint m-0 mono">
-                Awaiting first position
+                Preview · indicative curve
               </p>
             ) : (
               <p className="pf-hero-kpi-block m-0">
@@ -326,20 +354,23 @@ export function ValueChart({
               </p>
             )}
           </div>
+          {isEmpty ? <span className="pf-chip-accent">Preview</span> : null}
         </header>
       ) : (
         <PfCockpitPanelHeader
           title="Portfolio value over the trailing window"
           subtitle={
             isEmpty
-              ? "Awaiting first position"
+              ? "Preview · indicative curve"
               : mode === "ledger"
                 ? "Ledger-anchored · month-end marks"
                 : "Indicative · principal to current value"
           }
           titleVariant="primary"
           trailing={
-            isEmpty ? null : (
+            isEmpty ? (
+              <span className="pf-chip-accent">Preview</span>
+            ) : (
               <span className="pf-hero-kpi-value tabular-nums">
                 {formatUsdCompact(chartValue)}
               </span>
@@ -350,7 +381,7 @@ export function ValueChart({
 
       <div className="pf-value-chart__chart-wrapper pf-value-chart__plot">
         {isEmpty ? null : <ChartDisclaimerUnderlay />}
-        <Plot series={series} lineOnly={isEmpty} />
+        <Plot series={series} lineOnly={false} />
         {dots.length > 0 ? (
           <div className="pf-vc-dots" aria-hidden="true">
             {dots.map((dot, i) => (
