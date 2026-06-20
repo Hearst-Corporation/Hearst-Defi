@@ -2,18 +2,15 @@ import { ApyRange } from "@/components/ui/apy-range";
 import { DataRow, NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { VaultPanelHeader } from "@/components/vaults/vault-flow-primitives";
-import { demoProvenance } from "@/lib/demo/markers";
 import type { VaultProduct } from "@/lib/data/vaults";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 
 interface DepositSummaryProps {
   vault: VaultProduct;
   amount: number;
-  /** Demo sandbox path — renders "simulated" provenance instead of "estimated". */
-  demo?: boolean;
 }
 
-export function DepositSummary({ vault, amount, demo = false }: DepositSummaryProps) {
+export function DepositSummary({ vault, amount }: DepositSummaryProps) {
   const midApy = (vault.apyLow + vault.apyHigh) / 2;
   const yearlyYield = amount > 0 ? (amount * midApy) / 100 : null;
   const totalAtClose = yearlyYield
@@ -28,7 +25,7 @@ export function DepositSummary({ vault, amount, demo = false }: DepositSummaryPr
     <NestedPanel variant="borderless" className="py-0">
       <VaultPanelHeader
         title="Deposit summary"
-        trailing={<ProvenanceBadge kind={demoProvenance(demo, "estimated")} />}
+        trailing={<ProvenanceBadge kind="estimated" />}
       />
 
       <div className="vault-panel-body">

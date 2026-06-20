@@ -4,7 +4,11 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**206 components** · 0 possible orphans · 2 intentionally unwired.
+**206 components** · 1 possible orphans · 2 intentionally unwired.
+
+## ⚠️ Possible orphans (0 references — verify before keeping)
+
+- `src/components/admin/governance/simulate-demo-panel.tsx` — SimulateDemoPanel
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -16,7 +20,7 @@
 | Component file | Exports | Refs |
 |---|---|---|
 | `src/components/admin/admin-chat-controls.tsx` | AdminChatControls | 1 |
-| `src/components/admin/admin-page-header.tsx` | AdminPageHeader | 36 |
+| `src/components/admin/admin-page-header.tsx` | AdminPageHeader | 35 |
 | `src/components/admin/admin-url-tab-filter.tsx` | AdminUrlTabFilter | 3 |
 | `src/components/admin/agent-template-form.tsx` | AgentTemplateForm | 2 |
 | `src/components/admin/agents/agent-graph-canvas.tsx` | AgentGraphCanvas | 1 |
@@ -44,7 +48,7 @@
 | `src/components/admin/forbidden-words-input.tsx` | ForbiddenWordsInput | 1 |
 | `src/components/admin/governance/allowlist-board.tsx` | AllowlistBoard | 1 |
 | `src/components/admin/governance/proposal-queue.tsx` | ProposalQueue | 1 |
-| `src/components/admin/governance/simulate-demo-panel.tsx` | SimulateDemoPanel | 1 |
+| `src/components/admin/governance/simulate-demo-panel.tsx` ⚠️ | SimulateDemoPanel | 0 |
 | `src/components/admin/kyc-action.tsx` | KycAction | 2 |
 | `src/components/admin/manual-signal-trigger.tsx` | ManualSignalTrigger | 1 |
 | `src/components/admin/markdown.tsx` | Markdown | 10 |
@@ -86,7 +90,7 @@
 | `src/components/connect/header-connect.tsx` | HeaderConnect | 1 |
 | `src/components/connect/product-page-header.tsx` | ProductPageHeader | 10 |
 | `src/components/ConnectShell.tsx` | ConnectShell | 1 |
-| `src/components/dashboard/risk-framework.tsx` | RiskFrameworkSection | 10 |
+| `src/components/dashboard/risk-framework.tsx` | RiskFrameworkSection | 9 |
 | `src/components/error/error-shell.tsx` | ErrorShellLayout | 7 |
 | `src/components/error/segment-error.tsx` | SegmentError | 12 |
 | `src/components/error/segment-not-found.tsx` | SegmentNotFound | 1 |
@@ -134,13 +138,13 @@
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
 | `src/components/portfolio/widget-shell.tsx` | WidgetShell | 3 |
 | `src/components/power/command-palette.tsx` | CommandPalette | 1 |
-| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 12 |
+| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 11 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
 | `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 4 |
 | `src/components/proof-center/custody-panel.tsx` | CustodySection | 1 |
 | `src/components/proof-center/event-timeline.tsx` | EventTimeline | 2 |
 | `src/components/proof-center/mining-cashflow-evidence.tsx` | MiningCashFlowEvidence | 1 |
-| `src/components/proof-center/por-summary.tsx` | PorSummary | 2 |
+| `src/components/proof-center/por-summary.tsx` | PorSummary | 1 |
 | `src/components/proof-center/proof-center-card-header.tsx` | ProofCenterCardHeader | 7 |
 | `src/components/proof-center/proof-center-cold-shell.tsx` | ProofCenterColdShell | 1 |
 | `src/components/proof-center/proof-center-hub.tsx` | ProofCenterHub | 2 |
@@ -154,7 +158,7 @@
 | `src/components/proof/chain-status-badge.tsx` | ChainStatusBadge | 2 |
 | `src/components/proof/proof-card.tsx` | ProofCard | 2 |
 | `src/components/proof/proof-filter.tsx` | ProofFilter | 2 |
-| `src/components/proof/proof-grid.tsx` | ProofGrid | 3 |
+| `src/components/proof/proof-grid.tsx` | ProofGrid | 2 |
 | `src/components/scenario/assumptions-list.tsx` | AssumptionsList | 2 |
 | `src/components/scenario/backtest-chart.tsx` | BacktestChart | 1 |
 | `src/components/scenario/backtest-panel.tsx` | BacktestPanel | 1 |
@@ -198,11 +202,11 @@
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 2 |
 | `src/components/ui/progress.tsx` | Progress | 12 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 52 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 50 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/segmented-control.tsx` | SegmentedControl | 2 |
-| `src/components/ui/skeleton.tsx` | Skeleton, SkeletonCard | 30 |
+| `src/components/ui/skeleton.tsx` | Skeleton, SkeletonCard | 29 |
 | `src/components/ui/toaster.tsx` | Toaster | 1 |
 | `src/components/ui/tooltip.tsx` | Tooltip | 2 |
 | `src/components/ui/wizard-step-progress.tsx` | WizardStepProgress | 3 |

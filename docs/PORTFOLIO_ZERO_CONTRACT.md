@@ -1,4 +1,18 @@
-# PORTFOLIO ZERO-STATE — CONTRAT FIGÉ
+# PORTFOLIO ZERO-STATE — CONTRAT ABROGÉ
+
+> **ABROGÉ — 2026-06-20. Ce contrat est OBSOLÈTE.**
+> Le zero-state/preview portfolio a été supprimé (décision propriétaire 2026-06-20).
+> Le module démo (`src/lib/demo/`), les seeds démo, la route `simulate-demo` et les
+> composants associés ont été retirés du codebase. Les placeholders réels sont désormais
+> directement visibles sans couche preview/demo. Ne plus référencer ce contrat.
+
+---
+
+*Contenu original conservé ci-dessous pour l'historique uniquement — NE PAS appliquer.*
+
+---
+
+# PORTFOLIO ZERO-STATE — CONTRAT FIGÉ (HISTORIQUE)
 
 > **Règle d'or : ne pas re-litiger ce DOM.** Le hero zero-state du portfolio a été
 > ré-écrit 3 fois en une session (ghost → CTA → ghost) parce que sa définition vivait
