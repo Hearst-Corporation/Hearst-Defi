@@ -1,12 +1,7 @@
 import { notFound } from "next/navigation";
 
-import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { InvestForm } from "@/components/vaults/invest-form";
-import { getInvestor } from "@/lib/auth/session";
-import { isDemoInvestor } from "@/lib/demo/provider";
-import { buildDemoVaultDetail } from "@/lib/demo/builders";
-import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { getVault } from "@/lib/data/vaults";
 
 export const dynamic = "force-dynamic";
@@ -21,9 +16,7 @@ interface PageProps {
 
 export default async function InvestDepositPage({ params }: PageProps) {
   const { id } = await params;
-  const investor = await getInvestor();
-  const demo = isDemoInvestor(investor);
-  const vault = demo ? buildDemoVaultDetail(id) : await getVault(id);
+  const vault = await getVault(id);
 
   if (!vault || vault.status !== "live") notFound();
 
@@ -38,10 +31,7 @@ export default async function InvestDepositPage({ params }: PageProps) {
         </span>
       }
     >
-      {demo ? (
-        <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} className="mb-[var(--ct-space-4)]" />
-      ) : null}
-      <InvestForm vault={vault} demo={demo} />
+      <InvestForm vault={vault} />
     </InvestFlowShell>
   );
 }

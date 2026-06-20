@@ -4,12 +4,27 @@ import { describe, expect, it } from "vitest";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
 import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
-import {
-  zeroLockMeterProps,
-  zeroTimeToCashProps,
-} from "@/lib/portfolio/layout-preview";
 
 const PREVIEW_AS_OF = new Date("2026-06-11T00:00:00Z");
+
+// Stale/empty props — no positions, no real data yet.
+const STALE_PAYOUT_PROPS = {
+  cycleStart: PREVIEW_AS_OF,
+  cycleDays: 30,
+  projectedUsdc: 0,
+  aprLow: 0,
+  aprHigh: 0,
+  source: "stale" as const,
+  updatedAt: PREVIEW_AS_OF,
+};
+
+const STALE_LOCK_PROPS = {
+  lockStart: PREVIEW_AS_OF,
+  softLockupDays: 0, // no terms known
+  earlyExitPenaltyBps: 0,
+  source: "stale" as const,
+  asOf: PREVIEW_AS_OF,
+};
 
 describe("HeroKpiTable — provenance per metric", () => {
   const baseProps = {
@@ -21,9 +36,9 @@ describe("HeroKpiTable — provenance per metric", () => {
     updatedAt: new Date(),
   };
 
-  it("previewZeros: no provenance badges (no fabricated Live)", () => {
+  it("no positions: no provenance badges (no fabricated Live)", () => {
     const html = renderToStaticMarkup(
-      <HeroKpiTable {...baseProps} previewZeros hasPositions={false} />,
+      <HeroKpiTable {...baseProps} hasPositions={false} />,
     );
     expect(html).not.toContain("provenance-badge--strip");
     expect(html).not.toContain('aria-label="Data provenance: Live"');
@@ -41,30 +56,19 @@ describe("HeroKpiTable — provenance per metric", () => {
   });
 });
 
-describe("Hero rail — native layout at zero", () => {
-  it("HeroPayoutRail zero via mode: compact rail (no 0% bar)", () => {
+describe("Hero rail — stale/empty state (no positions)", () => {
+  it("HeroPayoutRail stale: compact rail (no 0% bar, shows '—' and 'Cycle pending')", () => {
     const html = renderToStaticMarkup(
-      <HeroPayoutRail {...zeroTimeToCashProps(PREVIEW_AS_OF)} mode="zero" />,
-    );
-    expect(html).not.toContain("pf-meter");
-    expect(html).toContain("Cycle pending");
-  });
-
-  it("HeroPayoutRail zero: compact rail (no 0% bar, no note)", () => {
-    const html = renderToStaticMarkup(
-      <HeroPayoutRail {...zeroTimeToCashProps(PREVIEW_AS_OF)} previewZeros />,
+      <HeroPayoutRail {...STALE_PAYOUT_PROPS} />,
     );
     expect(html).toContain("pf-hero-rail-group--payout");
     expect(html).toContain("—");
     expect(html).not.toContain("$0 USDC");
-    // Zero-state collapses to title + value + meta — no 0% meter, no projection note.
+    // Stale state collapses to title + value + meta — no 0% meter, no projection note.
     expect(html).not.toContain("pf-meter");
     expect(html).toContain("Cycle pending");
-    expect(html).not.toContain("Projection unlocks after the first active yield snapshot");
+    expect(html).not.toContain("estimate only, not guaranteed.");
     expect(html).not.toContain("provenance-badge--strip");
-    expect(html).not.toContain("ModuleChrome");
-    expect(html).not.toContain("Next distribution");
-    expect(html).not.toContain("flex h-full");
   });
 
   it("HeroPayoutRail live: provenance strip + not guaranteed disclaimer", () => {
@@ -84,20 +88,18 @@ describe("Hero rail — native layout at zero", () => {
     expect(html).toContain('aria-label="APY range 9.4 to 12.8 %"');
   });
 
-  it("HeroLiquidityRail zero: compact rail (no 0% bar)", () => {
+  it("HeroLiquidityRail stale (softLockupDays=0): no bar, shows terms pending meta", () => {
     const html = renderToStaticMarkup(
-      <HeroLiquidityRail {...zeroLockMeterProps(PREVIEW_AS_OF)} previewZeros />,
+      <HeroLiquidityRail {...STALE_LOCK_PROPS} />,
     );
     expect(html).toContain("pf-hero-rail-group");
-    // Zero-state drops the 0% meter — only the terms meta line shows.
+    // No terms = no meter rendered.
     expect(html).not.toContain("pf-meter");
-    expect(html).toContain("60-day soft lock shown after deposit");
+    expect(html).toContain("Terms pending");
     expect(html).not.toContain("provenance-badge--strip");
     expect(html).not.toContain("Unlock");
     expect(html).not.toContain("60d left");
     expect(html).not.toContain("Early exit penalty");
-    expect(html).not.toContain("flex h-full");
-    expect(html).not.toContain("mt-auto");
   });
 
   it("HeroLiquidityRail live: live provenance strip", () => {

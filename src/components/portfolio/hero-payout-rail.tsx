@@ -1,8 +1,6 @@
 import { ApyRange } from "@/components/ui/apy-range";
-import type { Provenance } from "@/components/ui/provenance-badge";
 import { computeTimeToCash } from "@/lib/data/time-to-cash";
-import { resolveTimeToCashShell } from "@/lib/portfolio/hero-rail-state";
-import type { WidgetMode } from "@/lib/portfolio/view-state";
+import { resolveProvenance } from "@/lib/portfolio/provenance";
 import type { TimeToCashProps } from "@/lib/data/time-to-cash";
 
 import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
@@ -13,17 +11,12 @@ const usdcFmt = new Intl.NumberFormat("en-US", {
   useGrouping: true,
 });
 
-export type HeroPayoutRailProps = TimeToCashProps & {
-  previewZeros?: boolean;
-  /** Loader-resolved mode (authoritative). Falls back to previewZeros/stale. */
-  mode?: WidgetMode;
-  provenance?: Provenance;
-};
+export type HeroPayoutRailProps = TimeToCashProps;
 
 /**
- * Hero rail — projected payout. Recoded from scratch: one bright value line,
- * a thin progress meter, a compact meta line, and an APY-range footnote. Honest
- * zero-state ("—" + pending). Same inputs as TimeToCash.
+ * Hero rail — projected payout. One bright value line, a thin progress meter,
+ * a compact meta line, and an APY-range footnote.
+ * When data is stale/zero: shows "—" + "Cycle pending" (honest placeholder).
  */
 export function HeroPayoutRail({
   cycleStart,
@@ -34,36 +27,28 @@ export function HeroPayoutRail({
   asOf,
   source,
   updatedAt,
-  previewZeros = false,
-  mode,
-  provenance,
 }: HeroPayoutRailProps) {
   const effectiveAsOf = asOf ?? new Date();
-  const shell = resolveTimeToCashShell({
-    previewZeros,
-    source,
-    updatedAt,
-    projectedUsdc,
-    aprLow,
-    aprHigh,
-  });
-  const showZeroShell = mode ? mode === "zero" : shell.showZeroShell;
-  const widgetProvenance = mode
-    ? mode === "zero"
-      ? undefined
-      : provenance
-    : shell.widgetProvenance;
+
+  const isStale =
+    source === "stale" ||
+    projectedUsdc === 0 ||
+    aprLow + aprHigh === 0;
+
+  const widgetProvenance = isStale
+    ? undefined
+    : resolveProvenance(source ?? "live", updatedAt, "estimated");
 
   const { daysElapsed, daysRemaining, hoursRemaining, progressPct } =
     computeTimeToCash({ cycleStart, cycleDays, asOf: effectiveAsOf });
 
   const progressRounded = Math.round(progressPct);
-  const fillPct = showZeroShell ? 0 : progressPct;
+  const fillPct = isStale ? 0 : progressPct;
 
-  const value = showZeroShell ? "—" : `${usdcFmt.format(Math.round(projectedUsdc))}`;
-  const unit = showZeroShell ? "" : "USDC";
+  const value = isStale ? "—" : `${usdcFmt.format(Math.round(projectedUsdc))}`;
+  const unit = isStale ? "" : "USDC";
 
-  const meta = showZeroShell
+  const meta = isStale
     ? "Cycle pending"
     : daysRemaining === 0 && hoursRemaining === 0
       ? "Distribution reached"
@@ -81,9 +66,8 @@ export function HeroPayoutRail({
         {unit ? <span className="pf-kpi-unit">{unit}</span> : null}
       </p>
 
-      {/* In zero-state a 0% bar + projection note carry no information and only
-          add height in the no-scroll hero — collapse to a single meta line. */}
-      {showZeroShell ? (
+      {/* When stale a 0% bar carries no information — show only meta. */}
+      {isStale ? (
         <p className="pf-hero-rail-meta tabular m-0">{meta}</p>
       ) : (
         <>

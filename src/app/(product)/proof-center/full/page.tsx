@@ -27,14 +27,8 @@ import { isChainConfigured } from "@/lib/chain/client";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { loadCustody } from "@/lib/data/custody";
 import { getProofs } from "@/lib/data/proofs";
-
-import { getInvestor } from "@/lib/auth/session";
-import { isDemoInvestor } from "@/lib/demo/provider";
-import { buildDemoProofs } from "@/lib/demo/builders";
 import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
-import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
 import { prisma } from "@/lib/db";
-import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { TIMELOCK_DELAY_HOURS } from "@/lib/governance/state-machine";
 
 export const metadata = {
@@ -54,32 +48,20 @@ export default async function ProofCenterFullPage({
   const raw = Array.isArray(params.type) ? params.type[0] : params.type;
   const filter = parseFilter(raw);
 
-  const investor = await getInvestor();
-  const demo = isDemoInvestor(investor);
-
-  const [onChainEvents, paper, custody, timelockProposals, showDemoBanner] =
+  const [onChainEvents, proofsResult, custody, timelockProposals] =
     await Promise.all([
       fetchOnChainEvents({ limit: 100 }),
-      demo
-        ? Promise.resolve(buildDemoProofs())
-        : getProofs().then((r) => r.data),
+      getProofs(),
       loadCustody(),
       prisma.governanceProposal.findMany({
         where: { state: "TIMELOCK" },
         orderBy: { queuedAt: "asc" },
       }),
-      databaseHasDemoProofs(),
     ]);
 
   const platformAddresses = buildPlatformAddresses(custody);
 
-  const demoNotice = demo
-    ? DEMO_SANDBOX_DISCLAIMER
-    : showDemoBanner
-      ? "Demo data · Local visual QA — not production"
-      : null;
-
-  const proofs: UnifiedProof[] = paper.map(
+  const proofs: UnifiedProof[] = proofsResult.data.map(
     (p): UnifiedProof => ({ ...p, source: "paper" }),
   );
 
@@ -87,7 +69,7 @@ export default async function ProofCenterFullPage({
     <div className="proof-center-shell">
       <ProofCenterTestnetNotice
         chainConfigured={chainConfigured}
-        demoNotice={demoNotice}
+        demoNotice={null}
       />
 
       <Link
@@ -114,7 +96,7 @@ export default async function ProofCenterFullPage({
         {proofs.length === 0 ? (
           <EmptySurface live {...PLATFORM_PROOFS_EMPTY} />
         ) : (
-          <ProofGrid proofs={proofs} filter={filter} demo={demo} />
+          <ProofGrid proofs={proofs} filter={filter} demo={false} />
         )}
       </ProofCenterSection>
 

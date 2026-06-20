@@ -17,8 +17,6 @@ interface AllocationDonutProps {
   totalValueUsdc: number;
   source: "live" | "stale";
   updatedAt?: Date;
-  /** Render donut shell at $0 (layout preview, no allocation). */
-  previewZeros?: boolean;
 }
 
 export function AllocationDonut({
@@ -26,20 +24,13 @@ export function AllocationDonut({
   totalValueUsdc,
   source,
   updatedAt,
-  previewZeros = false,
 }: AllocationDonutProps) {
-  const isPreviewShell =
-    previewZeros || totalValueUsdc === 0 || buckets.length === 0;
-  const provenance: Provenance | undefined = isPreviewShell
+  const isEmpty = totalValueUsdc === 0 || buckets.length === 0;
+  const provenance: Provenance | undefined = isEmpty
     ? undefined
     : resolveProvenance(source, updatedAt, "estimated");
 
-  // Canonical donut convention (r=15.9155 → C=100, pct maps 1:1 to dasharray):
-  // dashArray = `${pct} ${100 - pct}`, dashOffset = -running cumulative.
-  // Each arc starts where the previous ended. The allocation `pct` is the vault
-  // mix; the $ value shown is that mix applied to THIS investor's holding
-  // (totalValueUsdc), not the vault-wide bucket value. dashOffset derived from
-  // the prefix sum so the reduce stays pure (no mutated outer accumulator).
+  // Canonical donut convention (r=15.9155 → C=100, pct maps 1:1 to dasharray).
   const segments = buckets.map((slice, i) => {
     const priorPct = buckets
       .slice(0, i)
@@ -51,7 +42,7 @@ export function AllocationDonut({
     };
   });
 
-  const hasAllocation = !isPreviewShell && segments.length > 0;
+  const hasAllocation = !isEmpty && segments.length > 0;
 
   return (
     <PfCockpitPanel variant="compact" aria-label="Portfolio allocation">
@@ -71,7 +62,7 @@ export function AllocationDonut({
               aria-label={
                 hasAllocation
                   ? "Allocation by yield source"
-                  : "Allocation by yield source — preview at zero, no positions"
+                  : "Allocation by yield source — no positions yet"
               }
             >
               <circle
@@ -98,7 +89,7 @@ export function AllocationDonut({
             </svg>
             <div className="donut-center">
               <span className="donut-val">
-                {isPreviewShell ? "—" : formatUsdCompact(totalValueUsdc)}
+                {isEmpty ? "—" : formatUsdCompact(totalValueUsdc)}
               </span>
               <span className="donut-lbl">Portfolio</span>
             </div>

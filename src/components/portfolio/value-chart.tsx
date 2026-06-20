@@ -9,7 +9,6 @@ import {
 import type { PortfolioPosition } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
-import type { WidgetMode } from "@/lib/portfolio/view-state";
 import { cn } from "@/lib/cn";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -110,14 +109,13 @@ function computeDotPositions(
 
 interface AreaChartProps {
   series: Array<{ label: string; value: number; isDistribution: boolean }>;
-  /** Preview / flat $0 series — line + dots, no filled bloom. */
+  /** Empty / $0 series — line + dots, no filled bloom. */
   muted?: boolean;
 }
 
 function AreaChart({ series, muted = false }: AreaChartProps) {
   // Unique per-instance ids — SSR-safe (useId works in RSC). Prevents <defs>
-  // collisions when more than one ValueChart is mounted on the same document
-  // (e.g. debug/module-layout, future multi-vault dashboards).
+  // collisions when more than one ValueChart is mounted on the same document.
   const uid = useId();
   const titleId = `${uid}-title`;
   const descId = `${uid}-desc`;
@@ -134,7 +132,6 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
     : "";
 
   const distributionCount = series.filter((s) => s.isDistribution).length;
-  // One accessible summary at the SVG level instead of N per-marker labels.
   const accSummary = muted
     ? "Placeholder portfolio value chart — awaiting first position."
     : `Portfolio value over the past 12 months, ${distributionCount} monthly distribution markers.`;
@@ -142,9 +139,6 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
   return (
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
-      // Stretchable sparkline: `none` is deliberate (the curve fills the slot
-      // width-to-height). The wrapper is height-clamped + overflow:hidden in CSS
-      // so the ratio can never go absurd / spill. vectorEffect keeps strokes 1px.
       className="w-full h-full"
       preserveAspectRatio="none"
       role="img"
@@ -216,10 +210,6 @@ function AreaChart({ series, muted = false }: AreaChartProps) {
         opacity={muted ? "var(--ct-opacity-70)" : undefined}
         aria-hidden="true"
       />
-
-      {/* Distribution markers and end-cap are rendered as HTML spans in an
-          absolute overlay (pf-vc-dots) — outside this SVG — so they remain
-          perfectly circular regardless of preserveAspectRatio="none" stretching. */}
     </svg>
   );
 }
@@ -229,8 +219,6 @@ interface ValueChartProps {
   totalValueUsdc: number;
   source: "live" | "fallback";
   updatedAt?: Date;
-  previewZeros?: boolean;
-  mode?: WidgetMode;
 }
 
 export function ValueChart({
@@ -238,41 +226,38 @@ export function ValueChart({
   totalValueUsdc,
   source,
   updatedAt,
-  previewZeros = false,
-  mode,
 }: ValueChartProps) {
   const asOf = new Date();
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
-  const showZeroShell = mode ? mode === "zero" : previewZeros || isEmpty;
-  const provenance: Provenance | undefined = showZeroShell
+  const provenance: Provenance | undefined = isEmpty
     ? undefined
     : resolveProvenance(source, updatedAt, "estimated");
-  const chartValue = showZeroShell ? 0 : totalValueUsdc;
+  const chartValue = isEmpty ? 0 : totalValueUsdc;
   const series = buildMonthSeries(positions, totalValueUsdc, asOf);
 
   // Compute dot overlay positions (empty when muted/zero — no markers at $0).
   const pts = computeSeriesPts(series);
-  const dots = computeDotPositions(series, pts, showZeroShell);
+  const dots = computeDotPositions(series, pts, isEmpty);
 
   return (
     <PfCockpitPanel
       variant="wide"
-      aria-label={showZeroShell ? "Portfolio value — awaiting first position" : "Portfolio value — 12-month trend"}
+      aria-label={isEmpty ? "Portfolio value — awaiting first position" : "Portfolio value — 12-month trend"}
       className="relative pf-value-chart"
     >
       {provenance ? <ChartProvenanceCorner kind={provenance} /> : null}
       <PfCockpitPanelHeader
         title="Portfolio value"
-        subtitle={showZeroShell ? "Awaiting first position" : "Indicative 12-month path"}
+        subtitle={isEmpty ? "No position yet" : "Indicative 12-month path"}
         titleVariant="primary"
         trailing={
-          <span className={cn("pf-hero-kpi-value tabular-nums", showZeroShell && "pf-hero-kpi-value--muted")}>{formatUsdCompact(chartValue)}</span>
+          <span className={cn("pf-hero-kpi-value tabular-nums", isEmpty && "pf-hero-kpi-value--muted")}>{formatUsdCompact(chartValue)}</span>
         }
       />
 
       <div className="pf-value-chart__chart-wrapper pf-value-chart__plot">
-        {!showZeroShell ? <ChartDisclaimerUnderlay /> : null}
-        <AreaChart series={series} muted={showZeroShell} />
+        {!isEmpty ? <ChartDisclaimerUnderlay /> : null}
+        <AreaChart series={series} muted={isEmpty} />
         {dots.length > 0 ? (
           <div className="pf-vc-dots" aria-hidden="true">
             {dots.map((dot, i) => (
@@ -293,7 +278,7 @@ export function ValueChart({
           let transform = "translateX(-50%)";
           if (i === 0) transform = "none";
           if (i === series.length - 1) transform = "translateX(-100%)";
-          
+
           return (
             <span
               key={i}
@@ -306,7 +291,7 @@ export function ValueChart({
         })}
       </div>
 
-      {showZeroShell ? null : (
+      {isEmpty ? null : (
         <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
           Indicative path derived from subscribed principal and current value. Past performance does not predict future results. Not guaranteed.
         </p>

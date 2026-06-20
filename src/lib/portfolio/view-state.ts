@@ -1,20 +1,17 @@
 import type { Provenance } from "@/components/ui/provenance-badge";
 
 /**
- * Portfolio view-state contract — typed zero/live discriminant for cockpit widgets.
+ * Portfolio widget view resolver.
  *
- * Hero widgets resolve {mode, provenance} once in `portfolio-view.ts` (Architecture A).
- * Mid/trio widgets call `resolveWidgetView` locally until Phase 3 centralises them.
- * See docs/PORTFOLIO_ZERO_CONTRACT.md.
+ * `resolveWidgetView` is used by ProofPulse to decide whether to show a
+ * provenance badge. `previewZeros` is always `false` post-demo-removal —
+ * kept in the signature for backward compatibility with any remaining callers
+ * that may not have been updated yet.
  *
  * Pure module (no server-only, no I/O) — unit-testable in isolation.
  */
 
-export type PortfolioViewState =
-  | { kind: "preview" }
-  | { kind: "live" };
-
-/** Per-widget resolved mode: `zero` renders the honest empty/placeholder shell. */
+/** Per-widget resolved mode. */
 export type WidgetMode = "zero" | "live";
 
 export interface WidgetView {
@@ -26,11 +23,8 @@ export interface WidgetView {
 /**
  * Resolve a widget's mode + provenance once.
  *
- * Rules (preserve the existing honesty invariants verbatim):
- *  - `previewZeros` (zero-position investor) forces `zero` for every widget.
- *  - On a live investor, a widget whose OWN data is empty is still `zero`
- *    (honest empty surface — not fabricated data).
- *  - A provenance badge appears only in `live` mode; `zero` never shows one.
+ * `previewZeros` is always `false` after demo-layer removal.
+ * A widget whose own data is empty resolves to `zero` (honest empty surface).
  */
 export function resolveWidgetView(input: {
   previewZeros: boolean;
@@ -40,9 +34,4 @@ export function resolveWidgetView(input: {
   const mode: WidgetMode =
     input.previewZeros || !input.hasData ? "zero" : "live";
   return { mode, provenance: mode === "zero" ? undefined : input.provenance };
-}
-
-/** Page-level state from the single `previewZeros` discriminant. */
-export function resolvePortfolioViewState(previewZeros: boolean): PortfolioViewState {
-  return previewZeros ? { kind: "preview" } : { kind: "live" };
 }

@@ -34,8 +34,6 @@ export interface LockMeterProps {
   /** Provenance metadata from the loader. */
   source?: "live" | "stale";
   updatedAt?: Date;
-  /** Layout preview at zero — awaiting surface only (DS §9.3). */
-  previewZeros?: boolean;
 }
 
 /** Pure calculation — no Date.now(), only the injected `asOf` param. */

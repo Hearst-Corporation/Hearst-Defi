@@ -19,8 +19,6 @@ import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 export interface TrustPanelProps {
   risk: RiskPulseProps;
   proof: ProofPulseProps;
-  /** Render the full Trust shell at zero (layout preview). */
-  previewZeros?: boolean;
   /** Hub-only link to the focused leaf page. */
   leafHref?: string;
 }
@@ -39,7 +37,6 @@ export interface TrustSummaryKpis {
 export function deriveTrustSummaryKpis({
   risk,
   proof,
-  previewZeros = false,
 }: TrustPanelProps): TrustSummaryKpis {
   const {
     scores,
@@ -54,7 +51,7 @@ export function deriveTrustSummaryKpis({
     composite === 0 &&
     scores.every((s) => s.score === 0);
   const dimensionsAvailable = scores.some((s) => s.score > 0);
-  const compositeUnavailable = previewZeros || riskNoData || !dimensionsAvailable;
+  const compositeUnavailable = riskNoData || !dimensionsAvailable;
 
   const { lastPor, proofState } = proof;
   const { statedTvlUsdc, onChainTvlUsdc } = lastPor;
@@ -70,22 +67,20 @@ export function deriveTrustSummaryKpis({
     : 0;
 
   const showRiskBadge = !compositeUnavailable;
-  const headerProvenance: Provenance | undefined = previewZeros
-    ? undefined
-    : showRiskBadge
-      ? resolveProvenance(
-          riskSource === "stale" ? "stale" : riskSource,
-          riskUpdatedAt,
-          "estimated",
-        )
-      : proofResolved === "matched" || proofResolved === "attested"
-        ? "attested"
-        : proofResolved === "mismatch" || proofResolved === "pending"
-          ? "stale"
-          : undefined;
+  const headerProvenance: Provenance | undefined = showRiskBadge
+    ? resolveProvenance(
+        riskSource === "stale" ? "stale" : riskSource,
+        riskUpdatedAt,
+        "estimated",
+      )
+    : proofResolved === "matched" || proofResolved === "attested"
+      ? "attested"
+      : proofResolved === "mismatch" || proofResolved === "pending"
+        ? "stale"
+        : undefined;
 
   let proofValue = "—";
-  let proofMeta = previewZeros ? "Preview" : "Awaiting attestation";
+  let proofMeta = "Awaiting attestation";
   let proofValueClass = "ct-text-faint";
 
   if (proofResolved === "matched" || proofResolved === "attested") {
@@ -132,35 +127,7 @@ export function TrustProofCompact({
   leafHref,
   ...props
 }: TrustPanelProps) {
-  const { previewZeros = false } = props;
   const kpis = deriveTrustSummaryKpis(props);
-
-  if (previewZeros) {
-    return (
-      <PfCockpitPanel
-        variant="compact"
-        aria-label="Trust and proof summary"
-        className="pf-trust-compact"
-      >
-        <PfCockpitPanelHeader
-          title="Trust & Proof"
-          trailing={trustHeaderTrailing(leafHref)}
-        />
-        <div className="pf-trust-compact__zero-body">
-          <span className="pf-trust-compact__status stat-label ct-text-muted">
-            <span
-              className="pf-status-dot pf-status-dot--active pf-trust-compact__status-dot"
-              aria-hidden
-            />
-            Proof system active
-          </span>
-          <p className="pf-trust-compact__zero-hint body-xs ct-text-faint m-0">
-            On-chain attestation and risk snapshots will appear here once a position is confirmed.
-          </p>
-        </div>
-      </PfCockpitPanel>
-    );
-  }
 
   return (
     <PfCockpitPanel

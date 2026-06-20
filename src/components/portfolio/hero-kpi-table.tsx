@@ -1,7 +1,6 @@
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
-import type { WidgetMode } from "@/lib/portfolio/view-state";
 
 import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
 
@@ -12,9 +11,6 @@ export interface HeroKpiTableProps {
   hasPositions: boolean;
   source: "live" | "fallback";
   updatedAt?: Date;
-  previewZeros?: boolean;
-  /** Loader-resolved mode (authoritative). Falls back to previewZeros/hasPositions. */
-  mode?: WidgetMode;
 }
 
 const usdFmt = new Intl.NumberFormat("en-US", {
@@ -39,9 +35,9 @@ function prov(
 }
 
 /**
- * Hero rail — key metrics. Recoded from scratch: a tight 3-row stat list
+ * Hero rail — key metrics. Tight 3-row stat list
  * (position value · yield YTD · next distribution), each row a label + value
- * with an inline provenance dot. Honest zero-state collapses to one line.
+ * with an inline provenance dot. Honest placeholder when no positions.
  */
 export function HeroKpiTable({
   totalValueUsdc,
@@ -50,10 +46,8 @@ export function HeroKpiTable({
   hasPositions,
   source,
   updatedAt,
-  previewZeros = false,
-  mode,
 }: HeroKpiTableProps) {
-  const isZero = mode ? mode === "zero" : previewZeros || !hasPositions;
+  const isZero = !hasPositions;
 
   if (isZero) {
     return (

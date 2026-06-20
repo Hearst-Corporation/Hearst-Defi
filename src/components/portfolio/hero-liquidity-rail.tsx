@@ -3,9 +3,6 @@ import {
   formatBps,
   type LockMeterProps,
 } from "@/components/portfolio/lock-meter";
-import type { Provenance } from "@/components/ui/provenance-badge";
-import { resolveLockMeterShell } from "@/lib/portfolio/hero-rail-state";
-import type { WidgetMode } from "@/lib/portfolio/view-state";
 import { HeroRailGroup } from "@/components/portfolio/hero-rail-shell";
 
 const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
@@ -14,17 +11,12 @@ const unlockDateFmt = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
 });
 
-export type HeroLiquidityRailProps = LockMeterProps & {
-  previewZeros?: boolean;
-  /** Loader-resolved mode (authoritative). Falls back to previewZeros/stale. */
-  mode?: WidgetMode;
-  provenance?: Provenance;
-};
+export type HeroLiquidityRailProps = LockMeterProps;
 
 /**
- * Hero rail — liquidity / soft-lock. Recoded from scratch: a thin progress
- * meter (lock elapsed) over a compact meta line, with an optional early-exit
- * penalty note. Honest zero-state. Same inputs as LockMeter.
+ * Hero rail — liquidity / soft-lock. A thin progress meter (lock elapsed)
+ * over a compact meta line, with an optional early-exit penalty note.
+ * When terms are unknown/stale: shows "Terms pending" (honest placeholder).
  */
 export function HeroLiquidityRail({
   lockStart,
@@ -32,23 +24,12 @@ export function HeroLiquidityRail({
   earlyExitPenaltyBps,
   asOf,
   source = "live",
-  previewZeros = false,
-  mode,
-  provenance,
 }: HeroLiquidityRailProps) {
   const effectiveAsOf = asOf ?? new Date();
-  const shell = resolveLockMeterShell({
-    previewZeros,
-    source,
-    softLockupDays,
-  });
-  const showZeroShell = mode ? mode === "zero" : shell.showZeroShell;
-  const widgetProvenance = mode
-    ? mode === "zero"
-      ? undefined
-      : provenance
-    : shell.widgetProvenance;
-  const { termsUnknown } = shell;
+
+  const termsUnknown = softLockupDays <= 0;
+  const isStale = termsUnknown || source === "stale";
+  const widgetProvenance = isStale ? undefined : ("live" as const);
 
   const { progressPct, unlockDate, daysRemaining, isUnlocked } = computeLockMeter(
     lockStart,
@@ -56,21 +37,19 @@ export function HeroLiquidityRail({
     effectiveAsOf,
   );
 
-  const progressRounded = showZeroShell ? 0 : Math.round(progressPct);
-  const fillPct = showZeroShell ? 0 : progressPct;
+  const progressRounded = isStale ? 0 : Math.round(progressPct);
+  const fillPct = isStale ? 0 : progressPct;
 
-  const meta = showZeroShell
+  const meta = isStale
     ? termsUnknown
       ? "Terms pending"
       : `${softLockupDays}-day soft lock shown after deposit`
-    : termsUnknown
-      ? "Terms pending"
-      : isUnlocked
-        ? "Unlocked · now"
-        : `${daysRemaining}d left · unlock ${unlockDateFmt.format(unlockDate)}`;
+    : isUnlocked
+      ? "Unlocked · now"
+      : `${daysRemaining}d left · unlock ${unlockDateFmt.format(unlockDate)}`;
 
   const showPenalty =
-    !showZeroShell &&
+    !isStale &&
     !termsUnknown &&
     !isUnlocked &&
     earlyExitPenaltyBps !== undefined;
@@ -81,8 +60,8 @@ export function HeroLiquidityRail({
       aria-label="Liquidity status"
       provenance={widgetProvenance}
     >
-      {/* Zero-state: a 0% bar is noise — show only the terms meta line. */}
-      {showZeroShell ? null : (
+      {/* When stale: a 0% bar is noise — show only the terms meta line. */}
+      {isStale ? null : (
         <div
           role="progressbar"
           aria-valuenow={progressRounded}

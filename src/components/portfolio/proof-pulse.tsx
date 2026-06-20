@@ -30,8 +30,6 @@ export interface ProofPulseProps {
   updatedAt?: Date;
   /** Attestation state from the loader. */
   proofState?: "attested" | "stale";
-  /** Render PoR shell at $0 (layout preview). */
-  previewZeros?: boolean;
 }
 
 // ── Pure helpers (exported for tests) ────────────────────────────────────────
@@ -119,7 +117,6 @@ export function ProofPulse({
   source: _source = "live",
   updatedAt: _updatedAt,
   proofState,
-  previewZeros = false,
 }: ProofPulseProps) {
   const { timestamp, statedTvlUsdc, onChainTvlUsdc } = lastPor;
 
@@ -166,7 +163,7 @@ export function ProofPulse({
           : null; // "none" — no glyph at all
 
   const view = resolveWidgetView({
-    previewZeros,
+    previewZeros: false,
     hasData: hasData || hasMethodologyData,
     provenance: state === "matched" || state === "attested" ? "attested" : "stale",
   });
