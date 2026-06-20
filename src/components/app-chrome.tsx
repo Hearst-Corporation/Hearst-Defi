@@ -30,10 +30,12 @@ function isBareRoute(pathname: string): boolean {
 }
 
 // Bare routes that still carry the full institutional footer (the public-facing
-// "socle plein"): the home/login screen ("/") and every legal page (/legal/*).
-// Auth funnels (/login, /apply, password/totp flows) stay footer-free.
+// "socle plein"): every legal page (/legal/*). The home screen "/" is the wallet
+// sign-in (split-screen login) — an auth funnel, so it stays footer-free like
+// /login: the full plinth otherwise flashed in at the top before the login
+// surface mounted, then vanished.
 function isFooterBareRoute(pathname: string): boolean {
-  return pathname === "/" || pathname === "/legal" || pathname.startsWith("/legal/");
+  return pathname === "/legal" || pathname.startsWith("/legal/");
 }
 
 // Authenticated surfaces that keep the shell but must NOT show the chat rail:
