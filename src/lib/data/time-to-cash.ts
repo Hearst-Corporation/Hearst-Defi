@@ -18,8 +18,6 @@ export interface TimeToCashProps {
   /** Provenance metadata from the loader. */
   source?: "live" | "stale";
   updatedAt?: Date;
-  /** Layout preview at zero — awaiting surface only (DS §9.3). */
-  previewZeros?: boolean;
 }
 
 /** All derived values from the time-to-cash calculation. */

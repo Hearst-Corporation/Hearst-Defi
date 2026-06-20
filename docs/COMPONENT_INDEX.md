@@ -4,7 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**205 components** · 1 possible orphans · 2 intentionally unwired.
+**204 components** · 1 possible orphans · 2 intentionally unwired.
 
 ## ⚠️ Possible orphans (0 references — verify before keeping)
 
@@ -137,7 +137,6 @@
 | `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 3 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
 | `src/components/power/command-palette.tsx` | CommandPalette | 1 |
-| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 2 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
 | `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 4 |
 | `src/components/proof-center/custody-panel.tsx` | CustodySection | 1 |

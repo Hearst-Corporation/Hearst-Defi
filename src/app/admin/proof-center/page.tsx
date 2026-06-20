@@ -1,7 +1,7 @@
 // Admin Proof Center — Layer-1 fit cockpit hub.
 // Bounded summary widgets only; unbounded content (event log, proof grid,
 // contracts) lives in /admin/proof-center/full.
-// Mirrors the investor proof-center hub structure with admin auth + DemoDataBanner.
+// Mirrors the investor proof-center hub structure with admin auth.
 
 export const dynamic = "force-dynamic";
 
@@ -73,7 +73,6 @@ export default async function AdminProofCenterPage() {
       platformAddresses={platformAddresses}
       coldEmpty={coldEmpty}
       demo={false}
-      showDemoBanner={false}
     />
   );
 }

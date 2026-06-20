@@ -6,7 +6,6 @@ import {
   AdminLeafLink,
 } from "@/components/admin/dashboard/cockpit-panel-header";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
-import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
 import type { PlatformAddressEntry } from "@/components/proof-center/contracts-audit-trail";
@@ -48,8 +47,6 @@ export interface ProofCenterHubProps {
   demo: boolean;
   /** Product only — passed to ProofCenterTestnetNotice. */
   demoNotice?: string | null;
-  /** Admin only — renders DemoDataBanner when true. */
-  showDemoBanner?: boolean;
 }
 
 function HubPanelHeader({
@@ -97,7 +94,6 @@ export function ProofCenterHub({
   coldEmpty,
   demo,
   demoNotice = null,
-  showDemoBanner = false,
 }: ProofCenterHubProps) {
   const fullHref =
     variant === "product" ? "/proof-center/full" : "/admin/proof-center/full";
@@ -142,8 +138,6 @@ export function ProofCenterHub({
           actions={chainBadge}
         />
       )}
-
-      {variant === "admin" && showDemoBanner ? <DemoDataBanner /> : null}
 
       {coldEmpty ? (
         <>

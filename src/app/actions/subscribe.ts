@@ -6,8 +6,6 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getInvestor } from "@/lib/auth/session";
 import { getVault } from "@/lib/data/vaults";
-import { isDemoInvestor } from "@/lib/demo/provider";
-import { DEMO_SUBSCRIBE_NOOP_POSITION_ID } from "@/lib/demo/markers";
 import { SHARE_CLASS_A, SHARE_CLASS_B, type ShareClassTerms } from "@/lib/engine/share-class";
 
 /** Sentinel thrown inside the subscribe transaction when capacity is exceeded. */
@@ -61,15 +59,6 @@ export async function subscribe(
   const investor = await getInvestor();
   if (!investor) {
     throw new Error("Unauthenticated");
-  }
-
-  // Defense-in-depth: the demo sandbox identity (guard-gated → never prod) must
-  // never create a real subscription. The client demo invest path does NOT call
-  // this action, but if anything ever does, no-op BEFORE any DB write (this sits
-  // above the first prisma.$transaction) and return a non-real sentinel position
-  // id. No Position, no InvestorTransaction, no Subscription row is created.
-  if (isDemoInvestor(investor)) {
-    return { ok: true, positionId: DEMO_SUBSCRIBE_NOOP_POSITION_ID };
   }
 
   if (!investor.accreditationAttestedAt) {

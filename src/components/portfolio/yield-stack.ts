@@ -18,7 +18,6 @@ export interface YieldStackProps {
   methodologyVersion?: string;
   source?: "live" | "estimated" | "stale";
   updatedAt?: Date;
-  previewZeros?: boolean;
 }
 
 /** CSS custom property for each bucket's bar colour (token-only). */

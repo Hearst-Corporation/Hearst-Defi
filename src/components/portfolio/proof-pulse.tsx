@@ -10,7 +10,7 @@ import {
 } from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
-import { resolveWidgetView } from "@/lib/portfolio/view-state";
+import type { Provenance } from "@/components/ui/provenance-badge";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -162,17 +162,16 @@ export function ProofPulse({
             }
           : null; // "none" — no glyph at all
 
-  const view = resolveWidgetView({
-    previewZeros: false,
-    hasData: hasData || hasMethodologyData,
-    provenance: state === "matched" || state === "attested" ? "attested" : "stale",
-  });
+  const hasAnyData = hasData || hasMethodologyData;
+  const provenance: Provenance | undefined = hasAnyData
+    ? (state === "matched" || state === "attested" ? "attested" : "stale")
+    : undefined;
 
   return (
     <PfCockpitPanel variant="compact" aria-label="Proof and methodology">
       <PfCockpitPanelHeader
         title="Proof & methodology"
-        provenance={view.provenance}
+        provenance={provenance}
       />
 
       {/* ── Last PoR block — only when an attestation actually exists ──────────

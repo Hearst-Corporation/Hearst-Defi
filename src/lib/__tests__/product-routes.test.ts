@@ -29,7 +29,6 @@ const EXPECTED_ROUTES = [
   "/admin/governance/allowlist",
   "/admin/governance/proposal/[id]",
   "/admin/governance/propose",
-  "/admin/governance/simulate-demo",
   "/admin/investor-memo",
   "/admin/monitoring",
   "/admin/onboarding-test",

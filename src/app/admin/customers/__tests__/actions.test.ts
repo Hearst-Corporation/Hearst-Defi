@@ -3,7 +3,7 @@
  *
  * Covers:
  *  - setInvestorKyc  (D2 — KYC override audit trail)
- *  - deployPosition  (4 parity-gap guards + happy path)
+ *  - deployPosition  (3 parity-gap guards + happy path)
  *
  * Mock strategy mirrors the proofs/vaults/governance admin action suites:
  * • requireAdmin       — vi.mock'd, controlled per test
@@ -12,7 +12,6 @@
  * • prisma.position    — aggregate + create vi.fn()
  * • prisma.vaultDeployment — findUnique vi.fn()
  * • getVault           — vi.mock'd, returns a live vault by default
- * • isDemoInvestor     — vi.mock'd, returns false by default
  * • recordAdminAudit   — vi.fn() (no DB)
  * • next/cache         — revalidatePath no-op
  */
@@ -58,17 +57,11 @@ vi.mock("@/lib/data/vaults", () => ({
   getVault: vi.fn(),
 }));
 
-// Gap 4: isDemoInvestor mock — returns false by default; overridden per test.
-vi.mock("@/lib/demo/provider", () => ({
-  isDemoInvestor: vi.fn(),
-}));
-
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { recordAdminAudit } from "@/lib/admin/audit";
 import { revalidatePath } from "next/cache";
 import { getVault } from "@/lib/data/vaults";
-import { isDemoInvestor } from "@/lib/demo/provider";
 import { setInvestorKyc, deployPosition } from "../actions";
 
 const MOCK_ADMIN = { userId: "user_admin", walletAddress: "0xAdminWallet" };
@@ -83,7 +76,7 @@ function form(fields: Record<string, string>): FormData {
 // Shared helpers for deployPosition tests
 // ---------------------------------------------------------------------------
 
-/** A fully-approved, accredited, non-demo investor stub. */
+/** A fully-approved, accredited investor stub. */
 const MOCK_INVESTOR = {
   id: "inv_1",
   kycStatus: "approved",
@@ -110,7 +103,6 @@ function setupDeployMocks() {
   vi.mocked(requireAdmin).mockResolvedValue(MOCK_ADMIN);
   vi.mocked(prisma.investor.findUnique).mockResolvedValue(MOCK_INVESTOR as never);
   vi.mocked(getVault).mockResolvedValue(MOCK_VAULT as never);
-  vi.mocked(isDemoInvestor).mockReturnValue(false);
   // No real VaultDeployment row (fixture vault path).
   vi.mocked(prisma.vaultDeployment.findUnique).mockResolvedValue(null as never);
   // Capacity aggregate: 0 consumed → plenty of room.
@@ -285,21 +277,6 @@ describe("deployPosition", () => {
     expect(err).toContain("Below minimum ticket");
     // $250k → "k" tier, not "M" tier
     expect(err).toContain("$250k");
-    expect(prisma.position.create).not.toHaveBeenCalled();
-    expect(prisma.$transaction).not.toHaveBeenCalled();
-  });
-
-  // Gap 4 — demo-investor short-circuit --------------------------------------
-
-  it("demo investor identity → { ok:false } with demo error, no position created", async () => {
-    vi.mocked(isDemoInvestor).mockReturnValue(true);
-
-    const result = await deployPosition(
-      form({ investorId: "inv_1", amountUsdc: "500000", classCode: "A" }),
-    );
-
-    expect(result.ok).toBe(false);
-    expect((result as { ok: false; error: string }).error).toContain("demo investor");
     expect(prisma.position.create).not.toHaveBeenCalled();
     expect(prisma.$transaction).not.toHaveBeenCalled();
   });

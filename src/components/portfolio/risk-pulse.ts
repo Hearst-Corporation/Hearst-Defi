@@ -29,7 +29,6 @@ export interface RiskPulseProps {
   composite30dTrend: "rising" | "stable" | "falling";
   source?: "live" | "stale";
   updatedAt?: Date;
-  previewZeros?: boolean;
 }
 
 /** Map composite label → CSS token colour class for the composite value. */

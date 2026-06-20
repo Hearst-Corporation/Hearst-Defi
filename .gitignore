@@ -99,3 +99,8 @@ tri-audit-*.html
 
 # jscpd duplication report (audit artifact)
 .jscpd-report/
+
+# Env backups (may contain secrets — never commit)
+.env*
+*.env.bak*
+.env.local.bak*
