@@ -2486,6 +2486,19 @@
     aspect-ratio: 16 / 6;
   }
 
+  /* ZERO + fit : l'aspect-ratio 16/6 ci-dessus réinflate le plot à ~largeur/2.66
+     (panneau pleine largeur ≈ 18rem de plot) et débordait le panneau réduit à
+     11rem → chevauchement avec la sidebar "Projected payout" en haut à droite
+     (Adrien 2026-06-20). En zero on PIN une hauteur fixe courte ; l'aspect-ratio
+     ne s'applique plus (pas de série réelle à plotter, juste la ghost-line). */
+  .pf-container--fit.pf-container--zero
+    .pf-cockpit-row--summary
+    .pf-value-chart
+    .pf-value-chart__chart-wrapper {
+    aspect-ratio: auto;
+    height: 5rem;
+  }
+
   /* Tighten the footer rhythm under the placeholder plot (workflow edits #3-#4). */
   .pf-container--zero .pf-value-chart__month-labels,
   .pf-container--zero .pf-value-chart__disclaimer {
