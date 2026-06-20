@@ -111,19 +111,13 @@ export function CapitalYield({
             trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
           />
           <div className="cy-embedded-empty">
-            <p className="cy-ledger-head body-xs ct-text-faint mono m-0">
-              Indicative preview
+            <p className="cy-ledger-head body-xs ct-text-faint mono m-0">Target APY band</p>
+            <p className="tabular font-semibold ct-text-accent m-0">
+              {formatApyRange(CY_ZERO_STATE.targetApyRange, 1, { spaced: true })}
             </p>
-            <dl className="pf-stack--dense">
-              <div>
-                <dt className="body-xs ct-text-muted">Target APY band</dt>
-                <dd className="tabular font-semibold ct-text-primary">{previewApyRange}</dd>
-              </div>
-              <div>
-                <dt className="body-xs ct-text-muted">Activation</dt>
-                <dd className="body-xs ct-text-muted">After first confirmed position</dd>
-              </div>
-            </dl>
+            <p className="body-xs ct-text-muted m-0">
+              Allocation activates after first confirmed position.
+            </p>
           </div>
         </PfCockpitPanel>
       );
@@ -187,7 +181,7 @@ export function CapitalYield({
               <div key={b.label} className="cy-row cy-row--pending">
                 <span className="cy-dot" style={{ background: "var(--ct-border-soft)" }} />
                 <span className="cy-label body-xs ct-text-faint">{b.label}</span>
-                <span className="cy-val" style={{ opacity: 0.35 }}>{b.apy}</span>
+                <span className="cy-val" style={{ opacity: "var(--ct-opacity-35)" }}>{b.apy}</span>
                 <div className="cy-track cy-track--pending" style={{ gridColumn: "1 / -1" }}>
                   <div className="cy-fill" style={{
                     width: `${b.w}%`,

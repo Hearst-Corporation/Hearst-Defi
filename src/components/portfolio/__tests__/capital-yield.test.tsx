@@ -19,9 +19,9 @@ describe("CapitalYield empty states", () => {
     );
 
     expect(html).toContain("cy-panel--embedded-empty");
-    expect(html).toContain("Indicative preview");
     expect(html).toContain("Target APY band");
-    expect(html).toContain("Activation");
+    expect(html).toContain("9.0");
+    expect(html).toContain("Allocation activates after first confirmed position");
     expect(html).not.toContain("Awaiting snapshot");
     expect(html).not.toContain("<svg");
   });

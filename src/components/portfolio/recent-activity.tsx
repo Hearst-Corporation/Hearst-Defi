@@ -50,10 +50,11 @@ export function RecentActivity({
       variant="wide"
       chrome={embedded ? "embedded" : "panel"}
       aria-label="Recent account activity"
-      className="h-full"
+      className={embedded ? undefined : "h-full"}
     >
       <PfCockpitPanelHeader
         title="Recent Activity"
+        titleVariant="primary"
         provenance={hasTransactions ? provenance : undefined}
         trailing={trailing}
       />
@@ -89,7 +90,7 @@ export function RecentActivity({
         <div className="pf-activity pf-activity--empty">
           <p className="pf-activity__empty-lead body-sm ct-text-muted m-0">No transactions yet</p>
           <p className="pf-activity__empty-hint body-xs ct-text-faint m-0">
-            Deposits and payouts will appear here.
+            Deposits and payouts will appear here after your first confirmed position.
           </p>
         </div>
       )}

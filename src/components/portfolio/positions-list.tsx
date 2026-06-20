@@ -65,20 +65,43 @@ export function PositionsList({
       >
         <PfCockpitPanelHeader
           title="Positions"
+          titleVariant="primary"
           trailing={trailing}
         />
+        {embedded ? (
+          <div className="pf-positions pf-positions--preview" aria-hidden="true">
+            <div className="pf-positions__row pf-positions__row--head stat-label">
+              <span>Vault</span>
+              <span>Principal</span>
+              <span>Value</span>
+              <span>APY</span>
+              <span>Since</span>
+            </div>
+            {[0, 1].map((row) => (
+              <div key={row} className="pf-positions__row pf-positions__row--body pf-positions__row--ghost">
+                <span className="pf-positions__vault">
+                  <span className="pf-status-dot pf-status-dot--default" aria-hidden="true" />
+                  —
+                </span>
+                <span className="pf-positions__num">—</span>
+                <span className="pf-positions__num">—</span>
+                <span className="pf-positions__num">—</span>
+                <span className="pf-positions__num">—</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
         <div className={cn("pf-positions-empty", embedded && "pf-positions-empty--embedded")}>
           <p className="pf-positions-empty__lead body-sm ct-text-muted m-0">
             No active positions yet
           </p>
           <p className="pf-positions-empty__hint body-xs ct-text-faint m-0">
-            Your first deposit will appear here once confirmed on-chain.
+            Your first confirmed on-chain deposit will populate value, APY range, allocation,
+            and proof status.
           </p>
-          {embedded ? null : (
-            <Link href="/vaults" className="pf-positions-empty-link">
-              Explore available vaults →
-            </Link>
-          )}
+          <Link href="/vaults" className="pf-positions-empty-link">
+            Explore available vaults →
+          </Link>
         </div>
       </PfCockpitPanel>
     );
@@ -92,6 +115,7 @@ export function PositionsList({
     >
       <PfCockpitPanelHeader
         title="Positions"
+        titleVariant="primary"
         provenance={provenance}
         trailing={trailing}
       />

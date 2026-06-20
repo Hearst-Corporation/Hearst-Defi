@@ -90,7 +90,7 @@ export function deriveTrustSummaryKpis({
     // orange here would suggest an in-flight on-chain confirmation that doesn't
     // exist when there's nothing to prove yet.
     proofValue = "—";
-    proofMeta = "Awaiting first position";
+    proofMeta = "Proof status unlocks after first position.";
     proofValueClass = "ct-text-faint";
   } else if (proofResolved === "matched" || proofResolved === "attested") {
     proofValue = "Verified";
@@ -144,10 +144,11 @@ export function TrustProofCompact({
       variant="compact"
       chrome={embedded ? "embedded" : "panel"}
       aria-label="Trust and proof summary"
-      className={cn("pf-trust-compact h-full", embedded && "pf-trust-compact--embedded")}
+      className={cn("pf-trust-compact", !embedded && "h-full", embedded && "pf-trust-compact--embedded")}
     >
       <PfCockpitPanelHeader
         title="Trust & Proof"
+        titleVariant="primary"
         provenance={kpis.headerProvenance}
         trailing={trustHeaderTrailing(leafHref)}
       />
