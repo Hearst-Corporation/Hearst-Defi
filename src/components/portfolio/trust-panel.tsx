@@ -21,6 +21,7 @@ export interface TrustPanelProps {
   proof: ProofPulseProps;
   /** Hub-only link to the focused leaf page. */
   leafHref?: string;
+  embedded?: boolean;
 }
 
 export interface TrustSummaryKpis {
@@ -133,6 +134,7 @@ function trustHeaderTrailing(leafHref?: string) {
 /** Sidebar trust summary — KPI headers only; full detail on leaf when linked. */
 export function TrustProofCompact({
   leafHref,
+  embedded = false,
   ...props
 }: TrustPanelProps) {
   const kpis = deriveTrustSummaryKpis(props);
@@ -140,8 +142,9 @@ export function TrustProofCompact({
   return (
     <PfCockpitPanel
       variant="compact"
+      chrome={embedded ? "embedded" : "panel"}
       aria-label="Trust and proof summary"
-      className="pf-trust-compact"
+      className={cn("pf-trust-compact h-full", embedded && "pf-trust-compact--embedded")}
     >
       <PfCockpitPanelHeader
         title="Trust & Proof"
@@ -151,15 +154,26 @@ export function TrustProofCompact({
 
       <dl className="pf-trust-compact-kpis">
         <div className="pf-trust-compact-kpi">
-          <dt className="stat-label">Risk composite</dt>
-          <dd className={cn("pf-trust-compact-kpi__value tabular-nums", kpis.compositeValueClass)}>
+          <dt className="stat-label flex items-center gap-1.5">
+            <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            Risk composite
+          </dt>
+          <dd className={cn("pf-trust-compact-kpi__value tabular", kpis.compositeValueClass)}>
             {kpis.compositeValue}
           </dd>
           <dd className="body-xs ct-text-muted m-0">{kpis.compositeMeta}</dd>
         </div>
 
         <div className="pf-trust-compact-kpi">
-          <dt className="stat-label">Proof status</dt>
+          <dt className="stat-label flex items-center gap-1.5">
+            <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+            Proof status
+          </dt>
           <dd className={cn("pf-trust-compact-kpi__value", kpis.proofValueClass)}>
             {kpis.proofValue}
           </dd>

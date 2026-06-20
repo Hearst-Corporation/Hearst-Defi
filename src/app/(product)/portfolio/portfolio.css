@@ -12,8 +12,14 @@
      --ct-text-*, --ct-font-*, --ct-leading-*, --ct-tracking-*).
    - Dark mode only. No `dark:` modifiers. No tailwind.config.
 
-   ONE accent green: --ct-accent (#A7FB90). Used sparingly — titles, big KPI
-   numbers, accent chips, the mining row. Everything else is white / muted.
+   ONE accent green: --ct-accent (#A7FB90). Secondary sage: --ct-text-secondary
+   (#9EB3A8, Hearst Flow).
+
+   SURFACE STACK (opaque charcoal — backgrounds / boxes / layering only):
+     L0 page gaps        → --ct-surface-0 (#0E0F0F)
+     L1 plates           → --ct-graphite-subtle-bg + --ct-graphite-border-nested
+     L2 nested insets    → --ct-graphite-nested-bg (trust cells, table head band)
+     L3 row hover/chips  → --ct-surface-2 / --ct-surface-1
 
    This is a single coherent system. Do not pile up fighting overrides.
    ============================================================================= */
@@ -25,13 +31,12 @@
 .pf-container {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  gap: var(--ct-space-6);
   width: 100%;
   min-width: 0;
-  /* the content-slot is the query source for all column reflow */
   container-type: inline-size;
   container-name: pf;
-  color: #ffffff;
+  color: var(--ct-text-strong);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
   /* responsive breakpoint vars (consumed by @container tiers below) */
@@ -42,9 +47,11 @@
   --pf-bp-deck-3col: 58rem;
   --pf-bp-hero-split: 58rem;
   --pf-bp-hero-stack: 64rem;
+  position: relative;
+  background: var(--ct-surface-0);
 }
 
-/* All financial body text in portfolio scope is white. Titles + KPI = accent. */
+/* All financial body text in portfolio scope inherits strong white. */
 .pf-container :where(p, span, dd, dt, td, th, li, dl, time, small) {
   color: inherit;
 }
@@ -67,6 +74,15 @@
    2. GREETING + TICKER (instrument strip)
    ============================================================================= */
 
+/* Accent hairline between greeting and hero — portfolio-premium.html */
+.pf-hairline {
+  flex: 0 0 auto;
+  height: 1px;
+  background: var(--ct-accent);
+  opacity: 0.35;
+  margin: var(--ct-space-5) 0;
+}
+
 .pf-greeting {
   display: flex;
   flex-wrap: wrap;
@@ -74,7 +90,8 @@
   justify-content: space-between;
   gap: var(--ct-space-4) var(--ct-space-6);
   flex: 0 0 auto;
-  padding-bottom: var(--ct-space-1);
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .pf-greeting__lead {
@@ -85,7 +102,7 @@
 }
 
 .pf-greeting__lead .h1 {
-  font-size: var(--ct-text-2xl);
+  font-size: 1.5rem;
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
   letter-spacing: var(--ct-tracking-tight);
@@ -97,65 +114,68 @@
   font-weight: var(--ct-font-semibold);
 }
 
-/* Subtitle under the greeting — "Portfolio cockpit" (mockup). */
+/* Subtitle — Hearst Flow uppercase micro label + accent hairline dot. */
 .pf-greeting__sub {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-normal);
-  color: var(--ct-text-muted);
-  letter-spacing: var(--ct-tracking-normal);
-  line-height: var(--ct-leading-snug);
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  margin-top: 0.25rem;
+  font-size: 0.5625rem;
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-secondary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-/* Ticker = 4 mini label/value columns split by thin vertical hairlines. */
+.pf-greeting__sub-dot {
+  width: var(--ct-space-2);
+  height: 1px;
+  flex-shrink: 0;
+  background: var(--ct-accent);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Ticker — 4 KPI cells, graphite plate (ADR-013), no hover lift. */
 .pf-ticker-inline {
   display: flex;
   align-items: stretch;
   flex-wrap: wrap;
-  gap: 0 var(--ct-space-6);
+  gap: 0 1.5rem;
   margin: 0;
-  padding: 0;
+  padding: var(--ct-space-3) var(--ct-space-5);
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-xl);
+  box-shadow: var(--ct-glass-bevel);
 }
 
-.pf-ticker-inline > div {
+.pf-ticker-cell {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-0_5);
   min-width: 0;
-  padding-left: var(--ct-space-6);
-  border-left: 1px solid var(--ct-border-soft);
 }
 
-.pf-ticker-inline > div:first-child {
-  padding-left: 0;
-  border-left: 0;
-}
-
-.pf-ticker-inline dt {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
+.pf-ticker-label {
+  font-size: 0.5625rem;
+  font-weight: var(--ct-font-normal);
   text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wider);
+  letter-spacing: 0.08em;
   color: var(--ct-text-faint);
   white-space: nowrap;
 }
 
-.pf-ticker-inline dd {
-  margin: 0;
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-semibold);
-  line-height: var(--ct-leading-tight);
-  color: #ffffff;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
+.pf-ticker-value {
+  margin: 0.125rem 0 0;
+  font-size: 1.125rem;
+  font-weight: var(--ct-font-bold);
+  line-height: var(--ct-leading-none);
+  color: var(--ct-text-strong);
   white-space: nowrap;
 }
 
-.pf-ticker-inline__accent {
-  color: var(--ct-accent);
-}
-
-/* Secondary line under a KPI value — "not guaranteed" / payout date (mockup). */
-.pf-ticker-inline__note {
+.pf-ticker-note {
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-normal);
   letter-spacing: var(--ct-tracking-normal);
@@ -196,6 +216,181 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.pf-fused-surface {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 62%, transparent);
+  border-radius: var(--ct-radius-xl);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-surface-2) 82%, transparent),
+    color-mix(in srgb, var(--ct-surface-1) 96%, transparent)
+  );
+  overflow: hidden;
+  box-shadow: var(--ct-glass-bevel);
+}
+
+.pf-fused-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--ct-accent) 16%, transparent) 20%,
+    color-mix(in srgb, var(--ct-text-strong) 12%, transparent) 50%,
+    color-mix(in srgb, var(--ct-accent) 12%, transparent) 80%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+.pf-fused-surface--mid {
+  grid-template-columns: minmax(0, 1.8fr) minmax(21rem, 0.95fr);
+  background:
+    radial-gradient(
+      72% 120% at 84% 16%,
+      color-mix(in srgb, var(--ct-accent) 8%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-surface-2) 84%, transparent),
+      color-mix(in srgb, var(--ct-surface-1) 96%, transparent)
+    );
+}
+
+.pf-fused-surface--deck {
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.95fr);
+}
+
+.pf-fused-surface__pane {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pf-fused-surface__pane + .pf-fused-surface__pane {
+  border-left: 1px solid color-mix(in srgb, var(--ct-border-soft) 70%, transparent);
+}
+
+.pf-fused-surface__pane--aside {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ct-text-strong) 2%, transparent),
+      transparent 24%
+    ),
+    radial-gradient(
+      88% 100% at 72% 10%,
+      color-mix(in srgb, var(--ct-accent) 7%, transparent),
+      transparent 72%
+    );
+}
+
+.pf-fused-surface--mid .pf-cockpit-panel__header {
+  padding-bottom: var(--ct-space-1);
+}
+
+.pf-fused-surface--mid .pf-positions {
+  padding-top: var(--ct-space-1);
+}
+
+.pf-fused-surface--mid .pf-positions__row--head {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-surface-2) 46%, transparent),
+    color-mix(in srgb, var(--ct-surface-1) 18%, transparent)
+  );
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  padding-inline: var(--ct-space-5);
+}
+
+.pf-fused-surface--mid .pf-positions__row--body {
+  padding-inline: var(--ct-space-5);
+}
+
+.pf-fused-surface--mid .pf-positions-empty {
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  padding-inline: var(--ct-space-5);
+}
+
+.pf-positions-empty--embedded {
+  gap: var(--ct-space-1);
+}
+
+.pf-positions-empty--embedded .pf-positions-empty__hint {
+  max-width: 22ch;
+}
+
+.pf-fused-surface--mid .cy-panel {
+  padding-inline: var(--ct-space-5);
+  justify-content: flex-start;
+}
+
+.pf-fused-surface--mid .cy-body {
+  grid-template-columns: 1fr;
+  justify-items: stretch;
+  gap: var(--ct-space-4);
+  align-content: start;
+}
+
+.pf-fused-surface--mid .cy-spine {
+  display: none;
+}
+
+.pf-fused-surface--mid .cy-donut,
+.pf-fused-surface--mid .dash-chart-container {
+  width: 8.75rem;
+  height: 8.75rem;
+  margin-inline: 0 auto;
+}
+
+.pf-fused-surface--mid .cy-ledger {
+  gap: var(--ct-space-2_5);
+}
+
+.pf-fused-surface--mid .cy-panel--onboarding-empty {
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--ct-space-4);
+}
+
+.pf-fused-surface--mid .cy-panel--onboarding-empty .cy-body {
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.pf-fused-surface--mid .cy-panel__empty-copy {
+  align-items: flex-start;
+  text-align: left;
+  margin: 0;
+  max-width: 22ch;
+}
+
+.cy-panel--embedded-empty {
+  justify-content: center;
+}
+
+.cy-embedded-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  min-width: 0;
+}
+
+.cy-panel--embedded-empty .pf-stack--dense {
+  gap: var(--ct-space-2);
 }
 
 /* ---- THE GATE: lock to viewport ONLY when tall AND wide enough ---- */
@@ -273,8 +468,7 @@
   /* min-height:0 on the WHOLE chain — neutralize every min-height floor. */
   .pf-container--fit .pf-cockpit-cell,
   .pf-container--fit .pf-cockpit-panel,
-  .pf-container--fit .pf-hero-grid,
-  .pf-container--fit .pf-radial-cluster,
+    .pf-container--fit .pf-hero-grid,
   .pf-container--fit .pf-status-panel,
   .pf-container--fit .pf-status-list,
   .pf-container--fit .pf-main-chart-wrapper,
@@ -332,33 +526,107 @@
   height: 100%;
   gap: var(--ct-space-3);
   padding: var(--ct-space-4);
-  border: 1px solid var(--ct-graphite-border-nested);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 82%, transparent);
   border-radius: var(--ct-radius-xl);
-  background:
-    linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--ct-surface-3) 70%, transparent),
-      color-mix(in srgb, var(--ct-surface-2) 88%, transparent)
-    );
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--ct-surface-3) 48%, transparent),
-    0 1px 2px color-mix(in srgb, var(--ct-bg-deep) 60%, transparent);
-  backdrop-filter: blur(var(--ct-blur-xl));
-  -webkit-backdrop-filter: blur(var(--ct-blur-xl));
-  transition:
-    border-color var(--ct-dur-base) var(--ct-ease),
-    box-shadow var(--ct-dur-base) var(--ct-ease);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-surface-2) 88%, transparent),
+    color-mix(in srgb, var(--ct-surface-1) 96%, transparent)
+  );
+  box-shadow: var(--ct-glass-bevel);
   overflow: hidden;
 }
 
-.pf-cockpit-panel:hover {
-  border-color: var(--ct-graphite-border);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--ct-surface-3) 65%, transparent),
-    0 2px 6px color-mix(in srgb, var(--ct-bg-deep) 70%, transparent);
+.pf-cockpit-panel--compact { gap: var(--ct-space-2_5); }
+
+.pf-embedded-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-4);
 }
 
-.pf-cockpit-panel--compact { gap: var(--ct-space-2_5); }
+.pf-embedded-pane[data-pf-panel-variant="compact"] {
+  gap: var(--ct-space-2_5);
+}
+
+/* Secondary surfaces should read as sections in a shared deck, not isolated cards. */
+.pf-cockpit-row--mid .pf-cockpit-panel,
+.pf-cockpit-row--deck .pf-cockpit-panel {
+  border-color: color-mix(in srgb, var(--ct-border-soft) 58%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-surface-2) 70%, transparent),
+    color-mix(in srgb, var(--ct-surface-1) 92%, transparent)
+  );
+}
+
+.pf-fused-surface .pf-embedded-pane {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.pf-cockpit-cell[data-section="activity-payouts"] .pf-cockpit-panel,
+.pf-cockpit-cell[data-section="yield-trust"] .pf-cockpit-panel,
+.pf-fused-surface__pane[data-section="activity-payouts"] .pf-cockpit-panel,
+.pf-fused-surface__pane[data-section="yield-trust"] .pf-cockpit-panel {
+  border-color: transparent;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-surface-2) 30%, transparent),
+    transparent 72%
+  );
+  box-shadow: none;
+}
+
+.pf-cockpit-cell[data-section="activity-payouts"],
+.pf-cockpit-cell[data-section="yield-trust"] {
+  position: relative;
+}
+
+.pf-cockpit-cell[data-section="activity-payouts"]::before,
+.pf-cockpit-cell[data-section="yield-trust"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--ct-text-strong) 8%, transparent) 12%,
+    color-mix(in srgb, var(--ct-accent) 12%, transparent) 50%,
+    color-mix(in srgb, var(--ct-text-strong) 6%, transparent) 88%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+.pf-cockpit-row--mid .pf-cockpit-panel::before,
+.pf-cockpit-row--deck .pf-cockpit-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--ct-accent) 18%, transparent) 18%,
+    color-mix(in srgb, var(--ct-text-strong) 10%, transparent) 50%,
+    color-mix(in srgb, var(--ct-accent) 14%, transparent) 82%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+.pf-fused-surface--mid .pf-cockpit-panel,
+.pf-fused-surface--deck .pf-cockpit-panel {
+  height: 100%;
+}
 
 /* ---- Panel header ---- */
 .pf-cockpit-panel__header {
@@ -394,6 +662,18 @@
   color: var(--ct-accent);
 }
 
+/* Hero weld — portfolio-premium.html panel titles (12px uppercase sage accent). */
+.pf-hero-grid .pf-cockpit-panel__title--primary,
+.pf-hero-grid .pf-panel-title {
+  margin: 0 0 var(--ct-space-3);
+  font-size: 0.75rem;
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-snug);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ct-accent);
+}
+
 .pf-cockpit-panel__subtitle {
   margin: 0;
   font-size: var(--ct-text-xs);
@@ -425,37 +705,46 @@
 .pf-panel-leaf-link:hover .pf-panel-leaf-link__arrow { transform: translateX(var(--ct-space-0_5)); }
 
 /* =============================================================================
-   5. HERO — welded chart + radial cluster
+   5. HERO — welded chart + status panel
    ============================================================================= */
 
 .pf-hero-grid {
   display: grid;
   grid-template-columns: 1fr;
   min-width: 0;
-  min-height: 0;
+  min-height: 280px;
   height: 100%;
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
-  background:
-    linear-gradient(
-      155deg,
-      color-mix(in srgb, var(--ct-surface-3) 60%, transparent),
-      color-mix(in srgb, var(--ct-surface-2) 90%, transparent)
-    );
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--ct-surface-3) 48%, transparent),
-    0 1px 2px color-mix(in srgb, var(--ct-bg-deep) 60%, transparent);
-  backdrop-filter: blur(var(--ct-blur-xl));
-  -webkit-backdrop-filter: blur(var(--ct-blur-xl));
+  background: var(--ct-graphite-subtle-bg);
+  box-shadow: var(--ct-glass-bevel);
   overflow: clip;
 }
 
 /* The chart panel inside the weld (left/top). */
 .pf-main-chart-wrapper {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-surface-2) 28%, transparent),
+    transparent
+  );
+}
+
+.pf-main-chart-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-text-strong) 3%, transparent),
+    transparent 22%
+  );
+  pointer-events: none;
 }
 
 /* ---- ValueChart ---- */
@@ -478,13 +767,25 @@
 }
 
 .pf-hero-kpi-value {
-  font-size: var(--ct-text-3xl);
-  font-weight: var(--ct-font-bold);
+  font-size: 2rem;
+  font-weight: var(--ct-font-extrabold);
   line-height: var(--ct-leading-none);
-  letter-spacing: var(--ct-tracking-tight);
+  letter-spacing: var(--ct-tracking-tighter);
   color: var(--ct-accent);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
+}
+
+.pf-value-chart--hero-embedded .pf-cockpit-panel__header {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.pf-value-chart--hero-embedded .pf-cockpit-panel__header-trail {
+  display: none;
+}
+
+.pf-value-chart--hero-embedded .pf-hero-kpi-block {
+  margin: 0 0 var(--ct-space-1);
 }
 
 .pf-value-chart__chart-wrapper {
@@ -494,6 +795,38 @@
   width: 100%;
   /* aspect-ratio is the collapse backstop once min-height:0 fires */
   aspect-ratio: 200 / 62; /* chart-geometry */
+  overflow: hidden;
+  border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-surface-2) 24%, transparent),
+    color-mix(in srgb, var(--ct-surface-1) 40%, transparent)
+  );
+}
+
+.pf-value-chart__chart-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--ct-surface-0) 18%, transparent)
+  );
+  pointer-events: none;
+}
+
+.pf-value-chart__chart-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 18%;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--ct-surface-0) 28%, transparent)
+  );
+  pointer-events: none;
 }
 
 .pf-value-chart__plot {
@@ -509,20 +842,34 @@
   height: 100%;
 }
 
-/* The line + its glow / area wash. */
+/* Chart line + area — flat stroke, no glow animation. */
 .pf-value-chart__plot svg path[data-role="line"],
-.pf-value-chart__plot svg .vc-line {
-  stroke: var(--ct-accent);
+.pf-value-chart__plot svg .vc-line,
+.pf-value-chart__plot svg path[stroke="var(--ct-accent)"] {
+  stroke: color-mix(in srgb, var(--ct-accent) 68%, var(--ct-text-strong));
+  opacity: 1;
 }
 
 .pf-value-chart__plot svg .vc-area {
-  fill: color-mix(in srgb, var(--ct-accent) 14%, transparent);
+  fill: none;
+  opacity: 0;
+  filter: none;
 }
 
 .pf-vc-grid {
   stroke: var(--ct-border-soft);
   stroke-width: 0.5; /* chart-geometry */
-  opacity: var(--ct-opacity-50);
+  opacity: var(--ct-opacity-65);
+}
+
+.pf-vc-axis {
+  stroke: color-mix(in srgb, var(--ct-text-strong) 16%, transparent);
+  stroke-width: 0.75;
+  opacity: 1;
+}
+
+.pf-vc-endpoint {
+  fill: color-mix(in srgb, var(--ct-accent) 55%, var(--ct-text-strong));
 }
 
 /* Endpoint dots overlaid on the plot. */
@@ -545,7 +892,8 @@
   width: var(--ct-space-2);
   height: var(--ct-space-2);
   background: var(--ct-accent);
-  box-shadow: 0 0 0 var(--ct-space-1) var(--ct-accent-glow);
+  border: 1px solid color-mix(in srgb, var(--ct-text-strong) 14%, transparent);
+  box-shadow: none;
 }
 
 .pf-value-chart__month-labels {
@@ -572,108 +920,27 @@
 }
 
 /* =============================================================================
-   6. RADIAL CLUSTER
+   6. PORTFOLIO STATUS PANEL (hero sidebar)
    ============================================================================= */
 
-.pf-radial-cluster {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  min-width: 0;
-  min-height: 0;
-  padding: var(--ct-space-4);
-  border-top: 1px solid var(--ct-graphite-border-nested);
-  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
-  /* rail-level query source */
-  container-type: inline-size;
-  container-name: pf-rail;
-}
-
-.pf-radial-ring {
-  display: grid;
-  grid-template-columns: 2.75rem 1fr;
-  align-items: center;
-  gap: var(--ct-space-3);
-  min-width: 0;
-}
-
-.pf-radial-ring + .pf-radial-ring {
-  padding-top: var(--ct-space-3);
-  border-top: 1px solid var(--ct-border-soft);
-}
-
-.pf-radial-ring__svg {
-  width: 2.75rem;
-  height: 2.75rem;
-}
-
-.pf-radial-ring__svg svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.pf-radial-ring__copy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-  min-width: 0;
-}
-
-.pf-radial-ring__title {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide);
-  color: var(--ct-text-muted);
-}
-
-.pf-radial-ring__kpi {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-semibold);
-  line-height: var(--ct-leading-tight);
-  color: #ffffff;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
-}
-
-.pf-radial-ring__meta {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-faint);
-  line-height: var(--ct-leading-snug);
-}
-
-.pf-radial-cluster__footnote {
-  margin-top: auto;
-  padding-top: var(--ct-space-2);
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-faint);
-  line-height: var(--ct-leading-snug);
-  border-top: 1px solid var(--ct-border-soft);
-}
-
-/* ── Portfolio status panel (hero sidebar, mockup-matched) ──
-   Welded into the hero-grid right slot like the radial cluster: shares the
-   surface, fills the cell height, 5 icon rows distributed with hairlines. */
+/* Welded into the hero-grid right slot — flat graphite, 5 icon rows. */
 .pf-status-panel {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  padding: var(--ct-space-3) var(--ct-space-4);
-  border-top: 1px solid var(--ct-graphite-border-nested);
-  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
-  container-type: inline-size;
-  container-name: pf-rail;
+  /* Background and border come from PfCockpitPanel wrapper */
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
 }
 
-.pf-status-panel__header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding-bottom: var(--ct-space-1_5);
+.pf-status-panel .pf-cockpit-panel__header {
+  padding: var(--ct-space-3) var(--ct-space-4) var(--ct-space-1_5);
   margin-bottom: var(--ct-space-0_5);
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 74%, transparent);
+  border-bottom: 1px solid var(--ct-graphite-border-nested);
 }
 
 .pf-status-list {
@@ -682,6 +949,7 @@
   flex: 1 1 auto;
   min-height: 0;
   margin: 0;
+  padding: 0 var(--ct-space-4) var(--ct-space-3);
   /* Last-resort ghost-scroll inside the panel if a short slot can't hold all 5
      rows — never clips a row out of view (Underlying proof was getting cut). */
   overflow-y: auto;
@@ -698,11 +966,12 @@
   gap: var(--ct-space-2_5);
   flex: 1 1 0;
   min-height: 0;
-  padding-block: var(--ct-space-1);
+  padding: var(--ct-space-2) var(--ct-space-3);
+  border-radius: var(--ct-radius-md);
 }
 
 .pf-status-row + .pf-status-row {
-  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 60%, transparent);
+  margin-top: var(--ct-space-1);
 }
 
 .pf-status-row__icon {
@@ -713,8 +982,8 @@
   height: 1.75rem;
   border-radius: var(--ct-radius-full);
   color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ct-accent) 22%, transparent);
+  background: var(--ct-surface-2);
+  border: 1px solid var(--ct-graphite-border-nested);
 }
 
 .pf-status-row__icon svg {
@@ -787,37 +1056,52 @@
 
 .pf-positions__row {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-2) 0;
+  gap: var(--ct-space-4);
+    padding: var(--ct-space-2) var(--ct-space-4);
   min-width: 0;
+  transition: background var(--ct-dur-base) var(--ct-ease),
+      transform var(--ct-dur-base) var(--ct-ease);
 }
 
 .pf-positions__row--head {
   font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
+  font-weight: var(--ct-font-bold);
   text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wider);
+  letter-spacing: 0.12em;
   color: var(--ct-text-faint);
-  border-bottom: 1px solid var(--ct-border-soft);
-  padding-top: 0;
+  border-bottom: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-nested-bg);
+  padding-top: var(--ct-space-3);
+  padding-bottom: var(--ct-space-3);
+  border-top-left-radius: var(--ct-radius-xl);
+  border-top-right-radius: var(--ct-radius-xl);
 }
 
 .pf-positions__row--body {
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 60%, transparent);
+  border-bottom: 1px solid var(--ct-border-soft);
   font-size: var(--ct-text-sm);
+  background: transparent;
 }
 
-.pf-positions__row--body:last-child { border-bottom: 0; }
+.pf-positions__row--body:hover {
+  background: var(--ct-surface-1);
+}
+
+.pf-positions__row--body:last-child {
+  border-bottom: 0;
+  border-bottom-left-radius: var(--ct-radius-lg);
+  border-bottom-right-radius: var(--ct-radius-lg);
+}
 
 .pf-positions__vault {
   display: flex;
   align-items: center;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-3);
   min-width: 0;
-  font-weight: var(--ct-font-medium);
-  color: #ffffff;
+  font-weight: var(--ct-font-semibold);
+    color: var(--ct-text-strong);
 }
 
 .pf-positions__vault > span {
@@ -830,7 +1114,7 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
-  color: #ffffff;
+  color: var(--ct-text-strong);
   white-space: nowrap;
 }
 
@@ -850,7 +1134,7 @@
 .pf-positions-empty__lead {
   font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-medium);
-  color: #ffffff;
+  color: var(--ct-text-strong);
 }
 
 .pf-positions-empty__hint {
@@ -901,21 +1185,22 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 7.5rem;
+  width: 9rem;
+  height: 9rem;
   min-width: 0;
 }
 
 .dash-chart-svg {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   transform: rotate(-90deg); /* chart-geometry — 0% slice starts at 12 o'clock */
 }
 
 .dash-chart-circle {
   fill: none;
   stroke-width: 3.4; /* chart-geometry */
-  transition: stroke-dashoffset var(--ct-dur-slower) var(--ct-ease-in-out);
+  transition: stroke-dashoffset 1.5s var(--ct-ease);
 }
 
 .cy-donut-arc {
@@ -923,24 +1208,11 @@
 }
 
 .cy-arc-mining {
-  stroke: var(--ct-status-info);
-}
-
-.donut-slice-glow {
-  filter: drop-shadow(0 0 var(--ct-space-1) var(--ct-accent-glow));
+  stroke-width: 4.8;
 }
 
 .cy-donut-halo {
-  position: absolute;
-  inset: 12%;
-  border-radius: var(--ct-radius-full);
-  background: radial-gradient(
-    circle,
-    var(--ct-accent-ambient),
-    transparent 70%
-  );
-  pointer-events: none;
-  z-index: 0;
+  display: none;
 }
 
 .donut-center {
@@ -950,15 +1222,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--ct-space-0_5);
+  gap: var(--ct-space-1);
   text-align: center;
   z-index: 1;
 }
 
-.donut-val,
-.cy-val {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-bold);
+.donut-val {
+  font-size: var(--ct-text-xl);
+  font-weight: var(--ct-font-extrabold);
   line-height: var(--ct-leading-none);
   color: var(--ct-accent);
   font-variant-numeric: tabular-nums;
@@ -968,7 +1239,7 @@
 .donut-lbl {
   font-size: var(--ct-text-micro);
   text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide);
+  letter-spacing: 0.12em;
   color: var(--ct-text-faint);
 }
 
@@ -1054,7 +1325,7 @@
 
 .cy-label {
   font-size: var(--ct-text-xs);
-  color: #ffffff;
+  color: var(--ct-text-strong);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1064,7 +1335,7 @@
 .cy-val {
   font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-semibold);
-  color: #ffffff;
+  color: var(--ct-text-strong);
   text-align: right;
   white-space: nowrap;
 }
@@ -1080,7 +1351,7 @@
 }
 
 .cy-track--pending {
-  background: color-mix(in srgb, var(--ct-surface-1) 70%, transparent);
+  background: var(--ct-surface-1);
 }
 
 .cy-ticks {
@@ -1119,7 +1390,7 @@
   background: linear-gradient(
     100deg,
     transparent 30%,
-    color-mix(in srgb, #ffffff 22%, transparent) 50%,
+    color-mix(in srgb, var(--ct-text-strong) 22%, transparent) 50%,
     transparent 70%
   );
   transform: translateX(-100%);
@@ -1150,12 +1421,7 @@
 }
 
 .cy-ghost-bloom {
-  position: absolute;
-  inset: 0;
-  border-radius: var(--ct-radius-full);
-  background: radial-gradient(circle, var(--ct-accent-ambient), transparent 65%);
-  opacity: var(--ct-opacity-40);
-  pointer-events: none;
+  display: none;
 }
 
 /* =============================================================================
@@ -1164,6 +1430,11 @@
 
 .pf-payout-calendar-panel {
   min-width: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-surface-2) 82%, transparent),
+    color-mix(in srgb, var(--ct-surface-1) 96%, transparent)
+  );
 }
 
 .pf-payout-calendar-slot {
@@ -1184,6 +1455,38 @@
   width: 100%;
   /* aspect-ratio backstop matching the bar-chart viewBox */
   aspect-ratio: 560 / 180; /* chart-geometry */
+  overflow: hidden;
+  border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-surface-2) 22%, transparent),
+    transparent
+  );
+}
+
+.pf-distrib-chart-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-text-strong) 3%, transparent),
+    transparent 20%
+  );
+  pointer-events: none;
+}
+
+.pf-distrib-chart-shell::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 14%;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--ct-surface-0) 22%, transparent)
+  );
+  pointer-events: none;
 }
 
 .pf-distrib-chart-shell--ghost {
@@ -1202,25 +1505,34 @@
 }
 
 /* bars + markers inside the distrib chart */
+.pf-distrib-chart rect {
+  transition: all var(--ct-dur-base) var(--ct-ease);
+}
+
+.pf-distrib-chart rect:hover {
+  filter: brightness(1.04);
+}
+
 .pf-distrib-chart__amount {
-  fill: var(--ct-accent);
+  fill: var(--ct-text-muted);
+  font-weight: var(--ct-font-bold);
 }
 
 .pf-distrib-chart__estimate {
-  fill: color-mix(in srgb, var(--ct-accent) 35%, transparent);
-  stroke: var(--ct-accent);
+  fill: var(--ct-text-faint);
+  stroke: var(--ct-text-muted);
   stroke-width: 0.75; /* chart-geometry */
   stroke-dasharray: 3 2; /* chart-geometry */
 }
 
 .pf-distrib-chart__marker {
-  stroke: var(--ct-border);
-  stroke-width: 0.5; /* chart-geometry */
+  fill: var(--ct-text-muted);
 }
 
 .pf-distrib-chart__period {
-  fill: var(--ct-text-faint);
+  fill: var(--ct-text-muted);
   font-size: 9px; /* chart-geometry — SVG text unit */
+  font-weight: var(--ct-font-semibold);
 }
 
 /* ---- Calendar footer (dl of upcoming items) ---- */
@@ -1252,7 +1564,7 @@
   margin: 0;
   font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-semibold);
-  color: #ffffff;
+  color: var(--ct-text-strong);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
 }
@@ -1297,6 +1609,7 @@
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
+  justify-content: center;
 }
 
 .pf-activity-grid {
@@ -1314,10 +1627,16 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-2) 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 55%, transparent);
-  min-width: 0;
+  gap: var(--ct-space-4);
+  padding: var(--ct-space-3) var(--ct-space-4);
+  border-radius: var(--ct-radius-sm);
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 60%, transparent);
+  transition: all var(--ct-dur-base) var(--ct-ease);
+}
+
+.pf-activity__row:hover {
+  background: color-mix(in srgb, var(--ct-accent) 4%, transparent);
+  transform: translateX(3px);
 }
 
 .pf-activity__row:last-child { border-bottom: 0; }
@@ -1326,13 +1645,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--ct-space-7);
-  height: var(--ct-space-7);
-  border-radius: var(--ct-radius-md);
-  background: var(--ct-graphite-nested-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  color: var(--ct-text-secondary);
+  width: var(--ct-space-8);
+  height: var(--ct-space-8);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-surface-2);
+  border: 1px solid var(--ct-border-soft);
+  color: var(--ct-text-primary);
   flex: 0 0 auto;
+  transition: all var(--ct-dur-base) var(--ct-ease);
+}
+
+.pf-activity__row:hover .pf-activity__glyph {
+  border-color: var(--ct-accent);
+  color: var(--ct-accent);
+  box-shadow: none;
 }
 
 .pf-activity__main {
@@ -1345,7 +1671,7 @@
 .pf-activity__main > :first-child {
   font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-medium);
-  color: #ffffff;
+  color: var(--ct-text-strong);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1359,7 +1685,7 @@
 .pf-activity__amt {
   font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-semibold);
-  color: #ffffff;
+  color: var(--ct-text-strong);
   text-align: right;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -1378,7 +1704,7 @@
 .pf-activity__empty-lead {
   font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-medium);
-  color: #ffffff;
+  color: var(--ct-text-strong);
 }
 
 .pf-activity__empty-hint {
@@ -1393,35 +1719,37 @@
    ============================================================================= */
 
 .pf-trust-compact {
-  min-width: 0;
+  position: relative;
+  overflow: hidden;
 }
 
 .pf-trust-compact-kpis {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4) var(--ct-space-5);
   flex: 1 1 auto;
-  align-content: center;
+  align-content: start;
   margin: 0;
+  padding: var(--ct-space-3) 0 0;
   min-height: 0;
 }
 
 .pf-trust-compact-kpi {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-0_5);
+  gap: var(--ct-space-1);
   min-width: 0;
-  padding: var(--ct-space-3);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-lg);
-  background: var(--ct-graphite-nested-bg);
+  padding: var(--ct-space-3) 0 0;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 54%, transparent);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
-.pf-trust-compact-kpi .stat-label {
-  font-size: var(--ct-text-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide);
-  color: var(--ct-text-faint);
+.pf-trust-compact-kpi:nth-child(-n+2) {
+  border-top: 0;
+  padding-top: 0;
 }
 
 .pf-trust-compact-kpi__value {
@@ -1429,9 +1757,16 @@
   font-size: var(--ct-text-xl);
   font-weight: var(--ct-font-bold);
   line-height: var(--ct-leading-tight);
-  color: #ffffff;
+  color: var(--ct-text-strong);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
+}
+
+.pf-trust-compact-kpi .stat-label {
+  font-size: var(--ct-text-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide);
+  color: var(--ct-text-faint);
 }
 
 .pf-trust-compact-kpi .body-xs {
@@ -1454,6 +1789,39 @@
 }
 
 .pf-trust-compact__see-more:hover { color: var(--ct-accent); }
+
+.pf-trust-compact--embedded .pf-trust-compact-kpis {
+  grid-template-columns: 1fr;
+  gap: var(--ct-space-2_5);
+}
+
+.pf-trust-compact--embedded .pf-trust-compact-kpi {
+  padding-top: var(--ct-space-2_5);
+}
+
+.pf-trust-compact--embedded .pf-trust-compact-kpi__value {
+  font-size: var(--ct-text-base);
+}
+
+.pf-fused-surface--deck .pf-activity {
+  justify-content: flex-start;
+}
+
+.pf-fused-surface--deck .pf-activity--empty {
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  padding-inline: var(--ct-space-4);
+}
+
+.pf-fused-surface--deck .pf-activity__empty-hint {
+  max-width: 18ch;
+}
+
+.pf-fused-surface--deck .pf-trust-compact--embedded .pf-trust-compact-kpis {
+  gap: var(--ct-space-2);
+  padding-top: var(--ct-space-2);
+}
 
 /* =============================================================================
    12. SHARED BITS
@@ -1488,7 +1856,7 @@
 .pf-status-dot--default { background: var(--ct-text-muted); }
 .pf-status-dot--active {
   background: var(--ct-status-success);
-  box-shadow: 0 0 0 var(--ct-space-0_5) var(--ct-status-success-glow);
+  box-shadow: none;
 }
 .pf-status-dot--matured { background: var(--ct-status-info); }
 .pf-status-dot--exited { background: var(--ct-text-faint); }
@@ -1522,7 +1890,7 @@
   margin: 0;
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
-  color: #ffffff;
+  color: var(--ct-text-strong);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
 }
@@ -1611,7 +1979,7 @@
 }
 
 .pf-skeleton-greeting-title,
-.pf-skeleton-greeting-recap,
+.pf-skeleton-greeting-ticker,
 .pf-skeleton-widget,
 .pf-skeleton-chart,
 .pf-skeleton-sidebar {
@@ -1634,9 +2002,9 @@
   height: var(--ct-space-7);
 }
 
-.pf-skeleton-greeting-recap {
-  width: 100%;
-  height: var(--ct-space-6);
+.pf-skeleton-greeting-ticker {
+  width: min(100%, 36rem);
+  height: var(--ct-space-8);
 }
 
 .pf-skeleton-widget {
@@ -1774,16 +2142,12 @@
 }
 
 @container pf (min-width: 58rem) {
-  .pf-cockpit-row--deck { grid-template-columns: 1.6fr 0.5fr 0.5fr; }
+  .pf-cockpit-row--deck { grid-template-columns: 1.9fr 0.9fr; }
 }
 
 /* ---- MID: 1 → 2 columns, then weighted split ---- */
 @container pf (min-width: 52rem) {
-  .pf-cockpit-row--mid { grid-template-columns: 1fr 1fr; }
-}
-
-@container pf (min-width: 58rem) {
-  .pf-cockpit-row--mid { grid-template-columns: 1.6fr 1fr; }
+  .pf-cockpit-row--mid { grid-template-columns: 1fr; }
 }
 
 /* ---- HERO welded grid: split at 58rem inside the well ---- */
@@ -1791,8 +2155,7 @@
   .pf-hero-grid {
     grid-template-columns: 1.6fr minmax(16rem, 1fr);
   }
-  /* when split horizontally the sidebar divider becomes a left border */
-  .pf-hero-grid .pf-radial-cluster,
+    /* when split horizontally the sidebar divider becomes a left border */
   .pf-hero-grid .pf-status-panel {
     border-top: 0;
     border-left: 1px solid var(--ct-graphite-border-nested);
@@ -1807,7 +2170,7 @@
   .pf-container--fit .pf-hero-grid {
     grid-template-columns: 1fr;
   }
-  .pf-container--fit .pf-hero-grid .pf-radial-cluster,
+
   .pf-container--fit .pf-hero-grid .pf-status-panel {
     border-left: 0;
     border-top: 1px solid var(--ct-graphite-border-nested);
@@ -1822,6 +2185,18 @@
   }
   .cy-spine { display: none; }
   .cy-ledger { width: 100%; }
+}
+
+@container pf (max-width: 64rem) {
+  .pf-fused-surface--mid,
+  .pf-fused-surface--deck {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-fused-surface__pane + .pf-fused-surface__pane {
+    border-left: 0;
+    border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 70%, transparent);
+  }
 }
 
 /* ---- Panel-level container (each plate can host its own query) ---- */
@@ -1847,26 +2222,16 @@
   .pf-trust-compact-kpis { grid-template-columns: 1fr; }
 }
 
-/* ---- Rail-level container (radial cluster lives in a narrow rail) ---- */
-@container pf-rail (max-width: 14rem) {
-  .pf-radial-ring {
-    grid-template-columns: 1fr;
-    justify-items: start;
-    gap: var(--ct-space-1);
-  }
-  .pf-radial-ring__svg { display: none; }
-  .pf-radial-ring__kpi { font-size: var(--ct-text-base); }
-}
-
-/* ---- Phone: everything single column, page scrolls ---- */
+/* ---- Panel-level container (each plate can host its own query) ---- */
 @container pf (max-width: 48rem) {
   .pf-cockpit-row--summary,
   .pf-cockpit-row--mid,
   .pf-cockpit-row--deck {
     grid-template-columns: 1fr;
   }
-  .pf-hero-grid { grid-template-columns: 1fr; }
-  .pf-hero-grid .pf-radial-cluster,
+    .pf-hero-grid {
+      grid-template-columns: 1fr;
+    }
   .pf-hero-grid .pf-status-panel {
     border-left: 0;
     border-top: 1px solid var(--ct-graphite-border-nested);
@@ -1905,4 +2270,50 @@
     transition-duration: 0.001ms !important;
   }
   .cy-fill::after { display: none; }
+}
+
+/* =============================================================================
+   15. TAX PREVIEW LEAF
+   ============================================================================= */
+
+.pf-tax-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.pf-tax-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.pf-tax-preview__banner {
+  padding: var(--ct-space-3) var(--ct-space-4);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-lg);
+  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
+}
+
+.pf-tax-preview__grid {
+  display: grid;
+  gap: var(--ct-space-4);
+  grid-template-columns: 1fr;
+}
+
+@container pf (min-width: 52rem) {
+  .pf-tax-preview__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .pf-tax-preview__grid > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+.pf-panel-leaf-trail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ct-space-2);
 }

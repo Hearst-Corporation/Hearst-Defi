@@ -9,6 +9,7 @@ import {
 } from "@/components/portfolio/yield-stack";
 import type { AllocationBucketSlice } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
+import { formatApyRange } from "@/lib/format/apy";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
@@ -39,6 +40,22 @@ const CY_BUCKET_GREEN: Record<YieldSource["bucket"], string> = {
   stable_reserve: "color-mix(in srgb, var(--ct-accent) 32%, var(--ct-text-faint))",
 };
 
+const CY_ZERO_STATE = {
+  targetApyRange: { low: 9, high: 13 },
+  buckets: [
+    { label: "Mining", pct: 62, color: "var(--ct-accent)", opacity: 0.45 },
+    { label: "USDC Base", pct: 18, color: "var(--ct-accent)", opacity: 0.28 },
+    { label: "BTC Tactical", pct: 12, color: "var(--ct-accent)", opacity: 0.18 },
+    { label: "Reserve", pct: 8, color: "var(--ct-accent)", opacity: 0.11 },
+  ],
+  ledgerRows: [
+    { label: "Mining yield", w: 78, apy: "9-13%" },
+    { label: "USDC base", w: 52, apy: "4-6%" },
+    { label: "BTC tactical", w: 38, apy: "2-4%" },
+    { label: "Reserve buffer", w: 22, apy: "1-2%" },
+  ],
+} as const;
+
 export interface CapitalYieldProps {
   sources: YieldSource[];
   blendedLow: number;
@@ -51,6 +68,7 @@ export interface CapitalYieldProps {
   updatedAt?: Date;
   /** Hub-only link to the focused leaf page. */
   leafHref?: string;
+  embedded?: boolean;
 }
 
 export function CapitalYield({
@@ -64,6 +82,7 @@ export function CapitalYield({
   source = "estimated",
   updatedAt,
   leafHref,
+  embedded = false,
 }: CapitalYieldProps) {
   const maxAbsPct = sources.reduce(
     (acc, s) => Math.max(acc, Math.abs(s.contributionPct)),
@@ -75,23 +94,46 @@ export function CapitalYield({
   const provenance = isEmpty ? undefined : resolveProvenance(source, updatedAt, "estimated");
 
   if (isEmpty) {
-    // Ghost donut preview — 4 muted segments representing the yield bucket split
-    const GHOST_BUCKETS = [
-      { label: "Mining", pct: 62, color: "var(--ct-accent)", opacity: 0.45 },
-      { label: "USDC Base", pct: 18, color: "var(--ct-accent)", opacity: 0.28 },
-      { label: "BTC Tactical", pct: 12, color: "var(--ct-accent)", opacity: 0.18 },
-      { label: "Reserve", pct: 8, color: "var(--ct-accent)", opacity: 0.11 },
-    ];
-    const GHOST_BARS = [
-      { label: "Mining yield", w: 78, apy: "9–13%" },
-      { label: "USDC base", w: 52, apy: "4–6%" },
-      { label: "BTC tactical", w: 38, apy: "2–4%" },
-      { label: "Reserve buffer", w: 22, apy: "1–2%" },
-    ];
+    const previewApyRange = formatApyRange(CY_ZERO_STATE.targetApyRange);
+
+    if (embedded) {
+      return (
+        <PfCockpitPanel
+          variant="wide"
+          chrome="embedded"
+          aria-label="Capital and yield — awaiting first position"
+          className="cy-panel cy-panel--embedded-empty"
+        >
+          <PfCockpitPanelHeader
+            title="Capital & Yield"
+            subtitle="Allocation · 12m forward yield"
+            titleVariant="primary"
+            trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
+          />
+          <div className="cy-embedded-empty">
+            <p className="cy-ledger-head body-xs ct-text-faint mono m-0">
+              Indicative preview
+            </p>
+            <dl className="pf-stack--dense">
+              <div>
+                <dt className="body-xs ct-text-muted">Target APY band</dt>
+                <dd className="tabular font-semibold ct-text-primary">{previewApyRange}</dd>
+              </div>
+              <div>
+                <dt className="body-xs ct-text-muted">Activation</dt>
+                <dd className="body-xs ct-text-muted">After first confirmed position</dd>
+              </div>
+            </dl>
+          </div>
+        </PfCockpitPanel>
+      );
+    }
+
     let offset = 0;
     return (
       <PfCockpitPanel
         variant="wide"
+        chrome="panel"
         aria-label="Capital and yield — awaiting first position"
         className="cy-panel cy-panel--onboarding-empty"
       >
@@ -116,7 +158,7 @@ export function CapitalYield({
               <circle cx="21" cy="21" r="15.9155" fill="none"
                 stroke="var(--ct-border-soft)" strokeWidth="4.4" strokeDasharray="100 0" />
               {/* Ghost segments */}
-              {GHOST_BUCKETS.map((b) => {
+              {CY_ZERO_STATE.buckets.map((b) => {
                 const dash = `${(b.pct - 0.6).toFixed(2)} ${(100 - b.pct + 0.6).toFixed(2)}`;
                 const dashOffset = -offset;
                 offset += b.pct;
@@ -134,7 +176,6 @@ export function CapitalYield({
               <span className="donut-pending-label">Awaiting snapshot</span>
             </div>
           </div>
-
           <div className="cy-spine" aria-hidden />
 
           {/* Ghost ledger */}
@@ -142,7 +183,7 @@ export function CapitalYield({
             <p className="cy-ledger-head body-xs ct-text-faint mono m-0">
               Indicative yield structure
             </p>
-            {GHOST_BARS.map((b) => (
+            {CY_ZERO_STATE.ledgerRows.map((b) => (
               <div key={b.label} className="cy-row cy-row--pending">
                 <span className="cy-dot" style={{ background: "var(--ct-border-soft)" }} />
                 <span className="cy-label body-xs ct-text-faint">{b.label}</span>
@@ -179,6 +220,7 @@ export function CapitalYield({
   return (
     <PfCockpitPanel
       variant="wide"
+      chrome={embedded ? "embedded" : "panel"}
       aria-label="Capital and yield — allocation and 12 month forward yield"
       className="cy-panel"
     >
@@ -305,18 +347,18 @@ export function CapitalYield({
                 className="tabular font-semibold ct-text-primary"
                 aria-label={`Blended forward range ${rLow.toFixed(1)} to ${rHigh.toFixed(1)} percent`}
               >
-                {`${rLow.toFixed(1)}–${rHigh.toFixed(1)}%`}
+                {formatApyRange({ low: rLow, high: rHigh })}
               </dd>
             </div>
             <div className="flex items-baseline justify-between">
               <dt className="body-xs min-w-0 truncate ct-text-muted">
-                Stressed (bear) <span className="body-xs opacity-[var(--ct-opacity-70)]">(proxy)</span>
+                Stressed (bear) <span className="body-xs opacity-(--ct-opacity-70)">(proxy)</span>
               </dt>
               <dd
                 className="tabular font-medium ct-text-body"
                 aria-label={`Stressed bear scenario ${sLow.toFixed(1)} to ${sHigh.toFixed(1)} percent`}
               >
-                {`${sLow.toFixed(1)}–${sHigh.toFixed(1)}%`}
+                {formatApyRange({ low: sLow, high: sHigh })}
               </dd>
             </div>
           </dl>

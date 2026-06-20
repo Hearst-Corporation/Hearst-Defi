@@ -13,7 +13,6 @@ const usdFmt = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
-// Investor-facing labels. Keys match DB tx.type and MUST NOT change.
 const TYPE_LABELS: Record<string, string> = {
   deposit: "Deposit",
   claim: "Claim",
@@ -21,8 +20,6 @@ const TYPE_LABELS: Record<string, string> = {
   distribution: "Payout",
 };
 
-// Inflow (+) vs outflow (−) direction — monochrome: the glyph carries the sign,
-// not colour. Withdrawals are the only outflow.
 function flowSign(type: string): "in" | "out" {
   return type === "withdraw" ? "out" : "in";
 }
@@ -32,19 +29,15 @@ interface RecentActivityProps {
   source: "live" | "fallback";
   updatedAt?: Date;
   leafHref?: string;
+  embedded?: boolean;
 }
 
-/**
- * Recent activity — five latest transactions as clean rows: a directional
- * glyph (▲ inflow / ▼ outflow, monochrome), the type + vault, a relative
- * time, and the amount. Honest empty placeholder. Provenance on the
- * shell header (#2).
- */
 export function RecentActivity({
   transactions,
   source,
   updatedAt,
   leafHref,
+  embedded = false,
 }: RecentActivityProps) {
   const displayed = transactions.slice(0, 5);
   const hasTransactions = displayed.length > 0;
@@ -52,61 +45,54 @@ export function RecentActivity({
   const asOf = new Date();
   const trailing = leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined;
 
-  if (!hasTransactions) {
-    return (
-      <PfCockpitPanel variant="wide" aria-label="Recent account activity" className="h-full">
-        <PfCockpitPanelHeader
-          title="Recent Activity"
-          trailing={trailing}
-        />
+  return (
+    <PfCockpitPanel
+      variant="wide"
+      chrome={embedded ? "embedded" : "panel"}
+      aria-label="Recent account activity"
+      className="h-full"
+    >
+      <PfCockpitPanelHeader
+        title="Recent Activity"
+        provenance={hasTransactions ? provenance : undefined}
+        trailing={trailing}
+      />
+      {hasTransactions ? (
+        <div className="pf-activity">
+          {displayed.map((tx) => {
+            const dir = flowSign(tx.type);
+            return (
+              <div key={tx.id} className="pf-activity__row">
+                <span className="pf-activity__glyph" data-dir={dir} aria-hidden>
+                  {dir === "in" ? "▲" : "▼"}
+                </span>
+                <span className="pf-activity__main min-w-0">
+                  <span className="body-sm ct-text-primary font-semibold truncate">
+                    {TYPE_LABELS[tx.type] ?? tx.type}
+                    {tx.positionVaultName ? (
+                      <span className="ct-text-muted font-normal"> · {tx.positionVaultName}</span>
+                    ) : null}
+                  </span>
+                  <span className="stat-label ct-text-muted mono truncate">
+                    {relativeTime(tx.occurredAt, asOf)}
+                  </span>
+                </span>
+                <span className="pf-activity__amt tabular body-md mono font-semibold">
+                  {dir === "out" ? "−" : "+"}
+                  {usdFmt.format(tx.amountUsdc)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
         <div className="pf-activity pf-activity--empty">
           <p className="pf-activity__empty-lead body-sm ct-text-muted m-0">No transactions yet</p>
           <p className="pf-activity__empty-hint body-xs ct-text-faint m-0">
             Deposits and payouts will appear here.
           </p>
         </div>
-      </PfCockpitPanel>
-    );
-  }
-
-  return (
-    <PfCockpitPanel variant="wide" aria-label="Recent account activity" className="h-full">
-      <PfCockpitPanelHeader
-        title="Recent Activity"
-        provenance={provenance}
-        trailing={trailing}
-      />
-      <div className="pf-activity">
-        {displayed.map((tx) => {
-          const dir = flowSign(tx.type);
-          return (
-            <div key={tx.id} className="pf-activity__row">
-              <span
-                className="pf-activity__glyph"
-                data-dir={dir}
-                aria-hidden
-              >
-                {dir === "in" ? "▲" : "▼"}
-              </span>
-              <span className="pf-activity__main min-w-0">
-                <span className="body-sm ct-text-primary font-semibold truncate">
-                  {TYPE_LABELS[tx.type] ?? tx.type}
-                  {tx.positionVaultName ? (
-                    <span className="ct-text-muted font-normal"> · {tx.positionVaultName}</span>
-                  ) : null}
-                </span>
-                <span className="stat-label ct-text-muted mono truncate">
-                  {relativeTime(tx.occurredAt, asOf)}
-                </span>
-              </span>
-              <span className="pf-activity__amt tabular body-md mono font-semibold">
-                {dir === "out" ? "−" : "+"}
-                {usdFmt.format(tx.amountUsdc)}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+      )}
     </PfCockpitPanel>
   );
 }

@@ -7,39 +7,45 @@ import {
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
-import { formatUsdCompact } from "@/lib/vaults/product-display";
+import type { PortfolioValuePoint, ValueSeriesTx } from "@/lib/portfolio/value-series";
+import {
+  buildIndicativeValueSeries,
+  buildPortfolioValueSeries,
+} from "@/lib/portfolio/value-series";
+import { formatUsdCompact, formatUsdFull } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { cn } from "@/lib/cn";
-
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 // ViewBox — wide 16:5 plot. svg-geometry: viewBox + stroke/r are the raw escape.
 const VB_W = 200;
 const VB_H = 62;
 const PAD_Y = 5;
 
-function buildMonthSeries(
+function resolveValueSeries(
   positions: PortfolioPosition[],
   totalValueUsdc: number,
+  valueChartTransactions: ValueSeriesTx[],
   asOf: Date,
-): Array<{ label: string; value: number; isDistribution: boolean }> {
-  const points = 12;
-  const result: Array<{ label: string; value: number; isDistribution: boolean }> = [];
+): { points: PortfolioValuePoint[]; mode: "ledger" | "indicative" } {
+  if (valueChartTransactions.length > 0) {
+    return {
+      points: buildPortfolioValueSeries(
+        valueChartTransactions,
+        totalValueUsdc,
+        asOf,
+      ),
+      mode: "ledger",
+    };
+  }
+
   const startValue =
     positions.reduce((s, p) => s + p.principalUsdc, 0) || totalValueUsdc;
   const endValue = totalValueUsdc > 0 ? totalValueUsdc : startValue;
 
-  for (let i = 0; i < points; i++) {
-    const monthOffset = -(points - 1 - i);
-    const d = new Date(
-      Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth() + monthOffset, 1),
-    );
-    const t = i / (points - 1);
-    const wave = Math.sin(i * 0.9) * (endValue - startValue) * 0.04;
-    const value = Math.round(startValue + (endValue - startValue) * t + wave);
-    result.push({ label: MONTHS[d.getUTCMonth() % 12] ?? "", value, isDistribution: i > 0 });
-  }
-  return result;
+  return {
+    points: buildIndicativeValueSeries(startValue, endValue, asOf),
+    mode: "indicative",
+  };
 }
 
 function toXY(values: number[], min: number, max: number): Array<{ x: number; y: number }> {
@@ -121,7 +127,6 @@ function AreaChart({ series, muted = false, ghostMode = false }: AreaChartProps)
   const uid = useId();
   const titleId = `${uid}-title`;
   const descId = `${uid}-desc`;
-  const gridId = `${uid}-grid-dots`;
   const areaId = `${uid}-area`;
 
   const pts = computeSeriesPts(series);
@@ -149,31 +154,27 @@ function AreaChart({ series, muted = false, ghostMode = false }: AreaChartProps)
       <desc id={descId}>{accSummary}</desc>
 
       <defs>
-        {/* Subtle grid pattern for instrument feel */}
-        <pattern id={gridId} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-          <circle cx="1" cy="1" r="0.5" fill="var(--ct-border-soft)" opacity="0.3" />
-        </pattern>
-        {/* Aurora area — green bloom fading to nothing. Derived from accent. */}
         <linearGradient id={areaId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--ct-accent)" style={{ stopOpacity: muted ? "var(--ct-opacity-8)" : "var(--ct-opacity-14)" }} />
+          <stop offset="0%" stopColor="var(--ct-accent)" style={{ stopOpacity: muted ? "var(--ct-opacity-0, 0)" : "var(--ct-opacity-8)" }} />
           <stop offset="100%" stopColor="var(--ct-accent)" style={{ stopOpacity: "var(--ct-opacity-0, 0)" }} />
         </linearGradient>
       </defs>
 
-      {/* Hairline baseline rhythm */}
-      <rect width="100%" height="100%" fill={`url(#${gridId})`} pointerEvents="none" aria-hidden="true" />
       <g className="pf-vc-grid" aria-hidden="true">
         {[0.25, 0.5, 0.75].map((f) => (
           <line key={f} x1="0" x2={VB_W} y1={(VB_H * f).toFixed(1)} y2={(VB_H * f).toFixed(1)} />
         ))}
+        {[0.2, 0.4, 0.6, 0.8].map((f) => (
+          <line key={`v-${f}`} y1="0" y2={VB_H} x1={(VB_W * f).toFixed(1)} x2={(VB_W * f).toFixed(1)} />
+        ))}
+        <line className="pf-vc-axis" x1="0" x2={VB_W} y1={VB_H - 0.5} y2={VB_H - 0.5} />
       </g>
 
-      {/* Area fill: live = full bloom, ghost = 40% opacity teaser, muted = hidden */}
-      {muted ? null : (
+      {/* Area fill stays extremely quiet; preview mode goes line-only. */}
+      {muted || ghostMode ? null : (
         <path
           d={areaPath}
           fill={`url(#${areaId})`}
-          opacity={ghostMode ? "var(--ct-opacity-55)" : undefined}
           aria-hidden="true"
         />
       )}
@@ -182,13 +183,28 @@ function AreaChart({ series, muted = false, ghostMode = false }: AreaChartProps)
         d={linePath}
         fill="none"
         stroke="var(--ct-accent)"
-        strokeWidth="1"
+        strokeWidth="1.15"
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
-        opacity={muted ? "var(--ct-opacity-70)" : ghostMode ? "var(--ct-opacity-70)" : undefined}
+        opacity={muted ? "var(--ct-opacity-70)" : ghostMode ? "0.92" : undefined}
         aria-hidden="true"
+        style={{
+          strokeDasharray: 1000,
+          strokeDashoffset: 1000,
+          animation: "pf-line-draw 1.6s var(--ct-ease) forwards",
+        }}
       />
+
+      {last ? (
+        <circle
+          cx={last.x.toFixed(2)}
+          cy={last.y.toFixed(2)}
+          r="1.6"
+          className="pf-vc-endpoint"
+          aria-hidden="true"
+        />
+      ) : null}
     </svg>
   );
 }
@@ -196,8 +212,10 @@ function AreaChart({ series, muted = false, ghostMode = false }: AreaChartProps)
 interface ValueChartProps {
   positions: PortfolioPosition[];
   totalValueUsdc: number;
+  valueChartTransactions?: ValueSeriesTx[];
   source: "live" | "fallback";
   updatedAt?: Date;
+  embedded?: boolean;
 }
 
 /** Ghost series for zero-state: indicative upward curve (250k → 277k),
@@ -225,18 +243,25 @@ function buildGhostSeries(): Array<{ label: string; value: number; isDistributio
 export function ValueChart({
   positions,
   totalValueUsdc,
+  valueChartTransactions = [],
   source,
   updatedAt,
+  embedded = false,
 }: ValueChartProps) {
-  const asOf = new Date();
+  const asOf = updatedAt ?? new Date();
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
+  const { points: series, mode: seriesMode } = isEmpty
+    ? { points: buildGhostSeries(), mode: "preview" as const }
+    : resolveValueSeries(positions, totalValueUsdc, valueChartTransactions, asOf);
+
   const provenance: Provenance | undefined = isEmpty
     ? undefined
-    : resolveProvenance(source, updatedAt, "estimated");
+    : resolveProvenance(
+        source,
+        updatedAt,
+        seriesMode === "ledger" ? "live" : "estimated",
+      );
   const chartValue = isEmpty ? 0 : totalValueUsdc;
-
-  // In zero-state, use a ghost series to show a visual preview curve
-  const series = isEmpty ? buildGhostSeries() : buildMonthSeries(positions, totalValueUsdc, asOf);
 
   // Compute dot overlay positions (empty when muted/zero — no markers on ghost).
   const pts = computeSeriesPts(series);
@@ -245,20 +270,45 @@ export function ValueChart({
   return (
     <PfCockpitPanel
       variant="wide"
+      chrome={embedded ? "embedded" : "panel"}
       aria-label={isEmpty ? "Portfolio value — awaiting first position" : "Portfolio value — 12-month trend"}
-      className="relative pf-value-chart"
+      className={cn("relative pf-value-chart", embedded && "pf-value-chart--hero-embedded")}
     >
       {provenance ? <ChartProvenanceCorner kind={provenance} /> : null}
-      <PfCockpitPanelHeader
-        title="Portfolio value over 12 months"
-        subtitle={isEmpty ? "Preview · indicative curve" : undefined}
-        titleVariant="primary"
-        trailing={
-          isEmpty
-            ? <span className="pf-chip-accent">Preview</span>
-            : <span className="pf-hero-kpi-value tabular-nums">{formatUsdCompact(chartValue)}</span>
-        }
-      />
+      {embedded ? (
+        <header className="pf-cockpit-panel__header">
+          <div className="pf-cockpit-panel__header-main min-w-0">
+            <h3 className="pf-cockpit-panel__title--primary">Portfolio value</h3>
+            {!isEmpty ? (
+              <p className="pf-hero-kpi-block m-0">
+                <span className="pf-hero-kpi-value tabular-nums">{formatUsdFull(chartValue)}</span>
+              </p>
+            ) : (
+              <p className="pf-cockpit-panel__subtitle body-xs ct-text-faint m-0 mono">
+                Preview · indicative curve
+              </p>
+            )}
+          </div>
+          {isEmpty ? <span className="pf-chip-accent">Preview</span> : null}
+        </header>
+      ) : (
+        <PfCockpitPanelHeader
+          title="Portfolio value over 12 months"
+          subtitle={
+            isEmpty
+              ? "Preview · indicative curve"
+              : seriesMode === "ledger"
+                ? "Ledger-anchored · month-end marks"
+                : "Indicative · principal to current value"
+          }
+          titleVariant="primary"
+          trailing={
+            isEmpty
+              ? <span className="pf-chip-accent">Preview</span>
+              : <span className="pf-hero-kpi-value tabular-nums">{formatUsdCompact(chartValue)}</span>
+          }
+        />
+      )}
 
       <div className="pf-value-chart__chart-wrapper pf-value-chart__plot">
         {!isEmpty ? <ChartDisclaimerUnderlay /> : null}
@@ -301,7 +351,9 @@ export function ValueChart({
 
       {isEmpty ? null : (
         <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
-          Indicative path derived from subscribed principal and current value. Past performance does not predict future results. Not guaranteed.
+          {seriesMode === "ledger"
+            ? "Month-end values interpolate between your deposit and payout ledger entries and the current live mark. Not guaranteed."
+            : "Indicative path from subscribed principal to current value until ledger history is available. Not guaranteed."}
         </p>
       )}
     </PfCockpitPanel>

@@ -287,6 +287,11 @@
   flex-direction: column;
 }
 
+.pf-row-lower > .pf-fused-surface {
+  min-height: 0;
+  height: 100%;
+}
+
 .pf-fixed-positions {
   min-height: 0;
   height: 100%;

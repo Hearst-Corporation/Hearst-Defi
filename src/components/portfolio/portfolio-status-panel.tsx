@@ -1,6 +1,12 @@
 import type { ReactElement } from "react";
 
 import { formatUsdCompact } from "@/lib/vaults/product-display";
+import {
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
+import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { cn } from "@/lib/cn";
 
 const DASH = "—";
 
@@ -20,11 +26,10 @@ export interface PortfolioStatusPanelProps {
   totalValueUsdc: number;
   /** accrued yield since inception (USDC) */
   accruedYieldUsdc: number;
-  /** net deposits / principal (USDC) */
-  netDepositsUsdc: number;
   /** provenance of the underlying proof (live → "Current", else pending/stale) */
   source: "live" | "fallback";
   updatedAt?: Date;
+  embedded?: boolean;
 }
 
 interface Row {
@@ -40,32 +45,32 @@ interface Row {
    line-icons. svg-geometry: viewBox + path coords are raw by SVG spec. */
 const ICONS = {
   deployment: (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 3a9 9 0 1 0 9 9" />
       <path d="M12 3v9l6 4" />
     </svg>
   ),
   positions: (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="4" width="18" height="4" rx="1" />
       <rect x="3" y="10" width="18" height="4" rx="1" />
       <rect x="3" y="16" width="18" height="4" rx="1" />
     </svg>
   ),
   yield: (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 17l6-6 4 4 8-8" />
       <path d="M21 7v5h-5" />
     </svg>
   ),
   deposits: (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v10M9.5 9.2c0-1.1 1.1-1.8 2.5-1.8s2.5.7 2.5 1.8-1.1 1.6-2.5 1.8-2.5.7-2.5 1.8 1.1 1.8 2.5 1.8 2.5-.7 2.5-1.8" />
     </svg>
   ),
   proof: (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 3l7 3v6c0 4.4-3 7.4-7 9-4-1.6-7-4.6-7-9V6z" />
       <path d="M9 12l2 2 4-4" />
     </svg>
@@ -73,9 +78,8 @@ const ICONS = {
 } as const;
 
 /**
- * Hero sidebar — "Portfolio status" panel (mockup-matched). Five line-item rows
- * (icon · label · value · sub-meta), replacing the radial cluster in the hub
- * hero. Honest zero-state: em-dash values, no fabricated metrics.
+ * Hero sidebar — "Portfolio status" panel. Five line-item rows
+ * (icon · label · value · sub-meta). Honest zero-state: em-dash values, no fabricated metrics.
  */
 export function PortfolioStatusPanel({
   hasPositions,
@@ -83,16 +87,16 @@ export function PortfolioStatusPanel({
   deployedUsdc,
   totalValueUsdc,
   accruedYieldUsdc,
-  netDepositsUsdc,
   source,
   updatedAt,
+  embedded = false,
 }: PortfolioStatusPanelProps) {
   const deploymentPct =
     hasPositions && totalValueUsdc > 0
       ? Math.min(100, (deployedUsdc / totalValueUsdc) * 100)
       : 0;
 
-  const proofCurrent = source === "live";
+  const provenance = hasPositions ? resolveProvenance(source, updatedAt) : undefined;
   const asOf = updatedAt ? `As of ${dateFmt.format(updatedAt)}` : "Awaiting first position";
 
   const rows: Row[] = [
@@ -124,23 +128,30 @@ export function PortfolioStatusPanel({
       key: "deposits",
       icon: ICONS.deposits,
       label: "Net deposits",
-      value: hasPositions ? formatUsdCompact(netDepositsUsdc) : DASH,
+      value: hasPositions ? formatUsdCompact(deployedUsdc) : DASH,
       meta: "Total",
     },
     {
       key: "proof",
       icon: ICONS.proof,
       label: "Underlying proof",
-      value: hasPositions ? (proofCurrent ? "Current" : "Pending") : DASH,
+      value: hasPositions ? (source === "live" ? "Current" : "Pending") : DASH,
       meta: asOf,
     },
   ];
 
   return (
-    <aside className="pf-status-panel" aria-label="Portfolio status">
-      <header className="pf-status-panel__header">
-        <h3 className="pf-panel-title m-0">Portfolio status</h3>
-      </header>
+    <PfCockpitPanel
+      variant="wide"
+      chrome={embedded ? "embedded" : "panel"}
+      aria-label="Portfolio status"
+      className="pf-status-panel"
+    >
+      <PfCockpitPanelHeader
+        title="Portfolio status"
+        titleVariant="primary"
+        provenance={provenance}
+      />
       <dl className="pf-status-list">
         {rows.map((r) => (
           <div key={r.key} className="pf-status-row">
@@ -150,10 +161,10 @@ export function PortfolioStatusPanel({
             <dt className="pf-status-row__label">{r.label}</dt>
             <dd className="pf-status-row__trail">
               <span
-                className={
-                  "pf-status-row__value tabular-nums" +
-                  (r.valueAccent ? " pf-status-row__value--accent" : "")
-                }
+                className={cn(
+                  "pf-status-row__value tabular",
+                  r.valueAccent && "ct-text-accent"
+                )}
               >
                 {r.value}
               </span>
@@ -162,6 +173,6 @@ export function PortfolioStatusPanel({
           </div>
         ))}
       </dl>
-    </aside>
+    </PfCockpitPanel>
   );
 }

@@ -49,6 +49,8 @@ export interface DistribCalendarProps {
   updatedAt?: Date;
   /** Hub-only link to the focused leaf page. */
   leafHref?: string;
+  secondaryLeafHref?: string;
+  secondaryLeafLabel?: string;
 }
 
 // ── Formatting helpers (exported for tests) ───────────────────────────────────
@@ -78,6 +80,8 @@ const BAR_AREA_BOT = 140;  // bottom of bars (label zone below)
 const BAR_AREA_H = BAR_AREA_BOT - BAR_AREA_TOP;
 const LABEL_Y = BAR_AREA_BOT + 14;
 const AMOUNT_Y = BAR_AREA_BOT + 28;
+const BAR_FILL = "color-mix(in srgb, var(--ct-surface-3) 92%, var(--ct-text-strong) 8%)";
+const BAR_STROKE = "color-mix(in srgb, var(--ct-text-strong) 10%, transparent)";
 
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
@@ -153,9 +157,9 @@ function BarChart({
             y1="0"
             x2="0"
             y2="6"
-            stroke="var(--ct-accent)"
+            stroke="var(--ct-text-muted)"
             strokeWidth="2"
-            style={{ strokeOpacity: "var(--ct-opacity-40)" }}
+            style={{ strokeOpacity: "var(--ct-opacity-50)" }}
           />
         </pattern>
       </defs>
@@ -180,10 +184,10 @@ function BarChart({
               width={BAR_W}
               height={bh}
               fill={`url(#${forecastPatternId})`}
-              stroke="var(--ct-accent)"
+              stroke="var(--ct-text-muted)"
               strokeWidth="1"
               strokeDasharray="4 2"
-              style={{ opacity: "var(--ct-opacity-60)" }}
+              style={{ opacity: "var(--ct-opacity-75)" }}
               rx="1"
             />
             {/* [Estimate] badge text above bar */}
@@ -191,7 +195,7 @@ function BarChart({
               x={cx}
               y={by - 4}
               textAnchor="middle"
-              fill="color-mix(in srgb, var(--ct-accent) 75%, var(--ct-text-faint))"
+              fill="var(--ct-text-muted)"
               className="pf-distrib-chart__estimate"
               aria-hidden="true"
             >
@@ -213,8 +217,10 @@ function BarChart({
               y={by}
               width={BAR_W}
               height={bh}
-              fill="var(--ct-accent)"
-              style={{ opacity: "var(--ct-opacity-60)" }}
+              fill={BAR_FILL}
+              stroke={isCurrent ? "var(--ct-accent)" : BAR_STROKE}
+              strokeWidth={isCurrent ? "1" : "0.75"}
+              style={{ opacity: 1 }}
               rx="1"
             />
           </a>
@@ -226,8 +232,10 @@ function BarChart({
             y={by}
             width={BAR_W}
             height={bh}
-            fill="var(--ct-accent)"
-            style={{ opacity: "var(--ct-opacity-60)" }}
+            fill={BAR_FILL}
+            stroke={isCurrent ? "var(--ct-accent)" : BAR_STROKE}
+            strokeWidth={isCurrent ? "1" : "0.75"}
+            style={{ opacity: 1 }}
             rx="1"
             aria-label={`${periodLabel} distribution ${amountLabel}`}
           />
@@ -236,19 +244,6 @@ function BarChart({
         return (
           <g key={i}>
             {barEl}
-
-            {/* Current month ◀ indicator */}
-            {isCurrent && (
-              <text
-                x={cx + BAR_W / 2 + 2}
-                y={by + bh / 2 + 2}
-                fill="var(--ct-accent)"
-                className="pf-distrib-chart__marker ct-donut-slice-glow"
-                aria-hidden="true"
-              >
-                ◀
-              </text>
-            )}
 
             {/* Period label */}
             <text
@@ -282,6 +277,25 @@ function BarChart({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+function calendarHeaderTrail(
+  leafHref?: string,
+  secondaryLeafHref?: string,
+  secondaryLeafLabel?: string,
+) {
+  if (!leafHref && !secondaryLeafHref) return undefined;
+  return (
+    <div className="pf-panel-leaf-trail">
+      {secondaryLeafHref ? (
+        <PortfolioLeafLink
+          href={secondaryLeafHref}
+          label={secondaryLeafLabel ?? "Tax preview"}
+        />
+      ) : null}
+      {leafHref ? <PortfolioLeafLink href={leafHref} /> : null}
+    </div>
+  );
+}
+
 export function DistribCalendar({
   entries,
   shareClass,
@@ -290,6 +304,8 @@ export function DistribCalendar({
   source = "live",
   updatedAt,
   leafHref,
+  secondaryLeafHref,
+  secondaryLeafLabel,
 }: DistribCalendarProps) {
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
@@ -317,7 +333,7 @@ export function DistribCalendar({
           title="Payout Calendar"
           subtitle="Monthly USDC distributions"
           titleVariant="primary"
-          trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
+          trailing={calendarHeaderTrail(leafHref, secondaryLeafHref, secondaryLeafLabel)}
         />
         <div className="pf-distrib-chart-shell pf-distrib-chart-shell--ghost">
           <svg
@@ -343,11 +359,11 @@ export function DistribCalendar({
                   y={by}
                   width={BAR_W}
                   height={h}
-                  fill={isLast ? "url(#dc-ghost-grad)" : "var(--ct-accent)"}
-                  opacity={isLast ? 1 : 0.12 + (i / n) * 0.1}
+                  fill={isLast ? "url(#dc-ghost-grad)" : BAR_FILL}
+                  opacity={isLast ? 1 : 1}
                   rx="2"
-                  stroke={isLast ? "var(--ct-accent)" : "none"}
-                  strokeWidth={isLast ? "1" : "0"}
+                  stroke={isLast ? "var(--ct-text-muted)" : BAR_STROKE}
+                  strokeWidth="0.75"
                   strokeDasharray={isLast ? "4 2" : "none"}
                 />
               );
@@ -376,7 +392,7 @@ export function DistribCalendar({
       title="Payout Calendar"
       subtitle={`12m · USDC${hasForecast ? " · forecast" : ""}`}
       provenance={liveProvenance}
-      trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
+      trailing={calendarHeaderTrail(leafHref, secondaryLeafHref, secondaryLeafLabel)}
     />
   );
 

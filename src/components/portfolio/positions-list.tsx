@@ -29,6 +29,7 @@ interface PositionsListProps {
   source: "live" | "fallback";
   updatedAt?: Date;
   leafHref?: string;
+  embedded?: boolean;
 }
 
 /**
@@ -42,6 +43,7 @@ export function PositionsList({
   source,
   updatedAt,
   leafHref,
+  embedded = false,
 }: PositionsListProps) {
   const hasPositions = positions.length > 0;
   const provenance = hasPositions ? resolveProvenance(source, updatedAt) : undefined;
@@ -56,28 +58,38 @@ export function PositionsList({
 
   if (!hasPositions) {
     return (
-      <PfCockpitPanel variant="table" aria-label="Open positions">
+      <PfCockpitPanel
+        variant="table"
+        chrome={embedded ? "embedded" : "panel"}
+        aria-label="Open positions"
+      >
         <PfCockpitPanelHeader
           title="Positions"
           trailing={trailing}
         />
-        <div className="pf-positions-empty">
+        <div className={cn("pf-positions-empty", embedded && "pf-positions-empty--embedded")}>
           <p className="pf-positions-empty__lead body-sm ct-text-muted m-0">
             No active positions yet
           </p>
           <p className="pf-positions-empty__hint body-xs ct-text-faint m-0">
             Your first deposit will appear here once confirmed on-chain.
           </p>
-          <Link href="/vaults" className="pf-positions-empty-link">
-            Explore available vaults →
-          </Link>
+          {embedded ? null : (
+            <Link href="/vaults" className="pf-positions-empty-link">
+              Explore available vaults →
+            </Link>
+          )}
         </div>
       </PfCockpitPanel>
     );
   }
 
   return (
-    <PfCockpitPanel variant="table" aria-label="Open positions">
+    <PfCockpitPanel
+      variant="table"
+      chrome={embedded ? "embedded" : "panel"}
+      aria-label="Open positions"
+    >
       <PfCockpitPanelHeader
         title="Positions"
         provenance={provenance}
