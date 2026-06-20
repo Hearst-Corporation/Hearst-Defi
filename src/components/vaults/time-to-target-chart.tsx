@@ -9,14 +9,11 @@ import type { VaultProduct } from "@/lib/data/vaults";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { demoProvenance } from "@/lib/demo/markers";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 
 interface TimeToTargetChartProps {
   amount: number; // USDC
   vault: VaultProduct;
-  /** Demo sandbox path — chart provenance corner renders "simulated". */
-  demo?: boolean;
 }
 
 const CHART_MONTHS = 24;
@@ -63,12 +60,12 @@ function areaPath(xs: number[], ys: number[]): string {
   return `${line} L${lastX},${baselineY} L${firstX},${baselineY} Z`;
 }
 
-export function TimeToTargetChart({ amount, vault, demo = false }: TimeToTargetChartProps) {
+export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
   if (amount <= 0) {
     return (
       <div className="vault-chart-stack">
         <div className="ct-chart-box-160" role="img" aria-label="Projected NAV chart awaiting deposit amount">
-          <ChartProvenanceCorner kind={demoProvenance(demo, "estimated")} />
+          <ChartProvenanceCorner kind="estimated" />
           <ChartDisclaimerUnderlay />
           <EmptySurface
             variant="chart"
@@ -101,7 +98,7 @@ export function TimeToTargetChart({ amount, vault, demo = false }: TimeToTargetC
     return (
       <div className="vault-chart-stack">
         <div className="ct-chart-box-160" role="img" aria-label="No projection data available">
-          <ChartProvenanceCorner kind={demoProvenance(demo, "estimated")} />
+          <ChartProvenanceCorner kind="estimated" />
           <ChartDisclaimerUnderlay />
           <EmptySurface
             variant="chart"
@@ -169,7 +166,7 @@ export function TimeToTargetChart({ amount, vault, demo = false }: TimeToTargetC
       <div
         className="ct-chart-box-160"
       >
-        <ChartProvenanceCorner kind={demoProvenance(demo, "estimated")} />
+        <ChartProvenanceCorner kind="estimated" />
         <ChartDisclaimerUnderlay />
         <svg
           viewBox={`0 0 ${VB_W} ${VB_H}`}
