@@ -14,18 +14,13 @@ export const metadata = {
 
 /**
  * Positions — focused leaf; same table as the hub positions row.
- * Reuses <PositionsList> verbatim; state/honesty wiring comes from the shared
- * loadPortfolioView(). Scroll is allowed inside this leaf (not the top level).
+ * Reuses <PositionsList> verbatim; data wiring from shared loadPortfolioView().
  */
 export default async function PositionsPage() {
-  const { demo, data, previewZeros, showDemoBanner } =
-    await loadPortfolioView();
+  const { data } = await loadPortfolioView();
 
   return (
     <PortfolioLeafShell
-      demo={demo}
-      showDemoBanner={showDemoBanner}
-      previewZeros={previewZeros}
       testId="portfolio-positions-page"
       header={
         <ProductPageHeader
@@ -40,7 +35,6 @@ export default async function PositionsPage() {
           positions={data.positions}
           source={data.source}
           updatedAt={data.updatedAt}
-          previewZeros={previewZeros}
         />
       </div>
     </PortfolioLeafShell>

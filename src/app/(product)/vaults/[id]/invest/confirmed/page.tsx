@@ -6,15 +6,6 @@
 
 import Link from "next/link";
 
-import { getInvestor } from "@/lib/auth/session";
-import { isDemoInvestor } from "@/lib/demo/provider";
-import {
-  DEMO_CONFIRMED_DESCRIPTION,
-  DEMO_CONFIRMED_TITLE,
-  DEMO_SANDBOX_DISCLAIMER,
-  demoProvenance,
-} from "@/lib/demo/markers";
-import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { Button } from "@/components/ui/button";
 import { NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -63,61 +54,15 @@ const VAULT_CONTRACT =
   null;
 
 export default async function ConfirmedPage({ params, searchParams }: PageProps) {
-  const [{ id }, sp, investor] = await Promise.all([
+  const [{ id }, sp] = await Promise.all([
     params,
     searchParams,
-    getInvestor(),
   ]);
-
-  // Demo status is resolved server-side from the identity (guard-gated → never
-  // prod), NEVER from a searchparam (which would be spoofable).
-  const demo = isDemoInvestor(investor);
 
   const txHash = sp.tx ?? null;
   const amount = formatUsdcFromParam(sp.amount);
   const positionId = sp.positionId ?? null;
   const email = sp.email ?? null;
-
-  if (demo) {
-    return (
-      <InvestFlowShell
-        width="narrow"
-        step="confirmed"
-        align="center"
-        lead={<DepositSuccessIcon />}
-        title={DEMO_CONFIRMED_TITLE}
-        description={DEMO_CONFIRMED_DESCRIPTION}
-      >
-        <div className="product-doc-stack">
-          <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} />
-
-          <NestedPanel className="py-0">
-            <VaultPanelHeader
-              title="Simulated position"
-              trailing={<ProvenanceBadge kind={demoProvenance(true, "estimated")} />}
-            />
-            <div className="vault-panel-body">
-              {amount !== "—" ? (
-                <VaultDetailRow label="Amount" value={`${amount} USDC`} />
-              ) : null}
-              <VaultDetailRow label="NAV at entry" value="1.0000 USDC / share" />
-              {/* No transaction row, no contract address, no explorer link:
-                  the demo never presents an on-chain settlement. */}
-            </div>
-          </NestedPanel>
-
-          <div className="product-doc-stack--actions">
-            <Button variant="primary" size="lg" asChild className="w-full">
-              <Link href="/portfolio">Back to portfolio</Link>
-            </Button>
-            <Button variant="ghost" size="md" asChild className="w-full">
-              <Link href={INVEST_SELECT_PATH}>View other products</Link>
-            </Button>
-          </div>
-        </div>
-      </InvestFlowShell>
-    );
-  }
 
   const hasHash = txHash !== null && !isPlaceholderTxHash(txHash);
   const baseScanHref = hasHash ? explorerTxUrl(txHash) : null;

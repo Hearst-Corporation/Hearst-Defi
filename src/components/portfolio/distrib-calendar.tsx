@@ -13,10 +13,12 @@
 import { cn } from "@/lib/cn";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
-import { resolveWidgetView } from "@/lib/portfolio/view-state";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { formatUsdFull } from "@/lib/vaults/product-display";
-import { WidgetShell } from "@/components/portfolio/widget-shell";
+import {
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
 
 // ── Canonical reference component ─────────────────────────────────────────────
 // All CSS values use --ct-* tokens. SVG geometry (viewBox coordinates, BAR_W,
@@ -45,8 +47,6 @@ export interface DistribCalendarProps {
   /** Provenance metadata from the loader. */
   source?: "live" | "stale";
   updatedAt?: Date;
-  /** Layout preview at zero — nested empty chart only (DS §9.3). */
-  previewZeros?: boolean;
   /** Hub-only link to the focused leaf page. */
   leafHref?: string;
 }
@@ -70,8 +70,6 @@ export const formatUsdc = formatUsdFull;
 
 // ── SVG constants — chart-geometry escape hatch ───────────────────────────────
 // These are viewBox coordinate values, not CSS spacing tokens.
-// VB_W/VB_H define the SVG coordinate system; BAR_AREA_* are layout zones
-// within that coordinate system. None of these map to --ct-space-* tokens.
 
 const VB_W = 560;
 const VB_H = 180;
@@ -104,112 +102,27 @@ export function shouldShowCompactPeriodLabel(index: number): boolean {
   return (COMPACT_LABEL_INDICES as readonly number[]).includes(index);
 }
 
-// Compact zero-state canvas — cropped coordinate system for the preview rail.
-// These pixel values are SVG viewBox units, not CSS px.
-/** Compact zero-state canvas — cropped to axis + quarter labels only (not VB_H). */
-const COMPACT_VB_H = 64;
-const COMPACT_AXIS_Y = 40;
-const COMPACT_LABEL_Y = 54;
-const COMPACT_BAR_H = 14;
-
 // ── SVG component ─────────────────────────────────────────────────────────────
 
 interface BarChartProps {
   entries: DistribEntry[];
   refYear: number;
   currentPeriod: string;
-  /** Calm 12-month rail for layout-preview / zero-state — no per-bar amounts or [Estimate]. */
-  compactPreview?: boolean;
 }
 
 function BarChart({
   entries,
   refYear,
   currentPeriod,
-  compactPreview = false,
 }: BarChartProps) {
   const n = entries.length;
   if (n === 0) return null;
 
-  // Bar geometry — SVG viewBox units. GAP=4 = 4 viewBox units between bars.
-  // Full viewBox width (no cap) so bars scale with the panel.
   const GAP = 4;
   const totalGaps = (n - 1) * GAP;
   const BAR_W = Math.floor((VB_W - totalGaps) / n);
-  // Unique IDs for SVG defs (static — RSC renders once per request)
   const forecastPatternId = "dc-forecast-hatch";
   const titleId = "dc-title";
-
-  // max-h-[180px] below: render constraint, not a spacing token — caps the SVG
-  // canvas height so the chart can't grow taller than its cell. Intentional
-  // arbitrary value (chart dimension, off the --ct-space-* scale).
-
-  if (compactPreview) {
-    const compactTitle =
-      "Payout calendar — 12-month USDC forecast, no payout history yet, current period marked";
-    const firstBx = barX(0, n, BAR_W, GAP);
-    const lastBx = barX(n - 1, n, BAR_W, GAP);
-    const axisEnd = lastBx + BAR_W;
-
-    return (
-      <svg
-        viewBox={`0 0 ${VB_W} ${COMPACT_VB_H}`}
-        preserveAspectRatio="xMidYMax meet"
-        className="pf-distrib-chart pf-distrib-chart--compact block h-full w-full"
-        role="img"
-        aria-label={compactTitle}
-      >
-        <title id={titleId}>{compactTitle}</title>
-
-        <line
-          x1={firstBx}
-          y1={COMPACT_AXIS_Y}
-          x2={axisEnd}
-          y2={COMPACT_AXIS_Y}
-          stroke="var(--ct-border-soft)"
-          strokeWidth="1"
-          aria-hidden="true"
-        />
-
-        {entries.map((entry, i) => {
-          const bx = barX(i, n, BAR_W, GAP);
-          const cx = bx + BAR_W / 2;
-          const isCurrent = entry.period === currentPeriod;
-          const isQuarter = shouldShowCompactPeriodLabel(i);
-          const periodLabel = formatPeriod(entry.period, refYear);
-
-          // Full-width zero-state bars (same geometry as populated chart).
-          const cbx = bx;
-          const barWidth = BAR_W;
-
-          return (
-            <g key={i} aria-hidden="true">
-              <rect
-                x={cbx}
-                y={COMPACT_AXIS_Y - COMPACT_BAR_H}
-                width={barWidth}
-                height={COMPACT_BAR_H}
-                rx={1}
-                fill={isCurrent ? "var(--ct-accent)" : "var(--ct-border-soft)"}
-                style={{ fillOpacity: isCurrent ? "var(--ct-opacity-80)" : "var(--ct-opacity-40)" }}
-              />
-              {isQuarter ? (
-                <text
-                  x={cx}
-                  y={COMPACT_LABEL_Y}
-                  textAnchor="middle"
-                  fill="var(--ct-text-muted)"
-                  className="pf-distrib-chart__period"
-                >
-                  {periodLabel}
-                </text>
-              ) : null}
-            </g>
-          );
-        })}
-      </svg>
-    );
-  }
 
   const maxAmount = Math.max(...entries.map((e) => e.amountUsdc), 1);
 
@@ -223,7 +136,7 @@ function BarChart({
     >
       {/* Single text child (template literal) — an SVG <title> with mixed
           string + expression children serialises empty on the server and
-          triggers a hydration mismatch (cf. vc-title which is a single child). */}
+          triggers a hydration mismatch. */}
       <title id={titleId}>{`Payout calendar — ${n} periods`}</title>
 
       <defs>
@@ -286,8 +199,7 @@ function BarChart({
             </text>
           </g>
         ) : entry.txHash && !isPlaceholderTxHash(entry.txHash) ? (
-          // Paid with a real tx hash — wrap in anchor. Fabricated seed/demo
-          // hashes fall through to the no-link "paid" bar below (dead BaseScan).
+          // Paid with a real tx hash — wrap in anchor.
           <a
             key={i}
             href={explorerTxUrl(entry.txHash)}
@@ -377,35 +289,46 @@ export function DistribCalendar({
   asOf,
   source = "live",
   updatedAt,
-  previewZeros = false,
   leafHref,
 }: DistribCalendarProps) {
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
 
-  // Derive current month period string "YYYY-MM"
   const currentPeriod = `${refYear}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
 
   const hasEntries = entries.length > 0;
   const hasForecast = entries.some((e) => e.paidAt === null);
 
-  // CRITICAL provenance rule — preserved verbatim from original:
-  // In zero mode (!hasEntries), provenance is undefined (no badge).
-  // In live mode with hasEntries: source==="live" → "attested"; otherwise resolveProvenance fallback.
-  // resolveWidgetView nulls provenance in zero mode (honesty contract, CLAUDE.md §2).
-  const liveProvenance =
-    hasEntries && source === "live"
-      ? "attested"
-      : resolveProvenance(source, updatedAt, "estimated");
-  const view = resolveWidgetView({
-    previewZeros,
-    hasData: hasEntries,
-    provenance: liveProvenance,
-  });
+  // Honest placeholder when no entries yet
+  if (!hasEntries) {
+    return (
+      <PfCockpitPanel
+        variant="compact"
+        aria-label="Payout calendar — no distributions yet"
+        className="pf-payout-calendar-panel"
+        data-testid="distrib-calendar-widget"
+      >
+        <PfCockpitPanelHeader
+          title="Payout Calendar"
+          subtitle="Monthly USDC distributions"
+          titleVariant="primary"
+          trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
+        />
+        <p className="pf-payout-calendar__empty-copy body-sm ct-text-muted m-0" role="status">
+          No distributions yet — payout history appears after the first cycle closes.
+        </p>
+      </PfCockpitPanel>
+    );
+  }
 
-  // Footer — share class + cadence. Rendered only when at least one is
-  // known, so an empty widget doesn't show a "— / —" stub.
-  // Rendered in BOTH zero and live modes (not gated on data state).
+  // CRITICAL provenance rule — preserved verbatim:
+  // In live mode with hasEntries: source==="live" → "attested"; otherwise resolveProvenance fallback.
+  const liveProvenance =
+    source === "live"
+      ? ("attested" as const)
+      : resolveProvenance(source, updatedAt, "estimated");
+
+  // Footer — share class + cadence.
   const calendarFooter = (shareClass || cadence) ? (
     <dl className="pf-calendar-footer">
       {shareClass ? (
@@ -425,50 +348,26 @@ export function DistribCalendar({
     </dl>
   ) : null;
 
-  // zeroSlot: compact bar chart + footer
-  const zeroSlot = (
-    <>
-      <div className="pf-distrib-chart-shell">
-        <BarChart
-          entries={entries}
-          refYear={refYear}
-          currentPeriod={currentPeriod}
-          compactPreview
-        />
-      </div>
-      {calendarFooter}
-    </>
-  );
-
-  // liveContent: full bar chart + footer
-  const liveContent = (
-    <>
-      <div className="pf-distrib-chart-shell">
-        <BarChart
-          entries={entries}
-          refYear={refYear}
-          currentPeriod={currentPeriod}
-        />
-      </div>
-      {calendarFooter}
-    </>
-  );
-
   return (
-    <WidgetShell
+    <PfCockpitPanel
       variant="wide"
-      ariaLabel="Payout calendar"
-      title="Payout Calendar"
-      subtitle={`12m · USDC${hasForecast ? " · forecast" : ""}`}
-      view={view}
-      trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
-      zeroSlot={zeroSlot}
-      className={cn(
-        "pf-payout-calendar-panel",
-        view.mode === "zero" && "pf-payout-calendar-panel--zero",
-      )}
+      aria-label="Payout calendar"
+      className="pf-payout-calendar-panel"
     >
-      {liveContent}
-    </WidgetShell>
+      <PfCockpitPanelHeader
+        title="Payout Calendar"
+        subtitle={`12m · USDC${hasForecast ? " · forecast" : ""}`}
+        provenance={liveProvenance}
+        trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
+      />
+      <div className="pf-distrib-chart-shell">
+        <BarChart
+          entries={entries}
+          refYear={refYear}
+          currentPeriod={currentPeriod}
+        />
+      </div>
+      {calendarFooter}
+    </PfCockpitPanel>
   );
 }

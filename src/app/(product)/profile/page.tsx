@@ -24,8 +24,6 @@ import {
   MetricGrid,
 } from "@/components/ui/nested-panel";
 import { SignOutButton } from "@/components/auth/sign-out-button";
-import { DemoDataBanner } from "@/components/product/demo-data-banner";
-import { investorHasDemoPosition } from "@/lib/dev/investor-demo-visible";
 
 export const dynamic = "force-dynamic";
 
@@ -37,16 +35,13 @@ export const metadata = {
 export default async function ProfilePage() {
   const [session, investor] = await Promise.all([requireInvestor("/profile"), getInvestor()]);
 
-  const [positions, showDemoBanner] = investor
-    ? await Promise.all([
-        prisma.position.findMany({
-          where: { investorId: investor.id, status: "active" },
-          select: { principalUsdc: true, subscribedAt: true },
-          orderBy: { subscribedAt: "asc" },
-        }),
-        investorHasDemoPosition(investor.id),
-      ])
-    : [[], false];
+  const positions = investor
+    ? await prisma.position.findMany({
+        where: { investorId: investor.id, status: "active" },
+        select: { principalUsdc: true, subscribedAt: true },
+        orderBy: { subscribedAt: "asc" },
+      })
+    : [];
 
   const totalDeployed = positions.reduce(
     (acc, p) => acc + Number(p.principalUsdc),
@@ -62,8 +57,6 @@ export default async function ProfilePage() {
 
   return (
     <div className="prof-shell" data-testid="profile-page">
-      {showDemoBanner ? <DemoDataBanner /> : null}
-
       <ProductPageHeader
         eyebrow="Investor profile"
         title={profileDisplayName(session.email)}

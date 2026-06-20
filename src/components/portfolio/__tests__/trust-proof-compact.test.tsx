@@ -72,7 +72,7 @@ describe("TrustProofCompact", () => {
     expect(html).not.toContain("disabled");
   });
 
-  it("previewZeros: pending KPI placeholders", () => {
+  it("no real data: KPI values show '—' (honest placeholder, no fabricated composite)", () => {
     const kpis = deriveTrustSummaryKpis({
       risk: {
         ...BASE_RISK,
@@ -88,7 +88,6 @@ describe("TrustProofCompact", () => {
           onChainTvlUsdc: 0,
         },
       },
-      previewZeros: true,
     });
     expect(kpis.compositeValue).toBe("—");
     expect(kpis.proofValue).toBe("—");

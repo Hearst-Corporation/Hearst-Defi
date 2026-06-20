@@ -19,11 +19,7 @@ import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
 import { latestAttestationVerified } from "@/lib/proof-center/attestation-truth";
 import { isProofCenterColdEmpty } from "@/lib/proof-center/cold-empty";
 import { loadProofHubColdCounts } from "@/lib/proof-center/hub-counts";
-import { getInvestor } from "@/lib/auth/session";
-import { isDemoInvestor } from "@/lib/demo/provider";
-import { databaseHasDemoProofs } from "@/lib/dev/investor-demo-visible";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
-import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 
 interface ProofCenterPageProps {
   searchParams: Promise<{ type?: string | string[] }>;
@@ -34,16 +30,12 @@ export default async function ProductProofCenterPage({
 }: ProofCenterPageProps) {
   const chainConfigured = isChainConfigured();
 
-  const investor = await getInvestor();
-  const demo = isDemoInvestor(investor);
-
   const coveragePeriod = new Date().toISOString().slice(0, 7);
 
   const [
     onChainEvents,
     onChainAttestations,
     custody,
-    showDemoBanner,
     coverage,
     recentDistributions,
     recentRebalances,
@@ -52,11 +44,10 @@ export default async function ProductProofCenterPage({
     fetchOnChainEvents({ limit: 20 }),
     fetchOnChainAttestations({ limit: 12 }),
     loadCustody(),
-    databaseHasDemoProofs(),
     loadCoverageForVault(PROOF_CENTER_VAULT_REF, coveragePeriod),
     loadRecentDistributions(PROOF_CENTER_VAULT_REF, 6),
     loadRecentRebalances(PROOF_CENTER_VAULT_REF, 5),
-    loadProofHubColdCounts(demo),
+    loadProofHubColdCounts(),
   ]);
 
   const latestAttestation = onChainAttestations[0] ?? null;
@@ -64,14 +55,8 @@ export default async function ProductProofCenterPage({
 
   const platformAddresses = buildPlatformAddresses(custody);
 
-  const demoNotice = demo
-    ? DEMO_SANDBOX_DISCLAIMER
-    : showDemoBanner
-      ? "Demo data · Local visual QA — not production"
-      : null;
-
   const coldEmpty = isProofCenterColdEmpty({
-    demo,
+    demo: false,
     hasAttestation: latestAttestation !== null,
     proofsCount: coldCounts.proofsCount,
     onChainEventsCount: onChainEvents.length,
@@ -94,8 +79,8 @@ export default async function ProductProofCenterPage({
       recentRebalances={recentRebalances}
       platformAddresses={platformAddresses}
       coldEmpty={coldEmpty}
-      demo={demo}
-      demoNotice={demoNotice}
+      demo={false}
+      demoNotice={null}
     />
   );
 }

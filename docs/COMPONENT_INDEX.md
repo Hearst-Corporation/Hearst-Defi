@@ -4,11 +4,7 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**206 components** · 1 possible orphans · 2 intentionally unwired.
-
-## ⚠️ Possible orphans (0 references — verify before keeping)
-
-- `src/components/admin/governance/simulate-demo-panel.tsx` — SimulateDemoPanel
+**205 components** · 0 possible orphans · 2 intentionally unwired.
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -116,14 +112,14 @@
 | `src/components/onboarding/StepProgressBar.tsx` | StepProgressBar | 4 |
 | `src/components/portfolio/allocation-donut.tsx` | AllocationDonut | 1 |
 | `src/components/portfolio/capital-yield.tsx` | CapitalYield | 3 |
-| `src/components/portfolio/distrib-calendar.tsx` | DistribCalendar | 4 |
+| `src/components/portfolio/distrib-calendar.tsx` | DistribCalendar | 3 |
 | `src/components/portfolio/hero-kpi-table.tsx` | HeroKpiTable | 1 |
-| `src/components/portfolio/hero-liquidity-rail.tsx` | HeroLiquidityRail | 3 |
-| `src/components/portfolio/hero-payout-rail.tsx` | HeroPayoutRail | 3 |
+| `src/components/portfolio/hero-liquidity-rail.tsx` | HeroLiquidityRail | 2 |
+| `src/components/portfolio/hero-payout-rail.tsx` | HeroPayoutRail | 2 |
 | `src/components/portfolio/hero-rail-shell.tsx` | HeroRailGroup | 3 |
 | `src/components/portfolio/kpi-row.tsx` | PortfolioKpiRow | 1 |
-| `src/components/portfolio/lock-meter.tsx` | — | 3 |
-| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 19 |
+| `src/components/portfolio/lock-meter.tsx` | — | 2 |
+| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 21 |
 | `src/components/portfolio/portfolio-greeting.tsx` | PortfolioGreeting | 2 |
 | `src/components/portfolio/portfolio-leaf-link.tsx` | PortfolioLeafLink | 6 |
 | `src/components/portfolio/portfolio-leaf-shell.tsx` | PortfolioLeafShell | 4 |
@@ -132,13 +128,12 @@
 | `src/components/portfolio/position-kpis.tsx` | PositionKpis | 1 |
 | `src/components/portfolio/position-transactions.tsx` | PositionTransactions | 1 |
 | `src/components/portfolio/positions-list.tsx` | PositionsList | 3 |
-| `src/components/portfolio/proof-pulse.tsx` | ProofPulse | 3 |
+| `src/components/portfolio/proof-pulse.tsx` | ProofPulse | 4 |
 | `src/components/portfolio/recent-activity.tsx` | RecentActivity | 3 |
 | `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 3 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
-| `src/components/portfolio/widget-shell.tsx` | WidgetShell | 3 |
 | `src/components/power/command-palette.tsx` | CommandPalette | 1 |
-| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 11 |
+| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 4 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
 | `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 4 |
 | `src/components/proof-center/custody-panel.tsx` | CustodySection | 1 |
@@ -200,9 +195,9 @@
 | `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 23 |
 | `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 16 |
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
-| `src/components/ui/product-section.tsx` | ProductSection | 2 |
+| `src/components/ui/product-section.tsx` | ProductSection | 1 |
 | `src/components/ui/progress.tsx` | Progress | 12 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 50 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 49 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/segmented-control.tsx` | SegmentedControl | 2 |

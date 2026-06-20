@@ -8,17 +8,9 @@ import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
 import { TrustProofCompact } from "@/components/portfolio/trust-panel";
-import { DemoDataBanner } from "@/components/product/demo-data-banner";
-import { DEMO_SANDBOX_DISCLAIMER } from "@/lib/demo/markers";
 import { HeroKpiTable } from "@/components/portfolio/hero-kpi-table";
 import { HeroPayoutRail } from "@/components/portfolio/hero-payout-rail";
 import { HeroLiquidityRail } from "@/components/portfolio/hero-liquidity-rail";
-import {
-  ZERO_YIELD_STACK,
-  buildZeroDistribEntries,
-  zeroProofPulseProps,
-} from "@/lib/portfolio/layout-preview";
-import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
 
@@ -42,11 +34,8 @@ function displayName(
 export default async function PortfolioPage() {
   const {
     investor,
-    demo,
     data,
     hasPositions,
-    state,
-    heroWidgets,
     lockMeterProps,
     timeToCashProps,
     yieldStackProps,
@@ -54,31 +43,14 @@ export default async function PortfolioPage() {
     distribCalendarProps,
     riskPulseProps,
     proofPulseProps,
-    showDemoBanner,
-    previewZeros,
-    previewAsOf,
   } = await loadPortfolioView();
-
-  // Preview (zero-position) cockpit carries the --zero compaction class so the
-  // no-scroll fit-gate can tighten the placeholder hero/rail (audit root-cause #1).
-  const isPreview = state.kind === "preview";
 
   return (
     <div
-      className={cn(
-        "pf-container pf-container--fit",
-        isPreview && "pf-container--zero",
-      )}
+      className="pf-container pf-container--fit"
       data-testid="portfolio-page"
       data-portfolio-hub="true"
-      data-pf-state={state.kind}
     >
-      {demo ? (
-        <DemoDataBanner message={DEMO_SANDBOX_DISCLAIMER} />
-      ) : showDemoBanner ? (
-        <DemoDataBanner />
-      ) : null}
-
       <PortfolioGreeting name={displayName(investor)} />
 
       <div className="pf-cockpit">
@@ -90,10 +62,9 @@ export default async function PortfolioPage() {
                 totalValueUsdc={data.totalValueUsdc}
                 source={data.source}
                 updatedAt={data.updatedAt}
-                mode={heroWidgets.value.mode}
               />
             </div>
-            <aside className={cn("pf-hero-sidebar", isPreview && "pf-hero-sidebar--zero")}>
+            <aside className="pf-hero-sidebar">
               <HeroKpiTable
                 totalValueUsdc={data.totalValueUsdc}
                 totalYieldYtdUsdc={data.totalYieldYtdUsdc}
@@ -101,18 +72,9 @@ export default async function PortfolioPage() {
                 hasPositions={hasPositions}
                 source={data.source}
                 updatedAt={data.updatedAt}
-                mode={heroWidgets.metrics.mode}
               />
-              <HeroPayoutRail
-                {...timeToCashProps}
-                mode={heroWidgets.payout.mode}
-                provenance={heroWidgets.payout.provenance}
-              />
-              <HeroLiquidityRail
-                {...lockMeterProps}
-                mode={heroWidgets.liquidity.mode}
-                provenance={heroWidgets.liquidity.provenance}
-              />
+              <HeroPayoutRail {...timeToCashProps} />
+              <HeroLiquidityRail {...lockMeterProps} />
             </aside>
           </div>
         </div>
@@ -124,7 +86,6 @@ export default async function PortfolioPage() {
               positions={data.positions}
               source={data.source}
               updatedAt={data.updatedAt}
-              previewZeros={previewZeros}
               leafHref="/portfolio/positions"
             />
           </div>
@@ -134,10 +95,9 @@ export default async function PortfolioPage() {
             data-testid="capital-yield-widget"
           >
             <CapitalYield
-              {...(previewZeros ? ZERO_YIELD_STACK : yieldStackProps)}
+              {...yieldStackProps}
               buckets={allocationDonutProps.buckets}
               totalValueUsdc={data.totalValueUsdc}
-              previewZeros={previewZeros}
               leafHref="/portfolio/yield"
             />
           </div>
@@ -152,14 +112,6 @@ export default async function PortfolioPage() {
           >
             <DistribCalendar
               {...distribCalendarProps}
-              entries={
-                previewZeros && distribCalendarProps.entries.length === 0
-                  ? buildZeroDistribEntries(previewAsOf.getUTCFullYear())
-                  : distribCalendarProps.entries
-              }
-              previewZeros={
-                previewZeros && distribCalendarProps.entries.length === 0
-              }
               leafHref="/portfolio/distributions"
             />
           </div>
@@ -172,7 +124,6 @@ export default async function PortfolioPage() {
               transactions={data.recentTransactions}
               source={data.source}
               updatedAt={data.updatedAt}
-              previewZeros={previewZeros}
               leafHref="/portfolio/activity"
             />
           </div>
@@ -181,13 +132,7 @@ export default async function PortfolioPage() {
             data-section="yield-trust"
             data-testid="trust-panel-widget"
           >
-            <TrustProofCompact
-              risk={riskPulseProps}
-              proof={
-                previewZeros ? zeroProofPulseProps(previewAsOf) : proofPulseProps
-              }
-              previewZeros={previewZeros}
-            />
+            <TrustProofCompact risk={riskPulseProps} proof={proofPulseProps} />
           </div>
         </div>
       </div>
