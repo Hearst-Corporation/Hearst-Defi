@@ -100,8 +100,18 @@ function monthHadDistribution(
   );
 }
 
+/** UTC timestamp of the first day of the month containing `date`. */
+function monthStartOf(date: Date): number {
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1);
+}
+
 /**
- * Twelve month-end points ending at `asOf`. Uses txn anchors + live terminal value.
+ * Month-end points ending at `asOf`, spanning at most `monthCount` months.
+ *
+ * The window starts at the LATER of (asOf − monthCount) and the month of the
+ * first real transaction: we never draw a flat pre-deposit history that didn't
+ * exist. A brand-new single deposit yields a short honest window (deposit month
+ * → asOf), not 11 flat months plus a terminal spike.
  */
 export function buildPortfolioValueSeries(
   transactions: ValueSeriesTx[],
@@ -110,6 +120,31 @@ export function buildPortfolioValueSeries(
   monthCount = 12,
 ): PortfolioValuePoint[] {
   const anchors = buildAnchors(transactions, currentValueUsdc, asOf);
+
+  // Floor the window at the first transaction's month — no invented pre-history.
+  const firstTxT = transactions.reduce(
+    (min, tx) => Math.min(min, tx.occurredAt.getTime()),
+    Number.POSITIVE_INFINITY,
+  );
+  const fullWindowStart = Date.UTC(
+    asOf.getUTCFullYear(),
+    asOf.getUTCMonth() - (monthCount - 1),
+    1,
+  );
+  let windowStart = Number.isFinite(firstTxT)
+    ? Math.max(fullWindowStart, monthStartOf(new Date(firstTxT)))
+    : fullWindowStart;
+
+  // Guarantee at least 2 points so a line (not a lone dot) renders: if the
+  // first deposit lands in asOf's own month, include the prior month too.
+  const asOfMonthStart = monthStartOf(asOf);
+  if (windowStart >= asOfMonthStart) {
+    windowStart = Math.max(
+      fullWindowStart,
+      Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth() - 1, 1),
+    );
+  }
+
   const points: PortfolioValuePoint[] = [];
 
   for (let i = 0; i < monthCount; i++) {
@@ -117,6 +152,9 @@ export function buildPortfolioValueSeries(
     const monthStart = new Date(
       Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth() + monthOffset, 1),
     );
+    // Skip months that predate the first real transaction.
+    if (monthStart.getTime() < windowStart) continue;
+
     const monthEnd =
       monthOffset === 0
         ? asOf
