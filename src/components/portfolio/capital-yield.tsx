@@ -102,7 +102,7 @@ export function CapitalYield({
           variant="wide"
           chrome="embedded"
           aria-label="Capital and yield — awaiting first position"
-          className="cy-panel cy-panel--embedded-empty"
+          className="pf-capital-yield--embedded-empty"
         >
           <PfCockpitPanelHeader
             title="Capital & Yield"
@@ -216,7 +216,7 @@ export function CapitalYield({
       variant="wide"
       chrome={embedded ? "embedded" : "panel"}
       aria-label="Capital and yield — allocation and 12 month forward yield"
-      className="cy-panel"
+      className={embedded ? "pf-capital-yield--embedded" : "cy-panel"}
     >
       <PfCockpitPanelHeader
         title="Capital & Yield"

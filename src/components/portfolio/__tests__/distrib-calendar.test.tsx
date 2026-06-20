@@ -5,11 +5,13 @@
  * compatible with Vitest's node environment (no jsdom needed).
  */
 
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import {
   barHeight,
   barX,
+  DistribCalendar,
   formatPeriod,
   formatUsdc,
   shouldShowCompactPeriodLabel,
@@ -91,6 +93,19 @@ describe("DistribCalendar — empty entries", () => {
   it("empty array has length 0", () => {
     const entries: DistribEntry[] = [];
     expect(entries).toHaveLength(0);
+  });
+
+  it("zero-state markup uses flat chart shell inside payout slot with quarter labels", () => {
+    const html = renderToStaticMarkup(
+      <DistribCalendar entries={[]} shareClass={null} cadence={null} asOf={new Date("2026-06-01T00:00:00Z")} />,
+    );
+
+    expect(html).toContain("pf-payout-calendar-slot");
+    expect(html).toContain("pf-distrib-chart-shell--flat");
+    expect(html).toContain("pf-distrib-chart-shell--ghost");
+    expect(html).toContain("pf-distrib-chart__period");
+    expect(html).toContain("Jan");
+    expect(html).toContain("Apr");
   });
 
   it("barHeight with maxAmount=0 returns 0 (no division by zero)", () => {

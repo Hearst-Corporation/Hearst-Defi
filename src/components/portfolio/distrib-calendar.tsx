@@ -335,47 +335,70 @@ export function DistribCalendar({
           titleVariant="primary"
           trailing={calendarHeaderTrail(leafHref, secondaryLeafHref, secondaryLeafLabel)}
         />
-        <div className="pf-distrib-chart-shell pf-distrib-chart-shell--ghost">
-          <svg
-            viewBox={`0 0 ${VB_W} ${VB_H}`}
-            preserveAspectRatio="xMidYMax meet"
-            className="pf-distrib-chart pf-distrib-chart--compact block h-full w-full"
-            aria-hidden="true"
-          >
-            <defs>
-              <linearGradient id="dc-ghost-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--ct-figma-accent-area-top)" />
-                <stop offset="100%" stopColor="var(--ct-figma-accent-area-bottom)" />
-              </linearGradient>
-            </defs>
-            {GHOST_HEIGHTS.map((h, i) => {
-              const bx = barX(i, n, BAR_W, GAP);
-              const by = BAR_AREA_BOT - h;
-              const isLast = i === n - 1;
-              return (
-                <rect
-                  key={i}
-                  x={bx}
-                  y={by}
-                  width={BAR_W}
-                  height={h}
-                  fill={isLast ? "url(#dc-ghost-grad)" : BAR_FILL}
-                  opacity={isLast ? 1 : 1}
-                  rx="2"
-                  stroke={isLast ? "var(--ct-text-muted)" : BAR_STROKE}
-                  strokeWidth="0.75"
-                  strokeDasharray={isLast ? "4 2" : "none"}
-                />
-              );
-            })}
-            {/* Baseline */}
-            <line x1="0" y1={BAR_AREA_BOT + 1} x2={VB_W} y2={BAR_AREA_BOT + 1}
-              stroke="var(--ct-border-soft)" strokeWidth="0.5" />
-          </svg>
+        <div className="pf-payout-calendar-slot">
+          <div className="pf-distrib-chart-shell pf-distrib-chart-shell--ghost pf-distrib-chart-shell--flat">
+            <svg
+              viewBox={`0 0 ${VB_W} ${VB_H}`}
+              preserveAspectRatio="xMidYMax meet"
+              className="pf-distrib-chart pf-distrib-chart--compact block h-full w-full"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="dc-ghost-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--ct-figma-accent-area-top)" />
+                  <stop offset="100%" stopColor="var(--ct-figma-accent-area-bottom)" />
+                </linearGradient>
+              </defs>
+              {GHOST_HEIGHTS.map((h, i) => {
+                const bx = barX(i, n, BAR_W, GAP);
+                const by = BAR_AREA_BOT - h;
+                const isLast = i === n - 1;
+                return (
+                  <rect
+                    key={i}
+                    x={bx}
+                    y={by}
+                    width={BAR_W}
+                    height={h}
+                    fill={isLast ? "url(#dc-ghost-grad)" : BAR_FILL}
+                    opacity={isLast ? 1 : 1}
+                    rx="2"
+                    stroke={isLast ? "var(--ct-text-muted)" : BAR_STROKE}
+                    strokeWidth="0.75"
+                    strokeDasharray={isLast ? "4 2" : "none"}
+                  />
+                );
+              })}
+              {COMPACT_LABEL_INDICES.map((monthIndex) => {
+                const period = `${refYear}-${String(monthIndex + 1).padStart(2, "0")}`;
+                const bx = barX(monthIndex, n, BAR_W, GAP);
+                const cx = bx + BAR_W / 2;
+                return (
+                  <text
+                    key={period}
+                    x={cx}
+                    y={LABEL_Y}
+                    textAnchor="middle"
+                    className="pf-distrib-chart__period"
+                  >
+                    {formatPeriod(period, refYear)}
+                  </text>
+                );
+              })}
+              <line
+                x1="0"
+                y1={BAR_AREA_BOT + 1}
+                x2={VB_W}
+                y2={BAR_AREA_BOT + 1}
+                stroke="var(--ct-border-soft)"
+                strokeWidth="0.5"
+              />
+            </svg>
+          </div>
+          <p className="pf-payout-calendar__empty-copy body-xs ct-text-faint m-0" role="status">
+            First distribution appears after cycle close · Monthly USDC
+          </p>
         </div>
-        <p className="pf-payout-calendar__empty-copy body-xs ct-text-faint m-0" role="status">
-          First distribution appears after cycle close · Monthly USDC
-        </p>
       </PfCockpitPanel>
     );
   }

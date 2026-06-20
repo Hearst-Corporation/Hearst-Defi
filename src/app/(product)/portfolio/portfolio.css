@@ -328,6 +328,12 @@
   line-height: var(--ct-leading-snug);
 }
 
+.pf-fused-surface--mid .pf-capital-yield--embedded,
+.pf-fused-surface--mid .pf-capital-yield--embedded-empty {
+  padding-inline: 0;
+  justify-content: flex-start;
+}
+
 .pf-fused-surface--mid .cy-panel {
   padding-inline: 0;
   justify-content: flex-start;
@@ -374,7 +380,7 @@
   max-width: 22ch;
 }
 
-.cy-panel--embedded-empty {
+.pf-capital-yield--embedded-empty {
   justify-content: center;
 }
 
@@ -385,7 +391,7 @@
   min-width: 0;
 }
 
-.cy-panel--embedded-empty .pf-stack--dense {
+.pf-capital-yield--embedded-empty .pf-stack--dense {
   gap: var(--ct-space-2);
 }
 
@@ -525,6 +531,12 @@
     aspect-ratio: auto;
     min-height: 9rem;
     max-height: 12rem;
+  }
+
+  .pf-cockpit-row--deck .pf-distrib-chart-shell {
+    aspect-ratio: auto;
+    min-height: 6.5rem;
+    max-height: 9.5rem;
   }
 }
 
@@ -1418,7 +1430,6 @@
 
 .pf-payout-calendar-panel {
   min-width: 0;
-  background: var(--ct-graphite-subtle-bg);
 }
 
 .pf-payout-calendar-slot {
@@ -1475,6 +1486,18 @@
 
 .pf-distrib-chart-shell--ghost {
   opacity: var(--ct-opacity-70);
+}
+
+/* Zero / ghost — flat inside the L1 plate (no nested inset surface). */
+.pf-distrib-chart-shell--flat {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.pf-distrib-chart-shell--flat::before,
+.pf-distrib-chart-shell--flat::after {
+  display: none;
 }
 
 .pf-distrib-chart {
@@ -1805,7 +1828,7 @@
 }
 
 .pf-fused-surface--deck .pf-activity__empty-hint {
-  max-width: 18ch;
+  max-width: 32ch;
 }
 
 .pf-fused-surface--deck .pf-trust-compact--embedded .pf-trust-compact-kpis {
@@ -2102,15 +2125,18 @@
   margin: var(--ct-space-3) auto 0;
 }
 
-/* payout zero: center a short ghost bar chart. */
+/* payout zero: ghost chart inside slot — single L1 plate, no nested inset. */
 .pf-payout-calendar-panel--zero .pf-payout-calendar-slot {
+  flex: 1 1 auto;
   justify-content: center;
+  min-height: 0;
 }
 
 .pf-payout-calendar-panel--zero .pf-distrib-chart-shell {
-  max-width: 70%;
-  margin: 0 auto;
-  flex: 0 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  flex: 1 1 auto;
 }
 
 /* hide empty ledger residue everywhere in zero */
@@ -2127,13 +2153,13 @@
    scales down so nothing clips in tight slots.
    ============================================================================= */
 
-/* ---- DECK: 1 → 2 → 3 columns ---- */
+/* ---- DECK: 1 → 2 → weighted split ---- */
 @container pf (min-width: 36rem) {
   .pf-cockpit-row--deck { grid-template-columns: 1fr 1fr; }
 }
 
 @container pf (min-width: 58rem) {
-  .pf-cockpit-row--deck { grid-template-columns: 1.9fr 0.9fr; }
+  .pf-cockpit-row--deck { grid-template-columns: 1.55fr 1fr; }
 }
 
 /* ---- MID: 1 → 2 columns, then weighted split ---- */
@@ -2178,7 +2204,7 @@
   .cy-ledger { width: 100%; }
 }
 
-@container pf (max-width: 64rem) {
+@container pf (max-width: 60rem) {
   .pf-fused-surface--mid,
   .pf-fused-surface--deck {
     grid-template-columns: 1fr;
@@ -2216,8 +2242,7 @@
 /* ---- Panel-level container (each plate can host its own query) ---- */
 @container pf (max-width: 48rem) {
   .pf-cockpit-row--summary,
-  .pf-cockpit-row--mid,
-  .pf-cockpit-row--deck {
+  .pf-cockpit-row--mid {
     grid-template-columns: 1fr;
   }
     .pf-hero-grid {
