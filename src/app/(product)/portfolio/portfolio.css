@@ -102,7 +102,7 @@
 }
 
 .pf-greeting__lead .h1 {
-  font-size: 1.5rem;
+  font-size: var(--ct-text-3xl-fixed);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
   letter-spacing: var(--ct-tracking-tight);
@@ -168,7 +168,7 @@
 
 .pf-ticker-value {
   margin: var(--ct-space-0_5) 0 0;
-  font-size: 1.125rem;
+  font-size: var(--ct-text-xl-fixed);
   font-weight: var(--ct-font-bold);
   line-height: var(--ct-leading-none);
   color: var(--ct-text-strong);
@@ -728,7 +728,7 @@
 }
 
 .pf-hero-kpi-value {
-  font-size: 2rem;
+  font-size: var(--ct-text-display-fixed);
   font-weight: var(--ct-font-extrabold);
   line-height: var(--ct-leading-none);
   letter-spacing: var(--ct-tracking-tighter);
