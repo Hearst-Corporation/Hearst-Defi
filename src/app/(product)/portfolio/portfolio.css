@@ -109,6 +109,17 @@
   color: var(--ct-text-strong);
 }
 
+/* The greeting headline is a cockpit instrument, not a document title: it stays
+   on the FIXED tier (--ct-text-3xl-fixed, DS canon — commit 0cdd169). Neutralise
+   the ≥80rem "desktop cockpit presence" fluid bump that doc-flow-typography.css
+   applies to `.pf-container .h1` (28→32px), which would otherwise defeat the
+   deliberate fixed headline and balloon the greeting against the 18px ticker. */
+@media (min-width: 80rem) {
+  .ct-page-area .pf-container .pf-greeting__lead .h1 {
+    font-size: var(--ct-text-3xl-fixed);
+  }
+}
+
 .pf-greeting-name {
   color: var(--ct-accent);
   font-weight: var(--ct-font-semibold);
