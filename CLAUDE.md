@@ -33,6 +33,11 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
    stays human-in-the-loop (**ADR-012**, scoped exception). Guardrails: server-side
    system prompt (no client override), output-side compliance guard (forbidden
    words + APY-range), role-aware register. Gated by `CHAT_MASTER_AGENT`.
+   Second scoped exception (**ADR-016**): outreach **sending** may be agent-driven
+   for **Tier B/C** when `OUTREACH_AUTONOMY` is explicitly raised (off by default).
+   **Tier A is never auto-sent**; hard daily cap (`OUTREACH_DAILY_SEND_CAP`) +
+   warm-up; suppression re-checked at send time; every send forbidden-words guarded,
+   carries an unsubscribe link, and is audited. Not a financial/custodial action.
 5. **Forbidden words in agent outputs**: "guarantee", "promise", "certain", "will deliver", "risk-free".
 6. **Scenario Engine is pure-function**: no DB, no fetch, no I/O in `src/lib/engine/*`.
 7. **Monte Carlo allowed (V2, see ADR-006)** *alongside* the rule-based engine —
