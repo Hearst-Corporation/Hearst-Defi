@@ -134,7 +134,7 @@
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
 | `src/components/portfolio/widget-shell.tsx` | WidgetShell | 3 |
 | `src/components/power/command-palette.tsx` | CommandPalette | 1 |
-| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 12 |
+| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 11 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
 | `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 4 |
 | `src/components/proof-center/custody-panel.tsx` | CustodySection | 1 |
@@ -180,7 +180,7 @@
 | `src/components/ui/apy-range.tsx` | ApyRange | 16 |
 | `src/components/ui/badge.tsx` | Badge | 53 |
 | `src/components/ui/button.tsx` | Button | 81 |
-| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 77 |
+| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 76 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
 | `src/components/ui/chart-time-selector.tsx` 🔌 | ChartTimeSelector | 0 |
@@ -188,7 +188,7 @@
 | `src/components/ui/choice-card.tsx` | ChoiceCard, ChoiceGroup | 1 |
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 4 |
-| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 17 |
+| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 16 |
 | `src/components/ui/empty-surface.tsx` | EmptySurface | 42 |
 | `src/components/ui/error-boundary.tsx` | ErrorBoundary | 1 |
 | `src/components/ui/metric.tsx` | Metric | 8 |

@@ -2,8 +2,6 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminLeafLink } from "@/components/admin/dashboard/cockpit-panel-header";
 import { ProofList } from "@/components/admin/proof-list";
 import { prisma } from "@/lib/db";
-import { resolveAdminDemoMode } from "@/lib/demo/admin-mode";
-import { buildDemoProofRows } from "@/lib/demo/admin/proofs";
 
 export const dynamic = "force-dynamic";
 
@@ -12,13 +10,10 @@ export const metadata = {
 };
 
 export default async function ProofsPage() {
-  const demoMode = await resolveAdminDemoMode();
-  const items = demoMode.providerEnabled
-    ? buildDemoProofRows()
-    : await prisma.proof.findMany({
-        orderBy: { postedAt: "desc" },
-        take: 200,
-      });
+  const items = await prisma.proof.findMany({
+    orderBy: { postedAt: "desc" },
+    take: 200,
+  });
 
   return (
     <div className="admin-doc-shell">

@@ -7,8 +7,6 @@ import { loadLatestTimelineSnapshot } from "@/lib/data/timeline-snapshot";
 import { computeRiskBreakdown } from "@/lib/engine/risk";
 import type { ScenarioInputs } from "@/lib/engine/types";
 import { VAULT_YIELD } from "@/lib/engine/vaults";
-import { canRunDemoProvider } from "@/lib/demo/guard";
-import { buildDemoRiskFramework } from "@/lib/demo/admin/risk";
 import { resolveFixtureVaultId } from "@/lib/vaults/dashboard-scope";
 
 // ---------------------------------------------------------------------------
@@ -203,8 +201,6 @@ export const AWAITING_VAULT_RISK_SNAPSHOT: RiskFrameworkData = {
 export async function loadRiskFramework(
   vaultId?: string,
 ): Promise<RiskFrameworkData> {
-  if (canRunDemoProvider()) return buildDemoRiskFramework();
-
   const resolvedVaultId = resolveFixtureVaultId(vaultId);
   if (resolvedVaultId !== VAULT_YIELD.id) {
     return AWAITING_VAULT_RISK_SNAPSHOT;

@@ -1,8 +1,6 @@
 import Link from "next/link";
 
 import { prisma } from "@/lib/db";
-import { canRunDemoProvider } from "@/lib/demo/guard";
-import { buildDemoDistributions } from "@/lib/demo/admin/distributions";
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
@@ -45,13 +43,11 @@ export default async function DistributionsPage({
   const vaultId = resolveFixtureVaultId(params.vault);
 
   const [rawHistory, allVaults] = await Promise.all([
-    canRunDemoProvider()
-      ? Promise.resolve(buildDemoDistributions())
-      : prisma.distribution.findMany({
-          where: { vaultRef: vaultId },
-          orderBy: { distributedAt: "desc" },
-          take: 6,
-        }),
+    prisma.distribution.findMany({
+      where: { vaultRef: vaultId },
+      orderBy: { distributedAt: "desc" },
+      take: 6,
+    }),
     listAllVaults({ status: "live-or-paused" }),
   ]);
 

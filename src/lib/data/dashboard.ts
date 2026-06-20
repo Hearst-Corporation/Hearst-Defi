@@ -2,8 +2,6 @@ import "server-only";
 
 import { Prisma } from "@prisma/client";
 
-import { canRunDemoProvider } from "@/lib/demo/guard";
-import { buildDemoDashboardData } from "@/lib/demo/admin/dashboard";
 import {
   loadLatestMiningMetrics,
   loadMiningOpsSnapshot,
@@ -270,8 +268,6 @@ function resolveVaultDefinition(
 export async function loadDashboardData(
   vaultId?: string,
 ): Promise<DashboardData> {
-  if (canRunDemoProvider()) return buildDemoDashboardData(vaultId);
-
   const { def: vaultDef, resolvedId, usedFallback: vaultFallback } =
     resolveVaultDefinition(vaultId);
   const isYield = resolvedId === VAULT_YIELD.id;
@@ -687,11 +683,6 @@ function buildTimeseries(
  * function is an additive sibling, not a replacement.
  */
 export async function loadDashboardForRef(ref: VaultRef): Promise<DashboardData> {
-  if (canRunDemoProvider()) {
-    const vaultId = ref.kind === "fixture" ? ref.fixture.id : undefined;
-    return buildDemoDashboardData(vaultId);
-  }
-
   const profile = toVaultProfile(ref);
 
   // Determine whether we are on the canonical Yield Vault live timeline.

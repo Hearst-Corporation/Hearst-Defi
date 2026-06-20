@@ -5,12 +5,8 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { loadProposalQueue } from "@/lib/governance/actions";
 import type { ProposalState } from "@/lib/governance/state-machine";
-import { canRunDemoProvider } from "@/lib/demo/guard";
-import { buildDemoGovernanceQueue } from "@/lib/demo/admin/governance";
 import { buildGovernanceKpiStrip } from "@/lib/admin/governance-kpi-strip";
 
 export const dynamic = "force-dynamic";
@@ -51,9 +47,7 @@ export default async function GovernancePage({ searchParams }: PageProps) {
   const rawTab = params["tab"];
   const activeTab: TabKey = isTabKey(rawTab) ? rawTab : "all";
 
-  const queue = canRunDemoProvider()
-    ? buildDemoGovernanceQueue()
-    : await loadProposalQueue();
+  const queue = await loadProposalQueue();
   const filtered = filterProposals(queue, activeTab);
   const governanceKpis = buildGovernanceKpiStrip(queue);
 
@@ -88,25 +82,6 @@ export default async function GovernancePage({ searchParams }: PageProps) {
         <ProposalQueue proposals={filtered} />
       </section>
 
-      {canRunDemoProvider() ? (
-        <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Dev tools">
-          <h2 className="h2">Dev tools</h2>
-          <Card hoverOverlay={false}>
-            <DashboardPanelHeader
-              eyebrow="Local only"
-              title="Governance simulation"
-              tone="quiet"
-            />
-            <p className="body-sm ct-prose-md ct-text-muted">
-              Mock Tenderly-style proposal simulation — not wired to live execution.
-              Available when <code>DEMO_PROVIDER_ENABLED=1</code>.
-            </p>
-            <Button variant="secondary" asChild size="sm" className="self-start">
-              <Link href="/admin/governance/simulate-demo">Open simulation panel</Link>
-            </Button>
-          </Card>
-        </section>
-      ) : null}
     </div>
   );
 }

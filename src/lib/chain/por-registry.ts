@@ -1,7 +1,5 @@
 import "server-only";
 
-import { canRunDemoProvider } from "@/lib/demo/guard";
-import { buildDemoOnChainAttestations } from "@/lib/demo/admin/proof-center";
 import { env } from "@/lib/env";
 
 import { POR_REGISTRY_ABI, POR_REGISTRY_WRITE_ABI } from "./abis";
@@ -54,13 +52,10 @@ function fromBaseUnits(raw: bigint, decimals: bigint): number {
  *
  * Never throws. Returns descending-by-id, capped at `limit` (default 12).
  *
- * In demo mode (canRunDemoProvider()) returns simulated attestations — no RPC call.
  */
 export async function fetchOnChainAttestations(
   opts: FetchAttestationsOptions = {},
 ): Promise<OnChainAttestation[]> {
-  if (canRunDemoProvider()) return buildDemoOnChainAttestations();
-
   const addr = getPoRRegistryAddress();
   if (!addr) return [];
 

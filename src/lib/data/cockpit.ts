@@ -16,9 +16,6 @@ import {
 } from "@/lib/vaults/dashboard-scope";
 import { listAllVaults } from "@/lib/vaults/resolver";
 import { vaultLabel, vaultSlug } from "@/lib/vaults/slug";
-import { canRunDemoProvider } from "@/lib/demo/guard";
-import { buildDemoCockpitPayload } from "@/lib/demo/admin/cockpit";
-
 // =============================================================================
 // Cockpit Admin Dashboard — data loaders.
 //
@@ -595,6 +592,5 @@ const fetchCockpitPayloadCached = unstable_cache(
 );
 
 export async function loadCockpitPayload(): Promise<CockpitPayload> {
-  if (canRunDemoProvider()) return buildDemoCockpitPayload();
   return fetchCockpitPayloadCached();
 }
