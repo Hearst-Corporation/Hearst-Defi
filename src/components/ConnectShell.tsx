@@ -16,10 +16,12 @@ const CHAT_CONFIG: ChatConfig = {
 
 export function ConnectShell({
   children,
+  footer,
   enableChat = false,
   masterAgentEnabled,
 }: {
   children: ReactNode;
+  footer?: ReactNode;
   enableChat?: boolean;
   masterAgentEnabled?: boolean;
 }) {
@@ -32,6 +34,7 @@ export function ConnectShell({
           ? { ...CHAT_CONFIG, masterAgentEnabled }
           : undefined
       }
+      footer={footer}
     >
       {children}
     </CockpitShell>

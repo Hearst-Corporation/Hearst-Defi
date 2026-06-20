@@ -37,7 +37,7 @@
 
 ### Colonne sidebar — `.pf-hero-sidebar.pf-hero-sidebar--zero`
 Trois groupes, tous en `mode="zero"`, dans cet ordre :
-1. `HeroKpiTable` → blurb « No position yet — metrics appear after your first confirmed deposit. »
+1. `HeroKpiTable` → placeholder « — » (cohérent avec Payout/Liquidity ; l'ancienne phrase « No position yet — metrics appear… » a été retirée sur demande, 2026-06-20).
 2. `HeroPayoutRail` → valeur « — », méta « Cycle pending » (**pas de barre 0 %** — compact).
 3. `HeroLiquidityRail` → méta « 60-day soft lock shown after deposit » (**pas de barre 0 %**).
 

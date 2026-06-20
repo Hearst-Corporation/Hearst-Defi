@@ -28,6 +28,7 @@ export function CockpitShell({
   products,
   appId,
   chatConfig,
+  footer,
   renderActiveProduct,
 }: CockpitShellProps) {
   // Fixe le défaut du store actif sur l'appId courante (avant le 1er render).
@@ -82,6 +83,10 @@ export function CockpitShell({
           </CenterPanel>
           <RailRight />
         </div>
+        {/* Socle légal pleine largeur — sœur de panels-row, sous le rail+centre+chat,
+            au-dessus de la bottom bar flottante. Pin bas naturel : dernier enfant
+            flex-column du root (flex:0 0 auto). */}
+        {footer}
         {inProduct && (
           <button
             type="button"

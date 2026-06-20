@@ -31,11 +31,10 @@ function isBareRoute(pathname: string): boolean {
 }
 
 // Bare routes that still carry the full institutional footer (replicated from
-// src/components/app-chrome.tsx — private helper): home/login "/" + /legal/*.
+// src/components/app-chrome.tsx — private helper): /legal/* only. "/" is the
+// wallet sign-in funnel → footer-free.
 function isFooterBareRoute(pathname: string): boolean {
-  return (
-    pathname === "/" || pathname === "/legal" || pathname.startsWith("/legal/")
-  );
+  return pathname === "/legal" || pathname.startsWith("/legal/");
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -115,7 +114,7 @@ describe("isBareRoute — exact vs sub-path semantics for /apply", () => {
 });
 
 describe("isFooterBareRoute — bare routes that carry the full footer", () => {
-  it.each(["/", "/legal", "/legal/privacy", "/legal/terms", "/legal/disclaimer"])(
+  it.each(["/legal", "/legal/privacy", "/legal/terms", "/legal/disclaimer"])(
     "shows the full footer on %s",
     (path) => {
       expect(isFooterBareRoute(path)).toBe(true);
@@ -123,6 +122,7 @@ describe("isFooterBareRoute — bare routes that carry the full footer", () => {
   );
 
   it.each([
+    "/",
     "/login",
     "/forgot-password",
     "/reset-password",

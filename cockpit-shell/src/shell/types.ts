@@ -47,6 +47,14 @@ export interface CockpitShellProps {
   /** Config du chat — endpoint, persistance, contexte produit. */
   chatConfig?: ChatConfig;
   /**
+   * Slot pied de page global — rendu au niveau `.ct-root`, SŒUR de
+   * `.ct-panels-row` (donc pleine largeur rail→chat), juste sous la rangée des
+   * panneaux et au-dessus de la bottom bar flottante. À distinguer du contenu
+   * passé en `children` (confiné à la colonne centrale). Sert au socle légal
+   * compact des surfaces authentifiées.
+   */
+  footer?: ReactNode;
+  /**
    * Render-prop optionnel : invoqué dans le CenterPanel quand un autre produit
    * que l'app hôte est actif. Utilisé exclusivement par le hub pour embedder
    * les 12 produits en `<webview>` Electron. Les apps produit standalone

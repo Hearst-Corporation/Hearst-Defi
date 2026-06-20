@@ -4,7 +4,11 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**205 components** · 0 possible orphans · 2 intentionally unwired.
+**205 components** · 1 possible orphans · 2 intentionally unwired.
+
+## ⚠️ Possible orphans (0 references — verify before keeping)
+
+- `src/components/admin/governance/simulate-demo-panel.tsx` — SimulateDemoPanel
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
 
@@ -133,7 +137,7 @@
 | `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 3 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
 | `src/components/power/command-palette.tsx` | CommandPalette | 1 |
-| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 4 |
+| `src/components/product/demo-data-banner.tsx` | DemoDataBanner | 2 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
 | `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 4 |
 | `src/components/proof-center/custody-panel.tsx` | CustodySection | 1 |
@@ -197,7 +201,7 @@
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/product-section.tsx` | ProductSection | 1 |
 | `src/components/ui/progress.tsx` | Progress | 12 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 49 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 47 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
 | `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/segmented-control.tsx` | SegmentedControl | 2 |

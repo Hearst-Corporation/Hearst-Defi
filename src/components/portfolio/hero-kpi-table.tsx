@@ -52,9 +52,7 @@ export function HeroKpiTable({
   if (isZero) {
     return (
       <HeroRailGroup title="Portfolio Metrics" aria-label="Portfolio metrics" slot="metrics">
-        <p className="pf-hero-rail-blurb body-xs ct-text-muted m-0">
-          No position yet — metrics appear after your first confirmed deposit.
-        </p>
+        <p className="pf-hero-rail-blurb body-xs ct-text-muted m-0">—</p>
       </HeroRailGroup>
     );
   }

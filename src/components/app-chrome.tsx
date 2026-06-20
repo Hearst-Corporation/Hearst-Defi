@@ -85,12 +85,16 @@ export function AppChrome({
   const chatEnabled = !isNoChatRoute(pathname);
 
   return (
-    <ConnectShell enableChat={chatEnabled} masterAgentEnabled={masterAgentEnabled}>
+    <ConnectShell
+      enableChat={chatEnabled}
+      masterAgentEnabled={masterAgentEnabled}
+      // Global legal footer — compact single line, rendered at the shell root as a
+      // SIBLING of the panels row so it spans full width (rail→chat) and pins to
+      // the bottom under the floating bottom bar. Keeps Disclaimer / Privacy /
+      // Terms reachable on every authenticated surface without breaking no-scroll.
+      footer={<AppFooter variant="compact" />}
+    >
       {children}
-      {/* Global legal footer — compact single line; keeps Disclaimer / Privacy
-          / Terms reachable on every authenticated surface (bare auth/legal
-          routes returned above) without breaking the no-scroll layout. */}
-      <AppFooter variant="compact" />
       {/* Chat mode selector (Conversation / Review). Self-gates to admins via
           the requireAdmin-protected /api/admin/review-mode route; renders
           nothing for everyone else. Mounted here so it's available on every

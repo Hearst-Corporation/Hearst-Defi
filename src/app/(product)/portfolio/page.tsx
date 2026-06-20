@@ -79,7 +79,6 @@ export default async function PortfolioPage() {
           </div>
         </div>
 
-        <h2 className="h2 pf-section-head">Positions &amp; allocation</h2>
         <div className="pf-cockpit-row pf-cockpit-row--mid">
           <div className="pf-cockpit-cell" data-section="positions">
             <PositionsList
@@ -103,7 +102,6 @@ export default async function PortfolioPage() {
           </div>
         </div>
 
-        <h2 className="h2 pf-section-head">Distributions &amp; proof</h2>
         <div className="pf-cockpit-row pf-cockpit-row--trio">
           <div
             className="pf-cockpit-cell pf-payout-calendar-slot"
