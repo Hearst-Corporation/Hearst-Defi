@@ -211,18 +211,24 @@ function checkMemory(
 /* Public API                                                                 */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * True when rate limiting should be skipped (local dev / E2E / explicit opt-out).
+ * Production always enforces limits.
+ */
+export function isRateLimitBypassed(): boolean {
+  if (process.env.NODE_ENV === "production") return false;
+  if (process.env.DISABLE_RATE_LIMIT === "1") return true;
+  if (process.env.E2E_DISABLE_RATE_LIMIT === "1") return true;
+  if (process.env.NODE_ENV === "development") return true;
+  return false;
+}
+
 async function checkRateLimit(
   identifier: string,
   maxRequests: number = DEFAULT_MAX_REQUESTS,
   windowMs: number = DEFAULT_WINDOW_MS,
 ): Promise<RateLimitResult> {
-  // E2E shortcut — hard-gated outside production. Lets Playwright exercise
-  // the real login form repeatedly without saturating the IP/email buckets
-  // (Upstash persists state across spec runs). Refuses in production builds.
-  if (
-    process.env.NODE_ENV !== "production" &&
-    process.env.E2E_DISABLE_RATE_LIMIT === "1"
-  ) {
+  if (isRateLimitBypassed()) {
     return {
       success: true,
       limit: maxRequests,

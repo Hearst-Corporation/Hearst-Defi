@@ -183,16 +183,22 @@ export function createCockpitChatHandler(config: CockpitChatHandlerConfig) {
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
       req.headers.get("x-real-ip") ??
       "unknown";
-    const { limited, retryAfter } = checkRateLimit(
-      rateLimitKey,
-      rateLimitMax,
-      rateLimitWindowMs,
-    );
-    if (limited) {
-      return new Response("Trop de requêtes — réessaie dans quelques instants.", {
-        status: 429,
-        headers: { "Retry-After": String(retryAfter) },
-      });
+    const bypassRateLimit =
+      process.env.NODE_ENV === "development" ||
+      process.env.DISABLE_RATE_LIMIT === "1" ||
+      process.env.E2E_DISABLE_RATE_LIMIT === "1";
+    if (!bypassRateLimit) {
+      const { limited, retryAfter } = checkRateLimit(
+        rateLimitKey,
+        rateLimitMax,
+        rateLimitWindowMs,
+      );
+      if (limited) {
+        return new Response("Trop de requêtes — réessaie dans quelques instants.", {
+          status: 429,
+          headers: { "Retry-After": String(retryAfter) },
+        });
+      }
     }
 
     // Parse + valide body.

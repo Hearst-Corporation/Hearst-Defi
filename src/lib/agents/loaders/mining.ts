@@ -164,56 +164,73 @@ export async function loadLatestMiningMetrics(): Promise<MiningHealthInput> {
  *     posted on or after the window start.
  *
  * Fallback: if the DB has no rows in the window, returns the canned
- * `OPS_FALLBACK` so the PDF still renders during dev / before seeding. Never
- * throws on empty data — only on Prisma transport errors.
+ * `OPS_FALLBACK` so the PDF still renders during dev / before seeding. On
+ * Prisma transport errors (pool timeout, Supabase unreachable), returns the
+ * same flagged fallback instead of crashing the dashboard.
  */
+function liveMarginFromHashprice(hashprice: HashpriceData): number | null {
+  if (hashprice.usd_per_th_day <= 0 || hashprice.stale) return null;
+  return computeMiningRevenue({
+    btc_price_change_pct: 0,
+    hashprice_usd_th_day: hashprice.usd_per_th_day,
+    energy_cost_kwh: ENERGY_COST_USD_PER_KWH,
+    stable_apy_pct: ENGINE_STABLE_APY_PCT,
+    vol_index: ENGINE_VOL_INDEX,
+  }).margin_score;
+}
+
+function miningOpsTransportFallback(hashprice: HashpriceData): MiningOpsSnapshot {
+  const liveMarginScore = liveMarginFromHashprice(hashprice);
+  return {
+    ...OPS_FALLBACK,
+    margin_score: liveMarginScore ?? OPS_FALLBACK.margin_score,
+    hashprice,
+    is_fallback: true,
+  };
+}
+
 export async function loadMiningOpsSnapshot(
   opts: { periodEnd?: Date } = {},
 ): Promise<MiningOpsSnapshot> {
   const periodEnd = opts.periodEnd ?? new Date();
   const periodStart = new Date(periodEnd.getTime() - OPS_WINDOW_DAYS * 24 * 60 * 60 * 1000);
+  const hashprice = await fetchHashprice();
 
-  const [rows, attestationsCount, hashprice] = await Promise.all([
-    prisma.miningMetric.findMany({
-      where: { takenAt: { gte: periodStart, lte: periodEnd } },
-      orderBy: { takenAt: "desc" },
-      select: {
-        deployedHashrate: true,
-        uptimePct: true,
-        miningMarginScore: true,
-      },
-    }),
-    prisma.proof.count({
-      where: {
-        proofType: "mining_attestation",
-        postedAt: { gte: periodStart, lte: periodEnd },
-      },
-    }),
-    // Never throws — fetchHashprice has its own silent fallback.
-    fetchHashprice(),
-  ]);
+  let rows: Array<{
+    deployedHashrate: { toNumber(): number };
+    uptimePct: { toNumber(): number };
+    miningMarginScore: number;
+  }>;
+  let attestationsCount: number;
 
-  // Compute a margin_score from the live hashprice when the upstream
-  // datapoint is fresh. We keep this strictly out of `src/lib/engine/*`
-  // and call the engine here (data-access layer), preserving engine purity.
-  const liveMarginScore =
-    hashprice.usd_per_th_day > 0 && !hashprice.stale
-      ? computeMiningRevenue({
-          btc_price_change_pct: 0,
-          hashprice_usd_th_day: hashprice.usd_per_th_day,
-          energy_cost_kwh: ENERGY_COST_USD_PER_KWH,
-          stable_apy_pct: ENGINE_STABLE_APY_PCT,
-          vol_index: ENGINE_VOL_INDEX,
-        }).margin_score
-      : null;
+  try {
+    [rows, attestationsCount] = await Promise.all([
+      prisma.miningMetric.findMany({
+        where: { takenAt: { gte: periodStart, lte: periodEnd } },
+        orderBy: { takenAt: "desc" },
+        select: {
+          deployedHashrate: true,
+          uptimePct: true,
+          miningMarginScore: true,
+        },
+      }),
+      prisma.proof.count({
+        where: {
+          proofType: "mining_attestation",
+          postedAt: { gte: periodStart, lte: periodEnd },
+        },
+      }),
+    ]);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[mining] loadMiningOpsSnapshot DB unavailable:", message);
+    return miningOpsTransportFallback(hashprice);
+  }
+
+  const liveMarginScore = liveMarginFromHashprice(hashprice);
 
   if (rows.length === 0) {
-    return {
-      ...OPS_FALLBACK,
-      margin_score: liveMarginScore ?? OPS_FALLBACK.margin_score,
-      hashprice,
-      is_fallback: true,
-    };
+    return miningOpsTransportFallback(hashprice);
   }
 
   // Decimal → number at the read boundary before any arithmetic.

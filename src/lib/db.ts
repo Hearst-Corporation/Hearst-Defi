@@ -32,7 +32,27 @@ import { resolvePrismaProvider } from "@/lib/prisma-provider-resolve";
  * Supabase's ~60-connection pool limit. `max: 1` + `idleTimeoutMillis` keeps
  * the footprint serverless-safe while still reusing the connection across
  * multiple requests within the same Lambda execution context.
+ *
+ * Local dev uses a wider pool: admin dashboard fans out ~20 parallel Prisma
+ * queries (Promise.all on loaders). `max: 1` against Supabase pooler causes
+ * `connectionTimeout` burst failures.
  */
+
+function pgPoolSizing(): {
+  max: number;
+  connectionTimeoutMillis: number;
+  idleTimeoutMillis: number;
+} {
+  const isVercel = Boolean(process.env.VERCEL);
+  const isDev = process.env.NODE_ENV === "development";
+  if (isVercel) {
+    return { max: 1, connectionTimeoutMillis: 5_000, idleTimeoutMillis: 10_000 };
+  }
+  if (isDev) {
+    return { max: 8, connectionTimeoutMillis: 15_000, idleTimeoutMillis: 10_000 };
+  }
+  return { max: 4, connectionTimeoutMillis: 10_000, idleTimeoutMillis: 10_000 };
+}
 
 const globalForDb = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -45,13 +65,12 @@ function makeAdapter() {
     process.env.DATABASE_URL?.trim() ?? "file:./prisma/dev.db";
 
   if (provider === "postgresql") {
+    const poolSizing = pgPoolSizing();
     const pool =
       globalForDb.pgPool ??
       new Pool({
         connectionString: databaseUrl,
-        max: 1,
-        idleTimeoutMillis: 10_000,
-        connectionTimeoutMillis: 5_000,
+        ...poolSizing,
       });
     if (!globalForDb.pgPool) {
       globalForDb.pgPool = pool;
