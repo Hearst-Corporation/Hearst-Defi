@@ -41,6 +41,11 @@
   --ct-text-strong:  #ffffff;
   --ct-text-muted:   rgba(245, 245, 245, 0.55);
   --ct-text-faint:   rgba(245, 245, 245, 0.40);
+  /* Hearst Flow DS — exact tokens surfaced by Figma MCP (`File cover`, node 2:1193). */
+  --ct-figma-cover-bg: #1E1E1E;
+  --ct-figma-secondary-lighter: #9eb3a8;
+  --ct-figma-negative: #ffffff;
+  --ct-text-secondary: var(--ct-figma-secondary-lighter);
 
   /* Hiérarchie de titres en vert accent — 3 intensités décroissantes
      (.h1/.h2/.h3). Le body reste blanc ; seuls les titres portent le vert. */
@@ -54,7 +59,7 @@
   --ct-surface-0: #0E0F0F;
   --ct-surface-1: #141416;
   --ct-surface-1-hi: #161719; /* intermediate tier — subtle-bg gradient stop (between surface-1 and -2) */
-  --ct-surface-2: #1c1c1f;
+  --ct-surface-2: var(--ct-figma-cover-bg);
   --ct-surface-3: #242428;
 
   /* Graphite module surfaces — charcoal étagé opaque, léger dégradé pour le

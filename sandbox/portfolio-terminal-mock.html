@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portfolio cockpit — Hearst Connect (HTML mock)</title>
+  <style>
+    :root {
+      --ct-bg-deep: #0e0f0f;
+      --ct-accent: #a7fb90;
+      --ct-surface-2: color-mix(in srgb, #fff 10%, transparent);
+      --ct-surface-3: color-mix(in srgb, #fff 14%, transparent);
+      --ct-text-strong: #fff;
+      --ct-text-muted: color-mix(in srgb, #fff 70%, transparent);
+      --ct-text-faint: color-mix(in srgb, #fff 45%, transparent);
+      --ct-border-soft: color-mix(in srgb, #fff 12%, transparent);
+      --ct-graphite-border: color-mix(in srgb, #fff 18%, transparent);
+      --ct-font-mono: "SF Mono", "Cascadia Code", "JetBrains Mono", ui-monospace, monospace;
+      --ct-font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+      --ct-rail-left: 6.5rem;
+      --ct-rail-right: 22rem;
+      --radius: 0.625rem;
+      --panel-bg: color-mix(in srgb, var(--ct-surface-2) 82%, var(--ct-bg-deep));
+      --panel-border: color-mix(in srgb, var(--ct-graphite-border) 84%, var(--ct-surface-3));
+      --gap: 0.75rem;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100dvh;
+      overflow: hidden;
+      font-family: var(--ct-font-sans);
+      background: var(--ct-bg-deep);
+      color: var(--ct-text-strong);
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    /* ── COCKPIT SHELL (3 colonnes, no scroll) ── */
+    .cockpit {
+      display: flex;
+      height: 100dvh;
+      overflow: hidden;
+      background: var(--ct-bg-deep);
+    }
+
+    .rail-left {
+      flex: 0 0 var(--ct-rail-left);
+      border-right: 1px solid var(--ct-border-soft);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 0.5rem;
+      gap: 1.25rem;
+    }
+
+    .rail-logo {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--ct-border-soft);
+      display: grid;
+      place-items: center;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: var(--ct-accent);
+    }
+
+    .rail-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .rail-btn {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--ct-text-faint);
+      font-size: 0.55rem;
+      display: grid;
+      place-items: center;
+      cursor: default;
+    }
+
+    .rail-btn--active {
+      background: color-mix(in srgb, var(--ct-accent) 12%, transparent);
+      border-color: color-mix(in srgb, var(--ct-accent) 22%, transparent);
+      color: var(--ct-accent);
+    }
+
+    .center {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0.875rem 1rem 1rem;
+    }
+
+    .rail-right {
+      flex: 0 0 var(--ct-rail-right);
+      border-left: 1px solid var(--ct-border-soft);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--ct-surface-2) 40%, var(--ct-bg-deep));
+    }
+
+    .chat-head {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--ct-border-soft);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ct-text-muted);
+    }
+
+    .chat-body {
+      flex: 1;
+      padding: 1rem;
+      font-size: 0.75rem;
+      color: var(--ct-text-faint);
+    }
+
+    /* ── PORTFOLIO BENTO (pf-container--fit) ── */
+    .pf {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      overflow: hidden;
+    }
+
+    .pf-greeting {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      min-width: 0;
+    }
+
+    .pf-greeting h1 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pf-greeting h1 span { color: var(--ct-text-muted); font-weight: 500; }
+
+    .ticker-inline {
+      display: flex;
+      gap: 1.25rem;
+      flex-shrink: 0;
+      font-family: var(--ct-font-mono);
+      font-size: 0.68rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ticker-inline dt {
+      font-family: var(--ct-font-sans);
+      font-size: 0.55rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ct-text-faint);
+      margin-bottom: 1px;
+    }
+
+    .ticker-inline dd { color: var(--ct-text-strong); margin: 0; }
+    .ticker-inline dd.accent { color: var(--ct-accent); }
+
+    .pf-cockpit {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      overflow: hidden;
+    }
+
+    .pf-row {
+      min-height: 0;
+      min-width: 0;
+      display: grid;
+      gap: var(--gap);
+      overflow: hidden;
+    }
+
+    .pf-row--summary { flex: 1.85 1 0; grid-template-columns: 1.6fr 1fr; }
+    .pf-row--mid     { flex: 1 1 0; grid-template-columns: 1.6fr 1fr; }
+    .pf-row--trio    { flex: 0.9 1 0; grid-template-columns: repeat(3, 1fr); }
+
+    .cell {
+      min-height: 0;
+      min-width: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel {
+      flex: 1 1 auto;
+      min-height: 0;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      flex: 0 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.625rem 0.35rem;
+      gap: 0.5rem;
+    }
+
+    .panel-title {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ct-accent);
+    }
+
+    .panel-val {
+      font-family: var(--ct-font-mono);
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--ct-accent);
+    }
+
+    .panel-link {
+      font-size: 0.58rem;
+      color: var(--ct-text-faint);
+      text-decoration: none;
+    }
+
+    .panel-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: 0 0.625rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Hero chart — flat instrument, no glow */
+    .chart-wrap {
+      flex: 1 1 auto;
+      min-height: 0;
+      position: relative;
+    }
+
+    .chart-wrap svg { width: 100%; height: 100%; display: block; }
+
+    .chart-months {
+      flex: 0 0 auto;
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--ct-font-mono);
+      font-size: 0.55rem;
+      color: var(--ct-text-faint);
+      padding-top: 2px;
+    }
+
+    /* Radial cluster — compact horizontal in sidebar */
+    .rings {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.35rem;
+      padding: 0.5rem 0.625rem;
+    }
+
+    .ring-row {
+      display: grid;
+      grid-template-columns: 2.75rem 1fr;
+      gap: 0.5rem;
+      align-items: center;
+      min-height: 0;
+    }
+
+    .ring-svg { width: 2.75rem; height: 2.75rem; }
+
+    .ring-lbl {
+      font-size: 0.55rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ct-accent);
+    }
+
+    .ring-kpi {
+      font-family: var(--ct-font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ring-meta { font-size: 0.58rem; color: var(--ct-text-muted); }
+
+    /* Capital yield — compact */
+    .cy-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 4.5rem 1px 1fr;
+      gap: 0.5rem;
+      align-items: center;
+      padding: 0 0.625rem 0.5rem;
+    }
+
+    .cy-spine { background: var(--ct-border-soft); }
+
+    .donut-wrap {
+      position: relative;
+      width: 4.5rem;
+      height: 4.5rem;
+    }
+
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .donut-val {
+      font-family: var(--ct-font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: var(--ct-accent);
+    }
+
+    .donut-lbl { font-size: 0.5rem; color: var(--ct-text-faint); text-transform: uppercase; }
+
+    .ledger { min-width: 0; overflow: hidden; }
+
+    .ledger-row {
+      display: grid;
+      grid-template-columns: 4px 1fr auto;
+      gap: 0.35rem 0.5rem;
+      align-items: center;
+      padding: 0.15rem 0;
+    }
+
+    .ledger-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--dot, var(--ct-accent)); }
+
+    .ledger-label { font-size: 0.62rem; color: var(--ct-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .ledger-val {
+      font-family: var(--ct-font-mono);
+      font-size: 0.62rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ledger-track {
+      grid-column: 2 / -1;
+      height: 2px;
+      background: var(--ct-border-soft);
+    }
+
+    .ledger-fill {
+      height: 100%;
+      background: var(--dot, var(--ct-accent));
+    }
+
+    /* Positions — dense table */
+    .pos-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.68rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pos-table th {
+      text-align: left;
+      font-size: 0.52rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ct-text-faint);
+      padding: 0.2rem 0.4rem 0.2rem 0;
+      border-bottom: 1px solid var(--ct-border-soft);
+      font-weight: 500;
+    }
+
+    .pos-table td {
+      padding: 0.3rem 0.4rem 0.3rem 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent);
+    }
+
+    .pos-table td:last-child, .pos-table th:last-child { text-align: right; }
+
+    .status-dot {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--ct-accent);
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    .apy { font-family: var(--ct-font-mono); font-size: 0.62rem; color: var(--ct-accent); }
+
+    .pos-arc { width: 22px; height: 22px; vertical-align: middle; }
+
+    /* Histogram — fills cell */
+    .hist { flex: 1 1 auto; min-height: 0; }
+    .hist svg { width: 100%; height: 100%; display: block; }
+
+    /* Activity list */
+    .act-list { list-style: none; overflow: hidden; }
+    .act-item {
+      display: grid;
+      grid-template-columns: 1rem 1fr auto;
+      gap: 0.35rem;
+      padding: 0.28rem 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 40%, transparent);
+      font-size: 0.65rem;
+    }
+
+    .act-glyph { font-family: var(--ct-font-mono); color: var(--ct-text-faint); text-align: center; }
+    .act-amt { font-family: var(--ct-font-mono); font-variant-numeric: tabular-nums; }
+
+    /* Trust compact */
+    .trust-grid {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 4.5rem 1fr;
+      gap: 0.5rem;
+      padding: 0 0.625rem 0.5rem;
+      align-items: center;
+    }
+
+    .trust-kpis { display: flex; flex-direction: column; gap: 0.35rem; }
+
+    .trust-kpi dt {
+      font-size: 0.52rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ct-text-faint);
+    }
+
+    .trust-kpi dd {
+      font-family: var(--ct-font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .trust-kpi dd.meta { font-family: var(--ct-font-sans); font-size: 0.58rem; font-weight: 400; color: var(--ct-text-muted); }
+
+    .mock-tag {
+      position: fixed;
+      bottom: 6px;
+      left: 6px;
+      z-index: 50;
+      font-size: 0.5rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ct-text-faint);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="mock-tag">HTML mock · 100dvh no-scroll · no glow</div>
+
+  <div class="cockpit">
+    <!-- Rail gauche -->
+    <nav class="rail-left" aria-label="Product navigation">
+      <div class="rail-logo">H</div>
+      <div class="rail-nav">
+        <div class="rail-btn rail-btn--active" title="Portfolio">◫</div>
+        <div class="rail-btn" title="Vaults">◇</div>
+        <div class="rail-btn" title="Proof">◎</div>
+        <div class="rail-btn" title="Profile">○</div>
+      </div>
+    </nav>
+
+    <!-- Centre — portfolio cockpit -->
+    <main class="center" aria-label="Portfolio">
+      <div class="pf">
+        <header class="pf-greeting">
+          <h1>Welcome back, <span>Adrien</span></h1>
+          <dl class="ticker-inline">
+            <div><dt>Value</dt><dd class="accent">$2.48M</dd></div>
+            <div><dt>YTD</dt><dd>$186K</dd></div>
+            <div><dt>Next</dt><dd>Jul 1 · 14d</dd></div>
+            <div><dt>Fwd APY</dt><dd class="accent">9.4–12.8%</dd></div>
+          </dl>
+        </header>
+
+        <div class="pf-cockpit">
+          <!-- ROW 1 — summary -->
+          <div class="pf-row pf-row--summary">
+            <div class="cell">
+              <section class="panel" aria-label="Portfolio value">
+                <div class="panel-head">
+                  <span class="panel-title">Portfolio value</span>
+                  <span class="panel-val">$2,480,000</span>
+                </div>
+                <div class="panel-body">
+                  <div class="chart-wrap">
+                    <svg viewBox="0 0 400 80" preserveAspectRatio="none" role="img" aria-label="NAV 12 months">
+                      <line x1="0" y1="20" x2="400" y2="20" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                      <line x1="0" y1="40" x2="400" y2="40" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                      <line x1="0" y1="60" x2="400" y2="60" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                      <path d="M0,62 C50,60 100,52 150,44 S250,28 350,18 L400,14 L400,80 L0,80 Z" fill="color-mix(in srgb, #a7fb90 14%, transparent)"/>
+                      <path d="M0,62 C50,60 100,52 150,44 S250,28 350,18 L400,14" fill="none" stroke="#a7fb90" stroke-width="1" stroke-linecap="round"/>
+                      <circle cx="67" cy="56" r="2" fill="none" stroke="#a7fb90" stroke-width="0.75" opacity="0.65"/>
+                      <circle cx="133" cy="46" r="2" fill="none" stroke="#a7fb90" stroke-width="0.75" opacity="0.65"/>
+                      <circle cx="200" cy="36" r="2" fill="none" stroke="#a7fb90" stroke-width="0.75" opacity="0.65"/>
+                      <circle cx="267" cy="26" r="2" fill="none" stroke="#a7fb90" stroke-width="0.75" opacity="0.65"/>
+                      <circle cx="334" cy="18" r="2" fill="none" stroke="#a7fb90" stroke-width="0.75" opacity="0.65"/>
+                      <circle cx="400" cy="14" r="2.5" fill="#a7fb90"/>
+                    </svg>
+                  </div>
+                  <div class="chart-months"><span>Jan</span><span>Apr</span><span>Jul</span><span>Oct</span><span>Jun</span></div>
+                </div>
+              </section>
+            </div>
+            <div class="cell">
+              <section class="panel rings" aria-label="Cycle instruments">
+                <div class="ring-row">
+                  <svg class="ring-svg" viewBox="0 0 42 42">
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2.2"/>
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="#a7fb90" stroke-width="2.2"
+                      stroke-dasharray="68 32" stroke-dashoffset="25" stroke-linecap="round" transform="rotate(-90 21 21)"/>
+                    <text x="21" y="22.5" text-anchor="middle" fill="#a7fb90" font-size="6.5" font-family="monospace">68%</text>
+                  </svg>
+                  <div>
+                    <div class="ring-lbl">Payout</div>
+                    <div class="ring-kpi">$18,420</div>
+                    <div class="ring-meta">Day 20/30</div>
+                  </div>
+                </div>
+                <div class="ring-row">
+                  <svg class="ring-svg" viewBox="0 0 42 42">
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2.2"/>
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="color-mix(in srgb,#a7fb90 65%,#666)" stroke-width="2.2"
+                      stroke-dasharray="42 58" stroke-dashoffset="25" stroke-linecap="round" transform="rotate(-90 21 21)"/>
+                    <text x="21" y="22.5" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="6" font-family="monospace">35d</text>
+                  </svg>
+                  <div>
+                    <div class="ring-lbl">Lock</div>
+                    <div class="ring-kpi">35d left</div>
+                    <div class="ring-meta">Unlock Aug 12</div>
+                  </div>
+                </div>
+                <div class="ring-row">
+                  <svg class="ring-svg" viewBox="0 0 42 42">
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2.2"/>
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="#a7fb90" stroke-width="2.2"
+                      stroke-dasharray="58 42" stroke-dashoffset="25" stroke-linecap="round" transform="rotate(-90 21 21)"/>
+                    <text x="21" y="22.5" text-anchor="middle" fill="#a7fb90" font-size="6" font-family="monospace">58%</text>
+                  </svg>
+                  <div>
+                    <div class="ring-lbl">Mining</div>
+                    <div class="ring-kpi">$1.44M</div>
+                    <div class="ring-meta">Dominant bucket</div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <!-- ROW 2 — mid -->
+          <div class="pf-row pf-row--mid">
+            <div class="cell">
+              <section class="panel" aria-label="Positions">
+                <div class="panel-head">
+                  <span class="panel-title">Open positions</span>
+                  <a class="panel-link" href="#">View →</a>
+                </div>
+                <div class="panel-body" style="overflow:auto">
+                  <table class="pos-table">
+                    <thead><tr><th>Vault</th><th>Principal</th><th>Value</th><th>APY</th><th></th></tr></thead>
+                    <tbody>
+                      <tr>
+                        <td><span class="status-dot"></span>Hearst Yield</td>
+                        <td>$2.1M</td>
+                        <td style="color:var(--ct-accent)">$2.38M</td>
+                        <td class="apy">9.4–12.8%</td>
+                        <td><svg class="pos-arc" viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2.5"/><circle cx="18" cy="18" r="14" fill="none" stroke="#a7fb90" stroke-width="2.5" stroke-dasharray="55 45" stroke-dashoffset="25" transform="rotate(-90 18 18)"/></svg></td>
+                      </tr>
+                      <tr>
+                        <td><span class="status-dot"></span>BTC Plus</td>
+                        <td>$80K</td>
+                        <td style="color:var(--ct-accent)">$100K</td>
+                        <td class="apy">8.2–11.1%</td>
+                        <td><svg class="pos-arc" viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2.5"/><circle cx="18" cy="18" r="14" fill="none" stroke="#a7fb90" stroke-width="2.5" stroke-dasharray="72 28" stroke-dashoffset="25" transform="rotate(-90 18 18)"/></svg></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+            <div class="cell">
+              <section class="panel" aria-label="Capital and yield">
+                <div class="panel-head">
+                  <span class="panel-title">Capital &amp; yield</span>
+                  <a class="panel-link" href="#">View →</a>
+                </div>
+                <div class="cy-body">
+                  <div class="donut-wrap">
+                    <svg viewBox="0 0 42 42" style="width:100%;height:100%;transform:rotate(-90deg)">
+                      <circle cx="21" cy="21" r="15.9" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2.8"/>
+                      <circle cx="21" cy="21" r="15.9" fill="none" stroke="#a7fb90" stroke-width="2.8" stroke-dasharray="58 42"/>
+                      <circle cx="21" cy="21" r="15.9" fill="none" stroke="color-mix(in srgb,#a7fb90 70%,#666)" stroke-width="2.8" stroke-dasharray="22 78" stroke-dashoffset="-58"/>
+                      <circle cx="21" cy="21" r="15.9" fill="none" stroke="color-mix(in srgb,#a7fb90 45%,#666)" stroke-width="2.8" stroke-dasharray="12 88" stroke-dashoffset="-80"/>
+                      <circle cx="21" cy="21" r="15.9" fill="none" stroke="color-mix(in srgb,#a7fb90 30%,#666)" stroke-width="2.8" stroke-dasharray="8 92" stroke-dashoffset="-92"/>
+                    </svg>
+                    <div class="donut-center"><span class="donut-val">$2.48M</span><span class="donut-lbl">Cap</span></div>
+                  </div>
+                  <div class="cy-spine"></div>
+                  <div class="ledger">
+                    <div class="ledger-row" style="--dot:#a7fb90"><span class="ledger-dot"></span><span class="ledger-label">Mining</span><span class="ledger-val">+4.2%</span><div class="ledger-track"><div class="ledger-fill" style="width:88%"></div></div></div>
+                    <div class="ledger-row" style="--dot:color-mix(in srgb,#a7fb90 70%,#888)"><span class="ledger-dot"></span><span class="ledger-label">USDC</span><span class="ledger-val">+1.8%</span><div class="ledger-track"><div class="ledger-fill" style="width:42%"></div></div></div>
+                    <div class="ledger-row" style="--dot:color-mix(in srgb,#a7fb90 50%,#888)"><span class="ledger-dot"></span><span class="ledger-label">BTC tact.</span><span class="ledger-val">+0.9%</span><div class="ledger-track"><div class="ledger-fill" style="width:24%"></div></div></div>
+                    <div class="ledger-row" style="--dot:color-mix(in srgb,#a7fb90 32%,#888)"><span class="ledger-dot"></span><span class="ledger-label">Reserve</span><span class="ledger-val">+0.4%</span><div class="ledger-track"><div class="ledger-fill" style="width:12%"></div></div></div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <!-- ROW 3 — trio -->
+          <div class="pf-row pf-row--trio">
+            <div class="cell">
+              <section class="panel" aria-label="Payout calendar">
+                <div class="panel-head">
+                  <span class="panel-title">Payout calendar</span>
+                  <a class="panel-link" href="#">View →</a>
+                </div>
+                <div class="panel-body hist">
+                  <svg viewBox="0 0 400 70" preserveAspectRatio="none">
+                    <rect x="8" y="38" width="22" height="24" fill="#a7fb90" opacity="0.45" rx="0.5"/>
+                    <rect x="36" y="32" width="22" height="30" fill="#a7fb90" opacity="0.5" rx="0.5"/>
+                    <rect x="64" y="28" width="22" height="34" fill="#a7fb90" opacity="0.55" rx="0.5"/>
+                    <rect x="92" y="24" width="22" height="38" fill="#a7fb90" opacity="0.6" rx="0.5"/>
+                    <rect x="120" y="22" width="22" height="40" fill="#a7fb90" opacity="0.65" rx="0.5"/>
+                    <rect x="148" y="20" width="22" height="42" fill="#a7fb90" opacity="0.7" rx="0.5"/>
+                    <rect x="176" y="18" width="22" height="44" fill="#a7fb90" opacity="0.75" rx="0.5"/>
+                    <rect x="204" y="16" width="22" height="46" fill="#a7fb90" opacity="0.8" rx="0.5"/>
+                    <rect x="232" y="14" width="22" height="48" fill="#a7fb90" opacity="0.85" rx="0.5"/>
+                    <rect x="260" y="12" width="22" height="50" fill="#a7fb90" opacity="0.9" rx="0.5"/>
+                    <rect x="288" y="10" width="22" height="52" fill="#a7fb90" rx="0.5"/>
+                    <rect x="316" y="8" width="22" height="54" fill="#a7fb90" rx="0.5"/>
+                    <rect x="344" y="26" width="22" height="36" fill="none" stroke="#a7fb90" stroke-width="0.75" stroke-dasharray="2 2" opacity="0.7"/>
+                  </svg>
+                </div>
+              </section>
+            </div>
+            <div class="cell">
+              <section class="panel" aria-label="Recent activity">
+                <div class="panel-head">
+                  <span class="panel-title">Activity</span>
+                  <a class="panel-link" href="#">View →</a>
+                </div>
+                <div class="panel-body">
+                  <ul class="act-list">
+                    <li class="act-item"><span class="act-glyph">▲</span><span>Deposit · Hearst Yield · 2d</span><span class="act-amt">+$250K</span></li>
+                    <li class="act-item"><span class="act-glyph">▲</span><span>Payout · Hearst Yield · 12d</span><span class="act-amt">+$18.4K</span></li>
+                    <li class="act-item"><span class="act-glyph">▲</span><span>Claim · BTC Plus · 18d</span><span class="act-amt">+$2.1K</span></li>
+                    <li class="act-item"><span class="act-glyph">▼</span><span>Withdraw · Hearst Yield · 24d</span><span class="act-amt">−$50K</span></li>
+                  </ul>
+                </div>
+              </section>
+            </div>
+            <div class="cell">
+              <section class="panel" aria-label="Trust and proof">
+                <div class="panel-head">
+                  <span class="panel-title">Trust &amp; proof</span>
+                  <a class="panel-link" href="#">Proof →</a>
+                </div>
+                <div class="trust-grid">
+                  <svg viewBox="0 0 48 48" style="width:4.5rem;height:4.5rem">
+                    <circle cx="24" cy="24" r="19" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2.5"/>
+                    <circle cx="24" cy="24" r="19" fill="none" stroke="#a7fb90" stroke-width="2.5" stroke-dasharray="98 2" stroke-dashoffset="12" transform="rotate(-90 24 24)" opacity="0.45"/>
+                    <circle cx="24" cy="24" r="13" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2.5"/>
+                    <circle cx="24" cy="24" r="13" fill="none" stroke="#a7fb90" stroke-width="2.5" stroke-dasharray="97 3" stroke-dashoffset="12" transform="rotate(-90 24 24)"/>
+                  </svg>
+                  <dl class="trust-kpis">
+                    <div class="trust-kpi"><dt>Risk</dt><dd style="color:var(--ct-accent)">38</dd><dd class="meta">Low–Moderate</dd></div>
+                    <div class="trust-kpi"><dt>Proof</dt><dd style="color:var(--ct-accent)">Verified</dd><dd class="meta">Δ 0.12%</dd></div>
+                  </dl>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Rail chat -->
+    <aside class="rail-right" aria-label="Cockpit chat">
+      <div class="chat-head">Master agent</div>
+      <div class="chat-body">Chat rail · 352px · read-only navigation</div>
+    </aside>
+  </div>
+</body>
+</html>

@@ -804,7 +804,21 @@
 
 /* Page headers — shared vertical rhythm */
 :is(.admin-doc, .product-doc) :is(.admin-page-header, .product-page-header) {
+  display: flex;
+  flex-direction: column;
   gap: var(--ct-doc-flow-inner-gap);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-page-header__row, .product-page-header__row) {
+  gap: var(--ct-space-4);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-page-header__main, .product-page-header__main) {
+  min-width: 0;
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-page-header__actions, .product-page-header__actions) {
+  gap: var(--ct-space-2);
 }
 
 :is(.admin-doc, .product-doc) .product-page-header__title-stack {

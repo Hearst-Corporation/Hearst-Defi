@@ -43,6 +43,7 @@ const PUBLIC_PREFIXES = [
   "/reset-password",
   "/totp-challenge",
   "/legal",
+  "/sandbox",        // isolated UI lab (no shell, no gate) — dev playground
   "/api",            // webhooks + API routes (auth handled per-route)
 ] as const;
 

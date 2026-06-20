@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portfolio Lab — sandbox isolé (couleurs uniquement)</title>
+  <style>
+    /* ════════════════════════════════════════════════════════════════
+       SANDBOX ISOLÉ — AUCUNE RÈGLE, AUCUN DESIGN SYSTEM.
+       Seules les COULEURS de référence sont importées ci-dessous.
+       Tout le reste est libre : layout, spacing, typo, composants.
+       Itère le portfolio dans la zone CANVAS sans contrainte.
+       ════════════════════════════════════════════════════════════════ */
+    :root {
+      /* — fond / surfaces — */
+      --bg-deep:     #0e0f0f;
+      --surface-0:   #141416;
+      --surface-1:   #1c1c1f;
+      --surface-2:   #242428;
+      --surface-3:   #2c2c30;
+
+      /* — accent (UN SEUL VERT) — */
+      --accent:        #a7fb90;
+      --accent-strong: color-mix(in srgb, var(--accent) 78%, #ffffff);
+      --accent-soft:   color-mix(in srgb, var(--accent) 18%, transparent);
+      --accent-ambient:color-mix(in srgb, var(--accent) 70%, #000000);
+      --on-accent:     #06140a;
+
+      /* — texte — */
+      --text-strong:  #ffffff;
+      --text-primary: rgba(245,245,245,0.92);
+      --text-body:    rgba(245,245,245,0.72);
+      --text-muted:   rgba(245,245,245,0.48);
+      --text-faint:   rgba(245,245,245,0.40);
+
+      /* — bordures — */
+      --border-soft:   rgba(255,255,255,0.06);
+      --border:        rgba(255,255,255,0.10);
+      --border-strong: rgba(255,255,255,0.16);
+      --border-accent: color-mix(in srgb, var(--accent) 55%, transparent);
+
+      /* — status (couleurs seulement) — */
+      --warning: #fbbf24;
+      --danger:  #f87171;
+      --info:    #60a5fa;
+
+      /* — fontes (référence, libre de changer) — */
+      --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100dvh;
+      background: var(--bg-deep);
+      color: var(--text-strong);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Bande de référence palette (en haut, repère visuel) ── */
+    .palette {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 16px;
+      background: color-mix(in srgb, var(--bg-deep) 85%, #000);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+    }
+    .swatch {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font: 11px/1 var(--font-mono);
+      color: var(--text-muted);
+    }
+    .swatch i {
+      width: 16px; height: 16px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      display: inline-block;
+    }
+
+    /* ════════════════════════════════════════════════════════════════
+       CANVAS — zone de travail libre. Construis le portfolio ici.
+       ════════════════════════════════════════════════════════════════ */
+    .canvas {
+      padding: 24px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Référence palette — repère, supprimable -->
+  <div class="palette">
+    <span class="swatch"><i style="background:var(--bg-deep)"></i>bg-deep</span>
+    <span class="swatch"><i style="background:var(--surface-0)"></i>surface-0</span>
+    <span class="swatch"><i style="background:var(--surface-1)"></i>surface-1</span>
+    <span class="swatch"><i style="background:var(--surface-2)"></i>surface-2</span>
+    <span class="swatch"><i style="background:var(--accent)"></i>accent</span>
+    <span class="swatch"><i style="background:var(--accent-strong)"></i>accent-strong</span>
+    <span class="swatch"><i style="background:var(--warning)"></i>warning</span>
+    <span class="swatch"><i style="background:var(--danger)"></i>danger</span>
+    <span class="swatch"><i style="background:var(--info)"></i>info</span>
+  </div>
+
+  <!-- ════════ CANVAS LIBRE — itère le portfolio ici ════════ -->
+  <main class="canvas">
+    <!-- vide : tout est à construire, sans contrainte -->
+  </main>
+</body>
+</html>
