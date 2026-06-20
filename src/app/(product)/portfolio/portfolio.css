@@ -1579,9 +1579,9 @@
    The flat ghost line + month labels + disclaimer fit a short ~12rem panel;
    the plot/wrapper are pinned to a fixed short height below (no flex stretch). */
 .pf-container--zero .pf-main-chart-wrapper .pf-cockpit-panel.pf-value-chart {
-  /* chart-geometry */
-  min-height: 15rem;
-  --pf-chart-flex-min: 8rem;
+  /* chart-geometry — réduit (Adrien 2026-06-20 : "trop grand"). 15→11rem. */
+  min-height: 11rem;
+  --pf-chart-flex-min: 5rem;
 }
 
 /* Zero-state: stop the plot + chart-wrapper from stretching to fill the card.
@@ -1594,11 +1594,11 @@
 
 .pf-container--zero .pf-value-chart__chart-wrapper {
   flex: 0 0 auto;
-  /* chart-geometry — ghost-line plot given real height so the curve breathes
-     (was 4rem = crushed). Taller strip, still a calm placeholder. */
+  /* chart-geometry — ghost-line plot, calm placeholder. 8→5rem (Adrien
+     2026-06-20 : panneau trop grand), reste lisible sans écraser la courbe. */
   aspect-ratio: auto;
   min-height: 0;
-  height: 8rem;
+  height: 5rem;
 }
 
 /* Zero-state: the welded chart panel's own flex-min backstop (l.1628-1631) must

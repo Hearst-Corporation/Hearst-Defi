@@ -132,7 +132,7 @@
 | `src/components/portfolio/position-kpis.tsx` | PositionKpis | 1 |
 | `src/components/portfolio/position-transactions.tsx` | PositionTransactions | 1 |
 | `src/components/portfolio/positions-list.tsx` | PositionsList | 3 |
-| `src/components/portfolio/proof-pulse.tsx` | ProofPulse | 4 |
+| `src/components/portfolio/proof-pulse.tsx` | ProofPulse | 3 |
 | `src/components/portfolio/recent-activity.tsx` | RecentActivity | 3 |
 | `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 3 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 3 |
@@ -181,7 +181,7 @@
 | `src/components/scenario/single-mode.tsx` | SingleMode | 1 |
 | `src/components/simulation/simulation-panel.tsx` | SimulationPanel | 1 |
 | `src/components/ui/apy-range.tsx` | ApyRange | 16 |
-| `src/components/ui/badge.tsx` | Badge | 53 |
+| `src/components/ui/badge.tsx` | Badge | 52 |
 | `src/components/ui/button.tsx` | Button | 81 |
 | `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 76 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |

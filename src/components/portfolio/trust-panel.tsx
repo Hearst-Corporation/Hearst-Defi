@@ -83,7 +83,15 @@ export function deriveTrustSummaryKpis({
   let proofMeta = "Awaiting attestation";
   let proofValueClass = "ct-text-faint";
 
-  if (proofResolved === "matched" || proofResolved === "attested") {
+  if (compositeUnavailable) {
+    // Zero-state (no position, no risk snapshot) — keep Proof neutral and in the
+    // SAME register as Risk composite ("—" / awaiting). A warning "Pending"
+    // orange here would suggest an in-flight on-chain confirmation that doesn't
+    // exist when there's nothing to prove yet.
+    proofValue = "—";
+    proofMeta = "Awaiting first position";
+    proofValueClass = "ct-text-faint";
+  } else if (proofResolved === "matched" || proofResolved === "attested") {
     proofValue = "Verified";
     proofMeta = proofHasData ? `Delta ${deltaPct.toFixed(2)}%` : "On-chain match";
     proofValueClass = "ct-status-success";
