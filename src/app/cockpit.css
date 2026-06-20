@@ -26,11 +26,6 @@
   /* Dérivés d'accent — dérivés du vert canonique. */
   --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 82%, #ffffff);
   --ct-border-accent: color-mix(in srgb, var(--ct-accent) 28%, transparent);
-  --ct-border-ghost: color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
-
-  /* Liseré clair pour le chrome sombre. Relief subtil sur les rails/header/
-     surfaces charcoal (esprit Hearst Flow), sans alourdir. */
-  --ct-border-on-dark: color-mix(in srgb, var(--ct-text-strong) 10%, transparent);
 
   /* Texte DANS les cards noires → corps blanc, lisible.
      La hiérarchie de titres (H1/H2/H3 verts) est portée par les classes
@@ -44,8 +39,28 @@
   /* Hearst Flow DS — exact tokens surfaced by Figma MCP (`File cover`, node 2:1193). */
   --ct-figma-cover-bg: #1E1E1E;
   --ct-figma-secondary-lighter: #9eb3a8;
+  --ct-figma-secondary-darker: #7e8f86;
+  --ct-figma-neutral: #747575;
   --ct-figma-negative: #ffffff;
+  --ct-figma-accent-light: #cffdc2;
+  --ct-figma-border-5: #ffffff0d;
+  --ct-figma-border-10: #ffffff1a;
+  --ct-figma-border-20: #ffffff33;
+  --ct-figma-status-warning: #f9a03f;
+  --ct-figma-status-danger: #ba3f1d;
   --ct-text-secondary: var(--ct-figma-secondary-lighter);
+  --ct-text-tertiary: var(--ct-figma-secondary-darker);
+  --ct-text-neutral: var(--ct-figma-neutral);
+  --ct-accent-light: var(--ct-figma-accent-light);
+  /* Chart area wash — Figma accent gradient (charts only, not shell ambient). */
+  --ct-figma-accent-area-top: color-mix(in srgb, var(--ct-accent) 60%, transparent);
+  --ct-figma-accent-area-bottom: color-mix(in srgb, var(--ct-accent) 0%, transparent);
+  /* Chrome sombre — overlays blancs Figma (remplace les color-mix approximatifs). */
+  --ct-border-soft: var(--ct-figma-border-5);
+  --ct-border: var(--ct-figma-border-10);
+  --ct-border-strong: var(--ct-figma-border-20);
+  --ct-border-on-dark: var(--ct-figma-border-10);
+  --ct-border-ghost: var(--ct-figma-border-5);
 
   /* Hiérarchie de titres en vert accent — 3 intensités décroissantes
      (.h1/.h2/.h3). Le body reste blanc ; seuls les titres portent le vert. */
@@ -81,12 +96,12 @@
     var(--ct-surface-3) 0%,
     var(--ct-surface-2) 100%
   );
-  --ct-graphite-border: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-border-soft));
-  --ct-graphite-border-nested: color-mix(in srgb, var(--ct-text-strong) 4%, var(--ct-border-soft));
+  --ct-graphite-border: var(--ct-figma-border-20);
+  --ct-graphite-border-nested: var(--ct-figma-border-10);
   --ct-graphite-blur: blur(22px);
   /* Inner top highlight — machined glass bevel (ADR-013; no outer drop shadow). */
-  --ct-glass-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.10);
-  --ct-glass-bevel-hover: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --ct-glass-bevel: inset 0 1px 0 var(--ct-figma-border-10);
+  --ct-glass-bevel-hover: inset 0 1px 0 var(--ct-figma-border-20);
 
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
      Success/live/positive = the single brand green. The semantic token NAME
@@ -99,15 +114,15 @@
   --ct-status-success-border: color-mix(in srgb, var(--ct-status-success) 20%, transparent);
   --ct-status-success-glow: color-mix(in srgb, var(--ct-status-success) 50%, transparent);
 
-  --ct-status-warning: #fbbf24;
-  --ct-status-warning-soft: rgba(251, 191, 36, 0.10);
-  --ct-status-warning-border: rgba(251, 191, 36, 0.20);
-  --ct-status-warning-glow: rgba(251, 191, 36, 0.50);
+  --ct-status-warning: var(--ct-figma-status-warning);
+  --ct-status-warning-soft: color-mix(in srgb, var(--ct-figma-status-warning) 10%, transparent);
+  --ct-status-warning-border: color-mix(in srgb, var(--ct-figma-status-warning) 20%, transparent);
+  --ct-status-warning-glow: color-mix(in srgb, var(--ct-figma-status-warning) 50%, transparent);
 
-  --ct-status-danger: #f87171;
-  --ct-status-danger-soft: rgba(248, 113, 113, 0.10);
-  --ct-status-danger-border: rgba(248, 113, 113, 0.20);
-  --ct-status-danger-glow: rgba(248, 113, 113, 0.50);
+  --ct-status-danger: var(--ct-figma-status-danger);
+  --ct-status-danger-soft: color-mix(in srgb, var(--ct-figma-status-danger) 10%, transparent);
+  --ct-status-danger-border: color-mix(in srgb, var(--ct-figma-status-danger) 20%, transparent);
+  --ct-status-danger-glow: color-mix(in srgb, var(--ct-figma-status-danger) 50%, transparent);
 
   --ct-status-info: #60a5fa;
   --ct-status-info-soft: rgba(96, 165, 250, 0.10);
@@ -405,9 +420,12 @@
 /* ── HELPERS texte/surface (utilitaires Cockpit pour purge tokens) ── */
 .ct-text-primary { color: var(--ct-text-primary); }
 .ct-text-body    { color: var(--ct-text-body); }
-.ct-text-muted   { color: var(--ct-text-muted); }
-.ct-text-faint   { color: var(--ct-text-faint); }
-.ct-text-strong  { color: var(--ct-text-strong); }
+.ct-text-muted     { color: var(--ct-text-muted); }
+.ct-text-faint     { color: var(--ct-text-faint); }
+.ct-text-secondary { color: var(--ct-text-secondary); }
+.ct-text-tertiary  { color: var(--ct-text-tertiary); }
+.ct-text-neutral   { color: var(--ct-text-neutral); }
+.ct-text-strong    { color: var(--ct-text-strong); }
 .ct-text-accent  { color: var(--ct-accent); }
 .ct-text-accent-strong { color: var(--ct-accent-strong); }
 
@@ -5210,7 +5228,7 @@ button.ct-choice-card {
   display: inline-block;
   width: 0.65em;
   height: 0.5em;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 3'%3E%3Cpath d='M0 3 Q1.5 0 3 3 Q4.5 6 6 3' stroke='%23f87171' stroke-width='1' fill='none'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 3'%3E%3Cpath d='M0 3 Q1.5 0 3 3 Q4.5 6 6 3' stroke='%23ba3f1d' stroke-width='1' fill='none'/%3E%3C/svg%3E");
   background-repeat: repeat-x;
   background-size: 6px 3px;
 }

@@ -62,6 +62,24 @@
       "reason": "Intentional readability lift — 0.48 fails WCAG AA on #000000. Raised to 0.70."
     },
     {
+      "token": "--ct-border-soft",
+      "pkgValue": "rgba(255,255,255,0.06)",
+      "cockpitValue": "var(--ct-figma-border-5)",
+      "reason": "Hearst Flow Figma white overlay #FFFFFF0D — replaces approximate rgba mix."
+    },
+    {
+      "token": "--ct-border",
+      "pkgValue": "rgba(255,255,255,0.10)",
+      "cockpitValue": "var(--ct-figma-border-10)",
+      "reason": "Hearst Flow Figma white overlay #FFFFFF1A — replaces approximate rgba mix."
+    },
+    {
+      "token": "--ct-border-strong",
+      "pkgValue": "rgba(255,255,255,0.16)",
+      "cockpitValue": "var(--ct-figma-border-20)",
+      "reason": "Hearst Flow Figma white overlay #FFFFFF33 — replaces approximate rgba mix."
+    },
+    {
       "token": "--ct-shadow-depth",
       "pkgValue": "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.45), 0 20px 60px -24px rgba(0,0,0,0.65)",
       "cockpitValue": "0 8px 32px -8px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.10)",

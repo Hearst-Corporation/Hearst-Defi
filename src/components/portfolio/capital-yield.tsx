@@ -35,9 +35,9 @@ import { cn } from "@/lib/cn";
  */
 const CY_BUCKET_GREEN: Record<YieldSource["bucket"], string> = {
   mining: "var(--ct-accent)",
-  usdc_base: "color-mix(in srgb, var(--ct-accent) 70%, var(--ct-text-faint))",
-  btc_tactical: "color-mix(in srgb, var(--ct-accent) 50%, var(--ct-text-faint))",
-  stable_reserve: "color-mix(in srgb, var(--ct-accent) 32%, var(--ct-text-faint))",
+  usdc_base: "color-mix(in srgb, var(--ct-accent) 70%, var(--ct-text-neutral))",
+  btc_tactical: "color-mix(in srgb, var(--ct-accent) 50%, var(--ct-text-neutral))",
+  stable_reserve: "color-mix(in srgb, var(--ct-accent) 32%, var(--ct-text-neutral))",
 };
 
 const CY_ZERO_STATE = {

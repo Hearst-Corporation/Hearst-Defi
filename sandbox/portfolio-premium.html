@@ -7,30 +7,39 @@
   <!-- Tokens = cockpit.css Hearst Flow charcoal palette (Figma Hearst Flow — DS) -->
   <style>
     :root {
-      --ct-bg-deep: #000000;
+      --ct-bg-deep: #0e0f0f;
       --ct-accent: #a7fb90;
       --ct-text-strong: #ffffff;
       --ct-text-muted: rgba(245, 245, 245, 0.55);
       --ct-text-faint: rgba(245, 245, 245, 0.4);
+      --ct-figma-secondary-lighter: #9eb3a8;
+      --ct-figma-secondary-darker: #7e8f86;
+      --ct-figma-neutral: #747575;
+      --ct-figma-accent-light: #cffdc2;
+      --ct-figma-border-5: #ffffff0d;
+      --ct-figma-border-10: #ffffff1a;
+      --ct-figma-border-20: #ffffff33;
+      --ct-text-secondary: var(--ct-figma-secondary-lighter);
+      --ct-text-tertiary: var(--ct-figma-secondary-darker);
+      --ct-text-neutral: var(--ct-figma-neutral);
       --ct-surface-0: #0e0f0f;
       --ct-surface-1: #141416;
       --ct-surface-1-hi: #161719;
       --ct-surface-2: #1e1e1e;
       --ct-surface-3: #242428;
-      --ct-border-soft: rgba(255, 255, 255, 0.06);
-      --ct-graphite-border-nested: color-mix(in srgb, #ffffff 4%, var(--ct-border-soft));
+      --ct-border-soft: var(--ct-figma-border-5);
+      --ct-graphite-border: var(--ct-figma-border-20);
+      --ct-graphite-border-nested: var(--ct-figma-border-10);
       --ct-graphite-subtle-bg: linear-gradient(135deg, var(--ct-surface-2) 0%, var(--ct-surface-1-hi) 100%);
       --ct-graphite-nested-bg: linear-gradient(135deg, var(--ct-surface-3) 0%, var(--ct-surface-2) 100%);
-      --ct-glass-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      --ct-glass-bevel: inset 0 1px 0 var(--ct-figma-border-10);
+      --ct-figma-accent-area-top: color-mix(in srgb, var(--ct-accent) 60%, transparent);
+      --ct-figma-accent-area-bottom: color-mix(in srgb, var(--ct-accent) 0%, transparent);
       --ct-radius-xl: 1rem;
       --ct-space-3: 0.75rem;
       --ct-space-4: 1rem;
       --ct-space-5: 1.25rem;
       --ct-space-6: 1.5rem;
-      --ct-figma-cover-bg: #1e1e1e;
-      --ct-figma-secondary-lighter: #9eb3a8;
-      --ct-figma-negative: #ffffff;
-      --ct-text-secondary: var(--ct-figma-secondary-lighter);
     }
 
     * { box-sizing: border-box; }
@@ -113,7 +122,7 @@
       font-size: 0.5625rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--ct-text-faint);
+      color: var(--ct-text-secondary);
     }
 
     .ticker dd {
@@ -186,7 +195,7 @@
     <section style="border-right:1px solid var(--ct-graphite-border-nested);">
       <p class="panel-title">Portfolio value</p>
       <p class="kpi">$542,000</p>
-      <p style="margin:0;color:var(--ct-text-faint);font-size:0.625rem;">Illustrative — wire to ValueChart in app</p>
+      <p style="margin:0;color:var(--ct-text-tertiary);font-size:0.625rem;">Illustrative — wire to ValueChart in app</p>
     </section>
     <section>
       <p class="panel-title">Portfolio status</p>

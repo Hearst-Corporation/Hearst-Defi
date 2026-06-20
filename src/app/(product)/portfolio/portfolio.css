@@ -75,6 +75,12 @@
   color: var(--ct-accent);
 }
 
+/* Figma text hierarchy — legacy .ct-text-faint → tertiary inside portfolio scope. */
+.pf-container :where(.ct-text-faint),
+.position-detail-shell :where(.ct-text-faint) {
+  color: var(--ct-text-tertiary);
+}
+
 /* =============================================================================
    2. GREETING + TICKER (instrument strip)
    ============================================================================= */
@@ -178,7 +184,7 @@
   font-weight: var(--ct-font-normal);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-wider);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-secondary);
   white-space: nowrap;
 }
 
@@ -196,7 +202,7 @@
   font-weight: var(--ct-font-normal);
   letter-spacing: var(--ct-tracking-normal);
   text-transform: none;
-  color: var(--ct-text-faint);
+  color: var(--ct-text-tertiary);
   line-height: var(--ct-leading-tight);
 }
 
@@ -673,7 +679,7 @@
   transition: color var(--ct-dur-fast) var(--ct-ease);
 }
 
-.pf-panel-leaf-link:hover { color: var(--ct-accent); }
+.pf-panel-leaf-link:hover { color: var(--ct-accent-light); }
 .pf-panel-leaf-link__label { white-space: nowrap; }
 .pf-panel-leaf-link__arrow {
   display: inline-flex;
@@ -873,6 +879,13 @@
   box-shadow: none;
 }
 
+.pf-positions-empty__hint,
+.pf-activity__empty-hint,
+.pf-value-chart__disclaimer,
+.pf-payout-calendar__empty-copy {
+  color: var(--ct-text-tertiary);
+}
+
 .pf-value-chart__month-labels {
   position: relative;
   height: var(--ct-space-4);
@@ -884,7 +897,7 @@
   position: absolute;
   transform: translateX(-50%);
   font-size: var(--ct-text-micro);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-neutral);
   white-space: nowrap;
 }
 
@@ -893,7 +906,6 @@
   flex: 0 0 auto;
   font-size: var(--ct-text-micro);
   line-height: var(--ct-leading-snug);
-  color: var(--ct-text-faint);
 }
 
 /* =============================================================================
@@ -1009,7 +1021,7 @@
 
 .pf-status-row__meta {
   font-size: var(--ct-text-micro);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-tertiary);
   line-height: var(--ct-leading-tight);
   white-space: nowrap;
 }
@@ -1047,7 +1059,7 @@
   font-weight: var(--ct-font-bold);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-secondary);
   border-bottom: 1px solid var(--ct-graphite-border-nested);
   background: var(--ct-graphite-nested-bg);
   padding-top: var(--ct-space-3);
@@ -1116,7 +1128,6 @@
 
 .pf-positions-empty__hint {
   font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
   line-height: var(--ct-leading-snug);
   max-width: 28ch;
 }
@@ -1217,7 +1228,7 @@
   font-size: var(--ct-text-micro);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-secondary);
 }
 
 .donut-pending-label {
@@ -1257,7 +1268,7 @@
   font-weight: var(--ct-font-medium);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-wider);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-secondary);
 }
 
 .cy-ledger-rule {
@@ -1492,7 +1503,7 @@
 }
 
 .pf-distrib-chart__estimate {
-  fill: var(--ct-text-faint);
+  fill: var(--ct-text-neutral);
   stroke: var(--ct-text-muted);
   stroke-width: 0.75; /* chart-geometry */
   stroke-dasharray: 3 2; /* chart-geometry */
@@ -1530,7 +1541,7 @@
   font-size: var(--ct-text-micro);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-wide);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-secondary);
 }
 
 .pf-calendar-footer__item dd {
@@ -1555,7 +1566,7 @@
 }
 
 .pf-payout-calendar-slot .pf-distrib-chart__estimate {
-  color: var(--ct-text-faint);
+  color: var(--ct-text-tertiary);
   font-size: var(--ct-text-micro);
 }
 
@@ -1653,7 +1664,7 @@
 
 .pf-activity__main > :last-child {
   font-size: var(--ct-text-micro);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-tertiary);
 }
 
 .pf-activity__amt {
@@ -1740,7 +1751,7 @@
   font-size: var(--ct-text-micro);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-wide);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-secondary);
 }
 
 .pf-trust-compact-kpi .body-xs {
@@ -1762,7 +1773,7 @@
   transition: color var(--ct-dur-fast) var(--ct-ease);
 }
 
-.pf-trust-compact__see-more:hover { color: var(--ct-accent); }
+.pf-trust-compact__see-more:hover { color: var(--ct-accent-light); }
 
 .pf-trust-compact--embedded .pf-trust-compact-kpis {
   grid-template-columns: 1fr;
@@ -1838,7 +1849,7 @@
   box-shadow: none;
 }
 .pf-status-dot--matured { background: var(--ct-status-info); }
-.pf-status-dot--exited { background: var(--ct-text-faint); }
+.pf-status-dot--exited { background: var(--ct-text-neutral); }
 
 /* ---- Stacks ---- */
 .pf-stack {
@@ -1892,7 +1903,7 @@
 .pf-panel-footnote {
   margin: 0;
   font-size: var(--ct-text-micro);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-tertiary);
   line-height: var(--ct-leading-snug);
 }
 
@@ -1909,7 +1920,7 @@
   align-items: center;
   gap: var(--ct-space-2);
   font-size: var(--ct-text-micro);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-tertiary);
   min-width: 0;
 }
 
@@ -1941,7 +1952,7 @@
   font-weight: var(--ct-font-medium);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-wider);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-secondary);
 }
 
 .pf-cockpit-panel__subhead-meta {
