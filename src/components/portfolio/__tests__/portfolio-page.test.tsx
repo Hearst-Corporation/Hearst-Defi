@@ -58,6 +58,7 @@ const MOCK_PORTFOLIO_DATA = {
       txHash: null,
     },
   ],
+  valueChartTransactions: [],
   source: "live" as const,
 };
 
@@ -137,7 +138,7 @@ describe("Portfolio page — existing components preserved", () => {
   it("positions list receives positions array from loadPortfolio", () => {
     const { positions } = MOCK_PORTFOLIO_DATA;
     expect(positions.length).toBeGreaterThanOrEqual(0);
-    // The PositionsList and AllocationDonut both accept positions + source.
+    // PositionsList and CapitalYield both accept positions + source.
     for (const p of positions) {
       expect(p).toHaveProperty("id");
       expect(p).toHaveProperty("vaultName");
@@ -148,7 +149,7 @@ describe("Portfolio page — existing components preserved", () => {
     }
   });
 
-  it("allocation donut receives totalValueUsdc and positions", () => {
+  it("allocation buckets receive totalValueUsdc and positions", () => {
     const { totalValueUsdc, positions } = MOCK_PORTFOLIO_DATA;
     expect(typeof totalValueUsdc).toBe("number");
     expect(Array.isArray(positions)).toBe(true);

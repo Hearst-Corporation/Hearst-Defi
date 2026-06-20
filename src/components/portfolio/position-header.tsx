@@ -44,15 +44,13 @@ export function PositionHeader({ position }: PositionHeaderProps) {
 
   return (
     <header className="position-detail-header">
-      {/* Back link */}
       <Link
         href="/portfolio"
-        className="body-sm ct-text-muted product-doc-inline-row product-doc-inline-row--tight no-underline transition-opacity duration-[var(--ct-dur-base)] ease-[var(--ct-ease)] hover:opacity-[var(--ct-opacity-80)]"
+        className="body-sm ct-text-muted product-doc-inline-row product-doc-inline-row--tight no-underline transition-opacity duration-(--ct-dur-base) ease-(--ct-ease) hover:opacity-(--ct-opacity-80)"
       >
         ← Portfolio
       </Link>
 
-      {/* Title row */}
       <div className="position-detail-header__title-row">
         <div className="position-detail-header__identity">
           <h1 className="h1 m-0 wrap-break-word">
@@ -69,16 +67,13 @@ export function PositionHeader({ position }: PositionHeaderProps) {
         </Badge>
       </div>
 
-      {/* Total value */}
       <div
         role="region"
         aria-label="Total position value"
         className="position-detail-value-card"
       >
         <div className="position-detail-value-card__body">
-          <span className="eyebrow ct-text-muted">
-            Total value
-          </span>
+          <span className="eyebrow ct-text-muted">Total value</span>
           <span className="stat-value tabular ct-text-strong mono">
             {formatUsdDetailed(totalValue)}
           </span>

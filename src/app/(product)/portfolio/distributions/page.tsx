@@ -36,7 +36,11 @@ export default async function DistributionsPage() {
         data-section="payout-calendar"
         data-testid="distrib-calendar-widget"
       >
-        <DistribCalendar {...distribCalendarProps} />
+        <DistribCalendar
+          {...distribCalendarProps}
+          secondaryLeafHref="/portfolio/tax"
+          secondaryLeafLabel="Tax preview"
+        />
       </div>
     </PortfolioLeafShell>
   );

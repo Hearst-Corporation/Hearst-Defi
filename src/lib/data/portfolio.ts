@@ -21,6 +21,8 @@ import {
   coercePortfolioDate,
   resolveProvenance,
 } from "@/lib/portfolio/provenance";
+import { computeYtdYieldUsdc } from "@/lib/portfolio/yield-ytd";
+import type { ValueSeriesTx } from "@/lib/portfolio/value-series";
 
 export { resolveProvenance };
 
@@ -108,6 +110,8 @@ export interface PortfolioData {
   totalYieldYtdUsdc: number;
   nextDistributionAt: Date;
   recentTransactions: PortfolioTransaction[];
+  /** Ledger rows for the 12-month value chart (deposit / payout anchors). */
+  valueChartTransactions: ValueSeriesTx[];
   /** Aggregate P&L across positions. Optional — consumers render when present. */
   pnl?: LpPnl;
   /** "live" = real DB data, "fallback" = unauthenticated / empty state */
@@ -258,13 +262,17 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
       totalYieldYtdUsdc: 0,
       nextDistributionAt: nextEndOfMonth(),
       recentTransactions: [],
+      valueChartTransactions: [],
       source: "fallback",
     };
   }
 
   // Fetch positions and both transaction queries in parallel — all 4 are independent.
   const ytdStart = new Date(Date.UTC(new Date().getUTCFullYear(), 0, 1));
-  const [rawPositions, ytdTxs, rawTxs, latestSnapshot] = await Promise.all([
+  const chartStart = new Date(
+    Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() - 11, 1),
+  );
+  const [rawPositions, ytdTxs, rawTxs, chartTxs, latestSnapshot] = await Promise.all([
     prisma.position.findMany({
       where: { investorId: investor.id },
       include: { vaultDeployment: true },
@@ -284,6 +292,15 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
       where: { investorId: investor.id },
       orderBy: { occurredAt: "desc" },
       take: 5,
+    }),
+    prisma.investorTransaction.findMany({
+      where: {
+        investorId: investor.id,
+        occurredAt: { gte: chartStart },
+      },
+      orderBy: { occurredAt: "asc" },
+      select: { type: true, amountUsdc: true, occurredAt: true },
+      take: 500,
     }),
     prisma.vaultSnapshot.findFirst({
       orderBy: { takenAt: "desc" },
@@ -318,10 +335,15 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
 
   const totalValueUsdc = positions.reduce((sum, p) => sum + p.valueUsdc, 0);
 
-  // YTD yield: sum of accrued + distributed (all transaction types) from Jan 1 UTC.
-  const totalYieldYtdUsdc =
-    ytdTxs.reduce((sum, t) => sum + toNumber(t.amountUsdc), 0) +
-    positions.reduce((sum, p) => sum + p.accruedYieldUsdc, 0);
+  const ytdPayoutRows = ytdTxs.map((t) => ({ amountUsdc: toNumber(t.amountUsdc) }));
+  const accruedPendingUsdc = positions.reduce((sum, p) => sum + p.accruedYieldUsdc, 0);
+  const totalYieldYtdUsdc = computeYtdYieldUsdc(ytdPayoutRows, accruedPendingUsdc);
+
+  const valueChartTransactions: ValueSeriesTx[] = chartTxs.map((t) => ({
+    type: t.type as ValueSeriesTx["type"],
+    amountUsdc: toNumber(t.amountUsdc),
+    occurredAt: t.occurredAt,
+  }));
 
   // Map positionId → vaultName for activity labels.
   const positionVaultMap = new Map(
@@ -355,6 +377,7 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
     totalYieldYtdUsdc,
     nextDistributionAt: nextEndOfMonth(),
     recentTransactions,
+    valueChartTransactions,
     pnl,
     source: "live",
     // Snapshot freshness when available; otherwise positions were just read live.
@@ -591,7 +614,13 @@ export const loadProofPulseProps = cache(async (): Promise<ProofPulseProps & { s
  */
 const fetchYieldStackData = unstable_cache(
   async () => {
+    // Latest snapshot that actually carries allocations. The daily timeline
+    // snapshots (orderBy takenAt desc) hold only headline APY/AUM — allocation
+    // breakdowns live on the preset snapshots. Filtering on `allocations.some`
+    // avoids returning a newer-but-allocation-less snapshot, which silently
+    // collapsed Capital & Yield + the allocation donut to their empty state.
     const snapshot = await prisma.vaultSnapshot.findFirst({
+      where: { allocations: { some: {} } },
       orderBy: { takenAt: "desc" },
       include: { allocations: true },
     });

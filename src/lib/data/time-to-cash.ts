@@ -1,7 +1,7 @@
 // time-to-cash.ts — Pure computation helper for the Time-to-Cash widget.
 // Non-negotiable #6: no DB, no fetch, no I/O, no Date.now() — asOf injected.
 
-/** Loader / hero-rail props for projected payout (HeroPayoutRail). */
+/** Loader props for projected payout cycle (time-to-cash widget data). */
 export interface TimeToCashProps {
   /** When the current monthly cycle started (typically 1st of month). */
   cycleStart: Date;

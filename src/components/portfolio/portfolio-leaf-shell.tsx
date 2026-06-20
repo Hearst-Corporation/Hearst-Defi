@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 /**
  * Shared chrome for the portfolio "view more" leaf pages
- * (/portfolio/positions, /yield, /distributions, /activity).
+ * (/portfolio/positions, /yield, /distributions, /activity, /tax).
  *
  * Renders the same `.pf-container` shell the dashboard uses,
  * so every leaf inherits identical chrome without each page re-declaring it.

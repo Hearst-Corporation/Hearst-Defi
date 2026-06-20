@@ -3,8 +3,6 @@ import "server-only";
 import { getInvestor } from "@/lib/auth/session";
 import {
   loadPortfolio,
-  loadLockMeterProps,
-  loadTimeToCashProps,
   loadRiskPulseProps,
   loadDistribCalendarProps,
   loadProofPulseProps,
@@ -33,16 +31,12 @@ export async function loadPortfolioView() {
   const hasPositions = data.positions.length > 0;
 
   const [
-    lockMeterProps,
-    timeToCashProps,
     riskPulseProps,
     distribCalendarProps,
     proofPulseProps,
     yieldStackProps,
     allocationDonutProps,
   ] = await Promise.all([
-    loadLockMeterProps(),
-    loadTimeToCashProps(),
     loadRiskPulseProps(),
     loadDistribCalendarProps(),
     loadProofPulseProps(),
@@ -56,8 +50,6 @@ export async function loadPortfolioView() {
     investor,
     data,
     hasPositions,
-    lockMeterProps,
-    timeToCashProps,
     riskPulseProps,
     distribCalendarProps,
     proofPulseProps,
