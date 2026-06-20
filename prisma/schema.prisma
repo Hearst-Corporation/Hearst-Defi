@@ -1067,7 +1067,8 @@ model OutreachProspect {
   sequenceStep    Int       @default(0) // follow-up cadence position
   lastContactedAt DateTime? // last time any email was sent to this prospect
 
-  emails OutreachEmail[]
+  emails  OutreachEmail[]
+  replies OutreachReply[]
 
   @@index([status])
   @@index([email])
@@ -1134,6 +1135,31 @@ model OutreachEmailEvent {
   raw        Json?
 
   @@index([emailId, type])
+}
+
+// One inbound reply to an outreach email (Palier 4 — closed loop). Created by
+// the inbound webhook; classified by the reply-handler agent into an intent
+// that drives the prospect's next state (promote tier / stop sequence /
+// qualify / suppress). The raw payload is kept for audit + re-classification.
+model OutreachReply {
+  id         String   @id @default(cuid())
+  prospectId String? // matched prospect (by from-address), null if unmatched
+  prospect   OutreachProspect? @relation(fields: [prospectId], references: [id], onDelete: SetNull)
+  fromEmail  String // sender, normalised lowercase
+  subject    String?
+  body       String // plaintext reply body (signatures/quoted-trim best-effort)
+  // Classifier output (outreach-reply-handler). Null until classified.
+  intent     String? // interested | not_now | question | unsubscribe | bounce | auto_reply | other
+  confidence Int? //    0-100 classifier confidence
+  // The action the handler took as a result (audit of the closed loop).
+  actionTaken String? // promoted | stopped | qualified | suppressed | none
+  handledAt  DateTime? // when the handler finished processing it
+  raw        Json? //    full inbound provider payload
+  createdAt  DateTime @default(now())
+
+  @@index([prospectId])
+  @@index([fromEmail])
+  @@index([intent])
 }
 
 // Ideal Customer Profile — the persona definition the sourcer queries Apollo
