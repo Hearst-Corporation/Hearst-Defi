@@ -1,4 +1,6 @@
 import { formatUsdCompact } from "@/lib/vaults/product-display";
+import { formatApyRange } from "@/lib/format/apy";
+import { cn } from "@/lib/cn";
 
 export interface PortfolioTickerProps {
   totalValueUsdc: number;
@@ -35,7 +37,7 @@ export function PortfolioGreeting({ name, ticker }: PortfolioGreetingProps) {
   const has = !!ticker?.hasPositions;
   const apyRange =
     has && ticker && ticker.blendedLow + ticker.blendedHigh > 0
-      ? `${ticker.blendedLow.toFixed(1)} – ${ticker.blendedHigh.toFixed(1)}%`
+      ? formatApyRange({ low: ticker.blendedLow, high: ticker.blendedHigh }, 1, { spaced: true })
       : DASH;
   const payoutDate = has && ticker ? monthDayYearFmt.format(ticker.nextDistributionAt) : null;
   const nextPayout =
@@ -49,28 +51,31 @@ export function PortfolioGreeting({ name, ticker }: PortfolioGreetingProps) {
         <h1 className="h1 m-0">
           Welcome back, <span className="pf-greeting-name">{name}</span>
         </h1>
-        <p className="pf-greeting__sub m-0">Portfolio cockpit</p>
+        <p className="pf-greeting__sub m-0">
+          <span className="pf-greeting__sub-dot" />
+          Portfolio cockpit
+        </p>
       </div>
 
       {ticker ? (
         <dl className="pf-ticker-inline">
-          <div>
-            <dt>Portfolio value</dt>
-            <dd>{has ? formatUsdCompact(ticker.totalValueUsdc) : DASH}</dd>
+          <div className="pf-ticker-cell">
+            <dt className="pf-ticker-label">Portfolio value</dt>
+            <dd className="pf-ticker-value tabular">{has ? formatUsdCompact(ticker.totalValueUsdc) : DASH}</dd>
           </div>
-          <div>
-            <dt>APY range</dt>
-            <dd className={has ? "pf-ticker-inline__accent" : undefined}>{apyRange}</dd>
-            <dd className="pf-ticker-inline__note">not guaranteed</dd>
+          <div className="pf-ticker-cell">
+            <dt className="pf-ticker-label">APY range</dt>
+            <dd className={cn("pf-ticker-value tabular", has && "ct-text-accent")}>{apyRange}</dd>
+            <dd className="pf-ticker-note">not guaranteed</dd>
           </div>
-          <div>
-            <dt>Next payout</dt>
-            <dd>{nextPayout}</dd>
-            {payoutDate ? <dd className="pf-ticker-inline__note">{payoutDate}</dd> : null}
+          <div className="pf-ticker-cell">
+            <dt className="pf-ticker-label">Next payout</dt>
+            <dd className="pf-ticker-value tabular">{nextPayout}</dd>
+            {payoutDate ? <dd className="pf-ticker-note">{payoutDate}</dd> : null}
           </div>
-          <div>
-            <dt>12M yield (fwd)</dt>
-            <dd>{has ? formatUsdCompact(ticker.totalYieldYtdUsdc) : DASH}</dd>
+          <div className="pf-ticker-cell">
+            <dt className="pf-ticker-label">12M yield (fwd)</dt>
+            <dd className="pf-ticker-value tabular">{has ? formatUsdCompact(ticker.totalYieldYtdUsdc) : DASH}</dd>
           </div>
         </dl>
       ) : null}

@@ -31,7 +31,7 @@
 .pf-container {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-6);
+  gap: 0;
   width: 100%;
   min-width: 0;
   container-type: inline-size;
@@ -80,7 +80,7 @@
   height: 1px;
   background: var(--ct-accent);
   opacity: 0.35;
-  margin: var(--ct-space-5) 0;
+  margin: 1.25rem 0;
 }
 
 .pf-greeting {
@@ -90,7 +90,7 @@
   justify-content: space-between;
   gap: var(--ct-space-4) var(--ct-space-6);
   flex: 0 0 auto;
-  margin-bottom: 0;
+  margin-bottom: 1.5rem;
   padding-bottom: 0;
 }
 
@@ -196,6 +196,7 @@
   flex-direction: column;
   gap: var(--ct-space-4);
   min-width: 0;
+  margin-top: 1.25rem;
 }
 
 /* Rows are BOTH flex items (height in fr) AND grids (their own columns). */
@@ -442,7 +443,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    gap: var(--ct-space-4);
+    gap: 0;
     padding-bottom: var(--ct-space-3);
   }
 
