@@ -16,7 +16,7 @@
    (#9EB3A8, Hearst Flow).
 
    SURFACE STACK (opaque charcoal — backgrounds / boxes / layering only):
-     L0 page gaps        → --ct-surface-0 (#0E0F0F)
+     L0 centre + insets  → .ct-page-area (--ct-surface-2 on /portfolio); .pf-container transparent
      L1 plates           → --ct-graphite-subtle-bg + --ct-graphite-border-nested
      L2 nested insets    → --ct-graphite-nested-bg (trust cells, table head band)
      L3 row hover/chips  → --ct-surface-2 / --ct-surface-1
@@ -27,6 +27,11 @@
 /* =============================================================================
    1. CONTAINER BASE
    ============================================================================= */
+
+/* Centre LP : une seule plaque derrière paddings + cockpit (menu/chat/footer inchangés). */
+.ct-page-area:has(.pf-container) {
+  background: var(--ct-surface-2);
+}
 
 .pf-container {
   display: flex;
@@ -48,7 +53,7 @@
   --pf-bp-hero-split: 58rem;
   --pf-bp-hero-stack: 64rem;
   position: relative;
-  background: var(--ct-surface-0);
+  background: transparent;
 }
 
 /* All financial body text in portfolio scope inherits strong white. */
