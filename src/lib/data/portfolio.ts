@@ -21,9 +21,6 @@ import {
   coercePortfolioDate,
   resolveProvenance,
 } from "@/lib/portfolio/provenance";
-import { isDemoInvestor } from "@/lib/demo/provider";
-import { buildDemoPositionDetail } from "@/lib/demo/builders";
-import { DEMO_POSITION_ID } from "@/lib/dev/investor-demo";
 
 export { resolveProvenance };
 
@@ -778,14 +775,6 @@ export async function loadPosition(
 ): Promise<PositionDetail | null> {
   const investor = await getInvestor();
   if (!investor) return null;
-
-  // Demo provider (guard-gated → never production): the recognized demo identity
-  // owns exactly one synthetic position (DEMO_POSITION_ID), served from the demo
-  // builder so /portfolio/[positionId] does not 404 (D6). source stays "fallback",
-  // txHashOpen null — the page banner carries the demo signal.
-  if (isDemoInvestor(investor) && positionId === DEMO_POSITION_ID) {
-    return buildDemoPositionDetail();
-  }
 
   const [raw, rawTxs] = await Promise.all([
     prisma.position.findFirst({

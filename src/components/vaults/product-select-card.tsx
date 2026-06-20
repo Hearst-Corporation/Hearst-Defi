@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { demoProvenance } from "@/lib/demo/markers";
 import type { VaultProduct } from "@/lib/data/vaults";
 import {
   RISK_LABELS,
@@ -53,7 +52,7 @@ export function ProductSelectCard({ vault, demo = false }: ProductSelectCardProp
           <div className="product-doc-stack product-doc-stack--compact">
             <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--start">
               <span className="stat-label">APY range</span>
-              <ProvenanceBadge kind={demoProvenance(demo, "estimated")} compact />
+              <ProvenanceBadge kind="estimated" compact />
             </div>
             <ApyRange
               low={vault.apyLow}

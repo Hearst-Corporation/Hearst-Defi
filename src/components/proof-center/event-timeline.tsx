@@ -10,7 +10,6 @@ import { ipfsGatewayUrl } from "@/lib/ipfs-gateway";
 import { abbreviateAddress } from "@/lib/onchain";
 import { explorerLinkClass } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/cn";
-import { canRunDemoProvider } from "@/lib/demo/guard";
 
 import { ProofCenterCardHeader } from "./proof-center-card-header";
 import type { ProofCenterSectionLedProps } from "./proof-center-types";
@@ -169,7 +168,7 @@ export function EventTimeline({
     );
   }
 
-  const eventsProvenance = canRunDemoProvider() ? "simulated" : "live";
+  const eventsProvenance = "live" as const;
 
   return (
     <Card>

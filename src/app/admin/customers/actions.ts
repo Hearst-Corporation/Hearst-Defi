@@ -14,7 +14,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { SHARE_CLASS_A, SHARE_CLASS_B } from "@/lib/engine/share-class";
 import { getVault } from "@/lib/data/vaults";
-import { isDemoInvestor } from "@/lib/demo/provider";
 
 /**
  * Admin KYC override. Lets a compliance officer (admin) set an investor's
@@ -248,15 +247,6 @@ export async function deployPosition(
     return {
       ok: false,
       error: "Investor has not attested accreditation yet.",
-    };
-  }
-
-  // Gap 4 — demo-investor short-circuit (mirrors subscribe lines 71-73).
-  // Never write a real Position onto the demo sandbox identity.
-  if (isDemoInvestor({ email: investor.user?.email ?? null })) {
-    return {
-      ok: false,
-      error: "Cannot deploy a position on the demo investor identity.",
     };
   }
 

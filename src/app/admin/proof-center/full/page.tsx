@@ -10,7 +10,6 @@ import { ArrowLeft } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminLeafLink } from "@/components/admin/dashboard/cockpit-panel-header";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { DemoDataBanner } from "@/components/product/demo-data-banner";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { Card } from "@/components/ui/card";
 import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
@@ -31,7 +30,6 @@ import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
 import { loadCustody } from "@/lib/data/custody";
 import { getProofs } from "@/lib/data/proofs";
-import { resolveAdminDemoMode } from "@/lib/demo/admin-mode";
 import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
 import { prisma } from "@/lib/db";
 import { TIMELOCK_DELAY_HOURS } from "@/lib/governance/state-machine";
@@ -53,8 +51,6 @@ export default async function AdminProofCenterFullPage({
   const params = await searchParams;
   const raw = Array.isArray(params.type) ? params.type[0] : params.type;
   const filter = parseFilter(raw);
-
-  const demoMode = await resolveAdminDemoMode();
 
   const [onChainEvents, onChainAttestations, paper, custody, timelockProposals] =
     await Promise.all([
@@ -103,8 +99,6 @@ export default async function AdminProofCenterFullPage({
         }
       />
 
-      {demoMode.showDemoBanner ? <DemoDataBanner /> : null}
-
       <ProofCenterSection
         id="event-timeline-heading"
         title="On-chain event log"
@@ -120,7 +114,7 @@ export default async function AdminProofCenterFullPage({
         {proofs.length === 0 ? (
           <EmptySurface live {...PLATFORM_PROOFS_EMPTY} />
         ) : (
-          <ProofGrid proofs={proofs} filter={filter} demo={demoMode.demo} />
+          <ProofGrid proofs={proofs} filter={filter} demo={false} />
         )}
       </ProofCenterSection>
 

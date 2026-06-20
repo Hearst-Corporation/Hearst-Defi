@@ -20,12 +20,10 @@ import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
 import { latestAttestationVerified } from "@/lib/proof-center/attestation-truth";
 import { isProofCenterColdEmpty } from "@/lib/proof-center/cold-empty";
 import { loadProofHubColdCounts } from "@/lib/proof-center/hub-counts";
-import { resolveAdminDemoMode } from "@/lib/demo/admin-mode";
 
 export default async function AdminProofCenterPage() {
   const chainConfigured = isChainConfigured();
   const coveragePeriod = new Date().toISOString().slice(0, 7);
-  const demoMode = await resolveAdminDemoMode();
 
   const [
     onChainEvents,
@@ -42,7 +40,7 @@ export default async function AdminProofCenterPage() {
     loadCoverageForVault(PROOF_CENTER_VAULT_REF, coveragePeriod),
     loadRecentDistributions(PROOF_CENTER_VAULT_REF, 6),
     loadRecentRebalances(PROOF_CENTER_VAULT_REF, 5),
-    loadProofHubColdCounts(demoMode.demo),
+    loadProofHubColdCounts(),
   ]);
 
   const latestAttestation = onChainAttestations[0] ?? null;
@@ -51,7 +49,7 @@ export default async function AdminProofCenterPage() {
   const platformAddresses = buildPlatformAddresses(custody);
 
   const coldEmpty = isProofCenterColdEmpty({
-    demo: demoMode.showDemoBanner,
+    demo: false,
     hasAttestation: latestAttestation !== null,
     proofsCount: coldCounts.proofsCount,
     onChainEventsCount: onChainEvents.length,
@@ -74,8 +72,8 @@ export default async function AdminProofCenterPage() {
       recentRebalances={recentRebalances}
       platformAddresses={platformAddresses}
       coldEmpty={coldEmpty}
-      demo={demoMode.demo}
-      showDemoBanner={demoMode.showDemoBanner}
+      demo={false}
+      showDemoBanner={false}
     />
   );
 }

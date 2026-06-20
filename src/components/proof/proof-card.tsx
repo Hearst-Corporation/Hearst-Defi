@@ -11,7 +11,6 @@ import type { ProofType } from "@/lib/proof-center-types";
 import { ipfsGatewayUrl } from "@/lib/ipfs-gateway";
 import { safeUrl } from "@/lib/safe-url";
 import { abbreviateAddress } from "@/lib/onchain";
-import { proofProvenance } from "@/lib/demo/markers";
 import { cn } from "@/lib/cn";
 import {
   resolveAttestationProvenance,
@@ -194,16 +193,10 @@ function PaperProofCard({
   const hashTruncated = abbreviateAddress(proof.hash);
 
   const verification = proof.attestationVerified;
-  const liveKind: Provenance = verification === true ? "attested" : "manual";
-  const provenance: Provenance = proofProvenance(demo, proof.source, liveKind);
+  const provenance: Provenance = verification === true ? "attested" : "manual";
 
   const accent = TYPE_ACCENT[proof.proofType];
-  const provenanceLabel =
-    provenance === "simulated"
-      ? "Simulated"
-      : provenance === "attested"
-        ? "Attested"
-        : "Manual";
+  const provenanceLabel = provenance === "attested" ? "Attested" : "Manual";
 
   return (
     <ProofCardShell accent={accent}>

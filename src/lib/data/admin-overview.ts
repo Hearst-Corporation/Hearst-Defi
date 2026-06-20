@@ -9,9 +9,6 @@ import {
 import { prisma } from "@/lib/db";
 import { loadCustody } from "@/lib/data/custody";
 import { evaluateFreshness, type FreshnessKind } from "@/lib/data/freshness";
-import { canRunDemoProvider } from "@/lib/demo/guard";
-import { buildDemoAdminOverview } from "@/lib/demo/admin/overview";
-
 // ---------------------------------------------------------------------------
 // Admin dashboard proof + custody overlay.
 //
@@ -106,6 +103,5 @@ const fetchAdminOverviewCached = unstable_cache(
  * data — counts degrade to 0, custody degrades to a manual snapshot.
  */
 export async function loadAdminOverview(): Promise<AdminOverview> {
-  if (canRunDemoProvider()) return buildDemoAdminOverview();
   return hydrateAdminOverview(await fetchAdminOverviewCached());
 }

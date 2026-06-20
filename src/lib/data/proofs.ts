@@ -2,8 +2,6 @@ import "server-only";
 
 import { verifyStoredAttestation } from "@/lib/attestation";
 import { prisma } from "@/lib/db";
-import { canRunDemoProvider } from "@/lib/demo/guard";
-import { buildDemoProofs } from "@/lib/demo/admin/proof-center";
 import type { ProofItem, ProofType } from "@/lib/proof-center-types";
 import {
   clampPageSize,
@@ -47,15 +45,11 @@ function deriveTitle(proofType: ProofType, period: string | null): string {
  * Rows with an unknown `proofType` are skipped rather than rendered with a
  * broken filter taxonomy.
  *
- * In demo mode (canRunDemoProvider()) returns simulated proof rows — no Prisma
- * access, all txHash null, attestationVerified null, hash is the sentinel.
  */
 export async function getProofs(
   page: number = 1,
   pageSize: number = 50,
 ): Promise<PaginatedResult<ProofItem>> {
-  if (canRunDemoProvider()) return buildDemoProofs();
-
   const ps = clampPageSize(pageSize);
 
   const [rows, total] = await Promise.all([
