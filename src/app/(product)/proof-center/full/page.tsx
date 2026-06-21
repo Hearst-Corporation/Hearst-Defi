@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { PanelStatus } from "@/components/ui/panel-status";
@@ -67,19 +68,26 @@ export default async function ProofCenterFullPage({
 
   return (
     <div className="proof-center-shell">
-      <ProofCenterTestnetNotice
-        chainConfigured={chainConfigured}
-        demoNotice={null}
-      />
-
-      <Link
-        href="/proof-center"
-        className="proof-back-link body-sm ct-text-muted no-underline hover:ct-text-primary ct-transition-base"
-        aria-label="Back to Proof Center"
+      <ProductPageHeader
+        titleLead="Full"
+        titleAccent="Log"
+        contextLabel="Proof · Full Log"
+        lead={
+          <Link
+            href="/proof-center"
+            className="proof-back-link body-sm ct-text-muted no-underline hover:ct-text-primary ct-transition-base"
+            aria-label="Back to Proof Center"
+          >
+            <ArrowLeft className="ct-icon-sm" aria-hidden />
+            Proof Center
+          </Link>
+        }
       >
-        <ArrowLeft className="ct-icon-sm" aria-hidden />
-        Proof Center
-      </Link>
+        <ProofCenterTestnetNotice
+          chainConfigured={chainConfigured}
+          demoNotice={null}
+        />
+      </ProductPageHeader>
 
       <ProofCenterSection
         id="event-timeline-heading"
