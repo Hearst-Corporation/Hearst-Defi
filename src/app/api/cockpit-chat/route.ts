@@ -84,7 +84,14 @@ const CHAT_RATE_WINDOW_MS = 60_000;
 // handler. They cannot be forwarded to the model call itself.
 const MAX_OUTPUT_TOKENS = 2048;
 const MAX_CONTENT_LEN = 8_000;
+// Window of history actually forwarded to the model (the most recent turns).
 const MAX_MESSAGES = 30;
+// Upper bound on the history array we will ACCEPT (a DoS ceiling, well above any
+// real conversation). Anything beyond MAX_MESSAGES is trimmed server-side rather
+// than rejected — a long chat must never 400 the whole request. The earlier
+// `.max(MAX_MESSAGES)` hard-reject bricked any conversation past 30 messages
+// ("Invalid request body" on every send); we now sanitize instead of refuse.
+const MAX_HISTORY_ACCEPTED = 200;
 // Cap on the enriched system prompt (base + user-context block).
 // Must be >> the base COCKPIT_DEFAULT_SYSTEM_PROMPT length (currently ~11k
 // chars / ~2.7k tokens) to leave room for the per-user context block on top.
@@ -184,13 +191,18 @@ function deriveTitleFromContent(content: string): string | null {
  */
 const ChatMessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
-  content: z.string().min(1).max(MAX_CONTENT_LEN),
+  // Empty content is tolerated here (NOT rejected): a prior aborted/blocked
+  // assistant turn can leave an empty bubble in the client history. We drop
+  // those when rebuilding the sanitized body instead of 400-ing the request.
+  content: z.string().max(MAX_CONTENT_LEN),
 });
 
 const ChatBodySchema = z.object({
   chatId: z.string().max(200).nullish(),
   message: z.string().min(1).max(MAX_CONTENT_LEN),
-  messages: z.array(ChatMessageSchema).max(MAX_MESSAGES).optional(),
+  // Accept up to MAX_HISTORY_ACCEPTED (DoS ceiling); the body builder below
+  // filters empties and trims to the most recent MAX_MESSAGES turns.
+  messages: z.array(ChatMessageSchema).max(MAX_HISTORY_ACCEPTED).optional(),
   productId: z.string().max(200).nullish(),
   // NOTE: `system` is intentionally NOT in this schema. Accepting a client
   // system prompt would let any authenticated user strip every compliance
@@ -853,21 +865,29 @@ export async function POST(req: NextRequest): Promise<Response> {
     const sanitizedBody = {
       ...(body.chatId != null ? { chatId: body.chatId } : {}),
       message: cleanMessage,
-      ...(body.messages
-        ? {
-            messages: body.messages.map((m) => ({
-              role: m.role,
-              // User content is fully sanitized (HTML strip + control chars);
-              // assistant content keeps its markup but is stripped of control
-              // chars (PR-3 #3) so neither role can smuggle escapes into the
-              // prompt the model receives.
-              content:
-                m.role === "user"
-                  ? sanitizeContent(m.content)
-                  : sanitizeAssistantContent(m.content),
-            })),
-          }
-        : {}),
+      ...(() => {
+        if (!body.messages) return {};
+        const cleaned = body.messages
+          .map((m) => ({
+            role: m.role,
+            // User content is fully sanitized (HTML strip + control chars);
+            // assistant content keeps its markup but is stripped of control
+            // chars (PR-3 #3) so neither role can smuggle escapes into the
+            // prompt the model receives.
+            content:
+              m.role === "user"
+                ? sanitizeContent(m.content)
+                : sanitizeAssistantContent(m.content),
+          }))
+          // Drop bubbles that are empty after sanitization (e.g. an aborted or
+          // blocked assistant turn) — the model can't use them and the legacy
+          // schema rejected them, which bricked the whole conversation.
+          .filter((m) => m.content.length > 0)
+          // Forward only the most recent MAX_MESSAGES turns so an unbounded
+          // client history can never exceed the model's window.
+          .slice(-MAX_MESSAGES);
+        return cleaned.length > 0 ? { messages: cleaned } : {};
+      })(),
       ...(body.productId != null ? { productId: body.productId } : {}),
       // `system` is never forwarded — the handler falls back to the curated
       // server `systemPrompt` (enrichedSystemPrompt) we pass at handler build.

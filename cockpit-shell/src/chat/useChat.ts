@@ -45,6 +45,11 @@ export interface UseChatReturn {
  *  double-submit → FORCE (abort de la réponse en cours + envoi immédiat). */
 const DOUBLE_SUBMIT_MS = 500;
 
+/** Nombre max de messages d'historique POSTés. DOIT rester ≤ au plafond serveur
+ *  (`MAX_MESSAGES` dans /api/cockpit-chat) : sinon une conversation longue envoie
+ *  un body > limite → 400 "Invalid request body" sur CHAQUE envoi → chat mort. */
+const MAX_CLIENT_HISTORY = 30;
+
 // ---------------------------------------------------------------------------
 // Helpers locaux (repris de ChatKimi)
 // ---------------------------------------------------------------------------
@@ -309,10 +314,18 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
         createdAt: Date.now(),
       };
 
-      const history = messagesRef.current.map((m) => ({
-        role: m.role,
-        content: m.content,
-      }));
+      // Borne + filtre l'historique POSTé : on retire les bulles vides (ex. un
+      // placeholder assistant d'un tour précédent annulé/bloqué — que le schéma
+      // serveur rejetait, ce qui bloquait toute la conversation) et on ne garde
+      // que les MAX_CLIENT_HISTORY derniers tours, pour ne jamais dépasser la
+      // fenêtre acceptée côté serveur.
+      const history = messagesRef.current
+        .filter((m) => m.content.trim().length > 0)
+        .slice(-MAX_CLIENT_HISTORY)
+        .map((m) => ({
+          role: m.role,
+          content: m.content,
+        }));
 
       setMessages((prev) => [...prev, userMsg]);
 
