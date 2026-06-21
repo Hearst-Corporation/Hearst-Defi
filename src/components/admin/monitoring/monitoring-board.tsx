@@ -105,9 +105,9 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
                 ) : null}
               </td>
               <td className="ct-table-cell px-[var(--ct-space-4)] text-right tabular whitespace-nowrap">
-                {run.inputTokens === null && run.outputTokens === null
+                {run.inputTokens === null || run.outputTokens === null
                   ? "—"
-                  : `${run.inputTokens ?? "—"} / ${run.outputTokens ?? "—"}`}
+                  : `${run.inputTokens} / ${run.outputTokens}`}
               </td>
               <td className="ct-table-cell px-[var(--ct-space-4)] text-right tabular">
                 {run.latencyMs ? `${run.latencyMs}ms` : "—"}

@@ -30,7 +30,9 @@ export function ApyRange({
         aria-hidden
         className="mx-[var(--ct-space-1)] ct-text-muted font-normal body-xs leading-tight"
       >
-        —
+        {/* Canonical en-dash separator for APY ranges (non-negotiable #1),
+            matching APY_RANGE_SEP in src/lib/format/apy.ts. */}
+        {"–"}
       </span>
       {fmt(b)}
       <span aria-hidden className="ml-[var(--ct-space-1)] body-xs opacity-[var(--ct-opacity-80)]">

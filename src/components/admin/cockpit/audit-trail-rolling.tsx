@@ -17,31 +17,14 @@ interface AuditTrailRollingProps {
  */
 export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   if (entries.length === 0) {
+    // Empty branch renders only the honest message — no header-only table
+    // skeleton, which would otherwise read as a broken/loading table.
     return (
-      <>
-        <div className="overflow-hidden">
-          <table className="w-full table-fixed body-sm" aria-label="Audit trail">
-            <thead>
-              <tr className="cockpit-table-rule">
-                <th className="cockpit-col-time text-left ct-table-header stat-label">Time</th>
-                <th className="cockpit-col-actor text-left ct-table-header stat-label">Actor</th>
-                <th className="cockpit-col-action text-left ct-table-header stat-label">Action</th>
-                <th className="hidden cockpit-col-entity text-left ct-table-header stat-label md:table-cell">
-                  Entity
-                </th>
-                <th className="hidden cockpit-col-entity-id text-left ct-table-header stat-label lg:table-cell">
-                  Entity ID
-                </th>
-              </tr>
-            </thead>
-          </table>
-        </div>
-        <EmptySurface
-          variant="inline"
-          message="No admin activity recorded yet."
-          ariaLabel="Audit trail"
-        />
-      </>
+      <EmptySurface
+        variant="inline"
+        message="No admin activity recorded yet."
+        ariaLabel="Audit trail"
+      />
     );
   }
 
