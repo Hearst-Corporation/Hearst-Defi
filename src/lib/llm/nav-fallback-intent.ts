@@ -8,6 +8,10 @@
  */
 
 import type { NavProfile } from "@/lib/llm/navigate-tool";
+import {
+  ADMIN_NAV_DESTINATIONS,
+  LP_NAV_DESTINATIONS,
+} from "@/lib/llm/navigate-tool";
 
 
 export const ADMIN_CUSTOMERS_DESTINATION_KEY = "admin-customers";
@@ -15,7 +19,7 @@ export const ADMIN_OUTREACH_DESTINATION_KEY = "admin-outreach";
 
 /** Shared navigation verbs (FR + EN). */
 const NAV_VERB =
-  "(?:ouvre|ouvrir|va sur|vas sur|montre|affiche|navigue|acc[eè]de|am[eè]ne|open|go to|take me to|bring me to|show me|show|view|redirect)";
+  "(?:ouvre|ouvrir|ouvre-moi|va sur|vas sur|aller sur|montre|montre-moi|affiche|affiche-moi|navigue|acc[eè]de|acc[eè]der|am[eè]ne|am[eè]ne-moi|emm[eè]ne|emm[eè]ne-moi|voir|consulte|consulter|open|go to|take me to|bring me to|show me|show|view|redirect)";
 
 const LP_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
   {
@@ -117,6 +121,112 @@ const ADMIN_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
   },
 ];
 
+/**
+ * Per-destination keywords for the DERIVED regex fast-path.
+ *
+ * Every whitelist key has an entry (a sync-guard test enforces it), so adding a
+ * page to the whitelist gives it instant, LLM-free navigation as soon as it gets
+ * keywords here. Keep terms DISTINCTIVE per page. The derived rules are
+ * nav-verb-gated (see `buildDerivedRules`), so a mere conversational mention of
+ * a term ("je ne comprends pas mes distributions") does NOT trigger navigation —
+ * only an explicit "ouvre/va sur/montre … <term>" does.
+ *
+ * Hand-tuned rules above still run FIRST (zero regression); these cover the long
+ * tail of pages that have no bespoke rule.
+ */
+export const NAV_KEYWORDS: Record<string, readonly string[]> = {
+  // LP
+  portfolio: ["portefeuille", "portfolio", "allocation", "tableau de bord"],
+  "portfolio-positions": ["positions", "mes lignes", "détail des positions"],
+  "portfolio-activity": ["activité", "historique", "mouvements", "activity"],
+  "portfolio-distributions": [
+    "distributions",
+    "distribution",
+    "versements",
+    "coupons",
+  ],
+  "portfolio-yield": ["rendement", "yield", "performance", "mes gains", "intérêts"],
+  "portfolio-tax": ["fiscalité", "fiscal", "fiscaux", "impôts", "tax"],
+  vaults: ["vaults", "produits", "offres", "souscrire", "investir"],
+  "proof-center": ["proof center", "preuve de réserve", "attestations", "réserves"],
+  "proof-center-full": ["proof center complet", "toutes les preuves", "preuves complètes"],
+  profile: ["profil", "mon compte", "kyc", "préférences", "paramètres"],
+  legal: ["mentions légales", "documents légaux", "legal"],
+  "legal-disclaimer": ["disclaimer", "avertissement"],
+  "legal-privacy": ["confidentialité", "vie privée", "privacy"],
+  "legal-terms": ["conditions", "cgu", "terms"],
+  // Admin
+  "admin-product-workspace": ["product workspace", "espace produit"],
+  "admin-scenario-lab": ["scenario lab", "laboratoire de scénarios"],
+  "admin-dashboard": ["dashboard admin", "tableau de bord admin", "command center"],
+  "admin-vaults": ["vaults admin", "gestion des vaults"],
+  "admin-customers": ["clients", "customers", "investisseurs", "fiche client"],
+  "admin-outreach": ["outreach", "prospection", "campagne email"],
+  "admin-proofs": ["proofs admin", "gestion des proofs"],
+  "admin-governance": ["gouvernance", "governance"],
+  "admin-roadmap": ["roadmap", "feuille de route"],
+  "admin-projection": ["projection", "projections"],
+  "admin-home": ["accueil admin", "operations admin", "console admin"],
+  "admin-vaults-new": ["nouveau vault", "créer un vault", "new vault"],
+  "admin-outreach-compose": ["composer un email", "rédiger un email", "compose"],
+  "admin-proof-center": ["proof center admin"],
+  "admin-proof-center-full": ["proof center admin complet"],
+  "admin-governance-allowlist": ["allowlist", "liste blanche", "adresses autorisées"],
+  "admin-governance-propose": ["proposer", "nouvelle proposition", "propose"],
+  "admin-agents": ["agents", "console agents"],
+  "admin-agents-new": ["nouvel agent", "créer un agent"],
+  "admin-audit": ["audit", "journal d'audit", "traçabilité"],
+  "admin-distributions": ["distributions admin", "gestion des distributions"],
+  "admin-feedback": ["feedback", "retours"],
+  "admin-investor-memo": ["investor memo", "mémo investisseur", "memo"],
+  "admin-monitoring": ["monitoring", "surveillance", "santé système"],
+  "admin-security": ["sécurité", "security", "contrôle d'accès"],
+  "admin-signals": ["signals", "signaux", "indicateurs"],
+  "admin-spec": ["specs", "spécifications", "spec produit"],
+};
+
+/** Escape regex metacharacters in a literal keyword. */
+function escapeRe(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Route depth (segment count). Deeper = more specific → matched first so a
+ *  sub-page ("/portfolio/tax") wins over its parent ("/portfolio"). */
+function routeDepth(route: string): number {
+  return route.split("/").filter(Boolean).length;
+}
+
+/**
+ * Build nav-verb-gated regex rules from each destination's keywords. The rule
+ * matches only when a navigation verb precedes one of the page's keywords, so a
+ * conversational mention never hijacks navigation. Rules are ordered deepest
+ * route first so a sub-page beats its parent.
+ */
+function buildDerivedRules(
+  destinations: readonly { key: string; route: string }[],
+): ReadonlyArray<{ key: string; re: RegExp }> {
+  return [...destinations]
+    .filter((d) => (NAV_KEYWORDS[d.key]?.length ?? 0) > 0)
+    .sort((a, b) => routeDepth(b.route) - routeDepth(a.route))
+    .map((d) => {
+      const kws = (NAV_KEYWORDS[d.key] ?? []).map(escapeRe).join("|");
+      return {
+        key: d.key,
+        // Nav verb, then anything, then a page keyword. Boundaries use
+        // Unicode-aware lookarounds (NOT `\b`, which is ASCII-only and would
+        // fail right after an accented letter — "sécurité", "fiscalité",
+        // "activité" all end in "é"). The `u` flag enables `\p{L}`.
+        re: new RegExp(
+          `(?<![\\p{L}\\p{N}])${NAV_VERB}.*(?<![\\p{L}\\p{N}])(?:${kws})(?![\\p{L}\\p{N}])`,
+          "iu",
+        ),
+      };
+    });
+}
+
+const LP_DERIVED_RULES = buildDerivedRules(LP_NAV_DESTINATIONS);
+const ADMIN_DERIVED_RULES = buildDerivedRules(ADMIN_NAV_DESTINATIONS);
+
 function firstMatchingKey(
   message: string,
   rules: ReadonlyArray<{ key: string; re: RegExp }>,
@@ -129,14 +239,23 @@ function firstMatchingKey(
   return null;
 }
 
-/** LP-only navigation regex. */
+/** LP-only navigation regex. Hand-tuned rules first (priority), then the
+ *  keyword-derived rules covering every other LP page. */
 export function resolveLpNavDestinationKey(message: string): string | null {
-  return firstMatchingKey(message, LP_NAV_RULES);
+  return (
+    firstMatchingKey(message, LP_NAV_RULES) ??
+    firstMatchingKey(message, LP_DERIVED_RULES)
+  );
 }
 
-/** Admin navigation regex (customers, outreach, ops surfaces). */
+/** Admin navigation regex (customers, outreach, ops surfaces). Hand-tuned rules
+ *  first (priority), then the keyword-derived rules covering every other admin
+ *  page. */
 export function resolveAdminNavFallbackKey(message: string): string | null {
-  return firstMatchingKey(message, ADMIN_NAV_RULES);
+  return (
+    firstMatchingKey(message, ADMIN_NAV_RULES) ??
+    firstMatchingKey(message, ADMIN_DERIVED_RULES)
+  );
 }
 
 /**
