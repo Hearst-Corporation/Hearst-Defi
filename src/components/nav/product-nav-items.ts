@@ -40,7 +40,7 @@ export const PRODUCT_NAV: NavItem[] = [
   },
   {
     id: "vaults",
-    label: "Invest",
+    label: "Vaults",
     href: "/vaults",
     icon: "Vault",
   },
