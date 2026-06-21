@@ -43,18 +43,6 @@ const CY_BUCKET_GREEN: Record<YieldSource["bucket"], string> = {
 
 const CY_ZERO_STATE = {
   targetApyRange: { low: 9, high: 13 },
-  buckets: [
-    { label: "Mining", pct: 62, color: "var(--ct-accent)", opacity: 0.45 },
-    { label: "USDC Base", pct: 18, color: "var(--ct-accent)", opacity: 0.28 },
-    { label: "BTC Tactical", pct: 12, color: "var(--ct-accent)", opacity: 0.18 },
-    { label: "Reserve", pct: 8, color: "var(--ct-accent)", opacity: 0.11 },
-  ],
-  ledgerRows: [
-    { label: "Mining yield", w: 78, apy: "9-13%" },
-    { label: "USDC base", w: 52, apy: "4-6%" },
-    { label: "BTC tactical", w: 38, apy: "2-4%" },
-    { label: "Reserve buffer", w: 22, apy: "1-2%" },
-  ],
 } as const;
 
 export interface CapitalYieldProps {
