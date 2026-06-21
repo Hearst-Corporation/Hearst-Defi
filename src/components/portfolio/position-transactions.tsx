@@ -94,39 +94,32 @@ export function PositionTransactions({
       </div>
 
       {transactions.length === 0 ? (
-        <p className="body-sm ct-text-muted mt-[var(--ct-space-2)]">
+        <p className="body-sm ct-text-muted position-detail-transactions__empty">
           No transactions recorded yet.
         </p>
       ) : (
-        <div
-          className="overflow-x-auto overflow-y-hidden"
-        >
-          {/* min-w-max keeps columns at natural width; the overflow-x-auto wrapper
-              scrolls horizontally on narrow viewports instead of crushing cells. */}
-          <table className="body-sm w-full min-w-max border-collapse">
+        <div className="position-detail-transactions__scroll">
+          <table className="body-sm position-detail-transactions__table">
             <thead>
-              <tr className="stat-label ct-text-muted border-b border-[var(--ct-border-soft)]">
-                <th className="text-left pb-[var(--ct-space-2)] font-[inherit]">Date</th>
-                <th className="text-left pb-[var(--ct-space-2)] font-[inherit]">Type</th>
-                <th className="text-right pb-[var(--ct-space-2)] font-[inherit]">Amount</th>
-                <th className="text-right pb-[var(--ct-space-2)] font-[inherit]">Tx</th>
+              <tr className="stat-label ct-text-muted position-detail-transactions__headrow">
+                <th className="position-detail-transactions__th position-detail-transactions__th--left">Date</th>
+                <th className="position-detail-transactions__th position-detail-transactions__th--left">Type</th>
+                <th className="position-detail-transactions__th position-detail-transactions__th--right">Amount</th>
+                <th className="position-detail-transactions__th position-detail-transactions__th--right">Tx</th>
               </tr>
             </thead>
             <tbody>
               {transactions.map((tx) => {
                 const incoming = isIncoming(tx.type);
                 return (
-                  <tr
-                    key={tx.id}
-                    className="border-b border-[var(--ct-border-soft)]"
-                  >
+                  <tr key={tx.id} className="position-detail-transactions__row">
                     {/* Date */}
-                    <td className="tabular body-xs ct-text-muted py-[var(--ct-space-2)] pr-[var(--ct-space-4)] mono whitespace-nowrap">
+                    <td className="tabular body-xs ct-text-muted mono whitespace-nowrap position-detail-transactions__cell position-detail-transactions__cell--pad">
                       {dateFmt.format(tx.occurredAt)}
                     </td>
 
                     {/* Type + icon */}
-                    <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-4)]">
+                    <td className="position-detail-transactions__cell position-detail-transactions__cell--pad">
                       <span className="body-xs ct-text-body pf-inline-row pf-inline-row--dense">
                         <span
                           aria-hidden="true"
@@ -141,7 +134,7 @@ export function PositionTransactions({
                     {/* Amount — green for incoming (deposit), muted for outgoing */}
                     <td
                       className={cn(
-                        "tabular body-md py-[var(--ct-space-2)] pr-[var(--ct-space-4)] text-right mono font-semibold whitespace-nowrap",
+                        "tabular body-md text-right mono font-semibold whitespace-nowrap position-detail-transactions__cell position-detail-transactions__cell--pad",
                         incoming ? "ct-status-success" : "ct-text-primary",
                       )}
                     >
@@ -150,13 +143,13 @@ export function PositionTransactions({
                     </td>
 
                     {/* Tx hash — never link a fabricated seed/demo hash (dead BaseScan). */}
-                    <td className="py-[var(--ct-space-2)] text-right whitespace-nowrap">
+                    <td className="whitespace-nowrap position-detail-transactions__cell position-detail-transactions__cell--right">
                       {tx.txHash && !isPlaceholderTxHash(tx.txHash) ? (
                         <a
                           href={explorerTxUrl(tx.txHash)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="tabular body-xs mono ct-text-accent-strong no-underline transition-opacity duration-[var(--ct-dur-fast)] ease-[var(--ct-ease)] hover:opacity-[var(--ct-opacity-80)]"
+                          className="tabular body-xs mono ct-text-accent-strong position-detail-transactions__tx"
                           title={tx.txHash}
                         >
                           {tx.txHash.slice(0, 6)}&hellip;{tx.txHash.slice(-4)} ↗

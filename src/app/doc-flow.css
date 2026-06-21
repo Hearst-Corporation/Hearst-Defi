@@ -1826,6 +1826,57 @@
   gap: var(--ct-space-2);
 }
 
+.product-doc .position-detail-transactions__empty {
+  margin-top: var(--ct-space-2);
+}
+
+.product-doc .position-detail-transactions__scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* min-w-max keeps columns at natural width; the scroll wrapper handles overflow. */
+.product-doc .position-detail-transactions__table {
+  width: 100%;
+  min-width: max-content;
+  border-collapse: collapse;
+}
+
+.product-doc .position-detail-transactions__headrow,
+.product-doc .position-detail-transactions__row {
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.product-doc .position-detail-transactions__th {
+  font: inherit;
+  padding-bottom: var(--ct-space-2);
+}
+
+.product-doc .position-detail-transactions__th--left { text-align: left; }
+.product-doc .position-detail-transactions__th--right { text-align: right; }
+
+.product-doc .position-detail-transactions__cell {
+  padding-top: var(--ct-space-2);
+  padding-bottom: var(--ct-space-2);
+}
+
+.product-doc .position-detail-transactions__cell--pad {
+  padding-right: var(--ct-space-4);
+}
+
+.product-doc .position-detail-transactions__cell--right {
+  text-align: right;
+}
+
+.product-doc .position-detail-transactions__tx {
+  text-decoration: none;
+  transition: opacity var(--ct-dur-fast) var(--ct-ease);
+}
+
+.product-doc .position-detail-transactions__tx:hover {
+  opacity: var(--ct-opacity-80);
+}
+
 .product-doc .position-detail-disclaimer {
   margin: 0;
   max-width: var(--ct-prose-xl);

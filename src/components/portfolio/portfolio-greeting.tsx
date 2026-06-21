@@ -57,7 +57,7 @@ export function PortfolioGreeting({ name, ticker }: PortfolioGreetingProps) {
         </p>
       </div>
 
-      {ticker ? (
+      {ticker && has ? (
         <dl className="pf-ticker-inline">
           <div className="pf-ticker-cell">
             <dt className="pf-ticker-label">Portfolio value</dt>

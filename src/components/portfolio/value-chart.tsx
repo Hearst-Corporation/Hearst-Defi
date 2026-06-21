@@ -93,32 +93,6 @@ function areaFromLine(linePath: string, pts: Pt[]): string {
  * ────────────────────────────────────────────────────────────────────────── */
 type SeriesMode = "ledger" | "indicative" | "preview";
 
-const PREVIEW_MONTHS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-] as const;
-
-/** Courbe indicative de démarrage (250k → ~277k, ~11% APY sur 12 mois).
- *  Pur preview, JAMAIS de la vraie data — affichée sous chip "Preview". */
-function buildPreviewSeries(asOf: Date): PortfolioValuePoint[] {
-  const base = 250_000;
-  const end = 277_500;
-  const out: PortfolioValuePoint[] = [];
-  for (let i = 0; i < 12; i++) {
-    const m = new Date(
-      Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth() - 11 + i, 1),
-    );
-    const t = i / 11;
-    const wave = Math.sin(i * 1.1) * 1_200; // micro-ondulation premium
-    out.push({
-      label: PREVIEW_MONTHS[m.getUTCMonth() % 12] ?? "",
-      value: Math.round(base + (end - base) * t + wave),
-      isDistribution: false,
-    });
-  }
-  return out;
-}
-
 function resolveSeries(
   positions: PortfolioPosition[],
   totalValueUsdc: number,
@@ -292,9 +266,10 @@ export function ValueChart({
   const asOf = updatedAt ?? new Date();
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
 
-  // Zero-state → courbe PREVIEW (honnête, sous chip "Preview", pas de badge Live).
+  // Zero-state shows a clean empty-state (no ghost curve), so only the live
+  // branch needs a real series / projection.
   const { points: series, mode } = isEmpty
-    ? { points: buildPreviewSeries(asOf), mode: "preview" as const }
+    ? { points: [] as PortfolioValuePoint[], mode: "preview" as const }
     : resolveSeries(positions, totalValueUsdc, valueChartTransactions, asOf);
 
   const provenance: Provenance | undefined = isEmpty
@@ -307,7 +282,6 @@ export function ValueChart({
 
   const chartValue = isEmpty ? 0 : totalValueUsdc;
   const pts = project(series.map((d) => d.value));
-  // Pas de dots de distribution en preview ; juste l'endcap pour ancrer l'œil.
   const dots = buildDots(series, pts);
 
   return (
@@ -330,11 +304,7 @@ export function ValueChart({
         <header className="pf-cockpit-panel__header">
           <div className="pf-cockpit-panel__header-main min-w-0">
             <h2 className="pf-cockpit-panel__title--primary">Portfolio value</h2>
-            {isEmpty ? (
-              <p className="pf-cockpit-panel__subtitle body-xs ct-text-tertiary m-0 mono">
-                Indicative curve · not your data
-              </p>
-            ) : (
+            {isEmpty ? null : (
               <p className="pf-hero-kpi-block m-0">
                 <span className="pf-hero-kpi-value tabular-nums">
                   {formatUsdFull(chartValue)}
@@ -342,23 +312,20 @@ export function ValueChart({
               </p>
             )}
           </div>
-          {isEmpty ? <span className="pf-chip-accent">Preview</span> : null}
         </header>
       ) : (
         <PfCockpitPanelHeader
           title="Portfolio value over the trailing window"
           subtitle={
             isEmpty
-              ? "Preview · indicative curve"
+              ? undefined
               : mode === "ledger"
                 ? "Ledger-anchored · month-end marks"
                 : "Indicative · principal to current value"
           }
           titleVariant="primary"
           trailing={
-            isEmpty ? (
-              <span className="pf-chip-accent">Preview</span>
-            ) : (
+            isEmpty ? undefined : (
               <span className="pf-hero-kpi-value tabular-nums">
                 {formatUsdCompact(chartValue)}
               </span>
@@ -367,60 +334,68 @@ export function ValueChart({
         />
       )}
 
-      <div className="pf-value-chart__chart-wrapper">
-        <div className="pf-value-chart__plot">
-          {isEmpty ? null : <ChartDisclaimerUnderlay />}
-          <Plot series={series} lineOnly={false} preview={mode === "preview"} />
-          {dots.length > 0 ? (
-            <div className="pf-vc-dots" aria-hidden="true">
-              {dots.map((dot, i) => (
+      {isEmpty ? (
+        /* Empty-state only — no ghost curve (a faux trend next to "no data yet"
+           reads as two conflicting signals). Same register as the other widgets. */
+        <div className="pf-positions-empty pf-positions-empty--embedded">
+          <p className="pf-positions-empty__lead body-sm ct-text-muted m-0">
+            No value history yet
+          </p>
+          <p className="pf-positions-empty__hint body-xs ct-text-tertiary m-0">
+            Your portfolio value curve appears here after your first confirmed
+            on-chain position.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="pf-value-chart__chart-wrapper">
+            <div className="pf-value-chart__plot">
+              <ChartDisclaimerUnderlay />
+              <Plot series={series} lineOnly={false} preview={mode === "preview"} />
+              {dots.length > 0 ? (
+                <div className="pf-vc-dots" aria-hidden="true">
+                  {dots.map((dot, i) => (
+                    <span
+                      key={i}
+                      className={cn("pf-vc-dot", dot.isEndcap && "pf-vc-dot--endcap")}
+                      style={{
+                        left: `${dot.leftPct.toFixed(3)}%`,
+                        top: `${dot.topPct.toFixed(3)}%`,
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="stat-label ct-text-muted relative mono pf-value-chart__month-labels">
+            {series.map((s, i) => {
+              if (i % 3 !== 0 && i !== series.length - 1) return null;
+              const pct =
+                series.length === 1 ? 50 : (i / (series.length - 1)) * 100;
+              let transform = "translateX(-50%)";
+              if (i === 0) transform = "none";
+              if (i === series.length - 1 && series.length > 1)
+                transform = "translateX(-100%)";
+              return (
                 <span
                   key={i}
-                  className={cn("pf-vc-dot", dot.isEndcap && "pf-vc-dot--endcap")}
-                  style={{
-                    left: `${dot.leftPct.toFixed(3)}%`,
-                    top: `${dot.topPct.toFixed(3)}%`,
-                  }}
-                />
-              ))}
-            </div>
-          ) : null}
-        </div>
-      </div>
+                  className="absolute top-0"
+                  style={{ left: `${pct}%`, transform }}
+                >
+                  {s.label}
+                </span>
+              );
+            })}
+          </div>
 
-      <div
-        className="stat-label ct-text-muted relative mono pf-value-chart__month-labels"
-      >
-        {series.map((s, i) => {
-          if (i % 3 !== 0 && i !== series.length - 1) return null;
-          const pct =
-            series.length === 1 ? 50 : (i / (series.length - 1)) * 100;
-          let transform = "translateX(-50%)";
-          if (i === 0) transform = "none";
-          if (i === series.length - 1 && series.length > 1)
-            transform = "translateX(-100%)";
-          return (
-            <span
-              key={i}
-              className="absolute top-0"
-              style={{ left: `${pct}%`, transform }}
-            >
-              {s.label}
-            </span>
-          );
-        })}
-      </div>
-
-      {isEmpty ? (
-        <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
-          Activates after first confirmed on-chain position.
-        </p>
-      ) : (
-        <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
-          {mode === "ledger"
-            ? "Month-end values interpolate between your deposit and payout ledger entries and the current live mark. Not guaranteed."
-            : "Indicative path from subscribed principal to current value until ledger history is available. Not guaranteed."}
-        </p>
+          <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
+            {mode === "ledger"
+              ? "Month-end values interpolate between your deposit and payout ledger entries and the current live mark. Not guaranteed."
+              : "Indicative path from subscribed principal to current value until ledger history is available. Not guaranteed."}
+          </p>
+        </>
       )}
     </PfCockpitPanel>
   );

@@ -160,14 +160,16 @@ export function PortfolioStatusPanel({
             </span>
             <dt className="pf-status-row__label">{r.label}</dt>
             <dd className="pf-status-row__trail">
-              <span
-                className={cn(
-                  "pf-status-row__value tabular",
-                  r.valueAccent && "ct-text-accent"
-                )}
-              >
-                {r.value}
-              </span>
+              {r.value !== DASH ? (
+                <span
+                  className={cn(
+                    "pf-status-row__value tabular",
+                    r.valueAccent && "ct-text-accent"
+                  )}
+                >
+                  {r.value}
+                </span>
+              ) : null}
               <span className="pf-status-row__meta">{r.meta}</span>
             </dd>
           </div>

@@ -180,7 +180,7 @@ export function ProofPulse({
       {hasData ? (
         <section aria-label="Last Proof of Reserves">
           <PfCockpitSubhead
-            className="mb-[var(--ct-space-2)]"
+            className="pf-proof-pulse__subhead"
             title="Last PoR"
             meta={
               <time dateTime={formatIso(timestamp)}>
@@ -282,10 +282,10 @@ export function ProofPulse({
       )}
 
       {/* ── CTA ────────────────────────────────────────────────────────────── */}
-      <div className="mt-auto pt-[var(--ct-space-3)] flex justify-end">
+      <div className="pf-proof-pulse__cta">
         <Link
           href={proofCenterHref}
-          className="body-xs ct-text-muted hover:ct-text-primary transition-colors duration-[var(--ct-dur-base)] ease-[var(--ct-ease)] underline underline-offset-2 decoration-[var(--ct-border)]"
+          className="body-xs ct-text-muted pf-proof-pulse__cta-link"
           aria-label="Open proof center"
         >
           Open proof center

@@ -28,7 +28,7 @@ function TaxRows({
           <dd>
             <span className="tabular">{row.value}</span>
             {row.hint ? (
-              <span className="body-xs ct-text-muted block mt-0.5">{row.hint}</span>
+              <span className="body-xs ct-text-muted pf-tax-preview__hint">{row.hint}</span>
             ) : null}
           </dd>
         </div>
