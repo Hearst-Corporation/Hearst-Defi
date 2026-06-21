@@ -69,7 +69,7 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
         </nav>
         <span className="app-footer__status body-xs ct-text-faint">
           <ProvenanceBadge kind="live" variant="strip" />
-          Live · {APY_RANGE} · © 2026
+          Service live · {APY_RANGE} · © 2026
         </span>
       </footer>
     );
@@ -119,7 +119,6 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
           </span>
           <span className="body-sm ct-text-muted">{APY_RANGE}</span>
           <span className="body-sm ct-text-faint">Base · testnet</span>
-          <span className="body-sm ct-text-faint">Provenance: Live</span>
         </section>
       </div>
 

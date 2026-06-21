@@ -507,6 +507,16 @@
     min-height: 0;
   }
 
+  /* …but the payout ghost chart still needs a floor: with the assistant open the
+     deck cell narrows and the 560/180 aspect-ratio alone collapsed the shell to
+     ~33px (bars 7px, illegible). Drop the ratio and clamp like the below-gate
+     branch so the bars stay readable inside the gate too. */
+  .pf-container--fit .pf-cockpit-row--deck .pf-distrib-chart-shell {
+    aspect-ratio: auto;
+    min-height: 5rem;
+    max-height: 9.5rem;
+  }
+
   /* Dense leaf bodies that can genuinely overflow scroll INSIDE their plate.
      Anti-clip soupape: nothing is ever lost to overflow:hidden — at worst a body
      scrolls silently inside its plate (scrollbar hidden). status-list joins so the
@@ -1570,6 +1580,10 @@
   fill: var(--ct-text-muted);
   font-size: var(--ct-text-nano); /* 9px — SVG chart text */
   font-weight: var(--ct-font-semibold);
+  /* Match the hero value-chart axis (uppercase via .stat-label) so both charts
+     on /portfolio share one month-label casing — was Title-case "Jan". */
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
 }
 
 /* ---- Calendar footer (dl of upcoming items) ---- */
