@@ -22,14 +22,14 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
         <div className="overflow-hidden">
           <table className="w-full table-fixed body-sm" aria-label="Audit trail">
             <thead>
-              <tr className="border-b border-(--ct-border-soft)">
-                <th className="w-[20%] text-left ct-table-header stat-label">Time</th>
-                <th className="w-[18%] text-left ct-table-header stat-label">Actor</th>
-                <th className="w-[24%] text-left ct-table-header stat-label">Action</th>
-                <th className="hidden w-[18%] text-left ct-table-header stat-label md:table-cell">
+              <tr className="cockpit-table-rule">
+                <th className="cockpit-col-time text-left ct-table-header stat-label">Time</th>
+                <th className="cockpit-col-actor text-left ct-table-header stat-label">Actor</th>
+                <th className="cockpit-col-action text-left ct-table-header stat-label">Action</th>
+                <th className="hidden cockpit-col-entity text-left ct-table-header stat-label md:table-cell">
                   Entity
                 </th>
-                <th className="hidden w-[20%] text-left ct-table-header stat-label lg:table-cell">
+                <th className="hidden cockpit-col-entity-id text-left ct-table-header stat-label lg:table-cell">
                   Entity ID
                 </th>
               </tr>
@@ -50,20 +50,20 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
       <div className="overflow-hidden">
         <table className="w-full table-fixed body-sm" aria-label="Audit trail">
           <thead>
-            <tr className="border-b border-(--ct-border-soft)">
-              <th className="w-[20%] text-left ct-table-header stat-label">
+            <tr className="cockpit-table-rule">
+              <th className="cockpit-col-time text-left ct-table-header stat-label">
                 Time
               </th>
-              <th className="w-[18%] text-left ct-table-header stat-label">
+              <th className="cockpit-col-actor text-left ct-table-header stat-label">
                 Actor
               </th>
-              <th className="w-[24%] text-left ct-table-header stat-label">
+              <th className="cockpit-col-action text-left ct-table-header stat-label">
                 Action
               </th>
-              <th className="hidden w-[18%] text-left ct-table-header stat-label md:table-cell">
+              <th className="hidden cockpit-col-entity text-left ct-table-header stat-label md:table-cell">
                 Entity
               </th>
-              <th className="hidden w-[20%] text-left ct-table-header stat-label lg:table-cell">
+              <th className="hidden cockpit-col-entity-id text-left ct-table-header stat-label lg:table-cell">
                 Entity ID
               </th>
             </tr>
@@ -86,7 +86,7 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
     : entry.entityId;
 
   return (
-    <tr className="border-b border-(--ct-border-soft) hover:bg-(--ct-surface-1) transition-colors ease-[var(--ct-ease)] cursor-default">
+    <tr className="cockpit-table-rule cockpit-hover-row cursor-default">
       <td className="ct-table-cell tabular body-xs ct-text-muted text-left">
         {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
       </td>

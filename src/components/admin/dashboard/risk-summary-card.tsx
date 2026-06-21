@@ -8,9 +8,9 @@ import type {
 } from "@/lib/data/risk-framework";
 
 const SEVERITY_FILL: Record<RiskSeverity, string> = {
-  low: "bg-(--ct-status-success)",
-  medium: "bg-(--ct-status-warning)",
-  high: "bg-(--ct-status-danger)",
+  low: "cockpit-risk-fill--low",
+  medium: "cockpit-risk-fill--medium",
+  high: "cockpit-risk-fill--high",
 };
 
 const SEVERITY_TEXT: Record<RiskSeverity, string> = {

@@ -1,0 +1,148 @@
+/* =============================================================================
+   dashboard.css — Admin Command Center cockpit (page-scoped)
+
+   Companion to risk-summary-responsive.css / system-readiness.css. Holds the
+   semantic classes that used to live as arbitrary Tailwind utilities inside the
+   dashboard + cockpit JSX (action-queue, audit-trail-rolling, live-ops,
+   live-metrics, risk-summary-card). Markup carries semantic `.cockpit-*` /
+   `.dash-*` names; this sheet owns every value.
+
+   EDITING RULES (same canon as portfolio.css):
+   - COLORS / SURFACES: var(--ct-*) only. No raw hex/rgb. color-mix() ratios are
+     the ONLY exception (no token for a mix percentage).
+   - SPACING / RADIUS / EASING: tokens only (--ct-space-*, --ct-radius-*, --ct-ease).
+   - 1px hairline borders are allowed (a contour does not tokenise to --ct-space).
+   - Dark mode only. No `dark:` modifiers. No tailwind.config.
+
+   ONE accent green: --ct-accent (#A7FB90); status colours resolve through
+   --ct-status-* tokens. Do not pile up fighting overrides — the structural
+   geometry (padding, flex, grid) already lives in cockpit.css under the same
+   `.dashboard-*` names; this sheet only adds the interaction / status / column
+   layers that were previously inlined.
+   ============================================================================= */
+
+/* =============================================================================
+   1. STATUS DOTS — colour variants for .dashboard-status-dot (live-ops)
+   ============================================================================= */
+
+.cockpit-dot--ok {
+  background: var(--ct-status-success);
+}
+.cockpit-dot--err {
+  background: var(--ct-status-danger);
+}
+.cockpit-dot--pending {
+  background: var(--ct-status-warning);
+}
+.cockpit-dot--idle {
+  background: var(--ct-border);
+  opacity: var(--ct-opacity-60);
+}
+
+/* =============================================================================
+   2. SEVERITY PILL — colour variants for .dashboard-severity-pill (action-queue)
+      (geometry + `border: 1px solid` already set in cockpit.css)
+   ============================================================================= */
+
+.cockpit-severity--p0 {
+  background: var(--ct-status-danger-soft);
+  border-color: var(--ct-status-danger-border);
+  color: var(--ct-status-danger);
+}
+.cockpit-severity--p1 {
+  background: var(--ct-status-warning-soft);
+  border-color: var(--ct-status-warning-border);
+  color: var(--ct-status-warning);
+}
+.cockpit-severity--p2 {
+  background: var(--ct-surface-1);
+  border-color: var(--ct-border-soft);
+  color: var(--ct-text-faint);
+}
+
+/* =============================================================================
+   3. HOVERABLE ROWS — surface-1 hover + tokenised transition
+      (action-queue li, audit-trail tbody tr, live-metrics row)
+   ============================================================================= */
+
+.cockpit-hover-row {
+  transition: background-color var(--ct-dur-fast) var(--ct-ease);
+}
+.cockpit-hover-row:hover {
+  background: var(--ct-surface-1);
+}
+
+/* Action-queue row + live-metrics row also carry inset rounding + negative
+   gutter so the hover plate breathes past the panel padding. */
+.cockpit-hover-row--inset {
+  border-radius: var(--ct-radius-md);
+  padding-left: var(--ct-space-2);
+  padding-right: var(--ct-space-2);
+  margin-left: calc(-1 * var(--ct-space-2));
+  margin-right: calc(-1 * var(--ct-space-2));
+}
+
+/* On-chain event link — opacity dip on hover (no surface change). */
+.cockpit-hover-fade {
+  transition: opacity var(--ct-dur-fast) var(--ct-ease);
+}
+.cockpit-hover-fade:hover {
+  opacity: var(--ct-opacity-80);
+}
+
+/* =============================================================================
+   4. TABLE HAIRLINES — border-bottom on audit-trail header + rows
+   ============================================================================= */
+
+.cockpit-table-rule {
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+/* =============================================================================
+   5. AUDIT-TRAIL COLUMN WIDTHS — table-fixed column ratios
+      (replaces w-[20%] / w-[18%] / w-[24%] arbitrary utilities)
+   ============================================================================= */
+
+.cockpit-col-time {
+  width: 20%;
+}
+.cockpit-col-actor {
+  width: 18%;
+}
+.cockpit-col-action {
+  width: 24%;
+}
+.cockpit-col-entity {
+  width: 18%;
+}
+.cockpit-col-entity-id {
+  width: 20%;
+}
+
+/* =============================================================================
+   6. RISK SUMMARY — severity fill variants for the <Progress> bar
+      (risk-summary-card fillClassName)
+   ============================================================================= */
+
+.cockpit-risk-fill--low {
+  background: var(--ct-status-success);
+}
+.cockpit-risk-fill--medium {
+  background: var(--ct-status-warning);
+}
+.cockpit-risk-fill--high {
+  background: var(--ct-status-danger);
+}
+
+/* =============================================================================
+   7. LIVE-METRICS — vault head row bottom gutter + accent link hover
+   ============================================================================= */
+
+.cockpit-metric-head {
+  margin-bottom: var(--ct-space-2);
+}
+
+.cockpit-metric-link:hover {
+  color: var(--ct-accent);
+  text-decoration: underline;
+}

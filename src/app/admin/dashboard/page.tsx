@@ -1,5 +1,6 @@
 import "./risk-summary-responsive.css";
 import "./system-readiness.css";
+import "./dashboard.css";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DashboardAssetsBoard } from "@/components/admin/dashboard";

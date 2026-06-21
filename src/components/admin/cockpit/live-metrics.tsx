@@ -69,15 +69,15 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
 
   return (
     <div
-      className="dashboard-action-row hover:bg-(--ct-surface-1) transition-colors ease-[var(--ct-ease)] rounded-md px-[var(--ct-space-2)] -mx-2 cursor-default"
+      className="dashboard-action-row cockpit-hover-row cockpit-hover-row--inset cursor-default"
       aria-label={`Vault ${vault.vaultName} metrics`}
     >
       <div
-        className="dashboard-live-metrics__vault-head admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions min-w-0 mb-[var(--ct-space-2)]"
+        className="dashboard-live-metrics__vault-head admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions min-w-0 cockpit-metric-head"
       >
         <Link
           href={vault.href}
-          className="body-sm ct-text-strong min-w-0 truncate hover:ct-text-accent hover:underline font-medium"
+          className="body-sm ct-text-strong min-w-0 truncate cockpit-metric-link font-medium"
         >
           {vault.vaultName}
         </Link>

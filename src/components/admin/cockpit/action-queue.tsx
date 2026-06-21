@@ -55,7 +55,7 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
   return (
     <li
       className={cn(
-        "admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-action-row hover:bg-(--ct-surface-1) transition-colors ease-[var(--ct-ease)] rounded-md px-[var(--ct-space-2)] -mx-2 cursor-default",
+        "admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-action-row cockpit-hover-row cockpit-hover-row--inset cursor-default",
         isCritical && "dashboard-action-row--critical",
       )}
       aria-label={`${item.severity} — ${item.title}`}
@@ -88,9 +88,9 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
 
 function SeverityPill({ severity }: { severity: ActionSeverity }) {
   const styles: Record<ActionSeverity, string> = {
-    P0: "ct-status-danger-bg ct-status-danger border-(--ct-status-danger-border)",
-    P1: "ct-status-warning-bg ct-status-warning border-(--ct-status-warning-border)",
-    P2: "ct-surface-1 ct-text-faint border-(--ct-border-soft)",
+    P0: "cockpit-severity--p0",
+    P1: "cockpit-severity--p1",
+    P2: "cockpit-severity--p2",
   };
 
   return (
