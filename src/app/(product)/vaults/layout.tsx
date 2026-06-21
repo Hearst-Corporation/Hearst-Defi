@@ -1,4 +1,5 @@
 import "../../doc-flow.css";
+import "./vaults.css";
 
 export default function VaultsLayout({
   children,

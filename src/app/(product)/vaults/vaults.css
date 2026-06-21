@@ -1,0 +1,135 @@
+/* =============================================================================
+   vaults.css — Hearst Yield Vault invest flow (page-scoped)
+
+   Imported once from the vaults route layout (covers /vaults, /vaults/[id],
+   /vaults/[id]/invest, /vaults/[id]/invest/confirmed). Holds the semantic
+   classes that used to live as inline arbitrary utilities in the vaults TSX —
+   the page-scoped twin of portfolio.css.
+
+   EDITING RULES (enforced by convention, not lint):
+   - COLORS / SURFACES: var(--ct-*) only. No raw hex/rgb. color-mix() ratios are
+     the ONLY exception (no token for a mix percentage).
+   - SPACING: var(--ct-space-*) only. The ONLY raw lengths allowed are SVG
+     viewBox geometry / aspect-ratio backstops, 1px hairlines, 0 / 50% / 100%.
+   - RADIUS / SHADOW / BLUR / TYPOGRAPHY: tokens only (--ct-radius-*, --ct-blur-*,
+     --ct-text-*, --ct-font-*, --ct-leading-*, --ct-tracking-*).
+   - MOTION: --ct-dur-* / --ct-ease-* only.
+   - Dark mode only. No `dark:` modifiers. No tailwind.config.
+
+   ONE accent green: --ct-accent (#A7FB90).
+
+   Structural layout (grids, flow sections, panels, KPI strips) lives in the
+   SHARED doc-flow.css / cockpit.css (`vault-*`, `invest-flow-*`,
+   `admin-doc-*`). This file only carries what was inline in the markup.
+   ============================================================================= */
+
+/* =============================================================================
+   1. AMOUNT FIELD (deposit input + currency prefix)
+   ============================================================================= */
+
+.vault-amount-field {
+  position: relative;
+}
+
+/* "$" currency prefix overlaid on the left of the amount input. */
+.vault-amount-prefix {
+  position: absolute;
+  left: var(--ct-space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-muted);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* The amount input: leaves room for the prefix on the left. */
+.vault-amount-input {
+  width: 100%;
+  padding-block: var(--ct-space-3);
+  padding-inline: var(--ct-space-10) var(--ct-space-4);
+}
+
+/* Review-mode (unconfigured wallet) variant: dimmed. */
+.vault-amount-input--muted {
+  opacity: var(--ct-opacity-60);
+}
+
+/* =============================================================================
+   2. INLINE SPACING HELPERS (former mt-[var(--ct-space-N)] / mb-[...] etc.)
+   ============================================================================= */
+
+/* Term-sheet preview disclaimer line under the regime table. */
+.vault-regime-note {
+  margin-top: var(--ct-space-3);
+}
+
+/* Pre-flight review-mode status banner — bottom gap from the rows below. */
+.vault-preflight-note {
+  margin-bottom: var(--ct-space-4);
+}
+
+/* Disabled review-mode checkbox / control — dimmed. */
+.vault-control--muted {
+  opacity: var(--ct-opacity-60);
+}
+
+/* Disabled primary CTA — dimmed + not-allowed cursor. */
+.vault-cta--disabled {
+  opacity: var(--ct-opacity-60);
+  cursor: not-allowed;
+}
+
+/* Inline term-sheet link inside the consent checkbox — colour transition only. */
+.vault-inline-link {
+  transition: color var(--ct-dur-fast) var(--ct-ease);
+}
+
+/* =============================================================================
+   3. CONFIRM PANEL SEAM (former border-t + pt-[var(--ct-space-4)])
+   ============================================================================= */
+
+.vault-confirm-panel--seam {
+  border-top: 1px solid var(--ct-border-soft);
+  padding-top: var(--ct-space-4);
+}
+
+/* =============================================================================
+   4. SOFT-LOCK PROGRESS FILL (confirmed page)
+   -----------------------------------------------------------------------------
+   The width % stays inline on the element (it is data-driven), only the static
+   styling moves here.
+   ============================================================================= */
+
+.vault-lock-fill {
+  height: 100%;
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-accent);
+  transition: width var(--ct-dur-base) var(--ct-ease);
+}
+
+/* =============================================================================
+   5. LOADING SHELL FADE
+   ============================================================================= */
+
+.vault-flow-loading-fade {
+  animation-duration: var(--ct-dur-slower);
+}
+
+/* =============================================================================
+   6. TIME-TO-TARGET CHART (SVG band / area / ceiling line opacities)
+   -----------------------------------------------------------------------------
+   Former inline style={{ opacity / strokeOpacity }} on SVG <path>s.
+   ============================================================================= */
+
+.vault-ttt-band {
+  opacity: var(--ct-opacity-7);
+}
+
+.vault-ttt-mid-area {
+  opacity: var(--ct-opacity-18);
+}
+
+.vault-ttt-high-line {
+  stroke-opacity: var(--ct-opacity-45);
+}

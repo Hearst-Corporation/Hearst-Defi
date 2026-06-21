@@ -40,7 +40,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
             <CardTitle>Regime scenarios</CardTitle>
           </CardHeader>
           <RegimeScenarioTable vault={vault} />
-          <p className="body-xs ct-text-faint mt-[var(--ct-space-3)]">
+          <p className="body-xs ct-text-faint vault-regime-note">
             Conditional stress postures — not a projection of future returns · Methodology v1.0
           </p>
         </Card>

@@ -203,7 +203,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
           <path
             d={bandArea}
             fill="var(--ct-accent)"
-            style={{ opacity: "var(--ct-opacity-7)" }}
+            className="vault-ttt-band"
             aria-hidden="true"
           />
 
@@ -211,7 +211,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
           <path
             d={midArea}
             fill="var(--ct-accent)"
-            style={{ opacity: "var(--ct-opacity-18)" }}
+            className="vault-ttt-mid-area"
             aria-hidden="true"
           />
 
@@ -221,7 +221,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
             fill="none"
             stroke="var(--ct-accent)"
             strokeWidth="0.5"
-            style={{ strokeOpacity: "var(--ct-opacity-45)" }}
+            className="vault-ttt-high-line"
             strokeLinejoin="round"
             strokeLinecap="round"
             vectorEffect="non-scaling-stroke"

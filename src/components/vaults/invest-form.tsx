@@ -122,11 +122,8 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
               <label htmlFor="amt-input-disabled" className="sr-only">
                 Amount (USDC)
               </label>
-              <div className="relative">
-                <span
-                  aria-hidden
-                  className="absolute left-[var(--ct-space-4)] top-1/2 -translate-y-1/2 mono font-semibold ct-text-muted select-none"
-                >
+              <div className="vault-amount-field">
+                <span aria-hidden className="vault-amount-prefix mono">
                   $
                 </span>
                 <input
@@ -137,7 +134,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
                   value=""
                   placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
                   aria-describedby="amt-helper-disabled"
-                  className="ct-input tabular w-full pl-[var(--ct-space-10)] pr-[var(--ct-space-4)] py-[var(--ct-space-3)] mono body-lg opacity-[var(--ct-opacity-60)]"
+                  className="ct-input tabular vault-amount-input vault-amount-input--muted mono body-lg"
                 />
               </div>
               <p id="amt-helper-disabled" className="body-xs mt-1.5 ct-text-muted">
@@ -146,7 +143,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
               </p>
             </section>
 
-            <Checkbox checked={false} onChange={() => {}} className="pointer-events-none opacity-[var(--ct-opacity-60)]">
+            <Checkbox checked={false} onChange={() => {}} className="pointer-events-none vault-control--muted">
               I have reviewed and accept the term sheet for {vault.name}.
             </Checkbox>
 
@@ -185,7 +182,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
           <VaultPanelHeader title="Pre-flight check" />
           <div className="vault-panel-body">
             <PanelStatus
-              className="mb-[var(--ct-space-4)]"
+              className="vault-preflight-note"
               message="Pre-flight is shown in review mode until wallet access is enabled."
               detail="Network, allowance, and signing checks become actionable once your wallet is connected."
             />
@@ -363,11 +360,8 @@ function InvestFormLive({ vault }: InvestFormProps) {
                 Amount (USDC)
               </label>
 
-              <div className="relative">
-                <span
-                  aria-hidden
-                  className="absolute left-[var(--ct-space-4)] top-1/2 -translate-y-1/2 mono font-semibold ct-text-muted select-none"
-                >
+              <div className="vault-amount-field">
+                <span aria-hidden className="vault-amount-prefix mono">
                   $
                 </span>
                 <input
@@ -386,7 +380,7 @@ function InvestFormLive({ vault }: InvestFormProps) {
                   aria-describedby="amt-helper"
                   aria-invalid={amount > 0 && !amountValid}
                   className={cn(
-                    "ct-input tabular w-full pl-[var(--ct-space-10)] pr-[var(--ct-space-4)] py-[var(--ct-space-3)] mono body-lg",
+                    "ct-input tabular vault-amount-input mono body-lg",
                     amount > 0 && !amountValid
                       ? "ct-bc-warning ct-ring-warning"
                       : "",
@@ -418,7 +412,7 @@ function InvestFormLive({ vault }: InvestFormProps) {
               I have reviewed and accept the{" "}
               <Link
                 href={investProductPath(vault.id)}
-                className="underline ct-text-primary hover:ct-text-strong transition-colors ease-[var(--ct-ease)]"
+                className="underline ct-text-primary hover:ct-text-strong vault-inline-link"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -438,7 +432,7 @@ function InvestFormLive({ vault }: InvestFormProps) {
 
             {awaitingConfirm ? (
               <div
-                className="vault-confirm-panel border-t border-(--ct-border-soft) pt-[var(--ct-space-4)]"
+                className="vault-confirm-panel vault-confirm-panel--seam"
                 aria-label="Confirm your deposit"
               >
                 <p className="stat-label">
@@ -501,7 +495,7 @@ function InvestFormLive({ vault }: InvestFormProps) {
                   aria-disabled={!ctaEnabled}
                   className={cn(
                     "vault-form-actions__primary",
-                    !ctaEnabled && "opacity-[var(--ct-opacity-60)] cursor-not-allowed",
+                    !ctaEnabled && "vault-cta--disabled",
                   )}
                 >
                   {ctaLabel(currentCtaState, amount)}
