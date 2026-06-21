@@ -18,6 +18,8 @@ import { VaultStatusPill } from "@/components/admin/vault-status-pill";
 
 import { pauseVault, resumeVault } from "./actions";
 
+import "../admin-strategy.css";
+
 export const dynamic = "force-dynamic";
 
 const FILTER_TABS = [
@@ -109,7 +111,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
         >
           <Link
             href="/admin/vaults/new"
-            className="body-xs ct-text-muted hover:ct-text-primary transition-colors ease-[var(--ct-ease)] underline underline-offset-2 decoration-(--ct-border) mt-1"
+            className="body-xs ct-text-muted hover:ct-text-primary admin-strategy-empty-link"
           >
             Create the first one
           </Link>

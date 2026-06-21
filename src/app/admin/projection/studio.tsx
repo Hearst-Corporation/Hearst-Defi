@@ -233,7 +233,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
               aria-selected={isSelected}
               aria-label={`APY ${cell.apyLow.toFixed(1)}–${cell.apyHigh.toFixed(1)}%, risk ${cell.riskScore}. Cell ${idx + 1} of ${cells.length}.`}
               className={cn(
-                "p-2.5 rounded-md relative border text-left transition-[background-color,border-color] ease-[var(--ct-ease)] duration-(--ct-dur-base)",
+                "admin-strategy-heatmap-cell border",
                 riskBgClass(cell.riskScore),
                 "border-(--ct-border-soft)",
                 isSelected && "ring-2 ring-offset-1 ring-offset-(--ct-bg-deep)",
@@ -574,7 +574,7 @@ export function ProjectionStudio() {
                 </div>
               </div>
               <ScenePlaceholderMetrics />
-              <p className="body-xs ct-text-faint m-0 px-[var(--ct-space-6)]">
+              <p className="body-xs ct-text-faint m-0 admin-strategy-placeholder-copy">
                 Set assumptions, then run a projection or batch to populate the
                 APY range, risk score, and PTAI impact.
               </p>

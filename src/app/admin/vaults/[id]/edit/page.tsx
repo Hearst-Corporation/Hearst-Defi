@@ -8,6 +8,8 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { prisma } from "@/lib/db";
 
+import "../../../admin-strategy.css";
+
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Edit Vault Draft — Hearst Connect" };

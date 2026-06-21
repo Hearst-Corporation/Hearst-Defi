@@ -7,6 +7,8 @@ import { VaultWizard } from "./wizard";
 import { ResumeDraftBanner } from "./resume-banner";
 import type { FormState } from "../_vault-form";
 
+import "../../admin-strategy.css";
+
 export const dynamic = "force-dynamic";
 
 type Step =

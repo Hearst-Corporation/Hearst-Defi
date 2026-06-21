@@ -1,6 +1,8 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { ProjectionStudio } from "./studio";
 
+import "../admin-strategy.css";
+
 export const dynamic = "force-dynamic";
 
 export const metadata = {

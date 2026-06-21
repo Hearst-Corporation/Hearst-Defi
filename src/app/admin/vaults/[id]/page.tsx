@@ -32,6 +32,8 @@ import {
   submitForReview,
 } from "../actions";
 
+import "../../admin-strategy.css";
+
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -380,10 +382,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
             <table className="w-full table-fixed text-left body-sm">
               <thead>
                 <tr>
-                  <th className="w-[38%] ct-table-header stat-label text-left">Signer</th>
-                  <th className="w-[24%] ct-table-header stat-label text-left">Decision</th>
-                  <th className="hidden w-[26%] ct-table-header stat-label text-left md:table-cell">Reason</th>
-                  <th className="w-[38%] ct-table-header stat-label text-left md:w-[12%]">Date</th>
+                  <th className="admin-strategy-approvals-col--signer ct-table-header stat-label text-left">Signer</th>
+                  <th className="admin-strategy-approvals-col--decision ct-table-header stat-label text-left">Decision</th>
+                  <th className="hidden admin-strategy-approvals-col--reason ct-table-header stat-label text-left md:table-cell">Reason</th>
+                  <th className="admin-strategy-approvals-col--date ct-table-header stat-label text-left">Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -434,11 +436,11 @@ export default async function VaultDetailPage({ params }: PageProps) {
             <table className="w-full table-fixed text-left body-sm">
               <thead>
                 <tr>
-                  <th className="w-[30%] ct-table-header stat-label text-left">Investor</th>
-                  <th className="w-[12%] ct-table-header stat-label text-left">Class</th>
-                  <th className="w-[22%] ct-table-header stat-label text-right">Principal</th>
-                  <th className="w-[18%] ct-table-header stat-label text-left">Subscribed</th>
-                  <th className="w-[18%] ct-table-header stat-label text-left">Lock-up ends</th>
+                  <th className="admin-strategy-subs-col--investor ct-table-header stat-label text-left">Investor</th>
+                  <th className="admin-strategy-subs-col--class ct-table-header stat-label text-left">Class</th>
+                  <th className="admin-strategy-subs-col--principal ct-table-header stat-label text-right">Principal</th>
+                  <th className="admin-strategy-subs-col--subscribed ct-table-header stat-label text-left">Subscribed</th>
+                  <th className="admin-strategy-subs-col--lockup ct-table-header stat-label text-left">Lock-up ends</th>
                 </tr>
               </thead>
               <tbody>
@@ -451,7 +453,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
                   return (
                     <tr
                       key={pos.id}
-                      className="border-b border-[var(--ct-border-soft)] last:border-0"
+                      className="admin-strategy-subs-row"
                     >
                       <td className="ct-table-cell truncate ct-text-body">
                         {pos.investor.user.email}

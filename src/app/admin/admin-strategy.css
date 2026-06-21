@@ -1,0 +1,129 @@
+/* =============================================================================
+   admin-strategy.css — Admin Strategy surfaces (page-scoped)
+   Vaults · Vault detail · Vault wizard · Projection studio · Scenario lab ·
+   Roadmap · Investor memo.
+
+   EDITING RULES (enforced by convention, not lint) — mirror portfolio.css:
+   - COLORS / SURFACES: var(--ct-*) only. No raw hex/rgb. color-mix() ratios are
+     the ONLY exception (no token for a mix percentage).
+   - SPACING: var(--ct-space-*) only. The ONLY raw lengths allowed are table
+     column-width percentages (layout geometry) and 1px hairlines.
+   - RADIUS / SHADOW / BLUR / TYPOGRAPHY / MOTION: tokens only (--ct-radius-*,
+     --ct-shadow-*, --ct-blur-*, --ct-text-*, --ct-ease, --ct-dur-*).
+   - Dark mode only. No `dark:` modifiers. No tailwind.config.
+
+   This sheet holds the semantic classes that replaced inline arbitrary Tailwind
+   utilities (`p-[…]`, `mt-[…]`, `opacity-[…]`, `ease-[…]`, `decoration-(…)`,
+   `w-[N%]`). Rendering is identical — values are the same tokens, now named.
+   ============================================================================= */
+
+/* =============================================================================
+   1. VAULTS LIST — empty-state inline link
+   ============================================================================= */
+
+.admin-strategy-empty-link {
+  margin-top: var(--ct-space-1);
+  text-decoration-line: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--ct-border);
+  transition: color var(--ct-dur-base) var(--ct-ease);
+}
+
+/* =============================================================================
+   2. VAULT DETAIL — fixed-layout tables (column widths + row hairline)
+   ============================================================================= */
+
+/* Approvals table column ratios */
+.admin-strategy-approvals-col--signer {
+  width: 38%;
+}
+.admin-strategy-approvals-col--decision {
+  width: 24%;
+}
+.admin-strategy-approvals-col--reason {
+  width: 26%;
+}
+.admin-strategy-approvals-col--date {
+  width: 38%;
+}
+
+/* Subscribers table column ratios */
+.admin-strategy-subs-col--investor {
+  width: 30%;
+}
+.admin-strategy-subs-col--class {
+  width: 12%;
+}
+.admin-strategy-subs-col--principal {
+  width: 22%;
+}
+.admin-strategy-subs-col--subscribed {
+  width: 18%;
+}
+.admin-strategy-subs-col--lockup {
+  width: 18%;
+}
+
+/* Subscribers row separator hairline */
+.admin-strategy-subs-row {
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+.admin-strategy-subs-row:last-child {
+  border-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .admin-strategy-approvals-col--date {
+    width: 12%;
+  }
+}
+
+/* =============================================================================
+   3. VAULT WIZARD — stack + confirm-panel row groups
+   ============================================================================= */
+
+.admin-strategy-wizard {
+  padding-bottom: var(--ct-space-10);
+}
+
+.admin-strategy-confirm-rows--head {
+  padding-bottom: var(--ct-space-3);
+}
+.admin-strategy-confirm-rows--mid {
+  padding: var(--ct-space-3) 0;
+}
+.admin-strategy-confirm-rows--deploy {
+  padding-top: var(--ct-space-2);
+}
+
+.admin-strategy-pill--disabled {
+  opacity: var(--ct-opacity-40);
+  cursor: not-allowed;
+}
+
+.admin-strategy-wizard-error {
+  margin-top: var(--ct-space-4);
+}
+
+.admin-strategy-wizard-nav {
+  margin-top: var(--ct-space-10);
+}
+
+/* =============================================================================
+   4. PROJECTION STUDIO — heatmap cell + placeholder copy
+   ============================================================================= */
+
+.admin-strategy-heatmap-cell {
+  position: relative;
+  padding: var(--ct-space-2_5);
+  border-radius: var(--ct-radius-md);
+  text-align: left;
+  transition:
+    background-color var(--ct-dur-base) var(--ct-ease),
+    border-color var(--ct-dur-base) var(--ct-ease);
+}
+
+.admin-strategy-placeholder-copy {
+  padding-left: var(--ct-space-6);
+  padding-right: var(--ct-space-6);
+}

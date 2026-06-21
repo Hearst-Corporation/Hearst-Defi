@@ -318,7 +318,7 @@ export function VaultForm(props: VaultFormProps) {
         : "Save Changes";
 
   return (
-    <div className="admin-doc-stack admin-doc-narrow pb-[var(--ct-space-10)]" onBlur={handleBlur}>
+    <div className="admin-doc-stack admin-doc-narrow admin-strategy-wizard" onBlur={handleBlur}>
       {/* Progress bar */}
       <div className="admin-doc-stack admin-doc-stack--actions">
         <div className="admin-doc-row-spread">
@@ -770,7 +770,7 @@ export function VaultForm(props: VaultFormProps) {
                           active
                             ? "ct-pill accent"
                             : disabled
-                              ? "ct-pill opacity-[var(--ct-opacity-40)] cursor-not-allowed"
+                              ? "ct-pill admin-strategy-pill--disabled"
                               : "ct-pill"
                         }
                       >
@@ -793,7 +793,7 @@ export function VaultForm(props: VaultFormProps) {
             <CardTitle>Review &amp; Simulate</CardTitle>
 
             <div className="admin-doc-inset admin-confirm-panel divide-y divide-border-subtle">
-              <div className="admin-confirm-panel__rows pb-[var(--ct-space-3)]">
+              <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--head">
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">Ticker</span>
                   <span className="mono tabular body-sm ct-text-strong">{form.ticker}</span>
@@ -812,7 +812,7 @@ export function VaultForm(props: VaultFormProps) {
                 </div>
               </div>
 
-              <div className="admin-confirm-panel__rows py-[var(--ct-space-3)]">
+              <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--mid">
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">Min Ticket</span>
                   <span className="mono tabular body-sm">{formatUsdFull(form.minTicketUsdc)}</span>
@@ -842,7 +842,7 @@ export function VaultForm(props: VaultFormProps) {
                 </div>
               </div>
 
-              <div className="admin-confirm-panel__rows py-[var(--ct-space-3)]">
+              <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--mid">
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">SPV</span>
                   <span className="body-sm ct-text-primary">{form.spvJurisdiction}</span>
@@ -857,7 +857,7 @@ export function VaultForm(props: VaultFormProps) {
                 </div>
               </div>
 
-              <div className="admin-confirm-panel__rows py-[var(--ct-space-3)]">
+              <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--mid">
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">Mining</span>
                   <span className="mono tabular body-sm">{pct(form.targetMiningBps)}%</span>
@@ -888,7 +888,7 @@ export function VaultForm(props: VaultFormProps) {
                 </div>
               </div>
 
-              <div className="admin-confirm-panel__rows py-[var(--ct-space-3)]">
+              <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--mid">
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">Signers</span>
                   <span className="body-sm ct-text-primary">
@@ -938,7 +938,7 @@ export function VaultForm(props: VaultFormProps) {
               <p className="body-sm ct-text-primary">
                 Click <strong>Submit for Review</strong> below to enter the multisig queue.
               </p>
-              <div className="admin-confirm-panel__rows pt-[var(--ct-space-2)]">
+              <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--deploy">
                 <div className="admin-confirm-panel__row">
                   <span className="stat-label">Vault</span>
                   <span className="mono tabular body-sm ct-text-strong">{form.ticker || "—"}</span>
@@ -1016,10 +1016,10 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Navigation */}
         {error ? (
-          <PanelStatus tone="danger" role="alert" message={error} className="mt-[var(--ct-space-4)]" />
+          <PanelStatus tone="danger" role="alert" message={error} className="admin-strategy-wizard-error" />
         ) : null}
 
-        <div className="mt-[var(--ct-space-10)] admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions">
+        <div className="admin-strategy-wizard-nav admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions">
           <Button
             variant="ghost"
             size="sm"
