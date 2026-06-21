@@ -162,7 +162,7 @@ export function PositionTransactions({
                           {tx.txHash.slice(0, 6)}&hellip;{tx.txHash.slice(-4)} ↗
                         </a>
                       ) : (
-                        <span className="body-xs ct-text-faint">
+                        <span className="body-xs ct-text-tertiary">
                           —
                         </span>
                       )}

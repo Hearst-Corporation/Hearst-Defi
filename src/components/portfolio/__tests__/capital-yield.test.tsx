@@ -19,9 +19,9 @@ describe("CapitalYield empty states", () => {
     );
 
     expect(html).toContain("pf-capital-yield--embedded-empty");
-    expect(html).toContain("Target APY band");
+    expect(html).toContain("Indicative target APY band");
     expect(html).toContain("9.0");
-    expect(html).toContain("Allocation activates after first confirmed position");
+    expect(html).toContain("Allocation activates after your first confirmed on-chain position");
     expect(html).not.toMatch(/\bcy-panel\b/);
     expect(html).not.toContain("<svg");
   });

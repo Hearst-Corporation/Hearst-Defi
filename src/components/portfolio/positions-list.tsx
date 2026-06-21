@@ -51,7 +51,7 @@ export function PositionsList({
   const trailing = leafHref ? (
     <PortfolioLeafLink href={leafHref} />
   ) : hasPositions ? (
-    <span className="body-xs ct-text-faint tabular">
+    <span className="body-xs ct-text-tertiary tabular">
       {positions.length} position{positions.length !== 1 ? "s" : ""}
     </span>
   ) : undefined;
@@ -74,13 +74,13 @@ export function PositionsList({
               <span>Vault</span>
               <span>Principal</span>
               <span>Value</span>
-              <span>APY</span>
+              <span>APY range</span>
               <span>Since</span>
             </div>
             {[0, 1].map((row) => (
               <div key={row} className="pf-positions__row pf-positions__row--body pf-positions__row--ghost">
                 <span className="pf-positions__vault">
-                  <span className="pf-status-dot pf-status-dot--default" aria-hidden="true" />
+                  <span className="pf-status-dot pf-status-dot--ghost" aria-hidden="true" />
                   —
                 </span>
                 <span className="pf-positions__num">—</span>
@@ -95,8 +95,8 @@ export function PositionsList({
           <p className="pf-positions-empty__lead body-sm ct-text-muted m-0">
             No active positions yet
           </p>
-          <p className="pf-positions-empty__hint body-xs ct-text-faint m-0">
-            Your first confirmed on-chain deposit will populate value, APY range, allocation,
+          <p className="pf-positions-empty__hint body-xs ct-text-tertiary m-0">
+            Your first confirmed on-chain position will populate value, APY range, allocation,
             and proof status.
           </p>
           <Link href="/vaults" className="pf-positions-empty-link">
@@ -156,7 +156,7 @@ export function PositionsList({
               {p.apyLow !== null && p.apyHigh !== null ? (
                 <ApyRange low={p.apyLow} high={p.apyHigh} precision={1} className="body-sm font-semibold" />
               ) : (
-                <span className="body-xs ct-text-faint">Unavailable</span>
+                <span className="body-xs ct-text-tertiary">Unavailable</span>
               )}
             </span>
 

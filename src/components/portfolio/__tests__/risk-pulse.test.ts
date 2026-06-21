@@ -84,10 +84,10 @@ describe("trendMeta", () => {
     expect(meta.ariaLabel).toMatch(/falling/i);
   });
 
-  it("stable delta (0) → ━━ icon and faint colour", () => {
+  it("stable delta (0) → ━━ icon and tertiary colour", () => {
     const meta = trendMeta(0);
     expect(meta.icon).toBe("━━");
-    expect(meta.colorClass).toContain("ct-text-faint");
+    expect(meta.colorClass).toContain("ct-text-tertiary");
     expect(meta.ariaLabel).toMatch(/stable/i);
   });
 });

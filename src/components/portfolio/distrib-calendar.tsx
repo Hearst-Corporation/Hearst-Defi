@@ -337,11 +337,13 @@ export function DistribCalendar({
         aria-label="Payout calendar — no distributions yet"
         className="pf-payout-calendar-panel pf-payout-calendar-panel--zero h-full"
       >
+        {/* Zero-state: Tax preview is hidden — nothing to tax until a first
+           distribution exists; only the View full leaf is offered. */}
         <PfCockpitPanelHeader
           title="Payout Calendar"
           subtitle="Monthly USDC distributions"
           titleVariant="primary"
-          trailing={calendarHeaderTrail(leafHref, secondaryLeafHref, secondaryLeafLabel)}
+          trailing={calendarHeaderTrail(leafHref)}
         />
         <div className="pf-payout-calendar-slot">
           <div className="pf-distrib-chart-shell pf-distrib-chart-shell--ghost pf-distrib-chart-shell--flat">
@@ -404,7 +406,7 @@ export function DistribCalendar({
             </svg>
           </div>
           <p className="pf-payout-calendar__empty-copy body-xs ct-text-tertiary m-0" role="status">
-            First distribution appears after cycle close · Monthly USDC
+            Illustrative schedule preview · first distribution appears after cycle close
           </p>
         </div>
       </PfCockpitPanel>

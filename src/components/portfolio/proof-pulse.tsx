@@ -135,7 +135,7 @@ export function ProofPulse({
     "ct-status-success": level === "green",
     "ct-status-warning": level === "orange",
     "ct-status-danger": level === "red",
-    "ct-text-faint": level === null,
+    "ct-text-tertiary": level === null,
   });
 
   // Indicator after On-chain figure: ✓ only when both figures > 0 and match.
@@ -244,7 +244,7 @@ export function ProofPulse({
               <ProofRow label="Version">
                 <span className="pf-proof-row__stack">
                   <span className="ct-text-primary">{methodologyVersion}</span>
-                  <span className="pf-proof-row__meta body-xs ct-text-faint">
+                  <span className="pf-proof-row__meta body-xs ct-text-tertiary">
                     {hasData ? "Methodology attested" : "Methodology published"}
                     {methodologyLocked ? (
                       <span

@@ -395,8 +395,13 @@
   gap: var(--ct-space-2);
 }
 
-/* ---- THE GATE: lock to viewport ONLY when tall AND wide enough ---- */
-@media (min-width: 80rem) and (min-height: 52rem) {
+/* ---- THE GATE: lock to viewport ONLY when tall AND wide enough ----
+   Width threshold is 88rem (not 80rem): with the assistant rail open the centre
+   column loses ~470px, so at 1280px the centre is only ~52.7rem — too narrow to
+   fit the zero-state cockpit without clipping. At ≥88rem the centre clears ~58rem
+   (measured: 1440 → 60.3rem, no loss) even with the assistant open. Below 88rem
+   the cockpit scrolls naturally (content reachable), never clipped. */
+@media (min-width: 88rem) and (min-height: 52rem) {
 
   /* Ancestor chain locked to the viewport. */
   .ct-panels-row:has(.pf-container--fit) {
@@ -471,9 +476,9 @@
      a thin preview + one onboarding line, so equal fr left a dead void below each
      pane. Give the data-rich hero more of the column and let the sparse rows shrink
      toward their content — the console stays full-height but stops looking hollow. */
-  .pf-container--fit.pf-container--zero .pf-cockpit-row--summary { flex: 1.55 1 0; }
-  .pf-container--fit.pf-container--zero .pf-cockpit-row--mid     { flex: 0.95 1 0; }
-  .pf-container--fit.pf-container--zero .pf-cockpit-row--deck    { flex: 0.8 1 0; }
+  .pf-container--fit.pf-container--zero .pf-cockpit-row--summary { flex: 1.45 1 0; }
+  .pf-container--fit.pf-container--zero .pf-cockpit-row--mid     { flex: 1.05 1 0; }
+  .pf-container--fit.pf-container--zero .pf-cockpit-row--deck    { flex: 0.9 1 0; }
 
   /* min-height:0 on the WHOLE chain — neutralize every min-height floor. */
   .pf-container--fit .pf-cockpit-cell,
@@ -502,24 +507,30 @@
     min-height: 0;
   }
 
-  /* Dense leaf bodies that can genuinely overflow scroll INSIDE their plate. */
+  /* Dense leaf bodies that can genuinely overflow scroll INSIDE their plate.
+     Anti-clip soupape: nothing is ever lost to overflow:hidden — at worst a body
+     scrolls silently inside its plate (scrollbar hidden). status-list joins so the
+     5th row is reachable on short/narrow viewports instead of clipped. */
   .pf-container--fit .pf-positions,
   .pf-container--fit .cy-ledger,
-  .pf-container--fit .pf-activity {
+  .pf-container--fit .pf-activity,
+  .pf-container--fit .pf-status-list {
     overflow-y: auto;
     scrollbar-width: none;
   }
 
   .pf-container--fit .pf-positions::-webkit-scrollbar,
   .pf-container--fit .cy-ledger::-webkit-scrollbar,
-  .pf-container--fit .pf-activity::-webkit-scrollbar {
+  .pf-container--fit .pf-activity::-webkit-scrollbar,
+  .pf-container--fit .pf-status-list::-webkit-scrollbar {
     width: 0;
     height: 0;
   }
 }
 
-/* ---- BELOW THE GATE: page scrolls naturally (mobile / tablet / short laptop). */
-@media not all and (min-width: 80rem) and (min-height: 52rem) {
+/* ---- BELOW THE GATE: page scrolls naturally (mobile / tablet / short or
+   assistant-narrowed laptop, < 88rem). Content is always reachable here. */
+@media not all and (min-width: 88rem) and (min-height: 52rem) {
   .pf-container--fit { height: auto; overflow: visible; }
   .pf-container--fit .pf-cockpit { overflow: visible; }
   .pf-cockpit-row { flex: 0 0 auto; }
@@ -539,6 +550,27 @@
     aspect-ratio: auto;
     min-height: 6.5rem;
     max-height: 9.5rem;
+  }
+
+  /* Below the gate the page scrolls, so panels must take their NATURAL height and
+     never clip: drop the 100%-height/overflow:hidden lock and the internal-scroll
+     soupape (which only exists to survive the no-scroll gate). Content pushes the
+     page taller and main#main-content scrolls — nothing is hidden. */
+  .pf-container--fit .pf-cockpit-panel,
+  .pf-container--fit .pf-embedded-pane,
+  .pf-container--fit .pf-hero-grid,
+  .pf-container--fit .pf-fused-surface,
+  .pf-container--fit .pf-status-panel,
+  .pf-container--fit .pf-trust-compact,
+  .pf-container--fit .pf-payout-calendar-panel {
+    height: auto;
+    overflow: visible;
+  }
+  .pf-container--fit .pf-positions,
+  .pf-container--fit .cy-ledger,
+  .pf-container--fit .pf-activity,
+  .pf-container--fit .pf-status-list {
+    overflow: visible;
   }
 }
 
@@ -863,10 +895,6 @@
   stroke: color-mix(in srgb, var(--ct-text-strong) 16%, transparent);
   stroke-width: 0.75;
   opacity: 1;
-}
-
-.pf-vc-endpoint {
-  fill: color-mix(in srgb, var(--ct-accent) 55%, var(--ct-text-strong));
 }
 
 /* Endpoint dots overlaid on the plot. */
@@ -1834,7 +1862,10 @@
 }
 
 .pf-fused-surface--deck .pf-trust-compact--embedded .pf-trust-compact-kpis {
-  gap: var(--ct-space-2);
+  /* Two KPIs side-by-side in the deck pane: halves the block height so the
+     Proof-status KPI no longer clips under the no-scroll gate (was stacked). */
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ct-space-2) var(--ct-space-4);
   padding-top: var(--ct-space-2);
 }
 
@@ -1869,6 +1900,9 @@
 }
 
 .pf-status-dot--default { background: var(--ct-text-muted); }
+/* Placeholder dot for ghost/preview rows — visibly fainter than --default so a
+   preview row never reads as a real (muted) status. */
+.pf-status-dot--ghost { background: var(--ct-border-soft); }
 .pf-status-dot--active {
   background: var(--ct-status-success);
   box-shadow: none;
@@ -2161,7 +2195,10 @@
 }
 
 @container pf (min-width: 58rem) {
-  .pf-cockpit-row--deck { grid-template-columns: 1.55fr 1fr; }
+  /* Payout = 1 widget; the fused cell carries 2 (Recent Activity + Trust),
+     so it gets the larger share — otherwise Recent Activity collapses to a
+     ~130px slot and its header/copy overlap (Trust's --aside reserves 15rem). */
+  .pf-cockpit-row--deck { grid-template-columns: 1fr 1.6fr; }
 }
 
 /* ---- MID: outer row stays 1fr at all sizes (the pf-fused-surface--mid handles

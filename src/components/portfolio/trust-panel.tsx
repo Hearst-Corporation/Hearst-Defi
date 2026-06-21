@@ -82,7 +82,7 @@ export function deriveTrustSummaryKpis({
 
   let proofValue = "—";
   let proofMeta = "Awaiting attestation";
-  let proofValueClass = "ct-text-faint";
+  let proofValueClass = "ct-text-tertiary";
 
   if (compositeUnavailable) {
     // Zero-state (no position, no risk snapshot) — keep Proof neutral and in the
@@ -90,8 +90,13 @@ export function deriveTrustSummaryKpis({
     // orange here would suggest an in-flight on-chain confirmation that doesn't
     // exist when there's nothing to prove yet.
     proofValue = "—";
-    proofMeta = "Proof status unlocks after first position.";
-    proofValueClass = "ct-text-faint";
+    // Compact KPI meta — short form (the verbose canonical phrasing,
+    // "first confirmed on-chain position", lives in the positions empty-state
+    // hint where there's room). Length-matched to the Risk-composite
+    // "Snapshot pending" so the two zero KPIs read symmetrically; avoids the
+    // bare "first position" wording.
+    proofMeta = "Position pending";
+    proofValueClass = "ct-text-tertiary";
   } else if (proofResolved === "matched" || proofResolved === "attested") {
     proofValue = "Verified";
     proofMeta = proofHasData ? `Delta ${deltaPct.toFixed(2)}%` : "On-chain match";
@@ -112,7 +117,7 @@ export function deriveTrustSummaryKpis({
       ? "Snapshot pending"
       : (compositeLabel ?? "Composite score"),
     compositeValueClass: compositeUnavailable
-      ? "ct-text-faint"
+      ? "ct-text-tertiary"
       : compositeLabel
         ? compositeLabelColor(compositeLabel)
         : "ct-text-primary",

@@ -185,7 +185,6 @@ function Plot({ series, lineOnly = false, preview = false }: PlotProps) {
   const pts = project(series.map((d) => d.value));
   const linePath = smoothPath(pts);
   const areaPath = lineOnly ? "" : areaFromLine(linePath, pts);
-  const last = pts[pts.length - 1];
 
   const distCount = series.filter((s) => s.isDistribution).length;
   // Preview/zero-state : ne JAMAIS décrire le preview comme de la vraie donnée
@@ -262,15 +261,10 @@ function Plot({ series, lineOnly = false, preview = false }: PlotProps) {
         />
       ) : null}
 
-      {last ? (
-        <circle
-          cx={last.x.toFixed(2)}
-          cy={last.y.toFixed(2)}
-          r="1.6"
-          className="pf-vc-endpoint"
-          aria-hidden="true"
-        />
-      ) : null}
+      {/* Endpoint dot is rendered in HTML (.pf-vc-dot--endcap, see buildDots)
+         so it stays a true circle — an in-SVG <circle> would be squashed into an
+         ovale by preserveAspectRatio="none" (the area fill needs `none` to span
+         the full width). */}
     </svg>
   );
 }
@@ -322,7 +316,7 @@ export function ValueChart({
       chrome={embedded ? "embedded" : "panel"}
       aria-label={
         isEmpty
-          ? "Portfolio value — awaiting first on-chain position"
+          ? "Portfolio value — awaiting first confirmed on-chain position"
           : "Portfolio value — trailing trend"
       }
       className={cn(
@@ -335,10 +329,10 @@ export function ValueChart({
       {embedded ? (
         <header className="pf-cockpit-panel__header">
           <div className="pf-cockpit-panel__header-main min-w-0">
-            <h3 className="pf-cockpit-panel__title--primary">Portfolio value</h3>
+            <h2 className="pf-cockpit-panel__title--primary">Portfolio value</h2>
             {isEmpty ? (
               <p className="pf-cockpit-panel__subtitle body-xs ct-text-tertiary m-0 mono">
-                Preview · indicative curve
+                Indicative curve · not your data
               </p>
             ) : (
               <p className="pf-hero-kpi-block m-0">
@@ -419,7 +413,7 @@ export function ValueChart({
 
       {isEmpty ? (
         <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
-          Placeholder chart until your first confirmed on-chain position.
+          Activates after first confirmed on-chain position.
         </p>
       ) : (
         <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">

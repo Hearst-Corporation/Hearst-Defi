@@ -11,6 +11,8 @@ import type { AllocationBucketSlice } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { formatApyRange } from "@/lib/format/apy";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { useId } from "react";
+
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
 import { cn } from "@/lib/cn";
@@ -84,6 +86,10 @@ export function CapitalYield({
   leafHref,
   embedded = false,
 }: CapitalYieldProps) {
+  // id unique par instance — évite la collision du gradient <defs> du ghost donut
+  // si plusieurs panneaux Capital & Yield en zero-state coexistent (HTML invalide).
+  const uid = useId();
+  const ghostBloomId = `${uid}-ghost-bloom`;
   const maxAbsPct = sources.reduce(
     (acc, s) => Math.max(acc, Math.abs(s.contributionPct)),
     0,
@@ -101,7 +107,7 @@ export function CapitalYield({
         <PfCockpitPanel
           variant="wide"
           chrome="embedded"
-          aria-label="Capital and yield — awaiting first position"
+          aria-label="Capital and yield — awaiting first confirmed on-chain position"
           className="pf-capital-yield--embedded-empty"
         >
           <PfCockpitPanelHeader
@@ -111,12 +117,14 @@ export function CapitalYield({
             trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
           />
           <div className="cy-embedded-empty">
-            <p className="cy-ledger-head body-xs ct-text-faint mono m-0">Target APY band</p>
-            <p className="tabular font-semibold ct-text-accent m-0">
+            <p className="cy-ledger-head body-xs ct-text-tertiary mono m-0">
+              Indicative target APY band
+            </p>
+            <p className="tabular font-semibold ct-text-primary m-0">
               {formatApyRange(CY_ZERO_STATE.targetApyRange, 1, { spaced: true })}
             </p>
             <p className="body-xs ct-text-muted m-0">
-              Allocation activates after first confirmed position.
+              Allocation activates after your first confirmed on-chain position.
             </p>
           </div>
         </PfCockpitPanel>
@@ -142,12 +150,12 @@ export function CapitalYield({
           <div className="cy-donut dash-chart-container">
             <svg className="dash-chart-svg" viewBox="0 0 42 42" aria-hidden="true">
               <defs>
-                <radialGradient id="cy-ghost-bloom" cx="50%" cy="50%" r="50%">
+                <radialGradient id={ghostBloomId} cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stopColor="var(--ct-accent)" stopOpacity="0.14" />
                   <stop offset="100%" stopColor="var(--ct-accent)" stopOpacity="0" />
                 </radialGradient>
               </defs>
-              <circle cx="21" cy="21" r="18" fill="url(#cy-ghost-bloom)" />
+              <circle cx="21" cy="21" r="18" fill={`url(#${ghostBloomId})`} />
               {/* Ghost track */}
               <circle cx="21" cy="21" r="15.9155" fill="none"
                 stroke="var(--ct-border-soft)" strokeWidth="4.4" strokeDasharray="100 0" />
@@ -174,13 +182,13 @@ export function CapitalYield({
 
           {/* Ghost ledger */}
           <div className="cy-ledger">
-            <p className="cy-ledger-head body-xs ct-text-faint mono m-0">
+            <p className="cy-ledger-head body-xs ct-text-tertiary mono m-0">
               Indicative yield structure
             </p>
             {CY_ZERO_STATE.ledgerRows.map((b) => (
               <div key={b.label} className="cy-row cy-row--pending">
                 <span className="cy-dot" style={{ background: "var(--ct-border-soft)" }} />
-                <span className="cy-label body-xs ct-text-faint">{b.label}</span>
+                <span className="cy-label body-xs ct-text-tertiary">{b.label}</span>
                 <span className="cy-val" style={{ opacity: "var(--ct-opacity-35)" }}>{b.apy}</span>
                 <div className="cy-track cy-track--pending" style={{ gridColumn: "1 / -1" }}>
                   <div className="cy-fill" style={{
@@ -192,8 +200,8 @@ export function CapitalYield({
             ))}
           </div>
         </div>
-        <p className="cy-panel__empty-copy body-xs ct-text-faint m-0" role="status">
-          Live allocation unlocks after your first confirmed position.
+        <p className="cy-panel__empty-copy body-xs ct-text-tertiary m-0" role="status">
+          Live allocation unlocks after your first confirmed on-chain position.
         </p>
       </PfCockpitPanel>
     );
@@ -288,7 +296,7 @@ export function CapitalYield({
 
         {/* ── Zone 3 — yield ledger (doubles as the donut legend) ── */}
         <div className="cy-ledger">
-          <p className="cy-ledger-head body-xs ct-text-faint mono m-0">
+          <p className="cy-ledger-head body-xs ct-text-tertiary mono m-0">
             Yield source · 12m fwd contribution
           </p>
 
@@ -359,7 +367,7 @@ export function CapitalYield({
         </div>
       </div>
 
-      <p className="pf-panel-footnote body-xs ct-text-faint" role="note">
+      <p className="pf-panel-footnote body-xs ct-text-tertiary" role="note">
         Conditional projection — not guaranteed ·{" "}
         {methodologyVersion.startsWith("v")
           ? methodologyVersion

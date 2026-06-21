@@ -90,12 +90,12 @@ export function PfCockpitPanelHeader({
     <header className="pf-cockpit-panel__header">
       <div className="pf-cockpit-panel__header-main min-w-0">
         {typeof title === "string" ? (
-          <h3 className={titleClass}>{title}</h3>
+          <h2 className={titleClass}>{title}</h2>
         ) : (
           title
         )}
         {subtitle ? (
-          <p className="pf-cockpit-panel__subtitle body-xs ct-text-faint m-0 mono">
+          <p className="pf-cockpit-panel__subtitle body-xs ct-text-tertiary m-0 mono">
             {subtitle}
           </p>
         ) : null}
@@ -124,7 +124,7 @@ export function PfCockpitSubhead({
     <div className={cn("pf-cockpit-panel__subhead", className)}>
       <span className="stat-label">{title}</span>
       {meta ? (
-        <span className="pf-cockpit-panel__subhead-meta tabular body-xs ct-text-faint font-normal">
+        <span className="pf-cockpit-panel__subhead-meta tabular body-xs ct-text-tertiary font-normal">
           {meta}
         </span>
       ) : null}

@@ -97,7 +97,7 @@ export function PortfolioStatusPanel({
       : 0;
 
   const provenance = hasPositions ? resolveProvenance(source, updatedAt) : undefined;
-  const asOf = updatedAt ? `As of ${dateFmt.format(updatedAt)}` : "Awaiting first position";
+  const asOf = updatedAt ? `As of ${dateFmt.format(updatedAt)}` : "Awaiting first confirmed on-chain position";
 
   const rows: Row[] = [
     {
@@ -107,7 +107,7 @@ export function PortfolioStatusPanel({
       value: hasPositions ? `${deploymentPct.toFixed(1)}%` : DASH,
       meta: hasPositions
         ? `${formatUsdCompact(deployedUsdc)} deployed`
-        : "Awaiting first position",
+        : "Awaiting first confirmed on-chain position",
     },
     {
       key: "positions",
@@ -129,7 +129,7 @@ export function PortfolioStatusPanel({
       icon: ICONS.deposits,
       label: "Net deposits",
       value: hasPositions ? formatUsdCompact(deployedUsdc) : DASH,
-      meta: "Total",
+      meta: "Principal subscribed",
     },
     {
       key: "proof",

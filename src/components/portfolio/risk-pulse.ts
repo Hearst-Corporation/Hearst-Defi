@@ -68,7 +68,7 @@ export function trendMeta(delta: number): {
   }
   return {
     icon: "━━",
-    colorClass: "ct-text-faint",
+    colorClass: "ct-text-tertiary",
     ariaLabel: "stable",
   };
 }

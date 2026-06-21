@@ -89,8 +89,8 @@ export function RecentActivity({
       ) : (
         <div className="pf-activity pf-activity--empty">
           <p className="pf-activity__empty-lead body-sm ct-text-muted m-0">No transactions yet</p>
-          <p className="pf-activity__empty-hint body-xs ct-text-faint m-0">
-            Deposits and payouts will appear here after your first confirmed position.
+          <p className="pf-activity__empty-hint body-xs ct-text-tertiary m-0">
+            Deposits and payouts will appear here after your first confirmed on-chain position.
           </p>
         </div>
       )}

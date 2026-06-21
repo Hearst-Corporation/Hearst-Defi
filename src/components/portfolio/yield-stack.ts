@@ -25,7 +25,7 @@ export const BUCKET_COLOR: Record<YieldSource["bucket"], string> = {
   mining: "var(--ct-status-success)",
   usdc_base: "var(--ct-status-info)",
   btc_tactical: "var(--ct-status-warning)",
-  stable_reserve: "var(--ct-text-faint)",
+  stable_reserve: "var(--ct-text-neutral)",
 };
 
 /** Compute bar width as a percentage of the maximum absolute contribution. */
