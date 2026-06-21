@@ -3,34 +3,38 @@
  * `.product-doc` and `.admin-doc` layout roots — AUTHORITATIVE typo scale for
  * doc pages (overrides base `.h1/.h2/.h3` in cockpit.css by specificity).
  *
- * Dark shell : TOUS les titres = vert accent (#A7FB90). Hiérarchie portée par
- * taille + poids + une légère décroissance d'opacité (title-1/2/3). Le corps
- * (stat-value, body) reste BLANC : seuls les titres sont verts.
+ * CANON = PORTFOLIO (titres FIXES — source portfolio.css, mirror of
+ * `.pf-greeting__lead .h1`). Une SEULE hiérarchie partout :
+ *   H1 = --ct-text-3xl-fixed (24px FIXE, semibold, blanc) — instrument cockpit,
+ *        PAS un titre de document qui gonfle ; le bump fluide ≥80rem est neutralisé.
+ *   H2 = --ct-text-2xl (18→22, semibold, blanc).
+ *   H3 = --ct-text-lg (15→17, medium, VERT accent) — signature portfolio propagée.
+ * Le corps (stat-value, body) reste BLANC.
  */
 :is(.product-doc, .admin-doc) .h1 {
-  font-size: var(--ct-text-3xl);            /* 24 → 28 (était 2xl 20→24) */
-  font-weight: var(--ct-font-extrabold);
+  font-size: var(--ct-text-3xl-fixed);      /* 24px FIXE — canon portfolio */
+  font-weight: var(--ct-font-semibold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-title-1);
+  color: var(--ct-text-strong);
 }
 
-/* Section title — vert accent tier 2 (sous le H1). */
+/* Section title — tier 2 (sous le H1), blanc. */
 :is(.product-doc, .admin-doc) .h2 {
-  font-size: clamp(1.25rem, 1.206rem + 0.188vw, 1.375rem);  /* 20 → 22 */
-  font-weight: var(--ct-font-bold);
+  font-size: var(--ct-text-2xl);            /* 18 → 22 */
+  font-weight: var(--ct-font-semibold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-title-2);
+  color: var(--ct-text-strong);
 }
 
-/* Module / card title — vert accent tier 3 (clairement sous la section). */
+/* Module / card title — tier 3, VERT accent (signature portfolio). */
 :is(.product-doc, .admin-doc) .h3 {
-  font-size: var(--ct-text-lg);             /* 16 → 18 (était base 16) */
-  font-weight: var(--ct-font-bold);
-  letter-spacing: var(--ct-tracking-tight);
-  line-height: var(--ct-leading-tight);
-  color: var(--ct-title-3);
+  font-size: var(--ct-text-lg);             /* 15 → 17 */
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-normal);
+  line-height: var(--ct-leading-snug);
+  color: var(--ct-accent);
 }
 
 :is(.product-doc, .admin-doc) .stat-value {
@@ -68,18 +72,11 @@
 
 /* ── Desktop cockpit presence (viewport ≥ 1280px, chat-open lane).
    Scoped to .ct-page-area hubs — onboarding/apply/auth sit outside this tree.
-   Body/labels stay on fixed tiers; only page titles gain slot-wide presence.
-   Fluid leg grows from 80rem → 120rem (1280–1920) then clamps. */
+   CANON PORTFOLIO : H1/H2 restent sur leur palier FIXE même en grand viewport —
+   ce sont des instruments cockpit, pas des titres qui gonflent. Le bump fluide
+   ≥80rem qui regonflait H1 (28→32) et H2 (22→24) a été RETIRÉ (unification typo,
+   alignement sur `.pf-greeting__lead .h1`). Seul le chrome de panneau survit. */
 @media (min-width: 80rem) {
-  .ct-page-area :is(.admin-doc, .product-doc, .pf-container) .h1,
-  .ct-page-area .invest-flow-shell .h1 {
-    font-size: clamp(1.75rem, 1.75rem + (100vw - 80rem) * 0.00625, 2rem); /* 28 → 32 */
-  }
-
-  .ct-page-area :is(.admin-doc, .product-doc, .pf-container, .proof-center-shell) .h2 {
-    font-size: clamp(1.375rem, 1.375rem + (100vw - 80rem) * 0.003125, 1.5rem); /* 22 → 24 */
-  }
-
   .ct-page-area :is(.pf-panel-title, .dashboard-panel-micro-title) {
     font-size: 0.875rem; /* 14px — panel chrome, stays sober */
   }
