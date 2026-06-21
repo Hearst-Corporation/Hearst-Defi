@@ -76,6 +76,21 @@ RULES=(
   'private_key_block|-----BEGIN [A-Z ]*PRIVATE KEY-----'
   'jwt|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}'
   'supabase_service_role|service_role[\"'\''[:space:]:=]+eyJ[A-Za-z0-9_.-]{30,}'
+  # --- rest of Adrien's keychain (SERVICES.md) + classic distinctive shapes ---
+  # Only PREFIX-anchored shapes (low false-positive). Bare-hex secrets without a
+  # prefix (e.g. Deepgram's 40-hex) are deliberately NOT here: they would flag
+  # every git SHA / content hash in the tree.
+  'stripe|(sk|rk)_live_[A-Za-z0-9]{20,}'
+  'elevenlabs|(^|[^A-Za-z0-9_/])sk_[A-Za-z0-9]{40,}'
+  'inngest_signkey|signkey-(prod|test)-[a-f0-9]{40,}'
+  'composio|(^|[^A-Za-z0-9_])ak_[A-Za-z0-9]{18,}'
+  'fal|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[0-9a-f]{32,}'
+  'sentry_dsn|https://[0-9a-f]{32}@o[0-9]+\.ingest\.[A-Za-z0-9.]*sentry\.io'
+  'axiom|(^|[^A-Za-z0-9_])xaat-[0-9a-f-]{24,}'
+  'tailscale|tskey-[A-Za-z0-9-]{20,}'
+  'google_api|AIza[0-9A-Za-z_-]{35}'
+  'slack|xox[baprs]-[A-Za-z0-9-]{10,}'
+  'upstash_token|UPSTASH[A-Z_]*TOKEN[\"'\''[:space:]:=]+[A-Za-z0-9_-]{30,}'
 )
 
 # Paths we never want to flag-on-self (this scanner contains the regexes above).
