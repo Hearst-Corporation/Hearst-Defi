@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import {
   OnboardingShellProvider,
 } from "@/components/onboarding/onboarding-chamber";
+import { OnboardingChecklistRail } from "@/components/onboarding/onboarding-checklist-rail";
 import type { IrContact } from "@/lib/ir-contact";
 import type { OnboardingState, OnboardingStepId } from "@/lib/onboarding/state";
 
@@ -37,6 +38,12 @@ export function OnboardingShell({
               priority
             />
           </header>
+
+          {state.checklist.length > 0 && (
+            <div className="onboarding-shell__stepper">
+              <OnboardingChecklistRail items={state.checklist} />
+            </div>
+          )}
 
           <div className="onboarding-shell__stage product-doc product-doc-shell">
             {children}

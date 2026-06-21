@@ -13,7 +13,6 @@ import {
 import {
   OnboardingChamber,
   OnboardingChamberSole,
-  OnboardingRequirementsList,
   useOnboardingShell,
 } from "@/components/onboarding/onboarding-chamber";
 import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
@@ -21,7 +20,7 @@ import { Button } from "@/components/ui/button";
 
 export default function AccreditationPage() {
   const router = useRouter();
-  const { checklist, irContact } = useOnboardingShell();
+  const { irContact } = useOnboardingShell();
   const attestation = useAccreditationAttestations(() => {
     router.push("/onboarding/identity");
   });
@@ -46,10 +45,7 @@ export default function AccreditationPage() {
         </>
       }
       body={
-        <>
-          <OnboardingRequirementsList items={checklist} />
-          <AccreditationAttestationFields state={attestation} />
-        </>
+        <AccreditationAttestationFields state={attestation} />
       }
       sole={
         <OnboardingChamberSole

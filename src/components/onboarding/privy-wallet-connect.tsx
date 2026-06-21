@@ -11,7 +11,6 @@ import { useEffect, useRef } from "react";
 import {
   OnboardingChamber,
   OnboardingChamberSole,
-  OnboardingRequirementsList,
   useOnboardingShell,
 } from "@/components/onboarding/onboarding-chamber";
 import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
@@ -145,7 +144,7 @@ export function WalletChamber({
   boundAddress,
   walletBound,
 }: WalletChamberProps) {
-  const { checklist, irContact } = useOnboardingShell();
+  const { irContact } = useOnboardingShell();
 
   return (
     <OnboardingChamber
@@ -165,10 +164,7 @@ export function WalletChamber({
         </>
       }
       body={
-        <>
-          <OnboardingRequirementsList items={checklist} />
-          <PrivyWalletConnect appId={appId} boundAddress={boundAddress} />
-        </>
+        <PrivyWalletConnect appId={appId} boundAddress={boundAddress} />
       }
       sole={
         <OnboardingChamberSole

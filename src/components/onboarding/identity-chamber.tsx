@@ -7,7 +7,6 @@ import { IdentityStep } from "@/components/onboarding/identity-step";
 import {
   OnboardingChamber,
   OnboardingChamberSole,
-  OnboardingRequirementsList,
   useOnboardingShell,
 } from "@/components/onboarding/onboarding-chamber";
 import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
@@ -24,7 +23,7 @@ export function IdentityChamber({
   mayContinue,
   isProduction,
 }: IdentityChamberProps) {
-  const { checklist, irContact } = useOnboardingShell();
+  const { irContact } = useOnboardingShell();
 
   return (
     <OnboardingChamber
@@ -45,7 +44,6 @@ export function IdentityChamber({
       }
       body={
         <>
-          <OnboardingRequirementsList items={checklist} />
           {kycVendorReady ? (
             <IdentityStep />
           ) : (
