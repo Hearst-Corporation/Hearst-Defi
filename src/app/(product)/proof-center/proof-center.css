@@ -25,7 +25,7 @@
    H3 lg/bold/title-3). That sheet is owned by the shared layer — we re-pin the
    PORTFOLIO canon here, scoped to `.proof-center-shell`, so H1/H2/H3 render
    pixel-identical to portfolio.css §1:
-     H1 → --ct-text-3xl-fixed (32 FIXE), semibold, tight, text-strong
+     H1 → --ct-text-3xl-fixed (24 FIXE), semibold, tight, text-strong
      H2 → --ct-text-2xl (18→22),         semibold, tight, text-strong
      H3 → --ct-text-lg (15→17),          medium,   snug,  ACCENT GREEN
    ============================================================================= */

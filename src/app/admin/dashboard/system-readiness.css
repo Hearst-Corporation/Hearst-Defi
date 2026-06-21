@@ -328,3 +328,25 @@
     font-size: var(--ct-text-xl);
   }
 }
+
+/* ── Deeper fit gate (≥56rem height): hide the stats row to free ~65px for
+   ops/lower rows. The 4 stats (vault mode / oracle freshness / last check /
+   next check) are operator-level metadata that duplicates the KPI strip above —
+   hiding them on a typical 1440×900 or 1536×960 screen is the right trade-off
+   to keep the ops trio and risk/audit rows readable.
+   Stats remain visible below 56rem (≥52rem gate) and on scroll-mode screens. ── */
+@media (min-width: 80rem) and (min-height: 56rem) {
+  .dashboard-cockpit--fit .dashboard-readiness__stats {
+    display: none;
+  }
+
+  /* Also tighten the matrix further so the readiness band targets ~140px total. */
+  .dashboard-cockpit--fit .dashboard-readiness__matrix {
+    gap: var(--ct-space-1);
+    padding-top: var(--ct-space-1_5);
+  }
+
+  .dashboard-cockpit--fit .dashboard-readiness__factors {
+    gap: var(--ct-space-1);
+  }
+}

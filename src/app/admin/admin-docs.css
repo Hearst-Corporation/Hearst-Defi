@@ -44,7 +44,7 @@
   padding: var(--ct-space-1_5) var(--ct-space-2);
   border-radius: var(--ct-radius-lg);
   color: var(--ct-text-muted);
-  transition: color var(--ct-dur) var(--ct-ease);
+  transition: color var(--ct-dur-base) var(--ct-ease);
 }
 
 .admin-doc .admin-doc-spec-link:hover {
