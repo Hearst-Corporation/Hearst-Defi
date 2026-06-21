@@ -22,7 +22,7 @@
 }
 
 .onb-skel-cta {
-  height: 2.75rem;
+  height: var(--ct-space-12);
 }
 
 /* ── KYC document form ── */

@@ -14,7 +14,7 @@ export function VaultPanelHeader({
     <div className="vault-panel-header">
       <div className="vault-panel-header__stack">
         {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
-        <h3 className="h3 ct-text-body">{title}</h3>
+        <h3 className="h3">{title}</h3>
       </div>
       {trailing ? <div className="shrink-0">{trailing}</div> : null}
     </div>

@@ -41,7 +41,7 @@ export function InvestFlowLoadingShell({
             </div>
           </div>
           {showActions ? (
-            <div className="product-page-header__actions flex flex-wrap gap-2">
+            <div className="product-page-header__actions flex flex-wrap gap-[var(--ct-space-2)]">
               <Skeleton className="h-7 w-16 rounded-full" />
               <Skeleton className="h-7 w-20 rounded-full" />
               <Skeleton className="hidden h-9 w-44 lg:block" />
@@ -56,7 +56,7 @@ export function InvestFlowLoadingShell({
             {Array.from({ length: 3 }).map((_, index) => (
               <div key={index}>
                 <Skeleton className="h-3 w-24" variant="text" />
-                <Skeleton className="mt-2 h-6 w-28" />
+                <Skeleton className="mt-[var(--ct-space-2)] h-6 w-28" />
               </div>
             ))}
           </dl>

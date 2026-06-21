@@ -14,7 +14,73 @@
    to live as arbitrary Tailwind utilities (`gap-[var(--ct-space-N)]`, …) inside
    the auth JSX. Structural skin for the split-screen still lives in cockpit.css
    (`.login-split__*`) — do not duplicate it here.
+
+   It ALSO pins the canonical heading scale (H1/H2/H3 + eyebrow) so auth surfaces
+   read IDENTICAL to portfolio (DS uniformisation canon). Auth routes wrap in
+   `.product-doc` but the divergent doc-flow scale must NOT win here: these
+   overrides restore the PORTFOLIO canon (fixed H1, 2xl H2, accent-green H3).
    ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   0. HEADING CANON — identical to portfolio (.pf-greeting__lead .h1, …)
+   Scoped to auth roots so they beat the base `.h1/.h2/.h3` (cockpit.css) and the
+   `.product-doc .h1/.h2/.h3` doc-flow scale. Tokens only — no px, no numeric
+   weights, no Tailwind default scale.
+   -------------------------------------------------------------------------- */
+
+:is(.auth-shell, .auth-login-panel, .login-split) .h1 {
+  font-size: var(--ct-text-3xl-fixed);
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-tight);
+  letter-spacing: var(--ct-tracking-tight);
+  color: var(--ct-text-strong);
+}
+
+:is(.auth-shell, .auth-login-panel, .login-split) .h2 {
+  font-size: var(--ct-text-2xl);
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-tight);
+  letter-spacing: var(--ct-tracking-tight);
+  color: var(--ct-text-strong);
+}
+
+:is(.auth-shell, .auth-login-panel, .login-split) .h3 {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-medium);
+  line-height: var(--ct-leading-snug);
+  letter-spacing: var(--ct-tracking-normal);
+  color: var(--ct-accent);
+}
+
+:is(.auth-shell, .auth-login-panel, .login-split)
+  .eyebrow:not(.login-split__eyebrow-accent) {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-semibold);
+  line-height: normal;
+  letter-spacing: var(--ct-tracking-widest);
+  text-transform: uppercase;
+  color: var(--ct-text-secondary);
+}
+
+/* Brand-panel eyebrow keeps its deliberate accent tint + sizing/tracking canon. */
+.login-split .eyebrow.login-split__eyebrow-accent {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-semibold);
+  line-height: normal;
+  letter-spacing: var(--ct-tracking-widest);
+  text-transform: uppercase;
+}
+
+/* Keep the ≥80rem doc-flow fluid bump from re-inflating the auth H1 (canon =
+   fixed cockpit instrument, not a document title that balloons). */
+@media (min-width: 80rem) {
+  .ct-page-area :is(.auth-shell, .auth-login-panel, .login-split) .h1 {
+    font-size: var(--ct-text-3xl-fixed);
+  }
+  .ct-page-area :is(.auth-shell, .auth-login-panel, .login-split) .h2 {
+    font-size: var(--ct-text-2xl);
+  }
+}
 
 /* -----------------------------------------------------------------------------
    1. CENTERED AUTH CARD — forgot / reset / TOTP (AuthFormShell)
@@ -50,6 +116,14 @@
   flex-direction: column;
   gap: var(--ct-space-4);
   text-align: center;
+}
+
+/* Field label/value stack — tight intra-group gap (canon var(--ct-space-1)).
+   Replaces inline `flex flex-col gap-1` (Tailwind default scale) in auth JSX. */
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
 }
 
 /* -----------------------------------------------------------------------------

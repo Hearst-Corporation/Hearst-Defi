@@ -105,28 +105,28 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         <dl className="admin-doc-dl-grid body-sm">
           <div>
             <dt className="stat-label">Proposed by</dt>
-            <dd className="mono mt-0.5 ct-text-primary">{proposal.proposedBy}</dd>
+            <dd className="mono gov-meta-value ct-text-primary">{proposal.proposedBy}</dd>
           </div>
           <div>
             <dt className="stat-label">Required signers</dt>
-            <dd className="mt-0.5 ct-text-primary">{proposal.requiredSigners}</dd>
+            <dd className="gov-meta-value ct-text-primary">{proposal.requiredSigners}</dd>
           </div>
           <div>
             <dt className="stat-label">Created</dt>
-            <dd className="mt-0.5 tabular-nums ct-text-primary">
+            <dd className="gov-meta-value tabular-nums ct-text-primary">
               {formatGovernanceTimestamp(proposal.createdAt)}
             </dd>
           </div>
           <div>
             <dt className="stat-label">ETA (timelock)</dt>
-            <dd className="mt-0.5 tabular-nums ct-text-primary">
+            <dd className="gov-meta-value tabular-nums ct-text-primary">
               {formatGovernanceTimestamp(proposal.etaAt)}
             </dd>
           </div>
           {proposal.executedAt ? (
             <div>
               <dt className="stat-label">Executed at</dt>
-              <dd className="mt-0.5 tabular-nums ct-text-primary">
+              <dd className="gov-meta-value tabular-nums ct-text-primary">
                 {formatGovernanceTimestamp(proposal.executedAt)}
               </dd>
             </div>
@@ -134,7 +134,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
           {proposal.cancelledAt ? (
             <div>
               <dt className="stat-label">Cancelled at</dt>
-              <dd className="mt-0.5 tabular-nums ct-text-primary">
+              <dd className="gov-meta-value tabular-nums ct-text-primary">
                 {formatGovernanceTimestamp(proposal.cancelledAt)}
               </dd>
             </div>
@@ -142,7 +142,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         </dl>
 
         {proposal.state === "TIMELOCK" && proposal.etaAt ? (
-          <div className="gov-proposal-timelock ct-nested-callout flex flex-col gap-1">
+          <div className="gov-proposal-timelock gov-timelock-stack ct-nested-callout flex flex-col">
             <p className="body-xs font-semibold ct-text-body">Timelock countdown</p>
             <p className="mono body-sm ct-text-strong">{timelockCountdown(proposal.etaAt)}</p>
           </div>
@@ -215,7 +215,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                 <div className="min-w-0 flex-1">
                   <span className="mono body-xs ct-text-primary">{sig.signerAddress}</span>
                   {sig.reason ? (
-                    <p className="mt-0.5 truncate body-xs ct-text-muted">{sig.reason}</p>
+                    <p className="gov-signature-reason truncate body-xs ct-text-muted">{sig.reason}</p>
                   ) : null}
                 </div>
                 <span className="shrink-0 body-xs tabular-nums ct-text-muted">

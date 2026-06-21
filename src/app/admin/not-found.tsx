@@ -12,7 +12,7 @@ export default function AdminNotFound() {
       actions={
         <Link
           href="/admin/dashboard"
-          className="admin-doc-pill-action body-sm font-medium"
+          className="admin-doc-pill-action body-sm"
         >
           Back to admin
         </Link>

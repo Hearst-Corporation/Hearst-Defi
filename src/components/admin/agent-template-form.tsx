@@ -103,7 +103,7 @@ export function AgentTemplateForm({
         aria-labelledby="sec-identity"
       >
         <header>
-          <h3 id="sec-identity" className="body-sm font-semibold ct-text-strong">
+          <h3 id="sec-identity" className="h3">
             Identity
           </h3>
           <p className="body-xs ct-text-muted">
@@ -153,7 +153,7 @@ export function AgentTemplateForm({
         aria-labelledby="sec-behavior"
       >
         <header>
-          <h3 id="sec-behavior" className="body-sm font-semibold ct-text-strong">
+          <h3 id="sec-behavior" className="h3">
             Behavior
           </h3>
           <p className="body-xs ct-text-muted">
@@ -244,10 +244,7 @@ export function AgentTemplateForm({
         aria-labelledby="sec-instructions"
       >
         <header>
-          <h3
-            id="sec-instructions"
-            className="body-sm font-semibold ct-text-strong"
-          >
+          <h3 id="sec-instructions" className="h3">
             Instructions
           </h3>
           <p className="body-xs ct-text-muted">

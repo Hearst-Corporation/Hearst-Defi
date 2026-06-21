@@ -88,7 +88,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
               width={200}
               height={200}
               unoptimized
-              className="rounded-sm ct-surface-1 p-2"
+              className="security-totp-qr rounded-sm ct-surface-1"
             />
           </div>
 
@@ -98,7 +98,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
               Can&apos;t scan? Enter the key manually
             </summary>
             <p
-              className="mono mt-2 break-all rounded ct-surface-1 px-2 py-1 select-all"
+              className="security-totp-manual mono break-all rounded ct-surface-1 select-all"
             >
               {state.payload.secretBase32}
             </p>
@@ -107,7 +107,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
 
         <form action={handleConfirm} className="admin-doc-stack admin-doc-stack--relaxed">
           <label className="block" htmlFor="totp-code">
-            <span className="mb-1 block stat-label">
+            <span className="security-totp-field-label block stat-label">
               Verification code
             </span>
             <input

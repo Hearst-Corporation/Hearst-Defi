@@ -45,7 +45,7 @@ export function ProofCenterColdShell({
         </div>
         <Link
           href={PORTFOLIO_ONBOARDING_INVEST_HREF}
-          className="proof-center-cold__cta proof-cold-cta font-bold ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover ct-transition-base ct-focus-ring ct-press text-sm no-underline"
+          className="proof-center-cold__cta proof-cold-cta ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover ct-transition-base ct-focus-ring ct-press no-underline"
         >
           Subscribe to vault
         </Link>
@@ -56,7 +56,7 @@ export function ProofCenterColdShell({
         <ul className="proof-center-cold__list proof-cold-list">
           {UNLOCKS.map((item) => (
             <li key={item.title} className="proof-cold-list__item">
-              <span className="body-sm ct-text-primary font-semibold">{item.title}</span>
+              <span className="proof-cold-list__title body-sm ct-text-primary">{item.title}</span>
               <span className="body-xs ct-text-muted">{item.detail}</span>
             </li>
           ))}

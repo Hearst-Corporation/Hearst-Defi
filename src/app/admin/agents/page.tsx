@@ -59,15 +59,15 @@ export default async function AgentsPage() {
         <div className="flex flex-wrap items-center justify-between gap-[var(--ct-space-3)]">
           <h2 className="h2">Agent orchestration</h2>
           <div className="flex flex-wrap items-center gap-[var(--ct-space-3)] body-xs ct-text-muted">
-            <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-[var(--ct-space-1_5)]">
               <span className="h-2 w-2 rounded-full bg-(--ct-accent)" aria-hidden />
               Active
             </span>
-            <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-[var(--ct-space-1_5)]">
               <span className="h-2 w-2 rounded-full bg-(--ct-text-faint)" aria-hidden />
               Idle
             </span>
-            <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-[var(--ct-space-1_5)]">
               <span className="h-2 w-2 rounded-full bg-(--ct-status-danger)" aria-hidden />
               Failed
             </span>
@@ -131,7 +131,7 @@ export default async function AgentsPage() {
 
                       {/* Title + surface */}
                       <div className="flex flex-col gap-[var(--ct-space-1)]">
-                        <h3 className="h3 ct-text-strong m-0">{entry.label}</h3>
+                        <h3 className="h3 m-0">{entry.label}</h3>
                         <span className="stat-label ct-text-muted">{entry.surface}</span>
                       </div>
 

@@ -40,7 +40,7 @@ export function LoginForm() {
 
   return (
     <form action={onSubmit} className="auth-form" aria-label="Sign in">
-      <label className="flex flex-col gap-1" htmlFor="login-email">
+      <label className="auth-field" htmlFor="login-email">
         <span className="ct-form-label">Email</span>
         <input
           id="login-email"
@@ -57,7 +57,7 @@ export function LoginForm() {
         />
       </label>
 
-      <label className="flex flex-col gap-1" htmlFor="login-password">
+      <label className="auth-field" htmlFor="login-password">
         <span className="ct-form-label">Password</span>
         <input
           id="login-password"

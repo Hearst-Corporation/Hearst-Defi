@@ -50,7 +50,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
         <Card hoverOverlay={false}>
           <CardHeader className="invest-flow-card-header mb-0">
             <CardTitle>Vault metrics</CardTitle>
-            <div className="flex shrink-0 items-center gap-1.5">
+            <div className="flex shrink-0 items-center gap-[var(--ct-space-1_5)]">
               <ProvenanceBadge kind="estimated" variant="compact" />
               {vault.currentAumUsdc > 0 ? (
                 <ProvenanceBadge kind={aumProvenance} variant="compact" />

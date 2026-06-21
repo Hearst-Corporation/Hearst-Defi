@@ -84,7 +84,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
         <dl className="vault-detail-kpis">
           <div>
             <dt className="stat-label">APY range</dt>
-            <dd className="mt-0.5">
+            <dd className="mt-[var(--ct-space-0_5)]">
               <ApyRange
                 low={vault.apyLow}
                 high={vault.apyHigh}
@@ -95,13 +95,13 @@ export default async function VaultDetailPage({ params }: PageProps) {
           </div>
           <div>
             <dt className="stat-label">Min subscription</dt>
-            <dd className="stat-value tabular mono ct-text-strong mt-0.5">
+            <dd className="stat-value tabular mono ct-text-strong mt-[var(--ct-space-0_5)]">
               {formatMinTicketUsdc(vault.minTicketUsdc)}
             </dd>
           </div>
           <div>
             <dt className="stat-label">Soft lock-up</dt>
-            <dd className="stat-value tabular mono ct-text-strong mt-0.5">
+            <dd className="stat-value tabular mono ct-text-strong mt-[var(--ct-space-0_5)]">
               {vault.softLockupDays} days
             </dd>
           </div>

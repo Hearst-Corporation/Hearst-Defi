@@ -34,11 +34,11 @@ function CheckRow({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="product-doc-inline-row product-doc-inline-row--start product-doc-inline-row--loose py-2.5">
+    <div className="product-doc-inline-row product-doc-inline-row--start product-doc-inline-row--loose py-[var(--ct-space-2_5)]">
       <span
         aria-hidden
         className={cn(
-          "mt-0.5 h-2 w-2 shrink-0 rounded-full",
+          "mt-[var(--ct-space-0_5)] h-2 w-2 shrink-0 rounded-full",
           status === "ok" && "ct-status-dot-success",
           status === "action" && "ct-status-dot-warning",
           status === "pending" && "ct-status-dot-info",
@@ -47,7 +47,7 @@ function CheckRow({
       <div className="pf-inline-row pf-inline-row--between min-w-0 flex-1">
         <div className="min-w-0">
           <span className="body-sm font-semibold ct-text-primary">{label}</span>
-          <span className="body-xs ct-text-muted ml-2">{detail}</span>
+          <span className="body-xs ct-text-muted ml-[var(--ct-space-2)]">{detail}</span>
         </div>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
@@ -155,11 +155,11 @@ export function PreFlightCheck({
   const epochOk = epochIndicative.status === "ACTIVE";
 
   const panelBody = !ready ? (
-    <p className="body-xs ct-text-muted animate-pulse py-4 text-center">
+    <p className="body-xs ct-text-muted animate-pulse py-[var(--ct-space-4)] text-center">
       Loading wallet…
     </p>
   ) : !vaultConfigured ? (
-    <div className="product-doc-stack--tight py-4">
+    <div className="product-doc-stack--tight py-[var(--ct-space-4)]">
       <Badge variant="warning" className="self-start">
         Configuration pending
       </Badge>
@@ -171,7 +171,7 @@ export function PreFlightCheck({
   ) : (
     <>
       {vaultStale ? (
-        <div className="product-doc-stack--dense py-3">
+        <div className="product-doc-stack--dense py-[var(--ct-space-3)]">
           <Badge variant="warning" className="self-start">
             Testnet contract
           </Badge>

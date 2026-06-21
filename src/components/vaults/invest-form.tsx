@@ -137,7 +137,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
                   className="ct-input tabular vault-amount-input vault-amount-input--muted mono body-lg"
                 />
               </div>
-              <p id="amt-helper-disabled" className="body-xs mt-1.5 ct-text-muted">
+              <p id="amt-helper-disabled" className="body-xs mt-[var(--ct-space-1_5)] ct-text-muted">
                 Minimum {formatUsdAmount(vault.minTicketUsdc, true)} · Capacity remaining:{" "}
                 {formatUsdAmount(maxAmount, true)}
               </p>
@@ -391,7 +391,7 @@ function InvestFormLive({ vault }: InvestFormProps) {
               <p
                 id="amt-helper"
                 className={cn(
-                  "body-xs mt-1.5",
+                  "body-xs mt-[var(--ct-space-1_5)]",
                   helper.variant === "ok" && "ct-status-success",
                   helper.variant === "warn" && "ct-status-warning",
                   helper.variant === "neutral" && "ct-text-muted",

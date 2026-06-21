@@ -28,15 +28,15 @@
    ============================================================================= */
 
 .admin-doc .admin-card {
-  padding: var(--ct-space-6);
-}
-
-.admin-doc .admin-card--snug {
   padding: var(--ct-space-5);
 }
 
+.admin-doc .admin-card--snug {
+  padding: var(--ct-space-3) var(--ct-space-5);
+}
+
 .admin-doc .admin-card--tight {
-  padding: var(--ct-space-4);
+  padding: var(--ct-space-3) var(--ct-space-4);
 }
 
 /* =============================================================================

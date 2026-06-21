@@ -74,9 +74,10 @@
   background: transparent;
 }
 
-/* Roomier callout block (confirmed / failed result panels) */
+/* Roomier callout block (confirmed / failed result panels) — canon card
+   rhythm: Y var(--ct-space-3) / X var(--ct-space-5) (spec §2). */
 .admin-doc .admin-doc-callout {
-  padding: var(--ct-space-3) var(--ct-space-4);
+  padding: var(--ct-space-3) var(--ct-space-5);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
   background: transparent;
@@ -91,15 +92,16 @@
    3. WORKSPACE — objective card body + section heading rule
    --------------------------------------------------------------------------- */
 
-/* Roomy card body — 20px, easing to 28px at the sm breakpoint (workspace +
-   onboarding test card frames). */
+/* Roomy card body — 20px, easing to 24px at the sm breakpoint (workspace +
+   onboarding test card frames). Both steps land on the canon page rhythm
+   (--ct-space-6..8, spec §2) instead of the bottom-menu token. */
 .admin-doc .admin-doc-card-pad {
   padding: var(--ct-space-6);
 }
 
 @media (min-width: 640px) {
   .admin-doc .admin-doc-card-pad {
-    padding: var(--ct-space-11);
+    padding: var(--ct-space-8);
   }
 }
 
@@ -160,11 +162,25 @@
 }
 
 /* -----------------------------------------------------------------------------
-   5. MISC — admin 404 pill action
+   5. WEIGHT UTILITIES — canon font weights from tokens (no Tailwind default
+   `font-medium` / `font-semibold`, no numeric weight). Spec §1.
+   --------------------------------------------------------------------------- */
+
+.admin-doc .admin-doc-weight-medium {
+  font-weight: var(--ct-font-medium);
+}
+
+.admin-doc .admin-doc-weight-semibold {
+  font-weight: var(--ct-font-semibold);
+}
+
+/* -----------------------------------------------------------------------------
+   6. MISC — admin 404 pill action
    --------------------------------------------------------------------------- */
 
 /* NOT scoped to .admin-doc: the admin not-found boundary renders OUTSIDE the
-   layout's .admin-doc wrapper when the layout itself calls notFound(). */
+   layout's .admin-doc wrapper when the layout itself calls notFound().
+   The weight token is folded in here directly for the same reason. */
 .admin-doc-pill-action {
   display: inline-flex;
   align-items: center;
@@ -173,5 +189,6 @@
   border: 1px solid var(--ct-border-strong);
   background: var(--ct-surface-1);
   color: var(--ct-text-primary);
+  font-weight: var(--ct-font-medium);
   text-decoration: none;
 }

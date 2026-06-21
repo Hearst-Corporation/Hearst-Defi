@@ -410,7 +410,7 @@ export function ProjectionStudio() {
         <div className="projection-studio-input-card__header">
           <div>
             <p className="eyebrow ct-text-muted">Control panel</p>
-            <h3 className="h3 mt-1 ct-text-strong">Projection inputs</h3>
+            <h3 className="h3 mt-(--ct-space-1)">Projection inputs</h3>
           </div>
           <span className="body-xs ct-text-faint mono">{methodologyVersion}</span>
         </div>
@@ -570,7 +570,7 @@ export function ProjectionStudio() {
               <div className="projection-studio-output-head">
                 <div>
                   <p className="eyebrow ct-text-muted">Result scene</p>
-                  <h3 className="h3 ct-text-strong mt-1">Projection output</h3>
+                  <h3 className="h3 mt-(--ct-space-1)">Projection output</h3>
                 </div>
               </div>
               <ScenePlaceholderMetrics />
@@ -587,7 +587,7 @@ export function ProjectionStudio() {
             <div className="projection-studio-output-head">
               <div>
                 <p className="eyebrow ct-text-muted">Result scene</p>
-                <h3 className="h3 ct-text-strong mt-1">Projection output</h3>
+                <h3 className="h3 mt-(--ct-space-1)">Projection output</h3>
               </div>
               <div className="admin-doc-inline-row">
                 <Badge variant="default">

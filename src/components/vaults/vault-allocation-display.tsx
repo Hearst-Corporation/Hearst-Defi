@@ -25,14 +25,14 @@ function AllocationInvestorRow({
     <div className="vault-allocation-row">
       <span
         aria-hidden
-        className={cn("dash-legend-dot mt-1 shrink-0", `dot-${dotTone}`)}
+        className={cn("dash-legend-dot mt-[var(--ct-space-1)] shrink-0", `dot-${dotTone}`)}
       />
       <div className="vault-allocation-row__body">
         <div className="min-w-0">
           <p className="body-sm font-semibold ct-text-primary">
             {ALLOCATION_INVESTOR_LABELS[bucket]}
           </p>
-          <p className="body-xs ct-text-muted mt-0.5">
+          <p className="body-xs ct-text-muted mt-[var(--ct-space-0_5)]">
             {ALLOCATION_DESCRIPTIONS[bucket]}
           </p>
         </div>

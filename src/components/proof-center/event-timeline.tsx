@@ -82,7 +82,7 @@ function EventTimelineItem({
         showConnector && "proof-timeline-item--connected",
       )}
     >
-      <div className="relative mt-1 flex h-7 w-7 shrink-0 items-center justify-center">
+      <div className="proof-timeline-dot-rail">
         <span
           className={cn("proof-dot", eventDotClass(event.kind))}
         />
@@ -94,7 +94,7 @@ function EventTimelineItem({
           <span className="body-xs">Event #{event.eventId.toString()}</span>
         </div>
 
-        <div className="mt-1 min-w-0">
+        <div className="proof-timeline-meta min-w-0">
           <ProofRow label="Timestamp">
             {dateFmt.format(event.timestamp)} UTC
           </ProofRow>
@@ -124,7 +124,7 @@ function EventTimelineItem({
           const href = ipfsGatewayUrl(event.payloadCid);
           if (href) {
             return (
-              <div className="mt-1">
+              <div className="proof-timeline-action">
                 <Button asChild variant="secondary" size="md">
                   <a href={href} target="_blank" rel="noreferrer noopener">
                     View payload (IPFS)
@@ -135,7 +135,7 @@ function EventTimelineItem({
           }
           if (event.payloadCid.length > 0) {
             return (
-              <div className="mt-1">
+              <div className="proof-timeline-action">
                 <span className="ct-text-muted body-sm">View payload (IPFS)</span>
               </div>
             );

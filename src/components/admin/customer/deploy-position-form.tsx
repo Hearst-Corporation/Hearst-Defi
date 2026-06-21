@@ -47,7 +47,7 @@ export function DeployPositionForm({
       <form action={handleSubmit} className="admin-doc-inline-row flex-wrap">
         <input type="hidden" name="investorId" value={investorId} />
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-[var(--ct-space-1)]">
           <label htmlFor={`deploy-amount-${investorId}`} className="ct-form-label">
             Amount (USDC)
           </label>
@@ -65,7 +65,7 @@ export function DeployPositionForm({
           />
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-[var(--ct-space-1)]">
           <label htmlFor={`deploy-class-${investorId}`} className="ct-form-label">
             Share class
           </label>

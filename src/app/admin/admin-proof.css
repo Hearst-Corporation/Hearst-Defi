@@ -19,6 +19,21 @@
   margin-bottom: var(--ct-space-8);
 }
 
+/* Meta grid value (<dd>) — tight gap below its stat-label. */
+.admin-doc .gov-meta-value {
+  margin-top: var(--ct-space-0_5);
+}
+
+/* Timelock countdown callout — label/value stack. */
+.admin-doc .gov-timelock-stack {
+  gap: var(--ct-space-1);
+}
+
+/* Signature row reason line — tight gap below the signer address. */
+.admin-doc .gov-signature-reason {
+  margin-top: var(--ct-space-0_5);
+}
+
 /* Timelock countdown callout below the meta grid. */
 .admin-doc .gov-proposal-timelock {
   margin-top: var(--ct-space-8);
@@ -116,6 +131,25 @@
 
 .admin-doc .security-totp-lead {
   margin-bottom: var(--ct-space-4);
+}
+
+/* TOTP QR code — light field padding (light bg is a scanner requirement). */
+.admin-doc .security-totp-qr {
+  padding: var(--ct-space-2);
+}
+
+/* TOTP manual-entry fallback key. */
+.admin-doc .security-totp-manual {
+  margin-top: var(--ct-space-2);
+  padding-left: var(--ct-space-2);
+  padding-right: var(--ct-space-2);
+  padding-top: var(--ct-space-1);
+  padding-bottom: var(--ct-space-1);
+}
+
+/* TOTP form field label. */
+.admin-doc .security-totp-field-label {
+  margin-bottom: var(--ct-space-1);
 }
 
 /* =============================================================================

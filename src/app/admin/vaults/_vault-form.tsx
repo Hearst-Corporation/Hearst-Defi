@@ -531,7 +531,7 @@ export function VaultForm(props: VaultFormProps) {
               </label>
             </MetricGrid>
 
-            <div className="admin-doc-inset flex flex-col gap-1">
+            <div className="admin-doc-inset flex flex-col gap-(--ct-space-1)">
               <span className="stat-label block">APY Range Preview</span>
               <ApyRange
                 low={form.targetApyLowBps / 100}
@@ -750,7 +750,7 @@ export function VaultForm(props: VaultFormProps) {
               )}
 
               {/* Required signers — multisig threshold M-of-N */}
-              <div className="admin-doc-stack admin-doc-stack--tight pt-2 border-t border-(--ct-border-soft)">
+              <div className="admin-doc-stack admin-doc-stack--tight pt-(--ct-space-2) border-t border-(--ct-border-soft)">
                 <span className="stat-label block">
                   Required signers (M-of-N quorum) *
                 </span>
@@ -917,7 +917,7 @@ export function VaultForm(props: VaultFormProps) {
               runs={1000}
             />
 
-            <p className="body-xs ct-text-faint border-t border-(--ct-border-soft) pt-3">
+            <p className="body-xs ct-text-faint border-t border-(--ct-border-soft) pt-(--ct-space-3)">
               Assumptions: mining yields, BTC price, network difficulty, energy costs are
               projected based on historical ranges. Target APY is a range, not guaranteed.
               Past performance is not indicative of future results.
@@ -988,7 +988,7 @@ export function VaultForm(props: VaultFormProps) {
               )}
 
               {props.adminId !== undefined && !adminInWhitelist && (
-                <p className="body-xs ct-status-danger pt-1">
+                <p className="body-xs ct-status-danger pt-(--ct-space-1)">
                   Your identity ({props.adminId}) is not in the whitelist — you
                   will not be able to sign this deployment yourself.
                 </p>

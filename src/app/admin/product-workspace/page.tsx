@@ -82,7 +82,7 @@ export default async function ProductWorkspacePage({
           >
             {objective ?? "Awaiting objective from cockpit agent"}
           </p>
-          <p className="body-sm ct-text-body mt-1">
+          <p className="body-sm ct-text-body">
             Framing and documentation only — no vault creation, allocations, or
             approvals from this surface.
           </p>

@@ -32,7 +32,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
         >
           <Link
             href="/forgot-password"
-            className="body-xs ct-text-primary underline underline-offset-2 mt-1"
+            className="body-xs ct-text-primary underline underline-offset-2 mt-[var(--ct-space-1)]"
           >
             Request a new link
           </Link>

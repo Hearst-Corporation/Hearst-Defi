@@ -37,7 +37,7 @@ export function OutreachStatsCards({ stats }: { stats: OutreachStats }) {
       {items.map((item) => (
         <Card key={item.label} className="admin-card--tight" hoverOverlay={false}>
           <p className="stat-label">{item.label}</p>
-          <p className="mt-1 stat-value tabular-nums ct-text-strong">{item.value}</p>
+          <p className="mt-[var(--ct-space-1)] stat-value tabular-nums ct-text-strong">{item.value}</p>
         </Card>
       ))}
     </div>

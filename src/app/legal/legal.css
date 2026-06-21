@@ -51,9 +51,16 @@
   border-bottom-color: var(--ct-accent);
 }
 
-.legal-body h1 {
-  /* font-family and font-size handled by DS .h1 class */
-  color: var(--ct-text-primary);
+/* HEADING CANON — identical to portfolio (.pf-greeting__lead .h1, …).
+   Scoped to `.legal-body` so they beat the divergent doc-flow `.product-doc`
+   scale (this sheet loads after doc-flow.css). Tokens only — H1 fixed,
+   H2 = 2xl, H3 = accent green. */
+.legal-body .h1 {
+  font-size: var(--ct-text-3xl-fixed);
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-tight);
+  letter-spacing: var(--ct-tracking-tight);
+  color: var(--ct-text-strong);
   margin-bottom: var(--ct-space-2);
 }
 
@@ -61,10 +68,32 @@
   margin-bottom: var(--ct-space-8);
 }
 
-.legal-body h2 {
-  /* font-family and font-size handled by DS .h2 class */
+.legal-body .h2 {
+  font-size: var(--ct-text-2xl);
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-tight);
+  letter-spacing: var(--ct-tracking-tight);
   color: var(--ct-text-strong);
   margin: var(--ct-space-8) 0 var(--ct-space-3);
+}
+
+.legal-body .h3 {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-medium);
+  line-height: var(--ct-leading-snug);
+  letter-spacing: var(--ct-tracking-normal);
+  color: var(--ct-accent);
+  margin: var(--ct-space-6) 0 var(--ct-space-2);
+}
+
+/* Keep the ≥80rem doc-flow fluid bump from re-inflating legal headings. */
+@media (min-width: 80rem) {
+  .legal-body .h1 {
+    font-size: var(--ct-text-3xl-fixed);
+  }
+  .legal-body .h2 {
+    font-size: var(--ct-text-2xl);
+  }
 }
 
 .legal-body p,
@@ -107,7 +136,7 @@
 .legal-index {
   display: grid;
   gap: var(--ct-space-4);
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(13.75rem, 1fr));
   margin-top: var(--ct-space-6);
 }
 

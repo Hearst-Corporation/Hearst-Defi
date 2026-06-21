@@ -370,10 +370,10 @@ function RuntimePanel({
   const isLive = node.bindingKind !== "static";
   return (
     <div className="admin-inset-panel border border-(--ct-border-soft) ct-surface-1 admin-doc-stack admin-doc-stack--tight">
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between gap-[var(--ct-space-2)]">
         <div>
           <p className="body-sm ct-text-strong m-0">{node.label}</p>
-          <p className="body-[10px] uppercase tracking-wide ct-text-faint">
+          <p className="text-[length:var(--ct-text-nano)] uppercase tracking-wide ct-text-faint">
             {node.kind} · {node.state}
           </p>
         </div>
@@ -392,14 +392,14 @@ function RuntimePanel({
       )}
 
       {/* Provenance + tool meta */}
-      <div className="flex flex-wrap gap-1.5">
-        <span className="rounded-full border border-(--ct-border-soft) px-1.5 py-0.5 body-[10px] uppercase ct-text-faint">
+      <div className="flex flex-wrap gap-[var(--ct-space-1_5)]">
+        <span className="rounded-full border border-(--ct-border-soft) px-[var(--ct-space-1_5)] py-[var(--ct-space-0_5)] text-[length:var(--ct-text-nano)] uppercase ct-text-faint">
           {BINDING_LABEL[node.bindingKind]}
         </span>
         {node.riskLevel && (
           <span
             className={cn(
-              "rounded-full px-1.5 py-0.5 body-[10px] uppercase",
+              "rounded-full px-[var(--ct-space-1_5)] py-[var(--ct-space-0_5)] text-[length:var(--ct-text-nano)] uppercase",
               node.riskLevel === "high"
                 ? "ct-status-danger"
                 : node.riskLevel === "medium"
@@ -411,7 +411,7 @@ function RuntimePanel({
           </span>
         )}
         {node.confirmationRequired && (
-          <span className="rounded-full border border-(--ct-border-accent) px-1.5 py-0.5 body-[10px] uppercase ct-text-accent">
+          <span className="rounded-full border border-(--ct-border-accent) px-[var(--ct-space-1_5)] py-[var(--ct-space-0_5)] text-[length:var(--ct-text-nano)] uppercase ct-text-accent">
             HITL · confirm
           </span>
         )}
@@ -429,11 +429,11 @@ function RuntimePanel({
               {node.samples.map((s, i) => (
                 <div
                   key={`${s.atIso}-${i}`}
-                  className="flex items-center justify-between gap-2 border-b border-(--ct-border-soft) py-1 last:border-0 body-xs"
+                  className="flex items-center justify-between gap-[var(--ct-space-2)] border-b border-(--ct-border-soft) py-[var(--ct-space-1)] last:border-0 body-xs"
                 >
                   <span
                     className={cn(
-                      "rounded-full px-1.5 py-0.5 body-[10px] uppercase",
+                      "rounded-full px-[var(--ct-space-1_5)] py-[var(--ct-space-0_5)] text-[length:var(--ct-text-nano)] uppercase",
                       s.status === "success"
                         ? "ct-status-success"
                         : s.status === "failed" || s.status === "timeout"
