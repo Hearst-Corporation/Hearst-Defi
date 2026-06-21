@@ -19,13 +19,14 @@ interface StatDef {
 }
 
 /**
- * Five calm stat cards: prospects, sent, open-rate, click-rate, bounce-rate.
+ * Calm engagement stat cards: sent, open-rate, click-rate, bounce-rate.
+ * `Prospects` is intentionally NOT here — it lives in the "Prospect directory (N)"
+ * section heading, the single source for that count (no duplication).
  * Rates are formatted as percentages; counts as plain integers. Mirrors the
  * stat-label / tabular-nums conventions used across the admin console.
  */
 export function OutreachStatsCards({ stats }: { stats: OutreachStats }) {
   const items: StatDef[] = [
-    { label: "Prospects", value: integer.format(stats.totalProspects) },
     { label: "Sent", value: integer.format(stats.emails.sent) },
     { label: "Open rate", value: pct(stats.rates.openRate) },
     { label: "Click rate", value: pct(stats.rates.clickRate) },
@@ -33,7 +34,7 @@ export function OutreachStatsCards({ stats }: { stats: OutreachStats }) {
   ];
 
   return (
-    <div className="admin-stat-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="admin-stat-grid grid grid-cols-2 sm:grid-cols-4">
       {items.map((item) => (
         <Card key={item.label} className="admin-card--tight" hoverOverlay={false}>
           <p className="stat-label">{item.label}</p>

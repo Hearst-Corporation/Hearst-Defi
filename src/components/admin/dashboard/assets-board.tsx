@@ -179,72 +179,69 @@ export function DashboardAssetsBoard({
         </div>
       </div>
 
-      {/* ── Row 2: Ops trio (ActionQueue | LiveMetrics | LiveOps) ── */}
+      {/* ── Row 2: Ops trio — one fused surface, three panes ── */}
       <div className="dashboard-cockpit-row dashboard-cockpit-row--ops">
-        {/* Operator queue panel — single flat graphite surface, header in trail */}
         <div className="dashboard-cockpit-cell">
-          <div className="dashboard-cockpit-panel">
-            <AdminCockpitPanelHeader
-              title="Operator queue"
-              trailing={<AdminLeafLink href="/admin/monitoring" />}
-            />
-            <ActionQueue items={cockpit.actionQueue} />
-          </div>
-        </div>
+          <div className="dashboard-ops-surface">
 
-        {/* Vault health panel */}
-        <div className="dashboard-cockpit-cell">
-          <div className="dashboard-cockpit-panel">
-            <AdminCockpitPanelHeader
-              title="Vault health"
-              trailing={<AdminLeafLink href="/admin/monitoring" />}
-            />
-            <LiveMetrics vaults={scopedVaultMetrics} />
-          </div>
-        </div>
+            <div className="dashboard-ops-pane">
+              <AdminCockpitPanelHeader
+                title="Operator queue"
+                trailing={<AdminLeafLink href="/admin/monitoring" />}
+              />
+              <ActionQueue items={cockpit.actionQueue} />
+            </div>
 
-        {/* Platform status panel */}
-        <div className="dashboard-cockpit-cell">
-          <div className="dashboard-cockpit-panel">
-            <AdminCockpitPanelHeader
-              title="Platform status"
-              trailing={<AdminLeafLink href="/admin/monitoring" />}
-            />
-            <LiveOps
-              inngestJobs={cockpit.inngestJobs}
-              sentryStats={cockpit.sentryStats}
-              onChainEvents={cockpit.onChainEvents}
-            />
+            <div className="dashboard-ops-pane dashboard-ops-pane--divider">
+              <AdminCockpitPanelHeader
+                title="Vault health"
+                trailing={<AdminLeafLink href="/admin/monitoring" />}
+              />
+              <LiveMetrics vaults={scopedVaultMetrics} />
+            </div>
+
+            <div className="dashboard-ops-pane dashboard-ops-pane--divider">
+              <AdminCockpitPanelHeader
+                title="Platform status"
+                trailing={<AdminLeafLink href="/admin/monitoring" />}
+              />
+              <LiveOps
+                inngestJobs={cockpit.inngestJobs}
+                sentryStats={cockpit.sentryStats}
+                onChainEvents={cockpit.onChainEvents}
+              />
+            </div>
+
           </div>
         </div>
       </div>
 
-      {/* ── Row 3: Risk posture + Audit trail ── */}
+      {/* ── Row 3: Risk posture + Audit trail — one fused surface, two panes ── */}
       <div className="dashboard-cockpit-row dashboard-cockpit-row--lower">
-        {/* Risk posture panel — single flat graphite surface, no nested Card */}
         <div className="dashboard-cockpit-cell">
-          <div className="dashboard-cockpit-panel">
-            <AdminCockpitPanelHeader
-              title="Risk posture"
-              trailing={<AdminLeafLink href="/admin/vaults" />}
-              provenance={riskProvenance}
-            />
-            <DashboardRiskSummaryCard
-              data={risk}
-              hasLiveKpis={hasLiveKpis}
-              simulated={simulated}
-            />
-          </div>
-        </div>
+          <div className="dashboard-lower-surface">
 
-        {/* Audit trail panel — no nested command-panel-card wrapper */}
-        <div className="dashboard-cockpit-cell">
-          <div className="dashboard-cockpit-panel">
-            <AdminCockpitPanelHeader
-              title="Audit trail"
-              trailing={<AdminLeafLink href="/admin/audit" />}
-            />
-            <AuditTrailRolling entries={cockpit.auditTrail.slice(0, 5)} />
+            <div className="dashboard-lower-pane dashboard-lower-pane--risk">
+              <AdminCockpitPanelHeader
+                title="Risk posture"
+                trailing={<AdminLeafLink href="/admin/vaults" />}
+                provenance={riskProvenance}
+              />
+              <DashboardRiskSummaryCard
+                data={risk}
+                hasLiveKpis={hasLiveKpis}
+                simulated={simulated}
+              />
+            </div>
+
+            <div className="dashboard-lower-pane dashboard-lower-pane--audit dashboard-lower-pane--divider">
+              <AdminCockpitPanelHeader
+                title="Audit trail"
+                trailing={<AdminLeafLink href="/admin/audit" />}
+              />
+              <AuditTrailRolling entries={cockpit.auditTrail.slice(0, 5)} />
+            </div>
+
           </div>
         </div>
       </div>

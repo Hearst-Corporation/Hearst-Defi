@@ -56,9 +56,9 @@ export default async function ProductWorkspacePage({
   return (
     <div className="admin-doc-shell admin-doc-shell--roomy">
       <AdminPageHeader
-        title="Product Workspace"
-        eyebrow="Strategy"
-        description="The cockpit agent frames the product here — objective, assumptions, guardrails — written live into this surface."
+        titleLead="Product"
+        titleAccent="Workspace"
+        contextLabel="Strategy"
         actions={
           <div className="admin-doc-inline-row admin-doc-inline-row--dense">
             <Badge variant={autostart ? "success" : "default"}>

@@ -18,8 +18,9 @@ export default async function ProofsPage() {
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Proofs"
-        description="CRUD library to publish and manage off-chain proofs (paper attestations, documents). On-chain records and the investor-facing view stay in Proof Center."
+        titleLead="Proof"
+        titleAccent="Library"
+        contextLabel="Proof & System"
         actions={
           <AdminLeafLink
             href="/admin/proof-center/full"

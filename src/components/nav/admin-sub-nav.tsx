@@ -46,10 +46,6 @@ export function AdminSubNav() {
 
   return (
     <nav aria-label={`${section.label} sections`} className="section-nav">
-      <span className="section-nav__eyebrow" aria-hidden="true">
-        {section.label}
-      </span>
-      <span className="section-nav__sep" aria-hidden="true" />
       <ul className="section-nav__list">
         {tabs.map((tab) => {
           const isActive = tab.href === activeHref;

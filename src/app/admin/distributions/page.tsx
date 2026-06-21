@@ -70,9 +70,10 @@ export default async function DistributionsPage({
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Distributions"
-        eyebrow="Distribution history"
-        actions={
+        titleLead="Vault"
+        titleAccent="Distributions"
+        contextLabel="Vaults"
+        filters={
           <FixtureVaultPills
             activeVaultId={vaultId}
             resolveHref={adminDistributionsVaultHref}

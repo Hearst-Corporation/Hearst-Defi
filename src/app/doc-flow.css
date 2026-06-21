@@ -625,28 +625,12 @@
   flex-wrap: wrap;
   gap: var(--ct-space-2) var(--ct-space-3);
   flex: 0 0 auto;
-  /* Resserre la nav sous le kicker (sous-niveau du titre) sans toucher le
-     gap colonne du header qui régit nav→trait→toolbar. */
-  margin-top: calc(-1 * var(--ct-space-3));
-  /* Rapproche la nav et le trait : ferme ~la moitié du gap colonne (space-6)
-     — la nav descend / le trait remonte vers le point milieu. */
-  margin-bottom: calc(-1 * var(--ct-space-3));
-}
-
-/* Label de section — eyebrow uppercase muet : ancre le contexte du menu. */
-.admin-doc .section-nav__eyebrow {
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-semibold);
-  letter-spacing: var(--ct-tracking-widest);
-  text-transform: uppercase;
-  color: var(--ct-text-tertiary);
-}
-
-/* Séparateur fin entre le label et les liens. */
-.admin-doc .section-nav__sep {
-  width: 1px;
-  height: var(--ct-space-3);
-  background: var(--ct-border-soft);
+  /* Titre, kicker ET trait restent FIXES — seule la nav descend vers la ligne.
+     On la pousse vers le bas (margin-top +) et on compense par un margin-bottom
+     négatif ÉGAL, donc le trait (élément suivant) ne bouge pas. Le delta = de
+     combien la nav se rapproche du trait. */
+  margin-top: var(--ct-space-4);
+  margin-bottom: calc(-1 * var(--ct-space-4));
 }
 
 .admin-doc .section-nav__list {

@@ -55,6 +55,54 @@
   gap: var(--ct-space-3);
 }
 
+/* =============================================================================
+   3a. SEARCH DOCK — command-palette trigger pinned top-right, compact.
+   Le `.cp-trigger` global est width:100% (pensé pour le rail) ; rendu seul au
+   niveau layout il s'étirait sur toute la première ligne. On le dock en haut à
+   droite et on le resserre — SANS toucher cockpit.css (protégé) ni le dialog
+   ouvert (.cp-dialog reste fixed/centré). Scope strict : le trigger fermé.
+   ============================================================================= */
+.admin-search-dock {
+  position: fixed;
+  top: var(--ct-space-4);
+  right: var(--ct-space-4);
+  z-index: var(--ct-z-dropdown);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Resserre + rétrécit le bouton fermé (override du width:100% du rail). */
+.admin-search-dock .cp-trigger {
+  width: auto;
+  gap: var(--ct-space-1_5);
+  padding: var(--ct-space-1) var(--ct-space-2);
+  border-color: var(--ct-border-soft);
+  background: var(--ct-graphite-subtle-bg);
+  font-size: var(--ct-text-2xs);
+}
+
+/* =============================================================================
+   3b. OUTREACH — Lead engine as a SECONDARY tool (demoted below operator content)
+   The engine/copilot is a tool, not the page. Visually subordinated: a muted
+   inset surface + a quiet head row, so Prospect directory / Campaign queue stay
+   the dominant operator views above it.
+   ============================================================================= */
+
+.admin-doc .outreach-engine-aside {
+  margin-top: var(--ct-space-2);
+  padding: var(--ct-space-5);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-lg);
+  background: var(--ct-graphite-subtle-bg);
+}
+
+.admin-doc .outreach-engine-aside__head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--ct-space-1) var(--ct-space-3);
+}
+
 .admin-doc .admin-graph-split {
   gap: var(--ct-space-4);
 }

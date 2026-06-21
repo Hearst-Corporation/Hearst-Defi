@@ -54,8 +54,9 @@ export default async function GovernancePage({ searchParams }: PageProps) {
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Governance"
-        description="Review operator proposals, signature status, and timelock readiness before execution."
+        titleLead="Governance"
+        titleAccent="Console"
+        contextLabel="Proof & System"
         actions={
           <Button variant="primary" asChild size="md">
             <Link href="/admin/governance/propose">+ New proposal</Link>

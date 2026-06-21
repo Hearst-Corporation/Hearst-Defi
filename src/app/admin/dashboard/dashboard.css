@@ -148,102 +148,15 @@
 }
 
 /* =============================================================================
-   8. FIT GATE CALIBRATION — dashboard-specific overrides of cockpit.css gate.
-   Kept here (not in cockpit.css) to avoid touching the shared dirty file.
+   8. FIT GATE — NEUTRALISÉE (2026-06-21).
 
-   Problem: the base gate fires at ≥80rem × ≥52rem, which activates on
-   1280×800 laptops (~50rem content height) and crushes the ops/lower rows
-   into ~180-195px each — too small for the 3-pane ops surface.
+   Le dashboard ne pin plus la hauteur du viewport (cf. cockpit.css : la gate
+   ≥80rem×52rem ne verrouille plus `100dvh`/`overflow:hidden`). Les anciens blocs
+   « Fix A / Fix B » qui réintroduisaient un partage de hauteur en `flex: x 1 0`
+   FORÇAIENT à nouveau la grille verticale — ils sont supprimés.
 
-   Fix A — narrow viewport escape (52–56rem height window): revert the
-   locked-shell overflows so the page scrolls naturally on short screens.
-   Fix B — wide gate (≥56rem height): keep fit mode but loosen row weights
-   so ops/lower rows receive more flex budget.
+   Doctrine actuelle : rows à hauteur de contenu, scroll vertical naturel
+   accepté, aucun scroll horizontal. Tout ce qui calibre la composition wide
+   (cadre premium, anti-tunnel des panes) vit côté cockpit.css/system-readiness
+   sous les mêmes sélecteurs `.dashboard-*`. Rien à re-forcer ici.
    ============================================================================= */
-
-/* ── A. Escape hatch: 52–55.999rem height (e.g. 1280×800 laptops).
-   Revert overflow/height locks set by cockpit.css fit gate rules.
-   Specificity matches cockpit.css (same selectors) — cascade order wins
-   because this file is imported AFTER cockpit.css in page.tsx. ── */
-@media (min-width: 80rem) and (min-height: 52rem) and (max-height: 55.999rem) {
-  .ct-panels-row:has(.dashboard-cockpit--fit) {
-    height: auto;
-    max-height: none;
-    overflow: visible;
-  }
-
-  .ct-center-panel:has(.dashboard-cockpit--fit) {
-    height: auto;
-    min-height: unset;
-    overflow: visible;
-  }
-
-  .ct-page-area:has(.dashboard-cockpit--fit) {
-    height: auto;
-    min-height: unset;
-    overflow: visible;
-    padding-bottom: var(--ct-space-8);
-  }
-
-  .ct-page-area:has(.dashboard-cockpit--fit) main#main-content {
-    flex: none;
-    min-height: unset;
-    overflow: visible;
-    display: block;
-  }
-
-  .ct-page-area:has(.dashboard-cockpit--fit) .admin-doc {
-    flex: none;
-    min-height: unset;
-    overflow: visible;
-  }
-
-  .ct-page-area:has(.dashboard-cockpit--fit) .admin-doc-shell {
-    flex: none;
-    min-height: unset;
-    overflow: visible;
-    gap: var(--ct-doc-flow-gap);
-  }
-
-  .dashboard-cockpit--fit {
-    height: auto;
-    overflow: visible;
-    flex: none;
-  }
-
-  .dashboard-cockpit--fit .dashboard-cockpit-row--kpi,
-  .dashboard-cockpit--fit .dashboard-cockpit-row--ops,
-  .dashboard-cockpit--fit .dashboard-cockpit-row--lower {
-    flex: 0 0 auto;
-  }
-
-  .dashboard-cockpit--fit .dashboard-cockpit-cell {
-    overflow: visible;
-  }
-
-  /* Ops panes: natural height, no clipping */
-  .dashboard-cockpit--fit .dashboard-ops-pane,
-  .dashboard-cockpit--fit .dashboard-lower-pane {
-    overflow-y: visible;
-    padding: var(--ct-space-4) var(--ct-space-5);
-    gap: var(--ct-space-3);
-  }
-
-  /* Readiness row: no clip override needed */
-  .dashboard-cockpit--fit .dashboard-cockpit-row--readiness {
-    flex: 0 0 auto;
-    min-height: unset;
-  }
-  .dashboard-cockpit--fit .dashboard-cockpit-row--readiness .dashboard-cockpit-cell {
-    overflow: visible;
-  }
-}
-
-/* ── B. Full fit gate (≥56rem height): keep fit mode, rebalance row weights.
-   Ops row gets more budget vs the default 1.1; lower stays proportional.
-   Readiness stays `0 0 auto` so it doesn't eat the ops/lower share. ── */
-@media (min-width: 80rem) and (min-height: 56rem) {
-  .dashboard-cockpit--fit .dashboard-cockpit-row--kpi   { flex: 1.1 1 0; }
-  .dashboard-cockpit--fit .dashboard-cockpit-row--ops   { flex: 1.4 1 0; }
-  .dashboard-cockpit--fit .dashboard-cockpit-row--lower { flex: 1.0 1 0; }
-}

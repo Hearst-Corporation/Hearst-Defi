@@ -112,20 +112,19 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Rebalancing"
+        titleLead="Vault"
+        titleAccent="Rebalancing"
+        contextLabel="Vaults"
+        filters={
+          <FixtureVaultPills
+            activeVaultId={vaultId}
+            resolveHref={adminSignalsVaultHref}
+          />
+        }
         actions={
-          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
-            <FixtureVaultPills
-              activeVaultId={vaultId}
-              resolveHref={adminSignalsVaultHref}
-            />
-            {isDev && (
-              <ManualSignalTrigger
-                action={manualSignalAction}
-                vaultId={vaultId}
-              />
-            )}
-          </div>
+          isDev ? (
+            <ManualSignalTrigger action={manualSignalAction} vaultId={vaultId} />
+          ) : undefined
         }
       />
 

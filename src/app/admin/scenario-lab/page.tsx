@@ -56,10 +56,10 @@ export default async function ScenarioLabPage({
   return (
     <div className="admin-doc-shell admin-doc-shell--roomy scenario-lab-page scenario-lab-page--fit">
       <AdminPageHeader
-        title="Scenario Lab"
-        eyebrow={`${vault.label} · ${vault.ticker}`}
-        description="Stress-test the current vault posture and compare scenario outcomes before drafting operator decisions."
-        actions={
+        titleLead="Scenario"
+        titleAccent="Lab"
+        contextLabel={`Strategy · ${vault.ticker}`}
+        filters={
           <FixtureVaultPills
             activeVaultId={vaultId}
             resolveHref={adminScenarioLabVaultHref}

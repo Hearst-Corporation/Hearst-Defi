@@ -6,7 +6,6 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -25,7 +24,6 @@ import {
   loadCampaigns,
   loadIcps,
 } from "@/lib/data/outreach";
-import { buildOutreachKpiStrip } from "@/lib/admin/outreach-kpi-strip";
 import { formatAdminDate } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
@@ -68,61 +66,28 @@ export default async function OutreachPage() {
     loadIcps(),
   ]);
 
-  const outreachKpis = buildOutreachKpiStrip(stats, campaigns);
-
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Outreach"
-        eyebrow="platform · outreach operations"
-        description="Operator workspace for prospect coverage, campaign setup, and pre-send review of agent-prepared outreach."
+        titleLead="Outreach"
+        titleAccent="Console"
+        contextLabel="Outreach Console"
         actions={
-          <Button asChild variant="secondary" size="md">
+          <Button asChild variant="primary" size="md">
             <Link href="/admin/outreach/compose">Compose email</Link>
           </Button>
         }
       />
 
-      {/* Hub KPI strip — suppressed on empty workspace */}
-      {outreachKpis.length > 0 && <AdminKpiStripPanel kpis={outreachKpis} />}
-
-      {/* Lead engine — agentic sourcing (ICP → tiered prospects) + copilot.
-          Sourcing is MOCK until Apollo is wired (Palier 1); nothing is sent. */}
-      <section
-        className="admin-doc-stack admin-doc-stack--actions"
-        aria-label="Lead engine"
-      >
-        <h2 className="h2">Lead engine</h2>
-        <p className="body-xs ct-text-muted">
-          Define a distributor profile and let the engine source, score, and tier
-          prospects. The copilot drives it from natural language — it finds and
-          ranks leads but never sends; every email stays human-approved.
-        </p>
-        <div className="ct-outreach-engine-grid">
-          <div className="admin-doc-stack admin-doc-stack--actions">
-            <div className="admin-doc-toolbar">
-              <div className="admin-doc-inline-row admin-doc-inline-row--actions">
-                <IcpForm />
-              </div>
-            </div>
-            <IcpList icps={icps} />
-          </div>
-          <OutreachCopilot />
-        </div>
-      </section>
-
-      {/* Stats row */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Outreach stats">
+      {/* Engagement overview — single compact stats source (no big KPI panel,
+          no duplicated Prospects: that count lives in the directory heading). */}
+      <section aria-label="Outreach overview">
         <OutreachStatsCards stats={stats} />
       </section>
 
-      {/* Prospects */}
+      {/* Operator content #1 — Prospect directory (the primary working view). */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Prospects">
         <h2 className="h2">Prospect directory ({prospects.total})</h2>
-        <p className="body-xs ct-text-muted">
-          Maintain the reviewed contact universe used to scope campaign drafting and
-          follow-up.
-        </p>
 
         <div className="admin-doc-toolbar">
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
@@ -276,6 +241,33 @@ export default async function OutreachPage() {
             </div>
           </Card>
         )}
+      </section>
+
+      {/* Lead engine — SECONDARY tool, demoted below the operator content.
+          Agentic sourcing (ICP → tiered prospects) + copilot. Sourcing is MOCK
+          until Apollo is wired (Palier 1); nothing is sent, every email stays
+          human-approved. Compacted: short label, no dominating description. */}
+      <section
+        className="admin-doc-stack admin-doc-stack--actions outreach-engine-aside"
+        aria-label="Lead engine"
+      >
+        <div className="outreach-engine-aside__head">
+          <h2 className="h3">Lead engine</h2>
+          <span className="body-xs ct-text-muted">
+            Source &amp; tier leads from a distributor ICP — copilot-driven, never sends.
+          </span>
+        </div>
+        <div className="ct-outreach-engine-grid">
+          <div className="admin-doc-stack admin-doc-stack--actions">
+            <div className="admin-doc-toolbar">
+              <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+                <IcpForm />
+              </div>
+            </div>
+            <IcpList icps={icps} />
+          </div>
+          <OutreachCopilot />
+        </div>
       </section>
     </div>
   );

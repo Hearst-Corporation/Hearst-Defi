@@ -104,15 +104,15 @@
 .dashboard-readiness__stats {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ct-space-2_5) var(--ct-space-4);
+  gap: var(--ct-space-4) var(--ct-space-6);
 }
 
 .dashboard-readiness__stat {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-0_5);
+  gap: var(--ct-space-1);
   min-width: 0;
-  padding-left: var(--ct-space-3);
+  padding-left: var(--ct-space-4);
   border-left: 1px solid var(--ct-border-ghost);
 }
 
@@ -198,6 +198,14 @@
   text-align: right;
 }
 
+/* Détails (stat + factor) : remontés de faint → muted. Les notes critiques de la
+   console ne doivent pas être illisibles ; on garde une hiérarchie calme mais
+   lisible (la valeur/le label restent dominants). */
+.dashboard-readiness__stat-detail,
+.dashboard-readiness__factor-detail {
+  color: var(--ct-text-muted);
+}
+
 /* ── Calm status dots — no glow, no box-shadow ── */
 .dashboard-readiness__dot {
   display: inline-block;
@@ -227,26 +235,35 @@
 
   .dashboard-readiness__factors {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: var(--ct-space-1_5);
+    gap: var(--ct-space-3);
   }
 
-  /* Each factor = compact 2-row chip so neither the label nor the (sometimes
-     long, e.g. "Awaiting snapshot") status truncates when 5 chips share the row:
-     dot + label on line 1, status on line 2. */
+  /* Grand écran : les 4 stats et 5 factors ne s'étalent PAS sur toute la largeur
+     du board (sinon = barre formulaire / 5 grandes cases plates). On cadre chaque
+     sous-zone à une largeur de lecture console et on aligne à gauche. */
+  .dashboard-readiness__stats,
+  .dashboard-readiness__factors {
+    max-width: 76rem;
+  }
+
+  /* Each factor = chip ouvert (3 lignes : dot+label / status / detail).
+     Plus de cage sombre « mini-box collée » : surface très discrète, séparation
+     par espace + hairline bas seulement. Détail RESTAURÉ (on a la place). */
   .dashboard-readiness__factor {
     grid-template-columns: auto 1fr;
-    grid-template-rows: auto auto;
+    grid-template-rows: auto auto auto;
     align-items: center;
-    column-gap: var(--ct-space-1_5);
-    row-gap: var(--ct-space-0_5);
-    padding: var(--ct-space-1_5) var(--ct-space-2);
+    column-gap: var(--ct-space-2);
+    row-gap: var(--ct-space-1);
+    padding: var(--ct-space-3) var(--ct-space-3);
     margin: 0;
-    background: var(--ct-surface-0);
-    border: 1px solid var(--ct-border-ghost);
+    background: transparent;
+    border: none;
+    border-radius: var(--ct-radius-md);
   }
 
   .dashboard-readiness__factor:hover {
-    background: var(--ct-surface-1);
+    background: var(--ct-surface-0);
   }
 
   .dashboard-readiness__factor > .dashboard-readiness__dot {
@@ -263,8 +280,11 @@
     text-align: left;
     font-size: var(--ct-text-xs);
   }
+  /* Détail restauré, lisible (pas faint illisible) — la matrice respire. */
   .dashboard-readiness__factor-detail {
-    display: none;
+    grid-row: 3;
+    grid-column: 1 / -1;
+    text-align: left;
   }
 }
 
@@ -275,78 +295,25 @@
   }
 }
 
-/* ── Fit gate: readiness shares the column height with the dense rows instead
-   of taking its full content height. Drop the per-factor detail line, tighten
-   gaps, and let the module clip→scroll inside its share so the ops/lower rows
-   below always keep a readable budget (they were collapsing to ~30px when this
-   row was `0 0 auto`). ── */
+/* ── DÉFORCÉ (2026-06-21) : le dashboard ne pin plus la hauteur, donc la
+   readiness n'a PLUS à se comprimer en band ni à cacher ses stats. Elle lit
+   maintenant comme une vraie console de supervision : head + 4 stats + matrice
+   complète, gaps de lecture, aucun scroll interne caché. La page défile si
+   besoin (scroll vertical naturel accepté). Sur grand écran on ouvre juste un
+   peu plus l'air sans rien tronquer. ── */
 @media (min-width: 80rem) and (min-height: 52rem) {
-  /* Module is content-sized (head + one stat row + one matrix row ≈ 225px) so
-     the ops/lower rows below keep their flex budget and never collapse. It
-     clips→scrolls internally only as a backstop on very short viewports. */
   .dashboard-cockpit--fit .dashboard-cockpit-row--readiness {
     flex: 0 0 auto;
-    min-height: 0;
   }
   .dashboard-cockpit--fit .dashboard-cockpit-row--readiness .dashboard-cockpit-cell {
-    overflow: hidden;
+    overflow: visible;
   }
+  /* Respiration interne premium : padding et gaps ouverts, pas de clip/scroll. */
   .dashboard-cockpit--fit .dashboard-readiness {
-    gap: var(--ct-space-1_5);
-    padding: var(--ct-space-2_5) var(--ct-space-4);
-    overflow-y: auto;
-    scrollbar-width: none;
+    gap: var(--ct-space-5);
+    padding: var(--ct-space-5) var(--ct-space-6);
+    overflow: visible;
   }
-  .dashboard-cockpit--fit .dashboard-readiness::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-  }
-  /* Single-line blurb → the module stays short. */
-  .dashboard-cockpit--fit .dashboard-readiness__blurb {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 60ch;
-  }
-  /* Tighter head + matrix header so the module clears ~2 content rows. */
-  .dashboard-cockpit--fit .dashboard-readiness__head {
-    gap: var(--ct-space-1) var(--ct-space-4);
-  }
-  .dashboard-cockpit--fit .dashboard-readiness__head-main {
-    gap: var(--ct-space-1);
-  }
-  .dashboard-cockpit--fit .dashboard-readiness__matrix {
-    gap: var(--ct-space-1_5);
-    padding-top: var(--ct-space-2);
-  }
-  .dashboard-cockpit--fit .dashboard-readiness__stat-value {
-    font-size: var(--ct-text-base);
-  }
-  /* Dense fit board: step the H2 down one tier (same canon, compact band) so the
-     module still clears ~2 content rows without crushing the ops/lower rows. */
-  .dashboard-cockpit--fit .dashboard-readiness__title {
-    font-size: var(--ct-text-xl);
-  }
-}
-
-/* ── Deeper fit gate (≥56rem height): hide the stats row to free ~65px for
-   ops/lower rows. The 4 stats (vault mode / oracle freshness / last check /
-   next check) are operator-level metadata that duplicates the KPI strip above —
-   hiding them on a typical 1440×900 or 1536×960 screen is the right trade-off
-   to keep the ops trio and risk/audit rows readable.
-   Stats remain visible below 56rem (≥52rem gate) and on scroll-mode screens. ── */
-@media (min-width: 80rem) and (min-height: 56rem) {
-  .dashboard-cockpit--fit .dashboard-readiness__stats {
-    display: none;
-  }
-
-  /* Also tighten the matrix further so the readiness band targets ~140px total. */
-  .dashboard-cockpit--fit .dashboard-readiness__matrix {
-    gap: var(--ct-space-1);
-    padding-top: var(--ct-space-1_5);
-  }
-
-  .dashboard-cockpit--fit .dashboard-readiness__factors {
-    gap: var(--ct-space-1);
-  }
+  /* Stats + matrice restent VISIBLES et complètes (plus de display:none, plus
+     de détail tronqué) — c'est une console, pas une band. */
 }

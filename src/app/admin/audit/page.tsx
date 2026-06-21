@@ -84,9 +84,9 @@ export default async function AuditLogPage({
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Audit Log"
-        description="Immutable record of admin actions — approvals, pauses, distributions, and state transitions."
-        eyebrow="Compliance"
+        titleLead="Audit"
+        titleAccent="Log"
+        contextLabel="Compliance"
       />
 
       {kpiStrip.length > 0 && <AdminKpiStripPanel kpis={kpiStrip} />}
