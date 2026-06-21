@@ -74,12 +74,12 @@ export function OnboardingForm() {
         </div>
 
         {/* Side-effects toggles */}
-        <div className="admin-doc-inline-row flex-wrap gap-(--ct-space-4)">
-          <label className="inline-flex items-center body-xs gap-(--ct-space-2)">
+        <div className="admin-doc-toggle-row">
+          <label className="admin-doc-toggle body-xs">
             <input type="checkbox" name="syncHubspot" defaultChecked />
             <span>Create HubSpot contact</span>
           </label>
-          <label className="inline-flex items-center body-xs gap-(--ct-space-2)">
+          <label className="admin-doc-toggle body-xs">
             <input type="checkbox" name="sendEmail" />
             <span>Send welcome email</span>
           </label>
@@ -95,7 +95,7 @@ export function OnboardingForm() {
       {/* Result */}
       {result && (
         <div className="admin-doc-stack admin-doc-stack--actions">
-          <div className="admin-doc-inline-row flex-wrap gap-(--ct-space-2)">
+          <div className="admin-doc-badge-row">
             {result.ok ? (
               <Badge variant="success">{result.created ? "Account created" : "Account ready"}</Badge>
             ) : (
@@ -108,7 +108,7 @@ export function OnboardingForm() {
 
           {result.error && <p className="body-sm ct-status-danger">{result.error}</p>}
 
-          <ol className="admin-doc-stack body-sm ct-text-body" style={{ listStyle: "decimal inside" }}>
+          <ol className="admin-doc-step-list body-sm ct-text-body">
             {result.steps.map((s, i) => (
               <li key={i}>{s}</li>
             ))}

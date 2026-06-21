@@ -1,0 +1,177 @@
+/* =============================================================================
+   admin-docs.css — admin docs / distributions / workspace / misc (page-scoped)
+
+   Canon pass: every styling decision lives here as a SEMANTIC class on
+   var(--ct-*) tokens. The JSX in src/app/admin/{spec,distributions,
+   product-workspace,onboarding-test} + admin/not-found.tsx carries semantic
+   class names + canon utilities only — no `*-[var(...)]` arbitrary values,
+   no repeated px/py/rounded/border blocks, no inline `style={{}}`.
+
+   EDITING RULES (same canon as portfolio.css):
+   - COLORS / SURFACES: var(--ct-*) only. No raw hex/rgb.
+   - SPACING / RADIUS: var(--ct-space-*) / var(--ct-radius-*) only.
+   - Dark mode only. No `dark:` modifiers. No tailwind.config.
+
+   Scoped under `.admin-doc` (set by admin/layout.tsx), same as doc-flow.css.
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   1. PROSE ARTICLE COLUMN — spec [slug] + spec loading article wrapper
+   --------------------------------------------------------------------------- */
+
+.admin-doc .admin-doc-article {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-8);
+}
+
+/* Sticky spec sidebar (md+) */
+.admin-doc .admin-doc-spec-aside {
+  align-self: start;
+}
+
+@media (min-width: 768px) {
+  .admin-doc .admin-doc-spec-aside {
+    position: sticky;
+    top: var(--ct-space-24);
+  }
+}
+
+/* Spec nav entry — active vs idle handled by the `is-active` modifier. */
+.admin-doc .admin-doc-spec-link {
+  display: block;
+  padding: var(--ct-space-1_5) var(--ct-space-2);
+  border-radius: var(--ct-radius-lg);
+  color: var(--ct-text-muted);
+  transition: color var(--ct-dur) var(--ct-ease);
+}
+
+.admin-doc .admin-doc-spec-link:hover {
+  color: var(--ct-text-primary);
+}
+
+.admin-doc .admin-doc-spec-link.is-active {
+  background: var(--ct-surface-1);
+  color: var(--ct-text-primary);
+}
+
+.admin-doc .admin-doc-spec-link__order {
+  margin-right: var(--ct-space-2);
+  color: var(--ct-text-faint);
+}
+
+/* -----------------------------------------------------------------------------
+   2. NOTICE — inline status callout (error / info / success / warning)
+   Replaces the repeated `px-[…] py-[…] rounded-(…) border border-(…)` blocks
+   in distribution-form.tsx. Tone is set via ct-status-* on the text element.
+   --------------------------------------------------------------------------- */
+
+.admin-doc .admin-doc-notice {
+  padding: var(--ct-space-2) var(--ct-space-3);
+  border-radius: var(--ct-radius-md);
+  border: 1px solid var(--ct-border-soft);
+  background: transparent;
+}
+
+/* Roomier callout block (confirmed / failed result panels) */
+.admin-doc .admin-doc-callout {
+  padding: var(--ct-space-3) var(--ct-space-4);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: transparent;
+}
+
+/* History table — top hairline between distribution rows. */
+.admin-doc .admin-doc-table-row {
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+/* -----------------------------------------------------------------------------
+   3. WORKSPACE — objective card body + section heading rule
+   --------------------------------------------------------------------------- */
+
+/* Roomy card body — 20px, easing to 28px at the sm breakpoint (workspace +
+   onboarding test card frames). */
+.admin-doc .admin-doc-card-pad {
+  padding: var(--ct-space-6);
+}
+
+@media (min-width: 640px) {
+  .admin-doc .admin-doc-card-pad {
+    padding: var(--ct-space-11);
+  }
+}
+
+/* Flat 20px card body (no responsive step). */
+.admin-doc .admin-doc-card-pad-flat {
+  padding: var(--ct-space-6);
+}
+
+.admin-doc .admin-doc-objective {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+
+.admin-doc .admin-doc-section-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+}
+
+.admin-doc .admin-doc-section-rule {
+  width: 1px;
+  height: var(--ct-space-4);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-border-strong);
+}
+
+/* -----------------------------------------------------------------------------
+   4. ONBOARDING — toggle row + ordered step list
+   --------------------------------------------------------------------------- */
+
+.admin-doc .admin-doc-toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ct-space-4);
+}
+
+.admin-doc .admin-doc-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
+.admin-doc .admin-doc-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
+/* Ordered result steps — mirrors the admin-doc-stack flow gap, with markers. */
+.admin-doc .admin-doc-step-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-doc-flow-stack-gap);
+  list-style: decimal inside;
+}
+
+/* -----------------------------------------------------------------------------
+   5. MISC — admin 404 pill action
+   --------------------------------------------------------------------------- */
+
+/* NOT scoped to .admin-doc: the admin not-found boundary renders OUTSIDE the
+   layout's .admin-doc wrapper when the layout itself calls notFound(). */
+.admin-doc-pill-action {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--ct-space-2) var(--ct-space-4);
+  border-radius: var(--ct-radius-full);
+  border: 1px solid var(--ct-border-strong);
+  background: var(--ct-surface-1);
+  color: var(--ct-text-primary);
+  text-decoration: none;
+}

@@ -12,7 +12,7 @@ export default function AdminNotFound() {
       actions={
         <Link
           href="/admin/dashboard"
-          className="inline-flex items-center rounded-full border border-(--ct-border-strong) ct-surface-1 px-[var(--ct-space-4)] py-[var(--ct-space-2)] body-sm font-medium ct-text-primary no-underline"
+          className="admin-doc-pill-action body-sm font-medium"
         >
           Back to admin
         </Link>

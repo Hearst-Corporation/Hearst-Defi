@@ -70,8 +70,8 @@ export default async function ProductWorkspacePage({
         }
       />
 
-      <Card hoverOverlay={false} className="p-[var(--ct-space-6)] sm:p-7">
-        <div className="flex flex-col gap-[var(--ct-space-3)]">
+      <Card hoverOverlay={false} className="admin-doc-card-pad">
+        <div className="admin-doc-objective">
           <p className="eyebrow">Objective</p>
           {/* display value — intentionally p.h2, not a document heading */}
           <p
@@ -90,11 +90,11 @@ export default async function ProductWorkspacePage({
       </Card>
 
       <section aria-labelledby="pw-agent-brief-heading" className="admin-doc-section">
-        <div className="flex items-center gap-[var(--ct-space-3)]">
-          <span aria-hidden className="h-4 w-px rounded-full bg-(--ct-border-strong)" />
+        <div className="admin-doc-section-heading">
+          <span aria-hidden className="admin-doc-section-rule" />
           <h2 id="pw-agent-brief-heading" className="h2">Agent framing brief</h2>
         </div>
-        <Card hoverOverlay={false} className="p-[var(--ct-space-6)] sm:p-7">
+        <Card hoverOverlay={false} className="admin-doc-card-pad">
           <AgentBriefLive
             objective={objective ?? null}
             autostart={autostart}

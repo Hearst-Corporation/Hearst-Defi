@@ -27,7 +27,7 @@ export default async function SpecPage({
   return (
     <div className="admin-doc-shell">
       <div className="admin-doc-spec-layout">
-        <aside className="md:sticky md:top-24 md:self-start">
+        <aside className="admin-doc-spec-aside">
           <nav className="admin-doc-stack admin-doc-stack--compact" aria-label="Spec documents">
             {index.map((entry) => {
               const active = entry.slug === slug;
@@ -35,14 +35,9 @@ export default async function SpecPage({
                 <Link
                   key={entry.slug}
                   href={`/admin/spec/${entry.slug}`}
-                  className={cn(
-                    "block rounded-lg px-2 py-1.5 body-sm transition-colors ease-[var(--ct-ease)]",
-                    active
-                      ? "ct-surface-1 ct-text-primary"
-                      : "ct-text-muted hover:ct-text-primary",
-                  )}
+                  className={cn("admin-doc-spec-link body-sm", active && "is-active")}
                 >
-                  <span className="mono tabular mr-2 body-xs ct-text-faint">
+                  <span className="admin-doc-spec-link__order mono tabular body-xs">
                     {String(entry.order).padStart(2, "0")}
                   </span>
                   {entry.title}
@@ -52,7 +47,7 @@ export default async function SpecPage({
           </nav>
         </aside>
 
-        <article className="min-w-0 flex flex-col gap-[var(--ct-space-8)]">
+        <article className="admin-doc-article">
           <div className="admin-doc-prose-shell">
             <AdminPageHeader
               title={doc.title}

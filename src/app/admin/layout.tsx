@@ -7,6 +7,8 @@ import { CommandPalette } from "@/components/power/command-palette";
 import { getSession } from "@/lib/auth/session";
 
 import "../doc-flow.css";
+import "./admin-crm.css";
+import "./admin-docs.css";
 
 export const metadata = {
   title: "Admin — Hearst Connect",

@@ -145,7 +145,7 @@ export default async function DistributionsPage({
                       : null;
 
                     return (
-                      <tr key={d.id} className="border-t border-(--ct-border-soft)">
+                      <tr key={d.id} className="admin-doc-table-row">
                         <td className="ct-table-cell body-sm ct-text-body truncate">
                           {vaultHref && label ? (
                             <Link
