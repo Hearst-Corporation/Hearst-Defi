@@ -418,7 +418,9 @@ describe("admin read tools registry", () => {
     expect((payload.steps ?? []).length).toBeGreaterThan(0);
     for (const step of payload.steps ?? []) {
       expect(step.order).toBeGreaterThan(0);
-      expect(step.route.startsWith("/admin/")).toBe(true);
+      // Admin routes are under /admin — root (/admin) or a sub-path. The nav
+      // whitelist now includes the /admin Operations root, so allow both.
+      expect(step.route).toMatch(/^\/admin(\/|$)/);
     }
   });
 

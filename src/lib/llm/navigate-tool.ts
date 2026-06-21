@@ -29,8 +29,13 @@ export interface NavDestination {
 }
 
 /**
- * LP destinations only. Detail pages with a dynamic `[id]` are excluded (the
- * model has no id to fill), as are admin/debug routes.
+ * LP destinations — every static investor-facing page of the site.
+ *
+ * Excluded by design: dynamic detail pages (`/portfolio/[positionId]`,
+ * `/vaults/[id]`) — the model has no id to fill; in-progress flows guarded by
+ * `isProtectedRoute` (onboarding, deposit) — landing mid-flow is handled
+ * separately; pre-auth pages (login, reset-password) — nonsensical for an
+ * authenticated user; and admin/debug/sandbox routes.
  */
 export const LP_NAV_DESTINATIONS: readonly NavDestination[] = [
   {
@@ -42,10 +47,50 @@ export const LP_NAV_DESTINATIONS: readonly NavDestination[] = [
       "Tableau de bord du portefeuille de l'investisseur : valeur, rendement YTD, prochaine distribution, allocation, positions.",
   },
   {
+    key: "portfolio-positions",
+    profile: "lp",
+    route: "/portfolio/positions",
+    label: "Portefeuille — Positions",
+    description:
+      "Détail des positions actives de l'investisseur (par vault / share class).",
+  },
+  {
+    key: "portfolio-activity",
+    profile: "lp",
+    route: "/portfolio/activity",
+    label: "Portefeuille — Activité",
+    description:
+      "Historique d'activité du compte : souscriptions, distributions, mouvements.",
+  },
+  {
+    key: "portfolio-distributions",
+    profile: "lp",
+    route: "/portfolio/distributions",
+    label: "Portefeuille — Distributions",
+    description:
+      "Distributions mensuelles USDC reçues et à venir, calendrier et montants.",
+  },
+  {
+    key: "portfolio-yield",
+    profile: "lp",
+    route: "/portfolio/yield",
+    label: "Portefeuille — Rendement",
+    description:
+      "Décomposition du rendement (YTD, par période), sources et fourchette d'APY.",
+  },
+  {
+    key: "portfolio-tax",
+    profile: "lp",
+    route: "/portfolio/tax",
+    label: "Portefeuille — Fiscalité",
+    description:
+      "Documents et synthèse fiscale liés aux positions et distributions.",
+  },
+  {
     key: "vaults",
     profile: "lp",
     route: "/vaults",
-    label: "Produits",
+    label: "Produits / Vaults",
     description:
       "Liste des produits / vaults disponibles à la souscription (point de départ d'un dépôt).",
   },
@@ -58,12 +103,48 @@ export const LP_NAV_DESTINATIONS: readonly NavDestination[] = [
       "Preuve de réserves, événements on-chain, attestations, distributions, statut d'audit et version de méthodologie.",
   },
   {
+    key: "proof-center-full",
+    profile: "lp",
+    route: "/proof-center/full",
+    label: "Proof Center — Vue complète",
+    description:
+      "Vue exhaustive du proof center : tout l'historique des preuves, attestations et événements.",
+  },
+  {
     key: "profile",
     profile: "lp",
     route: "/profile",
     label: "Profil",
     description:
       "Profil et préférences du compte : email, wallet, statut KYC, positions actives.",
+  },
+  {
+    key: "legal",
+    profile: "lp",
+    route: "/legal",
+    label: "Mentions légales",
+    description: "Index des documents légaux : disclaimer, confidentialité, conditions.",
+  },
+  {
+    key: "legal-disclaimer",
+    profile: "lp",
+    route: "/legal/disclaimer",
+    label: "Légal — Disclaimer",
+    description: "Avertissement légal / disclaimer produit (non garanti, risques).",
+  },
+  {
+    key: "legal-privacy",
+    profile: "lp",
+    route: "/legal/privacy",
+    label: "Légal — Confidentialité",
+    description: "Politique de confidentialité et traitement des données.",
+  },
+  {
+    key: "legal-terms",
+    profile: "lp",
+    route: "/legal/terms",
+    label: "Légal — Conditions",
+    description: "Conditions d'utilisation du service.",
   },
 ] as const;
 
@@ -149,6 +230,129 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     description:
       "Projections/scénarios internes et analyses de risques opérationnels.",
   },
+  {
+    key: "admin-home",
+    profile: "admin",
+    route: "/admin",
+    label: "Admin — Operations (accueil)",
+    description:
+      "Accueil admin / cockpit Operations : point d'entrée des surfaces internes.",
+  },
+  {
+    key: "admin-vaults-new",
+    profile: "admin",
+    route: "/admin/vaults/new",
+    label: "Admin — Nouveau vault",
+    description: "Formulaire de création d'un nouveau vault.",
+  },
+  {
+    key: "admin-outreach-compose",
+    profile: "admin",
+    route: "/admin/outreach/compose",
+    label: "Admin — Outreach (composer)",
+    description: "Composer un email / message d'outreach (human-in-the-loop).",
+  },
+  {
+    key: "admin-proof-center",
+    profile: "admin",
+    route: "/admin/proof-center",
+    label: "Admin — Proof Center",
+    description:
+      "Proof center côté admin : preuves de réserve, attestations, événements.",
+  },
+  {
+    key: "admin-proof-center-full",
+    profile: "admin",
+    route: "/admin/proof-center/full",
+    label: "Admin — Proof Center (complet)",
+    description: "Vue exhaustive du proof center admin.",
+  },
+  {
+    key: "admin-governance-allowlist",
+    profile: "admin",
+    route: "/admin/governance/allowlist",
+    label: "Admin — Gouvernance (allowlist)",
+    description: "Gestion de l'allowlist de gouvernance (adresses autorisées).",
+  },
+  {
+    key: "admin-governance-propose",
+    profile: "admin",
+    route: "/admin/governance/propose",
+    label: "Admin — Gouvernance (proposer)",
+    description: "Créer une nouvelle proposition de gouvernance.",
+  },
+  {
+    key: "admin-agents",
+    profile: "admin",
+    route: "/admin/agents",
+    label: "Admin — Agents",
+    description:
+      "Console agents : templates, instances, calibration et mémoire des agents.",
+  },
+  {
+    key: "admin-agents-new",
+    profile: "admin",
+    route: "/admin/agents/new",
+    label: "Admin — Nouvel agent",
+    description: "Créer un nouveau template / instance d'agent.",
+  },
+  {
+    key: "admin-audit",
+    profile: "admin",
+    route: "/admin/audit",
+    label: "Admin — Audit",
+    description: "Journal d'audit : actions admin, mutations et traçabilité.",
+  },
+  {
+    key: "admin-distributions",
+    profile: "admin",
+    route: "/admin/distributions",
+    label: "Admin — Distributions",
+    description:
+      "Gestion des distributions mensuelles USDC : calcul, planification, exécution.",
+  },
+  {
+    key: "admin-feedback",
+    profile: "admin",
+    route: "/admin/feedback",
+    label: "Admin — Feedback",
+    description: "Retours / feedback collectés (clients, internes).",
+  },
+  {
+    key: "admin-investor-memo",
+    profile: "admin",
+    route: "/admin/investor-memo",
+    label: "Admin — Investor Memo",
+    description: "Génération et suivi des investor memos.",
+  },
+  {
+    key: "admin-monitoring",
+    profile: "admin",
+    route: "/admin/monitoring",
+    label: "Admin — Monitoring",
+    description: "Monitoring opérationnel : santé système, jobs, alertes.",
+  },
+  {
+    key: "admin-security",
+    profile: "admin",
+    route: "/admin/security",
+    label: "Admin — Sécurité",
+    description: "Surface sécurité : accès, rôles, sessions, posture.",
+  },
+  {
+    key: "admin-signals",
+    profile: "admin",
+    route: "/admin/signals",
+    label: "Admin — Signals",
+    description: "Signaux marché / mining et indicateurs internes.",
+  },
+  {
+    key: "admin-spec",
+    profile: "admin",
+    route: "/admin/spec",
+    label: "Admin — Specs produit",
+    description: "Index des specs produit (docs/spec) consultables en interne.",
+  },
 ] as const;
 
 export const NAV_DESTINATIONS: readonly NavDestination[] = [
@@ -166,15 +370,27 @@ export function getNavKeys(profile: NavProfile): readonly string[] {
  * the Master Agent.
  */
 export function createNavigateTool(profile: NavProfile) {
-  const keys = getNavKeys(profile);
+  const dests = NAV_DESTINATIONS.filter((d) => d.profile === profile);
+  const keys = dests.map((d) => d.key);
+  // The tool schema only exposes the ENUM OF KEYS to the model — the per-
+  // destination labels are not otherwise visible. Now that the whitelist covers
+  // the whole site (~40 pages), inline a compact `key → label` gloss so the
+  // model can map an intent to the right page instead of guessing from the key
+  // string alone. Single source of truth: derived from NAV_DESTINATIONS.
+  const gloss = dests.map((d) => `- ${d.key} → ${d.label}`).join("\n");
+  const intro =
+    profile === "admin"
+      ? "Amène l'utilisateur admin à la surface interne la plus pertinente sur tout le site admin. Pour toute demande de création/cadrage d'un nouveau produit, privilégie admin-product-workspace comme page indépendante. Utilise admin-scenario-lab uniquement pour des simulations/stress tests d'un produit déjà cadré."
+      : "Amène l'utilisateur à la page la plus pertinente de Hearst Connect quand ta réponse renvoie à une surface précise — par exemple « où vois-je mon allocation ? », « mes distributions ? », « comment souscrire ? », ou pour appuyer une explication par la bonne page.";
   return {
     type: "function" as const,
     function: {
       name: "navigate",
-      description:
-        profile === "admin"
-          ? "Amène l'utilisateur admin à la surface interne la plus pertinente (product workspace, scenario lab, dashboard, vaults, proofs, governance, roadmap, projection). Pour toute demande de création/cadrage d'un nouveau produit, privilégie admin-product-workspace comme page indépendante. Utilise admin-scenario-lab uniquement pour des simulations/stress tests d'un produit déjà cadré. Continue TOUJOURS de répondre en texte aussi. Ne choisis QUE dans l'énumération, n'invente jamais de destination."
-          : "Amène l'utilisateur à la page la plus pertinente de Hearst Connect quand ta réponse renvoie à une surface précise (portefeuille, produits, proof center, profil) — par exemple « où vois-je mon allocation ? », « comment souscrire ? », ou pour appuyer une explication par la bonne page. Continue TOUJOURS de répondre en texte aussi. Ne choisis QUE dans l'énumération, n'invente jamais de destination.",
+      // The gloss below is AUTHORITATIVE: it is the real, exhaustive set of
+      // pages that exist. The model must navigate to a listed page when asked
+      // and must never claim a listed page does not exist (GPT-4.1 otherwise
+      // refuses surfaces it doesn't "believe in", e.g. /admin/security).
+      description: `${intro} La liste ci-dessous est la liste RÉELLE et EXHAUSTIVE des pages existantes de l'application : si la demande de l'utilisateur correspond à l'une d'elles, APPELLE navigate avec sa clé — n'affirme JAMAIS qu'une page n'existe pas si elle figure dans la liste. Continue TOUJOURS de répondre en texte aussi. Ne choisis QU'une clé EXACTE de la liste, n'invente jamais de destination ni d'URL.\n\nDestinations:\n${gloss}`,
       parameters: {
         type: "object",
         additionalProperties: false,
@@ -182,7 +398,7 @@ export function createNavigateTool(profile: NavProfile) {
           destination: {
             type: "string",
             enum: [...keys],
-            description: "La destination à ouvrir.",
+            description: "La clé EXACTE de la destination à ouvrir (depuis la liste).",
           },
         },
         required: ["destination"],

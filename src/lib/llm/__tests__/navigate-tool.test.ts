@@ -19,9 +19,19 @@ describe("navigate-tool whitelist", () => {
     }
     expect(LP_NAV_DESTINATIONS.map((d) => d.route)).toEqual([
       "/portfolio",
+      "/portfolio/positions",
+      "/portfolio/activity",
+      "/portfolio/distributions",
+      "/portfolio/yield",
+      "/portfolio/tax",
       "/vaults",
       "/proof-center",
+      "/proof-center/full",
       "/profile",
+      "/legal",
+      "/legal/disclaimer",
+      "/legal/privacy",
+      "/legal/terms",
     ]);
   });
 
@@ -37,9 +47,29 @@ describe("navigate-tool whitelist", () => {
       "/admin/governance",
       "/admin/roadmap",
       "/admin/projection",
+      "/admin",
+      "/admin/vaults/new",
+      "/admin/outreach/compose",
+      "/admin/proof-center",
+      "/admin/proof-center/full",
+      "/admin/governance/allowlist",
+      "/admin/governance/propose",
+      "/admin/agents",
+      "/admin/agents/new",
+      "/admin/audit",
+      "/admin/distributions",
+      "/admin/feedback",
+      "/admin/investor-memo",
+      "/admin/monitoring",
+      "/admin/security",
+      "/admin/signals",
+      "/admin/spec",
     ]);
+    // Every admin destination stays under /admin (root or sub-path); none is a
+    // dynamic `[id]` route (the model has no id to fill).
     for (const d of ADMIN_NAV_DESTINATIONS) {
-      expect(d.route).toMatch(/^\/admin\//);
+      expect(d.route).toMatch(/^\/admin(\/|$)/);
+      expect(d.route).not.toContain("[");
     }
   });
 
