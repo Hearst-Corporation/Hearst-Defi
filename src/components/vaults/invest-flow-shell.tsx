@@ -4,14 +4,18 @@ import { cn } from "@/lib/cn";
 import type { InvestStepId } from "@/lib/vaults/invest-routes";
 import type { ReactNode } from "react";
 
-/** Product lane only — step index lives in `StepProgress`, not duplicated in eyebrow. */
-const INVEST_EYEBROW = "Invest";
-
 type InvestFlowWidth = "cap" | "narrow" | "full";
 
 interface InvestFlowShellProps {
   step: InvestStepId;
-  title: string;
+  /** Canon: portion blanche du titre. */
+  titleLead?: string;
+  /** Canon: portion accent vert du titre (bicolore). */
+  titleAccent?: string;
+  /** Canon: kicker court uppercase (défaut « Investment Flow »). */
+  contextLabel?: string;
+  /** Legacy single-string title. */
+  title?: string;
   description?: ReactNode;
   lead?: ReactNode;
   media?: ReactNode;
@@ -31,6 +35,9 @@ interface InvestFlowShellProps {
 export function InvestFlowShell({
   step,
   title,
+  titleLead,
+  titleAccent,
+  contextLabel = "Investment Flow",
   description,
   lead,
   media,
@@ -57,7 +64,9 @@ export function InvestFlowShell({
       <ProductPageHeader
         lead={lead}
         media={media}
-        eyebrow={INVEST_EYEBROW}
+        titleLead={titleLead}
+        titleAccent={titleAccent}
+        contextLabel={contextLabel}
         title={title}
         description={description}
         actions={actions}

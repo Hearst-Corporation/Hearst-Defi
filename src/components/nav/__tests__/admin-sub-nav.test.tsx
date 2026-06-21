@@ -20,7 +20,7 @@ describe("AdminSubNav", () => {
     expect(html).toContain('aria-label="Dashboard sections"');
     expect(html).toContain('href="/admin/customers?vault=yield"');
     expect(html).toContain('aria-current="page"');
-    expect(html).toContain("admin-doc-sub-nav__link admin-doc-sub-nav__link--active");
-    expect(html).toContain(">Investors</a>");
+    expect(html).toContain("section-nav__link section-nav__link--active");
+    expect(html).toContain("Investors");
   });
 });

@@ -16,8 +16,9 @@ export default async function VaultsPage() {
     <InvestFlowShell
       step="select"
       width="full"
-      title="Select a product"
-      description="Professional-grade structured yield for qualified investors. Review the term sheet and confirm before depositing."
+      titleLead="Select a"
+      titleAccent="Product"
+      contextLabel="Investment Flow"
     >
       <section aria-label="Available products">
         {vaults.length === 0 ? (

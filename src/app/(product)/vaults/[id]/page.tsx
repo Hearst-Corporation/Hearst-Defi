@@ -53,11 +53,18 @@ export default async function VaultDetailPage({ params }: PageProps) {
   const isLive = vault.status === "live";
   const investHref = investDepositPath(id);
 
+  // Bicolor split: last word of the vault name goes accent (e.g. "Hearst Yield" + "Vault").
+  const nameParts = vault.name.trim().split(/\s+/);
+  const titleAccent = nameParts.length > 1 ? nameParts.pop()! : vault.name;
+  const titleLead = nameParts.length ? nameParts.join(" ") : undefined;
+
   return (
     <InvestFlowShell
       step="product"
       workspace
-      title={vault.name}
+      titleLead={titleLead}
+      titleAccent={titleAccent}
+      contextLabel="Vault Detail"
       lead={
         <Link
           href={INVEST_SELECT_PATH}

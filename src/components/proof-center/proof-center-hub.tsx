@@ -113,30 +113,27 @@ export function ProofCenterHub({
         !coldEmpty && "proof-cockpit proof-cockpit--fit",
       )}
     >
-      <ProofCenterTestnetNotice
-        chainConfigured={chainConfigured}
-        demoNotice={variant === "product" ? demoNotice : null}
-      />
-
       {variant === "product" ? (
         <ProductPageHeader
-          eyebrow="Hearst Yield Vault"
-          title="Proof Center"
-          description={
-            <>
-              Every data point that backs the vault — mining attestations, custody
-              snapshots, audits, and the methodology itself — hashed and posted with
-              its source URI.
-            </>
-          }
+          titleLead="Proof"
+          titleAccent="Center"
+          contextLabel="Vault Proof System"
           actions={chainBadge}
-        />
+        >
+          <ProofCenterTestnetNotice
+            chainConfigured={chainConfigured}
+            demoNotice={demoNotice}
+          />
+        </ProductPageHeader>
       ) : (
         <AdminPageHeader
-          title="Proof Center"
-          description="Reserve attestations, cash-flow evidence, distributions and rebalancing — operator hub."
+          titleLead="Proof"
+          titleAccent="Operations"
+          contextLabel="Operator Proof Hub"
           actions={chainBadge}
-        />
+        >
+          <ProofCenterTestnetNotice chainConfigured={chainConfigured} demoNotice={null} />
+        </AdminPageHeader>
       )}
 
       {coldEmpty ? (

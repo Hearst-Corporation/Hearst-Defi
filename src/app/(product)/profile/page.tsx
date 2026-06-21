@@ -58,9 +58,9 @@ export default async function ProfilePage() {
   return (
     <div className="prof-shell" data-testid="profile-page">
       <ProductPageHeader
-        eyebrow="Investor profile"
-        title={profileDisplayName(session.email)}
-        description="Identity, eligibility status, wallet linkage, and account access settings."
+        titleLead="Welcome back,"
+        titleAccent={profileDisplayName(session.email)}
+        contextLabel="Investor Profile"
         actions={
           <Badge variant={session.role === "admin" ? "default" : "accent"}>
             {session.role === "admin" ? "Admin" : "Investor"}

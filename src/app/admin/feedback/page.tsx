@@ -19,9 +19,9 @@ export default async function FeedbackPage() {
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Feedback"
-        eyebrow="operations · product feedback"
-        description="Capture operator observations, triage product issues, and preserve resolved decisions for follow-through."
+        titleLead="Feedback"
+        titleAccent="Review"
+        contextLabel="Feedback Review"
       />
 
       {kpis.length > 0 && <AdminKpiStripPanel kpis={kpis} />}

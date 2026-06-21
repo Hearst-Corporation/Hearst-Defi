@@ -44,8 +44,9 @@ export default async function AgentsPage() {
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Agents"
-        description="Govern reusable agent templates and review the base execution surfaces they can inherit."
+        titleLead="Agent"
+        titleAccent="Operations"
+        contextLabel="Agent Operations"
         actions={
           <Button asChild variant="primary" size="md">
             <Link href="/admin/agents/new">New template</Link>

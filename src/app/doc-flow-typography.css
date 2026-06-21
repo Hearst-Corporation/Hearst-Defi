@@ -19,6 +19,92 @@
   color: var(--ct-text-strong);
 }
 
+/* Bicolor headline — portfolio canon propagated.
+   Mirror of `.pf-greeting-name` (portfolio.css) : la portion variable du titre
+   (nom investisseur, nom de vault) passe en vert accent + semibold, le reste
+   reste blanc fort. UN SEUL mécanisme — pas de hex hardcodé, pas de bricolage
+   page par page. Subtil et premium : à réserver à la partie réellement variable. */
+:is(.product-doc, .admin-doc) .h1 .h1-accent {
+  color: var(--ct-accent);
+  font-weight: var(--ct-font-semibold);
+}
+
+/* ── Page-canon header skeleton (PORTFOLIO canon, propagé partout).
+   Squelette identique sur toutes les pages principales :
+     H1 bicolore  →  kicker « — CONTEXTE »  →  trait accent  →  contenu.
+   Miroir EXACT de `.pf-greeting__sub` (kicker) + `.pf-hairline` (trait) de
+   portfolio.css — un seul rythme vertical, zéro variante locale. */
+
+/* Kicker — micro-label uppercase + tiret accent (signature portfolio). */
+:is(.product-doc, .admin-doc) .page-canon-kicker {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  margin: var(--ct-space-1) 0 0;
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-secondary);
+  letter-spacing: var(--ct-tracking-widest);
+  text-transform: uppercase;
+}
+
+/* Tiret accent devant le label (équivalent `.pf-greeting__sub-dot`). */
+:is(.product-doc, .admin-doc) .page-canon-kicker::before {
+  content: "";
+  width: var(--ct-space-4);
+  height: 1px;
+  flex-shrink: 0;
+  background: var(--ct-accent);
+}
+
+/* Trait sous le header — miroir de `.pf-hairline`. Toujours présent,
+   largeur pleine, marge fixe : la hauteur du header ne dépend JAMAIS
+   d'une notice/erreur (celles-ci vivent APRÈS le trait, dans le contenu). */
+:is(.product-doc, .admin-doc) .page-canon-rule {
+  height: 1px;
+  width: 100%;
+  background: var(--ct-accent);
+  opacity: var(--ct-opacity-35);
+  margin-top: var(--ct-space-5);
+}
+
+/* Toolbar canon — APRÈS le trait, AVANT le contenu. Une seule ligne stable :
+   FILTRES (segmentation / list-state) à GAUCHE · ACTIONS primaires (création)
+   à DROITE. Le H1 et le trait ne bougent pas quand filtres/actions changent. */
+:is(.product-doc, .admin-doc) .page-canon-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3) var(--ct-space-4);
+  margin-top: var(--ct-space-4);
+}
+
+/* Filtres à gauche — prennent l'espace dispo, poussent les actions à droite. */
+:is(.product-doc, .admin-doc) .page-canon-toolbar__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ct-space-2);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Actions primaires à droite. */
+:is(.product-doc, .admin-doc) .page-canon-toolbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ct-space-2);
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+:is(.product-doc, .admin-doc) .page-canon-toolbar--center {
+  justify-content: center;
+}
+
 /* Section title — tier 2 (sous le H1), blanc. */
 :is(.product-doc, .admin-doc) .h2 {
   font-size: var(--ct-text-2xl);            /* 18 → 22 */

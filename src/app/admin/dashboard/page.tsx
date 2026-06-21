@@ -41,11 +41,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Admin Command Center"
-        eyebrow={`${activeTicker} · Operator status · Live system overview`}
+        titleLead="Admin"
+        titleAccent="Command Center"
+        contextLabel={`${activeTicker} · Admin Command`}
         className="dashboard-page-header"
-        actionsLayout="stack"
-        actions={
+        filters={
           <FixtureVaultPills
             activeVaultId={data.vaultMeta.id}
             resolveHref={adminDashboardVaultHref}

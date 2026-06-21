@@ -74,11 +74,10 @@ export default async function AdminProofCenterFullPage({
 
   return (
     <div className="proof-center-shell admin-doc-shell">
-      <ProofCenterTestnetNotice chainConfigured={chainConfigured} />
-
       <AdminPageHeader
-        title="Proof Center — Full log"
-        description="On-chain event log, off-chain proofs, contracts and audit trail."
+        titleLead="Full"
+        titleAccent="Log"
+        contextLabel="Proof · Full Log"
         lead={
           <Link
             href="/admin/proof-center"
@@ -99,7 +98,9 @@ export default async function AdminProofCenterFullPage({
             />
           </div>
         }
-      />
+      >
+        <ProofCenterTestnetNotice chainConfigured={chainConfigured} />
+      </AdminPageHeader>
 
       <ProofCenterSection
         id="event-timeline-heading"

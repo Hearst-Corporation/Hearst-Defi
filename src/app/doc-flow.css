@@ -610,38 +610,94 @@
   gap: 0;
 }
 
-.admin-doc .admin-doc-sub-nav {
+/* =============================================================================
+   SECTION-NAV (canon « section-nav » family) — navigation secondaire de section.
+   Vit DANS le header, ENTRE le kicker et le trait : sous-niveau du titre. Famille
+   DISTINCTE des filtres (pills) et des actions (buttons). Quiet, premium : label
+   de section + séparateur + liens inline, marqueur actif = petit point accent.
+   AUCUNE bordure pleine (ne concurrence pas le trait vert), AUCUN underline lourd.
+   L'espacement vertical est géré par le flux colonne du header (pas de margin
+   propre) ; on resserre juste le lien à la kicker via un léger pull-up.
+   ============================================================================= */
+.admin-doc .section-nav {
   display: flex;
   align-items: center;
-  gap: var(--ct-space-1);
+  flex-wrap: wrap;
+  gap: var(--ct-space-2) var(--ct-space-3);
   flex: 0 0 auto;
-  margin-bottom: var(--ct-space-7);
-  border-bottom: 1px solid var(--ct-border-soft);
+  /* Resserre la nav sous le kicker (sous-niveau du titre) sans toucher le
+     gap colonne du header qui régit nav→trait→toolbar. */
+  margin-top: calc(-1 * var(--ct-space-3));
+  /* Rapproche la nav et le trait : ferme ~la moitié du gap colonne (space-6)
+     — la nav descend / le trait remonte vers le point milieu. */
+  margin-bottom: calc(-1 * var(--ct-space-3));
 }
 
-.admin-doc .admin-doc-sub-nav__link {
-  position: relative;
-  margin-bottom: -1px;
-  border-bottom: 2px solid transparent;
-  padding: var(--ct-space-2_5) var(--ct-space-3);
+/* Label de section — eyebrow uppercase muet : ancre le contexte du menu. */
+.admin-doc .section-nav__eyebrow {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-widest);
+  text-transform: uppercase;
+  color: var(--ct-text-tertiary);
+}
+
+/* Séparateur fin entre le label et les liens. */
+.admin-doc .section-nav__sep {
+  width: 1px;
+  height: var(--ct-space-3);
+  background: var(--ct-border-soft);
+}
+
+.admin-doc .section-nav__list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ct-space-1) var(--ct-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-doc .section-nav__item {
+  display: flex;
+  min-width: 0;
+}
+
+.admin-doc .section-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1_5);
+  padding: var(--ct-space-1) 0;
   color: var(--ct-text-muted);
   font-size: var(--ct-text-sm);
   line-height: var(--ct-leading-snug);
   font-weight: var(--ct-font-medium);
   text-decoration: none;
-  transition:
-    color var(--ct-dur-fast) var(--ct-ease),
-    border-color var(--ct-dur-fast) var(--ct-ease);
+  transition: color var(--ct-dur-fast) var(--ct-ease);
 }
 
-.admin-doc .admin-doc-sub-nav__link:hover {
+/* Petit point — réservé pour TOUS les liens (pas de shift), visible si actif. */
+.admin-doc .section-nav__dot {
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-accent);
+  opacity: 0;
+  transition: opacity var(--ct-dur-fast) var(--ct-ease);
+}
+
+.admin-doc .section-nav__link:hover {
   color: var(--ct-text-body);
 }
 
-.admin-doc .admin-doc-sub-nav__link--active {
-  color: var(--ct-accent);
-  border-bottom-color: var(--ct-accent);
+.admin-doc .section-nav__link--active {
+  color: var(--ct-text-strong);
   font-weight: var(--ct-font-semibold);
+}
+
+.admin-doc .section-nav__link--active .section-nav__dot {
+  opacity: 1;
 }
 
 /* product-doc stack aliases — shared components (proof-grid) under admin */

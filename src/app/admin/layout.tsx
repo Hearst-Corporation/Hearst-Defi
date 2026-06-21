@@ -1,8 +1,6 @@
-import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 
 import { AdminRailIntra } from "@/components/nav/product-rail-intra";
-import { AdminSubNav } from "@/components/nav/admin-sub-nav";
 import { CommandPalette } from "@/components/power/command-palette";
 import { getSession } from "@/lib/auth/session";
 
@@ -44,11 +42,10 @@ export default async function AdminLayout({
   return (
     <>
       <AdminRailIntra />
-      <CommandPalette />
+      <div className="admin-search-dock">
+        <CommandPalette />
+      </div>
       <div className="admin-doc w-full min-w-0">
-        <Suspense fallback={null}>
-          <AdminSubNav />
-        </Suspense>
         {children}
       </div>
     </>

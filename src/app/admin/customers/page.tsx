@@ -64,9 +64,9 @@ export default async function CustomersPage({
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Investors"
-        eyebrow="Investor base"
-        description="Directory of investor accounts, KYC posture, wallet linkage, and deployed principal."
+        titleLead="Investor"
+        titleAccent="Registry"
+        contextLabel="Investor Base"
       />
 
       {kpiCells.length > 0 && <AdminKpiStripPanel kpis={kpiCells} />}

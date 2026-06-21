@@ -22,9 +22,9 @@ export default async function MonitoringPage() {
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Monitoring"
-        eyebrow="System health"
-        description="Agent runs, navigation traces, admin tools, and system health in one operator view."
+        titleLead="Monitoring"
+        titleAccent="Console"
+        contextLabel="System Health"
       />
 
       {/* Health KPI strip — suppressed when no runs recorded yet */}

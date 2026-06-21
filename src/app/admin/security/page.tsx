@@ -21,8 +21,9 @@ export default async function AdminSecurityPage() {
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Account security"
-        description="Manage administrator sign-in protection and strengthen access control."
+        titleLead="Security"
+        titleAccent="Center"
+        contextLabel="Account Security"
       />
 
       <Card className="max-w-lg">

@@ -4,13 +4,13 @@ import { describe, expect, it } from "vitest";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 
 describe("InvestFlowShell width", () => {
-  it("uses Invest eyebrow without duplicating step index (stepper owns progress)", () => {
+  it("uses the canon kicker without duplicating step index (stepper owns progress)", () => {
     const html = renderToStaticMarkup(
       <InvestFlowShell step="product" title="Test">
         <p>body</p>
       </InvestFlowShell>,
     );
-    expect(html).toContain('<p class="eyebrow">Invest</p>');
+    expect(html).toContain('<p class="page-canon-kicker">Investment Flow</p>');
     expect(html).not.toContain("Invest · Step");
     expect(html).toContain("wizard-step-progress");
   });

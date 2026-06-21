@@ -12,12 +12,16 @@ import { cn } from "@/lib/cn";
 import { withAdminVaultQuery } from "@/lib/vaults/dashboard-scope";
 
 /**
- * Horizontal sub-navigation for the admin area. Derives the active section from
- * the current path and renders that section's sibling pages as underlined tabs.
- * Sections with ≤1 tab render nothing.
+ * Section sub-navigation for the admin area — CANON « section-nav » family.
  *
- * Active tab uses the longest matching href so /admin/vaults/[id] still lights
- * up "Overview" rather than falling through.
+ * This is NAVIGATION (which page within the current section), a distinct family
+ * from filters (pills) and primary actions (buttons). It is rendered at
+ * eyebrow-altitude ABOVE the page header, quiet and premium: a small uppercase
+ * label group + a tiny accent dot on the active item — NOT browser-style tabs,
+ * NO full-width border that would compete with the header's green rule.
+ *
+ * Sections with ≤1 tab render nothing. Active tab uses the longest matching
+ * href so /admin/vaults/[id] still lights up "Overview".
  */
 export function AdminSubNav() {
   const pathname = usePathname();
@@ -41,26 +45,31 @@ export function AdminSubNav() {
     .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
   return (
-    <nav
-      aria-label={`${section.label} sections`}
-      className="admin-doc-sub-nav"
-    >
-      {tabs.map((tab) => {
-        const isActive = tab.href === activeHref;
-        return (
-          <Link
-            key={tab.id}
-            href={withAdminVaultQuery(tab.href, vaultScope)}
-            aria-current={isActive ? "page" : undefined}
-            className={cn(
-              "admin-doc-sub-nav__link",
-              isActive && "admin-doc-sub-nav__link--active",
-            )}
-          >
-            {tab.label}
-          </Link>
-        );
-      })}
+    <nav aria-label={`${section.label} sections`} className="section-nav">
+      <span className="section-nav__eyebrow" aria-hidden="true">
+        {section.label}
+      </span>
+      <span className="section-nav__sep" aria-hidden="true" />
+      <ul className="section-nav__list">
+        {tabs.map((tab) => {
+          const isActive = tab.href === activeHref;
+          return (
+            <li key={tab.id} className="section-nav__item">
+              <Link
+                href={withAdminVaultQuery(tab.href, vaultScope)}
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "section-nav__link",
+                  isActive && "section-nav__link--active",
+                )}
+              >
+                <span className="section-nav__dot" aria-hidden="true" />
+                {tab.label}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </nav>
   );
 }

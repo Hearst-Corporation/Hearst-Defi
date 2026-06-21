@@ -74,9 +74,23 @@ export default async function VaultsPage({ searchParams }: PageProps) {
   return (
     <div className="admin-doc-shell">
       <AdminPageHeader
-        title="Vaults"
-        eyebrow="Vault portfolio"
-        description="Review deployment status, capacity usage, target yield ranges, and operator actions across vaults."
+        titleLead="Vault"
+        titleAccent="Portfolio"
+        contextLabel="Vault Portfolio"
+        filters={
+          <AdminUrlTabFilter
+            ariaLabel="Filter vaults by status"
+            activeKey={activeFilter}
+            tabs={FILTER_TABS.map((tab) => ({
+              key: tab.key,
+              label: tab.label,
+              href:
+                tab.key === "all"
+                  ? "/admin/vaults"
+                  : `/admin/vaults?filter=${tab.key}`,
+            }))}
+          />
+        }
         actions={
           <Button variant="primary" asChild size="md">
             <Link href="/admin/vaults/new">+ New deployment</Link>
@@ -88,17 +102,6 @@ export default async function VaultsPage({ searchParams }: PageProps) {
       {portfolioKpis.length > 0 && (
         <AdminKpiStripPanel kpis={portfolioKpis} />
       )}
-
-      <AdminUrlTabFilter
-        ariaLabel="Filter vaults by status"
-        activeKey={activeFilter}
-        tabs={FILTER_TABS.map((tab) => ({
-          key: tab.key,
-          label: tab.label,
-          href:
-            tab.key === "all" ? "/admin/vaults" : `/admin/vaults?filter=${tab.key}`,
-        }))}
-      />
 
       {/* List */}
       {vaults.length === 0 ? (
