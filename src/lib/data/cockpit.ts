@@ -58,26 +58,12 @@ export interface ActionQueueItem {
 // ---------------------------------------------------------------------------
 // Types — Hero Strip KPIs
 // ---------------------------------------------------------------------------
-
-export interface HeroKpi {
-  label: string;
-  value: string;
-  sublabel: string;
-  provenance:
-    | "live"
-    | "oracle"
-    | "attested"
-    | "estimated"
-    | "partial"
-    | "manual"
-    | "stale"
-    | "simulated";
-  /** true when value represents an alert / degraded state (danger red) */
-  alert?: boolean;
-  /** true for a positive-attention highlight (brand green accent) — e.g. an
-   *  action queue that needs attention but is NOT a danger/degraded state. */
-  accent?: boolean;
-}
+//
+// `HeroKpi` is a PRESENTATION view-model, not a data DTO — it is built by the
+// UI-presenter layer (src/lib/admin/*-kpi-strip.ts) and never emitted by the
+// server-only loaders below. Its canonical home is the presenter layer; it is
+// re-exported here only for backward compatibility with existing importers.
+export type { HeroKpi, HeroKpiProvenance } from "@/lib/admin/kpi-strip-view";
 
 // ---------------------------------------------------------------------------
 // Types — Live Metrics
