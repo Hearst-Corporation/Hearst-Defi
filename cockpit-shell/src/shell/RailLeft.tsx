@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useSyncExternalStore, useEffect, useRef, useState } from "react";
+import { useSyncExternalStore, useEffect, useState } from "react";
 import {
   subscribe as subActive,
   getSnapshot as getActive,
@@ -98,33 +98,14 @@ export function RailLeft() {
 
 /**
  * Badge utilisateur en bas du rail gauche.
- * - 1er clic : navigue vers /profile (SPA, aucun reload/flicker) + révèle le
- *   bouton sign-out (qui n'existe PAS tant qu'on n'a pas cliqué).
- * - Clic sur le sign-out révélé : déconnexion.
- * - Clic ailleurs OU 5s sans interaction → se referme.
+ * Clic → navigue vers /profile (SPA). La déconnexion vit sur /profile
+ * (SignOutButton) : un clic involontaire ne peut JAMAIS déconnecter — l'action
+ * destructive reste un geste délibéré, et le profil est enfin atteignable via
+ * un contrôle dont le titre annonce clairement « Profile & settings ».
  */
 function UserBadge({ appId }: { appId: string }) {
   const router = useRouter();
   const [initials, setInitials] = useState<string>("");
-  const [armed, setArmed] = useState<boolean>(false);
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<number | null>(null);
-
-  // Quand révélé : timer 5s + clic extérieur pour refermer le sign-out.
-  useEffect(() => {
-    if (!armed) return;
-    timerRef.current = window.setTimeout(() => setArmed(false), 5000);
-    const onDocClick = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
-        setArmed(false);
-      }
-    };
-    document.addEventListener("click", onDocClick);
-    return () => {
-      if (timerRef.current !== null) window.clearTimeout(timerRef.current);
-      document.removeEventListener("click", onDocClick);
-    };
-  }, [armed]);
 
   useEffect(() => {
     // Récupère l'email pour les initiales. Import indirect (variable) pour ne
@@ -149,72 +130,23 @@ function UserBadge({ appId }: { appId: string }) {
     })();
   }, []);
 
-  async function handleBadgeClick(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (armed) {
-      await handleSignOut(); // 2e clic sur le badge armé = déconnexion
-      return;
-    }
-    setArmed(true); // 1er clic : le badge passe en icône sign-out
-    router.push("/profile"); // navigation SPA, aucun reload
-  }
-
-  async function handleSignOut() {
-    // Déconnexion (import indirect : @supabase/ssr optionnel selon le projet).
-    try {
-      const moduleName = "@supabase/ssr";
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const mod: any = await (Function("m", "return import(m)") as (m: string) => Promise<unknown>)(moduleName).catch(() => null);
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-      if (mod?.createBrowserClient && url && key) {
-        const sb = mod.createBrowserClient(url, key);
-        await sb.auth.signOut();
-      }
-    } catch {
-      /* fallback */
-    }
-    window.location.href = "/login";
-  }
-
   const display = initials || (appId || "HC").slice(0, 2).toUpperCase();
 
   return (
-    <div className="ct-rail-identity-stack" ref={wrapRef}>
-      {/* Badge profil — 1er clic : va sur /profile (SPA) + bascule en icône
-          sign-out DANS le badge (aucun élément ajouté, aucun décalage).
-          2e clic sur le badge armé : déconnexion. */}
+    <div className="ct-rail-identity-stack">
+      {/* Avatar = Profil uniquement (navigation SPA). Plus de geste
+          « 2e clic = déconnexion » : la déconnexion vit sur /profile, geste
+          délibéré, donc aucun clic involontaire ne peut signer out. */}
       <button
         type="button"
-        className={`ct-avatar${armed ? " active" : ""}`}
-        title={armed ? "Sign out" : "Profile & settings"}
-        aria-label={armed ? "Sign out" : "Profile & settings"}
-        onClick={handleBadgeClick}
+        className="ct-avatar"
+        title="Profile & settings"
+        aria-label="Profile & settings"
+        onClick={() => router.push("/profile")}
       >
-        {armed ? <LogoutIcon /> : display}
+        {display}
       </button>
     </div>
-  );
-}
-
-function LogoutIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-      <polyline points="16 17 21 12 16 7" />
-      <line x1="21" y1="12" x2="9" y2="12" />
-    </svg>
   );
 }
 
