@@ -49,7 +49,23 @@ export interface ConsumedNavDirective {
 
 const MAX_OBJECTIVE_LEN = 220;
 const MAX_HINT_LEN = 120;
-const memNav = new Map<string, { payload: string; at: number }>();
+// In-memory fallback store (used when Upstash isn't configured). Hoisted onto
+// globalThis so it is SHARED across every API route module instance in a single
+// server process: Next.js dev (Turbopack) + HMR can give /api/cockpit-chat and
+// /api/chat-nav their OWN copy of this module, so a plain module-level `Map`
+// would let publishNav() write to one instance while consumeNav() reads an empty
+// other one — the nav directive then never reaches the <ChatNavBridge> and the
+// agent "answers" but never opens the page. (Multi-instance/serverless prod still
+// needs Upstash; this single-process fallback cannot bridge separate lambdas.)
+const globalForNav = globalThis as unknown as {
+  __hearstNavChannel?: Map<string, { payload: string; at: number }>;
+};
+const memNav: Map<string, { payload: string; at: number }> =
+  globalForNav.__hearstNavChannel ??
+  (globalForNav.__hearstNavChannel = new Map<
+    string,
+    { payload: string; at: number }
+  >());
 
 function sanitizeObjective(value: string | undefined): string | undefined {
   if (!value) return undefined;
@@ -129,50 +145,65 @@ export async function consumeNav(
   userId: string,
 ): Promise<ConsumedNavDirective | null> {
   const redis = getRedis();
-  let payload: string | null = null;
+  // NOTE: the type is `unknown`, NOT `string`. The @upstash/redis client
+  // AUTO-DESERIALIZES JSON on read: a payload we stored as the JSON string
+  // '{"destinationKey":"vaults"}' comes back as an already-parsed OBJECT, while
+  // the in-memory fallback returns the raw JSON string. The old code typed this
+  // as `string` and always `JSON.parse`d it — which THREW on the Upstash object
+  // ("[object Object]" is not JSON) and silently dropped EVERY navigation in any
+  // environment with Upstash configured. We now accept both shapes.
+  let raw: unknown = null;
 
   if (redis) {
-    payload = await redis.getdel<string>(navKey(userId));
+    raw = await redis.getdel(navKey(userId));
   } else {
     const entry = memNav.get(userId);
     if (entry) {
       memNav.delete(userId);
       if (Date.now() - entry.at <= NAV_TTL_SECONDS * 1000) {
-        payload = entry.payload;
+        raw = entry.payload;
       }
     }
   }
 
-  if (!payload) return null;
+  if (raw == null) return null;
 
-  try {
-    const parsed = JSON.parse(payload) as StoredNavDirective;
-    const destination = resolveNavDestination(parsed.destinationKey);
-    if (!destination) return null;
-    const secondaryDestination = parsed.secondaryDestinationKey
-      ? resolveNavDestination(parsed.secondaryDestinationKey)
-      : null;
-    return {
-      route: destination.route,
-      label: destination.label,
-      ...(parsed.objective ? { objective: parsed.objective } : {}),
-      ...(parsed.autostart ? { autostart: true } : {}),
-      ...(parsed.intentKind ? { intentKind: parsed.intentKind } : {}),
-      ...(secondaryDestination
-        ? {
-            secondaryRoute: secondaryDestination.route,
-            secondaryLabel: secondaryDestination.label,
-          }
-        : {}),
-      ...(parsed.secondaryHint ? { secondaryHint: parsed.secondaryHint } : {}),
-    };
-  } catch {
-    // Backward compatibility: older payloads stored only destination key.
-    const destination = resolveNavDestination(payload);
-    if (!destination) return null;
-    return {
-      route: destination.route,
-      label: destination.label,
-    };
+  // Normalize raw → directive object, tolerating: an object (Upstash auto-parse),
+  // a JSON string (in-memory fallback), or a legacy bare destination-key string.
+  let parsed: StoredNavDirective | null = null;
+  if (typeof raw === "string") {
+    try {
+      parsed = JSON.parse(raw) as StoredNavDirective;
+    } catch {
+      // Backward compatibility: older payloads stored only the destination key.
+      const destination = resolveNavDestination(raw);
+      return destination
+        ? { route: destination.route, label: destination.label }
+        : null;
+    }
+  } else if (typeof raw === "object") {
+    parsed = raw as StoredNavDirective;
   }
+
+  if (!parsed || typeof parsed.destinationKey !== "string") return null;
+
+  const destination = resolveNavDestination(parsed.destinationKey);
+  if (!destination) return null;
+  const secondaryDestination = parsed.secondaryDestinationKey
+    ? resolveNavDestination(parsed.secondaryDestinationKey)
+    : null;
+  return {
+    route: destination.route,
+    label: destination.label,
+    ...(parsed.objective ? { objective: parsed.objective } : {}),
+    ...(parsed.autostart ? { autostart: true } : {}),
+    ...(parsed.intentKind ? { intentKind: parsed.intentKind } : {}),
+    ...(secondaryDestination
+      ? {
+          secondaryRoute: secondaryDestination.route,
+          secondaryLabel: secondaryDestination.label,
+        }
+      : {}),
+    ...(parsed.secondaryHint ? { secondaryHint: parsed.secondaryHint } : {}),
+  };
 }
