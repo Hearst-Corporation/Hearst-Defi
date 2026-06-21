@@ -29,7 +29,7 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form action={onSubmit} className="flex flex-col gap-[var(--ct-space-4)]" aria-label="Forgot password">
+    <form action={onSubmit} className="auth-form" aria-label="Forgot password">
       <label className="flex flex-col gap-1" htmlFor="fp-email">
         <span className="ct-form-label">Email address</span>
         <input

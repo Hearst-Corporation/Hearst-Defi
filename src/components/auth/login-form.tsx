@@ -39,7 +39,7 @@ export function LoginForm() {
   }
 
   return (
-    <form action={onSubmit} className="flex flex-col gap-[var(--ct-space-4)]" aria-label="Sign in">
+    <form action={onSubmit} className="auth-form" aria-label="Sign in">
       <label className="flex flex-col gap-1" htmlFor="login-email">
         <span className="ct-form-label">Email</span>
         <input

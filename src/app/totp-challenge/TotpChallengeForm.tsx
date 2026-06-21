@@ -28,7 +28,7 @@ export function TotpChallengeForm() {
   return (
     <form
       action={onSubmit}
-      className="flex flex-col gap-[var(--ct-space-4)]"
+      className="auth-form"
       aria-label="Two-factor authentication"
     >
       <label className="flex flex-col gap-1" htmlFor="totp-challenge-code">

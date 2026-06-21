@@ -41,7 +41,7 @@
 .legal-nav a {
   color: var(--ct-text-body);
   text-decoration: none;
-  padding-bottom: 2px;
+  padding-bottom: var(--ct-space-0_5);
   border-bottom: 1px solid transparent;
   transition: color var(--ct-dur-fast), border-color var(--ct-dur-fast);
 }

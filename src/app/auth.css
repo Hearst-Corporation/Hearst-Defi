@@ -1,0 +1,98 @@
+/* =============================================================================
+   auth.css — sign-in / password / 2FA surfaces (page-scoped)
+
+   EDITING RULES (canon — same as portfolio.css):
+   - COLORS / SURFACES: var(--ct-*) only. No raw hex/rgb.
+   - SPACING: var(--ct-space-*) only. No raw px (1px hairlines / 0 / 50% / 100%
+     excepted).
+   - RADIUS / TYPOGRAPHY: tokens only (--ct-radius-*, --ct-text-*, --ct-font-*).
+   - Dark mode only. No `dark:` modifiers. No tailwind.config.
+
+   ONE accent green: --ct-accent (#A7FB90).
+
+   This sheet holds ONLY the layout rhythm (gaps / paddings / surface) that used
+   to live as arbitrary Tailwind utilities (`gap-[var(--ct-space-N)]`, …) inside
+   the auth JSX. Structural skin for the split-screen still lives in cockpit.css
+   (`.login-split__*`) — do not duplicate it here.
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   1. CENTERED AUTH CARD — forgot / reset / TOTP (AuthFormShell)
+   -------------------------------------------------------------------------- */
+
+.auth-shell {
+  display: flex;
+  min-height: 100dvh;
+  align-items: center;
+  justify-content: center;
+  background: var(--ct-bg-deep);
+}
+
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-8);
+  padding: var(--ct-space-10);
+}
+
+/* -----------------------------------------------------------------------------
+   2. AUTH FORMS — login / forgot / reset / TOTP share one vertical rhythm
+   -------------------------------------------------------------------------- */
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.auth-form-success {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  text-align: center;
+}
+
+/* -----------------------------------------------------------------------------
+   3. LOGIN PANEL — right column of the split-screen
+   -------------------------------------------------------------------------- */
+
+.auth-login-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-10);
+  text-align: center;
+}
+
+.auth-login-panel__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-3);
+}
+
+/* -----------------------------------------------------------------------------
+   4. SPLIT-SCREEN COLUMN INSETS
+   The structural skin lives in cockpit.css (.login-split__*); these classes
+   carry only the horizontal padding rhythm that was inline.
+   -------------------------------------------------------------------------- */
+
+.auth-split__brand-inset {
+  padding-inline: var(--ct-space-14);
+}
+
+.auth-split__signin-inset {
+  padding-inline: var(--ct-space-10);
+}
+
+@media (min-width: 640px) {
+  .auth-split__signin-inset {
+    padding-inline: var(--ct-space-14);
+  }
+}
+
+@media (min-width: 1024px) {
+  .auth-split__brand-inset {
+    padding-inline: var(--ct-space-20);
+  }
+}

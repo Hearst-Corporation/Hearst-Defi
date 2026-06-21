@@ -4,6 +4,8 @@ import { LoginPanel } from "@/components/auth/login-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { listVaults } from "@/lib/data/vaults";
 
+import "@/app/auth.css";
+
 export async function LoginSplit() {
   const vaults = await listVaults();
   const vault = vaults.find((v) => v.ticker === "HYV-A") ?? vaults[0];
@@ -17,7 +19,7 @@ export async function LoginSplit() {
       </div>
 
       <div className="login-split__grid grid grid-cols-1 lg:grid-cols-2">
-        <section className="login-split__brand relative px-[var(--ct-space-14)] lg:px-20">
+        <section className="login-split__brand auth-split__brand-inset relative">
           <div className="login-split__brand-inner flex flex-col items-center">
             <Image
               src="/logos/hearst-connect-dark.svg"
@@ -54,7 +56,7 @@ export async function LoginSplit() {
           </div>
         </section>
 
-        <section className="login-split__signin px-[var(--ct-space-10)] sm:px-[var(--ct-space-14)]">
+        <section className="login-split__signin auth-split__signin-inset">
           <div className="flex w-full justify-center">
             <LoginPanel />
           </div>

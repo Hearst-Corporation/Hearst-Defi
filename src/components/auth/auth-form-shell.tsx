@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 
 import { Card } from "@/components/ui/card";
 
+import "@/app/auth.css";
+
 /**
  * Centered auth card — forgot / reset / TOTP. Cockpit glass tokens only.
  *
@@ -19,8 +21,8 @@ export function AuthFormShell({
   children: ReactNode;
 }) {
   return (
-    <div className="product-doc flex min-h-dvh items-center justify-center bg-[var(--ct-bg-deep)]">
-      <Card className="w-full max-w-sm flex flex-col gap-[var(--ct-space-8)] p-[var(--ct-space-10)]" hoverOverlay={false}>
+    <div className="product-doc auth-shell">
+      <Card className="auth-card w-full max-w-sm" hoverOverlay={false}>
         <div className="flex flex-col gap-1">
           <h1 className="h1">{title}</h1>
           {description ? (
