@@ -47,7 +47,7 @@ export function ProofCenterColdShell({
           href={PORTFOLIO_ONBOARDING_INVEST_HREF}
           className="proof-center-cold__cta proof-cold-cta ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover ct-transition-base ct-focus-ring ct-press no-underline"
         >
-          Subscribe to vault
+          Explore products
         </Link>
       </Card>
 

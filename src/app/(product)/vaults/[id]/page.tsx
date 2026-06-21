@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
-import { getVault } from "@/lib/data/vaults";
+import { getVault, type VaultProduct } from "@/lib/data/vaults";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,22 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+/** Honest one-liner for why a non-live product can't take deposits yet. */
+function nonLiveNote(status: VaultProduct["status"]): string {
+  switch (status) {
+    case "review":
+      return "In review — subscriptions open once this product goes live.";
+    case "draft":
+      return "Not yet open for subscriptions.";
+    case "paused":
+      return "Subscriptions are temporarily paused.";
+    case "closed":
+      return "Closed to new capital.";
+    default:
+      return "";
+  }
+}
+
 function InvestCta({
   isLive,
   investHref,
@@ -35,11 +51,19 @@ function InvestCta({
   size?: "md" | "lg";
   className?: string;
 }) {
-  if (!isLive) return null;
+  if (isLive) {
+    return (
+      <Button variant="primary" size={size} asChild className={className}>
+        <Link href={investHref}>Continue to deposit</Link>
+      </Button>
+    );
+  }
 
+  // Non-live: never leave the term sheet actionless. The status badge already
+  // says *why* deposit is unavailable; this is the forward route out.
   return (
-    <Button variant="primary" size={size} asChild className={className}>
-      <Link href={investHref}>Continue to deposit</Link>
+    <Button variant="secondary" size={size} asChild className={className}>
+      <Link href={INVEST_SELECT_PATH}>Browse other products</Link>
     </Button>
   );
 }
@@ -113,6 +137,11 @@ export default async function VaultDetailPage({ params }: PageProps) {
             </dd>
           </div>
           <div className="vault-detail-kpis__mobile-cta">
+            {!isLive ? (
+              <p className="body-xs ct-text-muted mb-[var(--ct-space-2)]">
+                {nonLiveNote(vault.status)}
+              </p>
+            ) : null}
             <InvestCta
               isLive={isLive}
               investHref={investHref}
