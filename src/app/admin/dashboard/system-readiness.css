@@ -18,7 +18,7 @@
   box-shadow: var(--ct-glass-bevel);
 }
 
-/* ── Head: posture + blurb (left), checks + run action (right) ── */
+/* ── Head: posture + blurb (left), run action (right) ── */
 .dashboard-readiness__head {
   display: flex;
   align-items: flex-start;
@@ -41,24 +41,23 @@
   flex-wrap: wrap;
 }
 
-/* Module H2 — aligned to the portfolio typo canon (spec §1, H2 row):
-   --ct-text-2xl / semibold / leading-tight / tracking-tight / text-strong. */
-.dashboard-readiness__title {
-  margin: 0;
+/* VERDICT — dominant element; xl/2xl, tone-coloured (via toneText class).
+   The posture label ("Operational" / "Action required") is what the operator
+   reads first — it outranks the static section title. */
+.dashboard-readiness__posture-label {
   font-size: var(--ct-text-2xl);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
   letter-spacing: var(--ct-tracking-tight);
-  color: var(--ct-text-strong);
 }
 
-/* Posture status chip — eyebrow scale (spec §1, kicker row): nano / semibold /
-   tracking-widest / UPPERCASE. Tone colour is applied by the toneText class. */
-.dashboard-readiness__posture-label {
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-semibold);
+/* Eyebrow kicker — static label demoted to small muted text after the verdict. */
+.dashboard-readiness__title-kicker {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-medium);
   letter-spacing: var(--ct-tracking-widest);
   text-transform: uppercase;
+  color: var(--ct-text-muted);
 }
 
 .dashboard-readiness__blurb {
@@ -73,34 +72,34 @@
   flex: 0 0 auto;
 }
 
+/* ── "Run readiness check" — command emphasis: filled accent button ── */
 .dashboard-readiness__run {
   display: inline-flex;
   align-items: center;
   gap: var(--ct-space-1);
   flex-shrink: 0;
   border-radius: var(--ct-radius-sm);
-  padding: var(--ct-space-1) var(--ct-space-3);
+  padding: var(--ct-space-1_5) var(--ct-space-4);
   font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
+  font-weight: var(--ct-font-semibold);
   white-space: nowrap;
-  color: var(--ct-text-body);
-  background: transparent;
-  border: 1px solid var(--ct-border-soft);
+  color: var(--ct-text-on-accent);
+  background: var(--ct-accent);
+  border: 1px solid transparent;
   text-decoration: none;
   transition:
     color var(--ct-dur-base) var(--ct-ease),
-    border-color var(--ct-dur-base) var(--ct-ease),
-    background-color var(--ct-dur-base) var(--ct-ease);
+    background-color var(--ct-dur-base) var(--ct-ease),
+    opacity var(--ct-dur-base) var(--ct-ease);
 }
 
 .dashboard-readiness__run:hover {
-  color: var(--ct-text-strong);
-  border-color: var(--ct-border-strong);
-  background: var(--ct-surface-1);
+  background: color-mix(in srgb, var(--ct-accent) 85%, white 15%);
+  color: var(--ct-text-on-accent);
+  opacity: 0.92;
 }
 
-/* ── Stats grid: vault mode / oracle freshness / last check / next check.
-   Intentionally NOT the strip's perf KPIs (APY/Risk/Mining/Proof/Queue). ── */
+/* ── Stats grid: vault mode + oracle freshness only (2 cells). ── */
 .dashboard-readiness__stats {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -142,68 +141,30 @@
   min-width: 0;
 }
 
-/* ── Readiness matrix (5 factors) ── */
-.dashboard-readiness__matrix {
+/* ── Détails : remontés de faint → muted — lisibles en console. */
+.dashboard-readiness__stat-detail {
+  color: var(--ct-text-muted);
+}
+
+/* ── Compact factor-dot strip — one horizontal row of dot + label chips.
+   Replaces the old 5-row matrix (detail view lives in Row-3 risk card). ── */
+.dashboard-readiness__dot-strip {
   display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2_5);
+  flex-wrap: wrap;
+  gap: var(--ct-space-2) var(--ct-space-4);
   padding-top: var(--ct-space-3);
   border-top: 1px solid var(--ct-border-ghost);
 }
 
-.dashboard-readiness__matrix-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--ct-space-2);
-}
-
-.dashboard-readiness__factors {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: 1fr;
+.dashboard-readiness__factor-dot {
+  display: inline-flex;
+  align-items: center;
   gap: var(--ct-space-1_5);
 }
 
-.dashboard-readiness__factor {
-  display: grid;
-  grid-template-columns: auto minmax(5rem, 7rem) minmax(5rem, auto) 1fr;
-  align-items: center;
-  gap: var(--ct-space-2) var(--ct-space-3);
-  min-width: 0;
-  padding: var(--ct-space-1_5) var(--ct-space-2);
-  margin: 0 calc(var(--ct-space-2) * -1);
-  border-radius: var(--ct-radius-md);
-  transition: background-color var(--ct-dur-base) var(--ct-ease);
-}
-
-.dashboard-readiness__factor:hover {
-  background: var(--ct-surface-0);
-}
-
-.dashboard-readiness__factor-label {
-  min-width: 0;
+.dashboard-readiness__factor-dot-label {
   font-weight: var(--ct-font-medium);
-}
-
-.dashboard-readiness__factor-status {
-  min-width: 0;
-  font-weight: var(--ct-font-medium);
-}
-
-.dashboard-readiness__factor-detail {
-  min-width: 0;
-  text-align: right;
-}
-
-/* Détails (stat + factor) : remontés de faint → muted. Les notes critiques de la
-   console ne doivent pas être illisibles ; on garde une hiérarchie calme mais
-   lisible (la valeur/le label restent dominants). */
-.dashboard-readiness__stat-detail,
-.dashboard-readiness__factor-detail {
-  color: var(--ct-text-muted);
+  white-space: nowrap;
 }
 
 /* ── Calm status dots — no glow, no box-shadow ── */
@@ -223,84 +184,23 @@
   background: color-mix(in srgb, var(--ct-text-faint) 70%, transparent);
 }
 
-/* ── Wide: stats on one 4-col row, matrix on one 5-col row of compact chips.
-   Both are short horizontal bands (not stacked lists) so the whole module stays
-   ~2 content rows tall and never crushes the dense ops/lower rows in the fit
-   gate. Driven by a media query (not `@container`): `.dashboard-readiness` is
-   always full board width, and an element can't `@container`-query itself. ── */
+/* ── Wide: stats on 2-col row; dot strip inline single row ── */
 @media (min-width: 64rem) {
   .dashboard-readiness__stats {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .dashboard-readiness__factors {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: var(--ct-space-3);
-  }
-
-  /* Grand écran : les 4 stats et 5 factors ne s'étalent PAS sur toute la largeur
-     du board (sinon = barre formulaire / 5 grandes cases plates). On cadre chaque
-     sous-zone à une largeur de lecture console et on aligne à gauche. */
-  .dashboard-readiness__stats,
-  .dashboard-readiness__factors {
-    max-width: 76rem;
-  }
-
-  /* Each factor = chip ouvert (3 lignes : dot+label / status / detail).
-     Plus de cage sombre « mini-box collée » : surface très discrète, séparation
-     par espace + hairline bas seulement. Détail RESTAURÉ (on a la place). */
-  .dashboard-readiness__factor {
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto auto auto;
-    align-items: center;
-    column-gap: var(--ct-space-2);
-    row-gap: var(--ct-space-1);
-    padding: var(--ct-space-3) var(--ct-space-3);
-    margin: 0;
-    background: transparent;
-    border: none;
-    border-radius: var(--ct-radius-md);
-  }
-
-  .dashboard-readiness__factor:hover {
-    background: var(--ct-surface-0);
-  }
-
-  .dashboard-readiness__factor > .dashboard-readiness__dot {
-    grid-row: 1;
-    grid-column: 1;
-  }
-  .dashboard-readiness__factor-label {
-    grid-row: 1;
-    grid-column: 2;
-  }
-  .dashboard-readiness__factor-status {
-    grid-row: 2;
-    grid-column: 1 / -1;
-    text-align: left;
-    font-size: var(--ct-text-xs);
-  }
-  /* Détail restauré, lisible (pas faint illisible) — la matrice respire. */
-  .dashboard-readiness__factor-detail {
-    grid-row: 3;
-    grid-column: 1 / -1;
-    text-align: left;
-  }
-}
-
-/* ── Mid width: 2-col stats (4 cells → 2×2). ── */
-@media (min-width: 48rem) and (max-width: 63.999rem) {
-  .dashboard-readiness__stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 36rem;
+  }
+
+  .dashboard-readiness__dot-strip {
+    flex-wrap: nowrap;
+    gap: var(--ct-space-5);
   }
 }
 
 /* ── DÉFORCÉ (2026-06-21) : le dashboard ne pin plus la hauteur, donc la
    readiness n'a PLUS à se comprimer en band ni à cacher ses stats. Elle lit
-   maintenant comme une vraie console de supervision : head + 4 stats + matrice
-   complète, gaps de lecture, aucun scroll interne caché. La page défile si
-   besoin (scroll vertical naturel accepté). Sur grand écran on ouvre juste un
-   peu plus l'air sans rien tronquer. ── */
+   maintenant comme une vraie console de supervision : head + 2 stats + dot
+   strip compact, gaps de lecture, aucun scroll interne caché. ── */
 @media (min-width: 80rem) and (min-height: 52rem) {
   .dashboard-cockpit--fit .dashboard-cockpit-row--readiness {
     flex: 0 0 auto;
@@ -314,6 +214,4 @@
     padding: var(--ct-space-5) var(--ct-space-6);
     overflow: visible;
   }
-  /* Stats + matrice restent VISIBLES et complètes (plus de display:none, plus
-     de détail tronqué) — c'est une console, pas une band. */
 }

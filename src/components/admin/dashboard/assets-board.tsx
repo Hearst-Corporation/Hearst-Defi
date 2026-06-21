@@ -18,7 +18,6 @@ import {
   resolveAllocationChartLive,
   resolveNavChartLive,
 } from "@/lib/admin/dashboard-vault-signals";
-import { ADMIN_DASHBOARD_REVALIDATE_SEC } from "@/lib/data/admin-dashboard-cache";
 import type { CockpitPayload } from "@/lib/data/cockpit";
 import type { AdminProofStatus } from "@/lib/data/admin-overview";
 import type { DashboardData } from "@/lib/data/dashboard";
@@ -108,10 +107,8 @@ export function DashboardAssetsBoard({
   const readiness = resolveSystemReadiness({
     risk,
     scopedVaultMetrics,
-    operatorQueueCount: cockpit.actionQueue.length,
     data,
     hasLiveKpis,
-    revalidateSec: ADMIN_DASHBOARD_REVALIDATE_SEC,
   });
 
   return (

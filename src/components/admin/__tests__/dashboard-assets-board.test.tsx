@@ -400,6 +400,31 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).toContain("No telemetry");
   });
 
+  it("readiness: dot-strip replaces the matrix; verdict class applied; no fake freshness stat", () => {
+    // Task 1: posture-label is the dominant element (class present); old H2 title gone.
+    // Task 3+6: dot-strip present; old matrix rows absent.
+    // Task 4: blurb does not mention queue count (queue mention lives only in KPI strip).
+    // Task 5: "Last system check" / "Synced moments ago" removed entirely.
+    const html = render(makeData({ source: "fallback" }), 0);
+
+    // Verdict element present (dominant)
+    expect(html).toContain("dashboard-readiness__posture-label");
+    // Eyebrow kicker replaces old H2 title
+    expect(html).toContain("dashboard-readiness__title-kicker");
+    // Old H2 class removed (boundary-aware: ends with closing quote to avoid matching -kicker)
+    expect(html).not.toContain('dashboard-readiness__title"');
+    // Compact dot-strip present
+    expect(html).toContain("dashboard-readiness__dot-strip");
+    // Old matrix structure absent
+    expect(html).not.toContain("dashboard-readiness__matrix");
+    expect(html).not.toContain("dashboard-readiness__factor-label");
+    // Fake freshness stat absent
+    expect(html).not.toContain("Synced moments ago");
+    expect(html).not.toContain("Last system check");
+    // Blurb does not duplicate queue count mention
+    expect(html).not.toContain("Operator action required before readiness clears.");
+  });
+
   it("renders live vault signal and populated cockpit modules without restoring removed panels", () => {
     const html = renderToStaticMarkup(
       <DashboardAssetsBoard

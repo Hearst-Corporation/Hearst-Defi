@@ -9,16 +9,20 @@ import type {
   SystemReadinessView,
 } from "@/lib/admin/dashboard-readiness-view";
 
-import { AdminLeafLink } from "./cockpit-panel-header";
-
 /**
  * System Readiness — full-width cockpit header module for `/admin/dashboard`.
  *
  * Operator's first read: is the system ready? Folds the already-loaded board
  * data (risk factors, operator queue, proof/oracle/mining telemetry) into a
- * single supervision surface — posture + key stats + a 5-factor readiness
- * matrix. Pure presentation: data is shaped by `resolveSystemReadiness`. No
- * new fetch, no business logic. Calm dots, no glow.
+ * single supervision surface — posture verdict + blurb + compact factor-dot
+ * strip + ≤2 unique stats (Vault mode, Oracle freshness).
+ *
+ * The 5-factor detail view lives in Row 3 DashboardRiskSummaryCard; this
+ * module intentionally shows only the terse dot strip to avoid rendering
+ * the same 5 factors twice with full per-factor treatment.
+ *
+ * Pure presentation: data is shaped by `resolveSystemReadiness`. No new
+ * fetch, no business logic. Calm dots, no glow.
  */
 export function SystemReadinessModule({
   view,
@@ -38,7 +42,7 @@ export function SystemReadinessModule({
               aria-hidden
               className={cn("dashboard-readiness__dot", toneDot(view.posture))}
             />
-            <h2 className="dashboard-readiness__title">System readiness</h2>
+            {/* VERDICT is the dominant text element — xl/2xl, tone-coloured */}
             <span
               className={cn(
                 "dashboard-readiness__posture-label",
@@ -46,6 +50,10 @@ export function SystemReadinessModule({
               )}
             >
               {view.postureLabel}
+            </span>
+            {/* Static eyebrow kicker — small, muted */}
+            <span className="dashboard-readiness__title-kicker">
+              System readiness
             </span>
           </div>
           <p className="dashboard-readiness__blurb body-sm ct-text-muted m-0">
@@ -65,22 +73,18 @@ export function SystemReadinessModule({
         </div>
       </header>
 
+      {/* ≤2 unique stats: Vault mode + Oracle freshness */}
       <div className="dashboard-readiness__stats" role="list">
         {view.stats.map((stat) => (
           <ReadinessStatCell key={stat.label} stat={stat} />
         ))}
       </div>
 
-      <div className="dashboard-readiness__matrix">
-        <div className="dashboard-readiness__matrix-head">
-          <h3 className="dashboard-panel-micro-title">Readiness matrix</h3>
-          <AdminLeafLink href="/admin/vaults" label="Risk framework" />
-        </div>
-        <ul className="dashboard-readiness__factors" role="list">
-          {view.factors.map((factor) => (
-            <ReadinessFactorRow key={factor.id} factor={factor} />
-          ))}
-        </ul>
+      {/* Compact dot strip — replaces the 5-row matrix (detail lives in Row-3 risk card) */}
+      <div className="dashboard-readiness__dot-strip" role="list" aria-label="Readiness factors">
+        {view.factors.map((factor) => (
+          <ReadinessFactorDot key={factor.id} factor={factor} />
+        ))}
       </div>
     </section>
   );
@@ -116,26 +120,23 @@ function ReadinessStatCell({ stat }: { stat: ReadinessStat }) {
   );
 }
 
-function ReadinessFactorRow({ factor }: { factor: ReadinessFactor }) {
+/** Compact inline dot + label — the terse one-row strip replacing the matrix. */
+function ReadinessFactorDot({ factor }: { factor: ReadinessFactor }) {
   return (
-    <li
-      className="dashboard-readiness__factor"
-      aria-label={`${factor.label}: ${factor.status}, ${factor.detail}`}
+    <div
+      role="listitem"
+      className="dashboard-readiness__factor-dot"
+      aria-label={`${factor.label}: ${factor.status}`}
+      title={factor.detail}
     >
       <span
         aria-hidden
         className={cn("dashboard-readiness__dot", toneDot(factor.tone))}
       />
-      <span className="dashboard-readiness__factor-label body-sm ct-text-strong">
+      <span className={cn("dashboard-readiness__factor-dot-label body-xs", toneText(factor.tone))}>
         {factor.label}
       </span>
-      <span className={cn("dashboard-readiness__factor-status body-sm", toneText(factor.tone))}>
-        {factor.status}
-      </span>
-      <span className="dashboard-readiness__factor-detail body-xs ct-text-faint truncate">
-        {factor.detail}
-      </span>
-    </li>
+    </div>
   );
 }
 

@@ -121,13 +121,10 @@ const POSTURE_LABEL: Record<ReadinessTone, string> = {
 
 function postureBlurb(
   posture: ReadinessTone,
-  queueCount: number,
   vaultMode: string,
 ): string {
   if (posture === "alert") {
-    return queueCount > 0
-      ? "Operator action required before readiness clears."
-      : "A readiness factor needs attention.";
+    return "A readiness factor needs attention.";
   }
   if (posture === "idle") {
     return `${vaultMode} is awaiting data inputs before full readiness completes.`;
@@ -187,11 +184,8 @@ function oracleStat(metrics: VaultLiveMetric[]): ReadinessStat {
 export interface ReadinessInputs {
   risk: RiskFrameworkData;
   scopedVaultMetrics: VaultLiveMetric[];
-  operatorQueueCount: number;
   data: DashboardData;
   hasLiveKpis: boolean;
-  /** Soft TTL of the dashboard loaders (seconds). */
-  revalidateSec: number;
 }
 
 export function resolveSystemReadiness(
@@ -200,7 +194,6 @@ export function resolveSystemReadiness(
   const {
     risk,
     scopedVaultMetrics,
-    operatorQueueCount,
     data,
     hasLiveKpis,
   } = input;
@@ -242,24 +235,12 @@ export function resolveSystemReadiness(
       tone: mode.tone,
     },
     oracleStat(scopedVaultMetrics),
-    {
-      label: "Last system check",
-      value: "Synced moments ago",
-      detail: "All loaders synced",
-      tone: "ok",
-    },
-    {
-      label: "Next full check",
-      value: `${Math.round(input.revalidateSec)}s`,
-      detail: "Background revalidation",
-      tone: "idle",
-    },
   ];
 
   return {
     posture,
     postureLabel: POSTURE_LABEL[posture],
-    postureBlurb: postureBlurb(posture, operatorQueueCount, mode.value),
+    postureBlurb: postureBlurb(posture, mode.value),
     stats,
     factors,
   };
