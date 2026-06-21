@@ -323,14 +323,10 @@ export function DistribCalendar({
   const hasEntries = entries.length > 0;
   const hasForecast = entries.some((e) => e.paidAt === null);
 
-  // Zero-state: ghost bar chart preview (12 bars, varied heights, all muted)
+  // Zero-state: empty-state only — no ghost bar chart (a faux 12-bar schedule
+  // next to "no distributions yet" reads as two conflicting signals). Same
+  // register as the Positions / Capital & Yield / Recent Activity empty states.
   if (!hasEntries) {
-    const ghostGradId = `${uid}-ghost-grad`;
-    const GHOST_HEIGHTS = [38, 55, 42, 68, 51, 74, 63, 80, 58, 72, 65, 90];
-    const n = GHOST_HEIGHTS.length;
-    const GAP = 4;
-    const totalGaps = (n - 1) * GAP;
-    const BAR_W = Math.floor((VB_W - totalGaps) / n);
     return (
       <PfCockpitPanel
         variant="wide"
@@ -345,68 +341,12 @@ export function DistribCalendar({
           titleVariant="primary"
           trailing={calendarHeaderTrail(leafHref)}
         />
-        <div className="pf-payout-calendar-slot">
-          <div className="pf-distrib-chart-shell pf-distrib-chart-shell--ghost pf-distrib-chart-shell--flat">
-            <svg
-              viewBox={`0 0 ${VB_W} ${VB_H}`}
-              preserveAspectRatio="xMidYMax meet"
-              className="pf-distrib-chart pf-distrib-chart--compact block h-full w-full"
-              aria-hidden="true"
-            >
-              <defs>
-                <linearGradient id={ghostGradId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--ct-figma-accent-area-top)" />
-                  <stop offset="100%" stopColor="var(--ct-figma-accent-area-bottom)" />
-                </linearGradient>
-              </defs>
-              {GHOST_HEIGHTS.map((h, i) => {
-                const bx = barX(i, n, BAR_W, GAP);
-                const by = BAR_AREA_BOT - h;
-                const isLast = i === n - 1;
-                return (
-                  <rect
-                    key={i}
-                    x={bx}
-                    y={by}
-                    width={BAR_W}
-                    height={h}
-                    fill={isLast ? `url(#${ghostGradId})` : BAR_FILL}
-                    opacity={isLast ? 1 : 1}
-                    rx="2"
-                    stroke={isLast ? "var(--ct-text-muted)" : BAR_STROKE}
-                    strokeWidth="0.75"
-                    strokeDasharray={isLast ? "4 2" : "none"}
-                  />
-                );
-              })}
-              {COMPACT_LABEL_INDICES.map((monthIndex) => {
-                const period = `${refYear}-${String(monthIndex + 1).padStart(2, "0")}`;
-                const bx = barX(monthIndex, n, BAR_W, GAP);
-                const cx = bx + BAR_W / 2;
-                return (
-                  <text
-                    key={period}
-                    x={cx}
-                    y={LABEL_Y}
-                    textAnchor="middle"
-                    className="pf-distrib-chart__period"
-                  >
-                    {formatPeriod(period, refYear)}
-                  </text>
-                );
-              })}
-              <line
-                x1="0"
-                y1={BAR_AREA_BOT + 1}
-                x2={VB_W}
-                y2={BAR_AREA_BOT + 1}
-                stroke="var(--ct-border-soft)"
-                strokeWidth="0.5"
-              />
-            </svg>
-          </div>
-          <p className="pf-payout-calendar__empty-copy body-xs ct-text-tertiary m-0" role="status">
-            Illustrative schedule preview · first distribution appears after cycle close
+        <div className="pf-positions-empty pf-positions-empty--embedded">
+          <p className="pf-positions-empty__lead body-sm ct-text-muted m-0">
+            No distributions yet
+          </p>
+          <p className="pf-positions-empty__hint body-xs ct-text-tertiary m-0">
+            Monthly USDC payouts appear here after your first cycle closes.
           </p>
         </div>
       </PfCockpitPanel>

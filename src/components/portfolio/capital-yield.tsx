@@ -93,7 +93,6 @@ export function CapitalYield({
         >
           <PfCockpitPanelHeader
             title="Capital & Yield"
-            subtitle="Allocation · 12m forward yield"
             titleVariant="primary"
             trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
           />
@@ -105,7 +104,7 @@ export function CapitalYield({
               {formatApyRange(CY_ZERO_STATE.targetApyRange, 1, { spaced: true })}
             </p>
             <p className="body-xs ct-text-muted m-0">
-              Allocation activates after your first confirmed on-chain position.
+              Activates after your first confirmed on-chain position.
             </p>
           </div>
         </PfCockpitPanel>
@@ -121,7 +120,6 @@ export function CapitalYield({
       >
         <PfCockpitPanelHeader
           title="Capital & Yield"
-          subtitle="Allocation · 12m forward yield"
           titleVariant="primary"
           trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
         />

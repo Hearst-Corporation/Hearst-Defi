@@ -21,7 +21,9 @@ describe("CapitalYield empty states", () => {
     expect(html).toContain("pf-capital-yield--embedded-empty");
     expect(html).toContain("Indicative target APY band");
     expect(html).toContain("9.0");
-    expect(html).toContain("Allocation activates after your first confirmed on-chain position");
+    expect(html).toContain("Activates after your first confirmed on-chain position");
+    // No redundant "Allocation · …" subtitle stacked above the ledger-head label.
+    expect(html).not.toContain("Allocation · 12m forward yield");
     expect(html).not.toMatch(/\bcy-panel\b/);
     expect(html).not.toContain("<svg");
   });

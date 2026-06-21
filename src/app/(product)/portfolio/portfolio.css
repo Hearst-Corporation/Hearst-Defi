@@ -923,8 +923,7 @@
 
 .pf-positions-empty__hint,
 .pf-activity__empty-hint,
-.pf-value-chart__disclaimer,
-.pf-payout-calendar__empty-copy {
+.pf-value-chart__disclaimer {
   color: var(--ct-text-tertiary);
 }
 
@@ -1441,15 +1440,6 @@
   min-width: 0;
 }
 
-.pf-payout-calendar-slot {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 0;
-}
-
 .pf-distrib-chart-shell {
   position: relative;
   display: flex;
@@ -1493,31 +1483,10 @@
   pointer-events: none;
 }
 
-.pf-distrib-chart-shell--ghost {
-  opacity: var(--ct-opacity-70);
-}
-
-/* Zero / ghost — flat inside the L1 plate (no nested inset surface). */
-.pf-distrib-chart-shell--flat {
-  background: transparent;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.pf-distrib-chart-shell--flat::before,
-.pf-distrib-chart-shell--flat::after {
-  display: none;
-}
-
 .pf-distrib-chart {
   display: block;
   width: 100%;
   height: 100%;
-}
-
-.pf-distrib-chart--compact {
-  /* zero-state ghost bars sit a touch smaller */
-  opacity: var(--ct-opacity-85);
 }
 
 /* bars + markers inside the distrib chart */
@@ -1593,29 +1562,6 @@
 .pf-distrib-chart__amount.is-text,
 .pf-distrib-chart-legend .pf-distrib-chart__amount {
   color: var(--ct-accent);
-}
-
-/* live-mode distrib summary line items (when rendered as DOM, not SVG) */
-.pf-payout-calendar-slot .pf-distrib-chart__period {
-  color: var(--ct-text-muted);
-  font-size: var(--ct-text-micro);
-}
-
-.pf-payout-calendar-slot .pf-distrib-chart__estimate {
-  color: var(--ct-text-tertiary);
-  font-size: var(--ct-text-micro);
-}
-
-/* ---- Payout calendar empty / zero copy ---- */
-.pf-payout-calendar__empty-copy {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--ct-space-1);
-  text-align: center;
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
-  line-height: var(--ct-leading-snug);
 }
 
 /* =============================================================================
@@ -2070,7 +2016,6 @@
 /* Center placeholder content inside each plate. */
 .pf-container--zero .pf-positions-empty,
 .pf-container--zero .pf-activity--empty,
-.pf-container--zero .pf-payout-calendar__empty-copy,
 .pf-container--zero .pf-trust-compact-kpis {
   align-items: center;
   justify-content: center;
@@ -2141,12 +2086,6 @@
   margin: var(--ct-space-3) auto 0;
 }
 
-/* payout zero: ghost chart inside slot — single L1 plate, no nested inset. */
-.pf-payout-calendar-panel--zero .pf-payout-calendar-slot {
-  flex: 1 1 auto;
-  justify-content: center;
-  min-height: 0;
-}
 
 .pf-payout-calendar-panel--zero .pf-distrib-chart-shell {
   width: 100%;

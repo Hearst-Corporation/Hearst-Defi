@@ -95,17 +95,17 @@ describe("DistribCalendar — empty entries", () => {
     expect(entries).toHaveLength(0);
   });
 
-  it("zero-state markup uses flat chart shell inside payout slot with quarter labels", () => {
+  it("zero-state shows a clean empty panel — no ghost bar chart conflicting with the awaiting message", () => {
     const html = renderToStaticMarkup(
       <DistribCalendar entries={[]} shareClass={null} cadence={null} asOf={new Date("2026-06-01T00:00:00Z")} />,
     );
 
-    expect(html).toContain("pf-payout-calendar-slot");
-    expect(html).toContain("pf-distrib-chart-shell--flat");
-    expect(html).toContain("pf-distrib-chart-shell--ghost");
-    expect(html).toContain("pf-distrib-chart__period");
-    expect(html).toContain("Jan");
-    expect(html).toContain("Apr");
+    expect(html).toContain("No distributions yet");
+    expect(html).toContain("Monthly USDC payouts appear here after your first cycle closes");
+    // No faux 12-bar schedule next to "no distributions yet" (two conflicting signals).
+    expect(html).not.toContain("<svg");
+    expect(html).not.toContain("pf-distrib-chart-shell--ghost");
+    expect(html).not.toContain("Illustrative schedule preview");
   });
 
   it("barHeight with maxAmount=0 returns 0 (no division by zero)", () => {
