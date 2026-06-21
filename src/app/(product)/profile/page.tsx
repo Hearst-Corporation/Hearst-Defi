@@ -2,6 +2,7 @@ import "./profile.css";
 
 import Link from "next/link";
 
+import { cn } from "@/lib/cn";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { ProfileSecurityRow } from "@/components/profile/profile-security-row";
 import { requireInvestor } from "@/lib/auth/require-investor";
@@ -11,7 +12,7 @@ import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { abbreviateAddress } from "@/lib/onchain";
 import { profileDisplayName } from "@/lib/profile/display-name";
 import { formatProfileDate } from "@/lib/profile/format-date";
-import { kycBadgeVariant, kycLabel } from "@/lib/profile/kyc-display";
+import { eligibilityVerdict, kycBadgeVariant, kycLabel } from "@/lib/profile/kyc-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -55,6 +56,12 @@ export default async function ProfilePage() {
   const kycPending = kycStatus === "pending";
   const kycRejected = kycStatus === "rejected";
 
+  const verdict = eligibilityVerdict({
+    kycApproved,
+    accreditationAttested: Boolean(investor?.accreditationAttestedAt),
+    walletLinked: Boolean(session.walletAddress),
+  });
+
   return (
     <div className="prof-shell" data-testid="profile-page">
       <ProductPageHeader
@@ -72,6 +79,16 @@ export default async function ProfilePage() {
           </div>
         }
       />
+
+      <p
+        className={cn(
+          "body-sm prof-verdict",
+          verdict.eligible ? "ct-text-accent" : "ct-text-faint",
+        )}
+        data-testid="profile-eligibility-verdict"
+      >
+        {verdict.label}
+      </p>
 
       <div className="prof-grid">
         <Card aria-labelledby="prof-account-label" hoverOverlay={false}>
@@ -107,10 +124,9 @@ export default async function ProfilePage() {
           </div>
 
           <div className="doc-page-disclaimer">
-            <p className="body-xs ct-text-faint ct-prose-xl prof-disclaimer">
-              Profile information reflects your investor account status. Product
-              eligibility depends on accreditation, KYC approval, and jurisdictional
-              restrictions.
+            <p className="body-xs ct-text-faint prof-disclaimer">
+              Product eligibility depends on accreditation, KYC approval, and
+              jurisdictional restrictions.
             </p>
           </div>
         </Card>

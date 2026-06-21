@@ -88,35 +88,35 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
         )}
       </div>
 
-      <div className="dashboard-live-metrics__grid">
-        <MetricCell
-          label="TVL"
-          value={vault.tvlUsdc > 0 ? usdCompact.format(vault.tvlUsdc) : "—"}
-        />
-        <MetricCell
-          label="Margin"
-          value={vault.hasTimelineData ? `${vault.miningMarginScore}` : "—"}
-          valueClassName={vault.hasTimelineData ? marginColor : undefined}
-        />
-        <MetricCell
-          label="Risk"
-          value={vault.hasTimelineData ? `${vault.riskScore}` : "—"}
-          valueClassName={vault.hasTimelineData ? riskColor : undefined}
-        />
-        <MetricCell
-          label="Oracle"
-          value={oracleLabel}
-          valueClassName={oracleStale ? "ct-status-danger" : undefined}
-        />
-        <MetricCell
-          label="BTC"
-          value={
-            vault.hasTimelineData
-              ? vault.btcPosture.charAt(0).toUpperCase() + vault.btcPosture.slice(1)
-              : "—"
-          }
-        />
-      </div>
+      {vault.hasTimelineData ? (
+        <div className="dashboard-live-metrics__grid">
+          <MetricCell
+            label="TVL"
+            value={vault.tvlUsdc > 0 ? usdCompact.format(vault.tvlUsdc) : "—"}
+          />
+          <MetricCell
+            label="Margin"
+            value={`${vault.miningMarginScore}`}
+            valueClassName={marginColor}
+          />
+          <MetricCell
+            label="Risk"
+            value={`${vault.riskScore}`}
+            valueClassName={riskColor}
+          />
+          <MetricCell
+            label="Oracle"
+            value={oracleLabel}
+            valueClassName={oracleStale ? "ct-status-danger" : undefined}
+          />
+          <MetricCell
+            label="BTC"
+            value={vault.btcPosture.charAt(0).toUpperCase() + vault.btcPosture.slice(1)}
+          />
+        </div>
+      ) : (
+        <p className="body-xs ct-text-muted m-0">Awaiting first telemetry close</p>
+      )}
     </div>
   );
 }
