@@ -31,7 +31,7 @@ export function AssumptionsList({ assumptions }: AssumptionsListProps) {
           return (
             <li key={i} className="admin-doc-inline-row admin-doc-inline-row--start body-sm flex-nowrap">
               <span
-                className="mt-0.5 shrink-0 ct-text-micro-size ct-text-strong"
+                className="mt-[var(--ct-space-0_5)] shrink-0 ct-text-micro-size ct-text-strong"
                 aria-hidden
               >
                 ▸

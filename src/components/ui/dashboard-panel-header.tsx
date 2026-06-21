@@ -32,7 +32,7 @@ export function DashboardPanelHeader({
 
   return (
     <header className={cn("dashboard-card-header", className)}>
-      <div className="min-w-0 flex flex-col gap-1">
+      <div className="min-w-0 flex flex-col gap-[var(--ct-space-1)]">
         {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
         <TitleTag
           id={id}

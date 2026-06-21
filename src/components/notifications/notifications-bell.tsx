@@ -60,7 +60,7 @@ export function NotificationsBell({
         <span
           className={cn(
             "absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center",
-            "rounded-full px-1",
+            "rounded-full px-[var(--ct-space-1)]",
             "ct-text-micro-size font-bold leading-tight ct-text-on-accent",
             badgeColor,
           )}

@@ -30,7 +30,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
           <Card className="cursor-pointer" hoverOverlay={false}>
             <div className="admin-doc-inline-row admin-doc-inline-row--relaxed">
               <div className="min-w-0 flex-1">
-                <div className="mb-1 admin-doc-inline-row">
+                <div className="mb-[var(--ct-space-1)] admin-doc-inline-row">
                   <Badge variant="accent" className="mono body-xs">{proposal.vaultTicker}</Badge>
                   <span className="body-md truncate font-semibold ct-text-strong">
                     {proposal.actionType}

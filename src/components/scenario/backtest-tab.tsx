@@ -78,7 +78,7 @@ export function BacktestTab() {
         <CardHeader className="mb-(--ct-space-4)">
           <div className="min-w-0">
             <CardTitle>Historical periods</CardTitle>
-            <p className="mt-0.5 body-xs ct-text-muted">Select a regime to simulate.</p>
+            <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">Select a regime to simulate.</p>
           </div>
         </CardHeader>
 
@@ -113,7 +113,7 @@ export function BacktestTab() {
           {BACKTEST_PERIODS.map((p) => (
             <Card key={p.key} className="px-(--ct-space-6) py-(--ct-space-4)" hoverOverlay={false}>
               <p className="scenario-preset-bar__label">{p.label}</p>
-              <p className="mt-1 body-xs ct-text-muted">{p.subtitle}</p>
+              <p className="mt-[var(--ct-space-1)] body-xs ct-text-muted">{p.subtitle}</p>
               <p className="mt-(--ct-space-2) body-sm ct-text-body">{p.description}</p>
             </Card>
           ))}

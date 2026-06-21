@@ -242,7 +242,7 @@ function SimParams({
           }}
           className={cn(
             "w-24 rounded-base border border-(--ct-border-soft)",
-            "ct-surface-1 px-[var(--ct-space-2)] py-1 body-xs mono ct-text-strong",
+            "ct-surface-1 px-[var(--ct-space-2)] py-[var(--ct-space-1)] body-xs mono ct-text-strong",
             "focus:border-(--ct-accent) focus:outline-none",
             "disabled:opacity-[var(--ct-opacity-40)]",
           )}
@@ -264,7 +264,7 @@ function SimParams({
           }}
           className={cn(
             "w-28 rounded-base border border-(--ct-border-soft)",
-            "ct-surface-1 px-[var(--ct-space-2)] py-1 body-xs mono ct-text-strong",
+            "ct-surface-1 px-[var(--ct-space-2)] py-[var(--ct-space-1)] body-xs mono ct-text-strong",
             "focus:border-(--ct-accent) focus:outline-none",
             "disabled:opacity-[var(--ct-opacity-40)]",
           )}
@@ -336,11 +336,11 @@ export function MonteCarloPanel() {
           <NestedPanel
             aria-label={`Headline APY range: ${headlineLow}% to ${headlineHigh}%`}
           >
-            <p className="stat-label mb-1">Headline range (p25–p75)</p>
+            <p className="stat-label mb-[var(--ct-space-1)]">Headline range (p25–p75)</p>
             <p className="mono stat-value tabular-nums ct-text-strong">
               {headlineLow}–{headlineHigh}%
             </p>
-            <p className="mt-1 body-xs ct-text-muted">
+            <p className="mt-[var(--ct-space-1)] body-xs ct-text-muted">
               Annual yield range · {runs.toLocaleString()} paths · seed {seed}
             </p>
           </NestedPanel>

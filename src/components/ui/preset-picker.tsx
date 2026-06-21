@@ -119,7 +119,7 @@ export function PresetPicker<T extends string>({
         aria-expanded={open}
         aria-label={`${PRESET_PICKER_STRINGS.scenarioLabel} ${side}: ${value ? labelFor(value) : PRESET_PICKER_STRINGS.selectScenarioLower}`}
         className={cn(
-          "flex w-full items-center justify-between gap-3",
+          "flex w-full items-center justify-between gap-[var(--ct-space-3)]",
           "rounded-md border border-[var(--ct-border-soft)] bg-transparent",
           "border-l-4",
           sideAccent,
@@ -130,7 +130,7 @@ export function PresetPicker<T extends string>({
           "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
         )}
       >
-        <span className="flex min-w-0 flex-col gap-0.5">
+        <span className="flex min-w-0 flex-col gap-[var(--ct-space-0_5)]">
           <span className="stat-label m-0">
             {PRESET_PICKER_STRINGS.scenarioLabel} {side}
           </span>
@@ -161,7 +161,7 @@ export function PresetPicker<T extends string>({
           aria-label={`${PRESET_PICKER_STRINGS.pickScenarioLabel} for ${side}`}
           onKeyDown={onListKeyDown}
           className={cn(
-            "absolute z-[var(--ct-z-dropdown)] mt-2 w-full overflow-hidden",
+            "absolute z-[var(--ct-z-dropdown)] mt-[var(--ct-space-2)] w-full overflow-hidden",
             "ct-glass-panel p-0 overflow-hidden",
             "shadow-[var(--ct-shadow-elevated)]",
           )}
@@ -183,7 +183,7 @@ export function PresetPicker<T extends string>({
                   }}
                   title={o.description}
                   className={cn(
-                    "flex w-full flex-col items-start gap-0.5 px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left",
+                    "flex w-full flex-col items-start gap-[var(--ct-space-0_5)] px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left",
                     "transition-colors ease-[var(--ct-ease)] duration-[var(--ct-dur-fast)]",
                     "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                     isSelected

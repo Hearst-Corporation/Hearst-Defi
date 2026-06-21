@@ -137,7 +137,7 @@ function ConfirmDialogBody({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center p-4 z-[var(--ct-z-modal)]"
+      className="fixed inset-0 flex items-center justify-center p-[var(--ct-space-4)] z-[var(--ct-z-modal)]"
       role="presentation"
     >
       {/* Backdrop */}
@@ -174,7 +174,7 @@ function ConfirmDialogBody({
         )}
 
         {requiresPhrase && (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-[var(--ct-space-2)]">
             <label
               htmlFor={`${titleId}-phrase`}
               className="stat-label block"

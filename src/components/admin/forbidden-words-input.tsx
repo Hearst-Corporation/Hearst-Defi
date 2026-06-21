@@ -38,7 +38,7 @@ function ForbiddenWordList({ matches }: { matches: ForbiddenMatch[] }) {
     <ul
       role="alert"
       aria-live="polite"
-      className="admin-doc-inline-row admin-doc-inline-row--dense mt-1"
+      className="admin-doc-inline-row admin-doc-inline-row--dense mt-[var(--ct-space-1)]"
     >
       {matches.map((m) => (
         <li

@@ -121,14 +121,14 @@ function ModalBody({
           className ?? "max-w-3xl",
         )}
       >
-        <div className="flex items-center justify-between gap-2 border-b border-[var(--ct-border-soft)] px-[var(--ct-space-6)] py-[var(--ct-space-3)]">
+        <div className="flex items-center justify-between gap-[var(--ct-space-2)] border-b border-[var(--ct-border-soft)] px-[var(--ct-space-6)] py-[var(--ct-space-3)]">
           <h2
             id={titleId}
             className="h2 ct-text-strong"
           >
             {title}
           </h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-[var(--ct-space-2)]">
             {headerActions}
             <Button
               size="sm"

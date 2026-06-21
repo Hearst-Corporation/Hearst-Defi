@@ -64,7 +64,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
             role="img"
             aria-label={statusLabel(item.status)}
             className={cn(
-              "mt-1 inline-block h-2.5 w-2.5 shrink-0 rounded-full",
+              "mt-[var(--ct-space-1)] inline-block h-2.5 w-2.5 shrink-0 rounded-full",
               statusDotClass(item.status),
             )}
             title={statusLabel(item.status)}
@@ -109,7 +109,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
                 onClick={() => setStatus(s)}
                 disabled={isPending || item.status === s}
                 className={cn(
-                  "rounded-md px-2.5 py-1.5 disabled:cursor-default",
+                  "rounded-md px-[var(--ct-space-2_5)] py-[var(--ct-space-1_5)] disabled:cursor-default",
                   item.status === s
                     ? "ct-surface-2 ct-text-primary"
                     : "ct-text-muted hover:bg-(--ct-surface-2) hover:ct-text-primary",

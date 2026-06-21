@@ -79,7 +79,7 @@ export function FeedbackForm() {
           className="ct-textarea"
           aria-describedby="feedback-hint"
         />
-        <span id="feedback-hint" className="mt-1 block ct-text-muted">
+        <span id="feedback-hint" className="mt-[var(--ct-space-1)] block ct-text-muted">
           Capture what changed, what feels off, and what should happen next.
         </span>
       </label>

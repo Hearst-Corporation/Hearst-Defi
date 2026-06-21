@@ -99,7 +99,7 @@ export function DeltaRow({ a, b }: DeltaRowProps) {
 
       <p className="mt-[var(--ct-space-3)] body-xs">
         Green = Scenario B is better. Red = Scenario B is worse. All deltas are midpoint estimates.
-        <span className="ml-1 font-medium ct-text-body">
+        <span className="ml-[var(--ct-space-1)] font-medium ct-text-body">
           Not guaranteed.
         </span>
       </p>

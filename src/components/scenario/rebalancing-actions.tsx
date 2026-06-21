@@ -132,7 +132,7 @@ function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
       {actions.map((action, idx) => (
         <li
           key={action.ruleId}
-          className="border-l-2 border-[var(--ct-border-soft)] pl-[var(--ct-space-6)] py-1"
+          className="border-l-2 border-[var(--ct-border-soft)] pl-[var(--ct-space-6)] py-[var(--ct-space-1)]"
         >
           <div className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap">
             <span
@@ -156,7 +156,7 @@ function ActionsBody({ actions }: { actions: RebalancingAction[] }) {
                 </Badge>
               </div>
               <p className="mt-[var(--ct-space-2)] body-xs ct-text-muted">{action.trigger}</p>
-              <p className="mt-1 body-sm ct-text-body">{action.action}</p>
+              <p className="mt-[var(--ct-space-1)] body-sm ct-text-body">{action.action}</p>
             </div>
           </div>
         </li>

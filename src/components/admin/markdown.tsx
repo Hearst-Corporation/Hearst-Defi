@@ -58,7 +58,7 @@ export function Markdown({
               );
             }
             return (
-              <code className="rounded-sm ct-surface-1 px-1 py-0.5 mono body-xs ct-text-primary">
+              <code className="rounded-sm ct-surface-1 px-[var(--ct-space-1)] py-[var(--ct-space-0_5)] mono body-xs ct-text-primary">
                 {children}
               </code>
             );

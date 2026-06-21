@@ -167,14 +167,14 @@ export function ChatNavBridge() {
       <button
         type="button"
         onClick={goNow}
-        className="rounded-full bg-(--ct-accent) px-[var(--ct-space-3)] py-1 body-xs font-medium ct-text-on-accent"
+        className="rounded-full bg-(--ct-accent) px-[var(--ct-space-3)] py-[var(--ct-space-1)] body-xs font-medium ct-text-on-accent"
       >
         {pending.protected ? "Open" : "Now"}
       </button>
       <button
         type="button"
         onClick={cancel}
-        className="rounded-full px-[var(--ct-space-2)] py-1 body-xs ct-text-muted hover:ct-text-strong"
+        className="rounded-full px-[var(--ct-space-2)] py-[var(--ct-space-1)] body-xs ct-text-muted hover:ct-text-strong"
       >
         Cancel
       </button>

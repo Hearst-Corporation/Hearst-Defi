@@ -6,7 +6,7 @@ export function ScenarioErrorBanner({ message }: { message: string }) {
   return (
     <p
       role="alert"
-      className="rounded-full border border-(--ct-status-danger) bg-transparent px-(--ct-space-4) py-2.5 body-sm ct-status-danger"
+      className="rounded-full border border-(--ct-status-danger) bg-transparent px-(--ct-space-4) py-[var(--ct-space-2_5)] body-sm ct-status-danger"
     >
       {message}
     </p>

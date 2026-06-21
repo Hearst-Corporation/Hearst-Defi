@@ -34,7 +34,7 @@ export function VaultStatusPill({ status, className }: VaultStatusPillProps) {
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center gap-1.5 font-medium body-xs",
+        "inline-flex shrink-0 items-center gap-[var(--ct-space-1_5)] font-medium body-xs",
         tone,
         className,
       )}

@@ -43,7 +43,7 @@ export function Tooltip({
             exit={{ opacity: 0, scale: 0.95, y: side === "top" ? 4 : -4 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
             className={cn(
-              "absolute z-50 px-[var(--ct-space-3)] py-1.5 body-xs ct-text-strong",
+              "absolute z-50 px-[var(--ct-space-3)] py-[var(--ct-space-1_5)] body-xs ct-text-strong",
               "bg-[var(--ct-surface-3)] border border-[var(--ct-border-soft)] rounded-md shadow-[var(--ct-shadow-soft)] backdrop-blur-md",
               "whitespace-nowrap pointer-events-none",
               sideStyles[side],

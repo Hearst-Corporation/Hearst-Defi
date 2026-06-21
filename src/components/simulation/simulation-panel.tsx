@@ -73,7 +73,7 @@ export function SimulationPanel({
         {result && (
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 body-xs font-medium border",
+              "inline-flex items-center gap-[var(--ct-space-1_5)] rounded-full px-[var(--ct-space-2_5)] py-[var(--ct-space-1)] body-xs font-medium border",
               result.ok
                 ? "ct-bc-success ct-status-success-bg ct-status-success"
                 : "ct-bc-danger ct-status-danger-bg ct-status-danger",
@@ -152,7 +152,7 @@ function LoadingState() {
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div role="alert" className="ct-nested-callout flex flex-col gap-1 border border-(--ct-border-soft)">
+    <div role="alert" className="ct-nested-callout flex flex-col gap-[var(--ct-space-1)] border border-(--ct-border-soft)">
       <p className="body-sm font-medium ct-status-danger">
         Simulation failed
       </p>
@@ -200,7 +200,7 @@ function StateDiffSection({ entries }: { entries: StateDiffEntry[] }) {
           {entries.map((entry, i) => (
             <li
               key={i}
-              className="ct-nested-callout flex flex-col gap-1"
+              className="ct-nested-callout flex flex-col gap-[var(--ct-space-1)]"
             >
               <p className="mono body-xs truncate">
                 {entry.contract}
@@ -290,7 +290,7 @@ function RevertsSection({ entries }: { entries: RevertEntry[] }) {
         {entries.map((entry, i) => (
           <li
             key={i}
-            className="ct-nested-callout flex flex-col gap-0.5 border border-(--ct-border-soft)"
+            className="ct-nested-callout flex flex-col gap-[var(--ct-space-0_5)] border border-(--ct-border-soft)"
           >
             <p className="body-xs font-medium ct-status-danger">
               {entry.reason}
@@ -318,12 +318,12 @@ function EventsSection({ entries }: { entries: EventEntry[] }) {
           {entries.map((entry, i) => (
             <li
               key={i}
-              className="ct-nested-callout flex flex-col gap-1.5"
+              className="ct-nested-callout flex flex-col gap-[var(--ct-space-1_5)]"
             >
               <p className="body-xs font-semibold ct-text-strong">
                 {entry.name}
               </p>
-              <ul className="flex flex-col gap-0.5">
+              <ul className="flex flex-col gap-[var(--ct-space-0_5)]">
                 {Object.entries(entry.args).map(([key, val]) => (
                   <li key={key} className="flex gap-[var(--ct-space-2)] items-start">
                     <span className="shrink-0 mono body-xs min-w-20">
@@ -348,7 +348,7 @@ function EventsSection({ entries }: { entries: EventEntry[] }) {
 
 function TraceLink() {
   return (
-    <div className="pt-1">
+    <div className="pt-[var(--ct-space-1)]">
       <button
         type="button"
         disabled

@@ -46,7 +46,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
             {isPositive ? "+" : ""}
             {output.totalReturnPct.toFixed(1)}%
           </p>
-          <p className="mt-1 body-xs ct-text-muted">
+          <p className="mt-[var(--ct-space-1)] body-xs ct-text-muted">
             {output.startDate} — {output.endDate}
           </p>
         </Card>
@@ -60,7 +60,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
           <p className="stat-value ct-status-danger">
             -{output.maxDrawdownPct.toFixed(1)}%
           </p>
-          <p className="mt-1 body-xs ct-text-muted">peak-to-trough</p>
+          <p className="mt-[var(--ct-space-1)] body-xs ct-text-muted">peak-to-trough</p>
         </Card>
 
         {/* Worst Month */}
@@ -72,7 +72,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
           <p className="stat-value ct-status-warning">
             {output.worstMonthPct.toFixed(1)}%
           </p>
-          <p className="mt-1 body-xs ct-text-muted">
+          <p className="mt-[var(--ct-space-1)] body-xs ct-text-muted">
             single-month floor
           </p>
         </Card>
@@ -86,7 +86,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
           <p className="stat-value ct-text-primary">
             {output.numRebalances}
           </p>
-          <p className="mt-1 body-xs ct-text-muted">
+          <p className="mt-[var(--ct-space-1)] body-xs ct-text-muted">
             mode triggers
           </p>
         </Card>
@@ -105,7 +105,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
       <Card>
         <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
           <div>
-            <p className="body-xs font-semibold ct-text-body mb-1">Rule Engine</p>
+            <p className="body-xs font-semibold ct-text-body mb-[var(--ct-space-1)]">Rule Engine</p>
             <p className="body-xs ct-text-muted">
               Rule-based rebalancing enabled
             </p>

@@ -5,7 +5,7 @@ export default function VaultsLoading() {
     <div className="admin-doc-shell animate-in fade-in duration-(--ct-dur-slower)">
       <div className="admin-page-header">
         <Skeleton className="h-7 w-32" />
-        <Skeleton className="h-4 w-64 mt-1" variant="text" />
+        <Skeleton className="h-4 w-64 mt-[var(--ct-space-1)]" variant="text" />
       </div>
 
       <div className="admin-doc-inline-row">
@@ -19,15 +19,15 @@ export default function VaultsLoading() {
           <div key={i} className="admin-vaults-list__row">
             <div className="admin-vaults-list__identity">
               <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-3 w-36 mt-1" variant="text" />
-              <Skeleton className="h-3 w-24 mt-0.5" variant="text" />
+              <Skeleton className="h-3 w-36 mt-[var(--ct-space-1)]" variant="text" />
+              <Skeleton className="h-3 w-24 mt-[var(--ct-space-0_5)]" variant="text" />
             </div>
             <div className="admin-vaults-list__status">
               <Skeleton className="h-3 w-12" variant="text" />
             </div>
             <div className="admin-vaults-list__metrics">
               <Skeleton className="h-1 w-full" />
-              <Skeleton className="h-3 w-24 mt-1" variant="text" />
+              <Skeleton className="h-3 w-24 mt-[var(--ct-space-1)]" variant="text" />
             </div>
             <div className="admin-vaults-list__apy">
               <Skeleton className="h-4 w-20" />

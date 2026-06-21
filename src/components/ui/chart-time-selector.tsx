@@ -41,7 +41,7 @@ export function ChartTimeSelector({
       role="radiogroup"
       aria-label={CHART_TIME_RANGE_ARIA_LABEL}
       className={cn(
-        "flex h-6 items-center gap-0.5",
+        "flex h-6 items-center gap-[var(--ct-space-0_5)]",
         "stat-label mono",
         className,
       )}
@@ -56,7 +56,7 @@ export function ChartTimeSelector({
             aria-checked={isActive}
             onClick={() => onChange(opt)}
             className={cn(
-              "h-6 rounded-sm px-1.5 transition-colors ease-[var(--ct-ease)]",
+              "h-6 rounded-sm px-[var(--ct-space-1_5)] transition-colors ease-[var(--ct-ease)]",
               isActive
                 ? [
                     "ct-text-primary",

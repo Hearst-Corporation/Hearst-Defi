@@ -99,7 +99,7 @@ export function ConstructionTab() {
         <CardHeader className="scenario-lab-input-card__header">
           <div className="min-w-0">
             <CardTitle>Construction Inputs</CardTitle>
-            <p className="mt-0.5 body-xs ct-text-muted">
+            <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">
               Model your data center parameters.
             </p>
           </div>
@@ -149,7 +149,7 @@ export function ConstructionTab() {
           <CardHeader className="p-0 mb-(--ct-space-8)">
             <div className="min-w-0">
               <CardTitle>Projection Output</CardTitle>
-              <p className="mt-0.5 body-xs ct-text-muted">
+              <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">
                 CAPEX, OPEX and ROI estimates.
               </p>
             </div>
@@ -191,24 +191,24 @@ export function ConstructionTab() {
             <div className="pt-(--ct-space-8) border-t ct-border-soft grid grid-cols-1 sm:grid-cols-2 gap-(--ct-space-8)">
               <div className="admin-doc-stack--tight">
                 <span className="stat-label">Break-even Hashprice</span>
-                <div className="admin-doc-inline-row admin-doc-inline-row--baseline gap-2">
+                <div className="admin-doc-inline-row admin-doc-inline-row--baseline gap-[var(--ct-space-2)]">
                   <span className="mono text-xl ct-text-primary">
                     ${output.break_even_hashprice.toFixed(4)}
                   </span>
                   <span className="body-xs ct-text-muted">/TH/day</span>
                 </div>
-                <p className="body-xs ct-text-muted mt-1">
+                <p className="body-xs ct-text-muted mt-[var(--ct-space-1)]">
                   Minimum hashprice required to cover annual OPEX.
                 </p>
               </div>
               <div className="admin-doc-stack--tight">
                 <span className="stat-label">Operational Efficiency</span>
-                <div className="admin-doc-inline-row admin-doc-inline-row--baseline gap-2">
+                <div className="admin-doc-inline-row admin-doc-inline-row--baseline gap-[var(--ct-space-2)]">
                   <span className="mono text-xl ct-text-primary">
                     {(output.yearly_opex_usd / output.yearly_revenue_usd * 100).toFixed(1)}%
                   </span>
                 </div>
-                <p className="body-xs ct-text-muted mt-1">
+                <p className="body-xs ct-text-muted mt-[var(--ct-space-1)]">
                   OPEX as percentage of gross revenue.
                 </p>
               </div>

@@ -143,7 +143,7 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
         <CardHeader className="mb-(--ct-space-4)">
           <div className="min-w-0">
             <CardTitle>Scenario comparison</CardTitle>
-            <p className="mt-0.5 body-xs ct-text-muted">
+            <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">
               Compare two presets on the same vault scope.
             </p>
           </div>

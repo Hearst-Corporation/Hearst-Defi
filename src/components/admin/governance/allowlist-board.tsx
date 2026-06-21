@@ -192,9 +192,9 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                       >
                         <td className="ct-table-cell">
                           <p className="body-sm ct-text-strong">{entry.label}</p>
-                          <p className="mono mt-0.5 break-all body-xs ct-text-muted">{entry.address}</p>
+                          <p className="mono mt-[var(--ct-space-0_5)] break-all body-xs ct-text-muted">{entry.address}</p>
                           {entry.notes ? (
-                            <p className="mt-1 body-xs italic ct-text-muted">{entry.notes}</p>
+                            <p className="mt-[var(--ct-space-1)] body-xs italic ct-text-muted">{entry.notes}</p>
                           ) : null}
                         </td>
                         <td className="hidden ct-table-cell md:table-cell">

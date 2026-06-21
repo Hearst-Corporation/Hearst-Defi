@@ -70,7 +70,7 @@ export function SingleMode({
           <CardHeader className="scenario-lab-input-card__header">
             <div className="min-w-0">
               <CardTitle>Inputs</CardTitle>
-              <p className="mt-0.5 body-xs ct-text-muted">
+              <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">
                 Adjust sliders or select a preset above.
               </p>
             </div>
@@ -159,7 +159,7 @@ export function SingleMode({
             <CardHeader className="scenario-lab-input-card__header">
               <div className="min-w-0">
                 <CardTitle>Output assets</CardTitle>
-                <p className="mt-0.5 body-xs ct-text-muted">Projection &amp; narrative.</p>
+                <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">Projection &amp; narrative.</p>
               </div>
             </CardHeader>
 

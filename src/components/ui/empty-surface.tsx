@@ -70,7 +70,7 @@ export function EmptySurface({
         <p
           className={cn(
             "body-xs ct-text-faint m-0",
-            variant === "widget" && "max-w-prose mt-1",
+            variant === "widget" && "max-w-prose mt-[var(--ct-space-1)]",
           )}
         >
           {detail}
@@ -81,7 +81,7 @@ export function EmptySurface({
         <Link
           href={link.href}
           aria-label={link.ariaLabel ?? link.label}
-          className="body-xs ct-text-muted hover:ct-text-primary transition-colors ease-[var(--ct-ease)] underline underline-offset-2 decoration-[var(--ct-border)] mt-1"
+          className="body-xs ct-text-muted hover:ct-text-primary transition-colors ease-[var(--ct-ease)] underline underline-offset-2 decoration-[var(--ct-border)] mt-[var(--ct-space-1)]"
         >
           {link.label}
         </Link>

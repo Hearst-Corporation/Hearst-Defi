@@ -76,7 +76,7 @@ export function ApyHero({
           <ProvenanceBadge kind="estimated" />
         </CardHeader>
 
-        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--end admin-doc-inline-row--relaxed flex-wrap pt-1">
+        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--end admin-doc-inline-row--relaxed flex-wrap pt-[var(--ct-space-1)]">
           {apy}
           {confidence}
         </div>
@@ -104,7 +104,7 @@ export function ApyHero({
         <ProvenanceBadge kind="estimated" />
       </div>
 
-      <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--end admin-doc-inline-row--actions flex-wrap pt-1">
+      <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--end admin-doc-inline-row--actions flex-wrap pt-[var(--ct-space-1)]">
         {apy}
         {confidence}
       </div>
@@ -149,14 +149,14 @@ function ScoreCard({
         <span className={labelCls}>{label}</span>
         <ProvenanceBadge kind="estimated" />
       </div>
-      <div className="mb-1 admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--tight">
+      <div className="mb-[var(--ct-space-1)] admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--tight">
         <span className={numberCls}>{value.toFixed(0)}</span>
         <span className={slashCls}>/100</span>
       </div>
       <Progress
         value={value}
         fillClassName={fillClassName}
-        className={variant === "full" ? "mt-[var(--ct-space-2)]" : "mt-1.5"}
+        className={variant === "full" ? "mt-[var(--ct-space-2)]" : "mt-[var(--ct-space-1_5)]"}
       />
       {footer}
       {caption && (
@@ -239,13 +239,13 @@ export function VaultMode({
       )}
     >
       <div>
-        <p className={cn("stat-label", variant === "full" && "mb-1")}>
+        <p className={cn("stat-label", variant === "full" && "mb-[var(--ct-space-1)]")}>
           Vault Mode
         </p>
         <p
           className={cn(
             "body-xs ct-text-muted",
-            variant === "compact" && "mt-0.5",
+            variant === "compact" && "mt-[var(--ct-space-0_5)]",
           )}
         >
           {variant === "full" ? "Current allocation posture" : "Allocation posture"}
@@ -254,7 +254,7 @@ export function VaultMode({
       <Badge
         variant={MODE_VARIANT[output.mode]}
         className={
-          variant === "full" ? "px-[var(--ct-space-4)] py-[var(--ct-space-2)] body-sm" : "px-[var(--ct-space-3)] py-1.5 body-xs"
+          variant === "full" ? "px-[var(--ct-space-4)] py-[var(--ct-space-2)] body-sm" : "px-[var(--ct-space-3)] py-[var(--ct-space-1_5)] body-xs"
         }
       >
         {MODE_LABEL[output.mode]}
@@ -301,7 +301,7 @@ function AllocationTable({
       <div
         className={cn(
           "grid grid-cols-[1fr_auto_auto]",
-          variant === "full" ? "mb-[var(--ct-space-2)] admin-doc-inline-row--relaxed" : "mb-1.5 admin-doc-inline-row--actions",
+          variant === "full" ? "mb-[var(--ct-space-2)] admin-doc-inline-row--relaxed" : "mb-[var(--ct-space-1_5)] admin-doc-inline-row--actions",
         )}
       >
         <span className="stat-label">Bucket</span>
@@ -315,8 +315,8 @@ function AllocationTable({
             className={cn(
               "grid grid-cols-[1fr_auto_auto] items-center",
               variant === "full"
-                ? "admin-doc-inline-row--relaxed py-2.5 body-sm first:pt-1 last:pb-1"
-                : "admin-doc-inline-row--actions py-1.5 body-xs first:pt-0.5 last:pb-0.5",
+                ? "admin-doc-inline-row--relaxed py-[var(--ct-space-2_5)] body-sm first:pt-[var(--ct-space-1)] last:pb-[var(--ct-space-1)]"
+                : "admin-doc-inline-row--actions py-[var(--ct-space-1_5)] body-xs first:pt-[var(--ct-space-0_5)] last:pb-[var(--ct-space-0_5)]",
             )}
           >
             <span className="admin-doc-inline-row min-w-0 ct-text-body">

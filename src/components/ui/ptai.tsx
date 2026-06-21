@@ -35,7 +35,7 @@ export function Ptai({
     <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-[var(--ct-space-6)] gap-y-[var(--ct-space-3)] body-sm">
       {ROWS.map(({ key, label, iconColorClass }) => (
         <div key={key} className="contents group/row">
-          <dt className="flex items-center gap-2 stat-label pt-0.5 group-hover/row:ct-text-body transition-colors ease-[var(--ct-ease)]">
+          <dt className="flex items-center gap-[var(--ct-space-2)] stat-label pt-[var(--ct-space-0_5)] group-hover/row:ct-text-body transition-colors ease-[var(--ct-ease)]">
             <span
               className={cn(
                 "h-1.5 w-1.5 rounded-full shadow-[var(--ct-glow-dot)] bg-current",

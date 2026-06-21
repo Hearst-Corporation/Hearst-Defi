@@ -856,7 +856,7 @@ export function AdminChatControls() {
     >,
   );
   const adminInputClassName =
-    "w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-(--ct-space-2) py-1 body-xs";
+    "w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-(--ct-space-2) py-[var(--ct-space-1)] body-xs";
   const updateCapabilityStatus = useCallback(
     (capabilityId: string, status: AgentCapabilityTestStatus) => {
       setCapabilityState((current) => ({
@@ -1285,8 +1285,8 @@ export function AdminChatControls() {
                       <div
                         className={cn(
                           "w-full rounded-md border border-(--ct-border-soft)",
-                          "ct-surface-1 px-(--ct-space-2) py-1 body-xs",
-                          "flex flex-wrap items-center gap-x-3 gap-y-1",
+                          "ct-surface-1 px-(--ct-space-2) py-[var(--ct-space-1)] body-xs",
+                          "flex flex-wrap items-center gap-x-[var(--ct-space-3)] gap-y-[var(--ct-space-1)]",
                         )}
                         aria-label="Export pack summary"
                       >
@@ -1364,12 +1364,12 @@ export function AdminChatControls() {
         title="Agent test matrix"
         className="max-w-screen-2xl"
         headerActions={
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-[var(--ct-space-2)]">
             {(["red", "orange", "green", "untested"] as const).map((status) => (
               <span
                 key={status}
                 className={cn(
-                  "rounded-full border px-2 py-1 body-xs",
+                  "rounded-full border px-[var(--ct-space-2)] py-[var(--ct-space-1)] body-xs",
                   AGENT_STATUS_META[status].chipClassName,
                 )}
               >
@@ -1384,8 +1384,8 @@ export function AdminChatControls() {
             Each capability is tested manually from the chat. Red = broken,
             orange = close, green = validated.
           </p>
-          <div className="admin-doc-stack admin-doc-stack--tight rounded-lg border border-(--ct-border-soft) p-3">
-            <div className="grid gap-3 xl:grid-cols-2">
+          <div className="admin-doc-stack admin-doc-stack--tight rounded-lg border border-(--ct-border-soft) p-[var(--ct-space-3)]">
+            <div className="grid gap-[var(--ct-space-3)] xl:grid-cols-2">
               {AGENT_CAPABILITY_DEFINITIONS.map((capability) => {
                 const entry = capabilityState[capability.id];
                 const status = entry?.status ?? "untested";
@@ -1443,16 +1443,16 @@ function AgentCapabilityRow({
   return (
     <section
       className={cn(
-        "rounded-xl border px-4 py-4 shadow-[var(--ct-shadow-inset)]",
+        "rounded-xl border px-[var(--ct-space-4)] py-[var(--ct-space-4)] shadow-[var(--ct-shadow-inset)]",
         "transition-colors ease-[var(--ct-ease)]",
         statusMeta.cardClassName,
       )}
       aria-label={capability.label}
     >
       <div className="admin-doc-stack admin-doc-stack--tight">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-wrap items-start justify-between gap-[var(--ct-space-3)]">
           <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-[var(--ct-space-2)]">
               <span
                 className={cn(
                   "inline-block h-2.5 w-2.5 rounded-full",
@@ -1464,16 +1464,16 @@ function AgentCapabilityRow({
             </div>
             <p className="body-xs ct-text-muted m-0">{capability.description}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-(--ct-border-soft) ct-surface-2 px-2 py-1 body-xs uppercase ct-text-faint">
+          <div className="flex flex-wrap items-center gap-[var(--ct-space-2)]">
+            <span className="rounded-full border border-(--ct-border-soft) ct-surface-2 px-[var(--ct-space-2)] py-[var(--ct-space-1)] body-xs uppercase ct-text-faint">
               {capability.mode}
             </span>
-            <span className="rounded-full border border-(--ct-border-soft) ct-surface-2 px-2 py-1 body-xs uppercase ct-text-faint">
+            <span className="rounded-full border border-(--ct-border-soft) ct-surface-2 px-[var(--ct-space-2)] py-[var(--ct-space-1)] body-xs uppercase ct-text-faint">
               {capability.kind}
             </span>
             <span
               className={cn(
-                "rounded-full border px-2 py-1 body-xs",
+                "rounded-full border px-[var(--ct-space-2)] py-[var(--ct-space-1)] body-xs",
                 statusMeta.chipClassName,
               )}
             >
@@ -1482,12 +1482,12 @@ function AgentCapabilityRow({
           </div>
         </div>
 
-        <div className="grid gap-3 xl:grid-cols-2">
+        <div className="grid gap-[var(--ct-space-3)] xl:grid-cols-2">
           <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
             <div className="body-[10px] uppercase tracking-wide ct-text-faint">
               Test prompt
             </div>
-            <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1 px-3 py-2 body-xs ct-text-primary whitespace-pre-wrap wrap-break-word">
+            <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1 px-[var(--ct-space-3)] py-[var(--ct-space-2)] body-xs ct-text-primary whitespace-pre-wrap wrap-break-word">
               {capability.testPrompt}
             </div>
           </div>
@@ -1495,25 +1495,25 @@ function AgentCapabilityRow({
             <div className="body-[10px] uppercase tracking-wide ct-text-faint">
               Success criterion
             </div>
-            <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1 px-3 py-2 body-xs ct-text-muted">
+            <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1 px-[var(--ct-space-3)] py-[var(--ct-space-2)] body-xs ct-text-muted">
               {capability.successCriteria}
             </div>
           </div>
         </div>
 
-        <div className="grid gap-3 xl:grid-cols-[minmax(14rem,auto)_minmax(0,1fr)]">
+        <div className="grid gap-[var(--ct-space-3)] xl:grid-cols-[minmax(14rem,auto)_minmax(0,1fr)]">
           <div className="admin-doc-stack admin-doc-stack--tight">
             <div className="body-[10px] uppercase tracking-wide ct-text-faint">
               Status
             </div>
-            <div className="flex min-w-48 flex-wrap gap-2">
+            <div className="flex min-w-48 flex-wrap gap-[var(--ct-space-2)]">
               {(["red", "orange", "green", "untested"] as const).map((candidate) => (
                 <button
                   key={candidate}
                   type="button"
                   onClick={() => onStatusChange(capability.id, candidate)}
                   className={cn(
-                    "rounded-full border px-2 py-1 body-xs transition-colors ease-[var(--ct-ease)]",
+                    "rounded-full border px-[var(--ct-space-2)] py-[var(--ct-space-1)] body-xs transition-colors ease-[var(--ct-ease)]",
                     AGENT_STATUS_META[candidate].buttonClassName,
                     status === candidate
                       ? "ring-1 ring-white/18 shadow-[var(--ct-shadow-inset)]"
@@ -1533,7 +1533,7 @@ function AgentCapabilityRow({
             value={note}
             onChange={(event) => onNoteChange(capability.id, event.target.value)}
             rows={3}
-            className="min-h-20 w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-(--ct-space-2) py-1 body-xs"
+            className="min-h-20 w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-(--ct-space-2) py-[var(--ct-space-1)] body-xs"
             placeholder="Manual test observations"
             aria-label={`Notes for ${capability.label}`}
           />

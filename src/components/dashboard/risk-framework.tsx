@@ -117,7 +117,7 @@ export function RiskFrameworkSection({
           tone="quiet"
           className="relative z-10"
         />
-        <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center py-12 relative z-10">
+        <div className="flex-1 flex flex-col items-center justify-center gap-[var(--ct-space-2)] text-center py-[var(--ct-space-12)] relative z-10">
           <p className="body-sm ct-text-muted">
             No risk inputs yet
           </p>
@@ -189,7 +189,7 @@ function CompositeHeader({ composite, band, bandLabel }: CompositeHeaderProps) {
         <span className="stat-label">Composite</span>
         <span className={cn("stat-value tabular-nums", BAND_TEXT[band])}>
           {composite}
-          <span className="body-xs ct-text-muted opacity-[var(--ct-opacity-50)] ml-1">/ 100</span>
+          <span className="body-xs ct-text-muted opacity-[var(--ct-opacity-50)] ml-[var(--ct-space-1)]">/ 100</span>
         </span>
       </div>
       <div className="flex items-center gap-[var(--ct-space-4)] sm:min-w-60">
@@ -481,7 +481,7 @@ function WaterfallChart({ data }: WaterfallChartProps) {
       </svg>
 
       {/* Legend */}
-      <div className="mt-[var(--ct-space-3)] flex flex-wrap items-center gap-[var(--ct-space-4)] px-1">
+      <div className="mt-[var(--ct-space-3)] flex flex-wrap items-center gap-[var(--ct-space-4)] px-[var(--ct-space-1)]">
         <LegendDot
           color="var(--ct-surface-3)"
           label="Baseline (100)"
@@ -510,7 +510,7 @@ interface LegendDotProps {
 
 function LegendDot({ color, label }: LegendDotProps) {
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-[var(--ct-space-1_5)]">
       <span
         aria-hidden
         style={{ background: color }}
@@ -530,12 +530,12 @@ interface RiskRowProps {
 function RiskRow({ dimension }: RiskRowProps) {
   const { label, status, score, severity, detail } = dimension;
   return (
-    <div className="flex flex-col gap-[var(--ct-space-3)] py-4 sm:flex-row sm:items-center sm:gap-[var(--ct-space-4)] group">
+    <div className="flex flex-col gap-[var(--ct-space-3)] py-[var(--ct-space-4)] sm:flex-row sm:items-center sm:gap-[var(--ct-space-4)] group">
       <div className="flex min-w-0 flex-1 items-start gap-[var(--ct-space-3)]">
         <span
           aria-hidden
           className={cn(
-            "mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full",
+            "mt-[var(--ct-space-1_5)] inline-block h-2 w-2 shrink-0 rounded-full",
             SEVERITY_DOT_CLASS[severity],
           )}
         />
@@ -546,7 +546,7 @@ function RiskRow({ dimension }: RiskRowProps) {
             </span>
             <Badge variant={SEVERITY_VARIANT[severity]}>{status}</Badge>
           </div>
-          <p className="mt-1 body-xs ct-text-muted group-hover:ct-text-body transition-colors ease-[var(--ct-ease)]">
+          <p className="mt-[var(--ct-space-1)] body-xs ct-text-muted group-hover:ct-text-body transition-colors ease-[var(--ct-ease)]">
             {detail}
           </p>
         </div>

@@ -161,7 +161,7 @@ function DecisionPanel({
       <CardHeader className="mb-[var(--ct-space-6)]">
         <div className="min-w-0">
           <CardTitle>Scenario decision</CardTitle>
-          <p className="mt-0.5 body-xs ct-text-muted">
+          <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">
             Deterministic engine output · conditional on stated assumptions
           </p>
         </div>
@@ -283,7 +283,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
       <CardHeader className="mb-[var(--ct-space-6)]">
         <div className="min-w-0">
           <CardTitle>Allocation &amp; rebalancing</CardTitle>
-          <p className="mt-0.5 body-xs ct-text-muted">
+          <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">
             Target weights, guardrails and rule-based actions
           </p>
         </div>
@@ -319,7 +319,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
               {armedTriggers.map((t) => (
                 <li key={t.id} className="admin-doc-inline-row admin-doc-inline-row--start body-sm flex-nowrap">
                   <span
-                    className="mt-0.5 shrink-0 body-xs ct-status-warning"
+                    className="mt-[var(--ct-space-0_5)] shrink-0 body-xs ct-status-warning"
                     aria-hidden
                   >
                     ▸
@@ -363,7 +363,7 @@ function AssumptionsPanel({ assumptions }: { assumptions: string[] }) {
       >
         <div className="min-w-0">
           <CardTitle>Assumptions</CardTitle>
-          <p className="mt-0.5 body-xs ct-text-muted">
+          <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">
             {assumptions.length} inputs behind this projection
           </p>
         </div>

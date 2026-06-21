@@ -212,7 +212,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
 function KpiTile({ label, value }: { label: string; value: string }) {
   return (
     <Card>
-      <p className="stat-label ct-text-muted mb-1">{label}</p>
+      <p className="stat-label ct-text-muted mb-[var(--ct-space-1)]">{label}</p>
       <p className="stat-value ct-text-strong tabular">{value}</p>
     </Card>
   );
