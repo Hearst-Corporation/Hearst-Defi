@@ -309,16 +309,6 @@
   gap: var(--ct-space-2);
 }
 
-.pf-positions--preview {
-  flex: 0 0 auto;
-  opacity: var(--ct-opacity-45);
-  pointer-events: none;
-}
-
-.pf-positions__row--ghost {
-  border-bottom-color: color-mix(in srgb, var(--ct-border-soft) 42%, transparent);
-}
-
 .pf-positions-empty--embedded {
   gap: var(--ct-space-2);
 }
@@ -1283,14 +1273,6 @@
   color: var(--ct-text-secondary);
 }
 
-.donut-pending-label {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide);
-  color: var(--ct-text-muted);
-}
-
 /* ---- Spine (vertical hairline between donut and ledger) ---- */
 .cy-spine {
   width: 1px;
@@ -1347,10 +1329,6 @@
   color: var(--ct-accent);
 }
 
-.cy-row--pending {
-  opacity: var(--ct-opacity-70);
-}
-
 .cy-dot {
   width: var(--ct-space-2);
   height: var(--ct-space-2);
@@ -1361,7 +1339,6 @@
 
 .cy-row--mining .cy-dot,
 .cy-row-mining .cy-dot { background: var(--ct-status-info); }
-.cy-row--pending .cy-dot { background: var(--ct-text-muted); }
 
 .cy-label {
   font-size: var(--ct-text-xs);
@@ -1388,10 +1365,6 @@
   background: var(--ct-surface-1);
   overflow: hidden;
   min-width: 0;
-}
-
-.cy-track--pending {
-  background: var(--ct-surface-1);
 }
 
 .cy-ticks {
@@ -1914,9 +1887,6 @@
 }
 
 .pf-status-dot--default { background: var(--ct-text-muted); }
-/* Placeholder dot for ghost/preview rows — visibly fainter than --default so a
-   preview row never reads as a real (muted) status. */
-.pf-status-dot--ghost { background: var(--ct-border-soft); }
 .pf-status-dot--active {
   background: var(--ct-status-success);
   box-shadow: none;

@@ -68,29 +68,6 @@ export function PositionsList({
           titleVariant="primary"
           trailing={trailing}
         />
-        {embedded ? (
-          <div className="pf-positions pf-positions--preview" aria-hidden="true">
-            <div className="pf-positions__row pf-positions__row--head stat-label">
-              <span>Vault</span>
-              <span>Principal</span>
-              <span>Value</span>
-              <span>APY range</span>
-              <span>Since</span>
-            </div>
-            {[0, 1].map((row) => (
-              <div key={row} className="pf-positions__row pf-positions__row--body pf-positions__row--ghost">
-                <span className="pf-positions__vault">
-                  <span className="pf-status-dot pf-status-dot--ghost" aria-hidden="true" />
-                  —
-                </span>
-                <span className="pf-positions__num">—</span>
-                <span className="pf-positions__num">—</span>
-                <span className="pf-positions__num">—</span>
-                <span className="pf-positions__num">—</span>
-              </div>
-            ))}
-          </div>
-        ) : null}
         <div className={cn("pf-positions-empty", embedded && "pf-positions-empty--embedded")}>
           <p className="pf-positions-empty__lead body-sm ct-text-muted m-0">
             No active positions yet

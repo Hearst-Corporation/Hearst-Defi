@@ -26,14 +26,17 @@ describe("CapitalYield empty states", () => {
     expect(html).not.toContain("<svg");
   });
 
-  it("full empty state still renders the preview chart for the dedicated panel", () => {
+  it("full empty state shows a clean empty panel — no ghost donut/ledger conflicting with the awaiting message", () => {
     const html = renderToStaticMarkup(
       <CapitalYield {...EMPTY_PROPS} leafHref="/portfolio/yield" />,
     );
 
     expect(html).toContain("cy-panel--onboarding-empty");
-    expect(html).toContain("Awaiting snapshot");
-    expect(html).toContain("<svg");
-    expect(html).toContain("Indicative yield structure");
+    expect(html).toContain("Indicative target APY band");
+    expect(html).toContain("Live allocation unlocks after your first confirmed on-chain position");
+    // No faux allocation chart next to "no data yet" (two conflicting signals).
+    expect(html).not.toContain("<svg");
+    expect(html).not.toContain("Awaiting snapshot");
+    expect(html).not.toContain("cy-row--pending");
   });
 });

@@ -11,7 +11,6 @@ import type { AllocationBucketSlice } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { formatApyRange } from "@/lib/format/apy";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
-import { useId } from "react";
 
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
@@ -86,10 +85,6 @@ export function CapitalYield({
   leafHref,
   embedded = false,
 }: CapitalYieldProps) {
-  // id unique par instance — évite la collision du gradient <defs> du ghost donut
-  // si plusieurs panneaux Capital & Yield en zero-state coexistent (HTML invalide).
-  const uid = useId();
-  const ghostBloomId = `${uid}-ghost-bloom`;
   const maxAbsPct = sources.reduce(
     (acc, s) => Math.max(acc, Math.abs(s.contributionPct)),
     0,
@@ -100,8 +95,6 @@ export function CapitalYield({
   const provenance = isEmpty ? undefined : resolveProvenance(source, updatedAt, "estimated");
 
   if (isEmpty) {
-    const previewApyRange = formatApyRange(CY_ZERO_STATE.targetApyRange);
-
     if (embedded) {
       return (
         <PfCockpitPanel
@@ -131,12 +124,11 @@ export function CapitalYield({
       );
     }
 
-    let offset = 0;
     return (
       <PfCockpitPanel
         variant="wide"
         chrome="panel"
-        aria-label="Capital and yield — awaiting first position"
+        aria-label="Capital and yield — awaiting first confirmed on-chain position"
         className="cy-panel cy-panel--onboarding-empty"
       >
         <PfCockpitPanelHeader
@@ -145,64 +137,20 @@ export function CapitalYield({
           titleVariant="primary"
           trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
         />
-        <div className="cy-body">
-          {/* Ghost donut */}
-          <div className="cy-donut dash-chart-container">
-            <svg className="dash-chart-svg" viewBox="0 0 42 42" aria-hidden="true">
-              <defs>
-                <radialGradient id={ghostBloomId} cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="var(--ct-accent)" stopOpacity="0.14" />
-                  <stop offset="100%" stopColor="var(--ct-accent)" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-              <circle cx="21" cy="21" r="18" fill={`url(#${ghostBloomId})`} />
-              {/* Ghost track */}
-              <circle cx="21" cy="21" r="15.9155" fill="none"
-                stroke="var(--ct-border-soft)" strokeWidth="4.4" strokeDasharray="100 0" />
-              {/* Ghost segments */}
-              {CY_ZERO_STATE.buckets.map((b) => {
-                const dash = `${(b.pct - 0.6).toFixed(2)} ${(100 - b.pct + 0.6).toFixed(2)}`;
-                const dashOffset = -offset;
-                offset += b.pct;
-                return (
-                  <circle key={b.label} cx="21" cy="21" r="15.9155" fill="none"
-                    stroke={b.color} strokeWidth="4.4"
-                    strokeDasharray={dash}
-                    strokeDashoffset={dashOffset.toFixed(2)}
-                    opacity={b.opacity}
-                  />
-                );
-              })}
-            </svg>
-            <div className="donut-center">
-              <span className="donut-pending-label">Awaiting snapshot</span>
-            </div>
-          </div>
-          <div className="cy-spine" aria-hidden />
-
-          {/* Ghost ledger */}
-          <div className="cy-ledger">
-            <p className="cy-ledger-head body-xs ct-text-tertiary mono m-0">
-              Indicative yield structure
-            </p>
-            {CY_ZERO_STATE.ledgerRows.map((b) => (
-              <div key={b.label} className="cy-row cy-row--pending">
-                <span className="cy-dot" style={{ background: "var(--ct-border-soft)" }} />
-                <span className="cy-label body-xs ct-text-tertiary">{b.label}</span>
-                <span className="cy-val" style={{ opacity: "var(--ct-opacity-35)" }}>{b.apy}</span>
-                <div className="cy-track cy-track--pending" style={{ gridColumn: "1 / -1" }}>
-                  <div className="cy-fill" style={{
-                    width: `${b.w}%`,
-                    background: `color-mix(in srgb, var(--ct-accent) 20%, var(--ct-border-soft))`,
-                  }} />
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* Empty-state only — no ghost donut/ledger (a faux allocation chart next
+           to "no data yet" reads as two conflicting signals). Same register as
+           the Positions and Recent Activity empty states. */}
+        <div className="cy-embedded-empty">
+          <p className="cy-ledger-head body-xs ct-text-tertiary mono m-0">
+            Indicative target APY band
+          </p>
+          <p className="tabular font-semibold ct-text-primary m-0">
+            {formatApyRange(CY_ZERO_STATE.targetApyRange, 1, { spaced: true })}
+          </p>
+          <p className="body-xs ct-text-muted m-0">
+            Live allocation unlocks after your first confirmed on-chain position.
+          </p>
         </div>
-        <p className="cy-panel__empty-copy body-xs ct-text-tertiary m-0" role="status">
-          Live allocation unlocks after your first confirmed on-chain position.
-        </p>
       </PfCockpitPanel>
     );
   }
