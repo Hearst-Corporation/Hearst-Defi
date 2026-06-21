@@ -22,11 +22,14 @@ const UNLOCKS = [
   },
 ] as const;
 
-/** Compact cold proof center — primary CTA + secondary unlock list (no fake charts). */
+/** Compact cold proof center — primary CTA + secondary unlock list (no fake charts).
+ *  The "Explore products" CTA is investor-only; the operator (admin) view omits it. */
 export function ProofCenterColdShell({
   chainConfigured,
+  variant = "product",
 }: {
   chainConfigured: boolean;
+  variant?: "product" | "admin";
 }) {
   return (
     <div
@@ -43,12 +46,14 @@ export function ProofCenterColdShell({
               : "On-chain proof modules activate after deployment. Off-chain documents publish as operations posts them."}
           </p>
         </div>
-        <Link
-          href={PORTFOLIO_ONBOARDING_INVEST_HREF}
-          className="proof-center-cold__cta proof-cold-cta ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover ct-transition-base ct-focus-ring ct-press no-underline"
-        >
-          Explore products
-        </Link>
+        {variant === "product" ? (
+          <Link
+            href={PORTFOLIO_ONBOARDING_INVEST_HREF}
+            className="proof-center-cold__cta proof-cold-cta ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover ct-transition-base ct-focus-ring ct-press no-underline"
+          >
+            Explore products
+          </Link>
+        ) : null}
       </Card>
 
       <Card hoverOverlay={false} contentClassName="proof-cold-card proof-cold-card--list">

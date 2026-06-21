@@ -138,7 +138,7 @@ export function ProofCenterHub({
 
       {coldEmpty ? (
         <>
-          <ProofCenterColdShell chainConfigured={chainConfigured} />
+          <ProofCenterColdShell chainConfigured={chainConfigured} variant={variant} />
           <ProofCenterSection
             id="contracts-heading"
             title="Contracts & review trail"

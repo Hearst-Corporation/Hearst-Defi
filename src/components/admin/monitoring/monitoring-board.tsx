@@ -20,22 +20,6 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
 
   return (
     <div className="admin-doc-stack">
-      <div className="admin-doc-kpi-grid-4">
-        <KpiTile label="Total Runs" value={stats.totalRuns.toString()} />
-        <KpiTile
-          label="Success Rate"
-          value={`${Math.round((stats.successfulRuns / stats.totalRuns) * 100)}%`}
-        />
-        <KpiTile label="Total Cost" value={`$${stats.totalCostUsd.toFixed(4)}`} />
-        <KpiTile label="Avg Latency" value={`${stats.avgLatencyMs}ms`} />
-        {stats.complianceBlockedRuns > 0 ? (
-          <KpiTile
-            label="Chat compliance blocked"
-            value={stats.complianceBlockedRuns.toString()}
-          />
-        ) : null}
-      </div>
-
       <section>
         <DashboardPanelHeader title="Run volume by agent" tone="quiet" className="mb-[var(--ct-space-4)]" />
         <MonitoringTable
@@ -206,15 +190,6 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
         </MonitoringTable>
       </section>
     </div>
-  );
-}
-
-function KpiTile({ label, value }: { label: string; value: string }) {
-  return (
-    <Card>
-      <p className="stat-label ct-text-muted mb-[var(--ct-space-1)]">{label}</p>
-      <p className="stat-value ct-text-strong tabular">{value}</p>
-    </Card>
   );
 }
 

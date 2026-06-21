@@ -25,7 +25,7 @@ interface MonitoringKpiInput {
 export function buildMonitoringKpiStrip(
   input: MonitoringKpiInput,
 ): HeroKpi[] {
-  const { totalRuns, failedRuns, complianceBlockedRuns, totalCostUsd, lastRunAt } = input;
+  const { totalRuns, failedRuns, complianceBlockedRuns, totalCostUsd, avgLatencyMs, lastRunAt } = input;
 
   if (totalRuns === 0) return [];
 
@@ -60,6 +60,13 @@ export function buildMonitoringKpiStrip(
       alert: false,
     });
   }
+
+  kpis.push({
+    label: "Avg latency",
+    value: `${avgLatencyMs}ms`,
+    sublabel: "per agent run",
+    provenance: "estimated",
+  });
 
   if (totalCostUsd > 0) {
     kpis.push({
