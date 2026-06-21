@@ -259,7 +259,7 @@ code,
 .app-footer {
   --app-footer-h: 2.5rem;
   flex: 0 0 auto;
-  background-color: #080808;
+  background-color: var(--ct-bg-black);
   background-image: radial-gradient(
     120% 140% at 50% -40%,
     color-mix(in srgb, var(--ct-accent) 5%, transparent) 0%,

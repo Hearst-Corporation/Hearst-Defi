@@ -16,6 +16,9 @@
      --ct-shadow-depth, --ct-dur-base. (bg-deep / accent / accent-soft / ease
      sont au contraire la source UNIQUE — cockpit.css ne les redéfinit plus.) */
   --ct-bg-deep: #0E0F0F;
+  /* Plinth black — a hair darker than --ct-bg-deep, used by the footer base
+     to extinguish ambient glow at the bottom edge. Intentionally below any surface. */
+  --ct-bg-black: #080808;
   /* --ct-accent = couleur du produit actif (pilotée par ThemeAccent).
      Les autres accents en dérivent → tout le chrome se recolore d'un coup. */
   --ct-accent: #A7FB90;

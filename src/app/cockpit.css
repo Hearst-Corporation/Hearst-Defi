@@ -191,6 +191,8 @@
   --ct-glass-radius: 1.25rem; /* 20px — density calibration (était 28px) */
   /* Quiet glass: gentle blur, no saturate punch — the glossy look is gone. */
   --ct-glass-blur: blur(20px) saturate(100%);
+  /* #fff / #0d0e10 below are color-mix endpoints (mix ratios, not surface colors) —
+     the standard idiom; no token for a pure-white / pure-shade mixer. OK as-is. */
   --ct-glass-border: color-mix(in srgb, #fff 9%, transparent);
   /* Faint inner top rim + soft drop — depth without a glossy sheen. */
   --ct-glass-rim: inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
@@ -263,6 +265,7 @@
   --ct-space-2: 0.5rem;     /* 8px */
   --ct-space-2_5: 0.625rem; /* 10px */
   --ct-space-3: 0.75rem;    /* 12px */
+  --ct-space-3_5: 0.875rem; /* 14px */
   --ct-space-4: 1rem;       /* 16px */
   /* Spacing scale — global density calibration (~15% tighter on layout tiers). */
   --ct-space-5: 1.125rem;   /* 18px */
@@ -3877,7 +3880,8 @@ button.ct-choice-card {
      propres éléments via @layer en dev ; il s'appliquera là où la cascade le
      permet). */
   /* Dark shell : rail = presque noir, un cran SOUS le fond global (--ct-bg-deep)
-     pour asseoir la hiérarchie (rail < shell < centre < panels). Liseré clair. */
+     pour asseoir la hiérarchie (rail < shell < centre < panels). Liseré clair.
+     #000 = endpoint de mélange color-mix (ratio d'assombrissement) — idiome OK. */
   background: color-mix(in srgb, var(--ct-bg-deep) 55%, #000) !important;
   border-right: 1px solid var(--ct-border-on-dark);
   /* Rail verrouillé en position fermée — largeur fixe, jamais déployé. */
@@ -3892,7 +3896,8 @@ button.ct-choice-card {
      que le rail gauche. L'effet repose sur ce background translucide (le blur
      est best-effort, cf. note rail gauche). */
   /* Dark shell : chat = presque noir, cohérent avec le rail gauche (un cran
-     sous le fond global). Liseré clair pour le relief. */
+     sous le fond global). Liseré clair pour le relief.
+     #000 = endpoint de mélange color-mix (ratio d'assombrissement) — idiome OK. */
   background: color-mix(in srgb, var(--ct-bg-deep) 55%, #000) !important;
   border-left: 1px solid var(--ct-border-on-dark);
   flex-shrink: 0;
@@ -4498,7 +4503,7 @@ button.ct-choice-card {
   pointer-events: none;
   cursor: default;
 }
-.ct-rail-list                              { padding: 6px 0; }
+.ct-rail-list                              { padding: var(--ct-space-1_5) 0; }
 .ct-rail-row                               { padding: clamp(10px, 1.3vh, 16px) 14px; }
 
 /* Logout hero */
@@ -4511,7 +4516,7 @@ button.ct-choice-card {
 .ct-hub-bar-seg                            { padding: var(--ct-space-1_5) var(--ct-space-4); } /* 14px → nearest scale token (16px) */
 
 /* Master FAB */
-.ct-master-fab                             { padding: 10px 18px; }
+.ct-master-fab                             { padding: var(--ct-space-2_5) var(--ct-space-5); }
 
 /* Centre — page area & embed (global density calibration)
    Contrat shell authentifié : colonne flex, main scroll, footer pin. */
@@ -4618,7 +4623,7 @@ button.ct-choice-card {
 }
 .ct-embed-overlay                          { padding: var(--ct-space-6); }
 .ct-embed-sub code                         { padding: 1px 6px; }
-.ct-embed-btn                              { padding: 9px 18px; }
+.ct-embed-btn                              { padding: var(--ct-space-2_5) var(--ct-space-5); } /* 10px≈9px vertical — token-snapped */
 
 /* Rail droit — header & body (density calibration) */
 .ct-rail-right-header                      { padding: var(--ct-space-4) var(--ct-space-4) var(--ct-space-2); }
@@ -4843,7 +4848,7 @@ button.ct-choice-card {
 }
 
 .ct-chat-input {
-  padding: 6px 0;
+  padding: var(--ct-space-1_5) 0;
   outline: none !important;
   background: transparent !important;
   border: none !important;
@@ -4852,12 +4857,12 @@ button.ct-choice-card {
   outline: none !important;
 }
 
-.ct-chat-thinking                          { padding-left: 14px; }
+.ct-chat-thinking                          { padding-left: var(--ct-space-3_5); }
 
 /* Chat settings */
-.ct-chat-settings                          { padding: 4px 2px; }
-.ct-chat-settings-section                  { padding: 16px 0; }
-.ct-chat-settings-product                  { padding: 10px 12px; }
+.ct-chat-settings                          { padding: var(--ct-space-1) var(--ct-space-0_5); }
+.ct-chat-settings-section                  { padding: var(--ct-space-4) 0; }
+.ct-chat-settings-product                  { padding: var(--ct-space-2_5) var(--ct-space-3); }
 .ct-chat-settings-label {
   margin-bottom: var(--ct-space-2);
   color: var(--ct-text-muted);
@@ -4902,8 +4907,8 @@ button.ct-choice-card {
 }
 
 /* Chat history */
-.ct-chat-history                           { padding: 4px 2px; }
-.ct-chat-history-actions                   { padding-bottom: 8px; }
+.ct-chat-history                           { padding: var(--ct-space-1) var(--ct-space-0_5); }
+.ct-chat-history-actions                   { padding-bottom: var(--ct-space-2); }
 /* Le package pose color:var(--ct-text-strong) (blanc) sur background:var(--ct-accent).
    Avec l'accent vert clair (#A7FB90) le texte blanc est illisible → texte noir.
    Le package fixe aussi border-radius:10px ; on l'aligne sur --ct-radius-full
@@ -5157,7 +5162,7 @@ button.ct-choice-card {
 
 @media (max-width: 767px) {
   .ct-root { --ct-rail-left: 4rem; } /* 64px — icon-only rail compact */
-  .ct-page-area    { padding-left: 16px; padding-right: 16px; }
+  .ct-page-area    { padding-left: var(--ct-space-4); padding-right: var(--ct-space-4); }
 }
 
 /* ── DEBUG / PORTFOLIO FULL — KPI card glass pattern ────────────────────────
@@ -5787,7 +5792,7 @@ button.ct-choice-card {
     flex-direction: row !important;
     align-items: center !important;
     justify-content: space-around !important;
-    padding: 4px 8px !important;
+    padding: var(--ct-space-1) var(--ct-space-2) !important;
     background: color-mix(in srgb, var(--ct-bg-deep) 92%, transparent) !important;
     border-top: 1px solid var(--ct-border-soft) !important;
     z-index: 2147483646 !important; /* escape: vendored chrome — max-int "above everything" mobile nav, no scale tier */
@@ -5798,7 +5803,7 @@ button.ct-choice-card {
     width: 100% !important;
     min-height: 0 !important;
     justify-content: space-around !important;
-    gap: 4px !important;
+    gap: var(--ct-space-1) !important;
     padding: 0 !important;
   }
 
@@ -5813,6 +5818,8 @@ button.ct-choice-card {
   /* Reserve bottom intra rail only — the legal footer now lives OUTSIDE page-area
      (sibling of panels-row at .ct-root), so page-area no longer compensates for it. */
   .ct-page-area {
+    /* 72px = bottom intra-rail safe-area clearance — no exact space token
+       (--ct-space-20 is 80px, would over-reserve 8px). Kept literal on purpose. */
     padding-bottom: 72px !important;
   }
 
