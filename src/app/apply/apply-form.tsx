@@ -24,7 +24,9 @@ import {
   YIELD_TYPE_OPTIONS,
 } from "@/lib/qualification/options";
 
-import { ApplyAssistantPanel } from "./apply-assistant-panel";
+import type { IrContact } from "@/lib/ir-contact";
+
+import { ApplyAside } from "./apply-assistant-panel";
 import { submitApplication } from "./actions";
 
 type Step = "about" | "platform" | "sizing";
@@ -57,7 +59,7 @@ function StepHeading({
   );
 }
 
-export function ApplyForm() {
+export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [step, setStep] = useState<Step>("about");
@@ -124,7 +126,7 @@ export function ApplyForm() {
   return (
     <OnboardingChamber
       testId="apply-qualification"
-      aside={<ApplyAssistantPanel step={step} />}
+      aside={<ApplyAside irContact={irContact} />}
       crown={
         <div className="product-doc-stack onboarding-shell__stepper text-left">
           <WizardStepProgress

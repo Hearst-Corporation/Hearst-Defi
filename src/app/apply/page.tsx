@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { getIrContact } from "@/lib/ir-contact";
 import { ApplyForm } from "./apply-form";
 
 export const metadata: Metadata = {
@@ -10,5 +11,6 @@ export const metadata: Metadata = {
 };
 
 export default function ApplyPage() {
-  return <ApplyForm />;
+  const irContact = getIrContact();
+  return <ApplyForm irContact={irContact} />;
 }
