@@ -33,9 +33,9 @@ export function OutreachStatsCards({ stats }: { stats: OutreachStats }) {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-[var(--ct-space-3)] sm:grid-cols-3 lg:grid-cols-5">
+    <div className="admin-stat-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
       {items.map((item) => (
-        <Card key={item.label} className="p-[var(--ct-space-4)]" hoverOverlay={false}>
+        <Card key={item.label} className="admin-card--tight" hoverOverlay={false}>
           <p className="stat-label">{item.label}</p>
           <p className="mt-1 stat-value tabular-nums ct-text-strong">{item.value}</p>
         </Card>

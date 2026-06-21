@@ -119,7 +119,7 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
 
   return (
     <>
-      <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
+      <Card className="admin-card" hoverOverlay={false}>
         <div className="admin-doc-stack admin-doc-stack--actions">
           <div className="admin-doc-row-spread">
             <div className="admin-doc-stack admin-doc-stack--micro">
@@ -216,7 +216,7 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
             style={{ minHeight: "340px" }}
           />
         </div>
-        <p className="body-xs ct-text-muted mt-[var(--ct-space-3)]">
+        <p className="body-xs ct-text-muted admin-note-spaced">
           Read-only preview. Actual send uses the same HTML shell via Resend.
         </p>
       </Modal>

@@ -77,10 +77,10 @@ export function AgentTemplateForm({
     >
       {/* Selected base agent — echoes the catalog card you arrived from. */}
       {entry && (
-        <div className="admin-doc-inline-row admin-doc-inline-row--start rounded-[var(--ct-radius-md)] border border-(--ct-border-soft) p-[var(--ct-space-4)]">
+        <div className="admin-doc-inline-row admin-doc-inline-row--start admin-inset-panel--md border border-(--ct-border-soft)">
           <span
             aria-hidden
-            className="flex size-12 shrink-0 items-center justify-center rounded-[var(--ct-radius-md)] border border-(--ct-border-accent) bg-(--ct-accent-soft) ct-text-accent"
+            className="admin-inset-chip flex size-12 shrink-0 items-center justify-center border border-(--ct-border-accent) bg-(--ct-accent-soft) ct-text-accent"
           >
             <Icon className="size-6" strokeWidth={1.75} />
           </span>
@@ -126,7 +126,7 @@ export function AgentTemplateForm({
             placeholder="Institutional LP"
             className="ct-input"
           />
-          <span className="mt-[var(--ct-space-1)] block body-xs ct-text-muted">
+          <span className="admin-field-hint block body-xs ct-text-muted">
             2–80 characters. Used to generate the slug.
           </span>
         </label>
@@ -269,7 +269,7 @@ export function AgentTemplateForm({
           />
           <span
             aria-live="polite"
-            className={`mt-[var(--ct-space-1)] block text-right body-xs ${
+            className={`admin-field-hint block text-right body-xs ${
               systemOver ? "ct-status-danger" : "ct-text-muted"
             }`}
           >

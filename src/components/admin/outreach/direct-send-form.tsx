@@ -127,7 +127,7 @@ export function DirectSendForm() {
             className="ct-input"
           />
         </label>
-        <div className="admin-doc-inline-row flex-wrap gap-[var(--ct-space-2)]">
+        <div className="admin-doc-inline-row admin-form-row flex-wrap">
           <Button type="submit" variant="primary" size="md" disabled={isSending || !to || !subject || !body}>
             {isSending ? "Sending…" : "Send now"}
           </Button>

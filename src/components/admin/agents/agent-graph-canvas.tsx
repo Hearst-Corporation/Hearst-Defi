@@ -309,7 +309,7 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
       <div
         role="tablist"
         aria-label="Agent graph views"
-        className="flex flex-wrap gap-[var(--ct-space-2)]"
+        className="admin-graph-tablist flex flex-wrap"
       >
         {views.map((v) => {
           const isActive = v.id === activeViewId;
@@ -321,7 +321,7 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
               aria-selected={isActive}
               onClick={() => setActiveViewId(v.id)}
               className={cn(
-                "rounded-full border px-[var(--ct-space-3)] py-[var(--ct-space-1)] body-xs ct-transition-base",
+                "admin-graph-tab rounded-full border body-xs ct-transition-base",
                 isActive
                   ? "border-(--ct-border-accent) bg-(--ct-accent-soft) ct-text-accent"
                   : "border-(--ct-border-soft) ct-text-muted hover:ct-text-strong",
@@ -337,7 +337,7 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
         <p className="body-xs ct-text-muted">{activeView.description}</p>
       )}
 
-      <div className="grid gap-[var(--ct-space-4)] lg:grid-cols-[1fr_300px]">
+      <div className="admin-graph-split grid">
         <canvas
           ref={canvasRef}
           onClick={onCanvasClick}
@@ -361,7 +361,7 @@ function RuntimePanel({
 }) {
   if (!node) {
     return (
-      <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1 p-[var(--ct-space-4)] body-xs ct-text-muted">
+      <div className="admin-inset-panel border border-(--ct-border-soft) ct-surface-1 body-xs ct-text-muted">
         Click a node to see its provenance + runtime (recent runs, latency, cost,
         errors).
       </div>
@@ -369,7 +369,7 @@ function RuntimePanel({
   }
   const isLive = node.bindingKind !== "static";
   return (
-    <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1 p-[var(--ct-space-4)] admin-doc-stack admin-doc-stack--tight">
+    <div className="admin-inset-panel border border-(--ct-border-soft) ct-surface-1 admin-doc-stack admin-doc-stack--tight">
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="body-sm ct-text-strong m-0">{node.label}</p>

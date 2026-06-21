@@ -1,0 +1,129 @@
+/* =============================================================================
+   admin-crm.css — Admin CRM / Outreach / Agents / Feedback (page-scoped)
+
+   Propagates the Portfolio DS canon to the admin CRM surfaces: ZERO inline
+   styling in the JSX. Every recurring spacing / radius / opacity pattern lives
+   here as a semantic class, 100% var(--ct-*).
+
+   EDITING RULES (mirror of portfolio.css):
+   - COLORS / SURFACES: var(--ct-*) only. No raw hex/rgb.
+   - SPACING: var(--ct-space-*) only.
+   - RADIUS / OPACITY / TYPOGRAPHY: tokens only (--ct-radius-*, --ct-opacity-*,
+     --ct-text-*).
+   - Dark mode only. No `dark:` modifiers. No tailwind.config.
+
+   These classes are scoped under .admin-doc (the admin shell wrapper) so they
+   never leak into the product cockpit. They are REUSABLE across the four CRM
+   domains — pick the smallest class that matches the intent.
+   ============================================================================= */
+
+/* =============================================================================
+   1. CARD PADDING — recurring p-[var(--ct-space-N)] on <Card>
+
+   NB: on a <Card> (.ct-card), the unlayered `.admin-doc .ct-card:not(.p-0)`
+   rule (cockpit.css) sets padding to --ct-space-5 and wins on specificity, so
+   these classes resolve to the admin card tier just as the old inline
+   p-[var(--ct-space-N)] utilities did (Tailwind utilities also lost to that
+   unlayered rule). They stay as semantic intent markers + the canonical value.
+   ============================================================================= */
+
+.admin-doc .admin-card {
+  padding: var(--ct-space-6);
+}
+
+.admin-doc .admin-card--snug {
+  padding: var(--ct-space-5);
+}
+
+.admin-doc .admin-card--tight {
+  padding: var(--ct-space-4);
+}
+
+/* =============================================================================
+   2. INLINE FORM ROWS — gap-[var(--ct-space-2)] wrapped action rows
+   ============================================================================= */
+
+.admin-doc .admin-form-row {
+  gap: var(--ct-space-2);
+}
+
+/* =============================================================================
+   3. GRIDS — stat strips + graph split
+   ============================================================================= */
+
+.admin-doc .admin-stat-grid {
+  gap: var(--ct-space-3);
+}
+
+.admin-doc .admin-graph-split {
+  gap: var(--ct-space-4);
+}
+
+@media (min-width: 1024px) {
+  .admin-doc .admin-graph-split {
+    grid-template-columns: 1fr 300px;
+  }
+}
+
+/* =============================================================================
+   4. PANELS — bordered runtime / base-agent insets
+   ============================================================================= */
+
+.admin-doc .admin-inset-panel {
+  border-radius: var(--ct-radius-lg);
+  padding: var(--ct-space-4);
+}
+
+.admin-doc .admin-inset-panel--md {
+  border-radius: var(--ct-radius-md);
+  padding: var(--ct-space-4);
+}
+
+.admin-doc .admin-inset-chip {
+  border-radius: var(--ct-radius-md);
+}
+
+/* =============================================================================
+   5. GRAPH VIEW TABS + dense meta labels
+   ============================================================================= */
+
+.admin-doc .admin-graph-tablist {
+  gap: var(--ct-space-2);
+}
+
+.admin-doc .admin-graph-tab {
+  padding-inline: var(--ct-space-3);
+  padding-block: var(--ct-space-1);
+}
+
+/* =============================================================================
+   6. STACK / ROW SPACING ADJUSTMENTS
+   ============================================================================= */
+
+/* Memory rows: divider padding under each fact. */
+.admin-doc .admin-divider-row {
+  padding-bottom: var(--ct-space-2);
+}
+
+/* Caption / hint under a form field. */
+.admin-doc .admin-field-hint {
+  margin-top: var(--ct-space-1);
+}
+
+/* Spacer above a trailing note. */
+.admin-doc .admin-note-spaced {
+  margin-top: var(--ct-space-3);
+}
+
+/* Meta line above the feedback body. */
+.admin-doc .admin-meta-spaced {
+  margin-bottom: var(--ct-space-2);
+}
+
+/* =============================================================================
+   7. STATE — resolved feedback card dim
+   ============================================================================= */
+
+.admin-doc .admin-card--resolved {
+  opacity: var(--ct-opacity-60);
+}

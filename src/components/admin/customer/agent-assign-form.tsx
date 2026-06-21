@@ -69,7 +69,7 @@ export function AgentAssignForm({
 
   return (
     <div className="admin-doc-stack admin-doc-stack--actions">
-      <form action={onAssign} className="admin-doc-inline-row flex-wrap gap-[var(--ct-space-2)]" aria-label="Assign template">
+      <form action={onAssign} className="admin-doc-inline-row admin-form-row flex-wrap" aria-label="Assign template">
         <input type="hidden" name="userId" value={userId} />
         <label className="block body-xs grow" htmlFor="assign-template">
           <span className="ct-form-label">Inherited template</span>

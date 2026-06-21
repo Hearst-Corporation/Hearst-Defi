@@ -16,7 +16,7 @@ export function IcpList({ icps }: { icps: IcpRow[] }) {
       {icps.map((icp) => (
         <Card
           key={icp.id}
-          className="p-[var(--ct-space-5)]"
+          className="admin-card--snug"
           hoverOverlay={false}
         >
           <div className="admin-doc-inline-row admin-doc-inline-row--between">
