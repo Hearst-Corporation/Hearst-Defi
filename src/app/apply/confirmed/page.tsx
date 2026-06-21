@@ -4,6 +4,7 @@ import {
   OnboardingChamber,
   OnboardingChamberSole,
 } from "@/components/onboarding/onboarding-chamber";
+import { getIrContact } from "@/lib/ir-contact";
 
 export const metadata: Metadata = {
   title: "Application received — Hearst Connect",
@@ -11,6 +12,8 @@ export const metadata: Metadata = {
 };
 
 export default function ConfirmedPage() {
+  const irContact = getIrContact();
+
   return (
     <OnboardingChamber
       testId="apply-confirmed"
@@ -34,17 +37,18 @@ export default function ConfirmedPage() {
             ✓
           </div>
           <div className="product-doc-stack--tight">
-            <h2 className="h2 m-0">Next steps</h2>
+            <h2 className="h2 m-0">What to expect</h2>
             <p className="body-sm ct-text-muted m-0 text-pretty">
-              We will confirm fit, complete internal review, and follow up directly
-              if we need anything else before provisioning access.
+              Watch your inbox for the login link — it arrives from our team and
+              opens your cockpit directly. Have a question in the meantime? Reach
+              out to Investor Relations any time.
             </p>
           </div>
         </div>
       }
       sole={
         <OnboardingChamberSole
-          irContact={null}
+          irContact={irContact}
           compliance={
             <>Institutional USDC yield. For qualified investors only. Cayman SPV structure.</>
           }
