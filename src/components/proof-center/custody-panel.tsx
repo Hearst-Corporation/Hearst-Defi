@@ -29,7 +29,7 @@ const CUSTODY_EMPTY = {
 function CustodyStaleNote({ custody }: { custody: CustodySnapshot }) {
   if (custodyProvenance(custody) !== "stale") return null;
   return (
-    <p className="mt-[var(--ct-space-3)] body-xs ct-status-warning">
+    <p className="proof-note body-xs ct-status-warning">
       {custody.provenance === "live" && !custody.configured
         ? "Reserve scope is not yet configured by operations — badge shows Stale."
         : "Custody snapshot is unverified or older than 24h — badge shows Stale."}
@@ -79,12 +79,12 @@ function CustodyCard({ custody }: { custody: CustodySnapshot }) {
 
 function CustodyBlock({ custody }: { custody: CustodySnapshot }) {
   return (
-    <div className={cn(sectionDividerClass, "pt-[var(--ct-space-8)]")}>
+    <div className={cn(sectionDividerClass, "proof-article-separated")}>
       <DashboardPanelHeader
         title="Custody (Fireblocks)"
         provenance={custodyProvenance(custody)}
         tone="quiet"
-        className="mb-[var(--ct-space-4)]"
+        className="proof-custody-block-header"
       />
       <CustodyKpis custody={custody} />
     </div>
@@ -105,7 +105,7 @@ export function CustodySection({
 
   if (nested) {
     return (
-      <div className={cn(sectionDividerClass, "pt-[var(--ct-space-8)]")}>
+      <div className={cn(sectionDividerClass, "proof-article-separated")}>
         <PanelStatus {...CUSTODY_EMPTY} />
       </div>
     );

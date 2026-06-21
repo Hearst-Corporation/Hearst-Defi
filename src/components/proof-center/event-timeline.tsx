@@ -60,12 +60,12 @@ function eventTimelineCardTitle(
 }
 
 function eventDotClass(kind: EventKind): string {
-  if (kind === "GuardrailBreach") return "bg-[var(--ct-status-danger)]";
-  if (kind === "Distribution") return "bg-[var(--ct-status-success)]";
-  if (kind === "TriggerArmed") return "bg-[var(--ct-status-warning)]";
-  if (kind === "AttestationPublished") return "bg-[var(--ct-status-success)]";
-  if (kind === "ModeChange") return "bg-[var(--ct-text-faint)]";
-  return "bg-[var(--ct-status-info)]";
+  if (kind === "GuardrailBreach") return "proof-dot--danger";
+  if (kind === "Distribution") return "proof-dot--success";
+  if (kind === "TriggerArmed") return "proof-dot--warning";
+  if (kind === "AttestationPublished") return "proof-dot--success";
+  if (kind === "ModeChange") return "proof-dot--neutral";
+  return "proof-dot--info";
 }
 
 function EventTimelineItem({
@@ -84,10 +84,7 @@ function EventTimelineItem({
     >
       <div className="relative mt-1 flex h-7 w-7 shrink-0 items-center justify-center">
         <span
-          className={cn(
-            "h-3 w-3 rounded-full border-2 border-[var(--ct-surface-2)]",
-            eventDotClass(event.kind),
-          )}
+          className={cn("proof-dot", eventDotClass(event.kind))}
         />
       </div>
 

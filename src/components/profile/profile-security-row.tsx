@@ -16,19 +16,19 @@ export function ProfileSecurityRow({
   return (
     <div
       role="listitem"
-      className="product-doc-inline-row product-doc-inline-row--start product-doc-inline-row--loose py-2.5"
+      className="product-doc-inline-row product-doc-inline-row--start product-doc-inline-row--loose prof-security-row"
     >
       <span
         aria-hidden
         className={cn(
-          "mt-1.5 h-2 w-2 shrink-0 rounded-full",
+          "prof-security-row__dot",
           status === "ok" && "ct-status-dot-success",
           status === "warn" && "ct-status-dot-warning",
-          status === "off" && "bg-(--ct-text-faint)",
+          status === "off" && "prof-security-row__dot--off",
         )}
       />
-      <div className="pf-inline-row pf-inline-row--between min-w-0 flex-1 gap-[var(--ct-space-3)]">
-        <div className="min-w-0 flex flex-col gap-0.5">
+      <div className="pf-inline-row pf-inline-row--between prof-security-row__body">
+        <div className="prof-security-row__copy">
           <span className="body-sm font-medium ct-text-primary">{title}</span>
           <span className="body-xs ct-text-muted">{description}</span>
         </div>

@@ -97,7 +97,7 @@ export function AccreditationAttestationFields({
         className="border-none p-0 m-0"
         aria-label="Accreditation attestations"
       >
-        <legend className="eyebrow ct-text-muted mb-[var(--ct-space-4)]">
+        <legend className="eyebrow ct-text-muted onb-attest-legend">
           Please confirm all three attestations to proceed
         </legend>
 

@@ -107,9 +107,9 @@ function PlatformAddressRow({
   separated: boolean;
 }) {
   return (
-    <article className={cn(separated && cn(sectionDividerClass, "pt-[var(--ct-space-8)]"))}>
-      <h4 className="h4 mb-[var(--ct-space-2)]">{entry.label}</h4>
-      <p className="body-sm mb-[var(--ct-space-4)]">{entry.description}</p>
+    <article className={cn(separated && cn(sectionDividerClass, "proof-article-separated"))}>
+      <h4 className="h4 proof-article-title">{entry.label}</h4>
+      <p className="body-sm proof-article-lede">{entry.description}</p>
       <ProofRow label={entry.rowLabel ?? "Address"}>
         {entry.address ? (
           entry.href ? (
@@ -141,9 +141,9 @@ function DeployedContractCard({
   separated: boolean;
 }) {
   return (
-    <article className={cn(separated && cn(sectionDividerClass, "pt-[var(--ct-space-8)]"))}>
-      <h4 className="h4 mb-[var(--ct-space-2)]">{contract.name}</h4>
-      <p className="body-sm mb-[var(--ct-space-4)]">{contract.description}</p>
+    <article className={cn(separated && cn(sectionDividerClass, "proof-article-separated"))}>
+      <h4 className="h4 proof-article-title">{contract.name}</h4>
+      <p className="body-sm proof-article-lede">{contract.description}</p>
 
       <ProofRow label="Contract address">
         <a
@@ -170,7 +170,7 @@ function DeployedContractCard({
       <ProofRow label="Deploy block">{contract.deployBlock}</ProofRow>
       <ProofRow label="Network">Test network (chain id 84532)</ProofRow>
 
-      <div className="mt-[var(--ct-space-4)] product-doc-inline-row">
+      <div className="proof-actions-row product-doc-inline-row">
         <Badge variant={contract.sourceVerified ? "success" : "warning"}>
           {contract.sourceVerified
             ? "Source-verified @ commit"
@@ -248,7 +248,7 @@ export function ContractsAuditTrail({
           {AUDIT_ENTRIES.map((entry) => (
             <li
               key={entry.label}
-              className="product-doc-section__head py-[var(--ct-space-4)] first:pt-0 last:pb-0"
+              className="product-doc-section__head proof-list-row"
             >
               <div className="product-doc-stack--compact">
                 <span className="body-sm font-medium ct-text-primary">{entry.label}</span>
@@ -268,7 +268,7 @@ export function ContractsAuditTrail({
           ))}
         </ul>
 
-        <div className="admin-doc-stack admin-doc-stack--tight mt-[var(--ct-space-6)] border-t border-(--ct-border-soft) pt-[var(--ct-space-4)]">
+        <div className="admin-doc-stack admin-doc-stack--tight proof-release-gate">
           <p className="stat-label m-0">Release gate</p>
           <p className="body-xs ct-text-muted m-0">
             Production (mainnet) deployment requires completion of an

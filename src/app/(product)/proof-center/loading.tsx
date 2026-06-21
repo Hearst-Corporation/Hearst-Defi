@@ -23,13 +23,13 @@ export default function ProofCenterLoading() {
       <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-top">
         <div className="dashboard-cockpit-cell">
           <div className="dashboard-cockpit-panel">
-            <Skeleton className="h-5 w-40 mb-[var(--ct-space-3)]" variant="text" />
+            <Skeleton className="h-5 w-40 proof-skeleton-title" variant="text" />
             <SkeletonCard />
           </div>
         </div>
         <div className="dashboard-cockpit-cell">
           <div className="dashboard-cockpit-panel">
-            <Skeleton className="h-5 w-48 mb-[var(--ct-space-3)]" variant="text" />
+            <Skeleton className="h-5 w-48 proof-skeleton-title" variant="text" />
             <SkeletonCard />
           </div>
         </div>
@@ -38,13 +38,13 @@ export default function ProofCenterLoading() {
       <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-bot">
         <div className="dashboard-cockpit-cell">
           <div className="dashboard-cockpit-panel">
-            <Skeleton className="h-5 w-44 mb-[var(--ct-space-3)]" variant="text" />
+            <Skeleton className="h-5 w-44 proof-skeleton-title" variant="text" />
             <SkeletonCard />
           </div>
         </div>
         <div className="dashboard-cockpit-cell">
           <div className="dashboard-cockpit-panel">
-            <Skeleton className="h-5 w-40 mb-[var(--ct-space-3)]" variant="text" />
+            <Skeleton className="h-5 w-40 proof-skeleton-title" variant="text" />
             <SkeletonCard />
           </div>
         </div>

@@ -67,6 +67,70 @@
   margin-top: var(--ct-space-4);
 }
 
+/* Empty investment-summary CTA — sits below the empty-surface copy */
+.prof-summary-cta {
+  margin-top: var(--ct-space-2);
+}
+
+/* ── Loading skeleton dimensions (profile/loading.tsx) ──
+   Heights map to space tokens; placeholder widths with no exact token stay as
+   rem geometry (same idiom as portfolio .pf-skeleton-* classes). */
+.prof-skel-avatar {
+  width: var(--ct-space-16);
+  height: var(--ct-space-16);
+}
+
+.prof-skel-eyebrow {
+  height: var(--ct-space-3);
+  width: 7rem;
+}
+
+.prof-skel-title {
+  height: var(--ct-space-9);
+  width: 12rem;
+}
+
+.prof-skel-sub {
+  height: var(--ct-space-4);
+  width: 14rem;
+}
+
+.prof-skel-badge {
+  height: var(--ct-space-11);
+  width: var(--ct-space-20);
+  border-radius: var(--ct-radius-full);
+}
+
+/* ── Security row (profile-security-row.tsx) ── */
+.prof-security-row {
+  padding-block: var(--ct-space-2_5);
+}
+
+.prof-security-row__dot {
+  margin-top: var(--ct-space-1_5);
+  width: var(--ct-space-2);
+  height: var(--ct-space-2);
+  flex-shrink: 0;
+  border-radius: var(--ct-radius-full);
+}
+
+.prof-security-row__dot--off {
+  background: var(--ct-text-faint);
+}
+
+.prof-security-row__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: var(--ct-space-3);
+}
+
+.prof-security-row__copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+  min-width: 0;
+}
+
 @container product-doc (max-width: 40rem) {
   [data-testid="profile-page"] .pf-inline-row--between {
     flex-wrap: wrap;

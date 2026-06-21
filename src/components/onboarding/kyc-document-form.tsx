@@ -169,7 +169,7 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
             aria-labelledby="kyc-file-label"
             className="sr-only"
           />
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-(--ct-space-3)">
             <Button
               type="button"
               variant="secondary"
@@ -189,7 +189,7 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
               {fileName ?? "No file selected"}
             </span>
           </div>
-          <p className="body-xs ct-text-faint m-0 mt-[var(--ct-space-1)]">
+          <p className="body-xs ct-text-faint m-0 onb-kyc-file-hint">
             JPEG, PNG or PDF · max 10 MB. Document only — no selfie required.
           </p>
         </div>

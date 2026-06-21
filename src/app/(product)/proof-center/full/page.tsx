@@ -74,7 +74,7 @@ export default async function ProofCenterFullPage({
 
       <Link
         href="/proof-center"
-        className="inline-flex items-center gap-[var(--ct-space-1_5)] body-sm ct-text-muted no-underline hover:ct-text-primary ct-transition-base self-start"
+        className="proof-back-link body-sm ct-text-muted no-underline hover:ct-text-primary ct-transition-base"
         aria-label="Back to Proof Center"
       >
         <ArrowLeft className="ct-icon-sm" aria-hidden />

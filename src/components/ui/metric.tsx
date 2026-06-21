@@ -68,7 +68,7 @@ export function Metric({
     <Card
       hoverOverlay={false}
       className={cn(
-        "flex flex-col gap-2",
+        "flex flex-col gap-(--ct-space-2)",
         premium && "card-premium group",
         className,
       )}
@@ -77,7 +77,7 @@ export function Metric({
         <div className="absolute inset-0 ct-overlay-accent5 opacity-0 group-hover:opacity-100 ct-transition-opacity-slow pointer-events-none" />
       ) : null}
 
-      <div className="flex items-center justify-between gap-2 relative z-10">
+      <div className="flex items-center justify-between gap-(--ct-space-2) relative z-10">
         {tooltip ? (
           <Tooltip content={tooltip}>
             <span className="stat-label ct-text-muted group-hover:ct-text-body transition-colors ease-[var(--ct-ease)] cursor-help border-b border-dotted border-(--ct-border-soft)">
@@ -92,7 +92,7 @@ export function Metric({
         {provenance ? <ProvenanceBadge kind={provenance} /> : null}
       </div>
 
-      <div className="flex items-baseline gap-1 relative z-10">
+      <div className="flex items-baseline gap-(--ct-space-1) relative z-10">
         <span
           className={cn(
             "stat-value ct-text-strong",
@@ -104,11 +104,11 @@ export function Metric({
       </div>
 
       {(sublabel || trend) && (
-        <div className="flex min-w-0 items-center gap-2 body-xs ct-text-muted relative z-10 pt-1 border-t ct-bc-soft-50">
+        <div className="flex min-w-0 items-center gap-(--ct-space-2) body-xs ct-text-muted relative z-10 pt-(--ct-space-1) border-t ct-bc-soft-50">
           {trend ? (
             <span
               className={cn(
-                "font-medium shrink-0 px-1.5 py-0.5 rounded-sm backdrop-blur-md border",
+                "font-medium shrink-0 px-(--ct-space-1_5) py-(--ct-space-0_5) rounded-sm backdrop-blur-md border",
                 trend.direction === "up" && "ct-status-success-bg ct-status-success ct-bc-success",
                 trend.direction === "down" && "ct-status-danger-bg ct-status-danger ct-bc-danger",
                 trend.direction === "flat" && "ct-surface-1 ct-text-muted ct-bc-base",

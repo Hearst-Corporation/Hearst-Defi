@@ -1,5 +1,62 @@
 /* Onboarding — Institutional Chamber inside ConnectShell (.ct-panels-row bg). */
 
+/* ── Loading skeleton dimensions (onboarding-chamber-loading.tsx) ──
+   Heights map to space tokens; placeholder widths with no exact token stay as
+   rem geometry (same idiom as portfolio .pf-skeleton-* classes). */
+.onb-skel-title {
+  height: var(--ct-space-10);
+}
+
+.onb-skel-eyebrow {
+  height: var(--ct-space-3);
+  width: 10rem;
+}
+
+.onb-skel-heading {
+  height: var(--ct-space-9);
+  width: 16rem;
+}
+
+.onb-skel-line {
+  height: var(--ct-space-4);
+}
+
+.onb-skel-cta {
+  height: 2.75rem;
+}
+
+/* ── KYC document form ── */
+.onb-kyc-file-hint {
+  margin-top: var(--ct-space-1);
+}
+
+/* ── Accreditation attestations ── */
+.onb-attest-legend {
+  margin-bottom: var(--ct-space-4);
+}
+
+/* ── IR / ops contact card avatar ── */
+.onb-ops-avatar {
+  width: var(--ct-space-12);
+  height: var(--ct-space-12);
+  flex-shrink: 0;
+  border-radius: var(--ct-radius-full);
+}
+
+/* ── Wallet connect ── */
+.onb-wallet-badge-dot {
+  display: inline-block;
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
+  border-radius: var(--ct-radius-full);
+  background: currentColor;
+}
+
+.onb-wallet-address {
+  border-radius: var(--ct-radius-sm);
+  padding: var(--ct-space-2) var(--ct-space-4);
+}
+
 .onboarding-shell {
   display: flex;
   flex-direction: column;

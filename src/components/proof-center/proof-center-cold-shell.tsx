@@ -33,7 +33,7 @@ export function ProofCenterColdShell({
       className="proof-center-cold product-doc-stack product-doc-stack--tight"
       data-testid="proof-center-cold-shell"
     >
-      <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-3)]">
+      <Card hoverOverlay={false} contentClassName="proof-cold-card">
         <div className="product-doc-stack product-doc-stack--tight">
           <p className="eyebrow m-0">Status</p>
           <h2 className="h3 m-0">Proof system active — awaiting vault activity</h2>
@@ -45,17 +45,17 @@ export function ProofCenterColdShell({
         </div>
         <Link
           href={PORTFOLIO_ONBOARDING_INVEST_HREF}
-          className="proof-center-cold__cta inline-flex items-center justify-center self-start min-h-[2.75rem] px-[var(--ct-space-5)] py-[var(--ct-space-2_5)] rounded-full font-bold ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover ct-transition-base ct-focus-ring ct-press text-sm no-underline whitespace-nowrap"
+          className="proof-center-cold__cta proof-cold-cta font-bold ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover ct-transition-base ct-focus-ring ct-press text-sm no-underline"
         >
           Subscribe to vault
         </Link>
       </Card>
 
-      <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
+      <Card hoverOverlay={false} contentClassName="proof-cold-card proof-cold-card--list">
         <p className="stat-label m-0">What unlocks when the vault operates</p>
-        <ul className="proof-center-cold__list m-0 p-0 list-none flex flex-col gap-[var(--ct-space-2)]">
+        <ul className="proof-center-cold__list proof-cold-list">
           {UNLOCKS.map((item) => (
-            <li key={item.title} className="flex flex-col gap-[var(--ct-space-0_5)]">
+            <li key={item.title} className="proof-cold-list__item">
               <span className="body-sm ct-text-primary font-semibold">{item.title}</span>
               <span className="body-xs ct-text-muted">{item.detail}</span>
             </li>

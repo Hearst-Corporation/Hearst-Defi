@@ -28,7 +28,7 @@ export function OpsContactCard({
       <div className="product-doc-inline-row product-doc-inline-row--loose">
         <span
           aria-hidden="true"
-          className="inline-flex items-center justify-center w-10 h-10 rounded-full ct-status-success-bg shrink-0 ct-text-accent body-sm font-semibold"
+          className="inline-flex items-center justify-center onb-ops-avatar ct-status-success-bg ct-text-accent body-sm font-semibold"
         >
           {name.charAt(0)}
         </span>

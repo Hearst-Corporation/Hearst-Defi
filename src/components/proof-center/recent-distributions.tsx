@@ -79,7 +79,7 @@ export function RecentDistributions({
           return (
             <li
               key={d.id}
-              className="product-doc-section__head py-[var(--ct-space-4)] first:pt-0 last:pb-0"
+              className="product-doc-section__head proof-list-row"
             >
               <div className="min-w-0 flex-1 product-doc-stack product-doc-stack--compact">
                 <div className="product-doc-inline-row product-doc-inline-row--between">
@@ -88,7 +88,7 @@ export function RecentDistributions({
                   </span>
                   <ProvenanceBadge variant="strip" kind={provenance} />
                 </div>
-                <div className="mt-[var(--ct-space-2)] min-w-0">
+                <div className="proof-row-meta min-w-0">
                   <ProofRow label="Amount">{formatUsdCompact(d.amountUsdc)}</ProofRow>
                   <ProofRow label="Recipients">{d.recipientsCount.toString()}</ProofRow>
                   <ProofRow label="Distributed">

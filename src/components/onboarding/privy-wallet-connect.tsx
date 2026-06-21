@@ -19,7 +19,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { cn } from "@/lib/cn";
 import { abbreviateAddress } from "@/lib/onchain";
 import { bindWallet } from "@/lib/onboarding/actions";
 
@@ -75,17 +74,12 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
         <Badge variant="success">
           <span
             aria-hidden="true"
-            className="inline-block h-1.5 w-1.5 rounded-full bg-current"
+            className="onb-wallet-badge-dot"
           />
           Wallet linked
         </Badge>
 
-        <p
-          className={cn(
-            "mono tabular body-sm ct-text-strong m-0",
-            "rounded-md ct-border-soft px-[var(--ct-space-4)] py-[var(--ct-space-2)]",
-          )}
-        >
+        <p className="mono tabular body-sm ct-text-strong m-0 ct-border-soft onb-wallet-address">
           {abbreviateAddress(address)}
         </p>
 

@@ -154,7 +154,7 @@ export default async function ProfilePage() {
                 message="Your investment summary starts after your first active position."
                 detail="Once a deposit is confirmed, deployed capital and subscription history appear here."
               >
-                <Button variant="secondary" size="md" asChild className="mt-[var(--ct-space-2)]">
+                <Button variant="secondary" size="md" asChild className="prof-summary-cta">
                   <Link href="/vaults" aria-label="Explore the vault">
                     Explore the vault
                   </Link>

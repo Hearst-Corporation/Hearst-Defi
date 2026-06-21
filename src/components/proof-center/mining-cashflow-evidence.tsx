@@ -63,7 +63,7 @@ export function MiningCashFlowEvidence({
         tone="primary"
       />
 
-      <p className="body-sm mb-[var(--ct-space-4)]">{MINING_CASHFLOW_COPY[provenance]}</p>
+      <p className="body-sm proof-article-lede">{MINING_CASHFLOW_COPY[provenance]}</p>
 
       <MetricGrid columns={4}>
         <Metric
