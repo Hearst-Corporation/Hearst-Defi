@@ -6,6 +6,8 @@ import { isTotpEnabled } from "@/lib/auth/totp";
 
 import { TotpEnrolmentClient } from "./TotpEnrolmentClient";
 
+import "../admin-proof.css";
+
 export const metadata = {
   title: "Account security — Hearst Connect",
 };
@@ -28,7 +30,7 @@ export default async function AdminSecurityPage() {
           title="Two-factor sign-in (TOTP)"
           tone="quiet"
         />
-        <p className="body-xs ct-text-muted mb-[var(--ct-space-4)]">
+        <p className="body-xs ct-text-muted security-totp-lead">
           Use an authenticator app (Google Authenticator, Authy, 1Password) to
           generate a time-based code at login. Required once enrolled.
         </p>

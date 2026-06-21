@@ -1,0 +1,127 @@
+/* =============================================================================
+   admin-proof.css — Proof Center · Governance · Security · Audit (page-scoped)
+
+   CANON (mirror of portfolio.css):
+   - ZERO styling in the JSX. Every spacing / radius / leading / border / width
+     decision for these surfaces lives here as a semantic class.
+   - SPACING / RADIUS / TYPOGRAPHY: var(--ct-*) only. The only raw lengths allowed
+     are layout proportions (table column % widths) — flagged inline.
+   - COLORS / SURFACES via var(--ct-*) / existing ct-* utilities.
+   - Scoped under .admin-doc (applied at the admin layout root). Dark mode only.
+   ============================================================================= */
+
+/* =============================================================================
+   1. GOVERNANCE — proposal detail (/admin/governance/proposal/[id])
+   ============================================================================= */
+
+/* Header badge row sits above the meta grid. */
+.admin-doc .gov-proposal-badges {
+  margin-bottom: var(--ct-space-8);
+}
+
+/* Timelock countdown callout below the meta grid. */
+.admin-doc .gov-proposal-timelock {
+  margin-top: var(--ct-space-8);
+}
+
+/* PTAI panel header spacing (shared with the section headers below). */
+.admin-doc .gov-section-header {
+  margin-bottom: var(--ct-space-4);
+}
+
+/* "not guaranteed" disclaimer under the PTAI block. */
+.admin-doc .gov-ptai-disclaimer {
+  margin-top: var(--ct-space-3);
+  line-height: var(--ct-leading-relaxed);
+}
+
+/* Calldata <pre> block. */
+.admin-doc .gov-calldata-block {
+  padding: var(--ct-space-4);
+  border-color: var(--ct-border-soft);
+}
+
+/* Signature row separator. */
+.admin-doc .gov-signature-row {
+  padding-top: var(--ct-space-2);
+  padding-bottom: var(--ct-space-2);
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.admin-doc .gov-signature-row:last-child {
+  border-bottom: 0;
+}
+
+/* Footer note under the proposal action buttons. */
+.admin-doc .gov-actions-note {
+  margin-top: var(--ct-space-3);
+}
+
+/* =============================================================================
+   2. AUDIT LOG (/admin/audit)
+   ============================================================================= */
+
+/* Muted routine-action dot opacity. */
+.admin-doc .audit-action-dot--muted {
+  opacity: var(--ct-opacity-60);
+}
+
+/* Filter-bar text inputs. */
+.admin-doc .audit-filter-input {
+  padding-left: var(--ct-space-3);
+  padding-right: var(--ct-space-3);
+}
+
+/* Audit table column proportions (layout %, not spacing tokens). */
+.admin-doc .audit-col-when,
+.admin-doc .audit-col-actor,
+.admin-doc .audit-col-action,
+.admin-doc .audit-col-entity {
+  width: 18%;
+}
+
+.admin-doc .audit-col-details {
+  width: 46%;
+}
+
+@media (min-width: 1024px) {
+  .admin-doc .audit-col-details {
+    width: 28%;
+  }
+}
+
+/* Before / after JSON diff <pre> blocks. */
+.admin-doc .audit-diff-block {
+  padding: var(--ct-space-2);
+}
+
+/* Retention footer band. */
+.admin-doc .audit-retention-footer {
+  padding: var(--ct-space-4);
+}
+
+/* =============================================================================
+   3. PROOF CENTER — full log (/admin/proof-center/full)
+   ============================================================================= */
+
+/* Back link in the page header lead slot. */
+.admin-doc .proof-back-link {
+  gap: var(--ct-space-1_5);
+  margin-bottom: var(--ct-space-2);
+}
+
+/* =============================================================================
+   4. SECURITY (/admin/security)
+   ============================================================================= */
+
+.admin-doc .security-totp-lead {
+  margin-bottom: var(--ct-space-4);
+}
+
+/* =============================================================================
+   5. SKELETONS (loading states)
+   ============================================================================= */
+
+.admin-doc .proof-skeleton-title {
+  margin-bottom: var(--ct-space-3);
+}

@@ -14,6 +14,8 @@ import { cn } from "@/lib/cn";
 import { truncateWallet } from "@/lib/wallet-display";
 import { formatAdminAuditTimestamp } from "@/lib/vaults/product-display";
 
+import "../admin-proof.css";
+
 export const dynamic = "force-dynamic";
 
 export const metadata = {
@@ -40,7 +42,7 @@ function AuditActionLabel({ action }: { action: string }) {
           "ct-dot",
           alert
             ? "ct-status-dot-danger"
-            : "bg-(--ct-border) opacity-[var(--ct-opacity-60)]",
+            : "bg-(--ct-border) audit-action-dot--muted",
         )}
       />
       <span
@@ -104,7 +106,7 @@ export default async function AuditLogPage({
               defaultValue={entityType ?? ""}
               placeholder="e.g. VaultDeployment"
               className={cn(
-                "h-8 rounded-md border px-[var(--ct-space-3)] body-sm ct-bc-soft ct-surface-0 ct-text-body",
+                "audit-filter-input h-8 rounded-md border body-sm ct-bc-soft ct-surface-0 ct-text-body",
                 "placeholder:ct-text-muted focus:outline-none focus:ct-bc-strong",
               )}
             />
@@ -117,7 +119,7 @@ export default async function AuditLogPage({
               defaultValue={actor ?? ""}
               placeholder="0x…"
               className={cn(
-                "h-8 rounded-md border px-[var(--ct-space-3)] body-sm mono ct-bc-soft ct-surface-0 ct-text-body",
+                "audit-filter-input h-8 rounded-md border body-sm mono ct-bc-soft ct-surface-0 ct-text-body",
                 "placeholder:ct-text-muted focus:outline-none focus:ct-bc-strong",
               )}
             />
@@ -130,7 +132,7 @@ export default async function AuditLogPage({
               defaultValue={action ?? ""}
               placeholder="e.g. vault.approve"
               className={cn(
-                "h-8 rounded-md border px-[var(--ct-space-3)] body-sm ct-bc-soft ct-surface-0 ct-text-body",
+                "audit-filter-input h-8 rounded-md border body-sm ct-bc-soft ct-surface-0 ct-text-body",
                 "placeholder:ct-text-muted focus:outline-none focus:ct-bc-strong",
               )}
             />
@@ -177,13 +179,13 @@ export default async function AuditLogPage({
               <table className="w-full table-fixed text-left body-sm">
                 <thead>
                   <tr>
-                    <th className="w-[18%] ct-table-header stat-label">When</th>
-                    <th className="w-[18%] ct-table-header stat-label">Actor</th>
-                    <th className="w-[18%] ct-table-header stat-label">Action</th>
-                    <th className="hidden w-[18%] ct-table-header stat-label lg:table-cell">
+                    <th className="audit-col-when ct-table-header stat-label">When</th>
+                    <th className="audit-col-actor ct-table-header stat-label">Actor</th>
+                    <th className="audit-col-action ct-table-header stat-label">Action</th>
+                    <th className="hidden audit-col-entity ct-table-header stat-label lg:table-cell">
                       Entity
                     </th>
-                    <th className="w-[46%] ct-table-header stat-label lg:w-[28%]">
+                    <th className="audit-col-details ct-table-header stat-label">
                       Details
                     </th>
                   </tr>
@@ -244,7 +246,7 @@ export default async function AuditLogPage({
                             <p className="stat-label ct-text-muted">Before</p>
                             <pre
                               className={cn(
-                                "mono body-xs max-h-40 overflow-auto rounded border p-[var(--ct-space-2)] leading-relaxed whitespace-pre-wrap break-all",
+                                "audit-diff-block mono body-xs max-h-40 overflow-auto rounded border leading-relaxed whitespace-pre-wrap break-all",
                                 "ct-bc-soft ct-surface-0 ct-text-muted",
                               )}
                             >
@@ -257,7 +259,7 @@ export default async function AuditLogPage({
                             <p className="stat-label ct-text-muted">After</p>
                             <pre
                               className={cn(
-                                "mono body-xs max-h-40 overflow-auto rounded border p-[var(--ct-space-2)] leading-relaxed whitespace-pre-wrap break-all",
+                                "audit-diff-block mono body-xs max-h-40 overflow-auto rounded border leading-relaxed whitespace-pre-wrap break-all",
                                 "ct-bc-soft ct-surface-0 ct-text-body",
                               )}
                             >
@@ -278,7 +280,7 @@ export default async function AuditLogPage({
                 </tbody>
               </table>
             </div>
-            <div className="admin-doc-stack admin-doc-stack--micro border-t border-(--ct-border-soft) p-[var(--ct-space-4)]">
+            <div className="audit-retention-footer admin-doc-stack admin-doc-stack--micro border-t border-(--ct-border-soft)">
               <p className="stat-label">Audit retention</p>
               <p className="body-xs ct-text-muted">
                 Showing up to 200 entries per query. Entries written by{" "}

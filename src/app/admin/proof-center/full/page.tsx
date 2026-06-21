@@ -34,6 +34,8 @@ import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
 import { prisma } from "@/lib/db";
 import { TIMELOCK_DELAY_HOURS } from "@/lib/governance/state-machine";
 
+import "../../admin-proof.css";
+
 export const metadata = {
   title: "Proof Center — Full log (Admin)",
   description:
@@ -80,7 +82,7 @@ export default async function AdminProofCenterFullPage({
         lead={
           <Link
             href="/admin/proof-center"
-            className="inline-flex items-center gap-[var(--ct-space-1_5)] body-sm ct-text-muted no-underline hover:ct-text-primary ct-transition-base self-start mb-[var(--ct-space-2)]"
+            className="proof-back-link inline-flex items-center body-sm ct-text-muted no-underline hover:ct-text-primary ct-transition-base self-start"
             aria-label="Back to Proof Center hub"
           >
             <ArrowLeft className="ct-icon-sm" aria-hidden />
