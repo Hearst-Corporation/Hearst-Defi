@@ -2,6 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
+export type EligibilityResult =
+  | { ok: true }
+  | { ok: false; error: string };
 
 import { prisma } from "@/lib/db";
 import { getInvestor } from "@/lib/auth/session";
@@ -33,6 +36,30 @@ function isUniqueViolation(err: unknown): boolean {
  *
  * No forbidden words, no returns promised — this only records the deposit.
  */
+
+/**
+ * Pre-flight KYC + accreditation gate — runs BEFORE the on-chain tx so the
+ * investor can't fire a deposit that would be rejected by subscribe().
+ * Call this in the UI at Confirm time, before depositToVault().
+ */
+export async function checkSubscribeEligibility(
+  vaultId: string,
+): Promise<EligibilityResult> {
+  const investor = await getInvestor();
+  if (!investor) return { ok: false, error: "Authentication required." };
+  if (!investor.accreditationAttestedAt) {
+    return { ok: false, error: "Accreditation attestation required before subscribing." };
+  }
+  if (investor.kycStatus !== "approved") {
+    return { ok: false, error: "KYC approval required before subscribing." };
+  }
+  const vault = await getVault(vaultId);
+  if (!vault) return { ok: false, error: "Vault not found." };
+  if (vault.status !== "live") {
+    return { ok: false, error: "This vault is not open for subscription." };
+  }
+  return { ok: true };
+}
 
 /** Hard ceiling on a single subscription amount (1 billion USDC). */
 const MAX_SUBSCRIBE_USDC = 1_000_000_000;

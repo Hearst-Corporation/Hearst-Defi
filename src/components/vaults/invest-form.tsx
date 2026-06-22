@@ -27,7 +27,7 @@ import {
   ChainError,
 } from "@/lib/onchain/vault";
 import { monthsToTarget } from "@/lib/projection-chart";
-import { subscribe } from "@/app/actions/subscribe";
+import { subscribe, checkSubscribeEligibility } from "@/app/actions/subscribe";
 import { isPrivyConfigured } from "@/lib/auth/is-privy-configured";
 import type { VaultProduct } from "@/lib/data/vaults";
 import {
@@ -116,7 +116,10 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
     <div className="vault-invest-grid">
       <div className="vault-invest-form-main">
         <div className="vault-flow-flat-section">
-          <VaultPanelHeader title="Deposit amount" />
+          <VaultPanelHeader
+            title="Deposit amount"
+            eyebrow="Base Sepolia pilot · testnet USDC only"
+          />
           <div className="vault-panel-body vault-panel-body--stack">
             <section>
               <label htmlFor="amt-input-disabled" className="sr-only">
@@ -164,7 +167,7 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
         </div>
 
         <div className="vault-flow-flat-section">
-          <VaultPanelHeader title="Projection (PTAI)" />
+          <VaultPanelHeader title="PTAI estimate" />
           <div className="vault-panel-body">
             <Ptai
               projection={ptai.projection}
@@ -294,6 +297,15 @@ function InvestFormLive({ vault }: InvestFormProps) {
       return;
     }
 
+    // P0 fix: check KYC + accreditation BEFORE firing the on-chain tx so a
+    // rejected investor can never put funds on-chain that won't be recorded.
+    const eligibility = await checkSubscribeEligibility(vault.id);
+    if (!eligibility.ok) {
+      setDepositError(eligibility.error);
+      setAwaitingConfirm(false);
+      return;
+    }
+
     setDepositing(true);
     setDepositError(null);
     try {
@@ -353,7 +365,10 @@ function InvestFormLive({ vault }: InvestFormProps) {
     <div className="vault-invest-grid">
       <div className="vault-invest-form-main">
         <div className="vault-flow-flat-section">
-          <VaultPanelHeader title="Deposit amount" />
+          <VaultPanelHeader
+            title="Deposit amount"
+            eyebrow="Base Sepolia pilot · testnet USDC only"
+          />
           <div className="vault-panel-body vault-panel-body--stack">
             <section>
               <label htmlFor="amt-input" className="sr-only">
@@ -508,14 +523,14 @@ function InvestFormLive({ vault }: InvestFormProps) {
         </div>
 
         <div className="vault-flow-flat-section">
-          <VaultPanelHeader title="Projected NAV — 24 month horizon" />
+          <VaultPanelHeader title="Indicative NAV path — 24 month horizon" />
           <div className="vault-panel-body">
             <TimeToTargetChart amount={deferredAmount} vault={vault} />
           </div>
         </div>
 
         <div className="vault-flow-flat-section">
-          <VaultPanelHeader title="Projection (PTAI)" />
+          <VaultPanelHeader title="PTAI estimate" />
           <div className="vault-panel-body">
             <Ptai
               projection={ptai.projection}
