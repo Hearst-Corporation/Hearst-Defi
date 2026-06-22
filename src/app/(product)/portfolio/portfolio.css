@@ -156,7 +156,7 @@
   box-shadow: none;
 }
 
-/* Ticker — KPI strip on the centre plaque, not a deep-black box. */
+/* Ticker — KPI strip on the centre plaque, noir comme le menu. */
 .pf-ticker-inline {
   display: flex;
   align-items: stretch;
@@ -164,8 +164,8 @@
   gap: 0 var(--ct-space-6);
   margin: 0;
   padding: var(--ct-space-3) var(--ct-space-5);
-  background: transparent;
-  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-bg-deep);
+  border: 1px solid var(--ct-border-base);
   border-radius: var(--ct-radius-xl);
 }
 
@@ -2101,10 +2101,10 @@
   margin-inline: 0;
 }
 
-/* Portfolio legal footer — centre plaque tone, not plinth / bg-deep black. */
+/* Portfolio legal footer — repassé en noir comme le menu */
 .ct-root:has(main .pf-container) > .app-footer {
-  background-color: var(--ct-surface-2);
-  border-top-color: var(--ct-border-soft);
+  background-color: var(--ct-bg-deep);
+  border-top-color: var(--ct-border-base);
 }
 
 .pf-container--zero .cy-embedded-empty {
