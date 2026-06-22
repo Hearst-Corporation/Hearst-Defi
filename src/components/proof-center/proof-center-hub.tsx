@@ -1,8 +1,8 @@
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { ReactNode } from "react";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
-  AdminCockpitPanelHeader,
   AdminLeafLink,
 } from "@/components/admin/dashboard/cockpit-panel-header";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
@@ -59,7 +59,7 @@ function HubPanelHeader({
   trailing?: ReactNode;
 }) {
   if (variant === "admin") {
-    return <AdminCockpitPanelHeader title={title} trailing={trailing} />;
+    return <DashboardPanelHeader title={title} trailing={trailing} />;
   }
   return <ProofCockpitPanelHeader title={title} trailing={trailing} />;
 }

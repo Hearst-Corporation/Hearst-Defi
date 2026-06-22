@@ -1,3 +1,4 @@
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { cn } from "@/lib/cn";
 import { ActionQueue } from "@/components/admin/cockpit/action-queue";
 import { AuditTrailRolling } from "@/components/admin/cockpit/audit-trail-rolling";
@@ -23,8 +24,9 @@ import type { AdminProofStatus } from "@/lib/data/admin-overview";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 
+import { AdminLeafLink } from "./cockpit-panel-header";
+
 import { AllocationOrbit } from "./allocation-orbit";
-import { AdminCockpitPanelHeader, AdminLeafLink } from "./cockpit-panel-header";
 import { DashboardKpiStrip } from "./kpi-strip";
 import { NavSlot } from "./nav-slot";
 import { DashboardRiskSummaryCard } from "./risk-summary-card";
@@ -200,7 +202,7 @@ export function DashboardAssetsBoard({
           <div className="dashboard-ops-surface">
 
             <div className="dashboard-ops-pane">
-              <AdminCockpitPanelHeader
+              <DashboardPanelHeader
                 title="Operator queue"
                 trailing={<AdminLeafLink href="/admin/monitoring" />}
               />
@@ -208,7 +210,7 @@ export function DashboardAssetsBoard({
             </div>
 
             <div className="dashboard-ops-pane dashboard-ops-pane--divider">
-              <AdminCockpitPanelHeader
+              <DashboardPanelHeader
                 title="Vault health"
                 trailing={<AdminLeafLink href="/admin/monitoring" />}
               />
@@ -216,7 +218,7 @@ export function DashboardAssetsBoard({
             </div>
 
             <div className="dashboard-ops-pane dashboard-ops-pane--divider">
-              <AdminCockpitPanelHeader
+              <DashboardPanelHeader
                 title="Platform status"
                 trailing={<AdminLeafLink href="/admin/monitoring" />}
               />
@@ -237,7 +239,7 @@ export function DashboardAssetsBoard({
           <div className="dashboard-lower-surface">
 
             <div className="dashboard-lower-pane dashboard-lower-pane--risk">
-              <AdminCockpitPanelHeader
+              <DashboardPanelHeader
                 title="Risk posture"
                 trailing={<AdminLeafLink href="/admin/vaults" />}
                 provenance={riskProvenance}
@@ -250,7 +252,7 @@ export function DashboardAssetsBoard({
             </div>
 
             <div className="dashboard-lower-pane dashboard-lower-pane--audit dashboard-lower-pane--divider">
-              <AdminCockpitPanelHeader
+              <DashboardPanelHeader
                 title="Audit trail"
                 trailing={<AdminLeafLink href="/admin/audit" />}
               />

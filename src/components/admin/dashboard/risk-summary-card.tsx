@@ -27,7 +27,6 @@ const SEVERITY_BADGE: Record<RiskSeverity, "success" | "warning" | "danger"> = {
 
 /**
  * Risk summary content — no panel wrapper (parent cell provides the surface).
- * Provenance is returned so the caller can forward it to AdminCockpitPanelHeader.
  */
 export function DashboardRiskSummaryCard({
   data,
