@@ -16,7 +16,7 @@ export default async function ProofsPage() {
   });
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Proof"
         titleAccent="Library"
@@ -35,6 +35,6 @@ export default async function ProofsPage() {
         ) : null}
         <ProofList items={items} />
       </section>
-    </div>
+    </>
   );
 }
