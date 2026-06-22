@@ -121,7 +121,9 @@ export default async function ProfilePage() {
               {investor?.accreditationAttestedAt ? (
                 <>Attested {formatProfileDate(investor.accreditationAttestedAt)}</>
               ) : (
-                <span className="ct-text-faint italic">Not attested</span>
+                <Button variant="secondary" size="sm" asChild>
+                  <Link href="/onboarding/accreditation">Attest now →</Link>
+                </Button>
               )}
             </LegalMetadataRow>
           </div>

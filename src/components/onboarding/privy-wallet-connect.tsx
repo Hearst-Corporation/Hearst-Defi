@@ -7,6 +7,7 @@
 import { usePrivy, useConnectWallet, useWallets } from "@privy-io/react-auth";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   OnboardingChamber,
@@ -27,6 +28,7 @@ interface PrivyWalletConnectProps {
 }
 
 function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
+  const router = useRouter();
   const { ready, authenticated } = usePrivy();
   const [error, setError] = useState<string | null>(null);
   const { connectWallet } = useConnectWallet({
@@ -60,6 +62,9 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
         persistRef.current = null;
       } else {
         setError(null);
+        // revalidatePath in bindWallet invalidates the server cache; refresh
+        // triggers the RSC re-fetch so /profile reflects the new walletAddress.
+        router.refresh();
       }
     });
   }, [connectedWallet?.address]);
