@@ -2410,7 +2410,14 @@
 
 @container dash-board (min-width: 42rem) {
   .dashboard-kpi-strip {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* 8 KPIs total — at the widest width fit them on a single 8-up row. */
+@container dash-board (min-width: 64rem) {
+  .dashboard-kpi-strip {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 }
 
