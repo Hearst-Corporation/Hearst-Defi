@@ -9,6 +9,7 @@ import { resolveDashboardPageInputs } from "@/lib/admin/dashboard-page-view";
 import { loadAdminOverview } from "@/lib/data/admin-overview";
 import { loadCockpitPayload } from "@/lib/data/cockpit";
 import { loadDashboardData } from "@/lib/data/dashboard";
+import { loadOverviewClusters } from "@/lib/data/overview-clusters";
 import { loadPlatformTotals } from "@/lib/data/platform-totals";
 import { loadRiskFramework } from "@/lib/data/risk-framework";
 import {
@@ -26,13 +27,15 @@ interface DashboardPageProps {
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const params = await searchParams;
 
-  const [data, risk, overview, cockpit, totals] = await Promise.all([
-    loadDashboardData(params.vault),
-    loadRiskFramework(params.vault),
-    loadAdminOverview(),
-    loadCockpitPayload(),
-    loadPlatformTotals(),
-  ]);
+  const [data, risk, overview, cockpit, totals, overviewClusters] =
+    await Promise.all([
+      loadDashboardData(params.vault),
+      loadRiskFramework(params.vault),
+      loadAdminOverview(),
+      loadCockpitPayload(),
+      loadPlatformTotals(),
+      loadOverviewClusters(),
+    ]);
 
   const page = resolveDashboardPageInputs(data, risk, overview);
 
@@ -68,8 +71,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         yieldPosture={page.yieldPosture}
         proofFresh={page.proofFresh}
         cockpit={cockpit}
-        investorCount={totals.investorCount}
-        investedCapitalUsdc={totals.investedCapitalUsdc}
+        platformTotals={totals}
+        overviewClusters={overviewClusters}
       />
     </>
   );

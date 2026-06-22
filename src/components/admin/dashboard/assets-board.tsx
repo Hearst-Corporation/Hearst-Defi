@@ -14,6 +14,10 @@ import {
   resolveVaultSignalProvenance,
 } from "@/lib/admin/dashboard-board-view";
 import { buildDashboardKpiStrip } from "@/lib/admin/dashboard-kpi-strip";
+import {
+  buildOverviewClustersView,
+  type AllocationProvenance,
+} from "@/lib/admin/overview-clusters-view";
 import { resolveSystemReadiness } from "@/lib/admin/dashboard-readiness-view";
 import {
   resolveAllocationChartLive,
@@ -22,6 +26,8 @@ import {
 import type { CockpitPayload } from "@/lib/data/cockpit";
 import type { AdminProofStatus } from "@/lib/data/admin-overview";
 import type { DashboardData } from "@/lib/data/dashboard";
+import type { OverviewClusters } from "@/lib/data/overview-clusters";
+import type { PlatformTotals } from "@/lib/data/platform-totals";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 
 import { AdminLeafLink } from "./cockpit-panel-header";
@@ -29,6 +35,7 @@ import { AdminLeafLink } from "./cockpit-panel-header";
 import { AllocationOrbit } from "./allocation-orbit";
 import { DashboardKpiStrip } from "./kpi-strip";
 import { NavSlot } from "./nav-slot";
+import { PlatformOverviewBand } from "./platform-overview-band";
 import { DashboardRiskSummaryCard } from "./risk-summary-card";
 import { DashboardRecentEvents } from "./dashboard-recent-events";
 import { SystemReadinessModule } from "./system-readiness";
@@ -55,10 +62,10 @@ interface DashboardAssetsBoardProps {
   simulated?: boolean;
   proofFresh: boolean;
   cockpit: CockpitPayload;
-  /** Platform-wide registered investor count. */
-  investorCount: number;
-  /** Platform-wide invested capital (sum of active position principals), USDC. */
-  investedCapitalUsdc: number;
+  /** Platform totals (investors + invested capital) for the overview band. */
+  platformTotals: PlatformTotals;
+  /** Platform-wide cluster aggregates for the executive overview band. */
+  overviewClusters: OverviewClusters;
 }
 
 export function DashboardAssetsBoard({
@@ -74,8 +81,8 @@ export function DashboardAssetsBoard({
   simulated,
   proofFresh,
   cockpit,
-  investorCount,
-  investedCapitalUsdc,
+  platformTotals,
+  overviewClusters,
 }: DashboardAssetsBoardProps) {
   const showVaultAnalytics = showVaultAnalyticsProp ?? (hasLiveKpis || hasSeedPreview);
   const chartSeedPreview = hasSeedPreview && !hasLiveKpis;
@@ -106,6 +113,15 @@ export function DashboardAssetsBoard({
     simulated,
     hasSeedPreview,
   );
+
+  // Dominant-allocation provenance — shared by the vault strip and the overview
+  // band's Exposure cluster (mirrors the donut's live/seed/estimated read).
+  const allocationProvenance: AllocationProvenance = allocationLive
+    ? chartSeedPreview
+      ? "simulated"
+      : "live"
+    : "estimated";
+
   const stripKpis = buildDashboardKpiStrip({
     headlineApy,
     yieldPosture,
@@ -125,16 +141,19 @@ export function DashboardAssetsBoard({
       data.vaultMeta.livePreview,
     ),
     data,
-    investorCount,
-    investedCapitalUsdc,
     topAllocation: topAllocation
       ? { bucket: topAllocation.bucket, pct: topAllocation.pct }
       : null,
-    allocationProvenance: allocationLive
-      ? chartSeedPreview
-        ? "simulated"
-        : "live"
-      : "estimated",
+    allocationProvenance,
+  });
+
+  // Executive platform-overview band — platform-wide totals (all vaults),
+  // consolidated from the dedicated admin pages into 4 clusters.
+  const overviewView = buildOverviewClustersView({
+    totals: platformTotals,
+    clusters: overviewClusters,
+    allocations: allocation,
+    allocationProvenance,
   });
 
   const riskProvenance = resolveRiskProvenance(hasLiveKpis, risk, simulated);
@@ -160,7 +179,14 @@ export function DashboardAssetsBoard({
         </div>
       </div>
 
-      {/* ── Row 1: KPI strip + charts ── */}
+      {/* ── Row 1: Platform overview — executive totals across all vaults ── */}
+      <div className="dashboard-cockpit-row dashboard-cockpit-row--overview">
+        <div className="dashboard-cockpit-cell">
+          <PlatformOverviewBand view={overviewView} />
+        </div>
+      </div>
+
+      {/* ── Row 2: KPI strip + charts ── */}
       <div
         className={cn(
           "dashboard-cockpit-row dashboard-cockpit-row--kpi",

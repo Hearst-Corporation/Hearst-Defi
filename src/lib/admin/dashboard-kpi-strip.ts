@@ -4,7 +4,7 @@ import type { AdminProofStatus } from "@/lib/data/admin-overview";
 import type { HeroKpi } from "@/lib/data/cockpit";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
-import { formatAdminMonthDay, formatUsdCompact } from "@/lib/vaults/product-display";
+import { formatAdminMonthDay } from "@/lib/vaults/product-display";
 
 function hashpriceLabel(data: DashboardData): string {
   const hashprice = data.miningOps.hashprice;
@@ -42,10 +42,6 @@ export function buildDashboardKpiStrip(input: {
   operatorQueueCount: number;
   operatorQueueProvenance: Provenance;
   data: DashboardData;
-  /** Platform-wide registered investor count. */
-  investorCount: number;
-  /** Platform-wide invested capital (sum of active position principals), USDC. */
-  investedCapitalUsdc: number;
   /** Dominant allocation bucket (the donut shows the full split). */
   topAllocation: { bucket: string; pct: number } | null;
   allocationProvenance: Provenance;
@@ -92,22 +88,6 @@ export function buildDashboardKpiStrip(input: {
       value: proofValue(input.proofFresh, input.proof.attestationsCount),
       sublabel: proofSubtitle(input.proof),
       provenance: input.proofProvenance,
-    },
-    {
-      label: "Invested capital",
-      value:
-        input.investedCapitalUsdc > 0
-          ? formatUsdCompact(input.investedCapitalUsdc)
-          : "—",
-      sublabel: "across active positions",
-      provenance: "manual",
-    },
-    {
-      label: "Investors",
-      value: input.investorCount > 0 ? String(input.investorCount) : "—",
-      sublabel:
-        input.investorCount === 1 ? "registered account" : "registered accounts",
-      provenance: "manual",
     },
     {
       label: "Top allocation",
