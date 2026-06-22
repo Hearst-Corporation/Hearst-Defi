@@ -54,7 +54,7 @@ export default async function ProductWorkspacePage({
       : null;
 
   return (
-    <div className="admin-doc-shell admin-doc-shell--roomy">
+    <div className="admin-doc-shell--roomy">
       <AdminPageHeader
         titleLead="Product"
         titleAccent="Workspace"
