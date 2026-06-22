@@ -71,26 +71,11 @@ export function PositionsList({
         />
         {/* Zero-state skeleton — the ledger frame with muted placeholder rows.
            Fills in with real positions as soon as the first one is confirmed. */}
-        <div className="pf-positions pf-positions--skeleton" aria-label="No positions yet">
-          <div className="pf-positions__row pf-positions__row--head stat-label">
-            <span>Vault</span>
-            <span className="pf-positions__num">Principal</span>
-            <span className="pf-positions__num">Value</span>
-            <span className="pf-positions__num">APY range</span>
-            <span className="pf-positions__num">Since</span>
-          </div>
-          {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="pf-positions__row pf-positions__row--body pf-positions__row--skeleton pointer-events-none" aria-hidden>
-              <span className="pf-positions__vault">
-                <Skeleton variant="circle" className="w-[var(--ct-space-2)] h-[var(--ct-space-2)] shrink-0" />
-                <Skeleton className="h-[var(--ct-space-2_5)] w-[55%]" />
-              </span>
-              <span className="pf-positions__num"><Skeleton className="h-[var(--ct-space-2_5)] w-[70%] ml-auto" /></span>
-              <span className="pf-positions__num"><Skeleton className="h-[var(--ct-space-2_5)] w-[70%] ml-auto" /></span>
-              <span className="pf-positions__num"><Skeleton className="h-[var(--ct-space-2_5)] w-[70%] ml-auto" /></span>
-              <span className="pf-positions__num"><Skeleton className="h-[var(--ct-space-2_5)] w-[70%] ml-auto" /></span>
-            </div>
-          ))}
+        <div className="pf-positions-empty">
+          <span className="pf-positions-empty__lead">No active positions</span>
+          <span className="pf-positions-empty__hint ct-text-muted">
+            Your portfolio will display your active vault subscriptions here once your first on-chain deposit is confirmed.
+          </span>
         </div>
       </PfCockpitPanel>
     );

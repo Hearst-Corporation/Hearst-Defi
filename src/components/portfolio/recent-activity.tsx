@@ -88,19 +88,13 @@ export function RecentActivity({
           })}
         </div>
       ) : (
-        /* Zero-state skeleton — muted placeholder rows, no phrase. Fills in
-           with real transactions as soon as the first one lands. */
-        <div className="pf-activity pf-activity--skeleton" aria-label="No activity yet">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} className="pf-activity__row pf-activity__row--skeleton pointer-events-none" aria-hidden>
-              <Skeleton variant="circle" className="w-[var(--ct-space-8)] h-[var(--ct-space-8)] shrink-0" />
-              <span className="pf-activity__main min-w-0">
-                <Skeleton className="h-[var(--ct-space-2_5)] w-[42%]" />
-                <Skeleton className="h-[var(--ct-space-2_5)] w-[26%] mt-[var(--ct-space-1)] opacity-60" />
-              </span>
-              <Skeleton className="h-[var(--ct-space-2_5)] w-[var(--ct-space-10)]" />
-            </div>
-          ))}
+        /* Zero-state text — plain and honest empty state instead of skeleton rows
+           since we're cleaning up the empty states to be more explicit. */
+        <div className="pf-activity pf-activity--empty" aria-label="No activity yet">
+          <span className="pf-activity__empty-lead">No recent activity</span>
+          <span className="pf-activity__empty-hint ct-text-muted">
+            Your recent deposits, withdrawals, and distribution payouts will appear here.
+          </span>
         </div>
       )}
     </PfCockpitPanel>

@@ -936,7 +936,7 @@
 .pf-value-chart__disclaimer {
   margin: 0;
   flex: 0 0 auto;
-  font-size: var(--ct-text-micro);
+  font-size: var(--ct-text-sm);
   line-height: var(--ct-leading-snug);
 }
 
@@ -1170,13 +1170,14 @@
 }
 
 .pf-positions-empty__lead {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-medium);
+  font-size: var(--ct-text-base);
+  font-weight: var(--ct-font-semibold);
   color: var(--ct-text-strong);
 }
 
 .pf-positions-empty__hint {
-  font-size: var(--ct-text-xs);
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-secondary);
   line-height: var(--ct-leading-snug);
   max-width: 28ch;
 }
@@ -1185,7 +1186,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--ct-space-1);
-  font-size: var(--ct-text-xs);
+  font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-medium);
   color: var(--ct-accent);
   text-decoration: none;
@@ -1677,14 +1678,14 @@
 }
 
 .pf-activity__empty-lead {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-medium);
+  font-size: var(--ct-text-base);
+  font-weight: var(--ct-font-semibold);
   color: var(--ct-text-strong);
 }
 
 .pf-activity__empty-hint {
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-secondary);
   line-height: var(--ct-leading-snug);
   max-width: 30ch;
 }
@@ -2054,18 +2055,19 @@
 .cy-panel--onboarding-empty {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: var(--ct-space-3);
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: var(--ct-space-4);
 }
 
 .cy-panel--onboarding-empty .cy-body {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex: 0 0 auto;
   min-height: 0;
+  width: 100%;
 }
 
 .cy-panel--onboarding-empty .cy-spine,
@@ -2093,18 +2095,7 @@
 }
 
 .cy-panel__empty-copy {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--ct-space-1);
-  text-align: center;
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
-  line-height: var(--ct-leading-snug);
-  max-width: 30ch;
-  /* Toujours SOUS le donut, jamais par-dessus : bloc autonome avec air au-dessus. */
-  flex: 0 0 auto;
-  margin: var(--ct-space-3) auto 0;
+  display: none;
 }
 
 
@@ -2116,7 +2107,8 @@
 }
 
 /* hide empty ledger residue everywhere in zero */
-.pf-container--zero .cy-row:empty {
+.pf-container--zero .cy-row:empty,
+.pf-container--zero .cy-ledger-rule {
   display: none;
 }
 
@@ -2127,7 +2119,7 @@
 }
 
 .pf-container--zero .cy-body {
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-4);
 }
 
 /* =============================================================================

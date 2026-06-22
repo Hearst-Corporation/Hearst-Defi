@@ -188,7 +188,9 @@ export function CapitalYield({
                 <span className="donut-val">{formatUsdCompact(totalValueUsdc)}</span>
                 <span className="donut-lbl">Capital</span>
               </>
-            ) : null}
+            ) : (
+              <span className="donut-lbl">Pending</span>
+            )}
           </div>
         </div>
 
@@ -197,9 +199,11 @@ export function CapitalYield({
 
         {/* ── Zone 3 — yield ledger (doubles as the donut legend) ── */}
         <div className="cy-ledger">
-          <p className="cy-ledger-head body-xs ct-text-tertiary mono m-0">
-            Yield source · 12m fwd contribution
-          </p>
+          {!hasData ? null : (
+            <p className="cy-ledger-head body-xs ct-text-tertiary mono m-0">
+              Yield source · 12m fwd contribution
+            </p>
+          )}
 
           {hasData
             ? sources.map((s) => {
@@ -236,48 +240,45 @@ export function CapitalYield({
                   </div>
                 );
               })
-            : /* Zero-state skeleton rows — muted dot + label/value bars + a
-                 graded track fill, so the ledger reads as a structured frame. */
-              [62, 44, 30, 18].map((w, i) => (
-                <div key={i} className="cy-row cy-row--skeleton" aria-hidden>
-                  <Skeleton variant="circle" className="w-[var(--ct-space-2)] h-[var(--ct-space-2)] shrink-0" />
-                  <Skeleton className="h-[var(--ct-space-2)] w-[58%]" />
-                  <Skeleton className="h-[var(--ct-space-2)] w-[var(--ct-space-6)] justify-self-end" />
-                  <div className="cy-track relative">
-                    <span className="cy-ticks" />
-                    <div className="absolute inset-y-0 start-0" style={{ width: `${w}%` }}>
-                      <Skeleton className="cy-fill w-full h-full" />
-                    </div>
-                  </div>
+            : /* Zero-state text — plain and honest empty state instead of skeleton rows
+                 since we're cleaning up the empty states to be more explicit. */
+              (
+                <div className="cy-embedded-empty">
+                  <span className="body-sm ct-text-strong font-medium">No active positions</span>
+                  <span className="body-xs ct-text-muted max-w-[30ch]">
+                    Your capital allocation and forward yield projection will be computed here once your first on-chain deposit is confirmed.
+                  </span>
                 </div>
-              ))}
+              )}
 
-          <hr className="cy-ledger-rule" aria-hidden />
+          {!hasData ? null : <hr className="cy-ledger-rule" aria-hidden />}
 
-          <dl className="pf-stack--dense">
-            <div className="flex items-baseline justify-between">
-              <dt className="body-xs min-w-0 truncate ct-text-muted">
-                Blended fwd range
-              </dt>
-              <dd
-                className={cn("tabular font-semibold", isFilled ? "ct-text-primary" : "ct-text-tertiary")}
-                aria-label={isFilled ? `Blended forward range ${rLow.toFixed(1)} to ${rHigh.toFixed(1)} percent` : "Blended forward range pending"}
-              >
-                {isFilled ? formatApyRange({ low: rLow, high: rHigh }) : "—"}
-              </dd>
-            </div>
-            <div className="flex items-baseline justify-between">
-              <dt className="body-xs min-w-0 truncate ct-text-muted">
-                Stressed (bear) <span className="body-xs opacity-(--ct-opacity-70)">(proxy)</span>
-              </dt>
-              <dd
-                className={cn("tabular font-medium", isFilled ? "ct-text-body" : "ct-text-tertiary")}
-                aria-label={isFilled ? `Stressed bear scenario ${sLow.toFixed(1)} to ${sHigh.toFixed(1)} percent` : "Stressed bear scenario pending"}
-              >
-                {isFilled ? formatApyRange({ low: sLow, high: sHigh }) : "—"}
-              </dd>
-            </div>
-          </dl>
+          {!hasData ? null : (
+            <dl className="pf-stack--dense">
+              <div className="flex items-baseline justify-between">
+                <dt className="body-xs min-w-0 truncate ct-text-muted">
+                  Blended fwd range
+                </dt>
+                <dd
+                  className={cn("tabular font-semibold", isFilled ? "ct-text-primary" : "ct-text-tertiary")}
+                  aria-label={isFilled ? `Blended forward range ${rLow.toFixed(1)} to ${rHigh.toFixed(1)} percent` : "Blended forward range pending"}
+                >
+                  {isFilled ? formatApyRange({ low: rLow, high: rHigh }) : "—"}
+                </dd>
+              </div>
+              <div className="flex items-baseline justify-between">
+                <dt className="body-xs min-w-0 truncate ct-text-muted">
+                  Stressed (bear) <span className="body-xs opacity-(--ct-opacity-70)">(proxy)</span>
+                </dt>
+                <dd
+                  className={cn("tabular font-medium", isFilled ? "ct-text-body" : "ct-text-tertiary")}
+                  aria-label={isFilled ? `Stressed bear scenario ${sLow.toFixed(1)} to ${sHigh.toFixed(1)} percent` : "Stressed bear scenario pending"}
+                >
+                  {isFilled ? formatApyRange({ low: sLow, high: sHigh }) : "—"}
+                </dd>
+              </div>
+            </dl>
+          )}
         </div>
       </div>
 
