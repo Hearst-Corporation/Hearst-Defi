@@ -127,6 +127,8 @@ const ORCHESTRATION_NODES: readonly NodeDef[] = [
   { id: "cockpit-chat", label: "Master Agent", kind: "agent", column: 1, binding: { llmAgent: "cockpit-chat" }, description: "LP / admin cockpit chat (right rail)." },
   { id: "investor-memo", label: "Investor Memo", kind: "agent", column: 2, binding: { llmAgent: "investor-memo" }, description: "Monthly investor memo agent." },
   { id: "memory-distill", label: "Memory Distill", kind: "agent", column: 2, binding: { llmAgent: "memory-distill" }, description: "Distils chats into per-user memory." },
+  { id: "outreach-scorer", label: "Outreach Scorer", kind: "agent", column: 2, binding: { llmAgent: "outreach-scorer" }, description: "Scores sourced prospects against the distributor ICP (Apollo pipeline)." },
+  { id: "outreach-reply-handler", label: "Reply Handler", kind: "agent", column: 2, binding: { llmAgent: "outreach-reply-handler" }, description: "Classifies inbound replies (interested / unsubscribe / …)." },
   { id: "rebalancing", label: "Rebalancing Signal", kind: "output", column: 3, description: "Advisory rebalancing signal (human-decided)." },
   { id: "outreach", label: "Email Outreach", kind: "output", column: 3, binding: { llmAgent: "email-outreach" }, description: "Investor email outreach." },
   { id: "hubspot", label: "HubSpot Sync", kind: "output", column: 3, description: "CRM contact + memory sync." },
@@ -144,6 +146,8 @@ const ORCHESTRATION_EDGES: ReadonlyArray<[string, string]> = [
   ["cockpit-chat", "memory-distill"],
   ["memory-distill", "hubspot"],
   ["investor-memo", "outreach"],
+  ["outreach-scorer", "outreach"],
+  ["outreach", "outreach-reply-handler"],
   ["outreach", "hubspot"],
 ];
 
@@ -208,11 +212,16 @@ const ADMIN_READ_TOOL_CATALOG: readonly ToolCatalogEntry[] = [
   { id: "generate_demo_plan", label: "Demo plan", description: "Ordered admin demo plan from routes/specs.", kind: "read", riskLevel: "low", confirmationRequired: false },
   { id: "export_demo_pack", label: "Demo pack", description: "Structured demo pack (plan, charts, checklist).", kind: "read", riskLevel: "low", confirmationRequired: false },
   { id: "export_briefing_pack", label: "Briefing pack", description: "Executive briefing package (summary, risks).", kind: "read", riskLevel: "low", confirmationRequired: false },
+  { id: "outreach_list_prospects", label: "List prospects", description: "List outreach prospects by tier / status.", kind: "read", riskLevel: "low", confirmationRequired: false },
+  { id: "outreach_stats", label: "Outreach stats", description: "Pipeline counts by tier and status.", kind: "read", riskLevel: "low", confirmationRequired: false },
 ] as const;
 
 const ADMIN_WRITE_TOOL_CATALOG: readonly ToolCatalogEntry[] = [
   { id: "create_review_note_draft", label: "Review note draft", description: "Create an admin review note draft (draft only).", kind: "write", riskLevel: "medium", confirmationRequired: true },
   { id: "create_governance_proposal_draft", label: "Governance proposal draft", description: "Create a governance proposal draft (draft only).", kind: "write", riskLevel: "high", confirmationRequired: true },
+  { id: "outreach_source_leads", label: "Source leads", description: "Source distributor leads via Apollo (scored + tiered); sends nothing.", kind: "write", riskLevel: "medium", confirmationRequired: true },
+  { id: "outreach_draft_email", label: "Draft email", description: "Draft a distributor email for a prospect; sends nothing.", kind: "write", riskLevel: "medium", confirmationRequired: true },
+  { id: "outreach_trigger_send_run", label: "Trigger send run", description: "Run the governed auto-send job (autonomy dial; never Tier A).", kind: "write", riskLevel: "high", confirmationRequired: true },
 ] as const;
 
 function buildInstrumentsView(): ViewDef {
