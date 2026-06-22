@@ -245,7 +245,7 @@ export function buildIndicativeValueSeries(
     points.push({
       label: MONTH_LABELS[d.getUTCMonth() % 12] ?? "",
       value: Math.round(start + (end - start) * t),
-      isDistribution: i > 0,
+      isDistribution: false,
     });
   }
 

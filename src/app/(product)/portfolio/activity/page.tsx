@@ -23,6 +23,7 @@ export default async function ActivityPage() {
     data,
     riskPulseProps,
     proofPulseProps,
+    now,
   } = await loadPortfolioView();
 
   return (
@@ -45,6 +46,7 @@ export default async function ActivityPage() {
             transactions={data.recentTransactions}
             source={data.source}
             updatedAt={data.updatedAt}
+            asOf={now}
           />
         </div>
         <div

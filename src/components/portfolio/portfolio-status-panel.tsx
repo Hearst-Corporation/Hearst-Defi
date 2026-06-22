@@ -5,6 +5,7 @@ import { formatUsdCompact } from "@/lib/vaults/product-display";
 import {
   PfCockpitPanel,
 } from "@/components/portfolio/pf-cockpit-panel";
+import { attestationState } from "@/components/portfolio/proof-pulse";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { cn } from "@/lib/cn";
 
@@ -40,7 +41,7 @@ const ICONS = {
       <path d="M21 7v5h-5" />
     </svg>
   ),
-  deposits: (
+  totalValue: (
     <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v10M9.5 9.2c0-1.1 1.1-1.8 2.5-1.8s2.5.7 2.5 1.8-1.1 1.6-2.5 1.8-2.5.7-2.5 1.8 1.1 1.8 2.5 1.8 2.5-.7 2.5-1.8" />
@@ -54,18 +55,26 @@ const ICONS = {
   ),
 } as const;
 
+/** PoR snapshot for the underlying-proof row — not the portfolio DB source flag. */
+export interface PortfolioStatusProofProps {
+  statedTvlUsdc: number;
+  onChainTvlUsdc: number;
+  timestamp?: Date;
+  source?: "live" | "stale" | "attested";
+}
+
 export interface PortfolioStatusPanelProps {
   hasPositions: boolean;
   positionsCount: number;
   /** principal currently deployed into vaults (USDC) */
   deployedUsdc: number;
-  /** principal + accrued (total value) — denominator for deployment % */
+  /** principal + accrued (total value) */
   totalValueUsdc: number;
   /** accrued yield since inception (USDC) */
   accruedYieldUsdc: number;
-  /** provenance of the underlying proof (live → "Current", else pending/stale) */
   source: "live" | "fallback";
   updatedAt?: Date;
+  proof?: PortfolioStatusProofProps;
   embedded?: boolean;
 }
 
@@ -76,6 +85,21 @@ interface Row {
   value: string;
   valueAccent?: boolean;
   meta: string;
+}
+
+/** Maps PoR figures to an honest LP-facing label (never "Live" for DB reads). */
+export function underlyingProofLabel(
+  proof: PortfolioStatusProofProps | undefined,
+): { value: string; accent: boolean } {
+  if (!proof) return { value: "Unverified", accent: false };
+
+  const state = attestationState(proof.statedTvlUsdc, proof.onChainTvlUsdc);
+  if (proof.source === "attested" || state === "matched") {
+    return { value: "Attested", accent: true };
+  }
+  if (state === "pending") return { value: "Pending", accent: false };
+  if (state === "mismatch") return { value: "Review", accent: false };
+  return { value: "Unverified", accent: false };
 }
 
 /**
@@ -90,26 +114,29 @@ export function PortfolioStatusPanel({
   accruedYieldUsdc,
   source,
   updatedAt,
+  proof,
   embedded = false,
 }: PortfolioStatusPanelProps) {
-  const deploymentPct =
-    hasPositions && totalValueUsdc > 0
-      ? Math.min(100, (deployedUsdc / totalValueUsdc) * 100)
-      : 0;
-
   const provenance = hasPositions ? resolveProvenance(source, updatedAt) : undefined;
-  const asOf = updatedAt ? `As of ${dateFmt.format(updatedAt)}` : "Awaiting first position";
+  const portfolioAsOf = updatedAt ? `As of ${dateFmt.format(updatedAt)}` : "Awaiting first position";
+
+  const proofLabel = underlyingProofLabel(proof);
+  const proofAsOf = proof?.timestamp
+    ? `PoR ${dateFmt.format(proof.timestamp)}`
+    : portfolioAsOf;
+
+  const totalValueMeta =
+    accruedYieldUsdc > 0
+      ? `Incl. ${formatUsdCompact(accruedYieldUsdc)} yield`
+      : "Principal only";
 
   const rows: Row[] = [
     {
       key: "deployment",
       icon: ICONS.deployment,
-      label: "Deployment",
-      value: hasPositions ? `${deploymentPct.toFixed(1)}%` : DASH,
-      valueAccent: hasPositions,
-      meta: hasPositions
-        ? `${formatUsdCompact(deployedUsdc)} deployed`
-        : "Awaiting first position",
+      label: "Capital deployed",
+      value: hasPositions ? formatUsdCompact(deployedUsdc) : DASH,
+      meta: hasPositions ? "Principal in vault" : "Awaiting first position",
     },
     {
       key: "positions",
@@ -127,19 +154,20 @@ export function PortfolioStatusPanel({
       meta: "Since inception",
     },
     {
-      key: "deposits",
-      icon: ICONS.deposits,
-      label: "Net deposits",
-      value: hasPositions ? formatUsdCompact(deployedUsdc) : DASH,
-      meta: "Principal subscribed",
+      key: "totalValue",
+      icon: ICONS.totalValue,
+      label: "Total value",
+      value: hasPositions ? formatUsdCompact(totalValueUsdc) : DASH,
+      valueAccent: hasPositions && accruedYieldUsdc > 0,
+      meta: hasPositions ? totalValueMeta : "—",
     },
     {
       key: "proof",
       icon: ICONS.proof,
       label: "Underlying proof",
-      value: hasPositions ? (source === "live" ? "Live" : "Pending") : DASH,
-      valueAccent: hasPositions && source === "live",
-      meta: asOf,
+      value: hasPositions ? proofLabel.value : DASH,
+      valueAccent: hasPositions && proofLabel.accent,
+      meta: hasPositions ? proofAsOf : portfolioAsOf,
     },
   ];
 
@@ -159,8 +187,6 @@ export function PortfolioStatusPanel({
       <dl className="pf-status-list">
         {rows.map((r) => (
           <div key={r.key} className="pf-status-row">
-            {/* Circled glyph on wide layouts; CSS collapses it to a plain dot
-               when the panel narrows (see .pf-status-row__icon / __dot). */}
             <span className="pf-status-row__icon" aria-hidden="true">
               {r.icon}
             </span>

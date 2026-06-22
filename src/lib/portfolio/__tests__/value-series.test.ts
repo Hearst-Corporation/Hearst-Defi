@@ -132,6 +132,16 @@ describe("buildIndicativeValueSeries", () => {
     expect(series[series.length - 1]!.value).toBe(120_000);
     expect(series[2]!.value).toBe(110_000);
   });
+
+  it("never marks indicative points as distributions", () => {
+    const series = buildIndicativeValueSeries(
+      100_000,
+      120_000,
+      new Date("2026-06-01T00:00:00.000Z"),
+      12,
+    );
+    expect(series.every((p) => !p.isDistribution)).toBe(true);
+  });
 });
 
 describe("buildApyProjectionSeries", () => {

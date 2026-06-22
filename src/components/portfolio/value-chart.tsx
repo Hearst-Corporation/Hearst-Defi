@@ -87,10 +87,9 @@ function areaFromLine(linePath: string, pts: Pt[]): string {
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
- * Series resolution — ledger anchors si dispo, sinon courbe indicative linéaire.
- * En zero-state (aucune position) : courbe PREVIEW ascendante, honnêtement
- * étiquetée (pas de faux badge Live) — un panneau vivant plutôt qu'une ligne
- * plate morte.
+ * Series resolution — ledger anchors when available; otherwise a linear
+ * principal→value indicative curve (no payout markers — not ledger-backed).
+ * Zero-state (no positions): flat skeleton baseline, honestly unlabelled.
  * ────────────────────────────────────────────────────────────────────────── */
 type SeriesMode = "ledger" | "indicative" | "preview" | "skeleton";
 
@@ -392,6 +391,14 @@ export function ValueChart({
           title="Portfolio value"
           titleLevel="section"
           tone="quiet"
+          provenance={provenance}
+          subtitle={
+            isEmpty
+              ? undefined
+              : mode === "ledger"
+                ? undefined
+                : "Indicative · principal to current value"
+          }
           trailing={
             isEmpty ? undefined : (
               <span className="pf-hero-kpi-value tabular-nums">

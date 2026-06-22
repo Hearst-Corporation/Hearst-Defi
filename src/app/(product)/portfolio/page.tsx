@@ -37,6 +37,9 @@ export default async function PortfolioPage() {
     yieldStackProps,
     allocationDonutProps,
     distribCalendarProps,
+    now,
+    nextPayoutUsdc,
+    proofPulseProps,
   } = await loadPortfolioView();
 
   const deployedUsdc = data.positions.reduce((s, p) => s + p.principalUsdc, 0);
@@ -50,10 +53,12 @@ export default async function PortfolioPage() {
     >
       <PortfolioGreeting
         name={displayName(investor)}
+        now={now}
         ticker={{
           totalValueUsdc: data.totalValueUsdc,
           totalYieldYtdUsdc: data.totalYieldYtdUsdc,
           nextDistributionAt: data.nextDistributionAt,
+          nextPayoutUsdc,
           blendedLow: yieldStackProps.blendedLow,
           blendedHigh: yieldStackProps.blendedHigh,
           hasPositions,
@@ -72,6 +77,7 @@ export default async function PortfolioPage() {
                 valueChartTransactions={data.valueChartTransactions}
                 source={data.source}
                 updatedAt={data.updatedAt}
+                asOf={now}
                 embedded
               />
             </div>
@@ -82,6 +88,12 @@ export default async function PortfolioPage() {
               totalValueUsdc={data.totalValueUsdc}
               accruedYieldUsdc={accruedYieldUsdc}
               source={data.source}
+              proof={{
+                statedTvlUsdc: proofPulseProps.lastPor.statedTvlUsdc,
+                onChainTvlUsdc: proofPulseProps.lastPor.onChainTvlUsdc,
+                timestamp: proofPulseProps.lastPor.timestamp,
+                source: proofPulseProps.source,
+              }}
               embedded
               {...(data.updatedAt ? { updatedAt: data.updatedAt } : {})}
             />
@@ -133,6 +145,7 @@ export default async function PortfolioPage() {
               transactions={data.recentTransactions}
               source={data.source}
               updatedAt={data.updatedAt}
+              asOf={now}
               leafHref="/portfolio/activity"
               embedded={false}
             />

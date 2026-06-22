@@ -3,15 +3,11 @@ import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { relativeTime } from "@/lib/format/time";
+import { formatUsdCompact } from "@/lib/vaults/product-display";
 import {
   PfCockpitPanel,
 } from "@/components/portfolio/pf-cockpit-panel";
-
-const usdFmt = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
+import { cn } from "@/lib/cn";
 
 const TYPE_LABELS: Record<string, string> = {
   deposit: "Deposit",
@@ -19,6 +15,19 @@ const TYPE_LABELS: Record<string, string> = {
   withdraw: "Withdrawal",
   distribution: "Payout",
 };
+
+const ICONS = {
+  in: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5v14M5 12l7-7 7 7" />
+    </svg>
+  ),
+  out: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 19V5M5 12l7 7 7-7" />
+    </svg>
+  ),
+} as const;
 
 function flowSign(type: string): "in" | "out" {
   return type === "withdraw" ? "out" : "in";
@@ -28,6 +37,8 @@ interface RecentActivityProps {
   transactions: PortfolioTransaction[];
   source: "live" | "fallback";
   updatedAt?: Date;
+  /** Server reference time — must match the portfolio hub `now`. */
+  asOf?: Date;
   leafHref?: string;
   embedded?: boolean;
 }
@@ -36,13 +47,14 @@ export function RecentActivity({
   transactions,
   source,
   updatedAt,
+  asOf: asOfProp,
   leafHref,
   embedded = false,
 }: RecentActivityProps) {
   const displayed = transactions.slice(0, 5);
   const hasTransactions = displayed.length > 0;
   const provenance = hasTransactions ? resolveProvenance(source, updatedAt) : undefined;
-  const asOf = new Date();
+  const asOf = asOfProp ?? new Date();
   const trailing = leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined;
 
   return (
@@ -63,24 +75,30 @@ export function RecentActivity({
           {displayed.map((tx) => {
             const dir = flowSign(tx.type);
             return (
-              <div key={tx.id} className="pf-activity__row">
-                <span className="pf-activity__glyph" data-dir={dir} aria-hidden>
-                  {dir === "in" ? "▲" : "▼"}
+              <div key={tx.id} className="pf-activity__row group">
+                <span className={cn(
+                  "pf-activity__glyph",
+                  dir === "in" ? "ct-text-accent" : "ct-text-muted"
+                )} aria-hidden>
+                  {ICONS[dir]}
                 </span>
                 <span className="pf-activity__main min-w-0">
                   <span className="body-sm ct-text-primary font-semibold truncate">
                     {TYPE_LABELS[tx.type] ?? tx.type}
                     {tx.positionVaultName ? (
-                      <span className="ct-text-muted font-normal"> · {tx.positionVaultName}</span>
+                      <span className="ct-text-tertiary font-normal"> · {tx.positionVaultName}</span>
                     ) : null}
                   </span>
-                  <span className="stat-label ct-text-muted mono truncate">
+                  <span className="pf-activity__meta truncate">
                     {relativeTime(tx.occurredAt, asOf)}
                   </span>
                 </span>
-                <span className="pf-activity__amt tabular body-md mono font-semibold">
+                <span className={cn(
+                  "pf-activity__amt",
+                  dir === "in" ? "ct-text-accent" : "ct-text-strong"
+                )}>
                   {dir === "out" ? "−" : "+"}
-                  {usdFmt.format(tx.amountUsdc)}
+                  {formatUsdCompact(tx.amountUsdc)}
                 </span>
               </div>
             );

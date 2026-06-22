@@ -8,6 +8,7 @@ import {
   loadProofPulseProps,
   loadYieldStackProps,
   loadAllocationDonutProps,
+  loadTimeToCashProps,
   resolveProvenance,
 } from "@/lib/data/portfolio";
 
@@ -36,15 +37,26 @@ export async function loadPortfolioView() {
     proofPulseProps,
     yieldStackProps,
     allocationDonutProps,
+    timeToCashProps,
   ] = await Promise.all([
     loadRiskPulseProps(),
     loadDistribCalendarProps(),
     loadProofPulseProps(),
     loadYieldStackProps(hasPositions),
     loadAllocationDonutProps(hasPositions),
+    hasPositions ? loadTimeToCashProps() : Promise.resolve(null),
   ]);
 
+  const nextPayoutUsdc =
+    timeToCashProps &&
+    timeToCashProps.source === "live" &&
+    timeToCashProps.projectedUsdc > 0
+      ? timeToCashProps.projectedUsdc
+      : undefined;
+
   const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
+
+  const now = new Date();
 
   return {
     investor,
@@ -56,5 +68,8 @@ export async function loadPortfolioView() {
     yieldStackProps,
     allocationDonutProps,
     portfolioProvenance,
+    timeToCashProps,
+    nextPayoutUsdc,
+    now,
   };
 }
