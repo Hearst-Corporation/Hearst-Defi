@@ -198,12 +198,12 @@ function Plot({ series, lineOnly = false, preview = false, skeleton = false, hov
 
       <defs>
         <linearGradient id={areaId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--ct-accent)" stopOpacity="0.15" />
+          <stop offset="0%" stopColor="var(--ct-accent)" stopOpacity="0.25" />
           <stop offset="50%" stopColor="var(--ct-accent)" stopOpacity="0.05" />
           <stop offset="100%" stopColor="var(--ct-accent)" stopOpacity="0" />
         </linearGradient>
         <filter id={`${uid}-glow`} x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="1.5" result="blur" />
+          <feGaussianBlur stdDeviation="2.5" result="blur" />
           <feComposite in="SourceGraphic" in2="blur" operator="over" />
         </filter>
       </defs>
