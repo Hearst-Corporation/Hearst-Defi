@@ -244,9 +244,9 @@ export function CapitalYield({
                  since we're cleaning up the empty states to be more explicit. */
               (
                 <div className="cy-embedded-empty">
-                  <span className="body-sm ct-text-strong font-medium">No active positions</span>
-                  <span className="body-xs ct-text-muted max-w-[30ch]">
-                    Your capital allocation and forward yield projection will be computed here once your first on-chain deposit is confirmed.
+                  <span className="pf-positions-empty__lead">No active positions</span>
+                  <span className="pf-positions-empty__hint ct-text-muted max-w-[30ch]">
+                    Your capital allocation and forward yield projection will appear here.
                   </span>
                 </div>
               )}

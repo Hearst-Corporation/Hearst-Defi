@@ -2513,6 +2513,7 @@
    Scopé dashboard via :has(.dashboard-cockpit) — ne touche aucune autre page
    admin et n'édite pas le shell global (doc-flow.css). ── */
 @media (min-width: 80rem) {
+  .admin-doc.admin-doc-shell:has(.dashboard-cockpit),
   .admin-doc .admin-doc-shell:has(.dashboard-cockpit) {
     max-width: var(--ct-dashboard-frame-max-w);
     margin-inline: auto;
@@ -3066,6 +3067,14 @@
     overflow: hidden;
   }
 
+    /* Admin proof hub: proof-center-shell sits inside the layout shell. */
+    .ct-page-area:has(.proof-cockpit--fit) .admin-doc .proof-center-shell {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
   /* proof-cockpit--fit fills the remaining height. */
   .proof-cockpit--fit {
     flex: 1 1 auto;
@@ -4696,6 +4705,14 @@ button.ct-choice-card {
   padding-top: var(--ct-space-9);
   padding-inline: var(--ct-space-5);
   padding-bottom: var(--ct-space-8);
+}
+/* Admin layout fills main scroll column (mirrors product-doc-shell chain). */
+main#main-content>.admin-doc.admin-doc-shell {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 .ct-embed-overlay                          { padding: var(--ct-space-6); }
 .ct-embed-sub code                         { padding: 1px 6px; }

@@ -74,7 +74,7 @@ export function PositionsList({
         <div className="pf-positions-empty">
           <span className="pf-positions-empty__lead">No active positions</span>
           <span className="pf-positions-empty__hint ct-text-muted">
-            Your portfolio will display your active vault subscriptions here once your first on-chain deposit is confirmed.
+            Your portfolio will display your active vault subscriptions here.
           </span>
         </div>
       </PfCockpitPanel>
