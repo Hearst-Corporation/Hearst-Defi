@@ -4658,6 +4658,11 @@ button.ct-choice-card {
   min-height: 0;
   flex-direction: column;
   overflow-y: auto;
+  /* Arrête la propagation du scroll au body en fin de course (le footer est
+     pinné au pied du shell). Sans ça, atteindre le haut/bas de main chaînait
+     vers le body → micro-saccade / flutter au scroll. `contain` = scroll normal,
+     zéro rebond, zéro chaînage. */
+  overscroll-behavior: contain;
   /* Ghost scrollbar — DS standard (cf. .proof-panel-scroll & co). Scroll
      fonctionnel (molette/trackpad/touch), gouttière non réservée, pas de
      layout-shift. Aligné sur les containers scroll nommés du cockpit. */
