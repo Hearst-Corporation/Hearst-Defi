@@ -328,17 +328,20 @@ export function ValueChart({
       {provenance ? <ChartProvenanceCorner kind={provenance} /> : null}
 
       {embedded ? (
-        <DashboardPanelHeader
-          title="Portfolio value"
-          tone="primary"
-          trailing={
-            isEmpty ? undefined : (
-              <span className="pf-hero-kpi-value tabular-nums">
-                {formatUsdFull(chartValue)}
-              </span>
-            )
-          }
-        />
+        <header className="dashboard-card-header">
+          <div className="min-w-0 flex flex-col gap-[var(--ct-space-1)]">
+            <h2 className="dashboard-panel-title min-w-0 wrap-break-word ct-text-accent">
+              Portfolio value
+            </h2>
+            {isEmpty ? null : (
+              <p className="pf-hero-kpi-block m-0">
+                <span className="pf-hero-kpi-value tabular-nums">
+                  {formatUsdFull(chartValue)}
+                </span>
+              </p>
+            )}
+          </div>
+        </header>
       ) : (
         <DashboardPanelHeader
           title="Portfolio value over the trailing window"
