@@ -1003,9 +1003,38 @@
   margin-top: var(--ct-space-1);
 }
 
-/* Status rows lead with a small accent dot (replaced the circled glyphs — they
-   ovalised when the sidebar narrowed). Fixed size, never shrinks, always round. */
+/* Wide layouts: circled line-icon. Narrow layouts (below the no-scroll gate):
+   it collapses to a plain accent dot — see the media query toggle below. */
+.pf-status-row__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  aspect-ratio: 1 / 1;
+  flex: 0 0 auto;
+  border-radius: var(--ct-radius-full);
+  color: var(--ct-accent);
+  background: color-mix(in srgb, var(--ct-accent) 8%, var(--ct-surface-2));
+  border: 1px solid color-mix(in srgb, var(--ct-accent) 22%, var(--ct-graphite-border-nested));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ct-accent) 6%, transparent);
+}
+
+.pf-status-row__icon svg {
+  display: block;
+  width: var(--ct-space-3_5);
+  height: var(--ct-space-3_5);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Small accent dot — the responsive fallback for the circled icon. Hidden on
+   wide layouts (icon shows instead); revealed when the panel narrows. */
 .pf-status-row__dot {
+  display: none;
   width: var(--ct-space-1_5);
   height: var(--ct-space-1_5);
   aspect-ratio: 1 / 1;
@@ -2385,3 +2414,12 @@
   animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 .cy-fill--skeleton::after { display: none; }
+
+/* ── Portfolio status leading mark: circled icon when there's room, plain dot
+   when the panel gets too narrow (icon discs were cramping the rows). The
+   88rem gate mirrors the cockpit no-scroll breakpoint — below it the layout
+   compresses, so we drop to the compact dot. ── */
+@media not all and (min-width: 88rem) {
+  .pf-status-row__icon { display: none; }
+  .pf-status-row__dot { display: inline-block; }
+}
