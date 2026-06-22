@@ -17,14 +17,13 @@ export const FEATURE_FLAGS = {
     process.env.NEXT_PUBLIC_ENABLE_MONTE_CARLO === "true",
 
   /**
-   * CHAT_MASTER_AGENT — routes the (normal-mode) cockpit chat through the
-   * app-side tool-capable engine (runChatAgent) so the assistant can navigate
-   * the LP to the right page. Server-only (no NEXT_PUBLIC_): the value never
-   * ships to the client.
+   * CHAT_MASTER_AGENT — kill-switch for the unified cockpit chat engine. The
+   * app-side tool-capable engine (runChatAgent) is now the SINGLE engine for all
+   * modes (normal / admin / review); the legacy @hearst/cockpit-shell handler has
+   * been retired. Server-only (no NEXT_PUBLIC_): the value never ships to client.
    *
-   * OFF by default. Set CHAT_MASTER_AGENT=1 to enable. When OFF the chat keeps
-   * running through the @hearst/cockpit-shell handler (no tools). Review mode is
-   * unaffected (always the cockpit-shell handler).
+   * ON by default. Set CHAT_MASTER_AGENT=0 to DISABLE the cockpit chat entirely
+   * (the route returns 503) — there is no second engine to fall back to.
    */
-  CHAT_MASTER_AGENT: process.env.CHAT_MASTER_AGENT === "1",
+  CHAT_MASTER_AGENT: process.env.CHAT_MASTER_AGENT !== "0",
 } as const;

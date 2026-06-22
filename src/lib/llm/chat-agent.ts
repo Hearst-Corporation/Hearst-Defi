@@ -371,10 +371,15 @@ export function runChatAgent(
     navProfile?: NavProfile;
     chatMode?: "normal" | "admin";
     userId?: string;
+    /** When false, the `navigate` tool is NOT declared to the model — used by
+     *  review mode, a facilitation chat that must not yank the user away. The
+     *  `nav` promise then always resolves to null. Default: true. */
+    exposeNavigate?: boolean;
   },
 ): ChatAgentResult {
   const enc = new TextEncoder();
   const navProfile = options?.navProfile ?? "lp";
+  const exposeNavigate = options?.exposeNavigate ?? true;
   const navigateTool = createNavigateTool(navProfile);
 
   // Combine the optional caller signal with an internal timeout so the model
@@ -435,7 +440,7 @@ export function runChatAgent(
             })
           : [];
         const declaredTools: unknown[] = [
-          navigateTool,
+          ...(exposeNavigate ? [navigateTool] : []),
           ...adminReadTools.map((tool) => ({
             type: "function" as const,
             function: {

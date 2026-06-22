@@ -1,7 +1,4 @@
-import {
-  createCockpitChatHandler,
-  type CockpitChatHandlerConfig,
-} from "@hearst/cockpit-shell/handler";
+import type { CockpitChatHandlerConfig } from "@hearst/cockpit-shell/handler";
 import type { NextRequest } from "next/server";
 import { after } from "next/server";
 import { z } from "zod";
@@ -25,7 +22,7 @@ import {
 } from "@/lib/llm/prompts";
 import { isChatMode, type ChatMode } from "@/lib/llm/chat-modes";
 import { PRODUCT_CONTEXT } from "@/lib/product-context";
-import { guardChatStream, chatOutputViolation } from "@/lib/llm/output-guard";
+import { chatOutputViolation } from "@/lib/llm/output-guard";
 import { buildPortfolioContextBlock } from "@/lib/llm/chat-context";
 import { buildAdminContextBlock } from "@/lib/llm/admin-context";
 import {
@@ -491,6 +488,13 @@ async function runMasterAgentTurn(args: {
 }): Promise<Response> {
   const { req, userId, chatMode, navProfile, isAdmin, model, systemPrompt } = args;
 
+  // Review mode is a facilitation chat (product-review): it must NOT navigate,
+  // NOT divert to the Product Workspace, and NOT inject product-chart stream
+  // events. It still runs through the SAME engine (runChatAgent) for streaming,
+  // compliance guarding and honest token tracing — just with those LP/admin
+  // product-chat behaviours gated off.
+  const isReview = chatMode === "review";
+
   let body: {
     chatId?: string | null;
     message?: string;
@@ -569,6 +573,7 @@ async function runMasterAgentTurn(args: {
   const navShortcutProfile: "lp" | "admin" =
     navShortcutKey?.startsWith("admin-") === true ? "admin" : "lp";
   if (
+    !isReview &&
     navShortcutKey &&
     resolveNavDestinationForProfile(navShortcutKey, navShortcutProfile)
   ) {
@@ -620,7 +625,7 @@ async function runMasterAgentTurn(args: {
   // diverted to the workspace even from plain Conversation mode. A LP never
   // reaches here for the workspace (the surface is admin-only).
   const productIntent =
-    isAdmin && productWorkspaceNavEnabled
+    !isReview && isAdmin && productWorkspaceNavEnabled
       ? await classifyProductIntentLlm(
           openai as unknown as ClassifyClient,
           model,
@@ -687,13 +692,19 @@ async function runMasterAgentTurn(args: {
       navProfile,
       chatMode: chatMode === "admin" ? "admin" : "normal",
       userId,
+      // Review mode never navigates — don't even declare the navigate tool.
+      exposeNavigate: !isReview,
     },
   );
-  const responseStream = withProductChatStreamEvents({
-    stream,
-    message,
-    navProfile,
-  });
+  // Product-chart stream events are an LP/admin product-chat affordance; review
+  // (a facilitation chat) gets the raw guarded stream untouched.
+  const responseStream = isReview
+    ? stream
+    : withProductChatStreamEvents({
+        stream,
+        message,
+        navProfile,
+      });
 
   // Persist the assistant answer + an honest LlmRun trace once the turn
   // completes. Both run off the response path and never throw.
@@ -739,7 +750,7 @@ async function runMasterAgentTurn(args: {
   // short-circuited above. So this path only publishes the model's own chosen
   // destination, plus a fallback to Scenario Lab for a standalone simulation
   // intent the model answered in plain text without a navigate tool call.
-  void nav
+  if (!isReview) void nav
     .then(async (dest) => {
       if (dest) {
         await publishNav(userId, { destinationKey: dest.key });
@@ -1048,127 +1059,40 @@ export async function POST(req: NextRequest): Promise<Response> {
     }
   }
 
-  // 5b. Master Agent path (flag-gated, normal/admin modes only): route through the
-  //     app-side tool-capable engine so the assistant can navigate the LP.
-  //     OFF by default → falls through to the cockpit-shell handler below.
-  //     Review mode always uses the cockpit-shell handler (no tools).
-  if (
-    FEATURE_FLAGS.CHAT_MASTER_AGENT &&
-    (chatMode === "normal" || chatMode === "admin")
-  ) {
-    const navProfile = chatMode === "admin" ? "admin" : "lp";
-    // Resolve the admin ROLE (not the chat mode) so an admin gets product-intent
-    // detection even from plain Conversation mode. getSession() is React-cache
-    // deduped (requireAuth already called it) → no extra DB round-trip.
-    let isAdmin = false;
-    try {
-      const session = await getSession();
-      isAdmin = session?.role === "admin";
-    } catch {
-      isAdmin = false; // safe default: no workspace divert
-    }
-    return runMasterAgentTurn({
-      req: sanitizedReq,
-      userId,
-      chatMode,
-      navProfile,
-      isAdmin,
-      model: resolveModel(requestedModel),
-      systemPrompt: enrichedSystemPrompt,
+  // 5b. SINGLE chat engine. ALL modes (normal / admin / review) run through the
+  //     app-side tool-capable engine (runChatAgent, via runMasterAgentTurn): one
+  //     streaming path, one compliance guard (guardChatStream lives inside the
+  //     engine), honest token usage + cost traced on every turn. The legacy
+  //     @hearst/cockpit-shell handler (no tools, no token usage → costUsd NULL)
+  //     has been retired. CHAT_MASTER_AGENT is now a pure kill-switch (default
+  //     ON) — when set to "0" there is NO fallback engine and the chat is off.
+  if (!FEATURE_FLAGS.CHAT_MASTER_AGENT) {
+    return new Response(JSON.stringify({ error: "Cockpit chat is disabled." }), {
+      status: 503,
+      headers: { "Content-Type": "application/json", "Retry-After": "300" },
     });
   }
 
-  const handler = createCockpitChatHandler({
-    llmClient: openai,
+  // navProfile drives the navigate-tool destination set. Review never navigates
+  // (gated inside runMasterAgentTurn), so its profile is moot — default to lp.
+  const navProfile: "lp" | "admin" = chatMode === "admin" ? "admin" : "lp";
+  // Resolve the admin ROLE (not the chat mode) so an admin gets product-intent
+  // detection even from plain Conversation mode. getSession() is React-cache
+  // deduped (requireAuth already called it) → no extra DB round-trip.
+  let isAdmin = false;
+  try {
+    const session = await getSession();
+    isAdmin = session?.role === "admin";
+  } catch {
+    isAdmin = false; // safe default: no workspace divert
+  }
+  return runMasterAgentTurn({
+    req: sanitizedReq,
+    userId,
+    chatMode,
+    navProfile,
+    isAdmin,
     model: resolveModel(requestedModel),
     systemPrompt: enrichedSystemPrompt,
-    userId,
-    persistence: createUserScopedPersistence(userId, chatMode),
-    rateLimitMax: CHAT_RATE_MAX,
-    rateLimitWindowMs: CHAT_RATE_WINDOW_MS,
   });
-
-  // 6. Trace the call as an LlmRun. The handler streams internally and does
-  //    not surface token usage or a completion hook, so we can only record
-  //    wall-clock latency + terminal status here (inputTokens/outputTokens/
-  //    costUsd stay null — capturing them would require forking the handler,
-  //    which is out of scope and would duplicate its stream logic).
-  const startedAt = Date.now();
-  try {
-    const res = await handler.POST(sanitizedReq);
-    const latencyMs = Date.now() - startedAt;
-    const ok = res.status < 400;
-    try {
-      await prisma.llmRun.create({
-        data: {
-          agentName: "cockpit-chat",
-          model: LLM_MODEL,
-          status: ok ? "success" : "failed",
-          latencyMs,
-          userId,
-          // PR-3 #2: hash the ENRICHED prompt actually sent to the handler
-          // (base persona + role directive + user-context + live portfolio
-          // data), not the base-prompt constant — the trace must reflect what
-          // the model received, which varies per request.
-          systemPromptHash: sha256Hex(enrichedSystemPrompt),
-          ...(ok
-            ? {}
-            : {
-                errorType: "handler_http_error",
-                errorMessage: `handler returned ${res.status}`,
-              }),
-        },
-      });
-    } catch (traceErr) {
-      // Tracing must never break the user-facing response.
-      logger.warn(
-        "cockpit-chat LlmRun trace failed",
-        {},
-        traceErr instanceof Error ? traceErr : undefined,
-      );
-    }
-    // Wrap the streamed answer with the output-side compliance guard so a
-    // forbidden claim or single-point APY is never emitted to an investor.
-    // Preserve status + headers (notably x-chat-id) on the new Response.
-    if (res.body && ok) {
-      return new Response(guardChatStream(res.body), {
-        status: res.status,
-        headers: res.headers,
-      });
-    }
-    return res;
-  } catch (err) {
-    const latencyMs = Date.now() - startedAt;
-    logger.error(
-      "cockpit-chat handler failed",
-      {},
-      err instanceof Error ? err : undefined,
-    );
-    try {
-      await prisma.llmRun.create({
-        data: {
-          agentName: "cockpit-chat",
-          model: LLM_MODEL,
-          status: "failed",
-          latencyMs,
-          userId,
-          // PR-3 #2: hash the ENRICHED prompt actually sent, not the base
-          // constant — keeps failed-run traces consistent with success runs.
-          systemPromptHash: sha256Hex(enrichedSystemPrompt),
-          errorType: err instanceof Error ? err.name : "UnknownError",
-          errorMessage: err instanceof Error ? err.message : "unknown error",
-        },
-      });
-    } catch (traceErr) {
-      logger.warn(
-        "cockpit-chat LlmRun trace failed",
-        {},
-        traceErr instanceof Error ? traceErr : undefined,
-      );
-    }
-    return new Response(JSON.stringify({ error: "Chat handler error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
 }
