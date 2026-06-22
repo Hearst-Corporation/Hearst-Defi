@@ -36,6 +36,15 @@ export interface UseChatReturn {
   streaming: boolean;
   error: string | null;
   sendMessage: (text: string) => void;
+  /**
+   * Local echo — append a user turn + a fixed assistant reply to the transcript
+   * WITHOUT any network call. Used by the client-side fast navigation path: a
+   * pure nav gesture is resolved locally, so there is nothing to POST, but the
+   * user must still see their message and the ack bubble instantly. Persists
+   * both messages best-effort when persistence is configured (parity with the
+   * server, which saves the same pair on its own nav short-circuit).
+   */
+  appendLocal: (userText: string, assistantText: string) => void;
   reset: () => void;
   /** Texte du prompt en file d'attente (1× Entrée pendant une réponse), sinon null. */
   queued: string | null;
@@ -289,6 +298,49 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
     setStreaming(false);
     setChatId(null);
   }, []);
+
+  /**
+   * appendLocal — push a user turn + a fixed assistant reply locally, with NO
+   * network call. The client fast-nav path resolves a pure navigation gesture
+   * (or an instant nav-reject) without the server, so there is nothing to stream
+   * — but the transcript must still reflect the exchange instantly. We add both
+   * bubbles to the in-memory list and persist them best-effort (fire-and-forget)
+   * when a persistence adapter is configured, so reloading the conversation
+   * shows the same pair the server would have saved on its own nav shortcut.
+   */
+  const appendLocal = useCallback(
+    (userText: string, assistantText: string) => {
+      const user = userText.trim();
+      const assistant = assistantText.trim();
+      if (!user || !assistant) return;
+
+      const userMsg: DisplayMessage = {
+        id: generateId(),
+        role: "user",
+        content: user,
+        createdAt: Date.now(),
+      };
+      const assistantMsg: DisplayMessage = {
+        id: generateId(),
+        role: "assistant",
+        content: assistant,
+        createdAt: Date.now(),
+      };
+
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+
+      const activeChatId = chatId;
+      if (activeChatId && persistence) {
+        void persistence.saveMessage(activeChatId, userMsg).catch(() => {
+          /* best-effort persistence — the in-memory echo already happened */
+        });
+        void persistence.saveMessage(activeChatId, assistantMsg).catch(() => {
+          /* best-effort persistence */
+        });
+      }
+    },
+    [chatId, persistence],
+  );
 
   /**
    * runTurn — exécute UN tour réseau (envoi + lecture du stream). Ne décide PAS
@@ -546,5 +598,5 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
     [runTurn],
   );
 
-  return { messages, streaming, error, sendMessage, reset, queued };
+  return { messages, streaming, error, sendMessage, appendLocal, reset, queued };
 }

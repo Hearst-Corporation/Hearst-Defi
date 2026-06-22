@@ -411,7 +411,8 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
           errorType: null,
           inputTokens: 1000,
           outputTokens: 500,
-          costUsd: expect.closeTo(0.006, 6),
+          // gpt-4o-mini pricing: 1000×0.15/1M + 500×0.60/1M = 0.00045
+          costUsd: expect.closeTo(0.00045, 6),
         }),
       });
     });
@@ -511,7 +512,12 @@ describe("POST /api/cockpit-chat — navigate tracing (OBS-02)", () => {
       navBlocked: true,
     });
 
-    const res = await POST(makeChatRequest("emmène-moi quelque part"));
+    // The message must NOT lead with a bare nav verb: a nav-verb-only message
+    // with no resolvable destination is now short-circuited to NAV_REJECT_ACK in
+    // POST (before runChatAgent runs), which would bypass the model-proposed nav
+    // this test exercises. Drive the blocked-nav-trace path via a normal question
+    // — runChatAgent is mocked, so the message text doesn't shape the verdict.
+    const res = await POST(makeChatRequest("explique-moi la structure Cayman du vault"));
     expect(res.status).toBe(200);
 
     await vi.waitFor(() => {

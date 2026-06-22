@@ -183,17 +183,41 @@ export function ChatNavBridge() {
       reArm();
     };
 
+    // Client fast-path: ChatKimi resolved a navigation gesture locally (zero
+    // network) and dispatched the resolved ROUTE. We feed it through the SAME
+    // pending/auto-nav machinery a server-published directive uses, so the
+    // anti-loop check and the protected-route confirmation (offer, don't yank)
+    // both still apply — the local path never blindly router.pushes.
+    const onNavLocal = (event: Event): void => {
+      if (cancelled) return;
+      const detail = (event as CustomEvent).detail as
+        | { route?: unknown; label?: unknown }
+        | undefined;
+      const route = typeof detail?.route === "string" ? detail.route : null;
+      if (!route) return;
+      const current = pathRef.current;
+      if (route === current) return; // anti-loop: already here
+      const label = typeof detail?.label === "string" ? detail.label : "the page";
+      setPending({
+        route,
+        label,
+        protected: isProtectedRoute(current),
+      });
+    };
+
     // Kick off the first poll immediately.
     void poll();
 
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("cockpit:chat-sent", onChatSent);
+    window.addEventListener("cockpit:nav-local", onNavLocal);
 
     return () => {
       cancelled = true;
       if (timer) clearTimeout(timer);
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("cockpit:chat-sent", onChatSent);
+      window.removeEventListener("cockpit:nav-local", onNavLocal);
     };
   }, []);
 

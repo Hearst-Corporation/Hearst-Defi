@@ -32,6 +32,10 @@ import { HearstMark } from "../shell/HearstMark";
 import type { ChatChart, ChatMessage } from "./types";
 import { isChatMarkdownEnabled, subscribeChatMarkdown } from "./prefs";
 import { useChat } from "./useChat";
+// Client-side fast navigation. The pure resolvers run locally (LP scope) so a
+// nav gesture navigates with ZERO network round-trip; only real questions POST.
+// Single seam into the app-side resolvers (see src/lib/llm/client-nav.ts).
+import { resolveClientNav } from "@/lib/llm/client-nav";
 
 // ---------------------------------------------------------------------------
 // Markdown léger — pas de lib lourde
@@ -115,13 +119,14 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
   );
   const { chatConfig } = useCockpit();
 
-  const { messages, streaming, error, sendMessage, reset, queued } = useChat({
-    apiEndpoint: chatConfig.apiEndpoint ?? "/api/cockpit-chat",
-    persistence: chatConfig.persistence,
-    productId: activeProduct,
-    chatId: activeChat,
-    onChatId: (id) => setActiveChat(id),
-  });
+  const { messages, streaming, error, sendMessage, appendLocal, reset, queued } =
+    useChat({
+      apiEndpoint: chatConfig.apiEndpoint ?? "/api/cockpit-chat",
+      persistence: chatConfig.persistence,
+      productId: activeProduct,
+      chatId: activeChat,
+      onChatId: (id) => setActiveChat(id),
+    });
 
   // Keep scrolling local to the chat list. `scrollIntoView()` can bubble up to a
   // larger ancestor and visually yank the whole center panel when a message lands.
@@ -148,6 +153,41 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       // sur double-submit rapide). Le textarea reste actif en permanence.
       if (!text.trim()) return;
       setInput("");
+
+      // CLIENT FAST-PATH (zero network). Resolve the message against the SAME
+      // pure regex resolvers the server runs before any LLM call, at LP scope
+      // (the client cannot know the admin role — admin nav falls through to the
+      // server, which can). Three outcomes:
+      //   nav    → navigate locally + echo the ack bubble, NO POST.
+      //   reject → echo the reject bubble (nav gesture, no destination), NO POST.
+      //   chat   → a real question (or admin nav) → POST exactly as today.
+      // The server early-exit stays intact as defense-in-depth for clients that
+      // don't run this JS and for admin navigation.
+      const client = resolveClientNav(text);
+
+      if (client.kind === "nav" && client.route && client.ack) {
+        appendLocal(text, client.ack);
+        if (typeof window !== "undefined") {
+          // The nav bridge translates this into the SAME pending/auto-nav
+          // machinery as a server-published directive, so protected-route
+          // confirmation still applies — no blind router.push.
+          window.dispatchEvent(
+            new CustomEvent("cockpit:nav-local", {
+              detail: { route: client.route, label: client.label },
+            }),
+          );
+        }
+        requestAnimationFrame(() => textareaRef.current?.focus());
+        return;
+      }
+
+      if (client.kind === "reject" && client.ack) {
+        appendLocal(text, client.ack);
+        requestAnimationFrame(() => textareaRef.current?.focus());
+        return;
+      }
+
+      // Real question → server, exactly as before.
       sendMessage(text);
       // Signal the chat-nav-bridge to re-arm its poll cadence immediately so that
       // any navigation directive the Master Agent publishes for this turn is picked
@@ -158,7 +198,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       // Re-focus après envoi.
       requestAnimationFrame(() => textareaRef.current?.focus());
     },
-    [sendMessage],
+    [sendMessage, appendLocal],
   );
 
   const handleKeyDown = useCallback(

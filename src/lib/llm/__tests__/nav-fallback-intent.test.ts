@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   ADMIN_CUSTOMERS_DESTINATION_KEY,
   ADMIN_OUTREACH_DESTINATION_KEY,
+  NAV_REJECT_ACK,
   NAV_SHORTCUT_ACK,
+  looksLikeNavIntent,
   resolveAdminNavFallbackKey,
   resolveLpNavDestinationKey,
   resolveNavFallbackDestinationKey,
@@ -143,6 +145,117 @@ describe("nav-fallback-intent", () => {
           scenarioLabNavEnabled: true,
         }),
       ).toBe(ADMIN_CUSTOMERS_DESTINATION_KEY);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // looksLikeNavIntent — deny-first pipeline
+  // ---------------------------------------------------------------------------
+  describe("looksLikeNavIntent", () => {
+    // TRUE: genuine navigation attempts that should get the instant reject
+    it("returns true for explicit nav phrases pointing at unknown destinations", () => {
+      expect(looksLikeNavIntent("ouvre la page xyz")).toBe(true);
+      expect(looksLikeNavIntent("va sur la section truc")).toBe(true);
+      expect(looksLikeNavIntent("montre-moi le machin introuvable")).toBe(true);
+      expect(looksLikeNavIntent("open the gizmo page")).toBe(true);
+    });
+
+    // TRUE: accented verbs / variants
+    it("normalises accents before matching nav verbs", () => {
+      expect(looksLikeNavIntent("amène-moi sur la page foo")).toBe(true);
+      expect(looksLikeNavIntent("affiche-moi le truc inconnu")).toBe(true);
+    });
+
+    // FALSE — QUESTION guard
+    it("returns false for messages starting with a question word (falls to LLM)", () => {
+      expect(looksLikeNavIntent("comment ouvrir un compte ?")).toBe(false);
+      expect(looksLikeNavIntent("pourquoi le yield est bas")).toBe(false);
+      expect(looksLikeNavIntent("what is the lock-up period")).toBe(false);
+      expect(looksLikeNavIntent("how do I open the vaults")).toBe(false);
+    });
+
+    // FALSE — ACTION_VERB guard
+    it("returns false for messages that start with a mutating action verb", () => {
+      expect(looksLikeNavIntent("crée un nouveau vault")).toBe(false);
+      expect(looksLikeNavIntent("envoie un email de confirmation")).toBe(false);
+      expect(looksLikeNavIntent("supprime cet investisseur")).toBe(false);
+      expect(looksLikeNavIntent("generate a report")).toBe(false);
+    });
+
+    // FALSE — NEGATION guard
+    it("returns false when a negation marker is present", () => {
+      expect(looksLikeNavIntent("je ne veux pas ouvrir ça")).toBe(false);
+      expect(looksLikeNavIntent("don't open the settings")).toBe(false);
+      expect(looksLikeNavIntent("sans ouvrir la page")).toBe(false);
+    });
+
+    // FALSE — CONJUNCTION guard (compound command)
+    it("returns false for compound commands containing a conjunction", () => {
+      expect(looksLikeNavIntent("ouvre X et supprime Y")).toBe(false);
+      expect(looksLikeNavIntent("go to vaults and then export")).toBe(false);
+    });
+
+    // FALSE — TOPIC guard (no nav-verb lead, explanatory intent)
+    it("returns false when a topic marker signals an explanation request (no nav-verb lead)", () => {
+      // "explique" is not a nav verb, and "sur" triggers TOPIC_GUARD
+      expect(looksLikeNavIntent("explique sur la fiscalité")).toBe(false);
+      expect(looksLikeNavIntent("infos about the lockup")).toBe(false);
+    });
+
+    // FALSE — LENGTH guard
+    it("returns false for a long sentence even when starting with a nav verb", () => {
+      // This phrase is >58 chars normalized
+      const longPhrase =
+        "ouvre la documentation complète sur la stratégie de yield mining et les distributions";
+      expect(looksLikeNavIntent(longPhrase)).toBe(false);
+    });
+
+    // FALSE — bare keyword / too few useful words without a nav verb, but topic-free and short:
+    // "distributions" alone is ≤1 useful word → would be TRUE unless we decide otherwise.
+    // Per spec: ≤3 useful words without nav-verb-lead still passes eligibility.
+    // But "explique le lock-up" has an action verb "explique" that is not in the
+    // ACTION_VERB list — it still has 3 useful words and no nav verb → true? Let's
+    // verify: it has no nav verb, no question word, no negation, no conjunction,
+    // no topic guard trigger, length < 36 ("explique le lock up" = 18 chars). So it
+    // WOULD be true. This is fine — the test below verifies the real falsy cases.
+    it("returns false for an explanatory phrase even without a nav verb (via length or topic)", () => {
+      // >36 chars, no nav verb → length guard fires
+      expect(
+        looksLikeNavIntent(
+          "explique-moi en detail comment fonctionne le lock-up de 60 jours",
+        ),
+      ).toBe(false);
+    });
+
+    // FALSE — empty / whitespace
+    it("returns false for empty or whitespace-only input", () => {
+      expect(looksLikeNavIntent("")).toBe(false);
+      expect(looksLikeNavIntent("   ")).toBe(false);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // NAV_REJECT_ACK — compliance / forbidden-words check
+  // ---------------------------------------------------------------------------
+  describe("NAV_REJECT_ACK", () => {
+    it("is a non-empty string", () => {
+      expect(typeof NAV_REJECT_ACK).toBe("string");
+      expect(NAV_REJECT_ACK.length).toBeGreaterThan(0);
+    });
+
+    it("does not contain forbidden financial words", () => {
+      const forbidden = [
+        "guarantee",
+        "promise",
+        "certain",
+        "will deliver",
+        "risk-free",
+        "APY",
+        "%",
+      ];
+      for (const word of forbidden) {
+        expect(NAV_REJECT_ACK.toLowerCase()).not.toContain(word.toLowerCase());
+      }
     });
   });
 });

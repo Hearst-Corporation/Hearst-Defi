@@ -10,15 +10,16 @@ import { openai, LLM_MODEL } from "@/lib/llm/openai";
 import { getRequestContext } from "@/lib/request-context";
 
 /**
- * GPT-4.1 list pricing (USD per 1M tokens). ADR-011. Update here if OpenAI
- * changes the published rate; `LlmRun.costUsd` is computed from these.
+ * OpenAI list pricing (USD per 1M tokens) for the active model gpt-4o-mini.
+ * Update here if OPENAI_MODEL changes or OpenAI changes the published rate;
+ * `LlmRun.costUsd` is computed from these. (gpt-4.1 was 2.0 / 8.0.)
  */
-const OPENAI_INPUT_PER_MTOK = 2.0;
-const OPENAI_OUTPUT_PER_MTOK = 8.0;
+const OPENAI_INPUT_PER_MTOK = 0.15;
+const OPENAI_OUTPUT_PER_MTOK = 0.6;
 /**
- * Cost of an OpenAI turn from its token usage, at GPT-4.1 list pricing (ADR-011).
- * Exported so the streaming chat path can persist the same `costUsd` as the
- * batch path instead of duplicating the rate constants.
+ * Cost of an OpenAI turn from its token usage, at the active model's list
+ * pricing. Exported so the streaming chat path can persist the same `costUsd`
+ * as the batch path instead of duplicating the rate constants.
  */
 export function estimateOpenAiCostUsd(usage: {
   prompt_tokens: number;

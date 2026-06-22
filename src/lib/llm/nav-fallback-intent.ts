@@ -295,3 +295,107 @@ export function resolveNavFallbackDestinationKey(args: {
 
 /** Fixed bubble when navigation is handled by regex (no LLM prose). */
 export const NAV_SHORTCUT_ACK = "Je vous y emmène.";
+
+// ---------------------------------------------------------------------------
+// Deny-first looksLikeNavIntent pipeline
+// ---------------------------------------------------------------------------
+
+/**
+ * Normalize a raw message for guard matching:
+ *   1. Unicode NFD decomposition + accent strip (é→e, à→a, …)
+ *   2. Lowercase
+ *   3. Non-alphanumeric chars → single space
+ *   4. Collapse runs + trim
+ */
+function normalize(message: string): string {
+  return message
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/** Mutating / creative action verbs — not navigation. */
+const ACTION_VERB_GUARD =
+  /^(?:cree|creer|ajoute|genere|redige|ecris|envoie|envoi|supprime|efface|modifie|change|renomme|exporte|telecharge|imprime|valide|approuve|configure|lance|update|mets?|fais(?!\s+voir)|create|add|generate|write|send|delete|remove|edit|configure)\b/;
+
+/**
+ * Question words — a question starting with these falls to the LLM even if it
+ * contains a navigation verb ("comment ouvrir un compte ?").
+ * Note: "where is/are" can be navigable (e.g. "where is the portfolio"), so
+ * "where" is deliberately excluded and handled by the nav-verb path.
+ */
+const QUESTION_GUARD =
+  /^(?:quoi|quel|quelle|quels|quelles|comment|pourquoi|combien|qui|quand|what|how|why|who|which)\b/;
+
+/** Negation markers — "je ne veux pas ouvrir ça" is not a nav intent. */
+const NEGATION_GUARD = /\b(?:pas|jamais|sans|aucun|do not|don'?t|without)\b/;
+
+/** Conjunction in a compound command — "ouvre X et supprime Y" is not pure nav. */
+const CONJUNCTION_GUARD = /\b(?:et|puis|then|and)\b/;
+
+/**
+ * Nav-verb lead anchored at the START of the normalized string.
+ * Built from the same verb vocabulary as NAV_VERB above so there is no drift.
+ */
+const NAV_VERB_LEAD_RE =
+  /^(?:ouvre|ouvrir|ouvre moi|va sur|vas sur|aller sur|montre|montre moi|affiche|affiche moi|navigue|accede|acceder|amene|amene moi|emmene|emmene moi|voir|consulte|consulter|open|go to|take me to|bring me to|show me|show|view|redirect)\b/;
+
+/**
+ * Deny-first navigator classifier.
+ *
+ * Returns `true` ONLY when the message is a genuine navigation attempt with
+ * no matched destination (so route.ts can emit an instant NAV_REJECT_ACK
+ * instead of an LLM call that would just say "I can't go there").
+ *
+ * Guards run in order; the first match exits with `false` (falls to LLM):
+ *   1. Empty normalised string → false
+ *   2. ACTION_VERB_GUARD  — starts with a mutating verb → false
+ *   3. QUESTION_GUARD     — starts with a question word → false
+ *   4. NEGATION_GUARD     — contains a negation → false
+ *   5. A nav verb is REQUIRED (this project's nav is verb-gated) → false if absent
+ *   6. Length threshold   — >58 chars behind a nav verb is prose → false
+ *   7. CONJUNCTION_GUARD  — compound command → false
+ *   8. Otherwise → true (instant nav reject is safe and correct)
+ */
+export function looksLikeNavIntent(message: string): boolean {
+  const norm = normalize(message);
+  if (!norm) return false;
+
+  // Guard 1 – mutating action verb at the start
+  if (ACTION_VERB_GUARD.test(norm)) return false;
+
+  // Guard 2 – question word at the start
+  if (QUESTION_GUARD.test(norm)) return false;
+
+  // Guard 3 – negation anywhere
+  if (NEGATION_GUARD.test(norm)) return false;
+
+  const hasNavVerb = NAV_VERB_LEAD_RE.test(norm);
+
+  // Guard 4 – a NAV VERB is REQUIRED. In this project every nav rule is
+  // verb-gated (a bare keyword like "distributions" never resolves a route and
+  // must reach the LLM — it may be a short question). So an instant nav-reject
+  // only fires on an explicit navigation verb that matched no destination. This
+  // is stricter than a generic "≤3 useful words" eligibility on purpose.
+  if (!hasNavVerb) return false;
+
+  // Guard 5 – length threshold (a long sentence behind a nav verb is prose).
+  if (norm.length > 58) return false;
+
+  // Guard 6 – conjunction (compound command) → let the LLM handle it.
+  if (CONJUNCTION_GUARD.test(norm)) return false;
+
+  // A nav-verb-led message that passed the action/question/negation/conjunction
+  // denies is a clean navigation attempt.
+  return true;
+}
+
+/**
+ * Fixed bubble emitted on an instant nav-reject (the message looked like
+ * navigation but matched no whitelisted destination). Keeps the <0.1s path;
+ * no LLM call needed.
+ */
+export const NAV_REJECT_ACK =
+  "Je ne trouve pas cette section dans votre espace. Puis-je vous aider autrement ?";

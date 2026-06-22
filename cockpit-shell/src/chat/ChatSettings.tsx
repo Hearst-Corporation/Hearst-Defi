@@ -33,7 +33,7 @@ export function ChatSettings({ productName }: ChatSettingsProps = {}) {
       <section className="ct-chat-settings-section">
         <div className="ct-chat-settings-label">LLM infra</div>
         <div className="ct-chat-settings-readonly">
-          GPT-4.1 · server
+          OpenAI · server
         </div>
         <div className="ct-chat-settings-hint">
           Key and model are configured server-side (

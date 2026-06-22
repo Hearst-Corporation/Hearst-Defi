@@ -160,9 +160,9 @@ describe("callLlm", () => {
   });
 
   describe("cost + observability", () => {
-    // GPT-4.1 per-million-token pricing, mirrored from client.ts (ADR-011).
-    const OPENAI_INPUT_PER_M = 2.0;
-    const OPENAI_OUTPUT_PER_M = 8.0;
+    // gpt-4o-mini per-million-token pricing, mirrored from client.ts.
+    const OPENAI_INPUT_PER_M = 0.15;
+    const OPENAI_OUTPUT_PER_M = 0.6;
 
     it("bills OpenAI pricing and records the system-prompt hash", async () => {
       const mockResponse = {
