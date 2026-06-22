@@ -4752,8 +4752,14 @@ button.ct-choice-card {
 .ct-chat-msg                               { display: flex; flex-direction: column; padding: var(--ct-space-2) var(--ct-space-2_5); font-size: clamp(0.8125rem, 0.76rem + 0.26vw, 0.9375rem); /* 13px → 15px */ border-radius: var(--ct-radius-md); }
 .ct-chat-msg.assistant code                { padding: 1px 4px; font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); }
 
-/* Header title — Title Case (drop the package uppercase), single-line ellipsis on narrow rails. */
+/* Header title — Title Case (drop the package uppercase), single-line ellipsis on narrow rails.
+   flex:1 + min-width:0 are REQUIRED for the ellipsis to fire: the package header is a
+   flex row (justify-content:space-between, the 4 toolbar btns are flex-shrink:0). Without
+   min-width:0 the title keeps its default min-width:auto, refuses to shrink, and at the
+   intermediate ~1024px width it clips ("Assist…") and crowds the icons instead of ellipsing. */
 .ct-rail-right-title {
+  flex: 1 1 auto;
+  min-width: 0;
   text-transform: none;
   letter-spacing: var(--ct-tracking-tight);
   font-weight: var(--ct-font-semibold);
@@ -4762,6 +4768,13 @@ button.ct-choice-card {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+/* The product-context suffix ("· Hearst Connect") is secondary: hide it on the
+   intermediate viewport band where the shell compresses the chat rail (~1024px),
+   so the primary "Assistant" label keeps its full glyphs instead of ellipsing to
+   "Assist…". Restored at >=1280px where the rail is back to its full width. */
+@media (max-width: 1279.98px) {
+  .ct-chat-ctx-name { display: none; }
 }
 
 /* Bubbles — harmonise user + assistant: no border on either, distinction by background only. */
