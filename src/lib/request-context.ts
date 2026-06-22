@@ -1,4 +1,7 @@
 import { AsyncLocalStorage } from "node:async_hooks";
+import { randomUUID } from "node:crypto";
+
+import { createTurnId } from "@/lib/trace-ids";
 
 /**
  * Request-scoped context for tracing and logging.
@@ -31,7 +34,25 @@ export interface RequestContext {
   jobId?: string;
 }
 
+interface CreateRequestContextArgs {
+  requestId?: string | null;
+  userId?: string;
+  runId?: string;
+  jobId?: string;
+}
+
 const asyncLocalStorage = new AsyncLocalStorage<RequestContext>();
+
+export function createRequestContext(
+  args: CreateRequestContextArgs = {},
+): RequestContext {
+  return {
+    requestId: args.requestId ?? randomUUID(),
+    ...(args.userId ? { userId: args.userId } : {}),
+    runId: args.runId ?? createTurnId(),
+    ...(args.jobId ? { jobId: args.jobId } : {}),
+  };
+}
 
 /**
  * Runs the given function inside a request context.

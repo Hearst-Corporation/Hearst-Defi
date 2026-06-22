@@ -395,6 +395,9 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
   });
 
   it("records a real success run with captured token usage and cost", async () => {
+    vi.mocked(prisma.cockpitChat.findUnique).mockResolvedValue({
+      userId: USER_ID,
+    } as never);
     mockMasterAgentTurn("portfolio", {
       navProposedKey: null,
       usage: { prompt_tokens: 1000, completion_tokens: 500, total_tokens: 1500 },
@@ -406,6 +409,7 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
     await vi.waitFor(() => {
       expect(mockLlmRunCreate).toHaveBeenCalledWith({
         data: expect.objectContaining({
+          id: expect.stringMatching(/^llm:turn_/),
           agentName: "cockpit-chat",
           status: "success",
           errorType: null,
@@ -416,6 +420,16 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
         }),
       });
     });
+
+    const llmTurnId = String(mockLlmRunCreate.mock.calls[0]?.[0]?.data.id).replace(
+      /^llm:/,
+      "",
+    );
+    const messageIds = mockCockpitMessageCreate.mock.calls.map((call) =>
+      String(call[0].data.id),
+    );
+    expect(messageIds).toContain(`msg:${llmTurnId}:user:main`);
+    expect(messageIds).toContain(`msg:${llmTurnId}:assistant:reply`);
   });
 
   it("records a failed run (no fake success) with null tokens when the turn errors", async () => {
@@ -493,6 +507,7 @@ describe("POST /api/cockpit-chat — navigate tracing (OBS-02)", () => {
     await vi.waitFor(() => {
       expect(mockNavTraceCreate).toHaveBeenCalledWith({
         data: expect.objectContaining({
+          id: expect.stringMatching(/^nav:turn_/),
           userId: USER_ID,
           profile: "lp",
           mode: "normal",
@@ -502,6 +517,12 @@ describe("POST /api/cockpit-chat — navigate tracing (OBS-02)", () => {
         }),
       });
     });
+
+    const llmTurnId = String(mockLlmRunCreate.mock.calls[0]?.[0]?.data.id).replace(
+      /^llm:/,
+      "",
+    );
+    expect(mockNavTraceCreate.mock.calls[0]?.[0]?.data.id).toBe(`nav:${llmTurnId}`);
   });
 
   it("traces a navigation dropped by the compliance guard as blocked", async () => {

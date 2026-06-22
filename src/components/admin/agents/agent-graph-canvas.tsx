@@ -62,6 +62,13 @@ const BINDING_LABEL: Record<NodeBindingKind, string> = {
   static: "Static wiring",
 };
 
+const META_PILL_CLASS =
+  "rounded-full px-(--ct-space-1_5) py-(--ct-space-0_5) text-(length:--ct-text-nano) uppercase";
+const OUTLINE_META_PILL_CLASS = cn(
+  META_PILL_CLASS,
+  "border border-(--ct-border-soft) ct-text-faint",
+);
+
 const POLL_MS = 5_000;
 
 interface Placed extends AgentGraphNode {
@@ -370,10 +377,10 @@ function RuntimePanel({
   const isLive = node.bindingKind !== "static";
   return (
     <div className="admin-inset-panel border border-(--ct-border-soft) ct-surface-1 admin-doc-stack admin-doc-stack--tight">
-      <div className="flex items-start justify-between gap-[var(--ct-space-2)]">
+      <div className="flex items-start justify-between gap-(--ct-space-2)">
         <div>
           <p className="body-sm ct-text-strong m-0">{node.label}</p>
-          <p className="text-[length:var(--ct-text-nano)] uppercase tracking-wide ct-text-faint">
+          <p className="text-(length:--ct-text-nano) uppercase tracking-wide ct-text-faint">
             {node.kind} · {node.state}
           </p>
         </div>
@@ -392,14 +399,14 @@ function RuntimePanel({
       )}
 
       {/* Provenance + tool meta */}
-      <div className="flex flex-wrap gap-[var(--ct-space-1_5)]">
-        <span className="rounded-full border border-(--ct-border-soft) px-[var(--ct-space-1_5)] py-[var(--ct-space-0_5)] text-[length:var(--ct-text-nano)] uppercase ct-text-faint">
+      <div className="flex flex-wrap gap-(--ct-space-1_5)">
+        <span className={OUTLINE_META_PILL_CLASS}>
           {BINDING_LABEL[node.bindingKind]}
         </span>
         {node.riskLevel && (
           <span
             className={cn(
-              "rounded-full px-[var(--ct-space-1_5)] py-[var(--ct-space-0_5)] text-[length:var(--ct-text-nano)] uppercase",
+              META_PILL_CLASS,
               node.riskLevel === "high"
                 ? "ct-status-danger"
                 : node.riskLevel === "medium"
@@ -411,7 +418,12 @@ function RuntimePanel({
           </span>
         )}
         {node.confirmationRequired && (
-          <span className="rounded-full border border-(--ct-border-accent) px-[var(--ct-space-1_5)] py-[var(--ct-space-0_5)] text-[length:var(--ct-text-nano)] uppercase ct-text-accent">
+          <span
+            className={cn(
+              META_PILL_CLASS,
+              "border border-(--ct-border-accent) ct-text-accent",
+            )}
+          >
             HITL · confirm
           </span>
         )}
@@ -429,23 +441,30 @@ function RuntimePanel({
               {node.samples.map((s, i) => (
                 <div
                   key={`${s.atIso}-${i}`}
-                  className="flex items-center justify-between gap-[var(--ct-space-2)] border-b border-(--ct-border-soft) py-[var(--ct-space-1)] last:border-0 body-xs"
+                  className="flex items-center justify-between gap-(--ct-space-2) border-b border-(--ct-border-soft) py-(--ct-space-1) last:border-0 body-xs"
                 >
-                  <span
-                    className={cn(
-                      "rounded-full px-[var(--ct-space-1_5)] py-[var(--ct-space-0_5)] text-[length:var(--ct-text-nano)] uppercase",
-                      s.status === "success"
-                        ? "ct-status-success"
-                        : s.status === "failed" || s.status === "timeout"
-                          ? "ct-status-danger"
-                          : s.status === "blocked"
-                            ? "ct-status-warning"
-                            : "ct-text-muted",
+                  <div className="min-w-0">
+                    <span
+                      className={cn(
+                        META_PILL_CLASS,
+                        s.status === "success"
+                          ? "ct-status-success"
+                          : s.status === "failed" || s.status === "timeout"
+                            ? "ct-status-danger"
+                            : s.status === "blocked"
+                              ? "ct-status-warning"
+                              : "ct-text-muted",
+                      )}
+                    >
+                      {s.status}
+                    </span>
+                    {s.turnId && (
+                      <div className="mt-(--ct-space-0_5) truncate font-mono text-[11px] ct-text-faint">
+                        {s.turnId}
+                      </div>
                     )}
-                  >
-                    {s.status}
-                  </span>
-                  <span className="ct-text-faint">
+                  </div>
+                  <span className="ct-text-faint text-right">
                     {s.latencyMs != null ? `${s.latencyMs} ms` : "—"}
                     {s.costUsd != null ? ` · $${s.costUsd.toFixed(4)}` : ""}
                   </span>

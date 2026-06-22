@@ -258,3 +258,70 @@ export async function assertRateLimit(
     throw new Error(`Rate limit exceeded. Try again in ${retryAfterSec}s.`);
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/* Dev-only concurrency guard (NOT a prod path)                              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The sliding-window rate limiter above is bypassed in dev (`isRateLimitBypassed`
+ * returns true for NODE_ENV=development), so a local burst (e.g. 30 cockpit-chat
+ * POSTs fired back-to-back) has NO ceiling: each request fans out ~10 Prisma
+ * queries + an LLM round-trip and they all run *concurrently*, exhausting the
+ * dev Prisma pool (`max: 8`) and piling up in-flight LLM/stream work until the
+ * Node dev server OOM-crashes.
+ *
+ * This is a separate, OPT-IN, single-process concurrency CAP — distinct from the
+ * request/window rate limiter. It bounds how many requests for a given key may
+ * be IN FLIGHT at once (it does not count requests over time, it counts active
+ * ones). It is intentionally inert unless BOTH conditions hold:
+ *   - we are NOT in production (`NODE_ENV !== "production"`), and
+ *   - `DEV_CHAT_CONCURRENCY` is set to a positive integer.
+ * Production never sets that var, so `assertDevConcurrencyGuard` is a no-op there
+ * and prod behaviour is unchanged (the Upstash sliding window remains the only
+ * gate). It is also process-local by design: it protects the single dev server,
+ * not a multi-instance deployment.
+ */
+const devInFlight = new Map<string, number>();
+
+/** Parse `DEV_CHAT_CONCURRENCY` → a positive cap, or null when disabled. */
+function devConcurrencyCap(): number | null {
+  if (process.env.NODE_ENV === "production") return null;
+  const raw = process.env.DEV_CHAT_CONCURRENCY;
+  if (!raw) return null;
+  const n = Number.parseInt(raw, 10);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
+
+/**
+ * Acquire a dev concurrency slot for `identifier`. Returns a `release()` that
+ * MUST be called (in a `finally`) once the request's work is done. When the guard
+ * is disabled (prod, or `DEV_CHAT_CONCURRENCY` unset) it is a no-op that always
+ * succeeds with a no-op release — so callers can wire it unconditionally without
+ * branching on the environment.
+ *
+ * Throws when the cap is already reached, mirroring `assertRateLimit`'s
+ * throw-on-reject contract so the route maps it to a 429 the same way.
+ */
+export function assertDevConcurrencyGuard(identifier: string): () => void {
+  const cap = devConcurrencyCap();
+  if (cap === null) return () => {};
+
+  const active = devInFlight.get(identifier) ?? 0;
+  if (active >= cap) {
+    logger.warn("dev concurrency guard tripped", { identifier, active, cap });
+    throw new Error(
+      `Too many concurrent requests in dev (cap ${cap}). Try again in a moment.`,
+    );
+  }
+  devInFlight.set(identifier, active + 1);
+
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    const current = devInFlight.get(identifier) ?? 1;
+    if (current <= 1) devInFlight.delete(identifier);
+    else devInFlight.set(identifier, current - 1);
+  };
+}

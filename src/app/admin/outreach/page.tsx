@@ -80,12 +80,12 @@ export default async function OutreachPage() {
 
       {/* Engagement overview — single compact stats source (no big KPI panel,
           no duplicated Prospects: that count lives in the directory heading). */}
-      <section aria-label="Outreach overview">
+      <section className="admin-crm-view" aria-label="Outreach overview">
         <OutreachStatsCards stats={stats} />
       </section>
 
       {/* Operator content #1 — Prospect directory (the primary working view). */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Prospects">
+      <section className="admin-doc-stack" aria-label="Prospects">
         <h2 className="h2">Prospect directory ({prospects.total})</h2>
 
         <div className="admin-doc-toolbar">
@@ -164,7 +164,7 @@ export default async function OutreachPage() {
       </section>
 
       {/* Campaigns */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Campaigns">
+      <section className="admin-doc-stack" aria-label="Campaigns">
         <h2 className="h2">Campaign queue ({campaigns.length})</h2>
         <p className="body-xs ct-text-muted">
           Define campaign mandates, monitor drafting status, and open each workflow
@@ -249,7 +249,7 @@ export default async function OutreachPage() {
           Sourcing is MOCK until Apollo is wired; nothing is sent, every email
           stays human-approved. */}
       <section
-        className="admin-doc-stack admin-doc-stack--actions outreach-engine-aside"
+        className="admin-doc-stack outreach-engine-aside"
         aria-label="Lead engine"
       >
         <div className="outreach-engine-aside__head">
@@ -258,7 +258,7 @@ export default async function OutreachPage() {
             Source &amp; tier leads from a distributor ICP — run it from the cockpit chat, never sends.
           </span>
         </div>
-        <div className="admin-doc-stack admin-doc-stack--actions">
+        <div className="admin-doc-stack">
           <div className="admin-doc-toolbar">
             <div className="admin-doc-inline-row admin-doc-inline-row--actions">
               <IcpForm />

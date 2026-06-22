@@ -3,6 +3,7 @@ import "server-only";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { getAdminToolGraphCatalog } from "@/lib/llm/tools/graph-catalog";
+import { extractTurnIdFromTraceId } from "@/lib/trace-ids";
 
 /**
  * Live orchestration graph of the platform's agents — now a MULTI-VIEW map.
@@ -41,6 +42,8 @@ export interface NodeBinding {
 }
 
 export interface AgentRunSample {
+  id: string | null;
+  turnId: string | null;
   status: string;
   atIso: string;
   latencyMs: number | null;
@@ -357,6 +360,7 @@ function resolveView(
 
 function aggregateLlmRuns(
   rows: Array<{
+    id?: string | null;
     agentName: string;
     status: string;
     createdAt: Date;
@@ -370,6 +374,8 @@ function aggregateLlmRuns(
     entry.count += 1;
     if (entry.samples.length < MAX_SAMPLES) {
       entry.samples.push({
+        id: row.id ?? null,
+        turnId: extractTurnIdFromTraceId(row.id),
         status: row.status,
         atIso: row.createdAt.toISOString(),
         latencyMs: row.latencyMs,
@@ -383,6 +389,7 @@ function aggregateLlmRuns(
 
 function aggregateToolRuns(
   rows: Array<{
+    id?: string | null;
     toolId: string;
     toolKind: string;
     status: string;
@@ -394,6 +401,8 @@ function aggregateToolRuns(
   const byToolKind = new Map<string, RunAggregate>();
   for (const row of rows) {
     const sample: AgentRunSample = {
+      id: row.id ?? null,
+      turnId: extractTurnIdFromTraceId(row.id),
       status: row.status,
       atIso: row.createdAt.toISOString(),
       latencyMs: row.latencyMs,
@@ -430,6 +439,7 @@ export async function loadAgentGraph(now: number = Date.now()): Promise<AgentGra
     const rows = await prisma.llmRun.findMany({
       where: { createdAt: { gte: new Date(now - RECENT_WINDOW_MS) } },
       select: {
+        id: true,
         agentName: true,
         status: true,
         createdAt: true,
@@ -474,7 +484,14 @@ export async function loadAgentGraphViews(
   try {
     const rows = await prisma.llmRun.findMany({
       where: { createdAt: { gte: since } },
-      select: { agentName: true, status: true, createdAt: true, latencyMs: true, costUsd: true },
+      select: {
+        id: true,
+        agentName: true,
+        status: true,
+        createdAt: true,
+        latencyMs: true,
+        costUsd: true,
+      },
       orderBy: { createdAt: "desc" },
       take: 800,
     });
@@ -486,9 +503,9 @@ export async function loadAgentGraphViews(
   try {
     const rows = await prisma.adminToolRun.findMany({
       where: { createdAt: { gte: since } },
-      select: { toolId: true, toolKind: true, status: true, createdAt: true, latencyMs: true },
-      orderBy: { createdAt: "desc" },
+      select: { id: true, toolId: true, toolKind: true, status: true, createdAt: true, latencyMs: true },
       take: 800,
+      orderBy: { createdAt: "desc" },
     });
     const agg = aggregateToolRuns(rows);
     byToolId = agg.byToolId;

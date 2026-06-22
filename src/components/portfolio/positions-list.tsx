@@ -93,51 +93,80 @@ export function PositionsList({
         trailing={trailing}
       />
       <div className="pf-positions">
-        <div className="pf-positions__row pf-positions__row--head stat-label">
+        <div className="pf-positions__row pf-positions__row--head stat-label uppercase tracking-widest">
           <span>Vault</span>
           <span className="pf-positions__num">Principal</span>
           <span className="pf-positions__num">Value</span>
+          <span className="pf-positions__num">Share</span>
           <span className="pf-positions__num">APY range</span>
           <span className="pf-positions__num">Since</span>
         </div>
 
-        {positions.map((p) => (
-          <div key={p.id} className="pf-positions__row pf-positions__row--body">
-            <span className="pf-positions__vault">
-              <span
-                className={cn("pf-status-dot", STATUS_DOT[p.status] ?? "pf-status-dot--default")}
-                aria-hidden
-              />
-              <Link
-                href={`/portfolio/${p.id}`}
-                className="body-md ct-text-primary min-w-0 truncate underline-offset-4 hover:underline"
-                aria-label={`Open details for ${p.vaultName ?? "unassigned vault"}`}
-              >
-                {p.vaultName ?? "Unassigned vault"}
-              </Link>
-            </span>
+        {positions.map((p) => {
+          const totalValue = positions.reduce((s, pos) => s + pos.valueUsdc, 0);
+          const sharePct = totalValue > 0 ? (p.valueUsdc / totalValue) * 100 : 0;
 
-            <span className="pf-positions__num tabular body-md ct-text-body">
-              {formatUsdCompact(p.principalUsdc)}
-            </span>
+          return (
+            <div key={p.id} className="pf-positions__row pf-positions__row--body group/row">
+              <span className="pf-positions__vault">
+                <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-ct-surface-2 border border-ct-border-base group-hover/row:border-ct-accent/30 transition-colors">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 ct-text-secondary group-hover/row:ct-text-accent transition-colors">
+                    <path d="M3 21h18M3 10h18M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M7 21v-4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4" />
+                  </svg>
+                  <span
+                    className={cn("absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-ct-surface-1", STATUS_DOT[p.status] ?? "pf-status-dot--default")}
+                    aria-hidden
+                  />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <Link
+                    href={`/portfolio/${p.id}`}
+                    className="body-md ct-text-primary min-w-0 truncate underline-offset-4 hover:underline font-semibold flex items-center gap-1.5 group"
+                    aria-label={`Open details for ${p.vaultName ?? "unassigned vault"}`}
+                  >
+                    <span>{p.vaultName ?? "Unassigned vault"}</span>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all"
+                    >
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                  <span className="body-xs ct-text-tertiary uppercase tracking-wider font-medium">Yield Vault</span>
+                </div>
+              </span>
 
-            <span className="pf-positions__num tabular body-md ct-text-strong font-semibold">
-              {formatUsdCompact(p.valueUsdc)}
-            </span>
+              <span className="pf-positions__num tabular body-md ct-text-body font-mono">
+                {formatUsdCompact(p.principalUsdc)}
+              </span>
 
-            <span className="pf-positions__num">
-              {p.apyLow !== null && p.apyHigh !== null ? (
-                <ApyRange low={p.apyLow} high={p.apyHigh} precision={1} className="body-sm font-semibold" />
-              ) : (
-                <span className="body-xs ct-text-tertiary">Unavailable</span>
-              )}
-            </span>
+              <span className="pf-positions__num tabular body-md ct-text-strong font-mono font-bold">
+                {formatUsdCompact(p.valueUsdc)}
+              </span>
 
-            <span className="pf-positions__num body-xs tabular ct-text-muted">
-              {dateFmt.format(p.subscribedAt)}
-            </span>
-          </div>
-        ))}
+              <span className="pf-positions__num tabular body-sm ct-text-secondary font-mono">
+                {sharePct.toFixed(1)}%
+              </span>
+
+              <span className="pf-positions__num">
+                {p.apyLow !== null && p.apyHigh !== null ? (
+                  <ApyRange low={p.apyLow} high={p.apyHigh} precision={1} className="body-sm font-mono font-semibold" />
+                ) : (
+                  <span className="body-xs ct-text-tertiary">Unavailable</span>
+                )}
+              </span>
+
+              <span className="pf-positions__num tabular body-sm ct-text-muted font-mono">
+                {dateFmt.format(p.subscribedAt)}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </PfCockpitPanel>
   );

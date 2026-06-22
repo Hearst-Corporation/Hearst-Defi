@@ -56,7 +56,7 @@ export default async function AgentsPage() {
 
       {kpiStrip.length > 0 && <AdminKpiStripPanel kpis={kpiStrip} />}
 
-      <section className="admin-doc-stack" aria-label="Agent orchestration">
+      <section className="admin-doc-stack admin-crm-view" aria-label="Agent orchestration">
         <div className="flex flex-wrap items-center justify-between gap-[var(--ct-space-3)]">
           <h2 className="h2">Agent orchestration</h2>
           <div className="flex flex-wrap items-center gap-[var(--ct-space-3)] body-xs ct-text-muted">
@@ -94,7 +94,7 @@ export default async function AgentsPage() {
         </p>
 
         {catalogGroups.map((group) => (
-          <div key={group.scope} className="admin-doc-stack admin-doc-stack--actions">
+          <div key={group.scope} className="admin-doc-stack">
             <div className="admin-doc-inline-row admin-doc-inline-row--start">
               <span className="stat-label ct-text-muted">{group.scopeLabel}</span>
               <span className="stat-label ct-text-faint tabular-nums">
@@ -156,7 +156,7 @@ export default async function AgentsPage() {
         ))}
       </section>
 
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Persona templates">
+      <section className="admin-doc-stack" aria-label="Persona templates">
         <h2 className="h2">Persona templates ({templates.length})</h2>
         <p className="body-xs ct-text-muted">
           Reusable persona profiles layered on top of a base agent — assignable

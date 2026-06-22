@@ -77,7 +77,7 @@ export default async function CustomersPage({
         </div>
       </div>
 
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Investors">
+      <section className="admin-doc-stack admin-crm-view" aria-label="Investors">
         <h2 className="h2">Investor directory ({total})</h2>
 
         {customers.length === 0 ? (

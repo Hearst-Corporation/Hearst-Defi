@@ -27,6 +27,8 @@ import { runSourcing, draftEmailForProspect } from "@/app/admin/outreach/actions
 import { outreachAutoSendHandler } from "@/lib/inngest/functions/outreach-auto-send";
 import { TIER_LABEL, type Tier } from "@/lib/outreach/tier";
 import { logger } from "@/lib/logger";
+import { getRequestContext } from "@/lib/request-context";
+import { buildAdminToolRunId } from "@/lib/trace-ids";
 import type {
   AdminToolTelemetryStatus,
   AdminWriteToolDefinition,
@@ -282,9 +284,12 @@ async function persistAdminToolTelemetry(args: {
 }): Promise<void> {
   const errorData =
     args.error === undefined ? null : classifyAdminToolError(args.error);
+  const turnId = getRequestContext()?.runId;
+  const traceId = turnId ? buildAdminToolRunId(turnId, args.toolId) : undefined;
   try {
     await prisma.adminToolRun.create({
       data: {
+        ...(traceId ? { id: traceId } : {}),
         toolId: args.toolId,
         toolKind: args.toolKind,
         mode: args.mode,

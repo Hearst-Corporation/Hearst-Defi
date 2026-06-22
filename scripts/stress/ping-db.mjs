@@ -1,0 +1,15 @@
+import { readFileSync } from "fs";
+const url = readFileSync(".env.local","utf8").match(/DATABASE_URL="([^"]+)"/)[1];
+const { Client } = await import("pg");
+const c = new Client({ connectionString: url });
+const t0 = process.hrtime.bigint();
+await c.connect();
+const t1 = process.hrtime.bigint();
+await c.query("SELECT 1");
+const t2 = process.hrtime.bigint();
+await c.query("SELECT 1");
+const t3 = process.hrtime.bigint();
+console.log("  connect:", Number(t1-t0)/1e6|0, "ms");
+console.log("  query 1:", Number(t2-t1)/1e6|0, "ms");
+console.log("  query 2:", Number(t3-t2)/1e6|0, "ms  (this × ~4-5 = your enrichment cost)");
+await c.end();

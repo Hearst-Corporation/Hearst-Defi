@@ -1157,7 +1157,10 @@
 .projection-studio-input-card {
   display: flex;
   flex-direction: column;
-  max-height: clamp(28rem, 70dvh, 36rem);
+  /* DÉFORCÉ : plus de cap desktop — la carte d'inputs prend sa hauteur naturelle
+     (tous les sliders visibles), la page scrolle. Le cap + scroll interne reste
+     UNIQUEMENT en container étroit (<48rem, bloc plus bas) pour rester compact
+     sur mobile. Cohérent avec scenario-lab / portfolio. */
 }
 
 .projection-studio-input-card > .relative {
@@ -2905,7 +2908,10 @@
    is the single internal scroll region. Natural scroll below the gate + phone.
    Height floor aligned with portfolio/dashboard/proof (52rem). ── */
 
-@media (min-width: 80rem) and (min-height: 52rem) {
+/* DÉFORCÉ (scenario-lab, 2026-06) : plus de pin 100dvh sur grand écran — scroll
+   vertical naturel comme portfolio/dashboard. Fit-pin NEUTRALISÉ (`not all`),
+   la recette naturelle plus bas passe inconditionnelle. Réversible. */
+@media not all and (min-width: 80rem) and (min-height: 52rem) {
   .ct-panels-row:has(.scenario-lab-page--fit) {
     height: 100dvh;
     max-height: 100dvh;
@@ -2986,8 +2992,9 @@
   }
 }
 
-/* ── Below fit gate: lab shell sizes to content; shell footer pin unchanged. ── */
-@media not all and (min-width: 80rem) and (min-height: 52rem) {
+/* ── Natural scroll at ALL sizes (lab shell sizes to content; ex-"below gate",
+   désormais inconditionnel — voir le fit-pin neutralisé plus haut). ── */
+@media all {
   .scenario-lab-page--fit {
     height: auto;
     overflow: visible;
@@ -3004,7 +3011,10 @@
 
 /* ── Wide+tall gate: pin shell chains (product-doc AND admin-doc), share height, no top-level scroll.
    Uses 52rem (832px) — homogeneous with portfolio pf-container--fit; 1280×800 scrolls. ── */
-@media (min-width: 80rem) and (min-height: 52rem) {
+/* DÉFORCÉ (proof-center, 2026-06) : plus de pin 100dvh sur grand écran — scroll
+   vertical naturel comme portfolio/dashboard. Fit-pin NEUTRALISÉ (`not all`),
+   la recette naturelle plus bas passe inconditionnelle. Réversible. */
+@media not all and (min-width: 80rem) and (min-height: 52rem) {
   /* Pin the product-doc and admin-doc shell chains to the viewport. */
   .ct-panels-row:has(.proof-cockpit--fit) {
     height: 100dvh;
@@ -3105,8 +3115,9 @@
   }
 }
 
-/* ── Below fit gate: proof rows size to content; shell footer pin unchanged. ── */
-@media not all and (min-width: 80rem) and (min-height: 52rem) {
+/* ── Natural scroll at ALL sizes (proof rows size to content; ex-"below gate",
+   désormais inconditionnel — voir le fit-pin neutralisé plus haut). ── */
+@media all {
   .proof-cockpit--fit {
     height: auto;
     overflow: visible;

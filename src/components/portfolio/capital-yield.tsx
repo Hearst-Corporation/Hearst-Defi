@@ -71,20 +71,19 @@ export function CapitalYield({
 }: CapitalYieldProps) {
   // Zero-state = the graphic SKELETON renders (empty ring + zeroed ledger rows),
   // NO invented data. As soon as real vault data arrives, the donut/ledger fill in.
-  const hasData =
-    sources.length > 0 &&
-    buckets.length > 0 &&
-    sources.reduce((acc, s) => Math.max(acc, Math.abs(s.contributionPct)), 0) > 0;
+  const hasData = sources.length > 0 && buckets.length > 0;
+
+  const hasYield = hasData && sources.reduce((acc, s) => Math.max(acc, Math.abs(s.contributionPct)), 0) > 0;
 
   const maxAbsPct = hasData
     ? sources.reduce((acc, s) => Math.max(acc, Math.abs(s.contributionPct)), 0)
     : 0;
 
   // Badge/disclaimer only when there is real data AND a confirmed position.
-  const isFilled = hasData && totalValueUsdc > 0;
+  const isFilled = hasYield && totalValueUsdc > 0;
   const provenance = isFilled
     ? resolveProvenance(source, updatedAt ?? new Date(), "estimated")
-    : undefined;
+    : hasData ? resolveProvenance("fallback", updatedAt ?? new Date(), "estimated") : undefined;
 
   const [rLow, rHigh] =
     blendedLow <= blendedHigh ? [blendedLow, blendedHigh] : [blendedHigh, blendedLow];
@@ -119,13 +118,13 @@ export function CapitalYield({
 
       <div className="cy-body">
         {/* ── Zone 1 — allocation gauge ── */}
-        <div className="cy-donut dash-chart-container">
+        <div className="cy-donut dash-chart-container group/donut">
           {/* svg-geometry: cx/cy/r/strokeDasharray/viewBox are raw numbers by SVG spec */}
           <svg
-            className={cn("dash-chart-svg", !hasData && "dash-chart-svg--skeleton")}
+            className={cn("dash-chart-svg", !hasYield && "dash-chart-svg--skeleton")}
             viewBox="0 0 42 42"
             role="img"
-            aria-label={hasData ? "Allocation by yield source" : "Allocation — awaiting first confirmed on-chain position"}
+            aria-label={hasYield ? "Allocation by yield source" : "Allocation — awaiting first confirmed on-chain position"}
           >
             {/* Background track ring (always present). */}
             <circle
@@ -136,7 +135,7 @@ export function CapitalYield({
               stroke="var(--ct-surface-2)"
               strokeDasharray="100 0"
             />
-            {hasData ? (
+            {hasYield ? (
               <>
                 {segments
                   .filter((s) => s.bucket === "mining")
@@ -187,11 +186,14 @@ export function CapitalYield({
           <div className="donut-center">
             {isFilled ? (
               <>
-                <span className="donut-val">{formatUsdCompact(totalValueUsdc)}</span>
+                <span className="donut-val group-hover/donut:scale-110 transition-transform duration-500">{formatUsdCompact(totalValueUsdc)}</span>
                 <span className="donut-lbl">Capital</span>
               </>
             ) : (
-              <span className="donut-lbl">Pending</span>
+              <>
+                <span className="donut-val ct-text-tertiary">—</span>
+                <span className="donut-lbl">Pending</span>
+              </>
             )}
           </div>
         </div>
@@ -209,23 +211,24 @@ export function CapitalYield({
 
           {hasData
             ? sources.map((s) => {
-                const w = barWidthPct(s.contributionPct, maxAbsPct);
+                const w = hasYield ? barWidthPct(s.contributionPct, maxAbsPct) : 0;
                 const isNeg = s.contributionPct < 0;
-                const val = formatContribution(s.contributionPct, s.isVolatile ?? false);
+                const val = hasYield ? formatContribution(s.contributionPct, s.isVolatile ?? false) : "—";
                 return (
                   <div
                     key={s.bucket}
                     className={cn(
                       "cy-row",
                       s.bucket === "mining" && "cy-row-mining",
+                      !hasYield && "opacity-60"
                     )}
                     style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
                   >
                     <span className="cy-dot" aria-hidden />
-                    <span className="cy-label body-xs min-w-0 truncate ct-text-body">
+                    <span className="cy-label body-xs min-w-0 truncate ct-text-body font-medium">
                       {s.label}
                     </span>
-                    <span className="cy-val" aria-label={`${s.label} ${val}`}>
+                    <span className="cy-val font-mono" aria-label={`${s.label} ${val}`}>
                       {val}
                     </span>
                     <div className="cy-track" aria-hidden>
@@ -253,7 +256,7 @@ export function CapitalYield({
                   Blended fwd range
                 </dt>
                 <dd
-                  className={cn("tabular font-semibold", isFilled ? "ct-text-primary" : "ct-text-tertiary")}
+                  className={cn("tabular font-semibold font-mono", isFilled ? "ct-text-primary" : "ct-text-tertiary")}
                   aria-label={isFilled ? `Blended forward range ${rLow.toFixed(1)} to ${rHigh.toFixed(1)} percent` : "Blended forward range pending"}
                 >
                   {isFilled ? formatApyRange({ low: rLow, high: rHigh }) : "—"}
@@ -264,7 +267,7 @@ export function CapitalYield({
                   Stressed (bear) <span className="body-xs opacity-(--ct-opacity-70)">(proxy)</span>
                 </dt>
                 <dd
-                  className={cn("tabular font-medium", isFilled ? "ct-text-body" : "ct-text-tertiary")}
+                  className={cn("tabular font-medium font-mono", isFilled ? "ct-text-body" : "ct-text-tertiary")}
                   aria-label={isFilled ? `Stressed bear scenario ${sLow.toFixed(1)} to ${sHigh.toFixed(1)} percent` : "Stressed bear scenario pending"}
                 >
                   {isFilled ? formatApyRange({ low: sLow, high: sHigh }) : "—"}

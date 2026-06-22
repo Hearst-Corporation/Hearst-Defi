@@ -15,7 +15,13 @@ import {
   type AdminReadToolExecutionContext,
 } from "@/lib/llm/tools";
 import { hashCanonicalPayload } from "@/lib/llm/tools/confirmations";
+import {
+  createRequestContext,
+  getRequestContext,
+  withRequestContext,
+} from "@/lib/request-context";
 import { assertBodySize, assertRateLimit } from "@/lib/rate-limit";
+import { buildAdminToolRunId } from "@/lib/trace-ids";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -75,6 +81,26 @@ function adminError(err: unknown): NextResponse<{ error: string }> {
   );
 }
 
+function tooManyToolRequestsResponse(): NextResponse<{ error: string }> {
+  return NextResponse.json(
+    { error: "Too many requests — try again in a moment." },
+    { status: 429 },
+  );
+}
+
+async function denyTool(args: {
+  userId: string;
+  toolId: string;
+  toolKind: "read" | "write";
+  context: AdminReadToolExecutionContext;
+  reason: string;
+  input?: unknown;
+  confirmationTokenUsed?: boolean;
+}): Promise<NextResponse<{ error: string }>> {
+  await persistBlockedToolTelemetry(args);
+  return NextResponse.json({ error: "Tool not allowed" }, { status: 403 });
+}
+
 function toSafeTelemetryCode(reason: string): string {
   const sanitized = reason
     .trim()
@@ -128,9 +154,12 @@ async function persistBlockedToolTelemetry(args: {
   input?: unknown;
   confirmationTokenUsed?: boolean;
 }): Promise<void> {
+  const turnId = getRequestContext()?.runId;
+  const traceId = turnId ? buildAdminToolRunId(turnId, args.toolId) : undefined;
   try {
     await prisma.adminToolRun.create({
       data: {
+        ...(traceId ? { id: traceId } : {}),
         toolId: args.toolId,
         toolKind: args.toolKind,
         mode: args.context.chatMode,
@@ -240,130 +269,127 @@ export async function POST(
 
   const context = toAdminContext();
   const payload = parsed.data;
+  const contextTrace = createRequestContext({
+    requestId: request.headers.get("x-request-id"),
+    userId,
+  });
 
-  if (payload.action === "execute_read") {
-    try {
-      await rateLimitToolAction(userId, "read");
-    } catch {
-      logger.warn("admin chat read tool rate limited", { userId });
-      return NextResponse.json(
-        { error: "Too many requests — try again in a moment." },
-        { status: 429 },
+  return withRequestContext(contextTrace, async () => {
+    if (payload.action === "execute_read") {
+      try {
+        await rateLimitToolAction(userId, "read");
+      } catch {
+        logger.warn("admin chat read tool rate limited", { userId });
+        return tooManyToolRequestsResponse();
+      }
+
+      const tool = getAllowedAdminReadTools(context).find(
+        (candidate) => candidate.id === payload.toolId,
       );
+      if (!tool) {
+        logger.warn("admin chat read tool denied", {
+          userId,
+          toolId: payload.toolId,
+        });
+        return denyTool({
+          userId,
+          toolId: payload.toolId,
+          toolKind: "read",
+          context,
+          reason: "read_tool_not_allowed",
+          input: payload.input,
+          confirmationTokenUsed: false,
+        });
+      }
+
+      try {
+        const result = await executeAdminReadTool(tool, context, payload.input, {
+          userId,
+        });
+        const projectedResult = projectAdminReadResultForExternal(result);
+        return NextResponse.json({
+          status: "executed",
+          toolId: tool.id,
+          result: projectedResult,
+        });
+      } catch (err) {
+        logger.error(
+          "admin chat read tool failed",
+          { userId, toolId: tool.id },
+          err instanceof Error ? err : undefined,
+        );
+        return NextResponse.json({ error: "Read tool execution failed" }, { status: 500 });
+      }
     }
 
-    const tool = getAllowedAdminReadTools(context).find(
+    try {
+      await rateLimitToolAction(userId, "write");
+    } catch {
+      logger.warn("admin chat write tool rate limited", { userId });
+      return tooManyToolRequestsResponse();
+    }
+
+    const writeTool = getAllowedAdminWriteTools(context).find(
       (candidate) => candidate.id === payload.toolId,
     );
-    if (!tool) {
-      logger.warn("admin chat read tool denied", {
+    if (!writeTool) {
+      logger.warn("admin chat write tool denied", {
         userId,
         toolId: payload.toolId,
       });
-      await persistBlockedToolTelemetry({
+      return denyTool({
         userId,
         toolId: payload.toolId,
-        toolKind: "read",
+        toolKind: "write",
         context,
-        reason: "read_tool_not_allowed",
+        reason: "write_tool_not_allowed",
         input: payload.input,
-        confirmationTokenUsed: false,
+        confirmationTokenUsed: Boolean(payload.confirmedToken),
       });
-      return NextResponse.json({ error: "Tool not allowed" }, { status: 403 });
     }
 
     try {
-      const result = await executeAdminReadTool(tool, context, payload.input, {
-        userId,
-      });
-      const projectedResult = projectAdminReadResultForExternal(result);
-      return NextResponse.json({
-        status: "executed",
-        toolId: tool.id,
-        result: projectedResult,
-      });
+      const result = await executeAdminWriteTool(
+        writeTool,
+        context,
+        { input: payload.input, confirmedToken: payload.confirmedToken },
+        { userId },
+      );
+      return NextResponse.json(result);
     } catch (err) {
+      if (err instanceof Error) {
+        const confirmationError = mapWriteConfirmationError(writeTool.id, err);
+        if (confirmationError) return confirmationError;
+        if (err.message.startsWith("invalid_")) {
+          logger.warn("admin chat write tool input invalid", {
+            userId,
+            toolId: writeTool.id,
+          });
+          return NextResponse.json({ error: "Invalid write input" }, { status: 400 });
+        }
+        if (err.message === "admin_write_tool_not_allowed") {
+          logger.warn("admin chat write tool not allowed", {
+            userId,
+            toolId: writeTool.id,
+          });
+          return denyTool({
+            userId,
+            toolId: writeTool.id,
+            toolKind: "write",
+            context,
+            reason: "write_tool_not_allowed",
+            input: payload.input,
+            confirmationTokenUsed: Boolean(payload.confirmedToken),
+          });
+        }
+      }
+
       logger.error(
-        "admin chat read tool failed",
-        { userId, toolId: tool.id },
+        "admin chat write tool failed",
+        { userId, toolId: writeTool.id },
         err instanceof Error ? err : undefined,
       );
-      return NextResponse.json({ error: "Read tool execution failed" }, { status: 500 });
+      return NextResponse.json({ error: "Write tool execution failed" }, { status: 500 });
     }
-  }
-
-  try {
-    await rateLimitToolAction(userId, "write");
-  } catch {
-    logger.warn("admin chat write tool rate limited", { userId });
-    return NextResponse.json(
-      { error: "Too many requests — try again in a moment." },
-      { status: 429 },
-    );
-  }
-
-  const writeTool = getAllowedAdminWriteTools(context).find(
-    (candidate) => candidate.id === payload.toolId,
-  );
-  if (!writeTool) {
-    logger.warn("admin chat write tool denied", {
-      userId,
-      toolId: payload.toolId,
-    });
-    await persistBlockedToolTelemetry({
-      userId,
-      toolId: payload.toolId,
-      toolKind: "write",
-      context,
-      reason: "write_tool_not_allowed",
-      input: payload.input,
-      confirmationTokenUsed: Boolean(payload.confirmedToken),
-    });
-    return NextResponse.json({ error: "Tool not allowed" }, { status: 403 });
-  }
-
-  try {
-    const result = await executeAdminWriteTool(
-      writeTool,
-      context,
-      { input: payload.input, confirmedToken: payload.confirmedToken },
-      { userId },
-    );
-    return NextResponse.json(result);
-  } catch (err) {
-    if (err instanceof Error) {
-      const confirmationError = mapWriteConfirmationError(writeTool.id, err);
-      if (confirmationError) return confirmationError;
-      if (err.message.startsWith("invalid_")) {
-        logger.warn("admin chat write tool input invalid", {
-          userId,
-          toolId: writeTool.id,
-        });
-        return NextResponse.json({ error: "Invalid write input" }, { status: 400 });
-      }
-      if (err.message === "admin_write_tool_not_allowed") {
-        logger.warn("admin chat write tool not allowed", {
-          userId,
-          toolId: writeTool.id,
-        });
-        await persistBlockedToolTelemetry({
-          userId,
-          toolId: writeTool.id,
-          toolKind: "write",
-          context,
-          reason: "write_tool_not_allowed",
-          input: payload.input,
-          confirmationTokenUsed: Boolean(payload.confirmedToken),
-        });
-        return NextResponse.json({ error: "Tool not allowed" }, { status: 403 });
-      }
-    }
-
-    logger.error(
-      "admin chat write tool failed",
-      { userId, toolId: writeTool.id },
-      err instanceof Error ? err : undefined,
-    );
-    return NextResponse.json({ error: "Write tool execution failed" }, { status: 500 });
-  }
+  });
 }

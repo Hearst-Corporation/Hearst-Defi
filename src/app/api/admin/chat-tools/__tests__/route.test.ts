@@ -354,6 +354,7 @@ describe("POST /api/admin/chat-tools", () => {
     await expect(res.json()).resolves.toEqual({ error: "Tool not allowed" });
     expect(mockAdminToolRunCreate).toHaveBeenCalledWith({
       data: expect.objectContaining({
+        id: expect.stringMatching(/^tool:turn_/),
         toolId: "export_demo_pack",
         toolKind: "read",
         mode: "admin",

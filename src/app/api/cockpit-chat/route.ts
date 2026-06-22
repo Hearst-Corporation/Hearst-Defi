@@ -49,6 +49,12 @@ import {
   type ClassifyClient,
 } from "@/lib/llm/classify-product-intent";
 import { withProductChatStreamEvents } from "@/lib/llm/product-chat-stream";
+import { createRequestContext, withRequestContext } from "@/lib/request-context";
+import {
+  buildCockpitMessageId,
+  buildLlmRunId,
+  buildNavTraceId,
+} from "@/lib/trace-ids";
 
 const REVIEW_FACILITATOR_PROMPT = buildFacilitatorPrompt({ productContext: PRODUCT_CONTEXT });
 // NOTE: the LlmRun trace no longer stores a BASE-prompt hash. PR-3 #2 hashes the
@@ -296,7 +302,7 @@ function createUserScopedPersistence(
       }
       const role: PersistedRole = msg.role;
       await prisma.cockpitMessage.create({
-        data: { chatId, role, content: msg.content, mode: chatMode },
+        data: { id: msg.id, chatId, role, content: msg.content, mode: chatMode },
       });
       // Always bump updatedAt. If this is the first user message and the chat
       // has no title yet, derive one from the content so cockpit memory
@@ -364,8 +370,9 @@ async function persistChatLlmRun(args: {
   startedAt: number;
   userId: string;
   systemPromptHash: string;
+  turnId: string;
 }): Promise<void> {
-  const { result, startedAt, userId, systemPromptHash } = args;
+  const { result, startedAt, userId, systemPromptHash, turnId } = args;
   const usage = result.usage;
   // A compliance-blocked answer is NOT an LLM failure — the model turn
   // succeeded, the output guard blocked it. Keep status "success" but flag it
@@ -375,6 +382,7 @@ async function persistChatLlmRun(args: {
   await prisma.llmRun
     .create({
       data: {
+        id: buildLlmRunId(turnId),
         agentName: "cockpit-chat",
         model: LLM_MODEL,
         status: result.status,
@@ -411,12 +419,14 @@ async function persistNavTrace(args: {
   chatId: string | null;
   profile: "lp" | "admin";
   mode: ChatMode;
+  turnId: string;
 }): Promise<void> {
-  const { result, userId, chatId, profile, mode } = args;
+  const { result, userId, chatId, profile, mode, turnId } = args;
   if (!result.navProposedKey) return;
   await prisma.navTrace
     .create({
       data: {
+        id: buildNavTraceId(turnId),
         userId,
         chatId,
         profile,
@@ -453,6 +463,36 @@ function ackStream(text: string): ReadableStream<Uint8Array> {
   });
 }
 
+function ackResponse(text: string, chatId: string | null): Response {
+  return new Response(ackStream(text), {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-cache",
+      ...(chatId ? { "x-chat-id": chatId } : {}),
+    },
+  });
+}
+
+function persistAssistantAckMessage(args: {
+  persistence: ChatPersistence;
+  chatId: string | null;
+  turnId: string;
+  variant: string;
+  text: string;
+}): void {
+  if (!args.chatId) return;
+  void args.persistence
+    .saveMessage(args.chatId, {
+      id: buildCockpitMessageId(args.turnId, "assistant", args.variant),
+      role: "assistant",
+      content: args.text,
+      createdAt: Date.now(),
+    })
+    .catch(() => {
+      /* best-effort persistence */
+    });
+}
+
 /**
  * Master Agent turn. Runs runChatAgent: streams the guarded answer, persists
  * user + assistant messages, and publishes navigation to the out-of-band channel.
@@ -464,6 +504,7 @@ function ackStream(text: string): ReadableStream<Uint8Array> {
 async function runMasterAgentTurn(args: {
   req: NextRequest;
   userId: string;
+  turnId: string;
   chatMode: ChatMode;
   navProfile: "lp" | "admin";
   /** True when the authenticated user has the admin role — gates the product
@@ -474,7 +515,7 @@ async function runMasterAgentTurn(args: {
   model: string;
   systemPrompt: string;
 }): Promise<Response> {
-  const { req, userId, chatMode, navProfile, isAdmin, model, systemPrompt } = args;
+  const { req, userId, turnId, chatMode, navProfile, isAdmin, model, systemPrompt } = args;
 
   // Review mode is a facilitation chat (product-review): it must NOT navigate,
   // NOT divert to the Product Workspace, and NOT inject product-chart stream
@@ -539,7 +580,7 @@ async function runMasterAgentTurn(args: {
     const persistUserChatId = chatId;
     void persistence
       .saveMessage(persistUserChatId, {
-        id: crypto.randomUUID(),
+        id: buildCockpitMessageId(turnId, "user"),
         role: "user",
         content: message,
         createdAt: Date.now(),
@@ -589,25 +630,14 @@ async function runMasterAgentTurn(args: {
     await publishNav(userId, { destinationKey: navShortcutKey }).catch(() => {
       /* best-effort nav publish */
     });
-    if (chatId) {
-      void persistence
-        .saveMessage(chatId, {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: NAV_SHORTCUT_ACK,
-          createdAt: Date.now(),
-        })
-        .catch(() => {
-          /* best-effort persistence */
-        });
-    }
-    return new Response(ackStream(NAV_SHORTCUT_ACK), {
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-        "Cache-Control": "no-cache",
-        ...(chatId ? { "x-chat-id": chatId } : {}),
-      },
+    persistAssistantAckMessage({
+      persistence,
+      chatId,
+      turnId,
+      variant: "nav-shortcut",
+      text: NAV_SHORTCUT_ACK,
     });
+    return ackResponse(NAV_SHORTCUT_ACK, chatId);
   }
 
   // StreamingChatClient is a deliberately minimal structural contract (a subset
@@ -671,25 +701,14 @@ async function runMasterAgentTurn(args: {
     }).catch(() => {
       /* best-effort nav publish */
     });
-    if (chatId) {
-      void persistence
-        .saveMessage(chatId, {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: PRODUCT_WORKSPACE_CHAT_ACK,
-          createdAt: Date.now(),
-        })
-        .catch(() => {
-          /* best-effort persistence */
-        });
-    }
-    return new Response(ackStream(PRODUCT_WORKSPACE_CHAT_ACK), {
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-        "Cache-Control": "no-cache",
-        ...(chatId ? { "x-chat-id": chatId } : {}),
-      },
+    persistAssistantAckMessage({
+      persistence,
+      chatId,
+      turnId,
+      variant: "workspace-ack",
+      text: PRODUCT_WORKSPACE_CHAT_ACK,
     });
+    return ackResponse(PRODUCT_WORKSPACE_CHAT_ACK, chatId);
   }
 
   const { stream, nav, final } = runChatAgent(
@@ -723,7 +742,7 @@ async function runMasterAgentTurn(args: {
       if (!result.blocked && result.text && persistChatId) {
         await persistence
           .saveMessage(persistChatId, {
-            id: crypto.randomUUID(),
+            id: buildCockpitMessageId(turnId, "assistant", "reply"),
             role: "assistant",
             content: result.text,
             createdAt: Date.now(),
@@ -741,6 +760,7 @@ async function runMasterAgentTurn(args: {
         startedAt,
         userId,
         systemPromptHash: sha256Hex(systemPrompt),
+        turnId,
       });
       await persistNavTrace({
         result,
@@ -748,6 +768,7 @@ async function runMasterAgentTurn(args: {
         chatId: persistChatId,
         profile: navProfile,
         mode: chatMode,
+        turnId,
       });
     })
     .catch(() => {
@@ -1126,13 +1147,21 @@ export async function POST(req: NextRequest): Promise<Response> {
   } catch {
     isAdmin = false; // safe default: no workspace divert
   }
-  return runMasterAgentTurn({
-    req: sanitizedReq,
+  const context = createRequestContext({
+    requestId: req.headers.get("x-request-id"),
     userId,
-    chatMode,
-    navProfile,
-    isAdmin,
-    model: resolveModel(requestedModel),
-    systemPrompt: enrichedSystemPrompt,
   });
+
+  return withRequestContext(context, () =>
+    runMasterAgentTurn({
+      req: sanitizedReq,
+      userId,
+      turnId: context.runId!,
+      chatMode,
+      navProfile,
+      isAdmin,
+      model: resolveModel(requestedModel),
+      systemPrompt: enrichedSystemPrompt,
+    }),
+  );
 }

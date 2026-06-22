@@ -1,0 +1,15 @@
+import { readFileSync } from "fs";
+const env = readFileSync(".env.local","utf8");
+const url = env.match(/DATABASE_URL="([^"]+)"/)[1];
+const SINCE = process.argv[2] || new Date(Date.now()-600000).toISOString();
+const { Client } = await import("pg");
+const c = new Client({ connectionString: url });
+await c.connect();
+const runs = await c.query(`SELECT "outputTokens","inputTokens","costUsd","latencyMs","status","errorType","createdAt" FROM "LlmRun" WHERE "agentName"='cockpit-chat' AND "createdAt" > $1 ORDER BY "createdAt" ASC`, [SINCE]);
+const navs = await c.query(`SELECT profile, mode, "destinationKey", status, "createdAt" FROM "NavTrace" WHERE "createdAt" > $1 ORDER BY "createdAt" ASC`, [SINCE]);
+const msgs = await c.query(`SELECT role, left(content,90) AS content, mode, "createdAt" FROM "CockpitMessage" WHERE "createdAt" > $1 ORDER BY "createdAt" ASC`, [SINCE]);
+console.log("RUNS="+runs.rowCount+" NAVS="+navs.rowCount+" MSGS="+msgs.rowCount);
+for (const r of runs.rows) console.log("RUN "+JSON.stringify(r));
+for (const n of navs.rows) console.log("NAV "+JSON.stringify(n));
+for (const m of msgs.rows) console.log("MSG "+JSON.stringify(m));
+await c.end();

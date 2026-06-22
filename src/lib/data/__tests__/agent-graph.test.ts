@@ -39,6 +39,7 @@ describe("loadAgentGraph (orchestration, back-compat)", () => {
   it("marks an agent active on a recent success and makes its incoming edges hot", async () => {
     mockLlmFindMany.mockResolvedValue([
       {
+        id: "llm:turn_graph-1",
         agentName: "investor-memo",
         status: "success",
         createdAt: new Date(NOW - 60_000),
@@ -50,12 +51,14 @@ describe("loadAgentGraph (orchestration, back-compat)", () => {
     const memo = g.nodes.find((n) => n.id === "investor-memo");
     expect(memo?.state).toBe("active");
     expect(memo?.samples[0]?.latencyMs).toBe(1234);
+    expect(memo?.samples[0]?.turnId).toBe("turn_graph-1");
     expect(g.edges.some((e) => e.to === "investor-memo" && e.hot)).toBe(true);
   });
 
   it("marks a failed latest run as failed", async () => {
     mockLlmFindMany.mockResolvedValue([
       {
+        id: "llm:turn_graph-2",
         agentName: "mining-health",
         status: "failed",
         createdAt: new Date(NOW - 30_000),
@@ -103,6 +106,7 @@ describe("loadAgentGraphViews (multi-view, LlmRun + AdminToolRun)", () => {
     mockLlmFindMany.mockResolvedValue([] as never);
     mockToolFindMany.mockResolvedValue([
       {
+        id: "tool:turn_tool-1:read_market_snapshot:sample",
         toolId: "read_market_snapshot",
         toolKind: "read",
         status: "success",
@@ -117,6 +121,7 @@ describe("loadAgentGraphViews (multi-view, LlmRun + AdminToolRun)", () => {
     const snap = instruments.nodes.find((n) => n.id === "inst-read_market_snapshot");
     expect(snap?.state).toBe("active");
     expect(snap?.samples[0]?.latencyMs).toBe(88);
+    expect(snap?.samples[0]?.turnId).toBe("turn_tool-1");
 
     // Master-agent view: the read-tools aggregate node is active + its edge hot.
     const master = views.find((v) => v.id === "master-agent")!;
@@ -130,6 +135,7 @@ describe("loadAgentGraphViews (multi-view, LlmRun + AdminToolRun)", () => {
     mockLlmFindMany.mockResolvedValue([] as never);
     mockToolFindMany.mockResolvedValue([
       {
+        id: "tool:turn_tool-2:create_governance_proposal_draft:sample",
         toolId: "create_governance_proposal_draft",
         toolKind: "write",
         status: "blocked",
