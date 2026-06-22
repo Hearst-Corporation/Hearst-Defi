@@ -4,9 +4,7 @@ import path from "node:path";
 export default defineConfig({
   resolve: {
     alias: {
-      // Dé-vendoré DS — Vitest ne lit pas les tsconfig paths : aliase explicitement
-      // la copie locale. `/handler` AVANT le package nu (le préfixe capturerait le sous-chemin).
-      "@hearst/cockpit-shell/handler": path.resolve(__dirname, "./cockpit-shell/src/handler/createCockpitChatHandler.ts"),
+      // Dé-vendoré DS — Vitest ne lit pas les tsconfig paths : aliase explicitement la copie locale.
       "@hearst/cockpit-shell": path.resolve(__dirname, "./cockpit-shell/src/index.ts"),
       "@": path.resolve(__dirname, "./src"),
       // `server-only` is a marker package that throws when imported outside an

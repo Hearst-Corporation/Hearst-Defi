@@ -33,9 +33,6 @@
       "@hearst/cockpit-shell": [
         "./cockpit-shell/src/index.ts"
       ],
-      "@hearst/cockpit-shell/handler": [
-        "./cockpit-shell/src/handler/createCockpitChatHandler.ts"
-      ],
       "@hearst/cockpit-shell/*": [
         "./cockpit-shell/*"
       ]

@@ -3,9 +3,6 @@
  *
  * Stylesheet à importer une fois dans `app/layout.tsx` :
  *   `import "@hearst/cockpit-shell/tokens.css";`
- *
- * Handler API à utiliser dans `app/api/cockpit-chat/route.ts` :
- *   `import { createCockpitChatHandler } from "@hearst/cockpit-shell/handler";`
  */
 
 // Shell
