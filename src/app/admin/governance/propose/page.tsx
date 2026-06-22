@@ -52,7 +52,7 @@ export default async function ProposePage() {
   });
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         title="New proposal"
         lead={
@@ -152,6 +152,6 @@ export default async function ProposePage() {
           </form>
         </Card>
       </section>
-    </div>
+    </>
   );
 }

@@ -52,7 +52,7 @@ export default async function GovernancePage({ searchParams }: PageProps) {
   const governanceKpis = buildGovernanceKpiStrip(queue);
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Governance"
         titleAccent="Console"
@@ -83,6 +83,6 @@ export default async function GovernancePage({ searchParams }: PageProps) {
         <ProposalQueue proposals={filtered} />
       </section>
 
-    </div>
+    </>
   );
 }

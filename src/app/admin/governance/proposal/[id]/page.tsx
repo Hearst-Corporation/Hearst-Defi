@@ -84,7 +84,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
   const executeAction = handleExecute.bind(null, proposal.id);
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         title={proposal.actionType}
         lead={
@@ -297,6 +297,6 @@ export default async function ProposalDetailPage({ params }: PageProps) {
           </p>
         </Card>
       ) : null}
-    </div>
+    </>
   );
 }

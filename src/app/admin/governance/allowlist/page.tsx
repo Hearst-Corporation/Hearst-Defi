@@ -10,7 +10,7 @@ export default async function AllowlistPage() {
   const entries = await getAllAllowlistEntries();
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Allowlist"
         contextLabel="Governance · Allowlist"
@@ -27,6 +27,6 @@ export default async function AllowlistPage() {
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Allowlist">
         <AllowlistBoard entries={entries} />
       </section>
-    </div>
+    </>
   );
 }
