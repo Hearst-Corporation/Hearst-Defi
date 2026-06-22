@@ -402,7 +402,15 @@
    fit the zero-state cockpit without clipping. At ≥88rem the centre clears ~58rem
    (measured: 1440 → 60.3rem, no loss) even with the assistant open. Below 88rem
    the cockpit scrolls naturally (content reachable), never clipped. */
-@media (min-width: 88rem) and (min-height: 52rem) {
+/* ── DÉFORCÉ (portfolio, 2026-06) : le hub n'est PLUS pinné à 100dvh sur grand
+   écran. L'ancien gate no-scroll comprimait les 3 rows en `fr` → sous-scrolls
+   internes illisibles ("on n'accède à rien, ça ne tient pas"). Comme le
+   dashboard (cockpit.css:2557, déforcé 2026-06-21), on LAISSE COULER : hauteur
+   naturelle + scroll vertical de main à TOUTES les tailles. La recette
+   naturelle (ex-"below the gate", plus bas) est désormais inconditionnelle ;
+   ce bloc fit-pin est conservé mais NEUTRALISÉ (`not all` = ne matche jamais)
+   pour rester réversible. La largeur 2-col reste pilotée par @container pf. ── */
+@media not all and (min-width: 88rem) and (min-height: 52rem) {
 
   /* Ancestor chain locked to the viewport. */
   .ct-panels-row:has(.pf-container--fit) {
@@ -539,9 +547,12 @@
   }
 }
 
-/* ---- BELOW THE GATE: page scrolls naturally (mobile / tablet / short or
-   assistant-narrowed laptop, < 88rem). Content is always reachable here. */
-@media not all and (min-width: 88rem) and (min-height: 52rem) {
+/* ---- NATURAL SCROLL AT ALL SIZES (ex-"below the gate", désormais
+   inconditionnel — voir le fit-pin neutralisé plus haut). La page scrolle ;
+   les panneaux prennent leur hauteur naturelle, rien ne clippe, et
+   main#main-content scrolle. Le hub "prend plus de place" et reste accessible
+   sur grand écran comme sur petit. ---- */
+@media all {
   .pf-container--fit { height: auto; overflow: visible; }
   .pf-container--fit .pf-cockpit { overflow: visible; }
   .pf-cockpit-row { flex: 0 0 auto; }

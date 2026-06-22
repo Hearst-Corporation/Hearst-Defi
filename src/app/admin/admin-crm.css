@@ -18,6 +18,50 @@
    ============================================================================= */
 
 /* =============================================================================
+   0. MAX WIDTH (Matches Command Center)
+   ============================================================================= */
+@media (min-width: 80rem) {
+  .admin-doc.admin-doc-shell:has(.admin-crm-view),
+  .admin-doc .admin-doc-shell:has(.admin-crm-view) {
+    max-width: var(--ct-dashboard-frame-max-w);
+    margin-inline: auto;
+  }
+}
+
+/* =============================================================================
+   0b. SATELLITE PAGE ROOT — stretch + frame parity with Overview / CRM
+
+   Satellite admin pages (feedback, outreach/compose + [campaignId], governance,
+   governance/propose, allowlist, distributions, audit, proofs, customers/[id],
+   agents/[id], agents/new, onboarding-test, projection) root their content in
+   `admin-doc-stack--actions`. That class is a LEFT-ALIGNED small-action cluster
+   (doc-flow.css:72 → align-items: flex-start); used as the page-root <section>
+   it shrink-wraps Cards / forms / tables to their CONTENT width — so a long-text
+   card spans full width while a compact form collapses (measured on allowlist:
+   844px intro card stacked over a 402px form card = the visible width "conflict").
+
+   Restore stretch ONLY when the section is a DIRECT child of the shell (a page
+   root). Nested `--actions` action clusters live inside Cards/forms/divs (never
+   a direct child of .admin-doc-shell) → they keep their intended flex-start.
+
+   admin-crm.css is imported AFTER doc-flow.css (admin/layout.tsx), so this wins
+   the same-specificity tie by source order — it MUST live here, not upstream.
+   ============================================================================= */
+.admin-doc.admin-doc-shell > .admin-doc-stack--actions,
+.admin-doc .admin-doc-shell > .admin-doc-stack--actions {
+  align-items: stretch;
+}
+
+/* NB on frame parity: a 108rem cap+centre for satellites would only bite past
+   ~2236px (below that the centre column is < 108rem, so the cap is inert and
+   satellites already match Overview / CRM). It is intentionally NOT added here
+   because --ct-dashboard-frame-max-w is scoped to the dashboard subtree, not
+   :root — so the existing §0 `.admin-crm-view` cap is itself a no-op at the
+   shell level. Adding a real ultrawide cap means hoisting that token to :root
+   (a DS-wide change) — out of scope for this width fix; revisit if/when
+   ultrawide centring is wanted across ALL admin pages at once. */
+
+/* =============================================================================
    1. CARD PADDING — recurring p-[var(--ct-space-N)] on <Card>
 
    NB: on a <Card> (.ct-card), the unlayered `.admin-doc .ct-card:not(.p-0)`
@@ -26,6 +70,21 @@
    p-[var(--ct-space-N)] utilities did (Tailwind utilities also lost to that
    unlayered rule). They stay as semantic intent markers + the canonical value.
    ============================================================================= */
+
+/* KPI STRIP — FIX BLEED. The admin KPI strip wraps DashboardKpiStrip in a
+   `.dashboard-cockpit-panel` (flex:1 1 auto; min-height:0 — sized for the
+   dashboard FIT grid, where panels share a height-constrained column). On the
+   admin SECTION pages (agents, feedback, customers, signals, monitoring,
+   distributions) the strip is a DIRECT child of the admin shell's flex column,
+   so flex-shrink collapses the panel box to ~34px while its 2×2 strip stays
+   ~245px → the strip overflows and BLEEDS onto the section below (looked like
+   "BASE AGENTS / RUNS" stacked over the orchestration card). Pin it to its
+   natural content height. Scoped to a DIRECT shell child so the dashboard's own
+   KPI panel (nested inside .dashboard-cockpit) keeps its fit-grid flex. */
+.admin-doc.admin-doc-shell > .admin-kpi-strip-panel,
+.admin-doc .admin-doc-shell > .admin-kpi-strip-panel {
+  flex: 0 0 auto;
+}
 
 .admin-doc .admin-card {
   padding: var(--ct-space-5);
@@ -117,16 +176,34 @@
    4. PANELS — bordered runtime / base-agent insets
    ============================================================================= */
 
+/* ANTI CAGE-IN-CAGE : l'inset vit DANS une carte déjà peinte (ct-glass-panel /
+   graphite-subtle-bg). Lui redonner un fond = deuxième surface empilée (« two
+   surfaces ») — exactement ce que le canon interdit (doc-flow.css:295 « ZERO
+   surface layering, a hairline border alone delineates »). On retire le fill :
+   l'inset partage le graphite de la carte, une bordure fine seule le délimite. */
 .admin-doc .admin-inset-panel {
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
+  background: transparent;
+  border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-lg);
   padding: var(--ct-space-4);
 }
 
 .admin-doc .admin-inset-panel--md {
+  background: transparent;
   border-radius: var(--ct-radius-md);
   padding: var(--ct-space-4);
+}
+
+/* Belt-and-suspenders : si du JSX empile aussi un ct-surface-* sur un panneau
+   structurel (legend/inset) à l'intérieur d'une carte, neutralise ce 2e fill —
+   les CHAMPS de formulaire (input/select/textarea) gardent le leur (affordance). */
+.admin-doc .ct-card .admin-inset-panel.ct-surface-0,
+.admin-doc .ct-card .admin-inset-panel.ct-surface-1,
+.admin-doc .ct-card .admin-inset-panel.ct-surface-2,
+.admin-doc .ct-glass-panel .admin-inset-panel.ct-surface-0,
+.admin-doc .ct-glass-panel .admin-inset-panel.ct-surface-1,
+.admin-doc .ct-glass-panel .admin-inset-panel.ct-surface-2 {
+  background: transparent;
 }
 
 .admin-doc .admin-inset-chip {

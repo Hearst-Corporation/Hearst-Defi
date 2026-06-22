@@ -31,10 +31,15 @@
   --ct-rail-right: 420px; /* superseded → 22rem/352px default (cockpit.css) */
   --ct-rail-right-expanded: 26.25rem; /* 420px — live value in cockpit.css :root */
 
-  --ct-surface-0: rgba(255,255,255,0.02); /* superseded → 0.04 (cockpit.css) */
-  --ct-surface-1: rgba(255,255,255,0.04); /* superseded → 0.07 (cockpit.css) */
-  --ct-surface-2: rgba(255,255,255,0.06); /* superseded → 0.10 (cockpit.css) */
-  --ct-surface-3: rgba(255,255,255,0.09); /* superseded → 0.14 (cockpit.css) */
+  /* SURFACES — UN SEUL MODÈLE : charcoal OPAQUE étagé (aligné avec
+     src/app/cockpit.css, qui est la source live via :root non-layered). On retire
+     l'ancien modèle « film translucide » (rgba blanc) qui était mort/superseded et
+     créait une double définition translucide↔opaque. Une seule vérité maintenant :
+     surface-0 = niveau du fond, montée vers le clair pour la profondeur. */
+  --ct-surface-0: #0E0F0F;
+  --ct-surface-1: #141416;
+  --ct-surface-2: #1E1E1E;
+  --ct-surface-3: #242428;
 
   --ct-text-strong: #ffffff;
   --ct-text-primary: rgba(245,245,245,0.92);
