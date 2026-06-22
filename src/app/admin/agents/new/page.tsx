@@ -29,7 +29,9 @@ export default async function NewAgentTemplatePage({
   return (
     <>
       <AdminPageHeader
-        title="New agent template"
+        titleLead="New agent"
+        titleAccent="template"
+        contextLabel="Agent Operations"
         description="Define a reusable operator profile for investor-facing agent behavior, language, and register."
         lead={
           <Link href="/admin/agents" className="body-xs ct-text-muted hover:ct-text-strong">

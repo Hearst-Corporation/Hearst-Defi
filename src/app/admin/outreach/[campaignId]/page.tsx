@@ -63,8 +63,9 @@ export default async function CampaignDetailPage({
   return (
     <>
       <AdminPageHeader
-        title={detail.name}
-        eyebrow={`campaign · ${detail.kind}`}
+        titleLead="Campaign"
+        titleAccent={detail.name}
+        contextLabel={`Outreach · ${detail.kind}`}
         description="Review the campaign mandate, generate tailored drafts, and clear each recipient email before release."
         lead={
           <Link

@@ -212,7 +212,7 @@ export default async function DistributionsPage({
 
         <Card hoverOverlay={false}>
           <div className="admin-doc-stack admin-doc-stack--tight">
-            <h3 className="eyebrow ct-text-muted">Historical record</h3>
+            <h3 className="h3">Historical record</h3>
             <p className="body-xs ct-text-faint ct-prose-xl">
               Distributions shown above are historical records only. They are not a
               commitment to any future distribution. Past distributions are not a

@@ -20,8 +20,9 @@ export default function OnboardingTestPage() {
   return (
     <>
       <AdminPageHeader
-        title="Onboarding test"
-        eyebrow="pilot tool · controlled intake"
+        titleLead="Onboarding"
+        titleAccent="test"
+        contextLabel="Operations · Pilot tool"
         description="Pilot test tool — runs a controlled submission through the production intake path. It creates a real investor account and qualification record; the welcome email and HubSpot sync stay opt-in (off by default)."
         lead={
           <Link href="/admin/customers" className="body-xs ct-text-muted hover:ct-text-strong">

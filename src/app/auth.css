@@ -28,7 +28,7 @@
    weights, no Tailwind default scale.
    -------------------------------------------------------------------------- */
 
-:is(.auth-shell, .auth-login-panel, .login-split) .h1 {
+:is(.auth-shell, .auth-login-panel, .login-split, .onboarding-shell) .h1 {
   font-size: var(--ct-text-3xl-fixed);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
@@ -36,7 +36,7 @@
   color: var(--ct-text-strong);
 }
 
-:is(.auth-shell, .auth-login-panel, .login-split) .h2 {
+:is(.auth-shell, .auth-login-panel, .login-split, .onboarding-shell) .h2 {
   font-size: var(--ct-text-2xl);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
@@ -44,7 +44,7 @@
   color: var(--ct-text-strong);
 }
 
-:is(.auth-shell, .auth-login-panel, .login-split) .h3 {
+:is(.auth-shell, .auth-login-panel, .login-split, .onboarding-shell) .h3 {
   font-size: var(--ct-text-lg);
   font-weight: var(--ct-font-medium);
   line-height: var(--ct-leading-snug);
@@ -74,10 +74,10 @@
 /* Keep the ≥80rem doc-flow fluid bump from re-inflating the auth H1 (canon =
    fixed cockpit instrument, not a document title that balloons). */
 @media (min-width: 80rem) {
-  .ct-page-area :is(.auth-shell, .auth-login-panel, .login-split) .h1 {
+  .ct-page-area :is(.auth-shell, .auth-login-panel, .login-split, .onboarding-shell) .h1 {
     font-size: var(--ct-text-3xl-fixed);
   }
-  .ct-page-area :is(.auth-shell, .auth-login-panel, .login-split) .h2 {
+  .ct-page-area :is(.auth-shell, .auth-login-panel, .login-split, .onboarding-shell) .h2 {
     font-size: var(--ct-text-2xl);
   }
 }

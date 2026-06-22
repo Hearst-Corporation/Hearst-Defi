@@ -19,8 +19,9 @@ export default function ComposeEmailPage() {
   return (
     <>
       <AdminPageHeader
-        title="Compose email"
-        eyebrow="platform · one-off send"
+        titleLead="Compose"
+        titleAccent="email"
+        contextLabel="Outreach · One-off send"
         lead={
           <Link href="/admin/outreach" className="body-xs ct-text-muted hover:ct-text-strong">
             ← Outreach
