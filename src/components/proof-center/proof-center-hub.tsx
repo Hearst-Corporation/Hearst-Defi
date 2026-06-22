@@ -15,10 +15,7 @@ import { PorSummary } from "@/components/proof-center/por-summary";
 import { ProofCenterColdShell } from "@/components/proof-center/proof-center-cold-shell";
 import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
 import { ProofCenterTestnetNotice } from "@/components/proof-center/proof-center-testnet-notice";
-import {
-  ProofCockpitPanelHeader,
-  ProofLeafLink,
-} from "@/components/proof-center/proof-cockpit-panel-header";
+import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { RecentDistributions } from "@/components/proof-center/recent-distributions";
 import { RebalancingEventsPanel } from "@/components/proof-center/rebalancing-events-panel";
 import type { CoverageView } from "@/lib/engine/coverage-view";
@@ -58,10 +55,7 @@ function HubPanelHeader({
   title: string;
   trailing?: ReactNode;
 }) {
-  if (variant === "admin") {
-    return <DashboardPanelHeader title={title} trailing={trailing} />;
-  }
-  return <ProofCockpitPanelHeader title={title} trailing={trailing} />;
+  return <DashboardPanelHeader title={title} trailing={trailing} tone="primary" />;
 }
 
 function HubLeafLink({
@@ -76,7 +70,7 @@ function HubLeafLink({
   if (variant === "admin") {
     return <AdminLeafLink href={href} label={label} />;
   }
-  return <ProofLeafLink href={href} label={label} />;
+  return <PortfolioLeafLink href={href} label={label} />;
 }
 
 export function ProofCenterHub({
