@@ -118,6 +118,8 @@
    ============================================================================= */
 
 .admin-doc .admin-inset-panel {
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
   padding: var(--ct-space-4);
 }

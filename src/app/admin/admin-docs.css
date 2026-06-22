@@ -74,14 +74,7 @@
   background: transparent;
 }
 
-/* Roomier callout block (confirmed / failed result panels) — canon card
-   rhythm: Y var(--ct-space-3) / X var(--ct-space-5) (spec §2). */
-.admin-doc .admin-doc-callout {
-  padding: var(--ct-space-3) var(--ct-space-5);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-border-soft);
-  background: transparent;
-}
+/* Notices + callouts — shared doc-flow shell (see :is(.admin-doc, .product-doc) .doc-callout). */
 
 /* History table — top hairline between distribution rows. */
 .admin-doc .admin-doc-table-row {
@@ -186,8 +179,8 @@
   align-items: center;
   padding: var(--ct-space-2) var(--ct-space-4);
   border-radius: var(--ct-radius-full);
-  border: 1px solid var(--ct-border-strong);
-  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
   color: var(--ct-text-primary);
   font-weight: var(--ct-font-medium);
   text-decoration: none;

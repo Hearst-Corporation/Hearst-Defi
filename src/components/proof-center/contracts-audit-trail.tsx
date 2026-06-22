@@ -268,7 +268,7 @@ export function ContractsAuditTrail({
           ))}
         </ul>
 
-        <div className="admin-doc-stack admin-doc-stack--tight proof-release-gate">
+        <div className="product-doc-stack product-doc-stack--tight proof-release-gate">
           <p className="stat-label m-0">Release gate</p>
           <p className="body-xs ct-text-muted m-0">
             Production (mainnet) deployment requires completion of an

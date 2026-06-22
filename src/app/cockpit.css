@@ -627,9 +627,9 @@
   bottom: 0;
   z-index: var(--ct-z-dropdown);
   width: 100%;
-  backdrop-filter: var(--ct-blur-xl);
-  -webkit-backdrop-filter: var(--ct-blur-xl);
-  background: color-mix(in srgb, var(--ct-bg-deep) 55%, transparent);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--ct-graphite-subtle-bg);
   border-top: 1px solid var(--ct-border-soft);
   padding: var(--ct-space-4) var(--ct-space-6);
 }
@@ -1319,10 +1319,10 @@
   gap: var(--ct-space-3);
   padding: var(--ct-space-4) var(--ct-space-5);
   border-top: 1px solid var(--ct-border-soft);
-  background: color-mix(in srgb, var(--ct-bg-deep) 48%, var(--ct-surface-2));
-  backdrop-filter: var(--ct-blur-lg);
-  -webkit-backdrop-filter: var(--ct-blur-lg);
-  box-shadow: 0 -12px 24px color-mix(in srgb, var(--ct-bg-deep) 32%, transparent);
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
 }
 
 .projection-studio-output {
@@ -3334,9 +3334,9 @@
   z-index: var(--ct-z-raised);
   margin-bottom: var(--ct-space-1);
   padding: var(--ct-space-2) 0 var(--ct-space-3);
-  background: color-mix(in srgb, var(--ct-bg-deep) var(--ct-roadmap-phase-header-bg-mix), transparent);
-  backdrop-filter: var(--ct-blur-lg);
-  -webkit-backdrop-filter: var(--ct-blur-lg);
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* Accent rail (border-l only) — highlighted inline row inside a parent card */
@@ -4705,8 +4705,9 @@ button.ct-choice-card {
 
 /* Compact card density — smaller data/list surfaces (audit D1/D2).
    Radius already radius-xl on the unified base; only the padding tier differs. */
-.ct-card--compact,
-.admin-doc .ct-card--compact:not(.p-0)            { padding: var(--ct-space-3) var(--ct-space-4); }
+.ct-card--compact {
+  padding: var(--ct-space-3) var(--ct-space-4);
+}
 
 /* Vault selector card — compact density without crushing module title / KPI. */
 .ct-card--compact .vault-select-card               { gap: var(--ct-space-3); }
@@ -5241,17 +5242,12 @@ button.ct-choice-card {
 /* ── DEBUG / PORTFOLIO FULL — KPI card glass pattern ────────────────────────
    Same recipe used across all 4 KPI articles in the debug portfolio view. */
 .ct-kpi-glass {
-  background: color-mix(in srgb, var(--ct-surface-1) 20%, transparent);
-  backdrop-filter: var(--ct-blur-2xl);
-  -webkit-backdrop-filter: var(--ct-blur-2xl);
+  background: var(--ct-graphite-subtle-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border-radius: var(--ct-radius-xl);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent);
-  background-image: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--ct-accent) 8%, transparent) 1px,
-    transparent 1px
-  );
-  background-size: 24px 24px;
+  border: 1px solid var(--ct-graphite-border-nested);
+  background-image: none;
 }
 
 /* ── INLINE STYLE REPLACEMENTS ───────────────────────────────────────────────
