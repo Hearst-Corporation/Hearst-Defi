@@ -17,7 +17,7 @@ export default async function InvestorMemoPage({
   const vault = VAULTS[vaultId];
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Investor"
         titleAccent="Memo"
@@ -25,6 +25,6 @@ export default async function InvestorMemoPage({
       />
 
       <MemoShell vaultId={vaultId} vaultName={vault.label} />
-    </div>
+    </>
   );
 }
