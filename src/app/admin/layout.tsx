@@ -45,9 +45,7 @@ export default async function AdminLayout({
       <div className="admin-search-dock">
         <CommandPalette />
       </div>
-      <div className="admin-doc w-full min-w-0">
-        {children}
-      </div>
+      <div className="admin-doc admin-doc-shell w-full min-w-0">{children}</div>
     </>
   );
 }

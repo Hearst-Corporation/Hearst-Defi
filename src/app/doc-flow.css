@@ -18,6 +18,7 @@
 
 /* ── Shared layout primitives ─────────────────────────────────────────────── */
 
+.admin-doc.admin-doc-shell,
 .admin-doc .admin-doc-shell {
   display: flex;
   width: 100%;
@@ -210,18 +211,6 @@
 
 .admin-doc .admin-doc-inline-row--nowrap {
   flex-wrap: nowrap;
-}
-
-.admin-doc .admin-doc-kpi-grid-4 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ct-space-4);
-}
-
-@container admin-doc (min-width: 48rem) {
-  .admin-doc .admin-doc-kpi-grid-4 {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
 }
 
 /* Form fields & grids */
@@ -803,14 +792,6 @@
   padding: var(--ct-space-4) var(--ct-space-5);
 }
 
-/* KPI grid 2-col, identical in both scopes */
-:is(.admin-doc, .product-doc) .doc-kpi-grid-2,
-:is(.admin-doc, .product-doc) :is(.admin-doc-kpi-grid-2, .product-doc-kpi-grid-2) {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ct-space-4);
-}
-
 /* Shell cap + narrow — max-width centering, identical in both scopes */
 :is(.admin-doc, .product-doc) .doc-shell--cap,
 :is(.admin-doc, .product-doc) :is(.admin-doc-shell--cap, .product-doc-shell--cap) {
@@ -932,6 +913,7 @@
 
 /* ── Shared layout primitives ─────────────────────────────────────────────── */
 
+.product-doc.product-doc-shell,
 .product-doc .product-doc-shell {
   display: flex;
   width: 100%;
@@ -1254,7 +1236,7 @@
 
 /* ── Invest flow (/vaults/*) ─────────────────────────────────────────────── */
 
-.product-doc :is(
+:is(.admin-doc, .product-doc) :is(
   .invest-flow-shell,
   .prof-shell,
   .position-detail-shell,
@@ -1264,6 +1246,23 @@
   width: 100%;
   min-width: 0;
   flex-direction: column;
+  gap: var(--ct-doc-flow-gap);
+}
+
+/* Page-level modifier roots (layout already owns admin-doc-shell). */
+.admin-doc.admin-doc-shell > :is(
+  .admin-doc-shell--cap,
+  .admin-doc-shell--narrow,
+  .admin-doc-shell--compact,
+  .admin-doc-shell--roomy,
+  .scenario-lab-page
+) {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
+  min-height: 0;
   gap: var(--ct-doc-flow-gap);
 }
 

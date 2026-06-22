@@ -5,6 +5,8 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import { bpsToPercent, type VaultKpiFacts } from "@/lib/vaults/vault-detail-facts";
 
+import { MetricGrid } from "@/components/ui/nested-panel";
+
 interface VaultAdminKpiStripProps {
   facts: VaultKpiFacts;
   showAumCard: boolean;
@@ -20,7 +22,7 @@ export function VaultAdminKpiStrip({
       : 0;
 
   return (
-    <div className="admin-doc-kpi-grid-4">
+    <MetricGrid columns={4} className="mb-[var(--ct-space-4)]">
       <Card>
         <div className="admin-doc-inline-row admin-doc-inline-row--between mb-[var(--ct-space-1)]">
           <span className="stat-label">Target APY</span>
@@ -65,6 +67,6 @@ export function VaultAdminKpiStrip({
           </p>
         </Card>
       ) : null}
-    </div>
+    </MetricGrid>
   );
 }

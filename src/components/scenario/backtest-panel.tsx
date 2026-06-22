@@ -9,6 +9,8 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type { BacktestOutput } from "@/lib/engine/types";
 
+import { MetricGrid } from "@/components/ui/nested-panel";
+
 interface BacktestPanelProps {
   output: BacktestOutput;
   isPending: boolean;
@@ -30,7 +32,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
       {isPending ? <ScenarioPendingOverlay message="Computing backtest…" /> : null}
 
       {/* ── Section 1: KPIs 2×2 grid ────────────────────────────────────── */}
-      <div className="admin-doc-kpi-grid-2">
+      <MetricGrid columns={2} className="mb-[var(--ct-space-4)]">
         {/* Total Return */}
         <Card>
           <div className="mb-[var(--ct-space-2)] admin-doc-inline-row admin-doc-inline-row--between">
@@ -90,7 +92,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
             mode triggers
           </p>
         </Card>
-      </div>
+      </MetricGrid>
 
       {/* ── Section 2: Monthly chart ─────────────────────────────────────── */}
       <Card>
