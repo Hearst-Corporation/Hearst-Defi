@@ -25,7 +25,7 @@ export default async function SpecPage({
   }
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <div className="admin-doc-spec-layout">
         <aside className="admin-doc-spec-aside">
           <nav className="admin-doc-stack admin-doc-stack--compact" aria-label="Spec documents">
@@ -59,6 +59,6 @@ export default async function SpecPage({
           </div>
         </article>
       </div>
-    </div>
+    </>
   );
 }

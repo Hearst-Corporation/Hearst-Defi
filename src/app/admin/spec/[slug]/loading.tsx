@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="admin-doc-shell animate-in fade-in duration-(--ct-dur-slower)">
+    <div className="animate-in fade-in duration-(--ct-dur-slower)">
       <div className="admin-doc-spec-layout">
         <aside className="w-56 shrink-0 admin-doc-stack admin-doc-stack--tight admin-doc-spec-aside">
           {Array.from({ length: 8 }).map((_, i) => (

@@ -13,7 +13,7 @@ export default async function SpecIndexPage() {
     redirect(`/admin/spec/${first.slug}`);
   }
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Product"
         titleAccent="Spec"
@@ -26,6 +26,6 @@ export default async function SpecIndexPage() {
         className="min-h-32"
         ariaLabel="Specification library awaiting documents"
       />
-    </div>
+    </>
   );
 }
