@@ -3,16 +3,19 @@
  *
  * Pounds `chatOutputViolation` (the output-side compliance guard for the
  * LP-facing cockpit chat stream) across a fourchette of phrasings — FR + EN
- * forbidden-vocabulary claims, single-point APY claims, compliant APY ranges,
- * and neutral prose — and asserts the contract from CLAUDE.md non-negotiables
- * #1 (APY always a range) and #5 (forbidden words):
+ * forbidden-vocabulary claims, single-point APY/yield claims, compliant APY
+ * ranges, and neutral prose — and asserts the contract from CLAUDE.md
+ * non-negotiables #1 (APY always a range) and #5 (forbidden words):
  *
- *   - forbidden phrase  -> MUST be blocked (a phrase that passes is a P0
- *                          compliance hole that would stream to an investor)
- *   - single-point APY  -> MUST be blocked (#1)
- *   - APY as a range    -> MUST pass (a range wrongly blocked is a P1 false
- *                          positive that breaks the chat UX)
- *   - neutral prose     -> MUST pass
+ *   - forbidden phrase       -> MUST be blocked (a phrase that passes is a P0
+ *                               compliance hole that would stream to an investor)
+ *   - single-point APY/yield -> MUST be blocked (#1); the gate now covers
+ *                               "rendement de 12%", "yields exactly 9.4%", and
+ *                               equivalent FR/EN phrasings (holes #2 + #3 closed
+ *                               in apy-range.ts)
+ *   - APY as a range         -> MUST pass (a range wrongly blocked is a P1 false
+ *                               positive that breaks the chat UX)
+ *   - neutral prose          -> MUST pass
  *
  * Each list is looped to prove the guard is DETERMINISTIC: the same input is
  * scanned 25 times and every verdict must be identical (the guard is a pure
@@ -33,10 +36,16 @@ const RUNS = 25;
  * Forbidden-vocabulary claims that MUST be blocked, FR + EN.
  * Per the task brief: a forbidden phrase that PASSES the guard is a P0
  * compliance hole.
+ *
+ * "certain de gagner" was promoted from it.todo (REMAINING HOLE) to a real
+ * assertion once A1's forbidden-words.ts fix was integrated into main: A1 added
+ * the multi-word "certain de gagner" / "certaine de gagner" / "certains de
+ * gagner" / … needles that close compliance hole #1 (FR win-certainty idiom).
  */
 const FORBIDDEN: readonly string[] = [
   // FR
   "rendement garanti",
+  "certain de gagner",   // closed in A1 (forbidden-words.ts win-certainty idioms)
   // EN
   "guaranteed return",
   "we promise",
@@ -47,30 +56,23 @@ const FORBIDDEN: readonly string[] = [
 /**
  * Single-point APY / single-point yield claims that MUST be blocked (#1: APY
  * is always a range, never a single point).
+ *
+ * The two FR/EN yield phrasings below were previously in KNOWN_HOLES (holes #2
+ * + #3). They are now real assertions because apy-range.ts broadened its topic
+ * gate from the literal "APY" token to YIELD_TOPIC_RE (covers APY, yields?,
+ * returns?, rendements?).
  */
 const SINGLE_POINT_APY: readonly string[] = [
   "APY 11%",
-];
-
-/**
- * KNOWN COMPLIANCE HOLES surfaced by this stress test (verified real, P1).
- * These phrasings currently SLIP THROUGH `chatOutputViolation` and would stream
- * to an investor. Kept as `it.todo` so the gap is tracked without failing CI;
- * promote each to a real assertion in the FORBIDDEN / SINGLE_POINT_APY lists
- * once the guard is fixed.
- *   - "certain de gagner" — forbidden-words.ts only carries the multi-word
- *     needles "rendement certain"/"gain certain"; the "certain/sûr + infinitive"
- *     idiom (FR) is uncaught (bare "certain" omitted to avoid "certains"=some).
- *   - "rendement de 12%" / "yields exactly 9.4%" — apy-range.ts gates the
- *     single-point check on the literal token "APY"; a single-point yield worded
- *     with "rendement"/"yields"/"returns" bypasses #1.
- * See docs/audit/agent-stress-test.html for the full root-cause analysis.
- */
-const KNOWN_HOLES: readonly string[] = [
-  "certain de gagner",
+  // Holes #2 + #3 — closed in apy-range.ts (YIELD_TOPIC_RE gate)
   "rendement de 12%",
   "yields exactly 9.4%",
 ];
+
+// Holes #2 + #3 ("rendement de 12%", "yields exactly 9.4%") are now CLOSED —
+// they were moved to SINGLE_POINT_APY above after apy-range.ts broadened its
+// topic gate. Hole #1 ("certain de gagner") is now CLOSED — moved to FORBIDDEN
+// above after A1's forbidden-words.ts win-certainty idioms were integrated.
 
 /**
  * Compliant APY phrased as a range — MUST pass. A range wrongly blocked is a
@@ -134,11 +136,4 @@ describe("compliance output guard — stress across phrasings", () => {
     });
   });
 
-  // Known compliance holes (P1) — tracked, not yet fixed. Promote to a real
-  // BLOCKS assertion once the guard covers these phrasings.
-  describe("KNOWN HOLES — must block once fixed (#1 / #5)", () => {
-    for (const phrase of KNOWN_HOLES) {
-      it.todo(`should block ${JSON.stringify(phrase)} (currently slips through)`);
-    }
-  });
 });

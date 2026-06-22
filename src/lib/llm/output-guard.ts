@@ -14,12 +14,8 @@
  *   so the chat enforces the SAME vocabulary as the agents — no divergent list.
  * - A look-back buffer of SETTLE chars is held back from emission so a forbidden
  *   needle (or a completing sentence) is detected while still un-emitted.
- * - The APY single-point check is deliberately CONSERVATIVE: it only fires on a
- *   completed sentence that contains the literal token "APY", at least one
- *   percentage, and NO genuine numeric range construct — so it can never block a
- *   legitimate range ("8 à 15 %", "9.4-12.8%", "entre 8 et 15 %") while still
- *   catching a lone APY percentage whose sentence merely happens to contain a
- *   bare "à"/"déjà"/"jusqu'à" or a hyphen.
+ * - The APY single-point check delegates to `hasSinglePointApy` in
+ *   `@/lib/agents/apy-range` — see that module for the full detection contract.
  * - On a violation the stream emits the `\x00ERROR:` sentinel understood by the
  *   cockpit-shell client (no new client contract). The text AFTER the marker is
  *   what the client shows the user via `setError(...)`, so it is a human FR

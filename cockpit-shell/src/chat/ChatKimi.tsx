@@ -149,6 +149,12 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       if (!text.trim()) return;
       setInput("");
       sendMessage(text);
+      // Signal the chat-nav-bridge to re-arm its poll cadence immediately so that
+      // any navigation directive the Master Agent publishes for this turn is picked
+      // up at POLL_MS latency, not at the current backed-off delay (up to 7.2 s).
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("cockpit:chat-sent"));
+      }
       // Re-focus après envoi.
       requestAnimationFrame(() => textareaRef.current?.focus());
     },

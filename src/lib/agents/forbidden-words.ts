@@ -62,6 +62,14 @@ export const CHAT_FORBIDDEN_WORDS = [
   "risk-free",
   "will deliver",
   "promise",
+  // English verb-phrase idioms (win-certainty)
+  // NOTE: bare "certain" is NOT in this list to avoid false-positives on
+  // "certains"=some / "certaine"=some; these multi-word forms close the gap.
+  "certain to win",
+  "sure to win",
+  "certain to double",
+  "sure to double",
+  "guaranteed to win",
   // French compliance vocabulary
   "garanti",
   "sans risque",
@@ -79,6 +87,40 @@ export const CHAT_FORBIDDEN_WORDS = [
   "capital est protégé",
   "protégé contre les pertes",
   "promesse",
+  // French verb-phrase idioms — win-certainty (compliance hole #1)
+  // NOTE: bare "certain"/"sûr" still excluded (false-positive on "certains"=some,
+  // "bien sûr"=of course, "il est sûr de lui"=self-confident). Only MULTI-WORD
+  // forms that express an investment win-certainty claim are added here.
+  //
+  // "à coup sûr" idiom — anchoring strategy:
+  //   REMOVED: bare "coup sûr" — it over-matched benign French:
+  //     - "un coup sûr et réfléchi" (safe-bet usage) → false positive
+  //     - "du premier coup sûrement" → trailing \w* on last token swallowed
+  //       "sûrement", firing on "coup sûrement" → false positive
+  //   REPLACED with two context-bound needles that require a win-verb nearby:
+  //     - "gagner à coup sûr": \b anchors on "gagner" (ASCII); catches
+  //       "gagner à coup sûr" and "vous gagnez à coup sûr" (gagner before).
+  //     - "coup sûr vous gagnez": \b anchors on "coup" (word-boundary after
+  //       space); catches "à coup sûr vous gagnez" (gagnez after).
+  //   "bien sûr", "un coup sûr et réfléchi", "premier coup sûrement" all pass.
+  //   Leading "à" is non-ASCII — \b before "à" fails — so it is NOT used as the
+  //   first token; instead the ASCII anchor word ("gagner" or "coup") carries \b.
+  "certain de gagner",
+  "certaine de gagner",
+  "certains de gagner",
+  "certaines de gagner",
+  "sûr de gagner",
+  "sûre de gagner",
+  "sûrs de gagner",
+  "assuré de gagner",
+  "assurée de gagner",
+  "gagner à coup sûr",
+  "gagnez à coup sûr",
+  "coup sûr vous gagnez",
+  "forcément gagner",
+  "certain de doubler",
+  "sûr de doubler",
+  "gagner est certain",
 ] as const;
 
 /**
