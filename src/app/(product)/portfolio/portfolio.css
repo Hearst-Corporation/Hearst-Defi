@@ -2347,7 +2347,7 @@
 
 /* Distrib calendar skeleton bars + ValueChart flat baseline read as muted frame. */
 .pf-distrib-chart--skeleton rect {
-  opacity: var(--ct-opacity-45);
+  opacity: 1;
   animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 .pf-vc-line--skeleton {
