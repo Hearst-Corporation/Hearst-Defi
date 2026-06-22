@@ -95,17 +95,18 @@ describe("DistribCalendar — empty entries", () => {
     expect(entries).toHaveLength(0);
   });
 
-  it("zero-state shows a clean empty panel — no ghost bar chart conflicting with the awaiting message", () => {
+  it("zero-state renders the histogram skeleton (empty muted bars), no phrase", () => {
     const html = renderToStaticMarkup(
       <DistribCalendar entries={[]} shareClass={null} cadence={null} asOf={new Date("2026-06-01T00:00:00Z")} />,
     );
 
-    expect(html).toContain("No distributions yet");
-    expect(html).toContain("Monthly USDC payouts appear here after your first cycle closes");
-    // No faux 12-bar schedule next to "no distributions yet" (two conflicting signals).
-    expect(html).not.toContain("<svg");
-    expect(html).not.toContain("pf-distrib-chart-shell--ghost");
-    expect(html).not.toContain("Illustrative schedule preview");
+    // Skeleton frame is present
+    expect(html).toContain("pf-distrib-chart--skeleton");
+    expect(html).toContain("<svg");
+    // No "no data yet" phrase, no invented amounts/labels
+    expect(html).not.toContain("No distributions yet");
+    expect(html).not.toContain("Monthly USDC payouts appear here");
+    expect(html).not.toContain("[Estimate]");
   });
 
   it("barHeight with maxAmount=0 returns 0 (no division by zero)", () => {

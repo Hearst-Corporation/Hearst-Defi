@@ -61,24 +61,35 @@ export function PositionsList({
       <PfCockpitPanel
         variant="table"
         chrome={embedded ? "embedded" : "panel"}
-        aria-label="Open positions"
+        aria-label="Open positions — awaiting first position"
       >
         <PfCockpitPanelHeader
           title="Positions"
           titleVariant="primary"
           trailing={trailing}
         />
-        <div className={cn("pf-positions-empty", embedded && "pf-positions-empty--embedded")}>
-          <p className="pf-positions-empty__lead body-sm ct-text-muted m-0">
-            No active positions yet
-          </p>
-          <p className="pf-positions-empty__hint body-xs ct-text-tertiary m-0">
-            Your first confirmed on-chain position will populate value, APY range, allocation,
-            and proof status.
-          </p>
-          <Link href="/vaults" className="pf-positions-empty-link">
-            Explore available vaults →
-          </Link>
+        {/* Zero-state skeleton — the ledger frame with muted placeholder rows.
+           Fills in with real positions as soon as the first one is confirmed. */}
+        <div className="pf-positions pf-positions--skeleton" aria-label="No positions yet">
+          <div className="pf-positions__row pf-positions__row--head stat-label">
+            <span>Vault</span>
+            <span className="pf-positions__num">Principal</span>
+            <span className="pf-positions__num">Value</span>
+            <span className="pf-positions__num">APY range</span>
+            <span className="pf-positions__num">Since</span>
+          </div>
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="pf-positions__row pf-positions__row--body pf-positions__row--skeleton" aria-hidden>
+              <span className="pf-positions__vault">
+                <span className="pf-status-dot pf-skeleton-dot" />
+                <span className="pf-skeleton-bar pf-skeleton-bar--vault" />
+              </span>
+              <span className="pf-positions__num"><span className="pf-skeleton-bar pf-skeleton-bar--num" /></span>
+              <span className="pf-positions__num"><span className="pf-skeleton-bar pf-skeleton-bar--num" /></span>
+              <span className="pf-positions__num"><span className="pf-skeleton-bar pf-skeleton-bar--num" /></span>
+              <span className="pf-positions__num"><span className="pf-skeleton-bar pf-skeleton-bar--num" /></span>
+            </div>
+          ))}
         </div>
       </PfCockpitPanel>
     );

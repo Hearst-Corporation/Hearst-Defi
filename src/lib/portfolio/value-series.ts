@@ -181,6 +181,49 @@ export function buildPortfolioValueSeries(
 }
 
 /**
+ * APY-band projection series for the zero-state preview chart.
+ *
+ * Projects `baseUsdc` forward using compounded monthly growth derived from
+ * `apyLow` and `apyHigh`, producing two series (low-band, high-band) over
+ * `months` steps. Returns points suitable for a twin-line preview render.
+ *
+ * Pure function — no I/O. `baseUsdc` is passed from the caller (the $250k
+ * illustrative ticket lives in presentation, not here).
+ */
+export function buildApyProjectionSeries(
+  baseUsdc: number,
+  apyLow: number,
+  apyHigh: number,
+  asOf: Date,
+  months: number = 12,
+): { low: PortfolioValuePoint[]; high: PortfolioValuePoint[] } {
+  const base = Math.max(0, baseUsdc);
+  const rLow = apyLow / 100 / 12;
+  const rHigh = apyHigh / 100 / 12;
+  const low: PortfolioValuePoint[] = [];
+  const high: PortfolioValuePoint[] = [];
+
+  for (let i = 0; i < months; i++) {
+    const d = new Date(
+      Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth() - (months - 1 - i), 1),
+    );
+    const label = MONTH_LABELS[d.getUTCMonth() % 12] ?? "";
+    low.push({
+      label,
+      value: Math.round(base * Math.pow(1 + rLow, i)),
+      isDistribution: false,
+    });
+    high.push({
+      label,
+      value: Math.round(base * Math.pow(1 + rHigh, i)),
+      isDistribution: false,
+    });
+  }
+
+  return { low, high };
+}
+
+/**
  * Fallback when no txn history exists: linear principal → current value (no synthetic wave).
  */
 export function buildIndicativeValueSeries(

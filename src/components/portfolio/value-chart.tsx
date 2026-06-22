@@ -91,7 +91,7 @@ function areaFromLine(linePath: string, pts: Pt[]): string {
  * étiquetée (pas de faux badge Live) — un panneau vivant plutôt qu'une ligne
  * plate morte.
  * ────────────────────────────────────────────────────────────────────────── */
-type SeriesMode = "ledger" | "indicative" | "preview";
+type SeriesMode = "ledger" | "indicative" | "preview" | "skeleton";
 
 function resolveSeries(
   positions: PortfolioPosition[],
@@ -146,9 +146,11 @@ interface PlotProps {
   lineOnly?: boolean;
   /** Courbe indicative preview (zero-state) — title/desc honnêtes pour l'a11y. */
   preview?: boolean;
+  /** Zero-state skeleton — flat baseline pinned to the bottom axis, muted. */
+  skeleton?: boolean;
 }
 
-function Plot({ series, lineOnly = false, preview = false }: PlotProps) {
+function Plot({ series, lineOnly = false, preview = false, skeleton = false }: PlotProps) {
   // ids uniques par instance — SSR-safe (useId marche en RSC), évite les
   // collisions <defs> si plusieurs ValueChart coexistent sur le document.
   const uid = useId();
@@ -156,17 +158,28 @@ function Plot({ series, lineOnly = false, preview = false }: PlotProps) {
   const descId = `${uid}-d`;
   const areaId = `${uid}-a`;
 
-  const pts = project(series.map((d) => d.value));
+  // Skeleton: pin the flat line to the bottom axis (not the mid-band that
+  // project() uses for flat series) so it reads as an empty baseline.
+  const pts = skeleton
+    ? series.map((_, i) => ({
+        x: series.length === 1 ? VB_W / 2 : (i / (series.length - 1)) * VB_W,
+        y: VB_H - PAD_Y,
+      }))
+    : project(series.map((d) => d.value));
   const linePath = smoothPath(pts);
   const areaPath = lineOnly ? "" : areaFromLine(linePath, pts);
 
   const distCount = series.filter((s) => s.isDistribution).length;
-  // Preview/zero-state : ne JAMAIS décrire le preview comme de la vraie donnée
-  // pour les lecteurs d'écran (la chip visuelle "Preview" doit avoir son pendant a11y).
-  const title = preview ? "Indicative preview chart" : "Portfolio Value — trailing trend";
-  const summary = preview
-    ? "Indicative preview — not your data; activates after your first confirmed on-chain position."
-    : `Portfolio value over the trailing window, ${distCount} monthly distribution markers.`;
+  const title = skeleton
+    ? "Portfolio value — awaiting first confirmed on-chain position"
+    : preview
+      ? "Indicative preview chart"
+      : "Portfolio Value — trailing trend";
+  const summary = skeleton
+    ? "No value history yet; your portfolio value curve appears here after your first confirmed on-chain position."
+    : preview
+      ? "Indicative preview — not your data; activates after your first confirmed on-chain position."
+      : `Portfolio value over the trailing window, ${distCount} monthly distribution markers.`;
 
   return (
     <svg
@@ -222,15 +235,15 @@ function Plot({ series, lineOnly = false, preview = false }: PlotProps) {
         <path
           /* anim (pf-line-draw + strokeDasharray/offset) + reduced-motion gérés
              en CSS (.pf-vc-line) — orchestrateur */
-          className="pf-vc-line"
+          className={cn("pf-vc-line", skeleton && "pf-vc-line--skeleton")}
           d={linePath}
           fill="none"
-          stroke="var(--ct-accent)"
+          stroke={skeleton ? "var(--ct-border-soft)" : "var(--ct-accent)"}
           strokeWidth="1.15"
           strokeLinejoin="round"
           strokeLinecap="round"
           vectorEffect="non-scaling-stroke"
-          opacity={lineOnly ? "var(--ct-opacity-70)" : undefined}
+          opacity={lineOnly && !skeleton ? "var(--ct-opacity-70)" : undefined}
           aria-hidden="true"
         />
       ) : null}
@@ -253,6 +266,19 @@ interface ValueChartProps {
   source: "live" | "fallback";
   updatedAt?: Date;
   embedded?: boolean;
+  /** Vault APY low — enables indicative projection curve in zero-state when provided. */
+  blendedLow?: number;
+  /** Vault APY high — reserved for future indicative use. */
+  blendedHigh?: number;
+}
+
+/** Flat zero baseline: 12 month-stamped points at value 0 (chart skeleton). */
+function buildZeroSkeletonSeries(asOf: Date): PortfolioValuePoint[] {
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return Array.from({ length: 12 }, (_, i) => {
+    const d = new Date(Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth() - (11 - i), 1));
+    return { label: MONTHS[d.getUTCMonth() % 12] ?? "", value: 0, isDistribution: false };
+  });
 }
 
 export function ValueChart({
@@ -266,12 +292,13 @@ export function ValueChart({
   const asOf = updatedAt ?? new Date();
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
 
-  // Zero-state shows a clean empty-state (no ghost curve), so only the live
-  // branch needs a real series / projection.
+  // Zero-state = flat skeleton at zero (no invented projection). The chart frame,
+  // grid and a baseline curve render; as soon as real data exists it fills in.
   const { points: series, mode } = isEmpty
-    ? { points: [] as PortfolioValuePoint[], mode: "preview" as const }
+    ? { points: buildZeroSkeletonSeries(asOf), mode: "skeleton" as const }
     : resolveSeries(positions, totalValueUsdc, valueChartTransactions, asOf);
 
+  // No provenance badge in zero-state — the skeleton renders unlabelled.
   const provenance: Provenance | undefined = isEmpty
     ? undefined
     : resolveProvenance(
@@ -282,7 +309,7 @@ export function ValueChart({
 
   const chartValue = isEmpty ? 0 : totalValueUsdc;
   const pts = project(series.map((d) => d.value));
-  const dots = buildDots(series, pts);
+  const dots = isEmpty ? [] : buildDots(series, pts);
 
   return (
     <PfCockpitPanel
@@ -334,24 +361,12 @@ export function ValueChart({
         />
       )}
 
-      {isEmpty ? (
-        /* Empty-state only — no ghost curve (a faux trend next to "no data yet"
-           reads as two conflicting signals). Same register as the other widgets. */
-        <div className="pf-positions-empty pf-positions-empty--embedded">
-          <p className="pf-positions-empty__lead body-sm ct-text-muted m-0">
-            No value history yet
-          </p>
-          <p className="pf-positions-empty__hint body-xs ct-text-tertiary m-0">
-            Your portfolio value curve appears here after your first confirmed
-            on-chain position.
-          </p>
-        </div>
-      ) : (
+      {(
         <>
           <div className="pf-value-chart__chart-wrapper">
-            <div className="pf-value-chart__plot">
-              <ChartDisclaimerUnderlay />
-              <Plot series={series} lineOnly={false} preview={mode === "preview"} />
+            <div className={cn("pf-value-chart__plot", isEmpty && "pf-value-chart__plot--skeleton")}>
+              {isEmpty ? null : <ChartDisclaimerUnderlay />}
+              <Plot series={series} lineOnly={isEmpty} preview={false} skeleton={isEmpty} />
               {dots.length > 0 ? (
                 <div className="pf-vc-dots" aria-hidden="true">
                   {dots.map((dot, i) => (
@@ -390,11 +405,13 @@ export function ValueChart({
             })}
           </div>
 
-          <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
-            {mode === "ledger"
-              ? "Month-end values interpolate between your deposit and payout ledger entries and the current live mark. Not guaranteed."
-              : "Indicative path from subscribed principal to current value until ledger history is available. Not guaranteed."}
-          </p>
+          {isEmpty ? null : (
+            <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
+              {mode === "ledger"
+                ? "Month-end values interpolate between your deposit and payout ledger entries and the current live mark. Not guaranteed."
+                : "Indicative path from subscribed principal to current value until ledger history is available. Not guaranteed."}
+            </p>
+          )}
         </>
       )}
     </PfCockpitPanel>

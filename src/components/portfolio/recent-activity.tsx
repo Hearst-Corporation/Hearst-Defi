@@ -87,11 +87,19 @@ export function RecentActivity({
           })}
         </div>
       ) : (
-        <div className="pf-activity pf-activity--empty">
-          <p className="pf-activity__empty-lead body-sm ct-text-muted m-0">No transactions yet</p>
-          <p className="pf-activity__empty-hint body-xs ct-text-tertiary m-0">
-            Deposits and payouts will appear here after your first confirmed on-chain position.
-          </p>
+        /* Zero-state skeleton — muted placeholder rows, no phrase. Fills in
+           with real transactions as soon as the first one lands. */
+        <div className="pf-activity pf-activity--skeleton" aria-label="No activity yet">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="pf-activity__row pf-activity__row--skeleton" aria-hidden>
+              <span className="pf-activity__glyph pf-skeleton-dot" />
+              <span className="pf-activity__main min-w-0">
+                <span className="pf-skeleton-bar pf-skeleton-bar--label" />
+                <span className="pf-skeleton-bar pf-skeleton-bar--meta" />
+              </span>
+              <span className="pf-skeleton-bar pf-skeleton-bar--amt" />
+            </div>
+          ))}
         </div>
       )}
     </PfCockpitPanel>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildApyProjectionSeries,
   buildIndicativeValueSeries,
   buildPortfolioValueSeries,
 } from "@/lib/portfolio/value-series";
@@ -130,5 +131,45 @@ describe("buildIndicativeValueSeries", () => {
     expect(series[0]!.value).toBe(100_000);
     expect(series[series.length - 1]!.value).toBe(120_000);
     expect(series[2]!.value).toBe(110_000);
+  });
+});
+
+describe("buildApyProjectionSeries", () => {
+  const asOf = new Date("2026-06-15T12:00:00.000Z");
+
+  it("returns 12 points for both low and high bands", () => {
+    const { low, high } = buildApyProjectionSeries(250_000, 9, 13, asOf, 12);
+    expect(low).toHaveLength(12);
+    expect(high).toHaveLength(12);
+  });
+
+  it("first point equals baseUsdc for both bands", () => {
+    const { low, high } = buildApyProjectionSeries(250_000, 9, 13, asOf, 12);
+    expect(low[0]!.value).toBe(250_000);
+    expect(high[0]!.value).toBe(250_000);
+  });
+
+  it("high band terminal value is greater than low band terminal value", () => {
+    const { low, high } = buildApyProjectionSeries(250_000, 9, 13, asOf, 12);
+    expect(high[11]!.value).toBeGreaterThan(low[11]!.value);
+  });
+
+  it("values are monotonically non-decreasing (compounded growth)", () => {
+    const { low } = buildApyProjectionSeries(250_000, 9, 13, asOf, 12);
+    for (let i = 1; i < low.length; i++) {
+      expect(low[i]!.value).toBeGreaterThanOrEqual(low[i - 1]!.value);
+    }
+  });
+
+  it("all points have isDistribution=false", () => {
+    const { low, high } = buildApyProjectionSeries(250_000, 9, 13, asOf, 12);
+    expect(low.every((p) => !p.isDistribution)).toBe(true);
+    expect(high.every((p) => !p.isDistribution)).toBe(true);
+  });
+
+  it("returns correct month label for the terminal point", () => {
+    const { low } = buildApyProjectionSeries(250_000, 9, 13, asOf, 12);
+    // asOf = 2026-06-15, last month = Jun
+    expect(low[11]!.label).toBe("Jun");
   });
 });

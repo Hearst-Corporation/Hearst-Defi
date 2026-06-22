@@ -114,18 +114,56 @@ interface BarChartProps {
   entries: DistribEntry[];
   refYear: number;
   currentPeriod: string;
+  /** Zero-state skeleton: 12 muted empty bars, no amounts/labels. */
+  skeleton?: boolean;
+}
+
+/** 12 flat low-height grey bars for the empty-state histogram frame. */
+function SkeletonBars() {
+  const n = 12;
+  const GAP = 4;
+  const BAR_W = Math.floor((VB_W - (n - 1) * GAP) / n);
+  // Subtle uneven baseline so the frame reads as a chart, not a flat block.
+  const HEIGHTS = [6, 9, 7, 11, 8, 12, 9, 13, 10, 12, 9, 11];
+  return (
+    <svg
+      viewBox={`0 0 ${VB_W} ${VB_H}`}
+      preserveAspectRatio="xMidYMax meet"
+      className="pf-distrib-chart pf-distrib-chart--skeleton block h-full w-full"
+      role="img"
+      aria-label="Payout calendar — awaiting first distribution"
+    >
+      {Array.from({ length: n }, (_, i) => {
+        const bh = HEIGHTS[i] ?? 8;
+        const bx = barX(i, n, BAR_W, GAP);
+        return (
+          <rect
+            key={i}
+            x={bx}
+            y={BAR_AREA_BOT - bh}
+            width={BAR_W}
+            height={bh}
+            fill="var(--ct-surface-3)"
+            rx="1"
+            aria-hidden="true"
+          />
+        );
+      })}
+    </svg>
+  );
 }
 
 function BarChart({
   entries,
   refYear,
   currentPeriod,
+  skeleton = false,
 }: BarChartProps) {
   // ids uniques par instance — évite les collisions <defs>/aria-labelledby si
   // plusieurs DistribCalendar coexistent sur le document (HTML invalide sinon).
   const uid = useId();
   const n = entries.length;
-  if (n === 0) return null;
+  if (skeleton || n === 0) return <SkeletonBars />;
 
   const GAP = 4;
   const totalGaps = (n - 1) * GAP;
@@ -323,31 +361,23 @@ export function DistribCalendar({
   const hasEntries = entries.length > 0;
   const hasForecast = entries.some((e) => e.paidAt === null);
 
-  // Zero-state: empty-state only — no ghost bar chart (a faux 12-bar schedule
-  // next to "no distributions yet" reads as two conflicting signals). Same
-  // register as the Positions / Capital & Yield / Recent Activity empty states.
+  // Zero-state: render the histogram SKELETON (empty muted bars), no phrase.
+  // The frame fills in with real bars as soon as the first distribution lands.
   if (!hasEntries) {
     return (
       <PfCockpitPanel
         variant="wide"
-        aria-label="Payout calendar — no distributions yet"
+        aria-label="Payout calendar — awaiting first distribution"
         className="pf-payout-calendar-panel pf-payout-calendar-panel--zero h-full"
       >
-        {/* Zero-state: Tax preview is hidden — nothing to tax until a first
-           distribution exists; only the View full leaf is offered. */}
         <PfCockpitPanelHeader
           title="Payout Calendar"
           subtitle="Monthly USDC distributions"
           titleVariant="primary"
           trailing={calendarHeaderTrail(leafHref)}
         />
-        <div className="pf-positions-empty pf-positions-empty--embedded">
-          <p className="pf-positions-empty__lead body-sm ct-text-muted m-0">
-            No distributions yet
-          </p>
-          <p className="pf-positions-empty__hint body-xs ct-text-tertiary m-0">
-            Monthly USDC payouts appear here after your first cycle closes.
-          </p>
+        <div className="pf-distrib-chart-shell">
+          <BarChart entries={[]} refYear={refYear} currentPeriod={currentPeriod} skeleton />
         </div>
       </PfCockpitPanel>
     );

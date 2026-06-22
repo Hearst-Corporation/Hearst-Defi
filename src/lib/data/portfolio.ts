@@ -630,10 +630,10 @@ const fetchYieldStackData = unstable_cache(
   { revalidate: 3600, tags: ["yield"] }
 );
 
-export const loadYieldStackProps = cache(async (hasPositions: boolean = true): Promise<YieldStackProps & { source: "live" | "stale"; updatedAt?: Date }> => {
+export const loadYieldStackProps = cache(async (_hasPositions: boolean = true): Promise<YieldStackProps & { source: "live" | "stale"; updatedAt?: Date }> => {
   const snapshot = await fetchYieldStackData();
 
-  if (!snapshot || snapshot.allocations.length === 0 || !hasPositions) {
+  if (!snapshot || snapshot.allocations.length === 0) {
     return {
       sources: [],
       blendedLow: 0,
@@ -692,6 +692,8 @@ export interface AllocationDonutData {
   buckets: AllocationBucketSlice[];
   source: "live" | "stale";
   updatedAt?: Date;
+  /** Vault AUM from the snapshot — present when snapshot exists, used as donut centre label without investor positions. */
+  aumUsdc?: number;
 }
 
 const BUCKET_ORDER: AllocationBucketSlice["bucket"][] = [
@@ -703,14 +705,16 @@ const BUCKET_ORDER: AllocationBucketSlice["bucket"][] = [
 
 /**
  * Build allocation-by-bucket slices for the portfolio donut from the latest
- * vault snapshot (same source as the yield stack — shares its 1h cache). Empty
- * when no snapshot / no positions, so the donut renders its preview shell.
+ * vault snapshot (same source as the yield stack — shares its 1h cache). Always
+ * returns vault data when a snapshot exists, regardless of investor position state.
+ * The `aumUsdc` field allows the donut centre to show vault AUM instead of "$0 Capital"
+ * when the investor has no positions yet.
  */
 export const loadAllocationDonutProps = cache(
-  async (hasPositions: boolean = true): Promise<AllocationDonutData> => {
+  async (_hasPositions: boolean = true): Promise<AllocationDonutData> => {
     const snapshot = await fetchYieldStackData();
 
-    if (!snapshot || snapshot.allocations.length === 0 || !hasPositions) {
+    if (!snapshot || snapshot.allocations.length === 0) {
       return { buckets: [], source: "stale" };
     }
 
@@ -728,6 +732,7 @@ export const loadAllocationDonutProps = cache(
       buckets: slices,
       source: "live",
       updatedAt: asCachedDate(snapshot.takenAt),
+      aumUsdc: toNumber(snapshot.aumUsdc),
     };
   },
 );

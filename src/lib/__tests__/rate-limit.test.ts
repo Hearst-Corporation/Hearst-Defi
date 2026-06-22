@@ -8,7 +8,7 @@
  * undefined in this test file, regardless of what the CI environment has set.
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeAll, afterAll } from "vitest";
 
 // ── Hoist mocks before any module import ──────────────────────────────────
 
@@ -21,6 +21,11 @@ vi.mock("@/lib/env", () => ({
     LOG_LEVEL: "error",
   },
 }));
+
+// isRateLimitBypassed() short-circuits on NODE_ENV=development. Force test mode
+// so the in-memory path is exercised instead of the bypass.
+beforeAll(() => { vi.stubEnv("NODE_ENV", "test"); });
+afterAll(() => { vi.unstubAllEnvs(); });
 
 // Stub out @upstash/redis entirely — it should never be instantiated here.
 vi.mock("@upstash/redis", () => ({

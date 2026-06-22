@@ -344,7 +344,7 @@
 .pf-fused-surface--mid .dash-chart-container {
   width: 8.75rem;
   height: 8.75rem;
-  margin-inline: 0 auto;
+  margin-inline: auto;
 }
 
 .pf-fused-surface--mid .cy-ledger {
@@ -2108,9 +2108,18 @@
 }
 
 /* hide empty ledger residue everywhere in zero */
-.pf-container--zero .cy-ledger-rule:empty,
 .pf-container--zero .cy-row:empty {
   display: none;
+}
+
+.pf-container--zero .pf-fused-surface--mid .cy-donut,
+.pf-container--zero .pf-fused-surface--mid .dash-chart-container {
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
+.pf-container--zero .cy-body {
+  gap: var(--ct-space-2);
 }
 
 /* =============================================================================
@@ -2320,3 +2329,71 @@
   justify-content: flex-end;
   gap: var(--ct-space-2);
 }
+
+/* ── Zero-state skeleton primitives — muted placeholder bars/dots shared by
+   Positions, Recent Activity and the Capital & Yield ledger. They render the
+   widget's structural frame while no real data exists, then disappear as the
+   real rows fill in. No invented values, no "no data yet" phrase. ── */
+.pf-skeleton-bar,
+.pf-skeleton-dot {
+  display: inline-block;
+  border-radius: var(--ct-radius-sm);
+  background: var(--ct-surface-3);
+  animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
+}
+
+.pf-skeleton-dot {
+  width: var(--ct-space-2);
+  height: var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  flex-shrink: 0;
+}
+
+.pf-skeleton-bar { height: var(--ct-space-2_5); }
+.pf-skeleton-bar--label { width: 42%; }
+.pf-skeleton-bar--meta { width: 26%; margin-top: var(--ct-space-1); opacity: var(--ct-opacity-60); }
+.pf-skeleton-bar--amt { width: var(--ct-space-10); }
+.pf-skeleton-bar--vault { width: 55%; }
+.pf-skeleton-bar--num { width: 70%; }
+
+.pf-positions__row--skeleton .pf-skeleton-bar--num { margin-left: auto; }
+.pf-activity__row--skeleton,
+.pf-positions__row--skeleton { pointer-events: none; }
+
+/* Distrib calendar skeleton bars + ValueChart flat baseline read as muted frame. */
+.pf-distrib-chart--skeleton rect {
+  opacity: var(--ct-opacity-45);
+  animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
+}
+.pf-vc-line--skeleton {
+  opacity: 1;
+  animation: none;
+  stroke-dasharray: none;
+}
+
+/* ── Capital & Yield zero-state polish — segmented muted donut + structured
+   ledger skeleton, so the empty widget reads as a calm pre-filled instrument
+   rather than a flat grey ring with dashes. ── */
+.dash-chart-svg--skeleton {
+  opacity: var(--ct-opacity-80);
+}
+.cy-donut-arc--skeleton {
+  fill: none;
+  stroke-width: 3.4; /* chart-geometry — matches .dash-chart-circle */
+  opacity: 1;
+}
+
+.cy-dot--skeleton {
+  background: var(--ct-surface-3);
+  animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
+}
+
+.pf-skeleton-bar--cy-label { width: 58%; height: var(--ct-space-2); }
+.pf-skeleton-bar--cy-val { width: var(--ct-space-6); height: var(--ct-space-2); justify-self: end; }
+
+.cy-fill--skeleton {
+  background: var(--ct-surface-3);
+  opacity: var(--ct-opacity-60);
+  animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
+}
+.cy-fill--skeleton::after { display: none; }

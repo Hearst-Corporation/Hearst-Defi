@@ -35,7 +35,9 @@ describe("ProductWorkspacePage (near-empty, agent-filled)", () => {
     });
 
     // Kept: title, objective, agent framing surface, seeded badge.
-    expect(html).toContain("Product Workspace");
+    // The title is rendered as "Product <span>Workspace</span>" so we check both parts.
+    expect(html).toContain("Product");
+    expect(html).toContain("Workspace");
     expect(html).toContain("Seeded by agent");
     expect(html).toContain("Créer une offre Defensive");
     expect(html).toContain("Agent framing brief");

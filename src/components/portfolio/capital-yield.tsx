@@ -41,10 +41,6 @@ const CY_BUCKET_GREEN: Record<YieldSource["bucket"], string> = {
   stable_reserve: "color-mix(in srgb, var(--ct-accent) 32%, var(--ct-text-neutral))",
 };
 
-const CY_ZERO_STATE = {
-  targetApyRange: { low: 9, high: 13 },
-} as const;
-
 export interface CapitalYieldProps {
   sources: YieldSource[];
   blendedLow: number;
@@ -73,73 +69,22 @@ export function CapitalYield({
   leafHref,
   embedded = false,
 }: CapitalYieldProps) {
-  const maxAbsPct = sources.reduce(
-    (acc, s) => Math.max(acc, Math.abs(s.contributionPct)),
-    0,
-  );
+  // Zero-state = the graphic SKELETON renders (empty ring + zeroed ledger rows),
+  // NO invented data. As soon as real vault data arrives, the donut/ledger fill in.
   const hasData =
-    sources.length > 0 && buckets.length > 0 && totalValueUsdc > 0;
-  const isEmpty = !hasData || maxAbsPct === 0;
-  const provenance = isEmpty ? undefined : resolveProvenance(source, updatedAt, "estimated");
+    sources.length > 0 &&
+    buckets.length > 0 &&
+    sources.reduce((acc, s) => Math.max(acc, Math.abs(s.contributionPct)), 0) > 0;
 
-  if (isEmpty) {
-    if (embedded) {
-      return (
-        <PfCockpitPanel
-          variant="wide"
-          chrome="embedded"
-          aria-label="Capital and yield — awaiting first confirmed on-chain position"
-          className="pf-capital-yield--embedded-empty"
-        >
-          <PfCockpitPanelHeader
-            title="Capital & Yield"
-            titleVariant="primary"
-            trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
-          />
-          <div className="cy-embedded-empty">
-            <p className="cy-ledger-head body-xs ct-text-tertiary mono m-0">
-              Indicative target APY band
-            </p>
-            <p className="tabular font-semibold ct-text-primary m-0">
-              {formatApyRange(CY_ZERO_STATE.targetApyRange, 1, { spaced: true })}
-            </p>
-            <p className="body-xs ct-text-muted m-0">
-              Activates after your first confirmed on-chain position.
-            </p>
-          </div>
-        </PfCockpitPanel>
-      );
-    }
+  const maxAbsPct = hasData
+    ? sources.reduce((acc, s) => Math.max(acc, Math.abs(s.contributionPct)), 0)
+    : 0;
 
-    return (
-      <PfCockpitPanel
-        variant="wide"
-        chrome="panel"
-        aria-label="Capital and yield — awaiting first confirmed on-chain position"
-        className="cy-panel cy-panel--onboarding-empty"
-      >
-        <PfCockpitPanelHeader
-          title="Capital & Yield"
-          titleVariant="primary"
-          trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
-        />
-        {/* Empty-state only — no ghost donut/ledger (a faux allocation chart next
-           to "no data yet" reads as two conflicting signals). Same register as
-           the Positions and Recent Activity empty states. */}
-        <div className="cy-embedded-empty">
-          <p className="cy-ledger-head body-xs ct-text-tertiary mono m-0">
-            Indicative target APY band
-          </p>
-          <p className="tabular font-semibold ct-text-primary m-0">
-            {formatApyRange(CY_ZERO_STATE.targetApyRange, 1, { spaced: true })}
-          </p>
-          <p className="body-xs ct-text-muted m-0">
-            Live allocation unlocks after your first confirmed on-chain position.
-          </p>
-        </div>
-      </PfCockpitPanel>
-    );
-  }
+  // Badge/disclaimer only when there is real data AND a confirmed position.
+  const isFilled = hasData && totalValueUsdc > 0;
+  const provenance = isFilled
+    ? resolveProvenance(source, updatedAt ?? new Date(), "estimated")
+    : undefined;
 
   const [rLow, rHigh] =
     blendedLow <= blendedHigh ? [blendedLow, blendedHigh] : [blendedHigh, blendedLow];
@@ -148,6 +93,7 @@ export function CapitalYield({
       ? [stressedBearRange.low, stressedBearRange.high]
       : [stressedBearRange.high, stressedBearRange.low];
 
+  // Only real buckets become coloured arcs. Empty → the background ring shows alone.
   const segments = buckets.map((slice, i) => ({
     ...slice,
     dashOffset: -buckets.slice(0, i).reduce((sum, b) => sum + b.pct, 0),
@@ -162,7 +108,7 @@ export function CapitalYield({
     >
       <PfCockpitPanelHeader
         title="Capital & Yield"
-        subtitle="Allocation · 12m forward yield"
+        subtitle={isFilled ? "Allocation · 12m forward yield" : undefined}
         provenance={provenance}
         titleVariant="primary"
         trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
@@ -173,55 +119,75 @@ export function CapitalYield({
         <div className="cy-donut dash-chart-container">
           {/* svg-geometry: cx/cy/r/strokeDasharray/viewBox are raw numbers by SVG spec */}
           <svg
-            className="dash-chart-svg"
+            className={cn("dash-chart-svg", !hasData && "dash-chart-svg--skeleton")}
             viewBox="0 0 42 42"
             role="img"
-            aria-label="Allocation by yield source"
+            aria-label={hasData ? "Allocation by yield source" : "Allocation — awaiting first confirmed on-chain position"}
           >
+            {/* Background track ring (always present). */}
             <circle
               className="dash-chart-circle"
               cx="21"
               cy="21"
               r="15.9155"
-              stroke="var(--ct-surface-3)"
+              stroke="var(--ct-surface-1)"
               strokeDasharray="100 0"
             />
-            <>
-              {segments
-                .filter((s) => s.bucket === "mining")
-                .map((s) => (
+            {hasData ? (
+              <>
+                {segments
+                  .filter((s) => s.bucket === "mining")
+                  .map((s) => (
+                    <circle
+                      key="halo"
+                      className="dash-chart-circle cy-donut-halo"
+                      cx="21"
+                      cy="21"
+                      r="15.9155"
+                      strokeDasharray={`${(s.pct - 0.6).toFixed(2)} ${(100 - s.pct + 0.6).toFixed(2)}`}
+                      strokeDashoffset={s.dashOffset.toFixed(2)}
+                    />
+                  ))}
+                {segments.map((s) => (
                   <circle
-                    key="halo"
-                    className="dash-chart-circle cy-donut-halo"
+                    key={s.bucket}
+                    className={cn(
+                      "dash-chart-circle cy-donut-arc",
+                      s.bucket === "mining" && "cy-arc-mining",
+                    )}
                     cx="21"
                     cy="21"
                     r="15.9155"
+                    stroke={CY_BUCKET_GREEN[s.bucket]}
                     strokeDasharray={`${(s.pct - 0.6).toFixed(2)} ${(100 - s.pct + 0.6).toFixed(2)}`}
                     strokeDashoffset={s.dashOffset.toFixed(2)}
                   />
                 ))}
-              {segments.map((s) => (
+              </>
+            ) : (
+              /* Zero-state: four evenly-spaced muted arcs suggest the allocation
+                 structure to come — a quiet skeleton, not a flat grey ring. */
+              [0, 25, 50, 75].map((offset) => (
                 <circle
-                  key={s.bucket}
-                  className={cn(
-                    "dash-chart-circle cy-donut-arc",
-                    s.bucket === "mining" && "cy-arc-mining",
-                  )}
+                  key={offset}
+                  className="dash-chart-circle cy-donut-arc--skeleton"
                   cx="21"
                   cy="21"
                   r="15.9155"
-                  stroke={CY_BUCKET_GREEN[s.bucket]}
-                  strokeDasharray={`${(s.pct - 0.6).toFixed(2)} ${(100 - s.pct + 0.6).toFixed(2)}`}
-                  strokeDashoffset={s.dashOffset.toFixed(2)}
+                  stroke="var(--ct-surface-3)"
+                  strokeDasharray="22 3"
+                  strokeDashoffset={-offset}
                 />
-              ))}
-            </>
+              ))
+            )}
           </svg>
           <div className="donut-center">
-            <>
-              <span className="donut-val">{formatUsdCompact(totalValueUsdc)}</span>
-              <span className="donut-lbl">Capital</span>
-            </>
+            {isFilled ? (
+              <>
+                <span className="donut-val">{formatUsdCompact(totalValueUsdc)}</span>
+                <span className="donut-lbl">Capital</span>
+              </>
+            ) : null}
           </div>
         </div>
 
@@ -234,43 +200,54 @@ export function CapitalYield({
             Yield source · 12m fwd contribution
           </p>
 
-          {sources.map((s) => {
-            const w = barWidthPct(s.contributionPct, maxAbsPct);
-            const isNeg = s.contributionPct < 0;
-            const val = formatContribution(s.contributionPct, s.isVolatile ?? false);
-            return (
-              <div
-                key={s.bucket}
-                className={cn(
-                  "cy-row",
-                  s.bucket === "mining" && "cy-row-mining",
-                )}
-                style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
-              >
-                <span className="cy-dot" aria-hidden />
-                <span className="cy-label body-xs min-w-0 truncate ct-text-body">
-                  {s.label}
-                </span>
-                <span
-                  className="cy-val"
-                  aria-label={`${s.label} ${val}`}
-                >
-                  {val}
-                </span>
-                <div className="cy-track" aria-hidden>
-                  <span className="cy-ticks" />
-                  <span
+          {hasData
+            ? sources.map((s) => {
+                const w = barWidthPct(s.contributionPct, maxAbsPct);
+                const isNeg = s.contributionPct < 0;
+                const val = formatContribution(s.contributionPct, s.isVolatile ?? false);
+                return (
+                  <div
+                    key={s.bucket}
                     className={cn(
-                      "cy-fill",
-                      isNeg && "cy-fill--neg",
-                      s.isVolatile && "cy-fill--volatile",
+                      "cy-row",
+                      s.bucket === "mining" && "cy-row-mining",
                     )}
-                    style={{ width: `${w.toFixed(1)}%` }}
-                  />
+                    style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
+                  >
+                    <span className="cy-dot" aria-hidden />
+                    <span className="cy-label body-xs min-w-0 truncate ct-text-body">
+                      {s.label}
+                    </span>
+                    <span className="cy-val" aria-label={`${s.label} ${val}`}>
+                      {val}
+                    </span>
+                    <div className="cy-track" aria-hidden>
+                      <span className="cy-ticks" />
+                      <span
+                        className={cn(
+                          "cy-fill",
+                          isNeg && "cy-fill--neg",
+                          s.isVolatile && "cy-fill--volatile",
+                        )}
+                        style={{ width: `${w.toFixed(1)}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })
+            : /* Zero-state skeleton rows — muted dot + label/value bars + a
+                 graded track fill, so the ledger reads as a structured frame. */
+              [62, 44, 30, 18].map((w, i) => (
+                <div key={i} className="cy-row cy-row--skeleton" aria-hidden>
+                  <span className="cy-dot cy-dot--skeleton" />
+                  <span className="pf-skeleton-bar pf-skeleton-bar--cy-label" />
+                  <span className="pf-skeleton-bar pf-skeleton-bar--cy-val" />
+                  <div className="cy-track">
+                    <span className="cy-ticks" />
+                    <span className="cy-fill cy-fill--skeleton" style={{ width: `${w}%` }} />
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              ))}
 
           <hr className="cy-ledger-rule" aria-hidden />
 
@@ -280,10 +257,10 @@ export function CapitalYield({
                 Blended fwd range
               </dt>
               <dd
-                className="tabular font-semibold ct-text-primary"
-                aria-label={`Blended forward range ${rLow.toFixed(1)} to ${rHigh.toFixed(1)} percent`}
+                className={cn("tabular font-semibold", isFilled ? "ct-text-primary" : "ct-text-tertiary")}
+                aria-label={isFilled ? `Blended forward range ${rLow.toFixed(1)} to ${rHigh.toFixed(1)} percent` : "Blended forward range pending"}
               >
-                {formatApyRange({ low: rLow, high: rHigh })}
+                {isFilled ? formatApyRange({ low: rLow, high: rHigh }) : "—"}
               </dd>
             </div>
             <div className="flex items-baseline justify-between">
@@ -291,22 +268,24 @@ export function CapitalYield({
                 Stressed (bear) <span className="body-xs opacity-(--ct-opacity-70)">(proxy)</span>
               </dt>
               <dd
-                className="tabular font-medium ct-text-body"
-                aria-label={`Stressed bear scenario ${sLow.toFixed(1)} to ${sHigh.toFixed(1)} percent`}
+                className={cn("tabular font-medium", isFilled ? "ct-text-body" : "ct-text-tertiary")}
+                aria-label={isFilled ? `Stressed bear scenario ${sLow.toFixed(1)} to ${sHigh.toFixed(1)} percent` : "Stressed bear scenario pending"}
               >
-                {formatApyRange({ low: sLow, high: sHigh })}
+                {isFilled ? formatApyRange({ low: sLow, high: sHigh }) : "—"}
               </dd>
             </div>
           </dl>
         </div>
       </div>
 
-      <p className="pf-panel-footnote body-xs ct-text-tertiary" role="note">
-        Conditional projection — not guaranteed ·{" "}
-        {methodologyVersion.startsWith("v")
-          ? methodologyVersion
-          : `v${methodologyVersion}`}
-      </p>
+      {isFilled ? (
+        <p className="pf-panel-footnote body-xs ct-text-tertiary" role="note">
+          Conditional projection — not guaranteed ·{" "}
+          {methodologyVersion.startsWith("v")
+            ? methodologyVersion
+            : `v${methodologyVersion}`}
+        </p>
+      ) : null}
     </PfCockpitPanel>
   );
 }
