@@ -64,7 +64,7 @@ export default async function CustomerDetailPage({
   const applied = detail.agentProfile;
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         title={detail.email}
         eyebrow={`investor · ${detail.userId}`}
@@ -291,6 +291,6 @@ export default async function CustomerDetailPage({
           </Card>
         )}
       </section>
-    </div>
+    </>
   );
 }

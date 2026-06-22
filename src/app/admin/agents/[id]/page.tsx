@@ -23,7 +23,7 @@ export default async function EditAgentTemplatePage({
   if (!template) notFound();
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         title={template.label}
         eyebrow="Agent template"
@@ -40,6 +40,6 @@ export default async function EditAgentTemplatePage({
           <AgentTemplateForm template={template} />
         </Card>
       </section>
-    </div>
+    </>
   );
 }

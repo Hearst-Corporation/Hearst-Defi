@@ -82,7 +82,7 @@ export default async function AuditLogPage({
   const kpiStrip = buildAuditKpiStrip(entries);
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Audit"
         titleAccent="Log"
@@ -292,6 +292,6 @@ export default async function AuditLogPage({
           </Card>
         )}
       </section>
-    </div>
+    </>
   );
 }

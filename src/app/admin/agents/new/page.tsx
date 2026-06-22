@@ -27,7 +27,7 @@ export default async function NewAgentTemplatePage({
     : undefined;
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         title="New agent template"
         description="Define a reusable operator profile for investor-facing agent behavior, language, and register."
@@ -42,6 +42,6 @@ export default async function NewAgentTemplatePage({
           <AgentTemplateForm initialBaseAgent={initialBaseAgent} />
         </Card>
       </section>
-    </div>
+    </>
   );
 }

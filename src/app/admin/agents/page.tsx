@@ -42,7 +42,7 @@ export default async function AgentsPage() {
   });
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Agent"
         titleAccent="Operations"
@@ -221,6 +221,6 @@ export default async function AgentsPage() {
           </Card>
         )}
       </section>
-    </div>
+    </>
   );
 }

@@ -62,7 +62,7 @@ export default async function CustomersPage({
   const kpiCells = buildCustomersKpiStrip(customers, total);
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Investor"
         titleAccent="Registry"
@@ -198,6 +198,6 @@ export default async function CustomersPage({
           </div>
         )}
       </section>
-    </div>
+    </>
   );
 }
