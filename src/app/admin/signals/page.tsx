@@ -110,7 +110,7 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
   };
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Vault"
         titleAccent="Rebalancing"
@@ -175,6 +175,6 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
           ))}
         </section>
       )}
-    </div>
+    </>
   );
 }
