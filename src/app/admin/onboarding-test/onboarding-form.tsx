@@ -76,7 +76,7 @@ export function OnboardingForm() {
         {/* Side-effects toggles */}
         <div className="admin-doc-toggle-row">
           <label className="admin-doc-toggle body-xs">
-            <input type="checkbox" name="syncHubspot" defaultChecked />
+            <input type="checkbox" name="syncHubspot" />
             <span>Create HubSpot contact</span>
           </label>
           <label className="admin-doc-toggle body-xs">

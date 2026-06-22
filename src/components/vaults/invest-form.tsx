@@ -91,8 +91,8 @@ function buildPtai(
 
     impact:
       annualYield !== null
-        ? `Estimated ${formatUsdAmount(annualYield)} annual yield — range ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}%. Results are not projected. Subject to assumptions — see methodology v1.0.`
-        : `Target APY ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}%. Results are not projected. Subject to assumptions — see methodology v1.0.`,
+        ? `Estimated ${formatUsdAmount(annualYield)} annual yield — range ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}%. Indicative testnet estimate, not a return projection — subject to assumptions, see methodology v1.0.`
+        : `Target APY ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}%. Indicative testnet estimate, not a return projection — subject to assumptions, see methodology v1.0.`,
   };
 }
 
@@ -455,9 +455,10 @@ function InvestFormLive({ vault }: InvestFormProps) {
                   </div>
                 </div>
                 <p className="body-xs ct-text-muted">
-                  This action is irreversible once submitted. Subject to{" "}
-                  {vault.softLockupDays}-day soft lock-up. Results are not projected
-                  — see methodology v1.0.
+                  Base Sepolia testnet transaction — for pilot testing only.
+                  Irreversible once submitted. Subject to{" "}
+                  {vault.softLockupDays}-day soft lock-up. Indicative estimate, not a
+                  return projection — see methodology v1.0.
                 </p>
                 <div className="vault-form-actions">
                   <Button

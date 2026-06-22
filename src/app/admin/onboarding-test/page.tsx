@@ -21,8 +21,8 @@ export default function OnboardingTestPage() {
     <div className="admin-doc-shell">
       <AdminPageHeader
         title="Onboarding test"
-        eyebrow="operations · controlled intake"
-        description="Run a controlled onboarding submission through the production intake path before opening it to investors."
+        eyebrow="pilot tool · controlled intake"
+        description="Pilot test tool — runs a controlled submission through the production intake path. It creates a real investor account and qualification record; the welcome email and HubSpot sync stay opt-in (off by default)."
         lead={
           <Link href="/admin/customers" className="body-xs ct-text-muted hover:ct-text-strong">
             ← Investors
@@ -40,9 +40,9 @@ export default function OnboardingTestPage() {
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Simulator">
         <h2 className="h2">Test submission</h2>
         <p className="body-sm ct-text-muted">
-          Submit a controlled questionnaire to validate the onboarding flow. It
-          creates the investor account, applies assistant settings, and can
-          optionally send the welcome email and create the HubSpot contact.
+          For pilot testing only. Submitting creates a real investor account and
+          applies assistant settings. The welcome email and HubSpot contact are
+          opt-in below — both off by default.
         </p>
 
         <Card className="admin-doc-card-pad-flat" hoverOverlay={false}>
