@@ -970,7 +970,6 @@
 .pf-status-panel .pf-cockpit-panel__header {
   padding: var(--ct-space-3) var(--ct-space-4) var(--ct-space-1_5);
   margin-bottom: var(--ct-space-0_5);
-  border-bottom: 1px solid var(--ct-graphite-border-nested);
 }
 
 .pf-status-list {
