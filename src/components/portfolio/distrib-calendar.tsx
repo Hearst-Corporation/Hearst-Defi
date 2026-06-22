@@ -137,16 +137,15 @@ function SkeletonBars() {
         const bh = HEIGHTS[i] ?? 8;
         const bx = barX(i, n, BAR_W, GAP);
         return (
-          <rect
-            key={i}
-            x={bx}
-            y={BAR_AREA_BOT - bh}
-            width={BAR_W}
-            height={bh}
-            fill="var(--ct-surface-2)"
-            rx="1"
-            aria-hidden="true"
-          />
+            <rect
+              key={i}
+              x={bx}
+              y={BAR_AREA_BOT - bh}
+              width={BAR_W}
+              height={bh}
+              rx="1"
+              aria-hidden="true"
+            />
         );
       })}
     </svg>

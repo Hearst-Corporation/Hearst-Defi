@@ -2347,7 +2347,7 @@
 
 /* Distrib calendar skeleton bars + ValueChart flat baseline read as muted frame. */
 .pf-distrib-chart--skeleton rect {
-  opacity: 1;
+  fill: var(--ct-surface-3);
   animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 .pf-vc-line--skeleton {
@@ -2366,6 +2366,7 @@
   fill: none;
   stroke-width: 3.4; /* chart-geometry — matches .dash-chart-circle */
   stroke: var(--ct-surface-2);
+  animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 
 /* ── Portfolio status leading mark: circled icon when there's room, plain dot
