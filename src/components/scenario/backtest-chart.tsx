@@ -1,4 +1,5 @@
 import type { MonthlyPoint } from "@/lib/engine/types";
+import { cn } from "@/lib/cn";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
 import { EmptySurface } from "@/components/ui/empty-surface";
@@ -183,7 +184,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
             {usdFmt.format(lastNav)}
           </span>
           <span
-            className={`tabular-nums body-xs ${deltaPct >= 0 ? "ct-text-accent" : "ct-status-danger"}`}
+            className={cn("tabular-nums body-xs", deltaPct >= 0 ? "ct-text-accent" : "ct-status-danger")}
           >
             {deltaPct >= 0 ? "+" : ""}
             {deltaPct.toFixed(1)}% total · max dd {maxDd.toFixed(1)}%

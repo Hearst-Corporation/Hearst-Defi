@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { cn } from "@/lib/cn";
 import type { VaultProduct } from "@/lib/data/vaults";
 import {
   RISK_LABELS,
@@ -106,7 +107,7 @@ function VaultTermRow({
     <div className="vault-select-card__term-row">
       <dt className="stat-label">{label}</dt>
       <dd
-        className={`tabular mono ${muted ? "body-sm ct-text-muted font-normal" : "body-sm ct-text-strong font-semibold"}`}
+        className={cn("tabular mono", muted ? "body-sm ct-text-muted font-normal" : "body-sm ct-text-strong font-semibold")}
       >
         {value}
       </dd>

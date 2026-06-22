@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 import { deployPosition, type DeployPositionResult } from "@/app/admin/customers/actions";
 
 /**
@@ -94,7 +95,7 @@ export function DeployPositionForm({
       </form>
 
       {result !== null && (
-        <p className={`body-xs ${result.ok ? "ct-text-success" : "ct-text-danger"}`}>
+        <p className={cn("body-xs", result.ok ? "ct-text-success" : "ct-text-danger")}>
           {result.ok
             ? `Position deployed — id ${result.positionId}`
             : `Error: ${result.error}`}
