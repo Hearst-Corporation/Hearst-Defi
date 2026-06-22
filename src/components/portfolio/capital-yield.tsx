@@ -131,7 +131,7 @@ export function CapitalYield({
               cx="21"
               cy="21"
               r="15.9155"
-              stroke="var(--ct-surface-1)"
+              stroke="var(--ct-surface-2)"
               strokeDasharray="100 0"
             />
             {hasData ? (

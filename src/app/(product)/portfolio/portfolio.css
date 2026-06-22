@@ -161,8 +161,8 @@
   gap: 0 var(--ct-space-6);
   margin: 0;
   padding: var(--ct-space-3) var(--ct-space-5);
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-border-base);
   border-radius: var(--ct-radius-xl);
 }
 
@@ -240,9 +240,9 @@
   display: grid;
   min-width: 0;
   min-height: 0;
-  border: 1px solid var(--ct-graphite-border-nested);
+  border: 1px solid var(--ct-border-base);
   border-radius: var(--ct-radius-xl);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-1);
   overflow: hidden;
 }
 
@@ -267,7 +267,7 @@
 }
 
 .pf-fused-surface__pane + .pf-fused-surface__pane {
-  border-left: 1px solid var(--ct-graphite-border-nested);
+  border-left: 1px solid var(--ct-border-base);
 }
 
 .pf-fused-surface__pane--aside {
@@ -283,7 +283,7 @@
 }
 
 .pf-fused-surface--mid .pf-positions__row--head {
-  background: var(--ct-graphite-nested-bg);
+  background: var(--ct-surface-1);
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
@@ -580,9 +580,9 @@
   height: 100%;
   gap: var(--ct-space-3);
   padding: var(--ct-space-4);
-  border: 1px solid var(--ct-graphite-border-nested);
+  border: 1px solid var(--ct-border-base);
   border-radius: var(--ct-radius-xl);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-1);
   overflow: hidden;
 }
 
@@ -605,8 +605,8 @@
 /* Mid/deck panels share the same flat graphite plate as the hero weld. */
 .pf-cockpit-row--mid .pf-cockpit-panel,
 .pf-cockpit-row--deck .pf-cockpit-panel {
-  border-color: var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-subtle-bg);
+  border-color: var(--ct-border-base);
+  background: var(--ct-surface-1);
 }
 
 .pf-fused-surface .pf-embedded-pane {
@@ -735,9 +735,9 @@
   min-width: 0;
   min-height: 280px; /* chart-geometry — scroll-mode height floor; neutralised to 0 inside the fit gate */
   height: 100%;
-  border: 1px solid var(--ct-graphite-border-nested);
+  border: 1px solid var(--ct-border-base);
   border-radius: var(--ct-radius-xl);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-1);
   overflow: clip;
 }
 
@@ -750,8 +750,8 @@
   min-height: 0;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--ct-surface-2) 28%, transparent),
-    transparent
+    color-mix(in srgb, var(--ct-surface-2) 40%, transparent),
+    color-mix(in srgb, var(--ct-surface-1) 15%, transparent)
   );
 }
 
@@ -761,7 +761,7 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--ct-text-strong) 3%, transparent),
+    color-mix(in srgb, var(--ct-text-strong) 5%, transparent),
     transparent 22%
   );
   pointer-events: none;
@@ -819,8 +819,8 @@
   border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--ct-surface-2) 24%, transparent),
-    color-mix(in srgb, var(--ct-surface-1) 40%, transparent)
+    color-mix(in srgb, var(--ct-surface-2) 40%, transparent),
+    color-mix(in srgb, var(--ct-surface-1) 60%, transparent)
   );
 }
 
@@ -831,7 +831,7 @@
   background: linear-gradient(
     180deg,
     transparent,
-    color-mix(in srgb, var(--ct-surface-0) 18%, transparent)
+    color-mix(in srgb, var(--ct-surface-0) 25%, transparent)
   );
   pointer-events: none;
 }
@@ -877,7 +877,7 @@
 }
 
 .pf-vc-grid {
-  stroke: var(--ct-border-soft);
+  stroke: var(--ct-border-base);
   stroke-width: 0.5; /* chart-geometry */
   opacity: var(--ct-opacity-65);
 }
@@ -1006,8 +1006,8 @@
   flex: 0 0 auto;
   border-radius: var(--ct-radius-full);
   color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-accent) 8%, var(--ct-surface-2));
-  border: 1px solid color-mix(in srgb, var(--ct-accent) 22%, var(--ct-graphite-border-nested));
+  background: color-mix(in srgb, var(--ct-accent) 8%, var(--ct-surface-3));
+  border: 1px solid color-mix(in srgb, var(--ct-accent) 22%, var(--ct-border-base));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ct-accent) 6%, transparent);
 }
 
@@ -1077,7 +1077,7 @@
 
 /* The status panel is the hero-grid right slot: same welded seam as the cluster. */
 .pf-hero-grid .pf-status-panel {
-  border-top: 1px solid var(--ct-graphite-border-nested);
+  border-top: 1px solid var(--ct-border-base);
 }
 
 /* =============================================================================
@@ -1109,8 +1109,8 @@
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
   color: var(--ct-text-secondary);
-  border-bottom: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-nested-bg);
+  border-bottom: 1px solid var(--ct-border-base);
+  background: var(--ct-surface-1);
   padding-top: var(--ct-space-3);
   padding-bottom: var(--ct-space-3);
   border-top-left-radius: var(--ct-radius-xl);
@@ -1118,13 +1118,13 @@
 }
 
 .pf-positions__row--body {
-  border-bottom: 1px solid var(--ct-border-soft);
+  border-bottom: 1px solid var(--ct-border-base);
   font-size: var(--ct-text-sm);
   background: transparent;
 }
 
 .pf-positions__row--body:hover {
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-2);
 }
 
 .pf-positions__row--body:last-child {
@@ -1287,8 +1287,8 @@
   background: linear-gradient(
     to bottom,
     transparent,
-    var(--ct-border-soft) 15%,
-    var(--ct-border-soft) 85%,
+    var(--ct-border-base) 15%,
+    var(--ct-border-base) 85%,
     transparent
   );
   flex: 0 0 auto;
@@ -1314,7 +1314,7 @@
 
 .cy-ledger-rule {
   height: 1px;
-  background: var(--ct-border-soft);
+  background: var(--ct-border-base);
   margin: var(--ct-space-1) 0;
 }
 
@@ -1369,7 +1369,7 @@
   position: relative;
   height: var(--ct-space-1_5);
   border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-3);
   overflow: hidden;
   min-width: 0;
 }
@@ -1381,8 +1381,8 @@
     to right,
     transparent,
     transparent calc(25% - 1px),
-    var(--ct-border-soft) calc(25% - 1px),
-    var(--ct-border-soft) 25%
+    var(--ct-border-base) calc(25% - 1px),
+    var(--ct-border-base) 25%
   );
   opacity: var(--ct-opacity-50);
   pointer-events: none;
@@ -1461,8 +1461,8 @@
   border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--ct-surface-2) 22%, transparent),
-    transparent
+    color-mix(in srgb, var(--ct-surface-2) 40%, transparent),
+    color-mix(in srgb, var(--ct-surface-1) 15%, transparent)
   );
 }
 
@@ -1472,7 +1472,7 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--ct-text-strong) 3%, transparent),
+    color-mix(in srgb, var(--ct-text-strong) 5%, transparent),
     transparent 20%
   );
   pointer-events: none;
@@ -1539,7 +1539,7 @@
   gap: var(--ct-space-3);
   margin: 0;
   padding-top: var(--ct-space-2);
-  border-top: 1px solid var(--ct-border-soft);
+  border-top: 1px solid var(--ct-border-base);
   flex: 0 0 auto;
 }
 
@@ -1604,7 +1604,7 @@
   gap: var(--ct-space-4);
   padding: var(--ct-space-3) var(--ct-space-4);
   border-radius: var(--ct-radius-sm);
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 60%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-base) 60%, transparent);
   transition: all var(--ct-dur-base) var(--ct-ease);
 }
 
@@ -1623,8 +1623,8 @@
   width: var(--ct-space-8);
   height: var(--ct-space-8);
   border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-2);
-  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-3);
+  border: 1px solid var(--ct-border-base);
   color: var(--ct-text-primary);
   flex: 0 0 auto;
   transition: all var(--ct-dur-base) var(--ct-ease);
@@ -1716,7 +1716,7 @@
   min-width: 0;
   padding: var(--ct-space-3) 0 0;
   border: 0;
-  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 54%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-base) 54%, transparent);
   border-radius: 0;
   background: transparent;
   box-shadow: none;
@@ -1953,7 +1953,7 @@
   justify-content: space-between;
   gap: var(--ct-space-2);
   padding-bottom: var(--ct-space-1);
-  border-bottom: 1px solid var(--ct-border-soft);
+  border-bottom: 1px solid var(--ct-border-base);
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-medium);
   text-transform: uppercase;
@@ -2161,7 +2161,7 @@
     /* when split horizontally the sidebar divider becomes a left border */
   .pf-hero-grid .pf-status-panel {
     border-top: 0;
-    border-left: 1px solid var(--ct-graphite-border-nested);
+    border-left: 1px solid var(--ct-border-base);
   }
 }
 
@@ -2176,7 +2176,7 @@
 
   .pf-container--fit .pf-hero-grid .pf-status-panel {
     border-left: 0;
-    border-top: 1px solid var(--ct-graphite-border-nested);
+    border-top: 1px solid var(--ct-border-base);
   }
 }
 
@@ -2198,7 +2198,7 @@
 
   .pf-fused-surface__pane + .pf-fused-surface__pane {
     border-left: 0;
-    border-top: 1px solid var(--ct-graphite-border-nested);
+    border-top: 1px solid var(--ct-border-base);
   }
 }
 
@@ -2236,7 +2236,7 @@
     }
   .pf-hero-grid .pf-status-panel {
     border-left: 0;
-    border-top: 1px solid var(--ct-graphite-border-nested);
+    border-top: 1px solid var(--ct-border-base);
   }
   .pf-ticker-inline > div {
     padding-left: 0;
@@ -2305,9 +2305,9 @@
 
 .pf-tax-preview__banner {
   padding: var(--ct-space-3) var(--ct-space-4);
-  border: 1px solid var(--ct-border-soft);
+  border: 1px solid var(--ct-border-base);
   border-radius: var(--ct-radius-lg);
-  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-3) 60%, transparent);
 }
 
 .pf-tax-preview__hint {
@@ -2347,7 +2347,7 @@
 
 /* Distrib calendar skeleton bars + ValueChart flat baseline read as muted frame. */
 .pf-distrib-chart--skeleton rect {
-  fill: var(--ct-surface-3);
+  fill: var(--ct-surface-4);
   animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 .pf-vc-line--skeleton {
@@ -2365,7 +2365,7 @@
 .cy-donut-arc--skeleton {
   fill: none;
   stroke-width: 3.4; /* chart-geometry — matches .dash-chart-circle */
-  stroke: var(--ct-surface-2);
+  stroke: var(--ct-surface-3);
   animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 

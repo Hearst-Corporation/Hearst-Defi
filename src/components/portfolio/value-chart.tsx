@@ -232,13 +232,13 @@ function Plot({ series, lineOnly = false, preview = false, skeleton = false }: P
       ) : null}
 
       {linePath ? (
-        <path
+          <path
           /* anim (pf-line-draw + strokeDasharray/offset) + reduced-motion gérés
              en CSS (.pf-vc-line) — orchestrateur */
           className={cn("pf-vc-line", skeleton && "pf-vc-line--skeleton")}
           d={linePath}
           fill="none"
-          stroke={skeleton ? "var(--ct-border-soft)" : "var(--ct-accent)"}
+          stroke={skeleton ? "var(--ct-surface-4)" : "var(--ct-accent)"}
           strokeWidth="1.15"
           strokeLinejoin="round"
           strokeLinecap="round"
