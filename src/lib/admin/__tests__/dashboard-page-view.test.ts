@@ -250,6 +250,9 @@ describe("proofFresh gate — seed context", () => {
     );
     expect(page.proofFresh).toBe(false);
     expect(page.hasLiveKpis).toBe(false);
+    expect(page.hasSeedPreview).toBe(true);
+    expect(page.showVaultAnalytics).toBe(true);
+    expect(page.headlineApy).toEqual({ low: 9.4, high: 12.8 });
   });
 
   it("null snapshot context with recent proof rows does not produce proofFresh=true", () => {
@@ -306,6 +309,7 @@ describe("seed honesty gate", () => {
       OVERVIEW,
     );
     expect(page.hasLiveKpis).toBe(false);
+    expect(page.hasSeedPreview).toBe(true);
   });
 
   it("daily-seed snapshot keeps capital provenance as manual", () => {

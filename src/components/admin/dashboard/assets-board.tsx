@@ -30,6 +30,7 @@ import { AllocationOrbit } from "./allocation-orbit";
 import { DashboardKpiStrip } from "./kpi-strip";
 import { NavSlot } from "./nav-slot";
 import { DashboardRiskSummaryCard } from "./risk-summary-card";
+import { DashboardRecentEvents } from "./dashboard-recent-events";
 import { SystemReadinessModule } from "./system-readiness";
 
 /**
@@ -47,6 +48,9 @@ interface DashboardAssetsBoardProps {
   headlineApy: { low: number; high: number } | null;
   yieldPosture: string;
   hasLiveKpis: boolean;
+  /** Seed timeline (`daily-seed`) — preview KPIs/charts with simulated badge. */
+  hasSeedPreview?: boolean;
+  showVaultAnalytics?: boolean;
   /** True when the payload comes from the demo builder — badges read "simulated". */
   simulated?: boolean;
   proofFresh: boolean;
@@ -65,15 +69,25 @@ export function DashboardAssetsBoard({
   headlineApy,
   yieldPosture,
   hasLiveKpis,
+  hasSeedPreview = false,
+  showVaultAnalytics: showVaultAnalyticsProp,
   simulated,
   proofFresh,
   cockpit,
   investorCount,
   investedCapitalUsdc,
 }: DashboardAssetsBoardProps) {
+  const showVaultAnalytics = showVaultAnalyticsProp ?? (hasLiveKpis || hasSeedPreview);
+  const chartSeedPreview = hasSeedPreview && !hasLiveKpis;
+
   const allocation = data.allocations;
   const allocationTotal = allocation.reduce((sum, item) => sum + item.pct, 0);
-  const allocationLive = resolveAllocationChartLive(hasLiveKpis, data, capitalUsdc);
+  const allocationLive = resolveAllocationChartLive(
+    hasLiveKpis,
+    hasSeedPreview,
+    data,
+    capitalUsdc,
+  );
 
   // Dominant allocation bucket for the KPI strip (the donut shows the full split).
   const topAllocation =
@@ -82,7 +96,7 @@ export function DashboardAssetsBoard({
       : null;
 
   const navPoints = data.timeseries.nav30d;
-  const navLive = resolveNavChartLive(hasLiveKpis, data.timeseries);
+  const navLive = resolveNavChartLive(hasLiveKpis, hasSeedPreview, data.timeseries);
   const lastNav = navLive ? (navPoints.at(-1)?.aum_usdc ?? 0) : null;
   const firstNav = navLive ? (navPoints[0]?.aum_usdc ?? 0) : null;
 
@@ -90,6 +104,7 @@ export function DashboardAssetsBoard({
     hasLiveKpis,
     data.vaultMeta.livePreview,
     simulated,
+    hasSeedPreview,
   );
   const stripKpis = buildDashboardKpiStrip({
     headlineApy,
@@ -115,7 +130,11 @@ export function DashboardAssetsBoard({
     topAllocation: topAllocation
       ? { bucket: topAllocation.bucket, pct: topAllocation.pct }
       : null,
-    allocationProvenance: allocationLive ? "live" : "estimated",
+    allocationProvenance: allocationLive
+      ? chartSeedPreview
+        ? "simulated"
+        : "live"
+      : "estimated",
   });
 
   const riskProvenance = resolveRiskProvenance(hasLiveKpis, risk, simulated);
@@ -147,7 +166,7 @@ export function DashboardAssetsBoard({
           "dashboard-cockpit-row dashboard-cockpit-row--kpi",
           // No live charts → size to content (KPI strip + note) so the row does
           // not stretch into a giant empty void; the freed height goes to ops/lower.
-          !hasLiveKpis && "dashboard-cockpit-row--kpi-compact",
+          !showVaultAnalytics && "dashboard-cockpit-row--kpi-compact",
         )}
       >
         <div className="dashboard-cockpit-cell">
@@ -162,14 +181,18 @@ export function DashboardAssetsBoard({
               <DashboardKpiStrip kpis={stripKpis} />
             </section>
 
-            {hasLiveKpis ? (
+            {showVaultAnalytics ? (
               <div className="dashboard-command-row-a--hero dashboard-hero-card__analytics">
                 <div className="dashboard-hero-card__slot dashboard-hero-card__slot--allocation dashboard-command-slot dashboard-command-slot--allocation">
                   <AllocationOrbit
                     allocations={allocation}
                     capitalUsdc={capitalUsdc}
                     allocationTotal={allocationTotal}
-                    provenance={resolveChartProvenance(simulated, allocationLive)}
+                    provenance={resolveChartProvenance(
+                      simulated,
+                      allocationLive,
+                      chartSeedPreview,
+                    )}
                   />
                 </div>
                 <div className="dashboard-hero-card__slot dashboard-hero-card__slot--nav">
@@ -177,9 +200,21 @@ export function DashboardAssetsBoard({
                     navPoints={navPoints}
                     lastNav={lastNav}
                     navDelta={computeNavDelta(lastNav, firstNav)}
-                    navProvenance={resolveChartProvenance(simulated, navLive)}
+                    navProvenance={resolveChartProvenance(
+                      simulated,
+                      navLive,
+                      chartSeedPreview,
+                    )}
                   />
                 </div>
+                {chartSeedPreview ? (
+                  <p
+                    className="dashboard-seed-preview-note body-xs ct-text-faint m-0"
+                    role="status"
+                  >
+                    Seed snapshot — simulated preview, not live production telemetry.
+                  </p>
+                ) : null}
               </div>
             ) : (
               <section
@@ -187,11 +222,25 @@ export function DashboardAssetsBoard({
                 className="dashboard-awaiting-analytics"
               >
                 <p className="body-sm ct-text-muted m-0" role="status">
-                  Capital allocation and NAV trends appear once live vault data is
-                  connected. KPI strip above shows honest placeholders until then.
+                  Capital allocation and NAV trends appear once a live vault snapshot
+                  is connected. KPI strip above shows honest placeholders until then.
                 </p>
               </section>
             )}
+
+            {data.recentEvents.length > 0 ? (
+              <section
+                aria-label="Recent vault activity"
+                className="dashboard-recent-events-section"
+              >
+                <DashboardPanelHeader
+                  title="Recent activity"
+                  eyebrow="Rebalance log"
+                  tone="quiet"
+                />
+                <DashboardRecentEvents events={data.recentEvents} />
+              </section>
+            ) : null}
           </Card>
         </div>
       </div>

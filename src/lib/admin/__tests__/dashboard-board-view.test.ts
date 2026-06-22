@@ -56,6 +56,7 @@ describe("dashboard-board-view", () => {
     expect(resolveChartProvenance(false, false)).toBe("manual");
     expect(resolveChartProvenance(true, true)).toBe("simulated");
     expect(resolveChartProvenance(true, false)).toBe("simulated");
+    expect(resolveChartProvenance(false, true, true)).toBe("simulated");
   });
 
   it("resolveVaultSignalProvenance covers APY and Mining (livePreview → estimated)", () => {
@@ -63,6 +64,7 @@ describe("dashboard-board-view", () => {
     expect(resolveVaultSignalProvenance(false, true)).toBe("estimated");
     expect(resolveVaultSignalProvenance(false, false)).toBe("manual");
     expect(resolveVaultSignalProvenance(false, true, true)).toBe("simulated");
+    expect(resolveVaultSignalProvenance(false, false, false, true)).toBe("simulated");
   });
 
   describe("vault-scope provenance (FixtureVaultPills / livePreview)", () => {

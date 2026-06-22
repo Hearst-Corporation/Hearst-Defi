@@ -511,4 +511,58 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).not.toContain(">Capital stack<");
     expect(html).not.toContain(">Risk lens<");
   });
+
+  it("seed preview shows charts and simulated badge without live KPIs", () => {
+    const html = renderToStaticMarkup(
+      <DashboardAssetsBoard
+        data={makeData({
+          source: "partial",
+          hasTimelineSnapshot: true,
+          latestSnapshotSource: "daily-seed",
+          hasLiveTimelineSnapshot: false,
+          allocations: [
+            { bucket: "mining", pct: 40, valueUsdc: 200_000, yieldContributionBps: 0 },
+            { bucket: "usdc_base", pct: 60, valueUsdc: 300_000, yieldContributionBps: 0 },
+          ],
+          timeseries: {
+            source: "db",
+            nav30d: [
+              { date: "2026-05-01", aum_usdc: 400_000 },
+              { date: "2026-05-15", aum_usdc: 500_000 },
+            ],
+            apy30d: [],
+          },
+          recentEvents: [
+            {
+              id: "ev-1",
+              ruleId: "rebalance-1",
+              takenAt: new Date("2026-06-01T00:00:00Z"),
+              triggerText: "Margin compressing",
+              actionText: "Reduce BTC sleeve",
+              impactText: "Target allocation restored",
+            },
+          ],
+        })}
+        risk={RISK}
+        proof={PROOF}
+        capitalUsdc={500_000}
+        headlineApy={{ low: 9.4, high: 12.8 }}
+        yieldPosture="within target band"
+        hasLiveKpis={false}
+        hasSeedPreview
+        showVaultAnalytics
+        proofFresh={false}
+        cockpit={COCKPIT}
+        investorCount={0}
+        investedCapitalUsdc={0}
+      />,
+    );
+
+    expect(html).toContain("dashboard-orbit__svg");
+    expect(html).toContain("Seed snapshot — simulated preview");
+    expect(html).toContain('Data provenance: Simulated');
+    expect(html).not.toContain('Data provenance: Live');
+    expect(html).toContain('aria-label="Recent vault activity"');
+    expect(html).toContain("Reduce BTC sleeve");
+  });
 });

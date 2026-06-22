@@ -4,6 +4,7 @@ import { VaultStatusPill } from "@/components/admin/vault-status-pill";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
 import type { VaultLiveMetric } from "@/lib/data/cockpit";
+import { formatBtcPostureLabel } from "@/lib/admin/cockpit-btc-posture";
 
 interface LiveMetricsProps {
   vaults: VaultLiveMetric[];
@@ -111,7 +112,8 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
           />
           <MetricCell
             label="BTC"
-            value={vault.btcPosture.charAt(0).toUpperCase() + vault.btcPosture.slice(1)}
+            value={formatBtcPostureLabel(vault.btcPosture)}
+            valueClassName={vault.btcPosture === null ? "ct-text-muted" : undefined}
           />
         </div>
       ) : (

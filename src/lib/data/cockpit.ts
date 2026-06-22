@@ -14,6 +14,7 @@ import {
   adminDashboardVaultHref,
   adminSignalsVaultHref,
 } from "@/lib/vaults/dashboard-scope";
+import { resolveVaultBtcPosture, type BtcTacticalPosture } from "@/lib/admin/cockpit-btc-posture";
 import { listAllVaults } from "@/lib/vaults/resolver";
 import { vaultLabel, vaultSlug } from "@/lib/vaults/slug";
 // =============================================================================
@@ -77,8 +78,8 @@ export interface VaultLiveMetric {
   riskScore: number;
   /** milliseconds since last oracle update; null = unknown */
   oracleDelayMs: number | null;
-  /** "neutral" | "long" | "short" | "hedge" */
-  btcPosture: string;
+  /** Explicit BTC tactical posture when a feed exists; null = unavailable. */
+  btcPosture: BtcTacticalPosture | null;
   /** "live" | "paused" | "review" | "draft" | "closed" */
   status: string;
   /** Admin deep-link — dashboard fixture scope or deployment detail. */
@@ -456,7 +457,8 @@ async function buildVaultMetrics(): Promise<VaultLiveMetric[]> {
         miningMarginScore: hasTimelineData ? latestSnapshot.miningMarginScore : 0,
         riskScore: hasTimelineData ? latestSnapshot.riskScore : 0,
         oracleDelayMs,
-        btcPosture: hasTimelineData ? latestSnapshot.mode : "neutral",
+        // No dedicated BTC tactical posture column yet — never infer from snapshot.mode.
+        btcPosture: resolveVaultBtcPosture(null),
         status: ref.kind === "fixture" ? "live" : ref.deployment.status,
         href,
         hasTimelineData,

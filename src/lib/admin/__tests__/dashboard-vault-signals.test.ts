@@ -12,9 +12,10 @@ const DB_ALLOCATIONS: DashboardData["allocations"] = [
 ];
 
 describe("resolveAllocationChartLive", () => {
-  it("returns false without hasLiveKpis even when DB rows exist", () => {
+  it("returns false without live or seed preview even when DB rows exist", () => {
     expect(
       resolveAllocationChartLive(
+        false,
         false,
         { source: "db", allocations: DB_ALLOCATIONS },
         500_000,
@@ -26,37 +27,55 @@ describe("resolveAllocationChartLive", () => {
     expect(
       resolveAllocationChartLive(
         true,
+        false,
         { source: "db", allocations: DB_ALLOCATIONS },
         500_000,
       ),
     ).toBe(true);
   });
+
+  it("returns true for seed preview when partial source still has allocations", () => {
+    expect(
+      resolveAllocationChartLive(
+        false,
+        true,
+        { source: "partial", allocations: DB_ALLOCATIONS },
+        500_000,
+      ),
+    ).toBe(true);
+  });
+
+  it("returns false for seed preview when source is fallback", () => {
+    expect(
+      resolveAllocationChartLive(
+        false,
+        true,
+        { source: "fallback", allocations: DB_ALLOCATIONS },
+        500_000,
+      ),
+    ).toBe(false);
+  });
 });
 
 describe("resolveNavChartLive", () => {
-  it("returns false without hasLiveKpis even when NAV series exists", () => {
-    expect(
-      resolveNavChartLive(false, {
-        source: "db",
-        nav30d: [
-          { date: "2026-05-01", aum_usdc: 400_000 },
-          { date: "2026-05-15", aum_usdc: 500_000 },
-        ],
-        apy30d: [],
-      }),
-    ).toBe(false);
+  const navSeries: DashboardData["timeseries"] = {
+    source: "db",
+    nav30d: [
+      { date: "2026-05-01", aum_usdc: 400_000 },
+      { date: "2026-05-15", aum_usdc: 500_000 },
+    ],
+    apy30d: [],
+  };
+
+  it("returns false without live or seed preview even when NAV series exists", () => {
+    expect(resolveNavChartLive(false, false, navSeries)).toBe(false);
   });
 
   it("returns true when live KPIs and NAV series are present", () => {
-    expect(
-      resolveNavChartLive(true, {
-        source: "db",
-        nav30d: [
-          { date: "2026-05-01", aum_usdc: 400_000 },
-          { date: "2026-05-15", aum_usdc: 500_000 },
-        ],
-        apy30d: [],
-      }),
-    ).toBe(true);
+    expect(resolveNavChartLive(true, false, navSeries)).toBe(true);
+  });
+
+  it("returns true for seed preview when NAV series is DB-backed", () => {
+    expect(resolveNavChartLive(false, true, navSeries)).toBe(true);
   });
 });

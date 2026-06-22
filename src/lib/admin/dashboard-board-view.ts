@@ -14,25 +14,27 @@ export function resolveRiskProvenance(
   return "manual";
 }
 
-/** Allocation orbit + NAV chart — same honesty gate (`simulated` → chart live flag). */
-export function resolveChartProvenance(
-  simulated: boolean | undefined,
-  chartLive: boolean,
-): Provenance {
-  if (simulated) return "simulated";
-  if (chartLive) return "live";
-  return "manual";
-}
-
-/** APY + Mining KPI strip — `livePreview` may show methodology preset as estimated. */
+/** APY + Mining KPI strip — seed preview and demo read simulated, not live. */
 export function resolveVaultSignalProvenance(
   hasLiveKpis: boolean,
   livePreview: boolean,
   simulated?: boolean,
+  hasSeedPreview?: boolean,
 ): Provenance {
-  if (simulated) return "simulated";
+  if (simulated || hasSeedPreview) return "simulated";
   if (hasLiveKpis) return "live";
   if (livePreview) return "estimated";
+  return "manual";
+}
+
+/** Allocation orbit + NAV chart — seed preview uses simulated provenance. */
+export function resolveChartProvenance(
+  simulated: boolean | undefined,
+  chartLive: boolean,
+  hasSeedPreview?: boolean,
+): Provenance {
+  if (simulated || hasSeedPreview) return "simulated";
+  if (chartLive) return "live";
   return "manual";
 }
 

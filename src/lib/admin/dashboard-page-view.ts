@@ -59,6 +59,23 @@ export function resolveHeadlineApy(
   return null;
 }
 
+/**
+ * Timeline snapshots exist (`daily-seed`, etc.) but are not production-live.
+ * KPIs/charts may preview from DB with a simulated badge — never as Live.
+ */
+export function resolveHasSeedPreview(
+  data: DashboardData,
+  preview: boolean,
+  simulated: boolean,
+): boolean {
+  return (
+    data.hasTimelineSnapshot &&
+    !data.hasLiveTimelineSnapshot &&
+    !preview &&
+    !simulated
+  );
+}
+
 export function resolveDashboardPageInputs(
   data: DashboardData,
   risk: RiskFrameworkData,
@@ -71,9 +88,10 @@ export function resolveDashboardPageInputs(
   // A `daily-seed` row sets `hasTimelineSnapshot = true` but must never
   // activate Live/Attested provenance badges on the admin dashboard.
   const hasLiveKpis = data.hasLiveTimelineSnapshot && !preview;
-  // KPIs fill when we have genuine live data OR when we are in simulated mode.
+  const hasSeedPreview = resolveHasSeedPreview(data, preview, simulated);
+  // KPIs fill when live, demo-simulated, or seed-preview (badge simulated).
   // hasLiveKpis is kept UNCHANGED so proof-fresh / Attested logic is unaffected.
-  const fillKpis = hasLiveKpis || simulated;
+  const fillKpis = hasLiveKpis || simulated || hasSeedPreview;
   const headlineApy = resolveHeadlineApy(
     data.vault.apyRange,
     data.vaultMeta.apyTarget,
@@ -105,6 +123,8 @@ export function resolveDashboardPageInputs(
   return {
     data: vaultScopedDisplayData(data, risk, preview),
     hasLiveKpis,
+    hasSeedPreview,
+    showVaultAnalytics: hasLiveKpis || hasSeedPreview,
     simulated,
     headlineApy,
     yieldPosture,
