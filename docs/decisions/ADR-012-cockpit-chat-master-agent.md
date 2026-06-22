@@ -146,3 +146,24 @@ The orchestrator updates CLAUDE.md #4 to reference this ADR.
 - Nav fallbacks: `src/lib/llm/nav-fallback-intent.ts`.
 - Commits (Master Agent 2.5a–2.5d + hardening): `5c8e59f`, `8cdfba1`, `b6826de`,
   `5e868d1`, `0c9badf`, `60fdc0e`, `9a7b741`, `516ba7e`.
+
+## Amendment (2026-06-22) — superseded in part by ADR-017
+
+ADR-017 **extends** this ADR; it does not repeal the guardrails above. What changed
+in production:
+
+1. **Single engine.** `runChatAgent` is now the only chat engine for all three
+   modes (`normal`, `admin`, `review`). The `@hearst/cockpit-shell` handler branch
+   and the `CHAT_MASTER_AGENT` OFF fallback are **retired**. The flag is a
+   **kill-switch** (default ON; `=0` → HTTP 503, no fallback).
+2. **Review mode** runs through `runChatAgent` with `exposeNavigate: false`
+   (no navigation / product-intent / stream events).
+3. **Admin write tools** (draft-only, HITL confirmation) now include outreach
+   (`outreach_source_leads`, `outreach_draft_email`, `outreach_trigger_send_run`)
+   per ADR-016 governance. The model still **never auto-executes** a write.
+4. **Outreach chat retired.** `/api/outreach-chat`, `OutreachCopilot`, and
+   `copilot-intent.ts` were removed; outreach is folded into admin chat tools.
+
+Sections of this ADR that described dual engines, `CHAT_MASTER_AGENT` OFF by
+default, or review mode on the cockpit-shell handler are **historical** — see
+ADR-017 and `docs/spec/09-agents.mdx` for the current contract.

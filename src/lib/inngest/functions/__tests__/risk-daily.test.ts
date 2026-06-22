@@ -167,11 +167,11 @@ describe("riskDaily Inngest function", () => {
     expect(agentInput.componentScores["market"]).toBe(62);
     expect(agentInput.componentScores["liquidity"]).toBe(30);
 
-    // markComplete called
-    expect(markCompleteMock).toHaveBeenCalledTimes(1);
-    expect(markCompleteMock).toHaveBeenCalledWith(
+    // Idempotency checks the real LlmRun agent name (no synthetic markComplete)
+    expect(isDuplicateMock).toHaveBeenCalledWith(
       "risk-daily",
       expect.any(Date),
+      { llmAgentName: "risk-explanation" },
     );
 
     // Completion event emitted

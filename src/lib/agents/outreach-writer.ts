@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { renderAgentMemoryBlock } from "@/lib/agents/memory";
 import { assertNoForbiddenWords } from "@/lib/agents/validators";
+import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/openai";
 
@@ -229,33 +230,8 @@ function buildNewsletterUserPrompt(input: DraftNewsletterInput, memoryBlock: str
  * Defensive JSON parse + guardrail application.
  * ------------------------------------------------------------------------ */
 
-/**
- * Extracts a JSON object from a model response. The system prompt demands pure
- * JSON, but we strip an accidental ```json fence and trailing prose defensively.
- */
-function extractJson(raw: string): unknown {
-  const trimmed = raw.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
-  let candidate = fenced && fenced[1] !== undefined ? fenced[1].trim() : trimmed;
-  // If extra prose surrounds the object, slice to the outermost braces.
-  if (!candidate.startsWith("{")) {
-    const start = candidate.indexOf("{");
-    const end = candidate.lastIndexOf("}");
-    if (start !== -1 && end !== -1 && end > start) {
-      candidate = candidate.slice(start, end + 1);
-    }
-  }
-  try {
-    return JSON.parse(candidate);
-  } catch {
-    throw new Error(
-      `Outreach agent returned invalid JSON: ${candidate.slice(0, 200)}`,
-    );
-  }
-}
-
 function parseAndGuard(text: string): OutreachDraft {
-  const parsed = extractJson(text);
+  const parsed = parseLlmJsonObject(text, "Outreach agent");
   const result = OutreachDraftSchema.safeParse(parsed);
   if (!result.success) {
     throw new Error(

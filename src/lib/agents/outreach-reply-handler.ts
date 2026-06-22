@@ -5,6 +5,7 @@ import { z } from "zod";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/openai";
 import { containsForbidden } from "@/lib/agents/forbidden-words";
+import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
 
 /**
  * Outreach Reply Handler Agent — classifies an inbound reply to a cold email and
@@ -97,26 +98,8 @@ function buildUserPrompt(input: ClassifyReplyInput): string {
   ].join("\n");
 }
 
-function extractJson(raw: string): unknown {
-  const trimmed = raw.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
-  let candidate = fenced && fenced[1] !== undefined ? fenced[1].trim() : trimmed;
-  if (!candidate.startsWith("{")) {
-    const start = candidate.indexOf("{");
-    const end = candidate.lastIndexOf("}");
-    if (start !== -1 && end !== -1 && end > start) {
-      candidate = candidate.slice(start, end + 1);
-    }
-  }
-  try {
-    return JSON.parse(candidate);
-  } catch {
-    throw new Error(`Reply handler returned invalid JSON: ${candidate.slice(0, 200)}`);
-  }
-}
-
 function parseAndClamp(text: string): OutreachReplyClassification {
-  const parsed = extractJson(text);
+  const parsed = parseLlmJsonObject(text, "Reply handler");
   const result = OutreachReplyClassificationSchema.safeParse(parsed);
   if (!result.success) {
     throw new Error(

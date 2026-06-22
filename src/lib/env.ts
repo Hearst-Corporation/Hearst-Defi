@@ -299,19 +299,13 @@ if (IS_RUNTIME_PRODUCTION && parsed.success) {
         "emailed. Set RESEND_API_KEY to enable delivery.",
     );
   }
-  // CHAT_MASTER_AGENT gates the tool-capable cockpit chat engine (navigation +
-  // admin read tools). It is read directly from process.env (not in the schema
-  // above — it needs surveillance, not typing) and is OFF unless the value is
-  // the literal "1". When OFF, /api/cockpit-chat silently falls back to the
-  // no-tool cockpit-shell handler: every LP + admin navigation and every
-  // model-driven admin tool call quietly stops working, with NO error. Warn —
-  // never throw: the chat still answers in plain text, so a hard throw would
-  // outage the whole server over a degraded (not broken) feature.
-  if (process.env.CHAT_MASTER_AGENT !== "1") {
+  // CHAT_MASTER_AGENT kill-switch (ADR-017): read in feature-flags.ts as ON unless
+  // the value is the literal "0" (=0 → /api/cockpit-chat returns 503, no fallback).
+  // Warn in production when explicitly disabled — never throw.
+  if (process.env.CHAT_MASTER_AGENT === "0") {
     console.warn(
-      "[env] CHAT_MASTER_AGENT is not set to \"1\" in production — the cockpit " +
-        "chat falls back to the no-tool handler: agent navigation (LP + admin) " +
-        "and model-driven admin tools are disabled. Set CHAT_MASTER_AGENT=1 to enable them.",
+      "[env] CHAT_MASTER_AGENT=0 — cockpit chat is disabled (503). Unset or any " +
+        "other value keeps the unified runChatAgent engine ON.",
     );
   }
   // P0: Redis is REQUIRED in production for distributed rate limiting.

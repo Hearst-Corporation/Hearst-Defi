@@ -12,16 +12,15 @@ Points d'entrée : `src/lib/llm/chat-agent.ts`, `src/lib/llm/tools/registry.ts`,
 À éviter : CSS, data portfolio/vaults, composants de présentation.
 
 Règles :
-- Provider unique = **OpenAI GPT-4.1** (ADR-011). Pas de SDK Anthropic dans ce repo. Les exports
-  nommés `kimi`/`KIMI_*` pointent OpenAI — ne pas « réparer » le nom.
+- Provider unique = **OpenAI GPT-4.1** (ADR-011). Pas de SDK Anthropic dans ce repo.
 - Sorties structurées only, Zod-validées. **Mots interdits** : guarantee, promise, certain,
   will deliver, risk-free. APY toujours en range.
-- Le chat (Master Agent / review-mode) navigue en **read-only** (whitelist de routes), **aucun**
-  outil write/financier/admin. Human-in-the-loop (ADR-012). System prompt côté serveur, non
-  surchargeable client. Output-guard compliance actif.
+- **Moteur unique** `runChatAgent` (ADR-017). LP = `navigate` whitelist only. Admin = read tools
+  + write tools **HITL** (confirmation token via `/api/admin/chat-tools`) — jamais d'auto-exec
+  modèle. `CHAT_MASTER_AGENT=0` = kill-switch (503), pas de fallback cockpit-shell.
 - Logique métier → backend-first (server action / engine), pas dans le tool/agent.
 
 Validation : `pnpm test src/lib/llm` (et `src/lib/agents/__tests__` si touché).
 
-STOP : ne pas ajouter d'outil write/exécution, ne pas appeler l'API Anthropic (crédits),
+STOP : ne pas ajouter d'outil write auto-exécuté, ne pas appeler l'API Anthropic (crédits),
 ne pas ouvrir la whitelist de navigation sans accord.

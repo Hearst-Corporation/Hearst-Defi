@@ -23,6 +23,7 @@ import {
   assertCitesAssumption,
   assertNoForbiddenWords,
 } from "@/lib/agents/validators";
+import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
 
 /**
  * Default model id for the Mining Health Agent.
@@ -152,17 +153,6 @@ function buildUserPrompt(input: MiningHealthInput): string {
   ].join("\n");
 }
 
-function extractJson(raw: string): unknown {
-  const trimmed = raw.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
-  const candidate = fenced && fenced[1] !== undefined ? fenced[1] : trimmed;
-  try {
-    return JSON.parse(candidate);
-  } catch {
-    throw new Error(`Invalid JSON in model response: ${candidate.slice(0, 200)}`);
-  }
-}
-
 export async function runMiningHealth(
   input: MiningHealthInput,
   opts: RunMiningHealthOptions = {},
@@ -197,7 +187,7 @@ export async function runMiningHealth(
     throw new Error("Mining Health agent returned no text block.");
   }
 
-  const parsed = extractJson(textBlock.text);
+  const parsed = parseLlmJsonObject(textBlock.text, "Mining Health agent");
   const result = MiningHealthOutputSchema.safeParse(parsed);
   if (!result.success) {
     throw new Error(

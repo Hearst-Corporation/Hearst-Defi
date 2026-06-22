@@ -5,7 +5,7 @@ import { runMiningHealth } from "@/lib/agents/mining-health";
 import { loadLatestMiningMetrics } from "@/lib/agents/loaders/mining";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
-import { isDuplicate, markComplete } from "@/lib/idempotency";
+import { isDuplicate } from "@/lib/idempotency";
 
 /**
  * Mining Health Agent — daily cron (08:00 UTC).
@@ -37,7 +37,7 @@ export async function miningHealthDailyHandler({
 > {
   const today = new Date();
 
-  if (await isDuplicate(MINING_HEALTH_DAILY_ID, today)) {
+  if (await isDuplicate(MINING_HEALTH_DAILY_ID, today, { llmAgentName: "mining-health" })) {
     return { skipped: true, reason: "already_run_today" };
   }
 
@@ -107,7 +107,6 @@ export async function miningHealthDailyHandler({
     }
   });
 
-  await markComplete(MINING_HEALTH_DAILY_ID, today);
   return { alert_level: result.alert_level };
 }
 

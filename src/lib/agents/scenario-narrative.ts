@@ -23,6 +23,7 @@ import {
   assertCitesAssumption,
   assertNoForbiddenWords,
 } from "@/lib/agents/validators";
+import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
 import {
   loadUserAgentProfile,
   loadUserMemory,
@@ -189,22 +190,6 @@ function buildUserPrompt(input: ScenarioNarrativeInput): string {
   ].join("\n");
 }
 
-/**
- * Extracts the JSON object from a model response. The system prompt asks for
- * pure JSON, but we strip an accidental ```json fence defensively rather than
- * failing the whole pipeline on a stray triple-backtick.
- */
-function extractJson(raw: string): unknown {
-  const trimmed = raw.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
-  const candidate = fenced && fenced[1] !== undefined ? fenced[1] : trimmed;
-  try {
-    return JSON.parse(candidate);
-  } catch {
-    throw new Error(`Invalid JSON in model response: ${candidate.slice(0, 200)}`);
-  }
-}
-
 export async function runScenarioNarrative(
   input: ScenarioNarrativeInput,
   opts: RunScenarioNarrativeOptions = {},
@@ -269,7 +254,7 @@ export async function runScenarioNarrative(
     throw new Error("Scenario Narrative agent returned no text block.");
   }
 
-  const parsed = extractJson(textBlock.text);
+  const parsed = parseLlmJsonObject(textBlock.text, "Scenario narrative agent");
   const result = ScenarioNarrativeOutputSchema.safeParse(parsed);
   if (!result.success) {
     throw new Error(

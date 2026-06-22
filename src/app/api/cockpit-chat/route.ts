@@ -1,4 +1,3 @@
-import type { CockpitChatHandlerConfig } from "@hearst/cockpit-shell/handler";
 import type { NextRequest } from "next/server";
 import { after } from "next/server";
 import { z } from "zod";
@@ -74,11 +73,8 @@ function resolveModel(requested: string | undefined): string {
 const CHAT_RATE_MAX = 20;
 const CHAT_RATE_WINDOW_MS = 60_000;
 
-// Hard caps. NOTE: the @hearst/cockpit-shell handler does NOT accept
-// maxTokens/temperature (neither in CockpitChatHandlerConfig nor in its
-// body schema — it builds the LLM call internally), so these are enforced
-// on the inbound body to reject abusive payloads before they reach the
-// handler. They cannot be forwarded to the model call itself.
+// Hard caps on inbound body (maxTokens/temperature are not client-tunable on
+// runChatAgent — enforced here to reject abusive payloads before any LLM work).
 const MAX_OUTPUT_TOKENS = 2048;
 const MAX_CONTENT_LEN = 8_000;
 // Window of history actually forwarded to the model (the most recent turns).
@@ -176,14 +172,8 @@ function deriveTitleFromContent(content: string): string | null {
 /**
  * Inbound body validation.
  *
- * The cockpit-shell handler's own schema accepts a client `system` field that
- * REPLACES (not appends to) the server system prompt — a guardrail-bypass on
- * an LP-facing endpoint. We deliberately DO NOT accept `system` here: the Zod
- * object strips it from the parsed body, and the sanitized body we forward
- * never carries it, so the curated server prompt (built below) always wins.
- *
- * We validate the security-relevant fields here (BEFORE the handler re-parses
- * the body) and keep the shape backwards-compatible: `message` stays required,
+ * A client `system` field must never override the server system prompt. The Zod
+ * schema strips it from the parsed body; the sanitized body never carries it.
  * `messages` is the optional history array we constrain here for security.
  */
 const ChatMessageSchema = z.object({
@@ -221,11 +211,18 @@ interface PersistedMessage {
   createdAt: number;
 }
 
+/** Prisma-backed chat persistence contract (user-scoped). */
+interface ChatPersistence {
+  createChat(): Promise<string>;
+  loadMessages(chatId: string): Promise<PersistedMessage[]>;
+  saveMessage(chatId: string, msg: PersistedMessage): Promise<void>;
+}
+
 /**
  * Prisma-backed chat persistence, scoped to a single authenticated user.
  *
- * The handler's `ChatPersistence` contract only passes `chatId` to load/save,
- * so userId isolation is enforced HERE by closing over the verified userId:
+ * Only `chatId` is passed to load/save — userId isolation is enforced HERE by
+ * closing over the verified userId:
  *   - `createChat()` always stamps the row with this user.
  *   - `loadMessages()` only returns history if the chat belongs to this user
  *     (a foreign chatId yields an empty history — no cross-tenant leak).
@@ -238,7 +235,7 @@ function createUserScopedPersistence(
   // the review-document generator filter on exactly the messages exchanged
   // in review sessions, instead of mixing them with normal-mode chatter.
   chatMode: ChatMode,
-): NonNullable<CockpitChatHandlerConfig["persistence"]> {
+): ChatPersistence {
   async function ownsChat(chatId: string): Promise<boolean> {
     const chat = await prisma.cockpitChat.findUnique({
       where: { id: chatId },
@@ -279,9 +276,7 @@ function createUserScopedPersistence(
           createdAt: r.createdAt.getTime(),
         }));
       // PR-3 #1: bound the window to a char budget so the model never receives
-      // the full 200-row transcript as an unbounded prompt. Applied HERE so it
-      // covers BOTH consumers: the cockpit-shell handler (which calls
-      // loadMessages internally) and the runMasterAgentTurn path below.
+      // the full 200-row transcript as an unbounded prompt.
       return trimHistoryToBudget(messages);
     },
 
@@ -290,10 +285,8 @@ function createUserScopedPersistence(
         // Refuse to write into a chat this user does not own.
         return;
       }
-      // The handler persists the assistant message from its own (un-guarded)
-      // accumulated text, independent of the guarded stream returned to the
-      // client. Lint it here so a non-compliant answer is never stored and
-      // re-injected into the next turn's prompt (cumulative compliance drift).
+      // Lint assistant output before persistence so non-compliant answers are
+      // never stored and re-injected into the next turn's prompt.
       if (msg.role === "assistant" && chatOutputViolation(msg.content, true)) {
         logger.warn("cockpit-chat: blocked assistant output not persisted", {
           userId,
@@ -461,17 +454,12 @@ function ackStream(text: string): ReadableStream<Uint8Array> {
 }
 
 /**
- * Master Agent turn (flag-gated). Runs the app-side tool-capable engine:
- * streams the guarded answer to the client, persists the user + assistant
- * messages (the cockpit-shell handler did this itself), and publishes the
- * chosen navigation destination to the out-of-band channel for the client
- * bridge. Persistence + nav publish happen AFTER the turn, off the response
- * path, so the stream is returned immediately.
+ * Master Agent turn. Runs runChatAgent: streams the guarded answer, persists
+ * user + assistant messages, and publishes navigation to the out-of-band channel.
+ * Persistence + nav publish happen after the turn, off the response path.
  *
- * Product-intent carve-out (admin): the chat bubble stays conversational — it
- * shows only PRODUCT_WORKSPACE_CHAT_ACK — while the model's full framing prose
- * is diverted into the Product Workspace draft (the "central chamber"), so the
- * conversation never balloons into a product write-up.
+ * Product-intent carve-out (admin): chat bubble stays conversational while framing
+ * prose can be diverted to Product Workspace (see withProductChatStreamEvents).
  */
 async function runMasterAgentTurn(args: {
   req: NextRequest;

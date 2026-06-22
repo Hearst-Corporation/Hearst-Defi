@@ -22,17 +22,19 @@ model for all 4 agents + cockpit chat. No Anthropic SDK. See **ADR-011**
 
 Cockpit chat modes : `normal` (conversation produit/LP), `review` (facilitateur
 admin générant un document de revue), `admin` (copilote interne architecture /
-allocations / runbooks). Réglages rail (`cockpit-shell/` local, alias `@hearst/cockpit-shell`) :
-infra LLM **serveur uniquement** (`OPENAI_API_KEY` / `OPENAI_MODEL`, pas de clé
-client) ; toggle Markdown local branché ; clés legacy Hypercli purgées au mount.
-Pas de RAG vectoriel câblé aujourd'hui : contexte via
-profil/mémoire Prisma, portefeuille live si disponible, prompts statiques et
-index specs/routes pour la revue. Outil chat : `navigate` (whitelist LP + admin,
-dont customers/outreach), seulement avec `CHAT_MASTER_AGENT=1`; en mode admin,
-read tools bornés (pas d'auto-exec write). Le rail chat affiche un chip
-**Agent** (flag ON) ou **Texte seul** (flag OFF). Fallback keyword LP/admin
-si le modèle répond sans tool call. Aucun outil autonome d'écriture, marché,
-internet ou déploiement.
+allocations / runbooks / outreach). **Moteur unique** `runChatAgent` pour les
+3 modes (ADR-017) — le handler `@hearst/cockpit-shell` est retiré. Kill-switch
+`CHAT_MASTER_AGENT` (server-only, **ON par défaut** ; `=0` → chat 503, pas de
+fallback). Réglages rail (`cockpit-shell/` local, alias `@hearst/cockpit-shell`) :
+UI client uniquement ; infra LLM **serveur uniquement** (`OPENAI_API_KEY` /
+`OPENAI_MODEL`, pas de clé client) ; toggle Markdown local branché.
+Pas de RAG vectoriel câblé aujourd'hui : contexte via profil/mémoire Prisma,
+portefeuille live si disponible, prompts statiques et index specs/routes pour la
+revue. LP : seul outil `navigate` (whitelist fermée). Admin : `navigate` étendu
++ read tools (second pass modèle) ; write tools **jamais auto-exécutés** par le
+modèle — confirmation humaine via panneau **Actions admin** (`/api/admin/chat-tools`).
+Fallback keyword LP/admin si le modèle répond sans tool call. Aucun outil
+autonome de marché, internet, signature ou déploiement.
 
 Admin mode est maintenant enrichi côté serveur avec un bloc live interne :
 allocations canoniques (`HYV`/`HDV`/`HBP`), dernier `MiningMetric` (BTC/hashprice/
@@ -44,16 +46,19 @@ Le snapshot marché inclut aussi `btc_price_usd_exact_live` via CoinGecko
 avec provenance/fraîcheur (`btc_price_live_source`, `btc_price_live_taken_at`,
 `btc_price_live_freshness_seconds`).
 La composition passe par une couche interne `src/lib/llm/tools/*` (registre
-typé + policy `chatMode/profile`) avec uniquement des outils de lecture
+typé + policy `chatMode/profile`) avec des outils de lecture
 (`read_allocations_canonical`, `read_market_snapshot`, `read_routes_index`,
 `read_specs_index`, `read_runtime_capabilities`, `generate_chart_spec`,
-`generate_demo_plan`, `export_demo_pack`, `export_briefing_pack`) et
-dégradation partielle en cas
+`generate_demo_plan`, `export_demo_pack`, `export_briefing_pack`,
+`outreach_list_prospects`, `outreach_stats`) et dégradation partielle en cas
 d'erreur backend.
 
-Base write-tools admin (draft-only) ajoutée dans le même registre, sans auto-exec
-depuis le chat : `create_review_note_draft` et
-`create_governance_proposal_draft`. Exécution en **2 phases obligatoire** :
+Write-tools admin (draft-only / gouvernés, HITL obligatoire) dans le même
+registre : `create_review_note_draft`, `create_governance_proposal_draft`,
+`outreach_source_leads`, `outreach_draft_email`, `outreach_trigger_send_run`
+(governed par `OUTREACH_AUTONOMY`, ADR-016 — jamais Tier A auto). Le modèle ne
+les exécute jamais seul ; exécution en **2 phases obligatoire** via le panneau
+Actions admin :
 appel 1 -> token de confirmation (TTL court, single-use), appel 2 avec token
 valide -> persistance du draft. Aucun déploiement, aucune transaction financière,
 aucune action destructive.
@@ -100,11 +105,12 @@ provenance/freshness summary, `export_briefing_pack` : executive summary + plan 
 charts optionnels + actions + risk notes + provenance/freshness) puis afficher/copier
 le JSON résultat en mode compact.
 
-Navigation outillée : le mode `conversation` garde une whitelist LP (`/portfolio`,
+Navigation outillée : le mode `normal` (LP) garde une whitelist (`/portfolio`,
 `/vaults`, `/proof-center`, `/profile`) ; le mode `admin` dispose d'une whitelist
-admin dédiée (`/admin/product-workspace`, `/admin/scenario-lab`, `/admin/dashboard`, `/admin/vaults`, `/admin/proofs`,
-`/admin/governance`, `/admin/roadmap`, `/admin/projection`). Le mode `review`
-reste sans tools.
+étendue (`/admin/product-workspace`, `/admin/scenario-lab`, `/admin/customers`,
+`/admin/outreach`, …). Le mode `review` passe par le même moteur avec
+`navigate` / intent produit / stream events désactivés (facilitation seule).
+L'ancien `/api/outreach-chat` et le panneau OutreachCopilot sont retirés (ADR-017).
 
 | **Admin dashboard (`/admin/dashboard`)** — layout command-center :
 KPI strip (5 cols @ container 42rem — APY/Risk/Mining/Proof/Operator queue ; capital in donut) → allocation orbit + NAV

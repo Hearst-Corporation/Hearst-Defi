@@ -10,7 +10,7 @@ import { loadMemoInput } from "@/lib/agents/loaders/vault";
 import type { InvestorMemoOutput } from "@/lib/agents/schemas";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
-import { isDuplicate, markComplete } from "@/lib/idempotency";
+import { isDuplicate } from "@/lib/idempotency";
 import { METHODOLOGY_VERSION } from "@/lib/agents/system-prompts/methodology";
 
 /**
@@ -36,7 +36,7 @@ export async function investorMemoMonthlyHandler({
 }): Promise<InvestorMemoOutput | { skipped: true; reason: string }> {
   const today = new Date();
 
-  if (await isDuplicate(INVESTOR_MEMO_MONTHLY_ID, today)) {
+  if (await isDuplicate(INVESTOR_MEMO_MONTHLY_ID, today, { llmAgentName: "investor-memo" })) {
     return { skipped: true, reason: "already_run_today" };
   }
 
@@ -76,7 +76,6 @@ export async function investorMemoMonthlyHandler({
     }
   });
 
-  await markComplete(INVESTOR_MEMO_MONTHLY_ID, today);
   return result;
 }
 

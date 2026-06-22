@@ -8,7 +8,7 @@ import {
   type RiskFrameworkData,
 } from "@/lib/data/risk-framework";
 import { logger } from "@/lib/logger";
-import { isDuplicate, markComplete } from "@/lib/idempotency";
+import { isDuplicate } from "@/lib/idempotency";
 
 /**
  * Risk Daily Agent — daily cron (09:30 UTC).
@@ -21,9 +21,8 @@ import { isDuplicate, markComplete } from "@/lib/idempotency";
  *   3. emit-completion  → send `risk.daily.completed` Inngest event for downstream
  *                         consumers (dashboard refresh, alerts, etc.).
  *
- * Idempotency: `isDuplicate` checks for a successful `LlmRun` with
- * `agentName === "risk-daily"` within the last 24 hours (24h window). This
- * guards against Inngest retries and any accidental duplicate triggers.
+ * Idempotency: `isDuplicate(..., { llmAgentName: "risk-explanation" })` checks
+ * the real `LlmRun` row from `callLlm` (no synthetic cron marker).
  *
  * NOTE — dimension key alignment:
  *   `loadRiskFramework` now surfaces `mining` as the canonical key,
@@ -86,7 +85,7 @@ export async function riskDailyHandler({
   const today = new Date();
 
   // ---- Idempotency guard --------------------------------------------------
-  if (await isDuplicate(RISK_DAILY_ID, today)) {
+  if (await isDuplicate(RISK_DAILY_ID, today, { llmAgentName: "risk-explanation" })) {
     logger.info("[risk-daily] skipping — already ran today");
     return { skipped: true, reason: "already_ran" };
   }
@@ -123,16 +122,9 @@ export async function riskDailyHandler({
     }),
   );
 
-  // ---- Step 3: persist idempotency record + surface runId -----------------
-  await markComplete(RISK_DAILY_ID, today);
-
-  // The `markComplete` call creates a lightweight LlmRun row. Query it back
-  // so we can include a real ID in the completion event.
-  // We use a stable synthetic identifier derived from the date so downstream
-  // consumers can correlate without an extra DB read at runtime.
   const runLabel = `risk-daily:${today.toISOString().slice(0, 10)}`;
 
-  // ---- Step 4: emit completion event --------------------------------------
+  // ---- Step 3: emit completion event ----------------------------------------
   await step.run("emit-completion", async () => {
     await inngest.send({
       name: "risk.daily.completed",

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/openai";
 import { containsForbidden } from "@/lib/agents/forbidden-words";
+import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
 
 /**
  * Outreach Scorer Agent — rates the fit of an enriched prospect against the
@@ -137,32 +138,10 @@ function buildUserPrompt(input: ScoreProspectInput): string {
 
 /* --------------------------------------------------------------------------
  * Defensive JSON parse.
- * Replicates the extractJson approach from outreach-writer without importing it.
  * ------------------------------------------------------------------------ */
 
-function extractJson(raw: string): unknown {
-  const trimmed = raw.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
-  let candidate = fenced && fenced[1] !== undefined ? fenced[1].trim() : trimmed;
-  // If extra prose surrounds the object, slice to the outermost braces.
-  if (!candidate.startsWith("{")) {
-    const start = candidate.indexOf("{");
-    const end = candidate.lastIndexOf("}");
-    if (start !== -1 && end !== -1 && end > start) {
-      candidate = candidate.slice(start, end + 1);
-    }
-  }
-  try {
-    return JSON.parse(candidate);
-  } catch {
-    throw new Error(
-      `Outreach scorer returned invalid JSON: ${candidate.slice(0, 200)}`,
-    );
-  }
-}
-
 function parseAndClamp(text: string): OutreachScore {
-  const parsed = extractJson(text);
+  const parsed = parseLlmJsonObject(text, "Outreach scorer");
 
   // Defensive truncation: if the LLM returns more than 4 reasons, slice to 4 before
   // Zod validation so the schema min(1).max(4) constraint is not violated by over-delivery.

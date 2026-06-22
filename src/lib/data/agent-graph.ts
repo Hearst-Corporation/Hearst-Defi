@@ -2,6 +2,7 @@ import "server-only";
 
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
+import { getAdminToolGraphCatalog } from "@/lib/llm/tools/graph-catalog";
 
 /**
  * Live orchestration graph of the platform's agents — now a MULTI-VIEW map.
@@ -161,7 +162,7 @@ const MASTER_AGENT_NODES: readonly NodeDef[] = [
   { id: "ma-ctx-portfolio", label: "Portfolio context", kind: "method", column: 1, description: "Per-user figures, provenance-qualified, guard-validated." },
   { id: "ma-ctx-admin", label: "Admin context", kind: "method", column: 1, description: "Bounded read-tool snapshot (admin mode only)." },
   { id: "ma-core", label: "Master Agent", kind: "agent", column: 2, binding: { llmAgent: "cockpit-chat" }, description: "GPT-4.1 · streamed · single navigate tool exposed." },
-  { id: "ma-readtools", label: "Read tools", kind: "tool", column: 3, binding: { toolKind: "read" }, riskLevel: "low", description: "9 bounded read instruments (allowlist, admin)." },
+  { id: "ma-readtools", label: "Read tools", kind: "tool", column: 3, binding: { toolKind: "read" }, riskLevel: "low", description: "11 bounded read instruments (allowlist, admin)." },
   { id: "ma-guard", label: "Output guard", kind: "guard", column: 3, description: "Forbidden words + APY-always-a-range, mid-stream." },
   { id: "ma-navigate", label: "Navigate tool", kind: "method", column: 4, description: "Closed route whitelist — read-only, no write/financial." },
   { id: "ma-writetools", label: "Write tools (HITL)", kind: "tool", column: 4, binding: { toolKind: "write" }, riskLevel: "high", confirmationRequired: true, description: "Draft-only · confirmation token · human-in-the-loop." },
@@ -190,41 +191,8 @@ const MASTER_AGENT_EDGES: ReadonlyArray<[string, string]> = [
 // View 3 — Instruments (every bounded tool the Master Agent can call)
 // ---------------------------------------------------------------------------
 
-/** Static catalog of the admin tools — mirrors src/lib/llm/tools/registry.ts.
- *  Kept inline (not imported) so this module stays dependency-light; the LIVE
- *  part is the AdminToolRun telemetry keyed by these ids. */
-interface ToolCatalogEntry {
-  id: string;
-  label: string;
-  description: string;
-  kind: "read" | "write";
-  riskLevel: "low" | "medium" | "high";
-  confirmationRequired: boolean;
-}
-
-const ADMIN_READ_TOOL_CATALOG: readonly ToolCatalogEntry[] = [
-  { id: "read_allocations_canonical", label: "Allocations", description: "Canonical allocations for all vaults.", kind: "read", riskLevel: "low", confirmationRequired: false },
-  { id: "read_market_snapshot", label: "Market snapshot", description: "Latest mining + vault snapshots (BTC live).", kind: "read", riskLevel: "low", confirmationRequired: false },
-  { id: "read_routes_index", label: "Routes index", description: "Product routes index sample.", kind: "read", riskLevel: "low", confirmationRequired: false },
-  { id: "read_specs_index", label: "Specs index", description: "Spec documents index sample.", kind: "read", riskLevel: "low", confirmationRequired: false },
-  { id: "read_runtime_capabilities", label: "Capabilities", description: "Runtime capabilities matrix.", kind: "read", riskLevel: "low", confirmationRequired: false },
-  { id: "generate_chart_spec", label: "Chart spec", description: "Deterministic chart specification from data.", kind: "read", riskLevel: "low", confirmationRequired: false },
-  { id: "generate_demo_plan", label: "Demo plan", description: "Ordered admin demo plan from routes/specs.", kind: "read", riskLevel: "low", confirmationRequired: false },
-  { id: "export_demo_pack", label: "Demo pack", description: "Structured demo pack (plan, charts, checklist).", kind: "read", riskLevel: "low", confirmationRequired: false },
-  { id: "export_briefing_pack", label: "Briefing pack", description: "Executive briefing package (summary, risks).", kind: "read", riskLevel: "low", confirmationRequired: false },
-  { id: "outreach_list_prospects", label: "List prospects", description: "List outreach prospects by tier / status.", kind: "read", riskLevel: "low", confirmationRequired: false },
-  { id: "outreach_stats", label: "Outreach stats", description: "Pipeline counts by tier and status.", kind: "read", riskLevel: "low", confirmationRequired: false },
-] as const;
-
-const ADMIN_WRITE_TOOL_CATALOG: readonly ToolCatalogEntry[] = [
-  { id: "create_review_note_draft", label: "Review note draft", description: "Create an admin review note draft (draft only).", kind: "write", riskLevel: "medium", confirmationRequired: true },
-  { id: "create_governance_proposal_draft", label: "Governance proposal draft", description: "Create a governance proposal draft (draft only).", kind: "write", riskLevel: "high", confirmationRequired: true },
-  { id: "outreach_source_leads", label: "Source leads", description: "Source distributor leads via Apollo (scored + tiered); sends nothing.", kind: "write", riskLevel: "medium", confirmationRequired: true },
-  { id: "outreach_draft_email", label: "Draft email", description: "Draft a distributor email for a prospect; sends nothing.", kind: "write", riskLevel: "medium", confirmationRequired: true },
-  { id: "outreach_trigger_send_run", label: "Trigger send run", description: "Run the governed auto-send job (autonomy dial; never Tier A).", kind: "write", riskLevel: "high", confirmationRequired: true },
-] as const;
-
 function buildInstrumentsView(): ViewDef {
+  const { read: readTools, write: writeTools } = getAdminToolGraphCatalog();
   const caller: NodeDef = {
     id: "inst-master",
     label: "Master Agent",
@@ -233,7 +201,7 @@ function buildInstrumentsView(): ViewDef {
     binding: { llmAgent: "cockpit-chat" },
     description: "Caller — admin mode, bounded tool allowlist.",
   };
-  const readNodes: NodeDef[] = ADMIN_READ_TOOL_CATALOG.map((t) => ({
+  const readNodes: NodeDef[] = readTools.map((t) => ({
     id: `inst-${t.id}`,
     label: t.label,
     kind: "tool",
@@ -243,7 +211,7 @@ function buildInstrumentsView(): ViewDef {
     confirmationRequired: t.confirmationRequired,
     description: t.description,
   }));
-  const writeNodes: NodeDef[] = ADMIN_WRITE_TOOL_CATALOG.map((t) => ({
+  const writeNodes: NodeDef[] = writeTools.map((t) => ({
     id: `inst-${t.id}`,
     label: t.label,
     kind: "tool",

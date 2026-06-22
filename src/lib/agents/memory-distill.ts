@@ -11,6 +11,7 @@ import {
   type MemoryKind,
   MAX_FACT_LEN,
 } from "@/lib/agents/memory";
+import { tryParseLlmJsonObject } from "@/lib/agents/parse-llm-json";
 
 /**
  * Auto-distillation of cockpit conversations into durable AgentMemory facts.
@@ -46,20 +47,10 @@ interface DistilledFact {
 }
 
 
-/** Strips ```json fences and parses the facts array defensively. */
+/** Parses the facts array from a distillation response; returns [] on any failure. */
 function parseFacts(raw: string): MemoryFactInput[] {
-  const cleaned = raw
-    .trim()
-    .replace(/^```(?:json)?\s*/i, "")
-    .replace(/\s*```$/i, "")
-    .trim();
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(cleaned);
-  } catch {
-    return [];
-  }
+  const parsed = tryParseLlmJsonObject(raw);
+  if (parsed === null) return [];
 
   const arr =
     parsed && typeof parsed === "object" && "facts" in parsed

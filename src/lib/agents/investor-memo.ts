@@ -23,6 +23,7 @@ import {
   assertNoForbiddenWords,
   assertCitesAssumption,
 } from "@/lib/agents/validators";
+import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
 import {
   loadUserAgentProfile,
   loadUserMemory,
@@ -264,21 +265,6 @@ function buildUserPrompt(
   ].join("\n");
 }
 
-/**
- * Extracts the JSON object from a model response. The system prompt asks for
- * pure JSON, but we strip an accidental ```json fence defensively.
- */
-function extractJson(raw: string): unknown {
-  const trimmed = raw.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
-  const candidate = fenced && fenced[1] !== undefined ? fenced[1] : trimmed;
-  try {
-    return JSON.parse(candidate);
-  } catch {
-    throw new Error(`Invalid JSON in model response: ${candidate.slice(0, 200)}`);
-  }
-}
-
 export async function runInvestorMemo(
   input: InvestorMemoInput,
   opts: RunInvestorMemoOptions = {},
@@ -344,7 +330,7 @@ export async function runInvestorMemo(
     throw new Error("Investor Memo agent returned no text block.");
   }
 
-  const parsed = extractJson(textBlock.text);
+  const parsed = parseLlmJsonObject(textBlock.text, "Investor Memo agent");
   const result = InvestorMemoOutputSchema.safeParse(parsed);
   if (!result.success) {
     throw new Error(

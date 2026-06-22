@@ -10,13 +10,21 @@ import { logger } from "@/lib/logger";
  * Uses the database as the single source of truth.
  *
  * Pattern:
- *   const key = buildIdempotencyKey("mining-health-daily", new Date());
- *   if (await isDuplicate(key)) { return cachedResult; }
- *   const result = await run(...);
- *   await markComplete(key, result);
+ *   if (await isDuplicate(jobId, date, { llmAgentName })) { return skipped; }
+ *   const result = await run(...); // callLlm persists LlmRun when applicable
+ *   await markComplete(jobId, date); // non-LLM jobs only
  */
 
 const IDEMPOTENCY_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+export interface IdempotencyOptions {
+  /**
+   * For LLM-backed crons, pass the `callLlm` agent name (e.g. `mining-health`).
+   * Skips duplicate detection via the real `LlmRun` row — do not also call
+   * `markComplete` for those jobs (avoids synthetic `model: "n/a"` rows).
+   */
+  llmAgentName?: string;
+}
 
 function buildKeyPrefix(jobId: string, date: Date): string {
   const d = date.toISOString().slice(0, 10); // YYYY-MM-DD
@@ -24,13 +32,20 @@ function buildKeyPrefix(jobId: string, date: Date): string {
 }
 
 /**
- * Checks whether this exact job+day combination has already succeeded.
+ * Checks whether this job already succeeded within the idempotency window.
+ * Non-LLM jobs use `jobId` as `LlmRun.agentName`; LLM crons pass
+ * `llmAgentName` so detection aligns with `callLlm` telemetry.
  */
-export async function isDuplicate(jobId: string, date: Date): Promise<boolean> {
+export async function isDuplicate(
+  jobId: string,
+  date: Date,
+  opts?: IdempotencyOptions,
+): Promise<boolean> {
   const key = buildKeyPrefix(jobId, date);
+  const agentName = opts?.llmAgentName ?? jobId;
   const existing = await prisma.llmRun.findFirst({
     where: {
-      agentName: jobId,
+      agentName,
       status: "success",
       createdAt: {
         gte: new Date(date.getTime() - IDEMPOTENCY_WINDOW_MS),
@@ -42,6 +57,7 @@ export async function isDuplicate(jobId: string, date: Date): Promise<boolean> {
   if (existing) {
     logger.info("idempotency: skipping duplicate job", {
       jobId,
+      agentName,
       key,
       previousRunId: existing.id,
     });
@@ -52,9 +68,8 @@ export async function isDuplicate(jobId: string, date: Date): Promise<boolean> {
 }
 
 /**
- * Records the completion of an idempotent operation.
- * For non-LLM jobs we still write a lightweight row into LlmRun
- * because it is our generic execution-audit table.
+ * Records completion of a **non-LLM** idempotent operation.
+ * LLM-backed crons should rely on `callLlm`'s `LlmRun` row instead.
  */
 export async function markComplete(
   jobId: string,

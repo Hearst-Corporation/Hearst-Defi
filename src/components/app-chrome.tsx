@@ -102,9 +102,9 @@ export function AppChrome({
           nothing for everyone else. Mounted here so it's available on every
           product page, not just /admin. */}
       <AdminChatControls />
-      {/* Master Agent auto-navigation bridge — only when the chat is enabled
-          AND the Master Agent flag is ON. With the flag OFF the server never
-          publishes a nav directive, so mounting the poller would be dead load. */}
+      {/* Master Agent auto-navigation bridge — only when chat is enabled on this
+          route AND CHAT_MASTER_AGENT is ON (kill-switch). When =0 the route 503s
+          and no nav directive is published, so the poller would be dead load. */}
       {chatEnabled && masterAgentEnabled ? <ChatNavBridge /> : null}
     </ConnectShell>
   );

@@ -34,7 +34,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Réponse concise, française, sans promesse, avec APY en fourchette et ton produit correct.",
     initialStatus: "green",
     initialNote:
-      "Câblé + testé e2e sur le chemin par défaut (flag OFF → handler cockpit-shell + guardChatStream). route.guard.test: une réponse 'rendement garanti' / 'APY 11%' est bloquée (BLOCK_SENTINEL) avant d'atteindre le LP, une réponse en fourchette passe. La qualité de wording reste model-dependent (prompt FR + vouvoiement), mais le garde-fou conformité, lui, est verrouillé.",
+      "Câblé + testé via runChatAgent (ADR-017). route.guard.test : une réponse 'rendement garanti' / 'APY 11%' est bloquée (BLOCK_SENTINEL) avant le LP ; une réponse en fourchette passe. CHAT_MASTER_AGENT=0 → 503 (kill-switch), pas de second moteur.",
   },
   {
     id: "normal-portfolio-context",
@@ -48,7 +48,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "La réponse s'appuie sur le contexte réel ou dit explicitement qu'une donnée manque.",
     initialStatus: "green",
     initialNote:
-      "buildPortfolioContextBlock(userId) est injecté dans enrichedSystemPrompt AVANT le gate du flag (route.ts ~818-839) et passé aux DEUX chemins (Master Agent ET handler cockpit-shell) → marche flag ON ou OFF. Scope strict userId (prisma.investor.findUnique), retourne null si 0 position (compte neuf), qualificateurs de provenance live/estimated/stale. Couvert par 11 tests chat-context.test (scoping cross-tenant + cas null + fraîcheur).",
+      "buildPortfolioContextBlock(userId) injecté dans enrichedSystemPrompt (route.ts). Scope strict userId, null si 0 position. Couvert par chat-context.test (scoping cross-tenant + fraîcheur).",
   },
   {
     id: "normal-lp-navigation",
@@ -62,7 +62,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le chat ouvre la bonne route produit sans sortir de la whitelist autorisee.",
     initialStatus: "green",
     initialNote:
-      "Chemin câblé + testé (chat-agent, navigate-tool, route): navigate tool OU fallback keyword LP (resolveLpNavDestinationKey) quand le modèle répond en texte seul — même pattern que Scenario Lab admin. Gated CHAT_MASTER_AGENT=ON; chip « Agent » / « Texte seul » dans le rail chat.",
+      "navigate tool OU fallback keyword LP (resolveLpNavDestinationKey) quand le modèle répond en texte seul. Couvert par chat-agent + navigate-tool + route tests.",
   },
   {
     id: "review-distill-chat",
@@ -90,7 +90,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "La reponse reste interne, actionnable, sans execution autonome ni fuite sensible.",
     initialStatus: "green",
     initialNote:
-      "COCKPIT_ADMIN_SYSTEM_PROMPT (archi, allocations HYV/HDV/HBP, runbooks, 'pas d'exécution autonome') injecté quand mode=admin (route.ts ~741) + buildAdminContextBlock (allocations/market/routes/specs) ajouté à enrichedSystemPrompt. Couvert par prompts.test (contenu du prompt: pas de web/deploy) + admin-context.test (injection + dégradation). Write tools jamais auto-exécutés (chat-agent ~316). Q&A texte marche flag ON ou OFF; les tools admin model-driven, eux, dépendent du flag.",
+      "COCKPIT_ADMIN_SYSTEM_PROMPT + buildAdminContextBlock (snapshot read-tools lintés). Write tools jamais auto-exécutés (chat-agent). Q&A et read tools model-driven passent par runChatAgent ; CHAT_MASTER_AGENT=0 coupe tout le chat (503).",
   },
   {
     id: "admin-product-workspace-open",
@@ -104,7 +104,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le chat ouvre /admin/product-workspace avec autostart et objective pre-remplis.",
     initialStatus: "green",
     initialNote:
-      "Double chemin validé (tests cockpit-chat + intent + nav): override quand le modèle émet navigate, ET fallback intent quand il répond en texte seul (route.ts). autostart+objective propagés en query → préremplissage réel via ChatNavBridge. Dépend de CHAT_MASTER_AGENT=ON (env, OFF par défaut côté code): si non set sur Vercel, dégrade silencieusement au handler cockpit-shell sans navigation.",
+      "Override navigate + fallback intent (route.ts). autostart+objective → ChatNavBridge. Indisponible si CHAT_MASTER_AGENT=0 (503).",
   },
   {
     id: "admin-scenario-lab-open",
@@ -118,7 +118,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le chat ouvre /admin/scenario-lab ou l'ajoute comme etape secondaire pertinente.",
     initialStatus: "green",
     initialNote:
-      "Désormais à parité avec Product Workspace: override quand le modèle émet navigate(admin-scenario-lab), ET fallback intent pour une simulation pure quand il répond en texte seul (route.ts, ajouté + testé). Pour un intent produit, Scenario Lab reste porté en métadonnée secondaire. Même dépendance CHAT_MASTER_AGENT=ON que les autres capacités de navigation.",
+      "Parité Product Workspace : navigate(admin-scenario-lab) + fallback intent simulation. Indisponible si CHAT_MASTER_AGENT=0 (503).",
   },
   {
     id: "admin-new-client-action",
@@ -132,7 +132,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le chat sait au minimum ouvrir la bonne surface customer, idéalement préremplir sans sortie de scope.",
     initialStatus: "orange",
     initialNote:
-      "Navigation admin-customers ajoutée à ADMIN_NAV_DESTINATIONS + fallback keyword (créer un client, fiche customer). Pas de write tool create_investor — ouverture surface seulement. Capacité complète (préremplir): write tool avec confirmation (pattern create_review_note_draft).",
+      "Navigation admin-customers + fallback keyword. Pas de write tool create_investor — ouverture surface seulement (write tool HITL à brancher si besoin).",
   },
   {
     id: "admin-email-send-action",
@@ -146,7 +146,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le chat doit soit ouvrir une surface outreach dédiée, soit exécuter un flux explicitement confirmé.",
     initialStatus: "orange",
     initialNote:
-      "Navigation admin-outreach ajoutée à ADMIN_NAV_DESTINATIONS + fallback keyword (outreach, email de prospection). Pas de write tool email exposé au LLM — ouverture surface seulement. Envoi réel reste human-in-the-loop sur /admin/outreach.",
+      "Navigation admin-outreach + write tools HITL (outreach_source_leads, outreach_draft_email, outreach_trigger_send_run) via panneau Actions admin — pas d'auto-exec modèle. Envoi réel gouverné par OUTREACH_AUTONOMY (ADR-016).",
   },
   {
     id: "admin-read-allocations",
@@ -159,7 +159,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat restitue les allocations attendues sans mutation ni invention.",
     initialStatus: "green",
     initialNote:
-      "Read tool branché + couvert par admin-tools-registry/chat-tools route tests. Double voie: (a) panneau admin form via POST /api/admin/chat-tools execute_read — marche flag ON ou OFF; (b) model-driven dans le chat admin — dépend de CHAT_MASTER_AGENT=ON. Le green tient par la voie (a), toujours disponible.",
+      "Read tool branché + tests registry/chat-tools. (a) Panneau admin execute_read — indépendant du kill-switch chat. (b) Model-driven via runChatAgent en mode admin.",
   },
   {
     id: "admin-read-market-snapshot",
@@ -172,7 +172,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat renvoie les signaux de marche disponibles avec fraicheur honnete.",
     initialStatus: "green",
     initialNote:
-      "Read tool branché + couvert par admin-tools-registry/chat-tools route tests. Double voie: (a) panneau admin form via POST /api/admin/chat-tools execute_read — marche flag ON ou OFF; (b) model-driven dans le chat admin — dépend de CHAT_MASTER_AGENT=ON. Le green tient par la voie (a), toujours disponible.",
+      "Read tool branché + tests registry/chat-tools. (a) Panneau admin execute_read — indépendant du kill-switch chat. (b) Model-driven via runChatAgent en mode admin.",
   },
   {
     id: "admin-read-routes-index",
@@ -185,7 +185,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat cite les routes pertinentes pour la demo sans sortir du scope.",
     initialStatus: "green",
     initialNote:
-      "Read tool branché + couvert par admin-tools-registry/chat-tools route tests. Double voie: (a) panneau admin form via POST /api/admin/chat-tools execute_read — marche flag ON ou OFF; (b) model-driven dans le chat admin — dépend de CHAT_MASTER_AGENT=ON. Le green tient par la voie (a), toujours disponible.",
+      "Read tool branché + tests registry/chat-tools. (a) Panneau admin execute_read — indépendant du kill-switch chat. (b) Model-driven via runChatAgent en mode admin.",
   },
   {
     id: "admin-read-specs-index",
@@ -198,7 +198,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat pointe les specs indexees pertinentes.",
     initialStatus: "green",
     initialNote:
-      "Read tool branché + couvert par admin-tools-registry/chat-tools route tests. Double voie: (a) panneau admin form via POST /api/admin/chat-tools execute_read — marche flag ON ou OFF; (b) model-driven dans le chat admin — dépend de CHAT_MASTER_AGENT=ON. Le green tient par la voie (a), toujours disponible.",
+      "Read tool branché + tests registry/chat-tools. (a) Panneau admin execute_read — indépendant du kill-switch chat. (b) Model-driven via runChatAgent en mode admin.",
   },
   {
     id: "admin-read-runtime-capabilities",
@@ -224,7 +224,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le JSON/tool output contient une spec exploitable avec type, serie, timeframe et provenance.",
     initialStatus: "green",
     initialNote:
-      "Utility admin branchée + testée (registry + admin controls). Sortie validée par schéma Zod déterministe. Double voie comme les read tools: panneau form /api/admin/chat-tools (flag-indépendant) + model-driven dans le chat admin (flag-dépendant). Green via la voie form.",
+      "Utility admin branchée + testée. (a) Panneau form /api/admin/chat-tools. (b) Model-driven via runChatAgent en mode admin.",
   },
   {
     id: "admin-generate-demo-plan",
@@ -237,7 +237,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat ordonne correctement les etapes et les routes a presenter.",
     initialStatus: "green",
     initialNote:
-      "Utility admin branchée + testée (registry + admin controls). Sortie validée par schéma Zod déterministe. Double voie comme les read tools: panneau form /api/admin/chat-tools (flag-indépendant) + model-driven dans le chat admin (flag-dépendant). Green via la voie form.",
+      "Utility admin branchée + testée. (a) Panneau form /api/admin/chat-tools. (b) Model-driven via runChatAgent en mode admin.",
   },
   {
     id: "admin-export-demo-pack",
@@ -251,7 +251,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat contient un pack structure avec metadata, plan, charts et checklist.",
     initialStatus: "green",
     initialNote:
-      "Utility admin branchée + testée (registry + admin controls). Sortie validée par schéma Zod déterministe. Double voie comme les read tools: panneau form /api/admin/chat-tools (flag-indépendant) + model-driven dans le chat admin (flag-dépendant). Green via la voie form.",
+      "Utility admin branchée + testée. (a) Panneau form /api/admin/chat-tools. (b) Model-driven via runChatAgent en mode admin.",
   },
   {
     id: "admin-export-briefing-pack",
@@ -265,7 +265,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le resultat contient un briefing executive exploitable avec synthese et action plan.",
     initialStatus: "green",
     initialNote:
-      "Utility admin branchée + testée (registry + admin controls). Sortie validée par schéma Zod déterministe. Double voie comme les read tools: panneau form /api/admin/chat-tools (flag-indépendant) + model-driven dans le chat admin (flag-dépendant). Green via la voie form.",
+      "Utility admin branchée + testée. (a) Panneau form /api/admin/chat-tools. (b) Model-driven via runChatAgent en mode admin.",
   },
   {
     id: "admin-create-review-note-draft",
