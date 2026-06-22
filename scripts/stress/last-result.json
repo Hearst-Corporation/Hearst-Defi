@@ -1,0 +1,17 @@
+{
+  "iterations": 10802,
+  "repeats": 11,
+  "corpusSize": 982,
+  "positiveCorpusSize": 960,
+  "negativeCorpusSize": 22,
+  "positiveMatches": 960,
+  "matchRatePct": 100,
+  "falsePositives": 1,
+  "falsePositivesSensitive": 0,
+  "falsePositivesBenign": 1,
+  "falseNegatives": 0,
+  "determinismBreaks": 0,
+  "sampleFailures": [
+    "[FP conversational] \"peux-tu m'expliquer la preuve de réserve\" expected null got=proof-center (lp=proof-center admin=null)"
+  ]
+}
