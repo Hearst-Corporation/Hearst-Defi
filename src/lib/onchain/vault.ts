@@ -44,19 +44,36 @@ const BASE_SEPOLIA_CHAIN_ID = 84532;
  * Canonical: NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS
  * Legacy alias: NEXT_PUBLIC_HEARST_VAULT_ADDRESS
  */
-export function resolveVaultAddress(
-  env: Record<string, string | undefined> = process.env,
-): Address | null {
-  const raw =
-    env.NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS ??
-    env.NEXT_PUBLIC_HEARST_VAULT_ADDRESS;
+/** Validate + normalise a raw env string into an Address, or null. */
+function normaliseAddress(raw: string | undefined): Address | null {
   if (!raw) return null;
   const t = raw.trim();
   return /^0x[0-9a-fA-F]{40}$/.test(t) ? (t as Address) : null;
 }
 
-/** The deployed ERC-4626 vault address. */
-export const VAULT_ADDRESS: Address | null = resolveVaultAddress();
+export function resolveVaultAddress(
+  env: Record<string, string | undefined> = process.env,
+): Address | null {
+  return normaliseAddress(
+    env.NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS ??
+      env.NEXT_PUBLIC_HEARST_VAULT_ADDRESS,
+  );
+}
+
+/**
+ * The deployed ERC-4626 vault address.
+ *
+ * IMPORTANT: read `process.env.NEXT_PUBLIC_*` TEXTUALLY here. Next/Turbopack
+ * only inlines NEXT_PUBLIC_* vars into the client bundle when accessed as a
+ * literal `process.env.NEXT_PUBLIC_FOO` expression. Going through the indirect
+ * `resolveVaultAddress(env)` param (where `env` is a variable) is NOT statically
+ * substituted, so the browser saw `undefined` → VAULT_ADDRESS=null → the invest
+ * flow showed "Configuration pending" forever. The literal reads below fix that.
+ * `resolveVaultAddress` stays exported for unit tests (they inject a fake env).
+ */
+export const VAULT_ADDRESS: Address | null =
+  normaliseAddress(process.env.NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS) ??
+  normaliseAddress(process.env.NEXT_PUBLIC_HEARST_VAULT_ADDRESS);
 const VAULT_DEPLOYMENT = getDeployment("vault");
 
 /** The USDC token address on Base Sepolia. */
