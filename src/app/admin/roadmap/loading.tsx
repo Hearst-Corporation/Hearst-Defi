@@ -2,7 +2,7 @@ import { Skeleton, SkeletonCard } from "@/components/ui/skeleton";
 
 export default function RoadmapLoading() {
   return (
-    <div className="admin-doc-shell animate-in fade-in duration-(--ct-dur-slower)">
+    <div className="animate-in fade-in duration-(--ct-dur-slower)">
       <div className="admin-doc-stack--actions">
         <Skeleton className="h-3 w-24" variant="text" />
         <Skeleton className="h-12 w-48" />
