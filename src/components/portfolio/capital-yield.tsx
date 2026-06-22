@@ -1,6 +1,6 @@
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import {
   PfCockpitPanel,
-  PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
 import {
   barWidthPct,
@@ -14,7 +14,6 @@ import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
-import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/cn";
 
 /**
@@ -107,11 +106,11 @@ export function CapitalYield({
       aria-label="Capital and yield — allocation and 12 month forward yield"
       className={embedded ? "pf-capital-yield--embedded" : "cy-panel"}
     >
-      <PfCockpitPanelHeader
+      <DashboardPanelHeader
         title="Capital & Yield"
         subtitle={isFilled ? "Allocation · 12m forward yield" : undefined}
         provenance={provenance}
-        titleVariant="primary"
+        tone="primary"
         trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
       />
 

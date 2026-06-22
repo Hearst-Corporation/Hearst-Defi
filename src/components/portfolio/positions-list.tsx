@@ -1,3 +1,4 @@
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import Link from "next/link";
 
 import { ApyRange } from "@/components/ui/apy-range";
@@ -6,10 +7,8 @@ import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { cn } from "@/lib/cn";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   PfCockpitPanel,
-  PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
@@ -64,9 +63,9 @@ export function PositionsList({
         chrome={embedded ? "embedded" : "panel"}
         aria-label="Open positions — awaiting first position"
       >
-        <PfCockpitPanelHeader
+        <DashboardPanelHeader
           title="Positions"
-          titleVariant="primary"
+          tone="primary"
           trailing={trailing}
         />
         {/* Zero-state skeleton — the ledger frame with muted placeholder rows.
@@ -87,9 +86,9 @@ export function PositionsList({
       chrome={embedded ? "embedded" : "panel"}
       aria-label="Open positions"
     >
-      <PfCockpitPanelHeader
+      <DashboardPanelHeader
         title="Positions"
-        titleVariant="primary"
+        tone="primary"
         provenance={provenance}
         trailing={trailing}
       />

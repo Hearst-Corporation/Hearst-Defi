@@ -10,16 +10,15 @@
  * Layout: fixed 560×160 viewBox, bars left→right, labels below each bar.
  */
 
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { useId } from "react";
 
-import { cn } from "@/lib/cn";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import {
   PfCockpitPanel,
-  PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
 
 // ── Canonical reference component ─────────────────────────────────────────────
@@ -349,9 +348,6 @@ export function DistribCalendar({
   secondaryLeafHref,
   secondaryLeafLabel,
 }: DistribCalendarProps) {
-  // id unique par instance — évite la collision de gradient <defs> si plusieurs
-  // calendriers en zero-state coexistent (duplicate id = HTML invalide).
-  const uid = useId();
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
 
@@ -369,10 +365,10 @@ export function DistribCalendar({
         aria-label="Payout calendar — awaiting first distribution"
         className="pf-payout-calendar-panel pf-payout-calendar-panel--zero h-full"
       >
-        <PfCockpitPanelHeader
+        <DashboardPanelHeader
           title="Payout Calendar"
           subtitle="Monthly USDC distributions"
-          titleVariant="primary"
+          tone="primary"
           trailing={calendarHeaderTrail(leafHref)}
         />
         <div className="pf-distrib-chart-shell">
@@ -390,7 +386,7 @@ export function DistribCalendar({
       : resolveProvenance(source, updatedAt, "estimated");
 
   const header = (
-    <PfCockpitPanelHeader
+    <DashboardPanelHeader
       title="Payout Calendar"
       subtitle={`12m · USDC${hasForecast ? " · forecast" : ""}`}
       provenance={liveProvenance}

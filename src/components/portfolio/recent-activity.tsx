@@ -1,11 +1,10 @@
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
-import { Skeleton } from "@/components/ui/skeleton";
 import { relativeTime } from "@/lib/format/time";
 import {
   PfCockpitPanel,
-  PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
 
 const usdFmt = new Intl.NumberFormat("en-US", {
@@ -53,9 +52,9 @@ export function RecentActivity({
       aria-label="Recent account activity"
       className={embedded ? undefined : "h-full"}
     >
-      <PfCockpitPanelHeader
+      <DashboardPanelHeader
         title="Recent Activity"
-        titleVariant="primary"
+        tone="primary"
         provenance={hasTransactions ? provenance : undefined}
         trailing={trailing}
       />
