@@ -25,6 +25,8 @@ import {
   MetricGrid,
 } from "@/components/ui/nested-panel";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { PrivyWalletConnect } from "@/components/onboarding/privy-wallet-connect";
+import { PRIVY_APP_ID } from "@/lib/auth/privy-config";
 
 export const dynamic = "force-dynamic";
 
@@ -200,15 +202,16 @@ export default async function ProfilePage() {
               description={
                 session.walletAddress
                   ? "Wallet connected — ready for deposits"
-                  : "Required for deposits — connect at subscription time"
+                  : "Connect the wallet that will receive your USDC distributions. Optional — you can also connect at deposit time."
               }
               action={
                 session.walletAddress ? (
                   <Badge variant="success">Connected</Badge>
                 ) : (
-                  <Button variant="secondary" size="md" asChild>
-                    <Link href="/onboarding/wallet">Open wallet setup</Link>
-                  </Button>
+                  <PrivyWalletConnect
+                    appId={PRIVY_APP_ID}
+                    boundAddress={null}
+                  />
                 )
               }
             />
