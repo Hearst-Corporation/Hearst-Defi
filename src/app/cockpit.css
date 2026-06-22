@@ -4174,6 +4174,18 @@ button.ct-choice-card {
   overflow-y: auto;
 }
 
+/* The stack fills the whole rail (flex:1) with its icons centred, so its empty
+   top/bottom areas overlay the identity avatar + foot controls that live behind
+   it in the rail — and were swallowing their clicks (Profile / Sign out became
+   unclickable). Let the empty container pass clicks through; keep the icons
+   (its children) clickable. */
+.ct-rail-intra__stack {
+  pointer-events: none;
+}
+.ct-rail-intra__stack > * {
+  pointer-events: auto;
+}
+
 /* Rail investor : même géométrie que l'admin. Seul le chrome reste plus léger. */
 .ct-rail-intra[data-rail="investor"] .ct-rail-item {
   box-shadow: none;
