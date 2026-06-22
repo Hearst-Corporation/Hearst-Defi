@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function VaultsLoading() {
   return (
-    <div className="admin-doc-shell animate-in fade-in duration-(--ct-dur-slower)">
+    <div className="animate-in fade-in duration-(--ct-dur-slower)">
       <div className="admin-page-header">
         <Skeleton className="h-7 w-32" />
         <Skeleton className="h-4 w-64 mt-[var(--ct-space-1)]" variant="text" />

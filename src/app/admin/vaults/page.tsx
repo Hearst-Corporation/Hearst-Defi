@@ -72,7 +72,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
   const portfolioKpis = buildVaultsKpiStrip(kpiInputs);
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Vault"
         titleAccent="Portfolio"
@@ -242,6 +242,6 @@ export default async function VaultsPage({ searchParams }: PageProps) {
           })}
         </section>
       )}
-    </div>
+    </>
   );
 }

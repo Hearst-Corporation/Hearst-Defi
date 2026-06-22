@@ -68,7 +68,7 @@ export default async function EditVaultPage({ params }: PageProps) {
   };
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         lead={
           <Button variant="ghost" size="sm" asChild>
@@ -79,6 +79,6 @@ export default async function EditVaultPage({ params }: PageProps) {
       />
 
       <VaultForm mode="edit" vaultId={id} initial={initial} adminId={adminId} />
-    </div>
+    </>
   );
 }

@@ -174,7 +174,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
   };
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         title={vault.name}
         actions={
@@ -484,6 +484,6 @@ export default async function VaultDetailPage({ params }: PageProps) {
         <DashboardPanelHeader title="Disclaimers" />
         <p className="body-sm ct-text-muted whitespace-pre-wrap mt-(--ct-space-4)">{vault.disclaimers}</p>
       </Card>
-    </div>
+    </>
   );
 }
