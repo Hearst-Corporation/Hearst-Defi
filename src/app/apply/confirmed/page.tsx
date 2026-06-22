@@ -24,8 +24,8 @@ export default function ConfirmedPage() {
             <div className="product-doc-stack--compact">
               <h1 className="h1 m-0 text-pretty">Application received</h1>
               <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
-                Thank you. Our team will review your profile and send a login link to
-                access your investor cockpit within 1-2 business days.
+                Thank you. We&apos;ve emailed you an activation link to set your
+                password and access your investor cockpit — check your inbox now.
               </p>
             </div>
           </div>
@@ -39,9 +39,9 @@ export default function ConfirmedPage() {
           <div className="product-doc-stack--tight">
             <h2 className="h2 m-0">What to expect</h2>
             <p className="body-sm ct-text-muted m-0 text-pretty">
-              Watch your inbox for the login link — it arrives from our team and
-              opens your cockpit directly. Have a question in the meantime? Reach
-              out to Investor Relations any time.
+              Check your inbox now for the activation link to set your password —
+              it opens your cockpit once you sign in. Have a question in the
+              meantime? Reach out to Investor Relations any time.
             </p>
           </div>
         </div>
