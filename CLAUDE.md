@@ -26,16 +26,22 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 2. **Every metric has a provenance badge**: Live / Oracle / Attested / Estimated / Manual / Stale.
 3. **PTAI format mandatory** for simulations and rebalancing actions:
    Projection → Trigger → Action → Impact.
-4. **No AI chat *with write/execute tools*.** The 4 batch agents produce structured
-   JSON only (see `/docs/spec/09-agents.mdx`). A conversational cockpit chat **is**
-   shipped (admin review-mode + an LP "Master Agent") — it can navigate (read-only,
-   closed route whitelist) but has **no** write/financial/admin tools; every action
-   stays human-in-the-loop (**ADR-012**, scoped exception). Guardrails: server-side
-   system prompt (no client override), output-side compliance guard (forbidden
-   words + APY-range), role-aware register. Gated by `CHAT_MASTER_AGENT`.
-   Second scoped exception (**ADR-016**): outreach **sending** may be agent-driven
-   for **Tier B/C** when `OUTREACH_AUTONOMY` is raised to `SEND`+ (default `SUGGEST`
-   = nothing auto-sends).
+4. **No AI chat with *autonomously-executed* write tools.** The 4 batch agents produce
+   structured JSON only (see `/docs/spec/09-agents.mdx`). ONE conversational cockpit
+   chat is shipped — a **single engine** for all modes (LP "Master Agent" + admin
+   copilot + review-mode); the legacy `@hearst/cockpit-shell` handler is retired
+   (**ADR-017**). It can navigate (read-only, closed route whitelist) and call bounded
+   **read** tools, plus **write** tools that are ALWAYS human-in-the-loop: every write
+   is draft-only and gated by a two-step confirmation token — the model never
+   auto-executes one (admin review-note / governance-proposal drafts; outreach
+   `source` / `draft` / `trigger_send_run`). **No financial or custodial action**
+   from the chat, ever (**ADR-012** + **ADR-017**, scoped exceptions). Guardrails:
+   server-side system prompt (no client override), output-side compliance guard
+   (forbidden words + APY-range) on every human-facing surface, role-aware register.
+   Kill-switch `CHAT_MASTER_AGENT` (default ON; `=0` disables the chat, no fallback).
+   Outreach **sending** exception (**ADR-016**): a send run — the hourly cron OR the
+   `outreach_trigger_send_run` chat tool — only dispatches for **Tier B/C** when
+   `OUTREACH_AUTONOMY` is `SEND`+ (default `SUGGEST` = nothing auto-sends).
    **Tier A is never auto-sent**; hard daily cap (`OUTREACH_DAILY_SEND_CAP`) +
    warm-up; suppression re-checked at send time; every send forbidden-words guarded,
    carries an unsubscribe link, and is audited. Not a financial/custodial action.
