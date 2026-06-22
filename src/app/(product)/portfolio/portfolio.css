@@ -1009,10 +1009,13 @@
   justify-content: center;
   width: 1.75rem;
   height: 1.75rem;
+  aspect-ratio: 1 / 1;     /* never ovalise when the row is squeezed */
+  flex: 0 0 auto;          /* never shrink in the grid track */
   border-radius: var(--ct-radius-full);
   color: var(--ct-accent);
-  background: var(--ct-surface-2);
-  border: 1px solid var(--ct-graphite-border-nested);
+  background: color-mix(in srgb, var(--ct-accent) 8%, var(--ct-surface-2));
+  border: 1px solid color-mix(in srgb, var(--ct-accent) 22%, var(--ct-graphite-border-nested));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ct-accent) 6%, transparent);
 }
 
 .pf-status-row__icon svg {
