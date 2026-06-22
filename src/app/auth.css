@@ -82,6 +82,15 @@
   }
 }
 
+/* Login form h2 ("Sign in") stays COMPACT (xl), subordinate to the brand H1 —
+   the SINGLE source for this size (replaces the former `.login-split .h2`
+   duplicate in cockpit.css). Same specificity as the canon above, declared
+   later → wins; the ≥80rem bump is `.ct-page-area`-scoped and login is a bare
+   route, so it never re-inflates here. */
+.login-split .h2 {
+  font-size: var(--ct-text-xl);
+}
+
 /* -----------------------------------------------------------------------------
    1. CENTERED AUTH CARD — forgot / reset / TOTP (AuthFormShell)
    -------------------------------------------------------------------------- */

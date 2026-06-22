@@ -5056,10 +5056,6 @@ button.ct-choice-card {
   );
 }
 
-.login-split__glow {
-  display: none;
-}
-
 .login-split__grid {
   height: 100%;
   position: relative;
@@ -5186,11 +5182,6 @@ button.ct-choice-card {
     flex-wrap: wrap;
     justify-content: center;
   }
-}
-
-/* Login form column — subordinate to brand H1; keep compact H2 (18→20), not doc-flow 20→22. */
-.login-split .h2 {
-  font-size: clamp(1.125rem, 1.081rem + 0.188vw, 1.25rem);
 }
 
 /* Admin dashboard ambient orbs (replaces inline glow styles) */

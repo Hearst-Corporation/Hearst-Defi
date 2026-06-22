@@ -24,7 +24,7 @@ export function LoginPanel() {
         </p>
       </header>
 
-      <div className="w-full max-w-sm">
+      <div className="w-full">
         <LoginForm />
       </div>
     </div>
