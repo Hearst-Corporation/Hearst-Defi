@@ -1,6 +1,6 @@
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import {
   PfCockpitPanel,
-  PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import {
@@ -151,9 +151,9 @@ export function TrustProofCompact({
       aria-label="Trust and proof summary"
       className={cn("pf-trust-compact", !embedded && "h-full", embedded && "pf-trust-compact--embedded")}
     >
-      <PfCockpitPanelHeader
+      <DashboardPanelHeader
         title="Trust & Proof"
-        titleVariant="primary"
+        tone="primary"
         provenance={kpis.headerProvenance}
         trailing={trustHeaderTrailing(leafHref)}
       />

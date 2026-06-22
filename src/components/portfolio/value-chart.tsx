@@ -12,6 +12,7 @@
  * Pour activer : remplacer le contenu de value-chart.tsx par celui-ci (ou
  * renommer ce fichier). Rien d'autre à toucher.
  */
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { useId } from "react";
 
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
@@ -19,7 +20,6 @@ import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { type Provenance } from "@/components/ui/provenance-badge";
 import {
   PfCockpitPanel,
-  PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
@@ -341,7 +341,7 @@ export function ValueChart({
           </div>
         </header>
       ) : (
-        <PfCockpitPanelHeader
+        <DashboardPanelHeader
           title="Portfolio value over the trailing window"
           subtitle={
             isEmpty
@@ -350,7 +350,7 @@ export function ValueChart({
                 ? "Ledger-anchored · month-end marks"
                 : "Indicative · principal to current value"
           }
-          titleVariant="primary"
+          tone="primary"
           trailing={
             isEmpty ? undefined : (
               <span className="pf-hero-kpi-value tabular-nums">

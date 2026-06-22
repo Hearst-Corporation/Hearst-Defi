@@ -1,7 +1,7 @@
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { TaxPreview } from "@/lib/portfolio/tax";
 import {
   PfCockpitPanel,
-  PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
 
 const usdFmt = new Intl.NumberFormat("en-US", {
@@ -61,11 +61,11 @@ export function TaxPreviewPanel({ preview }: TaxPreviewPanelProps) {
 
       <div className="pf-tax-preview__grid">
         <PfCockpitPanel variant="compact" aria-label="1099-INT preview">
-          <PfCockpitPanelHeader
+          <DashboardPanelHeader
             title="1099-INT"
             subtitle={`Interest income · ${year}`}
             provenance="estimated"
-            titleVariant="primary"
+            tone="primary"
           />
           <TaxRows
             rows={[
@@ -86,11 +86,11 @@ export function TaxPreviewPanel({ preview }: TaxPreviewPanelProps) {
         </PfCockpitPanel>
 
         <PfCockpitPanel variant="compact" aria-label="1099-B preview">
-          <PfCockpitPanelHeader
+          <DashboardPanelHeader
             title="1099-B"
             subtitle={`Cost basis & notional gains · ${year}`}
             provenance="estimated"
-            titleVariant="primary"
+            tone="primary"
           />
           <TaxRows
             rows={[
@@ -116,11 +116,11 @@ export function TaxPreviewPanel({ preview }: TaxPreviewPanelProps) {
         </PfCockpitPanel>
 
         <PfCockpitPanel variant="compact" aria-label="CRS preview">
-          <PfCockpitPanelHeader
+          <DashboardPanelHeader
             title="CRS"
             subtitle={`${crs.residenceCountry} · ${crs.reportingYear}`}
             provenance="estimated"
-            titleVariant="primary"
+            tone="primary"
           />
           <TaxRows
             rows={[
@@ -147,10 +147,10 @@ export function TaxPreviewPanel({ preview }: TaxPreviewPanelProps) {
 export function TaxPreviewEmpty() {
   return (
     <PfCockpitPanel variant="wide" aria-label="Tax preview unavailable">
-      <PfCockpitPanelHeader
+      <DashboardPanelHeader
         title="Tax preview"
         subtitle="Sign in with an active position to view YTD figures."
-        titleVariant="primary"
+        tone="primary"
       />
       <p className="body-sm ct-text-muted m-0">
         Final 1099 and CRS documents are issued after year-end. This cockpit

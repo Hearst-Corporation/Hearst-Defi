@@ -1,9 +1,9 @@
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { ReactElement } from "react";
 
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import {
   PfCockpitPanel,
-  PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { cn } from "@/lib/cn";
@@ -148,9 +148,9 @@ export function PortfolioStatusPanel({
       aria-label="Portfolio status"
       className="pf-status-panel"
     >
-      <PfCockpitPanelHeader
+      <DashboardPanelHeader
         title="Portfolio status"
-        titleVariant="primary"
+        tone="primary"
         provenance={provenance}
       />
       <dl className="pf-status-list">

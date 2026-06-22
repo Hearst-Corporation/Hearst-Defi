@@ -1,11 +1,11 @@
 
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import Link from "next/link";
 
 import { NestedPanel, ProofRow } from "@/components/ui/nested-panel";
 import {
   PanelStatus,
   PfCockpitPanel,
-  PfCockpitPanelHeader,
   PfCockpitSubhead,
 } from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
@@ -169,7 +169,7 @@ export function ProofPulse({
 
   return (
     <PfCockpitPanel variant="compact" aria-label="Proof and methodology">
-      <PfCockpitPanelHeader
+      <DashboardPanelHeader
         title="Proof & methodology"
         provenance={provenance}
       />
