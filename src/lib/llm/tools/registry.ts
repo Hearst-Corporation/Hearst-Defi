@@ -23,6 +23,9 @@ import {
   isAdminReadToolAllowed,
   isAdminWriteToolAllowed,
 } from "@/lib/llm/tools/policy";
+import { runSourcing, draftEmailForProspect } from "@/app/admin/outreach/actions";
+import { outreachAutoSendHandler } from "@/lib/inngest/functions/outreach-auto-send";
+import { TIER_LABEL, type Tier } from "@/lib/outreach/tier";
 import { logger } from "@/lib/logger";
 import type {
   AdminToolTelemetryStatus,
@@ -730,6 +733,166 @@ async function runExportBriefingPack(input: unknown): Promise<{
   };
 }
 
+// ---------------------------------------------------------------------------
+// Outreach tools — folded into the unified chat (was /api/outreach-chat).
+// Read tools query the prospect directory; write tools reuse the SAME tested
+// domain logic the admin buttons use (runSourcing, draftEmailForProspect,
+// outreachAutoSendHandler) behind the HITL confirmation-token flow. Sends stay
+// governed by OUTREACH_AUTONOMY (ADR-016) — Tier A is never auto-sent.
+// ---------------------------------------------------------------------------
+
+const OutreachListProspectsInputSchema = z.object({
+  tier: z.enum(["A", "B", "C"]).optional(),
+  status: z.string().trim().min(1).max(40).optional(),
+  limit: z.number().int().positive().max(25).optional(),
+});
+
+const OutreachSourceLeadsInputSchema = z.object({
+  count: z.number().int().positive().max(50),
+});
+
+const OutreachDraftEmailInputSchema = z.object({
+  prospectId: z.string().trim().min(1).max(120),
+});
+
+/** Most recently active distributor ICP — the target the sourcer runs against. */
+async function pickActiveOutreachIcpId(): Promise<string | null> {
+  const icp = await prisma.outreachICP.findFirst({
+    where: { active: true },
+    orderBy: { createdAt: "desc" },
+    select: { id: true },
+  });
+  return icp?.id ?? null;
+}
+
+async function runOutreachListProspects(
+  input: unknown,
+): Promise<{ title: string; lines: string[] }> {
+  const parsed = OutreachListProspectsInputSchema.safeParse(input ?? {});
+  if (!parsed.success) throw new Error("invalid_outreach_list_prospects_input");
+  const { tier, status, limit } = parsed.data;
+  const where: { tier?: Tier; status?: string } = {};
+  if (tier) where.tier = tier;
+  if (status) where.status = status;
+  const rows = await prisma.outreachProspect.findMany({
+    where,
+    orderBy: { qualScore: "desc" },
+    take: limit ?? 10,
+    select: {
+      email: true,
+      company: true,
+      qualScore: true,
+      tier: true,
+      status: true,
+    },
+  });
+  if (rows.length === 0) {
+    return {
+      title: "OUTREACH PROSPECTS",
+      lines: ["- no prospect matches this filter"],
+    };
+  }
+  const lines = rows.map((r) => {
+    const tierLabel = r.tier && (r.tier === "A" || r.tier === "B" || r.tier === "C")
+      ? `${r.tier} (${TIER_LABEL[r.tier]})`
+      : "—";
+    return `- ${r.company ?? r.email} — tier ${tierLabel} · score ${r.qualScore ?? "?"} · ${r.status} (${r.email})`;
+  });
+  return { title: `OUTREACH PROSPECTS (${rows.length})`, lines };
+}
+
+async function runOutreachStats(): Promise<{ title: string; lines: string[] }> {
+  const [byTier, byStatus, total] = await Promise.all([
+    prisma.outreachProspect.groupBy({ by: ["tier"], _count: { _all: true } }),
+    prisma.outreachProspect.groupBy({ by: ["status"], _count: { _all: true } }),
+    prisma.outreachProspect.count(),
+  ]);
+  const tierLine = (["A", "B", "C"] as const)
+    .map((t) => `${t}:${byTier.find((g) => g.tier === t)?._count._all ?? 0}`)
+    .join(" · ");
+  const statusLine = byStatus
+    .map((g) => `${g.status}:${g._count._all}`)
+    .join(" · ");
+  return {
+    title: "OUTREACH PIPELINE",
+    lines: [
+      `- total prospects: ${total}`,
+      `- by tier: ${tierLine}`,
+      `- by status: ${statusLine || "none"}`,
+    ],
+  };
+}
+
+async function runOutreachSourceLeads(
+  input: unknown,
+): Promise<{ title: string; lines: string[]; createdEntityId: string }> {
+  const parsed = OutreachSourceLeadsInputSchema.safeParse(input);
+  if (!parsed.success) throw new Error("invalid_outreach_source_leads_input");
+  const icpId = await pickActiveOutreachIcpId();
+  if (!icpId) throw new Error("outreach_source_leads_no_active_icp");
+  const result = await runSourcing(icpId, parsed.data.count);
+  return {
+    title: "OUTREACH LEADS SOURCED",
+    lines: [
+      `- sourced: ${result.sourced}${result.isMock ? " (demo leads — Apollo not wired)" : ""}`,
+      `- by tier: Prime ${result.byTier.A} · Warm ${result.byTier.B} · Cold ${result.byTier.C}`,
+      `- skipped (duplicates / suppressed): ${result.skipped}`,
+      "- status: new prospects in the directory, awaiting drafting. Nothing sent.",
+    ],
+    createdEntityId: icpId,
+  };
+}
+
+async function runOutreachDraftEmail(
+  input: unknown,
+): Promise<{ title: string; lines: string[]; createdEntityId: string }> {
+  const parsed = OutreachDraftEmailInputSchema.safeParse(input);
+  if (!parsed.success) throw new Error("invalid_outreach_draft_email_input");
+  const { emailId, toEmail, subject } = await draftEmailForProspect(
+    parsed.data.prospectId,
+  );
+  return {
+    title: "OUTREACH EMAIL DRAFTED",
+    lines: [
+      `- to: ${toEmail}`,
+      `- subject: ${subject}`,
+      "- persisted as an agent draft (NOT sent). Trigger a send run or release it manually.",
+    ],
+    createdEntityId: emailId,
+  };
+}
+
+async function runOutreachTriggerSendRun(): Promise<{
+  title: string;
+  lines: string[];
+  createdEntityId: string;
+}> {
+  // Drive the SAME governed job the cron runs — no Inngest steps here, so pass a
+  // pass-through step shim. The handler itself enforces the OUTREACH_AUTONOMY
+  // dial (SUGGEST → 0), the warm-up daily cap, suppression re-check, and the
+  // Tier-A-never-auto-sent rule (ADR-016). This tool cannot exceed any of that.
+  const result = await outreachAutoSendHandler({
+    step: {
+      run: async <T>(_name: string, fn: () => T | Promise<T>): Promise<T> => fn(),
+    },
+  });
+  return {
+    title: "OUTREACH SEND RUN",
+    lines: [
+      `- autonomy: ${result.autonomy}`,
+      `- daily budget: ${result.budget}`,
+      `- sent: ${result.sent}`,
+      `- suppressed: ${result.suppressed}`,
+      `- failed: ${result.failed}`,
+      `- skipped (ineligible / Tier A): ${result.skippedIneligible}`,
+      result.autonomy === "SUGGEST"
+        ? "- note: autonomy is SUGGEST → nothing auto-sends. Raise OUTREACH_AUTONOMY to send."
+        : "- note: Tier B/C only, within today's warm-up cap; Tier A is never auto-sent.",
+    ],
+    createdEntityId: `send-run-${result.sent}`,
+  };
+}
+
 export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
   {
     id: "read_allocations_canonical",
@@ -1010,6 +1173,44 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
     },
     run: async (_context, input) => runExportBriefingPack(input),
   },
+  {
+    id: "outreach_list_prospects",
+    kind: "read",
+    description:
+      "List outreach prospects, optionally filtered by tier (A/B/C) or status, ordered by qualification score.",
+    riskLevel: "low",
+    confirmationRequired: false,
+    allowedChatModes: ["admin"],
+    allowedProfiles: ["admin"],
+    resultFormat: "multiline_text_block",
+    parameters: {
+      type: "object",
+      properties: {
+        tier: { type: "string", enum: ["A", "B", "C"] },
+        status: { type: "string" },
+        limit: { type: "number" },
+      },
+      additionalProperties: false,
+    },
+    run: async (_context, input) => runOutreachListProspects(input),
+  },
+  {
+    id: "outreach_stats",
+    kind: "read",
+    description:
+      "Outreach pipeline overview: prospect counts by tier and by status.",
+    riskLevel: "low",
+    confirmationRequired: false,
+    allowedChatModes: ["admin"],
+    allowedProfiles: ["admin"],
+    resultFormat: "multiline_text_block",
+    parameters: {
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    },
+    run: async () => runOutreachStats(),
+  },
 ] as const;
 
 export const ADMIN_WRITE_TOOLS: readonly AdminWriteToolDefinition[] = [
@@ -1079,6 +1280,39 @@ export const ADMIN_WRITE_TOOLS: readonly AdminWriteToolDefinition[] = [
       };
     },
   },
+  {
+    id: "outreach_source_leads",
+    kind: "write",
+    description:
+      "Source new distributor leads via Apollo against the active ICP (scored + tiered). Creates 'new' prospects for review; sends nothing.",
+    riskLevel: "medium",
+    confirmationRequired: true,
+    allowedChatModes: ["admin"],
+    allowedProfiles: ["admin"],
+    run: async (_context, input) => runOutreachSourceLeads(input),
+  },
+  {
+    id: "outreach_draft_email",
+    kind: "write",
+    description:
+      "Draft a distributor cold email for a prospect (by id) and persist it as an agent draft. Does NOT send.",
+    riskLevel: "medium",
+    confirmationRequired: true,
+    allowedChatModes: ["admin"],
+    allowedProfiles: ["admin"],
+    run: async (_context, input) => runOutreachDraftEmail(input),
+  },
+  {
+    id: "outreach_trigger_send_run",
+    kind: "write",
+    description:
+      "Trigger an outreach auto-send run within the OUTREACH_AUTONOMY dial (never Tier A; warm-up daily cap + suppression re-check). Sends queued agent drafts.",
+    riskLevel: "high",
+    confirmationRequired: true,
+    allowedChatModes: ["admin"],
+    allowedProfiles: ["admin"],
+    run: async () => runOutreachTriggerSendRun(),
+  },
 ] as const;
 
 
@@ -1119,7 +1353,12 @@ function validateWriteToolInput(toolId: string, input: unknown): void {
     parseReviewNoteInput(input);
   } else if (toolId === "create_governance_proposal_draft") {
     parseGovernanceProposalInput(input);
+  } else if (toolId === "outreach_source_leads") {
+    OutreachSourceLeadsInputSchema.parse(input);
+  } else if (toolId === "outreach_draft_email") {
+    OutreachDraftEmailInputSchema.parse(input);
   }
+  // outreach_trigger_send_run takes no input — nothing to validate.
 }
 
 export function getAllowedAdminReadTools(
