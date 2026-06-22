@@ -72,11 +72,7 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 - **Réversibilité.** Toute modif doit pouvoir être annulée vite. Pas de `git add/commit/push/reset` sans demande explicite.
 - **Après chaque modif CSS/Turbopack** : `browser_close` puis re-`navigate` (sinon CSS servi en cache, Playwright garde l'ancien chunk).
 - **Accent = vert `#A7FB90` principalement** (fond noir `--ct-bg-deep`). Le Glassmorphism = surfaces translucides, les lueurs ambiantes sont autorisées pour la profondeur.
-- **Portfolio cockpit preview** — voir `docs/DESIGN_SYSTEM.md` §9. Sans position
-  active : cockpit complet visible (`previewZeros`) avec `PreviewModeChip` — pas
-  de badge `Live`/`Verified` faux. Messages inline optionnels dans le shell.
-  **Le DOM zero-state du hero est FIGÉ — voir `docs/PORTFOLIO_ZERO_CONTRACT.md`
-  avant toute modif (ne pas re-litiger : ghost chart, pas de CTA).**
+- **Portfolio empty state** — Sans position active : l'interface affiche naturellement son layout vide (le contrat ghost a été supprimé). Pas de faux badge `Live`/`Verified` ni de mockup chart fictif.
 - **Phase chantier UI :** spacing, marges, hiérarchie de page, wording, nav et
   layout shell/doc-flow peuvent être itérés directement dans `cockpit.css`,
   `doc-flow.css` et les composants concernés sans étape roadmap/ADR préalable,

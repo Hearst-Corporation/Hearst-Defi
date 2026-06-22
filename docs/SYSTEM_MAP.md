@@ -46,7 +46,7 @@ jamais Prisma directement.
 | Mode | Source | Badges |
 |---|---|---|
 | **Live** | DB Prisma via loaders | provenance réelle (Live/Oracle/Attested…) |
-| **previewZeros** | investor zéro-position : valeurs à 0 + `PreviewModeChip` | **aucun** badge Live/Verified faux |
+| **empty state** | investor zéro-position : rendu naturel vide | **aucun** badge Live/Verified faux |
 | **demo / mock** | `src/lib/demo/*` (`builders.ts`, `provider.ts`, `guard.ts`) | marqués démo |
 
 **6 composants construits-mais-non-câblés = VOULU, pas du code mort** (ne pas /tri) :

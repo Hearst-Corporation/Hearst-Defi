@@ -14,7 +14,7 @@ DS + UI dominate the churn; recipes 1–2 and 8–9 are the hot path.
 
 ## 2. Add a product / proof-center section
 - **Entry**: `src/app/(product)/proof-center/page.tsx` (or `portfolio`/`vaults`), child in `src/components/proof-center/*`.
-- **Shape**: Server Component; honour `previewZeros` (see `docs/DESIGN_SYSTEM.md` §9). No position → full cockpit + `PreviewModeChip`.
+- **Shape**: Server Component; honour empty state (see `docs/DESIGN_SYSTEM.md` §9). No position → full cockpit + empty placeholder.
 - **STOP**: never paint a fake `Live`/`Verified` badge at zero — use the preview chip. Provenance badge stays real.
 - **Validate**: `pnpm typecheck` + visual.
 
@@ -63,7 +63,7 @@ DS + UI dominate the churn; recipes 1–2 and 8–9 are the hot path.
 
 ## 10. Wire a demo builder
 - **Entry**: `src/lib/demo/*` (`builders.ts`, `guard.ts`, `markers.ts`).
-- **Shape**: demo output equals live by type (same shape, marked as demo). **STOP (D5)**: never route a demo identity through `previewZeros`.
+- **Shape**: demo output equals live by type (same shape, marked as demo). **STOP (D5)**: never route a demo identity through empty state without data.
 - **Validate**: `pnpm test demo`.
 
 ## 11. Add a protected route

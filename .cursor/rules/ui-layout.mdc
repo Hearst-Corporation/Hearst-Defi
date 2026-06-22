@@ -12,7 +12,7 @@ alwaysApply: false
 
 ## Read first
 - `docs/UI_CONTEXT.md` — shell, rails, zones, mapping pages.
-- `docs/DESIGN_SYSTEM.md` §9 — `previewZeros` / `PreviewModeChip` (cockpit sans position active).
+- `docs/DESIGN_SYSTEM.md` §9 — empty state honnête (cockpit sans position active).
 
 ## Must avoid
 - Éditer des tokens CSS (`--ct-*`) → c'est `design-system.mdc`, pas ici.
@@ -31,7 +31,7 @@ alwaysApply: false
 - Ajouter une route aux listes `BARE_EXACT` / `NO_CHAT_PREFIXES` de `src/components/app-chrome.tsx`.
 - Casser l'invariant `section.href === premier onglet` (`product-nav-items.ts`).
 - Renommer une classe `.ct-*` du shell (casse `src/components/hub-mode-styles.tsx`).
-- Forcer une identité démo via `previewZeros` (cf. D5) — preview ≠ user réel.
+- Forcer une identité démo (cf. D5) — empty ≠ user réel.
 - Afficher un badge `Live`/`Verified` faux en mode preview (utiliser `PreviewModeChip`).
 - Remplacer le portal `useSyncExternalStore` des rails par un `useEffect`.
 

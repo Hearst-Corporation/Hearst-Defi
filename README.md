@@ -215,9 +215,7 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
   hero + KPI rail, positions + yield, trio distributions/activity/trust). En‑dessous
   → scroll document naturel. Responsive `@container pf` — seuils `--pf-bp-*` dans
   `portfolio.css`. Leaf pages gardent les mêmes `data-testid`.
-  **Zero portfolio** (`previewZeros`) : cockpit complet toujours visible (charts,
-  donuts, progress bars à $0) avec `PreviewModeChip` — pas de `Live` / `Stale` /
-  `Verified data` sans donnée réelle. Messages inline dans le shell si besoin.
+  **Portfolio vide** : les placeholders réels sont directement visibles. Les tableaux et graphiques s'affichent vides, sans faux badges `Live` ou `Verified data`. Le mode ghost/demo a été supprimé.
 - **Portfolio data** : `/portfolio` lit les loaders DB réels. Cockpit affiché
   même à zéro position (structure preview testable visuellement).
 

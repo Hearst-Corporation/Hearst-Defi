@@ -22,7 +22,7 @@
 
 | Page / Widget | Data needed | Source | Auth | Placeholder | Empty state | Error state | Demo fallback | Status | Next action |
 |---|---|---|---|---|---|---|---|---|---|
-| `/portfolio` hub | Positions, NAV, yield YTD, next distribution | `loadPortfolioView()` → Prisma | Investor | Skeleton (force-dynamic) | `previewZeros` mode (ghost chart, no CTA) | Graceful empty / stale badge | `buildDemoPortfolio()` (demo identity) | LIVE | Plug yield aggregator upstream when available |
+| `/portfolio` hub | Positions, NAV, yield YTD, next distribution | `loadPortfolioView()` → Prisma | Investor | Skeleton (force-dynamic) | Natural empty state | Graceful empty / stale badge | `buildDemoPortfolio()` (demo identity) | LIVE | Plug yield aggregator upstream when available |
 | `/portfolio/positions` | Positions list | `loadPortfolioView()` → Prisma | Investor | Skeleton | Empty positions list | Stale badge | Same | LIVE | — |
 | `/portfolio/yield` | Yield stack by bucket | `loadYieldStackProps()` → Prisma | Investor | Skeleton | Zero-value donut | Stale badge | Same | LIVE | — |
 | `/portfolio/distributions` | Distribution calendar entries | `loadDistribCalendarProps()` → Prisma | Investor | Skeleton | "No distributions yet" | Stale badge | Same | LIVE | — |
