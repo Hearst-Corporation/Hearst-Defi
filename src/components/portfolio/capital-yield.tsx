@@ -242,16 +242,7 @@ export function CapitalYield({
                   </div>
                 );
               })
-            : /* Zero-state text — plain and honest empty state instead of skeleton rows
-                 since we're cleaning up the empty states to be more explicit. */
-              (
-                <div className="cy-embedded-empty">
-                  <span className="pf-positions-empty__lead">No active positions</span>
-                  <span className="pf-positions-empty__hint ct-text-muted max-w-[30ch]">
-                    Your capital allocation and forward yield projection will appear here.
-                  </span>
-                </div>
-              )}
+            : null}
 
           {!hasData ? null : <hr className="cy-ledger-rule" aria-hidden />}
 

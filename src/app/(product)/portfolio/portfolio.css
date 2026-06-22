@@ -364,6 +364,14 @@
   justify-content: center;
 }
 
+.pf-capital-yield--embedded-empty .cy-ledger {
+  display: none;
+}
+
+.pf-capital-yield--embedded-empty .cy-body {
+  align-content: center;
+}
+
 .cy-embedded-empty {
   display: flex;
   flex-direction: column;
