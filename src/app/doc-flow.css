@@ -1283,9 +1283,39 @@
 .product-doc .invest-flow-shell__stepper {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
-  padding-top: var(--ct-space-3);
-  margin-bottom: var(--ct-space-2);
+  gap: var(--ct-space-3);
+  padding-top: 0;
+  margin-bottom: 0;
+}
+
+/* Kicker « Investment Flow » + stepper « 1 2 3 4 » sur la MÊME ligne. */
+.product-doc .invest-flow-shell__stepper-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-4);
+  flex-wrap: wrap;
+}
+
+.product-doc .invest-flow-shell__stepper-row > .page-canon-kicker {
+  margin: 0;
+}
+
+/* Stepper resserré dans le header — ne s'étale plus pleine largeur. */
+.product-doc .invest-flow-shell__stepper-row .wizard-step-progress {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.product-doc .invest-flow-shell__stepper-row .wizard-step-progress__item {
+  flex: 0 0 auto;
+  flex-direction: row;
+  gap: var(--ct-space-2);
+  padding-inline: var(--ct-space-3);
+}
+
+.product-doc .invest-flow-shell__stepper-row .wizard-step-progress__connector {
+  display: none;
 }
 
 .product-doc .invest-flow-shell__header-cta {
@@ -1632,6 +1662,89 @@
   gap: var(--ct-space-5);
 }
 
+/* ── Deposit summary — graphical principal ↔ yield split ─────────────────── */
+.product-doc .vault-deposit-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.product-doc .vault-deposit-summary__headline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
+.product-doc .vault-deposit-summary__total {
+  font-size: var(--ct-text-2xl);
+  font-weight: var(--ct-font-extrabold);
+  letter-spacing: var(--ct-tracking-tighter);
+  color: var(--ct-text-strong);
+}
+
+.product-doc .vault-deposit-summary__bar {
+  display: flex;
+  width: 100%;
+  height: var(--ct-space-3);
+  border-radius: var(--ct-radius-full);
+  overflow: hidden;
+  background: var(--ct-surface-2);
+}
+
+.product-doc .vault-deposit-summary__seg {
+  height: 100%;
+  min-width: 2px;
+}
+
+.product-doc .vault-deposit-summary__seg--principal {
+  background: var(--ct-text-faint);
+}
+
+.product-doc .vault-deposit-summary__seg--yield {
+  background: var(--ct-accent);
+  border-left: 2px solid var(--ct-bg-deep);
+}
+
+.product-doc .vault-deposit-summary__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ct-space-2) var(--ct-space-5);
+}
+
+.product-doc .vault-deposit-summary__legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
+.product-doc .vault-deposit-summary__swatch {
+  width: var(--ct-space-2_5);
+  height: var(--ct-space-2_5);
+  border-radius: var(--ct-radius-full);
+  flex-shrink: 0;
+}
+
+.product-doc .vault-deposit-summary__swatch--principal {
+  background: var(--ct-text-faint);
+}
+
+.product-doc .vault-deposit-summary__swatch--yield {
+  background: var(--ct-accent);
+}
+
+.product-doc .vault-deposit-summary__kpis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ct-space-3) var(--ct-space-5);
+  margin: 0;
+  padding-top: var(--ct-space-3);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+.product-doc .vault-deposit-summary__kpis dt {
+  margin-bottom: var(--ct-space-0_5);
+}
+
 .product-doc .vault-confirm-panel {
   display: flex;
   flex-direction: column;
@@ -1661,56 +1774,140 @@
   flex: 1;
 }
 
-/* Vault detail KPI strip */
-.product-doc .vault-detail-kpis {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ct-space-3) var(--ct-space-6);
+/* Vault detail — presentational overview band (in-flow, top of scroll body).
+   KPIs left, primary CTA right. No fixed header, no overlay. */
+.product-doc .vault-detail-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  padding: var(--ct-space-6);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-lg);
+  background: var(--ct-surface-1);
 }
 
-.product-doc .vault-detail-kpis__mobile-cta {
-  grid-column: span 2;
+.product-doc .vault-detail-overview__kpis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ct-space-4) var(--ct-space-6);
+  margin: 0;
+}
+
+.product-doc .vault-detail-overview__value {
+  font-size: var(--ct-text-2xl);
+  font-weight: var(--ct-font-extrabold);
+  letter-spacing: var(--ct-tracking-tighter);
+  color: var(--ct-text-strong);
+}
+
+.product-doc .vault-detail-overview__cta {
+  display: flex;
+  flex-direction: column;
 }
 
 @container product-doc (min-width: 40rem) {
-  .product-doc .vault-detail-kpis {
+  .product-doc .vault-detail-overview {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ct-space-8);
+  }
+
+  .product-doc .vault-detail-overview__kpis {
     display: flex;
+    flex: 1 1 auto;
     flex-wrap: wrap;
     gap: var(--ct-space-4) var(--ct-space-10);
   }
 
-  .product-doc .vault-detail-kpis__mobile-cta {
-    display: none;
+  .product-doc .vault-detail-overview__cta {
+    flex: 0 0 auto;
+    align-items: flex-end;
   }
 }
 
-/* Term sheet allocation rows */
-.product-doc .vault-allocation-row {
+/* Term sheet — block sans box (titre + contenu en flux, séparé par l'espace) */
+.product-doc .vault-detail-block {
   display: flex;
-  gap: var(--ct-space-3);
-  border-bottom: 1px solid var(--ct-border-soft);
-  padding-block: var(--ct-space-3);
-}
-
-.product-doc .vault-allocation-row:last-child {
-  border-bottom: none;
-}
-
-.product-doc .vault-allocation-row__body {
-  display: flex;
-  min-width: 0;
-  flex: 1;
   flex-direction: column;
-  gap: var(--ct-space-0_5);
 }
 
-@container product-doc (min-width: 40rem) {
-  .product-doc .vault-allocation-row__body {
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--ct-space-4);
-  }
+/* ── Target allocation — graphique (barre empilée 100% + barres par bucket) ── */
+.product-doc .vault-alloc-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+}
+
+.product-doc .vault-alloc-stack {
+  display: flex;
+  width: 100%;
+  height: var(--ct-space-3);
+  border-radius: var(--ct-radius-full);
+  overflow: hidden;
+  background: var(--ct-surface-2);
+}
+
+.product-doc .vault-alloc-stack__seg {
+  height: 100%;
+  min-width: 2px;
+}
+
+.product-doc .vault-alloc-stack__seg + .vault-alloc-stack__seg {
+  border-left: 2px solid var(--ct-bg-deep);
+}
+
+.product-doc .vault-alloc-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.product-doc .vault-alloc-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.product-doc .vault-alloc-bar__head {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2_5);
+}
+
+.product-doc .vault-alloc-bar__swatch {
+  width: var(--ct-space-2_5);
+  height: var(--ct-space-2_5);
+  border-radius: var(--ct-radius-full);
+  flex-shrink: 0;
+}
+
+.product-doc .vault-alloc-bar__label {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.product-doc .vault-alloc-bar__pct {
+  flex-shrink: 0;
+}
+
+.product-doc .vault-alloc-bar__track {
+  width: 100%;
+  height: var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-surface-2);
+  overflow: hidden;
+}
+
+.product-doc .vault-alloc-bar__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--ct-radius-full);
+  min-width: 2px;
+}
+
+.product-doc .vault-alloc-bar__desc {
+  margin: 0;
 }
 
 /* Workspace primary lane is ~60% of shell — defer row layout to primary width */

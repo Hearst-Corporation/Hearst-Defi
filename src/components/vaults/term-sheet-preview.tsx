@@ -1,5 +1,4 @@
 
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricGrid } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { VaultAllocationInvestorList } from "@/components/vaults/vault-allocation-display";
@@ -28,35 +27,35 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
   return (
     <div className="invest-flow-detail__grid">
       <div className="invest-flow-detail__primary">
-        <Card hoverOverlay={false}>
-          <CardHeader className="invest-flow-card-header mb-0">
-            <CardTitle>Target allocation</CardTitle>
-          </CardHeader>
+        <section className="vault-detail-block">
+          <header className="invest-flow-card-header mb-0">
+            <h3 className="h3 ct-text-strong ct-drop-glow-subtle">Target allocation</h3>
+          </header>
           <VaultAllocationInvestorList facts={allocationFacts} />
-        </Card>
+        </section>
 
-        <Card hoverOverlay={false}>
-          <CardHeader className="invest-flow-card-header mb-0">
-            <CardTitle>Regime scenarios</CardTitle>
-          </CardHeader>
+        <section className="vault-detail-block">
+          <header className="invest-flow-card-header mb-0">
+            <h3 className="h3 ct-text-strong ct-drop-glow-subtle">Regime scenarios</h3>
+          </header>
           <RegimeScenarioTable vault={vault} />
           <p className="body-xs ct-text-faint vault-regime-note">
             Conditional stress postures — not a projection of future returns · Methodology v1.0
           </p>
-        </Card>
+        </section>
       </div>
 
       <div className="invest-flow-detail__secondary">
-        <Card hoverOverlay={false}>
-          <CardHeader className="invest-flow-card-header mb-0">
-            <CardTitle>Vault metrics</CardTitle>
+        <section className="vault-detail-block">
+          <header className="invest-flow-card-header mb-0">
+            <h3 className="h3 ct-text-strong ct-drop-glow-subtle">Vault metrics</h3>
             <div className="flex shrink-0 items-center gap-[var(--ct-space-1_5)]">
               <ProvenanceBadge kind="estimated" variant="compact" />
               {vault.currentAumUsdc > 0 ? (
                 <ProvenanceBadge kind={aumProvenance} variant="compact" />
               ) : null}
             </div>
-          </CardHeader>
+          </header>
           <MetricGrid columns={2}>
             <VaultKpiCell label="Mgmt / perf">{formatFeeLine(vault.fees)}</VaultKpiCell>
             <VaultKpiCell label="Capacity">{formatUsdCompact(vault.capacityUsdc)}</VaultKpiCell>
@@ -66,16 +65,16 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
                 : "Pending"}
             </VaultKpiCell>
           </MetricGrid>
-        </Card>
+        </section>
 
-        <Card hoverOverlay={false}>
-          <CardHeader className="invest-flow-card-header mb-0">
-            <CardTitle>Legal & structure</CardTitle>
-          </CardHeader>
+        <section className="vault-detail-block">
+          <header className="invest-flow-card-header mb-0">
+            <h3 className="h3 ct-text-strong ct-drop-glow-subtle">Legal &amp; structure</h3>
+          </header>
           <div className="ct-panel-fields">
             <VaultLegalProofRows facts={legalFacts} variant="investor" />
           </div>
-        </Card>
+        </section>
 
         <p className="body-xs ct-text-faint ct-leading-relaxed">
           {vault.disclaimers} {APY_DISCLAIMER_SUFFIX}

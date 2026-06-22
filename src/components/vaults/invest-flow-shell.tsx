@@ -66,18 +66,23 @@ export function InvestFlowShell({
         media={media}
         titleLead={titleLead}
         titleAccent={titleAccent}
-        contextLabel={contextLabel}
         title={title}
         description={description}
         actions={actions}
         align={align}
         className={headerClassName}
-      >
-        <div className="invest-flow-shell__stepper">
-          <StepProgress active={step} />
-          {headerBelowStepper}
-        </div>
-      </ProductPageHeader>
+        beforeRule={
+          <div className="invest-flow-shell__stepper">
+            <div className="invest-flow-shell__stepper-row">
+              {contextLabel ? (
+                <p className="page-canon-kicker">{contextLabel}</p>
+              ) : null}
+              <StepProgress active={step} />
+            </div>
+            {headerBelowStepper}
+          </div>
+        }
+      />
 
       <div className="invest-flow-shell__body">
         {children}

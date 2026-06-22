@@ -85,7 +85,6 @@ export default async function VaultDetailPage({ params }: PageProps) {
   return (
     <InvestFlowShell
       step="product"
-      workspace
       titleLead={titleLead}
       titleAccent={titleAccent}
       contextLabel="Vault Detail"
@@ -104,53 +103,45 @@ export default async function VaultDetailPage({ params }: PageProps) {
           <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
             {vaultStatusLabel(vault.status)}
           </Badge>
-          <InvestCta
-            isLive={isLive}
-            investHref={investHref}
-            className="invest-flow-shell__header-cta"
-          />
         </>
       }
-      headerBelowStepper={
-        <dl className="vault-detail-kpis">
+    >
+      <section className="vault-detail-overview" aria-label="Key terms">
+        <dl className="vault-detail-overview__kpis">
           <div>
             <dt className="stat-label">APY range</dt>
-            <dd className="mt-[var(--ct-space-0_5)]">
+            <dd className="mt-[var(--ct-space-1)]">
               <ApyRange
                 low={vault.apyLow}
                 high={vault.apyHigh}
                 precision={1}
-                className="stat-value tabular mono ct-text-strong"
+                className="vault-detail-overview__value tabular mono"
               />
             </dd>
           </div>
           <div>
             <dt className="stat-label">Min subscription</dt>
-            <dd className="stat-value tabular mono ct-text-strong mt-[var(--ct-space-0_5)]">
+            <dd className="vault-detail-overview__value tabular mono mt-[var(--ct-space-1)]">
               {formatMinTicketUsdc(vault.minTicketUsdc)}
             </dd>
           </div>
           <div>
             <dt className="stat-label">Soft lock-up</dt>
-            <dd className="stat-value tabular mono ct-text-strong mt-[var(--ct-space-0_5)]">
+            <dd className="vault-detail-overview__value tabular mono mt-[var(--ct-space-1)]">
               {vault.softLockupDays} days
             </dd>
           </div>
-          <div className="vault-detail-kpis__mobile-cta">
-            {!isLive ? (
-              <p className="body-xs ct-text-muted mb-[var(--ct-space-2)]">
-                {nonLiveNote(vault.status)}
-              </p>
-            ) : null}
-            <InvestCta
-              isLive={isLive}
-              investHref={investHref}
-              className="w-full"
-            />
-          </div>
         </dl>
-      }
-    >
+        <div className="vault-detail-overview__cta">
+          {!isLive ? (
+            <p className="body-xs ct-text-muted mb-[var(--ct-space-2)]">
+              {nonLiveNote(vault.status)}
+            </p>
+          ) : null}
+          <InvestCta isLive={isLive} investHref={investHref} size="lg" />
+        </div>
+      </section>
+
       <TermSheetPreview vault={vault} />
     </InvestFlowShell>
   );

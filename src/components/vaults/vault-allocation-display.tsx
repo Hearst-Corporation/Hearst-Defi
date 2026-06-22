@@ -1,6 +1,5 @@
 import { Progress } from "@/components/ui/progress";
-import { allocationDashToneFor } from "@/lib/allocation-colors";
-import { cn } from "@/lib/cn";
+import { allocationStrokeFor } from "@/lib/allocation-colors";
 import type { AllocationBucket } from "@/lib/engine/types";
 import {
   ALLOCATION_ADMIN_LABELS,
@@ -12,34 +11,44 @@ import {
   type VaultAllocationFacts,
 } from "@/lib/vaults/vault-detail-facts";
 
-function AllocationInvestorRow({
+function AllocationBar({
   bucket,
   bps,
 }: {
   bucket: AllocationBucket;
   bps: number;
 }) {
-  const dotTone = allocationDashToneFor(bucket);
+  const color = allocationStrokeFor(bucket);
+  const pct = bps / 100;
 
   return (
-    <div className="vault-allocation-row">
-      <span
-        aria-hidden
-        className={cn("dash-legend-dot mt-[var(--ct-space-1)] shrink-0", `dot-${dotTone}`)}
-      />
-      <div className="vault-allocation-row__body">
-        <div className="min-w-0">
-          <p className="body-sm font-semibold ct-text-primary">
-            {ALLOCATION_INVESTOR_LABELS[bucket]}
-          </p>
-          <p className="body-xs ct-text-muted mt-[var(--ct-space-0_5)]">
-            {ALLOCATION_DESCRIPTIONS[bucket]}
-          </p>
-        </div>
-        <span className="body-sm font-semibold tabular mono ct-text-strong shrink-0">
+    <div className="vault-alloc-bar">
+      <div className="vault-alloc-bar__head">
+        <span
+          aria-hidden
+          className="vault-alloc-bar__swatch"
+          style={{ background: color }}
+        />
+        <span className="vault-alloc-bar__label body-sm font-semibold ct-text-primary">
+          {ALLOCATION_INVESTOR_LABELS[bucket]}
+        </span>
+        <span className="vault-alloc-bar__pct body-sm font-semibold tabular mono ct-text-strong">
           {bpsToPercent(bps, 0)}%
         </span>
       </div>
+      <div
+        className="vault-alloc-bar__track"
+        role="img"
+        aria-label={`${ALLOCATION_INVESTOR_LABELS[bucket]} ${bpsToPercent(bps, 0)}%`}
+      >
+        <span
+          className="vault-alloc-bar__fill"
+          style={{ width: `${pct}%`, background: color }}
+        />
+      </div>
+      <p className="vault-alloc-bar__desc body-xs ct-text-muted">
+        {ALLOCATION_DESCRIPTIONS[bucket]}
+      </p>
     </div>
   );
 }
@@ -75,15 +84,37 @@ export function VaultAllocationInvestorList({
 }: {
   facts: VaultAllocationFacts;
 }) {
+  const segments = ALLOCATION_BUCKETS.map((bucket) => ({
+    bucket,
+    bps: allocationBps(facts, bucket),
+    color: allocationStrokeFor(bucket),
+  }));
+
   return (
-    <div>
-      {ALLOCATION_BUCKETS.map((bucket) => (
-        <AllocationInvestorRow
-          key={bucket}
-          bucket={bucket}
-          bps={allocationBps(facts, bucket)}
-        />
-      ))}
+    <div className="vault-alloc-chart">
+      {/* Vue d'ensemble — barre empilée 100% */}
+      <div
+        className="vault-alloc-stack"
+        role="img"
+        aria-label="Target allocation breakdown"
+      >
+        {segments
+          .filter((s) => s.bps > 0)
+          .map((s) => (
+            <span
+              key={s.bucket}
+              className="vault-alloc-stack__seg"
+              style={{ width: `${s.bps / 100}%`, background: s.color }}
+            />
+          ))}
+      </div>
+
+      {/* Détail par bucket — barres graphiques */}
+      <div className="vault-alloc-bars">
+        {segments.map((s) => (
+          <AllocationBar key={s.bucket} bucket={s.bucket} bps={s.bps} />
+        ))}
+      </div>
     </div>
   );
 }

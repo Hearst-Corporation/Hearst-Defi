@@ -22,6 +22,7 @@ export function ProductPageHeader({
   media,
   actions,
   filters,
+  beforeRule,
   children,
   className,
   align = "start",
@@ -46,6 +47,8 @@ export function ProductPageHeader({
   actions?: ReactNode;
   /** Segmentation / list-state — alignés à GAUCHE de la toolbar. */
   filters?: ReactNode;
+  /** Slot rendu AU-DESSUS du trait accent (ex. stepper du funnel invest). */
+  beforeRule?: ReactNode;
   children?: ReactNode;
   className?: string;
   align?: "start" | "center";
@@ -115,6 +118,7 @@ export function ProductPageHeader({
           </div>
         </div>
       </div>
+      {beforeRule}
       <div className="page-canon-rule" aria-hidden="true" />
       {filters || actions ? (
         <div

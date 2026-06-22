@@ -6,7 +6,6 @@ import type { ConnectedWallet } from "@privy-io/react-auth";
 import { cn } from "@/lib/cn";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { NestedPanel } from "@/components/ui/nested-panel";
 import { VaultPanelHeader } from "@/components/vaults/vault-flow-primitives";
 import { formatUsdAmount } from "@/lib/vaults/product-display";
 import {
@@ -233,10 +232,10 @@ export function PreFlightCheck({
   );
 
   return (
-    <NestedPanel className="ct-divide-soft py-0">
+    <div className="vault-flow-flat-section">
       <VaultPanelHeader title="Pre-flight check" />
       <div className="vault-panel-body">{panelBody}</div>
-    </NestedPanel>
+    </div>
   );
 }
 

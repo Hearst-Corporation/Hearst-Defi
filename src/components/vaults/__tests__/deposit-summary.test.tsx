@@ -41,12 +41,13 @@ describe("DepositSummary — vault panel DS patterns", () => {
     expect(html).toContain(">Estimated</span>");
   });
 
-  it("renders APY as a range and ct-proof-row rows", () => {
+  it("renders APY as a range and the graphical principal/yield split", () => {
     const html = renderToStaticMarkup(
       <DepositSummary vault={VAULT} amount={500_000} />,
     );
 
-    expect(html).toContain("ct-proof-row");
+    expect(html).toContain("vault-deposit-summary__bar");
+    expect(html).toContain("vault-deposit-summary__seg--yield");
     expect(html).toContain("9.4");
     expect(html).toContain("12.8");
     expect(html).toContain("$500,000 USDC");
