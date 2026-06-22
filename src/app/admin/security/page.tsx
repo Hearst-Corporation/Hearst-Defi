@@ -19,7 +19,7 @@ export default async function AdminSecurityPage() {
   const totpEnabled = await isTotpEnabled(userId);
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Security"
         titleAccent="Center"
@@ -37,6 +37,6 @@ export default async function AdminSecurityPage() {
         </p>
         <TotpEnrolmentClient initialEnabled={totpEnabled} />
       </Card>
-    </div>
+    </>
   );
 }
