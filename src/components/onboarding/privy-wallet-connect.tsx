@@ -6,7 +6,7 @@
 
 import { usePrivy, useConnectWallet, useWallets } from "@privy-io/react-auth";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   OnboardingChamber,
@@ -28,7 +28,18 @@ interface PrivyWalletConnectProps {
 
 function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
   const { ready, authenticated } = usePrivy();
-  const { connectWallet } = useConnectWallet();
+  const [error, setError] = useState<string | null>(null);
+  const { connectWallet } = useConnectWallet({
+    // Surface connection failures instead of swallowing them — otherwise the
+    // button does nothing with no feedback (pop-up blocked, user rejected, no
+    // wallet extension, wrong network, …).
+    onError: (err) =>
+      setError(
+        typeof err === "string" && err
+          ? err
+          : "Wallet connection failed or was cancelled. Make sure your wallet is unlocked, on Base Sepolia, and the pop-up is not blocked — then try again.",
+      ),
+  });
   const { wallets } = useWallets();
   const persistRef = useRef<string | null>(boundAddress?.toLowerCase() ?? null);
 
@@ -45,7 +56,10 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
     void bindWallet(next).then((result) => {
       if (!result.ok) {
         console.error("[PrivyWalletConnect] bindWallet failed:", result.error);
+        setError(result.error ?? "Could not link this wallet. Please try again.");
         persistRef.current = null;
+      } else {
+        setError(null);
       }
     });
   }, [connectedWallet?.address]);
@@ -105,10 +119,22 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
         variant="primary"
         size="lg"
         className="w-full"
-        onClick={() => void connectWallet()}
+        onClick={() => {
+          setError(null);
+          void connectWallet();
+        }}
       >
         Connect wallet
       </Button>
+
+      {error ? (
+        <p
+          role="alert"
+          className="body-xs ct-status-danger text-pretty m-0 ct-prose-narrow"
+        >
+          {error}
+        </p>
+      ) : null}
 
       <p className="body-xs ct-text-faint text-pretty m-0 ct-prose-narrow">
         Wallet binding is used solely for on-chain distribution delivery.
