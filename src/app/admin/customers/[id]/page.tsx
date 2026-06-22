@@ -129,32 +129,34 @@ export default async function CustomerDetailPage({
           />
         ) : (
           <Card className="p-0 overflow-hidden" hoverOverlay={false}>
-            <table className="w-full text-left body-sm">
-              <thead>
-                <tr>
-                  <th className="stat-label ct-table-header">Vault</th>
-                  <th className="stat-label ct-table-header">Status</th>
-                  <th className="stat-label ct-table-header text-right">Principal</th>
-                  <th className="stat-label ct-table-header text-right">Subscribed</th>
-                </tr>
-              </thead>
-              <tbody>
-                {detail.positions.map((p) => (
-                  <tr key={p.id} className="border-b border-(--ct-border-soft) last:border-0">
-                    <td className="ct-table-cell mono ct-text-body">{p.vaultKey}</td>
-                    <td className="ct-table-cell ct-text-muted">
-                      {POSITION_STATUS_LABEL[p.status] ?? p.status}
-                    </td>
-                    <td className="ct-table-cell text-right tabular-nums ct-text-strong">
-                      {usdFull.format(p.principalUsdc)}
-                    </td>
-                    <td className="ct-table-cell text-right ct-text-muted">
-                      {formatAdminDate(p.subscribedAt)}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full table-fixed text-left body-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[40%] stat-label ct-table-header">Vault</th>
+                    <th className="w-[25%] stat-label ct-table-header">Status</th>
+                    <th className="w-[20%] stat-label ct-table-header text-right">Principal</th>
+                    <th className="w-[15%] stat-label ct-table-header text-right">Subscribed</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {detail.positions.map((p) => (
+                    <tr key={p.id} className="border-b border-(--ct-border-soft) last:border-0">
+                      <td className="ct-table-cell mono ct-text-body">{p.vaultKey}</td>
+                      <td className="ct-table-cell ct-text-muted">
+                        {POSITION_STATUS_LABEL[p.status] ?? p.status}
+                      </td>
+                      <td className="ct-table-cell text-right tabular-nums ct-text-strong">
+                        {usdFull.format(p.principalUsdc)}
+                      </td>
+                      <td className="ct-table-cell text-right ct-text-muted">
+                        {formatAdminDate(p.subscribedAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </Card>
         )}
       </section>
@@ -270,24 +272,26 @@ export default async function CustomerDetailPage({
           />
         ) : (
           <Card className="p-0 overflow-hidden" hoverOverlay={false}>
-            <table className="w-full text-left body-sm">
-              <thead>
-                <tr>
-                  <th className="stat-label ct-table-header">Title</th>
-                  <th className="stat-label ct-table-header text-right">Messages</th>
-                  <th className="stat-label ct-table-header text-right">Updated</th>
-                </tr>
-              </thead>
-              <tbody>
-                {detail.chats.map((c) => (
-                  <tr key={c.id} className="border-b border-(--ct-border-soft) last:border-0">
-                    <td className="ct-table-cell ct-text-body truncate">{c.title ?? "(untitled)"}</td>
-                    <td className="ct-table-cell text-right tabular-nums ct-text-muted">{c.messageCount}</td>
-                    <td className="ct-table-cell text-right ct-text-muted">{formatAdminDate(c.updatedAt)}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full table-fixed text-left body-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[50%] stat-label ct-table-header">Title</th>
+                    <th className="w-[25%] stat-label ct-table-header text-right">Messages</th>
+                    <th className="w-[25%] stat-label ct-table-header text-right">Updated</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {detail.chats.map((c) => (
+                    <tr key={c.id} className="border-b border-(--ct-border-soft) last:border-0">
+                      <td className="ct-table-cell ct-text-body truncate">{c.title ?? "(untitled)"}</td>
+                      <td className="ct-table-cell text-right tabular-nums ct-text-muted">{c.messageCount}</td>
+                      <td className="ct-table-cell text-right ct-text-muted">{formatAdminDate(c.updatedAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </Card>
         )}
       </section>

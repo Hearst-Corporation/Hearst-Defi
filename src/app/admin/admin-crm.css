@@ -254,3 +254,50 @@
 .admin-doc .admin-card--resolved {
   opacity: var(--ct-opacity-60);
 }
+
+/* =============================================================================
+   8. MOBILE / OVERFLOW FIXES — satellite sweep (admin-crm.css loads on every
+   admin route via layout.tsx; each rule only ADDS a property or wins by later
+   source order at equal specificity — no existing declaration is clobbered).
+   ============================================================================= */
+
+/* /admin/audit — filter inputs keep their ~25em intrinsic width and overflow the
+   Card at 390-430px. admin-proof.css sets only padding on this selector, so
+   adding width/min-width here is conflict-free. */
+.admin-doc .audit-filter-input {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Form field wrapper (label > input) is a flex column; without min-width:0 a
+   width:100% input can't shrink below its intrinsic size → overflow/clip in a
+   constrained parent (e.g. outreach email-review at 390px). Canonical shrink fix. */
+.admin-doc .admin-doc-field {
+  min-width: 0;
+}
+
+/* /admin/governance/proposal/[id] — meta dl is a hard 2-col grid; collapse to one
+   column on narrow screens (container-name:admin-doc declared in doc-flow.css). */
+@container admin-doc (max-width: 40rem) {
+  .admin-doc .admin-doc-dl-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* /admin/distributions — confirm-panel recap rows: avoid the wide space-between
+   gap between a label and a long value on narrow screens. */
+@media (max-width: 35rem) {
+  .admin-doc .admin-confirm-panel__row {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+/* /admin/projection — preset-rail buttons sit flush to the viewport edge at the
+   scroll extremes on mobile; add a standard inset. */
+@media (max-width: 47.999rem) {
+  .admin-doc .projection-studio-preset-rail__items {
+    padding-left: var(--ct-space-4);
+    padding-right: var(--ct-space-4);
+  }
+}

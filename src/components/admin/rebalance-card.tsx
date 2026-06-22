@@ -108,7 +108,7 @@ function AllocationDiffTable({
   if (buckets.length === 0) return null;
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-x-auto">
       <table className="w-full table-fixed body-sm tabular">
         <thead>
           <tr>

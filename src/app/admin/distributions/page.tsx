@@ -102,7 +102,7 @@ export default async function DistributionsPage({
           />
         ) : (
           <Card className="p-0 overflow-hidden" hoverOverlay={false}>
-            <div className="overflow-hidden">
+            <div className="overflow-x-auto">
               <table className="w-full table-fixed body-sm tabular">
                 <thead>
                   <tr>
