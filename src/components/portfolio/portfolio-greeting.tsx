@@ -43,7 +43,15 @@ export function PortfolioGreeting({ name, ticker }: PortfolioGreetingProps) {
   const nextPayout =
     has && ticker?.nextPayoutUsdc != null && ticker.nextPayoutUsdc > 0
       ? formatUsdCompact(ticker.nextPayoutUsdc)
-      : DASH;
+      : "$0";
+
+  // Date du jour pour donner un côté "journalier" au dashboard
+  const todayFmt = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(new Date());
 
   return (
     <header className="pf-greeting">
@@ -54,28 +62,30 @@ export function PortfolioGreeting({ name, ticker }: PortfolioGreetingProps) {
         <p className="pf-greeting__sub m-0">
           <span className="pf-greeting__sub-dot" />
           Portfolio cockpit
+          <span className="ct-text-muted px-2" aria-hidden>·</span>
+          <span className="ct-text-muted capitalize">{todayFmt}</span>
         </p>
       </div>
 
-      {ticker && has ? (
-        <dl className="pf-ticker-inline">
+      {ticker ? (
+        <dl className={cn("pf-ticker-inline", !has && "opacity-60 grayscale-[50%]")}>
           <div className="pf-ticker-cell">
             <dt className="pf-ticker-label">Portfolio value</dt>
-            <dd className="pf-ticker-value tabular">{has ? formatUsdCompact(ticker.totalValueUsdc) : DASH}</dd>
+            <dd className="pf-ticker-value tabular">{has ? formatUsdCompact(ticker.totalValueUsdc) : "$0"}</dd>
           </div>
           <div className="pf-ticker-cell">
             <dt className="pf-ticker-label">APY range</dt>
-            <dd className={cn("pf-ticker-value tabular", has && "ct-text-accent")}>{apyRange}</dd>
+            <dd className={cn("pf-ticker-value tabular", has ? "ct-text-accent" : "ct-text-strong")}>{apyRange}</dd>
             <dd className="pf-ticker-note">not guaranteed</dd>
           </div>
           <div className="pf-ticker-cell">
             <dt className="pf-ticker-label">Next payout</dt>
             <dd className="pf-ticker-value tabular">{nextPayout}</dd>
-            {payoutDate ? <dd className="pf-ticker-note">{payoutDate}</dd> : null}
+            {payoutDate ? <dd className="pf-ticker-note">{payoutDate}</dd> : <dd className="pf-ticker-note">Pending</dd>}
           </div>
           <div className="pf-ticker-cell">
             <dt className="pf-ticker-label">12M yield (fwd)</dt>
-            <dd className="pf-ticker-value tabular">{has ? formatUsdCompact(ticker.totalYieldYtdUsdc) : DASH}</dd>
+            <dd className="pf-ticker-value tabular">{has ? formatUsdCompact(ticker.totalYieldYtdUsdc) : "$0"}</dd>
           </div>
         </dl>
       ) : null}
