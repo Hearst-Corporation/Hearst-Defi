@@ -23,8 +23,11 @@ const PRIVY_CONFIG = {
     logo: "/logos/hearst-connect.svg",
   },
   loginMethods: ["email", "wallet"] as ["email", "wallet"],
+  // Pilot: do NOT auto-create a Privy embedded wallet. Investors connect their
+  // own external wallet (MetaMask, Ledger, …) — auto-creating an embedded wallet
+  // silently bound a wallet the LP did not choose and re-bound it on every load.
   embeddedWallets: {
-    ethereum: { createOnLogin: "users-without-wallets" as const },
+    ethereum: { createOnLogin: "off" as const },
   },
 };
 
