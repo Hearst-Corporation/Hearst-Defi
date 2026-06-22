@@ -7,14 +7,14 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* ── SUPERSEDED par src/app/cockpit.css ────────────────────────────────────
-     11 valeurs de base ci-dessous sont OVERRIDÉES au runtime par le :root
-     non-layered de cockpit.css (qui gagne sur ce @layer). Ces valeurs ne sont
-     donc PAS celles rendues à l'écran — voir cockpit.css pour la valeur live.
-     Marquées « superseded » : --ct-accent-strong, --ct-border-accent,
-     --ct-rail-left, --ct-rail-right, --ct-surface-0..3, --ct-text-muted,
-     --ct-shadow-depth, --ct-dur-base. (bg-deep / accent / accent-soft / ease
-     sont au contraire la source UNIQUE — cockpit.css ne les redéfinit plus.) */
+  /* ── SOURCE UNIQUE = src/app/cockpit.css ─────────────────────────────────────
+     Les tokens ci-dessous qui existent AUSSI dans cockpit.css ont été RÉCONCILIÉS
+     pour porter EXACTEMENT la même valeur que cockpit.css (la source live : son
+     :root non-layered gagne sur ce @layer). Plus aucune divergence ancien↔nouveau
+     shell — c'était la cause du « conflit » où des agents s'adaptaient à l'ancien
+     modèle. Éditer ces valeurs ICI n'a AUCUN effet au runtime : la valeur canonique
+     vit dans cockpit.css, ne PAS re-diverger. (bg-deep / accent / accent-soft / ease
+     restent la source unique côté tokens.css — cockpit.css ne les redéfinit pas.) */
   --ct-bg-deep: #0E0F0F;
   /* Plinth black — a hair darker than --ct-bg-deep, used by the footer base
      to extinguish ambient glow at the bottom edge. Intentionally below any surface. */
@@ -23,13 +23,13 @@
      Les autres accents en dérivent → tout le chrome se recolore d'un coup. */
   --ct-accent: #A7FB90;
   --ct-accent-ambient: color-mix(in srgb, var(--ct-accent) 70%, #000000);
-  --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 78%, #ffffff); /* superseded → 82% (cockpit.css) */
+  --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 82%, #ffffff); /* = cockpit.css */
   --ct-accent-soft: color-mix(in srgb, var(--ct-accent) 18%, transparent);
-  --ct-border-accent: color-mix(in srgb, var(--ct-accent) 55%, transparent); /* superseded → 28% (cockpit.css) */
+  --ct-border-accent: color-mix(in srgb, var(--ct-accent) 28%, transparent); /* = cockpit.css */
 
-  --ct-rail-left: 88px;   /* superseded → 5.75rem/92px (cockpit.css) */
-  --ct-rail-right: 420px; /* superseded → 22rem/352px default (cockpit.css) */
-  --ct-rail-right-expanded: 26.25rem; /* 420px — live value in cockpit.css :root */
+  --ct-rail-left: 6.5rem; /* = cockpit.css (104px base) */
+  --ct-rail-right: clamp(16rem, 20vw, 23rem); /* = cockpit.css */
+  --ct-rail-right-expanded: clamp(19rem, 25vw, 30rem); /* = cockpit.css */
 
   /* SURFACES — UN SEUL MODÈLE : charcoal OPAQUE étagé (aligné avec
      src/app/cockpit.css, qui est la source live via :root non-layered). On retire
@@ -44,20 +44,17 @@
   --ct-text-strong: #ffffff;
   --ct-text-primary: rgba(245,245,245,0.92);
   --ct-text-body: rgba(245,245,245,0.72);
-  --ct-text-muted: rgba(245,245,245,0.48); /* superseded → 0.70 (cockpit.css) */
+  --ct-text-muted: rgba(245, 245, 245, 0.55); /* = cockpit.css */
 
   --ct-border-soft: rgba(255,255,255,0.06);
   --ct-border: rgba(255,255,255,0.10);
   --ct-border-strong: rgba(255,255,255,0.16);
 
-  /* superseded → recette single-drop (cockpit.css) */
-  --ct-shadow-depth:
-    inset 0 1px 0 rgba(255,255,255,0.18),
-    inset 0 -1px 0 rgba(0,0,0,0.45),
-    0 20px 60px -24px rgba(0,0,0,0.65);
+  /* = cockpit.css (single-drop) */
+  --ct-shadow-depth: 0 8px 32px -8px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.10);
 
   --ct-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --ct-dur-base: 180ms; /* superseded → 220ms (cockpit.css) */
+  --ct-dur-base: 220ms; /* = cockpit.css */
 
   /* ── Opacity scale ── tokenise toute opacité non triviale (0 / 1 exclus).
      Échelle 1:1 des valeurs réellement utilisées → zéro régression visuelle.
