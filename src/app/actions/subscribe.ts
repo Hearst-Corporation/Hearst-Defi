@@ -87,17 +87,15 @@ export async function subscribe(
   }
 
   // Validate against the selected share class minimum ticket.
-  // DEMO override: DEMO_MIN_TICKET_USDC lowers the floor for testnet demos so a
-  // small real on-chain deposit (e.g. a few faucet USDC) can open a position.
-  // Never set in production — the canonical class terms ($250k/$1M) stay intact.
+  // DEMO override: DEMO_MIN_TICKET_USDC lowers the floor so a small real on-chain
+  // deposit (e.g. a few faucet USDC) can open a position on the Base Sepolia pilot.
+  // Honored in ANY env when the var is set — the gate is the var's PRESENCE, which
+  // is configured ONLY for the testnet pilot. Unset it to restore $250k/$1M.
   const classTerms = resolveClassTerms(classCode);
   const demoMinRaw = process.env.DEMO_MIN_TICKET_USDC;
-  // development only — never prod (canonical minimums) and never test (keeps the
-  // suite asserting the real $250k/$1M gates, not the demo floor).
-  const demoMin =
-    process.env.NODE_ENV === "development" && demoMinRaw
-      ? Number(demoMinRaw)
-      : null;
+  // Tests never set DEMO_MIN_TICKET_USDC, so the suite keeps asserting the real
+  // $250k/$1M gates; prod honors it only because it is set for the Sepolia pilot.
+  const demoMin = demoMinRaw ? Number(demoMinRaw) : null;
   const effectiveMin =
     demoMin !== null && Number.isFinite(demoMin) && demoMin > 0
       ? demoMin
