@@ -218,7 +218,6 @@
   flex-direction: column;
   gap: var(--ct-space-6);
   min-width: 0;
-  margin-top: var(--ct-space-5);
 }
 
 /* Rows are BOTH flex items (height in fr) AND grids (their own columns). */
@@ -250,10 +249,16 @@
   border-radius: var(--ct-radius-xl);
   background: var(--ct-surface-1);
   overflow: hidden;
+  box-shadow: var(--ct-shadow-sm);
 }
 
 .pf-fused-surface--mid {
-  grid-template-columns: minmax(0, 2.2fr) minmax(21rem, 0.95fr);
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+  background: linear-gradient(
+    135deg,
+    var(--ct-surface-1) 0%,
+    color-mix(in srgb, var(--ct-surface-1) 95%, var(--ct-accent) 2%) 100%
+  );
 }
 
 .pf-fused-surface__pane {
@@ -261,6 +266,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  backdrop-filter: blur(var(--ct-blur-md));
 }
 
 .pf-fused-surface__pane > .pf-embedded-pane {
@@ -277,21 +283,25 @@
 }
 
 .pf-fused-surface--mid .pf-cockpit-panel__header {
-  padding-bottom: var(--ct-space-1);
+  padding-bottom: var(--ct-space-3);
 }
 
 .pf-fused-surface--mid .pf-positions {
-  padding-top: var(--ct-space-1);
+  padding-top: 0;
 }
 
 .pf-fused-surface--mid .pf-positions__row--head {
-  background: var(--ct-surface-1);
+  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-base) 60%, transparent);
+  backdrop-filter: blur(var(--ct-blur-sm));
+  padding-inline: var(--ct-space-4);
 }
 
 .pf-fused-surface--mid .pf-positions__row--body {
-  padding-inline: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-base) 30%, transparent);
+  padding-inline: var(--ct-space-4);
 }
 
 .pf-fused-surface--mid .pf-positions-empty {
@@ -622,8 +632,8 @@
   background: transparent;
   box-shadow: none;
   border-radius: 0;
-  padding: var(--ct-space-3) var(--ct-space-4);
-  gap: var(--ct-space-2);
+  padding: var(--ct-space-4);
+  gap: var(--ct-space-3);
 }
 
 /* Hero weld — chart + status share one plate; inner wrappers stay flat. */
@@ -1018,7 +1028,7 @@
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-3);
 }
 
 .pf-status-panel--glass {
@@ -1042,6 +1052,7 @@
      rows — never clips a row out of view (Underlying proof was getting cut). */
   overflow-y: auto;
   scrollbar-width: none;
+  overflow-x: hidden;
 }
 .pf-status-list::-webkit-scrollbar { width: 0; height: 0; }
 
@@ -1054,7 +1065,8 @@
   gap: var(--ct-space-3);
   flex: 1 1 0;
   min-height: 0;
-  padding: var(--ct-space-2_5) var(--ct-space-3);
+  padding: var(--ct-space-2_5) var(--ct-space-4);
+  margin-inline: calc(var(--ct-space-4) * -1);
   border-radius: var(--ct-radius-md);
   border: 1px solid transparent;
   transition: all var(--ct-dur-fast) var(--ct-ease);
@@ -1177,17 +1189,18 @@
   min-width: 0;
   min-height: 0;
   flex: 1 1 auto;
+  overflow-x: hidden;
 }
 
 .pf-positions__row {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 0.6fr) minmax(0, 1.1fr) auto;
   align-items: center;
   gap: var(--ct-space-4);
-    padding: var(--ct-space-2) var(--ct-space-4);
+  padding: var(--ct-space-3) var(--ct-space-4);
+  margin-inline: calc(var(--ct-space-4) * -1);
   min-width: 0;
-  transition: background var(--ct-dur-base) var(--ct-ease),
-      transform var(--ct-dur-base) var(--ct-ease);
+  transition: all var(--ct-dur-base) var(--ct-ease);
 }
 
 .pf-positions__row--head {
@@ -1196,8 +1209,8 @@
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
   color: var(--ct-text-secondary);
-  border-bottom: 1px solid var(--ct-border-base);
-  background: var(--ct-surface-1);
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-base) 60%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-2) 40%, transparent);
   padding-top: var(--ct-space-3);
   padding-bottom: var(--ct-space-3);
   border-top-left-radius: var(--ct-radius-xl);
@@ -1205,13 +1218,14 @@
 }
 
 .pf-positions__row--body {
-  border-bottom: 1px solid var(--ct-border-base);
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-base) 30%, transparent);
   font-size: var(--ct-text-sm);
   background: transparent;
 }
 
 .pf-positions__row--body:hover {
-  background: var(--ct-surface-2);
+  background: color-mix(in srgb, var(--ct-accent) 4%, var(--ct-surface-2));
+  transform: translateX(2px);
 }
 
 .pf-positions__row--body:last-child {
@@ -1223,13 +1237,11 @@
 .pf-positions__vault {
   display: flex;
   align-items: center;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4);
   min-width: 0;
-  font-weight: var(--ct-font-semibold);
-    color: var(--ct-text-strong);
 }
 
-.pf-positions__vault > span {
+.pf-positions__vault > a {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1338,7 +1350,10 @@
 }
 
 .cy-donut-halo {
-  display: none;
+  display: block;
+  stroke: var(--ct-accent);
+  opacity: 0.15;
+  filter: blur(4px);
 }
 
 .donut-center {
@@ -1395,29 +1410,38 @@
   min-width: 0;
   min-height: 0;
   flex: 1 1 auto;
+  overflow-x: hidden;
 }
 
 .cy-ledger-head {
   font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
+  font-weight: var(--ct-font-bold);
   text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wider);
+  letter-spacing: var(--ct-tracking-widest);
   color: var(--ct-text-secondary);
 }
 
 .cy-ledger-rule {
   height: 1px;
-  background: var(--ct-border-base);
-  margin: var(--ct-space-1) 0;
+  background: color-mix(in srgb, var(--ct-border-base) 60%, transparent);
+  margin: var(--ct-space-2) 0;
 }
 
 .cy-row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  column-gap: var(--ct-space-2);
+  column-gap: var(--ct-space-3);
   row-gap: var(--ct-space-1);
   min-width: 0;
+  padding: var(--ct-space-1) var(--ct-space-4);
+  margin-inline: calc(var(--ct-space-4) * -1);
+  border-radius: var(--ct-radius-md);
+  transition: background var(--ct-dur-base) var(--ct-ease);
+}
+
+.cy-row:hover {
+  background: color-mix(in srgb, var(--ct-accent) 4%, var(--ct-surface-2));
 }
 
 .cy-row .cy-track {
@@ -1677,6 +1701,7 @@
   min-width: 0;
   min-height: 0;
   justify-content: flex-start;
+  overflow-x: hidden;
 }
 
 .pf-activity-grid {
@@ -1696,6 +1721,7 @@
   align-items: center;
   gap: var(--ct-space-4);
   padding: var(--ct-space-2_5) var(--ct-space-4);
+  margin-inline: calc(var(--ct-space-4) * -1);
   border-radius: var(--ct-radius-md);
   border-bottom: 1px solid color-mix(in srgb, var(--ct-border-base) 40%, transparent);
   transition: all var(--ct-dur-base) var(--ct-ease);
@@ -1900,13 +1926,29 @@
   border-radius: var(--ct-radius-full);
   background: var(--ct-text-muted);
   flex: 0 0 auto;
+  position: relative;
 }
 
 .pf-status-dot--default { background: var(--ct-text-muted); }
 .pf-status-dot--active {
   background: var(--ct-status-success);
-  box-shadow: none;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--ct-status-success) 50%, transparent);
+  animation: pf-dot-pulse 2s infinite;
 }
+
+@keyframes pf-dot-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pf-status-dot--active::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 1px solid color-mix(in srgb, var(--ct-status-success) 30%, transparent);
+  border-radius: inherit;
+}
+
 .pf-status-dot--matured { background: var(--ct-status-info); }
 .pf-status-dot--exited { background: var(--ct-text-neutral); }
 
@@ -2233,10 +2275,10 @@
 /* ---- MID: outer row stays 1fr at all sizes (the pf-fused-surface--mid handles
         its own internal 2-column split). No @container override needed here. ---- */
 
-/* ---- HERO welded grid: split at 58rem inside the well ---- */
-@container pf (min-width: 58rem) {
+/* ---- HERO welded grid: split at 48rem inside the well ---- */
+@container pf (min-width: 48rem) {
   .pf-hero-grid {
-    grid-template-columns: 1.8fr minmax(16rem, 1fr);
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
   }
     /* when split horizontally the sidebar divider becomes a left border */
   .pf-hero-grid .pf-status-panel {
@@ -2245,20 +2287,6 @@
   }
 }
 
-/* Inside the fit gate, keep hero chart | status SIDE BY SIDE as long as the slot
-   can hold both (mockup keeps them welded horizontally). Only stack on a really
-   tight slot (≤44rem) — below that the chart needs the full width. Stacking too
-   early (was 64rem) squeezed the 5-row status panel to ~44px and clipped rows. */
-@container pf (max-width: 44rem) {
-  .pf-container--fit .pf-hero-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .pf-container--fit .pf-hero-grid .pf-status-panel {
-    border-left: 0;
-    border-top: 1px solid var(--ct-border-base);
-  }
-}
 
 /* ---- Capital & Yield body: drop the spine + stack donut over ledger when tight ---- */
 @container pf (max-width: 30rem) {
@@ -2270,7 +2298,7 @@
   .cy-ledger { width: 100%; }
 }
 
-@container pf (max-width: 60rem) {
+@container pf (max-width: 48rem) {
   .pf-fused-surface--mid {
     grid-template-columns: 1fr;
   }
