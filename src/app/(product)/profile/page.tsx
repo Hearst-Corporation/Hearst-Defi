@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/nested-panel";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { PrivyWalletConnect } from "@/components/onboarding/privy-wallet-connect";
+import { WalletDisconnectButton } from "@/components/profile/wallet-disconnect-button";
 import { PRIVY_APP_ID } from "@/lib/auth/privy-config";
 
 export const dynamic = "force-dynamic";
@@ -206,7 +207,10 @@ export default async function ProfilePage() {
               }
               action={
                 session.walletAddress ? (
-                  <Badge variant="success">Connected</Badge>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="success">Connected</Badge>
+                    <WalletDisconnectButton />
+                  </div>
                 ) : (
                   <PrivyWalletConnect
                     appId={PRIVY_APP_ID}

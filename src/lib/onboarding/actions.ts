@@ -171,6 +171,35 @@ export async function bindWallet(
   return { ok: true };
 }
 
+/**
+ * Clears the investor's bound distribution wallet so a different wallet can be
+ * connected. Backs the Profile "Disconnect / change wallet" control — pairs with
+ * a client-side Privy logout so the embedded/connected wallet does not silently
+ * re-bind.
+ */
+export async function unbindWallet(): Promise<BindWalletResult> {
+  await requireInvestor("/profile");
+  const investor = await getInvestor();
+  if (!investor) {
+    return { ok: false, error: "Authentication required." };
+  }
+
+  if (!investor.walletAddress) {
+    return { ok: true };
+  }
+
+  await prisma.investor.update({
+    where: { id: investor.id },
+    data: { walletAddress: null },
+  });
+
+  revalidatePath("/profile");
+  revalidatePath("/portfolio");
+  revalidatePath("/onboarding/wallet");
+
+  return { ok: true };
+}
+
 // =============================================================================
 // submitKycDocument — CUSTOM Sumsub document upload (no WebSDK)
 // =============================================================================
