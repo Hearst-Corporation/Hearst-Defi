@@ -68,7 +68,7 @@ export default async function DistributionsPage({
   const distributionKpis = buildDistributionsKpiStrip(history);
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Vault"
         titleAccent="Distributions"
@@ -221,6 +221,6 @@ export default async function DistributionsPage({
           </div>
         </Card>
       </section>
-    </div>
+    </>
   );
 }
