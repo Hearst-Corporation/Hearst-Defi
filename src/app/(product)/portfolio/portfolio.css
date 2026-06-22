@@ -990,7 +990,7 @@
    the panel height so the list fills the hero, never glued to the top. */
 .pf-status-row {
   display: grid;
-  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--ct-space-2_5);
   flex: 1 1 0;
@@ -1003,30 +1003,16 @@
   margin-top: var(--ct-space-1);
 }
 
-.pf-status-row__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  aspect-ratio: 1 / 1;     /* never ovalise when the row is squeezed */
-  flex: 0 0 auto;          /* never shrink in the grid track */
+/* Status rows lead with a small accent dot (replaced the circled glyphs — they
+   ovalised when the sidebar narrowed). Fixed size, never shrinks, always round. */
+.pf-status-row__dot {
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
+  aspect-ratio: 1 / 1;
+  flex: 0 0 auto;
   border-radius: var(--ct-radius-full);
-  color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-accent) 8%, var(--ct-surface-2));
-  border: 1px solid color-mix(in srgb, var(--ct-accent) 22%, var(--ct-graphite-border-nested));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ct-accent) 6%, transparent);
-}
-
-.pf-status-row__icon svg {
-  display: block;
-  width: var(--ct-space-3_5);
-  height: var(--ct-space-3_5);
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  background: var(--ct-accent);
+  align-self: center;
 }
 
 .pf-status-row__label {
