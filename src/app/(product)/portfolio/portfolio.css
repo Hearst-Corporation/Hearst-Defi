@@ -47,6 +47,9 @@
   --pf-bp-deck-3col: 58rem;
   --pf-bp-hero-split: 58rem;
   --pf-bp-hero-stack: 64rem;
+  --pf-donut-size: 11rem;
+  --pf-donut-size-mid: 11rem;
+  --pf-donut-size-zero: 7.5rem;
   position: relative;
   background: transparent;
 }
@@ -153,7 +156,7 @@
   box-shadow: none;
 }
 
-/* Ticker — 4 KPI cells, graphite plate (ADR-013), no hover lift. */
+/* Ticker — KPI strip on the centre plaque, not a deep-black box. */
 .pf-ticker-inline {
   display: flex;
   align-items: stretch;
@@ -161,8 +164,8 @@
   gap: 0 var(--ct-space-6);
   margin: 0;
   padding: var(--ct-space-3) var(--ct-space-5);
-  background: var(--ct-surface-1);
-  border: 1px solid var(--ct-border-base);
+  background: transparent;
+  border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-xl);
 }
 
@@ -329,8 +332,8 @@
 
 .pf-fused-surface--mid .cy-donut,
 .pf-fused-surface--mid .dash-chart-container {
-  width: 8.75rem;
-  height: 8.75rem;
+  width: var(--pf-donut-size-mid);
+  height: var(--pf-donut-size-mid);
   margin-inline: auto;
 }
 
@@ -1213,9 +1216,10 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 9rem;
-  height: 9rem;
+  width: var(--pf-donut-size);
+  height: var(--pf-donut-size);
   min-width: 0;
+  margin-top: 0;
 }
 
 .dash-chart-svg {
@@ -1253,6 +1257,10 @@
   gap: var(--ct-space-1);
   text-align: center;
   z-index: 1;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  transform: none;
 }
 
 .donut-val {
@@ -2049,8 +2057,8 @@
    qu'il ne s'étire pas et n'empiète pas sur la copy en dessous. */
 .cy-panel--onboarding-empty .cy-donut,
 .cy-panel--onboarding-empty .dash-chart-container {
-  width: 5.5rem;
-  height: 5.5rem;
+  width: var(--pf-donut-size-zero);
+  height: var(--pf-donut-size-zero);
   flex: 0 0 auto;
   opacity: var(--ct-opacity-70);
 }
@@ -2080,9 +2088,15 @@
 
 .pf-container--zero .pf-fused-surface--mid .cy-donut,
 .pf-container--zero .pf-fused-surface--mid .dash-chart-container {
-  width: 5.5rem;
-  height: 5.5rem;
+  width: var(--pf-donut-size-zero);
+  height: var(--pf-donut-size-zero);
   margin-inline: 0;
+}
+
+/* Portfolio legal footer — centre plaque tone, not plinth / bg-deep black. */
+.ct-root:has(main .pf-container) > .app-footer {
+  background-color: var(--ct-surface-2);
+  border-top-color: var(--ct-border-soft);
 }
 
 .pf-container--zero .cy-embedded-empty {
