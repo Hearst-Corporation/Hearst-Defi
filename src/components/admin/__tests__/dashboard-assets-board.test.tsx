@@ -9,7 +9,24 @@ import { DashboardAssetsBoard } from "@/components/admin/dashboard";
 import type { AdminProofStatus } from "@/lib/data/admin-overview";
 import type { CockpitPayload } from "@/lib/data/cockpit";
 import type { DashboardData } from "@/lib/data/dashboard";
+import type { OverviewClusters } from "@/lib/data/overview-clusters";
+import type { PlatformTotals } from "@/lib/data/platform-totals";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
+
+const PLATFORM_TOTALS: PlatformTotals = {
+  investorCount: 0,
+  investedCapitalUsdc: 0,
+};
+
+const OVERVIEW_CLUSTERS: OverviewClusters = {
+  totalCapacityUsdc: 0,
+  pipelineCount: 0,
+  kycApproved: 0,
+  kycPending: 0,
+  governance: { signing: 0, timelock: 0, executable: 0 },
+  distributedTotalUsdc: 0,
+  distributionsCount: 0,
+};
 
 const RISK: RiskFrameworkData = {
   composite: 47,
@@ -124,8 +141,8 @@ function render(
       hasLiveKpis={hasLiveKpis}
       proofFresh={false}
       cockpit={cockpit}
-      investorCount={0}
-      investedCapitalUsdc={0}
+      platformTotals={PLATFORM_TOTALS}
+      overviewClusters={OVERVIEW_CLUSTERS}
     />,
   );
 }
@@ -165,6 +182,33 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).not.toContain("dashboard-vitals-stat-row");
   });
 
+  it("renders the platform overview band (4 clusters + caption) above the vault strip", () => {
+    const html = render(makeData({ source: "fallback" }), 0);
+
+    expect(html).toContain("dashboard-cockpit-row--overview");
+    expect(html).toContain('aria-label="Platform overview"');
+    expect(html).toContain("Platform · all vaults");
+    // The four cluster labels.
+    expect(html).toContain(">Capital<");
+    expect(html).toContain(">Clients<");
+    expect(html).toContain(">Governance<");
+    expect(html).toContain(">Exposure<");
+    // Band sits before the vault KPI strip (executive position).
+    const overview = html.indexOf("dashboard-cockpit-row--overview");
+    const kpis = html.indexOf('aria-label="Vault KPIs"');
+    expect(overview).toBeGreaterThan(-1);
+    expect(kpis).toBeGreaterThan(overview);
+  });
+
+  it("overview band no longer duplicates Invested capital / Investors in the vault strip", () => {
+    const html = render(makeData({ source: "fallback" }), 0);
+    // Platform totals live ONLY in the band now, not the vault strip.
+    expect(html).not.toContain(">Invested capital<");
+    expect(html).not.toContain(">Investors<");
+    expect(html).toContain(">Total AUM<");
+    expect(html).toContain(">Total investors<");
+  });
+
   it("prioritizes KPI strip, cockpit ops row, then lower row (risk + audit)", () => {
     // No-live-kpis path: KPI card → awaiting placeholder → ops row → lower row.
     const html = render(makeData({ source: "fallback" }), 0);
@@ -192,8 +236,8 @@ describe("DashboardAssetsBoard — command-center layout", () => {
         hasLiveKpis
         proofFresh={false}
         cockpit={COCKPIT}
-        investorCount={0}
-        investedCapitalUsdc={0}
+        platformTotals={PLATFORM_TOTALS}
+        overviewClusters={OVERVIEW_CLUSTERS}
       />,
     );
 
@@ -319,8 +363,8 @@ describe("DashboardAssetsBoard — command-center layout", () => {
             },
           ],
         }}
-        investorCount={0}
-        investedCapitalUsdc={0}
+        platformTotals={PLATFORM_TOTALS}
+        overviewClusters={OVERVIEW_CLUSTERS}
       />,
     );
 
@@ -398,8 +442,8 @@ describe("DashboardAssetsBoard — command-center layout", () => {
             },
           ],
         }}
-        investorCount={0}
-        investedCapitalUsdc={0}
+        platformTotals={PLATFORM_TOTALS}
+        overviewClusters={OVERVIEW_CLUSTERS}
       />,
     );
 
@@ -489,8 +533,8 @@ describe("DashboardAssetsBoard — command-center layout", () => {
             },
           ],
         }}
-        investorCount={0}
-        investedCapitalUsdc={0}
+        platformTotals={PLATFORM_TOTALS}
+        overviewClusters={OVERVIEW_CLUSTERS}
       />,
     );
 
@@ -553,8 +597,8 @@ describe("DashboardAssetsBoard — command-center layout", () => {
         showVaultAnalytics
         proofFresh={false}
         cockpit={COCKPIT}
-        investorCount={0}
-        investedCapitalUsdc={0}
+        platformTotals={PLATFORM_TOTALS}
+        overviewClusters={OVERVIEW_CLUSTERS}
       />,
     );
 

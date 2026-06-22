@@ -1499,6 +1499,32 @@
   min-width: 0;
 }
 
+/* Inside an overview cluster pane the strip is narrow (a quarter of the board):
+   force a single column so each KPI is a full-width row and labels never break
+   letter-by-letter. The strip's @container rules below key off BOARD width
+   (wide), not pane width — so we must hard-pin 1 column here. The cluster panes
+   already sit side-by-side in the band. */
+.dashboard-overview-pane .dashboard-kpi-strip {
+  grid-template-columns: 1fr !important;
+}
+
+.dashboard-overview-pane .dashboard-kpi-strip__label {
+  /* Short labels stay on one line; long ones wrap on word boundaries, never per-char. */
+  overflow-wrap: normal;
+  white-space: normal;
+}
+
+/* Stacked rows → horizontal hairline between KPIs, no vertical separators
+   (those assume a multi-column row). Last row needs no border. */
+.dashboard-overview-pane .dashboard-kpi-strip__cell {
+  border-right: none !important;
+  border-bottom: 1px solid var(--ct-border-ghost);
+}
+
+.dashboard-overview-pane .dashboard-kpi-strip__cell:last-child {
+  border-bottom: none;
+}
+
 .dashboard-kpi-strip__cell {
   display: flex;
   min-width: 0;
@@ -2533,13 +2559,16 @@
   min-width: 0;
 }
 
-/* Row 1 (KPI + charts) — single column. */
+/* Row 1 (platform overview fused surface) — single cell, panes handled internally. */
+.dashboard-cockpit-row--overview { grid-template-columns: 1fr; }
+
+/* Row 2 (KPI + charts) — single column. */
 .dashboard-cockpit-row--kpi    { grid-template-columns: 1fr; }
 
-/* Row 2 (ops fused surface) — single cell, panes handled internally. */
+/* Row 3 (ops fused surface) — single cell, panes handled internally. */
 .dashboard-cockpit-row--ops    { grid-template-columns: 1fr; }
 
-/* Row 3 (lower fused surface) — single cell, panes handled internally. */
+/* Row 4 (lower fused surface) — single cell, panes handled internally. */
 .dashboard-cockpit-row--lower  { grid-template-columns: 1fr; }
 
 /* Cell: fills row height, flex column so children can flex-grow. */
@@ -2591,6 +2620,7 @@
 
   /* Chaque famille se dimensionne à son contenu — plus de flex-share forcé. */
   .dashboard-cockpit--fit .dashboard-cockpit-row--readiness,
+  .dashboard-cockpit--fit .dashboard-cockpit-row--overview,
   .dashboard-cockpit--fit .dashboard-cockpit-row--kpi,
   .dashboard-cockpit--fit .dashboard-cockpit-row--ops,
   .dashboard-cockpit--fit .dashboard-cockpit-row--lower,
@@ -2620,6 +2650,7 @@
 }
 
 .dashboard-cockpit--fit .dashboard-cockpit-row--readiness,
+.dashboard-cockpit--fit .dashboard-cockpit-row--overview,
 .dashboard-cockpit--fit .dashboard-cockpit-row--kpi,
 .dashboard-cockpit--fit .dashboard-cockpit-row--ops,
 .dashboard-cockpit--fit .dashboard-cockpit-row--lower {
@@ -2628,6 +2659,7 @@
 
 /* ── Phone: single column on all rows (belt-and-suspenders). ── */
 @media (max-width: 47.999rem) {
+  .dashboard-cockpit-row--overview,
   .dashboard-cockpit-row--ops,
   .dashboard-cockpit-row--lower {
     grid-template-columns: 1fr;
@@ -2759,9 +2791,10 @@
    padding + layout. No nested surfaces, no double shadow.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Shared graphite material for both fused surfaces */
+/* Shared graphite material for the fused surfaces (ops / lower / overview) */
 .dashboard-ops-surface,
-.dashboard-lower-surface {
+.dashboard-lower-surface,
+.dashboard-overview-surface {
   display: flex;
   min-width: 0;
   min-height: 0;
@@ -2775,7 +2808,8 @@
 }
 
 .dashboard-ops-surface:hover,
-.dashboard-lower-surface:hover {
+.dashboard-lower-surface:hover,
+.dashboard-overview-surface:hover {
   border-color: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-graphite-border-nested));
 }
 
@@ -2789,9 +2823,15 @@
   flex-direction: column;
 }
 
+/* Overview: 4 equal clusters by default stacked on mobile */
+.dashboard-overview-surface {
+  flex-direction: column;
+}
+
 /* Individual panes — transparent, padding only */
 .dashboard-ops-pane,
-.dashboard-lower-pane {
+.dashboard-lower-pane,
+.dashboard-overview-pane {
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -2820,9 +2860,15 @@
   flex: 1.25 1 0;
 }
 
+/* Overview quartet : 4 clusters of equal weight (Capital | Clients | Governance | Exposure). */
+.dashboard-overview-pane {
+  flex: 1 1 0;
+}
+
 /* Hairline divider between panes — top by default (mobile stacked) */
 .dashboard-ops-pane--divider,
-.dashboard-lower-pane--divider {
+.dashboard-lower-pane--divider,
+.dashboard-overview-pane--divider {
   border-top: 1px solid var(--ct-border-ghost);
 }
 
@@ -2853,11 +2899,24 @@
   /* Plus de scroll interne forcé dans les panes lower : hauteur naturelle. */
 }
 
+/* ── Wide layout: horizontal split for overview quartet (≥44rem — same threshold) */
+@container dash-board (min-width: 44rem) {
+  .dashboard-overview-surface {
+    flex-direction: row;
+  }
+
+  .dashboard-overview-pane--divider {
+    border-top: none;
+    border-left: 1px solid var(--ct-border-ghost);
+  }
+}
+
 /* ── Wide+tall : panes RESPIRENT (plus de compression pour gagner des pixels).
    Padding généreux, gap de lecture — console premium, pas fiche technique. ── */
 @media (min-width: 80rem) and (min-height: 52rem) {
   .dashboard-ops-pane,
-  .dashboard-lower-pane {
+  .dashboard-lower-pane,
+  .dashboard-overview-pane {
     padding: var(--ct-space-5) var(--ct-space-5);
     gap: var(--ct-space-3_5);
   }
