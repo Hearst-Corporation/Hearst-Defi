@@ -238,7 +238,7 @@ function Plot({ series, lineOnly = false, preview = false, skeleton = false }: P
           className={cn("pf-vc-line", skeleton && "pf-vc-line--skeleton")}
           d={linePath}
           fill="none"
-          stroke={skeleton ? "var(--ct-surface-4)" : "var(--ct-accent)"}
+          stroke={skeleton ? "var(--ct-surface-3)" : "var(--ct-accent)"}
           strokeWidth="1.15"
           strokeLinejoin="round"
           strokeLinecap="round"
@@ -328,18 +328,17 @@ export function ValueChart({
       {provenance ? <ChartProvenanceCorner kind={provenance} /> : null}
 
       {embedded ? (
-        <header className="pf-cockpit-panel__header">
-          <div className="pf-cockpit-panel__header-main min-w-0">
-            <h2 className="pf-cockpit-panel__title--primary">Portfolio value</h2>
-            {isEmpty ? null : (
-              <p className="pf-hero-kpi-block m-0">
-                <span className="pf-hero-kpi-value tabular-nums">
-                  {formatUsdFull(chartValue)}
-                </span>
-              </p>
-            )}
-          </div>
-        </header>
+        <DashboardPanelHeader
+          title="Portfolio value"
+          tone="primary"
+          trailing={
+            isEmpty ? undefined : (
+              <span className="pf-hero-kpi-value tabular-nums">
+                {formatUsdFull(chartValue)}
+              </span>
+            )
+          }
+        />
       ) : (
         <DashboardPanelHeader
           title="Portfolio value over the trailing window"

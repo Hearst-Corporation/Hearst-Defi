@@ -2325,7 +2325,7 @@
 
 /* Distrib calendar skeleton bars + ValueChart flat baseline read as muted frame. */
 .pf-distrib-chart--skeleton rect {
-  fill: var(--ct-surface-4);
+  fill: var(--ct-surface-3); /* Increased contrast from surface-4 */
   animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 .pf-vc-line--skeleton {

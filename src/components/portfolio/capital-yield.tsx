@@ -104,7 +104,10 @@ export function CapitalYield({
       variant="wide"
       chrome={embedded ? "embedded" : "panel"}
       aria-label="Capital and yield — allocation and 12 month forward yield"
-      className={embedded ? "pf-capital-yield--embedded" : "cy-panel"}
+      className={cn(
+        embedded ? "pf-capital-yield--embedded" : "cy-panel",
+        !hasData && (embedded ? "pf-capital-yield--embedded-empty" : "cy-panel--onboarding-empty")
+      )}
     >
       <DashboardPanelHeader
         title="Capital & Yield"
