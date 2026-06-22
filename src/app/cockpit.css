@@ -5911,20 +5911,41 @@ button.ct-choice-card {
   .ct-rail-intra .ct-rail-item {
     min-height: clamp(2.75rem, 2.5rem + 1vw, 3.5rem) !important;
     padding: clamp(0.25rem, 0.2rem + 0.1vw, 0.375rem) clamp(0.625rem, 0.5rem + 0.5vw, 0.875rem) !important;
+    /* Row layout: each item shares the bar equally. The base .ct-rail-item is
+       width:100% + flex-shrink:0 (right for the desktop VERTICAL rail); in this
+       horizontal bar that made every item 374px wide → 5 items overflowed to
+       ~1900px, clipped by overflow:hidden, so only the first icon showed. */
+    width: auto !important;
+    min-width: 0 !important;
+    flex: 1 1 0 !important;
   }
 
-  /* Reserve bottom intra rail only — the legal footer now lives OUTSIDE page-area
-     (sibling of panels-row at .ct-root), so page-area no longer compensates for it. */
-  .ct-page-area {
-    /* 72px = bottom intra-rail safe-area clearance — no exact space token
-       (--ct-space-20 is 80px, would over-reserve 8px). Kept literal on purpose. */
-    padding-bottom: 72px !important;
+  /* The investor-view dot is base width:100% too — in the row it must stay an
+     intrinsic affordance (not flex-grow), else it eats the bar (~244px) and
+     squashes the 5 nav icons to 22px. Fixed width → nav items get the row. */
+  .ct-rail-intra .ct-rail-investor-dot {
+    width: auto !important;
+    flex: 0 0 auto !important;
+    padding: var(--ct-space-2) var(--ct-space-3) !important;
   }
 
-  .ct-page-area main#main-content {
-    padding-bottom: 0 !important;
+  /* Bottom breathing room for the scroll tail — NOT bar clearance.
+     The fixed rail is already cleared by the legal .app-footer (sibling of the
+     scroll, padding-bottom 56px+), which sits between the scroll and the bar, so
+     the scroll content never reaches the rail. Reserving a full 56px here doubled
+     up with the footer → ~150px of dead space below the content. Plain air only. */
+  .admin-doc .admin-doc-shell,
+  .product-doc .product-doc-shell {
+    padding-bottom: var(--ct-space-6);
   }
+
   .ct-center-panel { margin-left: 0 !important; }
+
+  /* Legal footer — lift copy above fixed bar. */
+  .ct-root:has(.admin-doc) > .app-footer,
+  .ct-root:has(.product-doc) > .app-footer {
+    padding-bottom: calc(56px + var(--ct-space-2)) !important;
+  }
 }
 
 /* ── COMMAND PALETTE — admin global search ⌘K ──────────────────────────────

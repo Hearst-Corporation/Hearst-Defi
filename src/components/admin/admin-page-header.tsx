@@ -59,7 +59,7 @@ export function AdminPageHeader({
     <header className={cn("admin-page-header", className)}>
       <div className="admin-page-header__row">
         <div className="admin-page-header__main">
-          {lead}
+          {lead ? <div className="self-start max-w-full">{lead}</div> : null}
           {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
           <h1 className="h1 shrink-0">
             {titleLead != null || titleAccent != null ? (
