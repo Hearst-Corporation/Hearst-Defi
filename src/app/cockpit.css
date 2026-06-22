@@ -4174,15 +4174,19 @@ button.ct-choice-card {
   overflow-y: auto;
 }
 
-/* The stack fills the whole rail (flex:1) with its icons centred, so its empty
-   top/bottom areas overlay the identity avatar + foot controls that live behind
-   it in the rail — and were swallowing their clicks (Profile / Sign out became
-   unclickable). Let the empty container pass clicks through; keep the icons
-   (its children) clickable. */
+/* The intra-rail nav (and its inner stack) fills the whole rail (flex:1) with
+   its icons centred, so its empty top/bottom areas overlay the identity avatar
+   + foot controls that live behind it in the rail — and were swallowing their
+   clicks (Profile / Sign out became unclickable). Make the nav + stack empty
+   areas pass clicks through; keep the actual rail icons/links clickable. */
+.ct-rail-intra,
 .ct-rail-intra__stack {
   pointer-events: none;
 }
-.ct-rail-intra__stack > * {
+.ct-rail-intra__stack > *,
+.ct-rail-intra .ct-rail-item,
+.ct-rail-intra button,
+.ct-rail-intra a {
   pointer-events: auto;
 }
 
