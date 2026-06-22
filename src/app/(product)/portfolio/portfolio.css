@@ -247,11 +247,11 @@
 }
 
 .pf-fused-surface--mid {
-  grid-template-columns: minmax(0, 1.8fr) minmax(21rem, 0.95fr);
+  grid-template-columns: minmax(0, 2.2fr) minmax(21rem, 0.95fr);
 }
 
 .pf-fused-surface--deck {
-  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.95fr);
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.95fr);
 }
 
 .pf-fused-surface__pane {
@@ -459,9 +459,9 @@
      a thin preview + one onboarding line, so equal fr left a dead void below each
      pane. Give the data-rich hero more of the column and let the sparse rows shrink
      toward their content — the console stays full-height but stops looking hollow. */
-  .pf-container--fit.pf-container--zero .pf-cockpit-row--summary { flex: 1.45 1 0; }
-  .pf-container--fit.pf-container--zero .pf-cockpit-row--mid     { flex: 1.05 1 0; }
-  .pf-container--fit.pf-container--zero .pf-cockpit-row--deck    { flex: 0.9 1 0; }
+  .pf-container--fit.pf-container--zero .pf-cockpit-row--summary { flex: 1.8 1 0; }
+  .pf-container--fit.pf-container--zero .pf-cockpit-row--mid     { flex: 0.9 1 0; }
+  .pf-container--fit.pf-container--zero .pf-cockpit-row--deck    { flex: 0.7 1 0; }
 
   /* min-height:0 on the WHOLE chain — neutralize every min-height floor. */
   .pf-container--fit .pf-cockpit-cell,
@@ -2147,7 +2147,7 @@
   /* Payout = 1 widget; the fused cell carries 2 (Recent Activity + Trust),
      so it gets the larger share — otherwise Recent Activity collapses to a
      ~130px slot and its header/copy overlap (Trust's --aside reserves 15rem). */
-  .pf-cockpit-row--deck { grid-template-columns: 1fr 1.6fr; }
+  .pf-cockpit-row--deck { grid-template-columns: 1fr 1.8fr; }
 }
 
 /* ---- MID: outer row stays 1fr at all sizes (the pf-fused-surface--mid handles
@@ -2156,7 +2156,7 @@
 /* ---- HERO welded grid: split at 58rem inside the well ---- */
 @container pf (min-width: 58rem) {
   .pf-hero-grid {
-    grid-template-columns: 1.6fr minmax(16rem, 1fr);
+    grid-template-columns: 1.8fr minmax(16rem, 1fr);
   }
     /* when split horizontally the sidebar divider becomes a left border */
   .pf-hero-grid .pf-status-panel {
