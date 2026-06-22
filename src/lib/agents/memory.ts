@@ -68,9 +68,14 @@ export async function renderAgentMemoryBlock(
   agentName = "cockpit-chat",
 ): Promise<string> {
   const facts = await loadAgentMemory(userId, agentName);
-  if (facts.length === 0) return "";
-  const lines = facts.map((f) => `- (${f.kind}) ${f.content}`);
-  return `Mémoire durable (${facts.length}) :\n${lines.join("\n")}`;
+  // Re-lint at injection time (defence-in-depth): a fact compliant when stored
+  // can turn non-compliant if the forbidden vocabulary later expands, and any
+  // legacy / out-of-band row may predate the write-time filter. Never re-inject
+  // a fact that now trips the guard into the prompt.
+  const safe = facts.filter((f) => !containsForbidden(f.content));
+  if (safe.length === 0) return "";
+  const lines = safe.map((f) => `- (${f.kind}) ${f.content}`);
+  return `Mémoire durable (${safe.length}) :\n${lines.join("\n")}`;
 }
 
 // ---------------------------------------------------------------------------

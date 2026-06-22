@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/openai";
+import { assertNoForbiddenWords } from "@/lib/agents/validators";
 
 /**
  * Outreach Scorer Agent — rates the fit of an enriched prospect against the
@@ -189,6 +190,10 @@ function parseAndClamp(text: string): OutreachScore {
     );
   }
   const raw = result.data;
+  // Non-negotiable #5 — the rationale bullets are surfaced to operators in the
+  // admin UI, so they get the SAME forbidden-words lint as every other agent
+  // surface (was previously un-guarded).
+  assertNoForbiddenWords(raw.reasons.join("\n"));
   // Defensive clamp + round: the LLM can output 105 or 87.6 — both corrected here.
   const score = Math.round(Math.min(100, Math.max(0, raw.score)));
   return { score, reasons: raw.reasons };
