@@ -69,7 +69,7 @@
   transition: background-color var(--ct-dur-fast) var(--ct-ease);
 }
 .cockpit-hover-row:hover {
-  background: var(--ct-surface-1);
+  background: var(--ct-graphite-nested-bg);
 }
 
 /* Action-queue row + live-metrics row also carry inset rounding + negative

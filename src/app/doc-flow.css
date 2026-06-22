@@ -12,6 +12,8 @@
 .admin-doc {
   container-type: inline-size;
   container-name: admin-doc;
+  /* Single-surface doc-flow: colour lives on .ct-page-area — do not paint here. */
+  background: transparent;
 }
 
 /* ── Shared layout primitives ─────────────────────────────────────────────── */
@@ -25,6 +27,7 @@
   gap: var(--ct-doc-flow-gap);
   container-type: inline-size;
   container-name: admin-doc;
+  background: transparent;
 }
 
 .admin-doc .admin-doc-shell--cap {
@@ -897,6 +900,8 @@
 .product-doc {
   container-type: inline-size;
   container-name: product-doc;
+  /* Single-surface LP: colour lives on .ct-page-area — do not paint here. */
+  background: transparent;
 }
 
 /* ── Shared layout primitives ─────────────────────────────────────────────── */
@@ -910,6 +915,7 @@
   gap: var(--ct-doc-flow-gap);
   container-type: inline-size;
   container-name: product-doc;
+  background: transparent;
 }
 
 .product-doc .product-doc-shell--cap {
@@ -1805,8 +1811,8 @@
   justify-content: space-between;
   gap: var(--ct-space-3);
   border-radius: var(--ct-radius-xl);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 
@@ -1825,8 +1831,8 @@
 }
 
 .product-doc .position-detail-kpis .ct-card {
-  background: var(--ct-surface-1);
-  border-color: var(--ct-border-soft);
+  background: var(--ct-graphite-subtle-bg);
+  border-color: var(--ct-graphite-border-nested);
   box-shadow: none;
 }
 
@@ -1847,8 +1853,8 @@
   flex-direction: column;
   gap: var(--ct-space-4);
   border-radius: var(--ct-radius-xl);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
   padding: var(--ct-space-4);
 }
 

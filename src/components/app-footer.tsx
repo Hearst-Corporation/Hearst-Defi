@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 /**
  * Unified institutional footer — one component, two densities.
  *
- * - `variant="full"` — the "socle plein" black plinth used on public surfaces
+ * - `variant="full"` — the "socle plein" gray plinth used on public surfaces
  *   ("/" and /legal/*): four columns (Identity / Platform / Legal / Status) over
  *   a hairline sub-footer.
  * - `variant="compact"` — a single ~40px line pinned at the bottom of every

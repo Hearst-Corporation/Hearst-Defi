@@ -52,7 +52,7 @@
 }
 
 .admin-doc .admin-doc-spec-link.is-active {
-  background: var(--ct-surface-1);
+  background: var(--ct-graphite-nested-bg);
   color: var(--ct-text-primary);
 }
 
