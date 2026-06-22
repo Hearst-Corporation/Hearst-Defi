@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/openai";
+import { containsForbidden } from "@/lib/agents/forbidden-words";
 
 /**
  * Outreach Reply Handler Agent — classifies an inbound reply to a cold email and
@@ -123,10 +124,17 @@ function parseAndClamp(text: string): OutreachReplyClassification {
     );
   }
   const raw = result.data;
+  // Non-negotiable #5 — neutralise (NON-fatally) a summary carrying forbidden
+  // vocabulary before it is surfaced to operators. Filter, never throw: the EN
+  // list contains the common word "certain", and a thrown summary would drop an
+  // otherwise-useful inbound classification.
+  const summary = containsForbidden(raw.summary)
+    ? "(summary withheld — compliance)"
+    : raw.summary;
   return {
     intent: raw.intent,
     confidence: Math.round(Math.min(100, Math.max(0, raw.confidence))),
-    summary: raw.summary,
+    summary,
   };
 }
 

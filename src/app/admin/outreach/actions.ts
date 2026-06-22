@@ -788,6 +788,78 @@ export async function draftDirectEmail(
   return { subject, body };
 }
 
+export interface DraftForProspectResult {
+  emailId: string;
+  toEmail: string;
+  subject: string;
+}
+
+/**
+ * Drafts a distributor cold email for an existing prospect (by id) and PERSISTS
+ * it as a `draftedByAgent` OutreachEmail under the shared "Direct sends"
+ * campaign — so the unified-chat `outreach_draft_email` tool produces a draft
+ * the auto-send run can later pick up (source → draft → send, all from one
+ * chat). NOTHING is sent here; the body is forbidden-words guarded before it is
+ * stored. Returns the created draft id for the chat to reference.
+ */
+export async function draftEmailForProspect(
+  prospectId: string,
+): Promise<DraftForProspectResult> {
+  const admin = await requireAdmin();
+  if (!prospectId) throw new Error("draftEmailForProspect: missing prospectId");
+
+  const prospect = await prisma.outreachProspect.findUnique({
+    where: { id: prospectId },
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      company: true,
+    },
+  });
+  if (!prospect) throw new Error("draftEmailForProspect: prospect not found");
+
+  const { subject, body } = await draftColdEmail({
+    prospect: {
+      email: prospect.email,
+      firstName: prospect.firstName,
+      lastName: prospect.lastName,
+      company: prospect.company,
+    },
+    typeformUrl: TYPEFORM_URL,
+    audience: "distributor",
+  });
+  // Non-negotiable #5 — never persist a draft carrying a forbidden claim.
+  assertNoForbiddenWords(`${subject}\n${body}`);
+
+  const campaignId = await getDirectCampaignId(admin.userId);
+  const email = await prisma.outreachEmail.create({
+    data: {
+      campaignId,
+      prospectId: prospect.id,
+      toEmail: prospect.email,
+      subject,
+      body,
+      status: "draft",
+      draftedByAgent: true,
+    },
+    select: { id: true },
+  });
+
+  await recordAudit(
+    admin.walletAddress ?? admin.userId,
+    "outreach.draftEmailForProspect",
+    "OutreachEmail",
+    email.id,
+    null,
+    { prospectId: prospect.id, toEmail: prospect.email },
+  );
+
+  revalidatePath(REVALIDATE_PATH);
+  return { emailId: email.id, toEmail: prospect.email, subject };
+}
+
 const DirectSendInput = z.object({
   to: z.string().trim().email().max(200),
   subject: z.string().trim().min(1).max(300),

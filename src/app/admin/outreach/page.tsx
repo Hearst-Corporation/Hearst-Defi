@@ -16,7 +16,6 @@ import { ProspectImportForm } from "@/components/admin/outreach/prospect-import-
 import { CampaignForm } from "@/components/admin/outreach/campaign-form";
 import { IcpForm } from "@/components/admin/outreach/icp-form";
 import { IcpList } from "@/components/admin/outreach/icp-list";
-import { OutreachCopilot } from "@/components/admin/outreach/outreach-copilot";
 import { TierBadge } from "@/components/admin/outreach/tier-badge";
 import {
   computeOutreachStats,
@@ -244,9 +243,11 @@ export default async function OutreachPage() {
       </section>
 
       {/* Lead engine — SECONDARY tool, demoted below the operator content.
-          Agentic sourcing (ICP → tiered prospects) + copilot. Sourcing is MOCK
-          until Apollo is wired (Palier 1); nothing is sent, every email stays
-          human-approved. Compacted: short label, no dominating description. */}
+          ICP management lives here; the conversational copilot that used to sit
+          beside it (source / show tier / stats) has moved into the cockpit chat
+          (admin mode → outreach_* tools), so there is no separate outreach chat.
+          Sourcing is MOCK until Apollo is wired; nothing is sent, every email
+          stays human-approved. */}
       <section
         className="admin-doc-stack admin-doc-stack--actions outreach-engine-aside"
         aria-label="Lead engine"
@@ -254,19 +255,16 @@ export default async function OutreachPage() {
         <div className="outreach-engine-aside__head">
           <h2 className="h3">Lead engine</h2>
           <span className="body-xs ct-text-muted">
-            Source &amp; tier leads from a distributor ICP — copilot-driven, never sends.
+            Source &amp; tier leads from a distributor ICP — run it from the cockpit chat, never sends.
           </span>
         </div>
-        <div className="ct-outreach-engine-grid">
-          <div className="admin-doc-stack admin-doc-stack--actions">
-            <div className="admin-doc-toolbar">
-              <div className="admin-doc-inline-row admin-doc-inline-row--actions">
-                <IcpForm />
-              </div>
+        <div className="admin-doc-stack admin-doc-stack--actions">
+          <div className="admin-doc-toolbar">
+            <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+              <IcpForm />
             </div>
-            <IcpList icps={icps} />
           </div>
-          <OutreachCopilot />
+          <IcpList icps={icps} />
         </div>
       </section>
     </div>

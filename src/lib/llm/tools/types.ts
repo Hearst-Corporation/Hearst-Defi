@@ -11,6 +11,9 @@ export const ADMIN_READ_TOOL_IDS = [
   "generate_demo_plan",
   "export_demo_pack",
   "export_briefing_pack",
+  // Outreach, folded into the unified chat — read side (no side effects).
+  "outreach_list_prospects",
+  "outreach_stats",
 ] as const;
 
 export type AdminReadToolId = (typeof ADMIN_READ_TOOL_IDS)[number];
@@ -18,6 +21,13 @@ export type AdminReadToolId = (typeof ADMIN_READ_TOOL_IDS)[number];
 export const ADMIN_WRITE_TOOL_IDS = [
   "create_review_note_draft",
   "create_governance_proposal_draft",
+  // Outreach, folded into the unified chat — write side (HITL confirmation).
+  // `outreach_trigger_send_run` only ever sends within the OUTREACH_AUTONOMY
+  // dial (never Tier A; warm-up cap + suppression re-check) — it triggers the
+  // SAME governed job as the cron, it does not bypass it.
+  "outreach_source_leads",
+  "outreach_draft_email",
+  "outreach_trigger_send_run",
 ] as const;
 
 export type AdminWriteToolId = (typeof ADMIN_WRITE_TOOL_IDS)[number];
