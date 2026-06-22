@@ -11,7 +11,7 @@ export const metadata = {
 
 export default async function ProjectionPage() {
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Engine"
         titleAccent="Projection"
@@ -19,6 +19,6 @@ export default async function ProjectionPage() {
       />
 
       <ProjectionStudio />
-    </div>
+    </>
   );
 }
