@@ -81,7 +81,6 @@ export interface MiningRevenue {
 }
 
 export type BacktestKey = "bear_2022" | "etf_halving_2024" | "mining_crunch_2024";
-export type LabTab = "scenario" | "backtest" | "construction";
 
 export interface ConstructionInputs {
   capacity_mw: number;
