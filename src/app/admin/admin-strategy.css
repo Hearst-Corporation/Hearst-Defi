@@ -83,7 +83,48 @@
    ============================================================================= */
 
 .admin-strategy-wizard {
+  /* Owns its own flex/width fully (no admin-doc-stack / admin-doc-narrow on the
+     wrapper) so the wide 2-col override below wins on `display` + `max-width`
+     without a specificity fight. Default = single narrow readable column. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-doc-flow-stack-gap);
   padding-bottom: var(--ct-space-10);
+  width: 100%;
+  max-width: var(--ct-prose-md);
+  margin-inline: auto;
+}
+
+/* Wide screens: 2-column wizard — form (left) + live projection summary pinned
+   on the right, so the deployment page uses the space instead of leaving a dead
+   zone beside a narrow form. Progress bar spans both columns. Below 62rem (chat
+   open / tablet / mobile) it falls back to the single narrow column (stacks). */
+@container admin-doc (min-width: 62rem) {
+  .admin-strategy-wizard {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 17rem;
+    gap: var(--ct-space-6);
+    align-items: start;
+    max-width: 60rem;
+    margin-inline: 0;
+  }
+
+  /* Progress bar (first child) spans the full width above both columns. */
+  .admin-strategy-wizard > .admin-doc-stack--actions:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .admin-strategy-wizard__main {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  .admin-strategy-wizard__aside {
+    grid-column: 2;
+    align-self: start;
+    position: sticky;
+    top: var(--ct-space-6);
+  }
 }
 
 .admin-strategy-confirm-rows--head {

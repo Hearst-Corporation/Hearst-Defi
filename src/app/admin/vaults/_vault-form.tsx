@@ -318,7 +318,7 @@ export function VaultForm(props: VaultFormProps) {
         : "Save Changes";
 
   return (
-    <div className="admin-doc-stack admin-doc-narrow admin-strategy-wizard" onBlur={handleBlur}>
+    <div className="admin-strategy-wizard" onBlur={handleBlur}>
       {/* Progress bar */}
       <div className="admin-doc-stack admin-doc-stack--actions">
         <div className="admin-doc-row-spread">
@@ -340,6 +340,7 @@ export function VaultForm(props: VaultFormProps) {
         <Progress value={progressPct} label="Wizard progress" />
       </div>
 
+      <div className="admin-strategy-wizard__main">
       <Card>
         {/* Step 1 — Identity & Strategy */}
         {step === "identity" && (
@@ -1049,8 +1050,11 @@ export function VaultForm(props: VaultFormProps) {
           </div>
         </div>
       </Card>
+      </div>
 
-      <ProjectionFooter vaultDraft={form} />
+      <aside className="admin-strategy-wizard__aside">
+        <ProjectionFooter vaultDraft={form} />
+      </aside>
     </div>
   );
 }
