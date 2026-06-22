@@ -70,7 +70,6 @@ describe("isProtected — public routes must NOT match", () => {
     "/proof",            // only a prefix of /proof-center
     "/proof-cent",
     "/api/auth/login",
-    "/debug/module-layout",
   ])("does NOT protect %s (public)", (path) => {
     expect(isProtected(path)).toBe(false);
   });

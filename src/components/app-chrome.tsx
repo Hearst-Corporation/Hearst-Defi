@@ -22,7 +22,7 @@ const BARE_EXACT = new Set<string>([
 // /apply renders standalone: the qualification chamber carries its own inline
 // assistant panel (ApplyAssistantPanel), so it must NOT get the Cockpit chat
 // rail. /legal/* uses its own LegalLayout.
-const BARE_PREFIXES = ["/legal", "/apply", "/sandbox"] as const;
+const BARE_PREFIXES = ["/legal", "/apply"] as const;
 
 function isBareRoute(pathname: string): boolean {
   if (BARE_EXACT.has(pathname)) return true;

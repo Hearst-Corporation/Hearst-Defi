@@ -66,7 +66,6 @@ describe("isBareRoute — routes that render WITH the Cockpit shell", () => {
     "/vaults/eth-yield",
     "/profile",
     "/proof-center",
-    "/debug/module-layout",
   ])("renders with shell for %s", (path) => {
     expect(isBareRoute(path)).toBe(false);
   });
