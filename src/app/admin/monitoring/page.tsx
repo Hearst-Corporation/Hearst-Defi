@@ -20,7 +20,7 @@ export default async function MonitoringPage() {
   });
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Monitoring"
         titleAccent="Console"
@@ -33,6 +33,6 @@ export default async function MonitoringPage() {
       )}
 
       <MonitoringBoard stats={stats} />
-    </div>
+    </>
   );
 }
