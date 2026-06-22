@@ -1,6 +1,7 @@
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
+import { Skeleton } from "@/components/ui/skeleton";
 import { relativeTime } from "@/lib/format/time";
 import {
   PfCockpitPanel,
@@ -91,13 +92,13 @@ export function RecentActivity({
            with real transactions as soon as the first one lands. */
         <div className="pf-activity pf-activity--skeleton" aria-label="No activity yet">
           {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} className="pf-activity__row pf-activity__row--skeleton" aria-hidden>
-              <span className="pf-activity__glyph pf-skeleton-dot" />
+            <div key={i} className="pf-activity__row pf-activity__row--skeleton pointer-events-none" aria-hidden>
+              <Skeleton variant="circle" className="w-[var(--ct-space-8)] h-[var(--ct-space-8)] shrink-0" />
               <span className="pf-activity__main min-w-0">
-                <span className="pf-skeleton-bar pf-skeleton-bar--label" />
-                <span className="pf-skeleton-bar pf-skeleton-bar--meta" />
+                <Skeleton className="h-[var(--ct-space-2_5)] w-[42%]" />
+                <Skeleton className="h-[var(--ct-space-2_5)] w-[26%] mt-[var(--ct-space-1)] opacity-60" />
               </span>
-              <span className="pf-skeleton-bar pf-skeleton-bar--amt" />
+              <Skeleton className="h-[var(--ct-space-2_5)] w-[var(--ct-space-10)]" />
             </div>
           ))}
         </div>

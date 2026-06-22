@@ -143,7 +143,7 @@ function SkeletonBars() {
             y={BAR_AREA_BOT - bh}
             width={BAR_W}
             height={bh}
-            fill="var(--ct-surface-3)"
+            fill="var(--ct-surface-2)"
             rx="1"
             aria-hidden="true"
           />

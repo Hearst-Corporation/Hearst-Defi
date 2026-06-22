@@ -2342,29 +2342,6 @@
    Positions, Recent Activity and the Capital & Yield ledger. They render the
    widget's structural frame while no real data exists, then disappear as the
    real rows fill in. No invented values, no "no data yet" phrase. ── */
-.pf-skeleton-bar,
-.pf-skeleton-dot {
-  display: inline-block;
-  border-radius: var(--ct-radius-sm);
-  background: var(--ct-surface-3);
-  animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
-}
-
-.pf-skeleton-dot {
-  width: var(--ct-space-2);
-  height: var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  flex-shrink: 0;
-}
-
-.pf-skeleton-bar { height: var(--ct-space-2_5); }
-.pf-skeleton-bar--label { width: 42%; }
-.pf-skeleton-bar--meta { width: 26%; margin-top: var(--ct-space-1); opacity: var(--ct-opacity-60); }
-.pf-skeleton-bar--amt { width: var(--ct-space-10); }
-.pf-skeleton-bar--vault { width: 55%; }
-.pf-skeleton-bar--num { width: 70%; }
-
-.pf-positions__row--skeleton .pf-skeleton-bar--num { margin-left: auto; }
 .pf-activity__row--skeleton,
 .pf-positions__row--skeleton { pointer-events: none; }
 
@@ -2388,23 +2365,8 @@
 .cy-donut-arc--skeleton {
   fill: none;
   stroke-width: 3.4; /* chart-geometry — matches .dash-chart-circle */
-  opacity: 1;
+  stroke: var(--ct-surface-2);
 }
-
-.cy-dot--skeleton {
-  background: var(--ct-surface-3);
-  animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
-}
-
-.pf-skeleton-bar--cy-label { width: 58%; height: var(--ct-space-2); }
-.pf-skeleton-bar--cy-val { width: var(--ct-space-6); height: var(--ct-space-2); justify-self: end; }
-
-.cy-fill--skeleton {
-  background: var(--ct-surface-3);
-  opacity: var(--ct-opacity-60);
-  animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
-}
-.cy-fill--skeleton::after { display: none; }
 
 /* ── Portfolio status leading mark: circled icon when there's room, plain dot
    when the panel gets too narrow (icon discs were cramping the rows). The

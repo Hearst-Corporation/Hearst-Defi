@@ -6,6 +6,7 @@ import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { cn } from "@/lib/cn";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
@@ -79,15 +80,15 @@ export function PositionsList({
             <span className="pf-positions__num">Since</span>
           </div>
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="pf-positions__row pf-positions__row--body pf-positions__row--skeleton" aria-hidden>
+            <div key={i} className="pf-positions__row pf-positions__row--body pf-positions__row--skeleton pointer-events-none" aria-hidden>
               <span className="pf-positions__vault">
-                <span className="pf-status-dot pf-skeleton-dot" />
-                <span className="pf-skeleton-bar pf-skeleton-bar--vault" />
+                <Skeleton variant="circle" className="w-[var(--ct-space-2)] h-[var(--ct-space-2)] shrink-0" />
+                <Skeleton className="h-[var(--ct-space-2_5)] w-[55%]" />
               </span>
-              <span className="pf-positions__num"><span className="pf-skeleton-bar pf-skeleton-bar--num" /></span>
-              <span className="pf-positions__num"><span className="pf-skeleton-bar pf-skeleton-bar--num" /></span>
-              <span className="pf-positions__num"><span className="pf-skeleton-bar pf-skeleton-bar--num" /></span>
-              <span className="pf-positions__num"><span className="pf-skeleton-bar pf-skeleton-bar--num" /></span>
+              <span className="pf-positions__num"><Skeleton className="h-[var(--ct-space-2_5)] w-[70%] ml-auto" /></span>
+              <span className="pf-positions__num"><Skeleton className="h-[var(--ct-space-2_5)] w-[70%] ml-auto" /></span>
+              <span className="pf-positions__num"><Skeleton className="h-[var(--ct-space-2_5)] w-[70%] ml-auto" /></span>
+              <span className="pf-positions__num"><Skeleton className="h-[var(--ct-space-2_5)] w-[70%] ml-auto" /></span>
             </div>
           ))}
         </div>

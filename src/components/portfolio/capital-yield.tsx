@@ -14,6 +14,7 @@ import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/cn";
 
 /**
@@ -239,12 +240,14 @@ export function CapitalYield({
                  graded track fill, so the ledger reads as a structured frame. */
               [62, 44, 30, 18].map((w, i) => (
                 <div key={i} className="cy-row cy-row--skeleton" aria-hidden>
-                  <span className="cy-dot cy-dot--skeleton" />
-                  <span className="pf-skeleton-bar pf-skeleton-bar--cy-label" />
-                  <span className="pf-skeleton-bar pf-skeleton-bar--cy-val" />
-                  <div className="cy-track">
+                  <Skeleton variant="circle" className="w-[var(--ct-space-2)] h-[var(--ct-space-2)] shrink-0" />
+                  <Skeleton className="h-[var(--ct-space-2)] w-[58%]" />
+                  <Skeleton className="h-[var(--ct-space-2)] w-[var(--ct-space-6)] justify-self-end" />
+                  <div className="cy-track relative">
                     <span className="cy-ticks" />
-                    <span className="cy-fill cy-fill--skeleton" style={{ width: `${w}%` }} />
+                    <div className="absolute inset-y-0 start-0" style={{ width: `${w}%` }}>
+                      <Skeleton className="cy-fill w-full h-full" />
+                    </div>
                   </div>
                 </div>
               ))}
