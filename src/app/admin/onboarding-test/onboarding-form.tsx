@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { QUALIFICATION_FIELD_DEFINITIONS } from "@/lib/qualification/options";
 import {
   simulateTypeformSubmission,
@@ -20,12 +21,29 @@ const QUESTIONS = QUALIFICATION_FIELD_DEFINITIONS.map((field, index) => ({
 export function OnboardingForm() {
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<OnboardingTestResult | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  // Capture the submitted FormData so the real action only fires after the
+  // operator confirms in the dialog (this creates a real investor record).
+  const pendingFormRef = useRef<FormData | null>(null);
+  const [pendingEmail, setPendingEmail] = useState<string>("");
 
   function onSubmit(formData: FormData) {
     setResult(null);
-    startTransition(async () => {
-      const res = await simulateTypeformSubmission(formData);
-      setResult(res);
+    pendingFormRef.current = formData;
+    setPendingEmail(String(formData.get("email") ?? "").trim());
+    setConfirmOpen(true);
+  }
+
+  async function onConfirm(): Promise<void> {
+    const formData = pendingFormRef.current;
+    if (!formData) return;
+    await new Promise<void>((resolve) => {
+      startTransition(async () => {
+        const res = await simulateTypeformSubmission(formData);
+        setResult(res);
+        pendingFormRef.current = null;
+        resolve();
+      });
     });
   }
 
@@ -87,10 +105,34 @@ export function OnboardingForm() {
 
         <div className="admin-doc-inline-row">
           <Button type="submit" variant="primary" size="md" disabled={isPending}>
-            {isPending ? "Submitting…" : "Submit onboarding"}
+            {isPending ? "Creating…" : "Create real pilot investor record"}
           </Button>
         </div>
       </form>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Create a real investor record?"
+        description={
+          <>
+            This is not a dry run. It creates a{" "}
+            <strong className="ct-text-strong">real investor account</strong>{" "}
+            and qualification record in the pilot database
+            {pendingEmail ? (
+              <>
+                {" "}for <span className="mono">{pendingEmail}</span>
+              </>
+            ) : null}
+            , and applies assistant settings. The welcome email and HubSpot sync
+            run only if you ticked them above.
+          </>
+        }
+        confirmLabel="Create record"
+        confirmVariant="primary"
+        confirmPhrase="CREATE"
+        onConfirm={onConfirm}
+      />
 
       {/* Result */}
       {result && (
