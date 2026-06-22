@@ -2,7 +2,7 @@ import { Skeleton, SkeletonCard } from "@/components/ui/skeleton";
 
 export default function ScenarioLabLoading() {
   return (
-    <div className="admin-doc admin-doc-shell admin-doc-shell--roomy scenario-lab-page">
+    <div className="admin-doc-shell--roomy scenario-lab-page">
       <div className="admin-doc-stack--relaxed">
         <Skeleton className="h-3 w-40" />
         <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed items-start">
