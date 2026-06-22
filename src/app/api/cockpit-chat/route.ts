@@ -787,6 +787,16 @@ async function runMasterAgentTurn(args: {
 }
 
 export async function POST(req: NextRequest): Promise<Response> {
+  // Kill-switch FIRST — before any work (body read, auth, rate-limit). The
+  // unified engine has no fallback, so a disabled chat must 503 immediately
+  // without consuming a rate-limit bucket or touching the DB.
+  if (!FEATURE_FLAGS.CHAT_MASTER_AGENT) {
+    return new Response(JSON.stringify({ error: "Cockpit chat is disabled." }), {
+      status: 503,
+      headers: { "Content-Type": "application/json", "Retry-After": "300" },
+    });
+  }
+
   // 0. Body size guard — prevent DoS via oversized payloads.
   try {
     await assertBodySize(req);
@@ -1065,13 +1075,8 @@ export async function POST(req: NextRequest): Promise<Response> {
   //     engine), honest token usage + cost traced on every turn. The legacy
   //     @hearst/cockpit-shell handler (no tools, no token usage → costUsd NULL)
   //     has been retired. CHAT_MASTER_AGENT is now a pure kill-switch (default
-  //     ON) — when set to "0" there is NO fallback engine and the chat is off.
-  if (!FEATURE_FLAGS.CHAT_MASTER_AGENT) {
-    return new Response(JSON.stringify({ error: "Cockpit chat is disabled." }), {
-      status: 503,
-      headers: { "Content-Type": "application/json", "Retry-After": "300" },
-    });
-  }
+  //     ON) — when set to "0" there is NO fallback engine and the chat is off
+  //     (gated at the very top of POST, before any work).
 
   // navProfile drives the navigate-tool destination set. Review never navigates
   // (gated inside runMasterAgentTurn), so its profile is moot — default to lp.
