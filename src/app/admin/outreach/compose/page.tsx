@@ -17,7 +17,7 @@ export default function ComposeEmailPage() {
   const configured = Boolean(process.env.RESEND_API_KEY);
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         title="Compose email"
         eyebrow="platform · one-off send"
@@ -47,6 +47,6 @@ export default function ComposeEmailPage() {
           <DirectSendForm />
         </Card>
       </section>
-    </div>
+    </>
   );
 }

@@ -61,7 +61,7 @@ export default async function CampaignDetailPage({
   const deliverySummary = buildDeliverySummary(detail.statusCounts);
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         title={detail.name}
         eyebrow={`campaign · ${detail.kind}`}
@@ -194,6 +194,6 @@ export default async function CampaignDetailPage({
           </div>
         )}
       </section>
-    </div>
+    </>
   );
 }

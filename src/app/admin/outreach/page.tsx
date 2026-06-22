@@ -66,7 +66,7 @@ export default async function OutreachPage() {
   ]);
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Outreach"
         titleAccent="Console"
@@ -267,6 +267,6 @@ export default async function OutreachPage() {
           <IcpList icps={icps} />
         </div>
       </section>
-    </div>
+    </>
   );
 }
