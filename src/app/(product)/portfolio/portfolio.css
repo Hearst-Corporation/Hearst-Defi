@@ -145,6 +145,7 @@
   color: var(--ct-text-secondary);
   letter-spacing: var(--ct-tracking-widest);
   text-transform: uppercase;
+  font-family: var(--font-mono);
 }
 
 .pf-greeting__sub-dot {
@@ -192,6 +193,8 @@
   line-height: var(--ct-leading-none);
   color: var(--ct-text-strong);
   white-space: nowrap;
+  font-family: var(--font-mono);
+  letter-spacing: var(--ct-tracking-tight);
 }
 
 .pf-ticker-note {
@@ -213,7 +216,7 @@
 .pf-cockpit {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-6);
   min-width: 0;
   margin-top: var(--ct-space-5);
 }
@@ -223,7 +226,7 @@
   min-height: 0;
   min-width: 0;
   display: grid;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-6);
 }
 
 /* Default (below the gate): each row is a single column, content-sized. */
@@ -769,22 +772,24 @@
 }
 
 /* ---- ValueChart ---- */
+.pf-hero-grid .dashboard-card-header {
+  min-height: var(--ct-space-14);
+  align-items: flex-end;
+  margin-bottom: 0;
+}
+
 .pf-value-chart {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4);
   min-width: 0;
   min-height: 0;
   height: 100%;
-  padding: var(--ct-space-4);
 }
 
 .pf-value-chart > header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
-  flex: 0 0 auto;
+  padding: 0;
+  margin-bottom: 0;
 }
 
 .pf-hero-kpi-value {
@@ -809,7 +814,7 @@
   margin: 0 0 var(--ct-space-1);
 }
 
-.pf-value-chart__chart-wrapper {
+  .pf-value-chart__chart-wrapper {
   position: relative;
   flex: 1 1 auto;
   min-height: 0;
@@ -818,11 +823,34 @@
   aspect-ratio: 200 / 62; /* chart-geometry */
   overflow: hidden;
   border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
-  background: linear-gradient(
+  background: radial-gradient(
+    circle at 50% 0%,
+    color-mix(in srgb, var(--ct-accent) 5%, transparent),
+    transparent 70%
+  ), linear-gradient(
     180deg,
     color-mix(in srgb, var(--ct-surface-2) 40%, transparent),
     color-mix(in srgb, var(--ct-surface-1) 60%, transparent)
   );
+}
+
+.pf-value-chart__chart-wrapper--interactive {
+  overflow: visible !important;
+  cursor: crosshair;
+}
+
+.pf-value-chart__y-axis {
+  position: absolute;
+  inset: var(--ct-space-2) auto var(--ct-space-2) var(--ct-space-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 5;
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.6;
 }
 
 .pf-value-chart__chart-wrapper::before {
@@ -861,6 +889,40 @@
   display: block;
   width: 100%;
   height: 100%;
+}
+
+/* Tooltip for ValueChart */
+.pf-vc-tooltip {
+  pointer-events: none;
+  z-index: 100;
+  transition: left 0.1s ease-out, top 0.1s ease-out;
+}
+
+.pf-vc-tooltip__content {
+  background: color-mix(in srgb, var(--ct-surface-2) 90%, transparent);
+  border: 1px solid var(--ct-border-base);
+  border-radius: var(--ct-radius-md);
+  padding: var(--ct-space-2) var(--ct-space-3);
+  box-shadow: var(--ct-shadow-elevated);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+  backdrop-filter: blur(var(--ct-blur-md));
+}
+
+.pf-vc-tooltip__label {
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
+  line-height: 1;
+}
+
+.pf-vc-tooltip__value {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-bold);
+  color: var(--ct-accent);
+  line-height: 1.2;
 }
 
 /* Chart line + area — flat stroke, no glow animation. */
@@ -953,15 +1015,20 @@
   min-width: 0;
   min-height: 0;
   /* Background and border come from PfCockpitPanel wrapper */
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  gap: var(--ct-space-4);
+}
+
+.pf-status-panel--glass {
+  backdrop-filter: blur(var(--ct-blur-md));
+  background: color-mix(in srgb, var(--ct-surface-1) 85%, transparent) !important;
 }
 
 .pf-status-panel .pf-cockpit-panel__header {
-  padding: var(--ct-space-3) var(--ct-space-4) var(--ct-space-1_5);
-  margin-bottom: var(--ct-space-0_5);
+  padding: 0;
+  margin-bottom: 0;
 }
 
 .pf-status-list {
@@ -970,7 +1037,7 @@
   flex: 1 1 auto;
   min-height: 0;
   margin: 0;
-  padding: 0 var(--ct-space-4) var(--ct-space-3);
+  padding: 0;
   /* Last-resort ghost-scroll inside the panel if a short slot can't hold all 5
      rows — never clips a row out of view (Underlying proof was getting cut). */
   overflow-y: auto;
@@ -984,11 +1051,19 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--ct-space-2_5);
+  gap: var(--ct-space-3);
   flex: 1 1 0;
   min-height: 0;
-  padding: var(--ct-space-2) var(--ct-space-3);
+  padding: var(--ct-space-2_5) var(--ct-space-3);
   border-radius: var(--ct-radius-md);
+  border: 1px solid transparent;
+  transition: all var(--ct-dur-fast) var(--ct-ease);
+}
+
+.pf-status-row:hover {
+  background: color-mix(in srgb, var(--ct-accent) 4%, var(--ct-surface-2));
+  border-color: color-mix(in srgb, var(--ct-accent) 15%, transparent);
+  transform: translateX(var(--ct-space-1));
 }
 
 .pf-status-row + .pf-status-row {
@@ -1001,21 +1076,27 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2rem;
+  height: 2rem;
   aspect-ratio: 1 / 1;
   flex: 0 0 auto;
-  border-radius: var(--ct-radius-full);
+  border-radius: var(--ct-radius-md);
   color: var(--ct-accent);
   background: color-mix(in srgb, var(--ct-accent) 8%, var(--ct-surface-3));
-  border: 1px solid color-mix(in srgb, var(--ct-accent) 22%, var(--ct-border-base));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ct-accent) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ct-accent) 20%, var(--ct-border-base));
+  transition: all var(--ct-dur-fast) var(--ct-ease);
+}
+
+.pf-status-row:hover .pf-status-row__icon {
+  background: color-mix(in srgb, var(--ct-accent) 15%, var(--ct-surface-3));
+  border-color: var(--ct-accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--ct-accent) 20%, transparent);
 }
 
 .pf-status-row__icon svg {
   display: block;
-  width: var(--ct-space-3_5);
-  height: var(--ct-space-3_5);
+  width: var(--ct-space-4);
+  height: var(--ct-space-4);
   fill: none;
   stroke: currentColor;
   stroke-width: 1.6;
@@ -1038,8 +1119,11 @@
 
 .pf-status-row__label {
   margin: 0;
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-body);
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-medium);
+  color: var(--ct-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1058,22 +1142,24 @@
 
 .pf-status-row__value {
   font-size: var(--ct-text-base);
-  font-weight: var(--ct-font-semibold);
+  font-weight: var(--ct-font-bold);
   line-height: var(--ct-leading-tight);
   color: var(--ct-text-strong);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
+  font-family: var(--font-mono);
 }
 
 .pf-status-row__value--accent {
   color: var(--ct-accent);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--ct-accent) 30%, transparent);
 }
 
 .pf-status-row__meta {
   font-size: var(--ct-text-micro);
+  font-family: var(--font-mono);
   color: var(--ct-text-tertiary);
   line-height: var(--ct-leading-tight);
   white-space: nowrap;
+  opacity: 0.8;
 }
 
 /* The status panel is the hero-grid right slot: same welded seam as the cluster. */
@@ -1590,7 +1676,7 @@
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .pf-activity-grid {
@@ -1609,15 +1695,15 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--ct-space-4);
-  padding: var(--ct-space-3) var(--ct-space-4);
-  border-radius: var(--ct-radius-sm);
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-base) 60%, transparent);
+  padding: var(--ct-space-2_5) var(--ct-space-4);
+  border-radius: var(--ct-radius-md);
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-base) 40%, transparent);
   transition: all var(--ct-dur-base) var(--ct-ease);
 }
 
 .pf-activity__row:hover {
-  background: color-mix(in srgb, var(--ct-accent) 4%, transparent);
-  /* Canonical hover-nudge distance (matches the leaf-link arrow) — was raw 3px. */
+  background: color-mix(in srgb, var(--ct-accent) 4%, var(--ct-surface-2));
+  border-color: color-mix(in srgb, var(--ct-accent) 15%, transparent);
   transform: translateX(var(--ct-space-0_5));
 }
 
@@ -1629,7 +1715,7 @@
   justify-content: center;
   width: var(--ct-space-8);
   height: var(--ct-space-8);
-  border-radius: var(--ct-radius-full);
+  border-radius: var(--ct-radius-md);
   background: var(--ct-surface-3);
   border: 1px solid var(--ct-border-base);
   color: var(--ct-text-primary);
@@ -1637,22 +1723,28 @@
   transition: all var(--ct-dur-base) var(--ct-ease);
 }
 
+.pf-activity__glyph svg {
+  width: var(--ct-space-4);
+  height: var(--ct-space-4);
+}
+
 .pf-activity__row:hover .pf-activity__glyph {
   border-color: var(--ct-accent);
   color: var(--ct-accent);
-  box-shadow: none;
+  background: color-mix(in srgb, var(--ct-accent) 8%, var(--ct-surface-3));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--ct-accent) 15%, transparent);
 }
 
 .pf-activity__main {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-px);
+  gap: var(--ct-space-0_5);
   min-width: 0;
 }
 
 .pf-activity__main > :first-child {
   font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-medium);
+  font-weight: var(--ct-font-semibold);
   color: var(--ct-text-strong);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1661,17 +1753,18 @@
 
 .pf-activity__main > :last-child {
   font-size: var(--ct-text-micro);
+  font-family: var(--font-mono);
   color: var(--ct-text-tertiary);
+  opacity: 0.8;
 }
 
 .pf-activity__amt {
   font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-semibold);
+  font-weight: var(--ct-font-bold);
   color: var(--ct-text-strong);
   text-align: right;
   white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
+  font-family: var(--font-mono);
 }
 
 /* ---- Activity empty ---- */
@@ -2359,7 +2452,7 @@
    when the panel gets too narrow (icon discs were cramping the rows). The
    88rem gate mirrors the cockpit no-scroll breakpoint — below it the layout
    compresses, so we drop to the compact dot. ── */
-@media not all and (min-width: 88rem) {
+@media not all and (min-width: 75rem) {
   .pf-status-row__icon { display: none; }
   .pf-status-row__dot { display: inline-block; }
 }

@@ -12,8 +12,9 @@
  * Pour activer : remplacer le contenu de value-chart.tsx par celui-ci (ou
  * renommer ce fichier). Rien d'autre à toucher.
  */
+"use client";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { useId } from "react";
+import { useId, useState, useRef } from "react";
 
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
@@ -148,9 +149,11 @@ interface PlotProps {
   preview?: boolean;
   /** Zero-state skeleton — flat baseline pinned to the bottom axis, muted. */
   skeleton?: boolean;
+  /** Hovered point for crosshair */
+  hoveredIndex?: number | null;
 }
 
-function Plot({ series, lineOnly = false, preview = false, skeleton = false }: PlotProps) {
+function Plot({ series, lineOnly = false, preview = false, skeleton = false, hoveredIndex = null }: PlotProps) {
   // ids uniques par instance — SSR-safe (useId marche en RSC), évite les
   // collisions <defs> si plusieurs ValueChart coexistent sur le document.
   const uid = useId();
@@ -171,15 +174,17 @@ function Plot({ series, lineOnly = false, preview = false, skeleton = false }: P
 
   const distCount = series.filter((s) => s.isDistribution).length;
   const title = skeleton
-    ? "Portfolio value — awaiting first confirmed on-chain position"
+    ? "Portfolio value — awaiting first position"
     : preview
       ? "Indicative preview chart"
       : "Portfolio Value — trailing trend";
   const summary = skeleton
-    ? "No value history yet; your portfolio value curve appears here after your first confirmed on-chain position."
+    ? "No value history yet; your portfolio value curve appears here after your first position."
     : preview
-      ? "Indicative preview — not your data; activates after your first confirmed on-chain position."
+      ? "Indicative preview — not your data; activates after your first position."
       : `Portfolio value over the trailing window, ${distCount} monthly distribution markers.`;
+
+  const hoveredPt = hoveredIndex !== null ? pts[hoveredIndex] : null;
 
   return (
     <svg
@@ -194,9 +199,14 @@ function Plot({ series, lineOnly = false, preview = false, skeleton = false }: P
 
       <defs>
         <linearGradient id={areaId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--ct-figma-accent-area-top)" />
-          <stop offset="100%" stopColor="var(--ct-figma-accent-area-bottom)" />
+          <stop offset="0%" stopColor="var(--ct-accent)" stopOpacity="0.15" />
+          <stop offset="50%" stopColor="var(--ct-accent)" stopOpacity="0.05" />
+          <stop offset="100%" stopColor="var(--ct-accent)" stopOpacity="0" />
         </linearGradient>
+        <filter id={`${uid}-glow`} x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="1.5" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
       </defs>
 
       <g className="pf-vc-grid" aria-hidden="true">
@@ -239,19 +249,38 @@ function Plot({ series, lineOnly = false, preview = false, skeleton = false }: P
           d={linePath}
           fill="none"
           stroke={skeleton ? "var(--ct-surface-3)" : "var(--ct-accent)"}
-          strokeWidth="1.15"
+          strokeWidth="1.25"
           strokeLinejoin="round"
           strokeLinecap="round"
           vectorEffect="non-scaling-stroke"
           opacity={lineOnly && !skeleton ? "var(--ct-opacity-70)" : undefined}
+          filter={skeleton ? undefined : `url(#${uid}-glow)`}
           aria-hidden="true"
         />
       ) : null}
 
-      {/* Endpoint dot is rendered in HTML (.pf-vc-dot--endcap, see buildDots)
-         so it stays a true circle — an in-SVG <circle> would be squashed into an
-         ovale by preserveAspectRatio="none" (the area fill needs `none` to span
-         the full width). */}
+      {hoveredPt && !skeleton && (
+        <g className="pf-vc-crosshair" aria-hidden="true">
+          <line
+            x1={hoveredPt.x}
+            x2={hoveredPt.x}
+            y1={0}
+            y2={VB_H}
+            stroke="var(--ct-accent)"
+            strokeWidth="0.5"
+            strokeDasharray="2 2"
+            opacity="0.5"
+          />
+          <circle
+            cx={hoveredPt.x}
+            cy={hoveredPt.y}
+            r="1.5"
+            fill="var(--ct-accent)"
+            stroke="var(--ct-bg-deep)"
+            strokeWidth="0.5"
+          />
+        </g>
+      )}
     </svg>
   );
 }
@@ -265,6 +294,8 @@ interface ValueChartProps {
   valueChartTransactions?: ValueSeriesTx[];
   source: "live" | "fallback";
   updatedAt?: Date;
+  /** Current reference time for the chart (hydration-safe). */
+  asOf?: Date;
   embedded?: boolean;
   /** Vault APY low — enables indicative projection curve in zero-state when provided. */
   blendedLow?: number;
@@ -287,9 +318,10 @@ export function ValueChart({
   valueChartTransactions = [],
   source,
   updatedAt,
+  asOf: asOfProp,
   embedded = false,
 }: ValueChartProps) {
-  const asOf = updatedAt ?? new Date();
+  const asOf = updatedAt ?? asOfProp ?? new Date();
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
 
   // Zero-state = flat skeleton at zero (no invented projection). The chart frame,
@@ -311,13 +343,41 @@ export function ValueChart({
   const pts = project(series.map((d) => d.value));
   const dots = isEmpty ? [] : buildDots(series, pts);
 
+  const maxValue = Math.max(...series.map((s) => s.value));
+  const minValue = Math.min(...series.map((s) => s.value));
+
+  // Interactivity state
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current || series.length === 0 || isEmpty) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const pct = Math.max(0, Math.min(1, x / rect.width));
+    const index = Math.round(pct * (series.length - 1));
+    
+    setHoveredIndex(index);
+    setMousePos({ x, y });
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredIndex(null);
+    setMousePos(null);
+  };
+
+  const hoveredPoint = hoveredIndex !== null ? series[hoveredIndex] : null;
+
   return (
     <PfCockpitPanel
       variant="wide"
       chrome={embedded ? "embedded" : "panel"}
       aria-label={
         isEmpty
-          ? "Portfolio value — awaiting first confirmed on-chain position"
+          ? "Portfolio value — awaiting first position"
           : "Portfolio value — trailing trend"
       }
       className={cn(
@@ -325,23 +385,21 @@ export function ValueChart({
         embedded && "pf-value-chart--hero-embedded",
       )}
     >
-      {provenance ? <ChartProvenanceCorner kind={provenance} /> : null}
+      {provenance && !embedded ? <ChartProvenanceCorner kind={provenance} /> : null}
 
       {embedded ? (
-        <header className="dashboard-card-header">
-          <div className="min-w-0 flex flex-col gap-[var(--ct-space-1)]">
-            <h2 className="dashboard-panel-title min-w-0 wrap-break-word ct-text-accent">
-              Portfolio value
-            </h2>
-            {isEmpty ? null : (
-              <p className="pf-hero-kpi-block m-0">
-                <span className="pf-hero-kpi-value tabular-nums">
-                  {formatUsdFull(chartValue)}
-                </span>
-              </p>
-            )}
-          </div>
-        </header>
+        <DashboardPanelHeader
+          title="Portfolio value"
+          titleLevel="section"
+          tone="quiet"
+          trailing={
+            isEmpty ? undefined : (
+              <span className="pf-hero-kpi-value tabular-nums">
+                {formatUsdFull(chartValue)}
+              </span>
+            )
+          }
+        />
       ) : (
         <DashboardPanelHeader
           title="Portfolio value over the trailing window"
@@ -365,10 +423,25 @@ export function ValueChart({
 
       {(
         <>
-          <div className="pf-value-chart__chart-wrapper">
+          <div 
+            className="pf-value-chart__chart-wrapper pf-value-chart__chart-wrapper--interactive"
+            ref={containerRef}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div className="pf-value-chart__y-axis" aria-hidden="true">
+              <span>{formatUsdCompact(maxValue)}</span>
+              <span>{formatUsdCompact(minValue)}</span>
+            </div>
             <div className={cn("pf-value-chart__plot", isEmpty && "pf-value-chart__plot--skeleton")}>
               {isEmpty ? null : <ChartDisclaimerUnderlay />}
-              <Plot series={series} lineOnly={isEmpty} preview={false} skeleton={isEmpty} />
+              <Plot 
+                series={series} 
+                lineOnly={isEmpty} 
+                preview={false} 
+                skeleton={isEmpty} 
+                hoveredIndex={hoveredIndex}
+              />
               {dots.length > 0 ? (
                 <div className="pf-vc-dots" aria-hidden="true">
                   {dots.map((dot, i) => (
@@ -383,6 +456,26 @@ export function ValueChart({
                   ))}
                 </div>
               ) : null}
+
+              {/* Tooltip */}
+              {hoveredPoint && mousePos && !isEmpty && (
+                <div 
+                  className="pf-vc-tooltip"
+                  style={{
+                    position: 'absolute',
+                    left: `${mousePos.x}px`,
+                    top: `${mousePos.y - 12}px`,
+                    transform: 'translate(-50%, -100%)',
+                    pointerEvents: 'none',
+                    zIndex: 1000,
+                  }}
+                >
+                  <div className="pf-vc-tooltip__content">
+                    <div className="pf-vc-tooltip__label">{hoveredPoint.label}</div>
+                    <div className="pf-vc-tooltip__value">{formatUsdFull(hoveredPoint.value)}</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -407,13 +500,7 @@ export function ValueChart({
             })}
           </div>
 
-          {isEmpty ? null : (
-            <p className="body-xs ct-text-muted italic pf-value-chart__disclaimer">
-              {mode === "ledger"
-                ? "Month-end values interpolate between your deposit and payout ledger entries and the current live mark. Not guaranteed."
-                : "Indicative path from subscribed principal to current value until ledger history is available. Not guaranteed."}
-            </p>
-          )}
+          {isEmpty ? null : null}
         </>
       )}
     </PfCockpitPanel>

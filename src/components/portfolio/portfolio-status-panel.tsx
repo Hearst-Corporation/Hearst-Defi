@@ -98,7 +98,7 @@ export function PortfolioStatusPanel({
       : 0;
 
   const provenance = hasPositions ? resolveProvenance(source, updatedAt) : undefined;
-  const asOf = updatedAt ? `As of ${dateFmt.format(updatedAt)}` : "Awaiting first confirmed on-chain position";
+  const asOf = updatedAt ? `As of ${dateFmt.format(updatedAt)}` : "Awaiting first position";
 
   const rows: Row[] = [
     {
@@ -106,23 +106,24 @@ export function PortfolioStatusPanel({
       icon: ICONS.deployment,
       label: "Deployment",
       value: hasPositions ? `${deploymentPct.toFixed(1)}%` : DASH,
+      valueAccent: hasPositions,
       meta: hasPositions
         ? `${formatUsdCompact(deployedUsdc)} deployed`
-        : "Awaiting first confirmed on-chain position",
+        : "Awaiting first position",
     },
     {
       key: "positions",
       icon: ICONS.positions,
       label: "Positions",
       value: hasPositions ? String(positionsCount) : DASH,
-      meta: hasPositions ? "Active" : "None yet",
+      meta: hasPositions ? (positionsCount === 1 ? "Active position" : "Active positions") : "None yet",
     },
     {
       key: "yield",
       icon: ICONS.yield,
       label: "Accrued yield",
       value: hasPositions ? formatUsdCompact(accruedYieldUsdc) : DASH,
-      valueAccent: hasPositions,
+      valueAccent: hasPositions && accruedYieldUsdc > 0,
       meta: "Since inception",
     },
     {
@@ -136,7 +137,8 @@ export function PortfolioStatusPanel({
       key: "proof",
       icon: ICONS.proof,
       label: "Underlying proof",
-      value: hasPositions ? (source === "live" ? "Current" : "Pending") : DASH,
+      value: hasPositions ? (source === "live" ? "Live" : "Pending") : DASH,
+      valueAccent: hasPositions && source === "live",
       meta: asOf,
     },
   ];
@@ -146,11 +148,12 @@ export function PortfolioStatusPanel({
       variant="wide"
       chrome={embedded ? "embedded" : "panel"}
       aria-label="Portfolio status"
-      className="pf-status-panel"
+      className={cn("pf-status-panel", !embedded && "pf-status-panel--glass")}
     >
       <DashboardPanelHeader
         title="Portfolio status"
-        tone="primary"
+        titleLevel="section"
+        tone="quiet"
         provenance={provenance}
       />
       <dl className="pf-status-list">
@@ -167,8 +170,8 @@ export function PortfolioStatusPanel({
               {r.value !== DASH ? (
                 <span
                   className={cn(
-                    "pf-status-row__value tabular",
-                    r.valueAccent && "ct-text-accent"
+                    "pf-status-row__value",
+                    r.valueAccent && "pf-status-row__value--accent"
                   )}
                 >
                   {r.value}
