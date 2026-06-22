@@ -17,7 +17,7 @@ export default async function FeedbackPage() {
   const kpis = buildFeedbackKpiStrip(items);
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Feedback"
         titleAccent="Review"
@@ -37,6 +37,6 @@ export default async function FeedbackPage() {
         <h2 className="h2">Feedback log ({items.length})</h2>
         <FeedbackList items={items} />
       </section>
-    </div>
+    </>
   );
 }
