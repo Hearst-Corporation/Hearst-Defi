@@ -41,7 +41,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     "HYV";
 
   return (
-    <div className="admin-doc-shell">
+    <>
       <AdminPageHeader
         titleLead="Admin"
         titleAccent="Command Center"
@@ -69,6 +69,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         investorCount={totals.investorCount}
         investedCapitalUsdc={totals.investedCapitalUsdc}
       />
-    </div>
+    </>
   );
 }
