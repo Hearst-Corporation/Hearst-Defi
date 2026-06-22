@@ -124,6 +124,8 @@ function render(
       hasLiveKpis={hasLiveKpis}
       proofFresh={false}
       cockpit={cockpit}
+      investorCount={0}
+      investedCapitalUsdc={0}
     />,
   );
 }
@@ -190,6 +192,8 @@ describe("DashboardAssetsBoard — command-center layout", () => {
         hasLiveKpis
         proofFresh={false}
         cockpit={COCKPIT}
+        investorCount={0}
+        investedCapitalUsdc={0}
       />,
     );
 
@@ -315,6 +319,8 @@ describe("DashboardAssetsBoard — command-center layout", () => {
             },
           ],
         }}
+        investorCount={0}
+        investedCapitalUsdc={0}
       />,
     );
 
@@ -392,6 +398,8 @@ describe("DashboardAssetsBoard — command-center layout", () => {
             },
           ],
         }}
+        investorCount={0}
+        investedCapitalUsdc={0}
       />,
     );
 
@@ -481,6 +489,8 @@ describe("DashboardAssetsBoard — command-center layout", () => {
             },
           ],
         }}
+        investorCount={0}
+        investedCapitalUsdc={0}
       />,
     );
 

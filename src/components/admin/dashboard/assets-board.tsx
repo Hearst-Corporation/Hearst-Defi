@@ -49,6 +49,10 @@ interface DashboardAssetsBoardProps {
   simulated?: boolean;
   proofFresh: boolean;
   cockpit: CockpitPayload;
+  /** Platform-wide registered investor count. */
+  investorCount: number;
+  /** Platform-wide invested capital (sum of active position principals), USDC. */
+  investedCapitalUsdc: number;
 }
 
 export function DashboardAssetsBoard({
@@ -62,10 +66,18 @@ export function DashboardAssetsBoard({
   simulated,
   proofFresh,
   cockpit,
+  investorCount,
+  investedCapitalUsdc,
 }: DashboardAssetsBoardProps) {
   const allocation = data.allocations;
   const allocationTotal = allocation.reduce((sum, item) => sum + item.pct, 0);
   const allocationLive = resolveAllocationChartLive(hasLiveKpis, data, capitalUsdc);
+
+  // Dominant allocation bucket for the KPI strip (the donut shows the full split).
+  const topAllocation =
+    allocation.length > 0
+      ? allocation.reduce((max, cur) => (cur.pct > max.pct ? cur : max))
+      : null;
 
   const navPoints = data.timeseries.nav30d;
   const navLive = resolveNavChartLive(hasLiveKpis, data.timeseries);
@@ -96,6 +108,12 @@ export function DashboardAssetsBoard({
       data.vaultMeta.livePreview,
     ),
     data,
+    investorCount,
+    investedCapitalUsdc,
+    topAllocation: topAllocation
+      ? { bucket: topAllocation.bucket, pct: topAllocation.pct }
+      : null,
+    allocationProvenance: allocationLive ? "live" : "estimated",
   });
 
   const riskProvenance = resolveRiskProvenance(hasLiveKpis, risk, simulated);

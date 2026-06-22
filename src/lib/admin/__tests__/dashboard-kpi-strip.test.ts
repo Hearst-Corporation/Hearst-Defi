@@ -73,6 +73,10 @@ function buildKpis(opts: {
     operatorQueueCount: 0,
     operatorQueueProvenance: "manual",
     data: DATA_STUB as DashboardData,
+    investorCount: 0,
+    investedCapitalUsdc: 0,
+    topAllocation: null,
+    allocationProvenance: "stale",
   });
 }
 
@@ -81,15 +85,43 @@ function proofKpi(kpis: ReturnType<typeof buildKpis>) {
 }
 
 describe("buildDashboardKpiStrip", () => {
-  it("renders five strip rows without a capital cell", () => {
+  it("renders the full strip including platform totals", () => {
     const kpis = buildKpis({ proofFresh: false, proof: PROOF_EMPTY });
     expect(kpis.map((k) => k.label)).toEqual([
       "APY",
       "Risk",
       "Mining",
       "Proof",
+      "Invested capital",
+      "Investors",
+      "Top allocation",
       "Operator queue",
     ]);
+  });
+
+  it("shows invested capital + investor count when provided", () => {
+    const kpis = buildDashboardKpiStrip({
+      headlineApy: null,
+      yieldPosture: "—",
+      apyProvenance: "manual",
+      risk: RISK,
+      riskProvenance: "manual",
+      miningMarginScore: 0,
+      miningProvenance: "manual",
+      proofFresh: false,
+      proofProvenance: "manual",
+      proof: PROOF_EMPTY,
+      operatorQueueCount: 0,
+      operatorQueueProvenance: "manual",
+      data: DATA_STUB as DashboardData,
+      investorCount: 3,
+      investedCapitalUsdc: 1_250_000,
+      topAllocation: { bucket: "mining", pct: 45 },
+      allocationProvenance: "live",
+    });
+    expect(kpis.find((k) => k.label === "Investors")!.value).toBe("3");
+    expect(kpis.find((k) => k.label === "Invested capital")!.value).not.toBe("—");
+    expect(kpis.find((k) => k.label === "Top allocation")!.value).toBe("45%");
   });
 });
 

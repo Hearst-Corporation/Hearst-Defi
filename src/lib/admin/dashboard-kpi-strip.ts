@@ -1,9 +1,10 @@
 import type { Provenance } from "@/components/ui/provenance-badge";
+import { allocationLabelFor } from "@/lib/allocation-colors";
 import type { AdminProofStatus } from "@/lib/data/admin-overview";
 import type { HeroKpi } from "@/lib/data/cockpit";
 import type { DashboardData } from "@/lib/data/dashboard";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
-import { formatAdminMonthDay } from "@/lib/vaults/product-display";
+import { formatAdminMonthDay, formatUsdCompact } from "@/lib/vaults/product-display";
 
 function hashpriceLabel(data: DashboardData): string {
   const hashprice = data.miningOps.hashprice;
@@ -41,6 +42,13 @@ export function buildDashboardKpiStrip(input: {
   operatorQueueCount: number;
   operatorQueueProvenance: Provenance;
   data: DashboardData;
+  /** Platform-wide registered investor count. */
+  investorCount: number;
+  /** Platform-wide invested capital (sum of active position principals), USDC. */
+  investedCapitalUsdc: number;
+  /** Dominant allocation bucket (the donut shows the full split). */
+  topAllocation: { bucket: string; pct: number } | null;
+  allocationProvenance: Provenance;
 }): HeroKpi[] {
   const riskTone =
     input.risk.band === "high" ? "danger" : input.risk.band === "medium" ? "warning" : "success";
@@ -84,6 +92,32 @@ export function buildDashboardKpiStrip(input: {
       value: proofValue(input.proofFresh, input.proof.attestationsCount),
       sublabel: proofSubtitle(input.proof),
       provenance: input.proofProvenance,
+    },
+    {
+      label: "Invested capital",
+      value:
+        input.investedCapitalUsdc > 0
+          ? formatUsdCompact(input.investedCapitalUsdc)
+          : "—",
+      sublabel: "across active positions",
+      provenance: "manual",
+    },
+    {
+      label: "Investors",
+      value: input.investorCount > 0 ? String(input.investorCount) : "—",
+      sublabel:
+        input.investorCount === 1 ? "registered account" : "registered accounts",
+      provenance: "manual",
+    },
+    {
+      label: "Top allocation",
+      value: input.topAllocation
+        ? `${input.topAllocation.pct.toFixed(0)}%`
+        : "—",
+      sublabel: input.topAllocation
+        ? allocationLabelFor(input.topAllocation.bucket)
+        : "awaiting allocation",
+      provenance: input.topAllocation ? input.allocationProvenance : "stale",
     },
     {
       label: "Operator queue",
