@@ -48,8 +48,8 @@
   --pf-bp-deck-3col: 58rem;
   --pf-bp-hero-split: 58rem;
   --pf-bp-hero-stack: 64rem;
-  --pf-donut-size: 11rem;
-  --pf-donut-size-mid: 12rem;
+  --pf-donut-size: 12rem;
+  --pf-donut-size-mid: 13rem;
   --pf-donut-size-zero: 7.5rem;
   position: relative;
   background: transparent;
@@ -230,9 +230,9 @@
 }
 
 /* Default (below the gate): each row is a single column, content-sized. */
-.pf-cockpit-row--summary { grid-template-columns: 1fr; }
-.pf-cockpit-row--mid     { grid-template-columns: 1fr; }
-.pf-cockpit-row--deck    { grid-template-columns: 1fr; }
+.pf-cockpit-row--summary { grid-template-columns: 1fr; align-items: start; }
+.pf-cockpit-row--mid     { grid-template-columns: 1fr; align-items: start; }
+.pf-cockpit-row--deck    { grid-template-columns: 1fr; align-items: start; }
 
 .pf-cockpit-cell {
   min-width: 0;
