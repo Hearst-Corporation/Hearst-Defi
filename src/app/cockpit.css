@@ -5056,10 +5056,6 @@ button.ct-choice-card {
   );
 }
 
-.login-split__glow {
-  display: none;
-}
-
 .login-split__grid {
   height: 100%;
   position: relative;
