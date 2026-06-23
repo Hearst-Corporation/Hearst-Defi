@@ -56,4 +56,67 @@ describe("calibratePersona", () => {
     const p = calibratePersona({ platformType: "exchange", language: "en" });
     expect(p.language).toBe("en");
   });
+
+  // -------------------------------------------------------------------------
+  // 4-question /apply funnel: the form now collects only platformType, aum,
+  // vaultSize, and timeline (fundsUsage / yieldStatus / yieldType are no longer
+  // asked). Calibration must still produce an exploitable persona from this
+  // reduced set — these tests pin that the reduced profile degrades gracefully.
+  // -------------------------------------------------------------------------
+
+  it("produces an exploitable persona from the 4-question profile (high intent)", () => {
+    const p = calibratePersona({
+      platformType: "wealth",
+      aum: "250m_plus",
+      vaultSize: "5m_plus",
+      timeline: "asap",
+    });
+
+    // Commercial tier is driven by aum + vaultSize → tier1 here.
+    expect(p.tier).toBe("tier1");
+    // Persona must remain usable: register, segments, vault, instructions.
+    expect(["low", "medium", "high"]).toContain(p.verbosity);
+    expect(p.segments).toContain("wealth-platform");
+    // Vault suggestion still resolves (defaults to yield without yieldType).
+    expect(p.suggestedVault).toBeTruthy();
+    expect(p.customInstructions.length).toBeGreaterThan(0);
+  });
+
+  it("produces an exploitable persona from the 4-question profile (explorer)", () => {
+    const p = calibratePersona({
+      platformType: "crypto",
+      aum: "lt_10m",
+      vaultSize: "100_500k",
+      timeline: "exploring",
+    });
+
+    expect(p.tier).toBe("explorer");
+    expect(p.segments.length).toBe(3);
+    expect(["fr", "en"]).toContain(p.language);
+    // Without yieldType the growth-disclaimer block is not loaded; the persona
+    // is still complete and on-brand (crypto-native register present).
+    expect(p.customInstructions).toMatch(/crypto-native/);
+  });
+
+  it("dropping the three retired questions still yields a stable tier", () => {
+    const full = calibratePersona({
+      platformType: "wealth",
+      aum: "50_250m",
+      fundsUsage: "mix",
+      yieldStatus: "in_progress",
+      yieldType: "balanced",
+      vaultSize: "1_5m",
+      timeline: "1_3m",
+    });
+    const reduced = calibratePersona({
+      platformType: "wealth",
+      aum: "50_250m",
+      vaultSize: "1_5m",
+      timeline: "1_3m",
+    });
+
+    // tier is a function of aum + vaultSize only → unchanged by the drop.
+    expect(reduced.tier).toBe(full.tier);
+    expect(reduced.segments).toContain("wealth-platform");
+  });
 });

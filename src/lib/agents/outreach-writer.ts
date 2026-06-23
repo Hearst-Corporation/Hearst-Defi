@@ -7,6 +7,7 @@ import { assertNoForbiddenWords } from "@/lib/agents/validators";
 import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/openai";
+import { ensureCtaInBody } from "@/lib/outreach/cta-url";
 
 /**
  * Email-outreach agent — drafts cold prospecting emails and personalised
@@ -283,7 +284,12 @@ export async function draftColdEmail(
   if (text.length === 0) {
     throw new Error("Outreach agent (cold email) returned no text block.");
   }
-  return parseAndGuard(text);
+  const draft = parseAndGuard(text);
+  // The prompt instructs the model to embed the CTA verbatim, but that is not a
+  // guarantee. Deterministically repair the body if the qualification link is
+  // missing so no cold email ever ships as a dead-end. The appended copy carries
+  // no forbidden words, so the body remains compliant.
+  return { ...draft, body: ensureCtaInBody(draft.body, input.typeformUrl) };
 }
 
 /**

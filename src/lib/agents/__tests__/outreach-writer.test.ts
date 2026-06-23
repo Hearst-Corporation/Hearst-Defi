@@ -41,12 +41,22 @@ describe("OutreachDraftSchema", () => {
 // ---------------------------------------------------------------------------
 
 /** Builds a minimal LlmClientLike mock that captures the last call's params
- *  and returns a valid outreach draft JSON so the agent's parse+guard passes. */
-function makeMockClient(capture: { params: LlmParams | null }) {
+ *  and returns a valid outreach draft JSON so the agent's parse+guard passes.
+ *  `bodyText` overrides the returned body so tests can simulate a model that
+ *  drops (or keeps) the CTA link. */
+function makeMockClient(
+  capture: { params: LlmParams | null },
+  bodyText = "Test body content that is long enough.",
+) {
   const mockResponse: LlmResponse = {
     id: "mock-id",
     model: "gpt-4.1",
-    content: [{ type: "text", text: '{"subject":"Test subject","body":"Test body content that is long enough."}' }],
+    content: [
+      {
+        type: "text",
+        text: JSON.stringify({ subject: "Test subject", body: bodyText }),
+      },
+    ],
     usage: { input_tokens: 10, output_tokens: 20 },
   };
 
@@ -124,5 +134,43 @@ describe("draftColdEmail — audience framing in system prompt", () => {
     // Must NOT contain the distributor-specific partnership framing.
     expect(systemText).not.toMatch(/distribution partnership/i);
     expect(systemText).not.toMatch(/their own clients/i);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// draftColdEmail — CTA backstop
+//
+// The system prompt asks the model to embed the qualification URL verbatim, but
+// a prompt is not a guarantee. draftColdEmail must deterministically repair a
+// body that drops the link so no cold email ever ships as a dead-end.
+// ---------------------------------------------------------------------------
+
+describe("draftColdEmail — CTA link backstop", () => {
+  it("appends the CTA URL when the model drops it from the body", async () => {
+    const capture: { params: LlmParams | null } = { params: null };
+    // Simulate a model that produced a body WITHOUT the qualification link.
+    const client = makeMockClient(capture, "A short note about Hearst Connect.");
+
+    const draft = await draftColdEmail(
+      { prospect: BASE_PROSPECT, typeformUrl: TYPEFORM_URL },
+      { client },
+    );
+
+    expect(draft.body).toContain(TYPEFORM_URL);
+  });
+
+  it("does not duplicate the CTA URL when the model already embedded it", async () => {
+    const capture: { params: LlmParams | null } = { params: null };
+    const bodyWithCta = `Hello — here is the form: ${TYPEFORM_URL}`;
+    const client = makeMockClient(capture, bodyWithCta);
+
+    const draft = await draftColdEmail(
+      { prospect: BASE_PROSPECT, typeformUrl: TYPEFORM_URL },
+      { client },
+    );
+
+    // The URL must appear exactly once — the backstop must not re-append it.
+    const occurrences = draft.body.split(TYPEFORM_URL).length - 1;
+    expect(occurrences).toBe(1);
   });
 });
