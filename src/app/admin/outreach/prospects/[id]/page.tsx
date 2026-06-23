@@ -15,33 +15,15 @@ import { EmptySurface } from "@/components/ui/empty-surface";
 import { loadProspectDetail } from "@/lib/data/outreach";
 import { lifecycleFor, type LifecycleKind } from "@/lib/outreach/lifecycle";
 import { getMailboxReadiness } from "@/lib/outreach/mailbox-readiness";
+import {
+  PROSPECT_VARIANT,
+  TIER_VARIANT,
+} from "@/lib/outreach/status-variants";
 import { formatAdminDate } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Prospect — Hearst Connect" };
-
-/** Prospect lifecycle status → Badge variant. */
-const STATUS_VARIANT: Record<
-  string,
-  "default" | "success" | "warning" | "danger" | "accent"
-> = {
-  new: "default",
-  contacted: "accent",
-  opened: "accent",
-  replied: "success",
-  qualified: "success",
-  converted: "success",
-  opted_out: "warning",
-  bounced: "danger",
-};
-
-/** Autonomy tier → Badge variant (A prime, B warm, C cold). */
-const TIER_VARIANT: Record<string, "default" | "success" | "warning" | "accent"> = {
-  A: "success",
-  B: "accent",
-  C: "default",
-};
 
 /** Apollo email verification → Badge variant. */
 const EMAIL_STATUS_VARIANT: Record<
@@ -151,7 +133,7 @@ export default async function ProspectDetailPage({
         }
         actions={
           <div className="admin-doc-inline-row admin-doc-inline-row--end">
-            <Badge variant={STATUS_VARIANT[p.status] ?? "default"}>{p.status}</Badge>
+            <Badge variant={PROSPECT_VARIANT[p.status] ?? "default"}>{p.status}</Badge>
             {p.tier ? (
               <Badge variant={TIER_VARIANT[p.tier] ?? "default"}>Tier {p.tier}</Badge>
             ) : null}

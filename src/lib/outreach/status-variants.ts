@@ -1,13 +1,16 @@
 import type { BadgeVariant } from "@/components/ui/badge";
 
 /**
- * Outreach status variants — shared badge mappings for prospects and campaigns.
+ * Outreach status variants — shared badge mappings for prospects, tiers,
+ * campaigns, and lifecycle states.
  *
  * These are presentation constants (not business logic) used across the
  * outreach admin surfaces to ensure consistent badge coloring.
  */
 
-/** Prospect lifecycle status → Badge variant. */
+/** Prospect lifecycle status → Badge variant.
+ *  Used across outreach pages (list view and detail view).
+ */
 export const PROSPECT_VARIANT: Record<
   string,
   BadgeVariant
@@ -20,6 +23,13 @@ export const PROSPECT_VARIANT: Record<
   converted: "success",
   opted_out: "warning",
   bounced: "danger",
+};
+
+/** Autonomy tier → Badge variant (A prime, B warm, C cold). */
+export const TIER_VARIANT: Record<string, "default" | "success" | "warning" | "accent"> = {
+  A: "success",
+  B: "accent",
+  C: "default",
 };
 
 /** Campaign status → Badge variant. */

@@ -17,18 +17,11 @@ import { AgentAssignForm } from "@/components/admin/customer/agent-assign-form";
 import { MemoryManager } from "@/components/admin/customer/memory-manager";
 import { loadCustomerDetail } from "@/lib/data/customer-detail";
 import { loadActiveTemplates } from "@/lib/data/agent-templates";
-import { formatAdminDate } from "@/lib/vaults/product-display";
+import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Customer — Hearst Connect" };
-
-const usdFull = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-});
 
 const POSITION_STATUS_LABEL: Record<string, string> = {
   active: "Active",
@@ -141,7 +134,7 @@ export default async function CustomerDetailPage({
                         {POSITION_STATUS_LABEL[p.status] ?? p.status}
                       </td>
                       <td className="ct-table-cell text-right tabular-nums ct-text-strong">
-                        {usdFull.format(p.principalUsdc)}
+                        {formatUsdFull(p.principalUsdc)}
                       </td>
                       <td className="ct-table-cell text-right ct-text-muted">
                         {formatAdminDate(p.subscribedAt)}

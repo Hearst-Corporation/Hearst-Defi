@@ -13,7 +13,7 @@ import { KycAction } from "@/components/admin/kyc-action";
 import { CreateInvestorButton } from "@/components/admin/customer/create-investor-button";
 import { loadCustomers, loadOrphanSubmissions, type KycStatus } from "@/lib/data/customers";
 import { buildCustomersKpiStrip } from "@/lib/admin/customers-kpi-strip";
-import { formatAdminDate } from "@/lib/vaults/product-display";
+import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
 import { truncateWallet } from "@/lib/wallet-display";
 
 export const dynamic = "force-dynamic";
@@ -21,13 +21,6 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Investors — Hearst Connect",
 };
-
-const usdFull = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-});
 
 const KYC_DOT: Record<KycStatus, string> = {
   approved: "ct-status-dot-success",
@@ -153,7 +146,7 @@ export default async function CustomersPage({
                         {c.activePositions}
                       </td>
                       <td className="ct-table-cell text-right tabular-nums ct-text-strong">
-                        {usdFull.format(c.totalPrincipalUsdc)}
+                        {formatUsdFull(c.totalPrincipalUsdc)}
                       </td>
                       <td className="hidden ct-table-cell ct-text-muted lg:table-cell">
                         {formatAdminDate(c.joinedAt)}

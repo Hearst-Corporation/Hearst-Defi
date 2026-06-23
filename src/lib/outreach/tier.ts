@@ -59,13 +59,10 @@ export const TIER_LABEL: Record<Tier, string> = {
   C: "Cold",
 };
 
-/** Badge variant per tier, aligned to the existing Badge component variants. */
-export const TIER_BADGE_VARIANT: Record<Tier, "success" | "accent" | "default"> =
-  {
-    A: "success",
-    B: "accent",
-    C: "default",
-  };
+/** Badge variant per tier — re-export from status-variants for single source.
+ *  Kept here for backward compatibility; canonical source is status-variants.ts.
+ */
+export { TIER_VARIANT as TIER_BADGE_VARIANT } from "./status-variants";
 
 /** Type guard for a raw string coming from the DB / a form. */
 export function isTier(value: unknown): value is Tier {

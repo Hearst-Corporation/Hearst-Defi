@@ -20,6 +20,7 @@ import {
   toVaultKpiFacts,
   toVaultLegalFacts,
 } from "@/lib/vaults/vault-detail-facts";
+import { formatUsdFull } from "@/lib/vaults/product-display";
 
 import {
   closeVault,
@@ -77,13 +78,6 @@ export default async function VaultDetailPage({ params }: PageProps) {
   if (!vault) notFound();
 
   const aumUsdc = vault.positions.reduce((sum, p) => sum + Number(p.principalUsdc), 0);
-
-  const usdFull = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
 
   const defaultShareClass = vault.shareClass;
   const defaultSoftLockupDays = vault.softLockupDays;
@@ -425,7 +419,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
         <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
           <DashboardPanelHeader title="Subscribers" className="mb-0" />
           <span className="mono tabular body-sm ct-text-muted">
-            {vault.positions.length} active · {usdFull.format(aumUsdc)}
+            {vault.positions.length} active · {formatUsdFull(aumUsdc)}
           </span>
         </div>
 
@@ -462,7 +456,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
                         {classCode}
                       </td>
                       <td className="ct-table-cell text-right tabular-nums ct-text-strong">
-                        {usdFull.format(Number(pos.principalUsdc))}
+                        {formatUsdFull(Number(pos.principalUsdc))}
                       </td>
                       <td className="ct-table-cell body-xs ct-text-muted whitespace-nowrap">
                         {pos.subscribedAt.toISOString().slice(0, 10)}
