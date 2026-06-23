@@ -2121,18 +2121,17 @@
   .pf-cockpit-row--deck { grid-template-columns: 1fr 1fr; }
 }
 
+/* ---- MID: outer row stays 1fr at all sizes (the pf-fused-surface--mid handles
+        its own internal 2-column split). No @container override needed here. ---- */
+
+/* ---- 58rem gate: deck weighted split + hero welded grid ---- */
 @container pf (min-width: 58rem) {
   /* Payout = 1 widget; the fused cell carries 2 (Recent Activity + Trust),
      so it gets the larger share — otherwise Recent Activity collapses to a
      ~130px slot and its header/copy overlap (Trust's --aside reserves 15rem). */
   .pf-cockpit-row--deck { grid-template-columns: 1fr 1.6fr; }
-}
 
-/* ---- MID: outer row stays 1fr at all sizes (the pf-fused-surface--mid handles
-        its own internal 2-column split). No @container override needed here. ---- */
-
-/* ---- HERO welded grid: split at 58rem inside the well ---- */
-@container pf (min-width: 58rem) {
+  /* Hero welded grid split */
   .pf-hero-grid {
     grid-template-columns: 1.6fr minmax(16rem, 1fr);
   }
@@ -2209,9 +2208,9 @@
   .pf-cockpit-row--mid {
     grid-template-columns: 1fr;
   }
-    .pf-hero-grid {
-      grid-template-columns: 1fr;
-    }
+  .pf-hero-grid {
+    grid-template-columns: 1fr;
+  }
   .pf-hero-grid .pf-status-panel {
     border-left: 0;
     border-top: 1px solid var(--ct-graphite-border-nested);
