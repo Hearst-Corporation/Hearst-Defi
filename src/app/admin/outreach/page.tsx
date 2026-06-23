@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { OutreachStatsCards } from "@/components/admin/outreach/stats-cards";
+import { OutreachAutonomyPanel } from "@/components/admin/outreach/autonomy-panel";
 import { ProspectAddForm } from "@/components/admin/outreach/prospect-add-form";
 import { ProspectImportForm } from "@/components/admin/outreach/prospect-import-form";
 import { CampaignForm } from "@/components/admin/outreach/campaign-form";
@@ -23,6 +24,7 @@ import {
   loadCampaigns,
   loadIcps,
 } from "@/lib/data/outreach";
+import { getOutreachAutonomyStatus } from "@/lib/outreach/autonomy-status";
 import { formatAdminDate } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
@@ -64,6 +66,8 @@ export default async function OutreachPage() {
     loadCampaigns(),
     loadIcps(),
   ]);
+  // Read-only posture for the autonomy panel — no DB, no send, no secret leak.
+  const autonomy = getOutreachAutonomyStatus();
 
   return (
     <>
@@ -77,6 +81,12 @@ export default async function OutreachPage() {
           </Button>
         }
       />
+
+      {/* Autonomy posture — what the agent may do on its own, and why a send
+          would or would not fire. Read-only; changes no policy. */}
+      <section className="admin-doc-stack" aria-label="Outreach autonomy">
+        <OutreachAutonomyPanel status={autonomy} />
+      </section>
 
       {/* Engagement overview — single compact stats source (no big KPI panel,
           no duplicated Prospects: that count lives in the directory heading). */}
