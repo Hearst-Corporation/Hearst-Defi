@@ -68,19 +68,9 @@ export default async function PortfolioPage() {
       <div className="pf-hairline" aria-hidden="true" />
 
       <div className="pf-cockpit">
+        {/* ROW 1 — Status banner : métriques clés en pleine largeur */}
         <div className="pf-cockpit-row pf-cockpit-row--summary">
-          <div className="pf-hero-grid pf-cockpit-cell">
-            <div className="pf-main-chart-wrapper">
-              <ValueChart
-                positions={data.positions}
-                totalValueUsdc={data.totalValueUsdc}
-                valueChartTransactions={data.valueChartTransactions}
-                source={data.source}
-                updatedAt={data.updatedAt}
-                asOf={now}
-                embedded
-              />
-            </div>
+          <div className="pf-cockpit-cell">
             <PortfolioStatusPanel
               hasPositions={hasPositions}
               positionsCount={data.positions.length}
@@ -94,14 +84,26 @@ export default async function PortfolioPage() {
                 timestamp: proofPulseProps.lastPor.timestamp,
                 source: proofPulseProps.source,
               }}
-              embedded
+              embedded={false}
               {...(data.updatedAt ? { updatedAt: data.updatedAt } : {})}
             />
           </div>
         </div>
 
+        {/* ROW 2 — Chart (support) + Positions (focus) */}
         <div className="pf-cockpit-row pf-cockpit-row--mid">
-          <div className="pf-cockpit-cell pf-fused-surface pf-fused-surface--mid">
+          <div className="pf-cockpit-cell pf-fused-surface pf-fused-surface--chart-positions">
+            <div className="pf-fused-surface__pane pf-fused-surface__pane--chart" data-section="chart">
+              <ValueChart
+                positions={data.positions}
+                totalValueUsdc={data.totalValueUsdc}
+                valueChartTransactions={data.valueChartTransactions}
+                source={data.source}
+                updatedAt={data.updatedAt}
+                asOf={now}
+                embedded
+              />
+            </div>
             <div className="pf-fused-surface__pane" data-section="positions">
               <PositionsList
                 positions={data.positions}
@@ -111,23 +113,24 @@ export default async function PortfolioPage() {
                 embedded
               />
             </div>
-            <div
-              className="pf-fused-surface__pane pf-fused-surface__pane--aside"
-              data-section="yield-allocation"
-              data-testid="capital-yield-widget"
-            >
-              <CapitalYield
-                {...yieldStackProps}
-                buckets={allocationDonutProps.buckets}
-                totalValueUsdc={data.totalValueUsdc}
-                leafHref="/portfolio/yield"
-                embedded
-              />
-            </div>
           </div>
         </div>
 
+        {/* ROW 3 — Deck : allocation + calendrier + activité */}
         <div className="pf-cockpit-row pf-cockpit-row--deck">
+          <div
+            className="pf-cockpit-cell"
+            data-section="yield-allocation"
+            data-testid="capital-yield-widget"
+          >
+            <CapitalYield
+              {...yieldStackProps}
+              buckets={allocationDonutProps.buckets}
+              totalValueUsdc={data.totalValueUsdc}
+              leafHref="/portfolio/yield"
+              embedded
+            />
+          </div>
           <div
             className="pf-cockpit-cell"
             data-section="payout-calendar"
