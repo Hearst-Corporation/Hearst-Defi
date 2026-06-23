@@ -355,6 +355,8 @@ export function DistribCalendar({
 
   const hasEntries = entries.length > 0;
   const hasForecast = entries.some((e) => e.paidAt === null);
+  const latestPaidEntry = [...entries].reverse().find((e) => e.paidAt !== null) ?? null;
+  const forecastEntry = entries.find((e) => e.paidAt === null) ?? null;
 
   // Zero-state: render the histogram SKELETON (empty muted bars), no phrase.
   // The frame fills in with real bars as soon as the first distribution lands.
@@ -394,25 +396,37 @@ export function DistribCalendar({
     />
   );
 
-  // Footer — share class + cadence.
-  const calendarFooter = (shareClass || cadence) ? (
-    <dl className="pf-calendar-footer">
-      {shareClass ? (
-        <div className="pf-calendar-footer__item">
-          <dt className="stat-label mono">Share class</dt>
-          <dd className="body-sm ct-text-body mono tabular">
-            Series {shareClass}
-          </dd>
+  const calendarSummary = (
+    <dl className="pf-calendar-summary">
+      {latestPaidEntry ? (
+        <div className="pf-calendar-summary__item pf-calendar-summary__item--amount">
+          <dt>Latest paid</dt>
+          <dd>{formatUsdc(latestPaidEntry.amountUsdc)}</dd>
+          <span>{formatPeriod(latestPaidEntry.period, refYear)}</span>
         </div>
       ) : null}
-      {cadence ? (
-        <div className="pf-calendar-footer__item">
-          <dt className="stat-label mono">Cadence</dt>
-          <dd className="body-sm ct-text-body mono tabular">{cadence}</dd>
+      {forecastEntry ? (
+        <div className="pf-calendar-summary__item pf-calendar-summary__item--amount">
+          <dt>Forecast</dt>
+          <dd>~{formatUsdc(forecastEntry.amountUsdc)}</dd>
+          <span>{formatPeriod(forecastEntry.period, refYear)}</span>
+        </div>
+      ) : null}
+      {shareClass ? (
+        <div className="pf-calendar-summary__item pf-calendar-summary__item--meta">
+          <dt>Share class</dt>
+          <dd>Series {shareClass}</dd>
+          <span>{cadence ?? "Distribution cadence"}</span>
+        </div>
+      ) : cadence ? (
+        <div className="pf-calendar-summary__item pf-calendar-summary__item--meta">
+          <dt>Cadence</dt>
+          <dd>{cadence}</dd>
+          <span>Distribution rhythm</span>
         </div>
       ) : null}
     </dl>
-  ) : null;
+  );
 
   return (
     <PfCockpitPanel
@@ -421,6 +435,7 @@ export function DistribCalendar({
       className="pf-payout-calendar-panel h-full"
     >
       {header}
+      {calendarSummary}
       <div className="pf-distrib-chart-shell">
         <BarChart
           entries={entries}
@@ -428,7 +443,6 @@ export function DistribCalendar({
           currentPeriod={currentPeriod}
         />
       </div>
-      {calendarFooter}
     </PfCockpitPanel>
   );
 }

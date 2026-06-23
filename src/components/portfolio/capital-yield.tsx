@@ -91,6 +91,23 @@ export function CapitalYield({
     stressedBearRange.low <= stressedBearRange.high
       ? [stressedBearRange.low, stressedBearRange.high]
       : [stressedBearRange.high, stressedBearRange.low];
+  const showReferenceRange = hasData && !isFilled;
+  const heroRangeLabel = isFilled
+    ? "Forward range"
+    : showReferenceRange
+      ? "Reference range"
+      : "Forward range pending";
+  const heroRangeValue = isFilled || showReferenceRange
+    ? formatApyRange({ low: rLow, high: rHigh })
+    : "—";
+  const heroRangeNote = isFilled
+    ? "12m forward projection · not guaranteed"
+    : showReferenceRange
+      ? "Vault-level reference while your first position is pending"
+      : "Awaiting allocation snapshot";
+  const stressedValue = isFilled || showReferenceRange
+    ? formatApyRange({ low: sLow, high: sHigh })
+    : "—";
 
   // Only real buckets become coloured arcs. Empty → the background ring shows alone.
   const segments = buckets.map((slice, i) => ({
@@ -116,25 +133,42 @@ export function CapitalYield({
         trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
       />
 
+      <div className="cy-hero">
+        <div className="cy-hero__range">
+          <span className="cy-hero__eyebrow">{heroRangeLabel}</span>
+          <span className={cn("cy-hero__value", (isFilled || showReferenceRange) && "cy-hero__value--accent")}>
+            {heroRangeValue}
+          </span>
+          <span className="cy-hero__note">{heroRangeNote}</span>
+        </div>
+        <div className="cy-hero__stress">
+          <span className="cy-hero__stress-label">Stress case</span>
+          <span className={cn("cy-hero__stress-value", (isFilled || showReferenceRange) && "cy-hero__stress-value--live")}>
+            {stressedValue}
+          </span>
+        </div>
+      </div>
+
       <div className="cy-body">
         {/* ── Zone 1 — allocation gauge ── */}
-        <div className="cy-donut dash-chart-container group/donut">
+        <div className="cy-donut-shell">
+          <div className="cy-donut dash-chart-container group/donut">
           {/* svg-geometry: cx/cy/r/strokeDasharray/viewBox are raw numbers by SVG spec */}
-          <svg
-            className={cn("dash-chart-svg", !hasYield && "dash-chart-svg--skeleton")}
-            viewBox="0 0 42 42"
-            role="img"
-            aria-label={hasYield ? "Allocation by yield source" : "Allocation — awaiting first confirmed on-chain position"}
-          >
+            <svg
+              className={cn("dash-chart-svg", !hasYield && "dash-chart-svg--skeleton")}
+              viewBox="0 0 42 42"
+              role="img"
+              aria-label={hasYield ? "Allocation by yield source" : "Allocation — awaiting first confirmed on-chain position"}
+            >
             {/* Background track ring (always present). */}
-            <circle
-              className="dash-chart-circle"
-              cx="21"
-              cy="21"
-              r="15.9155"
-              stroke="var(--ct-surface-2)"
-              strokeDasharray="100 0"
-            />
+              <circle
+                className="dash-chart-circle"
+                cx="21"
+                cy="21"
+                r="15.9155"
+                stroke="var(--ct-surface-2)"
+                strokeDasharray="100 0"
+              />
             {hasYield ? (
               <>
                 {segments
@@ -182,19 +216,27 @@ export function CapitalYield({
                 />
               ))
             )}
-          </svg>
-          <div className="donut-center">
-            {isFilled ? (
-              <>
-                <span className="donut-val group-hover/donut:scale-110 transition-transform duration-500">{formatUsdCompact(totalValueUsdc)}</span>
-                <span className="donut-lbl">Capital</span>
-              </>
-            ) : (
-              <>
-                <span className="donut-val ct-text-tertiary">—</span>
-                <span className="donut-lbl">Pending</span>
-              </>
-            )}
+            </svg>
+            <div className="donut-center">
+              {isFilled ? (
+                <>
+                  <span className="donut-val group-hover/donut:scale-110 transition-transform duration-500">{formatUsdCompact(totalValueUsdc)}</span>
+                  <span className="donut-lbl">Capital</span>
+                </>
+              ) : (
+                <>
+                  <span className="donut-val ct-text-tertiary">—</span>
+                  <span className="donut-lbl">Pending</span>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="cy-donut-shell__caption">
+            {isFilled
+              ? "Live investor allocation"
+              : showReferenceRange
+                ? "Reference allocation mix"
+                : "Awaiting first confirmed position"}
           </div>
         </div>
 
@@ -247,34 +289,6 @@ export function CapitalYield({
               })
             : null}
 
-          {!hasData ? null : <hr className="cy-ledger-rule" aria-hidden />}
-
-          {!hasData ? null : (
-            <dl className="pf-stack--dense">
-              <div className="flex items-baseline justify-between">
-                <dt className="body-xs min-w-0 truncate ct-text-muted">
-                  Blended fwd range
-                </dt>
-                <dd
-                  className={cn("tabular font-semibold font-mono", isFilled ? "ct-text-primary" : "ct-text-tertiary")}
-                  aria-label={isFilled ? `Blended forward range ${rLow.toFixed(1)} to ${rHigh.toFixed(1)} percent` : "Blended forward range pending"}
-                >
-                  {isFilled ? formatApyRange({ low: rLow, high: rHigh }) : "—"}
-                </dd>
-              </div>
-              <div className="flex items-baseline justify-between">
-                <dt className="body-xs min-w-0 truncate ct-text-muted">
-                  Stressed (bear) <span className="body-xs opacity-(--ct-opacity-70)">(proxy)</span>
-                </dt>
-                <dd
-                  className={cn("tabular font-medium font-mono", isFilled ? "ct-text-body" : "ct-text-tertiary")}
-                  aria-label={isFilled ? `Stressed bear scenario ${sLow.toFixed(1)} to ${sHigh.toFixed(1)} percent` : "Stressed bear scenario pending"}
-                >
-                  {isFilled ? formatApyRange({ low: sLow, high: sHigh }) : "—"}
-                </dd>
-              </div>
-            </dl>
-          )}
         </div>
       </div>
 

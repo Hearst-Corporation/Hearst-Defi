@@ -161,14 +161,6 @@ export function PortfolioStatusPanel({
       valueAccent: hasPositions && accruedYieldUsdc > 0,
       meta: hasPositions ? totalValueMeta : "—",
     },
-    {
-      key: "proof",
-      icon: ICONS.proof,
-      label: "Underlying proof",
-      value: hasPositions ? proofLabel.value : DASH,
-      valueAccent: hasPositions && proofLabel.accent,
-      meta: hasPositions ? proofAsOf : portfolioAsOf,
-    },
   ];
 
   return (
@@ -184,6 +176,31 @@ export function PortfolioStatusPanel({
         tone="quiet"
         provenance={provenance}
       />
+      <div className="pf-status-hero">
+        <div className="pf-status-hero__item">
+          <span className="pf-status-hero__badge-label">Snapshot</span>
+          <span className="pf-status-hero__badge-value">
+            {hasPositions && updatedAt ? dateFmt.format(updatedAt) : "Pending"}
+          </span>
+          <span className="pf-status-hero__badge-meta">
+            {hasPositions ? "Portfolio sync" : "Awaiting first position"}
+          </span>
+        </div>
+        <div className="pf-status-hero__item">
+          <span className="pf-status-hero__badge-label">Proof status</span>
+          <span
+            className={cn(
+              "pf-status-hero__badge-value",
+              hasPositions && proofLabel.accent && "pf-status-hero__badge-value--accent",
+            )}
+          >
+            {hasPositions ? proofLabel.value : "Pending"}
+          </span>
+          <span className="pf-status-hero__badge-meta">
+            {hasPositions ? proofAsOf : portfolioAsOf}
+          </span>
+        </div>
+      </div>
       <dl className="pf-status-list">
         {rows.map((r) => (
           <div key={r.key} className="pf-status-row">

@@ -146,6 +146,28 @@ describe("DistribCalendar — single entry", () => {
   });
 });
 
+describe("DistribCalendar summary rail", () => {
+  it("renders the summary items for latest paid, forecast and share class", () => {
+    const html = renderToStaticMarkup(
+      <DistribCalendar
+        entries={[
+          makePaid("2026-04", 2205),
+          makePaid("2026-05", 2310),
+          makeForecast("2026-06", 2400),
+        ]}
+        shareClass="A"
+        cadence="monthly, T+5"
+        asOf={new Date("2026-06-01T00:00:00Z")}
+      />,
+    );
+
+    expect(html).toContain("pf-calendar-summary");
+    expect(html).toContain("Latest paid");
+    expect(html).toContain("Forecast");
+    expect(html).toContain("Series A");
+  });
+});
+
 // ── Suite 5: formatPeriod helper ──────────────────────────────────────────────
 
 describe("formatPeriod", () => {

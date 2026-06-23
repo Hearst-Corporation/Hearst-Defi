@@ -56,6 +56,9 @@ export function RecentActivity({
   const provenance = hasTransactions ? resolveProvenance(source, updatedAt) : undefined;
   const asOf = asOfProp ?? new Date();
   const trailing = leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined;
+  const latest = displayed[0];
+  const latestDirection = latest ? flowSign(latest.type) : null;
+  const latestLabel = latest ? (TYPE_LABELS[latest.type] ?? latest.type) : null;
 
   return (
     <PfCockpitPanel
@@ -72,7 +75,36 @@ export function RecentActivity({
       />
       {hasTransactions ? (
         <div className="pf-activity">
-          {displayed.map((tx) => {
+          {latest ? (
+            <div className="pf-activity-summary">
+              <div className="pf-activity-summary__main">
+                <span className="pf-activity-summary__eyebrow">Latest movement</span>
+                <span className="pf-activity-summary__title">
+                  {latestLabel}
+                  {latest.positionVaultName ? (
+                    <span className="ct-text-tertiary font-normal"> · {latest.positionVaultName}</span>
+                  ) : null}
+                </span>
+                <span className="pf-activity-summary__meta">
+                  {relativeTime(latest.occurredAt, asOf)}
+                </span>
+              </div>
+              <div className="pf-activity-summary__aside">
+                <span className={cn(
+                  "pf-activity-summary__amount",
+                  latestDirection === "in" ? "ct-text-accent" : "ct-text-strong"
+                )}>
+                  {latestDirection === "out" ? "−" : "+"}
+                  {formatUsdCompact(latest.amountUsdc)}
+                </span>
+                <span className="pf-activity-summary__count">
+                  {displayed.length} recent event{displayed.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+            </div>
+          ) : null}
+          <div className="pf-activity-list">
+            {displayed.map((tx) => {
             const dir = flowSign(tx.type);
             return (
               <div key={tx.id} className="pf-activity__row group">
@@ -102,7 +134,8 @@ export function RecentActivity({
                 </span>
               </div>
             );
-          })}
+            })}
+          </div>
         </div>
       ) : (
         /* Zero-state text — plain and honest empty state instead of skeleton rows

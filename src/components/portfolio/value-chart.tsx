@@ -347,25 +347,71 @@ export function ValueChart({
 
   // Interactivity state
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const syncHoveredIndex = (index: number | null) => {
+    if (index === null || !containerRef.current || !pts[index]) {
+      setHoveredIndex(null);
+      setTooltipPos(null);
+      return;
+    }
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const point = pts[index];
+    setHoveredIndex(index);
+    setTooltipPos({
+      x: (point.x / VB_W) * rect.width,
+      y: (point.y / VB_H) * rect.height,
+    });
+  };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current || series.length === 0 || isEmpty) return;
     const rect = containerRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
     const pct = Math.max(0, Math.min(1, x / rect.width));
     const index = Math.round(pct * (series.length - 1));
-    
-    setHoveredIndex(index);
-    setMousePos({ x, y });
+
+    syncHoveredIndex(index);
   };
 
   const handleMouseLeave = () => {
-    setHoveredIndex(null);
-    setMousePos(null);
+    syncHoveredIndex(null);
+  };
+
+  const handleChartFocus = () => {
+    if (isEmpty || series.length === 0) return;
+    syncHoveredIndex(series.length - 1);
+  };
+
+  const handleChartKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (isEmpty || series.length === 0) return;
+
+    const currentIndex = hoveredIndex ?? series.length - 1;
+
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      syncHoveredIndex(Math.max(0, currentIndex - 1));
+      return;
+    }
+
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      syncHoveredIndex(Math.min(series.length - 1, currentIndex + 1));
+      return;
+    }
+
+    if (e.key === "Home") {
+      e.preventDefault();
+      syncHoveredIndex(0);
+      return;
+    }
+
+    if (e.key === "End") {
+      e.preventDefault();
+      syncHoveredIndex(series.length - 1);
+    }
   };
 
   const hoveredPoint = hoveredIndex !== null ? series[hoveredIndex] : null;
@@ -435,6 +481,15 @@ export function ValueChart({
             ref={containerRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
+            onFocus={handleChartFocus}
+            onBlur={handleMouseLeave}
+            onKeyDown={handleChartKeyDown}
+            tabIndex={isEmpty ? -1 : 0}
+            aria-label={
+              isEmpty
+                ? "Portfolio value chart awaiting first position"
+                : "Portfolio value chart. Use left and right arrow keys to inspect each point."
+            }
           >
             <div className="pf-value-chart__y-axis" aria-hidden="true">
               <span>{formatUsdCompact(maxValue)}</span>
@@ -465,13 +520,13 @@ export function ValueChart({
               ) : null}
 
               {/* Tooltip */}
-              {hoveredPoint && mousePos && !isEmpty && (
+              {hoveredPoint && tooltipPos && !isEmpty && (
                 <div 
                   className="pf-vc-tooltip"
                   style={{
                     position: 'absolute',
-                    left: `${mousePos.x}px`,
-                    top: `${mousePos.y - 12}px`,
+                    left: `${tooltipPos.x}px`,
+                    top: `${tooltipPos.y - 12}px`,
                     transform: 'translate(-50%, -100%)',
                     pointerEvents: 'none',
                     zIndex: 1000,
