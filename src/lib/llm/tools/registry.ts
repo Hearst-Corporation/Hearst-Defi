@@ -1359,9 +1359,15 @@ function validateWriteToolInput(toolId: string, input: unknown): void {
   } else if (toolId === "create_governance_proposal_draft") {
     parseGovernanceProposalInput(input);
   } else if (toolId === "outreach_source_leads") {
-    OutreachSourceLeadsInputSchema.parse(input);
+    // Throw the stable `invalid_<toolId>` code (like the draft tools above) so
+    // the route maps it to a clean 400 + human message, never a raw ZodError 500.
+    if (!OutreachSourceLeadsInputSchema.safeParse(input).success) {
+      throw new Error("invalid_outreach_source_leads_input");
+    }
   } else if (toolId === "outreach_draft_email") {
-    OutreachDraftEmailInputSchema.parse(input);
+    if (!OutreachDraftEmailInputSchema.safeParse(input).success) {
+      throw new Error("invalid_outreach_draft_email_input");
+    }
   }
   // outreach_trigger_send_run takes no input — nothing to validate.
 }

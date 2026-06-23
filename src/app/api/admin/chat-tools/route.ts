@@ -16,6 +16,10 @@ import {
 } from "@/lib/llm/tools";
 import { hashCanonicalPayload } from "@/lib/llm/tools/confirmations";
 import {
+  beforeConfirmationMessage,
+  writeErrorMessage,
+} from "@/lib/llm/tools/tool-messages";
+import {
   createRequestContext,
   getRequestContext,
   withRequestContext,
@@ -132,15 +136,17 @@ function hashToolInput(input: unknown): string | null {
 function mapWriteConfirmationError(
   toolId: string,
   err: Error,
-): NextResponse<{ error: string; code: string }> | null {
+): NextResponse<{ error: string; code: string; message: { title: string; body: string } }> | null {
   const message = err.message;
   if (!message.startsWith("admin_write_confirmation_")) return null;
 
   const reason = message.replace("admin_write_confirmation_", "");
   const status = reason === "expired" ? 410 : 409;
   logger.warn("admin chat tool confirmation denied", { toolId, reason });
+  // Human, actionable reason (e.g. "Confirmation expired — ask me again").
+  const human = writeErrorMessage(toolId, message);
   return NextResponse.json(
-    { error: "Write confirmation rejected", code: reason },
+    { error: human.title, code: reason, message: { title: human.title, body: human.body } },
     { status },
   );
 }
@@ -355,6 +361,15 @@ export async function POST(
         { input: payload.input, confirmedToken: payload.confirmedToken },
         { userId },
       );
+      // Attach a human before-confirmation message so the chat surface can say
+      // what will happen (and what will NOT happen yet) instead of showing a
+      // bare token. The execution machinery + token are untouched.
+      if (result.status === "confirmation_required") {
+        return NextResponse.json({
+          ...result,
+          message: beforeConfirmationMessage(result.toolId),
+        });
+      }
       return NextResponse.json(result);
     } catch (err) {
       if (err instanceof Error) {
@@ -365,7 +380,12 @@ export async function POST(
             userId,
             toolId: writeTool.id,
           });
-          return NextResponse.json({ error: "Invalid write input" }, { status: 400 });
+          // Human, tool-specific reason — never a raw ZodError.
+          const human = writeErrorMessage(writeTool.id, err.message);
+          return NextResponse.json(
+            { error: human.title, message: human, code: human.code ?? "invalid_input" },
+            { status: 400 },
+          );
         }
         if (err.message === "admin_write_tool_not_allowed") {
           logger.warn("admin chat write tool not allowed", {

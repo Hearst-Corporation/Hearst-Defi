@@ -86,3 +86,30 @@ export function toExecutionSuccessState(
     error: null,
   };
 }
+
+/** The shape the chat-tools route returns on a non-executed (error) response. */
+export interface AdminActionErrorResponse {
+  error?: string;
+  code?: string;
+  message?: { title?: string; body?: string };
+}
+
+/**
+ * Resolve the message to show the admin when a write action did NOT execute.
+ *
+ * Priority: the route's human `message.body` → its `message.title` → the plain
+ * `error` string → a safe generic. The bare `code` is NEVER shown on its own —
+ * it carries no meaning for an operator. Centralised so every call-site (and a
+ * test) shares one contract.
+ */
+export function resolveActionErrorMessage(
+  data: AdminActionErrorResponse | null,
+): string {
+  const body = data?.message?.body?.trim();
+  if (body) return body;
+  const title = data?.message?.title?.trim();
+  if (title) return title;
+  const error = data?.error?.trim();
+  if (error) return error;
+  return "The action could not be completed. Please try again.";
+}
