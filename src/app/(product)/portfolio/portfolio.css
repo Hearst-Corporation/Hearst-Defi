@@ -2285,7 +2285,7 @@
 .cy-fill--skeleton::after { display: none; }
 
 /* =============================================================================
-   16. POSITION BADGES — Elegant pill navigation for positions
+   16. POSITION BADGES — Elegant instrument navigation for positions
    ============================================================================= */
 
 .pf-badges-grid {
@@ -2293,83 +2293,148 @@
   flex-wrap: wrap;
   gap: var(--ct-space-3);
   padding: var(--ct-space-2) 0;
+  min-width: 0;
 }
 
 .pf-position-badge {
   position: relative;
   display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-2) var(--ct-space-4);
+  align-items: stretch;
+  min-width: 12rem;
+  height: 3.5rem;
   background: var(--ct-graphite-subtle-bg);
   border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-full);
+  border-radius: var(--ct-radius-md);
   text-decoration: none;
   transition: all var(--ct-dur-fast) var(--ct-ease);
   overflow: hidden;
+  box-shadow: var(--ct-glass-bevel);
 }
 
 .pf-position-badge:hover {
-  border-color: var(--ct-accent);
+  border-color: color-mix(in srgb, var(--ct-accent) 40%, var(--ct-graphite-border-nested));
+  background: color-mix(in srgb, var(--ct-accent) 2%, var(--ct-graphite-subtle-bg));
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--ct-surface-0) 50%, transparent);
-  background: color-mix(in srgb, var(--ct-accent) 4%, var(--ct-graphite-subtle-bg));
 }
 
 .pf-position-badge--active {
-  background: color-mix(in srgb, var(--ct-accent) 8%, var(--ct-graphite-subtle-bg));
-  border-color: color-mix(in srgb, var(--ct-accent) 50%, var(--ct-graphite-border-nested));
+  background: color-mix(in srgb, var(--ct-accent) 4%, var(--ct-graphite-subtle-bg));
+  border-color: color-mix(in srgb, var(--ct-accent) 30%, var(--ct-graphite-border-nested));
+}
+
+.pf-position-badge--active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom right,
+    color-mix(in srgb, var(--ct-accent) 5%, transparent),
+    transparent
+  );
+  pointer-events: none;
 }
 
 .pf-position-badge--cta {
   background: transparent;
   border-style: dashed;
-  border-color: var(--ct-accent);
+  border-color: color-mix(in srgb, var(--ct-accent) 40%, transparent);
+  min-width: 10rem;
 }
 
 .pf-position-badge--cta:hover {
-  background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
+  background: color-mix(in srgb, var(--ct-accent) 6%, transparent);
+  border-color: var(--ct-accent);
 }
 
 .pf-position-badge--more {
   background: transparent;
   border-color: var(--ct-border-soft);
+  min-width: 8rem;
 }
 
 .pf-position-badge__content {
-  position: relative;
-  z-index: 1;
+  flex: 1 1 auto;
   display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 var(--ct-space-4);
+  gap: var(--ct-space-0_5);
+  min-width: 0;
+  z-index: 1;
+}
+
+.pf-position-badge__main,
+.pf-position-badge__metrics {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  min-width: 0;
 }
 
 .pf-position-badge__name {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-medium);
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
   color: var(--ct-text-strong);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pf-position-badge__status {
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-tertiary);
+  opacity: 0.8;
 }
 
 .pf-position-badge__value {
   font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-semibold);
+  font-weight: var(--ct-font-bold);
   color: var(--ct-accent);
   font-variant-numeric: tabular-nums;
 }
 
-.pf-position-badge__dot {
-  width: var(--ct-space-2);
-  height: var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  flex-shrink: 0;
+.pf-position-badge__apy {
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-medium);
+  color: var(--ct-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-position-badge__indicator {
+  width: 3px;
+  flex: 0 0 auto;
+  height: 100%;
+  opacity: 0.8;
+  transition: opacity var(--ct-dur-fast) var(--ct-ease);
+}
+
+.pf-position-badge:hover .pf-position-badge__indicator {
+  opacity: 1;
 }
 
 .pf-position-badge__icon {
   color: var(--ct-accent);
+  flex-shrink: 0;
 }
 
 /* Row for positions — full width at bottom */
 .pf-cockpit-row--positions {
   grid-template-columns: 1fr;
+}
+
+@container pf (max-width: 36rem) {
+  .pf-position-badge {
+    min-width: calc(50% - var(--ct-space-1_5));
+    flex: 1 1 auto;
+  }
+}
+
+@container pf (max-width: 24rem) {
+  .pf-position-badge {
+    min-width: 100%;
+  }
 }

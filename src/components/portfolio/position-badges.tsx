@@ -67,15 +67,27 @@ export function PositionBadges({
                 )}
               >
                 <span className="pf-position-badge__content">
-                  <span className="pf-position-badge__name">
-                    {p.vaultName ?? "Vault"}
+                  <span className="pf-position-badge__main">
+                    <span className="pf-position-badge__name">
+                      {p.vaultName ?? "Vault"}
+                    </span>
+                    <span className="pf-position-badge__status">
+                      {STATUS_CONFIG[p.status]?.label ?? "Active"}
+                    </span>
                   </span>
-                  <span className="pf-position-badge__value">
-                    {formatUsdCompact(p.valueUsdc)}
+                  <span className="pf-position-badge__metrics">
+                    <span className="pf-position-badge__value">
+                      {formatUsdCompact(p.valueUsdc)}
+                    </span>
+                    {p.apyLow !== null && p.apyHigh !== null && (
+                      <span className="pf-position-badge__apy">
+                        {p.apyLow}-{p.apyHigh}%
+                      </span>
+                    )}
                   </span>
                 </span>
                 <span
-                  className="pf-position-badge__dot"
+                  className="pf-position-badge__indicator"
                   style={{ backgroundColor: statusColor }}
                 />
               </Link>
