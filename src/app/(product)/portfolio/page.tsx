@@ -65,12 +65,18 @@ export default async function PortfolioPage() {
         }}
       />
 
-      <div className="pf-hairline" aria-hidden="true" />
-
       <div className="pf-cockpit pf-terminal-workspace">
         {/* Main Data Column (Left) */}
-        <div className="pf-terminal-col">
-          <div className="pf-terminal-cell">
+        <div className="flex flex-col gap-8 min-w-0">
+          <div className="flex flex-col min-w-0">
+            <PositionsList
+              positions={data.positions}
+              source={data.source}
+              updatedAt={data.updatedAt}
+              leafHref="/portfolio/positions"
+            />
+          </div>
+          <div className="flex flex-col min-w-0">
             <ValueChart
               positions={data.positions}
               totalValueUsdc={data.totalValueUsdc}
@@ -78,34 +84,21 @@ export default async function PortfolioPage() {
               source={data.source}
               updatedAt={data.updatedAt}
               asOf={now}
-              embedded
             />
           </div>
-          <div className="pf-terminal-divider" aria-hidden="true" />
-          <div className="pf-terminal-cell">
+          <div className="flex flex-col min-w-0">
             <CapitalYield
               {...yieldStackProps}
               buckets={allocationDonutProps.buckets}
               totalValueUsdc={data.totalValueUsdc}
               leafHref="/portfolio/yield"
-              embedded
-            />
-          </div>
-          <div className="pf-terminal-divider" aria-hidden="true" />
-          <div className="pf-terminal-cell">
-            <PositionsList
-              positions={data.positions}
-              source={data.source}
-              updatedAt={data.updatedAt}
-              leafHref="/portfolio/positions"
-              embedded
             />
           </div>
         </div>
 
         {/* Live Feed Sidebar (Right) */}
-        <div className="pf-terminal-col">
-          <div className="pf-terminal-cell">
+        <div className="flex flex-col gap-8 min-w-0">
+          <div className="flex flex-col min-w-0">
             <PortfolioStatusPanel
               hasPositions={hasPositions}
               positionsCount={data.positions.length}
@@ -119,29 +112,24 @@ export default async function PortfolioPage() {
                 timestamp: proofPulseProps.lastPor.timestamp,
                 source: proofPulseProps.source,
               }}
-              embedded
               {...(data.updatedAt ? { updatedAt: data.updatedAt } : {})}
             />
           </div>
-          <div className="pf-terminal-divider" aria-hidden="true" />
-          <div className="pf-terminal-cell">
+          <div className="flex flex-col min-w-0">
             <DistribCalendar
               {...distribCalendarProps}
               leafHref="/portfolio/distributions"
               secondaryLeafHref="/portfolio/tax"
               secondaryLeafLabel="Tax preview"
-              embedded
             />
           </div>
-          <div className="pf-terminal-divider" aria-hidden="true" />
-          <div className="pf-terminal-cell">
+          <div className="flex flex-col min-w-0">
             <RecentActivity
               transactions={data.recentTransactions}
               source={data.source}
               updatedAt={data.updatedAt}
               asOf={now}
               leafHref="/portfolio/activity"
-              embedded
             />
           </div>
         </div>

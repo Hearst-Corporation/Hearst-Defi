@@ -66,16 +66,19 @@ export function PortfolioGreeting({ name, ticker, now }: PortfolioGreetingProps)
 
   return (
     <header className="pf-greeting">
-      <div className="pf-greeting__lead min-w-0">
-        <h1 className="h1 m-0">
-          Welcome back, <span className="pf-greeting-name">{name}</span>
+      <div className="flex flex-col gap-2 min-w-0">
+        <div className="flex items-center gap-3 text-[10px] uppercase tracking-widest font-mono">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--ct-accent)] shadow-[0_0_8px_var(--ct-accent)]" />
+            <span className="ct-text-accent">Live Status</span>
+          </div>
+          <span className="opacity-40" aria-hidden>|</span>
+          <span className="opacity-60">{todayFmt}</span>
+        </div>
+        <h1 className="text-2xl font-medium m-0 tracking-tight ct-text-strong uppercase flex items-baseline gap-3">
+          Allocation
+          <span className="opacity-40 font-mono text-lg lowercase tracking-normal">{name}</span>
         </h1>
-        <p className="pf-greeting__sub m-0">
-          <span className="pf-greeting__sub-dot" />
-          <span className="tracking-widest uppercase opacity-80">Portfolio cockpit</span>
-          <span className="ct-text-muted px-2" aria-hidden>·</span>
-          <span className="ct-text-muted tabular">{todayFmt}</span>
-        </p>
       </div>
 
       {ticker ? (
