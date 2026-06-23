@@ -951,9 +951,7 @@
   border-radius: var(--ct-radius-full);
   border: 1px solid color-mix(in srgb, var(--ct-text-strong) 24%, transparent);
   background: color-mix(in srgb, var(--ct-text-strong) 92%, var(--ct-accent) 8%);
-  box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--ct-bg-deep) 72%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--ct-accent) 35%, transparent);
+  box-shadow: none;
 }
 
 .projection-studio-range::-moz-range-thumb {
@@ -962,9 +960,7 @@
   border: 1px solid color-mix(in srgb, var(--ct-text-strong) 24%, transparent);
   border-radius: var(--ct-radius-full);
   background: color-mix(in srgb, var(--ct-text-strong) 92%, var(--ct-accent) 8%);
-  box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--ct-bg-deep) 72%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--ct-accent) 35%, transparent);
+  box-shadow: none;
 }
 
 .scenario-lab-workspace,
@@ -1338,6 +1334,21 @@
   gap: var(--ct-space-1);
   padding-block: var(--ct-space-3);
   white-space: normal;
+  /* Override ct-pill defaults for this multi-line use case */
+  text-align: left;
+  line-height: var(--ct-leading-snug);
+}
+
+/* Sober active state: subtle accent border, no glow, not competing with Run button
+   Specificity 0,2,0 to beat .ct-pill.accent (0,2,0) which comes later in file */
+.projection-studio-preset-button[aria-pressed="true"].projection-studio-preset-button {
+  border-color: var(--ct-border-accent);
+  background: var(--ct-surface-1);
+  box-shadow: none;
+}
+
+.projection-studio-preset-button[aria-pressed="true"] .projection-studio-preset-button__label {
+  color: var(--ct-accent);
 }
 
 .projection-studio-input-card__header,

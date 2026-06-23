@@ -259,25 +259,24 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
               onClick={() => onSelect(cell.scenarioRunId)}
               aria-selected={isSelected}
               aria-label={`APY ${cell.apyLow.toFixed(1)}–${cell.apyHigh.toFixed(1)}%, risk ${cell.riskScore}. Cell ${idx + 1} of ${cells.length}.`}
-              whileHover={{ 
-                scale: 1.02, 
+              whileHover={{
+                scale: 1.02,
                 zIndex: 20,
-                boxShadow: "0 0 20px rgba(167, 251, 144, 0.15)"
               }}
               whileTap={{ scale: 0.98 }}
               animate={{
                 scale: isSelected ? 1.05 : 1,
                 zIndex: isSelected ? 10 : 1,
               }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 400, 
-                damping: 25 
+              transition={{
+                type: "spring",
+                stiffness: 400,
+                damping: 25,
               }}
               className={cn(
                 "admin-strategy-heatmap-cell border-0 transition-colors duration-300 relative",
                 riskBgClass(cell.riskScore),
-                isSelected ? "opacity-100 shadow-(--ct-shadow-elevated) ring-2 ring-(--ct-accent) ring-offset-2 ring-offset-(--ct-bg-deep)" : "opacity-70 hover:opacity-100",
+                isSelected ? "opacity-100 shadow-(--ct-shadow-elevated) ring-1 ring-(--ct-border-strong)" : "opacity-70 hover:opacity-100",
               )}
             >
               <div className="admin-doc-stack admin-doc-stack--micro">
@@ -290,15 +289,6 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
                   R {cell.riskScore}
                 </span>
               </div>
-              {isSelected && (
-                <motion.div
-                  layoutId="active-cell-glow"
-                  className="absolute inset-0 rounded-inherit pointer-events-none ring-1 ring-(--ct-accent) opacity-50"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.5 }}
-                  transition={{ duration: 0.3 }}
-                />
-              )}
             </motion.button>
           );
         })}
@@ -432,18 +422,17 @@ export function ProjectionStudio() {
         </div>
         <div className="projection-studio-preset-rail__items">
           {PRESETS.map((p) => (
-            <Button
+            <button
               key={p.id}
-              variant={selectedPreset === p.id ? "primary" : "secondary"}
-              size="sm"
+              type="button"
               onClick={() => loadPreset(p.id)}
               disabled={isPending}
               aria-pressed={selectedPreset === p.id}
-              className="projection-studio-preset-button"
+              className="projection-studio-preset-button ct-pill"
             >
               <span className="projection-studio-preset-button__label">{p.label}</span>
               <span className="projection-studio-preset-button__description">{p.description}</span>
-            </Button>
+            </button>
           ))}
         </div>
       </div>
@@ -539,7 +528,9 @@ export function ProjectionStudio() {
                 onClick={() => setBatchMode(m.id)}
                 className={cn(
                   "ct-pill body-xs select-none transition-all",
-                  batchMode === m.id ? "accent" : "ct-text-muted hover:ct-text-body"
+                  batchMode === m.id
+                    ? "bg-[var(--ct-surface-1)] border-[var(--ct-border-accent)] text-[var(--ct-accent)]"
+                    : "ct-text-muted hover:ct-text-body"
                 )}
               >
                 {m.label}
@@ -609,39 +600,29 @@ export function ProjectionStudio() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="scenario-lab-output-idle projection-studio-output-placeholder p-(--ct-space-8)"
+              className="scenario-lab-output-idle projection-studio-output-placeholder p-(--ct-space-6)"
               role="status"
               aria-label="Projection output — awaiting first run"
             >
-              <div className="admin-doc-stack admin-doc-stack--relaxed max-w-md mx-auto">
-                <div className="flex flex-col items-center gap-(--ct-space-4) text-center">
-                  <div className="w-12 h-12 rounded-full bg-(--ct-surface-2) flex items-center justify-center border border-(--ct-border-soft)">
-                    <span className="text-2xl">⚡️</span>
-                  </div>
-                  <div className="admin-doc-stack admin-doc-stack--micro">
-                    <h3 className="body-md font-bold ct-text-strong">Ready to Project</h3>
-                    <p className="body-sm ct-text-muted m-0">
-                      Configure your market assumptions and network parameters to generate institutional-grade yield projections.
-                    </p>
-                  </div>
-                </div>
+              <div className="admin-doc-stack admin-doc-stack--compact max-w-lg">
+                <p className="eyebrow ct-text-muted">Projection Output</p>
+                <p className="body-sm ct-text-faint">
+                  Configure market assumptions and network parameters, then run projection to generate yield estimates.
+                </p>
 
-                <div className="admin-inset-panel admin-inset-panel--md bg-(--ct-bg-deep) border-(--ct-border-soft)">
-                  <p className="eyebrow ct-text-muted mb-(--ct-space-3)">Quick Guide</p>
-                  <ul className="admin-doc-stack admin-doc-stack--compact list-none p-0 m-0">
-                    <li className="flex items-start gap-3">
-                      <span className="ct-text-accent font-bold mono body-xs mt-0.5">01</span>
-                      <span className="body-xs ct-text-muted">Select a <strong>Preset</strong> to load baseline market conditions.</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="ct-text-accent font-bold mono body-xs mt-0.5">02</span>
-                      <span className="body-xs ct-text-muted">Tune <strong>BTC Price</strong> and <strong>Hashprice</strong> for sensitivity.</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="ct-text-accent font-bold mono body-xs mt-0.5">03</span>
-                      <span className="body-xs ct-text-muted">Choose <strong>Batch Mode</strong> to see a matrix of outcomes.</span>
-                    </li>
-                  </ul>
+                <div className="pt-(--ct-space-2)">
+                  <p className="text-[10px] uppercase tracking-wider ct-text-muted mb-(--ct-space-2)">Workflow</p>
+                  <div className="flex flex-wrap gap-x-(--ct-space-4) gap-y-(--ct-space-1)">
+                    <span className="body-xs ct-text-muted">
+                      <span className="ct-text-accent mono">1.</span> Select preset
+                    </span>
+                    <span className="body-xs ct-text-muted">
+                      <span className="ct-text-accent mono">2.</span> Tune inputs
+                    </span>
+                    <span className="body-xs ct-text-muted">
+                      <span className="ct-text-accent mono">3.</span> Run projection
+                    </span>
+                  </div>
                 </div>
               </div>
             </motion.div>
