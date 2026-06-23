@@ -7,7 +7,7 @@ interface PortfolioGreetingProps {
  */
 export function PortfolioGreeting({ name }: PortfolioGreetingProps) {
   return (
-    <header className="pf-greeting">
+    <header className="pf-greeting animate-in fade-in slide-in-from-top-2 duration-700 ease-out">
       <div className="pf-greeting__lead min-w-0">
         <h1 className="h1 m-0">
           Welcome back, <span className="pf-greeting-name">{name}</span>

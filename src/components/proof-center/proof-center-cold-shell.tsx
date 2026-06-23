@@ -49,7 +49,7 @@ export function ProofCenterColdShell({
         {variant === "product" ? (
           <Link
             href={PORTFOLIO_ONBOARDING_INVEST_HREF}
-            className="proof-center-cold__cta proof-cold-cta ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover ct-transition-base ct-focus-ring ct-press no-underline"
+            className="proof-cold-cta ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover ct-transition-base ct-focus-ring ct-press no-underline"
           >
             Explore products
           </Link>
@@ -58,7 +58,7 @@ export function ProofCenterColdShell({
 
       <Card hoverOverlay={false} contentClassName="proof-cold-card proof-cold-card--list">
         <p className="stat-label m-0">What unlocks when the vault operates</p>
-        <ul className="proof-center-cold__list proof-cold-list">
+        <ul className="proof-cold-list">
           {UNLOCKS.map((item) => (
             <li key={item.title} className="proof-cold-list__item">
               <span className="proof-cold-list__title body-sm ct-text-primary">{item.title}</span>

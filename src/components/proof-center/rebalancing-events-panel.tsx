@@ -12,16 +12,13 @@ import { explorerLinkClass } from "@/lib/ui/surface-classes";
 
 import { ProofCenterCardHeader } from "./proof-center-card-header";
 import type { ProofCenterSectionLedProps } from "./proof-center-types";
+import { cleanRebalanceTriggerText } from "./formatters";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
   timeStyle: "short",
   timeZone: "UTC",
 });
-
-function cleanTriggerText(text: string): string {
-  return text.replace(/\s*\[REJECTED:.*\]$/, "");
-}
 
 function statusVariant(
   status: string,
@@ -133,7 +130,7 @@ export function RebalancingEventsPanel({
                 ) : null}
                 <ProofRow label="Trigger summary">
                   <span className="line-clamp-2">
-                    {cleanTriggerText(event.triggerText)}
+                    {cleanRebalanceTriggerText(event.triggerText)}
                   </span>
                 </ProofRow>
                 {event.txHash ? (

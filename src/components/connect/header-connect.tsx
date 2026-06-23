@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { usePrivy, useWallets, useLogin } from "@privy-io/react-auth";
 import { useRouter } from "next/navigation";
 
@@ -27,6 +28,7 @@ function HeaderConnectLive() {
 
 function HeaderConnectGuest() {
   const router = useRouter();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { login } = useLogin({
     // useRouter + window.location.search: header is in root layout without Suspense — useSearchParams would warn
     onComplete: () => {
@@ -35,14 +37,32 @@ function HeaderConnectGuest() {
     },
   });
 
+  async function handleLoginClick() {
+    if (isLoggingIn) return;
+    setIsLoggingIn(true);
+    try {
+      await login();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      // Privy can transiently reject before its hidden iframe is fully ready.
+      // Keep the UI stable and let the user retry immediately.
+      if (!/iframe not initialized/i.test(message)) {
+        console.error("[HeaderConnect] login failed:", error);
+      }
+    } finally {
+      setIsLoggingIn(false);
+    }
+  }
+
   return (
     <Button
       variant="secondary"
       size="sm"
-      onClick={() => login()}
+      onClick={() => void handleLoginClick()}
+      disabled={isLoggingIn}
       className="connect-rail-identity__button"
     >
-      Wallet
+      {isLoggingIn ? "Opening…" : "Wallet"}
     </Button>
   );
 }

@@ -32,7 +32,8 @@
   "ignore": [
     "**/*.d.ts",
     "**/timeseries*.tsx",
-    "src/lib/empty-module.ts"
+    "src/lib/empty-module.ts",
+    "src/components/chat/chat-presets.tsx"
   ],
   "ignoreExportsUsedInFile": true,
   "ignoreDependencies": [],

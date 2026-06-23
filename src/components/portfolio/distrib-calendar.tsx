@@ -17,6 +17,9 @@ import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { formatUsdFull } from "@/lib/vaults/product-display";
+
+export const formatUsdc = formatUsdFull;
+
 import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
@@ -53,6 +56,7 @@ export interface DistribCalendarProps {
   leafHref?: string;
   secondaryLeafHref?: string;
   secondaryLeafLabel?: string;
+  embedded?: boolean;
 }
 
 // ── Formatting helpers (exported for tests) ───────────────────────────────────
@@ -68,9 +72,6 @@ export function formatPeriod(period: string, refYear: number): string {
   const label = MONTHS[month] ?? "?";
   return year !== refYear ? `${label}'${String(year).slice(2)}` : label;
 }
-
-/** @deprecated Import formatUsdFull from @/lib/vaults/product-display */
-export const formatUsdc = formatUsdFull;
 
 // ── SVG constants — chart-geometry escape hatch ───────────────────────────────
 // These are viewBox coordinate values, not CSS spacing tokens.
@@ -214,7 +215,7 @@ function BarChart({
         const bx = barX(i, n, BAR_W, GAP);
         const by = BAR_AREA_BOT - bh;
         const periodLabel = formatPeriod(entry.period, refYear);
-        const amountLabel = isForecast ? "~" + formatUsdc(entry.amountUsdc) : formatUsdc(entry.amountUsdc);
+        const amountLabel = isForecast ? "~" + formatUsdFull(entry.amountUsdc) : formatUsdFull(entry.amountUsdc);
         const cx = bx + BAR_W / 2;
 
         const barEl = isForecast ? (
@@ -262,9 +263,9 @@ function BarChart({
               height={bh}
               fill={BAR_FILL}
               stroke={isCurrent ? "var(--ct-accent)" : BAR_STROKE}
-              strokeWidth={isCurrent ? "1" : "0.75"}
+              strokeWidth={isCurrent ? "1.5" : "0.75"}
               style={{ opacity: 1 }}
-              rx="1"
+              rx="2"
             />
           </a>
         ) : (
@@ -277,10 +278,11 @@ function BarChart({
             height={bh}
             fill={BAR_FILL}
             stroke={isCurrent ? "var(--ct-accent)" : BAR_STROKE}
-            strokeWidth={isCurrent ? "1" : "0.75"}
+            strokeWidth={isCurrent ? "1.5" : "0.75"}
             style={{ opacity: 1 }}
-            rx="1"
+            rx="2"
             aria-label={`${periodLabel} distribution ${amountLabel}`}
+            className={cn(isCurrent && "pf-distrib-chart__bar--current")}
           />
         );
 
@@ -349,6 +351,7 @@ export function DistribCalendar({
   leafHref,
   secondaryLeafHref,
   secondaryLeafLabel,
+  embedded = false,
 }: DistribCalendarProps) {
   // id unique par instance — évite la collision de gradient <defs> si plusieurs
   // calendriers en zero-state coexistent (duplicate id = HTML invalide).
@@ -367,6 +370,7 @@ export function DistribCalendar({
     return (
       <PfCockpitPanel
         variant="wide"
+        chrome={embedded ? "embedded" : "panel"}
         aria-label="Payout calendar — awaiting first distribution"
         className="pf-payout-calendar-panel pf-payout-calendar-panel--zero h-full"
       >
@@ -422,6 +426,7 @@ export function DistribCalendar({
   return (
     <PfCockpitPanel
       variant="wide"
+      chrome={embedded ? "embedded" : "panel"}
       aria-label="Payout calendar"
       className="pf-payout-calendar-panel h-full"
     >

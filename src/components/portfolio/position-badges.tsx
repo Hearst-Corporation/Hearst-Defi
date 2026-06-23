@@ -66,10 +66,6 @@ export function PositionBadges({
                   p.status === "active" && "pf-position-badge--active"
                 )}
               >
-                <span
-                  className="pf-position-badge__glow"
-                  style={{ backgroundColor: statusColor }}
-                />
                 <span className="pf-position-badge__content">
                   <span className="pf-position-badge__name">
                     {p.vaultName ?? "Vault"}
@@ -90,7 +86,6 @@ export function PositionBadges({
             href="/vaults"
             className="pf-position-badge pf-position-badge--cta"
           >
-            <span className="pf-position-badge__glow pf-position-badge__glow--pulse" />
             <span className="pf-position-badge__content">
               <Plus className="pf-position-badge__icon" size={16} />
               <span className="pf-position-badge__name">New Vault</span>

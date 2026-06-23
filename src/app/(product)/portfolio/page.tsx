@@ -74,26 +74,28 @@ export default async function PortfolioPage() {
         </section>
 
         <section className="pf-cockpit-row pf-cockpit-row--mid" aria-label="Capital yield and status">
-          <div className="pf-cockpit-cell" data-section="yield-allocation" data-testid="capital-yield-widget">
-            <CapitalYield
-              {...yieldStackProps}
-              buckets={allocationDonutProps.buckets}
-              totalValueUsdc={data.totalValueUsdc}
-              leafHref="/portfolio/yield"
-              embedded={false}
-            />
-          </div>
-          <div className="pf-cockpit-cell" data-section="status">
-            <PortfolioStatusPanel
-              hasPositions={hasPositions}
-              positionsCount={positionsCount}
-              deployedUsdc={deployedUsdc}
-              totalValueUsdc={data.totalValueUsdc}
-              accruedYieldUsdc={accruedYieldUsdc}
-              source={source}
-              embedded={false}
-              updatedAt={updatedAt ?? undefined}
-            />
+          <div className="pf-fused-surface pf-fused-surface--mid">
+            <div className="pf-fused-surface__pane">
+              <CapitalYield
+                {...yieldStackProps}
+                buckets={allocationDonutProps.buckets}
+                totalValueUsdc={data.totalValueUsdc}
+                leafHref="/portfolio/yield"
+                embedded={true}
+              />
+            </div>
+            <div className="pf-fused-surface__pane pf-fused-surface__pane--aside">
+              <PortfolioStatusPanel
+                hasPositions={hasPositions}
+                positionsCount={positionsCount}
+                deployedUsdc={deployedUsdc}
+                totalValueUsdc={data.totalValueUsdc}
+                accruedYieldUsdc={accruedYieldUsdc}
+                source={source}
+                embedded={true}
+                updatedAt={updatedAt ?? undefined}
+              />
+            </div>
           </div>
         </section>
 
@@ -101,30 +103,25 @@ export default async function PortfolioPage() {
           className="pf-cockpit-row pf-cockpit-row--deck"
           aria-label="Portfolio distributions and activity"
         >
-          <div
-            className="pf-cockpit-cell"
-            data-section="payout-calendar"
-            data-testid="distrib-calendar-widget"
-          >
-            <DistribCalendar
-              {...distribCalendarProps}
-              leafHref="/portfolio/distributions"
-              secondaryLeafHref="/portfolio/tax"
-              secondaryLeafLabel="Tax preview"
-            />
-          </div>
-          <div
-            className="pf-cockpit-cell"
-            data-section="activity"
-            data-testid="recent-activity-widget"
-          >
-            <RecentActivity
-              transactions={data.recentTransactions}
-              source={source}
-              updatedAt={updatedAt}
-              leafHref="/portfolio/activity"
-              embedded={false}
-            />
+          <div className="pf-fused-surface pf-fused-surface--deck">
+            <div className="pf-fused-surface__pane">
+              <DistribCalendar
+                {...distribCalendarProps}
+                leafHref="/portfolio/distributions"
+                secondaryLeafHref="/portfolio/tax"
+                secondaryLeafLabel="Tax preview"
+                embedded={true}
+              />
+            </div>
+            <div className="pf-fused-surface__pane pf-fused-surface__pane--aside">
+              <RecentActivity
+                transactions={data.recentTransactions}
+                source={source}
+                updatedAt={updatedAt}
+                leafHref="/portfolio/activity"
+                embedded={true}
+              />
+            </div>
           </div>
         </section>
 

@@ -30,7 +30,11 @@
 
 /* Centre LP : une seule plaque derrière paddings + cockpit (menu/chat/footer inchangés). */
 .ct-page-area:has(.pf-container) {
-  background: var(--ct-surface-2);
+  background: radial-gradient(
+    circle at 50% -20%,
+    color-mix(in srgb, var(--ct-accent) 3%, transparent),
+    var(--ct-surface-2) 60%
+  );
 }
 
 .pf-container {
@@ -81,6 +85,15 @@
   color: var(--ct-text-tertiary);
 }
 
+.pf-container :where(.ct-text-muted) {
+  color: var(--ct-text-tertiary);
+  opacity: 0.8;
+}
+
+.pf-container :where(.ct-text-secondary) {
+  color: var(--ct-text-secondary);
+}
+
 /* =============================================================================
    2. GREETING + TICKER (instrument strip)
    ============================================================================= */
@@ -90,8 +103,8 @@
   flex: 0 0 auto;
   height: 1px;
   background: var(--ct-accent);
-  opacity: var(--ct-opacity-35);
-  margin: var(--ct-space-5) 0;
+  opacity: var(--ct-opacity-20);
+  margin: var(--ct-space-4) 0 var(--ct-space-6);
 }
 
 .pf-greeting {
@@ -101,7 +114,7 @@
   justify-content: space-between;
   gap: var(--ct-space-4) var(--ct-space-6);
   flex: 0 0 auto;
-  margin-bottom: var(--ct-space-6);
+  margin-bottom: 0;
   padding-bottom: 0;
 }
 
@@ -134,6 +147,8 @@
 .pf-greeting-name {
   color: var(--ct-accent);
   font-weight: var(--ct-font-semibold);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--ct-accent) 25%, transparent),
+               0 0 24px color-mix(in srgb, var(--ct-accent) 10%, transparent);
 }
 
 /* Subtitle — Hearst Flow uppercase micro label + accent hairline dot. */
@@ -155,7 +170,7 @@
   flex-shrink: 0;
   background: var(--ct-accent);
   border-radius: 0;
-  box-shadow: none;
+  box-shadow: 0 0 8px var(--ct-accent);
 }
 
 /* Ticker — 4 KPI cells, graphite plate (ADR-013), no hover lift. */
@@ -169,7 +184,16 @@
   background: var(--ct-graphite-subtle-bg);
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
-  box-shadow: var(--ct-glass-bevel);
+  box-shadow: 
+    var(--ct-glass-bevel),
+    0 0 20px color-mix(in srgb, var(--ct-accent) 2%, transparent);
+  transition: box-shadow var(--ct-dur-base) var(--ct-ease);
+}
+
+.pf-ticker-inline:hover {
+  box-shadow: 
+    var(--ct-glass-bevel),
+    0 0 30px color-mix(in srgb, var(--ct-accent) 5%, transparent);
 }
 
 .pf-ticker-cell {
@@ -182,10 +206,11 @@
 
 .pf-ticker-label {
   font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-normal);
+  font-weight: var(--ct-font-medium);
   text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wider);
-  color: var(--ct-text-secondary);
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-tertiary);
+  opacity: 0.9;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -223,9 +248,9 @@
 .pf-cockpit {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-5);
   min-width: 0;
-  margin-top: var(--ct-space-5);
+  margin-top: 0;
 }
 
 /* Rows are BOTH flex items (height in fr) AND grids (their own columns). */
@@ -233,7 +258,7 @@
   min-height: 0;
   min-width: 0;
   display: grid;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-5);
 }
 
 /* Default (below the gate): each row is a single column, content-sized. */
@@ -249,16 +274,48 @@
   flex-direction: column;
 }
 
-.pf-fused-surface {
-  position: relative;
-  display: grid;
-  min-width: 0;
-  min-height: 0;
+.pf-fused-surface,
+.pf-hero-grid,
+.pf-cockpit-panel {
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
   background: var(--ct-graphite-subtle-bg);
-  overflow: hidden;
   box-shadow: var(--ct-glass-bevel);
+}
+
+.pf-fused-surface,
+.pf-hero-grid {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+}
+
+.pf-fused-surface {
+  position: relative;
+  box-shadow: 
+    var(--ct-glass-bevel),
+    0 4px 24px -1px color-mix(in srgb, var(--ct-surface-0) 40%, transparent);
+  backdrop-filter: blur(var(--ct-blur-md));
+  overflow: hidden;
+}
+
+.pf-fused-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ct-text-strong) 8%, transparent),
+    transparent 40%,
+    color-mix(in srgb, var(--ct-text-strong) 4%, transparent)
+  );
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .pf-fused-surface--mid {
@@ -405,14 +462,14 @@
 .pf-hero-grid { min-height: 0; }
 .pf-container--fit .pf-value-chart__chart-wrapper {
   aspect-ratio: auto;
-  min-height: 9rem;
-  max-height: 12rem;
+  min-height: 8.5rem;
+  max-height: 11.5rem;
 }
 
 .pf-cockpit-row--deck .pf-distrib-chart-shell {
   aspect-ratio: auto;
-  min-height: 6.5rem;
-  max-height: 9.5rem;
+  min-height: 6rem;
+  max-height: 9rem;
 }
 
 /* Natural scroll: panels take their NATURAL height and never clip */
@@ -437,33 +494,23 @@
    4. COCKPIT PANEL MATERIAL (graphite plate)
    ============================================================================= */
 
-.pf-cockpit-panel {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  height: 100%;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-4);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-xl);
-  background: var(--ct-graphite-subtle-bg);
-  box-shadow: var(--ct-glass-bevel);
-  overflow: hidden;
-}
-
-.pf-cockpit-panel--compact { gap: var(--ct-space-2_5); }
-
+.pf-cockpit-panel,
 .pf-embedded-pane {
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
   height: 100%;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-4);
+  gap: var(--ct-space-4);
+  padding: var(--ct-space-5) var(--ct-space-6);
 }
+
+.pf-cockpit-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.pf-cockpit-panel--compact { gap: var(--ct-space-2_5); }
 
 .pf-embedded-pane[data-pf-panel-variant="compact"] {
   gap: var(--ct-space-2_5);
@@ -481,8 +528,8 @@
   background: transparent;
   box-shadow: none;
   border-radius: 0;
-  padding: var(--ct-space-3) var(--ct-space-4);
-  gap: var(--ct-space-2);
+  padding: var(--ct-space-4) var(--ct-space-6);
+  gap: var(--ct-space-3);
 }
 
 /* Hero weld — chart + status share one plate; inner wrappers stay flat. */
@@ -571,7 +618,8 @@
 }
 
 /* ---- Leaf link ("view more →") ---- */
-.pf-panel-leaf-link {
+.pf-panel-leaf-link,
+.pf-trust-compact__see-more {
   display: inline-flex;
   align-items: center;
   gap: var(--ct-space-1);
@@ -584,7 +632,8 @@
   transition: color var(--ct-dur-fast) var(--ct-ease);
 }
 
-.pf-panel-leaf-link:hover { color: var(--ct-accent-light); }
+.pf-panel-leaf-link:hover,
+.pf-trust-compact__see-more:hover { color: var(--ct-accent-light); }
 .pf-panel-leaf-link__label { white-space: nowrap; }
 .pf-panel-leaf-link__arrow {
   display: inline-flex;
@@ -597,15 +646,9 @@
    ============================================================================= */
 
 .pf-hero-grid {
-  display: grid;
   grid-template-columns: 1fr;
-  min-width: 0;
   min-height: 280px; /* chart-geometry — scroll-mode height floor; neutralised to 0 inside the fit gate */
   height: 100%;
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-xl);
-  background: var(--ct-graphite-subtle-bg);
-  box-shadow: var(--ct-glass-bevel);
   overflow: clip;
 }
 
@@ -676,7 +719,8 @@
   margin: 0 0 var(--ct-space-1);
 }
 
-.pf-value-chart__chart-wrapper {
+.pf-value-chart__chart-wrapper,
+.pf-skeleton-chart {
   position: relative;
   flex: 1 1 auto;
   min-height: 0;
@@ -685,11 +729,21 @@
   aspect-ratio: 200 / 62; /* chart-geometry */
   overflow: hidden;
   border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
+}
+
+.pf-value-chart__chart-wrapper {
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--ct-surface-2) 24%, transparent),
     color-mix(in srgb, var(--ct-surface-1) 40%, transparent)
   );
+  box-shadow: inset 0 0 40px color-mix(in srgb, var(--ct-surface-0) 30%, transparent);
+  animation: pf-chart-entry 1s var(--ct-ease) forwards;
+}
+
+@keyframes pf-chart-entry {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .pf-value-chart__chart-wrapper::before {
@@ -851,7 +905,7 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--ct-space-2_5);
+  gap: var(--ct-space-3);
   flex: 1 1 0;
   min-height: 0;
   padding: var(--ct-space-2) var(--ct-space-3);
@@ -872,12 +926,14 @@
   border-radius: var(--ct-radius-full);
   background: var(--ct-accent);
   align-self: center;
+  box-shadow: 0 0 6px color-mix(in srgb, var(--ct-accent) 40%, transparent);
 }
 
 .pf-status-row__label {
   margin: 0;
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-body);
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-medium);
+  color: var(--ct-text-secondary);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -894,13 +950,15 @@
   min-width: 0;
 }
 
-.pf-status-row__value {
-  font-size: var(--ct-text-base);
+.pf-status-row__value,
+.cy-val {
+  font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
   color: var(--ct-text-strong);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
+  white-space: nowrap;
 }
 
 .pf-status-row__value--accent {
@@ -962,8 +1020,12 @@
   background: transparent;
 }
 
-.pf-positions__row--body:hover {
-  background: var(--ct-surface-1);
+/* Canonical hover-nudge distance (matches the leaf-link arrow) — was raw 3px. */
+.pf-positions__row--body:hover,
+.pf-activity__row:hover {
+  background: color-mix(in srgb, var(--ct-accent) 6%, transparent);
+  transform: translateX(var(--ct-space-0_5));
+  box-shadow: inset 2px 0 0 var(--ct-accent);
 }
 
 .pf-positions__row--body:last-child {
@@ -995,8 +1057,9 @@
   white-space: nowrap;
 }
 
-/* ---- Positions empty ---- */
-.pf-positions-empty {
+/* ---- Positions/Activity empty ---- */
+.pf-positions-empty,
+.pf-activity--empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1008,13 +1071,15 @@
   padding: var(--ct-space-4) var(--ct-space-3);
 }
 
-.pf-positions-empty__lead {
+.pf-positions-empty__lead,
+.pf-activity__empty-lead {
   font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-medium);
   color: var(--ct-text-strong);
 }
 
-.pf-positions-empty__hint {
+.pf-positions-empty__hint,
+.pf-activity__empty-hint {
   font-size: var(--ct-text-xs);
   line-height: var(--ct-leading-snug);
   max-width: 28ch;
@@ -1081,6 +1146,12 @@
 
 .cy-donut-arc {
   stroke: var(--ct-accent);
+  transition: stroke-width var(--ct-dur-fast) var(--ct-ease), filter var(--ct-dur-fast) var(--ct-ease);
+}
+
+.cy-donut-arc:hover {
+  stroke-width: 5.2;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--ct-accent) 40%, transparent));
 }
 
 .cy-arc-mining {
@@ -1126,8 +1197,8 @@
   background: linear-gradient(
     to bottom,
     transparent,
-    var(--ct-border-soft) 15%,
-    var(--ct-border-soft) 85%,
+    color-mix(in srgb, var(--ct-border-soft) 40%, transparent) 15%,
+    color-mix(in srgb, var(--ct-border-soft) 40%, transparent) 85%,
     transparent
   );
   flex: 0 0 auto;
@@ -1144,16 +1215,17 @@
 }
 
 .cy-ledger-head {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-semibold);
   text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wider);
-  color: var(--ct-text-secondary);
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-tertiary);
+  opacity: 0.8;
 }
 
 .cy-ledger-rule {
   height: 1px;
-  background: var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-border-soft) 45%, transparent);
   margin: var(--ct-space-1) 0;
 }
 
@@ -1161,9 +1233,19 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  column-gap: var(--ct-space-2);
+  column-gap: var(--ct-space-3);
   row-gap: var(--ct-space-1);
   min-width: 0;
+  padding: var(--ct-space-1_5) var(--ct-space-2);
+  margin-inline: calc(var(--ct-space-2) * -1);
+  border-radius: var(--ct-radius-md);
+  transition: all var(--ct-dur-base) var(--ct-ease);
+  cursor: default;
+}
+
+.cy-row:hover {
+  background: color-mix(in srgb, var(--cy-bucket, var(--ct-accent)) 8%, transparent);
+  transform: translateX(var(--ct-space-1));
 }
 
 .cy-row .cy-track {
@@ -1178,15 +1260,20 @@
   width: var(--ct-space-2);
   height: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
-  background: var(--ct-accent);
+  background: var(--cy-bucket, var(--ct-accent));
   flex: 0 0 auto;
+  transition: transform var(--ct-dur-fast) var(--ct-ease), box-shadow var(--ct-dur-fast) var(--ct-ease);
 }
 
-.cy-row-mining .cy-dot { background: var(--ct-status-info); }
+.cy-row:hover .cy-dot {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px var(--cy-bucket, var(--ct-accent));
+}
 
 .cy-label {
   font-size: var(--ct-text-xs);
-  color: var(--ct-text-strong);
+  font-weight: var(--ct-font-medium);
+  color: var(--ct-text-secondary);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1194,11 +1281,7 @@
 }
 
 .cy-val {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-strong);
   text-align: right;
-  white-space: nowrap;
 }
 
 /* ---- Track / fill / ticks (mini progress bar inside a ledger row) ---- */
@@ -1337,10 +1420,12 @@
 /* bars + markers inside the distrib chart */
 .pf-distrib-chart rect {
   transition: all var(--ct-dur-base) var(--ct-ease);
+  cursor: pointer;
 }
 
 .pf-distrib-chart rect:hover {
-  filter: brightness(1.04);
+  filter: brightness(1.2);
+  transform: translateY(-2px);
 }
 
 .pf-distrib-chart__amount {
@@ -1376,7 +1461,7 @@
   gap: var(--ct-space-3);
   margin: 0;
   padding-top: var(--ct-space-2);
-  border-top: 1px solid var(--ct-border-soft);
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 45%, transparent);
   flex: 0 0 auto;
 }
 
@@ -1441,14 +1526,10 @@
   gap: var(--ct-space-4);
   padding: var(--ct-space-3) var(--ct-space-4);
   border-radius: var(--ct-radius-sm);
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 60%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 35%, transparent);
   transition: all var(--ct-dur-base) var(--ct-ease);
-}
-
-.pf-activity__row:hover {
-  background: color-mix(in srgb, var(--ct-accent) 4%, transparent);
-  /* Canonical hover-nudge distance (matches the leaf-link arrow) — was raw 3px. */
-  transform: translateX(var(--ct-space-0_5));
+  position: relative;
+  overflow: hidden;
 }
 
 .pf-activity__row:last-child { border-bottom: 0; }
@@ -1471,6 +1552,7 @@
   border-color: var(--ct-accent);
   color: var(--ct-accent);
   box-shadow: none;
+  transform: scale(1.05);
 }
 
 .pf-activity__main {
@@ -1481,8 +1563,8 @@
 }
 
 .pf-activity__main > :first-child {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-medium);
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
   color: var(--ct-text-strong);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1495,35 +1577,13 @@
 }
 
 .pf-activity__amt {
-  font-size: var(--ct-text-sm);
+  font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
   color: var(--ct-text-strong);
   text-align: right;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
-}
-
-/* ---- Activity empty ---- */
-.pf-activity--empty {
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-4) var(--ct-space-3);
-}
-
-.pf-activity__empty-lead {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-strong);
-}
-
-.pf-activity__empty-hint {
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
-  line-height: var(--ct-leading-snug);
-  max-width: 30ch;
 }
 
 /* =============================================================================
@@ -1596,21 +1656,6 @@
   color: var(--ct-text-muted);
 }
 
-.pf-trust-compact__see-more {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-1);
-  align-self: flex-start;
-  margin-top: var(--ct-space-2);
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-muted);
-  text-decoration: none;
-  transition: color var(--ct-dur-fast) var(--ct-ease);
-}
-
-.pf-trust-compact__see-more:hover { color: var(--ct-accent-light); }
-
 .pf-trust-compact--embedded .pf-trust-compact-kpis {
   grid-template-columns: 1fr;
   gap: var(--ct-space-2_5);
@@ -1651,7 +1696,6 @@
   gap: var(--ct-space-2) var(--ct-space-4);
   padding-top: var(--ct-space-2);
 }
-
 
 /* ---- Status dots ---- */
 .pf-status-dot {
@@ -1816,12 +1860,12 @@
 .pf-skeleton-widget,
 .pf-skeleton-chart,
 .pf-skeleton-sidebar {
-  border-radius: var(--ct-radius-lg);
+  border-radius: var(--ct-radius-xl);
   background: linear-gradient(
     100deg,
-    var(--ct-surface-1) 30%,
-    var(--ct-surface-2) 50%,
-    var(--ct-surface-1) 70%
+    color-mix(in srgb, var(--ct-graphite-subtle-bg) 80%, transparent) 30%,
+    color-mix(in srgb, var(--ct-graphite-subtle-bg) 60%, transparent) 50%,
+    color-mix(in srgb, var(--ct-graphite-subtle-bg) 80%, transparent) 70%
   );
   background-size: 200% 100%;
   animation:
@@ -1849,13 +1893,6 @@
 
 .pf-skeleton-widget--md {
   min-height: 0;
-}
-
-.pf-skeleton-chart {
-  width: 100%;
-  height: 100%;
-  flex: 1 1 auto;
-  aspect-ratio: 200 / 62; /* chart-geometry */
 }
 
 .pf-skeleton-sidebar {
@@ -1944,7 +1981,6 @@
   margin: var(--ct-space-3) auto 0;
 }
 
-
 .pf-payout-calendar-panel--zero .pf-distrib-chart-shell {
   width: 100%;
   max-width: none;
@@ -1988,7 +2024,7 @@
   /* Payout = 1 widget; the fused cell carries 2 (Recent Activity + Trust),
      so it gets the larger share — otherwise Recent Activity collapses to a
      ~130px slot and its header/copy overlap (Trust's --aside reserves 15rem). */
-  .pf-cockpit-row--deck { grid-template-columns: 1fr 1.6fr; }
+  .pf-cockpit-row--deck { grid-template-columns: 1fr; }
 
   /* Hero welded grid split */
   .pf-hero-grid {
@@ -2061,10 +2097,10 @@
   .pf-trust-compact-kpis { grid-template-columns: 1fr; }
 }
 
-/* ---- Row layout: 2-col for mid on wider slots ---- */
+/* ---- Row layout: 1-col for mid (fused surface handles the split) ---- */
 @container pf (min-width: 48rem) {
   .pf-cockpit-row--mid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 }
 
@@ -2185,14 +2221,17 @@
    widget's structural frame while no real data exists, then disappear as the
    real rows fill in. No invented values, no "no data yet" phrase. ── */
 .pf-skeleton-bar,
-.pf-skeleton-dot {
+.pf-skeleton-dot,
+.cy-dot--skeleton,
+.cy-fill--skeleton {
   display: inline-block;
   border-radius: var(--ct-radius-sm);
-  background: var(--ct-surface-3);
+  background: color-mix(in srgb, var(--ct-graphite-subtle-bg) 90%, var(--ct-text-strong) 10%);
   animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 
-.pf-skeleton-dot {
+.pf-skeleton-dot,
+.cy-dot--skeleton {
   width: var(--ct-space-2);
   height: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
@@ -2233,18 +2272,11 @@
   opacity: 1;
 }
 
-.cy-dot--skeleton {
-  background: var(--ct-surface-3);
-  animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
-}
-
 .pf-skeleton-bar--cy-label { width: 58%; height: var(--ct-space-2); }
 .pf-skeleton-bar--cy-val { width: var(--ct-space-6); height: var(--ct-space-2); justify-self: end; }
 
 .cy-fill--skeleton {
-  background: var(--ct-surface-3);
   opacity: var(--ct-opacity-60);
-  animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 .cy-fill--skeleton::after { display: none; }
 
@@ -2276,7 +2308,8 @@
 .pf-position-badge:hover {
   border-color: var(--ct-accent);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--ct-accent) 15%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--ct-surface-0) 50%, transparent);
+  background: color-mix(in srgb, var(--ct-accent) 4%, var(--ct-graphite-subtle-bg));
 }
 
 .pf-position-badge--active {
@@ -2297,29 +2330,6 @@
 .pf-position-badge--more {
   background: transparent;
   border-color: var(--ct-border-soft);
-}
-
-.pf-position-badge__glow {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity var(--ct-dur-base) var(--ct-ease);
-  filter: blur(12px);
-  z-index: 0;
-}
-
-.pf-position-badge:hover .pf-position-badge__glow {
-  opacity: 0.15;
-}
-
-.pf-position-badge__glow--pulse {
-  background: var(--ct-accent);
-  animation: pf-badge-pulse 2s var(--ct-ease-in-out) infinite;
-}
-
-@keyframes pf-badge-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
 }
 
 .pf-position-badge__content {

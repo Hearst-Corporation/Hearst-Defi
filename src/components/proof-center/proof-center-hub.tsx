@@ -28,8 +28,6 @@ import { cn } from "@/lib/cn";
 export interface ProofCenterHubProps {
   variant: "product" | "admin";
   chainConfigured: boolean;
-  onChainEventsCount: number;
-  onChainAttestationCount: number;
   latestAttestation: OnChainAttestation | null;
   attestationVerified: boolean;
   custody: CustodySnapshot | null;
@@ -43,11 +41,9 @@ export interface ProofCenterHubProps {
 }
 
 function HubPanelHeader({
-  variant,
   title,
   trailing,
 }: {
-  variant: ProofCenterHubProps["variant"];
   title: string;
   trailing?: ReactNode;
 }) {
@@ -72,8 +68,6 @@ function HubLeafLink({
 export function ProofCenterHub({
   variant,
   chainConfigured,
-  onChainEventsCount,
-  onChainAttestationCount,
   latestAttestation,
   attestationVerified,
   custody,
@@ -124,7 +118,6 @@ export function ProofCenterHub({
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
                 <HubPanelHeader
-                  variant={variant}
                   title="Proof of Reserves"
                   trailing={
                     <HubLeafLink variant={variant} href={fullHref} label="View full" />
@@ -145,7 +138,6 @@ export function ProofCenterHub({
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
                 <HubPanelHeader
-                  variant={variant}
                   title="Mining cash-flow evidence"
                 />
                 <div className="proof-panel-scroll">
@@ -159,7 +151,6 @@ export function ProofCenterHub({
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
                 <HubPanelHeader
-                  variant={variant}
                   title="Latest distributions"
                   trailing={
                     <HubLeafLink variant={variant} href={fullHref} label="View full" />
@@ -184,7 +175,6 @@ export function ProofCenterHub({
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
                 <HubPanelHeader
-                  variant={variant}
                   title="Rebalancing events"
                   trailing={
                     <HubLeafLink variant={variant} href={fullHref} label="View full" />

@@ -4,10 +4,12 @@
 > component, search this index.** If it already exists, REUSE it. If it exists but is in
 > bad shape, refactor it IN PLACE and delete the old version — never fork a second copy.
 
-**200 components** · 1 possible orphans · 2 intentionally unwired.
+**208 components** · 3 possible orphans · 2 intentionally unwired.
 
 ## ⚠️ Possible orphans (0 references — verify before keeping)
 
+- `src/components/admin/fixture-vault-pills.tsx` — FixtureVaultPills
+- `src/components/chat/chat-presets.tsx` — ChatPresets
 - `src/components/simulation/simulation-panel.tsx` — SimulationPanel
 
 ## Intentionally unwired (built, tested, branch-later — do NOT delete)
@@ -19,9 +21,13 @@
 
 | Component file | Exports | Refs |
 |---|---|---|
-| `src/components/admin/admin-chat-controls.tsx` | AdminChatControls | 1 |
-| `src/components/admin/admin-page-header.tsx` | AdminPageHeader | 35 |
+| `src/components/admin/admin-chat-controls.tsx` | AdminChatControls | 2 |
+| `src/components/admin/admin-page-header.tsx` | AdminPageHeader | 37 |
 | `src/components/admin/admin-url-tab-filter.tsx` | AdminUrlTabFilter | 3 |
+| `src/components/admin/agent-canvas/agent-canvas-page.tsx` | — | 2 |
+| `src/components/admin/agent-canvas/canvas-action-button.tsx` | CanvasActionButton | 2 |
+| `src/components/admin/agent-canvas/canvas-live.tsx` | CanvasLive | 2 |
+| `src/components/admin/agent-canvas/canvas-section.tsx` | CanvasSectionView | 1 |
 | `src/components/admin/agent-template-form.tsx` | AgentTemplateForm | 2 |
 | `src/components/admin/agents/agent-graph-canvas.tsx` | AgentGraphCanvas | 1 |
 | `src/components/admin/archive-template-button.tsx` | ArchiveTemplateButton | 1 |
@@ -29,6 +35,7 @@
 | `src/components/admin/cockpit/audit-trail-rolling.tsx` | AuditTrailRolling | 1 |
 | `src/components/admin/cockpit/live-metrics.tsx` | LiveMetrics | 2 |
 | `src/components/admin/cockpit/live-ops.tsx` | LiveOps | 1 |
+| `src/components/admin/customer/activation-link-button.tsx` | ActivationLinkButton | 1 |
 | `src/components/admin/customer/agent-assign-form.tsx` | AgentAssignForm | 1 |
 | `src/components/admin/customer/create-investor-button.tsx` | CreateInvestorButton | 1 |
 | `src/components/admin/customer/deploy-position-form.tsx` | DeployPositionForm | 1 |
@@ -37,15 +44,17 @@
 | `src/components/admin/dashboard/admin-kpi-strip-panel.tsx` | AdminKpiStripPanel | 9 |
 | `src/components/admin/dashboard/allocation-orbit.tsx` | AllocationOrbit | 1 |
 | `src/components/admin/dashboard/assets-board.tsx` | DashboardAssetsBoard | 2 |
-| `src/components/admin/dashboard/cockpit-panel-header.tsx` | AdminCockpitPanelHeader, AdminLeafLink | 5 |
-| `src/components/admin/dashboard/kpi-strip.tsx` | DashboardKpiStrip | 2 |
+| `src/components/admin/dashboard/cockpit-panel-header.tsx` | AdminLeafLink | 5 |
+| `src/components/admin/dashboard/dashboard-recent-events.tsx` | DashboardRecentEvents | 1 |
+| `src/components/admin/dashboard/kpi-strip.tsx` | DashboardKpiStrip | 3 |
 | `src/components/admin/dashboard/nav-slot.tsx` | NavSlot | 1 |
+| `src/components/admin/dashboard/platform-overview-band.tsx` | PlatformOverviewBand | 1 |
 | `src/components/admin/dashboard/risk-summary-card.tsx` | DashboardRiskSummaryCard | 2 |
 | `src/components/admin/dashboard/system-readiness.tsx` | SystemReadinessModule | 1 |
 | `src/components/admin/distribution-preview.tsx` | DistributionPreview | 1 |
 | `src/components/admin/feedback-form.tsx` | FeedbackForm | 1 |
 | `src/components/admin/feedback-list.tsx` | FeedbackList | 1 |
-| `src/components/admin/fixture-vault-pills.tsx` | FixtureVaultPills | 4 |
+| `src/components/admin/fixture-vault-pills.tsx` ⚠️ | FixtureVaultPills | 0 |
 | `src/components/admin/forbidden-words-input.tsx` | ForbiddenWordsInput | 1 |
 | `src/components/admin/governance/allowlist-board.tsx` | AllowlistBoard | 1 |
 | `src/components/admin/governance/proposal-queue.tsx` | ProposalQueue | 1 |
@@ -54,6 +63,7 @@
 | `src/components/admin/markdown.tsx` | Markdown | 10 |
 | `src/components/admin/monitoring/monitoring-board.tsx` | MonitoringBoard | 1 |
 | `src/components/admin/monte-carlo-review.tsx` | MonteCarloReview | 1 |
+| `src/components/admin/outreach/autonomy-panel.tsx` | OutreachAutonomyPanel | 1 |
 | `src/components/admin/outreach/campaign-form.tsx` | CampaignForm | 1 |
 | `src/components/admin/outreach/direct-send-form.tsx` | DirectSendForm | 1 |
 | `src/components/admin/outreach/draft-campaign-button.tsx` | DraftCampaignButton | 2 |
@@ -77,7 +87,7 @@
 | `src/components/admin/vault-action-button.tsx` | VaultActionButton | 3 |
 | `src/components/admin/vault-status-pill.tsx` | VaultStatusPill | 2 |
 | `src/components/analytics.tsx` | Analytics | 3 |
-| `src/components/app-chrome.tsx` | AppChrome | 3 |
+| `src/components/app-chrome.tsx` | AppChrome | 4 |
 | `src/components/app-footer.tsx` | AppFooter | 1 |
 | `src/components/auth/auth-form-shell.tsx` | AuthFormShell | 3 |
 | `src/components/auth/login-form.tsx` | LoginForm | 2 |
@@ -85,15 +95,16 @@
 | `src/components/auth/login-split.tsx` | — | 2 |
 | `src/components/auth/privy-provider.tsx` | PrivyProvider | 4 |
 | `src/components/auth/sign-out-button.tsx` | SignOutButton | 2 |
-| `src/components/chat/chat-nav-bridge.tsx` | ChatNavBridge | 4 |
+| `src/components/chat/chat-nav-bridge.tsx` | ChatNavBridge | 5 |
+| `src/components/chat/chat-presets.tsx` ⚠️ | ChatPresets | 0 |
 | `src/components/connect/header-connect.tsx` | HeaderConnect | 1 |
-| `src/components/connect/product-page-header.tsx` | ProductPageHeader | 12 |
+| `src/components/connect/product-page-header.tsx` | ProductPageHeader | 11 |
 | `src/components/ConnectShell.tsx` | ConnectShell | 1 |
 | `src/components/dashboard/risk-framework.tsx` | RiskFrameworkSection | 10 |
 | `src/components/error/error-shell.tsx` | ErrorShellLayout | 7 |
 | `src/components/error/segment-error.tsx` | SegmentError | 12 |
 | `src/components/error/segment-not-found.tsx` | SegmentNotFound | 1 |
-| `src/components/governance/timelock-countdown.tsx` | TimelockCountdown | 3 |
+| `src/components/governance/timelock-countdown.tsx` | TimelockCountdown | 2 |
 | `src/components/hub-mode-styles.tsx` | HubModeStyles | 1 |
 | `src/components/legal/legal-page-header.tsx` | LegalPageHeader | 4 |
 | `src/components/memo/memo-section.tsx` | MemoSection | 1 |
@@ -117,43 +128,43 @@
 | `src/components/portfolio/capital-yield.tsx` | CapitalYield | 3 |
 | `src/components/portfolio/distrib-calendar.tsx` | DistribCalendar | 3 |
 | `src/components/portfolio/lock-meter.tsx` | — | 1 |
-| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 22 |
+| `src/components/portfolio/pf-cockpit-panel.tsx` | PfCockpitPanel, PfCockpitPanelHeader, PfCockpitSubhead, PanelStatus | 21 |
 | `src/components/portfolio/portfolio-greeting.tsx` | PortfolioGreeting | 1 |
-| `src/components/portfolio/portfolio-leaf-link.tsx` | PortfolioLeafLink | 6 |
+| `src/components/portfolio/portfolio-leaf-link.tsx` | PortfolioLeafLink | 7 |
 | `src/components/portfolio/portfolio-leaf-shell.tsx` | PortfolioLeafShell | 5 |
 | `src/components/portfolio/portfolio-status-panel.tsx` | PortfolioStatusPanel | 1 |
 | `src/components/portfolio/position-actions.tsx` | PositionActions | 1 |
+| `src/components/portfolio/position-badges.tsx` | PositionBadges | 1 |
 | `src/components/portfolio/position-header.tsx` | PositionHeader | 1 |
 | `src/components/portfolio/position-kpis.tsx` | PositionKpis | 1 |
 | `src/components/portfolio/position-transactions.tsx` | PositionTransactions | 1 |
-| `src/components/portfolio/positions-list.tsx` | PositionsList | 2 |
+| `src/components/portfolio/positions-list.tsx` | PositionsList | 1 |
 | `src/components/portfolio/proof-pulse.tsx` | ProofPulse | 2 |
 | `src/components/portfolio/recent-activity.tsx` | RecentActivity | 2 |
 | `src/components/portfolio/tax-preview-panel.tsx` | TaxPreviewPanel, TaxPreviewEmpty | 1 |
-| `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 3 |
+| `src/components/portfolio/trust-panel.tsx` | TrustProofCompact | 2 |
 | `src/components/portfolio/value-chart.tsx` | ValueChart | 2 |
 | `src/components/power/command-palette.tsx` | CommandPalette | 1 |
 | `src/components/profile/profile-security-row.tsx` | ProfileSecurityRow | 1 |
 | `src/components/profile/wallet-disconnect-button.tsx` | WalletDisconnectButton | 1 |
 | `src/components/proof-center/contracts-audit-trail.tsx` | ContractsAuditTrail | 4 |
 | `src/components/proof-center/custody-panel.tsx` | CustodySection | 1 |
-| `src/components/proof-center/event-timeline.tsx` | EventTimeline | 2 |
+| `src/components/proof-center/event-timeline.tsx` | EventTimeline | 1 |
 | `src/components/proof-center/mining-cashflow-evidence.tsx` | MiningCashFlowEvidence | 1 |
 | `src/components/proof-center/por-summary.tsx` | PorSummary | 1 |
-| `src/components/proof-center/proof-center-card-header.tsx` | ProofCenterCardHeader | 7 |
+| `src/components/proof-center/proof-center-card-header.tsx` | ProofCenterCardHeader | 6 |
 | `src/components/proof-center/proof-center-cold-shell.tsx` | ProofCenterColdShell | 1 |
+| `src/components/proof-center/proof-center-full-sections.tsx` | ProofCenterFullSections | 2 |
 | `src/components/proof-center/proof-center-hub.tsx` | ProofCenterHub | 2 |
-| `src/components/proof-center/proof-center-section.tsx` | ProofCenterSection | 4 |
-| `src/components/proof-center/proof-center-testnet-notice.tsx` | ProofCenterTestnetNotice | 3 |
-| `src/components/proof-center/proof-cockpit-panel-header.tsx` | ProofCockpitPanelHeader, ProofLeafLink | 1 |
-| `src/components/proof-center/provenance-footer.tsx` | ProvenanceFooter | 2 |
+| `src/components/proof-center/proof-center-loading.tsx` | ProofCenterLoading | 2 |
+| `src/components/proof-center/proof-center-section.tsx` | ProofCenterSection | 3 |
+| `src/components/proof-center/provenance-footer.tsx` | ProvenanceFooter | 1 |
 | `src/components/proof-center/rebalance-ptai-modal-trigger.tsx` | RebalancePtaiModalTrigger | 1 |
 | `src/components/proof-center/rebalancing-events-panel.tsx` | RebalancingEventsPanel | 1 |
 | `src/components/proof-center/recent-distributions.tsx` | RecentDistributions | 1 |
-| `src/components/proof/chain-status-badge.tsx` | ChainStatusBadge | 2 |
 | `src/components/proof/proof-card.tsx` | ProofCard | 2 |
-| `src/components/proof/proof-filter.tsx` | ProofFilter | 2 |
-| `src/components/proof/proof-grid.tsx` | ProofGrid | 2 |
+| `src/components/proof/proof-filter.tsx` | ProofFilter | 1 |
+| `src/components/proof/proof-grid.tsx` | ProofGrid | 1 |
 | `src/components/scenario/assumptions-list.tsx` | AssumptionsList | 2 |
 | `src/components/scenario/backtest-chart.tsx` | BacktestChart | 1 |
 | `src/components/scenario/backtest-panel.tsx` | BacktestPanel | 1 |
@@ -178,9 +189,9 @@
 | `src/components/scenario/single-mode.tsx` | SingleMode | 1 |
 | `src/components/simulation/simulation-panel.tsx` ⚠️ | SimulationPanel | 0 |
 | `src/components/ui/apy-range.tsx` | ApyRange | 15 |
-| `src/components/ui/badge.tsx` | Badge | 53 |
-| `src/components/ui/button.tsx` | Button | 80 |
-| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 75 |
+| `src/components/ui/badge.tsx` | Badge | 50 |
+| `src/components/ui/button.tsx` | Button | 84 |
+| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 73 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
 | `src/components/ui/chart-time-selector.tsx` 🔌 | ChartTimeSelector | 0 |
@@ -188,26 +199,25 @@
 | `src/components/ui/choice-card.tsx` | ChoiceCard, ChoiceGroup | 1 |
 | `src/components/ui/client-toaster.tsx` | ClientToaster | 1 |
 | `src/components/ui/confirm-dialog.tsx` | ConfirmDialog | 5 |
-| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 14 |
-| `src/components/ui/empty-surface.tsx` | EmptySurface | 42 |
-| `src/components/ui/metric.tsx` | Metric | 8 |
-| `src/components/ui/modal.tsx` | Modal | 5 |
-| `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 22 |
-| `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 16 |
+| `src/components/ui/dashboard-panel-header.tsx` | DashboardPanelHeader | 17 |
+| `src/components/ui/empty-surface.tsx` | EmptySurface | 43 |
+| `src/components/ui/metric.tsx` | Metric | 7 |
+| `src/components/ui/modal.tsx` | Modal | 12 |
+| `src/components/ui/nested-panel.tsx` | NestedPanel, DataRow, LegalMetadataRow, ProofRow, MetricGrid | 21 |
+| `src/components/ui/panel-status.tsx` | PanelStatus, PanelStatusAccent, PanelStatusSection | 15 |
 | `src/components/ui/preset-picker.tsx` | PresetPicker | 1 |
 | `src/components/ui/progress.tsx` | Progress | 12 |
-| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 44 |
+| `src/components/ui/provenance-badge.tsx` | ProvenanceBadge | 43 |
 | `src/components/ui/ptai.tsx` | Ptai | 9 |
-| `src/components/ui/scene-placeholder-metrics.tsx` | ScenePlaceholderMetrics | 2 |
 | `src/components/ui/segmented-control.tsx` | SegmentedControl | 2 |
-| `src/components/ui/skeleton.tsx` | Skeleton, SkeletonCard | 29 |
+| `src/components/ui/skeleton.tsx` | Skeleton, SkeletonCard | 27 |
 | `src/components/ui/toaster.tsx` | Toaster | 1 |
 | `src/components/ui/tooltip.tsx` | Tooltip | 2 |
 | `src/components/ui/wizard-step-progress.tsx` | WizardStepProgress | 3 |
 | `src/components/vaults/deposit-success-icon.tsx` | DepositSuccessIcon | 1 |
 | `src/components/vaults/deposit-summary.tsx` | DepositSummary | 1 |
 | `src/components/vaults/invest-flow-loading-shell.tsx` | InvestFlowLoadingShell | 3 |
-| `src/components/vaults/invest-flow-shell.tsx` | InvestFlowShell | 5 |
+| `src/components/vaults/invest-flow-shell.tsx` | InvestFlowShell | 4 |
 | `src/components/vaults/invest-form.tsx` | InvestForm | 1 |
 | `src/components/vaults/preflight-check.tsx` | PreFlightCheck | 1 |
 | `src/components/vaults/product-select-card.tsx` | ProductSelectCard | 1 |

@@ -146,6 +146,7 @@ export function CapitalYield({
                       r="15.9155"
                       strokeDasharray={`${(s.pct - 0.6).toFixed(2)} ${(100 - s.pct + 0.6).toFixed(2)}`}
                       strokeDashoffset={s.dashOffset.toFixed(2)}
+                      style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
                     />
                   ))}
                 {segments.map((s) => (
@@ -161,6 +162,7 @@ export function CapitalYield({
                     stroke={CY_BUCKET_GREEN[s.bucket]}
                     strokeDasharray={`${(s.pct - 0.6).toFixed(2)} ${(100 - s.pct + 0.6).toFixed(2)}`}
                     strokeDashoffset={s.dashOffset.toFixed(2)}
+                    style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
                   />
                 ))}
               </>
@@ -209,7 +211,7 @@ export function CapitalYield({
                   <div
                     key={s.bucket}
                     className={cn(
-                      "cy-row",
+                      "cy-row group",
                       s.bucket === "mining" && "cy-row-mining",
                     )}
                     style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
