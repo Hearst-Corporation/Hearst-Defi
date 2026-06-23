@@ -22,11 +22,18 @@ function displayName(
   investor: { email: string | null; walletAddress: string | null } | null,
 ): string {
   if (investor?.email) {
-    const local = investor.email.split("@")[0] ?? "";
-    if (local) return local.charAt(0).toUpperCase() + local.slice(1);
+    const emailLocal = investor.email.split("@")[0]?.trim() ?? "";
+    const normalizedLocal = emailLocal.replace(/[._-]+/g, " ").trim();
+    if (normalizedLocal) {
+      return normalizedLocal.charAt(0).toUpperCase() + normalizedLocal.slice(1);
+    }
   }
   const w = investor?.walletAddress;
-  if (w) return `${w.slice(0, 6)}…${w.slice(-4)}`;
+  if (w) {
+    const wallet = w.trim();
+    if (wallet.length > 10) return `${wallet.slice(0, 6)}…${wallet.slice(-4)}`;
+    if (wallet.length > 0) return wallet;
+  }
   return "Investor";
 }
 
@@ -40,65 +47,54 @@ export default async function PortfolioPage() {
     distribCalendarProps,
     riskPulseProps,
     proofPulseProps,
-    nextPayoutUsdc,
   } = await loadPortfolioView();
 
-  const { deployedUsdc, accruedYieldUsdc } = data;
+  const { deployedUsdc, accruedYieldUsdc, positions, source, updatedAt } = data;
+  const positionsCount = positions.length;
+  const containerClassName = cn(
+    "pf-container pf-container--fit",
+    !hasPositions && "pf-container--zero",
+  );
 
   return (
-    <div
-      className={cn("pf-container pf-container--fit", !hasPositions && "pf-container--zero")}
-      data-testid="portfolio-page"
-      data-portfolio-hub="true"
-    >
-      <PortfolioGreeting
-        name={displayName(investor)}
-        ticker={{
-          totalValueUsdc: data.totalValueUsdc,
-          totalYieldYtdUsdc: data.totalYieldYtdUsdc,
-          nextDistributionAt: data.nextDistributionAt,
-          nextPayoutUsdc,
-          blendedLow: yieldStackProps.blendedLow,
-          blendedHigh: yieldStackProps.blendedHigh,
-          hasPositions,
-        }}
-      />
+    <div className={containerClassName} data-testid="portfolio-page" data-portfolio-hub="true">
+      <PortfolioGreeting name={displayName(investor)} />
 
       <div className="pf-hairline" aria-hidden="true" />
 
       <div className="pf-cockpit">
-        <div className="pf-cockpit-row pf-cockpit-row--summary">
+        <section className="pf-cockpit-row pf-cockpit-row--summary" aria-label="Portfolio summary">
           <div className="pf-hero-grid pf-cockpit-cell">
             <div className="pf-main-chart-wrapper">
               <ValueChart
-                positions={data.positions}
+                positions={positions}
                 totalValueUsdc={data.totalValueUsdc}
                 valueChartTransactions={data.valueChartTransactions}
-                source={data.source}
-                updatedAt={data.updatedAt}
+                source={source}
+                updatedAt={updatedAt}
                 embedded
               />
             </div>
             <PortfolioStatusPanel
               hasPositions={hasPositions}
-              positionsCount={data.positions.length}
+              positionsCount={positionsCount}
               deployedUsdc={deployedUsdc}
               totalValueUsdc={data.totalValueUsdc}
               accruedYieldUsdc={accruedYieldUsdc}
-              source={data.source}
+              source={source}
               embedded
-              {...(data.updatedAt ? { updatedAt: data.updatedAt } : {})}
+              updatedAt={updatedAt ?? undefined}
             />
           </div>
-        </div>
+        </section>
 
-        <div className="pf-cockpit-row pf-cockpit-row--mid">
+        <section className="pf-cockpit-row pf-cockpit-row--mid" aria-label="Portfolio positions">
           <div className="pf-cockpit-cell pf-fused-surface pf-fused-surface--mid">
             <div className="pf-fused-surface__pane" data-section="positions">
               <PositionsList
-                positions={data.positions}
-                source={data.source}
-                updatedAt={data.updatedAt}
+                positions={positions}
+                source={source}
+                updatedAt={updatedAt}
                 leafHref="/portfolio/positions"
                 embedded
               />
@@ -117,9 +113,12 @@ export default async function PortfolioPage() {
               />
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="pf-cockpit-row pf-cockpit-row--deck">
+        <section
+          className="pf-cockpit-row pf-cockpit-row--deck"
+          aria-label="Portfolio distributions activity and trust"
+        >
           <div
             className="pf-cockpit-cell"
             data-section="payout-calendar"
@@ -140,8 +139,8 @@ export default async function PortfolioPage() {
             >
               <RecentActivity
                 transactions={data.recentTransactions}
-                source={data.source}
-                updatedAt={data.updatedAt}
+                source={source}
+                updatedAt={updatedAt}
                 leafHref="/portfolio/activity"
                 embedded
               />
@@ -154,7 +153,7 @@ export default async function PortfolioPage() {
               <TrustProofCompact embedded risk={riskPulseProps} proof={proofPulseProps} />
             </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );

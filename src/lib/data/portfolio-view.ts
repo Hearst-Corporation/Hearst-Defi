@@ -8,7 +8,6 @@ import {
   loadProofPulseProps,
   loadYieldStackProps,
   loadAllocationDonutProps,
-  loadTimeToCashProps,
 } from "@/lib/data/portfolio";
 import { withPositionApyFallback } from "@/lib/portfolio/blended-apy";
 
@@ -37,22 +36,13 @@ export async function loadPortfolioView() {
     proofPulseProps,
     yieldStackProps,
     allocationDonutProps,
-    timeToCashProps,
   ] = await Promise.all([
     loadRiskPulseProps(),
     loadDistribCalendarProps(),
     loadProofPulseProps(),
     loadYieldStackProps(hasPositions),
     loadAllocationDonutProps(hasPositions),
-    hasPositions ? loadTimeToCashProps() : Promise.resolve(null),
   ]);
-
-  const nextPayoutUsdc =
-    timeToCashProps &&
-    timeToCashProps.source === "live" &&
-    timeToCashProps.projectedUsdc > 0
-      ? timeToCashProps.projectedUsdc
-      : undefined;
 
   // APY-range fallback: header ticker + Capital & Yield read blendedLow/High from
   // the vault snapshot. When that's cold/absent (0/0), fall back to the investor's
@@ -69,6 +59,5 @@ export async function loadPortfolioView() {
     proofPulseProps,
     yieldStackProps: blendedYieldStackProps,
     allocationDonutProps,
-    nextPayoutUsdc,
   };
 }
