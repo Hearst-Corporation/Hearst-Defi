@@ -78,6 +78,26 @@
   justify-content: center;
 }
 
+/* Scroll fix — the cockpit shell pins `body { height:100vh; overflow:hidden }`
+   for the no-scroll product surfaces. On the bare /apply route that pin clips
+   the qualification chamber whenever it is taller than the viewport (short
+   windows, the multi-question step), leaving the Continue/Submit button
+   unreachable. Scope the escape hatch to /apply only via :has() so every other
+   surface keeps its no-scroll behaviour untouched. `justify-content` flips to
+   start when the content overflows so the top is never clipped by centering. */
+html:has([data-testid="apply-shell"]),
+body:has([data-testid="apply-shell"]) {
+  height: auto;
+  min-height: 100dvh;
+  overflow-y: auto;
+}
+
+@media (max-height: 60rem) {
+  .onboarding-shell--wide {
+    justify-content: flex-start;
+  }
+}
+
 .onboarding-shell--wide::before {
   content: "";
   position: fixed;

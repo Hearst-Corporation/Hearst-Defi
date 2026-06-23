@@ -58,10 +58,13 @@ describe("calibratePersona", () => {
   });
 
   // -------------------------------------------------------------------------
-  // 4-question /apply funnel: the form now collects only platformType, aum,
-  // vaultSize, and timeline (fundsUsage / yieldStatus / yieldType are no longer
-  // asked). Calibration must still produce an exploitable persona from this
-  // reduced set — these tests pin that the reduced profile degrades gracefully.
+  // 4-question /apply funnel (Investor Apply 4Q): the form now asks four
+  // persona questions only — platformType ("Who are you?"), aum (capacity),
+  // vaultSize ("Intended first allocation?"), and timeline (next step).
+  // fundsUsage, yieldStatus AND yieldType are NO LONGER asked in the UI (all
+  // still optional on the server / Typeform). Calibration must produce an
+  // exploitable persona from this reduced set — these tests pin that it
+  // degrades gracefully when the three retired questions are absent.
   // -------------------------------------------------------------------------
 
   it("produces an exploitable persona from the 4-question profile (high intent)", () => {
@@ -77,7 +80,7 @@ describe("calibratePersona", () => {
     // Persona must remain usable: register, segments, vault, instructions.
     expect(["low", "medium", "high"]).toContain(p.verbosity);
     expect(p.segments).toContain("wealth-platform");
-    // Vault suggestion still resolves (defaults to yield without yieldType).
+    // Vault suggestion still resolves (defaults to "yield" without yieldType).
     expect(p.suggestedVault).toBeTruthy();
     expect(p.customInstructions.length).toBeGreaterThan(0);
   });
@@ -115,8 +118,25 @@ describe("calibratePersona", () => {
       timeline: "1_3m",
     });
 
-    // tier is a function of aum + vaultSize only → unchanged by the drop.
+    // tier is a function of aum + vaultSize only → unchanged by the drop of
+    // fundsUsage / yieldStatus / yieldType.
     expect(reduced.tier).toBe(full.tier);
     expect(reduced.segments).toContain("wealth-platform");
+  });
+
+  it("the reduced 4Q profile only loses pedagogy + vault differentiation", () => {
+    // fundsUsage/yieldStatus drove pedagogy (peer/compare vs teach) and
+    // yieldType drove the vault suggestion. Without them the persona is still
+    // complete; both fall back to safe defaults rather than crashing or
+    // producing an empty persona.
+    const reduced = calibratePersona({
+      platformType: "wealth",
+      aum: "250m_plus",
+      vaultSize: "5m_plus",
+      timeline: "asap",
+    });
+    expect(reduced.pedagogy).toBe("teach");
+    expect(reduced.suggestedVault).toBe("yield");
+    expect(reduced.customInstructions.length).toBeGreaterThan(0);
   });
 });

@@ -33,8 +33,9 @@ export function ApplyAside({ irContact }: { irContact: IrContact | null }) {
     >
       <span className="eyebrow ct-text-muted">About this application</span>
       <p className="body-sm ct-text-muted m-0">
-        A short qualification — about you, your platform, and your sizing. About
-        two minutes, no commitment. We review fit and follow up directly.
+        A short qualification — a few quick steps covering who you are, your
+        capacity, an intended first allocation, and timing. Under a minute, no
+        commitment. We review fit and follow up directly.
       </p>
     </Card>
   );
