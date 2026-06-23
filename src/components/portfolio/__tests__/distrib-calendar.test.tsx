@@ -13,7 +13,6 @@ import {
   barX,
   DistribCalendar,
   formatPeriod,
-  formatUsdc,
   shouldShowCompactPeriodLabel,
   type DistribEntry,
 } from "@/components/portfolio/distrib-calendar";
@@ -199,15 +198,5 @@ describe("shouldShowCompactPeriodLabel", () => {
   });
 });
 
-// ── Suite 7: formatUsdc helper ────────────────────────────────────────────────
-
-describe("formatUsdc", () => {
-  it("formats whole number with $ and no decimals", () => {
-    expect(formatUsdc(2310)).toBe("$2,310");
-    expect(formatUsdc(1840)).toBe("$1,840");
-  });
-
-  it("formats zero", () => {
-    expect(formatUsdc(0)).toBe("$0");
-  });
-});
+// formatUsdc was a deprecated alias of formatUsdFull (removed) — its coverage
+// lives in src/lib/vaults/__tests__/product-display.test.ts.

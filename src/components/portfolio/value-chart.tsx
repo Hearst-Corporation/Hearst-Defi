@@ -30,61 +30,28 @@ import {
   type PortfolioValuePoint,
   type ValueSeriesTx,
 } from "@/lib/portfolio/value-series";
+import {
+  areaFromLine,
+  baseline,
+  project as projectIn,
+  smoothPath,
+  type Pt,
+  type ViewBox,
+} from "@/lib/portfolio/geometry";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { formatUsdCompact, formatUsdFull } from "@/lib/vaults/product-display";
 
 /* ──────────────────────────────────────────────────────────────────────────
- * Geometry — viewBox 16:5, plot helpers. svg-geometry: viewBox + stroke/r sont
- * le seul endroit où des nombres bruts sont autorisés (pas de token CSS en SVG).
+ * Geometry — viewBox 16:5. svg-geometry: viewBox dimensions are the only place
+ * raw numbers are allowed (no CSS token in SVG coordinate space). The math
+ * itself lives in @/lib/portfolio/geometry, shared with distrib-calendar.
  * ────────────────────────────────────────────────────────────────────────── */
-const VB_W = 200;
-const VB_H = 62;
-const PAD_Y = 5;
+const BOX: ViewBox = { w: 200, h: 62, padY: 5 };
+const VB_W = BOX.w;
+const VB_H = BOX.h;
 
-type Pt = { x: number; y: number };
-
-/** Map values → SVG coords. Single point is centered; flat series stay mid-band. */
-function project(values: number[]): Pt[] {
-  const n = values.length;
-  if (n === 0) return [];
-  const lo = Math.min(...values);
-  const hi = Math.max(...values);
-  const yLo = lo === hi ? lo - 1 : lo;
-  const yHi = lo === hi ? hi + 1 : hi;
-  const span = yHi - yLo || 1;
-  const innerH = VB_H - PAD_Y * 2;
-  return values.map((v, i) => ({
-    x: n === 1 ? VB_W / 2 : (i / (n - 1)) * VB_W,
-    y: PAD_Y + innerH - ((v - yLo) / span) * innerH,
-  }));
-}
-
-/** Catmull-Rom → cubic Bézier : courbe lissée premium au lieu d'une polyline. */
-function smoothPath(pts: Pt[]): string {
-  if (pts.length < 2) return "";
-  const d: string[] = [`M ${pts[0]!.x.toFixed(2)} ${pts[0]!.y.toFixed(2)}`];
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i - 1] ?? pts[i]!;
-    const p1 = pts[i]!;
-    const p2 = pts[i + 1]!;
-    const p3 = pts[i + 2] ?? p2;
-    const c1x = p1.x + (p2.x - p0.x) / 6;
-    const c1y = p1.y + (p2.y - p0.y) / 6;
-    const c2x = p2.x - (p3.x - p1.x) / 6;
-    const c2y = p2.y - (p3.y - p1.y) / 6;
-    d.push(
-      `C ${c1x.toFixed(2)} ${c1y.toFixed(2)} ${c2x.toFixed(2)} ${c2y.toFixed(2)} ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`,
-    );
-  }
-  return d.join(" ");
-}
-
-/** Ferme le tracé en zone (line → bas-droit → bas-gauche → close). */
-function areaFromLine(linePath: string, pts: Pt[]): string {
-  const last = pts[pts.length - 1];
-  if (!last || !linePath) return "";
-  return `${linePath} L ${last.x.toFixed(2)} ${VB_H} L ${pts[0]!.x.toFixed(2)} ${VB_H} Z`;
-}
+/** Project this chart's values into its fixed viewBox. */
+const project = (values: number[]) => projectIn(values, BOX);
 
 /* ──────────────────────────────────────────────────────────────────────────
  * Series resolution — ledger anchors when available; otherwise a linear
@@ -163,13 +130,10 @@ function Plot({ series, lineOnly = false, preview = false, skeleton = false, hov
   // Skeleton: pin the flat line to the bottom axis (not the mid-band that
   // project() uses for flat series) so it reads as an empty baseline.
   const pts = skeleton
-    ? series.map((_, i) => ({
-        x: series.length === 1 ? VB_W / 2 : (i / (series.length - 1)) * VB_W,
-        y: VB_H - PAD_Y,
-      }))
+    ? baseline(series.length, BOX)
     : project(series.map((d) => d.value));
   const linePath = smoothPath(pts);
-  const areaPath = lineOnly ? "" : areaFromLine(linePath, pts);
+  const areaPath = lineOnly ? "" : areaFromLine(linePath, pts, VB_H);
 
   const distCount = series.filter((s) => s.isDistribution).length;
   const title = skeleton

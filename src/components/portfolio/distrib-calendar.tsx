@@ -15,6 +15,7 @@ import { useId } from "react";
 
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { barHeight as barHeightIn, barX as barXIn } from "@/lib/portfolio/geometry";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import {
@@ -52,6 +53,8 @@ export interface DistribCalendarProps {
   leafHref?: string;
   secondaryLeafHref?: string;
   secondaryLeafLabel?: string;
+  /** Render inside a fused surface (no panel chrome) — hub hero/timeline. */
+  embedded?: boolean;
 }
 
 // ── Formatting helpers (exported for tests) ───────────────────────────────────
@@ -68,9 +71,6 @@ export function formatPeriod(period: string, refYear: number): string {
   return year !== refYear ? `${label}'${String(year).slice(2)}` : label;
 }
 
-/** @deprecated Import formatUsdFull from @/lib/vaults/product-display */
-export const formatUsdc = formatUsdFull;
-
 // ── SVG constants — chart-geometry escape hatch ───────────────────────────────
 // These are viewBox coordinate values, not CSS spacing tokens.
 
@@ -84,20 +84,18 @@ const AMOUNT_Y = BAR_AREA_BOT + 28;
 const BAR_FILL = "color-mix(in srgb, var(--ct-surface-3) 92%, var(--ct-text-strong) 8%)";
 const BAR_STROKE = "color-mix(in srgb, var(--ct-text-strong) 10%, transparent)";
 
-// ── Internal helpers ──────────────────────────────────────────────────────────
+// ── Bar geometry — bind this chart's viewBox to the shared pure helpers ────────
+// The math lives in @/lib/portfolio/geometry (shared with value-chart); these
+// thin wrappers inject this chart's VB_W / BAR_AREA_H. Exported for tests.
 
 /** Compute x-position of a bar's left edge (0-indexed) in the viewBox. */
 export function barX(index: number, total: number, barW: number, gapW: number): number {
-  const totalUsed = total * barW + (total - 1) * gapW;
-  const offset = (VB_W - totalUsed) / 2;
-  return offset + index * (barW + gapW);
+  return barXIn(index, total, barW, gapW, VB_W);
 }
 
 /** Compute bar height, normalised to BAR_AREA_H. Returns 0 for empty series. */
 export function barHeight(amount: number, maxAmount: number): number {
-  if (maxAmount === 0) return 0;
-  // Minimum visible height = 4px so even tiny amounts render
-  return Math.max(4, (amount / maxAmount) * BAR_AREA_H);
+  return barHeightIn(amount, maxAmount, BAR_AREA_H);
 }
 
 /** Quarter-month indices (0-based) for compact zero-state labels: Jan, Apr, Jul, Oct. */
@@ -212,7 +210,7 @@ function BarChart({
         const bx = barX(i, n, BAR_W, GAP);
         const by = BAR_AREA_BOT - bh;
         const periodLabel = formatPeriod(entry.period, refYear);
-        const amountLabel = isForecast ? "~" + formatUsdc(entry.amountUsdc) : formatUsdc(entry.amountUsdc);
+        const amountLabel = isForecast ? "~" + formatUsdFull(entry.amountUsdc) : formatUsdFull(entry.amountUsdc);
         const cx = bx + BAR_W / 2;
 
         const barEl = isForecast ? (
@@ -347,7 +345,9 @@ export function DistribCalendar({
   leafHref,
   secondaryLeafHref,
   secondaryLeafLabel,
+  embedded = false,
 }: DistribCalendarProps) {
+  const chrome = embedded ? ("embedded" as const) : ("panel" as const);
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
 
@@ -364,6 +364,7 @@ export function DistribCalendar({
     return (
       <PfCockpitPanel
         variant="wide"
+        chrome={chrome}
         aria-label="Payout calendar — awaiting first distribution"
         className="pf-payout-calendar-panel pf-payout-calendar-panel--zero h-full"
       >
@@ -401,14 +402,14 @@ export function DistribCalendar({
       {latestPaidEntry ? (
         <div className="pf-calendar-summary__item pf-calendar-summary__item--amount">
           <dt>Latest paid</dt>
-          <dd>{formatUsdc(latestPaidEntry.amountUsdc)}</dd>
+          <dd>{formatUsdFull(latestPaidEntry.amountUsdc)}</dd>
           <span>{formatPeriod(latestPaidEntry.period, refYear)}</span>
         </div>
       ) : null}
       {forecastEntry ? (
         <div className="pf-calendar-summary__item pf-calendar-summary__item--amount">
           <dt>Forecast</dt>
-          <dd>~{formatUsdc(forecastEntry.amountUsdc)}</dd>
+          <dd>~{formatUsdFull(forecastEntry.amountUsdc)}</dd>
           <span>{formatPeriod(forecastEntry.period, refYear)}</span>
         </div>
       ) : null}
@@ -431,6 +432,7 @@ export function DistribCalendar({
   return (
     <PfCockpitPanel
       variant="wide"
+      chrome={chrome}
       aria-label="Payout calendar"
       className="pf-payout-calendar-panel h-full"
     >

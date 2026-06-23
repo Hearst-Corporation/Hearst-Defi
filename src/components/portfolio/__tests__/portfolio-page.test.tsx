@@ -21,7 +21,7 @@ import type { LockMeterProps } from "../lock-meter";
 import { computeLockMeter } from "../lock-meter";
 import type { RiskPulseProps, RiskScore } from "../risk-pulse";
 import type { DistribCalendarProps, DistribEntry } from "../distrib-calendar";
-import { formatPeriod, formatUsdc } from "../distrib-calendar";
+import { formatPeriod } from "../distrib-calendar";
 import type { ProofPulseProps } from "../proof-pulse";
 import { computeDeltaPct, isMatch } from "../proof-pulse";
 import type { YieldStackProps } from "../yield-stack";
@@ -342,10 +342,6 @@ describe("DistribCalendar props — loadDistribCalendarProps shape", () => {
   it("formatPeriod helper works correctly", () => {
     expect(formatPeriod("2026-04", 2026)).toBe("Apr");
     expect(formatPeriod("2025-12", 2026)).toBe("Dec'25");
-  });
-
-  it("formatUsdc helper works correctly", () => {
-    expect(formatUsdc(358_000)).toBe("$358,000");
   });
 
   it("all amountUsdc are positive numbers", () => {
