@@ -67,9 +67,9 @@ export default async function PortfolioPage() {
 
       <div className="pf-hairline" aria-hidden="true" />
 
-      <div className="pf-cockpit">
-        {/* PLATE 1: Analytics (Fixed Height) */}
-        <div className="pf-terminal-band">
+      <div className="pf-cockpit pf-terminal-workspace">
+        {/* Main Data Column (Left) */}
+        <div className="pf-terminal-col">
           <div className="pf-terminal-cell">
             <ValueChart
               positions={data.positions}
@@ -81,7 +81,29 @@ export default async function PortfolioPage() {
               embedded
             />
           </div>
-          <div className="pf-terminal-cell pf-terminal-cell--flat">
+          <div className="pf-terminal-cell">
+            <CapitalYield
+              {...yieldStackProps}
+              buckets={allocationDonutProps.buckets}
+              totalValueUsdc={data.totalValueUsdc}
+              leafHref="/portfolio/yield"
+              embedded
+            />
+          </div>
+          <div className="pf-terminal-cell">
+            <PositionsList
+              positions={data.positions}
+              source={data.source}
+              updatedAt={data.updatedAt}
+              leafHref="/portfolio/positions"
+              embedded
+            />
+          </div>
+        </div>
+
+        {/* Live Feed Sidebar (Right) */}
+        <div className="pf-terminal-col">
+          <div className="pf-terminal-cell">
             <PortfolioStatusPanel
               hasPositions={hasPositions}
               positionsCount={data.positions.length}
@@ -99,16 +121,7 @@ export default async function PortfolioPage() {
               {...(data.updatedAt ? { updatedAt: data.updatedAt } : {})}
             />
           </div>
-          <div className="pf-terminal-cell pf-terminal-row--bottom">
-            <CapitalYield
-              {...yieldStackProps}
-              buckets={allocationDonutProps.buckets}
-              totalValueUsdc={data.totalValueUsdc}
-              leafHref="/portfolio/yield"
-              embedded
-            />
-          </div>
-          <div className="pf-terminal-cell pf-terminal-cell--flat pf-terminal-row--bottom">
+          <div className="pf-terminal-cell">
             <DistribCalendar
               {...distribCalendarProps}
               leafHref="/portfolio/distributions"
@@ -117,20 +130,7 @@ export default async function PortfolioPage() {
               embedded
             />
           </div>
-        </div>
-
-        {/* PLATE 2: Ledgers & Activity (Dynamic Height) */}
-        <div className="pf-terminal-band">
           <div className="pf-terminal-cell">
-            <PositionsList
-              positions={data.positions}
-              source={data.source}
-              updatedAt={data.updatedAt}
-              leafHref="/portfolio/positions"
-              embedded
-            />
-          </div>
-          <div className="pf-terminal-cell pf-terminal-cell--flat">
             <RecentActivity
               transactions={data.recentTransactions}
               source={data.source}

@@ -11,19 +11,19 @@ export default function PortfolioLoading() {
         <Skeleton className="pf-skeleton-greeting-ticker" />
       </div>
 
-      <div className="pf-cockpit">
+      <div className="pf-cockpit pf-terminal-workspace">
         {/* PLATE 1 */}
-        <div className="pf-terminal-band">
-          <div className="pf-terminal-cell"><Skeleton className="pf-embedded-pane h-[300px]" /></div>
-          <div className="pf-terminal-cell pf-terminal-cell--flat"><Skeleton className="pf-embedded-pane h-[300px]" /></div>
-          <div className="pf-terminal-cell pf-terminal-row--bottom"><Skeleton className="pf-embedded-pane h-[200px]" /></div>
-          <div className="pf-terminal-cell pf-terminal-cell--flat pf-terminal-row--bottom"><Skeleton className="pf-embedded-pane h-[200px]" /></div>
+        <div className="pf-terminal-col">
+          <div className="pf-terminal-cell"><Skeleton className="pf-embedded-pane h-[350px]" /></div>
+          <div className="pf-terminal-cell"><Skeleton className="pf-embedded-pane h-[240px]" /></div>
+          <div className="pf-terminal-cell"><Skeleton className="pf-embedded-pane h-[200px]" /></div>
         </div>
 
         {/* PLATE 2 */}
-        <div className="pf-terminal-band">
+        <div className="pf-terminal-col">
+          <div className="pf-terminal-cell"><Skeleton className="pf-embedded-pane h-[180px]" /></div>
           <div className="pf-terminal-cell"><Skeleton className="pf-embedded-pane h-[240px]" /></div>
-          <div className="pf-terminal-cell pf-terminal-cell--flat"><Skeleton className="pf-embedded-pane h-[240px]" /></div>
+          <div className="pf-terminal-cell"><Skeleton className="pf-embedded-pane h-[370px]" /></div>
         </div>
       </div>
     </div>
