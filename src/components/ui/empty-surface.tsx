@@ -7,30 +7,18 @@ import { cn } from "@/lib/cn";
 export type EmptySurfaceVariant = "widget" | "chart" | "inline";
 
 export interface EmptySurfaceProps {
-  /** Single calm headline. */
   message: string;
   detail?: string;
-  /** widget = full module placeholder; chart = chart/donut slot; inline = nested inset (no chrome) */
   variant?: EmptySurfaceVariant;
   round?: boolean;
   className?: string;
   role?: "status" | "note";
   ariaLabel?: string;
   children?: ReactNode;
-  /**
-   * Async-data-awaiting semantics: wraps the surface in
-   * `<div role="status" aria-live="polite" aria-atomic="true">` (DS §9.3).
-   * Also forces `h-full` on the widget variant to fill its container.
-   */
   live?: boolean;
-  /** Optional CTA link rendered after any children (DS §9.3). */
   link?: { label: string; href: string; ariaLabel?: string };
 }
 
-/**
- * Canonical empty / awaiting surface (DS §9).
- * Single component + `ct-empty-surface*` classes in cockpit.css.
- */
 export function EmptySurface({
   message,
   detail,

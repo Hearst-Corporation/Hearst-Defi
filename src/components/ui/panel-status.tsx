@@ -12,10 +12,6 @@ export interface PanelStatusProps {
   role?: "status" | "alert" | "note";
 }
 
-/**
- * Inline status copy inside an encased parent (cockpit panel, card, chamber).
- * No border/background — parent owns the single surface (DS §9.3).
- */
 export function PanelStatus({
   message,
   detail,
@@ -43,7 +39,6 @@ export function PanelStatus({
   );
 }
 
-/** Left-accent inline row inside a parent card — no nested box background. */
 export function PanelStatusAccent({
   children,
   className,
@@ -60,7 +55,6 @@ export function PanelStatusAccent({
   );
 }
 
-/** Subsection label + children (checklists, field groups) without nested boxes. */
 export function PanelStatusSection({
   label,
   "aria-label": ariaLabel,

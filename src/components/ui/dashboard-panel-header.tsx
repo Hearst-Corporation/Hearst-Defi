@@ -2,9 +2,6 @@ import type { ReactNode } from "react";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 
-/**
- * Canonical dashboard panel header — eyebrow, h2/h3 title, optional subtitle, provenance, and trailing slot.
- */
 export function DashboardPanelHeader({
   title,
   eyebrow,
@@ -19,18 +16,12 @@ export function DashboardPanelHeader({
 }: {
   title: ReactNode;
   eyebrow?: string;
-  /** Optional subtitle below the title. */
   subtitle?: string;
   provenance?: Provenance;
-  /** Investor-facing trust copy shown beside provenance (e.g. Verified data). */
   trustLabel?: string;
-  /** Optional trailing slot (e.g. for actions or "View all" links). */
   trailing?: ReactNode;
-  /** primary = command-row data cards; quiet = instrumentation panels */
   tone?: "primary" | "quiet";
-  /** section = h2 (.h2) for portfolio/product sections; widget = h3 (.h3) default */
   titleLevel?: "section" | "widget";
-  /** Applied to the title element for aria-labelledby on parent surfaces. */
   id?: string;
   className?: string;
 }) {
