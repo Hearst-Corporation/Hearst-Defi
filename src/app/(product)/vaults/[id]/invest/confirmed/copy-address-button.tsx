@@ -6,10 +6,6 @@ interface CopyAddressButtonProps {
   address: string;
 }
 
-/**
- * Minimal client component: copies `address` to the clipboard via
- * navigator.clipboard.writeText and shows a transient "Copied" label.
- */
 export function CopyAddressButton({ address }: CopyAddressButtonProps) {
   const [copied, setCopied] = useState(false);
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

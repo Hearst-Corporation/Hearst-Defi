@@ -8,13 +8,9 @@ type InvestFlowWidth = "cap" | "narrow" | "full";
 
 interface InvestFlowShellProps {
   step: InvestStepId;
-  /** Canon: portion blanche du titre. */
   titleLead?: string;
-  /** Canon: portion accent vert du titre (bicolore). */
   titleAccent?: string;
-  /** Canon: kicker court uppercase (défaut « Investment Flow »). */
   contextLabel?: string;
-  /** Legacy single-string title. */
   title?: string;
   description?: ReactNode;
   lead?: ReactNode;
@@ -23,9 +19,7 @@ interface InvestFlowShellProps {
   headerBelowStepper?: ReactNode;
   align?: "start" | "center";
   headerClassName?: string;
-  /** Max-width modifier — mutually exclusive cap vs narrow. Default: cap. */
   width?: InvestFlowWidth;
-  /** Viewport-fit workspace mode — header fixed, body scrolls internally. */
   workspace?: boolean;
   children: ReactNode;
   footer?: ReactNode;

@@ -15,7 +15,6 @@ interface StepProgressProps {
   active: InvestStepId;
 }
 
-/** 4-step wizard progress for the invest flow. */
 export function StepProgress({ active }: StepProgressProps) {
   return (
     <WizardStepProgress

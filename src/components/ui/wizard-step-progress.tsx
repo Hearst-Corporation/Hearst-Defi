@@ -13,10 +13,6 @@ interface WizardStepProgressProps<T extends string> {
   hideLabelsBelow?: "sm";
 }
 
-/**
- * Shared horizontal step indicator for multi-step flows (onboarding, invest).
- * Crisp solid dots — no glow, no translucent accent-soft fill.
- */
 export function WizardStepProgress<T extends string>({
   steps,
   active,

@@ -302,16 +302,6 @@
 }
 
 /* Auxiliary stack: Calendar + Activity stacked in deck right column */
-.pf-cockpit-cell--auxiliary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-6);
-}
-
-.pf-auxiliary-stack {
-  flex: 1 1 auto;
-  min-height: 0;
-}
 
 /* StatusPanel in full-width banner mode */
 .pf-cockpit-row--summary .pf-cockpit-panel {
@@ -448,16 +438,16 @@
 
   .pf-container--fit .pf-value-chart__chart-wrapper {
     aspect-ratio: auto;
-    min-height: 14rem;
-    max-height: 28rem;
-    height: 38vh;
+    min-height: 12rem;
+    max-height: 18rem;
+    height: 25vh;
   }
 
   @media (min-width: 80rem) {
     .pf-container--fit .pf-value-chart__chart-wrapper {
-      min-height: 20rem;
-      max-height: 36rem;
-      height: 45vh;
+      min-height: 16rem;
+      max-height: 28rem;
+      height: 35vh;
     }
   }
 

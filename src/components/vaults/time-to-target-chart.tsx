@@ -1,9 +1,5 @@
 "use client";
 
-// TimeToTargetChart — cumulative yield curve + target milestone marker.
-// Non-negotiable #5: no forbidden words in labels.
-// Non-negotiable #10: "not guaranteed" disclaimer mandatory.
-
 import { monthsToTarget, buildProjectionSeries } from "@/lib/projection-chart";
 import type { VaultProduct } from "@/lib/data/vaults";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
@@ -19,7 +15,6 @@ interface TimeToTargetChartProps {
 const CHART_MONTHS = 24;
 const TARGET_CUMULATIVE_PCT = 10; // 10% cumulative yield as "milestone"
 
-// ViewBox dimensions
 const VB_W = 300;
 const VB_H = 120;
 const PAD_L = 8;
@@ -29,26 +24,22 @@ const PAD_B = 8;
 const INNER_W = VB_W - PAD_L - PAD_R;
 const INNER_H = VB_H - PAD_T - PAD_B;
 
-/** Map a data index to an x coordinate. */
 function xAt(i: number, total: number): number {
   if (total <= 1) return PAD_L + INNER_W / 2;
   return PAD_L + (i / (total - 1)) * INNER_W;
 }
 
-/** Map a nav value to a y coordinate (higher nav → lower y). */
 function yAt(nav: number, minNav: number, maxNav: number): number {
   const span = maxNav - minNav || 1;
   return PAD_T + INNER_H - ((nav - minNav) / span) * INNER_H;
 }
 
-/** Build SVG path d for a line. */
 function linePath(xs: number[], ys: number[]): string {
   return xs
     .map((x, i) => `${i === 0 ? "M" : "L"}${x.toFixed(2)},${(ys[i] ?? PAD_T).toFixed(2)}`)
     .join(" ");
 }
 
-/** Build SVG path d for a filled area (line + baseline). */
 function areaPath(xs: number[], ys: number[]): string {
   if (xs.length === 0) return "";
   const line = xs
@@ -84,14 +75,10 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
   const midApy = (vault.apyLow + vault.apyHigh) / 2;
   const months10pct = monthsToTarget(midApy, TARGET_CUMULATIVE_PCT, CHART_MONTHS);
 
-  // Build the mid-line cumulative yield series (NAV indexed to 100).
-  // We use buildProjectionSeries with a normalized principal of 100 so the
-  // y-axis shows cumulative yield % rather than raw USDC.
   const series = buildProjectionSeries(100, vault.apyLow, vault.apyHigh, CHART_MONTHS);
   const midPts = series.mid;
   const highPts = series.high;
 
-  // Check for empty / degenerate state.
   const hasData = midPts.length >= 2;
 
   if (!hasData) {

@@ -1,5 +1,3 @@
-// LP product-surface formatters — pure, no I/O.
-
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 
 export { formatUsdCompact };
@@ -33,17 +31,14 @@ export function formatUsdFull(usdc: number): string {
   return USD_FULL.format(usdc);
 }
 
-/** Position detail / accrued yield — two decimal places. */
 export function formatUsdDetailed(usdc: number): string {
   return USD_DETAILED.format(usdc);
 }
 
-/** Grouped integer without currency symbol (time-to-cash widget). */
 export function formatUsdcGrouped(amount: number): string {
   return USDC_GROUPED.format(Math.round(amount));
 }
 
-/** Invest form amounts — optional compact ($250k / $1.2M). */
 export function formatUsdAmount(n: number, compact = false): string {
   if (compact && n >= 1_000_000) {
     return `$${(n / 1_000_000).toFixed(1)}M`;
@@ -73,7 +68,6 @@ export function shareClassCode(
   return shareClass === "B" ? "B" : "A";
 }
 
-/** Parse USDC amount from query param (confirmed page). */
 export function formatUsdcFromParam(raw: string | undefined): string {
   const n = raw ? parseInt(raw, 10) : NaN;
   if (isNaN(n) || n <= 0) return "—";
@@ -94,7 +88,6 @@ const ADMIN_DATE = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
-/** Admin tables — date-only (no time). */
 export function formatAdminDate(d: Date): string {
   return ADMIN_DATE.format(d);
 }
@@ -104,7 +97,6 @@ const ADMIN_MONTH_DAY = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
 });
 
-/** Admin dashboard compact labels — month + day without year. */
 export function formatAdminMonthDay(d: Date): string {
   return ADMIN_MONTH_DAY.format(d);
 }
@@ -117,7 +109,6 @@ const ADMIN_DATETIME = new Intl.DateTimeFormat("en-US", {
   minute: "2-digit",
 });
 
-/** Admin tables / audit — locale-stable datetime. */
 export function formatAdminDateTime(d: Date): string {
   return ADMIN_DATETIME.format(d);
 }
@@ -133,7 +124,6 @@ const ADMIN_AUDIT_TIMESTAMP = new Intl.DateTimeFormat("en-US", {
   timeZoneName: "short",
 });
 
-/** Admin audit log — full timestamp with timezone (compliance review). */
 export function formatAdminAuditTimestamp(d: Date): string {
   return ADMIN_AUDIT_TIMESTAMP.format(d);
 }
@@ -146,7 +136,6 @@ const ADMIN_ROLLING_TIME = new Intl.DateTimeFormat("en-US", {
   hour12: false,
 });
 
-/** Admin cockpit rolling audit table — compact datetime without year. */
 export function formatAdminRollingTimestamp(d: Date): string {
   return ADMIN_ROLLING_TIME.format(d);
 }

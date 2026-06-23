@@ -17,7 +17,6 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
   const totalAtClose =
     yieldAtClose !== null ? amount + yieldAtClose : null;
 
-  // Graphical split: principal vs projected gross yield at soft close.
   const yieldShare =
     totalAtClose !== null && totalAtClose > 0
       ? Math.min(100, (yieldAtClose! / totalAtClose) * 100)
@@ -38,7 +37,6 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       />
 
       <div className="vault-panel-body vault-deposit-summary">
-        {/* Headline — projected total at soft close */}
         <div className="vault-deposit-summary__headline">
           <span className="stat-label ct-text-muted">
             Projected at soft close (gross)
@@ -48,7 +46,6 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           </span>
         </div>
 
-        {/* Graphical principal ↔ yield split */}
         <div
           className="vault-deposit-summary__bar"
           role="img"
@@ -89,7 +86,6 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           </div>
         </div>
 
-        {/* Key figures grid */}
         <dl className="vault-deposit-summary__kpis">
           <div>
             <dt className="stat-label">Target APY</dt>

@@ -10,7 +10,6 @@ type InvestFlowLoadingShellProps = {
   bodyCards?: number;
 };
 
-/** Loading placeholder aligned with `InvestFlowShell` + `ProductPageHeader`. */
 export function InvestFlowLoadingShell({
   width = "cap",
   workspace = false,

@@ -45,7 +45,6 @@ export function VaultKpiCell({
   );
 }
 
-/** Label / value row inside a vault-panel-body (confirmed, detail panels). */
 export function VaultDetailRow({
   label,
   value,
@@ -66,7 +65,6 @@ export function VaultDetailRow({
   );
 }
 
-/** Accent inline action link inside vault panels (explorer, calendar, etc.). */
 export function VaultPanelLink({
   href,
   children,
@@ -87,7 +85,6 @@ export function VaultPanelLink({
   );
 }
 
-/** Inset block inside vault-panel-body (soft-lock bar, multi-line fields). */
 export function VaultPanelInsetBlock({
   children,
   className,

@@ -25,7 +25,7 @@ import {
 import { cn } from "@/lib/cn";
 import { formatUsdCompact, formatUsdFull } from "@/lib/vaults/product-display";
 
-const BOX: ViewBox = { w: 800, h: 320, padY: 16 };
+const BOX: ViewBox = { w: 800, h: 320, padY: 24 };
 const VB_W = BOX.w;
 const VB_H = BOX.h;
 
@@ -421,8 +421,7 @@ export function ValueChart({
                   key={tick}
                   style={{
                     position: 'absolute',
-                    bottom: `calc(${100 - yPct}%)`,
-                    transform: 'translateY(50%)'
+                    top: `calc(${yPct}% - 14px)`,
                   }}
                 >
                   {formatUsdCompact(tick)}

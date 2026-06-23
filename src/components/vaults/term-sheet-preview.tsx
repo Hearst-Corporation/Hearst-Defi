@@ -17,7 +17,6 @@ interface TermSheetPreviewProps {
   vault: VaultProduct;
 }
 
-/** LP term sheet body for step 2 (`/vaults/[id]`). Workspace grid only. */
 export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
   const aumProvenance =
     vault.currentAumUsdc > 0 ? ("live" as const) : ("manual" as const);

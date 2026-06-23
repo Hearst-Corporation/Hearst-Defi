@@ -107,7 +107,6 @@ export function InvestForm({ vault }: InvestFormProps) {
   return <InvestFormLive vault={vault} />;
 }
 
-/** Full Step-3 grid with honest placeholders — wallet lane not configured yet. */
 function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
   const maxAmount = vault.capacityUsdc - vault.currentAumUsdc;
   const ptai = buildPtai(0, vault);
@@ -297,8 +296,6 @@ function InvestFormLive({ vault }: InvestFormProps) {
       return;
     }
 
-    // P0 fix: check KYC + accreditation BEFORE firing the on-chain tx so a
-    // rejected investor can never put funds on-chain that won't be recorded.
     const eligibility = await checkSubscribeEligibility(vault.id);
     if (!eligibility.ok) {
       setDepositError(eligibility.error);
@@ -320,9 +317,6 @@ function InvestFormLive({ vault }: InvestFormProps) {
         receiver: privyWallet.address as `0x${string}`,
       });
 
-      // On-chain deposit succeeded → record the Position in the DB with the
-      // real tx hash so it surfaces in the portfolio. The on-chain settlement
-      // and the DB record must not drift apart.
       const sub = await subscribe(
         vault.id,
         amount,
@@ -416,7 +410,6 @@ function InvestFormLive({ vault }: InvestFormProps) {
               </p>
             </section>
 
-            {/* Term sheet checkbox */}
             <Checkbox
               checked={agreedToTermSheet}
               onChange={(checked) => {

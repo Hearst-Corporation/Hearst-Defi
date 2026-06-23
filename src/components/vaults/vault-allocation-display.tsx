@@ -92,7 +92,6 @@ export function VaultAllocationInvestorList({
 
   return (
     <div className="vault-alloc-chart">
-      {/* Vue d'ensemble — barre empilée 100% */}
       <div
         className="vault-alloc-stack"
         role="img"
@@ -109,7 +108,6 @@ export function VaultAllocationInvestorList({
           ))}
       </div>
 
-      {/* Détail par bucket — barres graphiques */}
       <div className="vault-alloc-bars">
         {segments.map((s) => (
           <AllocationBar key={s.bucket} bucket={s.bucket} bps={s.bps} />

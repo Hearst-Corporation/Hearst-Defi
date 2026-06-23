@@ -93,7 +93,6 @@ export function ProductSelectCard({ vault, demo = false }: ProductSelectCardProp
   );
 }
 
-/** Flat label↔value term row — no nested KPI surface (DS list hierarchy). */
 function VaultTermRow({
   label,
   value,

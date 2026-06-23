@@ -1,9 +1,3 @@
-// /vaults/[id]/invest/confirmed — Step 4 of 4: Institutional confirmation
-//
-// Non-negotiable #2: Provenance grouped — not on every row.
-// Non-negotiable #5: no forbidden words.
-// Non-negotiable #10: "not guaranteed" disclaimer.
-
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -67,8 +61,6 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
   const hasHash = txHash !== null && !isPlaceholderTxHash(txHash);
   const baseScanHref = hasHash ? explorerTxUrl(txHash) : null;
 
-  // Read NAV per share on-chain if the vault has a real (non-placeholder)
-  // contract address. Degrades gracefully — never crashes the page on RPC failure.
   let navDisplay = "1.0000 USDC / share";
   let navProvenance: "live" | "estimated" = "estimated";
 
@@ -80,11 +72,10 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
         navProvenance = "live";
       }
     } catch {
-      // RPC failure — fall back to estimated, no crash.
+      // RPC failure — graceful degradation
     }
   }
 
-  // Soft-lock days from the vault (Class A=60, Class B=90) — never hardcoded.
   const vaultForLock = await getVault(id);
   const LOCK_DAYS = vaultForLock?.softLockupDays ?? 60;
   const currentDay = 0;

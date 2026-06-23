@@ -13,7 +13,6 @@ function pctCell(value: number) {
 }
 
 interface RegimeScenarioTableProps {
-  /** Vault whose APY range and sleeve mix drive the stress-regime rows. */
   vault: VaultProduct;
 }
 

@@ -1,7 +1,3 @@
-/**
- * Shared vault detail facts — pure shapes consumed by admin and LP surfaces.
- * Presentation differs (Card vs flat sections); labels and numbers stay aligned.
- */
 import type { AllocationBucket } from "@/lib/engine/types";
 
 export interface VaultKpiFacts {
