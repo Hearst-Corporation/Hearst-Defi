@@ -176,6 +176,14 @@
   flex-direction: column;
   gap: var(--ct-space-0_5);
   min-width: 0;
+  padding-left: var(--ct-space-5);
+  border-left: 1px solid var(--ct-border-base);
+}
+
+/* First cell has no left border for clean edge alignment */
+.pf-ticker-cell:first-child {
+  padding-left: 0;
+  border-left: none;
 }
 
 .pf-ticker-label {
@@ -205,6 +213,11 @@
   text-transform: none;
   color: var(--ct-text-tertiary);
   line-height: var(--ct-leading-tight);
+}
+
+/* Accent highlight for positive yield delta */
+.pf-ticker-note.ct-text-accent {
+  font-weight: var(--ct-font-semibold);
 }
 
 /* =============================================================================
