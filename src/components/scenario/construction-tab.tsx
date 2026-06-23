@@ -159,7 +159,7 @@ export function ConstructionTab() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-(--ct-space-6)">
               <div className="admin-doc-stack--tight">
                 <span className="stat-label">Total CAPEX</span>
-                <span className="mono text-2xl ct-text-primary tabular-nums">
+                <span className="mono stat-value ct-text-primary tabular-nums">
                   ${(output.total_capex_usd / 1_000_000).toFixed(1)}M
                 </span>
                 <span className="body-xs ct-text-muted">
@@ -168,7 +168,7 @@ export function ConstructionTab() {
               </div>
               <div className="admin-doc-stack--tight">
                 <span className="stat-label">Yearly Net Profit</span>
-                <span className="mono text-2xl ct-text-accent tabular-nums">
+                <span className="mono stat-value ct-text-accent tabular-nums">
                   ${(output.yearly_net_profit_usd / 1_000_000).toFixed(2)}M
                 </span>
                 <span className="body-xs ct-text-muted">
@@ -177,8 +177,8 @@ export function ConstructionTab() {
               </div>
               <div className="admin-doc-stack--tight">
                 <span className="stat-label">Payback Period</span>
-                <span className="mono text-2xl ct-text-primary tabular-nums">
-                  {output.payback_months === 999 ? "∞" : output.payback_months} <span className="text-sm font-sans text-muted">months</span>
+                <span className="mono stat-value ct-text-primary tabular-nums">
+                  {output.payback_months === 999 ? "∞" : output.payback_months} <span className="body-xs font-sans ct-text-muted">months</span>
                 </span>
                 <span className="body-xs ct-text-muted">
                   ROI 5Y: {output.roi_5y_pct}%
@@ -191,7 +191,7 @@ export function ConstructionTab() {
               <div className="admin-doc-stack--tight">
                 <span className="stat-label">Break-even Hashprice</span>
                 <div className="admin-doc-inline-row admin-doc-inline-row--baseline gap-[var(--ct-space-2)]">
-                  <span className="mono text-xl ct-text-primary">
+                  <span className="mono stat-value ct-text-primary">
                     ${output.break_even_hashprice.toFixed(4)}
                   </span>
                   <span className="body-xs ct-text-muted">/TH/day</span>
@@ -203,7 +203,7 @@ export function ConstructionTab() {
               <div className="admin-doc-stack--tight">
                 <span className="stat-label">Operational Efficiency</span>
                 <div className="admin-doc-inline-row admin-doc-inline-row--baseline gap-[var(--ct-space-2)]">
-                  <span className="mono text-xl ct-text-primary">
+                  <span className="mono stat-value ct-text-primary">
                     {output.yearly_revenue_usd > 0 ? `${(output.yearly_opex_usd / output.yearly_revenue_usd * 100).toFixed(1)}%` : "—"}
                   </span>
                 </div>

@@ -18,6 +18,7 @@ import { EmptySurface } from "@/components/ui/empty-surface";
 import { NestedPanel } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
+import { ptsToPolyline as pts } from "@/lib/scenario/chart-helpers";
 import {
   runMonteCarlo,
   type MonteCarloInput,
@@ -86,10 +87,6 @@ function buildFanSeries(percentiles: MonteCarloOutput["percentiles"]): NavPoint[
     series.push({ p5: navP5, p50: navP50, p95: navP95 });
   }
   return series;
-}
-
-function pts(arr: Array<{ x: number; y: number }>): string {
-  return arr.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
 }
 
 interface FanChartProps {

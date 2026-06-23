@@ -1,5 +1,6 @@
 import type { MonthlyPoint } from "@/lib/engine/types";
 import { cn } from "@/lib/cn";
+import { ptsToPathD, ptsToPolyline } from "@/lib/scenario/chart-helpers";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
 import { EmptySurface } from "@/components/ui/empty-surface";
@@ -33,16 +34,6 @@ function normY(
 
 function xAt(index: number, total: number): number {
   return PAD_X + (total === 1 ? DRAW_W / 2 : (index / (total - 1)) * DRAW_W);
-}
-
-function ptsToD(pts: Array<{ x: number; y: number }>): string {
-  return pts
-    .map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(2)},${p.y.toFixed(2)}`)
-    .join(" ");
-}
-
-function ptsToPolyline(pts: Array<{ x: number; y: number }>): string {
-  return pts.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
 }
 
 // ── Data derivation ────────────────────────────────────────────────────────
@@ -119,7 +110,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
     return `${line} ${last.x.toFixed(2)},${(navTop + NAV_DRAW_H).toFixed(2)} ${first.x.toFixed(2)},${(navTop + NAV_DRAW_H).toFixed(2)}`;
   })();
 
-  const navLinePath = ptsToD(navPts);
+  const navLinePath = ptsToPathD(navPts);
 
   // Drawdown panel — bottom portion
   const ddTop = navTop + NAV_DRAW_H + 4;

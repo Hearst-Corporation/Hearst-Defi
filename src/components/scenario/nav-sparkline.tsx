@@ -1,6 +1,7 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
+import { ptsToPolyline as pts } from "@/lib/scenario/chart-helpers";
 import type { ScenarioOutput } from "@/lib/engine/types";
 
 // ── NAV projection series ─────────────────────────────────────────────────────
@@ -63,12 +64,6 @@ function buildNavSeries(
 function formatUsd(n: number): string {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(3)}M`;
   return `$${(n / 1_000).toFixed(0)}K`;
-}
-
-// ── SVG helpers ───────────────────────────────────────────────────────────────
-
-function pts(arr: Array<{ x: number; y: number }>): string {
-  return arr.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
 }
 
 // ── Fan chart SVG ─────────────────────────────────────────────────────────────
