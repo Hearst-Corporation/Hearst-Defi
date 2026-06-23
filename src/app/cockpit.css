@@ -1507,7 +1507,7 @@
   /* Reflow from board width — admin rails eat ~500px of viewport. */
   container-type: inline-size;
   container-name: dash-board;
-  --ct-dashboard-kpi-cell-min-height: 7.25rem;
+  --ct-dashboard-kpi-cell-min-height: 4.5rem;
   --ct-dashboard-orbit-size: 11.75rem;
   --ct-dashboard-orbit-max-width: 13rem;
   --ct-dashboard-hero-min-height: 13.5rem;
@@ -1576,8 +1576,8 @@
 /* Positive-attention highlight (brand green) — e.g. action queue with pending
    items. Distinct from --alert (danger red) so genuine degraded states keep red. */
 .dashboard-kpi-strip__cell--accent {
-  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
-  background: color-mix(in srgb, var(--ct-accent) 7%, transparent);
+  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--ct-accent) 40%, transparent);
+  background: color-mix(in srgb, var(--ct-accent) 3%, transparent);
 }
 
 .dashboard-kpi-strip__label-row {
@@ -2557,7 +2557,7 @@
   min-width: 0;
   container-type: inline-size;
   container-name: dash-board;
-  --ct-dashboard-kpi-cell-min-height: 7.25rem;
+  --ct-dashboard-kpi-cell-min-height: 4.5rem;
   --ct-dashboard-orbit-size: 11.75rem;
   --ct-dashboard-orbit-max-width: 13rem;
   --ct-dashboard-hero-min-height: 13.5rem;
