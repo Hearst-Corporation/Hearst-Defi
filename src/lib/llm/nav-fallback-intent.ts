@@ -158,6 +158,8 @@ export const NAV_KEYWORDS: Record<string, readonly string[]> = {
   // Admin
   "admin-product-workspace": ["product workspace", "espace produit"],
   "admin-scenario-lab": ["scenario lab", "laboratoire de scénarios"],
+  "admin-agent-canvas": ["agent canvas", "canvas agent", "atelier agent"],
+  "lp-agent-canvas": ["agent canvas lecture", "canvas lecture", "explication produit"],
   "admin-dashboard": ["dashboard admin", "tableau de bord admin", "command center"],
   "admin-vaults": ["vaults admin", "gestion des vaults"],
   "admin-customers": ["clients", "customers", "investisseurs", "fiche client"],

@@ -146,6 +146,14 @@ export const LP_NAV_DESTINATIONS: readonly NavDestination[] = [
     label: "Légal — Conditions",
     description: "Conditions d'utilisation du service.",
   },
+  {
+    key: "lp-agent-canvas",
+    profile: "lp",
+    route: "/agent-canvas",
+    label: "Agent Canvas",
+    description:
+      "Page de travail centrale, en lecture seule, que l'agent remplit en direct pour expliquer le produit (sources de yield, hypothèses, risques). Le canvasId précise quel atelier ouvrir. Aucune action d'écriture.",
+  },
 ] as const;
 
 /** Admin destinations (internal ops surfaces). */
@@ -169,10 +177,10 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
   {
     key: "admin-agent-canvas",
     profile: "admin",
-    route: "/agent-canvas",
+    route: "/admin/agent-canvas",
     label: "Agent Canvas",
     description:
-      "Page de travail centrale que l'agent remplit en direct (sections, champs, propositions d'action HITL) pour cadrer un produit ou une campagne outreach. Le canvasId précise quel atelier ouvrir. La page applique elle-même le gate de rôle (canvas admin → rôle admin requis; canvas LP lecture seule).",
+      "Page de travail centrale que l'agent remplit en direct (sections, champs, propositions d'action HITL) pour cadrer un produit ou une campagne outreach. Le canvasId précise quel atelier ouvrir. Admin uniquement (gate du layout /admin).",
   },
   {
     key: "admin-dashboard",

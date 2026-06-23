@@ -51,7 +51,7 @@ import {
 import { withProductChatStreamEvents } from "@/lib/llm/product-chat-stream";
 import { detectCanvasIntent } from "@/lib/canvas/intent";
 import { withCanvasStreamEvents } from "@/lib/canvas/emit";
-import { isAdminCanvas } from "@/lib/canvas/registry";
+import { isAdminCanvas, getCanvasDefinition } from "@/lib/canvas/registry";
 import { createRequestContext, withRequestContext } from "@/lib/request-context";
 import {
   buildCockpitMessageId,
@@ -735,9 +735,10 @@ async function runMasterAgentTurn(args: {
     const canvasObjective = _rawFallback || undefined;
     // AWAIT (not fire-and-forget): the bridge polls the moment the answer
     // starts, so the directive must land first — same race note as the product
-    // workspace short-circuit above.
+    // workspace short-circuit above. The destination key comes from the registry
+    // (admin canvases → /admin/agent-canvas; LP canvas → /agent-canvas).
     await publishNav(userId, {
-      destinationKey: "admin-agent-canvas",
+      destinationKey: getCanvasDefinition(canvasIntent.canvasId).destinationKey,
       canvasId: canvasIntent.canvasId,
       ...(canvasObjective ? { objective: canvasObjective } : {}),
       autostart: true,

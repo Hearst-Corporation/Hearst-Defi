@@ -16,6 +16,7 @@ import { getProductRoutes } from "@/lib/product-routes";
 const EXPECTED_ROUTES = [
   "/",
   "/admin",
+  "/admin/agent-canvas/[canvasId]",
   "/admin/agents",
   "/admin/agents/[id]",
   "/admin/agents/new",
@@ -51,6 +52,7 @@ const EXPECTED_ROUTES = [
   "/admin/vaults/[id]",
   "/admin/vaults/[id]/edit",
   "/admin/vaults/new",
+  "/agent-canvas/[canvasId]",
   "/apply",
   "/apply/confirmed",
   "/forgot-password",

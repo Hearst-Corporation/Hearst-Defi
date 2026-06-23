@@ -122,7 +122,8 @@ export function ChatNavBridge() {
               // canvas) carry the objective/autostart in the URL so the page can
               // pick it up. The agent-canvas base route also gets the canvasId
               // appended as a path segment (/admin/agent-canvas/<id>).
-              const isCanvasRoute = data.route === "/agent-canvas";
+              const isCanvasRoute =
+                data.route === "/agent-canvas" || data.route === "/admin/agent-canvas";
               const isSeededRoute =
                 data.route === "/admin/scenario-lab" ||
                 data.route === "/admin/product-workspace" ||

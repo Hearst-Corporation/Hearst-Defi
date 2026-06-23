@@ -152,37 +152,37 @@ export function CanvasActionButton({
         </ul>
       )}
 
-      {phase !== "done" && phase !== "awaiting_confirm" && (
+      {(phase === "idle" || phase === "proposing" || phase === "error") && (
         <Button variant="secondary" size="md" disabled={disabled || busy} onClick={propose}>
           {phase === "proposing" ? "Preparing…" : proposal.label}
         </Button>
       )}
 
-      {phase === "awaiting_confirm" && (
-        <div className="ct-canvas-action-confirm">
-          <Button variant="primary" size="md" disabled={disabled || busy} onClick={confirm}>
-            {phase === "executing" ? "Executing…" : "Confirm"}
-          </Button>
-          <Button
-            variant="ghost"
-            size="md"
-            disabled={busy}
-            onClick={() => {
-              setToken(null);
-              setPhase("idle");
-              setFeedback(null);
-            }}
-          >
-            Cancel
-          </Button>
-        </div>
+      {(phase === "awaiting_confirm" || phase === "executing") && (
+        <>
+          <div className="ct-canvas-action-confirm">
+            <Button variant="primary" size="md" disabled={disabled || busy} onClick={confirm}>
+              {phase === "executing" ? "Executing…" : "Confirm"}
+            </Button>
+            <Button
+              variant="ghost"
+              size="md"
+              disabled={busy}
+              onClick={() => {
+                setToken(null);
+                setPhase("idle");
+                setFeedback(null);
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+          {feedback && <p className="ct-canvas-action-feedback">{feedback}</p>}
+        </>
       )}
 
       {phase === "done" && <p className="ct-canvas-action-done">✓ {feedback}</p>}
       {phase === "error" && <p className="ct-canvas-action-error">{feedback}</p>}
-      {phase === "awaiting_confirm" && feedback && (
-        <p className="ct-canvas-action-feedback">{feedback}</p>
-      )}
     </div>
   );
 }

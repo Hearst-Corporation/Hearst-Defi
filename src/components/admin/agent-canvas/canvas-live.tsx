@@ -90,7 +90,7 @@ export function CanvasLive({
     let cancelled = false;
     void (async () => {
       try {
-        const res = await fetch(`/api/admin/canvas/${canvasId}`, {
+        const res = await fetch(`/api/agent-canvas/${canvasId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ objective }),

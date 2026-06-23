@@ -32,6 +32,7 @@ describe("navigate-tool whitelist", () => {
       "/legal/disclaimer",
       "/legal/privacy",
       "/legal/terms",
+      "/agent-canvas",
     ]);
   });
 
@@ -39,6 +40,7 @@ describe("navigate-tool whitelist", () => {
     expect(ADMIN_NAV_DESTINATIONS.map((d) => d.route)).toEqual([
       "/admin/product-workspace",
       "/admin/scenario-lab",
+      "/admin/agent-canvas",
       "/admin/dashboard",
       "/admin/vaults",
       "/admin/customers",

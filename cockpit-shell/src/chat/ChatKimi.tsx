@@ -171,6 +171,24 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
     if (el) el.style.height = "";
   }, []);
 
+  // Canvas → chat hand-back. A canvas option (effect "prefill_chat") dispatches
+  // `cockpit:chat-prefill`; we pre-fill the input (editable, never auto-sent),
+  // mirroring the preset-chip behaviour. Same window-event seam as nav-local.
+  useEffect(() => {
+    const onPrefill = (event: Event): void => {
+      const detail = (event as CustomEvent).detail as { prompt?: unknown } | undefined;
+      const prompt = typeof detail?.prompt === "string" ? detail.prompt : null;
+      if (!prompt) return;
+      setInput(prompt);
+      requestAnimationFrame(() => {
+        autoGrow();
+        textareaRef.current?.focus();
+      });
+    };
+    window.addEventListener("cockpit:chat-prefill", onPrefill);
+    return () => window.removeEventListener("cockpit:chat-prefill", onPrefill);
+  }, [autoGrow]);
+
   const newConversation = useCallback(() => {
     setActiveChat(null);
     reset();

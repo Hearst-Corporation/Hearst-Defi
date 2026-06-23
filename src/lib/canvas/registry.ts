@@ -44,6 +44,7 @@ export const CANVAS_DEFINITIONS: Readonly<Record<CanvasId, CanvasDefinition>> = 
     id: "create-vault",
     audience: "admin",
     title: "New vault — draft workspace",
+    // Admin canvases route under /admin (gated by the admin layout for free).
     destinationKey: "admin-agent-canvas",
     writeToolAllowlist: ["create_vault_draft"],
     seedObjective:
@@ -68,7 +69,8 @@ export const CANVAS_DEFINITIONS: Readonly<Record<CanvasId, CanvasDefinition>> = 
     id: "lp-yield-explainer",
     audience: "lp",
     title: "How the yield works",
-    destinationKey: "admin-agent-canvas",
+    // LP canvas routes outside /admin so an investor can reach it.
+    destinationKey: "lp-agent-canvas",
     // LP read-only canvas: ZERO write tools by construction (pinned by Vitest).
     writeToolAllowlist: [],
     seedObjective:

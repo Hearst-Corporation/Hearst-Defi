@@ -1189,6 +1189,17 @@
   padding: 0;
 }
 
+/* Fully flat surfaces — transparent, no border/radius/shadow — so input + output
+   melt into the page like Scenario Lab's box (single flat surface, no raised
+   panels, no glass-on-glass). */
+.projection-studio-input-card.ct-card,
+.projection-studio-output-stage.ct-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 .projection-studio-input-card {
   display: flex;
   flex-direction: column;
@@ -1354,6 +1365,7 @@
   z-index: var(--ct-z-raised);
   display: flex;
   flex-direction: column;
+  align-items: flex-end; /* Run button is now compact + right-aligned, not full-width. */
   gap: var(--ct-space-3);
   padding: var(--ct-space-4) var(--ct-space-5);
   border-top: 1px solid var(--ct-border-soft);
@@ -1361,6 +1373,11 @@
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
+}
+
+/* Error message keeps full width under the right-aligned Run button. */
+.projection-studio-input-footer > .admin-doc-callout {
+  align-self: stretch;
 }
 
 .projection-studio-output {
