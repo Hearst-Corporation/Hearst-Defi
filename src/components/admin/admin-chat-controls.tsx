@@ -691,12 +691,17 @@ export function AdminChatControls() {
             result?: { title?: string; createdEntityId?: string };
             error?: string;
             code?: string;
+            message?: { title?: string; body?: string };
           }
         | null;
       if (!res.ok || data?.status !== "executed") {
+        // Prefer the route's human message body; fall back to title/error, and
+        // only then to a plain refusal — never surface a bare code to the admin.
         throw new Error(
-          data?.error ??
-            (data?.code ? `Confirmation rejected: ${data.code}` : "Execution refused."),
+          data?.message?.body ??
+            data?.message?.title ??
+            data?.error ??
+            "The action could not be completed. Please try again.",
         );
       }
       applyActionFlowState(

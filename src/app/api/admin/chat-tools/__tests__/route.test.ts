@@ -302,6 +302,11 @@ describe("POST /api/admin/chat-tools", () => {
     };
     expect(body.status).toBe("confirmation_required");
     expect(body.confirmation?.token).toBe("token_1");
+    // The route enriches confirmation_required with a human before-message so
+    // the chat surface explains what will (and won't) happen yet.
+    const enriched = body as { message?: { title?: string; body?: string } };
+    expect(enriched.message?.title).toBeTruthy();
+    expect(enriched.message?.body).toMatch(/confirm|nothing is published/i);
   });
 
   it("returns passthrough status=executed for confirmed write", async () => {
@@ -329,9 +334,9 @@ describe("POST /api/admin/chat-tools", () => {
   });
 
   it.each([
-    { error: "admin_write_confirmation_expired", status: 410, code: "expired" },
-    { error: "admin_write_confirmation_mismatch", status: 409, code: "mismatch" },
-  ])("maps confirmation error '$error' to $status", async ({ error, status, code }) => {
+    { error: "admin_write_confirmation_expired", status: 410, code: "expired", bodyRe: /expired|timed out/i },
+    { error: "admin_write_confirmation_mismatch", status: 409, code: "mismatch", bodyRe: /changed|start it again/i },
+  ])("maps confirmation error '$error' to $status with a human message", async ({ error, status, code, bodyRe }) => {
     mockExecuteAdminWriteTool.mockRejectedValueOnce(new Error(error));
 
     const res = await POST(
@@ -339,10 +344,43 @@ describe("POST /api/admin/chat-tools", () => {
     );
 
     expect(res.status).toBe(status);
-    await expect(res.json()).resolves.toEqual({
-      error: "Write confirmation rejected",
-      code,
-    });
+    const body = (await res.json()) as {
+      error?: string;
+      code?: string;
+      message?: { title?: string; body?: string };
+    };
+    expect(body.code).toBe(code);
+    // No raw "admin_write_confirmation_*" leaks; a human title + body is present.
+    expect(body.error).not.toMatch(/admin_write_confirmation/);
+    expect(body.message?.body).toMatch(bodyRe);
+  });
+
+  it("turns an invalid write input (raw validation) into a 400 with a human message — not a 500", async () => {
+    // The executor throws the stable invalid_* code; the route must map it to a
+    // clean 400 + tool-specific human reason, never a ZodError 500.
+    mockGetAllowedAdminWriteTools.mockReturnValue([
+      { ...REVIEW_NOTE_WRITE_TOOL, id: "outreach_source_leads", riskLevel: "medium" },
+    ] as never);
+    mockExecuteAdminWriteTool.mockRejectedValueOnce(
+      new Error("invalid_outreach_source_leads_input"),
+    );
+
+    const res = await POST(
+      makeRequest({
+        action: "execute_write",
+        toolId: "outreach_source_leads",
+        input: { count: -5 },
+      }),
+    );
+
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as {
+      error?: string;
+      code?: string;
+      message?: { title?: string; body?: string };
+    };
+    expect(body.message?.body).toMatch(/number of leads/i);
+    expect(body.message?.body).not.toMatch(/zod|too_small/i);
   });
 
   it("records blocked telemetry when execute_read tool is not allowlisted", async () => {

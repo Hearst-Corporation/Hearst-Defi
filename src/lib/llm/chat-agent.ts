@@ -297,8 +297,9 @@ async function executeAdminReadCalls(
           toolCallId: toolCall.id,
           toolId: readTool.id,
           content: [
-            `TOOL ERROR (${readTool.id})`,
-            "unavailable: read tool execution failed",
+            `TOOL UNAVAILABLE (${readTool.id})`,
+            "This read tool could not return data this time (no data was changed).",
+            "Tell the operator the data is temporarily unavailable and offer to retry or proceed without it — do NOT invent values.",
           ].join("\n"),
         });
       }
@@ -332,6 +333,50 @@ function toAssistantToolMessage(toolCalls: AggregatedToolCall[]): Record<string,
   };
 }
 
+/**
+ * Human-in-the-loop guidance for a write/send tool the model tried to auto-run.
+ *
+ * The Master Agent may never auto-execute a write/send (ADR-012 / ADR-017): the
+ * actual execution is the operator's, via the confirmation-token flow on the
+ * action panel. But "BLOCKED / disabled" reads to the model as an error and
+ * produces a dead-end answer. Instead we tell the model this is the EXPECTED
+ * mandate behaviour and how to respond: describe what the action would do and
+ * invite the operator to confirm it — without claiming it was done.
+ *
+ * The phrasing is tailored to the action's nature so the resulting answer is
+ * accurate: a *draft* tool never sends, a *send* run is governed by the autonomy
+ * dial, sourcing spends no credit until confirmed.
+ */
+export function writeToolGuidance(toolId: string): string {
+  switch (toolId) {
+    case "outreach_draft_email":
+    case "create_review_note_draft":
+    case "create_governance_proposal_draft":
+      return [
+        "This is a DRAFT-only action and nothing is sent or executed.",
+        "Confirm it on the action panel to create the draft.",
+        "Tell the operator what the draft will contain and that it stays in review until they approve it — do NOT claim it was created yet.",
+      ].join(" ");
+    case "outreach_trigger_send_run":
+      return [
+        "This would start a governed outreach send run (autonomy dial: SUGGEST sends nothing; Tier A is never auto-sent; suppression + forbidden-words are re-checked).",
+        "Confirm it on the action panel to run it.",
+        "Tell the operator exactly what would be sent and that it needs their explicit confirmation — do NOT claim anything was sent.",
+      ].join(" ");
+    case "outreach_source_leads":
+      return [
+        "This would source new leads against the active ICP; it sends nothing and spends no credit until confirmed.",
+        "Confirm it on the action panel to run sourcing.",
+        "Tell the operator what will be sourced and invite them to confirm — do NOT claim leads were sourced yet.",
+      ].join(" ");
+    default:
+      return [
+        "This is a write action that needs the operator's explicit confirmation on the action panel before it runs.",
+        "Describe what it would do and invite them to confirm — do NOT claim it was done.",
+      ].join(" ");
+  }
+}
+
 function toToolResultMessages(
   readRuns: AdminReadToolRun[],
   blockedWriteCalls: Array<{ toolCallId: string; toolId: string }>,
@@ -347,9 +392,9 @@ function toToolResultMessages(
       role: "tool",
       tool_call_id: blockedCall.toolCallId,
       content: [
-        `WRITE TOOL BLOCKED (${blockedCall.toolId})`,
-        "automatic execution disabled",
-        "return only a structured proposal (no side effects)",
+        `ACTION NEEDS CONFIRMATION (${blockedCall.toolId})`,
+        "Not auto-executed — this is expected, not an error.",
+        writeToolGuidance(blockedCall.toolId),
       ].join("\n"),
     });
   }
