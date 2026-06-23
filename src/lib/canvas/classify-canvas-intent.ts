@@ -64,6 +64,66 @@ function parse(raw: string): CanvasIntentClassification | null {
   return { canvasId: "outreach", ...(objective ? { objective } : {}) };
 }
 
+// ---------------------------------------------------------------------------
+// Field extraction — when the operator dictates campaign values in chat
+// ("appelle-la Distributeurs Q3, en cold"), pull them so the canvas fills.
+// ---------------------------------------------------------------------------
+
+const EXTRACT_SYSTEM_PROMPT = [
+  "Tu extrais les paramètres d'une campagne outreach depuis UN message admin.",
+  "Réponds STRICTEMENT en JSON, ce schéma exact:",
+  '{ "name": string, "kind": "cold" | "newsletter" }',
+  "Règles:",
+  "- name: le nom de campagne si l'opérateur en donne un (ex: « appelle-la Distributeurs Q3 » → name=\"Distributeurs Q3\"), sinon \"\".",
+  "- kind: \"newsletter\" si l'opérateur le précise, sinon \"cold\".",
+  "- N'invente RIEN. Si aucun nom n'est donné, name=\"\".",
+  "- Ne mets RIEN d'autre que le JSON.",
+].join("\n");
+
+export interface OutreachFieldValues {
+  name?: string;
+  kind?: "cold" | "newsletter";
+}
+
+/**
+ * Extract outreach campaign field values from an admin message. Never throws —
+ * any failure → {} (no fill). Only the fields actually present are returned.
+ */
+export async function extractOutreachFieldsLlm(
+  client: ClassifyClient,
+  _model: string,
+  message: string,
+): Promise<OutreachFieldValues> {
+  const trimmed = message.trim();
+  if (trimmed.length === 0) return {};
+  try {
+    const completion = await client.chat.completions.create(
+      {
+        model: CLASSIFY_MODEL,
+        max_tokens: 80,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: EXTRACT_SYSTEM_PROMPT },
+          { role: "user", content: trimmed },
+        ],
+      },
+      { timeout: CLASSIFY_TIMEOUT_MS },
+    );
+    const content = completion.choices?.[0]?.message?.content ?? "";
+    if (content.trim().length === 0) return {};
+    const parsed = JSON.parse(content) as Record<string, unknown>;
+    const out: OutreachFieldValues = {};
+    if (typeof parsed.name === "string" && parsed.name.trim().length > 0) {
+      out.name = parsed.name.trim().slice(0, 160);
+    }
+    if (parsed.kind === "newsletter") out.kind = "newsletter";
+    else if (parsed.kind === "cold") out.kind = "cold";
+    return out;
+  } catch {
+    return {};
+  }
+}
+
 /**
  * Classify whether an admin message wants to open a canvas workshop. Never
  * throws — on any failure returns null (no canvas), the safe default.

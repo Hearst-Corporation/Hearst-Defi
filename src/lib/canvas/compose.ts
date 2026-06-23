@@ -204,6 +204,7 @@ function composeCreateVault(
 function composeOutreach(
   objective: string | undefined,
   _agentLive: boolean,
+  values?: Record<string, string>,
 ): CanvasSection[] {
   const intro = guarded(
     objective?.trim()
@@ -212,6 +213,12 @@ function composeOutreach(
     "Set up a distributor outreach campaign — every step is human-in-the-loop. Nothing auto-sends.",
   );
 
+  // Agent-provided values flow into BOTH the displayed fields and the action
+  // proposal input, so "Create campaign draft" pre-fills with what the operator
+  // dictated in chat (still HITL — the button must be confirmed).
+  const campaignName = values?.name?.trim() ?? "";
+  const campaignKind = values?.kind === "newsletter" ? "newsletter" : "cold";
+
   const campaignProposal: PendingActionProposal | null = canvasAllowsWriteTool(
     "outreach",
     "create_campaign_draft",
@@ -219,7 +226,7 @@ function composeOutreach(
     ? {
         proposalId: "outreach-campaign-draft",
         toolId: "create_campaign_draft",
-        input: { name: "", kind: "cold", includeTypeform: true },
+        input: { name: campaignName, kind: campaignKind, includeTypeform: true },
         label: "Create campaign draft",
         riskLevel: "medium",
         summary: {
@@ -294,7 +301,7 @@ function composeOutreach(
         {
           key: "name",
           label: "Campaign name",
-          value: "—",
+          value: campaignName || "—",
           provenance: "Manual",
           editable: true,
           inputBinding: { toolInputKey: "name" },
@@ -303,7 +310,7 @@ function composeOutreach(
         {
           key: "kind",
           label: "Kind",
-          value: "cold",
+          value: campaignKind,
           provenance: "Manual",
           editable: true,
           inputBinding: { toolInputKey: "kind" },
@@ -416,6 +423,8 @@ export function composeCanvasState(args: {
   objective?: string;
   revision: number;
   agentLive: boolean;
+  /** Agent-extracted field values merged into the canvas (HITL still applies). */
+  values?: Record<string, string>;
 }): CanvasState {
   const def = getCanvasDefinition(args.canvasId);
   const sections =
@@ -423,7 +432,7 @@ export function composeCanvasState(args: {
       ? composeCreateVault(args.objective, args.agentLive)
       : args.canvasId === "lp-yield-explainer"
         ? composeLpYieldExplainer(args.objective)
-        : composeOutreach(args.objective, args.agentLive);
+        : composeOutreach(args.objective, args.agentLive, args.values);
 
   return {
     contractVersion: CANVAS_CONTRACT_VERSION,

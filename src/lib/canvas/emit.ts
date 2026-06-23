@@ -30,8 +30,10 @@ export function withCanvasStreamEvents(args: {
   canvasId: CanvasId;
   objective?: string;
   agentLive: boolean;
+  /** Agent-extracted field values merged into the canvas as it fills. */
+  values?: Record<string, string>;
 }): ReadableStream<Uint8Array> {
-  const { stream, canvasId, objective, agentLive } = args;
+  const { stream, canvasId, objective, agentLive, values } = args;
   const encoder = new TextEncoder();
   const reader = stream.getReader();
   // Emit a first "building" frame immediately, then a "ready" frame once the
@@ -44,7 +46,7 @@ export function withCanvasStreamEvents(args: {
       let readyEmitted = false;
 
       // Revision 1: building.
-      const building = composeCanvasState({ canvasId, objective, revision: 1, agentLive });
+      const building = composeCanvasState({ canvasId, objective, revision: 1, agentLive, values });
       // Mark all sections "building" for the first frame so the canvas shows it
       // is being composed (the composer's own statuses are the ready shape).
       const buildingFrame: CanvasStateEvent = {
@@ -59,7 +61,7 @@ export function withCanvasStreamEvents(args: {
       const emitReady = (): void => {
         if (readyEmitted) return;
         readyEmitted = true;
-        const ready = composeCanvasState({ canvasId, objective, revision: 2, agentLive });
+        const ready = composeCanvasState({ canvasId, objective, revision: 2, agentLive, values });
         controller.enqueue(encoder.encode(eventFrame({ type: "canvas_state", canvas: ready })));
       };
 

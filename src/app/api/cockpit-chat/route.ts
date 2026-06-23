@@ -49,10 +49,19 @@ import {
   type ClassifyClient,
 } from "@/lib/llm/classify-product-intent";
 import { withProductChatStreamEvents } from "@/lib/llm/product-chat-stream";
-import { detectCanvasIntent } from "@/lib/canvas/intent";
-import { classifyCanvasIntentLlm } from "@/lib/canvas/classify-canvas-intent";
+import {
+  detectCanvasIntent,
+  detectActiveCanvasFromHistory,
+  canvasOpenMarker,
+  stripCanvasOpenMarker,
+} from "@/lib/canvas/intent";
+import {
+  classifyCanvasIntentLlm,
+  extractOutreachFieldsLlm,
+} from "@/lib/canvas/classify-canvas-intent";
 import { withCanvasStreamEvents } from "@/lib/canvas/emit";
 import { isAdminCanvas, getCanvasDefinition } from "@/lib/canvas/registry";
+import { buildCanvasGuidanceBlock } from "@/lib/canvas/guidance";
 import { createRequestContext, withRequestContext } from "@/lib/request-context";
 import {
   buildCockpitMessageId,
@@ -611,7 +620,14 @@ async function runMasterAgentTurn(args: {
 
   const messages: ChatAgentMessage[] = [
     { role: "system", content: systemPrompt },
-    ...boundedHistory,
+    // Strip the hidden canvas open-marker from prior assistant turns so the
+    // model never sees the control token (cross-turn detection reads it from the
+    // raw `history` below).
+    ...boundedHistory.map((m) =>
+      m.role === "assistant"
+        ? { ...m, content: stripCanvasOpenMarker(m.content) }
+        : m,
+    ),
     { role: "user", content: message },
   ];
 
@@ -634,6 +650,20 @@ async function runMasterAgentTurn(args: {
     );
     if (detected) {
       canvasIntent = { canvasId: detected.canvasId, cleanedMessage: message };
+    }
+  }
+
+  // Cross-turn memory: a canvas opened on an earlier turn is still on screen
+  // (Section 2) until the operator navigates away — so a vague follow-up
+  // ("on commence comment") must stay in that workshop. `freshCanvasThisTurn`
+  // (marker or classifier hit on THIS message) means we (re)open the page; a
+  // history-derived canvas only makes the agent aware + able to fill fields,
+  // WITHOUT re-navigating every turn.
+  const freshCanvasThisTurn = canvasIntent !== null;
+  if (!isReview && isAdmin && !canvasIntent) {
+    const fromHistory = detectActiveCanvasFromHistory(history);
+    if (fromHistory) {
+      canvasIntent = { canvasId: fromHistory, cleanedMessage: message };
     }
   }
 
@@ -753,21 +783,53 @@ async function runMasterAgentTurn(args: {
     !isReview &&
     canvasIntent !== null &&
     (isAdmin || !isAdminCanvas(canvasIntent.canvasId));
+  // Field values the agent extracts from THIS message (e.g. campaign name/kind),
+  // merged into the canvas as it fills. Outreach only for now; undefined otherwise.
+  let canvasValues: Record<string, string> | undefined;
   if (canvasActive && canvasIntent) {
     const _rawFallback = message.replace(/[\x00-\x1F\x7F]/g, "").trim().slice(0, 220);
     const canvasObjective = _rawFallback || undefined;
-    // AWAIT (not fire-and-forget): the bridge polls the moment the answer
-    // starts, so the directive must land first — same race note as the product
-    // workspace short-circuit above. The destination key comes from the registry
-    // (admin canvases → /admin/agent-canvas; LP canvas → /agent-canvas).
-    await publishNav(userId, {
-      destinationKey: getCanvasDefinition(canvasIntent.canvasId).destinationKey,
-      canvasId: canvasIntent.canvasId,
-      ...(canvasObjective ? { objective: canvasObjective } : {}),
-      autostart: true,
-    }).catch(() => {
-      /* best-effort nav publish */
-    });
+    // Only (re)open the page when the canvas was triggered THIS turn. A
+    // history-derived canvas is already on screen — re-navigating every
+    // follow-up would yank the page out from under the operator.
+    if (freshCanvasThisTurn) {
+      // AWAIT (not fire-and-forget): the bridge polls the moment the answer
+      // starts, so the directive must land first — same race note as the product
+      // workspace short-circuit above. Destination from the registry (admin
+      // canvases → /admin/agent-canvas; LP canvas → /agent-canvas).
+      await publishNav(userId, {
+        destinationKey: getCanvasDefinition(canvasIntent.canvasId).destinationKey,
+        canvasId: canvasIntent.canvasId,
+        ...(canvasObjective ? { objective: canvasObjective } : {}),
+        autostart: true,
+      }).catch(() => {
+        /* best-effort nav publish */
+      });
+    }
+
+    // Make the agent CANVAS-AWARE: append the workshop guidance to the system
+    // message so a follow-up ("on commence comment") is answered as the next
+    // concrete step of THIS workshop, not as a blank generic chat.
+    const guidance = buildCanvasGuidanceBlock(canvasIntent.canvasId);
+    if (guidance && messages[0]?.role === "system") {
+      messages[0] = {
+        role: "system",
+        content: (messages[0].content + "\n\n" + guidance).slice(0, MAX_ENRICHED_SYSTEM_LEN),
+      };
+    }
+
+    // Agent fills canvas fields from what the operator says (outreach: name/kind).
+    if (canvasIntent.canvasId === "outreach") {
+      const extracted = await extractOutreachFieldsLlm(
+        openai as unknown as ClassifyClient,
+        model,
+        message,
+      );
+      const v: Record<string, string> = {};
+      if (extracted.name) v.name = extracted.name;
+      if (extracted.kind) v.kind = extracted.kind;
+      if (Object.keys(v).length > 0) canvasValues = v;
+    }
   }
 
   const { stream, nav, final } = runChatAgent(
@@ -795,6 +857,7 @@ async function runMasterAgentTurn(args: {
           canvasId: canvasIntent.canvasId,
           ...(message ? { objective: message } : {}),
           agentLive: FEATURE_FLAGS.CHAT_MASTER_AGENT,
+          ...(canvasValues ? { values: canvasValues } : {}),
         })
       : withProductChatStreamEvents({
           stream,
@@ -808,11 +871,18 @@ async function runMasterAgentTurn(args: {
   void final
     .then(async (result) => {
       if (!result.blocked && result.text && persistChatId) {
+        // When a canvas is active, append a hidden open-marker so the NEXT turn
+        // (detectActiveCanvasFromHistory) knows the workshop is still on screen.
+        // Stripped before display (stripCanvasOpenMarker); never shown to the user.
+        const persistedContent =
+          canvasActive && canvasIntent
+            ? `${result.text}\n${canvasOpenMarker(canvasIntent.canvasId)}`
+            : result.text;
         await persistence
           .saveMessage(persistChatId, {
             id: buildCockpitMessageId(turnId, "assistant", "reply"),
             role: "assistant",
-            content: result.text,
+            content: persistedContent,
             createdAt: Date.now(),
           })
           .catch((err: unknown) => {
