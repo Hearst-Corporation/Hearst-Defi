@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { computeConstructionROI } from "@/lib/engine/construction";
 import type { ConstructionInputs } from "@/lib/engine/types";
-import { cn } from "@/lib/cn";
 
 const INITIAL_INPUTS: ConstructionInputs = {
   capacity_mw: 100,

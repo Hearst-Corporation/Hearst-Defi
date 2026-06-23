@@ -25,23 +25,6 @@ export interface SearchResult {
   score?: number;
 }
 
-/** Labelling + icon metadata for display in the search modal. */
-const ENTITY_META: Record<
-  Entity,
-  { label: string; color: string }
-> = {
-  vault: { label: "Vault", color: "var(--ct-text-strong)" },
-  investor: { label: "Investor", color: "var(--ct-status-info)" },
-  position: { label: "Position", color: "var(--ct-text-muted)" },
-  distribution: { label: "Distribution", color: "var(--ct-status-success)" },
-  proof: { label: "Proof", color: "var(--ct-status-warning)" },
-  signature: { label: "Signature", color: "var(--ct-status-warning)" },
-  scenario: { label: "Scenario", color: "var(--ct-text-muted)" },
-  backtest: { label: "Backtest", color: "var(--ct-text-muted)" },
-  memo: { label: "Memo", color: "var(--ct-text-muted)" },
-  event: { label: "Event", color: "var(--ct-status-danger)" },
-};
-
 /** Max results returned per entity section. */
 export const MAX_PER_SECTION = 8;
 

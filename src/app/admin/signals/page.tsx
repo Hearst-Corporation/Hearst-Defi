@@ -1,7 +1,6 @@
 import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
-import Link from "next/link";
 
 import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";

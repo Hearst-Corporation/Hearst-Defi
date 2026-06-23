@@ -152,13 +152,8 @@ export function explorerTxUrl(txHash: string): string {
   return `${explorerOrigin(ACTIVE_CHAIN_ID)}/tx/${txHash}`;
 }
 
-/** Block-explorer URL for an address on the active chain. */
-function explorerAddressUrl(address: string): string {
-  return `${explorerOrigin(ACTIVE_CHAIN_ID)}/address/${address}`;
-}
-
 // Backwards-compatible constants — now DERIVED from the chain-aware origin so
 // the existing Proof Center consumers stay correct without edits. Prefer the
-// `explorerTxUrl` / `explorerAddressUrl` helpers in new code.
+// `explorerTxUrl` helper / `EXPLORER_ADDRESS_BASE` constant in new code.
 export const EXPLORER_TX_BASE = `${explorerOrigin(ACTIVE_CHAIN_ID)}/tx/`;
 export const EXPLORER_ADDRESS_BASE = `${explorerOrigin(ACTIVE_CHAIN_ID)}/address/`;

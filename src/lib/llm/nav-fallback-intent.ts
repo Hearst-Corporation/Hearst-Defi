@@ -271,7 +271,6 @@ export function resolveNavFallbackDestinationKey(args: {
   scenarioLabNavEnabled: boolean;
 }): string | null {
   const { navProfile, isAdmin = false, message, scenarioLabNavEnabled } = args;
-  const scenarioLabDestinationKey = args.scenarioLabDestinationKey;
 
   if (navProfile === "admin" || isAdmin) {
     const adminKey = resolveAdminNavFallbackKey(message);

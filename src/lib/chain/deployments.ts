@@ -80,7 +80,7 @@ export function getDeployment(name: DeploymentName): DeploymentView {
 // ---------------------------------------------------------------------------
 // Block-explorer helpers — chain-aware, safe for both client and server bundles.
 //
-// NOTE: src/lib/chain/client.ts also exports `explorerTxUrl` / `explorerAddressUrl`
+// NOTE: src/lib/chain/client.ts also exports `explorerTxUrl`
 // but that module is `server-only`. Import from HERE in "use client" components.
 // ---------------------------------------------------------------------------
 
@@ -106,12 +106,4 @@ function activeChainId(): number {
  */
 export function explorerTxUrlFromRegistry(txHash: string): string {
   return `${explorerOriginFromChainId(activeChainId())}/tx/${txHash}`;
-}
-
-/**
- * Block-explorer URL for a contract/wallet address on the active chain.
- * Safe for "use client" components.
- */
-function explorerAddressUrlFromRegistry(address: string): string {
-  return `${explorerOriginFromChainId(activeChainId())}/address/${address}`;
 }
