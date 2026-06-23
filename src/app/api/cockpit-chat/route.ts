@@ -620,9 +620,26 @@ async function runMasterAgentTurn(args: {
     (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
   );
 
-  // Regex navigation shortcut — BEFORE any LLM call. Fixed ack + publishNav,
-  // same pattern as Product Workspace. Covers LP + admin surfaces (including
-  // admin in normal mode: "portefeuille utilisateur" → /admin/customers).
+  // Agent-canvas intent in natural language. MUST run BEFORE the regex nav
+  // shortcut: a word like "outreach" matches the shortcut (→ /admin/outreach
+  // page) and returns early, so the canvas would never open. The preset chip
+  // emits a marker (already in `canvasIntent`); this also catches free-typed
+  // admin requests ("lance une campagne outreach"). Admin-only, fail-safe (null
+  // → no canvas), and only when a marker didn't already pick a canvas.
+  if (!isReview && isAdmin && !canvasIntent) {
+    const detected = await classifyCanvasIntentLlm(
+      openai as unknown as ClassifyClient,
+      model,
+      message,
+    );
+    if (detected) {
+      canvasIntent = { canvasId: detected.canvasId, cleanedMessage: message };
+    }
+  }
+
+  // Regex navigation shortcut — BEFORE any further LLM call. Fixed ack +
+  // publishNav. Covers LP + admin surfaces. Skipped when a canvas intent already
+  // won (else "outreach" diverts to the page instead of opening the canvas).
   const navShortcutKey = resolveNavFallbackDestinationKey({
     navProfile,
     isAdmin,
@@ -634,6 +651,7 @@ async function runMasterAgentTurn(args: {
     navShortcutKey?.startsWith("admin-") === true ? "admin" : "lp";
   if (
     !isReview &&
+    !canvasIntent &&
     navShortcutKey &&
     resolveNavDestinationForProfile(navShortcutKey, navShortcutProfile)
   ) {
@@ -667,24 +685,6 @@ async function runMasterAgentTurn(args: {
   // (a classifier error returns not-a-product-intent), so a hiccup degrades to a
   // normal conversational answer rather than breaking the chat. Admin-only: the
   // workspace is an admin surface, so we never spend a classification call on LP.
-  // Agent-canvas intent in natural language. The preset chip emits a marker, but
-  // a free-typed admin request ("lance une campagne outreach") wouldn't open the
-  // canvas without this. Admin-only, fail-safe (null → no canvas), and only when
-  // a marker didn't already pick a canvas. Runs BEFORE the product classifier so
-  // an outreach request lands on the canvas rather than the product workspace.
-  if (!isReview && isAdmin && !canvasIntent) {
-    const detected = await classifyCanvasIntentLlm(
-      openai as unknown as ClassifyClient,
-      model,
-      message,
-    );
-    if (detected) {
-      canvasIntent = {
-        canvasId: detected.canvasId,
-        cleanedMessage: message,
-      };
-    }
-  }
 
   const productWorkspaceNavEnabled = ADMIN_NAV_DESTINATIONS.some(
     (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
@@ -848,7 +848,12 @@ async function runMasterAgentTurn(args: {
   // short-circuited above. So this path only publishes the model's own chosen
   // destination, plus a fallback to Scenario Lab for a standalone simulation
   // intent the model answered in plain text without a navigate tool call.
-  if (!isReview) void nav
+  //
+  // SKIP when a canvas is active: the canvas handoff already published its
+  // directive (→ /admin/agent-canvas/<id>) above. Letting the model's own
+  // navigate tool (or the regex fallback) publish here would OVERWRITE it with
+  // e.g. /admin/outreach and the canvas would never open.
+  if (!isReview && !canvasActive) void nav
     .then(async (dest) => {
       if (dest) {
         await publishNav(userId, { destinationKey: dest.key });
