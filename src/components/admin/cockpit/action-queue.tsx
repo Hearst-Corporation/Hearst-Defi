@@ -64,8 +64,8 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
       <div className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap min-w-0 flex-1 dashboard-action-copy gap-(--ct-space-2)">
         <SeverityPill severity={item.severity} />
         <div className="admin-doc-stack admin-doc-stack--micro flex-1 min-w-0 gap-0">
-          <span className="text-[13px] font-semibold ct-text-strong truncate dashboard-action-title leading-tight">{item.title}</span>
-          <span className="text-[11px] ct-text-muted truncate dashboard-action-context leading-tight">
+          <span className="text-[12px] font-semibold ct-text-strong truncate dashboard-action-title leading-tight block">{item.title}</span>
+          <span className="text-[10px] ct-text-muted truncate dashboard-action-context leading-tight block">
             {item.context}
           </span>
         </div>

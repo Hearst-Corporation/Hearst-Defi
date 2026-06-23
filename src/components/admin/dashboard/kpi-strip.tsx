@@ -79,8 +79,8 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
         >
           {kpi.value}
         </span>
-        <span className="dashboard-kpi-strip__meta body-xs ct-text-faint truncate flex items-center gap-1">
-          {kpi.sublabel?.replace(/[↑↓]/g, "")}
+        <span className="dashboard-kpi-strip__meta body-xs ct-text-faint truncate flex items-center gap-1.5">
+          <span className="opacity-70">{kpi.sublabel?.replace(/[↑↓]/g, "")}</span>
           {kpi.sublabel?.includes("↑") && (
             <span className={cn("dashboard-kpi-delta", deltaClass)}>↑</span>
           )}

@@ -50,13 +50,22 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           <div className="dashboard-header-status">
             <div className="dashboard-status-pill">
               <span className="dashboard-status-dot dashboard-status-dot--live" />
-              <span className="dashboard-status-label">Live</span>
+              <span className="dashboard-status-label">System Live</span>
             </div>
             <div className="dashboard-header-meta">
-              <span className="dashboard-meta-label">Last updated</span>
-              <span className="dashboard-meta-value">
-                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-              </span>
+              <div className="flex items-center gap-6">
+                <div className="flex flex-col items-end gap-0.5">
+                  <span className="dashboard-meta-label">Uptime</span>
+                  <span className="dashboard-meta-value text-ct-status-success">99.98%</span>
+                </div>
+                <div className="w-px h-8 bg-[var(--ct-border-ghost)]" />
+                <div className="flex flex-col items-end gap-0.5">
+                  <span className="dashboard-meta-label">Sync</span>
+                  <span className="dashboard-meta-value">
+                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         }

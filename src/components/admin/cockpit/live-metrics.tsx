@@ -80,7 +80,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
       >
         <Link
           href={vault.href}
-          className="text-[13px] ct-text-strong min-w-0 truncate cockpit-metric-link font-semibold"
+          className="text-[12px] ct-text-strong min-w-0 truncate cockpit-metric-link font-semibold"
         >
           {vault.vaultName}
         </Link>
@@ -149,7 +149,7 @@ function MetricCell({
       </span>
       <span
         className={cn(
-          "text-[11px] tabular ct-text-strong font-bold leading-tight truncate",
+          "text-[10px] tabular ct-text-strong font-bold leading-tight truncate",
           valueClassName,
         )}
       >

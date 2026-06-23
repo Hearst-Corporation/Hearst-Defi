@@ -169,7 +169,8 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top left, rgba(255,255,255,0.05), transparent);
+  border: 1px solid var(--ct-border-ghost);
+  border-radius: inherit;
   pointer-events: none;
 }
 
@@ -184,7 +185,8 @@
 }
 
 .projection-studio-range--extreme::-webkit-slider-thumb {
-  box-shadow: 0 0 10px var(--ct-status-warning);
+  box-shadow: none;
+  border: 1px solid var(--ct-status-warning);
 }
 
 /* Assumptions Strip Scrollbar */
