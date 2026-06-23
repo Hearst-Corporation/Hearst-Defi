@@ -881,6 +881,16 @@
   box-shadow: 0 0 12px color-mix(in srgb, var(--ct-accent) 60%, transparent);
 }
 
+/* Distribution markers (small triangles above payout points) */
+.pf-vc-dist-marker {
+  animation: pf-dist-pulse 2s var(--ct-ease-in-out) infinite;
+}
+
+@keyframes pf-dist-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
 .pf-positions-empty__hint,
 .pf-activity__empty-hint,
 .pf-value-chart__disclaimer {

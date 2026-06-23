@@ -258,6 +258,19 @@ function Plot({ series, lineOnly = false, preview = false, skeleton = false, hov
         />
       ) : null}
 
+      {/* Distribution markers: small triangles above distribution points */}
+      {!skeleton && pts.map((pt, i) => (
+        series[i]?.isDistribution ? (
+          <g key={`dist-${i}`} className="pf-vc-dist-marker" aria-hidden="true">
+            <path
+              d={`M ${pt.x.toFixed(2)} ${(pt.y - 3).toFixed(2)} L ${(pt.x - 1.5).toFixed(2)} ${(pt.y - 6).toFixed(2)} L ${(pt.x + 1.5).toFixed(2)} ${(pt.y - 6).toFixed(2)} Z`}
+              fill="var(--ct-accent)"
+              opacity="0.8"
+            />
+          </g>
+        ) : null
+      ))}
+
       {hoveredPt && !skeleton && (
         <g className="pf-vc-crosshair" aria-hidden="true">
           <line
