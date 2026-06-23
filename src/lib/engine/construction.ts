@@ -25,7 +25,7 @@ export function computeConstructionROI(inputs: ConstructionInputs): Construction
   // Power (W) = Capacity (MW) * 1,000,000
   // Hashrate (TH/s) = Power (W) / Efficiency (J/TH)
   const total_power_w = capacity_mw * 1_000_000;
-  const total_hashrate_th = total_power_w / asic_efficiency_j_th;
+  const total_hashrate_th = asic_efficiency_j_th > 0 ? total_power_w / asic_efficiency_j_th : 0;
 
   // 2. CAPEX
   const infra_capex_usd = capacity_mw * infra_cost_usd_mw;
@@ -54,11 +54,12 @@ export function computeConstructionROI(inputs: ConstructionInputs): Construction
 
   // ROI 5Y (%)
   const total_profit_5y = (yearly_net_profit_usd * 5) - total_capex_usd;
-  const roi_5y_pct = (total_profit_5y / total_capex_usd) * 100;
+  const roi_5y_pct = total_capex_usd > 0 ? (total_profit_5y / total_capex_usd) * 100 : 0;
 
   // Break-even Hashprice ($/TH/day)
   // Revenue = OPEX => Hashrate * HP * 365 * Uptime = OPEX
-  const break_even_hashprice = yearly_opex_usd / (total_hashrate_th * DAYS_PER_YEAR * UPTIME_FACTOR);
+  const beDenom = total_hashrate_th * DAYS_PER_YEAR * UPTIME_FACTOR;
+  const break_even_hashprice = beDenom > 0 ? yearly_opex_usd / beDenom : 0;
 
   return {
     total_capex_usd: round(total_capex_usd, 0),
@@ -74,7 +75,9 @@ export function computeConstructionROI(inputs: ConstructionInputs): Construction
 }
 
 function round(n: number, decimals: number): number {
+  if (Number.isNaN(n)) return 0;
   if (n === Infinity) return 999;
+  if (n === -Infinity) return 0;
   const f = Math.pow(10, decimals);
   return Math.round(n * f) / f;
 }

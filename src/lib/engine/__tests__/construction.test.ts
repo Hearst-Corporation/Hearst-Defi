@@ -52,4 +52,34 @@ describe("Construction Engine", () => {
     expect(result.yearly_net_profit_usd).toBeLessThan(0);
     expect(result.payback_months).toBe(999);
   });
+
+  describe("Defensive edge cases — degenerate inputs must never produce NaN/Infinity", () => {
+    function assertAllFieldsFinite(result: ReturnType<typeof computeConstructionROI>) {
+      const fields = Object.entries(result) as [string, number][];
+      for (const [key, value] of fields) {
+        expect(
+          Number.isFinite(value),
+          `Field "${key}" must be finite, got ${value}`,
+        ).toBe(true);
+      }
+    }
+
+    it("zero capacity — all outputs finite, CAPEX and derived fields are 0", () => {
+      const result = computeConstructionROI({ ...baseInputs, capacity_mw: 0 });
+      assertAllFieldsFinite(result);
+      expect(result.total_capex_usd).toBe(0);
+      expect(result.roi_5y_pct).toBe(0);
+      expect(result.break_even_hashprice).toBe(0);
+    });
+
+    it("zero ASIC efficiency — hashrate-derived fields are 0/finite, no NaN/Infinity", () => {
+      const result = computeConstructionROI({ ...baseInputs, asic_efficiency_j_th: 0 });
+      assertAllFieldsFinite(result);
+      // With zero hashrate: revenue = 0, asic_capex = 0 but infra_capex still > 0
+      // roi_5y_pct is finite (negative — pure loss), break_even_hashprice is 0 (zero denominator guard)
+      expect(result.yearly_revenue_usd).toBe(0);
+      expect(result.break_even_hashprice).toBe(0);
+      expect(Number.isFinite(result.roi_5y_pct)).toBe(true);
+    });
+  });
 });

@@ -204,7 +204,7 @@ export function ConstructionTab() {
                 <span className="stat-label">Operational Efficiency</span>
                 <div className="admin-doc-inline-row admin-doc-inline-row--baseline gap-[var(--ct-space-2)]">
                   <span className="mono text-xl ct-text-primary">
-                    {(output.yearly_opex_usd / output.yearly_revenue_usd * 100).toFixed(1)}%
+                    {output.yearly_revenue_usd > 0 ? `${(output.yearly_opex_usd / output.yearly_revenue_usd * 100).toFixed(1)}%` : "—"}
                   </span>
                 </div>
                 <p className="body-xs ct-text-muted mt-[var(--ct-space-1)]">
