@@ -39,6 +39,28 @@
   opacity: var(--ct-opacity-60);
 }
 
+/* Live status dot with subtle pulse for active monitoring */
+.dashboard-status-dot--live {
+  position: relative;
+  background: var(--ct-status-success);
+}
+
+.dashboard-status-dot--live::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid var(--ct-status-success);
+  opacity: 0;
+  animation: dash-dot-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
+}
+
+@keyframes dash-dot-pulse {
+  0% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
 /* =============================================================================
    2. SEVERITY PILL — colour variants for .dashboard-severity-pill (action-queue)
       (geometry + `border: 1px solid` already set in cockpit.css)
@@ -593,17 +615,56 @@
 }
 
 /* =============================================================================
-   14. PLATFORM OVERVIEW BAND — visual hierarchy
+   14. PLATFORM OVERVIEW BAND — visual hierarchy with elegant deltas
    ============================================================================= */
 
 .dashboard-overview-surface {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 0;
   background: var(--ct-graphite-subtle-bg);
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
   overflow: hidden;
+  transition: all var(--ct-dur-slow) var(--ct-ease);
+}
+
+/* Responsive: 4 → 2 columns on smaller screens */
+@media (max-width: 80rem) {
+  .dashboard-overview-surface {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-overview-pane:nth-child(2) {
+    border-left: 1px solid var(--ct-border-ghost);
+  }
+  .dashboard-overview-pane:nth-child(3),
+  .dashboard-overview-pane:nth-child(4) {
+    border-top: 1px solid var(--ct-border-ghost);
+  }
+}
+
+@media (max-width: 48rem) {
+  .dashboard-overview-surface {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-overview-pane {
+    border-left: none !important;
+    border-top: 1px solid var(--ct-border-ghost);
+  }
+  .dashboard-overview-pane:first-child {
+    border-top: none;
+  }
+}
+
+/* Wide screens (21:9): premium spacing */
+@media (min-width: 120rem) {
+  .dashboard-overview-surface {
+    gap: 1px;
+    background: var(--ct-border-ghost);
+  }
+  .dashboard-overview-pane {
+    background: var(--ct-graphite-subtle-bg);
+  }
 }
 
 .dashboard-overview-pane {
@@ -612,6 +673,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-3);
+  transition: background-color var(--ct-dur-fast) var(--ct-ease), transform var(--ct-dur-fast) var(--ct-ease);
+  will-change: transform;
+}
+
+.dashboard-overview-pane:hover {
+  background: color-mix(in srgb, var(--ct-accent) 2%, var(--ct-graphite-subtle-bg));
+  transform: translateY(-1px);
 }
 
 .dashboard-overview-pane .dashboard-card-header {
@@ -628,6 +696,80 @@
   color: var(--ct-text-strong);
   letter-spacing: -0.01em;
   text-transform: none;
+  transition: color var(--ct-dur-fast) var(--ct-ease);
+}
+
+.dashboard-overview-pane:hover .dashboard-cluster-label {
+  color: var(--ct-accent-strong);
+}
+
+/* Delta indicators — elegant and technical */
+.dashboard-kpi-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-0_5);
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--ct-tracking-wide);
+  padding: var(--ct-space-0_5) var(--ct-space-1_5);
+  border-radius: var(--ct-radius-sm);
+  transition: all var(--ct-dur-fast) var(--ct-ease);
+}
+
+.dashboard-kpi-delta::before {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  transition: transform var(--ct-dur-fast) var(--ct-ease);
+}
+
+.dashboard-kpi-delta--up {
+  color: var(--ct-status-success);
+  background: var(--ct-status-success-soft);
+  border: 1px solid var(--ct-status-success-border);
+}
+
+.dashboard-kpi-delta--up::before {
+  border-width: 0 4px 5px 4px;
+  border-color: transparent transparent currentColor transparent;
+}
+
+.dashboard-kpi-delta--down {
+  color: var(--ct-status-danger);
+  background: var(--ct-status-danger-soft);
+  border: 1px solid var(--ct-status-danger-border);
+}
+
+.dashboard-kpi-delta--down::before {
+  border-width: 5px 4px 0 4px;
+  border-color: currentColor transparent transparent transparent;
+}
+
+.dashboard-kpi-delta--neutral {
+  color: var(--ct-text-muted);
+  background: var(--ct-graphite-nested-bg);
+  border: 1px solid var(--ct-border-ghost);
+}
+
+.dashboard-kpi-delta--neutral::before {
+  width: 6px;
+  height: 1px;
+  background: currentColor;
+  border: none;
+}
+
+/* Fade transition for value updates */
+@keyframes dash-value-fade {
+  0% { opacity: 0.7; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.dashboard-kpi-strip__value--updating {
+  animation: dash-value-fade 0.4s var(--ct-ease);
 }
 
 /* =============================================================================
@@ -676,6 +818,7 @@
 
 .dashboard-cockpit-row {
   margin-bottom: var(--ct-space-6);
+  transition: opacity var(--ct-dur-base) var(--ct-ease), transform var(--ct-dur-base) var(--ct-ease);
 }
 
 .dashboard-cockpit-row:last-child {
@@ -685,12 +828,51 @@
 .dashboard-ops-surface,
 .dashboard-lower-surface {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 0;
   background: var(--ct-graphite-subtle-bg);
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
   overflow: hidden;
+  transition: all var(--ct-dur-base) var(--ct-ease);
+}
+
+/* Responsive: 3 columns → stacked on small screens */
+@media (max-width: 90rem) {
+  .dashboard-ops-surface {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-ops-pane:last-child {
+    grid-column: 1 / -1;
+    border-left: none;
+    border-top: 1px solid var(--ct-border-ghost);
+  }
+}
+
+@media (max-width: 64rem) {
+  .dashboard-ops-surface,
+  .dashboard-lower-surface {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-ops-pane--divider,
+  .dashboard-lower-pane--divider {
+    border-left: none;
+    border-top: 1px solid var(--ct-border-ghost);
+  }
+}
+
+/* Wide screens (21:9 desktop): enhanced spacing */
+@media (min-width: 120rem) {
+  .dashboard-ops-surface,
+  .dashboard-lower-surface {
+    gap: 1px;
+    background: var(--ct-border-ghost);
+  }
+  
+  .dashboard-ops-pane,
+  .dashboard-lower-pane {
+    background: var(--ct-graphite-subtle-bg);
+  }
 }
 
 .dashboard-ops-pane,
@@ -699,6 +881,12 @@
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-4);
+  transition: background-color var(--ct-dur-fast) var(--ct-ease);
+}
+
+.dashboard-ops-pane:hover,
+.dashboard-lower-pane:hover {
+  background: color-mix(in srgb, var(--ct-accent) 1%, var(--ct-graphite-subtle-bg));
 }
 
 .dashboard-ops-pane .dashboard-card-header,
