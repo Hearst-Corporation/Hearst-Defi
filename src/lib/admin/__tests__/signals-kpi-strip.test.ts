@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  buildSignalsKpiStrip,
-  formatRelativeTime,
-} from "@/lib/admin/signals-kpi-strip";
+import { buildSignalsKpiStrip } from "@/lib/admin/signals-kpi-strip";
+import { formatRelativeTime } from "@/lib/admin/time-formatters";
 
 // ---------------------------------------------------------------------------
 // buildSignalsKpiStrip
@@ -92,9 +90,9 @@ describe("buildSignalsKpiStrip", () => {
 describe("formatRelativeTime", () => {
   const NOW = 1_700_000_000_000;
 
-  it("returns seconds when < 60s", () => {
+  it("returns 'just now' when < 60s", () => {
     const date = new Date(NOW - 45_000);
-    expect(formatRelativeTime(date, NOW)).toBe("45s ago");
+    expect(formatRelativeTime(date, NOW)).toBe("just now");
   });
 
   it("returns minutes when < 60m", () => {

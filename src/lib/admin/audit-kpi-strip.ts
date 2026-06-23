@@ -1,25 +1,9 @@
 import type { HeroKpi } from "@/lib/data/cockpit";
+import { formatRelativeTimeDate } from "./time-formatters";
 
 interface AuditEntry {
   occurredAt: Date;
   actorWallet: string;
-}
-
-/**
- * Formats a Date as a human-readable relative time string.
- * Returns compact strings like "just now", "5m ago", "2h ago", "3d ago".
- * Pure — no I/O, no Date.now() side-effects (accepts `now` for testability).
- */
-export function formatAuditRelativeTime(d: Date, now: Date): string {
-  const diffMs = now.getTime() - d.getTime();
-  const diffSec = Math.floor(diffMs / 1000);
-  if (diffSec < 60) return "just now";
-  const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
-  const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
-  const diffDays = Math.floor(diffHr / 24);
-  return `${diffDays}d ago`;
 }
 
 /**
@@ -55,7 +39,7 @@ export function buildAuditKpiStrip(
   const newestAt = entries.reduce<Date>((best, e) =>
     e.occurredAt > best ? e.occurredAt : best, entries[0]!.occurredAt,
   );
-  const mostRecentLabel = formatAuditRelativeTime(newestAt, now);
+  const mostRecentLabel = formatRelativeTimeDate(newestAt, now);
 
   // — Today's events (UTC day boundary) —
   const todayStr = now.toISOString().slice(0, 10); // "YYYY-MM-DD"

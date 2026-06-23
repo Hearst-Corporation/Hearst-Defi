@@ -1,39 +1,37 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  buildAuditKpiStrip,
-  formatAuditRelativeTime,
-} from "@/lib/admin/audit-kpi-strip";
+import { buildAuditKpiStrip } from "@/lib/admin/audit-kpi-strip";
+import { formatRelativeTimeDate } from "@/lib/admin/time-formatters";
 
 // ---------------------------------------------------------------------------
-// formatAuditRelativeTime
+// formatRelativeTimeDate
 // ---------------------------------------------------------------------------
 
-describe("formatAuditRelativeTime", () => {
+describe("formatRelativeTimeDate", () => {
   const now = new Date("2026-06-18T12:00:00.000Z");
 
   it("returns 'just now' for < 60s", () => {
     const d = new Date("2026-06-18T11:59:30.000Z"); // 30s ago
-    expect(formatAuditRelativeTime(d, now)).toBe("just now");
+    expect(formatRelativeTimeDate(d, now)).toBe("just now");
   });
 
   it("returns minutes for 1m–59m", () => {
     const d = new Date("2026-06-18T11:55:00.000Z"); // 5m ago
-    expect(formatAuditRelativeTime(d, now)).toBe("5m ago");
+    expect(formatRelativeTimeDate(d, now)).toBe("5m ago");
   });
 
   it("returns hours for 1h–23h", () => {
     const d = new Date("2026-06-18T10:00:00.000Z"); // 2h ago
-    expect(formatAuditRelativeTime(d, now)).toBe("2h ago");
+    expect(formatRelativeTimeDate(d, now)).toBe("2h ago");
   });
 
   it("returns days for 24h+", () => {
     const d = new Date("2026-06-15T12:00:00.000Z"); // 3d ago
-    expect(formatAuditRelativeTime(d, now)).toBe("3d ago");
+    expect(formatRelativeTimeDate(d, now)).toBe("3d ago");
   });
 
   it("returns 'just now' for exactly 0s difference", () => {
-    expect(formatAuditRelativeTime(now, now)).toBe("just now");
+    expect(formatRelativeTimeDate(now, now)).toBe("just now");
   });
 });
 

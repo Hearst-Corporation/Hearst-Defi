@@ -1,4 +1,5 @@
 import type { HeroKpi } from "@/lib/data/cockpit";
+import { formatRelativeTimeDate } from "./time-formatters";
 
 interface MonitoringKpiInput {
   totalRuns: number;
@@ -73,30 +74,18 @@ export function buildMonitoringKpiStrip(
       label: "Total cost",
       value: `$${totalCostUsd < 1 ? totalCostUsd.toFixed(4) : totalCostUsd.toFixed(2)}`,
       sublabel: lastRunAt
-        ? `last run ${formatRelative(lastRunAt)}`
+        ? `last run ${formatRelativeTimeDate(lastRunAt)}`
         : "across all runs",
       provenance: "manual",
     });
   } else if (lastRunAt !== null) {
     kpis.push({
       label: "Last run",
-      value: formatRelative(lastRunAt),
+      value: formatRelativeTimeDate(lastRunAt),
       sublabel: "most recent agent execution",
       provenance: "manual",
     });
   }
 
   return kpis;
-}
-
-/** Compact relative time label (no external dep, no I/O). */
-function formatRelative(date: Date): string {
-  const diffMs = Date.now() - date.getTime();
-  const diffMin = Math.floor(diffMs / 60_000);
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
-  const diffH = Math.floor(diffMin / 60);
-  if (diffH < 24) return `${diffH}h ago`;
-  const diffD = Math.floor(diffH / 24);
-  return `${diffD}d ago`;
 }

@@ -1,4 +1,5 @@
 import type { HeroKpi } from "@/lib/data/cockpit";
+import { formatRelativeTime } from "./time-formatters";
 
 interface SignalsCountMap {
   pending?: number;
@@ -64,27 +65,4 @@ export function buildSignalsKpiStrip(
   }
 
   return kpis;
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Formats a Date as a human-readable relative time string.
- * Pure function — no external deps, no I/O.
- *
- * @param date - The date to format (assumed to be in the past).
- * @param now  - Injection point for testability (defaults to Date.now()).
- */
-export function formatRelativeTime(date: Date, now = Date.now()): string {
-  const diffMs = now - date.getTime();
-  const diffSec = Math.floor(diffMs / 1_000);
-  if (diffSec < 60) return `${diffSec}s ago`;
-  const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
-  const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
-  const diffDay = Math.floor(diffHr / 24);
-  return `${diffDay}d ago`;
 }
