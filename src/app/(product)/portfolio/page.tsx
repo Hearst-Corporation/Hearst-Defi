@@ -121,24 +121,31 @@ export default async function PortfolioPage() {
               {...(data.updatedAt ? { updatedAt: data.updatedAt } : {})}
             />
           </div>
-          <div className="pf-terminal-cell">
-            <DistribCalendar
-              {...distribCalendarProps}
-              leafHref="/portfolio/distributions"
-              secondaryLeafHref="/portfolio/tax"
-              secondaryLeafLabel="Tax preview"
-              embedded
-            />
-          </div>
-          <div className="pf-terminal-cell">
-            <RecentActivity
-              transactions={data.recentTransactions}
-              source={data.source}
-              updatedAt={data.updatedAt}
-              asOf={now}
-              leafHref="/portfolio/activity"
-              embedded
-            />
+          <div className="pf-terminal-cell flex-1">
+            <div className="pf-embedded-pane h-full">
+              <div className="pf-timeline-header">
+                <span className="pf-timeline-title">Activity & Distributions</span>
+                <a href="/portfolio/activity" className="pf-timeline-link">View all</a>
+              </div>
+              <div className="pf-timeline-content flex-1">
+                <DistribCalendar
+                  {...distribCalendarProps}
+                  leafHref="/portfolio/distributions"
+                  secondaryLeafHref="/portfolio/tax"
+                  secondaryLeafLabel="Tax preview"
+                  embedded
+                />
+                <div className="pf-hairline my-4" aria-hidden="true" />
+                <RecentActivity
+                  transactions={data.recentTransactions}
+                  source={data.source}
+                  updatedAt={data.updatedAt}
+                  asOf={now}
+                  leafHref="/portfolio/activity"
+                  embedded
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
