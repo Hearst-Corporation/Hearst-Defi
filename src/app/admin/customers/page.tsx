@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
 import { CreateInvestorButton } from "@/components/admin/customer/create-investor-button";
-import { loadCustomers, type KycStatus } from "@/lib/data/customers";
+import { loadCustomers, loadOrphanSubmissions, type KycStatus } from "@/lib/data/customers";
 import { buildCustomersKpiStrip } from "@/lib/admin/customers-kpi-strip";
 import { formatAdminDate } from "@/lib/vaults/product-display";
 
@@ -56,7 +56,10 @@ export default async function CustomersPage({
   const page = Math.max(1, Number(rawPage ?? 1));
   const pageSize = Math.min(Math.max(Number(rawPageSize ?? 50), 1), 100);
 
-  const result = await loadCustomers(page, pageSize);
+  const [result, orphanSubmissions] = await Promise.all([
+    loadCustomers(page, pageSize),
+    loadOrphanSubmissions(),
+  ]);
   const { data: customers, total, hasMore } = result;
 
   const kpiCells = buildCustomersKpiStrip(customers, total);
@@ -198,6 +201,64 @@ export default async function CustomersPage({
           </div>
         )}
       </section>
+
+      {orphanSubmissions.length > 0 && (
+        <section
+          className="admin-doc-stack admin-crm-view"
+          aria-label="Pending submissions"
+        >
+          <h2 className="h2">Pending submissions ({orphanSubmissions.length})</h2>
+          <p className="body-xs ct-text-muted">
+            Qualification forms submitted but not yet linked to an account — e.g.
+            filled before sign-up, or an auto-create that did not complete.
+            Provision an account with the matching email to link the submission
+            and calibrate the assistant.
+          </p>
+          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
+            <div className="overflow-x-auto">
+              <table className="w-full table-fixed text-left body-sm">
+                <thead>
+                  <tr>
+                    <th className="w-[34%] stat-label ct-table-header whitespace-nowrap">
+                      Email
+                    </th>
+                    <th className="w-[26%] stat-label ct-table-header whitespace-nowrap">
+                      Name
+                    </th>
+                    <th className="hidden w-[20%] stat-label ct-table-header whitespace-nowrap md:table-cell">
+                      Source
+                    </th>
+                    <th className="w-[20%] stat-label ct-table-header whitespace-nowrap text-right">
+                      Submitted
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orphanSubmissions.map((s) => (
+                    <tr
+                      key={s.id}
+                      className="border-b border-(--ct-border-soft) last:border-0"
+                    >
+                      <td className="ct-table-cell truncate ct-text-strong">
+                        {s.email ?? "—"}
+                      </td>
+                      <td className="ct-table-cell truncate ct-text-muted">
+                        {[s.firstName, s.lastName].filter(Boolean).join(" ") || "—"}
+                      </td>
+                      <td className="hidden ct-table-cell ct-text-muted md:table-cell">
+                        {s.source}
+                      </td>
+                      <td className="ct-table-cell text-right ct-text-muted">
+                        {formatAdminDate(s.submittedAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </section>
+      )}
     </>
   );
 }

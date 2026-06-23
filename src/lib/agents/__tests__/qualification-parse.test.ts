@@ -88,4 +88,50 @@ describe("parseTypeformPayload", () => {
       website: null,
     });
   });
+
+  it("reads identity from form_response.hidden when no email answer is present", () => {
+    const parsed = parseTypeformPayload({
+      form_response: {
+        definition: { fields: [] },
+        hidden: {
+          email: "Prefilled@Fund.IO",
+          first_name: "Ada",
+          last_name: "Lovelace",
+          language: "English",
+          utm_source: "cold-email",
+        },
+        answers: [],
+      },
+    });
+    expect(parsed.email).toBe("prefilled@fund.io");
+    expect(parsed.firstName).toBe("Ada");
+    expect(parsed.lastName).toBe("Lovelace");
+    expect(parsed.answers.language).toBe("en");
+  });
+
+  it("lets a typed email answer override a hidden email", () => {
+    const parsed = parseTypeformPayload({
+      form_response: {
+        definition: { fields: [{ ref: "e", title: "Email" }] },
+        hidden: { email: "hidden@fund.io" },
+        answers: [{ field: { ref: "e" }, type: "email", email: "Typed@Fund.IO" }],
+      },
+    });
+    expect(parsed.email).toBe("typed@fund.io");
+  });
+
+  it("maps a multi-select answer past the first label (choices.labels[])", () => {
+    // First label is not a known platform; the 2nd one is — must still resolve.
+    const parsed = parseTypeformPayload({
+      form_response: {
+        definition: {
+          fields: [{ ref: "p", title: "What best describes your platform?" }],
+        },
+        answers: [
+          { field: { ref: "p" }, choices: { labels: ["Other / unsure", "Crypto exchange"] } },
+        ],
+      },
+    });
+    expect(parsed.answers.platformType).toBe("exchange");
+  });
 });

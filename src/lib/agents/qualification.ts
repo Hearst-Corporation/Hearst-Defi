@@ -148,6 +148,16 @@ export interface TypeformWebhookPayload {
   form_response?: {
     definition?: { fields?: TypeformField[] };
     answers?: TypeformAnswer[];
+    /**
+     * Typeform hidden fields — the standard way to carry a known identity
+     * (email / name / language) or tracking params (utm_*) through a prefilled
+     * form link into the callback. Keys are author-defined; we read the common
+     * identity keys (`email`, `first_name`, `last_name`, `language`) tolerantly
+     * (case / underscore / hyphen insensitive) and ignore the rest. A typed
+     * answer in the form body always overrides the hidden value. Values are
+     * always strings.
+     */
+    hidden?: Record<string, string>;
   };
 }
 
@@ -186,6 +196,31 @@ export function parseTypeformPayload(
     website: null,
   };
 
+  // Hidden fields carry a prefilled identity for forms opened from a tracked
+  // link (e.g. form.typeform.com/...#email=lp@fund.io&user_id=...). Read them
+  // FIRST so a typed email/name *answer* (read below) can still override.
+  const hidden = payload.form_response?.hidden ?? {};
+  for (const [key, value] of Object.entries(hidden)) {
+    if (typeof value !== "string") continue;
+    // Collapse the key to alphanumerics so first_name / firstName / first-name
+    // / "First Name" all match the same slot.
+    const k = norm(key).replace(/[^a-z0-9]/g, "");
+    const v = value.trim();
+    if (!v) continue;
+    if (out.email === null && k.includes("email")) {
+      out.email = v.toLowerCase();
+    } else if (out.firstName === null && k === "firstname") {
+      out.firstName = v;
+    } else if (out.lastName === null && k === "lastname") {
+      out.lastName = v;
+    } else if (
+      out.answers.language === undefined &&
+      (k === "language" || k === "langue" || k === "lang")
+    ) {
+      out.answers.language = norm(v).startsWith("en") ? "en" : "fr";
+    }
+  }
+
   for (const a of answers) {
     const ref = a.field?.ref ?? a.field?.id ?? "";
     const title = norm(titleByRef.get(ref) ?? "");
@@ -204,22 +239,38 @@ export function parseTypeformPayload(
       continue;
     }
 
-    // Choice answers → route by question title.
-    const label = a.choice?.label ?? a.choices?.labels?.[0] ?? a.text ?? null;
-    if (label === null) continue;
+    // Choice answers → route by question title. For multi-select answers
+    // Typeform sends choices.labels[] (the whole selection); try every label
+    // and keep the first one that maps to a known enum (single-choice still
+    // works — its one label is index 0). The legacy `choices.labels[0]`-only
+    // read silently dropped any selection past the first.
+    const candidateLabels: string[] =
+      a.choice?.label != null
+        ? [a.choice.label]
+        : Array.isArray(a.choices?.labels) && a.choices.labels.length > 0
+          ? a.choices.labels
+          : a.text != null
+            ? [a.text]
+            : [];
+    if (candidateLabels.length === 0) continue;
 
     const route = TITLE_ROUTES.find((r) => title.includes(r.match));
     if (route) {
-      const value = route.map ? route.map(label) : label;
-      if (value !== null) {
-        (out.answers as Record<string, string>)[route.field] = value;
+      for (const candidate of candidateLabels) {
+        const value = route.map ? route.map(candidate) : candidate;
+        if (value !== null) {
+          (out.answers as Record<string, string>)[route.field] = value;
+          break;
+        }
       }
       continue;
     }
 
+    const label = a.text ?? candidateLabels[0] ?? "";
+
     // Name fields (short_text whose title carries "first"/"last name").
-    if (title.includes("first name")) out.firstName = a.text ?? label;
-    else if (title.includes("last name")) out.lastName = a.text ?? label;
+    if (title.includes("first name")) out.firstName = label;
+    else if (title.includes("last name")) out.lastName = label;
     else if (title.includes("language") || title.includes("langue")) {
       out.answers.language = norm(label).startsWith("en") ? "en" : "fr";
     }

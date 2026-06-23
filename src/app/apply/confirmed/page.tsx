@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import {
   OnboardingChamber,
   OnboardingChamberSole,
 } from "@/components/onboarding/onboarding-chamber";
+import { Button } from "@/components/ui/button";
 import { getIrContact } from "@/lib/ir-contact";
 
 export const metadata: Metadata = {
@@ -49,6 +51,20 @@ export default function ConfirmedPage() {
       sole={
         <OnboardingChamberSole
           irContact={irContact}
+          actions={
+            <div className="product-doc-stack--actions">
+              <Button variant="primary" size="lg" asChild className="w-full">
+                <Link href="/login">Go to sign in</Link>
+              </Button>
+              <p className="body-xs ct-text-faint m-0 text-center">
+                Didn&apos;t get the activation email?{" "}
+                <Link href="/forgot-password" className="ct-link-accent">
+                  Request a new link
+                </Link>
+                .
+              </p>
+            </div>
+          }
           compliance={
             <>Institutional USDC yield. For qualified investors only. Cayman SPV structure.</>
           }

@@ -132,9 +132,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const created = await createInvestorFromWebhook(parsed.email);
       if (created) {
         userId = created.userId;
-        // Link the qualification we just upserted to the new user.
-        await prisma.qualificationProfile.updateMany({
-          where: { email: parsed.email, userId: null },
+        // Link the EXACT qualification row we just upserted to the new user, by
+        // its id — not a second email-based updateMany. updateMany could match
+        // zero rows (a duplicate-orphan with the same email already linked, or a
+        // normalization mismatch between the stored email and the one passed to
+        // createInvestorFromWebhook); calibration below does findUnique(userId)
+        // and would then silently no-op, leaving the new investor uncalibrated.
+        await prisma.qualificationProfile.update({
+          where: { id: qualification.id },
           data: { userId: created.userId },
         });
         // Send welcome / account-activation email (best-effort, non-blocking).

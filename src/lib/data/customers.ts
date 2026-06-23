@@ -109,3 +109,51 @@ export async function loadCustomers(
 
   return toPaginatedResult(rows, total, page, ps);
 }
+
+// ---------------------------------------------------------------------------
+// Orphan qualification submissions (lead capture, no account yet).
+// ---------------------------------------------------------------------------
+
+export interface OrphanSubmissionRow {
+  id: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  source: string;
+  submittedAt: Date;
+}
+
+/**
+ * Loads QualificationProfile rows that were submitted but never matched to a
+ * User (userId IS NULL) — e.g. a Typeform submission whose auto-create threw and
+ * was swallowed, or a form filled before the account existed. These are
+ * operationally invisible everywhere else (they are not Investors, so they never
+ * appear in the registry). Surfacing them lets an admin recover the lead instead
+ * of losing the submission silently. Capped — this is a recovery list, not a CRM.
+ */
+export async function loadOrphanSubmissions(
+  limit = 50,
+): Promise<OrphanSubmissionRow[]> {
+  const rows = await prisma.qualificationProfile.findMany({
+    where: { userId: null },
+    orderBy: { updatedAt: "desc" },
+    take: Math.min(Math.max(limit, 1), 100),
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      source: true,
+      updatedAt: true,
+    },
+  });
+
+  return rows.map((r) => ({
+    id: r.id,
+    email: r.email,
+    firstName: r.firstName,
+    lastName: r.lastName,
+    source: r.source,
+    submittedAt: r.updatedAt,
+  }));
+}

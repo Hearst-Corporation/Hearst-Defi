@@ -70,6 +70,32 @@ async function sendEmail(
 }
 
 /**
+ * Mints a fresh 7-day activation (PasswordResetToken) and returns the raw token
+ * plus the full /reset-password?token=… activation URL. Sends NO email — the
+ * caller decides whether to dispatch it (welcome flow) or surface the link in
+ * the admin UI for manual delivery (resend-activation dead-end recovery).
+ *
+ * Each call creates a NEW token (the old one stays valid until its own expiry);
+ * the most recent link is the one to share.
+ */
+export async function mintActivationToken(opts: {
+  userId: string;
+  appUrl: string;
+}): Promise<{ rawToken: string; activationUrl: string }> {
+  const { userId, appUrl } = opts;
+
+  const raw = randomBytes(32).toString("hex");
+  const tokenHash = createHash("sha256").update(raw).digest("hex");
+  const expiresAt = new Date(Date.now() + WELCOME_TOKEN_TTL_MS);
+
+  await prisma.passwordResetToken.create({
+    data: { userId, tokenHash, expiresAt },
+  });
+
+  return { rawToken: raw, activationUrl: `${appUrl}/reset-password?token=${raw}` };
+}
+
+/**
  * Send a welcome / account-activation email to a newly created investor.
  * Generates a 7-day PasswordResetToken and links to /reset-password?token=…
  *
@@ -86,17 +112,9 @@ export async function sendWelcomeEmail(opts: {
 }): Promise<void> {
   const { userId, email, firstName, appUrl } = opts;
 
-  const raw = randomBytes(32).toString("hex");
-  const tokenHash = createHash("sha256").update(raw).digest("hex");
-  const expiresAt = new Date(Date.now() + WELCOME_TOKEN_TTL_MS);
+  const { activationUrl } = await mintActivationToken({ userId, appUrl });
 
-  await prisma.passwordResetToken.create({
-    data: { userId, tokenHash, expiresAt },
-  });
-
-  const resetUrl = `${appUrl}/reset-password?token=${raw}`;
-
-  void sendEmail(email, firstName ?? null, resetUrl).catch((err) => {
+  void sendEmail(email, firstName ?? null, activationUrl).catch((err) => {
     console.error("[welcome-email] Resend failed", { userId, err });
   });
 }

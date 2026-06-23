@@ -12,7 +12,7 @@ import {
   setSessionCookie,
   destroySession,
 } from "@/lib/auth/session";
-import { safeFrom } from "@/lib/safe-redirect";
+import { resolvePostLoginRedirect } from "@/lib/onboarding/post-login-redirect";
 import { assertRateLimit } from "@/lib/rate-limit";
 import { logger, hashId } from "@/lib/logger";
 import { isTotpEnabled, verifyTotpCode } from "@/lib/auth/totp";
@@ -182,7 +182,9 @@ export async function login(
   logger.info("login success", { userId: user.id });
 
   // Outside try/catch: redirect throws NEXT_REDIRECT which must propagate.
-  redirect(safeFrom(from));
+  // Route an un-onboarded investor into the funnel when there is no explicit
+  // deep link; otherwise honour `from` / default to /portfolio.
+  redirect(await resolvePostLoginRedirect(user.id, from));
 }
 
 /** Sign out: destroy the session row + clear the cookie, then go to /login. */
@@ -250,5 +252,6 @@ export async function verifyTotpChallenge(
   await setSessionCookie(token, expiresAt);
   logger.info("totp challenge passed", { userId });
 
-  redirect(safeFrom(from));
+  // Same onboarding-aware routing as the password path.
+  redirect(await resolvePostLoginRedirect(userId, from));
 }

@@ -62,6 +62,12 @@ export interface ColdEmailProspect {
 export interface DraftColdEmailInput {
   prospect: ColdEmailProspect;
   brief?: string | null;
+  /**
+   * The CTA URL embedded verbatim at the end of the email. Legacy field name:
+   * despite "typeform", this is the app's own qualification funnel (`/apply`)
+   * by default — see resolveCtaUrl() in src/lib/outreach/cta-url.ts. NOT a
+   * Typeform. Callers pass whatever resolveCtaUrl() returns.
+   */
   typeformUrl: string;
   language?: OutreachLanguage;
   /** Pitch framing. Default `subscriber` keeps the original behaviour. */
@@ -251,7 +257,8 @@ function parseAndGuard(text: string): OutreachDraft {
 
 /**
  * Drafts a single institutional cold-outreach email for a prospect. The email
- * always closes with a CTA linking the qualification Typeform.
+ * always closes with a CTA linking the qualification funnel (`/apply` by
+ * default — not a Typeform; see resolveCtaUrl).
  */
 export async function draftColdEmail(
   input: DraftColdEmailInput,

@@ -11,6 +11,7 @@ import {
 } from "@/lib/agents/qualification";
 import type { QualificationAnswers } from "@/lib/agents/calibration";
 import { writeMemoryFacts, setMemoryActive, deleteMemoryFact } from "@/lib/agents/memory";
+import { mintActivationToken } from "@/lib/auth/send-welcome-email";
 
 // ---------------------------------------------------------------------------
 // Qualification (Typeform answers) — manual edit
@@ -117,6 +118,59 @@ export async function recalibrateAgent(
     throw new Error("No qualification profile to calibrate from");
   }
   revalidate(investorId);
+}
+
+// ---------------------------------------------------------------------------
+// Resend / regenerate account activation link
+// ---------------------------------------------------------------------------
+
+export type ActivationLinkResult =
+  | { ok: true; activationUrl: string }
+  | { ok: false; error: string };
+
+/**
+ * Recovers the welcome-email dead-end: an auto-created (Typeform/apply) or
+ * admin-provisioned investor has an unusable random password and can only get
+ * in via the activation link. If the welcome email never arrived (Resend down /
+ * key missing / lost), there was no UI to recover — the row existed but the
+ * person could never log in.
+ *
+ * This mints a FRESH 7-day activation token and returns the /reset-password URL
+ * for the admin to deliver manually. It does NOT send an email itself, so it is
+ * safe regardless of email-provider state.
+ */
+export async function generateActivationLink(
+  investorId: string,
+): Promise<ActivationLinkResult> {
+  const admin = await requireAdmin();
+  if (!investorId) return { ok: false, error: "Missing investor id" };
+
+  const investor = await prisma.investor.findUnique({
+    where: { id: investorId },
+    select: { userId: true },
+  });
+  if (!investor) return { ok: false, error: "Investor not found" };
+
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://connect.hearst.app";
+  const { activationUrl } = await mintActivationToken({
+    userId: investor.userId,
+    appUrl,
+  });
+
+  await prisma.adminAudit.create({
+    data: {
+      actorWallet: admin.walletAddress ?? admin.userId,
+      action: "investor.generateActivationLink",
+      entityType: "Investor",
+      entityId: investorId,
+      diff: JSON.stringify({ before: null, after: { activationTokenMinted: true } }),
+      ip: null,
+      userAgent: null,
+    },
+  });
+
+  return { ok: true, activationUrl };
 }
 
 // ---------------------------------------------------------------------------

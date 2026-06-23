@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
 import { DeployPositionForm } from "@/components/admin/customer/deploy-position-form";
+import { ActivationLinkButton } from "@/components/admin/customer/activation-link-button";
 import { QualificationForm } from "@/components/admin/customer/qualification-form";
 import { AgentAssignForm } from "@/components/admin/customer/agent-assign-form";
 import { MemoryManager } from "@/components/admin/customer/memory-manager";
@@ -46,6 +47,16 @@ const POSITION_STATUS_LABEL: Record<string, string> = {
   active: "Active",
   matured: "Matured",
   exited: "Exited",
+};
+
+// Human-readable label for QualificationProfile.source. Three writers feed this
+// column: the Typeform webhook ("typeform"), the self-serve /apply form
+// ("self"), and an admin manual edit ("manual"). Render a friendly label so the
+// raw enum (e.g. "self") never shows verbatim in the admin UI.
+const QUAL_SOURCE_LABEL: Record<string, string> = {
+  typeform: "Typeform intake",
+  self: "Self-serve application",
+  manual: "Admin entry",
 };
 
 export default async function CustomerDetailPage({
@@ -117,6 +128,15 @@ export default async function CustomerDetailPage({
               <dd className="ct-text-body">{formatAdminDate(detail.joinedAt)}</dd>
             </div>
           </dl>
+          <div className="admin-doc-stack admin-doc-stack--tight border-t border-(--ct-border-soft) pt-[var(--ct-space-4)] mt-[var(--ct-space-4)]">
+            <p className="body-xs ct-text-muted m-0">
+              Account sign-in. Auto-created and admin-provisioned investors start
+              with no usable password — they log in via a one-time activation
+              link. Generate a fresh link here if the welcome email never reached
+              them.
+            </p>
+            <ActivationLinkButton investorId={detail.investorId} />
+          </div>
         </Card>
 
         <h3 className="h3">Vault positions ({detail.positions.length})</h3>
@@ -181,7 +201,7 @@ export default async function CustomerDetailPage({
         <h2 className="h2">Investor qualification</h2>
         <p className="body-xs ct-text-muted">
           {detail.qualification
-            ? `Source: ${detail.qualification.source} · updated ${formatAdminDate(detail.qualification.updatedAt)}`
+            ? `Source: ${QUAL_SOURCE_LABEL[detail.qualification.source] ?? detail.qualification.source} · updated ${formatAdminDate(detail.qualification.updatedAt)}`
             : "No qualification profile on file yet. Complete the intake questionnaire to tailor the assistant for this investor."}
         </p>
         <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>

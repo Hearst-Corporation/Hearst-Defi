@@ -16,14 +16,41 @@ interface IdentityChamberProps {
   kycVendorReady: boolean;
   mayContinue: boolean;
   isProduction: boolean;
+  /** Investor's real KYC state, or null when no investor row resolved yet. */
+  kycStatus: "pending" | "approved" | "rejected" | string | null;
 }
 
 export function IdentityChamber({
   kycVendorReady,
   mayContinue,
   isProduction,
+  kycStatus,
 }: IdentityChamberProps) {
   const { irContact } = useOnboardingShell();
+
+  // Honest, status-aware compliance copy — never claims a verdict the investor
+  // doesn't hold. Pending → it's being reviewed; rejected → how to resubmit;
+  // otherwise → the generic pre-submission note.
+  const complianceCopy =
+    kycStatus === "approved" ? (
+      <>Your identity is verified. You can continue to wallet binding.</>
+    ) : kycStatus === "pending" ? (
+      <>
+        Your documents are submitted and under review — this typically completes
+        within 2 business days. You will be notified by email once a decision is
+        made. No further action is needed right now.
+      </>
+    ) : kycStatus === "rejected" ? (
+      <>
+        Verification did not pass. Re-submit a valid government-issued ID above,
+        or reach out to your investor-relations contact below to resolve it.
+      </>
+    ) : (
+      <>
+        KYC review typically completes within 24 hours. You will be notified by
+        email once your identity has been verified.
+      </>
+    );
 
   return (
     <OnboardingChamber
@@ -54,12 +81,7 @@ export function IdentityChamber({
       sole={
         <OnboardingChamberSole
           irContact={irContact}
-          compliance={
-            <>
-              KYC review typically completes within 24 hours. You will be notified
-              by email once your identity has been verified.
-            </>
-          }
+          compliance={complianceCopy}
           actions={
             <div className="product-doc-stack--actions">
               {mayContinue ? (
@@ -70,13 +92,19 @@ export function IdentityChamber({
                 <p className="body-xs ct-text-faint m-0 text-center" role="status">
                   Launch identity verification above to continue.
                 </p>
-              ) : !isProduction ? (
+              ) : (
+                // Sumsub not configured. In every environment (prod included)
+                // we still offer an in-app way forward to the optional wallet
+                // step — identity review is then completed manually by Investor
+                // Relations (see the panel above). KYC stays `pending`; nothing
+                // here approves it. Without this branch the production user is
+                // trapped at step 2 with no path to wallet/portfolio.
                 <Button variant="secondary" size="lg" asChild className="w-full">
                   <Link href="/onboarding/wallet">
-                    Continue
+                    Continue without identity verification
                   </Link>
                 </Button>
-              ) : null}
+              )}
 
               <Button variant="ghost" size="md" asChild className="w-full">
                 <Link href="/onboarding/accreditation">← Back</Link>

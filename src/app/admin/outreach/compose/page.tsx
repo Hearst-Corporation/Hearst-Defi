@@ -40,8 +40,8 @@ export default function ComposeEmailPage() {
         <p className="body-sm ct-text-muted">
           Send one tracked email to a single address — no campaign required. Draft
           it yourself or let the agent prepare it (institutional cold-email persona,
-          forbidden-words guarded, Typeform CTA). Review before sending; nothing
-          leaves until you click <strong>Send now</strong>.
+          forbidden-words guarded, qualification-funnel CTA). Review before sending;
+          nothing leaves until you click <strong>Send now</strong>.
         </p>
 
         <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>

@@ -10,6 +10,7 @@ import { assertNoForbiddenWords } from "@/lib/agents/validators";
 import { draftColdEmail } from "@/lib/agents/outreach-writer";
 import { isTier, type Tier } from "@/lib/outreach/tier";
 import { decideAutoSend, type Autonomy } from "@/lib/outreach/send-policy";
+import { resolveCtaUrl } from "@/lib/outreach/cta-url";
 
 /**
  * Outreach follow-up cadence (Palier 4 — closed loop, the NURTURE/CLOSED tail).
@@ -47,11 +48,6 @@ export interface OutreachFollowupsArgs {
   step: OutreachFollowupsStep;
   now?: Date;
 }
-
-const TYPEFORM_URL =
-  process.env.NEXT_PUBLIC_QUALIFICATION_FORM_URL ??
-  process.env.NEXT_PUBLIC_TYPEFORM_URL ??
-  `${process.env.NEXT_PUBLIC_APP_URL ?? "https://connect.hearst.app"}/apply`;
 
 /** Whole days between two instants (floored, never negative). */
 function daysBetween(a: Date, b: Date): number {
@@ -182,7 +178,7 @@ export async function outreachFollowupsHandler({
             `This is follow-up #${p.sequenceStep} to a prior unanswered outreach. ` +
             "Be brief, polite, add one new angle of value, no pressure. " +
             "Reference that you reached out before without re-pitching everything.",
-          typeformUrl: TYPEFORM_URL,
+          typeformUrl: resolveCtaUrl(),
           audience: icp?.persona === "distributor" ? "distributor" : "subscriber",
           language: icp?.language === "fr" ? "fr" : "en",
         });

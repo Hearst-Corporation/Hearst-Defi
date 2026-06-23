@@ -8,14 +8,14 @@
  */
 
 import { IdentityChamber } from "@/components/onboarding/identity-chamber";
-import { getSession } from "@/lib/auth/session";
+import { getSession, getInvestor } from "@/lib/auth/session";
 import { isSumsubConfigured } from "@/lib/onboarding/config";
 import { canProceedToWallet } from "@/lib/onboarding/gates";
 
 export const dynamic = "force-dynamic";
 
 export default async function IdentityPage() {
-  const session = await getSession();
+  const [session, investor] = await Promise.all([getSession(), getInvestor()]);
   const kycVendorReady = isSumsubConfigured();
 
   const mayContinue =
@@ -28,6 +28,7 @@ export default async function IdentityPage() {
       kycVendorReady={kycVendorReady}
       mayContinue={mayContinue}
       isProduction={process.env.NODE_ENV === "production"}
+      kycStatus={investor?.kycStatus ?? null}
     />
   );
 }

@@ -24,6 +24,7 @@ import {
 } from "@/lib/outreach/icp";
 import { isTier } from "@/lib/outreach/tier";
 import { isSuppressed } from "@/lib/outreach/suppression";
+import { resolveCtaUrl } from "@/lib/outreach/cta-url";
 
 /**
  * Admin Server Actions for the cold-outreach + newsletter console
@@ -35,15 +36,14 @@ import { isSuppressed } from "@/lib/outreach/suppression";
  * `adminAudit` row, and `revalidatePath("/admin/outreach")`.
  *
  * HubSpot sync is always BEST-EFFORT — it must never fail an outreach mutation.
- * The Typeform qualification URL injected into every cold email defaults to the
- * production form when `NEXT_PUBLIC_TYPEFORM_URL` is unset.
+ * The qualification-funnel CTA injected into every cold email is resolved by
+ * `resolveCtaUrl()` (src/lib/outreach/cta-url.ts) — it defaults to the in-app
+ * `/apply` route on NEXT_PUBLIC_APP_URL, so a local override retargets it away
+ * from the production host. Despite the legacy `typeformUrl` field name, this is
+ * the app's own funnel, not a Typeform.
  */
 
 const REVALIDATE_PATH = "/admin/outreach";
-const TYPEFORM_URL =
-  process.env.NEXT_PUBLIC_QUALIFICATION_FORM_URL ??
-  process.env.NEXT_PUBLIC_TYPEFORM_URL ??
-  `${process.env.NEXT_PUBLIC_APP_URL ?? "https://connect.hearst.app"}/apply`;
 
 /** Records an admin audit row using the canonical field shape. */
 async function recordAudit(
@@ -390,7 +390,7 @@ async function draftCampaignEmails(formData: FormData): Promise<void> {
         // The cold-email CTA always links the qualification form (required by
         // the agent input). `includeTypeform` is recorded on the campaign for
         // the audit trail; the canonical URL is always supplied here.
-        typeformUrl: TYPEFORM_URL,
+        typeformUrl: resolveCtaUrl(),
         audience,
         language,
       });
@@ -523,6 +523,20 @@ export async function sendCampaign(formData: FormData): Promise<void> {
 
   const requestedBy = admin.walletAddress ?? admin.userId;
 
+  // Guard: never flip to "sending" (nor emit the fan-out event) when there are
+  // no approved emails. Otherwise the consumer no-ops with `no_approved_emails`
+  // but the campaign is left stuck on "sending" forever (state desync). The UI
+  // already gates the button on approvedCount>0, so this only bites a direct
+  // action call — but Server Actions are a public RPC surface, so re-assert it.
+  const approvedCount = await prisma.outreachEmail.count({
+    where: { campaignId, status: "approved" },
+  });
+  if (approvedCount === 0) {
+    throw new Error(
+      "sendCampaign: no approved emails to send — approve at least one first.",
+    );
+  }
+
   await prisma.outreachCampaign.update({
     where: { id: campaignId },
     data: { status: "sending" },
@@ -650,7 +664,7 @@ export async function draftAllCampaignEmails(
       const { subject, body } = await draftColdEmail({
         prospect,
         brief: campaign.bodyTemplate,
-        typeformUrl: TYPEFORM_URL,
+        typeformUrl: resolveCtaUrl(),
         audience,
         language,
       });
@@ -782,7 +796,7 @@ export async function draftDirectEmail(
       company: parsed.data.company ?? null,
     },
     brief: parsed.data.brief ?? null,
-    typeformUrl: TYPEFORM_URL,
+    typeformUrl: resolveCtaUrl(),
   });
   assertNoForbiddenWords(`${subject}\n${body}`);
   return { subject, body };
@@ -827,7 +841,7 @@ export async function draftEmailForProspect(
       lastName: prospect.lastName,
       company: prospect.company,
     },
-    typeformUrl: TYPEFORM_URL,
+    typeformUrl: resolveCtaUrl(),
     audience: "distributor",
   });
   // Non-negotiable #5 — never persist a draft carrying a forbidden claim.
@@ -915,16 +929,20 @@ export async function sendDirectEmail(
   const createdBy = admin.walletAddress ?? admin.userId;
   const campaignId = await getDirectCampaignId(createdBy);
 
-  // Record the email first (status sent), then dispatch.
+  // Record the email in a pre-dispatch state ("approved": validated +
+  // suppression-checked, not yet sent), then dispatch, and only stamp "sent" +
+  // sentAt AFTER Resend confirms. This mirrors the campaign fan-out ordering
+  // (outreach-send.ts) so a crash between create and dispatch can never leave a
+  // row falsely marked "sent" — the worst case is an honest "approved" row that
+  // never went out, not a phantom send.
   const email = await prisma.outreachEmail.create({
     data: {
       campaignId,
       toEmail,
       subject: parsed.data.subject,
       body: parsed.data.body,
-      status: "sent",
+      status: "approved",
       draftedByAgent: false,
-      sentAt: new Date(),
     },
     select: { id: true },
   });
@@ -940,7 +958,7 @@ export async function sendDirectEmail(
     resendEmailId = sent.id;
     await prisma.outreachEmail.update({
       where: { id: email.id },
-      data: { resendEmailId: sent.id },
+      data: { status: "sent", sentAt: new Date(), resendEmailId: sent.id },
     });
   } catch (err) {
     await prisma.outreachEmail.update({
