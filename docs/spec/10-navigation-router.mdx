@@ -1,0 +1,78 @@
+---
+title: Deterministic Navigation Router
+order: 10
+---
+
+# Deterministic Navigation Router (Phase 1)
+
+> **Status: shipped.** Implemented on `feat/agent-canvas-workspace`
+> (commits `0e36d912`, `9a3cd742`, `0077f3e9`). This spec documents the canonical
+> design per **ADR-018**. It is the single source of truth the parallel de-LLM
+> efforts must reconcile to.
+
+## Principle
+
+Cockpit-chat navigation is **100% deterministic**: the code holds control-flow,
+the LLM only generates language. The model is given **no `navigate` tool**, there
+is **no LLM classifier for routing**, and **no LLM fallback** when regex misses.
+An unknown command navigates **nowhere** (safe fallback) — it never invents a route.
+
+## Components
+
+- **Closed route whitelist** — `NAV_DESTINATIONS` (`src/lib/llm/navigate-tool.ts`),
+  split LP / admin, `as const`. No dynamic `[id]` routes; no admin route reachable
+  from the LP profile.
+- **Intent table + regex** — `src/lib/llm/nav-fallback-intent.ts`: hand-tuned
+  `LP_NAV_RULES` / `ADMIN_NAV_RULES` first, then keyword-derived, **nav-verb-gated**
+  rules (`NAV_VERB` × per-destination `NAV_KEYWORDS`, every whitelist key has an
+  entry — sync-guarded). Deepest route wins (sub-page beats parent).
+- **Deny-first guard** — `looksLikeNavIntent`: empty → action-verb → question-word
+  → negation → nav-verb-required → length → conjunction. A bare keyword never
+  routes; a compound/question/mutation falls through to a normal chat answer.
+- **Permissions** — `resolveNavDestinationForProfile(key, profile)` returns `null`
+  on profile mismatch; admin keys resolve only for `navProfile === "admin"` or an
+  admin actor.
+- **Double-gate channel** — `nav-channel.ts` re-validates every key through
+  `resolveNavDestination` on publish **and** consume, so an arbitrary route can
+  never reach `router.push`.
+
+## Resolution flow (in `src/app/api/cockpit-chat/route.ts`)
+
+1. The deterministic shortcut `resolveNavFallbackDestinationKey(...)` runs
+   **before any LLM turn**. On a match → fixed ack + `publishNav` + return.
+2. No match → the message flows to the chat as a normal answer. **There is no
+   post-LLM nav path** — the model exposes no navigate tool, so it cannot drive a
+   route.
+3. Product-workspace intent uses the deterministic, synchronous
+   `classifyProductWorkspaceIntent` (regex) — **not** an LLM classifier.
+
+## Observability — deterministic NavTrace
+
+Every deterministic navigation writes one `NavTrace` row (reusing existing
+columns, **no schema migration**): `status: "published"`,
+`reason: "deterministic_router"` (the source marker), real `destinationKey /
+profile / mode / userId / chatId`. **No model name, no tokens, no prompt, no
+fabricated confidence.** The admin "Navigation traces" panel is fed by these and
+is honestly deterministic.
+
+## Removed (dead LLM-nav plumbing)
+
+`createNavigateTool`, the model `navigate` tool, the LLM `classifyProductIntentLlm`
+(`classify-product-intent.ts` deleted), the post-LLM nav publish block,
+`persistNavTrace` / `ChatTurnFinal.navProposedKey` / `navBlocked`, and the dead
+`exposeNavigate` / `navProfile` params on `runChatAgent`.
+
+## Invariants (enforced by tests)
+
+- No `navigate` tool reaches the model; no LLM call classifies a navigation.
+- Unknown / ambiguous / mutating commands never navigate.
+- The whitelist is closed; permissions hold across LP/admin.
+- NavTrace is deterministic and carries no LLM field.
+
+## Tests
+
+`stress-nav-corpus` (cartesian `VERBS × NAV_KEYWORDS`, >10k iterations over the
+real resolvers, hard-asserts determinism + zero sensitive false-positives like
+withdraw/send/deploy), `stress-nav-invariants`, `navigate-tool`, `route` /
+`route.guard`, `chat-agent`. Status at HEAD: `src/lib/llm` 215 · cockpit-chat 18 ·
+stress-nav 15 · route.guard 4 · typecheck 0.
