@@ -56,7 +56,7 @@ export function InvestFlowLoadingShell({
             </div>
           </div>
           {showActions ? (
-            <div className="product-page-header__actions flex flex-wrap gap-[var(--ct-space-2)]">
+            <div className="product-page-header__actions flex flex-wrap gap-(--ct-space-2)">
               <Skeleton className="h-7 w-16 rounded-full" />
               <Skeleton className="h-7 w-20 rounded-full" />
             </div>
@@ -70,7 +70,7 @@ export function InvestFlowLoadingShell({
             {Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="vault-detail-overview__kpi">
                 <Skeleton className="h-3 w-24" variant="text" />
-                <Skeleton className="mt-[var(--ct-space-2)] h-6 w-28" />
+                <Skeleton className="mt-(--ct-space-2) h-6 w-28" />
               </div>
             ))}
           </dl>
@@ -84,7 +84,7 @@ export function InvestFlowLoadingShell({
               {Array.from({ length: 3 }).map((_, index) => (
                 <div key={index} className="vault-detail-overview__kpi">
                   <Skeleton className="h-3 w-24" variant="text" />
-                  <Skeleton className="mt-[var(--ct-space-2)] h-7 w-28" />
+                  <Skeleton className="mt-(--ct-space-2) h-7 w-28" />
                 </div>
               ))}
             </dl>
@@ -95,11 +95,21 @@ export function InvestFlowLoadingShell({
         ) : null}
 
         {bodySections > 0 ? (
-          <div className="invest-flow-detail__grid">
-            <div className="invest-flow-detail__primary product-doc-stack">
+          <div className="vault-invest-grid">
+            <div className="vault-invest-form-main product-doc-stack">
               {Array.from({ length: bodySections }).map((_, index) => (
                 <FlatSectionSkeleton key={index} />
               ))}
+            </div>
+            <div className="vault-invest-grid__rail product-doc-stack">
+              <div className="vault-flow-flat-section">
+                <Skeleton className="h-6 w-32 mb-4" variant="text" />
+                <Skeleton className="h-48 w-full" />
+              </div>
+              <div className="vault-flow-flat-section">
+                <Skeleton className="h-6 w-32 mb-4" variant="text" />
+                <Skeleton className="h-64 w-full" />
+              </div>
             </div>
           </div>
         ) : null}

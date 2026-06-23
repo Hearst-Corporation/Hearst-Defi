@@ -1,6 +1,328 @@
 /* vaults.css — Hearst Yield Vault invest flow (page-scoped) */
 
-/* 1. AMOUNT FIELD */
+/* 0. STEP CONTEXT + OVERFLOW GUARD */
+
+.product-doc .vault-invest-step-context {
+  margin: 0;
+  padding-top: var(--ct-space-1);
+}
+
+.product-doc .vault-invest-grid,
+.product-doc .vault-invest-form-main,
+.product-doc .vault-invest-grid__rail {
+  min-width: 0;
+}
+
+@container product-doc (min-width: 64rem) {
+  .product-doc .vault-invest-grid {
+    display: grid;
+    grid-template-columns: 1fr 24rem;
+    gap: var(--ct-space-8);
+    align-items: start;
+  }
+
+  .product-doc .vault-invest-grid__rail {
+    position: sticky;
+    top: var(--ct-space-8);
+  }
+}
+
+/* 1. AMOUNT LEDGER */
+
+.vault-amount-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  padding: var(--ct-space-4);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-lg);
+  background: var(--ct-surface-1);
+  transition: border-color var(--ct-dur-base) var(--ct-ease),
+              background-color var(--ct-dur-base) var(--ct-ease);
+}
+
+.vault-amount-ledger--calculating {
+  border-color: var(--ct-border-accent-soft);
+  background: var(--ct-surface-2);
+}
+
+.vault-amount-ledger__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+}
+
+.vault-amount-ledger__display {
+  margin: 0;
+  font-size: var(--ct-text-3xl);
+  font-weight: var(--ct-font-extrabold);
+  letter-spacing: var(--ct-tracking-tighter);
+  color: var(--ct-text-strong);
+  line-height: 1.1;
+  transition: opacity var(--ct-dur-fast) var(--ct-ease);
+}
+
+.vault-amount-ledger--calculating .vault-amount-ledger__display {
+  opacity: 0.7;
+}
+
+.vault-amount-ledger__display--empty {
+  color: var(--ct-text-faint);
+  font-weight: var(--ct-font-semibold);
+}
+
+/* 2. TERMS METADATA STRIP */
+
+.vault-invest-terms-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-md);
+  overflow: hidden;
+}
+
+.vault-invest-terms-strip__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+  padding: var(--ct-space-3) var(--ct-space-4);
+  min-width: 0;
+}
+
+.vault-invest-terms-strip__row:nth-child(odd) {
+  border-right: 1px solid var(--ct-border-soft);
+}
+
+.vault-invest-terms-strip__row:nth-child(-n + 2) {
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.vault-invest-terms-strip__row dt {
+  margin: 0;
+}
+
+.vault-invest-terms-strip__row dd {
+  margin: 0;
+}
+
+/* 3. HELP LINKS */
+
+.vault-invest-help-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
+.vault-invest-help-links__sep {
+  color: var(--ct-text-faint);
+  user-select: none;
+}
+
+/* 4. PREFLIGHT CHECK */
+
+.vault-preflight-check {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.vault-preflight-readiness {
+  margin: 0 0 var(--ct-space-3);
+  padding-bottom: var(--ct-space-3);
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.vault-preflight-check__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  padding-block: var(--ct-space-2_5);
+  border-bottom: 1px solid var(--ct-border-ghost);
+}
+
+.vault-preflight-check__row:last-child {
+  border-bottom: none;
+}
+
+.vault-preflight-check__row-main {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ct-space-3);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.vault-preflight-check__dot {
+  margin-top: var(--ct-space-1);
+  height: var(--ct-space-2);
+  width: var(--ct-space-2);
+  flex-shrink: 0;
+  border-radius: var(--ct-radius-full);
+  transition: background-color var(--ct-dur-base) var(--ct-ease),
+              box-shadow var(--ct-dur-base) var(--ct-ease);
+}
+
+.vault-preflight-check__dot.ct-status-dot-success {
+  box-shadow: 0 0 8px var(--ct-accent-soft);
+}
+
+.vault-preflight-check__dot.ct-status-dot-info {
+  animation: vault-pulse-info 2s infinite var(--ct-ease-in-out);
+}
+
+@keyframes vault-pulse-info {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.9); }
+}
+
+.vault-preflight-check__row-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+}
+
+.vault-preflight-check__detail {
+  display: block;
+  line-height: var(--ct-leading-relaxed);
+}
+
+.vault-preflight-check__action {
+  padding-top: var(--ct-space-0_5);
+}
+
+/* 5. ELIGIBILITY CHECKLIST */
+
+.vault-eligibility-checklist .vault-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.vault-eligibility-checklist .vault-panel-body p {
+  line-height: var(--ct-leading-relaxed);
+}
+
+/* 6. LEGAL BLOCK */
+
+.vault-legal-block {
+  display: flex;
+  flex-direction: column;
+  padding: var(--ct-space-4);
+  background: var(--ct-surface-0);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-md);
+}
+
+.vault-legal-block .vault-control--muted {
+  opacity: 1; /* Keep checkbox visible but disabled */
+}
+
+/* 7. SECTION DIVIDER */
+
+.vault-invest-section-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-4);
+  margin-block: var(--ct-space-8) var(--ct-space-4);
+}
+
+.vault-invest-section-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--ct-border-soft);
+}
+
+/* 8. DEPOSIT SUMMARY HARMONIZATION */
+
+.product-doc .vault-deposit-summary__kpis {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-top: var(--ct-space-2);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+.product-doc .vault-deposit-summary__kpis > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--ct-space-4);
+  padding-block: var(--ct-space-2);
+  border-bottom: 1px solid var(--ct-border-ghost);
+}
+
+.product-doc .vault-deposit-summary__kpis > div:last-child {
+  border-bottom: none;
+}
+
+.product-doc .vault-deposit-summary__kpis dt {
+  margin: 0;
+}
+
+/* 8. DEPOSIT SUMMARY EMPTY STATE */
+
+.product-doc .vault-deposit-summary__total--empty {
+  color: var(--ct-text-faint);
+  font-weight: var(--ct-font-semibold);
+}
+
+/* 6. CONFIRM PANEL POLISH */
+
+.vault-confirm-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.vault-confirm-panel__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  padding: var(--ct-space-3);
+  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-md);
+}
+
+.vault-confirm-panel__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--ct-space-4);
+  padding-block: var(--ct-space-1_5);
+  border-bottom: 1px solid var(--ct-border-ghost);
+}
+
+.vault-confirm-panel__row:last-child {
+  border-bottom: none;
+}
+
+.vault-confirm-panel__disclaimer {
+  margin: 0;
+  line-height: var(--ct-leading-relaxed);
+  padding-inline: var(--ct-space-1);
+}
+
+/* 7. FORM ACTIONS — split layout on wide shells */
+
+@container product-doc (min-width: 40rem) {
+  .product-doc .vault-form-actions--split {
+    justify-content: space-between;
+  }
+
+  .product-doc .vault-form-actions--split .vault-form-actions__primary {
+    flex: 0 1 auto;
+    margin-left: auto;
+  }
+}
+
+/* 8. AMOUNT FIELD */
 
 .vault-amount-field {
   position: relative;
