@@ -16,6 +16,11 @@
   background: var(--ct-graphite-subtle-bg);
   border: 1px solid var(--ct-graphite-border-nested);
   box-shadow: var(--ct-glass-bevel);
+  transition: all var(--ct-dur-base) var(--ct-ease);
+}
+
+.dashboard-readiness:hover {
+  border-color: color-mix(in srgb, var(--ct-accent) 15%, var(--ct-graphite-border-nested));
 }
 
 /* ── Head: posture + blurb (left), run action (right) ── */
@@ -124,6 +129,11 @@
   min-width: 0;
   padding-left: var(--ct-space-4);
   border-left: 1px solid var(--ct-border-ghost);
+  transition: background-color var(--ct-dur-fast) var(--ct-ease), border-color var(--ct-dur-fast) var(--ct-ease);
+}
+
+.dashboard-readiness__stat:hover {
+  border-left-color: color-mix(in srgb, var(--ct-accent) 30%, var(--ct-border-ghost));
 }
 
 .dashboard-readiness__stat-top {
@@ -171,6 +181,15 @@
   display: inline-flex;
   align-items: center;
   gap: var(--ct-space-1_5);
+  padding: var(--ct-space-0_5) var(--ct-space-1);
+  border-radius: var(--ct-radius-sm);
+  transition: background-color var(--ct-dur-fast) var(--ct-ease), transform var(--ct-dur-fast) var(--ct-ease);
+  cursor: help;
+}
+
+.dashboard-readiness__factor-dot:hover {
+  background: var(--ct-graphite-nested-bg);
+  transform: translateY(-1px);
 }
 
 .dashboard-readiness__factor-dot-label {

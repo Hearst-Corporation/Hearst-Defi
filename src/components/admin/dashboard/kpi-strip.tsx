@@ -1,10 +1,26 @@
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 import type { HeroKpi } from "@/lib/data/cockpit";
 
 interface DashboardKpiStripProps {
   kpis: HeroKpi[];
 }
+
+/** Provenance description helper to avoid duplication */
+const PROVENANCE_DESC: Record<string, string> = {
+  live: "Live production data",
+  oracle: "Verified oracle feed",
+  attested: "Cryptographically attested",
+  estimated: "Model-based estimate",
+  manual: "Manual input",
+  stale: "Potentially outdated",
+};
+
+function provenanceDesc(p: string): string {
+  return PROVENANCE_DESC[p] ?? "Historical projection";
+}
+
 
 /** Compact per-vault KPI row for `/admin/dashboard` (container-query grid). */
 export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
@@ -23,32 +39,56 @@ export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
 }
 
 function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
+  // Determine delta styling based on value content
+  const deltaType = kpi.sublabel?.includes("↑") ? "up" : kpi.sublabel?.includes("↓") ? "down" : "neutral";
+  const deltaClass = {
+    up: "dashboard-kpi-delta--up",
+    down: "dashboard-kpi-delta--down",
+    neutral: "dashboard-kpi-delta--neutral",
+  }[deltaType];
+
   return (
-    <div
-      className={cn(
-        "dashboard-kpi-strip__cell",
-        kpi.alert && "dashboard-kpi-strip__cell--alert",
-        kpi.accent && "dashboard-kpi-strip__cell--accent",
+    <Tooltip
+      content={(
+        <div className="dashboard-metric-tooltip">
+          <div className="dashboard-metric-tooltip__title">{kpi.label}</div>
+          <div className="dashboard-metric-tooltip__desc">{provenanceDesc(kpi.provenance)}</div>
+        </div>
       )}
-      aria-label={`${kpi.label}: ${kpi.value}`}
+      side="top"
     >
-      <div className="dashboard-kpi-strip__label-row">
-        <span className="dashboard-kpi-strip__label stat-label">
-          {kpi.label}
-        </span>
-        <ProvenanceBadge kind={kpi.provenance} variant="strip" />
-      </div>
-      <span
+      <div
         className={cn(
-          "dashboard-kpi-strip__value stat-value tabular",
-          kpi.alert ? "ct-status-danger" : kpi.accent ? "ct-status-success" : "ct-text-strong",
+          "dashboard-kpi-strip__cell",
+          kpi.alert && "dashboard-kpi-strip__cell--alert",
+          kpi.accent && "dashboard-kpi-strip__cell--accent",
         )}
+        aria-label={`${kpi.label}: ${kpi.value}`}
       >
-        {kpi.value}
-      </span>
-      <span className="dashboard-kpi-strip__meta body-xs ct-text-faint truncate">
-        {kpi.sublabel}
-      </span>
-    </div>
+        <div className="dashboard-kpi-strip__label-row">
+          <span className="dashboard-kpi-strip__label stat-label">
+            {kpi.label}
+          </span>
+          <ProvenanceBadge kind={kpi.provenance} variant="strip" />
+        </div>
+        <span
+          className={cn(
+            "dashboard-kpi-strip__value stat-value tabular",
+            kpi.alert ? "ct-status-danger" : kpi.accent ? "ct-status-success" : "ct-text-strong",
+          )}
+        >
+          {kpi.value}
+        </span>
+        <span className="dashboard-kpi-strip__meta body-xs ct-text-faint truncate flex items-center gap-1">
+          {kpi.sublabel?.replace(/[↑↓]/g, "")}
+          {kpi.sublabel?.includes("↑") && (
+            <span className={cn("dashboard-kpi-delta", deltaClass)}>↑</span>
+          )}
+          {kpi.sublabel?.includes("↓") && (
+            <span className={cn("dashboard-kpi-delta", deltaClass)}>↓</span>
+          )}
+        </span>
+      </div>
+    </Tooltip>
   );
 }

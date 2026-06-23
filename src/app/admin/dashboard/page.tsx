@@ -49,7 +49,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         actions={
           <div className="dashboard-header-status">
             <div className="dashboard-status-pill">
-              <span className="dashboard-status-dot" />
+              <span className="dashboard-status-dot dashboard-status-dot--live" />
               <span className="dashboard-status-label">Live</span>
             </div>
             <div className="dashboard-header-meta">
