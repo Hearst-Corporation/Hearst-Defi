@@ -24,11 +24,11 @@ import {
   isAdminWriteToolAllowed,
 } from "@/lib/llm/tools/policy";
 import { runSourcing, draftEmailForProspect } from "@/app/admin/outreach/actions";
+import { createDraftVault } from "@/app/admin/vaults/actions";
 import {
-  createDraftVault,
   CreateDraftSchema,
   type CreateDraftInput,
-} from "@/app/admin/vaults/actions";
+} from "@/app/admin/vaults/schema";
 import { outreachAutoSendHandler } from "@/lib/inngest/functions/outreach-auto-send";
 import { TIER_LABEL, type Tier } from "@/lib/outreach/tier";
 import { logger } from "@/lib/logger";

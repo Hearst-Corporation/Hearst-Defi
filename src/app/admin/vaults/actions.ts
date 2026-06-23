@@ -10,135 +10,27 @@ import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { assertRateLimit } from "@/lib/rate-limit";
 import {
-  containsForbidden,
-  FORBIDDEN_WORDS,
-} from "@/lib/agents/forbidden-words";
-import {
   deploymentToBlueprint,
   evaluateDeploymentLiveGate,
 } from "@/lib/vaults/blueprint";
+// Schema + enums live in a NON-"use server" module so they can be exported and
+// reused (e.g. the agent-canvas create_vault_draft tool). A "use server" file
+// may only export async functions, so re-declaring them here would throw.
+import {
+  CreateDraftSchema,
+  type CreateDraftInput,
+} from "@/app/admin/vaults/schema";
 
 /** Admin vault actions rate limit: 30 requests / 60s / admin. */
 const VAULT_RATE_MAX = 30;
 const VAULT_RATE_WINDOW_MS = 60_000;
 
-// ---------------------------------------------------------------------------
-// Forbidden words in disclaimers (CLAUDE.md non-négociable #5)
-//
-// All matching delegates to the canonical module `@/lib/agents/forbidden-words`
-// so the wizard inline check, the agent output validator, the notification
-// template loader, and these server-side refines all stay in lock-step.
-// See `docs/audit/coherence-2026-05-26/06-forbidden-words.md` (P0₃, P1₃, P2₂).
-// ---------------------------------------------------------------------------
-
-const FORBIDDEN_WORDS_HUMAN = FORBIDDEN_WORDS.join(" / ");
-
-function containsForbiddenWord(text: string): string | null {
-  const result = containsForbidden(text);
-  return result ? result.found[0] ?? null : null;
-}
-
-// ---------------------------------------------------------------------------
-// Enums
-// ---------------------------------------------------------------------------
-
-const StrategyEnum = z.enum(["mining_yield", "btc_tactical", "stable_reserve"]);
-const SpvEnum = z.enum(["cayman", "bvi", "delaware", "lux"]);
-const RegExemptionEnum = z.enum(["regD_506c", "regS", "art2_lux"]);
-
-// ---------------------------------------------------------------------------
-// Shared schema
-// ---------------------------------------------------------------------------
-
-export const CreateDraftSchema = z.object({
-  ticker: z
-    .string()
-    .regex(/^[A-Z0-9-]{3,12}$/, "Ticker must be 3-12 uppercase letters/digits/hyphens"),
-  name: z.string().min(3).max(80),
-  description: z.string().optional(),
-  strategy: StrategyEnum,
-  colorTag: z.string().optional(),
-  minTicketUsdc: z.number().min(1000),
-  capacityUsdc: z.number().min(1000),
-  mgmtFeeBps: z.number().min(0).max(500),
-  perfFeeBps: z.number().min(0).max(3000),
-  hurdleBps: z.number().min(0).max(2000).default(0),
-  softLockupDays: z.number().min(0).max(365),
-  targetApyLowBps: z.number().min(0),
-  targetApyHighBps: z.number().min(0),
-  spvJurisdiction: SpvEnum,
-  shareClass: z
-    .string()
-    .regex(/^[A-Z]$/, "Share class must be a single uppercase letter"),
-  regExemption: RegExemptionEnum,
-  disclaimers: z
-    .string()
-    .min(80, "Disclaimers must be at least 80 characters")
-    .refine((v) => {
-      const hit = containsForbiddenWord(v);
-      return hit === null;
-    }, `Disclaimers contain a forbidden word (${FORBIDDEN_WORDS_HUMAN})`),
-  targetMiningBps: z.number().min(0).max(10000),
-  targetBtcTacticalBps: z.number().min(0).max(10000),
-  targetUsdcBaseBps: z.number().min(0).max(10000),
-  targetStableReserveBps: z.number().min(0).max(10000),
-  signersWhitelist: z
-    .array(z.string().min(1))
-    .min(2, "At least 2 signers required")
-    .max(5, "At most 5 signers allowed"),
-  requiredSigners: z
-    .number()
-    .int()
-    .min(2, "Required signers must be at least 2")
-    .max(5, "Required signers must be at most 5"),
-})
-  .refine(
-    (d) => d.targetApyHighBps > d.targetApyLowBps,
-    {
-      message: "targetApyHighBps must be strictly greater than targetApyLowBps",
-      path: ["targetApyHighBps"],
-    },
-  )
-  .refine(
-    (d) =>
-      d.targetMiningBps +
-        d.targetBtcTacticalBps +
-        d.targetUsdcBaseBps +
-        d.targetStableReserveBps ===
-      10_000,
-    {
-      message:
-        "Allocation bps must sum to exactly 10000 (targetMiningBps + targetBtcTacticalBps + targetUsdcBaseBps + targetStableReserveBps)",
-      path: ["targetMiningBps"],
-    },
-  )
-  .refine(
-    (d) => {
-      if (!d.description) return true;
-      return containsForbiddenWord(d.description) === null;
-    },
-    {
-      message: `Description contains a forbidden word (${FORBIDDEN_WORDS_HUMAN})`,
-      path: ["description"],
-    },
-  )
-  .refine(
-    (d) => d.requiredSigners <= d.signersWhitelist.length,
-    {
-      message:
-        "requiredSigners cannot exceed the number of signers in signersWhitelist",
-      path: ["requiredSigners"],
-    },
-  )
-  .refine(
-    (d) => containsForbiddenWord(d.name) === null,
-    {
-      message: `Name contains a forbidden word (${FORBIDDEN_WORDS_HUMAN})`,
-      path: ["name"],
-    },
-  );
-
-export type CreateDraftInput = z.infer<typeof CreateDraftSchema>;
+// Schema, enums, and the inferred input type now live in
+// `@/app/admin/vaults/schema` (a non-"use server" module). The block that used
+// to declare them here was REMOVED — keeping it would re-export a Zod object
+// from a "use server" file, which Next.js rejects at runtime. `CreateDraftInput`
+// is re-exported below as a TYPE (types are erased, so they're allowed).
+export type { CreateDraftInput } from "@/app/admin/vaults/schema";
 
 export type VaultActionResult =
   | { ok: true; id: string }
