@@ -14,12 +14,6 @@ interface MetricProps {
   provenance?: Provenance;
   tooltip?: string;
   className?: string;
-  /**
-   * Visual tier. Default "premium" keeps the existing look exactly (dot pattern,
-   * hover glow overlay, accent value glow). "plain" opts out of decorative
-   * premium chrome. "nested" — calm label/value inside a parent Card or
-   * card (use with MetricGrid from nested-panel.tsx).
-   */
   variant?: "premium" | "plain" | "nested";
 }
 

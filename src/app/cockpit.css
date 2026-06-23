@@ -78,10 +78,10 @@
   --ct-surface-3: #242428;
 
   /* Graphite module surfaces — solid black plates (no gradient, no glass).
-     L1 box = bg-deep; nested inset = surface-1 (grayer lift inside the box). */
-  --ct-graphite-active-bg: var(--ct-bg-deep);
-  --ct-graphite-subtle-bg: var(--ct-bg-deep);
-  --ct-graphite-nested-bg: var(--ct-surface-1);
+     L1 box = surface-1 (pour détacher du fond bg-deep); nested inset = surface-2. */
+  --ct-graphite-active-bg: var(--ct-surface-1);
+  --ct-graphite-subtle-bg: var(--ct-surface-1);
+  --ct-graphite-nested-bg: var(--ct-surface-2);
   --ct-graphite-border: var(--ct-figma-border-20);
   --ct-graphite-border-nested: var(--ct-figma-border-10);
   --ct-graphite-blur: none;

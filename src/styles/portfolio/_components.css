@@ -218,16 +218,18 @@
 }
 
 .pf-positions__row--head {
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-base) 60%, transparent);
-  background: color-mix(in srgb, var(--ct-surface-2) 40%, transparent);
+  border-bottom: 1px solid var(--ct-border-strong);
+  background: transparent;
   padding-top: var(--ct-space-3);
   padding-bottom: var(--ct-space-3);
-  border-top-left-radius: var(--ct-radius-xl);
-  border-top-right-radius: var(--ct-radius-xl);
+  font-size: var(--ct-text-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-muted);
 }
 
 .pf-positions__row--body {
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-base) 30%, transparent);
+  border-bottom: 1px solid var(--ct-border-soft);
   font-size: var(--ct-text-sm);
   background: transparent;
 }
@@ -456,7 +458,9 @@
 }
 
 .cy-arc-mining {
-  stroke-width: 4.8;
+  stroke-width: 6;
+  stroke-linecap: round;
+  filter: drop-shadow(0 2px 8px color-mix(in srgb, var(--ct-accent) 35%, transparent));
 }
 
 /* Donut arc highlight/dimmed states (hover interaction from ledger) */
@@ -469,10 +473,7 @@
 }
 
 .cy-donut-halo {
-  display: block;
-  stroke: var(--ct-accent);
-  opacity: var(--ct-opacity-15);
-  filter: blur(4px);
+  display: none;
 }
 
 .donut-center {
@@ -495,9 +496,10 @@
   font-size: var(--ct-text-2xl);
   font-weight: var(--ct-font-extrabold);
   line-height: var(--ct-leading-none);
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
+  letter-spacing: var(--ct-tracking-tighter);
 }
 
 .donut-lbl {

@@ -19,7 +19,7 @@
   font-weight: var(--ct-font-extrabold);
   line-height: var(--ct-leading-none);
   letter-spacing: var(--ct-tracking-tighter);
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);
 }
 
 .pf-value-chart__chart-wrapper {
@@ -31,14 +31,10 @@
   overflow: hidden;
   border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
   background: radial-gradient(
-    circle at 50% 0%,
-    color-mix(in srgb, var(--ct-accent) 5%, transparent),
-    transparent 70%
-  ), linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-surface-2) 40%, transparent),
-    color-mix(in srgb, var(--ct-surface-1) 60%, transparent)
-  );
+    ellipse 80% 50% at 50% 0%,
+    color-mix(in srgb, var(--ct-accent) 8%, transparent),
+    transparent
+  ), var(--ct-surface-0);
 }
 
 .pf-value-chart__chart-wrapper::before {
@@ -101,13 +97,16 @@
 }
 
 .pf-vc-grid {
-  stroke: var(--ct-border-base);
-  stroke-width: 0.5;
-  opacity: var(--ct-opacity-65);
+  stroke: var(--ct-border-soft);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+  opacity: var(--ct-opacity-40);
 }
 
 .pf-vc-line {
-  stroke: color-mix(in srgb, var(--ct-accent) 68%, var(--ct-text-strong));
+  stroke: var(--ct-accent);
+  stroke-width: 2;
+  filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--ct-accent) 40%, transparent));
 }
 
 .pf-vc-dots {
