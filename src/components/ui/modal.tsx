@@ -105,7 +105,7 @@ function ModalBody({
         aria-hidden="true"
         tabIndex={-1}
         onClick={close}
-        className="absolute inset-0 cursor-default bg-[var(--ct-bg-deep)]/70 backdrop-blur-sm"
+        className="absolute inset-0 cursor-default bg-[var(--ct-bg-deep)]/70"
       />
 
       {/* Panel */}

@@ -11,7 +11,7 @@ const buttonVariants = cva(
         primary:
           "font-bold ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover ct-glow-accent",
         secondary:
-          "ct-surface-0 backdrop-blur-xl border ct-bc-soft ct-text-primary hover:ct-surface-2 ct-bc-strong-hover hover:ct-text-strong",
+          "ct-surface-0 border ct-bc-soft ct-text-primary hover:ct-surface-2 ct-bc-strong-hover hover:ct-text-strong",
         ghost:
           "ct-text-muted hover:ct-surface-1 hover:ct-text-strong",
         danger:

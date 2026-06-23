@@ -15,8 +15,7 @@
 }
 
 .pf-status-panel--glass {
-  backdrop-filter: blur(var(--ct-blur-md));
-  background: color-mix(in srgb, var(--ct-surface-1) 85%, transparent) !important;
+  background: transparent !important;
 }
 
 .pf-status-panel .pf-cockpit-panel__header {

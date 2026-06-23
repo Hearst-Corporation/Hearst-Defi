@@ -8,17 +8,17 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "ct-bc-base ct-surface-1 ct-text-muted backdrop-blur-md ct-shadow-soft",
+          "ct-bc-base ct-surface-1 ct-text-muted ct-shadow-soft",
         success:
-          "ct-bc-success ct-status-success-bg ct-status-success backdrop-blur-md ct-shadow-soft",
+          "ct-bc-success ct-status-success-bg ct-status-success ct-shadow-soft",
         warning:
-          "ct-bc-warning ct-status-warning-bg ct-status-warning backdrop-blur-md ct-shadow-soft",
+          "ct-bc-warning ct-status-warning-bg ct-status-warning ct-shadow-soft",
         danger:
-          "ct-bc-danger ct-status-danger-bg ct-status-danger backdrop-blur-md ct-shadow-soft",
+          "ct-bc-danger ct-status-danger-bg ct-status-danger ct-shadow-soft",
         accent:
-          "ct-bc-strong ct-surface-2 ct-text-strong backdrop-blur-md ct-shadow-soft",
+          "ct-bc-strong ct-surface-2 ct-text-strong ct-shadow-soft",
         brand:
-          "ct-bc-strong ct-surface-2 ct-text-strong backdrop-blur-md ct-shadow-soft",
+          "ct-bc-strong ct-surface-2 ct-text-strong ct-shadow-soft",
         flat:
           "border-transparent bg-transparent shadow-none backdrop-blur-none font-medium normal-case tracking-normal px-0 py-0 gap-(--ct-space-1)",
       },

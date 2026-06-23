@@ -44,7 +44,7 @@ export function Tooltip({
             transition={{ duration: 0.15, ease: "easeOut" }}
             className={cn(
               "absolute z-50 px-[var(--ct-space-3)] py-[var(--ct-space-1_5)] body-xs ct-text-strong",
-              "bg-[var(--ct-surface-3)] border border-[var(--ct-border-soft)] rounded-md shadow-[var(--ct-shadow-soft)] backdrop-blur-md",
+              "bg-[var(--ct-surface-3)] border border-[var(--ct-border-soft)] rounded-md shadow-[var(--ct-shadow-soft)]",
               "whitespace-nowrap pointer-events-none",
               sideStyles[side],
               className

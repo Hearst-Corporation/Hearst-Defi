@@ -700,13 +700,67 @@
   gap: var(--ct-space-3);
 }
 
+/* Compact slider stack — tight rows, label+value on one line, no min/max row. */
+.scenario-inputs-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3_5);
+}
+
+.scenario-input-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1_5);
+}
+
+/* The single black box that holds everything (tabs, presets, inputs, result).
+   Full width, flat (no glass) — it is the page's only surface. */
+.scenario-lab-box {
+  width: 100%;
+}
+
+/* Tabs row inside the box — hairline under it separates tabs from content. */
+.scenario-lab-box .scenario-lab-toolbar {
+  padding-bottom: var(--ct-space-4);
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+/* Config: presets | inputs, both FLAT (no own surface). Hairline between them. */
+.scenario-lab-config {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: var(--ct-space-6);
+  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container admin-doc (min-width: 44rem) {
+  .scenario-lab-config {
+    grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+  }
+
+  /* Vertical hairline between presets and inputs (flat — no cards). */
+  .scenario-lab-config__inputs {
+    padding-left: var(--ct-space-6);
+    border-left: 1px solid var(--ct-border-soft);
+  }
+}
+
+/* Result modules are flat too — separate them with a top hairline instead of
+   card surfaces (the box is the only surface). First one has no rule. */
+.scenario-lab-result > * + *,
+.scenario-lab-result .ct-card.ct-glass-panel--flat + .ct-card.ct-glass-panel--flat {
+  border-top: 1px solid var(--ct-border-soft);
+  padding-top: var(--ct-space-6);
+}
+
+/* Presets as a LEFT COLUMN (was a full-width bottom-bordered band). */
 .scenario-preset-bar {
   display: flex;
   min-width: 0;
   flex-direction: column;
   gap: var(--ct-space-3);
-  padding: 0 0 var(--ct-space-4);
-  border-bottom: 1px solid var(--ct-border-soft);
 }
 
 .scenario-preset-bar__head {
@@ -718,29 +772,26 @@
   gap: var(--ct-space-2) var(--ct-space-4);
 }
 
-/* Narrow: horizontal scroll. Wide: five equal columns inside lab-shell. */
+/* Vertical preset list — stacked rows at the top of the single flow. */
 .scenario-preset-bar__items {
   display: flex;
   min-width: 0;
-  gap: var(--ct-space-3);
-  overflow-x: auto;
-  padding-bottom: var(--ct-space-1);
-  scrollbar-width: none; /* scrollbar masquée — scroll-x préservé */
-  -webkit-overflow-scrolling: touch;
+  flex-direction: column;
+  gap: var(--ct-space-1);
 }
-.scenario-preset-bar__items::-webkit-scrollbar { width: 0; height: 0; }
 
 .scenario-preset-bar__button {
-  display: inline-flex;
-  flex: 0 0 auto;
+  display: flex;
+  width: 100%;
   appearance: none;
   -webkit-appearance: none;
-  min-width: 9rem;
   height: auto;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--ct-space-1);
-  padding-block: var(--ct-space-2) var(--ct-space-3);
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ct-space-2) var(--ct-space-4);
+  flex-wrap: wrap;
+  padding-block: var(--ct-space-2_5);
   padding-inline: var(--ct-space-3);
   text-align: left;
   border-radius: var(--ct-radius-md);
@@ -786,37 +837,21 @@
 }
 
 .scenario-preset-bar__label {
+  flex: 0 0 auto;
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
 }
 
 .scenario-preset-bar__description {
-  display: -webkit-box;
-  max-width: none;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  min-width: 0;
+  flex: 1 1 auto;
+  text-align: right;
   white-space: normal;
-  text-overflow: unset;
-  color: var(--ct-text-body);
+  color: var(--ct-text-muted);
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-medium);
   line-height: var(--ct-leading-tight);
-}
-
-@container admin-doc (min-width: 40rem) {
-  .scenario-preset-bar .scenario-preset-bar__items {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    overflow-x: visible;
-    padding-bottom: 0;
-  }
-
-  .scenario-preset-bar .scenario-preset-bar__button {
-    width: 100%;
-    min-width: 0;
-  }
 }
 
 /* Backtest tab — three equal period cards (same button primitive as presets). */
@@ -3810,8 +3845,6 @@ button.ct-choice-card {
   background: var(--ct-surface-2) !important;
   border: 1px solid var(--ct-border) !important;
   color: var(--ct-text-primary) !important;
-  backdrop-filter: var(--ct-blur-glow-sm) saturate(100%) !important;
-  -webkit-backdrop-filter: var(--ct-blur-glow-sm) saturate(100%) !important;
 }
 
 [data-sonner-toaster] [data-sonner-toast] [data-description] {
@@ -4999,10 +5032,8 @@ main#main-content>.admin-doc.admin-doc-shell {
 /* Formulaire de chat - on enlève la lourdeur du package */
 .ct-chat-form {
   padding: var(--ct-space-2) var(--ct-space-2) var(--ct-space-2) var(--ct-space-3);
-  background: color-mix(in srgb, var(--ct-surface-1) 50%, transparent) !important;
+  background: var(--ct-surface-1) !important;
   border: 1px solid var(--ct-border-soft) !important;
-  backdrop-filter: var(--ct-blur-md);
-  -webkit-backdrop-filter: var(--ct-blur-md);
 }
 .ct-chat-form:focus-within {
   border-color: var(--ct-border-accent) !important;
@@ -5166,8 +5197,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   padding: var(--ct-space-2) var(--ct-space-4);
   border-radius: var(--ct-radius-full);
   border: 1px solid var(--ct-border-soft);
-  background: color-mix(in srgb, var(--ct-surface-1) 80%, transparent);
-  backdrop-filter: blur(var(--ct-space-2));
+  background: var(--ct-surface-1);
 }
 
 .login-split__apy-dot {
@@ -6043,8 +6073,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: var(--ct-blur-md);
-  -webkit-backdrop-filter: var(--ct-blur-md);
   z-index: calc(var(--ct-z-modal-overlay) - 1);
 }
 

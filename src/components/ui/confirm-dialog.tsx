@@ -147,7 +147,7 @@ function ConfirmDialogBody({
         tabIndex={-1}
         onClick={close}
         disabled={isPending}
-        className="absolute inset-0 cursor-default bg-[var(--ct-bg-deep)]/70 backdrop-blur-sm disabled:cursor-not-allowed"
+        className="absolute inset-0 cursor-default bg-[var(--ct-bg-deep)]/70 disabled:cursor-not-allowed"
       />
 
       {/* Panel */}

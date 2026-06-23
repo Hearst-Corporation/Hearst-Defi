@@ -108,7 +108,7 @@ export function Metric({
           {trend ? (
             <span
               className={cn(
-                "font-medium shrink-0 px-(--ct-space-1_5) py-(--ct-space-0_5) rounded-sm backdrop-blur-md border",
+                "font-medium shrink-0 px-(--ct-space-1_5) py-(--ct-space-0_5) rounded-sm border",
                 trend.direction === "up" && "ct-status-success-bg ct-status-success ct-bc-success",
                 trend.direction === "down" && "ct-status-danger-bg ct-status-danger ct-bc-danger",
                 trend.direction === "flat" && "ct-surface-1 ct-text-muted ct-bc-base",

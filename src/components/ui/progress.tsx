@@ -33,7 +33,7 @@ export function Progress({
     <div
       className={cn(
         "h-1.5 w-full overflow-hidden rounded-full ct-surface-2",
-        !isPlain && "shadow-[var(--ct-shadow-inset)] backdrop-blur-sm",
+        !isPlain && "shadow-[var(--ct-shadow-inset)]",
         className,
       )}
       role="progressbar"
