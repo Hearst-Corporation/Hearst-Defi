@@ -42,8 +42,7 @@ export default async function PortfolioPage() {
     proofPulseProps,
   } = await loadPortfolioView();
 
-  const deployedUsdc = data.positions.reduce((s, p) => s + p.principalUsdc, 0);
-  const accruedYieldUsdc = data.positions.reduce((s, p) => s + p.accruedYieldUsdc, 0);
+  // Totals pre-computed in loadPortfolio() — no client-side reduce().
 
   return (
     <div
@@ -74,9 +73,9 @@ export default async function PortfolioPage() {
             <PortfolioStatusPanel
               hasPositions={hasPositions}
               positionsCount={data.positions.length}
-              deployedUsdc={deployedUsdc}
+              deployedUsdc={data.deployedUsdc}
               totalValueUsdc={data.totalValueUsdc}
-              accruedYieldUsdc={accruedYieldUsdc}
+              accruedYieldUsdc={data.accruedYieldUsdc}
               source={data.source}
               proof={{
                 statedTvlUsdc: proofPulseProps.lastPor.statedTvlUsdc,

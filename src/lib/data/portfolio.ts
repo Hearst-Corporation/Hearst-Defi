@@ -107,6 +107,10 @@ export interface PortfolioTransaction {
 export interface PortfolioData {
   positions: PortfolioPosition[];
   totalValueUsdc: number;
+  /** Total principal deployed (sum of position.principalUsdc). */
+  deployedUsdc: number;
+  /** Total accrued yield across all positions. */
+  accruedYieldUsdc: number;
   totalYieldYtdUsdc: number;
   nextDistributionAt: Date;
   recentTransactions: PortfolioTransaction[];
@@ -259,6 +263,8 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
     return {
       positions: [],
       totalValueUsdc: 0,
+      deployedUsdc: 0,
+      accruedYieldUsdc: 0,
       totalYieldYtdUsdc: 0,
       nextDistributionAt: nextEndOfMonth(),
       recentTransactions: [],
@@ -371,9 +377,14 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
     })),
   );
 
+  const deployedUsdc = positions.reduce((sum, p) => sum + p.principalUsdc, 0);
+  const accruedYieldUsdc = positions.reduce((sum, p) => sum + p.accruedYieldUsdc, 0);
+
   return {
     positions,
     totalValueUsdc,
+    deployedUsdc,
+    accruedYieldUsdc,
     totalYieldYtdUsdc,
     nextDistributionAt: nextEndOfMonth(),
     recentTransactions,

@@ -47,6 +47,8 @@ const MOCK_PORTFOLIO_DATA = {
     },
   ],
   totalValueUsdc: 542_000,
+  deployedUsdc: 500_000,
+  accruedYieldUsdc: 42_000,
   totalYieldYtdUsdc: 60_000,
   nextDistributionAt: new Date("2026-05-31T23:59:59Z"),
   recentTransactions: [
