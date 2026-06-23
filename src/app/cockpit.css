@@ -460,6 +460,18 @@
   gap: var(--ct-space-2);
 }
 
+/* Error pages render OUTSIDE .product-doc/.admin-doc, so the base .h1
+   (3xl fluid, extrabold) would apply instead of the page canon. Pin the
+   error H1 to the SAME canon as doc-flow/auth/legal (24px fixed, semibold)
+   so error surfaces match every other page. Tokens only, scoped to .error-shell. */
+.error-shell .h1 {
+  font-size: var(--ct-text-3xl-fixed);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-tight);
+  line-height: var(--ct-leading-tight);
+  color: var(--ct-text-strong);
+}
+
 .error-shell__actions {
   display: flex;
   flex-wrap: wrap;
