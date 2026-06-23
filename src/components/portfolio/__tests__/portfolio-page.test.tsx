@@ -67,34 +67,47 @@ const MOCK_PORTFOLIO_DATA = {
 // ── 1. Hub cockpit bento (/portfolio dashboard) ──────────────────────────────
 
 describe("Portfolio hub — cockpit bento contract", () => {
+  /* NEW LAYOUT (v2):
+   * Row 1 (Hero):  chart | status          (50/50 fused)
+   * Row 2:         positions              (full-width)
+   * Row 3 (Deck): yield | [calendar + activity]  (60/40 split)
+   */
   const HUB_SECTIONS = [
+    "chart",
+    "status",
     "positions",
     "yield-allocation",
-    "payout-calendar",
-    "yield-trust",
+    "calendar-activity",
   ] as const;
 
   const HUB_WIDGETS = [
     "capital-yield-widget",
-    "trust-panel-widget",
     "distrib-calendar-widget",
-    "recent-activity-widget",
   ] as const;
 
-  it("defines 4 data-section markers on the hub", () => {
-    expect(HUB_SECTIONS).toHaveLength(4);
+  it("defines 5 data-section markers on the hub (v2 layout)", () => {
+    expect(HUB_SECTIONS).toHaveLength(5);
   });
 
-  it("defines 4 widget test-ids on the hub", () => {
-    expect(HUB_WIDGETS).toHaveLength(4);
+  it("defines 2 primary widget test-ids on the hub", () => {
+    expect(HUB_WIDGETS).toHaveLength(2);
   });
 
   it("hub sections are unique", () => {
-    expect(new Set(HUB_SECTIONS).size).toBe(4);
+    expect(new Set(HUB_SECTIONS).size).toBe(5);
   });
 
   it("hub widget test-ids are unique", () => {
-    expect(new Set(HUB_WIDGETS).size).toBe(4);
+    expect(new Set(HUB_WIDGETS).size).toBe(2);
+  });
+
+  it("hero row contains chart and status sections", () => {
+    expect(HUB_SECTIONS).toContain("chart");
+    expect(HUB_SECTIONS).toContain("status");
+  });
+
+  it("positions has its own full-width row", () => {
+    expect(HUB_SECTIONS).toContain("positions");
   });
 });
 
