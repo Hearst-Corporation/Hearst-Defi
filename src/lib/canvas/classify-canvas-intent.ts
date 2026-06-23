@@ -36,7 +36,8 @@ export interface ClassifyClient {
  * campagne outreach") never opened the canvas; the agent just answered in the
  * chat and ran the tools inline. This classifier closes that gap: it detects, in
  * any phrasing, whether an admin message wants to OPEN a canvas workshop, and
- * which one — mirroring `classifyProductIntentLlm`.
+ * which one — a small, fail-safe LLM classification (canvas only — NOT navigation,
+ * which is fully deterministic per ADR-018).
  *
  * Scope (V1): OUTREACH only. Product/vault creation is already handled by the
  * deterministic regex classifier classifyProductWorkspaceIntent (→ product workspace)
