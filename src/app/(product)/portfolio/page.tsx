@@ -40,10 +40,10 @@ export default async function PortfolioPage() {
     distribCalendarProps,
     riskPulseProps,
     proofPulseProps,
+    nextPayoutUsdc,
   } = await loadPortfolioView();
 
-  const deployedUsdc = data.positions.reduce((s, p) => s + p.principalUsdc, 0);
-  const accruedYieldUsdc = data.positions.reduce((s, p) => s + p.accruedYieldUsdc, 0);
+  const { deployedUsdc, accruedYieldUsdc } = data;
 
   return (
     <div
@@ -57,6 +57,7 @@ export default async function PortfolioPage() {
           totalValueUsdc: data.totalValueUsdc,
           totalYieldYtdUsdc: data.totalYieldYtdUsdc,
           nextDistributionAt: data.nextDistributionAt,
+          nextPayoutUsdc,
           blendedLow: yieldStackProps.blendedLow,
           blendedHigh: yieldStackProps.blendedHigh,
           hasPositions,

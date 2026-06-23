@@ -9,7 +9,6 @@ import {
   loadYieldStackProps,
   loadAllocationDonutProps,
   loadTimeToCashProps,
-  resolveProvenance,
 } from "@/lib/data/portfolio";
 import { withPositionApyFallback } from "@/lib/portfolio/blended-apy";
 
@@ -61,10 +60,6 @@ export async function loadPortfolioView() {
   // shows a real range. See @/lib/portfolio/blended-apy.
   const blendedYieldStackProps = withPositionApyFallback(yieldStackProps, data.positions);
 
-  const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
-
-  const now = new Date();
-
   return {
     investor,
     data,
@@ -74,9 +69,7 @@ export async function loadPortfolioView() {
     proofPulseProps,
     yieldStackProps: blendedYieldStackProps,
     allocationDonutProps,
-    portfolioProvenance,
     timeToCashProps,
     nextPayoutUsdc,
-    now,
   };
 }
