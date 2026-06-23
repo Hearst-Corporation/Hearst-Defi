@@ -73,9 +73,18 @@ export function PositionsList({
         <div className="pf-positions pf-positions--skeleton" aria-label="No positions yet">
           <div className="pf-positions__row pf-positions__row--head stat-label">
             <span>Vault</span>
-            <span className="pf-positions__num">Principal</span>
-            <span className="pf-positions__num">Value</span>
-            <span className="pf-positions__num">APY range</span>
+            <span className="pf-positions__num">
+              <span className="pf-position-badge__micro-label mr-2">PRIN</span>
+              Principal
+            </span>
+            <span className="pf-positions__num">
+              <span className="pf-position-badge__micro-label mr-2">VAL</span>
+              Value
+            </span>
+            <span className="pf-positions__num">
+              <span className="pf-position-badge__micro-label mr-2">APY</span>
+              Range
+            </span>
             <span className="pf-positions__num">Since</span>
           </div>
           {[0, 1, 2, 3].map((i) => (
@@ -110,9 +119,18 @@ export function PositionsList({
       <div className="pf-positions">
         <div className="pf-positions__row pf-positions__row--head stat-label">
           <span>Vault</span>
-          <span className="pf-positions__num">Principal</span>
-          <span className="pf-positions__num">Value</span>
-          <span className="pf-positions__num">APY range</span>
+          <span className="pf-positions__num">
+            <span className="pf-position-badge__micro-label mr-2">PRIN</span>
+            Principal
+          </span>
+          <span className="pf-positions__num">
+            <span className="pf-position-badge__micro-label mr-2">VAL</span>
+            Value
+          </span>
+          <span className="pf-positions__num">
+            <span className="pf-position-badge__micro-label mr-2">APY</span>
+            Range
+          </span>
           <span className="pf-positions__num">Since</span>
         </div>
 
@@ -125,30 +143,30 @@ export function PositionsList({
               />
               <Link
                 href={`/portfolio/${p.id}`}
-                className="body-md ct-text-primary min-w-0 truncate underline-offset-4 hover:underline"
+                className="body-sm ct-text-strong min-w-0 truncate underline-offset-4 hover:underline font-medium"
                 aria-label={`Open details for ${p.vaultName ?? "unassigned vault"}`}
               >
                 {p.vaultName ?? "Unassigned vault"}
               </Link>
             </span>
 
-            <span className="pf-positions__num tabular body-md ct-text-body">
+            <span className="pf-positions__num tabular body-sm ct-text-body">
               {formatUsdCompact(p.principalUsdc)}
             </span>
 
-            <span className="pf-positions__num tabular body-md ct-text-strong font-semibold">
+            <span className="pf-positions__num tabular body-sm ct-text-strong font-bold text-[var(--ct-accent)]">
               {formatUsdCompact(p.valueUsdc)}
             </span>
 
             <span className="pf-positions__num">
               {p.apyLow !== null && p.apyHigh !== null ? (
-                <ApyRange low={p.apyLow} high={p.apyHigh} precision={1} className="body-sm font-semibold" />
+                <ApyRange low={p.apyLow} high={p.apyHigh} precision={1} className="body-xs font-semibold ct-text-secondary" />
               ) : (
                 <span className="body-xs ct-text-tertiary">Unavailable</span>
               )}
             </span>
 
-            <span className="pf-positions__num body-xs tabular ct-text-muted">
+            <span className="pf-positions__num body-xs tabular ct-text-tertiary opacity-70">
               {dateFmt.format(p.subscribedAt)}
             </span>
           </div>

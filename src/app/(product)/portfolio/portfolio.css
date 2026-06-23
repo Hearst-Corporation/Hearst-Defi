@@ -1003,11 +1003,12 @@
 }
 
 .pf-positions__row--head {
-  font-size: var(--ct-text-micro);
+  font-size: var(--ct-text-nano);
   font-weight: var(--ct-font-bold);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-secondary);
+  color: var(--ct-text-tertiary);
+  opacity: 0.8;
   border-bottom: 1px solid var(--ct-graphite-border-nested);
   background: var(--ct-graphite-nested-bg);
   padding-top: var(--ct-space-3);
@@ -1020,15 +1021,20 @@
   border-bottom: 1px solid var(--ct-border-soft);
   font-size: var(--ct-text-sm);
   background: transparent;
+  color: var(--ct-text-strong);
 }
 
-/* Canonical hover-nudge distance (matches the leaf-link arrow) — was raw 3px. */
-.pf-positions__row--body:hover,
-.pf-activity__row:hover {
-  background: color-mix(in srgb, var(--ct-accent) 6%, transparent);
-  transform: translateX(var(--ct-space-0_5));
-  box-shadow: inset 2px 0 0 var(--ct-accent);
-  filter: brightness(1.1);
+/* Canonical hover-nudge distance — Premium Ledger style: subtle lift, no glow. */
+.pf-positions__row--body:hover {
+  background: color-mix(in srgb, var(--ct-accent) 3%, var(--ct-graphite-subtle-bg));
+  border-color: color-mix(in srgb, var(--ct-accent) 20%, var(--ct-graphite-border-nested));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px color-mix(in srgb, var(--ct-surface-0) 40%, transparent);
+  z-index: 1;
+}
+
+.pf-positions__row--body:hover .pf-status-dot--active {
+  box-shadow: 0 0 8px color-mix(in srgb, var(--ct-accent) 30%, transparent);
 }
 
 .pf-positions__row--body:last-child {
