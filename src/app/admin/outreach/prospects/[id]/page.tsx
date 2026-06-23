@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { loadProspectDetail } from "@/lib/data/outreach";
+import { lifecycleFor, type LifecycleKind } from "@/lib/outreach/lifecycle";
+import { getMailboxReadiness } from "@/lib/outreach/mailbox-readiness";
 import { formatAdminDate } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
@@ -49,6 +51,17 @@ const EMAIL_STATUS_VARIANT: Record<
   verified: "success",
   guessed: "warning",
   unavailable: "danger",
+};
+
+/** Lifecycle outcome family → Badge variant. */
+const LIFECYCLE_KIND_VARIANT: Record<
+  LifecycleKind,
+  "default" | "success" | "warning" | "accent"
+> = {
+  pending: "default",
+  active: "accent",
+  won: "success",
+  lost: "warning",
 };
 
 /** Reply intent → Badge variant. */
@@ -116,6 +129,10 @@ export default async function ProspectDetailPage({
   const displayName = fullName || p.email;
   const isApolloSourced = p.source === "apollo" || p.apolloId != null;
   const extraRows = extraApolloRows(p.apolloData);
+  const stage = lifecycleFor(p.status);
+  // Global sending posture — honest "draft-only / via Resend / not connected".
+  // No mailbox provider exists yet; this never implies a send happened.
+  const mailbox = getMailboxReadiness();
 
   return (
     <>
@@ -281,6 +298,13 @@ export default async function ProspectDetailPage({
         <h2 className="h2">Qualification</h2>
         <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
           <dl className="admin-doc-form-grid-2 body-sm">
+            <div className="md:col-span-2">
+              <dt className="ct-form-label">Lifecycle stage</dt>
+              <dd className="admin-doc-inline-row">
+                <Badge variant={LIFECYCLE_KIND_VARIANT[stage.kind]}>{stage.label}</Badge>
+                <span className="body-xs ct-text-muted">{stage.description}</span>
+              </dd>
+            </div>
             <div>
               <dt className="ct-form-label">Tier</dt>
               <dd>
@@ -312,6 +336,9 @@ export default async function ProspectDetailPage({
       {/* Engagement — emails */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Emails">
         <h2 className="h2">Emails ({p.emails.length})</h2>
+        {/* Honest sending posture — no mailbox is connected today; this never
+            implies anything was sent. Drafts are always safe. */}
+        <p className="body-xs ct-text-muted">Sending: {mailbox.statusLabel}</p>
         {p.emails.length === 0 ? (
           <EmptySurface
             variant="widget"
@@ -359,7 +386,12 @@ export default async function ProspectDetailPage({
                       <td className="hidden ct-table-cell truncate ct-text-muted md:table-cell">
                         {e.campaignName ?? "—"}
                       </td>
-                      <td className="ct-table-cell ct-text-body">{e.status}</td>
+                      <td className="ct-table-cell ct-text-body">
+                        {e.status}
+                        {e.draftedByAgent ? (
+                          <span className="body-xs ct-text-muted"> · agent</span>
+                        ) : null}
+                      </td>
                       <td className="hidden ct-table-cell ct-text-muted lg:table-cell">
                         {e.latestEventType ?? "—"}
                       </td>
@@ -400,6 +432,11 @@ export default async function ProspectDetailPage({
                     )}
                     {r.actionTaken ? (
                       <span className="body-xs ct-text-muted">→ {r.actionTaken}</span>
+                    ) : null}
+                    {r.confidence != null ? (
+                      <span className="body-xs ct-text-muted">
+                        {r.confidence}% confidence
+                      </span>
                     ) : null}
                     <span className="body-xs ct-text-muted">
                       {formatAdminDate(r.createdAt)}

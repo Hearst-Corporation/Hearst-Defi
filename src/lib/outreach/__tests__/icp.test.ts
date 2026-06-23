@@ -282,6 +282,47 @@ describe("runSourcingForIcp — real pipeline via injected deps", () => {
     expect(result.candidates[0]!.qualScore).toBe(90);
   });
 
+  it("captures the Apollo enrichment snapshot onto the candidate", async () => {
+    // Enriched person built inline so linkedinUrl is populated (makePerson
+    // hardcodes it to null). The pipeline must lift these onto the candidate.
+    const enriched = {
+      id: "id_rich",
+      firstName: "Dana",
+      lastName: "Lee",
+      name: "Dana Lee",
+      title: "Managing Partner",
+      email: "dana@acme.example",
+      emailStatus: "verified",
+      linkedinUrl: "https://linkedin.com/in/danalee",
+      organizationName: "Acme Capital",
+      organizationDomain: "acme.example",
+      organizationIndustry: "financial services",
+    };
+
+    const deps: SourcingDeps = {
+      search: vi.fn().mockResolvedValue({ people: [enriched] }),
+      enrich: vi.fn().mockResolvedValue(enriched),
+      score: vi.fn().mockResolvedValue({ score: 70, reasons: ["fit"] }),
+    };
+
+    const result = await runSourcingForIcp(
+      "ria-us",
+      BASE_FILTERS,
+      DEFAULT_TIER_THRESHOLDS,
+      5,
+      deps,
+    );
+
+    const c = result.candidates[0]!;
+    expect(c.linkedinUrl).toBe("https://linkedin.com/in/danalee");
+    expect(c.companyDomain).toBe("acme.example");
+    expect(c.industry).toBe("financial services");
+    expect(c.emailStatus).toBe("verified");
+    // Raw enrichment is preserved as JSON for the "everything else" panel.
+    expect(c.apolloData).toContain("acme.example");
+    expect(JSON.parse(c.apolloData!).organizationName).toBe("Acme Capital");
+  });
+
   it("drops non-verified email candidates", async () => {
     const verified = makePerson("v1", { emailStatus: "verified" });
     const unverified = makePerson("u1", { emailStatus: "unverified" });
