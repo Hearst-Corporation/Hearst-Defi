@@ -9,6 +9,7 @@ import { EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { ProofCenterRebalanceRow } from "@/lib/data/proof-center";
 import { abbreviateAddress } from "@/lib/onchain";
 import { explorerLinkClass } from "@/lib/ui/surface-classes";
+import { cn } from "@/lib/cn";
 
 import { ProofCenterCardHeader } from "./proof-center-card-header";
 import type { ProofCenterSectionLedProps } from "./proof-center-types";
@@ -71,7 +72,7 @@ export function RebalancingEventsPanel({
 }: RebalancingEventsPanelProps) {
   if (events.length === 0) {
     return (
-      <Card hoverOverlay={false}>
+      <Card material="flat" hoverOverlay={false}>
         <ProofCenterCardHeader
           sectionLed={sectionLed}
           eyebrow="Rebalancing events"
@@ -88,13 +89,13 @@ export function RebalancingEventsPanel({
   );
 
   return (
-    <Card>
+    <Card material="flat">
       <ProofCenterCardHeader
         sectionLed={sectionLed}
-        eyebrow="Rebalancing events"
-        title={`Last ${events.length} rule-triggered events (PTAI)`}
+        eyebrow={sectionLed ? "Rebalancing events" : "Vault operations"}
+        title={sectionLed ? `Last ${events.length} rule-triggered events (PTAI)` : "Rule-triggered events"}
         provenance={panelProvenance}
-        tone="primary"
+        tone={sectionLed ? "primary" : "quiet"}
       />
 
       <ul className="divide-y divide-(--ct-border-soft)" aria-label="Recent rebalancing events">
@@ -139,13 +140,20 @@ export function RebalancingEventsPanel({
                       href={`${EXPLORER_TX_BASE}${event.txHash}`}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className={explorerLinkClass}
+                      className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
                       title={event.txHash}
+                      aria-label={`View transaction ${event.txHash} on explorer`}
                     >
-                      {abbreviateAddress(event.txHash)}
+                      <span className="ct-proof-row__truncate">
+                        {abbreviateAddress(event.txHash)}
+                      </span>
                     </a>
                   </ProofRow>
-                ) : null}
+                ) : (
+                  <ProofRow label="Tx hash">
+                    <span className="ct-text-muted">Pending execution</span>
+                  </ProofRow>
+                )}
               </div>
 
               <div className="proof-row-action">

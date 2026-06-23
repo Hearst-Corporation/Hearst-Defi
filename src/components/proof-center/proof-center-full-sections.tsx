@@ -84,7 +84,7 @@ export function ProofCenterFullSections({
             ))}
           </div>
         ) : (
-          <Card hoverOverlay={false}>
+          <Card material="flat" hoverOverlay={false}>
             <ProofCenterCardHeader
               sectionLed
               eyebrow="Governance queue"

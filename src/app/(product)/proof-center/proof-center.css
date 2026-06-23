@@ -183,3 +183,23 @@
 .proof-skeleton-title {
   margin-bottom: var(--ct-space-3);
 }
+
+/* =============================================================================
+   7. DATA ROOM — icon boxes and item layout
+   ============================================================================= */
+
+.proof-dataroom-item {
+  position: relative;
+}
+
+.proof-dataroom-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ct-space-8);
+  height: var(--ct-space-8);
+  border-radius: var(--ct-radius-md);
+  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-border-soft);
+  flex-shrink: 0;
+}

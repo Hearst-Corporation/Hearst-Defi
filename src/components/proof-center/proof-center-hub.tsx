@@ -1,5 +1,5 @@
 import { resolveAttestationProvenance } from "@/components/proof-center/formatters";
-import type { Provenance } from "@/components/ui/provenance-badge";
+import type { Provenance as ProvenanceKind } from "@/components/ui/provenance-badge";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { ReactNode } from "react";
 
@@ -50,7 +50,7 @@ function HubPanelHeader({
 }: {
   title: string;
   eyebrow?: string;
-  provenance?: Provenance;
+  provenance?: ProvenanceKind;
   trailing?: ReactNode;
 }) {
   return (

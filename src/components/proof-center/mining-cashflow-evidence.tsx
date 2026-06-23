@@ -33,11 +33,11 @@ export function MiningCashFlowEvidence({
   // No fake Live/Verified: badge is Manual (pending) / Stale (invalid), values "—".
   if (provenance === "pending" || provenance === "invalid") {
     return (
-      <Card aria-label="Mining cash-flow evidence — awaiting attestation">
+      <Card material="flat" aria-label="Mining cash-flow evidence — awaiting attestation">
         <ProofCenterCardHeader
           sectionLed={sectionLed}
-          eyebrow={HEADER.eyebrow}
-          title={HEADER.title}
+          eyebrow={sectionLed ? HEADER.eyebrow : "Awaiting attestation"}
+          title={sectionLed ? HEADER.title : "Mining Revenue"}
           provenance={BADGE[provenance]}
           tone="quiet"
         />
@@ -54,13 +54,13 @@ export function MiningCashFlowEvidence({
       : "Pending";
 
   return (
-    <Card>
+    <Card material="flat">
       <ProofCenterCardHeader
         sectionLed={sectionLed}
-        eyebrow={HEADER.eyebrow}
-        title={HEADER.title}
+        eyebrow={sectionLed ? HEADER.eyebrow : "Yield Evidence"}
+        title={sectionLed ? HEADER.title : "Mining Revenue"}
         provenance={BADGE[provenance]}
-        tone="primary"
+        tone={sectionLed ? "primary" : "quiet"}
       />
 
       <p className="body-sm proof-article-lede">{MINING_CASHFLOW_COPY[provenance]}</p>

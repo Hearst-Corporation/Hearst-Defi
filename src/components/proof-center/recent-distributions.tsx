@@ -10,6 +10,7 @@ import { formatUsdCompact } from "@/lib/format/usd-compact";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import { abbreviateAddress } from "@/lib/onchain";
 import { explorerLinkClass } from "@/lib/ui/surface-classes";
+import { cn } from "@/lib/cn";
 
 import { ProofCenterCardHeader } from "./proof-center-card-header";
 import type { ProofCenterSectionLedProps } from "./proof-center-types";
@@ -47,7 +48,7 @@ export function RecentDistributions({
 }: RecentDistributionsProps) {
   if (distributions.length === 0) {
     return (
-      <Card hoverOverlay={false}>
+      <Card material="flat" hoverOverlay={false}>
         <ProofCenterCardHeader
           sectionLed={sectionLed}
           eyebrow="Latest distributions"
@@ -64,13 +65,13 @@ export function RecentDistributions({
   );
 
   return (
-    <Card>
+    <Card material="flat">
       <ProofCenterCardHeader
         sectionLed={sectionLed}
-        eyebrow="Latest distributions"
-        title={`Last ${distributions.length} USDC distributions`}
+        eyebrow={sectionLed ? "Latest distributions" : "Payout history"}
+        title={sectionLed ? `Last ${distributions.length} USDC distributions` : "USDC Distributions"}
         provenance={panelProvenance}
-        tone="primary"
+        tone={sectionLed ? "primary" : "quiet"}
       />
 
       <ul className="divide-y divide-(--ct-border-soft)" aria-label="Recent distributions">
@@ -100,13 +101,16 @@ export function RecentDistributions({
                         href={`${EXPLORER_TX_BASE}${d.txHash}`}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className={explorerLinkClass}
+                        className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
                         title={d.txHash}
+                        aria-label={`View transaction ${d.txHash} on explorer`}
                       >
-                        {abbreviateAddress(d.txHash)}
+                        <span className="ct-proof-row__truncate">
+                          {abbreviateAddress(d.txHash)}
+                        </span>
                       </a>
                     ) : d.txHash ? (
-                      <span className="ct-text-muted body-xs">Simulated (testnet fixture)</span>
+                      <span className="ct-text-muted body-xs ct-proof-row__truncate">Simulated (testnet fixture)</span>
                     ) : (
                       <span className="ct-text-muted">Pending broadcast</span>
                     )}

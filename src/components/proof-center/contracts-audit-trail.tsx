@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProofRow } from "@/components/ui/nested-panel";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import { FileText, ShieldCheck, ExternalLink, Link as LinkIcon } from "lucide-react";
 import { getDeployment } from "@/lib/chain/deployments";
 import {
   EXPLORER_ADDRESS_BASE,
@@ -107,28 +108,41 @@ function PlatformAddressRow({
   separated: boolean;
 }) {
   return (
-    <article className={cn(separated && cn(sectionDividerClass, "proof-article-separated"))}>
-      <h4 className="h4 proof-article-title">{entry.label}</h4>
-      <p className="body-sm proof-article-lede">{entry.description}</p>
-      <ProofRow label={entry.rowLabel ?? "Address"}>
-        {entry.address ? (
-          entry.href ? (
-            <a
-              href={entry.href}
-              target="_blank"
-              rel="noreferrer noopener"
-              className={explorerLinkClass}
-              title={entry.address}
-            >
-              {abbreviateAddress(entry.address)}
-            </a>
-          ) : (
-            <span title={entry.address}>{abbreviateAddress(entry.address)}</span>
-          )
-        ) : (
-          <span className="ct-text-muted">Not configured</span>
-        )}
-      </ProofRow>
+    <article className={cn("proof-dataroom-item", separated && cn(sectionDividerClass, "proof-article-separated"))}>
+      <div className="flex items-start gap-(--ct-space-3)">
+        <div className="proof-dataroom-icon-box" aria-hidden="true">
+          <LinkIcon className="w-4 h-4 ct-text-muted" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h4 className="h4 proof-article-title">{entry.label}</h4>
+          <p className="body-sm proof-article-lede">{entry.description}</p>
+          <ProofRow label={entry.rowLabel ?? "Address"}>
+            {entry.address ? (
+              entry.href ? (
+                <a
+                  href={entry.href}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
+                  title={entry.address}
+                  aria-label={`View address ${entry.address} on explorer`}
+                >
+                  <span className="ct-proof-row__truncate">
+                    {abbreviateAddress(entry.address)}
+                  </span>
+                  <ExternalLink className="w-3 h-3 opacity-50" aria-hidden="true" />
+                </a>
+              ) : (
+                <span title={entry.address} className="ct-proof-row__truncate">
+                  {abbreviateAddress(entry.address)}
+                </span>
+              )
+            ) : (
+              <span className="ct-text-muted">Not available</span>
+            )}
+          </ProofRow>
+        </div>
+      </div>
     </article>
   );
 }
@@ -141,59 +155,72 @@ function DeployedContractCard({
   separated: boolean;
 }) {
   return (
-    <article className={cn(separated && cn(sectionDividerClass, "proof-article-separated"))}>
-      <h4 className="h4 proof-article-title">{contract.name}</h4>
-      <p className="body-sm proof-article-lede">{contract.description}</p>
+    <article className={cn("proof-dataroom-item", separated && cn(sectionDividerClass, "proof-article-separated"))}>
+      <div className="flex items-start gap-(--ct-space-3)">
+        <div className="proof-dataroom-icon-box" aria-hidden="true">
+          <ShieldCheck className="w-4 h-4 ct-text-muted" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h4 className="h4 proof-article-title">{contract.name}</h4>
+          <p className="body-sm proof-article-lede">{contract.description}</p>
 
-      <ProofRow label="Contract address">
-        <a
-          href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
-          target="_blank"
-          rel="noreferrer noopener"
-          className={explorerLinkClass}
-          title={contract.address}
-        >
-          {abbreviateAddress(contract.address)}
-        </a>
-      </ProofRow>
-      <ProofRow label="Deploy tx">
-        <a
-          href={`${EXPLORER_TX_BASE}${contract.deployTxHash}`}
-          target="_blank"
-          rel="noreferrer noopener"
-          className={explorerLinkClass}
-          title={contract.deployTxHash}
-        >
-          {abbreviateAddress(contract.deployTxHash)}
-        </a>
-      </ProofRow>
-      <ProofRow label="Deploy block">{contract.deployBlock}</ProofRow>
-      <ProofRow label="Network">Test network (chain id 84532)</ProofRow>
+          <ProofRow label="Contract address">
+            <a
+              href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
+              target="_blank"
+              rel="noreferrer noopener"
+              className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
+              title={contract.address}
+              aria-label={`View contract ${contract.name} at ${contract.address} on explorer`}
+            >
+              <span className="ct-proof-row__truncate">
+                {abbreviateAddress(contract.address)}
+              </span>
+              <ExternalLink className="w-3 h-3 opacity-50" aria-hidden="true" />
+            </a>
+          </ProofRow>
+          <ProofRow label="Deploy tx">
+            {contract.deployTxHash ? (
+              <a
+                href={`${EXPLORER_TX_BASE}${contract.deployTxHash}`}
+                target="_blank"
+                rel="noreferrer noopener"
+                className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
+                title={contract.deployTxHash}
+                aria-label={`View deployment transaction ${contract.deployTxHash} on explorer`}
+              >
+                <span className="ct-proof-row__truncate">
+                  {abbreviateAddress(contract.deployTxHash)}
+                </span>
+                <ExternalLink className="w-3 h-3 opacity-50" aria-hidden="true" />
+              </a>
+            ) : (
+              <span className="ct-text-muted">Pending</span>
+            )}
+          </ProofRow>
+          <ProofRow label="Deploy block">{contract.deployBlock || "Pending"}</ProofRow>
+          <ProofRow label="Network">Test network (chain id 84532)</ProofRow>
 
-      <div className="proof-actions-row product-doc-inline-row">
-        <Badge variant={contract.sourceVerified ? "success" : "warning"}>
-          {contract.sourceVerified
-            ? "Source-verified @ commit"
-            : "Deployment provenance unverified"}
-        </Badge>
-        <Button asChild variant="secondary" size="md">
-          <a
-            href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            View on Basescan
-          </a>
-        </Button>
-        <Button asChild variant="secondary" size="md">
-          <a
-            href={`${EXPLORER_TX_BASE}${contract.deployTxHash}`}
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            Deploy tx
-          </a>
-        </Button>
+          <div className="proof-actions-row product-doc-inline-row">
+            <Badge variant={contract.sourceVerified ? "success" : "warning"}>
+              {contract.sourceVerified
+                ? "Source-verified @ commit"
+                : "Deployment provenance unverified"}
+            </Badge>
+            <Button asChild variant="secondary" size="md">
+              <a
+                href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-2"
+                aria-label={`View ${contract.name} on Basescan`}
+              >
+                View on Basescan
+                <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+              </a>
+            </Button>
+          </div>
+        </div>
       </div>
     </article>
   );
@@ -205,9 +232,9 @@ export function ContractsAuditTrail({
   const deploymentsVerified = DEPLOYED_CONTRACTS.every((c) => c.sourceVerified);
 
   return (
-    <div className="product-doc-stack">
+    <div className="product-doc-stack product-doc-stack--roomy">
       {platformAddresses.length > 0 ? (
-        <Card>
+        <Card material="flat">
           <DashboardPanelHeader
             eyebrow="On-chain addresses"
             title="Vault, manager & custody scope"
@@ -224,7 +251,7 @@ export function ContractsAuditTrail({
         </Card>
       ) : null}
 
-      <Card>
+      <Card material="flat">
         <DashboardPanelHeader
           eyebrow="Deployed contracts · test network"
           title="Configured deployment addresses"
@@ -236,7 +263,7 @@ export function ContractsAuditTrail({
         ))}
       </Card>
 
-      <Card>
+      <Card material="flat">
         <DashboardPanelHeader
           eyebrow="Contract audit trail"
           title="Review status"
@@ -250,19 +277,35 @@ export function ContractsAuditTrail({
               key={entry.label}
               className="product-doc-section__head proof-list-row"
             >
-              <div className="product-doc-stack--compact">
-                <span className="body-sm font-medium ct-text-primary">{entry.label}</span>
-                <span className="body-xs">{entry.status}</span>
-              </div>
-              <div className="product-doc-inline-row">
-                <Badge variant={entry.variant}>{auditBadgeLabel(entry)}</Badge>
-                {entry.href !== null ? (
-                  <Button asChild variant="secondary" size="md">
-                    <a href={entry.href} target="_blank" rel="noreferrer noopener">
-                      View document
-                    </a>
-                  </Button>
-                ) : null}
+              <div className="flex items-start gap-(--ct-space-3) w-full">
+                <div className="proof-dataroom-icon-box mt-0.5">
+                  <FileText className="w-4 h-4 ct-text-muted" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="product-doc-stack--compact">
+                      <span className="body-sm font-medium ct-text-primary">{entry.label}</span>
+                      <span className="body-xs">{entry.status}</span>
+                    </div>
+                    <div className="product-doc-inline-row shrink-0">
+                      <Badge variant={entry.variant}>{auditBadgeLabel(entry)}</Badge>
+                      {entry.href !== null ? (
+                        <Button asChild variant="secondary" size="md">
+                          <a
+                            href={entry.href}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="inline-flex items-center gap-2"
+                            aria-label={`View document for ${entry.label}`}
+                          >
+                            View document
+                            <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+                          </a>
+                        </Button>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
               </div>
             </li>
           ))}
