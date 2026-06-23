@@ -9,6 +9,7 @@ import {
 } from "@/app/admin/roadmap/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { cn } from "@/lib/cn";
 import { safeUrl } from "@/lib/safe-url";
 import {
@@ -140,11 +141,16 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
         </div>
       </div>
 
-      {open ? (
+      <Modal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        title={item.label}
+        className="max-w-2xl"
+      >
         <form
           id={formId}
           action={onSubmit}
-          className="admin-doc-stack admin-doc-stack--actions border-t border-(--ct-border-soft) pt-[var(--ct-space-5)]"
+          className="admin-doc-stack admin-doc-stack--actions"
           aria-label={`Edit ${item.label}`}
         >
           <input type="hidden" name="itemId" value={item.id} />
@@ -239,7 +245,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
             </Button>
           </div>
         </form>
-      ) : null}
+      </Modal>
     </div>
   );
 }

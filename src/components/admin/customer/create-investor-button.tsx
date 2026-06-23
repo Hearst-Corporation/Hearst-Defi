@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { createInvestor } from "@/app/admin/customers/actions";
 
 /** Admin "create investor" — disclosure form above the directory table. */
@@ -23,19 +24,20 @@ export function CreateInvestorButton() {
     });
   }
 
-  if (!open) {
-    return (
+  return (
+    <>
       <Button variant="primary" size="md" onClick={() => setOpen(true)}>
         New investor
       </Button>
-    );
-  }
 
-  return (
-    <form action={onSubmit} className="admin-doc-inset admin-doc-stack admin-doc-stack--actions" aria-label="Create investor">
-      <div className="admin-doc-stack admin-doc-stack--tight">
-        <p className="eyebrow">Provision investor account</p>
-        <div className="admin-doc-form-grid-3">
+      <Modal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        title="Provision investor account"
+        className="max-w-2xl"
+      >
+        <form action={onSubmit} className="admin-doc-stack admin-doc-stack--actions" aria-label="Create investor">
+          <div className="admin-doc-form-grid-3">
           <label className="admin-doc-field">
             <span className="stat-label">Email</span>
             <input
@@ -62,16 +64,17 @@ export function CreateInvestorButton() {
               <option value="rejected">KYC rejected</option>
             </select>
           </label>
-        </div>
-      </div>
-      <div className="admin-form-actions">
-        <Button type="submit" variant="primary" size="md" disabled={isPending}>
-          {isPending ? "Creating…" : "Create"}
-        </Button>
-        <Button type="button" variant="ghost" size="md" onClick={() => setOpen(false)}>
-          Cancel
-        </Button>
-      </div>
-    </form>
+          </div>
+          <div className="admin-form-actions">
+            <Button type="submit" variant="primary" size="md" disabled={isPending}>
+              {isPending ? "Creating…" : "Create"}
+            </Button>
+            <Button type="button" variant="ghost" size="md" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
+    </>
   );
 }
