@@ -145,22 +145,24 @@
   min-width: 0;
 }
 
-/* Bloomberg Terminal Layout V3 - Absolute Brutalism */
+/* Bloomberg Terminal Layout V4 - Ultra-Premium Glassmorphism */
 .pf-terminal-workspace {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1px; /* Hairline trick */
-  background-color: var(--ct-border-soft);
-  border: 1px solid var(--ct-border-soft);
+  gap: 1px; /* Hairline creusée */
+  background-color: var(--ct-graphite-border-nested);
+  border: 1px solid var(--ct-border-base);
   border-radius: var(--ct-radius-xl);
   overflow: hidden;
-  box-shadow: var(--ct-shadow-sm);
+  box-shadow: 
+    0 0 0 1px color-mix(in srgb, var(--ct-accent) 10%, transparent) inset,
+    var(--ct-shadow-lg);
 }
 
 @container pf (min-width: 64rem) {
   .pf-terminal-workspace {
-    /* 70/30 Asymmetric split for true Terminal vibe */
-    grid-template-columns: minmax(0, 1.5fr) 22rem;
+    /* 70/30 Asymmetric split */
+    grid-template-columns: minmax(0, 1.5fr) minmax(20rem, 24rem);
   }
 }
 
@@ -168,7 +170,7 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
-  background-color: var(--ct-border-soft);
+  background-color: var(--ct-graphite-border-nested);
   min-width: 0;
 }
 
@@ -176,19 +178,25 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background-color: var(--ct-bg-deep); /* Pure black, NO GRADIENTS */
   height: 100%;
+  position: relative;
+  /* Premium radial depth */
+  background-color: var(--ct-graphite-subtle-bg);
+  background-image: radial-gradient(
+    circle at top left,
+    color-mix(in srgb, #ffffff 4.5%, transparent),
+    transparent 85%
+  );
+  transition: background-color var(--ct-dur-normal) var(--ct-ease);
 }
 
-/* Override embedded pane inside terminal for brutalist feel */
+.pf-terminal-cell:hover {
+  background-color: color-mix(in srgb, var(--ct-graphite-subtle-bg) 95%, var(--ct-accent));
+}
+
+/* Let the native embedded panels breathe with standard metrics */
 .pf-terminal-workspace .pf-embedded-pane {
-  padding: var(--ct-space-5);
-}
-
-@container pf (max-width: 48rem) {
-  .pf-terminal-workspace .pf-embedded-pane {
-    padding: var(--ct-space-4);
-  }
+  flex: 1 1 auto;
 }
 
 .pf-cockpit-row {
