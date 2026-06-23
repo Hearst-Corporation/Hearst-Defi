@@ -1061,6 +1061,13 @@ model OutreachProspect {
 
   // ── Outreach engine (lead-gen) ──────────────────────────────────────────
   apolloId        String? // Apollo person id when sourced via Apollo
+  // Apollo enrichment snapshot — the rich person/org detail captured at source
+  // time, surfaced on the prospect CRM sheet. Nullable: manual prospects have none.
+  linkedinUrl     String? // Apollo person.linkedin_url
+  companyDomain   String? // Apollo organization.primary_domain
+  industry        String? // Apollo organization.industry
+  emailStatus     String? // Apollo email verification (verified | guessed | unavailable)
+  apolloData      String? // raw enriched ApolloPerson JSON — everything else Apollo returned
   qualScore       Int? //   LLM qualification score 0-100 (scorer agent)
   tier            String? // autonomy tier: A (prime) | B (warm) | C (cold)
   icpId           String? // the OutreachICP this prospect was sourced for

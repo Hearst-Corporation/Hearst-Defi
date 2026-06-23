@@ -145,13 +145,23 @@ export default async function OutreachPage() {
                       className="border-b border-(--ct-border-soft) last:border-0"
                     >
                       <td className="ct-table-cell truncate ct-text-strong">
-                        {p.email}
+                        <Link
+                          href={`/admin/outreach/prospects/${p.id}`}
+                          className="hover:underline"
+                        >
+                          {p.email}
+                        </Link>
                       </td>
                       <td className="hidden ct-table-cell truncate ct-text-body md:table-cell">
                         {p.company ?? "—"}
                       </td>
                       <td className="hidden ct-table-cell truncate ct-text-muted lg:table-cell">
-                        {[p.firstName, p.lastName].filter(Boolean).join(" ") || "—"}
+                        <Link
+                          href={`/admin/outreach/prospects/${p.id}`}
+                          className="hover:underline"
+                        >
+                          {[p.firstName, p.lastName].filter(Boolean).join(" ") || "View"}
+                        </Link>
                       </td>
                       <td className="ct-table-cell">
                         <TierBadge prospectId={p.id} tier={p.tier} />

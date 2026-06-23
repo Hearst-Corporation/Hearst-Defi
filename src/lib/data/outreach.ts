@@ -353,6 +353,193 @@ export async function loadCampaignDetail(
 }
 
 // ---------------------------------------------------------------------------
+// Prospect detail — CRM sheet (identity + Apollo enrichment + engagement)
+// ---------------------------------------------------------------------------
+
+/** One outreach email sent/queued to this prospect, newest first. */
+export interface ProspectEmailRow {
+  id: string;
+  campaignId: string;
+  campaignName: string | null;
+  subject: string;
+  status: string;
+  draftedByAgent: boolean;
+  tierAtSend: string | null;
+  sentAt: Date | null;
+  createdAt: Date;
+  latestEventType: string | null;
+  latestEventAt: Date | null;
+}
+
+/** One inbound reply matched to this prospect. */
+export interface ProspectReplyRow {
+  id: string;
+  fromEmail: string;
+  subject: string | null;
+  body: string;
+  intent: string | null;
+  confidence: number | null;
+  actionTaken: string | null;
+  handledAt: Date | null;
+  createdAt: Date;
+}
+
+export interface ProspectDetail {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  company: string | null;
+  title: string | null;
+  source: string;
+  status: string;
+  tags: string[];
+  notes: string | null;
+  hubspotContactId: string | null;
+  // ── Apollo enrichment snapshot ──
+  apolloId: string | null;
+  linkedinUrl: string | null;
+  companyDomain: string | null;
+  industry: string | null;
+  emailStatus: string | null;
+  /** Parsed raw ApolloPerson JSON (flat key→value), or null when absent/invalid. */
+  apolloData: Record<string, unknown> | null;
+  // ── Scoring / lifecycle ──
+  qualScore: number | null;
+  tier: string | null;
+  icpId: string | null;
+  /** Name of the ICP this prospect was sourced for, or null. */
+  icpName: string | null;
+  sequenceStep: number;
+  lastContactedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  emails: ProspectEmailRow[];
+  replies: ProspectReplyRow[];
+}
+
+/** Tolerant JSON-array parse → string[] (used for the tags column). */
+function parseTags(raw: string | null): string[] {
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((v): v is string => typeof v === "string" && v.length > 0);
+  } catch {
+    return [];
+  }
+}
+
+/** Tolerant JSON-object parse for the raw Apollo snapshot. */
+function parseApolloData(raw: string | null): Record<string, unknown> | null {
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Single prospect with everything the CRM sheet shows: identity, the Apollo
+ * enrichment snapshot, scoring/tier, the ICP it was sourced for, and the full
+ * engagement record (emails sent + inbound replies, newest first). Returns
+ * `null` when the id does not exist. Never throws on empty relations.
+ */
+export async function loadProspectDetail(
+  id: string,
+): Promise<ProspectDetail | null> {
+  const prospect = await prisma.outreachProspect.findUnique({
+    where: { id },
+    include: {
+      emails: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          campaign: { select: { name: true } },
+          events: { orderBy: { occurredAt: "desc" }, take: 1 },
+        },
+      },
+      replies: { orderBy: { createdAt: "desc" } },
+    },
+  });
+
+  if (!prospect) return null;
+
+  // The ICP link is a loose FK (no relation) — resolve its name if present.
+  let icpName: string | null = null;
+  if (prospect.icpId) {
+    const icp = await prisma.outreachICP.findUnique({
+      where: { id: prospect.icpId },
+      select: { name: true },
+    });
+    icpName = icp?.name ?? null;
+  }
+
+  const emails: ProspectEmailRow[] = prospect.emails.map((e) => {
+    const latest = e.events[0] ?? null;
+    return {
+      id: e.id,
+      campaignId: e.campaignId,
+      campaignName: e.campaign?.name ?? null,
+      subject: e.subject,
+      status: e.status,
+      draftedByAgent: e.draftedByAgent,
+      tierAtSend: e.tierAtSend,
+      sentAt: e.sentAt,
+      createdAt: e.createdAt,
+      latestEventType: latest?.type ?? null,
+      latestEventAt: latest?.occurredAt ?? null,
+    };
+  });
+
+  const replies: ProspectReplyRow[] = prospect.replies.map((r) => ({
+    id: r.id,
+    fromEmail: r.fromEmail,
+    subject: r.subject,
+    body: r.body,
+    intent: r.intent,
+    confidence: r.confidence,
+    actionTaken: r.actionTaken,
+    handledAt: r.handledAt,
+    createdAt: r.createdAt,
+  }));
+
+  return {
+    id: prospect.id,
+    email: prospect.email,
+    firstName: prospect.firstName,
+    lastName: prospect.lastName,
+    company: prospect.company,
+    title: prospect.title,
+    source: prospect.source,
+    status: prospect.status,
+    tags: parseTags(prospect.tags),
+    notes: prospect.notes,
+    hubspotContactId: prospect.hubspotContactId,
+    apolloId: prospect.apolloId,
+    linkedinUrl: prospect.linkedinUrl,
+    companyDomain: prospect.companyDomain,
+    industry: prospect.industry,
+    emailStatus: prospect.emailStatus,
+    apolloData: parseApolloData(prospect.apolloData),
+    qualScore: prospect.qualScore,
+    tier: prospect.tier,
+    icpId: prospect.icpId,
+    icpName,
+    sequenceStep: prospect.sequenceStep,
+    lastContactedAt: prospect.lastContactedAt,
+    createdAt: prospect.createdAt,
+    updatedAt: prospect.updatedAt,
+    emails,
+    replies,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Global stats
 // ---------------------------------------------------------------------------
 

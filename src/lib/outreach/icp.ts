@@ -95,6 +95,13 @@ export interface SourcedCandidate {
   company: string | null;
   title: string | null;
   apolloId: string | null;
+  // Apollo enrichment snapshot — persisted on the prospect for the CRM sheet.
+  linkedinUrl: string | null;
+  companyDomain: string | null;
+  industry: string | null;
+  emailStatus: string | null;
+  /** Raw enriched ApolloPerson JSON (everything Apollo returned), or null. */
+  apolloData: string | null;
   /** 0-100 qualification score (mock: derived from the ICP fit deterministically). */
   qualScore: number;
   /** Tier resolved from qualScore against the ICP thresholds, or null = rejected. */
@@ -176,13 +183,29 @@ function generateCandidates(
     const slug = `${firm.replace(/\s+/g, "").toLowerCase()}${i + 1}`;
     const domain = `${slug}.example`;
     const seed = `${icpName}:${slug}:${geoTag}`;
+    const company = `${firm} Partners ${i + 1}`;
+    const industry = filters.industries[0] ?? "financial services";
     out.push({
       email: `partner@${domain}`,
       firstName: "Demo",
       lastName: `Lead ${i + 1}`,
-      company: `${firm} Partners ${i + 1}`,
+      company,
       title: firm,
       apolloId: `mock_${slug}`,
+      linkedinUrl: `https://www.linkedin.com/in/${slug}`,
+      companyDomain: domain,
+      industry,
+      emailStatus: "verified",
+      apolloData: JSON.stringify({
+        id: `mock_${slug}`,
+        name: `Demo Lead ${i + 1}`,
+        title: firm,
+        organizationName: company,
+        organizationDomain: domain,
+        organizationIndustry: industry,
+        location: geoTag,
+        mock: true,
+      }),
       qualScore: seededScore(seed),
     });
   }
@@ -342,6 +365,12 @@ async function runApolloPipeline(
       // P2-3: Store the search-result apolloId (person.id) so the next run's
       // pre-enrich dedup hook matches against it correctly.
       apolloId: person.id,
+      // Apollo enrichment snapshot — surfaced on the prospect CRM sheet.
+      linkedinUrl: enriched.linkedinUrl,
+      companyDomain: enriched.organizationDomain,
+      industry: enriched.organizationIndustry,
+      emailStatus: enriched.emailStatus,
+      apolloData: JSON.stringify(enriched),
       qualScore: score,
       tier,
     });
