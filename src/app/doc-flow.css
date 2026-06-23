@@ -1499,10 +1499,9 @@
   display: inline-flex;
 }
 
-/* Module header inside workspace Cards — L3 title (CardTitle / .h3) with a quiet
-   accent rail + divider so panel titles read above stat-label KPI rows.
-   Scoped to invest-flow grid only; non-workspace doc layout unchanged. */
-.product-doc .invest-flow-detail__grid .invest-flow-card-header {
+/* Module header inside workspace Cards — L3 title with accent rail.
+   Flat term-sheet sections use .vault-detail-block__header instead. */
+.product-doc .invest-flow-shell--workspace .invest-flow-detail__grid .invest-flow-card-header {
   margin-bottom: var(--ct-space-3);
   padding-bottom: var(--ct-space-2_5);
   padding-left: var(--ct-space-3);
@@ -1805,30 +1804,21 @@
   flex: 1;
 }
 
-/* Vault detail — presentational overview band (in-flow, top of scroll body).
-   KPIs left, primary CTA right. No fixed header, no overlay. */
+/* Vault detail — single hero band (only boxed surface on the term sheet page). */
 .product-doc .vault-detail-overview {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-6);
-  padding: var(--ct-space-6) var(--ct-space-8);
-  border: 1px solid var(--ct-border);
-  border-radius: var(--ct-radius-xl);
+  gap: var(--ct-space-5);
+  padding: var(--ct-space-6);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-lg);
   background: var(--ct-surface-1);
-  box-shadow: var(--ct-shadow-soft);
-  position: relative;
-  overflow: hidden;
-}
-
-.product-doc .vault-detail-overview__main {
-  flex: 1 1 auto;
-  min-width: 0;
 }
 
 .product-doc .vault-detail-overview__kpis {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--ct-space-6) var(--ct-space-10);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ct-space-4) var(--ct-space-6);
   margin: 0;
 }
 
@@ -1839,49 +1829,61 @@
 }
 
 .product-doc .vault-detail-overview__value {
-  font-size: var(--ct-text-3xl);
+  font-size: var(--ct-text-2xl);
   font-weight: var(--ct-font-extrabold);
   letter-spacing: var(--ct-tracking-tighter);
   color: var(--ct-text-strong);
   line-height: 1;
 }
 
-.product-doc .vault-detail-overview__cta-zone {
+.product-doc .vault-detail-overview__cta {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  flex-shrink: 0;
 }
 
-.product-doc .vault-detail-overview__cta-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-
-@container product-doc (min-width: 48rem) {
+@container product-doc (min-width: 40rem) {
   .product-doc .vault-detail-overview {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: var(--ct-space-10);
+    gap: var(--ct-space-8);
   }
 
   .product-doc .vault-detail-overview__kpis {
     display: flex;
+    flex: 1 1 auto;
     flex-wrap: wrap;
-    gap: var(--ct-space-12);
+    gap: var(--ct-space-4) var(--ct-space-10);
   }
 
-  .product-doc .vault-detail-overview__cta-stack {
+  .product-doc .vault-detail-overview__cta {
+    flex: 0 0 auto;
     align-items: flex-end;
   }
 }
 
-/* Term sheet — block sans box (titre + contenu en flux, séparé par l'espace) */
+/* Term sheet — flat blocks (title + content, no nested box) */
 .product-doc .vault-detail-block {
   display: flex;
   flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.product-doc .vault-detail-block__header {
+  margin: 0;
+}
+
+.product-doc .vault-detail-block__header--split {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+}
+
+.product-doc .vault-detail-disclaimer {
+  margin: 0;
+  padding-top: var(--ct-space-5);
+  border-top: 1px solid var(--ct-border-soft);
 }
 
 /* ── Target allocation — graphique (barre empilée 100% + barres par bucket) ── */

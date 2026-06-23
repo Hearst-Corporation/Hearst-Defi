@@ -5,10 +5,24 @@ type InvestFlowLoadingShellProps = {
   width?: "cap" | "narrow" | "full";
   workspace?: boolean;
   showActions?: boolean;
+  /** @deprecated KPIs live in the overview band — use showOverview */
   showKpiRow?: boolean;
   showLead?: boolean;
+  /** Overview hero band skeleton (vault detail page). */
+  showOverview?: boolean;
   bodyCards?: number;
+  /** Flat section placeholders (no Card chrome). */
+  bodySections?: number;
 };
+
+function FlatSectionSkeleton() {
+  return (
+    <div className="vault-detail-block">
+      <Skeleton className="h-6 w-40" variant="text" />
+      <Skeleton className="h-24 w-full" />
+    </div>
+  );
+}
 
 export function InvestFlowLoadingShell({
   width = "cap",
@@ -16,7 +30,9 @@ export function InvestFlowLoadingShell({
   showActions = false,
   showKpiRow = false,
   showLead = false,
-  bodyCards = 1,
+  showOverview = false,
+  bodyCards = 0,
+  bodySections = 0,
 }: InvestFlowLoadingShellProps) {
   return (
     <div
@@ -43,7 +59,6 @@ export function InvestFlowLoadingShell({
             <div className="product-page-header__actions flex flex-wrap gap-[var(--ct-space-2)]">
               <Skeleton className="h-7 w-16 rounded-full" />
               <Skeleton className="h-7 w-20 rounded-full" />
-              <Skeleton className="hidden h-9 w-44 lg:block" />
             </div>
           ) : null}
         </div>
@@ -63,11 +78,39 @@ export function InvestFlowLoadingShell({
       </header>
 
       <div className="invest-flow-shell__body">
-        <div className="product-doc-stack">
-          {Array.from({ length: bodyCards }).map((_, index) => (
-            <SkeletonCard key={index} />
-          ))}
-        </div>
+        {showOverview ? (
+          <section className="vault-detail-overview" aria-hidden>
+            <dl className="vault-detail-overview__kpis">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="vault-detail-overview__kpi">
+                  <Skeleton className="h-3 w-24" variant="text" />
+                  <Skeleton className="mt-[var(--ct-space-2)] h-7 w-28" />
+                </div>
+              ))}
+            </dl>
+            <div className="vault-detail-overview__cta">
+              <Skeleton className="h-10 w-44" />
+            </div>
+          </section>
+        ) : null}
+
+        {bodySections > 0 ? (
+          <div className="invest-flow-detail__grid">
+            <div className="invest-flow-detail__primary product-doc-stack">
+              {Array.from({ length: bodySections }).map((_, index) => (
+                <FlatSectionSkeleton key={index} />
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {bodyCards > 0 ? (
+          <div className="product-doc-stack">
+            {Array.from({ length: bodyCards }).map((_, index) => (
+              <SkeletonCard key={index} />
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   );
