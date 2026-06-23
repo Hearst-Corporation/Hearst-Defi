@@ -12,7 +12,16 @@ describe("formatUsdCompact", () => {
     expect(formatUsdCompact(1_250_000)).toBe("$1.3M");
   });
 
-  it("formats sub-thousand", () => {
+  it("formats sub-thousand ($100-$999) as integers", () => {
     expect(formatUsdCompact(850)).toBe("$850");
+    expect(formatUsdCompact(100)).toBe("$100");
+    expect(formatUsdCompact(999)).toBe("$999");
+  });
+
+  it("formats small amounts (< $100) with cents for precision", () => {
+    expect(formatUsdCompact(11)).toBe("$11.00");
+    expect(formatUsdCompact(50)).toBe("$50.00");
+    expect(formatUsdCompact(99.99)).toBe("$99.99");
+    expect(formatUsdCompact(0.5)).toBe("$0.50");
   });
 });
