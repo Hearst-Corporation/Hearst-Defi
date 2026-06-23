@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   getPendingConfirmationGuardError,
   isValidPendingConfirmation,
+  resolveActionErrorMessage,
   toConfirmationRequestedState,
   toExecutionSuccessState,
   type AdminActionFlowState,
@@ -126,5 +127,36 @@ describe("admin chat actions confirmation flow", () => {
         input: { title: "A", body: "B" },
       }),
     ).toContain("expiree");
+  });
+});
+
+describe("resolveActionErrorMessage — UI fallback priority", () => {
+  it("prefers the human message body", () => {
+    expect(
+      resolveActionErrorMessage({
+        error: "Confirmation expired",
+        code: "expired",
+        message: { title: "Confirmation expired", body: "That confirmation timed out. Ask me again." },
+      }),
+    ).toBe("That confirmation timed out. Ask me again.");
+  });
+
+  it("falls back to message title, then error, then a safe generic", () => {
+    expect(resolveActionErrorMessage({ message: { title: "Already confirmed" } })).toBe("Already confirmed");
+    expect(resolveActionErrorMessage({ error: "Write tool execution failed" })).toBe("Write tool execution failed");
+    expect(resolveActionErrorMessage(null)).toMatch(/could not be completed/i);
+    expect(resolveActionErrorMessage({})).toMatch(/could not be completed/i);
+  });
+
+  it("NEVER surfaces a bare code on its own", () => {
+    // Only a code present (no message/error) → generic human text, never "used".
+    expect(resolveActionErrorMessage({ code: "used" })).not.toBe("used");
+    expect(resolveActionErrorMessage({ code: "used" })).toMatch(/could not be completed/i);
+  });
+
+  it("ignores empty/whitespace fields when choosing the message", () => {
+    expect(
+      resolveActionErrorMessage({ error: "real error", message: { title: "  ", body: "  " } }),
+    ).toBe("real error");
   });
 });

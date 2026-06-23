@@ -15,6 +15,7 @@ import { Markdown } from "@/components/admin/markdown";
 import {
   getPendingConfirmationGuardError,
   isValidPendingConfirmation,
+  resolveActionErrorMessage,
   toConfirmationRequestedState,
   toExecutionSuccessState,
   type AdminActionFlowState,
@@ -697,12 +698,7 @@ export function AdminChatControls() {
       if (!res.ok || data?.status !== "executed") {
         // Prefer the route's human message body; fall back to title/error, and
         // only then to a plain refusal — never surface a bare code to the admin.
-        throw new Error(
-          data?.message?.body ??
-            data?.message?.title ??
-            data?.error ??
-            "The action could not be completed. Please try again.",
-        );
+        throw new Error(resolveActionErrorMessage(data));
       }
       applyActionFlowState(
         toExecutionSuccessState(
