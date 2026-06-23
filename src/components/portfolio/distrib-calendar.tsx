@@ -282,12 +282,11 @@ function BarChart({
             style={{ opacity: 1 }}
             rx="2"
             aria-label={`${periodLabel} distribution ${amountLabel}`}
-            className={cn(isCurrent && "pf-distrib-chart__bar--current")}
           />
         );
 
         return (
-          <g key={i}>
+          <g key={i} className="pf-distrib-chart__group">
             {barEl}
 
             {/* Period label */}

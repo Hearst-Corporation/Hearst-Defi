@@ -1,3 +1,4 @@
+import { cn } from "@/lib/cn";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
@@ -50,10 +51,11 @@ export function RecentActivity({
       variant="wide"
       chrome={embedded ? "embedded" : "panel"}
       aria-label="Recent account activity"
-      className={embedded ? undefined : "h-full"}
+      className="h-full"
     >
       <PfCockpitPanelHeader
         title="Recent Activity"
+        subtitle="Last 5 transactions"
         titleVariant="primary"
         provenance={hasTransactions ? provenance : undefined}
         trailing={trailing}
@@ -68,7 +70,7 @@ export function RecentActivity({
                   {dir === "in" ? "▲" : "▼"}
                 </span>
                 <span className="pf-activity__main min-w-0">
-                  <span className="body-sm ct-text-primary font-semibold truncate">
+                  <span className="text-sm ct-text-primary font-semibold truncate">
                     {TYPE_LABELS[tx.type] ?? tx.type}
                     {tx.positionVaultName ? (
                       <span className="ct-text-muted font-normal"> · {tx.positionVaultName}</span>
@@ -78,7 +80,7 @@ export function RecentActivity({
                     {relativeTime(tx.occurredAt, asOf)}
                   </span>
                 </span>
-                <span className="pf-activity__amt tabular body-md mono font-semibold">
+                <span className="pf-activity__amt tabular text-sm mono font-semibold">
                   {dir === "out" ? "−" : "+"}
                   {usdFmt.format(tx.amountUsdc)}
                 </span>

@@ -324,6 +324,7 @@
 
 .pf-fused-surface--deck {
   grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.95fr);
+  min-height: 22rem; /* Stabilize deck height */
 }
 
 .pf-fused-surface__pane {
@@ -469,7 +470,6 @@
 .pf-cockpit-row--deck .pf-distrib-chart-shell {
   aspect-ratio: auto;
   min-height: 6rem;
-  max-height: 9rem;
 }
 
 /* Natural scroll: panels take their NATURAL height and never clip */
@@ -579,6 +579,8 @@
   flex-direction: column;
   gap: var(--ct-space-0_5);
   min-width: 0;
+  min-height: var(--ct-space-8); /* Stabilize header height for alignment */
+  justify-content: center;
 }
 
 .pf-cockpit-panel__header-trail {
@@ -1026,6 +1028,7 @@
   background: color-mix(in srgb, var(--ct-accent) 6%, transparent);
   transform: translateX(var(--ct-space-0_5));
   box-shadow: inset 2px 0 0 var(--ct-accent);
+  filter: brightness(1.1);
 }
 
 .pf-positions__row--body:last-child {
@@ -1430,6 +1433,7 @@
 
 .pf-distrib-chart__amount {
   fill: var(--ct-text-muted);
+  font-size: var(--ct-text-nano);
   font-weight: var(--ct-font-bold);
 }
 
@@ -1438,10 +1442,6 @@
   stroke: var(--ct-text-muted);
   stroke-width: 0.75; /* chart-geometry */
   stroke-dasharray: 3 2; /* chart-geometry */
-}
-
-.pf-distrib-chart__marker {
-  fill: var(--ct-text-muted);
 }
 
 .pf-distrib-chart__period {
@@ -1488,10 +1488,17 @@
   font-feature-settings: "tnum", "ss01";
 }
 
-/* ---- Distrib chart legend strip values (amount / estimate / period labels) ---- */
-.pf-distrib-chart__amount.is-text,
-.pf-distrib-chart-legend .pf-distrib-chart__amount {
-  color: var(--ct-accent);
+.pf-distrib-chart__group {
+  transition: opacity var(--ct-dur-base) var(--ct-ease);
+}
+
+/* On tight screens, hide every other label to avoid overlap.
+   We count from 3 because title and defs are the first two children of the SVG. */
+@container pf (max-width: 34rem) {
+  .pf-distrib-chart__group:nth-child(even) .pf-distrib-chart__period,
+  .pf-distrib-chart__group:nth-child(even) .pf-distrib-chart__amount {
+    display: none;
+  }
 }
 
 /* =============================================================================
@@ -1523,8 +1530,8 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--ct-space-4);
-  padding: var(--ct-space-3) var(--ct-space-4);
+  gap: var(--ct-space-3); /* Reduced gap for better narrow fit */
+  padding: var(--ct-space-2_5) var(--ct-space-4); /* Slightly tighter padding */
   border-radius: var(--ct-radius-sm);
   border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 35%, transparent);
   transition: all var(--ct-dur-base) var(--ct-ease);
@@ -1576,14 +1583,17 @@
   color: var(--ct-text-tertiary);
 }
 
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum", "ss01";
+}
+
 .pf-activity__amt {
-  font-size: var(--ct-text-xs);
+  font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-semibold);
   color: var(--ct-text-strong);
   text-align: right;
   white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
 }
 
 /* =============================================================================
@@ -2011,21 +2021,15 @@
    scales down so nothing clips in tight slots.
    ============================================================================= */
 
-/* ---- DECK: 1 → 2 → weighted split ---- */
+/* ---- DECK: 1-col (fused surface handles the split) ---- */
 @container pf (min-width: 36rem) {
-  .pf-cockpit-row--deck { grid-template-columns: 1fr 1fr; }
+  .pf-cockpit-row--deck { grid-template-columns: 1fr; }
 }
 
 /* ---- MID: outer row stays 1fr at all sizes (the pf-fused-surface--mid handles
         its own internal 2-column split). No @container override needed here. ---- */
 
-/* ---- 58rem gate: deck weighted split + hero welded grid ---- */
 @container pf (min-width: 58rem) {
-  /* Payout = 1 widget; the fused cell carries 2 (Recent Activity + Trust),
-     so it gets the larger share — otherwise Recent Activity collapses to a
-     ~130px slot and its header/copy overlap (Trust's --aside reserves 15rem). */
-  .pf-cockpit-row--deck { grid-template-columns: 1fr; }
-
   /* Hero welded grid split */
   .pf-hero-grid {
     grid-template-columns: 1.6fr minmax(16rem, 1fr);
