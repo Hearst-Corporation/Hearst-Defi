@@ -237,9 +237,10 @@
 }
 
 /* Default (below the gate): each row is a single column, content-sized. */
-.pf-cockpit-row--summary { grid-template-columns: 1fr; }
-.pf-cockpit-row--mid     { grid-template-columns: 1fr; }
-.pf-cockpit-row--deck    { grid-template-columns: 1fr; }
+.pf-cockpit-row--chart  { grid-template-columns: 1fr; }
+.pf-cockpit-row--mid   { grid-template-columns: 1fr; }
+.pf-cockpit-row--deck  { grid-template-columns: 1fr; }
+.pf-cockpit-row--positions { grid-template-columns: 1fr; }
 
 .pf-cockpit-cell {
   min-width: 0;
@@ -2060,18 +2061,16 @@
   .pf-trust-compact-kpis { grid-template-columns: 1fr; }
 }
 
-/* ---- Panel-level container (each plate can host its own query) ---- */
+/* ---- Row layout: 2-col for mid on wider slots ---- */
+@container pf (min-width: 48rem) {
+  .pf-cockpit-row--mid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 @container pf (max-width: 48rem) {
-  .pf-cockpit-row--summary,
   .pf-cockpit-row--mid {
     grid-template-columns: 1fr;
-  }
-  .pf-hero-grid {
-    grid-template-columns: 1fr;
-  }
-  .pf-hero-grid .pf-status-panel {
-    border-left: 0;
-    border-top: 1px solid var(--ct-graphite-border-nested);
   }
   .pf-ticker-inline {
     display: grid;

@@ -60,32 +60,20 @@ export default async function PortfolioPage() {
       <div className="pf-hairline" aria-hidden="true" />
 
       <div className="pf-cockpit">
-        <section className="pf-cockpit-row pf-cockpit-row--summary" aria-label="Portfolio summary">
-          <div className="pf-hero-grid pf-cockpit-cell">
-            <div className="pf-main-chart-wrapper">
-              <ValueChart
-                positions={positions}
-                totalValueUsdc={data.totalValueUsdc}
-                valueChartTransactions={data.valueChartTransactions}
-                source={source}
-                updatedAt={updatedAt}
-                embedded
-              />
-            </div>
-            <PortfolioStatusPanel
-              hasPositions={hasPositions}
-              positionsCount={positionsCount}
-              deployedUsdc={deployedUsdc}
+        <section className="pf-cockpit-row pf-cockpit-row--chart" aria-label="Portfolio value">
+          <div className="pf-cockpit-cell" data-section="value-chart">
+            <ValueChart
+              positions={positions}
               totalValueUsdc={data.totalValueUsdc}
-              accruedYieldUsdc={accruedYieldUsdc}
+              valueChartTransactions={data.valueChartTransactions}
               source={source}
-              embedded
-              updatedAt={updatedAt ?? undefined}
+              updatedAt={updatedAt}
+              embedded={false}
             />
           </div>
         </section>
 
-        <section className="pf-cockpit-row pf-cockpit-row--mid" aria-label="Capital and yield">
+        <section className="pf-cockpit-row pf-cockpit-row--mid" aria-label="Capital yield and status">
           <div className="pf-cockpit-cell" data-section="yield-allocation" data-testid="capital-yield-widget">
             <CapitalYield
               {...yieldStackProps}
@@ -93,6 +81,18 @@ export default async function PortfolioPage() {
               totalValueUsdc={data.totalValueUsdc}
               leafHref="/portfolio/yield"
               embedded={false}
+            />
+          </div>
+          <div className="pf-cockpit-cell" data-section="status">
+            <PortfolioStatusPanel
+              hasPositions={hasPositions}
+              positionsCount={positionsCount}
+              deployedUsdc={deployedUsdc}
+              totalValueUsdc={data.totalValueUsdc}
+              accruedYieldUsdc={accruedYieldUsdc}
+              source={source}
+              embedded={false}
+              updatedAt={updatedAt ?? undefined}
             />
           </div>
         </section>
