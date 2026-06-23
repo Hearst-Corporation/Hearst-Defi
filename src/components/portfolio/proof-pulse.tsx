@@ -1,16 +1,18 @@
 
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import Link from "next/link";
 
 import { NestedPanel, ProofRow } from "@/components/ui/nested-panel";
 import {
   PanelStatus,
   PfCockpitPanel,
+  PfCockpitPanelHeader,
   PfCockpitSubhead,
 } from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import type { Provenance } from "@/components/ui/provenance-badge";
+
+// ── Types ────────────────────────────────────────────────────────────────────
 
 export interface ProofPulseProps {
   lastPor: {
@@ -30,6 +32,9 @@ export interface ProofPulseProps {
   proofState?: "attested" | "stale";
 }
 
+// ── Pure helpers (exported for tests) ────────────────────────────────────────
+
+/** Absolute delta between stated and on-chain TVL as a percentage. */
 export function computeDeltaPct(
   statedTvlUsdc: number,
   onChainTvlUsdc: number,
@@ -38,6 +43,7 @@ export function computeDeltaPct(
   return (Math.abs(statedTvlUsdc - onChainTvlUsdc) / statedTvlUsdc) * 100;
 }
 
+/** Whether the PoR passes the match threshold (delta < 0.5%). */
 export function isMatch(deltaPct: number): boolean {
   return deltaPct < 0.5;
 }
@@ -50,6 +56,16 @@ export function deltaLevel(deltaPct: number): DeltaLevel {
   return "red";
 }
 
+/**
+ * Attestation state derived from raw PoR figures.
+ *
+ * - "none": both stated and on-chain TVL are 0 → no attestation has happened
+ *   yet. We must NOT show ✓ here; that would be a false positive on missing
+ *   data.
+ * - "pending": stated > 0 but on-chain still 0 → on-chain confirmation has not
+ *   landed yet, surface a warning.
+ * - "matched" / "mismatch": both > 0, fall back to the delta threshold.
+ */
 export type AttestationState = "none" | "pending" | "matched" | "mismatch";
 
 export function attestationState(
@@ -61,6 +77,8 @@ export function attestationState(
   const delta = computeDeltaPct(statedTvlUsdc, onChainTvlUsdc);
   return isMatch(delta) ? "matched" : "mismatch";
 }
+
+// ── Formatting helpers ────────────────────────────────────────────────────────
 
 export function formatDateHuman(date: Date): string {
   return date.toLocaleDateString("en-US", {
@@ -85,6 +103,10 @@ export function formatIso(date: Date): string {
   return date.toISOString();
 }
 
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+// ── Main component ────────────────────────────────────────────────────────────
+
 export function ProofPulse({
   lastPor,
   methodologyVersion,
@@ -102,6 +124,8 @@ export function ProofPulse({
   const state =
     proofState === "attested" ? "attested" : derivedState;
   const hasData = state === "matched" || state === "mismatch" || state === "attested";
+  // Methodology section is shown only when it carries a real value — a bare
+  // "— / Not scheduled / (no auditor)" is not data worth a panel.
   const hasMethodologyData =
     Boolean(methodologyVersion) || nextAttestation !== null || Boolean(auditor);
   const deltaPct = hasData ? computeDeltaPct(statedTvlUsdc, onChainTvlUsdc) : 0;
@@ -114,6 +138,9 @@ export function ProofPulse({
     "ct-text-tertiary": level === null,
   });
 
+  // Indicator after On-chain figure: ✓ only when both figures > 0 and match.
+  // For "none" (no attestation) and "pending" (on-chain missing) we render a
+  // neutral/warning glyph — never ✓.
   const indicator: { glyph: string; label: string; colorClass: string } | null =
     state === "matched" || state === "attested"
       ? {
@@ -142,11 +169,14 @@ export function ProofPulse({
 
   return (
     <PfCockpitPanel variant="compact" aria-label="Proof and methodology">
-      <DashboardPanelHeader
+      <PfCockpitPanelHeader
         title="Proof & methodology"
         provenance={provenance}
       />
 
+      {/* ── Last PoR block — only when an attestation actually exists ──────────
+          With no attestation we show a flat status stack instead of placeholder
+          rows that fake an active widget. */}
       {hasData ? (
         <section aria-label="Last Proof of Reserves">
           <PfCockpitSubhead
@@ -202,6 +232,9 @@ export function ProofPulse({
         />
       )}
 
+      {/* ── Methodology block — only when it carries at least one real value ──
+          A bare "— + Manual" is not data; we omit the whole section rather than
+          render an empty-looking methodology. */}
       {hasMethodologyData && (
         <section aria-label="Methodology" className="ct-panel-status-section">
           <PfCockpitSubhead title="Methodology" />
@@ -248,6 +281,7 @@ export function ProofPulse({
         </section>
       )}
 
+      {/* ── CTA ────────────────────────────────────────────────────────────── */}
       <div className="pf-proof-pulse__cta">
         <Link
           href={proofCenterHref}

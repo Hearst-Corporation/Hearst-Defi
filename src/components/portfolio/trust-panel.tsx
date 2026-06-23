@@ -1,6 +1,6 @@
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import {
   PfCockpitPanel,
+  PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import {
@@ -34,6 +34,7 @@ export interface TrustSummaryKpis {
   headerProvenance: Provenance | undefined;
 }
 
+/** Compact trust strip — risk composite + proof status for the portfolio sidebar. */
 export function deriveTrustSummaryKpis({
   risk,
   proof,
@@ -84,7 +85,16 @@ export function deriveTrustSummaryKpis({
   let proofValueClass = "ct-text-tertiary";
 
   if (compositeUnavailable) {
+    // Zero-state (no position, no risk snapshot) — keep Proof neutral and in the
+    // SAME register as Risk composite ("—" / awaiting). A warning "Pending"
+    // orange here would suggest an in-flight on-chain confirmation that doesn't
+    // exist when there's nothing to prove yet.
     proofValue = "—";
+    // Compact KPI meta — short form (the verbose canonical phrasing,
+    // "first confirmed on-chain position", lives in the positions empty-state
+    // hint where there's room). Length-matched to the Risk-composite
+    // "Snapshot pending" so the two zero KPIs read symmetrically; avoids the
+    // bare "first position" wording.
     proofMeta = "Position pending";
     proofValueClass = "ct-text-tertiary";
   } else if (proofResolved === "matched" || proofResolved === "attested") {
@@ -118,6 +128,7 @@ export function deriveTrustSummaryKpis({
   };
 }
 
+/** Header trailing — same slot as other hub widgets' "View full →". */
 function trustHeaderTrailing(leafHref?: string) {
   if (leafHref) {
     return <PortfolioLeafLink href={leafHref} />;
@@ -125,6 +136,7 @@ function trustHeaderTrailing(leafHref?: string) {
   return <PortfolioLeafLink href="/proof-center" label="Proof center" />;
 }
 
+/** Sidebar trust summary — KPI headers only; full detail on leaf when linked. */
 export function TrustProofCompact({
   leafHref,
   embedded = false,
@@ -139,9 +151,9 @@ export function TrustProofCompact({
       aria-label="Trust and proof summary"
       className={cn("pf-trust-compact", !embedded && "h-full", embedded && "pf-trust-compact--embedded")}
     >
-      <DashboardPanelHeader
+      <PfCockpitPanelHeader
         title="Trust & Proof"
-        tone="primary"
+        titleVariant="primary"
         provenance={kpis.headerProvenance}
         trailing={trustHeaderTrailing(leafHref)}
       />

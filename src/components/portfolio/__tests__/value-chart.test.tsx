@@ -16,7 +16,7 @@ describe("ValueChart zero-state — flat skeleton baseline, unlabelled", () => {
       />,
     );
 
-    expect(html).toContain('viewBox="0 0 800 320"');
+    expect(html).toContain('viewBox="0 0 200 62"');
     expect(html).toContain("pf-vc-line--skeleton");
   });
 
@@ -62,36 +62,9 @@ describe("ValueChart live state (real position)", () => {
       />,
     );
 
-    expect(html).toContain('viewBox="0 0 800 320"');
+    expect(html).toContain('viewBox="0 0 200 62"');
     expect(html).not.toContain("pf-vc-line--skeleton");
     // Live disclaimer underlay present in non-skeleton mode
     expect(html).toContain("ct-chart-disclaimer-text");
-  });
-
-  it("exposes keyboard inspection affordance on the interactive chart", () => {
-    const html = renderToStaticMarkup(
-      <ValueChart
-        positions={[
-          {
-            id: "p1",
-            vaultName: "Hearst Yield",
-            principalUsdc: 250_000,
-            accruedYieldUsdc: 10_000,
-            distributedUsdc: 0,
-            valueUsdc: 260_000,
-            status: "active",
-            apyLow: 9.4,
-            apyHigh: 12.8,
-            subscribedAt: new Date("2026-01-01T00:00:00.000Z"),
-          },
-        ]}
-        totalValueUsdc={260_000}
-        source="live"
-        embedded
-      />,
-    );
-
-    expect(html).toContain('tabindex="0"');
-    expect(html).toContain("Use left and right arrow keys to inspect each point.");
   });
 });

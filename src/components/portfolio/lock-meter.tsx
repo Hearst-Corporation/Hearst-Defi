@@ -1,13 +1,19 @@
+// Lock meter — pure helpers + props for HeroLiquidityRail.
+// Server-safe: no I/O, no side effects.
+
+/** Clamp a value between min and max (inclusive). */
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
+/** Format basis-points as a locale percentage string, e.g. 150 → "1.5%". */
 export function formatBps(bps: number): string {
   const pct = bps / 100;
   const formatted = pct % 1 === 0 ? pct.toFixed(0) : pct.toFixed(1);
   return `${formatted}%`;
 }
 
+/** All derived values from the lock-meter calculation. */
 export interface LockMeterCalc {
   daysElapsed: number;
   progressPct: number;
@@ -17,14 +23,20 @@ export interface LockMeterCalc {
 }
 
 export interface LockMeterProps {
+  /** Date the lockup started (typically tx confirmation). */
   lockStart: Date;
+  /** Soft-lockup duration in days (e.g. 60 for class A). */
   softLockupDays: number;
+  /** Early-exit penalty in basis points (e.g. 150 = 1.5%). */
   earlyExitPenaltyBps?: number;
+  /** As-of timestamp for the rendering (server time). Defaults to new Date(). */
   asOf?: Date;
+  /** Provenance metadata from the loader. */
   source?: "live" | "stale";
   updatedAt?: Date;
 }
 
+/** Pure calculation — no Date.now(), only the injected `asOf` param. */
 export function computeLockMeter(
   lockStart: Date,
   softLockupDays: number,

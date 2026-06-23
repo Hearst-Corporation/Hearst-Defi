@@ -1,5 +1,22 @@
 "use client";
 
+// PositionActions — self-served withdrawal for /portfolio/[positionId].
+// Client Component. Testnet ERC-4626 redeem path:
+//   connect wallet → review & confirm → redeem(all shares) on Base Sepolia →
+//   record withdrawal → confirmation.
+// Non-negotiable #5: no forbidden words in copy.
+//
+// Two-step confirmation (mirrors the deposit flow): clicking "Withdraw" only
+// opens an explicit review card — NO wallet/contract call fires until the user
+// clicks "Confirm withdrawal". This is the institutional-trust requirement: a
+// financial action is never one click away from a wallet signature.
+//
+// User-facing copy says "Withdraw" (not "Redeem"); internal contract names
+// (redeemFromVault / redeem) are unchanged.
+//
+// Wallet connect is via Privy (same as the deposit flow). When Privy is not
+// configured, the connect state is shown — never a simulated transaction.
+
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
@@ -74,6 +91,18 @@ function applyWithdrawPrerequisiteFailure(
   return true;
 }
 
+// ---------------------------------------------------------------------------
+// Pure phase-machine contract (exported for unit tests).
+//
+// The project's component tests assert logic contracts rather than render DOM
+// (no jsdom / @testing-library installed). These helpers encode the two-step
+// invariant precisely so it can be tested without a renderer:
+//   - clicking "Withdraw" only ever moves idle/error → confirm (no chain call);
+//   - the on-chain path may run ONLY from the "confirm" phase;
+//   - "Cancel" always returns to idle.
+// ---------------------------------------------------------------------------
+
+/** Resolve the phase after the intent click ("Withdraw"). Never reaches chain. */
 export function phaseAfterReviewClick(current: Phase): Phase {
   // From a resting state, open the review card. While a transaction is in
   // flight ("redeeming"/"recording") or finished ("done"), the intent button is
@@ -81,14 +110,23 @@ export function phaseAfterReviewClick(current: Phase): Phase {
   return current === "idle" || current === "error" ? "confirm" : current;
 }
 
+/** Phase after "Cancel" on the review card — always back to idle, no side effect. */
 export function phaseAfterCancel(): Phase {
   return "idle";
 }
 
+/** Whether the on-chain withdrawal may run given the current phase. */
 export function canRunOnChainWithdraw(current: Phase): boolean {
   return current === "confirm";
 }
 
+/**
+ * Guard: the live flow uses Privy hooks (usePrivy/useWallets) which THROW when
+ * no PrivyProvider is mounted — and the provider is a pass-through when
+ * NEXT_PUBLIC_PRIVY_APP_ID is unset. So when Privy is not configured we render a
+ * static notice and NEVER call the hooks (build-time env → stable branch, rules
+ * of hooks respected). Mirrors PrivyWalletConnect's inner/placeholder split.
+ */
 export function PositionActions({ position }: PositionActionsProps) {
   if (position.status !== "active") return null;
   if (!isPrivyConfigured()) {
@@ -116,6 +154,9 @@ function PositionActionsLive({ position }: PositionActionsProps) {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<RedeemFromVaultResult | null>(null);
 
+  // Step A — intent. Pure UI: opens the review card, fires NO wallet/contract
+  // call. Guards that would block the action are still surfaced up front so the
+  // user is not invited to review something that cannot proceed.
   const handleReview = useCallback(() => {
     setError(null);
     if (
@@ -132,12 +173,17 @@ function PositionActionsLive({ position }: PositionActionsProps) {
     setPhase((p) => phaseAfterReviewClick(p));
   }, [ready, privyWallet, walletAddress]);
 
+  // Cancel — return to the initial state with no side effect.
   const handleCancel = useCallback(() => {
     setError(null);
     setPhase(phaseAfterCancel());
   }, []);
 
+  // Step B — confirmation. The ONLY path that touches the chain. Reachable only
+  // from the "confirm" phase (the review card's "Confirm withdrawal" button).
   const handleConfirmWithdraw = useCallback(async () => {
+    // Defence in depth: never run the on-chain path unless we are explicitly in
+    // the confirm step. Prevents any accidental direct invocation.
     if (!canRunOnChainWithdraw(phase)) return;
 
     setError(null);
@@ -174,6 +220,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
       });
       setResult(res);
 
+      // Record the off-chain side: close/reduce the DB position + transaction.
       setPhase("recording");
       const assets = res.assetsUsdc > 0 ? res.assetsUsdc : position.principalUsdc;
       const recorded = await redeem(position.id, assets, res.txHash);
@@ -223,6 +270,8 @@ function PositionActionsLive({ position }: PositionActionsProps) {
   const busy = phase === "redeeming" || phase === "recording";
   const connected = ready && walletAddress !== null;
 
+  // Step B — explicit review card. No chain call has fired yet; the only way to
+  // the chain from here is the "Confirm withdrawal" button.
   if (phase === "confirm" || busy) {
     return (
       <section aria-label="Review withdrawal" className="product-doc-section">
@@ -294,6 +343,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
     );
   }
 
+  // Step A — intent. Clicking "Withdraw" only opens the review card above.
   return (
     <section aria-label="Position actions" className="product-doc-section">
       <p className="body-xs ct-text-muted">

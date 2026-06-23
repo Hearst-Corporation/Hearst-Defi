@@ -21,7 +21,7 @@ import type { LockMeterProps } from "../lock-meter";
 import { computeLockMeter } from "../lock-meter";
 import type { RiskPulseProps, RiskScore } from "../risk-pulse";
 import type { DistribCalendarProps, DistribEntry } from "../distrib-calendar";
-import { formatPeriod } from "../distrib-calendar";
+import { formatPeriod, formatUsdc } from "../distrib-calendar";
 import type { ProofPulseProps } from "../proof-pulse";
 import { computeDeltaPct, isMatch } from "../proof-pulse";
 import type { YieldStackProps } from "../yield-stack";
@@ -47,8 +47,6 @@ const MOCK_PORTFOLIO_DATA = {
     },
   ],
   totalValueUsdc: 542_000,
-  deployedUsdc: 500_000,
-  accruedYieldUsdc: 42_000,
   totalYieldYtdUsdc: 60_000,
   nextDistributionAt: new Date("2026-05-31T23:59:59Z"),
   recentTransactions: [
@@ -67,47 +65,34 @@ const MOCK_PORTFOLIO_DATA = {
 // ── 1. Hub cockpit bento (/portfolio dashboard) ──────────────────────────────
 
 describe("Portfolio hub — cockpit bento contract", () => {
-  /* NEW LAYOUT (v2):
-   * Row 1 (Hero):  chart | status          (50/50 fused)
-   * Row 2:         positions              (full-width)
-   * Row 3 (Deck): yield | [calendar + activity]  (60/40 split)
-   */
   const HUB_SECTIONS = [
-    "chart",
-    "status",
     "positions",
     "yield-allocation",
-    "calendar-activity",
+    "payout-calendar",
+    "yield-trust",
   ] as const;
 
   const HUB_WIDGETS = [
     "capital-yield-widget",
+    "trust-panel-widget",
     "distrib-calendar-widget",
+    "recent-activity-widget",
   ] as const;
 
-  it("defines 5 data-section markers on the hub (v2 layout)", () => {
-    expect(HUB_SECTIONS).toHaveLength(5);
+  it("defines 4 data-section markers on the hub", () => {
+    expect(HUB_SECTIONS).toHaveLength(4);
   });
 
-  it("defines 2 primary widget test-ids on the hub", () => {
-    expect(HUB_WIDGETS).toHaveLength(2);
+  it("defines 4 widget test-ids on the hub", () => {
+    expect(HUB_WIDGETS).toHaveLength(4);
   });
 
   it("hub sections are unique", () => {
-    expect(new Set(HUB_SECTIONS).size).toBe(5);
+    expect(new Set(HUB_SECTIONS).size).toBe(4);
   });
 
   it("hub widget test-ids are unique", () => {
-    expect(new Set(HUB_WIDGETS).size).toBe(2);
-  });
-
-  it("hero row contains chart and status sections", () => {
-    expect(HUB_SECTIONS).toContain("chart");
-    expect(HUB_SECTIONS).toContain("status");
-  });
-
-  it("positions has its own full-width row", () => {
-    expect(HUB_SECTIONS).toContain("positions");
+    expect(new Set(HUB_WIDGETS).size).toBe(4);
   });
 });
 
@@ -342,6 +327,10 @@ describe("DistribCalendar props — loadDistribCalendarProps shape", () => {
   it("formatPeriod helper works correctly", () => {
     expect(formatPeriod("2026-04", 2026)).toBe("Apr");
     expect(formatPeriod("2025-12", 2026)).toBe("Dec'25");
+  });
+
+  it("formatUsdc helper works correctly", () => {
+    expect(formatUsdc(358_000)).toBe("$358,000");
   });
 
   it("all amountUsdc are positive numbers", () => {

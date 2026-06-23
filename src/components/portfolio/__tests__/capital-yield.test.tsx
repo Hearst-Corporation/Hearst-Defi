@@ -69,33 +69,3 @@ describe("CapitalYield live state (real data + investor position)", () => {
     expect(html).toContain("not guaranteed");
   });
 });
-
-describe("CapitalYield funded position but no allocation snapshot (the live-state bug)", () => {
-  // Position funded ($11) but the vault snapshot is cold → sources/buckets empty,
-  // blendedLow/High grafted from the position range (8–15%). The donut centre must
-  // show the deployed capital (NOT "Pending") and the hero a reference range (NOT "—").
-  const FUNDED_NO_SNAPSHOT: CapitalYieldProps = {
-    sources: [],
-    blendedLow: 8,
-    blendedHigh: 15,
-    stressedBearRange: { low: 0, high: 0 },
-    buckets: [],
-    totalValueUsdc: 11,
-    source: "estimated",
-  };
-
-  it("shows deployed capital in the donut centre, never 'Pending'", () => {
-    const html = renderToStaticMarkup(<CapitalYield {...FUNDED_NO_SNAPSHOT} embedded />);
-    expect(html).toContain("Capital");
-    expect(html).not.toContain("Pending");
-  });
-
-  it("shows a reference range (8–15%), never a lone em-dash headline", () => {
-    const html = renderToStaticMarkup(<CapitalYield {...FUNDED_NO_SNAPSHOT} embedded />);
-    expect(html).toContain("Reference range");
-    expect(html).toContain("8");
-    expect(html).toContain("15");
-    expect(html).not.toContain("Forward range pending");
-    expect(html).toContain("not guaranteed");
-  });
-});

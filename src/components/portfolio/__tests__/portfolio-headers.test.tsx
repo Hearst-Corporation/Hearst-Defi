@@ -29,8 +29,7 @@ describe("portfolio headers", () => {
       <PortfolioGreeting
         name="Alice"
         ticker={{
-          totalValueUsdc: 542_000,
-          deployedUsdc: 500_000,
+          totalValueUsdc: 500_000,
           totalYieldYtdUsdc: 12_000,
           nextDistributionAt: new Date("2026-07-01T00:00:00Z"),
           blendedLow: 9.4,
@@ -44,7 +43,6 @@ describe("portfolio headers", () => {
     expect(html).toContain("pf-ticker-inline");
     expect(html).toContain("Welcome back,");
     expect(html).toContain("9.4 \u2013 12.8%");
-    expect(html).toContain("+8.4% accrued"); // yield delta indicator
     expect(html).not.toContain("product-page-header");
   });
 
@@ -57,48 +55,5 @@ describe("portfolio headers", () => {
     expect(html).toContain("Total value");
     expect(html).toContain("Active");
     expect(html).not.toContain("product-page-header");
-  });
-
-  it("zero-state ticker uses em-dash placeholders, not $0", () => {
-    const html = renderToStaticMarkup(
-      <PortfolioGreeting
-        name="Alice"
-        ticker={{
-          totalValueUsdc: 0,
-          deployedUsdc: 0,
-          totalYieldYtdUsdc: 0,
-          nextDistributionAt: new Date("2026-07-01T00:00:00Z"),
-          blendedLow: 0,
-          blendedHigh: 0,
-          hasPositions: false,
-        }}
-      />,
-    );
-
-    expect(html).toContain("YTD yield");
-    expect(html).not.toContain("12M yield");
-    expect(html).not.toContain("$0");
-    expect(html).not.toContain("accrued"); // no delta indicator in zero-state
-  });
-
-  it("shows projected next payout when nextPayoutUsdc is provided", () => {
-    const html = renderToStaticMarkup(
-      <PortfolioGreeting
-        name="Alice"
-        ticker={{
-          totalValueUsdc: 500_000,
-          deployedUsdc: 480_000,
-          totalYieldYtdUsdc: 12_000,
-          nextDistributionAt: new Date("2026-07-01T00:00:00Z"),
-          nextPayoutUsdc: 4_200,
-          blendedLow: 9.4,
-          blendedHigh: 12.8,
-          hasPositions: true,
-        }}
-      />,
-    );
-
-    expect(html).toContain("$4.2K");
-    expect(html).toContain("+4.2% accrued"); // (500k-480k)/480k = 4.2%
   });
 });

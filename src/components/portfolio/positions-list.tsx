@@ -1,4 +1,3 @@
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import Link from "next/link";
 
 import { ApyRange } from "@/components/ui/apy-range";
@@ -9,6 +8,7 @@ import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import {
   PfCockpitPanel,
+  PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
@@ -47,7 +47,6 @@ export function PositionsList({
 }: PositionsListProps) {
   const hasPositions = positions.length > 0;
   const provenance = hasPositions ? resolveProvenance(source, updatedAt) : undefined;
-  const totalPortfolioValue = positions.reduce((sum, pos) => sum + pos.valueUsdc, 0);
 
   const trailing = leafHref ? (
     <PortfolioLeafLink href={leafHref} />
@@ -64,18 +63,33 @@ export function PositionsList({
         chrome={embedded ? "embedded" : "panel"}
         aria-label="Open positions — awaiting first position"
       >
-        <DashboardPanelHeader
+        <PfCockpitPanelHeader
           title="Positions"
-          tone="primary"
+          titleVariant="primary"
           trailing={trailing}
         />
         {/* Zero-state skeleton — the ledger frame with muted placeholder rows.
            Fills in with real positions as soon as the first one is confirmed. */}
-        <div className="pf-positions-empty">
-          <span className="pf-positions-empty__lead">No active positions</span>
-          <span className="pf-positions-empty__hint ct-text-muted">
-            Your portfolio will display your active vault subscriptions here.
-          </span>
+        <div className="pf-positions pf-positions--skeleton" aria-label="No positions yet">
+          <div className="pf-positions__row pf-positions__row--head stat-label">
+            <span>Vault</span>
+            <span className="pf-positions__num">Principal</span>
+            <span className="pf-positions__num">Value</span>
+            <span className="pf-positions__num">APY range</span>
+            <span className="pf-positions__num">Since</span>
+          </div>
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="pf-positions__row pf-positions__row--body pf-positions__row--skeleton" aria-hidden>
+              <span className="pf-positions__vault">
+                <span className="pf-status-dot pf-skeleton-dot" />
+                <span className="pf-skeleton-bar pf-skeleton-bar--vault" />
+              </span>
+              <span className="pf-positions__num"><span className="pf-skeleton-bar pf-skeleton-bar--num" /></span>
+              <span className="pf-positions__num"><span className="pf-skeleton-bar pf-skeleton-bar--num" /></span>
+              <span className="pf-positions__num"><span className="pf-skeleton-bar pf-skeleton-bar--num" /></span>
+              <span className="pf-positions__num"><span className="pf-skeleton-bar pf-skeleton-bar--num" /></span>
+            </div>
+          ))}
         </div>
       </PfCockpitPanel>
     );
@@ -87,85 +101,58 @@ export function PositionsList({
       chrome={embedded ? "embedded" : "panel"}
       aria-label="Open positions"
     >
-      <DashboardPanelHeader
+      <PfCockpitPanelHeader
         title="Positions"
-        tone="primary"
+        titleVariant="primary"
         provenance={provenance}
         trailing={trailing}
       />
       <div className="pf-positions">
-        <div className="pf-positions__row pf-positions__row--head stat-label uppercase tracking-widest">
-          <span className="pf-positions__col--vault">Vault</span>
-          <span className="pf-positions__num pf-positions__col--principal">Principal</span>
-          <span className="pf-positions__num pf-positions__col--value">Value</span>
-          <span className="pf-positions__num pf-positions__col--share">Share</span>
-          <span className="pf-positions__num pf-positions__col--apy">APY range</span>
-          <span className="pf-positions__num pf-positions__col--since">Since</span>
+        <div className="pf-positions__row pf-positions__row--head stat-label">
+          <span>Vault</span>
+          <span className="pf-positions__num">Principal</span>
+          <span className="pf-positions__num">Value</span>
+          <span className="pf-positions__num">APY range</span>
+          <span className="pf-positions__num">Since</span>
         </div>
 
-        {positions.map((p) => {
-          const sharePct = totalPortfolioValue > 0 ? (p.valueUsdc / totalPortfolioValue) * 100 : 0;
+        {positions.map((p) => (
+          <div key={p.id} className="pf-positions__row pf-positions__row--body">
+            <span className="pf-positions__vault">
+              <span
+                className={cn("pf-status-dot", STATUS_DOT[p.status] ?? "pf-status-dot--default")}
+                aria-hidden
+              />
+              <Link
+                href={`/portfolio/${p.id}`}
+                className="body-md ct-text-primary min-w-0 truncate underline-offset-4 hover:underline"
+                aria-label={`Open details for ${p.vaultName ?? "unassigned vault"}`}
+              >
+                {p.vaultName ?? "Unassigned vault"}
+              </Link>
+            </span>
 
-          return (
-            <div key={p.id} className="pf-positions__row pf-positions__row--body group/row">
-              <span className="pf-positions__vault pf-positions__col--vault">
-                <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-ct-surface-2 border border-ct-border-base group-hover/row:border-ct-accent/30 transition-colors">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 ct-text-secondary group-hover/row:ct-text-accent transition-colors">
-                    <path d="M3 21h18M3 10h18M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M7 21v-4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4" />
-                  </svg>
-                  <span
-                    className={cn("absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-ct-surface-1", STATUS_DOT[p.status] ?? "pf-status-dot--default")}
-                    aria-hidden
-                  />
-                </div>
-                <div className="pf-positions__vault-copy">
-                  <Link
-                    href={`/portfolio/${p.id}`}
-                    className="pf-positions__vault-link body-md ct-text-primary min-w-0 truncate underline-offset-4 hover:underline font-semibold flex items-center gap-1.5 group"
-                    aria-label={`Open details for ${p.vaultName ?? "unassigned vault"}`}
-                  >
-                    <span>{p.vaultName ?? "Unassigned vault"}</span>
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all"
-                    >
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                </div>
-              </span>
+            <span className="pf-positions__num tabular body-md ct-text-body">
+              {formatUsdCompact(p.principalUsdc)}
+            </span>
 
-              <span className="pf-positions__num tabular body-md ct-text-body font-mono pf-positions__col--principal">
-                {formatUsdCompact(p.principalUsdc)}
-              </span>
+            <span className="pf-positions__num tabular body-md ct-text-strong font-semibold">
+              {formatUsdCompact(p.valueUsdc)}
+            </span>
 
-              <span className="pf-positions__num tabular body-md ct-text-strong font-mono font-bold pf-positions__col--value">
-                {formatUsdCompact(p.valueUsdc)}
-              </span>
+            <span className="pf-positions__num">
+              {p.apyLow !== null && p.apyHigh !== null ? (
+                <ApyRange low={p.apyLow} high={p.apyHigh} precision={1} className="body-sm font-semibold" />
+              ) : (
+                <span className="body-xs ct-text-tertiary">Unavailable</span>
+              )}
+            </span>
 
-              <span className="pf-positions__num tabular body-sm ct-text-secondary font-mono pf-positions__col--share">
-                {sharePct.toFixed(1)}%
-              </span>
-
-              <span className="pf-positions__num pf-positions__col--apy">
-                {p.apyLow !== null && p.apyHigh !== null ? (
-                  <ApyRange low={p.apyLow} high={p.apyHigh} precision={1} className="body-sm font-mono font-semibold" />
-                ) : (
-                  <span className="body-xs ct-text-tertiary">Unavailable</span>
-                )}
-              </span>
-
-              <span className="pf-positions__num tabular body-sm ct-text-muted font-mono pf-positions__col--since">
-                {dateFmt.format(p.subscribedAt)}
-              </span>
-            </div>
-          );
-        })}
+            <span className="pf-positions__num body-xs tabular ct-text-muted">
+              {dateFmt.format(p.subscribedAt)}
+            </span>
+          </div>
+        ))}
       </div>
     </PfCockpitPanel>
   );

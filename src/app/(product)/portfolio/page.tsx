@@ -7,6 +7,7 @@ import { PositionsList } from "@/components/portfolio/positions-list";
 import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
+import { TrustProofCompact } from "@/components/portfolio/trust-panel";
 import { PortfolioStatusPanel } from "@/components/portfolio/portfolio-status-panel";
 import { cn } from "@/lib/cn";
 
@@ -37,12 +38,12 @@ export default async function PortfolioPage() {
     yieldStackProps,
     allocationDonutProps,
     distribCalendarProps,
-    now,
-    nextPayoutUsdc,
+    riskPulseProps,
     proofPulseProps,
   } = await loadPortfolioView();
 
-  // Totals pre-computed in loadPortfolio() — no client-side reduce().
+  const deployedUsdc = data.positions.reduce((s, p) => s + p.principalUsdc, 0);
+  const accruedYieldUsdc = data.positions.reduce((s, p) => s + p.accruedYieldUsdc, 0);
 
   return (
     <div
@@ -52,70 +53,77 @@ export default async function PortfolioPage() {
     >
       <PortfolioGreeting
         name={displayName(investor)}
-        now={now}
         ticker={{
           totalValueUsdc: data.totalValueUsdc,
-          deployedUsdc: data.deployedUsdc,
           totalYieldYtdUsdc: data.totalYieldYtdUsdc,
           nextDistributionAt: data.nextDistributionAt,
-          nextPayoutUsdc,
           blendedLow: yieldStackProps.blendedLow,
           blendedHigh: yieldStackProps.blendedHigh,
           hasPositions,
         }}
       />
 
-      <div className="pf-cockpit pf-terminal-workspace">
-        {/* Main Data Column (Left) */}
-        <div className="flex flex-col gap-8 min-w-0">
-          <div className="flex flex-col min-w-0">
-            <PositionsList
-              positions={data.positions}
-              source={data.source}
-              updatedAt={data.updatedAt}
-              leafHref="/portfolio/positions"
-            />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <ValueChart
-              positions={data.positions}
+      <div className="pf-hairline" aria-hidden="true" />
+
+      <div className="pf-cockpit">
+        <div className="pf-cockpit-row pf-cockpit-row--summary">
+          <div className="pf-hero-grid pf-cockpit-cell">
+            <div className="pf-main-chart-wrapper">
+              <ValueChart
+                positions={data.positions}
+                totalValueUsdc={data.totalValueUsdc}
+                valueChartTransactions={data.valueChartTransactions}
+                source={data.source}
+                updatedAt={data.updatedAt}
+                embedded
+              />
+            </div>
+            <PortfolioStatusPanel
+              hasPositions={hasPositions}
+              positionsCount={data.positions.length}
+              deployedUsdc={deployedUsdc}
               totalValueUsdc={data.totalValueUsdc}
-              valueChartTransactions={data.valueChartTransactions}
+              accruedYieldUsdc={accruedYieldUsdc}
               source={data.source}
-              updatedAt={data.updatedAt}
-              asOf={now}
-            />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <CapitalYield
-              {...yieldStackProps}
-              buckets={allocationDonutProps.buckets}
-              totalValueUsdc={data.totalValueUsdc}
-              leafHref="/portfolio/yield"
+              embedded
+              {...(data.updatedAt ? { updatedAt: data.updatedAt } : {})}
             />
           </div>
         </div>
 
-        {/* Live Feed Sidebar (Right) */}
-        <div className="flex flex-col gap-8 min-w-0">
-          <div className="flex flex-col min-w-0">
-            <PortfolioStatusPanel
-              hasPositions={hasPositions}
-              positionsCount={data.positions.length}
-              deployedUsdc={data.deployedUsdc}
-              totalValueUsdc={data.totalValueUsdc}
-              accruedYieldUsdc={data.accruedYieldUsdc}
-              source={data.source}
-              proof={{
-                statedTvlUsdc: proofPulseProps.lastPor.statedTvlUsdc,
-                onChainTvlUsdc: proofPulseProps.lastPor.onChainTvlUsdc,
-                timestamp: proofPulseProps.lastPor.timestamp,
-                source: proofPulseProps.source,
-              }}
-              {...(data.updatedAt ? { updatedAt: data.updatedAt } : {})}
-            />
+        <div className="pf-cockpit-row pf-cockpit-row--mid">
+          <div className="pf-cockpit-cell pf-fused-surface pf-fused-surface--mid">
+            <div className="pf-fused-surface__pane" data-section="positions">
+              <PositionsList
+                positions={data.positions}
+                source={data.source}
+                updatedAt={data.updatedAt}
+                leafHref="/portfolio/positions"
+                embedded
+              />
+            </div>
+            <div
+              className="pf-fused-surface__pane pf-fused-surface__pane--aside"
+              data-section="yield-allocation"
+              data-testid="capital-yield-widget"
+            >
+              <CapitalYield
+                {...yieldStackProps}
+                buckets={allocationDonutProps.buckets}
+                totalValueUsdc={data.totalValueUsdc}
+                leafHref="/portfolio/yield"
+                embedded
+              />
+            </div>
           </div>
-          <div className="flex flex-col min-w-0">
+        </div>
+
+        <div className="pf-cockpit-row pf-cockpit-row--deck">
+          <div
+            className="pf-cockpit-cell"
+            data-section="payout-calendar"
+            data-testid="distrib-calendar-widget"
+          >
             <DistribCalendar
               {...distribCalendarProps}
               leafHref="/portfolio/distributions"
@@ -123,14 +131,27 @@ export default async function PortfolioPage() {
               secondaryLeafLabel="Tax preview"
             />
           </div>
-          <div className="flex flex-col min-w-0">
-            <RecentActivity
-              transactions={data.recentTransactions}
-              source={data.source}
-              updatedAt={data.updatedAt}
-              asOf={now}
-              leafHref="/portfolio/activity"
-            />
+          <div className="pf-cockpit-cell pf-fused-surface pf-fused-surface--deck">
+            <div
+              className="pf-fused-surface__pane"
+              data-section="activity-payouts"
+              data-testid="recent-activity-widget"
+            >
+              <RecentActivity
+                transactions={data.recentTransactions}
+                source={data.source}
+                updatedAt={data.updatedAt}
+                leafHref="/portfolio/activity"
+                embedded
+              />
+            </div>
+            <div
+              className="pf-fused-surface__pane pf-fused-surface__pane--aside"
+              data-section="yield-trust"
+              data-testid="trust-panel-widget"
+            >
+              <TrustProofCompact embedded risk={riskPulseProps} proof={proofPulseProps} />
+            </div>
           </div>
         </div>
       </div>

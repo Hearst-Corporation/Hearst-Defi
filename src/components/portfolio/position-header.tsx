@@ -1,3 +1,7 @@
+// PositionHeader — top section of /portfolio/[positionId]
+// Server Component. Shows vault name, position ID, status pill, total value + delta vs principal.
+// Non-negotiable #2: ProvenanceBadge on the total value metric.
+
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -23,6 +27,10 @@ interface PositionHeaderProps {
   position: PositionDetail;
 }
 
+/**
+ * Header block: back link, vault name + position id, status pill,
+ * total value with delta vs principal.
+ */
 export function PositionHeader({ position }: PositionHeaderProps) {
   const totalValue = position.principalUsdc + position.accruedYieldUsdc;
   const delta = totalValue - position.principalUsdc;

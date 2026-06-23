@@ -1,13 +1,17 @@
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { relativeTime } from "@/lib/format/time";
-import { formatUsdCompact } from "@/lib/vaults/product-display";
 import {
   PfCockpitPanel,
+  PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
-import { cn } from "@/lib/cn";
+
+const usdFmt = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
 
 const TYPE_LABELS: Record<string, string> = {
   deposit: "Deposit",
@@ -15,19 +19,6 @@ const TYPE_LABELS: Record<string, string> = {
   withdraw: "Withdrawal",
   distribution: "Payout",
 };
-
-const ICONS = {
-  in: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 5v14M5 12l7-7 7 7" />
-    </svg>
-  ),
-  out: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 19V5M5 12l7 7 7-7" />
-    </svg>
-  ),
-} as const;
 
 function flowSign(type: string): "in" | "out" {
   return type === "withdraw" ? "out" : "in";
@@ -37,7 +28,6 @@ interface RecentActivityProps {
   transactions: PortfolioTransaction[];
   source: "live" | "fallback";
   updatedAt?: Date;
-  asOf?: Date;
   leafHref?: string;
   embedded?: boolean;
 }
@@ -46,18 +36,14 @@ export function RecentActivity({
   transactions,
   source,
   updatedAt,
-  asOf: asOfProp,
   leafHref,
   embedded = false,
 }: RecentActivityProps) {
   const displayed = transactions.slice(0, 5);
   const hasTransactions = displayed.length > 0;
   const provenance = hasTransactions ? resolveProvenance(source, updatedAt) : undefined;
-  const asOf = asOfProp ?? new Date();
+  const asOf = new Date();
   const trailing = leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined;
-  const latest = displayed[0];
-  const latestDirection = latest ? flowSign(latest.type) : null;
-  const latestLabel = latest ? (TYPE_LABELS[latest.type] ?? latest.type) : null;
 
   return (
     <PfCockpitPanel
@@ -66,82 +52,54 @@ export function RecentActivity({
       aria-label="Recent account activity"
       className={embedded ? undefined : "h-full"}
     >
-      <DashboardPanelHeader
+      <PfCockpitPanelHeader
         title="Recent Activity"
-        tone="primary"
+        titleVariant="primary"
         provenance={hasTransactions ? provenance : undefined}
         trailing={trailing}
       />
       {hasTransactions ? (
         <div className="pf-activity">
-          {latest ? (
-            <div className="pf-activity-summary">
-              <div className="pf-activity-summary__main">
-                <span className="pf-activity-summary__eyebrow">Latest movement</span>
-                <span className="pf-activity-summary__title">
-                  {latestLabel}
-                  {latest.positionVaultName ? (
-                    <span className="ct-text-tertiary font-normal"> · {latest.positionVaultName}</span>
-                  ) : null}
-                </span>
-                <span className="pf-activity-summary__meta">
-                  {relativeTime(latest.occurredAt, asOf)}
-                </span>
-              </div>
-              <div className="pf-activity-summary__aside">
-                <span className={cn(
-                  "pf-activity-summary__amount",
-                  latestDirection === "in" ? "ct-text-accent" : "ct-text-strong"
-                )}>
-                  {latestDirection === "out" ? "−" : "+"}
-                  {formatUsdCompact(latest.amountUsdc)}
-                </span>
-                <span className="pf-activity-summary__count">
-                  {displayed.length} recent event{displayed.length !== 1 ? "s" : ""}
-                </span>
-              </div>
-            </div>
-          ) : null}
-          <div className="pf-activity-list">
-            {displayed.map((tx) => {
+          {displayed.map((tx) => {
             const dir = flowSign(tx.type);
             return (
-              <div key={tx.id} className="pf-activity__row group">
-                <span className={cn(
-                  "pf-activity__glyph",
-                  dir === "in" ? "ct-text-accent" : "ct-text-muted"
-                )} aria-hidden>
-                  {ICONS[dir]}
+              <div key={tx.id} className="pf-activity__row">
+                <span className="pf-activity__glyph" data-dir={dir} aria-hidden>
+                  {dir === "in" ? "▲" : "▼"}
                 </span>
                 <span className="pf-activity__main min-w-0">
                   <span className="body-sm ct-text-primary font-semibold truncate">
                     {TYPE_LABELS[tx.type] ?? tx.type}
                     {tx.positionVaultName ? (
-                      <span className="ct-text-tertiary font-normal"> · {tx.positionVaultName}</span>
+                      <span className="ct-text-muted font-normal"> · {tx.positionVaultName}</span>
                     ) : null}
                   </span>
-                  <span className="pf-activity__meta truncate">
+                  <span className="stat-label ct-text-muted mono truncate">
                     {relativeTime(tx.occurredAt, asOf)}
                   </span>
                 </span>
-                <span className={cn(
-                  "pf-activity__amt",
-                  dir === "in" ? "ct-text-accent" : "ct-text-strong"
-                )}>
+                <span className="pf-activity__amt tabular body-md mono font-semibold">
                   {dir === "out" ? "−" : "+"}
-                  {formatUsdCompact(tx.amountUsdc)}
+                  {usdFmt.format(tx.amountUsdc)}
                 </span>
               </div>
             );
-            })}
-          </div>
+          })}
         </div>
       ) : (
-        <div className="pf-activity pf-activity--empty" aria-label="No activity yet">
-          <span className="pf-activity__empty-lead">No recent activity</span>
-          <span className="pf-activity__empty-hint ct-text-muted">
-            Your recent deposits, withdrawals, and distribution payouts will appear here.
-          </span>
+        /* Zero-state skeleton — muted placeholder rows, no phrase. Fills in
+           with real transactions as soon as the first one lands. */
+        <div className="pf-activity pf-activity--skeleton" aria-label="No activity yet">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="pf-activity__row pf-activity__row--skeleton" aria-hidden>
+              <span className="pf-activity__glyph pf-skeleton-dot" />
+              <span className="pf-activity__main min-w-0">
+                <span className="pf-skeleton-bar pf-skeleton-bar--label" />
+                <span className="pf-skeleton-bar pf-skeleton-bar--meta" />
+              </span>
+              <span className="pf-skeleton-bar pf-skeleton-bar--amt" />
+            </div>
+          ))}
         </div>
       )}
     </PfCockpitPanel>
