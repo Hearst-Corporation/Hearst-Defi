@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * ValueChart — recodé from scratch (2026-06-21).
  *
