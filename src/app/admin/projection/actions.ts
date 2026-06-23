@@ -57,6 +57,8 @@ type MatrixCell = {
   apyHigh: number;
   riskScore: number;
   scenarioRunId: string;
+  allocations: { bucket: string; pct: number }[];
+  confidence: string;
 };
 
 type RunProjectionStudyResult = {
@@ -188,6 +190,11 @@ export async function runProjectionStudy(input: {
     apyHigh: r.outputs.apy_range.high,
     riskScore: r.outputs.risk_score,
     scenarioRunId: r.runId,
+    allocations: r.outputs.allocations.map((a) => ({
+      bucket: a.bucket,
+      pct: a.pct,
+    })),
+    confidence: r.outputs.confidence,
   }));
 
   // Persist the ProjectionStudyRun parent

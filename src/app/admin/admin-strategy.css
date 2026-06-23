@@ -162,9 +162,36 @@
   transition:
     background-color var(--ct-dur-base) var(--ct-ease),
     border-color var(--ct-dur-base) var(--ct-ease);
+  overflow: hidden;
+}
+
+.admin-strategy-heatmap-cell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(255,255,255,0.05), transparent);
+  pointer-events: none;
 }
 
 .admin-strategy-placeholder-copy {
   padding-left: var(--ct-space-6);
   padding-right: var(--ct-space-6);
+}
+
+/* Slider extreme state */
+.projection-studio-range--extreme {
+  accent-color: var(--ct-status-warning) !important;
+}
+
+.projection-studio-range--extreme::-webkit-slider-thumb {
+  box-shadow: 0 0 10px var(--ct-status-warning);
+}
+
+/* Assumptions Strip Scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
