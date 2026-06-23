@@ -167,6 +167,14 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
       "Laboratoire de scénarios et stress tests pour un produit déjà cadré: paramètres moteur, hypothèses et runbook de simulation.",
   },
   {
+    key: "admin-agent-canvas",
+    profile: "admin",
+    route: "/admin/agent-canvas",
+    label: "Agent Canvas",
+    description:
+      "Page de travail centrale que l'agent remplit en direct (sections, champs, propositions d'action HITL) pour cadrer un produit ou une campagne outreach. Le canvasId précise quel atelier ouvrir.",
+  },
+  {
     key: "admin-dashboard",
     profile: "admin",
     route: "/admin/dashboard",

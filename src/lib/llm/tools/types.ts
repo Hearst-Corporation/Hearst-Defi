@@ -28,6 +28,11 @@ export const ADMIN_WRITE_TOOL_IDS = [
   "outreach_source_leads",
   "outreach_draft_email",
   "outreach_trigger_send_run",
+  // Agent Canvas Workspace — write side (HITL confirmation). `create_vault_draft`
+  // creates a vault in the `draft` state ONLY (it calls createDraftVault); going
+  // live is a SEPARATE state-machine action (markAsLive) that is deliberately NOT
+  // a tool — it can never be reached from the canvas. No financial/custodial action.
+  "create_vault_draft",
 ] as const;
 
 export type AdminWriteToolId = (typeof ADMIN_WRITE_TOOL_IDS)[number];

@@ -213,7 +213,7 @@ export function ScoreGrid({
         label="Mining Margin"
         value={output.mining_margin_score}
         fillClassName={miningColorClass}
-        caption={variant === "full" ? "Current vs target" : "Current vs target"}
+        caption="Current vs target"
       />
     </div>
   );

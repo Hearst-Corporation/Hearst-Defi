@@ -10,6 +10,7 @@ import { Metric } from "@/components/ui/metric";
 import { Ptai } from "@/components/ui/ptai";
 import { ScenePlaceholderMetrics } from "@/components/ui/scene-placeholder-metrics";
 import { cn } from "@/lib/cn";
+import { getPresetMetas } from "@/lib/engine/preset-meta";
 import {
   runProjectionStudy,
   promoteStudyToDraft,
@@ -41,13 +42,10 @@ type BatchMode = "none" | "1d" | "2d";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const PRESETS: { id: Preset; label: string; description: string }[] = [
-  { id: "base", label: "Base", description: "Current operating assumptions" },
-  { id: "btc_bear", label: "BTC Bear", description: "Lower BTC and mining margin" },
-  { id: "btc_bull", label: "BTC Bull", description: "Higher BTC momentum" },
-  { id: "mining_compression", label: "Mining Compression", description: "Hashprice and energy stress" },
-  { id: "extreme_stress", label: "Extreme Stress", description: "Severe market shock" },
-];
+// Single source of truth: labels + descriptions derived from the engine's
+// canonical preset inputs (was a divergent hand-typed copy of preset-bar's).
+const PRESETS: { id: Preset; label: string; description: string }[] =
+  getPresetMetas();
 
 // Default BTC chg variation sweep for 1D batch
 const DEFAULT_1D_VALUES = [-30, -15, 0, 15, 30];

@@ -30,6 +30,7 @@ const WRITE_GRAPH_LABELS: Record<AdminWriteToolId, string> = {
   outreach_source_leads: "Source leads",
   outreach_draft_email: "Draft email",
   outreach_trigger_send_run: "Trigger send run",
+  create_vault_draft: "Vault draft",
 };
 
 export interface AdminToolGraphEntry {

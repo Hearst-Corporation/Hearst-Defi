@@ -4,6 +4,7 @@ import { getRedis } from "@/lib/rate-limit";
 import {
   resolveNavDestination,
 } from "@/lib/llm/navigate-tool";
+import { isCanvasId } from "@/lib/canvas/contract";
 import type { ProductWorkspaceIntentKind } from "@/lib/llm/product-workspace-intent";
 
 /**
@@ -34,6 +35,8 @@ interface StoredNavDirective {
   intentKind?: ProductWorkspaceIntentKind;
   secondaryDestinationKey?: string;
   secondaryHint?: string;
+  /** Agent-canvas only: which canvas workshop to open (e.g. "create-vault"). */
+  canvasId?: string;
 }
 
 export interface ConsumedNavDirective {
@@ -45,6 +48,7 @@ export interface ConsumedNavDirective {
   secondaryRoute?: string;
   secondaryLabel?: string;
   secondaryHint?: string;
+  canvasId?: string;
 }
 
 const MAX_OBJECTIVE_LEN = 220;
@@ -91,13 +95,22 @@ function normalizeDirective(
 
   const destination = resolveNavDestination(input.destinationKey);
   if (!destination) return null;
+  // Destinations that accept a seeded objective + autostart from the agent: the
+  // product workspace, the scenario lab, and the agent-canvas family. Keeping
+  // this as a small set (not an open flag) preserves the "agent can only seed
+  // the pages we built for it" invariant.
   const supportsSeededObjective =
     input.destinationKey === "admin-product-workspace" ||
-    input.destinationKey === "admin-scenario-lab";
+    input.destinationKey === "admin-scenario-lab" ||
+    input.destinationKey === "admin-agent-canvas";
+  const isCanvas = input.destinationKey === "admin-agent-canvas";
   const objective = supportsSeededObjective
     ? sanitizeObjective(input.objective)
     : undefined;
   const autostart = supportsSeededObjective && input.autostart === true ? true : undefined;
+  // canvasId is only meaningful for the agent-canvas family, and must be one of
+  // the closed CanvasId set — an unknown id is dropped (the page then 404s).
+  const canvasId = isCanvas && isCanvasId(input.canvasId) ? input.canvasId : undefined;
   const secondaryDestination =
     input.secondaryDestinationKey && supportsSeededObjective
       ? resolveNavDestination(input.secondaryDestinationKey)
@@ -110,6 +123,7 @@ function normalizeDirective(
     ...(objective ? { objective } : {}),
     ...(autostart ? { autostart } : {}),
     ...(input.intentKind ? { intentKind: input.intentKind } : {}),
+    ...(canvasId ? { canvasId } : {}),
     ...(secondaryDestination
       ? { secondaryDestinationKey: secondaryDestination.key }
       : {}),
@@ -198,6 +212,9 @@ export async function consumeNav(
     ...(parsed.objective ? { objective: parsed.objective } : {}),
     ...(parsed.autostart ? { autostart: true } : {}),
     ...(parsed.intentKind ? { intentKind: parsed.intentKind } : {}),
+    ...(parsed.canvasId && isCanvasId(parsed.canvasId)
+      ? { canvasId: parsed.canvasId }
+      : {}),
     ...(secondaryDestination
       ? {
           secondaryRoute: secondaryDestination.route,

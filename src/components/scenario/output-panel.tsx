@@ -157,7 +157,7 @@ function DecisionPanel({
   const miningFill = progressScoreFillClass(output.mining_margin_score, false);
 
   return (
-    <Card>
+    <Card material="flat" hoverOverlay={false}>
       <CardHeader className="mb-[var(--ct-space-6)]">
         <div className="min-w-0">
           <CardTitle>Scenario decision</CardTitle>
@@ -279,7 +279,7 @@ function AllocationRebalancePanel({ output }: { output: ScenarioOutput }) {
   const hasGuardrails = output.btc_tactical.guardrails.length > 0;
 
   return (
-    <Card>
+    <Card material="flat" hoverOverlay={false}>
       <CardHeader className="mb-[var(--ct-space-6)]">
         <div className="min-w-0">
           <CardTitle>Allocation &amp; rebalancing</CardTitle>
@@ -354,7 +354,7 @@ function AssumptionsPanel({ assumptions }: { assumptions: string[] }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <Card>
+    <Card material="flat" hoverOverlay={false}>
       <button
         type="button"
         onClick={() => setOpen((x) => !x)}

@@ -4884,6 +4884,50 @@ main#main-content>.admin-doc.admin-doc-shell {
   max-width: 90%;
 }
 
+/* Empty-state wrapper — holds the intro placeholder + the quick-action preset
+   chips, centered together (the placeholder is no longer a direct child of the
+   list, so it inherits centering from here instead of the rule above). */
+.ct-chat-empty {
+  margin: auto;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-4);
+}
+.ct-chat-empty > .ct-placeholder {
+  margin: 0;
+  text-align: center;
+}
+
+/* Quick-action preset chips (agent-canvas presets). Flat, token-driven; wrap so
+   2–3 chips never overflow the chat rail. */
+.ct-chat-presets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--ct-space-2);
+}
+.ct-chat-preset-chip {
+  padding: var(--ct-space-2) var(--ct-space-3);
+  font-size: var(--ct-text-xs);
+  border-radius: var(--ct-radius-full);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-2);
+  color: var(--ct-text-strong);
+  cursor: pointer;
+  transition: border-color 120ms var(--ct-ease), background 120ms var(--ct-ease);
+}
+.ct-chat-preset-chip:hover {
+  border-color: var(--ct-accent);
+  background: var(--ct-surface-3);
+}
+.ct-chat-preset-chip--disabled,
+.ct-chat-preset-chip:disabled {
+  opacity: var(--ct-opacity-35);
+  cursor: not-allowed;
+}
+
 /* Send button — guarantee a PERFECT circle regardless of content (arrow SVG,
    streaming dots) or disabled overrides. width===height (token) + aspect-ratio
    filet + full radius + flex-shrink so the form's flex row never stretches it. */

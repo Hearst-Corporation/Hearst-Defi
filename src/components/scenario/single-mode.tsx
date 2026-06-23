@@ -9,8 +9,6 @@ import { PresetBar } from "@/components/scenario/preset-bar";
 import { Spinner } from "@/components/scenario/scenario-spinner";
 import { CentralTaskRunner } from "@/components/scenario/central-task-runner";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScenePlaceholderMetrics } from "@/components/ui/scene-placeholder-metrics";
 import { cn } from "@/lib/cn";
 import { useScenario } from "@/hooks/use-scenario";
 import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
@@ -57,28 +55,29 @@ export function SingleMode({
 
   return (
     <div className="scenario-lab-single admin-doc-stack admin-doc-stack--roomy">
-      <PresetBar
-        selected={state.selectedPreset}
-        onSelect={selectPreset}
-        disabled={pending}
-      />
-
       {error ? <ScenarioErrorBanner message={error} /> : null}
 
-      <div className="scenario-lab-workspace">
-        <Card className="scenario-lab-input-card p-0" hoverOverlay={false}>
-          <CardHeader className="scenario-lab-input-card__header">
-            <div className="min-w-0">
-              <CardTitle>Inputs</CardTitle>
-              <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">
-                Adjust sliders or select a preset above.
-              </p>
-            </div>
-          </CardHeader>
+      {/* Config — presets | inputs, both FLAT (no own surface): the parent
+          lab-shell box is the single surface. Separated by a hairline, not cards. */}
+      <div className="scenario-lab-config">
+        <div className="scenario-lab-config__presets">
+          <PresetBar
+            selected={state.selectedPreset}
+            onSelect={selectPreset}
+            disabled={pending}
+          />
+        </div>
+
+        <div className="scenario-lab-config__inputs admin-doc-stack admin-doc-stack--relaxed">
+          <div className="min-w-0">
+            <h3 className="h4 ct-text-strong">Inputs</h3>
+            <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">
+              Adjust sliders or load a preset.
+            </p>
+          </div>
 
           <div
             className={cn(
-              "scenario-lab-input-scroll",
               pending && "pointer-events-none opacity-[var(--ct-opacity-50)]",
             )}
           >
@@ -89,11 +88,25 @@ export function SingleMode({
             />
           </div>
 
-          <div className="scenario-lab-input-footer">
+          {objective.trim().length > 0 ? (
+            <div className="admin-doc-stack admin-doc-stack--tight">
+              <label htmlFor={briefInputId} className="stat-label">
+                Central brief
+              </label>
+              <textarea
+                id={briefInputId}
+                value={objective}
+                onChange={(e) => setObjective(e.target.value)}
+                placeholder="Objective produit (seeded par le chat admin)"
+                className="ct-textarea min-h-18 w-full resize-y body-sm"
+              />
+            </div>
+          ) : null}
+
+          <div className="flex justify-end">
             <Button
               variant="primary"
-              size="lg"
-              className="w-full font-semibold"
+              className="font-semibold"
               onClick={() => {
                 hasRunRef.current = true;
                 runCounterRef.current += 1;
@@ -113,33 +126,21 @@ export function SingleMode({
               )}
             </Button>
           </div>
-        </Card>
+        </div>
+      </div>
 
-        <section
-          className="min-h-0 flex flex-col gap-(--ct-space-4)"
-          aria-labelledby="single-mode-central-flow-title"
-        >
-          <h3 id="single-mode-central-flow-title" className="sr-only">
-            Central flow
-          </h3>
+      {/* Result continuum — runner + projection in the SAME column, directly
+          below Inputs. Before the first run: a quiet placeholder. */}
+      <section
+        ref={outputRef}
+        className="scenario-lab-result admin-doc-stack admin-doc-stack--roomy"
+        aria-labelledby="single-mode-result-title"
+      >
+        <h3 id="single-mode-result-title" className="sr-only">
+          Scenario result
+        </h3>
 
-          {objective.trim().length > 0 ? (
-            <Card className="scenario-lab-input-card p-(--ct-space-4)" hoverOverlay={false}>
-              <div className="admin-doc-stack admin-doc-stack--tight">
-                <label htmlFor={briefInputId} className="stat-label">
-                  Central brief
-                </label>
-              </div>
-              <textarea
-                id={briefInputId}
-                value={objective}
-                onChange={(e) => setObjective(e.target.value)}
-                placeholder="Objective produit (seeded par le chat admin)"
-                className="ct-textarea mt-(--ct-space-2) min-h-18 w-full resize-y body-sm"
-              />
-            </Card>
-          ) : null}
-
+        {activeRunId > 0 || pending ? (
           <CentralTaskRunner
             runId={activeRunId}
             objective={objective}
@@ -147,55 +148,34 @@ export function SingleMode({
             output={state.output}
             liveBtcPrice={liveBtcPrice}
           />
+        ) : null}
 
-          <Card
-            className={cn(
-              "scenario-lab-output-card scenario-lab-input-card min-h-0 p-0",
-              !state.output && "transition-opacity ease-[var(--ct-ease)] duration-(--ct-dur-fast)",
-              !state.output && pending && "opacity-[var(--ct-opacity-50)]",
-            )}
-            hoverOverlay={false}
+        {state.output ? (
+          <OutputPanel
+            output={state.output}
+            isPending={pending}
+            narrative={state.narrative}
+          />
+        ) : (
+          <div
+            className="scenario-lab-output-idle"
+            role="status"
+            aria-label="Scenario output — awaiting first run"
           >
-            <CardHeader className="scenario-lab-input-card__header">
-              <div className="min-w-0">
-                <CardTitle>Output assets</CardTitle>
-                <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">Projection &amp; narrative.</p>
-              </div>
-            </CardHeader>
-
-            {state.output ? (
-              <div ref={outputRef} className="scenario-lab-output-scroll">
-                <OutputPanel
-                  output={state.output}
-                  isPending={pending}
-                  narrative={state.narrative}
-                />
+            {pending ? (
+              <div className="scenario-lab-output-idle__status">
+                <Spinner className="ct-text-strong" />
+                <p className="body-sm ct-text-muted m-0">Computing…</p>
               </div>
             ) : (
-              <div
-                className="scenario-lab-output-idle"
-                role="status"
-                aria-label="Scenario output — awaiting first run"
-              >
-                {pending ? (
-                  <div className="scenario-lab-output-idle__status">
-                    <Spinner className="ct-text-strong" />
-                    <p className="body-sm ct-text-muted m-0">Computing…</p>
-                  </div>
-                ) : (
-                  <>
-                    <ScenePlaceholderMetrics className="w-full" />
-                    <p className="body-sm ct-text-muted m-0">
-                      Select a preset or adjust sliders, then press Run scenario
-                      to see projections.
-                    </p>
-                  </>
-                )}
-              </div>
+              <p className="body-sm ct-text-muted m-0 text-center">
+                Select a preset or adjust sliders, then press Run scenario
+                to see projections.
+              </p>
             )}
-          </Card>
-        </section>
-      </div>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

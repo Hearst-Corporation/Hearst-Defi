@@ -213,8 +213,8 @@ code,
   border: none;
   background: linear-gradient(
     to right,
-    var(--ct-status-info) 0%,
-    var(--ct-status-info) var(--slider-pct, 50%),
+    var(--ct-accent) 0%,
+    var(--ct-accent) var(--slider-pct, 50%),
     var(--ct-surface-3) var(--slider-pct, 50%),
     var(--ct-surface-3) 100%
   );

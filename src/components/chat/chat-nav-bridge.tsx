@@ -108,6 +108,7 @@ export function ChatNavBridge() {
             objective?: string;
             autostart?: boolean;
             intentKind?: string;
+            canvasId?: string;
             secondaryRoute?: string;
             secondaryLabel?: string;
             secondaryHint?: string;
@@ -117,26 +118,37 @@ export function ChatNavBridge() {
             const current = pathRef.current;
             if (data.route !== current) {
               // anti-loop: already here → treat as empty (keep backing off)
-              const routeWithParams =
+              // Seeded destinations (scenario lab, product workspace, agent
+              // canvas) carry the objective/autostart in the URL so the page can
+              // pick it up. The agent-canvas base route also gets the canvasId
+              // appended as a path segment (/admin/agent-canvas/<id>).
+              const isCanvasRoute = data.route === "/admin/agent-canvas";
+              const isSeededRoute =
                 data.route === "/admin/scenario-lab" ||
-                data.route === "/admin/product-workspace"
-                  ? (() => {
-                      const params = new URLSearchParams();
-                      if (data.autostart) params.set("autostart", "1");
-                      if (data.objective && data.objective.trim().length > 0) {
-                        params.set("objective", data.objective.trim());
-                      }
-                      if (data.intentKind) params.set("intent", data.intentKind);
-                      if (data.secondaryRoute === "/admin/scenario-lab") {
-                        params.set("secondary", "scenario-lab");
-                      }
-                      if (data.secondaryHint && data.secondaryHint.trim().length > 0) {
-                        params.set("secondaryHint", data.secondaryHint.trim());
-                      }
-                      const query = params.toString();
-                      return query.length > 0 ? `${data.route}?${query}` : data.route;
-                    })()
-                  : data.route;
+                data.route === "/admin/product-workspace" ||
+                isCanvasRoute;
+              const routeWithParams = isSeededRoute
+                ? (() => {
+                    const base =
+                      isCanvasRoute && data.canvasId
+                        ? `${data.route}/${data.canvasId}`
+                        : data.route!;
+                    const params = new URLSearchParams();
+                    if (data.autostart) params.set("autostart", "1");
+                    if (data.objective && data.objective.trim().length > 0) {
+                      params.set("objective", data.objective.trim());
+                    }
+                    if (data.intentKind) params.set("intent", data.intentKind);
+                    if (data.secondaryRoute === "/admin/scenario-lab") {
+                      params.set("secondary", "scenario-lab");
+                    }
+                    if (data.secondaryHint && data.secondaryHint.trim().length > 0) {
+                      params.set("secondaryHint", data.secondaryHint.trim());
+                    }
+                    const query = params.toString();
+                    return query.length > 0 ? `${base}?${query}` : base;
+                  })()
+                : data.route;
 
               setPending({
                 route: routeWithParams,

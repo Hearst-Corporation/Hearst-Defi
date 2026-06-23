@@ -37,6 +37,9 @@ import { useChat } from "./useChat";
 // nav gesture navigates with ZERO network round-trip; only real questions POST.
 // Single seam into the app-side resolvers (see src/lib/llm/client-nav.ts).
 import { resolveClientNav } from "@/lib/llm/client-nav";
+// Empty-state quick-action chips (agent-canvas presets). App-side component,
+// imported across the alias boundary like client-nav above.
+import { ChatPresets } from "@/components/chat/chat-presets";
 
 // ---------------------------------------------------------------------------
 // Markdown léger — pas de lib lourde
@@ -267,12 +270,26 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       {/* Messages */}
       <div ref={chatListRef} className="ct-chat-list">
         {messages.length === 0 && !streaming && (
-          <p className="ct-placeholder">
-            Hearst Assistant
-            {productName ? ` — ${productName} context.` : "."}
-            <br />
-            Ask a question to get started.
-          </p>
+          <div className="ct-chat-empty">
+            <p className="ct-placeholder">
+              Hearst Assistant
+              {productName ? ` — ${productName} context.` : "."}
+              <br />
+              Ask a question to get started.
+            </p>
+            <ChatPresets
+              masterAgentEnabled={chatConfig.masterAgentEnabled ?? true}
+              onPick={(text) => {
+                // Pre-fill (editable) — never auto-send. The admin reviews the
+                // canned phrase, edits, then sends; the marker opens the canvas.
+                setInput(text);
+                requestAnimationFrame(() => {
+                  autoGrow();
+                  textareaRef.current?.focus();
+                });
+              }}
+            />
+          </div>
         )}
 
         {messages.map((msg) => {

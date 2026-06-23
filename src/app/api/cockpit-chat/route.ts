@@ -49,6 +49,9 @@ import {
   type ClassifyClient,
 } from "@/lib/llm/classify-product-intent";
 import { withProductChatStreamEvents } from "@/lib/llm/product-chat-stream";
+import { detectCanvasIntent } from "@/lib/canvas/intent";
+import { withCanvasStreamEvents } from "@/lib/canvas/emit";
+import { isAdminCanvas } from "@/lib/canvas/registry";
 import { createRequestContext, withRequestContext } from "@/lib/request-context";
 import {
   buildCockpitMessageId,
@@ -538,13 +541,19 @@ async function runMasterAgentTurn(args: {
     });
   }
 
-  const message = typeof body.message === "string" ? body.message.trim() : "";
-  if (!message) {
+  const rawMessage = typeof body.message === "string" ? body.message.trim() : "";
+  if (!rawMessage) {
     return new Response(JSON.stringify({ error: "Empty message" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
   }
+  // Agent-canvas preset detection. A preset chip prefixes a stable marker
+  // ([[canvas:<id>]]); we strip it so the model + the stored transcript only
+  // ever see the human text, while the route opens the right canvas. A message
+  // without the marker never opens a canvas (returns null).
+  const canvasIntent = detectCanvasIntent(rawMessage);
+  const message = canvasIntent ? canvasIntent.cleanedMessage || rawMessage : rawMessage;
 
   const persistence = createUserScopedPersistence(userId, chatMode);
 
@@ -711,6 +720,32 @@ async function runMasterAgentTurn(args: {
     return ackResponse(PRODUCT_WORKSPACE_CHAT_ACK, chatId);
   }
 
+  // Agent-canvas handoff. Unlike the product-workspace short-circuit (a fixed
+  // ack), the canvas flow OPENS the page AND keeps streaming: the agent answers
+  // in the chat while structured `canvas_state` frames fill Section 2. Admin
+  // canvases require the admin role; the LP read-only canvas is allowed for any
+  // authenticated user. A non-admin asking for an admin canvas is dropped to a
+  // normal answer (the page would 404 server-side anyway).
+  const canvasActive =
+    !isReview &&
+    canvasIntent !== null &&
+    (isAdmin || !isAdminCanvas(canvasIntent.canvasId));
+  if (canvasActive && canvasIntent) {
+    const _rawFallback = message.replace(/[\x00-\x1F\x7F]/g, "").trim().slice(0, 220);
+    const canvasObjective = _rawFallback || undefined;
+    // AWAIT (not fire-and-forget): the bridge polls the moment the answer
+    // starts, so the directive must land first — same race note as the product
+    // workspace short-circuit above.
+    await publishNav(userId, {
+      destinationKey: "admin-agent-canvas",
+      canvasId: canvasIntent.canvasId,
+      ...(canvasObjective ? { objective: canvasObjective } : {}),
+      autostart: true,
+    }).catch(() => {
+      /* best-effort nav publish */
+    });
+  }
+
   const { stream, nav, final } = runChatAgent(
     openai as unknown as StreamingChatClient,
     model,
@@ -724,15 +759,24 @@ async function runMasterAgentTurn(args: {
       exposeNavigate: !isReview,
     },
   );
-  // Product-chart stream events are an LP/admin product-chat affordance; review
-  // (a facilitation chat) gets the raw guarded stream untouched.
+  // Stream-event wrappers (both interleave over the same in-band multiplexer,
+  // after the compliance guard). A canvas intent wins; otherwise the product
+  // chart affordance applies. Review (a facilitation chat) gets the raw guarded
+  // stream untouched.
   const responseStream = isReview
     ? stream
-    : withProductChatStreamEvents({
-        stream,
-        message,
-        navProfile,
-      });
+    : canvasActive && canvasIntent
+      ? withCanvasStreamEvents({
+          stream,
+          canvasId: canvasIntent.canvasId,
+          ...(message ? { objective: message } : {}),
+          agentLive: FEATURE_FLAGS.CHAT_MASTER_AGENT,
+        })
+      : withProductChatStreamEvents({
+          stream,
+          message,
+          navProfile,
+        });
 
   // Persist the assistant answer + an honest LlmRun trace once the turn
   // completes. Both run off the response path and never throw.

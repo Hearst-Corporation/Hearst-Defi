@@ -41,16 +41,25 @@ export function LabShell({
   const [scenarioMode, setScenarioMode] = useState<ScenarioMode>("single");
 
   return (
-    <div className="scenario-lab-shell admin-doc-stack admin-doc-stack--roomy">
-      <Card className="scenario-lab-toolbar p-(--ct-space-4)" hoverOverlay={false}>
-        <ScenarioTabBar active={activeTab} onChange={setActiveTab} />
-        {activeTab === "scenario" ? (
-          <ScenarioModeToggle active={scenarioMode} onChange={setScenarioMode} />
-        ) : null}
-      </Card>
+    // ONE flat black box, full width, holds everything: tabs (in-box header row),
+    // presets + inputs, and the result. The box is the page's single surface —
+    // nothing floats above it (only the page header + green rule sit outside).
+    <Card
+      material="flat"
+      hoverOverlay={false}
+      className="scenario-lab-box p-(--ct-space-6)"
+    >
+      <div className="scenario-lab-shell admin-doc-stack admin-doc-stack--roomy">
+        {/* Tabs + mode toggle — first row INSIDE the box, separated by a hairline. */}
+        <div className="scenario-lab-toolbar">
+          <ScenarioTabBar active={activeTab} onChange={setActiveTab} />
+          {activeTab === "scenario" ? (
+            <ScenarioModeToggle active={scenarioMode} onChange={setScenarioMode} />
+          ) : null}
+        </div>
 
-      {/* scenario-lab-body = internal scroll region in the fit gate */}
-      <div className="scenario-lab-body">
+        {/* scenario-lab-body = internal scroll region in the fit gate */}
+        <div className="scenario-lab-body">
         <div
           role="tabpanel"
           id="tabpanel-scenario"
@@ -95,17 +104,18 @@ export function LabShell({
           </div>
         </div>
 
-        <div
-          role="tabpanel"
-          id="tabpanel-backtest"
-          aria-labelledby="tab-backtest"
-          hidden={activeTab !== "backtest"}
-          tabIndex={0}
-          className="admin-doc-stack admin-doc-stack--roomy"
-        >
-          {activeTab === "backtest" ? <BacktestTab /> : null}
+          <div
+            role="tabpanel"
+            id="tabpanel-backtest"
+            aria-labelledby="tab-backtest"
+            hidden={activeTab !== "backtest"}
+            tabIndex={0}
+            className="admin-doc-stack admin-doc-stack--roomy"
+          >
+            {activeTab === "backtest" ? <BacktestTab /> : null}
+          </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

@@ -2,41 +2,12 @@
 
 import { useRef } from "react";
 
+import { getPresetMetas } from "@/lib/engine/preset-meta";
 import type { Preset } from "@/lib/engine/types";
 
-interface PresetMeta {
-  id: Preset;
-  label: string;
-  description: string;
-}
-
-const PRESETS: PresetMeta[] = [
-  {
-    id: "base",
-    label: "Base Case",
-    description: "Current conditions ±0",
-  },
-  {
-    id: "btc_bear",
-    label: "BTC Bear",
-    description: "BTC −40%, hashprice −30%, energy +5%",
-  },
-  {
-    id: "btc_bull",
-    label: "BTC Bull",
-    description: "BTC +60%, hashprice +20%, vol high",
-  },
-  {
-    id: "mining_compression",
-    label: "Mining Compression",
-    description: "Difficulty +30%, hashprice −25%, energy +15%",
-  },
-  {
-    id: "extreme_stress",
-    label: "Extreme Stress",
-    description: "BTC −50%, hashprice −40%, DeFi shock",
-  },
-];
+// Labels + descriptions are DERIVED from the engine's canonical preset inputs
+// (single source of truth) — no hand-typed copy that can drift from the numbers.
+const PRESETS = getPresetMetas();
 
 interface PresetBarProps {
   selected: Preset | null;

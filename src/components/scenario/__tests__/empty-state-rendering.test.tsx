@@ -18,17 +18,20 @@ function assertChartEmptyContract(html: string, message: string): void {
 }
 
 describe("Scenario Lab empty states — design contract", () => {
-  it("SingleMode output slot: idle copy on module card without EmptySurface nesting", () => {
+  it("SingleMode result slot: idle copy in the result continuum without EmptySurface nesting", () => {
     const html = renderToStaticMarkup(<SingleMode vaultId="yield" />);
     expect(html).toContain(
       "Select a preset or adjust sliders, then press Run scenario to see projections.",
     );
-    expect(html).toContain("scenario-lab-output-card");
+    // Vertical flow: the result continuum holds the idle copy directly — no glass
+    // output-card wrapper, and no skeleton placeholder (removed: the empty state is
+    // plain copy, not fabricated metric bars).
+    expect(html).toContain("scenario-lab-result");
     expect(html).toContain("scenario-lab-output-idle");
-    expect(html).toContain("scene-placeholder-metrics");
+    expect(html).not.toContain("scene-placeholder-metrics");
     expect(html).not.toContain("ct-empty-surface");
     expect(html).not.toMatch(
-      /scenario-lab-output-card[\s\S]*ct-card[\s\S]*ct-empty-surface/,
+      /scenario-lab-result[\s\S]*ct-card[\s\S]*ct-empty-surface/,
     );
   });
 

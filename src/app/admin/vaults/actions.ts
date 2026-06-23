@@ -50,7 +50,7 @@ const RegExemptionEnum = z.enum(["regD_506c", "regS", "art2_lux"]);
 // Shared schema
 // ---------------------------------------------------------------------------
 
-const CreateDraftSchema = z.object({
+export const CreateDraftSchema = z.object({
   ticker: z
     .string()
     .regex(/^[A-Z0-9-]{3,12}$/, "Ticker must be 3-12 uppercase letters/digits/hyphens"),

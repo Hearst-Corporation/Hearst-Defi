@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { LabShell } from "@/components/scenario/lab-shell";
 import { MonteCarloPanel } from "@/components/scenario/monte-carlo-panel";
@@ -9,10 +8,7 @@ import { fetchBtcPrice } from "@/lib/data/btc-price";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import type { ScenarioInputs } from "@/lib/engine/types";
 import { VAULTS } from "@/lib/engine/vaults";
-import {
-  adminScenarioLabVaultHref,
-  resolveAdminVaultId,
-} from "@/lib/vaults/dashboard-scope";
+import { resolveAdminVaultId } from "@/lib/vaults/dashboard-scope";
 
 interface ScenarioLabPageProps {
   searchParams: Promise<{ vault?: string; autostart?: string; objective?: string }>;
@@ -59,12 +55,6 @@ export default async function ScenarioLabPage({
         titleLead="Scenario"
         titleAccent="Lab"
         contextLabel={`Strategy · ${vault.ticker}`}
-        filters={
-          <FixtureVaultPills
-            activeVaultId={vaultId}
-            resolveHref={adminScenarioLabVaultHref}
-          />
-        }
       />
 
       <div className="admin-doc-stack admin-doc-stack--roomy">

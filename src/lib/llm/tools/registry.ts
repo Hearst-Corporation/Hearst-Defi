@@ -24,6 +24,11 @@ import {
   isAdminWriteToolAllowed,
 } from "@/lib/llm/tools/policy";
 import { runSourcing, draftEmailForProspect } from "@/app/admin/outreach/actions";
+import {
+  createDraftVault,
+  CreateDraftSchema,
+  type CreateDraftInput,
+} from "@/app/admin/vaults/actions";
 import { outreachAutoSendHandler } from "@/lib/inngest/functions/outreach-auto-send";
 import { TIER_LABEL, type Tier } from "@/lib/outreach/tier";
 import { logger } from "@/lib/logger";
@@ -33,6 +38,7 @@ import type {
   AdminToolTelemetryStatus,
   AdminWriteToolDefinition,
   AdminWriteToolExecutionOptions,
+  AdminWriteToolExecutionResult,
   AdminReadToolDefinition,
   AdminReadToolExecutionOptions,
   AdminReadToolExecutionContext,
@@ -1318,6 +1324,17 @@ export const ADMIN_WRITE_TOOLS: readonly AdminWriteToolDefinition[] = [
     allowedProfiles: ["admin"],
     run: async () => runOutreachTriggerSendRun(),
   },
+  {
+    id: "create_vault_draft",
+    kind: "write",
+    description:
+      "Create a new vault/product in the DRAFT state only. Validates the full 23-field schema (APY range, allocation bps = 10000, signer quorum, forbidden-words). Does NOT deploy or go live — markAsLive is a separate gated state-machine action, never reachable here.",
+    riskLevel: "high",
+    confirmationRequired: true,
+    allowedChatModes: ["admin"],
+    allowedProfiles: ["admin"],
+    run: async (_context, input) => runCreateVaultDraft(input),
+  },
 ] as const;
 
 
@@ -1349,6 +1366,43 @@ function parseGovernanceProposalInput(input: unknown): {
 }
 
 /**
+ * Reuses the SAME `CreateDraftSchema` the wizard + the server action validate
+ * against (single source of truth — no re-declaring the 23 fields here). The
+ * action re-validates internally; this pre-token parse keeps the propose path
+ * a clean 400 instead of a post-token 500.
+ */
+function parseCreateVaultDraftInput(input: unknown): CreateDraftInput {
+  const parsed = CreateDraftSchema.safeParse(input);
+  if (!parsed.success) {
+    throw new Error("invalid_create_vault_draft_input");
+  }
+  return parsed.data;
+}
+
+async function runCreateVaultDraft(
+  input: unknown,
+): Promise<AdminWriteToolExecutionResult> {
+  const payload = parseCreateVaultDraftInput(input);
+  const result = await createDraftVault(payload);
+  if (!result.ok) {
+    // The action re-validates; surface its rejection as the stable invalid code
+    // (defensive — pre-token parse should have already caught shape errors).
+    throw new Error("invalid_create_vault_draft_input");
+  }
+  return {
+    title: "VAULT DRAFT CREATED",
+    lines: [
+      `- id: ${result.id}`,
+      `- ticker: ${payload.ticker}`,
+      `- strategy: ${payload.strategy}`,
+      "- status: draft",
+      "- execution: not performed (draft only; markAsLive is a separate gated action)",
+    ],
+    createdEntityId: result.id,
+  };
+}
+
+/**
  * Validate write tool input against its Zod schema BEFORE a confirmation token
  * is created. This ensures that invalid inputs are rejected with a 400 (not a
  * 500 after the token has already been consumed).
@@ -1368,6 +1422,8 @@ function validateWriteToolInput(toolId: string, input: unknown): void {
     if (!OutreachDraftEmailInputSchema.safeParse(input).success) {
       throw new Error("invalid_outreach_draft_email_input");
     }
+  } else if (toolId === "create_vault_draft") {
+    parseCreateVaultDraftInput(input);
   }
   // outreach_trigger_send_run takes no input — nothing to validate.
 }

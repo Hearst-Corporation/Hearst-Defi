@@ -125,11 +125,20 @@ function makeThinkStripper() {
 
 const CHAT_EVENT_MARKER = "\x00HC_EVENT:";
 
-type ChatStreamEvent = { type: "product_chart"; chart: ChatChart };
+// Canvas events ride the SAME in-band multiplexer as product charts. The guard
+// lives in the shared contract (`@/lib/canvas/contract`) so the server emitter
+// and this client splitter can never drift — the contract is imported across
+// the @hearst/cockpit-shell alias boundary (this file already imports `@/...`).
+import { isCanvasStateEvent, type CanvasStateEvent } from "@/lib/canvas/contract";
+
+type ChatStreamEvent =
+  | { type: "product_chart"; chart: ChatChart }
+  | CanvasStateEvent;
 
 function isChatStreamEvent(value: unknown): value is ChatStreamEvent {
   if (!value || typeof value !== "object") return false;
-  const event = value as Partial<ChatStreamEvent>;
+  if (isCanvasStateEvent(value)) return true;
+  const event = value as Partial<{ type: "product_chart"; chart: ChatChart }>;
   return event.type === "product_chart" && typeof event.chart?.id === "string";
 }
 
@@ -444,12 +453,28 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
         let assembled = "";
         let streamErrorDetected = false;
         const eventSplitter = makeChatEventSplitter((event) => {
+          if (event.type === "canvas_state") {
+            // The canvas renders in Section 2 (a different React tree from this
+            // chat bubble in Section 3). The shell's chat↔Section-2 seam is
+            // window CustomEvents (same pattern as `cockpit:nav-local`), never
+            // props — so re-broadcast and let <CanvasLive> upsert. Display-only:
+            // a malformed frame can never trigger a write (the action button's
+            // two-step token is the only mutation path).
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(
+                new CustomEvent("cockpit:canvas-state", { detail: event.canvas }),
+              );
+            }
+            return;
+          }
+          // product_chart — upsert into the assistant message.
+          const chart = event.chart;
           setMessages((prev) =>
             prev.map((m) =>
               m.id === assistantId
                 ? {
                     ...m,
-                    charts: appendOrReplaceChart(m.charts, event.chart),
+                    charts: appendOrReplaceChart(m.charts, chart),
                   }
                 : m,
             ),

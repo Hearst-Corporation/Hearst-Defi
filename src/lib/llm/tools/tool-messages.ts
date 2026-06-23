@@ -46,6 +46,10 @@ const BEFORE_CONFIRM: Record<AdminWriteToolId, ToolMessage> = {
     title: "Start outreach send run",
     body: "This starts a governed send run. It is bounded by Outreach Autonomy — in SUGGEST mode no email is sent — Tier A is never auto-sent, and suppression + forbidden-words are re-checked at send time. Confirm to run it.",
   },
+  create_vault_draft: {
+    title: "Create vault draft (DRAFT only)",
+    body: "I can create this vault as a DRAFT. It is not deployed and never goes live from here — promoting a draft is a separate, multi-signer gated step. Confirm to create the draft.",
+  },
 };
 
 const GENERIC_BEFORE: ToolMessage = {

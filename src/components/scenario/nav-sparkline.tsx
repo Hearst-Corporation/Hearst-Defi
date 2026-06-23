@@ -70,10 +70,9 @@ function formatUsd(n: number): string {
 
 interface FanChartProps {
   series: NavProjection[];
-  ariaLabel: string;
 }
 
-function FanChart({ series, ariaLabel: _ariaLabel }: FanChartProps) {
+function FanChart({ series }: FanChartProps) {
   // All values across all percentile bands — needed for unified normalisation.
   const allValues = series.flatMap((d) => [d.p5, d.p25, d.p50, d.p75, d.p95]);
   // Prepend INITIAL_NAV so the chart always starts at the flat origin.
@@ -206,7 +205,7 @@ export function NavSparkline({ output }: NavSparklineProps) {
   const last = series[series.length - 1];
 
   return (
-    <Card className="relative">
+    <Card material="flat" hoverOverlay={false} className="relative">
       <ChartProvenanceCorner kind="estimated" />
       <CardHeader className="mb-[var(--ct-space-3)]">
         <CardTitle>12-Month NAV Projection</CardTitle>
@@ -241,10 +240,7 @@ export function NavSparkline({ output }: NavSparklineProps) {
       <div className="relative h-44 w-full overflow-hidden sm:h-56">
         <ChartDisclaimerUnderlay />
         {series.length > 0 ? (
-          <FanChart
-            series={series}
-            ariaLabel={`NAV fan chart, 12 months, midpoint ${last ? formatUsd(last.p50) : "n/a"}`}
-          />
+          <FanChart series={series} />
         ) : (
           <div className="flex h-full w-full items-center justify-center body-xs">
             No projection data
