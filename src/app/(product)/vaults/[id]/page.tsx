@@ -94,38 +94,53 @@ export default async function VaultDetailPage({ params }: PageProps) {
       }
     >
       <section className="vault-detail-overview" aria-label="Key terms">
-        <dl className="vault-detail-overview__kpis">
-          <div>
-            <dt className="stat-label">APY range</dt>
-            <dd className="mt-[var(--ct-space-1)]">
-              <ApyRange
-                low={vault.apyLow}
-                high={vault.apyHigh}
-                precision={1}
-                className="vault-detail-overview__value tabular mono"
-              />
-            </dd>
+        <div className="vault-detail-overview__main">
+          <div className="flex flex-wrap items-center gap-(--ct-space-2) mb-(--ct-space-4)">
+            <span className="px-(--ct-space-2) py-(--ct-space-0_5) rounded-sm bg-(--ct-surface-2) border border-(--ct-border-ghost) text-(--ct-text-faint) text-(--ct-text-nano) uppercase tracking-widest font-bold">
+              Institutional Grade
+            </span>
+            <span className="px-(--ct-space-2) py-(--ct-space-0_5) rounded-sm bg-(--ct-surface-2) border border-(--ct-border-ghost) text-(--ct-text-faint) text-(--ct-text-nano) uppercase tracking-widest font-bold">
+              Cayman SPV
+            </span>
+            <span className="px-(--ct-space-2) py-(--ct-space-0_5) rounded-sm bg-(--ct-surface-2) border border-(--ct-border-ghost) text-(--ct-text-faint) text-(--ct-text-nano) uppercase tracking-widest font-bold">
+              USDC Base
+            </span>
           </div>
-          <div>
-            <dt className="stat-label">Min subscription</dt>
-            <dd className="vault-detail-overview__value tabular mono mt-[var(--ct-space-1)]">
-              {formatMinTicketUsdc(vault.minTicketUsdc)}
-            </dd>
+          <dl className="vault-detail-overview__kpis">
+            <div className="vault-detail-overview__kpi">
+              <dt className="stat-label">APY range</dt>
+              <dd className="mt-(--ct-space-1)">
+                <ApyRange
+                  low={vault.apyLow}
+                  high={vault.apyHigh}
+                  precision={1}
+                  className="vault-detail-overview__value tabular-nums mono"
+                />
+              </dd>
+            </div>
+            <div className="vault-detail-overview__kpi">
+              <dt className="stat-label">Min subscription</dt>
+              <dd className="vault-detail-overview__value tabular-nums mono mt-(--ct-space-1)">
+                {formatMinTicketUsdc(vault.minTicketUsdc)}
+              </dd>
+            </div>
+            <div className="vault-detail-overview__kpi">
+              <dt className="stat-label">Soft lock-up</dt>
+              <dd className="vault-detail-overview__value tabular-nums mono mt-(--ct-space-1)">
+                {vault.softLockupDays} days
+              </dd>
+            </div>
+          </dl>
+        </div>
+        <div className="vault-detail-overview__cta-zone">
+          <div className="vault-detail-overview__cta-stack">
+            {!isLive ? (
+              <p className="body-xs ct-text-muted mb-(--ct-space-2)">
+                {nonLiveNote(vault.status)}
+              </p>
+            ) : null}
+            <InvestCta isLive={isLive} investHref={investHref} size="lg" className="w-full sm:w-auto" />
           </div>
-          <div>
-            <dt className="stat-label">Soft lock-up</dt>
-            <dd className="vault-detail-overview__value tabular mono mt-[var(--ct-space-1)]">
-              {vault.softLockupDays} days
-            </dd>
-          </div>
-        </dl>
-        <div className="vault-detail-overview__cta">
-          {!isLive ? (
-            <p className="body-xs ct-text-muted mb-[var(--ct-space-2)]">
-              {nonLiveNote(vault.status)}
-            </p>
-          ) : null}
-          <InvestCta isLive={isLive} investHref={investHref} size="lg" />
         </div>
       </section>
 

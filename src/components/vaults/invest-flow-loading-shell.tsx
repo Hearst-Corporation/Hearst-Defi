@@ -51,9 +51,9 @@ export function InvestFlowLoadingShell({
           <Skeleton className="h-2 w-full max-w-md" />
         </div>
         {showKpiRow ? (
-          <dl className="vault-detail-kpis">
+          <dl className="vault-detail-overview__kpis">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index}>
+              <div key={index} className="vault-detail-overview__kpi">
                 <Skeleton className="h-3 w-24" variant="text" />
                 <Skeleton className="mt-[var(--ct-space-2)] h-6 w-28" />
               </div>

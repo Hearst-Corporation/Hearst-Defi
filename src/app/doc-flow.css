@@ -1810,49 +1810,70 @@
 .product-doc .vault-detail-overview {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
-  padding: var(--ct-space-6);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-lg);
+  gap: var(--ct-space-6);
+  padding: var(--ct-space-6) var(--ct-space-8);
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius-xl);
   background: var(--ct-surface-1);
+  box-shadow: var(--ct-shadow-soft);
+  position: relative;
+  overflow: hidden;
+}
+
+.product-doc .vault-detail-overview__main {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .product-doc .vault-detail-overview__kpis {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ct-space-4) var(--ct-space-6);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--ct-space-6) var(--ct-space-10);
   margin: 0;
 }
 
+.product-doc .vault-detail-overview__kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
 .product-doc .vault-detail-overview__value {
-  font-size: var(--ct-text-2xl);
+  font-size: var(--ct-text-3xl);
   font-weight: var(--ct-font-extrabold);
   letter-spacing: var(--ct-tracking-tighter);
   color: var(--ct-text-strong);
+  line-height: 1;
 }
 
-.product-doc .vault-detail-overview__cta {
+.product-doc .vault-detail-overview__cta-zone {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-@container product-doc (min-width: 40rem) {
+.product-doc .vault-detail-overview__cta-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+@container product-doc (min-width: 48rem) {
   .product-doc .vault-detail-overview {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: var(--ct-space-8);
+    gap: var(--ct-space-10);
   }
 
   .product-doc .vault-detail-overview__kpis {
     display: flex;
-    flex: 1 1 auto;
     flex-wrap: wrap;
-    gap: var(--ct-space-4) var(--ct-space-10);
+    gap: var(--ct-space-12);
   }
 
-  .product-doc .vault-detail-overview__cta {
-    flex: 0 0 auto;
+  .product-doc .vault-detail-overview__cta-stack {
     align-items: flex-end;
   }
 }
@@ -1889,26 +1910,27 @@
 }
 
 .product-doc .vault-alloc-bars {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--ct-space-8) var(--ct-space-10);
 }
 
 .product-doc .vault-alloc-bar {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-2_5);
 }
 
 .product-doc .vault-alloc-bar__head {
   display: flex;
   align-items: center;
-  gap: var(--ct-space-2_5);
+  justify-content: space-between;
+  gap: var(--ct-space-3);
 }
 
 .product-doc .vault-alloc-bar__swatch {
-  width: var(--ct-space-2_5);
-  height: var(--ct-space-2_5);
+  width: var(--ct-space-2);
+  height: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
   flex-shrink: 0;
 }
@@ -1916,15 +1938,20 @@
 .product-doc .vault-alloc-bar__label {
   min-width: 0;
   flex: 1 1 auto;
+  font-size: var(--ct-text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
+  color: var(--ct-text-muted);
 }
 
 .product-doc .vault-alloc-bar__pct {
   flex-shrink: 0;
+  font-size: var(--ct-text-base);
 }
 
 .product-doc .vault-alloc-bar__track {
   width: 100%;
-  height: var(--ct-space-2);
+  height: var(--ct-space-1_5);
   border-radius: var(--ct-radius-full);
   background: var(--ct-surface-2);
   overflow: hidden;
@@ -1939,6 +1966,9 @@
 
 .product-doc .vault-alloc-bar__desc {
   margin: 0;
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-faint);
+  line-height: 1.5;
 }
 
 /* Workspace primary lane is ~60% of shell — defer row layout to primary width */
@@ -1963,6 +1993,10 @@
 /* Regime scenario table — flat rows inside term sheet (no ct-table-surface box) */
 .product-doc .regime-scenario-table {
   width: 100%;
+  padding: var(--ct-space-4);
+  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-lg);
 }
 
 .product-doc .regime-scenario-table table {
@@ -1973,11 +2007,28 @@
 }
 
 .product-doc .regime-scenario-table thead tr {
-  border-bottom: 1px solid var(--ct-border-soft);
+  border-bottom: 1px solid var(--ct-border);
+}
+
+.product-doc .regime-scenario-table .ct-table-header {
+  padding-bottom: var(--ct-space-3);
+  font-size: var(--ct-text-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-faint);
 }
 
 .product-doc .regime-scenario-table tbody tr {
   border-bottom: 1px solid var(--ct-border-ghost);
+  transition: background-color var(--ct-dur-fast) var(--ct-ease);
+}
+
+.product-doc .regime-scenario-table tbody tr:hover {
+  background-color: color-mix(in srgb, var(--ct-accent) 4%, transparent);
+}
+
+.product-doc .regime-scenario-table .ct-table-cell {
+  padding-block: var(--ct-space-4);
 }
 
 .product-doc .regime-scenario-table tbody tr:last-child {
