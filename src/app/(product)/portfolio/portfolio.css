@@ -67,9 +67,9 @@
   color: var(--ct-text-strong);
 }
 
+/* Section titles (h3/.h3) and panel titles use accent color */
 .pf-container h3,
 .pf-container .h3,
-.pf-container .pf-cockpit-panel__title--primary,
 .pf-container .pf-panel-title {
   color: var(--ct-accent);
 }
@@ -601,7 +601,7 @@
   flex: 0 0 auto;
 }
 
-.pf-container .pf-cockpit-panel__title--primary,
+/* Panel titles: strong color (not accent), compact sizing. */
 .pf-container .pf-panel-title {
   margin: 0 0 var(--ct-space-3);
   font-size: var(--ct-text-sm);
@@ -613,7 +613,6 @@
 }
 
 /* Titles inside a horizontal header — no block margin (breaks trail alignment). */
-.pf-cockpit-panel__header .pf-cockpit-panel__title--primary,
 .pf-cockpit-panel__header .pf-panel-title {
   margin: 0;
 }
