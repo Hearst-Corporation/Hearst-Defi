@@ -16,7 +16,7 @@ import {
 // ---------------------------------------------------------------------------
 
 describe("FORBIDDEN_WORDS — canonical list", () => {
-  it("contains the 6 consolidated needles", () => {
+  it("contains the consolidated needles (incl. the EN 'assured' claim)", () => {
     expect([...FORBIDDEN_WORDS]).toEqual([
       "guarantee",
       "promise",
@@ -24,6 +24,7 @@ describe("FORBIDDEN_WORDS — canonical list", () => {
       "will deliver",
       "risk-free",
       "no risk",
+      "assured",
     ]);
   });
 });
@@ -159,6 +160,34 @@ describe("containsForbidden — per-needle inflections", () => {
     const r = containsForbidden(text);
     expect(r).not.toBeNull();
     expect(r!.found).toContain("no risk");
+  });
+
+  // ---- assured (EN counterpart of "rendement assuré") ---------------------
+
+  it.each([
+    "We offer an assured return for your clients.", // the exact closed gap
+    "Your monthly yield is assured.",
+    "ASSURED returns every quarter.",
+    "Profits are assuredly delivered.", // inflection \w*
+  ])("catches needle: %s", (text) => {
+    const r = containsForbidden(text);
+    expect(r).not.toBeNull();
+    expect(r!.found).toContain("assured");
+  });
+
+  it.each([
+    "We provide product assurance and independent audits.", // assur-ance ≠ assur-ed
+    "Clients feel reassured by the audits.", // no word boundary before 'assured'
+  ])("does NOT false-positive on legitimate 'assurance'/'reassured': %s", (text) => {
+    expect(containsForbidden(text)).toBeNull();
+  });
+
+  it.each([
+    "Returns are not assured.",
+    "There is no assured return here.",
+    "Yields are never assured.",
+  ])("exempts compliant disclaimer (negation window): %s", (text) => {
+    expect(containsForbidden(text)).toBeNull();
   });
 });
 

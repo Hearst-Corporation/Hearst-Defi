@@ -23,6 +23,14 @@ export const FORBIDDEN_WORDS = [
   "will deliver",
   "risk-free",
   "no risk",
+  // EN counterpart of the French "rendement assuré" claim. Closes a real
+  // false-negative: "an assured return" alone passed the EN guard while its
+  // French equivalent was already blocked (see CHAT_FORBIDDEN_WORDS). The
+  // prefix-anchored `\bassured\w*` catches "assured" / "assuredly" but NOT
+  // "assurance" (assur-ance ≠ assur-ed) nor "reassured" (no word boundary), so
+  // legitimate "product assurance" copy is unaffected, and the negation window
+  // still exempts compliant disclaimers ("returns are not assured").
+  "assured",
 ] as const;
 
 export type ForbiddenWord = (typeof FORBIDDEN_WORDS)[number];
