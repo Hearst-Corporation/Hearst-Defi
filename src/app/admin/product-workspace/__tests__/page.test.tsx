@@ -34,11 +34,12 @@ describe("ProductWorkspacePage (near-empty, agent-filled)", () => {
       objective: "Créer une offre Defensive",
     });
 
-    // Kept: title, objective, agent framing surface, seeded badge.
+    // Kept: title, objective, agent framing surface.
     // The title is rendered as "Product <span>Workspace</span>" so we check both parts.
+    // (Header status badges — "Seeded by agent" / "Manual entry" / HITL — were
+    // removed from the page header; no longer asserted.)
     expect(html).toContain("Product");
     expect(html).toContain("Workspace");
-    expect(html).toContain("Seeded by agent");
     expect(html).toContain("Créer une offre Defensive");
     expect(html).toContain("Agent framing brief");
 
@@ -90,7 +91,8 @@ describe("ProductWorkspacePage (near-empty, agent-filled)", () => {
     mockLoadDraft.mockResolvedValueOnce(null);
     const html = await renderPage({});
 
-    expect(html).toContain("Manual entry");
+    // "Manual entry" header badge removed; the awaiting-objective state itself
+    // is what matters and is still asserted.
     expect(html).toContain("Awaiting objective from cockpit agent");
   });
 });

@@ -80,7 +80,6 @@ export default async function ProductProofCenterPage({
       platformAddresses={platformAddresses}
       coldEmpty={coldEmpty}
       demo={false}
-      demoNotice={null}
     />
   );
 }

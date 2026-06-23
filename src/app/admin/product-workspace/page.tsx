@@ -1,8 +1,6 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AgentBriefLive } from "@/components/admin/product-workspace/agent-brief-live";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadProductWorkspaceDraft } from "@/lib/product-workspace/draft";
@@ -59,15 +57,6 @@ export default async function ProductWorkspacePage({
         titleLead="Product"
         titleAccent="Workspace"
         contextLabel="Strategy"
-        actions={
-          <div className="admin-doc-inline-row admin-doc-inline-row--dense">
-            <Badge variant={autostart ? "success" : "default"}>
-              {autostart ? "Seeded by agent" : "Manual entry"}
-            </Badge>
-            <Badge variant="accent">Human-in-the-loop</Badge>
-            <ProvenanceBadge kind="estimated" compact />
-          </div>
-        }
       />
 
       <Card hoverOverlay={false} className="admin-doc-card-pad">

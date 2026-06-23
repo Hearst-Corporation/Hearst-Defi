@@ -14,7 +14,6 @@ import { EmptySurface } from "@/components/ui/empty-surface";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { ProofCenterCardHeader } from "@/components/proof-center/proof-center-card-header";
 import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
-import { ProofCenterTestnetNotice } from "@/components/proof-center/proof-center-testnet-notice";
 import { ProvenanceFooter } from "@/components/proof-center/provenance-footer";
 import { EventTimeline } from "@/components/proof-center/event-timeline";
 import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
@@ -24,7 +23,6 @@ import { ProofGrid } from "@/components/proof/proof-grid";
 import { PLATFORM_PROOFS_EMPTY } from "@/components/proof/empty-messages";
 import type { UnifiedProof } from "@/components/proof/proof-types";
 import { TimelockCountdown } from "@/components/governance/timelock-countdown";
-import { isChainConfigured } from "@/lib/chain/client";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { loadCustody } from "@/lib/data/custody";
 import { getProofs } from "@/lib/data/proofs";
@@ -44,7 +42,6 @@ interface ProofCenterFullPageProps {
 export default async function ProofCenterFullPage({
   searchParams,
 }: ProofCenterFullPageProps) {
-  const chainConfigured = isChainConfigured();
   const params = await searchParams;
   const raw = Array.isArray(params.type) ? params.type[0] : params.type;
   const filter = parseFilter(raw);
@@ -82,12 +79,7 @@ export default async function ProofCenterFullPage({
             Proof Center
           </Link>
         }
-      >
-        <ProofCenterTestnetNotice
-          chainConfigured={chainConfigured}
-          demoNotice={null}
-        />
-      </ProductPageHeader>
+      />
 
       <ProofCenterSection
         id="event-timeline-heading"

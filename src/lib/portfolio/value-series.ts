@@ -170,9 +170,20 @@ export function buildPortfolioValueSeries(
             ),
           );
 
+    // Months whose end predates the first transaction are honestly $0 — the
+    // portfolio did not exist yet. Without this, a single fresh deposit reads as
+    // a flat line at the deposit value across the back-filled prior month
+    // (invented pre-history), leaving the chart half-empty. Zeroing it makes the
+    // curve rise from $0 → current value, which is both truthful and legible.
+    const monthEndT = monthEnd.getTime();
+    const value =
+      Number.isFinite(firstTxT) && monthEndT < firstTxT
+        ? 0
+        : Math.max(0, interpolateAt(anchors, monthEndT));
+
     points.push({
       label: MONTH_LABELS[monthStart.getUTCMonth() % 12] ?? "",
-      value: Math.max(0, interpolateAt(anchors, monthEnd.getTime())),
+      value,
       isDistribution: monthHadDistribution(transactions, monthStart, monthEnd),
     });
   }

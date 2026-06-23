@@ -12,7 +12,6 @@ import { AdminLeafLink } from "@/components/admin/dashboard/cockpit-panel-header
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { Card } from "@/components/ui/card";
-import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
 import { ProofFilter } from "@/components/proof/proof-filter";
 import { parseFilter } from "@/components/proof/proof-filter-types";
 import { ProofGrid } from "@/components/proof/proof-grid";
@@ -22,10 +21,8 @@ import { EventTimeline } from "@/components/proof-center/event-timeline";
 import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
 import { ProofCenterCardHeader } from "@/components/proof-center/proof-center-card-header";
 import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
-import { ProofCenterTestnetNotice } from "@/components/proof-center/proof-center-testnet-notice";
 import { ProvenanceFooter } from "@/components/proof-center/provenance-footer";
 import { TimelockCountdown } from "@/components/governance/timelock-countdown";
-import { isChainConfigured } from "@/lib/chain/client";
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
 import { loadCustody } from "@/lib/data/custody";
@@ -49,7 +46,6 @@ interface AdminProofCenterFullPageProps {
 export default async function AdminProofCenterFullPage({
   searchParams,
 }: AdminProofCenterFullPageProps) {
-  const chainConfigured = isChainConfigured();
   const params = await searchParams;
   const raw = Array.isArray(params.type) ? params.type[0] : params.type;
   const filter = parseFilter(raw);
@@ -89,18 +85,9 @@ export default async function AdminProofCenterFullPage({
           </Link>
         }
         actions={
-          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
-            <AdminLeafLink href="/admin/proofs" label="Manage publications" />
-            <ChainStatusBadge
-              configured={chainConfigured}
-              eventCount={onChainEvents.length}
-              attestationCount={onChainAttestations.length}
-            />
-          </div>
+          <AdminLeafLink href="/admin/proofs" label="Manage publications" />
         }
-      >
-        <ProofCenterTestnetNotice chainConfigured={chainConfigured} />
-      </AdminPageHeader>
+      />
 
       <ProofCenterSection
         id="event-timeline-heading"

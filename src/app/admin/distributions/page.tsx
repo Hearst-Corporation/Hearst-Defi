@@ -1,16 +1,12 @@
 import Link from "next/link";
 
 import { prisma } from "@/lib/db";
-import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import {
-  adminDistributionsVaultHref,
-  resolveFixtureVaultId,
-} from "@/lib/vaults/dashboard-scope";
+import { resolveFixtureVaultId } from "@/lib/vaults/dashboard-scope";
 import { formatAdminDate, formatUsdDetailed } from "@/lib/vaults/product-display";
 import { listAllVaults, vaultSlug, vaultLabel } from "@/lib/vaults/resolver";
 import { buildDistributionsKpiStrip } from "@/lib/admin/distributions-kpi-strip";
@@ -73,12 +69,6 @@ export default async function DistributionsPage({
         titleLead="Vault"
         titleAccent="Distributions"
         contextLabel="Vaults"
-        filters={
-          <FixtureVaultPills
-            activeVaultId={vaultId}
-            resolveHref={adminDistributionsVaultHref}
-          />
-        }
       />
 
       {/* Distribution KPI summary — suppressed when no history */}

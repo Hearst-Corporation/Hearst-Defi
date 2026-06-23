@@ -7,14 +7,12 @@ import {
 } from "@/components/admin/dashboard/cockpit-panel-header";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { ChainStatusBadge } from "@/components/proof/chain-status-badge";
 import type { PlatformAddressEntry } from "@/components/proof-center/contracts-audit-trail";
 import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
 import { MiningCashFlowEvidence } from "@/components/proof-center/mining-cashflow-evidence";
 import { PorSummary } from "@/components/proof-center/por-summary";
 import { ProofCenterColdShell } from "@/components/proof-center/proof-center-cold-shell";
 import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
-import { ProofCenterTestnetNotice } from "@/components/proof-center/proof-center-testnet-notice";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { RecentDistributions } from "@/components/proof-center/recent-distributions";
 import { RebalancingEventsPanel } from "@/components/proof-center/rebalancing-events-panel";
@@ -42,8 +40,6 @@ export interface ProofCenterHubProps {
   coldEmpty: boolean;
   /** PorSummary sandbox flag — investor demo or admin demo banner. */
   demo: boolean;
-  /** Product only — passed to ProofCenterTestnetNotice. */
-  demoNotice?: string | null;
 }
 
 function HubPanelHeader({
@@ -87,18 +83,9 @@ export function ProofCenterHub({
   platformAddresses,
   coldEmpty,
   demo,
-  demoNotice = null,
 }: ProofCenterHubProps) {
   const fullHref =
     variant === "product" ? "/proof-center/full" : "/admin/proof-center/full";
-
-  const chainBadge = (
-    <ChainStatusBadge
-      configured={chainConfigured}
-      eventCount={onChainEventsCount}
-      attestationCount={onChainAttestationCount}
-    />
-  );
 
   return (
     <div
@@ -112,22 +99,13 @@ export function ProofCenterHub({
           titleLead="Proof"
           titleAccent="Center"
           contextLabel="Vault Proof System"
-          actions={chainBadge}
-        >
-          <ProofCenterTestnetNotice
-            chainConfigured={chainConfigured}
-            demoNotice={demoNotice}
-          />
-        </ProductPageHeader>
+        />
       ) : (
         <AdminPageHeader
           titleLead="Proof"
           titleAccent="Operations"
           contextLabel="Operator Proof Hub"
-          actions={chainBadge}
-        >
-          <ProofCenterTestnetNotice chainConfigured={chainConfigured} demoNotice={null} />
-        </AdminPageHeader>
+        />
       )}
 
       {coldEmpty ? (

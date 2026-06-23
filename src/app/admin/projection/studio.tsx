@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
 import { Ptai } from "@/components/ui/ptai";
-import { ScenePlaceholderMetrics } from "@/components/ui/scene-placeholder-metrics";
 import { cn } from "@/lib/cn";
 import { getPresetMetas } from "@/lib/engine/preset-meta";
 import {
@@ -102,12 +101,8 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
         className="projection-studio-range"
-        aria-label={label}
+        aria-label={`${label} (range ${fmt(min)}–${fmt(max)})`}
       />
-      <div className="admin-doc-row-spread eyebrow ct-text-faint">
-        <span>{fmt(min)}</span>
-        <span>{fmt(max)}</span>
-      </div>
     </div>
   );
 }
@@ -328,7 +323,7 @@ export function ProjectionStudio() {
 
       <div className={cn("projection-studio-workspace", result ? "projection-studio-workspace--filled" : "projection-studio-workspace--empty")}>
       {/* ── LEFT: INPUTS ── */}
-      <Card hoverOverlay={false} className="projection-studio-input-card">
+      <Card material="flat" hoverOverlay={false} className="projection-studio-input-card">
         <div className="projection-studio-input-card__header">
           <div>
             <p className="eyebrow ct-text-muted">Control panel</p>
@@ -462,8 +457,7 @@ export function ProjectionStudio() {
         {/* Run button */}
         <Button
           variant="primary"
-          size="md"
-          className="w-full"
+          className="ml-auto"
           onClick={handleRun}
           disabled={isPending}
           aria-busy={isPending}
@@ -489,21 +483,14 @@ export function ProjectionStudio() {
 
       {/* ── RIGHT: OUTPUTS ── */}
       <div ref={outputRef} className="projection-studio-output">
-        <Card hoverOverlay={false} className={cn("projection-studio-output-stage", result && "projection-studio-output-stage--filled")}>
+        <Card material="flat" hoverOverlay={false} className={cn("projection-studio-output-stage", result && "projection-studio-output-stage--filled")}>
           {!result && (
             <div
               className="scenario-lab-output-idle projection-studio-output-placeholder"
               role="status"
               aria-label="Projection output — awaiting first run"
             >
-              <div className="projection-studio-output-head">
-                <div>
-                  <p className="eyebrow ct-text-muted">Result scene</p>
-                  <h3 className="h3 mt-(--ct-space-1)">Projection output</h3>
-                </div>
-              </div>
-              <ScenePlaceholderMetrics />
-              <p className="body-xs ct-text-faint m-0 admin-strategy-placeholder-copy">
+              <p className="body-sm ct-text-muted m-0 text-center admin-strategy-placeholder-copy">
                 Set assumptions, then run a projection or batch to populate the
                 APY range, risk score, and PTAI impact.
               </p>

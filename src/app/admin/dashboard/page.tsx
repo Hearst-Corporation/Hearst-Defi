@@ -4,7 +4,6 @@ import "./dashboard.css";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DashboardAssetsBoard } from "@/components/admin/dashboard";
-import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { resolveDashboardPageInputs } from "@/lib/admin/dashboard-page-view";
 import { loadAdminOverview } from "@/lib/data/admin-overview";
 import { loadCockpitPayload } from "@/lib/data/cockpit";
@@ -12,10 +11,7 @@ import { loadDashboardData } from "@/lib/data/dashboard";
 import { loadOverviewClusters } from "@/lib/data/overview-clusters";
 import { loadPlatformTotals } from "@/lib/data/platform-totals";
 import { loadRiskFramework } from "@/lib/data/risk-framework";
-import {
-  adminDashboardVaultHref,
-  DASHBOARD_FIXTURE_VAULTS,
-} from "@/lib/vaults/dashboard-scope";
+import { DASHBOARD_FIXTURE_VAULTS } from "@/lib/vaults/dashboard-scope";
 
 /** Soft TTL — cross-request caches in loaders revalidate silently in the background. */
 export const revalidate = 30;
@@ -50,12 +46,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         titleAccent="Command Center"
         contextLabel={`${activeTicker} · Admin Command`}
         className="dashboard-page-header"
-        filters={
-          <FixtureVaultPills
-            activeVaultId={data.vaultMeta.id}
-            resolveHref={adminDashboardVaultHref}
-          />
-        }
       />
 
       <DashboardAssetsBoard

@@ -2,7 +2,6 @@ import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
 
-import { FixtureVaultPills } from "@/components/admin/fixture-vault-pills";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
@@ -11,7 +10,6 @@ import { RebalanceCard } from "@/components/admin/rebalance-card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { requestManualSignal } from "./actions";
 import {
-  adminSignalsVaultHref,
   resolveFixtureVaultId,
   withAdminVaultQuery,
 } from "@/lib/vaults/dashboard-scope";
@@ -114,12 +112,6 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
         titleLead="Vault"
         titleAccent="Rebalancing"
         contextLabel="Vaults"
-        filters={
-          <FixtureVaultPills
-            activeVaultId={vaultId}
-            resolveHref={adminSignalsVaultHref}
-          />
-        }
         actions={
           isDev ? (
             <ManualSignalTrigger action={manualSignalAction} vaultId={vaultId} />

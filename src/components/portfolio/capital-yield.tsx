@@ -84,11 +84,13 @@ export function CapitalYield({
     ? sources.reduce((acc, s) => Math.max(acc, Math.abs(s.contributionPct)), 0)
     : 0;
 
-  // Badge/disclaimer only when there is real data AND a confirmed position.
+  // Capital is deployed as soon as the position is funded — independent of
+  // whether the vault allocation snapshot has settled. This drives the donut
+  // centre so it never reads "Pending" while the positions table shows a value.
+  const hasCapital = totalValueUsdc > 0;
+
+  // Badge/disclaimer only when there is real allocation data AND a position.
   const isFilled = hasYield && totalValueUsdc > 0;
-  const provenance = isFilled
-    ? resolveProvenance(source, updatedAt ?? new Date(), "estimated")
-    : hasData ? resolveProvenance("fallback", updatedAt ?? new Date(), "estimated") : undefined;
 
   const [rLow, rHigh] =
     blendedLow <= blendedHigh ? [blendedLow, blendedHigh] : [blendedHigh, blendedLow];
@@ -96,7 +98,23 @@ export function CapitalYield({
     stressedBearRange.low <= stressedBearRange.high
       ? [stressedBearRange.low, stressedBearRange.high]
       : [stressedBearRange.high, stressedBearRange.low];
-  const showReferenceRange = hasData && !isFilled;
+
+  // A range exists once we have either real vault yield OR a position-derived
+  // fallback range (blendedLow/High grafted upstream from the position's APY).
+  const hasRange = rLow + rHigh > 0;
+  const hasStress = sLow + sHigh > 0;
+
+  // Reference range: a real range but not the full forward projection (no
+  // settled allocation breakdown yet). Keeps the hero populated instead of "—".
+  const showReferenceRange = hasRange && !isFilled;
+
+  // Filled → real source (live). Reference range (position-derived) → estimated,
+  // not "stale": it's a current vault/position reference, not aged data.
+  const provenance =
+    isFilled || hasRange
+      ? resolveProvenance(isFilled ? source : "estimated", updatedAt ?? new Date(), "estimated")
+      : undefined;
+
   const heroRangeLabel = isFilled
     ? "Forward range"
     : showReferenceRange
@@ -108,11 +126,9 @@ export function CapitalYield({
   const heroRangeNote = isFilled
     ? "12m forward projection · not guaranteed"
     : showReferenceRange
-      ? "Vault-level reference while your first position is pending"
+      ? "Vault reference range · not guaranteed · allocation settling"
       : "Awaiting allocation snapshot";
-  const stressedValue = isFilled || showReferenceRange
-    ? formatApyRange({ low: sLow, high: sHigh })
-    : "—";
+  const stressedValue = hasStress ? formatApyRange({ low: sLow, high: sHigh }) : "—";
 
   // Only real buckets become coloured arcs. Empty → the background ring shows alone.
   const segments = buckets.map((slice, i) => ({
@@ -127,7 +143,9 @@ export function CapitalYield({
       aria-label="Capital and yield — allocation and 12 month forward yield"
       className={cn(
         embedded ? "pf-capital-yield--embedded" : "cy-panel",
-        !hasData && (embedded ? "pf-capital-yield--embedded-empty" : "cy-panel--onboarding-empty")
+        // Empty layout only with neither capital nor allocation data — a funded
+        // position ($11) keeps the normal hero+donut+ledger layout.
+        !hasCapital && !hasData && (embedded ? "pf-capital-yield--embedded-empty" : "cy-panel--onboarding-empty")
       )}
     >
       <DashboardPanelHeader
@@ -148,7 +166,7 @@ export function CapitalYield({
         </div>
         <div className="cy-hero__stress">
           <span className="cy-hero__stress-label">Stress case</span>
-          <span className={cn("cy-hero__stress-value", (isFilled || showReferenceRange) && "cy-hero__stress-value--live")}>
+          <span className={cn("cy-hero__stress-value", hasStress && "cy-hero__stress-value--live")}>
             {stressedValue}
           </span>
         </div>
@@ -231,7 +249,7 @@ export function CapitalYield({
             )}
             </svg>
             <div className="donut-center">
-              {isFilled ? (
+              {hasCapital ? (
                 <>
                   <span className="donut-val group-hover/donut:scale-110 transition-transform duration-500">{formatUsdCompact(totalValueUsdc)}</span>
                   <span className="donut-lbl">Capital</span>
@@ -247,9 +265,11 @@ export function CapitalYield({
           <div className="cy-donut-shell__caption">
             {isFilled
               ? "Live investor allocation"
-              : showReferenceRange
-                ? "Reference allocation mix"
-                : "Awaiting first confirmed position"}
+              : hasCapital
+                ? "Allocation settling"
+                : showReferenceRange
+                  ? "Reference allocation mix"
+                  : "Awaiting first confirmed position"}
           </div>
         </div>
 

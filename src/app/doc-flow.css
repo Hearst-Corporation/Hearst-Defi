@@ -76,6 +76,23 @@
   gap: var(--ct-space-3);
 }
 
+/* ── Fix largeur des CHAMPS dans un stack--actions ──────────────────────────
+   `--actions` impose `align-items: flex-start` (pour garder les boutons collés
+   à gauche), mais ça rétrécit aussi les champs/labels/grilles à leur largeur
+   intrinsèque malgré leur `width:100%`. On ré-étire explicitement tout ce qui
+   est saisie pleine largeur ; seules les rangées de boutons (`inline-row`)
+   gardent l'alignement gauche. Source unique — corrige tous les forms admin. */
+.admin-doc .admin-doc-stack--actions > label,
+.admin-doc .admin-doc-stack--actions > .ct-input,
+.admin-doc .admin-doc-stack--actions > .ct-textarea,
+.admin-doc .admin-doc-stack--actions > .ct-select,
+.admin-doc .admin-doc-stack--actions > .admin-doc-form-grid-2,
+.admin-doc .admin-doc-stack--actions > .admin-doc-form-grid-3,
+.admin-doc .admin-doc-stack--actions > .admin-doc-stack {
+  align-self: stretch;
+  width: 100%;
+}
+
 .admin-doc .admin-doc-stack--relaxed {
   display: flex;
   flex-direction: column;
