@@ -114,76 +114,6 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
   );
 }
 
-// ─── Allocation sliders with sum-100 constraint ───────────────────────────────
-
-type AllocState = {
-  mining: number;
-  btcTactical: number;
-  usdcBase: number;
-  stableReserve: number;
-};
-
-function AllocSliders({
-  alloc,
-  onChange,
-}: {
-  alloc: AllocState;
-  onChange: (a: AllocState) => void;
-}) {
-  const keys: (keyof AllocState)[] = ["mining", "btcTactical", "usdcBase", "stableReserve"];
-  const labels: Record<keyof AllocState, string> = {
-    mining: "Mining",
-    btcTactical: "BTC Tactical",
-    usdcBase: "USDC Base",
-    stableReserve: "Stable Reserve",
-  };
-
-  const sum = alloc.mining + alloc.btcTactical + alloc.usdcBase + alloc.stableReserve;
-  const sumOk = Math.abs(sum - 100) < 0.5;
-
-  function handleChange(key: keyof AllocState, raw: number) {
-    const others = (Object.keys(alloc) as (keyof AllocState)[]).filter((k) => k !== key);
-    const remaining = 100 - raw;
-    const otherSum = others.reduce((acc, k) => acc + alloc[k], 0);
-    const ratio = otherSum > 0 ? remaining / otherSum : 1 / others.length;
-    const next = { ...alloc, [key]: raw } as AllocState;
-    for (const k of others) {
-      next[k] = otherSum > 0 ? Math.max(0, Math.round(alloc[k] * ratio * 10) / 10) : Math.round(remaining / others.length);
-    }
-    onChange(next);
-  }
-
-  return (
-    <div className="admin-doc-stack admin-doc-stack--actions">
-      <div className="admin-doc-row-spread">
-        <span className="eyebrow ct-text-muted">Allocations</span>
-        <span
-          className={cn(
-            "ct-pill mono tabular",
-            sumOk
-              ? "ct-status-success-bg"
-              : "ct-status-danger-bg",
-          )}
-        >
-          {sum.toFixed(1)}%
-        </span>
-      </div>
-      {keys.map((k) => (
-        <SliderField
-          key={k}
-          label={labels[k]}
-          value={alloc[k]}
-          min={0}
-          max={100}
-          step={0.5}
-          onChange={(v) => handleChange(k, v)}
-          format={(v) => `${v.toFixed(1)}%`}
-        />
-      ))}
-    </div>
-  );
-}
-
 // ─── Heatmap grid ─────────────────────────────────────────────────────────────
 
 type HeatmapProps = {
@@ -274,12 +204,6 @@ export function ProjectionStudio() {
   const [energyCost, setEnergyCost] = useState(0.045);
   const [stableApy, setStableApy] = useState(4.5);
   const [volIndex, setVolIndex] = useState(45);
-  const [alloc, setAlloc] = useState<AllocState>({
-    mining: 40,
-    btcTactical: 20,
-    usdcBase: 25,
-    stableReserve: 15,
-  });
   const [batchMode, setBatchMode] = useState<BatchMode>("none");
   const [methodologyVersion] = useState("v1.0");
   const [selectedPreset, setSelectedPreset] = useState<Preset | null>(null);
@@ -468,8 +392,15 @@ export function ProjectionStudio() {
 
         <div className="projection-studio-input-divider" />
 
-        {/* Allocation sliders */}
-        <AllocSliders alloc={alloc} onChange={setAlloc} />
+        {/* Allocation — read-only note */}
+        <div className="admin-doc-stack admin-doc-stack--tight">
+          <p className="eyebrow ct-text-muted">Allocation</p>
+          <p className="body-xs ct-text-muted">
+            Allocation is derived by the engine from the scenario inputs and the
+            resulting vault mode. It is not set manually here — run a projection to
+            see the engine-derived allocation reflected in the APY range and risk score.
+          </p>
+        </div>
 
         <div className="projection-studio-input-divider" />
 
