@@ -26,37 +26,12 @@ import {
 } from "@/lib/data/outreach";
 import { getOutreachAutonomyStatus } from "@/lib/outreach/autonomy-status";
 import { formatAdminDate } from "@/lib/vaults/product-display";
+import { PROSPECT_VARIANT, CAMPAIGN_VARIANT } from "@/lib/outreach/status-variants";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Outreach — Hearst Connect",
-};
-
-/** Prospect lifecycle status → Badge variant. */
-const PROSPECT_VARIANT: Record<
-  string,
-  "default" | "success" | "warning" | "danger" | "accent"
-> = {
-  new: "default",
-  contacted: "accent",
-  opened: "accent",
-  replied: "success",
-  qualified: "success",
-  converted: "success",
-  opted_out: "warning",
-  bounced: "danger",
-};
-
-/** Campaign status → Badge variant. */
-const CAMPAIGN_VARIANT: Record<
-  string,
-  "default" | "success" | "warning" | "accent"
-> = {
-  draft: "default",
-  review: "warning",
-  sending: "accent",
-  sent: "success",
 };
 
 export default async function OutreachPage() {

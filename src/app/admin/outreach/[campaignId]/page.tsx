@@ -14,21 +14,11 @@ import { DraftCampaignButton } from "@/components/admin/outreach/draft-campaign-
 import { SendCampaignButton } from "@/components/admin/outreach/send-campaign-button";
 import { loadCampaignDetail } from "@/lib/data/outreach";
 import { formatAdminDate } from "@/lib/vaults/product-display";
+import { CAMPAIGN_VARIANT } from "@/lib/outreach/status-variants";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Campaign — Hearst Connect" };
-
-/** Campaign status → Badge variant. */
-const CAMPAIGN_VARIANT: Record<
-  string,
-  "default" | "success" | "warning" | "accent"
-> = {
-  draft: "default",
-  review: "warning",
-  sending: "accent",
-  sent: "success",
-};
 
 /** Returns a tidy funnel summary string, e.g. "12 sent · 9 delivered · 4 opened · 1 bounced". */
 function buildDeliverySummary(statusCounts: Record<string, number>): string | null {

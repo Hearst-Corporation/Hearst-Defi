@@ -2,6 +2,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/cn";
 
+export type BadgeVariant = VariantProps<typeof badgeVariants>["variant"];
+
 const badgeVariants = cva(
   "inline-flex items-center gap-(--ct-space-1_5) rounded-full border px-(--ct-space-2_5) py-(--ct-space-1) ct-text-micro-size font-bold uppercase ct-tracking-wide ct-leading-none transition-colors ease-[var(--ct-ease)] whitespace-nowrap",
   {

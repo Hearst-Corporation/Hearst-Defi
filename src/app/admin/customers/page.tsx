@@ -14,6 +14,7 @@ import { CreateInvestorButton } from "@/components/admin/customer/create-investo
 import { loadCustomers, loadOrphanSubmissions, type KycStatus } from "@/lib/data/customers";
 import { buildCustomersKpiStrip } from "@/lib/admin/customers-kpi-strip";
 import { formatAdminDate } from "@/lib/vaults/product-display";
+import { truncateWallet } from "@/lib/wallet-display";
 
 export const dynamic = "force-dynamic";
 
@@ -39,13 +40,6 @@ const KYC_LABEL: Record<KycStatus, string> = {
   pending: "Pending",
   rejected: "Rejected",
 };
-
-/** Short, middle-truncated wallet address (0x1234…abcd) or em dash. */
-function truncateWallet(wallet: string | null): string {
-  if (!wallet) return "—";
-  if (wallet.length <= 12) return wallet;
-  return `${wallet.slice(0, 6)}…${wallet.slice(-4)}`;
-}
 
 export default async function CustomersPage({
   searchParams,
