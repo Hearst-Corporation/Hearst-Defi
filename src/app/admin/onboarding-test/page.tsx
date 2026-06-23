@@ -47,7 +47,7 @@ export default function OnboardingTestPage() {
           — both off by default.
         </p>
 
-        <Card className="admin-doc-card-pad-flat" hoverOverlay={false}>
+        <Card className="w-full admin-doc-card-pad-flat" hoverOverlay={false}>
           <OnboardingForm />
         </Card>
       </section>

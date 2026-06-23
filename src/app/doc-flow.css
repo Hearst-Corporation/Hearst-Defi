@@ -316,7 +316,10 @@
 .admin-doc-inset {
   border-radius: var(--ct-radius-xl);
   border: 1px solid var(--ct-border-soft);
-  background: transparent;
+  /* Surface élevée (sous-panneau / form dépliable) — était `transparent`,
+     ce qui laissait les forms « Add prospect » & co flotter sans fond sur la
+     page. Aligné sur la surface graphite des panneaux. */
+  background: var(--ct-surface-1);
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 

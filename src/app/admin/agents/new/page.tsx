@@ -40,7 +40,7 @@ export default async function NewAgentTemplatePage({
         }
       />
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="New template">
-        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
+        <Card className="w-full p-[var(--ct-space-6)]" hoverOverlay={false}>
           <AgentTemplateForm initialBaseAgent={initialBaseAgent} />
         </Card>
       </section>
