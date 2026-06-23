@@ -1321,6 +1321,34 @@
   white-space: nowrap;
 }
 
+/* Responsive column visibility for positions table */
+@container pf (max-width: 75rem) {
+  /* Hide 'Since' column */
+  .pf-positions__col--since { display: none; }
+  .pf-positions__row {
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 0.6fr) minmax(0, 1.1fr);
+  }
+}
+
+@container pf (max-width: 64rem) {
+  /* Also hide 'Share' column */
+  .pf-positions__col--share { display: none; }
+  .pf-positions__row {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr);
+  }
+}
+
+@container pf (max-width: 48rem) {
+  /* Also hide 'APY range' and 'Principal' — keep Vault + Value only */
+  .pf-positions__col--apy,
+  .pf-positions__col--principal { display: none; }
+  .pf-positions__row {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: var(--ct-space-3);
+  }
+}
+}
+
 /* ---- Positions empty ---- */
 .pf-positions-empty {
   display: flex;

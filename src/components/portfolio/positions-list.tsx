@@ -189,12 +189,12 @@ export function PositionsList({
       />
       <div className="pf-positions">
         <div className="pf-positions__row pf-positions__row--head stat-label uppercase tracking-widest">
-          <span>Vault</span>
-          <span className="pf-positions__num">Principal</span>
-          <span className="pf-positions__num">Value</span>
-          <span className="pf-positions__num">Share</span>
-          <span className="pf-positions__num">APY range</span>
-          <span className="pf-positions__num">Since</span>
+          <span className="pf-positions__col--vault">Vault</span>
+          <span className="pf-positions__num pf-positions__col--principal">Principal</span>
+          <span className="pf-positions__num pf-positions__col--value">Value</span>
+          <span className="pf-positions__num pf-positions__col--share">Share</span>
+          <span className="pf-positions__num pf-positions__col--apy">APY range</span>
+          <span className="pf-positions__num pf-positions__col--since">Since</span>
         </div>
 
         {positions.map((p) => {
@@ -202,7 +202,7 @@ export function PositionsList({
 
           return (
             <div key={p.id} className="pf-positions__row pf-positions__row--body group/row">
-              <span className="pf-positions__vault">
+              <span className="pf-positions__vault pf-positions__col--vault">
                 <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-ct-surface-2 border border-ct-border-base group-hover/row:border-ct-accent/30 transition-colors">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 ct-text-secondary group-hover/row:ct-text-accent transition-colors">
                     <path d="M3 21h18M3 10h18M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M7 21v-4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4" />
@@ -234,19 +234,19 @@ export function PositionsList({
                 </div>
               </span>
 
-              <span className="pf-positions__num tabular body-md ct-text-body font-mono">
+              <span className="pf-positions__num tabular body-md ct-text-body font-mono pf-positions__col--principal">
                 {formatUsdCompact(p.principalUsdc)}
               </span>
 
-              <span className="pf-positions__num tabular body-md ct-text-strong font-mono font-bold">
+              <span className="pf-positions__num tabular body-md ct-text-strong font-mono font-bold pf-positions__col--value">
                 {formatUsdCompact(p.valueUsdc)}
               </span>
 
-              <span className="pf-positions__num tabular body-sm ct-text-secondary font-mono">
+              <span className="pf-positions__num tabular body-sm ct-text-secondary font-mono pf-positions__col--share">
                 {sharePct.toFixed(1)}%
               </span>
 
-              <span className="pf-positions__num">
+              <span className="pf-positions__num pf-positions__col--apy">
                 {p.apyLow !== null && p.apyHigh !== null ? (
                   <ApyRange low={p.apyLow} high={p.apyHigh} precision={1} className="body-sm font-mono font-semibold" />
                 ) : (
@@ -254,7 +254,7 @@ export function PositionsList({
                 )}
               </span>
 
-              <span className="pf-positions__num tabular body-sm ct-text-muted font-mono">
+              <span className="pf-positions__num tabular body-sm ct-text-muted font-mono pf-positions__col--since">
                 {dateFmt.format(p.subscribedAt)}
               </span>
             </div>
