@@ -101,8 +101,6 @@ export const POSITION_STATUS_CONFIG = {
   exited: { label: "Exited", variant: "default", dot: "pf-status-dot--exited" },
 } as const;
 
-export type PositionStatus = keyof typeof POSITION_STATUS_CONFIG;
-
 export interface PortfolioTransaction {
   id: string;
   type: "deposit" | "claim" | "withdraw" | "distribution";

@@ -2047,7 +2047,6 @@
 .dashboard-inngest-row {
   padding-top: var(--ct-space-1);
   padding-bottom: var(--ct-space-1);
-}
   gap: var(--ct-space-3);
 }
 .dashboard-inngest-row:first-child { padding-top: 0; }
