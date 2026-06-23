@@ -24,12 +24,6 @@ const STATUS_DOT: Record<string, string> = {
   exited: "pf-status-dot--exited",
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  active: "Active",
-  matured: "Matured",
-  exited: "Exited",
-};
-
 interface PositionsListProps {
   positions: PortfolioPosition[];
   source: "live" | "fallback";
@@ -82,94 +76,6 @@ export function PositionsList({
           <span className="pf-positions-empty__hint ct-text-muted">
             Your portfolio will display your active vault subscriptions here.
           </span>
-        </div>
-      </PfCockpitPanel>
-    );
-  }
-
-  if (embedded) {
-    return (
-      <PfCockpitPanel
-        variant="table"
-        chrome="embedded"
-        aria-label="Open positions"
-      >
-        <DashboardPanelHeader
-          title="Positions"
-          tone="primary"
-          provenance={provenance}
-          trailing={trailing}
-        />
-        <div className="pf-positions-summary">
-          {positions.map((p) => {
-            const sharePct = totalPortfolioValue > 0 ? (p.valueUsdc / totalPortfolioValue) * 100 : 0;
-
-            return (
-              <article key={p.id} className="pf-position-summary">
-                <div className="pf-position-summary__main">
-                  <div className="pf-position-summary__identity">
-                    <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-ct-surface-2 border border-ct-border-base">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 ct-text-secondary">
-                        <path d="M3 21h18M3 10h18M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M7 21v-4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4" />
-                      </svg>
-                      <span
-                        className={cn("absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-ct-surface-1", STATUS_DOT[p.status] ?? "pf-status-dot--default")}
-                        aria-hidden
-                      />
-                    </div>
-                    <div className="pf-position-summary__copy">
-                      <Link
-                        href={`/portfolio/${p.id}`}
-                        className="pf-position-summary__vault-link body-md ct-text-primary min-w-0 truncate underline-offset-4 hover:underline font-semibold flex items-center gap-1.5 group"
-                        aria-label={`Open details for ${p.vaultName ?? "unassigned vault"}`}
-                      >
-                        <span>{p.vaultName ?? "Unassigned vault"}</span>
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all"
-                        >
-                          <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg>
-                      </Link>
-                      <span className="pf-position-summary__status">
-                        {STATUS_LABEL[p.status] ?? "Position"} position
-                      </span>
-                    </div>
-                  </div>
-                  <dl className="pf-position-summary__meta">
-                    <div className="pf-position-summary__meta-item">
-                      <dt>Principal</dt>
-                      <dd>{formatUsdCompact(p.principalUsdc)}</dd>
-                    </div>
-                    <div className="pf-position-summary__meta-item">
-                      <dt>APY</dt>
-                      <dd>
-                        {p.apyLow !== null && p.apyHigh !== null ? (
-                          <ApyRange low={p.apyLow} high={p.apyHigh} precision={1} className="body-sm font-semibold" />
-                        ) : (
-                          <span className="body-xs ct-text-tertiary">Unavailable</span>
-                        )}
-                      </dd>
-                    </div>
-                    <div className="pf-position-summary__meta-item">
-                      <dt>Since</dt>
-                      <dd>{dateFmt.format(p.subscribedAt)}</dd>
-                    </div>
-                  </dl>
-                </div>
-                <div className="pf-position-summary__aside">
-                  <span className="pf-position-summary__value-label">Current value</span>
-                  <span className="pf-position-summary__value">{formatUsdCompact(p.valueUsdc)}</span>
-                  <span className="pf-position-summary__share">{sharePct.toFixed(1)}% of portfolio</span>
-                </div>
-              </article>
-            );
-          })}
         </div>
       </PfCockpitPanel>
     );

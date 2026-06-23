@@ -19,24 +19,7 @@ const POSITIONS = [
 ];
 
 describe("PositionsList", () => {
-  it("renders an editorial summary in embedded mode", () => {
-    const html = renderToStaticMarkup(
-      <PositionsList
-        positions={POSITIONS}
-        source="live"
-        embedded
-        leafHref="/portfolio/positions"
-      />,
-    );
-
-    expect(html).toContain("pf-positions-summary");
-    expect(html).toContain("Current value");
-    expect(html).toContain("of portfolio");
-    expect(html).not.toContain("pf-positions__row--head");
-    expect(html).not.toContain(">Vault</span>");
-  });
-
-  it("keeps the table ledger in full mode", () => {
+  it("renders the table ledger (the single layout, hub + leaf)", () => {
     const html = renderToStaticMarkup(
       <PositionsList
         positions={POSITIONS}
@@ -46,6 +29,21 @@ describe("PositionsList", () => {
 
     expect(html).toContain("pf-positions__row--head");
     expect(html).toContain(">Vault</span>");
+    // The dead editorial-card branch is gone — no summary markup remains.
+    expect(html).not.toContain("pf-positions-summary");
+  });
+
+  it("renders the same table ledger in embedded mode (chrome differs only)", () => {
+    const html = renderToStaticMarkup(
+      <PositionsList
+        positions={POSITIONS}
+        source="live"
+        embedded
+        leafHref="/portfolio/positions"
+      />,
+    );
+
+    expect(html).toContain("pf-positions__row--head");
     expect(html).not.toContain("pf-positions-summary");
   });
 });
