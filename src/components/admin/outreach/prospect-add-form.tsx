@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { addProspect } from "@/app/admin/outreach/actions";
 
 /**
@@ -30,24 +31,25 @@ export function ProspectAddForm() {
     });
   }
 
-  if (!open) {
-    return (
+  return (
+    <>
       <Button variant="primary" size="md" onClick={() => setOpen(true)}>
         Add prospect
       </Button>
-    );
-  }
 
-  return (
-    <form
-      ref={formRef}
-      action={onSubmit}
-      className="admin-doc-inset admin-doc-stack admin-doc-stack--actions w-full"
-      aria-label="Add prospect"
-    >
-      <div className="admin-doc-stack admin-doc-stack--tight">
-        <p className="eyebrow">Add prospect</p>
-        <div className="admin-doc-form-grid-2">
+      <Modal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        title="Add prospect"
+        className="max-w-2xl"
+      >
+        <form
+          ref={formRef}
+          action={onSubmit}
+          className="admin-doc-stack admin-doc-stack--actions"
+          aria-label="Add prospect"
+        >
+          <div className="admin-doc-form-grid-2">
           <label className="admin-doc-field" htmlFor="prospect-email">
             <span className="stat-label">Email</span>
             <input
@@ -100,21 +102,22 @@ export function ProspectAddForm() {
               className="ct-input"
             />
           </label>
-        </div>
-      </div>
-      <div className="admin-form-actions">
-        <Button type="submit" variant="primary" size="md" disabled={isPending}>
-          {isPending ? "Adding…" : "Add"}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="md"
-          onClick={() => setOpen(false)}
-        >
-          Cancel
-        </Button>
-      </div>
-    </form>
+          </div>
+          <div className="admin-form-actions">
+            <Button type="submit" variant="primary" size="md" disabled={isPending}>
+              {isPending ? "Adding…" : "Add"}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="md"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
+    </>
   );
 }

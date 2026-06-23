@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { importProspects } from "@/app/admin/outreach/actions";
 
 /**
@@ -36,53 +37,55 @@ export function ProspectImportForm() {
     });
   }
 
-  if (!open) {
-    return (
+  return (
+    <>
       <Button variant="secondary" size="md" onClick={() => setOpen(true)}>
         Import emails
       </Button>
-    );
-  }
 
-  return (
-    <form
-      ref={formRef}
-      action={onSubmit}
-      className="admin-doc-inset admin-doc-stack admin-doc-stack--actions w-full"
-      aria-label="Import prospects"
-    >
-      <div className="admin-doc-stack admin-doc-stack--tight">
-        <p className="eyebrow">Import prospects</p>
-        <label className="admin-doc-field" htmlFor="import-raw">
-          <span className="stat-label">
-            One per line — email, or email,company, or email,first,last
-          </span>
-          <textarea
-            id="import-raw"
-            name="raw"
-            rows={6}
-            required
-            placeholder={
-              "lp@firm.com\ntreasury@fund.io, Acme Capital\njane@spv.co, Jane, Doe"
-            }
-            className="ct-input"
-            autoFocus
-          />
-        </label>
-      </div>
-      <div className="admin-form-actions">
-        <Button type="submit" variant="primary" size="md" disabled={isPending}>
-          {isPending ? "Importing…" : "Import"}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="md"
-          onClick={() => setOpen(false)}
+      <Modal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        title="Import prospects"
+        className="max-w-2xl"
+      >
+        <form
+          ref={formRef}
+          action={onSubmit}
+          className="admin-doc-stack admin-doc-stack--actions"
+          aria-label="Import prospects"
         >
-          Cancel
-        </Button>
-      </div>
-    </form>
+          <label className="admin-doc-field" htmlFor="import-raw">
+            <span className="stat-label">
+              One per line — email, or email,company, or email,first,last
+            </span>
+            <textarea
+              id="import-raw"
+              name="raw"
+              rows={6}
+              required
+              placeholder={
+                "lp@firm.com\ntreasury@fund.io, Acme Capital\njane@spv.co, Jane, Doe"
+              }
+              className="ct-input"
+              autoFocus
+            />
+          </label>
+          <div className="admin-form-actions">
+            <Button type="submit" variant="primary" size="md" disabled={isPending}>
+              {isPending ? "Importing…" : "Import"}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="md"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
+    </>
   );
 }

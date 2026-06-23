@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { createCampaign } from "@/app/admin/outreach/actions";
 
 /**
@@ -28,23 +29,24 @@ export function CampaignForm() {
     });
   }
 
-  if (!open) {
-    return (
+  return (
+    <>
       <Button variant="primary" size="md" onClick={() => setOpen(true)}>
         New campaign
       </Button>
-    );
-  }
 
-  return (
-    <form
-      action={onSubmit}
-      className="admin-doc-inset admin-doc-stack admin-doc-stack--actions"
-      aria-label="Create campaign"
-    >
-      <div className="admin-doc-stack admin-doc-stack--tight">
-        <p className="eyebrow">New campaign</p>
-        <div className="admin-doc-form-grid-2">
+      <Modal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        title="New campaign"
+        className="max-w-2xl"
+      >
+        <form
+          action={onSubmit}
+          className="admin-doc-stack admin-doc-stack--actions"
+          aria-label="Create campaign"
+        >
+          <div className="admin-doc-form-grid-2">
           <label className="admin-doc-field" htmlFor="campaign-name">
             <span className="stat-label">Name</span>
             <input
@@ -103,20 +105,21 @@ export function CampaignForm() {
           />
           <span>Personalise from Typeform qualification when available</span>
         </label>
-      </div>
-      <div className="admin-form-actions">
-        <Button type="submit" variant="primary" size="md" disabled={isPending}>
-          {isPending ? "Creating…" : "Create"}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="md"
-          onClick={() => setOpen(false)}
-        >
-          Cancel
-        </Button>
-      </div>
-    </form>
+          <div className="admin-form-actions">
+            <Button type="submit" variant="primary" size="md" disabled={isPending}>
+              {isPending ? "Creating…" : "Create"}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="md"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
+    </>
   );
 }
