@@ -16,12 +16,9 @@ import {
 } from "@/components/ui/wizard-step-progress";
 import {
   AUM_OPTIONS,
-  FUNDS_USAGE_OPTIONS,
   PLATFORM_TYPE_OPTIONS,
   TIMELINE_OPTIONS,
   VAULT_SIZE_OPTIONS,
-  YIELD_STATUS_OPTIONS,
-  YIELD_TYPE_OPTIONS,
 } from "@/lib/qualification/options";
 
 import type { IrContact } from "@/lib/ir-contact";
@@ -29,18 +26,30 @@ import type { IrContact } from "@/lib/ir-contact";
 import { ApplyAside } from "./apply-assistant-panel";
 import { submitApplication } from "./actions";
 
-type Step = "about" | "platform" | "sizing";
+// One question per step — a true wizard. Step 1 collects contact details; the
+// four persona questions (who / capacity / first allocation / timing) each get
+// their own screen so no single step ever overflows the viewport.
+type Step = "about" | "who" | "aum" | "allocation" | "timing";
 
-const STEP_ORDER = ["about", "platform", "sizing"] as const satisfies readonly Step[];
+const STEP_ORDER = [
+  "about",
+  "who",
+  "aum",
+  "allocation",
+  "timing",
+] as const satisfies readonly Step[];
+
 const STEPS: readonly WizardStep<Step>[] = [
   { id: "about", label: "About you", index: 1 },
-  { id: "platform", label: "Platform", index: 2 },
-  { id: "sizing", label: "Sizing", index: 3 },
+  { id: "who", label: "Profile", index: 2 },
+  { id: "aum", label: "Capacity", index: 3 },
+  { id: "allocation", label: "Allocation", index: 4 },
+  { id: "timing", label: "Timing", index: 5 },
 ] as const;
 
 const META_CHIPS = [
-  "3 steps",
-  "About 2 minutes",
+  "5 quick steps",
+  "Under a minute",
   "For qualified investors only",
 ] as const;
 
@@ -70,16 +79,17 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
 
+  // Four persona questions: platformType (who) + aum (capacity)
+  // + vaultSize (intended first allocation) + timeline (next step).
   const [platformType, setPlatformType] = useState("");
   const [aum, setAum] = useState("");
-  const [fundsUsage, setFundsUsage] = useState("");
-  const [yieldStatus, setYieldStatus] = useState("");
-  const [yieldType, setYieldType] = useState("");
   const [vaultSize, setVaultSize] = useState("");
   const [timeline, setTimeline] = useState("");
 
   const stepIndex = STEP_ORDER.indexOf(step);
   const totalSteps = STEP_ORDER.length;
+  const isFirstStep = stepIndex === 0;
+  const isLastStep = stepIndex === totalSteps - 1;
 
   function goNext() {
     if (step === "about") {
@@ -107,9 +117,6 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
     if (phone.trim()) fd.set("phone", phone.trim());
     if (platformType) fd.set("platformType", platformType);
     if (aum) fd.set("aum", aum);
-    if (fundsUsage) fd.set("fundsUsage", fundsUsage);
-    if (yieldStatus) fd.set("yieldStatus", yieldStatus);
-    if (yieldType) fd.set("yieldType", yieldType);
     if (vaultSize) fd.set("vaultSize", vaultSize);
     if (timeline) fd.set("timeline", timeline);
 
@@ -142,8 +149,8 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
             <div className="product-doc-stack--compact">
               <h1 className="h1 m-0 text-pretty">Qualification for institutional access</h1>
               <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
-                Three steps to assess fit for Hearst Connect&apos;s institutional
-                USDC yield program. No commitment required.
+                A few quick steps to assess fit for Hearst Connect&apos;s
+                institutional USDC yield program. No commitment required.
               </p>
             </div>
           </div>
@@ -162,7 +169,7 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
             <div className="product-doc-stack--relaxed">
               <StepHeading
                 title="Tell us about yourself"
-                description="Takes about two minutes. We'll review fit and follow up directly."
+                description="Under a minute. We'll review fit and follow up directly."
               />
 
               <label className="block" htmlFor="apply-email">
@@ -217,14 +224,13 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
             </div>
           )}
 
-          {step === "platform" && (
+          {step === "who" && (
             <div className="product-doc-stack--relaxed">
               <StepHeading
-                title="About your platform"
-                description="Help us understand your investor profile, assets, and existing yield posture."
+                title="Who are you?"
+                description="The profile that best describes your platform."
               />
-
-              <ChoiceGroup legend="What best describes your platform?">
+              <ChoiceGroup legend="Who are you?">
                 {PLATFORM_TYPE_OPTIONS.map((o) => (
                   <ChoiceCard
                     key={o.value}
@@ -234,7 +240,15 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
                   />
                 ))}
               </ChoiceGroup>
+            </div>
+          )}
 
+          {step === "aum" && (
+            <div className="product-doc-stack--relaxed">
+              <StepHeading
+                title="Investor profile capacity"
+                description="Assets under management — used only to assess fit."
+              />
               <ChoiceGroup legend="Assets under management?">
                 {AUM_OPTIONS.map((o) => (
                   <ChoiceCard
@@ -245,50 +259,16 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
                   />
                 ))}
               </ChoiceGroup>
-
-              <ChoiceGroup legend="How are client funds currently deployed?">
-                {FUNDS_USAGE_OPTIONS.map((o) => (
-                  <ChoiceCard
-                    key={o.value}
-                    label={o.label}
-                    selected={fundsUsage === o.value}
-                    onClick={() => setFundsUsage(o.value)}
-                  />
-                ))}
-              </ChoiceGroup>
-
-              <ChoiceGroup legend="Do you offer yield or reward products?">
-                {YIELD_STATUS_OPTIONS.map((o) => (
-                  <ChoiceCard
-                    key={o.value}
-                    label={o.label}
-                    selected={yieldStatus === o.value}
-                    onClick={() => setYieldStatus(o.value)}
-                  />
-                ))}
-              </ChoiceGroup>
             </div>
           )}
 
-          {step === "sizing" && (
+          {step === "allocation" && (
             <div className="product-doc-stack--relaxed">
               <StepHeading
-                title="Sizing & timing"
-                description="Share the expected mandate and timing for a first conversation or allocation."
+                title="Intended first allocation"
+                description="A rough size for a first allocation — not a commitment."
               />
-
-              <ChoiceGroup legend="What type of yield product suits your clients?">
-                {YIELD_TYPE_OPTIONS.map((o) => (
-                  <ChoiceCard
-                    key={o.value}
-                    label={o.label}
-                    selected={yieldType === o.value}
-                    onClick={() => setYieldType(o.value)}
-                  />
-                ))}
-              </ChoiceGroup>
-
-              <ChoiceGroup legend="Vault size for a first allocation?">
+              <ChoiceGroup legend="Intended first allocation?">
                 {VAULT_SIZE_OPTIONS.map((o) => (
                   <ChoiceCard
                     key={o.value}
@@ -298,8 +278,16 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
                   />
                 ))}
               </ChoiceGroup>
+            </div>
+          )}
 
-              <ChoiceGroup legend="What is your launch timeline?">
+          {step === "timing" && (
+            <div className="product-doc-stack--relaxed">
+              <StepHeading
+                title="Timing & preferred next step"
+                description="When would you like a first conversation?"
+              />
+              <ChoiceGroup legend="Timing for a first conversation?">
                 {TIMELINE_OPTIONS.map((o) => (
                   <ChoiceCard
                     key={o.value}
@@ -330,7 +318,7 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
           }
           actions={
             <div className="product-doc-stack--actions">
-              {step === "about" ? (
+              {isFirstStep ? (
                 <Button type="button" onClick={goNext} variant="primary" size="lg" className="w-full">
                   Continue →
                 </Button>
@@ -346,17 +334,7 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
                   >
                     ← Back
                   </Button>
-                  {step !== "sizing" ? (
-                    <Button
-                      type="button"
-                      onClick={goNext}
-                      variant="primary"
-                      size="lg"
-                      className="min-w-0 flex-1"
-                    >
-                      Continue →
-                    </Button>
-                  ) : (
+                  {isLastStep ? (
                     <Button
                       type="button"
                       onClick={handleSubmit}
@@ -366,6 +344,16 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
                       className="min-w-0 flex-1"
                     >
                       {pending ? "Submitting…" : "Submit application"}
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      onClick={goNext}
+                      variant="primary"
+                      size="lg"
+                      className="min-w-0 flex-1"
+                    >
+                      Continue →
                     </Button>
                   )}
                 </div>
