@@ -151,20 +151,29 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
     return () => setChatStreaming(false);
   }, []);
 
-  // Auto-grow : le textarea part à ~3 lignes et grandit avec le contenu jusqu'à
-  // un plafond, sans scroll interne tant qu'on est sous le cap (UX message long).
-  useEffect(() => {
+  // Auto-grow : grandit le textarea avec son contenu jusqu'à un plafond, puis
+  // scroll interne. Piloté uniquement par la frappe (onChange) et les resets —
+  // PAS par un useEffect sur `input`, qui se redéclenchait à chaque vidage
+  // interne et provoquait un reflow synchrone faisant "sauter" tout le panneau
+  // au premier message. `height:auto` d'abord pour pouvoir REdescendre.
+  const autoGrow = useCallback(() => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
     el.style.height = `${Math.min(el.scrollHeight, 168)}px`;
-  }, [input]);
+  }, []);
+  // Réinitialise la hauteur (3 lignes par défaut via rows={3}) après un reset.
+  const resetGrow = useCallback(() => {
+    const el = textareaRef.current;
+    if (el) el.style.height = "";
+  }, []);
 
   const newConversation = useCallback(() => {
     setActiveChat(null);
     reset();
     setInput("");
-  }, [reset]);
+    resetGrow();
+  }, [reset, resetGrow]);
 
   const handleSend = useCallback(
     (text: string) => {
@@ -173,6 +182,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       // sur double-submit rapide). Le textarea reste actif en permanence.
       if (!text.trim()) return;
       setInput("");
+      resetGrow();
 
       // CLIENT FAST-PATH (zero network). Resolve the message against the SAME
       // pure regex resolvers the server runs before any LLM call, at LP scope
@@ -218,7 +228,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       // Re-focus après envoi.
       requestAnimationFrame(() => textareaRef.current?.focus());
     },
-    [sendMessage, appendLocal],
+    [sendMessage, appendLocal, resetGrow],
   );
 
   const handleKeyDown = useCallback(
@@ -339,7 +349,10 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           rows={3}
           placeholder="Message the assistant…"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => {
+            setInput(e.target.value);
+            autoGrow();
+          }}
           onKeyDown={handleKeyDown}
         />
         <button

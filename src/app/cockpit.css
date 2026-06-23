@@ -4643,7 +4643,12 @@ main#main-content>.admin-doc.admin-doc-shell {
 .ct-chat-mode-chip--on                     { color: var(--ct-accent); border: 1px solid color-mix(in srgb, var(--ct-accent) 45%, transparent); background: color-mix(in srgb, var(--ct-accent) 8%, transparent); }
 .ct-chat-mode-chip--off                    { color: var(--ct-text-faint); border: 1px solid color-mix(in srgb, var(--ct-text-faint) 35%, transparent); }
 .ct-chat-newbtn                            { padding: 3px 8px; font-size: clamp(0.625rem, 0.59rem + 0.18vw, 0.6875rem); /* 10px → 11px */ margin-left: auto; }
-.ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-2); }
+/* Messages start from the BOTTOM and grow upward (chat-app convention): when the
+   thread is short it sits on the input, not floating at the top. flex-end pushes
+   the column down; once it overflows, overflow-y:auto (from tokens.css) + the
+   auto-scroll-to-bottom effect keep the newest message in view without clipping
+   the top. The zero-state placeholder keeps its own margin:auto centering. */
+.ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-2); justify-content: flex-end; }
 .ct-chat-msg                               { display: flex; flex-direction: column; padding: var(--ct-space-2) var(--ct-space-2_5); font-size: clamp(0.8125rem, 0.76rem + 0.26vw, 0.9375rem); /* 13px → 15px */ border-radius: var(--ct-radius-md); }
 .ct-chat-msg.assistant code                { padding: 1px 4px; font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); }
 
@@ -4672,15 +4677,21 @@ main#main-content>.admin-doc.admin-doc-shell {
   .ct-chat-ctx-name { display: none; }
 }
 
-/* Bubbles — the assistant reply is FLAT: no surface fill, no border. It reads as
-   bare prose under its green badge, so the rail feels less "cage-in-cage". Only
-   the user message keeps a bubble (surface-3, flex-end). Padding trimmed to the
-   inline edges so the flat text doesn't sit in a phantom box. */
-.ct-chat-msg.assistant {
+/* Bubbles REMOVED — both speakers render FLAT: no surface fill, no border, no
+   inline padding. The rail stops feeling "cage-in-cage". Distinction is carried
+   by the badge (green pill for the assistant, discreet "You" for the user) +
+   alignment, NOT by a box. Body text stays legible: assistant in clear body
+   colour, user in white. */
+.ct-chat-msg.assistant,
+.ct-chat-msg.user {
   background: transparent;
   border: none;
   padding-left: 0;
   padding-right: 0;
+}
+.ct-chat-msg.user,
+.ct-chat-msg.user .ct-chat-msg-plain {
+  color: var(--ct-text-primary);
 }
 
 /* Badge d'expéditeur en tête de bulle — distinction agent/user par le badge +
@@ -4696,7 +4707,8 @@ main#main-content>.admin-doc.admin-doc-shell {
   text-transform: uppercase;
   line-height: 1;
 }
-/* Agent — vert accent + dot vert. */
+/* Agent — simple green label + dot, NO pill (no fill, no border). Bubbles are
+   gone; the green badge stays a discreet text anchor above each reply. */
 .ct-chat-badge--agent {
   color: var(--ct-accent);
 }
