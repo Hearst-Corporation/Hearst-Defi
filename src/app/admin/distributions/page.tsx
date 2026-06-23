@@ -6,7 +6,11 @@ import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { resolveFixtureVaultId } from "@/lib/vaults/dashboard-scope";
+import {
+  distributionVaultScopeWhere,
+  matchesDistributionVaultScope,
+  resolveFixtureVaultId,
+} from "@/lib/vaults/dashboard-scope";
 import { formatAdminDate, formatUsdDetailed } from "@/lib/vaults/product-display";
 import { listAllVaults, vaultSlug, vaultLabel } from "@/lib/vaults/resolver";
 import { buildDistributionsKpiStrip } from "@/lib/admin/distributions-kpi-strip";
@@ -22,16 +26,6 @@ const LEGACY_VAULT_LABELS: Record<string, string> = {
   "hearst-yield-vault": "Hearst Yield Vault",
 };
 
-function matchesDistributionVaultScope(
-  entryVaultRef: string | null,
-  activeVaultId: string,
-): boolean {
-  if (activeVaultId === "yield") {
-    return entryVaultRef === "yield" || entryVaultRef === "hearst-yield-vault";
-  }
-  return entryVaultRef === activeVaultId;
-}
-
 export default async function DistributionsPage({
   searchParams,
 }: DistributionsPageProps) {
@@ -40,7 +34,7 @@ export default async function DistributionsPage({
 
   const [rawHistory, allVaults] = await Promise.all([
     prisma.distribution.findMany({
-      where: { vaultRef: vaultId },
+      where: distributionVaultScopeWhere(vaultId),
       orderBy: { distributedAt: "desc" },
       take: 6,
     }),

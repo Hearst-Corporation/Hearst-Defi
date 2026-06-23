@@ -1,6 +1,10 @@
 import "server-only";
 
 import { prisma } from "@/lib/db";
+import {
+  distributionVaultScopeWhere,
+  resolveDistributionVaultScopeId,
+} from "@/lib/vaults/dashboard-scope";
 
 /** Default vault scope for the investor Proof Center (Hearst Yield Vault). */
 export const PROOF_CENTER_VAULT_REF = "hearst-yield-vault" as const;
@@ -27,7 +31,7 @@ export interface ProofCenterRebalanceRow {
   impactText: string;
 }
 
-function vaultScopeWhere(vaultRef: string) {
+function rebalanceVaultScopeWhere(vaultRef: string) {
   // Legacy rows may use engine fixture id "yield" or null vaultRef.
   return {
     OR: [{ vaultRef }, { vaultRef: "yield" }, { vaultRef: null }],
@@ -40,7 +44,7 @@ export async function loadRecentDistributions(
   limit = 6,
 ): Promise<ProofCenterDistributionRow[]> {
   const rows = await prisma.distribution.findMany({
-    where: vaultScopeWhere(vaultRef),
+    where: distributionVaultScopeWhere(resolveDistributionVaultScopeId(vaultRef)),
     orderBy: { distributedAt: "desc" },
     take: limit,
   });
@@ -62,7 +66,7 @@ export async function loadRecentRebalances(
 ): Promise<ProofCenterRebalanceRow[]> {
   const rows = await prisma.rebalanceEvent.findMany({
     where: {
-      ...vaultScopeWhere(vaultRef),
+      ...rebalanceVaultScopeWhere(vaultRef),
       status: { in: ["executed", "approved", "pending"] },
     },
     orderBy: [{ triggeredAt: "desc" }],
