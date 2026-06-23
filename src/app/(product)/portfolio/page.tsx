@@ -7,7 +7,6 @@ import { PositionBadges } from "@/components/portfolio/position-badges";
 import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
-import { TrustProofCompact } from "@/components/portfolio/trust-panel";
 import { PortfolioStatusPanel } from "@/components/portfolio/portfolio-status-panel";
 import { cn } from "@/lib/cn";
 
@@ -45,8 +44,6 @@ export default async function PortfolioPage() {
     yieldStackProps,
     allocationDonutProps,
     distribCalendarProps,
-    riskPulseProps,
-    proofPulseProps,
   } = await loadPortfolioView();
 
   const { deployedUsdc, accruedYieldUsdc, positions, source, updatedAt } = data;
@@ -102,7 +99,7 @@ export default async function PortfolioPage() {
 
         <section
           className="pf-cockpit-row pf-cockpit-row--deck"
-          aria-label="Portfolio distributions activity and trust"
+          aria-label="Portfolio distributions and activity"
         >
           <div
             className="pf-cockpit-cell"
@@ -116,27 +113,18 @@ export default async function PortfolioPage() {
               secondaryLeafLabel="Tax preview"
             />
           </div>
-          <div className="pf-cockpit-cell pf-fused-surface pf-fused-surface--deck">
-            <div
-              className="pf-fused-surface__pane"
-              data-section="activity-payouts"
-              data-testid="recent-activity-widget"
-            >
-              <RecentActivity
-                transactions={data.recentTransactions}
-                source={source}
-                updatedAt={updatedAt}
-                leafHref="/portfolio/activity"
-                embedded
-              />
-            </div>
-            <div
-              className="pf-fused-surface__pane pf-fused-surface__pane--aside"
-              data-section="yield-trust"
-              data-testid="trust-panel-widget"
-            >
-              <TrustProofCompact embedded risk={riskPulseProps} proof={proofPulseProps} />
-            </div>
+          <div
+            className="pf-cockpit-cell"
+            data-section="activity"
+            data-testid="recent-activity-widget"
+          >
+            <RecentActivity
+              transactions={data.recentTransactions}
+              source={source}
+              updatedAt={updatedAt}
+              leafHref="/portfolio/activity"
+              embedded={false}
+            />
           </div>
         </section>
 
