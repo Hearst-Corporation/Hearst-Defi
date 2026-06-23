@@ -176,6 +176,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-0_5);
+  flex: 1 1 9rem;
   min-width: 0;
 }
 
@@ -186,6 +187,8 @@
   letter-spacing: var(--ct-tracking-wider);
   color: var(--ct-text-secondary);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pf-ticker-value {
@@ -195,6 +198,8 @@
   line-height: var(--ct-leading-none);
   color: var(--ct-text-strong);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pf-ticker-note {
@@ -204,6 +209,8 @@
   text-transform: none;
   color: var(--ct-text-tertiary);
   line-height: var(--ct-leading-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* =============================================================================
@@ -385,193 +392,44 @@
   gap: var(--ct-space-2);
 }
 
-/* ---- THE GATE: lock to viewport ONLY when tall AND wide enough ----
-   Width threshold is 88rem (not 80rem): with the assistant rail open the centre
-   column loses ~470px, so at 1280px the centre is only ~52.7rem — too narrow to
-   fit the zero-state cockpit without clipping. At ≥88rem the centre clears ~58rem
-   (measured: 1440 → 60.3rem, no loss) even with the assistant open. Below 88rem
-   the cockpit scrolls naturally (content reachable), never clipped. */
-@media (min-width: 88rem) and (min-height: 52rem) {
+/* ---- SCROLL NATURALLY: all viewports, no viewport-lock ---- */
+.pf-container--fit { height: auto; overflow: visible; }
+.pf-container--fit .pf-cockpit { overflow: visible; }
+.pf-cockpit-row { flex: 0 0 auto; }
 
-  /* Ancestor chain locked to the viewport. */
-  .ct-panels-row:has(.pf-container--fit) {
-    height: 100dvh;
-    max-height: 100dvh;
-    overflow: hidden;
-  }
-
-  .ct-center-panel:has(.pf-container--fit) {
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .ct-page-area:has(.pf-container--fit) {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
-    padding-bottom: 0;
-  }
-
-  .ct-page-area:has(.pf-container--fit) main#main-content {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  main#main-content > .product-doc-shell:has(.pf-container--fit) {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  /* The fit container fills what's left, never scrolls itself. */
-  .pf-container--fit {
-    flex: 1 1 auto;
-    min-height: 0;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    gap: 0;
-    padding-bottom: var(--ct-space-3);
-  }
-
-  .pf-container--fit .pf-cockpit {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    gap: var(--ct-space-4);
-  }
-
-  /* The 3 rows share the leftover height in fr — LIVE *AND* ZERO.
-     Never flex:0 0 auto inside the gate.
-     Le hero porte le chart À GAUCHE et le panneau "Portfolio status" (5 lignes)
-     À DROITE : il lui faut donc une hauteur suffisante pour que les 5 lignes
-     tiennent sans clipper, tout en restant calibré (pas le void géant d'avant). */
-  .pf-container--fit .pf-cockpit-row { min-height: 0; }
-  .pf-container--fit .pf-cockpit-row--summary { flex: 1.3 1 0; }
-  .pf-container--fit .pf-cockpit-row--mid     { flex: 1 1 0; }
-  .pf-container--fit .pf-cockpit-row--deck    { flex: 1 1 0; }
-
-  /* ZERO-STATE re-weight: with no positions the mid/deck instruments carry only
-     a thin preview + one onboarding line, so equal fr left a dead void below each
-     pane. Give the data-rich hero more of the column and let the sparse rows shrink
-     toward their content — the console stays full-height but stops looking hollow. */
-  .pf-container--fit.pf-container--zero .pf-cockpit-row--summary { flex: 1.45 1 0; }
-  .pf-container--fit.pf-container--zero .pf-cockpit-row--mid     { flex: 1.05 1 0; }
-  .pf-container--fit.pf-container--zero .pf-cockpit-row--deck    { flex: 0.9 1 0; }
-
-  /* min-height:0 on the WHOLE chain — neutralize every min-height floor. */
-  .pf-container--fit .pf-cockpit-cell,
-  .pf-container--fit .pf-cockpit-panel,
-  .pf-container--fit .pf-fused-surface,
-  .pf-container--fit .pf-fused-surface__pane,
-  .pf-container--fit .pf-hero-grid,
-  .pf-container--fit .pf-status-panel,
-  .pf-container--fit .pf-status-list,
-  .pf-container--fit .pf-main-chart-wrapper,
-  .pf-container--fit .pf-cockpit-panel--table,
-  .pf-container--fit .pf-cockpit-panel--wide,
-  .pf-container--fit .pf-cockpit-panel--compact,
-  .pf-container--fit .pf-distrib-chart-shell,
-  .pf-container--fit .pf-distrib-chart,
-  .pf-container--fit .pf-value-chart,
-  .pf-container--fit .pf-value-chart__chart-wrapper,
-  .pf-container--fit .pf-value-chart__plot,
-  .pf-container--fit .cy-panel,
-  .pf-container--fit .cy-body,
-  .pf-container--fit .cy-donut,
-  .pf-container--fit .cy-ledger,
-  .pf-container--fit .pf-positions,
-  .pf-container--fit .pf-activity,
-  .pf-container--fit .pf-payout-calendar-panel {
-    min-height: 0;
-  }
-
-  /* …but the payout ghost chart still needs a floor: with the assistant open the
-     deck cell narrows and the 560/180 aspect-ratio alone collapsed the shell to
-     ~33px (bars 7px, illegible). Drop the ratio and clamp like the below-gate
-     branch so the bars stay readable inside the gate too. */
-  .pf-container--fit .pf-cockpit-row--deck .pf-distrib-chart-shell {
-    aspect-ratio: auto;
-    min-height: 5rem;
-    max-height: 9.5rem;
-  }
-
-  /* Dense leaf bodies that can genuinely overflow scroll INSIDE their plate.
-     Anti-clip soupape: nothing is ever lost to overflow:hidden — at worst a body
-     scrolls silently inside its plate (scrollbar hidden). status-list joins so the
-     5th row is reachable on short/narrow viewports instead of clipped. */
-  .pf-container--fit .pf-positions,
-  .pf-container--fit .cy-ledger,
-  .pf-container--fit .pf-activity,
-  .pf-container--fit .pf-status-list {
-    overflow-y: auto;
-    scrollbar-width: none;
-  }
-
-  .pf-container--fit .pf-positions::-webkit-scrollbar,
-  .pf-container--fit .cy-ledger::-webkit-scrollbar,
-  .pf-container--fit .pf-activity::-webkit-scrollbar,
-  .pf-container--fit .pf-status-list::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-  }
+/* In natural flow the chart was claiming its full aspect-ratio height (~360px),
+   dwarfing the welded status panel and opening a dead void of empty grid. Cap
+   the plot so the hero reads as one COMPACT, balanced module — chart and status
+   in proportion, not a giant flat curve over a thin row of stats. */
+.pf-hero-grid { min-height: 0; }
+.pf-container--fit .pf-value-chart__chart-wrapper {
+  aspect-ratio: auto;
+  min-height: 9rem;
+  max-height: 12rem;
 }
 
-/* ---- BELOW THE GATE: page scrolls naturally (mobile / tablet / short or
-   assistant-narrowed laptop, < 88rem). Content is always reachable here. */
-@media not all and (min-width: 88rem) and (min-height: 52rem) {
-  .pf-container--fit { height: auto; overflow: visible; }
-  .pf-container--fit .pf-cockpit { overflow: visible; }
-  .pf-cockpit-row { flex: 0 0 auto; }
+.pf-cockpit-row--deck .pf-distrib-chart-shell {
+  aspect-ratio: auto;
+  min-height: 6.5rem;
+  max-height: 9.5rem;
+}
 
-  /* In natural flow the chart was claiming its full aspect-ratio height (~360px),
-     dwarfing the welded status panel and opening a dead void of empty grid. Cap
-     the plot so the hero reads as one COMPACT, balanced module — chart and status
-     in proportion, not a giant flat curve over a thin row of stats. */
-  .pf-hero-grid { min-height: 0; }
-  .pf-container--fit .pf-value-chart__chart-wrapper {
-    aspect-ratio: auto;
-    min-height: 9rem;
-    max-height: 12rem;
-  }
-
-  .pf-cockpit-row--deck .pf-distrib-chart-shell {
-    aspect-ratio: auto;
-    min-height: 6.5rem;
-    max-height: 9.5rem;
-  }
-
-  /* Below the gate the page scrolls, so panels must take their NATURAL height and
-     never clip: drop the 100%-height/overflow:hidden lock and the internal-scroll
-     soupape (which only exists to survive the no-scroll gate). Content pushes the
-     page taller and main#main-content scrolls — nothing is hidden. */
-  .pf-container--fit .pf-cockpit-panel,
-  .pf-container--fit .pf-embedded-pane,
-  .pf-container--fit .pf-hero-grid,
-  .pf-container--fit .pf-fused-surface,
-  .pf-container--fit .pf-status-panel,
-  .pf-container--fit .pf-trust-compact,
-  .pf-container--fit .pf-payout-calendar-panel {
-    height: auto;
-    overflow: visible;
-  }
-  .pf-container--fit .pf-positions,
-  .pf-container--fit .cy-ledger,
-  .pf-container--fit .pf-activity,
-  .pf-container--fit .pf-status-list {
-    overflow: visible;
-  }
+/* Natural scroll: panels take their NATURAL height and never clip */
+.pf-container--fit .pf-cockpit-panel,
+.pf-container--fit .pf-embedded-pane,
+.pf-container--fit .pf-hero-grid,
+.pf-container--fit .pf-fused-surface,
+.pf-container--fit .pf-status-panel,
+.pf-container--fit .pf-trust-compact,
+.pf-container--fit .pf-payout-calendar-panel {
+  height: auto;
+  overflow: visible;
+}
+.pf-container--fit .pf-positions,
+.pf-container--fit .cy-ledger,
+.pf-container--fit .pf-activity,
+.pf-container--fit .pf-status-list {
+  overflow: visible;
 }
 
 /* =============================================================================
@@ -1077,7 +935,7 @@
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--ct-space-4);
-    padding: var(--ct-space-2) var(--ct-space-4);
+  padding: var(--ct-space-2) var(--ct-space-4);
   min-width: 0;
   transition: background var(--ct-dur-base) var(--ct-ease),
       transform var(--ct-dur-base) var(--ct-ease);
@@ -2215,12 +2073,20 @@
     border-left: 0;
     border-top: 1px solid var(--ct-graphite-border-nested);
   }
-  .pf-ticker-inline > div {
-    padding-left: 0;
-    border-left: 0;
-  }
   .pf-ticker-inline {
-    gap: var(--ct-space-3) var(--ct-space-5);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: var(--ct-space-3) var(--ct-space-4);
+  }
+  .pf-ticker-cell {
+    flex: 1 1 auto;
+  }
+}
+
+@container pf (max-width: 32rem) {
+  .pf-ticker-inline {
+    grid-template-columns: 1fr;
   }
 }
 

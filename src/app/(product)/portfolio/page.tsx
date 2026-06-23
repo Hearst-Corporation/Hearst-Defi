@@ -52,7 +52,7 @@ export default async function PortfolioPage() {
   const { deployedUsdc, accruedYieldUsdc, positions, source, updatedAt } = data;
   const positionsCount = positions.length;
   const containerClassName = cn(
-    "pf-container pf-container--fit",
+    "pf-container",
     !hasPositions && "pf-container--zero",
   );
 
