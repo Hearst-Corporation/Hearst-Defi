@@ -275,38 +275,40 @@ function PositionActionsLive({ position }: PositionActionsProps) {
   if (phase === "confirm" || busy) {
     return (
       <section aria-label="Review withdrawal" className="product-doc-section">
-        <Card className="vault-confirm-panel">
-          <p className="eyebrow">Review your withdrawal before signing</p>
-          <div className="vault-confirm-panel__rows">
-            <div className="vault-confirm-panel__row body-sm">
-              <span className="ct-text-muted min-w-0">Action</span>
-              <span className="ct-text-body font-semibold">Withdraw</span>
-            </div>
-            <div className="vault-confirm-panel__row body-sm">
-              <span className="ct-text-muted min-w-0">Amount</span>
-              <span className="ct-text-strong font-semibold tabular">
-                Full position
-              </span>
-            </div>
-            <div className="vault-confirm-panel__row body-sm">
-              <span className="ct-text-muted min-w-0">You receive</span>
-              <span className="ct-text-body">USDC</span>
-            </div>
-            <div className="vault-confirm-panel__row body-sm">
-              <span className="ct-text-muted min-w-0 shrink-0">Vault</span>
-              <span className="ct-text-body font-semibold min-w-0 truncate text-right">
-                {position.vaultName ?? "Unassigned vault"}
-              </span>
-            </div>
-            <div className="vault-confirm-panel__row body-sm">
-              <span className="ct-text-muted min-w-0">Network</span>
-              <span className="ct-text-body">Base Sepolia</span>
+        <Card className="vault-confirm-panel shadow-none">
+          <div className="pf-stack pf-stack--tight">
+            <p className="eyebrow ct-text-muted">Review your withdrawal before signing</p>
+            <div className="vault-confirm-panel__rows">
+              <div className="vault-confirm-panel__row body-sm">
+                <span className="ct-text-muted min-w-0">Action</span>
+                <span className="ct-text-body font-semibold">Withdraw</span>
+              </div>
+              <div className="vault-confirm-panel__row body-sm">
+                <span className="ct-text-muted min-w-0">Amount</span>
+                <span className="ct-text-strong font-semibold tabular mono">
+                  Full position
+                </span>
+              </div>
+              <div className="vault-confirm-panel__row body-sm">
+                <span className="ct-text-muted min-w-0">You receive</span>
+                <span className="ct-text-body tabular mono">USDC</span>
+              </div>
+              <div className="vault-confirm-panel__row body-sm">
+                <span className="ct-text-muted min-w-0 shrink-0">Vault</span>
+                <span className="ct-text-body font-semibold min-w-0 truncate text-right">
+                  {position.vaultName ?? "Unassigned vault"}
+                </span>
+              </div>
+              <div className="vault-confirm-panel__row body-sm">
+                <span className="ct-text-muted min-w-0">Network</span>
+                <span className="ct-text-body tabular mono">Base Sepolia</span>
+              </div>
             </div>
           </div>
-          <p className="body-xs ct-text-muted">
+          <p className="body-xs ct-text-faint">
             You are withdrawing your full position from the vault, subject to the
             {position.softLockupDays}-day soft lock-up. You&rsquo;ll be asked to confirm this transaction
-            in your wallet. Past performance does not predict future results.
+            in your wallet.
           </p>
           <div className="vault-form-actions">
             <Button
@@ -315,6 +317,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
               size="md"
               onClick={handleCancel}
               disabled={busy}
+              className="flex-1"
             >
               Cancel
             </Button>
@@ -324,7 +327,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
               size="md"
               onClick={() => void handleConfirmWithdraw()}
               disabled={busy}
-              className="vault-form-actions__primary"
+              className="vault-form-actions__primary flex-1 shadow-none"
             >
               {phase === "redeeming"
                 ? "Confirm in wallet…"
@@ -335,9 +338,11 @@ function PositionActionsLive({ position }: PositionActionsProps) {
           </div>
         </Card>
         {error !== null && (
-          <p role="alert" className="body-xs ct-status-danger">
-            {error}
-          </p>
+          <div className="mt-4 p-3 rounded-md bg-red-500/10 border border-red-500/20">
+            <p role="alert" className="body-xs ct-status-danger">
+              {error}
+            </p>
+          </div>
         )}
       </section>
     );
@@ -346,24 +351,28 @@ function PositionActionsLive({ position }: PositionActionsProps) {
   // Step A — intent. Clicking "Withdraw" only opens the review card above.
   return (
     <section aria-label="Position actions" className="product-doc-section">
-      <p className="body-xs ct-text-muted">
-        Withdraw returns your full position as USDC, subject to the {position.softLockupDays}-day soft
-        lock-up. Past performance does not predict future results.
-      </p>
-      <Button
-        type="button"
-        variant="primary"
-        size="lg"
-        disabled={!connected}
-        onClick={handleReview}
-        className="font-semibold"
-      >
-        {connected ? "Withdraw" : "Connect wallet to withdraw"}
-      </Button>
-      {error !== null && (
-        <p role="alert" className="body-xs ct-status-danger">
-          {error}
+      <div className="pf-stack pf-stack--tight">
+        <p className="body-xs ct-text-muted">
+          Withdraw returns your full position as USDC, subject to the {position.softLockupDays}-day soft
+          lock-up.
         </p>
+        <Button
+          type="button"
+          variant="primary"
+          size="lg"
+          disabled={!connected}
+          onClick={handleReview}
+          className="font-semibold shadow-none w-full"
+        >
+          {connected ? "Withdraw" : "Connect wallet to withdraw"}
+        </Button>
+      </div>
+      {error !== null && (
+        <div className="mt-4 p-3 rounded-md bg-red-500/10 border border-red-500/20">
+          <p role="alert" className="body-xs ct-status-danger">
+            {error}
+          </p>
+        </div>
       )}
     </section>
   );

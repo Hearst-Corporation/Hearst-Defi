@@ -95,6 +95,14 @@ export interface PortfolioPosition {
   subscribedAt: Date;
 }
 
+export const POSITION_STATUS_CONFIG = {
+  active: { label: "Active", variant: "success", dot: "pf-status-dot--active" },
+  matured: { label: "Matured", variant: "warning", dot: "pf-status-dot--matured" },
+  exited: { label: "Exited", variant: "default", dot: "pf-status-dot--exited" },
+} as const;
+
+export type PositionStatus = keyof typeof POSITION_STATUS_CONFIG;
+
 export interface PortfolioTransaction {
   id: string;
   type: "deposit" | "claim" | "withdraw" | "distribution";

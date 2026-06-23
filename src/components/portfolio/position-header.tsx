@@ -6,22 +6,8 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
-import type { PositionDetail } from "@/lib/data/portfolio";
+import { type PositionDetail, POSITION_STATUS_CONFIG } from "@/lib/data/portfolio";
 import { formatUsdDetailed } from "@/lib/vaults/product-display";
-
-type StatusVariant = "success" | "warning" | "default";
-
-const STATUS_VARIANT: Record<string, StatusVariant> = {
-  active: "success",
-  matured: "warning",
-  exited: "default",
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  active: "Active",
-  matured: "Matured",
-  exited: "Exited",
-};
 
 interface PositionHeaderProps {
   position: PositionDetail;
@@ -41,30 +27,32 @@ export function PositionHeader({ position }: PositionHeaderProps) {
       : 0;
 
   const provenance = position.source === "live" ? "live" : "stale";
+  const statusConfig = POSITION_STATUS_CONFIG[position.status];
 
   return (
     <header className="position-detail-header">
-      <Link
-        href="/portfolio"
-        className="body-sm ct-text-muted product-doc-inline-row product-doc-inline-row--tight no-underline transition-opacity duration-(--ct-dur-base) ease-(--ct-ease) hover:opacity-(--ct-opacity-80)"
-      >
-        ← Portfolio
-      </Link>
-
       <div className="position-detail-header__title-row">
+        <Link
+          href="/portfolio"
+          className="body-sm ct-text-muted product-doc-inline-row product-doc-inline-row--tight no-underline transition-colors duration-(--ct-dur-base) ease-(--ct-ease) hover:text-(--ct-accent) mb-2"
+        >
+          ← Portfolio
+        </Link>
+
         <div className="position-detail-header__identity">
-          <h1 className="h1 m-0 wrap-break-word">
-            {position.vaultName ?? "Unassigned vault"}
-          </h1>
+          <div className="pf-inline-row pf-inline-row--tight items-center">
+            <h1 className="h1 m-0 wrap-break-word">
+              {position.vaultName ?? "Unassigned vault"}
+            </h1>
+            <Badge variant={statusConfig.variant}>
+              {statusConfig.label}
+            </Badge>
+          </div>
           <span className="eyebrow tabular ct-text-muted mono">
             {position.vaultTicker ? `${position.vaultTicker} · ` : ""}
             <span title={position.id}>{position.id.slice(0, 8)}&hellip;</span>
           </span>
         </div>
-
-        <Badge variant={STATUS_VARIANT[position.status] ?? "default"}>
-          {STATUS_LABEL[position.status] ?? position.status}
-        </Badge>
       </div>
 
       <div
@@ -80,13 +68,12 @@ export function PositionHeader({ position }: PositionHeaderProps) {
           {delta !== 0 && (
             <span
               className={cn(
-                "body-sm tabular mono",
+                "body-xs tabular mono",
                 delta >= 0 ? "ct-status-success" : "ct-status-danger"
               )}
             >
               {deltaSign}
-              {formatUsdDetailed(delta)} · {deltaSign}
-              {deltaPct.toFixed(1)}%
+              {formatUsdDetailed(delta)} ({deltaSign}{deltaPct.toFixed(1)}%)
             </span>
           )}
         </div>

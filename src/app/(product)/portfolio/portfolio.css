@@ -1024,12 +1024,14 @@
   color: var(--ct-text-strong);
 }
 
-/* Canonical hover-nudge distance — Premium Ledger style: subtle lift, no glow. */
+/* Canonical hover-nudge distance — Strong Ledger style: deep surface, no glow. */
 .pf-positions__row--body:hover {
-  background: color-mix(in srgb, var(--ct-accent) 3%, var(--ct-graphite-subtle-bg));
-  border-color: color-mix(in srgb, var(--ct-accent) 20%, var(--ct-graphite-border-nested));
+  background: var(--ct-surface-1);
+  border-color: color-mix(in srgb, var(--ct-accent) 15%, var(--ct-graphite-border-nested));
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px -2px color-mix(in srgb, var(--ct-surface-0) 40%, transparent);
+  box-shadow: 
+    var(--ct-glass-bevel),
+    0 4px 12px -2px color-mix(in srgb, var(--ct-surface-0) 40%, transparent);
   z-index: 1;
 }
 
@@ -2291,193 +2293,153 @@
 .cy-fill--skeleton::after { display: none; }
 
 /* =============================================================================
-   16. POSITION BADGES — Elegant instrument navigation for positions
+   16. POSITION CARDS — Strong Ledger style full-width cards
    ============================================================================= */
 
-.pf-badges-grid {
+.pf-positions-stack {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--ct-space-3);
+  flex-direction: column;
+  gap: var(--ct-space-4);
   padding: var(--ct-space-2) 0;
   min-width: 0;
+  width: 100%;
 }
 
-.pf-position-badge {
+.pf-position-card {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: stretch;
-  min-width: 12rem;
-  height: 3.5rem;
-  background: var(--ct-graphite-subtle-bg);
+  width: 100%;
+  min-height: 5.5rem;
+  background: var(--ct-surface-1);
   border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-md);
+  border-radius: var(--ct-radius-xl);
   text-decoration: none;
-  transition: all var(--ct-dur-fast) var(--ct-ease);
+  transition: 
+    background var(--ct-dur-base) var(--ct-ease),
+    border-color var(--ct-dur-slow) var(--ct-ease),
+    transform var(--ct-dur-base) var(--ct-ease),
+    box-shadow var(--ct-dur-base) var(--ct-ease);
   overflow: hidden;
   box-shadow: var(--ct-glass-bevel);
 }
 
-.pf-position-badge:hover {
-  border-color: color-mix(in srgb, var(--ct-accent) 30%, var(--ct-graphite-border-nested));
-  background: color-mix(in srgb, var(--ct-accent) 3%, var(--ct-graphite-subtle-bg));
-  transform: translateY(-1px);
+.pf-position-card:hover {
+  background: color-mix(in srgb, var(--ct-surface-2) 95%, var(--ct-accent) 2%);
+  border-color: color-mix(in srgb, var(--ct-accent) 20%, var(--ct-graphite-border-nested));
+  transform: translateY(-2px);
+  box-shadow: 
+    var(--ct-glass-bevel),
+    0 12px 32px -4px color-mix(in srgb, var(--ct-surface-0) 80%, transparent);
 }
 
-.pf-position-badge--active {
-  background: color-mix(in srgb, var(--ct-accent) 5%, var(--ct-graphite-subtle-bg));
-  border-color: color-mix(in srgb, var(--ct-accent) 40%, var(--ct-graphite-border-nested));
+.pf-position-card--active {
+  border-left: 2px solid var(--ct-accent);
 }
 
-.pf-position-badge--active::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--ct-accent) 8%, transparent),
-    transparent 60%
-  );
-  pointer-events: none;
-}
-
-.pf-position-badge--cta {
+.pf-position-card--cta {
   background: transparent;
   border-style: dashed;
-  border-color: color-mix(in srgb, var(--ct-accent) 30%, transparent);
-  min-width: 10rem;
+  border-color: color-mix(in srgb, var(--ct-accent) 20%, transparent);
 }
 
-.pf-position-badge--cta .pf-position-badge__content {
-  flex-direction: row;
-  align-items: center;
-  gap: var(--ct-space-2);
+.pf-position-card--cta:hover {
+  background: color-mix(in srgb, var(--ct-accent) 4%, transparent);
+  border-color: color-mix(in srgb, var(--ct-accent) 50%, transparent);
 }
 
-.pf-position-badge--cta:hover {
-  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
-  border-color: color-mix(in srgb, var(--ct-accent) 60%, transparent);
-}
-
-.pf-position-badge--more {
-  background: transparent;
-  border-color: var(--ct-border-soft);
-  min-width: 8rem;
-}
-
-.pf-position-badge__content {
+.pf-position-card__content {
   flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr auto;
+  align-items: center;
+  padding: var(--ct-space-4) var(--ct-space-6);
+  gap: var(--ct-space-6);
+  min-width: 0;
+}
+
+.pf-position-card__main {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 0 var(--ct-space-4);
-  gap: 0;
-  min-width: 0;
-  z-index: 1;
-}
-
-.pf-position-badge__main,
-.pf-position-badge__metrics {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-1);
   min-width: 0;
 }
 
-.pf-position-badge__main {
-  padding-bottom: var(--ct-space-1);
-}
-
-.pf-position-badge__metrics {
-  padding-top: var(--ct-space-1);
-}
-
-.pf-position-badge__separator {
-  height: 1px;
-  background: var(--ct-border-soft);
-  opacity: 0.4;
-  margin: 0;
-}
-
-.pf-position-badge__name {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
+.pf-position-card__name {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-bold);
   color: var(--ct-text-strong);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pf-position-badge__status {
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-tertiary);
-  opacity: 0.7;
-}
-
-.pf-position-badge__value-group,
-.pf-position-badge__apy-group {
-  display: flex;
-  align-items: baseline;
-  gap: var(--ct-space-1_5);
-}
-
-.pf-position-badge__micro-label {
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-tertiary);
-  opacity: 0.5;
-  letter-spacing: var(--ct-tracking-widest);
-}
-
-.pf-position-badge__value {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-accent);
-  font-variant-numeric: tabular-nums;
   letter-spacing: var(--ct-tracking-tight);
 }
 
-.pf-position-badge__apy {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
+.pf-position-card__status {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-tertiary);
+}
+
+.pf-position-card__metrics {
+  display: contents; /* Let children participate in the grid */
+}
+
+.pf-position-card__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
+.pf-position-card__label {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-bold);
+  color: var(--ct-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+}
+
+.pf-position-card__value {
+  font-size: var(--ct-text-xl);
+  font-weight: var(--ct-font-extrabold);
+  color: var(--ct-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-position-card__apy {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-bold);
   color: var(--ct-text-secondary);
   font-variant-numeric: tabular-nums;
 }
 
-.pf-position-badge__indicator {
-  width: 3px;
-  flex: 0 0 auto;
-  height: 100%;
-  opacity: 0.8;
-  transition: opacity var(--ct-dur-fast) var(--ct-ease);
+.pf-position-card__action {
+  color: var(--ct-text-tertiary);
+  transition: transform var(--ct-dur-fast) var(--ct-ease);
 }
 
-.pf-position-badge:hover .pf-position-badge__indicator {
-  opacity: 1;
-}
-
-.pf-position-badge__icon {
+.pf-position-card:hover .pf-position-card__action {
+  transform: translateX(4px);
   color: var(--ct-accent);
-  flex-shrink: 0;
+}
+
+@container pf (max-width: 48rem) {
+  .pf-position-card__content {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--ct-space-4);
+  }
+  .pf-position-card__action {
+    display: none;
+  }
+}
+
+@container pf (max-width: 30rem) {
+  .pf-position-card__content {
+    grid-template-columns: 1fr;
+    gap: var(--ct-space-4);
+  }
 }
 
 /* Row for positions — full width at bottom */
 .pf-cockpit-row--positions {
   grid-template-columns: 1fr;
-}
-
-@container pf (max-width: 36rem) {
-  .pf-position-badge {
-    min-width: calc(50% - var(--ct-space-1_5));
-    flex: 1 1 auto;
-  }
-}
-
-@container pf (max-width: 24rem) {
-  .pf-position-badge {
-    min-width: 100%;
-  }
 }

@@ -1,37 +1,28 @@
 import Link from "next/link";
-import type { PortfolioPosition } from "@/lib/data/portfolio";
+import { type PortfolioPosition, POSITION_STATUS_CONFIG } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { cn } from "@/lib/cn";
 import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
-import { Plus } from "lucide-react";
+import { Plus, ChevronRight } from "lucide-react";
 
-interface PositionBadgesProps {
+interface PositionCardsProps {
   positions: PortfolioPosition[];
   leafHref?: string;
   embedded?: boolean;
 }
 
-const STATUS_CONFIG: Record<
-  string,
-  { color: string; label: string }
-> = {
-  active: { color: "var(--ct-accent)", label: "Active" },
-  matured: { color: "var(--ct-status-info)", label: "Matured" },
-  exited: { color: "var(--ct-text-neutral)", label: "Exited" },
-};
-
 /**
- * PositionBadges — Compact position cards as elegant pills/badges.
- * When empty, shows a CTA badge inviting to explore vaults.
+ * PositionCards — Strong Ledger style full-width position cards.
+ * Replaces the old pill grid with a stack of imposing cards.
  */
-export function PositionBadges({
+export function PositionCards({
   positions,
   leafHref,
   embedded = false,
-}: PositionBadgesProps) {
+}: PositionCardsProps) {
   const hasPositions = positions.length > 0;
 
   return (
@@ -53,69 +44,78 @@ export function PositionBadges({
         }
       />
 
-      <div className="pf-badges-grid">
+      <div className="pf-positions-stack">
         {hasPositions ? (
           positions.map((p) => {
-            const statusColor = STATUS_CONFIG[p.status]?.color ?? "var(--ct-accent)";
+            const statusConfig = POSITION_STATUS_CONFIG[p.status];
             return (
               <Link
                 key={p.id}
                 href={`/portfolio/${p.id}`}
                 className={cn(
-                  "pf-position-badge",
-                  p.status === "active" && "pf-position-badge--active"
+                  "pf-position-card",
+                  p.status === "active" && "pf-position-card--active"
                 )}
               >
-                <span className="pf-position-badge__content">
-                  <span className="pf-position-badge__main">
-                    <span className="pf-position-badge__name">
+                <span className="pf-position-card__content">
+                  <span className="pf-position-card__main">
+                    <span className="pf-position-card__name tracking-tight">
                       {p.vaultName ?? "Vault"}
                     </span>
-                    <span className="pf-position-badge__status">
-                      {STATUS_CONFIG[p.status]?.label ?? "Active"}
+                    <span className="pf-position-card__status">
+                      {statusConfig.label}
                     </span>
                   </span>
-                  <div className="pf-position-badge__separator" />
-                  <span className="pf-position-badge__metrics">
-                    <span className="pf-position-badge__value-group">
-                      <span className="pf-position-badge__micro-label">POS</span>
-                      <span className="pf-position-badge__value">
+
+                  <span className="pf-position-card__metrics">
+                    <span className="pf-position-card__group">
+                      <span className="pf-position-card__label text-nano opacity-60">Position</span>
+                      <span className="pf-position-card__value font-extrabold">
                         {formatUsdCompact(p.valueUsdc)}
                       </span>
                     </span>
+
                     {p.apyLow !== null && p.apyHigh !== null && (
-                      <span className="pf-position-badge__apy-group">
-                        <span className="pf-position-badge__micro-label">APY</span>
-                        <span className="pf-position-badge__apy">
+                      <span className="pf-position-card__group">
+                        <span className="pf-position-card__label text-nano opacity-60">Target APY</span>
+                        <span className="pf-position-card__apy font-bold">
                           {p.apyLow}-{p.apyHigh}%
                         </span>
                       </span>
                     )}
                   </span>
+
+                  <span className="pf-position-card__action">
+                    <ChevronRight size={20} />
+                  </span>
                 </span>
-                <span
-                  className="pf-position-badge__indicator"
-                  style={{ backgroundColor: statusColor }}
-                />
               </Link>
             );
           })
         ) : (
           <Link
             href="/vaults"
-            className="pf-position-badge pf-position-badge--cta"
+            className="pf-position-card pf-position-card--cta"
           >
-            <span className="pf-position-badge__content">
-              <Plus className="pf-position-badge__icon" size={16} />
-              <span className="pf-position-badge__name">New Vault</span>
+            <span className="pf-position-card__content">
+              <span className="pf-position-card__main">
+                <span className="pf-position-card__name tracking-tight">Explore Opportunities</span>
+                <span className="pf-position-card__status">No active positions</span>
+              </span>
+              <span className="pf-position-card__action">
+                <Plus size={20} />
+              </span>
             </span>
           </Link>
         )}
 
         {hasPositions && leafHref && (
-          <Link href={leafHref} className="pf-position-badge pf-position-badge--more">
-            <span className="pf-position-badge__content">
-              <span className="pf-position-badge__name">View all →</span>
+          <Link href={leafHref} className="pf-position-card pf-position-card--more">
+            <span className="pf-position-card__content">
+              <span className="pf-position-card__name tracking-tight">View all positions</span>
+              <span className="pf-position-card__action">
+                <ChevronRight size={20} />
+              </span>
             </span>
           </Link>
         )}

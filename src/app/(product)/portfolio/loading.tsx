@@ -47,7 +47,11 @@ export default function PortfolioLoading() {
 
         <div className="pf-cockpit-row pf-cockpit-row--positions">
           <div className="pf-cockpit-cell">
-            <Skeleton className="pf-skeleton-widget h-[120px]" />
+            <div className="pf-positions-stack">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="pf-position-card pf-skeleton-widget h-[100px]" />
+              ))}
+            </div>
           </div>
         </div>
       </div>

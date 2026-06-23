@@ -3,7 +3,7 @@ import "./portfolio.css";
 import { loadPortfolioView } from "@/lib/data/portfolio-view";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
 import { ValueChart } from "@/components/portfolio/value-chart";
-import { PositionBadges } from "@/components/portfolio/position-badges";
+import { PositionCards } from "@/components/portfolio/position-badges";
 import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
@@ -127,7 +127,7 @@ export default async function PortfolioPage() {
 
         <section className="pf-cockpit-row pf-cockpit-row--positions" aria-label="Your positions">
           <div className="pf-cockpit-cell" data-section="positions">
-            <PositionBadges
+            <PositionCards
               positions={positions}
               leafHref="/portfolio/positions"
               embedded={false}
