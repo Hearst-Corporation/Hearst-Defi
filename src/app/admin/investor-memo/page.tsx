@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { MemoShell } from "@/components/memo/memo-shell";
 import { VAULTS } from "@/lib/engine/vaults";
-import { resolveAdminVaultId } from "@/lib/vaults/dashboard-scope";
+import { resolveFixtureVaultId } from "@/lib/vaults/dashboard-scope";
 
 interface InvestorMemoPageProps {
   searchParams: Promise<{ vault?: string }>;
@@ -13,7 +13,7 @@ export default async function InvestorMemoPage({
   searchParams,
 }: InvestorMemoPageProps) {
   const params = await searchParams;
-  const vaultId = resolveAdminVaultId(params.vault);
+  const vaultId = resolveFixtureVaultId(params.vault);
   const vault = VAULTS[vaultId];
 
   return (

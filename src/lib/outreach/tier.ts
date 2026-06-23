@@ -59,16 +59,6 @@ export const TIER_LABEL: Record<Tier, string> = {
   C: "Cold",
 };
 
-/**
- * What the agent is allowed to do for a tier, in one line — surfaced in the UI
- * and the copilot so the operator always sees the autonomy contract.
- */
-export const TIER_AUTONOMY: Record<Tier, string> = {
-  A: "Agent drafts — you rewrite & send",
-  B: "Agent sends first touch — you own replies",
-  C: "Closed loop — agent sends, follows up, qualifies",
-};
-
 /** Badge variant per tier, aligned to the existing Badge component variants. */
 export const TIER_BADGE_VARIANT: Record<Tier, "success" | "accent" | "default"> =
   {

@@ -9,7 +9,6 @@ import {
   DASHBOARD_FIXTURE_VAULTS,
   isEngineFixtureVaultId,
   resolveFixtureVaultId,
-  resolveAdminVaultId,
   withAdminVaultQuery,
 } from "@/lib/vaults/dashboard-scope";
 
@@ -54,9 +53,10 @@ describe("dashboard-scope", () => {
     expect(resolveFixtureVaultId("hyv-a")).toBe("yield");
   });
 
-  it("resolveAdminVaultId is an alias of resolveFixtureVaultId", () => {
-    expect(resolveAdminVaultId).toBe(resolveFixtureVaultId);
-    expect(resolveAdminVaultId("btc-plus")).toBe("btc-plus");
+  it("resolveFixtureVaultId handles all fixture vault ids", () => {
+    expect(resolveFixtureVaultId("btc-plus")).toBe("btc-plus");
+    expect(resolveFixtureVaultId("yield")).toBe("yield");
+    expect(resolveFixtureVaultId("defensive")).toBe("defensive");
   });
 
   it("withAdminVaultQuery preserves vault and extra params for sub-nav", () => {

@@ -39,14 +39,14 @@ export function adminSignalsVaultHref(vaultId: string): string {
   return adminFixtureScopedHref("/admin/signals", vaultId);
 }
 
-/** Resolve `?vault=` to a fixture id (defaults to yield). */
+/**
+ * Resolve `?vault=` to a fixture id (defaults to yield).
+ * Used by dashboard, scenario-lab, investor-memo, signals, distributions.
+ */
 export function resolveFixtureVaultId(raw: string | undefined): VaultId {
   if (raw && isEngineFixtureVaultId(raw)) return raw;
   return "yield";
 }
-
-/** Admin pages — alias for `resolveFixtureVaultId` (scenario-lab, investor-memo, …). */
-export const resolveAdminVaultId = resolveFixtureVaultId;
 
 /**
  * Append `?vault=` (and optional extra params) to an admin path.

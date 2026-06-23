@@ -8,7 +8,7 @@ import { fetchBtcPrice } from "@/lib/data/btc-price";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import type { ScenarioInputs } from "@/lib/engine/types";
 import { VAULTS } from "@/lib/engine/vaults";
-import { resolveAdminVaultId } from "@/lib/vaults/dashboard-scope";
+import { resolveFixtureVaultId } from "@/lib/vaults/dashboard-scope";
 
 interface ScenarioLabPageProps {
   searchParams: Promise<{ vault?: string; autostart?: string; objective?: string }>;
@@ -18,7 +18,7 @@ export default async function ScenarioLabPage({
   searchParams,
 }: ScenarioLabPageProps) {
   const params = await searchParams;
-  const vaultId = resolveAdminVaultId(params.vault);
+  const vaultId = resolveFixtureVaultId(params.vault);
   const vault = VAULTS[vaultId];
   const autostart = params.autostart === "1";
   const objective =
