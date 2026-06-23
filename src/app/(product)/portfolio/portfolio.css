@@ -725,7 +725,7 @@
   font-size: var(--ct-text-micro);
   color: var(--ct-text-tertiary);
   font-variant-numeric: tabular-nums;
-  opacity: 0.6;
+  opacity: var(--ct-opacity-60);
 }
 
 .pf-value-chart__chart-wrapper::before {
@@ -769,8 +769,8 @@
 /* Tooltip for ValueChart */
 .pf-vc-tooltip {
   pointer-events: none;
-  z-index: 100;
-  transition: left 0.1s ease-out, top 0.1s ease-out;
+  z-index: var(--ct-z-overlay);
+  transition: left var(--ct-dur-fast) var(--ct-ease), top var(--ct-dur-fast) var(--ct-ease);
 }
 
 .pf-vc-tooltip__content {
@@ -790,7 +790,7 @@
   color: var(--ct-text-tertiary);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-wider);
-  line-height: 1;
+  line-height: var(--ct-leading-none);
 }
 
 .pf-vc-tooltip__value {
@@ -1083,7 +1083,7 @@
   color: var(--ct-text-tertiary);
   line-height: var(--ct-leading-tight);
   white-space: nowrap;
-  opacity: 0.8;
+  opacity: var(--ct-opacity-80);
 }
 
 /* The status panel is the hero-grid right slot: same welded seam as the cluster. */
@@ -1460,7 +1460,7 @@
 .cy-donut-halo {
   display: block;
   stroke: var(--ct-accent);
-  opacity: 0.15;
+  opacity: var(--ct-opacity-15);
   filter: blur(4px);
 }
 
@@ -1973,7 +1973,7 @@
   font-size: var(--ct-text-micro);
   font-family: var(--font-mono);
   color: var(--ct-text-tertiary);
-  opacity: 0.8;
+  opacity: var(--ct-opacity-80);
 }
 
 .pf-activity__amt {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { verifyUnsubscribeToken } from "@/lib/outreach/unsubscribe";
@@ -31,7 +32,7 @@ function page(title: string, message: string, status: number): NextResponse {
 <title>${title}</title></head>
 <body style="font-family:sans-serif;background:#0a0a0a;color:#e5e7eb;margin:0;display:flex;min-height:100vh;align-items:center;justify-content:center;">
 <div style="max-width:420px;padding:32px 24px;text-align:center;">
-<h1 style="color:#a7fb90;font-size:20px;margin:0 0 12px;">${title}</h1>
+<h1 style="color:${CONNECT_ACCENT_HEX};font-size:20px;margin:0 0 12px;">${title}</h1>
 <p style="font-size:14px;line-height:1.6;color:#9ca3af;margin:0;">${message}</p>
 </div></body></html>`;
   return new NextResponse(html, {

@@ -43,6 +43,9 @@ const STATE_COLOR: Record<GraphNodeState, RGB> = {
   failed: { r: 232, g: 90, b: 90 },
   static: { r: 96, g: 110, b: 140 },
 };
+// Neutral white for edges/labels — canvas cannot read --ct-text-primary/--ct-border,
+// so the channel triple is named here rather than left as a bare rgba() literal.
+const NEUTRAL_RGB: RGB = { r: 255, g: 255, b: 255 };
 const rgba = (c: RGB, a: number) => `rgba(${c.r},${c.g},${c.b},${a})`;
 
 /** Kind glyph drawn at a node's center. */
@@ -214,7 +217,7 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
         ctx.bezierCurveTo(midX, a.y, midX, b.y, b.x, b.y);
         ctx.strokeStyle = e.hot
           ? rgba(STATE_COLOR.active, 0.4)
-          : "rgba(255,255,255,0.08)";
+          : rgba(NEUTRAL_RGB, 0.08);
         ctx.lineWidth = e.hot ? 1.6 : 1;
         ctx.stroke();
 
@@ -263,7 +266,7 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
         ctx.textBaseline = "middle";
         ctx.fillText(KIND_GLYPH[n.kind], n.x, n.y);
 
-        ctx.fillStyle = "rgba(255,255,255,0.78)";
+        ctx.fillStyle = rgba(NEUTRAL_RGB, 0.78);
         ctx.font = "500 10px ui-sans-serif, system-ui";
         if (n.labelRight) {
           // Dense column: label beside the node so stacked rows don't collide.
@@ -459,7 +462,7 @@ function RuntimePanel({
                       {s.status}
                     </span>
                     {s.turnId && (
-                      <div className="mt-(--ct-space-0_5) truncate font-mono text-[11px] ct-text-faint">
+                      <div className="mt-(--ct-space-0_5) truncate font-mono text-micro ct-text-faint">
                         {s.turnId}
                       </div>
                     )}

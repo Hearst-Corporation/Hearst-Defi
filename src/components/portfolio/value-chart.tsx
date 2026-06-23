@@ -529,7 +529,7 @@ export function ValueChart({
                     top: `${tooltipPos.y - 12}px`,
                     transform: 'translate(-50%, -100%)',
                     pointerEvents: 'none',
-                    zIndex: 1000,
+                    zIndex: 'var(--ct-z-popover)',
                   }}
                 >
                   <div className="pf-vc-tooltip__content">

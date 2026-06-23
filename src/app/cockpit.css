@@ -5858,7 +5858,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 
 .cp-trigger__kbd {
   margin-left: auto;
-  font-size: 0.6875rem;
+  font-size: var(--ct-text-micro);
   padding: 0.1rem 0.35rem;
   border-radius: var(--ct-radius-sm);
   border: 1px solid var(--ct-border-soft);
