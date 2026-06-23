@@ -78,7 +78,13 @@ export function RailRight() {
               style={{ background: product.color }}
             />
             <span className="ct-rail-right-id-stack">
-              <span className="ct-rail-right-id-name">{TITLES[view] ?? "Assistant"}</span>
+              <div className="ct-rail-right-id-row">
+                <span className="ct-rail-right-id-name">{TITLES[view] ?? "Assistant"}</span>
+                <span className="ct-chat-status-tag">
+                  <span className="ct-chat-status-dot" />
+                  Ready
+                </span>
+              </div>
               <span className="ct-chat-ctx-name">{product.name}</span>
             </span>
           </span>

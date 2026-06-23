@@ -3,15 +3,14 @@
 
 import { cn } from "@/lib/cn";
 
-export type TimeRange = "1D" | "7D" | "30D" | "90D" | "YTD" | "All";
+export type TimeRange = "1M" | "3M" | "6M" | "1Y" | "ALL";
 
 const ALL_OPTIONS: ReadonlyArray<TimeRange> = [
-  "1D",
-  "7D",
-  "30D",
-  "90D",
-  "YTD",
-  "All",
+  "1M",
+  "3M",
+  "6M",
+  "1Y",
+  "ALL",
 ];
 const CHART_TIME_RANGE_ARIA_LABEL = "Chart time range";
 

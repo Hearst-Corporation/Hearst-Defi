@@ -54,7 +54,7 @@ function escapeHtml(str: string): string {
 }
 
 function renderMarkdown(text: string): string {
-  // Replace newlines except those immediately following a closing block tag to avoid double spacing
+  // Replace code blocks first to protect their content from other replacements
   let html = text
       .replace(
         /```(\w*)\n?([\s\S]*?)```/g,
@@ -64,23 +64,34 @@ function renderMarkdown(text: string): string {
       .replace(
         /`([^`]+)`/g,
         (_m, c: string) => `<code>${escapeHtml(c)}</code>`,
-      )
-      .replace(/^### (.*?)$/gm, '<h3 class="h3">$1</h3>')
-      .replace(/^## (.*?)$/gm, '<h2 class="h2">$1</h2>')
-      .replace(/^# (.*?)$/gm, '<h1 class="h1">$1</h1>')
+      );
+
+  // Headings
+  html = html
+      .replace(/^### (.*?)$/gm, "<h3>$1</h3>")
+      .replace(/^## (.*?)$/gm, "<h2>$1</h2>")
+      .replace(/^# (.*?)$/gm, "<h1>$1</h1>");
+
+  // Bold and Italic
+  html = html
+      .replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*(.+?)\*/g, "<em>$1</em>")
-      .replace(/((?:^[-*] .+$\n?)+)/gm, (block) => {
-        const items = block
-          .split("\n")
-          .filter(Boolean)
-          .map((line) => `<li>${line.replace(/^[-*] /, "")}</li>`)
-          .join("");
-        return `<ul>${items}</ul>`;
-      });
+      .replace(/\*(.+?)\*/g, "<em>$1</em>");
+
+  // Lists
+  html = html.replace(/((?:^[-*] .+$\n?)+)/gm, (block) => {
+    const items = block
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => `<li>${line.replace(/^[-*] /, "")}</li>`)
+      .join("");
+    return `<ul>${items}</ul>`;
+  });
   
   // Clean up trailing newlines after block elements to prevent excessive <br>
   html = html.replace(/(<\/(?:h1|h2|h3|ul|pre)>)\n/g, "$1");
+  // Replace remaining newlines with <br> but NOT inside <pre> blocks
+  // (though our simple regex above already handled pre blocks)
   return html.replace(/\n/g, "<br>");
 }
 
@@ -289,17 +300,46 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       <div ref={chatListRef} className="ct-chat-list">
         {messages.length === 0 && !streaming && (
           <div className="ct-chat-empty">
-            <p className="ct-placeholder">
-              Hearst Assistant
-              {productName ? ` — ${productName} context.` : "."}
-              <br />
-              Ask a question to get started.
-            </p>
+            <div className="ct-chat-welcome">
+              <div className="ct-chat-welcome-icon">
+                <HearstMark size={24} />
+              </div>
+              <h2 className="ct-chat-welcome-title">Hearst Assistant</h2>
+              <p className="ct-chat-welcome-text">
+                Your institutional co-pilot for portfolio insights and vault analysis.
+              </p>
+            </div>
+
+            <div className="ct-chat-context-card">
+              <div className="ct-chat-context-card-header">
+                <svg className="ct-chat-icon" viewBox="0 0 13 13" fill="none">
+                  <path d="M6.5 1.5V11.5M1.5 6.5H11.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                </svg>
+                <span>Current Context</span>
+              </div>
+              <div className="ct-chat-context-card-body">
+                {productName ? (
+                  <div className="ct-chat-context-item">
+                    <span className="ct-chat-context-dot" style={{ background: productColor }} />
+                    <span>{productName}</span>
+                  </div>
+                ) : (
+                  <div className="ct-chat-context-item">
+                    <span className="ct-chat-context-dot" />
+                    <span>General Portfolio</span>
+                  </div>
+                )}
+                <div className="ct-chat-context-item">
+                  <span className="ct-chat-context-dot" />
+                  <span>Verified Data Feeds</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="ct-chat-suggestions-label">Suggested Actions</div>
             <ChatPresets
               masterAgentEnabled={chatConfig.masterAgentEnabled ?? true}
               onPick={(text) => {
-                // Pre-fill (editable) — never auto-send. The admin reviews the
-                // canned phrase, edits, then sends; the marker opens the canvas.
                 setInput(text);
                 requestAnimationFrame(() => {
                   autoGrow();
@@ -336,7 +376,6 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           <div
             className="ct-chat-thinking active"
             aria-label="The assistant is thinking"
-            style={{ color: accent }}
           >
             <HearstMark size={18} />
           </div>
@@ -371,55 +410,58 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       ) : null}
 
       {/* Input */}
-      <form
-        className="ct-chat-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSend(input);
-        }}
-      >
-        <textarea
-          ref={textareaRef}
-          className="ct-chat-input"
-          rows={3}
-          placeholder="Message the assistant…"
-          value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-            autoGrow();
+      <div className="ct-chat-composer-wrap">
+        <div className="ct-chat-composer-hint">
+          I can guide and analyze, not transact.
+        </div>
+        <form
+          className="ct-chat-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSend(input);
           }}
-          onKeyDown={handleKeyDown}
-        />
-        <button
-          type="submit"
-          className="ct-chat-send"
-          // Actif dès qu'il y a du texte — MÊME pendant le streaming, pour
-          // permettre la mise en file (1× clic) et le FORCE (double-clic rapide).
-          disabled={!input.trim()}
-          aria-label={streaming ? "Queue or send message" : "Send message"}
-          style={input.trim() ? { background: accent } : undefined}
         >
-          {streaming ? (
-            <span className="ct-chat-send-dots">
-              <span /><span /><span />
-            </span>
-          ) : (
-            <svg
-              className="ct-chat-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <line x1="12" y1="19" x2="12" y2="5" />
-              <polyline points="5 12 12 5 19 12" />
-            </svg>
-          )}
-        </button>
-      </form>
+          <textarea
+            ref={textareaRef}
+            className="ct-chat-input"
+            rows={1}
+            placeholder="Message the assistant…"
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value);
+              autoGrow();
+            }}
+            onKeyDown={handleKeyDown}
+          />
+          <button
+            type="submit"
+            className="ct-chat-send"
+            disabled={!input.trim()}
+            aria-label={streaming ? "Queue or send message" : "Send message"}
+            style={input.trim() ? { background: accent } : undefined}
+          >
+            {streaming ? (
+              <span className="ct-chat-send-dots">
+                <span /><span /><span />
+              </span>
+            ) : (
+              <svg
+                className="ct-chat-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <line x1="12" y1="19" x2="12" y2="5" />
+                <polyline points="5 12 12 5 19 12" />
+              </svg>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

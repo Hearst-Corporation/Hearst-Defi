@@ -12,11 +12,12 @@
  * Pour activer : remplacer le contenu de value-chart.tsx par celui-ci (ou
  * renommer ce fichier). Rien d'autre à toucher.
  */
-import { useId } from "react";
+import { useId, useState } from "react";
 
 import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
 import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
-import { type Provenance } from "@/components/ui/provenance-badge";
+import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
+import { ChartTimeSelector, type TimeRange } from "@/components/ui/chart-time-selector";
 import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
@@ -30,7 +31,7 @@ import {
   type ValueSeriesTx,
 } from "@/lib/portfolio/value-series";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
-import { formatUsdCompact, formatUsdFull } from "@/lib/vaults/product-display";
+import { formatUsdCompact, formatUsdDetailed } from "@/lib/vaults/product-display";
 
 /* ──────────────────────────────────────────────────────────────────────────
  * Geometry — viewBox 16:5, plot helpers. svg-geometry: viewBox + stroke/r sont
@@ -38,7 +39,8 @@ import { formatUsdCompact, formatUsdFull } from "@/lib/vaults/product-display";
  * ────────────────────────────────────────────────────────────────────────── */
 const VB_W = 200;
 const VB_H = 62;
-const PAD_Y = 5;
+const PAD_Y = 8;
+const PAD_X = 8;
 
 type Pt = { x: number; y: number };
 
@@ -52,8 +54,9 @@ function project(values: number[]): Pt[] {
   const yHi = lo === hi ? hi + 1 : hi;
   const span = yHi - yLo || 1;
   const innerH = VB_H - PAD_Y * 2;
+  const innerW = VB_W - PAD_X * 2;
   return values.map((v, i) => ({
-    x: n === 1 ? VB_W / 2 : (i / (n - 1)) * VB_W,
+    x: n === 1 ? VB_W / 2 : PAD_X + (i / (n - 1)) * innerW,
     y: PAD_Y + innerH - ((v - yLo) / span) * innerH,
   }));
 }
@@ -98,10 +101,11 @@ function resolveSeries(
   totalValueUsdc: number,
   txs: ValueSeriesTx[],
   asOf: Date,
+  monthCount: number,
 ): { points: PortfolioValuePoint[]; mode: SeriesMode } {
   if (txs.length > 0) {
     return {
-      points: buildPortfolioValueSeries(txs, totalValueUsdc, asOf),
+      points: buildPortfolioValueSeries(txs, totalValueUsdc, asOf, monthCount),
       mode: "ledger",
     };
   }
@@ -109,7 +113,7 @@ function resolveSeries(
     positions.reduce((s, p) => s + p.principalUsdc, 0) || totalValueUsdc;
   const endValue = totalValueUsdc > 0 ? totalValueUsdc : startValue;
   return {
-    points: buildIndicativeValueSeries(startValue, endValue, asOf),
+    points: buildIndicativeValueSeries(startValue, endValue, asOf, monthCount),
     mode: "indicative",
   };
 }
@@ -148,9 +152,20 @@ interface PlotProps {
   preview?: boolean;
   /** Zero-state skeleton — flat baseline pinned to the bottom axis, muted. */
   skeleton?: boolean;
+  /** Index of the point being hovered. */
+  hoverIndex?: number | null;
+  /** Callback when a point is hovered. */
+  onHover?: (index: number | null) => void;
 }
 
-function Plot({ series, lineOnly = false, preview = false, skeleton = false }: PlotProps) {
+function Plot({ 
+  series, 
+  lineOnly = false, 
+  preview = false, 
+  skeleton = false,
+  hoverIndex = null,
+  onHover,
+}: PlotProps) {
   // ids uniques par instance — SSR-safe (useId marche en RSC), évite les
   // collisions <defs> si plusieurs ValueChart coexistent sur le document.
   const uid = useId();
@@ -160,12 +175,15 @@ function Plot({ series, lineOnly = false, preview = false, skeleton = false }: P
 
   // Skeleton: pin the flat line to the bottom axis (not the mid-band that
   // project() uses for flat series) so it reads as an empty baseline.
+  const values = series.map((d) => d.value);
+  const lo = Math.min(...values);
+  const hi = Math.max(...values);
   const pts = skeleton
     ? series.map((_, i) => ({
-        x: series.length === 1 ? VB_W / 2 : (i / (series.length - 1)) * VB_W,
+        x: series.length === 1 ? VB_W / 2 : PAD_X + (i / (series.length - 1)) * (VB_W - PAD_X * 2),
         y: VB_H - PAD_Y,
       }))
-    : project(series.map((d) => d.value));
+    : project(values);
   const linePath = smoothPath(pts);
   const areaPath = lineOnly ? "" : areaFromLine(linePath, pts);
 
@@ -181,13 +199,40 @@ function Plot({ series, lineOnly = false, preview = false, skeleton = false }: P
       ? "Indicative preview — not your data; activates after your first confirmed on-chain position."
       : `Portfolio value over the trailing window, ${distCount} monthly distribution markers.`;
 
+  // Mouse handlers for tooltip
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (skeleton || !onHover) return;
+    const svg = e.currentTarget;
+    const rect = svg.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * VB_W;
+    
+    // Find nearest point
+    let nearestIdx = 0;
+    let minDist = Infinity;
+    pts.forEach((p, i) => {
+      const dist = Math.abs(p.x - x);
+      if (dist < minDist) {
+        minDist = dist;
+        nearestIdx = i;
+      }
+    });
+    
+    onHover(nearestIdx);
+  };
+
+  const handleMouseLeave = () => {
+    onHover?.(null);
+  };
+
   return (
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
-      className="w-full h-full"
+      className="w-full h-full cursor-crosshair"
       preserveAspectRatio="none"
       role="img"
       aria-labelledby={`${titleId} ${descId}`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
     >
       <title id={titleId}>{title}</title>
       <desc id={descId}>{summary}</desc>
@@ -200,24 +245,45 @@ function Plot({ series, lineOnly = false, preview = false, skeleton = false }: P
       </defs>
 
       <g className="pf-vc-grid" aria-hidden="true">
-        {[0.25, 0.5, 0.75].map((f) => (
-          <line
-            key={`h-${f}`}
-            x1="0"
-            x2={VB_W}
-            y1={(VB_H * f).toFixed(1)}
-            y2={(VB_H * f).toFixed(1)}
-          />
-        ))}
-        {[0.2, 0.4, 0.6, 0.8].map((f) => (
-          <line
-            key={`v-${f}`}
-            y1="0"
-            y2={VB_H}
-            x1={(VB_W * f).toFixed(1)}
-            x2={(VB_W * f).toFixed(1)}
-          />
-        ))}
+        {/* Horizontal grid lines — 0, 25, 50, 75, 100% of plot area */}
+        {[0, 0.25, 0.5, 0.75, 1].map((f) => {
+          const y = PAD_Y + (VB_H - PAD_Y * 2) * f;
+          return (
+            <g key={`h-g-${f}`}>
+              <line
+                x1="0"
+                x2={VB_W}
+                y1={y.toFixed(1)}
+                y2={y.toFixed(1)}
+                strokeDasharray={f === 0 || f === 1 ? "none" : "2 2"}
+              />
+              {!skeleton && (
+                <text
+                  x="2"
+                  y={y - 2}
+                  className="pf-vc-y-label"
+                  style={{ fontSize: '3px', fill: 'var(--ct-text-tertiary)', opacity: 0.6 }}
+                >
+                  {formatUsdCompact(hi - (f * (hi - lo)))}
+                </text>
+              )}
+            </g>
+          );
+        })}
+        {/* Vertical grid lines — matching month label anchors */}
+        {[0, 0.25, 0.5, 0.75, 1].map((f) => {
+          const x = PAD_X + (VB_W - PAD_X * 2) * f;
+          return (
+            <line
+              key={`v-${f}`}
+              y1="0"
+              y2={VB_H}
+              x1={x.toFixed(1)}
+              x2={x.toFixed(1)}
+              strokeDasharray="2 2"
+            />
+          );
+        })}
         <line
           className="pf-vc-axis"
           x1="0"
@@ -248,6 +314,30 @@ function Plot({ series, lineOnly = false, preview = false, skeleton = false }: P
         />
       ) : null}
 
+      {/* Tooltip vertical line and dot */}
+      {hoverIndex !== null && pts[hoverIndex] && (
+        <g className="pf-vc-tooltip-group" aria-hidden="true">
+          <line
+            x1={pts[hoverIndex]!.x}
+            x2={pts[hoverIndex]!.x}
+            y1={0}
+            y2={VB_H}
+            stroke="var(--ct-accent)"
+            strokeWidth="0.5"
+            strokeDasharray="2 2"
+            opacity="0.5"
+          />
+          <circle
+            cx={pts[hoverIndex]!.x}
+            cy={pts[hoverIndex]!.y}
+            r="1.5"
+            fill="var(--ct-accent)"
+            stroke="var(--ct-surface-0)"
+            strokeWidth="0.5"
+          />
+        </g>
+      )}
+
       {/* Endpoint dot is rendered in HTML (.pf-vc-dot--endcap, see buildDots)
          so it stays a true circle — an in-SVG <circle> would be squashed into an
          ovale by preserveAspectRatio="none" (the area fill needs `none` to span
@@ -266,10 +356,6 @@ interface ValueChartProps {
   source: "live" | "fallback";
   updatedAt?: Date;
   embedded?: boolean;
-  /** Vault APY low — enables indicative projection curve in zero-state when provided. */
-  blendedLow?: number;
-  /** Vault APY high — reserved for future indicative use. */
-  blendedHigh?: number;
 }
 
 /** Flat zero baseline: 12 month-stamped points at value 0 (chart skeleton). */
@@ -281,6 +367,14 @@ function buildZeroSkeletonSeries(asOf: Date): PortfolioValuePoint[] {
   });
 }
 
+const RANGE_TO_MONTHS: Record<TimeRange, number> = {
+  "1M": 1,
+  "3M": 3,
+  "6M": 6,
+  "1Y": 12,
+  "ALL": 60,
+};
+
 export function ValueChart({
   positions,
   totalValueUsdc,
@@ -291,12 +385,16 @@ export function ValueChart({
 }: ValueChartProps) {
   const asOf = updatedAt ?? new Date();
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
+  const [range, setRange] = useState<TimeRange>("ALL");
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+
+  const monthCount = RANGE_TO_MONTHS[range];
 
   // Zero-state = flat skeleton at zero (no invented projection). The chart frame,
   // grid and a baseline curve render; as soon as real data exists it fills in.
   const { points: series, mode } = isEmpty
     ? { points: buildZeroSkeletonSeries(asOf), mode: "skeleton" as const }
-    : resolveSeries(positions, totalValueUsdc, valueChartTransactions, asOf);
+    : resolveSeries(positions, totalValueUsdc, valueChartTransactions, asOf, monthCount);
 
   // No provenance badge in zero-state — the skeleton renders unlabelled.
   const provenance: Provenance | undefined = isEmpty
@@ -325,20 +423,32 @@ export function ValueChart({
         embedded && "pf-value-chart--hero-embedded",
       )}
     >
-      {provenance ? <ChartProvenanceCorner kind={provenance} /> : null}
-
       {embedded ? (
         <header className="pf-cockpit-panel__header">
           <div className="pf-cockpit-panel__header-main min-w-0">
-            <h2 className="pf-cockpit-panel__title--primary">Portfolio value</h2>
+            <div className="flex items-center justify-between w-full">
+              <h2 className="pf-cockpit-panel__title--primary">Portfolio value</h2>
+              {!isEmpty && (
+                <ChartTimeSelector
+                  value={range}
+                  onChange={setRange}
+                  className="pf-value-chart__range-selector"
+                />
+              )}
+            </div>
             {isEmpty ? null : (
               <p className="pf-hero-kpi-block m-0">
                 <span className="pf-hero-kpi-value tabular-nums">
-                  {formatUsdFull(chartValue)}
+                  {formatUsdDetailed(chartValue)}
                 </span>
               </p>
             )}
           </div>
+          {provenance && (
+            <div className="pf-cockpit-panel__header-trail">
+              <ProvenanceBadge kind={provenance} compact />
+            </div>
+          )}
         </header>
       ) : (
         <PfCockpitPanelHeader
@@ -351,12 +461,22 @@ export function ValueChart({
                 : "Indicative · principal to current value"
           }
           titleVariant="primary"
+          provenance={provenance}
           trailing={
-            isEmpty ? undefined : (
-              <span className="pf-hero-kpi-value tabular-nums">
-                {formatUsdCompact(chartValue)}
-              </span>
-            )
+            <div className="flex flex-col items-end gap-2">
+              {!isEmpty && (
+                <ChartTimeSelector
+                  value={range}
+                  onChange={setRange}
+                  className="pf-value-chart__range-selector"
+                />
+              )}
+              {isEmpty ? undefined : (
+                <span className="pf-hero-kpi-value tabular-nums">
+                  {formatUsdCompact(chartValue)}
+                </span>
+              )}
+            </div>
           }
         />
       )}
@@ -366,7 +486,39 @@ export function ValueChart({
           <div className="pf-value-chart__chart-wrapper">
             <div className={cn("pf-value-chart__plot", isEmpty && "pf-value-chart__plot--skeleton")}>
               {isEmpty ? null : <ChartDisclaimerUnderlay />}
-              <Plot series={series} lineOnly={isEmpty} preview={false} skeleton={isEmpty} />
+              <Plot 
+                key={range}
+                series={series} 
+                lineOnly={isEmpty} 
+                preview={false} 
+                skeleton={isEmpty}
+                hoverIndex={hoverIndex}
+                onHover={setHoverIndex}
+              />
+              {hoverIndex !== null && series[hoverIndex] && (
+                <div 
+                  className="pf-vc-tooltip"
+                  style={{
+                    left: `${((pts[hoverIndex]!.x / VB_W) * 100).toFixed(3)}%`,
+                    top: `${((pts[hoverIndex]!.y / VB_H) * 100).toFixed(3)}%`,
+                    // Adjust transform to keep tooltip within bounds
+                    transform: `translate(${
+                      hoverIndex === 0 ? '0%' : 
+                      hoverIndex === series.length - 1 ? '-100%' : 
+                      '-50%'
+                    }, calc(-100% - var(--ct-space-4)))`
+                  }}
+                >
+                  <div className="pf-vc-tooltip__content">
+                    <span className="pf-vc-tooltip__value tabular-nums">
+                      {formatUsdDetailed(series[hoverIndex]!.value)}
+                    </span>
+                    <span className="pf-vc-tooltip__date">
+                      {series[hoverIndex]!.label}
+                    </span>
+                  </div>
+                </div>
+              )}
               {dots.length > 0 ? (
                 <div className="pf-vc-dots" aria-hidden="true">
                   {dots.map((dot, i) => (
@@ -386,9 +538,27 @@ export function ValueChart({
 
           <div className="stat-label ct-text-muted relative mono pf-value-chart__month-labels">
             {series.map((s, i) => {
-              if (i % 3 !== 0 && i !== series.length - 1) return null;
-              const pct =
-                series.length === 1 ? 50 : (i / (series.length - 1)) * 100;
+              // Dynamic label frequency based on range
+              // For 12 points (1 year):
+              // ALL/1Y: every 3 months
+              // 6M: every 2 months
+              // 3M/1M: every month (if we had more points we'd show weeks/days)
+              let showLabel = false;
+              if (range === "ALL" || range === "1Y") {
+                showLabel = i % 3 === 0 || i === series.length - 1;
+              } else if (range === "6M") {
+                showLabel = i % 2 === 0 || i === series.length - 1;
+              } else {
+                showLabel = true;
+              }
+
+              if (!showLabel) return null;
+
+              const x = series.length === 1 
+                ? VB_W / 2 
+                : PAD_X + (i / (series.length - 1)) * (VB_W - PAD_X * 2);
+              const pct = (x / VB_W) * 100;
+              
               let transform = "translateX(-50%)";
               if (i === 0) transform = "none";
               if (i === series.length - 1 && series.length > 1)
@@ -396,8 +566,8 @@ export function ValueChart({
               return (
                 <span
                   key={i}
-                  className="absolute top-0"
-                  style={{ left: `${pct}%`, transform }}
+                  className="absolute top-0 transition-all duration-300"
+                  style={{ left: `${pct.toFixed(3)}%`, transform }}
                 >
                   {s.label}
                 </span>

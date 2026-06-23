@@ -90,13 +90,13 @@ describe("ChartProvenanceCorner", () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 4. ChartTimeSelector — value="30D" → "30D" segment is marked active
+// 4. ChartTimeSelector — value="1M" → "1M" segment is marked active
 // ─────────────────────────────────────────────────────────────────────────────
 describe("ChartTimeSelector", () => {
-  it('value="30D" sets aria-checked on the 30D option', () => {
+  it('value="1M" sets aria-checked on the 1M option', () => {
     const onChange = vi.fn();
     const props: ChartTimeSelectorProps = {
-      value: "30D",
+      value: "1M",
       onChange,
     };
     const element = ChartTimeSelector(props);
@@ -108,13 +108,13 @@ describe("ChartTimeSelector", () => {
     ).props.children as React.ReactElement[];
 
     const activeBtn = children.find(
-      (child) => (child.props as { children: string }).children === "30D",
+      (child) => (child.props as { children: string }).children === "1M",
     );
     expect(activeBtn).toBeDefined();
     expect((activeBtn!.props as { "aria-checked": boolean })["aria-checked"]).toBe(true);
 
     const inactiveBtn = children.find(
-      (child) => (child.props as { children: string }).children === "7D",
+      (child) => (child.props as { children: string }).children === "3M",
     );
     expect(inactiveBtn).toBeDefined();
     expect(
@@ -128,7 +128,7 @@ describe("ChartTimeSelector", () => {
   it("calls onChange with the correct value when a button is clicked", () => {
     const onChange = vi.fn();
     const props: ChartTimeSelectorProps = {
-      value: "1D",
+      value: "ALL",
       onChange,
     };
     const element = ChartTimeSelector(props);
@@ -137,7 +137,7 @@ describe("ChartTimeSelector", () => {
     ).props.children as React.ReactElement[];
 
     const ytdBtn = children.find(
-      (child) => (child.props as { children: string }).children === "YTD",
+      (child) => (child.props as { children: string }).children === "1Y",
     );
     expect(ytdBtn).toBeDefined();
 
@@ -146,7 +146,7 @@ describe("ChartTimeSelector", () => {
     onClick();
 
     expect(onChange).toHaveBeenCalledOnce();
-    expect(onChange).toHaveBeenCalledWith("YTD" as TimeRange);
+    expect(onChange).toHaveBeenCalledWith("1Y" as TimeRange);
   });
 });
 

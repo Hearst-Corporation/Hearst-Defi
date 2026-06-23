@@ -3868,6 +3868,19 @@ button.ct-choice-card {
   width: var(--ct-rail-left) !important;
   min-width: var(--ct-rail-left) !important;
   max-width: var(--ct-rail-left) !important;
+  position: relative;
+}
+
+.ct-rail-left::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--ct-space-12);
+  background: linear-gradient(to bottom, transparent, var(--ct-bg-black));
+  pointer-events: none;
+  z-index: 5;
 }
 
 .ct-rail-right {
@@ -3887,6 +3900,19 @@ button.ct-choice-card {
   /* Garde-fou : à 1024px le rail (≈225px) est étroit ; rien (header, toggle) ne
      doit déborder par-dessus la bordure gauche. Le header tronque déjà son titre. */
   overflow: hidden;
+  position: relative;
+}
+
+.ct-rail-right::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--ct-space-12);
+  background: linear-gradient(to bottom, transparent, var(--ct-bg-black));
+  pointer-events: none;
+  z-index: 5;
 }
 
 .ct-rail-right.collapsed {
@@ -3981,7 +4007,7 @@ button.ct-choice-card {
    (noir) < nested --ct-graphite-nested-bg (gris). Wrappers transparents ;
    couleur portée par .ct-page-area (une seule plaque). */
 .ct-center-panel { background: transparent !important; }
-.ct-page-area    { background: var(--ct-surface-1); }
+.ct-page-area    { background: var(--ct-bg-deep); }
 
 /* ── HYGIÈNE FLEXBOX — le centre DOIT pouvoir rétrécir (cause racine "cassé partout")
    .ct-center-panel est un enfant flex de .ct-panels-row. Par défaut un enfant flex a
@@ -4516,12 +4542,27 @@ button.ct-choice-card {
 /* Centre — page area & embed (global density calibration)
    Contrat shell authentifié : colonne flex, main scroll, footer pin. */
 .ct-page-area {
+  position: relative;
   display: flex;
   flex: 1 1 auto;
   min-height: 0;
   flex-direction: column;
   overflow: hidden;
   padding: var(--ct-space-6) var(--ct-space-7) var(--ct-space-3);
+}
+
+/* Shell Black Fade — smooth transition to footer plinth.
+   Fades content as it reaches the bottom of the scroll viewport. */
+.ct-page-area::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--ct-space-16); /* ~64px fade */
+  background: linear-gradient(to bottom, transparent, var(--ct-bg-black));
+  pointer-events: none;
+  z-index: 10;
 }
 
 /* Sonner, Privy iframe, analytics — hors budget flex (ne pas voler la hauteur). */
@@ -4608,7 +4649,7 @@ button.ct-choice-card {
 /* Admin + LP doc-flow — single centre plaque (portfolio canon), transparent
    inner shells; black boxes + gray nested insets above this layer. */
 .ct-page-area:has(:is(.admin-doc, .product-doc)) {
-  background: var(--ct-surface-2);
+  background: var(--ct-bg-deep);
   padding-top: var(--ct-space-9);
   padding-inline: var(--ct-space-5);
   padding-bottom: var(--ct-space-8);
@@ -4672,8 +4713,23 @@ main#main-content>.admin-doc.admin-doc-shell {
    the column down; once it overflows, overflow-y:auto (from tokens.css) + the
    auto-scroll-to-bottom effect keep the newest message in view without clipping
    the top. The zero-state placeholder keeps its own margin:auto centering. */
-.ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-2); justify-content: flex-end; }
-.ct-chat-msg                               { display: flex; flex-direction: column; padding: var(--ct-space-2) var(--ct-space-2_5); font-size: clamp(0.8125rem, 0.76rem + 0.26vw, 0.9375rem); /* 13px → 15px */ border-radius: var(--ct-radius-md); }
+.ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-2); justify-content: flex-end; scrollbar-width: thin; scrollbar-color: var(--ct-border-soft) transparent; }
+.ct-chat-list::-webkit-scrollbar           { width: 4px; }
+.ct-chat-list::-webkit-scrollbar-track     { background: transparent; }
+.ct-chat-list::-webkit-scrollbar-thumb     { background: var(--ct-border-soft); border-radius: var(--ct-radius-full); }
+
+@keyframes ct-chat-msg-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ct-chat-msg                               { 
+  display: flex; 
+  flex-direction: column; 
+  padding: var(--ct-space-2) 0; 
+  font-size: clamp(0.8125rem, 0.76rem + 0.26vw, 0.9375rem); /* 13px → 15px */
+  animation: ct-chat-msg-fade-in 0.4s var(--ct-ease) forwards;
+}
 .ct-chat-msg.assistant code                { padding: 1px 4px; font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); }
 
 /* Header title — Title Case (drop the package uppercase), single-line ellipsis on narrow rails.
@@ -4826,9 +4882,19 @@ main#main-content>.admin-doc.admin-doc-shell {
   padding-left: 0;
   padding-right: 0;
 }
-.ct-chat-msg.user,
+.ct-chat-msg.user {
+  align-self: flex-end;
+  text-align: right;
+  max-width: 85%;
+}
 .ct-chat-msg.user .ct-chat-msg-plain {
   color: var(--ct-text-primary);
+  font-style: italic; /* Elegant "personal note" feel */
+  opacity: 0.9;
+}
+.ct-chat-msg.assistant {
+  align-self: flex-start;
+  max-width: 100%;
 }
 
 /* Badge d'expéditeur en tête de bulle — distinction agent/user par le badge +
@@ -5012,54 +5078,71 @@ main#main-content>.admin-doc.admin-doc-shell {
   .ct-chat-ctx-dot--live { animation: none; }
 }
 
-/* Markdown body — tokenised replacement for the former inline px/rgba styles.
-   Compact heading scale tuned for the narrow chat rail: rises from the bubble
-   body base (13→15px) without exploding. Distinct size + weight per level so
-   H1/H2/H3 actually read as a hierarchy. */
+/* Markdown body — Swiss Design refinements.
+   Tight heading scale, generous line-height, and refined code blocks.
+   No halos, no glows — just typography and spacing. */
+.ct-chat-msg-md {
+  line-height: 1.65;
+  color: var(--ct-text-body);
+}
 .ct-chat-msg-md h1,
 .ct-chat-msg-md h2,
 .ct-chat-msg-md h3 {
-  margin-top: var(--ct-space-3);
-  margin-bottom: var(--ct-space-1_5);
-  line-height: var(--ct-leading-snug);
+  margin-top: var(--ct-space-5);
+  margin-bottom: var(--ct-space-2);
+  line-height: var(--ct-leading-tight);
   color: var(--ct-text-strong);
+  letter-spacing: var(--ct-tracking-tight);
 }
-.ct-chat-msg-md h1 { font-size: var(--ct-text-lg); font-weight: var(--ct-font-bold); }
-.ct-chat-msg-md h2 { font-size: var(--ct-text-base); font-weight: var(--ct-font-semibold); }
-.ct-chat-msg-md h3 { font-size: var(--ct-text-sm); font-weight: var(--ct-font-semibold); }
+.ct-chat-msg-md h1 { font-size: var(--ct-text-xl); font-weight: var(--ct-font-bold); }
+.ct-chat-msg-md h2 { font-size: var(--ct-text-lg); font-weight: var(--ct-font-semibold); }
+.ct-chat-msg-md h3 { font-size: var(--ct-text-base); font-weight: var(--ct-font-semibold); }
 .ct-chat-msg-md h1:first-child,
 .ct-chat-msg-md h2:first-child,
 .ct-chat-msg-md h3:first-child { margin-top: 0; }
-.ct-chat-msg-md p { margin: var(--ct-space-1_5) 0; }
+
+.ct-chat-msg-md p { margin: var(--ct-space-2) 0; }
 .ct-chat-msg-md p:first-child { margin-top: 0; }
 .ct-chat-msg-md p:last-child { margin-bottom: 0; }
-.ct-chat-msg-md strong { font-weight: var(--ct-font-semibold); color: var(--ct-text-strong); }
-.ct-chat-msg-md em { font-style: italic; }
-.ct-chat-msg-md a {
-  color: var(--ct-accent);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.ct-chat-msg-md a:hover { text-decoration: none; }
+
+.ct-chat-msg-md strong { font-weight: var(--ct-font-bold); color: var(--ct-text-strong); }
+.ct-chat-msg-md em { font-style: italic; opacity: 0.9; }
+
 .ct-chat-msg-md ul,
-.ct-chat-msg-md ol { margin: var(--ct-space-1) 0; padding-left: var(--ct-space-4); }
-.ct-chat-msg-md li { margin: var(--ct-space-0_5) 0; }
+.ct-chat-msg-md ol { 
+  margin: var(--ct-space-2) 0; 
+  padding-left: var(--ct-space-5); 
+}
+.ct-chat-msg-md li { 
+  margin: var(--ct-space-1) 0; 
+}
+.ct-chat-msg-md li::marker {
+  color: var(--ct-accent);
+}
+
 .ct-chat-msg-md pre {
-  margin: var(--ct-space-1_5) 0;
-  padding: var(--ct-space-2) var(--ct-space-2_5);
-  border-radius: var(--ct-radius-sm);
+  margin: var(--ct-space-3) 0;
+  padding: var(--ct-space-3);
+  border-radius: var(--ct-radius-md);
   overflow-x: auto;
-  font-size: var(--ct-text-sm);
-  background: color-mix(in srgb, var(--ct-bg-deep) 40%, transparent);
+  font-size: var(--ct-text-xs);
+  background: color-mix(in srgb, var(--ct-bg-deep) 60%, transparent);
   border: 1px solid var(--ct-border-soft);
+  font-family: var(--ct-font-mono);
 }
 .ct-chat-msg-md code {
-  padding: 1px var(--ct-space-1);
+  padding: 2px 5px;
   border-radius: var(--ct-radius-xs);
-  font-size: var(--ct-text-sm);
-  background: color-mix(in srgb, var(--ct-bg-deep) 35%, transparent);
+  font-size: 0.9em;
+  background: color-mix(in srgb, var(--ct-bg-deep) 45%, transparent);
+  font-family: var(--ct-font-mono);
+  color: var(--ct-accent);
 }
-.ct-chat-msg-md pre code { padding: 0; background: transparent; }
+.ct-chat-msg-md pre code { 
+  padding: 0; 
+  background: transparent; 
+  color: var(--ct-text-body);
+}
 
 /* Formulaire de chat - on enlève la lourdeur du package */
 .ct-chat-form {
@@ -5082,7 +5165,199 @@ main#main-content>.admin-doc.admin-doc-shell {
   outline: none !important;
 }
 
-.ct-chat-thinking                          { padding-left: var(--ct-space-3_5); }
+@keyframes ct-chat-thinking-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+.ct-chat-thinking {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: var(--ct-space-3) 0;
+  opacity: 0;
+  transition: opacity 0.3s var(--ct-ease);
+}
+.ct-chat-thinking.active {
+  opacity: 1;
+  animation: ct-chat-thinking-pulse 2s var(--ct-ease) infinite;
+}
+
+/* Chat Chart Card — Flat integration.
+   Refined cards that sit comfortably in the bubble-less flow. */
+.ct-chat-chart {
+  background: color-mix(in srgb, var(--ct-surface-1) 30%, transparent);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-md);
+  padding: var(--ct-space-3);
+  margin-top: var(--ct-space-2);
+  transition: border-color 0.2s var(--ct-ease);
+}
+.ct-chat-chart:hover {
+  border-color: var(--ct-border);
+}
+.ct-chat-chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--ct-space-2);
+}
+.ct-chat-chart-title {
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-bold);
+  letter-spacing: var(--ct-tracking-wide);
+  text-transform: uppercase;
+  color: var(--ct-text-muted);
+}
+.ct-chat-chart-metric {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-strong);
+}
+.ct-chat-chart-badge {
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: var(--ct-radius-xs);
+  background: var(--ct-surface-2);
+  color: var(--ct-text-faint);
+  text-transform: uppercase;
+}
+
+/* --- New Chat Panel UI Embellishments --- */
+
+/* Header Status */
+.ct-rail-right-id-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
+.ct-chat-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1);
+  padding: 1px 6px;
+  border-radius: var(--ct-radius-full);
+  background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
+  color: var(--ct-accent);
+  font-size: 10px;
+  font-weight: var(--ct-font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ct-chat-status-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ct-accent);
+}
+
+/* Welcome Message */
+.ct-chat-welcome {
+  text-align: center;
+  padding: var(--ct-space-4) 0;
+}
+
+.ct-chat-welcome-icon {
+  color: var(--ct-accent);
+  margin-bottom: var(--ct-space-3);
+  display: flex;
+  justify-content: center;
+}
+
+.ct-chat-welcome-title {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-strong);
+  margin-bottom: var(--ct-space-1);
+}
+
+.ct-chat-welcome-text {
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-muted);
+  line-height: var(--ct-leading-relaxed);
+  max-width: 240px;
+  margin: 0 auto;
+}
+
+/* Context Card */
+.ct-chat-context-card {
+  width: 100%;
+  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-md);
+  padding: var(--ct-space-3);
+  margin-bottom: var(--ct-space-4);
+}
+
+.ct-chat-context-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide);
+  margin-bottom: var(--ct-space-2);
+}
+
+.ct-chat-context-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1_5);
+}
+
+.ct-chat-context-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-body);
+}
+
+.ct-chat-context-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ct-text-faint);
+}
+
+.ct-chat-suggestions-label {
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-faint);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide);
+  margin-bottom: var(--ct-space-2);
+  align-self: flex-start;
+}
+
+/* Composer Refinements */
+.ct-chat-composer-wrap {
+  margin-top: auto;
+  padding-top: var(--ct-space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.ct-chat-composer-hint {
+  font-size: 10px;
+  color: var(--ct-text-faint);
+  text-align: center;
+  font-style: italic;
+}
+
+.ct-chat-form {
+  border-radius: var(--ct-radius-lg) !important;
+  transition: border-color var(--ct-dur-base), box-shadow var(--ct-dur-base);
+}
+
+.ct-chat-input {
+  min-height: 2.5rem !important; /* Start smaller */
+  font-size: var(--ct-text-sm) !important;
+  line-height: 1.5 !important;
+}
 
 /* Chat settings */
 .ct-chat-settings                          { padding: var(--ct-space-1) var(--ct-space-0_5); }

@@ -257,7 +257,7 @@ code,
 .app-footer {
   --app-footer-h: 3rem;
   flex: 0 0 auto;
-  background-color: var(--ct-surface-1);
+  background-color: var(--ct-bg-black);
   background-image: none;
   border-top: 1px solid var(--ct-border-soft);
 }
