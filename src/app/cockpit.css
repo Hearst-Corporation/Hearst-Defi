@@ -1633,7 +1633,7 @@
 /* Positive-attention highlight (brand green) — e.g. action queue with pending
    items. Distinct from --alert (danger red) so genuine degraded states keep red. */
 .dashboard-kpi-strip__cell--accent {
-  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--ct-accent) 40%, transparent);
+  box-shadow: none;
   background: color-mix(in srgb, var(--ct-accent) 3%, transparent);
 }
 
@@ -3576,7 +3576,7 @@ pre.ct-surface-1.rounded-md {
   background: var(--ct-surface-2);
   border-color: var(--ct-border);
   color: var(--ct-text-strong);
-  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
+  box-shadow: none;
 }
 
 [role="tablist"] .ct-pill.accent[aria-selected="true"],
@@ -3584,7 +3584,7 @@ pre.ct-surface-1.rounded-md {
 [role="tablist"] .ct-pill.accent[aria-current="page"] {
   color: var(--ct-accent);
   border-color: var(--ct-border-accent);
-  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
+  background: var(--ct-surface-1);
 }
 
 /* Focus ring only fires on focusable pills (button/link/tabindex); static badge

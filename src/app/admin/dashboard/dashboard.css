@@ -120,7 +120,7 @@
   transition: background-color var(--ct-dur-fast) var(--ct-ease);
 }
 .cockpit-hover-row:hover {
-  background: color-mix(in srgb, var(--ct-accent) 4%, transparent);
+  background: var(--ct-graphite-nested-bg);
 }
 
 /* Action-queue row + live-metrics row also carry inset rounding + negative
@@ -738,7 +738,7 @@
 }
 
 .dashboard-overview-pane:hover {
-  background: color-mix(in srgb, var(--ct-accent) 2%, var(--ct-graphite-subtle-bg));
+  background: var(--ct-graphite-nested-bg);
   transform: translateY(-1px);
 }
 
@@ -970,7 +970,7 @@
 
 .dashboard-ops-pane:hover,
 .dashboard-lower-pane:hover {
-  background: color-mix(in srgb, var(--ct-accent) 1.5%, var(--ct-graphite-subtle-bg));
+  background: var(--ct-graphite-nested-bg);
 }
 
 .dashboard-ops-pane .dashboard-card-header,

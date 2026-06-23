@@ -1,3 +1,5 @@
+import { resolveAttestationProvenance } from "@/components/proof-center/formatters";
+import type { Provenance } from "@/components/ui/provenance-badge";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { ReactNode } from "react";
 
@@ -42,12 +44,24 @@ export interface ProofCenterHubProps {
 
 function HubPanelHeader({
   title,
+  eyebrow,
+  provenance,
   trailing,
 }: {
   title: string;
+  eyebrow?: string;
+  provenance?: Provenance;
   trailing?: ReactNode;
 }) {
-  return <DashboardPanelHeader title={title} trailing={trailing} tone="primary" />;
+  return (
+    <DashboardPanelHeader
+      title={title}
+      eyebrow={eyebrow}
+      provenance={provenance}
+      trailing={trailing}
+      tone="primary"
+    />
+  );
 }
 
 function HubLeafLink({
@@ -81,6 +95,16 @@ export function ProofCenterHub({
   const fullHref =
     variant === "product" ? "/proof-center/full" : "/admin/proof-center/full";
 
+  const porProvenance = latestAttestation
+    ? resolveAttestationProvenance(
+        latestAttestation.timestamp,
+        attestationVerified,
+        demo,
+      )
+    : "manual";
+
+  const coverageProvenance = coverage?.provenance ?? "manual";
+
   return (
     <div
       className={cn(
@@ -93,17 +117,19 @@ export function ProofCenterHub({
           titleLead="Proof"
           titleAccent="Center"
           contextLabel="Vault Proof System"
+          className="mb-(--ct-space-8)"
         />
       ) : (
         <AdminPageHeader
           titleLead="Proof"
           titleAccent="Operations"
           contextLabel="Operator Proof Hub"
+          className="mb-(--ct-space-8)"
         />
       )}
 
       {coldEmpty ? (
-        <>
+        <div className="product-doc-stack product-doc-stack--roomy">
           <ProofCenterColdShell chainConfigured={chainConfigured} variant={variant} />
           <ProofCenterSection
             id="contracts-heading"
@@ -111,14 +137,16 @@ export function ProofCenterHub({
           >
             <ContractsAuditTrail platformAddresses={platformAddresses} />
           </ProofCenterSection>
-        </>
+        </div>
       ) : (
-        <>
+        <div className="product-doc-stack product-doc-stack--roomy">
           <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-top">
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
                 <HubPanelHeader
+                  eyebrow="On-chain reserves"
                   title="Proof of Reserves"
+                  provenance={porProvenance}
                   trailing={
                     <HubLeafLink variant={variant} href={fullHref} label="View full" />
                   }
@@ -138,7 +166,9 @@ export function ProofCenterHub({
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
                 <HubPanelHeader
-                  title="Mining cash-flow evidence"
+                  eyebrow="Yield source"
+                  title="Mining cash-flow"
+                  provenance={coverageProvenance === "pending" ? "manual" : coverageProvenance === "invalid" ? "stale" : coverageProvenance}
                 />
                 <div className="proof-panel-scroll">
                   <MiningCashFlowEvidence coverage={coverage} sectionLed={false} />
@@ -151,7 +181,9 @@ export function ProofCenterHub({
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
                 <HubPanelHeader
+                  eyebrow="Payout history"
                   title="Latest distributions"
+                  provenance="manual"
                   trailing={
                     <HubLeafLink variant={variant} href={fullHref} label="View full" />
                   }
@@ -175,7 +207,9 @@ export function ProofCenterHub({
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
                 <HubPanelHeader
+                  eyebrow="Vault operations"
                   title="Rebalancing events"
+                  provenance="manual"
                   trailing={
                     <HubLeafLink variant={variant} href={fullHref} label="View full" />
                   }
@@ -196,7 +230,7 @@ export function ProofCenterHub({
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

@@ -70,7 +70,7 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
     : entry.entityId;
 
   return (
-    <tr className="cockpit-hover-row cursor-default group transition-colors hover:bg-ct-accent/5">
+    <tr className="cockpit-hover-row cursor-default group transition-colors">
       <td className="px-2 py-1.5 cockpit-value-xs text-left">
         {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
       </td>

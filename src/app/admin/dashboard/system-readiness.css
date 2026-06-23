@@ -20,7 +20,7 @@
 }
 
 .dashboard-readiness:hover {
-  border-color: color-mix(in srgb, var(--ct-accent) 15%, var(--ct-graphite-border-nested));
+  border-color: var(--ct-border-strong);
 }
 
 /* ── Head: posture + blurb (left), run action (right) ── */
@@ -148,7 +148,7 @@
 }
 
 .dashboard-readiness__stat:hover {
-  border-left-color: color-mix(in srgb, var(--ct-accent) 30%, var(--ct-border-ghost));
+  border-left-color: var(--ct-border-strong);
 }
 
 .dashboard-readiness__stat-top {

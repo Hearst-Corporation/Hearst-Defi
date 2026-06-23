@@ -172,7 +172,7 @@ function AllocationBreakdown({ allocations }: { allocations: MatrixCell["allocat
                 value={alloc.pct * 100}
                 max={100}
                 className="h-1"
-                // @ts-ignore - custom style for progress fill
+                // @ts-expect-error - custom style for progress fill
                 style={{ "--ct-progress-fill": color }}
               />
             </div>
@@ -260,12 +260,11 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
               aria-selected={isSelected}
               aria-label={`APY ${cell.apyLow.toFixed(1)}–${cell.apyHigh.toFixed(1)}%, risk ${cell.riskScore}. Cell ${idx + 1} of ${cells.length}.`}
               whileHover={{
-                scale: 1.02,
                 zIndex: 20,
               }}
               whileTap={{ scale: 0.98 }}
               animate={{
-                scale: isSelected ? 1.05 : 1,
+                scale: isSelected ? 1.02 : 1,
                 zIndex: isSelected ? 10 : 1,
               }}
               transition={{
@@ -276,7 +275,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
               className={cn(
                 "admin-strategy-heatmap-cell border-0 transition-colors duration-300 relative",
                 riskBgClass(cell.riskScore),
-                isSelected ? "opacity-100 shadow-(--ct-shadow-elevated) ring-1 ring-(--ct-border-strong)" : "opacity-70 hover:opacity-100",
+                isSelected ? "opacity-100 ring-1 ring-(--ct-border-strong)" : "opacity-70 hover:opacity-100",
               )}
             >
               <div className="admin-doc-stack admin-doc-stack--micro">
@@ -526,10 +525,11 @@ export function ProjectionStudio() {
                 key={m.id}
                 type="button"
                 onClick={() => setBatchMode(m.id)}
+                aria-pressed={batchMode === m.id}
                 className={cn(
                   "ct-pill body-xs select-none transition-all",
                   batchMode === m.id
-                    ? "bg-[var(--ct-surface-1)] border-[var(--ct-border-accent)] text-[var(--ct-accent)]"
+                    ? "bg-(--ct-surface-1) border-(--ct-border-accent) ct-text-accent"
                     : "ct-text-muted hover:ct-text-body"
                 )}
               >
@@ -614,13 +614,13 @@ export function ProjectionStudio() {
                   <p className="text-[10px] uppercase tracking-wider ct-text-muted mb-(--ct-space-2)">Workflow</p>
                   <div className="flex flex-wrap gap-x-(--ct-space-4) gap-y-(--ct-space-1)">
                     <span className="body-xs ct-text-muted">
-                      <span className="ct-text-accent mono">1.</span> Select preset
-                    </span>
-                    <span className="body-xs ct-text-muted">
-                      <span className="ct-text-accent mono">2.</span> Tune inputs
-                    </span>
-                    <span className="body-xs ct-text-muted">
-                      <span className="ct-text-accent mono">3.</span> Run projection
+                    <span className="ct-text-muted mono">1.</span> Select preset
+                  </span>
+                  <span className="body-xs ct-text-muted">
+                    <span className="ct-text-muted mono">2.</span> Tune inputs
+                  </span>
+                  <span className="body-xs ct-text-muted">
+                    <span className="ct-text-muted mono">3.</span> Run projection
                     </span>
                   </div>
                 </div>
