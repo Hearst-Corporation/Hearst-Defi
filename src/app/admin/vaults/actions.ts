@@ -13,6 +13,10 @@ import {
   containsForbidden,
   FORBIDDEN_WORDS,
 } from "@/lib/agents/forbidden-words";
+import {
+  deploymentToBlueprint,
+  evaluateDeploymentLiveGate,
+} from "@/lib/vaults/blueprint";
 
 /** Admin vault actions rate limit: 30 requests / 60s / admin. */
 const VAULT_RATE_MAX = 30;
@@ -655,6 +659,46 @@ export async function markAsLive(id: string): Promise<void> {
   if (!vault) throw new Error("Not found");
 
   assertTransition(vault.status, "live");
+
+  // Blueprint-readiness backstop: the state machine guarantees ORDER
+  // (deployed → live) but not COMPLETENESS. A vault must never go live from an
+  // incomplete blueprint — terms, a risk disclosure, a balanced allocation, and
+  // a cleared approval quorum are all required. The blueprint is the source of
+  // truth; the projection/contract are outputs, never the gate.
+  const liveApprovals = await prisma.vaultDeploymentApproval.findMany({
+    where: { deploymentId: id, decision: "approve" },
+    select: { signerWallet: true },
+  });
+  const distinctLiveApprovers = new Set(
+    liveApprovals.map((a) => a.signerWallet),
+  ).size;
+  const liveGate = evaluateDeploymentLiveGate(
+    deploymentToBlueprint({
+      id: vault.id,
+      name: vault.name,
+      status: vault.status,
+      strategy: vault.strategy,
+      spvJurisdiction: vault.spvJurisdiction,
+      minTicketUsdc: Number(vault.minTicketUsdc),
+      capacityUsdc: Number(vault.capacityUsdc),
+      softLockupDays: vault.softLockupDays,
+      mgmtFeeBps: vault.mgmtFeeBps,
+      perfFeeBps: vault.perfFeeBps,
+      hurdleBps: vault.hurdleBps,
+      targetApyLowBps: vault.targetApyLowBps,
+      targetApyHighBps: vault.targetApyHighBps,
+      targetMiningBps: vault.targetMiningBps,
+      targetBtcTacticalBps: vault.targetBtcTacticalBps,
+      targetUsdcBaseBps: vault.targetUsdcBaseBps,
+      targetStableReserveBps: vault.targetStableReserveBps,
+      disclaimers: vault.disclaimers,
+      distinctApprovers: distinctLiveApprovers,
+      requiredSigners: vault.requiredSigners,
+    }),
+  );
+  if (!liveGate.canGoLive) {
+    throw new Error(`Vault not ready to go live: ${liveGate.blockers.join(" ")}`);
+  }
 
   try {
     // Set contractAddress so isPlaceholderVault() passes and the vault shows
