@@ -4604,8 +4604,11 @@ main#main-content>.admin-doc.admin-doc-shell {
 .ct-embed-sub code                         { padding: 1px 6px; }
 .ct-embed-btn                              { padding: var(--ct-space-2_5) var(--ct-space-5); } /* 10px≈9px vertical — token-snapped */
 
-/* Rail droit — header & body (density calibration) */
-.ct-rail-right-header                      { padding: var(--ct-space-4) var(--ct-space-4) var(--ct-space-2); }
+/* Rail droit — header & body (density calibration)
+   Top padding lifted to --ct-space-5 (18px) so the two-tier "Hairline Marque"
+   masthead lockup gets generous negative space without moving bottom density.
+   See the CHAT RAIL HEADER block below for the full identity-stack treatment. */
+.ct-rail-right-header                      { padding: var(--ct-space-5) var(--ct-space-4) var(--ct-space-2); }
 .ct-rail-right.collapsed .ct-rail-right-header { padding: var(--ct-space-2) 0; }
 .ct-rail-right-body                        { padding: var(--ct-space-3) var(--ct-space-4) var(--ct-space-4); }
 
@@ -4676,6 +4679,119 @@ main#main-content>.admin-doc.admin-doc-shell {
 @media (max-width: 1279.98px) {
   .ct-chat-ctx-name { display: none; }
 }
+
+/* ============================================================================
+   CHAT RAIL HEADER — "Hairline Marque"  (Institutional minimal — FINAL)
+   A two-tier Swiss masthead: "Assistant" in real weight over a quiet product
+   sub-label. The product dot is the ONLY resting indicator; a hairline accent
+   rule under the identity is INVISIBLE at rest and lights green ONLY while the
+   assistant streams — so brand identity and live cue resolve to ONE green
+   moment, not two competing pieces of furniture. No fills, no glow, no card,
+   no monogram. Confidence by restraint.
+
+   Layer: src/app/cockpit.css (OVERRIDE) over cockpit-shell/tokens.css (BASE).
+   The title type override at cockpit.css:4641 stays as-is for ellipsis safety;
+   this block restructures the IDENTITY STACK that lives inside that flex item.
+
+   Grafted from "Anchor Bar" (#2): fuse the live cue INTO the identity mark so
+   the header carries a single accent moment. Here the fusion is achieved by
+   suppressing the resting hairline (no second resting accent vs. the dot) and
+   letting the rule exist only as the streaming verb.
+   ============================================================================ */
+
+/* The identity is a 2-line stack instead of one inline run. The title element
+   stays the flex:1 / min-width:0 / overflow shrinker (its base override at
+   :4641 supplies that); we only switch its cross-axis to align the dot against
+   the top line of the stack. */
+.ct-rail-right-id {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-2);            /* 8px — dot ↔ text rhythm */
+  position: relative;
+  /* the live hairline rule lives on ::after so it never reflows the row */
+  padding-bottom: var(--ct-space-1); /* 4px — room for the hairline under the stack */
+}
+
+/* Two-tier type column. min-width:0 must propagate so the sub-label ellipsizes
+   instead of forcing the toolbar buttons off the rail. */
+.ct-rail-right-id-stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--ct-space-0_5);          /* 2px — tight masthead lockup */
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* TIER 1 — "Assistant": the real weight/size moment. White, semibold, tight. */
+.ct-rail-right-id-name {
+  font-size: var(--ct-text-sm);      /* 15px — primary */
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-tight);
+  line-height: var(--ct-leading-none);
+  color: var(--ct-text-strong);      /* #fff — earns its hierarchy */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* TIER 2 — quiet product sub-label. The base .ct-chat-ctx-name (tokens.css:389)
+   carries nowrap + ellipsis + min-width:0; we restyle it as an eyebrow caption
+   and drop the "·" prefix (now structural, not a glyph). Colour stays at the
+   muted tier (55%) — recessive under the title but still legible at 11px on
+   dark glass; the timid 40% faint tier was rejected as past the legibility
+   floor. Its display:none below 1280px (cockpit.css:4658) stays intact as the
+   escape valve — on the compressed rail only "Assistant" survives. */
+.ct-rail-right-id .ct-chat-ctx-name {
+  font-size: var(--ct-text-micro);   /* 11px — caption tier */
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-wide);  /* 0.04em — Swiss caption air */
+  line-height: var(--ct-leading-none);
+  color: var(--ct-text-muted);       /* 55% — recedes under the title, stays legible */
+}
+
+/* THE SINGLE ACCENT STROKE — a hairline rule under the identity.
+   INVISIBLE at rest (transparent), so it never competes with the product dot
+   as resting furniture: idle state shows exactly ONE indicator, the dot.
+   STREAMING: the rule becomes the one green stroke + a slow breathe, fusing the
+   live cue into the identity mark. Present only as a verb, never as decoration. */
+.ct-rail-right-id::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  /* span only under the type stack, not the dot gutter — a marked underscore.
+     fully tokenized: dot box (--ct-space-2 = 8px, matches the base 8px dot) +
+     its gap (--ct-space-2). No magic literal. */
+  width: calc(100% - (var(--ct-space-2) + var(--ct-space-2)));
+  height: 1px;
+  background: transparent;            /* idle: no second resting accent */
+  transition: background var(--ct-dur-base) var(--ct-ease);
+}
+.ct-rail-right-id--live::after {
+  background: var(--ct-accent);       /* THE single green, only when live */
+  animation: ct-rail-id-rule 1.4s var(--ct-ease) infinite;
+}
+
+/* Breathe the live rule in lockstep with the existing dot pulse (1.4s/--ct-ease)
+   so the two accent moments read as one heartbeat, not two timers. */
+@keyframes ct-rail-id-rule {
+  0%, 100% { opacity: var(--ct-opacity-55); }
+  50%      { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Hold the lit green rule (still clearly "live") but stop the motion. */
+  .ct-rail-right-id--live::after { animation: none; opacity: 1; }
+}
+
+/* COLLAPSED 48px handle — the {open && …} blocks (incl. this identity stack) are
+   not rendered, so nothing here can leak. Belt-and-braces: hard-suppress the
+   stack + its hairline pseudo if the collapsed class is ever present with it.
+   (The collapsed header's centred handle padding is restored at cockpit.css:4590,
+   so the --ct-space-5 top bump above is never inherited in the collapsed state.) */
+.ct-rail-right.collapsed .ct-rail-right-id { display: none; }
+.ct-rail-right.collapsed .ct-rail-right-id::after { content: none; }
 
 /* Bubbles REMOVED — both speakers render FLAT: no surface fill, no border, no
    inline padding. The rail stops feeling "cage-in-cage". Distinction is carried

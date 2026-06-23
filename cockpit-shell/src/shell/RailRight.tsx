@@ -72,13 +72,15 @@ export function RailRight() {
     <aside className={railClass}>
       <div className="ct-rail-right-header">
         {open && (
-          <span className="ct-rail-right-title">
+          <span className={`ct-rail-right-title ct-rail-right-id${streaming ? " ct-rail-right-id--live" : ""}`}>
             <span
               className={`ct-chat-ctx-dot${streaming ? " ct-chat-ctx-dot--live" : ""}`}
               style={{ background: product.color }}
             />
-            {TITLES[view] ?? "Assistant"}
-            <span className="ct-chat-ctx-name">· {product.name}</span>
+            <span className="ct-rail-right-id-stack">
+              <span className="ct-rail-right-id-name">{TITLES[view] ?? "Assistant"}</span>
+              <span className="ct-chat-ctx-name">{product.name}</span>
+            </span>
           </span>
         )}
         {open && (
