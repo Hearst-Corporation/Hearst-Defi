@@ -262,6 +262,114 @@
   }
 }
 
+/* =============================================================================
+   3b. FLUID LAYOUT (no card-per-widget rule) — edge-to-edge surfaces
+   ============================================================================= */
+
+/* Hero unified: Chart + Status as one seamless surface */
+.pf-hero-unified {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  min-width: 0;
+  min-height: 0;
+  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-border-base);
+  border-radius: var(--ct-radius-xl);
+  overflow: hidden;
+}
+
+.pf-hero__chart,
+.pf-hero__status {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Seamless fusion — no internal border between chart and status */
+.pf-hero__chart {
+  border-bottom: 1px solid var(--ct-border-base);
+}
+
+@container pf (min-width: 52rem) {
+  .pf-hero-unified {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  }
+
+  .pf-hero__chart {
+    border-bottom: none;
+    border-right: 1px solid var(--ct-border-base);
+  }
+}
+
+/* Positions fluid: edge-to-edge table with minimal chrome */
+.pf-positions-fluid {
+  min-width: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+/* Yield fluid: wider, integrated donut + ledger */
+.pf-yield-fluid {
+  min-width: 0;
+  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-border-base);
+  border-radius: var(--ct-radius-xl);
+  padding: var(--ct-space-5);
+}
+
+/* Timeline fluid: Calendar + Activity merged into one flow */
+.pf-timeline-fluid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  min-width: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.pf-timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--ct-space-3);
+  border-bottom: 1px solid var(--ct-border-base);
+}
+
+.pf-timeline-title {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-accent);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
+}
+
+.pf-timeline-link {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-tertiary);
+  text-decoration: none;
+  transition: color var(--ct-dur-fast) var(--ct-ease);
+}
+
+.pf-timeline-link:hover {
+  color: var(--ct-accent);
+}
+
+.pf-timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  min-height: 0;
+}
+
+/* Deck fluid: Yield wider (65%) + Timeline (35%) */
+@container pf (min-width: 58rem) {
+  .pf-cockpit-row--deck-fluid {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+  }
+}
+
 .pf-cockpit-cell {
   min-width: 0;
   min-height: 0;

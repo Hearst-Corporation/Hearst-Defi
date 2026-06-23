@@ -67,11 +67,11 @@ export default async function PortfolioPage() {
 
       <div className="pf-hairline" aria-hidden="true" />
 
-      <div className="pf-cockpit">
-        {/* ROW 1 — HERO: Chart (50%) + Status (50%) — fused visual anchor */}
+      <div className="pf-cockpit pf-cockpit--fluid">
+        {/* ROW 1 — HERO: Chart + Status in one seamless surface */}
         <div className="pf-cockpit-row pf-cockpit-row--hero">
-          <div className="pf-cockpit-cell pf-fused-surface pf-fused-surface--hero">
-            <div className="pf-fused-surface__pane pf-fused-surface__pane--chart" data-section="chart">
+          <div className="pf-hero-unified" data-section="hero">
+            <div className="pf-hero__chart">
               <ValueChart
                 positions={data.positions}
                 totalValueUsdc={data.totalValueUsdc}
@@ -82,7 +82,7 @@ export default async function PortfolioPage() {
                 embedded
               />
             </div>
-            <div className="pf-fused-surface__pane pf-fused-surface__pane--status" data-section="status">
+            <div className="pf-hero__status">
               <PortfolioStatusPanel
                 hasPositions={hasPositions}
                 positionsCount={data.positions.length}
@@ -103,9 +103,9 @@ export default async function PortfolioPage() {
           </div>
         </div>
 
-        {/* ROW 2 — Positions (full-width, primary focus) */}
+        {/* ROW 2 — Positions: edge-to-edge table, minimal chrome */}
         <div className="pf-cockpit-row pf-cockpit-row--positions">
-          <div className="pf-cockpit-cell" data-section="positions">
+          <div className="pf-positions-fluid" data-section="positions">
             <PositionsList
               positions={data.positions}
               source={data.source}
@@ -116,10 +116,10 @@ export default async function PortfolioPage() {
           </div>
         </div>
 
-        {/* ROW 3 — Deck: Yield (60%) | [Calendar + Activity] (40%) */}
-        <div className="pf-cockpit-row pf-cockpit-row--deck">
+        {/* ROW 3 — Deck: Yield (wide) + Timeline (Calendar+Activity merged) */}
+        <div className="pf-cockpit-row pf-cockpit-row--deck pf-cockpit-row--deck-fluid">
           <div
-            className="pf-cockpit-cell pf-cockpit-cell--yield"
+            className="pf-yield-fluid"
             data-section="yield-allocation"
             data-testid="capital-yield-widget"
           >
@@ -131,21 +131,26 @@ export default async function PortfolioPage() {
               embedded
             />
           </div>
-          <div className="pf-cockpit-cell pf-cockpit-cell--auxiliary" data-section="calendar-activity">
-            <DistribCalendar
-              {...distribCalendarProps}
-              leafHref="/portfolio/distributions"
-              secondaryLeafHref="/portfolio/tax"
-              secondaryLeafLabel="Tax preview"
-            />
-            <div className="pf-auxiliary-stack">
+          <div className="pf-timeline-fluid" data-section="timeline">
+            <div className="pf-timeline-header">
+              <span className="pf-timeline-title">Activity & Distributions</span>
+              <a href="/portfolio/activity" className="pf-timeline-link">View all</a>
+            </div>
+            <div className="pf-timeline-content">
+              <DistribCalendar
+                {...distribCalendarProps}
+                leafHref="/portfolio/distributions"
+                secondaryLeafHref="/portfolio/tax"
+                secondaryLeafLabel="Tax preview"
+                embedded
+              />
               <RecentActivity
                 transactions={data.recentTransactions}
                 source={data.source}
                 updatedAt={data.updatedAt}
                 asOf={now}
                 leafHref="/portfolio/activity"
-                embedded={false}
+                embedded
               />
             </div>
           </div>
